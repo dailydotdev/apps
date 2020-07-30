@@ -12,7 +12,7 @@ yarn dev
 
 Open [http://localhost:5002](http://localhost:5002) with your browser to see the result.
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+You can start editing the page by modifying `pages/index.ts`. The page auto-updates as you edit the file.
 
 ## Learn More
 
