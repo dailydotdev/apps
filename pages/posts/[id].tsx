@@ -1,6 +1,9 @@
+import React, { ReactElement } from 'react';
 import Head from 'next/head';
-import {gql, useQuery} from '@apollo/client';
-import {initializeApollo} from '../../lib/apolloClient';
+import { gql, NormalizedCacheObject, useQuery } from '@apollo/client';
+import { initializeApollo } from '../../lib/apolloClient';
+import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
+import { ParsedUrlQuery } from 'querystring';
 
 interface Post {
   id: string;
@@ -24,28 +27,38 @@ export const POST_BY_ID_QUERY = gql`
   }
 `;
 
-export default function Posts({id}) {
-  const {data} = useQuery<PostData>(
-    POST_BY_ID_QUERY,
-    {
-      variables: {id},
-    },
-  );
+interface PostProps {
+  id: string;
+  initialApolloState: NormalizedCacheObject;
+}
+
+export default function Post({ id }: PostProps): ReactElement {
+  const { data } = useQuery<PostData>(POST_BY_ID_QUERY, {
+    variables: { id },
+  });
 
   return (
     <div>
       <Head>
         <title>{data && data.post.title}</title>
-        <link rel="icon" href="/favicon.ico"/>
+        <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <img src={data && data.post.image} alt="Post image"/>
+      <img src={data && data.post.image} alt="Post image" />
     </div>
   );
 }
 
-export async function getServerSideProps({params}) {
-  const {id} = params;
+interface PostParams extends ParsedUrlQuery {
+  id: string;
+}
+
+export async function getServerSideProps({
+  params,
+}: GetServerSidePropsContext<PostParams>): Promise<
+  GetServerSidePropsResult<PostProps>
+> {
+  const { id } = params;
   const apolloClient = initializeApollo();
 
   await apolloClient.query({

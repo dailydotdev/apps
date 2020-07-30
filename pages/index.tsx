@@ -1,6 +1,8 @@
-import {useRouter} from "next/router";
+import { ReactElement } from 'react';
+import { useRouter } from 'next/router';
+import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 
-export default async function Home() {
+export default async function Home(): Promise<ReactElement> {
   const router = useRouter();
   // Make sure we're in the browser
   if (typeof window !== 'undefined') {
@@ -9,10 +11,12 @@ export default async function Home() {
   }
 }
 
-export async function getServerSideProps({res}) {
+export async function getServerSideProps({
+  res,
+}: GetServerSidePropsContext): Promise<GetServerSidePropsResult<null>> {
   if (res) {
     res.writeHead(302, { Location: 'https://daily.dev' });
     res.end();
   }
-  return { props: {} };
+  return { props: null };
 }

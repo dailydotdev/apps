@@ -6,7 +6,7 @@
     "dev": "next dev -p 5002",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint . --ext .js,.ts --max-warnings 0",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0",
     "pretest": "npm run lint"
   },
   "dependencies": {
@@ -24,6 +24,7 @@
     "eslint": "^7.5.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.4",
+    "eslint-plugin-react": "^7.20.5",
     "prettier": "^2.0.5",
     "typescript": "^3.9.7"
   }
