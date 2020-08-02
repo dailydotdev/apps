@@ -1,4 +1,4 @@
-interface SvgrComponent extends React.FC<React.SVGAttributes<SVGElement>> {}
+type SvgrComponent = React.FC<React.SVGAttributes<SVGElement>>;
 
 declare module '*.svg' {
   const value: SvgrComponent;

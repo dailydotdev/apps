@@ -11,4 +11,7 @@ module.exports = {
       tsConfig: 'tsconfig.jest.json',
     },
   },
+  moduleNameMapper: {
+    '\\.svg': '<rootDir>/__mocks__/svgrMock.ts',
+  },
 };
