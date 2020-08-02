@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0",
     "pretest": "npm run lint",
-    "test": "jest"
+    "test": "jest",
+    "deploy": "vercel"
   },
   "dependencies": {
     "@apollo/client": "^3.1.1",
@@ -39,6 +40,7 @@
     "jest-junit": "^11.1.0",
     "prettier": "^2.0.5",
     "ts-jest": "^26.1.4",
-    "typescript": "^3.9.7"
+    "typescript": "^3.9.7",
+    "vercel": "^19.2.0"
   }
 }

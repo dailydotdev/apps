@@ -24,7 +24,25 @@ jobs:
       - run:
           name: Build
           command: npm run build
+  deploy:
+    docker:
+      - image: circleci/node:14.3.0
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package-lock.json" }}
+      - run:
+          name: Deploy
+          command: npm run deploy -- --prod --token $VERCEL_TOKEN
 workflows:
   build:
     jobs:
       - build
+      - deploy_helm:
+          requires:
+            - build
+          context: VERCEL
+          filters:
+            branches:
+              only:
+                - master
