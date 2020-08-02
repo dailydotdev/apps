@@ -55,11 +55,12 @@ interface PostParams extends ParsedUrlQuery {
 
 export async function getServerSideProps({
   params,
+  req,
 }: GetServerSidePropsContext<PostParams>): Promise<
   GetServerSidePropsResult<PostProps>
 > {
   const { id } = params;
-  const apolloClient = initializeApollo();
+  const apolloClient = initializeApollo({ req });
 
   await apolloClient.query({
     query: POST_BY_ID_QUERY,
