@@ -5,15 +5,6 @@ import { act, render, RenderResult, waitFor } from '@testing-library/react';
 
 import Post, { POST_BY_ID_QUERY, Props } from '../pages/posts/[id]';
 
-jest.mock('next/head', () => {
-  return {
-    __esModule: true,
-    default: ({ children }: { children: Array<React.ReactElement> }) => {
-      return <>{children}</>;
-    },
-  };
-});
-
 const mocks: MockedResponse[] = [
   {
     request: {
