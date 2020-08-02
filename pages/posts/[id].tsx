@@ -28,18 +28,14 @@ export const POST_BY_ID_QUERY = gql`
   }
 `;
 
-interface PostProps {
+export interface Props {
   id: string;
   initialApolloState: NormalizedCacheObject;
   user: AnonymousUser | LoggedUser;
   isLoggedIn: boolean;
 }
 
-export default function Post({
-  id,
-  user,
-  isLoggedIn,
-}: PostProps): ReactElement {
+export default function Post({ id, user, isLoggedIn }: Props): ReactElement {
   const { data } = useQuery<PostData>(POST_BY_ID_QUERY, {
     variables: { id },
   });
@@ -67,7 +63,7 @@ export async function getServerSideProps({
   req,
   res,
 }: GetServerSidePropsContext<PostParams>): Promise<
-  GetServerSidePropsResult<PostProps>
+  GetServerSidePropsResult<Props>
 > {
   const { id } = params;
   const apolloClient = initializeApollo({ req });

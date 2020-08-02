@@ -10,7 +10,7 @@ export interface LoggedUser {
   name: string;
   email: string;
   image: string;
-  infoConfirm: boolean;
+  infoConfirmed: boolean;
   premium: boolean;
   providers: string[];
 }
