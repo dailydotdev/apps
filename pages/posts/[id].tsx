@@ -5,6 +5,7 @@ import { initializeApollo } from '../../lib/apolloClient';
 import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 import { AnonymousUser, getUser, LoggedUser } from '../../lib/user';
+import GlobalStyle from '../../components/GlobalStyle';
 
 interface Post {
   id: string;
@@ -44,8 +45,8 @@ export default function Post({ id, user, isLoggedIn }: Props): ReactElement {
     <div>
       <Head>
         <title>{data && data.post.title}</title>
-        <link rel="icon" href="/favicon.ico" />
       </Head>
+      <GlobalStyle />
 
       <img src={data && data.post.image} alt="Post image" />
       <div>{isLoggedIn.toString()}</div>

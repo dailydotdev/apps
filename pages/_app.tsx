@@ -3,8 +3,6 @@ import { AppProps } from 'next/app';
 import { ApolloProvider, NormalizedCacheObject } from '@apollo/client';
 import { useApollo } from '../lib/apolloClient';
 
-import '../styles/globals.css';
-
 interface PageProps {
   initialApolloState: NormalizedCacheObject;
 }
