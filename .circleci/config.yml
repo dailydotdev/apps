@@ -38,7 +38,7 @@ workflows:
   build:
     jobs:
       - build
-      - deploy_helm:
+      - deploy:
           requires:
             - build
           context: VERCEL
