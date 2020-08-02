@@ -22,6 +22,7 @@
     "styled-normalize": "^8.0.7"
   },
   "devDependencies": {
+    "@svgr/webpack": "^5.4.0",
     "@testing-library/jest-dom": "^5.11.2",
     "@testing-library/react": "^10.4.7",
     "@types/jest": "^26.0.8",

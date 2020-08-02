@@ -6,6 +6,7 @@ import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 import { AnonymousUser, getUser, LoggedUser } from '../../lib/user';
 import GlobalStyle from '../../components/GlobalStyle';
+import UpvoteIcon from '../../icons/bookmark.svg';
 
 interface Post {
   id: string;
@@ -51,6 +52,7 @@ export default function Post({ id, user, isLoggedIn }: Props): ReactElement {
       <img src={data && data.post.image} alt="Post image" />
       <div>{isLoggedIn.toString()}</div>
       <div>{user.id}</div>
+      <UpvoteIcon />
     </div>
   );
 }
