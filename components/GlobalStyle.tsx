@@ -133,7 +133,7 @@ export default createGlobalStyle`
     --color-onion-10: #D3C3FF;
   }
 
-  html, html.bright .invert, html .invert .invert {
+  html, html.light .invert, html .invert .invert {
     --theme-background-primary: var(--color-pepper-80);
     --theme-background-highlight: var(--color-pepper-60);
     --theme-background-secondary: var(--color-pepper-70);
@@ -152,7 +152,7 @@ export default createGlobalStyle`
     --theme-avocado: var(--color-avocado-40);
   }
 
-  html.bright, html .invert, html.bright .invert .invert {
+  html.light, html .invert, html.light .invert .invert {
     --theme-background-primary: var(--color-salt-30);
     --theme-background-highlight: var(--color-salt-10);
     --theme-background-secondary: var(--color-salt-20);
