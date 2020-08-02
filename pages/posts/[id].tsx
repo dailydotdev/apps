@@ -4,6 +4,7 @@ import { gql, NormalizedCacheObject, useQuery } from '@apollo/client';
 import { initializeApollo } from '../../lib/apolloClient';
 import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import { ParsedUrlQuery } from 'querystring';
+import { AnonymousUser, getUser, LoggedUser } from '../../lib/user';
 
 interface Post {
   id: string;
@@ -30,9 +31,15 @@ export const POST_BY_ID_QUERY = gql`
 interface PostProps {
   id: string;
   initialApolloState: NormalizedCacheObject;
+  user: AnonymousUser | LoggedUser;
+  isLoggedIn: boolean;
 }
 
-export default function Post({ id }: PostProps): ReactElement {
+export default function Post({
+  id,
+  user,
+  isLoggedIn,
+}: PostProps): ReactElement {
   const { data } = useQuery<PostData>(POST_BY_ID_QUERY, {
     variables: { id },
   });
@@ -45,6 +52,8 @@ export default function Post({ id }: PostProps): ReactElement {
       </Head>
 
       <img src={data && data.post.image} alt="Post image" />
+      <div>{isLoggedIn.toString()}</div>
+      <div>{user.id}</div>
     </div>
   );
 }
@@ -56,23 +65,29 @@ interface PostParams extends ParsedUrlQuery {
 export async function getServerSideProps({
   params,
   req,
+  res,
 }: GetServerSidePropsContext<PostParams>): Promise<
   GetServerSidePropsResult<PostProps>
 > {
   const { id } = params;
   const apolloClient = initializeApollo({ req });
 
-  await apolloClient.query({
-    query: POST_BY_ID_QUERY,
-    variables: {
-      id,
-    },
-  });
+  const [, userRes] = await Promise.all([
+    apolloClient.query({
+      query: POST_BY_ID_QUERY,
+      variables: {
+        id,
+      },
+    }),
+    getUser({ req, res }),
+  ]);
 
   return {
     props: {
       id,
       initialApolloState: apolloClient.cache.extract(),
+      user: userRes.user,
+      isLoggedIn: userRes.isLoggedIn,
     },
   };
 }

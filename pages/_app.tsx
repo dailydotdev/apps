@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import { AppProps } from 'next/app';
 import { ApolloProvider, NormalizedCacheObject } from '@apollo/client';
 import { useApollo } from '../lib/apolloClient';
 
@@ -8,12 +9,10 @@ interface PageProps {
   initialApolloState: NormalizedCacheObject;
 }
 
-interface AppProps {
-  Component: React.FC<PageProps>;
-  pageProps: PageProps;
-}
-
-export default function App({ Component, pageProps }: AppProps): ReactElement {
+export default function App({
+  Component,
+  pageProps,
+}: AppProps<PageProps>): ReactElement {
   const apolloClient = useApollo(pageProps.initialApolloState);
 
   return (
