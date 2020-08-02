@@ -32,8 +32,11 @@ jobs:
       - restore_cache:
           key: dependency-cache-{{ checksum "package-lock.json" }}
       - run:
+          name: Save Config
+          command: mkdir .vercel && echo $VERCEL_CONFIG > .vercel/project.json
+      - run:
           name: Deploy
-          command: npm run deploy -- --prod --token $VERCEL_TOKEN
+          command: npm run deploy -- -c --prod --token $VERCEL_TOKEN
 workflows:
   build:
     jobs:
