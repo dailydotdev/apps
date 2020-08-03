@@ -14,10 +14,12 @@ const createInitialState = (): NormalizedCacheObject => ({
   'Post:0e4005b2d3cf191f8c44c2718a457a1e': {
     id: '0e4005b2d3cf191f8c44c2718a457a1e',
     __typename: 'Post',
-    title: 'Learn SQL & MongoDb Simultaneously — The Easy Way (Part 1)',
+    title: 'Learn SQL',
     permalink: 'http://localhost:4000/r/9CuRpr5NiEY5',
     image:
       'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/22fc3ac5cc3fedf281b6e4b46e8c0ba2',
+    placeholder:
+      'data:image/jpeg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAEAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAUH/8QAHBAAAgICAwAAAAAAAAAAAAAAAQIAAwQhERJx/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/EABURAQEAAAAAAAAAAAAAAAAAAAAB/9oADAMBAAIRAxEAPwDGsKlTiWvywI6nXsn21qbXO9sYiIP/2Q==',
     createdAt: '2020-05-16T15:16:05.000Z',
     readTime: 8,
     tags: ['development', 'data-science', 'sql'],
@@ -105,4 +107,28 @@ it('should set href to the post permalink', async () => {
   const res = renderPost();
   const el = await waitFor(() => res.getByRole('link'));
   expect(el).toHaveAttribute('href', 'http://localhost:4000/r/9CuRpr5NiEY5');
+});
+
+it('should show post title as heading', async () => {
+  const res = renderPost();
+  const el = await waitFor(() => res.getByRole('heading'));
+  expect(el).toHaveTextContent('Learn SQL');
+});
+
+it('should show post tags', async () => {
+  const res = renderPost();
+  await waitFor(() => res.getByText('#development #data-science #sql'));
+});
+
+it('should show post image and set placeholder', async () => {
+  const res = renderPost();
+  const el = await waitFor(() => res.getByAltText('Post cover image'));
+  expect(el).toHaveAttribute(
+    'data-src',
+    'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/22fc3ac5cc3fedf281b6e4b46e8c0ba2',
+  );
+  expect(el).toHaveAttribute(
+    'data-lowsrc',
+    'data:image/jpeg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAEAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAUH/8QAHBAAAgICAwAAAAAAAAAAAAAAAQIAAwQhERJx/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/EABURAQEAAAAAAAAAAAAAAAAAAAAB/9oADAMBAAIRAxEAPwDGsKlTiWvywI6nXsn21qbXO9sYiIP/2Q==',
+  );
 });

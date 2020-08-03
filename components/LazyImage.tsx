@@ -8,12 +8,14 @@ export interface Props {
   alt: string;
   lowsrc?: string;
   background?: string;
+  ratio?: string;
 }
 
 const Container = styled.div<Props>`
   position: relative;
   overflow: hidden;
   ${(props) => props.background && `background: ${props.background};`}
+  ${(props) => props.ratio && `padding-top: ${props.ratio};`}
 
   img {
     position: absolute;

@@ -7,7 +7,7 @@ import { ParsedUrlQuery } from 'querystring';
 import { AnonymousUser, getUser, LoggedUser } from '../../lib/user';
 import styled from 'styled-components';
 import { size05, size1, size10, size2, size4, size6 } from '../../styles/sizes';
-import { typoLil2Base, typoSmall } from '../../styles/typography';
+import { typoLil1, typoLil2Base, typoSmall } from '../../styles/typography';
 import publishDateFormat from '../../lib/publishDateFormat';
 import { IconButton } from '../../components/Buttons';
 import OpenLinkIcon from '../../icons/open_link.svg';
@@ -23,6 +23,7 @@ interface Post {
   title: string;
   permalink: string;
   image: string;
+  placeholder: string;
   createdAt: Date;
   readTime?: number;
   tags?: string[];
@@ -40,6 +41,7 @@ export const POST_BY_ID_QUERY = gql`
       title
       permalink
       image
+      placeholder
       createdAt
       readTime
       tags
@@ -93,12 +95,16 @@ export async function getServerSideProps({
 }
 
 const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
   padding: ${size6} ${size4};
 `;
 
 const Header = styled.header`
   display: flex;
   align-items: center;
+  margin-bottom: ${size2};
 `;
 
 const SourceImage = styled(LazyImage)`
@@ -134,6 +140,23 @@ const MetadataSeparator = styled.div`
 
 const SourceName = styled.div`
   ${typoLil2Base}
+`;
+
+const Title = styled.h1`
+  margin: ${size2} 0;
+  ${typoLil1}
+`;
+
+const Tags = styled.div`
+  margin-bottom: ${size4};
+  color: var(--theme-disabled);
+  text-transform: uppercase;
+  ${typoSmall};
+`;
+
+const PostImage = styled(LazyImage)`
+  margin: ${size2} 0;
+  border-radius: ${size4};
 `;
 
 export default function Post({ id }: Props): ReactElement {
@@ -177,6 +200,14 @@ export default function Post({ id }: Props): ReactElement {
           <OpenLinkIcon />
         </IconButton>
       </Header>
+      <Title>{data?.post.title}</Title>
+      <Tags>{data?.post.tags.map((t) => `#${t}`).join(' ')}</Tags>
+      <PostImage
+        src={data?.post.image}
+        alt="Post cover image"
+        lowsrc={data?.post.placeholder}
+        ratio="49%"
+      />
     </Container>
   );
 }
