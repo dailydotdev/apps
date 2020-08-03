@@ -67,4 +67,9 @@ export default createGlobalStyle`
     --theme-premium: ${colorBacon60};
     --theme-avocado: ${colorAvocado60};
   }
+
+  * {
+    box-sizing: border-box;
+    flex-shrink: 0;
+  }
 `;

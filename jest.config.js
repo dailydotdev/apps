@@ -4,7 +4,12 @@ module.exports = {
     '^.+\\.tsx?$': 'ts-jest',
   },
   testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$',
-  testPathIgnorePatterns: ['./.next/', './node_modules/'],
+  setupFilesAfterEnv: ['./__tests__/setup.ts'],
+  testPathIgnorePatterns: [
+    './.next/',
+    './node_modules/',
+    '<rootDir>/__tests__/setup.ts',
+  ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   globals: {
     'ts-jest': {
