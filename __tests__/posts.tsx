@@ -175,3 +175,20 @@ it('should send cancel upvote mutation and set color on click', async () => {
   el.click();
   await waitFor(() => mutationCalled);
 });
+
+it('should share article when share api is available', async () => {
+  const mock = jest.fn();
+  global.navigator.share = mock;
+  mock.mockResolvedValue(null);
+  const res = renderPost();
+  // Wait for GraphQL to return
+  await waitFor(() => res.getByText('Learn SQL'));
+  const el = await waitFor(() => res.getByText('Share'));
+  el.click();
+  await waitFor(() =>
+    expect(mock).toBeCalledWith({
+      text: 'Learn SQL',
+      url: 'http://localhost:4000/r/9CuRpr5NiEY5',
+    }),
+  );
+});

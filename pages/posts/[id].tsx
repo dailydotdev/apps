@@ -169,6 +169,19 @@ export default function PostPage({ id, isLoggedIn }: Props): ReactElement {
     }
   };
 
+  const sharePost = async () => {
+    if ('share' in navigator) {
+      try {
+        await navigator.share({
+          text: data.post.title,
+          url: data.post.permalink,
+        });
+      } catch (err) {
+        // Do nothing
+      }
+    }
+  };
+
   return (
     <Container>
       {data && (
@@ -222,7 +235,7 @@ export default function PostPage({ id, isLoggedIn }: Props): ReactElement {
           <CommentIcon />
           Comment
         </FloatButton>
-        <FloatButton>
+        <FloatButton onClick={sharePost}>
           <ShareIcon />
           Share
         </FloatButton>
