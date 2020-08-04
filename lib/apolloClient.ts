@@ -16,11 +16,17 @@ function createApolloClient(req?: IncomingMessage): Client {
     ssrMode: typeof window === 'undefined',
     link: new HttpLink({
       uri: `${process.env.NEXT_PUBLIC_API_URL}/graphql`,
-      credentials: 'same-origin',
+      credentials: 'include',
       useGETForQueries: true,
       headers: req ? { cookie: req.headers.cookie } : undefined,
     }),
-    cache: new InMemoryCache(),
+    cache: new InMemoryCache({
+      typePolicies: {
+        EmptyResponse: {
+          keyFields: false,
+        },
+      },
+    }),
   });
 }
 

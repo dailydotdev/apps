@@ -1,19 +1,19 @@
+import { DOMAttributes } from 'react';
 import styled from 'styled-components';
-import { size1, size2, size6 } from '../styles/sizes';
+import { size1, size2, size3, size6 } from '../styles/sizes';
 import { colorWater40 } from '../styles/colors';
+import { typoNuggets } from '../styles/typography';
 
-export const IconButton = styled.button`
+const BaseButton = styled.button`
   display: flex;
-  padding: ${size1};
-  color: var(--theme-secondary);
+  align-items: center;
   background: none;
   border: none;
-  border-radius: ${size2};
   cursor: pointer;
+  ${typoNuggets}
 
   .icon {
-    width: ${size6};
-    height: ${size6};
+    font-size: ${size6};
   }
 
   &:hover {
@@ -37,7 +37,39 @@ export const IconButton = styled.button`
 
   &[disabled] {
     color: var(--theme-disabled);
-    background: none;
     cursor: default;
+  }
+`;
+
+export const IconButton = styled(BaseButton)`
+  padding: ${size1};
+  color: var(--theme-secondary);
+  border-radius: ${size2};
+
+  &[disabled] {
+    background: none;
+  }
+`;
+
+interface FloatButtonProps extends DOMAttributes<HTMLButtonElement> {
+  done?: boolean;
+}
+
+export const FloatButton = styled(BaseButton)<FloatButtonProps>`
+  padding: ${size1} ${size3};
+  color: var(--theme-secondary);
+  border-radius: ${size1};
+
+  .icon {
+    margin-left: -${size1};
+    margin-right: ${size2};
+  }
+
+  &[disabled] {
+    background: var(--theme-background-highlight);
+  }
+
+  && {
+    ${(props) => props.done && 'color: var(--theme-avocado);'}
   }
 `;
