@@ -177,6 +177,7 @@ it('should send cancel upvote mutation and set color on click', async () => {
 });
 
 it('should share article when share api is available', async () => {
+  global.location.href = 'http://localhost/';
   const mock = jest.fn();
   global.navigator.share = mock;
   mock.mockResolvedValue(null);
@@ -188,7 +189,7 @@ it('should share article when share api is available', async () => {
   await waitFor(() =>
     expect(mock).toBeCalledWith({
       text: 'Learn SQL',
-      url: 'http://localhost:4000/r/9CuRpr5NiEY5',
+      url: 'http://localhost/',
     }),
   );
 });

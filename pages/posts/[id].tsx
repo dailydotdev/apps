@@ -174,7 +174,7 @@ export default function PostPage({ id, isLoggedIn }: Props): ReactElement {
       try {
         await navigator.share({
           text: data.post.title,
-          url: data.post.permalink,
+          url: window.location.href,
         });
       } catch (err) {
         // Do nothing
