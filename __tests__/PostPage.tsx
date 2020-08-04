@@ -1,8 +1,8 @@
 import React from 'react';
 import { render, RenderResult, waitFor } from '@testing-library/react';
+import { MockedProvider, MockedResponse } from '@apollo/client/testing';
 
 import PostPage, { Props } from '../pages/posts/[id]';
-import { MockedProvider, MockedResponse } from '@apollo/client/testing';
 import {
   CANCEL_UPVOTE_MUTATION,
   Post,
@@ -107,7 +107,7 @@ it('should hide read time when not available', async () => {
 
 it('should set href to the post permalink', async () => {
   const res = renderPost();
-  const el = await waitFor(() => res.getByRole('link'));
+  const el = await waitFor(() => res.getByTitle('Go to article'));
   expect(el).toHaveAttribute('href', 'http://localhost:4000/r/9CuRpr5NiEY5');
 });
 

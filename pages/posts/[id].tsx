@@ -6,7 +6,7 @@ import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 import { AnonymousUser, getUser, LoggedUser } from '../../lib/user';
 import styled from 'styled-components';
-import { size05, size1, size10, size2, size4, size6 } from '../../styles/sizes';
+import { size05, size1, size2, size4, size6 } from '../../styles/sizes';
 import { typoLil1, typoLil2Base, typoSmall } from '../../styles/typography';
 import publishDateFormat from '../../lib/publishDateFormat';
 import { FloatButton, IconButton } from '../../components/Buttons';
@@ -23,6 +23,8 @@ import {
   UPVOTE_MUTATION,
   UpvoteData,
 } from '../../graphql/posts';
+import { RoundedImage } from '../../components/utilities';
+import MainLayout from '../../components/MainLayout';
 
 export interface Props {
   id: string;
@@ -65,7 +67,7 @@ export async function getServerSideProps({
   };
 }
 
-const Container = styled.div`
+const PostContainer = styled.main`
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -76,12 +78,6 @@ const PostInfo = styled.div`
   display: flex;
   align-items: center;
   margin-bottom: ${size2};
-`;
-
-const SourceImage = styled(LazyImage)`
-  width: ${size10};
-  height: ${size10};
-  border-radius: 100%;
 `;
 
 const PostInfoSubContainer = styled.div`
@@ -135,7 +131,11 @@ const ActionButtons = styled.div`
   justify-content: space-between;
 `;
 
-export default function PostPage({ id, isLoggedIn }: Props): ReactElement {
+export default function PostPage({
+  id,
+  isLoggedIn,
+  user,
+}: Props): ReactElement {
   const { data } = useQuery<PostData>(POST_BY_ID_QUERY, {
     variables: { id },
   });
@@ -183,63 +183,67 @@ export default function PostPage({ id, isLoggedIn }: Props): ReactElement {
   };
 
   return (
-    <Container>
-      {data && (
-        <Head>
-          <title>{data?.post.title}</title>
-        </Head>
-      )}
-      <PostInfo>
-        <SourceImage
-          src={data?.post.source.image}
-          alt={data?.post.source.name}
-          background="var(--theme-background-highlight)"
-        />
-        <PostInfoSubContainer>
-          <SourceName>{data?.post.source.name}</SourceName>
-          <MetadataContainer>
-            <Metadata>
-              {data && publishDateFormat(data.post.createdAt)}
-            </Metadata>
-            {data?.post.readTime && <MetadataSeparator />}
-            {data?.post.readTime && (
-              <Metadata data-testid="readTime">
-                {data?.post.readTime}m read time
+    <MainLayout isLoggedIn={isLoggedIn} user={user}>
+      <PostContainer>
+        {data && (
+          <Head>
+            <title>{data?.post.title}</title>
+          </Head>
+        )}
+        <PostInfo>
+          <RoundedImage
+            src={data?.post.source.image}
+            alt={data?.post.source.name}
+            background="var(--theme-background-highlight)"
+            ratio="100%"
+          />
+          <PostInfoSubContainer>
+            <SourceName>{data?.post.source.name}</SourceName>
+            <MetadataContainer>
+              <Metadata>
+                {data && publishDateFormat(data.post.createdAt)}
               </Metadata>
-            )}
-          </MetadataContainer>
-        </PostInfoSubContainer>
-        <IconButton
-          as="a"
-          href={data && data.post.permalink}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <OpenLinkIcon />
-        </IconButton>
-      </PostInfo>
-      <Title>{data?.post.title}</Title>
-      <Tags>{data?.post.tags.map((t) => `#${t}`).join(' ')}</Tags>
-      <PostImage
-        src={data?.post.image}
-        alt="Post cover image"
-        lowsrc={data?.post.placeholder}
-        ratio="49%"
-      />
-      <ActionButtons>
-        <FloatButton done={data?.post.upvoted} onClick={toggleUpvote}>
-          <UpvoteIcon />
-          Upvote
-        </FloatButton>
-        <FloatButton done={data?.post.commented}>
-          <CommentIcon />
-          Comment
-        </FloatButton>
-        <FloatButton onClick={sharePost}>
-          <ShareIcon />
-          Share
-        </FloatButton>
-      </ActionButtons>
-    </Container>
+              {data?.post.readTime && <MetadataSeparator />}
+              {data?.post.readTime && (
+                <Metadata data-testid="readTime">
+                  {data?.post.readTime}m read time
+                </Metadata>
+              )}
+            </MetadataContainer>
+          </PostInfoSubContainer>
+          <IconButton
+            as="a"
+            href={data && data.post.permalink}
+            title="Go to article"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <OpenLinkIcon />
+          </IconButton>
+        </PostInfo>
+        <Title>{data?.post.title}</Title>
+        <Tags>{data?.post.tags.map((t) => `#${t}`).join(' ')}</Tags>
+        <PostImage
+          src={data?.post.image}
+          alt="Post cover image"
+          lowsrc={data?.post.placeholder}
+          ratio="49%"
+        />
+        <ActionButtons>
+          <FloatButton done={data?.post.upvoted} onClick={toggleUpvote}>
+            <UpvoteIcon />
+            Upvote
+          </FloatButton>
+          <FloatButton done={data?.post.commented}>
+            <CommentIcon />
+            Comment
+          </FloatButton>
+          <FloatButton onClick={sharePost}>
+            <ShareIcon />
+            Share
+          </FloatButton>
+        </ActionButtons>
+      </PostContainer>
+    </MainLayout>
   );
 }
