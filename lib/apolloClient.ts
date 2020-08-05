@@ -6,6 +6,7 @@ import {
   NormalizedCacheObject,
 } from '@apollo/client';
 import { IncomingMessage } from 'http';
+import { apiUrl } from './config';
 
 type Client = ApolloClient<NormalizedCacheObject>;
 
@@ -15,7 +16,7 @@ function createApolloClient(req?: IncomingMessage): Client {
   return new ApolloClient({
     ssrMode: typeof window === 'undefined',
     link: new HttpLink({
-      uri: `${process.env.NEXT_PUBLIC_API_URL}/graphql`,
+      uri: `${apiUrl}/graphql`,
       credentials: 'include',
       useGETForQueries: true,
       headers: req ? { cookie: req.headers.cookie } : undefined,

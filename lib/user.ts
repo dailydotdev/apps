@@ -1,5 +1,6 @@
 import fetch from 'node-fetch';
 import { IncomingMessage, ServerResponse } from 'http';
+import { apiUrl } from './config';
 
 export interface AnonymousUser {
   id: string;
@@ -29,12 +30,9 @@ export async function getUser({
   req,
   res,
 }: GetUserParams): Promise<UserResponse> {
-  const userRes = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/v1/users/me`,
-    {
-      headers: req ? { cookie: req.headers.cookie } : undefined,
-    },
-  );
+  const userRes = await fetch(`${apiUrl}/v1/users/me`, {
+    headers: req ? { cookie: req.headers.cookie } : undefined,
+  });
   const body = await userRes.json();
 
   if (userRes.headers.get('set-cookie')) {
