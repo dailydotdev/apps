@@ -19,6 +19,7 @@ export interface Post {
   source: Source;
   upvoted?: boolean;
   commented?: boolean;
+  commentsPermalink: string;
 }
 
 export interface PostData {
@@ -38,6 +39,7 @@ export const POST_BY_ID_QUERY = gql`
       tags
       upvoted
       commented
+      commentsPermalink
       source {
         name
         image

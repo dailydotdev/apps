@@ -4,11 +4,11 @@ import React, { ReactElement } from 'react';
 import styled from 'styled-components';
 
 export interface Props {
-  src: string;
-  alt: string;
+  imgSrc: string;
+  imgAlt: string;
   lowsrc?: string;
   background?: string;
-  ratio: string;
+  ratio?: string;
 }
 
 const Container = styled.div<Props>`
@@ -16,11 +16,13 @@ const Container = styled.div<Props>`
   overflow: hidden;
   ${(props) => props.background && `background: ${props.background};`}
 
-  &:before {
+  ${(props) =>
+    props.ratio &&
+    `&:before {
     content: '';
     display: block;
-    ${(props) => `padding-top: ${props.ratio};`}
-  }
+    padding-top: ${props.ratio};
+  }`}
 
   img {
     position: absolute;
@@ -53,15 +55,15 @@ const Container = styled.div<Props>`
 `;
 
 export default function LazyImage(props: Props): ReactElement {
-  const { src, alt, lowsrc } = props;
+  const { imgSrc, imgAlt, lowsrc } = props;
   return (
     <Container {...props}>
       <img
         className="lazyload"
-        data-src={src}
-        alt={alt}
+        data-src={imgSrc}
+        alt={imgAlt}
         data-lowsrc={lowsrc}
-        key={src}
+        key={imgSrc}
       />
     </Container>
   );

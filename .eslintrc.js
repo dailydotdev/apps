@@ -1,6 +1,8 @@
 module.exports = {
   parser: '@typescript-eslint/parser',
   extends: [
+    'plugin:testing-library/react',
+    'plugin:jest-dom/recommended',
     'plugin:react/recommended',
     'plugin:@typescript-eslint/recommended',
     'prettier/@typescript-eslint',

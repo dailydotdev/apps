@@ -1,16 +1,14 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement, ReactNode, useContext } from 'react';
 import styled from 'styled-components';
 import { size05, size10, size4, size7 } from '../styles/sizes';
 import { FloatButton } from './Buttons';
 import DailyDevLogo from './DailyDevLogo';
-import { AnonymousUser, LoggedUser } from '../lib/user';
 import LazyImage from './LazyImage';
 import { colorWater40 } from '../styles/colors';
+import UserContext from './UserContext';
 
 export interface Props {
   children?: ReactNode;
-  isLoggedIn: boolean;
-  user: AnonymousUser | LoggedUser;
 }
 
 const Container = styled.div`
@@ -42,22 +40,20 @@ const ProfileImage = styled.button`
   }
 `;
 
-export default function MainLayout({
-  children,
-  isLoggedIn,
-  user,
-}: Props): ReactElement {
+export default function MainLayout({ children }: Props): ReactElement {
+  const user = useContext(UserContext);
+
   return (
     <Container>
       <Header>
         <a href="https://daily.dev">
           <DailyDevLogo />
         </a>
-        {isLoggedIn ? (
+        {user ? (
           <ProfileImage>
             <LazyImage
-              src={(user as LoggedUser).image}
-              alt="Your profile image"
+              imgSrc={user.image}
+              imgAlt="Your profile image"
               ratio="100%"
             />
           </ProfileImage>

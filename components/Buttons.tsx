@@ -1,10 +1,22 @@
 import { DOMAttributes } from 'react';
 import styled from 'styled-components';
-import { size1, size2, size3, size6 } from '../styles/sizes';
+import { size1, size2, size3, size5, size6 } from '../styles/sizes';
 import { colorWater40 } from '../styles/colors';
 import { typoNuggets } from '../styles/typography';
 
-const BaseButton = styled.button`
+interface BaseButtonProps extends DOMAttributes<HTMLButtonElement> {
+  done?: boolean;
+  size?: 'small';
+}
+
+const getIconSize = (size?: string) => {
+  if (size === 'small') {
+    return size5;
+  }
+  return size6;
+};
+
+const BaseButton = styled.button<BaseButtonProps>`
   display: flex;
   align-items: center;
   background: none;
@@ -13,7 +25,7 @@ const BaseButton = styled.button`
   ${typoNuggets}
 
   .icon {
-    font-size: ${size6};
+    ${(props) => `font-size: ${getIconSize(props.size)};`}
   }
 
   &:hover {
@@ -39,6 +51,10 @@ const BaseButton = styled.button`
     color: var(--theme-disabled);
     cursor: default;
   }
+
+  && {
+    ${(props) => props.done && 'color: var(--theme-avocado);'}
+  }
 `;
 
 export const IconButton = styled(BaseButton)`
@@ -51,11 +67,7 @@ export const IconButton = styled(BaseButton)`
   }
 `;
 
-interface FloatButtonProps extends DOMAttributes<HTMLButtonElement> {
-  done?: boolean;
-}
-
-export const FloatButton = styled(BaseButton)<FloatButtonProps>`
+export const FloatButton = styled(BaseButton)`
   padding: ${size1} ${size3};
   color: var(--theme-secondary);
   border-radius: ${size1};
@@ -67,9 +79,5 @@ export const FloatButton = styled(BaseButton)<FloatButtonProps>`
 
   &[disabled] {
     background: var(--theme-background-highlight);
-  }
-
-  && {
-    ${(props) => props.done && 'color: var(--theme-avocado);'}
   }
 `;

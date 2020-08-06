@@ -10,6 +10,8 @@ import {
   PostData,
   UPVOTE_MUTATION,
 } from '../graphql/posts';
+import UserContext from '../components/UserContext';
+import { POST_COMMENTS_QUERY, PostCommentsData } from '../graphql/comments';
 
 const createPostMock = (
   data: Partial<Post> = {},
@@ -42,7 +44,26 @@ const createPostMock = (
         },
         upvoted: false,
         commented: false,
+        commentsPermalink: 'https://localhost:5002/posts/9CuRpr5NiEY5',
         ...data,
+      },
+    },
+  },
+});
+
+const createCommentsMock = (): MockedResponse<PostCommentsData> => ({
+  request: {
+    query: POST_COMMENTS_QUERY,
+    variables: {
+      postId: '0e4005b2d3cf191f8c44c2718a457a1e',
+    },
+  },
+  result: {
+    data: {
+      // TODO: something with MockProvider is wrong and it returns empty nodes even when mock is set
+      postComments: {
+        pageInfo: {},
+        edges: [],
       },
     },
   },
@@ -50,12 +71,11 @@ const createPostMock = (
 
 const renderPost = (
   props: Partial<Props> = {},
-  mocks: MockedResponse[] = [createPostMock()],
+  mocks: MockedResponse[] = [createPostMock(), createCommentsMock()],
 ): RenderResult => {
   const defaultProps: Props = {
     id: '0e4005b2d3cf191f8c44c2718a457a1e',
     initialApolloState: null,
-    isLoggedIn: true,
     user: {
       id: 'u1',
       name: 'Ido Shamun',
@@ -67,16 +87,20 @@ const renderPost = (
     },
   };
 
+  const user = props.user || defaultProps.user;
+
   return render(
     <MockedProvider addTypename={false} mocks={mocks}>
-      <PostPage {...defaultProps} {...props} />
+      <UserContext.Provider value={user}>
+        <PostPage {...defaultProps} {...props} />
+      </UserContext.Provider>
     </MockedProvider>,
   );
 };
 
 it('should show source image', async () => {
   const res = renderPost();
-  const el = await waitFor(() => res.getByAltText('Towards Data Science'));
+  const el = await res.findByAltText('Towards Data Science');
   expect(el).toHaveAttribute(
     'data-src',
     'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos/tds',
@@ -85,47 +109,52 @@ it('should show source image', async () => {
 
 it('should show source name', async () => {
   const res = renderPost();
-  await waitFor(() => res.getByText('Towards Data Science'));
+  await res.findByText('Towards Data Science');
 });
 
 it('should format publication date', async () => {
   const res = renderPost();
-  await waitFor(() => res.getByText('May 16, 2020'));
+  await res.findByText('May 16, 2020');
 });
 
 it('should format read time when available', async () => {
   const res = renderPost();
-  const el = await waitFor(() => res.getByTestId('readTime'));
+  const el = await res.findByTestId('readTime');
   expect(el).toHaveTextContent('8m read time');
 });
 
 it('should hide read time when not available', async () => {
-  const res = renderPost({}, [createPostMock({ readTime: null })]);
-  await waitFor(() => res.getByText('May 16, 2020'));
+  const res = renderPost({}, [
+    createPostMock({ readTime: null }),
+    createCommentsMock(),
+  ]);
+  await res.findByText('May 16, 2020');
   expect(res.queryByTestId('readTime')).toBeNull();
 });
 
 it('should set href to the post permalink', async () => {
   const res = renderPost();
-  const el = await waitFor(() => res.getByTitle('Go to article'));
+  // Wait for GraphQL to return
+  await res.findByText('Learn SQL');
+  const el = res.getByTitle('Go to article');
   expect(el).toHaveAttribute('href', 'http://localhost:4000/r/9CuRpr5NiEY5');
 });
 
 it('should show post title as heading', async () => {
   const res = renderPost();
-  await waitFor(() => res.getByText('Learn SQL'));
+  await res.findByText('Learn SQL');
 });
 
 it('should show post tags', async () => {
   const res = renderPost();
-  await waitFor(() => res.getByText('#development #data-science #sql'));
+  await res.findByText('#development #data-science #sql');
 });
 
 it('should show post image and set placeholder', async () => {
   const res = renderPost();
   // Wait for GraphQL to return
-  await waitFor(() => res.getByText('Learn SQL'));
-  const el = await waitFor(() => res.getByAltText('Post cover image'));
+  await res.findByText('Learn SQL');
+  const el = await res.findByAltText('Post cover image');
   expect(el).toHaveAttribute(
     'data-src',
     'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/22fc3ac5cc3fedf281b6e4b46e8c0ba2',
@@ -140,6 +169,7 @@ it('should send upvote mutation and set button color on click', async () => {
   let mutationCalled = false;
   const res = renderPost({}, [
     createPostMock(),
+    createCommentsMock(),
     {
       request: {
         query: UPVOTE_MUTATION,
@@ -151,7 +181,7 @@ it('should send upvote mutation and set button color on click', async () => {
       },
     },
   ]);
-  const el = await waitFor(() => res.getByText('Upvote'));
+  const el = await res.findByText('Upvote');
   el.click();
   await waitFor(() => mutationCalled);
 });
@@ -160,6 +190,7 @@ it('should send cancel upvote mutation and set color on click', async () => {
   let mutationCalled = false;
   const res = renderPost({}, [
     createPostMock({ upvoted: true }),
+    createCommentsMock(),
     {
       request: {
         query: CANCEL_UPVOTE_MUTATION,
@@ -171,25 +202,24 @@ it('should send cancel upvote mutation and set color on click', async () => {
       },
     },
   ]);
-  const el = await waitFor(() => res.getByText('Upvote'));
+  const el = await res.findByText('Upvote');
   el.click();
   await waitFor(() => mutationCalled);
 });
 
 it('should share article when share api is available', async () => {
-  global.location.href = 'http://localhost/';
   const mock = jest.fn();
   global.navigator.share = mock;
   mock.mockResolvedValue(null);
   const res = renderPost();
   // Wait for GraphQL to return
-  await waitFor(() => res.getByText('Learn SQL'));
-  const el = await waitFor(() => res.getByText('Share'));
+  await res.findByText('Learn SQL');
+  const el = await res.findByText('Share');
   el.click();
   await waitFor(() =>
     expect(mock).toBeCalledWith({
       text: 'Learn SQL',
-      url: 'http://localhost/',
+      url: 'https://localhost:5002/posts/9CuRpr5NiEY5',
     }),
   );
 });

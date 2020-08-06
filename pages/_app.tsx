@@ -5,8 +5,11 @@ import { ApolloProvider, NormalizedCacheObject } from '@apollo/client';
 import 'focus-visible';
 import { useApollo } from '../lib/apolloClient';
 import GlobalStyle from '../components/GlobalStyle';
+import UserContext from '../components/UserContext';
+import { LoggedUser } from '../lib/user';
 
 interface PageProps {
+  user?: LoggedUser;
   initialApolloState: NormalizedCacheObject;
 }
 
@@ -18,11 +21,15 @@ export default function App({
 
   return (
     <ApolloProvider client={apolloClient}>
-      <Head>
-        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
+      <UserContext.Provider value={pageProps.user}>
+        <Head>
+          <meta
+            name="viewport"
+            content="initial-scale=1.0, width=device-width"
+          />
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
         WebFontConfig = {
           custom: {
           families: ['DejaVuSansMono'],
@@ -37,11 +44,12 @@ export default function App({
           s.parentNode.insertBefore(wf, s);
         })(document);
         `,
-          }}
-        />
-      </Head>
-      <GlobalStyle />
-      <Component {...pageProps} />
+            }}
+          />
+        </Head>
+        <GlobalStyle />
+        <Component {...pageProps} />
+      </UserContext.Provider>
     </ApolloProvider>
   );
 }

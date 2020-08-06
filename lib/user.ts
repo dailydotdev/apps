@@ -8,11 +8,11 @@ export interface AnonymousUser {
 
 export interface LoggedUser {
   id: string;
-  name: string;
-  email: string;
+  name?: string;
+  email?: string;
   image: string;
-  infoConfirmed: boolean;
-  premium: boolean;
+  infoConfirmed?: boolean;
+  premium?: boolean;
   providers: string[];
 }
 

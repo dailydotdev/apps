@@ -1,14 +1,14 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import Head from 'next/head';
 import { NormalizedCacheObject, useMutation, useQuery } from '@apollo/client';
 import { initializeApollo } from '../../lib/apolloClient';
 import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import { ParsedUrlQuery } from 'querystring';
-import { AnonymousUser, getUser, LoggedUser } from '../../lib/user';
+import { getUser, LoggedUser } from '../../lib/user';
 import styled from 'styled-components';
 import { size05, size1, size2, size4, size6 } from '../../styles/sizes';
 import { typoLil1, typoLil2Base, typoSmall } from '../../styles/typography';
-import publishDateFormat from '../../lib/publishDateFormat';
+import { postDateFormat } from '../../lib/dateFormat';
 import { FloatButton, IconButton } from '../../components/Buttons';
 import OpenLinkIcon from '../../icons/open_link.svg';
 import UpvoteIcon from '../../icons/upvote.svg';
@@ -25,12 +25,14 @@ import {
 } from '../../graphql/posts';
 import { RoundedImage } from '../../components/utilities';
 import MainLayout from '../../components/MainLayout';
+import UserContext from '../../components/UserContext';
+import MainComment from '../../components/MainComment';
+import { POST_COMMENTS_QUERY, PostCommentsData } from '../../graphql/comments';
 
 export interface Props {
   id: string;
   initialApolloState: NormalizedCacheObject;
-  user: AnonymousUser | LoggedUser;
-  isLoggedIn: boolean;
+  user: LoggedUser;
 }
 
 interface PostParams extends ParsedUrlQuery {
@@ -47,11 +49,17 @@ export async function getServerSideProps({
   const { id } = params;
   const apolloClient = initializeApollo({ req });
 
-  const [, userRes] = await Promise.all([
+  const [, , userRes] = await Promise.all([
     apolloClient.query({
       query: POST_BY_ID_QUERY,
       variables: {
         id,
+      },
+    }),
+    apolloClient.query({
+      query: POST_COMMENTS_QUERY,
+      variables: {
+        postId: id,
       },
     }),
     getUser({ req, res }),
@@ -61,8 +69,7 @@ export async function getServerSideProps({
     props: {
       id,
       initialApolloState: apolloClient.cache.extract(),
-      user: userRes.user,
-      isLoggedIn: userRes.isLoggedIn,
+      user: userRes.isLoggedIn ? (userRes.user as LoggedUser) : null,
     },
   };
 }
@@ -129,15 +136,19 @@ const PostImage = styled(LazyImage)`
 const ActionButtons = styled.div`
   display: flex;
   justify-content: space-between;
+  padding-bottom: ${size4};
+  border-bottom: 0.063rem solid var(--theme-separator);
 `;
 
-export default function PostPage({
-  id,
-  isLoggedIn,
-  user,
-}: Props): ReactElement {
-  const { data } = useQuery<PostData>(POST_BY_ID_QUERY, {
+export default function PostPage({ id }: Props): ReactElement {
+  const user = useContext(UserContext);
+
+  const { data: postById } = useQuery<PostData>(POST_BY_ID_QUERY, {
     variables: { id },
+  });
+
+  const { data: comments } = useQuery<PostCommentsData>(POST_COMMENTS_QUERY, {
+    variables: { postId: id },
   });
 
   const [upvotePost] = useMutation<UpvoteData>(UPVOTE_MUTATION, {
@@ -157,11 +168,11 @@ export default function PostPage({
   });
 
   const toggleUpvote = () => {
-    if (isLoggedIn) {
+    if (user) {
       // TODO: add GA tracking
-      if (data?.post.upvoted) {
+      if (postById?.post.upvoted) {
         return cancelPostUpvote();
-      } else if (data) {
+      } else if (postById) {
         return upvotePost();
       }
     } else {
@@ -172,9 +183,10 @@ export default function PostPage({
   const sharePost = async () => {
     if ('share' in navigator) {
       try {
+        // TODO: add GA tracking
         await navigator.share({
-          text: data.post.title,
-          url: window.location.href,
+          text: postById.post.title,
+          url: postById.post.commentsPermalink,
         });
       } catch (err) {
         // Do nothing
@@ -183,37 +195,37 @@ export default function PostPage({
   };
 
   return (
-    <MainLayout isLoggedIn={isLoggedIn} user={user}>
+    <MainLayout>
       <PostContainer>
-        {data && (
+        {postById && (
           <Head>
-            <title>{data?.post.title}</title>
+            <title>{postById?.post.title}</title>
           </Head>
         )}
         <PostInfo>
           <RoundedImage
-            src={data?.post.source.image}
-            alt={data?.post.source.name}
+            imgSrc={postById?.post.source.image}
+            imgAlt={postById?.post.source.name}
             background="var(--theme-background-highlight)"
             ratio="100%"
           />
           <PostInfoSubContainer>
-            <SourceName>{data?.post.source.name}</SourceName>
+            <SourceName>{postById?.post.source.name}</SourceName>
             <MetadataContainer>
               <Metadata>
-                {data && publishDateFormat(data.post.createdAt)}
+                {postById && postDateFormat(postById.post.createdAt)}
               </Metadata>
-              {data?.post.readTime && <MetadataSeparator />}
-              {data?.post.readTime && (
+              {postById?.post.readTime && <MetadataSeparator />}
+              {postById?.post.readTime && (
                 <Metadata data-testid="readTime">
-                  {data?.post.readTime}m read time
+                  {postById?.post.readTime}m read time
                 </Metadata>
               )}
             </MetadataContainer>
           </PostInfoSubContainer>
           <IconButton
             as="a"
-            href={data && data.post.permalink}
+            href={postById?.post.permalink}
             title="Go to article"
             target="_blank"
             rel="noopener noreferrer"
@@ -221,20 +233,20 @@ export default function PostPage({
             <OpenLinkIcon />
           </IconButton>
         </PostInfo>
-        <Title>{data?.post.title}</Title>
-        <Tags>{data?.post.tags.map((t) => `#${t}`).join(' ')}</Tags>
+        <Title>{postById?.post.title}</Title>
+        <Tags>{postById?.post.tags.map((t) => `#${t}`).join(' ')}</Tags>
         <PostImage
-          src={data?.post.image}
-          alt="Post cover image"
-          lowsrc={data?.post.placeholder}
+          imgSrc={postById?.post.image}
+          imgAlt="Post cover image"
+          lowsrc={postById?.post.placeholder}
           ratio="49%"
         />
         <ActionButtons>
-          <FloatButton done={data?.post.upvoted} onClick={toggleUpvote}>
+          <FloatButton done={postById?.post.upvoted} onClick={toggleUpvote}>
             <UpvoteIcon />
             Upvote
           </FloatButton>
-          <FloatButton done={data?.post.commented}>
+          <FloatButton done={postById?.post.commented}>
             <CommentIcon />
             Comment
           </FloatButton>
@@ -243,6 +255,9 @@ export default function PostPage({
             Share
           </FloatButton>
         </ActionButtons>
+        {comments?.postComments.edges.map((e) => (
+          <MainComment comment={e.node} key={e.node.id} />
+        ))}
       </PostContainer>
     </MainLayout>
   );

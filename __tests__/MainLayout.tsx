@@ -1,29 +1,28 @@
 import React from 'react';
-import { render, RenderResult, waitFor } from '@testing-library/react';
-import MainLayout, { Props } from '../components/MainLayout';
+import { render, RenderResult } from '@testing-library/react';
+import MainLayout from '../components/MainLayout';
+import UserContext from '../components/UserContext';
+import { LoggedUser } from '../lib/user';
 
-const renderLayout = (props: Partial<Props> = {}): RenderResult => {
-  const defaultProps: Props = {
-    isLoggedIn: false,
-    user: { id: 'u1' },
-  };
-
-  return render(<MainLayout {...defaultProps} {...props} />);
+const renderLayout = (user: LoggedUser = null): RenderResult => {
+  return render(
+    <UserContext.Provider value={user}>
+      <MainLayout />
+    </UserContext.Provider>,
+  );
 };
 
 it('should show login button when not logged-in', async () => {
   const res = renderLayout();
-  await waitFor(() => res.getByText('Login'));
+  await res.findByText('Login');
 });
 
 it('should show profile image when logged-in', async () => {
   const res = renderLayout({
-    isLoggedIn: true,
-    user: {
-      id: 'u1',
-      image: 'https://daily.dev/ido.png',
-    },
+    id: 'u1',
+    image: 'https://daily.dev/ido.png',
+    providers: ['github'],
   });
-  const el = await waitFor(() => res.getByAltText('Your profile image'));
+  const el = await res.findByAltText('Your profile image');
   expect(el).toHaveAttribute('data-src', 'https://daily.dev/ido.png');
 });
