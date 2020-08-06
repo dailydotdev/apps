@@ -3,6 +3,7 @@ import { render, RenderResult, screen } from '@testing-library/react';
 import UserContext from '../components/UserContext';
 import { LoggedUser } from '../lib/user';
 import MainComment, { Props } from '../components/MainComment';
+import { MockedProvider } from '@apollo/client/testing';
 
 const author = {
   image: 'https://daily.dev/ido.png',
@@ -28,9 +29,11 @@ const renderLayout = (
   };
 
   return render(
-    <UserContext.Provider value={user}>
-      <MainComment {...defaultProps} {...props} />
-    </UserContext.Provider>,
+    <MockedProvider addTypename={false} mocks={[]}>
+      <UserContext.Provider value={user}>
+        <MainComment {...defaultProps} {...props} />
+      </UserContext.Provider>
+    </MockedProvider>,
   );
 };
 

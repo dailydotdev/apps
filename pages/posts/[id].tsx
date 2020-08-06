@@ -17,9 +17,10 @@ import ShareIcon from '../../icons/share.svg';
 import LazyImage from '../../components/LazyImage';
 import {
   CANCEL_UPVOTE_MUTATION,
+  CancelUpvoteData,
   POST_BY_ID_QUERY,
   PostData,
-  updatePostCache,
+  updatePostUpvoteCache,
   UPVOTE_MUTATION,
   UpvoteData,
 } from '../../graphql/posts';
@@ -155,17 +156,20 @@ export default function PostPage({ id }: Props): ReactElement {
     variables: { id },
     optimisticResponse: { upvote: { _: true } },
     update(cache) {
-      return updatePostCache(cache, id, { upvoted: true });
+      return updatePostUpvoteCache(cache, id, true);
     },
   });
 
-  const [cancelPostUpvote] = useMutation<UpvoteData>(CANCEL_UPVOTE_MUTATION, {
-    variables: { id },
-    optimisticResponse: { upvote: { _: true } },
-    update(cache) {
-      return updatePostCache(cache, id, { upvoted: false });
+  const [cancelPostUpvote] = useMutation<CancelUpvoteData>(
+    CANCEL_UPVOTE_MUTATION,
+    {
+      variables: { id },
+      optimisticResponse: { cancelUpvote: { _: true } },
+      update(cache) {
+        return updatePostUpvoteCache(cache, id, false);
+      },
     },
-  });
+  );
 
   const toggleUpvote = () => {
     if (user) {

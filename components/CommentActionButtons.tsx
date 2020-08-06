@@ -6,7 +6,15 @@ import CommentIcon from '../icons/comment.svg';
 import MenuIcon from '../icons/menu.svg';
 import styled from 'styled-components';
 import { size10 } from '../styles/sizes';
-import { Comment } from '../graphql/comments';
+import {
+  CANCEL_COMMENT_UPVOTE_MUTATION,
+  CancelCommentUpvoteData,
+  Comment,
+  updateCommentUpvoteCache,
+  UPVOTE_COMMENT_MUTATION,
+  UpvoteCommentData,
+} from '../graphql/comments';
+import { useMutation } from '@apollo/client';
 
 export interface Props {
   comment: Comment;
@@ -32,9 +40,49 @@ const MenuButton = styled(IconButton)`
 export default function CommentActionButtons({ comment }: Props): ReactElement {
   const user = useContext(UserContext);
 
+  const [upvoteComment] = useMutation<UpvoteCommentData>(
+    UPVOTE_COMMENT_MUTATION,
+    {
+      variables: { id: comment.id },
+      optimisticResponse: { upvoteComment: { _: true } },
+      update(cache) {
+        return updateCommentUpvoteCache(cache, comment.id, true);
+      },
+    },
+  );
+
+  const [cancelCommentUpvote] = useMutation<CancelCommentUpvoteData>(
+    CANCEL_COMMENT_UPVOTE_MUTATION,
+    {
+      variables: { id: comment.id },
+      optimisticResponse: { cancelCommentUpvote: { _: true } },
+      update(cache) {
+        return updateCommentUpvoteCache(cache, comment.id, false);
+      },
+    },
+  );
+
+  const toggleUpvote = () => {
+    if (user) {
+      // TODO: add GA tracking
+      if (comment.upvoted) {
+        return cancelCommentUpvote();
+      } else {
+        return upvoteComment();
+      }
+    } else {
+      // TODO: open login
+    }
+  };
+
   return (
     <Container>
-      <IconButton size="small" done={comment.upvoted} title="Upvote">
+      <IconButton
+        size="small"
+        done={comment.upvoted}
+        title="Upvote"
+        onClick={toggleUpvote}
+      >
         <UpvoteIcon />
       </IconButton>
       <CommentButton size="small" title="Comment">

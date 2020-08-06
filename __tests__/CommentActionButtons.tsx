@@ -1,14 +1,31 @@
 import React from 'react';
-import { render, RenderResult } from '@testing-library/react';
+import { render, RenderResult, waitFor } from '@testing-library/react';
 import UserContext from '../components/UserContext';
 import { LoggedUser } from '../lib/user';
 import CommentActionButtons, {
   Props,
 } from '../components/CommentActionButtons';
+import { MockedProvider, MockedResponse } from '@apollo/client/testing';
+import {
+  Comment,
+  CANCEL_COMMENT_UPVOTE_MUTATION,
+  UPVOTE_COMMENT_MUTATION,
+} from '../graphql/comments';
 
-const renderLayout = (
+const loggedUser = {
+  id: 'u1',
+  name: 'Ido Shamun',
+  providers: ['github'],
+  email: 'ido@acme.com',
+  image: 'https://daily.dev/ido.png',
+  infoConfirmed: true,
+  premium: false,
+};
+
+const renderComponent = (
   comment: Partial<Comment> = {},
   user: LoggedUser = null,
+  mocks: MockedResponse[] = [],
 ): RenderResult => {
   const props: Props = {
     comment: {
@@ -27,19 +44,21 @@ const renderLayout = (
   };
 
   return render(
-    <UserContext.Provider value={user}>
-      <CommentActionButtons {...props} />
-    </UserContext.Provider>,
+    <MockedProvider addTypename={false} mocks={mocks}>
+      <UserContext.Provider value={user}>
+        <CommentActionButtons {...props} />
+      </UserContext.Provider>
+    </MockedProvider>,
   );
 };
 
 it('should not show menu when user is not the author', async () => {
-  const res = renderLayout();
+  const res = renderComponent();
   expect(res.queryByTitle('Open menu')).toBeNull();
 });
 
 it('should show menu when user is not the author', async () => {
-  const res = renderLayout(
+  const res = renderComponent(
     {},
     {
       id: 'u1',
@@ -48,4 +67,42 @@ it('should show menu when user is not the author', async () => {
     },
   );
   expect(res.getByTitle('Open menu')).toBeDefined();
+});
+
+it('should send upvote mutation', async () => {
+  let mutationCalled = false;
+  const res = renderComponent({}, loggedUser, [
+    {
+      request: {
+        query: UPVOTE_COMMENT_MUTATION,
+        variables: { id: 'c1' },
+      },
+      result: () => {
+        mutationCalled = true;
+        return { data: { _: true } };
+      },
+    },
+  ]);
+  const el = await res.findByTitle('Upvote');
+  el.click();
+  await waitFor(() => mutationCalled);
+});
+
+it('should send cancel upvote mutation', async () => {
+  let mutationCalled = false;
+  const res = renderComponent({ upvoted: true }, loggedUser, [
+    {
+      request: {
+        query: CANCEL_COMMENT_UPVOTE_MUTATION,
+        variables: { id: 'c1' },
+      },
+      result: () => {
+        mutationCalled = true;
+        return { data: { _: true } };
+      },
+    },
+  ]);
+  const el = await res.findByTitle('Upvote');
+  el.click();
+  await waitFor(() => mutationCalled);
 });

@@ -56,6 +56,10 @@ export interface UpvoteData {
   upvote: EmptyResponse;
 }
 
+export interface CancelUpvoteData {
+  cancelUpvote: EmptyResponse;
+}
+
 export const UPVOTE_MUTATION = gql`
   mutation Upvote($id: ID!) {
     upvote(id: $id) {
@@ -72,20 +76,21 @@ export const CANCEL_UPVOTE_MUTATION = gql`
   }
 `;
 
-export const updatePostCache = <T>(
+export const updatePostUpvoteCache = <T>(
   cache: ApolloCache<T>,
   id: string,
-  newData: Partial<Post>,
+  upvoted: boolean,
 ): void => {
-  const data = cache.readQuery<PostData>({
-    query: POST_BY_ID_QUERY,
-    variables: { id },
-  });
-  cache.writeQuery<PostData>({
-    query: POST_BY_ID_QUERY,
-    variables: { id },
-    data: {
-      post: { ...data.post, ...newData },
+  cache.modify({
+    id: cache.identify({
+      __typename: 'Post',
+      id,
+    }),
+    broadcast: true,
+    fields: {
+      upvoted() {
+        return upvoted;
+      },
     },
   });
 };

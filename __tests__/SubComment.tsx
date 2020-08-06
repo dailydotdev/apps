@@ -3,6 +3,7 @@ import { render, RenderResult } from '@testing-library/react';
 import UserContext from '../components/UserContext';
 import { LoggedUser } from '../lib/user';
 import SubComment, { Props } from '../components/SubComment';
+import { MockedProvider } from '@apollo/client/testing';
 
 const baseComment = {
   id: 'c1',
@@ -27,9 +28,11 @@ const renderLayout = (
   };
 
   return render(
-    <UserContext.Provider value={user}>
-      <SubComment {...defaultProps} {...props} />
-    </UserContext.Provider>,
+    <MockedProvider addTypename={false} mocks={[]}>
+      <UserContext.Provider value={user}>
+        <SubComment {...defaultProps} {...props} />
+      </UserContext.Provider>
+    </MockedProvider>,
   );
 };
 

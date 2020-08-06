@@ -165,7 +165,7 @@ it('should show post image and set placeholder', async () => {
   );
 });
 
-it('should send upvote mutation and set button color on click', async () => {
+it('should send upvote mutation', async () => {
   let mutationCalled = false;
   const res = renderPost({}, [
     createPostMock(),
@@ -186,7 +186,7 @@ it('should send upvote mutation and set button color on click', async () => {
   await waitFor(() => mutationCalled);
 });
 
-it('should send cancel upvote mutation and set color on click', async () => {
+it('should send cancel upvote mutation', async () => {
   let mutationCalled = false;
   const res = renderPost({}, [
     createPostMock({ upvoted: true }),
