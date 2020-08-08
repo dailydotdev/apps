@@ -29,6 +29,7 @@ import MainLayout from '../../components/MainLayout';
 import UserContext from '../../components/UserContext';
 import MainComment from '../../components/MainComment';
 import { POST_COMMENTS_QUERY, PostCommentsData } from '../../graphql/comments';
+import { mobileM } from '../../styles/media';
 
 export interface Props {
   id: string;
@@ -98,6 +99,7 @@ const PostInfoSubContainer = styled.div`
 const MetadataContainer = styled.div`
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
 `;
 
 const Metadata = styled.span`
@@ -139,6 +141,24 @@ const ActionButtons = styled.div`
   justify-content: space-between;
   padding-bottom: ${size4};
   border-bottom: 0.063rem solid var(--theme-separator);
+
+  ${FloatButton} {
+    .icon {
+      margin-right: -${size1};
+
+      ${mobileM} {
+        margin-right: ${size2};
+      }
+    }
+
+    span {
+      display: none;
+
+      ${mobileM} {
+        display: inline-block;
+      }
+    }
+  }
 `;
 
 export default function PostPage({ id }: Props): ReactElement {
@@ -246,17 +266,21 @@ export default function PostPage({ id }: Props): ReactElement {
           ratio="49%"
         />
         <ActionButtons>
-          <FloatButton done={postById?.post.upvoted} onClick={toggleUpvote}>
+          <FloatButton
+            done={postById?.post.upvoted}
+            onClick={toggleUpvote}
+            title="Upvote"
+          >
             <UpvoteIcon />
-            Upvote
+            <span>Upvote</span>
           </FloatButton>
-          <FloatButton done={postById?.post.commented}>
+          <FloatButton done={postById?.post.commented} title="Comment">
             <CommentIcon />
-            Comment
+            <span>Comment</span>
           </FloatButton>
-          <FloatButton onClick={sharePost}>
+          <FloatButton onClick={sharePost} title="Share">
             <ShareIcon />
-            Share
+            <span>Share</span>
           </FloatButton>
         </ActionButtons>
         {comments?.postComments.edges.map((e) => (
