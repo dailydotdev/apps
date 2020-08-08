@@ -40,13 +40,11 @@ const Container = styled.div<Props>`
   }
 
   .ls-blur-up-img {
-    font-family: 'blur-up: auto', 'object-fit: cover';
-  }
-
-  .ls-blur-up-img {
     opacity: 1;
     transition: opacity 150ms;
     will-change: opacity;
+    /* stylelint-disable-next-line font-family-no-missing-generic-family-keyword */
+    font-family: 'blur-up: auto', 'object-fit: cover';
   }
 
   .ls-blur-up-img.ls-inview.ls-original-loaded {

@@ -30,6 +30,7 @@ export default createGlobalStyle`
     color: var(--theme-primary);
   }
 
+  /* stylelint-disable-next-line no-descending-specificity */
   html, html.light .invert, html .invert .invert {
     --theme-background-primary: ${colorPepper80};
     --theme-background-highlight: ${colorPepper60};
@@ -49,6 +50,7 @@ export default createGlobalStyle`
     --theme-avocado: ${colorAvocado40};
   }
 
+  /* stylelint-disable-next-line no-descending-specificity */
   html.light, html .invert, html.light .invert .invert {
     --theme-background-primary: ${colorSalt30};
     --theme-background-highlight: ${colorSalt10};

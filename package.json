@@ -6,8 +6,9 @@
     "dev": "next dev -p 5002",
     "build": "next build",
     "start": "next start",
+    "lint:css":"stylelint '**/*.{ts,tsx}'",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0",
-    "pretest": "npm run lint",
+    "pretest": "npm run lint && npm run lint:css",
     "test": "jest",
     "deploy": "vercel"
   },
@@ -46,6 +47,10 @@
     "jest-junit": "^11.1.0",
     "jest-styled-components": "^7.0.2",
     "prettier": "^2.0.5",
+    "stylelint": "^13.6.1",
+    "stylelint-config-recommended": "^3.0.0",
+    "stylelint-config-styled-components": "^0.1.1",
+    "stylelint-processor-styled-components": "^1.10.0",
     "ts-jest": "^26.1.4",
     "typescript": "^3.9.7",
     "vercel": "^19.2.0"

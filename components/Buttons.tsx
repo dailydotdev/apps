@@ -33,6 +33,11 @@ const BaseButton = styled.button<BaseButtonProps>`
     background: var(--theme-hover);
   }
 
+  &:active {
+    color: var(--theme-primary);
+    background: var(--theme-focus);
+  }
+
   &:focus {
     outline: 0;
     border: solid 0.125rem ${colorWater40};
@@ -40,11 +45,6 @@ const BaseButton = styled.button<BaseButtonProps>`
     &:not(.focus-visible) {
       border: none;
     }
-  }
-
-  &:active {
-    color: var(--theme-primary);
-    background: var(--theme-focus);
   }
 
   &[disabled] {
