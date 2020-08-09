@@ -119,7 +119,8 @@ export default function LoginModal(props: Props): ReactElement {
       </CloseButton>
       <DailyDevLogo />
       <Content>
-        {`Our developer's community care about the content, log in to show yourself.`}
+        Our developer&apos;s community care about the content, log in to show
+        yourself.
       </Content>
       <Buttons>
         <InvertButton onClick={() => login('github')}>
