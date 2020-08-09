@@ -1,6 +1,6 @@
 import React from 'react';
-import { render, RenderResult, waitFor } from '@testing-library/react';
-import UserContext from '../components/UserContext';
+import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import AuthContext from '../components/AuthContext';
 import { LoggedUser } from '../lib/user';
 import CommentActionButtons, {
   Props,
@@ -11,6 +11,12 @@ import {
   CANCEL_COMMENT_UPVOTE_MUTATION,
   UPVOTE_COMMENT_MUTATION,
 } from '../graphql/comments';
+
+const showLogin = jest.fn();
+
+beforeEach(() => {
+  showLogin.mockReset();
+});
 
 const loggedUser = {
   id: 'u1',
@@ -45,9 +51,9 @@ const renderComponent = (
 
   return render(
     <MockedProvider addTypename={false} mocks={mocks}>
-      <UserContext.Provider value={user}>
+      <AuthContext.Provider value={{ user, shouldShowLogin: false, showLogin }}>
         <CommentActionButtons {...props} />
-      </UserContext.Provider>
+      </AuthContext.Provider>
     </MockedProvider>,
   );
 };
@@ -67,6 +73,13 @@ it('should show menu when user is not the author', async () => {
     },
   );
   expect(res.getByTitle('Open menu')).toBeDefined();
+});
+
+it('should show login on upvote click', async () => {
+  renderComponent();
+  const el = await screen.findByTitle('Upvote');
+  el.click();
+  expect(showLogin).toBeCalledTimes(1);
 });
 
 it('should send upvote mutation', async () => {

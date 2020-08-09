@@ -26,7 +26,7 @@ import {
 } from '../../graphql/posts';
 import { RoundedImage } from '../../components/utilities';
 import MainLayout from '../../components/MainLayout';
-import UserContext from '../../components/UserContext';
+import AuthContext from '../../components/AuthContext';
 import MainComment from '../../components/MainComment';
 import { POST_COMMENTS_QUERY, PostCommentsData } from '../../graphql/comments';
 import { mobileM } from '../../styles/media';
@@ -162,7 +162,7 @@ const ActionButtons = styled.div`
 `;
 
 export default function PostPage({ id }: Props): ReactElement {
-  const user = useContext(UserContext);
+  const { user, showLogin } = useContext(AuthContext);
 
   const { data: postById } = useQuery<PostData>(POST_BY_ID_QUERY, {
     variables: { id },
@@ -200,7 +200,7 @@ export default function PostPage({ id }: Props): ReactElement {
         return upvotePost();
       }
     } else {
-      // TODO: open login
+      showLogin();
     }
   };
 

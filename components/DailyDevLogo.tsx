@@ -5,7 +5,7 @@ export default function DailyDevLogo(): ReactElement {
     <svg
       viewBox="0 0 69 12"
       xmlns="http://www.w3.org/2000/svg"
-      style={{ width: '4.313rem' }}
+      className="logo"
     >
       <g fill="#FFF" fillRule="evenodd">
         <g fillRule="nonzero">

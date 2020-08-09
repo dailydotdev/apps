@@ -10,8 +10,14 @@ import {
   PostData,
   UPVOTE_MUTATION,
 } from '../graphql/posts';
-import UserContext from '../components/UserContext';
+import AuthContext from '../components/AuthContext';
 import { POST_COMMENTS_QUERY, PostCommentsData } from '../graphql/comments';
+
+const showLogin = jest.fn();
+
+beforeEach(() => {
+  showLogin.mockReset();
+});
 
 const createPostMock = (
   data: Partial<Post> = {},
@@ -87,13 +93,13 @@ const renderPost = (
     },
   };
 
-  const user = props.user || defaultProps.user;
+  const user = props.user === undefined ? defaultProps.user : props.user;
 
   return render(
     <MockedProvider addTypename={false} mocks={mocks}>
-      <UserContext.Provider value={user}>
+      <AuthContext.Provider value={{ user, shouldShowLogin: false, showLogin }}>
         <PostPage {...defaultProps} {...props} />
-      </UserContext.Provider>
+      </AuthContext.Provider>
     </MockedProvider>,
   );
 };
@@ -163,6 +169,13 @@ it('should show post image and set placeholder', async () => {
     'data-lowsrc',
     'data:image/jpeg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAEAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAUH/8QAHBAAAgICAwAAAAAAAAAAAAAAAQIAAwQhERJx/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/EABURAQEAAAAAAAAAAAAAAAAAAAAB/9oADAMBAAIRAxEAPwDGsKlTiWvywI6nXsn21qbXO9sYiIP/2Q==',
   );
+});
+
+it('should show login on upvote click', async () => {
+  const res = renderPost({ user: null });
+  const el = await res.findByText('Upvote');
+  el.click();
+  expect(showLogin).toBeCalledTimes(1);
 });
 
 it('should send upvote mutation', async () => {

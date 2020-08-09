@@ -6,7 +6,7 @@
     "dev": "next dev -p 5002",
     "build": "next build",
     "start": "next start",
-    "lint:css":"stylelint '**/*.{ts,tsx}'",
+    "lint:css": "stylelint '**/*.{ts,tsx}'",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0",
     "pretest": "npm run lint && npm run lint:css",
     "test": "jest",
@@ -21,8 +21,10 @@
     "node-fetch": "^2.6.0",
     "react": "16.13.1",
     "react-dom": "16.13.1",
+    "react-modal": "^3.11.2",
     "styled-components": "^5.1.1",
-    "styled-normalize": "^8.0.7"
+    "styled-normalize": "^8.0.7",
+    "universal-cookie": "^4.0.3"
   },
   "devDependencies": {
     "@svgr/webpack": "^5.4.0",
@@ -32,6 +34,7 @@
     "@types/node": "^14.0.27",
     "@types/node-fetch": "^2.5.7",
     "@types/react": "^16.9.43",
+    "@types/react-modal": "^3.10.6",
     "@types/styled-components": "^5.1.2",
     "@typescript-eslint/eslint-plugin": "^3.7.1",
     "@typescript-eslint/parser": "^3.7.1",

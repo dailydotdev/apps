@@ -11,6 +11,7 @@ import {
   colorPepper60,
   colorPepper70,
   colorPepper80,
+  colorPepper90,
   colorSalt10,
   colorSalt20,
   colorSalt30,
@@ -45,6 +46,7 @@ export default createGlobalStyle`
     --theme-focus: ${colorSalt10}1F;
     --theme-hover: ${colorSalt30}14;
     --theme-separator: ${colorSalt20}1F;
+    --theme-backdrop: ${colorSalt10}3D;
 
     --theme-premium: ${colorBacon40};
     --theme-avocado: ${colorAvocado40};
@@ -65,6 +67,7 @@ export default createGlobalStyle`
     --theme-focus: ${colorPepper80}14;
     --theme-hover: ${colorPepper60}0A;
     --theme-separator: ${colorPepper80}29;
+    --theme-backdrop: ${colorPepper90}3D;
 
     --theme-premium: ${colorBacon60};
     --theme-avocado: ${colorAvocado60};
@@ -73,5 +76,9 @@ export default createGlobalStyle`
   * {
     box-sizing: border-box;
     flex-shrink: 0;
+  }
+
+  .logo {
+    width: 4.313rem;
   }
 `;

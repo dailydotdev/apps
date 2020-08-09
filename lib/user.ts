@@ -1,4 +1,4 @@
-import fetch from 'node-fetch';
+import nodeFetch from 'node-fetch';
 import { IncomingMessage, ServerResponse } from 'http';
 import { apiUrl } from './config';
 
@@ -26,11 +26,30 @@ interface GetUserParams {
   res: ServerResponse;
 }
 
+interface AuthenticateParams {
+  code: string;
+  verifier: string;
+}
+
+export async function authenticate({
+  code,
+  verifier,
+}: AuthenticateParams): Promise<void> {
+  await fetch(`${apiUrl}/v1/auth/authenticate`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({ code, code_verifier: verifier }),
+  });
+}
+
 export async function getUser({
   req,
   res,
 }: GetUserParams): Promise<UserResponse> {
-  const userRes = await fetch(`${apiUrl}/v1/users/me`, {
+  const userRes = await nodeFetch(`${apiUrl}/v1/users/me`, {
     headers: req ? { cookie: req.headers.cookie } : undefined,
   });
   const body = await userRes.json();

@@ -1,27 +1,41 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useState } from 'react';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
 import { ApolloProvider, NormalizedCacheObject } from '@apollo/client';
 import 'focus-visible';
+import Modal from 'react-modal';
 import { useApollo } from '../lib/apolloClient';
 import GlobalStyle from '../components/GlobalStyle';
-import UserContext from '../components/UserContext';
+import AuthContext from '../components/AuthContext';
 import { LoggedUser } from '../lib/user';
+import LoginModal from '../components/LoginModal';
 
 interface PageProps {
   user?: LoggedUser;
   initialApolloState: NormalizedCacheObject;
 }
 
+Modal.setAppElement('#__next');
+Modal.defaultStyles = {};
+
 export default function App({
   Component,
   pageProps,
 }: AppProps<PageProps>): ReactElement {
   const apolloClient = useApollo(pageProps.initialApolloState);
+  const [loginIsOpen, setLoginIsOpen] = useState(false);
+
+  const closeLogin = () => setLoginIsOpen(false);
 
   return (
     <ApolloProvider client={apolloClient}>
-      <UserContext.Provider value={pageProps.user}>
+      <AuthContext.Provider
+        value={{
+          user: pageProps.user,
+          shouldShowLogin: loginIsOpen,
+          showLogin: () => setLoginIsOpen(true),
+        }}
+      >
         <Head>
           <meta
             name="viewport"
@@ -49,7 +63,12 @@ export default function App({
         </Head>
         <GlobalStyle />
         <Component {...pageProps} />
-      </UserContext.Provider>
+        <LoginModal
+          isOpen={loginIsOpen}
+          onRequestClose={closeLogin}
+          contentLabel="Login Modal"
+        />
+      </AuthContext.Provider>
     </ApolloProvider>
   );
 }

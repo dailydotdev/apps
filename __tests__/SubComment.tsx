@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, RenderResult } from '@testing-library/react';
-import UserContext from '../components/UserContext';
+import AuthContext from '../components/AuthContext';
 import { LoggedUser } from '../lib/user';
 import SubComment, { Props } from '../components/SubComment';
 import { MockedProvider } from '@apollo/client/testing';
@@ -29,9 +29,11 @@ const renderLayout = (
 
   return render(
     <MockedProvider addTypename={false} mocks={[]}>
-      <UserContext.Provider value={user}>
+      <AuthContext.Provider
+        value={{ user, shouldShowLogin: false, showLogin: jest.fn() }}
+      >
         <SubComment {...defaultProps} {...props} />
-      </UserContext.Provider>
+      </AuthContext.Provider>
     </MockedProvider>,
   );
 };

@@ -1,5 +1,5 @@
 import React, { ReactElement, useContext } from 'react';
-import UserContext from './UserContext';
+import AuthContext from './AuthContext';
 import { IconButton } from './Buttons';
 import UpvoteIcon from '../icons/upvote.svg';
 import CommentIcon from '../icons/comment.svg';
@@ -38,7 +38,7 @@ const MenuButton = styled(IconButton)`
 `;
 
 export default function CommentActionButtons({ comment }: Props): ReactElement {
-  const user = useContext(UserContext);
+  const { user, showLogin } = useContext(AuthContext);
 
   const [upvoteComment] = useMutation<UpvoteCommentData>(
     UPVOTE_COMMENT_MUTATION,
@@ -71,7 +71,7 @@ export default function CommentActionButtons({ comment }: Props): ReactElement {
         return upvoteComment();
       }
     } else {
-      // TODO: open login
+      showLogin();
     }
   };
 

@@ -1,11 +1,11 @@
 import React, { ReactElement, ReactNode, useContext } from 'react';
 import styled from 'styled-components';
-import { size05, size10, size4, size7 } from '../styles/sizes';
+import { size10, size4, size6 } from '../styles/sizes';
 import { FloatButton } from './Buttons';
 import DailyDevLogo from './DailyDevLogo';
 import LazyImage from './LazyImage';
-import { colorWater40 } from '../styles/colors';
-import UserContext from './UserContext';
+import AuthContext from './AuthContext';
+import { focusOutline } from '../styles/utilities';
 
 export interface Props {
   children?: ReactNode;
@@ -27,21 +27,17 @@ const Header = styled.header`
 `;
 
 const ProfileImage = styled.button`
-  width: ${size7};
+  width: ${size6};
   overflow: hidden;
   padding: 0;
   background: none;
+  border: none;
   border-radius: 100%;
-  border: ${size05} solid transparent;
-
-  &:focus {
-    outline: none;
-    border-color: ${colorWater40};
-  }
+  ${focusOutline}
 `;
 
 export default function MainLayout({ children }: Props): ReactElement {
-  const user = useContext(UserContext);
+  const { user, showLogin } = useContext(AuthContext);
 
   return (
     <Container>
@@ -58,7 +54,7 @@ export default function MainLayout({ children }: Props): ReactElement {
             />
           </ProfileImage>
         ) : (
-          <FloatButton>Login</FloatButton>
+          <FloatButton onClick={showLogin}>Login</FloatButton>
         )}
       </Header>
       {children}
