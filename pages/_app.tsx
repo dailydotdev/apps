@@ -1,5 +1,6 @@
 import React, { ReactElement, useState } from 'react';
 import { AppProps } from 'next/app';
+import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import { ApolloProvider, NormalizedCacheObject } from '@apollo/client';
 import 'focus-visible';
@@ -8,7 +9,8 @@ import { useApollo } from '../lib/apolloClient';
 import GlobalStyle from '../components/GlobalStyle';
 import AuthContext from '../components/AuthContext';
 import { LoggedUser } from '../lib/user';
-import LoginModal from '../components/LoginModal';
+
+const LoginModal = dynamic(import('../components/LoginModal'));
 
 interface PageProps {
   user?: LoggedUser;
