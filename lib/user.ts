@@ -14,6 +14,15 @@ export interface LoggedUser {
   infoConfirmed?: boolean;
   premium?: boolean;
   providers: string[];
+  company?: string;
+  title?: string;
+}
+
+export interface UserProfile {
+  name: string;
+  email: string;
+  company?: string;
+  title?: string;
 }
 
 interface UserResponse {
@@ -31,6 +40,12 @@ interface AuthenticateParams {
   verifier: string;
 }
 
+interface APIError {
+  error: true;
+  code: number;
+  message: string;
+}
+
 export async function authenticate({
   code,
   verifier,
@@ -43,6 +58,30 @@ export async function authenticate({
     },
     body: JSON.stringify({ code, code_verifier: verifier }),
   });
+}
+
+export async function updateProfile(
+  profile: UserProfile,
+): Promise<LoggedUser | APIError> {
+  const res = await fetch(`${apiUrl}/v1/users/me`, {
+    method: 'PUT',
+    credentials: 'include',
+    headers: {
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify(profile),
+  });
+  const data = await res.json();
+  if (res.status === 200) {
+    return data;
+  }
+  if (res.status === 400) {
+    return {
+      error: true,
+      ...data,
+    };
+  }
+  throw new Error('Unexpected response');
 }
 
 export async function getUser({

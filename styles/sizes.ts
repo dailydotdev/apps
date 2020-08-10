@@ -23,3 +23,5 @@ export const size8 = `${baseSize * 8}${units}`;
 export const size9 = `${baseSize * 9}${units}`;
 // 40px
 export const size10 = `${baseSize * 10}${units}`;
+
+export const sizeN = (n: number): string => `${baseSize * n}${units}`;

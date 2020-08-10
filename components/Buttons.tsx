@@ -1,6 +1,6 @@
 import { DOMAttributes } from 'react';
 import styled from 'styled-components';
-import { size1, size2, size3, size5, size6 } from '../styles/sizes';
+import { size1, size10, size2, size3, size5, size6 } from '../styles/sizes';
 import { typoLil2, typoNuggets } from '../styles/typography';
 import { focusOutline } from '../styles/utilities';
 
@@ -19,6 +19,7 @@ const getIconSize = (size?: string) => {
 export const BaseButton = styled.button<BaseButtonProps>`
   display: flex;
   align-items: center;
+  justify-content: center;
   background: none;
   border: none;
   overflow: hidden;
@@ -76,8 +77,9 @@ export const TextButton = styled(BaseButton)`
 
 export const InvertButton = styled(TextButton).attrs({ size: 'small' })`
   position: relative;
-  padding-top: ${size2};
-  padding-bottom: ${size2};
+  height: ${size10};
+  padding-top: 0;
+  padding-bottom: 0;
   border-radius: ${size2};
   color: var(--theme-primary-invert);
   z-index: 1;
@@ -104,7 +106,10 @@ export const InvertButton = styled(TextButton).attrs({ size: 'small' })`
 
   &[disabled] {
     color: var(--theme-disabled);
-    background: var(--theme-background-highlight);
+
+    &:before {
+      background: var(--theme-background-highlight);
+    }
   }
 `;
 

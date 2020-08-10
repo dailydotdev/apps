@@ -11,6 +11,9 @@ import AuthContext from '../components/AuthContext';
 import { LoggedUser } from '../lib/user';
 
 const LoginModal = dynamic(import('../components/LoginModal'));
+const ConfirmAccountModal = dynamic(
+  import('../components/ConfirmAccountModal'),
+);
 
 interface PageProps {
   user?: LoggedUser;
@@ -25,15 +28,24 @@ export default function App({
   pageProps,
 }: AppProps<PageProps>): ReactElement {
   const apolloClient = useApollo(pageProps.initialApolloState);
+  const [user, setUser] = useState<LoggedUser>(pageProps.user);
   const [loginIsOpen, setLoginIsOpen] = useState(false);
+  const [confirmAccountIsOpen, setConfirmAccountIsOpen] = useState(
+    pageProps.user?.providers && !pageProps.user.infoConfirmed,
+  );
 
   const closeLogin = () => setLoginIsOpen(false);
+  const closeConfirmAccount = () => setConfirmAccountIsOpen(false);
+  const profileUpdated = (newProfile: LoggedUser) => {
+    setUser({ ...user, ...newProfile });
+    setConfirmAccountIsOpen(false);
+  };
 
   return (
     <ApolloProvider client={apolloClient}>
       <AuthContext.Provider
         value={{
-          user: pageProps.user,
+          user,
           shouldShowLogin: loginIsOpen,
           showLogin: () => setLoginIsOpen(true),
         }}
@@ -70,6 +82,15 @@ export default function App({
           onRequestClose={closeLogin}
           contentLabel="Login Modal"
         />
+        {user && (
+          <ConfirmAccountModal
+            isOpen={confirmAccountIsOpen}
+            onRequestClose={closeConfirmAccount}
+            contentLabel="Confirm Your Account Details"
+            shouldCloseOnOverlayClick={false}
+            profiledUpdated={profileUpdated}
+          />
+        )}
       </AuthContext.Provider>
     </ApolloProvider>
   );
