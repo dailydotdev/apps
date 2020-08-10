@@ -14,7 +14,7 @@ const MyModal = styled(StyledModal)`
     padding: ${size8};
 
     .logo {
-      width: 9.25em;
+      width: 9.25rem;
     }
   }
 `;

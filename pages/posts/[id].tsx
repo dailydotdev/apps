@@ -6,8 +6,13 @@ import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 import { getUser, LoggedUser } from '../../lib/user';
 import styled from 'styled-components';
-import { size05, size1, size2, size4, size6 } from '../../styles/sizes';
-import { typoLil1, typoLil2Base, typoSmall } from '../../styles/typography';
+import { size05, size1, size2, size4, size6, size8 } from '../../styles/sizes';
+import {
+  typoLil1,
+  typoLil2Base,
+  typoSmall,
+  typoTriple,
+} from '../../styles/typography';
 import { postDateFormat } from '../../lib/dateFormat';
 import { FloatButton, IconButton } from '../../components/Buttons';
 import OpenLinkIcon from '../../icons/open_link.svg';
@@ -29,7 +34,7 @@ import MainLayout from '../../components/MainLayout';
 import AuthContext from '../../components/AuthContext';
 import MainComment from '../../components/MainComment';
 import { POST_COMMENTS_QUERY, PostCommentsData } from '../../graphql/comments';
-import { mobileM } from '../../styles/media';
+import { laptop, mobileL, mobileM, tablet } from '../../styles/media';
 
 export interface Props {
   id: string;
@@ -78,9 +83,22 @@ export async function getServerSideProps({
 
 const PostContainer = styled.main`
   display: flex;
+  width: 100%;
+  max-width: 40rem;
   flex-direction: column;
   align-items: stretch;
   padding: ${size6} ${size4};
+
+  ${tablet} {
+    padding-left: ${size8};
+    padding-right: ${size8};
+    align-self: center;
+  }
+
+  ${laptop} {
+    border-left: 0.063rem solid var(--theme-separator);
+    border-right: 0.063rem solid var(--theme-separator);
+  }
 `;
 
 const PostInfo = styled.div`
@@ -122,6 +140,10 @@ const SourceName = styled.div`
 const Title = styled.h1`
   margin: ${size2} 0;
   ${typoLil1}
+
+  ${mobileL} {
+    ${typoTriple}
+  }
 `;
 
 const Tags = styled.div`

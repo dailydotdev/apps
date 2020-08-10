@@ -1,11 +1,12 @@
 import React, { ReactElement, ReactNode, useContext } from 'react';
 import styled from 'styled-components';
-import { size10, size4, size6 } from '../styles/sizes';
+import { size10, size4, size6, size8, sizeN } from '../styles/sizes';
 import { FloatButton } from './Buttons';
 import DailyDevLogo from './DailyDevLogo';
 import LazyImage from './LazyImage';
 import AuthContext from './AuthContext';
 import { focusOutline } from '../styles/utilities';
+import { laptop, tablet } from '../styles/media';
 
 export interface Props {
   children?: ReactNode;
@@ -13,8 +14,13 @@ export interface Props {
 
 const Container = styled.div`
   display: flex;
+  position: relative;
   flex-direction: column;
   align-items: stretch;
+
+  .logo {
+    width: 5.75rem;
+  }
 `;
 
 const Header = styled.header`
@@ -24,6 +30,22 @@ const Header = styled.header`
   justify-content: space-between;
   padding: 0 ${size4};
   border-bottom: 0.063rem solid var(--theme-separator);
+
+  ${tablet} {
+    height: ${sizeN(12)};
+    padding-left: ${size8};
+    padding-right: ${size8};
+  }
+
+  ${laptop} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding-left: ${size4};
+    padding-right: ${size4};
+    border-bottom: none;
+  }
 `;
 
 const ProfileImage = styled.button`
