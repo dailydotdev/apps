@@ -47,6 +47,7 @@ const renderComponent = (
       permalink: 'https://daily.dev',
       ...comment,
     },
+    onComment: jest.fn(),
   };
 
   return render(

@@ -18,6 +18,7 @@ import { useMutation } from '@apollo/client';
 
 export interface Props {
   comment: Comment;
+  onComment: (comment: Comment) => void;
 }
 
 const Container = styled.div`
@@ -37,7 +38,10 @@ const MenuButton = styled(IconButton)`
   }
 `;
 
-export default function CommentActionButtons({ comment }: Props): ReactElement {
+export default function CommentActionButtons({
+  comment,
+  onComment,
+}: Props): ReactElement {
   const { user, showLogin } = useContext(AuthContext);
 
   const [upvoteComment] = useMutation<UpvoteCommentData>(
@@ -85,7 +89,11 @@ export default function CommentActionButtons({ comment }: Props): ReactElement {
       >
         <UpvoteIcon />
       </IconButton>
-      <CommentButton size="small" title="Comment">
+      <CommentButton
+        size="small"
+        title="Comment"
+        onClick={() => onComment(comment)}
+      >
         <CommentIcon />
       </CommentButton>
       {user?.id === comment.author.id && (

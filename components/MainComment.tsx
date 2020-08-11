@@ -14,9 +14,10 @@ import SubComment from './SubComment';
 
 export interface Props {
   comment: Comment;
+  onComment: (comment: Comment) => void;
 }
 
-const Container = styled.section`
+const Container = styled.article`
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -38,7 +39,10 @@ const MainCommentBox = styled(CommentBox)`
   margin: ${size2} 0;
 `;
 
-export default function MainComment({ comment }: Props): ReactElement {
+export default function MainComment({
+  comment,
+  onComment,
+}: Props): ReactElement {
   return (
     <Container data-testid="comment">
       <Header>
@@ -46,7 +50,6 @@ export default function MainComment({ comment }: Props): ReactElement {
           imgSrc={comment.author.image}
           imgAlt={`${comment.author.name}'s profile image`}
           background="var(--theme-background-highlight)"
-          ratio="100%"
         />
         <Metadata>
           <CommentAuthor>{comment.author.name}</CommentAuthor>
@@ -56,9 +59,14 @@ export default function MainComment({ comment }: Props): ReactElement {
         </Metadata>
       </Header>
       <MainCommentBox>{comment.content}</MainCommentBox>
-      <CommentActionButtons comment={comment} />
+      <CommentActionButtons comment={comment} onComment={onComment} />
       {comment.children?.edges.map((e, i) => (
-        <SubComment comment={e.node} key={e.node.id} firstComment={!i} />
+        <SubComment
+          comment={e.node}
+          key={e.node.id}
+          firstComment={!i}
+          onComment={onComment}
+        />
       ))}
     </Container>
   );

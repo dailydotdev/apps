@@ -1,15 +1,27 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement, useContext, useState } from 'react';
 import Head from 'next/head';
+import dynamic from 'next/dynamic';
 import { NormalizedCacheObject, useMutation, useQuery } from '@apollo/client';
 import { initializeApollo } from '../../lib/apolloClient';
 import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 import { getUser, LoggedUser } from '../../lib/user';
 import styled from 'styled-components';
-import { size05, size1, size2, size4, size6, size8 } from '../../styles/sizes';
+import {
+  size05,
+  size1,
+  size10,
+  size2,
+  size3,
+  size4,
+  size6,
+  size8,
+  sizeN,
+} from '../../styles/sizes';
 import {
   typoLil1,
   typoLil2Base,
+  typoMicro1,
   typoSmall,
   typoTriple,
 } from '../../styles/typography';
@@ -29,12 +41,20 @@ import {
   UPVOTE_MUTATION,
   UpvoteData,
 } from '../../graphql/posts';
-import { RoundedImage } from '../../components/utilities';
+import { RoundedImage, SmallRoundedImage } from '../../components/utilities';
 import MainLayout from '../../components/MainLayout';
 import AuthContext from '../../components/AuthContext';
 import MainComment from '../../components/MainComment';
-import { POST_COMMENTS_QUERY, PostCommentsData } from '../../graphql/comments';
+import {
+  Comment,
+  POST_COMMENTS_QUERY,
+  PostCommentsData,
+} from '../../graphql/comments';
 import { laptop, mobileL, mobileM, tablet } from '../../styles/media';
+import { colorPepper90 } from '../../styles/colors';
+import { focusOutline } from '../../styles/utilities';
+
+const NewCommentModal = dynamic(import('../../components/NewCommentModal'));
 
 export interface Props {
   id: string;
@@ -87,7 +107,11 @@ const PostContainer = styled.main`
   max-width: 40rem;
   flex-direction: column;
   align-items: stretch;
-  padding: ${size6} ${size4};
+  padding: ${size6} ${size4} ${sizeN(16)};
+
+  ${mobileL} {
+    padding-bottom: ${size6};
+  }
 
   ${tablet} {
     padding-left: ${size8};
@@ -184,8 +208,58 @@ const ActionButtons = styled.div`
   }
 `;
 
+const NewCommentContainer = styled.div`
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  padding: ${size3} ${size4};
+  background: var(--theme-background-primary);
+  box-shadow: 0 -${size2} ${size6} 0 ${colorPepper90}3D;
+
+  ${mobileL} {
+    position: relative;
+    left: unset;
+    right: unset;
+    bottom: unset;
+    padding: 0;
+    background: none;
+    box-shadow: none;
+    margin-top: ${size10};
+  }
+`;
+
+const NewCommentButton = styled.button`
+  display: flex;
+  width: 100%;
+  height: ${size10};
+  align-items: center;
+  padding: 0 ${size4};
+  background: var(--theme-hover);
+  color: var(--theme-secondary);
+  border: none;
+  border-radius: ${size4};
+  cursor: pointer;
+  ${typoMicro1}
+  ${focusOutline}
+`;
+
+const NewCommentProfile = styled(SmallRoundedImage)`
+  margin-left: -${size2};
+  margin-right: ${size3};
+`;
+
+interface ParentComment {
+  authorName: string;
+  authorImage: string;
+  publishDate: Date | string;
+  content: string;
+}
+
 export default function PostPage({ id }: Props): ReactElement {
   const { user, showLogin } = useContext(AuthContext);
+  const [parentComment, setParentComment] = useState<ParentComment>(null);
 
   const { data: postById } = useQuery<PostData>(POST_BY_ID_QUERY, {
     variables: { id },
@@ -238,6 +312,34 @@ export default function PostPage({ id }: Props): ReactElement {
       } catch (err) {
         // Do nothing
       }
+    }
+  };
+
+  const openNewComment = () => {
+    // TODO: add GA tracking
+    if (user) {
+      setParentComment({
+        authorName: postById.post.source.name,
+        authorImage: postById.post.source.image,
+        content: postById.post.title,
+        publishDate: postById.post.createdAt,
+      });
+    } else {
+      showLogin();
+    }
+  };
+
+  const onCommentClick = (comment: Comment) => {
+    // TODO: add GA tracking
+    if (user) {
+      setParentComment({
+        authorName: comment.author.name,
+        authorImage: comment.author.image,
+        content: comment.content,
+        publishDate: comment.createdAt,
+      });
+    } else {
+      showLogin();
     }
   };
 
@@ -297,7 +399,11 @@ export default function PostPage({ id }: Props): ReactElement {
             <UpvoteIcon />
             <span>Upvote</span>
           </FloatButton>
-          <FloatButton done={postById?.post.commented} title="Comment">
+          <FloatButton
+            done={postById?.post.commented}
+            onClick={openNewComment}
+            title="Comment"
+          >
             <CommentIcon />
             <span>Comment</span>
           </FloatButton>
@@ -307,9 +413,32 @@ export default function PostPage({ id }: Props): ReactElement {
           </FloatButton>
         </ActionButtons>
         {comments?.postComments.edges.map((e) => (
-          <MainComment comment={e.node} key={e.node.id} />
+          <MainComment
+            comment={e.node}
+            key={e.node.id}
+            onComment={onCommentClick}
+          />
         ))}
+        <NewCommentContainer>
+          <NewCommentButton onClick={openNewComment}>
+            {user && (
+              <NewCommentProfile
+                imgSrc={user.image}
+                imgAlt="Your profile image"
+              />
+            )}
+            Write your comment...
+          </NewCommentButton>
+        </NewCommentContainer>
       </PostContainer>
+      {parentComment && (
+        <NewCommentModal
+          isOpen={!!parentComment}
+          onRequestClose={() => setParentComment(null)}
+          {...parentComment}
+          ariaHideApp={!(process?.env?.NODE_ENV === 'test')}
+        />
+      )}
     </MainLayout>
   );
 }

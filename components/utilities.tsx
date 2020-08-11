@@ -1,11 +1,17 @@
 import styled from 'styled-components';
 import LazyImage from './LazyImage';
-import { size10, size2, size3, size4 } from '../styles/sizes';
+import { size10, size2, size3, size4, size6 } from '../styles/sizes';
 import { typoLil2Base, typoMicro1, typoSmall } from '../styles/typography';
 
 export const RoundedImage = styled(LazyImage)`
   width: ${size10};
   height: ${size10};
+  border-radius: 100%;
+`;
+
+export const SmallRoundedImage = styled(LazyImage)`
+  width: ${size6};
+  height: ${size6};
   border-radius: 100%;
 `;
 

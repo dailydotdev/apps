@@ -1,8 +1,12 @@
-export const typoSmall = `
+export const typoSmallBase = `
   font-size: 0.625rem;
-  font-weight: bold;
   letter-spacing: 0.025rem;
   line-height: 1rem;
+`;
+
+export const typoSmall = `
+  ${typoSmallBase}
+  font-weight: bold;
 `;
 
 export const typoNuggets = `

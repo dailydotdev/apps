@@ -28,6 +28,7 @@ export const StyledModal = styled(ReactModalAdapter)`
     left: 0;
     right: 0;
     bottom: 0;
+    max-height: 100vh;
     background-color: var(--theme-backdrop);
 
     ${mobileL} {
@@ -39,15 +40,17 @@ export const StyledModal = styled(ReactModalAdapter)`
     display: flex;
     position: relative;
     width: 100%;
+    max-width: 26.25rem;
+    max-height: 100%;
+    overflow-y: auto;
     flex-direction: column;
     align-items: center;
     background: var(--theme-background-highlight);
-    border: 0.063rem solid var(--theme-separator);
     border-radius: ${size4} ${size4} 0 0;
     ${focusOutline}
 
     ${mobileL} {
-      max-width: 26.25rem;
+      border: 0.063rem solid var(--theme-separator);
       border-radius: ${size4};
     }
   }

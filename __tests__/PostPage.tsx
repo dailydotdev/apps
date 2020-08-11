@@ -1,5 +1,12 @@
 import React from 'react';
-import { render, RenderResult, waitFor } from '@testing-library/react';
+import {
+  findAllByText,
+  findByText,
+  render,
+  RenderResult,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { MockedProvider, MockedResponse } from '@apollo/client/testing';
 
 import PostPage, { Props } from '../pages/posts/[id]';
@@ -39,7 +46,7 @@ const createPostMock = (
           'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/22fc3ac5cc3fedf281b6e4b46e8c0ba2',
         placeholder:
           'data:image/jpeg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAEAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAUH/8QAHBAAAgICAwAAAAAAAAAAAAAAAQIAAwQhERJx/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/EABURAQEAAAAAAAAAAAAAAAAAAAAB/9oADAMBAAIRAxEAPwDGsKlTiWvywI6nXsn21qbXO9sYiIP/2Q==',
-        createdAt: '2020-05-16T15:16:05.000Z',
+        createdAt: '2019-05-16T15:16:05.000Z',
         readTime: 8,
         tags: ['development', 'data-science', 'sql'],
         source: {
@@ -120,7 +127,7 @@ it('should show source name', async () => {
 
 it('should format publication date', async () => {
   const res = renderPost();
-  await res.findByText('May 16, 2020');
+  await res.findByText('May 16, 2019');
 });
 
 it('should format read time when available', async () => {
@@ -134,7 +141,7 @@ it('should hide read time when not available', async () => {
     createPostMock({ readTime: null }),
     createCommentsMock(),
   ]);
-  await res.findByText('May 16, 2020');
+  await res.findByText('May 16, 2019');
   expect(res.queryByTestId('readTime')).toBeNull();
 });
 
@@ -235,4 +242,19 @@ it('should share article when share api is available', async () => {
       url: 'https://localhost:5002/posts/9CuRpr5NiEY5',
     }),
   );
+});
+
+it('should open new comment modal and set the correct props', async () => {
+  renderPost();
+  // Wait for GraphQL to return
+  await screen.findByText('Learn SQL');
+  const el = await screen.findByText('Comment');
+  el.click();
+  const dialog = await screen.findByRole('dialog');
+  expect(dialog).toBeInTheDocument();
+  expect((await findAllByText(dialog, 'Towards Data Science')).length).toEqual(
+    2,
+  );
+  await findByText(dialog, 'Learn SQL');
+  await findByText(dialog, 'May 16, 2019');
 });

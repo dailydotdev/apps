@@ -10,9 +10,10 @@ import CommentActionButtons from './CommentActionButtons';
 export interface Props {
   comment: Comment;
   firstComment: boolean;
+  onComment: (comment: Comment) => void;
 }
 
-const Container = styled.section`
+const Container = styled.article`
   display: flex;
   align-items: stretch;
   margin-top: ${size4};
@@ -58,6 +59,7 @@ const SubCommentBox = styled(CommentBox)`
 export default function SubComment({
   comment,
   firstComment,
+  onComment,
 }: Props): ReactElement {
   return (
     <Container data-testid="subcomment">
@@ -67,7 +69,6 @@ export default function SubComment({
           imgSrc={comment.author.image}
           imgAlt={`${comment.author.name}'s profile image`}
           background="var(--theme-background-highlight)"
-          ratio="100%"
         />
       </ProfileContainer>
       <ContentContainer>
@@ -78,7 +79,7 @@ export default function SubComment({
           </CommentPublishDate>
           <Content>{comment.content}</Content>
         </SubCommentBox>
-        <CommentActionButtons comment={comment} />
+        <CommentActionButtons comment={comment} onComment={onComment} />
       </ContentContainer>
     </Container>
   );

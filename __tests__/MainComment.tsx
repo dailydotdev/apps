@@ -26,6 +26,7 @@ const renderLayout = (
 ): RenderResult => {
   const defaultProps: Props = {
     comment: baseComment,
+    onComment: jest.fn(),
   };
 
   return render(

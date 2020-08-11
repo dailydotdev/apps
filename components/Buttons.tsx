@@ -72,18 +72,25 @@ export const TextButton = styled(BaseButton)`
   .icon {
     margin-left: -${size1};
     margin-right: ${size2};
+
+    &.right {
+      margin-left: ${size2};
+      margin-right: -${size1};
+    }
   }
 `;
 
-export const InvertButton = styled(TextButton).attrs({ size: 'small' })`
+interface ColorButtonProps {
+  background: string;
+}
+
+export const ColorButton = styled(TextButton).attrs({ size: 'small' })<
+  ColorButtonProps
+>`
   position: relative;
-  height: ${size10};
-  padding-top: 0;
-  padding-bottom: 0;
-  border-radius: ${size2};
   color: var(--theme-primary-invert);
+  border-radius: ${size2};
   z-index: 1;
-  ${typoLil2}
 
   &:before {
     position: absolute;
@@ -92,7 +99,7 @@ export const InvertButton = styled(TextButton).attrs({ size: 'small' })`
     right: 0;
     top: 0;
     bottom: 0;
-    background: var(--theme-primary);
+    background: ${({ background }) => background};
     z-index: -1;
   }
 
@@ -111,6 +118,15 @@ export const InvertButton = styled(TextButton).attrs({ size: 'small' })`
       background: var(--theme-background-highlight);
     }
   }
+`;
+
+export const InvertButton = styled(ColorButton).attrs({
+  background: 'var(--theme-primary)',
+})`
+  height: ${size10};
+  padding-top: 0;
+  padding-bottom: 0;
+  ${typoLil2}
 `;
 
 export const FloatButton = styled(TextButton)`
