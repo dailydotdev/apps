@@ -14,7 +14,7 @@ import SubComment from './SubComment';
 
 export interface Props {
   comment: Comment;
-  onComment: (comment: Comment) => void;
+  onComment: (comment: Comment, parentId: string | null) => void;
 }
 
 const Container = styled.article`
@@ -59,12 +59,17 @@ export default function MainComment({
         </Metadata>
       </Header>
       <MainCommentBox>{comment.content}</MainCommentBox>
-      <CommentActionButtons comment={comment} onComment={onComment} />
+      <CommentActionButtons
+        comment={comment}
+        parentId={comment.id}
+        onComment={onComment}
+      />
       {comment.children?.edges.map((e, i) => (
         <SubComment
           comment={e.node}
           key={e.node.id}
           firstComment={!i}
+          parentId={comment.id}
           onComment={onComment}
         />
       ))}

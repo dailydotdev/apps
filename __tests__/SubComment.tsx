@@ -6,7 +6,7 @@ import SubComment, { Props } from '../components/SubComment';
 import { MockedProvider } from '@apollo/client/testing';
 
 const baseComment = {
-  id: 'c1',
+  id: 'c2',
   content: 'my comment',
   author: {
     image: 'https://daily.dev/ido.png',
@@ -18,6 +18,12 @@ const baseComment = {
   permalink: 'https://daily.dev',
 };
 
+const onComment = jest.fn();
+
+beforeEach(() => {
+  onComment.mockReset();
+});
+
 const renderLayout = (
   props: Partial<Props> = {},
   user: LoggedUser = null,
@@ -25,7 +31,8 @@ const renderLayout = (
   const defaultProps: Props = {
     comment: baseComment,
     firstComment: false,
-    onComment: jest.fn(),
+    onComment,
+    parentId: 'c1',
   };
 
   return render(
@@ -70,4 +77,11 @@ it('should move timeline to profile picture when first comment', async () => {
   const res = renderLayout({ firstComment: true });
   const el = await res.findByTestId('timeline');
   expect(el).toHaveStyleRule('top', '0');
+});
+
+it('should call onComment callback', async () => {
+  const res = renderLayout();
+  const el = await res.findByTitle('Comment');
+  el.click();
+  expect(onComment).toBeCalledWith(baseComment, 'c1');
 });

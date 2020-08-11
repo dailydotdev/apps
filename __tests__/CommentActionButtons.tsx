@@ -13,8 +13,10 @@ import {
 } from '../graphql/comments';
 
 const showLogin = jest.fn();
+const onComment = jest.fn();
 
 beforeEach(() => {
+  onComment.mockReset();
   showLogin.mockReset();
 });
 
@@ -28,6 +30,19 @@ const loggedUser = {
   premium: false,
 };
 
+const baseComment = {
+  id: 'c1',
+  content: 'my comment',
+  author: {
+    image: 'https://daily.dev/ido.png',
+    id: 'u1',
+    name: 'Ido',
+  },
+  createdAt: new Date(),
+  upvoted: false,
+  permalink: 'https://daily.dev',
+};
+
 const renderComponent = (
   comment: Partial<Comment> = {},
   user: LoggedUser = null,
@@ -35,19 +50,11 @@ const renderComponent = (
 ): RenderResult => {
   const props: Props = {
     comment: {
-      id: 'c1',
-      content: 'my comment',
-      author: {
-        image: 'https://daily.dev/ido.png',
-        id: 'u1',
-        name: 'Ido',
-      },
-      createdAt: new Date(),
-      upvoted: false,
-      permalink: 'https://daily.dev',
+      ...baseComment,
       ...comment,
     },
-    onComment: jest.fn(),
+    parentId: 'c1',
+    onComment,
   };
 
   return render(
@@ -119,4 +126,11 @@ it('should send cancel upvote mutation', async () => {
   const el = await res.findByTitle('Upvote');
   el.click();
   await waitFor(() => mutationCalled);
+});
+
+it('should call onComment callback', async () => {
+  const res = renderComponent();
+  const el = await res.findByTitle('Comment');
+  el.click();
+  expect(onComment).toBeCalledWith(baseComment, 'c1');
 });

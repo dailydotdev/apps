@@ -10,7 +10,8 @@ import CommentActionButtons from './CommentActionButtons';
 export interface Props {
   comment: Comment;
   firstComment: boolean;
-  onComment: (comment: Comment) => void;
+  parentId: string;
+  onComment: (comment: Comment, parentId: string | null) => void;
 }
 
 const Container = styled.article`
@@ -60,6 +61,7 @@ export default function SubComment({
   comment,
   firstComment,
   onComment,
+  parentId,
 }: Props): ReactElement {
   return (
     <Container data-testid="subcomment">
@@ -79,7 +81,11 @@ export default function SubComment({
           </CommentPublishDate>
           <Content>{comment.content}</Content>
         </SubCommentBox>
-        <CommentActionButtons comment={comment} onComment={onComment} />
+        <CommentActionButtons
+          comment={comment}
+          parentId={parentId}
+          onComment={onComment}
+        />
       </ContentContainer>
     </Container>
   );

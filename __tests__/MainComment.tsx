@@ -20,13 +20,19 @@ const baseComment = {
   permalink: 'https://daily.dev',
 };
 
+const onComment = jest.fn();
+
+beforeEach(() => {
+  onComment.mockReset();
+});
+
 const renderLayout = (
   props: Partial<Props> = {},
   user: LoggedUser = null,
 ): RenderResult => {
   const defaultProps: Props = {
     comment: baseComment,
-    onComment: jest.fn(),
+    onComment,
   };
 
   return render(
@@ -85,4 +91,11 @@ it('should have subcomments', async () => {
     },
   });
   expect(screen.queryAllByTestId('subcomment').length).toEqual(1);
+});
+
+it('should call onComment callback', async () => {
+  const res = renderLayout();
+  const el = await res.findByTitle('Comment');
+  el.click();
+  expect(onComment).toBeCalledWith(baseComment, 'c1');
 });

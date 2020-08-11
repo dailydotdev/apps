@@ -18,7 +18,8 @@ import { useMutation } from '@apollo/client';
 
 export interface Props {
   comment: Comment;
-  onComment: (comment: Comment) => void;
+  parentId: string | null;
+  onComment: (comment: Comment, parentId: string | null) => void;
 }
 
 const Container = styled.div`
@@ -40,6 +41,7 @@ const MenuButton = styled(IconButton)`
 
 export default function CommentActionButtons({
   comment,
+  parentId,
   onComment,
 }: Props): ReactElement {
   const { user, showLogin } = useContext(AuthContext);
@@ -92,7 +94,7 @@ export default function CommentActionButtons({
       <CommentButton
         size="small"
         title="Comment"
-        onClick={() => onComment(comment)}
+        onClick={() => onComment(comment, parentId)}
       >
         <CommentIcon />
       </CommentButton>

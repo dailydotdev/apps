@@ -255,6 +255,8 @@ interface ParentComment {
   authorImage: string;
   publishDate: Date | string;
   content: string;
+  commentId: string | null;
+  postId: string;
 }
 
 export default function PostPage({ id }: Props): ReactElement {
@@ -323,13 +325,15 @@ export default function PostPage({ id }: Props): ReactElement {
         authorImage: postById.post.source.image,
         content: postById.post.title,
         publishDate: postById.post.createdAt,
+        commentId: null,
+        postId: postById.post.id,
       });
     } else {
       showLogin();
     }
   };
 
-  const onCommentClick = (comment: Comment) => {
+  const onCommentClick = (comment: Comment, parentId: string | null) => {
     // TODO: add GA tracking
     if (user) {
       setParentComment({
@@ -337,6 +341,8 @@ export default function PostPage({ id }: Props): ReactElement {
         authorImage: comment.author.image,
         content: comment.content,
         publishDate: comment.createdAt,
+        commentId: parentId,
+        postId: postById.post.id,
       });
     } else {
       showLogin();

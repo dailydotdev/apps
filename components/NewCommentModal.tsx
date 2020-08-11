@@ -1,5 +1,12 @@
-import React, { FormEvent, ReactElement, useContext, useState } from 'react';
+import React, {
+  FormEvent,
+  ReactElement,
+  useContext,
+  useState,
+  MouseEvent,
+} from 'react';
 import styled from 'styled-components';
+import cloneDeep from 'lodash.clonedeep';
 import { Props as ModalProps, StyledModal } from './StyledModal';
 import { size2, size3, size4, size6, sizeN } from '../styles/sizes';
 import AuthContext from './AuthContext';
@@ -12,16 +19,29 @@ import {
 } from './utilities';
 import { commentDateFormat } from '../lib/dateFormat';
 import { typoMicro1, typoSmallBase } from '../styles/typography';
-import { colorWater60 } from '../styles/colors';
+import { colorKetchup30, colorWater60 } from '../styles/colors';
 import { ColorButton, FloatButton } from './Buttons';
 import UpvoteIcon from '../icons/upvote.svg';
 import { mobileL } from '../styles/media';
+import Loader from './Loader';
+import { useMutation } from '@apollo/client';
+import {
+  Comment,
+  COMMENT_ON_COMMENT_MUTATION,
+  COMMENT_ON_POST_MUTATION,
+  CommentOnData,
+  POST_COMMENTS_QUERY,
+  PostCommentsData,
+} from '../graphql/comments';
+import { Edge } from '../graphql/common';
 
 export interface Props extends ModalProps {
   authorName: string;
   authorImage: string;
   publishDate: Date | string;
   content: string;
+  commentId: string | null;
+  postId: string;
 }
 
 const MyModal = styled(StyledModal)`
@@ -115,10 +135,96 @@ const Footer = styled.footer`
   border-top: 0.063rem solid var(--theme-separator);
 `;
 
+const CommentLoader = styled(Loader)`
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+`;
+
+interface CommentButtonProps {
+  waiting?: boolean;
+}
+
+const CommentButton = styled(ColorButton).attrs({
+  background: 'var(--theme-avocado)',
+})<CommentButtonProps>`
+  ${({ waiting }) =>
+    waiting &&
+    `
+    pointer-events: none;
+    & > * { visibility: hidden; }
+  `}
+
+  ${CommentLoader} {
+    display: ${({ waiting }) => (waiting ? 'block' : 'none')};
+    visibility: unset;
+  }
+`;
+
+const ErrorMessage = styled.div`
+  min-height: 1rem;
+  margin: ${size2} ${size3};
+  color: ${colorKetchup30};
+  ${typoSmallBase};
+`;
+
 export default function NewCommentModal(props: Props): ReactElement {
   const { user } = useContext(AuthContext);
   const { authorImage, authorName, publishDate, content } = props;
   const [input, setInput] = useState<string>(null);
+  const [errorMessage, setErrorMessage] = useState<string>(null);
+  const [sendingComment, setSendingComment] = useState<boolean>(false);
+
+  const [comment] = useMutation<CommentOnData>(
+    props.commentId ? COMMENT_ON_COMMENT_MUTATION : COMMENT_ON_POST_MUTATION,
+    {
+      update(cache, { data }) {
+        const query = {
+          query: POST_COMMENTS_QUERY,
+          variables: { postId: props.postId },
+        };
+        const cached = cloneDeep(cache.readQuery<PostCommentsData>(query));
+        const newEdge: Edge<Comment> = {
+          __typename: 'CommentEdge',
+          node: {
+            ...data.comment,
+            upvoted: false,
+            author: {
+              id: user.id,
+              name: user.name,
+              image: user.image,
+            },
+          },
+          // TODO: need to update the cursor somehow
+          cursor: '',
+        };
+        // Update the sub tree of the parent comment
+        if (props.commentId) {
+          const edgeIndex = cached.postComments.edges.findIndex(
+            (e) => e.node.id === props.commentId,
+          );
+          if (edgeIndex > -1) {
+            if (cached.postComments.edges[edgeIndex].node.children) {
+              cached.postComments.edges[edgeIndex].node.children.edges.push(
+                newEdge,
+              );
+            } else {
+              cached.postComments.edges[edgeIndex].node.children = {
+                edges: [newEdge],
+                pageInfo: {},
+              };
+            }
+          }
+        } else {
+          cached.postComments.edges.push(newEdge);
+        }
+        cache.writeQuery({ ...query, data: cached });
+      },
+    },
+  );
 
   const commentRef = (element: HTMLDivElement): void => {
     element?.focus();
@@ -132,6 +238,23 @@ export default function NewCommentModal(props: Props): ReactElement {
 
   const onInput = (event: FormEvent<HTMLDivElement>): void => {
     setInput(event.currentTarget.innerText);
+  };
+
+  const sendComment = async (event: MouseEvent): Promise<void> => {
+    if (sendingComment) {
+      return;
+    }
+    setErrorMessage(null);
+    setSendingComment(true);
+    try {
+      await comment({
+        variables: { id: props.commentId || props.postId, content: input },
+      });
+      props.onRequestClose(event);
+    } catch (err) {
+      setErrorMessage('Failed to send your comment...');
+      setSendingComment(false);
+    }
   };
 
   return (
@@ -169,15 +292,20 @@ export default function NewCommentModal(props: Props): ReactElement {
           onInput={onInput}
         />
       </NewCommentContainer>
+      <ErrorMessage>
+        {errorMessage && <span role="alert">{errorMessage}</span>}
+      </ErrorMessage>
       <Footer>
-        <FloatButton>Cancel</FloatButton>
-        <ColorButton
-          background="var(--theme-avocado)"
+        <FloatButton onClick={props.onRequestClose}>Cancel</FloatButton>
+        <CommentButton
           disabled={!input?.length}
+          waiting={sendingComment}
+          onClick={sendComment}
         >
-          Send
+          <span>Send</span>
           <UpvoteIcon className="icon right" />
-        </ColorButton>
+          <CommentLoader />
+        </CommentButton>
       </Footer>
     </MyModal>
   );
