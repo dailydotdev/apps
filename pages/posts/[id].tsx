@@ -1,7 +1,12 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import Head from 'next/head';
 import dynamic from 'next/dynamic';
-import { NormalizedCacheObject, useMutation, useQuery } from '@apollo/client';
+import {
+  ApolloError,
+  NormalizedCacheObject,
+  useMutation,
+  useQuery,
+} from '@apollo/client';
 import { initializeApollo } from '../../lib/apolloClient';
 import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import { ParsedUrlQuery } from 'querystring';
@@ -79,29 +84,42 @@ export async function getServerSideProps({
   const { id } = params;
   const apolloClient = initializeApollo({ req });
 
-  const [, , userRes] = await Promise.all([
-    apolloClient.query({
-      query: POST_BY_ID_QUERY,
-      variables: {
-        id,
-      },
-    }),
-    apolloClient.query({
-      query: POST_COMMENTS_QUERY,
-      variables: {
-        postId: id,
-      },
-    }),
-    getUser({ req, res }),
-  ]);
+  try {
+    const [, , userRes] = await Promise.all([
+      apolloClient.query({
+        query: POST_BY_ID_QUERY,
+        variables: {
+          id,
+        },
+      }),
+      apolloClient.query({
+        query: POST_COMMENTS_QUERY,
+        variables: {
+          postId: id,
+        },
+      }),
+      getUser({ req, res }),
+    ]);
 
-  return {
-    props: {
-      id,
-      initialApolloState: apolloClient.cache.extract(),
-      user: userRes.isLoggedIn ? (userRes.user as LoggedUser) : null,
-    },
-  };
+    return {
+      props: {
+        id,
+        initialApolloState: apolloClient.cache.extract(),
+        user: userRes.isLoggedIn ? (userRes.user as LoggedUser) : null,
+      },
+    };
+  } catch (err) {
+    const apolloError = err as ApolloError;
+    if (apolloError?.graphQLErrors?.[0]?.extensions?.code === 'NOT_FOUND') {
+      res.writeHead(302, { Location: '/404' });
+      res.end();
+    } else {
+      throw err;
+    }
+    return {
+      props: null,
+    };
+  }
 }
 
 const PostContainer = styled.main`
