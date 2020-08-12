@@ -5,6 +5,7 @@ import React, {
   useState,
   MouseEvent,
 } from 'react';
+import dynamic from 'next/dynamic';
 import styled from 'styled-components';
 import cloneDeep from 'lodash.clonedeep';
 import { Props as ModalProps, StyledModal } from './StyledModal';
@@ -34,7 +35,8 @@ import {
   PostCommentsData,
 } from '../graphql/comments';
 import { Edge } from '../graphql/common';
-import DiscardCommentModal from './DiscardCommentModal';
+
+const DiscardCommentModal = dynamic(() => import('./DiscardCommentModal'));
 
 export interface Props extends ModalProps {
   authorName: string;
