@@ -98,6 +98,7 @@ const renderPost = (
       infoConfirmed: true,
       premium: false,
     },
+    trackingId: 'u1',
   };
 
   const user = props.user === undefined ? defaultProps.user : props.user;

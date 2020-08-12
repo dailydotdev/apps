@@ -1,10 +1,11 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import { ApolloProvider, NormalizedCacheObject } from '@apollo/client';
 import 'focus-visible';
 import Modal from 'react-modal';
+import ReactGA from 'react-ga';
 import { useApollo } from '../lib/apolloClient';
 import GlobalStyle from '../components/GlobalStyle';
 import AuthContext from '../components/AuthContext';
@@ -20,6 +21,7 @@ const ConfirmAccountModal = dynamic(
 
 interface PageProps {
   user?: LoggedUser;
+  trackingId: string;
   initialApolloState: NormalizedCacheObject;
 }
 
@@ -43,6 +45,17 @@ export default function App({
     setUser({ ...user, ...newProfile });
     setConfirmAccountIsOpen(false);
   };
+
+  useEffect(() => {
+    ReactGA.initialize(process.env.NEXT_PUBLIC_GA, {
+      gaOptions: {
+        clientId: pageProps.trackingId,
+      },
+    });
+    const page = `/web${window.location.pathname}${window.location.search}`;
+    ReactGA.set({ page });
+    ReactGA.pageview(page);
+  }, []);
 
   return (
     <ApolloProvider client={apolloClient}>

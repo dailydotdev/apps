@@ -4,6 +4,7 @@ import React, {
   useContext,
   useState,
   MouseEvent,
+  useEffect,
 } from 'react';
 import dynamic from 'next/dynamic';
 import styled from 'styled-components';
@@ -35,6 +36,7 @@ import {
   PostCommentsData,
 } from '../graphql/comments';
 import { Edge } from '../graphql/common';
+import ReactGA from 'react-ga';
 
 const DiscardCommentModal = dynamic(() => import('./DiscardCommentModal'));
 
@@ -260,6 +262,7 @@ export default function NewCommentModal({
       await comment({
         variables: { id: props.commentId || props.postId, content: input },
       });
+      ReactGA.event({ category: 'Comment Popup', action: 'Comment' });
       onRequestClose(event);
     } catch (err) {
       setErrorMessage('Failed to send your comment...');
@@ -274,6 +277,10 @@ export default function NewCommentModal({
       onRequestClose(event);
     }
   };
+
+  useEffect(() => {
+    ReactGA.event({ category: 'Comment Popup', action: 'Impression' });
+  }, []);
 
   return (
     <MyModal

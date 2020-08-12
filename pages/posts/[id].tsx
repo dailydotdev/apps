@@ -7,6 +7,7 @@ import {
   useMutation,
   useQuery,
 } from '@apollo/client';
+import ReactGA from 'react-ga';
 import { initializeApollo } from '../../lib/apolloClient';
 import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import { ParsedUrlQuery } from 'querystring';
@@ -68,6 +69,7 @@ export interface Props {
   id: string;
   initialApolloState: NormalizedCacheObject;
   user: LoggedUser;
+  trackingId: string;
 }
 
 interface PostParams extends ParsedUrlQuery {
@@ -106,6 +108,7 @@ export async function getServerSideProps({
         id,
         initialApolloState: apolloClient.cache.extract(),
         user: userRes.isLoggedIn ? (userRes.user as LoggedUser) : null,
+        trackingId: userRes.user.id,
       },
     };
   } catch (err) {
@@ -314,10 +317,11 @@ export default function PostPage({ id }: Props): ReactElement {
 
   const toggleUpvote = () => {
     if (user) {
-      // TODO: add GA tracking
       if (postById?.post.upvoted) {
+        ReactGA.event({ category: 'Post', action: 'Upvote', label: 'Remove' });
         return cancelPostUpvote();
       } else if (postById) {
+        ReactGA.event({ category: 'Post', action: 'Add', label: 'Remove' });
         return upvotePost();
       }
     } else {
@@ -328,11 +332,11 @@ export default function PostPage({ id }: Props): ReactElement {
   const sharePost = async () => {
     if ('share' in navigator) {
       try {
-        // TODO: add GA tracking
         await navigator.share({
           text: postById.post.title,
           url: postById.post.commentsPermalink,
         });
+        ReactGA.event({ category: 'Post', action: 'Share', label: 'Native' });
       } catch (err) {
         // Do nothing
       }
@@ -406,6 +410,7 @@ export default function PostPage({ id }: Props): ReactElement {
             title="Go to article"
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => ReactGA.event({ category: 'Post', action: 'Click' })}
           >
             <OpenLinkIcon />
           </IconButton>
