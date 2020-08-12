@@ -74,8 +74,21 @@ export default function App({
           wf.async = true;
           s.parentNode.insertBefore(wf, s);
         })(document);
+
+        var _iub = _iub || [];
+        _iub.csConfiguration = {"lang":"en","siteId":1334205,"countryDetection":true,"gdprAppliesGlobally":false,"enableCcpa":true,"whitelabel":false,"cookiePolicyId":14695236, "banner":{ "acceptButtonDisplay":true,"customizeButtonDisplay":true,"position":"float-bottom-center","acceptButtonColor":"#0076f5","acceptButtonCaptionColor":"white","customizeButtonColor":"#f4f5f6","customizeButtonCaptionColor":"#000000","textColor":"#000000","backgroundColor":"#ffffff" }};
         `,
             }}
+          />
+          <script
+            type="text/javascript"
+            src="//cdn.iubenda.com/cs/ccpa/stub.js"
+          />
+          <script
+            type="text/javascript"
+            src="//cdn.iubenda.com/cs/iubenda_cs.js"
+            charSet="UTF-8"
+            async
           />
         </Head>
         <GlobalStyle />
