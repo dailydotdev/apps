@@ -147,3 +147,19 @@ export const FloatButton = styled(TextButton)`
     background: var(--theme-background-highlight);
   }
 `;
+
+export const HollowButton = styled(FloatButton)`
+  border: 0.063rem solid var(--theme-primary);
+
+  &:focus {
+    border-color: transparent;
+
+    &:not(.focus-visible) {
+      border-color: var(--theme-primary);
+    }
+  }
+
+  &[disabled] {
+    border-color: var(--theme-disabled);
+  }
+`;

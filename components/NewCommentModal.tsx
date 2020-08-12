@@ -34,6 +34,7 @@ import {
   PostCommentsData,
 } from '../graphql/comments';
 import { Edge } from '../graphql/common';
+import DiscardCommentModal from './DiscardCommentModal';
 
 export interface Props extends ModalProps {
   authorName: string;
@@ -171,12 +172,19 @@ const ErrorMessage = styled.div`
   ${typoSmallBase};
 `;
 
-export default function NewCommentModal(props: Props): ReactElement {
+export default function NewCommentModal({
+  authorImage,
+  authorName,
+  publishDate,
+  content,
+  onRequestClose,
+  ...props
+}: Props): ReactElement {
   const { user } = useContext(AuthContext);
-  const { authorImage, authorName, publishDate, content } = props;
   const [input, setInput] = useState<string>(null);
   const [errorMessage, setErrorMessage] = useState<string>(null);
   const [sendingComment, setSendingComment] = useState<boolean>(false);
+  const [showDiscardModal, setShowDiscardModal] = useState<boolean>(false);
 
   const [comment] = useMutation<CommentOnData>(
     props.commentId ? COMMENT_ON_COMMENT_MUTATION : COMMENT_ON_POST_MUTATION,
@@ -250,15 +258,25 @@ export default function NewCommentModal(props: Props): ReactElement {
       await comment({
         variables: { id: props.commentId || props.postId, content: input },
       });
-      props.onRequestClose(event);
+      onRequestClose(event);
     } catch (err) {
       setErrorMessage('Failed to send your comment...');
       setSendingComment(false);
     }
   };
 
+  const confirmClose = (event: MouseEvent): void => {
+    if (input?.length) {
+      setShowDiscardModal(true);
+    } else {
+      onRequestClose(event);
+    }
+  };
+
   return (
-    <MyModal {...{ contentRef: modalRef, ...props }}>
+    <MyModal
+      {...{ contentRef: modalRef, onRequestClose: confirmClose, ...props }}
+    >
       <ParentComment as="article">
         <ParentCommentHeader>
           <RoundedImage
@@ -296,7 +314,7 @@ export default function NewCommentModal(props: Props): ReactElement {
         {errorMessage && <span role="alert">{errorMessage}</span>}
       </ErrorMessage>
       <Footer>
-        <FloatButton onClick={props.onRequestClose}>Cancel</FloatButton>
+        <FloatButton onClick={confirmClose}>Cancel</FloatButton>
         <CommentButton
           disabled={!input?.length}
           waiting={sendingComment}
@@ -307,6 +325,12 @@ export default function NewCommentModal(props: Props): ReactElement {
           <CommentLoader />
         </CommentButton>
       </Footer>
+      <DiscardCommentModal
+        isOpen={showDiscardModal}
+        onRequestClose={() => setShowDiscardModal(false)}
+        onDeleteComment={onRequestClose}
+        shouldCloseOnOverlayClick={false}
+      />
     </MyModal>
   );
 }

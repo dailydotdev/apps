@@ -31,6 +31,10 @@ export default createGlobalStyle`
     color: var(--theme-primary);
   }
 
+  body {
+    min-width: 20rem;
+  }
+
   /* stylelint-disable-next-line no-descending-specificity */
   html, html.light .invert, html .invert .invert {
     --theme-background-primary: ${colorPepper80};
