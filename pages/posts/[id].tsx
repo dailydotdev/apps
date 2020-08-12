@@ -54,7 +54,10 @@ import { laptop, mobileL, mobileM, tablet } from '../../styles/media';
 import { colorPepper90 } from '../../styles/colors';
 import { focusOutline } from '../../styles/utilities';
 
-const NewCommentModal = dynamic(import('../../components/NewCommentModal'));
+const NewCommentModal = dynamic(
+  () => import('../../components/NewCommentModal'),
+  { ssr: false },
+);
 
 export interface Props {
   id: string;

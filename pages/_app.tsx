@@ -10,9 +10,12 @@ import GlobalStyle from '../components/GlobalStyle';
 import AuthContext from '../components/AuthContext';
 import { LoggedUser } from '../lib/user';
 
-const LoginModal = dynamic(import('../components/LoginModal'));
+const LoginModal = dynamic(() => import('../components/LoginModal'), {
+  ssr: false,
+});
 const ConfirmAccountModal = dynamic(
-  import('../components/ConfirmAccountModal'),
+  () => import('../components/ConfirmAccountModal'),
+  { ssr: false },
 );
 
 interface PageProps {
