@@ -290,6 +290,7 @@ export default function PostPage({ id }: Props): ReactElement {
 
   const { data: comments } = useQuery<PostCommentsData>(POST_COMMENTS_QUERY, {
     variables: { postId: id },
+    pollInterval: 2 * 60 * 1000,
   });
 
   const [upvotePost] = useMutation<UpvoteData>(UPVOTE_MUTATION, {
