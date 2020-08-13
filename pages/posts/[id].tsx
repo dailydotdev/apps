@@ -29,6 +29,7 @@ import {
   typoLil2Base,
   typoMicro1,
   typoSmall,
+  typoSmallBase,
   typoTriple,
 } from '../../styles/typography';
 import { postDateFormat } from '../../lib/dateFormat';
@@ -37,6 +38,7 @@ import OpenLinkIcon from '../../icons/open_link.svg';
 import UpvoteIcon from '../../icons/upvote.svg';
 import CommentIcon from '../../icons/comment.svg';
 import ShareIcon from '../../icons/share.svg';
+import LogoIcon from '../../icons/logo.svg';
 import LazyImage from '../../components/LazyImage';
 import {
   CANCEL_UPVOTE_MUTATION,
@@ -151,6 +153,20 @@ const PostContainer = styled.main`
   }
 `;
 
+const PoweredBy = styled.div`
+  display: flex;
+  align-items: center;
+  margin: ${size6} 0;
+  color: var(--theme-secondary);
+  ${typoSmallBase}
+
+  .icon {
+    margin-right: ${size2};
+    font-size: ${size6};
+    color: var(--theme-primary);
+  }
+`;
+
 const PostInfo = styled.div`
   display: flex;
   align-items: center;
@@ -251,7 +267,7 @@ const NewCommentContainer = styled.div`
     padding: 0;
     background: none;
     box-shadow: none;
-    margin-top: ${size10};
+    margin-top: ${size4};
   }
 `;
 
@@ -468,6 +484,9 @@ export default function PostPage({ id }: Props): ReactElement {
             onComment={onCommentClick}
           />
         ))}
+        <PoweredBy>
+          <LogoIcon /> Powered by daily.dev
+        </PoweredBy>
         <NewCommentContainer>
           <NewCommentButton onClick={openNewComment}>
             {user && (

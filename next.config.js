@@ -11,6 +11,8 @@ module.exports = {
             replaceAttrValues: {
               '#fff': 'currentcolor',
               '#FFF': 'currentcolor',
+              '#FFFFFF': 'currentcolor',
+              '#ffffff': 'currentcolor',
             },
             svgProps: {
               className: 'icon',
