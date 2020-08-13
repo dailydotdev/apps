@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useState } from 'react';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import {
   ApolloError,
@@ -287,6 +287,7 @@ interface ParentComment {
 export default function PostPage({ id }: Props): ReactElement {
   const { user, showLogin } = useContext(AuthContext);
   const [parentComment, setParentComment] = useState<ParentComment>(null);
+  const [hasNativeShare, setHasNativeShare] = useState<boolean>(false);
 
   const { data: postById } = useQuery<PostData>(POST_BY_ID_QUERY, {
     variables: { id },
@@ -386,6 +387,10 @@ export default function PostPage({ id }: Props): ReactElement {
     },
   };
 
+  useEffect(() => {
+    setHasNativeShare('share' in navigator);
+  }, []);
+
   return (
     <MainLayout>
       <PostContainer>
@@ -447,7 +452,11 @@ export default function PostPage({ id }: Props): ReactElement {
             <CommentIcon />
             <span>Comment</span>
           </FloatButton>
-          <FloatButton onClick={sharePost} title="Share">
+          <FloatButton
+            onClick={sharePost}
+            title="Share"
+            style={{ visibility: hasNativeShare ? 'visible' : 'hidden' }}
+          >
             <ShareIcon />
             <span>Share</span>
           </FloatButton>
