@@ -60,13 +60,17 @@ import {
 } from '../../graphql/comments';
 import { laptop, mobileL, mobileM, tablet } from '../../styles/media';
 import { colorPepper90 } from '../../styles/colors';
-import { focusOutline } from '../../styles/utilities';
+import { focusOutline, postPageMaxWidth } from '../../styles/utilities';
 import { NextSeoProps } from 'next-seo/lib/types';
 
 const NewCommentModal = dynamic(
   () => import('../../components/NewCommentModal'),
   { ssr: false },
 );
+
+const Promotion = dynamic(() => import('../../components/Promotion'), {
+  ssr: false,
+});
 
 export interface Props {
   id: string;
@@ -131,7 +135,7 @@ export async function getServerSideProps({
 const PostContainer = styled.main`
   display: flex;
   width: 100%;
-  max-width: 40rem;
+  max-width: ${postPageMaxWidth};
   flex-direction: column;
   align-items: stretch;
   padding: ${size6} ${size4} ${sizeN(16)};
@@ -507,6 +511,7 @@ export default function PostPage({ id }: Props): ReactElement {
           ariaHideApp={!(process?.env?.NODE_ENV === 'test')}
         />
       )}
+      <Promotion />
     </MainLayout>
   );
 }

@@ -24,6 +24,7 @@ export const BaseButton = styled.button<BaseButtonProps>`
   border: none;
   overflow: hidden;
   cursor: pointer;
+  text-decoration: none;
   ${typoNuggets}
 
   .icon {

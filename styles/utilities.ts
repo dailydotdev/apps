@@ -10,3 +10,5 @@ export const focusOutline = `
     }
   }
 `;
+
+export const postPageMaxWidth = '40rem';
