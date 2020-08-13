@@ -77,6 +77,10 @@ const Promotion = dynamic(() => import('../../components/Promotion'), {
   ssr: false,
 });
 
+const ShareBar = dynamic(() => import('../../components/ShareBar'), {
+  ssr: false,
+});
+
 export interface Props {
   id: string;
   initialApolloState: NormalizedCacheObject;
@@ -276,7 +280,8 @@ const NewCommentContainer = styled.div`
     padding: 0;
     background: none;
     box-shadow: none;
-    margin-top: ${size4};
+    margin-top: auto;
+    padding-top: ${size4};
   }
 `;
 
@@ -534,6 +539,7 @@ export default function PostPage({ id }: Props): ReactElement {
         />
       )}
       <Promotion />
+      {postById && <ShareBar post={postById.post} />}
     </MainLayout>
   );
 }
