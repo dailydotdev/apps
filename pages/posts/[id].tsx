@@ -1,5 +1,4 @@
 import React, { ReactElement, useContext, useState } from 'react';
-import Head from 'next/head';
 import dynamic from 'next/dynamic';
 import {
   ApolloError,
@@ -13,6 +12,7 @@ import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 import { getUser, LoggedUser } from '../../lib/user';
 import styled from 'styled-components';
+import { NextSeo } from 'next-seo';
 import {
   size05,
   size1,
@@ -59,6 +59,7 @@ import {
 import { laptop, mobileL, mobileM, tablet } from '../../styles/media';
 import { colorPepper90 } from '../../styles/colors';
 import { focusOutline } from '../../styles/utilities';
+import { NextSeoProps } from 'next-seo/lib/types';
 
 const NewCommentModal = dynamic(
   () => import('../../components/NewCommentModal'),
@@ -344,7 +345,6 @@ export default function PostPage({ id }: Props): ReactElement {
   };
 
   const openNewComment = () => {
-    // TODO: add GA tracking
     if (user) {
       setParentComment({
         authorName: postById.post.source.name,
@@ -360,7 +360,6 @@ export default function PostPage({ id }: Props): ReactElement {
   };
 
   const onCommentClick = (comment: Comment, parentId: string | null) => {
-    // TODO: add GA tracking
     if (user) {
       setParentComment({
         authorName: comment.author.name,
@@ -375,14 +374,22 @@ export default function PostPage({ id }: Props): ReactElement {
     }
   };
 
+  const Seo: NextSeoProps = {
+    title: postById?.post.title,
+    description: postById?.post.title,
+    openGraph: {
+      images: [{ url: postById?.post.image }],
+      article: {
+        publishedTime: postById?.post.createdAt,
+        tags: postById?.post.tags,
+      },
+    },
+  };
+
   return (
     <MainLayout>
       <PostContainer>
-        {postById && (
-          <Head>
-            <title>{postById?.post.title}</title>
-          </Head>
-        )}
+        <NextSeo {...Seo} />
         <PostInfo>
           <RoundedImage
             imgSrc={postById?.post.source.image}

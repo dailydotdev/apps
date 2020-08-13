@@ -6,6 +6,8 @@ import { ApolloProvider, NormalizedCacheObject } from '@apollo/client';
 import 'focus-visible';
 import Modal from 'react-modal';
 import ReactGA from 'react-ga';
+import { DefaultSeo } from 'next-seo';
+import Seo from '../next-seo';
 import { useApollo } from '../lib/apolloClient';
 import GlobalStyle from '../components/GlobalStyle';
 import AuthContext from '../components/AuthContext';
@@ -104,6 +106,7 @@ export default function App({
             async
           />
         </Head>
+        <DefaultSeo {...Seo} />
         <GlobalStyle />
         <Component {...pageProps} />
         <LoginModal
