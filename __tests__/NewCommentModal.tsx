@@ -93,7 +93,7 @@ it('should close modal on cancel', async () => {
 
 it('should disable submit button when no input', async () => {
   renderComponent();
-  const el = await screen.findByText('Send');
+  const el = await screen.findByText('Comment');
   expect(el.parentElement).toBeDisabled();
 });
 
@@ -102,7 +102,7 @@ it('should enable submit button when no input', async () => {
   const input = await screen.findByRole('textbox');
   input.innerText = 'My new comment';
   input.dispatchEvent(new Event('input', { bubbles: true }));
-  const el = await screen.findByText('Send');
+  const el = await screen.findByText('Comment');
   expect(el.getAttribute('disabled')).toBeFalsy();
 });
 
@@ -133,7 +133,7 @@ it('should send commentOnPost mutation', async () => {
   const input = await screen.findByRole('textbox');
   input.innerText = 'comment';
   input.dispatchEvent(new Event('input', { bubbles: true }));
-  const el = await screen.findByText('Send');
+  const el = await screen.findByText('Comment');
   el.click();
   await waitFor(() => mutationCalled);
   await waitFor(() => onRequestClose.mock.calls.length === 1);
@@ -166,7 +166,7 @@ it('should send commentOnComment mutation', async () => {
   const input = await screen.findByRole('textbox');
   input.innerText = 'comment';
   input.dispatchEvent(new Event('input', { bubbles: true }));
-  const el = await screen.findByText('Send');
+  const el = await screen.findByText('Comment');
   el.click();
   await waitFor(() => mutationCalled);
   await waitFor(() => onRequestClose.mock.calls.length === 1);
@@ -189,7 +189,7 @@ it('should show alert in case of an error', async () => {
   const input = await screen.findByRole('textbox');
   input.innerText = 'comment';
   input.dispatchEvent(new Event('input', { bubbles: true }));
-  const el = await screen.findByText('Send');
+  const el = await screen.findByText('Comment');
   el.click();
   await waitFor(() => mutationCalled);
   await screen.findByRole('alert');

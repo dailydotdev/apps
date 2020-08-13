@@ -23,7 +23,6 @@ import { commentDateFormat } from '../lib/dateFormat';
 import { typoMicro1, typoSmallBase } from '../styles/typography';
 import { colorKetchup30, colorWater60 } from '../styles/colors';
 import { ColorButton, FloatButton } from './Buttons';
-import UpvoteIcon from '../icons/upvote.svg';
 import { mobileL } from '../styles/media';
 import Loader from './Loader';
 import { useMutation } from '@apollo/client';
@@ -329,8 +328,7 @@ export default function NewCommentModal({
           waiting={sendingComment}
           onClick={sendComment}
         >
-          <span>Send</span>
-          <UpvoteIcon className="icon right" />
+          <span>Comment</span>
           <CommentLoader />
         </CommentButton>
       </Footer>
