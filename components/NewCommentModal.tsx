@@ -13,6 +13,7 @@ import { Props as ModalProps, StyledModal } from './StyledModal';
 import { size2, size3, size4, size6, sizeN } from '../styles/sizes';
 import AuthContext from './AuthContext';
 import {
+  ButtonLoader,
   CommentAuthor,
   CommentBox,
   CommentPublishDate,
@@ -24,7 +25,6 @@ import { typoMicro1, typoSmallBase } from '../styles/typography';
 import { colorKetchup30, colorWater60 } from '../styles/colors';
 import { ColorButton, FloatButton } from './Buttons';
 import { mobileL } from '../styles/media';
-import Loader from './Loader';
 import { useMutation } from '@apollo/client';
 import {
   Comment,
@@ -139,34 +139,9 @@ const Footer = styled.footer`
   border-top: 0.063rem solid var(--theme-separator);
 `;
 
-const CommentLoader = styled(Loader)`
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  margin: auto;
-`;
-
-interface CommentButtonProps {
-  waiting?: boolean;
-}
-
 const CommentButton = styled(ColorButton).attrs({
   background: 'var(--theme-avocado)',
-})<CommentButtonProps>`
-  ${({ waiting }) =>
-    waiting &&
-    `
-    pointer-events: none;
-    & > * { visibility: hidden; }
-  `}
-
-  ${CommentLoader} {
-    display: ${({ waiting }) => (waiting ? 'block' : 'none')};
-    visibility: unset;
-  }
-`;
+})``;
 
 const ErrorMessage = styled.div`
   min-height: 1rem;
@@ -329,7 +304,7 @@ export default function NewCommentModal({
           onClick={sendComment}
         >
           <span>Comment</span>
-          <CommentLoader />
+          <ButtonLoader />
         </CommentButton>
       </Footer>
       <DiscardCommentModal

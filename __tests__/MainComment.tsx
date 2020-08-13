@@ -21,10 +21,21 @@ const baseComment = {
 };
 
 const onComment = jest.fn();
+const onDelete = jest.fn();
 
 beforeEach(() => {
-  onComment.mockReset();
+  jest.resetAllMocks();
 });
+
+const loggedUser = {
+  id: 'u1',
+  name: 'Ido Shamun',
+  providers: ['github'],
+  email: 'ido@acme.com',
+  image: 'https://daily.dev/ido.png',
+  infoConfirmed: true,
+  premium: false,
+};
 
 const renderLayout = (
   props: Partial<Props> = {},
@@ -33,6 +44,7 @@ const renderLayout = (
   const defaultProps: Props = {
     comment: baseComment,
     onComment,
+    onDelete,
   };
 
   return render(
@@ -98,4 +110,11 @@ it('should call onComment callback', async () => {
   const el = await res.findByTitle('Comment');
   el.click();
   expect(onComment).toBeCalledWith(baseComment, 'c1');
+});
+
+it('should call onDelete callback', async () => {
+  const res = renderLayout({}, loggedUser);
+  const el = await res.findByTitle('Delete');
+  el.click();
+  expect(onDelete).toBeCalledWith(baseComment, 'c1');
 });

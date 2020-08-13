@@ -5,6 +5,7 @@
       <sourceFolder url="file://$MODULE_DIR$/__tests__" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/.next" />
       <excludeFolder url="file://$MODULE_DIR$/.tmp" />
+      <excludeFolder url="file://$MODULE_DIR$/.vercel" />
       <excludeFolder url="file://$MODULE_DIR$/temp" />
       <excludeFolder url="file://$MODULE_DIR$/tmp" />
     </content>

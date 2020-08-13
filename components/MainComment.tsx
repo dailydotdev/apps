@@ -15,6 +15,7 @@ import SubComment from './SubComment';
 export interface Props {
   comment: Comment;
   onComment: (comment: Comment, parentId: string | null) => void;
+  onDelete: (comment: Comment, parentId: string | null) => void;
 }
 
 const Container = styled.article`
@@ -42,6 +43,7 @@ const MainCommentBox = styled(CommentBox)`
 export default function MainComment({
   comment,
   onComment,
+  onDelete,
 }: Props): ReactElement {
   return (
     <Container data-testid="comment">
@@ -63,6 +65,7 @@ export default function MainComment({
         comment={comment}
         parentId={comment.id}
         onComment={onComment}
+        onDelete={onDelete}
       />
       {comment.children?.edges.map((e, i) => (
         <SubComment
@@ -71,6 +74,7 @@ export default function MainComment({
           firstComment={!i}
           parentId={comment.id}
           onComment={onComment}
+          onDelete={onDelete}
         />
       ))}
     </Container>

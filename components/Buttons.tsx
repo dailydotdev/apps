@@ -1,12 +1,14 @@
-import { DOMAttributes } from 'react';
+import { HTMLAttributes } from 'react';
 import styled from 'styled-components';
 import { size1, size10, size2, size3, size5, size6 } from '../styles/sizes';
 import { typoLil2, typoNuggets } from '../styles/typography';
 import { focusOutline } from '../styles/utilities';
+import { ButtonLoader } from './utilities';
 
-interface BaseButtonProps extends DOMAttributes<HTMLButtonElement> {
+interface BaseButtonProps extends HTMLAttributes<HTMLButtonElement> {
   done?: boolean;
   size?: 'small';
+  waiting?: boolean;
 }
 
 const getIconSize = (size?: string) => {
@@ -38,6 +40,18 @@ export const BaseButton = styled.button<BaseButtonProps>`
   &[disabled] {
     pointer-events: none;
     cursor: default;
+  }
+
+  ${({ waiting }) =>
+    waiting &&
+    `
+    pointer-events: none;
+    & > * { visibility: hidden; }
+  `}
+
+  ${ButtonLoader} {
+    display: ${({ waiting }) => (waiting ? 'block' : 'none')};
+    visibility: unset;
   }
 
   &&& {

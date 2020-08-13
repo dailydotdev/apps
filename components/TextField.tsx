@@ -1,5 +1,5 @@
 import React, {
-  DOMAttributes,
+  HTMLAttributes,
   ReactElement,
   SyntheticEvent,
   useEffect,
@@ -11,8 +11,7 @@ import { size1, size2, size3, sizeN } from '../styles/sizes';
 import { typoLil1, typoMicro1, typoMicro2 } from '../styles/typography';
 import { colorKetchup30, colorWater60 } from '../styles/colors';
 
-export interface Props {
-  className?: string;
+export interface Props extends HTMLAttributes<HTMLInputElement> {
   inputId: string;
   name: string;
   label: string;
@@ -81,7 +80,7 @@ const Hint = styled.div<{ valid?: boolean }>`
   ${typoMicro2}
 `;
 
-interface FieldProps extends DOMAttributes<HTMLDivElement> {
+interface FieldProps extends HTMLAttributes<HTMLDivElement> {
   focused: boolean;
   showLabel: boolean;
   valid: boolean;

@@ -12,6 +12,7 @@ export interface Props {
   firstComment: boolean;
   parentId: string;
   onComment: (comment: Comment, parentId: string | null) => void;
+  onDelete: (comment: Comment, parentId: string | null) => void;
 }
 
 const Container = styled.article`
@@ -62,6 +63,7 @@ export default function SubComment({
   firstComment,
   onComment,
   parentId,
+  onDelete,
 }: Props): ReactElement {
   return (
     <Container data-testid="subcomment">
@@ -85,6 +87,7 @@ export default function SubComment({
           comment={comment}
           parentId={parentId}
           onComment={onComment}
+          onDelete={onDelete}
         />
       </ContentContainer>
     </Container>

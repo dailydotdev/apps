@@ -14,10 +14,10 @@ import {
 
 const showLogin = jest.fn();
 const onComment = jest.fn();
+const onDelete = jest.fn();
 
 beforeEach(() => {
-  onComment.mockReset();
-  showLogin.mockReset();
+  jest.resetAllMocks();
 });
 
 const loggedUser = {
@@ -55,6 +55,7 @@ const renderComponent = (
     },
     parentId: 'c1',
     onComment,
+    onDelete,
   };
 
   return render(
@@ -66,12 +67,12 @@ const renderComponent = (
   );
 };
 
-it('should not show menu when user is not the author', async () => {
+it('should not show delete button when user is not the author', async () => {
   const res = renderComponent();
-  expect(res.queryByTitle('Open menu')).toBeNull();
+  expect(res.queryByTitle('Delete')).toBeNull();
 });
 
-it('should show menu when user is not the author', async () => {
+it('should show delete button when user is the author', async () => {
   const res = renderComponent(
     {},
     {
@@ -80,7 +81,7 @@ it('should show menu when user is not the author', async () => {
       providers: ['github'],
     },
   );
-  expect(res.getByTitle('Open menu')).toBeDefined();
+  expect(res.getByTitle('Delete')).toBeDefined();
 });
 
 it('should show login on upvote click', async () => {
@@ -133,4 +134,11 @@ it('should call onComment callback', async () => {
   const el = await res.findByTitle('Comment');
   el.click();
   expect(onComment).toBeCalledWith(baseComment, 'c1');
+});
+
+it('should call onDelete callback', async () => {
+  const res = renderComponent({}, loggedUser);
+  const el = await res.findByTitle('Delete');
+  el.click();
+  expect(onDelete).toBeCalledWith(baseComment, 'c1');
 });

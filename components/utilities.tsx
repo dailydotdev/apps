@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import LazyImage from './LazyImage';
 import { size10, size2, size3, size4, size6 } from '../styles/sizes';
 import { typoLil2Base, typoMicro1, typoSmall } from '../styles/typography';
+import Loader from './Loader';
 
 export const RoundedImage = styled(LazyImage)`
   width: ${size10};
@@ -32,4 +33,13 @@ export const CommentBox = styled.div`
   background: var(--theme-background-highlight);
   border-radius: ${size2};
   ${typoMicro1}
+`;
+
+export const ButtonLoader = styled(Loader)`
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  margin: auto;
 `;

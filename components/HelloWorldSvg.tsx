@@ -1,10 +1,8 @@
-import React, { ReactElement } from 'react';
+import React, { HTMLAttributes, ReactElement } from 'react';
 
-interface Props {
-  className?: string;
-}
-
-export default function HelloWorldSvg({ className }: Props): ReactElement {
+export default function HelloWorldSvg({
+  className,
+}: HTMLAttributes<SVGElement>): ReactElement {
   return (
     <svg
       viewBox="0 0 193 129"

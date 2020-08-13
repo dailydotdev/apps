@@ -121,6 +121,14 @@ export const COMMENT_ON_COMMENT_MUTATION = gql`
   ${COMMENT_MUTATION_FRAGMENT}
 `;
 
+export const DELETE_COMMENT_MUTATION = gql`
+  mutation DELETE_COMMENT_MUTATION($id: ID!) {
+    deleteComment(id: $id) {
+      _
+    }
+  }
+`;
+
 export const updateCommentUpvoteCache = <T>(
   cache: ApolloCache<T>,
   id: string,

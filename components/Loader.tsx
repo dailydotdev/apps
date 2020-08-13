@@ -1,4 +1,4 @@
-import React, { DOMAttributes, ReactElement } from 'react';
+import React, { HTMLAttributes, ReactElement } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { size5, sizeN } from '../styles/sizes';
 
@@ -49,7 +49,7 @@ const Container = styled.div`
 `;
 
 export default function Loader(
-  props: DOMAttributes<HTMLDivElement>,
+  props: HTMLAttributes<HTMLDivElement>,
 ): ReactElement {
   return (
     <Container {...props}>

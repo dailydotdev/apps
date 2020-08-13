@@ -3,7 +3,7 @@ import AuthContext from './AuthContext';
 import { IconButton } from './Buttons';
 import UpvoteIcon from '../icons/upvote.svg';
 import CommentIcon from '../icons/comment.svg';
-import MenuIcon from '../icons/menu.svg';
+import TrashIcon from '../icons/trash.svg';
 import styled from 'styled-components';
 import { size10 } from '../styles/sizes';
 import {
@@ -20,6 +20,7 @@ export interface Props {
   comment: Comment;
   parentId: string | null;
   onComment: (comment: Comment, parentId: string | null) => void;
+  onDelete: (comment: Comment, parentId: string | null) => void;
 }
 
 const Container = styled.div`
@@ -31,18 +32,15 @@ const CommentButton = styled(IconButton)`
   margin-left: ${size10};
 `;
 
-const MenuButton = styled(IconButton)`
+const TrashButton = styled(IconButton)`
   margin-left: auto;
-
-  .icon {
-    transform: rotate(90deg);
-  }
 `;
 
 export default function CommentActionButtons({
   comment,
   parentId,
   onComment,
+  onDelete,
 }: Props): ReactElement {
   const { user, showLogin } = useContext(AuthContext);
 
@@ -99,9 +97,13 @@ export default function CommentActionButtons({
         <CommentIcon />
       </CommentButton>
       {user?.id === comment.author.id && (
-        <MenuButton size="small" title="Open menu">
-          <MenuIcon />
-        </MenuButton>
+        <TrashButton
+          size="small"
+          title="Delete"
+          onClick={() => onDelete(comment, parentId)}
+        >
+          <TrashIcon />
+        </TrashButton>
       )}
     </Container>
   );

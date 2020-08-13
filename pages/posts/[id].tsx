@@ -68,6 +68,11 @@ const NewCommentModal = dynamic(
   { ssr: false },
 );
 
+const DeleteCommentModal = dynamic(
+  () => import('../../components/DeleteCommentModal'),
+  { ssr: false },
+);
+
 const Promotion = dynamic(() => import('../../components/Promotion'), {
   ssr: false,
 });
@@ -308,6 +313,10 @@ export default function PostPage({ id }: Props): ReactElement {
   const { user, showLogin } = useContext(AuthContext);
   const [parentComment, setParentComment] = useState<ParentComment>(null);
   const [hasNativeShare, setHasNativeShare] = useState<boolean>(false);
+  const [pendingComment, setPendingComment] = useState<{
+    comment: Comment;
+    parentId: string | null;
+  }>(null);
 
   const { data: postById } = useQuery<PostData>(POST_BY_ID_QUERY, {
     variables: { id },
@@ -486,6 +495,9 @@ export default function PostPage({ id }: Props): ReactElement {
             comment={e.node}
             key={e.node.id}
             onComment={onCommentClick}
+            onDelete={(comment, parentId) =>
+              setPendingComment({ comment, parentId })
+            }
           />
         ))}
         <PoweredBy>
@@ -503,6 +515,16 @@ export default function PostPage({ id }: Props): ReactElement {
           </NewCommentButton>
         </NewCommentContainer>
       </PostContainer>
+      {pendingComment && (
+        <DeleteCommentModal
+          isOpen={!!pendingComment}
+          onRequestClose={() => setPendingComment(null)}
+          commentId={pendingComment.comment.id}
+          parentId={pendingComment.parentId}
+          postId={postById.post.id}
+          ariaHideApp={!(process?.env?.NODE_ENV === 'test')}
+        />
+      )}
       {parentComment && (
         <NewCommentModal
           isOpen={!!parentComment}
