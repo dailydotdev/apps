@@ -5,7 +5,7 @@ import DailyDevLogo from './DailyDevLogo';
 import { InvertButton, TextButton } from './Buttons';
 import XIcon from '../icons/x.svg';
 import GitHubIcon from '../icons/github.svg';
-import { typoJr } from '../styles/typography';
+import { typoJr, typoMicro2Base } from '../styles/typography';
 import { CodeChallenge, generateChallenge } from '../lib/auth';
 import { StyledModal, ModalCloseButton, Props } from './StyledModal';
 
@@ -42,6 +42,24 @@ const Content = styled.div`
   color: var(--theme-secondary);
   text-align: center;
   ${typoJr}
+`;
+
+const LegalNotice = styled.div`
+  max-width: 17.25rem;
+  margin-top: ${size8};
+  color: var(--theme-disabled);
+  text-align: center;
+  font-weight: bold;
+  ${typoMicro2Base};
+
+  a {
+    display: inline-block;
+    text-decoration: underline;
+    color: inherit;
+    @supports (display: contents) {
+      display: contents;
+    }
+  }
 `;
 
 export default function LoginModal(props: Props): ReactElement {
@@ -89,6 +107,25 @@ export default function LoginModal(props: Props): ReactElement {
           Sign in with Google
         </InvertButton>
       </Buttons>
+      <LegalNotice>
+        By signing up I accept the{' '}
+        <a
+          href="https://daily.dev/tos"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Terms of Service
+        </a>{' '}
+        and the{' '}
+        <a
+          href="https://daily.dev/privacy"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Privacy Policy
+        </a>
+        .
+      </LegalNotice>
     </MyModal>
   );
 }

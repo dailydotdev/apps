@@ -17,12 +17,17 @@ export const typoNuggets = `
   text-transform: uppercase;
 `;
 
-export const typoMicro2 = `
+// TODO: styling is out of guideline
+export const typoMicro2Base = `
   font-size: 0.75rem;
-  font-weight: normal;
-  font-style: italic;
   letter-spacing: 0.025rem;
   line-height: 1.125rem;
+`;
+
+export const typoMicro2 = `
+  ${typoMicro2Base}
+  font-weight: normal;
+  font-style: italic;
 `;
 
 export const typoMicro1 = `
