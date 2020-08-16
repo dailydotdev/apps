@@ -395,7 +395,7 @@ export default function PostPage({ id }: Props): ReactElement {
 
   const Seo: NextSeoProps = {
     title: postById?.post.title,
-    description: postById?.post.title,
+    description: `Join us to the discussion about "${postById?.post.title}" on daily.dev ✌️`,
     openGraph: {
       images: [{ url: postById?.post.image }],
       article: {
