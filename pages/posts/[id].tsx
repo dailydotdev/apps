@@ -29,7 +29,6 @@ import {
   typoLil2Base,
   typoMicro1,
   typoSmall,
-  typoSmallBase,
   typoTriple,
 } from '../../styles/typography';
 import { postDateFormat } from '../../lib/dateFormat';
@@ -38,7 +37,6 @@ import OpenLinkIcon from '../../icons/open_link.svg';
 import UpvoteIcon from '../../icons/upvote.svg';
 import CommentIcon from '../../icons/comment.svg';
 import ShareIcon from '../../icons/share.svg';
-import LogoIcon from '../../icons/logo.svg';
 import LazyImage from '../../components/LazyImage';
 import {
   CANCEL_UPVOTE_MUTATION,
@@ -163,20 +161,6 @@ const PostContainer = styled.main`
     min-height: 100vh;
     border-left: 0.063rem solid var(--theme-separator);
     border-right: 0.063rem solid var(--theme-separator);
-  }
-`;
-
-const PoweredBy = styled.div`
-  display: flex;
-  align-items: center;
-  margin: ${size6} 0;
-  color: var(--theme-secondary);
-  ${typoSmallBase}
-
-  .icon {
-    margin-right: ${size2};
-    font-size: ${size6};
-    color: var(--theme-primary);
   }
 `;
 
@@ -505,9 +489,6 @@ export default function PostPage({ id }: Props): ReactElement {
             }
           />
         ))}
-        <PoweredBy>
-          <LogoIcon /> Powered by daily.dev
-        </PoweredBy>
         <NewCommentContainer>
           <NewCommentButton onClick={openNewComment}>
             {user && (
