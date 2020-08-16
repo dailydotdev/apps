@@ -1,12 +1,13 @@
 import React, { ReactElement, ReactNode, useContext } from 'react';
 import styled from 'styled-components';
-import { size10, size4, size6, size8, sizeN } from '../styles/sizes';
+import { size1, size10, size4, size6, size8, sizeN } from '../styles/sizes';
 import { FloatButton } from './Buttons';
 import DailyDevLogo from './DailyDevLogo';
 import LazyImage from './LazyImage';
 import AuthContext from './AuthContext';
 import { focusOutline } from '../styles/utilities';
 import { laptop, tablet } from '../styles/media';
+import BetaBadge from './BetaBadge';
 
 export interface Props {
   children?: ReactNode;
@@ -58,15 +59,26 @@ const ProfileImage = styled.button`
   ${focusOutline}
 `;
 
+const HomeLink = styled.a`
+  display: flex;
+  align-items: center;
+
+  .badge {
+    width: 30px;
+    margin-left: ${size1};
+  }
+`;
+
 export default function MainLayout({ children }: Props): ReactElement {
   const { user, showLogin } = useContext(AuthContext);
 
   return (
     <Container>
       <Header>
-        <a href="https://daily.dev">
+        <HomeLink href="https://daily.dev">
           <DailyDevLogo />
-        </a>
+          <BetaBadge className="badge" />
+        </HomeLink>
         {user ? (
           <ProfileImage>
             <LazyImage
