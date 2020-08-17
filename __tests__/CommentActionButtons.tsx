@@ -38,7 +38,7 @@ const baseComment = {
     id: 'u1',
     name: 'Ido',
   },
-  createdAt: new Date(),
+  createdAt: new Date().toISOString(),
   upvoted: false,
   permalink: 'https://daily.dev',
 };

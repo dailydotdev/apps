@@ -15,7 +15,7 @@ const baseComment = {
   id: 'c1',
   content: 'my comment',
   author: author,
-  createdAt: new Date(2017, 1, 10, 0, 0),
+  createdAt: new Date(2017, 1, 10, 0, 0).toISOString(),
   upvoted: false,
   permalink: 'https://daily.dev',
 };
