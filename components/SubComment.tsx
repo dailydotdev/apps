@@ -78,7 +78,7 @@ export default function SubComment({
       <ContentContainer>
         <SubCommentBox>
           <CommentAuthor>{comment.author.name}</CommentAuthor>
-          <CommentPublishDate>
+          <CommentPublishDate dateTime={comment.createdAt}>
             {commentDateFormat(comment.createdAt)}
           </CommentPublishDate>
           <Content>{comment.content}</Content>

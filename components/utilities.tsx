@@ -23,7 +23,7 @@ export const CommentAuthor = styled.div`
   ${typoLil2Base}
 `;
 
-export const CommentPublishDate = styled.div`
+export const CommentPublishDate = styled.time`
   color: var(--theme-disabled);
   ${typoSmall}
 `;

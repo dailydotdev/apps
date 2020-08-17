@@ -423,7 +423,7 @@ export default function PostPage({ id }: Props): ReactElement {
           <PostInfoSubContainer>
             <SourceName>{postById?.post.source.name}</SourceName>
             <MetadataContainer>
-              <Metadata>
+              <Metadata as="time" dateTime={postById?.post?.createdAt}>
                 {postById && postDateFormat(postById.post.createdAt)}
               </Metadata>
               {postById?.post.readTime && <MetadataSeparator />}

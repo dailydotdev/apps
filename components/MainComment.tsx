@@ -55,7 +55,7 @@ export default function MainComment({
         />
         <Metadata>
           <CommentAuthor>{comment.author.name}</CommentAuthor>
-          <CommentPublishDate>
+          <CommentPublishDate dateTime={comment.createdAt}>
             {commentDateFormat(comment.createdAt)}
           </CommentPublishDate>
         </Metadata>

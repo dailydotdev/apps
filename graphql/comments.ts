@@ -13,7 +13,7 @@ export interface Comment {
   __typename?: string;
   id: string;
   content: string;
-  createdAt: Date;
+  createdAt: string;
   author: CommentAuthor;
   permalink: string;
   upvoted?: boolean;
