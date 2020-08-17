@@ -30,7 +30,6 @@ import {
   typoMicro1,
   typoMicro2,
   typoSmall,
-  typoTriple,
 } from '../../styles/typography';
 import { postDateFormat } from '../../lib/dateFormat';
 import { FloatButton, IconButton } from '../../components/Buttons';
