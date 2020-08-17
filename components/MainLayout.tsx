@@ -1,6 +1,6 @@
 import React, { ReactElement, ReactNode, useContext } from 'react';
 import styled from 'styled-components';
-import { size1, size10, size4, size6, size8, sizeN } from '../styles/sizes';
+import { size1, size4, size8, sizeN } from '../styles/sizes';
 import { FloatButton } from './Buttons';
 import DailyDevLogo from './DailyDevLogo';
 import LazyImage from './LazyImage';
@@ -18,22 +18,17 @@ const Container = styled.div`
   position: relative;
   flex-direction: column;
   align-items: stretch;
-
-  .logo {
-    width: 5.75rem;
-  }
 `;
 
 const Header = styled.header`
   display: flex;
-  height: ${size10};
+  height: ${sizeN(12)};
   align-items: center;
   justify-content: space-between;
   padding: 0 ${size4};
   border-bottom: 0.063rem solid var(--theme-separator);
 
   ${tablet} {
-    height: ${sizeN(12)};
     padding-left: ${size8};
     padding-right: ${size8};
   }
@@ -50,7 +45,7 @@ const Header = styled.header`
 `;
 
 const ProfileImage = styled.button`
-  width: ${size6};
+  width: ${size8};
   overflow: hidden;
   padding: 0;
   background: none;
@@ -63,8 +58,12 @@ const HomeLink = styled.a`
   display: flex;
   align-items: center;
 
+  .logo {
+    width: 6.25rem;
+  }
+
   .badge {
-    width: 30px;
+    width: 1.875rem;
     margin-left: ${size1};
   }
 `;

@@ -2,7 +2,7 @@ import React, { ReactElement, useState } from 'react';
 import styled from 'styled-components';
 import { laptop } from '../styles/media';
 import { postPageMaxWidth } from '../styles/utilities';
-import { size1, size10, size4, size7 } from '../styles/sizes';
+import { size1, size10, size2, size4, size7 } from '../styles/sizes';
 import { IconButton } from './Buttons';
 import CopyIcon from '../icons/copy.svg';
 import WhatsappIcon from '../icons/whatsapp.svg';
@@ -40,7 +40,7 @@ const Sticky = styled.div`
 const Copied = styled.div`
   position: absolute;
   display: flex;
-  top: ${size1};
+  top: ${size2};
   right: 100%;
   height: ${barWidth};
   align-items: center;
@@ -49,7 +49,7 @@ const Copied = styled.div`
   ${typoNuggets}
 `;
 
-const ShareButton = styled(IconButton).attrs({ size: 'small' })`
+const ShareButton = styled(IconButton)`
   margin: ${size1} 0;
 `;
 

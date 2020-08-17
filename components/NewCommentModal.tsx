@@ -21,7 +21,7 @@ import {
   SmallRoundedImage,
 } from './utilities';
 import { commentDateFormat } from '../lib/dateFormat';
-import { typoMicro1, typoSmallBase } from '../styles/typography';
+import { typoLil1, typoSmallBase } from '../styles/typography';
 import { colorKetchup30, colorWater60 } from '../styles/colors';
 import { ColorButton, FloatButton } from './Buttons';
 import { mobileL } from '../styles/media';
@@ -119,7 +119,7 @@ const NewCommentTextArea = styled.div`
   border: none;
   caret-color: ${colorWater60};
   word-break: break-word;
-  ${typoMicro1}
+  ${typoLil1}
 
   &:focus {
     outline: 0;

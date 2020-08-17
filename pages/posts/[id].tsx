@@ -25,7 +25,7 @@ import {
   sizeN,
 } from '../../styles/sizes';
 import {
-  typoLil1,
+  typoDouble,
   typoLil2Base,
   typoMicro1,
   typoMicro2,
@@ -199,11 +199,7 @@ const SourceName = styled.div`
 
 const Title = styled.h1`
   margin: ${size2} 0;
-  ${typoLil1}
-
-  ${mobileL} {
-    ${typoTriple}
-  }
+  ${typoDouble}
 `;
 
 const Tags = styled.div`
