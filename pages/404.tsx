@@ -35,7 +35,7 @@ export default function Custom404(): ReactElement {
         <title>Page not found 😅</title>
       </Head>
       <Art />
-      <Heading>Whoops, that page is gone</Heading>
+      <Heading>Oops, this page couldn’t be found</Heading>
     </Container>
   );
 }

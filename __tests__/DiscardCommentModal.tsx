@@ -22,7 +22,7 @@ const renderComponent = (props: Partial<Props> = {}): RenderResult => {
 
 it('should close modal on cancel', async () => {
   renderComponent();
-  const el = await screen.findByText('Cancel');
+  const el = await screen.findByText('Stay');
   el.click();
   expect(onRequestClose).toBeCalledTimes(1);
 });

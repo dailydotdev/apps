@@ -82,9 +82,10 @@ export default function DeleteCommentModal({
 
   return (
     <ConfirmationModal {...props}>
-      <ConfirmationHeading>Delete comment?</ConfirmationHeading>
+      <ConfirmationHeading>Delete comment</ConfirmationHeading>
       <ConfirmationDescription>
-        Are you sure you want to delete your comment?
+        Are you sure you want to delete your comment? This action cannot be
+        undone.
       </ConfirmationDescription>
       <ConfirmationButtons>
         <HollowButton onClick={props.onRequestClose}>Cancel</HollowButton>

@@ -71,10 +71,6 @@ const DeleteCommentModal = dynamic(
   { ssr: false },
 );
 
-const Promotion = dynamic(() => import('../../components/Promotion'), {
-  ssr: false,
-});
-
 const ShareBar = dynamic(() => import('../../components/ShareBar'), {
   ssr: false,
 });
@@ -519,7 +515,6 @@ export default function PostPage({ id }: Props): ReactElement {
           ariaHideApp={!(process?.env?.NODE_ENV === 'test')}
         />
       )}
-      <Promotion />
       {postById && <ShareBar post={postById.post} />}
     </MainLayout>
   );

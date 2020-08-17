@@ -20,12 +20,12 @@ export default function DiscardCommentModal({
 }: Props): ReactElement {
   return (
     <ConfirmationModal {...props}>
-      <ConfirmationHeading>Discard comment?</ConfirmationHeading>
+      <ConfirmationHeading>Discard comment</ConfirmationHeading>
       <ConfirmationDescription>
         Are you sure you want to close and discard your comment?
       </ConfirmationDescription>
       <ConfirmationButtons>
-        <HollowButton onClick={onRequestClose}>Cancel</HollowButton>
+        <HollowButton onClick={onRequestClose}>Stay</HollowButton>
         <ColorButton background={colorKetchup40} onClick={onDeleteComment}>
           Discard
         </ColorButton>

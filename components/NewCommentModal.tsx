@@ -239,7 +239,7 @@ export default function NewCommentModal({
       ReactGA.event({ category: 'Comment Popup', action: 'Comment' });
       onRequestClose(event);
     } catch (err) {
-      setErrorMessage('Failed to send your comment...');
+      setErrorMessage('Something went wrong, try again');
       setSendingComment(false);
     }
   };
