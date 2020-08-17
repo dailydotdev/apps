@@ -28,6 +28,7 @@ import {
   typoLil1,
   typoLil2Base,
   typoMicro1,
+  typoMicro2,
   typoSmall,
   typoTriple,
 } from '../../styles/typography';
@@ -285,6 +286,14 @@ const NewCommentProfile = styled(SmallRoundedImage)`
   margin-right: ${size3};
 `;
 
+const Hint = styled.div`
+  margin: ${size6} 0;
+  padding-top: ${size6};
+  color: var(--theme-secondary);
+  border-top: 0.063rem solid var(--theme-separator);
+  ${typoMicro2}
+`;
+
 interface ParentComment {
   authorName: string;
   authorImage: string;
@@ -485,6 +494,10 @@ export default function PostPage({ id }: Props): ReactElement {
             }
           />
         ))}
+        <Hint>
+          💡 Hint: The comment with most upvotes will be featured on the main
+          feed of daily.dev browser extension.
+        </Hint>
         <NewCommentContainer>
           <NewCommentButton onClick={openNewComment}>
             {user && (
