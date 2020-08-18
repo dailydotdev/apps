@@ -61,14 +61,12 @@ import { colorPepper90 } from '../../styles/colors';
 import { focusOutline, postPageMaxWidth } from '../../styles/utilities';
 import { NextSeoProps } from 'next-seo/lib/types';
 
-const NewCommentModal = dynamic(
-  () => import('../../components/NewCommentModal'),
-  { ssr: false },
+const NewCommentModal = dynamic(() =>
+  import('../../components/NewCommentModal'),
 );
 
-const DeleteCommentModal = dynamic(
-  () => import('../../components/DeleteCommentModal'),
-  { ssr: false },
+const DeleteCommentModal = dynamic(() =>
+  import('../../components/DeleteCommentModal'),
 );
 
 const ShareBar = dynamic(() => import('../../components/ShareBar'), {

@@ -51,6 +51,7 @@ const ProfileImage = styled.button`
   background: none;
   border: none;
   border-radius: 100%;
+  cursor: pointer;
   ${focusOutline}
 `;
 
@@ -69,7 +70,7 @@ const HomeLink = styled.a`
 `;
 
 export default function MainLayout({ children }: Props): ReactElement {
-  const { user, showLogin } = useContext(AuthContext);
+  const { user, showLogin, showProfile } = useContext(AuthContext);
 
   return (
     <Container>
@@ -79,7 +80,7 @@ export default function MainLayout({ children }: Props): ReactElement {
           <BetaBadge className="badge" />
         </HomeLink>
         {user ? (
-          <ProfileImage>
+          <ProfileImage onClick={showProfile}>
             <LazyImage
               imgSrc={user.image}
               imgAlt="Your profile image"

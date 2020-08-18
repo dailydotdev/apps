@@ -50,7 +50,13 @@ const renderLayout = (
   return render(
     <MockedProvider addTypename={false} mocks={[]}>
       <AuthContext.Provider
-        value={{ user, shouldShowLogin: false, showLogin: jest.fn() }}
+        value={{
+          user,
+          shouldShowLogin: false,
+          showLogin: jest.fn(),
+          showProfile: jest.fn(),
+          logout: jest.fn(),
+        }}
       >
         <MainComment {...defaultProps} {...props} />
       </AuthContext.Provider>

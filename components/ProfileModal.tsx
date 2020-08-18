@@ -12,7 +12,15 @@ import {
   Props as ModalProps,
   StyledModal,
 } from './StyledModal';
-import { size2, size3, size4, size8, sizeN } from '../styles/sizes';
+import {
+  size2,
+  size3,
+  size4,
+  size5,
+  size6,
+  size8,
+  sizeN,
+} from '../styles/sizes';
 import XIcon from '../icons/x.svg';
 import { typoDouble, typoMicro2 } from '../styles/typography';
 import GitHubIcon from '../icons/github.svg';
@@ -20,12 +28,19 @@ import GoogleIcon from '../icons/google.svg';
 import AuthContext from './AuthContext';
 import TextField from './TextField';
 import LazyImage from './LazyImage';
-import { InvertButton } from './Buttons';
+import { FloatButton, InvertButton } from './Buttons';
 import { LoggedUser, updateProfile, UserProfile } from '../lib/user';
+import { LegalNotice } from './utilities';
+import { privacyPolicy, termsOfService } from '../lib/constants';
+import Switch from './Switch';
 
 const MyModal = styled(StyledModal)`
   .Modal {
     padding: ${size8} ${size4};
+  }
+
+  ${LegalNotice} {
+    margin-top: ${size6};
   }
 `;
 
@@ -88,19 +103,35 @@ const FirstRow = styled.div`
   }
 `;
 
-const ConfirmButton = styled(InvertButton)`
-  align-self: stretch;
+const LogoutButton = styled(FloatButton)`
+  margin-left: ${size6};
+  padding: ${size2} ${size4};
+`;
+
+const Buttons = styled.div`
+  display: flex;
   margin-top: ${size3};
+  align-items: center;
+  align-self: stretch;
+
+  ${InvertButton} {
+    flex: 1;
+  }
+`;
+
+const FormSwitch = styled(Switch)`
+  margin: ${size3} 0 ${size5};
 `;
 
 export interface Props extends ModalProps {
+  confirmMode: boolean;
   profiledUpdated?: (user: LoggedUser) => void;
 }
 
-export default function ConfirmAccountModal(props: Props): ReactElement {
+export default function ProfileModal(props: Props): ReactElement {
   // eslint-disable-next-line react/prop-types
-  const { onRequestClose } = props;
-  const { user } = useContext(AuthContext);
+  const { onRequestClose, confirmMode } = props;
+  const { user, logout } = useContext(AuthContext);
 
   const formRef = useRef<HTMLFormElement>(null);
   const [disableSubmit, setDisableSubmit] = useState<boolean>(false);
@@ -120,9 +151,13 @@ export default function ConfirmAccountModal(props: Props): ReactElement {
         if (val.name === '') {
           return acc;
         }
-        return Object.assign(acc, {
+        if (val.type === 'checkbox') {
+          return { ...acc, [val.name]: val.checked };
+        }
+        return {
+          ...acc,
           [val.name]: val.value.length ? val.value : null,
-        });
+        };
       },
       { name: '', email: '' },
     );
@@ -146,8 +181,12 @@ export default function ConfirmAccountModal(props: Props): ReactElement {
         <XIcon />
       </ModalCloseButton>
       <Form ref={formRef}>
-        <Heading>Account details</Heading>
-        <Subheading>Please confirm your details below</Subheading>
+        <Heading>{confirmMode ? 'Account details' : ' Your profile'}</Heading>
+        <Subheading>
+          {confirmMode
+            ? 'Please confirm your details below'
+            : ' Edit your profile details'}
+        </Subheading>
         {user?.providers[0] === 'google' ? (
           <Provider>
             <GoogleIcon />
@@ -198,14 +237,39 @@ export default function ConfirmAccountModal(props: Props): ReactElement {
           value={user.title}
           validityChanged={updateDisableSubmit}
         />
-        <ConfirmButton
-          type="submit"
-          disabled={disableSubmit}
-          onClick={submitForm}
+        <FormSwitch
+          name="acceptedMarketing"
+          inputId="acceptedMarketing"
+          checked={user.acceptedMarketing}
         >
-          Confirm
-        </ConfirmButton>
+          Subscribe to the Weekly Recap
+        </FormSwitch>
+        <Buttons>
+          <InvertButton
+            type="submit"
+            disabled={disableSubmit}
+            onClick={submitForm}
+          >
+            {confirmMode ? 'Confirm' : 'Save changes'}
+          </InvertButton>
+          {!confirmMode && (
+            <LogoutButton type="button" onClick={logout}>
+              Logout
+            </LogoutButton>
+          )}
+        </Buttons>
       </Form>
+      {!confirmMode && (
+        <LegalNotice>
+          <a href={termsOfService} target="_blank" rel="noopener noreferrer">
+            Terms of Service
+          </a>{' '}
+          and{' '}
+          <a href={privacyPolicy} target="_blank" rel="noopener noreferrer">
+            Privacy Policy
+          </a>
+        </LegalNotice>
+      )}
     </MyModal>
   );
 }
