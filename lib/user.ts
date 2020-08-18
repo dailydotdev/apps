@@ -16,6 +16,7 @@ export interface LoggedUser {
   providers: string[];
   company?: string;
   title?: string;
+  acceptedMarketing?: boolean;
 }
 
 export interface UserProfile {
@@ -57,6 +58,13 @@ export async function authenticate({
       'content-type': 'application/json',
     },
     body: JSON.stringify({ code, code_verifier: verifier }),
+  });
+}
+
+export async function logout(): Promise<void> {
+  await fetch(`${apiUrl}/v1/users/logout`, {
+    method: 'POST',
+    credentials: 'include',
   });
 }
 

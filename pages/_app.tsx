@@ -11,15 +11,10 @@ import Seo from '../next-seo';
 import { useApollo } from '../lib/apolloClient';
 import GlobalStyle from '../components/GlobalStyle';
 import AuthContext from '../components/AuthContext';
-import { LoggedUser } from '../lib/user';
+import { LoggedUser, logout as dispatchLogout } from '../lib/user';
 
-const LoginModal = dynamic(() => import('../components/LoginModal'), {
-  ssr: false,
-});
-const ConfirmAccountModal = dynamic(
-  () => import('../components/ConfirmAccountModal'),
-  { ssr: false },
-);
+const LoginModal = dynamic(() => import('../components/LoginModal'));
+const ProfileModal = dynamic(() => import('../components/ProfileModal'));
 
 interface PageProps {
   user?: LoggedUser;
@@ -37,15 +32,24 @@ export default function App({
   const apolloClient = useApollo(pageProps.initialApolloState);
   const [user, setUser] = useState<LoggedUser>(pageProps.user);
   const [loginIsOpen, setLoginIsOpen] = useState(false);
-  const [confirmAccountIsOpen, setConfirmAccountIsOpen] = useState(
+  const [confirmAccount, setConfirmAccount] = useState(
     pageProps.user?.providers && !pageProps.user.infoConfirmed,
   );
+  const [profileIsOpen, setProfileIsOpen] = useState(confirmAccount);
 
   const closeLogin = () => setLoginIsOpen(false);
-  const closeConfirmAccount = () => setConfirmAccountIsOpen(false);
+  const closeConfirmAccount = () => setProfileIsOpen(false);
   const profileUpdated = (newProfile: LoggedUser) => {
     setUser({ ...user, ...newProfile });
-    setConfirmAccountIsOpen(false);
+    setProfileIsOpen(false);
+    if (confirmAccount) {
+      setConfirmAccount(false);
+    }
+  };
+
+  const logout = async (): Promise<void> => {
+    await dispatchLogout();
+    location.reload();
   };
 
   useEffect(() => {
@@ -66,6 +70,8 @@ export default function App({
           user,
           shouldShowLogin: loginIsOpen,
           showLogin: () => setLoginIsOpen(true),
+          showProfile: () => setProfileIsOpen(true),
+          logout,
         }}
       >
         <Head>
@@ -102,10 +108,13 @@ export default function App({
           contentLabel="Login Modal"
         />
         {user && (
-          <ConfirmAccountModal
-            isOpen={confirmAccountIsOpen}
+          <ProfileModal
+            confirmMode={confirmAccount}
+            isOpen={profileIsOpen}
             onRequestClose={closeConfirmAccount}
-            contentLabel="Confirm Your Account Details"
+            contentLabel={
+              confirmAccount ? 'Confirm Your Account Details' : 'Your profile'
+            }
             shouldCloseOnOverlayClick={false}
             profiledUpdated={profileUpdated}
           />

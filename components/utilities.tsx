@@ -2,7 +2,12 @@ import styled from 'styled-components';
 import Linkify from 'linkifyjs/react';
 import LazyImage from './LazyImage';
 import { size10, size2, size3, size4, size6 } from '../styles/sizes';
-import { typoLil1, typoLil2Base, typoSmall } from '../styles/typography';
+import {
+  typoLil1,
+  typoLil2Base,
+  typoMicro2Base,
+  typoSmall,
+} from '../styles/typography';
 import Loader from './Loader';
 import { colorWater60 } from '../styles/colors';
 
@@ -52,4 +57,20 @@ export const ButtonLoader = styled(Loader)`
   top: 0;
   bottom: 0;
   margin: auto;
+`;
+
+export const LegalNotice = styled.div`
+  color: var(--theme-disabled);
+  text-align: center;
+  font-weight: bold;
+  ${typoMicro2Base};
+
+  a {
+    display: inline-block;
+    text-decoration: underline;
+    color: inherit;
+    @supports (display: contents) {
+      display: contents;
+    }
+  }
 `;

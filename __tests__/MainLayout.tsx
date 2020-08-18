@@ -12,7 +12,15 @@ beforeEach(() => {
 
 const renderLayout = (user: LoggedUser = null): RenderResult => {
   return render(
-    <AuthContext.Provider value={{ user, shouldShowLogin: false, showLogin }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        shouldShowLogin: false,
+        showLogin,
+        showProfile: jest.fn(),
+        logout: jest.fn(),
+      }}
+    >
       <MainLayout />
     </AuthContext.Provider>,
   );

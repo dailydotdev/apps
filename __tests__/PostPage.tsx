@@ -105,7 +105,15 @@ const renderPost = (
 
   return render(
     <MockedProvider addTypename={false} mocks={mocks}>
-      <AuthContext.Provider value={{ user, shouldShowLogin: false, showLogin }}>
+      <AuthContext.Provider
+        value={{
+          user,
+          shouldShowLogin: false,
+          showLogin,
+          showProfile: jest.fn(),
+          logout: jest.fn(),
+        }}
+      >
         <PostPage {...defaultProps} {...props} />
       </AuthContext.Provider>
     </MockedProvider>,
