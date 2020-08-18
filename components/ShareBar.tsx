@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement } from 'react';
 import styled from 'styled-components';
 import { laptop } from '../styles/media';
 import { postPageMaxWidth } from '../styles/utilities';
@@ -11,6 +11,7 @@ import FacebookIcon from '../icons/facebook.svg';
 import ReactGA from 'react-ga';
 import { Post } from '../graphql/posts';
 import { typoNuggets } from '../styles/typography';
+import { useCopyPostLink } from '../lib/useCopyPostLink';
 
 const barWidth = size7;
 
@@ -59,20 +60,7 @@ const ColorfulShareButton = styled(ShareButton)`
 
 export default function ShareBar({ post }: { post: Post }): ReactElement {
   const href = encodeURIComponent(window.location.href);
-  const [copying, setCopying] = useState<boolean>(false);
-
-  const copyLink = async () => {
-    await navigator.clipboard.writeText(window.location.href);
-    setCopying(true);
-    ReactGA.event({
-      category: 'Post',
-      action: 'Share',
-      label: 'Copy',
-    });
-    setTimeout(() => {
-      setCopying(false);
-    }, 1000);
-  };
+  const [copying, copyLink] = useCopyPostLink();
 
   return (
     <Container>

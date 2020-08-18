@@ -60,6 +60,7 @@ import { laptop, mobileL, mobileM, tablet } from '../../styles/media';
 import { colorPepper90 } from '../../styles/colors';
 import { focusOutline, postPageMaxWidth } from '../../styles/utilities';
 import { NextSeoProps } from 'next-seo/lib/types';
+import { ShareMobile } from '../../components/ShareMobile';
 
 const NewCommentModal = dynamic(() =>
   import('../../components/NewCommentModal'),
@@ -491,6 +492,7 @@ export default function PostPage({ id }: Props): ReactElement {
           💡 Hint: The comment with most upvotes will be featured on the main
           feed of daily.dev browser extension.
         </Hint>
+        <ShareMobile share={sharePost} />
         <NewCommentContainer>
           <NewCommentButton onClick={openNewComment}>
             {user && (
