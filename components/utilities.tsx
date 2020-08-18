@@ -41,6 +41,7 @@ export const CommentBox = styled(Linkify).attrs({
 
   a {
     color: ${colorWater60};
+    word-break: break-all;
   }
 `;
 
