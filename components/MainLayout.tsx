@@ -1,13 +1,22 @@
-import React, { ReactElement, ReactNode, useContext } from 'react';
+import React, {
+  ReactElement,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import styled from 'styled-components';
 import { size1, size4, size8, sizeN } from '../styles/sizes';
-import { FloatButton } from './Buttons';
+import { FloatButton, IconButton } from './Buttons';
 import DailyDevLogo from './DailyDevLogo';
 import LazyImage from './LazyImage';
 import AuthContext from './AuthContext';
 import { focusOutline } from '../styles/utilities';
 import { laptop, tablet } from '../styles/media';
 import BetaBadge from './BetaBadge';
+import AboutModal from './AboutModal';
+import BellIcon from '../icons/bell.svg';
+import BellNotifyIcon from '../icons/bell_notify.svg';
 
 export interface Props {
   children?: ReactNode;
@@ -24,7 +33,6 @@ const Header = styled.header`
   display: flex;
   height: ${sizeN(12)};
   align-items: center;
-  justify-content: space-between;
   padding: 0 ${size4};
   border-bottom: 0.063rem solid var(--theme-separator);
 
@@ -55,6 +63,10 @@ const ProfileImage = styled.button`
   ${focusOutline}
 `;
 
+const AboutButton = styled(IconButton)`
+  margin: 0 ${size4} 0 auto;
+`;
+
 const HomeLink = styled.a`
   display: flex;
   align-items: center;
@@ -71,6 +83,20 @@ const HomeLink = styled.a`
 
 export default function MainLayout({ children }: Props): ReactElement {
   const { user, showLogin, showProfile } = useContext(AuthContext);
+  const [showAbout, setShowAbout] = useState(false);
+  const [showBadge, setShowBadge] = useState(false);
+
+  const onAboutClick = () => {
+    setShowAbout(true);
+    if (showBadge) {
+      setShowBadge(false);
+      localStorage.setItem('about', 'true');
+    }
+  };
+
+  useEffect(() => {
+    setShowBadge(!localStorage.getItem('about'));
+  }, []);
 
   return (
     <Container>
@@ -79,6 +105,9 @@ export default function MainLayout({ children }: Props): ReactElement {
           <DailyDevLogo />
           <BetaBadge className="badge" />
         </HomeLink>
+        <AboutButton onClick={onAboutClick}>
+          {showBadge ? <BellNotifyIcon /> : <BellIcon />}
+        </AboutButton>
         {user ? (
           <ProfileImage onClick={showProfile}>
             <LazyImage
@@ -92,6 +121,10 @@ export default function MainLayout({ children }: Props): ReactElement {
         )}
       </Header>
       {children}
+      <AboutModal
+        isOpen={showAbout}
+        onRequestClose={() => setShowAbout(false)}
+      />
     </Container>
   );
 }
