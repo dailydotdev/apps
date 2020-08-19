@@ -135,12 +135,14 @@ export async function getServerSideProps({
 }
 
 const PostContainer = styled.main`
+  position: relative;
   display: flex;
   width: 100%;
   max-width: ${postPageMaxWidth};
   flex-direction: column;
   align-items: stretch;
   padding: ${size6} ${size4} ${sizeN(16)};
+  z-index: 1;
 
   ${mobileL} {
     padding-bottom: ${size6};
