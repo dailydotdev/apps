@@ -55,6 +55,7 @@ export const StyledModal = styled(ReactModalAdapter)`
     bottom: 0;
     max-height: 100vh;
     background-color: var(--theme-backdrop);
+    z-index: 2;
 
     ${mobileL} {
       justify-content: center;
