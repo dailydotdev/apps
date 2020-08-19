@@ -42,6 +42,7 @@ export const CommentBox = styled(Linkify).attrs({
   padding: ${size3} ${size4};
   background: var(--theme-background-highlight);
   border-radius: ${size2};
+  white-space: pre-wrap;
   ${typoLil1}
 
   a {
