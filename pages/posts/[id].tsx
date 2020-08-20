@@ -427,8 +427,8 @@ export default function PostPage({ id }: Props): ReactElement {
               <Metadata as="time" dateTime={postById?.post?.createdAt}>
                 {postById && postDateFormat(postById.post.createdAt)}
               </Metadata>
-              {postById?.post.readTime && <MetadataSeparator />}
-              {postById?.post.readTime && (
+              {!!postById?.post.readTime && <MetadataSeparator />}
+              {!!postById?.post.readTime && (
                 <Metadata data-testid="readTime">
                   {postById?.post.readTime}m read time
                 </Metadata>
