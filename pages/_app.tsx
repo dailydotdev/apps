@@ -15,6 +15,7 @@ import { LoggedUser, logout as dispatchLogout } from '../lib/user';
 
 const LoginModal = dynamic(() => import('../components/LoginModal'));
 const ProfileModal = dynamic(() => import('../components/ProfileModal'));
+const CookieBanner = dynamic(() => import('../components/CookieBanner'));
 
 interface PageProps {
   user?: LoggedUser;
@@ -24,6 +25,8 @@ interface PageProps {
 
 Modal.setAppElement('#__next');
 Modal.defaultStyles = {};
+
+const consentCookieName = 'ilikecookies';
 
 export default function App({
   Component,
@@ -36,6 +39,7 @@ export default function App({
     pageProps.user?.providers && !pageProps.user.infoConfirmed,
   );
   const [profileIsOpen, setProfileIsOpen] = useState(confirmAccount);
+  const [showCookie, setShowCookie] = useState(false);
 
   const closeLogin = () => setLoginIsOpen(false);
   const closeConfirmAccount = () => setProfileIsOpen(false);
@@ -52,6 +56,13 @@ export default function App({
     location.reload();
   };
 
+  const acceptCookies = (): void => {
+    setShowCookie(false);
+    document.cookie = `${consentCookieName}=true;path=/;domain=${
+      process.env.NEXT_PUBLIC_DOMAIN
+    };samesite=lax;expires=${60 * 60 * 24 * 365 * 10}`;
+  };
+
   useEffect(() => {
     ReactGA.initialize(process.env.NEXT_PUBLIC_GA, {
       gaOptions: {
@@ -61,6 +72,15 @@ export default function App({
     const page = `/web${window.location.pathname}${window.location.search}`;
     ReactGA.set({ page });
     ReactGA.pageview(page);
+
+    if (
+      !pageProps.user &&
+      !document.cookie
+        .split('; ')
+        .find((row) => row.startsWith(consentCookieName))
+    ) {
+      setShowCookie(true);
+    }
   }, []);
 
   return (
@@ -125,6 +145,7 @@ export default function App({
             profiledUpdated={profileUpdated}
           />
         )}
+        {showCookie && <CookieBanner onAccepted={acceptCookies} />}
       </AuthContext.Provider>
     </ApolloProvider>
   );
