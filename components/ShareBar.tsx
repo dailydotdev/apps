@@ -5,13 +5,19 @@ import { postPageMaxWidth } from '../styles/utilities';
 import { size1, size10, size2, size4, size7 } from '../styles/sizes';
 import { IconButton } from './Buttons';
 import CopyIcon from '../icons/copy.svg';
-import WhatsappIcon from '../icons/whatsapp.svg';
-import TwitterIcon from '../icons/twitter.svg';
-import FacebookIcon from '../icons/facebook.svg';
+import WhatsappIcon from '../icons/whatsapp_color.svg';
+import TwitterIcon from '../icons/twitter_color.svg';
+import FacebookIcon from '../icons/facebook_color.svg';
 import ReactGA from 'react-ga';
 import { Post } from '../graphql/posts';
 import { typoNuggets } from '../styles/typography';
 import { useCopyPostLink } from '../lib/useCopyPostLink';
+import {
+  getFacebookShareLink,
+  getShareableLink,
+  getTwitterShareLink,
+  getWhatsappShareLink,
+} from '../lib/share';
 
 const barWidth = size7;
 
@@ -59,7 +65,7 @@ const ColorfulShareButton = styled(ShareButton)`
 `;
 
 export default function ShareBar({ post }: { post: Post }): ReactElement {
-  const href = encodeURIComponent(window.location.href);
+  const href = getShareableLink();
   const [copying, copyLink] = useCopyPostLink();
 
   return (
@@ -72,7 +78,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
         <ColorfulShareButton
           title="Share on WhatsApp"
           as="a"
-          href={`https://wa.me/?text=${href}`}
+          href={getWhatsappShareLink(href)}
           target="_blank"
           rel="noopener noreferrer"
           onClick={() =>
@@ -88,9 +94,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
         <ColorfulShareButton
           title="Share on Twitter"
           as="a"
-          href={`http://twitter.com/share?url=${href}&text=${encodeURIComponent(
-            `${post.title} via @dailydotdev`,
-          )}`}
+          href={getTwitterShareLink(href, post.title)}
           target="_blank"
           rel="noopener noreferrer"
           onClick={() =>
@@ -106,7 +110,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
         <ColorfulShareButton
           title="Share on Facebook"
           as="a"
-          href={`https://www.facebook.com/sharer/sharer.php?display=page&u=${href}`}
+          href={getFacebookShareLink(href)}
           target="_blank"
           rel="noopener noreferrer"
           onClick={() =>

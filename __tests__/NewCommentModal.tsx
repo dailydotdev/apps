@@ -1,6 +1,8 @@
 import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
-import NewCommentModal, { Props } from '../components/NewCommentModal';
+import NewCommentModal, {
+  NewCommentModalProps,
+} from '../components/NewCommentModal';
 import { LoggedUser } from '../lib/user';
 import AuthContext from '../components/AuthContext';
 import { MockedProvider, MockedResponse } from '@apollo/client/testing';
@@ -20,17 +22,18 @@ const defaultUser = {
 };
 
 const onRequestClose = jest.fn();
+const onComment = jest.fn();
 
 beforeEach(() => {
-  onRequestClose.mockReset();
+  jest.resetAllMocks();
 });
 
 const renderComponent = (
-  props: Partial<Props> = {},
+  props: Partial<NewCommentModalProps> = {},
   mocks: MockedResponse[] = [],
   user: Partial<LoggedUser> = {},
 ): RenderResult => {
-  const defaultProps: Props = {
+  const defaultProps: NewCommentModalProps = {
     authorName: 'Nimrod',
     authorImage: 'https://daily.dev/nimrod.png',
     publishDate: new Date(2017, 1, 10, 0, 0),
@@ -40,6 +43,7 @@ const renderComponent = (
     isOpen: true,
     ariaHideApp: false,
     onRequestClose,
+    onComment,
   };
 
   return render(
@@ -110,6 +114,13 @@ it('should enable submit button when no input', async () => {
 
 it('should send commentOnPost mutation', async () => {
   let mutationCalled = true;
+  const newComment = {
+    __typename: 'Comment',
+    id: 'new',
+    content: 'comment',
+    createdAt: new Date(2017, 1, 10, 0, 1),
+    permalink: 'https://daily.dev',
+  };
   renderComponent({}, [
     {
       request: {
@@ -120,13 +131,7 @@ it('should send commentOnPost mutation', async () => {
         mutationCalled = true;
         return {
           data: {
-            comment: {
-              __typename: 'Comment',
-              id: 'new',
-              content: 'comment',
-              createdAt: new Date(2017, 1, 10, 0, 1),
-              permalink: 'https://daily.dev',
-            },
+            comment: newComment,
           },
         };
       },
@@ -138,11 +143,19 @@ it('should send commentOnPost mutation', async () => {
   const el = await screen.findByText('Comment');
   el.click();
   await waitFor(() => mutationCalled);
-  await waitFor(() => onRequestClose.mock.calls.length === 1);
+  expect(onComment).toBeCalledWith(newComment, null);
+  expect(onRequestClose).toBeCalledTimes(1);
 });
 
 it('should send commentOnComment mutation', async () => {
   let mutationCalled = true;
+  const newComment = {
+    __typename: 'Comment',
+    id: 'new',
+    content: 'comment',
+    createdAt: new Date(2017, 1, 10, 0, 1),
+    permalink: 'https://daily.dev',
+  };
   renderComponent({ commentId: 'c1' }, [
     {
       request: {
@@ -153,13 +166,7 @@ it('should send commentOnComment mutation', async () => {
         mutationCalled = true;
         return {
           data: {
-            comment: {
-              __typename: 'Comment',
-              id: 'new',
-              content: 'comment',
-              createdAt: new Date(2017, 1, 10, 0, 1),
-              permalink: 'https://daily.dev',
-            },
+            comment: newComment,
           },
         };
       },
@@ -171,7 +178,8 @@ it('should send commentOnComment mutation', async () => {
   const el = await screen.findByText('Comment');
   el.click();
   await waitFor(() => mutationCalled);
-  await waitFor(() => onRequestClose.mock.calls.length === 1);
+  expect(onComment).toBeCalledWith(newComment, 'c1');
+  expect(onRequestClose).toBeCalledTimes(1);
 });
 
 it('should show alert in case of an error', async () => {

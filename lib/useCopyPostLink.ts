@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import ReactGA from 'react-ga';
+import { getShareableLink } from './share';
 
 export function useCopyPostLink(): [boolean, () => Promise<void>] {
   const [copying, setCopying] = useState(false);
 
   const copy = async () => {
-    await navigator.clipboard.writeText(window.location.href);
+    await navigator.clipboard.writeText(getShareableLink());
     setCopying(true);
     ReactGA.event({
       category: 'Post',
