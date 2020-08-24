@@ -101,7 +101,7 @@ export default function MainLayout({ children }: Props): ReactElement {
   return (
     <Container>
       <Header>
-        <HomeLink href="https://daily.dev">
+        <HomeLink href="/">
           <DailyDevLogo />
           <BetaBadge className="badge" />
         </HomeLink>
