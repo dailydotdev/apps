@@ -17,7 +17,7 @@ const LoginModal = dynamic(() => import('../components/LoginModal'));
 const ProfileModal = dynamic(() => import('../components/ProfileModal'));
 const CookieBanner = dynamic(() => import('../components/CookieBanner'));
 
-interface PageProps {
+export interface PageProps {
   user?: LoggedUser;
   trackingId: string;
   initialApolloState: NormalizedCacheObject;
