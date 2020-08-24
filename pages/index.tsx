@@ -58,9 +58,11 @@ const Description = styled.div`
 
 export default function Home(): ReactElement {
   const Seo: NextSeoProps = {
-    title: 'daily.dev',
+    title:
+      'Meet awesome developers by discussing trending dev news | powered by the daily.dev community',
     titleTemplate: '%s',
-    description: 'Source for busy developers',
+    description:
+      'Join the live discussion about the latest programming articles. It’s a place for developers to create meaningful interactions and help each other learn  cool things.',
   };
 
   return (
