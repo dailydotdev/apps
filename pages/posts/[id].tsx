@@ -1,4 +1,5 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import {
   ApolloError,
@@ -61,18 +62,23 @@ import { colorPepper90 } from '../../styles/colors';
 import { focusOutline, postPageMaxWidth } from '../../styles/utilities';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { ShareMobile } from '../../components/ShareMobile';
+import { getShareableLink } from '../../lib/share';
 
 const NewCommentModal = dynamic(() =>
   import('../../components/NewCommentModal'),
 );
-
 const DeleteCommentModal = dynamic(() =>
   import('../../components/DeleteCommentModal'),
 );
-
 const ShareBar = dynamic(() => import('../../components/ShareBar'), {
   ssr: false,
 });
+const ShareNewCommentPopup = dynamic(
+  () => import('../../components/ShareNewCommentPopup'),
+  {
+    ssr: false,
+  },
+);
 
 export interface Props {
   id: string;
@@ -301,12 +307,16 @@ interface ParentComment {
 
 export default function PostPage({ id }: Props): ReactElement {
   const { user, showLogin } = useContext(AuthContext);
+  const router = useRouter();
   const [parentComment, setParentComment] = useState<ParentComment>(null);
   const [hasNativeShare, setHasNativeShare] = useState<boolean>(false);
   const [pendingComment, setPendingComment] = useState<{
     comment: Comment;
     parentId: string | null;
   }>(null);
+  const [showShareNewComment, setShowShareNewComment] = useState<boolean>(
+    false,
+  );
 
   const { data: postById } = useQuery<PostData>(POST_BY_ID_QUERY, {
     variables: { id },
@@ -394,6 +404,12 @@ export default function PostPage({ id }: Props): ReactElement {
     }
   };
 
+  const onNewComment = (newComment: Comment, parentId: string | null): void => {
+    if (!parentId) {
+      setTimeout(() => setShowShareNewComment(true), 700);
+    }
+  };
+
   const Seo: NextSeoProps = {
     title: postById?.post.title,
     description: `Join us to the discussion about "${postById?.post.title}" on daily.dev ✌️`,
@@ -408,6 +424,10 @@ export default function PostPage({ id }: Props): ReactElement {
 
   useEffect(() => {
     setHasNativeShare('share' in navigator);
+    if (router?.query.new) {
+      setTimeout(() => setShowShareNewComment(true), 700);
+    }
+    window.history.replaceState({}, document.title, getShareableLink());
   }, []);
 
   return (
@@ -523,9 +543,16 @@ export default function PostPage({ id }: Props): ReactElement {
           onRequestClose={() => setParentComment(null)}
           {...parentComment}
           ariaHideApp={!(process?.env?.NODE_ENV === 'test')}
+          onComment={onNewComment}
         />
       )}
       {postById && <ShareBar post={postById.post} />}
+      {postById && showShareNewComment && (
+        <ShareNewCommentPopup
+          post={postById.post}
+          onRequestClose={() => setShowShareNewComment(false)}
+        />
+      )}
     </MainLayout>
   );
 }

@@ -39,13 +39,14 @@ import ReactGA from 'react-ga';
 
 const DiscardCommentModal = dynamic(() => import('./DiscardCommentModal'));
 
-export interface Props extends ModalProps {
+export interface NewCommentModalProps extends ModalProps {
   authorName: string;
   authorImage: string;
   publishDate: Date | string;
   content: string;
   commentId: string | null;
   postId: string;
+  onComment?: (newComment: Comment, parentId: string | null) => void;
 }
 
 const MyModal = styled(StyledModal)`
@@ -156,8 +157,9 @@ export default function NewCommentModal({
   publishDate,
   content,
   onRequestClose,
+  onComment,
   ...props
-}: Props): ReactElement {
+}: NewCommentModalProps): ReactElement {
   const { user } = useContext(AuthContext);
   const [input, setInput] = useState<string>(null);
   const [errorMessage, setErrorMessage] = useState<string>(null);
@@ -188,26 +190,28 @@ export default function NewCommentModal({
           cursor: '',
         };
         // Update the sub tree of the parent comment
-        if (props.commentId) {
-          const edgeIndex = cached.postComments.edges.findIndex(
-            (e) => e.node.id === props.commentId,
-          );
-          if (edgeIndex > -1) {
-            if (cached.postComments.edges[edgeIndex].node.children) {
-              cached.postComments.edges[edgeIndex].node.children.edges.push(
-                newEdge,
-              );
-            } else {
-              cached.postComments.edges[edgeIndex].node.children = {
-                edges: [newEdge],
-                pageInfo: {},
-              };
+        if (cached) {
+          if (props.commentId) {
+            const edgeIndex = cached.postComments.edges.findIndex(
+              (e) => e.node.id === props.commentId,
+            );
+            if (edgeIndex > -1) {
+              if (cached.postComments.edges[edgeIndex].node.children) {
+                cached.postComments.edges[edgeIndex].node.children.edges.push(
+                  newEdge,
+                );
+              } else {
+                cached.postComments.edges[edgeIndex].node.children = {
+                  edges: [newEdge],
+                  pageInfo: {},
+                };
+              }
             }
+          } else {
+            cached.postComments.edges.push(newEdge);
           }
-        } else {
-          cached.postComments.edges.push(newEdge);
+          cache.writeQuery({ ...query, data: cached });
         }
-        cache.writeQuery({ ...query, data: cached });
       },
     },
   );
@@ -233,10 +237,11 @@ export default function NewCommentModal({
     setErrorMessage(null);
     setSendingComment(true);
     try {
-      await comment({
+      const { data } = await comment({
         variables: { id: props.commentId || props.postId, content: input },
       });
       ReactGA.event({ category: 'Comment Popup', action: 'Comment' });
+      onComment?.(data.comment, props.commentId);
       onRequestClose(event);
     } catch (err) {
       setErrorMessage('Something went wrong, try again');
