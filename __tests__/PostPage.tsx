@@ -158,7 +158,7 @@ it('should set href to the post permalink', async () => {
   const res = renderPost();
   // Wait for GraphQL to return
   await res.findByText('Learn SQL');
-  const el = res.getByTitle('Go to article');
+  const el = res.getAllByTitle('Go to article')[0];
   expect(el).toHaveAttribute('href', 'http://localhost:4000/r/9CuRpr5NiEY5');
 });
 

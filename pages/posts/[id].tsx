@@ -215,9 +215,12 @@ const Tags = styled.div`
   ${typoSmall};
 `;
 
-const PostImage = styled(LazyImage)`
+const PostImage = styled.a`
+  display: block;
   margin: ${size2} 0;
   border-radius: ${size4};
+  overflow: hidden;
+  cursor: pointer;
 `;
 
 const ActionButtons = styled.div`
@@ -410,6 +413,14 @@ export default function PostPage({ id }: Props): ReactElement {
     }
   };
 
+  const postLinkProps = {
+    href: postById?.post.permalink,
+    title: 'Go to article',
+    target: '_blank',
+    rel: 'noopener noreferrer',
+    onClick: () => ReactGA.event({ category: 'Post', action: 'Click' }),
+  };
+
   const Seo: NextSeoProps = {
     title: postById?.post.title,
     description: `Join us to the discussion about "${postById?.post.title}" on daily.dev ✌️`,
@@ -455,25 +466,20 @@ export default function PostPage({ id }: Props): ReactElement {
               )}
             </MetadataContainer>
           </PostInfoSubContainer>
-          <IconButton
-            as="a"
-            href={postById?.post.permalink}
-            title="Go to article"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => ReactGA.event({ category: 'Post', action: 'Click' })}
-          >
+          <IconButton as="a" {...postLinkProps}>
             <OpenLinkIcon />
           </IconButton>
         </PostInfo>
         <Title>{postById?.post.title}</Title>
         <Tags>{postById?.post.tags.map((t) => `#${t}`).join(' ')}</Tags>
-        <PostImage
-          imgSrc={postById?.post.image}
-          imgAlt="Post cover image"
-          lowsrc={postById?.post.placeholder}
-          ratio="49%"
-        />
+        <PostImage {...postLinkProps}>
+          <LazyImage
+            imgSrc={postById?.post.image}
+            imgAlt="Post cover image"
+            lowsrc={postById?.post.placeholder}
+            ratio="49%"
+          />
+        </PostImage>
         <ActionButtons>
           <FloatButton
             done={postById?.post.upvoted}
