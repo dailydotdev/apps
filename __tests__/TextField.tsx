@@ -42,7 +42,7 @@ it('should mark field as invalid', () => {
   const input = getInput();
   input.dispatchEvent(new Event('blur', { bubbles: true }));
   expect(screen.getByTestId('field')).toHaveStyle({
-    'box-shadow': `inset 2px 0 0 0 ${colorKetchup30}`,
+    'box-shadow': `inset 0.125rem 0 0 0 ${colorKetchup30}`,
   });
 });
 

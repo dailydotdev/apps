@@ -97,7 +97,7 @@ const Field = styled.div<FieldProps>`
   cursor: text;
   ${({ focused, valid }) =>
     (focused || valid === false) &&
-    `box-shadow: inset 2px 0 0 0 ${
+    `box-shadow: inset 0.125rem 0 0 0 ${
       valid === false ? colorKetchup30 : 'var(--theme-primary)'
     };`}
 

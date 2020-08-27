@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext } from 'react';
 import styled from 'styled-components';
-import { size10, size4, size6, size8, sizeN } from '../styles/sizes';
+import { size10, size2, size4, size6, size8, sizeN } from '../styles/sizes';
 import XIcon from '../icons/x.svg';
 import { ModalCloseButton } from './StyledModal';
 import { laptop } from '../styles/media';
@@ -11,6 +11,8 @@ import TwitterIcon from '../icons/twitter.svg';
 import WhatsappIcon from '../icons/whatsapp.svg';
 import FacebookIcon from '../icons/facebook.svg';
 import CopyIcon from '../icons/copy.svg';
+import ShareIcon from '../icons/share.svg';
+import Confetti from './ConfettiSvg';
 import { colorPepper80, colorSalt10 } from '../styles/colors';
 import {
   getFacebookShareLink,
@@ -66,6 +68,21 @@ const CopyButton = styled(ShareButton).attrs({ background: colorSalt10 })`
   color: ${colorPepper80};
 `;
 
+const StyledConfetti = styled(Confetti)`
+  position: absolute;
+  left: ${size2};
+  top: -4.375rem;
+  width: 6.25rem;
+  height: 4rem;
+`;
+
+const StyledShare = styled(ShareIcon)`
+  position: absolute;
+  left: ${size6};
+  top: -2rem;
+  font-size: 4rem;
+`;
+
 interface ShareNewCommentPopupProps {
   onRequestClose: () => void;
   post: Post;
@@ -84,6 +101,8 @@ export default function ShareNewCommentPopup({
       <ModalCloseButton onClick={onRequestClose}>
         <XIcon />
       </ModalCloseButton>
+      <StyledConfetti />
+      <StyledShare />
       <Title>That&apos;s a great comment, {user.name?.split(' ')[0]}!</Title>
       <Description>
         Discussions are super fun when shared with friends and team members.

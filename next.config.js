@@ -1,7 +1,8 @@
 module.exports = {
   webpack: (config) => {
     config.module.rules.push({
-      test: /\.svg$/,
+      test: /icons\/.*\.svg$/,
+      exclude: /node_modules/,
       use: [
         {
           loader: '@svgr/webpack',
