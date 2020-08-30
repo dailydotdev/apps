@@ -21,7 +21,7 @@ import {
   SmallRoundedImage,
 } from './utilities';
 import { commentDateFormat } from '../lib/dateFormat';
-import { typoLil1, typoSmallBase } from '../styles/typography';
+import { typoJr, typoSmallBase } from '../styles/typography';
 import { colorKetchup30, colorWater60 } from '../styles/colors';
 import { ColorButton, FloatButton } from './Buttons';
 import { mobileL } from '../styles/media';
@@ -50,14 +50,28 @@ export interface NewCommentModalProps extends ModalProps {
 }
 
 const MyModal = styled(StyledModal)`
+  .Overlay {
+    position: relative;
+    min-height: 100vh;
+
+    ${mobileL} {
+      position: fixed;
+      min-height: unset;
+    }
+  }
+
   .Modal {
+    position: absolute;
     max-width: ${sizeN(120)};
+    min-height: 100%;
     align-items: stretch;
     padding: ${size2};
     background: var(--theme-background-secondary);
     border-radius: 0;
 
     ${mobileL} {
+      position: relative;
+      min-height: unset;
       border-radius: ${size4};
     }
   }
@@ -120,7 +134,8 @@ const NewCommentTextArea = styled.div`
   border: none;
   caret-color: ${colorWater60};
   word-break: break-word;
-  ${typoLil1}
+  ${typoJr}
+  font-style: normal;
 
   &:focus {
     outline: 0;

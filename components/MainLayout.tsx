@@ -1,6 +1,6 @@
 import React, {
+  HTMLAttributes,
   ReactElement,
-  ReactNode,
   useContext,
   useEffect,
   useState,
@@ -18,9 +18,7 @@ import AboutModal from './AboutModal';
 import BellIcon from '../icons/bell.svg';
 import BellNotifyIcon from '../icons/bell_notify.svg';
 
-export interface Props {
-  children?: ReactNode;
-}
+export type Props = HTMLAttributes<HTMLDivElement>;
 
 const Container = styled.div`
   display: flex;
@@ -81,7 +79,10 @@ const HomeLink = styled.a`
   }
 `;
 
-export default function MainLayout({ children }: Props): ReactElement {
+export default function MainLayout({
+  children,
+  className,
+}: Props): ReactElement {
   const { user, showLogin, showProfile } = useContext(AuthContext);
   const [showAbout, setShowAbout] = useState(false);
   const [showBadge, setShowBadge] = useState(false);
@@ -99,7 +100,7 @@ export default function MainLayout({ children }: Props): ReactElement {
   }, []);
 
   return (
-    <Container>
+    <Container className={className}>
       <Header>
         <HomeLink href="/">
           <DailyDevLogo />

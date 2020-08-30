@@ -19,6 +19,7 @@ import {
   colorSalt50,
   colorSalt90,
 } from '../styles/colors';
+import { mobileL } from '../styles/media';
 
 export default createGlobalStyle`
   ${normalize}
@@ -84,5 +85,13 @@ export default createGlobalStyle`
 
   .logo {
     width: 4.313rem;
+  }
+
+  .ReactModal__Body--open .hide-on-modal {
+    display: none;
+
+    ${mobileL} {
+      display: flex;
+    }
   }
 `;

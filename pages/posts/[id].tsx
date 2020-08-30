@@ -320,6 +320,7 @@ export default function PostPage({ id }: Props): ReactElement {
   const [showShareNewComment, setShowShareNewComment] = useState<boolean>(
     false,
   );
+  const [lastScroll, setLastScroll] = useState<number>(0);
 
   const { data: postById } = useQuery<PostData>(POST_BY_ID_QUERY, {
     variables: { id },
@@ -379,6 +380,7 @@ export default function PostPage({ id }: Props): ReactElement {
 
   const openNewComment = () => {
     if (user) {
+      setLastScroll(window.scrollY);
       setParentComment({
         authorName: postById.post.source.name,
         authorImage: postById.post.source.image,
@@ -394,6 +396,7 @@ export default function PostPage({ id }: Props): ReactElement {
 
   const onCommentClick = (comment: Comment, parentId: string | null) => {
     if (user) {
+      setLastScroll(window.scrollY);
       setParentComment({
         authorName: comment.author.name,
         authorImage: comment.author.image,
@@ -405,6 +408,11 @@ export default function PostPage({ id }: Props): ReactElement {
     } else {
       showLogin();
     }
+  };
+
+  const closeNewComment = () => {
+    setParentComment(null);
+    document.documentElement.scrollTop = lastScroll;
   };
 
   const onNewComment = (newComment: Comment, parentId: string | null): void => {
@@ -442,7 +450,7 @@ export default function PostPage({ id }: Props): ReactElement {
   }, []);
 
   return (
-    <MainLayout>
+    <MainLayout className={parentComment && 'hide-on-modal'}>
       <PostContainer>
         <NextSeo {...Seo} />
         <PostInfo>
@@ -546,7 +554,7 @@ export default function PostPage({ id }: Props): ReactElement {
       {parentComment && (
         <NewCommentModal
           isOpen={!!parentComment}
-          onRequestClose={() => setParentComment(null)}
+          onRequestClose={closeNewComment}
           {...parentComment}
           ariaHideApp={!(process?.env?.NODE_ENV === 'test')}
           onComment={onNewComment}
