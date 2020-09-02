@@ -63,6 +63,7 @@ import { focusOutline, postPageMaxWidth } from '../../styles/utilities';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { ShareMobile } from '../../components/ShareMobile';
 import { getShareableLink } from '../../lib/share';
+import Head from 'next/head';
 
 const NewCommentModal = dynamic(() =>
   import('../../components/NewCommentModal'),
@@ -452,6 +453,9 @@ export default function PostPage({ id }: Props): ReactElement {
   return (
     <MainLayout className={parentComment && 'hide-on-modal'}>
       <PostContainer>
+        <Head>
+          <link rel="preload" as="image" href={postById?.post.image} />
+        </Head>
         <NextSeo {...Seo} />
         <PostInfo>
           <RoundedImage
