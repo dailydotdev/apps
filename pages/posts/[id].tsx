@@ -11,7 +11,7 @@ import ReactGA from 'react-ga';
 import { initializeApollo } from '../../lib/apolloClient';
 import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import { ParsedUrlQuery } from 'querystring';
-import { getUser, LoggedUser } from '../../lib/user';
+import { getUser, LoggedUser, Roles } from '../../lib/user';
 import styled from 'styled-components';
 import { NextSeo } from 'next-seo';
 import {
@@ -38,6 +38,7 @@ import OpenLinkIcon from '../../icons/open_link.svg';
 import UpvoteIcon from '../../icons/upvote.svg';
 import CommentIcon from '../../icons/comment.svg';
 import ShareIcon from '../../icons/share.svg';
+import TrashIcon from '../../icons/trash.svg';
 import LazyImage from '../../components/LazyImage';
 import {
   CANCEL_UPVOTE_MUTATION,
@@ -70,6 +71,9 @@ const NewCommentModal = dynamic(() =>
 );
 const DeleteCommentModal = dynamic(() =>
   import('../../components/DeleteCommentModal'),
+);
+const DeletePostModal = dynamic(() =>
+  import('../../components/DeletePostModal'),
 );
 const ShareBar = dynamic(() => import('../../components/ShareBar'), {
   ssr: false,
@@ -322,6 +326,7 @@ export default function PostPage({ id }: Props): ReactElement {
     false,
   );
   const [lastScroll, setLastScroll] = useState<number>(0);
+  const [showDeletePost, setShowDeletePost] = useState<boolean>(false);
 
   const { data: postById } = useQuery<PostData>(POST_BY_ID_QUERY, {
     variables: { id },
@@ -481,6 +486,11 @@ export default function PostPage({ id }: Props): ReactElement {
           <IconButton as="a" {...postLinkProps}>
             <OpenLinkIcon />
           </IconButton>
+          {user?.roles?.indexOf(Roles.Moderator) > -1 && (
+            <IconButton onClick={() => setShowDeletePost(true)}>
+              <TrashIcon />
+            </IconButton>
+          )}
         </PostInfo>
         <Title>{postById?.post.title}</Title>
         <Tags>{postById?.post.tags.map((t) => `#${t}`).join(' ')}</Tags>
@@ -571,6 +581,11 @@ export default function PostPage({ id }: Props): ReactElement {
           onRequestClose={() => setShowShareNewComment(false)}
         />
       )}
+      <DeletePostModal
+        postId={id}
+        isOpen={showDeletePost}
+        onRequestClose={() => setShowDeletePost(false)}
+      />
     </MainLayout>
   );
 }

@@ -76,6 +76,14 @@ export const CANCEL_UPVOTE_MUTATION = gql`
   }
 `;
 
+export const DELETE_POST_MUTATION = gql`
+  mutation DeletePost($id: ID!) {
+    deletePost(id: $id) {
+      _
+    }
+  }
+`;
+
 export const updatePostUpvoteCache = <T>(
   cache: ApolloCache<T>,
   id: string,
