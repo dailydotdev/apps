@@ -2,6 +2,10 @@ import nodeFetch from 'node-fetch';
 import { IncomingMessage, ServerResponse } from 'http';
 import { apiUrl } from './config';
 
+export enum Roles {
+  Moderator = 'moderator',
+}
+
 export interface AnonymousUser {
   id: string;
 }
@@ -17,6 +21,7 @@ export interface LoggedUser {
   company?: string;
   title?: string;
   acceptedMarketing?: boolean;
+  roles?: Roles[];
 }
 
 export interface UserProfile {
