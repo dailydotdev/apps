@@ -15,6 +15,7 @@ import {
   UpvoteCommentData,
 } from '../graphql/comments';
 import { useMutation } from '@apollo/client';
+import { Roles } from '../lib/user';
 
 export interface Props {
   comment: Comment;
@@ -96,7 +97,8 @@ export default function CommentActionButtons({
       >
         <CommentIcon />
       </CommentButton>
-      {user?.id === comment.author.id && (
+      {(user?.id === comment.author.id ||
+        user?.roles?.indexOf(Roles.Moderator) > -1) && (
         <TrashButton
           size="small"
           title="Delete"
