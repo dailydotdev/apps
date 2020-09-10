@@ -12,7 +12,10 @@ export interface Props extends Modal.Props {
   children?: ReactNode;
 }
 
-export const ModalCloseButton = styled(IconButton).attrs({ size: 'small' })`
+export const ModalCloseButton = styled(IconButton).attrs({
+  size: 'small',
+  title: 'Close',
+})`
   position: absolute;
   right: ${size4};
   top: ${size4};

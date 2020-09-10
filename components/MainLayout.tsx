@@ -102,11 +102,11 @@ export default function MainLayout({
   return (
     <Container className={className}>
       <Header>
-        <HomeLink href="/">
+        <HomeLink href="/" title="Home">
           <DailyDevLogo />
           <BetaBadge className="badge" />
         </HomeLink>
-        <AboutButton onClick={onAboutClick}>
+        <AboutButton onClick={onAboutClick} title="About">
           {showBadge ? <BellNotifyIcon /> : <BellIcon />}
         </AboutButton>
         {user ? (
