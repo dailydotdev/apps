@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
-import { getUser, LoggedUser } from '../lib/user';
+import { getUserProps, LoggedUser } from '../lib/user';
 import { PageProps } from './_app';
 import MainLayout from '../components/MainLayout';
 import styled from 'styled-components';
@@ -10,17 +10,23 @@ import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
 import { InvertButton } from '../components/Buttons';
 import { laptop } from '../styles/media';
+import { shouldSkipSSR } from '../lib/ssr';
 
 export async function getServerSideProps({
+  query,
   req,
   res,
-}: GetServerSidePropsContext): Promise<GetServerSidePropsResult<PageProps>> {
-  const userRes = await getUser({ req, res });
+}: GetServerSidePropsContext): Promise<
+  GetServerSidePropsResult<PageProps | {}>
+> {
+  if (shouldSkipSSR(query)) {
+    return { props: {} };
+  }
+  const userProps = await getUserProps({ req, res });
   return {
     props: {
       initialApolloState: null,
-      user: userRes.isLoggedIn ? (userRes.user as LoggedUser) : null,
-      trackingId: userRes.user.id,
+      ...userProps,
     },
   };
 }

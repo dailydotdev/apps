@@ -11,7 +11,7 @@ import ReactGA from 'react-ga';
 import { initializeApollo } from '../../lib/apolloClient';
 import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import { ParsedUrlQuery } from 'querystring';
-import { getUser, LoggedUser, Roles } from '../../lib/user';
+import { getUserProps, LoggedUser, Roles } from '../../lib/user';
 import styled from 'styled-components';
 import { NextSeo } from 'next-seo';
 import {
@@ -65,6 +65,7 @@ import { NextSeoProps } from 'next-seo/lib/types';
 import { ShareMobile } from '../../components/ShareMobile';
 import { getShareableLink } from '../../lib/share';
 import Head from 'next/head';
+import { shouldSkipSSR } from '../../lib/ssr';
 
 const NewCommentModal = dynamic(() =>
   import('../../components/NewCommentModal'),
@@ -88,7 +89,7 @@ const ShareNewCommentPopup = dynamic(
 export interface Props {
   id: string;
   initialApolloState: NormalizedCacheObject;
-  user: LoggedUser;
+  user?: LoggedUser;
   trackingId: string;
 }
 
@@ -97,17 +98,21 @@ interface PostParams extends ParsedUrlQuery {
 }
 
 export async function getServerSideProps({
+  query,
   params,
   req,
   res,
 }: GetServerSidePropsContext<PostParams>): Promise<
-  GetServerSidePropsResult<Props>
+  GetServerSidePropsResult<Props | {}>
 > {
+  if (shouldSkipSSR(query)) {
+    return { props: {} };
+  }
   const { id } = params;
   const apolloClient = initializeApollo({ req });
 
   try {
-    const [, , userRes] = await Promise.all([
+    const [, , userProps] = await Promise.all([
       apolloClient.query({
         query: POST_BY_ID_QUERY,
         variables: {
@@ -120,15 +125,14 @@ export async function getServerSideProps({
           postId: id,
         },
       }),
-      getUser({ req, res }),
+      getUserProps({ req, res }),
     ]);
 
     return {
       props: {
         id,
         initialApolloState: apolloClient.cache.extract(),
-        user: userRes.isLoggedIn ? (userRes.user as LoggedUser) : null,
-        trackingId: userRes.user.id,
+        ...userProps,
       },
     };
   } catch (err) {
