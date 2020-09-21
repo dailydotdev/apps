@@ -97,6 +97,7 @@ const renderPost = (
       image: 'https://daily.dev/ido.png',
       infoConfirmed: true,
       premium: false,
+      createdAt: '',
     },
     trackingId: 'u1',
   };
