@@ -19,6 +19,7 @@ const defaultUser = {
   image: 'https://daily.dev/ido.png',
   infoConfirmed: true,
   premium: false,
+  createdAt: '',
 };
 
 const onRequestClose = jest.fn();

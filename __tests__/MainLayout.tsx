@@ -41,8 +41,11 @@ it('should show login when clicking on the button', async () => {
 it('should show profile image when logged-in', async () => {
   const res = renderLayout({
     id: 'u1',
-    image: 'https://daily.dev/ido.png',
+    name: 'Ido Shamun',
     providers: ['github'],
+    email: 'ido@acme.com',
+    image: 'https://daily.dev/ido.png',
+    createdAt: '',
   });
   const el = await res.findByAltText('Your profile image');
   expect(el).toHaveAttribute('data-src', 'https://daily.dev/ido.png');

@@ -28,6 +28,7 @@ const loggedUser = {
   image: 'https://daily.dev/ido.png',
   infoConfirmed: true,
   premium: false,
+  createdAt: '',
 };
 
 const baseComment = {
@@ -85,8 +86,11 @@ it('should show delete button when user is the author', async () => {
     {},
     {
       id: 'u1',
-      image: 'https://daily.dev/ido.png',
+      name: 'Ido Shamun',
       providers: ['github'],
+      email: 'ido@acme.com',
+      image: 'https://daily.dev/ido.png',
+      createdAt: '',
     },
   );
   expect(res.getByTitle('Delete')).toBeDefined();

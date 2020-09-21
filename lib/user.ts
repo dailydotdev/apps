@@ -10,25 +10,22 @@ export interface AnonymousUser {
   id: string;
 }
 
-export interface LoggedUser {
-  id: string;
-  name?: string;
-  email?: string;
-  image: string;
-  infoConfirmed?: boolean;
-  premium?: boolean;
-  providers: string[];
-  company?: string;
-  title?: string;
-  acceptedMarketing?: boolean;
-  roles?: Roles[];
-}
-
 export interface UserProfile {
   name: string;
   email: string;
   company?: string;
   title?: string;
+}
+
+export interface LoggedUser extends UserProfile {
+  id: string;
+  image: string;
+  infoConfirmed?: boolean;
+  premium?: boolean;
+  providers: string[];
+  acceptedMarketing?: boolean;
+  roles?: Roles[];
+  createdAt: string;
 }
 
 interface UserResponse {
@@ -113,5 +110,15 @@ export async function getUser({
   return {
     user: body,
     isLoggedIn: !!body.providers,
+  };
+}
+
+export async function getUserProps(
+  params: GetUserParams,
+): Promise<{ user?: LoggedUser; trackingId: string }> {
+  const userRes = await getUser(params);
+  return {
+    user: userRes.isLoggedIn ? (userRes.user as LoggedUser) : null,
+    trackingId: userRes.user.id,
   };
 }

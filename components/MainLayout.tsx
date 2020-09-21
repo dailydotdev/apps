@@ -5,6 +5,7 @@ import React, {
   useEffect,
   useState,
 } from 'react';
+import Link from 'next/link';
 import styled from 'styled-components';
 import { size1, size4, size8, sizeN } from '../styles/sizes';
 import { FloatButton, IconButton } from './Buttons';
@@ -102,10 +103,12 @@ export default function MainLayout({
   return (
     <Container className={className}>
       <Header>
-        <HomeLink href="/" title="Home">
-          <DailyDevLogo />
-          <BetaBadge className="badge" />
-        </HomeLink>
+        <Link href="/?ssr=false" as="/" passHref>
+          <HomeLink title="Home">
+            <DailyDevLogo />
+            <BetaBadge className="badge" />
+          </HomeLink>
+        </Link>
         <AboutButton onClick={onAboutClick} title="About">
           {showBadge ? <BellNotifyIcon /> : <BellIcon />}
         </AboutButton>

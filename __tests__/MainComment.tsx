@@ -35,6 +35,7 @@ const loggedUser = {
   image: 'https://daily.dev/ido.png',
   infoConfirmed: true,
   premium: false,
+  createdAt: '',
 };
 
 const renderLayout = (
