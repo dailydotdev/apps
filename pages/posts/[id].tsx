@@ -65,7 +65,7 @@ import { NextSeoProps } from 'next-seo/lib/types';
 import { ShareMobile } from '../../components/ShareMobile';
 import { getShareableLink } from '../../lib/share';
 import Head from 'next/head';
-import { shouldSkipSSR } from '../../lib/ssr';
+import { shouldSkipSSR, SkipSSRProps } from '../../lib/ssr';
 
 const NewCommentModal = dynamic(() =>
   import('../../components/NewCommentModal'),
@@ -103,10 +103,10 @@ export async function getServerSideProps({
   req,
   res,
 }: GetServerSidePropsContext<PostParams>): Promise<
-  GetServerSidePropsResult<Props | {}>
+  GetServerSidePropsResult<Props | SkipSSRProps>
 > {
   if (shouldSkipSSR(query)) {
-    return { props: {} };
+    return { props: { skipSSR: true } };
   }
   const { id } = params;
   const apolloClient = initializeApollo({ req });

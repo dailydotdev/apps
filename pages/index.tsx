@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
-import { getUserProps, LoggedUser } from '../lib/user';
+import { getUserProps } from '../lib/user';
 import { PageProps } from './_app';
 import MainLayout from '../components/MainLayout';
 import styled from 'styled-components';
@@ -10,17 +10,17 @@ import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
 import { InvertButton } from '../components/Buttons';
 import { laptop } from '../styles/media';
-import { shouldSkipSSR } from '../lib/ssr';
+import { shouldSkipSSR, SkipSSRProps } from '../lib/ssr';
 
 export async function getServerSideProps({
   query,
   req,
   res,
 }: GetServerSidePropsContext): Promise<
-  GetServerSidePropsResult<PageProps | {}>
+  GetServerSidePropsResult<PageProps | SkipSSRProps>
 > {
   if (shouldSkipSSR(query)) {
-    return { props: {} };
+    return { props: { skipSSR: true } };
   }
   const userProps = await getUserProps({ req, res });
   return {
