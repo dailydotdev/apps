@@ -35,9 +35,7 @@ export default function App({
   const apolloClient = useApollo(pageProps.initialApolloState);
   const [user, setUser] = useState<LoggedUser>(pageProps.user);
   const [loginIsOpen, setLoginIsOpen] = useState(false);
-  const [confirmAccount, setConfirmAccount] = useState(
-    pageProps.user?.providers && !pageProps.user.infoConfirmed,
-  );
+  const [confirmAccount, setConfirmAccount] = useState(false);
   const [profileIsOpen, setProfileIsOpen] = useState(confirmAccount);
   const [showCookie, setShowCookie] = useState(false);
 
@@ -64,6 +62,16 @@ export default function App({
   };
 
   useEffect(() => {
+    if (
+      pageProps.user?.providers &&
+      !pageProps.user.infoConfirmed &&
+      window.location.pathname.indexOf('/register') !== 0
+    ) {
+      window.location.replace(
+        `/register?redirect_uri=${encodeURI(window.location.pathname)}`,
+      );
+    }
+
     ReactGA.initialize(process.env.NEXT_PUBLIC_GA, {
       gaOptions: {
         clientId: pageProps.trackingId,

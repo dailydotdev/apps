@@ -19,7 +19,9 @@ import AboutModal from './AboutModal';
 import BellIcon from '../icons/bell.svg';
 import BellNotifyIcon from '../icons/bell_notify.svg';
 
-export type Props = HTMLAttributes<HTMLDivElement>;
+export interface Props extends HTMLAttributes<HTMLDivElement> {
+  showOnlyLogo?: boolean;
+}
 
 const Container = styled.div`
   display: flex;
@@ -83,6 +85,7 @@ const HomeLink = styled.a`
 export default function MainLayout({
   children,
   className,
+  showOnlyLogo = false,
 }: Props): ReactElement {
   const { user, showLogin, showProfile } = useContext(AuthContext);
   const [showAbout, setShowAbout] = useState(false);
@@ -109,19 +112,23 @@ export default function MainLayout({
             <BetaBadge className="badge" />
           </HomeLink>
         </Link>
-        <AboutButton onClick={onAboutClick} title="About">
-          {showBadge ? <BellNotifyIcon /> : <BellIcon />}
-        </AboutButton>
-        {user ? (
-          <ProfileImage onClick={showProfile}>
-            <LazyImage
-              imgSrc={user.image}
-              imgAlt="Your profile image"
-              ratio="100%"
-            />
-          </ProfileImage>
-        ) : (
-          <FloatButton onClick={showLogin}>Login</FloatButton>
+        {!showOnlyLogo && (
+          <>
+            <AboutButton onClick={onAboutClick} title="About">
+              {showBadge ? <BellNotifyIcon /> : <BellIcon />}
+            </AboutButton>
+            {user ? (
+              <ProfileImage onClick={showProfile}>
+                <LazyImage
+                  imgSrc={user.image}
+                  imgAlt="Your profile image"
+                  ratio="100%"
+                />
+              </ProfileImage>
+            ) : (
+              <FloatButton onClick={showLogin}>Login</FloatButton>
+            )}
+          </>
         )}
       </Header>
       {children}

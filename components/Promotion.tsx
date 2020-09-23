@@ -4,7 +4,7 @@ import { size2, size4, size6, sizeN } from '../styles/sizes';
 import LazyImage from './LazyImage';
 import { typoSmallBase } from '../styles/typography';
 import { InvertButton } from './Buttons';
-import { postPageMaxWidth } from '../styles/utilities';
+import { pageMaxWidth } from '../styles/utilities';
 import { mobileL } from '../styles/media';
 
 const promotionWidth = sizeN(36);
@@ -12,7 +12,7 @@ const promotionWidth = sizeN(36);
 const Container = styled.div`
   position: fixed;
   display: none;
-  right: calc((100vw - ${postPageMaxWidth}) / 4 - ${promotionWidth} / 2);
+  right: calc((100vw - ${pageMaxWidth}) / 4 - ${promotionWidth} / 2);
   bottom: ${size6};
   width: ${promotionWidth};
   flex-direction: column;

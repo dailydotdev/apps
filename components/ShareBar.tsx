@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import styled from 'styled-components';
 import { laptop } from '../styles/media';
-import { postPageMaxWidth } from '../styles/utilities';
+import { pageMaxWidth } from '../styles/utilities';
 import { size1, size10, size2, size4, size7 } from '../styles/sizes';
 import { IconButton } from './Buttons';
 import CopyIcon from '../icons/copy.svg';
@@ -26,7 +26,7 @@ const Container = styled.div`
   position: absolute;
   top: 11.5rem;
   bottom: 0;
-  left: calc((100vw - ${postPageMaxWidth}) / 2 - ${barWidth} - ${size4});
+  left: calc((100vw - ${pageMaxWidth}) / 2 - ${barWidth} - ${size4});
   width: ${barWidth};
 
   ${laptop} {

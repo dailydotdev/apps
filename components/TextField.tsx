@@ -25,6 +25,7 @@ export interface Props extends HTMLAttributes<HTMLInputElement> {
   valid?: boolean;
   validityChanged?: (valid: boolean) => void;
   valueChanged?: (value: string) => void;
+  pattern?: string;
 }
 
 const Container = styled.div`
@@ -71,12 +72,17 @@ const CharsCount = styled.div`
   ${typoLil1}
 `;
 
-const Hint = styled.div<{ valid?: boolean }>`
-  height: 1.125rem;
+const Hint = styled.div<{ valid?: boolean; saveHintSpace?: boolean }>`
+  ${({ saveHintSpace }) => (saveHintSpace ? 'height: 1.125rem' : '')};
   margin-top: ${size1};
   padding: 0 ${size2};
-  color: ${({ valid }) =>
-    valid === false ? colorKetchup30 : 'var(--theme-disabled)'};
+  ${({ valid }) =>
+    valid === false
+      ? `color: ${colorKetchup30};`
+      : `
+  color: var(--theme-secondary);
+  align-self: flex-end;
+  `}
   ${typoMicro2}
 `;
 
@@ -128,6 +134,7 @@ export default function TextField({
   valid,
   validityChanged,
   valueChanged,
+  pattern,
 }: Props): ReactElement {
   const inputRef = useRef<HTMLInputElement>(null);
   const [focused, setFocused] = useState<boolean>(false);
@@ -153,7 +160,7 @@ export default function TextField({
   }, [validInput]);
 
   useEffect(() => {
-    if (valid !== undefined) {
+    if (validInput !== undefined && valid !== undefined) {
       setValidInput(valid);
     }
   }, [valid]);
@@ -235,6 +242,7 @@ export default function TextField({
             autoFocus={autoFocus}
             required={required}
             maxLength={maxLength}
+            pattern={pattern}
           />
         </InputContainer>
         {maxLength && <CharsCount>{maxLength - inputLength}</CharsCount>}
@@ -242,6 +250,7 @@ export default function TextField({
       {(hint?.length || saveHintSpace) && (
         <Hint
           valid={validInput}
+          saveHintSpace={saveHintSpace}
           role={validInput === false ? 'alert' : undefined}
         >
           {hint}

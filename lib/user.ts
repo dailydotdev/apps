@@ -13,8 +13,13 @@ export interface AnonymousUser {
 export interface UserProfile {
   name: string;
   email: string;
+  username?: string;
   company?: string;
   title?: string;
+  twitter?: string;
+  github?: string;
+  portfolio?: string;
+  bio?: string;
 }
 
 export interface LoggedUser extends UserProfile {
@@ -43,11 +48,18 @@ interface AuthenticateParams {
   verifier: string;
 }
 
-interface APIError {
+interface BaseError {
   error: true;
-  code: number;
   message: string;
 }
+
+interface BadRequestError extends BaseError {
+  code: 1;
+  field: string;
+  reason: string;
+}
+
+export type APIError = BaseError | BadRequestError;
 
 export async function authenticate({
   code,
@@ -111,6 +123,21 @@ export async function getUser({
     user: body,
     isLoggedIn: !!body.providers,
   };
+}
+
+export async function changeProfileImage(file: File): Promise<LoggedUser> {
+  const formData = new FormData();
+  formData.append('file', file);
+  const res = await fetch(`${apiUrl}/v1/users/me/image`, {
+    method: 'POST',
+    credentials: 'include',
+    body: formData,
+  });
+  const data = await res.json();
+  if (res.status === 200) {
+    return data;
+  }
+  throw new Error('Unexpected response');
 }
 
 export async function getUserProps(
