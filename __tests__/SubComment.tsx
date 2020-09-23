@@ -16,6 +16,7 @@ const baseComment = {
   createdAt: new Date(2017, 1, 10, 0, 0).toISOString(),
   upvoted: false,
   permalink: 'https://daily.dev',
+  numUpvotes: 0,
 };
 
 const loggedUser = {
