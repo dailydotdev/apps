@@ -192,6 +192,7 @@ const FormButtons = styled.div`
   align-items: center;
   align-self: stretch;
 
+  /* stylelint-disable-next-line no-descending-specificity */
   ${InvertButton} {
     flex: 1;
   }
@@ -238,11 +239,12 @@ const FormSectionHeading = styled.h3`
   color: var(--theme-secondary);
   ${typoNuggets}
 
-  ${OptionalSummary} ~ & {
+  ${OptionalSummary} + & {
     margin-top: ${size3};
   }
 
-  ${FormField} ~ & {
+  /* stylelint-disable-next-line no-duplicate-selectors */
+  ${FormField} + & {
     margin-top: ${size10};
   }
 `;
@@ -339,7 +341,7 @@ export default function Register(): ReactElement {
       }
     } else {
       setDisableSubmit(false);
-      await router.replace((router.query.redirect_uri as string) || '/');
+      await router?.replace((router.query.redirect_uri as string) || '/');
     }
   };
 
