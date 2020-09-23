@@ -11,4 +11,4 @@ export const focusOutline = `
   }
 `;
 
-export const postPageMaxWidth = '40rem';
+export const pageMaxWidth = '40rem';

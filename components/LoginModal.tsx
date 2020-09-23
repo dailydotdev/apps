@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement } from 'react';
 import styled from 'styled-components';
 import { size2, size6, size8 } from '../styles/sizes';
 import DailyDevLogo from './DailyDevLogo';
@@ -6,7 +6,6 @@ import { InvertButton, TextButton } from './Buttons';
 import XIcon from '../icons/x.svg';
 import GitHubIcon from '../icons/github.svg';
 import { typoJr } from '../styles/typography';
-import { CodeChallenge, generateChallenge } from '../lib/auth';
 import { StyledModal, ModalCloseButton, Props } from './StyledModal';
 import { privacyPolicy, termsOfService } from '../lib/constants';
 import { LegalNotice } from './utilities';
@@ -54,24 +53,14 @@ const Content = styled.div`
 export default function LoginModal(props: Props): ReactElement {
   // eslint-disable-next-line react/prop-types
   const { onRequestClose } = props;
-  const [challenge, setChallenge] = useState<CodeChallenge>(null);
-
-  useEffect(() => {
-    if (!challenge) {
-      generateChallenge().then(setChallenge);
-    }
-  }, []);
 
   const authUrl = (provider: string, redirectUri: string) =>
     `/api/v1/auth/authorize?provider=${provider}&redirect_uri=${encodeURI(
       redirectUri,
-    )}&code_challenge=${challenge?.challenge}`;
+    )}&skip_authenticate=true`;
 
-  const login = (provider: string) => {
-    const redirectUri = `${
-      window.location.origin
-    }/callback?redirect=${encodeURI(window.location.pathname)}`;
-    document.cookie = `verifier=${challenge.verifier}; path=/`;
+  const login = async (provider: string) => {
+    const redirectUri = `${window.location.origin}${window.location.pathname}`;
     const url = authUrl(provider, redirectUri);
     window.location.replace(url);
   };

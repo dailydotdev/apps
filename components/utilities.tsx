@@ -1,7 +1,15 @@
 import styled from 'styled-components';
 import Linkify from 'linkifyjs/react';
 import LazyImage from './LazyImage';
-import { size10, size2, size3, size4, size6 } from '../styles/sizes';
+import {
+  size10,
+  size2,
+  size3,
+  size4,
+  size6,
+  size8,
+  sizeN,
+} from '../styles/sizes';
 import {
   typoLil1,
   typoLil2Base,
@@ -10,6 +18,8 @@ import {
 } from '../styles/typography';
 import Loader from './Loader';
 import { colorWater60 } from '../styles/colors';
+import { laptop, mobileL, tablet } from '../styles/media';
+import { pageMaxWidth } from '../styles/utilities';
 
 export const RoundedImage = styled(LazyImage)`
   width: ${size10};
@@ -74,5 +84,32 @@ export const LegalNotice = styled.div`
     @supports (display: contents) {
       display: contents;
     }
+  }
+`;
+
+export const PageContainer = styled.main`
+  position: relative;
+  display: flex;
+  width: 100%;
+  max-width: ${pageMaxWidth};
+  flex-direction: column;
+  align-items: stretch;
+  padding: ${size6} ${size4} ${sizeN(16)};
+  z-index: 1;
+
+  ${mobileL} {
+    padding-bottom: ${size6};
+  }
+
+  ${tablet} {
+    padding-left: ${size8};
+    padding-right: ${size8};
+    align-self: center;
+  }
+
+  ${laptop} {
+    min-height: 100vh;
+    border-left: 0.063rem solid var(--theme-separator);
+    border-right: 0.063rem solid var(--theme-separator);
   }
 `;

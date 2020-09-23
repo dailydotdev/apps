@@ -22,8 +22,6 @@ import {
   size3,
   size4,
   size6,
-  size8,
-  sizeN,
 } from '../../styles/sizes';
 import {
   typoDouble,
@@ -49,7 +47,11 @@ import {
   UPVOTE_MUTATION,
   UpvoteData,
 } from '../../graphql/posts';
-import { RoundedImage, SmallRoundedImage } from '../../components/utilities';
+import {
+  PageContainer,
+  RoundedImage,
+  SmallRoundedImage,
+} from '../../components/utilities';
 import MainLayout from '../../components/MainLayout';
 import AuthContext from '../../components/AuthContext';
 import MainComment from '../../components/MainComment';
@@ -58,9 +60,9 @@ import {
   POST_COMMENTS_QUERY,
   PostCommentsData,
 } from '../../graphql/comments';
-import { laptop, mobileL, mobileM, tablet } from '../../styles/media';
+import { mobileL, mobileM } from '../../styles/media';
 import { colorPepper90 } from '../../styles/colors';
-import { focusOutline, postPageMaxWidth } from '../../styles/utilities';
+import { focusOutline } from '../../styles/utilities';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { ShareMobile } from '../../components/ShareMobile';
 import { getShareableLink } from '../../lib/share';
@@ -148,33 +150,6 @@ export async function getServerSideProps({
     };
   }
 }
-
-const PostContainer = styled.main`
-  position: relative;
-  display: flex;
-  width: 100%;
-  max-width: ${postPageMaxWidth};
-  flex-direction: column;
-  align-items: stretch;
-  padding: ${size6} ${size4} ${sizeN(16)};
-  z-index: 1;
-
-  ${mobileL} {
-    padding-bottom: ${size6};
-  }
-
-  ${tablet} {
-    padding-left: ${size8};
-    padding-right: ${size8};
-    align-self: center;
-  }
-
-  ${laptop} {
-    min-height: 100vh;
-    border-left: 0.063rem solid var(--theme-separator);
-    border-right: 0.063rem solid var(--theme-separator);
-  }
-`;
 
 const PostInfo = styled.div`
   display: flex;
@@ -461,7 +436,7 @@ export default function PostPage({ id }: Props): ReactElement {
 
   return (
     <MainLayout className={parentComment && 'hide-on-modal'}>
-      <PostContainer>
+      <PageContainer>
         <Head>
           <link rel="preload" as="image" href={postById?.post.image} />
         </Head>
@@ -558,7 +533,7 @@ export default function PostPage({ id }: Props): ReactElement {
             Write your comment...
           </NewCommentButton>
         </NewCommentContainer>
-      </PostContainer>
+      </PageContainer>
       {pendingComment && (
         <DeleteCommentModal
           isOpen={!!pendingComment}
