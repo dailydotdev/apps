@@ -20,6 +20,8 @@ export interface Post {
   upvoted?: boolean;
   commented?: boolean;
   commentsPermalink: string;
+  numUpvotes: number;
+  numComments: number;
 }
 
 export interface PostData {
@@ -40,6 +42,8 @@ export const POST_BY_ID_QUERY = gql`
       upvoted
       commented
       commentsPermalink
+      numUpvotes
+      numComments
       source {
         name
         image
@@ -88,6 +92,7 @@ export const updatePostUpvoteCache = <T>(
   cache: ApolloCache<T>,
   id: string,
   upvoted: boolean,
+  numUpvotes: number,
 ): void => {
   cache.modify({
     id: cache.identify({
@@ -98,6 +103,9 @@ export const updatePostUpvoteCache = <T>(
     fields: {
       upvoted() {
         return upvoted;
+      },
+      numUpvotes() {
+        return numUpvotes;
       },
     },
   });

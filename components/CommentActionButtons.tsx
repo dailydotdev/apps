@@ -1,11 +1,11 @@
 import React, { ReactElement, useContext } from 'react';
 import AuthContext from './AuthContext';
-import { IconButton } from './Buttons';
+import { FloatButton, IconButton } from './Buttons';
 import UpvoteIcon from '../icons/upvote.svg';
 import CommentIcon from '../icons/comment.svg';
 import TrashIcon from '../icons/trash.svg';
 import styled from 'styled-components';
-import { size10 } from '../styles/sizes';
+import { size1, size2, size7 } from '../styles/sizes';
 import {
   CANCEL_COMMENT_UPVOTE_MUTATION,
   CancelCommentUpvoteData,
@@ -30,11 +30,24 @@ const Container = styled.div`
 `;
 
 const CommentButton = styled(IconButton)`
-  margin-left: ${size10};
+  margin-left: ${size7};
 `;
 
 const TrashButton = styled(IconButton)`
   margin-left: auto;
+`;
+
+const UpvoteButton = styled(FloatButton).attrs({ size: 'small' })`
+  padding: ${size1};
+  border-radius: ${size2};
+
+  .icon {
+    margin: 0;
+  }
+
+  span {
+    margin-left: ${size1};
+  }
 `;
 
 export default function CommentActionButtons({
@@ -51,7 +64,12 @@ export default function CommentActionButtons({
       variables: { id: comment.id },
       optimisticResponse: { upvoteComment: { _: true } },
       update(cache) {
-        return updateCommentUpvoteCache(cache, comment.id, true);
+        return updateCommentUpvoteCache(
+          cache,
+          comment.id,
+          true,
+          comment.numUpvotes + 1,
+        );
       },
     },
   );
@@ -62,7 +80,12 @@ export default function CommentActionButtons({
       variables: { id: comment.id },
       optimisticResponse: { cancelCommentUpvote: { _: true } },
       update(cache) {
-        return updateCommentUpvoteCache(cache, comment.id, false);
+        return updateCommentUpvoteCache(
+          cache,
+          comment.id,
+          false,
+          comment.numUpvotes - 1,
+        );
       },
     },
   );
@@ -82,14 +105,14 @@ export default function CommentActionButtons({
 
   return (
     <Container>
-      <IconButton
-        size="small"
+      <UpvoteButton
         done={comment.upvoted}
         title="Upvote"
         onClick={toggleUpvote}
       >
         <UpvoteIcon />
-      </IconButton>
+        {comment.numUpvotes > 0 && <span>{comment.numUpvotes}</span>}
+      </UpvoteButton>
       <CommentButton
         size="small"
         title="Comment"

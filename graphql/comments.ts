@@ -17,6 +17,7 @@ export interface Comment {
   author: CommentAuthor;
   permalink: string;
   upvoted?: boolean;
+  numUpvotes: number;
   children?: Connection<Comment>;
 }
 
@@ -27,6 +28,7 @@ export const COMMENT_FRAGMENT = gql`
     createdAt
     permalink
     upvoted
+    numUpvotes
     author {
       id
       name
@@ -133,6 +135,7 @@ export const updateCommentUpvoteCache = <T>(
   cache: ApolloCache<T>,
   id: string,
   upvoted: boolean,
+  numUpvotes: number,
 ): void => {
   cache.modify({
     id: cache.identify({
@@ -143,6 +146,9 @@ export const updateCommentUpvoteCache = <T>(
     fields: {
       upvoted() {
         return upvoted;
+      },
+      numUpvotes() {
+        return numUpvotes;
       },
     },
   });
