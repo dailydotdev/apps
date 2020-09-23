@@ -58,6 +58,8 @@ const createPostMock = (
         upvoted: false,
         commented: false,
         commentsPermalink: 'https://localhost:5002/posts/9CuRpr5NiEY5',
+        numUpvotes: 0,
+        numComments: 0,
         ...data,
       },
     },
@@ -267,4 +269,31 @@ it('should open new comment modal and set the correct props', async () => {
   );
   await findByText(dialog, 'Learn SQL');
   await findByText(dialog, 'May 16, 2019');
+});
+
+it('should not show stats when they are zero', async () => {
+  renderPost();
+  const el = await screen.findByTestId('statsBar');
+  expect(el).toHaveTextContent('');
+});
+
+it('should show num upvotes when it is greater than zero', async () => {
+  renderPost({}, [createPostMock({ numUpvotes: 15 }), createCommentsMock()]);
+  const el = await screen.findByTestId('statsBar');
+  expect(el).toHaveTextContent('15 Upvotes');
+});
+
+it('should show num comments when it is greater than zero', async () => {
+  renderPost({}, [createPostMock({ numComments: 15 }), createCommentsMock()]);
+  const el = await screen.findByTestId('statsBar');
+  expect(el).toHaveTextContent('15 Comments');
+});
+
+it('should show both stats when they are greater than zero', async () => {
+  renderPost({}, [
+    createPostMock({ numUpvotes: 7, numComments: 15 }),
+    createCommentsMock(),
+  ]);
+  const el = await screen.findByTestId('statsBar');
+  expect(el).toHaveTextContent('7 Upvotes15 Comments');
 });

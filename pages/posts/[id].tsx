@@ -201,16 +201,28 @@ const Tags = styled.div`
 
 const PostImage = styled.a`
   display: block;
-  margin: ${size2} 0;
+  margin: ${size2} 0 0;
   border-radius: ${size4};
   overflow: hidden;
   cursor: pointer;
 `;
 
+const StatsBar = styled.div`
+  display: flex;
+  margin: ${size4} 0;
+  color: var(--theme-disabled);
+  ${typoSmall}
+
+  & > :nth-child(2) {
+    margin-left: ${size4};
+  }
+`;
+
 const ActionButtons = styled.div`
   display: flex;
   justify-content: space-between;
-  padding-bottom: ${size4};
+  padding: ${size4} 0;
+  border-top: 0.063rem solid var(--theme-separator);
   border-bottom: 0.063rem solid var(--theme-separator);
 
   ${FloatButton} {
@@ -320,7 +332,12 @@ export default function PostPage({ id }: Props): ReactElement {
     variables: { id },
     optimisticResponse: { upvote: { _: true } },
     update(cache) {
-      return updatePostUpvoteCache(cache, id, true);
+      return updatePostUpvoteCache(
+        cache,
+        id,
+        true,
+        postById.post.numUpvotes + 1,
+      );
     },
   });
 
@@ -330,7 +347,12 @@ export default function PostPage({ id }: Props): ReactElement {
       variables: { id },
       optimisticResponse: { cancelUpvote: { _: true } },
       update(cache) {
-        return updatePostUpvoteCache(cache, id, false);
+        return updatePostUpvoteCache(
+          cache,
+          id,
+          false,
+          postById.post.numUpvotes - 1,
+        );
       },
     },
   );
@@ -481,6 +503,14 @@ export default function PostPage({ id }: Props): ReactElement {
             ratio="49%"
           />
         </PostImage>
+        <StatsBar data-testid="statsBar">
+          {postById?.post.numUpvotes > 0 && (
+            <span>{postById?.post.numUpvotes} Upvotes</span>
+          )}
+          {postById?.post.numComments > 0 && (
+            <span>{postById?.post.numComments} Comments</span>
+          )}
+        </StatsBar>
         <ActionButtons>
           <FloatButton
             done={postById?.post.upvoted}

@@ -42,6 +42,7 @@ const baseComment = {
   createdAt: new Date().toISOString(),
   upvoted: false,
   permalink: 'https://daily.dev',
+  numUpvotes: 0,
 };
 
 const renderComponent = (
@@ -153,4 +154,16 @@ it('should call onDelete callback', async () => {
   const el = await res.findByTitle('Delete');
   el.click();
   expect(onDelete).toBeCalledWith(baseComment, 'c1');
+});
+
+it('should not show num upvotes when it is zero', async () => {
+  const res = renderComponent();
+  const el = await res.findByTitle('Upvote');
+  expect(el).toHaveTextContent('');
+});
+
+it('should show num upvotes when it is greater than zero', async () => {
+  const res = renderComponent({ numUpvotes: 2 });
+  const el = await res.findByTitle('Upvote');
+  expect(el).toHaveTextContent('2');
 });
