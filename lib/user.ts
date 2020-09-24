@@ -10,6 +10,20 @@ export interface AnonymousUser {
   id: string;
 }
 
+export interface PublicProfile {
+  id: string;
+  name: string;
+  username?: string;
+  twitter?: string;
+  github?: string;
+  portfolio?: string;
+  bio?: string;
+  createdAt: string;
+  premium: boolean;
+  image: string;
+  reputation: number;
+}
+
 export interface UserProfile {
   name: string;
   email: string;
@@ -138,6 +152,14 @@ export async function changeProfileImage(file: File): Promise<LoggedUser> {
     return data;
   }
   throw new Error('Unexpected response');
+}
+
+export async function getProfile(id: string): Promise<PublicProfile> {
+  const userRes = await nodeFetch(`${apiUrl}/v1/users/${id}`);
+  if (userRes.status === 404) {
+    throw new Error('not found');
+  }
+  return userRes.json();
 }
 
 export async function getUserProps(
