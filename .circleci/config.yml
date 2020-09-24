@@ -21,9 +21,6 @@ jobs:
             - JEST_JUNIT_OUTPUT_DIR: ./test-results
       - store_test_results:
           path: ./test-results
-      - run:
-          name: Build
-          command: npm run build
 workflows:
   build:
     jobs:
