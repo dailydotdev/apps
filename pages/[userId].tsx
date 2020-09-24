@@ -248,7 +248,7 @@ export default function ProfilePage({
     profile.github && setGithubHandle(DOMPurify.sanitize(profile.github));
     profile.portfolio &&
       setPortfolioLink(DOMPurify.sanitize(profile.portfolio));
-  }, []);
+  }, [profile]);
 
   return (
     <MainLayout className={showAccountDetails && 'hide-on-modal'}>

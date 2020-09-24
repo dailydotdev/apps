@@ -26,6 +26,7 @@ export interface Props extends HTMLAttributes<HTMLInputElement> {
   validityChanged?: (valid: boolean) => void;
   valueChanged?: (value: string) => void;
   pattern?: string;
+  placeholder?: string;
 }
 
 const Container = styled.div`
@@ -135,6 +136,7 @@ export default function TextField({
   validityChanged,
   valueChanged,
   pattern,
+  placeholder,
 }: Props): ReactElement {
   const inputRef = useRef<HTMLInputElement>(null);
   const [focused, setFocused] = useState<boolean>(false);
@@ -214,7 +216,7 @@ export default function TextField({
 
   const getPlaceholder = () => {
     if (focused) {
-      return '';
+      return placeholder ?? '';
     }
     return label;
   };

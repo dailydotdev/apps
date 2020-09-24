@@ -205,6 +205,8 @@ export default function ProfileForm({
         value={user.twitter}
         hint={twitterHint}
         valid={!twitterHint}
+        placeholder="handle"
+        pattern="(\w){1,15}"
         maxLength={15}
         validityChanged={updateDisableSubmit}
         valueChanged={() => twitterHint && setTwitterHint(null)}
@@ -216,6 +218,8 @@ export default function ProfileForm({
         value={user.github}
         hint={githubHint}
         valid={!githubHint}
+        placeholder="handle"
+        pattern="^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$"
         maxLength={39}
         validityChanged={updateDisableSubmit}
         valueChanged={() => githubHint && setGithubHint(null)}
