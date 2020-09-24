@@ -53,7 +53,7 @@ const Header = styled.header`
   }
 `;
 
-const ProfileImage = styled.button`
+const ProfileImage = styled.a`
   width: ${size8};
   overflow: hidden;
   padding: 0;
@@ -87,7 +87,7 @@ export default function MainLayout({
   className,
   showOnlyLogo = false,
 }: Props): ReactElement {
-  const { user, showLogin, showProfile } = useContext(AuthContext);
+  const { user, showLogin } = useContext(AuthContext);
   const [showAbout, setShowAbout] = useState(false);
   const [showBadge, setShowBadge] = useState(false);
 
@@ -106,7 +106,7 @@ export default function MainLayout({
   return (
     <Container className={className}>
       <Header>
-        <Link href="/?ssr=false" as="/" passHref>
+        <Link href="/" passHref>
           <HomeLink title="Home">
             <DailyDevLogo />
             <BetaBadge className="badge" />
@@ -118,13 +118,15 @@ export default function MainLayout({
               {showBadge ? <BellNotifyIcon /> : <BellIcon />}
             </AboutButton>
             {user ? (
-              <ProfileImage onClick={showProfile}>
-                <LazyImage
-                  imgSrc={user.image}
-                  imgAlt="Your profile image"
-                  ratio="100%"
-                />
-              </ProfileImage>
+              <Link href={`/${user.username || user.id}`} passHref>
+                <ProfileImage>
+                  <LazyImage
+                    imgSrc={user.image}
+                    imgAlt="Your profile image"
+                    ratio="100%"
+                  />
+                </ProfileImage>
+              </Link>
             ) : (
               <FloatButton onClick={showLogin}>Login</FloatButton>
             )}

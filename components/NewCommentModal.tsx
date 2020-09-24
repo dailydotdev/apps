@@ -9,8 +9,8 @@ import React, {
 import dynamic from 'next/dynamic';
 import styled from 'styled-components';
 import cloneDeep from 'lodash.clonedeep';
-import { Props as ModalProps, StyledModal } from './StyledModal';
-import { size2, size3, size4, size6, sizeN } from '../styles/sizes';
+import { Props as ModalProps } from './StyledModal';
+import { size2, size3, size6, sizeN } from '../styles/sizes';
 import AuthContext from './AuthContext';
 import {
   ButtonLoader,
@@ -24,7 +24,6 @@ import { commentDateFormat } from '../lib/dateFormat';
 import { typoJr, typoSmallBase } from '../styles/typography';
 import { colorKetchup30, colorWater60 } from '../styles/colors';
 import { ColorButton, FloatButton } from './Buttons';
-import { mobileL } from '../styles/media';
 import { useMutation } from '@apollo/client';
 import {
   Comment,
@@ -36,6 +35,7 @@ import {
 } from '../graphql/comments';
 import { Edge } from '../graphql/common';
 import ReactGA from 'react-ga';
+import ResponsiveModal from './ResponsiveModal';
 
 const DiscardCommentModal = dynamic(() => import('./DiscardCommentModal'));
 
@@ -48,34 +48,6 @@ export interface NewCommentModalProps extends ModalProps {
   postId: string;
   onComment?: (newComment: Comment, parentId: string | null) => void;
 }
-
-const MyModal = styled(StyledModal)`
-  .Overlay {
-    position: relative;
-    min-height: 100vh;
-
-    ${mobileL} {
-      position: fixed;
-      min-height: unset;
-    }
-  }
-
-  .Modal {
-    position: absolute;
-    max-width: ${sizeN(120)};
-    min-height: 100%;
-    align-items: stretch;
-    padding: ${size2};
-    background: var(--theme-background-secondary);
-    border-radius: 0;
-
-    ${mobileL} {
-      position: relative;
-      min-height: unset;
-      border-radius: ${size4};
-    }
-  }
-`;
 
 const ParentComment = styled(CommentBox)`
   display: flex;
@@ -277,7 +249,7 @@ export default function NewCommentModal({
   }, []);
 
   return (
-    <MyModal
+    <ResponsiveModal
       {...{ contentRef: modalRef, onRequestClose: confirmClose, ...props }}
     >
       <ParentComment as="article">
@@ -333,6 +305,6 @@ export default function NewCommentModal({
         onDeleteComment={onRequestClose}
         shouldCloseOnOverlayClick={false}
       />
-    </MyModal>
+    </ResponsiveModal>
   );
 }

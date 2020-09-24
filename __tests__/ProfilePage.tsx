@@ -42,8 +42,8 @@ const renderComponent = (
         user: defaultLoggedUser,
         shouldShowLogin: false,
         showLogin: jest.fn(),
-        showProfile: jest.fn(),
         logout: jest.fn(),
+        updateUser: jest.fn(),
       }}
     >
       <Page profile={{ ...defaultProfile, ...profile }} />
@@ -51,9 +51,9 @@ const renderComponent = (
   );
 };
 
-it('should show profile image', () => {
+it('should show profile image', async () => {
   renderComponent();
-  const el = screen.getByAltText(`Daily Dev's profile image`);
+  const el = await screen.findByAltText(`Daily Dev's profile image`);
   expect(el).toHaveAttribute('data-src', defaultProfile.image);
 });
 

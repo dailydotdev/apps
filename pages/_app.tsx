@@ -2,6 +2,7 @@ import React, { ReactElement, useEffect, useState } from 'react';
 import { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
+import { SWRConfig } from 'swr';
 import { ApolloProvider, NormalizedCacheObject } from '@apollo/client';
 import 'focus-visible';
 import Modal from 'react-modal';
@@ -14,7 +15,6 @@ import AuthContext from '../components/AuthContext';
 import { LoggedUser, logout as dispatchLogout } from '../lib/user';
 
 const LoginModal = dynamic(() => import('../components/LoginModal'));
-const ProfileModal = dynamic(() => import('../components/ProfileModal'));
 const CookieBanner = dynamic(() => import('../components/CookieBanner'));
 
 export interface PageProps {
@@ -35,19 +35,9 @@ export default function App({
   const apolloClient = useApollo(pageProps.initialApolloState);
   const [user, setUser] = useState<LoggedUser>(pageProps.user);
   const [loginIsOpen, setLoginIsOpen] = useState(false);
-  const [confirmAccount, setConfirmAccount] = useState(false);
-  const [profileIsOpen, setProfileIsOpen] = useState(confirmAccount);
   const [showCookie, setShowCookie] = useState(false);
 
   const closeLogin = () => setLoginIsOpen(false);
-  const closeConfirmAccount = () => setProfileIsOpen(false);
-  const profileUpdated = (newProfile: LoggedUser) => {
-    setUser({ ...user, ...newProfile });
-    setProfileIsOpen(false);
-    if (confirmAccount) {
-      setConfirmAccount(false);
-    }
-  };
 
   const logout = async (): Promise<void> => {
     await dispatchLogout();
@@ -91,25 +81,38 @@ export default function App({
     }
   }, []);
 
+  const fetcher = async (
+    input: RequestInfo,
+    init?: RequestInit,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ): Promise<any> => {
+    const res = await fetch(input, {
+      credentials: 'include',
+      ...init,
+    });
+    return res.json();
+  };
+
   return (
     <ApolloProvider client={apolloClient}>
-      <AuthContext.Provider
-        value={{
-          user,
-          shouldShowLogin: loginIsOpen,
-          showLogin: () => setLoginIsOpen(true),
-          showProfile: () => setProfileIsOpen(true),
-          logout,
-        }}
-      >
-        <Head>
-          <meta
-            name="viewport"
-            content="initial-scale=1.0, width=device-width"
-          />
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `
+      <SWRConfig value={{ fetcher }}>
+        <AuthContext.Provider
+          value={{
+            user,
+            shouldShowLogin: loginIsOpen,
+            showLogin: () => setLoginIsOpen(true),
+            updateUser: setUser,
+            logout,
+          }}
+        >
+          <Head>
+            <meta
+              name="viewport"
+              content="initial-scale=1.0, width=device-width"
+            />
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `
         WebFontConfig = {
           custom: {
           families: ['DejaVuSansMono'],
@@ -124,37 +127,26 @@ export default function App({
           s.parentNode.insertBefore(wf, s);
         })(document);
         `,
-            }}
+              }}
+            />
+            <meta name="theme-color" content="#151618" />
+            <meta name="msapplication-navbutton-color" content="#151618" />
+            <meta
+              name="apple-mobile-web-app-status-bar-style"
+              content="#151618"
+            />
+          </Head>
+          <DefaultSeo {...Seo} />
+          <GlobalStyle />
+          <Component {...pageProps} />
+          <LoginModal
+            isOpen={loginIsOpen}
+            onRequestClose={closeLogin}
+            contentLabel="Login Modal"
           />
-          <meta name="theme-color" content="#151618" />
-          <meta name="msapplication-navbutton-color" content="#151618" />
-          <meta
-            name="apple-mobile-web-app-status-bar-style"
-            content="#151618"
-          />
-        </Head>
-        <DefaultSeo {...Seo} />
-        <GlobalStyle />
-        <Component {...pageProps} />
-        <LoginModal
-          isOpen={loginIsOpen}
-          onRequestClose={closeLogin}
-          contentLabel="Login Modal"
-        />
-        {user && (
-          <ProfileModal
-            confirmMode={confirmAccount}
-            isOpen={profileIsOpen}
-            onRequestClose={closeConfirmAccount}
-            contentLabel={
-              confirmAccount ? 'Confirm Your Account Details' : 'Your profile'
-            }
-            shouldCloseOnOverlayClick={false}
-            profiledUpdated={profileUpdated}
-          />
-        )}
-        {showCookie && <CookieBanner onAccepted={acceptCookies} />}
-      </AuthContext.Provider>
+          {showCookie && <CookieBanner onAccepted={acceptCookies} />}
+        </AuthContext.Provider>
+      </SWRConfig>
     </ApolloProvider>
   );
 }
