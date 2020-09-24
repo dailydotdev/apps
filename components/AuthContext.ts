@@ -5,8 +5,8 @@ interface AuthContextData {
   user: LoggedUser;
   shouldShowLogin: boolean;
   showLogin: () => void;
-  showProfile: () => void;
   logout: () => Promise<void>;
+  updateUser: (user: LoggedUser) => void;
 }
 
 const AuthContext = React.createContext<AuthContextData>(null);

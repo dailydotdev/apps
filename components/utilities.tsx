@@ -11,13 +11,15 @@ import {
   sizeN,
 } from '../styles/sizes';
 import {
+  typoDouble,
   typoLil1,
   typoLil2Base,
+  typoMicro2,
   typoMicro2Base,
   typoSmall,
 } from '../styles/typography';
 import Loader from './Loader';
-import { colorWater60 } from '../styles/colors';
+import { colorKetchup30, colorWater60 } from '../styles/colors';
 import { laptop, mobileL, tablet } from '../styles/media';
 import { pageMaxWidth } from '../styles/utilities';
 
@@ -112,4 +114,17 @@ export const PageContainer = styled.main`
     border-left: 0.063rem solid var(--theme-separator);
     border-right: 0.063rem solid var(--theme-separator);
   }
+`;
+
+export const FormErrorMessage = styled.div.attrs({ role: 'alert' })`
+  margin-top: ${size4};
+  color: ${colorKetchup30};
+  ${typoMicro2}
+`;
+
+export const ProfileHeading = styled.h1`
+  margin: 0;
+  align-self: flex-start;
+  text-transform: uppercase;
+  ${typoDouble}
 `;

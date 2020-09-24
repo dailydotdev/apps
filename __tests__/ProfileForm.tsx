@@ -1,7 +1,13 @@
 import React from 'react';
 import { LoggedUser, updateProfile } from '../lib/user';
-import Page from '../pages/register';
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import ProfileForm from '../components/ProfileForm';
+import {
+  fireEvent,
+  render,
+  RenderResult,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import AuthContext from '../components/AuthContext';
 import { mocked } from 'ts-jest/utils';
 
@@ -10,7 +16,9 @@ jest.mock('../lib/user', () => ({
   updateProfile: jest.fn(),
 }));
 
-const logout = jest.fn();
+const setDisableSubmit = jest.fn();
+const onSuccessfulSubmit = jest.fn();
+const updateUser = jest.fn();
 
 beforeEach(() => {
   jest.resetAllMocks();
@@ -34,37 +42,32 @@ const renderComponent = (user: Partial<LoggedUser> = {}): RenderResult => {
         user: { ...defaultUser, ...user },
         shouldShowLogin: false,
         showLogin: jest.fn(),
-        updateUser: jest.fn(),
-        logout,
+        logout: jest.fn(),
+        updateUser,
       }}
     >
-      <Page />
+      <ProfileForm
+        setDisableSubmit={setDisableSubmit}
+        onSuccessfulSubmit={onSuccessfulSubmit}
+      />
     </AuthContext.Provider>,
   );
 };
 
-it('should show profile image', () => {
-  renderComponent();
-  const el = screen.getByAltText('Your profile image');
-  expect(el).toHaveAttribute('src', defaultUser.image);
-});
-
 it('should disable submit when form is invalid', () => {
   renderComponent();
-  const el = screen.getByText('Finish');
-  expect(el).toBeDisabled();
+  expect(setDisableSubmit).toBeCalledWith(true);
 });
 
 it('should enable submit when form is valid', () => {
   renderComponent({ username: 'idoshamun' });
-  const el = screen.getByText('Finish');
-  expect(el).toBeEnabled();
+  expect(setDisableSubmit).toBeCalledWith(false);
 });
 
-it('should submit information on button click', async () => {
+it('should submit information', async () => {
   renderComponent({ username: 'idoshamun' });
   mocked(updateProfile).mockResolvedValue(defaultUser);
-  screen.getByText('Finish').click();
+  fireEvent.submit(screen.getByTestId('form'));
   await waitFor(() => expect(updateProfile).toBeCalledTimes(1));
   expect(updateProfile).toBeCalledWith({
     name: 'Ido Shamun',
@@ -78,10 +81,21 @@ it('should submit information on button click', async () => {
     portfolio: null,
     twitter: null,
   });
+  expect(onSuccessfulSubmit).toBeCalledTimes(1);
+  expect(updateUser).toBeCalledWith({ ...defaultUser, username: 'idoshamun' });
 });
 
-it('should logout on button click', async () => {
-  renderComponent();
-  screen.getByText('Logout').click();
-  await waitFor(() => expect(logout).toBeCalledTimes(1));
+it('should show server error', async () => {
+  renderComponent({ username: 'idoshamun' });
+  mocked(updateProfile).mockResolvedValue({
+    error: true,
+    code: 1,
+    message: '',
+    field: 'email',
+    reason: 'email already exists',
+  });
+  fireEvent.submit(screen.getByTestId('form'));
+  await waitFor(() => expect(updateProfile).toBeCalledTimes(1));
+  const el = screen.getByRole('alert');
+  expect(el).toHaveTextContent('This email is already used');
 });

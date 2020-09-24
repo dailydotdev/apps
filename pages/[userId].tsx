@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { PageProps } from './_app';
 import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import { ParsedUrlQuery } from 'querystring';
@@ -26,6 +26,14 @@ import TwitterIcon from '../icons/twitter.svg';
 import LinkIcon from '../icons/link.svg';
 import { colorWater50 } from '../styles/colors';
 import { tablet } from '../styles/media';
+import { HollowButton } from '../components/Buttons';
+import AuthContext from '../components/AuthContext';
+import dynamic from 'next/dynamic';
+import useSWR, { mutate } from 'swr';
+
+const AccountDetailsModal = dynamic(() =>
+  import('../components/AccountDetailsModal'),
+);
 
 export interface Props {
   profile: PublicProfile;
@@ -192,7 +200,24 @@ const ProfileInfo = styled.div`
   flex-direction: column;
 `;
 
-export default function ProfilePage({ profile }: Props): ReactElement {
+const EditProfileButton = styled(HollowButton)`
+  margin-top: ${size6};
+  padding: ${size2} ${size4};
+  border-radius: ${size2};
+  align-self: flex-start;
+  ${typoNuggets}
+`;
+
+export default function ProfilePage({
+  profile: initialProfile,
+}: Props): ReactElement {
+  const { user } = useContext(AuthContext);
+  const profileKey = `/api/v1/users/${initialProfile.id}`;
+  const { data: profile } = useSWR<PublicProfile>(profileKey, {
+    initialData: initialProfile,
+    revalidateOnMount: false,
+  });
+
   const Seo: NextSeoProps = {
     title: profile.name,
     description: profile.bio
@@ -210,6 +235,13 @@ export default function ProfilePage({ profile }: Props): ReactElement {
   const [githubHandle, setGithubHandle] = useState<string>();
   const [portfolioLink, setPortfolioLink] = useState<string>();
 
+  const [showAccountDetails, setShowAccountDetails] = useState(false);
+
+  const closeAccountDetails = async () => {
+    setShowAccountDetails(false);
+    await mutate(profileKey);
+  };
+
   useEffect(() => {
     const DOMPurify = createDOMPurify(window);
     profile.twitter && setTwitterHandle(DOMPurify.sanitize(profile.twitter));
@@ -219,7 +251,7 @@ export default function ProfilePage({ profile }: Props): ReactElement {
   }, []);
 
   return (
-    <MainLayout>
+    <MainLayout className={showAccountDetails && 'hide-on-modal'}>
       <Head>
         <link rel="preload" as="image" href={profile.image} />
       </Head>
@@ -277,9 +309,18 @@ export default function ProfilePage({ profile }: Props): ReactElement {
                 </a>
               )}
             </Links>
+            {profile.id === user?.id && (
+              <EditProfileButton onClick={() => setShowAccountDetails(true)}>
+                Account details
+              </EditProfileButton>
+            )}
           </ProfileInfo>
         </ProfileHeader>
       </ProfileContainer>
+      <AccountDetailsModal
+        isOpen={showAccountDetails}
+        onRequestClose={closeAccountDetails}
+      />
     </MainLayout>
   );
 }

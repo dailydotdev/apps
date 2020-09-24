@@ -54,8 +54,8 @@ const renderComponent = (
           user: { ...defaultUser, ...user },
           shouldShowLogin: false,
           showLogin: jest.fn(),
-          showProfile: jest.fn(),
           logout: jest.fn(),
+          updateUser: jest.fn(),
         }}
       >
         <NewCommentModal {...defaultProps} {...props} />

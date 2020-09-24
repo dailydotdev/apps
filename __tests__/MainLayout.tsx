@@ -17,8 +17,8 @@ const renderLayout = (user: LoggedUser = null): RenderResult => {
         user,
         shouldShowLogin: false,
         showLogin,
-        showProfile: jest.fn(),
         logout: jest.fn(),
+        updateUser: jest.fn(),
       }}
     >
       <MainLayout />
