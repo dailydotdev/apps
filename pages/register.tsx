@@ -8,7 +8,6 @@ import React, {
 } from 'react';
 import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import styled from 'styled-components';
-import { format } from 'date-fns';
 import { NextSeo } from 'next-seo';
 import {
   changeProfileImage,
@@ -47,6 +46,7 @@ import { HollowButton, InvertButton } from '../components/Buttons';
 import AuthContext from '../components/AuthContext';
 import { focusOutline } from '../styles/utilities';
 import { useRouter } from 'next/router';
+import JoinedDate from '../components/JoinedDate';
 
 export async function getServerSideProps({
   query,
@@ -378,12 +378,7 @@ export default function Register(): ReactElement {
                 <span>via GitHub</span>
               </div>
             )}
-            <div>
-              Joined&nbsp;
-              <time dateTime={user.createdAt}>
-                {format(new Date(user.createdAt), 'MMMM y')}
-              </time>
-            </div>
+            <JoinedDate date={new Date(user.createdAt)} />
           </Metadata>
         </ImageAndMetadata>
         {imageError && <ErrorMessage>Maximum image size is 2 MB</ErrorMessage>}
