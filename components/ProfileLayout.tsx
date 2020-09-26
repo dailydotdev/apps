@@ -1,17 +1,20 @@
-import React, { ReactElement, useContext, useEffect, useState } from 'react';
-import { PageProps } from './_app';
-import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
-import { ParsedUrlQuery } from 'querystring';
+import React, {
+  ReactElement,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import createDOMPurify from 'dompurify';
 import { getProfile, getUserProps, PublicProfile } from '../lib/user';
 import { NextSeoProps } from 'next-seo/lib/types';
-import MainLayout from '../components/MainLayout';
+import { getLayout as getMainLayout } from './MainLayout';
 import Head from 'next/head';
 import { NextSeo } from 'next-seo';
-import { PageContainer } from '../components/utilities';
+import { PageContainer } from './utilities';
 import styled from 'styled-components';
 import { size05, size2, size3, size4, size6, sizeN } from '../styles/sizes';
-import LazyImage from '../components/LazyImage';
+import LazyImage from './LazyImage';
 import {
   typoDouble,
   typoLil1,
@@ -19,64 +22,35 @@ import {
   typoNuggets,
   typoQuarter,
 } from '../styles/typography';
-import PremiumSvg from '../components/PremiumSvg';
-import JoinedDate from '../components/JoinedDate';
+import PremiumSvg from './PremiumSvg';
+import JoinedDate from './JoinedDate';
 import GitHubIcon from '../icons/github.svg';
 import TwitterIcon from '../icons/twitter.svg';
 import LinkIcon from '../icons/link.svg';
 import { colorWater50 } from '../styles/colors';
-import { tablet } from '../styles/media';
-import { HollowButton } from '../components/Buttons';
-import AuthContext from '../components/AuthContext';
+import { laptop, tablet } from '../styles/media';
+import { FloatButton, HollowButton } from './Buttons';
+import AuthContext from './AuthContext';
 import dynamic from 'next/dynamic';
 import useSWR, { mutate } from 'swr';
+import { useHideOnModal } from '../lib/useHideOnModal';
+import { useRouter } from 'next/router';
+import { Flipped, Flipper } from 'react-flip-toolkit';
+import { pageMaxWidth } from '../styles/utilities';
+import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
+import { PageProps } from '../pages/_app';
+import { ParsedUrlQuery } from 'querystring';
 
-const AccountDetailsModal = dynamic(() =>
-  import('../components/AccountDetailsModal'),
-);
+const AccountDetailsModal = dynamic(() => import('./AccountDetailsModal'));
 
-export interface Props {
+export interface ProfileLayoutProps {
   profile: PublicProfile;
-}
-
-interface ProfileParams extends ParsedUrlQuery {
-  userId: string;
-}
-
-export async function getServerSideProps({
-  params,
-  req,
-  res,
-}: GetServerSidePropsContext<ProfileParams>): Promise<
-  GetServerSidePropsResult<Props & PageProps>
-> {
-  const { userId } = params;
-  try {
-    const [profile, userProps] = await Promise.all([
-      getProfile(userId),
-      getUserProps({ req, res }),
-    ]);
-    return {
-      props: {
-        profile,
-        initialApolloState: null,
-        ...userProps,
-      },
-    };
-  } catch (err) {
-    if ('message' in err && err.message === 'not found') {
-      res.writeHead(302, { Location: '/404' });
-      res.end();
-    } else {
-      throw err;
-    }
-    return {
-      props: null,
-    };
-  }
+  children?: ReactNode;
 }
 
 const ProfileContainer = styled(PageContainer)`
+  padding-left: ${size6};
+  padding-right: ${size6};
   color: var(--theme-secondary);
 `;
 
@@ -146,6 +120,7 @@ const Username = styled.h2`
 
 const Bio = styled.p`
   margin: ${size3} 0 0;
+  word-break: break-word;
   ${typoMicro2}
 `;
 
@@ -198,6 +173,10 @@ const ProfileHeader = styled.section`
 const ProfileInfo = styled.div`
   display: flex;
   flex-direction: column;
+
+  ${tablet} {
+    flex: 1;
+  }
 `;
 
 const EditProfileButton = styled(HollowButton)`
@@ -208,10 +187,78 @@ const EditProfileButton = styled(HollowButton)`
   ${typoNuggets}
 `;
 
-export default function ProfilePage({
+const Nav = styled.nav`
+  position: relative;
+  display: flex;
+  margin: ${size6} -${size6} 0;
+
+  :before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: -99999px;
+    right: -99999px;
+    height: 0.063rem;
+    width: 100vw;
+    margin: 0 auto;
+    background: var(--theme-separator);
+
+    ${laptop} {
+      width: ${pageMaxWidth};
+    }
+  }
+
+  li {
+    position: relative;
+    list-style: none;
+  }
+
+  ${FloatButton} {
+    padding: ${size4} ${size6};
+    ${typoNuggets}
+
+    &.selected {
+      color: var(--theme-primary);
+    }
+  }
+`;
+
+const ActiveTabIndicator = styled.div`
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: ${size4};
+  height: ${size05};
+  margin: 0 auto;
+  background: var(--theme-primary);
+  border-radius: 0.063rem;
+`;
+
+type Tab = { path: string; title: string };
+
+const basePath = `/[userId]`;
+const tabs: Tab[] = [
+  {
+    path: basePath,
+    title: 'Comments',
+  },
+  {
+    path: `${basePath}/reputation`,
+    title: 'Reputation',
+  },
+];
+
+export default function ProfileLayout({
   profile: initialProfile,
-}: Props): ReactElement {
+  children,
+}: ProfileLayoutProps): ReactElement {
   const { user } = useContext(AuthContext);
+  const router = useRouter();
+  const [selectedTab, setSelectedTab] = useState(
+    tabs.findIndex((tab) => tab.path === router?.pathname),
+  );
+
   const profileKey = `/api/v1/users/${initialProfile.id}`;
   const { data: profile } = useSWR<PublicProfile>(profileKey, {
     initialData: initialProfile,
@@ -242,6 +289,22 @@ export default function ProfilePage({
     await mutate(profileKey);
   };
 
+  const getTabHref = (tab: Tab) =>
+    tab.path.replace('[userId]', profile.username || profile.id);
+
+  const onTabClicked = async (event: React.MouseEvent, index: number) => {
+    event.preventDefault();
+    await router.prefetch(getTabHref(tabs[index]));
+    setSelectedTab(index);
+  };
+
+  const applyPageChange = () => {
+    // Add delay to keep the animation at 60fps
+    setTimeout(async () => {
+      await router.push(getTabHref(tabs[selectedTab]));
+    }, 150);
+  };
+
   useEffect(() => {
     const DOMPurify = createDOMPurify(window);
     profile.twitter && setTwitterHandle(DOMPurify.sanitize(profile.twitter));
@@ -250,8 +313,10 @@ export default function ProfilePage({
       setPortfolioLink(DOMPurify.sanitize(profile.portfolio));
   }, [profile]);
 
+  useHideOnModal(() => !!showAccountDetails, [showAccountDetails]);
+
   return (
-    <MainLayout className={showAccountDetails && 'hide-on-modal'}>
+    <>
       <Head>
         <link rel="preload" as="image" href={profile.image} />
       </Head>
@@ -316,11 +381,75 @@ export default function ProfilePage({
             )}
           </ProfileInfo>
         </ProfileHeader>
+        <Flipper flipKey={selectedTab} spring="veryGentle">
+          <Nav>
+            {tabs.map((tab, index) => (
+              <li key={tab.path}>
+                <FloatButton
+                  as="a"
+                  href={getTabHref(tab)}
+                  className={selectedTab === index ? 'selected' : ''}
+                  onClick={(event: React.MouseEvent) =>
+                    onTabClicked(event, index)
+                  }
+                >
+                  {tab.title}
+                </FloatButton>
+                <Flipped flipId="activeTabIndicator" onStart={applyPageChange}>
+                  {selectedTab === index && <ActiveTabIndicator />}
+                </Flipped>
+              </li>
+            ))}
+          </Nav>
+        </Flipper>
+        {children}
       </ProfileContainer>
       <AccountDetailsModal
         isOpen={showAccountDetails}
         onRequestClose={closeAccountDetails}
       />
-    </MainLayout>
+    </>
   );
+}
+
+export const getLayout = (
+  page: ReactNode,
+  props: ProfileLayoutProps,
+): ReactNode => getMainLayout(<ProfileLayout {...props}>{page}</ProfileLayout>);
+
+interface ProfileParams extends ParsedUrlQuery {
+  userId: string;
+}
+
+export async function getServerSideProps({
+  params,
+  req,
+  res,
+}: GetServerSidePropsContext<ProfileParams>): Promise<
+  GetServerSidePropsResult<Omit<ProfileLayoutProps, 'children'> & PageProps>
+> {
+  const { userId } = params;
+  try {
+    const [profile, userProps] = await Promise.all([
+      getProfile(userId),
+      getUserProps({ req, res }),
+    ]);
+    return {
+      props: {
+        profile,
+        initialApolloState: null,
+        ...userProps,
+      },
+    };
+  } catch (err) {
+    if ('message' in err && err.message === 'not found') {
+      res.writeHead(302, { Location: '/404' });
+      res.end();
+    } else {
+      throw err;
+    }
+    return {
+      props: null,
+    };
+  }
 }

@@ -1,6 +1,7 @@
 import React, {
   HTMLAttributes,
   ReactElement,
+  ReactNode,
   useContext,
   useEffect,
   useState,
@@ -141,3 +142,7 @@ export default function MainLayout({
     </Container>
   );
 }
+
+export const getLayout = (page: ReactNode): ReactNode => (
+  <MainLayout>{page}</MainLayout>
+);

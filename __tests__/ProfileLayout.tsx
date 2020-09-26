@@ -2,7 +2,7 @@ import React from 'react';
 import { LoggedUser, PublicProfile } from '../lib/user';
 import { render, RenderResult, screen } from '@testing-library/react';
 import AuthContext from '../components/AuthContext';
-import Page from '../pages/[userId]';
+import ProfileLayout from '../components/ProfileLayout';
 
 beforeEach(() => {
   jest.resetAllMocks();
@@ -46,7 +46,7 @@ const renderComponent = (
         updateUser: jest.fn(),
       }}
     >
-      <Page profile={{ ...defaultProfile, ...profile }} />
+      <ProfileLayout profile={{ ...defaultProfile, ...profile }} />
     </AuthContext.Provider>,
   );
 };

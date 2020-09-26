@@ -15,6 +15,14 @@
           "$dummyValue"
         ]
       }
+    ],
+    "property-no-unknown": [
+      true,
+      {
+        "ignoreProperties": [
+          "content-visibility"
+        ]
+      }
     ]
   }
 }

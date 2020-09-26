@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement, ReactNode, useEffect, useState } from 'react';
 import { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
@@ -27,6 +27,10 @@ Modal.setAppElement('#__next');
 Modal.defaultStyles = {};
 
 const consentCookieName = 'ilikecookies';
+
+interface CompnentGetLayout {
+  getLayout?: (page: ReactNode, props: Record<string, unknown>) => ReactNode;
+}
 
 export default function App({
   Component,
@@ -93,6 +97,9 @@ export default function App({
     return res.json();
   };
 
+  const getLayout =
+    (Component as CompnentGetLayout).getLayout || ((page) => page);
+
   return (
     <ApolloProvider client={apolloClient}>
       <SWRConfig value={{ fetcher }}>
@@ -138,7 +145,7 @@ export default function App({
           </Head>
           <DefaultSeo {...Seo} />
           <GlobalStyle />
-          <Component {...pageProps} />
+          {getLayout(<Component {...pageProps} />, pageProps)}
           <LoginModal
             isOpen={loginIsOpen}
             onRequestClose={closeLogin}

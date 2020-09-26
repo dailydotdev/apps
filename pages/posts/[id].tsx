@@ -52,7 +52,7 @@ import {
   RoundedImage,
   SmallRoundedImage,
 } from '../../components/utilities';
-import MainLayout from '../../components/MainLayout';
+import { getLayout as getMainLayout } from '../../components/MainLayout';
 import AuthContext from '../../components/AuthContext';
 import MainComment from '../../components/MainComment';
 import {
@@ -68,6 +68,7 @@ import { ShareMobile } from '../../components/ShareMobile';
 import { getShareableLink } from '../../lib/share';
 import Head from 'next/head';
 import { shouldSkipSSR, SkipSSRProps } from '../../lib/ssr';
+import { useHideOnModal } from '../../lib/useHideOnModal';
 
 const NewCommentModal = dynamic(() =>
   import('../../components/NewCommentModal'),
@@ -304,7 +305,7 @@ interface ParentComment {
   postId: string;
 }
 
-export default function PostPage({ id }: Props): ReactElement {
+const PostPage = ({ id }: Props): ReactElement => {
   const { user, showLogin } = useContext(AuthContext);
   const router = useRouter();
   const [parentComment, setParentComment] = useState<ParentComment>(null);
@@ -456,8 +457,10 @@ export default function PostPage({ id }: Props): ReactElement {
     window.history.replaceState({}, document.title, getShareableLink());
   }, []);
 
+  useHideOnModal(() => !!parentComment, [parentComment]);
+
   return (
-    <MainLayout className={parentComment && 'hide-on-modal'}>
+    <>
       <PageContainer>
         <Head>
           <link rel="preload" as="image" href={postById?.post.image} />
@@ -595,6 +598,10 @@ export default function PostPage({ id }: Props): ReactElement {
         isOpen={showDeletePost}
         onRequestClose={() => setShowDeletePost(false)}
       />
-    </MainLayout>
+    </>
   );
-}
+};
+
+PostPage.getLayout = getMainLayout;
+
+export default PostPage;
