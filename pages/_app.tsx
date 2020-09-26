@@ -56,6 +56,10 @@ export default function App({
   };
 
   useEffect(() => {
+    import('quicklink/dist/quicklink.umd').then((quicklink) =>
+      quicklink.listen(),
+    );
+
     if (
       pageProps.user?.providers &&
       !pageProps.user.infoConfirmed &&
