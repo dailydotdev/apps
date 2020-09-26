@@ -32,4 +32,7 @@ module.exports = {
       destination: `${process.env.NEXT_PUBLIC_API_URL}/:path*`,
     },
   ],
+
+  poweredByHeader: false,
+  reactStrictMode: true,
 };
