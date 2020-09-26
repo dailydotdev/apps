@@ -404,10 +404,12 @@ export default function ProfileLayout({
         </Flipper>
         {children}
       </ProfileContainer>
-      <AccountDetailsModal
-        isOpen={showAccountDetails}
-        onRequestClose={closeAccountDetails}
-      />
+      {user && (
+        <AccountDetailsModal
+          isOpen={showAccountDetails}
+          onRequestClose={closeAccountDetails}
+        />
+      )}
     </>
   );
 }
