@@ -54,6 +54,10 @@ export interface PostCommentsData {
   postComments: Connection<Comment>;
 }
 
+export interface UserCommentsData {
+  userComments: Connection<Comment>;
+}
+
 export interface UpvoteCommentData {
   upvoteComment: EmptyResponse;
 }
@@ -74,6 +78,22 @@ export const POST_COMMENTS_QUERY = gql`
   }
   ${COMMENT_FRAGMENT}
   ${COMMENT_WITH_CHILDREN_FRAGMENT}
+`;
+
+export const USER_COMMENTS_QUERY = gql`
+  query UserComments($userId: ID!, $after: String, $first: Int) {
+    userComments(userId: $userId, after: $after, first: $first) {
+      edges {
+        node {
+          id
+          content
+          numUpvotes
+          createdAt
+          permalink
+        }
+      }
+    }
+  }
 `;
 
 export const UPVOTE_COMMENT_MUTATION = gql`

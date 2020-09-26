@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import { getUserProps } from '../lib/user';
 import { PageProps } from './_app';
-import MainLayout from '../components/MainLayout';
+import { getLayout as getMainLayout } from '../components/MainLayout';
 import styled from 'styled-components';
 import { size4, size6, sizeN } from '../styles/sizes';
 import { typoJr, typoQuarter } from '../styles/typography';
@@ -62,7 +62,7 @@ const Description = styled.div`
   ${typoJr}
 `;
 
-export default function Home(): ReactElement {
+const Home = (): ReactElement => {
   const Seo: NextSeoProps = {
     title:
       'Meet awesome developers by discussing trending dev news | powered by the daily.dev community',
@@ -72,21 +72,23 @@ export default function Home(): ReactElement {
   };
 
   return (
-    <MainLayout>
-      <Container>
-        <NextSeo {...Seo} />
-        <Emoji>🏗</Emoji>
-        <Title>Something awesome is coming soon 👨‍💻</Title>
-        <Description>
-          You requested, we listened. We’re busy building a new web app for
-          daily.dev. We wish we could show you more! In the meantime, you can
-          explore the latest dev news on our browser extension (if you don’t
-          have it already).
-        </Description>
-        <InvertButton as="a" href="/api/get?r=webapp">
-          Get the extension
-        </InvertButton>
-      </Container>
-    </MainLayout>
+    <Container>
+      <NextSeo {...Seo} />
+      <Emoji>🏗</Emoji>
+      <Title>Something awesome is coming soon 👨‍💻</Title>
+      <Description>
+        You requested, we listened. We’re busy building a new web app for
+        daily.dev. We wish we could show you more! In the meantime, you can
+        explore the latest dev news on our browser extension (if you don’t have
+        it already).
+      </Description>
+      <InvertButton as="a" href="/api/get?r=webapp">
+        Get the extension
+      </InvertButton>
+    </Container>
   );
-}
+};
+
+Home.getLayout = getMainLayout;
+
+export default Home;

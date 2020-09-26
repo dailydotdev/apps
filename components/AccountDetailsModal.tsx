@@ -149,6 +149,15 @@ export default function AccountDetailsModal(props: ModalProps): ReactElement {
         >
           Terms of service
         </FooterLink>
+        {user.premium && (
+          <FooterLink
+            href="mailto:support@daily.dev?subject=Cancel my premium subscription"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Cancel subscription
+          </FooterLink>
+        )}
         <LogoutButton onClick={logout}>Logout</LogoutButton>
       </Footer>
     </MyModal>
