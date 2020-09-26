@@ -31,6 +31,7 @@ const CommentContainer = styled.article`
   display: flex;
   flex-direction: row;
   padding: ${size3} 0;
+  align-items: flex-start;
 `;
 
 const CommentUpvotes = styled.div`
@@ -63,6 +64,7 @@ const CommentContent = styled.p`
   margin: 0;
   color: var(--theme-primary);
   word-break: break-word;
+  white-space: pre-wrap;
   ${typoLil1}
 `;
 
