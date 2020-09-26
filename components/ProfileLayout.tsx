@@ -256,7 +256,7 @@ export default function ProfileLayout({
   const { user } = useContext(AuthContext);
   const router = useRouter();
   const [selectedTab, setSelectedTab] = useState(
-    tabs.findIndex((tab) => tab.path === router.pathname),
+    tabs.findIndex((tab) => tab.path === router?.pathname),
   );
 
   const profileKey = `/api/v1/users/${initialProfile.id}`;
