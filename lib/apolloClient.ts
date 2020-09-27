@@ -7,6 +7,7 @@ import {
 } from '@apollo/client';
 import { IncomingMessage } from 'http';
 import { apiUrl } from './config';
+import { relayStylePagination } from '@apollo/client/utilities';
 
 type Client = ApolloClient<NormalizedCacheObject>;
 
@@ -25,6 +26,11 @@ function createApolloClient(req?: IncomingMessage): Client {
       typePolicies: {
         EmptyResponse: {
           keyFields: false,
+        },
+        Query: {
+          fields: {
+            userComments: relayStylePagination(),
+          },
         },
       },
     }),

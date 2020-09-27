@@ -292,9 +292,8 @@ export default function ProfileLayout({
   const getTabHref = (tab: Tab) =>
     tab.path.replace('[userId]', profile.username || profile.id);
 
-  const onTabClicked = async (event: React.MouseEvent, index: number) => {
+  const onTabClicked = (event: React.MouseEvent, index: number) => {
     event.preventDefault();
-    await router.prefetch(getTabHref(tabs[index]));
     setSelectedTab(index);
   };
 

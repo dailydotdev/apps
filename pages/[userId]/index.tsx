@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useEffect, useRef } from 'react';
 import {
   getLayout as getProfileLayout,
   getServerSideProps as getProfileServerSideProps,
@@ -11,10 +11,12 @@ import { size1, size2, size3, size4, size6, sizeN } from '../../styles/sizes';
 import UpvoteIcon from '../../icons/upvote.svg';
 import { typoLil1, typoLil2, typoMicro2 } from '../../styles/typography';
 import { format } from 'date-fns';
+import { useInView } from 'react-intersection-observer';
 
 export const getServerSideProps = getProfileServerSideProps;
 
 const Container = styled.ul`
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -74,14 +76,41 @@ const CommentTime = styled.time`
   ${typoMicro2}
 `;
 
+const InfiniteScrollTrigger = styled.div`
+  position: absolute;
+  bottom: 100vh;
+  left: 0;
+  height: 1px;
+  width: 1px;
+  opacity: 0;
+  pointer-events: none;
+`;
+
 const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
-  const { data: comments } = useQuery<UserCommentsData>(USER_COMMENTS_QUERY, {
-    variables: { userId: profile.id, first: 30 },
-    skip: !profile,
+  const rootRef = useRef<HTMLUListElement>(null);
+  const { data: comments, loading, fetchMore } = useQuery<UserCommentsData>(
+    USER_COMMENTS_QUERY,
+    {
+      variables: { userId: profile.id, first: 30 },
+      skip: !profile,
+    },
+  );
+
+  const { ref: infiniteScrollRef, inView } = useInView({
+    rootMargin: '20px',
+    threshold: 1,
   });
 
+  useEffect(() => {
+    if (inView && !loading && comments?.userComments.pageInfo.hasNextPage) {
+      fetchMore({
+        variables: { after: comments?.userComments.pageInfo.endCursor },
+      });
+    }
+  }, [inView, loading]);
+
   return (
-    <Container>
+    <Container ref={rootRef}>
       {comments?.userComments.edges.map(({ node: comment }) => (
         <li key={comment.id}>
           <CommentContainer>
@@ -98,6 +127,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
           </CommentContainer>
         </li>
       ))}
+      <InfiniteScrollTrigger ref={infiniteScrollRef} />
     </Container>
   );
 };

@@ -83,6 +83,10 @@ export const POST_COMMENTS_QUERY = gql`
 export const USER_COMMENTS_QUERY = gql`
   query UserComments($userId: ID!, $after: String, $first: Int) {
     userComments(userId: $userId, after: $after, first: $first) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
       edges {
         node {
           id

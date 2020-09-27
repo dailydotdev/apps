@@ -29,6 +29,7 @@
     "react-dom": "16.13.1",
     "react-flip-toolkit": "^7.0.12",
     "react-ga": "^3.1.2",
+    "react-intersection-observer": "^8.28.6",
     "react-modal": "^3.11.2",
     "styled-components": "^5.1.1",
     "styled-normalize": "^8.0.7",
