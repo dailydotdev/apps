@@ -40,6 +40,7 @@ import { pageMaxWidth } from '../styles/utilities';
 import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import { PageProps } from '../pages/_app';
 import { ParsedUrlQuery } from 'querystring';
+import { reputationGuide } from '../lib/constants';
 
 const AccountDetailsModal = dynamic(() => import('./AccountDetailsModal'));
 
@@ -78,8 +79,12 @@ const Reputation = styled.div`
   display: flex;
   flex-direction: column;
   margin: 0 ${size6};
-  color: var(--theme-secondary);
   ${typoNuggets}
+
+  a {
+    color: var(--theme-secondary);
+    text-decoration: none;
+  }
 
   & > * {
     margin: ${size05} 0;
@@ -328,7 +333,13 @@ export default function ProfileLayout({
               imgAlt={`${profile.name}'s profile image`}
             />
             <Reputation>
-              <span>Reputation</span>
+              <a
+                href={reputationGuide}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Reputation
+              </a>
               <span>{profile.reputation}</span>
             </Reputation>
           </ProfileImageAndRep>

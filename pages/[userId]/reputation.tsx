@@ -6,6 +6,8 @@ import {
 import styled from 'styled-components';
 import { size6 } from '../../styles/sizes';
 import { typoMicro2 } from '../../styles/typography';
+import { reputationGuide } from '../../lib/constants';
+import { colorWater50 } from '../../styles/colors';
 
 export const getServerSideProps = getProfileServerSideProps;
 
@@ -13,6 +15,11 @@ const Container = styled.section`
   content-visibility: auto;
   margin: ${size6} 0;
   ${typoMicro2}
+
+  a {
+    color: ${colorWater50};
+    text-decoration: none;
+  }
 `;
 
 const ProfilePage = (): ReactElement => {
@@ -20,6 +27,12 @@ const ProfilePage = (): ReactElement => {
     <Container>
       Earning reputation points will allow you to gain special privileges
       (coming soon).
+      <br />
+      <br />
+      In the meantime,{' '}
+      <a href={reputationGuide} target="_blank" rel="noopener noreferrer">
+        learn how to earn reputation points.
+      </a>
     </Container>
   );
 };
