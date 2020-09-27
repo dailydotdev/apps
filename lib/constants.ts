@@ -6,3 +6,5 @@ export const reportIssue =
 export const termsOfService = 'https://daily.dev/tos';
 export const privacyPolicy = 'https://daily.dev/privacy';
 export const cookiePolicy = 'https://daily.dev/cookies';
+export const reputationGuide =
+  'https://daily.dev/posts/what-is-reputation-how-do-i-earn-it';
