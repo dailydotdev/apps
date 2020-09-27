@@ -110,3 +110,33 @@ it('should add link to the comment', async () => {
   const el = await screen.findByRole('link');
   expect(el).toHaveAttribute('href', 'https://daily.dev/c1');
 });
+
+it('should show empty screen when no comments', async () => {
+  await act(async () => {
+    renderComponent([
+      {
+        request: {
+          query: USER_COMMENTS_QUERY,
+          variables: {
+            userId: 'u2',
+            first: 30,
+          },
+        },
+        result: {
+          data: {
+            userComments: {
+              pageInfo: {
+                hasNextPage: true,
+                endCursor: '',
+              },
+              edges: [],
+            },
+          },
+        },
+      },
+    ]);
+    await new Promise((resolve) => setTimeout(resolve, 0)); // wait for response
+  });
+  const el = await screen.findByTestId('empty');
+  expect(el).toBeInTheDocument();
+});
