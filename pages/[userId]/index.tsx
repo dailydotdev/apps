@@ -117,7 +117,9 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
   return (
     <Container ref={rootRef}>
       {!loading && !comments?.userComments.edges.length && (
-        <EmptyMessage data-testid="empty">//TODO: write comments</EmptyMessage>
+        <EmptyMessage data-testid="empty">
+          {'//TODO: write comments'}
+        </EmptyMessage>
       )}
       {comments?.userComments.edges.map(({ node: comment }) => (
         <li key={comment.id}>
