@@ -6,6 +6,7 @@ import React, {
   useState,
 } from 'react';
 import createDOMPurify from 'dompurify';
+import Link from 'next/link';
 import { getProfile, getUserProps, PublicProfile } from '../lib/user';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { getLayout as getMainLayout } from './MainLayout';
@@ -395,16 +396,17 @@ export default function ProfileLayout({
           <Nav>
             {tabs.map((tab, index) => (
               <li key={tab.path}>
-                <FloatButton
-                  as="a"
-                  href={getTabHref(tab)}
-                  className={selectedTab === index ? 'selected' : ''}
-                  onClick={(event: React.MouseEvent) =>
-                    onTabClicked(event, index)
-                  }
-                >
-                  {tab.title}
-                </FloatButton>
+                <Link href={getTabHref(tab)} passHref>
+                  <FloatButton
+                    as="a"
+                    className={selectedTab === index ? 'selected' : ''}
+                    onClick={(event: React.MouseEvent) =>
+                      onTabClicked(event, index)
+                    }
+                  >
+                    {tab.title}
+                  </FloatButton>
+                </Link>
                 <Flipped flipId="activeTabIndicator" onStart={applyPageChange}>
                   {selectedTab === index && <ActiveTabIndicator />}
                 </Flipped>
