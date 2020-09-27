@@ -9,7 +9,7 @@
     "lint:css": "stylelint '**/*.{ts,tsx}'",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0",
     "pretest": "npm run lint && npm run lint:css",
-    "test": "jest",
+    "test": "node --expose-gc ./node_modules/.bin/jest --logHeapUsage",
     "deploy": "vercel"
   },
   "dependencies": {
