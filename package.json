@@ -9,11 +9,11 @@
     "lint:css": "stylelint '**/*.{ts,tsx}'",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0",
     "pretest": "npm run lint && npm run lint:css",
-    "test": "jest",
+    "test": "node --expose-gc ./node_modules/.bin/jest --logHeapUsage",
     "deploy": "vercel"
   },
   "dependencies": {
-    "@apollo/client": "^3.1.1",
+    "@apollo/client": "^3.2.1",
     "date-fns": "^2.16.1",
     "dompurify": "^2.1.0",
     "focus-visible": "^5.1.0",
@@ -38,8 +38,8 @@
   },
   "devDependencies": {
     "@svgr/webpack": "^5.4.0",
-    "@testing-library/jest-dom": "^5.11.2",
-    "@testing-library/react": "^10.4.7",
+    "@testing-library/jest-dom": "^5.11.4",
+    "@testing-library/react": "^11.0.4",
     "@types/dompurify": "^2.0.4",
     "@types/jest": "^26.0.8",
     "@types/linkifyjs": "^2.1.3",

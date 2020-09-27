@@ -91,7 +91,7 @@ export default createGlobalStyle`
     display: none;
 
     ${mobileL} {
-      display: flex;
+      display: block;
     }
   }
 `;

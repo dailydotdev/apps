@@ -14,7 +14,7 @@ export interface Comment {
   id: string;
   content: string;
   createdAt: string;
-  author: CommentAuthor;
+  author?: CommentAuthor;
   permalink: string;
   upvoted?: boolean;
   numUpvotes: number;

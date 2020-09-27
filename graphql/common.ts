@@ -19,5 +19,5 @@ export interface Connection<T> {
 export interface Edge<T> {
   __typename?: string;
   node: T;
-  cursor: ConnectionCursor;
+  cursor?: ConnectionCursor;
 }
