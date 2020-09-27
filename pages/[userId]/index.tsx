@@ -86,6 +86,11 @@ const InfiniteScrollTrigger = styled.div`
   pointer-events: none;
 `;
 
+const EmptyMessage = styled.span`
+  color: var(--theme-secondary);
+  ${typoMicro2}
+`;
+
 const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
   const rootRef = useRef<HTMLUListElement>(null);
   const { data: comments, loading, fetchMore } = useQuery<UserCommentsData>(
@@ -111,6 +116,9 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
 
   return (
     <Container ref={rootRef}>
+      {!loading && !comments?.userComments.edges.length && (
+        <EmptyMessage data-testid="empty">//TODO: write comments</EmptyMessage>
+      )}
       {comments?.userComments.edges.map(({ node: comment }) => (
         <li key={comment.id}>
           <CommentContainer>
