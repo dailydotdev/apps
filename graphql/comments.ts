@@ -7,6 +7,7 @@ export interface CommentAuthor {
   id: string;
   name: string;
   image: string;
+  permalink: string;
 }
 
 export interface Comment {
@@ -33,6 +34,7 @@ export const COMMENT_FRAGMENT = gql`
       id
       name
       image
+      permalink
     }
   }
 `;

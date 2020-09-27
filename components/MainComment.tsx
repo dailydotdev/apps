@@ -1,16 +1,12 @@
 import React, { ReactElement } from 'react';
 import styled from 'styled-components';
 import { Comment } from '../graphql/comments';
-import {
-  CommentBox,
-  CommentAuthor,
-  CommentPublishDate,
-  RoundedImage,
-} from './utilities';
+import { CommentBox, CommentAuthor, CommentPublishDate } from './utilities';
 import { commentDateFormat } from '../lib/dateFormat';
 import { size2, size4 } from '../styles/sizes';
 import CommentActionButtons from './CommentActionButtons';
 import SubComment from './SubComment';
+import { ProfileLink } from './ProfileLink';
 
 export interface Props {
   comment: Comment;
@@ -48,11 +44,7 @@ export default function MainComment({
   return (
     <Container data-testid="comment">
       <Header>
-        <RoundedImage
-          imgSrc={comment.author.image}
-          imgAlt={`${comment.author.name}'s profile image`}
-          background="var(--theme-background-highlight)"
-        />
+        <ProfileLink user={comment.author} />
         <Metadata>
           <CommentAuthor>{comment.author.name}</CommentAuthor>
           <CommentPublishDate dateTime={comment.createdAt}>

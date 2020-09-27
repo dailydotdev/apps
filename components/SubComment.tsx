@@ -2,10 +2,10 @@ import React, { ReactElement } from 'react';
 import { Comment } from '../graphql/comments';
 import styled from 'styled-components';
 import { size1, size2, size4, size8 } from '../styles/sizes';
-import LazyImage from './LazyImage';
 import { CommentAuthor, CommentBox, CommentPublishDate } from './utilities';
 import { commentDateFormat } from '../lib/dateFormat';
 import CommentActionButtons from './CommentActionButtons';
+import { ProfileLink } from './ProfileLink';
 
 export interface Props {
   comment: Comment;
@@ -25,10 +25,9 @@ const ProfileContainer = styled.div`
   position: relative;
 `;
 
-const SmallRoundedImage = styled(LazyImage)`
+const SmallProfileLink = styled(ProfileLink)`
   width: ${size8};
   height: ${size8};
-  border-radius: 100%;
 `;
 
 const ContentContainer = styled.div`
@@ -69,11 +68,7 @@ export default function SubComment({
     <Container data-testid="subcomment">
       <ProfileContainer>
         <Timeline data-testid="timeline" firstComment={firstComment} />
-        <SmallRoundedImage
-          imgSrc={comment.author.image}
-          imgAlt={`${comment.author.name}'s profile image`}
-          background="var(--theme-background-highlight)"
-        />
+        <SmallProfileLink user={comment.author} />
       </ProfileContainer>
       <ContentContainer>
         <SubCommentBox>
