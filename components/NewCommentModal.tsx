@@ -166,14 +166,7 @@ export default function NewCommentModal({
           __typename: 'CommentEdge',
           node: {
             ...data.comment,
-            upvoted: false,
-            author: {
-              id: user.id,
-              name: user.name,
-              image: user.image,
-            },
           },
-          // TODO: need to update the cursor somehow
           cursor: '',
         };
         // Update the sub tree of the parent comment

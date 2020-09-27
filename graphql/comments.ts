@@ -118,15 +118,6 @@ export const CANCEL_COMMENT_UPVOTE_MUTATION = gql`
   }
 `;
 
-export const COMMENT_MUTATION_FRAGMENT = gql`
-  fragment CommentMutationFragment on Comment {
-    id
-    content
-    createdAt
-    permalink
-  }
-`;
-
 export interface CommentOnData {
   comment: Comment;
 }
@@ -134,19 +125,19 @@ export interface CommentOnData {
 export const COMMENT_ON_POST_MUTATION = gql`
   mutation COMMENT_ON_POST_MUTATION($id: ID!, $content: String!) {
     comment: commentOnPost(postId: $id, content: $content) {
-      ...CommentMutationFragment
+      ...CommentFragment
     }
   }
-  ${COMMENT_MUTATION_FRAGMENT}
+  ${COMMENT_FRAGMENT}
 `;
 
 export const COMMENT_ON_COMMENT_MUTATION = gql`
   mutation COMMENT_ON_COMMENT_MUTATION($id: ID!, $content: String!) {
     comment: commentOnComment(commentId: $id, content: $content) {
-      ...CommentMutationFragment
+      ...CommentFragment
     }
   }
-  ${COMMENT_MUTATION_FRAGMENT}
+  ${COMMENT_FRAGMENT}
 `;
 
 export const DELETE_COMMENT_MUTATION = gql`
