@@ -12,6 +12,7 @@ const baseComment = {
     image: 'https://daily.dev/ido.png',
     id: 'u1',
     name: 'Ido',
+    permalink: 'https://daily.dev/ido',
   },
   createdAt: new Date(2017, 1, 10, 0, 0).toISOString(),
   upvoted: false,

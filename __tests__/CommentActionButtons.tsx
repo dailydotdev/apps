@@ -38,6 +38,7 @@ const baseComment = {
     image: 'https://daily.dev/ido.png',
     id: 'u1',
     name: 'Ido',
+    permalink: 'https://daily.dev/ido',
   },
   createdAt: new Date().toISOString(),
   upvoted: false,

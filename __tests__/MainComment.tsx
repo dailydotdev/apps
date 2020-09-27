@@ -9,6 +9,7 @@ const author = {
   image: 'https://daily.dev/ido.png',
   id: 'u1',
   name: 'Ido',
+  permalink: 'https://daily.dev/ido',
 };
 
 const baseComment = {
