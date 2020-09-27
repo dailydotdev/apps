@@ -13,6 +13,7 @@ import { useApollo } from '../lib/apolloClient';
 import GlobalStyle from '../components/GlobalStyle';
 import AuthContext from '../components/AuthContext';
 import { LoggedUser, logout as dispatchLogout } from '../lib/user';
+import { Router } from 'next/router';
 
 const LoginModal = dynamic(() => import('../components/LoginModal'));
 const CookieBanner = dynamic(() => import('../components/CookieBanner'));
@@ -31,6 +32,14 @@ const consentCookieName = 'ilikecookies';
 interface CompnentGetLayout {
   getLayout?: (page: ReactNode, props: Record<string, unknown>) => ReactNode;
 }
+
+const trackPageView = (url) => {
+  const page = `/web${url}`;
+  ReactGA.set({ page });
+  ReactGA.pageview(page);
+};
+
+Router.events.on('routeChangeComplete', trackPageView);
 
 export default function App({
   Component,
@@ -75,9 +84,8 @@ export default function App({
         clientId: pageProps.trackingId,
       },
     });
-    const page = `/web${window.location.pathname}${window.location.search}`;
-    ReactGA.set({ page });
-    ReactGA.pageview(page);
+
+    trackPageView(`${window.location.pathname}${window.location.search}`);
 
     if (
       !pageProps.user &&
