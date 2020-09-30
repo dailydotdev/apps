@@ -1,7 +1,4 @@
 import React, { ReactElement } from 'react';
-import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
-import { getUserProps } from '../lib/user';
-import { PageProps } from './_app';
 import { getLayout as getMainLayout } from '../components/MainLayout';
 import styled from 'styled-components';
 import { size4, size6, sizeN } from '../styles/sizes';
@@ -10,26 +7,6 @@ import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
 import { InvertButton } from '../components/Buttons';
 import { laptop } from '../styles/media';
-import { shouldSkipSSR, SkipSSRProps } from '../lib/ssr';
-
-export async function getServerSideProps({
-  query,
-  req,
-  res,
-}: GetServerSidePropsContext): Promise<
-  GetServerSidePropsResult<PageProps | SkipSSRProps>
-> {
-  if (shouldSkipSSR(query)) {
-    return { props: { skipSSR: true } };
-  }
-  const userProps = await getUserProps({ req, res });
-  return {
-    props: {
-      initialApolloState: null,
-      ...userProps,
-    },
-  };
-}
 
 const Container = styled.div`
   display: flex;

@@ -87,7 +87,7 @@ export default function MainLayout({
   className,
   showOnlyLogo = false,
 }: Props): ReactElement {
-  const { user, showLogin } = useContext(AuthContext);
+  const { user, showLogin, loadingUser } = useContext(AuthContext);
   const [showAbout, setShowAbout] = useState(false);
   const [showBadge, setShowBadge] = useState(false);
 
@@ -110,7 +110,7 @@ export default function MainLayout({
           <DailyDevLogo />
           <BetaBadge className="badge" />
         </HomeLink>
-        {!showOnlyLogo && (
+        {!showOnlyLogo && !loadingUser && (
           <>
             <AboutButton onClick={onAboutClick} title="About">
               {showBadge ? <BellNotifyIcon /> : <BellIcon />}

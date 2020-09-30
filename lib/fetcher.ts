@@ -1,4 +1,4 @@
-export default async function (
+export default async function fetcher(
   input: RequestInfo,
   init?: RequestInit,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
