@@ -1,7 +1,8 @@
 import React, { ReactElement } from 'react';
 import {
   getLayout as getProfileLayout,
-  getServerSideProps as getProfileServerSideProps,
+  getStaticPaths as getProfileStaticPaths,
+  getStaticProps as getProfileStaticProps,
 } from '../../components/ProfileLayout';
 import styled from 'styled-components';
 import { size6 } from '../../styles/sizes';
@@ -9,7 +10,8 @@ import { typoMicro2 } from '../../styles/typography';
 import { reputationGuide } from '../../lib/constants';
 import { colorWater50 } from '../../styles/colors';
 
-export const getServerSideProps = getProfileServerSideProps;
+export const getStaticProps = getProfileStaticProps;
+export const getStaticPaths = getProfileStaticPaths;
 
 const Container = styled.section`
   content-visibility: auto;
