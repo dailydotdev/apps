@@ -1,17 +1,12 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
-import {
-  ApolloError,
-  NormalizedCacheObject,
-  useMutation,
-  useQuery,
-} from '@apollo/client';
+import { ApolloError, useMutation, useQuery } from '@apollo/client';
 import ReactGA from 'react-ga';
 import { initializeApollo } from '../../lib/apolloClient';
 import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import { ParsedUrlQuery } from 'querystring';
-import { getUserProps, LoggedUser, Roles } from '../../lib/user';
+import { Roles } from '../../lib/user';
 import styled from 'styled-components';
 import { NextSeo } from 'next-seo';
 import {
@@ -67,8 +62,8 @@ import { NextSeoProps } from 'next-seo/lib/types';
 import { ShareMobile } from '../../components/ShareMobile';
 import { getShareableLink } from '../../lib/share';
 import Head from 'next/head';
-import { shouldSkipSSR, SkipSSRProps } from '../../lib/ssr';
 import { useHideOnModal } from '../../lib/useHideOnModal';
+import { PageProps } from '../_app';
 
 const NewCommentModal = dynamic(() =>
   import('../../components/NewCommentModal'),
@@ -89,11 +84,8 @@ const ShareNewCommentPopup = dynamic(
   },
 );
 
-export interface Props {
+export interface Props extends PageProps {
   id: string;
-  initialApolloState: NormalizedCacheObject;
-  user?: LoggedUser;
-  trackingId: string;
 }
 
 interface PostParams extends ParsedUrlQuery {
@@ -101,21 +93,17 @@ interface PostParams extends ParsedUrlQuery {
 }
 
 export async function getServerSideProps({
-  query,
   params,
   req,
   res,
 }: GetServerSidePropsContext<PostParams>): Promise<
-  GetServerSidePropsResult<Props | SkipSSRProps>
+  GetServerSidePropsResult<Props>
 > {
-  if (shouldSkipSSR(query)) {
-    return { props: { skipSSR: true } };
-  }
   const { id } = params;
   const apolloClient = initializeApollo({ req });
 
   try {
-    const [, , userProps] = await Promise.all([
+    await Promise.all([
       apolloClient.query({
         query: POST_BY_ID_QUERY,
         variables: {
@@ -128,14 +116,12 @@ export async function getServerSideProps({
           postId: id,
         },
       }),
-      getUserProps({ req, res }),
     ]);
 
     return {
       props: {
         id,
         initialApolloState: apolloClient.cache.extract(),
-        ...userProps,
       },
     };
   } catch (err) {

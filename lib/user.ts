@@ -1,5 +1,4 @@
 import nodeFetch from 'node-fetch';
-import { IncomingMessage, ServerResponse } from 'http';
 import { apiUrl } from './config';
 
 export enum Roles {
@@ -47,21 +46,6 @@ export interface LoggedUser extends UserProfile {
   createdAt: string;
 }
 
-interface UserResponse {
-  user: AnonymousUser | LoggedUser;
-  isLoggedIn: boolean;
-}
-
-interface GetUserParams {
-  req: IncomingMessage;
-  res: ServerResponse;
-}
-
-interface AuthenticateParams {
-  code: string;
-  verifier: string;
-}
-
 interface BaseError {
   error: true;
   message: string;
@@ -74,20 +58,6 @@ interface BadRequestError extends BaseError {
 }
 
 export type APIError = BaseError | BadRequestError;
-
-export async function authenticate({
-  code,
-  verifier,
-}: AuthenticateParams): Promise<void> {
-  await fetch(`${apiUrl}/v1/auth/authenticate`, {
-    method: 'POST',
-    credentials: 'include',
-    headers: {
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify({ code, code_verifier: verifier }),
-  });
-}
 
 export async function logout(): Promise<void> {
   await fetch(`${apiUrl}/v1/users/logout`, {
@@ -120,25 +90,6 @@ export async function updateProfile(
   throw new Error('Unexpected response');
 }
 
-export async function getUser({
-  req,
-  res,
-}: GetUserParams): Promise<UserResponse> {
-  const userRes = await nodeFetch(`${apiUrl}/v1/users/me`, {
-    headers: req ? { cookie: req.headers.cookie } : undefined,
-  });
-  const body = await userRes.json();
-
-  if (userRes.headers.get('set-cookie')) {
-    res.setHeader('set-cookie', userRes.headers.get('set-cookie'));
-  }
-
-  return {
-    user: body,
-    isLoggedIn: !!body.providers,
-  };
-}
-
 export async function changeProfileImage(file: File): Promise<LoggedUser> {
   const formData = new FormData();
   formData.append('file', file);
@@ -160,14 +111,4 @@ export async function getProfile(id: string): Promise<PublicProfile> {
     throw new Error('not found');
   }
   return userRes.json();
-}
-
-export async function getUserProps(
-  params: GetUserParams,
-): Promise<{ user?: LoggedUser; trackingId: string }> {
-  const userRes = await getUser(params);
-  return {
-    user: userRes.isLoggedIn ? (userRes.user as LoggedUser) : null,
-    trackingId: userRes.user.id,
-  };
 }

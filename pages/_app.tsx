@@ -12,18 +12,17 @@ import Seo from '../next-seo';
 import { useApollo } from '../lib/apolloClient';
 import GlobalStyle from '../components/GlobalStyle';
 import AuthContext from '../components/AuthContext';
-import { LoggedUser, logout as dispatchLogout } from '../lib/user';
+import { logout as dispatchLogout } from '../lib/user';
 import { Router } from 'next/router';
 import fetcher from '../lib/fetcher';
 import { useCookieBanner } from '../lib/useCookieBanner';
+import useLoggedUser from '../lib/useLoggedUser';
 
 const LoginModal = dynamic(() => import('../components/LoginModal'));
 const CookieBanner = dynamic(() => import('../components/CookieBanner'));
 
 export interface PageProps {
-  user?: LoggedUser;
-  trackingId: string;
-  initialApolloState: NormalizedCacheObject;
+  initialApolloState?: NormalizedCacheObject;
 }
 
 Modal.setAppElement('#__next');
@@ -46,7 +45,8 @@ export default function App({
   pageProps,
 }: AppProps<PageProps>): ReactElement {
   const apolloClient = useApollo(pageProps.initialApolloState);
-  const [user, setUser] = useState<LoggedUser>(pageProps.user);
+  const [initializedGA, setInitializedGA] = useState(false);
+  const [user, setUser, trackingId, loadingUser] = useLoggedUser();
   const [loginIsOpen, setLoginIsOpen] = useState(false);
   const [showCookie, acceptCookies, updateCookieBanner] = useCookieBanner();
 
@@ -56,6 +56,18 @@ export default function App({
     await dispatchLogout();
     location.reload();
   };
+
+  useEffect(() => {
+    if (trackingId && !initializedGA) {
+      ReactGA.initialize(process.env.NEXT_PUBLIC_GA, {
+        gaOptions: {
+          clientId: pageProps.trackingId,
+        },
+      });
+      trackPageView(`${window.location.pathname}${window.location.search}`);
+      setInitializedGA(true);
+    }
+  }, [trackingId]);
 
   useEffect(() => {
     import('quicklink/dist/quicklink.umd').then((quicklink) =>
@@ -71,14 +83,6 @@ export default function App({
         `/register?redirect_uri=${encodeURI(window.location.pathname)}`,
       );
     }
-
-    ReactGA.initialize(process.env.NEXT_PUBLIC_GA, {
-      gaOptions: {
-        clientId: pageProps.trackingId,
-      },
-    });
-
-    trackPageView(`${window.location.pathname}${window.location.search}`);
     updateCookieBanner(pageProps.user);
   }, []);
 
@@ -95,6 +99,7 @@ export default function App({
             showLogin: () => setLoginIsOpen(true),
             updateUser: setUser,
             logout,
+            loadingUser,
           }}
         >
           <Head>

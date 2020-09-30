@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import createDOMPurify from 'dompurify';
 import Link from 'next/link';
-import { getProfile, getUserProps, PublicProfile } from '../lib/user';
+import { getProfile, PublicProfile } from '../lib/user';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { getLayout as getMainLayout } from './MainLayout';
 import Head from 'next/head';
@@ -437,22 +437,17 @@ interface ProfileParams extends ParsedUrlQuery {
 
 export async function getServerSideProps({
   params,
-  req,
   res,
 }: GetServerSidePropsContext<ProfileParams>): Promise<
   GetServerSidePropsResult<Omit<ProfileLayoutProps, 'children'> & PageProps>
 > {
   const { userId } = params;
   try {
-    const [profile, userProps] = await Promise.all([
-      getProfile(userId),
-      getUserProps({ req, res }),
-    ]);
+    const profile = await getProfile(userId);
     return {
       props: {
         profile,
         initialApolloState: null,
-        ...userProps,
       },
     };
   } catch (err) {

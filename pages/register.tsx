@@ -1,10 +1,6 @@
 import React, { ReactElement, useContext, useState } from 'react';
-import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import styled from 'styled-components';
 import { NextSeo } from 'next-seo';
-import { getUserProps } from '../lib/user';
-import { PageProps } from './_app';
-import { shouldSkipSSR, SkipSSRProps } from '../lib/ssr';
 import MainLayout from '../components/MainLayout';
 import { typoLil2, typoMicro2 } from '../styles/typography';
 import { size10, size2, size4 } from '../styles/sizes';
@@ -14,32 +10,6 @@ import AuthContext from '../components/AuthContext';
 import { useRouter } from 'next/router';
 import EditImageWithJoinedDate from '../components/EditImageWithJoinedDate';
 import ProfileForm from '../components/ProfileForm';
-
-export async function getServerSideProps({
-  query,
-  req,
-  res,
-}: GetServerSidePropsContext): Promise<
-  GetServerSidePropsResult<PageProps | SkipSSRProps>
-> {
-  if (shouldSkipSSR(query)) {
-    return { props: { skipSSR: true } };
-  }
-  const userProps = await getUserProps({ req, res });
-  if (!userProps.user) {
-    res.statusCode = 302;
-    res.setHeader('Location', '/');
-    return { props: { skipSSR: true } };
-  }
-
-  return {
-    props: {
-      ...userProps,
-      user: userProps.user,
-      initialApolloState: null,
-    },
-  };
-}
 
 const Subheading = styled.h2`
   margin: ${size2} 0;
