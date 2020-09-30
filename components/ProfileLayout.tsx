@@ -467,11 +467,13 @@ export async function getStaticProps({
       props: {
         profile,
       },
+      revalidate: 60,
     };
   } catch (err) {
     if ('message' in err && err.message === 'not found') {
       return {
         props: { profile: null },
+        revalidate: 60,
       };
     } else {
       throw err;
