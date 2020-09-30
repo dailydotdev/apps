@@ -4,6 +4,14 @@ import { render, RenderResult, screen } from '@testing-library/react';
 import AuthContext from '../components/AuthContext';
 import ProfileLayout from '../components/ProfileLayout';
 
+jest.mock('next/router', () => ({
+  useRouter() {
+    return {
+      isFallback: false,
+    };
+  },
+}));
+
 beforeEach(() => {
   jest.resetAllMocks();
 });

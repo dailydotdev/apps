@@ -1,7 +1,8 @@
 import React, { ReactElement, useEffect, useRef } from 'react';
 import {
   getLayout as getProfileLayout,
-  getServerSideProps as getProfileServerSideProps,
+  getStaticProps as getProfileStaticProps,
+  getStaticPaths as getProfileStaticPaths,
   ProfileLayoutProps,
 } from '../../components/ProfileLayout';
 import { useQuery } from '@apollo/client';
@@ -13,7 +14,8 @@ import { typoLil1, typoLil2, typoMicro2 } from '../../styles/typography';
 import { format } from 'date-fns';
 import { useInView } from 'react-intersection-observer';
 
-export const getServerSideProps = getProfileServerSideProps;
+export const getStaticProps = getProfileStaticProps;
+export const getStaticPaths = getProfileStaticPaths;
 
 const Container = styled.ul`
   position: relative;

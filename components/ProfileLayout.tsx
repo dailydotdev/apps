@@ -38,14 +38,19 @@ import { useHideOnModal } from '../lib/useHideOnModal';
 import { useRouter } from 'next/router';
 import { Flipped, Flipper } from 'react-flip-toolkit';
 import { pageMaxWidth } from '../styles/utilities';
-import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
+import {
+  GetStaticPathsResult,
+  GetStaticPropsContext,
+  GetStaticPropsResult,
+} from 'next';
 import { PageProps } from '../pages/_app';
 import { ParsedUrlQuery } from 'querystring';
 import { reputationGuide } from '../lib/constants';
+import Custom404 from '../pages/404';
 
 const AccountDetailsModal = dynamic(() => import('./AccountDetailsModal'));
 
-export interface ProfileLayoutProps {
+export interface ProfileLayoutProps extends PageProps {
   profile: PublicProfile;
   children?: ReactNode;
 }
@@ -214,9 +219,8 @@ const Nav = styled.nav`
     }
   }
 
-  li {
+  & > div {
     position: relative;
-    list-style: none;
   }
 
   ${FloatButton} {
@@ -259,30 +263,36 @@ export default function ProfileLayout({
   profile: initialProfile,
   children,
 }: ProfileLayoutProps): ReactElement {
+  const { isFallback } = useRouter();
+
+  if (!isFallback && !initialProfile) {
+    return <Custom404 />;
+  }
+
   const { user } = useContext(AuthContext);
   const router = useRouter();
   const [selectedTab, setSelectedTab] = useState(
     tabs.findIndex((tab) => tab.path === router?.pathname),
   );
-
-  const profileKey = `/api/v1/users/${initialProfile.id}`;
+  const profileKey = initialProfile && `/api/v1/users/${initialProfile.id}`;
   const { data: profile } = useSWR<PublicProfile>(profileKey, {
     initialData: initialProfile,
-    revalidateOnMount: false,
   });
 
-  const Seo: NextSeoProps = {
-    title: profile.name,
-    description: profile.bio
-      ? profile.bio
-      : `Check out ${profile.name}'s profile`,
-    openGraph: {
-      images: [{ url: profile.image }],
-    },
-    twitter: {
-      handle: profile.twitter,
-    },
-  };
+  const Seo: NextSeoProps = profile
+    ? {
+        title: profile.name,
+        description: profile.bio
+          ? profile.bio
+          : `Check out ${profile.name}'s profile`,
+        openGraph: {
+          images: [{ url: profile.image }],
+        },
+        twitter: {
+          handle: profile.twitter,
+        },
+      }
+    : {};
 
   const [twitterHandle, setTwitterHandle] = useState<string>();
   const [githubHandle, setGithubHandle] = useState<string>();
@@ -307,18 +317,24 @@ export default function ProfileLayout({
     // Add delay to keep the animation at 60fps
     setTimeout(async () => {
       await router.push(getTabHref(tabs[selectedTab]));
-    }, 150);
+    }, 100);
   };
 
   useEffect(() => {
-    const DOMPurify = createDOMPurify(window);
-    profile.twitter && setTwitterHandle(DOMPurify.sanitize(profile.twitter));
-    profile.github && setGithubHandle(DOMPurify.sanitize(profile.github));
-    profile.portfolio &&
-      setPortfolioLink(DOMPurify.sanitize(profile.portfolio));
+    if (profile) {
+      const DOMPurify = createDOMPurify(window);
+      profile.twitter && setTwitterHandle(DOMPurify.sanitize(profile.twitter));
+      profile.github && setGithubHandle(DOMPurify.sanitize(profile.github));
+      profile.portfolio &&
+        setPortfolioLink(DOMPurify.sanitize(profile.portfolio));
+    }
   }, [profile]);
 
   useHideOnModal(() => !!showAccountDetails, [showAccountDetails]);
+
+  if (isFallback && !initialProfile) {
+    return <></>;
+  }
 
   return (
     <>
@@ -395,7 +411,7 @@ export default function ProfileLayout({
         <Flipper flipKey={selectedTab} spring="veryGentle">
           <Nav>
             {tabs.map((tab, index) => (
-              <li key={tab.path}>
+              <div key={tab.path}>
                 <Link href={getTabHref(tab)} passHref>
                   <FloatButton
                     as="a"
@@ -410,7 +426,7 @@ export default function ProfileLayout({
                 <Flipped flipId="activeTabIndicator" onStart={applyPageChange}>
                   {selectedTab === index && <ActiveTabIndicator />}
                 </Flipped>
-              </li>
+              </div>
             ))}
           </Nav>
         </Flipper>
@@ -435,11 +451,14 @@ interface ProfileParams extends ParsedUrlQuery {
   userId: string;
 }
 
-export async function getServerSideProps({
+export async function getStaticPaths(): Promise<GetStaticPathsResult> {
+  return { paths: [], fallback: true };
+}
+
+export async function getStaticProps({
   params,
-  res,
-}: GetServerSidePropsContext<ProfileParams>): Promise<
-  GetServerSidePropsResult<Omit<ProfileLayoutProps, 'children'> & PageProps>
+}: GetStaticPropsContext<ProfileParams>): Promise<
+  GetStaticPropsResult<Omit<ProfileLayoutProps, 'children'>>
 > {
   const { userId } = params;
   try {
@@ -447,18 +466,17 @@ export async function getServerSideProps({
     return {
       props: {
         profile,
-        initialApolloState: null,
       },
+      revalidate: 60,
     };
   } catch (err) {
     if ('message' in err && err.message === 'not found') {
-      res.writeHead(302, { Location: '/404' });
-      res.end();
+      return {
+        props: { profile: null },
+        revalidate: 60,
+      };
     } else {
       throw err;
     }
-    return {
-      props: null,
-    };
   }
 }
