@@ -19,6 +19,7 @@ import {
 } from '../graphql/posts';
 import AuthContext from '../components/AuthContext';
 import { POST_COMMENTS_QUERY, PostCommentsData } from '../graphql/comments';
+import { LoggedUser } from '../lib/user';
 
 const showLogin = jest.fn();
 
@@ -84,27 +85,26 @@ const createCommentsMock = (): MockedResponse<PostCommentsData> => ({
   },
 });
 
+const defaultUser: LoggedUser = {
+  id: 'u1',
+  name: 'Ido Shamun',
+  providers: ['github'],
+  email: 'ido@acme.com',
+  image: 'https://daily.dev/ido.png',
+  infoConfirmed: true,
+  premium: false,
+  createdAt: '',
+};
+
 const renderPost = (
   props: Partial<Props> = {},
   mocks: MockedResponse[] = [createPostMock(), createCommentsMock()],
+  user: LoggedUser = defaultUser,
 ): RenderResult => {
   const defaultProps: Props = {
     id: '0e4005b2d3cf191f8c44c2718a457a1e',
     initialApolloState: null,
-    user: {
-      id: 'u1',
-      name: 'Ido Shamun',
-      providers: ['github'],
-      email: 'ido@acme.com',
-      image: 'https://daily.dev/ido.png',
-      infoConfirmed: true,
-      premium: false,
-      createdAt: '',
-    },
-    trackingId: 'u1',
   };
-
-  const user = props.user === undefined ? defaultProps.user : props.user;
 
   return render(
     <MockedProvider addTypename={false} mocks={mocks}>
@@ -191,7 +191,7 @@ it('should show post image and set placeholder', async () => {
 });
 
 it('should show login on upvote click', async () => {
-  const res = renderPost({ user: null });
+  const res = renderPost({}, [createPostMock(), createCommentsMock()], null);
   const el = await res.findByText('Upvote');
   el.click();
   expect(showLogin).toBeCalledTimes(1);

@@ -50,26 +50,30 @@ export default function Register(): ReactElement {
     <MainLayout showOnlyLogo={true}>
       <NextSeo title="Registration" />
       <PageContainer>
-        <ProfileHeading>Set up your profile</ProfileHeading>
-        <Subheading>Please fill in your details below</Subheading>
-        <EditImageWithJoinedDate user={user} />
-        <ProfileForm
-          id="profileForm"
-          setDisableSubmit={setDisableSubmit}
-          onSuccessfulSubmit={onSuccessfulSubmit}
-        />
-        <FormButtons>
-          <LogoutButton type="button" onClick={logout}>
-            Logout
-          </LogoutButton>
-          <InvertButton
-            type="submit"
-            disabled={disableSubmit}
-            form="profileForm"
-          >
-            Finish
-          </InvertButton>
-        </FormButtons>
+        {user && (
+          <>
+            <ProfileHeading>Set up your profile</ProfileHeading>
+            <Subheading>Please fill in your details below</Subheading>
+            <EditImageWithJoinedDate user={user} />
+            <ProfileForm
+              id="profileForm"
+              setDisableSubmit={setDisableSubmit}
+              onSuccessfulSubmit={onSuccessfulSubmit}
+            />
+            <FormButtons>
+              <LogoutButton type="button" onClick={logout}>
+                Logout
+              </LogoutButton>
+              <InvertButton
+                type="submit"
+                disabled={disableSubmit}
+                form="profileForm"
+              >
+                Finish
+              </InvertButton>
+            </FormButtons>
+          </>
+        )}
       </PageContainer>
     </MainLayout>
   );
