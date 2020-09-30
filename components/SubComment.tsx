@@ -10,6 +10,7 @@ import { ProfileLink } from './ProfileLink';
 export interface Props {
   comment: Comment;
   firstComment: boolean;
+  lastComment: boolean;
   parentId: string;
   onComment: (comment: Comment, parentId: string | null) => void;
   onDelete: (comment: Comment, parentId: string | null) => void;
@@ -42,12 +43,12 @@ const Content = styled.div`
   margin-top: ${size2};
 `;
 
-const Timeline = styled.div<{ firstComment: boolean }>`
+const Timeline = styled.div<{ firstComment: boolean; lastComment: boolean }>`
   position: absolute;
   left: 0;
   right: 0;
-  top: ${(props) => (props.firstComment ? '0' : `-${size4}`)};
-  bottom: 0;
+  top: ${({ firstComment }) => (firstComment ? '0' : `-${size4}`)};
+  ${({ lastComment }) => (lastComment ? `height: ${size4}` : 'bottom: 0')};
   width: 0.063rem;
   margin: 0 auto;
   background: var(--theme-separator);
@@ -60,6 +61,7 @@ const SubCommentBox = styled(CommentBox)`
 export default function SubComment({
   comment,
   firstComment,
+  lastComment,
   onComment,
   parentId,
   onDelete,
@@ -67,7 +69,11 @@ export default function SubComment({
   return (
     <Container data-testid="subcomment">
       <ProfileContainer>
-        <Timeline data-testid="timeline" firstComment={firstComment} />
+        <Timeline
+          data-testid="timeline"
+          firstComment={firstComment}
+          lastComment={lastComment}
+        />
         <SmallProfileLink user={comment.author} />
       </ProfileContainer>
       <ContentContainer>

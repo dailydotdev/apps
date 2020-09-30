@@ -63,7 +63,8 @@ export default function MainComment({
         <SubComment
           comment={e.node}
           key={e.node.id}
-          firstComment={!i}
+          firstComment={i === 0}
+          lastComment={i === comment.children.edges.length - 1}
           parentId={comment.id}
           onComment={onComment}
           onDelete={onDelete}

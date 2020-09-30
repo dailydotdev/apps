@@ -45,6 +45,7 @@ const renderLayout = (
   const defaultProps: Props = {
     comment: baseComment,
     firstComment: false,
+    lastComment: false,
     parentId: 'c1',
     onComment,
     onDelete,
