@@ -14,6 +14,8 @@ import GlobalStyle from '../components/GlobalStyle';
 import AuthContext from '../components/AuthContext';
 import { LoggedUser, logout as dispatchLogout } from '../lib/user';
 import { Router } from 'next/router';
+import fetcher from '../lib/fetcher';
+import { useCookieBanner } from '../lib/useCookieBanner';
 
 const LoginModal = dynamic(() => import('../components/LoginModal'));
 const CookieBanner = dynamic(() => import('../components/CookieBanner'));
@@ -26,8 +28,6 @@ export interface PageProps {
 
 Modal.setAppElement('#__next');
 Modal.defaultStyles = {};
-
-const consentCookieName = 'ilikecookies';
 
 interface CompnentGetLayout {
   getLayout?: (page: ReactNode, props: Record<string, unknown>) => ReactNode;
@@ -48,20 +48,13 @@ export default function App({
   const apolloClient = useApollo(pageProps.initialApolloState);
   const [user, setUser] = useState<LoggedUser>(pageProps.user);
   const [loginIsOpen, setLoginIsOpen] = useState(false);
-  const [showCookie, setShowCookie] = useState(false);
+  const [showCookie, acceptCookies, updateCookieBanner] = useCookieBanner();
 
   const closeLogin = () => setLoginIsOpen(false);
 
   const logout = async (): Promise<void> => {
     await dispatchLogout();
     location.reload();
-  };
-
-  const acceptCookies = (): void => {
-    setShowCookie(false);
-    document.cookie = `${consentCookieName}=true;path=/;domain=${
-      process.env.NEXT_PUBLIC_DOMAIN
-    };samesite=lax;expires=${60 * 60 * 24 * 365 * 10}`;
   };
 
   useEffect(() => {
@@ -86,28 +79,8 @@ export default function App({
     });
 
     trackPageView(`${window.location.pathname}${window.location.search}`);
-
-    if (
-      !pageProps.user &&
-      !document.cookie
-        .split('; ')
-        .find((row) => row.startsWith(consentCookieName))
-    ) {
-      setShowCookie(true);
-    }
+    updateCookieBanner(pageProps.user);
   }, []);
-
-  const fetcher = async (
-    input: RequestInfo,
-    init?: RequestInit,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ): Promise<any> => {
-    const res = await fetch(input, {
-      credentials: 'include',
-      ...init,
-    });
-    return res.json();
-  };
 
   const getLayout =
     (Component as CompnentGetLayout).getLayout || ((page) => page);
