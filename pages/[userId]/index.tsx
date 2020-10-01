@@ -1,4 +1,5 @@
 import React, { ReactElement, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import {
   getLayout as getProfileLayout,
   getStaticProps as getProfileStaticProps,
@@ -130,12 +131,14 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
               <UpvoteIcon />
               {comment.numUpvotes}
             </CommentUpvotes>
-            <CommentInfo href={comment.permalink}>
-              <CommentContent>{comment.content}</CommentContent>
-              <CommentTime dateTime={comment.createdAt}>
-                {format(new Date(comment.createdAt), 'MMM d, y')}
-              </CommentTime>
-            </CommentInfo>
+            <Link href={comment.permalink} passHref>
+              <CommentInfo>
+                <CommentContent>{comment.content}</CommentContent>
+                <CommentTime dateTime={comment.createdAt}>
+                  {format(new Date(comment.createdAt), 'MMM d, y')}
+                </CommentTime>
+              </CommentInfo>
+            </Link>
           </CommentContainer>
         </li>
       ))}

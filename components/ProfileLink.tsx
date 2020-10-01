@@ -1,4 +1,5 @@
 import React, { HTMLAttributes, ReactElement } from 'react';
+import Link from 'next/link';
 import styled from 'styled-components';
 import { size10 } from '../styles/sizes';
 import LazyImage from './LazyImage';
@@ -30,16 +31,14 @@ export function ProfileLink({
   ...props
 }: ProfileLinkProps): ReactElement {
   return (
-    <Container
-      href={user.permalink}
-      title={`Go to ${user.name}'s profile`}
-      {...props}
-    >
-      <Image
-        imgSrc={user.image}
-        imgAlt={`${user.name}'s profile image`}
-        background="var(--theme-background-highlight)"
-      />
-    </Container>
+    <Link href={user.permalink} passHref>
+      <Container title={`Go to ${user.name}'s profile`} {...props}>
+        <Image
+          imgSrc={user.image}
+          imgAlt={`${user.name}'s profile image`}
+          background="var(--theme-background-highlight)"
+        />
+      </Container>
+    </Link>
   );
 }

@@ -34,5 +34,5 @@ module.exports = {
   ],
 
   poweredByHeader: false,
-  reactStrictMode: true,
+  reactStrictMode: false,
 };
