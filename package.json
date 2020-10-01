@@ -24,7 +24,6 @@
     "next": "^9.5.3",
     "next-seo": "^4.7.3",
     "node-fetch": "^2.6.0",
-    "quicklink": "^2.0.0",
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "react-flip-toolkit": "^7.0.12",

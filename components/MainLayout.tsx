@@ -7,6 +7,7 @@ import React, {
   useState,
 } from 'react';
 import styled from 'styled-components';
+import Link from 'next/link';
 import { size1, size4, size8, sizeN } from '../styles/sizes';
 import { FloatButton, IconButton } from './Buttons';
 import DailyDevLogo from './DailyDevLogo';
@@ -106,23 +107,27 @@ export default function MainLayout({
   return (
     <Container className={className}>
       <Header>
-        <HomeLink title="Home" href="/">
-          <DailyDevLogo />
-          <BetaBadge className="badge" />
-        </HomeLink>
+        <Link href="/" passHref>
+          <HomeLink title="Home">
+            <DailyDevLogo />
+            <BetaBadge className="badge" />
+          </HomeLink>
+        </Link>
         {!showOnlyLogo && !loadingUser && (
           <>
             <AboutButton onClick={onAboutClick} title="About">
               {showBadge ? <BellNotifyIcon /> : <BellIcon />}
             </AboutButton>
             {user ? (
-              <ProfileImage href={`/${user.username || user.id}`}>
-                <LazyImage
-                  imgSrc={user.image}
-                  imgAlt="Your profile image"
-                  ratio="100%"
-                />
-              </ProfileImage>
+              <Link href={`/${user.username || user.id}`} passHref>
+                <ProfileImage>
+                  <LazyImage
+                    imgSrc={user.image}
+                    imgAlt="Your profile image"
+                    ratio="100%"
+                  />
+                </ProfileImage>
+              </Link>
             ) : (
               <FloatButton onClick={showLogin}>Login</FloatButton>
             )}

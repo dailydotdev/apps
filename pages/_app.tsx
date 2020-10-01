@@ -70,9 +70,9 @@ export default function App({
   }, [trackingId]);
 
   useEffect(() => {
-    import('quicklink/dist/quicklink.umd').then((quicklink) =>
-      quicklink.listen(),
-    );
+    // import('quicklink/dist/quicklink.umd').then((quicklink) =>
+    //   quicklink.listen(),
+    // );
 
     if (
       pageProps.user?.providers &&
