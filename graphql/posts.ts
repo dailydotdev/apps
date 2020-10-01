@@ -52,6 +52,28 @@ export const POST_BY_ID_QUERY = gql`
   }
 `;
 
+export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
+  query Post($id: ID!) {
+    post(id: $id) {
+      id
+      title
+      permalink
+      image
+      placeholder
+      createdAt
+      readTime
+      tags
+      commentsPermalink
+      numUpvotes
+      numComments
+      source {
+        name
+        image
+      }
+    }
+  }
+`;
+
 export interface EmptyResponse {
   _: boolean;
 }
