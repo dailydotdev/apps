@@ -4,7 +4,11 @@ import dynamic from 'next/dynamic';
 import { ApolloError, useMutation, useQuery } from '@apollo/client';
 import ReactGA from 'react-ga';
 import { initializeApollo } from '../../lib/apolloClient';
-import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
+import {
+  GetStaticPathsResult,
+  GetStaticPropsContext,
+  GetStaticPropsResult,
+} from 'next';
 import { ParsedUrlQuery } from 'querystring';
 import { Roles } from '../../lib/user';
 import styled from 'styled-components';
@@ -37,6 +41,7 @@ import {
   CANCEL_UPVOTE_MUTATION,
   CancelUpvoteData,
   POST_BY_ID_QUERY,
+  POST_BY_ID_STATIC_FIELDS_QUERY,
   PostData,
   updatePostUpvoteCache,
   UPVOTE_MUTATION,
@@ -64,6 +69,7 @@ import { getShareableLink } from '../../lib/share';
 import Head from 'next/head';
 import { useHideOnModal } from '../../lib/useHideOnModal';
 import { PageProps } from '../_app';
+import Custom404 from '../404';
 
 const NewCommentModal = dynamic(() =>
   import('../../components/NewCommentModal'),
@@ -90,52 +96,6 @@ export interface Props extends PageProps {
 
 interface PostParams extends ParsedUrlQuery {
   id: string;
-}
-
-export async function getServerSideProps({
-  params,
-  req,
-  res,
-}: GetServerSidePropsContext<PostParams>): Promise<
-  GetServerSidePropsResult<Props>
-> {
-  const { id } = params;
-  const apolloClient = initializeApollo({ req });
-
-  try {
-    await Promise.all([
-      apolloClient.query({
-        query: POST_BY_ID_QUERY,
-        variables: {
-          id,
-        },
-      }),
-      apolloClient.query({
-        query: POST_COMMENTS_QUERY,
-        variables: {
-          postId: id,
-        },
-      }),
-    ]);
-
-    return {
-      props: {
-        id,
-        initialApolloState: apolloClient.cache.extract(),
-      },
-    };
-  } catch (err) {
-    const apolloError = err as ApolloError;
-    if (apolloError?.graphQLErrors?.[0]?.extensions?.code === 'NOT_FOUND') {
-      res.writeHead(302, { Location: '/404' });
-      res.end();
-    } else {
-      throw err;
-    }
-    return {
-      props: null,
-    };
-  }
 }
 
 const PostInfo = styled.div`
@@ -292,6 +252,12 @@ interface ParentComment {
 }
 
 const PostPage = ({ id }: Props): ReactElement => {
+  const { isFallback } = useRouter();
+
+  if (!isFallback && !id) {
+    return <Custom404 />;
+  }
+
   const { user, showLogin } = useContext(AuthContext);
   const router = useRouter();
   const [parentComment, setParentComment] = useState<ParentComment>(null);
@@ -308,11 +274,14 @@ const PostPage = ({ id }: Props): ReactElement => {
 
   const { data: postById } = useQuery<PostData>(POST_BY_ID_QUERY, {
     variables: { id },
+    returnPartialData: true,
+    skip: !id,
   });
 
   const { data: comments } = useQuery<PostCommentsData>(POST_COMMENTS_QUERY, {
     variables: { postId: id },
     pollInterval: 2 * 60 * 1000,
+    skip: !id,
   });
 
   const [upvotePost] = useMutation<UpvoteData>(UPVOTE_MUTATION, {
@@ -415,6 +384,20 @@ const PostPage = ({ id }: Props): ReactElement => {
     }
   };
 
+  useEffect(() => {
+    setHasNativeShare('share' in navigator);
+    if (router?.query.new) {
+      setTimeout(() => setShowShareNewComment(true), 700);
+    }
+    window.history.replaceState({}, document.title, getShareableLink());
+  }, []);
+
+  useHideOnModal(() => !!parentComment, [parentComment]);
+
+  if (!postById?.post || (isFallback && !id)) {
+    return <></>;
+  }
+
   const postLinkProps = {
     href: postById?.post.permalink,
     title: 'Go to article',
@@ -434,16 +417,6 @@ const PostPage = ({ id }: Props): ReactElement => {
       },
     },
   };
-
-  useEffect(() => {
-    setHasNativeShare('share' in navigator);
-    if (router?.query.new) {
-      setTimeout(() => setShowShareNewComment(true), 700);
-    }
-    window.history.replaceState({}, document.title, getShareableLink());
-  }, []);
-
-  useHideOnModal(() => !!parentComment, [parentComment]);
 
   return (
     <>
@@ -591,3 +564,41 @@ const PostPage = ({ id }: Props): ReactElement => {
 PostPage.getLayout = getMainLayout;
 
 export default PostPage;
+
+export async function getStaticPaths(): Promise<GetStaticPathsResult> {
+  return { paths: [], fallback: true };
+}
+
+export async function getStaticProps({
+  params,
+}: GetStaticPropsContext<PostParams>): Promise<GetStaticPropsResult<Props>> {
+  const { id } = params;
+  const apolloClient = initializeApollo({});
+
+  try {
+    await apolloClient.query({
+      query: POST_BY_ID_STATIC_FIELDS_QUERY,
+      variables: {
+        id,
+      },
+    });
+
+    return {
+      props: {
+        id,
+        initialApolloState: apolloClient.cache.extract(),
+      },
+      revalidate: 60,
+    };
+  } catch (err) {
+    const apolloError = err as ApolloError;
+    if (apolloError?.graphQLErrors?.[0]?.extensions?.code === 'NOT_FOUND') {
+      return {
+        props: { id: null },
+        revalidate: 60,
+      };
+    } else {
+      throw err;
+    }
+  }
+}

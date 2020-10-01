@@ -23,6 +23,15 @@ import { LoggedUser } from '../lib/user';
 
 const showLogin = jest.fn();
 
+jest.mock('next/router', () => ({
+  useRouter() {
+    return {
+      isFallback: false,
+      query: {},
+    };
+  },
+}));
+
 beforeEach(() => {
   showLogin.mockReset();
 });
