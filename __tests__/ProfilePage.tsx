@@ -1,12 +1,14 @@
 import React from 'react';
-import { MockedProvider, MockedResponse } from '@apollo/client/testing';
 import { USER_COMMENTS_QUERY, UserCommentsData } from '../graphql/comments';
 import ProfilePage from '../pages/[userId]/index';
 import { act, render, RenderResult, screen } from '@testing-library/react';
 import AuthContext from '../components/AuthContext';
 import { PublicProfile } from '../lib/user';
+import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
+import nock from 'nock';
 
 beforeEach(() => {
+  nock.cleanAll();
   jest.resetAllMocks();
   Object.defineProperty(global, 'IntersectionObserver', {
     writable: true,
@@ -18,7 +20,7 @@ beforeEach(() => {
   });
 });
 
-const createCommentsMock = (): MockedResponse<UserCommentsData> => ({
+const createCommentsMock = (): MockedGraphQLResponse<UserCommentsData> => ({
   request: {
     query: USER_COMMENTS_QUERY,
     variables: {
@@ -64,23 +66,22 @@ const defaultProfile: PublicProfile = {
 };
 
 const renderComponent = (
-  mocks: MockedResponse[] = [createCommentsMock()],
+  mocks: MockedGraphQLResponse[] = [createCommentsMock()],
   profile: Partial<PublicProfile> = {},
 ): RenderResult => {
+  mocks.forEach(mockGraphQL);
   return render(
-    <MockedProvider addTypename={false} mocks={mocks}>
-      <AuthContext.Provider
-        value={{
-          user: null,
-          shouldShowLogin: false,
-          showLogin: jest.fn(),
-          logout: jest.fn(),
-          updateUser: jest.fn(),
-        }}
-      >
-        <ProfilePage profile={{ ...defaultProfile, ...profile }} />
-      </AuthContext.Provider>
-    </MockedProvider>,
+    <AuthContext.Provider
+      value={{
+        user: null,
+        shouldShowLogin: false,
+        showLogin: jest.fn(),
+        logout: jest.fn(),
+        updateUser: jest.fn(),
+      }}
+    >
+      <ProfilePage profile={{ ...defaultProfile, ...profile }} />
+    </AuthContext.Provider>,
   );
 };
 

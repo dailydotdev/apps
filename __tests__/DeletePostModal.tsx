@@ -1,8 +1,8 @@
 import DeletePostModal, { Props } from '../components/DeletePostModal';
-import { MockedProvider, MockedResponse } from '@apollo/client/testing';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 import { DELETE_POST_MUTATION } from '../graphql/posts';
+import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
 
 const onRequestClose = jest.fn();
 
@@ -12,7 +12,7 @@ beforeEach(() => {
 
 const renderComponent = (
   props: Partial<Props> = {},
-  mocks: MockedResponse[] = [],
+  mocks: MockedGraphQLResponse[] = [],
 ): RenderResult => {
   const defaultProps: Props = {
     postId: 'p1',
@@ -21,11 +21,8 @@ const renderComponent = (
     onRequestClose,
   };
 
-  return render(
-    <MockedProvider addTypename={false} mocks={mocks}>
-      <DeletePostModal {...defaultProps} {...props} />
-    </MockedProvider>,
-  );
+  mocks.forEach(mockGraphQL);
+  return render(<DeletePostModal {...defaultProps} {...props} />);
 };
 
 it('should close modal on cancel', async () => {

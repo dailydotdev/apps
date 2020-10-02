@@ -1,4 +1,4 @@
-import { ApolloCache, gql } from '@apollo/client';
+import { gql } from 'graphql-request';
 import { Connection } from './common';
 import { EmptyResponse } from './posts';
 
@@ -147,26 +147,3 @@ export const DELETE_COMMENT_MUTATION = gql`
     }
   }
 `;
-
-export const updateCommentUpvoteCache = <T>(
-  cache: ApolloCache<T>,
-  id: string,
-  upvoted: boolean,
-  numUpvotes: number,
-): void => {
-  cache.modify({
-    id: cache.identify({
-      __typename: 'Comment',
-      id,
-    }),
-    broadcast: true,
-    fields: {
-      upvoted() {
-        return upvoted;
-      },
-      numUpvotes() {
-        return numUpvotes;
-      },
-    },
-  });
-};

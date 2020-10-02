@@ -5,12 +5,12 @@ import { LoggedUser } from '../lib/user';
 import CommentActionButtons, {
   Props,
 } from '../components/CommentActionButtons';
-import { MockedProvider, MockedResponse } from '@apollo/client/testing';
 import {
   Comment,
   CANCEL_COMMENT_UPVOTE_MUTATION,
   UPVOTE_COMMENT_MUTATION,
 } from '../graphql/comments';
+import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
 
 const showLogin = jest.fn();
 const onComment = jest.fn();
@@ -49,7 +49,7 @@ const baseComment = {
 const renderComponent = (
   comment: Partial<Comment> = {},
   user: LoggedUser = null,
-  mocks: MockedResponse[] = [],
+  mocks: MockedGraphQLResponse[] = [],
 ): RenderResult => {
   const props: Props = {
     comment: {
@@ -61,20 +61,19 @@ const renderComponent = (
     onDelete,
   };
 
+  mocks.forEach(mockGraphQL);
   return render(
-    <MockedProvider addTypename={false} mocks={mocks}>
-      <AuthContext.Provider
-        value={{
-          user,
-          shouldShowLogin: false,
-          showLogin,
-          logout: jest.fn(),
-          updateUser: jest.fn(),
-        }}
-      >
-        <CommentActionButtons {...props} />
-      </AuthContext.Provider>
-    </MockedProvider>,
+    <AuthContext.Provider
+      value={{
+        user,
+        shouldShowLogin: false,
+        showLogin,
+        logout: jest.fn(),
+        updateUser: jest.fn(),
+      }}
+    >
+      <CommentActionButtons {...props} />
+    </AuthContext.Provider>,
   );
 };
 

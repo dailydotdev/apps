@@ -7,7 +7,6 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
-import { MockedProvider, MockedResponse } from '@apollo/client/testing';
 
 import PostPage, { Props } from '../pages/posts/[id]';
 import {
@@ -20,6 +19,9 @@ import {
 import AuthContext from '../components/AuthContext';
 import { POST_COMMENTS_QUERY, PostCommentsData } from '../graphql/comments';
 import { LoggedUser } from '../lib/user';
+import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
+import nock from 'nock';
+import { QueryCache, ReactQueryCacheProvider } from 'react-query';
 
 const showLogin = jest.fn();
 
@@ -33,12 +35,13 @@ jest.mock('next/router', () => ({
 }));
 
 beforeEach(() => {
+  nock.cleanAll();
   showLogin.mockReset();
 });
 
 const createPostMock = (
   data: Partial<Post> = {},
-): MockedResponse<PostData> => ({
+): MockedGraphQLResponse<PostData> => ({
   request: {
     query: POST_BY_ID_QUERY,
     variables: {
@@ -76,7 +79,7 @@ const createPostMock = (
   },
 });
 
-const createCommentsMock = (): MockedResponse<PostCommentsData> => ({
+const createCommentsMock = (): MockedGraphQLResponse<PostCommentsData> => ({
   request: {
     query: POST_COMMENTS_QUERY,
     variables: {
@@ -85,7 +88,6 @@ const createCommentsMock = (): MockedResponse<PostCommentsData> => ({
   },
   result: {
     data: {
-      // TODO: something with MockProvider is wrong and it returns empty nodes even when mock is set
       postComments: {
         pageInfo: {},
         edges: [],
@@ -107,16 +109,18 @@ const defaultUser: LoggedUser = {
 
 const renderPost = (
   props: Partial<Props> = {},
-  mocks: MockedResponse[] = [createPostMock(), createCommentsMock()],
+  mocks: MockedGraphQLResponse[] = [createPostMock(), createCommentsMock()],
   user: LoggedUser = defaultUser,
 ): RenderResult => {
   const defaultProps: Props = {
     id: '0e4005b2d3cf191f8c44c2718a457a1e',
-    initialApolloState: null,
   };
 
+  const queryCache = new QueryCache();
+
+  mocks.forEach(mockGraphQL);
   return render(
-    <MockedProvider addTypename={false} mocks={mocks}>
+    <ReactQueryCacheProvider queryCache={queryCache}>
       <AuthContext.Provider
         value={{
           user,
@@ -128,7 +132,7 @@ const renderPost = (
       >
         <PostPage {...defaultProps} {...props} />
       </AuthContext.Provider>
-    </MockedProvider>,
+    </ReactQueryCacheProvider>,
   );
 };
 

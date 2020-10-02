@@ -1,4 +1,4 @@
-import { ApolloCache, gql } from '@apollo/client';
+import { gql } from 'graphql-request';
 
 export interface Source {
   __typename?: string;
@@ -109,26 +109,3 @@ export const DELETE_POST_MUTATION = gql`
     }
   }
 `;
-
-export const updatePostUpvoteCache = <T>(
-  cache: ApolloCache<T>,
-  id: string,
-  upvoted: boolean,
-  numUpvotes: number,
-): void => {
-  cache.modify({
-    id: cache.identify({
-      __typename: 'Post',
-      id,
-    }),
-    broadcast: true,
-    fields: {
-      upvoted() {
-        return upvoted;
-      },
-      numUpvotes() {
-        return numUpvotes;
-      },
-    },
-  });
-};

@@ -105,10 +105,24 @@ export async function changeProfileImage(file: File): Promise<LoggedUser> {
   throw new Error('Unexpected response');
 }
 
-export async function getProfile(id: string): Promise<PublicProfile> {
+export async function getProfileSSR(id: string): Promise<PublicProfile> {
   const userRes = await nodeFetch(`${apiUrl}/v1/users/${id}`);
   if (userRes.status === 404) {
     throw new Error('not found');
   }
   return userRes.json();
+}
+
+export async function getProfile(id: string): Promise<PublicProfile> {
+  const res = await fetch(`/api/v1/users/${id}`, {
+    credentials: 'include',
+  });
+  return res.json();
+}
+
+export async function getLoggedUser(): Promise<AnonymousUser | LoggedUser> {
+  const res = await fetch('/api/v1/users/me', {
+    credentials: 'include',
+  });
+  return res.json();
 }

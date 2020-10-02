@@ -9,6 +9,7 @@ module.exports = {
     './.next/',
     './node_modules/',
     '<rootDir>/__tests__/setup.ts',
+    '<rootDir>/__tests__/helpers/',
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   globals: {

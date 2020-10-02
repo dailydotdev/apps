@@ -3,7 +3,6 @@ import { render, RenderResult, screen } from '@testing-library/react';
 import AuthContext from '../components/AuthContext';
 import { LoggedUser } from '../lib/user';
 import MainComment, { Props } from '../components/MainComment';
-import { MockedProvider } from '@apollo/client/testing';
 
 const author = {
   image: 'https://daily.dev/ido.png',
@@ -51,19 +50,17 @@ const renderLayout = (
   };
 
   return render(
-    <MockedProvider addTypename={false} mocks={[]}>
-      <AuthContext.Provider
-        value={{
-          user,
-          shouldShowLogin: false,
-          showLogin: jest.fn(),
-          logout: jest.fn(),
-          updateUser: jest.fn(),
-        }}
-      >
-        <MainComment {...defaultProps} {...props} />
-      </AuthContext.Provider>
-    </MockedProvider>,
+    <AuthContext.Provider
+      value={{
+        user,
+        shouldShowLogin: false,
+        showLogin: jest.fn(),
+        logout: jest.fn(),
+        updateUser: jest.fn(),
+      }}
+    >
+      <MainComment {...defaultProps} {...props} />
+    </AuthContext.Provider>,
   );
 };
 

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
-import { AnonymousUser, LoggedUser } from './user';
-import useSWR from 'swr';
+import { getLoggedUser, LoggedUser } from './user';
+import { useQuery, useQueryCache } from 'react-query';
 
 export default function useLoggedUser(): [
   LoggedUser | null,
@@ -8,9 +8,11 @@ export default function useLoggedUser(): [
   string,
   boolean,
 ] {
-  const { data: fetchedUser, isValidating, mutate } = useSWR<
-    AnonymousUser | LoggedUser
-  >('/api/v1/users/me');
+  const cache = useQueryCache();
+  const { data: fetchedUser, isLoading } = useQuery(
+    'loggedUser',
+    getLoggedUser,
+  );
 
   const user = useMemo<LoggedUser | null>(() => {
     if (fetchedUser && 'providers' in fetchedUser) {
@@ -19,11 +21,12 @@ export default function useLoggedUser(): [
     return null;
   }, [fetchedUser]);
 
-  const setUser = (user: LoggedUser) => mutate(user);
+  const setUser = (user: LoggedUser) =>
+    cache.setQueryData<LoggedUser>('loggedUser', user);
 
   const trackingId = useMemo<string | null>(() => fetchedUser?.id, [
     fetchedUser,
   ]);
 
-  return [user, setUser, trackingId, isValidating && !fetchedUser];
+  return [user, setUser, trackingId, isLoading && !fetchedUser];
 }

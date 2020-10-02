@@ -1,9 +1,14 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
-import { ApolloError, useMutation, useQuery } from '@apollo/client';
+import {
+  useQuery,
+  useMutation,
+  useQueryCache,
+  MutationConfig,
+  QueryCache,
+} from 'react-query';
 import ReactGA from 'react-ga';
-import { initializeApollo } from '../../lib/apolloClient';
 import {
   GetStaticPathsResult,
   GetStaticPropsContext,
@@ -39,13 +44,10 @@ import TrashIcon from '../../icons/trash.svg';
 import LazyImage from '../../components/LazyImage';
 import {
   CANCEL_UPVOTE_MUTATION,
-  CancelUpvoteData,
   POST_BY_ID_QUERY,
   POST_BY_ID_STATIC_FIELDS_QUERY,
   PostData,
-  updatePostUpvoteCache,
   UPVOTE_MUTATION,
-  UpvoteData,
 } from '../../graphql/posts';
 import {
   PageContainer,
@@ -68,8 +70,9 @@ import { ShareMobile } from '../../components/ShareMobile';
 import { getShareableLink } from '../../lib/share';
 import Head from 'next/head';
 import { useHideOnModal } from '../../lib/useHideOnModal';
-import { PageProps } from '../_app';
 import Custom404 from '../404';
+import request, { ClientError } from 'graphql-request';
+import { apiUrl } from '../../lib/config';
 
 const NewCommentModal = dynamic(() =>
   import('../../components/NewCommentModal'),
@@ -90,8 +93,9 @@ const ShareNewCommentPopup = dynamic(
   },
 );
 
-export interface Props extends PageProps {
+export interface Props {
   id: string;
+  postData?: PostData;
 }
 
 interface PostParams extends ParsedUrlQuery {
@@ -251,7 +255,29 @@ interface ParentComment {
   postId: string;
 }
 
-const PostPage = ({ id }: Props): ReactElement => {
+const upvoteMutationConfig = (
+  queryCache: QueryCache,
+  postQueryKey: string[],
+  upvoted: boolean,
+): MutationConfig<unknown, unknown, unknown, () => void> => ({
+  onMutate: () => {
+    queryCache.cancelQueries(postQueryKey);
+    const oldPost = queryCache.getQueryData<PostData>(postQueryKey);
+    queryCache.setQueryData<PostData>(postQueryKey, {
+      post: {
+        ...oldPost.post,
+        upvoted,
+        numUpvotes: oldPost.post.numUpvotes + (upvoted ? 1 : -1),
+      },
+    });
+
+    return () => queryCache.setQueryData(postQueryKey, oldPost);
+  },
+  onError: (err, _, rollback) => rollback(),
+  onSettled: () => queryCache.invalidateQueries(postQueryKey),
+});
+
+const PostPage = ({ id, postData }: Props): ReactElement => {
   const { isFallback } = useRouter();
 
   if (!isFallback && !id) {
@@ -272,45 +298,47 @@ const PostPage = ({ id }: Props): ReactElement => {
   const [lastScroll, setLastScroll] = useState<number>(0);
   const [showDeletePost, setShowDeletePost] = useState<boolean>(false);
 
-  const { data: postById } = useQuery<PostData>(POST_BY_ID_QUERY, {
-    variables: { id },
-    returnPartialData: true,
-    skip: !id,
-  });
-
-  const { data: comments } = useQuery<PostCommentsData>(POST_COMMENTS_QUERY, {
-    variables: { postId: id },
-    pollInterval: 2 * 60 * 1000,
-    skip: !id,
-  });
-
-  const [upvotePost] = useMutation<UpvoteData>(UPVOTE_MUTATION, {
-    variables: { id },
-    optimisticResponse: { upvote: { _: true } },
-    update(cache) {
-      return updatePostUpvoteCache(
-        cache,
+  const queryCache = useQueryCache();
+  const postQueryKey = ['post', id];
+  const { data: postById } = useQuery<PostData>(
+    postQueryKey,
+    (key: string, id: string) =>
+      request(`${apiUrl}/graphql`, POST_BY_ID_QUERY, {
         id,
-        true,
-        postById.post.numUpvotes + 1,
-      );
-    },
-  });
-
-  const [cancelPostUpvote] = useMutation<CancelUpvoteData>(
-    CANCEL_UPVOTE_MUTATION,
+      }),
     {
-      variables: { id },
-      optimisticResponse: { cancelUpvote: { _: true } },
-      update(cache) {
-        return updatePostUpvoteCache(
-          cache,
-          id,
-          false,
-          postById.post.numUpvotes - 1,
-        );
-      },
+      initialData: postData,
+      enabled: !!id,
+      initialStale: true,
     },
+  );
+
+  const { data: comments } = useQuery<PostCommentsData>(
+    ['post_comments', id],
+    (key: string, id: string) =>
+      request(`${apiUrl}/graphql`, POST_COMMENTS_QUERY, {
+        postId: id,
+      }),
+    {
+      enabled: !!id,
+      refetchInterval: 60 * 1000,
+    },
+  );
+
+  const [upvotePost] = useMutation(
+    () =>
+      request(`${apiUrl}/graphql`, UPVOTE_MUTATION, {
+        id,
+      }),
+    upvoteMutationConfig(queryCache, postQueryKey, true),
+  );
+
+  const [cancelPostUpvote] = useMutation(
+    () =>
+      request(`${apiUrl}/graphql`, CANCEL_UPVOTE_MUTATION, {
+        id,
+      }),
+    upvoteMutationConfig(queryCache, postQueryKey, false),
   );
 
   const toggleUpvote = () => {
@@ -573,26 +601,22 @@ export async function getStaticProps({
   params,
 }: GetStaticPropsContext<PostParams>): Promise<GetStaticPropsResult<Props>> {
   const { id } = params;
-  const apolloClient = initializeApollo({});
-
   try {
-    await apolloClient.query({
-      query: POST_BY_ID_STATIC_FIELDS_QUERY,
-      variables: {
-        id,
-      },
-    });
-
+    const postData = await request<PostData>(
+      `${apiUrl}/graphql`,
+      POST_BY_ID_STATIC_FIELDS_QUERY,
+      { id },
+    );
     return {
       props: {
         id,
-        initialApolloState: apolloClient.cache.extract(),
+        postData,
       },
       revalidate: 60,
     };
   } catch (err) {
-    const apolloError = err as ApolloError;
-    if (apolloError?.graphQLErrors?.[0]?.extensions?.code === 'NOT_FOUND') {
+    const clientError = err as ClientError;
+    if (clientError?.response?.errors?.[0]?.extensions?.code === 'NOT_FOUND') {
       return {
         props: { id: null },
         revalidate: 60,

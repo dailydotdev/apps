@@ -1,8 +1,8 @@
 import DeleteCommentModal, { Props } from '../components/DeleteCommentModal';
-import { MockedProvider, MockedResponse } from '@apollo/client/testing';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 import { DELETE_COMMENT_MUTATION } from '../graphql/comments';
+import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
 
 const onRequestClose = jest.fn();
 
@@ -12,7 +12,7 @@ beforeEach(() => {
 
 const renderComponent = (
   props: Partial<Props> = {},
-  mocks: MockedResponse[] = [],
+  mocks: MockedGraphQLResponse[] = [],
 ): RenderResult => {
   const defaultProps: Props = {
     parentId: 'c1',
@@ -23,11 +23,8 @@ const renderComponent = (
     onRequestClose,
   };
 
-  return render(
-    <MockedProvider addTypename={false} mocks={mocks}>
-      <DeleteCommentModal {...defaultProps} {...props} />
-    </MockedProvider>,
-  );
+  mocks.forEach(mockGraphQL);
+  return render(<DeleteCommentModal {...defaultProps} {...props} />);
 };
 
 it('should close modal on cancel', async () => {

@@ -2,28 +2,23 @@ import React, { ReactElement, ReactNode, useEffect, useState } from 'react';
 import { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
-import { SWRConfig } from 'swr';
-import { ApolloProvider, NormalizedCacheObject } from '@apollo/client';
 import 'focus-visible';
 import Modal from 'react-modal';
 import ReactGA from 'react-ga';
 import { DefaultSeo } from 'next-seo';
+import { QueryCache, ReactQueryCacheProvider } from 'react-query';
 import Seo from '../next-seo';
-import { useApollo } from '../lib/apolloClient';
 import GlobalStyle from '../components/GlobalStyle';
 import AuthContext from '../components/AuthContext';
 import { logout as dispatchLogout } from '../lib/user';
 import { Router } from 'next/router';
-import fetcher from '../lib/fetcher';
 import { useCookieBanner } from '../lib/useCookieBanner';
 import useLoggedUser from '../lib/useLoggedUser';
 
+const queryCache = new QueryCache();
+
 const LoginModal = dynamic(() => import('../components/LoginModal'));
 const CookieBanner = dynamic(() => import('../components/CookieBanner'));
-
-export interface PageProps {
-  initialApolloState?: NormalizedCacheObject;
-}
 
 Modal.setAppElement('#__next');
 Modal.defaultStyles = {};
@@ -40,11 +35,7 @@ const trackPageView = (url) => {
 
 Router.events.on('routeChangeComplete', trackPageView);
 
-export default function App({
-  Component,
-  pageProps,
-}: AppProps<PageProps>): ReactElement {
-  const apolloClient = useApollo(pageProps.initialApolloState);
+export default function App({ Component, pageProps }: AppProps): ReactElement {
   const [initializedGA, setInitializedGA] = useState(false);
   const [user, setUser, trackingId, loadingUser] = useLoggedUser();
   const [loginIsOpen, setLoginIsOpen] = useState(false);
@@ -70,10 +61,6 @@ export default function App({
   }, [trackingId]);
 
   useEffect(() => {
-    // import('quicklink/dist/quicklink.umd').then((quicklink) =>
-    //   quicklink.listen(),
-    // );
-
     if (
       pageProps.user?.providers &&
       !pageProps.user.infoConfirmed &&
@@ -90,26 +77,25 @@ export default function App({
     (Component as CompnentGetLayout).getLayout || ((page) => page);
 
   return (
-    <ApolloProvider client={apolloClient}>
-      <SWRConfig value={{ fetcher }}>
-        <AuthContext.Provider
-          value={{
-            user,
-            shouldShowLogin: loginIsOpen,
-            showLogin: () => setLoginIsOpen(true),
-            updateUser: setUser,
-            logout,
-            loadingUser,
-          }}
-        >
-          <Head>
-            <meta
-              name="viewport"
-              content="initial-scale=1.0, width=device-width"
-            />
-            <script
-              dangerouslySetInnerHTML={{
-                __html: `
+    <ReactQueryCacheProvider queryCache={queryCache}>
+      <AuthContext.Provider
+        value={{
+          user,
+          shouldShowLogin: loginIsOpen,
+          showLogin: () => setLoginIsOpen(true),
+          updateUser: setUser,
+          logout,
+          loadingUser,
+        }}
+      >
+        <Head>
+          <meta
+            name="viewport"
+            content="initial-scale=1.0, width=device-width"
+          />
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
         WebFontConfig = {
           custom: {
           families: ['DejaVuSansMono'],
@@ -124,26 +110,25 @@ export default function App({
           s.parentNode.insertBefore(wf, s);
         })(document);
         `,
-              }}
-            />
-            <meta name="theme-color" content="#151618" />
-            <meta name="msapplication-navbutton-color" content="#151618" />
-            <meta
-              name="apple-mobile-web-app-status-bar-style"
-              content="#151618"
-            />
-          </Head>
-          <DefaultSeo {...Seo} />
-          <GlobalStyle />
-          {getLayout(<Component {...pageProps} />, pageProps)}
-          <LoginModal
-            isOpen={loginIsOpen}
-            onRequestClose={closeLogin}
-            contentLabel="Login Modal"
+            }}
           />
-          {showCookie && <CookieBanner onAccepted={acceptCookies} />}
-        </AuthContext.Provider>
-      </SWRConfig>
-    </ApolloProvider>
+          <meta name="theme-color" content="#151618" />
+          <meta name="msapplication-navbutton-color" content="#151618" />
+          <meta
+            name="apple-mobile-web-app-status-bar-style"
+            content="#151618"
+          />
+        </Head>
+        <DefaultSeo {...Seo} />
+        <GlobalStyle />
+        {getLayout(<Component {...pageProps} />, pageProps)}
+        <LoginModal
+          isOpen={loginIsOpen}
+          onRequestClose={closeLogin}
+          contentLabel="Login Modal"
+        />
+        {showCookie && <CookieBanner onAccepted={acceptCookies} />}
+      </AuthContext.Provider>
+    </ReactQueryCacheProvider>
   );
 }

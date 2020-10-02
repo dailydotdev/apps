@@ -24,18 +24,19 @@ import { commentDateFormat } from '../lib/dateFormat';
 import { typoJr, typoSmallBase } from '../styles/typography';
 import { colorKetchup30, colorWater60 } from '../styles/colors';
 import { ColorButton, FloatButton } from './Buttons';
-import { useMutation } from '@apollo/client';
+import { useMutation, useQueryCache } from 'react-query';
 import {
   Comment,
   COMMENT_ON_COMMENT_MUTATION,
   COMMENT_ON_POST_MUTATION,
   CommentOnData,
-  POST_COMMENTS_QUERY,
   PostCommentsData,
 } from '../graphql/comments';
 import { Edge } from '../graphql/common';
 import ReactGA from 'react-ga';
 import ResponsiveModal from './ResponsiveModal';
+import request from 'graphql-request';
+import { apiUrl } from '../lib/config';
 
 const DiscardCommentModal = dynamic(() => import('./DiscardCommentModal'));
 
@@ -138,6 +139,11 @@ const ErrorMessage = styled.div`
   ${typoSmallBase};
 `;
 
+interface CommentVariables {
+  id: string;
+  content: string;
+}
+
 export default function NewCommentModal({
   authorImage,
   authorName,
@@ -153,24 +159,32 @@ export default function NewCommentModal({
   const [sendingComment, setSendingComment] = useState<boolean>(false);
   const [showDiscardModal, setShowDiscardModal] = useState<boolean>(false);
 
-  const [comment] = useMutation<CommentOnData>(
-    props.commentId ? COMMENT_ON_COMMENT_MUTATION : COMMENT_ON_POST_MUTATION,
+  const queryCache = useQueryCache();
+  const [comment] = useMutation<CommentOnData, unknown, CommentVariables>(
+    (variables) =>
+      request(
+        `${apiUrl}/graphql`,
+        props.commentId
+          ? COMMENT_ON_COMMENT_MUTATION
+          : COMMENT_ON_POST_MUTATION,
+        variables,
+      ),
     {
-      update(cache, { data }) {
-        const query = {
-          query: POST_COMMENTS_QUERY,
-          variables: { postId: props.postId },
-        };
-        const cached = cloneDeep(cache.readQuery<PostCommentsData>(query));
-        const newEdge: Edge<Comment> = {
-          __typename: 'CommentEdge',
-          node: {
-            ...data.comment,
-          },
-          cursor: '',
-        };
-        // Update the sub tree of the parent comment
+      onSuccess: (data) => {
+        const queryKey = ['post_comments', props.postId];
+        queryCache.cancelQueries(queryKey);
+        const cached = cloneDeep(
+          queryCache.getQueryData<PostCommentsData>(queryKey),
+        );
         if (cached) {
+          const newEdge: Edge<Comment> = {
+            __typename: 'CommentEdge',
+            node: {
+              ...data.comment,
+            },
+            cursor: '',
+          };
+          // Update the sub tree of the parent comment
           if (props.commentId) {
             const edgeIndex = cached.postComments.edges.findIndex(
               (e) => e.node.id === props.commentId,
@@ -190,7 +204,7 @@ export default function NewCommentModal({
           } else {
             cached.postComments.edges.push(newEdge);
           }
-          cache.writeQuery({ ...query, data: cached });
+          queryCache.setQueryData(queryKey, cached);
         }
       },
     },
@@ -217,8 +231,9 @@ export default function NewCommentModal({
     setErrorMessage(null);
     setSendingComment(true);
     try {
-      const { data } = await comment({
-        variables: { id: props.commentId || props.postId, content: input },
+      const data = await comment({
+        id: props.commentId || props.postId,
+        content: input,
       });
       ReactGA.event({ category: 'Comment Popup', action: 'Comment' });
       onComment?.(data.comment, props.commentId);
