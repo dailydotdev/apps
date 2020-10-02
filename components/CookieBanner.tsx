@@ -1,7 +1,7 @@
 import React, { ReactElement, useEffect } from 'react';
 import styled from 'styled-components';
 import XIcon from '../icons/x.svg';
-import { ModalCloseButton } from './StyledModal';
+import { ModalCloseButton } from './modals/StyledModal';
 import { size1, size3, size4, size6, sizeN } from '../styles/sizes';
 import { typoNuggets, typoSmallBase } from '../styles/typography';
 import { cookiePolicy } from '../lib/constants';

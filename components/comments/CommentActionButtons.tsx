@@ -1,20 +1,20 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
-import AuthContext from './AuthContext';
-import { FloatButton, IconButton } from './Buttons';
-import UpvoteIcon from '../icons/upvote.svg';
-import CommentIcon from '../icons/comment.svg';
-import TrashIcon from '../icons/trash.svg';
+import AuthContext from '../AuthContext';
+import { FloatButton, IconButton } from '../Buttons';
+import UpvoteIcon from '../../icons/upvote.svg';
+import CommentIcon from '../../icons/comment.svg';
+import TrashIcon from '../../icons/trash.svg';
 import styled from 'styled-components';
-import { size1, size2, size7 } from '../styles/sizes';
+import { size1, size2, size7 } from '../../styles/sizes';
 import {
   CANCEL_COMMENT_UPVOTE_MUTATION,
   Comment,
   UPVOTE_COMMENT_MUTATION,
-} from '../graphql/comments';
+} from '../../graphql/comments';
 import { useMutation } from 'react-query';
-import { Roles } from '../lib/user';
+import { Roles } from '../../lib/user';
 import request from 'graphql-request';
-import { apiUrl } from '../lib/config';
+import { apiUrl } from '../../lib/config';
 
 export interface Props {
   comment: Comment;

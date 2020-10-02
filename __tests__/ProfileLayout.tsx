@@ -2,7 +2,7 @@ import React from 'react';
 import { LoggedUser, PublicProfile } from '../lib/user';
 import { render, RenderResult, screen } from '@testing-library/react';
 import AuthContext from '../components/AuthContext';
-import ProfileLayout from '../components/ProfileLayout';
+import ProfileLayout from '../components/layouts/ProfileLayout';
 
 jest.mock('next/router', () => ({
   useRouter() {

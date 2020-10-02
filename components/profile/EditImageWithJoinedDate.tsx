@@ -4,16 +4,16 @@ import React, {
   ReactElement,
   useState,
 } from 'react';
-import { changeProfileImage, LoggedUser } from '../lib/user';
-import CameraIcon from '../icons/camera.svg';
-import GoogleIcon from '../icons/google.svg';
-import GitHubIcon from '../icons/github.svg';
+import { changeProfileImage, LoggedUser } from '../../lib/user';
+import CameraIcon from '../../icons/camera.svg';
+import GoogleIcon from '../../icons/google.svg';
+import GitHubIcon from '../../icons/github.svg';
 import JoinedDate from './JoinedDate';
 import styled from 'styled-components';
-import { size05, size3, size4, size6, sizeN } from '../styles/sizes';
-import { colorPepper80 } from '../styles/colors';
-import { typoMicro2 } from '../styles/typography';
-import { FormErrorMessage } from './utilities';
+import { size05, size3, size4, size6, sizeN } from '../../styles/sizes';
+import { colorPepper80 } from '../../styles/colors';
+import { typoMicro2 } from '../../styles/typography';
+import { FormErrorMessage } from '../utilities';
 
 export interface EditImageWithJoinedDateProps
   extends HTMLAttributes<HTMLDivElement> {

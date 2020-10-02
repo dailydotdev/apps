@@ -17,7 +17,7 @@ import useLoggedUser from '../lib/useLoggedUser';
 
 const queryCache = new QueryCache();
 
-const LoginModal = dynamic(() => import('../components/LoginModal'));
+const LoginModal = dynamic(() => import('../components/modals/LoginModal'));
 const CookieBanner = dynamic(() => import('../components/CookieBanner'));
 
 Modal.setAppElement('#__next');

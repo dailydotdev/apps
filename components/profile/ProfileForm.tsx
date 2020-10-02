@@ -7,14 +7,14 @@ import React, {
   useState,
 } from 'react';
 import styled from 'styled-components';
-import { updateProfile, UserProfile } from '../lib/user';
-import { size1, size10, size3, size4, size5 } from '../styles/sizes';
-import { typoNuggets } from '../styles/typography';
-import { focusOutline } from '../styles/utilities';
-import TextField from './TextField';
-import Switch from './Switch';
-import ArrowIcon from '../icons/arrow.svg';
-import AuthContext from './AuthContext';
+import { updateProfile, UserProfile } from '../../lib/user';
+import { size1, size10, size3, size4, size5 } from '../../styles/sizes';
+import { typoNuggets } from '../../styles/typography';
+import { focusOutline } from '../../styles/helpers';
+import TextField from '../TextField';
+import Switch from '../Switch';
+import ArrowIcon from '../../icons/arrow.svg';
+import AuthContext from '../AuthContext';
 
 export interface ProfileForm extends HTMLAttributes<HTMLFormElement> {
   setDisableSubmit?: (disable: boolean) => void;

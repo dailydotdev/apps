@@ -2,7 +2,7 @@ import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import NewCommentModal, {
   NewCommentModalProps,
-} from '../components/NewCommentModal';
+} from '../components/modals/NewCommentModal';
 import { LoggedUser } from '../lib/user';
 import AuthContext from '../components/AuthContext';
 import {

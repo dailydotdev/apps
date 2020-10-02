@@ -6,7 +6,7 @@ import {
   getStaticProps as getProfileStaticProps,
   getStaticPaths as getProfileStaticPaths,
   ProfileLayoutProps,
-} from '../../components/ProfileLayout';
+} from '../../components/layouts/ProfileLayout';
 import { USER_COMMENTS_QUERY, UserCommentsData } from '../../graphql/comments';
 import styled from 'styled-components';
 import { size1, size2, size3, size4, size6, sizeN } from '../../styles/sizes';

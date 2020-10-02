@@ -7,7 +7,7 @@ import {
   waitFor,
 } from '@testing-library/react';
 import { changeProfileImage, LoggedUser } from '../lib/user';
-import EditImageWithJoinedDate from '../components/EditImageWithJoinedDate';
+import EditImageWithJoinedDate from '../components/profile/EditImageWithJoinedDate';
 import { mocked } from 'ts-jest/utils';
 
 jest.mock('../lib/user', () => ({

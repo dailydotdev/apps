@@ -8,17 +8,17 @@ import React, {
 } from 'react';
 import styled from 'styled-components';
 import Link from 'next/link';
-import { size1, size4, size8, sizeN } from '../styles/sizes';
-import { FloatButton, IconButton } from './Buttons';
-import DailyDevLogo from './DailyDevLogo';
-import LazyImage from './LazyImage';
-import AuthContext from './AuthContext';
-import { focusOutline } from '../styles/utilities';
-import { laptop, tablet } from '../styles/media';
-import BetaBadge from './BetaBadge';
-import AboutModal from './AboutModal';
-import BellIcon from '../icons/bell.svg';
-import BellNotifyIcon from '../icons/bell_notify.svg';
+import { size1, size4, size8, sizeN } from '../../styles/sizes';
+import { FloatButton, IconButton } from '../Buttons';
+import DailyDevLogo from '../svg/DailyDevLogo';
+import LazyImage from '../LazyImage';
+import AuthContext from '../AuthContext';
+import { focusOutline } from '../../styles/helpers';
+import { laptop, tablet } from '../../styles/media';
+import BetaBadge from '../svg/BetaBadge';
+import AboutModal from '../modals/AboutModal';
+import BellIcon from '../../icons/bell.svg';
+import BellNotifyIcon from '../../icons/bell_notify.svg';
 
 export interface Props extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;

@@ -1,15 +1,15 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import styled from 'styled-components';
 import { NextSeo } from 'next-seo';
-import MainLayout from '../components/MainLayout';
+import MainLayout from '../components/layouts/MainLayout';
 import { typoLil2, typoMicro2 } from '../styles/typography';
 import { size10, size2, size4 } from '../styles/sizes';
 import { PageContainer, ProfileHeading } from '../components/utilities';
 import { HollowButton, InvertButton } from '../components/Buttons';
 import AuthContext from '../components/AuthContext';
 import { useRouter } from 'next/router';
-import EditImageWithJoinedDate from '../components/EditImageWithJoinedDate';
-import ProfileForm from '../components/ProfileForm';
+import EditImageWithJoinedDate from '../components/profile/EditImageWithJoinedDate';
+import ProfileForm from '../components/profile/ProfileForm';
 
 const Subheading = styled.h2`
   margin: ${size2} 0;

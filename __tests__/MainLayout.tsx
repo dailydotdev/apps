@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, RenderResult, screen } from '@testing-library/react';
-import MainLayout from '../components/MainLayout';
+import MainLayout from '../components/layouts/MainLayout';
 import AuthContext from '../components/AuthContext';
 import { LoggedUser } from '../lib/user';
 

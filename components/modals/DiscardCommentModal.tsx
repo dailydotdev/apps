@@ -6,8 +6,8 @@ import {
   ConfirmationButtons,
   Props as ModalProps,
 } from './StyledModal';
-import { ColorButton, HollowButton } from './Buttons';
-import { colorKetchup40 } from '../styles/colors';
+import { ColorButton, HollowButton } from '../Buttons';
+import { colorKetchup40 } from '../../styles/colors';
 
 export interface Props extends ModalProps {
   onDeleteComment: (event: MouseEvent) => void;

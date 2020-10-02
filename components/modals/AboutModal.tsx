@@ -5,9 +5,9 @@ import {
   StyledModal,
 } from './StyledModal';
 import styled from 'styled-components';
-import { size4, size5, size6 } from '../styles/sizes';
-import XIcon from '../icons/x.svg';
-import { typoMicro2 } from '../styles/typography';
+import { size4, size5, size6 } from '../../styles/sizes';
+import XIcon from '../../icons/x.svg';
+import { typoMicro2 } from '../../styles/typography';
 
 const MyModal = styled(StyledModal)`
   .Overlay {

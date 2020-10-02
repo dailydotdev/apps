@@ -1,6 +1,6 @@
 import React from 'react';
 import { LoggedUser, updateProfile } from '../lib/user';
-import AccountDetailsModal from '../components/AccountDetailsModal';
+import AccountDetailsModal from '../components/modals/AccountDetailsModal';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import AuthContext from '../components/AuthContext';
 import { mocked } from 'ts-jest/utils';
