@@ -30,7 +30,10 @@ const Container = styled.ul`
   li {
     list-style: none;
     min-height: ${sizeN(22)};
-    content-visibility: auto;
+
+    &:nth-child(n + 15) {
+      content-visibility: auto;
+    }
   }
 `;
 
