@@ -3,7 +3,7 @@ import Head from 'next/head';
 import styled from 'styled-components';
 import { typoQuarter } from '../styles/typography';
 import { size10, size9 } from '../styles/sizes';
-import HelloWorldSvg from '../components/HelloWorldSvg';
+import HelloWorldSvg from '../components/svg/HelloWorldSvg';
 
 const Container = styled.div`
   display: flex;

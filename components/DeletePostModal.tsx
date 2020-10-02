@@ -5,7 +5,7 @@ import {
   ConfirmationDescription,
   ConfirmationButtons,
   Props as ModalProps,
-} from './StyledModal';
+} from './modals/StyledModal';
 import { ColorButton, HollowButton } from './Buttons';
 import { colorKetchup40 } from '../styles/colors';
 import { ButtonLoader } from './utilities';

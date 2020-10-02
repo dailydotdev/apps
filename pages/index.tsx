@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { getLayout as getMainLayout } from '../components/MainLayout';
+import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 import styled from 'styled-components';
 import { size4, size6, sizeN } from '../styles/sizes';
 import { typoJr, typoQuarter } from '../styles/typography';

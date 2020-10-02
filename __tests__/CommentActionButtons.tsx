@@ -4,7 +4,7 @@ import AuthContext from '../components/AuthContext';
 import { LoggedUser } from '../lib/user';
 import CommentActionButtons, {
   Props,
-} from '../components/CommentActionButtons';
+} from '../components/comments/CommentActionButtons';
 import {
   Comment,
   CANCEL_COMMENT_UPVOTE_MUTATION,

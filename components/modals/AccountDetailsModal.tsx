@@ -10,15 +10,15 @@ import {
   size5,
   size6,
   sizeN,
-} from '../styles/sizes';
-import XIcon from '../icons/x.svg';
-import { HollowButton, IconButton, InvertButton } from './Buttons';
-import { ProfileHeading } from './utilities';
-import EditImageWithJoinedDate from './EditImageWithJoinedDate';
-import AuthContext from './AuthContext';
-import ProfileForm from './ProfileForm';
-import { mobileL } from '../styles/media';
-import { typoMicro1, typoNuggets } from '../styles/typography';
+} from '../../styles/sizes';
+import XIcon from '../../icons/x.svg';
+import { HollowButton, IconButton, InvertButton } from '../Buttons';
+import { ProfileHeading } from '../utilities';
+import EditImageWithJoinedDate from '../profile/EditImageWithJoinedDate';
+import AuthContext from '../AuthContext';
+import ProfileForm from '../profile/ProfileForm';
+import { mobileL } from '../../styles/media';
+import { typoMicro1, typoNuggets } from '../../styles/typography';
 import {
   cookiePolicy,
   faq,
@@ -26,7 +26,7 @@ import {
   reportIssue,
   requestFeature,
   termsOfService,
-} from '../lib/constants';
+} from '../../lib/constants';
 
 const MyModal = styled(ResponsiveModal)`
   .Modal {

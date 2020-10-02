@@ -2,7 +2,7 @@ import { HTMLAttributes } from 'react';
 import styled from 'styled-components';
 import { size1, size10, size2, size3, size5, size6 } from '../styles/sizes';
 import { typoLil2, typoMicro2Base } from '../styles/typography';
-import { focusOutline } from '../styles/utilities';
+import { focusOutline } from '../styles/helpers';
 import { ButtonLoader } from './utilities';
 
 interface BaseButtonProps extends HTMLAttributes<HTMLButtonElement> {

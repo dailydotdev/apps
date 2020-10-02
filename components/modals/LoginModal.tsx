@@ -1,14 +1,14 @@
 import React, { ReactElement } from 'react';
 import styled from 'styled-components';
-import { size2, size6, size8 } from '../styles/sizes';
-import DailyDevLogo from './DailyDevLogo';
-import { InvertButton, TextButton } from './Buttons';
-import XIcon from '../icons/x.svg';
-import GitHubIcon from '../icons/github.svg';
-import { typoJr } from '../styles/typography';
+import { size2, size6, size8 } from '../../styles/sizes';
+import DailyDevLogo from '../svg/DailyDevLogo';
+import { InvertButton, TextButton } from '../Buttons';
+import XIcon from '../../icons/x.svg';
+import GitHubIcon from '../../icons/github.svg';
+import { typoJr } from '../../styles/typography';
 import { StyledModal, ModalCloseButton, Props } from './StyledModal';
-import { privacyPolicy, termsOfService } from '../lib/constants';
-import { LegalNotice } from './utilities';
+import { privacyPolicy, termsOfService } from '../../lib/constants';
+import { LegalNotice } from '../utilities';
 
 const MyModal = styled(StyledModal)`
   .Modal {

@@ -2,7 +2,7 @@ import React, { ReactElement, useContext } from 'react';
 import styled from 'styled-components';
 import { size10, size2, size4, size6, size8, sizeN } from '../styles/sizes';
 import XIcon from '../icons/x.svg';
-import { ModalCloseButton } from './StyledModal';
+import { ModalCloseButton } from './modals/StyledModal';
 import { laptop } from '../styles/media';
 import AuthContext from './AuthContext';
 import { typoDouble, typoLil1, typoNuggets } from '../styles/typography';
@@ -12,7 +12,7 @@ import WhatsappIcon from '../icons/whatsapp.svg';
 import FacebookIcon from '../icons/facebook.svg';
 import CopyIcon from '../icons/copy.svg';
 import ShareIcon from '../icons/share.svg';
-import Confetti from './ConfettiSvg';
+import Confetti from './svg/ConfettiSvg';
 import { colorPepper80, colorSalt10 } from '../styles/colors';
 import {
   getFacebookShareLink,

@@ -1,6 +1,6 @@
 import React from 'react';
 import { LoggedUser, updateProfile } from '../lib/user';
-import ProfileForm from '../components/ProfileForm';
+import ProfileForm from '../components/profile/ProfileForm';
 import {
   fireEvent,
   render,

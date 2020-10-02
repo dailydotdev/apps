@@ -2,7 +2,7 @@ import React from 'react';
 import { render, RenderResult, screen } from '@testing-library/react';
 import AuthContext from '../components/AuthContext';
 import { LoggedUser } from '../lib/user';
-import MainComment, { Props } from '../components/MainComment';
+import MainComment, { Props } from '../components/comments/MainComment';
 
 const author = {
   image: 'https://daily.dev/ido.png',

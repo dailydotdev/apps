@@ -6,14 +6,17 @@ import {
   ConfirmationButtons,
   Props as ModalProps,
 } from './StyledModal';
-import { ColorButton, HollowButton } from './Buttons';
-import { colorKetchup40 } from '../styles/colors';
-import { ButtonLoader } from './utilities';
+import { ColorButton, HollowButton } from '../Buttons';
+import { colorKetchup40 } from '../../styles/colors';
+import { ButtonLoader } from '../utilities';
 import { useMutation, useQueryCache } from 'react-query';
-import { DELETE_COMMENT_MUTATION, PostCommentsData } from '../graphql/comments';
+import {
+  DELETE_COMMENT_MUTATION,
+  PostCommentsData,
+} from '../../graphql/comments';
 import cloneDeep from 'lodash.clonedeep';
 import request from 'graphql-request';
-import { apiUrl } from '../lib/config';
+import { apiUrl } from '../../lib/config';
 
 export interface Props extends ModalProps {
   commentId: string;

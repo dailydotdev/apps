@@ -54,9 +54,9 @@ import {
   RoundedImage,
   SmallRoundedImage,
 } from '../../components/utilities';
-import { getLayout as getMainLayout } from '../../components/MainLayout';
+import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import AuthContext from '../../components/AuthContext';
-import MainComment from '../../components/MainComment';
+import MainComment from '../../components/comments/MainComment';
 import {
   Comment,
   POST_COMMENTS_QUERY,
@@ -64,21 +64,20 @@ import {
 } from '../../graphql/comments';
 import { mobileL, mobileM } from '../../styles/media';
 import { colorPepper90 } from '../../styles/colors';
-import { focusOutline } from '../../styles/utilities';
+import { focusOutline } from '../../styles/helpers';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { ShareMobile } from '../../components/ShareMobile';
 import { getShareableLink } from '../../lib/share';
 import Head from 'next/head';
 import { useHideOnModal } from '../../lib/useHideOnModal';
-import Custom404 from '../404';
 import request, { ClientError } from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 
 const NewCommentModal = dynamic(() =>
-  import('../../components/NewCommentModal'),
+  import('../../components/modals/NewCommentModal'),
 );
 const DeleteCommentModal = dynamic(() =>
-  import('../../components/DeleteCommentModal'),
+  import('../../components/modals/DeleteCommentModal'),
 );
 const DeletePostModal = dynamic(() =>
   import('../../components/DeletePostModal'),
@@ -92,6 +91,7 @@ const ShareNewCommentPopup = dynamic(
     ssr: false,
   },
 );
+const Custom404 = dynamic(() => import('../404'));
 
 export interface Props {
   id: string;

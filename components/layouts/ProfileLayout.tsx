@@ -7,47 +7,49 @@ import React, {
 } from 'react';
 import createDOMPurify from 'dompurify';
 import Link from 'next/link';
-import { getProfile, getProfileSSR, PublicProfile } from '../lib/user';
+import { getProfile, getProfileSSR, PublicProfile } from '../../lib/user';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { getLayout as getMainLayout } from './MainLayout';
 import Head from 'next/head';
 import { NextSeo } from 'next-seo';
-import { PageContainer } from './utilities';
+import { PageContainer } from '../utilities';
 import styled from 'styled-components';
-import { size05, size2, size3, size4, size6, sizeN } from '../styles/sizes';
-import LazyImage from './LazyImage';
+import { size05, size2, size3, size4, size6, sizeN } from '../../styles/sizes';
+import LazyImage from '../LazyImage';
 import {
   typoDouble,
   typoLil1,
   typoMicro2,
   typoNuggets,
   typoQuarter,
-} from '../styles/typography';
-import PremiumSvg from './PremiumSvg';
-import JoinedDate from './JoinedDate';
-import GitHubIcon from '../icons/github.svg';
-import TwitterIcon from '../icons/twitter.svg';
-import LinkIcon from '../icons/link.svg';
-import { colorWater50 } from '../styles/colors';
-import { laptop, tablet } from '../styles/media';
-import { FloatButton, HollowButton } from './Buttons';
-import AuthContext from './AuthContext';
+} from '../../styles/typography';
+import PremiumSvg from '../svg/PremiumSvg';
+import JoinedDate from '../profile/JoinedDate';
+import GitHubIcon from '../../icons/github.svg';
+import TwitterIcon from '../../icons/twitter.svg';
+import LinkIcon from '../../icons/link.svg';
+import { colorWater50 } from '../../styles/colors';
+import { laptop, tablet } from '../../styles/media';
+import { FloatButton, HollowButton } from '../Buttons';
+import AuthContext from '../AuthContext';
 import dynamic from 'next/dynamic';
-import { useHideOnModal } from '../lib/useHideOnModal';
+import { useHideOnModal } from '../../lib/useHideOnModal';
 import { useRouter } from 'next/router';
 import { Flipped, Flipper } from 'react-flip-toolkit';
-import { pageMaxWidth } from '../styles/utilities';
+import { pageMaxWidth } from '../../styles/helpers';
 import {
   GetStaticPathsResult,
   GetStaticPropsContext,
   GetStaticPropsResult,
 } from 'next';
 import { ParsedUrlQuery } from 'querystring';
-import { reputationGuide } from '../lib/constants';
-import Custom404 from '../pages/404';
+import { reputationGuide } from '../../lib/constants';
 import { useQuery, useQueryCache } from 'react-query';
 
-const AccountDetailsModal = dynamic(() => import('./AccountDetailsModal'));
+const AccountDetailsModal = dynamic(() =>
+  import('../modals/AccountDetailsModal'),
+);
+const Custom404 = dynamic(() => import('../../pages/404'));
 
 export interface ProfileLayoutProps {
   profile: PublicProfile;

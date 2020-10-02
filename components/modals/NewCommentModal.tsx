@@ -10,20 +10,18 @@ import dynamic from 'next/dynamic';
 import styled from 'styled-components';
 import cloneDeep from 'lodash.clonedeep';
 import { Props as ModalProps } from './StyledModal';
-import { size2, size3, size6, sizeN } from '../styles/sizes';
-import AuthContext from './AuthContext';
+import { size2, size3, size6, sizeN } from '../../styles/sizes';
+import AuthContext from '../AuthContext';
+import { ButtonLoader, RoundedImage, SmallRoundedImage } from '../utilities';
 import {
-  ButtonLoader,
   CommentAuthor,
   CommentBox,
   CommentPublishDate,
-  RoundedImage,
-  SmallRoundedImage,
-} from './utilities';
-import { commentDateFormat } from '../lib/dateFormat';
-import { typoJr, typoSmallBase } from '../styles/typography';
-import { colorKetchup30, colorWater60 } from '../styles/colors';
-import { ColorButton, FloatButton } from './Buttons';
+} from '../comments/common';
+import { commentDateFormat } from '../../lib/dateFormat';
+import { typoJr, typoSmallBase } from '../../styles/typography';
+import { colorKetchup30, colorWater60 } from '../../styles/colors';
+import { ColorButton, FloatButton } from '../Buttons';
 import { useMutation, useQueryCache } from 'react-query';
 import {
   Comment,
@@ -31,12 +29,12 @@ import {
   COMMENT_ON_POST_MUTATION,
   CommentOnData,
   PostCommentsData,
-} from '../graphql/comments';
-import { Edge } from '../graphql/common';
+} from '../../graphql/comments';
+import { Edge } from '../../graphql/common';
 import ReactGA from 'react-ga';
 import ResponsiveModal from './ResponsiveModal';
 import request from 'graphql-request';
-import { apiUrl } from '../lib/config';
+import { apiUrl } from '../../lib/config';
 
 const DiscardCommentModal = dynamic(() => import('./DiscardCommentModal'));
 

@@ -2,7 +2,7 @@ import React from 'react';
 import { render, RenderResult } from '@testing-library/react';
 import AuthContext from '../components/AuthContext';
 import { LoggedUser } from '../lib/user';
-import SubComment, { Props } from '../components/SubComment';
+import SubComment, { Props } from '../components/comments/SubComment';
 
 const baseComment = {
   id: 'c2',

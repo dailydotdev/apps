@@ -2,11 +2,11 @@ import Modal from 'react-modal';
 import { ReactNode } from 'react';
 import styled from 'styled-components';
 import { ReactModalAdapter } from './ReactModalAdapter';
-import { size10, size2, size4, size6 } from '../styles/sizes';
-import { focusOutline } from '../styles/utilities';
-import { BaseButton, IconButton } from './Buttons';
-import { mobileL } from '../styles/media';
-import { typoDouble, typoLil2, typoMicro2 } from '../styles/typography';
+import { size10, size2, size4, size6 } from '../../styles/sizes';
+import { focusOutline } from '../../styles/helpers';
+import { BaseButton, IconButton } from '../Buttons';
+import { mobileL } from '../../styles/media';
+import { typoDouble, typoLil2, typoMicro2 } from '../../styles/typography';
 
 export interface Props extends Modal.Props {
   children?: ReactNode;

@@ -1,11 +1,11 @@
 import React, { ReactElement } from 'react';
-import { Comment } from '../graphql/comments';
+import { Comment } from '../../graphql/comments';
 import styled from 'styled-components';
-import { size1, size2, size4, size8 } from '../styles/sizes';
-import { CommentAuthor, CommentBox, CommentPublishDate } from './utilities';
-import { commentDateFormat } from '../lib/dateFormat';
+import { size1, size2, size4, size8 } from '../../styles/sizes';
+import { CommentAuthor, CommentBox, CommentPublishDate } from './common';
+import { commentDateFormat } from '../../lib/dateFormat';
 import CommentActionButtons from './CommentActionButtons';
-import { ProfileLink } from './ProfileLink';
+import { ProfileLink } from '../profile/ProfileLink';
 
 export interface Props {
   comment: Comment;

@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { StyledModal } from './StyledModal';
-import { mobileL } from '../styles/media';
-import { size2, size4, sizeN } from '../styles/sizes';
+import { mobileL } from '../../styles/media';
+import { size2, size4, sizeN } from '../../styles/sizes';
 
 const ResponsiveModal = styled(StyledModal)`
   .Overlay {

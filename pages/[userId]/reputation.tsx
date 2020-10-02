@@ -3,7 +3,7 @@ import {
   getLayout as getProfileLayout,
   getStaticPaths as getProfileStaticPaths,
   getStaticProps as getProfileStaticProps,
-} from '../../components/ProfileLayout';
+} from '../../components/layouts/ProfileLayout';
 import styled from 'styled-components';
 import { size6 } from '../../styles/sizes';
 import { typoMicro2 } from '../../styles/typography';
@@ -14,7 +14,6 @@ export const getStaticProps = getProfileStaticProps;
 export const getStaticPaths = getProfileStaticPaths;
 
 const Container = styled.section`
-  content-visibility: auto;
   margin: ${size6} 0;
   ${typoMicro2}
 
