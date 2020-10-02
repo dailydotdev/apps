@@ -5,11 +5,12 @@ import NewCommentModal, {
 } from '../components/NewCommentModal';
 import { LoggedUser } from '../lib/user';
 import AuthContext from '../components/AuthContext';
-import { MockedProvider, MockedResponse } from '@apollo/client/testing';
 import {
   COMMENT_ON_COMMENT_MUTATION,
   COMMENT_ON_POST_MUTATION,
 } from '../graphql/comments';
+import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
+import nock from 'nock';
 
 const defaultUser = {
   id: 'u1',
@@ -26,12 +27,13 @@ const onRequestClose = jest.fn();
 const onComment = jest.fn();
 
 beforeEach(() => {
+  nock.cleanAll();
   jest.resetAllMocks();
 });
 
 const renderComponent = (
   props: Partial<NewCommentModalProps> = {},
-  mocks: MockedResponse[] = [],
+  mocks: MockedGraphQLResponse[] = [],
   user: Partial<LoggedUser> = {},
 ): RenderResult => {
   const defaultProps: NewCommentModalProps = {
@@ -47,20 +49,19 @@ const renderComponent = (
     onComment,
   };
 
+  mocks.forEach(mockGraphQL);
   return render(
-    <MockedProvider addTypename={false} mocks={mocks}>
-      <AuthContext.Provider
-        value={{
-          user: { ...defaultUser, ...user },
-          shouldShowLogin: false,
-          showLogin: jest.fn(),
-          logout: jest.fn(),
-          updateUser: jest.fn(),
-        }}
-      >
-        <NewCommentModal {...defaultProps} {...props} />
-      </AuthContext.Provider>
-    </MockedProvider>,
+    <AuthContext.Provider
+      value={{
+        user: { ...defaultUser, ...user },
+        shouldShowLogin: false,
+        showLogin: jest.fn(),
+        logout: jest.fn(),
+        updateUser: jest.fn(),
+      }}
+    >
+      <NewCommentModal {...defaultProps} {...props} />
+    </AuthContext.Provider>,
   );
 };
 
@@ -119,7 +120,7 @@ it('should send commentOnPost mutation', async () => {
     __typename: 'Comment',
     id: 'new',
     content: 'comment',
-    createdAt: new Date(2017, 1, 10, 0, 1),
+    createdAt: new Date(2017, 1, 10, 0, 1).toISOString(),
     permalink: 'https://daily.dev',
   };
   renderComponent({}, [
@@ -144,7 +145,7 @@ it('should send commentOnPost mutation', async () => {
   const el = await screen.findByText('Comment');
   el.click();
   await waitFor(() => mutationCalled);
-  expect(onComment).toBeCalledWith(newComment, null);
+  await waitFor(() => expect(onComment).toBeCalledWith(newComment, null));
   expect(onRequestClose).toBeCalledTimes(1);
 });
 
@@ -154,7 +155,7 @@ it('should send commentOnComment mutation', async () => {
     __typename: 'Comment',
     id: 'new',
     content: 'comment',
-    createdAt: new Date(2017, 1, 10, 0, 1),
+    createdAt: new Date(2017, 1, 10, 0, 1).toISOString(),
     permalink: 'https://daily.dev',
   };
   renderComponent({ commentId: 'c1' }, [
@@ -179,7 +180,7 @@ it('should send commentOnComment mutation', async () => {
   const el = await screen.findByText('Comment');
   el.click();
   await waitFor(() => mutationCalled);
-  expect(onComment).toBeCalledWith(newComment, 'c1');
+  await waitFor(() => expect(onComment).toBeCalledWith(newComment, 'c1'));
   expect(onRequestClose).toBeCalledTimes(1);
 });
 

@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import createDOMPurify from 'dompurify';
 import Link from 'next/link';
-import { getProfile, PublicProfile } from '../lib/user';
+import { getProfile, getProfileSSR, PublicProfile } from '../lib/user';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { getLayout as getMainLayout } from './MainLayout';
 import Head from 'next/head';
@@ -33,7 +33,6 @@ import { laptop, tablet } from '../styles/media';
 import { FloatButton, HollowButton } from './Buttons';
 import AuthContext from './AuthContext';
 import dynamic from 'next/dynamic';
-import useSWR, { mutate } from 'swr';
 import { useHideOnModal } from '../lib/useHideOnModal';
 import { useRouter } from 'next/router';
 import { Flipped, Flipper } from 'react-flip-toolkit';
@@ -43,14 +42,14 @@ import {
   GetStaticPropsContext,
   GetStaticPropsResult,
 } from 'next';
-import { PageProps } from '../pages/_app';
 import { ParsedUrlQuery } from 'querystring';
 import { reputationGuide } from '../lib/constants';
 import Custom404 from '../pages/404';
+import { useQuery, useQueryCache } from 'react-query';
 
 const AccountDetailsModal = dynamic(() => import('./AccountDetailsModal'));
 
-export interface ProfileLayoutProps extends PageProps {
+export interface ProfileLayoutProps {
   profile: PublicProfile;
   children?: ReactNode;
 }
@@ -274,10 +273,16 @@ export default function ProfileLayout({
   const [selectedTab, setSelectedTab] = useState(
     tabs.findIndex((tab) => tab.path === router?.pathname),
   );
-  const profileKey = initialProfile && `/api/v1/users/${initialProfile.id}`;
-  const { data: profile } = useSWR<PublicProfile>(profileKey, {
-    initialData: initialProfile,
-  });
+  const cache = useQueryCache();
+  const queryKey = ['profile', initialProfile?.id];
+  const { data: profile } = useQuery<PublicProfile>(
+    queryKey,
+    (key: string, id: string) => getProfile(id),
+    {
+      initialData: initialProfile,
+      enabled: !!initialProfile,
+    },
+  );
 
   const Seo: NextSeoProps = profile
     ? {
@@ -302,7 +307,7 @@ export default function ProfileLayout({
 
   const closeAccountDetails = async () => {
     setShowAccountDetails(false);
-    await mutate(profileKey);
+    await cache.invalidateQueries(queryKey);
   };
 
   const getTabHref = (tab: Tab) =>
@@ -462,7 +467,7 @@ export async function getStaticProps({
 > {
   const { userId } = params;
   try {
-    const profile = await getProfile(userId);
+    const profile = await getProfileSSR(userId);
     return {
       props: {
         profile,

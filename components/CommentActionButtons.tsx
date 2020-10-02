@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import AuthContext from './AuthContext';
 import { FloatButton, IconButton } from './Buttons';
 import UpvoteIcon from '../icons/upvote.svg';
@@ -8,14 +8,13 @@ import styled from 'styled-components';
 import { size1, size2, size7 } from '../styles/sizes';
 import {
   CANCEL_COMMENT_UPVOTE_MUTATION,
-  CancelCommentUpvoteData,
   Comment,
-  updateCommentUpvoteCache,
   UPVOTE_COMMENT_MUTATION,
-  UpvoteCommentData,
 } from '../graphql/comments';
-import { useMutation } from '@apollo/client';
+import { useMutation } from 'react-query';
 import { Roles } from '../lib/user';
+import request from 'graphql-request';
+import { apiUrl } from '../lib/config';
 
 export interface Props {
   comment: Comment;
@@ -58,42 +57,54 @@ export default function CommentActionButtons({
 }: Props): ReactElement {
   const { user, showLogin } = useContext(AuthContext);
 
-  const [upvoteComment] = useMutation<UpvoteCommentData>(
-    UPVOTE_COMMENT_MUTATION,
+  const [upvoted, setUpvoted] = useState(comment.upvoted);
+  const [numUpvotes, setNumUpvotes] = useState(comment.numUpvotes);
+
+  useEffect(() => {
+    setUpvoted(comment.upvoted);
+    setNumUpvotes(comment.numUpvotes);
+  }, [comment]);
+
+  const [upvoteComment] = useMutation(
+    () =>
+      request(`${apiUrl}/graphql`, UPVOTE_COMMENT_MUTATION, {
+        id: comment.id,
+      }),
     {
-      variables: { id: comment.id },
-      optimisticResponse: { upvoteComment: { _: true } },
-      update(cache) {
-        return updateCommentUpvoteCache(
-          cache,
-          comment.id,
-          true,
-          comment.numUpvotes + 1,
-        );
+      onMutate: () => {
+        setUpvoted(true);
+        setNumUpvotes(comment.numUpvotes + 1);
+        return () => {
+          setUpvoted(comment.upvoted);
+          setNumUpvotes(comment.numUpvotes);
+        };
       },
+      onError: (err, _, rollback) => rollback(),
     },
   );
 
-  const [cancelCommentUpvote] = useMutation<CancelCommentUpvoteData>(
-    CANCEL_COMMENT_UPVOTE_MUTATION,
+  const [cancelCommentUpvote] = useMutation(
+    () =>
+      request(`${apiUrl}/graphql`, CANCEL_COMMENT_UPVOTE_MUTATION, {
+        id: comment.id,
+      }),
     {
-      variables: { id: comment.id },
-      optimisticResponse: { cancelCommentUpvote: { _: true } },
-      update(cache) {
-        return updateCommentUpvoteCache(
-          cache,
-          comment.id,
-          false,
-          comment.numUpvotes - 1,
-        );
+      onMutate: () => {
+        setUpvoted(false);
+        setNumUpvotes(comment.numUpvotes - 1);
+        return () => {
+          setUpvoted(comment.upvoted);
+          setNumUpvotes(comment.numUpvotes);
+        };
       },
+      onError: (err, _, rollback) => rollback(),
     },
   );
 
   const toggleUpvote = () => {
     if (user) {
       // TODO: add GA tracking
-      if (comment.upvoted) {
+      if (upvoted) {
         return cancelCommentUpvote();
       } else {
         return upvoteComment();
@@ -105,13 +116,9 @@ export default function CommentActionButtons({
 
   return (
     <Container>
-      <UpvoteButton
-        done={comment.upvoted}
-        title="Upvote"
-        onClick={toggleUpvote}
-      >
+      <UpvoteButton done={upvoted} title="Upvote" onClick={toggleUpvote}>
         <UpvoteIcon />
-        {comment.numUpvotes > 0 && <span>{comment.numUpvotes}</span>}
+        {numUpvotes > 0 && <span>{numUpvotes}</span>}
       </UpvoteButton>
       <CommentButton
         size="small"

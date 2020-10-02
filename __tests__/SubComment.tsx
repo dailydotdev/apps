@@ -3,7 +3,6 @@ import { render, RenderResult } from '@testing-library/react';
 import AuthContext from '../components/AuthContext';
 import { LoggedUser } from '../lib/user';
 import SubComment, { Props } from '../components/SubComment';
-import { MockedProvider } from '@apollo/client/testing';
 
 const baseComment = {
   id: 'c2',
@@ -52,19 +51,17 @@ const renderLayout = (
   };
 
   return render(
-    <MockedProvider addTypename={false} mocks={[]}>
-      <AuthContext.Provider
-        value={{
-          user,
-          shouldShowLogin: false,
-          showLogin: jest.fn(),
-          logout: jest.fn(),
-          updateUser: jest.fn(),
-        }}
-      >
-        <SubComment {...defaultProps} {...props} />
-      </AuthContext.Provider>
-    </MockedProvider>,
+    <AuthContext.Provider
+      value={{
+        user,
+        shouldShowLogin: false,
+        showLogin: jest.fn(),
+        logout: jest.fn(),
+        updateUser: jest.fn(),
+      }}
+    >
+      <SubComment {...defaultProps} {...props} />
+    </AuthContext.Provider>,
   );
 };
 

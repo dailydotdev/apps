@@ -1,12 +1,12 @@
-import React, { ReactElement, useEffect, useRef } from 'react';
+import React, { ReactElement, useEffect, useRef, Fragment } from 'react';
 import Link from 'next/link';
+import { useInfiniteQuery } from 'react-query';
 import {
   getLayout as getProfileLayout,
   getStaticProps as getProfileStaticProps,
   getStaticPaths as getProfileStaticPaths,
   ProfileLayoutProps,
 } from '../../components/ProfileLayout';
-import { useQuery } from '@apollo/client';
 import { USER_COMMENTS_QUERY, UserCommentsData } from '../../graphql/comments';
 import styled from 'styled-components';
 import { size1, size2, size3, size4, size6, sizeN } from '../../styles/sizes';
@@ -14,6 +14,8 @@ import UpvoteIcon from '../../icons/upvote.svg';
 import { typoLil1, typoLil2, typoMicro2 } from '../../styles/typography';
 import { format } from 'date-fns';
 import { useInView } from 'react-intersection-observer';
+import request from 'graphql-request';
+import { apiUrl } from '../../lib/config';
 
 export const getStaticProps = getProfileStaticProps;
 export const getStaticPaths = getProfileStaticPaths;
@@ -96,11 +98,24 @@ const EmptyMessage = styled.span`
 
 const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
   const rootRef = useRef<HTMLUListElement>(null);
-  const { data: comments, loading, fetchMore } = useQuery<UserCommentsData>(
-    USER_COMMENTS_QUERY,
+  const {
+    data: commentsPages,
+    isFetchingMore,
+    canFetchMore,
+    fetchMore,
+  } = useInfiniteQuery<UserCommentsData>(
+    ['user_comments', profile?.id],
+    (key: string, userId: string, after: string) =>
+      request(`${apiUrl}/graphql`, USER_COMMENTS_QUERY, {
+        userId,
+        first: 30,
+        after,
+      }),
     {
-      variables: { userId: profile.id, first: 30 },
-      skip: !profile,
+      enabled: !!profile,
+      getFetchMore: (lastPage) =>
+        lastPage.userComments.pageInfo.hasNextPage &&
+        lastPage.userComments.pageInfo.endCursor,
     },
   );
 
@@ -110,37 +125,39 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
   });
 
   useEffect(() => {
-    if (inView && !loading && comments?.userComments.pageInfo.hasNextPage) {
-      fetchMore({
-        variables: { after: comments?.userComments.pageInfo.endCursor },
-      });
+    if (inView && !isFetchingMore && canFetchMore) {
+      fetchMore();
     }
-  }, [inView, loading]);
+  }, [inView, isFetchingMore]);
 
   return (
     <Container ref={rootRef}>
-      {!loading && !comments?.userComments.edges.length && (
+      {!isFetchingMore && !commentsPages?.[0]?.userComments.edges.length && (
         <EmptyMessage data-testid="empty">
-          {'//TODO: write comments'}
+          {'//TODO: write commentsPages'}
         </EmptyMessage>
       )}
-      {comments?.userComments.edges.map(({ node: comment }) => (
-        <li key={comment.id}>
-          <CommentContainer>
-            <CommentUpvotes>
-              <UpvoteIcon />
-              {comment.numUpvotes}
-            </CommentUpvotes>
-            <Link href={comment.permalink} passHref>
-              <CommentInfo>
-                <CommentContent>{comment.content}</CommentContent>
-                <CommentTime dateTime={comment.createdAt}>
-                  {format(new Date(comment.createdAt), 'MMM d, y')}
-                </CommentTime>
-              </CommentInfo>
-            </Link>
-          </CommentContainer>
-        </li>
+      {commentsPages?.map((comments) => (
+        <Fragment key={comments.userComments.pageInfo.endCursor}>
+          {comments.userComments.edges.map(({ node: comment }) => (
+            <li key={comment.id}>
+              <CommentContainer>
+                <CommentUpvotes>
+                  <UpvoteIcon />
+                  {comment.numUpvotes}
+                </CommentUpvotes>
+                <Link href={comment.permalink} passHref>
+                  <CommentInfo>
+                    <CommentContent>{comment.content}</CommentContent>
+                    <CommentTime dateTime={comment.createdAt}>
+                      {format(new Date(comment.createdAt), 'MMM d, y')}
+                    </CommentTime>
+                  </CommentInfo>
+                </Link>
+              </CommentContainer>
+            </li>
+          ))}
+        </Fragment>
       ))}
       <InfiniteScrollTrigger ref={infiniteScrollRef} />
     </Container>

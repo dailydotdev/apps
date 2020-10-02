@@ -9,8 +9,10 @@ import {
 import { ColorButton, HollowButton } from './Buttons';
 import { colorKetchup40 } from '../styles/colors';
 import { ButtonLoader } from './utilities';
-import { useMutation } from '@apollo/client';
+import { useMutation } from 'react-query';
 import { DELETE_POST_MUTATION, EmptyResponse } from '../graphql/posts';
+import request from 'graphql-request';
+import { apiUrl } from '../lib/config';
 
 export interface Props extends ModalProps {
   postId: string;
@@ -22,9 +24,11 @@ export default function DeletePostModal({
 }: Props): ReactElement {
   const [deleting, setDeleting] = useState<boolean>(false);
 
-  const [deletePost] = useMutation<EmptyResponse>(DELETE_POST_MUTATION, {
-    variables: { id: postId },
-  });
+  const [deletePost] = useMutation<EmptyResponse>(() =>
+    request(`${apiUrl}/graphql`, DELETE_POST_MUTATION, {
+      id: postId,
+    }),
+  );
 
   const onDeletePost = async (event: MouseEvent): Promise<void> => {
     if (deleting) {

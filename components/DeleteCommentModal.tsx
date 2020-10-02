@@ -9,14 +9,11 @@ import {
 import { ColorButton, HollowButton } from './Buttons';
 import { colorKetchup40 } from '../styles/colors';
 import { ButtonLoader } from './utilities';
-import { useMutation } from '@apollo/client';
-import {
-  DELETE_COMMENT_MUTATION,
-  POST_COMMENTS_QUERY,
-  PostCommentsData,
-} from '../graphql/comments';
+import { useMutation, useQueryCache } from 'react-query';
+import { DELETE_COMMENT_MUTATION, PostCommentsData } from '../graphql/comments';
 import cloneDeep from 'lodash.clonedeep';
-import { EmptyResponse } from '../graphql/posts';
+import request from 'graphql-request';
+import { apiUrl } from '../lib/config';
 
 export interface Props extends ModalProps {
   commentId: string;
@@ -31,41 +28,47 @@ export default function DeleteCommentModal({
   ...props
 }: Props): ReactElement {
   const [deleting, setDeleting] = useState<boolean>(false);
-
-  const [deleteComment] = useMutation<EmptyResponse>(DELETE_COMMENT_MUTATION, {
-    variables: { id: commentId },
-    update(cache) {
-      const query = {
-        query: POST_COMMENTS_QUERY,
-        variables: { postId: postId },
-      };
-      const cached = cloneDeep(cache.readQuery<PostCommentsData>(query));
-      // Delete the sub-comment
-      if (parentId !== commentId) {
-        const parentIndex = cached.postComments.edges.findIndex(
-          (e) => e.node.id === parentId,
+  const queryCache = useQueryCache();
+  const [deleteComment] = useMutation(
+    () =>
+      request(`${apiUrl}/graphql`, DELETE_COMMENT_MUTATION, {
+        id: commentId,
+      }),
+    {
+      onSuccess: () => {
+        const queryKey = ['post_comments', postId];
+        queryCache.cancelQueries(queryKey);
+        const cached = cloneDeep(
+          queryCache.getQueryData<PostCommentsData>(queryKey),
         );
-        if (parentIndex > -1) {
-          const childIndex = cached.postComments.edges[
-            parentIndex
-          ].node.children.edges.findIndex((e) => e.node.id === commentId);
-          if (childIndex > -1) {
-            cached.postComments.edges[parentIndex].node.children.edges.splice(
-              childIndex,
-              1,
+        if (cached) {
+          // Delete the sub-comment
+          if (parentId !== commentId) {
+            const parentIndex = cached.postComments.edges.findIndex(
+              (e) => e.node.id === parentId,
             );
+            if (parentIndex > -1) {
+              const childIndex = cached.postComments.edges[
+                parentIndex
+              ].node.children.edges.findIndex((e) => e.node.id === commentId);
+              if (childIndex > -1) {
+                cached.postComments.edges[
+                  parentIndex
+                ].node.children.edges.splice(childIndex, 1);
+              }
+            }
+          } else {
+            // Delete the main comment
+            const index = cached.postComments.edges.findIndex(
+              (e) => e.node.id === commentId,
+            );
+            cached.postComments.edges.splice(index, 1);
           }
+          queryCache.setQueryData(queryKey, cached);
         }
-      } else {
-        // Delete the main comment
-        const index = cached.postComments.edges.findIndex(
-          (e) => e.node.id === commentId,
-        );
-        cached.postComments.edges.splice(index, 1);
-      }
-      cache.writeQuery({ ...query, data: cached });
+      },
     },
-  });
+  );
 
   const onDeleteComment = async (event: MouseEvent): Promise<void> => {
     if (deleting) {
