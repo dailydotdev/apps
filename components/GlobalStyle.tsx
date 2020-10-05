@@ -24,6 +24,19 @@ import { mobileL } from '../styles/media';
 export default createGlobalStyle`
   ${normalize}
 
+  @font-face {
+    font-family: DejaVuSansMono;
+    font-display: swap;
+    src: local('DejaVuSansMono'),url(https://storage.googleapis.com/devkit-assets/static/fonts/DejaVuSansMono.woff2) format("woff2"), url(https://storage.googleapis.com/devkit-assets/static/fonts/DejaVuSansMono.woff) format("woff")
+  }
+
+  @font-face {
+    font-family: DejaVuSansMono;
+    font-display: swap;
+    src: local('DejaVuSansMono-Oblique'),url(https://storage.googleapis.com/devkit-assets/static/fonts/DejaVuSansMono-Oblique.woff2) format("woff2"),url(https://storage.googleapis.com/devkit-assets/static/fonts/DejaVuSansMono-Oblique.woff) format("woff");
+    font-style: italic;
+  }
+
   html {
     font-family: 'DejaVuSansMono', monospace, sans-serif;
     -webkit-font-smoothing: antialiased;

@@ -106,6 +106,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
     isFetchingMore,
     canFetchMore,
     fetchMore,
+    isLoading,
   } = useInfiniteQuery<UserCommentsData>(
     ['user_comments', profile?.id],
     (key: string, userId: string, after: string) =>
@@ -128,18 +129,20 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
   });
 
   useEffect(() => {
-    if (inView && !isFetchingMore && canFetchMore) {
+    if (inView && !isLoading && !isFetchingMore && canFetchMore) {
       fetchMore();
     }
   }, [inView, isFetchingMore]);
 
   return (
     <Container ref={rootRef}>
-      {!isFetchingMore && !commentsPages?.[0]?.userComments.edges.length && (
-        <EmptyMessage data-testid="empty">
-          {'//TODO: write commentsPages'}
-        </EmptyMessage>
-      )}
+      {!isFetchingMore &&
+        !isLoading &&
+        !commentsPages?.[0]?.userComments.edges.length && (
+          <EmptyMessage data-testid="empty">
+            {'//TODO: write commentsPages'}
+          </EmptyMessage>
+        )}
       {commentsPages?.map((comments) => (
         <Fragment key={comments.userComments.pageInfo.endCursor}>
           {comments.userComments.edges.map(({ node: comment }) => (

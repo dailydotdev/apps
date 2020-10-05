@@ -99,10 +99,7 @@ export default function App({ Component, pageProps }: AppProps): ReactElement {
             name="apple-mobile-web-app-status-bar-style"
             content="#151618"
           />
-          <link
-            rel="stylesheet"
-            href="https://storage.googleapis.com/devkit-assets/static/dejavue.css"
-          />
+          <link rel="preconnect" href="https://storage.googleapis.com" />
         </Head>
         <DefaultSeo {...Seo} />
         <GlobalStyle />
