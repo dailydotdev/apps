@@ -12,7 +12,6 @@ export interface Post {
   title: string;
   permalink: string;
   image: string;
-  placeholder: string;
   createdAt: string;
   readTime?: number;
   tags?: string[];

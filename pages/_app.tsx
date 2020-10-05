@@ -93,30 +93,15 @@ export default function App({ Component, pageProps }: AppProps): ReactElement {
             name="viewport"
             content="initial-scale=1.0, width=device-width"
           />
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `
-        WebFontConfig = {
-          custom: {
-          families: ['DejaVuSansMono'],
-          urls: ['https://storage.googleapis.com/devkit-assets/static/dejavue.css'],
-        },
-        };
-
-        (function(d) {
-          var wf = d.createElement('script'), s = d.scripts[0];
-          wf.src = 'https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js';
-          wf.async = true;
-          s.parentNode.insertBefore(wf, s);
-        })(document);
-        `,
-            }}
-          />
           <meta name="theme-color" content="#151618" />
           <meta name="msapplication-navbutton-color" content="#151618" />
           <meta
             name="apple-mobile-web-app-status-bar-style"
             content="#151618"
+          />
+          <link
+            rel="stylesheet"
+            href="https://storage.googleapis.com/devkit-assets/static/dejavue.css"
           />
         </Head>
         <DefaultSeo {...Seo} />

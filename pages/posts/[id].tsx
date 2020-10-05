@@ -489,7 +489,6 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           <LazyImage
             imgSrc={postById?.post.image}
             imgAlt="Post cover image"
-            lowsrc={postById?.post.placeholder}
             ratio="49%"
           />
         </PostImage>
