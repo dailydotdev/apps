@@ -6,6 +6,7 @@ import { commentDateFormat } from '../../lib/dateFormat';
 import { size2, size4 } from '../../styles/sizes';
 import CommentActionButtons from './CommentActionButtons';
 import SubComment from './SubComment';
+import { ProfileImageLink } from '../profile/ProfileImageLink';
 import { ProfileLink } from '../profile/ProfileLink';
 
 export interface Props {
@@ -44,9 +45,11 @@ export default function MainComment({
   return (
     <Container data-testid="comment">
       <Header>
-        <ProfileLink user={comment.author} />
+        <ProfileImageLink user={comment.author} />
         <Metadata>
-          <CommentAuthor>{comment.author.name}</CommentAuthor>
+          <CommentAuthor as={ProfileLink} user={comment.author}>
+            {comment.author.name}
+          </CommentAuthor>
           <CommentPublishDate dateTime={comment.createdAt}>
             {commentDateFormat(comment.createdAt)}
           </CommentPublishDate>

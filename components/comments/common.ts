@@ -5,6 +5,7 @@ import { size2, size3, size4 } from '../../styles/sizes';
 import { colorWater60 } from '../../styles/colors';
 
 export const CommentAuthor = styled.div`
+  color: var(--theme-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -27,7 +28,7 @@ export const CommentBox = styled(Linkify).attrs({
   overflow-wrap: break-word;
   ${typoLil1}
 
-  a {
+  a:not(${CommentAuthor}) {
     color: ${colorWater60};
     word-break: break-all;
   }

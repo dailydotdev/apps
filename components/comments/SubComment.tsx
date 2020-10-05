@@ -5,6 +5,7 @@ import { size1, size2, size4, size8 } from '../../styles/sizes';
 import { CommentAuthor, CommentBox, CommentPublishDate } from './common';
 import { commentDateFormat } from '../../lib/dateFormat';
 import CommentActionButtons from './CommentActionButtons';
+import { ProfileImageLink } from '../profile/ProfileImageLink';
 import { ProfileLink } from '../profile/ProfileLink';
 
 export interface Props {
@@ -26,7 +27,7 @@ const ProfileContainer = styled.div`
   position: relative;
 `;
 
-const SmallProfileLink = styled(ProfileLink)`
+const SmallProfileLink = styled(ProfileImageLink)`
   width: ${size8};
   height: ${size8};
 `;
@@ -78,7 +79,9 @@ export default function SubComment({
       </ProfileContainer>
       <ContentContainer>
         <SubCommentBox>
-          <CommentAuthor>{comment.author.name}</CommentAuthor>
+          <CommentAuthor as={ProfileLink} user={comment.author}>
+            {comment.author.name}
+          </CommentAuthor>
           <CommentPublishDate dateTime={comment.createdAt}>
             {commentDateFormat(comment.createdAt)}
           </CommentPublishDate>

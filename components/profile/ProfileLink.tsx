@@ -1,8 +1,6 @@
 import React, { HTMLAttributes, ReactElement } from 'react';
 import Link from 'next/link';
 import styled from 'styled-components';
-import { size10 } from '../../styles/sizes';
-import LazyImage from '../LazyImage';
 
 interface User {
   name: string;
@@ -14,31 +12,21 @@ export interface ProfileLinkProps extends HTMLAttributes<HTMLAnchorElement> {
   user: User;
 }
 
-const Container = styled.a`
+const Anchor = styled.a`
   display: block;
-  width: ${size10};
-  height: ${size10};
-`;
-
-const Image = styled(LazyImage)`
-  width: 100%;
-  height: 100%;
-  border-radius: 100%;
+  text-decoration: none;
 `;
 
 export function ProfileLink({
   user,
+  children,
   ...props
 }: ProfileLinkProps): ReactElement {
   return (
     <Link href={user.permalink} passHref>
-      <Container title={`Go to ${user.name}'s profile`} {...props}>
-        <Image
-          imgSrc={user.image}
-          imgAlt={`${user.name}'s profile image`}
-          background="var(--theme-background-highlight)"
-        />
-      </Container>
+      <Anchor title={`Go to ${user.name}'s profile`} {...props}>
+        {children}
+      </Anchor>
     </Link>
   );
 }
