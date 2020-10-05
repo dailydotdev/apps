@@ -19,13 +19,16 @@ export function useCookieBanner(): [
 
   const updateCookieBanner = (user?: LoggedUser): void => {
     if (
-      !user &&
-      !document.cookie
+      document.cookie
         .split('; ')
         .find((row) => row.startsWith(consentCookieName))
     ) {
-      setShowCookie(true);
+      return;
     }
+    if (user) {
+      return acceptCookies();
+    }
+    setShowCookie(true);
   };
 
   return [showCookie, acceptCookies, updateCookieBanner];

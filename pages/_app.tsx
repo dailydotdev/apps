@@ -62,16 +62,16 @@ export default function App({ Component, pageProps }: AppProps): ReactElement {
 
   useEffect(() => {
     if (
-      pageProps.user?.providers &&
-      !pageProps.user.infoConfirmed &&
+      user &&
+      !user.infoConfirmed &&
       window.location.pathname.indexOf('/register') !== 0
     ) {
       window.location.replace(
         `/register?redirect_uri=${encodeURI(window.location.pathname)}`,
       );
     }
-    updateCookieBanner(pageProps.user);
-  }, []);
+    updateCookieBanner(user);
+  }, [user, loadingUser]);
 
   const getLayout =
     (Component as CompnentGetLayout).getLayout || ((page) => page);
