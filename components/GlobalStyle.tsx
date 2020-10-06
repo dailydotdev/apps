@@ -47,6 +47,7 @@ export default createGlobalStyle`
 
   body {
     min-width: 20rem;
+    overflow-y: scroll;
   }
 
   /* stylelint-disable-next-line no-descending-specificity */
