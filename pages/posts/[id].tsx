@@ -413,12 +413,15 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   };
 
   useEffect(() => {
+    if (isFallback) {
+      return;
+    }
     setHasNativeShare('share' in navigator);
     if (router?.query.new) {
       setTimeout(() => setShowShareNewComment(true), 700);
     }
     window.history.replaceState({}, document.title, getShareableLink());
-  }, []);
+  }, [isFallback]);
 
   useHideOnModal(() => !!parentComment, [parentComment]);
 
