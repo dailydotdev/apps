@@ -3,22 +3,24 @@ import React, {
   ReactElement,
   ReactNode,
   useContext,
-  useEffect,
   useState,
 } from 'react';
 import styled from 'styled-components';
 import Link from 'next/link';
-import { size1, size4, size8, sizeN } from '../../styles/sizes';
+import { size1, size2, size4, size8, sizeN } from '../../styles/sizes';
 import { FloatButton, IconButton } from '../Buttons';
 import DailyDevLogo from '../svg/DailyDevLogo';
 import LazyImage from '../LazyImage';
 import AuthContext from '../AuthContext';
 import { focusOutline } from '../../styles/helpers';
-import { laptop, tablet } from '../../styles/media';
+import { laptop, laptopL, tablet } from '../../styles/media';
 import BetaBadge from '../svg/BetaBadge';
 import AboutModal from '../modals/AboutModal';
 import BellIcon from '../../icons/bell.svg';
 import BellNotifyIcon from '../../icons/bell_notify.svg';
+import GiftIcon from '../../icons/gift.svg';
+import { typoNuggets } from '../../styles/typography';
+import usePersistentFlag from '../../lib/usePersistentFlag';
 
 export interface Props extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -54,9 +56,12 @@ const Header = styled.header`
   }
 `;
 
+const buttonMargin = sizeN(1.5);
+
 const ProfileImage = styled.a`
   width: ${size8};
   overflow: hidden;
+  margin-left: ${buttonMargin};
   padding: 0;
   background: none;
   border: none;
@@ -66,7 +71,27 @@ const ProfileImage = styled.a`
 `;
 
 const AboutButton = styled(IconButton)`
-  margin: 0 ${size4} 0 auto;
+  margin: 0 ${buttonMargin};
+`;
+
+const GiftButton = styled(FloatButton)`
+  margin: 0 ${buttonMargin} 0 auto;
+  padding: ${size1};
+  border-radius: ${size2};
+  ${typoNuggets}
+
+  .icon {
+    margin: 0;
+  }
+
+  span {
+    display: none;
+    margin: 0 ${size1} 0 ${size2};
+
+    ${laptopL} {
+      display: unset;
+    }
+  }
 `;
 
 const HomeLink = styled.a`
@@ -90,19 +115,16 @@ export default function MainLayout({
 }: Props): ReactElement {
   const { user, showLogin, loadingUser } = useContext(AuthContext);
   const [showAbout, setShowAbout] = useState(false);
-  const [showBadge, setShowBadge] = useState(false);
+  const [showBadge, setShowBadge] = usePersistentFlag('about', false);
+  const [didClickedTshirt, setDidClickTshirt] = usePersistentFlag(
+    'tshirt',
+    false,
+  );
 
   const onAboutClick = () => {
     setShowAbout(true);
-    if (showBadge) {
-      setShowBadge(false);
-      localStorage.setItem('about', 'true');
-    }
+    setShowBadge(false);
   };
-
-  useEffect(() => {
-    setShowBadge(!localStorage.getItem('about'));
-  }, []);
 
   return (
     <Container className={className}>
@@ -115,6 +137,18 @@ export default function MainLayout({
         </Link>
         {!showOnlyLogo && !loadingUser && (
           <>
+            <GiftButton
+              as="a"
+              href="https://daily.dev/win-free-t-shirt"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Get free T-shirt"
+              done={!didClickedTshirt}
+              onClick={() => setDidClickTshirt(true)}
+            >
+              {!didClickedTshirt && <span>Get free T-shirt</span>}
+              <GiftIcon />
+            </GiftButton>
             <AboutButton onClick={onAboutClick} title="About">
               {showBadge ? <BellNotifyIcon /> : <BellIcon />}
             </AboutButton>
