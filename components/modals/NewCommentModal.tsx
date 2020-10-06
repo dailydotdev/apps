@@ -5,6 +5,7 @@ import React, {
   useState,
   MouseEvent,
   useEffect,
+  KeyboardEvent,
 } from 'react';
 import dynamic from 'next/dynamic';
 import styled from 'styled-components';
@@ -222,7 +223,9 @@ export default function NewCommentModal({
     setInput(event.currentTarget.innerText);
   };
 
-  const sendComment = async (event: MouseEvent): Promise<void> => {
+  const sendComment = async (
+    event: MouseEvent | KeyboardEvent,
+  ): Promise<void> => {
     if (sendingComment) {
       return;
     }
@@ -239,6 +242,17 @@ export default function NewCommentModal({
     } catch (err) {
       setErrorMessage('Something went wrong, try again');
       setSendingComment(false);
+    }
+  };
+
+  const onKeyDown = async (event: KeyboardEvent): Promise<void> => {
+    // Ctrl / Command + Enter
+    if (
+      (event.ctrlKey || event.metaKey) &&
+      event.keyCode === 13 &&
+      input?.length
+    ) {
+      await sendComment(event);
     }
   };
 
@@ -289,6 +303,7 @@ export default function NewCommentModal({
           aria-placeholder="Write your comment..."
           aria-multiline
           onInput={onInput}
+          onKeyDown={onKeyDown}
         />
       </NewCommentContainer>
       <ErrorMessage>
