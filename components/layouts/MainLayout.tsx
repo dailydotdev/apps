@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import styled from 'styled-components';
 import Link from 'next/link';
-import { size1, size2, size4, size8, sizeN } from '../../styles/sizes';
+import { size1, size2, size3, size4, size8, sizeN } from '../../styles/sizes';
 import { FloatButton, IconButton } from '../Buttons';
 import DailyDevLogo from '../svg/DailyDevLogo';
 import LazyImage from '../LazyImage';
@@ -19,7 +19,7 @@ import AboutModal from '../modals/AboutModal';
 import BellIcon from '../../icons/bell.svg';
 import BellNotifyIcon from '../../icons/bell_notify.svg';
 import GiftIcon from '../../icons/gift.svg';
-import { typoNuggets } from '../../styles/typography';
+import { typoLil2, typoNuggets } from '../../styles/typography';
 import usePersistentFlag from '../../lib/usePersistentFlag';
 
 export interface Props extends HTMLAttributes<HTMLDivElement> {
@@ -59,15 +59,28 @@ const Header = styled.header`
 const buttonMargin = sizeN(1.5);
 
 const ProfileImage = styled.a`
-  width: ${size8};
+  display: flex;
+  align-items: center;
   overflow: hidden;
   margin-left: ${buttonMargin};
   padding: 0;
-  background: none;
+  color: var(--theme-primary);
+  background: var(--theme-background-highlight);
   border: none;
-  border-radius: 100%;
+  border-radius: ${size2};
   cursor: pointer;
+  text-decoration: none;
   ${focusOutline}
+  ${typoLil2}
+
+  .img {
+    width: ${size8};
+    border-radius: ${size2};
+  }
+
+  span {
+    margin: 0 ${size2} 0 ${size3};
+  }
 `;
 
 const AboutButton = styled(IconButton)`
@@ -154,8 +167,10 @@ export default function MainLayout({
             </AboutButton>
             {user ? (
               <Link href={`/${user.username || user.id}`} passHref>
-                <ProfileImage>
+                <ProfileImage title="Go to your profile">
+                  <span>{user.reputation ?? 0}</span>
                   <LazyImage
+                    className="img"
                     imgSrc={user.image}
                     imgAlt="Your profile image"
                     ratio="100%"

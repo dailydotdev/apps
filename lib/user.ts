@@ -44,6 +44,7 @@ export interface LoggedUser extends UserProfile {
   acceptedMarketing?: boolean;
   roles?: Roles[];
   createdAt: string;
+  reputation?: number;
 }
 
 interface BaseError {
