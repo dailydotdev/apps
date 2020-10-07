@@ -6,6 +6,7 @@ import React, {
   MouseEvent,
   useEffect,
   KeyboardEvent,
+  ClipboardEvent,
 } from 'react';
 import dynamic from 'next/dynamic';
 import styled from 'styled-components';
@@ -256,6 +257,16 @@ export default function NewCommentModal({
     }
   };
 
+  const onPaste = (event: ClipboardEvent): void => {
+    event.preventDefault();
+    const text = event.clipboardData.getData('text/plain');
+    if (document.queryCommandSupported('insertText')) {
+      document.execCommand('insertText', false, text);
+    } else {
+      document.execCommand('paste', false, text);
+    }
+  };
+
   const confirmClose = (event: MouseEvent): void => {
     if (input?.length) {
       setShowDiscardModal(true);
@@ -304,6 +315,7 @@ export default function NewCommentModal({
           aria-multiline
           onInput={onInput}
           onKeyDown={onKeyDown}
+          onPaste={onPaste}
         />
       </NewCommentContainer>
       <ErrorMessage>
