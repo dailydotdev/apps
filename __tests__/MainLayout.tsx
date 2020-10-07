@@ -38,7 +38,7 @@ it('should show login when clicking on the button', async () => {
   expect(showLogin).toBeCalledTimes(1);
 });
 
-it('should show profile image when logged-in', async () => {
+it('should show profile image and reputation when logged-in', async () => {
   const res = renderLayout({
     id: 'u1',
     name: 'Ido Shamun',
@@ -46,7 +46,10 @@ it('should show profile image when logged-in', async () => {
     email: 'ido@acme.com',
     image: 'https://daily.dev/ido.png',
     createdAt: '',
+    reputation: 5,
   });
   const el = await res.findByAltText('Your profile image');
   expect(el).toHaveAttribute('data-src', 'https://daily.dev/ido.png');
+  const rep = await res.findByText('5');
+  expect(rep).toBeInTheDocument();
 });
