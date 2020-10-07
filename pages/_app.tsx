@@ -1,4 +1,10 @@
-import React, { ReactElement, ReactNode, useEffect, useState } from 'react';
+import React, {
+  ReactElement,
+  ReactNode,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
@@ -48,6 +54,18 @@ export default function App({ Component, pageProps }: AppProps): ReactElement {
     location.reload();
   };
 
+  const authContext = useMemo(
+    () => ({
+      user,
+      shouldShowLogin: loginIsOpen,
+      showLogin: () => setLoginIsOpen(true),
+      updateUser: setUser,
+      logout,
+      loadingUser,
+    }),
+    [user, loginIsOpen, loadingUser],
+  );
+
   useEffect(() => {
     if (trackingId && !initializedGA) {
       ReactGA.initialize(process.env.NEXT_PUBLIC_GA, {
@@ -78,16 +96,7 @@ export default function App({ Component, pageProps }: AppProps): ReactElement {
 
   return (
     <ReactQueryCacheProvider queryCache={queryCache}>
-      <AuthContext.Provider
-        value={{
-          user,
-          shouldShowLogin: loginIsOpen,
-          showLogin: () => setLoginIsOpen(true),
-          updateUser: setUser,
-          logout,
-          loadingUser,
-        }}
-      >
+      <AuthContext.Provider value={authContext}>
         <Head>
           <meta
             name="viewport"
