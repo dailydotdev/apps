@@ -59,7 +59,7 @@
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-jest-dom": "^3.1.6",
     "eslint-plugin-prettier": "^3.1.4",
-    "eslint-plugin-react": "^7.20.5",
+    "eslint-plugin-react": "^7.21.3",
     "eslint-plugin-testing-library": "^3.4.1",
     "jest": "^26.5.2",
     "jest-junit": "^11.1.0",
