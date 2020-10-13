@@ -30,7 +30,7 @@
     "react-ga": "^3.1.2",
     "react-intersection-observer": "^8.28.6",
     "react-modal": "^3.11.2",
-    "react-query": "^2.23.0",
+    "react-query": "^2.23.1",
     "styled-components": "^5.1.1",
     "styled-normalize": "^8.0.7",
     "swr": "^0.3.4",
