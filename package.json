@@ -63,7 +63,7 @@
     "eslint-plugin-testing-library": "^3.4.1",
     "jest": "^26.5.2",
     "jest-junit": "^11.1.0",
-    "jest-styled-components": "^7.0.2",
+    "jest-styled-components": "^7.0.3",
     "nock": "^13.0.4",
     "prettier": "^2.0.5",
     "stylelint": "^13.7.2",
