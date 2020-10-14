@@ -62,7 +62,7 @@
     "eslint-plugin-react": "^7.21.3",
     "eslint-plugin-testing-library": "^3.9.1",
     "jest": "^26.5.3",
-    "jest-junit": "^11.1.0",
+    "jest-junit": "^12.0.0",
     "jest-styled-components": "^7.0.3",
     "nock": "^13.0.4",
     "prettier": "^2.0.5",
