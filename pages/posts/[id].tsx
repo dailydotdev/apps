@@ -537,7 +537,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             onDelete={(comment, parentId) =>
               setPendingComment({ comment, parentId })
             }
-            postAuthorId={e.node.author?.id}
+            postAuthorId={postById?.post?.author?.id}
           />
         ))}
         <Hint>
