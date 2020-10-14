@@ -47,6 +47,7 @@ const renderLayout = (
     comment: baseComment,
     onComment,
     onDelete,
+    postAuthorId: null,
   };
 
   return render(
@@ -123,4 +124,10 @@ it('should call onDelete callback', async () => {
   const el = await res.findByTitle('Delete');
   el.click();
   expect(onDelete).toBeCalledWith(baseComment, 'c1');
+});
+
+it('should show author badge', async () => {
+  const res = renderLayout({ postAuthorId: 'u1' }, loggedUser);
+  const el = await res.findByText('Author');
+  expect(el).toBeInTheDocument();
 });

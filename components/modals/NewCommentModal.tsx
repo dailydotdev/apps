@@ -15,13 +15,9 @@ import { Props as ModalProps } from './StyledModal';
 import { size2, size3, size6, sizeN } from '../../styles/sizes';
 import AuthContext from '../AuthContext';
 import { ButtonLoader, RoundedImage, SmallRoundedImage } from '../utilities';
-import {
-  CommentAuthor,
-  CommentBox,
-  CommentPublishDate,
-} from '../comments/common';
+import { CommentBox, CommentPublishDate } from '../comments/common';
 import { commentDateFormat } from '../../lib/dateFormat';
-import { typoJr, typoSmallBase } from '../../styles/typography';
+import { typoJr, typoLil2Base, typoSmallBase } from '../../styles/typography';
 import { colorKetchup30, colorWater60 } from '../../styles/colors';
 import { ColorButton, FloatButton } from '../Buttons';
 import { useMutation, useQueryCache } from 'react-query';
@@ -137,6 +133,14 @@ const ErrorMessage = styled.div`
   margin: ${size2} ${size3};
   color: ${colorKetchup30};
   ${typoSmallBase};
+`;
+
+const CommentAuthor = styled.div`
+  color: var(--theme-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  ${typoLil2Base}
 `;
 
 interface CommentVariables {

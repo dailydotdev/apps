@@ -1,16 +1,17 @@
 import React, { ReactElement } from 'react';
 import styled from 'styled-components';
 import { Comment } from '../../graphql/comments';
-import { CommentBox, CommentAuthor, CommentPublishDate } from './common';
+import { CommentBox, CommentPublishDate } from './common';
 import { commentDateFormat } from '../../lib/dateFormat';
 import { size2, size4 } from '../../styles/sizes';
 import CommentActionButtons from './CommentActionButtons';
 import SubComment from './SubComment';
 import { ProfileImageLink } from '../profile/ProfileImageLink';
-import { ProfileLink } from '../profile/ProfileLink';
+import CommentAuthor from './CommentAuthor';
 
 export interface Props {
   comment: Comment;
+  postAuthorId: string | null;
   onComment: (comment: Comment, parentId: string | null) => void;
   onDelete: (comment: Comment, parentId: string | null) => void;
 }
@@ -41,15 +42,14 @@ export default function MainComment({
   comment,
   onComment,
   onDelete,
+  postAuthorId,
 }: Props): ReactElement {
   return (
     <Container data-testid="comment">
       <Header>
         <ProfileImageLink user={comment.author} />
         <Metadata>
-          <CommentAuthor as={ProfileLink} user={comment.author}>
-            {comment.author.name}
-          </CommentAuthor>
+          <CommentAuthor postAuthorId={postAuthorId} author={comment.author} />
           <CommentPublishDate dateTime={comment.createdAt}>
             {commentDateFormat(comment.createdAt)}
           </CommentPublishDate>
@@ -71,6 +71,7 @@ export default function MainComment({
           parentId={comment.id}
           onComment={onComment}
           onDelete={onDelete}
+          postAuthorId={postAuthorId}
         />
       ))}
     </Container>

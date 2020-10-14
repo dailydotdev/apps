@@ -13,7 +13,8 @@ export interface ProfileLinkProps extends HTMLAttributes<HTMLAnchorElement> {
 }
 
 const Anchor = styled.a`
-  display: block;
+  display: flex;
+  align-items: center;
   text-decoration: none;
 `;
 

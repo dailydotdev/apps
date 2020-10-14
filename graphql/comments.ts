@@ -2,7 +2,7 @@ import { gql } from 'graphql-request';
 import { Connection } from './common';
 import { EmptyResponse } from './posts';
 
-export interface CommentAuthor {
+export interface Author {
   __typename?: string;
   id: string;
   name: string;
@@ -15,7 +15,7 @@ export interface Comment {
   id: string;
   content: string;
   createdAt: string;
-  author?: CommentAuthor;
+  author?: Author;
   permalink: string;
   upvoted?: boolean;
   numUpvotes: number;
