@@ -1,4 +1,5 @@
 import { gql } from 'graphql-request';
+import { Author } from './comments';
 
 export interface Source {
   __typename?: string;
@@ -21,6 +22,7 @@ export interface Post {
   commentsPermalink: string;
   numUpvotes: number;
   numComments: number;
+  author?: Author;
 }
 
 export interface PostData {
@@ -46,6 +48,9 @@ export const POST_BY_ID_QUERY = gql`
       source {
         name
         image
+      }
+      author {
+        id
       }
     }
   }

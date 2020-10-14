@@ -2,11 +2,11 @@ import React, { ReactElement } from 'react';
 import { Comment } from '../../graphql/comments';
 import styled from 'styled-components';
 import { size1, size2, size4, size8 } from '../../styles/sizes';
-import { CommentAuthor, CommentBox, CommentPublishDate } from './common';
+import { CommentBox, CommentPublishDate } from './common';
 import { commentDateFormat } from '../../lib/dateFormat';
 import CommentActionButtons from './CommentActionButtons';
 import { ProfileImageLink } from '../profile/ProfileImageLink';
-import { ProfileLink } from '../profile/ProfileLink';
+import CommentAuthor from './CommentAuthor';
 
 export interface Props {
   comment: Comment;
@@ -15,6 +15,7 @@ export interface Props {
   parentId: string;
   onComment: (comment: Comment, parentId: string | null) => void;
   onDelete: (comment: Comment, parentId: string | null) => void;
+  postAuthorId: string | null;
 }
 
 const Container = styled.article`
@@ -66,6 +67,7 @@ export default function SubComment({
   onComment,
   parentId,
   onDelete,
+  postAuthorId,
 }: Props): ReactElement {
   return (
     <Container data-testid="subcomment">
@@ -79,9 +81,7 @@ export default function SubComment({
       </ProfileContainer>
       <ContentContainer>
         <SubCommentBox>
-          <CommentAuthor as={ProfileLink} user={comment.author}>
-            {comment.author.name}
-          </CommentAuthor>
+          <CommentAuthor postAuthorId={postAuthorId} author={comment.author} />
           <CommentPublishDate dateTime={comment.createdAt}>
             {commentDateFormat(comment.createdAt)}
           </CommentPublishDate>

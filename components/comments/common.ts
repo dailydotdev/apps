@@ -1,16 +1,8 @@
 import styled from 'styled-components';
-import { typoLil1, typoLil2Base, typoSmall } from '../../styles/typography';
+import { typoLil1, typoSmall } from '../../styles/typography';
 import Linkify from 'linkifyjs/react';
 import { size2, size3, size4 } from '../../styles/sizes';
 import { colorWater60 } from '../../styles/colors';
-
-export const CommentAuthor = styled.div`
-  color: var(--theme-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  ${typoLil2Base}
-`;
 
 export const CommentPublishDate = styled.time`
   color: var(--theme-disabled);
@@ -28,7 +20,7 @@ export const CommentBox = styled(Linkify).attrs({
   overflow-wrap: break-word;
   ${typoLil1}
 
-  a:not(${CommentAuthor}) {
+  a:not(.commentAuthor) {
     color: ${colorWater60};
     word-break: break-all;
   }
