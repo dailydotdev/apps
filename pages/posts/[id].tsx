@@ -73,14 +73,14 @@ import { useHideOnModal } from '../../lib/useHideOnModal';
 import request, { ClientError } from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 
-const NewCommentModal = dynamic(() =>
-  import('../../components/modals/NewCommentModal'),
+const NewCommentModal = dynamic(
+  () => import('../../components/modals/NewCommentModal'),
 );
-const DeleteCommentModal = dynamic(() =>
-  import('../../components/modals/DeleteCommentModal'),
+const DeleteCommentModal = dynamic(
+  () => import('../../components/modals/DeleteCommentModal'),
 );
-const DeletePostModal = dynamic(() =>
-  import('../../components/DeletePostModal'),
+const DeletePostModal = dynamic(
+  () => import('../../components/DeletePostModal'),
 );
 const ShareBar = dynamic(() => import('../../components/ShareBar'), {
   ssr: false,
