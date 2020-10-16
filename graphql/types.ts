@@ -1,4 +1,4 @@
-import { GraphQLError } from 'graphql-request/dist/types';
+import 'graphql-request/dist/types';
 
 declare module 'graphql-request/dist/types' {
   interface GraphQLError {
