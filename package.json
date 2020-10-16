@@ -71,7 +71,7 @@
     "stylelint-config-styled-components": "^0.1.1",
     "stylelint-processor-styled-components": "^1.10.0",
     "ts-jest": "^26.4.1",
-    "typescript": "^3.9.7",
+    "typescript": "^4.0.3",
     "vercel": "^20.1.2"
   }
 }
