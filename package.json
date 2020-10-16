@@ -51,7 +51,7 @@
     "@types/react": "^16.9.52",
     "@types/react-modal": "^3.10.6",
     "@types/styled-components": "^5.1.3",
-    "@typescript-eslint/eslint-plugin": "^3.7.1",
+    "@typescript-eslint/eslint-plugin": "^4.0.0",
     "@typescript-eslint/parser": "^3.10.1",
     "babel-plugin-react-remove-properties": "^0.3.0",
     "babel-plugin-styled-components": "^1.11.1",
