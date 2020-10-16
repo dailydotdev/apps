@@ -46,8 +46,8 @@ import { ParsedUrlQuery } from 'querystring';
 import { reputationGuide } from '../../lib/constants';
 import { useQuery, useQueryCache } from 'react-query';
 
-const AccountDetailsModal = dynamic(() =>
-  import('../modals/AccountDetailsModal'),
+const AccountDetailsModal = dynamic(
+  () => import('../modals/AccountDetailsModal'),
 );
 const Custom404 = dynamic(() => import('../../pages/404'));
 
