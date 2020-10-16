@@ -25,7 +25,7 @@
     "next-seo": "^4.11.0",
     "node-fetch": "^2.6.1",
     "react": "16.14.0",
-    "react-dom": "16.13.1",
+    "react-dom": "16.14.0",
     "react-flip-toolkit": "^7.0.12",
     "react-ga": "^3.1.2",
     "react-intersection-observer": "^8.29.0",
