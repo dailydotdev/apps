@@ -9,5 +9,5 @@ export function largeNumberFormat(value: number): string {
   if (suffixNum > 0) {
     return newValue.toFixed(1) + suffixes[suffixNum];
   }
-  return newValue.toString();
+  return (newValue ?? 0).toString();
 }
