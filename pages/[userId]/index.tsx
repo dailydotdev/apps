@@ -236,7 +236,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
 
   const commentsSection = (
     <ActivitySection
-      title={`${isSameUser ? 'Your' : 'Newest'} Comments`}
+      title={`${isSameUser ? 'Your ' : ''}Comments`}
       query={comments}
       count={userStats?.userStats?.numComments}
       emptyScreen={
@@ -265,7 +265,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
 
   const postsSection = (
     <ActivitySection
-      title={`${isSameUser ? 'Your' : 'Newest'} Posts`}
+      title={`${isSameUser ? 'Your ' : ''}Posts`}
       query={posts}
       count={userStats?.userStats?.numPosts}
       emptyScreen={
@@ -286,24 +286,20 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
             <CommentInfo as="div">
               <CommentContent>{post.title}</CommentContent>
               <PostStats>
-                {!!post.views && (
+                {post.views >= 0 && (
                   <PostStat>
                     <EyeIcon />
                     {largeNumberFormat(post.views)}
                   </PostStat>
                 )}
-                {!!post.numUpvotes && (
-                  <PostStat>
-                    <UpvoteIcon />
-                    {largeNumberFormat(post.numUpvotes)}
-                  </PostStat>
-                )}
-                {!!post.numComments && (
-                  <PostStat>
-                    <CommentIcon />
-                    {largeNumberFormat(post.numComments)}
-                  </PostStat>
-                )}
+                <PostStat>
+                  <UpvoteIcon />
+                  {largeNumberFormat(post.numUpvotes)}
+                </PostStat>
+                <PostStat>
+                  <CommentIcon />
+                  {largeNumberFormat(post.numComments)}
+                </PostStat>
               </PostStats>
             </CommentInfo>
           </PostContainer>
