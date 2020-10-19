@@ -1,5 +1,6 @@
 import { gql } from 'graphql-request';
 import { Author } from './comments';
+import { Connection } from './common';
 
 export interface Source {
   __typename?: string;
@@ -11,9 +12,9 @@ export interface Post {
   __typename?: string;
   id: string;
   title: string;
-  permalink: string;
+  permalink?: string;
   image: string;
-  createdAt: string;
+  createdAt?: string;
   readTime?: number;
   tags?: string[];
   source: Source;
@@ -23,6 +24,7 @@ export interface Post {
   numUpvotes: number;
   numComments: number;
   author?: Author;
+  views?: number;
 }
 
 export interface PostData {
@@ -110,6 +112,41 @@ export const DELETE_POST_MUTATION = gql`
   mutation DeletePost($id: ID!) {
     deletePost(id: $id) {
       _
+    }
+  }
+`;
+
+export interface AuthorFeedData {
+  page: Connection<Post>;
+}
+
+export const AUTHOR_FEED_QUERY = gql`
+  query AuthorFeed($userId: ID!, $after: String, $first: Int) {
+    page: authorFeed(
+      author: $userId
+      after: $after
+      first: $first
+      ranking: TIME
+    ) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          id
+          title
+          commentsPermalink
+          image
+          source {
+            name
+            image
+          }
+          numUpvotes
+          numComments
+          views
+        }
+      }
     }
   }
 `;

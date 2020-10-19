@@ -252,7 +252,7 @@ const basePath = `/[userId]`;
 const tabs: Tab[] = [
   {
     path: basePath,
-    title: 'Comments',
+    title: 'Activity',
   },
   {
     path: `${basePath}/reputation`,

@@ -23,6 +23,7 @@
           "content-visibility"
         ]
       }
-    ]
+    ],
+    "no-descending-specificity": null
   }
 }

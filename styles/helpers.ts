@@ -12,3 +12,11 @@ export const focusOutline = `
 `;
 
 export const pageMaxWidth = '40rem';
+
+export const multilineTextOverflow = `
+  display: block;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
