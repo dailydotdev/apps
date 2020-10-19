@@ -7,13 +7,13 @@ import { focusOutline } from '../../styles/helpers';
 import { InfiniteQueryResult } from 'react-query/types/core/types';
 import { Connection } from '../../graphql/common';
 
-const Section = styled.section`
+export const ActivityContainer = styled.section`
   display: flex;
   flex-direction: column;
   margin-top: ${size10};
 `;
 
-const SectionTitle = styled.h2`
+export const ActivitySectionTitle = styled.h2`
   display: flex;
   margin: 0 0 ${size4};
   color: var(--theme-primary);
@@ -69,11 +69,11 @@ export default function ActivitySection<TElement, TError>({
     query.canFetchMore;
 
   return (
-    <Section>
-      <SectionTitle>
+    <ActivityContainer>
+      <ActivitySectionTitle>
         {title}
         {count >= 0 && <span>({count})</span>}
-      </SectionTitle>
+      </ActivitySectionTitle>
       {showEmptyScreen && emptyScreen}
       {query.data?.map((page) => (
         <Fragment key={page.page.pageInfo.endCursor}>
@@ -83,6 +83,6 @@ export default function ActivitySection<TElement, TError>({
       {showLoadMore && (
         <LoadMore onClick={() => query.fetchMore()}>Load more ▸</LoadMore>
       )}
-    </Section>
+    </ActivityContainer>
   );
 }

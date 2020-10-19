@@ -10,7 +10,7 @@ type CommentStats = { numComments: number; numCommentUpvotes: number };
 export type UserStats = PostStats & CommentStats;
 export type UserStatsData = { userStats: UserStats };
 
-export const USER_STATS = gql`
+export const USER_STATS_QUERY = gql`
   query UserStats($id: ID!) {
     userStats(id: $id) {
       numCommentUpvotes

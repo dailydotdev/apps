@@ -5,13 +5,14 @@ import {
   UserCommentsData,
 } from '../graphql/comments';
 import ProfilePage from '../pages/[userId]/index';
-import { render, RenderResult, screen } from '@testing-library/react';
+import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import AuthContext from '../components/AuthContext';
 import { PublicProfile } from '../lib/user';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
 import nock from 'nock';
 import { Connection } from '../graphql/common';
 import { AUTHOR_FEED_QUERY, AuthorFeedData, Post } from '../graphql/posts';
+import { USER_STATS_QUERY, UserStats, UserStatsData } from '../graphql/users';
 
 beforeEach(() => {
   nock.cleanAll();
@@ -96,6 +97,30 @@ const createFeedMock = (
   },
 });
 
+const defaultStats: UserStats = {
+  numPosts: 123,
+  numComments: 52,
+  numPostUpvotes: null,
+  numPostViews: null,
+  numCommentUpvotes: null,
+};
+
+const createUserStatsMock = (
+  stats = defaultStats,
+): MockedGraphQLResponse<UserStatsData> => ({
+  request: {
+    query: USER_STATS_QUERY,
+    variables: {
+      id: 'u2',
+    },
+  },
+  result: {
+    data: {
+      userStats: stats,
+    },
+  },
+});
+
 const defaultProfile: PublicProfile = {
   id: 'u2',
   name: 'Daily Dev',
@@ -111,7 +136,11 @@ const defaultProfile: PublicProfile = {
 };
 
 const renderComponent = (
-  mocks: MockedGraphQLResponse[] = [createCommentsMock(), createFeedMock()],
+  mocks: MockedGraphQLResponse[] = [
+    createCommentsMock(),
+    createFeedMock(),
+    createUserStatsMock(),
+  ],
   profile: Partial<PublicProfile> = {},
 ): RenderResult => {
   mocks.forEach(mockGraphQL);
@@ -130,23 +159,57 @@ const renderComponent = (
   );
 };
 
+it('should show overall post views', async () => {
+  renderComponent([
+    createCommentsMock(),
+    createFeedMock(),
+    createUserStatsMock({
+      numPosts: 123,
+      numComments: 52,
+      numPostUpvotes: 2,
+      numPostViews: 1789,
+      numCommentUpvotes: 999,
+    }),
+  ]);
+  await waitFor(() => nock.isDone());
+  const el = await screen.findByText('1,789');
+  expect(el).toBeInTheDocument();
+});
+
+it('should show overall upvotes', async () => {
+  renderComponent([
+    createCommentsMock(),
+    createFeedMock(),
+    createUserStatsMock({
+      numPosts: 123,
+      numComments: 52,
+      numPostUpvotes: 2,
+      numPostViews: 1789,
+      numCommentUpvotes: 999,
+    }),
+  ]);
+  await waitFor(() => nock.isDone());
+  const el = await screen.findByText('1,001');
+  expect(el).toBeInTheDocument();
+});
+
 it('should show the number of upvotes per comment', async () => {
   renderComponent();
-  await new Promise((resolve) => setTimeout(resolve, 0)); // wait for response
+  await waitFor(() => nock.isDone());
   const el = await screen.findByText('50');
   expect(el).toBeInTheDocument();
 });
 
 it('should format creation time of comment', async () => {
   renderComponent();
-  await new Promise((resolve) => setTimeout(resolve, 0)); // wait for response
+  await waitFor(() => nock.isDone());
   const el = await screen.findByText('Jul 26, 2020');
   expect(el).toBeInTheDocument();
 });
 
 it('should add link to the comment', async () => {
   renderComponent();
-  await new Promise((resolve) => setTimeout(resolve, 0)); // wait for response
+  await waitFor(() => nock.isDone());
   const el = await screen.findByLabelText('My comment');
   expect(el).toHaveAttribute('href', 'https://daily.dev/c1');
 });
@@ -161,35 +224,35 @@ it('should show empty screen when no comments', async () => {
       edges: [],
     }),
   ]);
-  await new Promise((resolve) => setTimeout(resolve, 0)); // wait for response
+  await waitFor(() => nock.isDone());
   const el = await screen.findByTestId('emptyComments');
   expect(el).toBeInTheDocument();
 });
 
 it('should show the number of upvotes per post', async () => {
   renderComponent();
-  await new Promise((resolve) => setTimeout(resolve, 0)); // wait for response
+  await waitFor(() => nock.isDone());
   const el = await screen.findByText('50');
   expect(el).toBeInTheDocument();
 });
 
 it('should show the number of comments per post', async () => {
   renderComponent();
-  await new Promise((resolve) => setTimeout(resolve, 0)); // wait for response
+  await waitFor(() => nock.isDone());
   const el = await screen.findByText('5');
   expect(el).toBeInTheDocument();
 });
 
 it('should show the number of views per post', async () => {
   renderComponent();
-  await new Promise((resolve) => setTimeout(resolve, 0)); // wait for response
+  await waitFor(() => nock.isDone());
   const el = await screen.findByText('1.2K');
   expect(el).toBeInTheDocument();
 });
 
 it('should add link to the post', async () => {
   renderComponent();
-  await new Promise((resolve) => setTimeout(resolve, 0)); // wait for response
+  await waitFor(() => nock.isDone());
   const el = await screen.findByLabelText('Learn SQL');
   expect(el).toHaveAttribute(
     'href',
@@ -208,7 +271,28 @@ it('should show empty screen when no posts', async () => {
       edges: [],
     }),
   ]);
-  await new Promise((resolve) => setTimeout(resolve, 0)); // wait for response
+  await waitFor(() => nock.isDone());
   const el = await screen.findByTestId('emptyPosts');
   expect(el).toBeInTheDocument();
+});
+
+it('should show the total number of posts', async () => {
+  renderComponent();
+  await waitFor(() => nock.isDone());
+  const el = await screen.findByText('(123)');
+  expect(el).toBeInTheDocument();
+});
+
+it('should show the total number of comments', async () => {
+  renderComponent();
+  await waitFor(() => nock.isDone());
+  const el = await screen.findByText('(52)');
+  expect(el).toBeInTheDocument();
+});
+
+it('should not show overall stats when not available', async () => {
+  renderComponent();
+  await waitFor(() => nock.isDone());
+  const el = screen.queryByText('Article views');
+  expect(el).toBeNull();
 });
