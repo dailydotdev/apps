@@ -57,7 +57,7 @@ export interface PostCommentsData {
 }
 
 export interface UserCommentsData {
-  userComments: Connection<Comment>;
+  page: Connection<Comment>;
 }
 
 export interface UpvoteCommentData {
@@ -84,7 +84,7 @@ export const POST_COMMENTS_QUERY = gql`
 
 export const USER_COMMENTS_QUERY = gql`
   query UserComments($userId: ID!, $after: String, $first: Int) {
-    userComments(userId: $userId, after: $after, first: $first) {
+    page: userComments(userId: $userId, after: $after, first: $first) {
       pageInfo {
         endCursor
         hasNextPage
