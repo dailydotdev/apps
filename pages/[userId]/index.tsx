@@ -117,6 +117,7 @@ const CommentContent = styled.p`
   ${tablet} {
     flex: 1;
     margin-right: ${size6};
+    max-width: ${sizeN(77)};
   }
 `;
 
@@ -160,9 +161,16 @@ const SourceImage = styled(LazyImage).attrs({ ratio: '100%' })`
   top: 50%;
   left: 0;
   width: ${size8};
-  border: ${size1} solid var(--theme-background-primary);
+  height: ${size8};
+  background: var(--theme-background-primary);
   border-radius: 100%;
   transform: translate(-50%, -50%);
+
+  img {
+    width: ${size6};
+    height: ${size6};
+    border-radius: 100%;
+  }
 `;
 
 const PostStats = styled.div`
@@ -185,6 +193,12 @@ const PostStat = styled.div`
   .icon {
     font-size: ${size5};
     margin-right: ${size1};
+  }
+`;
+
+const PostContent = styled(CommentContent)`
+  ${tablet} {
+    max-width: ${sizeN(70)};
   }
 `;
 
@@ -284,7 +298,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
               />
             </PostImageContainer>
             <CommentInfo as="div">
-              <CommentContent>{post.title}</CommentContent>
+              <PostContent>{post.title}</PostContent>
               <PostStats>
                 {post.views >= 0 && (
                   <PostStat>
