@@ -1,6 +1,7 @@
-import { useMemo } from 'react';
-import { getLoggedUser, LoggedUser } from './user';
+import { useEffect, useMemo } from 'react';
 import { useQuery, useQueryCache } from 'react-query';
+import { AnonymousUser, getLoggedUser, LoggedUser } from './user';
+import usePersistentState from './usePersistentState';
 
 export default function useLoggedUser(): [
   LoggedUser | null,
@@ -8,25 +9,36 @@ export default function useLoggedUser(): [
   string,
   boolean,
 ] {
+  const queryKey = 'loggedUser';
+
+  const [cachedUser, setCachedUser] = usePersistentState<
+    AnonymousUser | LoggedUser
+  >('user', null);
+
   const cache = useQueryCache();
-  const { data: fetchedUser, isLoading } = useQuery(
-    'loggedUser',
-    getLoggedUser,
-  );
+  const { data: fetchedUser, isLoading } = useQuery(queryKey, getLoggedUser);
+
+  const availableUser = fetchedUser || cachedUser;
 
   const user = useMemo<LoggedUser | null>(() => {
-    if (fetchedUser && 'providers' in fetchedUser) {
-      return fetchedUser;
+    if (availableUser && 'providers' in availableUser) {
+      return availableUser;
     }
     return null;
-  }, [fetchedUser]);
+  }, [availableUser]);
 
-  const setUser = (user: LoggedUser) =>
-    cache.setQueryData<LoggedUser>('loggedUser', user);
+  const setUser = (user: LoggedUser | AnonymousUser) =>
+    cache.setQueryData(queryKey, user);
 
-  const trackingId = useMemo<string | null>(() => fetchedUser?.id, [
-    fetchedUser,
+  const trackingId = useMemo<string | null>(() => availableUser?.id, [
+    availableUser,
   ]);
+
+  useEffect(() => {
+    if (fetchedUser) {
+      setCachedUser(fetchedUser);
+    }
+  }, [fetchedUser]);
 
   return [user, setUser, trackingId, isLoading && !fetchedUser];
 }
