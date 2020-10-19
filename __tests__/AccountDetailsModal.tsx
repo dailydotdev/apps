@@ -14,7 +14,7 @@ const logout = jest.fn();
 const onRequestClose = jest.fn();
 
 beforeEach(() => {
-  jest.resetAllMocks();
+  jest.clearAllMocks();
 });
 
 const defaultUser = {

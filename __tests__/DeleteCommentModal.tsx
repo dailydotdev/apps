@@ -9,7 +9,7 @@ import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
 const onRequestClose = jest.fn();
 
 beforeEach(() => {
-  jest.resetAllMocks();
+  jest.clearAllMocks();
 });
 
 const renderComponent = (

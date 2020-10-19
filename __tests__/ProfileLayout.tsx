@@ -13,7 +13,7 @@ jest.mock('next/router', () => ({
 }));
 
 beforeEach(() => {
-  jest.resetAllMocks();
+  jest.clearAllMocks();
 });
 
 const defaultLoggedUser: LoggedUser = {

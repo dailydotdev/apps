@@ -16,7 +16,7 @@ jest.mock('../lib/user', () => ({
 }));
 
 beforeEach(() => {
-  jest.resetAllMocks();
+  jest.clearAllMocks();
 });
 
 const defaultUser: LoggedUser = {

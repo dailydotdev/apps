@@ -8,7 +8,7 @@ const onRequestClose = jest.fn();
 const onDeleteComment = jest.fn();
 
 beforeEach(() => {
-  jest.resetAllMocks();
+  jest.clearAllMocks();
 });
 
 const renderComponent = (props: Partial<Props> = {}): RenderResult => {

@@ -9,7 +9,7 @@ import nock from 'nock';
 
 beforeEach(() => {
   nock.cleanAll();
-  jest.resetAllMocks();
+  jest.clearAllMocks();
   Object.defineProperty(global, 'IntersectionObserver', {
     writable: true,
     value: jest.fn().mockImplementation(() => ({
