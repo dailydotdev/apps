@@ -21,7 +21,7 @@ const onSuccessfulSubmit = jest.fn();
 const updateUser = jest.fn();
 
 beforeEach(() => {
-  jest.resetAllMocks();
+  jest.clearAllMocks();
 });
 
 const defaultUser = {

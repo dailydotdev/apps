@@ -34,7 +34,7 @@ const onComment = jest.fn();
 const onDelete = jest.fn();
 
 beforeEach(() => {
-  jest.resetAllMocks();
+  jest.clearAllMocks();
 });
 
 const renderLayout = (

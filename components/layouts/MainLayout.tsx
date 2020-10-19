@@ -20,7 +20,7 @@ import BellIcon from '../../icons/bell.svg';
 import BellNotifyIcon from '../../icons/bell_notify.svg';
 import GiftIcon from '../../icons/gift.svg';
 import { typoLil2, typoNuggets } from '../../styles/typography';
-import usePersistentFlag from '../../lib/usePersistentFlag';
+import usePersistentState from '../../lib/usePersistentState';
 
 export interface Props extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -128,15 +128,16 @@ export default function MainLayout({
 }: Props): ReactElement {
   const { user, showLogin, loadingUser } = useContext(AuthContext);
   const [showAbout, setShowAbout] = useState(false);
-  const [showBadge, setShowBadge] = usePersistentFlag('about', false);
-  const [didClickedTshirt, setDidClickTshirt] = usePersistentFlag(
+  const [showBadge, setShowBadge] = usePersistentState('about', false, true);
+  const [didClickedTshirt, setDidClickTshirt] = usePersistentState(
     'tshirt',
+    true,
     false,
   );
 
-  const onAboutClick = () => {
+  const onAboutClick = async () => {
     setShowAbout(true);
-    setShowBadge(false);
+    await setShowBadge(false);
   };
 
   return (

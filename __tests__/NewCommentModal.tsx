@@ -28,7 +28,7 @@ const onComment = jest.fn();
 
 beforeEach(() => {
   nock.cleanAll();
-  jest.resetAllMocks();
+  jest.clearAllMocks();
 });
 
 const renderComponent = (

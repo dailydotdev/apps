@@ -13,7 +13,7 @@ jest.mock('../lib/user', () => ({
 const logout = jest.fn();
 
 beforeEach(() => {
-  jest.resetAllMocks();
+  jest.clearAllMocks();
 });
 
 const defaultUser = {
