@@ -33,6 +33,7 @@ const LoadMore = styled.button`
   background: none;
   border: none;
   color: ${colorWater50};
+  cursor: pointer;
   ${typoLil1}
   ${focusOutline}
 
