@@ -300,7 +300,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
             <CommentInfo as="div">
               <PostContent>{post.title}</PostContent>
               <PostStats>
-                {post.views >= 0 && (
+                {post.views !== null && (
                   <PostStat>
                     <EyeIcon />
                     {largeNumberFormat(post.views)}
