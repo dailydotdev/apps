@@ -40,5 +40,5 @@ export default function useLoggedUser(): [
     }
   }, [fetchedUser]);
 
-  return [user, setUser, trackingId, isLoading && !fetchedUser];
+  return [user, setUser, trackingId, isLoading && !availableUser];
 }
