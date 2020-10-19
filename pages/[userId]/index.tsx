@@ -23,6 +23,7 @@ import UpvoteIcon from '../../icons/upvote.svg';
 import CommentIcon from '../../icons/comment.svg';
 import EyeIcon from '../../icons/eye.svg';
 import {
+  typoDouble,
   typoLil1,
   typoLil2,
   typoMicro2,
@@ -31,9 +32,12 @@ import {
 import { format } from 'date-fns';
 import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
-import { USER_STATS, UserStatsData } from '../../graphql/users';
+import { USER_STATS_QUERY, UserStatsData } from '../../graphql/users';
 import { multilineTextOverflow } from '../../styles/helpers';
-import ActivitySection from '../../components/profile/ActivitySection';
+import ActivitySection, {
+  ActivityContainer,
+  ActivitySectionTitle,
+} from '../../components/profile/ActivitySection';
 import { AUTHOR_FEED_QUERY, AuthorFeedData } from '../../graphql/posts';
 import LazyImage from '../../components/LazyImage';
 import { largeNumberFormat } from '../../lib/numberFormat';
@@ -202,13 +206,37 @@ const PostContent = styled(CommentContent)`
   }
 `;
 
+const OverallStats = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, ${sizeN(36)});
+  grid-column-gap: ${size6};
+`;
+
+const OverallStatContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  padding: ${size3};
+  background: var(--theme-background-highlight);
+  border-radius: ${size3};
+`;
+
+const OverallStatData = styled.div`
+  color: var(--theme-primary);
+  ${typoDouble}
+`;
+
+const OverallStatDescription = styled.div`
+  color: var(--theme-secondary);
+  ${typoMicro2}
+`;
+
 const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
   const { user } = useContext(AuthContext);
 
   const { data: userStats } = useQuery<UserStatsData>(
     ['user_stats', profile?.id],
     (key: string, userId: string) =>
-      request(`${apiUrl}/graphql`, USER_STATS, {
+      request(`${apiUrl}/graphql`, USER_STATS_QUERY, {
         id: userId,
       }),
     {
@@ -279,7 +307,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
 
   const postsSection = (
     <ActivitySection
-      title={`${isSameUser ? 'Your ' : ''}Posts`}
+      title={`${isSameUser ? 'Your ' : ''}Articles`}
       query={posts}
       count={userStats?.userStats?.numPosts}
       emptyScreen={
@@ -324,8 +352,36 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
 
   return (
     <Container>
-      {postsSection}
-      {commentsSection}
+      {userStats?.userStats && (
+        <>
+          {userStats.userStats?.numPostViews !== null && (
+            <ActivityContainer>
+              <ActivitySectionTitle>Stats</ActivitySectionTitle>
+              <OverallStats>
+                <OverallStatContainer>
+                  <OverallStatData>
+                    {userStats.userStats.numPostViews.toLocaleString()}
+                  </OverallStatData>
+                  <OverallStatDescription>Article views</OverallStatDescription>
+                </OverallStatContainer>
+                <OverallStatContainer>
+                  <OverallStatData>
+                    {(
+                      userStats.userStats.numPostUpvotes +
+                      userStats.userStats.numCommentUpvotes
+                    ).toLocaleString()}
+                  </OverallStatData>
+                  <OverallStatDescription>
+                    Upvotes earned
+                  </OverallStatDescription>
+                </OverallStatContainer>
+              </OverallStats>
+            </ActivityContainer>
+          )}
+          {postsSection}
+          {commentsSection}
+        </>
+      )}
     </Container>
   );
 };
