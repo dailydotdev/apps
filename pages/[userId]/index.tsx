@@ -1,4 +1,11 @@
-import React, { ReactElement, useContext } from 'react';
+import React, {
+  FormEvent,
+  ReactElement,
+  ReactNode,
+  useContext,
+  useRef,
+  useState,
+} from 'react';
 import Link from 'next/link';
 import { useInfiniteQuery, useQuery } from 'react-query';
 import {
@@ -43,6 +50,14 @@ import LazyImage from '../../components/LazyImage';
 import { largeNumberFormat } from '../../lib/numberFormat';
 import AuthContext from '../../components/AuthContext';
 import { tablet } from '../../styles/media';
+import {
+  loggedUserToProfile,
+  updateProfile,
+  UserProfile,
+} from '../../lib/user';
+import { formToJson } from '../../lib/form';
+import TextField from '../../components/TextField';
+import { InvertButton } from '../../components/Buttons';
 
 export const getStaticProps = getProfileStaticProps;
 export const getStaticPaths = getProfileStaticPaths;
@@ -230,8 +245,25 @@ const OverallStatDescription = styled.div`
   ${typoMicro2}
 `;
 
+const TwitterForm = styled.form`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-top: ${size6};
+
+  ${InvertButton} {
+    width: ${sizeN(30)};
+  }
+`;
+
+const FormField = styled(TextField)`
+  max-width: ${sizeN(78)};
+  align-self: stretch;
+  margin-bottom: ${size4};
+`;
+
 const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
-  const { user } = useContext(AuthContext);
+  const { user, updateUser } = useContext(AuthContext);
 
   const { data: userStats } = useQuery<UserStatsData>(
     ['user_stats', profile?.id],
@@ -274,6 +306,39 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
     },
   );
 
+  const formRef = useRef<HTMLFormElement>(null);
+  const [disableSubmit, setDisableSubmit] = useState<boolean>(true);
+  const [twitterHint, setTwitterHint] = useState<string>();
+
+  const updateDisableSubmit = () => {
+    if (formRef.current) {
+      setDisableSubmit(!formRef.current.checkValidity());
+    }
+  };
+
+  const onSubmit = async (event: FormEvent): Promise<void> => {
+    event.preventDefault();
+    setDisableSubmit(true);
+    const data = formToJson<UserProfile>(
+      formRef.current,
+      loggedUserToProfile(user),
+    );
+
+    const res = await updateProfile(data);
+    if ('error' in res) {
+      if ('code' in res && res.code === 1) {
+        if (res.field === 'twitter') {
+          setTwitterHint('This Twitter handle is already used');
+        } else {
+          setTwitterHint('Please contact us hi@daily.dev');
+        }
+      }
+    } else {
+      updateUser({ ...user, ...res });
+      setDisableSubmit(false);
+    }
+  };
+
   const isSameUser = profile?.id === user?.id;
 
   const commentsSection = (
@@ -305,16 +370,46 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
     />
   );
 
+  let postsEmptyScreen: ReactNode = null;
+  if (!isSameUser || user.twitter) {
+    postsEmptyScreen = (
+      <EmptyMessage data-testid="emptyPosts">No articles yet.</EmptyMessage>
+    );
+  } else if (!user.twitter) {
+    postsEmptyScreen = (
+      <>
+        <EmptyMessage data-testid="emptyPosts">
+          {`Track when articles you publish around the web got picked up by
+          daily.dev. Set up your Twitter handle and we'll do the rest 🙌`}
+        </EmptyMessage>
+        <TwitterForm ref={formRef} onSubmit={onSubmit}>
+          <FormField
+            inputId="twitter"
+            name="twitter"
+            label="Twitter"
+            value={user.twitter}
+            hint={twitterHint}
+            valid={!twitterHint}
+            placeholder="handle"
+            pattern="(\w){1,15}"
+            maxLength={15}
+            validityChanged={updateDisableSubmit}
+            valueChanged={() => twitterHint && setTwitterHint(null)}
+          />
+          <InvertButton type="submit" disabled={disableSubmit}>
+            Save
+          </InvertButton>
+        </TwitterForm>
+      </>
+    );
+  }
+
   const postsSection = (
     <ActivitySection
       title={`${isSameUser ? 'Your ' : ''}Articles`}
       query={posts}
       count={userStats?.userStats?.numPosts}
-      emptyScreen={
-        <EmptyMessage data-testid="emptyPosts">
-          {'No articles yet.'}
-        </EmptyMessage>
-      }
+      emptyScreen={postsEmptyScreen}
       elementToNode={(post) => (
         <Link href={post.commentsPermalink} passHref key={post.id}>
           <PostContainer as="a" aria-label={post.title}>

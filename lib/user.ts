@@ -33,6 +33,7 @@ export interface UserProfile {
   github?: string;
   portfolio?: string;
   bio?: string;
+  acceptedMarketing?: boolean;
 }
 
 export interface LoggedUser extends UserProfile {
@@ -41,7 +42,6 @@ export interface LoggedUser extends UserProfile {
   infoConfirmed?: boolean;
   premium?: boolean;
   providers: string[];
-  acceptedMarketing?: boolean;
   roles?: Roles[];
   createdAt: string;
   reputation?: number;
@@ -89,6 +89,21 @@ export async function updateProfile(
     };
   }
   throw new Error('Unexpected response');
+}
+
+export function loggedUserToProfile(user: LoggedUser): UserProfile {
+  return {
+    name: user.name,
+    email: user.email,
+    username: user.username,
+    company: user.company,
+    title: user.title,
+    twitter: user.twitter,
+    github: user.github,
+    portfolio: user.github,
+    bio: user.bio,
+    acceptedMarketing: user.acceptedMarketing,
+  };
 }
 
 export async function changeProfileImage(file: File): Promise<LoggedUser> {
