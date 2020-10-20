@@ -15,6 +15,7 @@ import TextField from '../TextField';
 import Switch from '../Switch';
 import ArrowIcon from '../../icons/arrow.svg';
 import AuthContext from '../AuthContext';
+import { formToJson } from '../../lib/form';
 
 export interface ProfileForm extends HTMLAttributes<HTMLFormElement> {
   setDisableSubmit?: (disable: boolean) => void;
@@ -134,21 +135,11 @@ export default function ProfileForm({
   const onSubmit = async (event: FormEvent): Promise<void> => {
     event.preventDefault();
     setDisableSubmit?.(true);
-    const data: UserProfile = Array.from(formRef.current.elements).reduce(
-      (acc, val: HTMLInputElement) => {
-        if (val.name === '') {
-          return acc;
-        }
-        if (val.type === 'checkbox') {
-          return { ...acc, [val.name]: val.checked };
-        }
-        return {
-          ...acc,
-          [val.name]: val.value.length ? val.value : null,
-        };
-      },
-      { name: '', email: '', username: '' },
-    );
+    const data = formToJson<UserProfile>(formRef.current, {
+      name: '',
+      email: '',
+      username: '',
+    });
 
     const res = await updateProfile(data);
     if ('error' in res) {
