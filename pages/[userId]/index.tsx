@@ -379,8 +379,8 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
     postsEmptyScreen = (
       <>
         <EmptyMessage data-testid="emptyPosts">
-          Track when articles you publish around the web got picked up by
-          daily.dev. Set up your Twitter handle and we'll do the rest 🙌
+          {`Track when articles you publish around the web got picked up by
+          daily.dev. Set up your Twitter handle and we'll do the rest 🙌`}
         </EmptyMessage>
         <TwitterForm ref={formRef} onSubmit={onSubmit}>
           <FormField
