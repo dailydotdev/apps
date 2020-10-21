@@ -20,6 +20,8 @@ import { logout as dispatchLogout } from '../lib/user';
 import { Router } from 'next/router';
 import { useCookieBanner } from '../lib/useCookieBanner';
 import useLoggedUser from '../lib/useLoggedUser';
+import ProductHuntBanner from '../components/ProductHuntBanner';
+import usePersistentState from '../lib/usePersistentState';
 
 const queryCache = new QueryCache();
 
@@ -46,6 +48,11 @@ export default function App({ Component, pageProps }: AppProps): ReactElement {
   const [user, setUser, trackingId, loadingUser] = useLoggedUser();
   const [loginIsOpen, setLoginIsOpen] = useState(false);
   const [showCookie, acceptCookies, updateCookieBanner] = useCookieBanner();
+  const [showProductHuntBanner, setShowProductHuntBanner] = usePersistentState(
+    'ph',
+    false,
+    true,
+  );
 
   const closeLogin = () => setLoginIsOpen(false);
 
@@ -119,6 +126,11 @@ export default function App({ Component, pageProps }: AppProps): ReactElement {
           contentLabel="Login Modal"
         />
         {showCookie && <CookieBanner onAccepted={acceptCookies} />}
+        {showProductHuntBanner && (
+          <ProductHuntBanner
+            onAccepted={() => setShowProductHuntBanner(false)}
+          />
+        )}
       </AuthContext.Provider>
     </ReactQueryCacheProvider>
   );
