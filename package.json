@@ -34,7 +34,7 @@
     "react-query": "^2.23.1",
     "styled-components": "^5.1.1",
     "styled-normalize": "^8.0.7",
-    "swr": "^0.3.5",
+    "swr": "^0.3.6",
     "universal-cookie": "^4.0.4"
   },
   "devDependencies": {
