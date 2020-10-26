@@ -8,3 +8,5 @@ export const privacyPolicy = 'https://daily.dev/privacy';
 export const cookiePolicy = 'https://daily.dev/cookies';
 export const reputationGuide =
   'https://daily.dev/posts/what-is-reputation-how-do-i-earn-it';
+export const ownershipGuide =
+  'https://daily.dev/posts/claiming-ownership-on-an-article-you-wrote';

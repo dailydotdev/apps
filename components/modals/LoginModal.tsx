@@ -9,6 +9,7 @@ import { typoJr } from '../../styles/typography';
 import { StyledModal, ModalCloseButton, Props } from './StyledModal';
 import { privacyPolicy, termsOfService } from '../../lib/constants';
 import { LegalNotice } from '../utilities';
+import { useRouter } from 'next/router';
 
 const MyModal = styled(StyledModal)`
   .Modal {
@@ -53,16 +54,18 @@ const Content = styled.div`
 export default function LoginModal(props: Props): ReactElement {
   // eslint-disable-next-line react/prop-types
   const { onRequestClose } = props;
+  const router = useRouter();
 
   const authUrl = (provider: string, redirectUri: string) =>
     `/api/v1/auth/authorize?provider=${provider}&redirect_uri=${encodeURI(
       redirectUri,
-    )}&skip_authenticate=true`;
+    )}&skip_authenticate=true&register_mode=${
+      router.query.author ? 'author' : 'default'
+    }`;
 
   const login = async (provider: string) => {
     const redirectUri = `${window.location.origin}${window.location.pathname}`;
-    const url = authUrl(provider, redirectUri);
-    window.location.replace(url);
+    window.location.href = authUrl(provider, redirectUri);
   };
 
   return (

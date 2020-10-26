@@ -107,7 +107,7 @@ export default function AccountDetailsModal(props: ModalProps): ReactElement {
           id="profileForm"
           setDisableSubmit={setDisableSubmit}
           onSuccessfulSubmit={() => props.onRequestClose(null)}
-          updateMode={true}
+          mode="update"
         />
       </Container>
       <Footer>

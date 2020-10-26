@@ -22,21 +22,25 @@ import { LoggedUser } from '../lib/user';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
 import nock from 'nock';
 import { QueryCache, ReactQueryCacheProvider } from 'react-query';
+import { mocked } from 'ts-jest/utils';
+import { NextRouter, useRouter } from 'next/router';
 
 const showLogin = jest.fn();
 
 jest.mock('next/router', () => ({
-  useRouter() {
-    return {
-      isFallback: false,
-      query: {},
-    };
-  },
+  useRouter: jest.fn(),
 }));
 
 beforeEach(() => {
   nock.cleanAll();
-  showLogin.mockReset();
+  jest.clearAllMocks();
+  mocked(useRouter).mockImplementation(
+    () =>
+      (({
+        isFallback: false,
+        query: {},
+      } as unknown) as NextRouter),
+  );
 });
 
 const createPostMock = (
@@ -330,5 +334,24 @@ it('should show author link when author is defined', async () => {
     createCommentsMock(),
   ]);
   const el = await screen.findByTestId('authorLink');
+  expect(el).toBeInTheDocument();
+});
+
+it('should not show author onboarding by default', () => {
+  renderPost();
+  const el = screen.queryByTestId('authorOnboarding');
+  expect(el).toBeFalsy();
+});
+
+it('should show author onboarding when the query param is set', async () => {
+  mocked(useRouter).mockImplementation(
+    () =>
+      (({
+        isFallback: false,
+        query: { author: 'true' },
+      } as unknown) as NextRouter),
+  );
+  renderPost();
+  const el = await screen.findByTestId('authorOnboarding');
   expect(el).toBeInTheDocument();
 });

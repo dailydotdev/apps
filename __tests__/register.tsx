@@ -4,6 +4,11 @@ import Page from '../pages/register';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import AuthContext from '../components/AuthContext';
 import { mocked } from 'ts-jest/utils';
+import { NextRouter, useRouter } from 'next/router';
+
+jest.mock('next/router', () => ({
+  useRouter: jest.fn(),
+}));
 
 jest.mock('../lib/user', () => ({
   ...jest.requireActual('../lib/user'),
@@ -14,6 +19,14 @@ const logout = jest.fn();
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mocked(useRouter).mockImplementation(
+    () =>
+      (({
+        isFallback: false,
+        query: {},
+        replace: jest.fn(),
+      } as unknown) as NextRouter),
+  );
 });
 
 const defaultUser = {
@@ -84,4 +97,29 @@ it('should logout on button click', async () => {
   renderComponent();
   screen.getByText('Logout').click();
   await waitFor(() => expect(logout).toBeCalledTimes(1));
+});
+
+it('should enable submit when form is valid', () => {
+  renderComponent({ username: 'idoshamun' });
+  const el = screen.getByText('Finish');
+  expect(el).toBeEnabled();
+});
+
+it('should set twitter to optional by default', async () => {
+  renderComponent();
+  const el = await screen.findByPlaceholderText('Twitter');
+  expect(el.getAttribute('required')).toBeFalsy();
+});
+
+it('should set twitter to required in author mode', async () => {
+  mocked(useRouter).mockImplementation(
+    () =>
+      (({
+        isFallback: false,
+        query: { mode: 'author' },
+      } as unknown) as NextRouter),
+  );
+  renderComponent();
+  const el = await screen.findByPlaceholderText('Twitter');
+  expect(el).toBeRequired();
 });

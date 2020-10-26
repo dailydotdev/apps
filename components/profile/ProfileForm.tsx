@@ -17,10 +17,12 @@ import ArrowIcon from '../../icons/arrow.svg';
 import AuthContext from '../AuthContext';
 import { formToJson } from '../../lib/form';
 
+export type RegistrationMode = 'default' | 'author' | 'update';
+
 export interface ProfileForm extends HTMLAttributes<HTMLFormElement> {
   setDisableSubmit?: (disable: boolean) => void;
   onSuccessfulSubmit?: () => void | Promise<void>;
-  updateMode?: boolean;
+  mode?: RegistrationMode;
 }
 
 const Form = styled.form`
@@ -100,7 +102,7 @@ const defaultEmailHint = 'Not publicly shared';
 export default function ProfileForm({
   setDisableSubmit,
   onSuccessfulSubmit,
-  updateMode,
+  mode,
   ...props
 }: ProfileForm): ReactElement {
   const { user, updateUser } = useContext(AuthContext);
@@ -161,6 +163,23 @@ export default function ProfileForm({
     }
   };
 
+  const twitterField = (
+    <FormField
+      inputId="twitter"
+      name="twitter"
+      label="Twitter"
+      value={user.twitter}
+      hint={twitterHint}
+      valid={!twitterHint}
+      placeholder="handle"
+      pattern="(\w){1,15}"
+      maxLength={15}
+      validityChanged={updateDisableSubmit}
+      valueChanged={() => twitterHint && setTwitterHint(null)}
+      required={mode === 'author'}
+    />
+  );
+
   const optionalFields = (
     <>
       <SectionHeading>About</SectionHeading>
@@ -189,19 +208,7 @@ export default function ProfileForm({
         validityChanged={updateDisableSubmit}
       />
       <SectionHeading>Social</SectionHeading>
-      <FormField
-        inputId="twitter"
-        name="twitter"
-        label="Twitter"
-        value={user.twitter}
-        hint={twitterHint}
-        valid={!twitterHint}
-        placeholder="handle"
-        pattern="(\w){1,15}"
-        maxLength={15}
-        validityChanged={updateDisableSubmit}
-        valueChanged={() => twitterHint && setTwitterHint(null)}
-      />
+      {mode !== 'author' && twitterField}
       <FormField
         inputId="github"
         name="github"
@@ -265,7 +272,8 @@ export default function ProfileForm({
           emailHint !== defaultEmailHint && setEmailHint(defaultEmailHint)
         }
       />
-      {updateMode && (
+      {mode === 'author' && twitterField}
+      {mode === 'update' && (
         <>
           {optionalFields}
           <SectionHeading>Settings</SectionHeading>
@@ -278,7 +286,7 @@ export default function ProfileForm({
       >
         Subscribe to the Weekly Recap
       </FormSwitch>
-      {!updateMode && (
+      {mode !== 'update' && (
         <OptionalFields>
           <OptionalSummary>
             More details (optional)

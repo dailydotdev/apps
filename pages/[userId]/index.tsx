@@ -61,6 +61,7 @@ import { InvertButton } from '../../components/Buttons';
 import { useHideOnModal } from '../../lib/useHideOnModal';
 import AccountDetailsModal from '../../components/modals/AccountDetailsModal';
 import { colorWater50 } from '../../styles/colors';
+import { ownershipGuide } from '../../lib/constants';
 
 export const getStaticProps = getProfileStaticProps;
 export const getStaticPaths = getProfileStaticPaths;
@@ -397,11 +398,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
         No articles yet.
         <br />
         <br />
-        <a
-          href="https://daily.dev/posts/claiming-ownership-on-an-article-you-wrote"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <a href={ownershipGuide} target="_blank" rel="noopener noreferrer">
           How daily.dev picks up new articles
         </a>
         <br />
