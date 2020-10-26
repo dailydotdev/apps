@@ -27,21 +27,31 @@ import {
   size4,
   size6,
   size8,
+  sizeN,
 } from '../../styles/sizes';
 import {
   typoDouble,
+  typoLil2,
+  typoLil2Base,
   typoMicro1,
   typoMicro2,
   typoMicro2Base,
+  typoNuggets,
   typoSmall,
 } from '../../styles/typography';
 import { postDateFormat } from '../../lib/dateFormat';
-import { FloatButton, IconButton } from '../../components/Buttons';
+import {
+  FloatButton,
+  HollowButton,
+  IconButton,
+  InvertButton,
+} from '../../components/Buttons';
 import OpenLinkIcon from '../../icons/open_link.svg';
 import UpvoteIcon from '../../icons/upvote.svg';
 import CommentIcon from '../../icons/comment.svg';
 import ShareIcon from '../../icons/share.svg';
 import TrashIcon from '../../icons/trash.svg';
+import FeatherIcon from '../../icons/feather.svg';
 import LazyImage from '../../components/LazyImage';
 import {
   CANCEL_UPVOTE_MUTATION,
@@ -64,16 +74,16 @@ import {
   PostCommentsData,
 } from '../../graphql/comments';
 import { mobileL, mobileM } from '../../styles/media';
-import { colorPepper90 } from '../../styles/colors';
+import { colorCheese50, colorPepper90 } from '../../styles/colors';
 import { focusOutline } from '../../styles/helpers';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { ShareMobile } from '../../components/ShareMobile';
-import { getShareableLink } from '../../lib/share';
 import Head from 'next/head';
 import { useHideOnModal } from '../../lib/useHideOnModal';
 import request, { ClientError } from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import { ProfileLink } from '../../components/profile/ProfileLink';
+import { ownershipGuide } from '../../lib/constants';
 
 const NewCommentModal = dynamic(
   () => import('../../components/modals/NewCommentModal'),
@@ -226,6 +236,7 @@ const NewCommentContainer = styled.div`
   padding: ${size3} ${size4};
   background: var(--theme-background-primary);
   box-shadow: 0 -${size2} ${size6} 0 ${colorPepper90}3D;
+  z-index: 2;
 
   ${mobileL} {
     position: relative;
@@ -261,11 +272,85 @@ const NewCommentProfile = styled(SmallRoundedImage)`
 `;
 
 const Hint = styled.div`
-  margin: ${size6} 0;
-  padding-top: ${size6};
+  margin: 0 0 ${size6};
   color: var(--theme-secondary);
-  border-top: 0.063rem solid var(--theme-separator);
   ${typoMicro2}
+`;
+
+const Separator = styled.div`
+  height: 0.063rem;
+  margin: ${size6} 0;
+  background: var(--theme-separator);
+`;
+
+const AuthorOnboarding = styled.section`
+  padding: ${size6};
+  background: var(--theme-background-highlight);
+  border-radius: ${size4};
+
+  p {
+    margin: ${size4} 0;
+  }
+
+  ol {
+    margin: -${size1} 0;
+    padding-inline-start: ${size6};
+  }
+
+  li {
+    margin: ${size1} 0;
+  }
+
+  p,
+  ol {
+    color: var(--theme-secondary);
+    ${typoMicro2}
+  }
+`;
+
+const AuthorOnboardingHeader = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, max-content);
+  align-items: center;
+  column-gap: ${size3};
+
+  .icon {
+    grid-row-end: span 2;
+    font-size: ${size10};
+    color: ${colorCheese50};
+  }
+
+  h2,
+  h3 {
+    margin: 0;
+  }
+
+  h2 {
+    color: ${colorCheese50};
+    ${typoLil2}
+  }
+
+  h3 {
+    ${typoLil2Base}
+  }
+`;
+
+const AuthorOnboardingButtons = styled.div`
+  display: grid;
+  max-width: ${sizeN(74)};
+  grid-auto-flow: column;
+  grid-template-columns: 1fr max-content;
+  column-gap: ${size4};
+  margin-top: ${size6};
+
+  ${HollowButton} {
+    padding-left: ${size4};
+    padding-right: ${size4};
+    color: var(--theme-primary);
+    border-color: var(--theme-primary);
+    border-radius: ${size2};
+    ${typoNuggets}
+  }
 `;
 
 interface ParentComment {
@@ -300,25 +385,24 @@ const upvoteMutationConfig = (
 });
 
 const PostPage = ({ id, postData }: Props): ReactElement => {
-  const { isFallback } = useRouter();
+  const router = useRouter();
+  const { isFallback } = router;
 
   if (!isFallback && !id) {
     return <Custom404 />;
   }
 
   const { user, showLogin } = useContext(AuthContext);
-  const router = useRouter();
   const [parentComment, setParentComment] = useState<ParentComment>(null);
-  const [hasNativeShare, setHasNativeShare] = useState<boolean>(false);
+  const [hasNativeShare, setHasNativeShare] = useState(false);
   const [pendingComment, setPendingComment] = useState<{
     comment: Comment;
     parentId: string | null;
   }>(null);
-  const [showShareNewComment, setShowShareNewComment] = useState<boolean>(
-    false,
-  );
-  const [lastScroll, setLastScroll] = useState<number>(0);
-  const [showDeletePost, setShowDeletePost] = useState<boolean>(false);
+  const [showShareNewComment, setShowShareNewComment] = useState(false);
+  const [lastScroll, setLastScroll] = useState(0);
+  const [showDeletePost, setShowDeletePost] = useState(false);
+  const [authorOnboarding, setAuthorOnboarding] = useState(false);
 
   const queryCache = useQueryCache();
   const postQueryKey = ['post', id];
@@ -442,7 +526,9 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     if (router?.query.new) {
       setTimeout(() => setShowShareNewComment(true), 700);
     }
-    window.history.replaceState({}, document.title, getShareableLink());
+    if (router?.query.author) {
+      setAuthorOnboarding(true);
+    }
   }, [isFallback]);
 
   useHideOnModal(() => !!parentComment, [parentComment]);
@@ -575,11 +661,46 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             postAuthorId={postById?.post?.author?.id}
           />
         ))}
-        <Hint>
-          💡 Hint: The comment with most upvotes will be featured on the main
-          feed of daily.dev browser extension.
-        </Hint>
-        <ShareMobile share={sharePost} />
+        <Separator />
+        {authorOnboarding ? (
+          <AuthorOnboarding>
+            <AuthorOnboardingHeader>
+              <FeatherIcon />
+              <h2>Author</h2>
+              <h3>Is this your article?</h3>
+            </AuthorOnboardingHeader>
+            <p>Claim ownership and get the following perks:</p>
+            <ol>
+              <li>
+                Get notified when your articles are picked by daily.dev feed
+              </li>
+              <li>Exclusive author badge on your comments</li>
+              <li>Analytics report for every post you wrote</li>
+              <li>
+                Gain reputation points by earning upvotes on articles you wrote
+              </li>
+            </ol>
+            <AuthorOnboardingButtons data-testid="authorOnboarding">
+              <InvertButton onClick={showLogin}>Sign up</InvertButton>
+              <HollowButton
+                as="a"
+                href={ownershipGuide}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Learn more
+              </HollowButton>
+            </AuthorOnboardingButtons>
+          </AuthorOnboarding>
+        ) : (
+          <>
+            <Hint>
+              💡 Hint: The comment with most upvotes will be featured on the
+              main feed of daily.dev browser extension.
+            </Hint>
+            <ShareMobile share={sharePost} />
+          </>
+        )}
         <NewCommentContainer>
           <NewCommentButton onClick={openNewComment}>
             {user && (

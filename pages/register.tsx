@@ -9,7 +9,9 @@ import { HollowButton, InvertButton } from '../components/Buttons';
 import AuthContext from '../components/AuthContext';
 import { useRouter } from 'next/router';
 import EditImageWithJoinedDate from '../components/profile/EditImageWithJoinedDate';
-import ProfileForm from '../components/profile/ProfileForm';
+import ProfileForm, {
+  RegistrationMode,
+} from '../components/profile/ProfileForm';
 
 const Subheading = styled.h2`
   margin: ${size2} 0;
@@ -59,6 +61,7 @@ export default function Register(): ReactElement {
               id="profileForm"
               setDisableSubmit={setDisableSubmit}
               onSuccessfulSubmit={onSuccessfulSubmit}
+              mode={(router?.query.mode as RegistrationMode) || 'default'}
             />
             <FormButtons>
               <LogoutButton type="button" onClick={logout}>
