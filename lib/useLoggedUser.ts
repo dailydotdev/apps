@@ -5,7 +5,7 @@ import usePersistentState from './usePersistentState';
 
 export default function useLoggedUser(): [
   LoggedUser | null,
-  (LoggedUser) => void,
+  (LoggedUser) => Promise<void>,
   string,
   boolean,
 ] {
@@ -27,8 +27,10 @@ export default function useLoggedUser(): [
     return null;
   }, [availableUser]);
 
-  const setUser = (user: LoggedUser | AnonymousUser) =>
+  const setUser = async (user: LoggedUser | AnonymousUser) => {
     cache.setQueryData(queryKey, user);
+    await cache.invalidateQueries(['profile', user.id]);
+  };
 
   const trackingId = useMemo<string | null>(() => availableUser?.id, [
     availableUser,

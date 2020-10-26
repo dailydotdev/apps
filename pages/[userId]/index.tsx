@@ -58,6 +58,9 @@ import {
 import { formToJson } from '../../lib/form';
 import TextField from '../../components/TextField';
 import { InvertButton } from '../../components/Buttons';
+import { useHideOnModal } from '../../lib/useHideOnModal';
+import AccountDetailsModal from '../../components/modals/AccountDetailsModal';
+import { colorWater50 } from '../../styles/colors';
 
 export const getStaticProps = getProfileStaticProps;
 export const getStaticPaths = getProfileStaticPaths;
@@ -153,6 +156,11 @@ const CommentTime = styled.time`
 const EmptyMessage = styled.span`
   color: var(--theme-secondary);
   ${typoMicro2}
+
+  a {
+    color: ${colorWater50};
+    text-decoration: none;
+  }
 `;
 
 const PostContainer = styled(CommentContainer)`
@@ -263,6 +271,11 @@ const FormField = styled(TextField)`
   margin-bottom: ${size4};
 `;
 
+const CompleteProfileButton = styled(InvertButton)`
+  margin-top: ${size4};
+  align-self: flex-start;
+`;
+
 const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
   const { user, updateUser } = useContext(AuthContext);
 
@@ -310,6 +323,8 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
   const formRef = useRef<HTMLFormElement>(null);
   const [disableSubmit, setDisableSubmit] = useState<boolean>(true);
   const [twitterHint, setTwitterHint] = useState<string>();
+  const [showAccountDetails, setShowAccountDetails] = useState(false);
+  useHideOnModal(() => !!showAccountDetails, [showAccountDetails]);
 
   const updateDisableSubmit = () => {
     if (formRef.current) {
@@ -335,7 +350,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
         }
       }
     } else {
-      updateUser({ ...user, ...res });
+      await updateUser({ ...user, ...res });
       setDisableSubmit(false);
     }
   };
@@ -372,35 +387,75 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
   );
 
   let postsEmptyScreen: ReactNode = null;
-  if (!isSameUser || user.twitter) {
+  if (!isSameUser) {
     postsEmptyScreen = (
       <EmptyMessage data-testid="emptyPosts">No articles yet.</EmptyMessage>
     );
-  } else if (!user.twitter) {
+  } else if (user.twitter) {
+    postsEmptyScreen = (
+      <EmptyMessage data-testid="emptyPosts" as="p">
+        No articles yet.
+        <br />
+        <br />
+        <a
+          href="https://daily.dev/posts/claiming-ownership-on-an-article-you-wrote"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          How daily.dev picks up new articles
+        </a>
+        <br />
+        <br />
+        Do you have articles you wrote that got picked up by daily.dev in the
+        past?
+        <br />
+        <br />
+        <a
+          href="mailto:hi@daily.dev?subject=Add my articles retroactively"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Add my articles retroactively
+        </a>
+      </EmptyMessage>
+    );
+  } else {
     postsEmptyScreen = (
       <>
         <EmptyMessage data-testid="emptyPosts">
           {`Track when articles you publish around the web got picked up by
           daily.dev. Set up your Twitter handle and we'll do the rest 🙌`}
         </EmptyMessage>
-        <TwitterForm ref={formRef} onSubmit={onSubmit}>
-          <FormField
-            inputId="twitter"
-            name="twitter"
-            label="Twitter"
-            value={user.twitter}
-            hint={twitterHint}
-            valid={!twitterHint}
-            placeholder="handle"
-            pattern="(\w){1,15}"
-            maxLength={15}
-            validityChanged={updateDisableSubmit}
-            valueChanged={() => twitterHint && setTwitterHint(null)}
-          />
-          <InvertButton type="submit" disabled={disableSubmit}>
-            Save
-          </InvertButton>
-        </TwitterForm>
+        {user.email && user.username ? (
+          <TwitterForm ref={formRef} onSubmit={onSubmit}>
+            <FormField
+              inputId="twitter"
+              name="twitter"
+              label="Twitter"
+              value={user.twitter}
+              hint={twitterHint}
+              valid={!twitterHint}
+              placeholder="handle"
+              pattern="(\w){1,15}"
+              maxLength={15}
+              validityChanged={updateDisableSubmit}
+              valueChanged={() => twitterHint && setTwitterHint(null)}
+            />
+            <InvertButton type="submit" disabled={disableSubmit}>
+              Save
+            </InvertButton>
+          </TwitterForm>
+        ) : (
+          <>
+            <CompleteProfileButton onClick={() => setShowAccountDetails(true)}>
+              Complete your profile
+            </CompleteProfileButton>
+            <AccountDetailsModal
+              isOpen={showAccountDetails}
+              onRequestClose={() => setShowAccountDetails(false)}
+            />
+          </>
+        )}
       </>
     );
   }

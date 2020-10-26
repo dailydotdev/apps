@@ -155,7 +155,7 @@ export default function ProfileForm({
         }
       }
     } else {
-      updateUser({ ...user, ...res });
+      await updateUser({ ...user, ...res });
       setDisableSubmit?.(false);
       onSuccessfulSubmit?.();
     }
