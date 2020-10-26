@@ -26,12 +26,13 @@ import {
   size3,
   size4,
   size6,
+  size8,
 } from '../../styles/sizes';
 import {
   typoDouble,
-  typoLil2Base,
   typoMicro1,
   typoMicro2,
+  typoMicro2Base,
   typoSmall,
 } from '../../styles/typography';
 import { postDateFormat } from '../../lib/dateFormat';
@@ -72,6 +73,7 @@ import Head from 'next/head';
 import { useHideOnModal } from '../../lib/useHideOnModal';
 import request, { ClientError } from 'graphql-request';
 import { apiUrl } from '../../lib/config';
+import { ProfileLink } from '../../components/profile/ProfileLink';
 
 const NewCommentModal = dynamic(
   () => import('../../components/modals/NewCommentModal'),
@@ -119,6 +121,7 @@ const MetadataContainer = styled.div`
   display: flex;
   align-items: center;
   flex-wrap: wrap;
+  margin: ${size2} 0 ${size1};
 `;
 
 const Metadata = styled.span`
@@ -134,8 +137,24 @@ const MetadataSeparator = styled.div`
   border-radius: 100%;
 `;
 
+const SourceImage = styled(RoundedImage)`
+  width: ${size8};
+  height: ${size8};
+`;
+
 const SourceName = styled.div`
-  ${typoLil2Base}
+  color: var(--theme-disabled);
+  font-weight: bold;
+  ${typoMicro2Base}
+`;
+
+const AuthorLink = styled(ProfileLink)`
+  margin-left: ${size2};
+  flex: 1;
+
+  ${SourceName} {
+    margin-left: ${size2};
+  }
 `;
 
 const Title = styled.h1`
@@ -159,14 +178,13 @@ const PostImage = styled.a`
 `;
 
 const StatsBar = styled.div`
-  display: flex;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: max-content;
+  grid-column-gap: ${size4};
   margin: ${size4} 0;
   color: var(--theme-disabled);
   ${typoSmall}
-
-  & > :nth-child(2) {
-    margin-left: ${size4};
-  }
 `;
 
 const ActionButtons = styled.div`
@@ -457,26 +475,25 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         </Head>
         <NextSeo {...Seo} />
         <PostInfo>
-          <RoundedImage
+          <SourceImage
             imgSrc={postById?.post.source.image}
             imgAlt={postById?.post.source.name}
             background="var(--theme-background-highlight)"
-            ratio="100%"
           />
-          <PostInfoSubContainer>
-            <SourceName>{postById?.post.source.name}</SourceName>
-            <MetadataContainer>
-              <Metadata as="time" dateTime={postById?.post?.createdAt}>
-                {postById && postDateFormat(postById.post.createdAt)}
-              </Metadata>
-              {!!postById?.post.readTime && <MetadataSeparator />}
-              {!!postById?.post.readTime && (
-                <Metadata data-testid="readTime">
-                  {postById?.post.readTime}m read time
-                </Metadata>
-              )}
-            </MetadataContainer>
-          </PostInfoSubContainer>
+          {postById?.post.author ? (
+            <AuthorLink user={postById.post.author} data-testid="authorLink">
+              <SourceImage
+                imgSrc={postById.post.author.image}
+                imgAlt={postById.post.author.name}
+                background="var(--theme-background-highlight)"
+              />
+              <SourceName>{postById.post.author.name}</SourceName>
+            </AuthorLink>
+          ) : (
+            <PostInfoSubContainer>
+              <SourceName>{postById?.post.source.name}</SourceName>
+            </PostInfoSubContainer>
+          )}
           <IconButton as="a" {...postLinkProps}>
             <OpenLinkIcon />
           </IconButton>
@@ -487,6 +504,17 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           )}
         </PostInfo>
         <Title>{postById?.post.title}</Title>
+        <MetadataContainer>
+          <Metadata as="time" dateTime={postById?.post?.createdAt}>
+            {postById && postDateFormat(postById.post.createdAt)}
+          </Metadata>
+          {!!postById?.post.readTime && <MetadataSeparator />}
+          {!!postById?.post.readTime && (
+            <Metadata data-testid="readTime">
+              {postById?.post.readTime}m read time
+            </Metadata>
+          )}
+        </MetadataContainer>
         <Tags>{postById?.post.tags.map((t) => `#${t}`).join(' ')}</Tags>
         <PostImage {...postLinkProps}>
           <LazyImage
@@ -496,11 +524,14 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           />
         </PostImage>
         <StatsBar data-testid="statsBar">
+          {postById?.post.views > 0 && (
+            <span>{postById?.post.views.toLocaleString()} Views</span>
+          )}
           {postById?.post.numUpvotes > 0 && (
-            <span>{postById?.post.numUpvotes} Upvotes</span>
+            <span>{postById?.post.numUpvotes.toLocaleString()} Upvotes</span>
           )}
           {postById?.post.numComments > 0 && (
-            <span>{postById?.post.numComments} Comments</span>
+            <span>{postById?.post.numComments.toLocaleString()} Comments</span>
           )}
         </StatsBar>
         <ActionButtons>

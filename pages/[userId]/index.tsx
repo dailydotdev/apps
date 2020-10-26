@@ -194,7 +194,8 @@ const SourceImage = styled(LazyImage).attrs({ ratio: '100%' })`
 
 const PostStats = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, max-content);
+  grid-auto-flow: column;
+  grid-auto-columns: max-content;
   grid-column-gap: ${size4};
   margin-top: ${size3};
 

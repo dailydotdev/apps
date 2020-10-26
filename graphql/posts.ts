@@ -47,12 +47,16 @@ export const POST_BY_ID_QUERY = gql`
       commentsPermalink
       numUpvotes
       numComments
+      views
       source {
         name
         image
       }
       author {
         id
+        image
+        name
+        permalink
       }
     }
   }
