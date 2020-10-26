@@ -519,17 +519,20 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   };
 
   useEffect(() => {
-    if (isFallback) {
-      return;
-    }
-    setHasNativeShare('share' in navigator);
     if (router?.query.new) {
       setTimeout(() => setShowShareNewComment(true), 700);
     }
+  }, [router.query?.new]);
+
+  useEffect(() => {
     if (router?.query.author) {
       setAuthorOnboarding(true);
     }
-  }, [isFallback]);
+  }, [router.query?.author]);
+
+  useEffect(() => {
+    setHasNativeShare('share' in navigator);
+  }, []);
 
   useHideOnModal(() => !!parentComment, [parentComment]);
 
