@@ -304,3 +304,31 @@ it('should show both stats when they are greater than zero', async () => {
   const el = await screen.findByTestId('statsBar');
   expect(el).toHaveTextContent('7 Upvotes15 Comments');
 });
+
+it('should show views when it is greater than zero', async () => {
+  renderPost({}, [createPostMock({ views: 15 }), createCommentsMock()]);
+  const el = await screen.findByTestId('statsBar');
+  expect(el).toHaveTextContent('15 Views');
+});
+
+it('should not show author link when author is null', async () => {
+  renderPost();
+  const el = screen.queryByTestId('authorLink');
+  expect(el).toBeFalsy();
+});
+
+it('should show author link when author is defined', async () => {
+  renderPost({}, [
+    createPostMock({
+      author: {
+        id: 'u1',
+        name: 'Ido Shamun',
+        image: 'https://daily.dev/ido.jpg',
+        permalink: 'https://daily.dev/idoshamun',
+      },
+    }),
+    createCommentsMock(),
+  ]);
+  const el = await screen.findByTestId('authorLink');
+  expect(el).toBeInTheDocument();
+});
