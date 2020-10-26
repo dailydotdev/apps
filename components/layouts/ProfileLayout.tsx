@@ -44,7 +44,7 @@ import {
 } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 import { reputationGuide } from '../../lib/constants';
-import { useQuery, useQueryCache } from 'react-query';
+import { useQuery } from 'react-query';
 
 const AccountDetailsModal = dynamic(
   () => import('../modals/AccountDetailsModal'),
@@ -275,7 +275,6 @@ export default function ProfileLayout({
   const [selectedTab, setSelectedTab] = useState(
     tabs.findIndex((tab) => tab.path === router?.pathname),
   );
-  const cache = useQueryCache();
   const queryKey = ['profile', initialProfile?.id];
   const { data: profile } = useQuery<PublicProfile>(
     queryKey,
@@ -307,10 +306,7 @@ export default function ProfileLayout({
 
   const [showAccountDetails, setShowAccountDetails] = useState(false);
 
-  const closeAccountDetails = async () => {
-    setShowAccountDetails(false);
-    await cache.invalidateQueries(queryKey);
-  };
+  const closeAccountDetails = () => setShowAccountDetails(false);
 
   const getTabHref = (tab: Tab) =>
     tab.path.replace('[userId]', profile.username || profile.id);

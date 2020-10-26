@@ -6,7 +6,7 @@ interface AuthContextData {
   shouldShowLogin: boolean;
   showLogin: () => void;
   logout: () => Promise<void>;
-  updateUser: (user: LoggedUser) => void;
+  updateUser: (user: LoggedUser) => Promise<void>;
   loadingUser?: boolean;
 }
 
