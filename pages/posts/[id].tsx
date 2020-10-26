@@ -670,7 +670,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             <AuthorOnboardingHeader>
               <FeatherIcon />
               <h2>Author</h2>
-              <h3>Is this your article?</h3>
+              <h3>Is this article yours?</h3>
             </AuthorOnboardingHeader>
             <p>Claim ownership and get the following perks:</p>
             <ol>
