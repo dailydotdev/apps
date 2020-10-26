@@ -185,6 +185,10 @@ const StatsBar = styled.div`
   margin: ${size4} 0;
   color: var(--theme-disabled);
   ${typoSmall}
+
+  span {
+    word-break: keep-all;
+  }
 `;
 
 const ActionButtons = styled.div`
