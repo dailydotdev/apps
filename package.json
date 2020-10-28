@@ -16,7 +16,7 @@
     "date-fns": "^2.16.1",
     "dompurify": "^2.2.0",
     "focus-visible": "^5.2.0",
-    "graphql": "^15.3.0",
+    "graphql": "^15.4.0",
     "graphql-request": "^3.2.0",
     "idb-keyval": "^3.2.0",
     "lazysizes": "^5.2.2",
