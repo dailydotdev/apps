@@ -17,7 +17,7 @@
     "dompurify": "^2.2.0",
     "focus-visible": "^5.2.0",
     "graphql": "^15.4.0",
-    "graphql-request": "^3.2.0",
+    "graphql-request": "^3.3.0",
     "idb-keyval": "^3.2.0",
     "lazysizes": "^5.2.2",
     "linkifyjs": "^2.1.9",
