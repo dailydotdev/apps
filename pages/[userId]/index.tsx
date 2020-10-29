@@ -210,6 +210,7 @@ const PostStats = styled.div`
 
   ${tablet} {
     margin-top: 0;
+    margin-left: auto;
   }
 `;
 
