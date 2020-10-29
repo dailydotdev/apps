@@ -37,10 +37,10 @@ it('should show label when input is set', () => {
   expect(getLabel()).toHaveStyle({ display: 'block' });
 });
 
-it('should mark field as invalid', () => {
+it('should mark field as invalid', async () => {
   renderComponent({ required: true });
   const input = getInput();
-  input.dispatchEvent(new Event('blur', { bubbles: true }));
+  input.dispatchEvent(new Event('focusout', { bubbles: true }));
   expect(screen.getByTestId('field')).toHaveStyle({
     'box-shadow': `inset 0.125rem 0 0 0 ${colorKetchup30}`,
   });
@@ -49,7 +49,7 @@ it('should mark field as invalid', () => {
 it('should set hint role as alert when invalid', () => {
   renderComponent({ required: true, hint: 'Hint' });
   const input = getInput();
-  input.dispatchEvent(new Event('blur', { bubbles: true }));
+  input.dispatchEvent(new Event('focusout', { bubbles: true }));
   const el = screen.getByText('Hint');
   expect(el).toHaveStyle({ color: colorKetchup30 });
   expect(el).toHaveAttribute('role', 'alert');
