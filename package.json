@@ -39,6 +39,7 @@
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^10.0.0",
+    "@svgr/cli": "^5.4.0",
     "@svgr/webpack": "^5.4.0",
     "@testing-library/jest-dom": "^5.11.5",
     "@testing-library/react": "^11.1.0",
