@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "date-fns": "^2.16.1",
-    "dompurify": "^2.2.0",
+    "dompurify": "^2.2.2",
     "focus-visible": "^5.2.0",
     "graphql": "^15.4.0",
     "graphql-request": "^3.3.0",
