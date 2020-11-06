@@ -38,7 +38,7 @@
     "universal-cookie": "^4.0.4"
   },
   "devDependencies": {
-    "@next/bundle-analyzer": "^10.0.0",
+    "@next/bundle-analyzer": "^10.0.1",
     "@svgr/cli": "^5.4.0",
     "@svgr/webpack": "^5.4.0",
     "@testing-library/jest-dom": "^5.11.5",
