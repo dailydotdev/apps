@@ -7,15 +7,7 @@ import React, {
 } from 'react';
 import styled from 'styled-components';
 import Link from 'next/link';
-import {
-  size05,
-  size1,
-  size2,
-  size3,
-  size4,
-  size8,
-  sizeN,
-} from '../../styles/sizes';
+import { size1, size2, size3, size4, size8, sizeN } from '../../styles/sizes';
 import { FloatButton, IconButton } from '../Buttons';
 import LazyImage from '../LazyImage';
 import AuthContext from '../AuthContext';
@@ -28,7 +20,7 @@ import BellNotifyIcon from '../../icons/bell_notify.svg';
 import GiftIcon from '../../icons/gift.svg';
 import { typoLil2, typoNuggets } from '../../styles/typography';
 import usePersistentState from '../../lib/usePersistentState';
-import BirthdayLogoSvg from '../svg/BirthdayLogoSvg';
+import DailyDevLogo from '../svg/DailyDevLogo';
 
 export interface Props extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -117,7 +109,7 @@ const GiftButton = styled(FloatButton)`
 
 const HomeLink = styled.a`
   display: flex;
-  align-items: flex-end;
+  align-items: center;
 
   .logo {
     width: 6.25rem;
@@ -126,7 +118,6 @@ const HomeLink = styled.a`
   .badge {
     width: 1.875rem;
     margin-left: ${size1};
-    margin-bottom: ${size05};
   }
 `;
 
@@ -154,7 +145,7 @@ export default function MainLayout({
       <Header>
         <Link href="/" passHref>
           <HomeLink title="Home">
-            <BirthdayLogoSvg />
+            <DailyDevLogo />
             <BetaBadge className="badge" />
           </HomeLink>
         </Link>
@@ -162,14 +153,14 @@ export default function MainLayout({
           <>
             <GiftButton
               as="a"
-              href="https://daily.dev/birthday-giveaway"
+              href="https://daily.dev/win-free-t-shirt"
               target="_blank"
               rel="noopener noreferrer"
-              title="Special Birthday Giveaway"
+              title="Get free T-shirt"
               done={!didClickedTshirt}
               onClick={() => setDidClickTshirt(true)}
             >
-              {!didClickedTshirt && <span>Special Birthday Giveaway</span>}
+              {!didClickedTshirt && <span>Get free T-shirt</span>}
               <GiftIcon />
             </GiftButton>
             <AboutButton onClick={onAboutClick} title="About">
