@@ -27,7 +27,7 @@
     "node-fetch": "^2.6.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
-    "react-flip-toolkit": "^7.0.12",
+    "react-flip-toolkit": "^7.0.13",
     "react-ga": "^3.2.0",
     "react-intersection-observer": "^8.30.1",
     "react-modal": "^3.11.2",
