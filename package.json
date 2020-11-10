@@ -23,7 +23,7 @@
     "linkifyjs": "^2.1.9",
     "lodash.clonedeep": "^4.5.0",
     "next": "^10.0.1",
-    "next-seo": "^4.15.0",
+    "next-seo": "^4.15.1",
     "node-fetch": "^2.6.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
