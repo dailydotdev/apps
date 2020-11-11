@@ -38,7 +38,7 @@ const defaultProfile: PublicProfile = {
   createdAt: '2020-08-26T13:04:35.000Z',
   twitter: 'dailydotdev',
   github: 'dailydotdev',
-  portfolio: 'https://daily.dev',
+  portfolio: 'https://daily.dev/?key=vaue',
 };
 
 const renderComponent = (
@@ -86,6 +86,6 @@ it('should show github link', () => {
 it('should show portfolio link', () => {
   renderComponent();
   const el = screen.getByTitle('Go to portfolio website');
-  expect(el).toHaveAttribute('href', 'https://daily.dev');
+  expect(el).toHaveAttribute('href', 'https://daily.dev/?key=vaue');
   expect(el).toHaveTextContent('daily.dev');
 });
