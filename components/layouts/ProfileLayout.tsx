@@ -174,6 +174,8 @@ const ProfileHeader = styled.section`
     flex-direction: row;
     margin-left: -${size4};
     margin-right: -${size4};
+    align-self: stretch;
+    overflow-x: hidden;
 
     & > * {
       margin-left: ${size4};
@@ -400,7 +402,11 @@ export default function ProfileLayout({
                   rel="noopener noreferrer"
                 >
                   <LinkIcon />
-                  <span>{portfolioLink.replace(/(^\w+:|^)\/\//, '')}</span>
+                  <span>
+                    {portfolioLink
+                      .replace(/(^\w+:|^)\/\//, '')
+                      .replace(/\/?(\?.*)?$/, '')}
+                  </span>
                 </a>
               )}
             </Links>
