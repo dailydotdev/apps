@@ -1,18 +1,9 @@
-// Time spans in milliseconds, used for comparing dates. Month and year variable, thus omitted.
+import { isSameDay, subDays } from "date-fns";
+
 const oneMinute = 60;
 const oneHour = 3600;
 const oneDay = 86400;
 const oneYear = oneDay * 365;
-
-const isYesterday = (date: Date, now = new Date()): boolean => {
-  const dateSec = date.getTime() / 1000;
-  const dateDaySec = dateSec - (dateSec % oneDay);
-
-  const nowSec = now.getTime() / 1000;
-  const nowDaySec = nowSec - (nowSec % oneDay);
-
-  return dateDaySec === nowDaySec - oneDay;
-};
 
 export function postDateFormat(
   value: Date | number | string,
@@ -25,11 +16,11 @@ export function postDateFormat(
 
   if (dt <= oneMinute) return 'Now';
 
-  if (dt <= oneDay) {
+  if (isSameDay(date, now)) {
     return 'Today';
   }
 
-  if (isYesterday(date, now)) return 'Yesterday';
+  if (isSameDay(date, subDays(now, 1))) return 'Yesterday';
 
   return date.toLocaleString('en-US', {
     month: 'short',
