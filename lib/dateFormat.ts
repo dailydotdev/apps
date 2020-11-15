@@ -1,4 +1,4 @@
-import { isSameDay, subDays } from "date-fns";
+import { isSameDay, subDays } from 'date-fns';
 
 const oneMinute = 60;
 const oneHour = 3600;
