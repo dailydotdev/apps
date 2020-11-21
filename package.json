@@ -42,7 +42,7 @@
     "@svgr/cli": "^5.5.0",
     "@svgr/webpack": "^5.5.0",
     "@testing-library/jest-dom": "^5.11.6",
-    "@testing-library/react": "^11.1.2",
+    "@testing-library/react": "^11.2.1",
     "@types/dompurify": "^2.0.4",
     "@types/jest": "^26.0.15",
     "@types/linkifyjs": "^2.1.3",
