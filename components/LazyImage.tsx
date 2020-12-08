@@ -7,6 +7,7 @@ export interface Props extends HTMLAttributes<HTMLDivElement> {
   imgAlt: string;
   background?: string;
   ratio?: string;
+  eager?: boolean;
 }
 
 const Container = styled.div<Props>`
@@ -41,10 +42,16 @@ const Container = styled.div<Props>`
 `;
 
 export default function LazyImage(props: Props): ReactElement {
-  const { imgSrc, imgAlt } = props;
+  const { imgSrc, imgAlt, eager } = props;
+  const imageProps = eager
+    ? { src: imgSrc }
+    : {
+        className: 'lazyload',
+        'data-src': imgSrc,
+      };
   return (
     <Container {...props}>
-      <img className="lazyload" data-src={imgSrc} alt={imgAlt} key={imgSrc} />
+      <img {...imageProps} alt={imgAlt} key={imgSrc} />
     </Container>
   );
 }

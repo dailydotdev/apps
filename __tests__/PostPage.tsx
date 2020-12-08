@@ -196,7 +196,7 @@ it('should show post image', async () => {
   await res.findByText('Learn SQL');
   const el = await res.findByAltText('Post cover image');
   expect(el).toHaveAttribute(
-    'data-src',
+    'src',
     'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/22fc3ac5cc3fedf281b6e4b46e8c0ba2',
   );
 });

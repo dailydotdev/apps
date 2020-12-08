@@ -353,6 +353,7 @@ export default function ProfileLayout({
             <ProfileImage
               imgSrc={profile.image}
               imgAlt={`${profile.name}'s profile image`}
+              eager={true}
             />
             <Reputation>
               <a

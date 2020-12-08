@@ -614,6 +614,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             imgSrc={postById?.post.image}
             imgAlt="Post cover image"
             ratio="49%"
+            eager={true}
           />
         </PostImage>
         <StatsBar data-testid="statsBar">
