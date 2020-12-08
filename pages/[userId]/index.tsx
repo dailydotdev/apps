@@ -468,7 +468,13 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
         <Link href={post.commentsPermalink} passHref key={post.id}>
           <PostContainer as="a" aria-label={post.title}>
             <PostImageContainer>
-              <PostImage imgSrc={post.image} imgAlt="Post cover image" />
+              <PostImage
+                imgSrc={post.image.replace(
+                  '/f_auto,q_auto/',
+                  '/c_fill,f_auto,q_auto,w_192/',
+                )}
+                imgAlt="Post cover image"
+              />
               <SourceImage
                 imgSrc={post.source.image}
                 imgAlt={post.source.name}
