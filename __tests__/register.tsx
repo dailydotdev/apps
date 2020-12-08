@@ -1,7 +1,7 @@
 import React from 'react';
 import { LoggedUser, updateProfile } from '../lib/user';
 import Page from '../pages/register';
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import AuthContext from '../components/AuthContext';
 import { mocked } from 'ts-jest/utils';
 import { NextRouter, useRouter } from 'next/router';

@@ -1,7 +1,7 @@
 import DeleteCommentModal, {
   Props,
 } from '../components/modals/DeleteCommentModal';
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import React from 'react';
 import { DELETE_COMMENT_MUTATION } from '../graphql/comments';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';

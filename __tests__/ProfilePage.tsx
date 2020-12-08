@@ -5,7 +5,7 @@ import {
   UserCommentsData,
 } from '../graphql/comments';
 import ProfilePage from '../pages/[userId]/index';
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import AuthContext from '../components/AuthContext';
 import { PublicProfile } from '../lib/user';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
@@ -13,6 +13,7 @@ import nock from 'nock';
 import { Connection } from '../graphql/common';
 import { AUTHOR_FEED_QUERY, AuthorFeedData, Post } from '../graphql/posts';
 import { USER_STATS_QUERY, UserStats, UserStatsData } from '../graphql/users';
+import { QueryCache, ReactQueryCacheProvider } from 'react-query';
 
 beforeEach(() => {
   nock.cleanAll();
@@ -143,19 +144,23 @@ const renderComponent = (
   ],
   profile: Partial<PublicProfile> = {},
 ): RenderResult => {
+  const queryCache = new QueryCache();
+
   mocks.forEach(mockGraphQL);
   return render(
-    <AuthContext.Provider
-      value={{
-        user: null,
-        shouldShowLogin: false,
-        showLogin: jest.fn(),
-        logout: jest.fn(),
-        updateUser: jest.fn(),
-      }}
-    >
-      <ProfilePage profile={{ ...defaultProfile, ...profile }} />
-    </AuthContext.Provider>,
+    <ReactQueryCacheProvider queryCache={queryCache}>
+      <AuthContext.Provider
+        value={{
+          user: null,
+          shouldShowLogin: false,
+          showLogin: jest.fn(),
+          logout: jest.fn(),
+          updateUser: jest.fn(),
+        }}
+      >
+        <ProfilePage profile={{ ...defaultProfile, ...profile }} />
+      </AuthContext.Provider>
+    </ReactQueryCacheProvider>,
   );
 };
 
@@ -223,6 +228,8 @@ it('should show empty screen when no comments', async () => {
       },
       edges: [],
     }),
+    createFeedMock(),
+    createUserStatsMock(),
   ]);
   await waitFor(() => nock.isDone());
   const el = await screen.findByTestId('emptyComments');
@@ -270,6 +277,7 @@ it('should show empty screen when no posts', async () => {
       },
       edges: [],
     }),
+    createUserStatsMock(),
   ]);
   await waitFor(() => nock.isDone());
   const el = await screen.findByTestId('emptyPosts');

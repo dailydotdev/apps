@@ -1,5 +1,5 @@
 import DeletePostModal, { Props } from '../components/DeletePostModal';
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import React from 'react';
 import { DELETE_POST_MUTATION } from '../graphql/posts';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';

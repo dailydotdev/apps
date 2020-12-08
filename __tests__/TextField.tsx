@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, RenderResult, screen } from '@testing-library/react';
+import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import TextField, { Props } from '../components/TextField';
 import { colorKetchup30 } from '../styles/colors';
 
@@ -23,13 +23,13 @@ it('should set by default placeholder as label', () => {
   expect(getInput().placeholder).toEqual('Name');
 });
 
-it('should show label when focused', () => {
+it('should show label when focused', async () => {
   renderComponent();
   expect(getLabel()).toHaveStyle({ display: 'none' });
   const input = getInput();
   input.focus();
-  expect(input.placeholder).toEqual('');
-  expect(getLabel()).toHaveStyle({ display: 'block' });
+  await waitFor(() => expect(input.placeholder).toEqual(''));
+  await waitFor(() => expect(getLabel()).toHaveStyle({ display: 'block' }));
 });
 
 it('should show label when input is set', () => {
@@ -40,17 +40,19 @@ it('should show label when input is set', () => {
 it('should mark field as invalid', async () => {
   renderComponent({ required: true });
   const input = getInput();
-  input.dispatchEvent(new Event('focusout', { bubbles: true }));
-  expect(screen.getByTestId('field')).toHaveStyle({
-    'box-shadow': `inset 0.125rem 0 0 0 ${colorKetchup30}`,
-  });
+  input.dispatchEvent(new Event('blur', { bubbles: true }));
+  await waitFor(() =>
+    expect(screen.getByTestId('field')).toHaveStyle({
+      'box-shadow': `inset 0.125rem 0 0 0 ${colorKetchup30}`,
+    }),
+  );
 });
 
-it('should set hint role as alert when invalid', () => {
+it('should set hint role as alert when invalid', async () => {
   renderComponent({ required: true, hint: 'Hint' });
   const input = getInput();
-  input.dispatchEvent(new Event('focusout', { bubbles: true }));
+  input.dispatchEvent(new Event('blur', { bubbles: true }));
   const el = screen.getByText('Hint');
-  expect(el).toHaveStyle({ color: colorKetchup30 });
-  expect(el).toHaveAttribute('role', 'alert');
+  await waitFor(() => expect(el).toHaveStyle({ color: colorKetchup30 }));
+  await waitFor(() => expect(el).toHaveAttribute('role', 'alert'));
 });

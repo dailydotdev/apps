@@ -1,6 +1,6 @@
 import React from 'react';
 import { LoggedUser, PublicProfile } from '../lib/user';
-import { render, RenderResult, screen } from '@testing-library/react';
+import { render, RenderResult, screen } from '@testing-library/preact';
 import AuthContext from '../components/AuthContext';
 import ProfileLayout from '../components/layouts/ProfileLayout';
 
