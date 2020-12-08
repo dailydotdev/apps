@@ -5,7 +5,7 @@ import {
   RenderResult,
   screen,
   waitFor,
-} from '@testing-library/react';
+} from '@testing-library/preact';
 import { changeProfileImage, LoggedUser } from '../lib/user';
 import EditImageWithJoinedDate from '../components/profile/EditImageWithJoinedDate';
 import { mocked } from 'ts-jest/utils';

@@ -6,7 +6,7 @@ import {
   RenderResult,
   screen,
   waitFor,
-} from '@testing-library/react';
+} from '@testing-library/preact';
 
 import PostPage, { Props } from '../pages/posts/[id]';
 import {

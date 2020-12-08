@@ -7,7 +7,7 @@ import {
   RenderResult,
   screen,
   waitFor,
-} from '@testing-library/react';
+} from '@testing-library/preact';
 import AuthContext from '../components/AuthContext';
 import { mocked } from 'ts-jest/utils';
 
@@ -96,6 +96,6 @@ it('should show server error', async () => {
   });
   fireEvent.submit(screen.getByTestId('form'));
   await waitFor(() => expect(updateProfile).toBeCalledTimes(1));
-  const el = screen.getByRole('alert');
+  const el = await screen.findByRole('alert');
   expect(el).toHaveTextContent('This email is already used');
 });
