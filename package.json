@@ -34,7 +34,7 @@
     "react-ga": "^3.3.0",
     "react-intersection-observer": "^8.31.0",
     "react-modal": "^3.12.1",
-    "react-query": "^2.26.3",
+    "react-query": "^2.26.4",
     "styled-components": "^5.1.1",
     "styled-normalize": "^8.0.7",
     "swr": "^0.3.9",
