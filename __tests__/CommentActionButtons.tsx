@@ -79,7 +79,7 @@ const renderComponent = (
 
 it('should not show delete button when user is not the author', async () => {
   const res = renderComponent();
-  expect(res.queryByTitle('Delete')).toBeNull();
+  expect(res.queryByTitle('Delete')).not.toBeInTheDocument();
 });
 
 it('should show delete button when user is the author', async () => {
@@ -94,7 +94,7 @@ it('should show delete button when user is the author', async () => {
       createdAt: '',
     },
   );
-  expect(res.getByTitle('Delete')).toBeDefined();
+  expect(res.getByTitle('Delete')).toBeInTheDocument();
 });
 
 it('should show login on upvote click', async () => {

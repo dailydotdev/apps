@@ -169,7 +169,7 @@ it('should hide read time when not available', async () => {
     createCommentsMock(),
   ]);
   await res.findByText('May 16, 2019');
-  expect(res.queryByTestId('readTime')).toBeNull();
+  expect(res.queryByTestId('readTime')).not.toBeInTheDocument();
 });
 
 it('should set href to the post permalink', async () => {
