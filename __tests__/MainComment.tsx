@@ -3,6 +3,7 @@ import { render, RenderResult, screen } from '@testing-library/preact';
 import AuthContext from '../components/AuthContext';
 import { LoggedUser } from '../lib/user';
 import MainComment, { Props } from '../components/comments/MainComment';
+import { QueryClient, QueryClientProvider } from 'react-query';
 
 const author = {
   image: 'https://daily.dev/ido.png',
@@ -50,18 +51,22 @@ const renderLayout = (
     postAuthorId: null,
   };
 
+  const client = new QueryClient();
+
   return render(
-    <AuthContext.Provider
-      value={{
-        user,
-        shouldShowLogin: false,
-        showLogin: jest.fn(),
-        logout: jest.fn(),
-        updateUser: jest.fn(),
-      }}
-    >
-      <MainComment {...defaultProps} {...props} />
-    </AuthContext.Provider>,
+    <QueryClientProvider client={client}>
+      <AuthContext.Provider
+        value={{
+          user,
+          shouldShowLogin: false,
+          showLogin: jest.fn(),
+          logout: jest.fn(),
+          updateUser: jest.fn(),
+        }}
+      >
+        <MainComment {...defaultProps} {...props} />
+      </AuthContext.Provider>
+    </QueryClientProvider>,
   );
 };
 

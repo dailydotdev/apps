@@ -4,9 +4,9 @@ import dynamic from 'next/dynamic';
 import {
   useQuery,
   useMutation,
-  useQueryCache,
-  MutationConfig,
-  QueryCache,
+  useQueryClient,
+  UseMutationOptions,
+  QueryClient,
 } from 'react-query';
 import ReactGA from 'react-ga';
 import {
@@ -363,14 +363,14 @@ interface ParentComment {
 }
 
 const upvoteMutationConfig = (
-  queryCache: QueryCache,
+  queryClient: QueryClient,
   postQueryKey: string[],
   upvoted: boolean,
-): MutationConfig<unknown, unknown, unknown, () => void> => ({
-  onMutate: () => {
-    queryCache.cancelQueries(postQueryKey);
-    const oldPost = queryCache.getQueryData<PostData>(postQueryKey);
-    queryCache.setQueryData<PostData>(postQueryKey, {
+): UseMutationOptions<unknown, unknown, void, () => void> => ({
+  onMutate: async () => {
+    await queryClient.cancelQueries(postQueryKey);
+    const oldPost = queryClient.getQueryData<PostData>(postQueryKey);
+    queryClient.setQueryData<PostData>(postQueryKey, {
       post: {
         ...oldPost.post,
         upvoted,
@@ -378,10 +378,10 @@ const upvoteMutationConfig = (
       },
     });
 
-    return () => queryCache.setQueryData(postQueryKey, oldPost);
+    return () => queryClient.setQueryData(postQueryKey, oldPost);
   },
   onError: (err, _, rollback) => rollback(),
-  onSettled: () => queryCache.invalidateQueries(postQueryKey),
+  onSettled: () => queryClient.invalidateQueries(postQueryKey),
 });
 
 const PostPage = ({ id, postData }: Props): ReactElement => {
@@ -404,24 +404,23 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   const [showDeletePost, setShowDeletePost] = useState(false);
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
 
-  const queryCache = useQueryCache();
+  const queryClient = useQueryClient();
   const postQueryKey = ['post', id];
   const { data: postById } = useQuery<PostData>(
     postQueryKey,
-    (key: string, id: string) =>
+    () =>
       request(`${apiUrl}/graphql`, POST_BY_ID_QUERY, {
         id,
       }),
     {
       initialData: postData,
       enabled: !!id,
-      initialStale: true,
     },
   );
 
   const { data: comments } = useQuery<PostCommentsData>(
     ['post_comments', id],
-    (key: string, id: string) =>
+    () =>
       request(`${apiUrl}/graphql`, POST_COMMENTS_QUERY, {
         postId: id,
       }),
@@ -431,20 +430,20 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     },
   );
 
-  const [upvotePost] = useMutation(
+  const { mutateAsync: upvotePost } = useMutation(
     () =>
       request(`${apiUrl}/graphql`, UPVOTE_MUTATION, {
         id,
       }),
-    upvoteMutationConfig(queryCache, postQueryKey, true),
+    upvoteMutationConfig(queryClient, postQueryKey, true),
   );
 
-  const [cancelPostUpvote] = useMutation(
+  const { mutateAsync: cancelPostUpvote } = useMutation(
     () =>
       request(`${apiUrl}/graphql`, CANCEL_UPVOTE_MUTATION, {
         id,
       }),
-    upvoteMutationConfig(queryCache, postQueryKey, false),
+    upvoteMutationConfig(queryClient, postQueryKey, false),
   );
 
   const toggleUpvote = () => {

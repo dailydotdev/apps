@@ -11,6 +11,7 @@ import {
 } from '../graphql/comments';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
 import nock from 'nock';
+import { QueryClient, QueryClientProvider } from 'react-query';
 
 const defaultUser = {
   id: 'u1',
@@ -49,19 +50,23 @@ const renderComponent = (
     onComment,
   };
 
+  const client = new QueryClient();
+
   mocks.forEach(mockGraphQL);
   return render(
-    <AuthContext.Provider
-      value={{
-        user: { ...defaultUser, ...user },
-        shouldShowLogin: false,
-        showLogin: jest.fn(),
-        logout: jest.fn(),
-        updateUser: jest.fn(),
-      }}
-    >
-      <NewCommentModal {...defaultProps} {...props} />
-    </AuthContext.Provider>,
+    <QueryClientProvider client={client}>
+      <AuthContext.Provider
+        value={{
+          user: { ...defaultUser, ...user },
+          shouldShowLogin: false,
+          showLogin: jest.fn(),
+          logout: jest.fn(),
+          updateUser: jest.fn(),
+        }}
+      >
+        <NewCommentModal {...defaultProps} {...props} />
+      </AuthContext.Provider>
+    </QueryClientProvider>,
   );
 };
 

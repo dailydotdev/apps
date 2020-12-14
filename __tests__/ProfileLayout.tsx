@@ -3,6 +3,7 @@ import { LoggedUser, PublicProfile } from '../lib/user';
 import { render, RenderResult, screen } from '@testing-library/preact';
 import AuthContext from '../components/AuthContext';
 import ProfileLayout from '../components/layouts/ProfileLayout';
+import { QueryClient, QueryClientProvider } from 'react-query';
 
 jest.mock('next/router', () => ({
   useRouter() {
@@ -44,18 +45,22 @@ const defaultProfile: PublicProfile = {
 const renderComponent = (
   profile: Partial<PublicProfile> = {},
 ): RenderResult => {
+  const client = new QueryClient();
+
   return render(
-    <AuthContext.Provider
-      value={{
-        user: defaultLoggedUser,
-        shouldShowLogin: false,
-        showLogin: jest.fn(),
-        logout: jest.fn(),
-        updateUser: jest.fn(),
-      }}
-    >
-      <ProfileLayout profile={{ ...defaultProfile, ...profile }} />
-    </AuthContext.Provider>,
+    <QueryClientProvider client={client}>
+      <AuthContext.Provider
+        value={{
+          user: defaultLoggedUser,
+          shouldShowLogin: false,
+          showLogin: jest.fn(),
+          logout: jest.fn(),
+          updateUser: jest.fn(),
+        }}
+      >
+        <ProfileLayout profile={{ ...defaultProfile, ...profile }} />
+      </AuthContext.Provider>
+    </QueryClientProvider>,
   );
 };
 

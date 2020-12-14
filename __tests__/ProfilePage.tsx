@@ -13,7 +13,7 @@ import nock from 'nock';
 import { Connection } from '../graphql/common';
 import { AUTHOR_FEED_QUERY, AuthorFeedData, Post } from '../graphql/posts';
 import { USER_STATS_QUERY, UserStats, UserStatsData } from '../graphql/users';
-import { QueryCache, ReactQueryCacheProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from 'react-query';
 
 beforeEach(() => {
   nock.cleanAll();
@@ -144,11 +144,11 @@ const renderComponent = (
   ],
   profile: Partial<PublicProfile> = {},
 ): RenderResult => {
-  const queryCache = new QueryCache();
+  const client = new QueryClient();
 
   mocks.forEach(mockGraphQL);
   return render(
-    <ReactQueryCacheProvider queryCache={queryCache}>
+    <QueryClientProvider client={client}>
       <AuthContext.Provider
         value={{
           user: null,
@@ -160,7 +160,7 @@ const renderComponent = (
       >
         <ProfilePage profile={{ ...defaultProfile, ...profile }} />
       </AuthContext.Provider>
-    </ReactQueryCacheProvider>,
+    </QueryClientProvider>,
   );
 };
 

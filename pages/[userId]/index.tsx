@@ -283,9 +283,9 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
 
   const { data: userStats } = useQuery<UserStatsData>(
     ['user_stats', profile?.id],
-    (key: string, userId: string) =>
+    () =>
       request(`${apiUrl}/graphql`, USER_STATS_QUERY, {
-        id: userId,
+        id: profile?.id,
       }),
     {
       enabled: !!profile,
@@ -294,30 +294,30 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
 
   const comments = useInfiniteQuery<UserCommentsData>(
     ['user_comments', profile?.id],
-    (key: string, userId: string, after: string) =>
+    ({ pageParam }) =>
       request(`${apiUrl}/graphql`, USER_COMMENTS_QUERY, {
-        userId,
+        userId: profile?.id,
         first: 3,
-        after,
+        after: pageParam,
       }),
     {
       enabled: !!profile,
-      getFetchMore: (lastPage) =>
+      getNextPageParam: (lastPage) =>
         lastPage.page.pageInfo.hasNextPage && lastPage.page.pageInfo.endCursor,
     },
   );
 
   const posts = useInfiniteQuery<AuthorFeedData>(
     ['user_posts', profile?.id],
-    (key: string, userId: string, after: string) =>
+    ({ pageParam }) =>
       request(`${apiUrl}/graphql`, AUTHOR_FEED_QUERY, {
-        userId,
+        userId: profile?.id,
         first: 3,
-        after,
+        after: pageParam,
       }),
     {
       enabled: !!profile,
-      getFetchMore: (lastPage) =>
+      getNextPageParam: (lastPage) =>
         lastPage.page.pageInfo.hasNextPage && lastPage.page.pageInfo.endCursor,
     },
   );

@@ -20,7 +20,7 @@ import { commentDateFormat } from '../../lib/dateFormat';
 import { typoJr, typoLil2Base, typoSmallBase } from '../../styles/typography';
 import { colorKetchup30, colorWater60 } from '../../styles/colors';
 import { ColorButton, FloatButton } from '../Buttons';
-import { useMutation, useQueryCache } from 'react-query';
+import { useMutation, useQueryClient } from 'react-query';
 import {
   Comment,
   COMMENT_ON_COMMENT_MUTATION,
@@ -163,8 +163,12 @@ export default function NewCommentModal({
   const [sendingComment, setSendingComment] = useState<boolean>(false);
   const [showDiscardModal, setShowDiscardModal] = useState<boolean>(false);
 
-  const queryCache = useQueryCache();
-  const [comment] = useMutation<CommentOnData, unknown, CommentVariables>(
+  const queryClient = useQueryClient();
+  const { mutateAsync: comment } = useMutation<
+    CommentOnData,
+    unknown,
+    CommentVariables
+  >(
     (variables) =>
       request(
         `${apiUrl}/graphql`,
@@ -174,11 +178,11 @@ export default function NewCommentModal({
         variables,
       ),
     {
-      onSuccess: (data) => {
+      onSuccess: async (data) => {
         const queryKey = ['post_comments', props.postId];
-        queryCache.cancelQueries(queryKey);
+        await queryClient.cancelQueries(queryKey);
         const cached = cloneDeep(
-          queryCache.getQueryData<PostCommentsData>(queryKey),
+          queryClient.getQueryData<PostCommentsData>(queryKey),
         );
         if (cached) {
           const newEdge: Edge<Comment> = {
@@ -208,7 +212,7 @@ export default function NewCommentModal({
           } else {
             cached.postComments.edges.push(newEdge);
           }
-          queryCache.setQueryData(queryKey, cached);
+          queryClient.setQueryData(queryKey, cached);
         }
       },
     },

@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { useQuery, useQueryCache } from 'react-query';
+import { useQuery, useQueryClient } from 'react-query';
 import { AnonymousUser, getLoggedUser, LoggedUser } from './user';
 import usePersistentState from './usePersistentState';
 
@@ -15,7 +15,7 @@ export default function useLoggedUser(): [
     AnonymousUser | LoggedUser
   >('user', null);
 
-  const cache = useQueryCache();
+  const queryClient = useQueryClient();
   const { data: fetchedUser, isLoading } = useQuery(queryKey, getLoggedUser);
 
   const availableUser = fetchedUser || cachedUser;
@@ -28,8 +28,8 @@ export default function useLoggedUser(): [
   }, [availableUser]);
 
   const setUser = async (user: LoggedUser | AnonymousUser) => {
-    cache.setQueryData(queryKey, user);
-    await cache.invalidateQueries(['profile', user.id]);
+    queryClient.setQueryData(queryKey, user);
+    await queryClient.invalidateQueries(['profile', user.id]);
   };
 
   const trackingId = useMemo<string | null>(() => availableUser?.id, [
