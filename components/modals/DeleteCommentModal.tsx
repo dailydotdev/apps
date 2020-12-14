@@ -9,7 +9,7 @@ import {
 import { ColorButton, HollowButton } from '../Buttons';
 import { colorKetchup40 } from '../../styles/colors';
 import { ButtonLoader } from '../utilities';
-import { useMutation, useQueryCache } from 'react-query';
+import { useMutation, useQueryClient } from 'react-query';
 import {
   DELETE_COMMENT_MUTATION,
   PostCommentsData,
@@ -31,18 +31,18 @@ export default function DeleteCommentModal({
   ...props
 }: Props): ReactElement {
   const [deleting, setDeleting] = useState<boolean>(false);
-  const queryCache = useQueryCache();
-  const [deleteComment] = useMutation(
+  const queryClient = useQueryClient();
+  const { mutateAsync: deleteComment } = useMutation(
     () =>
       request(`${apiUrl}/graphql`, DELETE_COMMENT_MUTATION, {
         id: commentId,
       }),
     {
-      onSuccess: () => {
+      onSuccess: async () => {
         const queryKey = ['post_comments', postId];
-        queryCache.cancelQueries(queryKey);
+        await queryClient.cancelQueries(queryKey);
         const cached = cloneDeep(
-          queryCache.getQueryData<PostCommentsData>(queryKey),
+          queryClient.getQueryData<PostCommentsData>(queryKey),
         );
         if (cached) {
           // Delete the sub-comment
@@ -67,7 +67,7 @@ export default function DeleteCommentModal({
             );
             cached.postComments.edges.splice(index, 1);
           }
-          queryCache.setQueryData(queryKey, cached);
+          queryClient.setQueryData(queryKey, cached);
         }
       },
     },

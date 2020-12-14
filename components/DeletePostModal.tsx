@@ -24,7 +24,7 @@ export default function DeletePostModal({
 }: Props): ReactElement {
   const [deleting, setDeleting] = useState<boolean>(false);
 
-  const [deletePost] = useMutation<EmptyResponse>(() =>
+  const { mutateAsync: deletePost } = useMutation<EmptyResponse>(() =>
     request(`${apiUrl}/graphql`, DELETE_POST_MUTATION, {
       id: postId,
     }),

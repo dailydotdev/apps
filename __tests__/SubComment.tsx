@@ -3,6 +3,7 @@ import { render, RenderResult } from '@testing-library/preact';
 import AuthContext from '../components/AuthContext';
 import { LoggedUser } from '../lib/user';
 import SubComment, { Props } from '../components/comments/SubComment';
+import { QueryClient, QueryClientProvider } from 'react-query';
 
 const baseComment = {
   id: 'c2',
@@ -51,18 +52,22 @@ const renderLayout = (
     postAuthorId: null,
   };
 
+  const client = new QueryClient();
+
   return render(
-    <AuthContext.Provider
-      value={{
-        user,
-        shouldShowLogin: false,
-        showLogin: jest.fn(),
-        logout: jest.fn(),
-        updateUser: jest.fn(),
-      }}
-    >
-      <SubComment {...defaultProps} {...props} />
-    </AuthContext.Provider>,
+    <QueryClientProvider client={client}>
+      <AuthContext.Provider
+        value={{
+          user,
+          shouldShowLogin: false,
+          showLogin: jest.fn(),
+          logout: jest.fn(),
+          updateUser: jest.fn(),
+        }}
+      >
+        <SubComment {...defaultProps} {...props} />
+      </AuthContext.Provider>
+    </QueryClientProvider>,
   );
 };
 

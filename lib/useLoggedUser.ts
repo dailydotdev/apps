@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { useQuery, useQueryCache } from 'react-query';
+import { useQuery, useQueryClient } from 'react-query';
 import { AnonymousUser, getLoggedUser, LoggedUser } from './user';
 import usePersistentState from './usePersistentState';
 
@@ -15,7 +15,7 @@ export default function useLoggedUser(): [
     AnonymousUser | LoggedUser
   >('user', null);
 
-  const cache = useQueryCache();
+  const cache = useQueryClient();
   const { data: fetchedUser, isLoading } = useQuery(queryKey, getLoggedUser);
 
   const availableUser = fetchedUser || cachedUser;

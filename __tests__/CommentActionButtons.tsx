@@ -11,6 +11,7 @@ import {
   UPVOTE_COMMENT_MUTATION,
 } from '../graphql/comments';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
+import { QueryClient, QueryClientProvider } from 'react-query';
 
 const showLogin = jest.fn();
 const onComment = jest.fn();
@@ -61,19 +62,23 @@ const renderComponent = (
     onDelete,
   };
 
+  const client = new QueryClient();
+
   mocks.forEach(mockGraphQL);
   return render(
-    <AuthContext.Provider
-      value={{
-        user,
-        shouldShowLogin: false,
-        showLogin,
-        logout: jest.fn(),
-        updateUser: jest.fn(),
-      }}
-    >
-      <CommentActionButtons {...props} />
-    </AuthContext.Provider>,
+    <QueryClientProvider client={client}>
+      <AuthContext.Provider
+        value={{
+          user,
+          shouldShowLogin: false,
+          showLogin,
+          logout: jest.fn(),
+          updateUser: jest.fn(),
+        }}
+      >
+        <CommentActionButtons {...props} />
+      </AuthContext.Provider>
+    </QueryClientProvider>,
   );
 };
 

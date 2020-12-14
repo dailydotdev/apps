@@ -4,8 +4,8 @@ import { size1, size10, size3, size4 } from '../../styles/sizes';
 import { typoDouble, typoLil1 } from '../../styles/typography';
 import { colorWater50 } from '../../styles/colors';
 import { focusOutline } from '../../styles/helpers';
-import { InfiniteQueryResult } from 'react-query/types/core/types';
 import { Connection } from '../../graphql/common';
+import { InfiniteQueryObserverBaseResult } from 'react-query';
 
 export const ActivityContainer = styled.section`
   display: flex;
@@ -46,7 +46,10 @@ const LoadMore = styled.button`
 export interface ActivitySectionProps<TElement, TError> {
   title: string;
   count?: number;
-  query: InfiniteQueryResult<{ page: Connection<TElement> }, TError>;
+  query: InfiniteQueryObserverBaseResult<
+    { page: Connection<TElement> },
+    TError
+  >;
   emptyScreen: ReactNode;
   elementToNode: (element: TElement) => ReactNode;
 }
@@ -59,14 +62,14 @@ export default function ActivitySection<TElement, TError>({
   elementToNode,
 }: ActivitySectionProps<TElement, TError>): ReactElement {
   const showEmptyScreen =
-    !query.isFetchingMore &&
+    !query.isFetchingNextPage &&
     !query.isLoading &&
-    !query.data?.[0]?.page?.edges.length;
+    !query?.data?.pages?.[0]?.page?.edges.length;
   const showLoadMore =
     !showEmptyScreen &&
     !query.isLoading &&
-    !query.isFetchingMore &&
-    query.canFetchMore;
+    !query.isFetchingNextPage &&
+    query.hasNextPage;
 
   return (
     <ActivityContainer>
@@ -75,13 +78,13 @@ export default function ActivitySection<TElement, TError>({
         {count >= 0 && <span>({count})</span>}
       </ActivitySectionTitle>
       {showEmptyScreen && emptyScreen}
-      {query.data?.map((page) => (
+      {query.data?.pages?.map((page) => (
         <Fragment key={page.page.pageInfo.endCursor}>
           {page.page.edges.map(({ node }) => elementToNode(node))}
         </Fragment>
       ))}
       {showLoadMore && (
-        <LoadMore onClick={() => query.fetchMore()}>Load more ▸</LoadMore>
+        <LoadMore onClick={() => query.fetchNextPage()}>Load more ▸</LoadMore>
       )}
     </ActivityContainer>
   );

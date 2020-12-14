@@ -3,6 +3,7 @@ import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import React from 'react';
 import { DELETE_POST_MUTATION } from '../graphql/posts';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
+import { QueryClient, QueryClientProvider } from 'react-query';
 
 const onRequestClose = jest.fn();
 
@@ -21,8 +22,14 @@ const renderComponent = (
     onRequestClose,
   };
 
+  const client = new QueryClient();
+
   mocks.forEach(mockGraphQL);
-  return render(<DeletePostModal {...defaultProps} {...props} />);
+  return render(
+    <QueryClientProvider client={client}>
+      <DeletePostModal {...defaultProps} {...props} />
+    </QueryClientProvider>,
+  );
 };
 
 it('should close modal on cancel', async () => {

@@ -65,7 +65,7 @@ export default function CommentActionButtons({
     setNumUpvotes(comment.numUpvotes);
   }, [comment]);
 
-  const [upvoteComment] = useMutation(
+  const { mutateAsync: upvoteComment } = useMutation(
     () =>
       request(`${apiUrl}/graphql`, UPVOTE_COMMENT_MUTATION, {
         id: comment.id,
@@ -83,7 +83,7 @@ export default function CommentActionButtons({
     },
   );
 
-  const [cancelCommentUpvote] = useMutation(
+  const { mutateAsync: cancelCommentUpvote } = useMutation(
     () =>
       request(`${apiUrl}/graphql`, CANCEL_COMMENT_UPVOTE_MUTATION, {
         id: comment.id,

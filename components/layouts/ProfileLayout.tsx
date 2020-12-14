@@ -280,7 +280,7 @@ export default function ProfileLayout({
   const queryKey = ['profile', initialProfile?.id];
   const { data: profile } = useQuery<PublicProfile>(
     queryKey,
-    (key: string, id: string) => getProfile(id),
+    () => getProfile(initialProfile?.id),
     {
       initialData: initialProfile,
       enabled: !!initialProfile,

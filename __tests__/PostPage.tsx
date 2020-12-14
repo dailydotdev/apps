@@ -21,7 +21,7 @@ import { POST_COMMENTS_QUERY, PostCommentsData } from '../graphql/comments';
 import { LoggedUser } from '../lib/user';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
 import nock from 'nock';
-import { QueryCache, ReactQueryCacheProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from 'react-query';
 import { mocked } from 'ts-jest/utils';
 import { NextRouter, useRouter } from 'next/router';
 
@@ -118,11 +118,11 @@ const renderPost = (
     id: '0e4005b2d3cf191f8c44c2718a457a1e',
   };
 
-  const queryCache = new QueryCache();
+  const client = new QueryClient();
 
   mocks.forEach(mockGraphQL);
   return render(
-    <ReactQueryCacheProvider queryCache={queryCache}>
+    <QueryClientProvider client={client}>
       <AuthContext.Provider
         value={{
           user,
@@ -134,7 +134,7 @@ const renderPost = (
       >
         <PostPage {...defaultProps} {...props} />
       </AuthContext.Provider>
-    </ReactQueryCacheProvider>,
+    </QueryClientProvider>,
   );
 };
 
