@@ -302,5 +302,5 @@ it('should not show overall stats when not available', async () => {
   renderComponent();
   await waitFor(() => nock.isDone());
   const el = screen.queryByText('Article views');
-  expect(el).toBeNull();
+  expect(el).not.toBeInTheDocument();
 });
