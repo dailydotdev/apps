@@ -99,9 +99,9 @@ interface ColorButtonProps {
   background: string;
 }
 
-export const ColorButton = styled(TextButton).attrs({ size: 'small' })<
-  ColorButtonProps
->`
+export const ColorButton = styled(TextButton).attrs({
+  size: 'small',
+})<ColorButtonProps>`
   position: relative;
   color: var(--theme-primary-invert);
   border-radius: ${size2};
