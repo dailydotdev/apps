@@ -41,7 +41,7 @@ const trackPageView = (url) => {
 
 Router.events.on('routeChangeComplete', trackPageView);
 
-export default function App({ Component, pageProps }: AppProps): ReactElement {
+function InternalApp({ Component, pageProps }: AppProps): ReactElement {
   const [initializedGA, setInitializedGA] = useState(false);
   const [user, setUser, trackingId, loadingUser] = useLoggedUser();
   const [loginIsOpen, setLoginIsOpen] = useState(false);
@@ -95,31 +95,31 @@ export default function App({ Component, pageProps }: AppProps): ReactElement {
     (Component as CompnentGetLayout).getLayout || ((page) => page);
 
   return (
+    <AuthContext.Provider value={authContext}>
+      <Head>
+        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+        <meta name="theme-color" content="#151618" />
+        <meta name="msapplication-navbutton-color" content="#151618" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="#151618" />
+        <link rel="preconnect" href="https://storage.googleapis.com" />
+      </Head>
+      <DefaultSeo {...Seo} />
+      <GlobalStyle />
+      {getLayout(<Component {...pageProps} />, pageProps)}
+      <LoginModal
+        isOpen={loginIsOpen}
+        onRequestClose={closeLogin}
+        contentLabel="Login Modal"
+      />
+      {showCookie && <CookieBanner onAccepted={acceptCookies} />}
+    </AuthContext.Provider>
+  );
+}
+
+export default function App(props: AppProps): ReactElement {
+  return (
     <QueryClientProvider client={queryClient}>
-      <AuthContext.Provider value={authContext}>
-        <Head>
-          <meta
-            name="viewport"
-            content="initial-scale=1.0, width=device-width"
-          />
-          <meta name="theme-color" content="#151618" />
-          <meta name="msapplication-navbutton-color" content="#151618" />
-          <meta
-            name="apple-mobile-web-app-status-bar-style"
-            content="#151618"
-          />
-          <link rel="preconnect" href="https://storage.googleapis.com" />
-        </Head>
-        <DefaultSeo {...Seo} />
-        <GlobalStyle />
-        {getLayout(<Component {...pageProps} />, pageProps)}
-        <LoginModal
-          isOpen={loginIsOpen}
-          onRequestClose={closeLogin}
-          contentLabel="Login Modal"
-        />
-        {showCookie && <CookieBanner onAccepted={acceptCookies} />}
-      </AuthContext.Provider>
+      <InternalApp {...props} />
     </QueryClientProvider>
   );
 }

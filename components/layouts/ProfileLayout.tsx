@@ -278,14 +278,16 @@ export default function ProfileLayout({
     tabs.findIndex((tab) => tab.path === router?.pathname),
   );
   const queryKey = ['profile', initialProfile?.id];
-  const { data: profile } = useQuery<PublicProfile>(
+  const { data: fetchedProfile } = useQuery<PublicProfile>(
     queryKey,
-    () => getProfile(initialProfile?.id),
+    () => getProfile(initialProfile.id),
     {
       initialData: initialProfile,
       enabled: !!initialProfile,
     },
   );
+  // Needed because sometimes initialProfile is defined and fetchedProfile is not
+  const profile = fetchedProfile ?? initialProfile;
 
   const Seo: NextSeoProps = profile
     ? {
