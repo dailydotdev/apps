@@ -5,6 +5,18 @@ import {
   colorAvocado60,
   colorBacon40,
   colorBacon60,
+  colorBlueCheese50,
+  colorBlueCheese60,
+  colorBurger40,
+  colorBurger60,
+  colorBurger80,
+  colorBurger90,
+  colorCabbage40,
+  colorCabbage60,
+  colorCheese40,
+  colorCheese60,
+  colorOnion40,
+  colorOnion60,
   colorPepper10,
   colorPepper30,
   colorPepper40,
@@ -17,7 +29,10 @@ import {
   colorSalt30,
   colorSalt40,
   colorSalt50,
+  colorSalt80,
   colorSalt90,
+  colorWater50,
+  colorWater60,
 } from '../styles/colors';
 import { mobileL } from '../styles/media';
 
@@ -69,6 +84,26 @@ export default createGlobalStyle`
 
     --theme-premium: ${colorBacon40};
     --theme-avocado: ${colorAvocado40};
+
+    --theme-rank-1-color: ${colorBurger40};
+    --theme-rank-1-color-top: ${colorBurger40};
+    --theme-rank-1-color-bottom: ${colorBurger80};
+
+    --theme-rank-2-color: ${colorSalt40};
+    --theme-rank-2-color-top: ${colorSalt40};
+    --theme-rank-2-color-bottom: ${colorSalt80};
+
+    --theme-rank-3-color: ${colorCheese40};
+    --theme-rank-3-color-top: ${colorCheese40};
+    --theme-rank-3-color-bottom: ${colorBurger40};
+
+    --theme-rank-4-color: ${colorBlueCheese50};
+    --theme-rank-4-color-top: ${colorBlueCheese50};
+    --theme-rank-4-color-bottom: ${colorWater50};
+
+    --theme-rank-5-color: ${colorCabbage40};
+    --theme-rank-5-color-top: ${colorCabbage40};
+    --theme-rank-5-color-bottom: ${colorOnion40};
   }
 
   /* stylelint-disable-next-line no-descending-specificity */
@@ -90,6 +125,26 @@ export default createGlobalStyle`
 
     --theme-premium: ${colorBacon60};
     --theme-avocado: ${colorAvocado60};
+
+    --theme-rank-1-color: ${colorBurger60};
+    --theme-rank-1-color-top: ${colorBurger60};
+    --theme-rank-1-color-bottom: ${colorBurger90};
+
+    --theme-rank-2-color: ${colorPepper60};
+    --theme-rank-2-color-top: ${colorPepper60};
+    --theme-rank-2-color-bottom: ${colorPepper10};
+
+    --theme-rank-3-color: ${colorCheese60};
+    --theme-rank-3-color-top: ${colorCheese60};
+    --theme-rank-3-color-bottom: ${colorBurger60};
+
+    --theme-rank-4-color: ${colorBlueCheese60};
+    --theme-rank-4-color-top: ${colorBlueCheese60};
+    --theme-rank-4-color-bottom: ${colorWater60};
+
+    --theme-rank-5-color: ${colorCabbage60};
+    --theme-rank-5-color-top: ${colorCabbage60};
+    --theme-rank-5-color-bottom: ${colorOnion60};
   }
 
   * {

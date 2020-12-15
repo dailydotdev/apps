@@ -21,3 +21,14 @@ export const USER_STATS_QUERY = gql`
     }
   }
 `;
+
+export type UserReadingRank = { currentRank: number };
+export type UserReadingRankData = { userReadingRank: UserReadingRank };
+
+export const USER_READING_RANK_QUERY = gql`
+  query UserReadingRank($id: ID!) {
+    userReadingRank(id: $id) {
+      currentRank
+    }
+  }
+`;

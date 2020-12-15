@@ -23,7 +23,6 @@ import {
   typoNuggets,
   typoQuarter,
 } from '../../styles/typography';
-import PremiumSvg from '../svg/PremiumSvg';
 import JoinedDate from '../profile/JoinedDate';
 import GitHubIcon from '../../icons/github.svg';
 import TwitterIcon from '../../icons/twitter.svg';
@@ -45,6 +44,13 @@ import {
 import { ParsedUrlQuery } from 'querystring';
 import { reputationGuide } from '../../lib/constants';
 import { useQuery } from 'react-query';
+import Rank from '../Rank';
+import request from 'graphql-request';
+import { apiUrl } from '../../lib/config';
+import {
+  USER_READING_RANK_QUERY,
+  UserReadingRankData,
+} from '../../graphql/users';
 
 const AccountDetailsModal = dynamic(
   () => import('../modals/AccountDetailsModal'),
@@ -120,9 +126,10 @@ const Name = styled.h1`
   ${typoDouble}
 `;
 
-const PremiumBadge = styled(PremiumSvg)`
-  width: ${sizeN(20)};
-  margin-left: ${size3};
+const StyledRank = styled(Rank)`
+  width: ${size6};
+  height: ${size6};
+  margin-left: ${size2};
 `;
 
 const Username = styled.h2`
@@ -289,6 +296,18 @@ export default function ProfileLayout({
   // Needed because sometimes initialProfile is defined and fetchedProfile is not
   const profile = fetchedProfile ?? initialProfile;
 
+  const userRankQueryKey = ['userRank', initialProfile?.id];
+  const { data: userRank } = useQuery<UserReadingRankData>(
+    userRankQueryKey,
+    () =>
+      request(`${apiUrl}/graphql`, USER_READING_RANK_QUERY, {
+        id: initialProfile?.id,
+      }),
+    {
+      enabled: !!initialProfile,
+    },
+  );
+
   const Seo: NextSeoProps = profile
     ? {
         title: profile.name,
@@ -371,7 +390,12 @@ export default function ProfileLayout({
           <ProfileInfo>
             <NameAndBadge>
               <Name>{profile.name}</Name>
-              {profile.premium && <PremiumBadge />}
+              {userRank?.userReadingRank?.currentRank && (
+                <StyledRank
+                  rank={userRank.userReadingRank.currentRank}
+                  data-testid="rank"
+                />
+              )}
             </NameAndBadge>
             {profile.username && <Username>@{profile.username}</Username>}
             {profile.bio && <Bio>{profile.bio}</Bio>}
