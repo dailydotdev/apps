@@ -390,7 +390,7 @@ export default function ProfileLayout({
           <ProfileInfo>
             <NameAndBadge>
               <Name>{profile.name}</Name>
-              {userRank?.userReadingRank?.currentRank && (
+              {userRank?.userReadingRank?.currentRank > 0 && (
                 <StyledRank
                   rank={userRank.userReadingRank.currentRank}
                   data-testid="rank"
