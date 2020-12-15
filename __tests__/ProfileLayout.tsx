@@ -1,9 +1,12 @@
 import React from 'react';
 import { LoggedUser, PublicProfile } from '../lib/user';
-import { render, RenderResult, screen } from '@testing-library/preact';
+import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import AuthContext from '../components/AuthContext';
 import ProfileLayout from '../components/layouts/ProfileLayout';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import { mockGraphQL } from './helpers/graphql';
+import { USER_READING_RANK_QUERY } from '../graphql/users';
+import nock from 'nock';
 
 jest.mock('next/router', () => ({
   useRouter() {
@@ -93,4 +96,32 @@ it('should show portfolio link', () => {
   const el = screen.getByTitle('Go to portfolio website');
   expect(el).toHaveAttribute('href', 'https://daily.dev/?key=vaue');
   expect(el).toHaveTextContent('daily.dev');
+});
+
+it('should not show rank when not loaded', () => {
+  renderComponent();
+  const el = screen.queryByTestId('rank');
+  expect(el).not.toBeInTheDocument();
+});
+
+it('should show rank when loaded', async () => {
+  mockGraphQL({
+    request: {
+      query: USER_READING_RANK_QUERY,
+      variables: {
+        id: defaultProfile.id,
+      },
+    },
+    result: {
+      data: {
+        userReadingRank: {
+          currentRank: 1,
+        },
+      },
+    },
+  });
+  renderComponent();
+  await waitFor(() => nock.isDone());
+  const el = await screen.findByTestId('rank');
+  expect(el).toBeInTheDocument();
 });
