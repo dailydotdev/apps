@@ -14,13 +14,15 @@ import AuthContext from '../AuthContext';
 import { focusOutline } from '../../styles/helpers';
 import { laptop, laptopL, tablet } from '../../styles/media';
 import BetaBadge from '../svg/BetaBadge';
-import AboutModal from '../modals/AboutModal';
 import BellIcon from '../../icons/bell.svg';
 import BellNotifyIcon from '../../icons/bell_notify.svg';
 import GiftIcon from '../../icons/gift.svg';
 import { typoLil2, typoNuggets } from '../../styles/typography';
 import usePersistentState from '../../lib/usePersistentState';
 import DailyDevLogo from '../svg/DailyDevLogo';
+import dynamicPageLoad from '../../lib/dynamicPageLoad';
+
+const AboutModal = dynamicPageLoad(() => import('../modals/AboutModal'));
 
 export interface Props extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;

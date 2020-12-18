@@ -20,10 +20,13 @@ import { logout as dispatchLogout } from '../lib/user';
 import { Router } from 'next/router';
 import { useCookieBanner } from '../lib/useCookieBanner';
 import useLoggedUser from '../lib/useLoggedUser';
+import dynamicPageLoad from '../lib/dynamicPageLoad';
 
 const queryClient = new QueryClient();
 
-const LoginModal = dynamic(() => import('../components/modals/LoginModal'));
+const LoginModal = dynamicPageLoad(
+  () => import('../components/modals/LoginModal'),
+);
 const CookieBanner = dynamic(() => import('../components/CookieBanner'));
 
 Modal.setAppElement('#__next');
@@ -106,11 +109,13 @@ function InternalApp({ Component, pageProps }: AppProps): ReactElement {
       <DefaultSeo {...Seo} />
       <GlobalStyle />
       {getLayout(<Component {...pageProps} />, pageProps)}
-      <LoginModal
-        isOpen={loginIsOpen}
-        onRequestClose={closeLogin}
-        contentLabel="Login Modal"
-      />
+      {!user && !loadingUser && (
+        <LoginModal
+          isOpen={loginIsOpen}
+          onRequestClose={closeLogin}
+          contentLabel="Login Modal"
+        />
+      )}
       {showCookie && <CookieBanner onAccepted={acceptCookies} />}
     </AuthContext.Provider>
   );
