@@ -25,7 +25,10 @@ import dynamicPageLoad from '../lib/dynamicPageLoad';
 const queryClient = new QueryClient();
 
 const LoginModal = dynamicPageLoad(
-  () => import('../components/modals/LoginModal'),
+  () =>
+    import(
+      /* webpackChunkName: "loginModal"*/ '../components/modals/LoginModal'
+    ),
 );
 const CookieBanner = dynamic(() => import('../components/CookieBanner'));
 

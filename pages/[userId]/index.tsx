@@ -59,9 +59,16 @@ import { formToJson } from '../../lib/form';
 import TextField from '../../components/TextField';
 import { InvertButton } from '../../components/Buttons';
 import { useHideOnModal } from '../../lib/useHideOnModal';
-import AccountDetailsModal from '../../components/modals/AccountDetailsModal';
 import { colorWater50 } from '../../styles/colors';
 import { ownershipGuide } from '../../lib/constants';
+import dynamicPageLoad from '../../lib/dynamicPageLoad';
+
+const AccountDetailsModal = dynamicPageLoad(
+  () =>
+    import(
+      /* webpackChunkName: "accountDetailsModal"*/ '../../components/modals/AccountDetailsModal'
+    ),
+);
 
 export const getStaticProps = getProfileStaticProps;
 export const getStaticPaths = getProfileStaticPaths;

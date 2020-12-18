@@ -51,9 +51,13 @@ import {
   USER_READING_RANK_QUERY,
   UserReadingRankData,
 } from '../../graphql/users';
+import dynamicPageLoad from '../../lib/dynamicPageLoad';
 
-const AccountDetailsModal = dynamic(
-  () => import('../modals/AccountDetailsModal'),
+const AccountDetailsModal = dynamicPageLoad(
+  () =>
+    import(
+      /* webpackChunkName: "accountDetailsModal"*/ '../modals/AccountDetailsModal'
+    ),
 );
 const Custom404 = dynamic(() => import('../../pages/404'));
 
@@ -468,7 +472,7 @@ export default function ProfileLayout({
         </Flipper>
         {children}
       </ProfileContainer>
-      {user && (
+      {profile.id === user?.id && (
         <AccountDetailsModal
           isOpen={showAccountDetails}
           onRequestClose={closeAccountDetails}

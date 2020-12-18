@@ -11,12 +11,18 @@ export default function dynamicPageLoad<P>(
       new Promise((resolve, reject) => {
         const callLoader = () => loader().then(resolve).catch(reject);
 
-        if (document.readyState === readyState) {
+        if (
+          document.readyState === readyState ||
+          document.readyState === 'complete'
+        ) {
           return callLoader();
         }
 
         const callback = (event: ProgressEvent<Document>) => {
-          if (event.target.readyState === readyState) {
+          if (
+            event.target.readyState === readyState ||
+            document.readyState === 'complete'
+          ) {
             document.removeEventListener('readystatechange', callback);
             return callLoader();
           }
