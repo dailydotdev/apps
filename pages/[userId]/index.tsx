@@ -382,7 +382,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
             <UpvoteIcon />
             {largeNumberFormat(comment.numUpvotes)}
           </CommentUpvotes>
-          <Link href={comment.permalink} passHref>
+          <Link href={comment.permalink} passHref prefetch={false}>
             <CommentInfo aria-label={comment.content}>
               <CommentContent>{comment.content}</CommentContent>
               <CommentTime dateTime={comment.createdAt}>
@@ -472,7 +472,12 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
       count={userStats?.userStats?.numPosts}
       emptyScreen={postsEmptyScreen}
       elementToNode={(post) => (
-        <Link href={post.commentsPermalink} passHref key={post.id}>
+        <Link
+          href={post.commentsPermalink}
+          passHref
+          key={post.id}
+          prefetch={false}
+        >
           <PostContainer as="a" aria-label={post.title}>
             <PostImageContainer>
               <PostImage
