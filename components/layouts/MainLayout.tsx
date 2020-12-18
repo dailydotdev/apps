@@ -3,26 +3,25 @@ import React, {
   ReactElement,
   ReactNode,
   useContext,
-  useState,
 } from 'react';
 import styled from 'styled-components';
 import Link from 'next/link';
 import { size1, size2, size3, size4, size8, sizeN } from '../../styles/sizes';
-import { FloatButton, IconButton } from '../Buttons';
+import { FloatButton } from '../Buttons';
 import LazyImage from '../LazyImage';
 import AuthContext from '../AuthContext';
 import { focusOutline } from '../../styles/helpers';
-import { laptop, laptopL, tablet } from '../../styles/media';
+import { laptop, tablet } from '../../styles/media';
 import BetaBadge from '../svg/BetaBadge';
-import BellIcon from '../../icons/bell.svg';
-import BellNotifyIcon from '../../icons/bell_notify.svg';
-import GiftIcon from '../../icons/gift.svg';
-import { typoLil2, typoNuggets } from '../../styles/typography';
-import usePersistentState from '../../lib/usePersistentState';
+import { typoLil2 } from '../../styles/typography';
 import DailyDevLogo from '../svg/DailyDevLogo';
 import dynamicPageLoad from '../../lib/dynamicPageLoad';
 
-const AboutModal = dynamicPageLoad(() => import('../modals/AboutModal'));
+const MainLayoutButtons = dynamicPageLoad(
+  () =>
+    import(/* webpackChunkName: "mainLayoutButtons"*/ '../MainLayoutButtons'),
+  'complete',
+);
 
 export interface Props extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -85,30 +84,6 @@ const ProfileImage = styled.a`
   }
 `;
 
-const AboutButton = styled(IconButton)`
-  margin: 0 ${buttonMargin};
-`;
-
-const GiftButton = styled(FloatButton)`
-  margin: 0 ${buttonMargin} 0 auto;
-  padding: ${size1};
-  border-radius: ${size2};
-  ${typoNuggets}
-
-  .icon {
-    margin: 0;
-  }
-
-  span {
-    display: none;
-    margin: 0 ${size1} 0 ${size2};
-
-    ${laptopL} {
-      display: unset;
-    }
-  }
-`;
-
 const HomeLink = styled.a`
   display: flex;
   align-items: center;
@@ -129,18 +104,6 @@ export default function MainLayout({
   showOnlyLogo = false,
 }: Props): ReactElement {
   const { user, showLogin, loadingUser } = useContext(AuthContext);
-  const [showAbout, setShowAbout] = useState(false);
-  const [showBadge, setShowBadge] = usePersistentState('about', false, true);
-  const [didClickedTshirt, setDidClickTshirt] = usePersistentState(
-    'tshirt',
-    true,
-    false,
-  );
-
-  const onAboutClick = async () => {
-    setShowAbout(true);
-    await setShowBadge(false);
-  };
 
   return (
     <Container className={className}>
@@ -153,21 +116,7 @@ export default function MainLayout({
         </Link>
         {!showOnlyLogo && !loadingUser && (
           <>
-            <GiftButton
-              as="a"
-              href="https://daily.dev/win-free-t-shirt"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="Get free T-shirt"
-              done={!didClickedTshirt}
-              onClick={() => setDidClickTshirt(true)}
-            >
-              {!didClickedTshirt && <span>Get free T-shirt</span>}
-              <GiftIcon />
-            </GiftButton>
-            <AboutButton onClick={onAboutClick} title="About">
-              {showBadge ? <BellNotifyIcon /> : <BellIcon />}
-            </AboutButton>
+            <MainLayoutButtons />
             {user ? (
               <Link href={`/${user.username || user.id}`} passHref>
                 <ProfileImage title="Go to your profile">
@@ -187,10 +136,6 @@ export default function MainLayout({
         )}
       </Header>
       {children}
-      <AboutModal
-        isOpen={showAbout}
-        onRequestClose={() => setShowAbout(false)}
-      />
     </Container>
   );
 }
