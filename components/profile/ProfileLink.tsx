@@ -24,7 +24,7 @@ export function ProfileLink({
   ...props
 }: ProfileLinkProps): ReactElement {
   return (
-    <Link href={user.permalink} passHref>
+    <Link href={user.permalink} passHref prefetch={false}>
       <Anchor title={`Go to ${user.name}'s profile`} {...props}>
         {children}
       </Anchor>
