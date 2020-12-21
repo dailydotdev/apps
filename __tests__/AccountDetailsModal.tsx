@@ -82,6 +82,7 @@ it('should submit information on button click', async () => {
     github: null,
     portfolio: null,
     twitter: null,
+    hashnode: null,
   });
   expect(onRequestClose).toBeCalledTimes(1);
 });

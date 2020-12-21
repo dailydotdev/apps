@@ -112,6 +112,7 @@ export default function ProfileForm({
   const [usernameHint, setUsernameHint] = useState<string>();
   const [twitterHint, setTwitterHint] = useState<string>();
   const [githubHint, setGithubHint] = useState<string>();
+  const [hashnodeHint, setHashnodeHint] = useState<string>();
   const [emailHint, setEmailHint] = useState(defaultEmailHint);
 
   const updateDisableSubmit = () => {
@@ -154,6 +155,8 @@ export default function ProfileForm({
           setTwitterHint('This Twitter handle is already used');
         } else if (res.field === 'github') {
           setGithubHint('This GitHub handle is already used');
+        } else if (res.field === 'hashnode') {
+          setGithubHint('This Hashnode handle is already used');
         }
       }
     } else {
@@ -221,6 +224,19 @@ export default function ProfileForm({
         maxLength={39}
         validityChanged={updateDisableSubmit}
         valueChanged={() => githubHint && setGithubHint(null)}
+      />
+      <FormField
+        inputId="hashnode"
+        name="hashnode"
+        label="Hashnode"
+        value={user.hashnode}
+        hint={hashnodeHint}
+        valid={!hashnodeHint}
+        placeholder="handle"
+        pattern="(\w){1,38}"
+        maxLength={39}
+        validityChanged={updateDisableSubmit}
+        valueChanged={() => hashnodeHint && setHashnodeHint(null)}
       />
       <FormField
         inputId="portfolio"

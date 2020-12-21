@@ -15,6 +15,7 @@ export interface PublicProfile {
   username?: string;
   twitter?: string;
   github?: string;
+  hashnode?: string;
   portfolio?: string;
   bio?: string;
   createdAt: string;
@@ -31,6 +32,7 @@ export interface UserProfile {
   title?: string;
   twitter?: string;
   github?: string;
+  hashnode?: string;
   portfolio?: string;
   bio?: string;
   acceptedMarketing?: boolean;

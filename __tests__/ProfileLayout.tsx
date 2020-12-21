@@ -42,6 +42,7 @@ const defaultProfile: PublicProfile = {
   createdAt: '2020-08-26T13:04:35.000Z',
   twitter: 'dailydotdev',
   github: 'dailydotdev',
+  hashnode: 'dailydotdev',
   portfolio: 'https://daily.dev/?key=vaue',
 };
 
@@ -89,6 +90,12 @@ it('should show github link', () => {
   renderComponent();
   const el = screen.getByTitle('Go to GitHub');
   expect(el).toHaveAttribute('href', 'https://github.com/dailydotdev');
+});
+
+it('should show hashnode link', () => {
+  renderComponent();
+  const el = screen.getByTitle('Go to Hashnode');
+  expect(el).toHaveAttribute('href', 'https://hashnode.com/@dailydotdev');
 });
 
 it('should show portfolio link', () => {

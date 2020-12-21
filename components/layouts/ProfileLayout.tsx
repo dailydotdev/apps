@@ -26,6 +26,7 @@ import {
 import JoinedDate from '../profile/JoinedDate';
 import GitHubIcon from '../../icons/github.svg';
 import TwitterIcon from '../../icons/twitter.svg';
+import HashnodeIcon from '../../icons/hashnode.svg';
 import LinkIcon from '../../icons/link.svg';
 import { colorWater50 } from '../../styles/colors';
 import { laptop, tablet } from '../../styles/media';
@@ -329,6 +330,7 @@ export default function ProfileLayout({
 
   const [twitterHandle, setTwitterHandle] = useState<string>();
   const [githubHandle, setGithubHandle] = useState<string>();
+  const [hashnodeHandle, setHashnodeHandle] = useState<string>();
   const [portfolioLink, setPortfolioLink] = useState<string>();
 
   const [showAccountDetails, setShowAccountDetails] = useState(false);
@@ -355,6 +357,8 @@ export default function ProfileLayout({
       const DOMPurify = createDOMPurify(window);
       profile.twitter && setTwitterHandle(DOMPurify.sanitize(profile.twitter));
       profile.github && setGithubHandle(DOMPurify.sanitize(profile.github));
+      profile.hashnode &&
+        setHashnodeHandle(DOMPurify.sanitize(profile.hashnode));
       profile.portfolio &&
         setPortfolioLink(DOMPurify.sanitize(profile.portfolio));
     }
@@ -423,6 +427,16 @@ export default function ProfileLayout({
                   rel="noopener noreferrer"
                 >
                   <GitHubIcon />
+                </a>
+              )}
+              {hashnodeHandle && (
+                <a
+                  href={`https://hashnode.com/@${hashnodeHandle}`}
+                  title="Go to Hashnode"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <HashnodeIcon />
                 </a>
               )}
               {portfolioLink && (

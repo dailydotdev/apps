@@ -80,6 +80,7 @@ it('should submit information', async () => {
     github: null,
     portfolio: null,
     twitter: null,
+    hashnode: null,
   });
   expect(onSuccessfulSubmit).toBeCalledTimes(1);
   expect(updateUser).toBeCalledWith({ ...defaultUser, username: 'idoshamun' });
