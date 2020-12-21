@@ -115,7 +115,7 @@ export default function ShareNewCommentPopup({
           title="Share on Twitter"
           href={getTwitterShareLink(href, post.title)}
           target="_blank"
-          rel="noopener noreferrer"
+          rel="noopener"
         >
           <TwitterIcon />
           <span>Twitter</span>
@@ -126,7 +126,7 @@ export default function ShareNewCommentPopup({
           title="Share on WhatsApp"
           href={getWhatsappShareLink(href)}
           target="_blank"
-          rel="noopener noreferrer"
+          rel="noopener"
         >
           <WhatsappIcon />
           <span>Whatsapp</span>
@@ -137,7 +137,7 @@ export default function ShareNewCommentPopup({
           title="Share on Facebook"
           href={getFacebookShareLink(href)}
           target="_blank"
-          rel="noopener noreferrer"
+          rel="noopener"
         >
           <FacebookIcon />
           <span>Facebook</span>

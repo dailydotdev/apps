@@ -80,7 +80,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
           as="a"
           href={getWhatsappShareLink(href)}
           target="_blank"
-          rel="noopener noreferrer"
+          rel="noopener"
           onClick={() =>
             ReactGA.event({
               category: 'Post',
@@ -96,7 +96,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
           as="a"
           href={getTwitterShareLink(href, post.title)}
           target="_blank"
-          rel="noopener noreferrer"
+          rel="noopener"
           onClick={() =>
             ReactGA.event({
               category: 'Post',
@@ -112,7 +112,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
           as="a"
           href={getFacebookShareLink(href)}
           target="_blank"
-          rel="noopener noreferrer"
+          rel="noopener"
           onClick={() =>
             ReactGA.event({
               category: 'Post',

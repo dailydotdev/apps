@@ -406,7 +406,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
         No articles yet.
         <br />
         <br />
-        <a href={ownershipGuide} target="_blank" rel="noopener noreferrer">
+        <a href={ownershipGuide} target="_blank" rel="noopener">
           How daily.dev picks up new articles
         </a>
         <br />
@@ -418,7 +418,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
         <a
           href="mailto:hi@daily.dev?subject=Add my articles retroactively"
           target="_blank"
-          rel="noopener noreferrer"
+          rel="noopener"
         >
           Add my articles retroactively
         </a>

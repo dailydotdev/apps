@@ -90,11 +90,11 @@ export default function LoginModal(props: Props): ReactElement {
       </Buttons>
       <LegalNotice>
         By signing up I accept the{' '}
-        <a href={termsOfService} target="_blank" rel="noopener noreferrer">
+        <a href={termsOfService} target="_blank" rel="noopener">
           Terms of Service
         </a>{' '}
         and the{' '}
-        <a href={privacyPolicy} target="_blank" rel="noopener noreferrer">
+        <a href={privacyPolicy} target="_blank" rel="noopener">
           Privacy Policy
         </a>
         .

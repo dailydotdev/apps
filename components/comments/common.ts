@@ -11,7 +11,7 @@ export const CommentPublishDate = styled.time`
 
 export const CommentBox = styled(Linkify).attrs({
   tagName: 'div',
-  options: { attributes: { rel: 'noopener noreferrer' } },
+  options: { attributes: { rel: 'noopener nofollow' } },
 })`
   padding: ${size3} ${size4};
   background: var(--theme-background-highlight);

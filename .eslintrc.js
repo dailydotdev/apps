@@ -24,4 +24,7 @@ module.exports = {
   env: {
     node: true,
   },
+  rules: {
+    'react/jsx-no-target-blank': 0,
+  },
 };

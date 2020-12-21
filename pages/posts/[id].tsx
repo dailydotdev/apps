@@ -543,7 +543,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     href: postById?.post.permalink,
     title: 'Go to article',
     target: '_blank',
-    rel: 'noopener noreferrer',
+    rel: 'noopener',
     onClick: () => ReactGA.event({ category: 'Post', action: 'Click' }),
   };
 
@@ -689,7 +689,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
                 as="a"
                 href={ownershipGuide}
                 target="_blank"
-                rel="noopener noreferrer"
+                rel="noopener"
               >
                 Learn more
               </HollowButton>

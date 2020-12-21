@@ -385,11 +385,7 @@ export default function ProfileLayout({
               eager={true}
             />
             <Reputation>
-              <a
-                href={reputationGuide}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a href={reputationGuide} target="_blank" rel="noopener">
                 Reputation
               </a>
               <span>{profile.reputation}</span>
@@ -414,7 +410,7 @@ export default function ProfileLayout({
                   href={`https://twitter.com/${twitterHandle}`}
                   title="Go to Twitter"
                   target="_blank"
-                  rel="noopener noreferrer"
+                  rel="noopener"
                 >
                   <TwitterIcon />
                 </a>
@@ -424,7 +420,7 @@ export default function ProfileLayout({
                   href={`https://github.com/${githubHandle}`}
                   title="Go to GitHub"
                   target="_blank"
-                  rel="noopener noreferrer"
+                  rel="noopener"
                 >
                   <GitHubIcon />
                 </a>
@@ -434,7 +430,7 @@ export default function ProfileLayout({
                   href={`https://hashnode.com/@${hashnodeHandle}`}
                   title="Go to Hashnode"
                   target="_blank"
-                  rel="noopener noreferrer"
+                  rel="noopener"
                 >
                   <HashnodeIcon />
                 </a>
@@ -444,7 +440,7 @@ export default function ProfileLayout({
                   href={portfolioLink}
                   title="Go to portfolio website"
                   target="_blank"
-                  rel="noopener noreferrer"
+                  rel="noopener"
                 >
                   <LinkIcon />
                   <span>

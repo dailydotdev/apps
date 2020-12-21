@@ -31,7 +31,7 @@ const ProfilePage = (): ReactElement => {
       <br />
       <br />
       In the meantime,{' '}
-      <a href={reputationGuide} target="_blank" rel="noopener noreferrer">
+      <a href={reputationGuide} target="_blank" rel="noopener">
         learn how to earn reputation points.
       </a>
     </Container>

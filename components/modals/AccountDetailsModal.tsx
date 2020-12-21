@@ -111,49 +111,29 @@ export default function AccountDetailsModal(props: ModalProps): ReactElement {
         />
       </Container>
       <Footer>
-        <FooterLink href={faq} target="_blank" rel="noopener noreferrer">
+        <FooterLink href={faq} target="_blank" rel="noopener">
           FAQ
         </FooterLink>
-        <FooterLink
-          href={requestFeature}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <FooterLink href={requestFeature} target="_blank" rel="noopener">
           Request a feature
         </FooterLink>
-        <FooterLink
-          href={reportIssue}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <FooterLink href={reportIssue} target="_blank" rel="noopener">
           Report an issue
         </FooterLink>
-        <FooterLink
-          href={privacyPolicy}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <FooterLink href={privacyPolicy} target="_blank" rel="noopener">
           Privacy policy
         </FooterLink>
-        <FooterLink
-          href={cookiePolicy}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <FooterLink href={cookiePolicy} target="_blank" rel="noopener">
           Cookie policy
         </FooterLink>
-        <FooterLink
-          href={termsOfService}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <FooterLink href={termsOfService} target="_blank" rel="noopener">
           Terms of service
         </FooterLink>
         {user.premium && (
           <FooterLink
             href="mailto:support@daily.dev?subject=Cancel my premium subscription"
             target="_blank"
-            rel="noopener noreferrer"
+            rel="noopener"
           >
             Cancel subscription
           </FooterLink>

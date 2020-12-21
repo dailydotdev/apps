@@ -56,7 +56,7 @@ export default function MainLayoutButtons(): ReactElement {
         as="a"
         href="https://daily.dev/win-free-t-shirt"
         target="_blank"
-        rel="noopener noreferrer"
+        rel="noopener"
         title="Get free T-shirt"
         done={!didClickedTshirt}
         onClick={() => setDidClickTshirt(true)}

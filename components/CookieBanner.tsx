@@ -100,7 +100,7 @@ export default function CookieBanner({
       <Art />
       <div>
         Our lawyers advised us to tell you that we use{' '}
-        <a href={cookiePolicy} target="_blank" rel="noopener noreferrer">
+        <a href={cookiePolicy} target="_blank" rel="noopener">
           cookies
         </a>{' '}
         to improve user experience.
