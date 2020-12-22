@@ -6,20 +6,27 @@ import React, {
 } from 'react';
 import styled from 'styled-components';
 import Link from 'next/link';
-import { size1, size2, size3, size4, size8, sizeN } from '../../styles/sizes';
-import { FloatButton } from '../Buttons';
-import LazyImage from '../LazyImage';
-import AuthContext from '../AuthContext';
-import { focusOutline } from '../../styles/helpers';
-import { laptop, tablet } from '../../styles/media';
-import BetaBadge from '../svg/BetaBadge';
-import { typoLil2 } from '../../styles/typography';
-import DailyDevLogo from '../svg/DailyDevLogo';
-import dynamicPageLoad from '../../lib/dynamicPageLoad';
+import {
+  size1,
+  size2,
+  size3,
+  size4,
+  size8,
+  sizeN,
+} from '../../../styles/sizes';
+import { FloatButton } from '../../Buttons';
+import LazyImage from '../../LazyImage';
+import AuthContext from '../../AuthContext';
+import { focusOutline } from '../../../styles/helpers';
+import { laptop, tablet } from '../../../styles/media';
+import BetaBadge from '../../svg/BetaBadge';
+import { typoLil2 } from '../../../styles/typography';
+import DailyDevLogo from '../../svg/DailyDevLogo';
+import dynamicPageLoad from '../../../lib/dynamicPageLoad';
 
 const MainLayoutButtons = dynamicPageLoad(
   () =>
-    import(/* webpackChunkName: "mainLayoutButtons"*/ '../MainLayoutButtons'),
+    import(/* webpackChunkName: "secondPhaseButtons"*/ './SecondPhaseButtons'),
   'complete',
 );
 
@@ -54,6 +61,10 @@ const Header = styled.header`
     padding-left: ${size4};
     padding-right: ${size4};
     border-bottom: none;
+  }
+
+  & > :nth-child(2) {
+    margin-left: auto;
   }
 `;
 
@@ -98,7 +109,7 @@ const HomeLink = styled.a`
   }
 `;
 
-export default function MainLayout({
+export default function Index({
   children,
   className,
   showOnlyLogo = false,
@@ -140,6 +151,4 @@ export default function MainLayout({
   );
 }
 
-export const getLayout = (page: ReactNode): ReactNode => (
-  <MainLayout>{page}</MainLayout>
-);
+export const getLayout = (page: ReactNode): ReactNode => <Index>{page}</Index>;
