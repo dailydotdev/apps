@@ -202,7 +202,7 @@ export default function TextField({
       setValidInput(true);
     } else {
       setIdleTimeout(
-        setTimeout(() => {
+        window.setTimeout(() => {
           setIdleTimeout(null);
           setValidInput(inputRef.current.checkValidity());
         }, 1500),
