@@ -1,14 +1,14 @@
 import React, { ReactElement, useState } from 'react';
-import GiftIcon from '../icons/gift.svg';
-import BellNotifyIcon from '../icons/bell_notify.svg';
-import BellIcon from '../icons/bell.svg';
+import GiftIcon from '../../../icons/gift.svg';
+import BellNotifyIcon from '../../../icons/bell_notify.svg';
+import BellIcon from '../../../icons/bell.svg';
 import styled from 'styled-components';
-import { FloatButton, IconButton } from './Buttons';
-import { size1, size2, sizeN } from '../styles/sizes';
-import { typoNuggets } from '../styles/typography';
-import { laptopL } from '../styles/media';
-import AboutModal from './modals/AboutModal';
-import usePersistentState from '../lib/usePersistentState';
+import { FloatButton, IconButton } from '../../Buttons';
+import { size1, size2, sizeN } from '../../../styles/sizes';
+import { typoNuggets } from '../../../styles/typography';
+import { laptopL } from '../../../styles/media';
+import AboutModal from '../../modals/AboutModal';
+import usePersistentState from '../../../lib/usePersistentState';
 
 const buttonMargin = sizeN(1.5);
 
@@ -17,7 +17,7 @@ const AboutButton = styled(IconButton)`
 `;
 
 const GiftButton = styled(FloatButton)`
-  margin: 0 ${buttonMargin} 0 auto;
+  margin: 0 ${buttonMargin};
   padding: ${size1};
   border-radius: ${size2};
   ${typoNuggets}
@@ -36,7 +36,7 @@ const GiftButton = styled(FloatButton)`
   }
 `;
 
-export default function MainLayoutButtons(): ReactElement {
+export default function SecondPhaseButtons(): ReactElement {
   const [showAbout, setShowAbout] = useState(false);
   const [showBadge, setShowBadge] = usePersistentState('about', false, true);
   const [didClickedTshirt, setDidClickTshirt] = usePersistentState(
