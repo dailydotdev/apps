@@ -6,61 +6,66 @@ import React, {
   useState,
 } from 'react';
 import createDOMPurify from 'dompurify';
-import Link from 'next/link';
-import { getProfile, getProfileSSR, PublicProfile } from '../../lib/user';
+import { getProfile, getProfileSSR, PublicProfile } from '../../../lib/user';
 import { NextSeoProps } from 'next-seo/lib/types';
-import { getLayout as getMainLayout } from './MainLayout';
+import { getLayout as getMainLayout } from '../MainLayout';
 import Head from 'next/head';
 import { NextSeo } from 'next-seo';
-import { PageContainer } from '../utilities';
+import { PageContainer } from '../../utilities';
 import styled from 'styled-components';
-import { size05, size2, size3, size4, size6, sizeN } from '../../styles/sizes';
-import LazyImage from '../LazyImage';
+import {
+  size05,
+  size2,
+  size3,
+  size4,
+  size6,
+  sizeN,
+} from '../../../styles/sizes';
+import LazyImage from '../../LazyImage';
 import {
   typoDouble,
   typoLil1,
   typoMicro2,
   typoNuggets,
   typoQuarter,
-} from '../../styles/typography';
-import JoinedDate from '../profile/JoinedDate';
-import GitHubIcon from '../../icons/github.svg';
-import TwitterIcon from '../../icons/twitter.svg';
-import HashnodeIcon from '../../icons/hashnode.svg';
-import LinkIcon from '../../icons/link.svg';
-import { colorWater50 } from '../../styles/colors';
-import { laptop, tablet } from '../../styles/media';
-import { FloatButton, HollowButton } from '../Buttons';
-import AuthContext from '../AuthContext';
+} from '../../../styles/typography';
+import JoinedDate from '../../profile/JoinedDate';
+import GitHubIcon from '../../../icons/github.svg';
+import TwitterIcon from '../../../icons/twitter.svg';
+import HashnodeIcon from '../../../icons/hashnode.svg';
+import LinkIcon from '../../../icons/link.svg';
+import { colorWater50 } from '../../../styles/colors';
+import { tablet } from '../../../styles/media';
+import { HollowButton } from '../../Buttons';
+import AuthContext from '../../AuthContext';
 import dynamic from 'next/dynamic';
-import { useHideOnModal } from '../../lib/useHideOnModal';
+import { useHideOnModal } from '../../../lib/useHideOnModal';
 import { useRouter } from 'next/router';
-import { Flipped, Flipper } from 'react-flip-toolkit';
-import { pageMaxWidth } from '../../styles/helpers';
 import {
   GetStaticPathsResult,
   GetStaticPropsContext,
   GetStaticPropsResult,
 } from 'next';
 import { ParsedUrlQuery } from 'querystring';
-import { reputationGuide } from '../../lib/constants';
+import { reputationGuide } from '../../../lib/constants';
 import { useQuery } from 'react-query';
-import Rank from '../Rank';
+import Rank from '../../Rank';
 import request from 'graphql-request';
-import { apiUrl } from '../../lib/config';
+import { apiUrl } from '../../../lib/config';
 import {
   USER_READING_RANK_QUERY,
   UserReadingRankData,
-} from '../../graphql/users';
-import dynamicPageLoad from '../../lib/dynamicPageLoad';
+} from '../../../graphql/users';
+import dynamicPageLoad from '../../../lib/dynamicPageLoad';
+import NavBar, { tabs } from './NavBar';
 
 const AccountDetailsModal = dynamicPageLoad(
   () =>
     import(
-      /* webpackChunkName: "accountDetailsModal"*/ '../modals/AccountDetailsModal'
+      /* webpackChunkName: "accountDetailsModal"*/ '../../modals/AccountDetailsModal'
     ),
 );
-const Custom404 = dynamic(() => import('../../pages/404'));
+const Custom404 = dynamic(() => import('../../../pages/404'));
 
 export interface ProfileLayoutProps {
   profile: PublicProfile;
@@ -213,79 +218,18 @@ const EditProfileButton = styled(HollowButton)`
   ${typoNuggets}
 `;
 
-const Nav = styled.nav`
-  position: relative;
-  display: flex;
-  margin: ${size6} -${size6} 0;
-
-  :before {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: -99999px;
-    right: -99999px;
-    height: 0.063rem;
-    width: 100vw;
-    margin: 0 auto;
-    background: var(--theme-separator);
-
-    ${laptop} {
-      width: ${pageMaxWidth};
-    }
-  }
-
-  & > div {
-    position: relative;
-  }
-
-  ${FloatButton} {
-    padding: ${size4} ${size6};
-    ${typoNuggets}
-
-    &.selected {
-      color: var(--theme-primary);
-    }
-  }
-`;
-
-const ActiveTabIndicator = styled.div`
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: ${size4};
-  height: ${size05};
-  margin: 0 auto;
-  background: var(--theme-primary);
-  border-radius: 0.063rem;
-`;
-
-type Tab = { path: string; title: string };
-
-const basePath = `/[userId]`;
-const tabs: Tab[] = [
-  {
-    path: basePath,
-    title: 'Activity',
-  },
-  {
-    path: `${basePath}/reputation`,
-    title: 'Reputation',
-  },
-];
-
-export default function ProfileLayout({
+export default function Index({
   profile: initialProfile,
   children,
 }: ProfileLayoutProps): ReactElement {
-  const { isFallback } = useRouter();
+  const router = useRouter();
+  const { isFallback } = router;
 
   if (!isFallback && !initialProfile) {
     return <Custom404 />;
   }
 
   const { user } = useContext(AuthContext);
-  const router = useRouter();
   const [selectedTab, setSelectedTab] = useState(
     tabs.findIndex((tab) => tab.path === router?.pathname),
   );
@@ -336,21 +280,6 @@ export default function ProfileLayout({
   const [showAccountDetails, setShowAccountDetails] = useState(false);
 
   const closeAccountDetails = () => setShowAccountDetails(false);
-
-  const getTabHref = (tab: Tab) =>
-    tab.path.replace('[userId]', profile.username || profile.id);
-
-  const onTabClicked = (event: React.MouseEvent, index: number) => {
-    event.preventDefault();
-    setSelectedTab(index);
-  };
-
-  const applyPageChange = () => {
-    // Add delay to keep the animation at 60fps
-    setTimeout(async () => {
-      await router.push(getTabHref(tabs[selectedTab]));
-    }, 100);
-  };
 
   useEffect(() => {
     if (profile) {
@@ -458,28 +387,12 @@ export default function ProfileLayout({
             )}
           </ProfileInfo>
         </ProfileHeader>
-        <Flipper flipKey={selectedTab} spring="veryGentle">
-          <Nav>
-            {tabs.map((tab, index) => (
-              <div key={tab.path}>
-                <Link href={getTabHref(tab)} passHref>
-                  <FloatButton
-                    as="a"
-                    className={selectedTab === index ? 'selected' : ''}
-                    onClick={(event: React.MouseEvent) =>
-                      onTabClicked(event, index)
-                    }
-                  >
-                    {tab.title}
-                  </FloatButton>
-                </Link>
-                <Flipped flipId="activeTabIndicator" onStart={applyPageChange}>
-                  {selectedTab === index && <ActiveTabIndicator />}
-                </Flipped>
-              </div>
-            ))}
-          </Nav>
-        </Flipper>
+        <NavBar
+          selectedTab={selectedTab}
+          profile={profile}
+          onTabSelected={setSelectedTab}
+          router={router}
+        />
         {children}
       </ProfileContainer>
       {profile.id === user?.id && (
@@ -495,7 +408,7 @@ export default function ProfileLayout({
 export const getLayout = (
   page: ReactNode,
   props: ProfileLayoutProps,
-): ReactNode => getMainLayout(<ProfileLayout {...props}>{page}</ProfileLayout>);
+): ReactNode => getMainLayout(<Index {...props}>{page}</Index>);
 
 interface ProfileParams extends ParsedUrlQuery {
   userId: string;

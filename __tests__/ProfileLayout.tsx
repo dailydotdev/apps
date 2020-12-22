@@ -2,7 +2,7 @@ import React from 'react';
 import { LoggedUser, PublicProfile } from '../lib/user';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import AuthContext from '../components/AuthContext';
-import ProfileLayout from '../components/layouts/ProfileLayout';
+import Index from '../components/layouts/ProfileLayout';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { mockGraphQL } from './helpers/graphql';
 import { USER_READING_RANK_QUERY } from '../graphql/users';
@@ -62,7 +62,7 @@ const renderComponent = (
           updateUser: jest.fn(),
         }}
       >
-        <ProfileLayout profile={{ ...defaultProfile, ...profile }} />
+        <Index profile={{ ...defaultProfile, ...profile }} />
       </AuthContext.Provider>
     </QueryClientProvider>,
   );
