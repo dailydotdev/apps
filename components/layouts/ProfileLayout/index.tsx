@@ -62,7 +62,7 @@ import NavBar, { tabs } from './NavBar';
 const AccountDetailsModal = dynamicPageLoad(
   () =>
     import(
-      /* webpackChunkName: "accountDetailsModal"*/ '../../modals/AccountDetailsModal'
+      /* webpackChunkName: "accountDetailsModal" */ '../../modals/AccountDetailsModal'
     ),
 );
 const Custom404 = dynamic(() => import('../../../pages/404'));

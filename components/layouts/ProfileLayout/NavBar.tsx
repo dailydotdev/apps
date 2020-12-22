@@ -14,7 +14,7 @@ import onPageLoad from '../../../lib/onPageLoad';
 
 const flipperLoader = () =>
   onPageLoad('complete').then(
-    () => /* webpackChunkName: "reactFlip"*/ import('react-flip-toolkit'),
+    () => import(/* webpackChunkName: "reactFlip" */ 'react-flip-toolkit'),
   );
 
 const Flipper = dynamicParent<FlipperProps>(() =>
