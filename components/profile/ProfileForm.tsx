@@ -233,7 +233,7 @@ export default function ProfileForm({
         hint={hashnodeHint}
         valid={!hashnodeHint}
         placeholder="handle"
-        pattern="(\w){1,38}"
+        pattern="^[a-zA-Z\d](?:[a-zA-Z\d]|-(?=[a-zA-Z\d])){0,38}$"
         maxLength={39}
         validityChanged={updateDisableSubmit}
         valueChanged={() => hashnodeHint && setHashnodeHint(null)}
