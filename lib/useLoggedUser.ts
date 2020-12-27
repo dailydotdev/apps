@@ -1,22 +1,29 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
 import { AnonymousUser, getLoggedUser, LoggedUser } from './user';
 import usePersistentState from './usePersistentState';
+import { differenceInMilliseconds } from 'date-fns';
 
 export default function useLoggedUser(): [
   LoggedUser | null,
   (LoggedUser) => Promise<void>,
   string,
   boolean,
+  boolean,
 ] {
   const queryKey = 'loggedUser';
 
+  const [refreshTokenTimeout, setRefreshTokenTimeout] = useState<number>();
+  const [tokenRefreshed, setTokenRefreshed] = useState(false);
   const [cachedUser, setCachedUser] = usePersistentState<
     AnonymousUser | LoggedUser
   >('user', null);
 
   const queryClient = useQueryClient();
-  const { data: fetchedUser, isLoading } = useQuery(queryKey, getLoggedUser);
+  const { data: fetchedUser, isLoading, refetch } = useQuery(
+    queryKey,
+    getLoggedUser,
+  );
 
   const availableUser = fetchedUser || cachedUser;
 
@@ -38,9 +45,31 @@ export default function useLoggedUser(): [
 
   useEffect(() => {
     if (fetchedUser) {
+      if (refreshTokenTimeout) {
+        clearTimeout(refreshTokenTimeout);
+      }
+      if ('accessToken' in fetchedUser) {
+        const expiresInMillis = differenceInMilliseconds(
+          new Date(fetchedUser.accessToken.expiresIn),
+          new Date(),
+        );
+        // Refresh token before it expires
+        setRefreshTokenTimeout(
+          window.setTimeout(refetch, expiresInMillis - 1000 * 60 * 2),
+        );
+        // Make sure not persist this value
+        fetchedUser.accessToken = undefined;
+      }
       setCachedUser(fetchedUser);
+      setTokenRefreshed(true);
     }
   }, [fetchedUser]);
 
-  return [user, setUser, trackingId, isLoading && !availableUser];
+  return [
+    user,
+    setUser,
+    trackingId,
+    isLoading && !availableUser,
+    tokenRefreshed,
+  ];
 }

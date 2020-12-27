@@ -60,6 +60,7 @@ const renderComponent = (
           showLogin: jest.fn(),
           logout: jest.fn(),
           updateUser: jest.fn(),
+          tokenRefreshed: true,
         }}
       >
         <Index profile={{ ...defaultProfile, ...profile }} />

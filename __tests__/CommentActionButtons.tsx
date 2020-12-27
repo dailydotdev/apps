@@ -74,6 +74,7 @@ const renderComponent = (
           showLogin,
           logout: jest.fn(),
           updateUser: jest.fn(),
+          tokenRefreshed: true,
         }}
       >
         <CommentActionButtons {...props} />

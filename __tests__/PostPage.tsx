@@ -130,6 +130,7 @@ const renderPost = (
           showLogin,
           logout: jest.fn(),
           updateUser: jest.fn(),
+          tokenRefreshed: true,
         }}
       >
         <PostPage {...defaultProps} {...props} />

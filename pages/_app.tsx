@@ -15,7 +15,7 @@ import { DefaultSeo } from 'next-seo';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import Seo from '../next-seo';
 import GlobalStyle from '../components/GlobalStyle';
-import AuthContext from '../components/AuthContext';
+import AuthContext, { AuthContextData } from '../components/AuthContext';
 import { logout as dispatchLogout } from '../lib/user';
 import { Router } from 'next/router';
 import { useCookieBanner } from '../lib/useCookieBanner';
@@ -49,7 +49,13 @@ Router.events.on('routeChangeComplete', trackPageView);
 
 function InternalApp({ Component, pageProps }: AppProps): ReactElement {
   const [initializedGA, setInitializedGA] = useState(false);
-  const [user, setUser, trackingId, loadingUser] = useLoggedUser();
+  const [
+    user,
+    setUser,
+    trackingId,
+    loadingUser,
+    tokenRefreshed,
+  ] = useLoggedUser();
   const [loginIsOpen, setLoginIsOpen] = useState(false);
   const [showCookie, acceptCookies, updateCookieBanner] = useCookieBanner();
 
@@ -60,7 +66,7 @@ function InternalApp({ Component, pageProps }: AppProps): ReactElement {
     location.reload();
   };
 
-  const authContext = useMemo(
+  const authContext: AuthContextData = useMemo(
     () => ({
       user,
       shouldShowLogin: loginIsOpen,
@@ -68,8 +74,9 @@ function InternalApp({ Component, pageProps }: AppProps): ReactElement {
       updateUser: setUser,
       logout,
       loadingUser,
+      tokenRefreshed,
     }),
-    [user, loginIsOpen, loadingUser],
+    [user, loginIsOpen, loadingUser, tokenRefreshed],
   );
 
   useEffect(() => {

@@ -44,6 +44,7 @@ const renderComponent = (user: Partial<LoggedUser> = {}): RenderResult => {
         showLogin: jest.fn(),
         logout: jest.fn(),
         updateUser,
+        tokenRefreshed: true,
       }}
     >
       <ProfileForm
