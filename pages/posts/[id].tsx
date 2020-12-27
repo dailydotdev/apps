@@ -392,7 +392,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     return <Custom404 />;
   }
 
-  const { user, showLogin } = useContext(AuthContext);
+  const { user, showLogin, tokenRefreshed } = useContext(AuthContext);
   const [parentComment, setParentComment] = useState<ParentComment>(null);
   const [hasNativeShare, setHasNativeShare] = useState(false);
   const [pendingComment, setPendingComment] = useState<{
@@ -414,7 +414,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
       }),
     {
       initialData: postData,
-      enabled: !!id,
+      enabled: !!id && tokenRefreshed,
     },
   );
 
@@ -425,7 +425,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         postId: id,
       }),
     {
-      enabled: !!id,
+      enabled: !!id && tokenRefreshed,
       refetchInterval: 60 * 1000,
     },
   );

@@ -47,6 +47,7 @@ export interface LoggedUser extends UserProfile {
   roles?: Roles[];
   createdAt: string;
   reputation?: number;
+  accessToken?: { token: string; expiresIn: string };
 }
 
 interface BaseError {

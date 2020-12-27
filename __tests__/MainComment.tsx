@@ -62,6 +62,7 @@ const renderLayout = (
           showLogin: jest.fn(),
           logout: jest.fn(),
           updateUser: jest.fn(),
+          tokenRefreshed: true,
         }}
       >
         <MainComment {...defaultProps} {...props} />

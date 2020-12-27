@@ -19,6 +19,7 @@ const renderLayout = (user: LoggedUser = null): RenderResult => {
         showLogin,
         logout: jest.fn(),
         updateUser: jest.fn(),
+        tokenRefreshed: true,
       }}
     >
       <Index />

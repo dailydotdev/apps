@@ -37,6 +37,7 @@ const renderComponent = (user: Partial<LoggedUser> = {}): RenderResult => {
         showLogin: jest.fn(),
         updateUser: jest.fn(),
         logout,
+        tokenRefreshed: true,
       }}
     >
       <AccountDetailsModal

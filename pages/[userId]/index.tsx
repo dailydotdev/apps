@@ -286,7 +286,7 @@ const CompleteProfileButton = styled(InvertButton)`
 `;
 
 const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
-  const { user, updateUser } = useContext(AuthContext);
+  const { user, updateUser, tokenRefreshed } = useContext(AuthContext);
 
   const { data: userStats } = useQuery<UserStatsData>(
     ['user_stats', profile?.id],
@@ -295,7 +295,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
         id: profile?.id,
       }),
     {
-      enabled: !!profile,
+      enabled: !!profile && tokenRefreshed,
     },
   );
 
@@ -308,7 +308,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
         after: pageParam,
       }),
     {
-      enabled: !!profile,
+      enabled: !!profile && tokenRefreshed,
       getNextPageParam: (lastPage) =>
         lastPage.page.pageInfo.hasNextPage && lastPage.page.pageInfo.endCursor,
     },
@@ -323,7 +323,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
         after: pageParam,
       }),
     {
-      enabled: !!profile,
+      enabled: !!profile && tokenRefreshed,
       getNextPageParam: (lastPage) =>
         lastPage.page.pageInfo.hasNextPage && lastPage.page.pageInfo.endCursor,
     },
