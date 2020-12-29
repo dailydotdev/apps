@@ -45,7 +45,7 @@ import ActivitySection, {
   ActivityContainer,
   ActivitySectionTitle,
 } from '../../components/profile/ActivitySection';
-import { AUTHOR_FEED_QUERY, AuthorFeedData } from '../../graphql/posts';
+import { AUTHOR_FEED_QUERY, FeedData } from '../../graphql/posts';
 import LazyImage from '../../components/LazyImage';
 import { largeNumberFormat } from '../../lib/numberFormat';
 import AuthContext from '../../components/AuthContext';
@@ -62,6 +62,7 @@ import { useHideOnModal } from '../../lib/useHideOnModal';
 import { colorWater50 } from '../../styles/colors';
 import { ownershipGuide } from '../../lib/constants';
 import dynamicPageLoad from '../../lib/dynamicPageLoad';
+import { smallPostImage } from '../../lib/image';
 
 const AccountDetailsModal = dynamicPageLoad(
   () =>
@@ -314,7 +315,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
     },
   );
 
-  const posts = useInfiniteQuery<AuthorFeedData>(
+  const posts = useInfiniteQuery<FeedData>(
     ['user_posts', profile?.id],
     ({ pageParam }) =>
       request(`${apiUrl}/graphql`, AUTHOR_FEED_QUERY, {
@@ -481,10 +482,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
           <PostContainer as="a" aria-label={post.title}>
             <PostImageContainer>
               <PostImage
-                imgSrc={post.image.replace(
-                  '/f_auto,q_auto/',
-                  '/c_fill,f_auto,q_auto,w_192/',
-                )}
+                imgSrc={smallPostImage(post.image)}
                 imgAlt="Post cover image"
               />
               <SourceImage
