@@ -227,7 +227,12 @@ const PendingKeywords = (): ReactElement => {
             key={post.id}
             prefetch={false}
           >
-            <PostContainer as="a" aria-label={post.title}>
+            <PostContainer
+              as="a"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={post.title}
+            >
               <PostImage
                 imgSrc={smallPostImage(post.image)}
                 imgAlt="Post cover image"

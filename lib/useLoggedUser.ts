@@ -48,7 +48,7 @@ export default function useLoggedUser(): [
       if (refreshTokenTimeout) {
         clearTimeout(refreshTokenTimeout);
       }
-      if ('accessToken' in fetchedUser) {
+      if ('accessToken' in fetchedUser && fetchedUser?.accessToken) {
         const expiresInMillis = differenceInMilliseconds(
           new Date(fetchedUser.accessToken.expiresIn),
           new Date(),
