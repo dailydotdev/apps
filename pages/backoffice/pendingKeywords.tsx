@@ -20,7 +20,7 @@ import {
   typoTriple,
 } from '../../styles/typography';
 import { ButtonLoader, PageContainer } from '../../components/utilities';
-import { size1, size2, size3, size4 } from '../../styles/sizes';
+import { size1, size2, size4, size6 } from '../../styles/sizes';
 import { colorKetchup40 } from '../../styles/colors';
 import {
   BaseButton,
@@ -28,6 +28,7 @@ import {
   HollowButton,
   InvertButton,
 } from '../../components/Buttons';
+import { NextSeo } from 'next-seo';
 
 const EmptyScreen = styled.div`
   ${typoTriple}
@@ -49,10 +50,15 @@ const DenyButton = styled(ColorButton)`
 `;
 
 const Buttons = styled.div`
+  position: fixed;
   display: flex;
+  left: 0;
+  bottom: 0;
+  width: 100%;
   align-items: center;
   justify-content: space-between;
-  margin: ${size3} 0;
+  padding: ${size6} ${size4};
+  background: var(--theme-background-primary);
 
   ${BaseButton} {
     padding: ${size2} ${size4};
@@ -141,6 +147,7 @@ const PendingKeywords = (): ReactElement => {
 
   return (
     <PageContainer>
+      <NextSeo title="Pending Keywords" />
       <Keyword>{currentKeyword.value}</Keyword>
       <Occurrences>Occurrences: {currentKeyword.occurrences}</Occurrences>
       <Buttons>
