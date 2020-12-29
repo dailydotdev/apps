@@ -14,10 +14,10 @@ import {
 } from '../../graphql/keywords';
 import styled from 'styled-components';
 import {
-  typoDouble,
   typoLil1,
   typoLil2,
   typoMicro1,
+  typoQuarter,
   typoTriple,
 } from '../../styles/typography';
 import { ButtonLoader, PageContainer } from '../../components/utilities';
@@ -44,7 +44,7 @@ const EmptyScreen = styled.div`
 
 const Keyword = styled.h1`
   margin: 0;
-  ${typoDouble}
+  ${typoQuarter}
 `;
 
 const Occurrences = styled.div`
