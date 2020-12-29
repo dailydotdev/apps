@@ -29,6 +29,7 @@ import {
   InvertButton,
 } from '../../components/Buttons';
 import { NextSeo } from 'next-seo';
+import { pageMaxWidth } from '../../styles/helpers';
 
 const EmptyScreen = styled.div`
   ${typoTriple}
@@ -53,10 +54,13 @@ const Buttons = styled.div`
   position: fixed;
   display: flex;
   left: 0;
+  right: 0;
   bottom: 0;
   width: 100%;
+  max-width: calc(${pageMaxWidth} - 1rem);
   align-items: center;
   justify-content: space-between;
+  margin: 0 auto;
   padding: ${size6} ${size4};
   background: var(--theme-background-primary);
 
