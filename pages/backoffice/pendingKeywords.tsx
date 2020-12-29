@@ -210,7 +210,7 @@ const PendingKeywords = (): ReactElement => {
   }
 
   return (
-    <PageContainer>
+    <PageContainer style={{ paddingBottom: sizeN(23) }}>
       <NextSeo title="Pending Keywords" />
       <Keyword>{currentKeyword.value}</Keyword>
       <Occurrences>Occurrences: {currentKeyword.occurrences}</Occurrences>
