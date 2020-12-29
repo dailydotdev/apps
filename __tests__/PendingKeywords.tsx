@@ -15,6 +15,8 @@ import {
   KeywordData,
   RANDOM_PENDING_KEYWORD_QUERY,
 } from '../graphql/keywords';
+import { FeedData, KEYWORD_FEED_QUERY, Post } from '../graphql/posts';
+import { Connection } from '../graphql/common';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -50,8 +52,26 @@ const defaultKeyword: Keyword = {
   occurrences: 10,
 };
 
+const defaultFeedPage: Connection<Post> = {
+  pageInfo: {
+    hasNextPage: true,
+    endCursor: '',
+  },
+  edges: [
+    {
+      node: {
+        id: '0e4005b2d3cf191f8c44c2718a457a1e',
+        title: 'Learn SQL',
+        image:
+          'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/22fc3ac5cc3fedf281b6e4b46e8c0ba2',
+        commentsPermalink: 'https://localhost:5002/posts/9CuRpr5NiEY5',
+      },
+    },
+  ],
+};
+
 const createRandomKeywordMock = (
-  keyword: Keyword | null = null,
+  keyword: Keyword | null = defaultKeyword,
 ): MockedGraphQLResponse<KeywordData> => ({
   request: {
     query: RANDOM_PENDING_KEYWORD_QUERY,
@@ -61,8 +81,28 @@ const createRandomKeywordMock = (
   },
 });
 
+const createFeedMock = (
+  page = defaultFeedPage,
+): MockedGraphQLResponse<FeedData> => ({
+  request: {
+    query: KEYWORD_FEED_QUERY,
+    variables: {
+      keyword: defaultKeyword.value,
+      first: 4,
+    },
+  },
+  result: {
+    data: {
+      page,
+    },
+  },
+});
+
 const renderComponent = (
-  mocks: MockedGraphQLResponse[] = [createRandomKeywordMock(defaultKeyword)],
+  mocks: MockedGraphQLResponse[] = [
+    createRandomKeywordMock(),
+    createFeedMock(),
+  ],
   user: LoggedUser = defaultUser,
 ): RenderResult => {
   const client = new QueryClient();
@@ -92,7 +132,7 @@ it('should redirect to home page if not moderator', async () => {
 });
 
 it('should show empty screen when no keyword', async () => {
-  renderComponent([createRandomKeywordMock()]);
+  renderComponent([createRandomKeywordMock(null)]);
   expect(await screen.findByTestId('empty')).toBeInTheDocument();
 });
 
@@ -109,7 +149,8 @@ it('should show the number of occurrences', async () => {
 it('should send allowKeyword mutation', async () => {
   let mutationCalled = true;
   renderComponent([
-    createRandomKeywordMock(defaultKeyword),
+    createRandomKeywordMock(),
+    createFeedMock(),
     {
       request: {
         query: ALLOW_KEYWORD_MUTATION,
@@ -135,7 +176,8 @@ it('should send allowKeyword mutation', async () => {
 it('should send denyKeyword mutation', async () => {
   let mutationCalled = true;
   renderComponent([
-    createRandomKeywordMock(defaultKeyword),
+    createRandomKeywordMock(),
+    createFeedMock(),
     {
       request: {
         query: DENY_KEYWORD_MUTATION,
@@ -156,4 +198,28 @@ it('should send denyKeyword mutation', async () => {
   const el = await screen.findByText('Deny');
   el.click();
   await waitFor(() => mutationCalled);
+});
+
+it('should show empty screen when no posts', async () => {
+  renderComponent([
+    createRandomKeywordMock(),
+    createFeedMock({
+      pageInfo: {
+        hasNextPage: true,
+        endCursor: '',
+      },
+      edges: [],
+    }),
+  ]);
+  const el = await screen.findByTestId('emptyPosts');
+  expect(el).toBeInTheDocument();
+});
+
+it('should show keyword posts', async () => {
+  renderComponent();
+  const el = await screen.findByLabelText('Learn SQL');
+  expect(el).toHaveAttribute(
+    'href',
+    'https://localhost:5002/posts/9CuRpr5NiEY5',
+  );
 });

@@ -11,7 +11,7 @@ import { PublicProfile } from '../lib/user';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
 import nock from 'nock';
 import { Connection } from '../graphql/common';
-import { AUTHOR_FEED_QUERY, AuthorFeedData, Post } from '../graphql/posts';
+import { AUTHOR_FEED_QUERY, FeedData, Post } from '../graphql/posts';
 import { USER_STATS_QUERY, UserStats, UserStatsData } from '../graphql/users';
 import { QueryClient, QueryClientProvider } from 'react-query';
 
@@ -83,7 +83,7 @@ const defaultFeedPage: Connection<Post> = {
 
 const createFeedMock = (
   page = defaultFeedPage,
-): MockedGraphQLResponse<AuthorFeedData> => ({
+): MockedGraphQLResponse<FeedData> => ({
   request: {
     query: AUTHOR_FEED_QUERY,
     variables: {

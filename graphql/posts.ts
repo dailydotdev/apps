@@ -17,12 +17,12 @@ export interface Post {
   createdAt?: string;
   readTime?: number;
   tags?: string[];
-  source: Source;
+  source?: Source;
   upvoted?: boolean;
   commented?: boolean;
   commentsPermalink: string;
-  numUpvotes: number;
-  numComments: number;
+  numUpvotes?: number;
+  numComments?: number;
   author?: Author;
   views?: number;
 }
@@ -120,7 +120,7 @@ export const DELETE_POST_MUTATION = gql`
   }
 `;
 
-export interface AuthorFeedData {
+export interface FeedData {
   page: Connection<Post>;
 }
 
@@ -149,6 +149,25 @@ export const AUTHOR_FEED_QUERY = gql`
           numUpvotes
           numComments
           views
+        }
+      }
+    }
+  }
+`;
+
+export const KEYWORD_FEED_QUERY = gql`
+  query KeywordFeed($keyword: String!, $after: String, $first: Int) {
+    page: keywordFeed(keyword: $keyword, after: $after, first: $first) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          id
+          title
+          commentsPermalink
+          image
         }
       }
     }
