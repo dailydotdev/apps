@@ -37,6 +37,15 @@ import Link from 'next/link';
 import { tablet } from '../../styles/media';
 import LazyImage from '../../components/LazyImage';
 import { smallPostImage } from '../../lib/image';
+import { useHideOnModal } from '../../lib/useHideOnModal';
+import dynamicPageLoad from '../../lib/dynamicPageLoad';
+
+const KeywordSynonymModal = dynamicPageLoad(
+  () =>
+    import(
+      /* webpackChunkName: "accountDetailsModal" */ '../../components/modals/KeywordSynonymModal'
+    ),
+);
 
 const EmptyScreen = styled.div`
   ${typoTriple}
@@ -184,6 +193,8 @@ const PendingKeywords = (): ReactElement => {
     return allowKeyword();
   };
 
+  const onSynonym = () => setCurrentAction('synonym');
+
   const onDeny = () => {
     setCurrentAction('deny');
     return denyKeyword();
@@ -196,6 +207,8 @@ const PendingKeywords = (): ReactElement => {
       }
     }
   }, [tokenRefreshed, user]);
+
+  useHideOnModal(() => currentAction === 'synonym', [currentAction]);
 
   if (isLoadingCurrentKeyword || !currentKeywordData) {
     return <></>;
@@ -251,7 +264,9 @@ const PendingKeywords = (): ReactElement => {
           <span>Allow</span>
           <ButtonLoader />
         </InvertButton>
-        <HollowButton disabled={!!currentAction}>Synonym</HollowButton>
+        <HollowButton disabled={!!currentAction} onClick={onSynonym}>
+          Synonym
+        </HollowButton>
         <DenyButton
           background={colorKetchup40}
           waiting={currentAction === 'deny'}
@@ -262,6 +277,11 @@ const PendingKeywords = (): ReactElement => {
           <ButtonLoader />
         </DenyButton>
       </Buttons>
+      <KeywordSynonymModal
+        isOpen={currentAction === 'synonym'}
+        selectedKeyword={currentKeyword.value}
+        onRequestClose={nextKeyword}
+      />
     </PageContainer>
   );
 };
