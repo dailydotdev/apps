@@ -81,7 +81,7 @@ export default function KeywordSynonymModal({
     (originalKeyword: string) =>
       request(`${apiUrl}/graphql`, SET_KEYWORD_AS_SYNONYM_MUTATION, {
         originalKeyword,
-        keywordToUpdate: selectedKeyword,
+        keywordToUpdate: selectedKeyword.toLowerCase(),
       }),
     {
       onSuccess: () => props.onRequestClose(null),
