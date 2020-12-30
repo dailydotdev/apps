@@ -4,7 +4,7 @@ import { mobileL } from '../../styles/media';
 import { Props as ModalProps } from './StyledModal';
 import React, { ReactElement, useState } from 'react';
 import TextField from '../TextField';
-import { size10, size3 } from '../../styles/sizes';
+import { size10, size2, size3 } from '../../styles/sizes';
 import XIcon from '../../icons/x.svg';
 import { FloatButton, IconButton, InvertButton } from '../Buttons';
 import { useMutation, useQuery } from 'react-query';
@@ -26,6 +26,7 @@ const Modal = styled(ResponsiveModal)`
 
   ${InvertButton} {
     align-self: flex-start;
+    margin-top: ${size2};
   }
 `;
 
@@ -48,6 +49,7 @@ const ResultsList = styled.ul`
   padding: 0;
   margin: 0;
   list-style: none;
+  gap: ${size2};
 `;
 
 const ResultItem = styled.li`
