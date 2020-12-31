@@ -8,6 +8,7 @@ import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import {
   ALLOW_KEYWORD_MUTATION,
+  CountPendingKeywordsData,
   DENY_KEYWORD_MUTATION,
   KeywordData,
   RANDOM_PENDING_KEYWORD_QUERY,
@@ -56,9 +57,12 @@ const Keyword = styled.h1`
   ${typoQuarter}
 `;
 
-const Occurrences = styled.div`
-  color: var(--theme-secondary);
+const Subtitle = styled.div`
+  display: flex;
   margin: ${size1} 0;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--theme-secondary);
   ${typoMicro1};
 `;
 
@@ -134,7 +138,7 @@ const PendingKeywords = (): ReactElement => {
     data: currentKeywordData,
     refetch: refetchCurrentKeyword,
     isLoading: isLoadingCurrentKeyword,
-  } = useQuery<KeywordData>(
+  } = useQuery<KeywordData & CountPendingKeywordsData>(
     'randomPendingKeyword',
     () => request(`${apiUrl}/graphql`, RANDOM_PENDING_KEYWORD_QUERY),
     {
@@ -226,7 +230,10 @@ const PendingKeywords = (): ReactElement => {
     <PageContainer style={{ paddingBottom: sizeN(23) }}>
       <NextSeo title="Pending Keywords" />
       <Keyword>{currentKeyword.value}</Keyword>
-      <Occurrences>Occurrences: {currentKeyword.occurrences}</Occurrences>
+      <Subtitle>
+        <span>Occurrences: {currentKeyword.occurrences}</span>
+        <span>Only {currentKeywordData.countPendingKeywords} left!</span>
+      </Subtitle>
       <ActivitySection
         title="Keyword Posts"
         query={posts}

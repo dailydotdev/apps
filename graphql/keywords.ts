@@ -10,6 +10,8 @@ export interface KeywordData {
   keyword?: Keyword;
 }
 
+export type CountPendingKeywordsData = { countPendingKeywords: number };
+
 export interface SearchKeywordData {
   searchKeywords: { hits: [Keyword] };
 }
@@ -20,6 +22,7 @@ export const RANDOM_PENDING_KEYWORD_QUERY = gql`
       value
       occurrences
     }
+    countPendingKeywords
   }
 `;
 
