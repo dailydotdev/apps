@@ -10,6 +10,7 @@ import AuthContext from '../components/AuthContext';
 import PendingKeywords from '../pages/backoffice/pendingKeywords';
 import {
   ALLOW_KEYWORD_MUTATION,
+  CountPendingKeywordsData,
   DENY_KEYWORD_MUTATION,
   Keyword,
   KeywordData,
@@ -72,12 +73,12 @@ const defaultFeedPage: Connection<Post> = {
 
 const createRandomKeywordMock = (
   keyword: Keyword | null = defaultKeyword,
-): MockedGraphQLResponse<KeywordData> => ({
+): MockedGraphQLResponse<KeywordData & CountPendingKeywordsData> => ({
   request: {
     query: RANDOM_PENDING_KEYWORD_QUERY,
   },
   result: {
-    data: { keyword },
+    data: { keyword, countPendingKeywords: 1234 },
   },
 });
 
@@ -222,4 +223,10 @@ it('should show keyword posts', async () => {
     'href',
     'https://localhost:5002/posts/9CuRpr5NiEY5',
   );
+});
+
+it('should show the number of pending keywords', async () => {
+  renderComponent();
+  const el = await screen.findByText('Only 1234 left!');
+  expect(el).toBeInTheDocument();
 });
