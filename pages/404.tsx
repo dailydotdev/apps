@@ -30,7 +30,7 @@ const Art = styled(HelloWorldSvg)`
 
 export default function Custom404(): ReactElement {
   return (
-    <Container>
+    <Container data-testid="notFound">
       <Head>
         <title>Page not found 😅</title>
       </Head>
