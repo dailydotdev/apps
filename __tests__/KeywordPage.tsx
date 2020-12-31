@@ -7,13 +7,8 @@ import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
 import AuthContext from '../components/AuthContext';
-import PendingKeywords from '../pages/backoffice/pendingKeywords';
-import {
-  CountPendingKeywordsData,
-  Keyword,
-  KeywordData,
-  RANDOM_PENDING_KEYWORD_QUERY,
-} from '../graphql/keywords';
+import KeywordsPage from '../pages/backoffice/keywords/[value]';
+import { Keyword, KeywordData, KEYWORD_QUERY } from '../graphql/keywords';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -47,22 +42,25 @@ const defaultUser: LoggedUser = {
 const defaultKeyword: Keyword = {
   value: 'reactjs',
   occurrences: 10,
-  status: 'pending',
+  status: 'allow',
 };
 
-const createRandomKeywordMock = (
+const createKeywordMock = (
   keyword: Keyword | null = defaultKeyword,
-): MockedGraphQLResponse<KeywordData & CountPendingKeywordsData> => ({
+): MockedGraphQLResponse<KeywordData> => ({
   request: {
-    query: RANDOM_PENDING_KEYWORD_QUERY,
+    query: KEYWORD_QUERY,
+    variables: {
+      value: defaultKeyword.value,
+    },
   },
   result: {
-    data: { keyword, countPendingKeywords: 1234 },
+    data: { keyword },
   },
 });
 
 const renderComponent = (
-  mocks: MockedGraphQLResponse[] = [createRandomKeywordMock()],
+  mocks: MockedGraphQLResponse[] = [createKeywordMock()],
   user: LoggedUser = defaultUser,
 ): RenderResult => {
   const client = new QueryClient();
@@ -80,7 +78,7 @@ const renderComponent = (
           tokenRefreshed: true,
         }}
       >
-        <PendingKeywords />
+        <KeywordsPage keyword={defaultKeyword.value} />
       </AuthContext.Provider>
     </QueryClientProvider>,
   );
@@ -91,9 +89,9 @@ it('should redirect to home page if not moderator', async () => {
   await waitFor(() => expect(routerReplace).toBeCalledWith('/'));
 });
 
-it('should show empty screen when no keyword', async () => {
-  renderComponent([createRandomKeywordMock(null)]);
-  expect(await screen.findByTestId('empty')).toBeInTheDocument();
+it('should show 404 when no keyword', async () => {
+  renderComponent([createKeywordMock(null)]);
+  expect(await screen.findByTestId('notFound')).toBeInTheDocument();
 });
 
 it('should show the keyword', async () => {
@@ -101,8 +99,8 @@ it('should show the keyword', async () => {
   expect(await screen.findByText('reactjs')).toBeInTheDocument();
 });
 
-it('should show the number of pending keywords', async () => {
+it('should show the status', async () => {
   renderComponent();
-  const el = await screen.findByText('Only 1234 left!');
+  const el = await screen.findByText('Status: allow');
   expect(el).toBeInTheDocument();
 });
