@@ -1,12 +1,11 @@
 import styled from 'styled-components';
-import { typoLil1, typoSmall } from '../../styles/typography';
+import { typoCallout } from '../../styles/typography';
 import Linkify from 'linkifyjs/react';
 import { size2, size3, size4 } from '../../styles/sizes';
-import { colorWater60 } from '../../styles/colors';
 
 export const CommentPublishDate = styled.time`
-  color: var(--theme-disabled);
-  ${typoSmall}
+  color: var(--theme-label-tertiary);
+  ${typoCallout}
 `;
 
 export const CommentBox = styled(Linkify).attrs({
@@ -14,14 +13,14 @@ export const CommentBox = styled(Linkify).attrs({
   options: { attributes: { rel: 'noopener nofollow' } },
 })`
   padding: ${size3} ${size4};
-  background: var(--theme-background-highlight);
+  background: var(--theme-background-secondary);
   border-radius: ${size2};
   white-space: pre-wrap;
   overflow-wrap: break-word;
-  ${typoLil1}
+  ${typoCallout}
 
   a:not(.commentAuthor) {
-    color: ${colorWater60};
+    color: var(--theme-label-link);
     word-break: break-all;
   }
 `;

@@ -6,7 +6,8 @@ import { size10, size2, size4, size6 } from '../../styles/sizes';
 import { focusOutline } from '../../styles/helpers';
 import { BaseButton, IconButton } from '../Buttons';
 import { mobileL } from '../../styles/media';
-import { typoDouble, typoLil2, typoMicro2 } from '../../styles/typography';
+import { typoCallout, typoLil2, typoTitle3 } from '../../styles/typography';
+import { overlayTertiary } from '../../styles/colors';
 
 export interface Props extends Modal.Props {
   children?: ReactNode;
@@ -57,7 +58,7 @@ export const StyledModal = styled(ReactModalAdapter)`
     right: 0;
     bottom: 0;
     max-height: 100vh;
-    background-color: var(--theme-backdrop);
+    background-color: ${overlayTertiary('white')};
     z-index: 2;
 
     ${mobileL} {
@@ -74,12 +75,13 @@ export const StyledModal = styled(ReactModalAdapter)`
     overflow-y: auto;
     flex-direction: column;
     align-items: center;
-    background: var(--theme-background-highlight);
+    background: var(--theme-background-tertiary);
     border-radius: ${size4} ${size4} 0 0;
+    box-shadow: var(--theme-shadow2);
     ${focusOutline}
 
     ${mobileL} {
-      border: 0.063rem solid var(--theme-separator);
+      border: 0.063rem solid var(--theme-divider-secondary);
       border-radius: ${size4};
     }
   }
@@ -95,19 +97,19 @@ export const ConfirmationModal = styled(StyledModal)`
   .Modal {
     max-width: 23.25rem;
     padding: ${size6} ${size10};
-    border: 0.063rem solid var(--theme-separator);
+    border: 0.063rem solid var(--theme-divider-secondary);
     border-radius: ${size4};
   }
 `;
 
 export const ConfirmationHeading = styled.h1`
-  text-transform: uppercase;
-  ${typoDouble}
+  font-weight: bold;
+  ${typoTitle3}
 `;
 
 export const ConfirmationDescription = styled.div`
   margin: ${size2} 0 ${size6};
-  color: var(--theme-secondary);
+  color: var(--theme-label-secondary);
   text-align: center;
-  ${typoMicro2}
+  ${typoCallout}
 `;

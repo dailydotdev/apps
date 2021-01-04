@@ -66,8 +66,8 @@ export const PageContainer = styled.main`
 
   ${laptop} {
     min-height: 100vh;
-    border-left: 0.063rem solid var(--theme-separator);
-    border-right: 0.063rem solid var(--theme-separator);
+    border-left: 0.063rem solid var(--theme-divider-tertiary);
+    border-right: 0.063rem solid var(--theme-divider-tertiary);
   }
 `;
 

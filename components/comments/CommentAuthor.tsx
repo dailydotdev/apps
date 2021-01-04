@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { Author } from '../../graphql/comments';
 import styled from 'styled-components';
-import { typoLil2Base, typoNuggets } from '../../styles/typography';
+import { typoCallout, typoNuggets } from '../../styles/typography';
 import { ProfileLink } from '../profile/ProfileLink';
 import FeatherIcon from '../../icons/feather.svg';
 import { size1, size2, size4 } from '../../styles/sizes';
@@ -13,11 +13,11 @@ export interface CommentAuthorProps {
 }
 
 const Container = styled.div`
-  color: var(--theme-primary);
+  color: var(--theme-label-primary);
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
-  ${typoLil2Base}
+  font-weight: bold;
+  ${typoCallout}
 `;
 
 const CommentAuthorBadge = styled.span`

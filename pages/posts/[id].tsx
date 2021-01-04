@@ -26,18 +26,20 @@ import {
   size3,
   size4,
   size6,
+  size7,
   size8,
   sizeN,
 } from '../../styles/sizes';
 import {
-  typoDouble,
+  typoCallout,
   typoLil2,
   typoLil2Base,
-  typoMicro1,
   typoMicro2,
   typoMicro2Base,
   typoNuggets,
   typoSmall,
+  typoSubhead,
+  typoTitle2,
 } from '../../styles/typography';
 import { postDateFormat } from '../../lib/dateFormat';
 import {
@@ -60,11 +62,7 @@ import {
   PostData,
   UPVOTE_MUTATION,
 } from '../../graphql/posts';
-import {
-  PageContainer,
-  RoundedImage,
-  SmallRoundedImage,
-} from '../../components/utilities';
+import { PageContainer, RoundedImage } from '../../components/utilities';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import AuthContext from '../../components/AuthContext';
 import MainComment from '../../components/comments/MainComment';
@@ -74,7 +72,7 @@ import {
   PostCommentsData,
 } from '../../graphql/comments';
 import { mobileL, mobileM } from '../../styles/media';
-import { colorCheese50, colorPepper90 } from '../../styles/colors';
+import { colorCheese50 } from '../../styles/colors';
 import { focusOutline } from '../../styles/helpers';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { ShareMobile } from '../../components/ShareMobile';
@@ -135,15 +133,15 @@ const MetadataContainer = styled.div`
 `;
 
 const Metadata = styled.span`
-  color: var(--theme-disabled);
-  ${typoSmall}
+  color: var(--theme-label-tertiary);
+  ${typoCallout}
 `;
 
 const MetadataSeparator = styled.div`
   width: ${size05};
   height: ${size05};
   margin: 0 ${size1};
-  background: var(--theme-disabled);
+  background: var(--theme-label-tertiary);
   border-radius: 100%;
 `;
 
@@ -169,14 +167,15 @@ const AuthorLink = styled(ProfileLink)`
 
 const Title = styled.h1`
   margin: ${size2} 0;
-  ${typoDouble}
+  ${typoTitle2}
 `;
 
 const Tags = styled.div`
   margin-bottom: ${size4};
-  color: var(--theme-disabled);
+  color: var(--theme-label-quaternary);
+  font-weight: bold;
   text-transform: uppercase;
-  ${typoSmall};
+  ${typoSubhead};
 `;
 
 const PostImage = styled.a`
@@ -205,8 +204,8 @@ const ActionButtons = styled.div`
   display: flex;
   justify-content: space-between;
   padding: ${size4} 0;
-  border-top: 0.063rem solid var(--theme-separator);
-  border-bottom: 0.063rem solid var(--theme-separator);
+  border-top: 0.063rem solid var(--theme-divider-tertiary);
+  border-bottom: 0.063rem solid var(--theme-divider-tertiary);
 
   ${FloatButton} {
     .icon {
@@ -235,7 +234,6 @@ const NewCommentContainer = styled.div`
   width: 100%;
   padding: ${size3} ${size4};
   background: var(--theme-background-primary);
-  box-shadow: 0 -${size2} ${size6} 0 ${colorPepper90}3D;
   z-index: 2;
 
   ${mobileL} {
@@ -257,30 +255,33 @@ const NewCommentButton = styled.button`
   height: ${size10};
   align-items: center;
   padding: 0 ${size4};
-  background: var(--theme-hover);
-  color: var(--theme-secondary);
+  background: var(--theme-background-secondary);
+  color: var(---theme-label-secondary);
   border: none;
   border-radius: ${size4};
   cursor: pointer;
-  ${typoMicro1}
+  ${typoCallout}
   ${focusOutline}
 `;
 
-const NewCommentProfile = styled(SmallRoundedImage)`
+const NewCommentProfile = styled(LazyImage)`
+  width: ${size7};
+  height: ${size7};
+  border-radius: 100%;
   margin-left: -${size2};
   margin-right: ${size3};
 `;
 
 const Hint = styled.div`
   margin: 0 0 ${size6};
-  color: var(--theme-secondary);
-  ${typoMicro2}
+  color: var(--theme-label-secondary);
+  ${typoSubhead}
 `;
 
 const Separator = styled.div`
   height: 0.063rem;
   margin: ${size6} 0;
-  background: var(--theme-separator);
+  background: var(--theme-divider-tertiary);
 `;
 
 const AuthorOnboarding = styled.section`

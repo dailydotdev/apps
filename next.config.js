@@ -20,7 +20,7 @@ module.exports = withPreact(
                 '#fff': 'currentcolor',
                 '#FFF': 'currentcolor',
                 '#FFFFFF': 'currentcolor',
-                '#ffffff': 'currentcolor',
+                '#FFFFFF': 'currentcolor',
               },
               svgProps: {
                 className: 'icon',

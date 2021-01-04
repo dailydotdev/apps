@@ -17,8 +17,13 @@ import AuthContext from '../AuthContext';
 import { ButtonLoader, RoundedImage, SmallRoundedImage } from '../utilities';
 import { CommentBox, CommentPublishDate } from '../comments/common';
 import { commentDateFormat } from '../../lib/dateFormat';
-import { typoJr, typoLil2Base, typoSmallBase } from '../../styles/typography';
-import { colorKetchup30, colorWater60 } from '../../styles/colors';
+import {
+  typoCaption1,
+  typoLil2Base,
+  typoSmallBase,
+  typoSubhead,
+} from '../../styles/typography';
+import { colorKetchup30 } from '../../styles/colors';
 import { ColorButton, FloatButton } from '../Buttons';
 import { useMutation, useQueryClient } from 'react-query';
 import {
@@ -75,16 +80,16 @@ const Timeline = styled.div`
   width: 0.063rem;
   height: 100%;
   margin-left: ${size3};
-  background: var(--theme-separator);
+  background: var(--theme-divider-tertiary);
 `;
 
 const ReplyTo = styled.div`
   margin-left: ${size6};
-  color: var(--theme-secondary);
-  ${typoSmallBase}
+  color: var(--theme-label-secondary);
+  ${typoCaption1}
 
   strong {
-    color: var(--theme-primary);
+    color: var(--theme-label-primary);
     font-weight: bold;
   }
 `;
@@ -98,13 +103,12 @@ const NewCommentTextArea = styled.div`
   min-height: ${sizeN(44)};
   margin-left: ${size3};
   flex: 1;
-  color: var(--theme-primary);
+  color: var(--theme-label-primary);
   background: none;
   border: none;
-  caret-color: ${colorWater60};
+  caret-color: var(--theme-label-link);
   word-break: break-word;
-  ${typoJr}
-  font-style: normal;
+  ${typoSubhead}
 
   &:focus {
     outline: 0;
@@ -112,7 +116,7 @@ const NewCommentTextArea = styled.div`
 
   &:empty:before {
     content: attr(aria-placeholder);
-    color: var(--theme-secondary);
+    color: var(--theme-label-secondary);
   }
 `;
 
@@ -121,7 +125,7 @@ const Footer = styled.footer`
   align-items: center;
   justify-content: space-between;
   padding: ${size2} 0;
-  border-top: 0.063rem solid var(--theme-separator);
+  border-top: 0.063rem solid var(--theme-divider-tertiary);
 `;
 
 const CommentButton = styled(ColorButton).attrs({

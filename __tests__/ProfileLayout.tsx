@@ -2,7 +2,7 @@ import React from 'react';
 import { LoggedUser, PublicProfile } from '../lib/user';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import AuthContext from '../components/AuthContext';
-import Index from '../components/layouts/ProfileLayout';
+import ProfileLayout from '../components/layouts/ProfileLayout';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { mockGraphQL } from './helpers/graphql';
 import { USER_READING_RANK_QUERY } from '../graphql/users';
@@ -63,7 +63,7 @@ const renderComponent = (
           tokenRefreshed: true,
         }}
       >
-        <Index profile={{ ...defaultProfile, ...profile }} />
+        <ProfileLayout profile={{ ...defaultProfile, ...profile }} />
       </AuthContext.Provider>
     </QueryClientProvider>,
   );

@@ -114,3 +114,94 @@ export const typoGiga = `
   letter-spacing: -0.1rem;
   line-height: 6rem;
 `;
+
+export const typoTera = `
+  font-size: 5rem;
+  line-height: 1.08;
+`;
+
+export const typoGiga1 = `
+  font-size: 4.5rem;
+  line-height: 1.12;
+`;
+
+export const typoGiga2 = `
+  font-size: 4rem;
+  line-height: 1.12;
+`;
+
+export const typoGiga3 = `
+  font-size: 3.5rem;
+  line-height: 1.16;
+`;
+
+export const typoMega1 = `
+  font-size: 3rem;
+  line-height: 1.16;
+`;
+
+export const typoMega2 = `
+  font-size: 2.5rem;
+  line-height: 1.2;
+`;
+
+export const typoMega3 = `
+  font-size: 2.25rem;
+  line-height: 1.2;
+`;
+
+export const typoLargeTitle = `
+  font-size: 2rem;
+  line-height: 1.2;
+`;
+
+export const typoTitle1 = `
+  font-size: 1.75rem;
+  line-height: 1.24;
+`;
+
+export const typoTitle2 = `
+  font-size: 1.5rem;
+  line-height: 1.24;
+`;
+
+export const typoTitle3 = `
+  font-size: 1.25rem;
+  line-height: 1.28;
+`;
+
+export const typoHeadline = `
+  font-size: 1.0625rem;
+  line-height: 1.4;
+  font-weight: bold;
+`;
+
+export const typoBody = `
+  font-size: 1.0625rem;
+  line-height: 1.32;
+`;
+
+export const typoCallout = `
+  font-size: 0.9375rem;
+  line-height: 1.32;
+`;
+
+export const typoSubhead = `
+  font-size: 0.875rem;
+  line-height: 1.32;
+`;
+
+export const typoFootnote = `
+  font-size: 0.8125rem;
+  line-height: 1.38;
+`;
+
+export const typoCaption1 = `
+  font-size: 0.75rem;
+  line-height: 1.4;
+`;
+
+export const typoCaption2 = `
+  font-size: 0.6875rem;
+  line-height: 1.4;
+`;

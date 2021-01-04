@@ -218,7 +218,7 @@ const EditProfileButton = styled(HollowButton)`
   ${typoNuggets}
 `;
 
-export default function Index({
+export default function ProfileLayout({
   profile: initialProfile,
   children,
 }: ProfileLayoutProps): ReactElement {
@@ -408,7 +408,7 @@ export default function Index({
 export const getLayout = (
   page: ReactNode,
   props: ProfileLayoutProps,
-): ReactNode => getMainLayout(<Index {...props}>{page}</Index>);
+): ReactNode => getMainLayout(<ProfileLayout {...props}>{page}</ProfileLayout>);
 
 interface ProfileParams extends ParsedUrlQuery {
   userId: string;
