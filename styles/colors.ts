@@ -28,7 +28,7 @@ export const colorKetchup30 = '#FF7071';
 export const colorBacon60 = '#F5005E';
 export const colorBacon40 = '#FF468E';
 
-type ColorNames =
+type ColorName =
   | 'burger'
   | 'blueCheese'
   | 'avocado'
@@ -44,7 +44,7 @@ type ColorNames =
   | 'pepper';
 type ColorLevels = '10' | '20' | '30' | '40' | '50' | '60' | '70' | '80' | '90';
 type Color = Record<ColorLevels, string>;
-type ColorPalette = Record<ColorNames, Color>;
+type ColorPalette = Record<ColorName, Color>;
 
 const colors: ColorPalette = {
   burger: {
@@ -194,14 +194,14 @@ const colors: ColorPalette = {
 
 export default colors;
 
-const overlayColor = (color: ColorLevels | 'white'): string =>
-  color === 'white' ? '#FFFFFF' : color['50'];
+const overlayColor = (color: ColorName | 'white'): string =>
+  color === 'white' ? '#FFFFFF' : colors[color]['50'];
 
-export const overlayPrimary = (color: ColorLevels | 'white'): string =>
+export const overlayPrimary = (color: ColorName | 'white'): string =>
   `${overlayColor(color)}A3`;
 
-export const overlaySecondary = (color: ColorLevels | 'white'): string =>
+export const overlaySecondary = (color: ColorName | 'white'): string =>
   `${overlayColor(color)}66`;
 
-export const overlayTertiary = (color: ColorLevels | 'white'): string =>
+export const overlayTertiary = (color: ColorName | 'white'): string =>
   `${overlayColor(color)}3D`;
