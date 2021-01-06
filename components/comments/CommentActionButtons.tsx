@@ -11,7 +11,7 @@ import {
   Comment,
   UPVOTE_COMMENT_MUTATION,
 } from '../../graphql/comments';
-import { useMutation } from 'react-query';
+import { useMutation, useQueryClient } from 'react-query';
 import { Roles } from '../../lib/user';
 import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
@@ -60,6 +60,8 @@ export default function CommentActionButtons({
   const [upvoted, setUpvoted] = useState(comment.upvoted);
   const [numUpvotes, setNumUpvotes] = useState(comment.numUpvotes);
 
+  const queryClient = useQueryClient();
+
   useEffect(() => {
     setUpvoted(comment.upvoted);
     setNumUpvotes(comment.numUpvotes);
@@ -71,12 +73,13 @@ export default function CommentActionButtons({
         id: comment.id,
       }),
     {
-      onMutate: () => {
+      onMutate: async () => {
+        await queryClient.cancelQueries('post_comments');
         setUpvoted(true);
-        setNumUpvotes(comment.numUpvotes + 1);
+        setNumUpvotes(numUpvotes + 1);
         return () => {
-          setUpvoted(comment.upvoted);
-          setNumUpvotes(comment.numUpvotes);
+          setUpvoted(upvoted);
+          setNumUpvotes(numUpvotes);
         };
       },
       onError: (err, _, rollback) => rollback(),
@@ -89,12 +92,13 @@ export default function CommentActionButtons({
         id: comment.id,
       }),
     {
-      onMutate: () => {
+      onMutate: async () => {
+        await queryClient.cancelQueries('post_comments');
         setUpvoted(false);
-        setNumUpvotes(comment.numUpvotes - 1);
+        setNumUpvotes(numUpvotes - 1);
         return () => {
-          setUpvoted(comment.upvoted);
-          setNumUpvotes(comment.numUpvotes);
+          setUpvoted(upvoted);
+          setNumUpvotes(numUpvotes);
         };
       },
       onError: (err, _, rollback) => rollback(),

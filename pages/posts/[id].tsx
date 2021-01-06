@@ -366,7 +366,7 @@ const upvoteMutationConfig = (
   queryClient: QueryClient,
   postQueryKey: string[],
   upvoted: boolean,
-): UseMutationOptions<unknown, unknown, void, () => void> => ({
+): UseMutationOptions<unknown, unknown, void, void> => ({
   onMutate: async () => {
     await queryClient.cancelQueries(postQueryKey);
     const oldPost = queryClient.getQueryData<PostData>(postQueryKey);
@@ -377,10 +377,17 @@ const upvoteMutationConfig = (
         numUpvotes: oldPost.post.numUpvotes + (upvoted ? 1 : -1),
       },
     });
-
-    return () => queryClient.setQueryData(postQueryKey, oldPost);
   },
-  onError: (err, _, rollback) => rollback(),
+  onError: () => {
+    const oldPost = queryClient.getQueryData<PostData>(postQueryKey);
+    queryClient.setQueryData<PostData>(postQueryKey, {
+      post: {
+        ...oldPost.post,
+        upvoted,
+        numUpvotes: oldPost.post.numUpvotes + (upvoted ? -1 : 1),
+      },
+    });
+  },
   onSettled: () => queryClient.invalidateQueries(postQueryKey),
 });
 
