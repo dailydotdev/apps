@@ -69,6 +69,8 @@ export default createGlobalStyle`
     --theme-divider-secondary: ${colors.salt['90']}66;
     --theme-divider-tertiary: ${colors.salt['90']}33;
 
+    --theme-status-error: ${colors.ketchup['40']};
+
     --theme-shadow2: 0 6px 6px -2px #00000066;
 
     --theme-rank-1-color: ${colors.burger['40']};
@@ -124,6 +126,8 @@ export default createGlobalStyle`
     --theme-divider-primary: ${colors.pepper['10']};
     --theme-divider-secondary: ${colors.pepper['10']}66;
     --theme-divider-tertiary: ${colors.pepper['10']}33;
+
+    --theme-status-error: ${colors.ketchup['60']};
 
     --theme-shadow2: 0 6 6 -2 ${colors.salt['90']}66;
 

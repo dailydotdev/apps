@@ -18,12 +18,10 @@ import { ButtonLoader, RoundedImage, SmallRoundedImage } from '../utilities';
 import { CommentBox, CommentPublishDate } from '../comments/common';
 import { commentDateFormat } from '../../lib/dateFormat';
 import {
+  typoCallout,
   typoCaption1,
-  typoLil2Base,
-  typoSmallBase,
   typoSubhead,
 } from '../../styles/typography';
-import { colorKetchup30 } from '../../styles/colors';
 import { ColorButton, FloatButton } from '../Buttons';
 import { useMutation, useQueryClient } from 'react-query';
 import {
@@ -135,16 +133,15 @@ const CommentButton = styled(ColorButton).attrs({
 const ErrorMessage = styled.div`
   min-height: 1rem;
   margin: ${size2} ${size3};
-  color: ${colorKetchup30};
-  ${typoSmallBase};
+  color: var(--theme-status-error);
+  ${typoCaption1};
 `;
 
 const CommentAuthor = styled.div`
-  color: var(--theme-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  ${typoLil2Base}
+  ${typoCallout}
 `;
 
 interface CommentVariables {
@@ -300,7 +297,7 @@ export default function NewCommentModal({
           <RoundedImage
             imgSrc={authorImage}
             imgAlt={`${authorName}'s profile image`}
-            background="var(--theme-background-highlight)"
+            background="var(--theme-background-secondary)"
           />
           <ParentCommentMetadata>
             <CommentAuthor>{authorName}</CommentAuthor>
