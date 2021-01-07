@@ -27,6 +27,7 @@ export interface Props extends HTMLAttributes<HTMLInputElement> {
   valueChanged?: (value: string) => void;
   pattern?: string;
   placeholder?: string;
+  autoComplete?: string;
 }
 
 const Container = styled.div`
@@ -56,8 +57,8 @@ const Input = styled.input`
   background: none;
   color: var(--theme-primary);
   caret-color: ${colorWater60};
-  ${typoMicro1}
 
+  ${typoMicro1}
   &:focus {
     outline: 0;
   }
@@ -102,12 +103,12 @@ const Field = styled.div<FieldProps>`
   background: var(--theme-hover);
   border-radius: ${size2};
   cursor: text;
+
   ${({ focused, valid }) =>
     (focused || valid === false) &&
     `box-shadow: inset 0.125rem 0 0 0 ${
       valid === false ? colorKetchup30 : 'var(--theme-primary)'
     };`}
-
   &:hover {
     background: var(--theme-focus);
   }
@@ -137,6 +138,7 @@ export default function TextField({
   valueChanged,
   pattern,
   placeholder,
+  autoComplete,
 }: Props): ReactElement {
   const inputRef = useRef<HTMLInputElement>(null);
   const [focused, setFocused] = useState<boolean>(false);
@@ -245,6 +247,7 @@ export default function TextField({
             required={required}
             maxLength={maxLength}
             pattern={pattern}
+            autoComplete={autoComplete}
           />
         </InputContainer>
         {maxLength && <CharsCount>{maxLength - inputLength}</CharsCount>}

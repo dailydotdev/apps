@@ -110,6 +110,7 @@ export default function KeywordSynonymModal({
         value={selectedKeyword}
         autoFocus
         valueChanged={onQueryChanged}
+        autoComplete="off"
       />
       {!emptyResults && (
         <ResultsList>
