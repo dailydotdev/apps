@@ -5,7 +5,7 @@ import { size4, size6, sizeN } from '../styles/sizes';
 import { typoJr, typoQuarter } from '../styles/typography';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
-import { InvertButton } from '../components/Buttons';
+import { InvertButton } from '../components/OldButtons';
 import { laptop } from '../styles/media';
 
 const Container = styled.div`

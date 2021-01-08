@@ -47,7 +47,7 @@ import {
   HollowButton,
   IconButton,
   InvertButton,
-} from '../../components/Buttons';
+} from '../../components/OldButtons';
 import OpenLinkIcon from '../../icons/open_link.svg';
 import UpvoteIcon from '../../icons/upvote.svg';
 import CommentIcon from '../../icons/comment.svg';

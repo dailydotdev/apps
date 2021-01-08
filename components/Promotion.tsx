@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { size2, size4, size6, sizeN } from '../styles/sizes';
 import LazyImage from './LazyImage';
 import { typoSmallBase } from '../styles/typography';
-import { InvertButton } from './Buttons';
+import { InvertButton } from './OldButtons';
 import { pageMaxWidth } from '../styles/helpers';
 import { mobileL } from '../styles/media';
 

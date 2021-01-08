@@ -5,7 +5,7 @@ import { ModalCloseButton } from './modals/StyledModal';
 import { size1, size3, size4, size6, sizeN } from '../styles/sizes';
 import { typoNuggets, typoSmallBase } from '../styles/typography';
 import { cookiePolicy } from '../lib/constants';
-import { InvertButton } from './Buttons';
+import { InvertButton } from './OldButtons';
 import { laptop } from '../styles/media';
 import CookieIcon from '../icons/cookie.svg';
 

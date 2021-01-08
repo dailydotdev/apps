@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { laptop } from '../styles/media';
 import CopyIcon from '../icons/copy.svg';
 import ShareIcon from '../icons/share.svg';
-import { FloatButton } from './Buttons';
+import { FloatButton } from './OldButtons';
 import { size1, size10 } from '../styles/sizes';
 import { useCopyPostLink } from '../lib/useCopyPostLink';
 

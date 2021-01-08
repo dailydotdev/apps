@@ -36,7 +36,7 @@ import HashnodeIcon from '../../../icons/hashnode.svg';
 import LinkIcon from '../../../icons/link.svg';
 import { colorWater50 } from '../../../styles/colors';
 import { tablet } from '../../../styles/media';
-import { HollowButton } from '../../Buttons';
+import { HollowButton } from '../../OldButtons';
 import AuthContext from '../../AuthContext';
 import dynamic from 'next/dynamic';
 import { useHideOnModal } from '../../../lib/useHideOnModal';

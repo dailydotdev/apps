@@ -6,7 +6,7 @@ import React, { ReactElement, useState } from 'react';
 import TextField from '../TextField';
 import { size10, size2, size3 } from '../../styles/sizes';
 import XIcon from '../../icons/x.svg';
-import { FloatButton, IconButton, InvertButton } from '../Buttons';
+import { FloatButton, IconButton, InvertButton } from '../OldButtons';
 import { useMutation, useQuery } from 'react-query';
 import {
   SEARCH_KEYWORDS_QUERY,

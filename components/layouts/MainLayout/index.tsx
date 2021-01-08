@@ -14,7 +14,7 @@ import {
   size8,
   sizeN,
 } from '../../../styles/sizes';
-import { FloatButton } from '../../Buttons';
+import { FloatButton } from '../../OldButtons';
 import LazyImage from '../../LazyImage';
 import AuthContext from '../../AuthContext';
 import { focusOutline } from '../../../styles/helpers';

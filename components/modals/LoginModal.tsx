@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import styled from 'styled-components';
 import { size2, size6, size8 } from '../../styles/sizes';
 import DailyDevLogo from '../svg/DailyDevLogo';
-import { InvertButton, TextButton } from '../Buttons';
+import { InvertButton, TextButton } from '../OldButtons';
 import XIcon from '../../icons/x.svg';
 import GitHubIcon from '../../icons/github.svg';
 import { typoJr } from '../../styles/typography';

@@ -6,7 +6,7 @@ import {
   ConfirmationButtons,
   Props as ModalProps,
 } from './StyledModal';
-import { ColorButton, HollowButton } from '../Buttons';
+import { ColorButton, HollowButton } from '../OldButtons';
 import { colorKetchup40 } from '../../styles/colors';
 
 export interface Props extends ModalProps {

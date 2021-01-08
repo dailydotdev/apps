@@ -15,7 +15,12 @@ import { NextSeo } from 'next-seo';
 import ActivitySection from './profile/ActivitySection';
 import Link from 'next/link';
 import { smallPostImage } from '../lib/image';
-import { BaseButton, ColorButton, HollowButton, InvertButton } from './Buttons';
+import {
+  BaseButton,
+  ColorButton,
+  HollowButton,
+  InvertButton,
+} from './OldButtons';
 import { colorKetchup40 } from '../styles/colors';
 import dynamicPageLoad from '../lib/dynamicPageLoad';
 import styled from 'styled-components';

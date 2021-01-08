@@ -5,7 +5,7 @@ import Index from '../components/layouts/MainLayout';
 import { typoLil2, typoMicro2 } from '../styles/typography';
 import { size10, size2, size4 } from '../styles/sizes';
 import { PageContainer, ProfileHeading } from '../components/utilities';
-import { HollowButton, InvertButton } from '../components/Buttons';
+import { HollowButton, InvertButton } from '../components/OldButtons';
 import AuthContext from '../components/AuthContext';
 import { useRouter } from 'next/router';
 import EditImageWithJoinedDate from '../components/profile/EditImageWithJoinedDate';

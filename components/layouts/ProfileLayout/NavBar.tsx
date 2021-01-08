@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import Link from 'next/link';
-import { FloatButton } from '../../Buttons';
+import { FloatButton } from '../../OldButtons';
 import styled from 'styled-components';
 import { size05, size4, size6 } from '../../../styles/sizes';
 import { laptop } from '../../../styles/media';

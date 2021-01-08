@@ -6,7 +6,7 @@ import { ModalCloseButton } from './modals/StyledModal';
 import { laptop } from '../styles/media';
 import AuthContext from './AuthContext';
 import { typoDouble, typoLil1, typoNuggets } from '../styles/typography';
-import { ColorButton } from './Buttons';
+import { ColorButton } from './OldButtons';
 import TwitterIcon from '../icons/twitter.svg';
 import WhatsappIcon from '../icons/whatsapp.svg';
 import FacebookIcon from '../icons/facebook.svg';

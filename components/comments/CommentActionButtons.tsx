@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import AuthContext from '../AuthContext';
-import { FloatButton, IconButton } from '../Buttons';
+import { FloatButton, IconButton } from '../OldButtons';
 import UpvoteIcon from '../../icons/upvote.svg';
 import CommentIcon from '../../icons/comment.svg';
 import TrashIcon from '../../icons/trash.svg';

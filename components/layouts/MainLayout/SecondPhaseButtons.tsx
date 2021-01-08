@@ -3,7 +3,7 @@ import GiftIcon from '../../../icons/gift.svg';
 import BellNotifyIcon from '../../../icons/bell_notify.svg';
 import BellIcon from '../../../icons/bell.svg';
 import styled from 'styled-components';
-import { FloatButton, IconButton } from '../../Buttons';
+import { FloatButton, IconButton } from '../../OldButtons';
 import { size1, size2, sizeN } from '../../../styles/sizes';
 import { typoNuggets } from '../../../styles/typography';
 import { laptopL } from '../../../styles/media';

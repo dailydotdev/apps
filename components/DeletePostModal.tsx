@@ -6,7 +6,7 @@ import {
   ConfirmationButtons,
   Props as ModalProps,
 } from './modals/StyledModal';
-import { ColorButton, HollowButton } from './Buttons';
+import { ColorButton, HollowButton } from './OldButtons';
 import { colorKetchup40 } from '../styles/colors';
 import { ButtonLoader } from './utilities';
 import { useMutation } from 'react-query';

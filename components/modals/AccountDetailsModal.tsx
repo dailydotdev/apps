@@ -12,7 +12,7 @@ import {
   sizeN,
 } from '../../styles/sizes';
 import XIcon from '../../icons/x.svg';
-import { HollowButton, IconButton, InvertButton } from '../Buttons';
+import { HollowButton, IconButton, InvertButton } from '../OldButtons';
 import { ProfileHeading } from '../utilities';
 import EditImageWithJoinedDate from '../profile/EditImageWithJoinedDate';
 import AuthContext from '../AuthContext';

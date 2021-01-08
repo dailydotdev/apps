@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { laptop } from '../styles/media';
 import { pageMaxWidth } from '../styles/helpers';
 import { size1, size10, size2, size4, size7 } from '../styles/sizes';
-import { IconButton } from './Buttons';
+import { IconButton } from './OldButtons';
 import CopyIcon from '../icons/copy.svg';
 import WhatsappIcon from '../icons/whatsapp_color.svg';
 import TwitterIcon from '../icons/twitter_color.svg';

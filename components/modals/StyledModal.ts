@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { ReactModalAdapter } from './ReactModalAdapter';
 import { size10, size2, size4, size6 } from '../../styles/sizes';
 import { focusOutline } from '../../styles/helpers';
-import { BaseButton, IconButton } from '../Buttons';
+import { BaseButton, IconButton } from '../OldButtons';
 import { mobileL } from '../../styles/media';
 import { typoCallout, typoLil2, typoTitle3 } from '../../styles/typography';
 import { overlayTertiary } from '../../styles/colors';

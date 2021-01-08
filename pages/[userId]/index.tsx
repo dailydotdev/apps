@@ -57,7 +57,7 @@ import {
 } from '../../lib/user';
 import { formToJson } from '../../lib/form';
 import TextField from '../../components/TextField';
-import { InvertButton } from '../../components/Buttons';
+import { InvertButton } from '../../components/OldButtons';
 import { useHideOnModal } from '../../lib/useHideOnModal';
 import { colorWater50 } from '../../styles/colors';
 import { ownershipGuide } from '../../lib/constants';

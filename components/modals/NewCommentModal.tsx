@@ -22,7 +22,7 @@ import {
   typoCaption1,
   typoSubhead,
 } from '../../styles/typography';
-import { ColorButton, FloatButton } from '../Buttons';
+import { ColorButton, FloatButton } from '../OldButtons';
 import { useMutation, useQueryClient } from 'react-query';
 import {
   Comment,
