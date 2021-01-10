@@ -54,6 +54,8 @@ export default createGlobalStyle`
     --theme-premium: ${colorBacon40};
     --theme-avocado: ${colorAvocado40};
 
+    --theme-focus: ${colors.blueCheese['40']};
+
     --theme-background-primary: ${colors.pepper['90']};
     --theme-background-secondary: ${colors.pepper['70']};
     --theme-background-tertiary: ${colors.pepper['80']};
@@ -64,6 +66,7 @@ export default createGlobalStyle`
     --theme-label-quaternary: ${colors.salt['90']}A3;
     --theme-label-disabled: ${colors.salt['90']}52;
     --theme-label-link: ${colors.water['20']};
+    --theme-label-invert: ${colors.pepper['90']};
 
     --theme-divider-primary: ${colors.salt['90']};
     --theme-divider-secondary: ${colors.salt['90']}66;
@@ -71,7 +74,8 @@ export default createGlobalStyle`
 
     --theme-status-error: ${colors.ketchup['40']};
 
-    --theme-shadow2: 0 6px 6px -2px #00000066;
+    --theme-shadow2: 0 0.375rem 0.375rem -0.125rem #00000066;
+    --theme-shadow3: 0 0.875rem rem -0.375rem #000000A3;
 
     --theme-rank-1-color: ${colors.burger['40']};
     --theme-rank-1-color-top: ${colors.burger['40']};
@@ -112,6 +116,8 @@ export default createGlobalStyle`
     --theme-premium: ${colorBacon60};
     --theme-avocado: ${colorAvocado60};
 
+    --theme-focus: ${colors.blueCheese['60']};
+
     --theme-background-primary: #FFFFFF;
     --theme-background-secondary: ${colors.salt['10']};
     --theme-background-tertiary: ${colors.salt['20']};
@@ -122,6 +128,7 @@ export default createGlobalStyle`
     --theme-label-quaternary: ${colors.pepper['10']}A3;
     --theme-label-disabled: ${colors.pepper['10']}52;
     --theme-label-link: ${colors.water['80']};
+    --theme-label-invert: #FFFFFF;
 
     --theme-divider-primary: ${colors.pepper['10']};
     --theme-divider-secondary: ${colors.pepper['10']}66;
@@ -129,7 +136,8 @@ export default createGlobalStyle`
 
     --theme-status-error: ${colors.ketchup['60']};
 
-    --theme-shadow2: 0 6 6 -2 ${colors.salt['90']}66;
+    --theme-shadow2: 0 0.375rem 0.375rem -0.125rem ${colors.salt['90']}66;
+    --theme-shadow3: 0 0.875rem rem -0.375rem ${colors.salt['90']}A3;
 
     --theme-rank-1-color: ${colors.burger['60']};
     --theme-rank-1-color-top: ${colors.burger['60']};

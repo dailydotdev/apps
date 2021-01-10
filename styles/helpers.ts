@@ -1,9 +1,9 @@
-import { colorWater40 } from './colors';
+import { size05 } from './sizes';
 
 export const focusOutline = `
   &:focus {
     outline: 0;
-    box-shadow: 0 0 0 0.125rem ${colorWater40};
+    box-shadow: 0 0 0 ${size05} var(--theme-focus);
 
     &:not(.focus-visible) {
       box-shadow: none;
