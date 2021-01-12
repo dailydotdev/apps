@@ -19,6 +19,7 @@ import colors, {
   colorSalt90,
 } from '../styles/colors';
 import { mobileL } from '../styles/media';
+import { shadow2, shadow3 } from '../styles/shadows';
 
 export default createGlobalStyle`
   ${normalize}
@@ -46,7 +47,6 @@ export default createGlobalStyle`
     --theme-light: ${colorPepper40};
     --theme-shine: ${colorPepper30};
     --theme-active: ${colorSalt10}29;
-    --theme-focus: ${colorSalt10}1F;
     --theme-hover: ${colorSalt30}14;
     --theme-separator: ${colorSalt20}1F;
     --theme-backdrop: ${colorSalt10}3D;
@@ -74,8 +74,8 @@ export default createGlobalStyle`
 
     --theme-status-error: ${colors.ketchup['40']};
 
-    --theme-shadow2: 0 0.375rem 0.375rem -0.125rem #00000066;
-    --theme-shadow3: 0 0.875rem rem -0.375rem #000000A3;
+    --theme-shadow2: ${shadow2('#00000066')};
+    --theme-shadow3: ${shadow3('#000000A3')};
 
     --theme-rank-1-color: ${colors.burger['40']};
     --theme-rank-1-color-top: ${colors.burger['40']};
@@ -108,7 +108,6 @@ export default createGlobalStyle`
     --theme-light: ${colorSalt40};
     --theme-shine: ${colorSalt50};
     --theme-active: ${colorPepper80}1F;
-    --theme-focus: ${colorPepper80}14;
     --theme-hover: ${colorPepper60}0A;
     --theme-separator: ${colorPepper80}29;
     --theme-backdrop: ${colorPepper90}3D;
@@ -137,7 +136,7 @@ export default createGlobalStyle`
     --theme-status-error: ${colors.ketchup['60']};
 
     --theme-shadow2: 0 0.375rem 0.375rem -0.125rem ${colors.salt['90']}66;
-    --theme-shadow3: 0 0.875rem rem -0.375rem ${colors.salt['90']}A3;
+    --theme-shadow3: 0 0.875rem 0.875rem -0.375rem ${colors.salt['90']}A3;
 
     --theme-rank-1-color: ${colors.burger['60']};
     --theme-rank-1-color-top: ${colors.burger['60']};

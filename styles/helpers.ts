@@ -3,10 +3,9 @@ import { size05 } from './sizes';
 export const focusOutline = `
   &:focus {
     outline: 0;
-    box-shadow: 0 0 0 ${size05} var(--theme-focus);
 
-    &:not(.focus-visible) {
-      box-shadow: none;
+    &.focus-visible {
+      box-shadow: 0 0 0 ${size05} var(--theme-focus);
     }
   }
 `;

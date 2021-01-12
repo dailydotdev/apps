@@ -30,8 +30,6 @@ export const BaseButton = styled.button<BaseButtonProps>`
   ${typoMicro2Base}
 
   .icon {
-    width: 1em;
-    height: 1em;
     ${(props) => `font-size: ${getIconSize(props.size)};`}
   }
 

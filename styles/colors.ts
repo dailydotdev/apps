@@ -28,7 +28,7 @@ export const colorKetchup30 = '#FF7071';
 export const colorBacon60 = '#F5005E';
 export const colorBacon40 = '#FF468E';
 
-type ColorName =
+export type ColorName =
   | 'burger'
   | 'blueCheese'
   | 'avocado'
