@@ -11,13 +11,14 @@ import {
   RANDOM_PENDING_KEYWORD_QUERY,
 } from '../../graphql/keywords';
 import styled from 'styled-components';
-import { typoTriple } from '../../styles/typography';
+import { typoTitle3 } from '../../styles/typography';
 import { PageContainer } from '../../components/utilities';
 import KeywordManagement from '../../components/KeywordManagement';
 import useRequirePermissions from '../../lib/useRequirePermissions';
 
 const EmptyScreen = styled.div`
-  ${typoTriple}
+  font-weight: bold;
+  ${typoTitle3}
 `;
 
 const PendingKeywords = (): ReactElement => {
