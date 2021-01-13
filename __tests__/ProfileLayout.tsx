@@ -99,11 +99,13 @@ it('should show hashnode link', () => {
   expect(el).toHaveAttribute('href', 'https://hashnode.com/@dailydotdev');
 });
 
-it('should show portfolio link', () => {
+it('should show portfolio link', async () => {
   renderComponent();
-  const el = screen.getByTitle('Go to portfolio website');
-  expect(el).toHaveAttribute('href', 'https://daily.dev/?key=vaue');
-  expect(el).toHaveTextContent('daily.dev');
+  expect(await screen.findByTitle('Go to portfolio website')).toHaveAttribute(
+    'href',
+    'https://daily.dev/?key=vaue',
+  );
+  expect(await screen.findByText('daily.dev')).toBeInTheDocument();
 });
 
 it('should not show rank when not loaded', () => {

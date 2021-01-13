@@ -78,12 +78,12 @@ const Container = styled.div<StyledButtonProps & { reverse?: boolean }>`
     ${({ reverse, buttonSize }) =>
       reverse
         ? `
-      padding-left: ${size1};
-      padding-right: ${getRightMargin(buttonSize)};
-    `
-        : `
       padding-left: ${getRightMargin(buttonSize)};
       padding-right: ${size1};
+    `
+        : `
+      padding-left: ${size1};
+      padding-right: ${getRightMargin(buttonSize)};
     `}
 
     font-weight: bold;

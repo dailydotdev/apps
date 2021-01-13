@@ -29,13 +29,7 @@ import {
 import UpvoteIcon from '../../icons/upvote.svg';
 import CommentIcon from '../../icons/comment.svg';
 import EyeIcon from '../../icons/eye.svg';
-import {
-  typoDouble,
-  typoLil1,
-  typoLil2,
-  typoMicro2,
-  typoNuggets,
-} from '../../styles/typography';
+import { typoBody, typoCallout, typoSubhead } from '../../styles/typography';
 import { format } from 'date-fns';
 import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
@@ -57,12 +51,11 @@ import {
 } from '../../lib/user';
 import { formToJson } from '../../lib/form';
 import TextField from '../../components/TextField';
-import { InvertButton } from '../../components/OldButtons';
 import { useHideOnModal } from '../../lib/useHideOnModal';
-import { colorWater50 } from '../../styles/colors';
 import { ownershipGuide } from '../../lib/constants';
 import dynamicPageLoad from '../../lib/dynamicPageLoad';
 import { smallPostImage } from '../../lib/image';
+import PrimaryButton from '../../components/buttons/PrimaryButton';
 
 const AccountDetailsModal = dynamicPageLoad(
   () =>
@@ -99,10 +92,10 @@ const CommentUpvotes = styled.div`
   flex-direction: column;
   align-items: center;
   padding: ${size2} 0;
-  color: var(--theme-primary);
-  background: var(--theme-background-highlight);
+  background: var(--theme-background-secondary);
   border-radius: ${size3};
-  ${typoLil2}
+  font-weight: bold;
+  ${typoCallout}
 
   .icon {
     font-size: ${size6};
@@ -138,10 +131,10 @@ const CommentContent = styled.p`
   max-height: ${sizeN(15)};
   padding: 0;
   margin: 0;
-  color: var(--theme-primary);
+  color: var(--theme-label-primary);
   word-break: break-word;
   white-space: pre-wrap;
-  ${typoLil1}
+  ${typoCallout}
   ${multilineTextOverflow}
   -webkit-line-clamp: 3;
 
@@ -154,8 +147,8 @@ const CommentContent = styled.p`
 
 const CommentTime = styled.time`
   margin-top: ${size2};
-  color: var(--theme-secondary);
-  ${typoMicro2}
+  color: var(--theme-label-tertiary);
+  ${typoSubhead}
 
   ${tablet} {
     margin-top: 0;
@@ -163,11 +156,11 @@ const CommentTime = styled.time`
 `;
 
 const EmptyMessage = styled.span`
-  color: var(--theme-secondary);
-  ${typoMicro2}
+  color: var(--theme-label-tertiary);
+  ${typoCallout}
 
   a {
-    color: ${colorWater50};
+    color: var(--theme-label-link);
     text-decoration: none;
   }
 `;
@@ -225,8 +218,9 @@ const PostStats = styled.div`
 const PostStat = styled.div`
   display: flex;
   align-items: center;
-  color: var(--theme-secondary);
-  ${typoNuggets}
+  color: var(--theme-label-tertiary);
+  font-weight: bold;
+  ${typoCallout}
 
   .icon {
     font-size: ${size5};
@@ -250,18 +244,19 @@ const OverallStatContainer = styled.div`
   display: flex;
   flex-direction: column;
   padding: ${size3};
-  background: var(--theme-background-highlight);
+  background: var(--theme-background-secondary);
   border-radius: ${size3};
 `;
 
 const OverallStatData = styled.div`
-  color: var(--theme-primary);
-  ${typoDouble}
+  color: var(--theme-label-primary);
+  font-weight: bold;
+  ${typoBody}
 `;
 
 const OverallStatDescription = styled.div`
-  color: var(--theme-secondary);
-  ${typoMicro2}
+  color: var(--theme-label-tertiary);
+  ${typoSubhead}
 `;
 
 const TwitterForm = styled.form`
@@ -270,7 +265,7 @@ const TwitterForm = styled.form`
   align-items: flex-start;
   margin-top: ${size6};
 
-  ${InvertButton} {
+  button {
     width: ${sizeN(30)};
   }
 `;
@@ -281,7 +276,7 @@ const FormField = styled(TextField)`
   margin-bottom: ${size4};
 `;
 
-const CompleteProfileButton = styled(InvertButton)`
+const CompleteProfileButton = styled(PrimaryButton)`
   margin-top: ${size4};
   align-self: flex-start;
 `;
@@ -447,9 +442,9 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
               validityChanged={updateDisableSubmit}
               valueChanged={() => twitterHint && setTwitterHint(null)}
             />
-            <InvertButton type="submit" disabled={disableSubmit}>
+            <PrimaryButton type="submit" disabled={disableSubmit}>
               Save
-            </InvertButton>
+            </PrimaryButton>
           </TwitterForm>
         ) : (
           <>

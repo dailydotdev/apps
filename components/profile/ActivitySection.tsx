@@ -1,8 +1,7 @@
 import React, { Fragment, ReactElement, ReactNode } from 'react';
 import styled from 'styled-components';
 import { size1, size10, size3, size4 } from '../../styles/sizes';
-import { typoDouble, typoLil1 } from '../../styles/typography';
-import { colorWater50 } from '../../styles/colors';
+import { typoBody, typoCallout } from '../../styles/typography';
 import { focusOutline } from '../../styles/helpers';
 import { Connection } from '../../graphql/common';
 import { InfiniteQueryObserverBaseResult } from 'react-query';
@@ -16,11 +15,12 @@ export const ActivityContainer = styled.section`
 export const ActivitySectionTitle = styled.h2`
   display: flex;
   margin: 0 0 ${size4};
-  color: var(--theme-primary);
-  ${typoDouble}
+  color: var(--theme-label-primary);
+  font-weight: bold;
+  ${typoBody}
 
   span {
-    color: var(--theme-secondary);
+    color: var(--theme-label-secondary);
     font-weight: normal;
     margin-left: ${size1};
   }
@@ -32,15 +32,10 @@ const LoadMore = styled.button`
   padding: 0;
   background: none;
   border: none;
-  color: ${colorWater50};
+  color: var(--theme-label-link);
   cursor: pointer;
-  ${typoLil1}
+  ${typoCallout}
   ${focusOutline}
-
-  &:hover,
-  &:active {
-    color: ${colorWater50};
-  }
 `;
 
 export interface ActivitySectionProps<TElement, TError> {
@@ -66,10 +61,7 @@ export default function ActivitySection<TElement, TError>({
     !query.isLoading &&
     !query?.data?.pages?.[0]?.page?.edges.length;
   const showLoadMore =
-    !showEmptyScreen &&
-    !query.isLoading &&
-    !query.isFetchingNextPage &&
-    query.hasNextPage;
+    !query.isLoading && !query.isFetchingNextPage && query.hasNextPage;
 
   return (
     <ActivityContainer>
@@ -83,8 +75,13 @@ export default function ActivitySection<TElement, TError>({
           {page.page.edges.map(({ node }) => elementToNode(node))}
         </Fragment>
       ))}
-      {showLoadMore && (
-        <LoadMore onClick={() => query.fetchNextPage()}>Load more ▸</LoadMore>
+      {query.hasNextPage && (
+        <LoadMore
+          onClick={() => query.fetchNextPage()}
+          style={{ visibility: showLoadMore ? 'unset' : 'hidden' }}
+        >
+          Load more ▸
+        </LoadMore>
       )}
     </ActivityContainer>
   );

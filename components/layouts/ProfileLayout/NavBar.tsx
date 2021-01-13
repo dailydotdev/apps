@@ -1,16 +1,15 @@
 import React, { ReactElement } from 'react';
 import Link from 'next/link';
-import { FloatButton } from '../../OldButtons';
 import styled from 'styled-components';
 import { size05, size4, size6 } from '../../../styles/sizes';
 import { laptop } from '../../../styles/media';
 import { pageMaxWidth } from '../../../styles/helpers';
-import { typoNuggets } from '../../../styles/typography';
 import { NextRouter } from 'next/router';
 import { PublicProfile } from '../../../lib/user';
 import { FlippedProps, FlipperProps } from 'flip-toolkit/lib/types';
 import dynamicParent from '../../../lib/dynamicParent';
 import onPageLoad from '../../../lib/onPageLoad';
+import TertiaryButton from '../../buttons/TertiaryButton';
 
 const flipperLoader = () =>
   onPageLoad('complete').then(
@@ -40,7 +39,7 @@ const Nav = styled.nav`
     height: 0.063rem;
     width: 100vw;
     margin: 0 auto;
-    background: var(--theme-separator);
+    background: var(--theme-divider-tertiary);
 
     ${laptop} {
       width: ${pageMaxWidth};
@@ -49,15 +48,6 @@ const Nav = styled.nav`
 
   & > div {
     position: relative;
-  }
-
-  ${FloatButton} {
-    padding: ${size4} ${size6};
-    ${typoNuggets}
-
-    &.selected {
-      color: var(--theme-primary);
-    }
   }
 `;
 
@@ -69,7 +59,7 @@ const ActiveTabIndicator = styled.div`
   width: ${size4};
   height: ${size05};
   margin: 0 auto;
-  background: var(--theme-primary);
+  background: var(--theme-label-primary);
   border-radius: 0.063rem;
 `;
 
@@ -119,15 +109,16 @@ export default function NavBar({
         {tabs.map((tab, index) => (
           <div key={tab.path}>
             <Link href={getTabHref(tab)} passHref>
-              <FloatButton
-                as="a"
-                className={selectedTab === index ? 'selected' : ''}
+              <TertiaryButton
+                tag="a"
+                buttonSize="large"
+                pressed={selectedTab === index}
                 onClick={(event: React.MouseEvent) =>
                   onTabClicked(event, index)
                 }
               >
                 {tab.title}
-              </FloatButton>
+              </TertiaryButton>
             </Link>
             <Flipped flipId="activeTabIndicator" onStart={applyPageChange}>
               {selectedTab === index && <ActiveTabIndicator />}
