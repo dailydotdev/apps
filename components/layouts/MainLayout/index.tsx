@@ -14,15 +14,15 @@ import {
   size8,
   sizeN,
 } from '../../../styles/sizes';
-import { FloatButton } from '../../OldButtons';
 import LazyImage from '../../LazyImage';
 import AuthContext from '../../AuthContext';
 import { focusOutline } from '../../../styles/helpers';
 import { laptop, tablet } from '../../../styles/media';
 import BetaBadge from '../../svg/BetaBadge';
-import { typoLil2 } from '../../../styles/typography';
+import { typoCallout } from '../../../styles/typography';
 import DailyDevLogo from '../../svg/DailyDevLogo';
 import dynamicPageLoad from '../../../lib/dynamicPageLoad';
+import TertiaryButton from '../../buttons/TertiaryButton';
 
 const MainLayoutButtons = dynamicPageLoad(
   () =>
@@ -76,14 +76,15 @@ const ProfileImage = styled.a`
   overflow: hidden;
   margin-left: ${buttonMargin};
   padding: 0;
-  color: var(--theme-primary);
-  background: var(--theme-background-highlight);
+  color: var(--theme-label-primary);
+  background: var(--theme-background-secondary);
   border: none;
   border-radius: ${size2};
   cursor: pointer;
   text-decoration: none;
+  font-weight: bold;
   ${focusOutline}
-  ${typoLil2}
+  ${typoCallout}
 
   .img {
     width: ${size8};
@@ -141,7 +142,7 @@ export default function Index({
                 </ProfileImage>
               </Link>
             ) : (
-              <FloatButton onClick={showLogin}>Login</FloatButton>
+              <TertiaryButton onClick={showLogin}>Login</TertiaryButton>
             )}
           </>
         )}

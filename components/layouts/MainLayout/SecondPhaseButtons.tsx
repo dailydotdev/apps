@@ -3,35 +3,28 @@ import GiftIcon from '../../../icons/gift.svg';
 import BellNotifyIcon from '../../../icons/bell_notify.svg';
 import BellIcon from '../../../icons/bell.svg';
 import styled from 'styled-components';
-import { FloatButton, IconButton } from '../../OldButtons';
-import { size1, size2, sizeN } from '../../../styles/sizes';
-import { typoNuggets } from '../../../styles/typography';
+import { sizeN } from '../../../styles/sizes';
 import { laptopL } from '../../../styles/media';
 import AboutModal from '../../modals/AboutModal';
 import usePersistentState from '../../../lib/usePersistentState';
+import TertiaryButton from '../../buttons/TertiaryButton';
+import { ButtonProps } from '../../buttons/BaseButton';
+import QuandaryButton from '../../buttons/QuandaryButton';
 
 const buttonMargin = sizeN(1.5);
 
-const AboutButton = styled(IconButton)`
+const AboutButton = styled(TertiaryButton)<ButtonProps<'button'>>`
   margin: 0 ${buttonMargin};
 `;
 
-const GiftButton = styled(FloatButton)`
+const GiftButton = styled(QuandaryButton)<ButtonProps<'a'>>`
   margin: 0 ${buttonMargin};
-  padding: ${size1};
-  border-radius: ${size2};
-  ${typoNuggets}
 
-  .icon {
-    margin: 0;
-  }
-
-  span {
+  label {
     display: none;
-    margin: 0 ${size1} 0 ${size2};
 
     ${laptopL} {
-      display: unset;
+      display: flex;
     }
   }
 `;
@@ -53,20 +46,25 @@ export default function SecondPhaseButtons(): ReactElement {
   return (
     <>
       <GiftButton
-        as="a"
+        id="header-gift-btn"
+        tag="a"
         href="https://daily.dev/win-free-t-shirt"
         target="_blank"
         rel="noopener"
         title="Get free T-shirt"
-        done={!didClickedTshirt}
+        themeColor="avocado"
+        pressed={!didClickedTshirt}
         onClick={() => setDidClickTshirt(true)}
+        icon={<GiftIcon />}
+        reverse
       >
-        {!didClickedTshirt && <span>Get free T-shirt</span>}
-        <GiftIcon />
+        {!didClickedTshirt && 'Get free T-shirt'}
       </GiftButton>
-      <AboutButton onClick={onAboutClick} title="About">
-        {showBadge ? <BellNotifyIcon /> : <BellIcon />}
-      </AboutButton>
+      <AboutButton
+        onClick={onAboutClick}
+        title="About"
+        icon={showBadge ? <BellNotifyIcon /> : <BellIcon />}
+      />
       <AboutModal
         isOpen={showAbout}
         onRequestClose={() => setShowAbout(false)}

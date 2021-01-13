@@ -1,4 +1,4 @@
-import React, { CSSProperties, ReactElement } from 'react';
+import React, { ReactElement } from 'react';
 import BaseButton, {
   ButtonProps,
   ButtonSize,
@@ -66,16 +66,26 @@ const applyButtonStatesStyles = (styles: ButtonStatesStyles): string =>
   }
   `;
 
-const Container = styled.div<StyledButtonProps>`
+const Container = styled.div<StyledButtonProps & { reverse?: boolean }>`
   display: flex;
+  flex-direction: ${({ reverse }) => (reverse ? 'row-reverse' : 'row')};
   align-items: stretch;
   user-select: none;
 
   label {
     display: flex;
     align-items: center;
-    padding-left: ${size1};
-    padding-right: ${({ buttonSize }) => getRightMargin(buttonSize)};
+    ${({ reverse, buttonSize }) =>
+      reverse
+        ? `
+      padding-left: ${size1};
+      padding-right: ${getRightMargin(buttonSize)};
+    `
+        : `
+      padding-left: ${getRightMargin(buttonSize)};
+      padding-right: ${size1};
+    `}
+
     font-weight: bold;
     cursor: pointer;
     ${typoCallout}
@@ -98,11 +108,17 @@ export default function QuandaryButton<
   id,
   children,
   style,
+  reverse,
   ...props
-}: ButtonProps<Tag> & { id: string; style?: CSSProperties }): ReactElement {
+}: ButtonProps<Tag> & { id: string; reverse?: boolean }): ReactElement {
   const buttonStyle = tertiaryStyle(props.themeColor);
   return (
-    <Container {...buttonStyle} buttonSize={props.buttonSize} style={style}>
+    <Container
+      {...buttonStyle}
+      buttonSize={props.buttonSize}
+      style={style}
+      reverse={reverse}
+    >
       <BaseButton<Tag> id={id} {...buttonStyle} {...props} />
       {children && <label htmlFor={id}>{children}</label>}
     </Container>
