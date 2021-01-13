@@ -5,14 +5,13 @@ import {
   ConfirmationDescription,
   ConfirmationButtons,
   Props as ModalProps,
-} from './modals/StyledModal';
-import { ColorButton, HollowButton } from './OldButtons';
-import { colorKetchup40 } from '../styles/colors';
-import { ButtonLoader } from './utilities';
+} from './StyledModal';
 import { useMutation } from 'react-query';
-import { DELETE_POST_MUTATION, EmptyResponse } from '../graphql/posts';
+import { DELETE_POST_MUTATION, EmptyResponse } from '../../graphql/posts';
 import request from 'graphql-request';
-import { apiUrl } from '../lib/config';
+import { apiUrl } from '../../lib/config';
+import SecondaryButton from '../buttons/SecondaryButton';
+import PrimaryButton from '../buttons/PrimaryButton';
 
 export interface Props extends ModalProps {
   postId: string;
@@ -50,15 +49,14 @@ export default function DeletePostModal({
         Are you sure you want to delete this post? This action cannot be undone.
       </ConfirmationDescription>
       <ConfirmationButtons>
-        <HollowButton onClick={props.onRequestClose}>Cancel</HollowButton>
-        <ColorButton
-          background={colorKetchup40}
-          waiting={deleting}
+        <SecondaryButton onClick={props.onRequestClose}>Cancel</SecondaryButton>
+        <PrimaryButton
+          themeColor="ketchup"
+          loading={deleting}
           onClick={onDeletePost}
         >
-          <span>Delete</span>
-          <ButtonLoader />
-        </ColorButton>
+          Delete
+        </PrimaryButton>
       </ConfirmationButtons>
     </ConfirmationModal>
   );

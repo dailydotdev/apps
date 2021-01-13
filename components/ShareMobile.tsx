@@ -3,9 +3,9 @@ import styled from 'styled-components';
 import { laptop } from '../styles/media';
 import CopyIcon from '../icons/copy.svg';
 import ShareIcon from '../icons/share.svg';
-import { FloatButton } from './OldButtons';
 import { size1, size10 } from '../styles/sizes';
 import { useCopyPostLink } from '../lib/useCopyPostLink';
+import TertiaryButton from './buttons/TertiaryButton';
 
 const Container = styled.div`
   display: flex;
@@ -17,7 +17,7 @@ const Container = styled.div`
     display: none;
   }
 
-  ${FloatButton} {
+  button {
     margin: ${size1} 0;
 
     &:first-child {
@@ -39,14 +39,18 @@ export function ShareMobile({ share }: Props): ReactElement {
 
   return (
     <Container>
-      <FloatButton onClick={copyLink} done={copying}>
-        <CopyIcon />
+      <TertiaryButton
+        buttonSize="small"
+        themeColor="avocado"
+        onClick={copyLink}
+        pressed={copying}
+        icon={<CopyIcon />}
+      >
         {copying ? 'Copied!' : 'Copy link'}
-      </FloatButton>
-      <FloatButton onClick={share}>
-        <ShareIcon />
+      </TertiaryButton>
+      <TertiaryButton buttonSize="small" onClick={share} icon={<ShareIcon />}>
         Share with your friends
-      </FloatButton>
+      </TertiaryButton>
     </Container>
   );
 }

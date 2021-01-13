@@ -73,6 +73,8 @@ export default createGlobalStyle`
     --theme-divider-tertiary: ${colors.salt['90']}33;
 
     --theme-status-error: ${colors.ketchup['40']};
+    --theme-status-help: ${colors.cheese['40']};
+    --theme-status-success: ${colors.avocado['40']};
 
     --theme-shadow2: ${shadow2('#00000066')};
     --theme-shadow3: ${shadow3('#000000A3')};
@@ -134,6 +136,8 @@ export default createGlobalStyle`
     --theme-divider-tertiary: ${colors.pepper['10']}33;
 
     --theme-status-error: ${colors.ketchup['60']};
+    --theme-status-help: ${colors.cheese['60']};
+    --theme-status-success: ${colors.avocado['60']};
 
     --theme-shadow2: 0 0.375rem 0.375rem -0.125rem ${colors.salt['90']}66;
     --theme-shadow3: 0 0.875rem 0.875rem -0.375rem ${colors.salt['90']}A3;

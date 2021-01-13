@@ -31,23 +31,13 @@ import {
   sizeN,
 } from '../../styles/sizes';
 import {
+  typoBody,
   typoCallout,
-  typoLil2,
-  typoLil2Base,
-  typoMicro2,
-  typoMicro2Base,
-  typoNuggets,
-  typoSmall,
+  typoFootnote,
   typoSubhead,
   typoTitle2,
 } from '../../styles/typography';
 import { postDateFormat } from '../../lib/dateFormat';
-import {
-  FloatButton,
-  HollowButton,
-  IconButton,
-  InvertButton,
-} from '../../components/OldButtons';
 import OpenLinkIcon from '../../icons/open_link.svg';
 import UpvoteIcon from '../../icons/upvote.svg';
 import CommentIcon from '../../icons/comment.svg';
@@ -71,8 +61,7 @@ import {
   POST_COMMENTS_QUERY,
   PostCommentsData,
 } from '../../graphql/comments';
-import { mobileL, mobileM } from '../../styles/media';
-import { colorCheese50 } from '../../styles/colors';
+import { mobileL } from '../../styles/media';
 import { focusOutline } from '../../styles/helpers';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { ShareMobile } from '../../components/ShareMobile';
@@ -82,6 +71,10 @@ import request, { ClientError } from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import { ProfileLink } from '../../components/profile/ProfileLink';
 import { ownershipGuide } from '../../lib/constants';
+import TertiaryButton from '../../components/buttons/TertiaryButton';
+import QuandaryButton from '../../components/buttons/QuandaryButton';
+import PrimaryButton from '../../components/buttons/PrimaryButton';
+import SecondaryButton from '../../components/buttons/SecondaryButton';
 
 const NewCommentModal = dynamic(
   () => import('../../components/modals/NewCommentModal'),
@@ -90,7 +83,7 @@ const DeleteCommentModal = dynamic(
   () => import('../../components/modals/DeleteCommentModal'),
 );
 const DeletePostModal = dynamic(
-  () => import('../../components/DeletePostModal'),
+  () => import('../../components/modals/DeletePostModal'),
 );
 const ShareBar = dynamic(() => import('../../components/ShareBar'), {
   ssr: false,
@@ -151,9 +144,9 @@ const SourceImage = styled(RoundedImage)`
 `;
 
 const SourceName = styled.div`
-  color: var(--theme-disabled);
+  color: var(--theme-label-primary);
   font-weight: bold;
-  ${typoMicro2Base}
+  ${typoCallout}
 `;
 
 const AuthorLink = styled(ProfileLink)`
@@ -192,8 +185,8 @@ const StatsBar = styled.div`
   grid-auto-columns: max-content;
   grid-column-gap: ${size4};
   margin: ${size4} 0;
-  color: var(--theme-disabled);
-  ${typoSmall}
+  color: var(--theme-label-tertiary);
+  ${typoCallout}
 
   span {
     word-break: keep-all;
@@ -203,25 +196,15 @@ const StatsBar = styled.div`
 const ActionButtons = styled.div`
   display: flex;
   justify-content: space-between;
-  padding: ${size4} 0;
+  padding: ${size2} 0;
   border-top: 0.063rem solid var(--theme-divider-tertiary);
   border-bottom: 0.063rem solid var(--theme-divider-tertiary);
 
-  ${FloatButton} {
-    .icon {
-      margin-right: -${size1};
+  label {
+    display: none;
 
-      ${mobileM} {
-        margin-right: ${size2};
-      }
-    }
-
-    span {
-      display: none;
-
-      ${mobileM} {
-        display: inline-block;
-      }
+    ${mobileL} {
+      display: flex;
     }
   }
 `;
@@ -286,7 +269,7 @@ const Separator = styled.div`
 
 const AuthorOnboarding = styled.section`
   padding: ${size6};
-  background: var(--theme-background-highlight);
+  background: var(--theme-background-secondary);
   border-radius: ${size4};
 
   p {
@@ -304,8 +287,8 @@ const AuthorOnboarding = styled.section`
 
   p,
   ol {
-    color: var(--theme-secondary);
-    ${typoMicro2}
+    color: var(--theme-label-secondary);
+    ${typoCallout}
   }
 `;
 
@@ -318,7 +301,7 @@ const AuthorOnboardingHeader = styled.div`
   .icon {
     grid-row-end: span 2;
     font-size: ${size10};
-    color: ${colorCheese50};
+    color: var(--theme-status-help);
   }
 
   h2,
@@ -326,13 +309,15 @@ const AuthorOnboardingHeader = styled.div`
     margin: 0;
   }
 
-  h2 {
-    color: ${colorCheese50};
-    ${typoLil2}
+  h3 {
+    color: var(--theme-status-help);
+    font-weight: bold;
+    ${typoFootnote}
   }
 
-  h3 {
-    ${typoLil2Base}
+  h2 {
+    font-weight: bold;
+    ${typoBody}
   }
 `;
 
@@ -343,15 +328,6 @@ const AuthorOnboardingButtons = styled.div`
   grid-template-columns: 1fr max-content;
   column-gap: ${size4};
   margin-top: ${size6};
-
-  ${HollowButton} {
-    padding-left: ${size4};
-    padding-right: ${size4};
-    color: var(--theme-primary);
-    border-color: var(--theme-primary);
-    border-radius: ${size2};
-    ${typoNuggets}
-  }
 `;
 
 interface ParentComment {
@@ -578,14 +554,14 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           <SourceImage
             imgSrc={postById?.post.source.image}
             imgAlt={postById?.post.source.name}
-            background="var(--theme-background-highlight)"
+            background="var(--theme-background-secondary)"
           />
           {postById?.post.author ? (
             <AuthorLink user={postById.post.author} data-testid="authorLink">
               <SourceImage
                 imgSrc={postById.post.author.image}
                 imgAlt={postById.post.author.name}
-                background="var(--theme-background-highlight)"
+                background="var(--theme-background-secondary)"
               />
               <SourceName>{postById.post.author.name}</SourceName>
             </AuthorLink>
@@ -594,13 +570,12 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
               <SourceName>{postById?.post.source.name}</SourceName>
             </PostInfoSubContainer>
           )}
-          <IconButton as="a" {...postLinkProps}>
-            <OpenLinkIcon />
-          </IconButton>
+          <TertiaryButton icon={<OpenLinkIcon />} tag="a" {...postLinkProps} />
           {user?.roles?.indexOf(Roles.Moderator) > -1 && (
-            <IconButton onClick={() => setShowDeletePost(true)}>
-              <TrashIcon />
-            </IconButton>
+            <TertiaryButton
+              icon={<TrashIcon />}
+              onClick={() => setShowDeletePost(true)}
+            />
           )}
         </PostInfo>
         <Title>{postById?.post.title}</Title>
@@ -636,30 +611,36 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           )}
         </StatsBar>
         <ActionButtons>
-          <FloatButton
-            done={postById?.post.upvoted}
+          <QuandaryButton
+            id="upvote-post-btn"
+            themeColor="avocado"
+            pressed={postById?.post.upvoted}
             onClick={toggleUpvote}
-            title="Upvote"
+            icon={<UpvoteIcon />}
+            aria-label="Upvote"
           >
-            <UpvoteIcon />
-            <span>Upvote</span>
-          </FloatButton>
-          <FloatButton
-            done={postById?.post.commented}
+            Upvote
+          </QuandaryButton>
+          <QuandaryButton
+            id="comment-post-btn"
+            themeColor="avocado"
+            pressed={postById?.post.commented}
             onClick={openNewComment}
-            title="Comment"
+            icon={<CommentIcon />}
+            aria-label="Comment"
           >
-            <CommentIcon />
-            <span>Comment</span>
-          </FloatButton>
-          <FloatButton
+            Comment
+          </QuandaryButton>
+          <QuandaryButton
+            id="share-post-btn"
             onClick={sharePost}
             title="Share"
+            icon={<ShareIcon />}
             style={{ visibility: hasNativeShare ? 'visible' : 'hidden' }}
+            aria-label="Share"
           >
-            <ShareIcon />
-            <span>Share</span>
-          </FloatButton>
+            Share
+          </QuandaryButton>
         </ActionButtons>
         {comments?.postComments.edges.map((e) => (
           <MainComment
@@ -677,8 +658,8 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           <AuthorOnboarding>
             <AuthorOnboardingHeader>
               <FeatherIcon />
-              <h2>Author</h2>
-              <h3>Is this article yours?</h3>
+              <h3>Author</h3>
+              <h2>Is this article yours?</h2>
             </AuthorOnboardingHeader>
             <p>Claim ownership and get the following perks:</p>
             <ol>
@@ -692,15 +673,15 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
               </li>
             </ol>
             <AuthorOnboardingButtons data-testid="authorOnboarding">
-              <InvertButton onClick={showLogin}>Sign up</InvertButton>
-              <HollowButton
-                as="a"
+              <PrimaryButton onClick={showLogin}>Sign up</PrimaryButton>
+              <SecondaryButton
+                tag="a"
                 href={ownershipGuide}
                 target="_blank"
                 rel="noopener"
               >
                 Learn more
-              </HollowButton>
+              </SecondaryButton>
             </AuthorOnboardingButtons>
           </AuthorOnboarding>
         ) : (

@@ -1,5 +1,5 @@
-import { HTMLAttributes, ReactElement } from 'react';
-import BaseButton, { BaseButtonProps, StyledButtonProps } from './BaseButton';
+import { ReactElement } from 'react';
+import BaseButton, { ButtonProps, StyledButtonProps } from './BaseButton';
 import colors, { ColorName } from '../../styles/colors';
 import { shadow2, shadow3 } from '../../styles/shadows';
 
@@ -62,11 +62,10 @@ export const secondaryStyle = (color?: ColorName): StyledButtonProps => ({
 });
 
 export default function SecondaryButton<
-  C extends HTMLElement = HTMLButtonElement,
-  P = HTMLAttributes<C>
->(props: BaseButtonProps & P): ReactElement {
-  const style = secondaryStyle(props.color);
-  return BaseButton({
+  Tag extends keyof JSX.IntrinsicElements
+>(props: ButtonProps<Tag>): ReactElement {
+  const style = secondaryStyle(props.themeColor);
+  return BaseButton<Tag>({
     ...props,
     ...style,
   });

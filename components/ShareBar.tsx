@@ -3,14 +3,13 @@ import styled from 'styled-components';
 import { laptop } from '../styles/media';
 import { pageMaxWidth } from '../styles/helpers';
 import { size1, size10, size2, size4, size7 } from '../styles/sizes';
-import { IconButton } from './OldButtons';
 import CopyIcon from '../icons/copy.svg';
 import WhatsappIcon from '../icons/whatsapp_color.svg';
 import TwitterIcon from '../icons/twitter_color.svg';
 import FacebookIcon from '../icons/facebook_color.svg';
 import ReactGA from 'react-ga';
 import { Post } from '../graphql/posts';
-import { typoNuggets } from '../styles/typography';
+import { typoCaption1 } from '../styles/typography';
 import { useCopyPostLink } from '../lib/useCopyPostLink';
 import {
   getFacebookShareLink,
@@ -18,6 +17,8 @@ import {
   getTwitterShareLink,
   getWhatsappShareLink,
 } from '../lib/share';
+import TertiaryButton from './buttons/TertiaryButton';
+import { ButtonProps } from './buttons/BaseButton';
 
 const barWidth = size7;
 
@@ -52,11 +53,14 @@ const Copied = styled.div`
   height: ${barWidth};
   align-items: center;
   margin-right: ${size1};
-  color: var(--theme-avocado);
-  ${typoNuggets}
+  color: var(--theme-status-success);
+  font-weight: bold;
+  ${typoCaption1}
 `;
 
-const ShareButton = styled(IconButton)`
+const ShareButton = styled(TertiaryButton).attrs({ buttonSize: 'small' })<
+  ButtonProps<'button'> | ButtonProps<'a'>
+>`
   margin: ${size1} 0;
 `;
 
@@ -72,12 +76,16 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
     <Container>
       <Sticky>
         {copying && <Copied>Copied!</Copied>}
-        <ShareButton title="Copy link" onClick={copyLink} done={copying}>
-          <CopyIcon />
-        </ShareButton>
+        <ShareButton
+          title="Copy link"
+          color="avocado"
+          onClick={copyLink}
+          pressed={copying}
+          icon={<CopyIcon />}
+        />
         <ColorfulShareButton
           title="Share on WhatsApp"
-          as="a"
+          tag="a"
           href={getWhatsappShareLink(href)}
           target="_blank"
           rel="noopener"
@@ -88,12 +96,11 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
               label: 'WhatsApp',
             })
           }
-        >
-          <WhatsappIcon />
-        </ColorfulShareButton>
+          icon={<WhatsappIcon />}
+        />
         <ColorfulShareButton
           title="Share on Twitter"
-          as="a"
+          tag="a"
           href={getTwitterShareLink(href, post.title)}
           target="_blank"
           rel="noopener"
@@ -104,12 +111,11 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
               label: 'Twitter',
             })
           }
-        >
-          <TwitterIcon />
-        </ColorfulShareButton>
+          icon={<TwitterIcon />}
+        />
         <ColorfulShareButton
           title="Share on Facebook"
-          as="a"
+          tag="a"
           href={getFacebookShareLink(href)}
           target="_blank"
           rel="noopener"
@@ -120,9 +126,8 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
               label: 'Facebook',
             })
           }
-        >
-          <FacebookIcon />
-        </ColorfulShareButton>
+          icon={<FacebookIcon />}
+        />
       </Sticky>
     </Container>
   );

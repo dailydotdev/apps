@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, ReactElement, ReactNode } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 import styled from 'styled-components';
 import { typoCallout } from '../../styles/typography';
 import {
@@ -34,7 +34,7 @@ export interface ButtonStatesStyles {
 }
 
 export interface StyledButtonProps {
-  size?: ButtonSize;
+  buttonSize?: ButtonSize;
   darkStates: ButtonStatesStyles;
   lightStates: ButtonStatesStyles;
   iconOnly?: boolean;
@@ -113,11 +113,11 @@ const applySizeStyle = (
   }
   switch (size) {
     case 'small':
-      return `padding: ${size1} ${sizeN(3.75)};`;
+      return `padding: ${sizeN(1.25)} ${sizeN(3.75)};`;
     case 'large':
-      return `padding: ${size3} ${sizeN(7.75)};`;
+      return `padding: ${sizeN(3.25)} ${sizeN(7.75)};`;
     default:
-      return `padding: ${size2} ${sizeN(5.75)};`;
+      return `padding: ${sizeN(2.25)} ${sizeN(5.75)};`;
   }
 };
 
@@ -140,9 +140,9 @@ const iconMargins = `
 }
 `;
 
-const getIconSize = ({ size, iconOnly }: StyledButtonProps): string => {
+const getIconSize = ({ buttonSize, iconOnly }: StyledButtonProps): string => {
   if (iconOnly) {
-    switch (size) {
+    switch (buttonSize) {
       case 'small':
         return size6;
       case 'large':
@@ -172,7 +172,6 @@ const StyledButton = styled.button<StyledButtonProps>`
   user-select: none;
 
   ${typoCallout}
-
   .icon {
     width: 1em;
     height: 1em;
@@ -181,17 +180,17 @@ const StyledButton = styled.button<StyledButtonProps>`
 
   ${(props) =>
     [
-      applySizeStyle(props.size, props.iconOnly),
+      applySizeStyle(props.buttonSize, props.iconOnly),
       applyButtonStatesStyles(props.darkStates),
       props.iconOnly ? '' : iconMargins,
     ].join('\n')}
-
   ${ButtonLoader} {
     display: none;
   }
 
   &[aria-busy='true'] {
     pointer-events: none;
+
     & > * {
       visibility: hidden;
     }
@@ -217,31 +216,32 @@ const StyledButton = styled.button<StyledButtonProps>`
 `;
 
 export interface BaseButtonProps {
-  size?: ButtonSize;
+  buttonSize?: ButtonSize;
   loading?: boolean;
   pressed?: boolean;
-  as?: keyof JSX.IntrinsicElements;
-  children?: ReactNode;
+  tag?: React.ElementType;
   icon?: ReactNode;
   rightIcon?: ReactNode;
-  color?: ColorName;
+  themeColor?: ColorName;
+  children?: ReactNode;
 }
 
-export default function BaseButton<
-  C extends HTMLElement = HTMLButtonElement,
-  P = HTMLAttributes<C>
->({
+export type ButtonProps<
+  Tag extends keyof JSX.IntrinsicElements
+> = BaseButtonProps & JSX.IntrinsicElements[Tag];
+
+export default function BaseButton<Tag extends keyof JSX.IntrinsicElements>({
   loading,
   pressed,
   icon,
   rightIcon,
   children,
-  as = 'button',
+  tag = 'button',
   ...props
-}: BaseButtonProps & StyledButtonProps & P): ReactElement {
+}: StyledButtonProps & ButtonProps<Tag>): ReactElement {
   return (
     <StyledButton
-      as={as}
+      as={tag}
       {...props}
       iconOnly={icon && !children && !rightIcon}
       aria-busy={loading}

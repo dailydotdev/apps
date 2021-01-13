@@ -6,9 +6,6 @@ import {
   ConfirmationButtons,
   Props as ModalProps,
 } from './StyledModal';
-import { ColorButton, HollowButton } from '../OldButtons';
-import { colorKetchup40 } from '../../styles/colors';
-import { ButtonLoader } from '../utilities';
 import { useMutation, useQueryClient } from 'react-query';
 import {
   DELETE_COMMENT_MUTATION,
@@ -17,6 +14,8 @@ import {
 import cloneDeep from 'lodash.clonedeep';
 import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
+import PrimaryButton from '../buttons/PrimaryButton';
+import SecondaryButton from '../buttons/SecondaryButton';
 
 export interface Props extends ModalProps {
   commentId: string;
@@ -94,15 +93,14 @@ export default function DeleteCommentModal({
         undone.
       </ConfirmationDescription>
       <ConfirmationButtons>
-        <HollowButton onClick={props.onRequestClose}>Cancel</HollowButton>
-        <ColorButton
-          background={colorKetchup40}
-          waiting={deleting}
+        <SecondaryButton onClick={props.onRequestClose}>Cancel</SecondaryButton>
+        <PrimaryButton
+          themeColor="ketchup"
+          loading={deleting}
           onClick={onDeleteComment}
         >
-          <span>Delete</span>
-          <ButtonLoader />
-        </ColorButton>
+          Delete
+        </PrimaryButton>
       </ConfirmationButtons>
     </ConfirmationModal>
   );

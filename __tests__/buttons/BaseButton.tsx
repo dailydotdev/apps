@@ -51,6 +51,6 @@ it('should set aria-pressed when pressed is true', async () => {
 });
 
 it('should render the button as an anchor element', async () => {
-  renderComponent({ children: 'Button', as: 'a', href: 'https://daily.dev' });
+  renderComponent({ children: 'Button', tag: 'a', href: 'https://daily.dev' });
   expect(await screen.findByRole('link')).toBeInTheDocument();
 });

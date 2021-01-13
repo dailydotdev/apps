@@ -1,6 +1,6 @@
-import React, { HTMLAttributes, ReactElement } from 'react';
+import React, { CSSProperties, ReactElement } from 'react';
 import BaseButton, {
-  BaseButtonProps,
+  ButtonProps,
   ButtonSize,
   ButtonStatesStyles,
   ButtonStateStyle,
@@ -75,7 +75,7 @@ const Container = styled.div<StyledButtonProps>`
     display: flex;
     align-items: center;
     padding-left: ${size1};
-    padding-right: ${({ size }) => getRightMargin(size)};
+    padding-right: ${({ buttonSize }) => getRightMargin(buttonSize)};
     font-weight: bold;
     cursor: pointer;
     ${typoCallout}
@@ -93,18 +93,18 @@ const Container = styled.div<StyledButtonProps>`
 `;
 
 export default function QuandaryButton<
-  C extends HTMLElement = HTMLButtonElement,
-  P = HTMLAttributes<C>
+  Tag extends keyof JSX.IntrinsicElements
 >({
   id,
   children,
+  style,
   ...props
-}: BaseButtonProps & { id: string } & P): ReactElement {
-  const style = tertiaryStyle(props.color);
+}: ButtonProps<Tag> & { id: string; style?: CSSProperties }): ReactElement {
+  const buttonStyle = tertiaryStyle(props.themeColor);
   return (
-    <Container {...style} size={props.size}>
-      <BaseButton id={id} {...style} {...props} />
-      <label htmlFor={id}>{children}</label>
+    <Container {...buttonStyle} buttonSize={props.buttonSize} style={style}>
+      <BaseButton<Tag> id={id} {...buttonStyle} {...props} />
+      {children && <label htmlFor={id}>{children}</label>}
     </Container>
   );
 }

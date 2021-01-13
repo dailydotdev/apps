@@ -170,6 +170,6 @@ it('should not show num upvotes when it is zero', async () => {
 
 it('should show num upvotes when it is greater than zero', async () => {
   const res = renderComponent({ numUpvotes: 2 });
-  const el = await res.findByTitle('Upvote');
-  expect(el).toHaveTextContent('2');
+  const el = await res.findByText('2');
+  expect(el).toBeInTheDocument();
 });

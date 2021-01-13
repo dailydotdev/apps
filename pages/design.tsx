@@ -22,16 +22,16 @@ const Page = (): ReactElement => {
   const color: ColorName = 'bacon';
   return (
     <Container>
-      <PrimaryButton color={color} icon={<UpvoteIcon />}>
+      <PrimaryButton themeColor={color} icon={<UpvoteIcon />}>
         My Button
       </PrimaryButton>
-      <SecondaryButton color={color} icon={<UpvoteIcon />}>
+      <SecondaryButton themeColor={color} icon={<UpvoteIcon />}>
         My Button
       </SecondaryButton>
-      <TertiaryButton color={color} icon={<UpvoteIcon />}>
+      <TertiaryButton themeColor={color} icon={<UpvoteIcon />}>
         My Button
       </TertiaryButton>
-      <QuandaryButton id="button" color={color} icon={<UpvoteIcon />}>
+      <QuandaryButton id="button" themeColor={color} icon={<UpvoteIcon />}>
         My Button
       </QuandaryButton>
     </Container>

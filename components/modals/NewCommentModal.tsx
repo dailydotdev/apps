@@ -14,7 +14,7 @@ import cloneDeep from 'lodash.clonedeep';
 import { Props as ModalProps } from './StyledModal';
 import { size2, size3, size6, sizeN } from '../../styles/sizes';
 import AuthContext from '../AuthContext';
-import { ButtonLoader, RoundedImage, SmallRoundedImage } from '../utilities';
+import { RoundedImage, SmallRoundedImage } from '../utilities';
 import { CommentBox, CommentPublishDate } from '../comments/common';
 import { commentDateFormat } from '../../lib/dateFormat';
 import {
@@ -22,7 +22,6 @@ import {
   typoCaption1,
   typoSubhead,
 } from '../../styles/typography';
-import { ColorButton, FloatButton } from '../OldButtons';
 import { useMutation, useQueryClient } from 'react-query';
 import {
   Comment,
@@ -36,6 +35,9 @@ import ReactGA from 'react-ga';
 import ResponsiveModal from './ResponsiveModal';
 import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
+import PrimaryButton from '../buttons/PrimaryButton';
+import { ButtonProps } from '../buttons/BaseButton';
+import TertiaryButton from '../buttons/TertiaryButton';
 
 const DiscardCommentModal = dynamic(() => import('./DiscardCommentModal'));
 
@@ -126,9 +128,9 @@ const Footer = styled.footer`
   border-top: 0.063rem solid var(--theme-divider-tertiary);
 `;
 
-const CommentButton = styled(ColorButton).attrs({
-  background: 'var(--theme-avocado)',
-})``;
+const CommentButton = styled(PrimaryButton).attrs({
+  themeColor: 'avocado',
+})<ButtonProps<'button'>>``;
 
 const ErrorMessage = styled.div`
   min-height: 1rem;
@@ -331,14 +333,13 @@ export default function NewCommentModal({
         {errorMessage && <span role="alert">{errorMessage}</span>}
       </ErrorMessage>
       <Footer>
-        <FloatButton onClick={confirmClose}>Cancel</FloatButton>
+        <TertiaryButton onClick={confirmClose}>Cancel</TertiaryButton>
         <CommentButton
           disabled={!input?.length}
-          waiting={sendingComment}
+          loading={sendingComment}
           onClick={sendComment}
         >
-          <span>Comment</span>
-          <ButtonLoader />
+          Comment
         </CommentButton>
       </Footer>
       <DiscardCommentModal

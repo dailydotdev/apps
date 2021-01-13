@@ -4,19 +4,20 @@ import styled from 'styled-components';
 import { ReactModalAdapter } from './ReactModalAdapter';
 import { size10, size2, size4, size6 } from '../../styles/sizes';
 import { focusOutline } from '../../styles/helpers';
-import { BaseButton, IconButton } from '../OldButtons';
 import { mobileL } from '../../styles/media';
-import { typoCallout, typoLil2, typoTitle3 } from '../../styles/typography';
+import { typoCallout, typoTitle3 } from '../../styles/typography';
 import { overlayTertiary } from '../../styles/colors';
+import TertiaryButton from '../buttons/TertiaryButton';
+import { ButtonProps } from '../buttons/BaseButton';
 
 export interface Props extends Modal.Props {
   children?: ReactNode;
 }
 
-export const ModalCloseButton = styled(IconButton).attrs({
-  size: 'small',
+export const ModalCloseButton = styled(TertiaryButton).attrs({
+  buttonSize: 'small',
   title: 'Close',
-})`
+})<ButtonProps<'button'>>`
   position: absolute;
   right: ${size4};
   top: ${size4};
@@ -28,13 +29,9 @@ export const ConfirmationButtons = styled.div`
   justify-content: space-between;
   align-self: stretch;
 
-  ${BaseButton} {
+  > button {
     flex: 1;
-    padding: ${size2} ${size4};
     margin: 0 ${size2};
-    color: var(--theme-primary);
-    border-radius: ${size2};
-    ${typoLil2}
 
     &:first-child {
       margin-left: 0;
