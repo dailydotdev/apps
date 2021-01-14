@@ -6,7 +6,6 @@ import {
   size10,
   size1px,
   size2,
-  size3,
   size6,
   size7,
   size8,
@@ -102,22 +101,43 @@ const applySizeStyle = (
   if (iconOnly) {
     switch (size) {
       case 'small':
-        return `padding: ${sizeN(0.75)};`;
+        return `
+        padding: ${sizeN(0.75)};
+        border-radius: ${sizeN(2.5)};
+        `;
       case 'large':
-        return `padding: ${sizeN(1.75)};`;
+        return `
+        padding: ${sizeN(1.75)};
+        border-radius: ${sizeN(3.5)};
+        `;
       case 'xlarge':
-        return `padding: ${sizeN(2.75)};`;
+        return `
+        padding: ${sizeN(2.75)};
+        border-radius: ${sizeN(5.5)};
+        `;
       default:
-        return `padding: ${sizeN(1.25)};`;
+        return `
+        padding: ${sizeN(1.25)};
+        border-radius: ${sizeN(3)};
+        `;
     }
   }
   switch (size) {
     case 'small':
-      return `padding: ${sizeN(1.25)} ${sizeN(3.75)};`;
+      return `
+      padding: ${sizeN(1.25)} ${sizeN(3.75)};
+      border-radius: ${sizeN(2.5)};
+      `;
     case 'large':
-      return `padding: ${sizeN(3.25)} ${sizeN(7.75)};`;
+      return `
+      padding: ${sizeN(3.25)} ${sizeN(7.75)};
+      border-radius: ${sizeN(3.5)};
+      `;
     default:
-      return `padding: ${sizeN(2.25)} ${sizeN(5.75)};`;
+      return `
+      padding: ${sizeN(2.25)} ${sizeN(5.75)};
+      border-radius: ${sizeN(3)};
+      `;
   }
 };
 
@@ -166,7 +186,6 @@ const StyledButton = styled.button<StyledButtonProps>`
   text-decoration: none;
   border-width: ${size1px};
   border-style: solid;
-  border-radius: ${size3};
   font-weight: bold;
   box-shadow: none;
   user-select: none;

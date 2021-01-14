@@ -13,7 +13,6 @@ import colors, {
   colorPepper90,
   colorSalt10,
   colorSalt20,
-  colorSalt30,
   colorSalt40,
   colorSalt50,
   colorSalt90,
@@ -40,14 +39,12 @@ export default createGlobalStyle`
   /* stylelint-disable-next-line no-descending-specificity */
   html, html.light .invert, html .invert .invert {
     --theme-background-highlight: ${colorPepper60};
-    --theme-primary: ${colorSalt10};
     --theme-primary-invert: ${colorPepper80};
     --theme-secondary: ${colorSalt90};
     --theme-disabled: ${colorPepper10};
     --theme-light: ${colorPepper40};
     --theme-shine: ${colorPepper30};
     --theme-active: ${colorSalt10}29;
-    --theme-hover: ${colorSalt30}14;
     --theme-separator: ${colorSalt20}1F;
     --theme-backdrop: ${colorSalt10}3D;
 
@@ -55,6 +52,8 @@ export default createGlobalStyle`
     --theme-avocado: ${colorAvocado40};
 
     --theme-focus: ${colors.blueCheese['40']};
+    --theme-float: ${colors.salt['90']}14;
+    --theme-hover: ${colors.salt['90']}1F;
 
     --theme-background-primary: ${colors.pepper['90']};
     --theme-background-secondary: ${colors.pepper['70']};
@@ -110,7 +109,6 @@ export default createGlobalStyle`
     --theme-light: ${colorSalt40};
     --theme-shine: ${colorSalt50};
     --theme-active: ${colorPepper80}1F;
-    --theme-hover: ${colorPepper60}0A;
     --theme-separator: ${colorPepper80}29;
     --theme-backdrop: ${colorPepper90}3D;
 
@@ -118,6 +116,8 @@ export default createGlobalStyle`
     --theme-avocado: ${colorAvocado60};
 
     --theme-focus: ${colors.blueCheese['60']};
+    --theme-float: ${colors.pepper['10']}14;
+    --theme-hover: ${colors.pepper['10']}1F;
 
     --theme-background-primary: #FFFFFF;
     --theme-background-secondary: ${colors.salt['10']};
