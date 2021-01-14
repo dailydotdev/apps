@@ -1,14 +1,21 @@
 import Modal from 'react-modal';
-import { ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 import styled from 'styled-components';
 import { ReactModalAdapter } from './ReactModalAdapter';
-import { size10, size2, size4, size6 } from '../../styles/sizes';
+import {
+  size10,
+  size1px,
+  size2,
+  size4,
+  size5,
+  size6,
+} from '../../styles/sizes';
 import { focusOutline } from '../../styles/helpers';
-import { mobileL } from '../../styles/media';
 import { typoCallout, typoTitle3 } from '../../styles/typography';
 import { overlayTertiary } from '../../styles/colors';
 import TertiaryButton from '../buttons/TertiaryButton';
 import { ButtonProps } from '../buttons/BaseButton';
+import XIcon from '../../icons/x.svg';
 
 export interface Props extends Modal.Props {
   children?: ReactNode;
@@ -17,10 +24,13 @@ export interface Props extends Modal.Props {
 export const ModalCloseButton = styled(TertiaryButton).attrs({
   buttonSize: 'small',
   title: 'Close',
+  icon: <XIcon />,
 })<ButtonProps<'button'>>`
-  position: absolute;
-  right: ${size4};
-  top: ${size4};
+  & {
+    position: absolute;
+    right: ${size4};
+    top: ${size4};
+  }
 `;
 
 export const ConfirmationButtons = styled.div`
@@ -43,24 +53,28 @@ export const ConfirmationButtons = styled.div`
   }
 `;
 
+export const modalBorder = `${size1px} solid var(--theme-divider-secondary)`;
+export const modalBorderAndRadius = `
+border: ${modalBorder};
+border-radius: ${size4};
+`;
+
 export const StyledModal = styled(ReactModalAdapter)`
   .Overlay {
     display: flex;
     position: fixed;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: center;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
     max-height: 100vh;
-    background-color: ${overlayTertiary('white')};
+    padding-left: ${size5};
+    padding-right: ${size5};
+    background: ${overlayTertiary('white')};
     z-index: 2;
-
-    ${mobileL} {
-      justify-content: center;
-    }
   }
 
   .Modal {
@@ -73,14 +87,9 @@ export const StyledModal = styled(ReactModalAdapter)`
     flex-direction: column;
     align-items: center;
     background: var(--theme-background-tertiary);
-    border-radius: ${size4} ${size4} 0 0;
     box-shadow: var(--theme-shadow2);
+    ${modalBorderAndRadius}
     ${focusOutline}
-
-    ${mobileL} {
-      border: 0.063rem solid var(--theme-divider-secondary);
-      border-radius: ${size4};
-    }
   }
 `;
 

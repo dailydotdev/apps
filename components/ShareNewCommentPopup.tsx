@@ -1,7 +1,6 @@
 import React, { ReactElement, useContext } from 'react';
 import styled from 'styled-components';
 import { size10, size2, size4, size6, size8, sizeN } from '../styles/sizes';
-import XIcon from '../icons/x.svg';
 import { ModalCloseButton } from './modals/StyledModal';
 import { laptop } from '../styles/media';
 import AuthContext from './AuthContext';
@@ -98,9 +97,7 @@ export default function ShareNewCommentPopup({
 
   return (
     <Container>
-      <ModalCloseButton onClick={onRequestClose}>
-        <XIcon />
-      </ModalCloseButton>
+      <ModalCloseButton onClick={onRequestClose} />
       <StyledConfetti />
       <StyledShare />
       <Title>That&apos;s a great comment, {user.name?.split(' ')[0]}!</Title>

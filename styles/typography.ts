@@ -100,26 +100,6 @@ export const typoGrand = `
   line-height: 3.5rem;
 `;
 
-export const typoMega = `
-  font-size: 3.5rem;
-  font-weight: normal;
-  font-style: italic;
-  letter-spacing: -0.01rem;
-  line-height: 4.5rem;
-`;
-
-export const typoGiga = `
-  font-size: 5rem;
-  font-weight: 300;
-  letter-spacing: -0.1rem;
-  line-height: 6rem;
-`;
-
-export const typoTera = `
-  font-size: 5rem;
-  line-height: 1.08;
-`;
-
 export const typoGiga1 = `
   font-size: 4.5rem;
   line-height: 5.375rem;

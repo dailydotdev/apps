@@ -1,26 +1,26 @@
-import React, { ReactElement, useEffect } from 'react';
+import React, { ReactElement } from 'react';
 import styled from 'styled-components';
-import XIcon from '../icons/x.svg';
-import { ModalCloseButton } from './modals/StyledModal';
-import { size1, size3, size4, size6, sizeN } from '../styles/sizes';
-import { typoNuggets, typoSmallBase } from '../styles/typography';
+import {
+  modalBorder,
+  modalBorderAndRadius,
+  ModalCloseButton,
+} from './modals/StyledModal';
+import { size4, size6, sizeN } from '../styles/sizes';
 import { cookiePolicy } from '../lib/constants';
-import { InvertButton } from './OldButtons';
 import { laptop } from '../styles/media';
 import CookieIcon from '../icons/cookie.svg';
+import PrimaryButton from './buttons/PrimaryButton';
+import { typoFootnote } from '../styles/typography';
 
-const AgreeButton = styled(InvertButton)`
-  height: unset;
+const AgreeButton = styled(PrimaryButton).attrs({ buttonSize: 'small' })`
   margin-top: ${size4};
-  padding: ${size1} ${size3};
   align-self: flex-start;
-  ${typoNuggets}
 `;
 
 const Art = styled(CookieIcon)`
   display: none;
   margin-bottom: ${size4};
-  color: var(--theme-primary);
+  color: var(--theme-label-primary);
   font-size: 3.5rem;
 `;
 
@@ -32,11 +32,11 @@ const Container = styled.div`
   width: 100%;
   flex-direction: column;
   padding: ${size4} ${sizeN(14)} ${size4} ${size4};
-  color: var(--theme-secondary);
-  background: var(--theme-background-highlight);
-  border-top: 0.063rem solid var(--theme-separator);
+  color: var(--theme-label-secondary);
+  background: var(--theme-background-tertiary);
+  border-top: ${modalBorder};
   z-index: 2;
-  ${typoSmallBase}
+  ${typoFootnote}
 
   a {
     display: inline-block;
@@ -54,9 +54,8 @@ const Container = styled.div`
     bottom: ${size6};
     padding: ${size6};
     align-items: center;
-    border: 0.063rem solid var(--theme-separator);
-    border-radius: ${size4};
     text-align: center;
+    ${modalBorderAndRadius}
 
     ${AgreeButton} {
       align-self: stretch;
@@ -75,28 +74,26 @@ export interface CookieBannerProps {
 export default function CookieBanner({
   onAccepted,
 }: CookieBannerProps): ReactElement {
-  const scrollThreshold = 10;
+  // const scrollThreshold = 10;
 
   const close = () => {
-    window.removeEventListener('scroll', onScroll, false);
+    // window.removeEventListener('scroll', onScroll, false);
     onAccepted();
   };
 
-  const onScroll = () => {
-    if (window.pageYOffset > scrollThreshold) {
-      close();
-    }
-  };
-
-  useEffect(() => {
-    window.addEventListener('scroll', onScroll, false);
-  }, []);
+  // const onScroll = () => {
+  //   if (window.pageYOffset > scrollThreshold) {
+  //     close();
+  //   }
+  // };
+  //
+  // useEffect(() => {
+  //   window.addEventListener('scroll', onScroll, false);
+  // }, []);
 
   return (
     <Container>
-      <ModalCloseButton onClick={close}>
-        <XIcon />
-      </ModalCloseButton>
+      <ModalCloseButton onClick={close} />
       <Art />
       <div>
         Our lawyers advised us to tell you that we use{' '}

@@ -51,9 +51,9 @@ export const primaryStyle = (color?: ColorName): StyledButtonProps => ({
   },
 });
 
-export default function PrimaryButton<
-  Tag extends keyof JSX.IntrinsicElements = 'button'
->(props: ButtonProps<Tag>): ReactElement {
+export default function PrimaryButton<Tag extends keyof JSX.IntrinsicElements>(
+  props: ButtonProps<Tag>,
+): ReactElement {
   const style = primaryStyle(props.themeColor);
   return BaseButton<Tag>({
     ...props,

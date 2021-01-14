@@ -199,14 +199,6 @@ const ActionButtons = styled.div`
   padding: ${size2} 0;
   border-top: 0.063rem solid var(--theme-divider-tertiary);
   border-bottom: 0.063rem solid var(--theme-divider-tertiary);
-
-  label {
-    display: none;
-
-    ${mobileL} {
-      display: flex;
-    }
-  }
 `;
 
 const NewCommentContainer = styled.div`
@@ -618,6 +610,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             onClick={toggleUpvote}
             icon={<UpvoteIcon />}
             aria-label="Upvote"
+            labelMediaQuery={mobileL}
           >
             Upvote
           </QuandaryButton>
@@ -628,6 +621,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             onClick={openNewComment}
             icon={<CommentIcon />}
             aria-label="Comment"
+            labelMediaQuery={mobileL}
           >
             Comment
           </QuandaryButton>
@@ -638,6 +632,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             icon={<ShareIcon />}
             style={{ visibility: hasNativeShare ? 'visible' : 'hidden' }}
             aria-label="Share"
+            labelMediaQuery={mobileL}
           >
             Share
           </QuandaryButton>

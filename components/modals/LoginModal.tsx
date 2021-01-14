@@ -2,14 +2,13 @@ import React, { ReactElement } from 'react';
 import styled from 'styled-components';
 import { size2, size6, size8 } from '../../styles/sizes';
 import DailyDevLogo from '../svg/DailyDevLogo';
-import { InvertButton, TextButton } from '../OldButtons';
-import XIcon from '../../icons/x.svg';
 import GitHubIcon from '../../icons/github.svg';
-import { typoJr } from '../../styles/typography';
+import { typoCallout } from '../../styles/typography';
 import { StyledModal, ModalCloseButton, Props } from './StyledModal';
 import { privacyPolicy, termsOfService } from '../../lib/constants';
 import { LegalNotice } from '../utilities';
 import { useRouter } from 'next/router';
+import PrimaryButton from '../buttons/PrimaryButton';
 
 const MyModal = styled(StyledModal)`
   .Modal {
@@ -31,7 +30,7 @@ const Buttons = styled.div`
   flex-direction: column;
   align-content: stretch;
 
-  ${TextButton} {
+  button {
     margin: ${size2} 0;
 
     &:first-child {
@@ -46,9 +45,9 @@ const Buttons = styled.div`
 
 const Content = styled.div`
   margin: ${size6} 0 ${size8};
-  color: var(--theme-secondary);
+  color: var(--theme-label-secondary);
   text-align: center;
-  ${typoJr}
+  ${typoCallout}
 `;
 
 export default function LoginModal(props: Props): ReactElement {
@@ -70,23 +69,22 @@ export default function LoginModal(props: Props): ReactElement {
 
   return (
     <MyModal {...props}>
-      <ModalCloseButton onClick={onRequestClose}>
-        <XIcon />
-      </ModalCloseButton>
+      <ModalCloseButton onClick={onRequestClose} />
       <DailyDevLogo />
       <Content>
         Our developer&apos;s community care about the content, log in to show
         yourself.
       </Content>
       <Buttons>
-        <InvertButton onClick={() => login('github')}>
-          <GitHubIcon />
+        <PrimaryButton onClick={() => login('github')} icon={<GitHubIcon />}>
           Sign in with GitHub
-        </InvertButton>
-        <InvertButton onClick={() => login('google')}>
-          <img src="/google.svg" className="icon" alt="Google logo" />
+        </PrimaryButton>
+        <PrimaryButton
+          onClick={() => login('google')}
+          icon={<img src="/google.svg" className="icon" alt="Google logo" />}
+        >
           Sign in with Google
-        </InvertButton>
+        </PrimaryButton>
       </Buttons>
       <LegalNotice>
         By signing up I accept the{' '}

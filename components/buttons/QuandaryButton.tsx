@@ -66,15 +66,26 @@ const applyButtonStatesStyles = (styles: ButtonStatesStyles): string =>
   }
   `;
 
-const Container = styled.div<StyledButtonProps & { reverse?: boolean }>`
+type QuandaryButtonProps = {
+  id: string;
+  reverse?: boolean;
+  labelMediaQuery?: string;
+};
+
+const Container = styled.div<
+  StyledButtonProps & Omit<QuandaryButtonProps, 'id'>
+>`
   display: flex;
   flex-direction: ${({ reverse }) => (reverse ? 'row-reverse' : 'row')};
   align-items: stretch;
   user-select: none;
 
   label {
-    display: flex;
     align-items: center;
+    font-weight: bold;
+    cursor: pointer;
+    ${typoCallout}
+
     ${({ reverse, buttonSize }) =>
       reverse
         ? `
@@ -86,9 +97,15 @@ const Container = styled.div<StyledButtonProps & { reverse?: boolean }>`
       padding-right: ${getRightMargin(buttonSize)};
     `}
 
-    font-weight: bold;
-    cursor: pointer;
-    ${typoCallout}
+    ${({ labelMediaQuery }) =>
+      labelMediaQuery
+        ? `
+      display: none;
+      ${labelMediaQuery} {
+        display: flex;
+      }
+    `
+        : `display: flex;`}
   }
 
   & [disabled] ~ label {
@@ -108,16 +125,20 @@ export default function QuandaryButton<
   id,
   children,
   style,
+  className,
   reverse,
+  labelMediaQuery,
   ...props
-}: ButtonProps<Tag> & { id: string; reverse?: boolean }): ReactElement {
+}: ButtonProps<Tag> & QuandaryButtonProps): ReactElement {
   const buttonStyle = tertiaryStyle(props.themeColor);
   return (
     <Container
       {...buttonStyle}
       buttonSize={props.buttonSize}
       style={style}
+      className={className}
       reverse={reverse}
+      labelMediaQuery={labelMediaQuery}
     >
       <BaseButton<Tag> id={id} {...buttonStyle} {...props} />
       {children && <label htmlFor={id}>{children}</label>}

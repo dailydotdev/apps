@@ -170,8 +170,8 @@ const StyledButton = styled.button<StyledButtonProps>`
   font-weight: bold;
   box-shadow: none;
   user-select: none;
-
   ${typoCallout}
+
   .icon {
     width: 1em;
     height: 1em;

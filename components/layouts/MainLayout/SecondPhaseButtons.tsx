@@ -17,16 +17,10 @@ const AboutButton = styled(TertiaryButton)<ButtonProps<'button'>>`
   margin: 0 ${buttonMargin};
 `;
 
-const GiftButton = styled(QuandaryButton)<ButtonProps<'a'>>`
+const GiftButton = styled(QuandaryButton).attrs({
+  labelMediaQuery: laptopL,
+})<ButtonProps<'a'>>`
   margin: 0 ${buttonMargin};
-
-  label {
-    display: none;
-
-    ${laptopL} {
-      display: flex;
-    }
-  }
 `;
 
 export default function SecondPhaseButtons(): ReactElement {

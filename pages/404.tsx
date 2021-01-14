@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import Head from 'next/head';
 import styled from 'styled-components';
-import { typoQuarter } from '../styles/typography';
+import { typoTitle1 } from '../styles/typography';
 import { size10, size9 } from '../styles/sizes';
 import HelloWorldSvg from '../components/svg/HelloWorldSvg';
 
@@ -17,8 +17,8 @@ const Heading = styled.h1`
   margin: 0 ${size9};
   text-align: center;
   word-break: break-word;
-  text-transform: uppercase;
-  ${typoQuarter}
+  font-weight: bold;
+  ${typoTitle1}
 `;
 
 const Art = styled(HelloWorldSvg)`

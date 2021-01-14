@@ -7,6 +7,7 @@ const ResponsiveModal = styled(StyledModal)`
   .Overlay {
     position: relative;
     min-height: 100vh;
+    padding: 0;
 
     ${mobileL} {
       position: fixed;

@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import LazyImage from './LazyImage';
 import { size10, size4, size6, size8, sizeN } from '../styles/sizes';
-import { typoDouble, typoMicro2, typoMicro2Base } from '../styles/typography';
+import { typoCaption1, typoDouble, typoMicro2 } from '../styles/typography';
 import Loader from './Loader';
 import { colorKetchup30 } from '../styles/colors';
 import { laptop, mobileL, tablet } from '../styles/media';
@@ -29,10 +29,9 @@ export const ButtonLoader = styled(Loader)`
 `;
 
 export const LegalNotice = styled.div`
-  color: var(--theme-disabled);
+  color: var(--theme-label-quaternary);
   text-align: center;
-  font-weight: bold;
-  ${typoMicro2Base};
+  ${typoCaption1};
 
   a {
     display: inline-block;
