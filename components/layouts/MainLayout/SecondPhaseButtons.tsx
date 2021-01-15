@@ -2,7 +2,7 @@ import React, { ReactElement, useState } from 'react';
 import GiftIcon from '../../../icons/gift.svg';
 import BellNotifyIcon from '../../../icons/bell_notify.svg';
 import BellIcon from '../../../icons/bell.svg';
-import styled from 'styled-components';
+import styled from 'styled-components/macro';
 import { sizeN } from '../../../styles/sizes';
 import { laptopL } from '../../../styles/media';
 import AboutModal from '../../modals/AboutModal';

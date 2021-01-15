@@ -4,7 +4,7 @@ import React, {
   ReactNode,
   useContext,
 } from 'react';
-import styled from 'styled-components';
+import styled from 'styled-components/macro';
 import Link from 'next/link';
 import {
   size1,

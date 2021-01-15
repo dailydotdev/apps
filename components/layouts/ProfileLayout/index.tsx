@@ -12,7 +12,7 @@ import { getLayout as getMainLayout } from '../MainLayout';
 import Head from 'next/head';
 import { NextSeo } from 'next-seo';
 import { PageContainer } from '../../utilities';
-import styled from 'styled-components';
+import styled from 'styled-components/macro';
 import {
   size05,
   size2,

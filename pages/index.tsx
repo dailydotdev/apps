@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
-import styled from 'styled-components';
+import styled from 'styled-components/macro';
 import { size4, size6, sizeN } from '../styles/sizes';
 import { typoBody, typoTitle1 } from '../styles/typography';
 import { NextSeoProps } from 'next-seo/lib/types';

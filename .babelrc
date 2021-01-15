@@ -1,11 +1,34 @@
 {
-  "presets": ["next/babel"],
-  "plugins": [["styled-components", { "ssr": true }]],
+  "presets": [
+    "next/babel"
+  ],
+  "plugins": [
+    [
+      "macros",
+      {
+        "styledComponents": {
+          "ssr": true,
+          "displayName": false
+        }
+      }
+    ]
+  ],
   "env": {
     "production": {
       "plugins": [
-        ["styled-components", { "ssr": true, "displayName": false }],
-        ["react-remove-properties", {"properties": ["data-testid"]}]
+        [
+          "react-remove-properties",
+          {
+            "properties": [
+              "data-testid"
+            ]
+          }
+        ]
+      ]
+    },
+    "test": {
+      "plugins": [
+        "dynamic-import-node"
       ]
     }
   }

@@ -4,7 +4,7 @@ import {
   getStaticPaths as getProfileStaticPaths,
   getStaticProps as getProfileStaticProps,
 } from '../../components/layouts/ProfileLayout';
-import styled from 'styled-components';
+import styled from 'styled-components/macro';
 import { size6 } from '../../styles/sizes';
 import { typoCallout } from '../../styles/typography';
 import { reputationGuide } from '../../lib/constants';

@@ -15,7 +15,7 @@ import {
   ProfileLayoutProps,
 } from '../../components/layouts/ProfileLayout';
 import { USER_COMMENTS_QUERY, UserCommentsData } from '../../graphql/comments';
-import styled from 'styled-components';
+import styled from 'styled-components/macro';
 import {
   size1,
   size2,

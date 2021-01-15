@@ -1,6 +1,6 @@
 import 'lazysizes';
 import React, { HTMLAttributes, ReactElement } from 'react';
-import styled from 'styled-components';
+import styled from 'styled-components/macro';
 
 export interface Props extends HTMLAttributes<HTMLDivElement> {
   imgSrc: string;

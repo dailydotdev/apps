@@ -1,4 +1,4 @@
-import { createGlobalStyle } from 'styled-components';
+import { createGlobalStyle } from 'styled-components/macro';
 import { normalize } from 'styled-normalize';
 import colors from '../styles/colors';
 import { mobileL } from '../styles/media';

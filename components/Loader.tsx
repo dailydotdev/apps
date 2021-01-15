@@ -1,5 +1,5 @@
 import React, { HTMLAttributes, ReactElement } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes } from 'styled-components/macro';
 import { size5, sizeN } from '../styles/sizes';
 
 const loader = keyframes`

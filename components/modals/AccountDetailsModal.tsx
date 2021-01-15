@@ -1,7 +1,7 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import { Props as ModalProps } from './StyledModal';
 import ResponsiveModal from './ResponsiveModal';
-import styled from 'styled-components';
+import styled from 'styled-components/macro';
 import {
   size1,
   size10,

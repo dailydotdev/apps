@@ -1,5 +1,5 @@
 import React, { Fragment, ReactElement, ReactNode } from 'react';
-import styled from 'styled-components';
+import styled from 'styled-components/macro';
 import { size1, size10, size3, size4 } from '../../styles/sizes';
 import { typoBody, typoCallout } from '../../styles/typography';
 import { focusOutline } from '../../styles/helpers';

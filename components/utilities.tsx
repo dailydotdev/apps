@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled from 'styled-components/macro';
 import LazyImage from './LazyImage';
 import { size10, size1px, size4, size6, size8, sizeN } from '../styles/sizes';
 import { typoCaption1, typoTitle2 } from '../styles/typography';

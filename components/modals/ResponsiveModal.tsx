@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled from 'styled-components/macro';
 import { StyledModal } from './StyledModal';
 import { mobileL } from '../../styles/media';
 import { size2, size4, sizeN } from '../../styles/sizes';

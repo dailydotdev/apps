@@ -16,7 +16,7 @@ import ActivitySection from './profile/ActivitySection';
 import Link from 'next/link';
 import { smallPostImage } from '../lib/image';
 import dynamicPageLoad from '../lib/dynamicPageLoad';
-import styled from 'styled-components';
+import styled from 'styled-components/macro';
 import { typoCallout, typoTitle2, typoTitle3 } from '../styles/typography';
 import { multilineTextOverflow, pageMaxWidth } from '../styles/helpers';
 import { tablet } from '../styles/media';

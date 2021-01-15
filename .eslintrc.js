@@ -26,5 +26,17 @@ module.exports = {
   },
   rules: {
     'react/jsx-no-target-blank': 0,
+    'no-restricted-imports': [
+      'error',
+      {
+        paths: [
+          {
+            name: 'styled-components',
+            message: 'Please import from styled-components/macro.',
+          },
+        ],
+        patterns: ['!styled-components/macro'],
+      },
+    ],
   },
 };
