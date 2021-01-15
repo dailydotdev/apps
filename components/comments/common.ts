@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled from 'styled-components/macro';
 import { typoCallout } from '../../styles/typography';
 import Linkify from 'linkifyjs/react';
 import { size2, size3, size4 } from '../../styles/sizes';

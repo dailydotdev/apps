@@ -1,5 +1,5 @@
 import React, { HTMLAttributes, ReactElement, ReactNode } from 'react';
-import styled, { css } from 'styled-components';
+import styled, { css } from 'styled-components/macro';
 import { size8 } from '../styles/sizes';
 
 export interface RankProps extends HTMLAttributes<SVGElement> {

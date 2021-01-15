@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { Comment } from '../../graphql/comments';
-import styled from 'styled-components';
+import styled from 'styled-components/macro';
 import { size1, size2, size4, size8 } from '../../styles/sizes';
 import { CommentBox, CommentPublishDate } from './common';
 import { commentDateFormat } from '../../lib/dateFormat';

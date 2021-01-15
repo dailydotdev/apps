@@ -9,7 +9,7 @@ import React, {
   ClipboardEvent,
 } from 'react';
 import dynamic from 'next/dynamic';
-import styled from 'styled-components';
+import styled from 'styled-components/macro';
 import cloneDeep from 'lodash.clonedeep';
 import { Props as ModalProps } from './StyledModal';
 import { size2, size3, size6, sizeN } from '../../styles/sizes';

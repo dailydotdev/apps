@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import styled from 'styled-components';
+import styled from 'styled-components/macro';
 import TextField from '../components/TextField';
 
 const Container = styled.div`

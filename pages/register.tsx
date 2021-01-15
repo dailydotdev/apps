@@ -1,5 +1,5 @@
 import React, { ReactElement, useContext, useState } from 'react';
-import styled from 'styled-components';
+import styled from 'styled-components/macro';
 import { NextSeo } from 'next-seo';
 import Index from '../components/layouts/MainLayout';
 import { typoCallout } from '../styles/typography';

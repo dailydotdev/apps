@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import styled from 'styled-components';
+import styled from 'styled-components/macro';
 import { size2, size6, size8 } from '../../styles/sizes';
 import DailyDevLogo from '../svg/DailyDevLogo';
 import GitHubIcon from '../../icons/github.svg';

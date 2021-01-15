@@ -16,7 +16,7 @@ import {
 } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 import { Roles } from '../../lib/user';
-import styled from 'styled-components';
+import styled from 'styled-components/macro';
 import { NextSeo } from 'next-seo';
 import {
   size05,

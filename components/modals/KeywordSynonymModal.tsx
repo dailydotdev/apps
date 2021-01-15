@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled from 'styled-components/macro';
 import ResponsiveModal from './ResponsiveModal';
 import { mobileL } from '../../styles/media';
 import { Props as ModalProps } from './StyledModal';

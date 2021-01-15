@@ -4,7 +4,7 @@ import {
   Props as ModalProps,
   StyledModal,
 } from './StyledModal';
-import styled from 'styled-components';
+import styled from 'styled-components/macro';
 import { size10, size8 } from '../../styles/sizes';
 import { typoCallout } from '../../styles/typography';
 

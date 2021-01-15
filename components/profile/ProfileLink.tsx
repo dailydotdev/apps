@@ -1,6 +1,6 @@
 import React, { HTMLAttributes, ReactElement } from 'react';
 import Link from 'next/link';
-import styled from 'styled-components';
+import styled from 'styled-components/macro';
 
 interface User {
   name: string;

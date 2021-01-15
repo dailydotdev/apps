@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { Author } from '../../graphql/comments';
-import styled from 'styled-components';
+import styled from 'styled-components/macro';
 import { typoCallout, typoFootnote } from '../../styles/typography';
 import { ProfileLink } from '../profile/ProfileLink';
 import FeatherIcon from '../../icons/feather.svg';

@@ -3,7 +3,7 @@ import AuthContext from '../AuthContext';
 import UpvoteIcon from '../../icons/upvote.svg';
 import CommentIcon from '../../icons/comment.svg';
 import TrashIcon from '../../icons/trash.svg';
-import styled from 'styled-components';
+import styled from 'styled-components/macro';
 import { size7 } from '../../styles/sizes';
 import {
   CANCEL_COMMENT_UPVOTE_MUTATION,

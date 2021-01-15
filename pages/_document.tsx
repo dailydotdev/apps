@@ -7,7 +7,7 @@ import Document, {
   DocumentContext,
 } from 'next/document';
 import { DocumentInitialProps } from 'next/dist/next-server/lib/utils';
-import { ServerStyleSheet } from 'styled-components';
+import { ServerStyleSheet } from 'styled-components/macro';
 
 export default class MyDocument extends Document {
   static async getInitialProps(

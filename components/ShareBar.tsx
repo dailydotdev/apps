@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import styled from 'styled-components';
+import styled from 'styled-components/macro';
 import { laptop } from '../styles/media';
 import { pageMaxWidth } from '../styles/helpers';
 import { size1, size10, size2, size4, size7 } from '../styles/sizes';
