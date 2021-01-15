@@ -11,8 +11,7 @@ import GitHubIcon from '../../icons/github.svg';
 import JoinedDate from './JoinedDate';
 import styled from 'styled-components';
 import { size05, size3, size4, size6, sizeN } from '../../styles/sizes';
-import { colorPepper80 } from '../../styles/colors';
-import { typoMicro2 } from '../../styles/typography';
+import { typoCaption1 } from '../../styles/typography';
 import { FormErrorMessage } from '../utilities';
 
 export interface EditImageWithJoinedDateProps
@@ -41,7 +40,6 @@ const ImageInputHover = styled.span`
   height: 100%;
   align-items: center;
   justify-content: center;
-  background: ${colorPepper80}66;
   opacity: 0;
   transition: opacity 0.1s linear;
 
@@ -66,11 +64,18 @@ const ImageInput = styled.label`
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: opacity 0.1s linear;
   }
 
-  &:hover ${ImageInputHover} {
-    visibility: visible;
-    opacity: 1;
+  &:hover {
+    ${ImageInputHover} {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    img {
+      opacity: 0.4;
+    }
   }
 `;
 
@@ -78,8 +83,8 @@ const Metadata = styled.div`
   display: flex;
   flex-direction: column;
   margin-left: ${size6};
-  color: var(--theme-secondary);
-  ${typoMicro2}
+  color: var(--theme-label-quaternary);
+  ${typoCaption1}
 
   div {
     display: flex;

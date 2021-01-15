@@ -80,7 +80,7 @@ const ProfileContainer = styled(PageContainer)`
 const ProfileImageAndRep = styled.div`
   display: flex;
   margin-bottom: ${size6};
-  background: var(--theme-background-highlight);
+  background: var(--theme-background-secondary);
   border-radius: ${size4};
   align-self: flex-start;
   align-items: center;

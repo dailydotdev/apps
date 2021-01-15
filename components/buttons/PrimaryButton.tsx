@@ -37,11 +37,9 @@ export const primaryStyle = (color?: ColorName): StyledButtonProps => ({
     },
     hover: {
       background: color ? colors[color]['70'] : colors.pepper['50'],
-      shadow: color ? shadow3(`${colors[color]['60']}66`) : undefined,
     },
     active: {
       background: color ? colors[color]['90'] : colors.pepper['10'],
-      shadow: color ? shadow2(`${colors[color]['60']}A3`) : undefined,
     },
     disabled: {
       background: color

@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import Link from 'next/link';
 import {
   size1,
+  size1px,
   size2,
   size3,
   size4,
@@ -46,7 +47,7 @@ const Header = styled.header`
   height: ${sizeN(12)};
   align-items: center;
   padding: 0 ${size4};
-  border-bottom: 0.063rem solid var(--theme-separator);
+  border-bottom: ${size1px} solid var(--theme-divider-tertiary);
 
   ${tablet} {
     padding-left: ${size8};

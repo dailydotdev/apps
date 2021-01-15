@@ -8,8 +8,15 @@ import React, {
 } from 'react';
 import styled from 'styled-components';
 import { updateProfile, UserProfile } from '../../lib/user';
-import { size1, size10, size3, size4, size5 } from '../../styles/sizes';
-import { typoNuggets } from '../../styles/typography';
+import {
+  size1,
+  size10,
+  size1px,
+  size3,
+  size4,
+  size5,
+} from '../../styles/sizes';
+import { typoBody, typoCallout } from '../../styles/typography';
 import { focusOutline } from '../../styles/helpers';
 import TextField from '../TextField';
 import Switch from '../Switch';
@@ -33,7 +40,7 @@ const Form = styled.form`
   padding: 0;
 `;
 
-const FormField = styled(TextField)`
+const FormField = styled(TextField).attrs({ compact: true })`
   align-self: stretch;
   margin-bottom: ${size3};
 `;
@@ -42,9 +49,10 @@ const OptionalSummary = styled.summary`
   display: flex;
   height: ${size10};
   align-items: center;
-  color: var(--theme-primary);
+  color: var(--theme-label-tertiary);
   cursor: pointer;
-  ${typoNuggets}
+  font-weight: bold;
+  ${typoCallout}
   ${focusOutline}
 
   &::-webkit-details-marker {
@@ -63,7 +71,7 @@ const OptionalFields = styled.details`
   display: flex;
   flex-direction: column;
   width: 100%;
-  border-bottom: 0.063rem solid var(--theme-separator);
+  border-bottom: ${size1px} solid var(--theme-divider-tertiary);
 
   &[open] {
     padding-bottom: ${size3};
@@ -76,8 +84,8 @@ const OptionalFields = styled.details`
 
 const SectionHeading = styled.h3`
   margin: 0 0 ${size4};
-  color: var(--theme-secondary);
-  ${typoNuggets}
+  color: var(--theme-label-tertiary);
+  ${typoBody}
 
   ${OptionalSummary} + & {
     margin-top: ${size3};

@@ -5,20 +5,19 @@ import styled from 'styled-components';
 import {
   size1,
   size10,
-  size2,
+  size1px,
   size4,
   size5,
   size6,
   sizeN,
 } from '../../styles/sizes';
 import XIcon from '../../icons/x.svg';
-import { HollowButton, IconButton, InvertButton } from '../OldButtons';
 import { ProfileHeading } from '../utilities';
 import EditImageWithJoinedDate from '../profile/EditImageWithJoinedDate';
 import AuthContext from '../AuthContext';
 import ProfileForm from '../profile/ProfileForm';
 import { mobileL } from '../../styles/media';
-import { typoMicro1, typoNuggets } from '../../styles/typography';
+import { typoFootnote } from '../../styles/typography';
 import {
   cookiePolicy,
   faq,
@@ -27,6 +26,9 @@ import {
   requestFeature,
   termsOfService,
 } from '../../lib/constants';
+import TertiaryButton from '../buttons/TertiaryButton';
+import PrimaryButton from '../buttons/PrimaryButton';
+import { ButtonProps } from '../buttons/BaseButton';
 
 const MyModal = styled(ResponsiveModal)`
   .Modal {
@@ -49,11 +51,11 @@ const Header = styled.header`
   justify-content: space-between;
   padding: 0 ${size4};
   background: var(--theme-background-secondary);
-  border-bottom: 0.063rem solid var(--theme-separator);
+  border-bottom: ${size1px} solid var(--theme-divider-tertiary);
   z-index: 3;
 `;
 
-const SaveButton = styled(InvertButton)`
+const SaveButton = styled(PrimaryButton)<ButtonProps<'button'>>`
   height: unset;
   padding-top: ${size1};
   padding-bottom: ${size1};
@@ -72,17 +74,16 @@ const Footer = styled.footer`
 
 const FooterLink = styled.a`
   margin: ${size1} 0;
-  color: var(--theme-secondary);
+  color: var(--theme-label-tertiary);
   text-decoration: none;
-  ${typoMicro1}
+  ${typoFootnote}
 `;
 
-const LogoutButton = styled(HollowButton)`
+const LogoutButton = styled(TertiaryButton).attrs({ buttonSize: 'small' })<
+  ButtonProps<'button'>
+>`
   align-self: flex-start;
   margin-top: ${size5};
-  padding: ${size2} ${size4};
-  border-radius: ${size2};
-  ${typoNuggets}
 `;
 
 export default function AccountDetailsModal(props: ModalProps): ReactElement {
@@ -93,10 +94,17 @@ export default function AccountDetailsModal(props: ModalProps): ReactElement {
   return (
     <MyModal {...props}>
       <Header>
-        <IconButton title="Close" onClick={props.onRequestClose}>
-          <XIcon />
-        </IconButton>
-        <SaveButton type="submit" disabled={disableSubmit} form="profileForm">
+        <TertiaryButton
+          title="Close"
+          onClick={props.onRequestClose}
+          icon={<XIcon />}
+        />
+        <SaveButton
+          buttonSize="small"
+          type="submit"
+          disabled={disableSubmit}
+          form="profileForm"
+        >
           Save changes
         </SaveButton>
       </Header>

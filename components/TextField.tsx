@@ -149,7 +149,7 @@ const Field = styled.div<FieldProps>`
     ${({ valid }) =>
       valid !== false && insetShadow('var(--theme-label-primary)')}
 
-    ${Input}::placeholder {
+    ${Input}:not(:focus)::placeholder {
       color: var(--theme-label-primary);
     }
   }

@@ -65,13 +65,13 @@ it('should show profile image', () => {
 
 it('should disable submit when form is invalid', () => {
   renderComponent();
-  const el = screen.getByText('Finish');
+  const el = screen.getByText('Finish').parentElement;
   expect(el).toBeDisabled();
 });
 
 it('should enable submit when form is valid', () => {
   renderComponent({ username: 'idoshamun' });
-  const el = screen.getByText('Finish');
+  const el = screen.getByText('Finish').parentElement;
   expect(el).toBeEnabled();
 });
 
@@ -109,8 +109,10 @@ it('should enable submit when form is valid', () => {
 
 it('should set twitter to optional by default', async () => {
   renderComponent();
-  const el = await screen.findByPlaceholderText('Twitter');
-  expect(el.getAttribute('required')).toBeFalsy();
+  const el = await screen.findByText('Twitter');
+  expect(
+    el.parentElement.querySelector('input').getAttribute('required'),
+  ).toBeFalsy();
 });
 
 it('should set twitter to required in author mode', async () => {
@@ -122,6 +124,6 @@ it('should set twitter to required in author mode', async () => {
       } as unknown) as NextRouter),
   );
   renderComponent();
-  const el = await screen.findByPlaceholderText('Twitter');
-  expect(el).toBeRequired();
+  const el = await screen.findByText('Twitter');
+  expect(el.parentElement.querySelector('input')).toBeRequired();
 });

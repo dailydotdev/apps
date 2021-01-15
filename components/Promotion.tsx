@@ -2,10 +2,10 @@ import React, { ReactElement } from 'react';
 import styled from 'styled-components';
 import { size2, size4, size6, sizeN } from '../styles/sizes';
 import LazyImage from './LazyImage';
-import { typoSmallBase } from '../styles/typography';
-import { InvertButton } from './OldButtons';
+import { typoCallout } from '../styles/typography';
 import { pageMaxWidth } from '../styles/helpers';
 import { mobileL } from '../styles/media';
+import PrimaryButton from './buttons/PrimaryButton';
 
 const promotionWidth = sizeN(36);
 
@@ -18,7 +18,7 @@ const Container = styled.div`
   flex-direction: column;
   align-items: stretch;
 
-  ${InvertButton} {
+  a {
     align-self: flex-start;
   }
 
@@ -33,8 +33,8 @@ const Cover = styled(LazyImage)`
 
 const Content = styled.div`
   margin: ${size4} 0 ${size6};
-  color: var(--theme-secondary);
-  ${typoSmallBase}
+  color: var(--theme-label-tertiary);
+  ${typoCallout}
 `;
 
 export default function Promotion(): ReactElement {
@@ -49,9 +49,9 @@ export default function Promotion(): ReactElement {
         Daily delivers the best programming news every new tab. It is a browser
         extension that boosts your professional growth.
       </Content>
-      <InvertButton as="a" href="/api/get?r=webapp">
+      <PrimaryButton tag="a" href="/api/get?r=webapp">
         Get it now
-      </InvertButton>
+      </PrimaryButton>
     </Container>
   );
 }

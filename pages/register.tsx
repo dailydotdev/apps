@@ -2,29 +2,28 @@ import React, { ReactElement, useContext, useState } from 'react';
 import styled from 'styled-components';
 import { NextSeo } from 'next-seo';
 import Index from '../components/layouts/MainLayout';
-import { typoLil2, typoMicro2 } from '../styles/typography';
+import { typoCallout } from '../styles/typography';
 import { size10, size2, size4 } from '../styles/sizes';
 import { PageContainer, ProfileHeading } from '../components/utilities';
-import { HollowButton, InvertButton } from '../components/OldButtons';
 import AuthContext from '../components/AuthContext';
 import { useRouter } from 'next/router';
 import EditImageWithJoinedDate from '../components/profile/EditImageWithJoinedDate';
 import ProfileForm, {
   RegistrationMode,
 } from '../components/profile/ProfileForm';
+import TertiaryButton from '../components/buttons/TertiaryButton';
+import { ButtonProps } from '../components/buttons/BaseButton';
+import PrimaryButton from '../components/buttons/PrimaryButton';
 
 const Subheading = styled.h2`
   margin: ${size2} 0;
   align-self: flex-start;
-  color: var(--theme-secondary);
-  ${typoMicro2}
+  color: var(--theme-label-tertiary);
+  ${typoCallout}
 `;
 
-const LogoutButton = styled(HollowButton)`
-  margin-right: ${size4};
-  padding: ${size2} ${size4};
-  border-radius: ${size2};
-  ${typoLil2}
+const LogoutButton = styled(TertiaryButton)<ButtonProps<'button'>>`
+  margin-left: ${size4};
 `;
 
 const FormButtons = styled.div`
@@ -33,8 +32,7 @@ const FormButtons = styled.div`
   align-items: center;
   align-self: stretch;
 
-  /* stylelint-disable-next-line no-descending-specificity */
-  ${InvertButton} {
+  [type='submit'] {
     flex: 1;
   }
 `;
@@ -64,16 +62,16 @@ export default function Register(): ReactElement {
               mode={(router?.query.mode as RegistrationMode) || 'default'}
             />
             <FormButtons>
-              <LogoutButton type="button" onClick={logout}>
-                Logout
-              </LogoutButton>
-              <InvertButton
+              <PrimaryButton
                 type="submit"
                 disabled={disableSubmit}
                 form="profileForm"
               >
                 Finish
-              </InvertButton>
+              </PrimaryButton>
+              <LogoutButton type="button" onClick={logout}>
+                Logout
+              </LogoutButton>
             </FormButtons>
           </>
         )}

@@ -1,9 +1,8 @@
 import styled from 'styled-components';
 import LazyImage from './LazyImage';
-import { size10, size4, size6, size8, sizeN } from '../styles/sizes';
-import { typoCaption1, typoDouble, typoMicro2 } from '../styles/typography';
+import { size10, size1px, size4, size6, size8, sizeN } from '../styles/sizes';
+import { typoCaption1, typoTitle2 } from '../styles/typography';
 import Loader from './Loader';
-import { colorKetchup30 } from '../styles/colors';
 import { laptop, mobileL, tablet } from '../styles/media';
 import { pageMaxWidth } from '../styles/helpers';
 
@@ -65,20 +64,19 @@ export const PageContainer = styled.main`
 
   ${laptop} {
     min-height: 100vh;
-    border-left: 0.063rem solid var(--theme-divider-tertiary);
-    border-right: 0.063rem solid var(--theme-divider-tertiary);
+    border-left: ${size1px} solid var(--theme-divider-tertiary);
+    border-right: ${size1px} solid var(--theme-divider-tertiary);
   }
 `;
 
 export const FormErrorMessage = styled.div.attrs({ role: 'alert' })`
   margin-top: ${size4};
-  color: ${colorKetchup30};
-  ${typoMicro2}
+  color: var(--theme-status-error);
+  ${typoCaption1}
 `;
 
 export const ProfileHeading = styled.h1`
   margin: 0;
   align-self: flex-start;
-  text-transform: uppercase;
-  ${typoDouble}
+  ${typoTitle2}
 `;

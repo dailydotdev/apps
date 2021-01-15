@@ -1,33 +1,3 @@
-export const colorPepper90 = '#000000';
-export const colorPepper80 = '#151618';
-export const colorPepper60 = '#25282C';
-export const colorPepper40 = '#393C42';
-export const colorPepper30 = '#4C5057';
-export const colorPepper10 = '#686E78';
-
-export const colorSalt90 = '#A9ABB3';
-export const colorSalt50 = '#D2D5D9';
-export const colorSalt40 = '#DDE0E3';
-export const colorSalt30 = '#E9EAEC';
-export const colorSalt20 = '#F4F5F6';
-export const colorSalt10 = '#FFFFFF';
-
-export const colorWater90 = '#013B7A';
-export const colorWater60 = '#0076F5';
-export const colorWater50 = '#208BFF';
-export const colorWater40 = '#47A0FF';
-
-export const colorAvocado60 = '#00F576';
-export const colorAvocado40 = '#47FFA0';
-
-export const colorCheese50 = '#FFDA20';
-
-export const colorKetchup40 = '#FF4746';
-export const colorKetchup30 = '#FF7071';
-
-export const colorBacon60 = '#F5005E';
-export const colorBacon40 = '#FF468E';
-
 export type ColorName =
   | 'burger'
   | 'blueCheese'
@@ -41,7 +11,10 @@ export type ColorName =
   | 'onion'
   | 'water'
   | 'salt'
-  | 'pepper';
+  | 'pepper'
+  | 'twitter'
+  | 'whatsapp'
+  | 'facebook';
 type ColorLevels = '10' | '20' | '30' | '40' | '50' | '60' | '70' | '80' | '90';
 type Color = Record<ColorLevels, string>;
 type ColorPalette = Record<ColorName, Color>;
@@ -189,6 +162,39 @@ const colors: ColorPalette = {
     '70': '#1C1F26',
     '80': '#17191F',
     '90': '#0E1217',
+  },
+  twitter: {
+    '10': '#37BBF6',
+    '20': '#37BBF6',
+    '30': '#27AFF5',
+    '40': '#1DA0F2',
+    '50': '#1DA0F2',
+    '60': '#1DA0F2',
+    '70': '#158EEA',
+    '80': '#158EEA',
+    '90': '#0F7FDE',
+  },
+  whatsapp: {
+    '10': '#3AC956',
+    '20': '#3AC956',
+    '30': '#2ABE45',
+    '40': '#20B038',
+    '50': '#20B038',
+    '60': '#20B038',
+    '70': '#189F2C',
+    '80': '#189F2C',
+    '90': '#119023',
+  },
+  facebook: {
+    '10': '#5979B5',
+    '20': '#5979B5',
+    '30': '#4969A7',
+    '40': '#3B5998',
+    '50': '#3B5998',
+    '60': '#3B5998',
+    '70': '#2E4886',
+    '80': '#2E4886',
+    '90': '#253B76',
   },
 };
 

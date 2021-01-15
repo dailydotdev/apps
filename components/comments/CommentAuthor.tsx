@@ -1,11 +1,10 @@
 import React, { ReactElement } from 'react';
 import { Author } from '../../graphql/comments';
 import styled from 'styled-components';
-import { typoCallout, typoNuggets } from '../../styles/typography';
+import { typoCallout, typoFootnote } from '../../styles/typography';
 import { ProfileLink } from '../profile/ProfileLink';
 import FeatherIcon from '../../icons/feather.svg';
 import { size1, size2, size4 } from '../../styles/sizes';
-import { colorCheese50 } from '../../styles/colors';
 
 export interface CommentAuthorProps {
   postAuthorId: string | null;
@@ -24,8 +23,8 @@ const CommentAuthorBadge = styled.span`
   display: flex;
   align-items: center;
   margin-left: ${size2};
-  color: ${colorCheese50};
-  ${typoNuggets};
+  color: var(--theme-status-help);
+  ${typoFootnote};
 
   .icon {
     font-size: ${size4};

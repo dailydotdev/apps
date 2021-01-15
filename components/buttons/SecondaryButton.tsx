@@ -42,7 +42,6 @@ export const secondaryStyle = (color?: ColorName): StyledButtonProps => ({
         ? `${colors[color]['60']}1F`
         : `${colors.pepper['10']}1F`,
       borderColor: color ? colors[color]['60'] : undefined,
-      shadow: color ? shadow3(`${colors[color]['60']}66`) : undefined,
     },
     active: {
       color: color ? colors[color]['60'] : undefined,
@@ -50,7 +49,6 @@ export const secondaryStyle = (color?: ColorName): StyledButtonProps => ({
         ? `${colors[color]['60']}33`
         : `${colors.pepper['10']}33`,
       borderColor: color ? colors[color]['60'] : undefined,
-      shadow: color ? shadow2(`${colors[color]['60']}A3`) : undefined,
     },
     pressed: {
       background: color ? colors[color]['60'] : colors.pepper['90'],
