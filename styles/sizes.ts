@@ -1,6 +1,7 @@
 const baseSize = 0.25;
 const units = 'rem';
 
+export const size1px = '0.063rem';
 // 2px
 export const size05 = `${baseSize * 0.5}${units}`;
 // 4px

@@ -22,7 +22,7 @@ export function ProfileImageLink(props: ProfileLinkProps): ReactElement {
       <Image
         imgSrc={props.user.image}
         imgAlt={`${props.user.name}'s profile image`}
-        background="var(--theme-background-highlight)"
+        background="var(--theme-background-secondary)"
       />
     </Container>
   );

@@ -35,15 +35,16 @@ const Container = styled.div`
     &:before {
       content: '';
       border: 0.188rem solid transparent;
-      border-top: 0.188rem solid #fff;
+      border-top: 0.188rem solid var(--loader-color, #fff);
       border-radius: 50%;
       animation: ${loader} 1.5s cubic-bezier(0.77, 0, 0.175, 1) infinite;
     }
 
     &:after {
       content: '';
-      border: 0.188rem solid rgba(255, 255, 255, 0.5);
+      border: 0.188rem solid var(--loader-color, #fff);
       border-radius: 50%;
+      opacity: 0.5;
     }
   }
 `;

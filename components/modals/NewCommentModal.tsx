@@ -14,12 +14,14 @@ import cloneDeep from 'lodash.clonedeep';
 import { Props as ModalProps } from './StyledModal';
 import { size2, size3, size6, sizeN } from '../../styles/sizes';
 import AuthContext from '../AuthContext';
-import { ButtonLoader, RoundedImage, SmallRoundedImage } from '../utilities';
+import { RoundedImage, SmallRoundedImage } from '../utilities';
 import { CommentBox, CommentPublishDate } from '../comments/common';
 import { commentDateFormat } from '../../lib/dateFormat';
-import { typoJr, typoLil2Base, typoSmallBase } from '../../styles/typography';
-import { colorKetchup30, colorWater60 } from '../../styles/colors';
-import { ColorButton, FloatButton } from '../Buttons';
+import {
+  typoCallout,
+  typoCaption1,
+  typoSubhead,
+} from '../../styles/typography';
 import { useMutation, useQueryClient } from 'react-query';
 import {
   Comment,
@@ -33,6 +35,9 @@ import ReactGA from 'react-ga';
 import ResponsiveModal from './ResponsiveModal';
 import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
+import PrimaryButton from '../buttons/PrimaryButton';
+import { ButtonProps } from '../buttons/BaseButton';
+import TertiaryButton from '../buttons/TertiaryButton';
 
 const DiscardCommentModal = dynamic(() => import('./DiscardCommentModal'));
 
@@ -75,16 +80,16 @@ const Timeline = styled.div`
   width: 0.063rem;
   height: 100%;
   margin-left: ${size3};
-  background: var(--theme-separator);
+  background: var(--theme-divider-tertiary);
 `;
 
 const ReplyTo = styled.div`
   margin-left: ${size6};
-  color: var(--theme-secondary);
-  ${typoSmallBase}
+  color: var(--theme-label-secondary);
+  ${typoCaption1}
 
   strong {
-    color: var(--theme-primary);
+    color: var(--theme-label-primary);
     font-weight: bold;
   }
 `;
@@ -98,13 +103,12 @@ const NewCommentTextArea = styled.div`
   min-height: ${sizeN(44)};
   margin-left: ${size3};
   flex: 1;
-  color: var(--theme-primary);
+  color: var(--theme-label-primary);
   background: none;
   border: none;
-  caret-color: ${colorWater60};
+  caret-color: var(--theme-label-link);
   word-break: break-word;
-  ${typoJr}
-  font-style: normal;
+  ${typoSubhead}
 
   &:focus {
     outline: 0;
@@ -112,7 +116,7 @@ const NewCommentTextArea = styled.div`
 
   &:empty:before {
     content: attr(aria-placeholder);
-    color: var(--theme-secondary);
+    color: var(--theme-label-secondary);
   }
 `;
 
@@ -121,26 +125,25 @@ const Footer = styled.footer`
   align-items: center;
   justify-content: space-between;
   padding: ${size2} 0;
-  border-top: 0.063rem solid var(--theme-separator);
+  border-top: 0.063rem solid var(--theme-divider-tertiary);
 `;
 
-const CommentButton = styled(ColorButton).attrs({
-  background: 'var(--theme-avocado)',
-})``;
+const CommentButton = styled(PrimaryButton).attrs({
+  themeColor: 'avocado',
+})<ButtonProps<'button'>>``;
 
 const ErrorMessage = styled.div`
   min-height: 1rem;
   margin: ${size2} ${size3};
-  color: ${colorKetchup30};
-  ${typoSmallBase};
+  color: var(--theme-status-error);
+  ${typoCaption1};
 `;
 
 const CommentAuthor = styled.div`
-  color: var(--theme-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  ${typoLil2Base}
+  ${typoCallout}
 `;
 
 interface CommentVariables {
@@ -296,7 +299,7 @@ export default function NewCommentModal({
           <RoundedImage
             imgSrc={authorImage}
             imgAlt={`${authorName}'s profile image`}
-            background="var(--theme-background-highlight)"
+            background="var(--theme-background-secondary)"
           />
           <ParentCommentMetadata>
             <CommentAuthor>{authorName}</CommentAuthor>
@@ -330,14 +333,13 @@ export default function NewCommentModal({
         {errorMessage && <span role="alert">{errorMessage}</span>}
       </ErrorMessage>
       <Footer>
-        <FloatButton onClick={confirmClose}>Cancel</FloatButton>
+        <TertiaryButton onClick={confirmClose}>Cancel</TertiaryButton>
         <CommentButton
           disabled={!input?.length}
-          waiting={sendingComment}
+          loading={sendingComment}
           onClick={sendComment}
         >
-          <span>Comment</span>
-          <ButtonLoader />
+          Comment
         </CommentButton>
       </Footer>
       <DiscardCommentModal

@@ -23,20 +23,17 @@ import {
 } from '../../../styles/sizes';
 import LazyImage from '../../LazyImage';
 import {
-  typoDouble,
-  typoLil1,
-  typoMicro2,
-  typoNuggets,
-  typoQuarter,
+  typoCallout,
+  typoFootnote,
+  typoTitle1,
+  typoTitle3,
 } from '../../../styles/typography';
 import JoinedDate from '../../profile/JoinedDate';
 import GitHubIcon from '../../../icons/github.svg';
 import TwitterIcon from '../../../icons/twitter.svg';
 import HashnodeIcon from '../../../icons/hashnode.svg';
 import LinkIcon from '../../../icons/link.svg';
-import { colorWater50 } from '../../../styles/colors';
 import { tablet } from '../../../styles/media';
-import { HollowButton } from '../../Buttons';
 import AuthContext from '../../AuthContext';
 import dynamic from 'next/dynamic';
 import { useHideOnModal } from '../../../lib/useHideOnModal';
@@ -58,6 +55,9 @@ import {
 } from '../../../graphql/users';
 import dynamicPageLoad from '../../../lib/dynamicPageLoad';
 import NavBar, { tabs } from './NavBar';
+import TertiaryButton from '../../buttons/TertiaryButton';
+import QuandaryButton from '../../buttons/QuandaryButton';
+import SecondaryButton from '../../buttons/SecondaryButton';
 
 const AccountDetailsModal = dynamicPageLoad(
   () =>
@@ -75,13 +75,12 @@ export interface ProfileLayoutProps {
 const ProfileContainer = styled(PageContainer)`
   padding-left: ${size6};
   padding-right: ${size6};
-  color: var(--theme-secondary);
 `;
 
 const ProfileImageAndRep = styled.div`
   display: flex;
   margin-bottom: ${size6};
-  background: var(--theme-background-highlight);
+  background: var(--theme-background-secondary);
   border-radius: ${size4};
   align-self: flex-start;
   align-items: center;
@@ -102,10 +101,10 @@ const Reputation = styled.div`
   display: flex;
   flex-direction: column;
   margin: 0 ${size6};
-  ${typoNuggets}
+  ${typoFootnote}
 
   a {
-    color: var(--theme-secondary);
+    color: var(--theme-label-tertiary);
     text-decoration: none;
   }
 
@@ -113,8 +112,9 @@ const Reputation = styled.div`
     margin: ${size05} 0;
 
     &:last-child {
-      color: var(--theme-primary);
-      ${typoQuarter}
+      color: var(--theme-label-primary);
+      font-weight: bold;
+      ${typoTitle1}
     }
   }
 
@@ -132,8 +132,9 @@ const NameAndBadge = styled.div`
 
 const Name = styled.h1`
   margin: 0;
-  color: var(--theme-primary);
-  ${typoDouble}
+  color: var(--theme-label-primary);
+  font-weight: bold;
+  ${typoTitle3}
 `;
 
 const StyledRank = styled(Rank)`
@@ -144,41 +145,34 @@ const StyledRank = styled(Rank)`
 
 const Username = styled.h2`
   margin: 0;
-  ${typoMicro2}
+  font-weight: normal;
+  color: var(--theme-label-secondary);
+  ${typoCallout}
 `;
 
 const Bio = styled.p`
   margin: ${size3} 0 0;
+  color: var(--theme-label-tertiary);
   word-break: break-word;
-  ${typoMicro2}
+  ${typoCallout}
 `;
 
 const JoinedDateStyled = styled(JoinedDate)`
   margin-top: ${size3};
-  color: var(--theme-disabled);
-  ${typoMicro2}
+  color: var(--theme-label-quaternary);
+  ${typoFootnote}
 `;
 
 const Links = styled.div`
   display: flex;
-  margin: ${size3} ${sizeN(-2.25)} 0;
+  margin: ${size3} ${size05} 0;
 
-  .icon {
-    color: var(--theme-secondary);
-    font-size: ${size6};
+  > * {
+    margin: 0 ${size05};
   }
 
-  a {
-    display: flex;
-    align-items: center;
-    margin: 0 ${sizeN(2.25)};
-    color: ${colorWater50};
-    text-decoration: none;
-    ${typoLil1};
-
-    span {
-      margin-left: ${size3};
-    }
+  label {
+    color: var(--theme-label-link);
   }
 `;
 
@@ -210,15 +204,12 @@ const ProfileInfo = styled.div`
   }
 `;
 
-const EditProfileButton = styled(HollowButton)`
+const EditProfileButton = styled(SecondaryButton)`
   margin-top: ${size6};
-  padding: ${size2} ${size4};
-  border-radius: ${size2};
   align-self: flex-start;
-  ${typoNuggets}
 `;
 
-export default function Index({
+export default function ProfileLayout({
   profile: initialProfile,
   children,
 }: ProfileLayoutProps): ReactElement {
@@ -335,49 +326,48 @@ export default function Index({
             <JoinedDateStyled date={new Date(profile.createdAt)} />
             <Links>
               {twitterHandle && (
-                <a
+                <TertiaryButton
+                  tag="a"
                   href={`https://twitter.com/${twitterHandle}`}
                   title="Go to Twitter"
                   target="_blank"
                   rel="noopener"
-                >
-                  <TwitterIcon />
-                </a>
+                  icon={<TwitterIcon />}
+                />
               )}
               {githubHandle && (
-                <a
+                <TertiaryButton
+                  tag="a"
                   href={`https://github.com/${githubHandle}`}
                   title="Go to GitHub"
                   target="_blank"
                   rel="noopener"
-                >
-                  <GitHubIcon />
-                </a>
+                  icon={<GitHubIcon />}
+                />
               )}
               {hashnodeHandle && (
-                <a
+                <TertiaryButton
+                  tag="a"
                   href={`https://hashnode.com/@${hashnodeHandle}`}
                   title="Go to Hashnode"
                   target="_blank"
                   rel="noopener"
-                >
-                  <HashnodeIcon />
-                </a>
+                  icon={<HashnodeIcon />}
+                />
               )}
               {portfolioLink && (
-                <a
+                <QuandaryButton
+                  id="portfolio-link"
                   href={portfolioLink}
                   title="Go to portfolio website"
                   target="_blank"
                   rel="noopener"
+                  icon={<LinkIcon />}
                 >
-                  <LinkIcon />
-                  <span>
-                    {portfolioLink
-                      .replace(/(^\w+:|^)\/\//, '')
-                      .replace(/\/?(\?.*)?$/, '')}
-                  </span>
-                </a>
+                  {portfolioLink
+                    .replace(/(^\w+:|^)\/\//, '')
+                    .replace(/\/?(\?.*)?$/, '')}
+                </QuandaryButton>
               )}
             </Links>
             {profile.id === user?.id && (
@@ -408,7 +398,7 @@ export default function Index({
 export const getLayout = (
   page: ReactNode,
   props: ProfileLayoutProps,
-): ReactNode => getMainLayout(<Index {...props}>{page}</Index>);
+): ReactNode => getMainLayout(<ProfileLayout {...props}>{page}</ProfileLayout>);
 
 interface ProfileParams extends ParsedUrlQuery {
   userId: string;

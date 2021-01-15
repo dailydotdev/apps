@@ -8,21 +8,22 @@ import styled from 'styled-components';
 import Link from 'next/link';
 import {
   size1,
+  size1px,
   size2,
   size3,
   size4,
   size8,
   sizeN,
 } from '../../../styles/sizes';
-import { FloatButton } from '../../Buttons';
 import LazyImage from '../../LazyImage';
 import AuthContext from '../../AuthContext';
 import { focusOutline } from '../../../styles/helpers';
 import { laptop, tablet } from '../../../styles/media';
 import BetaBadge from '../../svg/BetaBadge';
-import { typoLil2 } from '../../../styles/typography';
+import { typoCallout } from '../../../styles/typography';
 import DailyDevLogo from '../../svg/DailyDevLogo';
 import dynamicPageLoad from '../../../lib/dynamicPageLoad';
+import TertiaryButton from '../../buttons/TertiaryButton';
 
 const MainLayoutButtons = dynamicPageLoad(
   () =>
@@ -46,7 +47,7 @@ const Header = styled.header`
   height: ${sizeN(12)};
   align-items: center;
   padding: 0 ${size4};
-  border-bottom: 0.063rem solid var(--theme-separator);
+  border-bottom: ${size1px} solid var(--theme-divider-tertiary);
 
   ${tablet} {
     padding-left: ${size8};
@@ -76,14 +77,15 @@ const ProfileImage = styled.a`
   overflow: hidden;
   margin-left: ${buttonMargin};
   padding: 0;
-  color: var(--theme-primary);
-  background: var(--theme-background-highlight);
+  color: var(--theme-label-primary);
+  background: var(--theme-background-secondary);
   border: none;
   border-radius: ${size2};
   cursor: pointer;
   text-decoration: none;
+  font-weight: bold;
   ${focusOutline}
-  ${typoLil2}
+  ${typoCallout}
 
   .img {
     width: ${size8};
@@ -141,7 +143,7 @@ export default function Index({
                 </ProfileImage>
               </Link>
             ) : (
-              <FloatButton onClick={showLogin}>Login</FloatButton>
+              <TertiaryButton onClick={showLogin}>Login</TertiaryButton>
             )}
           </>
         )}

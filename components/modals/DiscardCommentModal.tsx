@@ -6,8 +6,8 @@ import {
   ConfirmationButtons,
   Props as ModalProps,
 } from './StyledModal';
-import { ColorButton, HollowButton } from '../Buttons';
-import { colorKetchup40 } from '../../styles/colors';
+import SecondaryButton from '../buttons/SecondaryButton';
+import PrimaryButton from '../buttons/PrimaryButton';
 
 export interface Props extends ModalProps {
   onDeleteComment: (event: MouseEvent) => void;
@@ -25,10 +25,10 @@ export default function DiscardCommentModal({
         Are you sure you want to close and discard your comment?
       </ConfirmationDescription>
       <ConfirmationButtons>
-        <HollowButton onClick={onRequestClose}>Stay</HollowButton>
-        <ColorButton background={colorKetchup40} onClick={onDeleteComment}>
+        <SecondaryButton onClick={onRequestClose}>Stay</SecondaryButton>
+        <PrimaryButton themeColor="ketchup" onClick={onDeleteComment}>
           Discard
-        </ColorButton>
+        </PrimaryButton>
       </ConfirmationButtons>
     </ConfirmationModal>
   );

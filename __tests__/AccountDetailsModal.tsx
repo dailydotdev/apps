@@ -55,15 +55,15 @@ it('should show profile image', () => {
   expect(el).toHaveAttribute('src', defaultUser.image);
 });
 
-it('should disable submit when form is invalid', () => {
+it('should disable submit when form is invalid', async () => {
   renderComponent();
-  const el = screen.getByText('Save changes');
+  const el = screen.getByText('Save changes').parentElement;
   expect(el).toBeDisabled();
 });
 
 it('should enable submit when form is valid', () => {
   renderComponent({ username: 'idoshamun' });
-  const el = screen.getByText('Save changes');
+  const el = screen.getByText('Save changes').parentElement;
   expect(el).toBeEnabled();
 });
 

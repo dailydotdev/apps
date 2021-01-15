@@ -7,6 +7,7 @@ const ResponsiveModal = styled(StyledModal)`
   .Overlay {
     position: relative;
     min-height: 100vh;
+    padding: 0;
 
     ${mobileL} {
       position: fixed;
@@ -20,7 +21,6 @@ const ResponsiveModal = styled(StyledModal)`
     min-height: 100%;
     align-items: stretch;
     padding: ${size2};
-    background: var(--theme-background-secondary);
     border-radius: 0;
 
     ${mobileL} {

@@ -4,9 +4,8 @@ import { mobileL } from '../../styles/media';
 import { Props as ModalProps } from './StyledModal';
 import React, { ReactElement, useState } from 'react';
 import TextField from '../TextField';
-import { size10, size2, size3 } from '../../styles/sizes';
+import { size2, size3 } from '../../styles/sizes';
 import XIcon from '../../icons/x.svg';
-import { FloatButton, IconButton, InvertButton } from '../Buttons';
 import { useMutation, useQuery } from 'react-query';
 import {
   SEARCH_KEYWORDS_QUERY,
@@ -15,7 +14,10 @@ import {
 } from '../../graphql/keywords';
 import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
-import { typoLil1, typoLil2Base } from '../../styles/typography';
+import { typoCallout } from '../../styles/typography';
+import TertiaryButton from '../buttons/TertiaryButton';
+import PrimaryButton from '../buttons/PrimaryButton';
+import { ButtonProps } from '../buttons/BaseButton';
 
 const Modal = styled(ResponsiveModal)`
   .Modal {
@@ -23,19 +25,17 @@ const Modal = styled(ResponsiveModal)`
       max-height: 40rem;
     }
   }
-
-  ${InvertButton} {
-    align-self: flex-start;
-    margin-top: ${size2};
-  }
 `;
 
-const CloseButton = styled(IconButton)`
+const CloseButton = styled(TertiaryButton).attrs({
+  buttonSize: 'small',
+  title: 'Close',
+})<ButtonProps<'button'>>`
   align-self: flex-end;
 `;
 
 const Title = styled.h1`
-  ${typoLil1}
+  ${typoCallout}
 `;
 
 const SearchField = styled(TextField)`
@@ -55,13 +55,6 @@ const ResultsList = styled.ul`
 const ResultItem = styled.li`
   padding: 0;
   margin: 0;
-
-  ${FloatButton} {
-    height: ${size10};
-    padding-top: 0;
-    padding-bottom: 0;
-    ${typoLil2Base}
-  }
 `;
 
 export type KeywordSynonymModal = { selectedKeyword: string } & ModalProps;
@@ -99,7 +92,7 @@ export default function KeywordSynonymModal({
 
   return (
     <Modal {...props}>
-      <CloseButton title="Close" onClick={props.onRequestClose}>
+      <CloseButton onClick={props.onRequestClose}>
         <XIcon />
       </CloseButton>
       <Title>{`Find synonym for "${selectedKeyword}"`}</Title>
@@ -116,14 +109,19 @@ export default function KeywordSynonymModal({
         <ResultsList>
           {searchResults?.searchKeywords.hits.slice(0, 5).map((keyword) => (
             <ResultItem key={keyword.value}>
-              <FloatButton onClick={() => setSynonym(keyword.value)}>
+              <TertiaryButton onClick={() => setSynonym(keyword.value)}>
                 {keyword.value}
-              </FloatButton>
+              </TertiaryButton>
             </ResultItem>
           ))}
         </ResultsList>
       )}
-      <InvertButton onClick={() => setSynonym(query)}>Create</InvertButton>
+      <PrimaryButton
+        onClick={() => setSynonym(query)}
+        style={{ marginTop: size2, alignSelf: 'flex-start' }}
+      >
+        Create
+      </PrimaryButton>
     </Modal>
   );
 }

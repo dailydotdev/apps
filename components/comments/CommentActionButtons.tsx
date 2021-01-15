@@ -1,11 +1,10 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import AuthContext from '../AuthContext';
-import { FloatButton, IconButton } from '../Buttons';
 import UpvoteIcon from '../../icons/upvote.svg';
 import CommentIcon from '../../icons/comment.svg';
 import TrashIcon from '../../icons/trash.svg';
 import styled from 'styled-components';
-import { size1, size2, size7 } from '../../styles/sizes';
+import { size7 } from '../../styles/sizes';
 import {
   CANCEL_COMMENT_UPVOTE_MUTATION,
   Comment,
@@ -15,6 +14,8 @@ import { useMutation, useQueryClient } from 'react-query';
 import { Roles } from '../../lib/user';
 import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
+import QuandaryButton from '../buttons/QuandaryButton';
+import TertiaryButton from '../buttons/TertiaryButton';
 
 export interface Props {
   comment: Comment;
@@ -26,27 +27,6 @@ export interface Props {
 const Container = styled.div`
   display: flex;
   align-items: center;
-`;
-
-const CommentButton = styled(IconButton)`
-  margin-left: ${size7};
-`;
-
-const TrashButton = styled(IconButton)`
-  margin-left: auto;
-`;
-
-const UpvoteButton = styled(FloatButton).attrs({ size: 'small' })`
-  padding: ${size1};
-  border-radius: ${size2};
-
-  .icon {
-    margin: 0;
-  }
-
-  span {
-    margin-left: ${size1};
-  }
 `;
 
 export default function CommentActionButtons({
@@ -120,26 +100,33 @@ export default function CommentActionButtons({
 
   return (
     <Container>
-      <UpvoteButton done={upvoted} title="Upvote" onClick={toggleUpvote}>
-        <UpvoteIcon />
-        {numUpvotes > 0 && <span>{numUpvotes}</span>}
-      </UpvoteButton>
-      <CommentButton
-        size="small"
+      <QuandaryButton
+        id={`comment-${comment.id}-upvote-btn`}
+        buttonSize="small"
+        themeColor="avocado"
+        pressed={upvoted}
+        title="Upvote"
+        onClick={toggleUpvote}
+        icon={<UpvoteIcon />}
+      >
+        {numUpvotes > 0 ? numUpvotes : null}
+      </QuandaryButton>
+      <TertiaryButton
+        buttonSize="small"
         title="Comment"
         onClick={() => onComment(comment, parentId)}
-      >
-        <CommentIcon />
-      </CommentButton>
+        icon={<CommentIcon />}
+        style={{ marginLeft: size7 }}
+      />
       {(user?.id === comment.author.id ||
         user?.roles?.indexOf(Roles.Moderator) > -1) && (
-        <TrashButton
-          size="small"
+        <TertiaryButton
+          buttonSize="small"
           title="Delete"
           onClick={() => onDelete(comment, parentId)}
-        >
-          <TrashIcon />
-        </TrashButton>
+          icon={<TrashIcon />}
+          style={{ marginLeft: 'auto' }}
+        />
       )}
     </Container>
   );

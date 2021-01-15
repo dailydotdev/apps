@@ -9,26 +9,20 @@ import request from 'graphql-request';
 import { apiUrl } from '../lib/config';
 import { FeedData, KEYWORD_FEED_QUERY } from '../graphql/posts';
 import { useHideOnModal } from '../lib/useHideOnModal';
-import { ButtonLoader, PageContainer } from './utilities';
-import { size1, size2, size3, size4, size6, sizeN } from '../styles/sizes';
+import { PageContainer } from './utilities';
+import { size1, size3, size4, size6, sizeN } from '../styles/sizes';
 import { NextSeo } from 'next-seo';
 import ActivitySection from './profile/ActivitySection';
 import Link from 'next/link';
 import { smallPostImage } from '../lib/image';
-import { BaseButton, ColorButton, HollowButton, InvertButton } from './Buttons';
-import { colorKetchup40 } from '../styles/colors';
 import dynamicPageLoad from '../lib/dynamicPageLoad';
 import styled from 'styled-components';
-import {
-  typoLil1,
-  typoLil2,
-  typoMicro1,
-  typoQuarter,
-  typoTriple,
-} from '../styles/typography';
+import { typoCallout, typoTitle2, typoTitle3 } from '../styles/typography';
 import { multilineTextOverflow, pageMaxWidth } from '../styles/helpers';
 import { tablet } from '../styles/media';
 import LazyImage from './LazyImage';
+import PrimaryButton from './buttons/PrimaryButton';
+import SecondaryButton from './buttons/SecondaryButton';
 
 const KeywordSynonymModal = dynamicPageLoad(
   () =>
@@ -38,12 +32,14 @@ const KeywordSynonymModal = dynamicPageLoad(
 );
 
 const EmptyScreen = styled.div`
-  ${typoTriple}
+  font-weight: bold;
+  ${typoTitle3}
 `;
 
 const Title = styled.h1`
   margin: 0;
-  ${typoQuarter}
+  font-weight: bold;
+  ${typoTitle2}
 `;
 
 const Subtitle = styled.div`
@@ -51,12 +47,8 @@ const Subtitle = styled.div`
   margin: ${size1} 0;
   align-items: center;
   justify-content: space-between;
-  color: var(--theme-secondary);
-  ${typoMicro1};
-`;
-
-const DenyButton = styled(ColorButton)`
-  color: var(--theme-primary);
+  color: var(--theme-label-tertiary);
+  ${typoCallout};
 `;
 
 const Buttons = styled.div`
@@ -72,12 +64,6 @@ const Buttons = styled.div`
   margin: 0 auto;
   padding: ${size6} ${size4};
   background: var(--theme-background-primary);
-
-  ${BaseButton} {
-    padding: ${size2} ${size4};
-    border-radius: ${size2};
-    ${typoLil2}
-  }
 `;
 
 const PostContainer = styled.article`
@@ -104,10 +90,10 @@ const PostContent = styled.p`
   margin: 0 0 0 ${size4};
   flex: 1;
   align-self: center;
-  color: var(--theme-primary);
+  color: var(--theme-label-primary);
   word-break: break-word;
   white-space: pre-wrap;
-  ${typoLil1}
+  ${typoCallout}
   ${multilineTextOverflow}
   -webkit-line-clamp: 3;
 
@@ -186,7 +172,7 @@ export default function KeywordManagement({
 
   useHideOnModal(() => currentAction === 'synonym', [currentAction]);
 
-  const disableActions = !!currentAction || keyword.status === 'synonym';
+  const disableActions = !!currentAction;
 
   return (
     <PageContainer style={{ paddingBottom: sizeN(23) }}>
@@ -225,26 +211,24 @@ export default function KeywordManagement({
         )}
       />
       <Buttons>
-        <InvertButton
-          waiting={currentAction === 'allow'}
+        <PrimaryButton
+          loading={currentAction === 'allow'}
           onClick={onAllow}
           disabled={disableActions}
         >
-          <span>Allow</span>
-          <ButtonLoader />
-        </InvertButton>
-        <HollowButton disabled={disableActions} onClick={onSynonym}>
+          Allow
+        </PrimaryButton>
+        <SecondaryButton disabled={disableActions} onClick={onSynonym}>
           Synonym
-        </HollowButton>
-        <DenyButton
-          background={colorKetchup40}
-          waiting={currentAction === 'deny'}
+        </SecondaryButton>
+        <PrimaryButton
+          themeColor="ketchup"
+          loading={currentAction === 'deny'}
           onClick={onDeny}
           disabled={disableActions}
         >
-          <span>Deny</span>
-          <ButtonLoader />
-        </DenyButton>
+          Deny
+        </PrimaryButton>
       </Buttons>
       <KeywordSynonymModal
         isOpen={currentAction === 'synonym'}

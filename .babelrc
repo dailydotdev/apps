@@ -4,6 +4,7 @@
   "env": {
     "production": {
       "plugins": [
+        ["styled-components", { "ssr": true, "displayName": false }],
         ["react-remove-properties", {"properties": ["data-testid"]}]
       ]
     }

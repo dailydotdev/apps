@@ -1,5 +1,6 @@
 import React, {
   HTMLAttributes,
+  InputHTMLAttributes,
   ReactElement,
   SyntheticEvent,
   useEffect,
@@ -7,27 +8,26 @@ import React, {
   useState,
 } from 'react';
 import styled from 'styled-components';
-import { size1, size2, size3, sizeN } from '../styles/sizes';
-import { typoLil1, typoMicro1, typoMicro2 } from '../styles/typography';
-import { colorKetchup30, colorWater60 } from '../styles/colors';
+import {
+  size05,
+  size1,
+  size1px,
+  size2,
+  size3,
+  size9,
+  sizeN,
+} from '../styles/sizes';
+import { typoCallout, typoCaption1 } from '../styles/typography';
 
-export interface Props extends HTMLAttributes<HTMLInputElement> {
+export interface Props extends InputHTMLAttributes<HTMLInputElement> {
   inputId: string;
-  name: string;
   label: string;
-  type?: string;
-  required?: boolean;
-  autoFocus?: boolean;
-  maxLength?: number;
-  value?: string;
   saveHintSpace?: boolean;
   hint?: string;
   valid?: boolean;
   validityChanged?: (valid: boolean) => void;
   valueChanged?: (value: string) => void;
-  pattern?: string;
-  placeholder?: string;
-  autoComplete?: string;
+  compact?: boolean;
 }
 
 const Container = styled.div`
@@ -41,12 +41,17 @@ const InputContainer = styled.div`
   flex-direction: column;
   align-items: flex-start;
   flex: 1;
-  margin: 0 ${size1} 0 ${size3};
 `;
 
 const Label = styled.label`
-  color: var(--theme-secondary);
-  ${typoMicro2}
+  ${typoCaption1}
+`;
+
+const CompactLabel = styled(Label)`
+  margin-bottom: ${size1};
+  padding: 0 ${size2};
+  color: var(--theme-label-primary);
+  font-weight: bold;
 `;
 
 const Input = styled.input`
@@ -55,69 +60,106 @@ const Input = styled.input`
   padding: 0;
   border: none;
   background: none;
-  color: var(--theme-primary);
-  caret-color: ${colorWater60};
+  color: var(--theme-label-primary);
+  caret-color: var(--theme-label-link);
+  ${typoCallout}
 
-  ${typoMicro1}
   &:focus {
     outline: 0;
-  }
-
-  &::placeholder {
-    color: var(--theme-secondary);
   }
 `;
 
 const CharsCount = styled.div`
-  margin: 0 ${size3} 0 ${size1};
-  color: var(--theme-secondary);
-  ${typoLil1}
+  margin: 0 0 0 ${size2};
+  font-weight: bold;
+  ${typoCallout}
 `;
 
 const Hint = styled.div<{ valid?: boolean; saveHintSpace?: boolean }>`
-  ${({ saveHintSpace }) => (saveHintSpace ? 'height: 1.125rem' : '')};
+  ${({ saveHintSpace }) => (saveHintSpace ? 'height: 1rem' : '')};
   margin-top: ${size1};
   padding: 0 ${size2};
+  color: var(--theme-label-tertiary);
+
   ${({ valid }) =>
-    valid === false
-      ? `color: ${colorKetchup30};`
-      : `
-  color: var(--theme-secondary);
-  align-self: flex-end;
-  `}
-  ${typoMicro2}
+    valid === false &&
+    `&& {
+      color: var(--theme-status-error);
+    }`}
+  ${typoCaption1}
 `;
 
 interface FieldProps extends HTMLAttributes<HTMLDivElement> {
   focused: boolean;
   showLabel: boolean;
   valid: boolean;
+  compact?: boolean;
 }
+
+const insetShadow = (color: string) =>
+  `box-shadow: inset ${size05} 0 0 0 ${color};`;
+
+const applyFocusAndValid = (focused: boolean, valid: boolean): string => {
+  const borderColor =
+    valid !== false
+      ? 'var(--theme-label-primary)'
+      : 'var(--theme-status-error)';
+  if (focused) {
+    return `
+      && {
+        background: transparent;
+        border-color: ${borderColor};
+        ${insetShadow(borderColor)}
+
+        ${Label} {
+          color: var(--theme-label-primary);
+        }
+
+        ${Input}::placeholder {
+          color: var(--theme-label-quaternary);
+        }
+      }
+    `;
+  }
+  if (valid === false) {
+    return `
+      && {
+        ${insetShadow(borderColor)}
+      }
+    `;
+  }
+  return '';
+};
 
 const Field = styled.div<FieldProps>`
   display: flex;
-  height: ${sizeN(14)};
-  padding: 0 ${size1};
+  height: ${({ compact }) => (compact ? size9 : sizeN(12))};
+  padding: 0 ${size3};
   align-items: center;
   overflow: hidden;
-  background: var(--theme-hover);
-  border-radius: ${size2};
+  background: var(--theme-float);
+  border: ${size1px} solid transparent;
+  border-radius: ${({ compact }) => (compact ? sizeN(2.5) : sizeN(3.5))};
   cursor: text;
 
-  ${({ focused, valid }) =>
-    (focused || valid === false) &&
-    `box-shadow: inset 0.125rem 0 0 0 ${
-      valid === false ? colorKetchup30 : 'var(--theme-primary)'
-    };`}
+  ${({ focused, valid }) => applyFocusAndValid(focused, valid)}
+
   &:hover {
-    background: var(--theme-focus);
+    background: var(--theme-hover);
+    ${({ valid }) =>
+      valid !== false && insetShadow('var(--theme-label-primary)')}
+
+    ${Input}:not(:focus)::placeholder {
+      color: var(--theme-label-primary);
+    }
   }
 
   ${Label} {
     display: ${({ showLabel }) => (showLabel ? 'block' : 'none')};
-    ${({ focused, valid }) =>
-      (valid === false && `color: ${colorKetchup30};`) ||
-      (focused && 'color: var(--theme-primary);')}
+  }
+
+  ${Label}, ${Input}::placeholder, ${CharsCount} {
+    color: var(--theme-label-tertiary);
   }
 `;
 
@@ -126,9 +168,6 @@ export default function TextField({
   inputId,
   name,
   label,
-  type = 'text',
-  autoFocus = false,
-  required = false,
   maxLength,
   value,
   saveHintSpace = false,
@@ -136,9 +175,9 @@ export default function TextField({
   valid,
   validityChanged,
   valueChanged,
-  pattern,
   placeholder,
-  autoComplete,
+  compact = false,
+  ...props
 }: Props): ReactElement {
   const inputRef = useRef<HTMLInputElement>(null);
   const [focused, setFocused] = useState<boolean>(false);
@@ -152,7 +191,7 @@ export default function TextField({
 
   useEffect(() => {
     if (value) {
-      inputRef.current.value = value;
+      inputRef.current.value = value.toString();
       inputRef.current.dispatchEvent(new Event('input', { bubbles: true }));
     }
   }, [value]);
@@ -217,7 +256,7 @@ export default function TextField({
   };
 
   const getPlaceholder = () => {
-    if (focused) {
+    if (focused || compact) {
       return placeholder ?? '';
     }
     return label;
@@ -225,15 +264,17 @@ export default function TextField({
 
   return (
     <Container className={className}>
+      {compact && <CompactLabel htmlFor={inputId}>{label}</CompactLabel>}
       <Field
         data-testid="field"
         onClick={focusInput}
         focused={focused}
         showLabel={focused || hasInput}
         valid={validInput}
+        compact={compact}
       >
         <InputContainer>
-          <Label htmlFor={inputId}>{label}</Label>
+          {!compact && <Label htmlFor={inputId}>{label}</Label>}
           <Input
             placeholder={getPlaceholder()}
             name={name}
@@ -242,12 +283,8 @@ export default function TextField({
             onFocus={onFocus}
             onBlur={onBlur}
             onInput={onInput}
-            type={type}
-            autoFocus={autoFocus}
-            required={required}
             maxLength={maxLength}
-            pattern={pattern}
-            autoComplete={autoComplete}
+            {...props}
           />
         </InputContainer>
         {maxLength && <CharsCount>{maxLength - inputLength}</CharsCount>}

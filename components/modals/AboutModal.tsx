@@ -5,28 +5,19 @@ import {
   StyledModal,
 } from './StyledModal';
 import styled from 'styled-components';
-import { size4, size5, size6 } from '../../styles/sizes';
-import XIcon from '../../icons/x.svg';
-import { typoMicro2 } from '../../styles/typography';
+import { size10, size8 } from '../../styles/sizes';
+import { typoCallout } from '../../styles/typography';
 
 const MyModal = styled(StyledModal)`
-  .Overlay {
-    justify-content: center;
-    padding-left: ${size5};
-    padding-right: ${size5};
-  }
-
   .Modal {
-    max-width: 20rem;
+    max-width: 21rem;
     align-items: flex-start;
-    padding: ${size6};
-    border: 0.063rem solid var(--theme-separator);
-    border-radius: ${size4};
-    color: var(--theme-secondary);
-    ${typoMicro2}
+    padding: ${size8} ${size10};
+    color: var(--theme-label-secondary);
+    ${typoCallout}
 
     & strong {
-      color: var(--theme-primary);
+      color: var(--theme-label-primary);
       font-weight: bold;
     }
   }
@@ -35,9 +26,7 @@ const MyModal = styled(StyledModal)`
 export default function AboutModal(props: ModalProps): ReactElement {
   return (
     <MyModal {...props}>
-      <ModalCloseButton onClick={props.onRequestClose}>
-        <XIcon />
-      </ModalCloseButton>
+      <ModalCloseButton onClick={props.onRequestClose} />
       Welcome to daily.dev!
       <br />
       <br />

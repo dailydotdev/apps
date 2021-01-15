@@ -26,26 +26,18 @@ import {
   size3,
   size4,
   size6,
+  size7,
   size8,
   sizeN,
 } from '../../styles/sizes';
 import {
-  typoDouble,
-  typoLil2,
-  typoLil2Base,
-  typoMicro1,
-  typoMicro2,
-  typoMicro2Base,
-  typoNuggets,
-  typoSmall,
+  typoBody,
+  typoCallout,
+  typoFootnote,
+  typoSubhead,
+  typoTitle2,
 } from '../../styles/typography';
 import { postDateFormat } from '../../lib/dateFormat';
-import {
-  FloatButton,
-  HollowButton,
-  IconButton,
-  InvertButton,
-} from '../../components/Buttons';
 import OpenLinkIcon from '../../icons/open_link.svg';
 import UpvoteIcon from '../../icons/upvote.svg';
 import CommentIcon from '../../icons/comment.svg';
@@ -60,11 +52,7 @@ import {
   PostData,
   UPVOTE_MUTATION,
 } from '../../graphql/posts';
-import {
-  PageContainer,
-  RoundedImage,
-  SmallRoundedImage,
-} from '../../components/utilities';
+import { PageContainer, RoundedImage } from '../../components/utilities';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import AuthContext from '../../components/AuthContext';
 import MainComment from '../../components/comments/MainComment';
@@ -73,8 +61,7 @@ import {
   POST_COMMENTS_QUERY,
   PostCommentsData,
 } from '../../graphql/comments';
-import { mobileL, mobileM } from '../../styles/media';
-import { colorCheese50, colorPepper90 } from '../../styles/colors';
+import { mobileL } from '../../styles/media';
 import { focusOutline } from '../../styles/helpers';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { ShareMobile } from '../../components/ShareMobile';
@@ -84,6 +71,10 @@ import request, { ClientError } from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import { ProfileLink } from '../../components/profile/ProfileLink';
 import { ownershipGuide } from '../../lib/constants';
+import TertiaryButton from '../../components/buttons/TertiaryButton';
+import QuandaryButton from '../../components/buttons/QuandaryButton';
+import PrimaryButton from '../../components/buttons/PrimaryButton';
+import SecondaryButton from '../../components/buttons/SecondaryButton';
 
 const NewCommentModal = dynamic(
   () => import('../../components/modals/NewCommentModal'),
@@ -92,7 +83,7 @@ const DeleteCommentModal = dynamic(
   () => import('../../components/modals/DeleteCommentModal'),
 );
 const DeletePostModal = dynamic(
-  () => import('../../components/DeletePostModal'),
+  () => import('../../components/modals/DeletePostModal'),
 );
 const ShareBar = dynamic(() => import('../../components/ShareBar'), {
   ssr: false,
@@ -135,15 +126,15 @@ const MetadataContainer = styled.div`
 `;
 
 const Metadata = styled.span`
-  color: var(--theme-disabled);
-  ${typoSmall}
+  color: var(--theme-label-tertiary);
+  ${typoCallout}
 `;
 
 const MetadataSeparator = styled.div`
   width: ${size05};
   height: ${size05};
   margin: 0 ${size1};
-  background: var(--theme-disabled);
+  background: var(--theme-label-tertiary);
   border-radius: 100%;
 `;
 
@@ -153,9 +144,9 @@ const SourceImage = styled(RoundedImage)`
 `;
 
 const SourceName = styled.div`
-  color: var(--theme-disabled);
+  color: var(--theme-label-primary);
   font-weight: bold;
-  ${typoMicro2Base}
+  ${typoCallout}
 `;
 
 const AuthorLink = styled(ProfileLink)`
@@ -169,14 +160,15 @@ const AuthorLink = styled(ProfileLink)`
 
 const Title = styled.h1`
   margin: ${size2} 0;
-  ${typoDouble}
+  ${typoTitle2}
 `;
 
 const Tags = styled.div`
   margin-bottom: ${size4};
-  color: var(--theme-disabled);
+  color: var(--theme-label-quaternary);
+  font-weight: bold;
   text-transform: uppercase;
-  ${typoSmall};
+  ${typoSubhead};
 `;
 
 const PostImage = styled.a`
@@ -193,8 +185,8 @@ const StatsBar = styled.div`
   grid-auto-columns: max-content;
   grid-column-gap: ${size4};
   margin: ${size4} 0;
-  color: var(--theme-disabled);
-  ${typoSmall}
+  color: var(--theme-label-tertiary);
+  ${typoCallout}
 
   span {
     word-break: keep-all;
@@ -204,27 +196,9 @@ const StatsBar = styled.div`
 const ActionButtons = styled.div`
   display: flex;
   justify-content: space-between;
-  padding: ${size4} 0;
-  border-top: 0.063rem solid var(--theme-separator);
-  border-bottom: 0.063rem solid var(--theme-separator);
-
-  ${FloatButton} {
-    .icon {
-      margin-right: -${size1};
-
-      ${mobileM} {
-        margin-right: ${size2};
-      }
-    }
-
-    span {
-      display: none;
-
-      ${mobileM} {
-        display: inline-block;
-      }
-    }
-  }
+  padding: ${size2} 0;
+  border-top: 0.063rem solid var(--theme-divider-tertiary);
+  border-bottom: 0.063rem solid var(--theme-divider-tertiary);
 `;
 
 const NewCommentContainer = styled.div`
@@ -235,7 +209,6 @@ const NewCommentContainer = styled.div`
   width: 100%;
   padding: ${size3} ${size4};
   background: var(--theme-background-primary);
-  box-shadow: 0 -${size2} ${size6} 0 ${colorPepper90}3D;
   z-index: 2;
 
   ${mobileL} {
@@ -257,35 +230,38 @@ const NewCommentButton = styled.button`
   height: ${size10};
   align-items: center;
   padding: 0 ${size4};
-  background: var(--theme-hover);
-  color: var(--theme-secondary);
+  background: var(--theme-background-secondary);
+  color: var(---theme-label-secondary);
   border: none;
   border-radius: ${size4};
   cursor: pointer;
-  ${typoMicro1}
+  ${typoCallout}
   ${focusOutline}
 `;
 
-const NewCommentProfile = styled(SmallRoundedImage)`
+const NewCommentProfile = styled(LazyImage)`
+  width: ${size7};
+  height: ${size7};
+  border-radius: 100%;
   margin-left: -${size2};
   margin-right: ${size3};
 `;
 
 const Hint = styled.div`
   margin: 0 0 ${size6};
-  color: var(--theme-secondary);
-  ${typoMicro2}
+  color: var(--theme-label-secondary);
+  ${typoSubhead}
 `;
 
 const Separator = styled.div`
   height: 0.063rem;
   margin: ${size6} 0;
-  background: var(--theme-separator);
+  background: var(--theme-divider-tertiary);
 `;
 
 const AuthorOnboarding = styled.section`
   padding: ${size6};
-  background: var(--theme-background-highlight);
+  background: var(--theme-background-secondary);
   border-radius: ${size4};
 
   p {
@@ -303,8 +279,8 @@ const AuthorOnboarding = styled.section`
 
   p,
   ol {
-    color: var(--theme-secondary);
-    ${typoMicro2}
+    color: var(--theme-label-secondary);
+    ${typoCallout}
   }
 `;
 
@@ -317,7 +293,7 @@ const AuthorOnboardingHeader = styled.div`
   .icon {
     grid-row-end: span 2;
     font-size: ${size10};
-    color: ${colorCheese50};
+    color: var(--theme-status-help);
   }
 
   h2,
@@ -325,13 +301,15 @@ const AuthorOnboardingHeader = styled.div`
     margin: 0;
   }
 
-  h2 {
-    color: ${colorCheese50};
-    ${typoLil2}
+  h3 {
+    color: var(--theme-status-help);
+    font-weight: bold;
+    ${typoFootnote}
   }
 
-  h3 {
-    ${typoLil2Base}
+  h2 {
+    font-weight: bold;
+    ${typoBody}
   }
 `;
 
@@ -342,15 +320,6 @@ const AuthorOnboardingButtons = styled.div`
   grid-template-columns: 1fr max-content;
   column-gap: ${size4};
   margin-top: ${size6};
-
-  ${HollowButton} {
-    padding-left: ${size4};
-    padding-right: ${size4};
-    color: var(--theme-primary);
-    border-color: var(--theme-primary);
-    border-radius: ${size2};
-    ${typoNuggets}
-  }
 `;
 
 interface ParentComment {
@@ -577,14 +546,14 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           <SourceImage
             imgSrc={postById?.post.source.image}
             imgAlt={postById?.post.source.name}
-            background="var(--theme-background-highlight)"
+            background="var(--theme-background-secondary)"
           />
           {postById?.post.author ? (
             <AuthorLink user={postById.post.author} data-testid="authorLink">
               <SourceImage
                 imgSrc={postById.post.author.image}
                 imgAlt={postById.post.author.name}
-                background="var(--theme-background-highlight)"
+                background="var(--theme-background-secondary)"
               />
               <SourceName>{postById.post.author.name}</SourceName>
             </AuthorLink>
@@ -593,13 +562,12 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
               <SourceName>{postById?.post.source.name}</SourceName>
             </PostInfoSubContainer>
           )}
-          <IconButton as="a" {...postLinkProps}>
-            <OpenLinkIcon />
-          </IconButton>
+          <TertiaryButton icon={<OpenLinkIcon />} tag="a" {...postLinkProps} />
           {user?.roles?.indexOf(Roles.Moderator) > -1 && (
-            <IconButton onClick={() => setShowDeletePost(true)}>
-              <TrashIcon />
-            </IconButton>
+            <TertiaryButton
+              icon={<TrashIcon />}
+              onClick={() => setShowDeletePost(true)}
+            />
           )}
         </PostInfo>
         <Title>{postById?.post.title}</Title>
@@ -635,30 +603,39 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           )}
         </StatsBar>
         <ActionButtons>
-          <FloatButton
-            done={postById?.post.upvoted}
+          <QuandaryButton
+            id="upvote-post-btn"
+            themeColor="avocado"
+            pressed={postById?.post.upvoted}
             onClick={toggleUpvote}
-            title="Upvote"
+            icon={<UpvoteIcon />}
+            aria-label="Upvote"
+            labelMediaQuery={mobileL}
           >
-            <UpvoteIcon />
-            <span>Upvote</span>
-          </FloatButton>
-          <FloatButton
-            done={postById?.post.commented}
+            Upvote
+          </QuandaryButton>
+          <QuandaryButton
+            id="comment-post-btn"
+            themeColor="avocado"
+            pressed={postById?.post.commented}
             onClick={openNewComment}
-            title="Comment"
+            icon={<CommentIcon />}
+            aria-label="Comment"
+            labelMediaQuery={mobileL}
           >
-            <CommentIcon />
-            <span>Comment</span>
-          </FloatButton>
-          <FloatButton
+            Comment
+          </QuandaryButton>
+          <QuandaryButton
+            id="share-post-btn"
             onClick={sharePost}
             title="Share"
+            icon={<ShareIcon />}
             style={{ visibility: hasNativeShare ? 'visible' : 'hidden' }}
+            aria-label="Share"
+            labelMediaQuery={mobileL}
           >
-            <ShareIcon />
-            <span>Share</span>
-          </FloatButton>
+            Share
+          </QuandaryButton>
         </ActionButtons>
         {comments?.postComments.edges.map((e) => (
           <MainComment
@@ -676,8 +653,8 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           <AuthorOnboarding>
             <AuthorOnboardingHeader>
               <FeatherIcon />
-              <h2>Author</h2>
-              <h3>Is this article yours?</h3>
+              <h3>Author</h3>
+              <h2>Is this article yours?</h2>
             </AuthorOnboardingHeader>
             <p>Claim ownership and get the following perks:</p>
             <ol>
@@ -691,15 +668,15 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
               </li>
             </ol>
             <AuthorOnboardingButtons data-testid="authorOnboarding">
-              <InvertButton onClick={showLogin}>Sign up</InvertButton>
-              <HollowButton
-                as="a"
+              <PrimaryButton onClick={showLogin}>Sign up</PrimaryButton>
+              <SecondaryButton
+                tag="a"
                 href={ownershipGuide}
                 target="_blank"
                 rel="noopener"
               >
                 Learn more
-              </HollowButton>
+              </SecondaryButton>
             </AuthorOnboardingButtons>
           </AuthorOnboarding>
         ) : (

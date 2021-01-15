@@ -1,4 +1,4 @@
-import DeletePostModal, { Props } from '../components/DeletePostModal';
+import DeletePostModal, { Props } from '../components/modals/DeletePostModal';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import React from 'react';
 import { DELETE_POST_MUTATION } from '../graphql/posts';

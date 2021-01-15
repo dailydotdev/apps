@@ -6,19 +6,18 @@ import {
 } from '../../components/layouts/ProfileLayout';
 import styled from 'styled-components';
 import { size6 } from '../../styles/sizes';
-import { typoMicro2 } from '../../styles/typography';
+import { typoCallout } from '../../styles/typography';
 import { reputationGuide } from '../../lib/constants';
-import { colorWater50 } from '../../styles/colors';
 
 export const getStaticProps = getProfileStaticProps;
 export const getStaticPaths = getProfileStaticPaths;
 
 const Container = styled.section`
   margin: ${size6} 0;
-  ${typoMicro2}
+  ${typoCallout}
 
   a {
-    color: ${colorWater50};
+    color: var(--theme-label-link);
     text-decoration: none;
   }
 `;
@@ -28,7 +27,6 @@ const ProfilePage = (): ReactElement => {
     <Container>
       Earning reputation points will allow you to gain special privileges
       (coming soon).
-      <br />
       <br />
       In the meantime,{' '}
       <a href={reputationGuide} target="_blank" rel="noopener">

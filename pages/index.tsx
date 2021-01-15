@@ -2,11 +2,11 @@ import React, { ReactElement } from 'react';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 import styled from 'styled-components';
 import { size4, size6, sizeN } from '../styles/sizes';
-import { typoJr, typoQuarter } from '../styles/typography';
+import { typoBody, typoTitle1 } from '../styles/typography';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
-import { InvertButton } from '../components/Buttons';
 import { laptop } from '../styles/media';
+import PrimaryButton from '../components/buttons/PrimaryButton';
 
 const Container = styled.div`
   display: flex;
@@ -29,14 +29,15 @@ const Emoji = styled.div`
 const Title = styled.h1`
   margin: ${size6} 0 ${size4};
   text-align: center;
-  ${typoQuarter}
+  font-weight: bold;
+  ${typoTitle1}
 `;
 
 const Description = styled.div`
   margin-bottom: ${size6};
-  color: var(--theme-secondary);
+  color: var(--theme-label-secondary);
   text-align: center;
-  ${typoJr}
+  ${typoBody}
 `;
 
 const Home = (): ReactElement => {
@@ -59,9 +60,9 @@ const Home = (): ReactElement => {
         explore the latest dev news on our browser extension (if you don’t have
         it already).
       </Description>
-      <InvertButton as="a" href="/api/get?r=webapp">
+      <PrimaryButton tag="a" href="/api/get?r=webapp">
         Get the extension
-      </InvertButton>
+      </PrimaryButton>
     </Container>
   );
 };

@@ -1,18 +1,17 @@
 import React, { ReactElement, ReactNode } from 'react';
 import styled from 'styled-components';
 import { size3, size4, size8 } from '../styles/sizes';
-import { colorWater50, colorWater60, colorWater90 } from '../styles/colors';
-import { typoNuggets } from '../styles/typography';
+import colors, { overlayTertiary } from '../styles/colors';
+import { typoFootnote } from '../styles/typography';
 
 const switchHeight = size4;
 
-// TODO: track height doesn't follow the sizing guideline
 const SwitchTrack = styled.span`
   bottom: 0;
   width: 100%;
   height: 0.625rem;
   margin: auto 0;
-  background: var(--theme-active);
+  background: ${overlayTertiary('white')};
   will-change: background-color, opacity;
   transition: background-color 0.1s linear, opacity 0.2s linear;
 `;
@@ -20,12 +19,11 @@ const SwitchTrack = styled.span`
 const SwitchKnob = styled.span`
   width: ${switchHeight};
   height: ${switchHeight};
-  background: var(--theme-secondary);
+  background: var(--theme-label-tertiary);
   will-change: transform, background-color;
   transition: background-color 0.1s linear, transform 0.2s linear;
 `;
 
-// TODO: border-radius doesn't follow the sizing guideline
 const SwitchContainer = styled.span`
   position: relative;
   display: block;
@@ -42,22 +40,22 @@ const SwitchContainer = styled.span`
 
 const Children = styled.span`
   margin-left: ${size3};
-  color: var(--theme-secondary);
-  ${typoNuggets}
+  color: var(--theme-label-tertiary);
+  font-weight: bold;
+  ${typoFootnote}
 `;
 
-// TODO: add support for light theme for the water colors
 const Container = styled.label`
   display: flex;
   align-items: center;
   cursor: pointer;
 
   &:hover ${SwitchKnob} {
-    background: var(--theme-primary);
+    background: var(--theme-label-primary);
   }
 
   &:hover input:checked ~ ${SwitchContainer} ${SwitchKnob} {
-    background: ${colorWater50};
+    background: ${colors.water['50']};
   }
 
   &:active {
@@ -69,16 +67,16 @@ const Container = styled.label`
 
     &:checked {
       & ~ ${SwitchContainer} ${SwitchTrack} {
-        background: ${colorWater90};
+        background: ${colors.water['90']};
       }
 
       & ~ ${SwitchContainer} ${SwitchKnob} {
         transform: translateX(100%);
-        background: ${colorWater60};
+        background: ${colors.water['60']};
       }
 
       & ~ ${Children} {
-        color: var(--theme-primary);
+        color: var(--theme-label-primary);
       }
     }
   }

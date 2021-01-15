@@ -1,63 +1,18 @@
 import { createGlobalStyle } from 'styled-components';
 import { normalize } from 'styled-normalize';
-import {
-  colorAvocado40,
-  colorAvocado60,
-  colorBacon40,
-  colorBacon60,
-  colorBlueCheese50,
-  colorBlueCheese60,
-  colorBurger40,
-  colorBurger60,
-  colorBurger80,
-  colorBurger90,
-  colorCabbage40,
-  colorCabbage60,
-  colorCheese40,
-  colorCheese60,
-  colorOnion40,
-  colorOnion60,
-  colorPepper10,
-  colorPepper30,
-  colorPepper40,
-  colorPepper60,
-  colorPepper70,
-  colorPepper80,
-  colorPepper90,
-  colorSalt10,
-  colorSalt20,
-  colorSalt30,
-  colorSalt40,
-  colorSalt50,
-  colorSalt80,
-  colorSalt90,
-  colorWater50,
-  colorWater60,
-} from '../styles/colors';
+import colors from '../styles/colors';
 import { mobileL } from '../styles/media';
+import { shadow2, shadow3 } from '../styles/shadows';
 
 export default createGlobalStyle`
   ${normalize}
 
-  @font-face {
-    font-family: DejaVuSansMono;
-    font-display: swap;
-    src: local('DejaVuSansMono'),url(https://storage.googleapis.com/devkit-assets/static/fonts/DejaVuSansMono.woff2) format("woff2"), url(https://storage.googleapis.com/devkit-assets/static/fonts/DejaVuSansMono.woff) format("woff")
-  }
-
-  @font-face {
-    font-family: DejaVuSansMono;
-    font-display: swap;
-    src: local('DejaVuSansMono-Oblique'),url(https://storage.googleapis.com/devkit-assets/static/fonts/DejaVuSansMono-Oblique.woff2) format("woff2"),url(https://storage.googleapis.com/devkit-assets/static/fonts/DejaVuSansMono-Oblique.woff) format("woff");
-    font-style: italic;
-  }
-
   html {
-    font-family: 'DejaVuSansMono', monospace, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Ubuntu, Segoe UI, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     background: var(--theme-background-primary);
-    color: var(--theme-primary);
+    color: var(--theme-label-primary);
   }
 
   body {
@@ -67,84 +22,102 @@ export default createGlobalStyle`
 
   /* stylelint-disable-next-line no-descending-specificity */
   html, html.light .invert, html .invert .invert {
-    --theme-background-primary: ${colorPepper80};
-    --theme-background-highlight: ${colorPepper60};
-    --theme-background-secondary: ${colorPepper70};
-    --theme-primary: ${colorSalt10};
-    --theme-primary-invert: ${colorPepper80};
-    --theme-secondary: ${colorSalt90};
-    --theme-disabled: ${colorPepper10};
-    --theme-light: ${colorPepper40};
-    --theme-shine: ${colorPepper30};
-    --theme-active: ${colorSalt10}29;
-    --theme-focus: ${colorSalt10}1F;
-    --theme-hover: ${colorSalt30}14;
-    --theme-separator: ${colorSalt20}1F;
-    --theme-backdrop: ${colorSalt10}3D;
+    --theme-focus: ${colors.blueCheese['40']};
+    --theme-float: ${colors.salt['90']}14;
+    --theme-hover: ${colors.salt['90']}1F;
 
-    --theme-premium: ${colorBacon40};
-    --theme-avocado: ${colorAvocado40};
+    --theme-background-primary: ${colors.pepper['90']};
+    --theme-background-secondary: ${colors.pepper['70']};
+    --theme-background-tertiary: ${colors.pepper['80']};
 
-    --theme-rank-1-color: ${colorBurger40};
-    --theme-rank-1-color-top: ${colorBurger40};
-    --theme-rank-1-color-bottom: ${colorBurger80};
+    --theme-label-primary: #FFFFFF;
+    --theme-label-secondary: ${colors.salt['50']};
+    --theme-label-tertiary: ${colors.salt['90']};
+    --theme-label-quaternary: ${colors.salt['90']}A3;
+    --theme-label-disabled: ${colors.salt['90']}52;
+    --theme-label-link: ${colors.water['20']};
+    --theme-label-invert: ${colors.pepper['90']};
 
-    --theme-rank-2-color: ${colorSalt40};
-    --theme-rank-2-color-top: ${colorSalt40};
-    --theme-rank-2-color-bottom: ${colorSalt80};
+    --theme-divider-primary: ${colors.salt['90']};
+    --theme-divider-secondary: ${colors.salt['90']}66;
+    --theme-divider-tertiary: ${colors.salt['90']}33;
 
-    --theme-rank-3-color: ${colorCheese40};
-    --theme-rank-3-color-top: ${colorCheese40};
-    --theme-rank-3-color-bottom: ${colorBurger40};
+    --theme-status-error: ${colors.ketchup['40']};
+    --theme-status-help: ${colors.cheese['40']};
+    --theme-status-success: ${colors.avocado['40']};
 
-    --theme-rank-4-color: ${colorBlueCheese50};
-    --theme-rank-4-color-top: ${colorBlueCheese50};
-    --theme-rank-4-color-bottom: ${colorWater50};
+    --theme-shadow2: ${shadow2('#00000066')};
+    --theme-shadow3: ${shadow3('#000000A3')};
 
-    --theme-rank-5-color: ${colorCabbage40};
-    --theme-rank-5-color-top: ${colorCabbage40};
-    --theme-rank-5-color-bottom: ${colorOnion40};
+    --theme-rank-1-color: ${colors.burger['40']};
+    --theme-rank-1-color-top: ${colors.burger['40']};
+    --theme-rank-1-color-bottom: ${colors.bun['40']};
+
+    --theme-rank-2-color: ${colors.salt['40']};
+    --theme-rank-2-color-top: #FFFFFF;
+    --theme-rank-2-color-bottom: ${colors.salt['40']};
+
+    --theme-rank-3-color: ${colors.cheese['40']};
+    --theme-rank-3-color-top: ${colors.cheese['40']};
+    --theme-rank-3-color-bottom: ${colors.bun['40']};
+
+    --theme-rank-4-color: ${colors.blueCheese['40']};
+    --theme-rank-4-color-top: ${colors.water['40']};
+    --theme-rank-4-color-bottom: ${colors.blueCheese['40']};
+
+    --theme-rank-5-color: ${colors.cabbage['40']};
+    --theme-rank-5-color-top: ${colors.cabbage['40']};
+    --theme-rank-5-color-bottom: ${colors.onion['40']};
   }
 
   /* stylelint-disable-next-line no-descending-specificity */
   html.light, html .invert, html.light .invert .invert {
-    --theme-background-primary: ${colorSalt30};
-    --theme-background-highlight: ${colorSalt10};
-    --theme-background-secondary: ${colorSalt20};
-    --theme-primary: ${colorPepper80};
-    --theme-primary-invert: ${colorSalt10};
-    --theme-secondary: ${colorPepper10};
-    --theme-disabled: ${colorSalt90};
-    --theme-light: ${colorSalt40};
-    --theme-shine: ${colorSalt50};
-    --theme-active: ${colorPepper80}1F;
-    --theme-focus: ${colorPepper80}14;
-    --theme-hover: ${colorPepper60}0A;
-    --theme-separator: ${colorPepper80}29;
-    --theme-backdrop: ${colorPepper90}3D;
+    --theme-focus: ${colors.blueCheese['60']};
+    --theme-float: ${colors.pepper['10']}14;
+    --theme-hover: ${colors.pepper['10']}1F;
 
-    --theme-premium: ${colorBacon60};
-    --theme-avocado: ${colorAvocado60};
+    --theme-background-primary: #FFFFFF;
+    --theme-background-secondary: ${colors.salt['10']};
+    --theme-background-tertiary: ${colors.salt['20']};
 
-    --theme-rank-1-color: ${colorBurger60};
-    --theme-rank-1-color-top: ${colorBurger60};
-    --theme-rank-1-color-bottom: ${colorBurger90};
+    --theme-label-primary: ${colors.pepper['90']};
+    --theme-label-secondary: ${colors.pepper['50']};
+    --theme-label-tertiary: ${colors.pepper['10']};
+    --theme-label-quaternary: ${colors.pepper['10']}A3;
+    --theme-label-disabled: ${colors.pepper['10']}52;
+    --theme-label-link: ${colors.water['80']};
+    --theme-label-invert: #FFFFFF;
 
-    --theme-rank-2-color: ${colorPepper60};
-    --theme-rank-2-color-top: ${colorPepper60};
-    --theme-rank-2-color-bottom: ${colorPepper10};
+    --theme-divider-primary: ${colors.pepper['10']};
+    --theme-divider-secondary: ${colors.pepper['10']}66;
+    --theme-divider-tertiary: ${colors.pepper['10']}33;
 
-    --theme-rank-3-color: ${colorCheese60};
-    --theme-rank-3-color-top: ${colorCheese60};
-    --theme-rank-3-color-bottom: ${colorBurger60};
+    --theme-status-error: ${colors.ketchup['60']};
+    --theme-status-help: ${colors.cheese['60']};
+    --theme-status-success: ${colors.avocado['60']};
 
-    --theme-rank-4-color: ${colorBlueCheese60};
-    --theme-rank-4-color-top: ${colorBlueCheese60};
-    --theme-rank-4-color-bottom: ${colorWater60};
+    --theme-shadow2: ${shadow2(`${colors.salt['90']}66`)};
+    --theme-shadow3: ${shadow3(`${colors.salt['90']}A3`)};
 
-    --theme-rank-5-color: ${colorCabbage60};
-    --theme-rank-5-color-top: ${colorCabbage60};
-    --theme-rank-5-color-bottom: ${colorOnion60};
+    --theme-rank-1-color: ${colors.burger['60']};
+    --theme-rank-1-color-top: ${colors.burger['60']};
+    --theme-rank-1-color-bottom: ${colors.bun['60']};
+
+    --theme-rank-2-color: ${colors.pepper['60']};
+    --theme-rank-2-color-top: ${colors.salt['90']};
+    --theme-rank-2-color-bottom: ${colors.pepper['60']};
+
+    --theme-rank-3-color: ${colors.cheese['60']};
+    --theme-rank-3-color-top: ${colors.cheese['60']};
+    --theme-rank-3-color-bottom: ${colors.bun['60']};
+
+    --theme-rank-4-color: ${colors.blueCheese['60']};
+    --theme-rank-4-color-top: ${colors.water['60']};
+    --theme-rank-4-color-bottom: ${colors.blueCheese['60']};
+
+    --theme-rank-5-color: ${colors.cabbage['60']};
+    --theme-rank-5-color-top: ${colors.cabbage['60']};
+    --theme-rank-5-color-bottom: ${colors.onion['60']};
   }
 
   * {
