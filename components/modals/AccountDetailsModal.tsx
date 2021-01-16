@@ -41,7 +41,7 @@ const MyModal = styled(ResponsiveModal)`
 `;
 
 const Header = styled.header`
-  position: sticky;
+  position: fixed;
   display: flex;
   top: 0;
   left: 0;
@@ -53,6 +53,10 @@ const Header = styled.header`
   background: var(--theme-background-secondary);
   border-bottom: ${size1px} solid var(--theme-divider-tertiary);
   z-index: 3;
+
+  ${mobileL} {
+    position: sticky;
+  }
 `;
 
 const SaveButton = styled(PrimaryButton)<ButtonProps<'button'>>`

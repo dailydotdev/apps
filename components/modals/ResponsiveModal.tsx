@@ -1,7 +1,7 @@
 import styled from 'styled-components/macro';
-import { StyledModal } from './StyledModal';
+import { modalBorderAndRadius, StyledModal } from './StyledModal';
 import { mobileL } from '../../styles/media';
-import { size2, size4, sizeN } from '../../styles/sizes';
+import { size2, sizeN } from '../../styles/sizes';
 
 const ResponsiveModal = styled(StyledModal)`
   .Overlay {
@@ -21,12 +21,13 @@ const ResponsiveModal = styled(StyledModal)`
     min-height: 100%;
     align-items: stretch;
     padding: ${size2};
+    border: none;
     border-radius: 0;
 
     ${mobileL} {
       position: relative;
       min-height: unset;
-      border-radius: ${size4};
+      ${modalBorderAndRadius}
     }
   }
 `;
