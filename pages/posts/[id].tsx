@@ -167,7 +167,6 @@ const Tags = styled.div`
   margin-bottom: ${size4};
   color: var(--theme-label-quaternary);
   font-weight: bold;
-  text-transform: uppercase;
   ${typoSubhead};
 `;
 
