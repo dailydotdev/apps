@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import { Props as ModalProps } from './StyledModal';
-import ResponsiveModal from './ResponsiveModal';
+import ResponsiveModal, { responsiveModalBreakpoint } from './ResponsiveModal';
 import styled from 'styled-components/macro';
 import {
   size1,
@@ -16,7 +16,6 @@ import { ProfileHeading } from '../utilities';
 import EditImageWithJoinedDate from '../profile/EditImageWithJoinedDate';
 import AuthContext from '../AuthContext';
 import ProfileForm from '../profile/ProfileForm';
-import { mobileL } from '../../styles/media';
 import { typoFootnote } from '../../styles/typography';
 import {
   cookiePolicy,
@@ -29,13 +28,17 @@ import {
 import TertiaryButton from '../buttons/TertiaryButton';
 import PrimaryButton from '../buttons/PrimaryButton';
 import { ButtonProps } from '../buttons/BaseButton';
+import { useResetScrollForResponsiveModal } from '../../lib/useResetScrollForResponsiveModal';
+
+const headerHeight = sizeN(12);
 
 const MyModal = styled(ResponsiveModal)`
   .Modal {
-    padding: 0;
+    padding: ${headerHeight} 0 0;
 
-    ${mobileL} {
+    ${responsiveModalBreakpoint} {
       max-height: 40rem;
+      padding-top: 0;
     }
   }
 `;
@@ -46,7 +49,7 @@ const Header = styled.header`
   top: 0;
   left: 0;
   width: 100%;
-  height: ${sizeN(12)};
+  height: ${headerHeight};
   align-items: center;
   justify-content: space-between;
   padding: 0 ${size4};
@@ -54,7 +57,7 @@ const Header = styled.header`
   border-bottom: ${size1px} solid var(--theme-divider-tertiary);
   z-index: 3;
 
-  ${mobileL} {
+  ${responsiveModalBreakpoint} {
     position: sticky;
   }
 `;
@@ -91,6 +94,7 @@ const LogoutButton = styled(TertiaryButton).attrs({ buttonSize: 'small' })<
 `;
 
 export default function AccountDetailsModal(props: ModalProps): ReactElement {
+  useResetScrollForResponsiveModal();
   const { user, logout } = useContext(AuthContext);
 
   const [disableSubmit, setDisableSubmit] = useState<boolean>(false);
