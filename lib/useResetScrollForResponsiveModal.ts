@@ -7,6 +7,7 @@ export function useResetScrollForResponsiveModal(): void {
       const mediaQuery = window.matchMedia(responsiveModalBreakpoint);
       if (!mediaQuery.matches) {
         window.scroll(0, 0);
+        document.querySelector('[role="dialog"]')?.scroll(0, 0);
       }
     }
   }, []);
