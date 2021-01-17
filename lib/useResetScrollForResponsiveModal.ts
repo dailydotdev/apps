@@ -6,7 +6,7 @@ export function useResetScrollForResponsiveModal(): void {
     if (window.matchMedia) {
       const mediaQuery = window.matchMedia(responsiveModalBreakpoint);
       if (!mediaQuery.matches) {
-        window.scrollTo(0, 0);
+        window.scroll(0, 0);
       }
     }
   }, []);
