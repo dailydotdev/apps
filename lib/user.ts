@@ -142,6 +142,7 @@ export async function getProfile(id: string): Promise<PublicProfile> {
 export async function getLoggedUser(): Promise<AnonymousUser | LoggedUser> {
   const res = await fetch('/api/v1/users/me', {
     credentials: 'include',
+    headers: { app: 'web' },
   });
   return res.json();
 }
