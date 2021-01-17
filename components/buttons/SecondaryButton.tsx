@@ -33,6 +33,7 @@ export const secondaryStyle = (color?: ColorName): StyledButtonProps => ({
     },
     disabled: {
       borderColor: `${colors.salt['90']}33`,
+      color: 'var(--theme-label-disabled)',
     },
   },
   lightStates: {
