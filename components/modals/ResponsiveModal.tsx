@@ -3,13 +3,15 @@ import { modalBorderAndRadius, StyledModal } from './StyledModal';
 import { mobileL } from '../../styles/media';
 import { size2, sizeN } from '../../styles/sizes';
 
+export const responsiveModalBreakpoint = mobileL;
+
 const ResponsiveModal = styled(StyledModal)`
   .Overlay {
     position: relative;
     min-height: 100vh;
     padding: 0;
 
-    ${mobileL} {
+    ${responsiveModalBreakpoint} {
       position: fixed;
       min-height: unset;
     }
@@ -24,7 +26,7 @@ const ResponsiveModal = styled(StyledModal)`
     border: none;
     border-radius: 0;
 
-    ${mobileL} {
+    ${responsiveModalBreakpoint} {
       position: relative;
       min-height: unset;
       ${modalBorderAndRadius}
