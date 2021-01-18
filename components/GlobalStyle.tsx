@@ -49,6 +49,8 @@ export default createGlobalStyle`
     --theme-shadow2: ${shadow2('#00000066')};
     --theme-shadow3: ${shadow3('#000000A3')};
 
+    --theme-post-disabled: ${colors.pepper['70']}66;
+
     --theme-rank-1-color: ${colors.burger['40']};
     --theme-rank-1-color-top: ${colors.burger['40']};
     --theme-rank-1-color-bottom: ${colors.bun['40']};
@@ -98,6 +100,8 @@ export default createGlobalStyle`
 
     --theme-shadow2: ${shadow2(`${colors.salt['90']}66`)};
     --theme-shadow3: ${shadow3(`${colors.salt['90']}A3`)};
+
+    --theme-post-disabled: #FFFFFF66;
 
     --theme-rank-1-color: ${colors.burger['60']};
     --theme-rank-1-color-top: ${colors.burger['60']};

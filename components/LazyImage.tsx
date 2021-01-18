@@ -1,3 +1,4 @@
+import 'lazysizes/plugins/blur-up/ls.blur-up';
 import 'lazysizes';
 import React, { HTMLAttributes, ReactElement } from 'react';
 import styled from 'styled-components/macro';
@@ -5,6 +6,7 @@ import styled from 'styled-components/macro';
 export interface Props extends HTMLAttributes<HTMLDivElement> {
   imgSrc: string;
   imgAlt: string;
+  lowsrc?: string;
   background?: string;
   ratio?: string;
   eager?: boolean;
@@ -36,18 +38,32 @@ const Container = styled.div<Props>`
     object-fit: cover;
   }
 
+  img.ls-blur-up-is-loading,
   img.lazyload:not([src]) {
     visibility: hidden;
+  }
+
+  .ls-blur-up-img {
+    opacity: 1;
+    transition: opacity 150ms;
+    will-change: opacity;
+    /* stylelint-disable-next-line font-family-no-missing-generic-family-keyword */
+    font-family: 'blur-up: auto', 'object-fit: cover';
+  }
+
+  .ls-blur-up-img.ls-inview.ls-original-loaded {
+    opacity: 0;
   }
 `;
 
 export default function LazyImage(props: Props): ReactElement {
-  const { imgSrc, imgAlt, eager } = props;
+  const { imgSrc, imgAlt, eager, lowsrc } = props;
   const imageProps = eager
     ? { src: imgSrc }
     : {
         className: 'lazyload',
         'data-src': imgSrc,
+        'data-lowsrc': { lowsrc },
       };
   return (
     <Container {...props}>
