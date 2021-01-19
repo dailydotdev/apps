@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
-import { Ad, AdCard, AdCardProps } from '../../components/cards/AdCard';
+import { AdCard, AdCardProps } from '../../components/cards/AdCard';
+import { Ad } from '../../graphql/posts';
 
 const defaultAd: Ad = {
   description: 'I am an ad!',

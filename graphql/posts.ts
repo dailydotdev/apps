@@ -4,6 +4,7 @@ import { Connection } from './common';
 
 export interface Source {
   __typename?: string;
+  id?: string;
   name: string;
   image: string;
 }
@@ -25,6 +26,17 @@ export interface Post {
   numComments?: number;
   author?: Author;
   views?: number;
+  placeholder?: string;
+}
+
+export interface Ad {
+  pixel?: string[];
+  source: string;
+  link: string;
+  description: string;
+  image: string;
+  placeholder?: string;
+  referralLink?: string;
 }
 
 export interface PostData {

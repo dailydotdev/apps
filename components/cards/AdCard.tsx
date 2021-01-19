@@ -10,23 +10,14 @@ import {
 import styled from 'styled-components/macro';
 import { size2, size3, size4, size5 } from '../../styles/sizes';
 import { typoFootnote } from '../../styles/typography';
-
-export interface Ad {
-  pixel?: string[];
-  source: string;
-  link: string;
-  description: string;
-  image: string;
-  placeholder?: string;
-  referralLink?: string;
-}
+import { Ad } from '../../graphql/posts';
 
 type Callback = (ad: Ad) => unknown;
 
 export type AdCardProps = {
   ad: Ad;
-  onImpression: Callback;
-  onClick: Callback;
+  onImpression?: Callback;
+  onClick?: Callback;
 } & HTMLAttributes<HTMLDivElement>;
 
 const Pixel = styled.img`
@@ -69,6 +60,10 @@ const StyledCard = styled(Card)`
       }
     }
   }
+
+  ${CardTitle} {
+    margin: ${size4} 0;
+  }
 `;
 
 export function AdCard({
@@ -80,7 +75,7 @@ export function AdCard({
   const showBlurredImage = ad.source === 'Carbon';
 
   useEffect(() => {
-    onImpression(ad);
+    onImpression?.(ad);
   }, []);
 
   return (
@@ -89,8 +84,8 @@ export function AdCard({
         href={ad.link}
         target="_blank"
         rel="noopener"
-        onClick={() => onClick(ad)}
-        onMouseUp={(event) => event.button === 1 && onClick(ad)}
+        onClick={() => onClick?.(ad)}
+        onMouseUp={(event) => event.button === 1 && onClick?.(ad)}
       />
       <CardTextContainer>
         <CardTitle>{ad.description}</CardTitle>
