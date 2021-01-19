@@ -78,7 +78,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
         {copying && <Copied>Copied!</Copied>}
         <ShareButton
           title="Copy link"
-          color="avocado"
+          themeColor="avocado"
           onClick={copyLink}
           pressed={copying}
           icon={<CopyIcon />}
