@@ -41,6 +41,7 @@ export default createGlobalStyle`
     --theme-divider-primary: ${colors.salt['90']};
     --theme-divider-secondary: ${colors.salt['90']}66;
     --theme-divider-tertiary: ${colors.salt['90']}33;
+    --theme-divider-quaternary: ${colors.salt['90']}14;
 
     --theme-status-error: ${colors.ketchup['40']};
     --theme-status-help: ${colors.cheese['40']};
@@ -93,6 +94,7 @@ export default createGlobalStyle`
     --theme-divider-primary: ${colors.pepper['10']};
     --theme-divider-secondary: ${colors.pepper['10']}66;
     --theme-divider-tertiary: ${colors.pepper['10']}33;
+    --theme-divider-quaternary: ${colors.pepper['10']}14;
 
     --theme-status-error: ${colors.ketchup['60']};
     --theme-status-help: ${colors.cheese['60']};

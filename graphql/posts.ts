@@ -27,6 +27,7 @@ export interface Post {
   author?: Author;
   views?: number;
   placeholder?: string;
+  read?: boolean;
 }
 
 export interface Ad {

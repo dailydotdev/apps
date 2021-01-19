@@ -62,7 +62,15 @@ const ActionButtons = styled.div`
   }
 `;
 
-const StyledCard = styled(Card)`
+const StyledCard = styled(Card)<{ read: boolean }>`
+  ${({ read }) =>
+    read &&
+    `
+  && {
+    border-color: var(--theme-divider-quaternary);
+    background: var(--theme-post-disabled);
+    box-shadow: none;
+  }`}
   ${CardImage} {
     margin: ${size2} 0;
   }
@@ -76,7 +84,7 @@ export function PostCard({
   ...props
 }: PostCardProps): ReactElement {
   return (
-    <StyledCard {...props}>
+    <StyledCard {...props} read={post.read}>
       <CardLink
         href={post.permalink}
         target="_blank"
