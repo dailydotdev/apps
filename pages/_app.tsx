@@ -116,7 +116,6 @@ function InternalApp({ Component, pageProps }: AppProps): ReactElement {
         <meta name="theme-color" content="#151618" />
         <meta name="msapplication-navbutton-color" content="#151618" />
         <meta name="apple-mobile-web-app-status-bar-style" content="#151618" />
-        <link rel="preconnect" href="https://storage.googleapis.com" />
       </Head>
       <DefaultSeo {...Seo} />
       <GlobalStyle />
