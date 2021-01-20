@@ -13,7 +13,7 @@ const defaultAd: Ad = {
 const defaultProps: AdCardProps = {
   ad: defaultAd,
   onImpression: jest.fn(),
-  onClick: jest.fn(),
+  onLinkClick: jest.fn(),
 };
 
 beforeEach(() => {
@@ -35,14 +35,18 @@ it('should call on click on component left click', async () => {
   renderComponent();
   const el = await screen.findByRole('link');
   el.click();
-  await waitFor(() => expect(defaultProps.onClick).toBeCalledWith(defaultAd));
+  await waitFor(() =>
+    expect(defaultProps.onLinkClick).toBeCalledWith(defaultAd),
+  );
 });
 
 it('should call on click on component middle mouse up', async () => {
   renderComponent();
   const el = await screen.findByRole('link');
   el.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, button: 1 }));
-  await waitFor(() => expect(defaultProps.onClick).toBeCalledWith(defaultAd));
+  await waitFor(() =>
+    expect(defaultProps.onLinkClick).toBeCalledWith(defaultAd),
+  );
 });
 
 it('should show a single image by default', async () => {

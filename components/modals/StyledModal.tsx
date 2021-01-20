@@ -26,7 +26,7 @@ export const ModalCloseButton = styled(TertiaryButton).attrs({
   title: 'Close',
   icon: <XIcon />,
 })<ButtonProps<'button'>>`
-  & {
+  && {
     position: absolute;
     right: ${size4};
     top: ${size4};

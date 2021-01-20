@@ -35,6 +35,8 @@ export interface Props extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
 }
 
+export const headerHeight = sizeN(12);
+
 const Container = styled.div`
   display: flex;
   position: relative;
@@ -44,7 +46,7 @@ const Container = styled.div`
 
 const Header = styled.header`
   display: flex;
-  height: ${sizeN(12)};
+  height: ${headerHeight};
   align-items: center;
   padding: 0 ${size4};
   border-bottom: ${size1px} solid var(--theme-divider-tertiary);
@@ -143,7 +145,7 @@ export default function Index({
                 </ProfileImage>
               </Link>
             ) : (
-              <TertiaryButton onClick={showLogin}>Login</TertiaryButton>
+              <TertiaryButton onClick={() => showLogin()}>Login</TertiaryButton>
             )}
           </>
         )}

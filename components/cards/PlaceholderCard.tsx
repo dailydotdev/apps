@@ -1,11 +1,6 @@
 import React, { HTMLAttributes, ReactElement } from 'react';
 import styled, { keyframes } from 'styled-components/macro';
-import {
-  cardImageHeight,
-  cardMaxWidth,
-  CardSpace,
-  CardTextContainer,
-} from './Card';
+import { cardImageHeight, CardSpace, CardTextContainer } from './Card';
 import { size2, size3, size4, size6 } from '../../styles/sizes';
 
 const PlaceholderShimmer = keyframes`
@@ -59,7 +54,6 @@ const Image = styled(Placeholder)`
 const Container = styled.article`
   display: flex;
   flex-direction: column;
-  max-width: ${cardMaxWidth};
   border-radius: ${size4};
   padding: ${size2};
   background: var(--theme-post-disabled);

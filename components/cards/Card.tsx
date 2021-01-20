@@ -4,7 +4,6 @@ import { typoBody } from '../../styles/typography';
 import { multilineTextOverflow } from '../../styles/helpers';
 import LazyImage from '../LazyImage';
 
-export const cardMaxWidth = sizeN(85);
 export const cardImageHeight = sizeN(40);
 
 export const CardTitle = styled.h2`
@@ -43,7 +42,6 @@ export const Card = styled.article`
   position: relative;
   display: flex;
   flex-direction: column;
-  max-width: ${cardMaxWidth};
   padding: ${size2};
   border-radius: ${size4};
   border: ${size1px} solid var(--theme-divider-tertiary);

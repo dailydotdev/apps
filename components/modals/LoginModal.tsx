@@ -50,7 +50,17 @@ const Content = styled.div`
   ${typoCallout}
 `;
 
-export default function LoginModal(props: Props): ReactElement {
+export enum LoginModalMode {
+  Default,
+  ContentQuality,
+}
+
+export type LoginModalProps = { mode: LoginModalMode } & Props;
+
+export default function LoginModal({
+  mode = LoginModalMode.Default,
+  ...props
+}: LoginModalProps): ReactElement {
   // eslint-disable-next-line react/prop-types
   const { onRequestClose } = props;
   const router = useRouter();
@@ -72,8 +82,9 @@ export default function LoginModal(props: Props): ReactElement {
       <ModalCloseButton onClick={onRequestClose} />
       <DailyDevLogo />
       <Content>
-        Our developer&apos;s community care about the content, log in to show
-        yourself.
+        {mode === LoginModalMode.ContentQuality
+          ? `Our community cares about content quality. We require social authentication to prevent abuse.`
+          : `Unlock useful features by signing in. A bunch of cool stuff like content filters and bookmarks are waiting just for you.`}
       </Content>
       <Buttons>
         <PrimaryButton onClick={() => login('github')} icon={<GitHubIcon />}>

@@ -21,6 +21,7 @@ import { Router } from 'next/router';
 import { useCookieBanner } from '../lib/useCookieBanner';
 import useLoggedUser from '../lib/useLoggedUser';
 import dynamicPageLoad from '../lib/dynamicPageLoad';
+import { LoginModalMode } from '../components/modals/LoginModal';
 
 const queryClient = new QueryClient();
 
@@ -56,10 +57,10 @@ function InternalApp({ Component, pageProps }: AppProps): ReactElement {
     loadingUser,
     tokenRefreshed,
   ] = useLoggedUser();
-  const [loginIsOpen, setLoginIsOpen] = useState(false);
+  const [loginMode, setLoginMode] = useState<LoginModalMode | null>(null);
   const [showCookie, acceptCookies, updateCookieBanner] = useCookieBanner();
 
-  const closeLogin = () => setLoginIsOpen(false);
+  const closeLogin = () => setLoginMode(null);
 
   const logout = async (): Promise<void> => {
     await dispatchLogout();
@@ -69,14 +70,15 @@ function InternalApp({ Component, pageProps }: AppProps): ReactElement {
   const authContext: AuthContextData = useMemo(
     () => ({
       user,
-      shouldShowLogin: loginIsOpen,
-      showLogin: () => setLoginIsOpen(true),
+      shouldShowLogin: loginMode !== null,
+      showLogin: (mode: LoginModalMode = LoginModalMode.Default) =>
+        setLoginMode(mode),
       updateUser: setUser,
       logout,
       loadingUser,
       tokenRefreshed,
     }),
-    [user, loginIsOpen, loadingUser, tokenRefreshed],
+    [user, loginMode, loadingUser, tokenRefreshed],
   );
 
   useEffect(() => {
@@ -121,9 +123,10 @@ function InternalApp({ Component, pageProps }: AppProps): ReactElement {
       {getLayout(<Component {...pageProps} />, pageProps)}
       {!user && !loadingUser && (
         <LoginModal
-          isOpen={loginIsOpen}
+          isOpen={loginMode !== null}
           onRequestClose={closeLogin}
           contentLabel="Login Modal"
+          mode={loginMode}
         />
       )}
       {showCookie && <CookieBanner onAccepted={acceptCookies} />}

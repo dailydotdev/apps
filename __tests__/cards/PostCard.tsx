@@ -45,8 +45,8 @@ const renderComponent = (props: Partial<PostCardProps> = {}): RenderResult => {
 
 it('should call on link click on component left click', async () => {
   renderComponent();
-  const el = await screen.findByRole('link');
-  el.click();
+  const el = await screen.findAllByRole('link');
+  el[0].click();
   await waitFor(() =>
     expect(defaultProps.onLinkClick).toBeCalledWith(defaultPost),
   );
@@ -54,8 +54,8 @@ it('should call on link click on component left click', async () => {
 
 it('should call on link click on component middle mouse up', async () => {
   renderComponent();
-  const el = await screen.findByRole('link');
-  el.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, button: 1 }));
+  const el = await screen.findAllByRole('link');
+  el[0].dispatchEvent(new MouseEvent('mouseup', { bubbles: true, button: 1 }));
   await waitFor(() =>
     expect(defaultProps.onLinkClick).toBeCalledWith(defaultPost),
   );

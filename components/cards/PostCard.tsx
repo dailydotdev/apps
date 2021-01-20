@@ -1,4 +1,5 @@
 import React, { HTMLAttributes, ReactElement } from 'react';
+import Link from 'next/link';
 import { Post } from '../../graphql/posts';
 import {
   Card,
@@ -97,6 +98,7 @@ export function PostCard({
           <SmallRoundedImage
             imgSrc={post.source.image}
             imgAlt={post.source.name}
+            background="var(--theme-background-tertiary)"
           />
         </CardHeader>
         <CardTitle>{post.title}</CardTitle>
@@ -123,22 +125,25 @@ export function PostCard({
           themeColor="avocado"
           buttonSize="small"
           pressed={post.upvoted}
-          title="Upvote"
+          title={post.upvoted ? 'Remove upvote' : 'Upvote'}
           onClick={() => onUpvoteClick?.(post, !post.upvoted)}
         >
           {post.numUpvotes > 0 && post.numUpvotes}
         </QuandaryButton>
-        <QuandaryButton
-          id={`post-${post.id}-comment-btn`}
-          icon={<CommentIcon />}
-          themeColor="avocado"
-          buttonSize="small"
-          pressed={post.commented}
-          title="Comment"
-          onClick={() => onCommentClick?.(post)}
-        >
-          {post.numComments > 0 && post.numComments}
-        </QuandaryButton>
+        <Link href={post.commentsPermalink} passHref prefetch={false}>
+          <QuandaryButton
+            id={`post-${post.id}-comment-btn`}
+            as="a"
+            icon={<CommentIcon />}
+            themeColor="avocado"
+            buttonSize="small"
+            pressed={post.commented}
+            title="Comment"
+            onClick={() => onCommentClick?.(post)}
+          >
+            {post.numComments > 0 && post.numComments}
+          </QuandaryButton>
+        </Link>
       </ActionButtons>
     </StyledCard>
   );
