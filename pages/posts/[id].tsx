@@ -61,7 +61,7 @@ import {
   POST_COMMENTS_QUERY,
   PostCommentsData,
 } from '../../graphql/comments';
-import { desktop, mobileL } from '../../styles/media';
+import { laptop, mobileL } from '../../styles/media';
 import { focusOutline } from '../../styles/helpers';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { ShareMobile } from '../../components/ShareMobile';
@@ -211,7 +211,7 @@ const NewCommentContainer = styled.div`
   background: var(--theme-background-primary);
   z-index: 2;
 
-  ${desktop} {
+  ${laptop} {
     position: relative;
     left: unset;
     right: unset;
