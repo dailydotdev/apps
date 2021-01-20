@@ -7,6 +7,7 @@ module.exports = {
     './node_modules/',
     '<rootDir>/__tests__/setup.ts',
     '<rootDir>/__tests__/helpers/',
+    '<rootDir>/__tests__/fixture/',
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleNameMapper: {

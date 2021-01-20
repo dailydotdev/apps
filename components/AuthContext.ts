@@ -1,10 +1,11 @@
 import React from 'react';
 import { LoggedUser } from '../lib/user';
+import { LoginModalMode } from './modals/LoginModal';
 
 export interface AuthContextData {
   user: LoggedUser;
   shouldShowLogin: boolean;
-  showLogin: () => void;
+  showLogin: (mode?: LoginModalMode) => void;
   logout: () => Promise<void>;
   updateUser: (user: LoggedUser) => Promise<void>;
   loadingUser?: boolean;

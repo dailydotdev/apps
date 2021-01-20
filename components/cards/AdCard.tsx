@@ -17,7 +17,7 @@ type Callback = (ad: Ad) => unknown;
 export type AdCardProps = {
   ad: Ad;
   onImpression?: Callback;
-  onClick?: Callback;
+  onLinkClick?: Callback;
 } & HTMLAttributes<HTMLDivElement>;
 
 const Pixel = styled.img`
@@ -69,7 +69,7 @@ const StyledCard = styled(Card)`
 export function AdCard({
   ad,
   onImpression,
-  onClick,
+  onLinkClick,
   ...props
 }: AdCardProps): ReactElement {
   const showBlurredImage = ad.source === 'Carbon';
@@ -84,8 +84,8 @@ export function AdCard({
         href={ad.link}
         target="_blank"
         rel="noopener"
-        onClick={() => onClick?.(ad)}
-        onMouseUp={(event) => event.button === 1 && onClick?.(ad)}
+        onClick={() => onLinkClick?.(ad)}
+        onMouseUp={(event) => event.button === 1 && onLinkClick?.(ad)}
       />
       <CardTextContainer>
         <CardTitle>{ad.description}</CardTitle>

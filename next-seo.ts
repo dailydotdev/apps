@@ -1,10 +1,18 @@
 import { DefaultSeoProps } from 'next-seo/lib/types';
 
 const config: DefaultSeoProps = {
-  titleTemplate: '%s | daily.dev',
+  title: 'daily.dev - News for Busy Developers',
+  description:
+    'daily.dev is the easiest way to stay updated on the latest programming news. Get the best content from the top tech publications on any topic you want.',
   openGraph: {
     type: 'website',
     site_name: 'daily.dev',
+    images: [
+      {
+        url:
+          'https://daily-now-res.cloudinary.com/image/upload/v1606054811/opengraph/Open_Grap_-_Home2.png',
+      },
+    ],
   },
   twitter: {
     site: '@dailydotdev',

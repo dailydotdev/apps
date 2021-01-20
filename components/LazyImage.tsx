@@ -63,7 +63,7 @@ export default function LazyImage(props: Props): ReactElement {
     : {
         className: 'lazyload',
         'data-src': imgSrc,
-        'data-lowsrc': { lowsrc },
+        'data-lowsrc': lowsrc,
       };
   return (
     <Container {...props}>

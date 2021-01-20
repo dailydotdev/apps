@@ -61,7 +61,7 @@ import {
   POST_COMMENTS_QUERY,
   PostCommentsData,
 } from '../../graphql/comments';
-import { mobileL } from '../../styles/media';
+import { desktop, mobileL } from '../../styles/media';
 import { focusOutline } from '../../styles/helpers';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { ShareMobile } from '../../components/ShareMobile';
@@ -75,6 +75,7 @@ import TertiaryButton from '../../components/buttons/TertiaryButton';
 import QuandaryButton from '../../components/buttons/QuandaryButton';
 import PrimaryButton from '../../components/buttons/PrimaryButton';
 import SecondaryButton from '../../components/buttons/SecondaryButton';
+import { LoginModalMode } from '../../components/modals/LoginModal';
 
 const NewCommentModal = dynamic(
   () => import('../../components/modals/NewCommentModal'),
@@ -210,7 +211,7 @@ const NewCommentContainer = styled.div`
   background: var(--theme-background-primary);
   z-index: 2;
 
-  ${mobileL} {
+  ${desktop} {
     position: relative;
     left: unset;
     right: unset;
@@ -431,7 +432,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         return upvotePost();
       }
     } else {
-      showLogin();
+      showLogin(LoginModalMode.ContentQuality);
     }
   };
 
@@ -461,7 +462,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         postId: postById.post.id,
       });
     } else {
-      showLogin();
+      showLogin(LoginModalMode.ContentQuality);
     }
   };
 
@@ -477,7 +478,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         postId: postById.post.id,
       });
     } else {
-      showLogin();
+      showLogin(LoginModalMode.ContentQuality);
     }
   };
 
@@ -522,8 +523,9 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     onClick: () => ReactGA.event({ category: 'Post', action: 'Click' }),
   };
 
-  const Seo: NextSeoProps = {
+  const seo: NextSeoProps = {
     title: postById?.post.title,
+    titleTemplate: '%s | daily.dev',
     description: `Join us to the discussion about "${postById?.post.title}" on daily.dev ✌️`,
     openGraph: {
       images: [{ url: postById?.post.image }],
@@ -540,7 +542,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         <Head>
           <link rel="preload" as="image" href={postById?.post.image} />
         </Head>
-        <NextSeo {...Seo} />
+        <NextSeo {...seo} />
         <PostInfo>
           <SourceImage
             imgSrc={postById?.post.source.image}
@@ -667,7 +669,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
               </li>
             </ol>
             <AuthorOnboardingButtons data-testid="authorOnboarding">
-              <PrimaryButton onClick={showLogin}>Sign up</PrimaryButton>
+              <PrimaryButton onClick={() => showLogin()}>Sign up</PrimaryButton>
               <SecondaryButton
                 tag="a"
                 href={ownershipGuide}

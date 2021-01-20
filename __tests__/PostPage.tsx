@@ -24,6 +24,7 @@ import nock from 'nock';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { mocked } from 'ts-jest/utils';
 import { NextRouter, useRouter } from 'next/router';
+import defaultUser from './fixture/loggedUser';
 
 const showLogin = jest.fn();
 
@@ -97,17 +98,6 @@ const createCommentsMock = (): MockedGraphQLResponse<PostCommentsData> => ({
     },
   },
 });
-
-const defaultUser: LoggedUser = {
-  id: 'u1',
-  name: 'Ido Shamun',
-  providers: ['github'],
-  email: 'ido@acme.com',
-  image: 'https://daily.dev/ido.png',
-  infoConfirmed: true,
-  premium: false,
-  createdAt: '',
-};
 
 const renderPost = (
   props: Partial<Props> = {},
