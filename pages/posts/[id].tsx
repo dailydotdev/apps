@@ -536,6 +536,8 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     },
   };
 
+  const tags = postById?.post.tags.map((t) => `#${t}`).join(' ');
+
   return (
     <>
       <PageContainer>
@@ -583,7 +585,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             </Metadata>
           )}
         </MetadataContainer>
-        <Tags>{postById?.post.tags.map((t) => `#${t}`).join(' ')}</Tags>
+        <Tags>{tags !== '#' && tags}</Tags>
         <PostImage {...postLinkProps}>
           <LazyImage
             imgSrc={postById?.post.image}
