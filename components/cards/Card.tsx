@@ -8,7 +8,7 @@ export const cardImageHeight = sizeN(40);
 
 export const CardTitle = styled.h2`
   margin: ${size2} 0;
-  color: var(--theme-primary);
+  color: var(--theme-label-primary);
   font-weight: bold;
   -webkit-line-clamp: 3;
   ${typoBody}

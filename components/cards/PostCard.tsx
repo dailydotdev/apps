@@ -71,6 +71,10 @@ const StyledCard = styled(Card)<{ read: boolean }>`
     border-color: var(--theme-divider-quaternary);
     background: var(--theme-post-disabled);
     box-shadow: none;
+
+    ${CardTitle} {
+      color: var(--theme-label-tertiary);
+    }
   }`}
   ${CardImage} {
     margin: ${size2} 0;
