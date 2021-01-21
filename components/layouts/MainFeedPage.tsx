@@ -1,5 +1,5 @@
 import React, { ReactElement, useContext } from 'react';
-import MainLayout from './MainLayout';
+import { MainLayoutProps } from './MainLayout';
 import styled from 'styled-components/macro';
 import Link from 'next/link';
 import { size3, size6, sizeN } from '../../styles/sizes';
@@ -8,6 +8,7 @@ import { useRouter } from 'next/router';
 import Feed from '../Feed';
 import AuthContext from '../AuthContext';
 import { laptop } from '../../styles/media';
+import { getLayout } from './FeedLayout';
 
 const Container = styled.main`
   display: flex;
@@ -67,28 +68,29 @@ export default function MainFeedPage<T>({
   }
 
   return (
-    <MainLayout responsive={false}>
-      <Container>
-        <Nav>
-          {tabs.map((tab) => (
-            <Link href={tab.path} passHref prefetch={false} key={tab.path}>
-              <TertiaryButton
-                tag="a"
-                buttonSize="small"
-                pressed={
-                  tab.path === router?.pathname ||
-                  (tab.default && router?.pathname === '/')
-                }
-              >
-                {tab.title}
-              </TertiaryButton>
-            </Link>
-          ))}
-        </Nav>
-        <Feed query={finalQuery} variables={variables} />
-      </Container>
-    </MainLayout>
+    <Container>
+      <Nav>
+        {tabs.map((tab) => (
+          <Link href={tab.path} passHref prefetch={false} key={tab.path}>
+            <TertiaryButton
+              tag="a"
+              buttonSize="small"
+              pressed={
+                tab.path === router?.pathname ||
+                (tab.default && router?.pathname === '/')
+              }
+            >
+              {tab.title}
+            </TertiaryButton>
+          </Link>
+        ))}
+      </Nav>
+      <Feed query={finalQuery} variables={variables} />
+    </Container>
   );
 }
 
-export const getMainFeedLayout = undefined;
+export const getMainFeedLayout = getLayout;
+export const mainFeedLayoutProps: MainLayoutProps = {
+  responsive: false,
+};

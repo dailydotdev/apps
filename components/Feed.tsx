@@ -18,31 +18,12 @@ import request from 'graphql-request';
 import { apiUrl } from '../lib/config';
 import { LoginModalMode } from './modals/LoginModal';
 import { useInView } from 'react-intersection-observer';
-import {
-  desktop,
-  desktopL,
-  laptop,
-  laptopL,
-  laptopXL,
-  mobileL,
-  tablet,
-} from '../styles/media';
-import useMedia from '../lib/useMedia';
+import { mobileL, tablet } from '../styles/media';
 import { multilineTextOverflow } from '../styles/helpers';
+import { feedBreakpoints, feedSettings } from './layouts/FeedLayout';
+import FeedSettingsContext from './FeedSettingsContext';
 
 export type FeedProps<T> = { query?: string; variables?: T };
-
-type FeedSettings = { pageSize: number; adSpot: number; numCards: number };
-const defaultSettings: FeedSettings = { pageSize: 7, adSpot: 2, numCards: 1 };
-const feedBreakpoints = [tablet, laptop, laptopL, laptopXL, desktop, desktopL];
-const feedSettings: FeedSettings[] = [
-  { pageSize: 9, adSpot: 0, numCards: 2 },
-  { pageSize: 13, adSpot: 0, numCards: 3 },
-  { pageSize: 17, adSpot: 0, numCards: 4 },
-  { pageSize: 21, adSpot: 0, numCards: 5 },
-  { pageSize: 25, adSpot: 0, numCards: 6 },
-  { pageSize: 29, adSpot: 0, numCards: 7 },
-];
 
 const cardMaxWidth = sizeN(80);
 
@@ -52,11 +33,11 @@ const Container = styled.div`
   grid-gap: ${size8};
   margin-left: auto;
   margin-right: auto;
-  grid-template-columns: minmax(272px, 100%);
+  grid-template-columns: 100%;
 
   ${mobileL} {
     --num-cards: 1;
-    grid-template-columns: repeat(var(--num-cards), minmax(272px, 1fr));
+    grid-template-columns: repeat(var(--num-cards), 1fr);
 
     & > * {
       max-width: ${cardMaxWidth};
@@ -112,11 +93,7 @@ export default function Feed<T>({
   query,
   variables,
 }: FeedProps<T>): ReactElement {
-  const currentSettings = useMedia(
-    feedBreakpoints.map((media) => media.replace('@media ', '')).reverse(),
-    feedSettings.reverse(),
-    defaultSettings,
-  );
+  const currentSettings = useContext(FeedSettingsContext);
   const { items, updatePost, isLoading, fetchPage, canFetchMore } = useFeed(
     currentSettings.pageSize,
     currentSettings.adSpot,
