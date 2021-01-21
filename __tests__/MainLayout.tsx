@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, RenderResult, screen } from '@testing-library/preact';
-import Index from '../components/layouts/MainLayout';
+import MainLayout from '../components/layouts/MainLayout';
 import AuthContext from '../components/AuthContext';
 import { LoggedUser } from '../lib/user';
 
@@ -22,7 +22,7 @@ const renderLayout = (user: LoggedUser = null): RenderResult => {
         tokenRefreshed: true,
       }}
     >
-      <Index />
+      <MainLayout />
     </AuthContext.Provider>,
   );
 };

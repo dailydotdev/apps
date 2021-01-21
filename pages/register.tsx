@@ -1,7 +1,7 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import styled from 'styled-components/macro';
 import { NextSeo } from 'next-seo';
-import Index from '../components/layouts/MainLayout';
+import MainLayout from '../components/layouts/MainLayout';
 import { typoCallout } from '../styles/typography';
 import { size10, size2, size4 } from '../styles/sizes';
 import { PageContainer, ProfileHeading } from '../components/utilities';
@@ -47,7 +47,7 @@ export default function Register(): ReactElement {
   };
 
   return (
-    <Index showOnlyLogo={true}>
+    <MainLayout showOnlyLogo={true}>
       <NextSeo title="Registration" />
       <PageContainer>
         {user && (
@@ -76,6 +76,6 @@ export default function Register(): ReactElement {
           </>
         )}
       </PageContainer>
-    </Index>
+    </MainLayout>
   );
 }

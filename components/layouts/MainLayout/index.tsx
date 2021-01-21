@@ -33,6 +33,7 @@ const MainLayoutButtons = dynamicPageLoad(
 
 export interface Props extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
+  responsive?: boolean;
 }
 
 export const headerHeight = sizeN(12);
@@ -44,7 +45,7 @@ const Container = styled.div`
   align-items: stretch;
 `;
 
-const Header = styled.header`
+const Header = styled.header<{ responsive: boolean }>`
   display: flex;
   height: ${headerHeight};
   align-items: center;
@@ -57,13 +58,18 @@ const Header = styled.header`
   }
 
   ${laptop} {
+    padding-left: ${size4};
+    padding-right: ${size4};
+
+    ${({ responsive }) =>
+      responsive &&
+      `
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    padding-left: ${size4};
-    padding-right: ${size4};
     border-bottom: none;
+    `}
   }
 
   & > :nth-child(2) {
@@ -113,16 +119,17 @@ const HomeLink = styled.a`
   }
 `;
 
-export default function Index({
+export default function MainLayout({
   children,
   className,
   showOnlyLogo = false,
+  responsive = true,
 }: Props): ReactElement {
   const { user, showLogin, loadingUser } = useContext(AuthContext);
 
   return (
     <Container className={className}>
-      <Header>
+      <Header responsive={responsive}>
         <Link href="/" passHref>
           <HomeLink title="Home">
             <DailyDevLogo />
@@ -155,4 +162,6 @@ export default function Index({
   );
 }
 
-export const getLayout = (page: ReactNode): ReactNode => <Index>{page}</Index>;
+export const getLayout = (page: ReactNode): ReactNode => (
+  <MainLayout>{page}</MainLayout>
+);

@@ -1,5 +1,5 @@
 import React, { ReactElement, useContext } from 'react';
-import { getLayout as getMainLayout, headerHeight } from './MainLayout';
+import MainLayout from './MainLayout';
 import styled from 'styled-components/macro';
 import Link from 'next/link';
 import { size3, size6, sizeN } from '../../styles/sizes';
@@ -16,7 +16,6 @@ const Container = styled.main`
   padding: ${size3} ${size6};
 
   ${laptop} {
-    margin-top: ${headerHeight};
     padding-left: ${sizeN(16)};
     padding-right: ${sizeN(16)};
   }
@@ -68,26 +67,28 @@ export default function MainFeedPage<T>({
   }
 
   return (
-    <Container>
-      <Nav>
-        {tabs.map((tab) => (
-          <Link href={tab.path} passHref prefetch={false} key={tab.path}>
-            <TertiaryButton
-              tag="a"
-              buttonSize="small"
-              pressed={
-                tab.path === router?.pathname ||
-                (tab.default && router?.pathname === '/')
-              }
-            >
-              {tab.title}
-            </TertiaryButton>
-          </Link>
-        ))}
-      </Nav>
-      <Feed query={finalQuery} variables={variables} />
-    </Container>
+    <MainLayout responsive={false}>
+      <Container>
+        <Nav>
+          {tabs.map((tab) => (
+            <Link href={tab.path} passHref prefetch={false} key={tab.path}>
+              <TertiaryButton
+                tag="a"
+                buttonSize="small"
+                pressed={
+                  tab.path === router?.pathname ||
+                  (tab.default && router?.pathname === '/')
+                }
+              >
+                {tab.title}
+              </TertiaryButton>
+            </Link>
+          ))}
+        </Nav>
+        <Feed query={finalQuery} variables={variables} />
+      </Container>
+    </MainLayout>
   );
 }
 
-export const getMainFeedLayout = getMainLayout;
+export const getMainFeedLayout = undefined;
