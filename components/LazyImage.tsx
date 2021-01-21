@@ -1,6 +1,6 @@
 import 'lazysizes/plugins/blur-up/ls.blur-up';
 import 'lazysizes';
-import React, { HTMLAttributes, ReactElement } from 'react';
+import React, { HTMLAttributes, ReactElement, SyntheticEvent } from 'react';
 import styled from 'styled-components/macro';
 
 export interface Props extends HTMLAttributes<HTMLDivElement> {
@@ -10,6 +10,7 @@ export interface Props extends HTMLAttributes<HTMLDivElement> {
   background?: string;
   ratio?: string;
   eager?: boolean;
+  fallbackSrc?: string;
 }
 
 const Container = styled.div<Props>`
@@ -65,9 +66,16 @@ export default function LazyImage(props: Props): ReactElement {
         'data-src': imgSrc,
         'data-lowsrc': lowsrc,
       };
+
+  const onError = (event: SyntheticEvent<HTMLImageElement>): void => {
+    if (props.fallbackSrc) {
+      event.currentTarget.src = props.fallbackSrc;
+    }
+  };
+
   return (
     <Container {...props}>
-      <img {...imageProps} alt={imgAlt} key={imgSrc} />
+      <img {...imageProps} alt={imgAlt} key={imgSrc} onError={onError} />
     </Container>
   );
 }
