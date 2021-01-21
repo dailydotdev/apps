@@ -31,7 +31,7 @@ const MainLayoutButtons = dynamicPageLoad(
   'complete',
 );
 
-export interface Props extends HTMLAttributes<HTMLDivElement> {
+export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
   responsive?: boolean;
 }
@@ -124,7 +124,7 @@ export default function MainLayout({
   className,
   showOnlyLogo = false,
   responsive = true,
-}: Props): ReactElement {
+}: MainLayoutProps): ReactElement {
   const { user, showLogin, loadingUser } = useContext(AuthContext);
 
   return (
@@ -162,6 +162,8 @@ export default function MainLayout({
   );
 }
 
-export const getLayout = (page: ReactNode): ReactNode => (
-  <MainLayout>{page}</MainLayout>
-);
+export const getLayout = (
+  page: ReactNode,
+  pageProps?: Record<string, unknown>,
+  layoutProps?: MainLayoutProps,
+): ReactNode => <MainLayout {...layoutProps}>{page}</MainLayout>;

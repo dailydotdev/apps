@@ -37,7 +37,12 @@ Modal.setAppElement('#__next');
 Modal.defaultStyles = {};
 
 interface CompnentGetLayout {
-  getLayout?: (page: ReactNode, props: Record<string, unknown>) => ReactNode;
+  getLayout?: (
+    page: ReactNode,
+    pageProps: Record<string, unknown>,
+    layoutProps: Record<string, unknown>,
+  ) => ReactNode;
+  layoutProps?: Record<string, unknown>;
 }
 
 const trackPageView = (url) => {
@@ -108,6 +113,7 @@ function InternalApp({ Component, pageProps }: AppProps): ReactElement {
 
   const getLayout =
     (Component as CompnentGetLayout).getLayout || ((page) => page);
+  const { layoutProps } = Component as CompnentGetLayout;
 
   return (
     <AuthContext.Provider value={authContext}>
@@ -119,7 +125,7 @@ function InternalApp({ Component, pageProps }: AppProps): ReactElement {
       </Head>
       <DefaultSeo {...Seo} />
       <GlobalStyle />
-      {getLayout(<Component {...pageProps} />, pageProps)}
+      {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
       {!user && !loadingUser && (
         <LoginModal
           isOpen={loginMode !== null}
