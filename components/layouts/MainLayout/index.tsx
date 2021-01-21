@@ -164,6 +164,6 @@ export default function MainLayout({
 
 export const getLayout = (
   page: ReactNode,
-  pageProps: Record<string, unknown>,
-  layoutProps: MainLayoutProps,
+  pageProps?: Record<string, unknown>,
+  layoutProps?: MainLayoutProps,
 ): ReactNode => <MainLayout {...layoutProps}>{page}</MainLayout>;
