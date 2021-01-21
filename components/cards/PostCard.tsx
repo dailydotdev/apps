@@ -106,7 +106,7 @@ export function PostCard({
       <CardSpace />
       <MetadataContainer>
         <time dateTime={post.createdAt}>{postDateFormat(post.createdAt)}</time>
-        {post.readTime && (
+        {!!post.readTime && (
           <>
             <MetadataSeparator />
             <span data-testid="readTime">{post.readTime}m read time</span>
