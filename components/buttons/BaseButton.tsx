@@ -71,7 +71,7 @@ const applyButtonStatesStyles = (styles: ButtonStatesStyles): string =>
 
   ${
     styles.hover
-      ? `&:hover, &:focus.focus-visible {
+      ? `&:hover, &.hover, &:focus.focus-visible {
     ${applyButtonStateStyle(styles.hover)}
   }`
       : ''

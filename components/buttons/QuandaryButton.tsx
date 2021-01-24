@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { HTMLAttributes, ReactElement, useRef, useState } from 'react';
 import BaseButton, {
   ButtonProps,
   ButtonSize,
@@ -43,7 +43,7 @@ const applyButtonStatesStyles = (styles: ButtonStatesStyles): string =>
 
   ${
     styles.hover
-      ? `& :hover ~ label, & :focus.focus-visible ~ label {
+      ? `& :hover ~ label, & .hover ~ label, & :focus.focus-visible ~ label {
     ${applyButtonStateStyle(styles.hover)}
   }`
       : ''
@@ -128,9 +128,32 @@ export default function QuandaryButton<
   className,
   reverse,
   labelMediaQuery,
+  tag,
   ...props
 }: ButtonProps<Tag> & QuandaryButtonProps): ReactElement {
   const buttonStyle = tertiaryStyle(props.themeColor);
+  let labelProps: HTMLAttributes<HTMLLabelElement> = {};
+  let buttonProps: HTMLAttributes<HTMLButtonElement> & {
+    ref?: React.MutableRefObject<{ base: HTMLButtonElement }>;
+  } = {};
+  if (tag === 'a') {
+    const buttonRef = useRef<{ base: HTMLButtonElement }>(null);
+    const [isHovered, setIsHovered] = useState(false);
+    const onLabelClick = (event: React.MouseEvent<HTMLLabelElement>): void => {
+      event.preventDefault();
+      buttonRef.current.base.click();
+    };
+    labelProps = {
+      onMouseOver: () => setIsHovered(true),
+      onMouseLeave: () => setIsHovered(false),
+      onClick: onLabelClick,
+    };
+    buttonProps = {
+      className: isHovered && 'hover',
+      ref: buttonRef,
+    };
+  }
+
   return (
     <Container
       {...buttonStyle}
@@ -140,8 +163,18 @@ export default function QuandaryButton<
       reverse={reverse}
       labelMediaQuery={labelMediaQuery}
     >
-      <BaseButton<Tag> id={id} {...buttonStyle} {...props} />
-      {children && <label htmlFor={id}>{children}</label>}
+      <BaseButton<Tag>
+        id={id}
+        {...buttonStyle}
+        {...props}
+        tag={tag}
+        {...buttonProps}
+      />
+      {children && (
+        <label htmlFor={id} {...labelProps}>
+          {children}
+        </label>
+      )}
     </Container>
   );
 }
