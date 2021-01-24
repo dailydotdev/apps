@@ -84,6 +84,7 @@ export function AdCard({
         href={ad.link}
         target="_blank"
         rel="noopener"
+        title={ad.description}
         onClick={() => onLinkClick?.(ad)}
         onMouseUp={(event) => event.button === 1 && onLinkClick?.(ad)}
       />
