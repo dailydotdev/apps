@@ -57,7 +57,8 @@ export const Card = styled.article`
   }
 
   a,
-  button {
+  button,
+  label {
     pointer-events: all;
     z-index: 1;
   }
