@@ -139,7 +139,7 @@ export function PostCard({
         <Link href={post.commentsPermalink} passHref prefetch={false}>
           <QuandaryButton
             id={`post-${post.id}-comment-btn`}
-            as="a"
+            tag="a"
             icon={<CommentIcon />}
             themeColor="avocado"
             buttonSize="small"
