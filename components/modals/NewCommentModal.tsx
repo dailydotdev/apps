@@ -7,6 +7,7 @@ import React, {
   useEffect,
   KeyboardEvent,
   ClipboardEvent,
+  useRef,
 } from 'react';
 import dynamic from 'next/dynamic';
 import styled from 'styled-components/macro';
@@ -165,6 +166,7 @@ export default function NewCommentModal({
   const [errorMessage, setErrorMessage] = useState<string>(null);
   const [sendingComment, setSendingComment] = useState<boolean>(false);
   const [showDiscardModal, setShowDiscardModal] = useState<boolean>(false);
+  const commentRef = useRef<HTMLDivElement>(null);
 
   const queryClient = useQueryClient();
   const { mutateAsync: comment } = useMutation<
@@ -220,10 +222,6 @@ export default function NewCommentModal({
       },
     },
   );
-
-  const commentRef = (element: HTMLDivElement): void => {
-    element?.focus();
-  };
 
   const modalRef = (element: HTMLDivElement): void => {
     if (element) {
@@ -287,6 +285,7 @@ export default function NewCommentModal({
   };
 
   useEffect(() => {
+    commentRef.current?.focus();
     ReactGA.event({ category: 'Comment Popup', action: 'Impression' });
   }, []);
 
