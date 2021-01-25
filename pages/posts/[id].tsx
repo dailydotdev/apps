@@ -170,7 +170,7 @@ const Tags = styled.div`
   margin-bottom: ${size4};
   color: var(--theme-label-quaternary);
   font-weight: bold;
-  ${typoSubhead};
+  ${typoSubhead}
 `;
 
 const PostImage = styled.a`

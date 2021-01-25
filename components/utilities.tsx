@@ -30,7 +30,7 @@ export const ButtonLoader = styled(Loader)`
 export const LegalNotice = styled.div`
   color: var(--theme-label-quaternary);
   text-align: center;
-  ${typoCaption1};
+  ${typoCaption1}
 
   a {
     display: inline-block;

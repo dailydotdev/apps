@@ -76,7 +76,7 @@ const CharsCount = styled.div`
 `;
 
 const Hint = styled.div<{ valid?: boolean; saveHintSpace?: boolean }>`
-  ${({ saveHintSpace }) => (saveHintSpace ? 'height: 1rem' : '')};
+  ${({ saveHintSpace }) => (saveHintSpace ? 'height: 1rem;' : '')}
   margin-top: ${size1};
   padding: 0 ${size2};
   color: var(--theme-label-tertiary);

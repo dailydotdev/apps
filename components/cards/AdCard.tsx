@@ -37,7 +37,7 @@ const Footer = styled.a`
   margin: ${size4} 0 ${size2};
   color: var(--theme-label-quaternary);
   text-decoration: none;
-  ${typoFootnote};
+  ${typoFootnote}
 `;
 
 const StyledCard = styled(Card)`

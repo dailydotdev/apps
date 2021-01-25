@@ -50,7 +50,7 @@ const Timeline = styled.div<{ firstComment: boolean; lastComment: boolean }>`
   left: 0;
   right: 0;
   top: ${({ firstComment }) => (firstComment ? '0' : `-${size4}`)};
-  ${({ lastComment }) => (lastComment ? `height: ${size4}` : 'bottom: 0')};
+  ${({ lastComment }) => (lastComment ? `height: ${size4};` : 'bottom: 0;')}
   width: 0.063rem;
   margin: 0 auto;
   background: var(--theme-divider-tertiary);

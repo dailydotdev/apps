@@ -133,7 +133,7 @@ const ErrorMessage = styled.div`
   min-height: 1rem;
   margin: ${size2} ${size3};
   color: var(--theme-status-error);
-  ${typoCaption1};
+  ${typoCaption1}
 `;
 
 const CommentAuthor = styled.div`

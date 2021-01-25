@@ -48,7 +48,7 @@ const Subtitle = styled.div`
   align-items: center;
   justify-content: space-between;
   color: var(--theme-label-tertiary);
-  ${typoCallout};
+  ${typoCallout}
 `;
 
 const Buttons = styled.div`

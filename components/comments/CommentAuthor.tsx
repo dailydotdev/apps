@@ -24,7 +24,7 @@ const CommentAuthorBadge = styled.span`
   align-items: center;
   margin-left: ${size2};
   color: var(--theme-status-help);
-  ${typoFootnote};
+  ${typoFootnote}
 
   .icon {
     font-size: ${size4};
