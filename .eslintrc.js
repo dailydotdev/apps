@@ -8,7 +8,7 @@ module.exports = {
     'prettier/@typescript-eslint',
     'plugin:prettier/recommended',
   ],
-  plugins: ['prettier'],
+  plugins: ['prettier', '@emotion'],
   parserOptions: {
     ecmaVersion: 2020,
     sourceType: 'module',

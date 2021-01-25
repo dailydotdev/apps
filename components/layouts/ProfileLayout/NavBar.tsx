@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import Link from 'next/link';
-import styled from 'styled-components/macro';
+import styled from '@emotion/styled';
 import { size05, size4, size6 } from '../../../styles/sizes';
 import { laptop } from '../../../styles/media';
 import { pageMaxWidth } from '../../../styles/helpers';

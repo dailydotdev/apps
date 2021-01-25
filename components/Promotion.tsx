@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import styled from 'styled-components/macro';
+import styled from '@emotion/styled';
 import { size2, size4, size6, sizeN } from '../styles/sizes';
 import LazyImage from './LazyImage';
 import { typoCallout } from '../styles/typography';

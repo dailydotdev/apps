@@ -9,7 +9,7 @@ import CameraIcon from '../../icons/camera.svg';
 import GoogleIcon from '../../icons/google.svg';
 import GitHubIcon from '../../icons/github.svg';
 import JoinedDate from './JoinedDate';
-import styled from 'styled-components/macro';
+import styled from '@emotion/styled';
 import { size05, size3, size4, size6, sizeN } from '../../styles/sizes';
 import { typoCaption1 } from '../../styles/typography';
 import { FormErrorMessage } from '../utilities';
@@ -162,7 +162,9 @@ export default function EditImageWithJoinedDate({
         </Metadata>
       </ImageAndMetadata>
       {imageError && (
-        <FormErrorMessage>Maximum image size is 2 MB</FormErrorMessage>
+        <FormErrorMessage role="alert">
+          Maximum image size is 2 MB
+        </FormErrorMessage>
       )}
     </Container>
   );

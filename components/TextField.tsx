@@ -7,7 +7,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import styled from 'styled-components/macro';
+import styled from '@emotion/styled';
 import {
   size05,
   size1,

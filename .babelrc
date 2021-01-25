@@ -3,15 +3,8 @@
     "next/babel"
   ],
   "plugins": [
-    [
-      "macros",
-      {
-        "styledComponents": {
-          "ssr": true,
-          "displayName": false
-        }
-      }
-    ]
+    "macros",
+    "@emotion"
   ],
   "env": {
     "production": {

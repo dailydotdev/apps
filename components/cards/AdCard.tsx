@@ -7,7 +7,7 @@ import {
   CardTextContainer,
   CardTitle,
 } from './Card';
-import styled from 'styled-components/macro';
+import styled from '@emotion/styled';
 import { size2, size3, size4, size5 } from '../../styles/sizes';
 import { typoFootnote } from '../../styles/typography';
 import { Ad } from '../../graphql/posts';
@@ -33,7 +33,7 @@ const ImageContainer = styled.div`
   z-index: 1;
 `;
 
-const Footer = styled.div`
+const Footer = styled.a`
   margin: ${size4} 0 ${size2};
   color: var(--theme-label-quaternary);
   text-decoration: none;
@@ -111,7 +111,6 @@ export function AdCard({
       <CardTextContainer>
         {ad.referralLink ? (
           <Footer
-            as="a"
             href={ad.referralLink}
             target="_blank"
             rel="noopener"
@@ -120,7 +119,7 @@ export function AdCard({
             Promoted by {ad.source}
           </Footer>
         ) : (
-          <Footer>Promoted</Footer>
+          <Footer as="div">Promoted</Footer>
         )}
       </CardTextContainer>
       {ad.pixel?.map((pixel) => (

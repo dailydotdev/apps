@@ -1,5 +1,6 @@
 import React, { HTMLAttributes, ReactElement } from 'react';
-import styled, { keyframes } from 'styled-components/macro';
+import styled from '@emotion/styled';
+import { keyframes } from '@emotion/react';
 import { cardImageHeight, CardSpace, CardTextContainer } from './Card';
 import { size2, size3, size4, size6 } from '../../styles/sizes';
 

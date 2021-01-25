@@ -1,4 +1,6 @@
-import React, { ReactElement, useContext, useEffect, useState } from 'react';
+/** @jsx jsx */
+import { css, jsx } from '@emotion/react';
+import { ReactElement, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import {
@@ -16,7 +18,7 @@ import {
 } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 import { Roles } from '../../lib/user';
-import styled from 'styled-components/macro';
+import styled from '@emotion/styled';
 import { NextSeo } from 'next-seo';
 import {
   size05,
@@ -126,7 +128,7 @@ const MetadataContainer = styled.div`
   margin: ${size2} 0 ${size1};
 `;
 
-const Metadata = styled.span`
+const metadataStyle = css`
   color: var(--theme-label-tertiary);
   ${typoCallout}
 `;
@@ -575,14 +577,14 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         </PostInfo>
         <Title>{postById?.post.title}</Title>
         <MetadataContainer>
-          <Metadata as="time" dateTime={postById?.post?.createdAt}>
+          <time dateTime={postById?.post?.createdAt} css={metadataStyle}>
             {postById && postDateFormat(postById.post.createdAt)}
-          </Metadata>
+          </time>
           {!!postById?.post.readTime && <MetadataSeparator />}
           {!!postById?.post.readTime && (
-            <Metadata data-testid="readTime">
+            <div data-testid="readTime" css={metadataStyle}>
               {postById?.post.readTime}m read time
-            </Metadata>
+            </div>
           )}
         </MetadataContainer>
         <Tags>{tags !== '#' && tags}</Tags>

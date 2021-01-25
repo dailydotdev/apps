@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import styled from 'styled-components/macro';
+import styled from '@emotion/styled';
 import { laptop } from '../styles/media';
 import CopyIcon from '../icons/copy.svg';
 import ShareIcon from '../icons/share.svg';

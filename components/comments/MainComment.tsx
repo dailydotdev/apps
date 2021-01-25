@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import styled from 'styled-components/macro';
+import styled from '@emotion/styled';
 import { Comment } from '../../graphql/comments';
 import { CommentBox, CommentPublishDate } from './common';
 import { commentDateFormat } from '../../lib/dateFormat';

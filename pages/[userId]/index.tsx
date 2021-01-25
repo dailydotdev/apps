@@ -15,7 +15,7 @@ import {
   ProfileLayoutProps,
 } from '../../components/layouts/ProfileLayout';
 import { USER_COMMENTS_QUERY, UserCommentsData } from '../../graphql/comments';
-import styled from 'styled-components/macro';
+import styled from '@emotion/styled';
 import {
   size1,
   size2,
@@ -185,7 +185,7 @@ const PostImage = styled(LazyImage)`
   }
 `;
 
-const SourceImage = styled(LazyImage).attrs({ ratio: '100%' })`
+const SourceImage = styled(LazyImage)`
   position: absolute;
   top: 50%;
   left: 0;
@@ -483,6 +483,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
               <SourceImage
                 imgSrc={post.source.image}
                 imgAlt={post.source.name}
+                ratio="100%"
               />
             </PostImageContainer>
             <CommentInfo as="div">

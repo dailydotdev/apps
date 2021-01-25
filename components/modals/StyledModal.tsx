@@ -1,6 +1,8 @@
+/** @jsx jsx */
+import { css, jsx } from '@emotion/react';
 import Modal from 'react-modal';
-import React, { ReactNode } from 'react';
-import styled from 'styled-components/macro';
+import { ReactElement, ReactNode } from 'react';
+import styled from '@emotion/styled';
 import { ReactModalAdapter } from './ReactModalAdapter';
 import {
   size10,
@@ -21,17 +23,23 @@ export interface Props extends Modal.Props {
   children?: ReactNode;
 }
 
-export const ModalCloseButton = styled(TertiaryButton).attrs({
-  buttonSize: 'small',
-  title: 'Close',
-  icon: <XIcon />,
-})<ButtonProps<'button'>>`
-  && {
-    position: absolute;
-    right: ${size4};
-    top: ${size4};
-  }
-`;
+export const ModalCloseButton = (
+  props: ButtonProps<'button'>,
+): ReactElement => (
+  <TertiaryButton
+    {...props}
+    buttonSize="small"
+    title="Close"
+    icon={<XIcon />}
+    css={css`
+      && {
+        position: absolute;
+        right: ${size4};
+        top: ${size4};
+      }
+    `}
+  />
+);
 
 export const ConfirmationButtons = styled.div`
   display: flex;

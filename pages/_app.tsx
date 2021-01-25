@@ -14,7 +14,6 @@ import ReactGA from 'react-ga';
 import { DefaultSeo } from 'next-seo';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import Seo from '../next-seo';
-import GlobalStyle from '../components/GlobalStyle';
 import AuthContext, { AuthContextData } from '../components/AuthContext';
 import { logout as dispatchLogout } from '../lib/user';
 import { Router } from 'next/router';
@@ -22,6 +21,8 @@ import { useCookieBanner } from '../lib/useCookieBanner';
 import useLoggedUser from '../lib/useLoggedUser';
 import dynamicPageLoad from '../lib/dynamicPageLoad';
 import { LoginModalMode } from '../components/modals/LoginModal';
+import globalStyle from '../components/GlobalStyle';
+import { Global } from '@emotion/react';
 
 const queryClient = new QueryClient();
 
@@ -124,7 +125,7 @@ function InternalApp({ Component, pageProps }: AppProps): ReactElement {
         <meta name="apple-mobile-web-app-status-bar-style" content="#151618" />
       </Head>
       <DefaultSeo {...Seo} />
-      <GlobalStyle />
+      <Global styles={globalStyle} />
       {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
       {!user && !loadingUser && (
         <LoginModal
