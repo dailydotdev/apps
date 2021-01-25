@@ -37,7 +37,6 @@ import ResponsiveModal from './ResponsiveModal';
 import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import PrimaryButton from '../buttons/PrimaryButton';
-import { ButtonProps } from '../buttons/BaseButton';
 import TertiaryButton from '../buttons/TertiaryButton';
 
 const DiscardCommentModal = dynamic(() => import('./DiscardCommentModal'));
@@ -129,8 +128,6 @@ const Footer = styled.footer`
   padding: ${size2} 0;
   border-top: 0.063rem solid var(--theme-divider-tertiary);
 `;
-
-const CommentButton = styled(PrimaryButton)<ButtonProps<'button'>>``;
 
 const ErrorMessage = styled.div`
   min-height: 1rem;
@@ -332,14 +329,14 @@ export default function NewCommentModal({
       </ErrorMessage>
       <Footer>
         <TertiaryButton onClick={confirmClose}>Cancel</TertiaryButton>
-        <CommentButton
+        <PrimaryButton
           disabled={!input?.length}
           loading={sendingComment}
           onClick={sendComment}
           themeColor="avocado"
         >
           Comment
-        </CommentButton>
+        </PrimaryButton>
       </Footer>
       <DiscardCommentModal
         isOpen={showDiscardModal}
