@@ -16,7 +16,7 @@ import ActivitySection from './profile/ActivitySection';
 import Link from 'next/link';
 import { smallPostImage } from '../lib/image';
 import dynamicPageLoad from '../lib/dynamicPageLoad';
-import styled from 'styled-components/macro';
+import styled from '@emotion/styled';
 import { typoCallout, typoTitle2, typoTitle3 } from '../styles/typography';
 import { multilineTextOverflow, pageMaxWidth } from '../styles/helpers';
 import { tablet } from '../styles/media';
@@ -48,7 +48,7 @@ const Subtitle = styled.div`
   align-items: center;
   justify-content: space-between;
   color: var(--theme-label-tertiary);
-  ${typoCallout};
+  ${typoCallout}
 `;
 
 const Buttons = styled.div`
@@ -66,7 +66,7 @@ const Buttons = styled.div`
   background: var(--theme-background-primary);
 `;
 
-const PostContainer = styled.article`
+const PostContainer = styled.a`
   display: flex;
   flex-direction: row;
   padding: ${size3} 0;
@@ -196,7 +196,6 @@ export default function KeywordManagement({
             prefetch={false}
           >
             <PostContainer
-              as="a"
               target="_blank"
               rel="noopener noreferrer"
               aria-label={post.title}

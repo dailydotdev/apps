@@ -1,4 +1,4 @@
-import styled from 'styled-components/macro';
+import styled from '@emotion/styled';
 import { size1px, size2, size3, size4, sizeN } from '../../styles/sizes';
 import { typoBody } from '../../styles/typography';
 import { multilineTextOverflow } from '../../styles/helpers';

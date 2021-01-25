@@ -13,4 +13,5 @@ module.exports = {
   moduleNameMapper: {
     '\\.svg': '<rootDir>/__mocks__/svgrMock.ts',
   },
+  snapshotSerializers: ['@emotion/jest/serializer'],
 };

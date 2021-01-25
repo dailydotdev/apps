@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import GiftIcon from '../../../icons/gift.svg';
-import styled from 'styled-components/macro';
+import styled from '@emotion/styled';
 import { sizeN } from '../../../styles/sizes';
 import { laptopL } from '../../../styles/media';
 import usePersistentState from '../../../lib/usePersistentState';
@@ -9,9 +9,7 @@ import QuandaryButton from '../../buttons/QuandaryButton';
 
 const buttonMargin = sizeN(1.5);
 
-const GiftButton = styled(QuandaryButton).attrs({
-  labelMediaQuery: laptopL,
-})<ButtonProps<'a'>>`
+const GiftButton = styled(QuandaryButton)<ButtonProps<'a'>>`
   margin: 0 ${buttonMargin};
 `;
 
@@ -35,6 +33,7 @@ export default function SecondPhaseButtons(): ReactElement {
         onClick={() => setDidClickTshirt(true)}
         icon={<GiftIcon />}
         reverse
+        labelMediaQuery={laptopL}
       >
         {!didClickedTshirt && 'Get free T-shirt'}
       </GiftButton>

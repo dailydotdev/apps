@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import styled from 'styled-components/macro';
+import styled from '@emotion/styled';
 import {
   modalBorder,
   modalBorderAndRadius,
@@ -12,7 +12,7 @@ import CookieIcon from '../icons/cookie.svg';
 import PrimaryButton from './buttons/PrimaryButton';
 import { typoFootnote } from '../styles/typography';
 
-const AgreeButton = styled(PrimaryButton).attrs({ buttonSize: 'small' })`
+const AgreeButton = styled(PrimaryButton)`
   margin-top: ${size4};
   align-self: flex-start;
 `;
@@ -102,7 +102,9 @@ export default function CookieBanner({
         </a>{' '}
         to improve user experience.
       </div>
-      <AgreeButton onClick={close}>I like cookies</AgreeButton>
+      <AgreeButton onClick={close} buttonSize="small">
+        I like cookies
+      </AgreeButton>
     </Container>
   );
 }

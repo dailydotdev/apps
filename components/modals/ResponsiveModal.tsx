@@ -1,4 +1,4 @@
-import styled from 'styled-components/macro';
+import styled from '@emotion/styled';
 import { modalBorderAndRadius, StyledModal } from './StyledModal';
 import { mobileL } from '../../styles/media';
 import { size2, sizeN } from '../../styles/sizes';

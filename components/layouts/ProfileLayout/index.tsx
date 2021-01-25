@@ -12,7 +12,7 @@ import { getLayout as getMainLayout } from '../MainLayout';
 import Head from 'next/head';
 import { NextSeo } from 'next-seo';
 import { PageContainer } from '../../utilities';
-import styled from 'styled-components/macro';
+import styled from '@emotion/styled';
 import {
   size05,
   size2,
@@ -92,7 +92,7 @@ const ProfileImageAndRep = styled.div`
   }
 `;
 
-const ProfileImage = styled(LazyImage).attrs({ ratio: '100%' })`
+const ProfileImage = styled(LazyImage)`
   width: ${sizeN(25)};
   border-radius: ${size4};
 `;
@@ -304,6 +304,7 @@ export default function ProfileLayout({
               imgSrc={profile.image}
               imgAlt={`${profile.name}'s profile image`}
               eager={true}
+              ratio="100%"
             />
             <Reputation>
               <a href={reputationGuide} target="_blank" rel="noopener">

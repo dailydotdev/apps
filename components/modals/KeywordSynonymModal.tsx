@@ -1,4 +1,4 @@
-import styled from 'styled-components/macro';
+import styled from '@emotion/styled';
 import ResponsiveModal from './ResponsiveModal';
 import { mobileL } from '../../styles/media';
 import { Props as ModalProps } from './StyledModal';
@@ -27,10 +27,7 @@ const Modal = styled(ResponsiveModal)`
   }
 `;
 
-const CloseButton = styled(TertiaryButton).attrs({
-  buttonSize: 'small',
-  title: 'Close',
-})<ButtonProps<'button'>>`
+const CloseButton = styled(TertiaryButton)<ButtonProps<'button'>>`
   align-self: flex-end;
 `;
 
@@ -92,7 +89,11 @@ export default function KeywordSynonymModal({
 
   return (
     <Modal {...props}>
-      <CloseButton onClick={props.onRequestClose}>
+      <CloseButton
+        onClick={props.onRequestClose}
+        buttonSize="small"
+        title="Close"
+      >
         <XIcon />
       </CloseButton>
       <Title>{`Find synonym for "${selectedKeyword}"`}</Title>

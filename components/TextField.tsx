@@ -7,7 +7,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import styled from 'styled-components/macro';
+import styled from '@emotion/styled';
 import {
   size05,
   size1,
@@ -76,7 +76,7 @@ const CharsCount = styled.div`
 `;
 
 const Hint = styled.div<{ valid?: boolean; saveHintSpace?: boolean }>`
-  ${({ saveHintSpace }) => (saveHintSpace ? 'height: 1rem' : '')};
+  ${({ saveHintSpace }) => (saveHintSpace ? 'height: 1rem;' : '')}
   margin-top: ${size1};
   padding: 0 ${size2};
   color: var(--theme-label-tertiary);

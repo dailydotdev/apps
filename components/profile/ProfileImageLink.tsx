@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import styled from 'styled-components/macro';
+import styled from '@emotion/styled';
 import { size10 } from '../../styles/sizes';
 import LazyImage from '../LazyImage';
 import { ProfileLink, ProfileLinkProps } from './ProfileLink';

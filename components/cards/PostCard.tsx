@@ -9,7 +9,7 @@ import {
   CardTextContainer,
   CardTitle,
 } from './Card';
-import styled from 'styled-components/macro';
+import styled from '@emotion/styled';
 import { SmallRoundedImage } from '../utilities';
 import { size05, size1, size2, size4, size6 } from '../../styles/sizes';
 import { typoFootnote } from '../../styles/typography';

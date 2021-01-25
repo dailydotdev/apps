@@ -1,5 +1,5 @@
 import React, { ReactElement, useContext, useState } from 'react';
-import styled from 'styled-components/macro';
+import styled from '@emotion/styled';
 import { NextSeo } from 'next-seo';
 import MainLayout from '../components/layouts/MainLayout';
 import { typoCallout } from '../styles/typography';

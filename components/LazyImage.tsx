@@ -1,7 +1,7 @@
 import 'lazysizes/plugins/blur-up/ls.blur-up';
 import 'lazysizes';
 import React, { HTMLAttributes, ReactElement, SyntheticEvent } from 'react';
-import styled from 'styled-components/macro';
+import styled from '@emotion/styled';
 
 export interface Props extends HTMLAttributes<HTMLDivElement> {
   imgSrc: string;

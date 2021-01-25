@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext } from 'react';
 import { MainLayoutProps } from './MainLayout';
-import styled from 'styled-components/macro';
+import styled from '@emotion/styled';
 import Link from 'next/link';
 import { size3, size6, sizeN } from '../../styles/sizes';
 import TertiaryButton from '../buttons/TertiaryButton';

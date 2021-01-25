@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { Author } from '../../graphql/comments';
-import styled from 'styled-components/macro';
+import styled from '@emotion/styled';
 import { typoCallout, typoFootnote } from '../../styles/typography';
 import { ProfileLink } from '../profile/ProfileLink';
 import FeatherIcon from '../../icons/feather.svg';
@@ -11,7 +11,7 @@ export interface CommentAuthorProps {
   author: Author;
 }
 
-const Container = styled.div`
+const Container = styled(ProfileLink)`
   color: var(--theme-label-primary);
   white-space: nowrap;
   overflow: hidden;
@@ -24,7 +24,7 @@ const CommentAuthorBadge = styled.span`
   align-items: center;
   margin-left: ${size2};
   color: var(--theme-status-help);
-  ${typoFootnote};
+  ${typoFootnote}
 
   .icon {
     font-size: ${size4};
@@ -37,7 +37,7 @@ export default function CommentAuthor({
   author,
 }: CommentAuthorProps): ReactElement {
   return (
-    <Container as={ProfileLink} user={author} className="commentAuthor">
+    <Container user={author} className="commentAuthor">
       {author.name}
       {author.id === postAuthorId && (
         <CommentAuthorBadge>

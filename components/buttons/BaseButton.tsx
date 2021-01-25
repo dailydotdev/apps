@@ -1,5 +1,5 @@
 import React, { ReactElement, ReactNode } from 'react';
-import styled from 'styled-components/macro';
+import styled from '@emotion/styled';
 import { typoCallout } from '../../styles/typography';
 import {
   size1,
@@ -261,7 +261,7 @@ export default function BaseButton<Tag extends keyof JSX.IntrinsicElements>({
   return (
     <StyledButton
       as={tag}
-      {...props}
+      {...(props as StyledButtonProps)}
       iconOnly={icon && !children && !rightIcon}
       aria-busy={loading}
       aria-pressed={pressed}

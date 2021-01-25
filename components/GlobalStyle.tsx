@@ -1,14 +1,16 @@
-import { createGlobalStyle } from 'styled-components/macro';
-import { normalize } from 'styled-normalize';
+import normalize from 'emotion-normalize';
 import colors from '../styles/colors';
 import { mobileL } from '../styles/media';
 import { shadow2, shadow3 } from '../styles/shadows';
+import { css } from '@emotion/react';
 
-export default createGlobalStyle`
+export default css`
   ${normalize}
 
   html {
-    font-family: -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Ubuntu, Segoe UI, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol;
+    font-family: -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Ubuntu,
+      Segoe UI, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji,
+      Segoe UI Symbol;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     background: var(--theme-background-primary);
@@ -21,7 +23,9 @@ export default createGlobalStyle`
   }
 
   /* stylelint-disable-next-line no-descending-specificity */
-  html, html.light .invert, html .invert .invert {
+  html,
+  html.light .invert,
+  html .invert .invert {
     --theme-focus: ${colors.blueCheese['40']};
     --theme-float: ${colors.salt['90']}14;
     --theme-hover: ${colors.salt['90']}1F;
@@ -30,7 +34,7 @@ export default createGlobalStyle`
     --theme-background-secondary: ${colors.pepper['70']};
     --theme-background-tertiary: ${colors.pepper['80']};
 
-    --theme-label-primary: #FFFFFF;
+    --theme-label-primary: #ffffff;
     --theme-label-secondary: ${colors.salt['50']};
     --theme-label-tertiary: ${colors.salt['90']};
     --theme-label-quaternary: ${colors.salt['90']}A3;
@@ -57,7 +61,7 @@ export default createGlobalStyle`
     --theme-rank-1-color-bottom: ${colors.bun['40']};
 
     --theme-rank-2-color: ${colors.salt['40']};
-    --theme-rank-2-color-top: #FFFFFF;
+    --theme-rank-2-color-top: #ffffff;
     --theme-rank-2-color-bottom: ${colors.salt['40']};
 
     --theme-rank-3-color: ${colors.cheese['40']};
@@ -74,12 +78,14 @@ export default createGlobalStyle`
   }
 
   /* stylelint-disable-next-line no-descending-specificity */
-  html.light, html .invert, html.light .invert .invert {
+  html.light,
+  html .invert,
+  html.light .invert .invert {
     --theme-focus: ${colors.blueCheese['60']};
     --theme-float: ${colors.pepper['10']}14;
     --theme-hover: ${colors.pepper['10']}1F;
 
-    --theme-background-primary: #FFFFFF;
+    --theme-background-primary: #ffffff;
     --theme-background-secondary: ${colors.salt['10']};
     --theme-background-tertiary: ${colors.salt['20']};
 
@@ -89,7 +95,7 @@ export default createGlobalStyle`
     --theme-label-quaternary: ${colors.pepper['10']}A3;
     --theme-label-disabled: ${colors.pepper['10']}52;
     --theme-label-link: ${colors.water['80']};
-    --theme-label-invert: #FFFFFF;
+    --theme-label-invert: #ffffff;
 
     --theme-divider-primary: ${colors.pepper['10']};
     --theme-divider-secondary: ${colors.pepper['10']}66;
@@ -103,7 +109,7 @@ export default createGlobalStyle`
     --theme-shadow2: ${shadow2(`${colors.salt['90']}66`)};
     --theme-shadow3: ${shadow3(`${colors.salt['90']}A3`)};
 
-    --theme-post-disabled: #FFFFFF66;
+    --theme-post-disabled: #ffffff66;
 
     --theme-rank-1-color: ${colors.burger['60']};
     --theme-rank-1-color-top: ${colors.burger['60']};

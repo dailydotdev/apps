@@ -1,5 +1,5 @@
 import React, { ReactElement, ReactNode } from 'react';
-import styled from 'styled-components/macro';
+import styled from '@emotion/styled';
 import { size3, size4, size8 } from '../styles/sizes';
 import colors, { overlayTertiary } from '../styles/colors';
 import { typoFootnote } from '../styles/typography';

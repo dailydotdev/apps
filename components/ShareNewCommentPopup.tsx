@@ -1,5 +1,5 @@
 import React, { ReactElement, useContext } from 'react';
-import styled from 'styled-components/macro';
+import styled from '@emotion/styled';
 import { size10, size2, size4, size6, sizeN } from '../styles/sizes';
 import { modalBorderAndRadius, ModalCloseButton } from './modals/StyledModal';
 import { laptop } from '../styles/media';

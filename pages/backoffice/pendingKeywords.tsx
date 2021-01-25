@@ -10,7 +10,7 @@ import {
   KeywordData,
   RANDOM_PENDING_KEYWORD_QUERY,
 } from '../../graphql/keywords';
-import styled from 'styled-components/macro';
+import styled from '@emotion/styled';
 import { typoTitle3 } from '../../styles/typography';
 import { PageContainer } from '../../components/utilities';
 import KeywordManagement from '../../components/KeywordManagement';

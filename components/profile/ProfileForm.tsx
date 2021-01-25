@@ -6,7 +6,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import styled from 'styled-components/macro';
+import styled from '@emotion/styled';
 import { updateProfile, UserProfile } from '../../lib/user';
 import {
   size1,
@@ -40,7 +40,7 @@ const Form = styled.form`
   padding: 0;
 `;
 
-const FormField = styled(TextField).attrs({ compact: true })`
+const FormField = styled(TextField)`
   align-self: stretch;
   margin-bottom: ${size3};
 `;
@@ -176,6 +176,7 @@ export default function ProfileForm({
 
   const twitterField = (
     <FormField
+      compact={true}
       inputId="twitter"
       name="twitter"
       label="Twitter"
@@ -195,6 +196,7 @@ export default function ProfileForm({
     <>
       <SectionHeading>About</SectionHeading>
       <FormField
+        compact={true}
         inputId="bio"
         name="bio"
         label="Bio"
@@ -203,6 +205,7 @@ export default function ProfileForm({
         validityChanged={updateDisableSubmit}
       />
       <FormField
+        compact={true}
         inputId="company"
         name="company"
         label="Company"
@@ -211,6 +214,7 @@ export default function ProfileForm({
         validityChanged={updateDisableSubmit}
       />
       <FormField
+        compact={true}
         inputId="title"
         name="title"
         label="Job title"
@@ -221,6 +225,7 @@ export default function ProfileForm({
       <SectionHeading>Social</SectionHeading>
       {mode !== 'author' && twitterField}
       <FormField
+        compact={true}
         inputId="github"
         name="github"
         label="GitHub"
@@ -234,6 +239,7 @@ export default function ProfileForm({
         valueChanged={() => githubHint && setGithubHint(null)}
       />
       <FormField
+        compact={true}
         inputId="hashnode"
         name="hashnode"
         label="Hashnode"
@@ -247,6 +253,7 @@ export default function ProfileForm({
         valueChanged={() => hashnodeHint && setHashnodeHint(null)}
       />
       <FormField
+        compact={true}
         inputId="portfolio"
         name="portfolio"
         label="Website"
@@ -261,6 +268,7 @@ export default function ProfileForm({
     <Form ref={formRef} onSubmit={onSubmit} {...props} data-testid="form">
       <SectionHeading>Profile</SectionHeading>
       <FormField
+        compact={true}
         inputId="name"
         name="name"
         label="Name"
@@ -270,6 +278,7 @@ export default function ProfileForm({
         validityChanged={updateDisableSubmit}
       />
       <FormField
+        compact={true}
         inputId="username"
         name="username"
         label="Username"
@@ -283,6 +292,7 @@ export default function ProfileForm({
         valueChanged={() => usernameHint && setUsernameHint(null)}
       />
       <FormField
+        compact={true}
         inputId="email"
         name="email"
         label="Email"

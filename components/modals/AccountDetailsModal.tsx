@@ -1,7 +1,7 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import { Props as ModalProps } from './StyledModal';
 import ResponsiveModal, { responsiveModalBreakpoint } from './ResponsiveModal';
-import styled from 'styled-components/macro';
+import styled from '@emotion/styled';
 import {
   size1,
   size10,
@@ -86,9 +86,7 @@ const FooterLink = styled.a`
   ${typoFootnote}
 `;
 
-const LogoutButton = styled(TertiaryButton).attrs({ buttonSize: 'small' })<
-  ButtonProps<'button'>
->`
+const LogoutButton = styled(TertiaryButton)`
   align-self: flex-start;
   margin-top: ${size5};
 `;
@@ -154,7 +152,9 @@ export default function AccountDetailsModal(props: ModalProps): ReactElement {
             Cancel subscription
           </FooterLink>
         )}
-        <LogoutButton onClick={logout}>Logout</LogoutButton>
+        <LogoutButton onClick={logout} buttonSize="small">
+          Logout
+        </LogoutButton>
       </Footer>
     </MyModal>
   );

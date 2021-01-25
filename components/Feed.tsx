@@ -1,5 +1,5 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
-import styled from 'styled-components/macro';
+import styled from '@emotion/styled';
 import useFeed, { FeedItem, PostItem } from '../lib/useFeed';
 import { PostCard } from './cards/PostCard';
 import { AdCard } from './cards/AdCard';

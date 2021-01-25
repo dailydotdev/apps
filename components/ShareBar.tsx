@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import styled from 'styled-components/macro';
+import styled from '@emotion/styled';
 import { laptop } from '../styles/media';
 import { pageMaxWidth } from '../styles/helpers';
 import { size1, size10, size2, size4, size7 } from '../styles/sizes';
@@ -58,7 +58,7 @@ const Copied = styled.div`
   ${typoCaption1}
 `;
 
-const ShareButton = styled(TertiaryButton).attrs({ buttonSize: 'small' })<
+const ShareButton = styled(TertiaryButton)<
   ButtonProps<'button'> | ButtonProps<'a'>
 >`
   margin: ${size1} 0;
@@ -82,6 +82,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
           onClick={copyLink}
           pressed={copying}
           icon={<CopyIcon />}
+          buttonSize="small"
         />
         <ColorfulShareButton
           title="Share on WhatsApp"
@@ -97,6 +98,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
             })
           }
           icon={<WhatsappIcon />}
+          buttonSize="small"
         />
         <ColorfulShareButton
           title="Share on Twitter"
@@ -112,6 +114,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
             })
           }
           icon={<TwitterIcon />}
+          buttonSize="small"
         />
         <ColorfulShareButton
           title="Share on Facebook"
@@ -127,6 +130,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
             })
           }
           icon={<FacebookIcon />}
+          buttonSize="small"
         />
       </Sticky>
     </Container>

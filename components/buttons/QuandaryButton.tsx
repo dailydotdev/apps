@@ -7,7 +7,7 @@ import BaseButton, {
   StyledButtonProps,
 } from './BaseButton';
 import { tertiaryStyle } from './TertiaryButton';
-import styled from 'styled-components/macro';
+import styled from '@emotion/styled';
 import { typoCallout } from '../../styles/typography';
 import { size1, size4, size6, size8 } from '../../styles/sizes';
 
@@ -133,7 +133,8 @@ export default function QuandaryButton<
 }: ButtonProps<Tag> & QuandaryButtonProps): ReactElement {
   const buttonStyle = tertiaryStyle(props.themeColor);
   let labelProps: HTMLAttributes<HTMLLabelElement> = {};
-  let buttonProps: HTMLAttributes<HTMLButtonElement> & {
+  let buttonProps: {
+    className?: string;
     ref?: React.MutableRefObject<{ base: HTMLButtonElement }>;
   } = {};
   if (tag === 'a') {

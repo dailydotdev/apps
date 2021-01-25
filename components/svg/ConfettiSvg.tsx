@@ -1,6 +1,6 @@
-import React, { HTMLAttributes, ReactElement } from 'react';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import * as _ from 'styled-components/cssprop';
+/** @jsx jsx */
+import { css, jsx } from '@emotion/react';
+import { HTMLAttributes, ReactElement } from 'react';
 
 export default function ConfettiSvg({
   className,
@@ -220,7 +220,12 @@ export default function ConfettiSvg({
       </defs>
       <g
         id="edzasorcomre2_to"
-        css="offset-path:path('M50,86.314589C48.451738,73.798946,57.940094,50.360179,72.730574,44.350368');offset-rotate:0deg"
+        css={css`
+          offset-path: path(
+            'M50,86.314589C48.451738,73.798946,57.940094,50.360179,72.730574,44.350368'
+          );
+          offset-rotate: 0deg;
+        `}
       >
         <g id="edzasorcomre2_tr" transform="rotate(-39.842787)">
           <g id="edzasorcomre2_ts" transform="scale(0.500000,0.500000)">
@@ -238,7 +243,12 @@ export default function ConfettiSvg({
       </g>
       <g
         id="edzasorcomre3_to"
-        css="offset-path:path('M50,86.314589C51.794011,74.486908,71.587687,62.315705,89.342857,58.192308');offset-rotate:0deg"
+        css={css`
+          offset-path: path(
+            'M50,86.314589C51.794011,74.486908,71.587687,62.315705,89.342857,58.192308'
+          );
+          offset-rotate: 0deg;
+        `}
       >
         <g id="edzasorcomre3_tr" transform="rotate(-83.721852)">
           <g id="edzasorcomre3_ts" transform="scale(0.500000,0.500000)">
@@ -256,7 +266,12 @@ export default function ConfettiSvg({
       </g>
       <g
         id="edzasorcomre4_to"
-        css="offset-path:path('M50,86.314589C45.547125,56.772607,30.765725,57.198215,22.898469,41.764464');offset-rotate:0deg"
+        css={css`
+          offset-path: path(
+            'M50,86.314589C45.547125,56.772607,30.765725,57.198215,22.898469,41.764464'
+          );
+          offset-rotate: 0deg;
+        `}
       >
         <g id="edzasorcomre4_tr" transform="rotate(39.829954)">
           <g id="edzasorcomre4_ts" transform="scale(0.500000,0.500000)">
@@ -274,7 +289,12 @@ export default function ConfettiSvg({
       </g>
       <g
         id="edzasorcomre5_to"
-        css="offset-path:path('M50,86.314589C49.601646,81.850592,46.018008,21.687129,51,10.961538');offset-rotate:0deg"
+        css={css`
+          offset-path: path(
+            'M50,86.314589C49.601646,81.850592,46.018008,21.687129,51,10.961538'
+          );
+          offset-rotate: 0deg;
+        `}
       >
         <g id="edzasorcomre5_tr" transform="rotate(-7.430076)">
           <g id="edzasorcomre5_ts" transform="scale(0.500000,0.500000)">
@@ -308,7 +328,12 @@ export default function ConfettiSvg({
       </g>
       <g
         id="edzasorcomre7_to"
-        css="offset-path:path('M50,86.314589C50.007085,77.786990,46.123225,62.290682,32.226295,60.723435');offset-rotate:0deg"
+        css={css`
+          offset-path: path(
+            'M50,86.314589C50.007085,77.786990,46.123225,62.290682,32.226295,60.723435'
+          );
+          offset-rotate: 0deg;
+        `}
       >
         <g id="edzasorcomre7_tr" transform="rotate(91.291093)">
           <g id="edzasorcomre7_ts" transform="scale(0.500000,0.500000)">
@@ -326,7 +351,12 @@ export default function ConfettiSvg({
       </g>
       <g
         id="edzasorcomre8_to"
-        css="offset-path:path('M50,86.314589C49.924284,69.974235,38.754426,26.490781,24.027189,21.134199');offset-rotate:0deg"
+        css={css`
+          offset-path: path(
+            'M50,86.314589C49.924284,69.974235,38.754426,26.490781,24.027189,21.134199'
+          );
+          offset-rotate: 0deg;
+        `}
       >
         <g id="edzasorcomre8_tr" transform="rotate(65.285383)">
           <g id="edzasorcomre8_ts" transform="scale(0.500000,0.500000)">
@@ -344,7 +374,12 @@ export default function ConfettiSvg({
       </g>
       <g
         id="edzasorcomre9_to"
-        css="offset-path:path('M50,86.314589C49.358773,67.666320,82.415830,31.715040,92.632740,32.660314');offset-rotate:0deg"
+        css={css`
+          offset-path: path(
+            'M50,86.314589C49.358773,67.666320,82.415830,31.715040,92.632740,32.660314'
+          );
+          offset-rotate: 0deg;
+        `}
       >
         <g id="edzasorcomre9_tr" transform="rotate(-38.165790)">
           <g id="edzasorcomre9_ts" transform="scale(0.500000,0.500000)">
@@ -362,7 +397,12 @@ export default function ConfettiSvg({
       </g>
       <g
         id="edzasorcomre10_to"
-        css="offset-path:path('M50,86.314589C51.329767,65.769424,54.272643,63.320295,7.159375,54.677665');offset-rotate:0deg"
+        css={css`
+          offset-path: path(
+            'M50,86.314589C51.329767,65.769424,54.272643,63.320295,7.159375,54.677665'
+          );
+          offset-rotate: 0deg;
+        `}
       >
         <g id="edzasorcomre10_tr" transform="rotate(90.621789)">
           <g id="edzasorcomre10_ts" transform="scale(0.500000,0.500000)">
@@ -380,7 +420,12 @@ export default function ConfettiSvg({
       </g>
       <g
         id="edzasorcomre11_to"
-        css="offset-path:path('M50,86.314589C40.811841,86.407099,62.334995,22.797710,66.284419,22.757945');offset-rotate:0deg"
+        css={css`
+          offset-path: path(
+            'M50,86.314589C40.811841,86.407099,62.334995,22.797710,66.284419,22.757945'
+          );
+          offset-rotate: 0deg;
+        `}
       >
         <g id="edzasorcomre11_tr" transform="rotate(-23.137595)">
           <g id="edzasorcomre11_ts" transform="scale(0.500000,0.500000)">

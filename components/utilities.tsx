@@ -1,4 +1,4 @@
-import styled from 'styled-components/macro';
+import styled from '@emotion/styled';
 import LazyImage from './LazyImage';
 import { size10, size1px, size4, size6, size8, sizeN } from '../styles/sizes';
 import { typoCaption1, typoTitle2 } from '../styles/typography';
@@ -30,7 +30,7 @@ export const ButtonLoader = styled(Loader)`
 export const LegalNotice = styled.div`
   color: var(--theme-label-quaternary);
   text-align: center;
-  ${typoCaption1};
+  ${typoCaption1}
 
   a {
     display: inline-block;
@@ -69,7 +69,7 @@ export const PageContainer = styled.main`
   }
 `;
 
-export const FormErrorMessage = styled.div.attrs({ role: 'alert' })`
+export const FormErrorMessage = styled.div`
   margin-top: ${size4};
   color: var(--theme-status-error);
   ${typoCaption1}

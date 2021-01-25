@@ -10,13 +10,13 @@ import React, {
   useRef,
 } from 'react';
 import dynamic from 'next/dynamic';
-import styled from 'styled-components/macro';
+import styled from '@emotion/styled';
 import cloneDeep from 'lodash.clonedeep';
 import { Props as ModalProps } from './StyledModal';
 import { size2, size3, size6, sizeN } from '../../styles/sizes';
 import AuthContext from '../AuthContext';
 import { RoundedImage, SmallRoundedImage } from '../utilities';
-import { CommentBox, CommentPublishDate } from '../comments/common';
+import { commentBoxStyle, CommentPublishDate } from '../comments/common';
 import { commentDateFormat } from '../../lib/dateFormat';
 import {
   typoCallout,
@@ -37,7 +37,6 @@ import ResponsiveModal from './ResponsiveModal';
 import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import PrimaryButton from '../buttons/PrimaryButton';
-import { ButtonProps } from '../buttons/BaseButton';
 import TertiaryButton from '../buttons/TertiaryButton';
 
 const DiscardCommentModal = dynamic(() => import('./DiscardCommentModal'));
@@ -52,10 +51,11 @@ export interface NewCommentModalProps extends ModalProps {
   onComment?: (newComment: Comment, parentId: string | null) => void;
 }
 
-const ParentComment = styled(CommentBox)`
+const ParentComment = styled.article`
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  ${commentBoxStyle}
 `;
 
 const ParentCommentHeader = styled.header`
@@ -129,15 +129,11 @@ const Footer = styled.footer`
   border-top: 0.063rem solid var(--theme-divider-tertiary);
 `;
 
-const CommentButton = styled(PrimaryButton).attrs({
-  themeColor: 'avocado',
-})<ButtonProps<'button'>>``;
-
 const ErrorMessage = styled.div`
   min-height: 1rem;
   margin: ${size2} ${size3};
   color: var(--theme-status-error);
-  ${typoCaption1};
+  ${typoCaption1}
 `;
 
 const CommentAuthor = styled.div`
@@ -293,7 +289,7 @@ export default function NewCommentModal({
     <ResponsiveModal
       {...{ contentRef: modalRef, onRequestClose: confirmClose, ...props }}
     >
-      <ParentComment as="article">
+      <ParentComment>
         <ParentCommentHeader>
           <RoundedImage
             imgSrc={authorImage}
@@ -333,13 +329,14 @@ export default function NewCommentModal({
       </ErrorMessage>
       <Footer>
         <TertiaryButton onClick={confirmClose}>Cancel</TertiaryButton>
-        <CommentButton
+        <PrimaryButton
           disabled={!input?.length}
           loading={sendingComment}
           onClick={sendComment}
+          themeColor="avocado"
         >
           Comment
-        </CommentButton>
+        </PrimaryButton>
       </Footer>
       <DiscardCommentModal
         isOpen={showDiscardModal}
