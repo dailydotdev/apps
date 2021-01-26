@@ -359,6 +359,7 @@ export default function ProfileLayout({
               )}
               {portfolioLink && (
                 <QuandaryButton
+                  tag="a"
                   id="portfolio-link"
                   href={portfolioLink}
                   title="Go to portfolio website"
