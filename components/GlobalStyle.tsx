@@ -1,5 +1,5 @@
 import normalize from 'emotion-normalize';
-import colors from '../styles/colors';
+import colors, { overlayQuaternary } from '../styles/colors';
 import { mobileL } from '../styles/media';
 import { shadow2, shadow3 } from '../styles/shadows';
 import { css } from '@emotion/react';
@@ -56,6 +56,8 @@ export default css`
 
     --theme-post-disabled: ${colors.pepper['70']}66;
 
+    --theme-overlay-quaternary: ${overlayQuaternary('white')};
+
     --theme-rank-1-color: ${colors.burger['40']};
     --theme-rank-1-color-top: ${colors.burger['40']};
     --theme-rank-1-color-bottom: ${colors.bun['40']};
@@ -110,6 +112,8 @@ export default css`
     --theme-shadow3: ${shadow3(`${colors.salt['90']}A3`)};
 
     --theme-post-disabled: #ffffff66;
+
+    --theme-overlay-quaternary: ${overlayQuaternary('pepper')};
 
     --theme-rank-1-color: ${colors.burger['60']};
     --theme-rank-1-color-top: ${colors.burger['60']};

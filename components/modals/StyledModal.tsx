@@ -14,7 +14,6 @@ import {
 } from '../../styles/sizes';
 import { focusOutline } from '../../styles/helpers';
 import { typoCallout, typoTitle3 } from '../../styles/typography';
-import { overlayTertiary } from '../../styles/colors';
 import TertiaryButton from '../buttons/TertiaryButton';
 import { ButtonProps } from '../buttons/BaseButton';
 import XIcon from '../../icons/x.svg';
@@ -81,7 +80,7 @@ export const StyledModal = styled(ReactModalAdapter)`
     max-height: 100vh;
     padding-left: ${size5};
     padding-right: ${size5};
-    background: ${overlayTertiary('white')};
+    background: var(--theme-overlay-quaternary);
     z-index: 2;
   }
 
