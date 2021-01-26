@@ -1,4 +1,6 @@
-import React, { HTMLAttributes, ReactElement, useEffect } from 'react';
+/** @jsx jsx */
+import { jsx, css } from '@emotion/react';
+import { HTMLAttributes, ReactElement, useEffect } from 'react';
 import {
   Card,
   CardImage,
@@ -89,7 +91,13 @@ export function AdCard({
         onMouseUp={(event) => event.button === 1 && onLinkClick?.(ad)}
       />
       <CardTextContainer>
-        <CardTitle>{ad.description}</CardTitle>
+        <CardTitle
+          css={css`
+            -webkit-line-clamp: 4;
+          `}
+        >
+          {ad.description}
+        </CardTitle>
       </CardTextContainer>
       <CardSpace />
       <ImageContainer>
