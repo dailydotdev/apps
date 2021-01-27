@@ -1,6 +1,10 @@
 import { ReactElement } from 'react';
 import BaseButton, { ButtonProps, StyledButtonProps } from './BaseButton';
-import colors, { ColorName } from '../../styles/colors';
+import colors, {
+  ColorName,
+  overlayQuaternary,
+  overlayTertiary,
+} from '../../styles/colors';
 import { shadow2, shadow3 } from '../../styles/shadows';
 
 export const secondaryStyle = (color?: ColorName): StyledButtonProps => ({
@@ -12,7 +16,7 @@ export const secondaryStyle = (color?: ColorName): StyledButtonProps => ({
     },
     hover: {
       color: color ? colors[color]['40'] : undefined,
-      background: color ? `${colors[color]['10']}1F` : `${colors.salt['90']}1F`,
+      background: color ? overlayQuaternary(color) : `${colors.salt['90']}1F`,
       borderColor: color ? colors[color]['40'] : undefined,
       shadow: color
         ? shadow3(`${colors[color]['50']}66`)
@@ -20,7 +24,7 @@ export const secondaryStyle = (color?: ColorName): StyledButtonProps => ({
     },
     active: {
       color: color ? colors[color]['40'] : undefined,
-      background: color ? `${colors[color]['10']}33` : `${colors.salt['90']}33`,
+      background: color ? overlayTertiary(color) : `${colors.salt['90']}33`,
       borderColor: color ? colors[color]['40'] : undefined,
       shadow: color
         ? shadow2(`${colors[color]['50']}A3`)
@@ -39,16 +43,12 @@ export const secondaryStyle = (color?: ColorName): StyledButtonProps => ({
   lightStates: {
     hover: {
       color: color ? colors[color]['60'] : undefined,
-      background: color
-        ? `${colors[color]['60']}1F`
-        : `${colors.pepper['10']}1F`,
+      background: color ? overlayQuaternary(color) : `${colors.pepper['10']}1F`,
       borderColor: color ? colors[color]['60'] : undefined,
     },
     active: {
       color: color ? colors[color]['60'] : undefined,
-      background: color
-        ? `${colors[color]['60']}33`
-        : `${colors.pepper['10']}33`,
+      background: color ? overlayTertiary(color) : `${colors.pepper['10']}33`,
       borderColor: color ? colors[color]['60'] : undefined,
     },
     pressed: {

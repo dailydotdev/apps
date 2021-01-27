@@ -1,6 +1,10 @@
 import { ReactElement } from 'react';
 import BaseButton, { ButtonProps, StyledButtonProps } from './BaseButton';
-import colors, { ColorName } from '../../styles/colors';
+import colors, {
+  ColorName,
+  overlayQuaternary,
+  overlayTertiary,
+} from '../../styles/colors';
 
 export const tertiaryStyle = (color?: ColorName): StyledButtonProps => ({
   darkStates: {
@@ -11,10 +15,10 @@ export const tertiaryStyle = (color?: ColorName): StyledButtonProps => ({
     },
     hover: {
       color: color ? colors[color]['40'] : 'var(--theme-label-primary)',
-      background: color ? `${colors[color]['10']}1F` : `${colors.salt['90']}1F`,
+      background: color ? overlayQuaternary(color) : `${colors.salt['90']}1F`,
     },
     active: {
-      color: color ? colors[color]['40'] : 'var(--theme-label-primary)',
+      color: color ? overlayTertiary(color) : 'var(--theme-label-primary)',
       background: color ? `${colors[color]['10']}33` : `${colors.salt['90']}33`,
     },
     pressed: {
@@ -27,15 +31,11 @@ export const tertiaryStyle = (color?: ColorName): StyledButtonProps => ({
   lightStates: {
     hover: {
       color: color ? colors[color]['60'] : undefined,
-      background: color
-        ? `${colors[color]['90']}1F`
-        : `${colors.pepper['10']}1F`,
+      background: color ? overlayQuaternary(color) : `${colors.pepper['10']}1F`,
     },
     active: {
       color: color ? colors[color]['60'] : undefined,
-      background: color
-        ? `${colors[color]['90']}33`
-        : `${colors.pepper['10']}33`,
+      background: color ? overlayTertiary(color) : `${colors.pepper['10']}33`,
     },
     pressed: {
       color: color ? colors[color]['60'] : undefined,
