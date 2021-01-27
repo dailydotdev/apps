@@ -1,7 +1,7 @@
 import React, { ReactElement, ReactNode } from 'react';
 import styled from '@emotion/styled';
 import { size3, size4, size8 } from '../styles/sizes';
-import colors, { overlayTertiary } from '../styles/colors';
+import colors from '../styles/colors';
 import { typoFootnote } from '../styles/typography';
 
 const switchHeight = size4;
@@ -11,7 +11,7 @@ const SwitchTrack = styled.span`
   width: 100%;
   height: 0.625rem;
   margin: auto 0;
-  background: ${overlayTertiary('white')};
+  background: var(--theme-overlay-quaternary);
   will-change: background-color, opacity;
   transition: background-color 0.1s linear, opacity 0.2s linear;
 `;

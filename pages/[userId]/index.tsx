@@ -50,7 +50,7 @@ import {
   UserProfile,
 } from '../../lib/user';
 import { formToJson } from '../../lib/form';
-import TextField from '../../components/TextField';
+import TextField from '../../components/fields/TextField';
 import { useHideOnModal } from '../../lib/useHideOnModal';
 import { ownershipGuide } from '../../lib/constants';
 import dynamicPageLoad from '../../lib/dynamicPageLoad';

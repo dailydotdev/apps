@@ -18,7 +18,7 @@ import {
 } from '../../styles/sizes';
 import { typoBody, typoCallout } from '../../styles/typography';
 import { focusOutline } from '../../styles/helpers';
-import TextField from '../TextField';
+import TextField from '../fields/TextField';
 import Switch from '../Switch';
 import ArrowIcon from '../../icons/arrow.svg';
 import AuthContext from '../AuthContext';

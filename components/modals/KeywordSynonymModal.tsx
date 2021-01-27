@@ -3,7 +3,7 @@ import ResponsiveModal from './ResponsiveModal';
 import { mobileL } from '../../styles/media';
 import { Props as ModalProps } from './StyledModal';
 import React, { ReactElement, useState } from 'react';
-import TextField from '../TextField';
+import TextField from '../fields/TextField';
 import { size2, size3 } from '../../styles/sizes';
 import XIcon from '../../icons/x.svg';
 import { useMutation, useQuery } from 'react-query';
