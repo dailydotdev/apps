@@ -38,8 +38,6 @@ import { laptop } from '../../styles/media';
 
 type TagPageProps = { tag: string };
 
-const AddToFeedButton = styled(PrimaryButton)``;
-
 const TagInformation = styled.div`
   display: flex;
   align-self: stretch;
@@ -48,12 +46,12 @@ const TagInformation = styled.div`
   color: var(--theme-label-secondary);
   ${typoCallout}
 
-  ${AddToFeedButton}.laptop {
+  button.laptop {
     display: none;
   }
 
   ${laptop} {
-    ${AddToFeedButton} {
+    button {
       display: none;
 
       &.laptop {
@@ -160,10 +158,10 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
         >
           {tag}
         </span>
-        <AddToFeedButton {...buttonProps} css={buttonCss} />
-        <AddToFeedButton className="laptop" {...buttonProps} css={buttonCss}>
+        <PrimaryButton {...buttonProps} css={buttonCss} />
+        <PrimaryButton className="laptop" {...buttonProps} css={buttonCss}>
           Add to feed
-        </AddToFeedButton>
+        </PrimaryButton>
       </TagInformation>
       <Feed
         query={TAG_FEED_QUERY}
