@@ -23,7 +23,11 @@ import { multilineTextOverflow } from '../styles/helpers';
 import { feedBreakpoints, feedSettings } from './layouts/FeedLayout';
 import FeedSettingsContext from './FeedSettingsContext';
 
-export type FeedProps<T> = { query?: string; variables?: T };
+export type FeedProps<T> = {
+  query?: string;
+  variables?: T;
+  className?: string;
+};
 
 const cardMaxWidth = sizeN(80);
 
@@ -92,6 +96,7 @@ const onAdClick = (ad: Ad) =>
 export default function Feed<T>({
   query,
   variables,
+  className,
 }: FeedProps<T>): ReactElement {
   const currentSettings = useContext(FeedSettingsContext);
   const { items, updatePost, isLoading, fetchPage, canFetchMore } = useFeed(
@@ -229,7 +234,7 @@ export default function Feed<T>({
     items.findIndex((item) => item.type !== 'placeholder') >= 0;
 
   return (
-    <Container>
+    <Container className={className}>
       {items.map(itemToComponent)}
       {!hasNonPlaceholderCard && (
         <Stretcher>{Array(100).fill('a').join('')}</Stretcher>

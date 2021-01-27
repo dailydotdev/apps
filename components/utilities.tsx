@@ -1,6 +1,14 @@
 import styled from '@emotion/styled';
 import LazyImage from './LazyImage';
-import { size10, size1px, size4, size6, size8, sizeN } from '../styles/sizes';
+import {
+  size10,
+  size1px,
+  size3,
+  size4,
+  size6,
+  size8,
+  sizeN,
+} from '../styles/sizes';
 import { typoCaption1, typoTitle2 } from '../styles/typography';
 import Loader from './Loader';
 import { laptop, mobileL, tablet } from '../styles/media';
@@ -66,6 +74,18 @@ export const PageContainer = styled.main`
     min-height: 100vh;
     border-left: ${size1px} solid var(--theme-divider-tertiary);
     border-right: ${size1px} solid var(--theme-divider-tertiary);
+  }
+`;
+
+export const FeedPage = styled.main`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: ${size3} ${size6};
+
+  ${laptop} {
+    padding-left: ${sizeN(16)};
+    padding-right: ${sizeN(16)};
   }
 `;
 

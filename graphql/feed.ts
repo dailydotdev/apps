@@ -91,3 +91,18 @@ export const MOST_UPVOTED_FEED_QUERY = gql`
   }
   ${FEED_POST_CONNECTION_FRAGMENT}
 `;
+
+export const TAG_FEED_QUERY = gql`
+  query TagFeed(
+    $tag: String!
+    $loggedIn: Boolean! = false
+    $first: Int
+    $after: String
+    $ranking: Ranking
+  ) {
+    page: tagFeed(tag: $tag, first: $first, after: $after, ranking: $ranking) {
+      ...FeedPostConnection
+    }
+  }
+  ${FEED_POST_CONNECTION_FRAGMENT}
+`;
