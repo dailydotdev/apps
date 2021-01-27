@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
-import TextField, { Props } from '../components/TextField';
+import TextField, { Props } from '../../components/fields/TextField';
 
 const renderComponent = (props: Partial<Props> = {}): RenderResult => {
   const defaultProps: Props = {

@@ -1,23 +1,15 @@
 import React, {
-  HTMLAttributes,
   InputHTMLAttributes,
   ReactElement,
   SyntheticEvent,
   useEffect,
-  useRef,
   useState,
 } from 'react';
 import styled from '@emotion/styled';
-import {
-  size05,
-  size1,
-  size1px,
-  size2,
-  size3,
-  size9,
-  sizeN,
-} from '../styles/sizes';
-import { typoCallout, typoCaption1 } from '../styles/typography';
+import { size05, size1, size2, size9, sizeN } from '../../styles/sizes';
+import { typoCallout, typoCaption1 } from '../../styles/typography';
+import { useInputField } from '../../lib/useInputField';
+import { BaseField, FieldInput } from './common';
 
 export interface Props extends InputHTMLAttributes<HTMLInputElement> {
   inputId: string;
@@ -54,21 +46,6 @@ const CompactLabel = styled(Label)`
   font-weight: bold;
 `;
 
-const Input = styled.input`
-  width: 100%;
-  min-width: 0;
-  padding: 0;
-  border: none;
-  background: none;
-  color: var(--theme-label-primary);
-  caret-color: var(--theme-label-link);
-  ${typoCallout}
-
-  &:focus {
-    outline: 0;
-  }
-`;
-
 const CharsCount = styled.div`
   margin: 0 0 0 ${size2};
   font-weight: bold;
@@ -89,7 +66,7 @@ const Hint = styled.div<{ valid?: boolean; saveHintSpace?: boolean }>`
   ${typoCaption1}
 `;
 
-interface FieldProps extends HTMLAttributes<HTMLDivElement> {
+interface FieldProps {
   focused: boolean;
   showLabel: boolean;
   valid: boolean;
@@ -107,16 +84,11 @@ const applyFocusAndValid = (focused: boolean, valid: boolean): string => {
   if (focused) {
     return `
       && {
-        background: transparent;
         border-color: ${borderColor};
         ${insetShadow(borderColor)}
 
         ${Label} {
           color: var(--theme-label-primary);
-        }
-
-        ${Input}::placeholder {
-          color: var(--theme-label-quaternary);
         }
       }
     `;
@@ -131,35 +103,23 @@ const applyFocusAndValid = (focused: boolean, valid: boolean): string => {
   return '';
 };
 
-const Field = styled.div<FieldProps>`
-  display: flex;
+const Field = styled(BaseField)<FieldProps>`
   height: ${({ compact }) => (compact ? size9 : sizeN(12))};
-  padding: 0 ${size3};
-  align-items: center;
-  overflow: hidden;
-  background: var(--theme-float);
-  border: ${size1px} solid transparent;
   border-radius: ${({ compact }) => (compact ? sizeN(2.5) : sizeN(3.5))};
-  cursor: text;
 
   ${({ focused, valid }) => applyFocusAndValid(focused, valid)}
 
   &:hover {
-    background: var(--theme-hover);
     ${({ valid }) =>
       valid !== false && insetShadow('var(--theme-label-primary)')}
-
-    ${Input}:not(:focus)::placeholder {
-      color: var(--theme-label-primary);
-    }
   }
 
   ${Label} {
     display: ${({ showLabel }) => (showLabel ? 'block' : 'none')};
   }
 
-  ${Label}, ${Input}::placeholder, ${CharsCount} {
-    color: var(--theme-label-tertiary);
+  ${Label}, ${CharsCount} {
+    color: var(--field-placeholder-color);
   }
 `;
 
@@ -179,22 +139,21 @@ export default function TextField({
   compact = false,
   ...props
 }: Props): ReactElement {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [focused, setFocused] = useState<boolean>(false);
-  const [hasInput, setHasInput] = useState<boolean>(false);
+  const {
+    inputRef,
+    focused,
+    hasInput,
+    onFocus,
+    onBlur: baseOnBlur,
+    onInput: baseOnInput,
+    focusInput,
+  } = useInputField(value, valueChanged);
   const [inputLength, setInputLength] = useState<number>(0);
   const [validInput, setValidInput] = useState<boolean>(undefined);
   const [idleTimeout, setIdleTimeout] = useState<number>(undefined);
 
   // Return the clearIdleTimeout to call it on cleanup
   useEffect(() => clearIdleTimeout, []);
-
-  useEffect(() => {
-    if (value) {
-      inputRef.current.value = value.toString();
-      inputRef.current.dispatchEvent(new Event('input', { bubbles: true }));
-    }
-  }, [value]);
 
   useEffect(() => {
     if (validityChanged && validInput !== undefined) {
@@ -215,10 +174,9 @@ export default function TextField({
     }
   };
 
-  const onFocus = () => setFocused(true);
   const onBlur = () => {
     clearIdleTimeout();
-    setFocused(false);
+    baseOnBlur();
     if (inputRef.current) {
       setValidInput(inputRef.current.checkValidity());
     }
@@ -228,16 +186,12 @@ export default function TextField({
     event: SyntheticEvent<HTMLInputElement, InputEvent>,
   ): void => {
     clearIdleTimeout();
+    baseOnInput(event);
     if (valueChanged) {
       valueChanged(event.currentTarget.value);
     }
     const len = event.currentTarget.value.length;
     setInputLength(len);
-    if (!hasInput && len) {
-      setHasInput(true);
-    } else if (hasInput && !len) {
-      setHasInput(false);
-    }
     const valid = inputRef.current.checkValidity();
     if (valid) {
       setValidInput(true);
@@ -249,10 +203,6 @@ export default function TextField({
         }, 1500),
       );
     }
-  };
-
-  const focusInput = () => {
-    inputRef.current.focus();
   };
 
   const getPlaceholder = () => {
@@ -272,10 +222,11 @@ export default function TextField({
         showLabel={focused || hasInput}
         valid={validInput}
         compact={compact}
+        hasInput={hasInput}
       >
         <InputContainer>
           {!compact && <Label htmlFor={inputId}>{label}</Label>}
-          <Input
+          <FieldInput
             placeholder={getPlaceholder()}
             name={name}
             id={inputId}
