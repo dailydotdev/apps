@@ -28,7 +28,7 @@
     "next-plugin-preact": "^3.0.3",
     "next-seo": "^4.17.0",
     "node-fetch": "^2.6.1",
-    "preact": "^10.5.11",
+    "preact": "^10.5.12",
     "preact-render-to-string": "^5.1.12",
     "react": "npm:@preact/compat@0.0.3",
     "react-dom": "npm:@preact/compat@0.0.3",
