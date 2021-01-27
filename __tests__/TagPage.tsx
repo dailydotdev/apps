@@ -97,6 +97,7 @@ const renderComponent = (
 
 it('should request tag feed', async () => {
   renderComponent();
+  await waitFor(() => expect(nock.isDone()).toBeTruthy());
   await waitFor(async () => {
     const elements = await screen.findAllByTestId('postItem');
     expect(elements.length).toBeTruthy();
@@ -105,6 +106,7 @@ it('should request tag feed', async () => {
 
 it('should show add to feed button', async () => {
   renderComponent();
+  await waitFor(() => expect(nock.isDone()).toBeTruthy());
   const [button] = await screen.findAllByTitle('Add tag to feed');
   expect(button).toHaveStyleRule('visibility', 'visible');
 });
@@ -114,6 +116,7 @@ it('should not show add to feed button', async () => {
     createFeedMock(),
     createTagsSettingsMock({ includeTags: ['react'] }),
   ]);
+  await waitFor(() => expect(nock.isDone()).toBeTruthy());
   await waitFor(async () => {
     const [button] = await screen.findAllByTitle('Add tag to feed');
     expect(button).toHaveStyleRule('visibility', 'hidden');
@@ -121,13 +124,33 @@ it('should not show add to feed button', async () => {
 });
 
 it('should show add to feed button when logged-out', async () => {
-  renderComponent([createFeedMock()], null);
+  renderComponent(
+    [
+      createFeedMock(defaultFeedPage, TAG_FEED_QUERY, {
+        first: 7,
+        loggedIn: false,
+        tag: 'react',
+      }),
+    ],
+    null,
+  );
+  await waitFor(() => expect(nock.isDone()).toBeTruthy());
   const [button] = await screen.findAllByTitle('Add tag to feed');
   expect(button).toHaveStyleRule('visibility', 'visible');
 });
 
 it('should show login popup when logged-out on add to feed click', async () => {
-  renderComponent([createFeedMock()], null);
+  renderComponent(
+    [
+      createFeedMock(defaultFeedPage, TAG_FEED_QUERY, {
+        first: 7,
+        loggedIn: false,
+        tag: 'react',
+      }),
+    ],
+    null,
+  );
+  await waitFor(() => expect(nock.isDone()).toBeTruthy());
   const [button] = await screen.findAllByTitle('Add tag to feed');
   button.click();
   expect(showLogin).toBeCalledTimes(1);
