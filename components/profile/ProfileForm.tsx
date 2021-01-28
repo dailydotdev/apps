@@ -184,7 +184,7 @@ export default function ProfileForm({
       hint={twitterHint}
       valid={!twitterHint}
       placeholder="handle"
-      pattern="(\w){1,15}"
+      pattern="^@?(\w){1,15}$"
       maxLength={15}
       validityChanged={updateDisableSubmit}
       valueChanged={() => twitterHint && setTwitterHint(null)}
@@ -233,7 +233,7 @@ export default function ProfileForm({
         hint={githubHint}
         valid={!githubHint}
         placeholder="handle"
-        pattern="^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$"
+        pattern="^@?(\w){1,39}$"
         maxLength={39}
         validityChanged={updateDisableSubmit}
         valueChanged={() => githubHint && setGithubHint(null)}
@@ -247,7 +247,7 @@ export default function ProfileForm({
         hint={hashnodeHint}
         valid={!hashnodeHint}
         placeholder="handle"
-        pattern="^[a-zA-Z\d](?:[a-zA-Z\d]|-(?=[a-zA-Z\d])){0,38}$"
+        pattern="^@?(\w){1,39}$"
         maxLength={39}
         validityChanged={updateDisableSubmit}
         valueChanged={() => hashnodeHint && setHashnodeHint(null)}
@@ -288,7 +288,7 @@ export default function ProfileForm({
         valid={!usernameHint}
         validityChanged={usernameValidityUpdated}
         maxLength={15}
-        pattern="(\w){1,15}"
+        pattern="^@?(\w){1,15}$"
         valueChanged={() => usernameHint && setUsernameHint(null)}
       />
       <FormField
