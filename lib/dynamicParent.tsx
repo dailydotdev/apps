@@ -1,15 +1,16 @@
-import React, { ComponentClass, FunctionComponent } from 'react';
+import React, { ComponentClass, FunctionComponent, ReactHTML } from 'react';
 
 type LoaderResult<P> = ComponentClass<P> | FunctionComponent<P>;
 
-export default function dynamicParent<P>(
+export default function dynamicParent<P, T = Record<string, unknown>>(
   loader: () => Promise<LoaderResult<P>>,
-): React.ComponentType<P> {
+  placeholder: string | keyof ReactHTML | FunctionComponent<T>,
+): React.ComponentType<P & T> {
   return class DynamicParent extends React.Component<
-    P,
+    P & T,
     { componentClass?: LoaderResult<P> }
   > {
-    constructor(props: P) {
+    constructor(props: P & T) {
       super(props);
       this.state = { componentClass: null };
     }
@@ -28,7 +29,7 @@ export default function dynamicParent<P>(
           this.props.children,
         );
       }
-      return React.createElement(React.Fragment, null, this.props.children);
+      return React.createElement(placeholder, this.props, this.props.children);
     }
   };
 }

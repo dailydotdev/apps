@@ -1,53 +1,23 @@
 import React, { HTMLAttributes, ReactElement } from 'react';
 import styled from '@emotion/styled';
-import { keyframes } from '@emotion/react';
 import { cardImageHeight, CardSpace, CardTextContainer } from './Card';
 import { size2, size3, size4, size6 } from '../../styles/sizes';
+import { ElementPlaceholder } from '../utilities';
 
-const PlaceholderShimmer = keyframes`
-  100% {
-    transform: translateX(100%);
-  }
-`;
-
-const Placeholder = styled.div`
-  position: relative;
-  overflow: hidden;
-  background: var(--theme-background-secondary);
-
-  &:after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-      90deg,
-      var(--theme-background-secondary),
-      var(--theme-background-tertiary) 15%,
-      var(--theme-background-secondary)
-    );
-    transform: translateX(-100%);
-    animation: ${PlaceholderShimmer} 1.25s infinite linear;
-    will-change: transform;
-  }
-`;
-
-const Source = styled(Placeholder)`
+const Source = styled(ElementPlaceholder)`
   width: 1em;
   height: 1em;
   font-size: ${size6};
   border-radius: 100%;
 `;
 
-const Text = styled(Placeholder)`
+const Text = styled(ElementPlaceholder)`
   width: 1em;
   height: ${size3};
   border-radius: ${size3};
 `;
 
-const Image = styled(Placeholder)`
+const Image = styled(ElementPlaceholder)`
   border-radius: ${size3};
   height: ${cardImageHeight};
 `;

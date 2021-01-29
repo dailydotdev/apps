@@ -17,6 +17,8 @@ import { postDateFormat } from '../../lib/dateFormat';
 import QuandaryButton from '../buttons/QuandaryButton';
 import UpvoteIcon from '../../icons/upvote.svg';
 import CommentIcon from '../../icons/comment.svg';
+import BookmarkIcon from '../../icons/bookmark.svg';
+import TertiaryButton from '../buttons/TertiaryButton';
 
 type Callback = (post: Post) => unknown;
 
@@ -25,6 +27,7 @@ export type PostCardProps = {
   onLinkClick?: Callback;
   onUpvoteClick?: (post: Post, upvoted: boolean) => unknown;
   onCommentClick?: Callback;
+  onBookmarkClick?: (post: Post, bookmarked: boolean) => unknown;
 } & HTMLAttributes<HTMLDivElement>;
 
 const CardHeader = styled.div`
@@ -52,6 +55,7 @@ const MetadataSeparator = styled.div`
 const ActionButtons = styled.div`
   display: flex;
   align-items: center;
+  justify-content: space-between;
   margin: 0 ${size4};
 
   & > * {
@@ -86,6 +90,7 @@ export function PostCard({
   onLinkClick,
   onUpvoteClick,
   onCommentClick,
+  onBookmarkClick,
   ...props
 }: PostCardProps): ReactElement {
   return (
@@ -150,6 +155,14 @@ export function PostCard({
             {post.numComments > 0 && post.numComments}
           </QuandaryButton>
         </Link>
+        <TertiaryButton
+          icon={<BookmarkIcon />}
+          themeColor="bun"
+          buttonSize="small"
+          pressed={post.bookmarked}
+          title={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}
+          onClick={() => onBookmarkClick?.(post, !post.bookmarked)}
+        />
       </ActionButtons>
     </StyledCard>
   );

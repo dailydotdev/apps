@@ -152,4 +152,11 @@ export default css`
       display: block;
     }
   }
+
+  #__next {
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    align-items: stretch;
+  }
 `;

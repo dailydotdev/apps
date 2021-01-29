@@ -33,6 +33,7 @@ const defaultProps: PostCardProps = {
   onLinkClick: jest.fn(),
   onUpvoteClick: jest.fn(),
   onCommentClick: jest.fn(),
+  onBookmarkClick: jest.fn(),
 };
 
 beforeEach(() => {
@@ -76,6 +77,15 @@ it('should call on comment click on comment button click', async () => {
   el.click();
   await waitFor(() =>
     expect(defaultProps.onCommentClick).toBeCalledWith(defaultPost),
+  );
+});
+
+it('should call on bookmark click on bookmark button click', async () => {
+  renderComponent();
+  const el = await screen.findByTitle('Bookmark');
+  el.click();
+  await waitFor(() =>
+    expect(defaultProps.onBookmarkClick).toBeCalledWith(defaultPost, true),
   );
 });
 

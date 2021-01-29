@@ -38,13 +38,6 @@ export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
 
 export const headerHeight = sizeN(12);
 
-const Container = styled.div`
-  display: flex;
-  position: relative;
-  flex-direction: column;
-  align-items: stretch;
-`;
-
 const Header = styled.header<{ responsive: boolean }>`
   display: flex;
   height: ${headerHeight};
@@ -121,16 +114,15 @@ const HomeLink = styled.a`
 
 export default function MainLayout({
   children,
-  className,
   showOnlyLogo = false,
   responsive = true,
 }: MainLayoutProps): ReactElement {
   const { user, showLogin, loadingUser } = useContext(AuthContext);
 
   return (
-    <Container className={className}>
+    <>
       <Header responsive={responsive}>
-        <Link href="/" passHref>
+        <Link href="/" passHref prefetch={false}>
           <HomeLink title="Home">
             <DailyDevLogo />
             <BetaBadge className="badge" />
@@ -158,7 +150,7 @@ export default function MainLayout({
         )}
       </Header>
       {children}
-    </Container>
+    </>
   );
 }
 

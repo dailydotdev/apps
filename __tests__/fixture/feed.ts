@@ -57,6 +57,7 @@ const feed: Connection<Post> = {
         read: true,
         upvoted: true,
         commented: true,
+        bookmarked: true,
       },
     },
     {

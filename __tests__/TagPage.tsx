@@ -18,6 +18,7 @@ import {
   FeedSettingsData,
   TAGS_SETTINGS_QUERY,
 } from '../graphql/feedSettings';
+import { getTagsSettingsQueryKey } from '../lib/useMutateFilters';
 
 const showLogin = jest.fn();
 
@@ -158,27 +159,26 @@ it('should show login popup when logged-out on add to feed click', async () => {
 
 it('should add new tag filter', async () => {
   let mutationCalled = false;
-  renderComponent([
-    createFeedMock(),
-    createTagsSettingsMock(),
-    {
-      request: {
-        query: ADD_FILTERS_TO_FEED_MUTATION,
-        variables: { filters: { includesTags: ['react'] } },
-      },
-      result: () => {
-        mutationCalled = true;
-        return { data: { id: defaultUser.id } };
-      },
-    },
-  ]);
+  renderComponent();
   await waitFor(async () => {
-    const data = await client.getQueryData([defaultUser.id, 'tags']);
+    const data = await client.getQueryData(
+      getTagsSettingsQueryKey(defaultUser),
+    );
     expect(data).toBeTruthy();
+  });
+  mockGraphQL({
+    request: {
+      query: ADD_FILTERS_TO_FEED_MUTATION,
+      variables: { filters: { includeTags: ['react'] } },
+    },
+    result: () => {
+      mutationCalled = true;
+      return { data: { feedSettings: { id: defaultUser.id } } };
+    },
   });
   const [button] = await screen.findAllByTitle('Add tag to feed');
   button.click();
-  await waitFor(() => mutationCalled);
+  await waitFor(() => expect(mutationCalled).toBeTruthy());
   await waitFor(async () => {
     expect(button).toHaveStyleRule('visibility', 'hidden');
   });

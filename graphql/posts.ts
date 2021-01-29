@@ -28,6 +28,7 @@ export interface Post {
   views?: number;
   placeholder?: string;
   read?: boolean;
+  bookmarked?: boolean;
 }
 
 export interface Ad {
@@ -128,6 +129,22 @@ export const CANCEL_UPVOTE_MUTATION = gql`
 export const DELETE_POST_MUTATION = gql`
   mutation DeletePost($id: ID!) {
     deletePost(id: $id) {
+      _
+    }
+  }
+`;
+
+export const ADD_BOOKMARKS_MUTATION = gql`
+  mutation AddBookmarks($data: AddBookmarkInput!) {
+    addBookmarks(data: $data) {
+      _
+    }
+  }
+`;
+
+export const REMOVE_BOOKMARK_MUTATION = gql`
+  mutation RemoveBookmark($id: ID!) {
+    removeBookmark(id: $id) {
       _
     }
   }

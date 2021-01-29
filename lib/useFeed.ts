@@ -16,6 +16,7 @@ export type FeedReturnType = {
   updatePost: (index: number, post: Post) => void;
   isLoading: boolean;
   canFetchMore: boolean;
+  emptyFeed: boolean;
 };
 
 export default function useFeed<T>(
@@ -25,11 +26,12 @@ export default function useFeed<T>(
   query?: string,
   variables?: T,
 ): FeedReturnType {
+  const [emptyFeed, setEmptyFeed] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [loadedItems, setLoadedItems] = useState<FeedItem[]>([]);
   const [lastPage, setLastPage] = useState<FeedData>(null);
   const [lastAd, setLastAd] = useState<Ad>(null);
-  const { user } = useContext(AuthContext);
+  const { user, tokenRefreshed } = useContext(AuthContext);
   const items = useMemo(() => {
     if (isLoading) {
       return [
@@ -75,6 +77,9 @@ export default function useFeed<T>(
       after: lastPage?.page.pageInfo.endCursor,
       loggedIn: !!user,
     });
+    if (!lastPage && !res.page.edges.length) {
+      setEmptyFeed(true);
+    }
     setLastPage(res);
     setIsLoading(false);
     try {
@@ -88,11 +93,11 @@ export default function useFeed<T>(
 
   // First page fetch
   useEffect(() => {
-    if (query) {
+    if (query && tokenRefreshed) {
       resetFeed();
       fetchPage();
     }
-  }, [query]);
+  }, [query, tokenRefreshed]);
 
   // Add new posts to feed with a placeholder for the ad
   useEffect(() => {
@@ -127,5 +132,6 @@ export default function useFeed<T>(
     updatePost,
     isLoading,
     canFetchMore: lastPage?.page.pageInfo.hasNextPage,
+    emptyFeed,
   };
 }
