@@ -1,6 +1,8 @@
 import {
+  ADD_BOOKMARKS_MUTATION,
   CANCEL_UPVOTE_MUTATION,
   FeedData,
+  REMOVE_BOOKMARK_MUTATION,
   UPVOTE_MUTATION,
 } from '../graphql/posts';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
@@ -108,7 +110,7 @@ it('should send upvote mutation', async () => {
   ]);
   const [el] = await screen.findAllByTitle('Upvote');
   el.click();
-  await waitFor(() => mutationCalled);
+  await waitFor(() => expect(mutationCalled).toBeTruthy());
 });
 
 it('should send cancel upvote mutation', async () => {
@@ -128,7 +130,7 @@ it('should send cancel upvote mutation', async () => {
   ]);
   const [el] = await screen.findAllByTitle('Remove upvote');
   el.click();
-  await waitFor(() => mutationCalled);
+  await waitFor(() => expect(mutationCalled).toBeTruthy());
 });
 
 it('should open login modal on anonymous upvote', async () => {
@@ -144,4 +146,59 @@ it('should open login modal on anonymous upvote', async () => {
   const [el] = await screen.findAllByTitle('Upvote');
   el.click();
   expect(showLogin).toBeCalledWith(LoginModalMode.ContentQuality);
+});
+
+it('should send add bookmark mutation', async () => {
+  let mutationCalled = false;
+  renderComponent([
+    createFeedMock(),
+    {
+      request: {
+        query: ADD_BOOKMARKS_MUTATION,
+        variables: { data: { postIds: ['4f354bb73009e4adfa5dbcbf9b3c4ebf'] } },
+      },
+      result: () => {
+        mutationCalled = true;
+        return { data: { _: true } };
+      },
+    },
+  ]);
+  const [el] = await screen.findAllByTitle('Bookmark');
+  el.click();
+  await waitFor(() => expect(mutationCalled).toBeTruthy());
+});
+
+it('should send remove bookmark mutation', async () => {
+  let mutationCalled = false;
+  renderComponent([
+    createFeedMock(),
+    {
+      request: {
+        query: REMOVE_BOOKMARK_MUTATION,
+        variables: { id: '618ca73c969187a24b29205216eec3bd' },
+      },
+      result: () => {
+        mutationCalled = true;
+        return { data: { _: true } };
+      },
+    },
+  ]);
+  const [el] = await screen.findAllByTitle('Remove bookmark');
+  el.click();
+  await waitFor(() => expect(mutationCalled).toBeTruthy());
+});
+
+it('should open login modal on anonymous bookmark', async () => {
+  renderComponent(
+    [
+      createFeedMock(defaultFeedPage, ANONYMOUS_FEED_QUERY, {
+        first: 7,
+        loggedIn: false,
+      }),
+    ],
+    null,
+  );
+  const [el] = await screen.findAllByTitle('Bookmark');
+  el.click();
+  expect(showLogin).toBeCalledWith();
 });

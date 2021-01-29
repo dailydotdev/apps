@@ -1,6 +1,7 @@
 import styled from '@emotion/styled';
 import LazyImage from './LazyImage';
 import {
+  size05,
   size10,
   size1px,
   size3,
@@ -13,6 +14,7 @@ import { typoCaption1, typoTitle2 } from '../styles/typography';
 import Loader from './Loader';
 import { laptop, mobileL, tablet } from '../styles/media';
 import { pageMaxWidth } from '../styles/helpers';
+import { keyframes } from '@emotion/react';
 
 export const RoundedImage = styled(LazyImage)`
   width: ${size10};
@@ -99,4 +101,46 @@ export const ProfileHeading = styled.h1`
   margin: 0;
   align-self: flex-start;
   ${typoTitle2}
+`;
+
+export const ActiveTabIndicator = styled.div`
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: ${size4};
+  height: ${size05};
+  margin: 0 auto;
+  background: var(--theme-label-primary);
+  border-radius: 0.063rem;
+`;
+
+const PlaceholderShimmer = keyframes`
+  100% {
+    transform: translateX(100%);
+  }
+`;
+
+export const ElementPlaceholder = styled.div`
+  position: relative;
+  overflow: hidden;
+  background: var(--theme-background-secondary);
+
+  &:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      var(--theme-background-secondary),
+      var(--theme-background-tertiary) 15%,
+      var(--theme-background-secondary)
+    );
+    transform: translateX(-100%);
+    animation: ${PlaceholderShimmer} 1.25s infinite linear;
+    will-change: transform;
+  }
 `;

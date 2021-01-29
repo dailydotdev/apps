@@ -221,9 +221,7 @@ export default function ProfileLayout({
   }
 
   const { user } = useContext(AuthContext);
-  const [selectedTab, setSelectedTab] = useState(
-    tabs.findIndex((tab) => tab.path === router?.pathname),
-  );
+  const selectedTab = tabs.findIndex((tab) => tab.path === router?.pathname);
   const queryKey = ['profile', initialProfile?.id];
   const { data: fetchedProfile } = useQuery<PublicProfile>(
     queryKey,
@@ -380,12 +378,7 @@ export default function ProfileLayout({
             )}
           </ProfileInfo>
         </ProfileHeader>
-        <NavBar
-          selectedTab={selectedTab}
-          profile={profile}
-          onTabSelected={setSelectedTab}
-          router={router}
-        />
+        <NavBar selectedTab={selectedTab} profile={profile} />
         {children}
       </ProfileContainer>
       {profile.id === user?.id && (

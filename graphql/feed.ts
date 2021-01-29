@@ -25,6 +25,7 @@ export const USER_POST_FRAGMENT = gql`
     read
     upvoted
     commented
+    bookmarked
   }
 `;
 
@@ -101,6 +102,19 @@ export const TAG_FEED_QUERY = gql`
     $ranking: Ranking
   ) {
     page: tagFeed(tag: $tag, first: $first, after: $after, ranking: $ranking) {
+      ...FeedPostConnection
+    }
+  }
+  ${FEED_POST_CONNECTION_FRAGMENT}
+`;
+
+export const BOOKMARKS_FEED_QUERY = gql`
+  query BookmarksFeed(
+    $loggedIn: Boolean! = false
+    $first: Int
+    $after: String
+  ) {
+    page: bookmarksFeed(first: $first, after: $after) {
       ...FeedPostConnection
     }
   }

@@ -7,8 +7,10 @@ import { PlaceholderCard } from './cards/PlaceholderCard';
 import { size8, sizeN } from '../styles/sizes';
 import {
   Ad,
+  ADD_BOOKMARKS_MUTATION,
   CANCEL_UPVOTE_MUTATION,
   Post,
+  REMOVE_BOOKMARK_MUTATION,
   UPVOTE_MUTATION,
 } from '../graphql/posts';
 import ReactGA from 'react-ga';
@@ -27,6 +29,7 @@ export type FeedProps<T> = {
   query?: string;
   variables?: T;
   className?: string;
+  onEmptyFeed?: () => unknown;
 };
 
 const cardMaxWidth = sizeN(80);
@@ -97,9 +100,17 @@ export default function Feed<T>({
   query,
   variables,
   className,
+  onEmptyFeed,
 }: FeedProps<T>): ReactElement {
   const currentSettings = useContext(FeedSettingsContext);
-  const { items, updatePost, isLoading, fetchPage, canFetchMore } = useFeed(
+  const {
+    items,
+    updatePost,
+    isLoading,
+    fetchPage,
+    canFetchMore,
+    emptyFeed,
+  } = useFeed(
     currentSettings.pageSize,
     currentSettings.adSpot,
     currentSettings.numCards,
@@ -108,6 +119,12 @@ export default function Feed<T>({
   );
   const { user, showLogin } = useContext(AuthContext);
   const [disableFetching, setDisableFetching] = useState(false);
+
+  useEffect(() => {
+    if (emptyFeed) {
+      onEmptyFeed?.();
+    }
+  }, [emptyFeed]);
 
   const { mutateAsync: upvotePost } = useMutation<
     unknown,
@@ -159,6 +176,54 @@ export default function Feed<T>({
     },
   );
 
+  const { mutateAsync: bookmark } = useMutation<
+    unknown,
+    unknown,
+    { id: string; index: number },
+    () => void
+  >(
+    ({ id }) =>
+      request(`${apiUrl}/graphql`, ADD_BOOKMARKS_MUTATION, {
+        data: { postIds: [id] },
+      }),
+    {
+      onMutate: async ({ index }) => {
+        const item = items[index] as PostItem;
+        const { post } = item;
+        updatePost(index, {
+          ...post,
+          bookmarked: true,
+        });
+        return () => updatePost(index, post);
+      },
+      onError: (err, _, rollback) => rollback(),
+    },
+  );
+
+  const { mutateAsync: removeBookmark } = useMutation<
+    unknown,
+    unknown,
+    { id: string; index: number },
+    () => void
+  >(
+    ({ id }) =>
+      request(`${apiUrl}/graphql`, REMOVE_BOOKMARK_MUTATION, {
+        id,
+      }),
+    {
+      onMutate: async ({ index }) => {
+        const item = items[index] as PostItem;
+        const { post } = item;
+        updatePost(index, {
+          ...post,
+          bookmarked: false,
+        });
+        return () => updatePost(index, post);
+      },
+      onError: (err, _, rollback) => rollback(),
+    },
+  );
+
   const { ref: infiniteScrollRef, inView } = useInView({
     rootMargin: '20px',
     threshold: 1,
@@ -185,12 +250,34 @@ export default function Feed<T>({
     }
     ReactGA.event({
       category: 'Post',
-      action: upvoted ? 'Add' : 'Remove',
+      action: 'Upvote',
+      label: upvoted ? 'Add' : 'Remove',
     });
     if (upvoted) {
       await upvotePost({ id: post.id, index });
     } else {
       await cancelPostUpvote({ id: post.id, index });
+    }
+  };
+
+  const onBookmark = async (
+    post: Post,
+    index: number,
+    bookmarked: boolean,
+  ): Promise<void> => {
+    if (!user) {
+      showLogin();
+      return;
+    }
+    ReactGA.event({
+      category: 'Post',
+      action: 'Bookmark',
+      label: bookmarked ? 'Add' : 'Remove',
+    });
+    if (bookmarked) {
+      await bookmark({ id: post.id, index });
+    } else {
+      await removeBookmark({ id: post.id, index });
     }
   };
 
@@ -213,6 +300,9 @@ export default function Feed<T>({
             data-testid="postItem"
             onUpvoteClick={(post, upvoted) => onUpvote(post, index, upvoted)}
             onLinkClick={(post) => onPostClick(post, index)}
+            onBookmarkClick={(post, bookmarked) =>
+              onBookmark(post, index, bookmarked)
+            }
           />
         );
       case 'ad':

@@ -22,19 +22,20 @@ import { NextSeo } from 'next-seo';
 import Feed from '../../components/Feed';
 import { TAG_FEED_QUERY } from '../../graphql/feed';
 import AuthContext from '../../components/AuthContext';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
+import { useQuery } from 'react-query';
 import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import {
-  ADD_FILTERS_TO_FEED_MUTATION,
   FeedSettingsData,
   TAGS_SETTINGS_QUERY,
 } from '../../graphql/feedSettings';
 import PrimaryButton from '../../components/buttons/PrimaryButton';
 import ReactGA from 'react-ga';
 import { ButtonProps } from '../../components/buttons/BaseButton';
-import cloneDeep from 'lodash.clonedeep';
 import { laptop } from '../../styles/media';
+import useMutateFilters, {
+  getTagsSettingsQueryKey,
+} from '../../lib/useMutateFilters';
 
 type TagPageProps = { tag: string };
 
@@ -70,9 +71,8 @@ const Icon = styled(HashtagIcon)`
 const TagPage = ({ tag }: TagPageProps): ReactElement => {
   const { isFallback } = useRouter();
   const { user, showLogin, tokenRefreshed } = useContext(AuthContext);
-  const queryClient = useQueryClient();
 
-  const queryKey = [user?.id, 'tags'];
+  const queryKey = getTagsSettingsQueryKey(user);
   const { data: feedSettings } = useQuery<FeedSettingsData>(
     queryKey,
     () => request(`${apiUrl}/graphql`, TAGS_SETTINGS_QUERY),
@@ -81,28 +81,7 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
     },
   );
 
-  const { mutateAsync: addTag } = useMutation(
-    () =>
-      request(`${apiUrl}/graphql`, ADD_FILTERS_TO_FEED_MUTATION, {
-        filters: {
-          includeTags: [tag],
-        },
-      }),
-    {
-      onMutate: async () => {
-        await queryClient.cancelQueries(queryKey);
-        queryClient.setQueryData<FeedSettingsData>(queryKey, (cached) => {
-          const newData = cloneDeep(cached);
-          newData.feedSettings.includeTags.push(tag);
-          return newData;
-        });
-        return () => {
-          queryClient.setQueryData(queryKey, feedSettings);
-        };
-      },
-      onError: (err, _, rollback) => rollback(),
-    },
-  );
+  const { followTag } = useMutateFilters(user);
 
   const showAddTag = useMemo(() => {
     if (!feedSettings?.feedSettings) {
@@ -139,7 +118,7 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
         action: 'Add Filter',
       });
       if (user) {
-        await addTag();
+        await followTag({ tag });
       } else {
         showLogin();
       }

@@ -13,6 +13,7 @@ import FeedSettingsContext, {
   FeedSettings,
 } from '../FeedSettingsContext';
 import useMedia from '../../lib/useMedia';
+import { getLayout as getFooterNavBarLayout } from './FooterNavBarLayout';
 
 export type FeedLayoutProps = { children?: ReactNode };
 
@@ -53,8 +54,9 @@ export const getLayout = (
   page: ReactNode,
   pageProps: Record<string, unknown>,
   layoutProps: MainLayoutProps,
-): ReactNode => (
-  <MainLayout {...layoutProps}>
-    <FeedLayout>{page}</FeedLayout>
-  </MainLayout>
-);
+): ReactNode =>
+  getFooterNavBarLayout(
+    <MainLayout {...layoutProps}>
+      <FeedLayout>{page}</FeedLayout>
+    </MainLayout>,
+  );
