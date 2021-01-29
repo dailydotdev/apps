@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement, ReactNode, useContext } from 'react';
 import HomeIcon from '../../icons/home.svg';
 import BookmarkIcon from '../../icons/bookmark.svg';
 import FilterIcon from '../../icons/filter.svg';
@@ -13,6 +13,7 @@ import { FlippedProps, FlipperProps } from 'flip-toolkit/lib/types';
 import { ActiveTabIndicator } from '../utilities';
 import { css, Global } from '@emotion/react';
 import { laptop } from '../../styles/media';
+import AuthContext from '../AuthContext';
 
 const flipperLoader = () =>
   onPageLoad('complete').then(
@@ -50,9 +51,14 @@ const NavBar = styled(Flipper)`
   }
 
   ${ActiveTabIndicator} {
-    top: 0;
+    top: -${size1px};
     bottom: unset;
     width: ${sizeN(12)};
+  }
+
+  button,
+  a {
+    width: 100%;
   }
 `;
 
@@ -74,7 +80,12 @@ const globalStyle = css`
   }
 `;
 
-type Tab = { path: string; title: string; icon: ReactNode };
+type Tab = {
+  path: string;
+  title: string;
+  icon: ReactNode;
+  requiresLogin?: boolean;
+};
 export const tabs: Tab[] = [
   {
     path: '/',
@@ -85,6 +96,7 @@ export const tabs: Tab[] = [
     path: '/bookmarks',
     title: 'Bookmarks',
     icon: <BookmarkIcon />,
+    requiresLogin: true,
   },
   {
     path: '/filters',
@@ -96,6 +108,7 @@ export const tabs: Tab[] = [
 export default function FooterNavBarLayout({
   children,
 }: FooterNavBarLayoutProps): ReactElement {
+  const { user, showLogin } = useContext(AuthContext);
   const router = useRouter();
   const selectedTab = tabs.findIndex((tab) => tab.path === router?.pathname);
 
@@ -105,15 +118,24 @@ export default function FooterNavBarLayout({
       <NavBar flipKey={selectedTab} spring="veryGentle" element="nav">
         {tabs.map((tab, index) => (
           <div key={tab.path}>
-            <Link href={tab.path} prefetch={false} passHref>
+            {!tab.requiresLogin || user ? (
+              <Link href={tab.path} prefetch={false} passHref>
+                <TertiaryButton
+                  buttonSize="large"
+                  as="a"
+                  icon={tab.icon}
+                  title={tab.title}
+                  pressed={index === selectedTab}
+                />
+              </Link>
+            ) : (
               <TertiaryButton
                 buttonSize="large"
-                as="a"
                 icon={tab.icon}
                 title={tab.title}
-                pressed={index === selectedTab}
+                onClick={() => showLogin()}
               />
-            </Link>
+            )}
             <Flipped flipId="activeTabIndicator">
               {selectedTab === index && <ActiveTabIndicator />}
             </Flipped>
