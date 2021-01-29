@@ -145,7 +145,7 @@ export default css`
     width: 4.313rem;
   }
 
-  .ReactModal__Body--open .hide-on-modal {
+  .ReactModal__Body--open #__next.hide-on-modal {
     display: none;
 
     ${mobileL} {
