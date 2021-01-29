@@ -37,7 +37,7 @@
     "react-intersection-observer": "^8.31.0",
     "react-modal": "^3.12.1",
     "react-query": "^3.6.0",
-    "swr": "^0.4.0",
+    "swr": "^0.4.1",
     "universal-cookie": "^4.0.4"
   },
   "devDependencies": {
