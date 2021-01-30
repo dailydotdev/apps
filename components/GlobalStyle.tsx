@@ -149,7 +149,7 @@ export default css`
     display: none;
 
     ${mobileL} {
-      display: block;
+      display: flex;
     }
   }
 
