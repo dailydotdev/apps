@@ -97,7 +97,7 @@ export default function useFeed<T>(
       resetFeed();
       fetchPage();
     }
-  }, [query, tokenRefreshed]);
+  }, [query, tokenRefreshed, variables]);
 
   // Add new posts to feed with a placeholder for the ad
   useEffect(() => {

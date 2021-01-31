@@ -5,7 +5,7 @@ import ArrowIcon from '../icons/arrow.svg';
 import { focusOutline } from '../styles/helpers';
 import TagsFilter from './TagsFilter';
 
-const asideWidth = sizeN(70);
+const asideWidth = sizeN(86);
 
 const Trigger = styled.button`
   display: flex;
