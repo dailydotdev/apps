@@ -136,7 +136,7 @@ const Tag = ({
     />
     <Link href={`/tags/${tag}`} passHref prefetch={false}>
       <TertiaryButton
-        as="a"
+        tag="a"
         icon={
           <ArrowIcon
             style={{
