@@ -7,6 +7,7 @@ import React, {
 import styled from '@emotion/styled';
 import Link from 'next/link';
 import {
+  size05,
   size1,
   size1px,
   size2,
@@ -34,7 +35,7 @@ export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
 
 export const headerHeight = sizeN(12);
 
-const buttonMargin = size1;
+const buttonMargin = size05;
 
 const ProfileImage = styled.a`
   display: flex;
