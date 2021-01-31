@@ -15,6 +15,8 @@ import { css, Global } from '@emotion/react';
 import { laptop } from '../../styles/media';
 import AuthContext from '../AuthContext';
 
+export const footerNavBarBreakpoint = laptop;
+
 const flipperLoader = () =>
   onPageLoad('complete').then(
     () => import(/* webpackChunkName: "reactFlip" */ 'react-flip-toolkit'),
@@ -67,7 +69,7 @@ const globalStyle = css`
     margin-bottom: ${navBarHeight};
   }
 
-  ${laptop} {
+  ${footerNavBarBreakpoint} {
     ${NavBar} {
       && {
         display: none;
@@ -122,7 +124,7 @@ export default function FooterNavBarLayout({
               <Link href={tab.path} prefetch={false} passHref>
                 <TertiaryButton
                   buttonSize="large"
-                  as="a"
+                  tag="a"
                   icon={tab.icon}
                   title={tab.title}
                   pressed={index === selectedTab}

@@ -100,7 +100,7 @@ const BookmarksPage = (): ReactElement => {
           later. Each post you bookmark will be stored here.
         </p>
         <Link href="/" passHref>
-          <PrimaryButton as="a" buttonSize="large">
+          <PrimaryButton tag="a" buttonSize="large">
             Back to feed
           </PrimaryButton>
         </Link>
