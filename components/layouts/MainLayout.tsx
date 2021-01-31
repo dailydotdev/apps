@@ -14,22 +14,19 @@ import {
   size4,
   size8,
   sizeN,
-} from '../../../styles/sizes';
-import LazyImage from '../../LazyImage';
-import AuthContext from '../../AuthContext';
-import { focusOutline } from '../../../styles/helpers';
-import { laptop, tablet } from '../../../styles/media';
-import BetaBadge from '../../svg/BetaBadge';
-import { typoCallout } from '../../../styles/typography';
-import DailyDevLogo from '../../svg/DailyDevLogo';
-import dynamicPageLoad from '../../../lib/dynamicPageLoad';
-import TertiaryButton from '../../buttons/TertiaryButton';
-
-const MainLayoutButtons = dynamicPageLoad(
-  () =>
-    import(/* webpackChunkName: "secondPhaseButtons"*/ './SecondPhaseButtons'),
-  'complete',
-);
+} from '../../styles/sizes';
+import LazyImage from '../LazyImage';
+import AuthContext from '../AuthContext';
+import { focusOutline } from '../../styles/helpers';
+import { laptop, laptopL, tablet } from '../../styles/media';
+import BetaBadge from '../svg/BetaBadge';
+import { typoCallout } from '../../styles/typography';
+import DailyDevLogo from '../svg/DailyDevLogo';
+import TertiaryButton from '../buttons/TertiaryButton';
+import usePersistentState from '../../lib/usePersistentState';
+import QuandaryButton from '../buttons/QuandaryButton';
+import { ButtonProps } from '../buttons/BaseButton';
+import GiftIcon from '../../icons/gift.svg';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -112,12 +109,22 @@ const HomeLink = styled.a`
   }
 `;
 
+const GiftButton = styled(QuandaryButton)<ButtonProps<'a'>>`
+  margin: 0 ${buttonMargin};
+`;
+
 export default function MainLayout({
   children,
   showOnlyLogo = false,
   responsive = true,
 }: MainLayoutProps): ReactElement {
   const { user, showLogin, loadingUser } = useContext(AuthContext);
+
+  const [didClickedTshirt, setDidClickTshirt] = usePersistentState(
+    'tshirt',
+    true,
+    false,
+  );
 
   return (
     <>
@@ -130,7 +137,22 @@ export default function MainLayout({
         </Link>
         {!showOnlyLogo && !loadingUser && (
           <>
-            <MainLayoutButtons />
+            <GiftButton
+              id="header-gift-btn"
+              tag="a"
+              href="https://daily.dev/win-free-t-shirt"
+              target="_blank"
+              rel="noopener"
+              title="Get free T-shirt"
+              themeColor="avocado"
+              pressed={!didClickedTshirt}
+              onClick={() => setDidClickTshirt(true)}
+              icon={<GiftIcon />}
+              reverse
+              labelMediaQuery={laptopL}
+            >
+              {!didClickedTshirt && 'Get free T-shirt'}
+            </GiftButton>
             {user ? (
               <Link href={`/${user.username || user.id}`} passHref>
                 <ProfileImage title="Go to your profile">
