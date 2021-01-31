@@ -1,4 +1,6 @@
-import React, {
+/** @jsx jsx */
+import { jsx, css } from '@emotion/react';
+import {
   InputHTMLAttributes,
   ReactElement,
   SyntheticEvent,
@@ -235,6 +237,9 @@ export default function TextField({
             onBlur={onBlur}
             onInput={onInput}
             maxLength={maxLength}
+            css={css`
+              align-self: stretch;
+            `}
             {...props}
           />
         </InputContainer>

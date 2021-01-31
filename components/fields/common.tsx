@@ -3,7 +3,6 @@ import { typoCallout } from '../../styles/typography';
 import { size1px, size3 } from '../../styles/sizes';
 
 export const FieldInput = styled.input`
-  flex: 1;
   min-width: 0;
   padding: 0;
   border: none;

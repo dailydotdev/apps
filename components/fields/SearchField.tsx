@@ -1,3 +1,5 @@
+/** @jsx jsx */
+import { jsx, css } from '@emotion/react';
 import React, { InputHTMLAttributes, ReactElement, MouseEvent } from 'react';
 import { useInputField } from '../../lib/useInputField';
 import styled from '@emotion/styled';
@@ -122,6 +124,9 @@ export default function SearchField({
         onFocus={onFocus}
         onBlur={onBlur}
         onInput={onInput}
+        css={css`
+          flex: 1;
+        `}
       />
       <ClearButton title="Clear query" onClick={onClearClick}>
         <XIcon />
