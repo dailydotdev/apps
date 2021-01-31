@@ -81,7 +81,7 @@ export const StyledModal = styled(ReactModalAdapter)`
     padding-left: ${size5};
     padding-right: ${size5};
     background: var(--theme-overlay-quaternary);
-    z-index: 2;
+    z-index: 10;
   }
 
   .Modal {
