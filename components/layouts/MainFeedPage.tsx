@@ -2,7 +2,7 @@ import React, { ReactElement, useContext } from 'react';
 import { MainLayoutProps } from './MainLayout';
 import styled from '@emotion/styled';
 import Link from 'next/link';
-import { size6 } from '../../styles/sizes';
+import { size3, size6 } from '../../styles/sizes';
 import TertiaryButton from '../buttons/TertiaryButton';
 import { useRouter } from 'next/router';
 import Feed from '../Feed';
@@ -13,7 +13,7 @@ import { FeedPage } from '../utilities';
 const Nav = styled.nav`
   display: flex;
   align-items: center;
-  margin-bottom: ${size6};
+  margin: ${size3} 0 ${size6};
 `;
 
 export type Tab = { path: string; title: string; default?: boolean };

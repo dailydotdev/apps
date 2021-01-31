@@ -14,6 +14,8 @@ import { ActiveTabIndicator } from '../utilities';
 import { css, Global } from '@emotion/react';
 import { laptop } from '../../styles/media';
 import AuthContext from '../AuthContext';
+import dynamicPageLoad from '../../lib/dynamicPageLoad';
+import useMedia from '../../lib/useMedia';
 
 export const footerNavBarBreakpoint = laptop;
 
@@ -29,6 +31,10 @@ const Flipper = dynamicParent<FlipperProps>(
 const Flipped = dynamicParent<FlippedProps>(
   () => flipperLoader().then((mod) => mod.Flipped),
   React.Fragment,
+);
+
+const Sidebar = dynamicPageLoad(
+  () => import(/* webpackChunkName: "Sidebar" */ '../Sidebar'),
 );
 
 type FooterNavBarLayoutProps = { children?: ReactNode };
@@ -113,10 +119,16 @@ export default function FooterNavBarLayout({
   const { user, showLogin } = useContext(AuthContext);
   const router = useRouter();
   const selectedTab = tabs.findIndex((tab) => tab.path === router?.pathname);
+  const showSidebar = useMedia(
+    [footerNavBarBreakpoint.replace('@media ', '')],
+    [true],
+    false,
+  );
 
   return (
     <>
       <Global styles={globalStyle} />
+      {showSidebar && <Sidebar />}
       <NavBar flipKey={selectedTab} spring="veryGentle" element="nav">
         {tabs.map((tab, index) => (
           <div key={tab.path}>

@@ -45,6 +45,7 @@ const TagInformation = styled.div`
   align-items: center;
   margin: ${size3} 0;
   color: var(--theme-label-secondary);
+  font-weight: bold;
   ${typoCallout}
 
   button.laptop {

@@ -45,7 +45,7 @@ import useMutateFilters, {
 } from '../lib/useMutateFilters';
 import ReactGA from 'react-ga';
 
-const Container = styled.main`
+const Container = styled.div`
   display: flex;
   width: 100%;
   flex-direction: column;
@@ -149,7 +149,13 @@ const Tag = ({
   </li>
 );
 
-export default function TagsFilter(): ReactElement {
+export type TagsFilterProps = {
+  enableQueries?: boolean;
+};
+
+export default function TagsFilter({
+  enableQueries = true,
+}: TagsFilterProps): ReactElement {
   const { user, showLogin, tokenRefreshed } = useContext(AuthContext);
   const [tagsQuery, setTagsQuery] = useState<string>(null);
   const enabledSearch = tagsQuery?.length > 0;
@@ -166,7 +172,7 @@ export default function TagsFilter(): ReactElement {
         user ? ALL_TAGS_AND_SETTINGS_QUERY : ALL_TAGS_QUERY,
       ),
     {
-      enabled: tokenRefreshed,
+      enabled: tokenRefreshed && enableQueries,
     },
   );
 
