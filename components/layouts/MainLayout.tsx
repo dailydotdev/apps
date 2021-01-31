@@ -141,7 +141,11 @@ export default function MainLayout({
               />
             </Link>
             {user ? (
-              <Link href={`/${user.username || user.id}`} passHref>
+              <Link
+                href={`/${user.username || user.id}`}
+                passHref
+                prefetch={false}
+              >
                 <ProfileImage title="Go to your profile">
                   <span>{user.reputation ?? 0}</span>
                   <LazyImage
