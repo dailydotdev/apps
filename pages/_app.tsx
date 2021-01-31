@@ -1,3 +1,10 @@
+// Must be the first import
+if (process.env.NODE_ENV === 'development' || process.env.DBEUG === 'true') {
+  // Must use require here as import statements are only allowed
+  // to exist at top-level.
+  require('preact/debug');
+}
+
 import React, {
   ReactElement,
   ReactNode,
