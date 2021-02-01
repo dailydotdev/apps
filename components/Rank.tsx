@@ -16,12 +16,12 @@ const StyledSvg = styled.svg<RankProps>`
   width: ${size8};
   height: ${size8};
 
-  ${({ rank, colorByRank = true }) =>
+  ${({ rank, colorByRank }) =>
     colorByRank &&
     `
-    --stop-color1: var(--theme-rank-${rank}-color-bottom);
-    --stop-color2: var(--theme-rank-${rank}-color-top);
-  `}
+      --stop-color1: var(--theme-rank-${rank}-color-bottom);
+      --stop-color2: var(--theme-rank-${rank}-color-top);
+    `}
 `;
 
 const rankPaths: ((fill: string) => ReactNode)[] = [
@@ -145,7 +145,7 @@ export default function Rank(props: RankProps): ReactElement {
         </linearGradient>
       </defs>
       <g stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
-        {rankPaths[rank - 1](`url(${id})`)}
+        {rankPaths[rank - 1](`url(#${id})`)}
       </g>
     </StyledSvg>
   );

@@ -317,6 +317,7 @@ export default function ProfileLayout({
               {userRank?.userReadingRank?.currentRank > 0 && (
                 <StyledRank
                   rank={userRank.userReadingRank.currentRank}
+                  colorByRank
                   data-testid="rank"
                 />
               )}
