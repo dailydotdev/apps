@@ -72,6 +72,8 @@ const Icon = styled(HashtagIcon)`
 const TagPage = ({ tag }: TagPageProps): ReactElement => {
   const { isFallback } = useRouter();
   const { user, showLogin, tokenRefreshed } = useContext(AuthContext);
+  // Must be memoized to prevent refreshing the feed
+  const queryVariables = useMemo(() => ({ tag }), [tag]);
 
   const queryKey = getTagsSettingsQueryKey(user);
   const { data: feedSettings } = useQuery<FeedSettingsData>(
@@ -145,7 +147,7 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
       </TagInformation>
       <Feed
         query={TAG_FEED_QUERY}
-        variables={{ tag }}
+        variables={queryVariables}
         css={css`
           margin-top: ${size3};
           margin-bottom: ${size3};
