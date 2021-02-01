@@ -1,4 +1,10 @@
-import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import React, {
+  DependencyList,
+  ReactElement,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import styled from '@emotion/styled';
 import useFeed, { FeedItem, PostItem } from '../lib/useFeed';
 import { PostCard } from './cards/PostCard';
@@ -30,6 +36,7 @@ export type FeedProps<T> = {
   variables?: T;
   className?: string;
   onEmptyFeed?: () => unknown;
+  dep?: DependencyList;
 };
 
 const cardMaxWidth = sizeN(80);
@@ -101,6 +108,7 @@ export default function Feed<T>({
   variables,
   className,
   onEmptyFeed,
+  dep,
 }: FeedProps<T>): ReactElement {
   const currentSettings = useContext(FeedSettingsContext);
   const {
@@ -116,6 +124,7 @@ export default function Feed<T>({
     currentSettings.numCards,
     query,
     variables,
+    dep,
   );
   const { user, showLogin } = useContext(AuthContext);
   const [disableFetching, setDisableFetching] = useState(false);

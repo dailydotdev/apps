@@ -1,4 +1,10 @@
-import { useContext, useEffect, useMemo, useState } from 'react';
+import {
+  DependencyList,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import request from 'graphql-request';
 import { Ad, FeedData, Post } from '../graphql/posts';
 import AuthContext from '../components/AuthContext';
@@ -25,6 +31,7 @@ export default function useFeed<T>(
   placeholdersPerPage: number,
   query?: string,
   variables?: T,
+  dep?: DependencyList,
 ): FeedReturnType {
   const [emptyFeed, setEmptyFeed] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -91,13 +98,17 @@ export default function useFeed<T>(
     }
   };
 
+  const refreshFeed = async (): Promise<void> => {
+    resetFeed();
+    await fetchPage();
+  };
+
   // First page fetch
   useEffect(() => {
     if (query && tokenRefreshed) {
-      resetFeed();
-      fetchPage();
+      refreshFeed();
     }
-  }, [query, tokenRefreshed, variables]);
+  }, [query, tokenRefreshed, variables, ...(dep ?? [])]);
 
   // Add new posts to feed with a placeholder for the ad
   useEffect(() => {

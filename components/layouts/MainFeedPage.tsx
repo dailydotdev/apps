@@ -1,4 +1,10 @@
-import React, { ReactElement, useContext } from 'react';
+import React, {
+  DependencyList,
+  ReactElement,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { MainLayoutProps } from './MainLayout';
 import styled from '@emotion/styled';
 import Link from 'next/link';
@@ -9,6 +15,10 @@ import Feed from '../Feed';
 import AuthContext from '../AuthContext';
 import { getLayout } from './FeedLayout';
 import { FeedPage } from '../utilities';
+import { getTagsSettingsQueryKey } from '../../lib/useMutateFilters';
+import { useQuery } from 'react-query';
+import { FeedSettingsData } from '../../graphql/feedSettings';
+import { LoggedUser } from '../../lib/user';
 
 const Nav = styled.nav`
   display: flex;
@@ -39,6 +49,22 @@ export type MainFeedPageProps<T> = {
   variables?: T;
 };
 
+const getQueryBasedOnLogin = (
+  tokenRefreshed: boolean,
+  user: LoggedUser | null,
+  query: string,
+  queryIfLogged: string | null,
+): string | null => {
+  if (tokenRefreshed) {
+    if (user && queryIfLogged) {
+      return queryIfLogged;
+    } else {
+      return query;
+    }
+  }
+  return null;
+};
+
 export default function MainFeedPage<T>({
   query,
   queryIfLogged,
@@ -46,14 +72,32 @@ export default function MainFeedPage<T>({
 }: MainFeedPageProps<T>): ReactElement {
   const router = useRouter();
   const { user, tokenRefreshed } = useContext(AuthContext);
-  let finalQuery: string | null = null;
-  if (tokenRefreshed) {
-    if (user && queryIfLogged) {
-      finalQuery = queryIfLogged;
-    } else {
-      finalQuery = query;
+  const finalQuery = getQueryBasedOnLogin(
+    tokenRefreshed,
+    user,
+    query,
+    queryIfLogged,
+  );
+  const [loadedFeedSettings, setLoadedFeedSettings] = useState(false);
+  const [feedDeps, setFeedDeps] = useState<DependencyList>([0]);
+
+  const queryKey = getTagsSettingsQueryKey(user);
+  const { data: feedSettings } = useQuery<FeedSettingsData>(
+    queryKey,
+    () => ({ feedSettings: { includeTags: [] } }),
+    {
+      enabled: false,
+    },
+  );
+  useEffect(() => {
+    if (feedSettings) {
+      if (loadedFeedSettings) {
+        setFeedDeps([feedSettings.feedSettings.includeTags.length]);
+      } else {
+        setLoadedFeedSettings(true);
+      }
     }
-  }
+  }, [feedSettings]);
 
   return (
     <FeedPage>
@@ -73,7 +117,7 @@ export default function MainFeedPage<T>({
           </Link>
         ))}
       </Nav>
-      <Feed query={finalQuery} variables={variables} />
+      <Feed query={finalQuery} variables={variables} dep={feedDeps} />
     </FeedPage>
   );
 }
