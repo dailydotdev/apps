@@ -15,6 +15,8 @@ const seo: NextSeoProps = {
   ...defaultSeo,
 };
 
+const variables = { ranking: 'TIME' };
+
 const Recent = (): ReactElement => {
   return (
     <>
@@ -22,7 +24,7 @@ const Recent = (): ReactElement => {
       <MainFeedPage
         query={ANONYMOUS_FEED_QUERY}
         queryIfLogged={FEED_QUERY}
-        variables={{ ranking: 'TIME' }}
+        variables={variables}
       />
     </>
   );
