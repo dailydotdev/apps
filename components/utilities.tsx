@@ -2,8 +2,10 @@ import styled from '@emotion/styled';
 import LazyImage from './LazyImage';
 import {
   size05,
+  size1,
   size10,
   size1px,
+  size2,
   size3,
   size4,
   size6,
@@ -14,7 +16,7 @@ import { typoCaption1, typoTitle2 } from '../styles/typography';
 import Loader from './Loader';
 import { laptop, mobileL, tablet } from '../styles/media';
 import { pageMaxWidth } from '../styles/helpers';
-import { keyframes } from '@emotion/react';
+import { css, keyframes } from '@emotion/react';
 
 export const RoundedImage = styled(LazyImage)`
   width: ${size10};
@@ -142,5 +144,29 @@ export const ElementPlaceholder = styled.div`
     transform: translateX(-100%);
     animation: ${PlaceholderShimmer} 1.25s infinite linear;
     will-change: transform;
+  }
+`;
+
+export const customScrollbars = css`
+  &::-webkit-scrollbar {
+    width: ${size2};
+    background-color: transparent;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: ${size1};
+    background: var(--theme-background-primary);
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: var(--theme-label-tertiary);
+  }
+
+  &::-webkit-scrollbar-thumb:active {
+    background: var(--theme-label-primary);
   }
 `;

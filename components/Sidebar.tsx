@@ -1,9 +1,12 @@
+/** @jsx jsx */
+import { jsx } from '@emotion/react';
 import React, { ReactElement, useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { size1px, size3, size4, size7, sizeN } from '../styles/sizes';
 import ArrowIcon from '../icons/arrow.svg';
 import { focusOutline } from '../styles/helpers';
 import TagsFilter from './TagsFilter';
+import { customScrollbars } from './utilities';
 
 const asideWidth = sizeN(89);
 
@@ -91,7 +94,7 @@ export default function Sidebar(): ReactElement {
 
   return (
     <Container opened={opened}>
-      <Aside>
+      <Aside css={customScrollbars}>
         <TagsFilter enableQueries={enableQueries} />
       </Aside>
       <Trigger title="Open sidebar" onClick={() => setOpened(!opened)}>
