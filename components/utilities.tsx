@@ -159,11 +159,11 @@ export const customScrollbars = css`
 
   &::-webkit-scrollbar-thumb {
     border-radius: ${size1};
-    background: var(--theme-background-primary);
+    background: var(--theme-label-tertiary);
   }
 
   &::-webkit-scrollbar-thumb:hover {
-    background: var(--theme-label-tertiary);
+    background: var(--theme-label-primary);
   }
 
   &::-webkit-scrollbar-thumb:active {
