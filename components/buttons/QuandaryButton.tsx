@@ -1,4 +1,10 @@
-import React, { HTMLAttributes, ReactElement, useRef, useState } from 'react';
+import React, {
+  HTMLAttributes,
+  LegacyRef,
+  ReactElement,
+  useRef,
+  useState,
+} from 'react';
 import BaseButton, {
   ButtonProps,
   ButtonSize,
@@ -135,14 +141,14 @@ export default function QuandaryButton<
   let labelProps: HTMLAttributes<HTMLLabelElement> = {};
   let buttonProps: {
     className?: string;
-    ref?: React.MutableRefObject<{ base: HTMLButtonElement }>;
+    ref?: LegacyRef<HTMLButtonElement>;
   } = {};
   if (tag === 'a') {
-    const buttonRef = useRef<{ base: HTMLButtonElement }>(null);
+    const buttonRef = useRef<HTMLButtonElement>(null);
     const [isHovered, setIsHovered] = useState(false);
     const onLabelClick = (event: React.MouseEvent<HTMLLabelElement>): void => {
       event.preventDefault();
-      buttonRef.current.base.click();
+      buttonRef.current.click();
     };
     labelProps = {
       onMouseOver: () => setIsHovered(true),

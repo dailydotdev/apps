@@ -1,3 +1,5 @@
+/** @jsx jsx */
+import { jsx, css } from '@emotion/react';
 import React, {
   HTMLAttributes,
   ReactElement,
@@ -27,11 +29,21 @@ import TertiaryButton from '../buttons/TertiaryButton';
 import { ButtonProps } from '../buttons/BaseButton';
 import BookmarkIcon from '../../icons/bookmark.svg';
 import { footerNavBarBreakpoint } from './FooterNavBarLayout';
+import dynamicPageLoad from '../../lib/dynamicPageLoad';
+import { headerRankHeight } from '../HeaderRankProgress';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
   responsive?: boolean;
+  showRank?: boolean;
 }
+
+const HeaderRankProgress = dynamicPageLoad(
+  () =>
+    import(
+      /* webpackChunkName: "headerRankProgress" */ '../HeaderRankProgress'
+    ),
+);
 
 export const headerHeight = sizeN(12);
 
@@ -79,6 +91,7 @@ const HomeLink = styled.a`
 `;
 
 const Header = styled.header<{ responsive: boolean }>`
+  position: relative;
   display: flex;
   height: ${headerHeight};
   align-items: center;
@@ -119,6 +132,7 @@ export default function MainLayout({
   children,
   showOnlyLogo = false,
   responsive = true,
+  showRank = false,
 }: MainLayoutProps): ReactElement {
   const { user, showLogin, loadingUser } = useContext(AuthContext);
 
@@ -160,6 +174,18 @@ export default function MainLayout({
               <TertiaryButton onClick={() => showLogin()}>Login</TertiaryButton>
             )}
           </>
+        )}
+        {showRank && (
+          <HeaderRankProgress
+            css={css`
+              position: absolute;
+              left: 0;
+              right: 0;
+              bottom: calc(${headerRankHeight} / -2);
+              margin: 0 auto;
+              z-index: 3;
+            `}
+          />
         )}
       </Header>
       {children}

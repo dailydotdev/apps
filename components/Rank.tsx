@@ -1,5 +1,7 @@
 import React, {
+  forwardRef,
   HTMLAttributes,
+  LegacyRef,
   ReactElement,
   ReactNode,
   useState,
@@ -127,7 +129,10 @@ const rankPaths: ((fill: string) => ReactNode)[] = [
   ),
 ];
 
-export default function Rank(props: RankProps): ReactElement {
+export default forwardRef(function Rank(
+  props: RankProps,
+  ref: LegacyRef<SVGSVGElement>,
+): ReactElement {
   const [id] = useState(`rank-${Math.random().toString(36).substring(7)}`);
 
   const { rank } = props;
@@ -137,6 +142,7 @@ export default function Rank(props: RankProps): ReactElement {
       {...props}
       viewBox="0 0 24 24"
       xmlns="http://www.w3.org/2000/svg"
+      ref={ref}
     >
       <defs>
         <linearGradient x1="50%" y1="100%" x2="50%" y2="0%" id={id}>
@@ -145,8 +151,8 @@ export default function Rank(props: RankProps): ReactElement {
         </linearGradient>
       </defs>
       <g stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
-        {rankPaths[rank - 1](`url(#${id})`)}
+        {rankPaths[rank > 0 ? rank - 1 : 0](`url(#${id})`)}
       </g>
     </StyledSvg>
   );
-}
+});

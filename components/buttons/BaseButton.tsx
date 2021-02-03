@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React, { forwardRef, LegacyRef, ReactElement, ReactNode } from 'react';
 import styled from '@emotion/styled';
 import { typoCallout } from '../../styles/typography';
 import {
@@ -249,15 +249,20 @@ export type ButtonProps<
   Tag extends keyof JSX.IntrinsicElements
 > = BaseButtonProps & JSX.IntrinsicElements[Tag];
 
-export default function BaseButton<Tag extends keyof JSX.IntrinsicElements>({
-  loading,
-  pressed,
-  icon,
-  rightIcon,
-  children,
-  tag = 'button',
-  ...props
-}: StyledButtonProps & ButtonProps<Tag>): ReactElement {
+export default forwardRef(function BaseButton<
+  Tag extends keyof JSX.IntrinsicElements
+>(
+  {
+    loading,
+    pressed,
+    icon,
+    rightIcon,
+    children,
+    tag = 'button',
+    ...props
+  }: StyledButtonProps & ButtonProps<Tag>,
+  ref: LegacyRef<Tag>,
+): ReactElement {
   return (
     <StyledButton
       as={tag}
@@ -265,6 +270,7 @@ export default function BaseButton<Tag extends keyof JSX.IntrinsicElements>({
       iconOnly={icon && !children && !rightIcon}
       aria-busy={loading}
       aria-pressed={pressed}
+      ref={ref as LegacyRef<HTMLButtonElement>}
     >
       {icon}
       {children && <span>{children}</span>}
@@ -272,4 +278,4 @@ export default function BaseButton<Tag extends keyof JSX.IntrinsicElements>({
       {loading && <ButtonLoader data-testid="buttonLoader" />}
     </StyledButton>
   );
-}
+});

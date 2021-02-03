@@ -5,8 +5,9 @@ export default function usePersistentState<T>(
   key: string,
   initialValue: T,
   valueWhenCacheEmpty?: T,
-): [T, (value: T) => Promise<void>] {
+): [T, (value: T) => Promise<void>, boolean] {
   const [value, setValue] = useState(initialValue);
+  const [loaded, setLoaded] = useState(false);
 
   const setValueAndPersist = (newValue: T): Promise<void> => {
     if (newValue !== value) {
@@ -23,8 +24,9 @@ export default function usePersistentState<T>(
       } else if (valueWhenCacheEmpty !== undefined) {
         setValue(valueWhenCacheEmpty);
       }
+      setLoaded(true);
     });
   }, []);
 
-  return [value, setValueAndPersist];
+  return [value, setValueAndPersist, loaded];
 }

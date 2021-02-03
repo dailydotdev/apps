@@ -37,6 +37,7 @@
     "react-intersection-observer": "^8.31.0",
     "react-modal": "^3.12.1",
     "react-query": "^3.6.0",
+    "react-transition-group": "^4.4.1",
     "swr": "^0.4.1",
     "universal-cookie": "^4.0.4"
   },
@@ -58,6 +59,7 @@
     "@types/node-fetch": "^2.5.8",
     "@types/react": "^17.0.0",
     "@types/react-modal": "^3.10.6",
+    "@types/react-transition-group": "^4.4.0",
     "@typescript-eslint/eslint-plugin": "^4.14.1",
     "@typescript-eslint/parser": "^4.14.1",
     "babel-jest": "^26.6.3",

@@ -85,7 +85,7 @@ export const FeedPage = styled.main`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: ${size3} ${size6};
+  padding: ${sizeN(15)} ${size6} ${size3};
 
   ${laptop} {
     padding-left: ${sizeN(16)};
