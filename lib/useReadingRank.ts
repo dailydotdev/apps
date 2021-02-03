@@ -111,7 +111,7 @@ export default function useReadingRank(): ReturnType {
   }, [user, tokenRefreshed, loadedCache]);
 
   return {
-    isLoading: !cachedRank || isLoading,
+    isLoading: !(cachedRank || !isLoading),
     rank:
       levelUp && neverShowRankModal
         ? remoteRank?.rank.currentRank
