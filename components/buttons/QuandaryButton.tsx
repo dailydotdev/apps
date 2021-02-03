@@ -141,7 +141,7 @@ export default function QuandaryButton<
   let labelProps: HTMLAttributes<HTMLLabelElement> = {};
   let buttonProps: {
     className?: string;
-    ref?: LegacyRef<HTMLButtonElement>;
+    innerRef?: LegacyRef<HTMLButtonElement>;
   } = {};
   if (tag === 'a') {
     const buttonRef = useRef<HTMLButtonElement>(null);
@@ -157,7 +157,7 @@ export default function QuandaryButton<
     };
     buttonProps = {
       className: isHovered && 'hover',
-      ref: buttonRef,
+      innerRef: buttonRef,
     };
   }
 
