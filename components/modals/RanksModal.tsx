@@ -111,7 +111,6 @@ const RankProgressContainer = styled.div`
   margin-top: ${size2};
   align-items: center;
   justify-content: center;
-  background: var(--theme-background-primary);
   border-radius: 100%;
 
   ${responsiveModalBreakpoint} {
@@ -119,6 +118,7 @@ const RankProgressContainer = styled.div`
     left: 0;
     right: 0;
     top: -${size1px};
+    background: var(--theme-background-primary);
     margin: 0 auto;
     transform: translateY(-50%);
     z-index: 1;
