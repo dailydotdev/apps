@@ -151,16 +151,17 @@ export default function MainLayout({
             <LogoTextBeta />
           </HomeLink>
         </Link>
-        {!showOnlyLogo && !loadingUser && (
-          <>
-            <Link href="/bookmarks" passHref prefetch={false}>
-              <BookmarksButton
-                tag="a"
-                icon={<BookmarkIcon />}
-                title="Bookmarks"
-              />
-            </Link>
-            {user ? (
+        {!showOnlyLogo &&
+          !loadingUser &&
+          (user ? (
+            <>
+              <Link href="/bookmarks" passHref prefetch={false}>
+                <BookmarksButton
+                  tag="a"
+                  icon={<BookmarkIcon />}
+                  title="Bookmarks"
+                />
+              </Link>
               <Link
                 href={`/${user.username || user.id}`}
                 passHref
@@ -176,11 +177,17 @@ export default function MainLayout({
                   />
                 </ProfileImage>
               </Link>
-            ) : (
+            </>
+          ) : (
+            <>
+              <BookmarksButton
+                icon={<BookmarkIcon />}
+                title="Bookmarks"
+                onClick={() => showLogin()}
+              />
               <TertiaryButton onClick={() => showLogin()}>Login</TertiaryButton>
-            )}
-          </>
-        )}
+            </>
+          ))}
         {showRank && (
           <HeaderRankProgress
             css={css`
