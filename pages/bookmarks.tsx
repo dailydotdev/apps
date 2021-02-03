@@ -6,7 +6,15 @@ import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { NextSeo } from 'next-seo';
 import Feed from '../components/Feed';
 import { BOOKMARKS_FEED_QUERY } from '../graphql/feed';
-import { size10, size2, size3, size4, size6, sizeN } from '../styles/sizes';
+import {
+  headerHeight,
+  size10,
+  size2,
+  size3,
+  size4,
+  size6,
+  sizeN,
+} from '../styles/sizes';
 import { FeedPage } from '../components/utilities';
 import styled from '@emotion/styled';
 import { typoCallout, typoTitle1 } from '../styles/typography';
@@ -17,7 +25,6 @@ import AuthContext from '../components/AuthContext';
 import { useRouter } from 'next/router';
 import PrimaryButton from '../components/buttons/PrimaryButton';
 import Link from 'next/link';
-import { headerHeight } from '../components/layouts/MainLayout';
 
 const Header = styled.div`
   display: flex;

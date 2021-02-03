@@ -9,6 +9,7 @@ import React, {
 import styled from '@emotion/styled';
 import Link from 'next/link';
 import {
+  headerHeight,
   size05,
   size1,
   size1px,
@@ -16,7 +17,6 @@ import {
   size3,
   size4,
   size8,
-  sizeN,
 } from '../../styles/sizes';
 import LazyImage from '../LazyImage';
 import AuthContext from '../AuthContext';
@@ -28,7 +28,6 @@ import { ButtonProps } from '../buttons/BaseButton';
 import BookmarkIcon from '../../icons/bookmark.svg';
 import { footerNavBarBreakpoint } from './FooterNavBarLayout';
 import dynamicPageLoad from '../../lib/dynamicPageLoad';
-import { headerRankHeight } from '../HeaderRankProgress';
 import Logo from '../svg/Logo';
 import LogoTextBeta from '../svg/LogoTextBeta';
 
@@ -44,8 +43,6 @@ const HeaderRankProgress = dynamicPageLoad(
       /* webpackChunkName: "headerRankProgress" */ '../HeaderRankProgress'
     ),
 );
-
-export const headerHeight = sizeN(12);
 
 const buttonMargin = size05;
 
@@ -190,9 +187,10 @@ export default function MainLayout({
               position: absolute;
               left: 0;
               right: 0;
-              bottom: calc(${headerRankHeight} / -2);
+              bottom: -${size1px};
               margin: 0 auto;
               z-index: 3;
+              transform: translateY(50%);
             `}
           />
         )}

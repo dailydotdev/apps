@@ -37,7 +37,7 @@ export default function useReadingRank(): ReturnType {
     MyRankData & { userId: string }
   >('rank', null);
   const queryKey = getRankQueryKey(user);
-  const { data: remoteRank, isLoading } = useQuery<MyRankData>(
+  const { data: remoteRank } = useQuery<MyRankData>(
     queryKey,
     () =>
       request(`${apiUrl}/graphql`, MY_READING_RANK_QUERY, {
@@ -111,7 +111,7 @@ export default function useReadingRank(): ReturnType {
   }, [user, tokenRefreshed, loadedCache]);
 
   return {
-    isLoading: !(cachedRank || !isLoading),
+    isLoading: !cachedRank,
     rank:
       levelUp && neverShowRankModal
         ? remoteRank?.rank.currentRank

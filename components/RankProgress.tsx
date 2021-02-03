@@ -129,6 +129,7 @@ export type RankProgressProps = {
   showCurrentRankSteps?: boolean;
   className?: string;
   onRankAnimationFinish?: () => unknown;
+  fillByDefault?: boolean;
 };
 
 export default function RankProgress({
@@ -138,6 +139,7 @@ export default function RankProgress({
   showCurrentRankSteps = false,
   className,
   onRankAnimationFinish,
+  fillByDefault = false,
 }: RankProgressProps): ReactElement {
   const [prevProgress, setPrevProgress] = useState(progress);
   const [animatingProgress, setAnimatingProgress] = useState(false);
@@ -269,7 +271,7 @@ export default function RankProgress({
   return (
     <Container
       rank={shownRank}
-      forceColor={animatingProgress || forceColor}
+      forceColor={animatingProgress || forceColor || fillByDefault}
       className={className}
     >
       {showRankAnimation && <Attention ref={attentionRef} />}

@@ -20,9 +20,10 @@ const StyledSvg = styled.svg<RankProps>`
 
   ${({ rank, colorByRank }) =>
     colorByRank &&
-    `
+    `&& {
       --stop-color1: var(--theme-rank-${rank}-color-bottom);
       --stop-color2: var(--theme-rank-${rank}-color-top);
+    }
     `}
 `;
 

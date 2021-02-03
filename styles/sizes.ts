@@ -26,3 +26,6 @@ export const size9 = `${baseSize * 9}${units}`;
 export const size10 = `${baseSize * 10}${units}`;
 
 export const sizeN = (n: number): string => `${baseSize * n}${units}`;
+
+export const headerHeight = sizeN(12);
+export const headerRankHeight = sizeN(18);
