@@ -247,7 +247,8 @@ export interface BaseButtonProps {
 
 export type ButtonProps<
   Tag extends keyof JSX.IntrinsicElements
-> = BaseButtonProps & JSX.IntrinsicElements[Tag] & { innerRef: LegacyRef<Tag> };
+> = BaseButtonProps &
+  JSX.IntrinsicElements[Tag] & { innerRef?: LegacyRef<Tag> };
 
 export default function BaseButton<Tag extends keyof JSX.IntrinsicElements>({
   loading,
