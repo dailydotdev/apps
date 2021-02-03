@@ -22,15 +22,15 @@ import LazyImage from '../LazyImage';
 import AuthContext from '../AuthContext';
 import { focusOutline } from '../../styles/helpers';
 import { laptop, tablet } from '../../styles/media';
-import BetaBadge from '../svg/BetaBadge';
 import { typoCallout } from '../../styles/typography';
-import DailyDevLogo from '../svg/DailyDevLogo';
 import TertiaryButton from '../buttons/TertiaryButton';
 import { ButtonProps } from '../buttons/BaseButton';
 import BookmarkIcon from '../../icons/bookmark.svg';
 import { footerNavBarBreakpoint } from './FooterNavBarLayout';
 import dynamicPageLoad from '../../lib/dynamicPageLoad';
 import { headerRankHeight } from '../HeaderRankProgress';
+import Logo from '../svg/Logo';
+import LogoTextBeta from '../svg/LogoTextBeta';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -80,8 +80,17 @@ const HomeLink = styled.a`
   align-items: center;
   margin-right: auto;
 
-  .logo {
-    width: 6.25rem;
+  svg {
+    height: 1.125rem;
+
+    &:nth-of-type(2) {
+      display: none;
+      margin-left: ${size1};
+
+      ${laptop} {
+        display: unset;
+      }
+    }
   }
 
   .badge {
@@ -141,8 +150,8 @@ export default function MainLayout({
       <Header responsive={responsive}>
         <Link href="/" passHref prefetch={false}>
           <HomeLink title="Home">
-            <DailyDevLogo />
-            <BetaBadge className="badge" />
+            <Logo />
+            <LogoTextBeta />
           </HomeLink>
         </Link>
         {!showOnlyLogo && !loadingUser && (

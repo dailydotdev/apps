@@ -58,6 +58,11 @@ const Container = styled.div<{ opened: boolean }>`
   transform: translateX(-${asideWidth});
   will-change: transform;
   transition: transform 0.2s linear 0.1s;
+  pointer-events: none;
+
+  > * {
+    pointer-events: all;
+  }
 
   ${({ opened }) =>
     opened &&
