@@ -1,6 +1,6 @@
 import React, { Fragment, ReactElement, ReactNode } from 'react';
 import styled from '@emotion/styled';
-import { size1, size10, size3, size4 } from '../../styles/sizes';
+import sizeN from '../../macros/sizeN.macro';
 import { typoBody, typoCallout } from '../../styles/typography';
 import { focusOutline } from '../../styles/helpers';
 import { Connection } from '../../graphql/common';
@@ -9,12 +9,12 @@ import { InfiniteQueryObserverBaseResult } from 'react-query';
 export const ActivityContainer = styled.section`
   display: flex;
   flex-direction: column;
-  margin-top: ${size10};
+  margin-top: ${sizeN(10)};
 `;
 
 export const ActivitySectionTitle = styled.h2`
   display: flex;
-  margin: 0 0 ${size4};
+  margin: 0 0 ${sizeN(4)};
   color: var(--theme-label-primary);
   font-weight: bold;
   ${typoBody}
@@ -22,12 +22,12 @@ export const ActivitySectionTitle = styled.h2`
   span {
     color: var(--theme-label-secondary);
     font-weight: normal;
-    margin-left: ${size1};
+    margin-left: ${sizeN(1)};
   }
 `;
 
 const LoadMore = styled.button`
-  margin-top: ${size3};
+  margin-top: ${sizeN(3)};
   align-self: flex-start;
   padding: 0;
   background: none;

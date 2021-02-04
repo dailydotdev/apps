@@ -4,7 +4,7 @@ import { mobileL } from '../../styles/media';
 import { Props as ModalProps } from './StyledModal';
 import React, { ReactElement, useState } from 'react';
 import TextField from '../fields/TextField';
-import { size2, size3 } from '../../styles/sizes';
+import sizeN from '../../macros/sizeN.macro';
 import XIcon from '../../icons/x.svg';
 import { useMutation, useQuery } from 'react-query';
 import {
@@ -37,7 +37,7 @@ const Title = styled.h1`
 
 const SearchField = styled(TextField)`
   align-self: stretch;
-  margin-bottom: ${size3};
+  margin-bottom: ${sizeN(3)};
 `;
 
 const ResultsList = styled.ul`
@@ -46,7 +46,7 @@ const ResultsList = styled.ul`
   padding: 0;
   margin: 0;
   list-style: none;
-  gap: ${size2};
+  gap: ${sizeN(2)};
 `;
 
 const ResultItem = styled.li`
@@ -119,7 +119,7 @@ export default function KeywordSynonymModal({
       )}
       <PrimaryButton
         onClick={() => setSynonym(query)}
-        style={{ marginTop: size2, alignSelf: 'flex-start' }}
+        style={{ marginTop: sizeN(2), alignSelf: 'flex-start' }}
       >
         Create
       </PrimaryButton>

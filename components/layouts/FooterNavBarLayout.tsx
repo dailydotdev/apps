@@ -3,7 +3,8 @@ import HomeIcon from '../../icons/home.svg';
 import BookmarkIcon from '../../icons/bookmark.svg';
 import FilterIcon from '../../icons/filter.svg';
 import styled from '@emotion/styled';
-import { size1px, size2, sizeN } from '../../styles/sizes';
+import sizeN from '../../macros/sizeN.macro';
+import rem from '../../macros/rem.macro';
 import TertiaryButton from '../buttons/TertiaryButton';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -48,10 +49,10 @@ const NavBar = styled(Flipper)`
   bottom: 0;
   width: 100%;
   height: ${navBarHeight};
-  grid-column-gap: ${size2};
+  grid-column-gap: ${sizeN(2)};
   grid-auto-flow: column;
   background: var(--theme-background-primary);
-  border-top: ${size1px} solid var(--theme-divider-tertiary);
+  border-top: ${rem(1)} solid var(--theme-divider-tertiary);
   z-index: 2;
 
   > div {
@@ -59,7 +60,7 @@ const NavBar = styled(Flipper)`
   }
 
   ${ActiveTabIndicator} {
-    top: -${size1px};
+    top: -${rem(1)};
     bottom: unset;
     width: ${sizeN(12)};
   }

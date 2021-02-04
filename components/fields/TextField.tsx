@@ -8,7 +8,7 @@ import {
   useState,
 } from 'react';
 import styled from '@emotion/styled';
-import { size05, size1, size2, size9, sizeN } from '../../styles/sizes';
+import sizeN from '../../macros/sizeN.macro';
 import { typoCallout, typoCaption1 } from '../../styles/typography';
 import { useInputField } from '../../lib/useInputField';
 import { BaseField, FieldInput } from './common';
@@ -42,22 +42,22 @@ const Label = styled.label`
 `;
 
 const CompactLabel = styled(Label)`
-  margin-bottom: ${size1};
-  padding: 0 ${size2};
+  margin-bottom: ${sizeN(1)};
+  padding: 0 ${sizeN(2)};
   color: var(--theme-label-primary);
   font-weight: bold;
 `;
 
 const CharsCount = styled.div`
-  margin: 0 0 0 ${size2};
+  margin: 0 0 0 ${sizeN(2)};
   font-weight: bold;
   ${typoCallout}
 `;
 
 const Hint = styled.div<{ valid?: boolean; saveHintSpace?: boolean }>`
   ${({ saveHintSpace }) => (saveHintSpace ? 'height: 1rem;' : '')}
-  margin-top: ${size1};
-  padding: 0 ${size2};
+  margin-top: ${sizeN(1)};
+  padding: 0 ${sizeN(2)};
   color: var(--theme-label-tertiary);
 
   ${({ valid }) =>
@@ -76,7 +76,7 @@ interface FieldProps {
 }
 
 const insetShadow = (color: string) =>
-  `box-shadow: inset ${size05} 0 0 0 ${color};`;
+  `box-shadow: inset ${sizeN(0.5)} 0 0 0 ${color};`;
 
 const applyFocusAndValid = (focused: boolean, valid: boolean): string => {
   const borderColor =
@@ -106,7 +106,7 @@ const applyFocusAndValid = (focused: boolean, valid: boolean): string => {
 };
 
 const Field = styled(BaseField)<FieldProps>`
-  height: ${({ compact }) => (compact ? size9 : sizeN(12))};
+  height: ${({ compact }) => (compact ? sizeN(9) : sizeN(12))};
   border-radius: ${({ compact }) => (compact ? sizeN(2.5) : sizeN(3.5))};
 
   ${({ focused, valid }) => applyFocusAndValid(focused, valid)}

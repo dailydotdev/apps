@@ -8,14 +8,8 @@ import React, {
 } from 'react';
 import styled from '@emotion/styled';
 import { updateProfile, UserProfile } from '../../lib/user';
-import {
-  size1,
-  size10,
-  size1px,
-  size3,
-  size4,
-  size5,
-} from '../../styles/sizes';
+import sizeN from '../../macros/sizeN.macro';
+import rem from '../../macros/rem.macro';
 import { typoBody, typoCallout } from '../../styles/typography';
 import { focusOutline } from '../../styles/helpers';
 import TextField from '../fields/TextField';
@@ -36,18 +30,18 @@ const Form = styled.form`
   display: flex;
   flex-direction: column;
   width: 100%;
-  margin: ${size10} 0 0;
+  margin: ${sizeN(10)} 0 0;
   padding: 0;
 `;
 
 const FormField = styled(TextField)`
   align-self: stretch;
-  margin-bottom: ${size3};
+  margin-bottom: ${sizeN(3)};
 `;
 
 const OptionalSummary = styled.summary`
   display: flex;
-  height: ${size10};
+  height: ${sizeN(10)};
   align-items: center;
   color: var(--theme-label-tertiary);
   cursor: pointer;
@@ -61,7 +55,7 @@ const OptionalSummary = styled.summary`
 
   & .icon {
     margin-left: auto;
-    font-size: ${size5};
+    font-size: ${sizeN(5)};
     transform: rotate(90deg);
     transition: transform 0.1s linear;
   }
@@ -71,10 +65,10 @@ const OptionalFields = styled.details`
   display: flex;
   flex-direction: column;
   width: 100%;
-  border-bottom: ${size1px} solid var(--theme-divider-tertiary);
+  border-bottom: ${rem(1)} solid var(--theme-divider-tertiary);
 
   &[open] {
-    padding-bottom: ${size3};
+    padding-bottom: ${sizeN(3)};
 
     ${OptionalSummary} .icon {
       transform: rotate(180deg);
@@ -83,25 +77,25 @@ const OptionalFields = styled.details`
 `;
 
 const SectionHeading = styled.h3`
-  margin: 0 0 ${size4};
+  margin: 0 0 ${sizeN(4)};
   color: var(--theme-label-tertiary);
   ${typoBody}
 
   ${OptionalSummary} + & {
-    margin-top: ${size3};
+    margin-top: ${sizeN(3)};
   }
 
   /* stylelint-disable-next-line no-duplicate-selectors */
   ${FormField} + & {
-    margin-top: ${size10};
+    margin-top: ${sizeN(10)};
   }
 `;
 
 const FormSwitch = styled(Switch)`
-  margin: ${size3} 0;
+  margin: ${sizeN(3)} 0;
 
   ${SectionHeading} + & {
-    margin-top: -${size1};
+    margin-top: -${sizeN(1)};
   }
 `;
 

@@ -5,7 +5,7 @@ import {
   getStaticProps as getProfileStaticProps,
 } from '../../components/layouts/ProfileLayout';
 import styled from '@emotion/styled';
-import { size6 } from '../../styles/sizes';
+import sizeN from '../../macros/sizeN.macro';
 import { typoCallout } from '../../styles/typography';
 import { reputationGuide } from '../../lib/constants';
 
@@ -13,7 +13,7 @@ export const getStaticProps = getProfileStaticProps;
 export const getStaticPaths = getProfileStaticPaths;
 
 const Container = styled.section`
-  margin: ${size6} 0;
+  margin: ${sizeN(6)} 0;
   ${typoCallout}
 
   a {

@@ -4,14 +4,8 @@ import Modal from 'react-modal';
 import { ReactElement, ReactNode } from 'react';
 import styled from '@emotion/styled';
 import { ReactModalAdapter } from './ReactModalAdapter';
-import {
-  size10,
-  size1px,
-  size2,
-  size4,
-  size5,
-  size6,
-} from '../../styles/sizes';
+import sizeN from '../../macros/sizeN.macro';
+import rem from '../../macros/rem.macro';
 import { focusOutline } from '../../styles/helpers';
 import { typoCallout, typoTitle3 } from '../../styles/typography';
 import TertiaryButton from '../buttons/TertiaryButton';
@@ -33,8 +27,8 @@ export const ModalCloseButton = (
     css={css`
       && {
         position: absolute;
-        right: ${size4};
-        top: ${size4};
+        right: ${sizeN(4)};
+        top: ${sizeN(4)};
       }
     `}
   />
@@ -48,7 +42,7 @@ export const ConfirmationButtons = styled.div`
 
   > button {
     flex: 1;
-    margin: 0 ${size2};
+    margin: 0 ${sizeN(2)};
 
     &:first-child {
       margin-left: 0;
@@ -60,10 +54,10 @@ export const ConfirmationButtons = styled.div`
   }
 `;
 
-export const modalBorder = `${size1px} solid var(--theme-divider-secondary)`;
+export const modalBorder = `${rem(1)} solid var(--theme-divider-secondary)`;
 export const modalBorderAndRadius = `
 border: ${modalBorder};
-border-radius: ${size4};
+border-radius: ${sizeN(4)};
 `;
 
 export const StyledModal = styled(ReactModalAdapter)`
@@ -78,8 +72,8 @@ export const StyledModal = styled(ReactModalAdapter)`
     right: 0;
     bottom: 0;
     max-height: 100vh;
-    padding-left: ${size5};
-    padding-right: ${size5};
+    padding-left: ${sizeN(5)};
+    padding-right: ${sizeN(5)};
     background: var(--theme-overlay-quaternary);
     z-index: 10;
   }
@@ -103,15 +97,15 @@ export const StyledModal = styled(ReactModalAdapter)`
 export const ConfirmationModal = styled(StyledModal)`
   .Overlay {
     justify-content: center;
-    padding-left: ${size6};
-    padding-right: ${size6};
+    padding-left: ${sizeN(6)};
+    padding-right: ${sizeN(6)};
   }
 
   .Modal {
     max-width: 23.25rem;
-    padding: ${size6} ${size10};
+    padding: ${sizeN(6)} ${sizeN(10)};
     border: 0.063rem solid var(--theme-divider-secondary);
-    border-radius: ${size4};
+    border-radius: ${sizeN(4)};
   }
 `;
 
@@ -121,7 +115,7 @@ export const ConfirmationHeading = styled.h1`
 `;
 
 export const ConfirmationDescription = styled.div`
-  margin: ${size2} 0 ${size6};
+  margin: ${sizeN(2)} 0 ${sizeN(6)};
   color: var(--theme-label-secondary);
   text-align: center;
   ${typoCallout}

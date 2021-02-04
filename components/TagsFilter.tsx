@@ -9,17 +9,8 @@ import React, {
 } from 'react';
 import styled from '@emotion/styled';
 import SearchField from '../components/fields/SearchField';
-import {
-  size1px,
-  size2,
-  size3,
-  size4,
-  size5,
-  size6,
-  size7,
-  size9,
-  sizeN,
-} from '../styles/sizes';
+import sizeN from '../macros/sizeN.macro';
+import rem from '../macros/rem.macro';
 import { ElementPlaceholder } from './utilities';
 import { typoCallout } from '../styles/typography';
 import SecondaryButton from '../components/buttons/SecondaryButton';
@@ -49,15 +40,15 @@ const Container = styled.div`
   display: flex;
   width: 100%;
   flex-direction: column;
-  padding: ${size4} ${size4} ${size4} ${size6};
+  padding: ${sizeN(4)} ${sizeN(4)} ${sizeN(4)} ${sizeN(6)};
 `;
 
 const PlaceholderContainer = styled.div`
   display: grid;
   grid-auto-flow: row;
-  grid-auto-rows: ${size5};
-  grid-row-gap: ${size7};
-  margin-top: ${size9};
+  grid-auto-rows: ${sizeN(5)};
+  grid-row-gap: ${sizeN(7)};
+  margin-top: ${sizeN(9)};
 `;
 
 const Section = styled.section`
@@ -67,7 +58,7 @@ const Section = styled.section`
 `;
 
 const SectionHeadline = styled.h3`
-  margin: ${size6} 0;
+  margin: ${sizeN(6)} 0;
   color: var(--theme-label-tertiary);
   font-weight: bold;
   ${typoCallout}
@@ -88,7 +79,7 @@ const TagPlaceholder = (
     />
     <ElementPlaceholder
       css={css`
-        width: ${size5};
+        width: ${sizeN(5)};
         border-radius: ${sizeN(1.5)};
       `}
     />
@@ -98,7 +89,7 @@ const TagPlaceholder = (
 const TagsList = styled.ul`
   display: flex;
   flex-direction: column;
-  margin: -${size2} 0;
+  margin: -${sizeN(2)} 0;
   padding: 0;
 `;
 
@@ -115,7 +106,7 @@ const Tag = ({
     css={css`
       display: flex;
       align-items: center;
-      margin: ${size2} 0;
+      margin: ${sizeN(2)} 0;
       padding: 0;
     `}
   >
@@ -128,9 +119,9 @@ const Tag = ({
     </SecondaryButton>
     <div
       css={css`
-        height: ${size1px};
+        height: ${rem(1)};
         flex: 1;
-        margin: 0 ${size3};
+        margin: 0 ${sizeN(3)};
         background: var(--theme-divider-tertiary);
       `}
     />
@@ -247,7 +238,7 @@ export default function TagsFilter({
         placeholder="Search"
         valueChanged={setTagsQuery}
         css={css`
-          margin-right: ${size2};
+          margin-right: ${sizeN(2)};
         `}
       />
       {isLoading ? (

@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import styled from '@emotion/styled';
-import { size6, size8 } from '../../styles/sizes';
+import sizeN from '../../macros/sizeN.macro';
 import DailyDevLogo from '../svg/DailyDevLogo';
 import { typoCallout } from '../../styles/typography';
 import { StyledModal, ModalCloseButton, Props } from './StyledModal';
@@ -8,7 +8,7 @@ import LoginButtons from '../LoginButtons';
 
 const MyModal = styled(StyledModal)`
   .Modal {
-    padding: ${size8};
+    padding: ${sizeN(8)};
 
     .logo {
       width: 9.25rem;
@@ -17,7 +17,7 @@ const MyModal = styled(StyledModal)`
 `;
 
 const Content = styled.div`
-  margin: ${size6} 0 ${size8};
+  margin: ${sizeN(6)} 0 ${sizeN(8)};
   color: var(--theme-label-secondary);
   text-align: center;
   ${typoCallout}

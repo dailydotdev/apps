@@ -7,7 +7,7 @@ import GitHubIcon from '../icons/github.svg';
 import { LegalNotice } from './utilities';
 import { privacyPolicy, termsOfService } from '../lib/constants';
 import styled from '@emotion/styled';
-import { size2, size8 } from '../styles/sizes';
+import sizeN from '../macros/sizeN.macro';
 
 const Buttons = styled.div`
   display: flex;
@@ -16,7 +16,7 @@ const Buttons = styled.div`
   align-self: center;
 
   button {
-    margin: ${size2} 0;
+    margin: ${sizeN(2)} 0;
 
     &:first-child {
       margin-top: 0;
@@ -59,7 +59,7 @@ export default function LoginButtons(): ReactElement {
       <LegalNotice
         css={css`
           max-width: 17.25rem;
-          margin-top: ${size8};
+          margin-top: ${sizeN(8)};
           align-self: center;
         `}
       >

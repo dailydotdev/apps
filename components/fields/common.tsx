@@ -1,6 +1,7 @@
 import styled from '@emotion/styled';
 import { typoCallout } from '../../styles/typography';
-import { size1px, size3 } from '../../styles/sizes';
+import sizeN from '../../macros/sizeN.macro';
+import rem from '../../macros/rem.macro';
 
 export const FieldInput = styled.input`
   min-width: 0;
@@ -37,11 +38,11 @@ const applyFocus = (focused: boolean): string => {
 
 export const BaseField = styled.div<FieldProps>`
   display: flex;
-  padding: 0 ${size3};
+  padding: 0 ${sizeN(3)};
   align-items: center;
   overflow: hidden;
   background: var(--theme-float);
-  border: ${size1px} solid transparent;
+  border: ${rem(1)} solid transparent;
   cursor: text;
   --field-placeholder-color: var(--theme-label-tertiary);
 

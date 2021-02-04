@@ -10,7 +10,7 @@ import useFeed, { FeedItem, PostItem } from '../lib/useFeed';
 import { PostCard } from './cards/PostCard';
 import { AdCard } from './cards/AdCard';
 import { PlaceholderCard } from './cards/PlaceholderCard';
-import { size8, sizeN } from '../styles/sizes';
+import sizeN from '../macros/sizeN.macro';
 import {
   Ad,
   ADD_BOOKMARKS_MUTATION,
@@ -45,7 +45,7 @@ const cardMaxWidth = sizeN(80);
 const Container = styled.div`
   position: relative;
   display: grid;
-  grid-gap: ${size8};
+  grid-gap: ${sizeN(8)};
   margin-left: auto;
   margin-right: auto;
   grid-template-columns: 100%;

@@ -15,16 +15,16 @@ import BaseButton, {
 import { tertiaryStyle } from './TertiaryButton';
 import styled from '@emotion/styled';
 import { typoCallout } from '../../styles/typography';
-import { size1, size4, size6, size8 } from '../../styles/sizes';
+import sizeN from '../../macros/sizeN.macro';
 
 const getRightMargin = (size: ButtonSize = 'medium'): string => {
   switch (size) {
     case 'small':
-      return size4;
+      return sizeN(4);
     case 'large':
-      return size8;
+      return sizeN(8);
     default:
-      return size6;
+      return sizeN(6);
   }
 };
 
@@ -96,10 +96,10 @@ const Container = styled.div<
       reverse
         ? `
       padding-left: ${getRightMargin(buttonSize)};
-      padding-right: ${size1};
+      padding-right: ${sizeN(1)};
     `
         : `
-      padding-left: ${size1};
+      padding-left: ${sizeN(1)};
       padding-right: ${getRightMargin(buttonSize)};
     `}
 

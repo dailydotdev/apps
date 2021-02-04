@@ -20,18 +20,7 @@ import { ParsedUrlQuery } from 'querystring';
 import { Roles } from '../../lib/user';
 import styled from '@emotion/styled';
 import { NextSeo } from 'next-seo';
-import {
-  size05,
-  size1,
-  size10,
-  size2,
-  size3,
-  size4,
-  size6,
-  size7,
-  size8,
-  sizeN,
-} from '../../styles/sizes';
+import sizeN from '../../macros/sizeN.macro';
 import {
   typoBody,
   typoCallout,
@@ -111,21 +100,21 @@ interface PostParams extends ParsedUrlQuery {
 const PostInfo = styled.div`
   display: flex;
   align-items: center;
-  margin-bottom: ${size2};
+  margin-bottom: ${sizeN(2)};
 `;
 
 const PostInfoSubContainer = styled.div`
   display: flex;
   flex-direction: column;
   flex: 1;
-  margin: 0 ${size2};
+  margin: 0 ${sizeN(2)};
 `;
 
 const MetadataContainer = styled.div`
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  margin: ${size2} 0 ${size1};
+  margin: ${sizeN(2)} 0 ${sizeN(1)};
 `;
 
 const metadataStyle = css`
@@ -134,16 +123,16 @@ const metadataStyle = css`
 `;
 
 const MetadataSeparator = styled.div`
-  width: ${size05};
-  height: ${size05};
-  margin: 0 ${size1};
+  width: ${sizeN(0.5)};
+  height: ${sizeN(0.5)};
+  margin: 0 ${sizeN(1)};
   background: var(--theme-label-tertiary);
   border-radius: 100%;
 `;
 
 const SourceImage = styled(RoundedImage)`
-  width: ${size8};
-  height: ${size8};
+  width: ${sizeN(8)};
+  height: ${sizeN(8)};
 `;
 
 const SourceName = styled.div`
@@ -153,21 +142,21 @@ const SourceName = styled.div`
 `;
 
 const AuthorLink = styled(ProfileLink)`
-  margin-left: ${size2};
+  margin-left: ${sizeN(2)};
   flex: 1;
 
   ${SourceName} {
-    margin-left: ${size2};
+    margin-left: ${sizeN(2)};
   }
 `;
 
 const Title = styled.h1`
-  margin: ${size2} 0;
+  margin: ${sizeN(2)} 0;
   ${typoTitle2}
 `;
 
 const Tags = styled.div`
-  margin-bottom: ${size4};
+  margin-bottom: ${sizeN(4)};
   color: var(--theme-label-quaternary);
   font-weight: bold;
   ${typoSubhead}
@@ -175,8 +164,8 @@ const Tags = styled.div`
 
 const PostImage = styled.a`
   display: block;
-  margin: ${size2} 0 0;
-  border-radius: ${size4};
+  margin: ${sizeN(2)} 0 0;
+  border-radius: ${sizeN(4)};
   overflow: hidden;
   cursor: pointer;
 `;
@@ -185,8 +174,8 @@ const StatsBar = styled.div`
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: max-content;
-  grid-column-gap: ${size4};
-  margin: ${size4} 0;
+  grid-column-gap: ${sizeN(4)};
+  margin: ${sizeN(4)} 0;
   color: var(--theme-label-tertiary);
   ${typoCallout}
 
@@ -198,7 +187,7 @@ const StatsBar = styled.div`
 const ActionButtons = styled.div`
   display: flex;
   justify-content: space-between;
-  padding: ${size2} 0;
+  padding: ${sizeN(2)} 0;
   border-top: 0.063rem solid var(--theme-divider-tertiary);
   border-bottom: 0.063rem solid var(--theme-divider-tertiary);
 `;
@@ -209,7 +198,7 @@ const NewCommentContainer = styled.div`
   right: 0;
   bottom: 0;
   width: 100%;
-  padding: ${size3} ${size4};
+  padding: ${sizeN(3)} ${sizeN(4)};
   background: var(--theme-background-primary);
   z-index: 2;
 
@@ -222,61 +211,61 @@ const NewCommentContainer = styled.div`
     background: none;
     box-shadow: none;
     margin-top: auto;
-    padding-top: ${size4};
+    padding-top: ${sizeN(4)};
   }
 `;
 
 const NewCommentButton = styled.button`
   display: flex;
   width: 100%;
-  height: ${size10};
+  height: ${sizeN(10)};
   align-items: center;
-  padding: 0 ${size4};
+  padding: 0 ${sizeN(4)};
   background: var(--theme-background-secondary);
   color: var(---theme-label-secondary);
   border: none;
-  border-radius: ${size4};
+  border-radius: ${sizeN(4)};
   cursor: pointer;
   ${typoCallout}
   ${focusOutline}
 `;
 
 const NewCommentProfile = styled(LazyImage)`
-  width: ${size7};
-  height: ${size7};
+  width: ${sizeN(7)};
+  height: ${sizeN(7)};
   border-radius: 100%;
-  margin-left: -${size2};
-  margin-right: ${size3};
+  margin-left: -${sizeN(2)};
+  margin-right: ${sizeN(3)};
 `;
 
 const Hint = styled.div`
-  margin: 0 0 ${size6};
+  margin: 0 0 ${sizeN(6)};
   color: var(--theme-label-secondary);
   ${typoSubhead}
 `;
 
 const Separator = styled.div`
   height: 0.063rem;
-  margin: ${size6} 0;
+  margin: ${sizeN(6)} 0;
   background: var(--theme-divider-tertiary);
 `;
 
 const AuthorOnboarding = styled.section`
-  padding: ${size6};
+  padding: ${sizeN(6)};
   background: var(--theme-background-secondary);
-  border-radius: ${size4};
+  border-radius: ${sizeN(4)};
 
   p {
-    margin: ${size4} 0;
+    margin: ${sizeN(4)} 0;
   }
 
   ol {
-    margin: -${size1} 0;
-    padding-inline-start: ${size6};
+    margin: -${sizeN(1)} 0;
+    padding-inline-start: ${sizeN(6)};
   }
 
   li {
-    margin: ${size1} 0;
+    margin: ${sizeN(1)} 0;
   }
 
   p,
@@ -290,11 +279,11 @@ const AuthorOnboardingHeader = styled.div`
   display: grid;
   grid-template-columns: repeat(2, max-content);
   align-items: center;
-  column-gap: ${size3};
+  column-gap: ${sizeN(3)};
 
   .icon {
     grid-row-end: span 2;
-    font-size: ${size10};
+    font-size: ${sizeN(10)};
     color: var(--theme-status-help);
   }
 
@@ -320,8 +309,8 @@ const AuthorOnboardingButtons = styled.div`
   max-width: ${sizeN(74)};
   grid-auto-flow: column;
   grid-template-columns: 1fr max-content;
-  column-gap: ${size4};
-  margin-top: ${size6};
+  column-gap: ${sizeN(4)};
+  margin-top: ${sizeN(6)};
 `;
 
 interface ParentComment {

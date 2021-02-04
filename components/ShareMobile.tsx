@@ -3,7 +3,7 @@ import styled from '@emotion/styled';
 import { laptop } from '../styles/media';
 import CopyIcon from '../icons/copy.svg';
 import ShareIcon from '../icons/share.svg';
-import { size1, size10 } from '../styles/sizes';
+import sizeN from '../macros/sizeN.macro';
 import { useCopyPostLink } from '../lib/useCopyPostLink';
 import TertiaryButton from './buttons/TertiaryButton';
 
@@ -11,14 +11,14 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  margin-bottom: ${size10};
+  margin-bottom: ${sizeN(10)};
 
   ${laptop} {
     display: none;
   }
 
   button {
-    margin: ${size1} 0;
+    margin: ${sizeN(1)} 0;
 
     &:first-child {
       margin-top: 0;

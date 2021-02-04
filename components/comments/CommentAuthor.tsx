@@ -4,7 +4,7 @@ import styled from '@emotion/styled';
 import { typoCallout, typoFootnote } from '../../styles/typography';
 import { ProfileLink } from '../profile/ProfileLink';
 import FeatherIcon from '../../icons/feather.svg';
-import { size1, size2, size4 } from '../../styles/sizes';
+import sizeN from '../../macros/sizeN.macro';
 
 export interface CommentAuthorProps {
   postAuthorId: string | null;
@@ -22,13 +22,13 @@ const Container = styled(ProfileLink)`
 const CommentAuthorBadge = styled.span`
   display: flex;
   align-items: center;
-  margin-left: ${size2};
+  margin-left: ${sizeN(2)};
   color: var(--theme-status-help);
   ${typoFootnote}
 
   .icon {
-    font-size: ${size4};
-    margin-right: ${size1};
+    font-size: ${sizeN(4)};
+    margin-right: ${sizeN(1)};
   }
 `;
 

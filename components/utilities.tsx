@@ -1,17 +1,7 @@
 import styled from '@emotion/styled';
 import LazyImage from './LazyImage';
-import {
-  size05,
-  size1,
-  size10,
-  size1px,
-  size2,
-  size3,
-  size4,
-  size6,
-  size8,
-  sizeN,
-} from '../styles/sizes';
+import sizeN from '../macros/sizeN.macro';
+import rem from '../macros/rem.macro';
 import { typoCaption1, typoTitle2 } from '../styles/typography';
 import Loader from './Loader';
 import { laptop, mobileL, tablet } from '../styles/media';
@@ -19,14 +9,14 @@ import { pageMaxWidth } from '../styles/helpers';
 import { css, keyframes } from '@emotion/react';
 
 export const RoundedImage = styled(LazyImage)`
-  width: ${size10};
-  height: ${size10};
+  width: ${sizeN(10)};
+  height: ${sizeN(10)};
   border-radius: 100%;
 `;
 
 export const SmallRoundedImage = styled(LazyImage)`
-  width: ${size6};
-  height: ${size6};
+  width: ${sizeN(6)};
+  height: ${sizeN(6)};
   border-radius: 100%;
 `;
 
@@ -61,23 +51,23 @@ export const PageContainer = styled.main`
   max-width: ${pageMaxWidth};
   flex-direction: column;
   align-items: stretch;
-  padding: ${size6} ${size4} ${sizeN(16)};
+  padding: ${sizeN(6)} ${sizeN(4)} ${sizeN(16)};
   z-index: 1;
 
   ${mobileL} {
-    padding-bottom: ${size6};
+    padding-bottom: ${sizeN(6)};
   }
 
   ${tablet} {
-    padding-left: ${size8};
-    padding-right: ${size8};
+    padding-left: ${sizeN(8)};
+    padding-right: ${sizeN(8)};
     align-self: center;
   }
 
   ${laptop} {
     min-height: 100vh;
-    border-left: ${size1px} solid var(--theme-divider-tertiary);
-    border-right: ${size1px} solid var(--theme-divider-tertiary);
+    border-left: ${rem(1)} solid var(--theme-divider-tertiary);
+    border-right: ${rem(1)} solid var(--theme-divider-tertiary);
   }
 `;
 
@@ -85,7 +75,7 @@ export const FeedPage = styled.main`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: ${sizeN(15)} ${size6} ${size3};
+  padding: ${sizeN(15)} ${sizeN(6)} ${sizeN(3)};
 
   ${laptop} {
     padding-left: ${sizeN(16)};
@@ -94,7 +84,7 @@ export const FeedPage = styled.main`
 `;
 
 export const FormErrorMessage = styled.div`
-  margin-top: ${size4};
+  margin-top: ${sizeN(4)};
   color: var(--theme-status-error);
   ${typoCaption1}
 `;
@@ -110,8 +100,8 @@ export const ActiveTabIndicator = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  width: ${size4};
-  height: ${size05};
+  width: ${sizeN(4)};
+  height: ${sizeN(0.5)};
   margin: 0 auto;
   background: var(--theme-label-primary);
   border-radius: 0.063rem;
@@ -149,7 +139,7 @@ export const ElementPlaceholder = styled.div`
 
 export const customScrollbars = css`
   &::-webkit-scrollbar {
-    width: ${size2};
+    width: ${sizeN(2)};
     background-color: transparent;
   }
 
@@ -158,7 +148,7 @@ export const customScrollbars = css`
   }
 
   &::-webkit-scrollbar-thumb {
-    border-radius: ${size1};
+    border-radius: ${sizeN(1)};
     background: var(--theme-label-tertiary);
   }
 

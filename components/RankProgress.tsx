@@ -15,7 +15,7 @@ import {
   STEPS_PER_RANK,
 } from '../lib/rank';
 import Rank from './Rank';
-import { size1, size2, sizeN } from '../styles/sizes';
+import sizeN from '../macros/sizeN.macro';
 import { typoCaption1 } from '../styles/typography';
 
 const StyledRadialProgress = styled(RadialProgress)`
@@ -69,7 +69,7 @@ const ProgressDelta = styled.div<{ rank: number }>`
   top: 100%;
   width: ${sizeN(40)};
   text-align: center;
-  margin-top: ${size2};
+  margin-top: ${sizeN(2)};
   color: ${({ rank }) => rankToColor(rank)};
   font-weight: bold;
   ${typoCaption1}
@@ -122,7 +122,7 @@ const Container = styled.div<{ rank: number; forceColor: boolean }>`
   & .rank-notification-slide-down-enter,
   & .rank-notification-slide-down-exit-active {
     opacity: 0;
-    transform: translateY(-${size1});
+    transform: translateY(-${sizeN(1)});
   }
 `;
 

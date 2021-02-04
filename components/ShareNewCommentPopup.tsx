@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext } from 'react';
 import styled from '@emotion/styled';
-import { size10, size2, size4, size6, sizeN } from '../styles/sizes';
+import sizeN from '../macros/sizeN.macro';
 import { modalBorderAndRadius, ModalCloseButton } from './modals/StyledModal';
 import { laptop } from '../styles/media';
 import AuthContext from './AuthContext';
@@ -25,11 +25,11 @@ import { ButtonProps } from './buttons/BaseButton';
 const Container = styled.div`
   position: fixed;
   display: none;
-  right: ${size6};
-  bottom: ${size6};
+  right: ${sizeN(6)};
+  bottom: ${sizeN(6)};
   width: ${sizeN(82)};
   flex-direction: column;
-  padding: ${size10} ${size6} ${size6};
+  padding: ${sizeN(10)} ${sizeN(6)} ${sizeN(6)};
   background: var(--theme-background-tertiary);
   box-shadow: var(--theme-shadow2);
   z-index: 3;
@@ -41,20 +41,20 @@ const Container = styled.div`
 `;
 
 const Title = styled.h2`
-  margin: ${size2} 0 0;
+  margin: ${sizeN(2)} 0 0;
   ${typoTitle3}
 `;
 
 const Description = styled.div`
-  margin: ${size4} 0 ${size6};
+  margin: ${sizeN(4)} 0 ${sizeN(6)};
   color: var(--theme-label-tertiary);
   ${typoCallout}
 `;
 
 const Buttons = styled.div`
   display: grid;
-  column-gap: ${size4};
-  row-gap: ${size4};
+  column-gap: ${sizeN(4)};
+  row-gap: ${sizeN(4)};
   grid-template-columns: 1fr 1fr;
 `;
 
@@ -66,7 +66,7 @@ const ShareButton = styled(PrimaryButton)<ButtonProps<'a'>>`
 
 const StyledConfetti = styled(Confetti)`
   position: absolute;
-  left: ${size2};
+  left: ${sizeN(2)};
   top: -4.375rem;
   width: 6.25rem;
   height: 4rem;
@@ -74,7 +74,7 @@ const StyledConfetti = styled(Confetti)`
 
 const StyledShare = styled(ShareIcon)`
   position: absolute;
-  left: ${size6};
+  left: ${sizeN(6)};
   top: -2rem;
   font-size: 4rem;
 `;

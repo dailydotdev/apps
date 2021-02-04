@@ -1,36 +1,36 @@
 import React, { HTMLAttributes, ReactElement } from 'react';
 import styled from '@emotion/styled';
 import { cardImageHeight, CardSpace, CardTextContainer } from './Card';
-import { size2, size3, size4, size6 } from '../../styles/sizes';
+import sizeN from '../../macros/sizeN.macro';
 import { ElementPlaceholder } from '../utilities';
 
 const Source = styled(ElementPlaceholder)`
   width: 1em;
   height: 1em;
-  font-size: ${size6};
+  font-size: ${sizeN(6)};
   border-radius: 100%;
 `;
 
 const Text = styled(ElementPlaceholder)`
   width: 1em;
-  height: ${size3};
-  border-radius: ${size3};
+  height: ${sizeN(3)};
+  border-radius: ${sizeN(3)};
 `;
 
 const Image = styled(ElementPlaceholder)`
-  border-radius: ${size3};
+  border-radius: ${sizeN(3)};
   height: ${cardImageHeight};
 `;
 
 const Container = styled.article`
   display: flex;
   flex-direction: column;
-  border-radius: ${size4};
-  padding: ${size2};
+  border-radius: ${sizeN(4)};
+  padding: ${sizeN(2)};
   background: var(--theme-post-disabled);
 
   ${Source}, ${Text}, ${CardSpace}, ${Image} {
-    margin: ${size2} 0;
+    margin: ${sizeN(2)} 0;
   }
 `;
 

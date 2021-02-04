@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import styled from '@emotion/styled';
 import { typoCallout } from '../../styles/typography';
 import Linkify from 'linkifyjs/react';
-import { size2, size3, size4 } from '../../styles/sizes';
+import sizeN from '../../macros/sizeN.macro';
 import { css } from '@emotion/react';
 
 export const CommentPublishDate = styled.time`
@@ -11,9 +11,9 @@ export const CommentPublishDate = styled.time`
 `;
 
 export const commentBoxStyle = css`
-  padding: ${size3} ${size4};
+  padding: ${sizeN(3)} ${sizeN(4)};
   background: var(--theme-background-secondary);
-  border-radius: ${size2};
+  border-radius: ${sizeN(2)};
   white-space: pre-wrap;
   overflow-wrap: break-word;
   ${typoCallout}

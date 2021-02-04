@@ -4,17 +4,9 @@ import React, { ReactElement } from 'react';
 import { ModalCloseButton, Props as ModalProps } from './StyledModal';
 import ResponsiveModal, { responsiveModalBreakpoint } from './ResponsiveModal';
 import RankProgress from '../RankProgress';
-import {
-  headerHeight,
-  headerRankHeight,
-  size05,
-  size1,
-  size1px,
-  size2,
-  size4,
-  size8,
-  sizeN,
-} from '../../styles/sizes';
+import { headerHeight, headerRankHeight } from '../../styles/sizes';
+import sizeN from '../../macros/sizeN.macro';
+import rem from '../../macros/rem.macro';
 import styled from '@emotion/styled';
 import { typoCallout, typoFootnote, typoTitle2 } from '../../styles/typography';
 import { RANK_NAMES, STEPS_PER_RANK } from '../../lib/rank';
@@ -22,7 +14,7 @@ import Rank from '../Rank';
 import PrimaryButton from '../buttons/PrimaryButton';
 
 const Title = styled.h1`
-  margin: ${size4} 0 0;
+  margin: ${sizeN(4)} 0 0;
   text-transform: uppercase;
   font-weight: bold;
   ${typoTitle2}
@@ -33,7 +25,7 @@ const Title = styled.h1`
 `;
 
 const Subtitle = styled.h2`
-  margin: ${size1} 0 0;
+  margin: ${sizeN(1)} 0 0;
   color: var(--theme-label-secondary);
   font-weight: normal;
   ${typoCallout}
@@ -58,13 +50,13 @@ const RankItem = ({
       height: ${sizeN(16)};
       grid-template-columns: max-content 1fr;
       grid-auto-rows: max-content;
-      grid-column-gap: ${size4};
-      grid-row-gap: ${size05};
+      grid-column-gap: ${sizeN(4)};
+      grid-row-gap: ${sizeN(0.5)};
       align-items: center;
       align-content: center;
-      padding: 0 ${size4};
-      border-radius: ${size4};
-      border: ${size1px} solid transparent;
+      padding: 0 ${sizeN(4)};
+      border-radius: ${sizeN(4)};
+      border: ${rem(1)} solid transparent;
       user-select: none;
 
       ${current &&
@@ -108,7 +100,7 @@ const RankProgressContainer = styled.div`
   display: flex;
   width: ${headerRankHeight};
   height: ${headerRankHeight};
-  margin-top: ${size2};
+  margin-top: ${sizeN(2)};
   align-items: center;
   justify-content: center;
   border-radius: 100%;
@@ -117,7 +109,7 @@ const RankProgressContainer = styled.div`
     position: absolute;
     left: 0;
     right: 0;
-    top: -${size1px};
+    top: -${rem(1)};
     background: var(--theme-background-primary);
     margin: 0 auto;
     transform: translateY(-50%);
@@ -175,7 +167,7 @@ export default function RanksModal({
           display: flex;
           flex-direction: column;
           align-self: stretch;
-          margin: ${size4} 0 0;
+          margin: ${sizeN(4)} 0 0;
           padding: 0;
         `}
       >
@@ -193,7 +185,7 @@ export default function RanksModal({
       <PrimaryButton
         onClick={onRequestClose}
         css={css`
-          margin: ${size8};
+          margin: ${sizeN(8)};
         `}
       >
         Ok, let’s do it

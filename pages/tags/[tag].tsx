@@ -13,7 +13,7 @@ import { FeedPage } from '../../components/utilities';
 import HashtagIcon from '../../icons/hashtag.svg';
 import PlusIcon from '../../icons/plus.svg';
 import styled from '@emotion/styled';
-import { size2, size3, size6 } from '../../styles/sizes';
+import sizeN from '../../macros/sizeN.macro';
 import { typoCallout } from '../../styles/typography';
 import { useRouter } from 'next/router';
 import { NextSeoProps } from 'next-seo/lib/types';
@@ -43,7 +43,7 @@ const TagInformation = styled.div`
   display: flex;
   align-self: stretch;
   align-items: center;
-  margin-bottom: ${size3};
+  margin-bottom: ${sizeN(3)};
   color: var(--theme-label-secondary);
   font-weight: bold;
   ${typoCallout}
@@ -64,9 +64,9 @@ const TagInformation = styled.div`
 `;
 
 const Icon = styled(HashtagIcon)`
-  font-size: ${size6};
+  font-size: ${sizeN(6)};
   color: var(--theme-label-tertiary);
-  margin-right: ${size2};
+  margin-right: ${sizeN(2)};
 `;
 
 const TagPage = ({ tag }: TagPageProps): ReactElement => {
@@ -149,8 +149,8 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
         query={TAG_FEED_QUERY}
         variables={queryVariables}
         css={css`
-          margin-top: ${size3};
-          margin-bottom: ${size3};
+          margin-top: ${sizeN(3)};
+          margin-bottom: ${sizeN(3)};
         `}
       />
     </FeedPage>

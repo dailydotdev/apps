@@ -11,7 +11,7 @@ import {
 } from './Card';
 import styled from '@emotion/styled';
 import { SmallRoundedImage } from '../utilities';
-import { size05, size1, size2, size4, size6 } from '../../styles/sizes';
+import sizeN from '../../macros/sizeN.macro';
 import { typoFootnote } from '../../styles/typography';
 import { postDateFormat } from '../../lib/dateFormat';
 import QuandaryButton from '../buttons/QuandaryButton';
@@ -32,13 +32,13 @@ export type PostCardProps = {
 
 const CardHeader = styled.div`
   display: flex;
-  margin: ${size2} 0;
+  margin: ${sizeN(2)} 0;
 `;
 
 const MetadataContainer = styled.div`
   display: flex;
   align-items: center;
-  margin: 0 ${size4};
+  margin: 0 ${sizeN(4)};
   color: var(--theme-label-tertiary);
   ${typoFootnote}
 `;
@@ -46,8 +46,8 @@ const MetadataContainer = styled.div`
 const MetadataSeparator = styled.div`
   width: 1em;
   height: 1em;
-  margin: 0 ${size1};
-  font-size: ${size05};
+  margin: 0 ${sizeN(1)};
+  font-size: ${sizeN(0.5)};
   border-radius: 100%;
   background: var(--theme-label-tertiary);
 `;
@@ -56,10 +56,10 @@ const ActionButtons = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin: 0 ${size4};
+  margin: 0 ${sizeN(4)};
 
   & > * {
-    margin-left: ${size6};
+    margin-left: ${sizeN(6)};
 
     &:first-child {
       margin-left: 0;
@@ -81,7 +81,7 @@ const StyledCard = styled(Card)<{ read: boolean }>`
     }
   }`}
   ${CardImage} {
-    margin: ${size2} 0;
+    margin: ${sizeN(2)} 0;
   }
 `;
 

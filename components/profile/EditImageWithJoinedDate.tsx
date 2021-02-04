@@ -10,7 +10,7 @@ import GoogleIcon from '../../icons/google.svg';
 import GitHubIcon from '../../icons/github.svg';
 import JoinedDate from './JoinedDate';
 import styled from '@emotion/styled';
-import { size05, size3, size4, size6, sizeN } from '../../styles/sizes';
+import sizeN from '../../macros/sizeN.macro';
 import { typoCaption1 } from '../../styles/typography';
 import { FormErrorMessage } from '../utilities';
 
@@ -26,7 +26,7 @@ const Container = styled.div`
 
 const ImageAndMetadata = styled.div`
   display: flex;
-  margin-top: ${size6};
+  margin-top: ${sizeN(6)};
   align-items: center;
 `;
 
@@ -53,7 +53,7 @@ const ImageInput = styled.label`
   overflow: hidden;
   width: ${sizeN(25)};
   height: ${sizeN(25)};
-  border-radius: ${size4};
+  border-radius: ${sizeN(4)};
   cursor: pointer;
 
   input {
@@ -82,19 +82,19 @@ const ImageInput = styled.label`
 const Metadata = styled.div`
   display: flex;
   flex-direction: column;
-  margin-left: ${size6};
+  margin-left: ${sizeN(6)};
   color: var(--theme-label-quaternary);
   ${typoCaption1}
 
   div {
     display: flex;
     align-items: center;
-    margin: ${size05} 0;
+    margin: ${sizeN(0.5)} 0;
   }
 
   .icon {
-    font-size: ${size4};
-    margin-right: ${size3};
+    font-size: ${sizeN(4)};
+    margin-right: ${sizeN(3)};
   }
 `;
 
