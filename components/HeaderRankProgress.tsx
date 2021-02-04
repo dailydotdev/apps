@@ -4,11 +4,11 @@ import { ReactElement, useContext, useState } from 'react';
 import RankProgress from './RankProgress';
 import useReadingRank from '../lib/useReadingRank';
 import { useHideOnModal } from '../lib/useHideOnModal';
-import { headerRankHeight } from '../styles/sizes';
 import dynamic from 'next/dynamic';
 import { focusOutline } from '../styles/helpers';
 import AuthContext from './AuthContext';
 import { STEPS_PER_RANK } from '../lib/rank';
+import { headerRankHeight } from '../styles/sizes';
 
 const RanksModal = dynamic(
   () => import(/* webpackChunkName: "ranksModal" */ './modals/RanksModal'),

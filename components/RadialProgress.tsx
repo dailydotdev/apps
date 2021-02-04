@@ -7,7 +7,7 @@ import React, {
   useState,
 } from 'react';
 import styled from '@emotion/styled';
-import { sizeN } from '../styles/sizes';
+import sizeN from '../macros/sizeN.macro';
 
 const RAD_TO_DEGREES = 180 / Math.PI;
 const TWO_PI = 2 * Math.PI;

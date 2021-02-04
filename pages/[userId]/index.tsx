@@ -16,16 +16,7 @@ import {
 } from '../../components/layouts/ProfileLayout';
 import { USER_COMMENTS_QUERY, UserCommentsData } from '../../graphql/comments';
 import styled from '@emotion/styled';
-import {
-  size1,
-  size2,
-  size3,
-  size4,
-  size5,
-  size6,
-  size8,
-  sizeN,
-} from '../../styles/sizes';
+import sizeN from '../../macros/sizeN.macro';
 import UpvoteIcon from '../../icons/upvote.svg';
 import CommentIcon from '../../icons/comment.svg';
 import EyeIcon from '../../icons/eye.svg';
@@ -78,7 +69,7 @@ const Container = styled.div`
 const CommentContainer = styled.article`
   display: flex;
   flex-direction: row;
-  padding: ${size3} 0;
+  padding: ${sizeN(3)} 0;
   align-items: flex-start;
 
   ${tablet} {
@@ -91,15 +82,15 @@ const CommentUpvotes = styled.div`
   width: ${sizeN(12)};
   flex-direction: column;
   align-items: center;
-  padding: ${size2} 0;
+  padding: ${sizeN(2)} 0;
   background: var(--theme-background-secondary);
-  border-radius: ${size3};
+  border-radius: ${sizeN(3)};
   font-weight: bold;
   ${typoCallout}
 
   .icon {
-    font-size: ${size6};
-    margin-bottom: ${size1};
+    font-size: ${sizeN(6)};
+    margin-bottom: ${sizeN(1)};
   }
 
   ${tablet} {
@@ -109,7 +100,7 @@ const CommentUpvotes = styled.div`
 
     .icon {
       margin-bottom: 0;
-      margin-right: ${size1};
+      margin-right: ${sizeN(1)};
     }
   }
 `;
@@ -118,7 +109,7 @@ const CommentInfo = styled.a`
   display: flex;
   flex-direction: column;
   flex: 1;
-  margin-left: ${size4};
+  margin-left: ${sizeN(4)};
   text-decoration: none;
 
   ${tablet} {
@@ -140,13 +131,13 @@ const CommentContent = styled.p`
 
   ${tablet} {
     flex: 1;
-    margin-right: ${size6};
+    margin-right: ${sizeN(6)};
     max-width: ${sizeN(77)};
   }
 `;
 
 const CommentTime = styled.time`
-  margin-top: ${size2};
+  margin-top: ${sizeN(2)};
   color: var(--theme-label-tertiary);
   ${typoSubhead}
 
@@ -166,7 +157,7 @@ const EmptyMessage = styled.span`
 `;
 
 const PostContainer = styled(CommentContainer)`
-  padding-left: ${size3};
+  padding-left: ${sizeN(3)};
   text-decoration: none;
 `;
 
@@ -177,7 +168,7 @@ const PostImageContainer = styled.div`
 const PostImage = styled(LazyImage)`
   width: ${sizeN(18)};
   height: ${sizeN(18)};
-  border-radius: ${size4};
+  border-radius: ${sizeN(4)};
 
   ${tablet} {
     width: ${sizeN(24)};
@@ -189,15 +180,15 @@ const SourceImage = styled(LazyImage)`
   position: absolute;
   top: 50%;
   left: 0;
-  width: ${size8};
-  height: ${size8};
+  width: ${sizeN(8)};
+  height: ${sizeN(8)};
   background: var(--theme-background-primary);
   border-radius: 100%;
   transform: translate(-50%, -50%);
 
   img {
-    width: ${size6};
-    height: ${size6};
+    width: ${sizeN(6)};
+    height: ${sizeN(6)};
     border-radius: 100%;
   }
 `;
@@ -206,8 +197,8 @@ const PostStats = styled.div`
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: max-content;
-  grid-column-gap: ${size4};
-  margin-top: ${size3};
+  grid-column-gap: ${sizeN(4)};
+  margin-top: ${sizeN(3)};
 
   ${tablet} {
     margin-top: 0;
@@ -223,8 +214,8 @@ const PostStat = styled.div`
   ${typoCallout}
 
   .icon {
-    font-size: ${size5};
-    margin-right: ${size1};
+    font-size: ${sizeN(5)};
+    margin-right: ${sizeN(1)};
   }
 `;
 
@@ -237,15 +228,15 @@ const PostContent = styled(CommentContent)`
 const OverallStats = styled.div`
   display: grid;
   grid-template-columns: repeat(2, ${sizeN(36)});
-  grid-column-gap: ${size6};
+  grid-column-gap: ${sizeN(6)};
 `;
 
 const OverallStatContainer = styled.div`
   display: flex;
   flex-direction: column;
-  padding: ${size3};
+  padding: ${sizeN(3)};
   background: var(--theme-background-secondary);
-  border-radius: ${size3};
+  border-radius: ${sizeN(3)};
 `;
 
 const OverallStatData = styled.div`
@@ -263,7 +254,7 @@ const TwitterForm = styled.form`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  margin-top: ${size6};
+  margin-top: ${sizeN(6)};
 
   button {
     width: ${sizeN(30)};
@@ -273,11 +264,11 @@ const TwitterForm = styled.form`
 const FormField = styled(TextField)`
   max-width: ${sizeN(78)};
   align-self: stretch;
-  margin-bottom: ${size4};
+  margin-bottom: ${sizeN(4)};
 `;
 
 const CompleteProfileButton = styled(PrimaryButton)`
-  margin-top: ${size4};
+  margin-top: ${sizeN(4)};
   align-self: flex-start;
 `;
 

@@ -13,14 +13,7 @@ import Head from 'next/head';
 import { NextSeo } from 'next-seo';
 import { PageContainer } from '../../utilities';
 import styled from '@emotion/styled';
-import {
-  size05,
-  size2,
-  size3,
-  size4,
-  size6,
-  sizeN,
-} from '../../../styles/sizes';
+import sizeN from '../../../macros/sizeN.macro';
 import LazyImage from '../../LazyImage';
 import {
   typoCallout,
@@ -73,34 +66,34 @@ export interface ProfileLayoutProps {
 }
 
 const ProfileContainer = styled(PageContainer)`
-  padding-left: ${size6};
-  padding-right: ${size6};
+  padding-left: ${sizeN(6)};
+  padding-right: ${sizeN(6)};
 `;
 
 const ProfileImageAndRep = styled.div`
   display: flex;
-  margin-bottom: ${size6};
+  margin-bottom: ${sizeN(6)};
   background: var(--theme-background-secondary);
-  border-radius: ${size4};
+  border-radius: ${sizeN(4)};
   align-self: flex-start;
   align-items: center;
 
   ${tablet} {
     flex-direction: column;
     margin-bottom: 0;
-    padding: ${size2} ${size2} ${size4};
+    padding: ${sizeN(2)} ${sizeN(2)} ${sizeN(4)};
   }
 `;
 
 const ProfileImage = styled(LazyImage)`
   width: ${sizeN(25)};
-  border-radius: ${size4};
+  border-radius: ${sizeN(4)};
 `;
 
 const Reputation = styled.div`
   display: flex;
   flex-direction: column;
-  margin: 0 ${size6};
+  margin: 0 ${sizeN(6)};
   ${typoFootnote}
 
   a {
@@ -109,7 +102,7 @@ const Reputation = styled.div`
   }
 
   & > * {
-    margin: ${size05} 0;
+    margin: ${sizeN(0.5)} 0;
 
     &:last-child {
       color: var(--theme-label-primary);
@@ -120,14 +113,14 @@ const Reputation = styled.div`
 
   ${tablet} {
     align-items: center;
-    margin: ${size4} 0 0;
+    margin: ${sizeN(4)} 0 0;
   }
 `;
 
 const NameAndBadge = styled.div`
   display: flex;
   align-items: center;
-  margin-bottom: ${size2};
+  margin-bottom: ${sizeN(2)};
 `;
 
 const Name = styled.h1`
@@ -138,9 +131,9 @@ const Name = styled.h1`
 `;
 
 const StyledRank = styled(Rank)`
-  width: ${size6};
-  height: ${size6};
-  margin-left: ${size2};
+  width: ${sizeN(6)};
+  height: ${sizeN(6)};
+  margin-left: ${sizeN(2)};
 `;
 
 const Username = styled.h2`
@@ -151,24 +144,24 @@ const Username = styled.h2`
 `;
 
 const Bio = styled.p`
-  margin: ${size3} 0 0;
+  margin: ${sizeN(3)} 0 0;
   color: var(--theme-label-tertiary);
   word-break: break-word;
   ${typoCallout}
 `;
 
 const JoinedDateStyled = styled(JoinedDate)`
-  margin-top: ${size3};
+  margin-top: ${sizeN(3)};
   color: var(--theme-label-quaternary);
   ${typoFootnote}
 `;
 
 const Links = styled.div`
   display: flex;
-  margin: ${size3} ${size05} 0;
+  margin: ${sizeN(3)} ${sizeN(0.5)} 0;
 
   > * {
-    margin: 0 ${size05};
+    margin: 0 ${sizeN(0.5)};
   }
 
   label {
@@ -183,14 +176,14 @@ const ProfileHeader = styled.section`
 
   ${tablet} {
     flex-direction: row;
-    margin-left: -${size4};
-    margin-right: -${size4};
+    margin-left: -${sizeN(4)};
+    margin-right: -${sizeN(4)};
     align-self: stretch;
     overflow-x: hidden;
 
     & > * {
-      margin-left: ${size4};
-      margin-right: ${size4};
+      margin-left: ${sizeN(4)};
+      margin-right: ${sizeN(4)};
     }
   }
 `;
@@ -205,7 +198,7 @@ const ProfileInfo = styled.div`
 `;
 
 const EditProfileButton = styled(SecondaryButton)`
-  margin-top: ${size6};
+  margin-top: ${sizeN(6)};
   align-self: flex-start;
 `;
 

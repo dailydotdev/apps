@@ -1,5 +1,6 @@
 import styled from '@emotion/styled';
-import { size1px, size2, size3, size4, sizeN } from '../../styles/sizes';
+import sizeN from '../../macros/sizeN.macro';
+import rem from '../../macros/rem.macro';
 import { typoBody } from '../../styles/typography';
 import { multilineTextOverflow } from '../../styles/helpers';
 import LazyImage from '../LazyImage';
@@ -7,7 +8,7 @@ import LazyImage from '../LazyImage';
 export const cardImageHeight = sizeN(40);
 
 export const CardTitle = styled.h2`
-  margin: ${size2} 0;
+  margin: ${sizeN(2)} 0;
   color: var(--theme-label-primary);
   font-weight: bold;
   -webkit-line-clamp: 3;
@@ -18,12 +19,12 @@ export const CardTitle = styled.h2`
 export const CardTextContainer = styled.div`
   display: flex;
   flex-direction: column;
-  margin: 0 ${size4};
+  margin: 0 ${sizeN(4)};
 `;
 
 export const CardImage = styled(LazyImage)`
   height: ${cardImageHeight};
-  border-radius: ${size3};
+  border-radius: ${sizeN(3)};
 `;
 
 export const CardSpace = styled.div`
@@ -42,9 +43,9 @@ export const Card = styled.article`
   position: relative;
   display: flex;
   flex-direction: column;
-  padding: ${size2};
-  border-radius: ${size4};
-  border: ${size1px} solid var(--theme-divider-tertiary);
+  padding: ${sizeN(2)};
+  border-radius: ${sizeN(4)};
+  border: ${rem(1)} solid var(--theme-divider-tertiary);
   background: var(--theme-background-secondary);
   box-shadow: var(--theme-shadow2);
 

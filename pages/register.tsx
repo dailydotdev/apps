@@ -3,7 +3,7 @@ import styled from '@emotion/styled';
 import { NextSeo } from 'next-seo';
 import MainLayout from '../components/layouts/MainLayout';
 import { typoCallout } from '../styles/typography';
-import { size10, size2, size4 } from '../styles/sizes';
+import sizeN from '../macros/sizeN.macro';
 import { PageContainer, ProfileHeading } from '../components/utilities';
 import AuthContext from '../components/AuthContext';
 import { useRouter } from 'next/router';
@@ -16,19 +16,19 @@ import { ButtonProps } from '../components/buttons/BaseButton';
 import PrimaryButton from '../components/buttons/PrimaryButton';
 
 const Subheading = styled.h2`
-  margin: ${size2} 0;
+  margin: ${sizeN(2)} 0;
   align-self: flex-start;
   color: var(--theme-label-tertiary);
   ${typoCallout}
 `;
 
 const LogoutButton = styled(TertiaryButton)<ButtonProps<'button'>>`
-  margin-left: ${size4};
+  margin-left: ${sizeN(4)};
 `;
 
 const FormButtons = styled.div`
   display: flex;
-  margin-top: ${size10};
+  margin-top: ${sizeN(10)};
   align-items: center;
   align-self: stretch;
 

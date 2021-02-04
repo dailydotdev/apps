@@ -10,15 +10,7 @@ import React, {
 import { ModalCloseButton, Props as ModalProps } from './StyledModal';
 import ResponsiveModal, { responsiveModalBreakpoint } from './ResponsiveModal';
 import RankProgress from '../RankProgress';
-import {
-  size1,
-  size2,
-  size4,
-  size6,
-  size7,
-  size8,
-  sizeN,
-} from '../../styles/sizes';
+import sizeN from '../../macros/sizeN.macro';
 import styled from '@emotion/styled';
 import { RankConfetti } from '../svg/RankConfetti';
 import { RANK_NAMES, rankToColor, STEPS_PER_RANK } from '../../lib/rank';
@@ -81,7 +73,7 @@ const NewRankBadge = styled(Rank)`
   position: absolute;
   left: 0;
   right: 0;
-  bottom: ${size4};
+  bottom: ${sizeN(4)};
   width: ${badgeSize};
   height: ${badgeSize};
   margin: 0 auto;
@@ -104,7 +96,7 @@ const RankProgressContainer = styled.div`
   align-items: center;
   justify-content: center;
   height: ${sizeN(35)};
-  margin-top: ${size6};
+  margin-top: ${sizeN(6)};
 
   ${responsiveModalBreakpoint} {
     height: ${sizeN(50)};
@@ -131,14 +123,14 @@ const RankProgressContainer = styled.div`
 `;
 
 const Title = styled.h1`
-  margin: ${size2} 0 0;
+  margin: ${sizeN(2)} 0 0;
   font-weight: bold;
   text-align: center;
   ${typoTitle2}
 `;
 
 const Para = styled.p`
-  margin: ${size1} 0 ${size8};
+  margin: ${sizeN(1)} 0 ${sizeN(8)};
   color: var(--theme-label-secondary);
   text-align: center;
   ${typoCallout}
@@ -213,7 +205,7 @@ export default function NewRankModal({
 
           ${responsiveModalBreakpoint} {
             box-sizing: content-box;
-            border: ${size1} solid ${rankToColor(rank)};
+            border: ${sizeN(1)} solid ${rankToColor(rank)};
           }
         }
       `}
@@ -290,7 +282,7 @@ export default function NewRankModal({
         name="neverShow"
         css={css`
           align-self: center;
-          margin: ${size6} 0 ${size7};
+          margin: ${sizeN(6)} 0 ${sizeN(7)};
         `}
       >
         Never show this popup again

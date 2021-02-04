@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import Head from 'next/head';
 import styled from '@emotion/styled';
 import { typoTitle1 } from '../styles/typography';
-import { size10, size9 } from '../styles/sizes';
+import sizeN from '../macros/sizeN.macro';
 import HelloWorldSvg from '../components/svg/HelloWorldSvg';
 
 const Container = styled.div`
@@ -14,7 +14,7 @@ const Container = styled.div`
 `;
 
 const Heading = styled.h1`
-  margin: 0 ${size9};
+  margin: 0 ${sizeN(9)};
   text-align: center;
   word-break: break-word;
   font-weight: bold;
@@ -24,7 +24,7 @@ const Heading = styled.h1`
 const Art = styled(HelloWorldSvg)`
   width: 55%;
   max-width: 32.75rem;
-  margin: 0 0 ${size10};
+  margin: 0 0 ${sizeN(10)};
   align-self: center;
 `;
 

@@ -3,15 +3,7 @@ import { jsx, css } from '@emotion/react';
 import React, { InputHTMLAttributes, ReactElement, MouseEvent } from 'react';
 import { useInputField } from '../../lib/useInputField';
 import styled from '@emotion/styled';
-import {
-  size1,
-  size10,
-  size2,
-  size3,
-  size6,
-  size8,
-  sizeN,
-} from '../../styles/sizes';
+import sizeN from '../../macros/sizeN.macro';
 import { BaseField, FieldInput } from './common';
 import MagnifyingIcon from '../../icons/magnifying.svg';
 import XIcon from '../../icons/x.svg';
@@ -28,18 +20,18 @@ export interface Props
 }
 
 const Icon = styled(MagnifyingIcon)`
-  font-size: ${size6};
-  margin-right: ${size2};
+  font-size: ${sizeN(6)};
+  margin-right: ${sizeN(2)};
   color: var(--field-placeholder-color);
 `;
 
 const ClearButton = styled.button`
   display: flex;
-  width: ${size8};
-  height: ${size8};
+  width: ${sizeN(8)};
+  height: ${sizeN(8)};
   align-items: center;
   justify-content: center;
-  margin-left: ${size1};
+  margin-left: ${sizeN(1)};
   padding: 0;
   background: none;
   border: none;
@@ -58,8 +50,8 @@ const ClearButton = styled.button`
 `;
 
 const Container = styled(BaseField)`
-  height: ${({ compact }) => (compact ? size10 : sizeN(12))};
-  border-radius: ${({ compact }) => (compact ? size3 : sizeN(3.5))};
+  height: ${({ compact }) => (compact ? sizeN(10) : sizeN(12))};
+  border-radius: ${({ compact }) => (compact ? sizeN(3) : sizeN(3.5))};
 
   ${({ focused, hasInput }) =>
     (focused || hasInput) &&

@@ -10,7 +10,7 @@ import { apiUrl } from '../lib/config';
 import { FeedData, KEYWORD_FEED_QUERY } from '../graphql/posts';
 import { useHideOnModal } from '../lib/useHideOnModal';
 import { PageContainer } from './utilities';
-import { size1, size3, size4, size6, sizeN } from '../styles/sizes';
+import sizeN from '../macros/sizeN.macro';
 import { NextSeo } from 'next-seo';
 import ActivitySection from './profile/ActivitySection';
 import Link from 'next/link';
@@ -44,7 +44,7 @@ const Title = styled.h1`
 
 const Subtitle = styled.div`
   display: flex;
-  margin: ${size1} 0;
+  margin: ${sizeN(1)} 0;
   align-items: center;
   justify-content: space-between;
   color: var(--theme-label-tertiary);
@@ -62,14 +62,14 @@ const Buttons = styled.div`
   align-items: center;
   justify-content: space-between;
   margin: 0 auto;
-  padding: ${size6} ${size4};
+  padding: ${sizeN(6)} ${sizeN(4)};
   background: var(--theme-background-primary);
 `;
 
 const PostContainer = styled.a`
   display: flex;
   flex-direction: row;
-  padding: ${size3} 0;
+  padding: ${sizeN(3)} 0;
   align-items: flex-start;
   text-decoration: none;
 
@@ -81,13 +81,13 @@ const PostContainer = styled.a`
 const PostImage = styled(LazyImage)`
   width: ${sizeN(16)};
   height: ${sizeN(16)};
-  border-radius: ${size4};
+  border-radius: ${sizeN(4)};
 `;
 
 const PostContent = styled.p`
   max-height: ${sizeN(15)};
   padding: 0;
-  margin: 0 0 0 ${size4};
+  margin: 0 0 0 ${sizeN(4)};
   flex: 1;
   align-self: center;
   color: var(--theme-label-primary);
@@ -99,7 +99,7 @@ const PostContent = styled.p`
 
   ${tablet} {
     flex: 1;
-    margin-right: ${size6};
+    margin-right: ${sizeN(6)};
     max-width: ${sizeN(77)};
   }
 `;

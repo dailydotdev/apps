@@ -2,7 +2,8 @@
 import { jsx } from '@emotion/react';
 import React, { ReactElement, useEffect, useState } from 'react';
 import styled from '@emotion/styled';
-import { size1px, size3, size4, size7, sizeN } from '../styles/sizes';
+import sizeN from '../macros/sizeN.macro';
+import rem from '../macros/rem.macro';
 import ArrowIcon from '../icons/arrow.svg';
 import { focusOutline } from '../styles/helpers';
 import TagsFilter from './TagsFilter';
@@ -16,13 +17,13 @@ const Trigger = styled.button`
   height: ${sizeN(14)};
   align-items: center;
   margin-top: ${sizeN(24)};
-  padding: 0 0 0 ${size3};
+  padding: 0 0 0 ${sizeN(3)};
   background: var(--theme-background-primary);
-  border: ${size1px} solid var(--theme-divider-quaternary);
+  border: ${rem(1)} solid var(--theme-divider-quaternary);
   border-left: none;
-  border-radius: 0 ${size4} ${size4} 0;
+  border-radius: 0 ${sizeN(4)} ${sizeN(4)} 0;
   color: var(--theme-label-tertiary);
-  font-size: ${size7};
+  font-size: ${sizeN(7)};
   cursor: pointer;
   ${focusOutline}
 
@@ -41,8 +42,8 @@ const Aside = styled.aside`
   overflow-y: scroll;
   align-self: stretch;
   background: var(--theme-background-primary);
-  border-radius: 0 ${size4} ${size4} 0;
-  border-right: ${size1px} solid var(--theme-divider-primary);
+  border-radius: 0 ${sizeN(4)} ${sizeN(4)} 0;
+  border-right: ${rem(1)} solid var(--theme-divider-primary);
   transition: visibility 0s 0.3s;
   visibility: hidden;
 `;

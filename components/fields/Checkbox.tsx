@@ -10,7 +10,7 @@ import React, {
 import styled from '@emotion/styled';
 import classNames from 'classnames';
 import VIcon from '../../icons/v.svg';
-import { size05, size3, size5, sizeN } from '../../styles/sizes';
+import sizeN from '../../macros/sizeN.macro';
 import { typoFootnote } from '../../styles/typography';
 import colors, {
   overlayQuaternary,
@@ -27,13 +27,13 @@ const Input = styled.input`
 const Checkmark = styled.div`
   position: relative;
   display: flex;
-  width: ${size5};
-  height: ${size5};
+  width: ${sizeN(5)};
+  height: ${sizeN(5)};
   align-items: center;
   justify-content: center;
   border-radius: ${sizeN(1.5)};
-  border: ${size05} solid var(--theme-divider-primary);
-  margin-right: ${size3};
+  border: ${sizeN(0.5)} solid var(--theme-divider-primary);
+  margin-right: ${sizeN(3)};
   z-index: 1;
 
   .icon {

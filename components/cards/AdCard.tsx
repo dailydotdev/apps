@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from './Card';
 import styled from '@emotion/styled';
-import { size2, size3, size4, size5 } from '../../styles/sizes';
+import sizeN from '../../macros/sizeN.macro';
 import { typoFootnote } from '../../styles/typography';
 import { Ad } from '../../graphql/posts';
 
@@ -31,12 +31,12 @@ const Pixel = styled.img`
 const ImageContainer = styled.div`
   position: relative;
   overflow: hidden;
-  border-radius: ${size3};
+  border-radius: ${sizeN(3)};
   z-index: 1;
 `;
 
 const Footer = styled.a`
-  margin: ${size4} 0 ${size2};
+  margin: ${sizeN(4)} 0 ${sizeN(2)};
   color: var(--theme-label-quaternary);
   text-decoration: none;
   ${typoFootnote}
@@ -46,7 +46,7 @@ const StyledCard = styled(Card)`
   ${CardImage} {
     &.blur {
       z-index: -1;
-      filter: blur(${size5});
+      filter: blur(${sizeN(5)});
     }
 
     &.absolute {
@@ -64,7 +64,7 @@ const StyledCard = styled(Card)`
   }
 
   ${CardTitle} {
-    margin: ${size4} 0;
+    margin: ${sizeN(4)} 0;
   }
 `;
 

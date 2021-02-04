@@ -1,16 +1,8 @@
 import React, { LegacyRef, ReactElement, ReactNode } from 'react';
 import styled from '@emotion/styled';
 import { typoCallout } from '../../styles/typography';
-import {
-  size1,
-  size10,
-  size1px,
-  size2,
-  size6,
-  size7,
-  size8,
-  sizeN,
-} from '../../styles/sizes';
+import sizeN from '../../macros/sizeN.macro';
+import rem from '../../macros/rem.macro';
 import { ButtonLoader } from '../utilities';
 import { focusOutline } from '../../styles/helpers';
 import { ColorName } from '../../styles/colors';
@@ -145,17 +137,17 @@ const iconMargins = `
 .icon {
   width: 1em;
   height: 1em;
-  font-size: ${size6};
-  margin-left: -${size2};
-  margin-right: ${size1};
+  font-size: ${sizeN(6)};
+  margin-left: -${sizeN(2)};
+  margin-right: ${sizeN(1)};
 
   &:not(:first-child) {
-    margin-left: ${size1};
-    margin-right: -${size2};
+    margin-left: ${sizeN(1)};
+    margin-right: -${sizeN(2)};
   }
 
   &:only-child {
-    margin-right: -${size2};
+    margin-right: -${sizeN(2)};
   }
 }
 `;
@@ -164,16 +156,16 @@ const getIconSize = ({ buttonSize, iconOnly }: StyledButtonProps): string => {
   if (iconOnly) {
     switch (buttonSize) {
       case 'small':
-        return size6;
+        return sizeN(6);
       case 'large':
-        return size8;
+        return sizeN(8);
       case 'xlarge':
-        return size10;
+        return sizeN(10);
       default:
-        return size7;
+        return sizeN(7);
     }
   }
-  return size6;
+  return sizeN(6);
 };
 
 const StyledButton = styled.button<StyledButtonProps>`
@@ -184,7 +176,7 @@ const StyledButton = styled.button<StyledButtonProps>`
   overflow: hidden;
   cursor: pointer;
   text-decoration: none;
-  border-width: ${size1px};
+  border-width: ${rem(1)};
   border-style: solid;
   font-weight: bold;
   box-shadow: none;

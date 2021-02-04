@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import styled from '@emotion/styled';
-import { size2, size4, size6, sizeN } from '../styles/sizes';
+import sizeN from '../macros/sizeN.macro';
 import LazyImage from './LazyImage';
 import { typoCallout } from '../styles/typography';
 import { pageMaxWidth } from '../styles/helpers';
@@ -13,7 +13,7 @@ const Container = styled.div`
   position: fixed;
   display: none;
   right: calc((100vw - ${pageMaxWidth}) / 4 - ${promotionWidth} / 2);
-  bottom: ${size6};
+  bottom: ${sizeN(6)};
   width: ${promotionWidth};
   flex-direction: column;
   align-items: stretch;
@@ -28,11 +28,11 @@ const Container = styled.div`
 `;
 
 const Cover = styled(LazyImage)`
-  border-radius: ${size2};
+  border-radius: ${sizeN(2)};
 `;
 
 const Content = styled.div`
-  margin: ${size4} 0 ${size6};
+  margin: ${sizeN(4)} 0 ${sizeN(6)};
   color: var(--theme-label-tertiary);
   ${typoCallout}
 `;

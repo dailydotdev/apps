@@ -7,7 +7,7 @@ import React, {
   useState,
 } from 'react';
 import styled from '@emotion/styled';
-import { size8 } from '../styles/sizes';
+import sizeN from '../macros/sizeN.macro';
 
 export interface RankProps extends HTMLAttributes<SVGElement> {
   rank: number;
@@ -15,8 +15,8 @@ export interface RankProps extends HTMLAttributes<SVGElement> {
 }
 
 const StyledSvg = styled.svg<RankProps>`
-  width: ${size8};
-  height: ${size8};
+  width: ${sizeN(8)};
+  height: ${sizeN(8)};
 
   ${({ rank, colorByRank }) =>
     colorByRank &&

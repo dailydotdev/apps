@@ -1,10 +1,10 @@
 import React, { ReactElement, ReactNode } from 'react';
 import styled from '@emotion/styled';
-import { size3, size4, size8 } from '../styles/sizes';
+import sizeN from '../macros/sizeN.macro';
 import colors from '../styles/colors';
 import { typoFootnote } from '../styles/typography';
 
-const switchHeight = size4;
+const switchHeight = sizeN(4);
 
 const SwitchTrack = styled.span`
   bottom: 0;
@@ -27,7 +27,7 @@ const SwitchKnob = styled.span`
 const SwitchContainer = styled.span`
   position: relative;
   display: block;
-  width: ${size8};
+  width: ${sizeN(8)};
   height: ${switchHeight};
 
   ${SwitchKnob}, ${SwitchTrack} {
@@ -39,7 +39,7 @@ const SwitchContainer = styled.span`
 `;
 
 const Children = styled.span`
-  margin-left: ${size3};
+  margin-left: ${sizeN(3)};
   color: var(--theme-label-tertiary);
   font-weight: bold;
   ${typoFootnote}

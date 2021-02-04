@@ -6,15 +6,8 @@ import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { NextSeo } from 'next-seo';
 import Feed from '../components/Feed';
 import { BOOKMARKS_FEED_QUERY } from '../graphql/feed';
-import {
-  headerHeight,
-  size10,
-  size2,
-  size3,
-  size4,
-  size6,
-  sizeN,
-} from '../styles/sizes';
+import { headerHeight } from '../styles/sizes';
+import sizeN from '../macros/sizeN.macro';
 import { FeedPage } from '../components/utilities';
 import styled from '@emotion/styled';
 import { typoCallout, typoTitle1 } from '../styles/typography';
@@ -30,16 +23,16 @@ const Header = styled.div`
   display: flex;
   align-self: stretch;
   align-items: center;
-  margin-bottom: ${size3};
+  margin-bottom: ${sizeN(3)};
   color: var(--theme-label-secondary);
   font-weight: bold;
   ${typoCallout}
 `;
 
 const Icon = styled(BookmarkIcon)`
-  font-size: ${size6};
+  font-size: ${sizeN(6)};
   color: var(--theme-label-tertiary);
-  margin-right: ${size2};
+  margin-right: ${sizeN(2)};
 `;
 
 const EmptyScreenContainer = styled.main`
@@ -50,7 +43,7 @@ const EmptyScreenContainer = styled.main`
   top: 0;
   bottom: 0;
   margin-top: ${headerHeight};
-  padding: 0 ${size6};
+  padding: 0 ${sizeN(6)};
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -92,7 +85,7 @@ const BookmarksPage = (): ReactElement => {
         />
         <h1
           css={css`
-            margin: ${size4} 0;
+            margin: ${sizeN(4)} 0;
             color: var(--theme-label-primary);
             ${typoTitle1}
           `}
@@ -101,7 +94,7 @@ const BookmarksPage = (): ReactElement => {
         </h1>
         <p
           css={css`
-            margin-bottom: ${size10};
+            margin-bottom: ${sizeN(10)};
           `}
         >
           Go back to your feed and bookmark posts you’d like to keep or read
@@ -127,8 +120,8 @@ const BookmarksPage = (): ReactElement => {
         query={BOOKMARKS_FEED_QUERY}
         onEmptyFeed={() => setShowEmptyScreen(true)}
         css={css`
-          margin-top: ${size3};
-          margin-bottom: ${size3};
+          margin-top: ${sizeN(3)};
+          margin-bottom: ${sizeN(3)};
         `}
       />
     </FeedPage>

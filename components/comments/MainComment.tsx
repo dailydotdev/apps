@@ -3,7 +3,7 @@ import styled from '@emotion/styled';
 import { Comment } from '../../graphql/comments';
 import { CommentBox, CommentPublishDate } from './common';
 import { commentDateFormat } from '../../lib/dateFormat';
-import { size2, size4 } from '../../styles/sizes';
+import sizeN from '../../macros/sizeN.macro';
 import CommentActionButtons from './CommentActionButtons';
 import SubComment from './SubComment';
 import { ProfileImageLink } from '../profile/ProfileImageLink';
@@ -20,7 +20,7 @@ const Container = styled.article`
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  margin-top: ${size4};
+  margin-top: ${sizeN(4)};
 `;
 
 const Header = styled.div`
@@ -31,11 +31,11 @@ const Header = styled.div`
 const Metadata = styled.div`
   display: flex;
   flex-direction: column;
-  margin-left: ${size2};
+  margin-left: ${sizeN(2)};
 `;
 
 const MainCommentBox = styled(CommentBox)`
-  margin: ${size2} 0;
+  margin: ${sizeN(2)} 0;
 `;
 
 export default function MainComment({

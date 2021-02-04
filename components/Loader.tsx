@@ -1,7 +1,7 @@
 import React, { HTMLAttributes, ReactElement } from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
-import { size5, sizeN } from '../styles/sizes';
+import sizeN from '../macros/sizeN.macro';
 
 const loader = keyframes`
   0%   { transform: rotate(0deg); }
@@ -10,8 +10,8 @@ const loader = keyframes`
 
 const Container = styled.div`
   position: relative;
-  height: ${size5};
-  width: ${size5};
+  height: ${sizeN(5)};
+  width: ${sizeN(5)};
   animation: ${loader} 3s linear infinite;
 
   & span,
@@ -30,7 +30,7 @@ const Container = styled.div`
   }
 
   & span {
-    clip: rect(${sizeN(2.5)}, ${size5}, ${size5}, 0);
+    clip: rect(${sizeN(2.5)}, ${sizeN(5)}, ${sizeN(5)}, 0);
     animation: ${loader} 1.5s cubic-bezier(0.77, 0, 0.175, 1) infinite;
 
     &:before {

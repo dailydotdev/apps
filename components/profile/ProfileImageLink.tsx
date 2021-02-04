@@ -1,13 +1,13 @@
 import React, { ReactElement } from 'react';
 import styled from '@emotion/styled';
-import { size10 } from '../../styles/sizes';
+import sizeN from '../../macros/sizeN.macro';
 import LazyImage from '../LazyImage';
 import { ProfileLink, ProfileLinkProps } from './ProfileLink';
 
 const Container = styled(ProfileLink)`
   display: block;
-  width: ${size10};
-  height: ${size10};
+  width: ${sizeN(10)};
+  height: ${sizeN(10)};
 `;
 
 const Image = styled(LazyImage)`

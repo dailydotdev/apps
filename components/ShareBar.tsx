@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import styled from '@emotion/styled';
 import { laptop } from '../styles/media';
 import { pageMaxWidth } from '../styles/helpers';
-import { size1, size10, size2, size4, size7 } from '../styles/sizes';
+import sizeN from '../macros/sizeN.macro';
 import CopyIcon from '../icons/copy.svg';
 import WhatsappIcon from '../icons/whatsapp_color.svg';
 import TwitterIcon from '../icons/twitter_color.svg';
@@ -20,14 +20,14 @@ import {
 import TertiaryButton from './buttons/TertiaryButton';
 import { ButtonProps } from './buttons/BaseButton';
 
-const barWidth = size7;
+const barWidth = sizeN(7);
 
 const Container = styled.div`
   display: none;
   position: absolute;
   top: 11.5rem;
   bottom: 0;
-  left: calc((100vw - ${pageMaxWidth}) / 2 - ${barWidth} - ${size4});
+  left: calc((100vw - ${pageMaxWidth}) / 2 - ${barWidth} - ${sizeN(4)});
   width: ${barWidth};
 
   ${laptop} {
@@ -38,21 +38,21 @@ const Container = styled.div`
 const Sticky = styled.div`
   position: sticky;
   display: flex;
-  top: ${size10};
+  top: ${sizeN(10)};
   width: 100%;
   flex-direction: column;
   align-items: center;
-  margin: -${size1} 0;
+  margin: -${sizeN(1)} 0;
 `;
 
 const Copied = styled.div`
   position: absolute;
   display: flex;
-  top: ${size2};
+  top: ${sizeN(2)};
   right: 100%;
   height: ${barWidth};
   align-items: center;
-  margin-right: ${size1};
+  margin-right: ${sizeN(1)};
   color: var(--theme-status-success);
   font-weight: bold;
   ${typoCaption1}
@@ -61,7 +61,7 @@ const Copied = styled.div`
 const ShareButton = styled(TertiaryButton)<
   ButtonProps<'button'> | ButtonProps<'a'>
 >`
-  margin: ${size1} 0;
+  margin: ${sizeN(1)} 0;
 `;
 
 const ColorfulShareButton = styled(ShareButton)`

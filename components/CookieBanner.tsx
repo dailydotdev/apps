@@ -5,7 +5,7 @@ import {
   modalBorderAndRadius,
   ModalCloseButton,
 } from './modals/StyledModal';
-import { size4, size6, sizeN } from '../styles/sizes';
+import sizeN from '../macros/sizeN.macro';
 import { cookiePolicy } from '../lib/constants';
 import { laptop } from '../styles/media';
 import CookieIcon from '../icons/cookie.svg';
@@ -13,13 +13,13 @@ import PrimaryButton from './buttons/PrimaryButton';
 import { typoFootnote } from '../styles/typography';
 
 const AgreeButton = styled(PrimaryButton)`
-  margin-top: ${size4};
+  margin-top: ${sizeN(4)};
   align-self: flex-start;
 `;
 
 const Art = styled(CookieIcon)`
   display: none;
-  margin-bottom: ${size4};
+  margin-bottom: ${sizeN(4)};
   color: var(--theme-label-primary);
   font-size: 3.5rem;
 `;
@@ -31,7 +31,7 @@ const Container = styled.div`
   bottom: 0;
   width: 100%;
   flex-direction: column;
-  padding: ${size4} ${sizeN(14)} ${size4} ${size4};
+  padding: ${sizeN(4)} ${sizeN(14)} ${sizeN(4)} ${sizeN(4)};
   color: var(--theme-label-secondary);
   background: var(--theme-background-tertiary);
   border-top: ${modalBorder};
@@ -50,9 +50,9 @@ const Container = styled.div`
   ${laptop} {
     width: ${sizeN(48)};
     left: unset;
-    right: ${size6};
-    bottom: ${size6};
-    padding: ${size6};
+    right: ${sizeN(6)};
+    bottom: ${sizeN(6)};
+    padding: ${sizeN(6)};
     align-items: center;
     text-align: center;
     ${modalBorderAndRadius}

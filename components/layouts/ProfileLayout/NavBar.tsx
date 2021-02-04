@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import Link from 'next/link';
 import styled from '@emotion/styled';
-import { size6 } from '../../../styles/sizes';
+import sizeN from '../../../macros/sizeN.macro';
 import { laptop } from '../../../styles/media';
 import { pageMaxWidth } from '../../../styles/helpers';
 import { PublicProfile } from '../../../lib/user';
@@ -30,7 +30,7 @@ export type Tab = { path: string; title: string };
 const Nav = styled(Flipper)`
   position: relative;
   display: flex;
-  margin: ${size6} -${size6} 0;
+  margin: ${sizeN(6)} -${sizeN(6)} 0;
 
   :before {
     content: '';

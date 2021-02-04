@@ -4,7 +4,7 @@ import UpvoteIcon from '../../icons/upvote.svg';
 import CommentIcon from '../../icons/comment.svg';
 import TrashIcon from '../../icons/trash.svg';
 import styled from '@emotion/styled';
-import { size7 } from '../../styles/sizes';
+import sizeN from '../../macros/sizeN.macro';
 import {
   CANCEL_COMMENT_UPVOTE_MUTATION,
   Comment,
@@ -116,7 +116,7 @@ export default function CommentActionButtons({
         title="Comment"
         onClick={() => onComment(comment, parentId)}
         icon={<CommentIcon />}
-        style={{ marginLeft: size7 }}
+        style={{ marginLeft: sizeN(7) }}
       />
       {(user?.id === comment.author.id ||
         user?.roles?.indexOf(Roles.Moderator) > -1) && (

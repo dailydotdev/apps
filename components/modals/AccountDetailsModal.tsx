@@ -2,15 +2,8 @@ import React, { ReactElement, useContext, useState } from 'react';
 import { Props as ModalProps } from './StyledModal';
 import ResponsiveModal, { responsiveModalBreakpoint } from './ResponsiveModal';
 import styled from '@emotion/styled';
-import {
-  size1,
-  size10,
-  size1px,
-  size4,
-  size5,
-  size6,
-  sizeN,
-} from '../../styles/sizes';
+import sizeN from '../../macros/sizeN.macro';
+import rem from '../../macros/rem.macro';
 import XIcon from '../../icons/x.svg';
 import { ProfileHeading } from '../utilities';
 import EditImageWithJoinedDate from '../profile/EditImageWithJoinedDate';
@@ -52,9 +45,9 @@ const Header = styled.header`
   height: ${headerHeight};
   align-items: center;
   justify-content: space-between;
-  padding: 0 ${size4};
+  padding: 0 ${sizeN(4)};
   background: var(--theme-background-secondary);
-  border-bottom: ${size1px} solid var(--theme-divider-tertiary);
+  border-bottom: ${rem(1)} solid var(--theme-divider-tertiary);
   z-index: 3;
 
   ${responsiveModalBreakpoint} {
@@ -64,23 +57,23 @@ const Header = styled.header`
 
 const SaveButton = styled(PrimaryButton)<ButtonProps<'button'>>`
   height: unset;
-  padding-top: ${size1};
-  padding-bottom: ${size1};
+  padding-top: ${sizeN(1)};
+  padding-bottom: ${sizeN(1)};
 `;
 
 const Container = styled.div`
-  padding: ${size6} ${size4} ${size4};
+  padding: ${sizeN(6)} ${sizeN(4)} ${sizeN(4)};
 `;
 
 const Footer = styled.footer`
   display: flex;
   flex-direction: column;
-  margin: -${size1} 0;
-  padding: 0 ${size4} ${size10};
+  margin: -${sizeN(1)} 0;
+  padding: 0 ${sizeN(4)} ${sizeN(10)};
 `;
 
 const FooterLink = styled.a`
-  margin: ${size1} 0;
+  margin: ${sizeN(1)} 0;
   color: var(--theme-label-tertiary);
   text-decoration: none;
   ${typoFootnote}
@@ -88,7 +81,7 @@ const FooterLink = styled.a`
 
 const LogoutButton = styled(TertiaryButton)`
   align-self: flex-start;
-  margin-top: ${size5};
+  margin-top: ${sizeN(5)};
 `;
 
 export default function AccountDetailsModal(props: ModalProps): ReactElement {

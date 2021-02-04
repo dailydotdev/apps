@@ -13,7 +13,7 @@ import dynamic from 'next/dynamic';
 import styled from '@emotion/styled';
 import cloneDeep from 'lodash.clonedeep';
 import { Props as ModalProps } from './StyledModal';
-import { size2, size3, size6, sizeN } from '../../styles/sizes';
+import sizeN from '../../macros/sizeN.macro';
 import AuthContext from '../AuthContext';
 import { RoundedImage, SmallRoundedImage } from '../utilities';
 import { commentBoxStyle, CommentPublishDate } from '../comments/common';
@@ -61,31 +61,31 @@ const ParentComment = styled.article`
 const ParentCommentHeader = styled.header`
   display: flex;
   align-items: center;
-  margin-bottom: ${size2};
+  margin-bottom: ${sizeN(2)};
 `;
 
 const ParentCommentMetadata = styled.div`
   display: flex;
   flex-direction: column;
-  margin-left: ${size2};
+  margin-left: ${sizeN(2)};
 `;
 
 const Subheader = styled.div`
   display: flex;
   align-items: center;
   height: ${sizeN(11)};
-  padding: 0 ${size2};
+  padding: 0 ${sizeN(2)};
 `;
 
 const Timeline = styled.div`
   width: 0.063rem;
   height: 100%;
-  margin-left: ${size3};
+  margin-left: ${sizeN(3)};
   background: var(--theme-divider-tertiary);
 `;
 
 const ReplyTo = styled.div`
-  margin-left: ${size6};
+  margin-left: ${sizeN(6)};
   color: var(--theme-label-secondary);
   ${typoCaption1}
 
@@ -97,12 +97,12 @@ const ReplyTo = styled.div`
 
 const NewCommentContainer = styled.div`
   display: flex;
-  padding: 0 ${size2};
+  padding: 0 ${sizeN(2)};
 `;
 
 const NewCommentTextArea = styled.div`
   min-height: ${sizeN(44)};
-  margin-left: ${size3};
+  margin-left: ${sizeN(3)};
   flex: 1;
   color: var(--theme-label-primary);
   background: none;
@@ -125,13 +125,13 @@ const Footer = styled.footer`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: ${size2} 0;
+  padding: ${sizeN(2)} 0;
   border-top: 0.063rem solid var(--theme-divider-tertiary);
 `;
 
 const ErrorMessage = styled.div`
   min-height: 1rem;
-  margin: ${size2} ${size3};
+  margin: ${sizeN(2)} ${sizeN(3)};
   color: var(--theme-status-error);
   ${typoCaption1}
 `;

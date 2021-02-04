@@ -8,16 +8,9 @@ import React, {
 } from 'react';
 import styled from '@emotion/styled';
 import Link from 'next/link';
-import {
-  headerHeight,
-  size05,
-  size1,
-  size1px,
-  size2,
-  size3,
-  size4,
-  size8,
-} from '../../styles/sizes';
+import { headerHeight } from '../../styles/sizes';
+import sizeN from '../../macros/sizeN.macro';
+import rem from '../../macros/rem.macro';
 import LazyImage from '../LazyImage';
 import AuthContext from '../AuthContext';
 import { focusOutline } from '../../styles/helpers';
@@ -44,7 +37,7 @@ const HeaderRankProgress = dynamicPageLoad(
     ),
 );
 
-const buttonMargin = size05;
+const buttonMargin = sizeN(0.5);
 
 const ProfileImage = styled.a`
   display: flex;
@@ -55,7 +48,7 @@ const ProfileImage = styled.a`
   color: var(--theme-label-primary);
   background: var(--theme-background-secondary);
   border: none;
-  border-radius: ${size2};
+  border-radius: ${sizeN(2)};
   cursor: pointer;
   text-decoration: none;
   font-weight: bold;
@@ -63,12 +56,12 @@ const ProfileImage = styled.a`
   ${typoCallout}
 
   .img {
-    width: ${size8};
-    border-radius: ${size2};
+    width: ${sizeN(8)};
+    border-radius: ${sizeN(2)};
   }
 
   span {
-    margin: 0 ${size2} 0 ${size3};
+    margin: 0 ${sizeN(2)} 0 ${sizeN(3)};
   }
 `;
 
@@ -82,7 +75,7 @@ const HomeLink = styled.a`
 
     &:nth-of-type(2) {
       display: none;
-      margin-left: ${size1};
+      margin-left: ${sizeN(1)};
 
       ${laptop} {
         display: unset;
@@ -92,7 +85,7 @@ const HomeLink = styled.a`
 
   .badge {
     width: 1.875rem;
-    margin-left: ${size1};
+    margin-left: ${sizeN(1)};
   }
 `;
 
@@ -101,17 +94,17 @@ const Header = styled.header<{ responsive: boolean }>`
   display: flex;
   height: ${headerHeight};
   align-items: center;
-  padding: 0 ${size4};
-  border-bottom: ${size1px} solid var(--theme-divider-tertiary);
+  padding: 0 ${sizeN(4)};
+  border-bottom: ${rem(1)} solid var(--theme-divider-tertiary);
 
   ${tablet} {
-    padding-left: ${size8};
-    padding-right: ${size8};
+    padding-left: ${sizeN(8)};
+    padding-right: ${sizeN(8)};
   }
 
   ${laptop} {
-    padding-left: ${size4};
-    padding-right: ${size4};
+    padding-left: ${sizeN(4)};
+    padding-right: ${sizeN(4)};
 
     ${({ responsive }) =>
       responsive &&
@@ -194,7 +187,7 @@ export default function MainLayout({
               position: absolute;
               left: 0;
               right: 0;
-              bottom: -${size1px};
+              bottom: -${rem(1)};
               margin: 0 auto;
               z-index: 3;
               transform: translateY(50%);
