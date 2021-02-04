@@ -6,7 +6,6 @@ import { MY_READING_RANK_QUERY, MyRankData } from '../graphql/users';
 import request from 'graphql-request';
 import { apiUrl } from './config';
 import usePersistentState from './usePersistentState';
-import { STEPS_PER_RANK } from './rank';
 import { isThisISOWeek, isToday } from 'date-fns';
 
 export const getRankQueryKey = (user?: LoggedUser): string[] => [
@@ -17,10 +16,11 @@ export const getRankQueryKey = (user?: LoggedUser): string[] => [
 type ReturnType = {
   isLoading: boolean;
   rank: number;
+  nextRank: number;
   progress: number;
   levelUp: boolean;
   neverShowRankModal: boolean;
-  confirmLevelUp: () => Promise<void>;
+  confirmLevelUp: (neverShowRankModal: boolean) => Promise<void>;
 };
 
 const defaultRank: MyRankData = {
@@ -32,10 +32,10 @@ export default function useReadingRank(): ReturnType {
   const [levelUp, setLevelUp] = useState(false);
   const queryClient = useQueryClient();
 
-  const neverShowRankModal = true;
   const [cachedRank, setCachedRank, loadedCache] = usePersistentState<
-    MyRankData & { userId: string }
+    MyRankData & { userId: string; neverShowRankModal: boolean }
   >('rank', null);
+  const neverShowRankModal = cachedRank?.neverShowRankModal;
   const queryKey = getRankQueryKey(user);
   const { data: remoteRank } = useQuery<MyRankData>(
     queryKey,
@@ -49,8 +49,10 @@ export default function useReadingRank(): ReturnType {
     },
   );
 
-  const cacheRank = (rank: MyRankData = remoteRank) =>
-    setCachedRank({ rank: rank.rank, userId: user?.id });
+  const cacheRank = (
+    rank: MyRankData = remoteRank,
+    neverShowRankModal = cachedRank?.neverShowRankModal,
+  ) => setCachedRank({ rank: rank.rank, userId: user?.id, neverShowRankModal });
 
   const updateShownProgress = async () => {
     if (document.visibilityState === 'hidden') {
@@ -112,20 +114,15 @@ export default function useReadingRank(): ReturnType {
 
   return {
     isLoading: !cachedRank,
-    rank:
-      levelUp && neverShowRankModal
-        ? remoteRank?.rank.currentRank
-        : cachedRank?.rank.currentRank,
-    progress:
-      levelUp && neverShowRankModal
-        ? STEPS_PER_RANK[remoteRank?.rank.currentRank - 1]
-        : cachedRank?.rank.progressThisWeek,
+    rank: cachedRank?.rank.currentRank,
+    nextRank: remoteRank?.rank.currentRank,
+    progress: cachedRank?.rank.progressThisWeek,
     levelUp,
     neverShowRankModal,
-    confirmLevelUp: () => {
+    confirmLevelUp: (neverShowRankModal) => {
+      setLevelUp(false);
       if (user) {
-        setLevelUp(false);
-        return cacheRank();
+        return cacheRank(remoteRank, neverShowRankModal);
       }
       // Limit anonymous users to rank zero
       const rank = queryClient.setQueryData<MyRankData>(
@@ -134,7 +131,7 @@ export default function useReadingRank(): ReturnType {
           rank: { ...currentRank.rank, currentRank: 0 },
         }),
       );
-      return cacheRank(rank);
+      return cacheRank(rank, neverShowRankModal);
     },
   };
 }

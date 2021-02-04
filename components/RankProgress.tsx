@@ -19,6 +19,7 @@ import { size1, size2, sizeN } from '../styles/sizes';
 import { typoCaption1 } from '../styles/typography';
 
 const StyledRadialProgress = styled(RadialProgress)`
+  font-size: inherit;
   --radial-progress-step: var(--theme-label-disabled);
   --radial-progress-completed-step: var(--theme-label-tertiary);
   --radial-progress-transition-delay: 0.3s;
@@ -89,6 +90,9 @@ const notificationDuration = 300;
 
 const Container = styled.div<{ rank: number; forceColor: boolean }>`
   position: relative;
+  width: 1em;
+  height: 1em;
+  font-size: ${sizeN(12)};
   z-index: 1;
 
   ${({ rank, forceColor }) =>
@@ -261,7 +265,10 @@ export default function RankProgress({
   }, [rank]);
 
   useEffect(() => {
-    if (progress > prevProgress) {
+    if (
+      progress > prevProgress &&
+      (!rank || showRankAnimation || STEPS_PER_RANK[rank - 1] !== progress)
+    ) {
       setProgressDelta(progress - prevProgress);
       setAnimatingProgress(true);
     }

@@ -131,7 +131,7 @@ const ranksMetadata = STEPS_PER_RANK.map((steps, index) => ({
   steps,
 }));
 
-export interface RanksModal extends ModalProps {
+export interface RanksModalProps extends ModalProps {
   rank: number;
   progress: number;
 }
@@ -141,7 +141,7 @@ export default function RanksModal({
   progress,
   onRequestClose,
   ...props
-}: RanksModal): ReactElement {
+}: RanksModalProps): ReactElement {
   return (
     <ResponsiveModal
       onRequestClose={onRequestClose}

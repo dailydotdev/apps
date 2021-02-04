@@ -14,6 +14,7 @@
   "dependencies": {
     "@emotion/react": "^11.1.4",
     "@emotion/styled": "^11.0.0",
+    "classnames": "^2.2.6",
     "date-fns": "^2.16.1",
     "dompurify": "^2.2.6",
     "emotion-normalize": "^11.0.1",
@@ -50,6 +51,7 @@
     "@svgr/webpack": "^5.5.0",
     "@testing-library/jest-dom": "^5.11.9",
     "@testing-library/preact": "^2.0.1",
+    "@types/classnames": "^2.2.11",
     "@types/dompurify": "^2.2.1",
     "@types/jest": "^26.0.20",
     "@types/linkifyjs": "^2.1.3",

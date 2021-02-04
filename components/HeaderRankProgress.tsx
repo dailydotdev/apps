@@ -1,12 +1,15 @@
 /** @jsx jsx */
 import { jsx, css } from '@emotion/react';
-import { ReactElement, useState } from 'react';
+import { ReactElement, useContext, useState } from 'react';
 import RankProgress from './RankProgress';
 import useReadingRank from '../lib/useReadingRank';
 import { useHideOnModal } from '../lib/useHideOnModal';
 import { headerRankHeight } from '../styles/sizes';
 import dynamic from 'next/dynamic';
 import { focusOutline } from '../styles/helpers';
+import NewRankModal from './modals/NewRankModal';
+import AuthContext from './AuthContext';
+import { STEPS_PER_RANK } from '../lib/rank';
 
 const RanksModal = dynamic(
   () => import(/* webpackChunkName: "reactModal" */ './modals/RanksModal'),
@@ -17,12 +20,14 @@ export default function HeaderRankProgress({
 }: {
   className?: string;
 }): ReactElement {
+  const { user } = useContext(AuthContext);
   const [showModal, setShowModal] = useState(false);
-  useHideOnModal(() => showModal, [showModal]);
+  useHideOnModal(() => showModal || true, [showModal]);
 
   const {
     isLoading,
     rank,
+    nextRank,
     progress,
     neverShowRankModal,
     levelUp,
@@ -32,6 +37,8 @@ export default function HeaderRankProgress({
   if (isLoading) {
     return <></>;
   }
+
+  const showRankAnimation = levelUp && neverShowRankModal;
 
   return (
     <button
@@ -52,10 +59,13 @@ export default function HeaderRankProgress({
       onClick={() => setShowModal(true)}
     >
       <RankProgress
-        progress={progress}
-        rank={rank}
-        showRankAnimation={levelUp && neverShowRankModal}
-        onRankAnimationFinish={confirmLevelUp}
+        progress={showRankAnimation ? STEPS_PER_RANK[nextRank - 1] : progress}
+        rank={showRankAnimation ? nextRank : rank}
+        showRankAnimation={showRankAnimation}
+        fillByDefault={showRankAnimation}
+        onRankAnimationFinish={() =>
+          setTimeout(() => confirmLevelUp(true), 1000)
+        }
       />
       {showModal && (
         <RanksModal
@@ -63,6 +73,15 @@ export default function HeaderRankProgress({
           progress={progress}
           isOpen={showModal}
           onRequestClose={() => setShowModal(false)}
+        />
+      )}
+      {levelUp && !neverShowRankModal && (
+        <NewRankModal
+          rank={nextRank}
+          progress={progress}
+          user={user}
+          isOpen={levelUp && !neverShowRankModal}
+          onRequestClose={confirmLevelUp}
         />
       )}
     </button>
