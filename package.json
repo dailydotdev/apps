@@ -14,6 +14,7 @@
   "dependencies": {
     "@emotion/react": "^11.1.4",
     "@emotion/styled": "^11.0.0",
+    "classnames": "^2.2.6",
     "date-fns": "^2.16.1",
     "dompurify": "^2.2.6",
     "emotion-normalize": "^11.0.1",
@@ -37,6 +38,7 @@
     "react-intersection-observer": "^8.31.0",
     "react-modal": "^3.12.1",
     "react-query": "^3.6.0",
+    "react-transition-group": "^4.4.1",
     "swr": "^0.4.1",
     "universal-cookie": "^4.0.4"
   },
@@ -49,6 +51,7 @@
     "@svgr/webpack": "^5.5.0",
     "@testing-library/jest-dom": "^5.11.9",
     "@testing-library/preact": "^2.0.1",
+    "@types/classnames": "^2.2.11",
     "@types/dompurify": "^2.2.1",
     "@types/jest": "^26.0.20",
     "@types/linkifyjs": "^2.1.3",
@@ -58,6 +61,7 @@
     "@types/node-fetch": "^2.5.8",
     "@types/react": "^17.0.0",
     "@types/react-modal": "^3.10.6",
+    "@types/react-transition-group": "^4.4.0",
     "@typescript-eslint/eslint-plugin": "^4.14.1",
     "@typescript-eslint/parser": "^4.14.1",
     "babel-jest": "^26.6.3",

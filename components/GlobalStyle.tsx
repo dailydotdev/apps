@@ -26,6 +26,7 @@ export default css`
   html,
   html.light .invert,
   html .invert .invert {
+    --theme-active: ${colors.salt['90']}33;
     --theme-focus: ${colors.blueCheese['40']};
     --theme-float: ${colors.salt['90']}14;
     --theme-hover: ${colors.salt['90']}1F;
@@ -83,6 +84,7 @@ export default css`
   html.light,
   html .invert,
   html.light .invert .invert {
+    --theme-active: ${colors.pepper['10']}33;
     --theme-focus: ${colors.blueCheese['60']};
     --theme-float: ${colors.pepper['10']}14;
     --theme-hover: ${colors.pepper['10']}1F;

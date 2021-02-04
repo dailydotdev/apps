@@ -30,6 +30,7 @@ import { mobileL, tablet } from '../styles/media';
 import { multilineTextOverflow } from '../styles/helpers';
 import { feedBreakpoints, feedSettings } from './layouts/FeedLayout';
 import FeedSettingsContext from './FeedSettingsContext';
+import useIncrementReadingRank from '../lib/useIncrementReadingRank';
 
 export type FeedProps<T> = {
   query?: string;
@@ -128,6 +129,7 @@ export default function Feed<T>({
   );
   const { user, showLogin } = useContext(AuthContext);
   const [disableFetching, setDisableFetching] = useState(false);
+  const { incrementReadingRank } = useIncrementReadingRank();
 
   useEffect(() => {
     if (emptyFeed) {
@@ -296,6 +298,9 @@ export default function Feed<T>({
       action: 'Click',
       label: post.source.name,
     });
+    if (!post.read) {
+      incrementReadingRank();
+    }
     updatePost(index, { ...post, read: true });
   };
 

@@ -8,7 +8,7 @@ import React, {
 import { MainLayoutProps } from './MainLayout';
 import styled from '@emotion/styled';
 import Link from 'next/link';
-import { size3, size6 } from '../../styles/sizes';
+import { size6 } from '../../styles/sizes';
 import TertiaryButton from '../buttons/TertiaryButton';
 import { useRouter } from 'next/router';
 import Feed from '../Feed';
@@ -23,7 +23,7 @@ import { LoggedUser } from '../../lib/user';
 const Nav = styled.nav`
   display: flex;
   align-items: center;
-  margin: ${size3} 0 ${size6};
+  margin: 0 0 ${size6};
 `;
 
 export type Tab = { path: string; title: string; default?: boolean };
@@ -125,4 +125,5 @@ export default function MainFeedPage<T>({
 export const getMainFeedLayout = getLayout;
 export const mainFeedLayoutProps: MainLayoutProps = {
   responsive: false,
+  showRank: true,
 };

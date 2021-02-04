@@ -19,9 +19,10 @@ jest.mock('../lib/usePersistentState', () => ({
         key: string,
         initialValue: any,
         valueWhenCacheEmpty: any,
-      ): [any, (value: any) => Promise<void>] => [
+      ): [any, (value: any) => Promise<void>, boolean] => [
         valueWhenCacheEmpty,
         jest.fn().mockResolvedValue(undefined),
+        true,
       ],
     ),
 }));

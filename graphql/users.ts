@@ -32,3 +32,22 @@ export const USER_READING_RANK_QUERY = gql`
     }
   }
 `;
+
+export interface MyRankData {
+  rank: {
+    currentRank: number;
+    progressThisWeek: number;
+    readToday: boolean;
+    lastReadTime?: Date;
+  };
+}
+
+export const MY_READING_RANK_QUERY = gql`
+  query UserReadingRank($id: ID!) {
+    rank: userReadingRank(id: $id) {
+      currentRank
+      progressThisWeek
+      readToday
+    }
+  }
+`;

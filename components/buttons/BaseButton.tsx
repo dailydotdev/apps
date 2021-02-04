@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React, { LegacyRef, ReactElement, ReactNode } from 'react';
 import styled from '@emotion/styled';
 import { typoCallout } from '../../styles/typography';
 import {
@@ -247,7 +247,8 @@ export interface BaseButtonProps {
 
 export type ButtonProps<
   Tag extends keyof JSX.IntrinsicElements
-> = BaseButtonProps & JSX.IntrinsicElements[Tag];
+> = BaseButtonProps &
+  JSX.IntrinsicElements[Tag] & { innerRef?: LegacyRef<Tag> };
 
 export default function BaseButton<Tag extends keyof JSX.IntrinsicElements>({
   loading,
@@ -256,6 +257,7 @@ export default function BaseButton<Tag extends keyof JSX.IntrinsicElements>({
   rightIcon,
   children,
   tag = 'button',
+  innerRef,
   ...props
 }: StyledButtonProps & ButtonProps<Tag>): ReactElement {
   return (
@@ -265,6 +267,7 @@ export default function BaseButton<Tag extends keyof JSX.IntrinsicElements>({
       iconOnly={icon && !children && !rightIcon}
       aria-busy={loading}
       aria-pressed={pressed}
+      ref={innerRef as LegacyRef<HTMLButtonElement>}
     >
       {icon}
       {children && <span>{children}</span>}

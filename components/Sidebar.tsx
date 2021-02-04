@@ -15,7 +15,7 @@ const Trigger = styled.button`
   width: ${sizeN(12)};
   height: ${sizeN(14)};
   align-items: center;
-  margin-top: ${sizeN(15)};
+  margin-top: ${sizeN(24)};
   padding: 0 0 0 ${size3};
   background: var(--theme-background-primary);
   border: ${size1px} solid var(--theme-divider-quaternary);
@@ -58,6 +58,11 @@ const Container = styled.div<{ opened: boolean }>`
   transform: translateX(-${asideWidth});
   will-change: transform;
   transition: transform 0.2s linear 0.1s;
+  pointer-events: none;
+
+  > * {
+    pointer-events: all;
+  }
 
   ${({ opened }) =>
     opened &&

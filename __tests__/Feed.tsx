@@ -18,6 +18,8 @@ import ad from './fixture/ad';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { LoggedUser } from '../lib/user';
 import { LoginModalMode } from '../components/modals/LoginModal';
+import { MyRankData } from '../graphql/users';
+import { getRankQueryKey } from '../lib/useReadingRank';
 
 const showLogin = jest.fn();
 
@@ -45,16 +47,18 @@ const createFeedMock = (
   },
 });
 
+let queryClient: QueryClient;
+
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createFeedMock()],
   user: LoggedUser = defaultUser,
 ): RenderResult => {
-  const client = new QueryClient();
+  queryClient = new QueryClient();
 
   mocks.forEach(mockGraphQL);
   nock('http://localhost:3000').get('/v1/a').reply(200, [ad]);
   return render(
-    <QueryClientProvider client={client}>
+    <QueryClientProvider client={queryClient}>
       <AuthContext.Provider
         value={{
           user,
@@ -201,4 +205,135 @@ it('should open login modal on anonymous bookmark', async () => {
   const [el] = await screen.findAllByTitle('Bookmark');
   el.click();
   expect(showLogin).toBeCalledWith();
+});
+
+it('should increase reading rank progress', async () => {
+  renderComponent();
+  const queryKey = getRankQueryKey(defaultUser);
+  queryClient.setQueryData<MyRankData>(queryKey, {
+    rank: { readToday: false, currentRank: 0, progressThisWeek: 0 },
+  });
+  const el = await screen.findByTitle('Star night');
+  el.click();
+  await waitFor(async () => {
+    const data = await queryClient.getQueryData<MyRankData>(queryKey);
+    expect(data).toEqual({
+      rank: {
+        readToday: true,
+        currentRank: 0,
+        progressThisWeek: 1,
+        lastReadTime: expect.anything(),
+      },
+    });
+  });
+});
+
+it('should not increase reading rank progress when read today', async () => {
+  renderComponent();
+  const queryKey = getRankQueryKey(defaultUser);
+  queryClient.setQueryData<MyRankData>(queryKey, {
+    rank: { readToday: true, currentRank: 0, progressThisWeek: 0 },
+  });
+  const el = await screen.findByTitle('Star night');
+  el.click();
+  await waitFor(async () => {
+    const data = await queryClient.getQueryData<MyRankData>(queryKey);
+    expect(data).toEqual({
+      rank: { readToday: true, currentRank: 0, progressThisWeek: 0 },
+    });
+  });
+});
+
+it('should increase reading rank progress and rank', async () => {
+  renderComponent();
+  const queryKey = getRankQueryKey(defaultUser);
+  queryClient.setQueryData<MyRankData>(queryKey, {
+    rank: { readToday: false, currentRank: 0, progressThisWeek: 2 },
+  });
+  const el = await screen.findByTitle('Star night');
+  el.click();
+  await waitFor(async () => {
+    const data = await queryClient.getQueryData<MyRankData>(queryKey);
+    expect(data).toEqual({
+      rank: {
+        readToday: true,
+        currentRank: 1,
+        progressThisWeek: 3,
+        lastReadTime: expect.anything(),
+      },
+    });
+  });
+});
+
+it('should not increase reading rank progress when reached final rank', async () => {
+  renderComponent();
+  const queryKey = getRankQueryKey(defaultUser);
+  queryClient.setQueryData<MyRankData>(queryKey, {
+    rank: { readToday: false, currentRank: 5, progressThisWeek: 7 },
+  });
+  const el = await screen.findByTitle('Star night');
+  el.click();
+  await waitFor(async () => {
+    const data = await queryClient.getQueryData<MyRankData>(queryKey);
+    expect(data).toEqual({
+      rank: { readToday: false, currentRank: 5, progressThisWeek: 7 },
+    });
+  });
+});
+
+it('should increase reading rank progress for anonymous users', async () => {
+  renderComponent(
+    [
+      createFeedMock(defaultFeedPage, ANONYMOUS_FEED_QUERY, {
+        first: 7,
+        loggedIn: false,
+      }),
+    ],
+    null,
+  );
+  const queryKey = getRankQueryKey(null);
+  queryClient.setQueryData<MyRankData>(queryKey, {
+    rank: { readToday: false, currentRank: 0, progressThisWeek: 0 },
+  });
+  const el = await screen.findByTitle('Star night');
+  el.click();
+  await waitFor(async () => {
+    const data = await queryClient.getQueryData<MyRankData>(queryKey);
+    expect(data).toEqual({
+      rank: {
+        readToday: true,
+        currentRank: 0,
+        progressThisWeek: 1,
+        lastReadTime: expect.anything(),
+      },
+    });
+  });
+});
+
+it('should not increase reading rank progress for anonymous users after the first rank', async () => {
+  renderComponent(
+    [
+      createFeedMock(defaultFeedPage, ANONYMOUS_FEED_QUERY, {
+        first: 7,
+        loggedIn: false,
+      }),
+    ],
+    null,
+  );
+  const queryKey = getRankQueryKey(null);
+  queryClient.setQueryData<MyRankData>(queryKey, {
+    rank: { readToday: false, currentRank: 0, progressThisWeek: 3 },
+  });
+  const el = await screen.findByTitle('Star night');
+  el.click();
+  await waitFor(async () => {
+    const data = await queryClient.getQueryData<MyRankData>(queryKey);
+    expect(data).toEqual({
+      rank: {
+        readToday: false,
+        currentRank: 0,
+        progressThisWeek: 3,
+      },
+    });
+  });
 });

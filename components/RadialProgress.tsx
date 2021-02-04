@@ -1,4 +1,11 @@
-import React, { CSSProperties, ReactElement, useMemo, useState } from 'react';
+import React, {
+  CSSProperties,
+  forwardRef,
+  LegacyRef,
+  ReactElement,
+  useMemo,
+  useState,
+} from 'react';
 import styled from '@emotion/styled';
 import { sizeN } from '../styles/sizes';
 
@@ -86,15 +93,20 @@ export type RadialProgressProps = {
   progress: number;
   steps: number;
   maxDegrees?: number;
+  onTransitionEnd?: () => unknown;
   className?: string;
 };
 
-export default function RadialProgress({
-  progress,
-  steps,
-  maxDegrees = 360,
-  className,
-}: RadialProgressProps): ReactElement {
+export default forwardRef(function RadialProgress(
+  {
+    progress,
+    steps,
+    maxDegrees = 360,
+    onTransitionEnd,
+    ...props
+  }: RadialProgressProps,
+  ref: LegacyRef<HTMLDivElement>,
+): ReactElement {
   const [id] = useState(`rd-${Math.random().toString(36).substring(7)}`);
 
   const progressRatio = steps > 0 ? progress / steps : 1;
@@ -129,7 +141,8 @@ export default function RadialProgress({
       aria-valuenow={progress}
       aria-valuemin={0}
       aria-valuemax={steps}
-      className={className}
+      ref={ref}
+      {...props}
     >
       <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
         <defs>
@@ -176,9 +189,10 @@ export default function RadialProgress({
             strokeDasharray={circumference}
             strokeDashoffset={circumference * (1 - progressRatio)}
             className="completed"
+            onTransitionEnd={onTransitionEnd}
           />
         </g>
       </svg>
     </Container>
   );
-}
+});

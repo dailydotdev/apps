@@ -1,3 +1,5 @@
+/** @jsx jsx */
+import { jsx, css } from '@emotion/react';
 import React, {
   HTMLAttributes,
   ReactElement,
@@ -7,6 +9,7 @@ import React, {
 import styled from '@emotion/styled';
 import Link from 'next/link';
 import {
+  headerHeight,
   size05,
   size1,
   size1px,
@@ -14,26 +17,32 @@ import {
   size3,
   size4,
   size8,
-  sizeN,
 } from '../../styles/sizes';
 import LazyImage from '../LazyImage';
 import AuthContext from '../AuthContext';
 import { focusOutline } from '../../styles/helpers';
 import { laptop, tablet } from '../../styles/media';
-import BetaBadge from '../svg/BetaBadge';
 import { typoCallout } from '../../styles/typography';
-import DailyDevLogo from '../svg/DailyDevLogo';
 import TertiaryButton from '../buttons/TertiaryButton';
 import { ButtonProps } from '../buttons/BaseButton';
 import BookmarkIcon from '../../icons/bookmark.svg';
 import { footerNavBarBreakpoint } from './FooterNavBarLayout';
+import dynamicPageLoad from '../../lib/dynamicPageLoad';
+import Logo from '../svg/Logo';
+import LogoTextBeta from '../svg/LogoTextBeta';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
   responsive?: boolean;
+  showRank?: boolean;
 }
 
-export const headerHeight = sizeN(12);
+const HeaderRankProgress = dynamicPageLoad(
+  () =>
+    import(
+      /* webpackChunkName: "headerRankProgress" */ '../HeaderRankProgress'
+    ),
+);
 
 const buttonMargin = size05;
 
@@ -68,8 +77,17 @@ const HomeLink = styled.a`
   align-items: center;
   margin-right: auto;
 
-  .logo {
-    width: 6.25rem;
+  svg {
+    height: 1.125rem;
+
+    &:nth-of-type(2) {
+      display: none;
+      margin-left: ${size1};
+
+      ${laptop} {
+        display: unset;
+      }
+    }
   }
 
   .badge {
@@ -79,6 +97,7 @@ const HomeLink = styled.a`
 `;
 
 const Header = styled.header<{ responsive: boolean }>`
+  position: relative;
   display: flex;
   height: ${headerHeight};
   align-items: center;
@@ -119,6 +138,7 @@ export default function MainLayout({
   children,
   showOnlyLogo = false,
   responsive = true,
+  showRank = false,
 }: MainLayoutProps): ReactElement {
   const { user, showLogin, loadingUser } = useContext(AuthContext);
 
@@ -127,20 +147,21 @@ export default function MainLayout({
       <Header responsive={responsive}>
         <Link href="/" passHref prefetch={false}>
           <HomeLink title="Home">
-            <DailyDevLogo />
-            <BetaBadge className="badge" />
+            <Logo />
+            <LogoTextBeta />
           </HomeLink>
         </Link>
-        {!showOnlyLogo && !loadingUser && (
-          <>
-            <Link href="/bookmarks" passHref prefetch={false}>
-              <BookmarksButton
-                tag="a"
-                icon={<BookmarkIcon />}
-                title="Bookmarks"
-              />
-            </Link>
-            {user ? (
+        {!showOnlyLogo &&
+          !loadingUser &&
+          (user ? (
+            <>
+              <Link href="/bookmarks" passHref prefetch={false}>
+                <BookmarksButton
+                  tag="a"
+                  icon={<BookmarkIcon />}
+                  title="Bookmarks"
+                />
+              </Link>
               <Link
                 href={`/${user.username || user.id}`}
                 passHref
@@ -156,10 +177,29 @@ export default function MainLayout({
                   />
                 </ProfileImage>
               </Link>
-            ) : (
+            </>
+          ) : (
+            <>
+              <BookmarksButton
+                icon={<BookmarkIcon />}
+                title="Bookmarks"
+                onClick={() => showLogin()}
+              />
               <TertiaryButton onClick={() => showLogin()}>Login</TertiaryButton>
-            )}
-          </>
+            </>
+          ))}
+        {showRank && (
+          <HeaderRankProgress
+            css={css`
+              position: absolute;
+              left: 0;
+              right: 0;
+              bottom: -${size1px};
+              margin: 0 auto;
+              z-index: 3;
+              transform: translateY(50%);
+            `}
+          />
         )}
       </Header>
       {children}
