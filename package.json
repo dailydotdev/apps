@@ -46,7 +46,7 @@
     "@emotion/babel-plugin": "^11.1.2",
     "@emotion/eslint-plugin": "^11.0.0",
     "@emotion/jest": "^11.1.0",
-    "@next/bundle-analyzer": "^10.0.5",
+    "@next/bundle-analyzer": "^10.0.6",
     "@svgr/cli": "^5.5.0",
     "@svgr/webpack": "^5.5.0",
     "@testing-library/jest-dom": "^5.11.9",
