@@ -141,7 +141,7 @@ const Para = styled.p`
   margin: ${size1} 0 ${size8};
   color: var(--theme-label-secondary);
   text-align: center;
-  ${typoCallout};
+  ${typoCallout}
 `;
 
 export default function NewRankModal({

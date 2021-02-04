@@ -72,7 +72,7 @@ const Label = styled.label`
   cursor: pointer;
   user-select: none;
   font-weight: bold;
-  ${typoFootnote};
+  ${typoFootnote}
 
   &:hover,
   &:focus-within,
