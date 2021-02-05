@@ -37,7 +37,7 @@
     "react-ga": "^3.3.0",
     "react-intersection-observer": "^8.31.0",
     "react-modal": "^3.12.1",
-    "react-query": "^3.6.0",
+    "react-query": "^3.7.1",
     "react-transition-group": "^4.4.1",
     "swr": "^0.4.1",
     "universal-cookie": "^4.0.4"
