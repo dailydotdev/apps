@@ -1,22 +1,3 @@
-export const typoMicro2Base = `
-  font-size: 0.75rem;
-  letter-spacing: 0.025rem;
-  line-height: 1.125rem;
-`;
-
-// TODO: styling is out of guideline
-export const typoLil2Base = `
-  font-size: 0.875rem;
-  font-weight: bold;
-  letter-spacing: 0.05rem;
-  line-height: 1.25rem;
-`;
-
-export const typoLil2 = `
-  ${typoLil2Base}
-  text-transform: uppercase;
-`;
-
 export const typoGiga1 = `
   font-size: 4.5rem;
   line-height: 5.375rem;

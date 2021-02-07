@@ -7,7 +7,6 @@ import React, {
 } from 'react';
 import BaseButton, {
   ButtonProps,
-  ButtonSize,
   ButtonStatesStyles,
   ButtonStateStyle,
   StyledButtonProps,
@@ -16,17 +15,8 @@ import { tertiaryStyle } from './TertiaryButton';
 import styled from '@emotion/styled';
 import { typoCallout } from '../../styles/typography';
 import sizeN from '../../macros/sizeN.macro';
-
-const getRightMargin = (size: ButtonSize = 'medium'): string => {
-  switch (size) {
-    case 'small':
-      return sizeN(4);
-    case 'large':
-      return sizeN(8);
-    default:
-      return sizeN(6);
-  }
-};
+import classNames from 'classnames';
+import { mobileL } from '../../styles/media';
 
 const applyButtonStateStyle = (style: ButtonStateStyle): string => {
   if (style.color) {
@@ -75,43 +65,58 @@ const applyButtonStatesStyles = (styles: ButtonStatesStyles): string =>
 type QuandaryButtonProps = {
   id: string;
   reverse?: boolean;
-  labelMediaQuery?: string;
+  responsiveLabel?: boolean;
 };
 
 const Container = styled.div<
-  StyledButtonProps & Omit<QuandaryButtonProps, 'id'>
+  Pick<StyledButtonProps, 'darkStates' | 'lightStates'>
 >`
   display: flex;
-  flex-direction: ${({ reverse }) => (reverse ? 'row-reverse' : 'row')};
+  flex-direction: row;
   align-items: stretch;
   user-select: none;
 
   label {
+    display: flex;
     align-items: center;
     font-weight: bold;
     cursor: pointer;
+    padding-left: ${sizeN(1)};
+    padding-right: ${sizeN(6)};
     ${typoCallout}
+  }
 
-    ${({ reverse, buttonSize }) =>
-      reverse
-        ? `
-      padding-left: ${getRightMargin(buttonSize)};
+  &.small > label {
+    padding-right: ${sizeN(4)};
+  }
+
+  &.large > label {
+    padding-right: ${sizeN(8)};
+  }
+
+  &&.reverse {
+    flex-direction: row-reverse;
+
+    & > label {
+      padding-left: ${sizeN(6)};
       padding-right: ${sizeN(1)};
-    `
-        : `
-      padding-left: ${sizeN(1)};
-      padding-right: ${getRightMargin(buttonSize)};
-    `}
+    }
 
-    ${({ labelMediaQuery }) =>
-      labelMediaQuery
-        ? `
-      display: none;
-      ${labelMediaQuery} {
-        display: flex;
-      }
-    `
-        : `display: flex;`}
+    &.small > label {
+      padding-left: ${sizeN(4)};
+    }
+
+    &.large > label {
+      padding-left: ${sizeN(8)};
+    }
+  }
+
+  &.responsiveLabel label {
+    display: none;
+
+    ${mobileL} {
+      display: flex;
+    }
   }
 
   & [disabled] ~ label {
@@ -133,7 +138,7 @@ export default function QuandaryButton<
   style,
   className,
   reverse,
-  labelMediaQuery,
+  responsiveLabel,
   tag,
   ...props
 }: ButtonProps<Tag> & QuandaryButtonProps): ReactElement {
@@ -164,11 +169,12 @@ export default function QuandaryButton<
   return (
     <Container
       {...buttonStyle}
-      buttonSize={props.buttonSize}
       style={style}
-      className={className}
-      reverse={reverse}
-      labelMediaQuery={labelMediaQuery}
+      className={classNames(
+        { reverse, responsiveLabel },
+        props.buttonSize,
+        className,
+      )}
     >
       <BaseButton<Tag>
         id={id}

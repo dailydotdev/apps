@@ -52,7 +52,7 @@ import {
   POST_COMMENTS_QUERY,
   PostCommentsData,
 } from '../../graphql/comments';
-import { laptop, mobileL } from '../../styles/media';
+import { laptop } from '../../styles/media';
 import { focusOutline } from '../../styles/helpers';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { ShareMobile } from '../../components/ShareMobile';
@@ -604,7 +604,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             onClick={toggleUpvote}
             icon={<UpvoteIcon />}
             aria-label="Upvote"
-            labelMediaQuery={mobileL}
+            responsiveLabel
           >
             Upvote
           </QuandaryButton>
@@ -615,7 +615,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             onClick={openNewComment}
             icon={<CommentIcon />}
             aria-label="Comment"
-            labelMediaQuery={mobileL}
+            responsiveLabel
           >
             Comment
           </QuandaryButton>
@@ -626,7 +626,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             icon={<ShareIcon />}
             style={{ visibility: hasNativeShare ? 'visible' : 'hidden' }}
             aria-label="Share"
-            labelMediaQuery={mobileL}
+            responsiveLabel
           >
             Share
           </QuandaryButton>
