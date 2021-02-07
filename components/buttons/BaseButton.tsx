@@ -1,5 +1,6 @@
 import React, { LegacyRef, ReactElement, ReactNode } from 'react';
 import styled from '@emotion/styled';
+import classNames from 'classnames';
 import { typoCallout } from '../../styles/typography';
 import sizeN from '../../macros/sizeN.macro';
 import rem from '../../macros/rem.macro';
@@ -86,89 +87,9 @@ const applyButtonStatesStyles = (styles: ButtonStatesStyles): string =>
   }
   `;
 
-const applySizeStyle = (
-  size: ButtonSize = 'medium',
-  iconOnly?: boolean,
-): string => {
-  if (iconOnly) {
-    switch (size) {
-      case 'small':
-        return `
-        padding: ${sizeN(0.75)};
-        border-radius: ${sizeN(2.5)};
-        `;
-      case 'large':
-        return `
-        padding: ${sizeN(1.75)};
-        border-radius: ${sizeN(3.5)};
-        `;
-      case 'xlarge':
-        return `
-        padding: ${sizeN(2.75)};
-        border-radius: ${sizeN(5.5)};
-        `;
-      default:
-        return `
-        padding: ${sizeN(1.25)};
-        border-radius: ${sizeN(3)};
-        `;
-    }
-  }
-  switch (size) {
-    case 'small':
-      return `
-      padding: ${sizeN(1.25)} ${sizeN(3.75)};
-      border-radius: ${sizeN(2.5)};
-      `;
-    case 'large':
-      return `
-      padding: ${sizeN(3.25)} ${sizeN(7.75)};
-      border-radius: ${sizeN(3.5)};
-      `;
-    default:
-      return `
-      padding: ${sizeN(2.25)} ${sizeN(5.75)};
-      border-radius: ${sizeN(3)};
-      `;
-  }
-};
-
-const iconMargins = `
-.icon {
-  width: 1em;
-  height: 1em;
-  font-size: ${sizeN(6)};
-  margin-left: -${sizeN(2)};
-  margin-right: ${sizeN(1)};
-
-  &:not(:first-child) {
-    margin-left: ${sizeN(1)};
-    margin-right: -${sizeN(2)};
-  }
-
-  &:only-child {
-    margin-right: -${sizeN(2)};
-  }
-}
-`;
-
-const getIconSize = ({ buttonSize, iconOnly }: StyledButtonProps): string => {
-  if (iconOnly) {
-    switch (buttonSize) {
-      case 'small':
-        return sizeN(6);
-      case 'large':
-        return sizeN(8);
-      case 'xlarge':
-        return sizeN(10);
-      default:
-        return sizeN(7);
-    }
-  }
-  return sizeN(6);
-};
-
-const StyledButton = styled.button<StyledButtonProps>`
+const StyledButton = styled.button<
+  Pick<StyledButtonProps, 'darkStates' | 'lightStates'>
+>`
   position: relative;
   display: flex;
   align-items: center;
@@ -181,20 +102,67 @@ const StyledButton = styled.button<StyledButtonProps>`
   font-weight: bold;
   box-shadow: none;
   user-select: none;
+  padding: ${sizeN(2.25)} ${sizeN(5.75)};
+  border-radius: ${sizeN(3)};
   ${typoCallout}
 
   .icon {
     width: 1em;
     height: 1em;
-    font-size: ${getIconSize};
+    font-size: ${sizeN(6)};
   }
 
-  ${(props) =>
-    [
-      applySizeStyle(props.buttonSize, props.iconOnly),
-      applyButtonStatesStyles(props.darkStates),
-      props.iconOnly ? '' : iconMargins,
-    ].join('\n')}
+  &.small {
+    padding: ${sizeN(1.25)} ${sizeN(3.75)};
+    border-radius: ${sizeN(2.5)};
+  }
+
+  &.large {
+    padding: ${sizeN(3.25)} ${sizeN(7.75)};
+    border-radius: ${sizeN(3.5)};
+  }
+
+  &:not(.iconOnly) {
+    .icon {
+      margin-left: -${sizeN(2)};
+      margin-right: ${sizeN(1)};
+
+      &:not(:first-child) {
+        margin-left: ${sizeN(1)};
+        margin-right: -${sizeN(2)};
+      }
+
+      &:only-child {
+        margin-right: -${sizeN(2)};
+      }
+    }
+  }
+
+  &.iconOnly {
+    padding: ${sizeN(1.25)};
+    border-radius: ${sizeN(3)};
+    font-size: ${sizeN(67)};
+
+    &.small {
+      padding: ${sizeN(0.75)};
+      border-radius: ${sizeN(2.5)};
+      font-size: ${sizeN(6)};
+    }
+
+    &.large {
+      padding: ${sizeN(1.75)};
+      border-radius: ${sizeN(3.5)};
+      font-size: ${sizeN(8)};
+    }
+
+    &.xlarge {
+      padding: ${sizeN(2.75)};
+      border-radius: ${sizeN(5.5)};
+      font-size: ${sizeN(10)};
+    }
+  }
+
+  ${(props) => applyButtonStatesStyles(props.darkStates)}
   ${ButtonLoader} {
     display: none;
   }
@@ -250,16 +218,18 @@ export default function BaseButton<Tag extends keyof JSX.IntrinsicElements>({
   children,
   tag = 'button',
   innerRef,
+  className,
   ...props
 }: StyledButtonProps & ButtonProps<Tag>): ReactElement {
+  const iconOnly = icon && !children && !rightIcon;
   return (
     <StyledButton
       as={tag}
       {...(props as StyledButtonProps)}
-      iconOnly={icon && !children && !rightIcon}
       aria-busy={loading}
       aria-pressed={pressed}
       ref={innerRef as LegacyRef<HTMLButtonElement>}
+      className={classNames({ iconOnly }, props.buttonSize, className)}
     >
       {icon}
       {children && <span>{children}</span>}
