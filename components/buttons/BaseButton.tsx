@@ -218,6 +218,7 @@ export default function BaseButton<Tag extends keyof JSX.IntrinsicElements>({
   children,
   tag = 'button',
   innerRef,
+  className,
   ...props
 }: StyledButtonProps & ButtonProps<Tag>): ReactElement {
   const iconOnly = icon && !children && !rightIcon;
@@ -228,7 +229,7 @@ export default function BaseButton<Tag extends keyof JSX.IntrinsicElements>({
       aria-busy={loading}
       aria-pressed={pressed}
       ref={innerRef as LegacyRef<HTMLButtonElement>}
-      className={classNames({ iconOnly }, props.buttonSize)}
+      className={classNames({ iconOnly }, props.buttonSize, className)}
     >
       {icon}
       {children && <span>{children}</span>}
