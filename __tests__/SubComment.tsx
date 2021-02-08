@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, RenderResult } from '@testing-library/preact';
+import { render, RenderResult, waitFor } from '@testing-library/preact';
 import AuthContext from '../components/AuthContext';
 import { LoggedUser } from '../lib/user';
 import SubComment, { Props } from '../components/comments/SubComment';
@@ -102,7 +102,7 @@ it('should move timeline above profile picture when not first comment', async ()
 it('should move timeline to profile picture when first comment', async () => {
   const res = renderLayout({ firstComment: true });
   const el = await res.findByTestId('timeline');
-  expect(el).toHaveStyleRule('top', '0');
+  await waitFor(() => expect(el).toHaveStyle({ top: '0' }));
 });
 
 it('should call onComment callback', async () => {

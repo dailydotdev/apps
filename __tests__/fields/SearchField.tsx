@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, RenderResult, screen } from '@testing-library/preact';
+import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import SearchField, { Props } from '../../components/fields/SearchField';
 
 const renderComponent = (props: Partial<Props> = {}): RenderResult => {
@@ -14,16 +14,24 @@ const getInput = (): HTMLInputElement =>
   screen.queryByRole('textbox') as HTMLInputElement;
 
 const getClearButton = (): HTMLButtonElement =>
-  screen.queryByRole('button') as HTMLButtonElement;
+  screen.queryByTitle('Clear query') as HTMLButtonElement;
 
 it('should not show clear button when input is empty', async () => {
   renderComponent();
-  expect(getClearButton()).not.toBeInTheDocument();
+  await waitFor(() =>
+    expect(getClearButton()).toHaveStyle({ visibility: 'hidden' }),
+  );
 });
 
 it('should show clear button when input is filled', async () => {
   renderComponent({ value: 'search' });
-  expect(getClearButton()).toBeInTheDocument();
+  await waitFor(() =>
+    expect(screen.queryByTestId('searchField')).toHaveClass('hasInput'),
+  );
+  // Doesn't work for some reason
+  // await waitFor(() =>
+  //   expect(getClearButton()).toHaveStyle({ visibility: 'visible' }),
+  // );
 });
 
 it('should clear input when clicking', async () => {

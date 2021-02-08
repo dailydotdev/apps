@@ -104,6 +104,7 @@ export default function SearchField({
       onClick={focusInput}
       {...props}
       className={classNames({ compact, focused, hasInput }, className)}
+      data-testid="searchField"
     >
       <Icon />
       <FieldInput
