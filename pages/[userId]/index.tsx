@@ -44,11 +44,12 @@ import { formToJson } from '../../lib/form';
 import TextField from '../../components/fields/TextField';
 import { useHideOnModal } from '../../lib/useHideOnModal';
 import { ownershipGuide } from '../../lib/constants';
-import dynamicPageLoad from '../../lib/dynamicPageLoad';
 import { smallPostImage } from '../../lib/image';
 import PrimaryButton from '../../components/buttons/PrimaryButton';
+import dynamic from 'next/dynamic';
+import LoadingContext from '../../components/LoadingContext';
 
-const AccountDetailsModal = dynamicPageLoad(
+const AccountDetailsModal = dynamic(
   () =>
     import(
       /* webpackChunkName: "accountDetailsModal"*/ '../../components/modals/AccountDetailsModal'
@@ -273,6 +274,7 @@ const CompleteProfileButton = styled(PrimaryButton)`
 `;
 
 const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
+  const { windowLoaded } = useContext(LoadingContext);
   const { user, updateUser, tokenRefreshed } = useContext(AuthContext);
 
   const { data: userStats } = useQuery<UserStatsData>(
@@ -442,10 +444,12 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
             <CompleteProfileButton onClick={() => setShowAccountDetails(true)}>
               Complete your profile
             </CompleteProfileButton>
-            <AccountDetailsModal
-              isOpen={showAccountDetails}
-              onRequestClose={() => setShowAccountDetails(false)}
-            />
+            {(windowLoaded || showAccountDetails) && (
+              <AccountDetailsModal
+                isOpen={showAccountDetails}
+                onRequestClose={() => setShowAccountDetails(false)}
+              />
+            )}
           </>
         )}
       </>

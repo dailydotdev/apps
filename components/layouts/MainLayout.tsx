@@ -20,9 +20,10 @@ import TertiaryButton from '../buttons/TertiaryButton';
 import { ButtonProps } from '../buttons/BaseButton';
 import BookmarkIcon from '../../icons/bookmark.svg';
 import { footerNavBarBreakpoint } from './FooterNavBarLayout';
-import dynamicPageLoad from '../../lib/dynamicPageLoad';
 import Logo from '../svg/Logo';
 import LogoTextBeta from '../svg/LogoTextBeta';
+import dynamic from 'next/dynamic';
+import LoadingContext from '../LoadingContext';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -30,7 +31,7 @@ export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showRank?: boolean;
 }
 
-const HeaderRankProgress = dynamicPageLoad(
+const HeaderRankProgress = dynamic(
   () =>
     import(
       /* webpackChunkName: "headerRankProgress" */ '../HeaderRankProgress'
@@ -133,6 +134,7 @@ export default function MainLayout({
   responsive = true,
   showRank = false,
 }: MainLayoutProps): ReactElement {
+  const { windowLoaded } = useContext(LoadingContext);
   const { user, showLogin, loadingUser } = useContext(AuthContext);
 
   return (
@@ -181,7 +183,7 @@ export default function MainLayout({
               <TertiaryButton onClick={() => showLogin()}>Login</TertiaryButton>
             </>
           ))}
-        {showRank && (
+        {showRank && windowLoaded && (
           <HeaderRankProgress
             css={css`
               position: absolute;

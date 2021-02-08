@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import Link from 'next/link';
 import styled from '@emotion/styled';
 import sizeN from '../../../macros/sizeN.macro';
@@ -7,14 +7,12 @@ import { pageMaxWidth } from '../../../styles/helpers';
 import { PublicProfile } from '../../../lib/user';
 import { FlippedProps, FlipperProps } from 'flip-toolkit/lib/types';
 import dynamicParent from '../../../lib/dynamicParent';
-import onPageLoad from '../../../lib/onPageLoad';
 import TertiaryButton from '../../buttons/TertiaryButton';
 import { ActiveTabIndicator } from '../../utilities';
+import LoadingContext from '../../LoadingContext';
 
 const flipperLoader = () =>
-  onPageLoad('complete').then(
-    () => import(/* webpackChunkName: "reactFlip" */ 'react-flip-toolkit'),
-  );
+  import(/* webpackChunkName: "reactFlip" */ 'react-flip-toolkit');
 
 const Flipper = dynamicParent<FlipperProps>(
   () => flipperLoader().then((mod) => mod.Flipper),
@@ -74,11 +72,17 @@ export default function NavBar({
   selectedTab,
   profile,
 }: NavBarProps): ReactElement {
+  const { windowLoaded } = useContext(LoadingContext);
   const getTabHref = (tab: Tab) =>
     tab.path.replace('[userId]', profile.username || profile.id);
 
   return (
-    <Nav flipKey={selectedTab} spring="veryGentle" element="nav">
+    <Nav
+      flipKey={selectedTab}
+      spring="veryGentle"
+      element="nav"
+      shouldLoad={windowLoaded}
+    >
       {tabs.map((tab, index) => (
         <div key={tab.path}>
           <Link href={getTabHref(tab)} passHref>
@@ -90,7 +94,7 @@ export default function NavBar({
               {tab.title}
             </TertiaryButton>
           </Link>
-          <Flipped flipId="activeTabIndicator">
+          <Flipped flipId="activeTabIndicator" shouldLoad={windowLoaded}>
             {selectedTab === index && <ActiveTabIndicator />}
           </Flipped>
         </div>

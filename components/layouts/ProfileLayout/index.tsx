@@ -46,13 +46,13 @@ import {
   USER_READING_RANK_QUERY,
   UserReadingRankData,
 } from '../../../graphql/users';
-import dynamicPageLoad from '../../../lib/dynamicPageLoad';
 import NavBar, { tabs } from './NavBar';
 import TertiaryButton from '../../buttons/TertiaryButton';
 import QuandaryButton from '../../buttons/QuandaryButton';
 import SecondaryButton from '../../buttons/SecondaryButton';
+import LoadingContext from '../../LoadingContext';
 
-const AccountDetailsModal = dynamicPageLoad(
+const AccountDetailsModal = dynamic(
   () =>
     import(
       /* webpackChunkName: "accountDetailsModal" */ '../../modals/AccountDetailsModal'
@@ -213,6 +213,7 @@ export default function ProfileLayout({
     return <Custom404 />;
   }
 
+  const { windowLoaded } = useContext(LoadingContext);
   const { user } = useContext(AuthContext);
   const selectedTab = tabs.findIndex((tab) => tab.path === router?.pathname);
   const queryKey = ['profile', initialProfile?.id];
@@ -375,7 +376,7 @@ export default function ProfileLayout({
         <NavBar selectedTab={selectedTab} profile={profile} />
         {children}
       </ProfileContainer>
-      {profile.id === user?.id && (
+      {profile.id === user?.id && (windowLoaded || showAccountDetails) && (
         <AccountDetailsModal
           isOpen={showAccountDetails}
           onRequestClose={closeAccountDetails}

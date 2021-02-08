@@ -26,14 +26,16 @@ import { logout as dispatchLogout } from '../lib/user';
 import { Router } from 'next/router';
 import { useCookieBanner } from '../lib/useCookieBanner';
 import useLoggedUser from '../lib/useLoggedUser';
-import dynamicPageLoad from '../lib/dynamicPageLoad';
 import { LoginModalMode } from '../components/modals/LoginModal';
 import globalStyle from '../components/GlobalStyle';
 import { Global } from '@emotion/react';
+import LoadingContext, {
+  LoadingContextData,
+} from '../components/LoadingContext';
 
 const queryClient = new QueryClient();
 
-const LoginModal = dynamicPageLoad(
+const LoginModal = dynamic(
   () =>
     import(
       /* webpackChunkName: "loginModal"*/ '../components/modals/LoginModal'
@@ -70,6 +72,7 @@ function InternalApp({ Component, pageProps }: AppProps): ReactElement {
     loadingUser,
     tokenRefreshed,
   ] = useLoggedUser();
+  const [windowLoaded, setWindowLoaded] = useState(false);
   const [loginMode, setLoginMode] = useState<LoginModalMode | null>(null);
   const [showCookie, acceptCookies, updateCookieBanner] = useCookieBanner();
 
@@ -93,6 +96,10 @@ function InternalApp({ Component, pageProps }: AppProps): ReactElement {
     }),
     [user, loginMode, loadingUser, tokenRefreshed],
   );
+
+  const loadingContext: LoadingContextData = useMemo(() => ({ windowLoaded }), [
+    windowLoaded,
+  ]);
 
   useEffect(() => {
     if (trackingId && !initializedGA) {
@@ -119,31 +126,45 @@ function InternalApp({ Component, pageProps }: AppProps): ReactElement {
     updateCookieBanner(user);
   }, [user, loadingUser]);
 
+  useEffect(() => {
+    window.addEventListener('load', () => setWindowLoaded(true), {
+      once: true,
+    });
+  }, []);
+
   const getLayout =
     (Component as CompnentGetLayout).getLayout || ((page) => page);
   const { layoutProps } = Component as CompnentGetLayout;
 
   return (
-    <AuthContext.Provider value={authContext}>
-      <Head>
-        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
-        <meta name="theme-color" content="#151618" />
-        <meta name="msapplication-navbutton-color" content="#151618" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="#151618" />
-      </Head>
-      <DefaultSeo {...Seo} />
-      <Global styles={globalStyle} />
-      {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
-      {!user && !loadingUser && (
-        <LoginModal
-          isOpen={loginMode !== null}
-          onRequestClose={closeLogin}
-          contentLabel="Login Modal"
-          mode={loginMode}
-        />
-      )}
-      {showCookie && <CookieBanner onAccepted={acceptCookies} />}
-    </AuthContext.Provider>
+    <LoadingContext.Provider value={loadingContext}>
+      <AuthContext.Provider value={authContext}>
+        <Head>
+          <meta
+            name="viewport"
+            content="initial-scale=1.0, width=device-width"
+          />
+          <meta name="theme-color" content="#151618" />
+          <meta name="msapplication-navbutton-color" content="#151618" />
+          <meta
+            name="apple-mobile-web-app-status-bar-style"
+            content="#151618"
+          />
+        </Head>
+        <DefaultSeo {...Seo} />
+        <Global styles={globalStyle} />
+        {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
+        {!user && !loadingUser && (windowLoaded || loginMode !== null) && (
+          <LoginModal
+            isOpen={loginMode !== null}
+            onRequestClose={closeLogin}
+            contentLabel="Login Modal"
+            mode={loginMode}
+          />
+        )}
+        {showCookie && <CookieBanner onAccepted={acceptCookies} />}
+      </AuthContext.Provider>
+    </LoadingContext.Provider>
   );
 }
 

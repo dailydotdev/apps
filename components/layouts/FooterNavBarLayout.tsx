@@ -8,22 +8,20 @@ import rem from '../../macros/rem.macro';
 import TertiaryButton from '../buttons/TertiaryButton';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import onPageLoad from '../../lib/onPageLoad';
 import dynamicParent from '../../lib/dynamicParent';
 import { FlippedProps, FlipperProps } from 'flip-toolkit/lib/types';
 import { ActiveTabIndicator } from '../utilities';
 import { css, Global } from '@emotion/react';
 import { laptop } from '../../styles/media';
 import AuthContext from '../AuthContext';
-import dynamicPageLoad from '../../lib/dynamicPageLoad';
 import useMedia from '../../lib/useMedia';
+import dynamic from 'next/dynamic';
+import LoadingContext from '../LoadingContext';
 
 export const footerNavBarBreakpoint = laptop;
 
 const flipperLoader = () =>
-  onPageLoad('complete').then(
-    () => import(/* webpackChunkName: "reactFlip" */ 'react-flip-toolkit'),
-  );
+  import(/* webpackChunkName: "reactFlip" */ 'react-flip-toolkit');
 
 const Flipper = dynamicParent<FlipperProps>(
   () => flipperLoader().then((mod) => mod.Flipper),
@@ -34,7 +32,7 @@ const Flipped = dynamicParent<FlippedProps>(
   React.Fragment,
 );
 
-const Sidebar = dynamicPageLoad(
+const Sidebar = dynamic(
   () => import(/* webpackChunkName: "Sidebar" */ '../Sidebar'),
 );
 
@@ -117,6 +115,7 @@ export const tabs: Tab[] = [
 export default function FooterNavBarLayout({
   children,
 }: FooterNavBarLayoutProps): ReactElement {
+  const { windowLoaded } = useContext(LoadingContext);
   const { user, showLogin } = useContext(AuthContext);
   const router = useRouter();
   const selectedTab = tabs.findIndex((tab) => tab.path === router?.pathname);
@@ -129,8 +128,13 @@ export default function FooterNavBarLayout({
   return (
     <>
       <Global styles={globalStyle} />
-      {showSidebar && <Sidebar />}
-      <NavBar flipKey={selectedTab} spring="veryGentle" element="nav">
+      {showSidebar && windowLoaded && <Sidebar />}
+      <NavBar
+        flipKey={selectedTab}
+        spring="veryGentle"
+        element="nav"
+        shouldLoad={windowLoaded}
+      >
         {tabs.map((tab, index) => (
           <div key={tab.path}>
             {!tab.requiresLogin || user ? (
@@ -151,7 +155,7 @@ export default function FooterNavBarLayout({
                 onClick={() => showLogin()}
               />
             )}
-            <Flipped flipId="activeTabIndicator">
+            <Flipped flipId="activeTabIndicator" shouldLoad={windowLoaded}>
               {selectedTab === index && <ActiveTabIndicator />}
             </Flipped>
           </div>

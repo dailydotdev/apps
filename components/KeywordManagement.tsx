@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useContext, useState } from 'react';
 import {
   ALLOW_KEYWORD_MUTATION,
   DENY_KEYWORD_MUTATION,
@@ -15,7 +15,6 @@ import { NextSeo } from 'next-seo';
 import ActivitySection from './profile/ActivitySection';
 import Link from 'next/link';
 import { smallPostImage } from '../lib/image';
-import dynamicPageLoad from '../lib/dynamicPageLoad';
 import styled from '@emotion/styled';
 import { typoCallout, typoTitle2, typoTitle3 } from '../styles/typography';
 import { multilineTextOverflow, pageMaxWidth } from '../styles/helpers';
@@ -23,8 +22,10 @@ import { tablet } from '../styles/media';
 import LazyImage from './LazyImage';
 import PrimaryButton from './buttons/PrimaryButton';
 import SecondaryButton from './buttons/SecondaryButton';
+import dynamic from 'next/dynamic';
+import LoadingContext from './LoadingContext';
 
-const KeywordSynonymModal = dynamicPageLoad(
+const KeywordSynonymModal = dynamic(
   () =>
     import(
       /* webpackChunkName: "keywordSynonymModal" */ './modals/KeywordSynonymModal'
@@ -115,6 +116,7 @@ export default function KeywordManagement({
   subtitle,
   onOperationCompleted,
 }: KeywordManagerProps): ReactElement {
+  const { windowLoaded } = useContext(LoadingContext);
   const [currentAction, setCurrentAction] = useState<string | null>(null);
 
   const nextKeyword = async () => {
@@ -229,11 +231,13 @@ export default function KeywordManagement({
           Deny
         </PrimaryButton>
       </Buttons>
-      <KeywordSynonymModal
-        isOpen={currentAction === 'synonym'}
-        selectedKeyword={keyword.value}
-        onRequestClose={nextKeyword}
-      />
+      {(windowLoaded || currentAction === 'synonym') && (
+        <KeywordSynonymModal
+          isOpen={currentAction === 'synonym'}
+          selectedKeyword={keyword.value}
+          onRequestClose={nextKeyword}
+        />
+      )}
     </PageContainer>
   );
 }
