@@ -1,12 +1,11 @@
+import 'lazysizes';
 import React, {
   HTMLAttributes,
   ImgHTMLAttributes,
   ReactElement,
   SyntheticEvent,
-  useContext,
 } from 'react';
 import styled from '@emotion/styled';
-import ProgressiveLoadingContext from './ProgressiveLoadingContext';
 
 export interface Props extends HTMLAttributes<HTMLDivElement> {
   imgSrc: string;
@@ -48,8 +47,10 @@ const Container = styled.div<Props>`
   }
 `;
 
+const asyncImageSupport = false;
+
 export default function LazyImage(props: Props): ReactElement {
-  const { asyncImageSupport } = useContext(ProgressiveLoadingContext);
+  // const { asyncImageSupport } = useContext(ProgressiveLoadingContext);
   const { imgSrc, imgAlt, eager } = props;
   const imageProps: ImgHTMLAttributes<HTMLImageElement> & {
     'data-src'?: string;

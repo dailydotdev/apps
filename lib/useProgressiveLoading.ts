@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 export default function useProgressiveLoading(): ProgressiveLoadingContextData {
   const [windowLoaded, setWindowLoaded] = useState(false);
-  const [asyncImageSupport, setAsyncImageSupport] = useState(false);
+  const [asyncImageSupport] = useState(false);
   const contextData = useMemo(() => ({ windowLoaded, asyncImageSupport }), [
     windowLoaded,
     asyncImageSupport,
@@ -17,11 +17,12 @@ export default function useProgressiveLoading(): ProgressiveLoadingContextData {
       once: true,
     });
 
-    if ('loading' in HTMLImageElement.prototype) {
-      setAsyncImageSupport(true);
-    } else {
-      import(/* webpackChunkName: "lazysizes" */ 'lazysizes');
-    }
+    // Currently it reduces the PageSpeed score
+    // if ('loading' in HTMLImageElement.prototype) {
+    //   setAsyncImageSupport(true);
+    // } else {
+    //   import(/* webpackChunkName: "lazysizes" */ 'lazysizes');
+    // }
   }, []);
 
   return contextData;
