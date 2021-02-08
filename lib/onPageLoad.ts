@@ -9,15 +9,6 @@ export default function onPageLoad(
       return resolve();
     }
 
-    const callback = (event: ProgressEvent<Document>) => {
-      if (
-        event.target.readyState === readyState ||
-        document.readyState === 'complete'
-      ) {
-        document.removeEventListener('readystatechange', callback);
-        return resolve();
-      }
-    };
-    document.addEventListener('readystatechange', callback);
+    window.addEventListener('load', () => resolve());
   });
 }
