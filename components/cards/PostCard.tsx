@@ -129,7 +129,6 @@ export function PostCard({
       <CardImage
         imgAlt="Post Cover image"
         imgSrc={post.image}
-        lowsrc={post.placeholder}
         fallbackSrc="https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1"
       />
       <ActionButtons>

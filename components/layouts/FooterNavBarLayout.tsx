@@ -16,7 +16,7 @@ import { laptop } from '../../styles/media';
 import AuthContext from '../AuthContext';
 import useMedia from '../../lib/useMedia';
 import dynamic from 'next/dynamic';
-import LoadingContext from '../LoadingContext';
+import ProgressiveLoadingContext from '../ProgressiveLoadingContext';
 
 export const footerNavBarBreakpoint = laptop;
 
@@ -115,7 +115,7 @@ export const tabs: Tab[] = [
 export default function FooterNavBarLayout({
   children,
 }: FooterNavBarLayoutProps): ReactElement {
-  const { windowLoaded } = useContext(LoadingContext);
+  const { windowLoaded } = useContext(ProgressiveLoadingContext);
   const { user, showLogin } = useContext(AuthContext);
   const router = useRouter();
   const selectedTab = tabs.findIndex((tab) => tab.path === router?.pathname);

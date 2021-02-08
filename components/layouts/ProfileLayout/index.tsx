@@ -50,7 +50,7 @@ import NavBar, { tabs } from './NavBar';
 import TertiaryButton from '../../buttons/TertiaryButton';
 import QuandaryButton from '../../buttons/QuandaryButton';
 import SecondaryButton from '../../buttons/SecondaryButton';
-import LoadingContext from '../../LoadingContext';
+import ProgressiveLoadingContext from '../../ProgressiveLoadingContext';
 
 const AccountDetailsModal = dynamic(
   () =>
@@ -213,7 +213,7 @@ export default function ProfileLayout({
     return <Custom404 />;
   }
 
-  const { windowLoaded } = useContext(LoadingContext);
+  const { windowLoaded } = useContext(ProgressiveLoadingContext);
   const { user } = useContext(AuthContext);
   const selectedTab = tabs.findIndex((tab) => tab.path === router?.pathname);
   const queryKey = ['profile', initialProfile?.id];

@@ -23,7 +23,7 @@ import LazyImage from './LazyImage';
 import PrimaryButton from './buttons/PrimaryButton';
 import SecondaryButton from './buttons/SecondaryButton';
 import dynamic from 'next/dynamic';
-import LoadingContext from './LoadingContext';
+import ProgressiveLoadingContext from './ProgressiveLoadingContext';
 
 const KeywordSynonymModal = dynamic(
   () =>
@@ -116,7 +116,7 @@ export default function KeywordManagement({
   subtitle,
   onOperationCompleted,
 }: KeywordManagerProps): ReactElement {
-  const { windowLoaded } = useContext(LoadingContext);
+  const { windowLoaded } = useContext(ProgressiveLoadingContext);
   const [currentAction, setCurrentAction] = useState<string | null>(null);
 
   const nextKeyword = async () => {
