@@ -1,5 +1,8 @@
 // Must be the first import
-if (process.env.NODE_ENV === 'development' || process.env.DBEUG === 'true') {
+if (
+  process.env.NODE_ENV === 'development' ||
+  process.env.NEXT_PUBLIC_DBEUG === 'true'
+) {
   // Must use require here as import statements are only allowed
   // to exist at top-level.
   require('preact/debug');
