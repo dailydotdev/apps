@@ -8,6 +8,7 @@ import ArrowIcon from '../icons/arrow.svg';
 import { focusOutline } from '../styles/helpers';
 import TagsFilter from './TagsFilter';
 import { customScrollbars } from './utilities';
+import classNames from 'classnames';
 
 const asideWidth = sizeN(89);
 
@@ -48,7 +49,7 @@ const Aside = styled.aside`
   visibility: hidden;
 `;
 
-const Container = styled.div<{ opened: boolean }>`
+const Container = styled.div`
   display: flex;
   position: fixed;
   align-items: flex-start;
@@ -65,25 +66,23 @@ const Container = styled.div<{ opened: boolean }>`
     pointer-events: all;
   }
 
-  ${({ opened }) =>
-    opened &&
-    `&& {
-      transform: translateX(0);
-    }
+  &.opened {
+    transform: translateX(0);
 
     ${Trigger} {
-    color: var(--theme-label-primary);
-    border-color: var(--theme-divider-primary);
+      color: var(--theme-label-primary);
+      border-color: var(--theme-divider-primary);
 
-    .icon {
-      transform: rotate(270deg);
+      .icon {
+        transform: rotate(270deg);
+      }
+    }
+
+    ${Aside} {
+      visibility: visible;
+      transition-delay: 0s;
     }
   }
-
-  ${Aside} {
-    visibility: visible;
-    transition-delay: 0s;
-  }`}
 `;
 
 export default function Sidebar(): ReactElement {
@@ -99,7 +98,7 @@ export default function Sidebar(): ReactElement {
   }, [opened]);
 
   return (
-    <Container opened={opened}>
+    <Container className={classNames({ opened })}>
       <Aside css={customScrollbars}>
         <TagsFilter enableQueries={enableQueries} />
       </Aside>

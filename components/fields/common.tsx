@@ -17,26 +17,7 @@ export const FieldInput = styled.input`
   }
 `;
 
-interface FieldProps {
-  focused: boolean;
-  compact?: boolean;
-  hasInput: boolean;
-}
-
-const applyFocus = (focused: boolean): string => {
-  if (focused) {
-    return `
-      && {
-        background: transparent;
-        border-color: var(--theme-label-primary);
-        --field-placeholder-color: var(--theme-label-quaternary);
-      }
-    `;
-  }
-  return '';
-};
-
-export const BaseField = styled.div<FieldProps>`
+export const BaseField = styled.div`
   display: flex;
   padding: 0 ${sizeN(3)};
   align-items: center;
@@ -46,11 +27,15 @@ export const BaseField = styled.div<FieldProps>`
   cursor: text;
   --field-placeholder-color: var(--theme-label-tertiary);
 
-  ${({ focused }) => applyFocus(focused)}
-
   &:hover {
     background: var(--theme-hover);
     --field-placeholder-color: var(--theme-label-primary);
+  }
+
+  &.focused {
+    background: transparent;
+    border-color: var(--theme-label-primary);
+    --field-placeholder-color: var(--theme-label-quaternary);
   }
 
   ${FieldInput}::placeholder {

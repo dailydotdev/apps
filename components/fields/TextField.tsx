@@ -12,6 +12,7 @@ import sizeN from '../../macros/sizeN.macro';
 import { typoCallout, typoCaption1 } from '../../styles/typography';
 import { useInputField } from '../../lib/useInputField';
 import { BaseField, FieldInput } from './common';
+import classNames from 'classnames';
 
 export interface Props extends InputHTMLAttributes<HTMLInputElement> {
   inputId: string;
@@ -54,74 +55,66 @@ const CharsCount = styled.div`
   ${typoCallout}
 `;
 
-const Hint = styled.div<{ valid?: boolean; saveHintSpace?: boolean }>`
-  ${({ saveHintSpace }) => (saveHintSpace ? 'height: 1rem;' : '')}
+const Hint = styled.div`
   margin-top: ${sizeN(1)};
   padding: 0 ${sizeN(2)};
   color: var(--theme-label-tertiary);
-
-  ${({ valid }) =>
-    valid === false &&
-    `&& {
-      color: var(--theme-status-error);
-    }`}
   ${typoCaption1}
-`;
 
-interface FieldProps {
-  focused: boolean;
-  showLabel: boolean;
-  valid: boolean;
-  compact?: boolean;
-}
+  &[role="alert"] {
+    color: var(--theme-status-error);
+  }
+
+  &.saveHintSpace {
+    height: 1rem;
+  }
+`;
 
 const insetShadow = (color: string) =>
   `box-shadow: inset ${sizeN(0.5)} 0 0 0 ${color};`;
 
-const applyFocusAndValid = (focused: boolean, valid: boolean): string => {
-  const borderColor =
-    valid !== false
-      ? 'var(--theme-label-primary)'
-      : 'var(--theme-status-error)';
-  if (focused) {
-    return `
-      && {
-        border-color: ${borderColor};
-        ${insetShadow(borderColor)}
-
-        ${Label} {
-          color: var(--theme-label-primary);
-        }
-      }
-    `;
-  }
-  if (valid === false) {
-    return `
-      && {
-        ${insetShadow(borderColor)}
-      }
-    `;
-  }
-  return '';
-};
-
-const Field = styled(BaseField)<FieldProps>`
-  height: ${({ compact }) => (compact ? sizeN(9) : sizeN(12))};
-  border-radius: ${({ compact }) => (compact ? sizeN(2.5) : sizeN(3.5))};
-
-  ${({ focused, valid }) => applyFocusAndValid(focused, valid)}
+const Field = styled(BaseField)`
+  height: ${sizeN(12)};
+  border-radius: ${sizeN(3.5)};
 
   &:hover {
-    ${({ valid }) =>
-      valid !== false && insetShadow('var(--theme-label-primary)')}
+    ${insetShadow('var(--theme-label-primary)')}
+  }
+
+  &.focused {
+    border-color: var(--theme-label-primary);
+    ${insetShadow('var(--theme-label-primary)')}
+
+    ${Label} {
+      color: var(--theme-label-primary);
+    }
+  }
+
+  &.invalid {
+    && {
+      ${insetShadow('var(--theme-status-error)')}
+    }
+
+    &.focused {
+      border-color: var(--theme-status-error);
+    }
   }
 
   ${Label} {
-    display: ${({ showLabel }) => (showLabel ? 'block' : 'none')};
+    display: none;
+
+    &.showLabel {
+      display: block;
+    }
   }
 
   ${Label}, ${CharsCount} {
     color: var(--field-placeholder-color);
+  }
+
+  &.compact {
+    height: ${sizeN(9)};
+    border-radius: ${sizeN(2.5)};
   }
 `;
 
@@ -214,20 +207,25 @@ export default function TextField({
     return label;
   };
 
+  const showLabel = focused || hasInput;
   return (
     <Container className={className}>
       {compact && <CompactLabel htmlFor={inputId}>{label}</CompactLabel>}
       <Field
         data-testid="field"
         onClick={focusInput}
-        focused={focused}
-        showLabel={focused || hasInput}
-        valid={validInput}
-        compact={compact}
-        hasInput={hasInput}
+        className={classNames({
+          compact,
+          focused,
+          invalid: validInput === false,
+        })}
       >
         <InputContainer>
-          {!compact && <Label htmlFor={inputId}>{label}</Label>}
+          {!compact && (
+            <Label className={classNames({ showLabel })} htmlFor={inputId}>
+              {label}
+            </Label>
+          )}
           <FieldInput
             placeholder={getPlaceholder()}
             name={name}
@@ -247,9 +245,8 @@ export default function TextField({
       </Field>
       {(hint?.length || saveHintSpace) && (
         <Hint
-          valid={validInput}
-          saveHintSpace={saveHintSpace}
           role={validInput === false ? 'alert' : undefined}
+          className={classNames({ saveHintSpace })}
         >
           {hint}
         </Hint>

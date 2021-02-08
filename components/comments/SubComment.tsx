@@ -7,6 +7,7 @@ import { commentDateFormat } from '../../lib/dateFormat';
 import CommentActionButtons from './CommentActionButtons';
 import { ProfileImageLink } from '../profile/ProfileImageLink';
 import CommentAuthor from './CommentAuthor';
+import classNames from 'classnames';
 
 export interface Props {
   comment: Comment;
@@ -45,15 +46,24 @@ const Content = styled.div`
   margin-top: ${sizeN(2)};
 `;
 
-const Timeline = styled.div<{ firstComment: boolean; lastComment: boolean }>`
+const Timeline = styled.div`
   position: absolute;
   left: 0;
   right: 0;
-  top: ${({ firstComment }) => (firstComment ? '0' : `-${sizeN(4)}`)};
-  ${({ lastComment }) => (lastComment ? `height: ${sizeN(4)};` : 'bottom: 0;')}
+  top: -${sizeN(4)};
+  bottom: 0;
   width: 0.063rem;
   margin: 0 auto;
   background: var(--theme-divider-tertiary);
+
+  &.firstComment {
+    top: 0;
+  }
+
+  &.lastComment {
+    height: ${sizeN(4)};
+    bottom: unset;
+  }
 `;
 
 const SubCommentBox = styled(CommentBox)`
@@ -74,8 +84,7 @@ export default function SubComment({
       <ProfileContainer>
         <Timeline
           data-testid="timeline"
-          firstComment={firstComment}
-          lastComment={lastComment}
+          className={classNames({ firstComment, lastComment })}
         />
         <SmallProfileLink user={comment.author} />
       </ProfileContainer>
