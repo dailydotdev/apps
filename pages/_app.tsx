@@ -127,6 +127,9 @@ function InternalApp({ Component, pageProps }: AppProps): ReactElement {
   }, [user, loadingUser]);
 
   useEffect(() => {
+    if ('windowLoaded' in window) {
+      setWindowLoaded(true);
+    }
     window.addEventListener('load', () => setWindowLoaded(true), {
       once: true,
     });
@@ -149,6 +152,13 @@ function InternalApp({ Component, pageProps }: AppProps): ReactElement {
           <meta
             name="apple-mobile-web-app-status-bar-style"
             content="#151618"
+          />
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `window.addEventListener('load', () => { window.windowLoaded = true; }, {
+      once: true,
+    });`,
+            }}
           />
         </Head>
         <DefaultSeo {...Seo} />
