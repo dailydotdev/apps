@@ -1,5 +1,6 @@
 import { ProgressiveLoadingContextData } from '../components/ProgressiveLoadingContext';
 import { useEffect, useMemo, useState } from 'react';
+import requestIdleCallback from 'next/dist/client/request-idle-callback';
 
 export default function useProgressiveLoading(): ProgressiveLoadingContextData {
   const [windowLoaded, setWindowLoaded] = useState(false);
@@ -10,10 +11,14 @@ export default function useProgressiveLoading(): ProgressiveLoadingContextData {
   ]);
 
   useEffect(() => {
-    if ('windowLoaded' in window) {
+    const callback = () => {
       setWindowLoaded(true);
+    };
+
+    if ('windowLoaded' in window) {
+      requestIdleCallback(callback);
     }
-    window.addEventListener('load', () => setWindowLoaded(true), {
+    window.addEventListener('load', callback, {
       once: true,
     });
 
