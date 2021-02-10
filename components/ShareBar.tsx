@@ -7,7 +7,6 @@ import CopyIcon from '../icons/copy.svg';
 import WhatsappIcon from '../icons/whatsapp_color.svg';
 import TwitterIcon from '../icons/twitter_color.svg';
 import FacebookIcon from '../icons/facebook_color.svg';
-import ReactGA from 'react-ga';
 import { Post } from '../graphql/posts';
 import { typoCaption1 } from '../styles/typography';
 import { useCopyPostLink } from '../lib/useCopyPostLink';
@@ -19,6 +18,7 @@ import {
 } from '../lib/share';
 import TertiaryButton from './buttons/TertiaryButton';
 import { ButtonProps } from './buttons/BaseButton';
+import { trackEvent } from '../lib/analytics';
 
 const barWidth = sizeN(7);
 
@@ -91,7 +91,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
           target="_blank"
           rel="noopener"
           onClick={() =>
-            ReactGA.event({
+            trackEvent({
               category: 'Post',
               action: 'Share',
               label: 'WhatsApp',
@@ -107,7 +107,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
           target="_blank"
           rel="noopener"
           onClick={() =>
-            ReactGA.event({
+            trackEvent({
               category: 'Post',
               action: 'Share',
               label: 'Twitter',
@@ -123,7 +123,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
           target="_blank"
           rel="noopener"
           onClick={() =>
-            ReactGA.event({
+            trackEvent({
               category: 'Post',
               action: 'Share',
               label: 'Facebook',

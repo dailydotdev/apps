@@ -1,5 +1,7 @@
 // Must be the first import
-if (process.env.NODE_ENV === 'development' || process.env.DBEUG === 'true') {
+import useProgressiveLoading from '../lib/useProgressiveLoading';
+
+if (process.env.NODE_ENV === 'development') {
   // Must use require here as import statements are only allowed
   // to exist at top-level.
   require('preact/debug');
@@ -17,7 +19,6 @@ import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import 'focus-visible';
 import Modal from 'react-modal';
-import ReactGA from 'react-ga';
 import { DefaultSeo } from 'next-seo';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import Seo from '../next-seo';
@@ -26,14 +27,19 @@ import { logout as dispatchLogout } from '../lib/user';
 import { Router } from 'next/router';
 import { useCookieBanner } from '../lib/useCookieBanner';
 import useLoggedUser from '../lib/useLoggedUser';
-import dynamicPageLoad from '../lib/dynamicPageLoad';
 import { LoginModalMode } from '../components/modals/LoginModal';
 import globalStyle from '../components/GlobalStyle';
 import { Global } from '@emotion/react';
+import ProgressiveLoadingContext from '../components/ProgressiveLoadingContext';
+import {
+  initializeAnalyticsQueue,
+  loadAnalyticsScript,
+  trackPageView,
+} from '../lib/analytics';
 
 const queryClient = new QueryClient();
 
-const LoginModal = dynamicPageLoad(
+const LoginModal = dynamic(
   () =>
     import(
       /* webpackChunkName: "loginModal"*/ '../components/modals/LoginModal'
@@ -53,12 +59,6 @@ interface CompnentGetLayout {
   layoutProps?: Record<string, unknown>;
 }
 
-const trackPageView = (url) => {
-  const page = `/web${url}`;
-  ReactGA.set({ page });
-  ReactGA.pageview(page);
-};
-
 Router.events.on('routeChangeComplete', trackPageView);
 
 function InternalApp({ Component, pageProps }: AppProps): ReactElement {
@@ -70,6 +70,7 @@ function InternalApp({ Component, pageProps }: AppProps): ReactElement {
     loadingUser,
     tokenRefreshed,
   ] = useLoggedUser();
+  const loadingContext = useProgressiveLoading();
   const [loginMode, setLoginMode] = useState<LoginModalMode | null>(null);
   const [showCookie, acceptCookies, updateCookieBanner] = useCookieBanner();
 
@@ -96,15 +97,17 @@ function InternalApp({ Component, pageProps }: AppProps): ReactElement {
 
   useEffect(() => {
     if (trackingId && !initializedGA) {
-      ReactGA.initialize(process.env.NEXT_PUBLIC_GA, {
-        gaOptions: {
-          clientId: pageProps.trackingId,
-        },
-      });
+      initializeAnalyticsQueue(trackingId);
       trackPageView(`${window.location.pathname}${window.location.search}`);
       setInitializedGA(true);
     }
   }, [trackingId]);
+
+  useEffect(() => {
+    if (trackingId && loadingContext.windowLoaded && !showCookie) {
+      loadAnalyticsScript();
+    }
+  }, [trackingId, loadingContext.windowLoaded, showCookie]);
 
   useEffect(() => {
     if (
@@ -124,26 +127,43 @@ function InternalApp({ Component, pageProps }: AppProps): ReactElement {
   const { layoutProps } = Component as CompnentGetLayout;
 
   return (
-    <AuthContext.Provider value={authContext}>
-      <Head>
-        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
-        <meta name="theme-color" content="#151618" />
-        <meta name="msapplication-navbutton-color" content="#151618" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="#151618" />
-      </Head>
-      <DefaultSeo {...Seo} />
-      <Global styles={globalStyle} />
-      {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
-      {!user && !loadingUser && (
-        <LoginModal
-          isOpen={loginMode !== null}
-          onRequestClose={closeLogin}
-          contentLabel="Login Modal"
-          mode={loginMode}
-        />
-      )}
-      {showCookie && <CookieBanner onAccepted={acceptCookies} />}
-    </AuthContext.Provider>
+    <ProgressiveLoadingContext.Provider value={loadingContext}>
+      <AuthContext.Provider value={authContext}>
+        <Head>
+          <meta
+            name="viewport"
+            content="initial-scale=1.0, width=device-width"
+          />
+          <meta name="theme-color" content="#151618" />
+          <meta name="msapplication-navbutton-color" content="#151618" />
+          <meta
+            name="apple-mobile-web-app-status-bar-style"
+            content="#151618"
+          />
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `window.addEventListener('load', () => { window.windowLoaded = true; }, {
+      once: true,
+    });`,
+            }}
+          />
+        </Head>
+        <DefaultSeo {...Seo} />
+        <Global styles={globalStyle} />
+        {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
+        {!user &&
+          !loadingUser &&
+          (loadingContext.windowLoaded || loginMode !== null) && (
+            <LoginModal
+              isOpen={loginMode !== null}
+              onRequestClose={closeLogin}
+              contentLabel="Login Modal"
+              mode={loginMode}
+            />
+          )}
+        {showCookie && <CookieBanner onAccepted={acceptCookies} />}
+      </AuthContext.Provider>
+    </ProgressiveLoadingContext.Provider>
   );
 }
 

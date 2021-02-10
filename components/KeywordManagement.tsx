@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useContext, useState } from 'react';
 import {
   ALLOW_KEYWORD_MUTATION,
   DENY_KEYWORD_MUTATION,
@@ -8,14 +8,12 @@ import { useInfiniteQuery, useMutation } from 'react-query';
 import request from 'graphql-request';
 import { apiUrl } from '../lib/config';
 import { FeedData, KEYWORD_FEED_QUERY } from '../graphql/posts';
-import { useHideOnModal } from '../lib/useHideOnModal';
 import { PageContainer } from './utilities';
 import sizeN from '../macros/sizeN.macro';
 import { NextSeo } from 'next-seo';
 import ActivitySection from './profile/ActivitySection';
 import Link from 'next/link';
 import { smallPostImage } from '../lib/image';
-import dynamicPageLoad from '../lib/dynamicPageLoad';
 import styled from '@emotion/styled';
 import { typoCallout, typoTitle2, typoTitle3 } from '../styles/typography';
 import { multilineTextOverflow, pageMaxWidth } from '../styles/helpers';
@@ -23,8 +21,10 @@ import { tablet } from '../styles/media';
 import LazyImage from './LazyImage';
 import PrimaryButton from './buttons/PrimaryButton';
 import SecondaryButton from './buttons/SecondaryButton';
+import dynamic from 'next/dynamic';
+import ProgressiveLoadingContext from './ProgressiveLoadingContext';
 
-const KeywordSynonymModal = dynamicPageLoad(
+const KeywordSynonymModal = dynamic(
   () =>
     import(
       /* webpackChunkName: "keywordSynonymModal" */ './modals/KeywordSynonymModal'
@@ -115,6 +115,7 @@ export default function KeywordManagement({
   subtitle,
   onOperationCompleted,
 }: KeywordManagerProps): ReactElement {
+  const { windowLoaded } = useContext(ProgressiveLoadingContext);
   const [currentAction, setCurrentAction] = useState<string | null>(null);
 
   const nextKeyword = async () => {
@@ -169,8 +170,6 @@ export default function KeywordManagement({
     setCurrentAction('deny');
     return denyKeyword();
   };
-
-  useHideOnModal(() => currentAction === 'synonym', [currentAction]);
 
   const disableActions = !!currentAction;
 
@@ -229,11 +228,13 @@ export default function KeywordManagement({
           Deny
         </PrimaryButton>
       </Buttons>
-      <KeywordSynonymModal
-        isOpen={currentAction === 'synonym'}
-        selectedKeyword={keyword.value}
-        onRequestClose={nextKeyword}
-      />
+      {(windowLoaded || currentAction === 'synonym') && (
+        <KeywordSynonymModal
+          isOpen={currentAction === 'synonym'}
+          selectedKeyword={keyword.value}
+          onRequestClose={nextKeyword}
+        />
+      )}
     </PageContainer>
   );
 }

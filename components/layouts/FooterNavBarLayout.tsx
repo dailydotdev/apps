@@ -1,75 +1,22 @@
 import React, { ReactElement, ReactNode, useContext } from 'react';
-import HomeIcon from '../../icons/home.svg';
-import BookmarkIcon from '../../icons/bookmark.svg';
-import FilterIcon from '../../icons/filter.svg';
-import styled from '@emotion/styled';
-import sizeN from '../../macros/sizeN.macro';
-import rem from '../../macros/rem.macro';
-import TertiaryButton from '../buttons/TertiaryButton';
-import Link from 'next/link';
-import { useRouter } from 'next/router';
-import onPageLoad from '../../lib/onPageLoad';
-import dynamicParent from '../../lib/dynamicParent';
-import { FlippedProps, FlipperProps } from 'flip-toolkit/lib/types';
-import { ActiveTabIndicator } from '../utilities';
 import { css, Global } from '@emotion/react';
 import { laptop } from '../../styles/media';
-import AuthContext from '../AuthContext';
-import dynamicPageLoad from '../../lib/dynamicPageLoad';
 import useMedia from '../../lib/useMedia';
+import dynamic from 'next/dynamic';
+import ProgressiveLoadingContext from '../ProgressiveLoadingContext';
+import { navBarHeight } from '../FooterNavBar';
 
 export const footerNavBarBreakpoint = laptop;
 
-const flipperLoader = () =>
-  onPageLoad('complete').then(
-    () => import(/* webpackChunkName: "reactFlip" */ 'react-flip-toolkit'),
-  );
-
-const Flipper = dynamicParent<FlipperProps>(
-  () => flipperLoader().then((mod) => mod.Flipper),
-  'div',
-);
-const Flipped = dynamicParent<FlippedProps>(
-  () => flipperLoader().then((mod) => mod.Flipped),
-  React.Fragment,
-);
-
-const Sidebar = dynamicPageLoad(
+const Sidebar = dynamic(
   () => import(/* webpackChunkName: "Sidebar" */ '../Sidebar'),
 );
 
+const FooterNavBar = dynamic(
+  () => import(/* webpackChunkName: "Sidebar" */ '../FooterNavBar'),
+);
+
 type FooterNavBarLayoutProps = { children?: ReactNode };
-
-const navBarHeight = '3.063rem';
-
-const NavBar = styled(Flipper)`
-  position: fixed;
-  display: grid;
-  left: 0;
-  bottom: 0;
-  width: 100%;
-  height: ${navBarHeight};
-  grid-column-gap: ${sizeN(2)};
-  grid-auto-flow: column;
-  background: var(--theme-background-primary);
-  border-top: ${rem(1)} solid var(--theme-divider-tertiary);
-  z-index: 2;
-
-  > div {
-    position: relative;
-  }
-
-  ${ActiveTabIndicator} {
-    top: -${rem(1)};
-    bottom: unset;
-    width: ${sizeN(12)};
-  }
-
-  button,
-  a {
-    width: 100%;
-  }
-`;
 
 const globalStyle = css`
   main {
@@ -77,49 +24,16 @@ const globalStyle = css`
   }
 
   ${footerNavBarBreakpoint} {
-    ${NavBar} {
-      && {
-        display: none;
-      }
-    }
-
     main {
       margin-bottom: 0;
     }
   }
 `;
 
-type Tab = {
-  path: string;
-  title: string;
-  icon: ReactNode;
-  requiresLogin?: boolean;
-};
-export const tabs: Tab[] = [
-  {
-    path: '/',
-    title: 'Home',
-    icon: <HomeIcon />,
-  },
-  {
-    path: '/bookmarks',
-    title: 'Bookmarks',
-    icon: <BookmarkIcon />,
-    requiresLogin: true,
-  },
-  {
-    path: '/filters',
-    title: 'Filters',
-    icon: <FilterIcon />,
-  },
-];
-
 export default function FooterNavBarLayout({
   children,
 }: FooterNavBarLayoutProps): ReactElement {
-  const { user, showLogin } = useContext(AuthContext);
-  const router = useRouter();
-  const selectedTab = tabs.findIndex((tab) => tab.path === router?.pathname);
+  const { windowLoaded } = useContext(ProgressiveLoadingContext);
   const showSidebar = useMedia(
     [footerNavBarBreakpoint.replace('@media ', '')],
     [true],
@@ -129,34 +43,8 @@ export default function FooterNavBarLayout({
   return (
     <>
       <Global styles={globalStyle} />
-      {showSidebar && <Sidebar />}
-      <NavBar flipKey={selectedTab} spring="veryGentle" element="nav">
-        {tabs.map((tab, index) => (
-          <div key={tab.path}>
-            {!tab.requiresLogin || user ? (
-              <Link href={tab.path} prefetch={false} passHref>
-                <TertiaryButton
-                  buttonSize="large"
-                  tag="a"
-                  icon={tab.icon}
-                  title={tab.title}
-                  pressed={index === selectedTab}
-                />
-              </Link>
-            ) : (
-              <TertiaryButton
-                buttonSize="large"
-                icon={tab.icon}
-                title={tab.title}
-                onClick={() => showLogin()}
-              />
-            )}
-            <Flipped flipId="activeTabIndicator">
-              {selectedTab === index && <ActiveTabIndicator />}
-            </Flipped>
-          </div>
-        ))}
-      </NavBar>
+      {showSidebar && windowLoaded && <Sidebar />}
+      {!showSidebar && windowLoaded && <FooterNavBar />}
       {children}
     </>
   );

@@ -104,14 +104,12 @@ export function AdCard({
         <CardImage
           imgAlt="Ad image"
           imgSrc={ad.image}
-          lowsrc={ad.placeholder}
           className={showBlurredImage && 'absolute'}
         />
         {showBlurredImage && (
           <CardImage
             imgAlt="Ad image background"
             imgSrc={ad.image}
-            lowsrc={ad.placeholder}
             className="blur"
           />
         )}

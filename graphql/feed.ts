@@ -6,7 +6,6 @@ export const FEED_POST_FRAGMENT = gql`
     title
     createdAt
     image
-    placeholder
     readTime
     source {
       id

@@ -1,37 +1,50 @@
-import styled from '@emotion/styled';
-import { modalBorderAndRadius, StyledModal } from './StyledModal';
+/** @jsx jsx */
+import { jsx, css } from '@emotion/react';
+import {
+  modalBorderAndRadius,
+  StyledModal,
+  Props as ModalProps,
+} from './StyledModal';
 import { mobileL } from '../../styles/media';
 import sizeN from '../../macros/sizeN.macro';
+import { ReactElement } from 'react';
+import { useHideOnModal } from '../../lib/useHideOnModal';
 
 export const responsiveModalBreakpoint = mobileL;
 
-const ResponsiveModal = styled(StyledModal)`
-  .Overlay {
-    position: relative;
-    min-height: 100vh;
-    padding: 0;
+export default function ResponsiveModal(props: ModalProps): ReactElement {
+  useHideOnModal(props.isOpen);
+  return (
+    <StyledModal
+      {...props}
+      css={css`
+        .Overlay {
+          position: relative;
+          min-height: 100vh;
+          padding: 0;
 
-    ${responsiveModalBreakpoint} {
-      position: fixed;
-      min-height: unset;
-    }
-  }
+          ${responsiveModalBreakpoint} {
+            position: fixed;
+            min-height: unset;
+          }
+        }
 
-  .Modal {
-    position: absolute;
-    max-width: ${sizeN(120)};
-    min-height: 100%;
-    align-items: stretch;
-    padding: ${sizeN(2)};
-    border: none;
-    border-radius: 0;
+        .Modal {
+          position: absolute;
+          max-width: ${sizeN(120)};
+          min-height: 100%;
+          align-items: stretch;
+          padding: ${sizeN(2)};
+          border: none;
+          border-radius: 0;
 
-    ${responsiveModalBreakpoint} {
-      position: relative;
-      min-height: unset;
-      ${modalBorderAndRadius}
-    }
-  }
-`;
-
-export default ResponsiveModal;
+          ${responsiveModalBreakpoint} {
+            position: relative;
+            min-height: unset;
+            ${modalBorderAndRadius}
+          }
+        }
+      `}
+    />
+  );
+}

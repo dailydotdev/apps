@@ -1,13 +1,13 @@
 import '@testing-library/jest-dom';
 import { matchers } from '@emotion/jest';
-import ReactGA from 'react-ga';
 import 'fake-indexeddb/auto';
 import nodeFetch from 'node-fetch';
 
 expect.extend(matchers);
 
 process.env.NEXT_PUBLIC_API_URL = 'http://localhost:3000';
-ReactGA.initialize('foo', { testMode: true });
+// eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
+window.ga = ((...args) => {}) as UniversalAnalytics.ga;
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 jest.mock('../lib/usePersistentState', () => ({

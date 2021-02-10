@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import ReactGA from 'react-ga';
 import { getShareableLink } from './share';
+import { trackEvent } from './analytics';
 
 export function useCopyPostLink(): [boolean, () => Promise<void>] {
   const [copying, setCopying] = useState(false);
@@ -8,7 +8,7 @@ export function useCopyPostLink(): [boolean, () => Promise<void>] {
   const copy = async () => {
     await navigator.clipboard.writeText(getShareableLink());
     setCopying(true);
-    ReactGA.event({
+    trackEvent({
       category: 'Post',
       action: 'Share',
       label: 'Copy',

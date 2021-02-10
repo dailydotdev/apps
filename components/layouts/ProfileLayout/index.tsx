@@ -29,7 +29,6 @@ import LinkIcon from '../../../icons/link.svg';
 import { tablet } from '../../../styles/media';
 import AuthContext from '../../AuthContext';
 import dynamic from 'next/dynamic';
-import { useHideOnModal } from '../../../lib/useHideOnModal';
 import { useRouter } from 'next/router';
 import {
   GetStaticPathsResult,
@@ -46,13 +45,13 @@ import {
   USER_READING_RANK_QUERY,
   UserReadingRankData,
 } from '../../../graphql/users';
-import dynamicPageLoad from '../../../lib/dynamicPageLoad';
 import NavBar, { tabs } from './NavBar';
 import TertiaryButton from '../../buttons/TertiaryButton';
 import QuandaryButton from '../../buttons/QuandaryButton';
 import SecondaryButton from '../../buttons/SecondaryButton';
+import ProgressiveLoadingContext from '../../ProgressiveLoadingContext';
 
-const AccountDetailsModal = dynamicPageLoad(
+const AccountDetailsModal = dynamic(
   () =>
     import(
       /* webpackChunkName: "accountDetailsModal" */ '../../modals/AccountDetailsModal'
@@ -213,6 +212,7 @@ export default function ProfileLayout({
     return <Custom404 />;
   }
 
+  const { windowLoaded } = useContext(ProgressiveLoadingContext);
   const { user } = useContext(AuthContext);
   const selectedTab = tabs.findIndex((tab) => tab.path === router?.pathname);
   const queryKey = ['profile', initialProfile?.id];
@@ -275,8 +275,6 @@ export default function ProfileLayout({
         setPortfolioLink(DOMPurify.sanitize(profile.portfolio));
     }
   }, [profile]);
-
-  useHideOnModal(() => !!showAccountDetails, [showAccountDetails]);
 
   if (isFallback && !initialProfile) {
     return <></>;
@@ -375,7 +373,7 @@ export default function ProfileLayout({
         <NavBar selectedTab={selectedTab} profile={profile} />
         {children}
       </ProfileContainer>
-      {profile.id === user?.id && (
+      {profile.id === user?.id && (windowLoaded || showAccountDetails) && (
         <AccountDetailsModal
           isOpen={showAccountDetails}
           onRequestClose={closeAccountDetails}

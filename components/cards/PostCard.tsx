@@ -19,6 +19,7 @@ import UpvoteIcon from '../../icons/upvote.svg';
 import CommentIcon from '../../icons/comment.svg';
 import BookmarkIcon from '../../icons/bookmark.svg';
 import TertiaryButton from '../buttons/TertiaryButton';
+import classNames from 'classnames';
 
 type Callback = (post: Post) => unknown;
 
@@ -67,11 +68,8 @@ const ActionButtons = styled.div`
   }
 `;
 
-const StyledCard = styled(Card)<{ read: boolean }>`
-  ${({ read }) =>
-    read &&
-    `
-  && {
+const StyledCard = styled(Card)`
+  &.read {
     border-color: var(--theme-divider-quaternary);
     background: var(--theme-post-disabled);
     box-shadow: none;
@@ -79,7 +77,8 @@ const StyledCard = styled(Card)<{ read: boolean }>`
     ${CardTitle} {
       color: var(--theme-label-tertiary);
     }
-  }`}
+  }
+
   ${CardImage} {
     margin: ${sizeN(2)} 0;
   }
@@ -91,10 +90,14 @@ export function PostCard({
   onUpvoteClick,
   onCommentClick,
   onBookmarkClick,
+  className,
   ...props
 }: PostCardProps): ReactElement {
   return (
-    <StyledCard {...props} read={post.read}>
+    <StyledCard
+      {...props}
+      className={classNames({ read: post.read }, className)}
+    >
       <CardLink
         href={post.permalink}
         target="_blank"
@@ -126,7 +129,6 @@ export function PostCard({
       <CardImage
         imgAlt="Post Cover image"
         imgSrc={post.image}
-        lowsrc={post.placeholder}
         fallbackSrc="https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1"
       />
       <ActionButtons>

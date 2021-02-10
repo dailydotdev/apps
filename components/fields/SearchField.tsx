@@ -8,6 +8,7 @@ import { BaseField, FieldInput } from './common';
 import MagnifyingIcon from '../../icons/magnifying.svg';
 import XIcon from '../../icons/x.svg';
 import { focusOutline } from '../../styles/helpers';
+import classNames from 'classnames';
 
 export interface Props
   extends Pick<
@@ -50,28 +51,26 @@ const ClearButton = styled.button`
 `;
 
 const Container = styled(BaseField)`
-  height: ${({ compact }) => (compact ? sizeN(10) : sizeN(12))};
-  border-radius: ${({ compact }) => (compact ? sizeN(3) : sizeN(3.5))};
+  height: ${sizeN(12)};
+  border-radius: ${sizeN(3.5)};
 
-  ${({ focused, hasInput }) =>
-    (focused || hasInput) &&
-    `
-    && {
-      ${Icon} {
-        color: var(--theme-label-primary);
-      }
+  &.focused,
+  &.hasInput {
+    ${Icon} {
+      color: var(--theme-label-primary);
     }
-  `}
+  }
 
-  ${({ hasInput }) =>
-    hasInput &&
-    `
-    && {
-      ${ClearButton} {
-        visibility: visible;
-      }
+  &.hasInput {
+    ${ClearButton} {
+      visibility: visible;
     }
-  `}
+  }
+
+  &.compact {
+    height: ${sizeN(10)};
+    border-radius: ${sizeN(3)};
+  }
 `;
 
 export default function SearchField({
@@ -81,6 +80,7 @@ export default function SearchField({
   valueChanged,
   placeholder,
   compact = false,
+  className,
   ...props
 }: Props): ReactElement {
   const {
@@ -101,11 +101,10 @@ export default function SearchField({
 
   return (
     <Container
-      focused={focused}
-      compact={compact}
       onClick={focusInput}
-      hasInput={hasInput}
       {...props}
+      className={classNames({ compact, focused, hasInput }, className)}
+      data-testid="searchField"
     >
       <Icon />
       <FieldInput

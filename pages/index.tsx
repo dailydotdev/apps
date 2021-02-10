@@ -9,7 +9,7 @@ import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { NextSeo } from 'next-seo';
 
 const seo: NextSeoProps = {
-  title: 'daily.dev - News for Busy Developers',
+  title: 'daily.dev | All-in-one coding news reader',
   titleTemplate: '%s',
   openGraph: { ...defaultOpenGraph },
   ...defaultSeo,

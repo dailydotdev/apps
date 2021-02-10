@@ -3,7 +3,6 @@ import { jsx, css } from '@emotion/react';
 import { ReactElement, useContext, useState } from 'react';
 import RankProgress from './RankProgress';
 import useReadingRank from '../lib/useReadingRank';
-import { useHideOnModal } from '../lib/useHideOnModal';
 import dynamic from 'next/dynamic';
 import { focusOutline } from '../styles/helpers';
 import AuthContext from './AuthContext';
@@ -25,7 +24,6 @@ export default function HeaderRankProgress({
 }): ReactElement {
   const { user } = useContext(AuthContext);
   const [showModal, setShowModal] = useState(false);
-  useHideOnModal(() => showModal || true, [showModal]);
 
   const {
     isLoading,
