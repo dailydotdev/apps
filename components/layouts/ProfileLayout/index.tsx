@@ -29,7 +29,6 @@ import LinkIcon from '../../../icons/link.svg';
 import { tablet } from '../../../styles/media';
 import AuthContext from '../../AuthContext';
 import dynamic from 'next/dynamic';
-import { useHideOnModal } from '../../../lib/useHideOnModal';
 import { useRouter } from 'next/router';
 import {
   GetStaticPathsResult,
@@ -276,8 +275,6 @@ export default function ProfileLayout({
         setPortfolioLink(DOMPurify.sanitize(profile.portfolio));
     }
   }, [profile]);
-
-  useHideOnModal(() => !!showAccountDetails, [showAccountDetails]);
 
   if (isFallback && !initialProfile) {
     return <></>;

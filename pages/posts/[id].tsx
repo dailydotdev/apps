@@ -56,7 +56,6 @@ import { focusOutline } from '../../styles/helpers';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { ShareMobile } from '../../components/ShareMobile';
 import Head from 'next/head';
-import { useHideOnModal } from '../../lib/useHideOnModal';
 import request, { ClientError } from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import { ProfileLink } from '../../components/profile/ProfileLink';
@@ -499,8 +498,6 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   useEffect(() => {
     setHasNativeShare('share' in navigator);
   }, []);
-
-  useHideOnModal(() => !!parentComment, [parentComment]);
 
   if (!postById?.post || (isFallback && !id)) {
     return <></>;

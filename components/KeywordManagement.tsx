@@ -8,7 +8,6 @@ import { useInfiniteQuery, useMutation } from 'react-query';
 import request from 'graphql-request';
 import { apiUrl } from '../lib/config';
 import { FeedData, KEYWORD_FEED_QUERY } from '../graphql/posts';
-import { useHideOnModal } from '../lib/useHideOnModal';
 import { PageContainer } from './utilities';
 import sizeN from '../macros/sizeN.macro';
 import { NextSeo } from 'next-seo';
@@ -171,8 +170,6 @@ export default function KeywordManagement({
     setCurrentAction('deny');
     return denyKeyword();
   };
-
-  useHideOnModal(() => currentAction === 'synonym', [currentAction]);
 
   const disableActions = !!currentAction;
 

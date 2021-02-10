@@ -42,7 +42,6 @@ import {
 } from '../../lib/user';
 import { formToJson } from '../../lib/form';
 import TextField from '../../components/fields/TextField';
-import { useHideOnModal } from '../../lib/useHideOnModal';
 import { ownershipGuide } from '../../lib/constants';
 import { smallPostImage } from '../../lib/image';
 import PrimaryButton from '../../components/buttons/PrimaryButton';
@@ -322,7 +321,6 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
   const [disableSubmit, setDisableSubmit] = useState<boolean>(true);
   const [twitterHint, setTwitterHint] = useState<string>();
   const [showAccountDetails, setShowAccountDetails] = useState(false);
-  useHideOnModal(() => !!showAccountDetails, [showAccountDetails]);
 
   const updateDisableSubmit = () => {
     if (formRef.current) {
