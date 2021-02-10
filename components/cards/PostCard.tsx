@@ -1,3 +1,5 @@
+/** @jsx jsx */
+import { jsx } from '@emotion/react';
 import React, { HTMLAttributes, ReactElement } from 'react';
 import Link from 'next/link';
 import { Post } from '../../graphql/posts';
@@ -20,6 +22,7 @@ import CommentIcon from '../../icons/comment.svg';
 import BookmarkIcon from '../../icons/bookmark.svg';
 import TertiaryButton from '../buttons/TertiaryButton';
 import classNames from 'classnames';
+import rem from '../../macros/rem.macro';
 
 type Callback = (post: Post) => unknown;
 
@@ -60,7 +63,7 @@ const ActionButtons = styled.div`
   margin: 0 ${sizeN(4)};
 
   & > * {
-    margin-left: ${sizeN(6)};
+    margin-left: ${sizeN(1)};
 
     &:first-child {
       margin-left: 0;
@@ -140,6 +143,7 @@ export function PostCard({
           pressed={post.upvoted}
           title={post.upvoted ? 'Remove upvote' : 'Upvote'}
           onClick={() => onUpvoteClick?.(post, !post.upvoted)}
+          css={{ width: rem(78) }}
         >
           {post.numUpvotes > 0 && post.numUpvotes}
         </QuandaryButton>
@@ -153,6 +157,7 @@ export function PostCard({
             pressed={post.commented}
             title="Comment"
             onClick={() => onCommentClick?.(post)}
+            css={{ width: rem(78) }}
           >
             {post.numComments > 0 && post.numComments}
           </QuandaryButton>
