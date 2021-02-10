@@ -24,7 +24,7 @@ export const loadAnalyticsScript = (): void => {
   existingScript.parentNode.insertBefore(script, existingScript);
 };
 
-export const trackPageView = (url) => {
+export const trackPageView = (url: string): void => {
   const page = `/web${url}`;
   window.ga('set', 'page', page);
   window.ga('send', 'pageview');
@@ -52,7 +52,7 @@ export const trackEvent = ({
   label,
   value,
   nonInteraction,
-}: EventArgs) => {
+}: EventArgs): void => {
   const fieldsObject: EventFields = {
     eventCategory: category,
     eventAction: action,
