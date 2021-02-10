@@ -16,7 +16,7 @@
     "@emotion/styled": "^11.0.0",
     "@types/google.analytics": "0.0.41",
     "classnames": "^2.2.6",
-    "date-fns": "^2.16.1",
+    "date-fns": "^2.17.0",
     "dompurify": "^2.2.6",
     "emotion-normalize": "^11.0.1",
     "focus-visible": "^5.2.0",
