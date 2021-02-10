@@ -30,12 +30,12 @@ import {
   TAGS_SETTINGS_QUERY,
 } from '../../graphql/feedSettings';
 import PrimaryButton from '../../components/buttons/PrimaryButton';
-import ReactGA from 'react-ga';
 import { ButtonProps } from '../../components/buttons/BaseButton';
 import { laptop } from '../../styles/media';
 import useMutateFilters, {
   getTagsSettingsQueryKey,
 } from '../../lib/useMutateFilters';
+import { trackEvent } from '../../lib/analytics';
 
 type TagPageProps = { tag: string };
 
@@ -116,7 +116,7 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
     icon: <PlusIcon />,
     title: 'Add tag to feed',
     onClick: async (): Promise<void> => {
-      ReactGA.event({
+      trackEvent({
         category: 'Feed',
         action: 'Add Filter',
       });

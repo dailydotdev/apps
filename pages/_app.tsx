@@ -19,7 +19,6 @@ import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import 'focus-visible';
 import Modal from 'react-modal';
-import ReactGA from 'react-ga';
 import { DefaultSeo } from 'next-seo';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import Seo from '../next-seo';
@@ -32,6 +31,11 @@ import { LoginModalMode } from '../components/modals/LoginModal';
 import globalStyle from '../components/GlobalStyle';
 import { Global } from '@emotion/react';
 import ProgressiveLoadingContext from '../components/ProgressiveLoadingContext';
+import {
+  initializeAnalyticsQueue,
+  loadAnalyticsScript,
+  trackPageView,
+} from '../lib/analytics';
 
 const queryClient = new QueryClient();
 
@@ -54,12 +58,6 @@ interface CompnentGetLayout {
   ) => ReactNode;
   layoutProps?: Record<string, unknown>;
 }
-
-const trackPageView = (url) => {
-  const page = `/web${url}`;
-  ReactGA.set({ page });
-  ReactGA.pageview(page);
-};
 
 Router.events.on('routeChangeComplete', trackPageView);
 
@@ -99,15 +97,17 @@ function InternalApp({ Component, pageProps }: AppProps): ReactElement {
 
   useEffect(() => {
     if (trackingId && !initializedGA) {
-      ReactGA.initialize(process.env.NEXT_PUBLIC_GA, {
-        gaOptions: {
-          clientId: pageProps.trackingId,
-        },
-      });
+      initializeAnalyticsQueue(trackingId);
       trackPageView(`${window.location.pathname}${window.location.search}`);
       setInitializedGA(true);
     }
   }, [trackingId]);
+
+  useEffect(() => {
+    if (trackingId && loadingContext.windowLoaded && !showCookie) {
+      loadAnalyticsScript();
+    }
+  }, [trackingId, loadingContext.windowLoaded, showCookie]);
 
   useEffect(() => {
     if (

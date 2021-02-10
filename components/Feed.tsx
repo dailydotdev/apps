@@ -19,7 +19,6 @@ import {
   REMOVE_BOOKMARK_MUTATION,
   UPVOTE_MUTATION,
 } from '../graphql/posts';
-import ReactGA from 'react-ga';
 import AuthContext from './AuthContext';
 import { useMutation } from 'react-query';
 import request from 'graphql-request';
@@ -31,6 +30,7 @@ import { multilineTextOverflow } from '../styles/helpers';
 import { feedBreakpoints, feedSettings } from './layouts/FeedLayout';
 import FeedSettingsContext from './FeedSettingsContext';
 import useIncrementReadingRank from '../lib/useIncrementReadingRank';
+import { trackEvent } from '../lib/analytics';
 
 export type FeedProps<T> = {
   query?: string;
@@ -90,7 +90,7 @@ const InfiniteScrollTrigger = styled.div`
 `;
 
 const onAdImpression = (ad: Ad) =>
-  ReactGA.event({
+  trackEvent({
     category: 'Ad',
     action: 'Impression',
     label: ad.source,
@@ -98,7 +98,7 @@ const onAdImpression = (ad: Ad) =>
   });
 
 const onAdClick = (ad: Ad) =>
-  ReactGA.event({
+  trackEvent({
     category: 'Ad',
     action: 'Click',
     label: ad.source,
@@ -259,7 +259,7 @@ export default function Feed<T>({
       showLogin(LoginModalMode.ContentQuality);
       return;
     }
-    ReactGA.event({
+    trackEvent({
       category: 'Post',
       action: 'Upvote',
       label: upvoted ? 'Add' : 'Remove',
@@ -280,7 +280,7 @@ export default function Feed<T>({
       showLogin();
       return;
     }
-    ReactGA.event({
+    trackEvent({
       category: 'Post',
       action: 'Bookmark',
       label: bookmarked ? 'Add' : 'Remove',
@@ -293,7 +293,7 @@ export default function Feed<T>({
   };
 
   const onPostClick = (post: Post, index: number): void => {
-    ReactGA.event({
+    trackEvent({
       category: 'Post',
       action: 'Click',
       label: post.source.name,

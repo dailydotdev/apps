@@ -32,12 +32,12 @@ import {
   PostCommentsData,
 } from '../../graphql/comments';
 import { Edge } from '../../graphql/common';
-import ReactGA from 'react-ga';
 import ResponsiveModal from './ResponsiveModal';
 import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import PrimaryButton from '../buttons/PrimaryButton';
 import TertiaryButton from '../buttons/TertiaryButton';
+import { trackEvent } from '../../lib/analytics';
 
 const DiscardCommentModal = dynamic(() => import('./DiscardCommentModal'));
 
@@ -242,7 +242,7 @@ export default function NewCommentModal({
         id: props.commentId || props.postId,
         content: input,
       });
-      ReactGA.event({ category: 'Comment Popup', action: 'Comment' });
+      trackEvent({ category: 'Comment Popup', action: 'Comment' });
       onComment?.(data.comment, props.commentId);
       onRequestClose(event);
     } catch (err) {
@@ -282,7 +282,7 @@ export default function NewCommentModal({
 
   useEffect(() => {
     commentRef.current?.focus();
-    ReactGA.event({ category: 'Comment Popup', action: 'Impression' });
+    trackEvent({ category: 'Comment Popup', action: 'Impression' });
   }, []);
 
   return (

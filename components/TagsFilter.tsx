@@ -34,7 +34,7 @@ import useMutateFilters, {
   getFiltersQueryKey,
   getSearchTagsQueryKey,
 } from '../lib/useMutateFilters';
-import ReactGA from 'react-ga';
+import { trackEvent } from '../lib/analytics';
 
 const Container = styled.div`
   display: flex;
@@ -214,7 +214,7 @@ export default function TagsFilter({
       return;
     }
 
-    ReactGA.event({
+    trackEvent({
       category: 'Tags',
       action: 'Toggle',
       label: 'Check',
@@ -223,7 +223,7 @@ export default function TagsFilter({
   };
 
   const onUnfollowTag = async (tag: string): Promise<void> => {
-    ReactGA.event({
+    trackEvent({
       category: 'Tags',
       action: 'Toggle',
       label: 'Uncheck',

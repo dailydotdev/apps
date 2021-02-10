@@ -10,7 +10,6 @@ import {
   UseMutationOptions,
   QueryClient,
 } from 'react-query';
-import ReactGA from 'react-ga';
 import {
   GetStaticPathsResult,
   GetStaticPropsContext,
@@ -67,6 +66,7 @@ import QuandaryButton from '../../components/buttons/QuandaryButton';
 import PrimaryButton from '../../components/buttons/PrimaryButton';
 import SecondaryButton from '../../components/buttons/SecondaryButton';
 import { LoginModalMode } from '../../components/modals/LoginModal';
+import { trackEvent } from '../../lib/analytics';
 
 const NewCommentModal = dynamic(
   () => import('../../components/modals/NewCommentModal'),
@@ -416,10 +416,10 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   const toggleUpvote = () => {
     if (user) {
       if (postById?.post.upvoted) {
-        ReactGA.event({ category: 'Post', action: 'Upvote', label: 'Remove' });
+        trackEvent({ category: 'Post', action: 'Upvote', label: 'Remove' });
         return cancelPostUpvote();
       } else if (postById) {
-        ReactGA.event({ category: 'Post', action: 'Add', label: 'Remove' });
+        trackEvent({ category: 'Post', action: 'Add', label: 'Remove' });
         return upvotePost();
       }
     } else {
@@ -434,7 +434,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           text: postById.post.title,
           url: postById.post.commentsPermalink,
         });
-        ReactGA.event({ category: 'Post', action: 'Share', label: 'Native' });
+        trackEvent({ category: 'Post', action: 'Share', label: 'Native' });
       } catch (err) {
         // Do nothing
       }
@@ -511,7 +511,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     title: 'Go to article',
     target: '_blank',
     rel: 'noopener',
-    onClick: () => ReactGA.event({ category: 'Post', action: 'Click' }),
+    onClick: () => trackEvent({ category: 'Post', action: 'Click' }),
   };
 
   const seo: NextSeoProps = {
