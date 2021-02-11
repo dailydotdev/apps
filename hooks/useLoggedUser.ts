@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
-import { AnonymousUser, getLoggedUser, LoggedUser } from './user';
+import { AnonymousUser, getLoggedUser, LoggedUser } from '../lib/user';
 import usePersistentState from './usePersistentState';
 import { differenceInMilliseconds } from 'date-fns';
 

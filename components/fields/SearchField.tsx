@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import { jsx, css } from '@emotion/react';
 import React, { InputHTMLAttributes, ReactElement, MouseEvent } from 'react';
-import { useInputField } from '../../lib/useInputField';
+import { useInputField } from '../../hooks/useInputField';
 import styled from '@emotion/styled';
 import sizeN from '../../macros/sizeN.macro';
 import { BaseField, FieldInput } from './common';

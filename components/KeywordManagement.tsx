@@ -22,7 +22,7 @@ import LazyImage from './LazyImage';
 import PrimaryButton from './buttons/PrimaryButton';
 import SecondaryButton from './buttons/SecondaryButton';
 import dynamic from 'next/dynamic';
-import ProgressiveLoadingContext from './ProgressiveLoadingContext';
+import ProgressiveLoadingContext from '../contexts/ProgressiveLoadingContext';
 
 const KeywordSynonymModal = dynamic(
   () =>

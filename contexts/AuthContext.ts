@@ -1,6 +1,6 @@
 import React from 'react';
 import { LoggedUser } from '../lib/user';
-import { LoginModalMode } from './modals/LoginModal';
+import { LoginModalMode } from '../components/modals/LoginModal';
 
 export interface AuthContextData {
   user: LoggedUser;

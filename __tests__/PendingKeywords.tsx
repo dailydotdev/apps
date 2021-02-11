@@ -6,7 +6,7 @@ import { LoggedUser, Roles } from '../lib/user';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
-import AuthContext from '../components/AuthContext';
+import AuthContext from '../contexts/AuthContext';
 import PendingKeywords from '../pages/backoffice/pendingKeywords';
 import {
   CountPendingKeywordsData,

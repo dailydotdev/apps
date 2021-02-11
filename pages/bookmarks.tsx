@@ -14,7 +14,7 @@ import { typoCallout, typoTitle1 } from '../styles/typography';
 import BookmarkIcon from '../icons/bookmark.svg';
 import { getLayout } from '../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../components/layouts/MainFeedPage';
-import AuthContext from '../components/AuthContext';
+import AuthContext from '../contexts/AuthContext';
 import { useRouter } from 'next/router';
 import PrimaryButton from '../components/buttons/PrimaryButton';
 import Link from 'next/link';

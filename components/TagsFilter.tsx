@@ -17,7 +17,7 @@ import SecondaryButton from '../components/buttons/SecondaryButton';
 import Link from 'next/link';
 import TertiaryButton from '../components/buttons/TertiaryButton';
 import ArrowIcon from '../icons/arrow.svg';
-import AuthContext from '../components/AuthContext';
+import AuthContext from '../contexts/AuthContext';
 import { useQuery, useQueryClient } from 'react-query';
 import {
   ALL_TAGS_AND_SETTINGS_QUERY,
@@ -33,7 +33,7 @@ import useMutateFilters, {
   getTagsSettingsQueryKey,
   getFiltersQueryKey,
   getSearchTagsQueryKey,
-} from '../lib/useMutateFilters';
+} from '../hooks/useMutateFilters';
 import { trackEvent } from '../lib/analytics';
 
 const Container = styled.div`

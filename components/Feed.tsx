@@ -6,7 +6,7 @@ import React, {
   useState,
 } from 'react';
 import styled from '@emotion/styled';
-import useFeed, { FeedItem, PostItem } from '../lib/useFeed';
+import useFeed, { FeedItem, PostItem } from '../hooks/useFeed';
 import { PostCard } from './cards/PostCard';
 import { AdCard } from './cards/AdCard';
 import { PlaceholderCard } from './cards/PlaceholderCard';
@@ -19,7 +19,7 @@ import {
   REMOVE_BOOKMARK_MUTATION,
   UPVOTE_MUTATION,
 } from '../graphql/posts';
-import AuthContext from './AuthContext';
+import AuthContext from '../contexts/AuthContext';
 import { useMutation } from 'react-query';
 import request from 'graphql-request';
 import { apiUrl } from '../lib/config';
@@ -28,8 +28,8 @@ import { useInView } from 'react-intersection-observer';
 import { mobileL, tablet } from '../styles/media';
 import { multilineTextOverflow } from '../styles/helpers';
 import { feedBreakpoints, feedSettings } from './layouts/FeedLayout';
-import FeedSettingsContext from './FeedSettingsContext';
-import useIncrementReadingRank from '../lib/useIncrementReadingRank';
+import FeedSettingsContext from '../contexts/FeedSettingsContext';
+import useIncrementReadingRank from '../hooks/useIncrementReadingRank';
 import { trackEvent } from '../lib/analytics';
 
 export type FeedProps<T> = {

@@ -1,5 +1,5 @@
 // Must be the first import
-import useProgressiveLoading from '../lib/useProgressiveLoading';
+import useProgressiveLoading from '../hooks/useProgressiveLoading';
 
 if (process.env.NODE_ENV === 'development') {
   // Must use require here as import statements are only allowed
@@ -22,15 +22,15 @@ import Modal from 'react-modal';
 import { DefaultSeo } from 'next-seo';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import Seo from '../next-seo';
-import AuthContext, { AuthContextData } from '../components/AuthContext';
+import AuthContext, { AuthContextData } from '../contexts/AuthContext';
 import { logout as dispatchLogout } from '../lib/user';
 import { Router } from 'next/router';
-import { useCookieBanner } from '../lib/useCookieBanner';
-import useLoggedUser from '../lib/useLoggedUser';
+import { useCookieBanner } from '../hooks/useCookieBanner';
+import useLoggedUser from '../hooks/useLoggedUser';
 import { LoginModalMode } from '../components/modals/LoginModal';
 import globalStyle from '../components/GlobalStyle';
 import { Global } from '@emotion/react';
-import ProgressiveLoadingContext from '../components/ProgressiveLoadingContext';
+import ProgressiveLoadingContext from '../contexts/ProgressiveLoadingContext';
 import {
   initializeAnalyticsQueue,
   loadAnalyticsScript,

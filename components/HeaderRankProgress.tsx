@@ -2,10 +2,10 @@
 import { jsx, css } from '@emotion/react';
 import { ReactElement, useContext, useState } from 'react';
 import RankProgress from './RankProgress';
-import useReadingRank from '../lib/useReadingRank';
+import useReadingRank from '../hooks/useReadingRank';
 import dynamic from 'next/dynamic';
 import { focusOutline } from '../styles/helpers';
-import AuthContext from './AuthContext';
+import AuthContext from '../contexts/AuthContext';
 import { STEPS_PER_RANK } from '../lib/rank';
 import { headerRankHeight } from '../styles/sizes';
 

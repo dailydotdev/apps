@@ -3,7 +3,7 @@ import styled from '@emotion/styled';
 import sizeN from '../macros/sizeN.macro';
 import { modalBorderAndRadius, ModalCloseButton } from './modals/StyledModal';
 import { laptop } from '../styles/media';
-import AuthContext from './AuthContext';
+import AuthContext from '../contexts/AuthContext';
 import { typoCallout, typoTitle3 } from '../styles/typography';
 import TwitterIcon from '../icons/twitter.svg';
 import WhatsappIcon from '../icons/whatsapp.svg';
@@ -18,7 +18,7 @@ import {
   getWhatsappShareLink,
 } from '../lib/share';
 import { Post } from '../graphql/posts';
-import { useCopyPostLink } from '../lib/useCopyPostLink';
+import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import PrimaryButton from './buttons/PrimaryButton';
 import { ButtonProps } from './buttons/BaseButton';
 

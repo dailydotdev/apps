@@ -1,4 +1,4 @@
-import { ProgressiveLoadingContextData } from '../components/ProgressiveLoadingContext';
+import { ProgressiveLoadingContextData } from '../contexts/ProgressiveLoadingContext';
 import { useEffect, useMemo, useState } from 'react';
 import requestIdleCallback from 'next/dist/client/request-idle-callback';
 

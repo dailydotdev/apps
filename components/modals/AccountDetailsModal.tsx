@@ -7,7 +7,7 @@ import rem from '../../macros/rem.macro';
 import XIcon from '../../icons/x.svg';
 import { ProfileHeading } from '../utilities';
 import EditImageWithJoinedDate from '../profile/EditImageWithJoinedDate';
-import AuthContext from '../AuthContext';
+import AuthContext from '../../contexts/AuthContext';
 import ProfileForm from '../profile/ProfileForm';
 import { typoFootnote } from '../../styles/typography';
 import {
@@ -21,7 +21,6 @@ import {
 import TertiaryButton from '../buttons/TertiaryButton';
 import PrimaryButton from '../buttons/PrimaryButton';
 import { ButtonProps } from '../buttons/BaseButton';
-import { useResetScrollForResponsiveModal } from '../../lib/useResetScrollForResponsiveModal';
 
 const headerHeight = sizeN(12);
 
@@ -85,7 +84,6 @@ const LogoutButton = styled(TertiaryButton)`
 `;
 
 export default function AccountDetailsModal(props: ModalProps): ReactElement {
-  useResetScrollForResponsiveModal();
   const { user, logout } = useContext(AuthContext);
 
   const [disableSubmit, setDisableSubmit] = useState<boolean>(false);

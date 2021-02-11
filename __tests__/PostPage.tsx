@@ -16,7 +16,7 @@ import {
   PostData,
   UPVOTE_MUTATION,
 } from '../graphql/posts';
-import AuthContext from '../components/AuthContext';
+import AuthContext from '../contexts/AuthContext';
 import { POST_COMMENTS_QUERY, PostCommentsData } from '../graphql/comments';
 import { LoggedUser } from '../lib/user';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';

@@ -44,7 +44,7 @@ import {
 } from '../../graphql/posts';
 import { PageContainer, RoundedImage } from '../../components/utilities';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
-import AuthContext from '../../components/AuthContext';
+import AuthContext from '../../contexts/AuthContext';
 import MainComment from '../../components/comments/MainComment';
 import {
   Comment,

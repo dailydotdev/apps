@@ -7,8 +7,8 @@ import {
 } from 'react';
 import request from 'graphql-request';
 import { Ad, FeedData, Post } from '../graphql/posts';
-import AuthContext from '../components/AuthContext';
-import { apiUrl } from './config';
+import AuthContext from '../contexts/AuthContext';
+import { apiUrl } from '../lib/config';
 
 export type PostItem = { type: 'post'; post: Post };
 export type AdItem = { type: 'ad'; ad: Ad };

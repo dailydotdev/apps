@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { getShareableLink } from './share';
-import { trackEvent } from './analytics';
+import { getShareableLink } from '../lib/share';
+import { trackEvent } from '../lib/analytics';
 
 export function useCopyPostLink(): [boolean, () => Promise<void>] {
   const [copying, setCopying] = useState(false);

@@ -9,7 +9,7 @@ import TwitterIcon from '../icons/twitter_color.svg';
 import FacebookIcon from '../icons/facebook_color.svg';
 import { Post } from '../graphql/posts';
 import { typoCaption1 } from '../styles/typography';
-import { useCopyPostLink } from '../lib/useCopyPostLink';
+import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import {
   getFacebookShareLink,
   getShareableLink,

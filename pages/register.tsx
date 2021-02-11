@@ -5,7 +5,7 @@ import MainLayout from '../components/layouts/MainLayout';
 import { typoCallout } from '../styles/typography';
 import sizeN from '../macros/sizeN.macro';
 import { PageContainer, ProfileHeading } from '../components/utilities';
-import AuthContext from '../components/AuthContext';
+import AuthContext from '../contexts/AuthContext';
 import { useRouter } from 'next/router';
 import EditImageWithJoinedDate from '../components/profile/EditImageWithJoinedDate';
 import ProfileForm, {
