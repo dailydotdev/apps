@@ -4,7 +4,7 @@ import { laptop } from '../styles/media';
 import CopyIcon from '../icons/copy.svg';
 import ShareIcon from '../icons/share.svg';
 import sizeN from '../macros/sizeN.macro';
-import { useCopyPostLink } from '../lib/useCopyPostLink';
+import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import TertiaryButton from './buttons/TertiaryButton';
 
 const Container = styled.div`

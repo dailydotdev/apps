@@ -33,7 +33,7 @@ import ActivitySection, {
 import { AUTHOR_FEED_QUERY, FeedData } from '../../graphql/posts';
 import LazyImage from '../../components/LazyImage';
 import { largeNumberFormat } from '../../lib/numberFormat';
-import AuthContext from '../../components/AuthContext';
+import AuthContext from '../../contexts/AuthContext';
 import { tablet } from '../../styles/media';
 import {
   loggedUserToProfile,
@@ -46,7 +46,7 @@ import { ownershipGuide } from '../../lib/constants';
 import { smallPostImage } from '../../lib/image';
 import PrimaryButton from '../../components/buttons/PrimaryButton';
 import dynamic from 'next/dynamic';
-import ProgressiveLoadingContext from '../../components/ProgressiveLoadingContext';
+import ProgressiveLoadingContext from '../../contexts/ProgressiveLoadingContext';
 
 const AccountDetailsModal = dynamic(
   () =>

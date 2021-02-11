@@ -11,9 +11,9 @@ import { ParsedUrlQuery } from 'querystring';
 import { KEYWORD_QUERY, KeywordData } from '../../../graphql/keywords';
 import Custom404 from '../../404';
 import { useQuery } from 'react-query';
-import useRequirePermissions from '../../../lib/useRequirePermissions';
+import useRequirePermissions from '../../../hooks/useRequirePermissions';
 import { Roles } from '../../../lib/user';
-import AuthContext from '../../../components/AuthContext';
+import AuthContext from '../../../contexts/AuthContext';
 import KeywordManagement from '../../../components/KeywordManagement';
 
 export type KeywordPageProps = { keyword: string };

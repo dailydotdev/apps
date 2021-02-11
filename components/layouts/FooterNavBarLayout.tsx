@@ -1,9 +1,9 @@
 import React, { ReactElement, ReactNode, useContext } from 'react';
 import { css, Global } from '@emotion/react';
 import { laptop } from '../../styles/media';
-import useMedia from '../../lib/useMedia';
+import useMedia from '../../hooks/useMedia';
 import dynamic from 'next/dynamic';
-import ProgressiveLoadingContext from '../ProgressiveLoadingContext';
+import ProgressiveLoadingContext from '../../contexts/ProgressiveLoadingContext';
 import { navBarHeight } from '../FooterNavBar';
 
 export const footerNavBarBreakpoint = laptop;

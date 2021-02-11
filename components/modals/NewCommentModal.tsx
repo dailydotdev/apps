@@ -14,7 +14,7 @@ import styled from '@emotion/styled';
 import cloneDeep from 'lodash.clonedeep';
 import { Props as ModalProps } from './StyledModal';
 import sizeN from '../../macros/sizeN.macro';
-import AuthContext from '../AuthContext';
+import AuthContext from '../../contexts/AuthContext';
 import { RoundedImage, SmallRoundedImage } from '../utilities';
 import { commentBoxStyle, CommentPublishDate } from '../comments/common';
 import { commentDateFormat } from '../../lib/dateFormat';

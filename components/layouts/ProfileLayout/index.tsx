@@ -27,7 +27,7 @@ import TwitterIcon from '../../../icons/twitter.svg';
 import HashnodeIcon from '../../../icons/hashnode.svg';
 import LinkIcon from '../../../icons/link.svg';
 import { tablet } from '../../../styles/media';
-import AuthContext from '../../AuthContext';
+import AuthContext from '../../../contexts/AuthContext';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import {
@@ -49,7 +49,7 @@ import NavBar, { tabs } from './NavBar';
 import TertiaryButton from '../../buttons/TertiaryButton';
 import QuandaryButton from '../../buttons/QuandaryButton';
 import SecondaryButton from '../../buttons/SecondaryButton';
-import ProgressiveLoadingContext from '../../ProgressiveLoadingContext';
+import ProgressiveLoadingContext from '../../../contexts/ProgressiveLoadingContext';
 
 const AccountDetailsModal = dynamic(
   () =>

@@ -8,7 +8,7 @@ import {
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
 import { ANONYMOUS_FEED_QUERY } from '../graphql/feed';
 import nock from 'nock';
-import AuthContext from '../components/AuthContext';
+import AuthContext from '../contexts/AuthContext';
 import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import Feed from '../components/Feed';
@@ -19,7 +19,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { LoggedUser } from '../lib/user';
 import { LoginModalMode } from '../components/modals/LoginModal';
 import { MyRankData } from '../graphql/users';
-import { getRankQueryKey } from '../lib/useReadingRank';
+import { getRankQueryKey } from '../hooks/useReadingRank';
 
 const showLogin = jest.fn();
 

@@ -9,7 +9,7 @@ import rem from '../macros/rem.macro';
 import HomeIcon from '../icons/home.svg';
 import BookmarkIcon from '../icons/bookmark.svg';
 import FilterIcon from '../icons/filter.svg';
-import AuthContext from './AuthContext';
+import AuthContext from '../contexts/AuthContext';
 import { useRouter } from 'next/router';
 
 export const navBarHeight = '3.063rem';

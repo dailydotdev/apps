@@ -21,7 +21,7 @@ import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { NextSeo } from 'next-seo';
 import Feed from '../../components/Feed';
 import { TAG_FEED_QUERY } from '../../graphql/feed';
-import AuthContext from '../../components/AuthContext';
+import AuthContext from '../../contexts/AuthContext';
 import { useQuery } from 'react-query';
 import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
@@ -34,7 +34,7 @@ import { ButtonProps } from '../../components/buttons/BaseButton';
 import { laptop } from '../../styles/media';
 import useMutateFilters, {
   getTagsSettingsQueryKey,
-} from '../../lib/useMutateFilters';
+} from '../../hooks/useMutateFilters';
 import { trackEvent } from '../../lib/analytics';
 
 type TagPageProps = { tag: string };

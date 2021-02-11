@@ -4,7 +4,7 @@ import NewCommentModal, {
   NewCommentModalProps,
 } from '../components/modals/NewCommentModal';
 import { LoggedUser } from '../lib/user';
-import AuthContext from '../components/AuthContext';
+import AuthContext from '../contexts/AuthContext';
 import {
   COMMENT_ON_COMMENT_MUTATION,
   COMMENT_ON_POST_MUTATION,

@@ -11,8 +11,8 @@ import {
 import FeedSettingsContext, {
   defaultFeedSettings,
   FeedSettings,
-} from '../FeedSettingsContext';
-import useMedia from '../../lib/useMedia';
+} from '../../contexts/FeedSettingsContext';
+import useMedia from '../../hooks/useMedia';
 import { getLayout as getFooterNavBarLayout } from './FooterNavBarLayout';
 
 export type FeedLayoutProps = { children?: ReactNode };

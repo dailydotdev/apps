@@ -10,7 +10,7 @@ import {
 import styled from '@emotion/styled';
 import sizeN from '../../macros/sizeN.macro';
 import { typoCallout, typoCaption1 } from '../../styles/typography';
-import { useInputField } from '../../lib/useInputField';
+import { useInputField } from '../../hooks/useInputField';
 import { BaseField, FieldInput } from './common';
 import classNames from 'classnames';
 

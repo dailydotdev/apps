@@ -12,7 +12,7 @@ import { headerHeight } from '../../styles/sizes';
 import sizeN from '../../macros/sizeN.macro';
 import rem from '../../macros/rem.macro';
 import LazyImage from '../LazyImage';
-import AuthContext from '../AuthContext';
+import AuthContext from '../../contexts/AuthContext';
 import { focusOutline } from '../../styles/helpers';
 import { laptop, tablet } from '../../styles/media';
 import { typoCallout } from '../../styles/typography';
@@ -23,7 +23,7 @@ import { footerNavBarBreakpoint } from './FooterNavBarLayout';
 import Logo from '../svg/Logo';
 import LogoTextBeta from '../svg/LogoTextBeta';
 import dynamic from 'next/dynamic';
-import ProgressiveLoadingContext from '../ProgressiveLoadingContext';
+import ProgressiveLoadingContext from '../../contexts/ProgressiveLoadingContext';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;

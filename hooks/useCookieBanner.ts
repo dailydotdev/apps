@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { LoggedUser } from './user';
+import { LoggedUser } from '../lib/user';
 
 const consentCookieName = 'ilikecookies';
 

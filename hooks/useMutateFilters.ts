@@ -1,7 +1,7 @@
-import { LoggedUser } from './user';
+import { LoggedUser } from '../lib/user';
 import { QueryClient, useMutation, useQueryClient } from 'react-query';
 import request from 'graphql-request';
-import { apiUrl } from './config';
+import { apiUrl } from '../lib/config';
 import {
   ADD_FILTERS_TO_FEED_MUTATION,
   FeedSettings,

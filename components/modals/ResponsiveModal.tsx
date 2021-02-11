@@ -8,11 +8,13 @@ import {
 import { mobileL } from '../../styles/media';
 import sizeN from '../../macros/sizeN.macro';
 import { ReactElement } from 'react';
-import { useHideOnModal } from '../../lib/useHideOnModal';
+import { useHideOnModal } from '../../hooks/useHideOnModal';
+import { useResetScrollForResponsiveModal } from '../../hooks/useResetScrollForResponsiveModal';
 
 export const responsiveModalBreakpoint = mobileL;
 
 export default function ResponsiveModal(props: ModalProps): ReactElement {
+  useResetScrollForResponsiveModal();
   useHideOnModal(props.isOpen);
   return (
     <StyledModal
