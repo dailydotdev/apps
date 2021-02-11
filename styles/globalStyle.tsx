@@ -1,7 +1,7 @@
 import normalize from 'emotion-normalize';
-import colors, { overlayQuaternary } from '../styles/colors';
-import { mobileL } from '../styles/media';
-import { shadow2, shadow3 } from '../styles/shadows';
+import colors, { overlayQuaternary } from './colors';
+import { mobileL } from './media';
+import { shadow2, shadow3 } from './shadows';
 import { css } from '@emotion/react';
 
 export default css`

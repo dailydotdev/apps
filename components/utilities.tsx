@@ -81,6 +81,12 @@ export const FeedPage = styled.main`
     padding-left: ${sizeN(16)};
     padding-right: ${sizeN(16)};
   }
+
+  &.notReady {
+    & > * {
+      visibility: hidden;
+    }
+  }
 `;
 
 export const FormErrorMessage = styled.div`

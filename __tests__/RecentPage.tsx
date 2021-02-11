@@ -11,6 +11,7 @@ import ad from './fixture/ad';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { LoggedUser } from '../lib/user';
 import Recent from '../pages/recent';
+import OnboardingContext from '../contexts/OnboardingContext';
 
 const showLogin = jest.fn();
 
@@ -58,7 +59,15 @@ const renderComponent = (
           tokenRefreshed: true,
         }}
       >
-        <Recent />
+        <OnboardingContext.Provider
+          value={{
+            showWelcome: false,
+            onboardingReady: true,
+            setShowWelcome: jest.fn(),
+          }}
+        >
+          <Recent />
+        </OnboardingContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
   );

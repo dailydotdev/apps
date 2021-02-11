@@ -9,6 +9,7 @@ import AuthContext from '../contexts/AuthContext';
 import nock from 'nock';
 import { MY_READING_RANK_QUERY, MyRankData } from '../graphql/users';
 import { set as setCache } from 'idb-keyval';
+import OnboardingContext from '../contexts/OnboardingContext';
 
 jest.mock('../hooks/usePersistentState', () => {
   const originalModule = jest.requireActual('../hooks/usePersistentState');
@@ -39,10 +40,12 @@ const createRankMock = (
 });
 
 let queryClient: QueryClient;
+const setShowWelcome = jest.fn();
 
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createRankMock()],
   user: LoggedUser = defaultUser,
+  showWelcome = false,
 ): RenderResult => {
   queryClient = new QueryClient();
   mocks.forEach(mockGraphQL);
@@ -58,7 +61,15 @@ const renderComponent = (
           tokenRefreshed: true,
         }}
       >
-        <HeaderRankProgress />
+        <OnboardingContext.Provider
+          value={{
+            showWelcome,
+            onboardingReady: true,
+            setShowWelcome,
+          }}
+        >
+          <HeaderRankProgress />
+        </OnboardingContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
   );
@@ -98,4 +109,15 @@ it('should show rank for anonymous users', async () => {
     expect(screen.queryAllByTestId('completedPath').length).toEqual(1);
     expect(screen.queryAllByTestId('remainingPath').length).toEqual(2);
   });
+});
+
+it('should show a welcome button during the onboarding', async () => {
+  await setCache('rank', {
+    rank: { progressThisWeek: 1, currentRank: 0, readToday: false },
+    userId: null,
+  });
+  renderComponent([], null, true);
+  await waitFor(() =>
+    expect(screen.queryByTestId('welcomeButton')).toBeInTheDocument(),
+  );
 });

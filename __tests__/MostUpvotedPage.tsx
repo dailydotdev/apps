@@ -11,6 +11,7 @@ import ad from './fixture/ad';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { LoggedUser } from '../lib/user';
 import Upvoted from '../pages/upvoted';
+import OnboardingContext from '../contexts/OnboardingContext';
 
 const showLogin = jest.fn();
 
@@ -58,7 +59,15 @@ const renderComponent = (
           tokenRefreshed: true,
         }}
       >
-        <Upvoted />
+        <OnboardingContext.Provider
+          value={{
+            showWelcome: false,
+            onboardingReady: true,
+            setShowWelcome: jest.fn(),
+          }}
+        >
+          <Upvoted />
+        </OnboardingContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
   );

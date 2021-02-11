@@ -10,12 +10,13 @@ export default function useLoggedUser(): [
   string,
   boolean,
   boolean,
+  boolean,
 ] {
   const queryKey = 'loggedUser';
 
   const [refreshTokenTimeout, setRefreshTokenTimeout] = useState<number>();
   const [tokenRefreshed, setTokenRefreshed] = useState(false);
-  const [cachedUser, setCachedUser] = usePersistentState<
+  const [cachedUser, setCachedUser, loadedFromCache] = usePersistentState<
     AnonymousUser | LoggedUser
   >('user', null);
 
@@ -71,5 +72,6 @@ export default function useLoggedUser(): [
     trackingId,
     isLoading && !availableUser,
     tokenRefreshed,
+    loadedFromCache,
   ];
 }

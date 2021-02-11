@@ -11,6 +11,7 @@ import ad from './fixture/ad';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { LoggedUser } from '../lib/user';
 import Popular from '../pages/popular';
+import OnboardingContext from '../contexts/OnboardingContext';
 
 const showLogin = jest.fn();
 
@@ -41,6 +42,7 @@ const createFeedMock = (
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createFeedMock()],
   user: LoggedUser = defaultUser,
+  showWelcome = false,
 ): RenderResult => {
   const client = new QueryClient();
 
@@ -58,7 +60,15 @@ const renderComponent = (
           tokenRefreshed: true,
         }}
       >
-        <Popular />
+        <OnboardingContext.Provider
+          value={{
+            showWelcome,
+            onboardingReady: true,
+            setShowWelcome: jest.fn(),
+          }}
+        >
+          <Popular />
+        </OnboardingContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
   );
@@ -91,4 +101,31 @@ it('should request anonymous feed', async () => {
     const elements = await screen.findAllByTestId('postItem');
     expect(elements.length).toBeTruthy();
   });
+});
+
+it('should show welcome message during the onboarding', async () => {
+  renderComponent(
+    [
+      createFeedMock(defaultFeedPage, ANONYMOUS_FEED_QUERY, {
+        first: 7,
+        loggedIn: false,
+      }),
+    ],
+    null,
+    true,
+  );
+  await waitFor(() => expect(screen.queryByRole('status')).toBeInTheDocument());
+});
+
+it('should not show welcome message after the onboarding', async () => {
+  renderComponent(
+    [
+      createFeedMock(defaultFeedPage, ANONYMOUS_FEED_QUERY, {
+        first: 7,
+        loggedIn: false,
+      }),
+    ],
+    null,
+  );
+  await waitFor(() => expect(screen.queryByRole('status')).toBeFalsy());
 });
