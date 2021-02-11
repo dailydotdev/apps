@@ -3,7 +3,7 @@ import { css, Global } from '@emotion/react';
 import { laptop } from '../../styles/media';
 import useMedia from '../../hooks/useMedia';
 import dynamic from 'next/dynamic';
-import ProgressiveLoadingContext from '../../contexts/ProgressiveLoadingContext';
+import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
 import { navBarHeight } from '../FooterNavBar';
 
 export const footerNavBarBreakpoint = laptop;
@@ -33,7 +33,7 @@ const globalStyle = css`
 export default function FooterNavBarLayout({
   children,
 }: FooterNavBarLayoutProps): ReactElement {
-  const { windowLoaded } = useContext(ProgressiveLoadingContext);
+  const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const showSidebar = useMedia(
     [footerNavBarBreakpoint.replace('@media ', '')],
     [true],

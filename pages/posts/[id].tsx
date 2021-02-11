@@ -66,6 +66,7 @@ import PrimaryButton from '../../components/buttons/PrimaryButton';
 import SecondaryButton from '../../components/buttons/SecondaryButton';
 import { LoginModalMode } from '../../components/modals/LoginModal';
 import { trackEvent } from '../../lib/analytics';
+import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
 
 const NewCommentModal = dynamic(
   () => import('../../components/modals/NewCommentModal'),
@@ -359,8 +360,8 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   }
 
   const { user, showLogin, tokenRefreshed } = useContext(AuthContext);
+  const { nativeShareSupport } = useContext(ProgressiveEnhancementContext);
   const [parentComment, setParentComment] = useState<ParentComment>(null);
-  const [hasNativeShare, setHasNativeShare] = useState(false);
   const [pendingComment, setPendingComment] = useState<{
     comment: Comment;
     parentId: string | null;
@@ -495,10 +496,6 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     }
   }, [router.query?.author]);
 
-  useEffect(() => {
-    setHasNativeShare('share' in navigator);
-  }, []);
-
   if (!postById?.post || (isFallback && !id)) {
     return <></>;
   }
@@ -621,7 +618,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             onClick={sharePost}
             title="Share"
             icon={<ShareIcon />}
-            style={{ visibility: hasNativeShare ? 'visible' : 'hidden' }}
+            style={{ visibility: nativeShareSupport ? 'visible' : 'hidden' }}
             aria-label="Share"
             responsiveLabel
           >

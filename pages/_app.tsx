@@ -1,5 +1,5 @@
 // Must be the first import
-import useProgressiveLoading from '../hooks/useProgressiveLoading';
+import useProgressiveEnhancement from '../hooks/useProgressiveEnhancement';
 
 if (process.env.NODE_ENV === 'development') {
   // Must use require here as import statements are only allowed
@@ -30,7 +30,7 @@ import useLoggedUser from '../hooks/useLoggedUser';
 import { LoginModalMode } from '../components/modals/LoginModal';
 import globalStyle from '../styles/globalStyle';
 import { Global } from '@emotion/react';
-import ProgressiveLoadingContext from '../contexts/ProgressiveLoadingContext';
+import ProgressiveEnhancementContext from '../contexts/ProgressiveEnhancementContext';
 import {
   initializeAnalyticsQueue,
   loadAnalyticsScript,
@@ -73,7 +73,7 @@ function InternalApp({ Component, pageProps }: AppProps): ReactElement {
     tokenRefreshed,
     loadedUserFromCache,
   ] = useLoggedUser();
-  const loadingContext = useProgressiveLoading();
+  const progressiveContext = useProgressiveEnhancement();
   const [loginMode, setLoginMode] = useState<LoginModalMode | null>(null);
   const [showCookie, acceptCookies, updateCookieBanner] = useCookieBanner();
 
@@ -109,10 +109,10 @@ function InternalApp({ Component, pageProps }: AppProps): ReactElement {
   }, [trackingId]);
 
   useEffect(() => {
-    if (trackingId && loadingContext.windowLoaded && !showCookie) {
+    if (trackingId && progressiveContext.windowLoaded && !showCookie) {
       loadAnalyticsScript();
     }
-  }, [trackingId, loadingContext.windowLoaded, showCookie]);
+  }, [trackingId, progressiveContext.windowLoaded, showCookie]);
 
   useEffect(() => {
     if (
@@ -132,7 +132,7 @@ function InternalApp({ Component, pageProps }: AppProps): ReactElement {
   const { layoutProps } = Component as CompnentGetLayout;
 
   return (
-    <ProgressiveLoadingContext.Provider value={loadingContext}>
+    <ProgressiveEnhancementContext.Provider value={progressiveContext}>
       <AuthContext.Provider value={authContext}>
         <OnboardingContext.Provider value={onboardingContext}>
           <Head>
@@ -159,7 +159,7 @@ function InternalApp({ Component, pageProps }: AppProps): ReactElement {
           {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
           {!user &&
             !loadingUser &&
-            (loadingContext.windowLoaded || loginMode !== null) && (
+            (progressiveContext.windowLoaded || loginMode !== null) && (
               <LoginModal
                 isOpen={loginMode !== null}
                 onRequestClose={closeLogin}
@@ -170,7 +170,7 @@ function InternalApp({ Component, pageProps }: AppProps): ReactElement {
           {showCookie && <CookieBanner onAccepted={acceptCookies} />}
         </OnboardingContext.Provider>
       </AuthContext.Provider>
-    </ProgressiveLoadingContext.Provider>
+    </ProgressiveEnhancementContext.Provider>
   );
 }
 

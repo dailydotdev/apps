@@ -21,6 +21,9 @@ import BookmarkIcon from '../../icons/bookmark.svg';
 import TertiaryButton from '../buttons/TertiaryButton';
 import classNames from 'classnames';
 import rem from '../../macros/rem.macro';
+import dynamic from 'next/dynamic';
+
+const ShareIcon = dynamic(() => import('../../icons/share.svg'));
 
 type Callback = (post: Post) => unknown;
 
@@ -30,6 +33,8 @@ export type PostCardProps = {
   onUpvoteClick?: (post: Post, upvoted: boolean) => unknown;
   onCommentClick?: Callback;
   onBookmarkClick?: (post: Post, bookmarked: boolean) => unknown;
+  showShare?: boolean;
+  onShare?: Callback;
 } & HTMLAttributes<HTMLDivElement>;
 
 const CardHeader = styled.div`
@@ -91,6 +96,8 @@ export function PostCard({
   onUpvoteClick,
   onCommentClick,
   onBookmarkClick,
+  showShare,
+  onShare,
   className,
   ...props
 }: PostCardProps): ReactElement {
@@ -168,6 +175,14 @@ export function PostCard({
           title={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}
           onClick={() => onBookmarkClick?.(post, !post.bookmarked)}
         />
+        {showShare && (
+          <TertiaryButton
+            icon={<ShareIcon />}
+            buttonSize="small"
+            title="Share post"
+            onClick={() => onShare?.(post)}
+          />
+        )}
       </ActionButtons>
     </StyledCard>
   );

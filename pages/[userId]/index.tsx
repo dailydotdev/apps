@@ -46,7 +46,7 @@ import { ownershipGuide } from '../../lib/constants';
 import { smallPostImage } from '../../lib/image';
 import PrimaryButton from '../../components/buttons/PrimaryButton';
 import dynamic from 'next/dynamic';
-import ProgressiveLoadingContext from '../../contexts/ProgressiveLoadingContext';
+import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
 
 const AccountDetailsModal = dynamic(
   () =>
@@ -273,7 +273,7 @@ const CompleteProfileButton = styled(PrimaryButton)`
 `;
 
 const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
-  const { windowLoaded } = useContext(ProgressiveLoadingContext);
+  const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user, updateUser, tokenRefreshed } = useContext(AuthContext);
 
   const { data: userStats } = useQuery<UserStatsData>(

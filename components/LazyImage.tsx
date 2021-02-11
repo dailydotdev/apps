@@ -50,7 +50,7 @@ const Container = styled.div<Props>`
 const asyncImageSupport = false;
 
 export default function LazyImage(props: Props): ReactElement {
-  // const { asyncImageSupport } = useContext(ProgressiveLoadingContext);
+  // const { asyncImageSupport } = useContext(ProgressiveEnhancementContext);
   const { imgSrc, imgAlt, eager } = props;
   const imageProps: ImgHTMLAttributes<HTMLImageElement> & {
     'data-src'?: string;

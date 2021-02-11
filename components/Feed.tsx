@@ -128,6 +128,8 @@ export default function Feed<T>({
     dep,
   );
   const { user, showLogin } = useContext(AuthContext);
+  // const { nativeShareSupport } = useContext(ProgressiveEnhancementContext);
+  const nativeShareSupport = false;
   const [disableFetching, setDisableFetching] = useState(false);
   const { incrementReadingRank } = useIncrementReadingRank();
 
@@ -304,6 +306,17 @@ export default function Feed<T>({
     updatePost(index, { ...post, read: true });
   };
 
+  const onShare = async (post: Post): Promise<void> => {
+    trackEvent({
+      category: 'Post',
+      action: 'Share',
+    });
+    await navigator.share({
+      text: post.title,
+      url: post.commentsPermalink,
+    });
+  };
+
   const itemToComponent = (item: FeedItem, index: number): ReactElement => {
     switch (item.type) {
       case 'post':
@@ -317,6 +330,8 @@ export default function Feed<T>({
             onBookmarkClick={(post, bookmarked) =>
               onBookmark(post, index, bookmarked)
             }
+            showShare={nativeShareSupport}
+            onShare={onShare}
           />
         );
       case 'ad':

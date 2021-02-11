@@ -23,7 +23,7 @@ import { footerNavBarBreakpoint } from './FooterNavBarLayout';
 import Logo from '../svg/Logo';
 import LogoTextBeta from '../svg/LogoTextBeta';
 import dynamic from 'next/dynamic';
-import ProgressiveLoadingContext from '../../contexts/ProgressiveLoadingContext';
+import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -134,7 +134,7 @@ export default function MainLayout({
   responsive = true,
   showRank = false,
 }: MainLayoutProps): ReactElement {
-  const { windowLoaded } = useContext(ProgressiveLoadingContext);
+  const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user, showLogin, loadingUser } = useContext(AuthContext);
 
   return (

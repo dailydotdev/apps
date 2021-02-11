@@ -9,7 +9,7 @@ import { FlippedProps, FlipperProps } from 'flip-toolkit/lib/types';
 import dynamicParent from '../../../lib/dynamicParent';
 import TertiaryButton from '../../buttons/TertiaryButton';
 import { ActiveTabIndicator } from '../../utilities';
-import ProgressiveLoadingContext from '../../../contexts/ProgressiveLoadingContext';
+import ProgressiveEnhancementContext from '../../../contexts/ProgressiveEnhancementContext';
 
 const flipperLoader = () =>
   import(/* webpackChunkName: "reactFlip" */ 'react-flip-toolkit');
@@ -72,7 +72,7 @@ export default function NavBar({
   selectedTab,
   profile,
 }: NavBarProps): ReactElement {
-  const { windowLoaded } = useContext(ProgressiveLoadingContext);
+  const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const getTabHref = (tab: Tab) =>
     tab.path.replace('[userId]', profile.username || profile.id);
 
