@@ -28,7 +28,7 @@ import { Router } from 'next/router';
 import { useCookieBanner } from '../hooks/useCookieBanner';
 import useLoggedUser from '../hooks/useLoggedUser';
 import { LoginModalMode } from '../components/modals/LoginModal';
-import globalStyle from '../components/GlobalStyle';
+import globalStyle from '../styles/globalStyle';
 import { Global } from '@emotion/react';
 import ProgressiveLoadingContext from '../contexts/ProgressiveLoadingContext';
 import {
@@ -36,6 +36,8 @@ import {
   loadAnalyticsScript,
   trackPageView,
 } from '../lib/analytics';
+import useOnboarding from '../hooks/useOnboarding';
+import OnboardingContext from '../contexts/OnboardingContext';
 
 const queryClient = new QueryClient();
 
@@ -69,6 +71,7 @@ function InternalApp({ Component, pageProps }: AppProps): ReactElement {
     trackingId,
     loadingUser,
     tokenRefreshed,
+    loadedUserFromCache,
   ] = useLoggedUser();
   const loadingContext = useProgressiveLoading();
   const [loginMode, setLoginMode] = useState<LoginModalMode | null>(null);
@@ -91,9 +94,11 @@ function InternalApp({ Component, pageProps }: AppProps): ReactElement {
       logout,
       loadingUser,
       tokenRefreshed,
+      loadedUserFromCache,
     }),
     [user, loginMode, loadingUser, tokenRefreshed],
   );
+  const onboardingContext = useOnboarding(user, loadedUserFromCache);
 
   useEffect(() => {
     if (trackingId && !initializedGA) {
@@ -129,39 +134,41 @@ function InternalApp({ Component, pageProps }: AppProps): ReactElement {
   return (
     <ProgressiveLoadingContext.Provider value={loadingContext}>
       <AuthContext.Provider value={authContext}>
-        <Head>
-          <meta
-            name="viewport"
-            content="initial-scale=1.0, width=device-width"
-          />
-          <meta name="theme-color" content="#151618" />
-          <meta name="msapplication-navbutton-color" content="#151618" />
-          <meta
-            name="apple-mobile-web-app-status-bar-style"
-            content="#151618"
-          />
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `window.addEventListener('load', () => { window.windowLoaded = true; }, {
+        <OnboardingContext.Provider value={onboardingContext}>
+          <Head>
+            <meta
+              name="viewport"
+              content="initial-scale=1.0, width=device-width"
+            />
+            <meta name="theme-color" content="#151618" />
+            <meta name="msapplication-navbutton-color" content="#151618" />
+            <meta
+              name="apple-mobile-web-app-status-bar-style"
+              content="#151618"
+            />
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `window.addEventListener('load', () => { window.windowLoaded = true; }, {
       once: true,
     });`,
-            }}
-          />
-        </Head>
-        <DefaultSeo {...Seo} />
-        <Global styles={globalStyle} />
-        {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
-        {!user &&
-          !loadingUser &&
-          (loadingContext.windowLoaded || loginMode !== null) && (
-            <LoginModal
-              isOpen={loginMode !== null}
-              onRequestClose={closeLogin}
-              contentLabel="Login Modal"
-              mode={loginMode}
+              }}
             />
-          )}
-        {showCookie && <CookieBanner onAccepted={acceptCookies} />}
+          </Head>
+          <DefaultSeo {...Seo} />
+          <Global styles={globalStyle} />
+          {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
+          {!user &&
+            !loadingUser &&
+            (loadingContext.windowLoaded || loginMode !== null) && (
+              <LoginModal
+                isOpen={loginMode !== null}
+                onRequestClose={closeLogin}
+                contentLabel="Login Modal"
+                mode={loginMode}
+              />
+            )}
+          {showCookie && <CookieBanner onAccepted={acceptCookies} />}
+        </OnboardingContext.Provider>
       </AuthContext.Provider>
     </ProgressiveLoadingContext.Provider>
   );

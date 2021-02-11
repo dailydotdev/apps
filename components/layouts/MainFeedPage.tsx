@@ -9,6 +9,7 @@ import { MainLayoutProps } from './MainLayout';
 import styled from '@emotion/styled';
 import Link from 'next/link';
 import sizeN from '../../macros/sizeN.macro';
+import rem from '../../macros/rem.macro';
 import TertiaryButton from '../buttons/TertiaryButton';
 import { useRouter } from 'next/router';
 import Feed from '../Feed';
@@ -19,11 +20,26 @@ import { getTagsSettingsQueryKey } from '../../hooks/useMutateFilters';
 import { useQuery } from 'react-query';
 import { FeedSettingsData } from '../../graphql/feedSettings';
 import { LoggedUser } from '../../lib/user';
+import OnboardingContext from '../../contexts/OnboardingContext';
+import classNames from 'classnames';
+import { typoCallout } from '../../styles/typography';
 
 const Nav = styled.nav`
   display: flex;
   align-items: center;
   margin: 0 0 ${sizeN(6)};
+`;
+
+const Welcome = styled.div`
+  align-self: stretch;
+  max-width: ${rem(368)};
+  margin: ${sizeN(-1)} auto ${sizeN(12)};
+  padding: ${sizeN(3)} ${sizeN(6)};
+  color: var(--theme-label-secondary);
+  border-radius: ${sizeN(4)};
+  border: ${rem(1)} solid var(--theme-divider-secondary);
+  text-align: center;
+  ${typoCallout}
 `;
 
 export type Tab = { path: string; title: string; default?: boolean };
@@ -72,6 +88,7 @@ export default function MainFeedPage<T>({
 }: MainFeedPageProps<T>): ReactElement {
   const router = useRouter();
   const { user, tokenRefreshed } = useContext(AuthContext);
+  const { showWelcome, onboardingReady } = useContext(OnboardingContext);
   const finalQuery = getQueryBasedOnLogin(
     tokenRefreshed,
     user,
@@ -100,7 +117,13 @@ export default function MainFeedPage<T>({
   }, [feedSettings]);
 
   return (
-    <FeedPage>
+    <FeedPage className={classNames({ notReady: !onboardingReady })}>
+      {showWelcome && (
+        <Welcome role="status">
+          Dear developer, our mission is to serve all the best programming news
+          you’ll ever need. Ready?
+        </Welcome>
+      )}
       <Nav>
         {tabs.map((tab) => (
           <Link href={tab.path} passHref prefetch={false} key={tab.path}>

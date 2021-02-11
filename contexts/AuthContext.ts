@@ -10,6 +10,7 @@ export interface AuthContextData {
   updateUser: (user: LoggedUser) => Promise<void>;
   loadingUser?: boolean;
   tokenRefreshed: boolean;
+  loadedUserFromCache?: boolean;
 }
 
 const AuthContext = React.createContext<AuthContextData>(null);
