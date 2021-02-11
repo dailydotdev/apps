@@ -42,7 +42,7 @@
     "swr": "^0.4.1"
   },
   "devDependencies": {
-    "@emotion/babel-plugin": "^11.1.2",
+    "@emotion/babel-plugin": "^11.2.0",
     "@emotion/eslint-plugin": "^11.0.0",
     "@emotion/jest": "^11.1.0",
     "@next/bundle-analyzer": "^10.0.6",
