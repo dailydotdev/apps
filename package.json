@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@emotion/react": "^11.1.5",
-    "@emotion/styled": "^11.0.0",
+    "@emotion/styled": "^11.1.5",
     "@types/google.analytics": "0.0.41",
     "classnames": "^2.2.6",
     "date-fns": "^2.17.0",
