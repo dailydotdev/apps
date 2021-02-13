@@ -39,7 +39,7 @@
     "react-modal": "^3.12.1",
     "react-query": "^3.8.2",
     "react-transition-group": "^4.4.1",
-    "swr": "^0.4.1"
+    "swr": "^0.4.2"
   },
   "devDependencies": {
     "@emotion/babel-plugin": "^11.2.0",
