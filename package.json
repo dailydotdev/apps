@@ -81,7 +81,7 @@
     "stylelint": "^13.9.0",
     "stylelint-config-recommended": "^3.0.0",
     "ts-jest": "^26.5.1",
-    "typescript": "^4.1.3",
+    "typescript": "^4.1.5",
     "vercel": "^21.2.3"
   }
 }
