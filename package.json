@@ -39,6 +39,7 @@
     "react-modal": "^3.12.1",
     "react-query": "^3.8.2",
     "react-transition-group": "^4.4.1",
+    "subscriptions-transport-ws": "^0.9.18",
     "swr": "^0.4.1"
   },
   "devDependencies": {

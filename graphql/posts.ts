@@ -203,3 +203,13 @@ export const KEYWORD_FEED_QUERY = gql`
     }
   }
 `;
+
+export const POSTS_ENGAGED_SUBSCRIPTION = gql`
+  subscription PostsEngaged($ids: [ID]!) {
+    postsEngaged(ids: $ids) {
+      id
+      numComments
+      numUpvotes
+    }
+  }
+`;
