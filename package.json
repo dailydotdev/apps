@@ -67,7 +67,7 @@
     "babel-plugin-dynamic-import-node": "^2.3.3",
     "babel-plugin-macros": "^3.0.1",
     "babel-plugin-react-remove-properties": "^0.3.0",
-    "eslint": "^7.19.0",
+    "eslint": "^7.20.0",
     "eslint-config-prettier": "^7.2.0",
     "eslint-plugin-jest-dom": "^3.6.5",
     "eslint-plugin-prettier": "^3.3.1",
