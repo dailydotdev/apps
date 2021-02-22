@@ -13,7 +13,7 @@ export const initializeAnalyticsQueue = (clientId: string): void => {
       (window.ga.q = window.ga.q || []).push(args);
     }) as UniversalAnalytics.ga);
   window.ga.l = new Date().getTime();
-  window.ga('create', process.env.NEXT_PUBLIC_GA, { clientId });
+  window.ga?.('create', process.env.NEXT_PUBLIC_GA, { clientId });
 };
 
 export const loadAnalyticsScript = (): void => {
@@ -26,8 +26,8 @@ export const loadAnalyticsScript = (): void => {
 
 export const trackPageView = (url: string): void => {
   const page = `/web${url}`;
-  window.ga('set', 'page', page);
-  window.ga('send', 'pageview');
+  window.ga?.('set', 'page', page);
+  window.ga?.('send', 'pageview');
 };
 
 export interface EventArgs {
@@ -68,5 +68,5 @@ export const trackEvent = ({
     fieldsObject.nonInteraction = nonInteraction;
   }
 
-  window.ga('send', 'event', fieldsObject);
+  window.ga?.('send', 'event', fieldsObject);
 };
