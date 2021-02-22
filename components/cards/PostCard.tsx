@@ -22,6 +22,7 @@ import TertiaryButton from '../buttons/TertiaryButton';
 import classNames from 'classnames';
 import rem from '../../macros/rem.macro';
 import dynamic from 'next/dynamic';
+import InteractionCounter from '../InteractionCounter';
 
 const ShareIcon = dynamic(() => import('../../icons/share.svg'));
 
@@ -150,7 +151,7 @@ export function PostCard({
           onClick={() => onUpvoteClick?.(post, !post.upvoted)}
           style={{ width: rem(78) }}
         >
-          {post.numUpvotes > 0 && post.numUpvotes}
+          <InteractionCounter value={post.numUpvotes > 0 && post.numUpvotes} />
         </QuandaryButton>
         <Link href={post.commentsPermalink} passHref prefetch={false}>
           <QuandaryButton
@@ -164,7 +165,9 @@ export function PostCard({
             onClick={() => onCommentClick?.(post)}
             style={{ width: rem(78) }}
           >
-            {post.numComments > 0 && post.numComments}
+            <InteractionCounter
+              value={post.numComments > 0 && post.numComments}
+            />
           </QuandaryButton>
         </Link>
         <TertiaryButton
