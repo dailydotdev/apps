@@ -2,6 +2,7 @@ import {
   ADD_BOOKMARKS_MUTATION,
   CANCEL_UPVOTE_MUTATION,
   FeedData,
+  PostsEngaged,
   REMOVE_BOOKMARK_MUTATION,
   UPVOTE_MUTATION,
 } from '../graphql/posts';
@@ -10,7 +11,13 @@ import { ANONYMOUS_FEED_QUERY } from '../graphql/feed';
 import nock from 'nock';
 import AuthContext from '../contexts/AuthContext';
 import React from 'react';
-import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
+import {
+  findByText,
+  render,
+  RenderResult,
+  screen,
+  waitFor,
+} from '@testing-library/preact';
 import Feed from '../components/Feed';
 import defaultFeedPage from './fixture/feed';
 import defaultUser from './fixture/loggedUser';
@@ -20,8 +27,25 @@ import { LoggedUser } from '../lib/user';
 import { LoginModalMode } from '../components/modals/LoginModal';
 import { MyRankData } from '../graphql/users';
 import { getRankQueryKey } from '../hooks/useReadingRank';
+import { OperationOptions } from 'subscriptions-transport-ws';
+import { SubscriptionCallbacks } from '../hooks/useSubscription';
 
 const showLogin = jest.fn();
+let nextCallback: (value: PostsEngaged) => unknown = null;
+
+jest.mock('../hooks/useSubscription', () => ({
+  __esModule: true,
+  default: jest
+    .fn()
+    .mockImplementation(
+      (
+        request: () => OperationOptions,
+        { next }: SubscriptionCallbacks<PostsEngaged>,
+      ): void => {
+        nextCallback = next;
+      },
+    ),
+}));
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -335,5 +359,27 @@ it('should not increase reading rank progress for anonymous users after the firs
         progressThisWeek: 3,
       },
     });
+  });
+});
+
+it('should update feed item on subscription message', async () => {
+  renderComponent();
+  await waitFor(() =>
+    expect(screen.queryByTestId('adItem')).toBeInTheDocument(),
+  );
+  await waitFor(async () => {
+    const [el] = await screen.findAllByTitle('Upvote');
+    expect(await findByText(el.parentElement, '5')).toBeInTheDocument();
+  });
+  nextCallback({
+    postsEngaged: {
+      id: defaultFeedPage.edges[0].node.id,
+      numUpvotes: 6,
+      numComments: 7,
+    },
+  });
+  await waitFor(async () => {
+    const [el] = await screen.findAllByTitle('Upvote');
+    expect(await findByText(el.parentElement, '6')).toBeInTheDocument();
   });
 });

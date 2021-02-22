@@ -6,9 +6,16 @@ import {
   useState,
 } from 'react';
 import request from 'graphql-request';
-import { Ad, FeedData, Post } from '../graphql/posts';
+import {
+  Ad,
+  FeedData,
+  Post,
+  POSTS_ENGAGED_SUBSCRIPTION,
+  PostsEngaged,
+} from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
 import { apiUrl } from '../lib/config';
+import useSubscription from './useSubscription';
 
 export type PostItem = { type: 'post'; post: Post };
 export type AdItem = { type: 'ad'; ad: Ad };
@@ -39,6 +46,7 @@ export default function useFeed<T>(
   const [lastPage, setLastPage] = useState<FeedData>(null);
   const [lastAd, setLastAd] = useState<Ad>(null);
   const { user, tokenRefreshed } = useContext(AuthContext);
+  const [postIds, setPostIds] = useState<string[]>([]);
   const items = useMemo(() => {
     if (isLoading) {
       return [
@@ -71,6 +79,30 @@ export default function useFeed<T>(
       });
     }
   };
+
+  useSubscription(
+    () => ({
+      query: POSTS_ENGAGED_SUBSCRIPTION,
+      variables: {
+        ids: postIds,
+      },
+    }),
+    {
+      next: (data: PostsEngaged) => {
+        const index = loadedItems.findIndex(
+          (item) =>
+            item.type === 'post' && item.post.id === data.postsEngaged.id,
+        );
+        if (index > -1) {
+          updatePost(index, {
+            ...(loadedItems[index] as PostItem).post,
+            ...data.postsEngaged,
+          });
+        }
+      },
+    },
+    [postIds],
+  );
 
   const fetchPage = async () => {
     if (isLoading && lastPage) {
@@ -118,6 +150,12 @@ export default function useFeed<T>(
       );
       newItems.splice(adSpot, 0, { type: 'placeholder' });
       setLoadedItems([...loadedItems, ...newItems]);
+      setPostIds([
+        ...postIds,
+        ...lastPage.page.edges.map(({ node }): string => node.id),
+      ]);
+    } else {
+      setPostIds([]);
     }
   }, [lastPage]);
 
@@ -130,7 +168,7 @@ export default function useFeed<T>(
         i >= 0 && loadedItems[i].type !== 'placeholder';
         i -= 1
       );
-      if (i >= 0) {
+      if (i >= 0 && i < loadedItems.length) {
         updateItem(i, { type: 'ad', ad: lastAd });
       }
     }

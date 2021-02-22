@@ -1,6 +1,4 @@
 // Must be the first import
-import useProgressiveEnhancement from '../hooks/useProgressiveEnhancement';
-
 if (process.env.NODE_ENV === 'development') {
   // Must use require here as import statements are only allowed
   // to exist at top-level.
@@ -38,6 +36,9 @@ import {
 } from '../lib/analytics';
 import useOnboarding from '../hooks/useOnboarding';
 import OnboardingContext from '../contexts/OnboardingContext';
+import SubscriptionContext from '../contexts/SubscriptionContext';
+import useSubscriptionClient from '../hooks/useSubscriptionClient';
+import useProgressiveEnhancement from '../hooks/useProgressiveEnhancement';
 
 const queryClient = new QueryClient();
 
@@ -99,6 +100,9 @@ function InternalApp({ Component, pageProps }: AppProps): ReactElement {
     [user, loginMode, loadingUser, tokenRefreshed],
   );
   const onboardingContext = useOnboarding(user, loadedUserFromCache);
+  const subscriptionContext = useSubscriptionClient(
+    progressiveContext.windowLoaded && tokenRefreshed,
+  );
 
   useEffect(() => {
     if (trackingId && !initializedGA) {
@@ -134,41 +138,43 @@ function InternalApp({ Component, pageProps }: AppProps): ReactElement {
   return (
     <ProgressiveEnhancementContext.Provider value={progressiveContext}>
       <AuthContext.Provider value={authContext}>
-        <OnboardingContext.Provider value={onboardingContext}>
-          <Head>
-            <meta
-              name="viewport"
-              content="initial-scale=1.0, width=device-width"
-            />
-            <meta name="theme-color" content="#151618" />
-            <meta name="msapplication-navbutton-color" content="#151618" />
-            <meta
-              name="apple-mobile-web-app-status-bar-style"
-              content="#151618"
-            />
-            <script
-              dangerouslySetInnerHTML={{
-                __html: `window.addEventListener('load', () => { window.windowLoaded = true; }, {
+        <SubscriptionContext.Provider value={subscriptionContext}>
+          <OnboardingContext.Provider value={onboardingContext}>
+            <Head>
+              <meta
+                name="viewport"
+                content="initial-scale=1.0, width=device-width"
+              />
+              <meta name="theme-color" content="#151618" />
+              <meta name="msapplication-navbutton-color" content="#151618" />
+              <meta
+                name="apple-mobile-web-app-status-bar-style"
+                content="#151618"
+              />
+              <script
+                dangerouslySetInnerHTML={{
+                  __html: `window.addEventListener('load', () => { window.windowLoaded = true; }, {
       once: true,
     });`,
-              }}
-            />
-          </Head>
-          <DefaultSeo {...Seo} />
-          <Global styles={globalStyle} />
-          {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
-          {!user &&
-            !loadingUser &&
-            (progressiveContext.windowLoaded || loginMode !== null) && (
-              <LoginModal
-                isOpen={loginMode !== null}
-                onRequestClose={closeLogin}
-                contentLabel="Login Modal"
-                mode={loginMode}
+                }}
               />
-            )}
-          {showCookie && <CookieBanner onAccepted={acceptCookies} />}
-        </OnboardingContext.Provider>
+            </Head>
+            <DefaultSeo {...Seo} />
+            <Global styles={globalStyle} />
+            {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
+            {!user &&
+              !loadingUser &&
+              (progressiveContext.windowLoaded || loginMode !== null) && (
+                <LoginModal
+                  isOpen={loginMode !== null}
+                  onRequestClose={closeLogin}
+                  contentLabel="Login Modal"
+                  mode={loginMode}
+                />
+              )}
+            {showCookie && <CookieBanner onAccepted={acceptCookies} />}
+          </OnboardingContext.Provider>
+        </SubscriptionContext.Provider>
       </AuthContext.Provider>
     </ProgressiveEnhancementContext.Provider>
   );

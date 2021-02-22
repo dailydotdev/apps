@@ -8,10 +8,10 @@ import {
   laptopXL,
   tablet,
 } from '../../styles/media';
-import FeedSettingsContext, {
-  defaultFeedSettings,
-  FeedSettings,
-} from '../../contexts/FeedSettingsContext';
+import FeedContext, {
+  defaultFeedContextData,
+  FeedContextData,
+} from '../../contexts/FeedContext';
 import useMedia from '../../hooks/useMedia';
 import { getLayout as getFooterNavBarLayout } from './FooterNavBarLayout';
 
@@ -25,7 +25,7 @@ export const feedBreakpoints = [
   desktop,
   desktopL,
 ];
-export const feedSettings: FeedSettings[] = [
+export const feedSettings: FeedContextData[] = [
   { pageSize: 9, adSpot: 0, numCards: 2 },
   { pageSize: 13, adSpot: 0, numCards: 3 },
   { pageSize: 17, adSpot: 0, numCards: 4 },
@@ -40,13 +40,13 @@ export default function FeedLayout({
   const currentSettings = useMedia(
     feedBreakpoints.map((media) => media.replace('@media ', '')).reverse(),
     feedSettings.reverse(),
-    defaultFeedSettings,
+    defaultFeedContextData,
   );
 
   return (
-    <FeedSettingsContext.Provider value={currentSettings}>
+    <FeedContext.Provider value={currentSettings}>
       {children}
-    </FeedSettingsContext.Provider>
+    </FeedContext.Provider>
   );
 }
 
