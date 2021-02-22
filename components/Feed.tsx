@@ -28,7 +28,7 @@ import { useInView } from 'react-intersection-observer';
 import { mobileL, tablet } from '../styles/media';
 import { multilineTextOverflow } from '../styles/helpers';
 import { feedBreakpoints, feedSettings } from './layouts/FeedLayout';
-import FeedSettingsContext from '../contexts/FeedSettingsContext';
+import FeedContext from '../contexts/FeedContext';
 import useIncrementReadingRank from '../hooks/useIncrementReadingRank';
 import { trackEvent } from '../lib/analytics';
 
@@ -111,7 +111,7 @@ export default function Feed<T>({
   onEmptyFeed,
   dep,
 }: FeedProps<T>): ReactElement {
-  const currentSettings = useContext(FeedSettingsContext);
+  const currentSettings = useContext(FeedContext);
   const {
     items,
     updatePost,
