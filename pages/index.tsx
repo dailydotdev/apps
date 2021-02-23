@@ -6,7 +6,7 @@ import MainFeedPage, {
 } from '../components/layouts/MainFeedPage';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
-import { NextSeo } from 'next-seo';
+import { NextSeo, SiteLinksSearchBoxJsonLd } from 'next-seo';
 
 const seo: NextSeoProps = {
   title: 'daily.dev | All-in-one coding news reader',
@@ -19,6 +19,15 @@ const Home = (): ReactElement => {
   return (
     <>
       <NextSeo {...seo} />
+      <SiteLinksSearchBoxJsonLd
+        url="https://app.daily.dev"
+        potentialActions={[
+          {
+            target: 'https://app.daily.dev/search?q',
+            queryInput: 'search_term_string',
+          },
+        ]}
+      />
       <MainFeedPage query={ANONYMOUS_FEED_QUERY} queryIfLogged={FEED_QUERY} />
     </>
   );
