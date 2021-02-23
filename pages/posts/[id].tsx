@@ -40,6 +40,8 @@ import {
   POST_BY_ID_QUERY,
   POST_BY_ID_STATIC_FIELDS_QUERY,
   PostData,
+  POSTS_ENGAGED_SUBSCRIPTION,
+  PostsEngaged,
   UPVOTE_MUTATION,
 } from '../../graphql/posts';
 import { PageContainer, RoundedImage } from '../../components/utilities';
@@ -67,6 +69,7 @@ import SecondaryButton from '../../components/buttons/SecondaryButton';
 import { LoginModalMode } from '../../components/modals/LoginModal';
 import { trackEvent } from '../../lib/analytics';
 import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
+import useSubscription from '../../hooks/useSubscription';
 
 const NewCommentModal = dynamic(
   () => import('../../components/modals/NewCommentModal'),
@@ -394,6 +397,25 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     {
       enabled: !!id && tokenRefreshed,
       refetchInterval: 60 * 1000,
+    },
+  );
+
+  useSubscription(
+    () => ({
+      query: POSTS_ENGAGED_SUBSCRIPTION,
+      variables: {
+        ids: [id],
+      },
+    }),
+    {
+      next: (data: PostsEngaged) => {
+        queryClient.setQueryData<PostData>(postQueryKey, (oldPost) => ({
+          post: {
+            ...oldPost.post,
+            ...data.postsEngaged,
+          },
+        }));
+      },
     },
   );
 
