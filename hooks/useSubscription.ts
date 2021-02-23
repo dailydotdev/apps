@@ -39,5 +39,5 @@ export default function useSubscription<T>(
       });
       return unsubscribe;
     }
-  }, [connected, ...deps]);
+  }, [connected, ...(deps ?? [])]);
 }

@@ -14,6 +14,7 @@ import {
   Post,
   POST_BY_ID_QUERY,
   PostData,
+  PostsEngaged,
   UPVOTE_MUTATION,
 } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
@@ -25,8 +26,25 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { mocked } from 'ts-jest/utils';
 import { NextRouter, useRouter } from 'next/router';
 import defaultUser from './fixture/loggedUser';
+import { OperationOptions } from 'subscriptions-transport-ws';
+import { SubscriptionCallbacks } from '../hooks/useSubscription';
 
 const showLogin = jest.fn();
+let nextCallback: (value: PostsEngaged) => unknown = null;
+
+jest.mock('../hooks/useSubscription', () => ({
+  __esModule: true,
+  default: jest
+    .fn()
+    .mockImplementation(
+      (
+        request: () => OperationOptions,
+        { next }: SubscriptionCallbacks<PostsEngaged>,
+      ): void => {
+        nextCallback = next;
+      },
+    ),
+}));
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -99,6 +117,8 @@ const createCommentsMock = (): MockedGraphQLResponse<PostCommentsData> => ({
   },
 });
 
+let client: QueryClient;
+
 const renderPost = (
   props: Partial<Props> = {},
   mocks: MockedGraphQLResponse[] = [createPostMock(), createCommentsMock()],
@@ -108,7 +128,7 @@ const renderPost = (
     id: '0e4005b2d3cf191f8c44c2718a457a1e',
   };
 
-  const client = new QueryClient();
+  client = new QueryClient();
 
   mocks.forEach(mockGraphQL);
   return render(
@@ -345,4 +365,24 @@ it('should show author onboarding when the query param is set', async () => {
   renderPost();
   const el = await screen.findByTestId('authorOnboarding');
   expect(el).toBeInTheDocument();
+});
+
+it('should update post on subscription message', async () => {
+  renderPost();
+  await waitFor(async () => {
+    const data = await client.getQueryData([
+      'post',
+      '0e4005b2d3cf191f8c44c2718a457a1e',
+    ]);
+    expect(data).toBeTruthy();
+  });
+  nextCallback({
+    postsEngaged: {
+      id: '0e4005b2d3cf191f8c44c2718a457a1e',
+      numUpvotes: 15,
+      numComments: 0,
+    },
+  });
+  const el = await screen.findByTestId('statsBar');
+  expect(el).toHaveTextContent('15 Upvotes');
 });
