@@ -15,7 +15,7 @@ import { useRouter } from 'next/router';
 import Feed from '../Feed';
 import AuthContext from '../../contexts/AuthContext';
 import { getLayout } from './FeedLayout';
-import { FeedPage } from '../utilities';
+import { FeedPage, noScrollbars } from '../utilities';
 import { getTagsSettingsQueryKey } from '../../hooks/useMutateFilters';
 import { useQuery } from 'react-query';
 import { FeedSettingsData } from '../../graphql/feedSettings';
@@ -23,11 +23,15 @@ import { LoggedUser } from '../../lib/user';
 import OnboardingContext from '../../contexts/OnboardingContext';
 import classNames from 'classnames';
 import { typoCallout } from '../../styles/typography';
+import MagnifyingIcon from '../../icons/magnifying.svg';
 
 const Nav = styled.nav`
   display: flex;
+  align-self: stretch;
   align-items: center;
   margin: 0 0 ${sizeN(6)};
+  overflow-x: auto;
+  ${noScrollbars}
 `;
 
 const Welcome = styled.div`
@@ -125,6 +129,13 @@ export default function MainFeedPage<T>({
         </Welcome>
       )}
       <Nav>
+        <Link href="/search" passHref prefetch={false}>
+          <TertiaryButton
+            tag="a"
+            buttonSize="small"
+            icon={<MagnifyingIcon />}
+          />
+        </Link>
         {tabs.map((tab) => (
           <Link href={tab.path} passHref prefetch={false} key={tab.path}>
             <TertiaryButton

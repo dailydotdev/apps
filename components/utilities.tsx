@@ -166,3 +166,12 @@ export const customScrollbars = css`
     background: var(--theme-label-primary);
   }
 `;
+
+export const noScrollbars = css`
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
+`;
