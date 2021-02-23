@@ -13,7 +13,13 @@ import classNames from 'classnames';
 export interface Props
   extends Pick<
     InputHTMLAttributes<HTMLInputElement>,
-    'placeholder' | 'value' | 'className' | 'style' | 'name'
+    | 'placeholder'
+    | 'value'
+    | 'className'
+    | 'style'
+    | 'name'
+    | 'autoFocus'
+    | 'onBlur'
   > {
   inputId: string;
   valueChanged?: (value: string) => void;
@@ -81,6 +87,8 @@ export default function SearchField({
   placeholder,
   compact = false,
   className,
+  autoFocus,
+  onBlur: externalOnBlur,
   ...props
 }: Props): ReactElement {
   const {
@@ -113,8 +121,12 @@ export default function SearchField({
         id={inputId}
         ref={inputRef}
         onFocus={onFocus}
-        onBlur={onBlur}
+        onBlur={(event) => {
+          onBlur();
+          externalOnBlur?.(event);
+        }}
         onInput={onInput}
+        autoFocus={autoFocus}
         css={css`
           flex: 1;
         `}

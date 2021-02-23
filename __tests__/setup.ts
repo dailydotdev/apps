@@ -2,6 +2,7 @@ import '@testing-library/jest-dom';
 import { matchers } from '@emotion/jest';
 import 'fake-indexeddb/auto';
 import nodeFetch from 'node-fetch';
+import { NextRouter } from 'next/router';
 
 expect.extend(matchers);
 
@@ -63,3 +64,12 @@ Object.defineProperty(global, 'scroll', {
   writable: true,
   value: jest.fn(),
 });
+
+jest.mock('next/router', () => ({
+  useRouter: jest.fn().mockImplementation(
+    () =>
+      (({
+        query: {},
+      } as unknown) as NextRouter),
+  ),
+}));
