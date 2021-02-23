@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo } from 'react';
+import React, { ReactElement, useEffect, useMemo, useState } from 'react';
 import {
   ANONYMOUS_FEED_QUERY,
   FEED_QUERY,
@@ -22,11 +22,15 @@ const baseSeo: NextSeoProps = {
 const Search = (): ReactElement => {
   const router = useRouter();
   const { query } = router;
+  const [timeoutHandle, setTimeoutHandle] = useState<number>(null);
+  const [throttledQuery, setThrottledQuery] = useState<string>(
+    query.q?.toString(),
+  );
   const feedProps = useMemo(() => {
-    if ('q' in query) {
+    if (throttledQuery) {
       return {
         query: SEARCH_POSTS_QUERY,
-        variables: { query: query.q.toString() },
+        variables: { query: throttledQuery },
       };
     } else {
       return {
@@ -34,17 +38,32 @@ const Search = (): ReactElement => {
         queryIfLogged: FEED_QUERY,
       };
     }
-  }, [query]);
+  }, [throttledQuery]);
 
   const seo = useMemo(() => {
-    if ('q' in query) {
+    if (throttledQuery) {
       return {
-        title: `${query.q} - daily.dev search`,
+        title: `${throttledQuery} - daily.dev search`,
       };
     } else {
       return {
         title: 'daily.dev | All-in-one coding news reader',
       };
+    }
+  }, [throttledQuery]);
+
+  useEffect(() => {
+    if ('q' in query && !throttledQuery) {
+      setThrottledQuery(query.q.toString());
+    } else if ('q' in query && throttledQuery) {
+      if (timeoutHandle) {
+        clearTimeout(timeoutHandle);
+      }
+      setTimeoutHandle(
+        window.setTimeout(() => setThrottledQuery(query.q.toString()), 500),
+      );
+    } else {
+      setThrottledQuery(null);
     }
   }, [query]);
 

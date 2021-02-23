@@ -24,14 +24,29 @@ import OnboardingContext from '../../contexts/OnboardingContext';
 import classNames from 'classnames';
 import { typoCallout } from '../../styles/typography';
 import MagnifyingIcon from '../../icons/magnifying.svg';
+import SearchField from '../fields/SearchField';
+
+const PostsSearch = styled(SearchField)`
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  width: 100%;
+`;
 
 const Nav = styled.nav`
+  position: relative;
+  height: ${sizeN(10)};
   display: flex;
   align-self: stretch;
   align-items: center;
   margin: 0 0 ${sizeN(6)};
   overflow-x: auto;
   ${noScrollbars}
+
+  &.hide-tabs > a {
+    visibility: hidden;
+  }
 `;
 
 const Welcome = styled.div`
@@ -120,6 +135,15 @@ export default function MainFeedPage<T>({
     }
   }, [feedSettings]);
 
+  const isSearch = '/search' === router?.pathname;
+  const [initialQuery, setInitialQuery] = useState<string>();
+
+  useEffect(() => {
+    if (!initialQuery) {
+      setInitialQuery(router.query.q?.toString());
+    }
+  }, [router.query]);
+
   return (
     <FeedPage className={classNames({ notReady: !onboardingReady })}>
       {showWelcome && (
@@ -128,7 +152,7 @@ export default function MainFeedPage<T>({
           you’ll ever need. Ready?
         </Welcome>
       )}
-      <Nav>
+      <Nav className={classNames({ 'hide-tabs': isSearch })}>
         <Link href="/search" passHref prefetch={false}>
           <TertiaryButton
             tag="a"
@@ -150,6 +174,22 @@ export default function MainFeedPage<T>({
             </TertiaryButton>
           </Link>
         ))}
+        {isSearch && (
+          <PostsSearch
+            className="compact"
+            inputId="posts-search"
+            autoFocus
+            value={initialQuery}
+            valueChanged={(value) =>
+              router.replace({ pathname: '/search', query: { q: value } })
+            }
+            onBlur={() => {
+              if (!router.query.q?.toString().length) {
+                router.push('/');
+              }
+            }}
+          />
+        )}
       </Nav>
       <Feed query={finalQuery} variables={variables} dep={feedDeps} />
     </FeedPage>
