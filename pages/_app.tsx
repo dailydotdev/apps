@@ -39,6 +39,7 @@ import OnboardingContext from '../contexts/OnboardingContext';
 import SubscriptionContext from '../contexts/SubscriptionContext';
 import useSubscriptionClient from '../hooks/useSubscriptionClient';
 import useProgressiveEnhancement from '../hooks/useProgressiveEnhancement';
+import { canonicalFromRouter } from '../lib/canonical';
 
 const queryClient = new QueryClient();
 
@@ -64,7 +65,7 @@ interface CompnentGetLayout {
 
 Router.events.on('routeChangeComplete', trackPageView);
 
-function InternalApp({ Component, pageProps }: AppProps): ReactElement {
+function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const [initializedGA, setInitializedGA] = useState(false);
   const [
     user,
@@ -159,7 +160,7 @@ function InternalApp({ Component, pageProps }: AppProps): ReactElement {
                 }}
               />
             </Head>
-            <DefaultSeo {...Seo} />
+            <DefaultSeo {...Seo} canonical={canonicalFromRouter(router)} />
             <Global styles={globalStyle} />
             {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
             {!user &&
