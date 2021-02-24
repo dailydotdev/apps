@@ -1,0 +1,21 @@
+{
+  "name": "daily.dev",
+  "short_name": "daily.dev",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#151618",
+  "background_color": "#151618",
+  "start_url": "/?pwa=true",
+  "display": "standalone",
+  "orientation": "portrait"
+}
