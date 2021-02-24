@@ -29,7 +29,7 @@
     "next": "^10.0.5",
     "next-plugin-preact": "^3.0.3",
     "next-pwa": "^5.0.5",
-    "next-seo": "^4.19.0",
+    "next-seo": "^4.20.0",
     "node-fetch": "^2.6.1",
     "preact": "^10.5.12",
     "preact-render-to-string": "^5.1.12",
