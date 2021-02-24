@@ -1,38 +1,37 @@
 import React, {
   DependencyList,
   ReactElement,
+  ReactNode,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 import { MainLayoutProps } from './MainLayout';
 import styled from '@emotion/styled';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { useQuery } from 'react-query';
+import classNames from 'classnames';
+import dynamic from 'next/dynamic';
 import sizeN from '../../macros/sizeN.macro';
 import rem from '../../macros/rem.macro';
 import TertiaryButton from '../buttons/TertiaryButton';
-import { useRouter } from 'next/router';
-import Feed from '../Feed';
+import Feed, { FeedProps } from '../Feed';
 import AuthContext from '../../contexts/AuthContext';
 import { getLayout } from './FeedLayout';
 import { FeedPage, noScrollbars } from '../utilities';
 import { getTagsSettingsQueryKey } from '../../hooks/useMutateFilters';
-import { useQuery } from 'react-query';
 import { FeedSettingsData } from '../../graphql/feedSettings';
 import { LoggedUser } from '../../lib/user';
 import OnboardingContext from '../../contexts/OnboardingContext';
-import classNames from 'classnames';
 import { typoCallout } from '../../styles/typography';
 import MagnifyingIcon from '../../icons/magnifying.svg';
-import SearchField from '../fields/SearchField';
+import { SEARCH_POSTS_QUERY } from '../../graphql/feed';
 
-const PostsSearch = styled(SearchField)`
-  position: absolute;
-  left: 0;
-  top: 0;
-  right: 0;
-  width: 100%;
-`;
+const PostsSearch = dynamic(
+  () => import(/* webpackChunkName: "search" */ '../PostsSearch'),
+);
 
 const Nav = styled.nav`
   position: relative;
@@ -82,6 +81,7 @@ export type MainFeedPageProps<T> = {
   query: string;
   queryIfLogged?: string;
   variables?: T;
+  children?: ReactNode;
 };
 
 const getQueryBasedOnLogin = (
@@ -104,6 +104,7 @@ export default function MainFeedPage<T>({
   query,
   queryIfLogged,
   variables,
+  children,
 }: MainFeedPageProps<T>): ReactElement {
   const router = useRouter();
   const { user, tokenRefreshed } = useContext(AuthContext);
@@ -136,13 +137,21 @@ export default function MainFeedPage<T>({
   }, [feedSettings]);
 
   const isSearch = '/search' === router?.pathname;
-  const [initialQuery, setInitialQuery] = useState<string>();
 
-  useEffect(() => {
-    if (!initialQuery) {
-      setInitialQuery(router.query.q?.toString());
+  const feedProps = useMemo<FeedProps<unknown>>(() => {
+    if (isSearch && 'q' in router.query) {
+      return {
+        query: SEARCH_POSTS_QUERY,
+        variables: { query: router.query.q },
+      };
+    } else {
+      return {
+        query: finalQuery,
+        variables,
+        dep: feedDeps,
+      };
     }
-  }, [router.query]);
+  }, [isSearch, router.query, finalQuery, variables, feedDeps]);
 
   return (
     <FeedPage className={classNames({ notReady: !onboardingReady })}>
@@ -174,30 +183,36 @@ export default function MainFeedPage<T>({
             </TertiaryButton>
           </Link>
         ))}
-        {isSearch && (
-          <PostsSearch
-            className="compact"
-            inputId="posts-search"
-            autoFocus
-            value={initialQuery}
-            valueChanged={(value) =>
-              router.replace({ pathname: '/search', query: { q: value } })
-            }
-            onBlur={() => {
-              if (!router.query.q?.toString().length) {
-                router.push('/');
-              }
-            }}
-          />
-        )}
+        {isSearch && <PostsSearch />}
       </Nav>
-      <Feed query={finalQuery} variables={variables} dep={feedDeps} />
+      <Feed {...feedProps} />
+      {children}
     </FeedPage>
   );
 }
 
-export const getMainFeedLayout = getLayout;
+export function getMainFeedLayout<T>(
+  page: ReactNode,
+  pageProps: Record<string, unknown>,
+  layoutProps: MainLayoutProps & MainFeedPageProps<T>,
+): ReactNode {
+  return getLayout(
+    <MainFeedPage {...layoutProps}>{page}</MainFeedPage>,
+    pageProps,
+    layoutProps,
+  );
+}
+
 export const mainFeedLayoutProps: MainLayoutProps = {
   responsive: false,
   showRank: true,
 };
+
+export function generateMainFeedLayoutProps<T>(
+  props: MainFeedPageProps<T>,
+): MainLayoutProps & MainFeedPageProps<T> {
+  return {
+    ...props,
+    ...mainFeedLayoutProps,
+  };
+}

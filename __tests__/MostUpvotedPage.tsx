@@ -66,7 +66,7 @@ const renderComponent = (
             setShowWelcome: jest.fn(),
           }}
         >
-          <Upvoted />
+          {Upvoted.getLayout(<Upvoted />, {}, Upvoted.layoutProps)}
         </OnboardingContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,

@@ -1,12 +1,8 @@
-import React, { ReactElement, useEffect, useMemo, useState } from 'react';
+import React, { ReactElement, useMemo } from 'react';
+import { ANONYMOUS_FEED_QUERY, FEED_QUERY } from '../graphql/feed';
 import {
-  ANONYMOUS_FEED_QUERY,
-  FEED_QUERY,
-  SEARCH_POSTS_QUERY,
-} from '../graphql/feed';
-import MainFeedPage, {
+  generateMainFeedLayoutProps,
   getMainFeedLayout,
-  mainFeedLayoutProps,
 } from '../components/layouts/MainFeedPage';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
@@ -22,60 +18,30 @@ const baseSeo: NextSeoProps = {
 const Search = (): ReactElement => {
   const router = useRouter();
   const { query } = router;
-  const [timeoutHandle, setTimeoutHandle] = useState<number>(null);
-  const [throttledQuery, setThrottledQuery] = useState<string>(
-    query.q?.toString(),
-  );
-  const feedProps = useMemo(() => {
-    if (throttledQuery) {
-      return {
-        query: SEARCH_POSTS_QUERY,
-        variables: { query: throttledQuery },
-      };
-    } else {
-      return {
-        query: ANONYMOUS_FEED_QUERY,
-        queryIfLogged: FEED_QUERY,
-      };
-    }
-  }, [throttledQuery]);
 
   const seo = useMemo(() => {
-    if (throttledQuery) {
+    if ('q' in query) {
       return {
-        title: `${throttledQuery} - daily.dev search`,
+        title: `${query.q} - daily.dev search`,
       };
     } else {
       return {
         title: 'daily.dev | All-in-one coding news reader',
       };
     }
-  }, [throttledQuery]);
-
-  useEffect(() => {
-    if ('q' in query && !throttledQuery) {
-      setThrottledQuery(query.q.toString());
-    } else if ('q' in query && throttledQuery) {
-      if (timeoutHandle) {
-        clearTimeout(timeoutHandle);
-      }
-      setTimeoutHandle(
-        window.setTimeout(() => setThrottledQuery(query.q.toString()), 500),
-      );
-    } else {
-      setThrottledQuery(null);
-    }
   }, [query]);
 
   return (
     <>
       <NextSeo {...seo} {...baseSeo} />
-      <MainFeedPage {...feedProps} />
     </>
   );
 };
 
 Search.getLayout = getMainFeedLayout;
-Search.layoutProps = mainFeedLayoutProps;
+Search.layoutProps = generateMainFeedLayoutProps({
+  query: ANONYMOUS_FEED_QUERY,
+  queryIfLogged: FEED_QUERY,
+});
 
 export default Search;
