@@ -86,7 +86,7 @@ const renderComponent = (
             setShowWelcome: jest.fn(),
           }}
         >
-          <SearchPage />
+          {SearchPage.getLayout(<SearchPage />, {}, SearchPage.layoutProps)}
         </OnboardingContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
@@ -127,6 +127,7 @@ it('should request search feed', async () => {
   mocked(useRouter).mockImplementation(
     () =>
       (({
+        pathname: '/search',
         query,
       } as unknown) as NextRouter),
   );

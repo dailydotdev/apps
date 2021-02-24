@@ -104,8 +104,8 @@ export default function useFeed<T>(
     [postIds],
   );
 
-  const fetchPage = async () => {
-    if (isLoading && lastPage) {
+  const fetchPage = async (lastPageParam: FeedData = lastPage) => {
+    if (isLoading && lastPageParam) {
       return;
     }
     setIsLoading(true);
@@ -113,10 +113,10 @@ export default function useFeed<T>(
     const res = await request<FeedData>(`${apiUrl}/graphql`, query, {
       ...variables,
       first: pageSize,
-      after: lastPage?.page.pageInfo.endCursor,
+      after: lastPageParam?.page.pageInfo.endCursor,
       loggedIn: !!user,
     });
-    if (!lastPage && !res.page.edges.length) {
+    if (!lastPageParam && !res.page.edges.length) {
       setEmptyFeed(true);
     }
     setLastPage(res);
@@ -132,7 +132,7 @@ export default function useFeed<T>(
 
   const refreshFeed = async (): Promise<void> => {
     resetFeed();
-    await fetchPage();
+    await fetchPage(null);
   };
 
   // First page fetch

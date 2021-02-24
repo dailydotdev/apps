@@ -67,7 +67,7 @@ const renderComponent = (
             setShowWelcome: jest.fn(),
           }}
         >
-          <Popular />
+          {Popular.getLayout(<Popular />, {}, Popular.layoutProps)}
         </OnboardingContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,

@@ -66,7 +66,7 @@ const renderComponent = (
             setShowWelcome: jest.fn(),
           }}
         >
-          <Recent />
+          {Recent.getLayout(<Recent />, {}, Recent.layoutProps)}
         </OnboardingContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
