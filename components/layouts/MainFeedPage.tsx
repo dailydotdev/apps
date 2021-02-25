@@ -33,6 +33,10 @@ const PostsSearch = dynamic(
   () => import(/* webpackChunkName: "search" */ '../PostsSearch'),
 );
 
+const SearchEmptyScreen = dynamic(
+  () => import(/* webpackChunkName: "emptySearch" */ '../SearchEmptyScreen'),
+);
+
 const Nav = styled.nav`
   position: relative;
   height: ${sizeN(10)};
@@ -143,6 +147,7 @@ export default function MainFeedPage<T>({
       return {
         query: SEARCH_POSTS_QUERY,
         variables: { query: router.query.q },
+        emptyScreen: <SearchEmptyScreen />,
       };
     } else {
       return {
