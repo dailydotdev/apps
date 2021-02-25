@@ -82,7 +82,7 @@
     "prettier": "^2.2.1",
     "stylelint": "^13.10.0",
     "stylelint-config-recommended": "^3.0.0",
-    "ts-jest": "^26.5.1",
+    "ts-jest": "^26.5.2",
     "typescript": "^4.1.5",
     "vercel": "^21.2.3"
   }
