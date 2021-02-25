@@ -185,7 +185,8 @@ const StyledButton = styled.button<
     cursor: default;
   }
 
-  .light && {
+  .light &&,
+  .invert && {
     ${(props) => applyButtonStatesStyles(props.lightStates)}
   }
 

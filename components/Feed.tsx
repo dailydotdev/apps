@@ -32,6 +32,11 @@ import { feedBreakpoints, feedSettings } from './layouts/FeedLayout';
 import FeedContext from '../contexts/FeedContext';
 import useIncrementReadingRank from '../hooks/useIncrementReadingRank';
 import { trackEvent } from '../lib/analytics';
+import { COMMENT_ON_POST_MUTATION, CommentOnData } from '../graphql/comments';
+import dynamic from 'next/dynamic';
+import requestIdleCallback from 'next/dist/client/request-idle-callback';
+
+const CommentPopup = dynamic(() => import('./cards/CommentPopup'));
 
 export type FeedProps<T> = {
   query?: string;
@@ -135,6 +140,7 @@ export default function Feed<T>({
   const nativeShareSupport = false;
   const [disableFetching, setDisableFetching] = useState(false);
   const { incrementReadingRank } = useIncrementReadingRank();
+  const [showCommentPopupId, setShowCommentPopupId] = useState<string>();
 
   useEffect(() => {
     if (emptyFeed) {
@@ -240,6 +246,29 @@ export default function Feed<T>({
     },
   );
 
+  const { mutateAsync: comment, isLoading: isSendingComment } = useMutation<
+    CommentOnData,
+    unknown,
+    {
+      id: string;
+      content: string;
+    }
+  >(
+    (variables) =>
+      request(`${apiUrl}/graphql`, COMMENT_ON_POST_MUTATION, variables),
+    {
+      onSuccess: async (data) => {
+        trackEvent({
+          category: 'Comment Popup',
+          action: 'Comment',
+        });
+        const link = `${data.comment.permalink}?new=true`;
+        setShowCommentPopupId(null);
+        window.open(link, '_blank');
+      },
+    },
+  );
+
   const { ref: infiniteScrollRef, inView } = useInView({
     rootMargin: '20px',
     threshold: 1,
@@ -271,6 +300,13 @@ export default function Feed<T>({
     });
     if (upvoted) {
       await upvotePost({ id: post.id, index });
+      requestIdleCallback(() => {
+        setShowCommentPopupId(post.id);
+        trackEvent({
+          category: 'Comment Popup',
+          action: 'Impression',
+        });
+      });
     } else {
       await cancelPostUpvote({ id: post.id, index });
     }
@@ -335,7 +371,15 @@ export default function Feed<T>({
             }
             showShare={nativeShareSupport}
             onShare={onShare}
-          />
+          >
+            {showCommentPopupId === item.post.id && (
+              <CommentPopup
+                onClose={() => setShowCommentPopupId(null)}
+                onSubmit={(content) => comment({ id: item.post.id, content })}
+                loading={isSendingComment}
+              />
+            )}
+          </PostCard>
         );
       case 'ad':
         return (
