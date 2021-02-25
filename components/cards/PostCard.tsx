@@ -100,6 +100,7 @@ export function PostCard({
   showShare,
   onShare,
   className,
+  children,
   ...props
 }: PostCardProps): ReactElement {
   return (
@@ -187,6 +188,7 @@ export function PostCard({
           />
         )}
       </ActionButtons>
+      {children}
     </StyledCard>
   );
 }
