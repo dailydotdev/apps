@@ -1,6 +1,7 @@
 import React, {
   DependencyList,
   ReactElement,
+  ReactNode,
   useContext,
   useEffect,
   useState,
@@ -38,6 +39,7 @@ export type FeedProps<T> = {
   className?: string;
   onEmptyFeed?: () => unknown;
   dep?: DependencyList;
+  emptyScreen?: ReactNode;
 };
 
 const cardMaxWidth = sizeN(80);
@@ -110,6 +112,7 @@ export default function Feed<T>({
   className,
   onEmptyFeed,
   dep,
+  emptyScreen,
 }: FeedProps<T>): ReactElement {
   const currentSettings = useContext(FeedContext);
   const {
@@ -352,7 +355,9 @@ export default function Feed<T>({
   const hasNonPlaceholderCard =
     items.findIndex((item) => item.type !== 'placeholder') >= 0;
 
-  return (
+  return emptyScreen && emptyFeed ? (
+    <>{emptyScreen}</>
+  ) : (
     <Container className={className}>
       {items.map(itemToComponent)}
       {!hasNonPlaceholderCard && (

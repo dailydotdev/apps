@@ -118,6 +118,8 @@ export default function useFeed<T>(
     });
     if (!lastPageParam && !res.page.edges.length) {
       setEmptyFeed(true);
+    } else if (emptyFeed) {
+      setEmptyFeed(false);
     }
     setLastPage(res);
     setIsLoading(false);

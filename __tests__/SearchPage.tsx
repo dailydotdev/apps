@@ -161,3 +161,34 @@ it('should update query param on input', async () => {
     }),
   );
 });
+
+it('should show empty screen on no results', async () => {
+  const query = { q: 'daily' };
+  mocked(useRouter).mockImplementation(
+    () =>
+      (({
+        pathname: '/search',
+        query,
+      } as unknown) as NextRouter),
+  );
+  renderComponent([
+    createFeedMock(
+      {
+        pageInfo: {
+          hasNextPage: false,
+          endCursor: null,
+        },
+        edges: [],
+      },
+      SEARCH_POSTS_QUERY,
+      {
+        first: 7,
+        loggedIn: true,
+        query: 'daily',
+      },
+    ),
+  ]);
+  await waitFor(async () => {
+    expect(await screen.findByText('No results found')).toBeInTheDocument();
+  });
+});
