@@ -84,12 +84,6 @@ export default function CommentPopup({
     commentPopupText[Math.floor(Math.random() * commentPopupText.length)],
   );
 
-  const textareaRef = (ref: HTMLTextAreaElement | null) => {
-    if (ref) {
-      requestAnimationFrame(() => ref?.focus());
-    }
-  };
-
   const containerRef = (ref: HTMLDivElement | null) => {
     if (ref) {
       requestIdleCallback(() => setShow(true));
@@ -115,7 +109,6 @@ export default function CommentPopup({
         <Textarea
           placeholder={text.placeholder}
           onChange={(event) => setComment(event.target.value)}
-          ref={textareaRef}
           onKeyDown={onKeyDown}
         />
         <PrimaryButton
