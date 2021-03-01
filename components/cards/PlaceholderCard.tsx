@@ -1,4 +1,9 @@
-import React, { HTMLAttributes, ReactElement } from 'react';
+import React, {
+  forwardRef,
+  HTMLAttributes,
+  LegacyRef,
+  ReactElement,
+} from 'react';
 import styled from '@emotion/styled';
 import { cardImageHeight, CardSpace, CardTextContainer } from './Card';
 import sizeN from '../../macros/sizeN.macro';
@@ -36,9 +41,12 @@ const Container = styled.article`
 
 export type PlaceholderCardProps = HTMLAttributes<HTMLDivElement>;
 
-export function PlaceholderCard(props: PlaceholderCardProps): ReactElement {
+export default forwardRef(function PlaceholderCard(
+  props: PlaceholderCardProps,
+  ref: LegacyRef<HTMLElement>,
+): ReactElement {
   return (
-    <Container aria-busy {...props}>
+    <Container aria-busy {...props} ref={ref}>
       <CardTextContainer>
         <Source />
         <Text style={{ width: '100%' }} />
@@ -52,4 +60,4 @@ export function PlaceholderCard(props: PlaceholderCardProps): ReactElement {
       </CardTextContainer>
     </Container>
   );
-}
+});

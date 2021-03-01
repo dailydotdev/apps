@@ -1,4 +1,9 @@
-import React, { HTMLAttributes, ReactElement } from 'react';
+import React, {
+  forwardRef,
+  HTMLAttributes,
+  LegacyRef,
+  ReactElement,
+} from 'react';
 import Link from 'next/link';
 import { Post } from '../../graphql/posts';
 import {
@@ -91,22 +96,26 @@ const StyledCard = styled(Card)`
   }
 `;
 
-export function PostCard({
-  post,
-  onLinkClick,
-  onUpvoteClick,
-  onCommentClick,
-  onBookmarkClick,
-  showShare,
-  onShare,
-  className,
-  children,
-  ...props
-}: PostCardProps): ReactElement {
+export default forwardRef(function PostCard(
+  {
+    post,
+    onLinkClick,
+    onUpvoteClick,
+    onCommentClick,
+    onBookmarkClick,
+    showShare,
+    onShare,
+    className,
+    children,
+    ...props
+  }: PostCardProps,
+  ref: LegacyRef<HTMLElement>,
+): ReactElement {
   return (
     <StyledCard
       {...props}
       className={classNames({ read: post.read }, className)}
+      ref={ref}
     >
       <CardLink
         href={post.permalink}
@@ -140,6 +149,7 @@ export function PostCard({
         imgAlt="Post Cover image"
         imgSrc={post.image}
         fallbackSrc="https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1"
+        eager={true}
       />
       <ActionButtons>
         <QuandaryButton
@@ -191,4 +201,4 @@ export function PostCard({
       {children}
     </StyledCard>
   );
-}
+});

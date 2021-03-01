@@ -155,10 +155,16 @@ export default css`
     }
   }
 
+  html,
+  body {
+    height: 100%;
+  }
+
   #__next {
     display: flex;
     position: relative;
     flex-direction: column;
     align-items: stretch;
+    min-height: 100%;
   }
 `;

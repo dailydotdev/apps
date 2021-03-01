@@ -1,6 +1,12 @@
 /** @jsx jsx */
 import { jsx, css } from '@emotion/react';
-import { HTMLAttributes, ReactElement, useEffect } from 'react';
+import {
+  forwardRef,
+  HTMLAttributes,
+  LegacyRef,
+  ReactElement,
+  useEffect,
+} from 'react';
 import {
   Card,
   CardImage,
@@ -68,12 +74,10 @@ const StyledCard = styled(Card)`
   }
 `;
 
-export function AdCard({
-  ad,
-  onImpression,
-  onLinkClick,
-  ...props
-}: AdCardProps): ReactElement {
+export default forwardRef(function AdCard(
+  { ad, onImpression, onLinkClick, ...props }: AdCardProps,
+  ref: LegacyRef<HTMLElement>,
+): ReactElement {
   const showBlurredImage = ad.source === 'Carbon';
 
   useEffect(() => {
@@ -81,7 +85,7 @@ export function AdCard({
   }, []);
 
   return (
-    <StyledCard {...props}>
+    <StyledCard {...props} ref={ref}>
       <CardLink
         href={ad.link}
         target="_blank"
@@ -105,12 +109,14 @@ export function AdCard({
           imgAlt="Ad image"
           imgSrc={ad.image}
           className={showBlurredImage && 'absolute'}
+          eager={true}
         />
         {showBlurredImage && (
           <CardImage
             imgAlt="Ad image background"
             imgSrc={ad.image}
             className="blur"
+            eager={true}
           />
         )}
       </ImageContainer>
@@ -133,4 +139,4 @@ export function AdCard({
       ))}
     </StyledCard>
   );
-}
+});

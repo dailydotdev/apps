@@ -1,16 +1,20 @@
-import React, {
+/** @jsx jsx */
+import { jsx, css } from '@emotion/react';
+import {
   DependencyList,
   ReactElement,
   ReactNode,
+  useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from 'react';
 import styled from '@emotion/styled';
 import useFeed, { FeedItem, PostItem } from '../hooks/useFeed';
-import { PostCard } from './cards/PostCard';
-import { AdCard } from './cards/AdCard';
-import { PlaceholderCard } from './cards/PlaceholderCard';
+import PostCard from './cards/PostCard';
+import AdCard from './cards/AdCard';
+import PlaceholderCard from './cards/PlaceholderCard';
 import sizeN from '../macros/sizeN.macro';
 import {
   Ad,
@@ -27,14 +31,14 @@ import { apiUrl } from '../lib/config';
 import { LoginModalMode } from './modals/LoginModal';
 import { useInView } from 'react-intersection-observer';
 import { mobileL, tablet } from '../styles/media';
-import { multilineTextOverflow } from '../styles/helpers';
-import { feedBreakpoints, feedSettings } from './layouts/FeedLayout';
 import FeedContext from '../contexts/FeedContext';
 import useIncrementReadingRank from '../hooks/useIncrementReadingRank';
 import { trackEvent } from '../lib/analytics';
 import { COMMENT_ON_POST_MUTATION, CommentOnData } from '../graphql/comments';
 import dynamic from 'next/dynamic';
 import requestIdleCallback from 'next/dist/client/request-idle-callback';
+import { useVirtualWindow } from '../lib/useVirtualWindow';
+import rem from '../macros/rem.macro';
 
 const CommentPopup = dynamic(() => import('./cards/CommentPopup'));
 
@@ -49,41 +53,37 @@ export type FeedProps<T> = {
 
 const cardMaxWidth = sizeN(80);
 
+const cardHeightPx = 364;
+const feedGapPx = 32;
+const feedGap = rem(feedGapPx);
+
 const Container = styled.div`
   position: relative;
-  display: grid;
-  grid-gap: ${sizeN(8)};
+  width: 100%;
   margin-left: auto;
   margin-right: auto;
-  grid-template-columns: 100%;
 
   ${mobileL} {
-    --num-cards: 1;
-    grid-template-columns: repeat(var(--num-cards), 1fr);
+    max-width: calc(
+      ${cardMaxWidth} * var(--num-cards) + ${feedGap} * (var(--num-cards) - 1)
+    );
+  }
+`;
 
-    & > * {
-      max-width: ${cardMaxWidth};
-    }
+const FeedRow = styled.div`
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(var(--num-cards), 1fr);
+  grid-gap: ${sizeN(8)};
+  padding-bottom: ${feedGap};
+
+  &:last-of-type {
+    padding-bottom: 0;
   }
 
   ${tablet} {
-    grid-auto-rows: ${sizeN(91)};
+    grid-auto-rows: ${rem(cardHeightPx)};
   }
-
-  ${feedBreakpoints
-    .map(
-      (query, i) => `
-  ${query} {
-    --num-cards: ${feedSettings[i].numCards};
-  }`,
-    )
-    .join('\n')}
-`;
-
-const Stretcher = styled.div`
-  visibility: hidden;
-  -webkit-line-clamp: 1;
-  ${multilineTextOverflow}
 `;
 
 const InfiniteScrollTrigger = styled.div`
@@ -356,7 +356,8 @@ export default function Feed<T>({
     });
   };
 
-  const itemToComponent = (item: FeedItem, index: number): ReactElement => {
+  const itemToComponent = ({ index }: { index: number }): ReactElement => {
+    const item: FeedItem = items[index];
     switch (item.type) {
       case 'post':
         return (
@@ -396,17 +397,49 @@ export default function Feed<T>({
     }
   };
 
-  const hasNonPlaceholderCard =
-    items.findIndex((item) => item.type !== 'placeholder') >= 0;
+  const { numCards } = currentSettings;
+  const parentRef = useRef<HTMLDivElement>();
+  const virtualizer = useVirtualWindow({
+    size: Math.ceil(items.length / numCards),
+    overscan: 1,
+    parentRef,
+    estimateSize: useCallback(() => cardHeightPx + feedGapPx, []),
+  });
 
   return emptyScreen && emptyFeed ? (
     <>{emptyScreen}</>
   ) : (
-    <Container className={className}>
-      {items.map(itemToComponent)}
-      {!hasNonPlaceholderCard && (
-        <Stretcher>{Array(100).fill('a').join('')}</Stretcher>
-      )}
+    <Container
+      className={className}
+      css={css`
+        height: ${virtualizer.totalSize}px;
+        --num-cards: ${numCards};
+      `}
+      ref={parentRef}
+    >
+      {virtualizer.virtualItems.map((virtualItem) => (
+        <FeedRow
+          key={virtualItem.index}
+          ref={virtualItem.measureRef}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            transform: `translateY(${virtualItem.start}px)`,
+          }}
+        >
+          {[
+            ...new Array(
+              Math.min(numCards, items.length - virtualItem.index * numCards),
+            ),
+          ].map((_, i) =>
+            itemToComponent({
+              index: virtualItem.index * numCards + i,
+            }),
+          )}
+        </FeedRow>
+      ))}
       <InfiniteScrollTrigger ref={infiniteScrollRef} />
     </Container>
   );
