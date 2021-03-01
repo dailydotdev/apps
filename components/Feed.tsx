@@ -399,10 +399,9 @@ export default function Feed<T>({
 
   const { numCards } = currentSettings;
   const parentRef = useRef<HTMLDivElement>();
-  const isList = numCards === 1;
   const virtualizer = useVirtualWindow({
     size: Math.ceil(items.length / numCards),
-    overscan: isList ? 3 : 1,
+    overscan: 1,
     parentRef,
     estimateSize: useCallback(() => cardHeightPx + feedGapPx, []),
   });
