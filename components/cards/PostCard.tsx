@@ -115,7 +115,7 @@ const StyledCard = styled(Card)`
     margin: ${sizeN(2)} 0;
   }
 
-  @media (hover: hover) {
+  @media (pointer: fine) {
     ${AuthorBox} {
       visibility: hidden;
     }
