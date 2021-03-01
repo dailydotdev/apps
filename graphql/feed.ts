@@ -16,6 +16,10 @@ export const FEED_POST_FRAGMENT = gql`
     numComments
     numUpvotes
     commentsPermalink
+    author {
+      name
+      image
+    }
   }
 `;
 
