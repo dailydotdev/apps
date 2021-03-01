@@ -1,4 +1,6 @@
-import React, { HTMLAttributes, ReactElement } from 'react';
+/** @jsx jsx */
+import { jsx } from '@emotion/react';
+import { HTMLAttributes, ReactElement } from 'react';
 import Link from 'next/link';
 import { Post } from '../../graphql/posts';
 import {
@@ -10,7 +12,7 @@ import {
   CardTitle,
 } from './Card';
 import styled from '@emotion/styled';
-import { SmallRoundedImage } from '../utilities';
+import { smallRoundedImage, SmallRoundedImage } from '../utilities';
 import sizeN from '../../macros/sizeN.macro';
 import { typoCallout, typoFootnote } from '../../styles/typography';
 import { postDateFormat } from '../../lib/dateFormat';
@@ -153,11 +155,16 @@ export function PostCard({
       />
       <CardTextContainer>
         <CardHeader>
-          <SmallRoundedImage
-            imgSrc={post.source.image}
-            imgAlt={post.source.name}
-            background="var(--theme-background-tertiary)"
-          />
+          <Link href={`/sources/${post.source.id}`} prefetch={false}>
+            <a title={post.source.name}>
+              <img
+                src={post.source.image}
+                alt={post.source.name}
+                css={smallRoundedImage}
+                style={{ background: 'var(--theme-background-tertiary)' }}
+              />
+            </a>
+          </Link>
         </CardHeader>
         <CardTitle>{post.title}</CardTitle>
       </CardTextContainer>

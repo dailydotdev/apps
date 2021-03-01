@@ -14,10 +14,14 @@ export const RoundedImage = styled(LazyImage)`
   border-radius: 100%;
 `;
 
-export const SmallRoundedImage = styled(LazyImage)`
+export const smallRoundedImage = css`
   width: ${sizeN(6)};
   height: ${sizeN(6)};
   border-radius: 100%;
+`;
+
+export const SmallRoundedImage = styled(LazyImage)`
+  ${smallRoundedImage}
 `;
 
 export const ButtonLoader = styled(Loader)`
