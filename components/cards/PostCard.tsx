@@ -12,12 +12,13 @@ import {
 import styled from '@emotion/styled';
 import { SmallRoundedImage } from '../utilities';
 import sizeN from '../../macros/sizeN.macro';
-import { typoFootnote } from '../../styles/typography';
+import { typoCallout, typoFootnote } from '../../styles/typography';
 import { postDateFormat } from '../../lib/dateFormat';
 import QuandaryButton from '../buttons/QuandaryButton';
 import UpvoteIcon from '../../icons/upvote.svg';
 import CommentIcon from '../../icons/comment.svg';
 import BookmarkIcon from '../../icons/bookmark.svg';
+import FeatherIcon from '../../icons/feather.svg';
 import TertiaryButton from '../buttons/TertiaryButton';
 import classNames from 'classnames';
 import rem from '../../macros/rem.macro';
@@ -75,6 +76,30 @@ const ActionButtons = styled.div`
   }
 `;
 
+const AuthorBox = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: ${rem(8)} ${rem(12)};
+  color: var(--theme-label-secondary);
+  background: var(--theme-background-primary);
+  z-index: 1;
+  font-weight: bold;
+  ${typoCallout}
+
+  span {
+    flex: 1;
+    overflow: hidden;
+    margin: 0 ${rem(12)};
+    text-overflow: ellipsis;
+  }
+
+  .icon {
+    font-size: ${rem(24)};
+    color: var(--theme-status-help);
+  }
+`;
+
 const StyledCard = styled(Card)`
   &.read {
     border-color: var(--theme-divider-quaternary);
@@ -88,6 +113,16 @@ const StyledCard = styled(Card)`
 
   ${CardImage} {
     margin: ${sizeN(2)} 0;
+  }
+
+  @media (hover: hover) {
+    ${AuthorBox} {
+      visibility: hidden;
+    }
+
+    &:hover ${AuthorBox} {
+      visibility: visible;
+    }
   }
 `;
 
@@ -140,7 +175,18 @@ export function PostCard({
         imgAlt="Post Cover image"
         imgSrc={post.image}
         fallbackSrc="https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1"
-      />
+      >
+        {post.author && (
+          <AuthorBox>
+            <SmallRoundedImage
+              imgSrc={post.author.image}
+              imgAlt="Author's profile picture"
+            />
+            <span>{post.author.name}</span>
+            <FeatherIcon />
+          </AuthorBox>
+        )}
+      </CardImage>
       <ActionButtons>
         <QuandaryButton
           id={`post-${post.id}-upvote-btn`}

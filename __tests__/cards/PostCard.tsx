@@ -107,3 +107,9 @@ it('should hide read time when not available', async () => {
   renderComponent({ post });
   expect(screen.queryByTestId('readTime')).not.toBeInTheDocument();
 });
+
+it('should show author name when available', async () => {
+  renderComponent();
+  const el = await screen.findByText('Ido Shamun');
+  expect(el).toBeInTheDocument();
+});
