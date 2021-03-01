@@ -1,13 +1,7 @@
 import { gql } from 'graphql-request';
 import { Author } from './comments';
 import { Connection } from './common';
-
-export interface Source {
-  __typename?: string;
-  id?: string;
-  name: string;
-  image: string;
-}
+import { Source } from './sources';
 
 export interface Post {
   __typename?: string;

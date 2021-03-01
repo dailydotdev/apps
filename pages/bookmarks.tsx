@@ -8,9 +8,13 @@ import Feed from '../components/Feed';
 import { BOOKMARKS_FEED_QUERY } from '../graphql/feed';
 import { headerHeight } from '../styles/sizes';
 import sizeN from '../macros/sizeN.macro';
-import { FeedPage } from '../components/utilities';
+import {
+  CustomFeedHeader,
+  customFeedIcon,
+  FeedPage,
+} from '../components/utilities';
 import styled from '@emotion/styled';
-import { typoCallout, typoTitle1 } from '../styles/typography';
+import { typoTitle1 } from '../styles/typography';
 import BookmarkIcon from '../icons/bookmark.svg';
 import { getLayout } from '../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../components/layouts/MainFeedPage';
@@ -19,20 +23,8 @@ import { useRouter } from 'next/router';
 import PrimaryButton from '../components/buttons/PrimaryButton';
 import Link from 'next/link';
 
-const Header = styled.div`
-  display: flex;
-  align-self: stretch;
-  align-items: center;
-  margin-bottom: ${sizeN(3)};
-  color: var(--theme-label-secondary);
-  font-weight: bold;
-  ${typoCallout}
-`;
-
 const Icon = styled(BookmarkIcon)`
-  font-size: ${sizeN(6)};
-  color: var(--theme-label-tertiary);
-  margin-right: ${sizeN(2)};
+  ${customFeedIcon}
 `;
 
 const EmptyScreenContainer = styled.main`
@@ -112,10 +104,10 @@ const BookmarksPage = (): ReactElement => {
   return (
     <FeedPage>
       <NextSeo {...seo} />
-      <Header>
+      <CustomFeedHeader>
         <Icon />
         <span>Bookmarks</span>
-      </Header>
+      </CustomFeedHeader>
       <Feed
         query={BOOKMARKS_FEED_QUERY}
         onEmptyFeed={() => setShowEmptyScreen(true)}

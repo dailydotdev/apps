@@ -9,12 +9,15 @@ import { ParsedUrlQuery } from 'querystring';
 import React, { ReactElement, useContext, useMemo } from 'react';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
-import { FeedPage } from '../../components/utilities';
+import {
+  CustomFeedHeader,
+  customFeedIcon,
+  FeedPage,
+} from '../../components/utilities';
 import HashtagIcon from '../../icons/hashtag.svg';
 import PlusIcon from '../../icons/plus.svg';
 import styled from '@emotion/styled';
 import sizeN from '../../macros/sizeN.macro';
-import { typoCallout } from '../../styles/typography';
 import { useRouter } from 'next/router';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -31,7 +34,6 @@ import {
 } from '../../graphql/feedSettings';
 import PrimaryButton from '../../components/buttons/PrimaryButton';
 import { ButtonProps } from '../../components/buttons/BaseButton';
-import { laptop } from '../../styles/media';
 import useMutateFilters, {
   getTagsSettingsQueryKey,
 } from '../../hooks/useMutateFilters';
@@ -39,34 +41,8 @@ import { trackEvent } from '../../lib/analytics';
 
 type TagPageProps = { tag: string };
 
-const TagInformation = styled.div`
-  display: flex;
-  align-self: stretch;
-  align-items: center;
-  margin-bottom: ${sizeN(3)};
-  color: var(--theme-label-secondary);
-  font-weight: bold;
-  ${typoCallout}
-
-  button.laptop {
-    display: none;
-  }
-
-  ${laptop} {
-    button {
-      display: none;
-
-      &.laptop {
-        display: flex;
-      }
-    }
-  }
-`;
-
 const Icon = styled(HashtagIcon)`
-  font-size: ${sizeN(6)};
-  color: var(--theme-label-tertiary);
-  margin-right: ${sizeN(2)};
+  ${customFeedIcon}
 `;
 
 const TagPage = ({ tag }: TagPageProps): ReactElement => {
@@ -131,7 +107,7 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
   return (
     <FeedPage>
       <NextSeo {...seo} />
-      <TagInformation>
+      <CustomFeedHeader>
         <Icon />
         <span
           css={css`
@@ -144,7 +120,7 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
         <PrimaryButton className="laptop" {...buttonProps} css={buttonCss}>
           Add to feed
         </PrimaryButton>
-      </TagInformation>
+      </CustomFeedHeader>
       <Feed
         query={TAG_FEED_QUERY}
         variables={queryVariables}
