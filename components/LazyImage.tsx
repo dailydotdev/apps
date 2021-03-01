@@ -3,6 +3,7 @@ import React, {
   HTMLAttributes,
   ImgHTMLAttributes,
   ReactElement,
+  ReactNode,
   SyntheticEvent,
 } from 'react';
 import styled from '@emotion/styled';
@@ -14,6 +15,7 @@ export interface Props extends HTMLAttributes<HTMLDivElement> {
   ratio?: string;
   eager?: boolean;
   fallbackSrc?: string;
+  children?: ReactNode;
 }
 
 const Container = styled.div<Props>`
@@ -72,6 +74,7 @@ export default function LazyImage(props: Props): ReactElement {
   return (
     <Container {...props}>
       <img {...imageProps} alt={imgAlt} key={imgSrc} onError={onError} />
+      {props.children}
     </Container>
   );
 }
