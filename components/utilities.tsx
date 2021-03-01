@@ -178,6 +178,7 @@ export const noScrollbars = css`
 
 export const CustomFeedHeader = styled.div`
   display: flex;
+  height: ${rem(36)};
   align-self: stretch;
   align-items: center;
   margin-bottom: ${sizeN(3)};
