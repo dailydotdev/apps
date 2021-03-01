@@ -111,6 +111,26 @@ export const TAG_FEED_QUERY = gql`
   ${FEED_POST_CONNECTION_FRAGMENT}
 `;
 
+export const SOURCE_FEED_QUERY = gql`
+  query SourceFeed(
+    $source: ID!
+    $loggedIn: Boolean! = false
+    $first: Int
+    $after: String
+    $ranking: Ranking
+  ) {
+    page: sourceFeed(
+      source: $source
+      first: $first
+      after: $after
+      ranking: $ranking
+    ) {
+      ...FeedPostConnection
+    }
+  }
+  ${FEED_POST_CONNECTION_FRAGMENT}
+`;
+
 export const BOOKMARKS_FEED_QUERY = gql`
   query BookmarksFeed(
     $loggedIn: Boolean! = false

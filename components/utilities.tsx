@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 import LazyImage from './LazyImage';
 import sizeN from '../macros/sizeN.macro';
 import rem from '../macros/rem.macro';
-import { typoCaption1, typoTitle2 } from '../styles/typography';
+import { typoCallout, typoCaption1, typoTitle2 } from '../styles/typography';
 import Loader from './Loader';
 import { laptop, mobileL, tablet } from '../styles/media';
 import { pageMaxWidth } from '../styles/helpers';
@@ -174,4 +174,34 @@ export const noScrollbars = css`
   &::-webkit-scrollbar {
     display: none; /* Chrome, Safari and Opera */
   }
+`;
+
+export const CustomFeedHeader = styled.div`
+  display: flex;
+  align-self: stretch;
+  align-items: center;
+  margin-bottom: ${sizeN(3)};
+  color: var(--theme-label-secondary);
+  font-weight: bold;
+  ${typoCallout}
+
+  button.laptop {
+    display: none;
+  }
+
+  ${laptop} {
+    button {
+      display: none;
+
+      &.laptop {
+        display: flex;
+      }
+    }
+  }
+`;
+
+export const customFeedIcon = css`
+  font-size: ${sizeN(6)};
+  color: var(--theme-label-tertiary);
+  margin-right: ${sizeN(2)};
 `;
