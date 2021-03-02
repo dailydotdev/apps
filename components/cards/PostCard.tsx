@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react';
-import { HTMLAttributes, ReactElement, useState } from 'react';
+import { HTMLAttributes, ReactElement, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Post } from '../../graphql/posts';
 import {
@@ -148,6 +148,7 @@ export function PostCard({
   ...props
 }: PostCardProps): ReactElement {
   const [selectedComment, setSelectedComment] = useState<Comment>();
+  const date = useMemo(() => postDateFormat(post.createdAt), [post.createdAt]);
 
   return (
     <StyledCard
@@ -190,7 +191,7 @@ export function PostCard({
       </CardTextContainer>
       <CardSpace />
       <MetadataContainer>
-        <time dateTime={post.createdAt}>{postDateFormat(post.createdAt)}</time>
+        <time dateTime={post.createdAt}>{date}</time>
         {!!post.readTime && (
           <>
             <MetadataSeparator />
