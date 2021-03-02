@@ -1,5 +1,5 @@
 import { gql } from 'graphql-request';
-import { Author } from './comments';
+import { Author, Comment } from './comments';
 import { Connection } from './common';
 import { Source } from './sources';
 
@@ -23,6 +23,7 @@ export interface Post {
   placeholder?: string;
   read?: boolean;
   bookmarked?: boolean;
+  featuredComments?: Comment[];
 }
 
 export interface Ad {

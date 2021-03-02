@@ -68,3 +68,14 @@ export const Card = styled.article`
     z-index: unset;
   }
 `;
+
+export const CardHeader = styled.div`
+  display: flex;
+  height: ${sizeN(8)};
+  align-items: center;
+  margin: ${sizeN(1)} ${rem(-6)};
+
+  & > * {
+    margin: 0 ${rem(6)};
+  }
+`;

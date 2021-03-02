@@ -26,6 +26,21 @@ const defaultPost: Post = {
     image: 'https://avatars2.githubusercontent.com/u/1993245?v=4',
     permalink: 'https://app.daily.dev/idoshamun',
   },
+  featuredComments: [
+    {
+      permalink: 'https://app.daily.dev/c1',
+      content: 'My featured comment',
+      author: {
+        name: 'Nimrod',
+        image: 'https://daily.dev/nimrod.jpg',
+        id: 'u2',
+        permalink: 'https://app.daily.dev/nimrod',
+      },
+      id: 'c1',
+      createdAt: new Date().toISOString(),
+      numUpvotes: 0,
+    },
+  ],
 };
 
 const defaultProps: PostCardProps = {
@@ -111,5 +126,30 @@ it('should hide read time when not available', async () => {
 it('should show author name when available', async () => {
   renderComponent();
   const el = await screen.findByText('Ido Shamun');
+  expect(el).toBeInTheDocument();
+});
+
+it('should show featured comments authors profile image', async () => {
+  renderComponent();
+  const el = await screen.findByAltText(`Nimrod's profile image`);
+  expect(el).toBeInTheDocument();
+});
+
+it('should show featured comment when clicking on the profile image', async () => {
+  renderComponent();
+  const btn = await screen.findByAltText(`Nimrod's profile image`);
+  btn.click();
+  const el = await screen.findByText('My featured comment');
+  expect(el).toBeInTheDocument();
+});
+
+it('should return back to normal card form when clicking the back button', async () => {
+  renderComponent();
+  const btn = await screen.findByAltText(`Nimrod's profile image`);
+  btn.click();
+  await screen.findByText('My featured comment');
+  const back = await screen.findByTitle('Back');
+  back.click();
+  const el = await screen.findByText('The Prosecutor’s Fallacy');
   expect(el).toBeInTheDocument();
 });

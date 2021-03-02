@@ -1,10 +1,11 @@
 /** @jsx jsx */
-import { jsx } from '@emotion/react';
-import { HTMLAttributes, ReactElement } from 'react';
+import { css, jsx } from '@emotion/react';
+import { HTMLAttributes, ReactElement, useState } from 'react';
 import Link from 'next/link';
 import { Post } from '../../graphql/posts';
 import {
   Card,
+  CardHeader,
   CardImage,
   CardLink,
   CardSpace,
@@ -26,8 +27,11 @@ import classNames from 'classnames';
 import rem from '../../macros/rem.macro';
 import dynamic from 'next/dynamic';
 import InteractionCounter from '../InteractionCounter';
+import { focusOutline } from '../../styles/helpers';
+import { Comment } from '../../graphql/comments';
 
 const ShareIcon = dynamic(() => import('../../icons/share.svg'));
+const FeaturedComment = dynamic(() => import('./FeaturedComment'));
 
 type Callback = (post: Post) => unknown;
 
@@ -40,11 +44,6 @@ export type PostCardProps = {
   showShare?: boolean;
   onShare?: Callback;
 } & HTMLAttributes<HTMLDivElement>;
-
-const CardHeader = styled.div`
-  display: flex;
-  margin: ${sizeN(2)} 0;
-`;
 
 const MetadataContainer = styled.div`
   display: flex;
@@ -128,6 +127,16 @@ const StyledCard = styled(Card)`
   }
 `;
 
+const FeaturedCommentButton = styled.button`
+  display: flex;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 100%;
+  cursor: pointer;
+  ${focusOutline}
+`;
+
 export function PostCard({
   post,
   onLinkClick,
@@ -140,107 +149,144 @@ export function PostCard({
   children,
   ...props
 }: PostCardProps): ReactElement {
+  const [selectedComment, setSelectedComment] = useState<Comment>();
+
   return (
     <StyledCard
       {...props}
       className={classNames({ read: post.read }, className)}
     >
-      <CardLink
-        href={post.permalink}
-        target="_blank"
-        rel="noopener"
-        title={post.title}
-        onClick={() => onLinkClick?.(post)}
-        onMouseUp={(event) => event.button === 1 && onLinkClick?.(post)}
-      />
-      <CardTextContainer>
-        <CardHeader>
-          <Link href={`/sources/${post.source.id}`} prefetch={false}>
-            <a title={post.source.name}>
-              <img
-                src={post.source.image}
-                alt={post.source.name}
-                css={smallRoundedImage}
-                style={{ background: 'var(--theme-background-tertiary)' }}
-              />
-            </a>
-          </Link>
-        </CardHeader>
-        <CardTitle>{post.title}</CardTitle>
-      </CardTextContainer>
-      <CardSpace />
-      <MetadataContainer>
-        <time dateTime={post.createdAt}>{postDateFormat(post.createdAt)}</time>
-        {!!post.readTime && (
-          <>
-            <MetadataSeparator />
-            <span data-testid="readTime">{post.readTime}m read time</span>
-          </>
-        )}
-      </MetadataContainer>
-      <CardImage
-        imgAlt="Post Cover image"
-        imgSrc={post.image}
-        fallbackSrc="https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1"
-      >
-        {post.author && (
-          <AuthorBox>
-            <SmallRoundedImage
-              imgSrc={post.author.image}
-              imgAlt="Author's profile picture"
-            />
-            <span>{post.author.name}</span>
-            <FeatherIcon />
-          </AuthorBox>
-        )}
-      </CardImage>
-      <ActionButtons>
-        <QuandaryButton
-          id={`post-${post.id}-upvote-btn`}
-          icon={<UpvoteIcon />}
-          themeColor="avocado"
-          buttonSize="small"
-          pressed={post.upvoted}
-          title={post.upvoted ? 'Remove upvote' : 'Upvote'}
-          onClick={() => onUpvoteClick?.(post, !post.upvoted)}
-          style={{ width: rem(78) }}
-        >
-          <InteractionCounter value={post.numUpvotes > 0 && post.numUpvotes} />
-        </QuandaryButton>
-        <Link href={post.commentsPermalink} passHref prefetch={false}>
-          <QuandaryButton
-            id={`post-${post.id}-comment-btn`}
-            tag="a"
-            icon={<CommentIcon />}
-            themeColor="avocado"
-            buttonSize="small"
-            pressed={post.commented}
-            title="Comment"
-            onClick={() => onCommentClick?.(post)}
-            style={{ width: rem(78) }}
-          >
-            <InteractionCounter
-              value={post.numComments > 0 && post.numComments}
-            />
-          </QuandaryButton>
-        </Link>
-        <TertiaryButton
-          icon={<BookmarkIcon />}
-          themeColor="bun"
-          buttonSize="small"
-          pressed={post.bookmarked}
-          title={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}
-          onClick={() => onBookmarkClick?.(post, !post.bookmarked)}
+      {selectedComment ? (
+        <FeaturedComment
+          comment={selectedComment}
+          onBack={() => setSelectedComment(null)}
         />
-        {showShare && (
-          <TertiaryButton
-            icon={<ShareIcon />}
-            buttonSize="small"
-            title="Share post"
-            onClick={() => onShare?.(post)}
+      ) : (
+        <>
+          <CardLink
+            href={post.permalink}
+            target="_blank"
+            rel="noopener"
+            title={post.title}
+            onClick={() => onLinkClick?.(post)}
+            onMouseUp={(event) => event.button === 1 && onLinkClick?.(post)}
           />
-        )}
-      </ActionButtons>
+          <CardTextContainer>
+            <CardHeader>
+              <Link href={`/sources/${post.source.id}`} prefetch={false}>
+                <a
+                  title={post.source.name}
+                  css={css`
+                    display: flex;
+                    padding-right: ${sizeN(2)};
+                    cursor: pointer;
+                  `}
+                >
+                  <img
+                    src={post.source.image}
+                    alt={post.source.name}
+                    css={smallRoundedImage}
+                    style={{ background: 'var(--theme-background-tertiary)' }}
+                  />
+                </a>
+              </Link>
+              {post.featuredComments?.map((comment) => (
+                <FeaturedCommentButton
+                  title={`See ${comment.author.name}'s comment`}
+                  onClick={() => setSelectedComment(comment)}
+                  key={comment.id}
+                >
+                  <img
+                    src={comment.author.image}
+                    alt={`${comment.author.name}'s profile image`}
+                    css={smallRoundedImage}
+                    style={{ background: 'var(--theme-background-tertiary)' }}
+                  />
+                </FeaturedCommentButton>
+              ))}
+            </CardHeader>
+            <CardTitle>{post.title}</CardTitle>
+          </CardTextContainer>
+          <CardSpace />
+          <MetadataContainer>
+            <time dateTime={post.createdAt}>
+              {postDateFormat(post.createdAt)}
+            </time>
+            {!!post.readTime && (
+              <>
+                <MetadataSeparator />
+                <span data-testid="readTime">{post.readTime}m read time</span>
+              </>
+            )}
+          </MetadataContainer>
+          <CardImage
+            imgAlt="Post Cover image"
+            imgSrc={post.image}
+            fallbackSrc="https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1"
+          >
+            {post.author && (
+              <AuthorBox>
+                <SmallRoundedImage
+                  imgSrc={post.author.image}
+                  imgAlt="Author's profile picture"
+                />
+                <span>{post.author.name}</span>
+                <FeatherIcon />
+              </AuthorBox>
+            )}
+          </CardImage>
+          <ActionButtons>
+            <QuandaryButton
+              id={`post-${post.id}-upvote-btn`}
+              icon={<UpvoteIcon />}
+              themeColor="avocado"
+              buttonSize="small"
+              pressed={post.upvoted}
+              title={post.upvoted ? 'Remove upvote' : 'Upvote'}
+              onClick={() => onUpvoteClick?.(post, !post.upvoted)}
+              style={{ width: rem(78) }}
+            >
+              <InteractionCounter
+                value={post.numUpvotes > 0 && post.numUpvotes}
+              />
+            </QuandaryButton>
+            <Link href={post.commentsPermalink} passHref prefetch={false}>
+              <QuandaryButton
+                id={`post-${post.id}-comment-btn`}
+                tag="a"
+                icon={<CommentIcon />}
+                themeColor="avocado"
+                buttonSize="small"
+                pressed={post.commented}
+                title="Comment"
+                onClick={() => onCommentClick?.(post)}
+                style={{ width: rem(78) }}
+              >
+                <InteractionCounter
+                  value={post.numComments > 0 && post.numComments}
+                />
+              </QuandaryButton>
+            </Link>
+            <TertiaryButton
+              icon={<BookmarkIcon />}
+              themeColor="bun"
+              buttonSize="small"
+              pressed={post.bookmarked}
+              title={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}
+              onClick={() => onBookmarkClick?.(post, !post.bookmarked)}
+            />
+            {showShare && (
+              <TertiaryButton
+                icon={<ShareIcon />}
+                buttonSize="small"
+                title="Share post"
+                onClick={() => onShare?.(post)}
+              />
+            )}
+          </ActionButtons>
+        </>
+      )}
+
       {children}
     </StyledCard>
   );
