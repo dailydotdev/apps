@@ -11,6 +11,7 @@ import {
   CardSpace,
   CardTextContainer,
   CardTitle,
+  featuredCommentsToButtons,
 } from './Card';
 import styled from '@emotion/styled';
 import { smallRoundedImage, SmallRoundedImage } from '../utilities';
@@ -27,7 +28,6 @@ import classNames from 'classnames';
 import rem from '../../macros/rem.macro';
 import dynamic from 'next/dynamic';
 import InteractionCounter from '../InteractionCounter';
-import { focusOutline } from '../../styles/helpers';
 import { Comment } from '../../graphql/comments';
 
 const ShareIcon = dynamic(() => import('../../icons/share.svg'));
@@ -127,16 +127,6 @@ const StyledCard = styled(Card)`
   }
 `;
 
-const FeaturedCommentButton = styled.button`
-  display: flex;
-  padding: 0;
-  background: none;
-  border: none;
-  border-radius: 100%;
-  cursor: pointer;
-  ${focusOutline}
-`;
-
 export function PostCard({
   post,
   onLinkClick,
@@ -159,6 +149,8 @@ export function PostCard({
       {selectedComment ? (
         <FeaturedComment
           comment={selectedComment}
+          featuredComments={post.featuredComments}
+          onCommentClick={setSelectedComment}
           onBack={() => setSelectedComment(null)}
         />
       ) : (
@@ -190,20 +182,10 @@ export function PostCard({
                   />
                 </a>
               </Link>
-              {post.featuredComments?.map((comment) => (
-                <FeaturedCommentButton
-                  title={`See ${comment.author.name}'s comment`}
-                  onClick={() => setSelectedComment(comment)}
-                  key={comment.id}
-                >
-                  <img
-                    src={comment.author.image}
-                    alt={`${comment.author.name}'s profile image`}
-                    css={smallRoundedImage}
-                    style={{ background: 'var(--theme-background-tertiary)' }}
-                  />
-                </FeaturedCommentButton>
-              ))}
+              {featuredCommentsToButtons(
+                post.featuredComments,
+                setSelectedComment,
+              )}
             </CardHeader>
             <CardTitle>{post.title}</CardTitle>
           </CardTextContainer>

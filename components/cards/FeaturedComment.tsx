@@ -2,8 +2,11 @@
 import { css, jsx } from '@emotion/react';
 import { ReactElement } from 'react';
 import { Comment } from '../../graphql/comments';
-import { CardHeader, CardTextContainer } from './Card';
-import { smallRoundedImage } from '../utilities';
+import {
+  CardHeader,
+  CardTextContainer,
+  featuredCommentsToButtons,
+} from './Card';
 import TertiaryButton from '../buttons/TertiaryButton';
 import ArrowIcon from '../../icons/arrow.svg';
 import CommentIcon from '../../icons/comment.svg';
@@ -14,7 +17,12 @@ import { multilineTextOverflow } from '../../styles/helpers';
 import rem from '../../macros/rem.macro';
 import Link from 'next/link';
 
-export type FeaturedCommentProps = { comment: Comment; onBack: () => unknown };
+export type FeaturedCommentProps = {
+  featuredComments: Comment[];
+  comment: Comment;
+  onBack: () => unknown;
+  onCommentClick: (comment: Comment) => unknown;
+};
 
 const Title = styled.h4`
   margin: ${sizeN(2)} 0;
@@ -38,7 +46,9 @@ const Divider = styled.div`
 `;
 
 export default function FeaturedComment({
+  featuredComments,
   comment,
+  onCommentClick,
   onBack,
 }: FeaturedCommentProps): ReactElement {
   return (
@@ -61,12 +71,11 @@ export default function FeaturedComment({
             title="Back"
             onClick={onBack}
           />
-          <img
-            src={comment.author.image}
-            alt={`${comment.author.name}'s profile image`}
-            css={smallRoundedImage}
-            style={{ background: 'var(--theme-background-tertiary)' }}
-          />
+          {featuredCommentsToButtons(
+            featuredComments,
+            onCommentClick,
+            comment.id,
+          )}
         </CardHeader>
         <Title>{comment.author.name}</Title>
         <Content>{comment.content}</Content>
