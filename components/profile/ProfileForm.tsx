@@ -227,7 +227,7 @@ export default function ProfileForm({
         hint={githubHint}
         valid={!githubHint}
         placeholder="handle"
-        pattern="^@?(\w){1,39}$"
+        pattern="^@?([\w-]){1,39}$"
         maxLength={39}
         validityChanged={updateDisableSubmit}
         valueChanged={() => githubHint && setGithubHint(null)}
@@ -241,7 +241,7 @@ export default function ProfileForm({
         hint={hashnodeHint}
         valid={!hashnodeHint}
         placeholder="handle"
-        pattern="^@?(\w){1,39}$"
+        pattern="^@?([\w-]){1,39}$"
         maxLength={39}
         validityChanged={updateDisableSubmit}
         valueChanged={() => hashnodeHint && setHashnodeHint(null)}
