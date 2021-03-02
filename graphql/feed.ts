@@ -20,6 +20,15 @@ export const FEED_POST_FRAGMENT = gql`
       name
       image
     }
+    featuredComments {
+      id
+      content
+      permalink
+      author {
+        name
+        image
+      }
+    }
   }
 `;
 

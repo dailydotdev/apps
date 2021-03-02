@@ -1,9 +1,14 @@
+/** @jsx jsx */
+import { css, jsx } from '@emotion/react';
 import styled from '@emotion/styled';
 import sizeN from '../../macros/sizeN.macro';
 import rem from '../../macros/rem.macro';
 import { typoBody } from '../../styles/typography';
-import { multilineTextOverflow } from '../../styles/helpers';
+import { focusOutline, multilineTextOverflow } from '../../styles/helpers';
 import LazyImage from '../LazyImage';
+import { ReactNode } from 'react';
+import { smallRoundedImage } from '../utilities';
+import { Comment } from '../../graphql/comments';
 
 export const cardImageHeight = sizeN(40);
 
@@ -68,3 +73,51 @@ export const Card = styled.article`
     z-index: unset;
   }
 `;
+
+export const CardHeader = styled.div`
+  display: flex;
+  height: ${sizeN(8)};
+  align-items: center;
+  margin: ${sizeN(1)} ${rem(-6)};
+
+  & > * {
+    margin: 0 ${rem(6)};
+  }
+`;
+
+export const FeaturedCommentButton = styled.button`
+  display: flex;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 100%;
+  cursor: pointer;
+  opacity: 0.64;
+  ${focusOutline}
+`;
+
+export const featuredCommentsToButtons = (
+  comments: Comment[],
+  onClick: (comment: Comment) => unknown,
+  selectedId?: string,
+): ReactNode[] =>
+  comments?.map((comment) => (
+    <FeaturedCommentButton
+      title={`See ${comment.author.name}'s comment`}
+      onClick={() => onClick(comment)}
+      key={comment.id}
+      css={
+        selectedId === comment.id &&
+        css`
+          opacity: 1;
+        `
+      }
+    >
+      <img
+        src={comment.author.image}
+        alt={`${comment.author.name}'s profile image`}
+        css={smallRoundedImage}
+        style={{ background: 'var(--theme-background-tertiary)' }}
+      />
+    </FeaturedCommentButton>
+  ));
