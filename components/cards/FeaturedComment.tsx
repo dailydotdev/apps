@@ -22,6 +22,7 @@ export type FeaturedCommentProps = {
   comment: Comment;
   onBack: () => unknown;
   onCommentClick: (comment: Comment) => unknown;
+  className?: string;
 };
 
 const Title = styled.h4`
@@ -50,37 +51,42 @@ export default function FeaturedComment({
   comment,
   onCommentClick,
   onBack,
+  className,
 }: FeaturedCommentProps): ReactElement {
   return (
-    <>
-      <CardTextContainer
-        css={css`
-          flex: 1;
-        `}
-      >
-        <CardHeader>
-          <TertiaryButton
-            icon={
-              <ArrowIcon
-                css={css`
-                  transform: rotate(-90deg);
-                `}
-              />
-            }
-            buttonSize="small"
-            title="Back"
-            onClick={onBack}
-          />
-          {featuredCommentsToButtons(
-            featuredComments,
-            onCommentClick,
-            comment.id,
-          )}
-        </CardHeader>
-        <Title>{comment.author.name}</Title>
-        <Content>{comment.content}</Content>
-        <Divider />
-      </CardTextContainer>
+    <CardTextContainer
+      css={css`
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        padding: ${sizeN(2)};
+      `}
+      className={className}
+    >
+      <CardHeader>
+        <TertiaryButton
+          icon={
+            <ArrowIcon
+              css={css`
+                transform: rotate(-90deg);
+              `}
+            />
+          }
+          buttonSize="small"
+          title="Back"
+          onClick={onBack}
+        />
+        {featuredCommentsToButtons(
+          featuredComments,
+          onCommentClick,
+          comment.id,
+        )}
+      </CardHeader>
+      <Title>{comment.author.name}</Title>
+      <Content>{comment.content}</Content>
+      <Divider />
       <Link href={comment.permalink} passHref>
         <TertiaryButton
           as="a"
@@ -95,6 +101,6 @@ export default function FeaturedComment({
           View comment
         </TertiaryButton>
       </Link>
-    </>
+    </CardTextContainer>
   );
 }
