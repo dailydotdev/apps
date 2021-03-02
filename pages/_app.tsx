@@ -191,6 +191,8 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     });`,
                 }}
               />
+
+              <link rel="preconnect" href="https://res.cloudinary.com" />
             </Head>
             <DefaultSeo {...Seo} canonical={canonicalFromRouter(router)} />
             <Global styles={globalStyle} />
