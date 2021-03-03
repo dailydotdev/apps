@@ -47,6 +47,7 @@ module.exports = withPWA({
 
       poweredByHeader: false,
       reactStrictMode: false,
+      productionBrowserSourceMaps: process.env.SOURCE_MAPS === 'true',
     }),
   ),
 });
