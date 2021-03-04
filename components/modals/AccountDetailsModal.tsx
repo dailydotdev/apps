@@ -18,9 +18,7 @@ import {
   requestFeature,
   termsOfService,
 } from '../../lib/constants';
-import TertiaryButton from '../buttons/TertiaryButton';
-import PrimaryButton from '../buttons/PrimaryButton';
-import { ButtonProps } from '../buttons/BaseButton';
+import Button, { ButtonProps } from '../buttons/Button';
 
 const headerHeight = sizeN(12);
 
@@ -54,7 +52,7 @@ const Header = styled.header`
   }
 `;
 
-const SaveButton = styled(PrimaryButton)<ButtonProps<'button'>>`
+const SaveButton = styled(Button)<ButtonProps<'button'>>`
   height: unset;
   padding-top: ${sizeN(1)};
   padding-bottom: ${sizeN(1)};
@@ -78,7 +76,7 @@ const FooterLink = styled.a`
   ${typoFootnote}
 `;
 
-const LogoutButton = styled(TertiaryButton)`
+const LogoutButton = styled(Button)`
   align-self: flex-start;
   margin-top: ${sizeN(5)};
 `;
@@ -91,16 +89,18 @@ export default function AccountDetailsModal(props: ModalProps): ReactElement {
   return (
     <MyModal {...props}>
       <Header>
-        <TertiaryButton
+        <Button
           title="Close"
           onClick={props.onRequestClose}
           icon={<XIcon />}
+          className="btn-tertiary"
         />
         <SaveButton
           buttonSize="small"
           type="submit"
           disabled={disableSubmit}
           form="profileForm"
+          className="btn-primary"
         >
           Save changes
         </SaveButton>
@@ -143,7 +143,11 @@ export default function AccountDetailsModal(props: ModalProps): ReactElement {
             Cancel subscription
           </FooterLink>
         )}
-        <LogoutButton onClick={logout} buttonSize="small">
+        <LogoutButton
+          onClick={logout}
+          buttonSize="small"
+          className="btn-tertiary"
+        >
           Logout
         </LogoutButton>
       </Footer>

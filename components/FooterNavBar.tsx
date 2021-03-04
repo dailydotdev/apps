@@ -1,6 +1,5 @@
 import React, { ReactElement, ReactNode, useContext } from 'react';
 import Link from 'next/link';
-import TertiaryButton from './buttons/TertiaryButton';
 import { ActiveTabIndicator } from './utilities';
 import styled from '@emotion/styled';
 import { Flipper, Flipped } from 'react-flip-toolkit';
@@ -11,6 +10,7 @@ import BookmarkIcon from '../icons/bookmark.svg';
 import FilterIcon from '../icons/filter.svg';
 import AuthContext from '../contexts/AuthContext';
 import { useRouter } from 'next/router';
+import Button from './buttons/Button';
 
 export const navBarHeight = '3.063rem';
 
@@ -79,7 +79,8 @@ export default function FooterNavBar(): ReactElement {
         <div key={tab.path}>
           {!tab.requiresLogin || user ? (
             <Link href={tab.path} prefetch={false} passHref>
-              <TertiaryButton
+              <Button
+                className="btn-tertiary"
                 buttonSize="large"
                 tag="a"
                 icon={tab.icon}
@@ -88,7 +89,8 @@ export default function FooterNavBar(): ReactElement {
               />
             </Link>
           ) : (
-            <TertiaryButton
+            <Button
+              className="btn-tertiary"
               buttonSize="large"
               icon={tab.icon}
               title={tab.title}

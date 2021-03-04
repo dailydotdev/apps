@@ -3,7 +3,6 @@ import LazyImage from './LazyImage';
 import sizeN from '../macros/sizeN.macro';
 import rem from '../macros/rem.macro';
 import { typoCallout, typoCaption1, typoTitle2 } from '../styles/typography';
-import Loader from './Loader';
 import { laptop, mobileL, tablet } from '../styles/media';
 import { pageMaxWidth } from '../styles/helpers';
 import { css, keyframes } from '@emotion/react';
@@ -22,15 +21,6 @@ export const smallRoundedImage = css`
 
 export const SmallRoundedImage = styled(LazyImage)`
   ${smallRoundedImage}
-`;
-
-export const ButtonLoader = styled(Loader)`
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  margin: auto;
 `;
 
 export const LegalNotice = styled.div`

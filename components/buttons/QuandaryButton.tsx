@@ -5,62 +5,56 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import BaseButton, {
-  ButtonProps,
-  ButtonStatesStyles,
-  ButtonStateStyle,
-  StyledButtonProps,
-} from './BaseButton';
-import { tertiaryStyle } from './TertiaryButton';
+import Button, { ButtonProps } from './Button';
 import styled from '@emotion/styled';
 import { typoCallout } from '../../styles/typography';
 import sizeN from '../../macros/sizeN.macro';
 import classNames from 'classnames';
 import { mobileL } from '../../styles/media';
 
-const applyButtonStateStyle = (style: ButtonStateStyle): string => {
-  if (style.color) {
-    return `color: ${style.color};`;
-  }
-  return '';
-};
-
-const applyButtonStatesStyles = (styles: ButtonStatesStyles): string =>
-  `
-  ${styles.default ? applyButtonStateStyle(styles.default) : ''}
-
-  ${
-    styles.pressed
-      ? `& [aria-pressed="true"] ~ label {
-    ${applyButtonStateStyle(styles.pressed)}
-  }`
-      : ''
-  }
-
-  ${
-    styles.hover
-      ? `& :hover ~ label, & .hover ~ label, & :focus.focus-visible ~ label {
-    ${applyButtonStateStyle(styles.hover)}
-  }`
-      : ''
-  }
-
-  ${
-    styles.active
-      ? `& :active ~ label {
-    ${applyButtonStateStyle(styles.active)}
-  }`
-      : ''
-  }
-
-  ${
-    styles.disabled
-      ? `& [disabled] ~ label {
-    ${applyButtonStateStyle(styles.disabled)}
-  }`
-      : ''
-  }
-  `;
+// const applyButtonStateStyle = (style: ButtonStateStyle): string => {
+//   if (style.color) {
+//     return `color: ${style.color};`;
+//   }
+//   return '';
+// };
+//
+// const applyButtonStatesStyles = (styles: ButtonStatesStyles): string =>
+//   `
+//   ${styles.default ? applyButtonStateStyle(styles.default) : ''}
+//
+//   ${
+//     styles.pressed
+//       ? `& [aria-pressed="true"] ~ label {
+//     ${applyButtonStateStyle(styles.pressed)}
+//   }`
+//       : ''
+//   }
+//
+//   ${
+//     styles.hover
+//       ? `& :hover ~ label, & .hover ~ label, & :focus.focus-visible ~ label {
+//     ${applyButtonStateStyle(styles.hover)}
+//   }`
+//       : ''
+//   }
+//
+//   ${
+//     styles.active
+//       ? `& :active ~ label {
+//     ${applyButtonStateStyle(styles.active)}
+//   }`
+//       : ''
+//   }
+//
+//   ${
+//     styles.disabled
+//       ? `& [disabled] ~ label {
+//     ${applyButtonStateStyle(styles.disabled)}
+//   }`
+//       : ''
+//   }
+//   `;
 
 type QuandaryButtonProps = {
   id: string;
@@ -68,9 +62,7 @@ type QuandaryButtonProps = {
   responsiveLabel?: boolean;
 };
 
-const Container = styled.div<
-  Pick<StyledButtonProps, 'darkStates' | 'lightStates'>
->`
+const Container = styled.div`
   display: flex;
   flex-direction: row;
   align-items: stretch;
@@ -122,12 +114,6 @@ const Container = styled.div<
   & [disabled] ~ label {
     pointer-events: none;
   }
-
-  ${({ darkStates }) => applyButtonStatesStyles(darkStates)}
-
-  .light & {
-    ${({ lightStates }) => applyButtonStatesStyles(lightStates)}
-  }
 `;
 
 export default function QuandaryButton<
@@ -142,7 +128,6 @@ export default function QuandaryButton<
   tag,
   ...props
 }: ButtonProps<Tag> & QuandaryButtonProps): ReactElement {
-  const buttonStyle = tertiaryStyle(props.themeColor);
   let labelProps: HTMLAttributes<HTMLLabelElement> = {};
   let buttonProps: {
     className?: string;
@@ -168,7 +153,6 @@ export default function QuandaryButton<
 
   return (
     <Container
-      {...buttonStyle}
       style={style}
       className={classNames(
         { reverse, responsiveLabel },
@@ -176,13 +160,7 @@ export default function QuandaryButton<
         className,
       )}
     >
-      <BaseButton<Tag>
-        id={id}
-        {...buttonStyle}
-        {...props}
-        tag={tag}
-        {...buttonProps}
-      />
+      <Button<Tag> id={id} {...props} tag={tag} {...buttonProps} />
       {children && (
         <label htmlFor={id} {...labelProps}>
           {children}

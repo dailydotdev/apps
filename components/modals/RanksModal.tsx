@@ -11,7 +11,7 @@ import styled from '@emotion/styled';
 import { typoCallout, typoFootnote, typoTitle2 } from '../../styles/typography';
 import { RANK_NAMES, STEPS_PER_RANK } from '../../lib/rank';
 import Rank from '../Rank';
-import PrimaryButton from '../buttons/PrimaryButton';
+import Button from '../buttons/Button';
 
 const Title = styled.h1`
   margin: ${sizeN(4)} 0 0;
@@ -182,14 +182,15 @@ export default function RanksModal({
           />
         ))}
       </ul>
-      <PrimaryButton
+      <Button
+        className="btn-primary"
         onClick={onRequestClose}
         css={css`
           margin: ${sizeN(8)};
         `}
       >
         Ok, let’s do it
-      </PrimaryButton>
+      </Button>
     </ResponsiveModal>
   );
 }

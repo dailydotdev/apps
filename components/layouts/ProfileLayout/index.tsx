@@ -46,10 +46,9 @@ import {
   UserReadingRankData,
 } from '../../../graphql/users';
 import NavBar, { tabs } from './NavBar';
-import TertiaryButton from '../../buttons/TertiaryButton';
 import QuandaryButton from '../../buttons/QuandaryButton';
-import SecondaryButton from '../../buttons/SecondaryButton';
 import ProgressiveEnhancementContext from '../../../contexts/ProgressiveEnhancementContext';
+import Button from '../../buttons/Button';
 
 const AccountDetailsModal = dynamic(
   () =>
@@ -196,7 +195,7 @@ const ProfileInfo = styled.div`
   }
 `;
 
-const EditProfileButton = styled(SecondaryButton)`
+const EditProfileButton = styled(Button)`
   margin-top: ${sizeN(6)};
   align-self: flex-start;
 `;
@@ -318,33 +317,36 @@ export default function ProfileLayout({
             <JoinedDateStyled date={new Date(profile.createdAt)} />
             <Links>
               {twitterHandle && (
-                <TertiaryButton
+                <Button
                   tag="a"
                   href={`https://twitter.com/${twitterHandle}`}
                   title="Go to Twitter"
                   target="_blank"
                   rel="noopener"
                   icon={<TwitterIcon />}
+                  className="btn-tertiary"
                 />
               )}
               {githubHandle && (
-                <TertiaryButton
+                <Button
                   tag="a"
                   href={`https://github.com/${githubHandle}`}
                   title="Go to GitHub"
                   target="_blank"
                   rel="noopener"
                   icon={<GitHubIcon />}
+                  className="btn-tertiary"
                 />
               )}
               {hashnodeHandle && (
-                <TertiaryButton
+                <Button
                   tag="a"
                   href={`https://hashnode.com/@${hashnodeHandle}`}
                   title="Go to Hashnode"
                   target="_blank"
                   rel="noopener"
                   icon={<HashnodeIcon />}
+                  className="btn-tertiary"
                 />
               )}
               {portfolioLink && (
@@ -364,7 +366,10 @@ export default function ProfileLayout({
               )}
             </Links>
             {profile.id === user?.id && (
-              <EditProfileButton onClick={() => setShowAccountDetails(true)}>
+              <EditProfileButton
+                className="btn-secondary"
+                onClick={() => setShowAccountDetails(true)}
+              >
                 Account details
               </EditProfileButton>
             )}

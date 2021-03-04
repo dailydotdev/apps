@@ -32,8 +32,7 @@ import {
   FeedSettingsData,
   TAGS_SETTINGS_QUERY,
 } from '../../graphql/feedSettings';
-import PrimaryButton from '../../components/buttons/PrimaryButton';
-import { ButtonProps } from '../../components/buttons/BaseButton';
+import Button, { ButtonProps } from '../../components/buttons/Button';
 import useMutateFilters, {
   getTagsSettingsQueryKey,
 } from '../../hooks/useMutateFilters';
@@ -116,10 +115,10 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
         >
           {tag}
         </span>
-        <PrimaryButton {...buttonProps} css={buttonCss} />
-        <PrimaryButton className="laptop" {...buttonProps} css={buttonCss}>
+        <Button className="btn-primary" {...buttonProps} css={buttonCss} />
+        <Button className="btn-primary laptop" {...buttonProps} css={buttonCss}>
           Add to feed
-        </PrimaryButton>
+        </Button>
       </CustomFeedHeader>
       <Feed
         query={TAG_FEED_QUERY}

@@ -10,8 +10,7 @@ import { useMutation } from 'react-query';
 import { DELETE_POST_MUTATION, EmptyResponse } from '../../graphql/posts';
 import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
-import SecondaryButton from '../buttons/SecondaryButton';
-import PrimaryButton from '../buttons/PrimaryButton';
+import Button from '../buttons/Button';
 
 export interface Props extends ModalProps {
   postId: string;
@@ -49,14 +48,16 @@ export default function DeletePostModal({
         Are you sure you want to delete this post? This action cannot be undone.
       </ConfirmationDescription>
       <ConfirmationButtons>
-        <SecondaryButton onClick={props.onRequestClose}>Cancel</SecondaryButton>
-        <PrimaryButton
-          themeColor="ketchup"
+        <Button className="btn-secondary" onClick={props.onRequestClose}>
+          Cancel
+        </Button>
+        <Button
+          className="btn-primary-ketchup"
           loading={deleting}
           onClick={onDeletePost}
         >
           Delete
-        </PrimaryButton>
+        </Button>
       </ConfirmationButtons>
     </ConfirmationModal>
   );

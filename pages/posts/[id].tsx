@@ -62,14 +62,12 @@ import request, { ClientError } from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import { ProfileLink } from '../../components/profile/ProfileLink';
 import { ownershipGuide } from '../../lib/constants';
-import TertiaryButton from '../../components/buttons/TertiaryButton';
 import QuandaryButton from '../../components/buttons/QuandaryButton';
-import PrimaryButton from '../../components/buttons/PrimaryButton';
-import SecondaryButton from '../../components/buttons/SecondaryButton';
 import { LoginModalMode } from '../../components/modals/LoginModal';
 import { trackEvent } from '../../lib/analytics';
 import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
 import useSubscription from '../../hooks/useSubscription';
+import Button from '../../components/buttons/Button';
 
 const NewCommentModal = dynamic(
   () => import('../../components/modals/NewCommentModal'),
@@ -180,8 +178,8 @@ const StatsBar = styled.div`
   grid-column-gap: ${sizeN(4)};
   margin: ${sizeN(4)} 0;
   color: var(--theme-label-tertiary);
-  ${typoCallout}
 
+  ${typoCallout}
   span {
     word-break: keep-all;
   }
@@ -572,9 +570,15 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
               <SourceName>{postById?.post.source.name}</SourceName>
             </PostInfoSubContainer>
           )}
-          <TertiaryButton icon={<OpenLinkIcon />} tag="a" {...postLinkProps} />
+          <Button
+            className="btn-tertiary"
+            icon={<OpenLinkIcon />}
+            tag="a"
+            {...postLinkProps}
+          />
           {user?.roles?.indexOf(Roles.Moderator) > -1 && (
-            <TertiaryButton
+            <Button
+              className="btn-tertiary"
               icon={<TrashIcon />}
               onClick={() => setShowDeletePost(true)}
             />
@@ -678,15 +682,18 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
               </li>
             </ol>
             <AuthorOnboardingButtons data-testid="authorOnboarding">
-              <PrimaryButton onClick={() => showLogin()}>Sign up</PrimaryButton>
-              <SecondaryButton
+              <Button className="btn-primary" onClick={() => showLogin()}>
+                Sign up
+              </Button>
+              <Button
+                className="btn-secondary"
                 tag="a"
                 href={ownershipGuide}
                 target="_blank"
                 rel="noopener"
               >
                 Learn more
-              </SecondaryButton>
+              </Button>
             </AuthorOnboardingButtons>
           </AuthorOnboarding>
         ) : (

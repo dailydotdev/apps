@@ -20,8 +20,8 @@ import { getLayout } from '../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../components/layouts/MainFeedPage';
 import AuthContext from '../contexts/AuthContext';
 import { useRouter } from 'next/router';
-import PrimaryButton from '../components/buttons/PrimaryButton';
 import Link from 'next/link';
+import Button from '../components/buttons/Button';
 
 const Icon = styled(BookmarkIcon)`
   ${customFeedIcon}
@@ -93,9 +93,9 @@ const BookmarksPage = (): ReactElement => {
           later. Each post you bookmark will be stored here.
         </p>
         <Link href="/" passHref>
-          <PrimaryButton tag="a" buttonSize="large">
+          <Button className="btn-primary" tag="a" buttonSize="large">
             Back to feed
-          </PrimaryButton>
+          </Button>
         </Link>
       </EmptyScreenContainer>
     );

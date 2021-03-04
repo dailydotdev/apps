@@ -16,8 +16,7 @@ import {
   getTwitterShareLink,
   getWhatsappShareLink,
 } from '../lib/share';
-import TertiaryButton from './buttons/TertiaryButton';
-import { ButtonProps } from './buttons/BaseButton';
+import Button, { ButtonProps } from './buttons/Button';
 import { trackEvent } from '../lib/analytics';
 
 const barWidth = sizeN(7);
@@ -58,9 +57,7 @@ const Copied = styled.div`
   ${typoCaption1}
 `;
 
-const ShareButton = styled(TertiaryButton)<
-  ButtonProps<'button'> | ButtonProps<'a'>
->`
+const ShareButton = styled(Button)<ButtonProps<'button'> | ButtonProps<'a'>>`
   margin: ${sizeN(1)} 0;
 `;
 
@@ -78,11 +75,11 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
         {copying && <Copied>Copied!</Copied>}
         <ShareButton
           title="Copy link"
-          themeColor="avocado"
           onClick={copyLink}
           pressed={copying}
           icon={<CopyIcon />}
           buttonSize="small"
+          className="btn-tertiary-avocado"
         />
         <ColorfulShareButton
           title="Share on WhatsApp"
@@ -99,6 +96,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
           }
           icon={<WhatsappIcon />}
           buttonSize="small"
+          className="btn-tertiary"
         />
         <ColorfulShareButton
           title="Share on Twitter"
@@ -115,6 +113,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
           }
           icon={<TwitterIcon />}
           buttonSize="small"
+          className="btn-tertiary"
         />
         <ColorfulShareButton
           title="Share on Facebook"
@@ -131,6 +130,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
           }
           icon={<FacebookIcon />}
           buttonSize="small"
+          className="btn-tertiary"
         />
       </Sticky>
     </Container>

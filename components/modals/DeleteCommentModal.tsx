@@ -14,8 +14,7 @@ import {
 import cloneDeep from 'lodash.clonedeep';
 import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
-import PrimaryButton from '../buttons/PrimaryButton';
-import SecondaryButton from '../buttons/SecondaryButton';
+import Button from '../buttons/Button';
 
 export interface Props extends ModalProps {
   commentId: string;
@@ -93,14 +92,16 @@ export default function DeleteCommentModal({
         undone.
       </ConfirmationDescription>
       <ConfirmationButtons>
-        <SecondaryButton onClick={props.onRequestClose}>Cancel</SecondaryButton>
-        <PrimaryButton
-          themeColor="ketchup"
+        <Button className="btn-secondary" onClick={props.onRequestClose}>
+          Cancel
+        </Button>
+        <Button
+          className="btn-primary-ketchup"
           loading={deleting}
           onClick={onDeleteComment}
         >
           Delete
-        </PrimaryButton>
+        </Button>
       </ConfirmationButtons>
     </ConfirmationModal>
   );

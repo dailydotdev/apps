@@ -5,7 +5,7 @@ import LazyImage from './LazyImage';
 import { typoCallout } from '../styles/typography';
 import { pageMaxWidth } from '../styles/helpers';
 import { mobileL } from '../styles/media';
-import PrimaryButton from './buttons/PrimaryButton';
+import Button from './buttons/Button';
 
 const promotionWidth = sizeN(36);
 
@@ -49,9 +49,9 @@ export default function Promotion(): ReactElement {
         Daily delivers the best programming news every new tab. It is a browser
         extension that boosts your professional growth.
       </Content>
-      <PrimaryButton tag="a" href="/api/get?r=webapp">
+      <Button className="btn-primary" tag="a" href="/api/get?r=webapp">
         Get it now
-      </PrimaryButton>
+      </Button>
     </Container>
   );
 }

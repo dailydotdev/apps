@@ -1,0 +1,9 @@
+.focus-outline {
+  &:focus {
+    outline: none;
+
+    &:focus-visible {
+      box-shadow: 0 0 0 0.125rem var(--theme-focus);
+    }
+  }
+}

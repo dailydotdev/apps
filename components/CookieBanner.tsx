@@ -9,10 +9,10 @@ import sizeN from '../macros/sizeN.macro';
 import { cookiePolicy } from '../lib/constants';
 import { laptop } from '../styles/media';
 import CookieIcon from '../icons/cookie.svg';
-import PrimaryButton from './buttons/PrimaryButton';
 import { typoFootnote } from '../styles/typography';
+import Button from './buttons/Button';
 
-const AgreeButton = styled(PrimaryButton)`
+const AgreeButton = styled(Button)`
   margin-top: ${sizeN(4)};
   align-self: flex-start;
 `;
@@ -102,7 +102,7 @@ export default function CookieBanner({
         </a>{' '}
         to improve user experience.
       </div>
-      <AgreeButton onClick={close} buttonSize="small">
+      <AgreeButton onClick={close} className="btn-primary" buttonSize="small">
         I like cookies
       </AgreeButton>
     </Container>

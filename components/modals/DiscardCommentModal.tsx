@@ -6,8 +6,7 @@ import {
   ConfirmationButtons,
   Props as ModalProps,
 } from './StyledModal';
-import SecondaryButton from '../buttons/SecondaryButton';
-import PrimaryButton from '../buttons/PrimaryButton';
+import Button from '../buttons/Button';
 
 export interface Props extends ModalProps {
   onDeleteComment: (event: MouseEvent) => void;
@@ -25,10 +24,12 @@ export default function DiscardCommentModal({
         Are you sure you want to close and discard your comment?
       </ConfirmationDescription>
       <ConfirmationButtons>
-        <SecondaryButton onClick={onRequestClose}>Stay</SecondaryButton>
-        <PrimaryButton themeColor="ketchup" onClick={onDeleteComment}>
+        <Button className="btn-secondary" onClick={onRequestClose}>
+          Stay
+        </Button>
+        <Button className="btn-primary-ketchup" onClick={onDeleteComment}>
           Discard
-        </PrimaryButton>
+        </Button>
       </ConfirmationButtons>
     </ConfirmationModal>
   );

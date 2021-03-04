@@ -1,9 +1,6 @@
 import { render, RenderResult, screen } from '@testing-library/preact';
 import React, { HTMLAttributes } from 'react';
-import BaseButton, {
-  BaseButtonProps,
-} from '../../components/buttons/BaseButton';
-import { primaryStyle } from '../../components/buttons/PrimaryButton';
+import Button, { BaseButtonProps } from '../../components/buttons/Button';
 import UpvoteIcon from '../../icons/upvote.svg';
 
 const renderComponent = <
@@ -12,7 +9,7 @@ const renderComponent = <
 >(
   props: Partial<BaseButtonProps & P> = {},
 ): RenderResult => {
-  return render(<BaseButton {...primaryStyle()} {...props} />);
+  return render(<Button {...props} />);
 };
 
 it('should render children', async () => {

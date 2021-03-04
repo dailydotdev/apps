@@ -16,7 +16,6 @@ import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import sizeN from '../../macros/sizeN.macro';
 import rem from '../../macros/rem.macro';
-import TertiaryButton from '../buttons/TertiaryButton';
 import Feed, { FeedProps } from '../Feed';
 import AuthContext from '../../contexts/AuthContext';
 import { getLayout } from './FeedLayout';
@@ -28,6 +27,7 @@ import OnboardingContext from '../../contexts/OnboardingContext';
 import { typoCallout } from '../../styles/typography';
 import MagnifyingIcon from '../../icons/magnifying.svg';
 import { SEARCH_POSTS_QUERY } from '../../graphql/feed';
+import Button from '../buttons/Button';
 
 const PostsSearch = dynamic(
   () => import(/* webpackChunkName: "search" */ '../PostsSearch'),
@@ -168,24 +168,26 @@ export default function MainFeedPage<T>({
       )}
       <Nav className={classNames({ 'hide-tabs': isSearch })}>
         <Link href="/search" passHref prefetch={false}>
-          <TertiaryButton
+          <Button
             tag="a"
             buttonSize="small"
             icon={<MagnifyingIcon />}
+            className="btn-tertiary"
           />
         </Link>
         {tabs.map((tab) => (
           <Link href={tab.path} passHref prefetch={false} key={tab.path}>
-            <TertiaryButton
+            <Button
               tag="a"
               buttonSize="small"
               pressed={
                 tab.path === router?.pathname ||
                 (tab.default && router?.pathname === '/')
               }
+              className="btn-tertiary"
             >
               {tab.title}
-            </TertiaryButton>
+            </Button>
           </Link>
         ))}
         {isSearch && <PostsSearch />}

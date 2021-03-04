@@ -16,8 +16,7 @@ import AuthContext from '../../contexts/AuthContext';
 import { focusOutline } from '../../styles/helpers';
 import { laptop, tablet } from '../../styles/media';
 import { typoCallout } from '../../styles/typography';
-import TertiaryButton from '../buttons/TertiaryButton';
-import { ButtonProps } from '../buttons/BaseButton';
+import Button, { ButtonProps } from '../buttons/Button';
 import BookmarkIcon from '../../icons/bookmark.svg';
 import { footerNavBarBreakpoint } from './FooterNavBarLayout';
 import Logo from '../svg/Logo';
@@ -119,7 +118,7 @@ const Header = styled.header<{ responsive: boolean }>`
   }
 `;
 
-const BookmarksButton = styled(TertiaryButton)<ButtonProps<'a'>>`
+const BookmarksButton = styled(Button)<ButtonProps<'a'>>`
   display: none;
   margin: 0 ${buttonMargin};
 
@@ -155,6 +154,7 @@ export default function MainLayout({
                   tag="a"
                   icon={<BookmarkIcon />}
                   title="Bookmarks"
+                  className="btn-tertiary"
                 />
               </Link>
               <Link
@@ -180,7 +180,9 @@ export default function MainLayout({
                 title="Bookmarks"
                 onClick={() => showLogin()}
               />
-              <TertiaryButton onClick={() => showLogin()}>Login</TertiaryButton>
+              <Button onClick={() => showLogin()} className="btn-tertiary">
+                Login
+              </Button>
             </>
           ))}
         {showRank && windowLoaded && (

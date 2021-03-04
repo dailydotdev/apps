@@ -23,12 +23,12 @@ import UpvoteIcon from '../../icons/upvote.svg';
 import CommentIcon from '../../icons/comment.svg';
 import BookmarkIcon from '../../icons/bookmark.svg';
 import FeatherIcon from '../../icons/feather.svg';
-import TertiaryButton from '../buttons/TertiaryButton';
 import classNames from 'classnames';
 import rem from '../../macros/rem.macro';
 import dynamic from 'next/dynamic';
 import InteractionCounter from '../InteractionCounter';
 import { Comment } from '../../graphql/comments';
+import Button from '../buttons/Button';
 
 const ShareIcon = dynamic(() => import('../../icons/share.svg'));
 const FeaturedComment = dynamic(() => import('./FeaturedComment'));
@@ -245,20 +245,21 @@ export function PostCard({
             />
           </QuandaryButton>
         </Link>
-        <TertiaryButton
+        <Button
           icon={<BookmarkIcon />}
-          themeColor="bun"
           buttonSize="small"
           pressed={post.bookmarked}
           title={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}
           onClick={() => onBookmarkClick?.(post, !post.bookmarked)}
+          className="btn-tertiary-bun"
         />
         {showShare && (
-          <TertiaryButton
+          <Button
             icon={<ShareIcon />}
             buttonSize="small"
             title="Share post"
             onClick={() => onShare?.(post)}
+            className="btn-tertiary"
           />
         )}
       </ActionButtons>

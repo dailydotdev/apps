@@ -2,12 +2,12 @@
 import { jsx, css } from '@emotion/react';
 import React, { ReactElement } from 'react';
 import { useRouter } from 'next/router';
-import PrimaryButton from './buttons/PrimaryButton';
 import GitHubIcon from '../icons/github.svg';
 import { LegalNotice } from './utilities';
 import { privacyPolicy, termsOfService } from '../lib/constants';
 import styled from '@emotion/styled';
 import sizeN from '../macros/sizeN.macro';
+import Button from './buttons/Button';
 
 const Buttons = styled.div`
   display: flex;
@@ -46,15 +46,20 @@ export default function LoginButtons(): ReactElement {
   return (
     <>
       <Buttons>
-        <PrimaryButton onClick={() => login('github')} icon={<GitHubIcon />}>
+        <Button
+          className="btn-primary"
+          onClick={() => login('github')}
+          icon={<GitHubIcon />}
+        >
           Sign in with GitHub
-        </PrimaryButton>
-        <PrimaryButton
+        </Button>
+        <Button
+          className="btn-primary"
           onClick={() => login('google')}
           icon={<img src="/google.svg" className="icon" alt="Google logo" />}
         >
           Sign in with Google
-        </PrimaryButton>
+        </Button>
       </Buttons>
       <LegalNotice
         css={css`
