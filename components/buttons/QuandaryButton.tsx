@@ -6,115 +6,13 @@ import React, {
   useState,
 } from 'react';
 import Button, { ButtonProps } from './Button';
-import styled from '@emotion/styled';
-import { typoCallout } from '../../styles/typography';
-import sizeN from '../../macros/sizeN.macro';
 import classNames from 'classnames';
-import { mobileL } from '../../styles/media';
-
-// const applyButtonStateStyle = (style: ButtonStateStyle): string => {
-//   if (style.color) {
-//     return `color: ${style.color};`;
-//   }
-//   return '';
-// };
-//
-// const applyButtonStatesStyles = (styles: ButtonStatesStyles): string =>
-//   `
-//   ${styles.default ? applyButtonStateStyle(styles.default) : ''}
-//
-//   ${
-//     styles.pressed
-//       ? `& [aria-pressed="true"] ~ label {
-//     ${applyButtonStateStyle(styles.pressed)}
-//   }`
-//       : ''
-//   }
-//
-//   ${
-//     styles.hover
-//       ? `& :hover ~ label, & .hover ~ label, & :focus.focus-visible ~ label {
-//     ${applyButtonStateStyle(styles.hover)}
-//   }`
-//       : ''
-//   }
-//
-//   ${
-//     styles.active
-//       ? `& :active ~ label {
-//     ${applyButtonStateStyle(styles.active)}
-//   }`
-//       : ''
-//   }
-//
-//   ${
-//     styles.disabled
-//       ? `& [disabled] ~ label {
-//     ${applyButtonStateStyle(styles.disabled)}
-//   }`
-//       : ''
-//   }
-//   `;
 
 type QuandaryButtonProps = {
   id: string;
   reverse?: boolean;
   responsiveLabel?: boolean;
 };
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: stretch;
-  user-select: none;
-
-  label {
-    display: flex;
-    align-items: center;
-    font-weight: bold;
-    cursor: pointer;
-    padding-left: ${sizeN(1)};
-    padding-right: ${sizeN(6)};
-    ${typoCallout}
-  }
-
-  &.small > label {
-    padding-right: ${sizeN(4)};
-  }
-
-  &.large > label {
-    padding-right: ${sizeN(8)};
-  }
-
-  &&.reverse {
-    flex-direction: row-reverse;
-
-    & > label {
-      padding-left: ${sizeN(6)};
-      padding-right: ${sizeN(1)};
-    }
-
-    &.small > label {
-      padding-left: ${sizeN(4)};
-    }
-
-    &.large > label {
-      padding-left: ${sizeN(8)};
-    }
-  }
-
-  &.responsiveLabel label {
-    display: none;
-
-    ${mobileL} {
-      display: flex;
-    }
-  }
-
-  & [disabled] ~ label {
-    pointer-events: none;
-  }
-`;
 
 export default function QuandaryButton<
   Tag extends keyof JSX.IntrinsicElements
@@ -151,21 +49,32 @@ export default function QuandaryButton<
     };
   }
 
+  const labelDisplay = responsiveLabel ? `hidden mobileL:flex` : 'flex';
+
   return (
-    <Container
+    <div
       style={style}
       className={classNames(
-        { reverse, responsiveLabel },
+        { reverse },
         props.buttonSize,
         className,
+        'btn-quandary',
+        'flex',
+        'flex-row',
+        'items-stretch',
+        'select-none',
       )}
     >
       <Button<Tag> id={id} {...props} tag={tag} {...buttonProps} />
       {children && (
-        <label htmlFor={id} {...labelProps}>
+        <label
+          htmlFor={id}
+          {...labelProps}
+          className={`${labelDisplay} items-center font-bold cursor-pointer typo-callout`}
+        >
           {children}
         </label>
       )}
-    </Container>
+    </div>
   );
 }

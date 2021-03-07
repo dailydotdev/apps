@@ -103,11 +103,11 @@ export default function CommentActionButtons({
       <QuandaryButton
         id={`comment-${comment.id}-upvote-btn`}
         buttonSize="small"
-        themeColor="avocado"
         pressed={upvoted}
         title="Upvote"
         onClick={toggleUpvote}
         icon={<UpvoteIcon />}
+        className="btn-tertiary-avocado"
       >
         {numUpvotes > 0 ? numUpvotes : null}
       </QuandaryButton>
@@ -117,7 +117,7 @@ export default function CommentActionButtons({
         onClick={() => onComment(comment, parentId)}
         icon={<CommentIcon />}
         style={{ marginLeft: sizeN(7) }}
-        className="btn-tertiary"
+        className="btn-tertiary-avocado"
       />
       {(user?.id === comment.author.id ||
         user?.roles?.indexOf(Roles.Moderator) > -1) && (

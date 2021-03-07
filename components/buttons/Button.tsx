@@ -1,24 +1,8 @@
 import React, { LegacyRef, ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
-import { ColorName } from '../../styles/colors';
 import Loader from '../Loader';
 
 export type ButtonSize = 'small' | 'medium' | 'large' | 'xlarge';
-
-export interface ButtonStateStyle {
-  background?: string;
-  borderColor?: string;
-  color?: string;
-  shadow?: string;
-}
-
-export interface ButtonStatesStyles {
-  default?: ButtonStateStyle;
-  hover?: ButtonStateStyle;
-  active?: ButtonStateStyle;
-  pressed?: ButtonStateStyle;
-  disabled?: ButtonStateStyle;
-}
 
 export interface StyledButtonProps {
   buttonSize?: ButtonSize;
@@ -32,7 +16,6 @@ export interface BaseButtonProps {
   tag?: React.ElementType;
   icon?: ReactNode;
   rightIcon?: ReactNode;
-  themeColor?: ColorName;
   children?: ReactNode;
 }
 

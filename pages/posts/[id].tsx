@@ -619,23 +619,23 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         <ActionButtons>
           <QuandaryButton
             id="upvote-post-btn"
-            themeColor="avocado"
             pressed={postById?.post.upvoted}
             onClick={toggleUpvote}
             icon={<UpvoteIcon />}
             aria-label="Upvote"
             responsiveLabel
+            className="btn-tertiary-avocado"
           >
             Upvote
           </QuandaryButton>
           <QuandaryButton
             id="comment-post-btn"
-            themeColor="avocado"
             pressed={postById?.post.commented}
             onClick={openNewComment}
             icon={<CommentIcon />}
             aria-label="Comment"
             responsiveLabel
+            className="btn-tertiary-avocado"
           >
             Comment
           </QuandaryButton>
@@ -647,6 +647,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             style={{ visibility: nativeShareSupport ? 'visible' : 'hidden' }}
             aria-label="Share"
             responsiveLabel
+            className="btn-tertiary"
           >
             Share
           </QuandaryButton>

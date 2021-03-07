@@ -219,12 +219,12 @@ export function PostCard({
         <QuandaryButton
           id={`post-${post.id}-upvote-btn`}
           icon={<UpvoteIcon />}
-          themeColor="avocado"
           buttonSize="small"
           pressed={post.upvoted}
           title={post.upvoted ? 'Remove upvote' : 'Upvote'}
           onClick={() => onUpvoteClick?.(post, !post.upvoted)}
           style={{ width: rem(78) }}
+          className="btn-tertiary-avocado"
         >
           <InteractionCounter value={post.numUpvotes > 0 && post.numUpvotes} />
         </QuandaryButton>
@@ -233,12 +233,12 @@ export function PostCard({
             id={`post-${post.id}-comment-btn`}
             tag="a"
             icon={<CommentIcon />}
-            themeColor="avocado"
             buttonSize="small"
             pressed={post.commented}
             title="Comment"
             onClick={() => onCommentClick?.(post)}
             style={{ width: rem(78) }}
+            className="btn-tertiary-avocado"
           >
             <InteractionCounter
               value={post.numComments > 0 && post.numComments}

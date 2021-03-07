@@ -358,6 +358,7 @@ export default function ProfileLayout({
                   target="_blank"
                   rel="noopener"
                   icon={<LinkIcon />}
+                  className="btn-tertiary"
                 >
                   {portfolioLink
                     .replace(/(^\w+:|^)\/\//, '')

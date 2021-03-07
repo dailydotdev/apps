@@ -109,3 +109,59 @@
     cursor: default;
   }
 }
+
+.btn-quandary {
+  & label {
+    color: var(--button-color, var(--button-default-color));
+  }
+
+  & [aria-pressed="true"] ~ label {
+    color: var(--button-pressed-color);
+  }
+
+  & :hover ~ label, & .hover ~ label, & :focus:focus-visible ~ label {
+    color: var(--button-hover-color);
+  }
+
+  & :active ~ label {
+    color: var(--button-active-color);
+  }
+
+  & [disabled] ~ label {
+    color: var(--button-disabled-color);
+  }
+
+  & [disabled] ~ label {
+    pointer-events: none;
+  }
+
+  & label {
+    padding-left: 0.25rem;
+    padding-right: 1.5rem;
+  }
+
+  &.small > label {
+    padding-right: 1rem;
+  }
+
+  &.large > label {
+    padding-right: 2rem;
+  }
+
+  &.reverse {
+    flex-direction: row-reverse;
+
+    & > label {
+      padding-left: 1.5rem;
+      padding-right: 0.25rem;
+    }
+
+    &.small > label {
+      padding-left: 1rem;
+    }
+
+    &.large > label {
+      padding-left: 2rem;
+    }
+  }
+}

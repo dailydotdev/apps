@@ -28,6 +28,15 @@ module.exports = {
         'Segoe UI Symbol',
       ],
     },
+    screens: {
+      mobileL: '420px',
+      tablet: '656px',
+      laptop: '1020px',
+      laptopL: '1360px',
+      laptopXL: '1668px',
+      desktop: '1976px',
+      desktopL: '2156px',
+    },
   },
   variants: {
     extend: {},
