@@ -140,3 +140,7 @@ html.light .invert .invert {
   flex-direction: column;
   align-items: stretch;
 }
+
+img.lazyload:not([src]) {
+  visibility: hidden;
+}
