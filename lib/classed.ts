@@ -1,9 +1,7 @@
 import React, {
   Attributes,
   ClassAttributes,
-  ComponentClass,
   ElementType,
-  FunctionComponent,
   FunctionComponentElement,
   ReactElement,
 } from 'react';
