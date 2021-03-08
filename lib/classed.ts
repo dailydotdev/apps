@@ -9,31 +9,21 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 
+function classed<P extends Record<string, unknown>>(
+  type: ElementType,
+  ...className: string[]
+): (props?: (Attributes & P) | null) => FunctionComponentElement<P>;
+
 function classed<
   T extends keyof JSX.IntrinsicElements,
   P extends JSX.IntrinsicElements[T]
 >(
-  type: ElementType,
+  type: keyof JSX.IntrinsicElements,
   ...className: string[]
 ): (props?: (ClassAttributes<T> & P) | null) => ReactElement<P, T>;
 
-// function classed<P extends HTMLAttributes<T>, T extends HTMLElement>(
-//   type: keyof ReactHTML,
-//   ...className: string[]
-// ): (props?: (ClassAttributes<T> & P) | null) => DetailedReactHTMLElement<P, T>;
-//
-// function classed<P extends DOMAttributes<T>, T extends Element>(
-//   type: keyof ReactHTML,
-//   ...className: string[]
-// ): (props?: (ClassAttributes<T> & P) | null) => DOMElement<P, T>;
-
-function classed<P extends Record<string, never>>(
-  type: FunctionComponent<P>,
-  ...className: string[]
-): (props?: (Attributes & P) | null) => FunctionComponentElement<P>;
-
-function classed<P extends Record<string, never>>(
-  type: FunctionComponent<P> | ComponentClass<P> | string,
+function classed<P extends Record<string, unknown>>(
+  type: ElementType | keyof JSX.IntrinsicElements,
   ...className: string[]
 ): (
   props?: (Attributes & P & { className?: string }) | null,
