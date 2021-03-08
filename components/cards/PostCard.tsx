@@ -80,7 +80,7 @@ export function PostCard({
               <img
                 src={post.source.image}
                 alt={post.source.name}
-                className="'w-6 h-6 rounded-full bg-theme-bg-tertiary"
+                className="w-6 h-6 rounded-full bg-theme-bg-tertiary"
               />
             </a>
           </Link>
