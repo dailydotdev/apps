@@ -1,0 +1,76 @@
+.title {
+  -webkit-line-clamp: 3;
+}
+
+.blur {
+  filter: blur(1.25rem);
+}
+
+.ad {
+  & .title {
+    -webkit-line-clamp: 4;
+  }
+}
+
+.actionButtons {
+  & > * {
+    margin-left: 0.25rem;
+
+    &:first-child {
+      margin-left: 0;
+    }
+  }
+}
+
+.card {
+  & > * {
+    pointer-events: none;
+  }
+
+  & a,
+  & button,
+  & label {
+    pointer-events: all;
+    z-index: 1;
+  }
+
+  & .link {
+    z-index: unset;
+  }
+}
+
+.header {
+  & > * {
+    margin: 0 0.375rem;
+  }
+}
+
+.post {
+  &.hideContent > * {
+    visibility: hidden;
+
+    &.show {
+      visibility: visible;
+    }
+  }
+
+  &.read {
+    border-color: var(--theme-divider-quaternary);
+    background: var(--theme-post-disabled);
+    box-shadow: none;
+
+    & .title {
+      color: var(--theme-label-tertiary);
+    }
+  }
+
+  @media (pointer: fine) {
+    & .authorBox {
+      visibility: hidden;
+    }
+
+    &:hover .authorBox {
+      visibility: visible;
+    }
+  }
+}

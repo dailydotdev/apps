@@ -6,8 +6,9 @@ import React, {
   ReactNode,
   SyntheticEvent,
 } from 'react';
+import classNames from 'classnames';
 
-export interface Props extends HTMLAttributes<HTMLDivElement> {
+export interface LazyImageProps extends HTMLAttributes<HTMLDivElement> {
   imgSrc: string;
   imgAlt: string;
   background?: string;
@@ -15,11 +16,11 @@ export interface Props extends HTMLAttributes<HTMLDivElement> {
   eager?: boolean;
   fallbackSrc?: string;
   children?: ReactNode;
+  absolute?: boolean;
+  fit?: 'cover' | 'contain';
 }
 
 const asyncImageSupport = false;
-
-const baseImageClass = `absolute block inset-0 w-full h-full m-auto object-cover`;
 
 export default function LazyImage({
   imgSrc,
@@ -30,9 +31,14 @@ export default function LazyImage({
   background,
   fallbackSrc,
   children,
+  absolute = false,
+  fit = 'cover',
   ...props
-}: Props): ReactElement {
+}: LazyImageProps): ReactElement {
   // const { asyncImageSupport } = useContext(ProgressiveEnhancementContext);
+  const baseImageClass = `absolute block inset-0 w-full h-full m-auto ${
+    fit === 'cover' ? 'object-cover' : 'object-contain'
+  }`;
   const imageProps: ImgHTMLAttributes<HTMLImageElement> & {
     'data-src'?: string;
   } = eager
@@ -53,7 +59,11 @@ export default function LazyImage({
   return (
     <div
       {...props}
-      className={`${className} relative overflow-hidden`}
+      className={classNames(
+        className,
+        absolute ? 'absolute' : 'relative',
+        'overflow-hidden',
+      )}
       style={{ background }}
     >
       {ratio && <div style={{ paddingTop: ratio, zIndex: -1 }} />}

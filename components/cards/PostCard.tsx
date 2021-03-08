@@ -1,6 +1,4 @@
-/** @jsx jsx */
-import { css, jsx } from '@emotion/react';
-import { HTMLAttributes, ReactElement, useMemo, useState } from 'react';
+import React, { HTMLAttributes, ReactElement, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Post } from '../../graphql/posts';
 import {
@@ -13,12 +11,9 @@ import {
   CardTitle,
   featuredCommentsToButtons,
 } from './Card';
-import styled from '@emotion/styled';
-import { smallRoundedImage, SmallRoundedImage } from '../utilities';
-import sizeN from '../../macros/sizeN.macro';
-import { typoCallout, typoFootnote } from '../../styles/typography';
+import { SmallRoundedImage } from '../utilities';
 import { postDateFormat } from '../../lib/dateFormat';
-import QuandaryButton from '../buttons/QuandaryButton';
+import QuaternaryButton from '../buttons/QuaternaryButton';
 import UpvoteIcon from '../../icons/upvote.svg';
 import CommentIcon from '../../icons/comment.svg';
 import BookmarkIcon from '../../icons/bookmark.svg';
@@ -29,6 +24,7 @@ import dynamic from 'next/dynamic';
 import InteractionCounter from '../InteractionCounter';
 import { Comment } from '../../graphql/comments';
 import Button from '../buttons/Button';
+import styles from '../../styles/cards.module.css';
 
 const ShareIcon = dynamic(() => import('../../icons/share.svg'));
 const FeaturedComment = dynamic(() => import('./FeaturedComment'));
@@ -44,96 +40,6 @@ export type PostCardProps = {
   showShare?: boolean;
   onShare?: Callback;
 } & HTMLAttributes<HTMLDivElement>;
-
-const MetadataContainer = styled.div`
-  display: flex;
-  align-items: center;
-  margin: 0 ${sizeN(4)};
-  color: var(--theme-label-tertiary);
-  ${typoFootnote}
-`;
-
-const MetadataSeparator = styled.div`
-  width: 1em;
-  height: 1em;
-  margin: 0 ${sizeN(1)};
-  font-size: ${sizeN(0.5)};
-  border-radius: 100%;
-  background: var(--theme-label-tertiary);
-`;
-
-const ActionButtons = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: 0 ${sizeN(4)};
-
-  & > * {
-    margin-left: ${sizeN(1)};
-
-    &:first-child {
-      margin-left: 0;
-    }
-  }
-`;
-
-const AuthorBox = styled.div`
-  position: relative;
-  display: flex;
-  align-items: center;
-  padding: ${rem(8)} ${rem(12)};
-  color: var(--theme-label-secondary);
-  background: var(--theme-background-primary);
-  z-index: 1;
-  font-weight: bold;
-  ${typoCallout}
-
-  span {
-    flex: 1;
-    overflow: hidden;
-    margin: 0 ${rem(12)};
-    text-overflow: ellipsis;
-  }
-
-  .icon {
-    font-size: ${rem(24)};
-    color: var(--theme-status-help);
-  }
-`;
-
-const StyledCard = styled(Card)`
-  &.hide-content > * {
-    visibility: hidden;
-
-    &.show {
-      visibility: visible;
-    }
-  }
-
-  &.read {
-    border-color: var(--theme-divider-quaternary);
-    background: var(--theme-post-disabled);
-    box-shadow: none;
-
-    ${CardTitle} {
-      color: var(--theme-label-tertiary);
-    }
-  }
-
-  ${CardImage} {
-    margin: ${sizeN(2)} 0;
-  }
-
-  @media (pointer: fine) {
-    ${AuthorBox} {
-      visibility: hidden;
-    }
-
-    &:hover ${AuthorBox} {
-      visibility: visible;
-    }
-  }
-`;
 
 export function PostCard({
   post,
@@ -151,10 +57,11 @@ export function PostCard({
   const date = useMemo(() => postDateFormat(post.createdAt), [post.createdAt]);
 
   return (
-    <StyledCard
+    <Card
       {...props}
       className={classNames(
-        { read: post.read, 'hide-content': selectedComment },
+        { [styles.read]: post.read, [styles.hideContent]: selectedComment },
+        styles.post,
         className,
       )}
     >
@@ -169,19 +76,11 @@ export function PostCard({
       <CardTextContainer>
         <CardHeader>
           <Link href={`/sources/${post.source.id}`} prefetch={false}>
-            <a
-              title={post.source.name}
-              css={css`
-                display: flex;
-                padding-right: ${sizeN(2)};
-                cursor: pointer;
-              `}
-            >
+            <a title={post.source.name} className="flex pr-2 cursor-pointer">
               <img
                 src={post.source.image}
                 alt={post.source.name}
-                css={smallRoundedImage}
-                style={{ background: 'var(--theme-background-tertiary)' }}
+                className="'w-6 h-6 rounded-full bg-theme-bg-tertiary"
               />
             </a>
           </Link>
@@ -190,33 +89,38 @@ export function PostCard({
         <CardTitle>{post.title}</CardTitle>
       </CardTextContainer>
       <CardSpace />
-      <MetadataContainer>
+      <div className="flex items-center mx-4 text-theme-label-tertiary typo-footnote">
         <time dateTime={post.createdAt}>{date}</time>
         {!!post.readTime && (
           <>
-            <MetadataSeparator />
+            <div className="w-0.5 h-0.5 mx-1 rounded-full bg-theme-label-tertiary" />
             <span data-testid="readTime">{post.readTime}m read time</span>
           </>
         )}
-      </MetadataContainer>
+      </div>
       <CardImage
         imgAlt="Post Cover image"
         imgSrc={post.image}
         fallbackSrc="https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1"
+        className="my-2"
       >
         {post.author && (
-          <AuthorBox>
+          <div
+            className={`relative flex items-center py-2 px-3 text-theme-label-secondary bg-theme-bg-primary z-1 font-bold typo-callout ${styles.authorBox}`}
+          >
             <SmallRoundedImage
               imgSrc={post.author.image}
               imgAlt="Author's profile picture"
             />
-            <span>{post.author.name}</span>
-            <FeatherIcon />
-          </AuthorBox>
+            <span className="flex-1 mx-3 truncate">{post.author.name}</span>
+            <FeatherIcon className="text-2xl text-theme-status-help" />
+          </div>
         )}
       </CardImage>
-      <ActionButtons>
-        <QuandaryButton
+      <div
+        className={`flex flex-row items-center justify-between mx-4 ${styles.actionButtons}`}
+      >
+        <QuaternaryButton
           id={`post-${post.id}-upvote-btn`}
           icon={<UpvoteIcon />}
           buttonSize="small"
@@ -227,9 +131,9 @@ export function PostCard({
           className="btn-tertiary-avocado"
         >
           <InteractionCounter value={post.numUpvotes > 0 && post.numUpvotes} />
-        </QuandaryButton>
+        </QuaternaryButton>
         <Link href={post.commentsPermalink} passHref prefetch={false}>
-          <QuandaryButton
+          <QuaternaryButton
             id={`post-${post.id}-comment-btn`}
             tag="a"
             icon={<CommentIcon />}
@@ -243,7 +147,7 @@ export function PostCard({
             <InteractionCounter
               value={post.numComments > 0 && post.numComments}
             />
-          </QuandaryButton>
+          </QuaternaryButton>
         </Link>
         <Button
           icon={<BookmarkIcon />}
@@ -262,17 +166,17 @@ export function PostCard({
             className="btn-tertiary"
           />
         )}
-      </ActionButtons>
+      </div>
       {selectedComment && (
         <FeaturedComment
           comment={selectedComment}
           featuredComments={post.featuredComments}
           onCommentClick={setSelectedComment}
           onBack={() => setSelectedComment(null)}
-          className="show"
+          className={styles.show}
         />
       )}
       {children}
-    </StyledCard>
+    </Card>
   );
 }

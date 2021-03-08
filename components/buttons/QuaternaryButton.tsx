@@ -14,7 +14,7 @@ type QuandaryButtonProps = {
   responsiveLabel?: boolean;
 };
 
-export default function QuandaryButton<
+export default function QuaternaryButton<
   Tag extends keyof JSX.IntrinsicElements
 >({
   id,
@@ -58,7 +58,7 @@ export default function QuandaryButton<
         { reverse },
         props.buttonSize,
         className,
-        'btn-quandary',
+        'btn-quaternary',
         'flex',
         'flex-row',
         'items-stretch',

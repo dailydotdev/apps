@@ -1,7 +1,6 @@
-/** @jsx jsx */
-import { css, jsx } from '@emotion/react';
-import { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import requestIdleCallback from 'next/dist/client/request-idle-callback';
+import styles from '../styles/interactionCounter.module.css';
 
 export type InteractionCounterProps = { value: number | null };
 
@@ -32,51 +31,20 @@ export default function InteractionCounter({
   };
 
   return (
-    <span
-      css={css`
-        position: relative;
-        overflow: hidden;
-        min-width: 1ch;
-
-        & > * {
-          display: inline-block;
-          transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
-          will-change: opacity, transform;
-        }
-      `}
-    >
+    <span className={`relative overflow-hidden ${styles.interactionCounter}`}>
       <span
-        css={css`
-          opacity: 1;
-          transform: translateY(0);
-
-          && {
-            ${animate &&
-            `
-            opacity: 0;
-            transform: translateY(-100%);
-          `}
-          }
-        `}
+        className={
+          animate
+            ? 'transform opacity-0 -translate-y-full'
+            : 'transform opacity-100 translate-y-0'
+        }
       >
         {shownValue}
       </span>
       <span
-        css={css`
-          position: absolute;
-          top: 0;
-          left: 0;
-          opacity: 0;
-          transform: translateY(100%);
-
-          && {
-            ${animate &&
-            `
-            opacity: 1;
-            transform: translateY(0);
-          `}
-          }
-        `}
+        className={`absolute top-0 left-0 transform ${
+          animate ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-full'
+        }`}
         onTransitionEnd={updateShownValue}
       >
         {value}

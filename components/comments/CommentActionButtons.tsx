@@ -14,7 +14,7 @@ import { useMutation, useQueryClient } from 'react-query';
 import { Roles } from '../../lib/user';
 import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
-import QuandaryButton from '../buttons/QuandaryButton';
+import QuaternaryButton from '../buttons/QuaternaryButton';
 import Button from '../buttons/Button';
 
 export interface Props {
@@ -100,7 +100,7 @@ export default function CommentActionButtons({
 
   return (
     <Container>
-      <QuandaryButton
+      <QuaternaryButton
         id={`comment-${comment.id}-upvote-btn`}
         buttonSize="small"
         pressed={upvoted}
@@ -110,7 +110,7 @@ export default function CommentActionButtons({
         className="btn-tertiary-avocado"
       >
         {numUpvotes > 0 ? numUpvotes : null}
-      </QuandaryButton>
+      </QuaternaryButton>
       <Button
         buttonSize="small"
         title="Comment"

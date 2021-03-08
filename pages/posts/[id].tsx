@@ -62,7 +62,7 @@ import request, { ClientError } from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import { ProfileLink } from '../../components/profile/ProfileLink';
 import { ownershipGuide } from '../../lib/constants';
-import QuandaryButton from '../../components/buttons/QuandaryButton';
+import QuaternaryButton from '../../components/buttons/QuaternaryButton';
 import { LoginModalMode } from '../../components/modals/LoginModal';
 import { trackEvent } from '../../lib/analytics';
 import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
@@ -617,7 +617,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           )}
         </StatsBar>
         <ActionButtons>
-          <QuandaryButton
+          <QuaternaryButton
             id="upvote-post-btn"
             pressed={postById?.post.upvoted}
             onClick={toggleUpvote}
@@ -627,8 +627,8 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             className="btn-tertiary-avocado"
           >
             Upvote
-          </QuandaryButton>
-          <QuandaryButton
+          </QuaternaryButton>
+          <QuaternaryButton
             id="comment-post-btn"
             pressed={postById?.post.commented}
             onClick={openNewComment}
@@ -638,8 +638,8 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             className="btn-tertiary-avocado"
           >
             Comment
-          </QuandaryButton>
-          <QuandaryButton
+          </QuaternaryButton>
+          <QuaternaryButton
             id="share-post-btn"
             onClick={sharePost}
             title="Share"
@@ -650,7 +650,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             className="btn-tertiary"
           >
             Share
-          </QuandaryButton>
+          </QuaternaryButton>
         </ActionButtons>
         {comments?.postComments.edges.map((e) => (
           <MainComment

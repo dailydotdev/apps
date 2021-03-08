@@ -1,6 +1,4 @@
-/** @jsx jsx */
-import { jsx, css } from '@emotion/react';
-import { HTMLAttributes, ReactElement, useEffect } from 'react';
+import React, { HTMLAttributes, ReactElement, useEffect } from 'react';
 import {
   Card,
   CardImage,
@@ -9,10 +7,9 @@ import {
   CardTextContainer,
   CardTitle,
 } from './Card';
-import styled from '@emotion/styled';
-import sizeN from '../../macros/sizeN.macro';
-import { typoFootnote } from '../../styles/typography';
 import { Ad } from '../../graphql/posts';
+import styles from '../../styles/cards.module.css';
+import classNames from 'classnames';
 
 type Callback = (ad: Ad) => unknown;
 
@@ -22,56 +19,11 @@ export type AdCardProps = {
   onLinkClick?: Callback;
 } & HTMLAttributes<HTMLDivElement>;
 
-const Pixel = styled.img`
-  display: none;
-  width: 0;
-  height: 0;
-`;
-
-const ImageContainer = styled.div`
-  position: relative;
-  overflow: hidden;
-  border-radius: ${sizeN(3)};
-  z-index: 1;
-`;
-
-const Footer = styled.a`
-  margin: ${sizeN(4)} 0 ${sizeN(2)};
-  color: var(--theme-label-quaternary);
-  text-decoration: none;
-  ${typoFootnote}
-`;
-
-const StyledCard = styled(Card)`
-  ${CardImage} {
-    &.blur {
-      z-index: -1;
-      filter: blur(${sizeN(5)});
-    }
-
-    &.absolute {
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: 0;
-      bottom: 0;
-      margin: auto;
-
-      img {
-        object-fit: contain;
-      }
-    }
-  }
-
-  ${CardTitle} {
-    margin: ${sizeN(4)} 0;
-  }
-`;
-
 export function AdCard({
   ad,
   onImpression,
   onLinkClick,
+  className,
   ...props
 }: AdCardProps): ReactElement {
   const showBlurredImage = ad.source === 'Carbon';
@@ -81,7 +33,7 @@ export function AdCard({
   }, []);
 
   return (
-    <StyledCard {...props}>
+    <Card {...props} className={classNames(className, styles.ad)}>
       <CardLink
         href={ad.link}
         target="_blank"
@@ -91,46 +43,49 @@ export function AdCard({
         onMouseUp={(event) => event.button === 1 && onLinkClick?.(ad)}
       />
       <CardTextContainer>
-        <CardTitle
-          css={css`
-            -webkit-line-clamp: 4;
-          `}
-        >
-          {ad.description}
-        </CardTitle>
+        <CardTitle className="my-4">{ad.description}</CardTitle>
       </CardTextContainer>
       <CardSpace />
-      <ImageContainer>
+      <div className="relative overflow-hidden rounded-xl z-1">
         <CardImage
           imgAlt="Ad image"
           imgSrc={ad.image}
-          className={showBlurredImage && 'absolute'}
+          absolute={showBlurredImage}
+          className={showBlurredImage && `inset-0 m-auto`}
+          fit={showBlurredImage ? 'contain' : 'cover'}
         />
         {showBlurredImage && (
           <CardImage
             imgAlt="Ad image background"
             imgSrc={ad.image}
-            className="blur"
+            className={`-z-1 ${styles.blur}`}
           />
         )}
-      </ImageContainer>
+      </div>
       <CardTextContainer>
         {ad.referralLink ? (
-          <Footer
+          <a
             href={ad.referralLink}
             target="_blank"
             rel="noopener"
-            className="clickable"
+            className="mt-4 mb-2 text-theme-label-quaternary typo-footnote no-underline"
           >
             Promoted by {ad.source}
-          </Footer>
+          </a>
         ) : (
-          <Footer as="div">Promoted</Footer>
+          <div className="mt-4 mb-2 text-theme-label-quaternary typo-footnote no-underline">
+            Promoted
+          </div>
         )}
       </CardTextContainer>
       {ad.pixel?.map((pixel) => (
-        <Pixel src={pixel} key={pixel} data-testid="pixel" />
+        <img
+          src={pixel}
+          key={pixel}
+          data-testid="pixel"
+          className="hidden w-0 h-0"
+        />
       ))}
-    </StyledCard>
+    </Card>
   );
 }

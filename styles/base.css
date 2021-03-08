@@ -37,8 +37,8 @@ html .invert .invert {
   --theme-status-help: theme('colors.cheese.40');
   --theme-status-success: theme('colors.avocado.40');
 
-  --theme-shadow2: theme('boxShadow.2.black');
-  --theme-shadow3: theme('boxShadow.3.black');
+  --theme-shadow2: theme('boxShadow.2-black');
+  --theme-shadow3: theme('boxShadow.3-black');
 
   --theme-post-disabled: theme('colors.pepper.70')66;
 
@@ -94,8 +94,8 @@ html.light .invert .invert {
   --theme-status-help: theme('colors.cheese.60');
   --theme-status-success: theme('colors.avocado.60');
 
-  --theme-shadow2: theme('boxShadow.2.salt');
-  --theme-shadow3: theme('boxShadow.3.salt');
+  --theme-shadow2: theme('boxShadow.2-salt');
+  --theme-shadow3: theme('boxShadow.3-salt');
 
   --theme-post-disabled: #ffffff66;
 

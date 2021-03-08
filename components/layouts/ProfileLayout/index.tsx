@@ -46,7 +46,7 @@ import {
   UserReadingRankData,
 } from '../../../graphql/users';
 import NavBar, { tabs } from './NavBar';
-import QuandaryButton from '../../buttons/QuandaryButton';
+import QuaternaryButton from '../../buttons/QuaternaryButton';
 import ProgressiveEnhancementContext from '../../../contexts/ProgressiveEnhancementContext';
 import Button from '../../buttons/Button';
 
@@ -350,7 +350,7 @@ export default function ProfileLayout({
                 />
               )}
               {portfolioLink && (
-                <QuandaryButton
+                <QuaternaryButton
                   tag="a"
                   id="portfolio-link"
                   href={portfolioLink}
@@ -363,7 +363,7 @@ export default function ProfileLayout({
                   {portfolioLink
                     .replace(/(^\w+:|^)\/\//, '')
                     .replace(/\/?(\?.*)?$/, '')}
-                </QuandaryButton>
+                </QuaternaryButton>
               )}
             </Links>
             {profile.id === user?.id && (

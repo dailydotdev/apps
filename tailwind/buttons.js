@@ -13,11 +13,11 @@ const variations = {
       },
       hover: {
         background: color ? colors[color]['30'] : colors.salt['50'],
-        'box-shadow': color ? boxShadow[3][color] : 'var(--theme-shadow3)',
+        'box-shadow': color ? boxShadow[`3-${color}`] : 'var(--theme-shadow3)',
       },
       active: {
         background: color ? colors[color]['10'] : colors.salt['90'],
-        'box-shadow': color ? boxShadow[2][color] : 'var(--theme-shadow2)',
+        'box-shadow': color ? boxShadow[`2-${color}`] : 'var(--theme-shadow2)',
       },
       pressed: {
         color: 'var(--theme-label-primary)',
@@ -60,7 +60,7 @@ const variations = {
           ? overlay['quaternary'][color]
           : `${colors.salt['90']}1F`,
         'border-color': color ? colors[color]['40'] : undefined,
-        'box-shadow': color ? boxShadow[3][color] : 'var(--theme-shadow3)',
+        'box-shadow': color ? boxShadow[`3-${color}`] : 'var(--theme-shadow3)',
       },
       active: {
         color: color ? colors[color]['40'] : undefined,
@@ -68,7 +68,7 @@ const variations = {
           ? overlay['tertiary'][color]
           : `${colors.salt['90']}33`,
         'border-color': color ? colors[color]['40'] : undefined,
-        'box-shadow': color ? boxShadow[2][color] : 'var(--theme-shadow2)',
+        'box-shadow': color ? boxShadow[`2-${color}`] : 'var(--theme-shadow2)',
       },
       pressed: {
         color: 'var(--theme-label-invert)',

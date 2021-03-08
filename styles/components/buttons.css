@@ -110,7 +110,7 @@
   }
 }
 
-.btn-quandary {
+.btn-quaternary {
   & label {
     color: var(--button-color, var(--button-default-color));
   }

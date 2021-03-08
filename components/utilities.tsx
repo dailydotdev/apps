@@ -1,3 +1,4 @@
+import React, { HTMLAttributes, ReactElement } from 'react';
 import styled from '@emotion/styled';
 import LazyImage from './LazyImage';
 import sizeN from '../macros/sizeN.macro';
@@ -5,29 +6,19 @@ import rem from '../macros/rem.macro';
 import { typoCallout, typoCaption1, typoTitle2 } from '../styles/typography';
 import { laptop, mobileL, tablet } from '../styles/media';
 import { pageMaxWidth } from '../styles/helpers';
-import { css, keyframes } from '@emotion/react';
+import { css } from '@emotion/react';
+import classNames from 'classnames';
+import classed from '../lib/classed';
 
-export const RoundedImage = styled(LazyImage)`
-  width: ${sizeN(10)};
-  height: ${sizeN(10)};
-  border-radius: 100%;
-`;
+export const RoundedImage = classed(LazyImage, 'w-10 h-10 rounded-full');
 
-export const smallRoundedImage = css`
-  width: ${sizeN(6)};
-  height: ${sizeN(6)};
-  border-radius: 100%;
-`;
-
-export const SmallRoundedImage = styled(LazyImage)`
-  ${smallRoundedImage}
-`;
+export const SmallRoundedImage = classed(LazyImage, 'w-6 h-6 rounded-full');
 
 export const LegalNotice = styled.div`
   color: var(--theme-label-quaternary);
   text-align: center;
-  ${typoCaption1}
 
+  ${typoCaption1}
   a {
     display: inline-block;
     text-decoration: underline;
@@ -107,35 +98,20 @@ export const ActiveTabIndicator = styled.div`
   border-radius: 0.063rem;
 `;
 
-const PlaceholderShimmer = keyframes`
-  100% {
-    transform: translateX(100%);
-  }
-`;
-
-export const ElementPlaceholder = styled.div`
-  position: relative;
-  overflow: hidden;
-  background: var(--theme-background-secondary);
-
-  &:after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-      90deg,
-      var(--theme-background-secondary),
-      var(--theme-background-tertiary) 15%,
-      var(--theme-background-secondary)
-    );
-    transform: translateX(-100%);
-    animation: ${PlaceholderShimmer} 1.25s infinite linear;
-    will-change: transform;
-  }
-`;
+export const ElementPlaceholder = ({
+  className,
+  ...props
+}: HTMLAttributes<HTMLDivElement>): ReactElement => (
+  <div
+    className={classNames(
+      className,
+      'element-placeholder relative overflow-hidden bg-theme-bg-secondary',
+    )}
+    {...props}
+  >
+    <div className="absolute top-0 left-0 w-full h-full" />
+  </div>
+);
 
 export const customScrollbars = css`
   &::-webkit-scrollbar {
@@ -178,8 +154,8 @@ export const CustomFeedHeader = styled.div`
   margin-bottom: ${sizeN(3)};
   color: var(--theme-label-secondary);
   font-weight: bold;
-  ${typoCallout}
 
+  ${typoCallout}
   button.laptop {
     display: none;
   }

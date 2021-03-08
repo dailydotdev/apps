@@ -7,3 +7,11 @@
     }
   }
 }
+
+.multi-truncate {
+  display: block;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

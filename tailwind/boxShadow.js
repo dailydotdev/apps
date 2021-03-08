@@ -7,9 +7,12 @@ const shadowColor = (color) =>
     ? colors[color]['90']
     : colors[color]['50'];
 
-const getShadowPalette = (shadow) =>
+const getShadowPalette = (key, shadow) =>
   [...Object.keys(colors), 'black'].reduce(
-    (acc, color) => ({ ...acc, [color]: shadow(shadowColor(color)) }),
+    (acc, color) => ({
+      ...acc,
+      [`${key}-${color}`]: shadow(shadowColor(color)),
+    }),
     {},
   );
 
@@ -19,8 +22,12 @@ const baseShadows = {
 };
 
 const boxShadows = Object.keys(baseShadows).reduce(
-  (acc, key) => ({ ...acc, [key]: getShadowPalette(baseShadows[key]) }),
+  (acc, key) => ({ ...acc, ...getShadowPalette(key, baseShadows[key]) }),
   {},
 );
 
-module.exports = boxShadows;
+module.exports = {
+  ...boxShadows,
+  2: 'var(--theme-shadow2)',
+  3: 'var(--theme-shadow3)',
+};

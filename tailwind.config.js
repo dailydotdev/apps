@@ -10,8 +10,52 @@ module.exports = {
     colors: {
       ...colors,
       overlay,
+      theme: {
+        active: 'var(--theme-active)',
+        focus: 'var(--theme-focus)',
+        float: 'var(--theme-float)',
+        hover: 'var(--theme-hover)',
+        bg: {
+          primary: 'var(--theme-background-primary)',
+          secondary: 'var(--theme-background-secondary)',
+          tertiary: 'var(--theme-background-tertiary)',
+        },
+        label: {
+          primary: 'var(--theme-label-primary)',
+          secondary: 'var(--theme-label-secondary)',
+          tertiary: 'var(--theme-label-tertiary)',
+          quaternary: 'var(--theme-label-quaternary)',
+          disabled: 'var(--theme-label-disabled)',
+          link: 'var(--theme-label-link)',
+          invert: 'var(--theme-label-invert)',
+        },
+        divider: {
+          primary: 'var(--theme-divider-primary)',
+          secondary: 'var(--theme-divider-secondary)',
+          tertiary: 'var(--theme-divider-tertiary)',
+          quaternary: 'var(--theme-divider-quaternary)',
+        },
+        status: {
+          error: 'var(--theme-status-error)',
+          help: 'var(--theme-status-help)',
+          success: 'var(--theme-status-success)',
+        },
+        'post-disabled': 'var(--theme-post-disabled)',
+      },
     },
     boxShadow,
+    opacity: {
+      0: '0',
+      40: '0.4',
+      50: '0.5',
+      64: '0.64',
+      100: '1',
+    },
+    zIndex: {
+      0: '0',
+      1: '1',
+      '-1': '-1',
+    },
     fontFamily: {
       sans: [
         'system-ui',
