@@ -16,7 +16,6 @@ import {
 } from '../../components/utilities';
 import HashtagIcon from '../../icons/hashtag.svg';
 import PlusIcon from '../../icons/plus.svg';
-import styled from '@emotion/styled';
 import sizeN from '../../macros/sizeN.macro';
 import { useRouter } from 'next/router';
 import { NextSeoProps } from 'next-seo/lib/types';
@@ -39,10 +38,6 @@ import useMutateFilters, {
 import { trackEvent } from '../../lib/analytics';
 
 type TagPageProps = { tag: string };
-
-const Icon = styled(HashtagIcon)`
-  ${customFeedIcon}
-`;
 
 const TagPage = ({ tag }: TagPageProps): ReactElement => {
   const { isFallback } = useRouter();
@@ -107,7 +102,7 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
     <FeedPage>
       <NextSeo {...seo} />
       <CustomFeedHeader>
-        <Icon />
+        <HashtagIcon className={customFeedIcon} />
         <span
           css={css`
             margin-right: auto;
@@ -115,8 +110,16 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
         >
           {tag}
         </span>
-        <Button className="btn-primary" {...buttonProps} css={buttonCss} />
-        <Button className="btn-primary laptop" {...buttonProps} css={buttonCss}>
+        <Button
+          className="btn-primary laptop:hidden"
+          {...buttonProps}
+          css={buttonCss}
+        />
+        <Button
+          className="btn-primary hidden laptop:flex"
+          {...buttonProps}
+          css={buttonCss}
+        >
           Add to feed
         </Button>
       </CustomFeedHeader>

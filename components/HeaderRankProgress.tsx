@@ -38,7 +38,6 @@ const RankButton = styled.button`
   height: ${headerRankHeight};
   align-items: center;
   justify-content: center;
-  margin: 0;
   padding: 0;
   border: none;
   background: var(--theme-background-primary);

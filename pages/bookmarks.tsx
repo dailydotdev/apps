@@ -23,10 +23,6 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Button from '../components/buttons/Button';
 
-const Icon = styled(BookmarkIcon)`
-  ${customFeedIcon}
-`;
-
 const EmptyScreenContainer = styled.main`
   position: fixed;
   display: flex;
@@ -67,11 +63,12 @@ const BookmarksPage = (): ReactElement => {
 
   if (showEmptyScreen) {
     return (
-      <EmptyScreenContainer>
+      <EmptyScreenContainer className="withNavBar">
         <NextSeo {...seo} />
-        <Icon
+        <BookmarkIcon
           css={css`
             margin: 0;
+            color: var(--theme-label-tertiary);
             font-size: ${sizeN(20)};
           `}
         />
@@ -105,7 +102,7 @@ const BookmarksPage = (): ReactElement => {
     <FeedPage>
       <NextSeo {...seo} />
       <CustomFeedHeader>
-        <Icon />
+        <BookmarkIcon className={customFeedIcon} />
         <span>Bookmarks</span>
       </CustomFeedHeader>
       <Feed

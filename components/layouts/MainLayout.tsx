@@ -1,28 +1,20 @@
-/** @jsx jsx */
-import { jsx, css } from '@emotion/react';
 import React, {
   HTMLAttributes,
   ReactElement,
   ReactNode,
   useContext,
 } from 'react';
-import styled from '@emotion/styled';
 import Link from 'next/link';
-import { headerHeight } from '../../styles/sizes';
-import sizeN from '../../macros/sizeN.macro';
-import rem from '../../macros/rem.macro';
 import LazyImage from '../LazyImage';
 import AuthContext from '../../contexts/AuthContext';
-import { focusOutline } from '../../styles/helpers';
-import { laptop, tablet } from '../../styles/media';
-import { typoCallout } from '../../styles/typography';
-import Button, { ButtonProps } from '../buttons/Button';
+import Button from '../buttons/Button';
 import BookmarkIcon from '../../icons/bookmark.svg';
-import { footerNavBarBreakpoint } from './FooterNavBarLayout';
 import Logo from '../svg/Logo';
 import LogoTextBeta from '../svg/LogoTextBeta';
 import dynamic from 'next/dynamic';
 import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
+import styles from '../../styles/mainLayout.module.css';
+import classed from '../../lib/classed';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -37,95 +29,7 @@ const HeaderRankProgress = dynamic(
     ),
 );
 
-const buttonMargin = sizeN(0.5);
-
-const ProfileImage = styled.a`
-  display: flex;
-  align-items: center;
-  overflow: hidden;
-  margin-left: ${buttonMargin};
-  padding: 0;
-  color: var(--theme-label-primary);
-  background: var(--theme-background-secondary);
-  border: none;
-  border-radius: ${sizeN(2)};
-  cursor: pointer;
-  text-decoration: none;
-  font-weight: bold;
-  ${focusOutline}
-  ${typoCallout}
-
-  .img {
-    width: ${sizeN(8)};
-    border-radius: ${sizeN(2)};
-  }
-
-  span {
-    margin: 0 ${sizeN(2)} 0 ${sizeN(3)};
-  }
-`;
-
-const HomeLink = styled.a`
-  display: flex;
-  align-items: center;
-  margin-right: auto;
-
-  svg {
-    height: 1.125rem;
-
-    &:nth-of-type(2) {
-      display: none;
-      margin-left: ${sizeN(1)};
-
-      ${laptop} {
-        display: unset;
-      }
-    }
-  }
-
-  .badge {
-    width: 1.875rem;
-    margin-left: ${sizeN(1)};
-  }
-`;
-
-const Header = styled.header<{ responsive: boolean }>`
-  position: relative;
-  display: flex;
-  height: ${headerHeight};
-  align-items: center;
-  padding: 0 ${sizeN(4)};
-  border-bottom: ${rem(1)} solid var(--theme-divider-tertiary);
-
-  ${tablet} {
-    padding-left: ${sizeN(8)};
-    padding-right: ${sizeN(8)};
-  }
-
-  ${laptop} {
-    padding-left: ${sizeN(4)};
-    padding-right: ${sizeN(4)};
-
-    ${({ responsive }) =>
-      responsive &&
-      `
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    border-bottom: none;
-    `}
-  }
-`;
-
-const BookmarksButton = styled(Button)<ButtonProps<'a'>>`
-  display: none;
-  margin: 0 ${buttonMargin};
-
-  ${footerNavBarBreakpoint} {
-    display: flex;
-  }
-`;
+const BookmarksButton = classed(Button, 'hidden mx-0.5 laptop:flex');
 
 export default function MainLayout({
   children,
@@ -138,12 +42,22 @@ export default function MainLayout({
 
   return (
     <>
-      <Header responsive={responsive}>
+      <header
+        className={`${
+          styles.header
+        } relative border-b flex items-center px-4 border-theme-divider-tertiary tablet:px-8 laptop:px-4 ${
+          responsive
+            ? 'laptop:absolute laptop:top-0 laptop:left-0 laptop:w-full laptop:border-b-0'
+            : ''
+        }`}
+      >
         <Link href="/" passHref prefetch={false}>
-          <HomeLink title="Home">
-            <Logo />
-            <LogoTextBeta />
-          </HomeLink>
+          <a className="flex items-center mr-auto" title="Home">
+            <Logo className={styles.homeSvg} />
+            <LogoTextBeta
+              className={`${styles.homeSvg} hidden ml-1 laptop:block`}
+            />
+          </a>
         </Link>
         {!showOnlyLogo &&
           !loadingUser &&
@@ -162,15 +76,17 @@ export default function MainLayout({
                 passHref
                 prefetch={false}
               >
-                <ProfileImage title="Go to your profile">
-                  <span>{user.reputation ?? 0}</span>
+                <a
+                  className="flex items-center overflow-hidden ml-0.5 p-0 text-theme-label-primary bg-theme-bg-secondary border-none rounded-lg cursor-pointer no-underline font-bold typo-callout focus-outline"
+                  title="Go to your profile"
+                >
+                  <span className="mr-2 ml-3">{user.reputation ?? 0}</span>
                   <LazyImage
-                    className="img"
+                    className="w-8 h-8 rounded-lg"
                     imgSrc={user.image}
                     imgAlt="Your profile image"
-                    ratio="100%"
                   />
-                </ProfileImage>
+                </a>
               </Link>
             </>
           ) : (
@@ -186,19 +102,9 @@ export default function MainLayout({
             </>
           ))}
         {showRank && windowLoaded && (
-          <HeaderRankProgress
-            css={css`
-              position: absolute;
-              left: 0;
-              right: 0;
-              bottom: -${rem(1)};
-              margin: 0 auto;
-              z-index: 3;
-              transform: translateY(50%);
-            `}
-          />
+          <HeaderRankProgress className="absolute left-0 right-0 -bottom-px my-0 mx-auto z-rank transform translate-y-1/2" />
         )}
-      </Header>
+      </header>
       {children}
     </>
   );

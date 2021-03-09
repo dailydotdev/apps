@@ -1,10 +1,8 @@
 import React, { ReactElement, ReactNode, useContext } from 'react';
-import { css, Global } from '@emotion/react';
 import { laptop } from '../../styles/media';
 import useMedia from '../../hooks/useMedia';
 import dynamic from 'next/dynamic';
 import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
-import { navBarHeight } from '../FooterNavBar';
 
 export const footerNavBarBreakpoint = laptop;
 
@@ -18,18 +16,6 @@ const FooterNavBar = dynamic(
 
 type FooterNavBarLayoutProps = { children?: ReactNode };
 
-const globalStyle = css`
-  main {
-    margin-bottom: ${navBarHeight};
-  }
-
-  ${footerNavBarBreakpoint} {
-    main {
-      margin-bottom: 0;
-    }
-  }
-`;
-
 export default function FooterNavBarLayout({
   children,
 }: FooterNavBarLayoutProps): ReactElement {
@@ -42,7 +28,6 @@ export default function FooterNavBarLayout({
 
   return (
     <>
-      <Global styles={globalStyle} />
       {showSidebar && windowLoaded && <Sidebar />}
       {!showSidebar && windowLoaded && <FooterNavBar />}
       {children}

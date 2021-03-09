@@ -54,6 +54,7 @@ module.exports = {
     zIndex: {
       0: '0',
       1: '1',
+      rank: '3',
       '-1': '-1',
     },
     fontFamily: {

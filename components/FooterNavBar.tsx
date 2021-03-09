@@ -31,12 +31,6 @@ const NavBar = styled(Flipper)`
     position: relative;
   }
 
-  ${ActiveTabIndicator} {
-    top: -${rem(1)};
-    bottom: unset;
-    width: ${sizeN(12)};
-  }
-
   button,
   a {
     width: 100%;
@@ -98,7 +92,9 @@ export default function FooterNavBar(): ReactElement {
             />
           )}
           <Flipped flipId="activeTabIndicator">
-            {selectedTab === index && <ActiveTabIndicator />}
+            {selectedTab === index && (
+              <ActiveTabIndicator className="-top-px w-12" />
+            )}
           </Flipped>
         </div>
       ))}

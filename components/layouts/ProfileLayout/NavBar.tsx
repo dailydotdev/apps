@@ -96,7 +96,9 @@ export default function NavBar({
             </Button>
           </Link>
           <Flipped flipId="activeTabIndicator" shouldLoad={windowLoaded}>
-            {selectedTab === index && <ActiveTabIndicator />}
+            {selectedTab === index && (
+              <ActiveTabIndicator className="bottom-0 w-4" />
+            )}
           </Flipped>
         </div>
       ))}

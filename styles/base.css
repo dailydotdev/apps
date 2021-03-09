@@ -129,7 +129,7 @@ html.light .invert .invert {
 .ReactModal__Body--open #__next.hide-on-modal {
   display: none;
 
-  @media (min-width: 420px) {
+  @media (--mobileL) {
     display: flex;
   }
 }
@@ -143,4 +143,16 @@ html.light .invert .invert {
 
 img.lazyload:not([src]) {
   visibility: hidden;
+}
+
+* {
+  flex-shrink: 0;
+}
+
+.withNavBar {
+  margin-bottom: $navBarHeight;
+
+  @media (--laptop) {
+    margin-bottom: 0;
+  }
 }

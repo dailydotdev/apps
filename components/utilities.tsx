@@ -1,102 +1,43 @@
 import React, { HTMLAttributes, ReactElement } from 'react';
-import styled from '@emotion/styled';
 import LazyImage from './LazyImage';
-import sizeN from '../macros/sizeN.macro';
-import rem from '../macros/rem.macro';
-import { typoCallout, typoCaption1, typoTitle2 } from '../styles/typography';
-import { laptop, mobileL, tablet } from '../styles/media';
-import { pageMaxWidth } from '../styles/helpers';
-import { css } from '@emotion/react';
 import classNames from 'classnames';
 import classed from '../lib/classed';
+import styles from '../styles/utilities.module.css';
 
 export const RoundedImage = classed(LazyImage, 'w-10 h-10 rounded-full');
 
 export const SmallRoundedImage = classed(LazyImage, 'w-6 h-6 rounded-full');
 
-export const LegalNotice = styled.div`
-  color: var(--theme-label-quaternary);
-  text-align: center;
+export const LegalNotice = classed(
+  'div',
+  'text-theme-label-quaternary text-center typo-caption1',
+  styles.legal,
+);
 
-  ${typoCaption1}
-  a {
-    display: inline-block;
-    text-decoration: underline;
-    color: inherit;
-    @supports (display: contents) {
-      display: contents;
-    }
-  }
-`;
+export const PageContainer = classed(
+  'main',
+  'relative flex flex-col w-full items-stretch pt-6 pb-16 px-4 z-1 mobileL:pb-6 tablet:px-8 tablet:self-center laptop:border-theme-divider-tertiary laptop:border-l laptop:border-r laptop:min-h-screen',
+  styles.pageContainer,
+);
 
-export const PageContainer = styled.main`
-  position: relative;
-  display: flex;
-  width: 100%;
-  max-width: ${pageMaxWidth};
-  flex-direction: column;
-  align-items: stretch;
-  padding: ${sizeN(6)} ${sizeN(4)} ${sizeN(16)};
-  z-index: 1;
+export const FeedPage = classed(
+  'main',
+  'withNavBar flex flex-col items-start pb-3 px-6 laptop:px-16',
+  styles.feedPage,
+);
 
-  ${mobileL} {
-    padding-bottom: ${sizeN(6)};
-  }
+export const FormErrorMessage = classed(
+  'div',
+  'mt-4 text-theme-status-error typo-caption1',
+);
 
-  ${tablet} {
-    padding-left: ${sizeN(8)};
-    padding-right: ${sizeN(8)};
-    align-self: center;
-  }
+export const ProfileHeading = classed('h1', 'm-0 self-start typo-title2');
 
-  ${laptop} {
-    min-height: 100vh;
-    border-left: ${rem(1)} solid var(--theme-divider-tertiary);
-    border-right: ${rem(1)} solid var(--theme-divider-tertiary);
-  }
-`;
-
-export const FeedPage = styled.main`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: ${sizeN(15)} ${sizeN(6)} ${sizeN(3)};
-
-  ${laptop} {
-    padding-left: ${sizeN(16)};
-    padding-right: ${sizeN(16)};
-  }
-
-  &.notReady {
-    & > * {
-      visibility: hidden;
-    }
-  }
-`;
-
-export const FormErrorMessage = styled.div`
-  margin-top: ${sizeN(4)};
-  color: var(--theme-status-error);
-  ${typoCaption1}
-`;
-
-export const ProfileHeading = styled.h1`
-  margin: 0;
-  align-self: flex-start;
-  ${typoTitle2}
-`;
-
-export const ActiveTabIndicator = styled.div`
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: ${sizeN(4)};
-  height: ${sizeN(0.5)};
-  margin: 0 auto;
-  background: var(--theme-label-primary);
-  border-radius: 0.063rem;
-`;
+export const ActiveTabIndicator = classed(
+  'div',
+  'absolute inset-x-0 bottom-0 h-0.5 my-0 mx-auto bg-theme-label-primary',
+  styles.activeTabIndicator,
+);
 
 export const ElementPlaceholder = ({
   className,
@@ -113,66 +54,9 @@ export const ElementPlaceholder = ({
   </div>
 );
 
-export const customScrollbars = css`
-  &::-webkit-scrollbar {
-    width: ${sizeN(2)};
-    background-color: transparent;
-  }
+export const CustomFeedHeader = classed(
+  'div',
+  'flex h-9 self-stretch items-center mb-3 text-theme-label-secondary typo-callout',
+);
 
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    border-radius: ${sizeN(1)};
-    background: var(--theme-label-tertiary);
-  }
-
-  &::-webkit-scrollbar-thumb:hover {
-    background: var(--theme-label-primary);
-  }
-
-  &::-webkit-scrollbar-thumb:active {
-    background: var(--theme-label-primary);
-  }
-`;
-
-export const noScrollbars = css`
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
-
-  &::-webkit-scrollbar {
-    display: none; /* Chrome, Safari and Opera */
-  }
-`;
-
-export const CustomFeedHeader = styled.div`
-  display: flex;
-  height: ${rem(36)};
-  align-self: stretch;
-  align-items: center;
-  margin-bottom: ${sizeN(3)};
-  color: var(--theme-label-secondary);
-  font-weight: bold;
-
-  ${typoCallout}
-  button.laptop {
-    display: none;
-  }
-
-  ${laptop} {
-    button {
-      display: none;
-
-      &.laptop {
-        display: flex;
-      }
-    }
-  }
-`;
-
-export const customFeedIcon = css`
-  font-size: ${sizeN(6)};
-  color: var(--theme-label-tertiary);
-  margin-right: ${sizeN(2)};
-`;
+export const customFeedIcon = 'text-2xl text-theme-label-tertiary mr-2';

@@ -8,26 +8,24 @@ import React, {
   useState,
 } from 'react';
 import { MainLayoutProps } from './MainLayout';
-import styled from '@emotion/styled';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useQuery } from 'react-query';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
-import sizeN from '../../macros/sizeN.macro';
-import rem from '../../macros/rem.macro';
 import Feed, { FeedProps } from '../Feed';
 import AuthContext from '../../contexts/AuthContext';
 import { getLayout } from './FeedLayout';
-import { FeedPage, noScrollbars } from '../utilities';
+import { FeedPage } from '../utilities';
 import { getTagsSettingsQueryKey } from '../../hooks/useMutateFilters';
 import { FeedSettingsData } from '../../graphql/feedSettings';
 import { LoggedUser } from '../../lib/user';
 import OnboardingContext from '../../contexts/OnboardingContext';
-import { typoCallout } from '../../styles/typography';
 import MagnifyingIcon from '../../icons/magnifying.svg';
 import { SEARCH_POSTS_QUERY } from '../../graphql/feed';
 import Button from '../buttons/Button';
+import utilitiesStyles from '../../styles/utilities.module.css';
+import styles from '../../styles/mainFeed.module.css';
 
 const PostsSearch = dynamic(
   () => import(/* webpackChunkName: "search" */ '../PostsSearch'),
@@ -36,33 +34,6 @@ const PostsSearch = dynamic(
 const SearchEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "emptySearch" */ '../SearchEmptyScreen'),
 );
-
-const Nav = styled.nav`
-  position: relative;
-  height: ${sizeN(10)};
-  display: flex;
-  align-self: stretch;
-  align-items: center;
-  margin: 0 0 ${sizeN(6)};
-  overflow-x: auto;
-  ${noScrollbars}
-
-  &.hide-tabs > a {
-    visibility: hidden;
-  }
-`;
-
-const Welcome = styled.div`
-  align-self: stretch;
-  max-width: ${rem(368)};
-  margin: ${sizeN(-1)} auto ${sizeN(12)};
-  padding: ${sizeN(3)} ${sizeN(6)};
-  color: var(--theme-label-secondary);
-  border-radius: ${sizeN(4)};
-  border: ${rem(1)} solid var(--theme-divider-secondary);
-  text-align: center;
-  ${typoCallout}
-`;
 
 export type Tab = { path: string; title: string; default?: boolean };
 export const tabs: Tab[] = [
@@ -158,21 +129,29 @@ export default function MainFeedPage<T>({
     }
   }, [isSearch, router.query, finalQuery, variables, feedDeps]);
 
+  const tabClassNames = isSearch ? 'btn-tertiary invisible' : 'btn-tertiary';
   return (
-    <FeedPage className={classNames({ notReady: !onboardingReady })}>
+    <FeedPage
+      className={classNames({
+        [utilitiesStyles.notReady]: !onboardingReady,
+      })}
+    >
       {showWelcome && (
-        <Welcome role="status">
+        <div
+          role="status"
+          className={`self-stretch -mt-1 mb-12 mx-auto py-3 px-6 text-theme-label-secondary rounded-2xl border border-theme-divider-secondary text-center typo-callout ${styles.welcome}`}
+        >
           Dear developer, our mission is to serve all the best programming news
           you’ll ever need. Ready?
-        </Welcome>
+        </div>
       )}
-      <Nav className={classNames({ 'hide-tabs': isSearch })}>
+      <nav className="relative h-10 flex self-stretch items-center mb-6 overflow-x-auto no-scrollbar">
         <Link href="/search" passHref prefetch={false}>
           <Button
             tag="a"
             buttonSize="small"
             icon={<MagnifyingIcon />}
-            className="btn-tertiary"
+            className={tabClassNames}
           />
         </Link>
         {tabs.map((tab) => (
@@ -184,14 +163,14 @@ export default function MainFeedPage<T>({
                 tab.path === router?.pathname ||
                 (tab.default && router?.pathname === '/')
               }
-              className="btn-tertiary"
+              className={tabClassNames}
             >
               {tab.title}
             </Button>
           </Link>
         ))}
         {isSearch && <PostsSearch />}
-      </Nav>
+      </nav>
       <Feed {...feedProps} />
       {children}
     </FeedPage>

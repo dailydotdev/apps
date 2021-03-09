@@ -7,7 +7,6 @@ import rem from '../macros/rem.macro';
 import ArrowIcon from '../icons/arrow.svg';
 import { focusOutline } from '../styles/helpers';
 import TagsFilter from './TagsFilter';
-import { customScrollbars } from './utilities';
 import classNames from 'classnames';
 
 const asideWidth = sizeN(89);
@@ -99,7 +98,7 @@ export default function Sidebar(): ReactElement {
 
   return (
     <Container className={classNames({ opened })}>
-      <Aside css={customScrollbars}>
+      <Aside className="scrollbar">
         <TagsFilter enableQueries={enableQueries} />
       </Aside>
       <Trigger title="Open sidebar" onClick={() => setOpened(!opened)}>
