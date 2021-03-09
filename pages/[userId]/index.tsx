@@ -44,9 +44,9 @@ import { formToJson } from '../../lib/form';
 import TextField from '../../components/fields/TextField';
 import { ownershipGuide } from '../../lib/constants';
 import { smallPostImage } from '../../lib/image';
-import PrimaryButton from '../../components/buttons/PrimaryButton';
 import dynamic from 'next/dynamic';
 import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
+import Button from '../../components/buttons/Button';
 
 const AccountDetailsModal = dynamic(
   () =>
@@ -267,7 +267,7 @@ const FormField = styled(TextField)`
   margin-bottom: ${sizeN(4)};
 `;
 
-const CompleteProfileButton = styled(PrimaryButton)`
+const CompleteProfileButton = styled(Button)`
   margin-top: ${sizeN(4)};
   align-self: flex-start;
 `;
@@ -433,13 +433,20 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
               validityChanged={updateDisableSubmit}
               valueChanged={() => twitterHint && setTwitterHint(null)}
             />
-            <PrimaryButton type="submit" disabled={disableSubmit}>
+            <Button
+              className="btn-primary"
+              type="submit"
+              disabled={disableSubmit}
+            >
               Save
-            </PrimaryButton>
+            </Button>
           </TwitterForm>
         ) : (
           <>
-            <CompleteProfileButton onClick={() => setShowAccountDetails(true)}>
+            <CompleteProfileButton
+              className="btn-primary"
+              onClick={() => setShowAccountDetails(true)}
+            >
               Complete your profile
             </CompleteProfileButton>
             {(windowLoaded || showAccountDetails) && (

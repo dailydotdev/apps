@@ -8,8 +8,7 @@ import sizeN from '../../macros/sizeN.macro';
 import rem from '../../macros/rem.macro';
 import { focusOutline } from '../../styles/helpers';
 import { typoCallout, typoTitle3 } from '../../styles/typography';
-import TertiaryButton from '../buttons/TertiaryButton';
-import { ButtonProps } from '../buttons/BaseButton';
+import Button, { ButtonProps } from '../buttons/Button';
 import XIcon from '../../icons/x.svg';
 
 export interface Props extends Modal.Props {
@@ -19,8 +18,9 @@ export interface Props extends Modal.Props {
 export const ModalCloseButton = (
   props: ButtonProps<'button'>,
 ): ReactElement => (
-  <TertiaryButton
+  <Button
     {...props}
+    className="btn-tertiary"
     buttonSize="small"
     title="Close"
     icon={<XIcon />}

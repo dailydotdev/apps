@@ -5,7 +5,7 @@ import CopyIcon from '../icons/copy.svg';
 import ShareIcon from '../icons/share.svg';
 import sizeN from '../macros/sizeN.macro';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
-import TertiaryButton from './buttons/TertiaryButton';
+import Button from './buttons/Button';
 
 const Container = styled.div`
   display: flex;
@@ -39,18 +39,23 @@ export function ShareMobile({ share }: Props): ReactElement {
 
   return (
     <Container>
-      <TertiaryButton
+      <Button
         buttonSize="small"
-        themeColor="avocado"
         onClick={copyLink}
         pressed={copying}
         icon={<CopyIcon />}
+        className="btn-tertiary-avocado"
       >
         {copying ? 'Copied!' : 'Copy link'}
-      </TertiaryButton>
-      <TertiaryButton buttonSize="small" onClick={share} icon={<ShareIcon />}>
+      </Button>
+      <Button
+        buttonSize="small"
+        onClick={share}
+        icon={<ShareIcon />}
+        className="btn-tertiary"
+      >
         Share with your friends
-      </TertiaryButton>
+      </Button>
     </Container>
   );
 }

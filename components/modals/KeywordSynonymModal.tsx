@@ -15,9 +15,7 @@ import {
 import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import { typoCallout } from '../../styles/typography';
-import TertiaryButton from '../buttons/TertiaryButton';
-import PrimaryButton from '../buttons/PrimaryButton';
-import { ButtonProps } from '../buttons/BaseButton';
+import Button, { ButtonProps } from '../buttons/Button';
 
 const Modal = styled(ResponsiveModal)`
   .Modal {
@@ -27,7 +25,7 @@ const Modal = styled(ResponsiveModal)`
   }
 `;
 
-const CloseButton = styled(TertiaryButton)<ButtonProps<'button'>>`
+const CloseButton = styled(Button)<ButtonProps<'button'>>`
   align-self: flex-end;
 `;
 
@@ -93,6 +91,7 @@ export default function KeywordSynonymModal({
         onClick={props.onRequestClose}
         buttonSize="small"
         title="Close"
+        className="btn-tertiary"
       >
         <XIcon />
       </CloseButton>
@@ -110,19 +109,23 @@ export default function KeywordSynonymModal({
         <ResultsList>
           {searchResults?.searchKeywords.hits.slice(0, 5).map((keyword) => (
             <ResultItem key={keyword.value}>
-              <TertiaryButton onClick={() => setSynonym(keyword.value)}>
+              <Button
+                onClick={() => setSynonym(keyword.value)}
+                className="btn-tertiary"
+              >
                 {keyword.value}
-              </TertiaryButton>
+              </Button>
             </ResultItem>
           ))}
         </ResultsList>
       )}
-      <PrimaryButton
+      <Button
+        className="btn-primary"
         onClick={() => setSynonym(query)}
         style={{ marginTop: sizeN(2), alignSelf: 'flex-start' }}
       >
         Create
-      </PrimaryButton>
+      </Button>
     </Modal>
   );
 }

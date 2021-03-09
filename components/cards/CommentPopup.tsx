@@ -5,9 +5,9 @@ import { ModalCloseButton } from '../modals/StyledModal';
 import { typoCallout } from '../../styles/typography';
 import commentPopupText from '../../commentPopupText';
 import { focusOutline } from '../../styles/helpers';
-import PrimaryButton from '../buttons/PrimaryButton';
 import CommentIcon from '../../icons/comment.svg';
 import requestIdleCallback from 'next/dist/client/request-idle-callback';
+import Button from '../buttons/Button';
 
 const transitionDuration = 150;
 
@@ -111,14 +111,15 @@ export default function CommentPopup({
           onChange={(event) => setComment(event.target.value)}
           onKeyDown={onKeyDown}
         />
-        <PrimaryButton
+        <Button
           icon={<CommentIcon />}
           onClick={() => onSubmit?.(comment)}
           disabled={!comment?.length}
           loading={loading}
+          className="btn-primary"
         >
           Comment
-        </PrimaryButton>
+        </Button>
       </Popup>
     </Container>
   );

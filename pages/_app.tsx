@@ -26,8 +26,6 @@ import { Router } from 'next/router';
 import { useCookieBanner } from '../hooks/useCookieBanner';
 import useLoggedUser from '../hooks/useLoggedUser';
 import { LoginModalMode } from '../components/modals/LoginModal';
-import globalStyle from '../styles/globalStyle';
-import { Global } from '@emotion/react';
 import ProgressiveEnhancementContext from '../contexts/ProgressiveEnhancementContext';
 import {
   initializeAnalyticsQueue,
@@ -40,6 +38,7 @@ import SubscriptionContext from '../contexts/SubscriptionContext';
 import useSubscriptionClient from '../hooks/useSubscriptionClient';
 import useProgressiveEnhancement from '../hooks/useProgressiveEnhancement';
 import { canonicalFromRouter } from '../lib/canonical';
+import '../styles/globals.css';
 
 const queryClient = new QueryClient();
 
@@ -195,7 +194,6 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
               <link rel="preconnect" href="https://res.cloudinary.com" />
             </Head>
             <DefaultSeo {...Seo} canonical={canonicalFromRouter(router)} />
-            <Global styles={globalStyle} />
             {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
             {!user &&
               !loadingUser &&

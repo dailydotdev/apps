@@ -19,10 +19,9 @@ import { typoCallout, typoTitle2, typoTitle3 } from '../styles/typography';
 import { multilineTextOverflow, pageMaxWidth } from '../styles/helpers';
 import { tablet } from '../styles/media';
 import LazyImage from './LazyImage';
-import PrimaryButton from './buttons/PrimaryButton';
-import SecondaryButton from './buttons/SecondaryButton';
 import dynamic from 'next/dynamic';
 import ProgressiveEnhancementContext from '../contexts/ProgressiveEnhancementContext';
+import Button from './buttons/Button';
 
 const KeywordSynonymModal = dynamic(
   () =>
@@ -209,24 +208,29 @@ export default function KeywordManagement({
         )}
       />
       <Buttons>
-        <PrimaryButton
+        <Button
           loading={currentAction === 'allow'}
           onClick={onAllow}
           disabled={disableActions}
+          className="btn-primary"
         >
           Allow
-        </PrimaryButton>
-        <SecondaryButton disabled={disableActions} onClick={onSynonym}>
+        </Button>
+        <Button
+          disabled={disableActions}
+          onClick={onSynonym}
+          className="btn-secondary"
+        >
           Synonym
-        </SecondaryButton>
-        <PrimaryButton
-          themeColor="ketchup"
+        </Button>
+        <Button
           loading={currentAction === 'deny'}
           onClick={onDeny}
           disabled={disableActions}
+          className="btn-primary-ketchup"
         >
           Deny
-        </PrimaryButton>
+        </Button>
       </Buttons>
       {(windowLoaded || currentAction === 'synonym') && (
         <KeywordSynonymModal

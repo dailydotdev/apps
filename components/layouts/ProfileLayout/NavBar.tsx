@@ -7,9 +7,9 @@ import { pageMaxWidth } from '../../../styles/helpers';
 import { PublicProfile } from '../../../lib/user';
 import { FlippedProps, FlipperProps } from 'flip-toolkit/lib/types';
 import dynamicParent from '../../../lib/dynamicParent';
-import TertiaryButton from '../../buttons/TertiaryButton';
 import { ActiveTabIndicator } from '../../utilities';
 import ProgressiveEnhancementContext from '../../../contexts/ProgressiveEnhancementContext';
+import Button from '../../buttons/Button';
 
 const flipperLoader = () =>
   import(/* webpackChunkName: "reactFlip" */ 'react-flip-toolkit');
@@ -86,16 +86,19 @@ export default function NavBar({
       {tabs.map((tab, index) => (
         <div key={tab.path}>
           <Link href={getTabHref(tab)} passHref>
-            <TertiaryButton
+            <Button
               tag="a"
               buttonSize="large"
               pressed={selectedTab === index}
+              className="btn-tertiary"
             >
               {tab.title}
-            </TertiaryButton>
+            </Button>
           </Link>
           <Flipped flipId="activeTabIndicator" shouldLoad={windowLoaded}>
-            {selectedTab === index && <ActiveTabIndicator />}
+            {selectedTab === index && (
+              <ActiveTabIndicator className="bottom-0 w-4" />
+            )}
           </Flipped>
         </div>
       ))}

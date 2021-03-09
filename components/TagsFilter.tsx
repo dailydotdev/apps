@@ -13,9 +13,7 @@ import sizeN from '../macros/sizeN.macro';
 import rem from '../macros/rem.macro';
 import { ElementPlaceholder } from './utilities';
 import { typoCallout } from '../styles/typography';
-import SecondaryButton from '../components/buttons/SecondaryButton';
 import Link from 'next/link';
-import TertiaryButton from '../components/buttons/TertiaryButton';
 import ArrowIcon from '../icons/arrow.svg';
 import AuthContext from '../contexts/AuthContext';
 import { useQuery, useQueryClient } from 'react-query';
@@ -35,6 +33,7 @@ import useMutateFilters, {
   getSearchTagsQueryKey,
 } from '../hooks/useMutateFilters';
 import { trackEvent } from '../lib/analytics';
+import Button from './buttons/Button';
 
 const Container = styled.div`
   display: flex;
@@ -110,13 +109,14 @@ const Tag = ({
       padding: 0;
     `}
   >
-    <SecondaryButton
+    <Button
       buttonSize="small"
       pressed={selected}
       onClick={() => onClick?.(tag)}
+      className="btn-secondary"
     >
       #{tag}
-    </SecondaryButton>
+    </Button>
     <div
       css={css`
         height: ${rem(1)};
@@ -126,7 +126,7 @@ const Tag = ({
       `}
     />
     <Link href={`/tags/${tag}`} passHref prefetch={false}>
-      <TertiaryButton
+      <Button
         tag="a"
         icon={
           <ArrowIcon
@@ -135,6 +135,7 @@ const Tag = ({
             }}
           />
         }
+        className="btn-tertiary"
       />
     </Link>
   </li>

@@ -14,8 +14,8 @@ import { useMutation, useQueryClient } from 'react-query';
 import { Roles } from '../../lib/user';
 import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
-import QuandaryButton from '../buttons/QuandaryButton';
-import TertiaryButton from '../buttons/TertiaryButton';
+import QuaternaryButton from '../buttons/QuaternaryButton';
+import Button from '../buttons/Button';
 
 export interface Props {
   comment: Comment;
@@ -100,32 +100,34 @@ export default function CommentActionButtons({
 
   return (
     <Container>
-      <QuandaryButton
+      <QuaternaryButton
         id={`comment-${comment.id}-upvote-btn`}
         buttonSize="small"
-        themeColor="avocado"
         pressed={upvoted}
         title="Upvote"
         onClick={toggleUpvote}
         icon={<UpvoteIcon />}
+        className="btn-tertiary-avocado"
       >
         {numUpvotes > 0 ? numUpvotes : null}
-      </QuandaryButton>
-      <TertiaryButton
+      </QuaternaryButton>
+      <Button
         buttonSize="small"
         title="Comment"
         onClick={() => onComment(comment, parentId)}
         icon={<CommentIcon />}
         style={{ marginLeft: sizeN(7) }}
+        className="btn-tertiary-avocado"
       />
       {(user?.id === comment.author.id ||
         user?.roles?.indexOf(Roles.Moderator) > -1) && (
-        <TertiaryButton
+        <Button
           buttonSize="small"
           title="Delete"
           onClick={() => onDelete(comment, parentId)}
           icon={<TrashIcon />}
           style={{ marginLeft: 'auto' }}
+          className="btn-tertiary"
         />
       )}
     </Container>

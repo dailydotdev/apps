@@ -9,7 +9,6 @@ const loader = keyframes`
 `;
 
 const Container = styled.div`
-  position: relative;
   height: ${sizeN(5)};
   width: ${sizeN(5)};
   animation: ${loader} 3s linear infinite;

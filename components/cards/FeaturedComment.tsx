@@ -7,7 +7,6 @@ import {
   CardTextContainer,
   featuredCommentsToButtons,
 } from './Card';
-import TertiaryButton from '../buttons/TertiaryButton';
 import ArrowIcon from '../../icons/arrow.svg';
 import CommentIcon from '../../icons/comment.svg';
 import { typoCallout } from '../../styles/typography';
@@ -16,6 +15,7 @@ import sizeN from '../../macros/sizeN.macro';
 import { multilineTextOverflow } from '../../styles/helpers';
 import rem from '../../macros/rem.macro';
 import Link from 'next/link';
+import Button from '../buttons/Button';
 
 export type FeaturedCommentProps = {
   featuredComments: Comment[];
@@ -66,7 +66,7 @@ export default function FeaturedComment({
       className={className}
     >
       <CardHeader>
-        <TertiaryButton
+        <Button
           icon={
             <ArrowIcon
               css={css`
@@ -77,6 +77,7 @@ export default function FeaturedComment({
           buttonSize="small"
           title="Back"
           onClick={onBack}
+          className="btn-tertiary"
         />
         {featuredCommentsToButtons(
           featuredComments,
@@ -88,7 +89,7 @@ export default function FeaturedComment({
       <Content>{comment.content}</Content>
       <Divider />
       <Link href={comment.permalink} passHref>
-        <TertiaryButton
+        <Button
           as="a"
           target="_blank"
           rel="noopener"
@@ -97,9 +98,10 @@ export default function FeaturedComment({
           css={css`
             align-self: center;
           `}
+          className="btn-tertiary"
         >
           View comment
-        </TertiaryButton>
+        </Button>
       </Link>
     </CardTextContainer>
   );

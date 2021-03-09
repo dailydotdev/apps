@@ -19,8 +19,7 @@ import {
 } from '../lib/share';
 import { Post } from '../graphql/posts';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
-import PrimaryButton from './buttons/PrimaryButton';
-import { ButtonProps } from './buttons/BaseButton';
+import Button, { ButtonProps } from './buttons/Button';
 
 const Container = styled.div`
   position: fixed;
@@ -58,7 +57,7 @@ const Buttons = styled.div`
   grid-template-columns: 1fr 1fr;
 `;
 
-const ShareButton = styled(PrimaryButton)<ButtonProps<'a'>>`
+const ShareButton = styled(Button)<ButtonProps<'a'>>`
   &&& {
     color: #ffffff;
   }
@@ -110,7 +109,7 @@ export default function ShareNewCommentPopup({
           target="_blank"
           rel="noopener"
           icon={<TwitterIcon />}
-          themeColor="twitter"
+          className="btn-primary-twitter"
         >
           Twitter
         </ShareButton>
@@ -121,7 +120,7 @@ export default function ShareNewCommentPopup({
           target="_blank"
           rel="noopener"
           icon={<WhatsappIcon />}
-          themeColor="whatsapp"
+          className="btn-primary-whatsapp"
         >
           Whatsapp
         </ShareButton>
@@ -132,13 +131,13 @@ export default function ShareNewCommentPopup({
           target="_blank"
           rel="noopener"
           icon={<FacebookIcon />}
-          themeColor="facebook"
+          className="btn-primary-facebook"
         >
           Facebook
         </ShareButton>
-        <PrimaryButton onClick={copyLink} icon={<CopyIcon />}>
+        <Button className="btn-primary" onClick={copyLink} icon={<CopyIcon />}>
           {copying ? 'Copied!' : 'Copy link'}
-        </PrimaryButton>
+        </Button>
       </Buttons>
     </Container>
   );

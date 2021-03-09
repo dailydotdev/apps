@@ -20,12 +20,8 @@ import { getLayout } from '../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../components/layouts/MainFeedPage';
 import AuthContext from '../contexts/AuthContext';
 import { useRouter } from 'next/router';
-import PrimaryButton from '../components/buttons/PrimaryButton';
 import Link from 'next/link';
-
-const Icon = styled(BookmarkIcon)`
-  ${customFeedIcon}
-`;
+import Button from '../components/buttons/Button';
 
 const EmptyScreenContainer = styled.main`
   position: fixed;
@@ -67,11 +63,12 @@ const BookmarksPage = (): ReactElement => {
 
   if (showEmptyScreen) {
     return (
-      <EmptyScreenContainer>
+      <EmptyScreenContainer className="withNavBar">
         <NextSeo {...seo} />
-        <Icon
+        <BookmarkIcon
           css={css`
             margin: 0;
+            color: var(--theme-label-tertiary);
             font-size: ${sizeN(20)};
           `}
         />
@@ -93,9 +90,9 @@ const BookmarksPage = (): ReactElement => {
           later. Each post you bookmark will be stored here.
         </p>
         <Link href="/" passHref>
-          <PrimaryButton tag="a" buttonSize="large">
+          <Button className="btn-primary" tag="a" buttonSize="large">
             Back to feed
-          </PrimaryButton>
+          </Button>
         </Link>
       </EmptyScreenContainer>
     );
@@ -105,7 +102,7 @@ const BookmarksPage = (): ReactElement => {
     <FeedPage>
       <NextSeo {...seo} />
       <CustomFeedHeader>
-        <Icon />
+        <BookmarkIcon className={customFeedIcon} />
         <span>Bookmarks</span>
       </CustomFeedHeader>
       <Feed

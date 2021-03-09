@@ -6,12 +6,10 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import styled from '@emotion/styled';
 import useFeed, { FeedItem, PostItem } from '../hooks/useFeed';
 import { PostCard } from './cards/PostCard';
 import { AdCard } from './cards/AdCard';
 import { PlaceholderCard } from './cards/PlaceholderCard';
-import sizeN from '../macros/sizeN.macro';
 import {
   Ad,
   ADD_BOOKMARKS_MUTATION,
@@ -26,15 +24,14 @@ import request from 'graphql-request';
 import { apiUrl } from '../lib/config';
 import { LoginModalMode } from './modals/LoginModal';
 import { useInView } from 'react-intersection-observer';
-import { mobileL, tablet } from '../styles/media';
-import { multilineTextOverflow } from '../styles/helpers';
-import { feedBreakpoints, feedSettings } from './layouts/FeedLayout';
 import FeedContext from '../contexts/FeedContext';
 import useIncrementReadingRank from '../hooks/useIncrementReadingRank';
 import { trackEvent } from '../lib/analytics';
 import { COMMENT_ON_POST_MUTATION, CommentOnData } from '../graphql/comments';
 import dynamic from 'next/dynamic';
 import requestIdleCallback from 'next/dist/client/request-idle-callback';
+import styles from '../styles/feed.module.css';
+import classNames from 'classnames';
 
 const CommentPopup = dynamic(() => import('./cards/CommentPopup'));
 
@@ -46,55 +43,6 @@ export type FeedProps<T> = {
   dep?: DependencyList;
   emptyScreen?: ReactNode;
 };
-
-const cardMaxWidth = sizeN(80);
-
-const Container = styled.div`
-  position: relative;
-  display: grid;
-  grid-gap: ${sizeN(8)};
-  margin-left: auto;
-  margin-right: auto;
-  grid-template-columns: 100%;
-
-  ${mobileL} {
-    --num-cards: 1;
-    grid-template-columns: repeat(var(--num-cards), 1fr);
-
-    & > * {
-      max-width: ${cardMaxWidth};
-    }
-  }
-
-  ${tablet} {
-    grid-auto-rows: ${sizeN(91)};
-  }
-
-  ${feedBreakpoints
-    .map(
-      (query, i) => `
-  ${query} {
-    --num-cards: ${feedSettings[i].numCards};
-  }`,
-    )
-    .join('\n')}
-`;
-
-const Stretcher = styled.div`
-  visibility: hidden;
-  -webkit-line-clamp: 1;
-  ${multilineTextOverflow}
-`;
-
-const InfiniteScrollTrigger = styled.div`
-  position: absolute;
-  bottom: 100vh;
-  left: 0;
-  height: 1px;
-  width: 1px;
-  opacity: 0;
-  pointer-events: none;
-`;
 
 const onAdImpression = (ad: Ad) =>
   trackEvent({
@@ -402,12 +350,23 @@ export default function Feed<T>({
   return emptyScreen && emptyFeed ? (
     <>{emptyScreen}</>
   ) : (
-    <Container className={className}>
+    <div
+      className={classNames(
+        className,
+        'relative grid gap-8 mx-auto',
+        styles.feed,
+      )}
+    >
       {items.map(itemToComponent)}
       {!hasNonPlaceholderCard && (
-        <Stretcher>{Array(100).fill('a').join('')}</Stretcher>
+        <div className={`invisible multi-truncate ${styles.stretcher}`}>
+          {Array(100).fill('a').join('')}
+        </div>
       )}
-      <InfiniteScrollTrigger ref={infiniteScrollRef} />
-    </Container>
+      <div
+        ref={infiniteScrollRef}
+        className={`absolute left-0 h-px w-px opacity-0 pointer-events-none ${styles.trigger}`}
+      />
+    </div>
   );
 }

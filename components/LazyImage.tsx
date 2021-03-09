@@ -6,9 +6,9 @@ import React, {
   ReactNode,
   SyntheticEvent,
 } from 'react';
-import styled from '@emotion/styled';
+import classNames from 'classnames';
 
-export interface Props extends HTMLAttributes<HTMLDivElement> {
+export interface LazyImageProps extends HTMLAttributes<HTMLDivElement> {
   imgSrc: string;
   imgAlt: string;
   background?: string;
@@ -16,65 +16,59 @@ export interface Props extends HTMLAttributes<HTMLDivElement> {
   eager?: boolean;
   fallbackSrc?: string;
   children?: ReactNode;
+  absolute?: boolean;
+  fit?: 'cover' | 'contain';
 }
-
-const Container = styled.div<Props>`
-  position: relative;
-  overflow: hidden;
-  ${(props) => props.background && `background: ${props.background};`}
-
-  ${(props) =>
-    props.ratio &&
-    `&:before {
-    content: '';
-    display: block;
-    padding-top: ${props.ratio};
-  }`}
-
-  img {
-    position: absolute;
-    display: block;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: 100%;
-    height: 100%;
-    margin: auto;
-    object-fit: cover;
-  }
-
-  img.lazyload:not([src]) {
-    visibility: hidden;
-  }
-`;
 
 const asyncImageSupport = false;
 
-export default function LazyImage(props: Props): ReactElement {
+export default function LazyImage({
+  imgSrc,
+  imgAlt,
+  eager,
+  className,
+  ratio,
+  background,
+  fallbackSrc,
+  children,
+  absolute = false,
+  fit = 'cover',
+  ...props
+}: LazyImageProps): ReactElement {
   // const { asyncImageSupport } = useContext(ProgressiveEnhancementContext);
-  const { imgSrc, imgAlt, eager } = props;
+  const baseImageClass = `absolute block inset-0 w-full h-full m-auto ${
+    fit === 'cover' ? 'object-cover' : 'object-contain'
+  }`;
   const imageProps: ImgHTMLAttributes<HTMLImageElement> & {
     'data-src'?: string;
   } = eager
-    ? { src: imgSrc }
+    ? { src: imgSrc, className: baseImageClass }
     : asyncImageSupport
-    ? { src: imgSrc, loading: 'lazy' }
+    ? { src: imgSrc, loading: 'lazy', className: baseImageClass }
     : {
-        className: 'lazyload',
+        className: `lazyload ${baseImageClass}`,
         'data-src': imgSrc,
       };
 
   const onError = (event: SyntheticEvent<HTMLImageElement>): void => {
-    if (props.fallbackSrc) {
-      event.currentTarget.src = props.fallbackSrc;
+    if (fallbackSrc) {
+      event.currentTarget.src = fallbackSrc;
     }
   };
 
   return (
-    <Container {...props}>
+    <div
+      {...props}
+      className={classNames(
+        className,
+        absolute ? 'absolute' : 'relative',
+        'overflow-hidden',
+      )}
+      style={{ background }}
+    >
+      {ratio && <div style={{ paddingTop: ratio, zIndex: -1 }} />}
       <img {...imageProps} alt={imgAlt} key={imgSrc} onError={onError} />
-      {props.children}
-    </Container>
+      {children}
+    </div>
   );
 }

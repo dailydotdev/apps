@@ -1,55 +1,37 @@
 import React, { HTMLAttributes, ReactElement } from 'react';
-import styled from '@emotion/styled';
-import { cardImageHeight, CardSpace, CardTextContainer } from './Card';
-import sizeN from '../../macros/sizeN.macro';
+import { CardSpace, CardTextContainer } from './Card';
 import { ElementPlaceholder } from '../utilities';
+import classed from '../../lib/classed';
+import classNames from 'classnames';
 
-const Source = styled(ElementPlaceholder)`
-  width: 1em;
-  height: 1em;
-  font-size: ${sizeN(6)};
-  border-radius: 100%;
-`;
-
-const Text = styled(ElementPlaceholder)`
-  width: 1em;
-  height: ${sizeN(3)};
-  border-radius: ${sizeN(3)};
-`;
-
-const Image = styled(ElementPlaceholder)`
-  border-radius: ${sizeN(3)};
-  height: ${cardImageHeight};
-`;
-
-const Container = styled.article`
-  display: flex;
-  flex-direction: column;
-  border-radius: ${sizeN(4)};
-  padding: ${sizeN(2)};
-  background: var(--theme-post-disabled);
-
-  ${Source}, ${Text}, ${CardSpace}, ${Image} {
-    margin: ${sizeN(2)} 0;
-  }
-`;
+const Text = classed(ElementPlaceholder, 'h-3 rounded-xl my-2');
 
 export type PlaceholderCardProps = HTMLAttributes<HTMLDivElement>;
 
-export function PlaceholderCard(props: PlaceholderCardProps): ReactElement {
+export function PlaceholderCard({
+  className,
+  ...props
+}: PlaceholderCardProps): ReactElement {
   return (
-    <Container aria-busy {...props}>
+    <article
+      aria-busy
+      className={classNames(
+        className,
+        'flex flex-col rounded-2xl p-2 bg-theme-post-disabled',
+      )}
+      {...props}
+    >
       <CardTextContainer>
-        <Source />
+        <ElementPlaceholder className="w-6 h-6 rounded-full my-2" />
         <Text style={{ width: '100%' }} />
         <Text style={{ width: '100%' }} />
         <Text style={{ width: '80%' }} />
       </CardTextContainer>
-      <CardSpace />
-      <Image />
+      <CardSpace className="my-2" />
+      <ElementPlaceholder className="rounded-xl h-40 my-2" />
       <CardTextContainer>
         <Text style={{ width: '32%' }} />
       </CardTextContainer>
-    </Container>
+    </article>
   );
 }

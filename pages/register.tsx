@@ -11,9 +11,7 @@ import EditImageWithJoinedDate from '../components/profile/EditImageWithJoinedDa
 import ProfileForm, {
   RegistrationMode,
 } from '../components/profile/ProfileForm';
-import TertiaryButton from '../components/buttons/TertiaryButton';
-import { ButtonProps } from '../components/buttons/BaseButton';
-import PrimaryButton from '../components/buttons/PrimaryButton';
+import Button, { ButtonProps } from '../components/buttons/Button';
 
 const Subheading = styled.h2`
   margin: ${sizeN(2)} 0;
@@ -22,7 +20,7 @@ const Subheading = styled.h2`
   ${typoCallout}
 `;
 
-const LogoutButton = styled(TertiaryButton)<ButtonProps<'button'>>`
+const LogoutButton = styled(Button)<ButtonProps<'button'>>`
   margin-left: ${sizeN(4)};
 `;
 
@@ -62,14 +60,19 @@ export default function Register(): ReactElement {
               mode={(router?.query.mode as RegistrationMode) || 'default'}
             />
             <FormButtons>
-              <PrimaryButton
+              <Button
+                className="btn-primary"
                 type="submit"
                 disabled={disableSubmit}
                 form="profileForm"
               >
                 Finish
-              </PrimaryButton>
-              <LogoutButton type="button" onClick={logout}>
+              </Button>
+              <LogoutButton
+                className="btn-tertiary"
+                type="button"
+                onClick={logout}
+              >
                 Logout
               </LogoutButton>
             </FormButtons>

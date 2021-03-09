@@ -35,9 +35,8 @@ import { Edge } from '../../graphql/common';
 import ResponsiveModal from './ResponsiveModal';
 import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
-import PrimaryButton from '../buttons/PrimaryButton';
-import TertiaryButton from '../buttons/TertiaryButton';
 import { trackEvent } from '../../lib/analytics';
+import Button from '../buttons/Button';
 
 const DiscardCommentModal = dynamic(() => import('./DiscardCommentModal'));
 
@@ -328,15 +327,17 @@ export default function NewCommentModal({
         {errorMessage && <span role="alert">{errorMessage}</span>}
       </ErrorMessage>
       <Footer>
-        <TertiaryButton onClick={confirmClose}>Cancel</TertiaryButton>
-        <PrimaryButton
+        <Button className="btn-tertiary" onClick={confirmClose}>
+          Cancel
+        </Button>
+        <Button
           disabled={!input?.length}
           loading={sendingComment}
           onClick={sendComment}
-          themeColor="avocado"
+          className="btn-primary-avocado"
         >
           Comment
-        </PrimaryButton>
+        </Button>
       </Footer>
       <DiscardCommentModal
         isOpen={showDiscardModal}

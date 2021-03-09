@@ -1,0 +1,19 @@
+@keyframes placeholder-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.element-placeholder {
+  & div {
+    background: linear-gradient(
+      90deg,
+      var(--theme-background-secondary),
+      var(--theme-background-tertiary) 15%,
+      var(--theme-background-secondary)
+    );
+    transform: translateX(-100%);
+    animation: placeholder-shimmer 1.25s infinite linear;
+    will-change: transform;
+  }
+}

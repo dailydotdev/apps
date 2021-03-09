@@ -1,0 +1,45 @@
+.feed {
+  grid-template-columns: 100%;
+  --num-cards: 1;
+
+  @media (--mobileL) {
+    grid-template-columns: repeat(var(--num-cards), 1fr);
+
+    & > * {
+      max-width: 20rem;
+    }
+  }
+
+  @media (--tablet) {
+    --num-cards: 2;
+    grid-auto-rows: 22.75rem;
+  }
+
+  @media (--laptop) {
+    --num-cards: 3;
+  }
+
+  @media (--laptopL) {
+    --num-cards: 4;
+  }
+
+  @media (--laptopXL) {
+    --num-cards: 5;
+  }
+
+  @media (--desktop) {
+    --num-cards: 6;
+  }
+
+  @media (--desktopL) {
+    --num-cards: 7;
+  }
+}
+
+.stretcher {
+  -webkit-line-clamp: 1;
+}
+
+.trigger {
+  bottom: 100vh;
+}
