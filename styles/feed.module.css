@@ -2,7 +2,7 @@
   grid-template-columns: 100%;
   --num-cards: 1;
 
-  @media (--mobileL) {
+  @screen mobileL {
     grid-template-columns: repeat(var(--num-cards), 1fr);
 
     & > * {
@@ -10,28 +10,28 @@
     }
   }
 
-  @media (--tablet) {
+  @screen tablet {
     --num-cards: 2;
     grid-auto-rows: 22.75rem;
   }
 
-  @media (--laptop) {
+  @screen laptop {
     --num-cards: 3;
   }
 
-  @media (--laptopL) {
+  @screen laptopL {
     --num-cards: 4;
   }
 
-  @media (--laptopXL) {
+  @screen laptopXL {
     --num-cards: 5;
   }
 
-  @media (--desktop) {
+  @screen desktop {
     --num-cards: 6;
   }
 
-  @media (--desktopL) {
+  @screen desktopL {
     --num-cards: 7;
   }
 }

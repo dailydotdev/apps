@@ -29,6 +29,7 @@ export const FEED_POST_FRAGMENT = gql`
         image
       }
     }
+    trending
   }
 `;
 

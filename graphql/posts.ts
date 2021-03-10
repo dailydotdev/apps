@@ -24,6 +24,7 @@ export interface Post {
   read?: boolean;
   bookmarked?: boolean;
   featuredComments?: Comment[];
+  trending?: number;
 }
 
 export interface Ad {

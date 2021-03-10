@@ -153,3 +153,11 @@ it('should return back to normal card form when clicking the back button', async
   const el = await screen.findByText('The Prosecutor’s Fallacy');
   expect(el).toBeInTheDocument();
 });
+
+it('should show trending flag', async () => {
+  const post = { ...defaultPost, trending: 20 };
+  renderComponent({ post });
+  expect(
+    await screen.findByText('20 devs read it last hour'),
+  ).toBeInTheDocument();
+});
