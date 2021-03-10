@@ -26,6 +26,7 @@ import { Comment } from '../../graphql/comments';
 import Button from '../buttons/Button';
 import styles from '../../styles/cards.module.css';
 import { getTooltipProps } from '../../lib/tooltip';
+import TrendingFlag from './TrendingFlag';
 
 const ShareIcon = dynamic(() => import('../../icons/share.svg'));
 const FeaturedComment = dynamic(() => import('./FeaturedComment'));
@@ -57,11 +58,17 @@ export function PostCard({
   const [selectedComment, setSelectedComment] = useState<Comment>();
   const date = useMemo(() => postDateFormat(post.createdAt), [post.createdAt]);
 
-  return (
+  const { trending } = post;
+
+  const card = (
     <Card
       {...props}
       className={classNames(
-        { [styles.read]: post.read, [styles.hideContent]: selectedComment },
+        {
+          [styles.read]: post.read,
+          [styles.hideContent]: selectedComment,
+          [styles.trending]: trending > 0,
+        },
         styles.post,
         className,
       )}
@@ -183,4 +190,14 @@ export function PostCard({
       {children}
     </Card>
   );
+
+  if (trending) {
+    return (
+      <div className={`relative ${styles.cardContainer}`}>
+        {card}
+        <TrendingFlag trending={trending} />
+      </div>
+    );
+  }
+  return card;
 }

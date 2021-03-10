@@ -81,6 +81,7 @@ module.exports = {
       laptopXL: '1668px',
       desktop: '1976px',
       desktopL: '2156px',
+      mouse: { raw: '(pointer: fine)' },
     },
   },
   variants: {

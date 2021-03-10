@@ -1,5 +1,3 @@
-@import './variables.css';
-
 @import 'tailwindcss/base';
 @import 'balloon-css';
 @import './base.css';

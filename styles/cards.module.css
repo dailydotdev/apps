@@ -27,6 +27,14 @@
     pointer-events: none;
   }
 
+  &.trending {
+    z-index: 1;
+
+    @screen tablet {
+      height: 100%;
+    }
+  }
+
   & a,
   & button,
   & label {
@@ -37,6 +45,15 @@
   & .link {
     z-index: unset;
   }
+}
+
+.flag {
+  will-change: transform;
+  transition: transform 0.1s linear;
+}
+
+.cardContainer:hover .flag, .flag:hover {
+  transform: none;
 }
 
 .header {
@@ -64,7 +81,7 @@
     }
   }
 
-  @media (pointer: fine) {
+  @screen mouse {
     & .authorBox {
       visibility: hidden;
     }
