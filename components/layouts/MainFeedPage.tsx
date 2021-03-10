@@ -152,6 +152,7 @@ export default function MainFeedPage<T>({
             buttonSize="small"
             icon={<MagnifyingIcon />}
             className={tabClassNames}
+            title="Search"
           />
         </Link>
         {tabs.map((tab) => (

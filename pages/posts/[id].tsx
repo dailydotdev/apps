@@ -68,6 +68,7 @@ import { trackEvent } from '../../lib/analytics';
 import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
 import useSubscription from '../../hooks/useSubscription';
 import Button from '../../components/buttons/Button';
+import { getTooltipProps } from '../../lib/tooltip';
 
 const NewCommentModal = dynamic(
   () => import('../../components/modals/NewCommentModal'),
@@ -642,7 +643,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           <QuaternaryButton
             id="share-post-btn"
             onClick={sharePost}
-            title="Share"
+            {...getTooltipProps('Share')}
             icon={<ShareIcon />}
             style={{ visibility: nativeShareSupport ? 'visible' : 'hidden' }}
             aria-label="Share"

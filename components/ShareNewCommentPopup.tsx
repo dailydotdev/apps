@@ -20,6 +20,7 @@ import {
 import { Post } from '../graphql/posts';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import Button, { ButtonProps } from './buttons/Button';
+import { getTooltipProps } from '../lib/tooltip';
 
 const Container = styled.div`
   position: fixed;
@@ -104,34 +105,34 @@ export default function ShareNewCommentPopup({
       <Buttons>
         <ShareButton
           tag="a"
-          title="Share on Twitter"
           href={getTwitterShareLink(href, post.title)}
           target="_blank"
           rel="noopener"
           icon={<TwitterIcon />}
           className="btn-primary-twitter"
+          {...getTooltipProps('Share on Twitter')}
         >
           Twitter
         </ShareButton>
         <ShareButton
           tag="a"
-          title="Share on WhatsApp"
           href={getWhatsappShareLink(href)}
           target="_blank"
           rel="noopener"
           icon={<WhatsappIcon />}
           className="btn-primary-whatsapp"
+          {...getTooltipProps('Share on WhatsApp')}
         >
           Whatsapp
         </ShareButton>
         <ShareButton
           tag="a"
-          title="Share on Facebook"
           href={getFacebookShareLink(href)}
           target="_blank"
           rel="noopener"
           icon={<FacebookIcon />}
           className="btn-primary-facebook"
+          {...getTooltipProps('Share on Facebook')}
         >
           Facebook
         </ShareButton>

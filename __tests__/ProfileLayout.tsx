@@ -83,25 +83,25 @@ it('should show join date', () => {
 
 it('should show twitter link', () => {
   renderComponent();
-  const el = screen.getByTitle('Go to Twitter');
+  const el = screen.getByLabelText('Twitter');
   expect(el).toHaveAttribute('href', 'https://twitter.com/dailydotdev');
 });
 
 it('should show github link', () => {
   renderComponent();
-  const el = screen.getByTitle('Go to GitHub');
+  const el = screen.getByLabelText('GitHub');
   expect(el).toHaveAttribute('href', 'https://github.com/dailydotdev');
 });
 
 it('should show hashnode link', () => {
   renderComponent();
-  const el = screen.getByTitle('Go to Hashnode');
+  const el = screen.getByLabelText('Hashnode');
   expect(el).toHaveAttribute('href', 'https://hashnode.com/@dailydotdev');
 });
 
 it('should show portfolio link', async () => {
   renderComponent();
-  expect(await screen.findByTitle('Go to portfolio website')).toHaveAttribute(
+  expect(await screen.findByLabelText('Portfolio')).toHaveAttribute(
     'href',
     'https://daily.dev/?key=vaue',
   );

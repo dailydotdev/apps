@@ -16,6 +16,7 @@ import { multilineTextOverflow } from '../../styles/helpers';
 import rem from '../../macros/rem.macro';
 import Link from 'next/link';
 import Button from '../buttons/Button';
+import { getTooltipProps } from '../../lib/tooltip';
 
 export type FeaturedCommentProps = {
   featuredComments: Comment[];
@@ -75,7 +76,7 @@ export default function FeaturedComment({
             />
           }
           buttonSize="small"
-          title="Back"
+          {...getTooltipProps('Back')}
           onClick={onBack}
           className="btn-tertiary"
         />

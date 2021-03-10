@@ -49,6 +49,7 @@ import NavBar, { tabs } from './NavBar';
 import QuaternaryButton from '../../buttons/QuaternaryButton';
 import ProgressiveEnhancementContext from '../../../contexts/ProgressiveEnhancementContext';
 import Button from '../../buttons/Button';
+import { getTooltipProps } from '../../../lib/tooltip';
 
 const AccountDetailsModal = dynamic(
   () =>
@@ -320,7 +321,7 @@ export default function ProfileLayout({
                 <Button
                   tag="a"
                   href={`https://twitter.com/${twitterHandle}`}
-                  title="Go to Twitter"
+                  {...getTooltipProps('Twitter')}
                   target="_blank"
                   rel="noopener"
                   icon={<TwitterIcon />}
@@ -331,7 +332,7 @@ export default function ProfileLayout({
                 <Button
                   tag="a"
                   href={`https://github.com/${githubHandle}`}
-                  title="Go to GitHub"
+                  {...getTooltipProps('GitHub')}
                   target="_blank"
                   rel="noopener"
                   icon={<GitHubIcon />}
@@ -342,7 +343,7 @@ export default function ProfileLayout({
                 <Button
                   tag="a"
                   href={`https://hashnode.com/@${hashnodeHandle}`}
-                  title="Go to Hashnode"
+                  {...getTooltipProps('Hashnode')}
                   target="_blank"
                   rel="noopener"
                   icon={<HashnodeIcon />}
@@ -354,7 +355,7 @@ export default function ProfileLayout({
                   tag="a"
                   id="portfolio-link"
                   href={portfolioLink}
-                  title="Go to portfolio website"
+                  {...getTooltipProps('Portfolio')}
                   target="_blank"
                   rel="noopener"
                   icon={<LinkIcon />}

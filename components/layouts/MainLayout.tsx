@@ -15,6 +15,7 @@ import dynamic from 'next/dynamic';
 import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
 import styles from '../../styles/mainLayout.module.css';
 import classed from '../../lib/classed';
+import { getTooltipProps } from '../../lib/tooltip';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -52,7 +53,10 @@ export default function MainLayout({
         }`}
       >
         <Link href="/" passHref prefetch={false}>
-          <a className="flex items-center mr-auto" title="Home">
+          <a
+            className="flex items-center mr-auto"
+            {...getTooltipProps('Home', { position: 'right' })}
+          >
             <Logo className={styles.homeSvg} />
             <LogoTextBeta
               className={`${styles.homeSvg} hidden ml-1 laptop:block`}
@@ -67,7 +71,7 @@ export default function MainLayout({
                 <BookmarksButton
                   tag="a"
                   icon={<BookmarkIcon />}
-                  title="Bookmarks"
+                  {...getTooltipProps('Bookmarks', { position: 'down' })}
                   className="btn-tertiary"
                 />
               </Link>
@@ -77,8 +81,10 @@ export default function MainLayout({
                 prefetch={false}
               >
                 <a
-                  className="flex items-center overflow-hidden ml-0.5 p-0 text-theme-label-primary bg-theme-bg-secondary border-none rounded-lg cursor-pointer no-underline font-bold typo-callout focus-outline"
-                  title="Go to your profile"
+                  className="flex items-center ml-0.5 p-0 text-theme-label-primary bg-theme-bg-secondary border-none rounded-lg cursor-pointer no-underline font-bold typo-callout focus-outline"
+                  {...getTooltipProps('Profile', {
+                    position: 'left',
+                  })}
                 >
                   <span className="mr-2 ml-3">{user.reputation ?? 0}</span>
                   <LazyImage
@@ -93,7 +99,7 @@ export default function MainLayout({
             <>
               <BookmarksButton
                 icon={<BookmarkIcon />}
-                title="Bookmarks"
+                {...getTooltipProps('Bookmarks', { position: 'down' })}
                 onClick={() => showLogin()}
               />
               <Button onClick={() => showLogin()} className="btn-tertiary">

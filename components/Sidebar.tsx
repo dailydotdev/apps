@@ -8,6 +8,7 @@ import ArrowIcon from '../icons/arrow.svg';
 import { focusOutline } from '../styles/helpers';
 import TagsFilter from './TagsFilter';
 import classNames from 'classnames';
+import { getTooltipProps } from '../lib/tooltip';
 
 const asideWidth = sizeN(89);
 
@@ -101,7 +102,10 @@ export default function Sidebar(): ReactElement {
       <Aside className="scrollbar">
         <TagsFilter enableQueries={enableQueries} />
       </Aside>
-      <Trigger title="Open sidebar" onClick={() => setOpened(!opened)}>
+      <Trigger
+        {...getTooltipProps('Open sidebar', { position: 'right' })}
+        onClick={() => setOpened(!opened)}
+      >
         <ArrowIcon />
       </Trigger>
     </Container>

@@ -79,7 +79,7 @@ it('should call on link click on component middle mouse up', async () => {
 
 it('should call on upvote click on upvote button click', async () => {
   renderComponent();
-  const el = await screen.findByTitle('Upvote');
+  const el = await screen.findByLabelText('Upvote');
   el.click();
   await waitFor(() =>
     expect(defaultProps.onUpvoteClick).toBeCalledWith(defaultPost, true),
@@ -88,7 +88,7 @@ it('should call on upvote click on upvote button click', async () => {
 
 it('should call on comment click on comment button click', async () => {
   renderComponent();
-  const el = await screen.findByTitle('Comment');
+  const el = await screen.findByLabelText('Comments');
   el.click();
   await waitFor(() =>
     expect(defaultProps.onCommentClick).toBeCalledWith(defaultPost),
@@ -97,7 +97,7 @@ it('should call on comment click on comment button click', async () => {
 
 it('should call on bookmark click on bookmark button click', async () => {
   renderComponent();
-  const el = await screen.findByTitle('Bookmark');
+  const el = await screen.findByLabelText('Bookmark');
   el.click();
   await waitFor(() =>
     expect(defaultProps.onBookmarkClick).toBeCalledWith(defaultPost, true),
@@ -148,7 +148,7 @@ it('should return back to normal card form when clicking the back button', async
   const btn = await screen.findByAltText(`Nimrod's profile image`);
   btn.click();
   await screen.findByText('My featured comment');
-  const back = await screen.findByTitle('Back');
+  const back = await screen.findByLabelText('Back');
   back.click();
   const el = await screen.findByText('The Prosecutor’s Fallacy');
   expect(el).toBeInTheDocument();

@@ -11,6 +11,7 @@ import FilterIcon from '../icons/filter.svg';
 import AuthContext from '../contexts/AuthContext';
 import { useRouter } from 'next/router';
 import Button from './buttons/Button';
+import { getTooltipProps } from '../lib/tooltip';
 
 export const navBarHeight = '3.063rem';
 
@@ -78,8 +79,8 @@ export default function FooterNavBar(): ReactElement {
                 buttonSize="large"
                 tag="a"
                 icon={tab.icon}
-                title={tab.title}
                 pressed={index === selectedTab}
+                {...getTooltipProps(tab.title)}
               />
             </Link>
           ) : (
@@ -87,8 +88,8 @@ export default function FooterNavBar(): ReactElement {
               className="btn-tertiary"
               buttonSize="large"
               icon={tab.icon}
-              title={tab.title}
               onClick={() => showLogin()}
+              {...getTooltipProps(tab.title)}
             />
           )}
           <Flipped flipId="activeTabIndicator">

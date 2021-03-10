@@ -132,7 +132,7 @@ export default function EditImageWithJoinedDate({
   return (
     <Container {...props}>
       <ImageAndMetadata>
-        <ImageInput title="Change your profile image">
+        <ImageInput title="Update your image">
           <input
             type="file"
             name="profileImage"

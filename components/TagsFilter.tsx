@@ -1,6 +1,7 @@
 /** @jsx jsx */
 import { jsx, css } from '@emotion/react';
 import React, {
+  HTMLAttributes,
   ReactElement,
   useContext,
   useEffect,
@@ -34,6 +35,7 @@ import useMutateFilters, {
 } from '../hooks/useMutateFilters';
 import { trackEvent } from '../lib/analytics';
 import Button from './buttons/Button';
+import { getTooltipProps } from '../lib/tooltip';
 
 const Container = styled.div`
   display: flex;
@@ -96,11 +98,12 @@ const Tag = ({
   tag,
   selected,
   onClick,
+  ...props
 }: {
   tag: string;
   selected?: boolean;
   onClick?: (tag: string) => Promise<unknown>;
-}): ReactElement => (
+} & Omit<HTMLAttributes<HTMLButtonElement>, 'onClick'>): ReactElement => (
   <li
     css={css`
       display: flex;
@@ -114,6 +117,7 @@ const Tag = ({
       pressed={selected}
       onClick={() => onClick?.(tag)}
       className="btn-secondary"
+      {...props}
     >
       #{tag}
     </Button>
@@ -136,6 +140,7 @@ const Tag = ({
           />
         }
         className="btn-tertiary"
+        {...getTooltipProps(`${tag} feed`, { position: 'left' })}
       />
     </Link>
   </li>
@@ -259,7 +264,13 @@ export default function TagsFilter({
               </SectionHeadline>
               <TagsList>
                 {followedTags.map((tag) => (
-                  <Tag tag={tag} selected key={tag} onClick={onUnfollowTag} />
+                  <Tag
+                    tag={tag}
+                    selected
+                    key={tag}
+                    onClick={onUnfollowTag}
+                    {...getTooltipProps('Unfollow tag')}
+                  />
                 ))}
               </TagsList>
             </Section>
@@ -277,7 +288,12 @@ export default function TagsFilter({
               </SectionHeadline>
               <TagsList>
                 {availableTags?.map((tag) => (
-                  <Tag tag={tag} key={tag} onClick={onFollowTag} />
+                  <Tag
+                    tag={tag}
+                    key={tag}
+                    onClick={onFollowTag}
+                    {...getTooltipProps('Follow tag')}
+                  />
                 ))}
               </TagsList>
             </Section>

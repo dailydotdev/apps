@@ -84,7 +84,6 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
   const buttonProps: ButtonProps<'button'> = {
     buttonSize: 'small',
     icon: <PlusIcon />,
-    title: 'Add tag to feed',
     onClick: async (): Promise<void> => {
       trackEvent({
         category: 'Feed',
@@ -114,6 +113,7 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
           className="btn-primary laptop:hidden"
           {...buttonProps}
           css={buttonCss}
+          aria-label="Add tag to feed"
         />
         <Button
           className="btn-primary hidden laptop:flex"

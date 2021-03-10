@@ -1,6 +1,7 @@
 import React, { HTMLAttributes, ReactElement } from 'react';
 import Link from 'next/link';
 import styled from '@emotion/styled';
+import { getTooltipProps } from '../../lib/tooltip';
 
 interface User {
   name: string;
@@ -25,7 +26,7 @@ export function ProfileLink({
 }: ProfileLinkProps): ReactElement {
   return (
     <Link href={user.permalink} passHref prefetch={false}>
-      <Anchor title={`Go to ${user.name}'s profile`} {...props}>
+      <Anchor {...getTooltipProps(user.name)} {...props}>
         {children}
       </Anchor>
     </Link>

@@ -108,7 +108,7 @@ it('should request tag feed', async () => {
 it('should show add to feed button', async () => {
   renderComponent();
   await waitFor(() => expect(nock.isDone()).toBeTruthy());
-  const [button] = await screen.findAllByTitle('Add tag to feed');
+  const [button] = await screen.findAllByLabelText('Add tag to feed');
   expect(button).toHaveStyleRule('visibility', 'visible');
 });
 
@@ -119,7 +119,7 @@ it('should not show add to feed button', async () => {
   ]);
   await waitFor(() => expect(nock.isDone()).toBeTruthy());
   await waitFor(async () => {
-    const [button] = await screen.findAllByTitle('Add tag to feed');
+    const [button] = await screen.findAllByLabelText('Add tag to feed');
     expect(button).toHaveStyleRule('visibility', 'hidden');
   });
 });
@@ -136,7 +136,7 @@ it('should show add to feed button when logged-out', async () => {
     null,
   );
   await waitFor(() => expect(nock.isDone()).toBeTruthy());
-  const [button] = await screen.findAllByTitle('Add tag to feed');
+  const [button] = await screen.findAllByLabelText('Add tag to feed');
   expect(button).toHaveStyleRule('visibility', 'visible');
 });
 
@@ -152,7 +152,7 @@ it('should show login popup when logged-out on add to feed click', async () => {
     null,
   );
   await waitFor(() => expect(nock.isDone()).toBeTruthy());
-  const [button] = await screen.findAllByTitle('Add tag to feed');
+  const [button] = await screen.findAllByLabelText('Add tag to feed');
   button.click();
   expect(showLogin).toBeCalledTimes(1);
 });
@@ -176,7 +176,7 @@ it('should add new tag filter', async () => {
       return { data: { feedSettings: { id: defaultUser.id } } };
     },
   });
-  const [button] = await screen.findAllByTitle('Add tag to feed');
+  const [button] = await screen.findAllByLabelText('Add tag to feed');
   button.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
   await waitFor(async () => {
