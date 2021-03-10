@@ -4,6 +4,7 @@ import { Comment } from '../../graphql/comments';
 import styles from '../../styles/cards.module.css';
 import classed from '../../lib/classed';
 import classNames from 'classnames';
+import { getTooltipProps } from '../../lib/tooltip';
 
 export const CardTitle = classed(
   'h3',
@@ -42,18 +43,18 @@ export const featuredCommentsToButtons = (
 ): ReactNode[] =>
   comments?.map((comment) => (
     <button
-      title={`See ${comment.author.name}'s comment`}
+      {...getTooltipProps(`See ${comment.author.name}'s comment`)}
       onClick={() => onClick(comment)}
       key={comment.id}
-      className={classNames(
-        'flex p-0 bg-none border-none rounded-full cursor-pointer focus-outline',
-        selectedId === comment.id ? 'opacity-100' : 'opacity-64',
-      )}
+      className="flex p-0 bg-none border-none rounded-full cursor-pointer focus-outline"
     >
       <img
         src={comment.author.image}
         alt={`${comment.author.name}'s profile image`}
-        className="w-6 h-6 rounded-full"
+        className={classNames(
+          'w-6 h-6 rounded-full',
+          selectedId === comment.id ? 'opacity-100' : 'opacity-64',
+        )}
         style={{ background: 'var(--theme-background-tertiary)' }}
       />
     </button>

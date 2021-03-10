@@ -120,14 +120,14 @@ it('should have subcomments', async () => {
 
 it('should call onComment callback', async () => {
   const res = renderLayout();
-  const el = await res.findByTitle('Comment');
+  const el = await res.findByLabelText('Comment');
   el.click();
   expect(onComment).toBeCalledWith(baseComment, 'c1');
 });
 
 it('should call onDelete callback', async () => {
   const res = renderLayout({}, loggedUser);
-  const el = await res.findByTitle('Delete');
+  const el = await res.findByLabelText('Delete');
   el.click();
   expect(onDelete).toBeCalledWith(baseComment, 'c1');
 });

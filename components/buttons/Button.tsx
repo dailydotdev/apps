@@ -47,7 +47,6 @@ export default function Button<Tag extends keyof JSX.IntrinsicElements>({
         props.buttonSize,
         'btn',
         'relative',
-        'overflow-hidden',
         'flex',
         'flex-row',
         'items-center',

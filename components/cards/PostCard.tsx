@@ -25,6 +25,7 @@ import InteractionCounter from '../InteractionCounter';
 import { Comment } from '../../graphql/comments';
 import Button from '../buttons/Button';
 import styles from '../../styles/cards.module.css';
+import { getTooltipProps } from '../../lib/tooltip';
 
 const ShareIcon = dynamic(() => import('../../icons/share.svg'));
 const FeaturedComment = dynamic(() => import('./FeaturedComment'));
@@ -76,7 +77,10 @@ export function PostCard({
       <CardTextContainer>
         <CardHeader>
           <Link href={`/sources/${post.source.id}`} prefetch={false}>
-            <a title={post.source.name} className="flex pr-2 cursor-pointer">
+            <a
+              {...getTooltipProps(post.source.name)}
+              className="flex pr-2 cursor-pointer"
+            >
               <img
                 src={post.source.image}
                 alt={post.source.name}
@@ -125,7 +129,7 @@ export function PostCard({
           icon={<UpvoteIcon />}
           buttonSize="small"
           pressed={post.upvoted}
-          title={post.upvoted ? 'Remove upvote' : 'Upvote'}
+          {...getTooltipProps(post.upvoted ? 'Remove upvote' : 'Upvote')}
           onClick={() => onUpvoteClick?.(post, !post.upvoted)}
           style={{ width: rem(78) }}
           className="btn-tertiary-avocado"
@@ -139,7 +143,7 @@ export function PostCard({
             icon={<CommentIcon />}
             buttonSize="small"
             pressed={post.commented}
-            title="Comment"
+            {...getTooltipProps('Comments')}
             onClick={() => onCommentClick?.(post)}
             style={{ width: rem(78) }}
             className="btn-tertiary-avocado"
@@ -153,7 +157,7 @@ export function PostCard({
           icon={<BookmarkIcon />}
           buttonSize="small"
           pressed={post.bookmarked}
-          title={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}
+          {...getTooltipProps(post.bookmarked ? 'Remove bookmark' : 'Bookmark')}
           onClick={() => onBookmarkClick?.(post, !post.bookmarked)}
           className="btn-tertiary-bun"
         />
@@ -161,7 +165,7 @@ export function PostCard({
           <Button
             icon={<ShareIcon />}
             buttonSize="small"
-            title="Share post"
+            {...getTooltipProps('Share post')}
             onClick={() => onShare?.(post)}
             className="btn-tertiary"
           />

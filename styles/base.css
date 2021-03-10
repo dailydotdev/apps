@@ -3,9 +3,29 @@ html {
   color: var(--theme-label-primary);
 }
 
+:root {
+  --balloon-border-radius: 0.625rem;
+  --balloon-color: var(--theme-label-primary);
+  --balloon-text-color: var(--theme-label-invert);
+}
+
 body {
   min-width: 20rem;
   overflow-y: scroll;
+
+  & [aria-label][data-balloon-pos] {
+    &:hover {
+      &:after, &:before {
+        transition-delay: 0.6s;
+      }
+    }
+
+    &:after {
+      font-family: inherit;
+      padding: 0.25rem 0.75rem;
+      @apply typo-subhead
+    }
+  }
 }
 
 html,

@@ -16,6 +16,7 @@ import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import QuaternaryButton from '../buttons/QuaternaryButton';
 import Button from '../buttons/Button';
+import { getTooltipProps } from '../../lib/tooltip';
 
 export interface Props {
   comment: Comment;
@@ -104,7 +105,7 @@ export default function CommentActionButtons({
         id={`comment-${comment.id}-upvote-btn`}
         buttonSize="small"
         pressed={upvoted}
-        title="Upvote"
+        {...getTooltipProps('Upvote')}
         onClick={toggleUpvote}
         icon={<UpvoteIcon />}
         className="btn-tertiary-avocado"
@@ -113,7 +114,7 @@ export default function CommentActionButtons({
       </QuaternaryButton>
       <Button
         buttonSize="small"
-        title="Comment"
+        {...getTooltipProps('Comment')}
         onClick={() => onComment(comment, parentId)}
         icon={<CommentIcon />}
         style={{ marginLeft: sizeN(7) }}
@@ -123,7 +124,7 @@ export default function CommentActionButtons({
         user?.roles?.indexOf(Roles.Moderator) > -1) && (
         <Button
           buttonSize="small"
-          title="Delete"
+          {...getTooltipProps('Delete')}
           onClick={() => onDelete(comment, parentId)}
           icon={<TrashIcon />}
           style={{ marginLeft: 'auto' }}

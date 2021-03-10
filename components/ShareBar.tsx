@@ -18,6 +18,7 @@ import {
 } from '../lib/share';
 import Button, { ButtonProps } from './buttons/Button';
 import { trackEvent } from '../lib/analytics';
+import { getTooltipProps } from '../lib/tooltip';
 
 const barWidth = sizeN(7);
 
@@ -74,15 +75,14 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
       <Sticky>
         {copying && <Copied>Copied!</Copied>}
         <ShareButton
-          title="Copy link"
           onClick={copyLink}
           pressed={copying}
           icon={<CopyIcon />}
           buttonSize="small"
           className="btn-tertiary-avocado"
+          {...getTooltipProps('Copy link')}
         />
         <ColorfulShareButton
-          title="Share on WhatsApp"
           tag="a"
           href={getWhatsappShareLink(href)}
           target="_blank"
@@ -97,9 +97,9 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
           icon={<WhatsappIcon />}
           buttonSize="small"
           className="btn-tertiary"
+          {...getTooltipProps('Share on WhatsApp')}
         />
         <ColorfulShareButton
-          title="Share on Twitter"
           tag="a"
           href={getTwitterShareLink(href, post.title)}
           target="_blank"
@@ -114,9 +114,9 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
           icon={<TwitterIcon />}
           buttonSize="small"
           className="btn-tertiary"
+          {...getTooltipProps('Share on Twitter')}
         />
         <ColorfulShareButton
-          title="Share on Facebook"
           tag="a"
           href={getFacebookShareLink(href)}
           target="_blank"
@@ -131,6 +131,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
           icon={<FacebookIcon />}
           buttonSize="small"
           className="btn-tertiary"
+          {...getTooltipProps('Share on Facebook')}
         />
       </Sticky>
     </Container>

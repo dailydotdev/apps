@@ -137,7 +137,7 @@ it('should send upvote mutation', async () => {
       },
     },
   ]);
-  const [el] = await screen.findAllByTitle('Upvote');
+  const [el] = await screen.findAllByLabelText('Upvote');
   el.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
 });
@@ -157,7 +157,7 @@ it('should send cancel upvote mutation', async () => {
       },
     },
   ]);
-  const [el] = await screen.findAllByTitle('Remove upvote');
+  const [el] = await screen.findAllByLabelText('Remove upvote');
   el.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
 });
@@ -172,7 +172,7 @@ it('should open login modal on anonymous upvote', async () => {
     ],
     null,
   );
-  const [el] = await screen.findAllByTitle('Upvote');
+  const [el] = await screen.findAllByLabelText('Upvote');
   el.click();
   expect(showLogin).toBeCalledWith(LoginModalMode.ContentQuality);
 });
@@ -192,7 +192,7 @@ it('should send add bookmark mutation', async () => {
       },
     },
   ]);
-  const [el] = await screen.findAllByTitle('Bookmark');
+  const [el] = await screen.findAllByLabelText('Bookmark');
   el.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
 });
@@ -212,7 +212,7 @@ it('should send remove bookmark mutation', async () => {
       },
     },
   ]);
-  const [el] = await screen.findAllByTitle('Remove bookmark');
+  const [el] = await screen.findAllByLabelText('Remove bookmark');
   el.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
 });
@@ -227,7 +227,7 @@ it('should open login modal on anonymous bookmark', async () => {
     ],
     null,
   );
-  const [el] = await screen.findAllByTitle('Bookmark');
+  const [el] = await screen.findAllByLabelText('Bookmark');
   el.click();
   expect(showLogin).toBeCalledWith();
 });
@@ -369,7 +369,7 @@ it('should update feed item on subscription message', async () => {
     expect(screen.queryByTestId('adItem')).toBeInTheDocument(),
   );
   await waitFor(async () => {
-    const [el] = await screen.findAllByTitle('Upvote');
+    const [el] = await screen.findAllByLabelText('Upvote');
     expect(await findByText(el.parentElement, '5')).toBeInTheDocument();
   });
   nextCallback({
@@ -380,7 +380,7 @@ it('should update feed item on subscription message', async () => {
     },
   });
   await waitFor(async () => {
-    const [el] = await screen.findAllByTitle('Upvote');
+    const [el] = await screen.findAllByLabelText('Upvote');
     expect(await findByText(el.parentElement, '6')).toBeInTheDocument();
   });
 });
@@ -398,7 +398,7 @@ it('should open comment popup on upvote', async () => {
       },
     },
   ]);
-  const [el] = await screen.findAllByTitle('Upvote');
+  const [el] = await screen.findAllByLabelText('Upvote');
   el.click();
   await waitFor(async () =>
     expect(await screen.findByRole('textbox')).toBeInTheDocument(),
@@ -443,7 +443,7 @@ it('should send comment through the comment popup', async () => {
       },
     },
   ]);
-  const [upvoteBtn] = await screen.findAllByTitle('Upvote');
+  const [upvoteBtn] = await screen.findAllByLabelText('Upvote');
   upvoteBtn.click();
   const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
   input.value = 'comment';
