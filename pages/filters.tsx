@@ -3,7 +3,7 @@ import { getLayout } from '../components/layouts/FooterNavBarLayout';
 import TagsFilter from '../components/TagsFilter';
 
 const FiltersPage = (): ReactElement => (
-  <main>
+  <main className="withNavBar">
     <TagsFilter />
   </main>
 );

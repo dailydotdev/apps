@@ -25,6 +25,12 @@ body {
       padding: 0.25rem 0.75rem;
       @apply typo-subhead
     }
+
+    @media (pointer: coarse) {
+      &:after, &:before {
+        display: none;
+      }
+    }
   }
 }
 
