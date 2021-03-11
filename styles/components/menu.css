@@ -19,6 +19,11 @@
         font-size: 1.5rem;
         @apply text-theme-label-disabled mr-2;
       }
+
+      & span {
+        flex: 1;
+        @apply truncate;
+      }
     }
   }
 
