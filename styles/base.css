@@ -7,8 +7,6 @@ html {
   --balloon-border-radius: 0.625rem;
   --balloon-color: var(--theme-label-primary);
   --balloon-text-color: var(--theme-label-invert);
-
-  --theme-post-disabled: var(--theme-background-primary);
 }
 
 body {
@@ -68,6 +66,8 @@ html .invert .invert {
   --theme-shadow2: theme('boxShadow.2-black');
   --theme-shadow3: theme('boxShadow.3-black');
 
+  --theme-post-disabled: theme('colors.pepper.70')66;
+
   --theme-overlay-quaternary: theme('colors.overlay.quaternary.white');
 
   --theme-rank-1-color: theme('colors.burger.40');
@@ -122,6 +122,8 @@ html.light .invert .invert {
 
   --theme-shadow2: theme('boxShadow.2-salt');
   --theme-shadow3: theme('boxShadow.3-salt');
+
+  --theme-post-disabled: #ffffff66;
 
   --theme-overlay-quaternary: theme('colors.overlay.quaternary.pepper');
 

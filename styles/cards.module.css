@@ -73,7 +73,7 @@
 
   &.read {
     border-color: var(--theme-divider-quaternary);
-    background: var(--theme-post-disabled);
+    background: var(--theme-background-primary);
     box-shadow: none;
 
     & .title {
