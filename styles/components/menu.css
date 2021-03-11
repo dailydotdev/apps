@@ -1,0 +1,80 @@
+.react-contexify {
+  position: fixed;
+  opacity: 0;
+  user-select: none;
+  z-index: 100;
+  @apply py-1 px-0 m-0 bg-theme-bg-secondary rounded-xl border border-theme-divider-secondary shadow-2;
+
+  &.menu-primary {
+    & .react-contexify__item__content {
+      @apply text-theme-label-tertiary;
+    }
+  }
+
+  &.menu-secondary {
+    & .react-contexify__item__content {
+      @apply text-theme-label-primary;
+
+      & .icon {
+        font-size: 1.5rem;
+        @apply text-theme-label-disabled mr-2;
+      }
+    }
+  }
+
+  & .react-contexify__item {
+    cursor: pointer;
+    position: relative;
+
+    & .react-contexify__item__content {
+      border-radius: 0.625rem;
+      @apply flex items-center typo-footnote h-8 px-3 py-0 truncate;
+    }
+
+    &:focus {
+      outline: none;
+    }
+
+    &:not(.react-contexify__item--disabled):hover > .react-contexify__item__content {
+      @apply bg-theme-hover;
+    }
+
+    &:not(.react-contexify__item--disabled):focus, &:not(.react-contexify__item--disabled).focus > .react-contexify__item__content {
+      @apply bg-theme-float;
+    }
+
+    &:not(.react-contexify__item--disabled):active > .react-contexify__item__content {
+      @apply bg-theme-active;
+    }
+  }
+}
+
+.react-contexify__will-leave--disabled {
+  pointer-events: none;
+}
+
+@keyframes react-contexify__fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes react-contexify__fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.react-contexify__will-enter--fade {
+  animation: react-contexify__fadeIn 0.1s ease-out;
+}
+
+.react-contexify__will-leave--fade {
+  animation: react-contexify__fadeOut 0.1s ease-out;
+}

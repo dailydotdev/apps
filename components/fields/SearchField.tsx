@@ -1,6 +1,12 @@
 /** @jsx jsx */
 import { jsx, css } from '@emotion/react';
-import React, { InputHTMLAttributes, ReactElement, MouseEvent } from 'react';
+import React, {
+  InputHTMLAttributes,
+  ReactElement,
+  MouseEvent,
+  forwardRef,
+  LegacyRef,
+} from 'react';
 import { useInputField } from '../../hooks/useInputField';
 import styled from '@emotion/styled';
 import sizeN from '../../macros/sizeN.macro';
@@ -20,6 +26,10 @@ export interface Props
     | 'name'
     | 'autoFocus'
     | 'onBlur'
+    | 'onFocus'
+    | 'aria-haspopup'
+    | 'aria-expanded'
+    | 'onKeyDown'
   > {
   inputId: string;
   valueChanged?: (value: string) => void;
@@ -79,18 +89,22 @@ const Container = styled(BaseField)`
   }
 `;
 
-export default function SearchField({
-  inputId,
-  name,
-  value,
-  valueChanged,
-  placeholder,
-  compact = false,
-  className,
-  autoFocus,
-  onBlur: externalOnBlur,
-  ...props
-}: Props): ReactElement {
+export default forwardRef(function SearchField(
+  {
+    inputId,
+    name,
+    value,
+    valueChanged,
+    placeholder,
+    compact = false,
+    className,
+    autoFocus,
+    onBlur: externalOnBlur,
+    onFocus: externalOnFocus,
+    ...props
+  }: Props,
+  ref: LegacyRef<HTMLDivElement>,
+): ReactElement {
   const {
     inputRef,
     focused,
@@ -113,6 +127,7 @@ export default function SearchField({
       {...props}
       className={classNames({ compact, focused, hasInput }, className)}
       data-testid="searchField"
+      ref={ref}
     >
       <Icon />
       <FieldInput
@@ -120,7 +135,10 @@ export default function SearchField({
         name={name}
         id={inputId}
         ref={inputRef}
-        onFocus={onFocus}
+        onFocus={(event) => {
+          onFocus();
+          externalOnFocus?.(event);
+        }}
         onBlur={(event) => {
           onBlur();
           externalOnBlur?.(event);
@@ -130,10 +148,11 @@ export default function SearchField({
         css={css`
           flex: 1;
         `}
+        autoComplete="off"
       />
       <ClearButton title="Clear query" onClick={onClearClick}>
         <XIcon />
       </ClearButton>
     </Container>
   );
-}
+});

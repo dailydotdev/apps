@@ -1,21 +1,39 @@
-import styled from '@emotion/styled';
 import SearchField from './fields/SearchField';
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
+import dynamic from 'next/dynamic';
+import useAutoComplete from './fields/useAutoComplete';
+import { useQuery } from 'react-query';
+import request from 'graphql-request';
+import { apiUrl } from '../lib/config';
+import { SEARCH_POST_SUGGESTIONS } from '../graphql/search';
 
-const StyledSearch = styled(SearchField)`
-  position: absolute;
-  left: 0;
-  top: 0;
-  right: 0;
-  width: 100%;
-`;
+const AutoCompleteMenu = dynamic(() => import('./fields/AutoCompleteMenu'), {
+  ssr: false,
+});
 
 export default function PostsSearch(): ReactElement {
   const router = useRouter();
+  const searchBoxRef = useRef<HTMLDivElement>();
   const [initialQuery, setInitialQuery] = useState<string>();
   const [query, setQuery] = useState<string>();
-  const [timeoutHandle, setTimeoutHandle] = useState<number>(null);
+  const timeoutHandleRef = useRef<number>();
+  const [menuPosition, setMenuPosition] = useState<{
+    x: number;
+    y: number;
+    width: number;
+  }>(null);
+  const [items, setItems] = useState<string[]>([]);
+
+  const { data: searchResults, isLoading } = useQuery<{
+    searchPostSuggestions: { hits: { title: string }[] };
+  }>(
+    ['searchPostSuggestions', query],
+    () => request(`${apiUrl}/graphql`, SEARCH_POST_SUGGESTIONS, { query }),
+    {
+      enabled: !!query,
+    },
+  );
 
   useEffect(() => {
     if (!initialQuery) {
@@ -23,32 +41,90 @@ export default function PostsSearch(): ReactElement {
     }
   }, [router.query]);
 
+  const hideMenu = () => setMenuPosition(null);
+
+  const showSuggestions = () => {
+    if (menuPosition) {
+      return;
+    }
+    const {
+      left,
+      bottom,
+      width,
+    } = searchBoxRef.current.getBoundingClientRect();
+    setMenuPosition({ x: left, y: bottom, width });
+  };
+
   useEffect(() => {
-    if (query && query !== router.query?.q) {
-      if (timeoutHandle) {
-        clearTimeout(timeoutHandle);
+    if (!isLoading) {
+      if (!items?.length && searchResults?.searchPostSuggestions?.hits.length) {
+        showSuggestions();
       }
-      setTimeoutHandle(
-        window.setTimeout(
-          () => router.replace({ pathname: '/search', query: { q: query } }),
-          500,
-        ),
+      setItems(
+        searchResults?.searchPostSuggestions?.hits.map((hit) => hit.title) ??
+          [],
       );
     }
-  }, [query]);
+  }, [searchResults, isLoading]);
 
+  const submitQuery = async (item?: string) => {
+    const itemQuery = item?.replace?.(/<(\/?)strong>/g, '');
+    await router.replace({
+      pathname: '/search',
+      query: { q: itemQuery || query },
+    });
+    if (itemQuery) {
+      setInitialQuery(itemQuery);
+    }
+    hideMenu();
+  };
+
+  const { selectedItemIndex, onKeyDown } = useAutoComplete(items, submitQuery);
+
+  const onValueChanged = (value: string) => {
+    if (!value.length) {
+      hideMenu();
+      setQuery('');
+      return;
+    }
+
+    if (value && value !== router.query?.q) {
+      if (timeoutHandleRef.current) {
+        clearTimeout(timeoutHandleRef.current);
+      }
+      timeoutHandleRef.current = window.setTimeout(() => setQuery(value), 100);
+    }
+  };
+
+  const isOpen = !!menuPosition && !!items.length;
   return (
-    <StyledSearch
-      className="compact"
-      inputId="posts-search"
-      autoFocus
-      value={initialQuery}
-      valueChanged={setQuery}
-      onBlur={() => {
-        if (!query?.length) {
-          router.push('/');
-        }
-      }}
-    />
+    <>
+      <SearchField
+        className="compact absolute left-0 right-0 top-0 w-full"
+        inputId="posts-search"
+        ref={searchBoxRef}
+        autoFocus
+        value={initialQuery}
+        valueChanged={onValueChanged}
+        onKeyDown={onKeyDown}
+        onBlur={() => {
+          if (!query?.length) {
+            router.push('/');
+          } else {
+            hideMenu();
+          }
+        }}
+        onFocus={() => items?.length && showSuggestions()}
+        aria-haspopup="true"
+        aria-expanded={isOpen}
+      />
+      <AutoCompleteMenu
+        placement={menuPosition}
+        items={items}
+        focusedItemIndex={selectedItemIndex}
+        onItemClick={submitQuery}
+        isOpen={isOpen}
+      />
+    </>
   );
 }
