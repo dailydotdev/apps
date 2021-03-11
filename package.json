@@ -39,6 +39,7 @@
     "preact": "^10.5.12",
     "preact-render-to-string": "^5.1.12",
     "react": "npm:@preact/compat@0.0.3",
+    "react-contexify": "^5.0.0",
     "react-dom": "npm:@preact/compat@0.0.3",
     "react-flip-toolkit": "^7.0.13",
     "react-intersection-observer": "^8.31.0",

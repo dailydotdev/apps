@@ -144,7 +144,7 @@ it('should request search feed', async () => {
   });
 });
 
-it('should update query param on input', async () => {
+it('should update query param on enter', async (done) => {
   renderComponent([
     createFeedMock(defaultFeedPage, FEED_QUERY, {
       first: 7,
@@ -154,12 +154,18 @@ it('should update query param on input', async () => {
   const input = (await screen.findByRole('textbox')) as HTMLInputElement;
   input.value = 'daily';
   input.dispatchEvent(new Event('input', { bubbles: true }));
-  await waitFor(() =>
-    expect(routerReplace).toBeCalledWith({
-      pathname: '/search',
-      query: { q: 'daily' },
-    }),
-  );
+  setTimeout(async () => {
+    input.dispatchEvent(
+      new KeyboardEvent('keydown', { bubbles: true, keyCode: 13 }),
+    );
+    await waitFor(() =>
+      expect(routerReplace).toBeCalledWith({
+        pathname: '/search',
+        query: { q: 'daily' },
+      }),
+    );
+    done();
+  }, 150);
 });
 
 it('should show empty screen on no results', async () => {

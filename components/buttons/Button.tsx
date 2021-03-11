@@ -22,7 +22,9 @@ export interface BaseButtonProps {
 export type ButtonProps<
   Tag extends keyof JSX.IntrinsicElements
 > = BaseButtonProps &
-  JSX.IntrinsicElements[Tag] & { innerRef?: LegacyRef<Tag> };
+  JSX.IntrinsicElements[Tag] & {
+    innerRef?: LegacyRef<JSX.IntrinsicElements[Tag]>;
+  };
 
 export default function Button<Tag extends keyof JSX.IntrinsicElements>({
   loading,
@@ -41,7 +43,7 @@ export default function Button<Tag extends keyof JSX.IntrinsicElements>({
       {...(props as StyledButtonProps)}
       aria-busy={loading}
       aria-pressed={pressed}
-      ref={innerRef as LegacyRef<HTMLButtonElement>}
+      ref={innerRef}
       className={classNames(
         { iconOnly },
         props.buttonSize,
