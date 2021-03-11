@@ -32,36 +32,34 @@ export default function AutoCompleteMenu({
   }, []);
 
   return createPortal(
-    isOpen && (
-      <div
-        role="menu"
-        className="react-contexify menu-secondary top-full mt-1"
-        style={{
-          position: 'absolute',
-          top: placement?.y,
-          left: placement?.x,
-          opacity: 1,
-          width: placement?.width,
-        }}
-      >
-        {sanitizedItems.map((item, index) => (
-          <div
-            className={classNames(
-              { focus: index === focusedItemIndex },
-              'react-contexify__item',
-            )}
-            key={index}
-            onClick={() => onItemClick(items[index])}
-            onMouseDown={preventDefault}
-          >
-            <div className="react-contexify__item__content">
-              <MagnifyingIcon />
-              <span dangerouslySetInnerHTML={item} />
-            </div>
+    <div
+      role="menu"
+      className="react-contexify menu-secondary top-full mt-1"
+      style={{
+        position: 'absolute',
+        top: placement?.y,
+        left: placement?.x,
+        opacity: isOpen ? 1 : 0,
+        width: placement?.width,
+      }}
+    >
+      {sanitizedItems.map((item, index) => (
+        <div
+          className={classNames(
+            { focus: index === focusedItemIndex },
+            'react-contexify__item',
+          )}
+          key={index}
+          onClick={() => onItemClick(items[index])}
+          onMouseDown={preventDefault}
+        >
+          <div className="react-contexify__item__content">
+            <MagnifyingIcon />
+            <span dangerouslySetInnerHTML={item} />
           </div>
-        ))}
-      </div>
-    ),
+        </div>
+      ))}
+    </div>,
     document.body,
   );
 }

@@ -29,6 +29,7 @@ import styles from '../../styles/mainFeed.module.css';
 
 const PostsSearch = dynamic(
   () => import(/* webpackChunkName: "search" */ '../PostsSearch'),
+  { ssr: false },
 );
 
 const SearchEmptyScreen = dynamic(
