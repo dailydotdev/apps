@@ -52,7 +52,7 @@ export default function PostsSearch(): ReactElement {
       bottom,
       width,
     } = searchBoxRef.current.getBoundingClientRect();
-    setMenuPosition({ x: left, y: bottom, width });
+    setMenuPosition({ x: left, y: bottom + window.scrollY, width });
   };
 
   useEffect(() => {
@@ -96,6 +96,10 @@ export default function PostsSearch(): ReactElement {
     }
   };
 
+  useEffect(() => {
+    searchBoxRef.current?.querySelector('input').focus();
+  }, [searchBoxRef]);
+
   const isOpen = !!menuPosition && !!items.length;
   return (
     <>
@@ -103,7 +107,6 @@ export default function PostsSearch(): ReactElement {
         className="compact absolute left-0 right-0 top-0 w-full"
         inputId="posts-search"
         ref={searchBoxRef}
-        autoFocus
         value={initialQuery}
         valueChanged={onValueChanged}
         onKeyDown={onKeyDown}
