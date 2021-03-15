@@ -38,6 +38,7 @@ import SubscriptionContext from '../contexts/SubscriptionContext';
 import useSubscriptionClient from '../hooks/useSubscriptionClient';
 import useProgressiveEnhancement from '../hooks/useProgressiveEnhancement';
 import { canonicalFromRouter } from '../lib/canonical';
+import { applyTheme } from '../lib/theme';
 import '../styles/globals.css';
 
 const queryClient = new QueryClient();
@@ -130,6 +131,10 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     }
     updateCookieBanner(user);
   }, [user, loadingUser]);
+
+  useEffect(() => {
+    applyTheme();
+  }, []);
 
   const getLayout =
     (Component as CompnentGetLayout).getLayout || ((page) => page);
