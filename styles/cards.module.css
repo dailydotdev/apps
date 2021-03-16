@@ -49,11 +49,14 @@
 
 .flag {
   will-change: transform;
+  z-index: 0;
   transition: transform 0.1s linear;
 }
 
 .cardContainer:hover .flag, .flag:hover {
   transform: none;
+  z-index: 1;
+  transition: transform 0.1s linear, z-index 0.1s step-end;
 }
 
 .header {
