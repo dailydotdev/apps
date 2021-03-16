@@ -8,15 +8,12 @@ module.exports = {
         navBarHeight: '3.063rem',
       },
     },
-    tailwindcss: {},
+    [process.env.NODE_ENV === 'production'
+      ? 'tailwindcss'
+      : '@tailwindcss/jit']: {},
     'postcss-focus-visible': {},
-    'postcss-preset-env': {
-      stage: 1,
-      features: {
-        'custom-properties': false,
-        'nesting-rules': true,
-        'custom-media-queries': true,
-      },
-    },
+    autoprefixer: {},
+    'postcss-nesting': {},
+    'postcss-custom-media': {},
   },
 };
