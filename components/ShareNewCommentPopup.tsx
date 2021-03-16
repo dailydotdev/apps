@@ -21,13 +21,14 @@ import { Post } from '../graphql/posts';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import Button, { ButtonProps } from './buttons/Button';
 import { getTooltipProps } from '../lib/tooltip';
+import rem from '../macros/rem.macro';
 
 const Container = styled.div`
   position: fixed;
   display: none;
   right: ${sizeN(6)};
   bottom: ${sizeN(6)};
-  width: ${sizeN(82)};
+  width: ${rem(330)};
   flex-direction: column;
   padding: ${sizeN(10)} ${sizeN(6)} ${sizeN(6)};
   background: var(--theme-background-tertiary);
@@ -110,6 +111,7 @@ export default function ShareNewCommentPopup({
           rel="noopener"
           icon={<TwitterIcon />}
           className="btn-primary-twitter"
+          buttonSize="small"
           {...getTooltipProps('Share on Twitter')}
         >
           Twitter
@@ -121,6 +123,7 @@ export default function ShareNewCommentPopup({
           rel="noopener"
           icon={<WhatsappIcon />}
           className="btn-primary-whatsapp"
+          buttonSize="small"
           {...getTooltipProps('Share on WhatsApp')}
         >
           Whatsapp
@@ -132,11 +135,17 @@ export default function ShareNewCommentPopup({
           rel="noopener"
           icon={<FacebookIcon />}
           className="btn-primary-facebook"
+          buttonSize="small"
           {...getTooltipProps('Share on Facebook')}
         >
           Facebook
         </ShareButton>
-        <Button className="btn-primary" onClick={copyLink} icon={<CopyIcon />}>
+        <Button
+          className="btn-primary"
+          buttonSize="small"
+          onClick={copyLink}
+          icon={<CopyIcon />}
+        >
           {copying ? 'Copied!' : 'Copy link'}
         </Button>
       </Buttons>
