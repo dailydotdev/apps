@@ -3,12 +3,14 @@ import React, {
   ReactElement,
   ReactNode,
   useContext,
+  useState,
 } from 'react';
 import Link from 'next/link';
 import LazyImage from '../LazyImage';
 import AuthContext from '../../contexts/AuthContext';
 import Button from '../buttons/Button';
 import BookmarkIcon from '../../icons/bookmark.svg';
+import LayoutIcon from '../../icons/layout.svg';
 import Logo from '../svg/Logo';
 import LogoTextBeta from '../svg/LogoTextBeta';
 import dynamic from 'next/dynamic';
@@ -30,7 +32,11 @@ const HeaderRankProgress = dynamic(
     ),
 );
 
-const BookmarksButton = classed(Button, 'hidden mx-0.5 laptop:flex');
+const Settings = dynamic(
+  () => import(/* webpackChunkName: "settings" */ '../Settings'),
+);
+
+const HeaderButton = classed(Button, 'hidden mx-0.5 laptop:flex');
 
 export default function MainLayout({
   children,
@@ -40,13 +46,24 @@ export default function MainLayout({
 }: MainLayoutProps): ReactElement {
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user, showLogin, loadingUser } = useContext(AuthContext);
+  const [showSettings, setShowSettings] = useState(false);
+
+  const settingsButton = !responsive ? (
+    <HeaderButton
+      icon={<LayoutIcon />}
+      {...getTooltipProps('Settings', { position: 'down' })}
+      className="btn-tertiary"
+      onClick={() => setShowSettings(!showSettings)}
+      pressed={showSettings}
+    />
+  ) : undefined;
 
   return (
     <>
       <header
         className={`${
           styles.header
-        } relative border-b flex items-center px-4 border-theme-divider-tertiary tablet:px-8 laptop:px-4 ${
+        } relative flex items-center px-4 border-b border-theme-divider-tertiary tablet:px-8 laptop:px-4 ${
           responsive
             ? 'laptop:absolute laptop:top-0 laptop:left-0 laptop:w-full laptop:border-b-0'
             : ''
@@ -68,13 +85,14 @@ export default function MainLayout({
           (user ? (
             <>
               <Link href="/bookmarks" passHref prefetch={false}>
-                <BookmarksButton
+                <HeaderButton
                   tag="a"
                   icon={<BookmarkIcon />}
                   {...getTooltipProps('Bookmarks', { position: 'down' })}
                   className="btn-tertiary"
                 />
               </Link>
+              {settingsButton}
               <Link
                 href={`/${user.username || user.id}`}
                 passHref
@@ -97,11 +115,12 @@ export default function MainLayout({
             </>
           ) : (
             <>
-              <BookmarksButton
+              <HeaderButton
                 icon={<BookmarkIcon />}
                 {...getTooltipProps('Bookmarks', { position: 'down' })}
                 onClick={() => showLogin()}
               />
+              {settingsButton}
               <Button onClick={() => showLogin()} className="btn-tertiary">
                 Login
               </Button>
@@ -111,6 +130,12 @@ export default function MainLayout({
           <HeaderRankProgress className="absolute left-0 right-0 -bottom-px my-0 mx-auto z-rank transform translate-y-1/2" />
         )}
       </header>
+      {showSettings && (
+        <Settings
+          panelMode={true}
+          className="border-b border-theme-divider-tertiary"
+        />
+      )}
       {children}
     </>
   );

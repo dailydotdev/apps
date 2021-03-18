@@ -83,9 +83,16 @@ module.exports = {
       desktopL: '2156px',
       mouse: { raw: '(pointer: fine)' },
     },
+    extend: {
+      borderRadius: {
+        10: '0.625rem',
+      },
+    },
   },
   variants: {
-    extend: {},
+    extend: {
+      borderWidth: ['group-hover'],
+    },
   },
   plugins: [require('./tailwind/typography'), require('./tailwind/buttons')],
 };

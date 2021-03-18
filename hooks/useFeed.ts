@@ -36,6 +36,7 @@ export default function useFeed<T>(
   pageSize: number,
   adSpot: number,
   placeholdersPerPage: number,
+  showOnlyUnreadPosts: boolean,
   query?: string,
   variables?: T,
   dep?: DependencyList,
@@ -115,6 +116,7 @@ export default function useFeed<T>(
       first: pageSize,
       after: lastPageParam?.page.pageInfo.endCursor,
       loggedIn: !!user,
+      unreadOnly: showOnlyUnreadPosts,
     });
     if (!lastPageParam && !res.page.edges.length) {
       setEmptyFeed(true);
@@ -142,7 +144,7 @@ export default function useFeed<T>(
     if (query && tokenRefreshed) {
       refreshFeed();
     }
-  }, [query, tokenRefreshed, variables, ...(dep ?? [])]);
+  }, [query, tokenRefreshed, showOnlyUnreadPosts, variables, ...(dep ?? [])]);
 
   // Add new posts to feed with a placeholder for the ad
   useEffect(() => {

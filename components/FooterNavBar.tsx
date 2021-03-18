@@ -8,12 +8,13 @@ import rem from '../macros/rem.macro';
 import HomeIcon from '../icons/home.svg';
 import BookmarkIcon from '../icons/bookmark.svg';
 import FilterIcon from '../icons/filter.svg';
+import LayoutIcon from '../icons/layout.svg';
 import AuthContext from '../contexts/AuthContext';
 import { useRouter } from 'next/router';
 import Button from './buttons/Button';
 import { getTooltipProps } from '../lib/tooltip';
 
-export const navBarHeight = '3.063rem';
+export const navBarHeight = '3.0625rem';
 
 const NavBar = styled(Flipper)`
   position: fixed;
@@ -24,6 +25,7 @@ const NavBar = styled(Flipper)`
   height: ${navBarHeight};
   grid-column-gap: ${sizeN(2)};
   grid-auto-flow: column;
+  align-items: center;
   background: var(--theme-background-primary);
   border-top: ${rem(1)} solid var(--theme-divider-tertiary);
   z-index: 2;
@@ -61,6 +63,11 @@ export const tabs: Tab[] = [
     title: 'Filters',
     icon: <FilterIcon />,
   },
+  {
+    path: '/settings',
+    title: 'Settings',
+    icon: <LayoutIcon />,
+  },
 ];
 
 export default function FooterNavBar(): ReactElement {
@@ -94,7 +101,10 @@ export default function FooterNavBar(): ReactElement {
           )}
           <Flipped flipId="activeTabIndicator">
             {selectedTab === index && (
-              <ActiveTabIndicator className="-top-px w-12" />
+              <ActiveTabIndicator
+                className="w-12"
+                style={{ top: '-0.3125rem' }}
+              />
             )}
           </Flipped>
         </div>

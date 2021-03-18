@@ -11,22 +11,6 @@ process.env.NEXT_PUBLIC_API_URL = 'http://localhost:3000';
 window.ga = ((...args) => {}) as UniversalAnalytics.ga;
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-jest.mock('../hooks/usePersistentState', () => ({
-  __esModule: true,
-  default: jest
-    .fn()
-    .mockImplementation(
-      (
-        key: string,
-        initialValue: any,
-        valueWhenCacheEmpty: any,
-      ): [any, (value: any) => Promise<void>, boolean] => [
-        valueWhenCacheEmpty,
-        jest.fn().mockResolvedValue(undefined),
-        true,
-      ],
-    ),
-}));
 
 jest.mock('next/dynamic', () => (func: () => Promise<any>) => {
   let component: any = null;

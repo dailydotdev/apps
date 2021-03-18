@@ -41,6 +41,7 @@ export type PostCardProps = {
   onBookmarkClick?: (post: Post, bookmarked: boolean) => unknown;
   showShare?: boolean;
   onShare?: Callback;
+  openNewTab?: boolean;
 } & HTMLAttributes<HTMLDivElement>;
 
 export function PostCard({
@@ -51,6 +52,7 @@ export function PostCard({
   onBookmarkClick,
   showShare,
   onShare,
+  openNewTab,
   className,
   children,
   ...props
@@ -75,8 +77,9 @@ export function PostCard({
     >
       <CardLink
         href={post.permalink}
-        target="_blank"
-        rel="noopener"
+        {...(openNewTab
+          ? { target: '_blank', rel: 'noopener' }
+          : { target: '_self' })}
         title={post.title}
         onClick={() => onLinkClick?.(post)}
         onMouseUp={(event) => event.button === 1 && onLinkClick?.(post)}

@@ -5,7 +5,7 @@ module.exports = {
       variables: {
         pageMaxWidth: '40rem',
         headerHeight: '3rem',
-        navBarHeight: '3.063rem',
+        navBarHeight: '3rem',
       },
     },
     [process.env.NODE_ENV === 'production'

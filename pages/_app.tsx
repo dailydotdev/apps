@@ -38,7 +38,8 @@ import SubscriptionContext from '../contexts/SubscriptionContext';
 import useSubscriptionClient from '../hooks/useSubscriptionClient';
 import useProgressiveEnhancement from '../hooks/useProgressiveEnhancement';
 import { canonicalFromRouter } from '../lib/canonical';
-import { applyTheme } from '../lib/theme';
+import useSettings from '../hooks/useSettings';
+import SettingsContext from '../contexts/SettingsContext';
 import '../styles/globals.css';
 
 const queryClient = new QueryClient();
@@ -100,10 +101,10 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     }),
     [user, loginMode, loadingUser, tokenRefreshed],
   );
+  const canFetchUserData = progressiveContext.windowLoaded && tokenRefreshed;
   const onboardingContext = useOnboarding(user, loadedUserFromCache);
-  const subscriptionContext = useSubscriptionClient(
-    progressiveContext.windowLoaded && tokenRefreshed,
-  );
+  const subscriptionContext = useSubscriptionClient(canFetchUserData);
+  const settingsContext = useSettings(user?.id, canFetchUserData);
 
   useEffect(() => {
     if (trackingId && !initializedGA) {
@@ -132,10 +133,6 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     updateCookieBanner(user);
   }, [user, loadingUser]);
 
-  useEffect(() => {
-    applyTheme();
-  }, []);
-
   const getLayout =
     (Component as CompnentGetLayout).getLayout || ((page) => page);
   const { layoutProps } = Component as CompnentGetLayout;
@@ -144,74 +141,76 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     <ProgressiveEnhancementContext.Provider value={progressiveContext}>
       <AuthContext.Provider value={authContext}>
         <SubscriptionContext.Provider value={subscriptionContext}>
-          <OnboardingContext.Provider value={onboardingContext}>
-            <Head>
-              <meta
-                name="viewport"
-                content="initial-scale=1.0, width=device-width"
-              />
-              <meta name="theme-color" content="#151618" />
-              <meta name="msapplication-navbutton-color" content="#151618" />
-              <meta
-                name="apple-mobile-web-app-status-bar-style"
-                content="#151618"
-              />
+          <SettingsContext.Provider value={settingsContext}>
+            <OnboardingContext.Provider value={onboardingContext}>
+              <Head>
+                <meta
+                  name="viewport"
+                  content="initial-scale=1.0, width=device-width"
+                />
+                <meta name="theme-color" content="#151618" />
+                <meta name="msapplication-navbutton-color" content="#151618" />
+                <meta
+                  name="apple-mobile-web-app-status-bar-style"
+                  content="#151618"
+                />
 
-              <meta name="application-name" content="daily.dev" />
-              <meta name="apple-mobile-web-app-capable" content="yes" />
-              <meta
-                name="apple-mobile-web-app-status-bar-style"
-                content="default"
-              />
-              <meta name="apple-mobile-web-app-title" content="daily.dev" />
-              <meta name="format-detection" content="telephone=no" />
-              <meta name="mobile-web-app-capable" content="yes" />
-              <meta name="msapplication-TileColor" content="#151618" />
-              <meta name="msapplication-tap-highlight" content="no" />
+                <meta name="application-name" content="daily.dev" />
+                <meta name="apple-mobile-web-app-capable" content="yes" />
+                <meta
+                  name="apple-mobile-web-app-status-bar-style"
+                  content="default"
+                />
+                <meta name="apple-mobile-web-app-title" content="daily.dev" />
+                <meta name="format-detection" content="telephone=no" />
+                <meta name="mobile-web-app-capable" content="yes" />
+                <meta name="msapplication-TileColor" content="#151618" />
+                <meta name="msapplication-tap-highlight" content="no" />
 
-              <link
-                rel="apple-touch-icon"
-                sizes="180x180"
-                href="/apple-touch-icon.png"
-              />
-              <link
-                rel="icon"
-                type="image/png"
-                sizes="32x32"
-                href="/favicon-32x32.png"
-              />
-              <link
-                rel="icon"
-                type="image/png"
-                sizes="16x16"
-                href="/favicon-16x16.png"
-              />
-              <link rel="manifest" href="/manifest.json" />
+                <link
+                  rel="apple-touch-icon"
+                  sizes="180x180"
+                  href="/apple-touch-icon.png"
+                />
+                <link
+                  rel="icon"
+                  type="image/png"
+                  sizes="32x32"
+                  href="/favicon-32x32.png"
+                />
+                <link
+                  rel="icon"
+                  type="image/png"
+                  sizes="16x16"
+                  href="/favicon-16x16.png"
+                />
+                <link rel="manifest" href="/manifest.json" />
 
-              <script
-                dangerouslySetInnerHTML={{
-                  __html: `window.addEventListener('load', () => { window.windowLoaded = true; }, {
+                <script
+                  dangerouslySetInnerHTML={{
+                    __html: `window.addEventListener('load', () => { window.windowLoaded = true; }, {
       once: true,
     });`,
-                }}
-              />
-
-              <link rel="preconnect" href="https://res.cloudinary.com" />
-            </Head>
-            <DefaultSeo {...Seo} canonical={canonicalFromRouter(router)} />
-            {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
-            {!user &&
-              !loadingUser &&
-              (progressiveContext.windowLoaded || loginMode !== null) && (
-                <LoginModal
-                  isOpen={loginMode !== null}
-                  onRequestClose={closeLogin}
-                  contentLabel="Login Modal"
-                  mode={loginMode}
+                  }}
                 />
-              )}
-            {showCookie && <CookieBanner onAccepted={acceptCookies} />}
-          </OnboardingContext.Provider>
+
+                <link rel="preconnect" href="https://res.cloudinary.com" />
+              </Head>
+              <DefaultSeo {...Seo} canonical={canonicalFromRouter(router)} />
+              {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
+              {!user &&
+                !loadingUser &&
+                (progressiveContext.windowLoaded || loginMode !== null) && (
+                  <LoginModal
+                    isOpen={loginMode !== null}
+                    onRequestClose={closeLogin}
+                    contentLabel="Login Modal"
+                    mode={loginMode}
+                  />
+                )}
+              {showCookie && <CookieBanner onAccepted={acceptCookies} />}
+            </OnboardingContext.Provider>
+          </SettingsContext.Provider>
         </SubscriptionContext.Provider>
       </AuthContext.Provider>
     </ProgressiveEnhancementContext.Provider>
