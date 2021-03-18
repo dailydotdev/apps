@@ -13,6 +13,9 @@ import { LoggedUser } from '../lib/user';
 import BookmarksPage from '../pages/bookmarks';
 import { NextRouter, useRouter } from 'next/router';
 import { mocked } from 'ts-jest/utils';
+import SettingsContext, {
+  SettingsContextData,
+} from '../contexts/SettingsContext';
 
 const showLogin = jest.fn();
 const routerReplace = jest.fn();
@@ -38,6 +41,7 @@ const createFeedMock = (
   variables: unknown = {
     first: 7,
     loggedIn: true,
+    unreadOnly: false,
   },
 ): MockedGraphQLResponse<FeedData> => ({
   request: {
@@ -59,6 +63,16 @@ const renderComponent = (
 
   mocks.forEach(mockGraphQL);
   nock('http://localhost:3000').get('/v1/a').reply(200, [ad]);
+  const settingsContext: SettingsContextData = {
+    spaciness: 'eco',
+    showOnlyUnreadPosts: false,
+    openNewTab: true,
+    toggleLightMode: jest.fn(),
+    lightMode: false,
+    setSpaciness: jest.fn(),
+    toggleOpenNewTab: jest.fn(),
+    toggleShowOnlyUnreadPosts: jest.fn(),
+  };
   return render(
     <QueryClientProvider client={client}>
       <AuthContext.Provider
@@ -71,7 +85,9 @@ const renderComponent = (
           tokenRefreshed: true,
         }}
       >
-        <BookmarksPage />
+        <SettingsContext.Provider value={settingsContext}>
+          <BookmarksPage />
+        </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
   );

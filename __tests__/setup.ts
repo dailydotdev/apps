@@ -49,6 +49,11 @@ Object.defineProperty(global, 'scroll', {
   value: jest.fn(),
 });
 
+Object.defineProperty(global, 'open', {
+  writable: true,
+  value: jest.fn(),
+});
+
 jest.mock('next/router', () => ({
   useRouter: jest.fn().mockImplementation(
     () =>
