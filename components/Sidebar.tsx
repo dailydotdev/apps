@@ -6,9 +6,9 @@ import sizeN from '../macros/sizeN.macro';
 import rem from '../macros/rem.macro';
 import ArrowIcon from '../icons/arrow.svg';
 import { focusOutline } from '../styles/helpers';
-import TagsFilter from './TagsFilter';
 import classNames from 'classnames';
 import { getTooltipProps } from '../lib/tooltip';
+import FeedFilters from './filters/FeedFilters';
 
 const asideWidth = sizeN(89);
 
@@ -100,7 +100,7 @@ export default function Sidebar(): ReactElement {
   return (
     <Container className={classNames({ opened })}>
       <Aside className="scrollbar">
-        <TagsFilter enableQueries={enableQueries} />
+        <FeedFilters enableQueries={enableQueries} />
       </Aside>
       <Trigger
         {...getTooltipProps('Open sidebar', { position: 'right' })}

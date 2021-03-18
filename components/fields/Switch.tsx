@@ -1,8 +1,9 @@
 import React, { ReactElement, ReactNode } from 'react';
 import styled from '@emotion/styled';
-import sizeN from '../macros/sizeN.macro';
-import colors from '../styles/colors';
-import { typoFootnote } from '../styles/typography';
+import sizeN from '../../macros/sizeN.macro';
+import colors from '../../styles/colors';
+import { typoFootnote } from '../../styles/typography';
+import classNames from 'classnames';
 
 const switchHeight = sizeN(4);
 
@@ -56,7 +57,7 @@ const Container = styled.label`
   }
 
   &:hover input:checked ~ ${SwitchContainer} ${SwitchKnob} {
-    background: ${colors.water['50']};
+    background: ${colors.water['20']};
   }
 
   &:active {
@@ -71,17 +72,27 @@ const Container = styled.label`
 
     &:checked {
       & ~ ${SwitchContainer} ${SwitchTrack} {
-        background: ${colors.water['90']};
+        background: ${colors.water['50']};
       }
 
       & ~ ${SwitchContainer} ${SwitchKnob} {
         transform: translateX(100%);
-        background: ${colors.water['60']};
+        background: ${colors.water['40']};
       }
 
       & ~ ${Children} {
         color: var(--theme-label-primary);
       }
+    }
+  }
+
+  .light & {
+    & input:checked ~ ${SwitchContainer} ${SwitchKnob} {
+      background: ${colors.water['80']};
+    }
+
+    &:hover input:checked ~ ${SwitchContainer} ${SwitchKnob} {
+      background: ${colors.water['60']};
     }
   }
 
@@ -123,7 +134,7 @@ export default function Switch({
   onToggle,
 }: Props): ReactElement {
   return (
-    <Container className={className} htmlFor={inputId}>
+    <Container className={classNames(className, 'group')} htmlFor={inputId}>
       <input
         id={inputId}
         name={name}

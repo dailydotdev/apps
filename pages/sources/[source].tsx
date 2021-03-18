@@ -6,7 +6,7 @@ import {
   GetStaticPropsResult,
 } from 'next';
 import { ParsedUrlQuery } from 'querystring';
-import React, { ReactElement, useMemo } from 'react';
+import React, { ReactElement, useContext, useMemo } from 'react';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { CustomFeedHeader, FeedPage } from '../../components/utilities';
@@ -21,14 +21,48 @@ import { Source, SOURCE_QUERY, SourceData } from '../../graphql/sources';
 import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import Custom404 from '../404';
+import useMutateFilters, {
+  getSourcesSettingsQueryKey,
+} from '../../hooks/useMutateFilters';
+import { useQuery } from 'react-query';
+import {
+  FeedSettingsData,
+  SOURCES_SETTINGS_QUERY,
+} from '../../graphql/feedSettings';
+import AuthContext from '../../contexts/AuthContext';
+import Button, { ButtonProps } from '../../components/buttons/Button';
+import PlusIcon from '../../icons/plus.svg';
+import { trackEvent } from '../../lib/analytics';
 
 type SourcePageProps = { source: Source };
 
 const SourcePage = ({ source }: SourcePageProps): ReactElement => {
   const { isFallback } = useRouter();
-
+  const { user, showLogin, tokenRefreshed } = useContext(AuthContext);
   // Must be memoized to prevent refreshing the feed
   const queryVariables = useMemo(() => ({ source: source?.id }), [source?.id]);
+
+  const queryKey = getSourcesSettingsQueryKey(user);
+  const { data: feedSettings } = useQuery<FeedSettingsData>(
+    queryKey,
+    () => request(`${apiUrl}/graphql`, SOURCES_SETTINGS_QUERY),
+    {
+      enabled: !!user && tokenRefreshed,
+    },
+  );
+
+  const { followSource } = useMutateFilters(user);
+
+  const showAddSource = useMemo(() => {
+    if (!feedSettings?.feedSettings) {
+      return true;
+    }
+    return (
+      feedSettings.feedSettings.excludeSources.findIndex(
+        (excludedSource) => source?.id === excludedSource.id,
+      ) >= 0
+    );
+  }, [feedSettings, source]);
 
   if (!isFallback && !source) {
     return <Custom404 />;
@@ -43,6 +77,25 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
     titleTemplate: '%s',
     openGraph: { ...defaultOpenGraph },
     ...defaultSeo,
+  };
+
+  const buttonCss = css`
+    visibility: ${showAddSource ? 'visible' : 'hidden'};
+  `;
+  const buttonProps: ButtonProps<'button'> = {
+    buttonSize: 'small',
+    icon: <PlusIcon />,
+    onClick: async (): Promise<void> => {
+      trackEvent({
+        category: 'Feed',
+        action: 'Add Filter',
+      });
+      if (user) {
+        await followSource({ source });
+      } else {
+        showLogin();
+      }
+    },
   };
 
   return (
@@ -66,6 +119,19 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
         >
           {source.name}
         </span>
+        <Button
+          className="btn-primary laptop:hidden"
+          {...buttonProps}
+          css={buttonCss}
+          aria-label="Add source to feed"
+        />
+        <Button
+          className="btn-primary hidden laptop:flex"
+          {...buttonProps}
+          css={buttonCss}
+        >
+          Add to feed
+        </Button>
       </CustomFeedHeader>
       <Feed
         query={SOURCE_FEED_QUERY}

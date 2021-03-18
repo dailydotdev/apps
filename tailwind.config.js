@@ -54,6 +54,7 @@ module.exports = {
     zIndex: {
       0: '0',
       1: '1',
+      2: '2',
       rank: '3',
       '-1': '-1',
     },
@@ -86,6 +87,10 @@ module.exports = {
     extend: {
       borderRadius: {
         10: '0.625rem',
+      },
+      opacity: {
+        24: '0.24',
+        32: '0.32',
       },
     },
   },

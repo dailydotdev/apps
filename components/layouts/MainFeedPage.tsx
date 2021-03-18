@@ -17,7 +17,10 @@ import Feed, { FeedProps } from '../Feed';
 import AuthContext from '../../contexts/AuthContext';
 import { getLayout } from './FeedLayout';
 import { FeedPage } from '../utilities';
-import { getTagsSettingsQueryKey } from '../../hooks/useMutateFilters';
+import {
+  getSourcesSettingsQueryKey,
+  getTagsSettingsQueryKey,
+} from '../../hooks/useMutateFilters';
 import { FeedSettingsData } from '../../graphql/feedSettings';
 import { LoggedUser } from '../../lib/user';
 import OnboardingContext from '../../contexts/OnboardingContext';
@@ -91,26 +94,45 @@ export default function MainFeedPage<T>({
     query,
     queryIfLogged,
   );
-  const [loadedFeedSettings, setLoadedFeedSettings] = useState(false);
+  const [loadedTagsSettings, setLoadedTagsSettings] = useState(false);
+  const [loadedSourcesSettings, setLoadedSourcesSettings] = useState(false);
   const [feedDeps, setFeedDeps] = useState<DependencyList>([0]);
 
-  const queryKey = getTagsSettingsQueryKey(user);
-  const { data: feedSettings } = useQuery<FeedSettingsData>(
-    queryKey,
+  const tagsQueryKey = getTagsSettingsQueryKey(user);
+  const { data: tagsSettings } = useQuery<FeedSettingsData>(
+    tagsQueryKey,
     () => ({ feedSettings: { includeTags: [] } }),
     {
       enabled: false,
     },
   );
+  const sourcesQueryKey = getSourcesSettingsQueryKey(user);
+  const { data: sourcesSettings } = useQuery<FeedSettingsData>(
+    sourcesQueryKey,
+    () => ({ feedSettings: { excludeSources: [] } }),
+    {
+      enabled: false,
+    },
+  );
   useEffect(() => {
-    if (feedSettings) {
-      if (loadedFeedSettings) {
-        setFeedDeps([feedSettings.feedSettings.includeTags.length]);
+    if (tagsSettings) {
+      if (loadedTagsSettings) {
+        setFeedDeps([feedDeps[0] + 1]);
       } else {
-        setLoadedFeedSettings(true);
+        setLoadedTagsSettings(true);
       }
     }
-  }, [feedSettings]);
+  }, [tagsSettings]);
+
+  useEffect(() => {
+    if (sourcesSettings) {
+      if (loadedSourcesSettings) {
+        setFeedDeps([feedDeps[0] + 1]);
+      } else {
+        setLoadedSourcesSettings(true);
+      }
+    }
+  }, [sourcesSettings]);
 
   const isSearch = '/search' === router?.pathname;
 

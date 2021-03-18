@@ -13,7 +13,7 @@ import rem from '../../macros/rem.macro';
 import { typoBody, typoCallout } from '../../styles/typography';
 import { focusOutline } from '../../styles/helpers';
 import TextField from '../fields/TextField';
-import Switch from '../Switch';
+import Switch from '../fields/Switch';
 import ArrowIcon from '../../icons/arrow.svg';
 import AuthContext from '../../contexts/AuthContext';
 import { formToJson } from '../../lib/form';

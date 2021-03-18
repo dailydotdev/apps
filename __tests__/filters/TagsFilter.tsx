@@ -1,6 +1,6 @@
-import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
+import { MockedGraphQLResponse, mockGraphQL } from '../helpers/graphql';
 import nock from 'nock';
-import AuthContext from '../contexts/AuthContext';
+import AuthContext from '../../contexts/AuthContext';
 import React from 'react';
 import {
   findAllByRole,
@@ -9,10 +9,10 @@ import {
   screen,
   waitFor,
 } from '@testing-library/preact';
-import defaultUser from './fixture/loggedUser';
+import defaultUser from '../fixture/loggedUser';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { LoggedUser } from '../lib/user';
-import TagsFilter from '../components/TagsFilter';
+import { LoggedUser } from '../../lib/user';
+import TagsFilter from '../../components/filters/TagsFilter';
 import {
   ADD_FILTERS_TO_FEED_MUTATION,
   ALL_TAGS_AND_SETTINGS_QUERY,
@@ -22,8 +22,8 @@ import {
   REMOVE_FILTERS_FROM_FEED_MUTATION,
   SEARCH_TAGS_QUERY,
   TagsData,
-} from '../graphql/feedSettings';
-import { getTagsSettingsQueryKey } from '../hooks/useMutateFilters';
+} from '../../graphql/feedSettings';
+import { getTagsSettingsQueryKey } from '../../hooks/useMutateFilters';
 
 const showLogin = jest.fn();
 
@@ -61,6 +61,7 @@ let client: QueryClient;
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createAllTagsAndSettingsMock()],
   user: LoggedUser = defaultUser,
+  query?: string,
 ): RenderResult => {
   client = new QueryClient();
   mocks.forEach(mockGraphQL);
@@ -76,7 +77,7 @@ const renderComponent = (
           tokenRefreshed: true,
         }}
       >
-        <TagsFilter />
+        <TagsFilter query={query} />
       </AuthContext.Provider>
     </QueryClientProvider>,
   );
@@ -192,24 +193,25 @@ it('should remove tag filter on tag click', async () => {
 });
 
 it('should show filter followed tags', async () => {
-  const res = renderComponent();
-  await waitFor(() => expect(res.baseElement).not.toHaveAttribute('aria-busy'));
-
-  mockGraphQL({
-    request: {
-      query: SEARCH_TAGS_QUERY,
-      variables: { query: 'r' },
-    },
-    result: {
-      data: {
-        searchTags: { tags: [{ name: 'react' }, { name: 'react-native' }] },
+  const res = renderComponent(
+    [
+      createAllTagsAndSettingsMock(),
+      {
+        request: {
+          query: SEARCH_TAGS_QUERY,
+          variables: { query: 'r' },
+        },
+        result: {
+          data: {
+            searchTags: { tags: [{ name: 'react' }, { name: 'react-native' }] },
+          },
+        },
       },
-    },
-  });
-
-  const input = (await screen.findByRole('textbox')) as HTMLInputElement;
-  input.value = 'r';
-  input.dispatchEvent(new Event('input', { bubbles: true }));
+    ],
+    defaultUser,
+    'r',
+  );
+  await waitFor(() => expect(res.baseElement).not.toHaveAttribute('aria-busy'));
   await waitFor(() => expect(nock.isDone()).toBeTruthy());
 
   const { parentElement: section } = await screen.findByText('Tags you follow');
@@ -221,24 +223,25 @@ it('should show filter followed tags', async () => {
 });
 
 it('should show filtered available tags', async () => {
-  const res = renderComponent();
-  await waitFor(() => expect(res.baseElement).not.toHaveAttribute('aria-busy'));
-
-  mockGraphQL({
-    request: {
-      query: SEARCH_TAGS_QUERY,
-      variables: { query: 'r' },
-    },
-    result: {
-      data: {
-        searchTags: { tags: [{ name: 'react' }, { name: 'react-native' }] },
+  const res = renderComponent(
+    [
+      createAllTagsAndSettingsMock(),
+      {
+        request: {
+          query: SEARCH_TAGS_QUERY,
+          variables: { query: 'r' },
+        },
+        result: {
+          data: {
+            searchTags: { tags: [{ name: 'react' }, { name: 'react-native' }] },
+          },
+        },
       },
-    },
-  });
-
-  const input = (await screen.findByRole('textbox')) as HTMLInputElement;
-  input.value = 'r';
-  input.dispatchEvent(new Event('input', { bubbles: true }));
+    ],
+    defaultUser,
+    'r',
+  );
+  await waitFor(() => expect(res.baseElement).not.toHaveAttribute('aria-busy'));
   await waitFor(() => expect(nock.isDone()).toBeTruthy());
 
   const { parentElement: section } = await screen.findByText('Everything else');
