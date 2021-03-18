@@ -30,6 +30,9 @@ import { getRankQueryKey } from '../hooks/useReadingRank';
 import { OperationOptions } from 'subscriptions-transport-ws';
 import { SubscriptionCallbacks } from '../hooks/useSubscription';
 import { COMMENT_ON_POST_MUTATION } from '../graphql/comments';
+import SettingsContext, {
+  SettingsContextData,
+} from '../contexts/SettingsContext';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
@@ -59,6 +62,7 @@ const createFeedMock = (
   variables: unknown = {
     first: 7,
     loggedIn: true,
+    unreadOnly: false,
   },
 ): MockedGraphQLResponse<FeedData> => ({
   request: {
@@ -82,6 +86,16 @@ const renderComponent = (
 
   mocks.forEach(mockGraphQL);
   nock('http://localhost:3000').get('/v1/a').reply(200, [ad]);
+  const settingsContext: SettingsContextData = {
+    spaciness: 'eco',
+    showOnlyUnreadPosts: false,
+    openNewTab: true,
+    toggleLightMode: jest.fn(),
+    lightMode: false,
+    setSpaciness: jest.fn(),
+    toggleOpenNewTab: jest.fn(),
+    toggleShowOnlyUnreadPosts: jest.fn(),
+  };
   return render(
     <QueryClientProvider client={queryClient}>
       <AuthContext.Provider
@@ -94,7 +108,9 @@ const renderComponent = (
           tokenRefreshed: true,
         }}
       >
-        <Feed query={ANONYMOUS_FEED_QUERY} />
+        <SettingsContext.Provider value={settingsContext}>
+          <Feed query={ANONYMOUS_FEED_QUERY} />
+        </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
   );
@@ -168,6 +184,7 @@ it('should open login modal on anonymous upvote', async () => {
       createFeedMock(defaultFeedPage, ANONYMOUS_FEED_QUERY, {
         first: 7,
         loggedIn: false,
+        unreadOnly: false,
       }),
     ],
     null,
@@ -223,6 +240,7 @@ it('should open login modal on anonymous bookmark', async () => {
       createFeedMock(defaultFeedPage, ANONYMOUS_FEED_QUERY, {
         first: 7,
         loggedIn: false,
+        unreadOnly: false,
       }),
     ],
     null,
@@ -312,6 +330,7 @@ it('should increase reading rank progress for anonymous users', async () => {
       createFeedMock(defaultFeedPage, ANONYMOUS_FEED_QUERY, {
         first: 7,
         loggedIn: false,
+        unreadOnly: false,
       }),
     ],
     null,
@@ -341,6 +360,7 @@ it('should not increase reading rank progress for anonymous users after the firs
       createFeedMock(defaultFeedPage, ANONYMOUS_FEED_QUERY, {
         first: 7,
         loggedIn: false,
+        unreadOnly: false,
       }),
     ],
     null,

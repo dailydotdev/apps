@@ -46,6 +46,7 @@ const Children = styled.span`
 `;
 
 const Container = styled.label`
+  position: relative;
   display: flex;
   align-items: center;
   cursor: pointer;
@@ -63,7 +64,10 @@ const Container = styled.label`
   }
 
   input {
-    display: none;
+    position: absolute;
+    width: 0;
+    height: 0;
+    opacity: 0;
 
     &:checked {
       & ~ ${SwitchContainer} ${SwitchTrack} {
@@ -80,6 +84,25 @@ const Container = styled.label`
       }
     }
   }
+
+  &.big {
+    & ${SwitchTrack} {
+      width: ${sizeN(10)};
+      height: ${sizeN(3)};
+      border-radius: ${sizeN(1)};
+    }
+
+    & ${SwitchContainer} {
+      width: ${sizeN(10)};
+      height: ${sizeN(5)};
+    }
+
+    & ${SwitchKnob} {
+      width: ${sizeN(5)};
+      height: ${sizeN(5)};
+      border-radius: ${sizeN(1.5)};
+    }
+  }
 `;
 
 export interface Props {
@@ -88,6 +111,7 @@ export interface Props {
   inputId: string;
   name: string;
   checked?: boolean;
+  onToggle?: () => unknown;
 }
 
 export default function Switch({
@@ -96,6 +120,7 @@ export default function Switch({
   name,
   checked,
   children,
+  onToggle,
 }: Props): ReactElement {
   return (
     <Container className={className} htmlFor={inputId}>
@@ -103,7 +128,8 @@ export default function Switch({
         id={inputId}
         name={name}
         type="checkbox"
-        defaultChecked={checked}
+        checked={checked}
+        onChange={onToggle}
       />
       <SwitchContainer>
         <SwitchTrack />

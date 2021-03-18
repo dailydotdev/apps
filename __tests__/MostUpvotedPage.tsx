@@ -12,6 +12,9 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { LoggedUser } from '../lib/user';
 import Upvoted from '../pages/upvoted';
 import OnboardingContext from '../contexts/OnboardingContext';
+import SettingsContext, {
+  SettingsContextData,
+} from '../contexts/SettingsContext';
 
 const showLogin = jest.fn();
 
@@ -26,6 +29,7 @@ const createFeedMock = (
   variables: unknown = {
     first: 7,
     loggedIn: true,
+    unreadOnly: false,
   },
 ): MockedGraphQLResponse<FeedData> => ({
   request: {
@@ -47,6 +51,16 @@ const renderComponent = (
 
   mocks.forEach(mockGraphQL);
   nock('http://localhost:3000').get('/v1/a').reply(200, [ad]);
+  const settingsContext: SettingsContextData = {
+    spaciness: 'eco',
+    showOnlyUnreadPosts: false,
+    openNewTab: true,
+    toggleLightMode: jest.fn(),
+    lightMode: false,
+    setSpaciness: jest.fn(),
+    toggleOpenNewTab: jest.fn(),
+    toggleShowOnlyUnreadPosts: jest.fn(),
+  };
   return render(
     <QueryClientProvider client={client}>
       <AuthContext.Provider
@@ -59,15 +73,17 @@ const renderComponent = (
           tokenRefreshed: true,
         }}
       >
-        <OnboardingContext.Provider
-          value={{
-            showWelcome: false,
-            onboardingReady: true,
-            setShowWelcome: jest.fn(),
-          }}
-        >
-          {Upvoted.getLayout(<Upvoted />, {}, Upvoted.layoutProps)}
-        </OnboardingContext.Provider>
+        <SettingsContext.Provider value={settingsContext}>
+          <OnboardingContext.Provider
+            value={{
+              showWelcome: false,
+              onboardingReady: true,
+              setShowWelcome: jest.fn(),
+            }}
+          >
+            {Upvoted.getLayout(<Upvoted />, {}, Upvoted.layoutProps)}
+          </OnboardingContext.Provider>
+        </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
   );
@@ -78,6 +94,7 @@ it('should request most upvoted feed when logged-in', async () => {
     createFeedMock(defaultFeedPage, MOST_UPVOTED_FEED_QUERY, {
       first: 7,
       loggedIn: true,
+      unreadOnly: false,
     }),
   ]);
   await waitFor(async () => {
@@ -92,6 +109,7 @@ it('should request most upvoted feed when not', async () => {
       createFeedMock(defaultFeedPage, MOST_UPVOTED_FEED_QUERY, {
         first: 7,
         loggedIn: false,
+        unreadOnly: false,
       }),
     ],
     null,

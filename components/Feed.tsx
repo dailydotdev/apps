@@ -32,6 +32,7 @@ import dynamic from 'next/dynamic';
 import requestIdleCallback from 'next/dist/client/request-idle-callback';
 import styles from '../styles/feed.module.css';
 import classNames from 'classnames';
+import SettingsContext from '../contexts/SettingsContext';
 
 const CommentPopup = dynamic(() => import('./cards/CommentPopup'));
 
@@ -68,6 +69,10 @@ export default function Feed<T>({
   emptyScreen,
 }: FeedProps<T>): ReactElement {
   const currentSettings = useContext(FeedContext);
+  const { user, showLogin } = useContext(AuthContext);
+  const { openNewTab, showOnlyUnreadPosts, spaciness } = useContext(
+    SettingsContext,
+  );
   const {
     items,
     updatePost,
@@ -79,11 +84,11 @@ export default function Feed<T>({
     currentSettings.pageSize,
     currentSettings.adSpot,
     currentSettings.numCards,
+    showOnlyUnreadPosts,
     query,
     variables,
     dep,
   );
-  const { user, showLogin } = useContext(AuthContext);
   // const { nativeShareSupport } = useContext(ProgressiveEnhancementContext);
   const nativeShareSupport = false;
   const [disableFetching, setDisableFetching] = useState(false);
@@ -319,6 +324,7 @@ export default function Feed<T>({
             }
             showShare={nativeShareSupport}
             onShare={onShare}
+            openNewTab={openNewTab}
           >
             {showCommentPopupId === item.post.id && (
               <CommentPopup
@@ -347,14 +353,22 @@ export default function Feed<T>({
   const hasNonPlaceholderCard =
     items.findIndex((item) => item.type !== 'placeholder') >= 0;
 
+  const gap =
+    spaciness === 'cozy'
+      ? 'gap-14'
+      : spaciness === 'roomy'
+      ? 'gap-12'
+      : 'gap-8';
   return emptyScreen && emptyFeed ? (
     <>{emptyScreen}</>
   ) : (
     <div
       className={classNames(
         className,
-        'relative grid gap-8 mx-auto',
+        'relative grid mx-auto',
+        gap,
         styles.feed,
+        spaciness,
       )}
     >
       {items.map(itemToComponent)}
