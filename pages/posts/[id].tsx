@@ -145,7 +145,7 @@ const SourceName = styled.div`
 
 const AuthorLink = styled(ProfileLink)`
   margin-left: ${sizeN(2)};
-  flex: 1;
+  margin-right: auto;
 
   ${SourceName} {
     margin-left: ${sizeN(2)};
@@ -558,7 +558,11 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             background="var(--theme-background-secondary)"
           />
           {postById?.post.author ? (
-            <AuthorLink user={postById.post.author} data-testid="authorLink">
+            <AuthorLink
+              user={postById.post.author}
+              data-testid="authorLink"
+              disableTooltip
+            >
               <SourceImage
                 imgSrc={postById.post.author.image}
                 imgAlt={postById.post.author.name}

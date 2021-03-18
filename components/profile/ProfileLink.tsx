@@ -11,6 +11,7 @@ interface User {
 
 export interface ProfileLinkProps extends HTMLAttributes<HTMLAnchorElement> {
   user: User;
+  disableTooltip?: boolean;
 }
 
 const Anchor = styled.a`
@@ -21,12 +22,16 @@ const Anchor = styled.a`
 
 export function ProfileLink({
   user,
+  disableTooltip,
   children,
   ...props
 }: ProfileLinkProps): ReactElement {
   return (
     <Link href={user.permalink} passHref prefetch={false}>
-      <Anchor {...getTooltipProps(user.name)} {...props}>
+      <Anchor
+        {...(disableTooltip ? {} : getTooltipProps(user.name))}
+        {...props}
+      >
         {children}
       </Anchor>
     </Link>
