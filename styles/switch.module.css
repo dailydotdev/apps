@@ -1,0 +1,15 @@
+.knob {
+  @apply bg-water-40;
+}
+
+:global(.group):hover .knob {
+  @apply bg-water-20;
+}
+
+:global(.light) .knob {
+  @apply bg-water-60;
+}
+
+:global(.light) :global(.group):hover .knob {
+  @apply bg-water-80;
+}

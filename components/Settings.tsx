@@ -6,7 +6,7 @@ import React, {
 } from 'react';
 import classed from '../lib/classed';
 import Radio from './fields/Radio';
-import Switch from './Switch';
+import Switch from './fields/Switch';
 import SettingsContext from '../contexts/SettingsContext';
 import classNames from 'classnames';
 
