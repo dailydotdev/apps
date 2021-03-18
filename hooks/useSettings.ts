@@ -6,13 +6,14 @@ import request from 'graphql-request';
 import { apiUrl } from '../lib/config';
 import {
   RemoteSettings,
+  Spaciness,
   UPDATE_USER_SETTINGS_MUTATION,
   USER_SETTINGS_QUERY,
   UserSettingsData,
 } from '../graphql/settings';
 
 type Settings = {
-  spaciness: string;
+  spaciness: Spaciness;
   showOnlyUnreadPosts: boolean;
   openNewTab: boolean;
 };

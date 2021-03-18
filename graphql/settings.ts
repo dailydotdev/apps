@@ -1,10 +1,12 @@
 import { gql } from 'graphql-request';
 
+export type Spaciness = 'eco' | 'roomy' | 'cozy';
+
 export type RemoteSettings = {
   openNewTab: boolean;
   showOnlyUnreadPosts: boolean;
   theme: 'darcula' | 'bright';
-  spaciness: string;
+  spaciness: Spaciness;
 };
 
 export type UserSettingsData = { userSettings: RemoteSettings };
