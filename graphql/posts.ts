@@ -59,6 +59,7 @@ export const POST_BY_ID_QUERY = gql`
       numComments
       views
       source {
+        id
         name
         image
       }

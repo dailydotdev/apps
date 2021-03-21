@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react';
-import { ReactElement, useContext, useEffect, useState } from 'react';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import {
@@ -69,6 +69,7 @@ import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancement
 import useSubscription from '../../hooks/useSubscription';
 import Button from '../../components/buttons/Button';
 import { getTooltipProps } from '../../lib/tooltip';
+import Link from 'next/link';
 
 const NewCommentModal = dynamic(
   () => import('../../components/modals/NewCommentModal'),
@@ -552,11 +553,26 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         </Head>
         <NextSeo {...seo} />
         <PostInfo>
-          <SourceImage
-            imgSrc={postById?.post.source.image}
-            imgAlt={postById?.post.source.name}
-            background="var(--theme-background-secondary)"
-          />
+          <Link
+            href={`/sources/${postById?.post.source.id}`}
+            passHref
+            prefetch={false}
+          >
+            <a
+              className="flex no-underline cursor-pointer"
+              {...(!postById?.post.author
+                ? {}
+                : getTooltipProps(postById?.post.source.name, {
+                    position: 'down',
+                  }))}
+            >
+              <SourceImage
+                imgSrc={postById?.post.source.image}
+                imgAlt={postById?.post.source.name}
+                background="var(--theme-background-secondary)"
+              />
+            </a>
+          </Link>
           {postById?.post.author ? (
             <AuthorLink
               user={postById.post.author}
