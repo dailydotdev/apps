@@ -3,13 +3,7 @@ import { css, jsx } from '@emotion/react';
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
-import {
-  useQuery,
-  useMutation,
-  useQueryClient,
-  UseMutationOptions,
-  QueryClient,
-} from 'react-query';
+import { useQuery, useQueryClient, QueryClient } from 'react-query';
 import {
   GetStaticPathsResult,
   GetStaticPropsContext,
@@ -31,18 +25,17 @@ import { postDateFormat } from '../../lib/dateFormat';
 import OpenLinkIcon from '../../icons/open_link.svg';
 import UpvoteIcon from '../../icons/upvote.svg';
 import CommentIcon from '../../icons/comment.svg';
-import ShareIcon from '../../icons/share.svg';
+import BookmarkIcon from '../../icons/bookmark.svg';
 import TrashIcon from '../../icons/trash.svg';
 import FeatherIcon from '../../icons/feather.svg';
 import LazyImage from '../../components/LazyImage';
 import {
-  CANCEL_UPVOTE_MUTATION,
+  Post,
   POST_BY_ID_QUERY,
   POST_BY_ID_STATIC_FIELDS_QUERY,
   PostData,
   POSTS_ENGAGED_SUBSCRIPTION,
   PostsEngaged,
-  UPVOTE_MUTATION,
 } from '../../graphql/posts';
 import { PageContainer, RoundedImage } from '../../components/utilities';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
@@ -65,11 +58,12 @@ import { ownershipGuide } from '../../lib/constants';
 import QuaternaryButton from '../../components/buttons/QuaternaryButton';
 import { LoginModalMode } from '../../components/modals/LoginModal';
 import { trackEvent } from '../../lib/analytics';
-import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
 import useSubscription from '../../hooks/useSubscription';
 import Button from '../../components/buttons/Button';
 import { getTooltipProps } from '../../lib/tooltip';
 import Link from 'next/link';
+import useUpvotePost from '../../hooks/useUpvotePost';
+import useBookmarkPost from '../../hooks/useBookmarkPost';
 
 const NewCommentModal = dynamic(
   () => import('../../components/modals/NewCommentModal'),
@@ -325,34 +319,42 @@ interface ParentComment {
   postId: string;
 }
 
-const upvoteMutationConfig = (
+const updatePost = (
+  queryClient: QueryClient,
+  postQueryKey: string[],
+  update: (oldPost: PostData) => Partial<Post>,
+): (() => Promise<() => void>) => async () => {
+  await queryClient.cancelQueries(postQueryKey);
+  const oldPost = queryClient.getQueryData<PostData>(postQueryKey);
+  queryClient.setQueryData<PostData>(postQueryKey, {
+    post: {
+      ...oldPost.post,
+      ...update(oldPost),
+    },
+  });
+  return () => {
+    queryClient.setQueryData<PostData>(postQueryKey, oldPost);
+  };
+};
+
+const onUpvoteMutation = (
   queryClient: QueryClient,
   postQueryKey: string[],
   upvoted: boolean,
-): UseMutationOptions<unknown, unknown, void, void> => ({
-  onMutate: async () => {
-    await queryClient.cancelQueries(postQueryKey);
-    const oldPost = queryClient.getQueryData<PostData>(postQueryKey);
-    queryClient.setQueryData<PostData>(postQueryKey, {
-      post: {
-        ...oldPost.post,
-        upvoted,
-        numUpvotes: oldPost.post.numUpvotes + (upvoted ? 1 : -1),
-      },
-    });
-  },
-  onError: () => {
-    const oldPost = queryClient.getQueryData<PostData>(postQueryKey);
-    queryClient.setQueryData<PostData>(postQueryKey, {
-      post: {
-        ...oldPost.post,
-        upvoted,
-        numUpvotes: oldPost.post.numUpvotes + (upvoted ? -1 : 1),
-      },
-    });
-  },
-  onSettled: () => queryClient.invalidateQueries(postQueryKey),
-});
+): (() => Promise<() => void>) =>
+  updatePost(queryClient, postQueryKey, (oldPost) => ({
+    upvoted,
+    numUpvotes: oldPost.post.numUpvotes + (upvoted ? 1 : -1),
+  }));
+
+const onBookmarkMutation = (
+  queryClient: QueryClient,
+  postQueryKey: string[],
+  bookmarked: boolean,
+): (() => Promise<() => void>) =>
+  updatePost(queryClient, postQueryKey, () => ({
+    bookmarked,
+  }));
 
 const PostPage = ({ id, postData }: Props): ReactElement => {
   const router = useRouter();
@@ -363,7 +365,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   }
 
   const { user, showLogin, tokenRefreshed } = useContext(AuthContext);
-  const { nativeShareSupport } = useContext(ProgressiveEnhancementContext);
+  // const { nativeShareSupport } = useContext(ProgressiveEnhancementContext);
   const [parentComment, setParentComment] = useState<ParentComment>(null);
   const [pendingComment, setPendingComment] = useState<{
     comment: Comment;
@@ -419,30 +421,32 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     },
   );
 
-  const { mutateAsync: upvotePost } = useMutation(
-    () =>
-      request(`${apiUrl}/graphql`, UPVOTE_MUTATION, {
-        id,
-      }),
-    upvoteMutationConfig(queryClient, postQueryKey, true),
-  );
+  const { upvotePost, cancelPostUpvote } = useUpvotePost({
+    onUpvotePostMutate: onUpvoteMutation(queryClient, postQueryKey, true),
+    onCancelPostUpvoteMutate: onUpvoteMutation(
+      queryClient,
+      postQueryKey,
+      false,
+    ),
+  });
 
-  const { mutateAsync: cancelPostUpvote } = useMutation(
-    () =>
-      request(`${apiUrl}/graphql`, CANCEL_UPVOTE_MUTATION, {
-        id,
-      }),
-    upvoteMutationConfig(queryClient, postQueryKey, false),
-  );
+  const { bookmark, removeBookmark } = useBookmarkPost({
+    onBookmarkMutate: onBookmarkMutation(queryClient, postQueryKey, true),
+    onRemoveBookmarkMutate: onBookmarkMutation(
+      queryClient,
+      postQueryKey,
+      false,
+    ),
+  });
 
   const toggleUpvote = () => {
     if (user) {
       if (postById?.post.upvoted) {
         trackEvent({ category: 'Post', action: 'Upvote', label: 'Remove' });
-        return cancelPostUpvote();
+        return cancelPostUpvote({ id: postById.post.id });
       } else if (postById) {
         trackEvent({ category: 'Post', action: 'Add', label: 'Remove' });
-        return upvotePost();
+        return upvotePost({ id: postById.post.id });
       }
     } else {
       showLogin(LoginModalMode.ContentQuality);
@@ -476,6 +480,23 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
       });
     } else {
       showLogin(LoginModalMode.ContentQuality);
+    }
+  };
+
+  const toggleBookmark = async (): Promise<void> => {
+    if (!user) {
+      showLogin();
+      return;
+    }
+    trackEvent({
+      category: 'Post',
+      action: 'Bookmark',
+      label: !postById.post.bookmarked ? 'Add' : 'Remove',
+    });
+    if (!postById.post.bookmarked) {
+      await bookmark({ id: postById.post.id });
+    } else {
+      await removeBookmark({ id: postById.post.id });
     }
   };
 
@@ -661,17 +682,27 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             Comment
           </QuaternaryButton>
           <QuaternaryButton
-            id="share-post-btn"
-            onClick={sharePost}
-            {...getTooltipProps('Share')}
-            icon={<ShareIcon />}
-            style={{ visibility: nativeShareSupport ? 'visible' : 'hidden' }}
-            aria-label="Share"
+            id="bookmark-post-btn"
+            pressed={postById?.post.bookmarked}
+            onClick={toggleBookmark}
+            icon={<BookmarkIcon />}
             responsiveLabel
-            className="btn-tertiary"
+            className="btn-tertiary-bun"
           >
-            Share
+            Bookmark
           </QuaternaryButton>
+          {/*<QuaternaryButton*/}
+          {/*  id="share-post-btn"*/}
+          {/*  onClick={sharePost}*/}
+          {/*  {...getTooltipProps('Share')}*/}
+          {/*  icon={<ShareIcon />}*/}
+          {/*  style={{ visibility: nativeShareSupport ? 'visible' : 'hidden' }}*/}
+          {/*  aria-label="Share"*/}
+          {/*  responsiveLabel*/}
+          {/*  className="btn-tertiary"*/}
+          {/*>*/}
+          {/*  Share*/}
+          {/*</QuaternaryButton>*/}
         </ActionButtons>
         {comments?.postComments.edges.map((e) => (
           <MainComment
