@@ -264,22 +264,22 @@ it('should send cancel upvote mutation', async () => {
   await waitFor(() => mutationCalled);
 });
 
-it('should share article when share api is available', async () => {
-  const mock = jest.fn();
-  global.navigator.share = mock;
-  mock.mockResolvedValue(null);
-  const res = renderPost();
-  // Wait for GraphQL to return
-  await res.findByText('Learn SQL');
-  const el = await res.findByText('Share');
-  el.click();
-  await waitFor(() =>
-    expect(mock).toBeCalledWith({
-      text: 'Learn SQL',
-      url: 'https://localhost:5002/posts/9CuRpr5NiEY5',
-    }),
-  );
-});
+// it('should share article when share api is available', async () => {
+//   const mock = jest.fn();
+//   global.navigator.share = mock;
+//   mock.mockResolvedValue(null);
+//   const res = renderPost();
+//   // Wait for GraphQL to return
+//   await res.findByText('Learn SQL');
+//   const el = await res.findByText('Share');
+//   el.click();
+//   await waitFor(() =>
+//     expect(mock).toBeCalledWith({
+//       text: 'Learn SQL',
+//       url: 'https://localhost:5002/posts/9CuRpr5NiEY5',
+//     }),
+//   );
+// });
 
 it('should open new comment modal and set the correct props', async () => {
   renderPost();
