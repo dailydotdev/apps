@@ -10,14 +10,7 @@ import useFeed, { FeedItem, PostItem } from '../hooks/useFeed';
 import { PostCard } from './cards/PostCard';
 import { AdCard } from './cards/AdCard';
 import { PlaceholderCard } from './cards/PlaceholderCard';
-import {
-  Ad,
-  ADD_BOOKMARKS_MUTATION,
-  CANCEL_UPVOTE_MUTATION,
-  Post,
-  REMOVE_BOOKMARK_MUTATION,
-  UPVOTE_MUTATION,
-} from '../graphql/posts';
+import { Ad, Post } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
 import { useMutation } from 'react-query';
 import request from 'graphql-request';
@@ -33,6 +26,8 @@ import requestIdleCallback from 'next/dist/client/request-idle-callback';
 import styles from '../styles/feed.module.css';
 import classNames from 'classnames';
 import SettingsContext from '../contexts/SettingsContext';
+import useUpvotePost from '../hooks/useUpvotePost';
+import useBookmarkPost from '../hooks/useBookmarkPost';
 
 const CommentPopup = dynamic(() => import('./cards/CommentPopup'));
 
@@ -101,103 +96,55 @@ export default function Feed<T>({
     }
   }, [emptyFeed]);
 
-  const { mutateAsync: upvotePost } = useMutation<
-    unknown,
-    unknown,
-    { id: string; index: number },
-    () => void
-  >(
-    ({ id }) =>
-      request(`${apiUrl}/graphql`, UPVOTE_MUTATION, {
-        id,
-      }),
-    {
-      onMutate: async ({ index }) => {
-        const item = items[index] as PostItem;
-        const { post } = item;
-        updatePost(index, {
-          ...post,
-          upvoted: true,
-          numUpvotes: post.numUpvotes + 1,
-        });
-        return () => updatePost(index, post);
-      },
-      onError: (err, _, rollback) => rollback(),
+  const { upvotePost, cancelPostUpvote } = useUpvotePost<{
+    id: string;
+    index: number;
+  }>({
+    onUpvotePostMutate: async ({ index }) => {
+      const item = items[index] as PostItem;
+      const { post } = item;
+      updatePost(index, {
+        ...post,
+        upvoted: true,
+        numUpvotes: post.numUpvotes + 1,
+      });
+      return () => updatePost(index, post);
     },
-  );
+    onCancelPostUpvoteMutate: async ({ index }) => {
+      const item = items[index] as PostItem;
+      const { post } = item;
+      updatePost(index, {
+        ...post,
+        upvoted: false,
+        numUpvotes: post.numUpvotes - 1,
+      });
+      return () => updatePost(index, post);
+    },
+  });
 
-  const { mutateAsync: cancelPostUpvote } = useMutation<
-    unknown,
-    unknown,
-    { id: string; index: number },
-    () => void
-  >(
-    ({ id }) =>
-      request(`${apiUrl}/graphql`, CANCEL_UPVOTE_MUTATION, {
-        id,
-      }),
-    {
-      onMutate: async ({ index }) => {
-        const item = items[index] as PostItem;
-        const { post } = item;
-        updatePost(index, {
-          ...post,
-          upvoted: false,
-          numUpvotes: post.numUpvotes - 1,
-        });
-        return () => updatePost(index, post);
-      },
-      onError: (err, _, rollback) => rollback(),
+  const { bookmark, removeBookmark } = useBookmarkPost<{
+    id: string;
+    index: number;
+  }>({
+    onBookmarkMutate: async ({ index }) => {
+      const item = items[index] as PostItem;
+      const { post } = item;
+      updatePost(index, {
+        ...post,
+        bookmarked: true,
+      });
+      return () => updatePost(index, post);
     },
-  );
-
-  const { mutateAsync: bookmark } = useMutation<
-    unknown,
-    unknown,
-    { id: string; index: number },
-    () => void
-  >(
-    ({ id }) =>
-      request(`${apiUrl}/graphql`, ADD_BOOKMARKS_MUTATION, {
-        data: { postIds: [id] },
-      }),
-    {
-      onMutate: async ({ index }) => {
-        const item = items[index] as PostItem;
-        const { post } = item;
-        updatePost(index, {
-          ...post,
-          bookmarked: true,
-        });
-        return () => updatePost(index, post);
-      },
-      onError: (err, _, rollback) => rollback(),
+    onRemoveBookmarkMutate: async ({ index }) => {
+      const item = items[index] as PostItem;
+      const { post } = item;
+      updatePost(index, {
+        ...post,
+        bookmarked: false,
+      });
+      return () => updatePost(index, post);
     },
-  );
-
-  const { mutateAsync: removeBookmark } = useMutation<
-    unknown,
-    unknown,
-    { id: string; index: number },
-    () => void
-  >(
-    ({ id }) =>
-      request(`${apiUrl}/graphql`, REMOVE_BOOKMARK_MUTATION, {
-        id,
-      }),
-    {
-      onMutate: async ({ index }) => {
-        const item = items[index] as PostItem;
-        const { post } = item;
-        updatePost(index, {
-          ...post,
-          bookmarked: false,
-        });
-        return () => updatePost(index, post);
-      },
-      onError: (err, _, rollback) => rollback(),
-    },
-  );
+  });
 
   const { mutateAsync: comment, isLoading: isSendingComment } = useMutation<
     CommentOnData,
