@@ -59,7 +59,14 @@ export default function Settings({
       )}
       {...props}
     >
-      <h2 className={panelMode ? 'typo-body mr-5' : 'typo-title2'}>Settings</h2>
+      <h2
+        className={classNames(
+          'font-bold',
+          panelMode ? 'typo-body mr-5' : 'typo-title2',
+        )}
+      >
+        Settings
+      </h2>
       <Section>
         <SectionTitle>Density</SectionTitle>
         <Radio
