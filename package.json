@@ -33,7 +33,7 @@
     "next-seo": "^4.20.0",
     "node-fetch": "^2.6.1",
     "preact": "^10.5.13",
-    "preact-render-to-string": "^5.1.12",
+    "preact-render-to-string": "^5.1.16",
     "react": "npm:@preact/compat@0.0.3",
     "react-contexify": "^5.0.0",
     "react-dom": "npm:@preact/compat@0.0.3",
