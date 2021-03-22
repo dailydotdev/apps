@@ -106,6 +106,19 @@ export const MOST_UPVOTED_FEED_QUERY = gql`
   ${FEED_POST_CONNECTION_FRAGMENT}
 `;
 
+export const MOST_DISCUSSED_FEED_QUERY = gql`
+  query MostDiscussedFeed(
+    $loggedIn: Boolean! = false
+    $first: Int
+    $after: String
+  ) {
+    page: mostDiscussedFeed(first: $first, after: $after) {
+      ...FeedPostConnection
+    }
+  }
+  ${FEED_POST_CONNECTION_FRAGMENT}
+`;
+
 export const TAG_FEED_QUERY = gql`
   query TagFeed(
     $tag: String!

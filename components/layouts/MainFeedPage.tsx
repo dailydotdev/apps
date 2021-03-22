@@ -48,7 +48,11 @@ export const tabs: Tab[] = [
   },
   {
     path: `/upvoted`,
-    title: 'Most Upvoted',
+    title: 'Upvoted',
+  },
+  {
+    path: `/discussed`,
+    title: 'Discussed',
   },
   {
     path: `/recent`,
