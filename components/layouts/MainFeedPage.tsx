@@ -220,6 +220,7 @@ export function getMainFeedLayout<T>(
 export const mainFeedLayoutProps: MainLayoutProps = {
   responsive: false,
   showRank: true,
+  greeting: true,
 };
 
 export function generateMainFeedLayoutProps<T>(

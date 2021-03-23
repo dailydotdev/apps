@@ -1,0 +1,18 @@
+.greeting:global(.greeting-enter-active),
+.greeting:global(.greeting-exit-active) {
+  transition: opacity 0.5s linear;
+  will-change: opacity;
+}
+
+.greeting:global(.greeting-enter) {
+  opacity: 0;
+}
+
+.greeting:global(.greeting-enter-active),
+.greeting:global(.greeting-exit) {
+  opacity: 1;
+}
+
+.greeting:global(.greeting-exit-active) {
+  opacity: 0;
+}
