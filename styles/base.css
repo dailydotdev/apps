@@ -182,3 +182,23 @@ img.lazyload:not([src]) {
     margin-bottom: 0;
   }
 }
+
+.fade-enter-active,
+.fade-exit-active {
+  transition: opacity 0.5s linear;
+  will-change: opacity;
+}
+
+.fade-enter {
+  opacity: 0;
+}
+
+.fade-enter-active,
+.fade-exit {
+  opacity: 1;
+}
+
+.fade-exit-active {
+  opacity: 0;
+}
+

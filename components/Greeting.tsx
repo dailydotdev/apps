@@ -2,7 +2,6 @@ import React, { ReactElement, useEffect, useMemo, useState } from 'react';
 import { CSSTransition } from 'react-transition-group';
 import { get as getCache, set as setCache } from 'idb-keyval';
 import { LoggedUser } from '../lib/user';
-import styles from '../styles/greeting.module.css';
 import { isSameDay } from 'date-fns';
 import { tablet } from '../styles/media';
 
@@ -52,7 +51,7 @@ export default function Greeting({
     const firstName = user?.name.split(' ')[0];
     const greeting = getGreetingData();
     return (
-      <div className={`typo-callout font-bold ml-2 ${styles.greeting}`}>
+      <div className="typo-callout font-bold ml-2">
         {greeting.text}
         {firstName && (
           <span className="hidden laptop:inline">, {firstName}</span>
@@ -82,22 +81,20 @@ export default function Greeting({
           onEnter();
           setTimeout(() => {
             setShow(true);
-            setTimeout(() => setShow(false), 5000);
+            setTimeout(() => setShow(false), 7000);
           }, 500);
         }, 1500);
       }
     })();
   }, []);
 
-  const delayedOnExit = () => setTimeout(onExit, 500);
-
   return (
     <CSSTransition
       in={show}
       timeout={500}
-      classNames="greeting"
+      classNames="fade"
       unmountOnExit
-      onExited={delayedOnExit}
+      onExited={onExit}
     >
       {greetingElement}
     </CSSTransition>
