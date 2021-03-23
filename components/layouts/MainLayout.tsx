@@ -40,7 +40,7 @@ const Settings = dynamic(
 );
 
 const Greeting = dynamic(
-  () => import(/* webpackChunkName: "gretting" */ '../Greeting'),
+  () => import(/* webpackChunkName: "greeting" */ '../Greeting'),
 );
 
 const HeaderButton = classed(Button, 'hidden mx-0.5 laptop:flex');
