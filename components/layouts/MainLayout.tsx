@@ -19,6 +19,7 @@ import styles from '../../styles/mainLayout.module.css';
 import classed from '../../lib/classed';
 import { getTooltipProps } from '../../lib/tooltip';
 import classNames from 'classnames';
+import { CSSTransition } from 'react-transition-group';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -83,13 +84,19 @@ export default function MainLayout({
             {...getTooltipProps('Home', { position: 'right' })}
           >
             <Logo className={styles.homeSvg} />
-            <LogoTextBeta
-              className={classNames(
-                styles.homeSvg,
-                'hidden ml-1',
-                !showGreeting && 'laptop:block',
-              )}
-            />
+            <CSSTransition
+              in={!showGreeting}
+              timeout={500}
+              classNames="fade"
+              unmountOnExit
+            >
+              <LogoTextBeta
+                className={classNames(
+                  styles.homeSvg,
+                  'hidden ml-1 laptop:block',
+                )}
+              />
+            </CSSTransition>
           </a>
         </Link>
         {windowLoaded && greeting && (
