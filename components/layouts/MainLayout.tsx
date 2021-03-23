@@ -18,11 +18,13 @@ import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancement
 import styles from '../../styles/mainLayout.module.css';
 import classed from '../../lib/classed';
 import { getTooltipProps } from '../../lib/tooltip';
+import classNames from 'classnames';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
   responsive?: boolean;
   showRank?: boolean;
+  greeting?: boolean;
 }
 
 const HeaderRankProgress = dynamic(
@@ -36,6 +38,10 @@ const Settings = dynamic(
   () => import(/* webpackChunkName: "settings" */ '../Settings'),
 );
 
+const Greeting = dynamic(
+  () => import(/* webpackChunkName: "gretting" */ '../Greeting'),
+);
+
 const HeaderButton = classed(Button, 'hidden mx-0.5 laptop:flex');
 
 export default function MainLayout({
@@ -43,10 +49,12 @@ export default function MainLayout({
   showOnlyLogo = false,
   responsive = true,
   showRank = false,
+  greeting = false,
 }: MainLayoutProps): ReactElement {
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user, showLogin, loadingUser } = useContext(AuthContext);
   const [showSettings, setShowSettings] = useState(false);
+  const [showGreeting, setShowGreeting] = useState(false);
 
   const settingsButton = !responsive ? (
     <HeaderButton
@@ -71,15 +79,27 @@ export default function MainLayout({
       >
         <Link href="/" passHref prefetch={false}>
           <a
-            className="flex items-center mr-auto"
+            className="flex items-center"
             {...getTooltipProps('Home', { position: 'right' })}
           >
             <Logo className={styles.homeSvg} />
             <LogoTextBeta
-              className={`${styles.homeSvg} hidden ml-1 laptop:block`}
+              className={classNames(
+                styles.homeSvg,
+                'hidden ml-1',
+                !showGreeting && 'laptop:block',
+              )}
             />
           </a>
         </Link>
+        {windowLoaded && greeting && (
+          <Greeting
+            user={user}
+            onEnter={() => setShowGreeting(true)}
+            onExit={() => setShowGreeting(false)}
+          />
+        )}
+        <div className="flex-1" />
         {!showOnlyLogo &&
           !loadingUser &&
           (user ? (
