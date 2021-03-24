@@ -64,6 +64,8 @@ import { getTooltipProps } from '../../lib/tooltip';
 import Link from 'next/link';
 import useUpvotePost from '../../hooks/useUpvotePost';
 import useBookmarkPost from '../../hooks/useBookmarkPost';
+import styles from '../../styles/postPage.module.css';
+import classNames from 'classnames';
 
 const NewCommentModal = dynamic(
   () => import('../../components/modals/NewCommentModal'),
@@ -84,6 +86,13 @@ const ShareNewCommentPopup = dynamic(
   },
 );
 const Custom404 = dynamic(() => import('../404'));
+
+const SimilarPosts = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "similarPosts" */ '../../components/SimilarPosts'
+    ),
+);
 
 export interface Props {
   id: string;
@@ -149,6 +158,7 @@ const AuthorLink = styled(ProfileLink)`
 
 const Title = styled.h1`
   margin: ${sizeN(2)} 0;
+  font-weight: bold;
   ${typoTitle2}
 `;
 
@@ -233,12 +243,6 @@ const NewCommentProfile = styled(LazyImage)`
   border-radius: 100%;
   margin-left: -${sizeN(2)};
   margin-right: ${sizeN(3)};
-`;
-
-const Hint = styled.div`
-  margin: 0 0 ${sizeN(6)};
-  color: var(--theme-label-secondary);
-  ${typoSubhead}
 `;
 
 const Separator = styled.div`
@@ -568,7 +572,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
 
   return (
     <>
-      <PageContainer>
+      <PageContainer className="laptop:self-start laptop:border-theme-divider-tertiary laptop:border-r laptopL:self-center laptopL:border-l">
         <Head>
           <link rel="preload" as="image" href={postById?.post.image} />
         </Head>
@@ -751,11 +755,16 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           </AuthorOnboarding>
         ) : (
           <>
-            <Hint>
-              💡 Hint: The comment with most upvotes will be featured on the
-              main feed of daily.dev browser extension.
-            </Hint>
             <ShareMobile share={sharePost} />
+            {postById?.post && comments?.postComments && (
+              <SimilarPosts
+                postId={id}
+                className={classNames(
+                  styles.similarPosts,
+                  'mb-16 laptop:absolute laptop:left-full laptop:ml-6',
+                )}
+              />
+            )}
           </>
         )}
         <NewCommentContainer>
@@ -806,6 +815,9 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
 };
 
 PostPage.getLayout = getMainLayout;
+PostPage.layoutProps = {
+  responsive: false,
+};
 
 export default PostPage;
 

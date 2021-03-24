@@ -1,0 +1,6 @@
+.similarPosts {
+  @screen laptop {
+    top: 5.5rem;
+    width: 19.5rem;
+  }
+}

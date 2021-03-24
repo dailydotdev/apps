@@ -8,7 +8,7 @@ import { useInfiniteQuery, useMutation } from 'react-query';
 import request from 'graphql-request';
 import { apiUrl } from '../lib/config';
 import { FeedData, KEYWORD_FEED_QUERY } from '../graphql/posts';
-import { PageContainer } from './utilities';
+import { ResponsivePageContainer } from './utilities';
 import sizeN from '../macros/sizeN.macro';
 import { NextSeo } from 'next-seo';
 import ActivitySection from './profile/ActivitySection';
@@ -173,7 +173,7 @@ export default function KeywordManagement({
   const disableActions = !!currentAction;
 
   return (
-    <PageContainer style={{ paddingBottom: sizeN(23) }}>
+    <ResponsivePageContainer style={{ paddingBottom: sizeN(23) }}>
       <NextSeo title="Pending Keywords" />
       <Title>{keyword.value}</Title>
       <Subtitle>
@@ -239,6 +239,6 @@ export default function KeywordManagement({
           onRequestClose={nextKeyword}
         />
       )}
-    </PageContainer>
+    </ResponsivePageContainer>
   );
 }

@@ -26,6 +26,7 @@ export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   responsive?: boolean;
   showRank?: boolean;
   greeting?: boolean;
+  mainPage?: boolean;
 }
 
 const HeaderRankProgress = dynamic(
@@ -47,17 +48,18 @@ const HeaderButton = classed(Button, 'hidden mx-0.5 laptop:flex');
 
 export default function MainLayout({
   children,
-  showOnlyLogo = false,
+  showOnlyLogo,
   responsive = true,
-  showRank = false,
-  greeting = false,
+  showRank,
+  greeting,
+  mainPage,
 }: MainLayoutProps): ReactElement {
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user, showLogin, loadingUser } = useContext(AuthContext);
   const [showSettings, setShowSettings] = useState(false);
   const [showGreeting, setShowGreeting] = useState(false);
 
-  const settingsButton = !responsive ? (
+  const settingsButton = mainPage ? (
     <HeaderButton
       icon={<LayoutIcon />}
       {...getTooltipProps('Settings', { position: 'down' })}

@@ -11,7 +11,7 @@ import { NextSeoProps } from 'next-seo/lib/types';
 import { getLayout as getMainLayout } from '../MainLayout';
 import Head from 'next/head';
 import { NextSeo } from 'next-seo';
-import { PageContainer } from '../../utilities';
+import { ResponsivePageContainer } from '../../utilities';
 import styled from '@emotion/styled';
 import sizeN from '../../../macros/sizeN.macro';
 import LazyImage from '../../LazyImage';
@@ -64,7 +64,7 @@ export interface ProfileLayoutProps {
   children?: ReactNode;
 }
 
-const ProfileContainer = styled(PageContainer)`
+const ProfileContainer = styled(ResponsivePageContainer)`
   padding-left: ${sizeN(6)};
   padding-right: ${sizeN(6)};
 `;

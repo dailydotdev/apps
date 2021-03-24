@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import styled from '@emotion/styled';
-import { laptop } from '../styles/media';
+import { laptopL } from '../styles/media';
 import { pageMaxWidth } from '../styles/helpers';
 import sizeN from '../macros/sizeN.macro';
 import CopyIcon from '../icons/copy.svg';
@@ -30,7 +30,7 @@ const Container = styled.div`
   left: calc((100vw - ${pageMaxWidth}) / 2 - ${barWidth} - ${sizeN(4)});
   width: ${barWidth};
 
-  ${laptop} {
+  ${laptopL} {
     display: block;
   }
 `;
