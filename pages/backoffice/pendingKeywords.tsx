@@ -12,7 +12,7 @@ import {
 } from '../../graphql/keywords';
 import styled from '@emotion/styled';
 import { typoTitle3 } from '../../styles/typography';
-import { PageContainer } from '../../components/utilities';
+import { ResponsivePageContainer } from '../../components/utilities';
 import KeywordManagement from '../../components/KeywordManagement';
 import useRequirePermissions from '../../hooks/useRequirePermissions';
 
@@ -52,9 +52,9 @@ const PendingKeywords = (): ReactElement => {
 
   if (!isLoadingCurrentKeyword && !currentKeyword) {
     return (
-      <PageContainer>
+      <ResponsivePageContainer>
         <EmptyScreen data-testid="empty">No more keywords! 🥳</EmptyScreen>
-      </PageContainer>
+      </ResponsivePageContainer>
     );
   }
 

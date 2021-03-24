@@ -4,7 +4,10 @@ import { NextSeo } from 'next-seo';
 import MainLayout from '../components/layouts/MainLayout';
 import { typoCallout } from '../styles/typography';
 import sizeN from '../macros/sizeN.macro';
-import { PageContainer, ProfileHeading } from '../components/utilities';
+import {
+  ResponsivePageContainer,
+  ProfileHeading,
+} from '../components/utilities';
 import AuthContext from '../contexts/AuthContext';
 import { useRouter } from 'next/router';
 import EditImageWithJoinedDate from '../components/profile/EditImageWithJoinedDate';
@@ -47,7 +50,7 @@ export default function Register(): ReactElement {
   return (
     <MainLayout showOnlyLogo={true}>
       <NextSeo title="Registration" />
-      <PageContainer>
+      <ResponsivePageContainer>
         {user && (
           <>
             <ProfileHeading>Set up your profile</ProfileHeading>
@@ -78,7 +81,7 @@ export default function Register(): ReactElement {
             </FormButtons>
           </>
         )}
-      </PageContainer>
+      </ResponsivePageContainer>
     </MainLayout>
   );
 }

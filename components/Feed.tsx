@@ -237,7 +237,7 @@ export default function Feed<T>({
     trackEvent({
       category: 'Post',
       action: 'Click',
-      label: post.source.name,
+      label: 'Feed',
     });
     if (!post.read) {
       incrementReadingRank();

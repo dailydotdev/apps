@@ -11,7 +11,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  margin-bottom: ${sizeN(10)};
+  margin-bottom: ${sizeN(6)};
 
   ${laptop} {
     display: none;
