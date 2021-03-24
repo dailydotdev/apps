@@ -33,7 +33,7 @@ const ListItem = ({
 }: PostProps): ReactElement => (
   <article
     className={classNames(
-      'relative flex py-2 pl-4 pr-2 group items-start',
+      'relative flex py-2 pl-4 pr-2 group items-start hover:bg-theme-hover',
       styles.card,
     )}
   >
@@ -80,7 +80,7 @@ const ListItem = ({
       </div>
     </div>
     <Button
-      className="btn-tertiary-bun mt-1"
+      className="btn-tertiary-bun mt-1 group-hover:visible mouse:invisible"
       pressed={post.bookmarked}
       buttonSize="small"
       icon={<BookmarkIcon />}

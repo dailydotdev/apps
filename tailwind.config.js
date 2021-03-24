@@ -97,6 +97,7 @@ module.exports = {
   variants: {
     extend: {
       borderWidth: ['group-hover'],
+      visibility: ['group-hover'],
     },
   },
   plugins: [require('./tailwind/typography'), require('./tailwind/buttons')],
