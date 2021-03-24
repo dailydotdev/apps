@@ -42,8 +42,7 @@
     "react-modal": "^3.12.1",
     "react-query": "^3.12.0",
     "react-transition-group": "^4.4.1",
-    "subscriptions-transport-ws": "^0.9.18",
-    "swr": "^0.5.4"
+    "subscriptions-transport-ws": "^0.9.18"
   },
   "devDependencies": {
     "@emotion/babel-plugin": "^11.2.0",
