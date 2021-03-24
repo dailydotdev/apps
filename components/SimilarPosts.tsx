@@ -53,7 +53,7 @@ const ListItem = ({
     <div className="flex flex-col ml-3 mr-2 flex-1">
       <h5
         className={classNames(
-          'typo-callout text-theme-label-primary mb-0.5',
+          'typo-callout text-theme-label-primary mb-0.5 multi-truncate',
           styles.title,
         )}
       >
