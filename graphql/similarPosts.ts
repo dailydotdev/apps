@@ -13,7 +13,7 @@ export const SIMILAR_POSTS_QUERY = gql`
     trendingPosts: randomTrendingPosts(first: $trendingFirst) {
       id
       title
-      url
+      permalink
       bookmarked @include(if: $loggedIn)
       source {
         name
@@ -24,7 +24,7 @@ export const SIMILAR_POSTS_QUERY = gql`
     similarPosts: randomSimilarPosts(post: $post, first: $similarFirst) {
       id
       title
-      url
+      permalink
       bookmarked @include(if: $loggedIn)
       source {
         name

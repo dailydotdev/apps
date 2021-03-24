@@ -756,7 +756,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         ) : (
           <>
             <ShareMobile share={sharePost} />
-            {postById?.post && comments?.postComments && (
+            {postById?.post && (
               <SimilarPosts
                 postId={id}
                 className={classNames(
