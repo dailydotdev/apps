@@ -74,13 +74,25 @@ const renderComponent = (
   );
 };
 
+it('should show placeholders when loading', async () => {
+  renderComponent();
+  const elements = await screen.findAllByRole('article');
+  elements.map((el) => expect(el).toHaveAttribute('aria-busy'));
+});
+
 it('should show up to 3 articles', async () => {
   renderComponent();
+  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  const [el] = await screen.findAllByRole('article');
+  await waitFor(() => expect(el).not.toHaveAttribute('aria-busy'));
   expect(await screen.findAllByRole('article')).toHaveLength(3);
 });
 
 it('should show up to 3 articles even when there are no trending articles', async () => {
   renderComponent();
+  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  const [el] = await screen.findAllByRole('article');
+  await waitFor(() => expect(el).not.toHaveAttribute('aria-busy'));
   expect(await screen.findAllByRole('article')).toHaveLength(3);
 });
 

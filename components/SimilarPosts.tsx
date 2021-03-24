@@ -16,6 +16,8 @@ import { trackEvent } from '../lib/analytics';
 import { getTooltipProps } from '../lib/tooltip';
 import AuthContext from '../contexts/AuthContext';
 import useBookmarkPost from '../hooks/useBookmarkPost';
+import { ElementPlaceholder } from './utilities';
+import classed from '../lib/classed';
 
 export type SimilarPostsProps = { postId: string; className?: string };
 
@@ -26,6 +28,10 @@ type PostProps = {
   onLinkClick: (post: Post) => unknown;
   onBookmarkClick: (post: Post) => unknown;
 };
+
+const imageClassName = 'w-7 h-7 rounded-full mt-1';
+const textContainerClassName = 'flex flex-col ml-3 mr-2 flex-1';
+
 const ListItem = ({
   post,
   onLinkClick,
@@ -48,9 +54,9 @@ const ListItem = ({
     <LazyImage
       imgSrc={post.source.image}
       imgAlt={post.source.name}
-      className="w-7 h-7 rounded-full mt-1"
+      className={imageClassName}
     />
-    <div className="flex flex-col ml-3 mr-2 flex-1">
+    <div className={textContainerClassName}>
       <h5
         className={classNames(
           'typo-callout text-theme-label-primary mb-0.5 multi-truncate',
@@ -87,6 +93,19 @@ const ListItem = ({
       {...getTooltipProps(post.bookmarked ? 'Remove bookmark' : 'Bookmark')}
       onClick={() => onBookmarkClick(post)}
     />
+  </article>
+);
+
+const TextPlaceholder = classed(ElementPlaceholder, 'h-3 rounded-xl my-0.5');
+
+const ListItemPlaceholder = (): ReactElement => (
+  <article aria-busy className="relative flex py-2 pl-4 pr-2 items-start">
+    <ElementPlaceholder className={imageClassName} />
+    <div className={textContainerClassName}>
+      <TextPlaceholder style={{ width: '80%' }} />
+      <TextPlaceholder style={{ width: '80%' }} />
+      <TextPlaceholder style={{ width: '40%' }} />
+    </div>
   </article>
 );
 
@@ -127,7 +146,7 @@ export default function SimilarPosts({
   const queryKey = ['similarPosts', postId];
   const { user, showLogin } = useContext(AuthContext);
   const queryClient = useQueryClient();
-  const { data: posts } = useQuery<SimilarPostsData>(
+  const { data: posts, isLoading } = useQuery<SimilarPostsData>(
     queryKey,
     () =>
       request(`${apiUrl}/graphql`, SIMILAR_POSTS_QUERY, {
@@ -154,7 +173,11 @@ export default function SimilarPosts({
     })),
   });
 
-  if (!posts?.similarPosts?.length && !posts?.trendingPosts?.length) {
+  if (
+    !posts?.similarPosts?.length &&
+    !posts?.trendingPosts?.length &&
+    !isLoading
+  ) {
     return <></>;
   }
 
@@ -195,27 +218,41 @@ export default function SimilarPosts({
         You might like
       </h4>
       {Separator}
-      {posts.trendingPosts.map((post) => (
-        <ListItem
-          key={post.id}
-          post={post}
-          onLinkClick={onLinkClick}
-          onBookmarkClick={onBookmark}
-        />
-      ))}
-      {posts.similarPosts
-        .slice(
-          0,
-          Math.min(posts.similarPosts.length, 3 - posts.trendingPosts.length),
-        )
-        .map((post) => (
-          <ListItem
-            key={post.id}
-            post={post}
-            onLinkClick={onLinkClick}
-            onBookmarkClick={onBookmark}
-          />
-        ))}
+      {isLoading ? (
+        <>
+          <ListItemPlaceholder />
+          <ListItemPlaceholder />
+          <ListItemPlaceholder />
+        </>
+      ) : (
+        <>
+          {posts.trendingPosts.map((post) => (
+            <ListItem
+              key={post.id}
+              post={post}
+              onLinkClick={onLinkClick}
+              onBookmarkClick={onBookmark}
+            />
+          ))}
+          {posts.similarPosts
+            .slice(
+              0,
+              Math.min(
+                posts.similarPosts.length,
+                3 - posts.trendingPosts.length,
+              ),
+            )
+            .map((post) => (
+              <ListItem
+                key={post.id}
+                post={post}
+                onLinkClick={onLinkClick}
+                onBookmarkClick={onBookmark}
+              />
+            ))}
+        </>
+      )}
+
       {Separator}
       <Link href="/" passHref>
         <Button

@@ -10,7 +10,7 @@ export const SIMILAR_POSTS_QUERY = gql`
     $trendingFirst: Int
     $similarFirst: Int
   ) {
-    trendingPosts: randomTrendingPosts(first: $trendingFirst) {
+    trendingPosts: randomTrendingPosts(post: $post, first: $trendingFirst) {
       id
       title
       permalink
