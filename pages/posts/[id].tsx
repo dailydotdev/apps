@@ -572,7 +572,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
 
   return (
     <>
-      <PageContainer className="laptop:self-start laptop:border-theme-divider-tertiary laptop:border-r laptopL:self-center laptopL:border-l">
+      <PageContainer className="pt-6 pb-20 laptop:pb-6 laptop:self-start laptop:border-theme-divider-tertiary laptop:border-r laptopL:self-center laptopL:border-l">
         <Head>
           <link rel="preload" as="image" href={postById?.post.image} />
         </Head>
@@ -761,7 +761,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
                 postId={id}
                 className={classNames(
                   styles.similarPosts,
-                  'mb-16 laptop:absolute laptop:left-full laptop:ml-6',
+                  'laptop:absolute laptop:left-full laptop:ml-6',
                 )}
               />
             )}

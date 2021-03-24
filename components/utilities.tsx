@@ -17,12 +17,12 @@ export const LegalNotice = classed(
 export const PageContainer = classed(
   'main',
   styles.pageContainer,
-  'relative flex flex-col w-full items-stretch py-6 px-4 z-1 tablet:px-8 tablet:self-center laptop:min-h-screen',
+  'relative flex flex-col w-full items-stretch px-4 z-1 tablet:px-8 tablet:self-center',
 );
 
 export const ResponsivePageContainer = classed(
   PageContainer,
-  'laptop:border-theme-divider-tertiary laptop:border-l laptop:border-r',
+  'py-6 laptop:border-theme-divider-tertiary laptop:border-l laptop:border-r laptop:min-h-screen',
 );
 
 export const FeedPage = classed(

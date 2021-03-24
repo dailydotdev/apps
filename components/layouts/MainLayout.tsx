@@ -77,7 +77,7 @@ export default function MainLayout({
         } relative flex items-center px-4 border-b border-theme-divider-tertiary tablet:px-8 laptop:px-4 ${
           responsive
             ? 'laptop:absolute laptop:top-0 laptop:left-0 laptop:w-full laptop:border-b-0'
-            : ''
+            : 'non-responsive-header'
         }`}
       >
         <Link href="/" passHref prefetch={false}>

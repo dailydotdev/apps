@@ -13,6 +13,12 @@
   max-width: $pageMaxWidth;
 }
 
+:global(.non-responsive-header) ~ .pageContainer {
+  @screen laptop {
+    min-height: calc(100vh - $navBarHeight);
+  }
+}
+
 .feedPage {
   padding-top: 3.75rem;
 
