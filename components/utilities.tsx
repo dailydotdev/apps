@@ -51,7 +51,7 @@ export const ElementPlaceholder = ({
   <div
     className={classNames(
       className,
-      'element-placeholder relative overflow-hidden bg-theme-bg-secondary',
+      'element-placeholder relative overflow-hidden bg-theme-float',
     )}
     {...props}
   >
