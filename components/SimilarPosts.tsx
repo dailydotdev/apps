@@ -207,6 +207,13 @@ export default function SimilarPosts({
     }
   };
 
+  const onShowMore = (): void => {
+    trackEvent({
+      category: 'Similar Posts',
+      action: 'More',
+    });
+  };
+
   return (
     <section
       className={classNames(
@@ -260,6 +267,8 @@ export default function SimilarPosts({
           buttonSize="small"
           tag="a"
           rightIcon={<ArrowIcon className="icon transform rotate-90" />}
+          onClick={onShowMore}
+          onMouseUp={(event) => event.button === 1 && onShowMore()}
         >
           Show more
         </Button>
