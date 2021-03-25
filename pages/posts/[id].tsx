@@ -87,10 +87,10 @@ const ShareNewCommentPopup = dynamic(
 );
 const Custom404 = dynamic(() => import('../404'));
 
-const SimilarPosts = dynamic(
+const FurtherReading = dynamic(
   () =>
     import(
-      /* webpackChunkName: "similarPosts" */ '../../components/SimilarPosts'
+      /* webpackChunkName: "furtherReading" */ '../../components/widgets/FurtherReading'
     ),
 );
 
@@ -757,7 +757,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           <>
             <ShareMobile share={sharePost} />
             {postById?.post && tokenRefreshed && (
-              <SimilarPosts
+              <FurtherReading
                 postId={id}
                 tags={postById.post.tags}
                 className={classNames(

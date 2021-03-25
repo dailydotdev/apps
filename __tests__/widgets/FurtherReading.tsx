@@ -2,18 +2,21 @@ import {
   ADD_BOOKMARKS_MUTATION,
   Post,
   REMOVE_BOOKMARK_MUTATION,
-} from '../graphql/posts';
-import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
+} from '../../graphql/posts';
+import { MockedGraphQLResponse, mockGraphQL } from '../helpers/graphql';
 import nock from 'nock';
-import AuthContext from '../contexts/AuthContext';
+import AuthContext from '../../contexts/AuthContext';
 import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
-import defaultFeedPage from './fixture/feed';
-import defaultUser from './fixture/loggedUser';
+import defaultFeedPage from '../fixture/feed';
+import defaultUser from '../fixture/loggedUser';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { LoggedUser } from '../lib/user';
-import SimilarPosts from '../components/SimilarPosts';
-import { SIMILAR_POSTS_QUERY, SimilarPostsData } from '../graphql/similarPosts';
+import { LoggedUser } from '../../lib/user';
+import FurtherReading from '../../components/widgets/FurtherReading';
+import {
+  FURTHER_READING_QUERY,
+  FurtherReadingData,
+} from '../../graphql/furtherReading';
 
 const showLogin = jest.fn();
 
@@ -29,22 +32,29 @@ const createFeedMock = (
     defaultFeedPage.edges[3].node,
     defaultFeedPage.edges[4].node,
   ],
+  discussedPosts: Post[] = [
+    defaultFeedPage.edges[1].node,
+    defaultFeedPage.edges[5].node,
+    defaultFeedPage.edges[6].node,
+  ],
   variables: unknown = {
     post: 'p1',
     loggedIn: true,
     trendingFirst: 1,
     similarFirst: 3,
+    discussedFirst: 4,
     tags: ['webdev', 'javascript'],
   },
-): MockedGraphQLResponse<SimilarPostsData> => ({
+): MockedGraphQLResponse<FurtherReadingData> => ({
   request: {
-    query: SIMILAR_POSTS_QUERY,
+    query: FURTHER_READING_QUERY,
     variables,
   },
   result: {
     data: {
       trendingPosts,
       similarPosts,
+      discussedPosts,
     },
   },
 });
@@ -69,7 +79,7 @@ const renderComponent = (
           tokenRefreshed: true,
         }}
       >
-        <SimilarPosts postId="p1" tags={['webdev', 'javascript']} />
+        <FurtherReading postId="p1" tags={['webdev', 'javascript']} />
       </AuthContext.Provider>
     </QueryClientProvider>,
   );
@@ -81,20 +91,20 @@ it('should show placeholders when loading', async () => {
   elements.map((el) => expect(el).toHaveAttribute('aria-busy'));
 });
 
-it('should show up to 3 articles', async () => {
+it('should show available articles', async () => {
   renderComponent();
   await waitFor(() => expect(nock.isDone()).toBeTruthy());
   const [el] = await screen.findAllByRole('article');
   await waitFor(() => expect(el).not.toHaveAttribute('aria-busy'));
-  expect(await screen.findAllByRole('article')).toHaveLength(3);
+  expect(await screen.findAllByRole('article')).toHaveLength(5);
 });
 
-it('should show up to 3 articles even when there are no trending articles', async () => {
+it('should show articles even when there are no trending articles', async () => {
   renderComponent();
   await waitFor(() => expect(nock.isDone()).toBeTruthy());
   const [el] = await screen.findAllByRole('article');
   await waitFor(() => expect(el).not.toHaveAttribute('aria-busy'));
-  expect(await screen.findAllByRole('article')).toHaveLength(3);
+  expect(await screen.findAllByRole('article')).toHaveLength(5);
 });
 
 it('should show trending info for trending posts', async () => {
@@ -167,11 +177,17 @@ it('should open login modal on anonymous bookmark', async () => {
           defaultFeedPage.edges[3].node,
           defaultFeedPage.edges[4].node,
         ],
+        [
+          defaultFeedPage.edges[1].node,
+          defaultFeedPage.edges[5].node,
+          defaultFeedPage.edges[6].node,
+        ],
         {
           post: 'p1',
           loggedIn: false,
           trendingFirst: 1,
           similarFirst: 3,
+          discussedFirst: 4,
           tags: ['webdev', 'javascript'],
         },
       ),

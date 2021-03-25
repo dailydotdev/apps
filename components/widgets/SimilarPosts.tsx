@@ -1,27 +1,22 @@
-import React, { ReactElement, useContext } from 'react';
-import { QueryClient, useQuery, useQueryClient } from 'react-query';
-import request from 'graphql-request';
-import { apiUrl } from '../lib/config';
-import { SIMILAR_POSTS_QUERY, SimilarPostsData } from '../graphql/similarPosts';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import Button from './buttons/Button';
-import ArrowIcon from '../icons/arrow.svg';
-import BookmarkIcon from '../icons/bookmark.svg';
+import Button from '../buttons/Button';
+import ArrowIcon from '../../icons/arrow.svg';
+import BookmarkIcon from '../../icons/bookmark.svg';
 import Link from 'next/link';
-import { Post } from '../graphql/posts';
-import styles from '../styles/cards.module.css';
-import { CardLink } from './cards/Card';
-import LazyImage from './LazyImage';
-import { trackEvent } from '../lib/analytics';
-import { getTooltipProps } from '../lib/tooltip';
-import AuthContext from '../contexts/AuthContext';
-import useBookmarkPost from '../hooks/useBookmarkPost';
-import { ElementPlaceholder } from './utilities';
-import classed from '../lib/classed';
+import { Post } from '../../graphql/posts';
+import styles from '../../styles/cards.module.css';
+import { CardLink } from '../cards/Card';
+import LazyImage from '../LazyImage';
+import { trackEvent } from '../../lib/analytics';
+import { getTooltipProps } from '../../lib/tooltip';
+import { ElementPlaceholder } from '../utilities';
+import classed from '../../lib/classed';
 
 export type SimilarPostsProps = {
-  postId: string;
-  tags: string[];
+  posts: Post[] | null;
+  isLoading: boolean;
+  onBookmark: (post: Post) => unknown;
   className?: string;
 };
 
@@ -30,7 +25,7 @@ const Separator = <div className="h-px bg-theme-divider-tertiary" />;
 type PostProps = {
   post: Post;
   onLinkClick: (post: Post) => unknown;
-  onBookmarkClick: (post: Post) => unknown;
+  onBookmark: (post: Post) => unknown;
 };
 
 const imageClassName = 'w-7 h-7 rounded-full mt-1';
@@ -39,7 +34,7 @@ const textContainerClassName = 'flex flex-col ml-3 mr-2 flex-1';
 const ListItem = ({
   post,
   onLinkClick,
-  onBookmarkClick,
+  onBookmark,
 }: PostProps): ReactElement => (
   <article
     className={classNames(
@@ -95,7 +90,7 @@ const ListItem = ({
       buttonSize="small"
       icon={<BookmarkIcon />}
       {...getTooltipProps(post.bookmarked ? 'Remove bookmark' : 'Bookmark')}
-      onClick={() => onBookmarkClick(post)}
+      onClick={() => onBookmark(post)}
     />
   </article>
 );
@@ -113,104 +108,18 @@ const ListItemPlaceholder = (): ReactElement => (
   </article>
 );
 
-const transformPosts = (
-  posts: Post[],
-  id: string,
-  update: (oldPost: Post) => Partial<Post>,
-): Post[] =>
-  posts.map((post) =>
-    post.id === id
-      ? {
-          ...post,
-          ...update(post),
-        }
-      : post,
-  );
-
-const updatePost = (
-  queryClient: QueryClient,
-  queryKey: string[],
-  update: (oldPost: Post) => Partial<Post>,
-): (({}: { id: string }) => Promise<() => void>) => async ({ id }) => {
-  await queryClient.cancelQueries(queryKey);
-  const previousData = queryClient.getQueryData<SimilarPostsData>(queryKey);
-  queryClient.setQueryData(queryKey, {
-    trendingPosts: transformPosts(previousData.trendingPosts, id, update),
-    similarPosts: transformPosts(previousData.similarPosts, id, update),
-  });
-  return () => {
-    queryClient.setQueryData(queryKey, previousData);
-  };
-};
-
 export default function SimilarPosts({
-  postId,
-  tags,
+  posts,
+  isLoading,
+  onBookmark,
   className,
 }: SimilarPostsProps): ReactElement {
-  const queryKey = ['similarPosts', postId];
-  const { user, showLogin } = useContext(AuthContext);
-  const queryClient = useQueryClient();
-  const { data: posts, isLoading } = useQuery<SimilarPostsData>(
-    queryKey,
-    () =>
-      request(`${apiUrl}/graphql`, SIMILAR_POSTS_QUERY, {
-        loggedIn: !!user,
-        post: postId,
-        trendingFirst: 1,
-        similarFirst: 3,
-        tags,
-      }),
-    {
-      refetchOnWindowFocus: false,
-      refetchIntervalInBackground: false,
-      refetchOnReconnect: false,
-      refetchInterval: false,
-      refetchOnMount: false,
-    },
-  );
-
-  const { bookmark, removeBookmark } = useBookmarkPost({
-    onBookmarkMutate: updatePost(queryClient, queryKey, () => ({
-      bookmarked: true,
-    })),
-    onRemoveBookmarkMutate: updatePost(queryClient, queryKey, () => ({
-      bookmarked: false,
-    })),
-  });
-
-  if (
-    !posts?.similarPosts?.length &&
-    !posts?.trendingPosts?.length &&
-    !isLoading
-  ) {
-    return <></>;
-  }
-
   const onLinkClick = (): void => {
     trackEvent({
       category: 'Post',
       action: 'Click',
       label: 'Similar Posts',
     });
-  };
-
-  const onBookmark = async (post: Post): Promise<void> => {
-    if (!user) {
-      showLogin();
-      return;
-    }
-    const bookmarked = !post.bookmarked;
-    trackEvent({
-      category: 'Post',
-      action: 'Bookmark',
-      label: bookmarked ? 'Add' : 'Remove',
-    });
-    if (bookmarked) {
-      await bookmark({ id: post.id });
-    } else {
-      await removeBookmark({ id: post.id });
-    }
   };
 
   const onShowMore = (): void => {
@@ -239,30 +148,14 @@ export default function SimilarPosts({
         </>
       ) : (
         <>
-          {posts.trendingPosts.map((post) => (
+          {posts.map((post) => (
             <ListItem
               key={post.id}
               post={post}
               onLinkClick={onLinkClick}
-              onBookmarkClick={onBookmark}
+              onBookmark={onBookmark}
             />
           ))}
-          {posts.similarPosts
-            .slice(
-              0,
-              Math.min(
-                posts.similarPosts.length,
-                3 - posts.trendingPosts.length,
-              ),
-            )
-            .map((post) => (
-              <ListItem
-                key={post.id}
-                post={post}
-                onLinkClick={onLinkClick}
-                onBookmarkClick={onBookmark}
-              />
-            ))}
         </>
       )}
 

@@ -64,7 +64,7 @@ export default function LazyImage({
         absolute ? 'absolute' : 'relative',
         'overflow-hidden',
       )}
-      style={{ background }}
+      style={{ background, ...props.style }}
     >
       {ratio && <div style={{ paddingTop: ratio, zIndex: -1 }} />}
       <img {...imageProps} alt={imgAlt} key={imgSrc} onError={onError} />
