@@ -19,7 +19,11 @@ import useBookmarkPost from '../hooks/useBookmarkPost';
 import { ElementPlaceholder } from './utilities';
 import classed from '../lib/classed';
 
-export type SimilarPostsProps = { postId: string; className?: string };
+export type SimilarPostsProps = {
+  postId: string;
+  tags: string[];
+  className?: string;
+};
 
 const Separator = <div className="h-px bg-theme-divider-tertiary" />;
 
@@ -141,6 +145,7 @@ const updatePost = (
 
 export default function SimilarPosts({
   postId,
+  tags,
   className,
 }: SimilarPostsProps): ReactElement {
   const queryKey = ['similarPosts', postId];
@@ -154,6 +159,7 @@ export default function SimilarPosts({
         post: postId,
         trendingFirst: 1,
         similarFirst: 3,
+        tags,
       }),
     {
       refetchOnWindowFocus: false,
