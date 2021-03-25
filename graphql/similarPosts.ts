@@ -9,6 +9,7 @@ export const SIMILAR_POSTS_QUERY = gql`
     $loggedIn: Boolean! = false
     $trendingFirst: Int
     $similarFirst: Int
+    $tags: [String]!
   ) {
     trendingPosts: randomTrendingPosts(post: $post, first: $trendingFirst) {
       id
@@ -21,7 +22,11 @@ export const SIMILAR_POSTS_QUERY = gql`
       }
       trending
     }
-    similarPosts: randomSimilarPosts(post: $post, first: $similarFirst) {
+    similarPosts: randomSimilarPostsByTags(
+      tags: $tags
+      post: $post
+      first: $similarFirst
+    ) {
       id
       title
       permalink

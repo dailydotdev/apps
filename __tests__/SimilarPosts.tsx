@@ -34,6 +34,7 @@ const createFeedMock = (
     loggedIn: true,
     trendingFirst: 1,
     similarFirst: 3,
+    tags: ['webdev', 'javascript'],
   },
 ): MockedGraphQLResponse<SimilarPostsData> => ({
   request: {
@@ -68,7 +69,7 @@ const renderComponent = (
           tokenRefreshed: true,
         }}
       >
-        <SimilarPosts postId="p1" />
+        <SimilarPosts postId="p1" tags={['webdev', 'javascript']} />
       </AuthContext.Provider>
     </QueryClientProvider>,
   );
@@ -171,6 +172,7 @@ it('should open login modal on anonymous bookmark', async () => {
           loggedIn: false,
           trendingFirst: 1,
           similarFirst: 3,
+          tags: ['webdev', 'javascript'],
         },
       ),
     ],

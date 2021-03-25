@@ -759,6 +759,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             {postById?.post && tokenRefreshed && (
               <SimilarPosts
                 postId={id}
+                tags={postById.post.tags}
                 className={classNames(
                   styles.similarPosts,
                   'laptop:absolute laptop:left-full laptop:ml-6',
