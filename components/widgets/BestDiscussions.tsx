@@ -58,6 +58,7 @@ const ListItem = ({ post, onLinkClick }: PostProps): ReactElement => (
               imgSrc={comment.author.image}
               imgAlt={`${comment.author.name}'s profile picture`}
               className="w-6 h-6 rounded-full top-0"
+              absolute
               style={{ left: `${index}rem` }}
             />
           ))}
