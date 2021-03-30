@@ -59,10 +59,8 @@
   transition: transform 0.1s linear, z-index 0.1s step-end;
 }
 
-.header {
-  & > * {
-    margin: 0 0.375rem;
-  }
+.header > a, .header > .button {
+  margin: 0 0.375rem;
 }
 
 .post {

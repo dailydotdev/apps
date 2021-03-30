@@ -2,8 +2,10 @@ import {
   ADD_BOOKMARKS_MUTATION,
   CANCEL_UPVOTE_MUTATION,
   FeedData,
+  HIDE_POST_MUTATION,
   PostsEngaged,
   REMOVE_BOOKMARK_MUTATION,
+  REPORT_POST_MUTATION,
   UPVOTE_MUTATION,
 } from '../graphql/posts';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
@@ -472,4 +474,85 @@ it('should send comment through the comment popup', async () => {
   commentBtn.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
   await waitFor(async () => expect(screen.queryByRole('textbox')).toBeFalsy());
+});
+
+it('should report broken link', async () => {
+  let mutationCalled = false;
+  renderComponent([
+    createFeedMock(),
+    {
+      request: {
+        query: REPORT_POST_MUTATION,
+        variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf', reason: 'BROKEN' },
+      },
+      result: () => {
+        mutationCalled = true;
+        return { data: { _: true } };
+      },
+    },
+  ]);
+  const [menuBtn] = await screen.findAllByLabelText('More');
+  menuBtn.click();
+  const contextBtn = await screen.findByText('Broken link');
+  contextBtn.click();
+  await waitFor(() => expect(mutationCalled).toBeTruthy());
+  await waitFor(() =>
+    expect(
+      screen.queryByTitle('Eminem Quotes Generator - Simple PHP RESTful API'),
+    ).not.toBeInTheDocument(),
+  );
+});
+
+it('should report nsfw', async () => {
+  let mutationCalled = false;
+  renderComponent([
+    createFeedMock(),
+    {
+      request: {
+        query: REPORT_POST_MUTATION,
+        variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf', reason: 'NSFW' },
+      },
+      result: () => {
+        mutationCalled = true;
+        return { data: { _: true } };
+      },
+    },
+  ]);
+  const [menuBtn] = await screen.findAllByLabelText('More');
+  menuBtn.click();
+  const contextBtn = await screen.findByText('Report NSFW');
+  contextBtn.click();
+  await waitFor(() => expect(mutationCalled).toBeTruthy());
+  await waitFor(() =>
+    expect(
+      screen.queryByTitle('Eminem Quotes Generator - Simple PHP RESTful API'),
+    ).not.toBeInTheDocument(),
+  );
+});
+
+it('should hide post', async () => {
+  let mutationCalled = false;
+  renderComponent([
+    createFeedMock(),
+    {
+      request: {
+        query: HIDE_POST_MUTATION,
+        variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf' },
+      },
+      result: () => {
+        mutationCalled = true;
+        return { data: { _: true } };
+      },
+    },
+  ]);
+  const [menuBtn] = await screen.findAllByLabelText('More');
+  menuBtn.click();
+  const contextBtn = await screen.findByText('Hide post');
+  contextBtn.click();
+  await waitFor(() => expect(mutationCalled).toBeTruthy());
+  await waitFor(() =>
+    expect(
+      screen.queryByTitle('Eminem Quotes Generator - Simple PHP RESTful API'),
+    ).not.toBeInTheDocument(),
+  );
 });

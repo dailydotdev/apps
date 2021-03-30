@@ -27,6 +27,7 @@ export type FeedReturnType = {
   fetchPage: () => Promise<void>;
   updateItem: (index: number, item: FeedItem) => void;
   updatePost: (index: number, post: Post) => void;
+  removeItem: (index: number) => void;
   isLoading: boolean;
   canFetchMore: boolean;
   emptyFeed: boolean;
@@ -80,6 +81,12 @@ export default function useFeed<T>(
       });
     }
   };
+
+  const removeItem = (index: number): void =>
+    setLoadedItems([
+      ...loadedItems.slice(0, index),
+      ...loadedItems.slice(index + 1),
+    ]);
 
   useSubscription(
     () => ({
@@ -183,6 +190,7 @@ export default function useFeed<T>(
     fetchPage,
     updateItem,
     updatePost,
+    removeItem,
     isLoading,
     canFetchMore: lastPage?.page.pageInfo.hasNextPage,
     emptyFeed,

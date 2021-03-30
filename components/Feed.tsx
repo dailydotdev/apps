@@ -10,7 +10,7 @@ import useFeed, { FeedItem, PostItem } from '../hooks/useFeed';
 import { PostCard } from './cards/PostCard';
 import { AdCard } from './cards/AdCard';
 import { PlaceholderCard } from './cards/PlaceholderCard';
-import { Ad, Post } from '../graphql/posts';
+import { Ad, Post, ReportReason } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
 import { useMutation } from 'react-query';
 import request from 'graphql-request';
@@ -28,8 +28,14 @@ import classNames from 'classnames';
 import SettingsContext from '../contexts/SettingsContext';
 import useUpvotePost from '../hooks/useUpvotePost';
 import useBookmarkPost from '../hooks/useBookmarkPost';
+import { Item, useContextMenu } from 'react-contexify';
+import useReportPost from '../hooks/useReportPost';
 
 const CommentPopup = dynamic(() => import('./cards/CommentPopup'));
+
+const PortalMenu = dynamic(() => import('../components/dropdown/PortalMenu'), {
+  ssr: false,
+});
 
 export type FeedProps<T> = {
   query?: string;
@@ -71,6 +77,7 @@ export default function Feed<T>({
   const {
     items,
     updatePost,
+    removeItem,
     isLoading,
     fetchPage,
     canFetchMore,
@@ -89,6 +96,9 @@ export default function Feed<T>({
   const [disableFetching, setDisableFetching] = useState(false);
   const { incrementReadingRank } = useIncrementReadingRank();
   const [showCommentPopupId, setShowCommentPopupId] = useState<string>();
+  const [postMenuIndex, setPostMenuIndex] = useState<number>();
+  const [postNotificationIndex, setPostNotificationIndex] = useState<number>();
+  const { show: showPostContext } = useContextMenu({ id: 'post-context' });
 
   useEffect(() => {
     if (emptyFeed) {
@@ -168,6 +178,8 @@ export default function Feed<T>({
       },
     },
   );
+
+  const { reportPost, hidePost } = useReportPost();
 
   const { ref: infiniteScrollRef, inView } = useInView({
     rootMargin: '20px',
@@ -256,6 +268,34 @@ export default function Feed<T>({
     });
   };
 
+  const onReportPost = async (reason: ReportReason): Promise<void> => {
+    trackEvent({ category: 'Post', action: 'Report', label: reason });
+    const promise = reportPost({
+      id: (items[postMenuIndex] as PostItem).post.id,
+      reason,
+    });
+    setPostNotificationIndex(postMenuIndex);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    removeItem(postMenuIndex);
+    setPostNotificationIndex(null);
+    await promise;
+  };
+
+  const onHidePost = async (): Promise<void> => {
+    trackEvent({ category: 'Post', action: 'Hide' });
+    removeItem(postMenuIndex);
+    await hidePost((items[postMenuIndex] as PostItem).post.id);
+  };
+
+  const onMenuClick = (e: React.MouseEvent, index: number) => {
+    trackEvent({ category: 'Post', action: 'Menu' });
+    setPostMenuIndex(index);
+    const { right, bottom } = e.currentTarget.getBoundingClientRect();
+    showPostContext(e, {
+      position: { x: right - 108, y: bottom + 4 },
+    });
+  };
+
   const itemToComponent = (item: FeedItem, index: number): ReactElement => {
     switch (item.type) {
       case 'post':
@@ -272,6 +312,12 @@ export default function Feed<T>({
             showShare={nativeShareSupport}
             onShare={onShare}
             openNewTab={openNewTab}
+            enableMenu={!!user}
+            onMenuClick={(event) => onMenuClick(event, index)}
+            menuOpened={postMenuIndex === index}
+            notification={
+              postNotificationIndex === index && 'Thanks for reporting!'
+            }
           >
             {showCommentPopupId === item.post.id && (
               <CommentPopup
@@ -328,6 +374,16 @@ export default function Feed<T>({
         ref={infiniteScrollRef}
         className={`absolute left-0 h-px w-px opacity-0 pointer-events-none ${styles.trigger}`}
       />
+      <PortalMenu
+        id="post-context"
+        className="menu-primary"
+        animation="fade"
+        onHidden={() => setPostMenuIndex(null)}
+      >
+        <Item onClick={() => onReportPost('BROKEN')}>Broken link</Item>
+        <Item onClick={() => onReportPost('NSFW')}>Report NSFW</Item>
+        <Item onClick={onHidePost}>Hide post</Item>
+      </PortalMenu>
     </div>
   );
 }
