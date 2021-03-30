@@ -1,6 +1,6 @@
 import { ProgressiveEnhancementContextData } from '../contexts/ProgressiveEnhancementContext';
 import { useEffect, useMemo, useState } from 'react';
-import requestIdleCallback from 'next/dist/client/request-idle-callback';
+import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 
 export default function useProgressiveEnhancement(): ProgressiveEnhancementContextData {
   const [windowLoaded, setWindowLoaded] = useState(false);
