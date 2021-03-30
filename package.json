@@ -48,7 +48,7 @@
     "@emotion/babel-plugin": "^11.2.0",
     "@emotion/eslint-plugin": "^11.2.0",
     "@emotion/jest": "^11.2.1",
-    "@next/bundle-analyzer": "^10.0.9",
+    "@next/bundle-analyzer": "^10.1.1",
     "@svgr/cli": "^5.5.0",
     "@svgr/webpack": "^5.5.0",
     "@tailwindcss/jit": "^0.1.17",
