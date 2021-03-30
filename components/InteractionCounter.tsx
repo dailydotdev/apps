@@ -1,5 +1,5 @@
 import React, { ReactElement, useEffect, useState } from 'react';
-import requestIdleCallback from 'next/dist/client/request-idle-callback';
+import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 import styles from '../styles/interactionCounter.module.css';
 
 export type InteractionCounterProps = { value: number | null };
