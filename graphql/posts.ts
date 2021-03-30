@@ -3,6 +3,8 @@ import { Author, Comment } from './comments';
 import { Connection } from './common';
 import { Source } from './sources';
 
+export type ReportReason = 'BROKEN' | 'NSFW';
+
 export interface Post {
   __typename?: string;
   id: string;
@@ -212,6 +214,22 @@ export const POSTS_ENGAGED_SUBSCRIPTION = gql`
       id
       numComments
       numUpvotes
+    }
+  }
+`;
+
+export const REPORT_POST_MUTATION = gql`
+  mutation ReportPost($id: ID!, $reason: ReportReason!) {
+    reportPost(id: $id, reason: $reason) {
+      _
+    }
+  }
+`;
+
+export const HIDE_POST_MUTATION = gql`
+  mutation HidePost($id: ID!) {
+    hidePost(id: $id) {
+      _
     }
   }
 `;

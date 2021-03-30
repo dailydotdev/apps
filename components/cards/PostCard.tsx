@@ -18,6 +18,7 @@ import UpvoteIcon from '../../icons/upvote.svg';
 import CommentIcon from '../../icons/comment.svg';
 import BookmarkIcon from '../../icons/bookmark.svg';
 import FeatherIcon from '../../icons/feather.svg';
+import MenuIcon from '../../icons/menu.svg';
 import classNames from 'classnames';
 import rem from '../../macros/rem.macro';
 import dynamic from 'next/dynamic';
@@ -39,9 +40,13 @@ export type PostCardProps = {
   onUpvoteClick?: (post: Post, upvoted: boolean) => unknown;
   onCommentClick?: Callback;
   onBookmarkClick?: (post: Post, bookmarked: boolean) => unknown;
+  onMenuClick?: (event: React.MouseEvent, post: Post) => unknown;
   showShare?: boolean;
   onShare?: Callback;
   openNewTab?: boolean;
+  enableMenu?: boolean;
+  menuOpened?: boolean;
+  notification?: string;
 } & HTMLAttributes<HTMLDivElement>;
 
 export function PostCard({
@@ -50,9 +55,13 @@ export function PostCard({
   onUpvoteClick,
   onCommentClick,
   onBookmarkClick,
+  onMenuClick,
   showShare,
   onShare,
   openNewTab,
+  enableMenu,
+  menuOpened,
+  notification,
   className,
   children,
   ...props
@@ -72,6 +81,7 @@ export function PostCard({
           [styles.trending]: trending > 0,
         },
         styles.post,
+        'group',
         className,
       )}
     >
@@ -86,19 +96,43 @@ export function PostCard({
       />
       <CardTextContainer>
         <CardHeader>
-          <Link href={`/sources/${post.source.id}`} prefetch={false}>
-            <a
-              {...getTooltipProps(post.source.name)}
-              className="flex pr-2 cursor-pointer"
-            >
-              <img
-                src={post.source.image}
-                alt={post.source.name}
-                className="w-6 h-6 rounded-full bg-theme-bg-tertiary"
-              />
-            </a>
-          </Link>
-          {featuredCommentsToButtons(post.featuredComments, setSelectedComment)}
+          {notification ? (
+            <div className="flex-1 px-4 py-1.5 -mx-1.5 rounded-10 bg-theme-label-primary text-theme-label-invert typo-callout">
+              {notification}
+            </div>
+          ) : (
+            <>
+              <Link href={`/sources/${post.source.id}`} prefetch={false}>
+                <a
+                  {...getTooltipProps(post.source.name)}
+                  className="flex pr-2 cursor-pointer"
+                >
+                  <img
+                    src={post.source.image}
+                    alt={post.source.name}
+                    className="w-6 h-6 rounded-full bg-theme-bg-tertiary"
+                  />
+                </a>
+              </Link>
+              {featuredCommentsToButtons(
+                post.featuredComments,
+                setSelectedComment,
+              )}
+              {enableMenu && (
+                <Button
+                  className={classNames(
+                    'btn-tertiary ml-auto -mr-0.5',
+                    !menuOpened && 'mouse:invisible mouse:group-hover:visible',
+                  )}
+                  buttonSize="small"
+                  icon={<MenuIcon />}
+                  onClick={(event) => onMenuClick?.(event, post)}
+                  pressed={menuOpened}
+                  {...getTooltipProps('More')}
+                />
+              )}
+            </>
+          )}
         </CardHeader>
         <CardTitle>{post.title}</CardTitle>
       </CardTextContainer>
