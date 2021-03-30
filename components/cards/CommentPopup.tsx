@@ -6,7 +6,7 @@ import { typoCallout } from '../../styles/typography';
 import commentPopupText from '../../commentPopupText';
 import { focusOutline } from '../../styles/helpers';
 import CommentIcon from '../../icons/comment.svg';
-import requestIdleCallback from 'next/dist/client/request-idle-callback';
+import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 import Button from '../buttons/Button';
 
 const transitionDuration = 150;

@@ -22,7 +22,7 @@ import useIncrementReadingRank from '../hooks/useIncrementReadingRank';
 import { trackEvent } from '../lib/analytics';
 import { COMMENT_ON_POST_MUTATION, CommentOnData } from '../graphql/comments';
 import dynamic from 'next/dynamic';
-import requestIdleCallback from 'next/dist/client/request-idle-callback';
+import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 import styles from '../styles/feed.module.css';
 import classNames from 'classnames';
 import SettingsContext from '../contexts/SettingsContext';
