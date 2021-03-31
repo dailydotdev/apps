@@ -1,0 +1,61 @@
+.rankProgress {
+  width: 1em;
+  height: 1em;
+  font-size: 3rem;
+
+  &.enableColors {
+    &:hover, &.forceColor {
+      & .radialProgress {
+        --radial-progress-completed-step: var(--rank-color);
+      }
+
+      & .rank {
+        --stop-color1: var(--rank-stop-color1);
+        --stop-color2: var(--rank-stop-color2);
+      }
+    }
+  }
+
+  & :global(.rank-notification-slide-down-enter-active),
+  & :global(.rank-notification-slide-down-exit-active) {
+    transition: opacity 300ms ease-out, transform 300ms ease-out;
+    will-change: opacity, transform;
+  }
+
+  & :global(.rank-notification-slide-down-enter) {
+    opacity: 0;
+    transform: translateY(-0.25rem);
+  }
+
+  & :global(.rank-notification-slide-down-enter-active),
+  & :global(.rank-notification-slide-down-exit) {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  & :global(.rank-notification-slide-down-exit-active) {
+    opacity: 0;
+    transform: translateY(-0.25rem);
+  }
+}
+
+.radialProgress {
+  font-size: inherit;
+  --radial-progress-step: var(--theme-label-disabled);
+  --radial-progress-completed-step: var(--theme-label-tertiary);
+  --radial-progress-transition-delay: 0.3s;
+}
+
+.rank {
+  --stop-color1: var(--theme-label-disabled);
+  --stop-color2: var(--theme-label-disabled);
+
+  &.hasRank {
+    --stop-color1: var(--theme-label-tertiary);
+    --stop-color2: var(--theme-label-tertiary);
+  }
+
+  & stop {
+    transition: stop-color 0.1s linear;
+  }
+}

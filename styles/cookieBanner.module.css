@@ -1,0 +1,5 @@
+.cookieBanner {
+  @screen laptop {
+    left: unset
+  }
+}

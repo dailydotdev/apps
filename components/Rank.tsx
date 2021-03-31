@@ -1,4 +1,5 @@
 import React, {
+  CSSProperties,
   forwardRef,
   HTMLAttributes,
   LegacyRef,
@@ -6,26 +7,12 @@ import React, {
   ReactNode,
   useState,
 } from 'react';
-import styled from '@emotion/styled';
-import sizeN from '../macros/sizeN.macro';
+import classNames from 'classnames';
 
 export interface RankProps extends HTMLAttributes<SVGElement> {
   rank: number;
   colorByRank?: boolean;
 }
-
-const StyledSvg = styled.svg<RankProps>`
-  width: ${sizeN(8)};
-  height: ${sizeN(8)};
-
-  ${({ rank, colorByRank }) =>
-    colorByRank &&
-    `&& {
-      --stop-color1: var(--theme-rank-${rank}-color-bottom);
-      --stop-color2: var(--theme-rank-${rank}-color-top);
-    }
-    `}
-`;
 
 const rankPaths: ((fill: string) => ReactNode)[] = [
   (fill) => (
@@ -131,19 +118,27 @@ const rankPaths: ((fill: string) => ReactNode)[] = [
 ];
 
 export default forwardRef(function Rank(
-  props: RankProps,
+  { rank, colorByRank, style, className, ...props }: RankProps,
   ref: LegacyRef<SVGSVGElement>,
 ): ReactElement {
   const [id] = useState(`rank-${Math.random().toString(36).substring(7)}`);
 
-  const { rank } = props;
-
   return (
-    <StyledSvg
+    <svg
       {...props}
       viewBox="0 0 24 24"
       xmlns="http://www.w3.org/2000/svg"
       ref={ref}
+      className={classNames('w-8 h-8', className)}
+      style={
+        colorByRank
+          ? ({
+              ...style,
+              '--stop-color1': `var(--theme-rank-${rank}-color-bottom)`,
+              '--stop-color2': `var(--theme-rank-${rank}-color-top)`,
+            } as CSSProperties)
+          : style
+      }
     >
       <defs>
         <linearGradient x1="50%" y1="100%" x2="50%" y2="0%" id={id}>
@@ -154,6 +149,6 @@ export default forwardRef(function Rank(
       <g stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
         {rankPaths[rank > 0 ? rank - 1 : 0](`url(#${id})`)}
       </g>
-    </StyledSvg>
+    </svg>
   );
 });

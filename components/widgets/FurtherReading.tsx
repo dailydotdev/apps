@@ -42,6 +42,7 @@ const updatePost = (
   await queryClient.cancelQueries(queryKey);
   const previousData = queryClient.getQueryData<FurtherReadingData>(queryKey);
   queryClient.setQueryData(queryKey, {
+    ...previousData,
     trendingPosts: transformPosts(previousData.trendingPosts, id, update),
     similarPosts: transformPosts(previousData.similarPosts, id, update),
   });

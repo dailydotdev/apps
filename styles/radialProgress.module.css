@@ -1,0 +1,21 @@
+.radialProgress {
+  width: 1em;
+  height: 1em;
+  font-size: 3rem;
+}
+
+.circle {
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  stroke: var(--radial-progress-step);
+
+  &:global(.completed) {
+    stroke: var(--radial-progress-completed-step);
+    transform: rotate(90deg);
+    transform-origin: center;
+    transition: stroke-dashoffset 0.5s ease-out
+    var(--radial-progress-transition-delay);
+  }
+}

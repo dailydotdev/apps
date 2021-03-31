@@ -14,14 +14,12 @@ import { NextSeo } from 'next-seo';
 import ActivitySection from './profile/ActivitySection';
 import Link from 'next/link';
 import { smallPostImage } from '../lib/image';
-import styled from '@emotion/styled';
-import { typoCallout, typoTitle2, typoTitle3 } from '../styles/typography';
-import { multilineTextOverflow, pageMaxWidth } from '../styles/helpers';
-import { tablet } from '../styles/media';
 import LazyImage from './LazyImage';
 import dynamic from 'next/dynamic';
 import ProgressiveEnhancementContext from '../contexts/ProgressiveEnhancementContext';
 import Button from './buttons/Button';
+import styles from '../styles/keywordManagement.module.css';
+import classNames from 'classnames';
 
 const KeywordSynonymModal = dynamic(
   () =>
@@ -29,79 +27,6 @@ const KeywordSynonymModal = dynamic(
       /* webpackChunkName: "keywordSynonymModal" */ './modals/KeywordSynonymModal'
     ),
 );
-
-const EmptyScreen = styled.div`
-  font-weight: bold;
-  ${typoTitle3}
-`;
-
-const Title = styled.h1`
-  margin: 0;
-  font-weight: bold;
-  ${typoTitle2}
-`;
-
-const Subtitle = styled.div`
-  display: flex;
-  margin: ${sizeN(1)} 0;
-  align-items: center;
-  justify-content: space-between;
-  color: var(--theme-label-tertiary);
-  ${typoCallout}
-`;
-
-const Buttons = styled.div`
-  position: fixed;
-  display: flex;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  max-width: calc(${pageMaxWidth} - 1rem);
-  align-items: center;
-  justify-content: space-between;
-  margin: 0 auto;
-  padding: ${sizeN(6)} ${sizeN(4)};
-  background: var(--theme-background-primary);
-`;
-
-const PostContainer = styled.a`
-  display: flex;
-  flex-direction: row;
-  padding: ${sizeN(3)} 0;
-  align-items: flex-start;
-  text-decoration: none;
-
-  ${tablet} {
-    align-items: center;
-  }
-`;
-
-const PostImage = styled(LazyImage)`
-  width: ${sizeN(16)};
-  height: ${sizeN(16)};
-  border-radius: ${sizeN(4)};
-`;
-
-const PostContent = styled.p`
-  max-height: ${sizeN(15)};
-  padding: 0;
-  margin: 0 0 0 ${sizeN(4)};
-  flex: 1;
-  align-self: center;
-  color: var(--theme-label-primary);
-  word-break: break-word;
-  white-space: pre-wrap;
-  ${typoCallout}
-  ${multilineTextOverflow}
-  -webkit-line-clamp: 3;
-
-  ${tablet} {
-    flex: 1;
-    margin-right: ${sizeN(6)};
-    max-width: ${sizeN(77)};
-  }
-`;
 
 export type KeywordManagerProps = {
   keyword: Keyword;
@@ -175,16 +100,18 @@ export default function KeywordManagement({
   return (
     <ResponsivePageContainer style={{ paddingBottom: sizeN(23) }}>
       <NextSeo title="Pending Keywords" />
-      <Title>{keyword.value}</Title>
-      <Subtitle>
+      <h1 className="m-0 font-bold typo-title2">{keyword.value}</h1>
+      <div className="flex my-1 items-center justify-between text-theme-label-tertiary typo-callout">
         <span>Occurrences: {keyword.occurrences}</span>
         <span>{subtitle}</span>
-      </Subtitle>
+      </div>
       <ActivitySection
         title="Keyword Posts"
         query={posts}
         emptyScreen={
-          <EmptyScreen data-testid="emptyPosts">No posts</EmptyScreen>
+          <div className="font-bold typo-title3" data-testid="emptyPosts">
+            No posts
+          </div>
         }
         elementToNode={(post) => (
           <Link
@@ -193,21 +120,37 @@ export default function KeywordManagement({
             key={post.id}
             prefetch={false}
           >
-            <PostContainer
+            <a
               target="_blank"
               rel="noopener noreferrer"
               aria-label={post.title}
+              className="flex py-3 items-start no-underline tablet:items-center"
             >
-              <PostImage
+              <LazyImage
                 imgSrc={smallPostImage(post.image)}
                 imgAlt="Post cover image"
+                className="w-16 h-16 rounded-2xl"
               />
-              <PostContent>{post.title}</PostContent>
-            </PostContainer>
+              <p
+                className="p-0 ml-4 flex-1 self-center text-theme-label-primary break-words whitespace-pre-wrap typo-callout multi-truncate tablet:mr-6"
+                style={{
+                  maxHeight: '3.75rem',
+                  maxWidth: '19.25rem',
+                  lineClamp: 3,
+                }}
+              >
+                {post.title}
+              </p>
+            </a>
           </Link>
         )}
       />
-      <Buttons>
+      <div
+        className={classNames(
+          'fixed flex left-0 right-0 bottom-0 w-full items-center justify-between mx-auto py-6 px-4 bg-theme-bg-primary',
+          styles.buttons,
+        )}
+      >
         <Button
           loading={currentAction === 'allow'}
           onClick={onAllow}
@@ -231,7 +174,7 @@ export default function KeywordManagement({
         >
           Deny
         </Button>
-      </Buttons>
+      </div>
       {(windowLoaded || currentAction === 'synonym') && (
         <KeywordSynonymModal
           isOpen={currentAction === 'synonym'}

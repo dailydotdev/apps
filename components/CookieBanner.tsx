@@ -1,71 +1,10 @@
 import React, { ReactElement } from 'react';
-import styled from '@emotion/styled';
-import {
-  modalBorder,
-  modalBorderAndRadius,
-  ModalCloseButton,
-} from './modals/StyledModal';
-import sizeN from '../macros/sizeN.macro';
+import { ModalCloseButton } from './modals/StyledModal';
 import { cookiePolicy } from '../lib/constants';
-import { laptop } from '../styles/media';
 import CookieIcon from '../icons/cookie.svg';
-import { typoFootnote } from '../styles/typography';
 import Button from './buttons/Button';
-
-const AgreeButton = styled(Button)`
-  margin-top: ${sizeN(4)};
-  align-self: flex-start;
-`;
-
-const Art = styled(CookieIcon)`
-  display: none;
-  margin-bottom: ${sizeN(4)};
-  color: var(--theme-label-primary);
-  font-size: 3.5rem;
-`;
-
-const Container = styled.div`
-  position: fixed;
-  display: flex;
-  left: 0;
-  bottom: 0;
-  width: 100%;
-  flex-direction: column;
-  padding: ${sizeN(4)} ${sizeN(14)} ${sizeN(4)} ${sizeN(4)};
-  color: var(--theme-label-secondary);
-  background: var(--theme-background-tertiary);
-  border-top: ${modalBorder};
-  z-index: 2;
-  ${typoFootnote}
-
-  a {
-    display: inline-block;
-    text-decoration: underline;
-    color: inherit;
-    @supports (display: contents) {
-      display: contents;
-    }
-  }
-
-  ${laptop} {
-    width: ${sizeN(48)};
-    left: unset;
-    right: ${sizeN(6)};
-    bottom: ${sizeN(6)};
-    padding: ${sizeN(6)};
-    align-items: center;
-    text-align: center;
-    ${modalBorderAndRadius}
-
-    ${AgreeButton} {
-      align-self: stretch;
-    }
-
-    ${Art} {
-      display: block;
-    }
-  }
-`;
+import styles from '../styles/cookieBanner.module.css';
+import classNames from 'classnames';
 
 export interface CookieBannerProps {
   onAccepted: () => void;
@@ -92,19 +31,37 @@ export default function CookieBanner({
   // }, []);
 
   return (
-    <Container>
+    <div
+      className={classNames(
+        'fixed left-0 bottom-0 w-full flex flex-col py-4 pr-14 pl-4 text-theme-label-secondary bg-theme-bg-tertiary border-t border-theme-divider-secondary z-2 typo-footnote laptop:w-48 laptop:right-6 laptop:bottom-6 laptop:p-6 laptop:items-center laptop:text-center laptop:border laptop:rounded-2xl',
+        styles.cookieBanner,
+      )}
+    >
       <ModalCloseButton onClick={close} />
-      <Art />
+      <CookieIcon
+        className="hidden mb-4 text-theme-label-primary laptop:block"
+        style={{ fontSize: '3.5rem' }}
+      />
       <div>
         Our lawyers advised us to tell you that we use{' '}
-        <a href={cookiePolicy} target="_blank" rel="noopener">
+        <a
+          href={cookiePolicy}
+          target="_blank"
+          rel="noopener"
+          className="no-underline contents"
+          style={{ color: 'inherit' }}
+        >
           cookies
         </a>{' '}
         to improve user experience.
       </div>
-      <AgreeButton onClick={close} className="btn-primary" buttonSize="small">
+      <Button
+        onClick={close}
+        className="btn-primary mt-4 self-start laptop:self-stretch"
+        buttonSize="small"
+      >
         I like cookies
-      </AgreeButton>
-    </Container>
+      </Button>
+    </div>
   );
 }
