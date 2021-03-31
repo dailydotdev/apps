@@ -1,35 +1,16 @@
-/** @jsx jsx */
-import { jsx, css } from '@emotion/react';
-import React, { ReactElement } from 'react';
+import React, { CSSProperties, ReactElement } from 'react';
 import { ModalCloseButton, Props as ModalProps } from './StyledModal';
 import ResponsiveModal, { responsiveModalBreakpoint } from './ResponsiveModal';
 import RankProgress from '../RankProgress';
-import { headerHeight, headerRankHeight } from '../../styles/sizes';
+import { headerRankHeight } from '../../styles/sizes';
 import sizeN from '../../macros/sizeN.macro';
 import rem from '../../macros/rem.macro';
 import styled from '@emotion/styled';
-import { typoCallout, typoFootnote, typoTitle2 } from '../../styles/typography';
 import { RANK_NAMES, STEPS_PER_RANK } from '../../lib/rank';
 import Rank from '../Rank';
 import Button from '../buttons/Button';
-
-const Title = styled.h1`
-  margin: ${sizeN(4)} 0 0;
-  text-transform: uppercase;
-  font-weight: bold;
-  ${typoTitle2}
-
-  ${responsiveModalBreakpoint} {
-    margin-top: ${sizeN(11)};
-  }
-`;
-
-const Subtitle = styled.h2`
-  margin: ${sizeN(1)} 0 0;
-  color: var(--theme-label-secondary);
-  font-weight: normal;
-  ${typoCallout}
-`;
+import classNames from 'classnames';
+import styles from '../../styles/ranksModal.module.css';
 
 const RankItem = ({
   rank,
@@ -45,52 +26,30 @@ const RankItem = ({
   rankName: string;
 }): ReactElement => (
   <li
-    css={css`
-      display: grid;
-      height: ${sizeN(16)};
-      grid-template-columns: max-content 1fr;
-      grid-auto-rows: max-content;
-      grid-column-gap: ${sizeN(4)};
-      grid-row-gap: ${sizeN(0.5)};
-      align-items: center;
-      align-content: center;
-      padding: 0 ${sizeN(4)};
-      border-radius: ${sizeN(4)};
-      border: ${rem(1)} solid transparent;
-      user-select: none;
-
-      ${current &&
-      `
-        background: var(--theme-background-secondary);
-        border-color: var(--theme-divider-tertiary);
-        box-shadow: var(--theme-shadow2);
-      `}
-    `}
+    className={classNames(
+      'grid h-16 auto-rows-max items-center content-center px-4 rounded-2xl border select-none',
+      current && 'shadow-2 bg-theme-bg-secondary',
+    )}
+    style={{
+      gridTemplateColumns: 'max-content 1fr',
+      gridColumnGap: '1rem',
+      gridRowGap: '0.125rem',
+      borderColor: current ? 'var(--theme-divider-tertiary)' : 'transparent',
+    }}
   >
     <Rank
       rank={rank}
       colorByRank={completed}
-      css={css`
-        grid-row: span 2;
-        --stop-color1: var(--theme-label-disabled);
-        --stop-color2: var(--theme-label-disabled);
-      `}
+      className="row-span-2"
+      style={
+        {
+          '--stop-color1': 'var(--theme-label-disabled)',
+          '--stop-color2': 'var(--theme-label-disabled)',
+        } as CSSProperties
+      }
     />
-    <div
-      css={css`
-        text-transform: capitalize;
-        font-weight: bold;
-        ${typoCallout}
-      `}
-    >
-      {rankName} level
-    </div>
-    <div
-      css={css`
-        color: var(--theme-label-tertiary);
-        ${typoFootnote}
-      `}
-    >
+    <div className="capitalize font-bold typo-callout">{rankName} level</div>
+    <div className="text-theme-label-tertiary typo-footnote">
       Read at least 1 article on {steps} different days
     </div>
   </li>
@@ -132,45 +91,26 @@ export default function RanksModal({
   rank,
   progress,
   onRequestClose,
+  className,
   ...props
 }: RanksModalProps): ReactElement {
   return (
     <ResponsiveModal
-      onRequestClose={onRequestClose}
       {...props}
-      css={css`
-        .Modal {
-          align-items: center;
-          max-width: ${sizeN(105)};
-        }
-
-        ${responsiveModalBreakpoint} {
-          .Overlay {
-            justify-content: flex-start;
-          }
-
-          .Modal {
-            margin-top: ${headerHeight};
-            overflow: visible;
-          }
-        }
-      `}
+      onRequestClose={onRequestClose}
+      className={classNames(styles.ranksModal, className)}
     >
       <ModalCloseButton onClick={onRequestClose} />
       <RankProgressContainer>
         <RankProgress rank={rank} progress={progress} fillByDefault />
       </RankProgressContainer>
-      <Title>Your weekly goal</Title>
-      <Subtitle>Read content you love to stay updated</Subtitle>
-      <ul
-        css={css`
-          display: flex;
-          flex-direction: column;
-          align-self: stretch;
-          margin: ${sizeN(4)} 0 0;
-          padding: 0;
-        `}
-      >
+      <h1 className="mt-4 uppercase font-bold typo-title2 mobileL:mt-11">
+        Your weekly goal
+      </h1>
+      <h2 className="mt-1 text-theme-label-secondary font-normal typo-callout">
+        Read content you love to stay updated
+      </h2>
+      <ul className="flex flex-col self-stretch mt-4">
         {ranksMetadata.map((meta) => (
           <RankItem
             key={meta.rank}
@@ -182,13 +122,7 @@ export default function RanksModal({
           />
         ))}
       </ul>
-      <Button
-        className="btn-primary"
-        onClick={onRequestClose}
-        css={css`
-          margin: ${sizeN(8)};
-        `}
-      >
+      <Button className="btn-primary m-8" onClick={onRequestClose}>
         Ok, let’s do it
       </Button>
     </ResponsiveModal>

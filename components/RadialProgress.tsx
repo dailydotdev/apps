@@ -6,8 +6,9 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import styled from '@emotion/styled';
-import sizeN from '../macros/sizeN.macro';
+import styles from '../styles/radialProgress.module.css';
+import classNames from 'classnames';
+import classed from '../lib/classed';
 
 const RAD_TO_DEGREES = 180 / Math.PI;
 const TWO_PI = 2 * Math.PI;
@@ -52,37 +53,6 @@ function describeArc(startAngle: number, endAngle: number): string {
   ].join(' ');
 }
 
-const Container = styled.div`
-  width: 1em;
-  height: 1em;
-  font-size: ${sizeN(12)};
-  overflow: hidden;
-
-  svg {
-    width: 100%;
-    height: 100%;
-  }
-
-  circle {
-    stroke-width: 4;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-
-  circle {
-    fill: none;
-    stroke: var(--radial-progress-step);
-
-    &.completed {
-      stroke: var(--radial-progress-completed-step);
-      transform: rotate(90deg);
-      transform-origin: center;
-      transition: stroke-dashoffset 0.5s ease-out
-        var(--radial-progress-transition-delay);
-    }
-  }
-`;
-
 const pathStyle: CSSProperties = {
   strokeWidth: 4,
   strokeLinecap: 'round',
@@ -95,7 +65,10 @@ export type RadialProgressProps = {
   maxDegrees?: number;
   onTransitionEnd?: () => unknown;
   className?: string;
+  style?: CSSProperties;
 };
+
+const Circle = classed('circle', styles.circle);
 
 export default forwardRef(function RadialProgress(
   {
@@ -103,6 +76,7 @@ export default forwardRef(function RadialProgress(
     steps,
     maxDegrees = 360,
     onTransitionEnd,
+    className,
     ...props
   }: RadialProgressProps,
   ref: LegacyRef<HTMLDivElement>,
@@ -136,15 +110,24 @@ export default forwardRef(function RadialProgress(
   ]);
 
   return (
-    <Container
+    <div
+      {...props}
       role="progressbar"
       aria-valuenow={progress}
       aria-valuemin={0}
       aria-valuemax={steps}
       ref={ref}
-      {...props}
+      className={classNames(
+        'overflow-hidden',
+        styles.radialProgress,
+        className,
+      )}
     >
-      <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+      <svg
+        viewBox="0 0 48 48"
+        xmlns="http://www.w3.org/2000/svg"
+        className="w-full h-full"
+      >
         <defs>
           <g id={`${id}-group-completed`}>
             {completedPaths.map((d, i) => (
@@ -175,14 +158,14 @@ export default forwardRef(function RadialProgress(
         <mask id={`${id}-mask-completed`} stroke="white">
           <use xlinkHref={`#${id}-group-completed`} />
         </mask>
-        <circle
+        <Circle
           r={radius}
           cx={center}
           cy={center}
           mask={`url(#${id}-mask-all)`}
         />
         <g mask={`url(#${id}-mask-completed)`}>
-          <circle
+          <Circle
             r={radius}
             cx={center}
             cy={center}
@@ -193,6 +176,6 @@ export default forwardRef(function RadialProgress(
           />
         </g>
       </svg>
-    </Container>
+    </div>
   );
 });

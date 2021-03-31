@@ -1,10 +1,7 @@
 import React, { ReactElement, ReactNode, useContext } from 'react';
 import Link from 'next/link';
 import { ActiveTabIndicator } from './utilities';
-import styled from '@emotion/styled';
 import { Flipper, Flipped } from 'react-flip-toolkit';
-import sizeN from '../macros/sizeN.macro';
-import rem from '../macros/rem.macro';
 import HomeIcon from '../icons/home.svg';
 import BookmarkIcon from '../icons/bookmark.svg';
 import FilterIcon from '../icons/filter.svg';
@@ -13,32 +10,8 @@ import AuthContext from '../contexts/AuthContext';
 import { useRouter } from 'next/router';
 import Button from './buttons/Button';
 import { getTooltipProps } from '../lib/tooltip';
-
-export const navBarHeight = '3.0625rem';
-
-const NavBar = styled(Flipper)`
-  position: fixed;
-  display: grid;
-  left: 0;
-  bottom: 0;
-  width: 100%;
-  height: ${navBarHeight};
-  grid-column-gap: ${sizeN(2)};
-  grid-auto-flow: column;
-  align-items: center;
-  background: var(--theme-background-primary);
-  border-top: ${rem(1)} solid var(--theme-divider-tertiary);
-  z-index: 2;
-
-  > div {
-    position: relative;
-  }
-
-  button,
-  a {
-    width: 100%;
-  }
-`;
+import classNames from 'classnames';
+import styles from '../styles/footerNavBar.module.css';
 
 type Tab = {
   path: string;
@@ -76,13 +49,21 @@ export default function FooterNavBar(): ReactElement {
   const selectedTab = tabs.findIndex((tab) => tab.path === router?.pathname);
 
   return (
-    <NavBar flipKey={selectedTab} spring="veryGentle" element="nav">
+    <Flipper
+      flipKey={selectedTab}
+      spring="veryGentle"
+      element="nav"
+      className={classNames(
+        'fixed grid left-0 bottom-0 w-full grid-flow-col items-center bg-theme-bg-primary border-t border-theme-divider-tertiary z-2',
+        styles.footerNavBar,
+      )}
+    >
       {tabs.map((tab, index) => (
-        <div key={tab.path}>
+        <div key={tab.path} className="relative">
           {!tab.requiresLogin || user ? (
             <Link href={tab.path} prefetch={false} passHref>
               <Button
-                className="btn-tertiary"
+                className="btn-tertiary w-full"
                 buttonSize="large"
                 tag="a"
                 icon={tab.icon}
@@ -92,7 +73,7 @@ export default function FooterNavBar(): ReactElement {
             </Link>
           ) : (
             <Button
-              className="btn-tertiary"
+              className="btn-tertiary w-full"
               buttonSize="large"
               icon={tab.icon}
               onClick={() => showLogin()}
@@ -109,6 +90,6 @@ export default function FooterNavBar(): ReactElement {
           </Flipped>
         </div>
       ))}
-    </NavBar>
+    </Flipper>
   );
 }

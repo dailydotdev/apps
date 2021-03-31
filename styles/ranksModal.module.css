@@ -1,0 +1,17 @@
+div.ranksModal {
+  & :global(.Modal) {
+    align-items: center;
+    max-width: 26.25rem;
+  }
+
+  @screen mobileL {
+    & :global(.Overlay) {
+      justify-content: flex-start;
+    }
+
+    & :global(.Modal) {
+      margin-top: $headerHeight;
+      overflow: visible;
+    }
+  }
+}

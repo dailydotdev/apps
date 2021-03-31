@@ -1,0 +1,4 @@
+.footerNavBar {
+  height: $navBarHeight;
+  grid-column-gap: 0.5rem;
+}

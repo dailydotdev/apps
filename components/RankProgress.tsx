@@ -1,11 +1,11 @@
 import React, {
+  CSSProperties,
   ReactElement,
   useEffect,
   useMemo,
   useRef,
   useState,
 } from 'react';
-import styled from '@emotion/styled';
 import { CSSTransition } from 'react-transition-group';
 import RadialProgress from './RadialProgress';
 import {
@@ -15,116 +15,10 @@ import {
   STEPS_PER_RANK,
 } from '../lib/rank';
 import Rank from './Rank';
-import sizeN from '../macros/sizeN.macro';
-import { typoCaption1 } from '../styles/typography';
-
-const StyledRadialProgress = styled(RadialProgress)`
-  font-size: inherit;
-  --radial-progress-step: var(--theme-label-disabled);
-  --radial-progress-completed-step: var(--theme-label-tertiary);
-  --radial-progress-transition-delay: 0.3s;
-`;
-
-const StyledRank = styled(Rank)`
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: 66.666%;
-  height: 66.666%;
-  margin: auto;
-
-  ${({ rank }) =>
-    rank === 0
-      ? `
-  --stop-color1: var(--theme-label-disabled);
-  --stop-color2: var(--theme-label-disabled);
-  `
-      : `
-  --stop-color1: var(--theme-label-tertiary);
-  --stop-color2: var(--theme-label-tertiary);
-  `}
-
-  & stop {
-    transition: stop-color 0.1s linear;
-  }
-`;
-
-const Attention = styled.div`
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: 100%;
-  background: var(--theme-active);
-  z-index: -1;
-  opacity: 0;
-`;
-
-const ProgressDelta = styled.div<{ rank: number }>`
-  position: absolute;
-  left: -${sizeN(14)};
-  top: 100%;
-  width: ${sizeN(40)};
-  text-align: center;
-  margin-top: ${sizeN(2)};
-  color: ${({ rank }) => rankToColor(rank)};
-  font-weight: bold;
-  ${typoCaption1}
-`;
-
-const applyRankColor = (rank: number) => `
-  ${StyledRadialProgress} {
-    --radial-progress-completed-step: ${rankToColor(rank)};
-  }
-
-  ${StyledRank} {
-    --stop-color1: ${rankToGradientStopBottom(rank)};
-    --stop-color2: ${rankToGradientStopTop(rank)};
-  }
-`;
+import classNames from 'classnames';
+import styles from '../styles/rankProgress.module.css';
 
 const notificationDuration = 300;
-
-const Container = styled.div<{ rank: number; forceColor: boolean }>`
-  position: relative;
-  width: 1em;
-  height: 1em;
-  font-size: ${sizeN(12)};
-  z-index: 1;
-
-  ${({ rank, forceColor }) =>
-    rank > 0 &&
-    `&:hover {
-      ${applyRankColor(rank)}
-    }
-
-    ${
-      forceColor &&
-      `&& {
-      ${applyRankColor(rank)}
-    }`
-    }`}
-
-  & .rank-notification-slide-down-enter-active, & .rank-notification-slide-down-exit-active {
-    transition: opacity ${notificationDuration}ms ease-out,
-      transform ${notificationDuration}ms ease-out;
-  }
-
-  && .rank-notification-slide-down-enter-active,
-  & .rank-notification-slide-down-exit {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  & .rank-notification-slide-down-enter,
-  & .rank-notification-slide-down-exit-active {
-    opacity: 0;
-    transform: translateY(-${sizeN(1)});
-  }
-`;
 
 export type RankProgressProps = {
   progress: number;
@@ -275,20 +169,44 @@ export default function RankProgress({
     setPrevProgress(progress);
   }, [progress]);
 
+  const shouldForceColor = animatingProgress || forceColor || fillByDefault;
   return (
-    <Container
-      rank={shownRank}
-      forceColor={animatingProgress || forceColor || fillByDefault}
-      className={className}
+    <div
+      className={classNames(className, 'relative z-1', styles.rankProgress, {
+        [styles.enableColors]: shownRank > 0,
+        [styles.forceColor]: shouldForceColor,
+      })}
+      style={
+        shownRank > 0 &&
+        ({
+          '--rank-color': rankToColor(shownRank),
+          '--rank-stop-color1': rankToGradientStopBottom(shownRank),
+          '--rank-stop-color2': rankToGradientStopTop(shownRank),
+        } as CSSProperties)
+      }
     >
-      {showRankAnimation && <Attention ref={attentionRef} />}
-      <StyledRadialProgress
+      {showRankAnimation && (
+        <div
+          className="absolute l-0 t-0 w-full h-full rounded-full bg-theme-active -z-1 opacity-0"
+          ref={attentionRef}
+        />
+      )}
+      <RadialProgress
         progress={progress}
         steps={steps}
         onTransitionEnd={onProgressTransitionEnd}
         ref={progressRef}
+        className={styles.radialProgress}
       />
-      <StyledRank rank={shownRank} ref={badgeRef} />
+      <Rank
+        rank={shownRank}
+        className={classNames(
+          'absolute inset-0 w-2/3 h-2/3 m-auto',
+          styles.rank,
+          shownRank && styles.hasRank,
+        )}
+        ref={badgeRef}
+      />
       <CSSTransition
         in={animatingProgress && !showRankAnimation}
         timeout={notificationDuration}
@@ -296,10 +214,13 @@ export default function RankProgress({
         mountOnEnter
         unmountOnExit
       >
-        <ProgressDelta rank={shownRank}>
+        <div
+          className="absolute -left-14 top-full w-40 text-center mt-2 font-bold typo-caption1"
+          style={{ color: rankToColor(shownRank) }}
+        >
           +{progressDelta} Article{progressDelta > 1 ? 's' : ''} read
-        </ProgressDelta>
+        </div>
       </CSSTransition>
-    </Container>
+    </div>
   );
 }

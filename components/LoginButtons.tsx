@@ -1,32 +1,9 @@
-/** @jsx jsx */
-import { jsx, css } from '@emotion/react';
 import React, { ReactElement } from 'react';
 import { useRouter } from 'next/router';
 import GitHubIcon from '../icons/github.svg';
 import { LegalNotice } from './utilities';
 import { privacyPolicy, termsOfService } from '../lib/constants';
-import styled from '@emotion/styled';
-import sizeN from '../macros/sizeN.macro';
 import Button from './buttons/Button';
-
-const Buttons = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-content: stretch;
-  align-self: center;
-
-  button {
-    margin: ${sizeN(2)} 0;
-
-    &:first-child {
-      margin-top: 0;
-    }
-
-    &:last-child {
-      margin-bottom: 0;
-    }
-  }
-`;
 
 export default function LoginButtons(): ReactElement {
   const router = useRouter();
@@ -45,28 +22,25 @@ export default function LoginButtons(): ReactElement {
 
   return (
     <>
-      <Buttons>
+      <div className="flex flex-col items-stretch self-center -my-2">
         <Button
-          className="btn-primary"
+          className="btn-primary my-2"
           onClick={() => login('github')}
           icon={<GitHubIcon />}
         >
           Sign in with GitHub
         </Button>
         <Button
-          className="btn-primary"
+          className="btn-primary my-2"
           onClick={() => login('google')}
           icon={<img src="/google.svg" className="icon" alt="Google logo" />}
         >
           Sign in with Google
         </Button>
-      </Buttons>
+      </div>
       <LegalNotice
-        css={css`
-          max-width: 17.25rem;
-          margin-top: ${sizeN(8)};
-          align-self: center;
-        `}
+        className="mt-8 self-center"
+        style={{ maxWidth: '17.25rem' }}
       >
         By signing up I accept the{' '}
         <a href={termsOfService} target="_blank" rel="noopener">
