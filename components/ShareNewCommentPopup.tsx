@@ -1,10 +1,6 @@
 import React, { ReactElement, useContext } from 'react';
-import styled from '@emotion/styled';
-import sizeN from '../macros/sizeN.macro';
-import { modalBorderAndRadius, ModalCloseButton } from './modals/StyledModal';
-import { laptop } from '../styles/media';
+import { ModalCloseButton } from './modals/StyledModal';
 import AuthContext from '../contexts/AuthContext';
-import { typoCallout, typoTitle3 } from '../styles/typography';
 import TwitterIcon from '../icons/twitter.svg';
 import WhatsappIcon from '../icons/whatsapp.svg';
 import FacebookIcon from '../icons/facebook.svg';
@@ -19,66 +15,11 @@ import {
 } from '../lib/share';
 import { Post } from '../graphql/posts';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
-import Button, { ButtonProps } from './buttons/Button';
+import Button from './buttons/Button';
 import { getTooltipProps } from '../lib/tooltip';
-import rem from '../macros/rem.macro';
+import classed from '../lib/classed';
 
-const Container = styled.div`
-  position: fixed;
-  display: none;
-  right: ${sizeN(6)};
-  bottom: ${sizeN(6)};
-  width: ${rem(330)};
-  flex-direction: column;
-  padding: ${sizeN(10)} ${sizeN(6)} ${sizeN(6)};
-  background: var(--theme-background-tertiary);
-  box-shadow: var(--theme-shadow2);
-  z-index: 3;
-  ${modalBorderAndRadius}
-
-  ${laptop} {
-    display: flex;
-  }
-`;
-
-const Title = styled.h2`
-  margin: ${sizeN(2)} 0 0;
-  ${typoTitle3}
-`;
-
-const Description = styled.div`
-  margin: ${sizeN(4)} 0 ${sizeN(6)};
-  color: var(--theme-label-tertiary);
-  ${typoCallout}
-`;
-
-const Buttons = styled.div`
-  display: grid;
-  column-gap: ${sizeN(4)};
-  row-gap: ${sizeN(4)};
-  grid-template-columns: 1fr 1fr;
-`;
-
-const ShareButton = styled(Button)<ButtonProps<'a'>>`
-  &&& {
-    color: #ffffff;
-  }
-`;
-
-const StyledConfetti = styled(Confetti)`
-  position: absolute;
-  left: ${sizeN(2)};
-  top: -4.375rem;
-  width: 6.25rem;
-  height: 4rem;
-`;
-
-const StyledShare = styled(ShareIcon)`
-  position: absolute;
-  left: ${sizeN(6)};
-  top: -2rem;
-  font-size: 4rem;
-`;
+const ShareButton = classed(Button, 'text-white');
 
 interface ShareNewCommentPopupProps {
   onRequestClose: () => void;
@@ -94,16 +35,27 @@ export default function ShareNewCommentPopup({
   const [copying, copyLink] = useCopyPostLink();
 
   return (
-    <Container>
+    <div
+      className="fixed hidden right-6 bottom-6 flex-col pt-10 pb-6 px-6 bg-theme-bg-tertiary shadow-2 z-3 border border-theme-divider-secondary rounded-2xl laptop:flex"
+      style={{ width: '20.625rem' }}
+    >
       <ModalCloseButton onClick={onRequestClose} />
-      <StyledConfetti />
-      <StyledShare />
-      <Title>That&apos;s a great comment, {user.name?.split(' ')[0]}!</Title>
-      <Description>
+      <Confetti
+        className="absolute left-2 h-16"
+        style={{ top: '-4.375rem', width: '6.25rem' }}
+      />
+      <ShareIcon
+        className="absolute left-6 -top-8"
+        style={{ fontSize: '4rem' }}
+      />
+      <h2 className="mt-2 typo-title3">
+        That&apos;s a great comment, {user.name?.split(' ')[0]}!
+      </h2>
+      <div className="mt-4 mb-6 text-theme-label-tertiary typo-callout">
         Discussions are super fun when shared with friends and team members.
         Give it a try!
-      </Description>
-      <Buttons>
+      </div>
+      <div className="grid gap-4 grid-cols-2">
         <ShareButton
           tag="a"
           href={getTwitterShareLink(href, post.title)}
@@ -148,7 +100,7 @@ export default function ShareNewCommentPopup({
         >
           {copying ? 'Copied!' : 'Copy link'}
         </Button>
-      </Buttons>
-    </Container>
+      </div>
+    </div>
   );
 }

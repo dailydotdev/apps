@@ -1,10 +1,8 @@
-/** @jsx jsx */
-import { css, jsx } from '@emotion/react';
-import { HTMLAttributes, ReactElement } from 'react';
+import React, { HTMLAttributes, ReactElement } from 'react';
 
-export default function ConfettiSvg({
-  className,
-}: HTMLAttributes<SVGElement>): ReactElement {
+export default function ConfettiSvg(
+  props: HTMLAttributes<SVGElement>,
+): ReactElement {
   return (
     <svg
       id="edzasorcomre1"
@@ -13,7 +11,7 @@ export default function ConfettiSvg({
       viewBox="0 0 100 64"
       shapeRendering="geometricPrecision"
       textRendering="geometricPrecision"
-      className={className}
+      {...props}
     >
       <style>{`#edzasorcomre2_to {animation: edzasorcomre2_to__to 1000ms linear 1 normal forwards}@keyframes edzasorcomre2_to__to { 0% {offset-distance: 0%;animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {offset-distance: 100%} 100% {offset-distance: 100%} }#edzasorcomre2_tr {animation: edzasorcomre2_tr__tr 1000ms linear 1 normal forwards}@keyframes edzasorcomre2_tr__tr { 0% {transform: rotate(-39.842787deg);animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {transform: rotate(0deg)} 100% {transform: rotate(0deg)} }#edzasorcomre2_ts {animation: edzasorcomre2_ts__ts 1000ms linear 1 normal forwards}@keyframes edzasorcomre2_ts__ts { 0% {transform: scale(0.500000,0.500000);animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {transform: scale(1,1)} 100% {transform: scale(1,1)} }#edzasorcomre2 {animation: edzasorcomre2_f_o 1000ms linear 1 normal forwards}@keyframes edzasorcomre2_f_o { 0% {fill-opacity: 1} 63% {fill-opacity: 1;animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {fill-opacity: 0} 100% {fill-opacity: 0} }#edzasorcomre3_to {animation: edzasorcomre3_to__to 1000ms linear 1 normal forwards}@keyframes edzasorcomre3_to__to { 0% {offset-distance: 0%;animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {offset-distance: 100%} 100% {offset-distance: 100%} }#edzasorcomre3_tr {animation: edzasorcomre3_tr__tr 1000ms linear 1 normal forwards}@keyframes edzasorcomre3_tr__tr { 0% {transform: rotate(-83.721852deg);animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {transform: rotate(0deg)} 100% {transform: rotate(0deg)} }#edzasorcomre3_ts {animation: edzasorcomre3_ts__ts 1000ms linear 1 normal forwards}@keyframes edzasorcomre3_ts__ts { 0% {transform: scale(0.500000,0.500000);animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {transform: scale(1,1)} 100% {transform: scale(1,1)} }#edzasorcomre3 {animation: edzasorcomre3_f_o 1000ms linear 1 normal forwards}@keyframes edzasorcomre3_f_o { 0% {fill-opacity: 1} 47% {fill-opacity: 1;animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {fill-opacity: 0} 100% {fill-opacity: 0} }#edzasorcomre4_to {animation: edzasorcomre4_to__to 1000ms linear 1 normal forwards}@keyframes edzasorcomre4_to__to { 0% {offset-distance: 0%;animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {offset-distance: 100%} 100% {offset-distance: 100%} }#edzasorcomre4_tr {animation: edzasorcomre4_tr__tr 1000ms linear 1 normal forwards}@keyframes edzasorcomre4_tr__tr { 0% {transform: rotate(39.829954deg);animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {transform: rotate(0deg)} 100% {transform: rotate(0deg)} }#edzasorcomre4_ts {animation: edzasorcomre4_ts__ts 1000ms linear 1 normal forwards}@keyframes edzasorcomre4_ts__ts { 0% {transform: scale(0.500000,0.500000);animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {transform: scale(1,1)} 100% {transform: scale(1,1)} }#edzasorcomre4 {animation: edzasorcomre4_f_o 1000ms linear 1 normal forwards}@keyframes edzasorcomre4_f_o { 0% {fill-opacity: 1} 58% {fill-opacity: 1;animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {fill-opacity: 0} 100% {fill-opacity: 0} }#edzasorcomre5_to {animation: edzasorcomre5_to__to 1000ms linear 1 normal forwards}@keyframes edzasorcomre5_to__to { 0% {offset-distance: 0%;animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {offset-distance: 100%} 100% {offset-distance: 100%} }#edzasorcomre5_tr {animation: edzasorcomre5_tr__tr 1000ms linear 1 normal forwards}@keyframes edzasorcomre5_tr__tr { 0% {transform: rotate(-7.430076deg);animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {transform: rotate(0deg)} 100% {transform: rotate(0deg)} }#edzasorcomre5_ts {animation: edzasorcomre5_ts__ts 1000ms linear 1 normal forwards}@keyframes edzasorcomre5_ts__ts { 0% {transform: scale(0.500000,0.500000);animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {transform: scale(1,1)} 100% {transform: scale(1,1)} }#edzasorcomre5 {animation: edzasorcomre5_f_o 1000ms linear 1 normal forwards}@keyframes edzasorcomre5_f_o { 0% {fill-opacity: 1} 54% {fill-opacity: 1;animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {fill-opacity: 0} 100% {fill-opacity: 0} }#edzasorcomre6_to {animation: edzasorcomre6_to__to 1000ms linear 1 normal forwards}@keyframes edzasorcomre6_to__to { 0% {transform: translate(50px,86.441884px);animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {transform: translate(42.469324px,41.590768px)} 100% {transform: translate(42.469324px,41.590768px)} }#edzasorcomre6_tr {animation: edzasorcomre6_tr__tr 1000ms linear 1 normal forwards}@keyframes edzasorcomre6_tr__tr { 0% {transform: rotate(-30.835636deg);animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {transform: rotate(0deg)} 100% {transform: rotate(0deg)} }#edzasorcomre6_ts {animation: edzasorcomre6_ts__ts 1000ms linear 1 normal forwards}@keyframes edzasorcomre6_ts__ts { 0% {transform: scale(0.500000,0.500000);animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {transform: scale(1,1)} 100% {transform: scale(1,1)} }#edzasorcomre6 {animation: edzasorcomre6_f_o 1000ms linear 1 normal forwards}@keyframes edzasorcomre6_f_o { 0% {fill-opacity: 1} 54% {fill-opacity: 1;animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {fill-opacity: 0} 100% {fill-opacity: 0} }#edzasorcomre7_to {animation: edzasorcomre7_to__to 1000ms linear 1 normal forwards}@keyframes edzasorcomre7_to__to { 0% {offset-distance: 0%;animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {offset-distance: 100%} 100% {offset-distance: 100%} }#edzasorcomre7_tr {animation: edzasorcomre7_tr__tr 1000ms linear 1 normal forwards}@keyframes edzasorcomre7_tr__tr { 0% {transform: rotate(91.291093deg);animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {transform: rotate(0deg)} 100% {transform: rotate(0deg)} }#edzasorcomre7_ts {animation: edzasorcomre7_ts__ts 1000ms linear 1 normal forwards}@keyframes edzasorcomre7_ts__ts { 0% {transform: scale(0.500000,0.500000);animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {transform: scale(1,1)} 100% {transform: scale(1,1)} }#edzasorcomre7 {animation: edzasorcomre7_f_o 1000ms linear 1 normal forwards}@keyframes edzasorcomre7_f_o { 0% {fill-opacity: 1} 54% {fill-opacity: 1;animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {fill-opacity: 0} 100% {fill-opacity: 0} }#edzasorcomre8_to {animation: edzasorcomre8_to__to 1000ms linear 1 normal forwards}@keyframes edzasorcomre8_to__to { 0% {offset-distance: 0%;animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {offset-distance: 100%} 100% {offset-distance: 100%} }#edzasorcomre8_tr {animation: edzasorcomre8_tr__tr 1000ms linear 1 normal forwards}@keyframes edzasorcomre8_tr__tr { 0% {transform: rotate(65.285383deg);animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {transform: rotate(0deg)} 100% {transform: rotate(0deg)} }#edzasorcomre8_ts {animation: edzasorcomre8_ts__ts 1000ms linear 1 normal forwards}@keyframes edzasorcomre8_ts__ts { 0% {transform: scale(0.500000,0.500000);animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {transform: scale(1,1)} 100% {transform: scale(1,1)} }#edzasorcomre8 {animation: edzasorcomre8_f_o 1000ms linear 1 normal forwards}@keyframes edzasorcomre8_f_o { 0% {fill-opacity: 1} 52% {fill-opacity: 1;animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {fill-opacity: 0} 100% {fill-opacity: 0} }#edzasorcomre9_to {animation: edzasorcomre9_to__to 1000ms linear 1 normal forwards}@keyframes edzasorcomre9_to__to { 0% {offset-distance: 0%;animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {offset-distance: 100%} 100% {offset-distance: 100%} }#edzasorcomre9_tr {animation: edzasorcomre9_tr__tr 1000ms linear 1 normal forwards}@keyframes edzasorcomre9_tr__tr { 0% {transform: rotate(-38.165790deg);animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {transform: rotate(0deg)} 100% {transform: rotate(0deg)} }#edzasorcomre9_ts {animation: edzasorcomre9_ts__ts 1000ms linear 1 normal forwards}@keyframes edzasorcomre9_ts__ts { 0% {transform: scale(0.500000,0.500000);animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {transform: scale(1,1)} 100% {transform: scale(1,1)} }#edzasorcomre9 {animation: edzasorcomre9_f_o 1000ms linear 1 normal forwards}@keyframes edzasorcomre9_f_o { 0% {fill-opacity: 1} 41% {fill-opacity: 1;animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {fill-opacity: 0} 100% {fill-opacity: 0} }#edzasorcomre10_to {animation: edzasorcomre10_to__to 1000ms linear 1 normal forwards}@keyframes edzasorcomre10_to__to { 0% {offset-distance: 0%;animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {offset-distance: 100%} 100% {offset-distance: 100%} }#edzasorcomre10_tr {animation: edzasorcomre10_tr__tr 1000ms linear 1 normal forwards}@keyframes edzasorcomre10_tr__tr { 0% {transform: rotate(90.621789deg);animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {transform: rotate(0deg)} 100% {transform: rotate(0deg)} }#edzasorcomre10_ts {animation: edzasorcomre10_ts__ts 1000ms linear 1 normal forwards}@keyframes edzasorcomre10_ts__ts { 0% {transform: scale(0.500000,0.500000);animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {transform: scale(1,1)} 100% {transform: scale(1,1)} }#edzasorcomre10 {animation: edzasorcomre10_f_o 1000ms linear 1 normal forwards}@keyframes edzasorcomre10_f_o { 0% {fill-opacity: 1} 61% {fill-opacity: 1;animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {fill-opacity: 0} 100% {fill-opacity: 0} }#edzasorcomre11_to {animation: edzasorcomre11_to__to 1000ms linear 1 normal forwards}@keyframes edzasorcomre11_to__to { 0% {offset-distance: 0%;animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {offset-distance: 100%} 100% {offset-distance: 100%} }#edzasorcomre11_tr {animation: edzasorcomre11_tr__tr 1000ms linear 1 normal forwards}@keyframes edzasorcomre11_tr__tr { 0% {transform: rotate(-23.137595deg);animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {transform: rotate(0deg)} 100% {transform: rotate(0deg)} }#edzasorcomre11_ts {animation: edzasorcomre11_ts__ts 1000ms linear 1 normal forwards}@keyframes edzasorcomre11_ts__ts { 0% {transform: scale(0.500000,0.500000);animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {transform: scale(1,1)} 100% {transform: scale(1,1)} }#edzasorcomre11 {animation: edzasorcomre11_f_o 1000ms linear 1 normal forwards}@keyframes edzasorcomre11_f_o { 0% {fill-opacity: 1} 54% {fill-opacity: 1;animation-timing-function: cubic-bezier(0,0,0.580000,1)} 70% {fill-opacity: 0} 100% {fill-opacity: 0} }`}</style>
       <defs>
@@ -220,12 +218,10 @@ export default function ConfettiSvg({
       </defs>
       <g
         id="edzasorcomre2_to"
-        css={css`
-          offset-path: path(
-            'M50,86.314589C48.451738,73.798946,57.940094,50.360179,72.730574,44.350368'
-          );
-          offset-rotate: 0deg;
-        `}
+        style={{
+          offsetPath: `path('M50,86.314589C48.451738,73.798946,57.940094,50.360179,72.730574,44.350368')`,
+          offsetRotate: '0deg',
+        }}
       >
         <g id="edzasorcomre2_tr" transform="rotate(-39.842787)">
           <g id="edzasorcomre2_ts" transform="scale(0.500000,0.500000)">
@@ -243,12 +239,10 @@ export default function ConfettiSvg({
       </g>
       <g
         id="edzasorcomre3_to"
-        css={css`
-          offset-path: path(
-            'M50,86.314589C51.794011,74.486908,71.587687,62.315705,89.342857,58.192308'
-          );
-          offset-rotate: 0deg;
-        `}
+        style={{
+          offsetPath: `path('M50,86.314589C51.794011,74.486908,71.587687,62.315705,89.342857,58.192308')`,
+          offsetRotate: '0deg',
+        }}
       >
         <g id="edzasorcomre3_tr" transform="rotate(-83.721852)">
           <g id="edzasorcomre3_ts" transform="scale(0.500000,0.500000)">
@@ -266,12 +260,10 @@ export default function ConfettiSvg({
       </g>
       <g
         id="edzasorcomre4_to"
-        css={css`
-          offset-path: path(
-            'M50,86.314589C45.547125,56.772607,30.765725,57.198215,22.898469,41.764464'
-          );
-          offset-rotate: 0deg;
-        `}
+        style={{
+          offsetPath: `path('M50,86.314589C45.547125,56.772607,30.765725,57.198215,22.898469,41.764464')`,
+          offsetRotate: '0deg',
+        }}
       >
         <g id="edzasorcomre4_tr" transform="rotate(39.829954)">
           <g id="edzasorcomre4_ts" transform="scale(0.500000,0.500000)">
@@ -289,12 +281,10 @@ export default function ConfettiSvg({
       </g>
       <g
         id="edzasorcomre5_to"
-        css={css`
-          offset-path: path(
-            'M50,86.314589C49.601646,81.850592,46.018008,21.687129,51,10.961538'
-          );
-          offset-rotate: 0deg;
-        `}
+        style={{
+          offsetPath: `path('M50,86.314589C49.601646,81.850592,46.018008,21.687129,51,10.961538')`,
+          offsetRotate: '0deg',
+        }}
       >
         <g id="edzasorcomre5_tr" transform="rotate(-7.430076)">
           <g id="edzasorcomre5_ts" transform="scale(0.500000,0.500000)">
@@ -328,12 +318,10 @@ export default function ConfettiSvg({
       </g>
       <g
         id="edzasorcomre7_to"
-        css={css`
-          offset-path: path(
-            'M50,86.314589C50.007085,77.786990,46.123225,62.290682,32.226295,60.723435'
-          );
-          offset-rotate: 0deg;
-        `}
+        style={{
+          offsetPath: `path('M50,86.314589C50.007085,77.786990,46.123225,62.290682,32.226295,60.723435')`,
+          offsetRotate: '0deg',
+        }}
       >
         <g id="edzasorcomre7_tr" transform="rotate(91.291093)">
           <g id="edzasorcomre7_ts" transform="scale(0.500000,0.500000)">
@@ -351,12 +339,10 @@ export default function ConfettiSvg({
       </g>
       <g
         id="edzasorcomre8_to"
-        css={css`
-          offset-path: path(
-            'M50,86.314589C49.924284,69.974235,38.754426,26.490781,24.027189,21.134199'
-          );
-          offset-rotate: 0deg;
-        `}
+        style={{
+          offsetPath: `path('M50,86.314589C49.924284,69.974235,38.754426,26.490781,24.027189,21.134199')`,
+          offsetRotate: '0deg',
+        }}
       >
         <g id="edzasorcomre8_tr" transform="rotate(65.285383)">
           <g id="edzasorcomre8_ts" transform="scale(0.500000,0.500000)">
@@ -374,12 +360,10 @@ export default function ConfettiSvg({
       </g>
       <g
         id="edzasorcomre9_to"
-        css={css`
-          offset-path: path(
-            'M50,86.314589C49.358773,67.666320,82.415830,31.715040,92.632740,32.660314'
-          );
-          offset-rotate: 0deg;
-        `}
+        style={{
+          offsetPath: `path('M50,86.314589C49.358773,67.666320,82.415830,31.715040,92.632740,32.660314')`,
+          offsetRotate: '0deg',
+        }}
       >
         <g id="edzasorcomre9_tr" transform="rotate(-38.165790)">
           <g id="edzasorcomre9_ts" transform="scale(0.500000,0.500000)">
@@ -397,12 +381,10 @@ export default function ConfettiSvg({
       </g>
       <g
         id="edzasorcomre10_to"
-        css={css`
-          offset-path: path(
-            'M50,86.314589C51.329767,65.769424,54.272643,63.320295,7.159375,54.677665'
-          );
-          offset-rotate: 0deg;
-        `}
+        style={{
+          offsetPath: `path('M50,86.314589C51.329767,65.769424,54.272643,63.320295,7.159375,54.677665')`,
+          offsetRotate: '0deg',
+        }}
       >
         <g id="edzasorcomre10_tr" transform="rotate(90.621789)">
           <g id="edzasorcomre10_ts" transform="scale(0.500000,0.500000)">
@@ -420,12 +402,10 @@ export default function ConfettiSvg({
       </g>
       <g
         id="edzasorcomre11_to"
-        css={css`
-          offset-path: path(
-            'M50,86.314589C40.811841,86.407099,62.334995,22.797710,66.284419,22.757945'
-          );
-          offset-rotate: 0deg;
-        `}
+        style={{
+          offsetPath: `path('M50,86.314589C40.811841,86.407099,62.334995,22.797710,66.284419,22.757945')`,
+          offsetRotate: '0deg',
+        }}
       >
         <g id="edzasorcomre11_tr" transform="rotate(-23.137595)">
           <g id="edzasorcomre11_ts" transform="scale(0.500000,0.500000)">

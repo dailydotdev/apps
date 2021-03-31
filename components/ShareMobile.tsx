@@ -1,34 +1,8 @@
 import React, { ReactElement } from 'react';
-import styled from '@emotion/styled';
-import { laptop } from '../styles/media';
 import CopyIcon from '../icons/copy.svg';
 import ShareIcon from '../icons/share.svg';
-import sizeN from '../macros/sizeN.macro';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import Button from './buttons/Button';
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  margin-bottom: ${sizeN(6)};
-
-  ${laptop} {
-    display: none;
-  }
-
-  button {
-    margin: ${sizeN(1)} 0;
-
-    &:first-child {
-      margin-top: 0;
-    }
-
-    &:last-child {
-      margin-bottom: 0;
-    }
-  }
-`;
 
 export interface Props {
   share: () => Promise<void>;
@@ -38,13 +12,13 @@ export function ShareMobile({ share }: Props): ReactElement {
   const [copying, copyLink] = useCopyPostLink();
 
   return (
-    <Container>
+    <div className="flex flex-col items-start -mt-1 mb-5 laptop:hidden">
       <Button
         buttonSize="small"
         onClick={copyLink}
         pressed={copying}
         icon={<CopyIcon />}
-        className="btn-tertiary-avocado"
+        className="btn-tertiary-avocado my-1"
       >
         {copying ? 'Copied!' : 'Copy link'}
       </Button>
@@ -52,10 +26,10 @@ export function ShareMobile({ share }: Props): ReactElement {
         buttonSize="small"
         onClick={share}
         icon={<ShareIcon />}
-        className="btn-tertiary"
+        className="btn-tertiary my-1"
       >
         Share with your friends
       </Button>
-    </Container>
+    </div>
   );
 }

@@ -8,6 +8,7 @@ module.exports = {
         headerRankHeight: '4.5rem',
         navBarHeight: '3rem',
         promotionWidth: '9rem',
+        shareBarWidth: '1.75rem',
       },
     },
     [process.env.NODE_ENV === 'production'
