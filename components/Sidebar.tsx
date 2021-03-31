@@ -1,89 +1,11 @@
-/** @jsx jsx */
-import { jsx } from '@emotion/react';
 import React, { ReactElement, useEffect, useState } from 'react';
-import styled from '@emotion/styled';
 import sizeN from '../macros/sizeN.macro';
-import rem from '../macros/rem.macro';
 import ArrowIcon from '../icons/arrow.svg';
-import { focusOutline } from '../styles/helpers';
 import classNames from 'classnames';
 import { getTooltipProps } from '../lib/tooltip';
 import FeedFilters from './filters/FeedFilters';
 
 const asideWidth = sizeN(89);
-
-const Trigger = styled.button`
-  display: flex;
-  width: ${sizeN(12)};
-  height: ${sizeN(14)};
-  align-items: center;
-  margin-top: ${sizeN(24)};
-  padding: 0 0 0 ${sizeN(3)};
-  background: var(--theme-background-primary);
-  border: ${rem(1)} solid var(--theme-divider-quaternary);
-  border-left: none;
-  border-radius: 0 ${sizeN(4)} ${sizeN(4)} 0;
-  color: var(--theme-label-tertiary);
-  font-size: ${sizeN(7)};
-  cursor: pointer;
-  ${focusOutline}
-
-  &:hover {
-    color: var(--theme-label-primary);
-  }
-
-  .icon {
-    transform: rotate(90deg);
-    transition: transform 0.2s linear 0.1s;
-  }
-`;
-
-const Aside = styled.aside`
-  width: ${asideWidth};
-  overflow-y: scroll;
-  align-self: stretch;
-  background: var(--theme-background-primary);
-  border-radius: 0 ${sizeN(4)} ${sizeN(4)} 0;
-  border-right: ${rem(1)} solid var(--theme-divider-primary);
-  transition: visibility 0s 0.3s;
-  visibility: hidden;
-`;
-
-const Container = styled.div`
-  display: flex;
-  position: fixed;
-  align-items: flex-start;
-  top: 0;
-  left: 0;
-  height: 100%;
-  z-index: 3;
-  transform: translateX(-${asideWidth});
-  will-change: transform;
-  transition: transform 0.2s linear 0.1s;
-  pointer-events: none;
-
-  > * {
-    pointer-events: all;
-  }
-
-  &.opened {
-    transform: translateX(0);
-
-    ${Trigger} {
-      color: var(--theme-label-primary);
-      border-color: var(--theme-divider-primary);
-
-      .icon {
-        transform: rotate(270deg);
-      }
-    }
-
-    ${Aside} {
-      visibility: visible;
-      transition-delay: 0s;
-    }
-  }
-`;
 
 export default function Sidebar(): ReactElement {
   const [opened, setOpened] = useState(false);
@@ -98,16 +20,49 @@ export default function Sidebar(): ReactElement {
   }, [opened]);
 
   return (
-    <Container className={classNames({ opened })}>
-      <Aside className="scrollbar">
+    <div
+      className={classNames(
+        'fixed flex items-start top-0 left-0 h-full z-3 pointer-events-none',
+        { opened },
+      )}
+      style={{
+        transform: opened ? 'translateX(0)' : `translateX(-${asideWidth})`,
+        willChange: 'transform',
+        transition: 'transform 0.2s linear 0.1s',
+      }}
+    >
+      <aside
+        className={classNames(
+          'scrollbar overflow-y-scroll self-stretch bg-theme-bg-primary rounded-r-2xl border-r border-theme-divider-primary',
+          !opened && 'invisible',
+        )}
+        style={{
+          width: asideWidth,
+          transition: 'visibility 0s',
+          pointerEvents: 'all',
+          transitionDelay: opened ? '0s' : '0.3s',
+        }}
+      >
         <FeedFilters enableQueries={enableQueries} />
-      </Aside>
-      <Trigger
+      </aside>
+      <button
+        className={classNames(
+          'flex w-12 h-14 items-center mt-24 pl-3 bg-theme-bg-primary border border-l-0 rounded-r-2xl cursor-pointer focus-outline hover:text-theme-label-primary',
+          opened
+            ? 'text-theme-label-primary border-theme-divider-primary'
+            : 'text-theme-label-tertiary border-theme-divider-quaternary',
+        )}
+        style={{ fontSize: '1.75rem', pointerEvents: 'all' }}
         {...getTooltipProps('Open sidebar', { position: 'right' })}
         onClick={() => setOpened(!opened)}
       >
-        <ArrowIcon />
-      </Trigger>
-    </Container>
+        <ArrowIcon
+          style={{
+            transform: opened ? 'rotate(270deg)' : 'rotate(90deg)',
+            transition: 'transform 0.2s linear 0.1s',
+          }}
+        />
+      </button>
+    </div>
   );
 }

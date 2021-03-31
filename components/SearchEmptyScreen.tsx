@@ -1,50 +1,20 @@
-/** @jsx jsx */
-import { css, jsx } from '@emotion/react';
-import { ReactElement } from 'react';
+import React, { ReactElement } from 'react';
 import MagnifyingIcon from '../icons/magnifying.svg';
-import styled from '@emotion/styled';
-import rem from '../macros/rem.macro';
-import { typoCallout, typoTitle1 } from '../styles/typography';
-
-const Container = styled.div`
-  display: flex;
-  width: 100%;
-  max-width: ${rem(520)};
-  flex-direction: column;
-  align-self: center;
-  padding: 0 ${rem(24)};
-`;
 
 export default function SearchEmptyScreen(): ReactElement {
   return (
-    <Container>
+    <div
+      className="flex flex-col w-full self-center px-6"
+      style={{ maxWidth: '32.5rem' }}
+    >
       <MagnifyingIcon
-        css={css`
-          align-self: center;
-          color: var(--theme-label-disabled);
-          font-size: ${rem(80)};
-        `}
+        className="self-center text-theme-label-disabled"
+        style={{ fontSize: '5rem' }}
       />
-      <h2
-        css={css`
-          margin: ${rem(16)} 0;
-          text-align: center;
-          ${typoTitle1}
-        `}
-      >
-        No results found
-      </h2>
-      <p
-        css={css`
-          margin: 0;
-          padding: 0;
-          color: var(--theme-label-secondary);
-          text-align: center;
-          ${typoCallout}
-        `}
-      >
+      <h2 className="my-4 text-center typo-title1">No results found</h2>
+      <p className="m-0 p-0 text-theme-label-secondary text-center typo-callout">
         We cannot find the articles you are searching for. 🤷‍♀️
       </p>
-    </Container>
+    </div>
   );
 }
