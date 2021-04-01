@@ -43,10 +43,12 @@ export const featuredCommentsToButtons = (
 ): ReactNode[] =>
   comments?.map((comment) => (
     <button
-      {...getTooltipProps(`See ${comment.author.name}'s comment`)}
+      {...getTooltipProps(`See ${comment.author.name}'s comment`, {
+        position: 'down',
+      })}
       onClick={() => onClick(comment)}
       key={comment.id}
-      className="flex p-0 bg-none border-none rounded-full cursor-pointer focus-outline"
+      className="flex mx-1 p-0 bg-none border-none rounded-full cursor-pointer focus-outline"
     >
       <img
         src={comment.author.image}

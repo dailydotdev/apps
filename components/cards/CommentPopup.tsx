@@ -1,71 +1,12 @@
 import React, { KeyboardEvent, ReactElement, useState } from 'react';
-import styled from '@emotion/styled';
-import rem from '../../macros/rem.macro';
 import { ModalCloseButton } from '../modals/StyledModal';
-import { typoCallout } from '../../styles/typography';
 import commentPopupText from '../../commentPopupText';
-import { focusOutline } from '../../styles/helpers';
 import CommentIcon from '../../icons/comment.svg';
 import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 import Button from '../buttons/Button';
+import classNames from 'classnames';
 
 const transitionDuration = 150;
-
-const Popup = styled.div`
-  position: relative;
-  display: flex;
-  height: 75%;
-  flex-direction: column;
-  padding: ${rem(16)};
-  background: var(--theme-background-primary);
-  border-radius: ${rem(16)};
-`;
-
-const Container = styled.div`
-  position: absolute;
-  display: flex;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  flex-direction: column;
-  justify-content: flex-end;
-  background: var(--theme-post-disabled);
-  border-radius: ${rem(16)};
-  z-index: 2;
-  overflow: hidden;
-  pointer-events: all;
-  transition: opacity ${transitionDuration}ms ease-out;
-  will-change: opacity;
-
-  &.hide {
-    opacity: 0;
-  }
-`;
-
-const Title = styled.h4`
-  color: var(--theme-label-primary);
-  margin: 0 ${rem(44)} 0 ${rem(8)};
-  ${typoCallout}
-`;
-
-const Textarea = styled.textarea`
-  flex: 1;
-  margin: ${rem(16)} 0;
-  padding: ${rem(12)};
-  background: var(--theme-float);
-  color: var(--theme-label-primary);
-  border-radius: ${rem(14)};
-  border: none;
-  caret-color: var(--theme-label-link);
-  resize: none;
-  ${typoCallout}
-  ${focusOutline}
-
-  &::placeholder {
-    color: var(--theme-label-tertiary);
-  }
-`;
 
 export type CommentPopupProps = {
   onClose?: () => unknown;
@@ -102,14 +43,32 @@ export default function CommentPopup({
   };
 
   return (
-    <Container className={!show && 'hide'} ref={containerRef}>
-      <Popup className="invert">
+    <div
+      className={classNames(
+        'absolute flex flex-col left-0 top-0 w-full h-full justify-end bg-theme-post-disabled rounded-2xl z-2 overflow-hidden',
+        !show && 'opacity-0',
+      )}
+      ref={containerRef}
+      style={{
+        pointerEvents: 'all',
+        transition: `opacity ${transitionDuration}ms ease-out`,
+        willChange: 'opacity',
+      }}
+    >
+      <div className="invert relative flex flex-col h-3/4 p-4 bg-theme-bg-primary rounded-2xl">
         <ModalCloseButton onClick={onClose} />
-        <Title>{text.title}</Title>
-        <Textarea
+        <h3 className="text-theme-label-primary mr-11 ml-2 typo-callout">
+          {text.title}
+        </h3>
+        <textarea
           placeholder={text.placeholder}
           onChange={(event) => setComment(event.target.value)}
           onKeyDown={onKeyDown}
+          className="flex-1 my-4 p-3 bg-theme-float text-theme-label-primary resize-none typo-callout focus-outline placeholder-theme-label-tertiary"
+          style={{
+            borderRadius: '0.875rem',
+            caretColor: 'var(--theme-label-link)',
+          }}
         />
         <Button
           icon={<CommentIcon />}
@@ -120,7 +79,7 @@ export default function CommentPopup({
         >
           Comment
         </Button>
-      </Popup>
-    </Container>
+      </div>
+    </div>
   );
 }

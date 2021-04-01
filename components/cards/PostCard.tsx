@@ -104,7 +104,7 @@ export function PostCard({
             <>
               <Link href={`/sources/${post.source.id}`} prefetch={false}>
                 <a
-                  {...getTooltipProps(post.source.name)}
+                  {...getTooltipProps(post.source.name, { position: 'down' })}
                   className="flex pr-2 cursor-pointer"
                 >
                   <img
@@ -121,9 +121,10 @@ export function PostCard({
               {enableMenu && (
                 <Button
                   className={classNames(
-                    'btn-tertiary ml-auto -mr-0.5',
+                    'btn-tertiary',
                     !menuOpened && 'mouse:invisible mouse:group-hover:visible',
                   )}
+                  style={{ marginLeft: 'auto', marginRight: '-0.125rem' }}
                   buttonSize="small"
                   icon={<MenuIcon />}
                   onClick={(event) => onMenuClick?.(event, post)}
@@ -154,7 +155,11 @@ export function PostCard({
       >
         {post.author && (
           <div
-            className={`relative flex items-center py-2 px-3 text-theme-label-secondary bg-theme-bg-primary z-1 font-bold typo-callout ${styles.authorBox}`}
+            className={classNames(
+              'relative flex items-center py-2 px-3 text-theme-label-secondary bg-theme-bg-primary z-1 font-bold typo-callout',
+              styles.authorBox,
+              selectedComment && 'hidden',
+            )}
           >
             <SmallRoundedImage
               imgSrc={post.author.image}
