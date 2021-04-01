@@ -1,0 +1,18 @@
+.field {
+  --field-placeholder-color: var(--theme-label-tertiary);
+
+  &:hover {
+    background: var(--theme-hover);
+    --field-placeholder-color: var(--theme-label-primary);
+  }
+
+  &:global(.focused) {
+    background: transparent;
+    border-color: var(--theme-label-primary);
+    --field-placeholder-color: var(--theme-label-quaternary);
+  }
+
+  & input::placeholder {
+    color: var(--field-placeholder-color);
+  }
+}

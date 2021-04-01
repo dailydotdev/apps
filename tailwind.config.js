@@ -43,6 +43,7 @@ module.exports = {
         'post-disabled': 'var(--theme-post-disabled)',
       },
       white: '#ffffff',
+      transparent: 'transparent',
     },
     boxShadow,
     opacity: {
@@ -102,5 +103,9 @@ module.exports = {
       visibility: ['group-hover'],
     },
   },
-  plugins: [require('./tailwind/typography'), require('./tailwind/buttons')],
+  plugins: [
+    require('./tailwind/caret'),
+    require('./tailwind/typography'),
+    require('./tailwind/buttons'),
+  ],
 };

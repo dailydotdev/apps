@@ -18,20 +18,12 @@ const getClearButton = (): HTMLButtonElement =>
 
 it('should not show clear button when input is empty', async () => {
   renderComponent();
-  await waitFor(() =>
-    expect(getClearButton()).toHaveStyle({ visibility: 'hidden' }),
-  );
+  await waitFor(() => expect(getClearButton()).toHaveClass('invisible'));
 });
 
 it('should show clear button when input is filled', async () => {
   renderComponent({ value: 'search' });
-  await waitFor(() =>
-    expect(screen.queryByTestId('searchField')).toHaveClass('hasInput'),
-  );
-  // Doesn't work for some reason
-  // await waitFor(() =>
-  //   expect(getClearButton()).toHaveStyle({ visibility: 'visible' }),
-  // );
+  await waitFor(() => expect(getClearButton()).not.toHaveClass('invisible'));
 });
 
 it('should clear input when clicking', async () => {

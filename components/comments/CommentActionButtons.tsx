@@ -3,7 +3,6 @@ import AuthContext from '../../contexts/AuthContext';
 import UpvoteIcon from '../../icons/upvote.svg';
 import CommentIcon from '../../icons/comment.svg';
 import TrashIcon from '../../icons/trash.svg';
-import styled from '@emotion/styled';
 import sizeN from '../../macros/sizeN.macro';
 import {
   CANCEL_COMMENT_UPVOTE_MUTATION,
@@ -24,11 +23,6 @@ export interface Props {
   onComment: (comment: Comment, parentId: string | null) => void;
   onDelete: (comment: Comment, parentId: string | null) => void;
 }
-
-const Container = styled.div`
-  display: flex;
-  align-items: center;
-`;
 
 export default function CommentActionButtons({
   comment,
@@ -100,7 +94,7 @@ export default function CommentActionButtons({
   };
 
   return (
-    <Container>
+    <div className="flex items-center">
       <QuaternaryButton
         id={`comment-${comment.id}-upvote-btn`}
         buttonSize="small"
@@ -131,6 +125,6 @@ export default function CommentActionButtons({
           className="btn-tertiary"
         />
       )}
-    </Container>
+    </div>
   );
 }

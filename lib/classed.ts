@@ -1,32 +1,91 @@
 import React, {
-  Attributes,
+  AnchorHTMLAttributes,
   ClassAttributes,
+  Component,
+  ComponentType,
   ElementType,
-  FunctionComponentElement,
-  ReactElement,
+  forwardRef,
+  ForwardRefExoticComponent,
+  FunctionComponent,
+  HTMLAttributes,
+  ImgHTMLAttributes,
+  InputHTMLAttributes,
+  PropsWithoutRef,
+  ReactHTML,
+  ReactSVG,
+  RefAttributes,
+  SVGAttributes,
+  TimeHTMLAttributes,
 } from 'react';
 import classNames from 'classnames';
 
-function classed<P extends Record<string, unknown>>(
+function classed(
+  type: 'input',
+  ...className: string[]
+): ForwardRefExoticComponent<
+  PropsWithoutRef<
+    InputHTMLAttributes<HTMLInputElement> & ClassAttributes<HTMLInputElement>
+  > &
+    RefAttributes<HTMLInputElement>
+>;
+
+function classed(
+  type: 'time',
+  ...className: string[]
+): ForwardRefExoticComponent<
+  PropsWithoutRef<
+    TimeHTMLAttributes<HTMLTimeElement> & ClassAttributes<HTMLTimeElement>
+  > &
+    RefAttributes<HTMLTimeElement>
+>;
+
+function classed(
+  type: 'a',
+  ...className: string[]
+): ForwardRefExoticComponent<
+  PropsWithoutRef<
+    AnchorHTMLAttributes<HTMLAnchorElement> & ClassAttributes<HTMLAnchorElement>
+  > &
+    RefAttributes<HTMLAnchorElement>
+>;
+
+function classed(
+  type: 'img',
+  ...className: string[]
+): ForwardRefExoticComponent<
+  PropsWithoutRef<
+    ImgHTMLAttributes<HTMLImageElement> & ClassAttributes<HTMLImageElement>
+  > &
+    RefAttributes<HTMLImageElement>
+>;
+
+function classed<P extends HTMLAttributes<T>, T extends HTMLElement>(
+  type: keyof ReactHTML,
+  ...className: string[]
+): ForwardRefExoticComponent<PropsWithoutRef<P> & RefAttributes<T>>;
+
+function classed<P extends SVGAttributes<T>, T extends SVGElement>(
+  type: keyof ReactSVG,
+  ...className: string[]
+): ForwardRefExoticComponent<PropsWithoutRef<P> & RefAttributes<T>>;
+
+function classed<P extends unknown>(
+  type: FunctionComponent<P>,
+  ...className: string[]
+): ForwardRefExoticComponent<
+  PropsWithoutRef<P> & RefAttributes<FunctionComponent<P>>
+>;
+
+function classed<P extends unknown>(
+  type: ComponentType<P>,
+  ...className: string[]
+): ForwardRefExoticComponent<PropsWithoutRef<P> & RefAttributes<Component<P>>>;
+
+function classed<T, P extends Record<string, unknown>>(
   type: ElementType,
   ...className: string[]
-): (props?: (Attributes & P) | null) => FunctionComponentElement<P>;
-
-function classed<
-  T extends keyof JSX.IntrinsicElements,
-  P extends JSX.IntrinsicElements[T]
->(
-  type: keyof JSX.IntrinsicElements,
-  ...className: string[]
-): (props?: (ClassAttributes<T> & P) | null) => ReactElement<P, T>;
-
-function classed<P extends Record<string, unknown>>(
-  type: ElementType | keyof JSX.IntrinsicElements,
-  ...className: string[]
-): (
-  props?: (Attributes & P & { className?: string }) | null,
-) => ReactElement<P> {
-  return function Classed(props) {
+): ForwardRefExoticComponent<PropsWithoutRef<P> & RefAttributes<T>> {
+  return forwardRef<T, P>(function Classed(props, ref) {
     return React.createElement(type, {
       ...props,
       className: classNames(
@@ -34,8 +93,9 @@ function classed<P extends Record<string, unknown>>(
         props?.className,
         ...className,
       ),
+      ref,
     });
-  };
+  });
 }
 
 export default classed;

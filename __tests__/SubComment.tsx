@@ -96,13 +96,13 @@ it('should show comment content', async () => {
 it('should move timeline above profile picture when not first comment', async () => {
   const res = renderLayout();
   const el = await res.findByTestId('timeline');
-  expect(el).toHaveStyleRule('top', '-1rem');
+  expect(el).toHaveClass('-top-4');
 });
 
 it('should move timeline to profile picture when first comment', async () => {
   const res = renderLayout({ firstComment: true });
   const el = await res.findByTestId('timeline');
-  await waitFor(() => expect(el).toHaveStyle({ top: '0' }));
+  await waitFor(() => expect(el).toHaveClass('top-0'));
 });
 
 it('should call onComment callback', async () => {

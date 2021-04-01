@@ -64,10 +64,9 @@ export default function CommentPopup({
           placeholder={text.placeholder}
           onChange={(event) => setComment(event.target.value)}
           onKeyDown={onKeyDown}
-          className="flex-1 my-4 p-3 bg-theme-float text-theme-label-primary resize-none typo-callout focus-outline placeholder-theme-label-tertiary"
+          className="flex-1 my-4 p-3 bg-theme-float text-theme-label-primary resize-none typo-callout focus-outline placeholder-theme-label-tertiary caret-theme-label-link"
           style={{
             borderRadius: '0.875rem',
-            caretColor: 'var(--theme-label-link)',
           }}
         />
         <Button

@@ -1,34 +1,20 @@
-import React, { ReactElement } from 'react';
-import styled from '@emotion/styled';
-import { typoCallout } from '../../styles/typography';
+import React, { HTMLAttributes, ReactElement } from 'react';
 import Linkify from 'linkifyjs/react';
-import sizeN from '../../macros/sizeN.macro';
-import { css } from '@emotion/react';
+import classed from '../../lib/classed';
+import styles from '../../styles/comments.module.css';
 
-export const CommentPublishDate = styled.time`
-  color: var(--theme-label-tertiary);
-  ${typoCallout}
-`;
+export const CommentPublishDate = classed(
+  'time',
+  'text-theme-label-tertiary typo-callout',
+);
 
-export const commentBoxStyle = css`
-  padding: ${sizeN(3)} ${sizeN(4)};
-  background: var(--theme-background-secondary);
-  border-radius: ${sizeN(2)};
-  white-space: pre-wrap;
-  overflow-wrap: break-word;
-  ${typoCallout}
+export const commentBoxClassNames = `py-3 px-4 bg-theme-bg-secondary rounded-lg whitespace-pre-wrap break-words typo-callout ${styles.commentBox}`;
 
-  a:not(.commentAuthor) {
-    color: var(--theme-label-link);
-    word-break: break-all;
-  }
-`;
+const StyledLinkfy = classed(Linkify, commentBoxClassNames);
 
-const StyledLinkfy = styled(Linkify)`
-  ${commentBoxStyle}
-`;
-
-export const CommentBox = (props?: unknown): ReactElement => (
+export const CommentBox = (
+  props: HTMLAttributes<HTMLDivElement>,
+): ReactElement => (
   <StyledLinkfy
     tagName="div"
     options={{ attributes: { rel: 'noopener nofollow' } }}
