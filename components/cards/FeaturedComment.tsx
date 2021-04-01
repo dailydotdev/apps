@@ -1,6 +1,4 @@
-/** @jsx jsx */
-import { css, jsx } from '@emotion/react';
-import { ReactElement } from 'react';
+import React, { ReactElement } from 'react';
 import { Comment } from '../../graphql/comments';
 import {
   CardHeader,
@@ -9,14 +7,10 @@ import {
 } from './Card';
 import ArrowIcon from '../../icons/arrow.svg';
 import CommentIcon from '../../icons/comment.svg';
-import { typoCallout } from '../../styles/typography';
-import styled from '@emotion/styled';
-import sizeN from '../../macros/sizeN.macro';
-import { multilineTextOverflow } from '../../styles/helpers';
-import rem from '../../macros/rem.macro';
 import Link from 'next/link';
 import Button from '../buttons/Button';
 import { getTooltipProps } from '../../lib/tooltip';
+import classNames from 'classnames';
 
 export type FeaturedCommentProps = {
   featuredComments: Comment[];
@@ -25,27 +19,6 @@ export type FeaturedCommentProps = {
   onCommentClick: (comment: Comment) => unknown;
   className?: string;
 };
-
-const Title = styled.h4`
-  margin: ${sizeN(2)} 0;
-  ${typoCallout}
-`;
-
-const Content = styled.p`
-  margin: 0;
-  padding: 0;
-  flex: 1;
-  color: var(--theme-label-tertiary);
-  ${typoCallout}
-  ${multilineTextOverflow}
-`;
-
-const Divider = styled.div`
-  width: 100%;
-  height: ${rem(1)};
-  margin: ${sizeN(2)} 0;
-  background: var(--theme-divider-tertiary);
-`;
 
 export default function FeaturedComment({
   featuredComments,
@@ -56,27 +29,13 @@ export default function FeaturedComment({
 }: FeaturedCommentProps): ReactElement {
   return (
     <CardTextContainer
-      css={css`
-        position: absolute;
-        left: 0;
-        right: 0;
-        top: 0;
-        bottom: 0;
-        padding: ${sizeN(2)};
-      `}
-      className={className}
+      className={classNames('absolute inset-0 p-2', className)}
     >
       <CardHeader>
         <Button
-          icon={
-            <ArrowIcon
-              css={css`
-                transform: rotate(-90deg);
-              `}
-            />
-          }
+          icon={<ArrowIcon style={{ transform: 'rotate(-90deg)' }} />}
           buttonSize="small"
-          {...getTooltipProps('Back')}
+          {...getTooltipProps('Back', { position: 'down' })}
           onClick={onBack}
           className="btn-tertiary"
         />
@@ -86,9 +45,11 @@ export default function FeaturedComment({
           comment.id,
         )}
       </CardHeader>
-      <Title>{comment.author.name}</Title>
-      <Content>{comment.content}</Content>
-      <Divider />
+      <h4 className="my-2 typo-callout">{comment.author.name}</h4>
+      <p className="m-0 p-0 flex-1 text-theme-label-tertiary typo-callout multi-truncate">
+        {comment.content}
+      </p>
+      <div className="w-full h-px my-2 bg-theme-divider-tertiary" />
       <Link href={comment.permalink} passHref>
         <Button
           as="a"
@@ -96,10 +57,7 @@ export default function FeaturedComment({
           rel="noopener"
           buttonSize="small"
           icon={<CommentIcon />}
-          css={css`
-            align-self: center;
-          `}
-          className="btn-tertiary"
+          className="btn-tertiary self-center"
         >
           View comment
         </Button>
