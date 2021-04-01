@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { HTMLAttributes, ReactElement } from 'react';
 import Linkify from 'linkifyjs/react';
 import classed from '../../lib/classed';
 import styles from '../../styles/comments.module.css';
@@ -12,7 +12,9 @@ export const commentBoxClassNames = `py-3 px-4 bg-theme-bg-secondary rounded-lg 
 
 const StyledLinkfy = classed(Linkify, commentBoxClassNames);
 
-export const CommentBox = (props?: unknown): ReactElement => (
+export const CommentBox = (
+  props: HTMLAttributes<HTMLDivElement>,
+): ReactElement => (
   <StyledLinkfy
     tagName="div"
     options={{ attributes: { rel: 'noopener nofollow' } }}

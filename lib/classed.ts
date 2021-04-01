@@ -1,10 +1,14 @@
 import React, {
+  AnchorHTMLAttributes,
   ClassAttributes,
+  Component,
+  ComponentType,
   ElementType,
   forwardRef,
   ForwardRefExoticComponent,
   FunctionComponent,
   HTMLAttributes,
+  ImgHTMLAttributes,
   InputHTMLAttributes,
   PropsWithoutRef,
   ReactHTML,
@@ -35,6 +39,26 @@ function classed(
     RefAttributes<HTMLTimeElement>
 >;
 
+function classed(
+  type: 'a',
+  ...className: string[]
+): ForwardRefExoticComponent<
+  PropsWithoutRef<
+    AnchorHTMLAttributes<HTMLAnchorElement> & ClassAttributes<HTMLAnchorElement>
+  > &
+    RefAttributes<HTMLAnchorElement>
+>;
+
+function classed(
+  type: 'img',
+  ...className: string[]
+): ForwardRefExoticComponent<
+  PropsWithoutRef<
+    ImgHTMLAttributes<HTMLImageElement> & ClassAttributes<HTMLImageElement>
+  > &
+    RefAttributes<HTMLImageElement>
+>;
+
 function classed<P extends HTMLAttributes<T>, T extends HTMLElement>(
   type: keyof ReactHTML,
   ...className: string[]
@@ -45,12 +69,17 @@ function classed<P extends SVGAttributes<T>, T extends SVGElement>(
   ...className: string[]
 ): ForwardRefExoticComponent<PropsWithoutRef<P> & RefAttributes<T>>;
 
-function classed<P extends Record<string, unknown>>(
+function classed<P extends unknown>(
   type: FunctionComponent<P>,
   ...className: string[]
 ): ForwardRefExoticComponent<
   PropsWithoutRef<P> & RefAttributes<FunctionComponent<P>>
 >;
+
+function classed<P extends unknown>(
+  type: ComponentType<P>,
+  ...className: string[]
+): ForwardRefExoticComponent<PropsWithoutRef<P> & RefAttributes<Component<P>>>;
 
 function classed<T, P extends Record<string, unknown>>(
   type: ElementType,

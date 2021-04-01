@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { FunctionComponent, ReactElement } from 'react';
 import CopyIcon from '../icons/copy.svg';
 import WhatsappIcon from '../icons/whatsapp_color.svg';
 import TwitterIcon from '../icons/twitter_color.svg';
@@ -11,7 +11,7 @@ import {
   getTwitterShareLink,
   getWhatsappShareLink,
 } from '../lib/share';
-import Button from './buttons/Button';
+import Button, { ButtonProps } from './buttons/Button';
 import { trackEvent } from '../lib/analytics';
 import { getTooltipProps } from '../lib/tooltip';
 import styles from '../styles/shareBar.module.css';
@@ -19,7 +19,10 @@ import classNames from 'classnames';
 import classed from '../lib/classed';
 
 const ShareButton = classed(Button, 'my-1');
-const ColorfulShareButton = classed(ShareButton, 'text-white');
+const ColorfulShareButton = (classed(
+  ShareButton,
+  'text-white',
+) as unknown) as FunctionComponent<ButtonProps<'a'>>;
 
 export default function ShareBar({ post }: { post: Post }): ReactElement {
   const href = getShareableLink();
