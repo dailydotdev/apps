@@ -1,13 +1,12 @@
 import React, { ReactElement } from 'react';
-import styled from '@emotion/styled';
 import { Comment } from '../../graphql/comments';
 import { CommentBox, CommentPublishDate } from './common';
 import { commentDateFormat } from '../../lib/dateFormat';
-import sizeN from '../../macros/sizeN.macro';
 import CommentActionButtons from './CommentActionButtons';
 import SubComment from './SubComment';
 import { ProfileImageLink } from '../profile/ProfileImageLink';
 import CommentAuthor from './CommentAuthor';
+import classed from '../../lib/classed';
 
 export interface Props {
   comment: Comment;
@@ -16,27 +15,7 @@ export interface Props {
   onDelete: (comment: Comment, parentId: string | null) => void;
 }
 
-const Container = styled.article`
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  margin-top: ${sizeN(4)};
-`;
-
-const Header = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-const Metadata = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-left: ${sizeN(2)};
-`;
-
-const MainCommentBox = styled(CommentBox)`
-  margin: ${sizeN(2)} 0;
-`;
+const MainCommentBox = classed(CommentBox, 'my-2');
 
 export default function MainComment({
   comment,
@@ -45,16 +24,16 @@ export default function MainComment({
   postAuthorId,
 }: Props): ReactElement {
   return (
-    <Container data-testid="comment">
-      <Header>
+    <article className="flex flex-col items-stretch mt-4" data-testid="comment">
+      <div className="flex items-center">
         <ProfileImageLink user={comment.author} />
-        <Metadata>
+        <div className="flex flex-col ml-2">
           <CommentAuthor postAuthorId={postAuthorId} author={comment.author} />
           <CommentPublishDate dateTime={comment.createdAt}>
             {commentDateFormat(comment.createdAt)}
           </CommentPublishDate>
-        </Metadata>
-      </Header>
+        </div>
+      </div>
       <MainCommentBox>{comment.content}</MainCommentBox>
       <CommentActionButtons
         comment={comment}
@@ -74,6 +53,6 @@ export default function MainComment({
           postAuthorId={postAuthorId}
         />
       ))}
-    </Container>
+    </article>
   );
 }

@@ -1,0 +1,83 @@
+.checkmark {
+  &:before {
+    content: '';
+    position: absolute;
+    left: -9999px;
+    top: -9999px;
+    right: -9999px;
+    bottom: -9999px;
+    width: 2rem;
+    height: 2rem;
+    margin: auto;
+    border-radius: 0.625rem;
+    opacity: 0;
+    transition: background-color 0.1s linear, opacity 0.1s linear;
+    pointer-events: none;
+    z-index: -1;
+  }
+}
+
+.label {
+  &:hover,
+  &:focus-within,
+  &:global(.checked) {
+    color: var(--theme-label-primary);
+
+    & .checkmark {
+      & :global(.icon) {
+        opacity: 1;
+      }
+    }
+  }
+
+  &:hover,
+  &:focus-within {
+    & .checkmark {
+      border-color: var(--theme-label-primary);
+
+      &:before {
+        background: var(--theme-hover);
+        opacity: 1;
+      }
+    }
+  }
+
+  &:active {
+    & .checkmark:before {
+      background: var(--theme-active);
+    }
+  }
+
+  &:global(.checked) {
+    & .checkmark {
+      background: theme('colors.water.40');
+      border-color: transparent;
+    }
+
+    &:hover,
+    &:focus-within {
+      & .checkmark {
+        background: theme('colors.water.20');
+
+        &:before {
+          background: theme('colors.overlay.quaternary.water');
+        }
+      }
+    }
+
+    &:active {
+      & .checkmark:before {
+        background: theme('colors.overlay.tertiary.water');
+      }
+    }
+  }
+}
+
+:global(.light) .label:global(.checked) .checkmark {
+  background: theme('colors.water.60');
+}
+
+:global(.light) .label:global(.checked):hover .checkmark,
+:global(.light) .label:global(.checked):focus-within .checkmark {
+  background: theme('colors.water.80');
+}

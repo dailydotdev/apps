@@ -7,135 +7,9 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import styled from '@emotion/styled';
 import classNames from 'classnames';
 import VIcon from '../../icons/v.svg';
-import sizeN from '../../macros/sizeN.macro';
-import { typoFootnote } from '../../styles/typography';
-import colors, {
-  overlayQuaternary,
-  overlayTertiary,
-} from '../../styles/colors';
-
-const Input = styled.input`
-  position: absolute;
-  opacity: 0;
-  width: 0;
-  height: 0;
-`;
-
-const Checkmark = styled.div`
-  position: relative;
-  display: flex;
-  width: ${sizeN(5)};
-  height: ${sizeN(5)};
-  align-items: center;
-  justify-content: center;
-  border-radius: ${sizeN(1.5)};
-  border: ${sizeN(0.5)} solid var(--theme-divider-primary);
-  margin-right: ${sizeN(3)};
-  z-index: 1;
-
-  .icon {
-    width: 100%;
-    height: 100%;
-    color: var(--theme-label-primary);
-    opacity: 0;
-    transition: opacity 0.1s linear;
-  }
-
-  &:before {
-    content: '';
-    position: absolute;
-    left: -9999px;
-    top: -9999px;
-    right: -9999px;
-    bottom: -9999px;
-    width: ${sizeN(8)};
-    height: ${sizeN(8)};
-    margin: auto;
-    border-radius: ${sizeN(2.5)};
-    opacity: 0;
-    transition: background-color 0.1s linear, opacity 0.1s linear;
-    pointer-events: none;
-    z-index: -1;
-  }
-`;
-
-const Label = styled.label`
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  color: var(--theme-label-tertiary);
-  transition: color 0.1s linear;
-  z-index: 1;
-  cursor: pointer;
-  user-select: none;
-  font-weight: bold;
-  ${typoFootnote}
-
-  &:hover,
-  &:focus-within,
-  &.checked {
-    color: var(--theme-label-primary);
-
-    ${Checkmark} {
-      .icon {
-        opacity: 1;
-      }
-    }
-  }
-
-  &:hover,
-  &:focus-within {
-    ${Checkmark} {
-      border-color: var(--theme-label-primary);
-
-      &:before {
-        background: var(--theme-hover);
-        opacity: 1;
-      }
-    }
-  }
-
-  &:active {
-    ${Checkmark}:before {
-      background: var(--theme-active);
-    }
-  }
-
-  &.checked {
-    ${Checkmark} {
-      background: ${colors.water['40']};
-      border-color: transparent;
-
-      .light & {
-        background: ${colors.water['60']};
-      }
-    }
-
-    &:hover,
-    &:focus-within {
-      ${Checkmark} {
-        background: ${colors.water['20']};
-
-        &:before {
-          background: ${overlayQuaternary('water')};
-        }
-
-        .light & {
-          background: ${colors.water['80']};
-        }
-      }
-    }
-
-    &:active {
-      ${Checkmark}:before {
-        background: ${overlayTertiary('water')};
-      }
-    }
-  }
-`;
+import styles from '../../styles/checkbox.module.css';
 
 export interface CheckboxProps {
   name: string;
@@ -161,19 +35,35 @@ export default forwardRef(function Checkbox(
   };
 
   return (
-    <Label className={classNames(className, { checked: actualChecked })}>
-      <Input
+    <label
+      className={classNames(
+        'relative inline-flex items-center text-theme-label-tertiary z-1 cursor-pointer select-none font-bold typo-footnote',
+        styles.label,
+        className,
+        { checked: actualChecked },
+      )}
+      style={{ transition: 'color 0.1s linear' }}
+    >
+      <input
         type="checkbox"
+        className="absolute w-0 h-0 opacity-0"
         name={name}
         checked={checked}
-        className={className}
         onChange={onChange}
         ref={ref}
       />
-      <Checkmark>
-        <VIcon />
-      </Checkmark>
+      <div
+        className={classNames(
+          'relative flex w-5 h-5 items-center justify-center rounded-md border-2 border-theme-divider-primary mr-3 z-1',
+          styles.checkmark,
+        )}
+      >
+        <VIcon
+          className="icon w-full h-full text-theme-label-primary opacity-0"
+          style={{ transition: 'opacity 0.1s linear' }}
+        />
+      </div>
       {children}
-    </Label>
+    </label>
   );
 });

@@ -1,13 +1,12 @@
 import React, { ReactElement } from 'react';
 import { Comment } from '../../graphql/comments';
-import styled from '@emotion/styled';
-import sizeN from '../../macros/sizeN.macro';
 import { CommentBox, CommentPublishDate } from './common';
 import { commentDateFormat } from '../../lib/dateFormat';
 import CommentActionButtons from './CommentActionButtons';
 import { ProfileImageLink } from '../profile/ProfileImageLink';
 import CommentAuthor from './CommentAuthor';
 import classNames from 'classnames';
+import classed from '../../lib/classed';
 
 export interface Props {
   comment: Comment;
@@ -19,56 +18,7 @@ export interface Props {
   postAuthorId: string | null;
 }
 
-const Container = styled.article`
-  display: flex;
-  align-items: stretch;
-  margin-top: ${sizeN(4)};
-`;
-
-const ProfileContainer = styled.div`
-  position: relative;
-`;
-
-const SmallProfileLink = styled(ProfileImageLink)`
-  width: ${sizeN(8)};
-  height: ${sizeN(8)};
-`;
-
-const ContentContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  flex: 1;
-  margin-left: ${sizeN(2)};
-`;
-
-const Content = styled.div`
-  margin-top: ${sizeN(2)};
-`;
-
-const Timeline = styled.div`
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: -${sizeN(4)};
-  bottom: 0;
-  width: 0.063rem;
-  margin: 0 auto;
-  background: var(--theme-divider-tertiary);
-
-  &.firstComment {
-    top: 0;
-  }
-
-  &.lastComment {
-    height: ${sizeN(4)};
-    bottom: unset;
-  }
-`;
-
-const SubCommentBox = styled(CommentBox)`
-  margin-bottom: ${sizeN(1)};
-`;
+const SubCommentBox = classed(CommentBox, 'mb-1');
 
 export default function SubComment({
   comment,
@@ -80,21 +30,25 @@ export default function SubComment({
   postAuthorId,
 }: Props): ReactElement {
   return (
-    <Container data-testid="subcomment">
-      <ProfileContainer>
-        <Timeline
+    <article className="flex items-stretch mt-4" data-testid="subcomment">
+      <div className="relative">
+        <div
           data-testid="timeline"
-          className={classNames({ firstComment, lastComment })}
+          className={classNames(
+            'absolute inset-x-0 w-px mx-auto bg-theme-divider-tertiary',
+            firstComment ? 'top-0' : '-top-4',
+            lastComment ? 'h-4' : 'bottom-0',
+          )}
         />
-        <SmallProfileLink user={comment.author} />
-      </ProfileContainer>
-      <ContentContainer>
+        <ProfileImageLink className="w-8 h-8" user={comment.author} />
+      </div>
+      <div className="flex flex-col items-stretch flex-1 ml-2">
         <SubCommentBox>
           <CommentAuthor postAuthorId={postAuthorId} author={comment.author} />
           <CommentPublishDate dateTime={comment.createdAt}>
             {commentDateFormat(comment.createdAt)}
           </CommentPublishDate>
-          <Content>{comment.content}</Content>
+          <div className="mt-2">{comment.content}</div>
         </SubCommentBox>
         <CommentActionButtons
           comment={comment}
@@ -102,7 +56,7 @@ export default function SubComment({
           onComment={onComment}
           onDelete={onDelete}
         />
-      </ContentContainer>
-    </Container>
+      </div>
+    </article>
   );
 }

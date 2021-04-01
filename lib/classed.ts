@@ -1,32 +1,44 @@
 import React, {
-  Attributes,
   ClassAttributes,
   ElementType,
-  FunctionComponentElement,
-  ReactElement,
+  forwardRef,
+  ForwardRefExoticComponent,
+  FunctionComponent,
+  HTMLAttributes,
+  InputHTMLAttributes,
+  PropsWithoutRef,
+  ReactHTML,
+  RefAttributes,
 } from 'react';
 import classNames from 'classnames';
 
+function classed(
+  type: 'input',
+  ...className: string[]
+): ForwardRefExoticComponent<
+  PropsWithoutRef<
+    InputHTMLAttributes<HTMLInputElement> & ClassAttributes<HTMLInputElement>
+  > &
+    RefAttributes<HTMLInputElement>
+>;
+
+function classed<P extends HTMLAttributes<T>, T extends HTMLElement>(
+  type: keyof ReactHTML,
+  ...className: string[]
+): ForwardRefExoticComponent<PropsWithoutRef<P> & RefAttributes<T>>;
+
 function classed<P extends Record<string, unknown>>(
+  type: FunctionComponent<P>,
+  ...className: string[]
+): ForwardRefExoticComponent<
+  PropsWithoutRef<P> & RefAttributes<FunctionComponent<P>>
+>;
+
+function classed<T, P extends Record<string, unknown>>(
   type: ElementType,
   ...className: string[]
-): (props?: (Attributes & P) | null) => FunctionComponentElement<P>;
-
-function classed<
-  T extends keyof JSX.IntrinsicElements,
-  P extends JSX.IntrinsicElements[T]
->(
-  type: keyof JSX.IntrinsicElements,
-  ...className: string[]
-): (props?: (ClassAttributes<T> & P) | null) => ReactElement<P, T>;
-
-function classed<P extends Record<string, unknown>>(
-  type: ElementType | keyof JSX.IntrinsicElements,
-  ...className: string[]
-): (
-  props?: (Attributes & P & { className?: string }) | null,
-) => ReactElement<P> {
-  return function Classed(props) {
+): ForwardRefExoticComponent<PropsWithoutRef<P> & RefAttributes<T>> {
+  return forwardRef<T, P>(function Classed(props, ref) {
     return React.createElement(type, {
       ...props,
       className: classNames(
@@ -34,8 +46,9 @@ function classed<P extends Record<string, unknown>>(
         props?.className,
         ...className,
       ),
+      ref,
     });
-  };
+  });
 }
 
 export default classed;

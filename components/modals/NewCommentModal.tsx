@@ -16,7 +16,7 @@ import { Props as ModalProps } from './StyledModal';
 import sizeN from '../../macros/sizeN.macro';
 import AuthContext from '../../contexts/AuthContext';
 import { RoundedImage, SmallRoundedImage } from '../utilities';
-import { commentBoxStyle, CommentPublishDate } from '../comments/common';
+import { commentBoxClassNames, CommentPublishDate } from '../comments/common';
 import { commentDateFormat } from '../../lib/dateFormat';
 import {
   typoCallout,
@@ -37,6 +37,7 @@ import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import { trackEvent } from '../../lib/analytics';
 import Button from '../buttons/Button';
+import classed from '../../lib/classed';
 
 const DiscardCommentModal = dynamic(() => import('./DiscardCommentModal'));
 
@@ -50,12 +51,14 @@ export interface NewCommentModalProps extends ModalProps {
   onComment?: (newComment: Comment, parentId: string | null) => void;
 }
 
-const ParentComment = styled.article`
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  ${commentBoxStyle}
-`;
+const ParentComment = classed(
+  styled.article`
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  `,
+  commentBoxClassNames,
+);
 
 const ParentCommentHeader = styled.header`
   display: flex;
