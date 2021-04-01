@@ -15,8 +15,6 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 
-const a: JSX.IntrinsicElements = null;
-
 function classed(
   type: 'input',
   ...className: string[]
