@@ -8,9 +8,14 @@ import React, {
   InputHTMLAttributes,
   PropsWithoutRef,
   ReactHTML,
+  ReactSVG,
   RefAttributes,
+  SVGAttributes,
+  TimeHTMLAttributes,
 } from 'react';
 import classNames from 'classnames';
+
+const a: JSX.IntrinsicElements = null;
 
 function classed(
   type: 'input',
@@ -22,8 +27,23 @@ function classed(
     RefAttributes<HTMLInputElement>
 >;
 
+function classed(
+  type: 'time',
+  ...className: string[]
+): ForwardRefExoticComponent<
+  PropsWithoutRef<
+    TimeHTMLAttributes<HTMLTimeElement> & ClassAttributes<HTMLTimeElement>
+  > &
+    RefAttributes<HTMLTimeElement>
+>;
+
 function classed<P extends HTMLAttributes<T>, T extends HTMLElement>(
   type: keyof ReactHTML,
+  ...className: string[]
+): ForwardRefExoticComponent<PropsWithoutRef<P> & RefAttributes<T>>;
+
+function classed<P extends SVGAttributes<T>, T extends SVGElement>(
+  type: keyof ReactSVG,
   ...className: string[]
 ): ForwardRefExoticComponent<PropsWithoutRef<P> & RefAttributes<T>>;
 
