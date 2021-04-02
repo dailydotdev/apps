@@ -51,7 +51,7 @@
     "@next/bundle-analyzer": "^10.1.2",
     "@svgr/cli": "^5.5.0",
     "@svgr/webpack": "^5.5.0",
-    "@tailwindcss/jit": "^0.1.17",
+    "@tailwindcss/jit": "^0.1.18",
     "@testing-library/jest-dom": "^5.11.10",
     "@testing-library/preact": "^2.0.1",
     "@types/classnames": "^2.2.11",
