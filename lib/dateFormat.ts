@@ -52,13 +52,13 @@ export function commentDateFormat(
   if (dt <= oneYear) {
     return date.toLocaleString('en-US', {
       month: 'short',
-      day: '2-digit',
+      day: 'numeric',
     });
   }
 
   return date.toLocaleString('en-US', {
     month: 'short',
-    day: '2-digit',
+    day: 'numeric',
     year: 'numeric',
   });
 }

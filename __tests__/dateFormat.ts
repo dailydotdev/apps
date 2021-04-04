@@ -55,14 +55,14 @@ describe('commentDateFormat', () => {
   });
 
   it('should return formatted date when more than 1 day without the year', () => {
-    const expected = 'Feb 06';
+    const expected = 'Feb 6';
     const date = new Date(2020, 1, 6, 6, 37, 22);
     const actual = commentDateFormat(date.toISOString(), now);
     expect(actual).toEqual(expected);
   });
 
   it('should return formatted date when more than one year', () => {
-    const expected = 'Oct 04, 2017';
+    const expected = 'Oct 4, 2017';
     const date = new Date(2017, 9, 4, 12, 0, 0);
     const actual = commentDateFormat(date.toISOString(), now);
     expect(actual).toEqual(expected);
