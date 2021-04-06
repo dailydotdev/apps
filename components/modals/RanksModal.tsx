@@ -1,5 +1,5 @@
 import React, { CSSProperties, ReactElement } from 'react';
-import { ModalCloseButton, Props as ModalProps } from './StyledModal';
+import { ModalCloseButton, ModalProps } from './StyledModal';
 import ResponsiveModal, { responsiveModalBreakpoint } from './ResponsiveModal';
 import RankProgress from '../RankProgress';
 import { headerRankHeight } from '../../styles/sizes';

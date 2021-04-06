@@ -1,10 +1,6 @@
 /** @jsx jsx */
 import { jsx, css } from '@emotion/react';
-import {
-  modalBorderAndRadius,
-  StyledModal,
-  Props as ModalProps,
-} from './StyledModal';
+import { modalBorderAndRadius, StyledModal, ModalProps } from './StyledModal';
 import { mobileL } from '../../styles/media';
 import sizeN from '../../macros/sizeN.macro';
 import { ReactElement } from 'react';

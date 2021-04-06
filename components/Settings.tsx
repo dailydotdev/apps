@@ -10,7 +10,11 @@ import Switch from './fields/Switch';
 import SettingsContext from '../contexts/SettingsContext';
 import classNames from 'classnames';
 
-const densities = ['eco', 'roomy', 'cozy'];
+const densities = [
+  { label: 'Eco', value: 'eco' },
+  { label: 'Roomy', value: 'roomy' },
+  { label: 'Cozy', value: 'cozy' },
+];
 
 export default function Settings({
   panelMode = false,

@@ -1,10 +1,10 @@
 import DeleteCommentModal, {
   Props,
-} from '../components/modals/DeleteCommentModal';
+} from '../../components/modals/DeleteCommentModal';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import React from 'react';
-import { DELETE_COMMENT_MUTATION } from '../graphql/comments';
-import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
+import { DELETE_COMMENT_MUTATION } from '../../graphql/comments';
+import { MockedGraphQLResponse, mockGraphQL } from '../helpers/graphql';
 import { QueryClient, QueryClientProvider } from 'react-query';
 
 const onRequestClose = jest.fn();
@@ -44,7 +44,7 @@ it('should close modal on cancel', async () => {
 });
 
 it('should send deleteComment mutation', async () => {
-  let mutationCalled = true;
+  let mutationCalled = false;
   renderComponent({}, [
     {
       request: {

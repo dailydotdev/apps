@@ -1,5 +1,5 @@
 import React, { ReactElement, useContext, useState } from 'react';
-import { Props as ModalProps } from './StyledModal';
+import { ModalProps } from './StyledModal';
 import ResponsiveModal, { responsiveModalBreakpoint } from './ResponsiveModal';
 import styled from '@emotion/styled';
 import sizeN from '../../macros/sizeN.macro';

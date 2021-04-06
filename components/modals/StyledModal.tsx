@@ -11,7 +11,7 @@ import { typoCallout, typoTitle3 } from '../../styles/typography';
 import Button, { ButtonProps } from '../buttons/Button';
 import XIcon from '../../icons/x.svg';
 
-export interface Props extends Modal.Props {
+export interface ModalProps extends Modal.Props {
   children?: ReactNode;
 }
 

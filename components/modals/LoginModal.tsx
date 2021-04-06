@@ -3,7 +3,7 @@ import styled from '@emotion/styled';
 import sizeN from '../../macros/sizeN.macro';
 import DailyDevLogo from '../svg/DailyDevLogo';
 import { typoCallout } from '../../styles/typography';
-import { StyledModal, ModalCloseButton, Props } from './StyledModal';
+import { StyledModal, ModalCloseButton, ModalProps } from './StyledModal';
 import LoginButtons from '../LoginButtons';
 
 const MyModal = styled(StyledModal)`
@@ -28,7 +28,7 @@ export enum LoginModalMode {
   ContentQuality,
 }
 
-export type LoginModalProps = { mode: LoginModalMode } & Props;
+export type LoginModalProps = { mode: LoginModalMode } & ModalProps;
 
 export default function LoginModal({
   mode = LoginModalMode.Default,

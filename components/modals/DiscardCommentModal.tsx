@@ -4,7 +4,7 @@ import {
   ConfirmationHeading,
   ConfirmationDescription,
   ConfirmationButtons,
-  Props as ModalProps,
+  ModalProps,
 } from './StyledModal';
 import Button from '../buttons/Button';
 

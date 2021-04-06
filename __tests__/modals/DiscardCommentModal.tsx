@@ -2,7 +2,7 @@ import React from 'react';
 import { render, RenderResult, screen } from '@testing-library/preact';
 import DiscardCommentModal, {
   Props,
-} from '../components/modals/DiscardCommentModal';
+} from '../../components/modals/DiscardCommentModal';
 
 const onRequestClose = jest.fn();
 const onDeleteComment = jest.fn();

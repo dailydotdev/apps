@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import ResponsiveModal from './ResponsiveModal';
 import { mobileL } from '../../styles/media';
-import { Props as ModalProps } from './StyledModal';
+import { ModalProps } from './StyledModal';
 import React, { ReactElement, useState } from 'react';
 import TextField from '../fields/TextField';
 import sizeN from '../../macros/sizeN.macro';
