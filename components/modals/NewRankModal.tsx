@@ -7,7 +7,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { ModalCloseButton, Props as ModalProps } from './StyledModal';
+import { ModalCloseButton, ModalProps } from './StyledModal';
 import ResponsiveModal, { responsiveModalBreakpoint } from './ResponsiveModal';
 import RankProgress from '../RankProgress';
 import sizeN from '../../macros/sizeN.macro';

@@ -1,9 +1,13 @@
 import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
-import SearchField, { Props } from '../../components/fields/SearchField';
+import SearchField, {
+  SearchFieldProps,
+} from '../../components/fields/SearchField';
 
-const renderComponent = (props: Partial<Props> = {}): RenderResult => {
-  const defaultProps: Props = {
+const renderComponent = (
+  props: Partial<SearchFieldProps> = {},
+): RenderResult => {
+  const defaultProps: SearchFieldProps = {
     inputId: 'name',
     name: 'name',
   };

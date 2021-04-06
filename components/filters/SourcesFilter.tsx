@@ -33,6 +33,12 @@ import { Source } from '../../graphql/sources';
 import { getTooltipProps } from '../../lib/tooltip';
 import LazyImage from '../LazyImage';
 import { trackEvent } from '../../lib/analytics';
+import Button from '../buttons/Button';
+import PlusIcon from '../../icons/plus.svg';
+import { LoginModalMode } from '../modals/LoginModal';
+import dynamic from 'next/dynamic';
+
+const NewSourceModal = dynamic(() => import('../modals/NewSourceModal'));
 
 const SourceItem = ({
   source,
@@ -81,9 +87,19 @@ export default function SourcesFilter({
   const { user, showLogin, tokenRefreshed } = useContext(AuthContext);
   const [followedSources, setFollowedSources] = useState<Source[]>([]);
   const [moreSources, setMoreSources] = useState<Source[]>([]);
+  const [showNewSourceModal, setShowNewSourceModal] = useState(false);
   const queryClient = useQueryClient();
 
   const { followSource, unfollowSource } = useMutateFilters(user);
+
+  const onSuggestSource = (): void => {
+    if (!user) {
+      showLogin(LoginModalMode.ContentQuality);
+      return;
+    }
+
+    setShowNewSourceModal(true);
+  };
 
   const onFollowSource = async (source: Source): Promise<void> => {
     if (!user) {
@@ -171,6 +187,13 @@ export default function SourcesFilter({
         <FiltersPlaceholder />
       ) : (
         <>
+          <Button
+            className="btn-secondary small mt-6"
+            icon={<PlusIcon />}
+            onClick={onSuggestSource}
+          >
+            Suggest new source
+          </Button>
           <FiltersSection>
             <FiltersHeadline className="text-theme-label-primary">
               My sources
@@ -205,6 +228,12 @@ export default function SourcesFilter({
             </FiltersSection>
           )}
         </>
+      )}
+      {showNewSourceModal && (
+        <NewSourceModal
+          isOpen={showNewSourceModal}
+          onRequestClose={() => setShowNewSourceModal(false)}
+        />
       )}
     </FiltersContainer>
   );

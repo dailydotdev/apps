@@ -2,14 +2,14 @@ import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import NewCommentModal, {
   NewCommentModalProps,
-} from '../components/modals/NewCommentModal';
-import { LoggedUser } from '../lib/user';
-import AuthContext from '../contexts/AuthContext';
+} from '../../components/modals/NewCommentModal';
+import { LoggedUser } from '../../lib/user';
+import AuthContext from '../../contexts/AuthContext';
 import {
   COMMENT_ON_COMMENT_MUTATION,
   COMMENT_ON_POST_MUTATION,
-} from '../graphql/comments';
-import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
+} from '../../graphql/comments';
+import { MockedGraphQLResponse, mockGraphQL } from '../helpers/graphql';
 import nock from 'nock';
 import { QueryClient, QueryClientProvider } from 'react-query';
 
@@ -121,7 +121,7 @@ it('should enable submit button when no input', async () => {
 });
 
 it('should send commentOnPost mutation', async () => {
-  let mutationCalled = true;
+  let mutationCalled = false;
   const newComment = {
     __typename: 'Comment',
     id: 'new',
@@ -156,7 +156,7 @@ it('should send commentOnPost mutation', async () => {
 });
 
 it('should send commentOnComment mutation', async () => {
-  let mutationCalled = true;
+  let mutationCalled = false;
   const newComment = {
     __typename: 'Comment',
     id: 'new',
@@ -191,7 +191,7 @@ it('should send commentOnComment mutation', async () => {
 });
 
 it('should show alert in case of an error', async () => {
-  let mutationCalled = true;
+  let mutationCalled = false;
   renderComponent({ commentId: 'c1' }, [
     {
       request: {

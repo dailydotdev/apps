@@ -54,6 +54,7 @@
     "@tailwindcss/jit": "^0.1.18",
     "@testing-library/jest-dom": "^5.11.10",
     "@testing-library/preact": "^2.0.1",
+    "@testing-library/user-event": "^13.1.1",
     "@types/classnames": "^2.2.11",
     "@types/dompurify": "^2.2.1",
     "@types/jest": "^26.0.22",

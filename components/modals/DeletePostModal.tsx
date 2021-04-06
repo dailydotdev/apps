@@ -4,7 +4,7 @@ import {
   ConfirmationHeading,
   ConfirmationDescription,
   ConfirmationButtons,
-  Props as ModalProps,
+  ModalProps,
 } from './StyledModal';
 import { useMutation } from 'react-query';
 import { DELETE_POST_MUTATION, EmptyResponse } from '../../graphql/posts';

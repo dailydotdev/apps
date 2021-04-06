@@ -88,7 +88,7 @@ it('should show the number of occurrences', async () => {
 });
 
 it('should send allowKeyword mutation', async () => {
-  let mutationCalled = true;
+  let mutationCalled = false;
   renderComponent([
     createFeedMock(),
     {
@@ -114,7 +114,7 @@ it('should send allowKeyword mutation', async () => {
 });
 
 it('should send denyKeyword mutation', async () => {
-  let mutationCalled = true;
+  let mutationCalled = false;
   renderComponent([
     createFeedMock(),
     {

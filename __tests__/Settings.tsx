@@ -78,7 +78,7 @@ it('should fetch remote settings', async () => {
   const radio = await screen.findAllByRole('radio');
   await waitFor(() =>
     expect(
-      radio.find((el) => queryByText(el.parentElement, 'roomy')),
+      radio.find((el) => queryByText(el.parentElement, 'Roomy')),
     ).toBeChecked(),
   );
 
@@ -138,7 +138,7 @@ const testSettingsMutation = async (
 it('should mutate density setting', () =>
   testSettingsMutation({ spaciness: 'cozy' }, async () => {
     const radio = await screen.findAllByRole('radio');
-    const cozy = radio.find((el) => queryByText(el.parentElement, 'cozy'));
+    const cozy = radio.find((el) => queryByText(el.parentElement, 'Cozy'));
     fireEvent.change(cozy);
   }));
 

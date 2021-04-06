@@ -19,15 +19,10 @@ const generateColors = (e, colors, prefix) =>
     };
   }, {});
 
-module.exports = plugin.withOptions(
-  ({ className = 'caret' } = {}) => {
-    return ({ e, addUtilities, theme, variants }) => {
-      const colors = theme('colors');
-      const caretColors = generateColors(e, colors, `.${className}`);
-      addUtilities(caretColors, variants('caretColor'));
-    };
-  },
-  () => ({
-    variants: { caretColor: ['dark', 'active'] },
-  }),
-);
+module.exports = plugin.withOptions(({ className = 'caret' } = {}) => {
+  return ({ e, addUtilities, theme, variants }) => {
+    const colors = theme('colors');
+    const caretColors = generateColors(e, colors, `.${className}`);
+    addUtilities(caretColors, variants('caretColor'));
+  };
+});

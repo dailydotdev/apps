@@ -40,7 +40,7 @@ it('should close modal on cancel', async () => {
 });
 
 it('should send deletePost mutation', async () => {
-  let mutationCalled = true;
+  let mutationCalled = false;
   renderComponent({}, [
     {
       request: {

@@ -12,7 +12,7 @@ import React, {
 import dynamic from 'next/dynamic';
 import styled from '@emotion/styled';
 import cloneDeep from 'lodash.clonedeep';
-import { Props as ModalProps } from './StyledModal';
+import { ModalProps } from './StyledModal';
 import sizeN from '../../macros/sizeN.macro';
 import AuthContext from '../../contexts/AuthContext';
 import { RoundedImage, SmallRoundedImage } from '../utilities';

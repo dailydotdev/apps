@@ -1,12 +1,12 @@
 import React from 'react';
-import { LoggedUser, updateProfile } from '../lib/user';
-import AccountDetailsModal from '../components/modals/AccountDetailsModal';
+import { LoggedUser, updateProfile } from '../../lib/user';
+import AccountDetailsModal from '../../components/modals/AccountDetailsModal';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
-import AuthContext from '../contexts/AuthContext';
+import AuthContext from '../../contexts/AuthContext';
 import { mocked } from 'ts-jest/utils';
 
-jest.mock('../lib/user', () => ({
-  ...jest.requireActual('../lib/user'),
+jest.mock('../../lib/user', () => ({
+  ...jest.requireActual('../../lib/user'),
   updateProfile: jest.fn(),
 }));
 
