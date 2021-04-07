@@ -35,6 +35,7 @@ import { COMMENT_ON_POST_MUTATION } from '../graphql/comments';
 import SettingsContext, {
   SettingsContextData,
 } from '../contexts/SettingsContext';
+import OnboardingContext from '../contexts/OnboardingContext';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
@@ -110,9 +111,20 @@ const renderComponent = (
           tokenRefreshed: true,
         }}
       >
-        <SettingsContext.Provider value={settingsContext}>
-          <Feed query={ANONYMOUS_FEED_QUERY} />
-        </SettingsContext.Provider>
+        <OnboardingContext.Provider
+          value={{
+            showWelcome: false,
+            onboardingReady: true,
+            setShowWelcome: jest.fn(),
+            trackEngagement: jest.fn(),
+            closeReferral: jest.fn(),
+            showReferral: false,
+          }}
+        >
+          <SettingsContext.Provider value={settingsContext}>
+            <Feed query={ANONYMOUS_FEED_QUERY} />
+          </SettingsContext.Provider>
+        </OnboardingContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
   );

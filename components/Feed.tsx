@@ -30,6 +30,9 @@ import useUpvotePost from '../hooks/useUpvotePost';
 import useBookmarkPost from '../hooks/useBookmarkPost';
 import { Item, useContextMenu } from 'react-contexify';
 import useReportPost from '../hooks/useReportPost';
+import OnboardingContext, {
+  EngagementAction,
+} from '../contexts/OnboardingContext';
 
 const CommentPopup = dynamic(() => import('./cards/CommentPopup'));
 
@@ -71,6 +74,7 @@ export default function Feed<T>({
 }: FeedProps<T>): ReactElement {
   const currentSettings = useContext(FeedContext);
   const { user, showLogin } = useContext(AuthContext);
+  const { trackEngagement } = useContext(OnboardingContext);
   const { openNewTab, showOnlyUnreadPosts, spaciness } = useContext(
     SettingsContext,
   );
@@ -190,7 +194,8 @@ export default function Feed<T>({
     if (inView && !isLoading && canFetchMore && !disableFetching) {
       // Disable fetching for a short time to prevent multi-fetching
       setDisableFetching(true);
-      fetchPage().then(() => {
+      fetchPage().then(async () => {
+        await trackEngagement(EngagementAction.Scroll);
         setTimeout(() => setDisableFetching(false), 100);
       });
     }
@@ -239,13 +244,14 @@ export default function Feed<T>({
       label: bookmarked ? 'Add' : 'Remove',
     });
     if (bookmarked) {
+      await trackEngagement(EngagementAction.Bookmark);
       await bookmark({ id: post.id, index });
     } else {
       await removeBookmark({ id: post.id, index });
     }
   };
 
-  const onPostClick = (post: Post, index: number): void => {
+  const onPostClick = async (post: Post, index: number): Promise<void> => {
     trackEvent({
       category: 'Post',
       action: 'Click',
@@ -255,6 +261,7 @@ export default function Feed<T>({
       incrementReadingRank();
     }
     updatePost(index, { ...post, read: true });
+    await trackEngagement(EngagementAction.Post_Click);
   };
 
   const onShare = async (post: Post): Promise<void> => {

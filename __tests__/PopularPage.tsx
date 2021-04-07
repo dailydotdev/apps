@@ -80,6 +80,9 @@ const renderComponent = (
               showWelcome,
               onboardingReady: true,
               setShowWelcome: jest.fn(),
+              trackEngagement: jest.fn(),
+              closeReferral: jest.fn(),
+              showReferral: false,
             }}
           >
             {Popular.getLayout(<Popular />, {}, Popular.layoutProps)}

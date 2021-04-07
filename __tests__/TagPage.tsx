@@ -22,6 +22,7 @@ import { getTagsSettingsQueryKey } from '../hooks/useMutateFilters';
 import SettingsContext, {
   SettingsContextData,
 } from '../contexts/SettingsContext';
+import OnboardingContext from '../contexts/OnboardingContext';
 
 const showLogin = jest.fn();
 
@@ -104,9 +105,20 @@ const renderComponent = (
           tokenRefreshed: true,
         }}
       >
-        <SettingsContext.Provider value={settingsContext}>
-          <TagPage tag="react" />
-        </SettingsContext.Provider>
+        <OnboardingContext.Provider
+          value={{
+            showWelcome: false,
+            onboardingReady: true,
+            setShowWelcome: jest.fn(),
+            trackEngagement: jest.fn(),
+            closeReferral: jest.fn(),
+            showReferral: false,
+          }}
+        >
+          <SettingsContext.Provider value={settingsContext}>
+            <TagPage tag="react" />
+          </SettingsContext.Provider>
+        </OnboardingContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
   );

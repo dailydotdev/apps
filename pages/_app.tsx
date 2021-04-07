@@ -51,6 +51,9 @@ const LoginModal = dynamic(
     ),
 );
 const CookieBanner = dynamic(() => import('../components/CookieBanner'));
+const HelpUsGrowModal = dynamic(
+  () => import('../components/modals/HelpUsGrowModal'),
+);
 
 Modal.setAppElement('#__next');
 Modal.defaultStyles = {};
@@ -209,6 +212,12 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
                   />
                 )}
               {showCookie && <CookieBanner onAccepted={acceptCookies} />}
+              {onboardingContext.showReferral && (
+                <HelpUsGrowModal
+                  isOpen={true}
+                  onRequestClose={onboardingContext.closeReferral}
+                />
+              )}
             </OnboardingContext.Provider>
           </SettingsContext.Provider>
         </SubscriptionContext.Provider>
