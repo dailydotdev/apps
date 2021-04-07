@@ -5,6 +5,7 @@ export default function usePersistentState<T>(
   key: string,
   initialValue: T,
   valueWhenCacheEmpty?: T,
+  persistIfEmpty?: boolean,
 ): [T, (value: T) => Promise<void>, boolean] {
   const [value, setValue] = useState(initialValue);
   const [loaded, setLoaded] = useState(false);
@@ -18,11 +19,15 @@ export default function usePersistentState<T>(
   };
 
   useEffect(() => {
-    getCache<T>(key).then((cachedValue) => {
+    getCache<T>(key).then(async (cachedValue) => {
       if (cachedValue !== undefined) {
         setValue(cachedValue);
       } else if (valueWhenCacheEmpty !== undefined) {
-        setValue(valueWhenCacheEmpty);
+        if (persistIfEmpty) {
+          await setValueAndPersist(valueWhenCacheEmpty);
+        } else {
+          setValue(valueWhenCacheEmpty);
+        }
       }
       setLoaded(true);
     });

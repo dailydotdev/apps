@@ -79,6 +79,9 @@ const renderComponent = (
               showWelcome: false,
               onboardingReady: true,
               setShowWelcome: jest.fn(),
+              trackEngagement: jest.fn(),
+              closeReferral: jest.fn(),
+              showReferral: false,
             }}
           >
             {Discussed.getLayout(<Discussed />, {}, Discussed.layoutProps)}

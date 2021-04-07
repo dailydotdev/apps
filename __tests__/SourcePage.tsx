@@ -23,6 +23,7 @@ import {
   SOURCES_SETTINGS_QUERY,
 } from '../graphql/feedSettings';
 import { getSourcesSettingsQueryKey } from '../hooks/useMutateFilters';
+import OnboardingContext from '../contexts/OnboardingContext';
 
 const showLogin = jest.fn();
 
@@ -113,9 +114,20 @@ const renderComponent = (
           tokenRefreshed: true,
         }}
       >
-        <SettingsContext.Provider value={settingsContext}>
-          <SourcePage source={source} />
-        </SettingsContext.Provider>
+        <OnboardingContext.Provider
+          value={{
+            showWelcome: false,
+            onboardingReady: true,
+            setShowWelcome: jest.fn(),
+            trackEngagement: jest.fn(),
+            closeReferral: jest.fn(),
+            showReferral: false,
+          }}
+        >
+          <SettingsContext.Provider value={settingsContext}>
+            <SourcePage source={source} />
+          </SettingsContext.Provider>
+        </OnboardingContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
   );
