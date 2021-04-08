@@ -47,12 +47,16 @@ export default function Sidebar(): ReactElement {
       </aside>
       <button
         className={classNames(
-          'flex w-12 h-14 items-center mt-24 pl-3 bg-theme-bg-primary border border-l-0 rounded-r-2xl cursor-pointer focus-outline hover:text-theme-label-primary',
+          'flex w-12 h-14 items-center pl-3 bg-theme-bg-primary border border-l-0 rounded-r-2xl cursor-pointer focus-outline hover:text-theme-label-primary',
           opened
             ? 'text-theme-label-primary border-theme-divider-primary'
             : 'text-theme-label-tertiary border-theme-divider-quaternary',
         )}
-        style={{ fontSize: '1.75rem', pointerEvents: 'all' }}
+        style={{
+          fontSize: '1.75rem',
+          pointerEvents: 'all',
+          marginTop: '6.375rem',
+        }}
         {...getTooltipProps('Open sidebar', { position: 'right' })}
         onClick={() => setOpened(!opened)}
       >

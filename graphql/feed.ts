@@ -98,8 +98,9 @@ export const MOST_UPVOTED_FEED_QUERY = gql`
     $loggedIn: Boolean! = false
     $first: Int
     $after: String
+    $period: Int
   ) {
-    page: mostUpvotedFeed(first: $first, after: $after) {
+    page: mostUpvotedFeed(first: $first, after: $after, period: $period) {
       ...FeedPostConnection
     }
   }

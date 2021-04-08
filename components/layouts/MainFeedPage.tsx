@@ -29,6 +29,8 @@ import { SEARCH_POSTS_QUERY } from '../../graphql/feed';
 import Button from '../buttons/Button';
 import utilitiesStyles from '../../styles/utilities.module.css';
 import styles from '../../styles/mainFeed.module.css';
+import Dropdown, { DropdownProps } from '../dropdown/Dropdown';
+import CalendarIcon from '../../icons/calendar.svg';
 
 const PostsSearch = dynamic(
   () => import(/* webpackChunkName: "search" */ '../PostsSearch'),
@@ -83,6 +85,13 @@ const getQueryBasedOnLogin = (
   return null;
 };
 
+const periods = [
+  { value: 7, text: 'Last week' },
+  { value: 30, text: 'Last month' },
+  { value: 365, text: 'Last year' },
+];
+const periodTexts = periods.map((period) => period.text);
+
 export default function MainFeedPage<T>({
   query,
   queryIfLogged,
@@ -101,6 +110,7 @@ export default function MainFeedPage<T>({
   const [loadedTagsSettings, setLoadedTagsSettings] = useState(false);
   const [loadedSourcesSettings, setLoadedSourcesSettings] = useState(false);
   const [feedDeps, setFeedDeps] = useState<DependencyList>([0]);
+  const [selectedPeriod, setSelectedPeriod] = useState(0);
 
   const tagsQueryKey = getTagsSettingsQueryKey(user);
   const { data: tagsSettings } = useQuery<FeedSettingsData>(
@@ -139,6 +149,7 @@ export default function MainFeedPage<T>({
   }, [sourcesSettings]);
 
   const isSearch = '/search' === router?.pathname;
+  const isUpvoted = '/upvoted' === router?.pathname;
 
   const feedProps = useMemo<FeedProps<unknown>>(() => {
     if (isSearch && 'q' in router.query) {
@@ -150,13 +161,27 @@ export default function MainFeedPage<T>({
     } else {
       return {
         query: finalQuery,
-        variables,
+        variables: isUpvoted
+          ? { ...variables, period: periods[selectedPeriod].value }
+          : variables,
         dep: feedDeps,
       };
     }
   }, [isSearch, router.query, finalQuery, variables, feedDeps]);
 
   const tabClassNames = isSearch ? 'btn-tertiary invisible' : 'btn-tertiary';
+  const periodDropdownProps: DropdownProps = {
+    style: { width: '11rem' },
+    compact: true,
+    icon: <CalendarIcon />,
+    selectedIndex: selectedPeriod,
+    options: periodTexts,
+    onChange: (value, index) => {
+      setSelectedPeriod(index);
+      setFeedDeps([feedDeps[0] + 1]);
+    },
+  };
+
   return (
     <FeedPage
       className={classNames({
@@ -172,7 +197,7 @@ export default function MainFeedPage<T>({
           you’ll ever need. Ready?
         </div>
       )}
-      <nav className="relative h-10 flex self-stretch items-center mb-6 overflow-x-auto no-scrollbar">
+      <nav className="relative h-11 flex self-stretch items-center mb-6 overflow-x-auto no-scrollbar">
         <Link href="/search" passHref prefetch={false}>
           <Button
             tag="a"
@@ -197,8 +222,17 @@ export default function MainFeedPage<T>({
             </Button>
           </Link>
         ))}
+        {isUpvoted && (
+          <Dropdown
+            className="hidden laptop:block ml-auto mr-px"
+            {...periodDropdownProps}
+          />
+        )}
         {isSearch && <PostsSearch />}
       </nav>
+      {isUpvoted && (
+        <Dropdown className="laptop:hidden mb-6" {...periodDropdownProps} />
+      )}
       <Feed {...feedProps} />
       {children}
     </FeedPage>

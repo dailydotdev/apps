@@ -1,0 +1,19 @@
+.dropdown {
+  & button {
+    & :global(.icon) {
+      font-size: 1.5rem;
+      margin-right: 0.5rem;
+    }
+
+    &:focus, &[aria-expanded="true"] {
+      color: var(--theme-label-primary);
+      background: transparent;
+      outline: none;
+      box-shadow: 0 0 0 0.0625rem var(--theme-label-primary);
+
+      & .chevron {
+        color: var(--theme-label-primary);
+      }
+    }
+  }
+}
