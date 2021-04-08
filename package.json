@@ -17,7 +17,7 @@
     "@types/google.analytics": "0.0.41",
     "balloon-css": "^1.2.0",
     "classnames": "^2.3.1",
-    "date-fns": "^2.19.0",
+    "date-fns": "^2.20.0",
     "dompurify": "^2.2.7",
     "focus-visible": "^5.2.0",
     "graphql": "^15.5.0",
