@@ -63,7 +63,8 @@ export default function FooterNavBar(): ReactElement {
           {!tab.requiresLogin || user ? (
             <Link href={tab.path} prefetch={false} passHref>
               <Button
-                className="btn-tertiary w-full"
+                className="btn-tertiary"
+                style={{ width: '100%' }}
                 buttonSize="large"
                 tag="a"
                 icon={tab.icon}
@@ -84,7 +85,7 @@ export default function FooterNavBar(): ReactElement {
             {selectedTab === index && (
               <ActiveTabIndicator
                 className="w-12"
-                style={{ top: '-0.3125rem' }}
+                style={{ top: '-0.125rem' }}
               />
             )}
           </Flipped>
