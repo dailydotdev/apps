@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@emotion/react": "^11.1.5",
-    "@emotion/styled": "^11.1.5",
+    "@emotion/styled": "^11.3.0",
     "@types/google.analytics": "0.0.41",
     "balloon-css": "^1.2.0",
     "classnames": "^2.3.1",
