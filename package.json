@@ -44,7 +44,7 @@
     "subscriptions-transport-ws": "^0.9.18"
   },
   "devDependencies": {
-    "@emotion/babel-plugin": "^11.2.0",
+    "@emotion/babel-plugin": "^11.3.0",
     "@emotion/eslint-plugin": "^11.2.0",
     "@emotion/jest": "^11.3.0",
     "@next/bundle-analyzer": "^10.1.3",
