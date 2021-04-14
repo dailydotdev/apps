@@ -39,7 +39,7 @@
     "react-flip-toolkit": "^7.0.13",
     "react-intersection-observer": "^8.31.0",
     "react-modal": "^3.12.1",
-    "react-query": "^3.13.5",
+    "react-query": "^3.13.7",
     "react-transition-group": "^4.4.1",
     "subscriptions-transport-ws": "^0.9.18"
   },
