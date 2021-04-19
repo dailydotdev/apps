@@ -1,3 +1,5 @@
+import { AmplitudeClient } from 'amplitude-js';
+
 declare global {
   interface Window {
     GoogleAnalyticsObject: string;
@@ -28,6 +30,11 @@ export const trackPageView = (url: string): void => {
   const page = `/web${url}`;
   window.ga?.('set', 'page', page);
   window.ga?.('send', 'pageview');
+};
+
+export const getAmplitudeClient = async (): Promise<AmplitudeClient> => {
+  const amp = await import('amplitude-js');
+  return amp.getInstance();
 };
 
 export interface EventArgs {

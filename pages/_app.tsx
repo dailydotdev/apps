@@ -27,11 +27,7 @@ import { useCookieBanner } from '../hooks/useCookieBanner';
 import useLoggedUser from '../hooks/useLoggedUser';
 import { LoginModalMode } from '../components/modals/LoginModal';
 import ProgressiveEnhancementContext from '../contexts/ProgressiveEnhancementContext';
-import {
-  initializeAnalyticsQueue,
-  loadAnalyticsScript,
-  trackPageView,
-} from '../lib/analytics';
+import { trackPageView } from '../lib/analytics';
 import useOnboarding from '../hooks/useOnboarding';
 import OnboardingContext from '../contexts/OnboardingContext';
 import SubscriptionContext from '../contexts/SubscriptionContext';
@@ -41,6 +37,7 @@ import { canonicalFromRouter } from '../lib/canonical';
 import useSettings from '../hooks/useSettings';
 import SettingsContext from '../contexts/SettingsContext';
 import '../styles/globals.css';
+import useAnalytics from '../hooks/useAnalytics';
 
 const queryClient = new QueryClient();
 
@@ -70,7 +67,6 @@ interface CompnentGetLayout {
 Router.events.on('routeChangeComplete', trackPageView);
 
 function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
-  const [initializedGA, setInitializedGA] = useState(false);
   const [
     user,
     setUser,
@@ -108,20 +104,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const onboardingContext = useOnboarding(user, loadedUserFromCache);
   const subscriptionContext = useSubscriptionClient(canFetchUserData);
   const settingsContext = useSettings(user?.id, canFetchUserData);
-
-  useEffect(() => {
-    if (trackingId && !initializedGA) {
-      initializeAnalyticsQueue(trackingId);
-      trackPageView(`${window.location.pathname}${window.location.search}`);
-      setInitializedGA(true);
-    }
-  }, [trackingId]);
-
-  useEffect(() => {
-    if (trackingId && progressiveContext.windowLoaded && !showCookie) {
-      loadAnalyticsScript();
-    }
-  }, [trackingId, progressiveContext.windowLoaded, showCookie]);
+  useAnalytics(trackingId, user, showCookie, progressiveContext.windowLoaded);
 
   useEffect(() => {
     if (
