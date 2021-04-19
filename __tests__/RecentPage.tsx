@@ -60,6 +60,9 @@ const renderComponent = (
     setSpaciness: jest.fn(),
     toggleOpenNewTab: jest.fn(),
     toggleShowOnlyUnreadPosts: jest.fn(),
+    insaneMode: false,
+    loadedSettings: true,
+    toggleInsaneMode: jest.fn(),
   };
   return render(
     <QueryClientProvider client={client}>

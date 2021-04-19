@@ -9,6 +9,9 @@ import Radio from './fields/Radio';
 import Switch from './fields/Switch';
 import SettingsContext from '../contexts/SettingsContext';
 import classNames from 'classnames';
+import CardIcon from '../icons/card.svg';
+import LineIcon from '../icons/line.svg';
+import IconsSwitch from './fields/IconsSwitch';
 
 const densities = [
   { label: 'Eco', value: 'eco' },
@@ -32,6 +35,8 @@ export default function Settings({
     toggleShowOnlyUnreadPosts,
     openNewTab,
     toggleOpenNewTab,
+    insaneMode,
+    toggleInsaneMode,
   } = useContext(SettingsContext);
 
   const Section = useMemo(
@@ -48,7 +53,7 @@ export default function Settings({
     () =>
       classed(
         'h3',
-        'text-theme-label-tertiary mb-5 font-bold',
+        'text-theme-label-tertiary mb-4 font-bold',
         panelMode ? 'typo-callout' : 'typo-body',
       ),
     [panelMode],
@@ -71,6 +76,18 @@ export default function Settings({
       >
         Settings
       </h2>
+      <Section>
+        <SectionTitle>Layout</SectionTitle>
+        <IconsSwitch
+          inputId="layout-switch"
+          name="insaneMode"
+          leftIcon={CardIcon}
+          rightIcon={LineIcon}
+          checked={insaneMode}
+          className="mx-1.5"
+          onToggle={toggleInsaneMode}
+        />
+      </Section>
       <Section>
         <SectionTitle>Density</SectionTitle>
         <Radio

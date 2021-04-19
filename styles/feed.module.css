@@ -1,7 +1,9 @@
 .feed {
   grid-template-columns: 100%;
   --num-cards: 1;
+}
 
+.grid {
   @screen mobileL {
     grid-template-columns: repeat(var(--num-cards), 1fr);
 

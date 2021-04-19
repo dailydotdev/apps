@@ -45,7 +45,7 @@ export default function FeaturedComment({
           comment.id,
         )}
       </CardHeader>
-      <h4 className="my-2 typo-callout">{comment.author.name}</h4>
+      <h4 className="my-2 typo-body font-bold">{comment.author.name}</h4>
       <p className="m-0 p-0 flex-1 text-theme-label-tertiary typo-callout multi-truncate">
         {comment.content}
       </p>

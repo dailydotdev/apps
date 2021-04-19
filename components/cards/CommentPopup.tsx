@@ -12,12 +12,16 @@ export type CommentPopupProps = {
   onClose?: () => unknown;
   onSubmit?: (comment: string) => unknown;
   loading?: boolean;
+  listMode?: boolean;
+  compactCard?: boolean;
 };
 
 export default function CommentPopup({
   onClose,
   onSubmit,
   loading,
+  listMode,
+  compactCard,
 }: CommentPopupProps): ReactElement {
   const [show, setShow] = useState(false);
   const [comment, setComment] = useState<string>();
@@ -55,29 +59,51 @@ export default function CommentPopup({
         willChange: 'opacity',
       }}
     >
-      <div className="invert relative flex flex-col h-3/4 p-4 bg-theme-bg-primary rounded-2xl">
-        <ModalCloseButton onClick={onClose} />
+      <div
+        className={classNames(
+          'invert relative flex flex-col p-4 bg-theme-bg-primary rounded-2xl',
+          listMode
+            ? 'h-full ml-14 justify-between'
+            : compactCard
+            ? 'h-full'
+            : 'h-3/4',
+        )}
+      >
+        <ModalCloseButton
+          onClick={onClose}
+          style={{ top: '0.5rem', right: '0.75rem' }}
+        />
         <h3 className="text-theme-label-primary mr-11 ml-2 typo-callout">
           {text.title}
         </h3>
-        <textarea
-          placeholder={text.placeholder}
-          onChange={(event) => setComment(event.target.value)}
-          onKeyDown={onKeyDown}
-          className="flex-1 my-4 p-3 bg-theme-float text-theme-label-primary resize-none typo-callout focus-outline placeholder-theme-label-tertiary caret-theme-label-link"
-          style={{
-            borderRadius: '0.875rem',
-          }}
-        />
-        <Button
-          icon={<CommentIcon />}
-          onClick={() => onSubmit?.(comment)}
-          disabled={!comment?.length}
-          loading={loading}
-          className="btn-primary"
+        <div
+          className={classNames(
+            'flex',
+            listMode ? 'items-center' : 'flex-col flex-1',
+          )}
         >
-          Comment
-        </Button>
+          <textarea
+            placeholder={text.placeholder}
+            onChange={(event) => setComment(event.target.value)}
+            onKeyDown={onKeyDown}
+            className={classNames(
+              'flex-1 px-3 bg-theme-float text-theme-label-primary resize-none typo-callout focus-outline placeholder-theme-label-tertiary caret-theme-label-link',
+              listMode ? 'h-10 mr-4 py-2.5' : 'my-4 py-3',
+            )}
+            style={{
+              borderRadius: '0.875rem',
+            }}
+          />
+          <Button
+            icon={<CommentIcon />}
+            onClick={() => onSubmit?.(comment)}
+            disabled={!comment?.length}
+            loading={loading}
+            className={classNames('btn-primary', listMode && 'self-end')}
+          >
+            Comment
+          </Button>
+        </div>
       </div>
     </div>
   );

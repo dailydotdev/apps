@@ -30,6 +30,7 @@ const defaultSettings: RemoteSettings = {
   openNewTab: false,
   showOnlyUnreadPosts: true,
   spaciness: 'roomy',
+  insaneMode: false,
 };
 
 const createSettingsMock = (

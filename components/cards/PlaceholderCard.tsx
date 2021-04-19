@@ -6,10 +6,13 @@ import classNames from 'classnames';
 
 const Text = classed(ElementPlaceholder, 'h-3 rounded-xl my-2');
 
-export type PlaceholderCardProps = HTMLAttributes<HTMLDivElement>;
+export type PlaceholderCardProps = {
+  showImage?: boolean;
+} & HTMLAttributes<HTMLDivElement>;
 
 export function PlaceholderCard({
   className,
+  showImage,
   ...props
 }: PlaceholderCardProps): ReactElement {
   return (
@@ -27,8 +30,8 @@ export function PlaceholderCard({
         <Text style={{ width: '100%' }} />
         <Text style={{ width: '80%' }} />
       </CardTextContainer>
-      <CardSpace className="my-2" />
-      <ElementPlaceholder className="rounded-xl h-40 my-2" />
+      <CardSpace className={showImage ? 'my-2' : 'my-6'} />
+      {showImage && <ElementPlaceholder className="rounded-xl h-40 my-2" />}
       <CardTextContainer>
         <Text style={{ width: '32%' }} />
       </CardTextContainer>
