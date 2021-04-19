@@ -9,8 +9,7 @@ const texts = [
   },
   {
     title: 'Want to learn new things with other devs?',
-    placeholder:
-      'Comment on this post.',
+    placeholder: 'Comment on this post.',
   },
   {
     title: 'How about summarizing this post for other devs?',
