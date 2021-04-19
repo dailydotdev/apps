@@ -16,6 +16,7 @@ type Settings = {
   spaciness: Spaciness;
   showOnlyUnreadPosts: boolean;
   openNewTab: boolean;
+  insaneMode: boolean;
 };
 
 const themeCookieName = 'showmethelight';
@@ -23,6 +24,7 @@ const defaultSettings: Settings = {
   spaciness: 'eco',
   showOnlyUnreadPosts: false,
   openNewTab: true,
+  insaneMode: false,
 };
 
 function toggleTheme(lightMode: boolean): void {
@@ -40,7 +42,7 @@ export default function useSettings(
   userId: string | null,
   canFetchRemote: boolean,
 ): SettingsContextData {
-  const [settings, setCachedSettings] = usePersistentState(
+  const [settings, setCachedSettings, loadedSettings] = usePersistentState(
     'settings',
     defaultSettings,
   );
@@ -117,5 +119,8 @@ export default function useSettings(
     toggleOpenNewTab: () =>
       setSettings({ ...settings, openNewTab: !settings.openNewTab }),
     setSpaciness: (density) => setSettings({ ...settings, spaciness: density }),
+    toggleInsaneMode: () =>
+      setSettings({ ...settings, insaneMode: !settings.insaneMode }),
+    loadedSettings,
   };
 }

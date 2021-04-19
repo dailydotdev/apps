@@ -1,4 +1,5 @@
 import React, {
+  CSSProperties,
   DependencyList,
   ReactElement,
   ReactNode,
@@ -33,6 +34,10 @@ import useReportPost from '../hooks/useReportPost';
 import OnboardingContext, {
   EngagementAction,
 } from '../contexts/OnboardingContext';
+import { PostList } from './cards/PostList';
+import { AdList } from './cards/AdList';
+import { PlaceholderList } from './cards/PlaceholderList';
+import { Spaciness } from '../graphql/settings';
 
 const CommentPopup = dynamic(() => import('./cards/CommentPopup'));
 
@@ -64,6 +69,30 @@ const onAdClick = (ad: Ad) =>
     label: ad.source,
   });
 
+const getClassNames = (useList: boolean, spaciness: Spaciness): string => {
+  if (useList) {
+    return spaciness === 'cozy'
+      ? 'gap-5'
+      : spaciness === 'roomy'
+      ? 'gap-3'
+      : 'gap-2';
+  }
+  return spaciness === 'cozy'
+    ? 'gap-14'
+    : spaciness === 'roomy'
+    ? 'gap-12'
+    : 'gap-8';
+};
+
+const getStyle = (useList: boolean, spaciness: Spaciness): CSSProperties => {
+  if (useList && spaciness !== 'eco') {
+    return spaciness === 'cozy'
+      ? { maxWidth: '48.75rem' }
+      : { maxWidth: '63.75rem' };
+  }
+  return {};
+};
+
 export default function Feed<T>({
   query,
   variables,
@@ -75,9 +104,13 @@ export default function Feed<T>({
   const currentSettings = useContext(FeedContext);
   const { user, showLogin } = useContext(AuthContext);
   const { trackEngagement } = useContext(OnboardingContext);
-  const { openNewTab, showOnlyUnreadPosts, spaciness } = useContext(
-    SettingsContext,
-  );
+  const {
+    openNewTab,
+    showOnlyUnreadPosts,
+    spaciness,
+    insaneMode,
+    loadedSettings,
+  } = useContext(SettingsContext);
   const {
     items,
     updatePost,
@@ -303,11 +336,16 @@ export default function Feed<T>({
     });
   };
 
+  const useList = insaneMode && currentSettings.numCards > 1;
+  const PostTag = useList ? PostList : PostCard;
+  const AdTag = useList ? AdList : AdCard;
+  const PlaceholderTag = useList ? PlaceholderList : PlaceholderCard;
+
   const itemToComponent = (item: FeedItem, index: number): ReactElement => {
     switch (item.type) {
       case 'post':
         return (
-          <PostCard
+          <PostTag
             post={item.post}
             key={item.post.id}
             data-testid="postItem"
@@ -325,40 +363,49 @@ export default function Feed<T>({
             notification={
               postNotificationIndex === index && 'Thanks for reporting!'
             }
+            showImage={!insaneMode}
           >
             {showCommentPopupId === item.post.id && (
               <CommentPopup
                 onClose={() => setShowCommentPopupId(null)}
                 onSubmit={(content) => comment({ id: item.post.id, content })}
                 loading={isSendingComment}
+                compactCard={!useList && insaneMode}
+                listMode={useList}
               />
             )}
-          </PostCard>
+          </PostTag>
         );
       case 'ad':
         return (
-          <AdCard
+          <AdTag
             ad={item.ad}
             key={`ad-${index}`}
             data-testid="adItem"
             onImpression={onAdImpression}
             onLinkClick={onAdClick}
+            showImage={!insaneMode}
           />
         );
       default:
-        return <PlaceholderCard key={`placeholder-${index}`} />;
+        return (
+          <PlaceholderTag
+            key={`placeholder-${index}`}
+            showImage={!insaneMode}
+          />
+        );
     }
   };
 
-  const hasNonPlaceholderCard =
+  if (!loadedSettings) {
+    return <></>;
+  }
+
+  const hasNoPlaceholderCard =
     items.findIndex((item) => item.type !== 'placeholder') >= 0;
 
-  const gap =
-    spaciness === 'cozy'
-      ? 'gap-14'
-      : spaciness === 'roomy'
-      ? 'gap-12'
-      : 'gap-8';
+  const settingsClasses = getClassNames(useList, spaciness);
+  const settingsStyle = getStyle(useList, spaciness);
   return emptyScreen && emptyFeed ? (
     <>{emptyScreen}</>
   ) : (
@@ -366,13 +413,15 @@ export default function Feed<T>({
       className={classNames(
         className,
         'relative grid mx-auto',
-        gap,
+        settingsClasses,
         styles.feed,
+        insaneMode ? 'w-full' : styles.grid,
         spaciness,
       )}
+      style={settingsStyle}
     >
       {items.map(itemToComponent)}
-      {!hasNonPlaceholderCard && (
+      {!hasNoPlaceholderCard && (
         <div className={`invisible multi-truncate ${styles.stretcher}`}>
           {Array(100).fill('a').join('')}
         </div>
