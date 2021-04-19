@@ -7,6 +7,7 @@ export type RemoteSettings = {
   showOnlyUnreadPosts: boolean;
   theme: 'darcula' | 'bright';
   spaciness: Spaciness;
+  insaneMode: boolean;
 };
 
 export type UserSettingsData = { userSettings: RemoteSettings };
@@ -18,6 +19,7 @@ export const USER_SETTINGS_QUERY = gql`
       showOnlyUnreadPosts
       theme
       spaciness
+      insaneMode
     }
   }
 `;

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 52.5 (67469) - http://www.bohemiancoding.com/sketch -->
+    <title>Card</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Icons" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Card" fill="#FFFFFF">
+            <path d="M6,4 L8,4 C9.1045695,4 10,4.8954305 10,6 L10,8 C10,9.1045695 9.1045695,10 8,10 L6,10 C4.8954305,10 4,9.1045695 4,8 L4,6 C4,4.8954305 4.8954305,4 6,4 Z M6,14 L8,14 C9.1045695,14 10,14.8954305 10,16 L10,18 C10,19.1045695 9.1045695,20 8,20 L6,20 C4.8954305,20 4,19.1045695 4,18 L4,16 C4,14.8954305 4.8954305,14 6,14 Z M16,4 L18,4 C19.1045695,4 20,4.8954305 20,6 L20,8 C20,9.1045695 19.1045695,10 18,10 L16,10 C14.8954305,10 14,9.1045695 14,8 L14,6 C14,4.8954305 14.8954305,4 16,4 Z M16,14 L18,14 C19.1045695,14 20,14.8954305 20,16 L20,18 C20,19.1045695 19.1045695,20 18,20 L16,20 C14.8954305,20 14,19.1045695 14,18 L14,16 C14,14.8954305 14.8954305,14 16,14 Z" id="Combined-Shape"></path>
+        </g>
+    </g>
+</svg>

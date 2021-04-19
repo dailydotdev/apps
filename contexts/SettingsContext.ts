@@ -6,10 +6,13 @@ export type SettingsContextData = {
   lightMode: boolean;
   showOnlyUnreadPosts: boolean;
   openNewTab: boolean;
+  insaneMode: boolean;
   toggleLightMode: () => Promise<void>;
   toggleShowOnlyUnreadPosts: () => Promise<void>;
   toggleOpenNewTab: () => Promise<void>;
   setSpaciness: (density: Spaciness) => Promise<void>;
+  toggleInsaneMode: () => Promise<void>;
+  loadedSettings: boolean;
 };
 
 const SettingsContext = React.createContext<SettingsContextData>(null);

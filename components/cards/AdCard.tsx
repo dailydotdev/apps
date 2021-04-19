@@ -2,7 +2,6 @@ import React, { HTMLAttributes, ReactElement, useEffect } from 'react';
 import {
   Card,
   CardImage,
-  CardLink,
   CardSpace,
   CardTextContainer,
   CardTitle,
@@ -10,6 +9,8 @@ import {
 import { Ad } from '../../graphql/posts';
 import styles from '../../styles/cards.module.css';
 import classNames from 'classnames';
+import AdLink from './AdLink';
+import AdAttribution from './AdAttribution';
 
 type Callback = (ad: Ad) => unknown;
 
@@ -17,6 +18,7 @@ export type AdCardProps = {
   ad: Ad;
   onImpression?: Callback;
   onLinkClick?: Callback;
+  showImage?: boolean;
 } & HTMLAttributes<HTMLDivElement>;
 
 export function AdCard({
@@ -24,6 +26,7 @@ export function AdCard({
   onImpression,
   onLinkClick,
   className,
+  showImage = true,
   ...props
 }: AdCardProps): ReactElement {
   const showBlurredImage = ad.source === 'Carbon';
@@ -34,49 +37,31 @@ export function AdCard({
 
   return (
     <Card {...props} className={classNames(className, styles.ad)}>
-      <CardLink
-        href={ad.link}
-        target="_blank"
-        rel="noopener"
-        title={ad.description}
-        onClick={() => onLinkClick?.(ad)}
-        onMouseUp={(event) => event.button === 1 && onLinkClick?.(ad)}
-      />
+      <AdLink ad={ad} onLinkClick={onLinkClick} />
       <CardTextContainer>
         <CardTitle className="my-4">{ad.description}</CardTitle>
       </CardTextContainer>
       <CardSpace />
-      <div className="relative overflow-hidden rounded-xl z-1">
-        <CardImage
-          imgAlt="Ad image"
-          imgSrc={ad.image}
-          absolute={showBlurredImage}
-          className={showBlurredImage && `inset-0 m-auto`}
-          fit={showBlurredImage ? 'contain' : 'cover'}
-        />
-        {showBlurredImage && (
+      {showImage && (
+        <div className="relative overflow-hidden rounded-xl z-1">
           <CardImage
-            imgAlt="Ad image background"
+            imgAlt="Ad image"
             imgSrc={ad.image}
-            className={`-z-1 ${styles.blur}`}
+            absolute={showBlurredImage}
+            className={showBlurredImage && `inset-0 m-auto`}
+            fit={showBlurredImage ? 'contain' : 'cover'}
           />
-        )}
-      </div>
+          {showBlurredImage && (
+            <CardImage
+              imgAlt="Ad image background"
+              imgSrc={ad.image}
+              className={`-z-1 ${styles.blur}`}
+            />
+          )}
+        </div>
+      )}
       <CardTextContainer>
-        {ad.referralLink ? (
-          <a
-            href={ad.referralLink}
-            target="_blank"
-            rel="noopener"
-            className="mt-4 mb-2 text-theme-label-quaternary typo-footnote no-underline"
-          >
-            Promoted by {ad.source}
-          </a>
-        ) : (
-          <div className="mt-4 mb-2 text-theme-label-quaternary typo-footnote no-underline">
-            Promoted
-          </div>
-        )}
+        <AdAttribution ad={ad} className="mt-4 mb-2" />
       </CardTextContainer>
       {ad.pixel?.map((pixel) => (
         <img
