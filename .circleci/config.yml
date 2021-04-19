@@ -2,11 +2,14 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: cimg/node:14.16.0
+      - image: cimg/node:14.16.1
     steps:
       - checkout
       - restore_cache:
           key: dependency-cache-{{ checksum "package-lock.json" }}
+      - run:
+          name: Install NPM v7
+          command: npm config set prefix '~/.local/' && npm i -g npm@7
       - run:
           name: Install dependencies
           command: npm install
