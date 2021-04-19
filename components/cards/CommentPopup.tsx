@@ -62,7 +62,11 @@ export default function CommentPopup({
       <div
         className={classNames(
           'invert relative flex flex-col p-4 bg-theme-bg-primary rounded-2xl',
-          listMode ? 'h-full ml-14' : compactCard ? 'h-full' : 'h-3/4',
+          listMode
+            ? 'h-full ml-14 justify-between'
+            : compactCard
+            ? 'h-full'
+            : 'h-3/4',
         )}
       >
         <ModalCloseButton
@@ -75,7 +79,7 @@ export default function CommentPopup({
         <div
           className={classNames(
             'flex',
-            listMode ? 'mt-3 mb-4 items-center' : 'flex-col flex-1',
+            listMode ? 'items-center' : 'flex-col flex-1',
           )}
         >
           <textarea
