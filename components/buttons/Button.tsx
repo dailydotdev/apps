@@ -2,7 +2,7 @@ import React, { LegacyRef, ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
 import Loader from '../Loader';
 
-export type ButtonSize = 'small' | 'medium' | 'large' | 'xlarge';
+export type ButtonSize = 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge';
 
 export interface StyledButtonProps {
   buttonSize?: ButtonSize;

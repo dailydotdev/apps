@@ -13,6 +13,12 @@
     font-size: 1.5rem;
   }
 
+  &.xsmall {
+    height: 1.5rem;
+    padding: 0 0.75rem;
+    border-radius: 0.5rem;
+  }
+
   &.small {
     height: 2rem;
     padding: 0 0.9375rem;
@@ -45,6 +51,13 @@
     width: 2.5rem;
     padding: 0;
     border-radius: 0.75rem;
+
+    &.xsmall {
+      width: 1.5rem;
+      padding: 0;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+    }
 
     &.small {
       width: 2rem;
