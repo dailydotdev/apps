@@ -20,6 +20,7 @@ import classed from '../../lib/classed';
 import { getTooltipProps } from '../../lib/tooltip';
 import classNames from 'classnames';
 import { CSSTransition } from 'react-transition-group';
+import Banner from '../Banner';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -71,6 +72,7 @@ export default function MainLayout({
 
   return (
     <>
+      {!responsive && <Banner />}
       <header
         className={`${
           styles.header
