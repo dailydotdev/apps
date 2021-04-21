@@ -62,3 +62,10 @@ jest.mock('next/router', () => ({
       } as unknown) as NextRouter),
   ),
 }));
+
+jest.mock('../lib/analytics', () => ({
+  ...jest.requireActual('../lib/analytics'),
+  getAmplitudeClient: jest.fn(),
+  logRevenue: jest.fn(),
+  logReadArticle: jest.fn(),
+}));
