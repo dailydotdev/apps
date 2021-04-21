@@ -57,7 +57,7 @@ import { ProfileLink } from '../../components/profile/ProfileLink';
 import { ownershipGuide } from '../../lib/constants';
 import QuaternaryButton from '../../components/buttons/QuaternaryButton';
 import { LoginModalMode } from '../../components/modals/LoginModal';
-import { trackEvent } from '../../lib/analytics';
+import { logReadArticle, trackEvent } from '../../lib/analytics';
 import useSubscription from '../../hooks/useSubscription';
 import Button from '../../components/buttons/Button';
 import { getTooltipProps } from '../../lib/tooltip';
@@ -552,7 +552,10 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     title: 'Go to article',
     target: '_blank',
     rel: 'noopener',
-    onClick: () => trackEvent({ category: 'Post', action: 'Click' }),
+    onClick: async () => {
+      trackEvent({ category: 'Post', action: 'Click' });
+      await logReadArticle('article page');
+    },
   };
 
   const seo: NextSeoProps = {

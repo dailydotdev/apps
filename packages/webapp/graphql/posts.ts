@@ -37,6 +37,7 @@ export interface Ad {
   image: string;
   placeholder?: string;
   referralLink?: string;
+  providerId?: string;
 }
 
 export interface PostData {
