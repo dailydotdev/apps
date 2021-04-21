@@ -37,6 +37,17 @@ export const getAmplitudeClient = async (): Promise<AmplitudeClient> => {
   return amp.getInstance();
 };
 
+export const logRevenue = async (productId: string): Promise<void> => {
+  const amp = await import('amplitude-js');
+  const revenue = new amp.Revenue().setProductId(productId).setPrice(1);
+  amp.getInstance().logRevenueV2(revenue);
+};
+
+export const logReadArticle = async (origin: string): Promise<void> => {
+  const amp = await getAmplitudeClient();
+  amp.logEvent('read article', { origin });
+};
+
 export interface EventArgs {
   category: string;
   action: string;

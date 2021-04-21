@@ -20,7 +20,7 @@ import { LoginModalMode } from './modals/LoginModal';
 import { useInView } from 'react-intersection-observer';
 import FeedContext from '../contexts/FeedContext';
 import useIncrementReadingRank from '../hooks/useIncrementReadingRank';
-import { trackEvent } from '../lib/analytics';
+import { logReadArticle, logRevenue, trackEvent } from '../lib/analytics';
 import { COMMENT_ON_POST_MUTATION, CommentOnData } from '../graphql/comments';
 import dynamic from 'next/dynamic';
 import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
@@ -54,13 +54,17 @@ export type FeedProps<T> = {
   emptyScreen?: ReactNode;
 };
 
-const onAdImpression = (ad: Ad) =>
+const onAdImpression = async (ad: Ad): Promise<void> => {
   trackEvent({
     category: 'Ad',
     action: 'Impression',
     label: ad.source,
     nonInteraction: true,
   });
+  if (ad.providerId?.length) {
+    await logRevenue(ad.providerId);
+  }
+};
 
 const onAdClick = (ad: Ad) =>
   trackEvent({
@@ -290,6 +294,7 @@ export default function Feed<T>({
       action: 'Click',
       label: 'Feed',
     });
+    await logReadArticle('feed');
     if (!post.read) {
       incrementReadingRank();
     }

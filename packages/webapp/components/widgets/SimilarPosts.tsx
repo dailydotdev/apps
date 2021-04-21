@@ -8,7 +8,7 @@ import { Post } from '../../graphql/posts';
 import styles from '../../styles/cards.module.css';
 import { CardLink } from '../cards/Card';
 import LazyImage from '../LazyImage';
-import { trackEvent } from '../../lib/analytics';
+import { logReadArticle, trackEvent } from '../../lib/analytics';
 import { getTooltipProps } from '../../lib/tooltip';
 import { ElementPlaceholder } from '../utilities';
 import classed from '../../lib/classed';
@@ -114,12 +114,13 @@ export default function SimilarPosts({
   onBookmark,
   className,
 }: SimilarPostsProps): ReactElement {
-  const onLinkClick = (): void => {
+  const onLinkClick = async (): Promise<void> => {
     trackEvent({
       category: 'Post',
       action: 'Click',
       label: 'Similar Posts',
     });
+    await logReadArticle('recommendation');
   };
 
   const onShowMore = (): void => {
