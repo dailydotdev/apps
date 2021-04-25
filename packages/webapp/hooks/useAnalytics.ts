@@ -26,7 +26,7 @@ export default function useAnalytics(
 
   useEffect(() => {
     getAmplitudeClient().then((amplitude) => {
-      amplitude.setUserId(user?.id);
+      amplitude.setUserId(user?.id || null);
     });
   }, [user]);
 
