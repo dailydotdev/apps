@@ -1,6 +1,6 @@
 import React, { LegacyRef, ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
-import Loader from '../Loader';
+import { Loader } from '@daily/shared';
 
 export type ButtonSize = 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge';
 
