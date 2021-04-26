@@ -8,7 +8,7 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0",
     "pretest": "npm run lint && npm run lint:css",
     "test": "node --expose-gc ./node_modules/.bin/jest --logHeapUsage",
-    "test:ci": "npm run test -- --ci --reporters=default --reporters=jest-junit --runInBand",
+    "test:ci": "JEST_JUNIT_OUTPUT_NAME=webapp  npm run test -- --ci --reporters=default --reporters=jest-junit --runInBand",
     "deploy": "vercel"
   },
   "prettier": "@daily/prettier-config",
@@ -47,6 +47,7 @@
     "subscriptions-transport-ws": "^0.9.18"
   },
   "devDependencies": {
+    "@babel/preset-typescript": "^7.13.0",
     "@daily/eslint-config": "*",
     "@daily/prettier-config": "*",
     "@emotion/babel-plugin": "^11.3.0",
