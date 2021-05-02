@@ -85,11 +85,15 @@ const ranksMetadata = STEPS_PER_RANK.map((steps, index) => ({
 export interface RanksModalProps extends ModalProps {
   rank: number;
   progress: number;
+  hideProgress?: boolean;
+  confirmationText?: string;
 }
 
 export default function RanksModal({
   rank,
   progress,
+  hideProgress,
+  confirmationText,
   onRequestClose,
   className,
   ...props
@@ -101,9 +105,11 @@ export default function RanksModal({
       className={classNames(styles.ranksModal, className)}
     >
       <ModalCloseButton onClick={onRequestClose} />
-      <RankProgressContainer>
-        <RankProgress rank={rank} progress={progress} fillByDefault />
-      </RankProgressContainer>
+      {!hideProgress && (
+        <RankProgressContainer>
+          <RankProgress rank={rank} progress={progress} fillByDefault />
+        </RankProgressContainer>
+      )}
       <h1 className="mt-4 uppercase font-bold typo-title2 mobileL:mt-11">
         Your weekly goal
       </h1>
@@ -123,7 +129,7 @@ export default function RanksModal({
         ))}
       </ul>
       <Button className="btn-primary m-8" onClick={onRequestClose}>
-        Ok, let’s do it
+        {confirmationText || `Ok, let’s do it`}
       </Button>
     </ResponsiveModal>
   );

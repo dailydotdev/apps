@@ -279,6 +279,13 @@ const CompleteProfileButton = styled(Button)`
   align-self: flex-start;
 `;
 
+const RanksModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "ranksModal" */ '../../components/modals/RanksModal'
+    ),
+);
+
 const RankHistory = ({
   rank,
   rankName,
@@ -300,6 +307,7 @@ const RankHistory = ({
 const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user, updateUser, tokenRefreshed } = useContext(AuthContext);
+  const [showRanksModal, setShowRanksModal] = useState(false);
 
   const { data: readingHistory } = useQuery<UserReadingRankHistoryData>(
     ['reading_history', profile?.id],
@@ -567,6 +575,22 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
                 />
               ))}
             </div>
+            <button
+              className="bg-none border-none typo-callout text-theme-label-link mt-4 self-start focus-outline"
+              onClick={() => setShowRanksModal(true)}
+            >
+              Learn how we count weekly goals
+            </button>
+            {showRanksModal && (
+              <RanksModal
+                rank={0}
+                progress={0}
+                hideProgress
+                isOpen={showRanksModal}
+                onRequestClose={() => setShowRanksModal(false)}
+                confirmationText="Ok, got it"
+              />
+            )}
           </ActivityContainer>
         </>
       )}
