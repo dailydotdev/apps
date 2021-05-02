@@ -43,9 +43,9 @@ export default {
       modules: true,
       writeDefinitions: true,
     }),
-    peerDepsExternal(),
     resolve(),
     commonjs(),
+    peerDepsExternal(),
     typescript(),
   ],
 };
