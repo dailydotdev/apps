@@ -393,7 +393,10 @@ export default function ProfileLayout({
 export const getLayout = (
   page: ReactNode,
   props: ProfileLayoutProps,
-): ReactNode => getMainLayout(<ProfileLayout {...props}>{page}</ProfileLayout>);
+): ReactNode =>
+  getMainLayout(<ProfileLayout {...props}>{page}</ProfileLayout>, null, {
+    responsive: false,
+  });
 
 interface ProfileParams extends ParsedUrlQuery {
   userId: string;

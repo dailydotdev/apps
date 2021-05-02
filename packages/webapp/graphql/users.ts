@@ -51,3 +51,17 @@ export const MY_READING_RANK_QUERY = gql`
     }
   }
 `;
+
+export type UserReadingRankHistory = { rank: number; count: number };
+export interface UserReadingRankHistoryData {
+  userReadingRankHistory: UserReadingRankHistory[];
+}
+
+export const USER_READING_HISTORY_QUERY = gql`
+  query UserReadingHistory($id: ID!) {
+    userReadingRankHistory(id: $id) {
+      rank
+      count
+    }
+  }
+`;
