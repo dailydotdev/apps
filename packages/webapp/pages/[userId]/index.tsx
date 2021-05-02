@@ -24,7 +24,12 @@ import { typoBody, typoCallout, typoSubhead } from '../../styles/typography';
 import { format } from 'date-fns';
 import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
-import { USER_STATS_QUERY, UserStatsData } from '../../graphql/users';
+import {
+  USER_READING_HISTORY_QUERY,
+  USER_STATS_QUERY,
+  UserReadingRankHistoryData,
+  UserStatsData,
+} from '../../graphql/users';
 import { multilineTextOverflow } from '../../styles/helpers';
 import ActivitySection, {
   ActivityContainer,
@@ -47,6 +52,8 @@ import { smallPostImage } from '../../lib/image';
 import dynamic from 'next/dynamic';
 import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
 import Button from '../../components/buttons/Button';
+import Rank from '../../components/Rank';
+import { RANK_NAMES } from '../../lib/rank';
 
 const AccountDetailsModal = dynamic(
   () =>
@@ -272,9 +279,38 @@ const CompleteProfileButton = styled(Button)`
   align-self: flex-start;
 `;
 
+const RankHistory = ({
+  rank,
+  rankName,
+  count,
+}: {
+  rank: number;
+  rankName: string;
+  count: number;
+}): ReactElement => (
+  <div
+    className="flex flex-col items-center p-2 mr-2 rounded-xl bg-theme-bg-secondary"
+    aria-label={`${rankName}: ${count}`}
+  >
+    <Rank rank={rank} colorByRank />
+    <span className="typo-callout font-bold">{count}</span>
+  </div>
+);
+
 const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user, updateUser, tokenRefreshed } = useContext(AuthContext);
+
+  const { data: readingHistory } = useQuery<UserReadingRankHistoryData>(
+    ['reading_history', profile?.id],
+    () =>
+      request(`${apiUrl}/graphql`, USER_READING_HISTORY_QUERY, {
+        id: profile?.id,
+      }),
+    {
+      enabled: !!profile && tokenRefreshed,
+    },
+  );
 
   const { data: userStats } = useQuery<UserStatsData>(
     ['user_stats', profile?.id],
@@ -513,6 +549,27 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
 
   return (
     <Container>
+      {readingHistory?.userReadingRankHistory && (
+        <>
+          <ActivityContainer>
+            <ActivitySectionTitle>Weekly goal</ActivitySectionTitle>
+            <div className="flex flex-wrap">
+              {RANK_NAMES.map((rankName, rank) => (
+                <RankHistory
+                  key={rankName}
+                  rank={rank + 1}
+                  rankName={rankName}
+                  count={
+                    readingHistory.userReadingRankHistory.find(
+                      (history) => history.rank === rank + 1,
+                    )?.count ?? 0
+                  }
+                />
+              ))}
+            </div>
+          </ActivityContainer>
+        </>
+      )}
       {userStats?.userStats && (
         <>
           {userStats.userStats?.numPostViews !== null && (
