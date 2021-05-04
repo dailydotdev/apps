@@ -57,11 +57,20 @@ export interface UserReadingRankHistoryData {
   userReadingRankHistory: UserReadingRankHistory[];
 }
 
+export type UserReadHistory = { date: string; reads: number };
+export interface UserReadHistoryData {
+  userReadHistory: UserReadHistory[];
+}
+
 export const USER_READING_HISTORY_QUERY = gql`
-  query UserReadingHistory($id: ID!) {
+  query UserReadingHistory($id: ID!, $after: String!, $before: String!) {
     userReadingRankHistory(id: $id) {
       rank
       count
+    }
+    userReadHistory(id: $id, after: $after, before: $before) {
+      date
+      reads
     }
   }
 `;

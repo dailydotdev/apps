@@ -15,6 +15,7 @@ import { AUTHOR_FEED_QUERY, FeedData, Post } from '../graphql/posts';
 import {
   USER_READING_HISTORY_QUERY,
   USER_STATS_QUERY,
+  UserReadHistoryData,
   UserReadingRankHistory,
   UserReadingRankHistoryData,
   UserStats,
@@ -22,6 +23,7 @@ import {
 } from '../graphql/users';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { RANK_NAMES } from '../lib/rank';
+import { startOfTomorrow, subDays, subYears } from 'date-fns';
 
 beforeEach(() => {
   nock.cleanAll();
@@ -130,21 +132,27 @@ const createUserStatsMock = (
   },
 });
 
+const before = startOfTomorrow();
+const after = subYears(subDays(before, 2), 1);
+
 const createReadingHistoryMock = (
   rankHistory: UserReadingRankHistory[] = [
     { rank: 2, count: 5 },
     { rank: 5, count: 3 },
   ],
-): MockedGraphQLResponse<UserReadingRankHistoryData> => ({
+): MockedGraphQLResponse<UserReadingRankHistoryData & UserReadHistoryData> => ({
   request: {
     query: USER_READING_HISTORY_QUERY,
     variables: {
       id: 'u2',
+      before: before.toISOString(),
+      after: after.toISOString(),
     },
   },
   result: {
     data: {
       userReadingRankHistory: rankHistory,
+      userReadHistory: [{ date: '2021-02-01', reads: 2 }],
     },
   },
 });

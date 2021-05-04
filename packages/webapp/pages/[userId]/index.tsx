@@ -1,66 +1,35 @@
-import React, {
-  FormEvent,
-  ReactElement,
-  ReactNode,
-  useContext,
-  useRef,
-  useState,
-} from 'react';
-import Link from 'next/link';
-import { useInfiniteQuery, useQuery } from 'react-query';
+import React, { ReactElement, useContext, useMemo, useState } from 'react';
+import { useQuery } from 'react-query';
 import {
   getLayout as getProfileLayout,
   getStaticProps as getProfileStaticProps,
   getStaticPaths as getProfileStaticPaths,
   ProfileLayoutProps,
 } from '../../components/layouts/ProfileLayout';
-import { USER_COMMENTS_QUERY, UserCommentsData } from '../../graphql/comments';
 import styled from '@emotion/styled';
-import sizeN from '../../macros/sizeN.macro';
-import UpvoteIcon from '../../icons/upvote.svg';
-import CommentIcon from '../../icons/comment.svg';
-import EyeIcon from '../../icons/eye.svg';
-import { typoBody, typoCallout, typoSubhead } from '../../styles/typography';
-import { format } from 'date-fns';
+import { startOfTomorrow, subDays, subYears } from 'date-fns';
 import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import {
   USER_READING_HISTORY_QUERY,
   USER_STATS_QUERY,
+  UserReadHistory,
+  UserReadHistoryData,
   UserReadingRankHistoryData,
   UserStatsData,
 } from '../../graphql/users';
-import { multilineTextOverflow } from '../../styles/helpers';
-import ActivitySection, {
+import {
   ActivityContainer,
   ActivitySectionTitle,
 } from '../../components/profile/ActivitySection';
-import { AUTHOR_FEED_QUERY, FeedData } from '../../graphql/posts';
-import LazyImage from '../../components/LazyImage';
-import { largeNumberFormat } from '../../lib/numberFormat';
 import AuthContext from '../../contexts/AuthContext';
-import { tablet } from '../../styles/media';
-import {
-  loggedUserToProfile,
-  updateProfile,
-  UserProfile,
-} from '../../lib/user';
-import { formToJson } from '../../lib/form';
-import TextField from '../../components/fields/TextField';
-import { ownershipGuide } from '../../lib/constants';
-import { smallPostImage } from '../../lib/image';
 import dynamic from 'next/dynamic';
-import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
-import Button from '../../components/buttons/Button';
 import Rank from '../../components/Rank';
 import { RANK_NAMES } from '../../lib/rank';
-
-const AccountDetailsModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "accountDetailsModal"*/ '../../components/modals/AccountDetailsModal'
-    ),
-);
+import CommentsSection from '../../components/profile/CommentsSection';
+import PostsSection from '../../components/profile/PostsSection';
+import AuthorStats from '../../components/profile/AuthorStats';
+import CalendarHeatmap from '../../components/CalendarHeatmap';
 
 export const getStaticProps = getProfileStaticProps;
 export const getStaticPaths = getProfileStaticPaths;
@@ -73,218 +42,14 @@ const Container = styled.div`
   padding: 0;
 `;
 
-const CommentContainer = styled.article`
-  display: flex;
-  flex-direction: row;
-  padding: ${sizeN(3)} 0;
-  align-items: flex-start;
-
-  ${tablet} {
-    align-items: center;
-  }
-`;
-
-const CommentUpvotes = styled.div`
-  display: flex;
-  width: ${sizeN(12)};
-  flex-direction: column;
-  align-items: center;
-  padding: ${sizeN(2)} 0;
-  background: var(--theme-background-secondary);
-  border-radius: ${sizeN(3)};
-  font-weight: bold;
-  ${typoCallout}
-
-  .icon {
-    font-size: ${sizeN(6)};
-    margin-bottom: ${sizeN(1)};
-  }
-
-  ${tablet} {
-    width: ${sizeN(20)};
-    justify-content: center;
-    flex-direction: row;
-
-    .icon {
-      margin-bottom: 0;
-      margin-right: ${sizeN(1)};
-    }
-  }
-`;
-
-const CommentInfo = styled.a`
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  margin-left: ${sizeN(4)};
-  text-decoration: none;
-
-  ${tablet} {
-    flex-direction: row;
-    align-items: center;
-  }
-`;
-
-const CommentContent = styled.p`
-  max-height: ${sizeN(15)};
-  padding: 0;
-  margin: 0;
-  color: var(--theme-label-primary);
-  word-break: break-word;
-  white-space: pre-wrap;
-  ${typoCallout}
-  ${multilineTextOverflow}
-  -webkit-line-clamp: 3;
-
-  ${tablet} {
-    flex: 1;
-    margin-right: ${sizeN(6)};
-    max-width: ${sizeN(77)};
-  }
-`;
-
-const CommentTime = styled.time`
-  margin-top: ${sizeN(2)};
-  color: var(--theme-label-tertiary);
-  ${typoSubhead}
-
-  ${tablet} {
-    margin-top: 0;
-  }
-`;
-
-const EmptyMessage = styled.span`
-  color: var(--theme-label-tertiary);
-  ${typoCallout}
-
-  a {
-    color: var(--theme-label-link);
-    text-decoration: none;
-  }
-`;
-
-const PostContainer = styled(CommentContainer)`
-  padding-left: ${sizeN(3)};
-  text-decoration: none;
-`;
-
-const PostImageContainer = styled.div`
-  position: relative;
-`;
-
-const PostImage = styled(LazyImage)`
-  width: ${sizeN(18)};
-  height: ${sizeN(18)};
-  border-radius: ${sizeN(4)};
-
-  ${tablet} {
-    width: ${sizeN(24)};
-    height: ${sizeN(16)};
-  }
-`;
-
-const SourceImage = styled(LazyImage)`
-  position: absolute;
-  top: 50%;
-  left: 0;
-  width: ${sizeN(8)};
-  height: ${sizeN(8)};
-  background: var(--theme-background-primary);
-  border-radius: 100%;
-  transform: translate(-50%, -50%);
-
-  img {
-    width: ${sizeN(6)};
-    height: ${sizeN(6)};
-    border-radius: 100%;
-  }
-`;
-
-const PostStats = styled.div`
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: max-content;
-  grid-column-gap: ${sizeN(4)};
-  margin-top: ${sizeN(3)};
-
-  ${tablet} {
-    margin-top: 0;
-    margin-left: auto;
-  }
-`;
-
-const PostStat = styled.div`
-  display: flex;
-  align-items: center;
-  color: var(--theme-label-tertiary);
-  font-weight: bold;
-  ${typoCallout}
-
-  .icon {
-    font-size: ${sizeN(5)};
-    margin-right: ${sizeN(1)};
-  }
-`;
-
-const PostContent = styled(CommentContent)`
-  ${tablet} {
-    max-width: ${sizeN(70)};
-  }
-`;
-
-const OverallStats = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, ${sizeN(36)});
-  grid-column-gap: ${sizeN(6)};
-`;
-
-const OverallStatContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: ${sizeN(3)};
-  background: var(--theme-background-secondary);
-  border-radius: ${sizeN(3)};
-`;
-
-const OverallStatData = styled.div`
-  color: var(--theme-label-primary);
-  font-weight: bold;
-  ${typoBody}
-`;
-
-const OverallStatDescription = styled.div`
-  color: var(--theme-label-tertiary);
-  ${typoSubhead}
-`;
-
-const TwitterForm = styled.form`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  margin-top: ${sizeN(6)};
-
-  button {
-    width: ${sizeN(30)};
-  }
-`;
-
-const FormField = styled(TextField)`
-  max-width: ${sizeN(78)};
-  align-self: stretch;
-  margin-bottom: ${sizeN(4)};
-`;
-
-const CompleteProfileButton = styled(Button)`
-  margin-top: ${sizeN(4)};
-  align-self: flex-start;
-`;
-
 const RanksModal = dynamic(
   () =>
     import(
       /* webpackChunkName: "ranksModal" */ '../../components/modals/RanksModal'
     ),
 );
+
+const readHistoryToValue = (value: UserReadHistory): number => value.reads;
 
 const RankHistory = ({
   rank,
@@ -304,20 +69,35 @@ const RankHistory = ({
   </div>
 );
 
+const before = startOfTomorrow();
+const after = subYears(subDays(before, 2), 1);
+
 const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
-  const { windowLoaded } = useContext(ProgressiveEnhancementContext);
-  const { user, updateUser, tokenRefreshed } = useContext(AuthContext);
+  const { user, tokenRefreshed } = useContext(AuthContext);
   const [showRanksModal, setShowRanksModal] = useState(false);
 
-  const { data: readingHistory } = useQuery<UserReadingRankHistoryData>(
+  const { data: readingHistory } = useQuery<
+    UserReadingRankHistoryData & UserReadHistoryData
+  >(
     ['reading_history', profile?.id],
     () =>
       request(`${apiUrl}/graphql`, USER_READING_HISTORY_QUERY, {
         id: profile?.id,
+        before,
+        after,
       }),
     {
       enabled: !!profile && tokenRefreshed,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      refetchOnMount: false,
     },
+  );
+
+  const totalReads = useMemo(
+    () =>
+      readingHistory?.userReadHistory.reduce((acc, val) => acc + val.reads, 0),
+    [readingHistory],
   );
 
   const { data: userStats } = useQuery<UserStatsData>(
@@ -331,227 +111,22 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
     },
   );
 
-  const comments = useInfiniteQuery<UserCommentsData>(
-    ['user_comments', profile?.id],
-    ({ pageParam }) =>
-      request(`${apiUrl}/graphql`, USER_COMMENTS_QUERY, {
-        userId: profile?.id,
-        first: 3,
-        after: pageParam,
-      }),
-    {
-      enabled: !!profile && tokenRefreshed,
-      getNextPageParam: (lastPage) =>
-        lastPage.page.pageInfo.hasNextPage && lastPage.page.pageInfo.endCursor,
-    },
-  );
-
-  const posts = useInfiniteQuery<FeedData>(
-    ['user_posts', profile?.id],
-    ({ pageParam }) =>
-      request(`${apiUrl}/graphql`, AUTHOR_FEED_QUERY, {
-        userId: profile?.id,
-        first: 3,
-        after: pageParam,
-      }),
-    {
-      enabled: !!profile && tokenRefreshed,
-      getNextPageParam: (lastPage) =>
-        lastPage.page.pageInfo.hasNextPage && lastPage.page.pageInfo.endCursor,
-    },
-  );
-
-  const formRef = useRef<HTMLFormElement>(null);
-  const [disableSubmit, setDisableSubmit] = useState<boolean>(true);
-  const [twitterHint, setTwitterHint] = useState<string>();
-  const [showAccountDetails, setShowAccountDetails] = useState(false);
-
-  const updateDisableSubmit = () => {
-    if (formRef.current) {
-      setDisableSubmit(!formRef.current.checkValidity());
-    }
-  };
-
-  const onSubmit = async (event: FormEvent): Promise<void> => {
-    event.preventDefault();
-    setDisableSubmit(true);
-    const data = formToJson<UserProfile>(
-      formRef.current,
-      loggedUserToProfile(user),
-    );
-
-    const res = await updateProfile(data);
-    if ('error' in res) {
-      if ('code' in res && res.code === 1) {
-        if (res.field === 'twitter') {
-          setTwitterHint('This Twitter handle is already used');
-        } else {
-          setTwitterHint('Please contact us hi@daily.dev');
-        }
-      }
-    } else {
-      await updateUser({ ...user, ...res });
-      setDisableSubmit(false);
-    }
-  };
-
   const isSameUser = profile?.id === user?.id;
 
   const commentsSection = (
-    <ActivitySection
-      title={`${isSameUser ? 'Your ' : ''}Comments`}
-      query={comments}
-      count={userStats?.userStats?.numComments}
-      emptyScreen={
-        <EmptyMessage data-testid="emptyComments">
-          {isSameUser ? `You didn't comment yet.` : 'No comments yet.'}
-        </EmptyMessage>
-      }
-      elementToNode={(comment) => (
-        <CommentContainer key={comment.id}>
-          <CommentUpvotes>
-            <UpvoteIcon />
-            {largeNumberFormat(comment.numUpvotes)}
-          </CommentUpvotes>
-          <Link href={comment.permalink} passHref prefetch={false}>
-            <CommentInfo aria-label={comment.content}>
-              <CommentContent>{comment.content}</CommentContent>
-              <CommentTime dateTime={comment.createdAt}>
-                {format(new Date(comment.createdAt), 'MMM d, y')}
-              </CommentTime>
-            </CommentInfo>
-          </Link>
-        </CommentContainer>
-      )}
+    <CommentsSection
+      userId={profile?.id}
+      tokenRefreshed={tokenRefreshed}
+      isSameUser={isSameUser}
+      numComments={userStats?.userStats?.numComments}
     />
   );
 
-  let postsEmptyScreen: ReactNode = null;
-  if (!isSameUser) {
-    postsEmptyScreen = (
-      <EmptyMessage data-testid="emptyPosts">No articles yet.</EmptyMessage>
-    );
-  } else if (user.twitter) {
-    postsEmptyScreen = (
-      <EmptyMessage data-testid="emptyPosts" as="p">
-        No articles yet.
-        <br />
-        <br />
-        <a href={ownershipGuide} target="_blank" rel="noopener">
-          How daily.dev picks up new articles
-        </a>
-        <br />
-        <br />
-        Do you have articles you wrote that got picked up by daily.dev in the
-        past?
-        <br />
-        <br />
-        <a
-          href="mailto:hi@daily.dev?subject=Add my articles retroactively"
-          target="_blank"
-          rel="noopener"
-        >
-          Add my articles retroactively
-        </a>
-      </EmptyMessage>
-    );
-  } else {
-    postsEmptyScreen = (
-      <>
-        <EmptyMessage data-testid="emptyPosts">
-          {`Track when articles you publish around the web got picked up by
-          daily.dev. Set up your Twitter handle and we'll do the rest 🙌`}
-        </EmptyMessage>
-        {user.email && user.username ? (
-          <TwitterForm ref={formRef} onSubmit={onSubmit}>
-            <FormField
-              inputId="twitter"
-              name="twitter"
-              label="Twitter"
-              value={user.twitter}
-              hint={twitterHint}
-              valid={!twitterHint}
-              placeholder="handle"
-              pattern="(\w){1,15}"
-              maxLength={15}
-              validityChanged={updateDisableSubmit}
-              valueChanged={() => twitterHint && setTwitterHint(null)}
-            />
-            <Button
-              className="btn-primary"
-              type="submit"
-              disabled={disableSubmit}
-            >
-              Save
-            </Button>
-          </TwitterForm>
-        ) : (
-          <>
-            <CompleteProfileButton
-              className="btn-primary"
-              onClick={() => setShowAccountDetails(true)}
-            >
-              Complete your profile
-            </CompleteProfileButton>
-            {(windowLoaded || showAccountDetails) && (
-              <AccountDetailsModal
-                isOpen={showAccountDetails}
-                onRequestClose={() => setShowAccountDetails(false)}
-              />
-            )}
-          </>
-        )}
-      </>
-    );
-  }
-
   const postsSection = (
-    <ActivitySection
-      title={`${isSameUser ? 'Your ' : ''}Articles`}
-      query={posts}
-      count={userStats?.userStats?.numPosts}
-      emptyScreen={postsEmptyScreen}
-      elementToNode={(post) => (
-        <Link
-          href={post.commentsPermalink}
-          passHref
-          key={post.id}
-          prefetch={false}
-        >
-          <PostContainer as="a" aria-label={post.title}>
-            <PostImageContainer>
-              <PostImage
-                imgSrc={smallPostImage(post.image)}
-                imgAlt="Post cover image"
-              />
-              <SourceImage
-                imgSrc={post.source.image}
-                imgAlt={post.source.name}
-                ratio="100%"
-              />
-            </PostImageContainer>
-            <CommentInfo as="div">
-              <PostContent>{post.title}</PostContent>
-              <PostStats>
-                {post.views !== null && (
-                  <PostStat>
-                    <EyeIcon />
-                    {largeNumberFormat(post.views)}
-                  </PostStat>
-                )}
-                <PostStat>
-                  <UpvoteIcon />
-                  {largeNumberFormat(post.numUpvotes)}
-                </PostStat>
-                <PostStat>
-                  <CommentIcon />
-                  {largeNumberFormat(post.numComments)}
-                </PostStat>
-              </PostStats>
-            </CommentInfo>
-          </PostContainer>
-        </Link>
-      )}
+    <PostsSection
+      userId={profile?.id}
+      isSameUser={isSameUser}
+      numPosts={userStats?.userStats?.numPosts}
     />
   );
 
@@ -592,34 +167,23 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
               />
             )}
           </ActivityContainer>
+          <ActivityContainer>
+            <ActivitySectionTitle>
+              Articles read in the last year
+              {totalReads >= 0 && <span>({totalReads})</span>}
+            </ActivitySectionTitle>
+            <CalendarHeatmap
+              startDate={after}
+              endDate={before}
+              values={readingHistory.userReadHistory}
+              valueToCount={readHistoryToValue}
+            />
+          </ActivityContainer>
         </>
       )}
       {userStats?.userStats && (
         <>
-          {userStats.userStats?.numPostViews !== null && (
-            <ActivityContainer>
-              <ActivitySectionTitle>Stats</ActivitySectionTitle>
-              <OverallStats>
-                <OverallStatContainer>
-                  <OverallStatData>
-                    {userStats.userStats.numPostViews.toLocaleString()}
-                  </OverallStatData>
-                  <OverallStatDescription>Article views</OverallStatDescription>
-                </OverallStatContainer>
-                <OverallStatContainer>
-                  <OverallStatData>
-                    {(
-                      userStats.userStats.numPostUpvotes +
-                      userStats.userStats.numCommentUpvotes
-                    ).toLocaleString()}
-                  </OverallStatData>
-                  <OverallStatDescription>
-                    Upvotes earned
-                  </OverallStatDescription>
-                </OverallStatContainer>
-              </OverallStats>
-            </ActivityContainer>
-          )}
+          <AuthorStats userStats={userStats.userStats} />
           {postsSection}
           {commentsSection}
         </>
