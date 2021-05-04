@@ -1,4 +1,10 @@
-import React, { ReactElement, useContext, useMemo, useState } from 'react';
+import React, {
+  ReactElement,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { useQuery } from 'react-query';
 import {
   getLayout as getProfileLayout,
@@ -7,7 +13,13 @@ import {
   ProfileLayoutProps,
 } from '../../components/layouts/ProfileLayout';
 import styled from '@emotion/styled';
-import { startOfTomorrow, subDays, subYears } from 'date-fns';
+import {
+  addDays,
+  endOfYear,
+  startOfTomorrow,
+  subDays,
+  subYears,
+} from 'date-fns';
 import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import {
@@ -31,6 +43,7 @@ import PostsSection from '../../components/profile/PostsSection';
 import AuthorStats from '../../components/profile/AuthorStats';
 import CalendarHeatmap from '../../components/CalendarHeatmap';
 import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
+import Dropdown from '../../components/dropdown/Dropdown';
 
 const ReactTooltip = dynamic(() => import('react-tooltip'));
 
@@ -53,6 +66,19 @@ const RanksModal = dynamic(
 );
 
 const readHistoryToValue = (value: UserReadHistory): number => value.reads;
+const readHistoryToTooltip = (value: UserReadHistory, date: Date): string => {
+  const formattedDate = date.toLocaleString('en-US', {
+    month: 'short',
+    day: '2-digit',
+    year: 'numeric',
+  });
+  if (!value?.reads) {
+    return `No articles read on ${formattedDate}`;
+  }
+  return `${value.reads} article${
+    value.reads > 1 ? 's' : ''
+  } read on ${formattedDate}`;
+};
 
 const RankHistory = ({
   rank,
@@ -72,18 +98,37 @@ const RankHistory = ({
   </div>
 );
 
-const before = startOfTomorrow();
-const after = subYears(subDays(before, 2), 1);
+const BASE_YEAR = 2018;
+const currentYear = new Date().getFullYear();
+const dropdownOptions = [
+  'Last year',
+  ...Array.from(new Array(currentYear - BASE_YEAR + 1), (_, i) =>
+    (currentYear - i).toString(),
+  ),
+];
 
 const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
   const [showRanksModal, setShowRanksModal] = useState(false);
+  const [selectedHistoryYear, setSelectedHistoryYear] = useState(0);
+  const [before, after] = useMemo<[Date, Date]>(() => {
+    if (!selectedHistoryYear) {
+      const start = startOfTomorrow();
+      return [start, subYears(subDays(start, 2), 1)];
+    }
+    const startYear = new Date(0);
+    startYear.setFullYear(parseInt(dropdownOptions[selectedHistoryYear]));
+    return [addDays(endOfYear(startYear), 1), startYear];
+  }, [selectedHistoryYear]);
+  const [readingHistory, setReadingHistory] = useState<
+    UserReadingRankHistoryData & UserReadHistoryData
+  >(null);
 
-  const { data: readingHistory } = useQuery<
+  const { data: remoteReadingHistory } = useQuery<
     UserReadingRankHistoryData & UserReadHistoryData
   >(
-    ['reading_history', profile?.id],
+    ['reading_history', profile?.id, selectedHistoryYear],
     () =>
       request(`${apiUrl}/graphql`, USER_READING_HISTORY_QUERY, {
         id: profile?.id,
@@ -91,12 +136,18 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
         after,
       }),
     {
-      enabled: !!profile && tokenRefreshed,
+      enabled: !!profile && tokenRefreshed && !!before && !!after,
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
       refetchOnMount: false,
     },
   );
+
+  useEffect(() => {
+    if (remoteReadingHistory) {
+      setReadingHistory(remoteReadingHistory);
+    }
+  }, [remoteReadingHistory]);
 
   const totalReads = useMemo(
     () =>
@@ -173,16 +224,58 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
           </ActivityContainer>
           <ActivityContainer>
             <ActivitySectionTitle>
-              Articles read in the last year
+              Articles read in{' '}
+              {selectedHistoryYear > 0
+                ? dropdownOptions[selectedHistoryYear]
+                : 'the last year'}
               {totalReads >= 0 && <span>({totalReads})</span>}
+              <Dropdown
+                className="ml-auto"
+                selectedIndex={selectedHistoryYear}
+                options={dropdownOptions}
+                onChange={(val, index) => setSelectedHistoryYear(index)}
+                buttonSize="small"
+                style={{ width: '7.5rem' }}
+              />
             </ActivitySectionTitle>
             <CalendarHeatmap
               startDate={after}
               endDate={before}
               values={readingHistory.userReadHistory}
               valueToCount={readHistoryToValue}
+              valueToTooltip={readHistoryToTooltip}
             />
-            {windowLoaded && <ReactTooltip />}
+            <div className="flex items-center justify-between mt-4 typo-footnote">
+              <div className="text-theme-label-quaternary">
+                Inspired by GitHub
+              </div>
+              <div className="flex items-center">
+                <div className="mr-2">Less</div>
+                <div
+                  className="w-2 h-2 mr-0.5 border border-theme-divider-quaternary"
+                  style={{ borderRadius: '0.1875rem' }}
+                />
+                <div
+                  className="w-2 h-2 mr-0.5 bg-theme-label-disabled"
+                  style={{ borderRadius: '0.1875rem' }}
+                />
+                <div
+                  className="w-2 h-2 mr-0.5 bg-theme-label-quaternary"
+                  style={{ borderRadius: '0.1875rem' }}
+                />
+                <div
+                  className="w-2 h-2 mr-0.5 bg-theme-label-primary"
+                  style={{ borderRadius: '0.1875rem' }}
+                />
+                <div className="ml-2">More</div>
+              </div>
+            </div>
+            {windowLoaded && (
+              <ReactTooltip
+                backgroundColor="var(--balloon-color)"
+                delayHide={100}
+              />
+            )}
           </ActivityContainer>
         </>
       )}

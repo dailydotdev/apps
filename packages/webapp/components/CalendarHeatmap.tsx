@@ -1,19 +1,12 @@
 import React, { CSSProperties, ReactElement, ReactNode, useMemo } from 'react';
 import { addDays, differenceInDays, endOfWeek } from 'date-fns';
 
-export type CalendarHeatmapProps<T extends { date: string }> = {
-  gutterSize?: number;
-  startDate: Date;
-  endDate: Date;
-  values: T[];
-  valueToCount: (value: T) => number;
-};
-
 const BINS = 3;
 const DAYS_IN_WEEK = 7;
 const SQUARE_SIZE = 8;
+const LINE_HEIGHT = 18;
 const MONTH_LABEL_GUTTER_SIZE = 6;
-const MONTH_LABEL_SIZE = 18 + MONTH_LABEL_GUTTER_SIZE;
+const MONTH_LABEL_SIZE = LINE_HEIGHT + MONTH_LABEL_GUTTER_SIZE;
 const MONTH_LABELS = [
   'Jan',
   'Feb',
@@ -39,6 +32,7 @@ const labelStyle: CSSProperties = {
 
 const binsAttributes: React.SVGProps<SVGRectElement>[] = [
   {
+    fill: 'transparent',
     stroke: 'var(--theme-divider-quaternary)',
     strokeWidth: 1,
   },
@@ -76,12 +70,22 @@ function getBin(value: number, bins: number[]): number {
   return bins.findIndex((binMaxValue) => value <= binMaxValue) + 1;
 }
 
+export type CalendarHeatmapProps<T extends { date: string }> = {
+  gutterSize?: number;
+  startDate: Date;
+  endDate: Date;
+  values: T[];
+  valueToCount: (value: T) => number;
+  valueToTooltip: (value: T, date: Date) => string;
+};
+
 export default function CalendarHeatmap<T extends { date: string }>({
   startDate,
   endDate,
   gutterSize = 2,
   values,
   valueToCount,
+  valueToTooltip,
 }: CalendarHeatmapProps<T>): ReactElement {
   const squareSizeWithGutter = SQUARE_SIZE + gutterSize;
 
@@ -99,14 +103,14 @@ export default function CalendarHeatmap<T extends { date: string }>({
 
   const width =
     weekCount * squareSizeWithGutter - (gutterSize - weekdayLabelSize);
-  const height = weekWidth + (MONTH_LABEL_SIZE - gutterSize) + weekdayLabelSize;
+  const height = weekWidth + (MONTH_LABEL_SIZE - gutterSize);
 
   const bins = useMemo<number[]>(() => getBins(values.map(valueToCount)), [
     values,
     valueToCount,
   ]);
   const computedValues = useMemo<
-    Record<number, { count: number; date: Date; bin: number }>
+    Record<number, { count: number; date: Date; bin: number; originalValue: T }>
   >(
     () =>
       values.reduce((acc, value) => {
@@ -120,6 +124,7 @@ export default function CalendarHeatmap<T extends { date: string }>({
           count,
           bin: getBin(count, bins),
           date,
+          originalValue: value,
         };
         return acc;
       }, {}),
@@ -128,7 +133,7 @@ export default function CalendarHeatmap<T extends { date: string }>({
 
   const getMonthLabelCoordinates = (weekIndex: number): [number, number] => [
     weekIndex * squareSizeWithGutter,
-    MONTH_LABEL_SIZE - MONTH_LABEL_GUTTER_SIZE,
+    (MONTH_LABEL_SIZE - MONTH_LABEL_GUTTER_SIZE) / 2 + 1,
   ];
 
   const renderMonthLabels = (): ReactNode => {
@@ -186,7 +191,10 @@ export default function CalendarHeatmap<T extends { date: string }>({
         x={x}
         y={y}
         rx="3"
-        data-count={value?.count}
+        data-tip={valueToTooltip(
+          value?.originalValue,
+          addDays(startDateWithEmptyDays, index),
+        )}
         {...attrs}
       />
     );
@@ -213,7 +221,7 @@ export default function CalendarHeatmap<T extends { date: string }>({
       <g transform={`translate(${weekdayLabelSize}, 0)`}>
         {renderMonthLabels()}
       </g>
-      <g transform={`translate(${SQUARE_SIZE}, ${MONTH_LABEL_SIZE})`}>
+      <g transform={`translate(0, ${MONTH_LABEL_SIZE})`}>
         {renderWeekdayLabels()}
       </g>
       <g transform={`translate(${weekdayLabelSize}, ${MONTH_LABEL_SIZE})`}>
