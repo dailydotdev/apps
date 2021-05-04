@@ -172,7 +172,7 @@ export default function MainFeedPage<T>({
   const tabClassNames = isSearch ? 'btn-tertiary invisible' : 'btn-tertiary';
   const periodDropdownProps: DropdownProps = {
     style: { width: '11rem' },
-    compact: true,
+    buttonSize: 'medium',
     icon: <CalendarIcon />,
     selectedIndex: selectedPeriod,
     options: periodTexts,
