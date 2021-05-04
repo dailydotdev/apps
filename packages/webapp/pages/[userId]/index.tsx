@@ -30,6 +30,9 @@ import CommentsSection from '../../components/profile/CommentsSection';
 import PostsSection from '../../components/profile/PostsSection';
 import AuthorStats from '../../components/profile/AuthorStats';
 import CalendarHeatmap from '../../components/CalendarHeatmap';
+import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
+
+const ReactTooltip = dynamic(() => import('react-tooltip'));
 
 export const getStaticProps = getProfileStaticProps;
 export const getStaticPaths = getProfileStaticPaths;
@@ -73,6 +76,7 @@ const before = startOfTomorrow();
 const after = subYears(subDays(before, 2), 1);
 
 const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
+  const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
   const [showRanksModal, setShowRanksModal] = useState(false);
 
@@ -178,6 +182,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
               values={readingHistory.userReadHistory}
               valueToCount={readHistoryToValue}
             />
+            {windowLoaded && <ReactTooltip />}
           </ActivityContainer>
         </>
       )}

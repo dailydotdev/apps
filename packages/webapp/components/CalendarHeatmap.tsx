@@ -58,7 +58,7 @@ function getRange(count: number): number[] {
 }
 
 function getBins(values: number[]): number[] {
-  const uniques = Array.from(new Set(values)).sort();
+  const uniques = Array.from(new Set(values)).sort((a, b) => a - b);
   if (uniques.length <= BINS) {
     return [...new Array(BINS - uniques.length).fill(0), ...uniques];
   }
