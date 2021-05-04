@@ -14,6 +14,7 @@ export const ActivityContainer = styled.section`
 
 export const ActivitySectionTitle = styled.h2`
   display: flex;
+  align-items: center;
   margin: 0 0 ${sizeN(4)};
   color: var(--theme-label-primary);
   font-weight: bold;

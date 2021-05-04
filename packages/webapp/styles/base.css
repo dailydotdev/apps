@@ -206,3 +206,13 @@ img.lazyload:not([src]) {
   opacity: 0;
 }
 
+.__react_component_tooltip.__react_component_tooltip {
+  color: var(--balloon-text-color);
+  border-radius: var(--balloon-border-radius);
+  padding: 0.25rem 0.75rem;
+  @apply typo-subhead;
+
+  &.show {
+    opacity: 1;
+  }
+}
