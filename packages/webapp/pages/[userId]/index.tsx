@@ -79,9 +79,9 @@ const readHistoryToTooltip = (value: UserReadHistory, date: Date): string => {
   if (!value?.reads) {
     return `No articles read on ${formattedDate}`;
   }
-  return `${value.reads} article${
+  return `<strong>${value.reads} article${
     value.reads > 1 ? 's' : ''
-  } read on ${formattedDate}`;
+  } read</strong> on ${formattedDate}`;
 };
 
 const RankHistory = ({
@@ -264,7 +264,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
               <div className="text-theme-label-quaternary">
                 Inspired by GitHub
               </div>
-              <div className="laptop:flex items-center hidden">
+              <div className="flex items-center">
                 <div className="mr-2">Less</div>
                 <div
                   className="w-2 h-2 mr-0.5 border border-theme-divider-quaternary"
@@ -289,6 +289,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
               <ReactTooltip
                 backgroundColor="var(--balloon-color)"
                 delayHide={100}
+                html={true}
               />
             )}
           </ActivityContainer>

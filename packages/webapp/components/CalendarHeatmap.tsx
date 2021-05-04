@@ -32,9 +32,7 @@ const labelStyle: CSSProperties = {
 
 const binsAttributes: React.SVGProps<SVGRectElement>[] = [
   {
-    fill: 'transparent',
-    stroke: 'var(--theme-divider-quaternary)',
-    strokeWidth: 1,
+    fill: 'var(--theme-divider-quaternary)',
   },
   {
     fill: 'var(--theme-label-disabled)',
@@ -182,21 +180,34 @@ export default function CalendarHeatmap<T extends { date: string }>({
     }
     const [x, y] = getSquareCoordinates(dayIndex);
     const value = computedValues[index];
-    const attrs = binsAttributes[value?.bin || 0];
+    const bin = value?.bin || 0;
+    const attrs = binsAttributes[bin];
     return (
-      <rect
-        key={index}
-        width={SQUARE_SIZE}
-        height={SQUARE_SIZE}
-        x={x}
-        y={y}
-        rx="3"
-        data-tip={valueToTooltip(
-          value?.originalValue,
-          addDays(startDateWithEmptyDays, index),
+      <>
+        <rect
+          key={index}
+          width={SQUARE_SIZE}
+          height={SQUARE_SIZE}
+          x={x}
+          y={y}
+          rx="3"
+          data-tip={valueToTooltip(
+            value?.originalValue,
+            addDays(startDateWithEmptyDays, index),
+          )}
+          {...attrs}
+        />
+        {!bin && (
+          <rect
+            width={SQUARE_SIZE - 2}
+            height={SQUARE_SIZE - 2}
+            x={x + 1}
+            y={y + 1}
+            rx="2"
+            fill="var(--theme-background-primary)"
+          />
         )}
-        {...attrs}
-      />
+      </>
     );
   };
 
@@ -217,7 +228,11 @@ export default function CalendarHeatmap<T extends { date: string }>({
     getRange(weekCount).map((weekIndex) => renderWeek(weekIndex));
 
   return (
-    <svg width={width} viewBox={`0 0 ${width} ${height}`}>
+    <svg
+      width={width}
+      viewBox={`0 0 ${width} ${height}`}
+      onMouseDown={(e) => e.preventDefault()}
+    >
       <g transform={`translate(${weekdayLabelSize}, 0)`}>
         {renderMonthLabels()}
       </g>
