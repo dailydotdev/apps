@@ -23,7 +23,7 @@ import {
 } from '../graphql/users';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { RANK_NAMES } from '../lib/rank';
-import { startOfTomorrow, subDays, subYears } from 'date-fns';
+import { startOfTomorrow, subDays, subMonths } from 'date-fns';
 
 beforeEach(() => {
   nock.cleanAll();
@@ -133,7 +133,7 @@ const createUserStatsMock = (
 });
 
 const before = startOfTomorrow();
-const after = subYears(subDays(before, 2), 1);
+const after = subMonths(subDays(before, 2), 6);
 
 const createReadingHistoryMock = (
   rankHistory: UserReadingRankHistory[] = [

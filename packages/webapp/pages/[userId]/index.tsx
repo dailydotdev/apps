@@ -18,6 +18,7 @@ import {
   endOfYear,
   startOfTomorrow,
   subDays,
+  subMonths,
   subYears,
 } from 'date-fns';
 import request from 'graphql-request';
@@ -44,6 +45,9 @@ import AuthorStats from '../../components/profile/AuthorStats';
 import CalendarHeatmap from '../../components/CalendarHeatmap';
 import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
 import Dropdown from '../../components/dropdown/Dropdown';
+import useMedia from '../../hooks/useMedia';
+import { laptop } from '../../styles/media';
+import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 
 const ReactTooltip = dynamic(() => import('react-tooltip'));
 
@@ -110,9 +114,14 @@ const dropdownOptions = [
 const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
+  const fullHistory = useMedia([laptop.replace('@media ', '')], [true], false);
   const [showRanksModal, setShowRanksModal] = useState(false);
   const [selectedHistoryYear, setSelectedHistoryYear] = useState(0);
   const [before, after] = useMemo<[Date, Date]>(() => {
+    if (!fullHistory) {
+      const start = startOfTomorrow();
+      return [start, subMonths(subDays(start, 2), 6)];
+    }
     if (!selectedHistoryYear) {
       const start = startOfTomorrow();
       return [start, subYears(subDays(start, 2), 1)];
@@ -146,6 +155,10 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
   useEffect(() => {
     if (remoteReadingHistory) {
       setReadingHistory(remoteReadingHistory);
+      requestIdleCallback(async () => {
+        const mod = await import('react-tooltip');
+        mod.default.rebuild();
+      });
     }
   }, [remoteReadingHistory]);
 
@@ -225,12 +238,14 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
           <ActivityContainer>
             <ActivitySectionTitle>
               Articles read in{' '}
-              {selectedHistoryYear > 0
-                ? dropdownOptions[selectedHistoryYear]
-                : 'the last year'}
+              {fullHistory
+                ? selectedHistoryYear > 0
+                  ? dropdownOptions[selectedHistoryYear]
+                  : 'the last year'
+                : 'the last months'}
               {totalReads >= 0 && <span>({totalReads})</span>}
               <Dropdown
-                className="ml-auto"
+                className="ml-auto hidden laptop:block"
                 selectedIndex={selectedHistoryYear}
                 options={dropdownOptions}
                 onChange={(val, index) => setSelectedHistoryYear(index)}
@@ -249,7 +264,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
               <div className="text-theme-label-quaternary">
                 Inspired by GitHub
               </div>
-              <div className="flex items-center">
+              <div className="laptop:flex items-center hidden">
                 <div className="mr-2">Less</div>
                 <div
                   className="w-2 h-2 mr-0.5 border border-theme-divider-quaternary"

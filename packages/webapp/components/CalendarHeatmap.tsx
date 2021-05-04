@@ -217,7 +217,7 @@ export default function CalendarHeatmap<T extends { date: string }>({
     getRange(weekCount).map((weekIndex) => renderWeek(weekIndex));
 
   return (
-    <svg viewBox={`0 0 ${width} ${height}`}>
+    <svg width={width} viewBox={`0 0 ${width} ${height}`}>
       <g transform={`translate(${weekdayLabelSize}, 0)`}>
         {renderMonthLabels()}
       </g>
