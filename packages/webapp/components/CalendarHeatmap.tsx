@@ -57,15 +57,23 @@ function getRange(count: number): number[] {
   return Array.from(new Array(count), (_, i) => i);
 }
 
-function getBin(value: number, maxValue: number, minValue: number): number {
+function getBins(values: number[]): number[] {
+  const uniques = Array.from(new Set(values)).sort();
+  if (uniques.length <= BINS) {
+    return [...new Array(BINS - uniques.length).fill(0), ...uniques];
+  }
+  const binSize = Math.floor(uniques.length / BINS);
+  return Array.from(
+    new Array(BINS),
+    (_, i) => uniques[Math.min(binSize * (i + 1), uniques.length - 1)],
+  );
+}
+
+function getBin(value: number, bins: number[]): number {
   if (!value) {
     return 0;
   }
-  if (maxValue === minValue) {
-    return BINS;
-  }
-  const binSize = Math.ceil(maxValue - minValue + 1) / BINS;
-  return Math.floor((value - minValue) / binSize) + 1;
+  return bins.findIndex((binMaxValue) => value <= binMaxValue) + 1;
 }
 
 export default function CalendarHeatmap<T extends { date: string }>({
@@ -93,7 +101,13 @@ export default function CalendarHeatmap<T extends { date: string }>({
     weekCount * squareSizeWithGutter - (gutterSize - weekdayLabelSize);
   const height = weekWidth + (MONTH_LABEL_SIZE - gutterSize) + weekdayLabelSize;
 
-  const computedValues = useMemo<Record<number, { count: number; date: Date }>>(
+  const bins = useMemo<number[]>(() => getBins(values.map(valueToCount)), [
+    values,
+    valueToCount,
+  ]);
+  const computedValues = useMemo<
+    Record<number, { count: number; date: Date; bin: number }>
+  >(
     () =>
       values.reduce((acc, value) => {
         const date = new Date(value.date);
@@ -101,24 +115,15 @@ export default function CalendarHeatmap<T extends { date: string }>({
         if (index < 0) {
           return acc;
         }
+        const count = valueToCount(value);
         acc[index] = {
-          count: valueToCount(value),
+          count,
+          bin: getBin(count, bins),
           date,
         };
         return acc;
       }, {}),
-    [values, valueToCount, startDate, endDate],
-  );
-  const [maxValue, minValue] = useMemo<[number, number]>(
-    () =>
-      Object.values(computedValues).reduce(
-        (acc, value) => [
-          Math.max(acc[0], value.count),
-          Math.min(acc[1], value.count),
-        ],
-        [0, Infinity],
-      ),
-    [computedValues],
+    [values, valueToCount, startDate, endDate, bins],
   );
 
   const getMonthLabelCoordinates = (weekIndex: number): [number, number] => [
@@ -172,7 +177,7 @@ export default function CalendarHeatmap<T extends { date: string }>({
     }
     const [x, y] = getSquareCoordinates(dayIndex);
     const value = computedValues[index];
-    const attrs = binsAttributes[getBin(value?.count, maxValue, minValue)];
+    const attrs = binsAttributes[value?.bin || 0];
     return (
       <rect
         key={index}
