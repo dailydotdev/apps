@@ -61,10 +61,11 @@ function getBin(value: number, maxValue: number, minValue: number): number {
   if (!value) {
     return 0;
   }
-  if (maxValue === minValue || value === maxValue) {
+  if (maxValue === minValue) {
     return BINS;
   }
-  return Math.floor(((value - minValue) * BINS) / (maxValue - minValue)) + 1;
+  const binSize = Math.ceil(maxValue - minValue + 1) / BINS;
+  return Math.floor((value - minValue) / binSize) + 1;
 }
 
 export default function CalendarHeatmap<T extends { date: string }>({
@@ -115,7 +116,7 @@ export default function CalendarHeatmap<T extends { date: string }>({
           Math.max(acc[0], value.count),
           Math.min(acc[1], value.count),
         ],
-        [0, 1000],
+        [0, Infinity],
       ),
     [computedValues],
   );
@@ -180,6 +181,7 @@ export default function CalendarHeatmap<T extends { date: string }>({
         x={x}
         y={y}
         rx="3"
+        data-count={value?.count}
         {...attrs}
       />
     );
