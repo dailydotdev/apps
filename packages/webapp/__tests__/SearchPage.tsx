@@ -99,9 +99,9 @@ const renderComponent = (
         <SettingsContext.Provider value={settingsContext}>
           <OnboardingContext.Provider
             value={{
-              showWelcome: false,
+              onboardingStep: 3,
               onboardingReady: true,
-              setShowWelcome: jest.fn(),
+              incrementOnboardingStep: jest.fn(),
             }}
           >
             {SearchPage.getLayout(<SearchPage />, {}, SearchPage.layoutProps)}
