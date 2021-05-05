@@ -11,11 +11,11 @@ export default function useOnboarding(
   user?: LoggedUser,
   loadedUserFromCache?: boolean,
 ): OnboardingContextData {
-  const [showWelcome, setShowWelcome, loadedFromCache] = usePersistentState(
-    'showWelcome',
-    null,
-    true,
-  );
+  const [
+    onboardingStep,
+    setOnboardingStep,
+    loadedFromCache,
+  ] = usePersistentState<number | boolean>('showWelcome', null, 1);
   const [onboardingData, setOnboardingData] = usePersistentState(
     'onboarding',
     null,
@@ -49,9 +49,12 @@ export default function useOnboarding(
     }
   }, [onboardingData?.firstUse]);
 
+  const backwardsCompatibleOnboardingStep =
+    onboardingStep === true ? 1 : onboardingStep === false ? 2 : onboardingStep;
   return {
-    showWelcome: showWelcome && !user,
-    setShowWelcome,
+    onboardingStep: user ? -1 : backwardsCompatibleOnboardingStep,
+    incrementOnboardingStep: () =>
+      setOnboardingStep(backwardsCompatibleOnboardingStep + 1),
     onboardingReady: loadedFromCache && loadedUserFromCache,
     showReferral,
     closeReferral() {

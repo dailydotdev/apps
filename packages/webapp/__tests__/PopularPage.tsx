@@ -46,7 +46,7 @@ const createFeedMock = (
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createFeedMock()],
   user: LoggedUser = defaultUser,
-  showWelcome = false,
+  onboardingStep = 3,
 ): RenderResult => {
   const client = new QueryClient();
 
@@ -80,9 +80,9 @@ const renderComponent = (
         <SettingsContext.Provider value={settingsContext}>
           <OnboardingContext.Provider
             value={{
-              showWelcome,
+              onboardingStep,
               onboardingReady: true,
-              setShowWelcome: jest.fn(),
+              incrementOnboardingStep: jest.fn(),
               trackEngagement: jest.fn(),
               closeReferral: jest.fn(),
               showReferral: false,
@@ -137,7 +137,7 @@ it('should show welcome message during the onboarding', async () => {
       }),
     ],
     null,
-    true,
+    1,
   );
   await waitFor(() => expect(screen.queryByRole('status')).toBeInTheDocument());
 });

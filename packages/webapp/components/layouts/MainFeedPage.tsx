@@ -100,7 +100,8 @@ export default function MainFeedPage<T>({
 }: MainFeedPageProps<T>): ReactElement {
   const router = useRouter();
   const { user, tokenRefreshed } = useContext(AuthContext);
-  const { showWelcome, onboardingReady } = useContext(OnboardingContext);
+  const { onboardingStep, onboardingReady } = useContext(OnboardingContext);
+  const showWelcome = onboardingStep === 1;
   const finalQuery = getQueryBasedOnLogin(
     tokenRefreshed,
     user,

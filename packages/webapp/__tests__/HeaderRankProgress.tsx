@@ -40,12 +40,12 @@ const createRankMock = (
 });
 
 let queryClient: QueryClient;
-const setShowWelcome = jest.fn();
+const incrementOnboardingStep = jest.fn();
 
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createRankMock()],
   user: LoggedUser = defaultUser,
-  showWelcome = false,
+  onboardingStep = 3,
 ): RenderResult => {
   queryClient = new QueryClient();
   mocks.forEach(mockGraphQL);
@@ -63,9 +63,12 @@ const renderComponent = (
       >
         <OnboardingContext.Provider
           value={{
-            showWelcome,
+            onboardingStep,
             onboardingReady: true,
-            setShowWelcome,
+            incrementOnboardingStep,
+            trackEngagement: jest.fn(),
+            closeReferral: jest.fn(),
+            showReferral: false,
           }}
         >
           <HeaderRankProgress />
@@ -116,7 +119,7 @@ it('should show a welcome button during the onboarding', async () => {
     rank: { progressThisWeek: 1, currentRank: 0, readToday: false },
     userId: null,
   });
-  renderComponent([], null, true);
+  renderComponent([], null, 1);
   await waitFor(() =>
     expect(screen.queryByTestId('welcomeButton')).toBeInTheDocument(),
   );
