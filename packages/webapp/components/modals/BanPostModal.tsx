@@ -7,7 +7,7 @@ import {
   ModalProps,
 } from './StyledModal';
 import { useMutation } from 'react-query';
-import { DELETE_POST_MUTATION, EmptyResponse } from '../../graphql/posts';
+import { BAN_POST_MUTATION, EmptyResponse } from '../../graphql/posts';
 import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import Button from '../buttons/Button';
@@ -20,32 +20,32 @@ export default function DeletePostModal({
   postId,
   ...props
 }: Props): ReactElement {
-  const [deleting, setDeleting] = useState<boolean>(false);
+  const [banning, setBanning] = useState<boolean>(false);
 
-  const { mutateAsync: deletePost } = useMutation<EmptyResponse>(() =>
-    request(`${apiUrl}/graphql`, DELETE_POST_MUTATION, {
+  const { mutateAsync: banPost } = useMutation<EmptyResponse>(() =>
+    request(`${apiUrl}/graphql`, BAN_POST_MUTATION, {
       id: postId,
     }),
   );
 
-  const onDeletePost = async (event: MouseEvent): Promise<void> => {
-    if (deleting) {
+  const onBanPost = async (event: MouseEvent): Promise<void> => {
+    if (banning) {
       return;
     }
-    setDeleting(true);
+    setBanning(true);
     try {
-      await deletePost();
+      await banPost();
       props.onRequestClose(event);
     } catch (err) {
-      setDeleting(false);
+      setBanning(false);
     }
   };
 
   return (
     <ConfirmationModal {...props}>
-      <ConfirmationHeading>Delete post 🚫</ConfirmationHeading>
+      <ConfirmationHeading>Ban post 💩</ConfirmationHeading>
       <ConfirmationDescription>
-        Are you sure you want to delete this post? This action cannot be undone.
+        Are you sure you want to ban this post?
       </ConfirmationDescription>
       <ConfirmationButtons>
         <Button className="btn-secondary" onClick={props.onRequestClose}>
@@ -53,10 +53,10 @@ export default function DeletePostModal({
         </Button>
         <Button
           className="btn-primary-ketchup"
-          loading={deleting}
-          onClick={onDeletePost}
+          loading={banning}
+          onClick={onBanPost}
         >
-          Delete
+          Ban
         </Button>
       </ConfirmationButtons>
     </ConfirmationModal>

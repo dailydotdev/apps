@@ -27,6 +27,7 @@ import UpvoteIcon from '../../icons/upvote.svg';
 import CommentIcon from '../../icons/comment.svg';
 import BookmarkIcon from '../../icons/bookmark.svg';
 import TrashIcon from '../../icons/trash.svg';
+import HammerIcon from '../../icons/hammer.svg';
 import FeatherIcon from '../../icons/feather.svg';
 import LazyImage from '../../components/LazyImage';
 import {
@@ -75,6 +76,9 @@ const DeleteCommentModal = dynamic(
 );
 const DeletePostModal = dynamic(
   () => import('../../components/modals/DeletePostModal'),
+);
+const BanPostModal = dynamic(
+  () => import('../../components/modals/BanPostModal'),
 );
 const ShareBar = dynamic(() => import('../../components/ShareBar'), {
   ssr: false,
@@ -378,6 +382,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   const [showShareNewComment, setShowShareNewComment] = useState(false);
   const [lastScroll, setLastScroll] = useState(0);
   const [showDeletePost, setShowDeletePost] = useState(false);
+  const [showBanPost, setShowBanPost] = useState(false);
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
 
   const queryClient = useQueryClient();
@@ -626,11 +631,20 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             {...postLinkProps}
           />
           {user?.roles?.indexOf(Roles.Moderator) > -1 && (
-            <Button
-              className="btn-tertiary"
-              icon={<TrashIcon />}
-              onClick={() => setShowDeletePost(true)}
-            />
+            <>
+              <Button
+                className="btn-tertiary"
+                icon={<HammerIcon />}
+                onClick={() => setShowBanPost(true)}
+                {...getTooltipProps('Mighty ban hammer')}
+              />
+              <Button
+                className="btn-tertiary"
+                icon={<TrashIcon />}
+                onClick={() => setShowDeletePost(true)}
+                {...getTooltipProps('Delete post')}
+              />
+            </>
           )}
         </PostInfo>
         <Title>{postById?.post.title}</Title>
@@ -809,11 +823,20 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           onRequestClose={() => setShowShareNewComment(false)}
         />
       )}
-      <DeletePostModal
-        postId={id}
-        isOpen={showDeletePost}
-        onRequestClose={() => setShowDeletePost(false)}
-      />
+      {showDeletePost && (
+        <DeletePostModal
+          postId={id}
+          isOpen={showDeletePost}
+          onRequestClose={() => setShowDeletePost(false)}
+        />
+      )}
+      {showBanPost && (
+        <BanPostModal
+          postId={id}
+          isOpen={showBanPost}
+          onRequestClose={() => setShowBanPost(false)}
+        />
+      )}
     </>
   );
 };

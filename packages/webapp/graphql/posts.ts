@@ -135,6 +135,14 @@ export const DELETE_POST_MUTATION = gql`
   }
 `;
 
+export const BAN_POST_MUTATION = gql`
+  mutation BanPost($id: ID!) {
+    banPost(id: $id) {
+      _
+    }
+  }
+`;
+
 export const ADD_BOOKMARKS_MUTATION = gql`
   mutation AddBookmarks($data: AddBookmarkInput!) {
     addBookmarks(data: $data) {
