@@ -19,7 +19,7 @@ import classNames from 'classnames';
 import styles from '../../styles/cards.module.css';
 import ListFeaturedComment from './ListFeaturedComment';
 import Button from '../buttons/Button';
-import MenuIcon from '../../icons/menu.svg';
+import FlagIcon from '../../icons/flag.svg';
 import { getTooltipProps } from '../../lib/tooltip';
 import TrendingFlag from './TrendingFlag';
 import PostAuthor from './PostAuthor';
@@ -88,10 +88,10 @@ export function PostList({
               )}
               style={{ marginLeft: 'auto' }}
               buttonSize="small"
-              icon={<MenuIcon />}
+              icon={<FlagIcon />}
               onClick={(event) => onMenuClick?.(event, post)}
               pressed={menuOpened}
-              {...getTooltipProps('More')}
+              {...getTooltipProps('Report post')}
             />
           )}
           {notification && (

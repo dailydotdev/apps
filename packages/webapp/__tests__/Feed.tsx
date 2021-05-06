@@ -506,7 +506,7 @@ it('should report broken link', async () => {
       },
     },
   ]);
-  const [menuBtn] = await screen.findAllByLabelText('More');
+  const [menuBtn] = await screen.findAllByLabelText('Report post');
   menuBtn.click();
   const contextBtn = await screen.findByText('Broken link');
   contextBtn.click();
@@ -533,7 +533,7 @@ it('should report nsfw', async () => {
       },
     },
   ]);
-  const [menuBtn] = await screen.findAllByLabelText('More');
+  const [menuBtn] = await screen.findAllByLabelText('Report post');
   menuBtn.click();
   const contextBtn = await screen.findByText('Report NSFW');
   contextBtn.click();
@@ -560,7 +560,7 @@ it('should hide post', async () => {
       },
     },
   ]);
-  const [menuBtn] = await screen.findAllByLabelText('More');
+  const [menuBtn] = await screen.findAllByLabelText('Report post');
   menuBtn.click();
   const contextBtn = await screen.findByText('Hide post');
   contextBtn.click();

@@ -3,7 +3,7 @@ import { Author, Comment } from './comments';
 import { Connection } from './common';
 import { Source } from './sources';
 
-export type ReportReason = 'BROKEN' | 'NSFW';
+export type ReportReason = 'BROKEN' | 'NSFW' | 'CLICKBAIT' | 'LOW';
 
 export interface Post {
   __typename?: string;
