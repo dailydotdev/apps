@@ -321,6 +321,10 @@ export default function Feed<T>({
   };
 
   const onMenuClick = (e: React.MouseEvent, index: number) => {
+    if (postMenuIndex === index) {
+      setPostMenuIndex(null);
+      return;
+    }
     trackEvent({ category: 'Post', action: 'Menu' });
     setPostMenuIndex(index);
     const { right, bottom } = e.currentTarget.getBoundingClientRect();
