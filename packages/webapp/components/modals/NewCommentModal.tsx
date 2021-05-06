@@ -16,7 +16,7 @@ import { ModalProps } from './StyledModal';
 import sizeN from '../../macros/sizeN.macro';
 import AuthContext from '../../contexts/AuthContext';
 import { RoundedImage, SmallRoundedImage } from '../utilities';
-import { commentBoxClassNames, CommentPublishDate } from '../comments/common';
+import { commentBoxClassNames } from '../comments/common';
 import { commentDateFormat } from '../../lib/dateFormat';
 import {
   typoCallout,
@@ -29,6 +29,7 @@ import {
   COMMENT_ON_COMMENT_MUTATION,
   COMMENT_ON_POST_MUTATION,
   CommentOnData,
+  EDIT_COMMENT_MUTATION,
   PostCommentsData,
 } from '../../graphql/comments';
 import { Edge } from '../../graphql/common';
@@ -49,6 +50,8 @@ export interface NewCommentModalProps extends ModalProps {
   commentId: string | null;
   postId: string;
   onComment?: (newComment: Comment, parentId: string | null) => void;
+  editContent?: string;
+  editId?: string;
 }
 
 const ParentComment = classed(
@@ -157,6 +160,8 @@ export default function NewCommentModal({
   content,
   onRequestClose,
   onComment,
+  editContent,
+  editId,
   ...props
 }: NewCommentModalProps): ReactElement {
   const { user } = useContext(AuthContext);
@@ -183,7 +188,6 @@ export default function NewCommentModal({
     {
       onSuccess: async (data) => {
         const queryKey = ['post_comments', props.postId];
-        await queryClient.cancelQueries(queryKey);
         const cached = cloneDeep(
           queryClient.getQueryData<PostCommentsData>(queryKey),
         );
@@ -221,6 +225,56 @@ export default function NewCommentModal({
     },
   );
 
+  const { mutateAsync: editComment } = useMutation<
+    CommentOnData,
+    unknown,
+    CommentVariables
+  >(
+    (variables) =>
+      request(`${apiUrl}/graphql`, EDIT_COMMENT_MUTATION, variables),
+    {
+      onSuccess: async (data) => {
+        const queryKey = ['post_comments', props.postId];
+        const cached = cloneDeep(
+          queryClient.getQueryData<PostCommentsData>(queryKey),
+        );
+        if (cached) {
+          // Update the sub tree of the parent comment
+          if (props.commentId) {
+            const parentEdgeIndex = cached.postComments.edges.findIndex(
+              (e) => e.node.id === props.commentId,
+            );
+            if (parentEdgeIndex > -1) {
+              const edgeIndex = cached.postComments.edges[
+                parentEdgeIndex
+              ].node.children.edges.findIndex((e) => e.node.id === editId);
+              if (edgeIndex > -1) {
+                cached.postComments.edges[parentEdgeIndex].node.children.edges[
+                  edgeIndex
+                ].node = {
+                  ...cached.postComments.edges[parentEdgeIndex].node.children
+                    .edges[edgeIndex].node,
+                  ...data.comment,
+                };
+              }
+            }
+          } else {
+            const edgeIndex = cached.postComments.edges.findIndex(
+              (e) => e.node.id === editId,
+            );
+            if (edgeIndex > -1) {
+              cached.postComments.edges[edgeIndex].node = {
+                ...cached.postComments.edges[edgeIndex].node,
+                ...data.comment,
+              };
+            }
+          }
+          queryClient.setQueryData(queryKey, cached);
+        }
+      },
+    },
+  );
+
   const modalRef = (element: HTMLDivElement): void => {
     if (element) {
       element.scrollTop = element.scrollHeight - element.clientHeight;
@@ -240,13 +294,21 @@ export default function NewCommentModal({
     setErrorMessage(null);
     setSendingComment(true);
     try {
-      const data = await comment({
-        id: props.commentId || props.postId,
-        content: input,
-      });
-      trackEvent({ category: 'Comment Popup', action: 'Comment' });
-      onComment?.(data.comment, props.commentId);
-      onRequestClose(event);
+      if (editId) {
+        await editComment({
+          id: editId,
+          content: input,
+        });
+        onRequestClose(event);
+      } else {
+        const data = await comment({
+          id: props.commentId || props.postId,
+          content: input,
+        });
+        trackEvent({ category: 'Comment Popup', action: 'Comment' });
+        onComment?.(data.comment, props.commentId);
+        onRequestClose(event);
+      }
     } catch (err) {
       setErrorMessage('Something went wrong, try again');
       setSendingComment(false);
@@ -284,6 +346,9 @@ export default function NewCommentModal({
 
   useEffect(() => {
     commentRef.current?.focus();
+    if (commentRef.current && editContent) {
+      commentRef.current.textContent = editContent;
+    }
     trackEvent({ category: 'Comment Popup', action: 'Impression' });
   }, []);
 
@@ -300,9 +365,12 @@ export default function NewCommentModal({
           />
           <ParentCommentMetadata>
             <CommentAuthor>{authorName}</CommentAuthor>
-            <CommentPublishDate>
+            <time
+              dateTime={publishDate.toString()}
+              className="text-theme-label-tertiary typo-callout"
+            >
               {commentDateFormat(publishDate)}
-            </CommentPublishDate>
+            </time>
           </ParentCommentMetadata>
         </ParentCommentHeader>
         <div>{content}</div>
@@ -339,7 +407,7 @@ export default function NewCommentModal({
           onClick={sendComment}
           className="btn-primary-avocado"
         >
-          Comment
+          {editId ? 'Edit' : 'Comment'}
         </Button>
       </Footer>
       <DiscardCommentModal

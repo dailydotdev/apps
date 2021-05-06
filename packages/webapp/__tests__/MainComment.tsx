@@ -24,6 +24,7 @@ const baseComment = {
 
 const onComment = jest.fn();
 const onDelete = jest.fn();
+const onEdit = jest.fn();
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -48,6 +49,7 @@ const renderLayout = (
     comment: baseComment,
     onComment,
     onDelete,
+    onEdit,
     postAuthorId: null,
   };
 
@@ -85,6 +87,16 @@ it('should show author name', async () => {
 it('should show formatted comment date', async () => {
   const res = renderLayout();
   await res.findByText('Feb 10, 2017');
+});
+
+it('should show last updated comment date', async () => {
+  const res = renderLayout({
+    comment: {
+      ...baseComment,
+      lastUpdatedAt: new Date(2017, 2, 10, 0, 0).toISOString(),
+    },
+  });
+  await res.findByText('Modified Mar 10, 2017');
 });
 
 it('should show comment content', async () => {

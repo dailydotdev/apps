@@ -8,6 +8,7 @@ import AuthContext from '../../contexts/AuthContext';
 import {
   COMMENT_ON_COMMENT_MUTATION,
   COMMENT_ON_POST_MUTATION,
+  EDIT_COMMENT_MUTATION,
 } from '../../graphql/comments';
 import { MockedGraphQLResponse, mockGraphQL } from '../helpers/graphql';
 import nock from 'nock';
@@ -212,4 +213,44 @@ it('should show alert in case of an error', async () => {
   await waitFor(() => mutationCalled);
   await screen.findByRole('alert');
   expect(onRequestClose).toBeCalledTimes(0);
+});
+
+it('should show content of comment to edit', async () => {
+  renderComponent({ editContent: 'My comment to edit' });
+  await screen.findByText('My comment to edit');
+});
+
+it('should send editComment mutation', async () => {
+  let mutationCalled = false;
+  const newComment = {
+    __typename: 'Comment',
+    id: 'new',
+    content: 'comment',
+    createdAt: new Date(2017, 1, 10, 0, 1).toISOString(),
+    permalink: 'https://daily.dev',
+  };
+  renderComponent({ editId: 'c1', editContent: 'My comment to edit' }, [
+    {
+      request: {
+        query: EDIT_COMMENT_MUTATION,
+        variables: { id: 'c1', content: 'comment' },
+      },
+      result: () => {
+        mutationCalled = true;
+        return {
+          data: {
+            comment: newComment,
+          },
+        };
+      },
+    },
+  ]);
+  const input = await screen.findByRole('textbox');
+  input.innerText = 'comment';
+  input.dispatchEvent(new Event('input', { bubbles: true }));
+  const el = await screen.findByText('Edit');
+  el.click();
+  await waitFor(() => mutationCalled);
+  await waitFor(() => expect(onComment).toBeCalledTimes(0));
+  await waitFor(() => expect(onRequestClose).toBeCalledTimes(1));
 });

@@ -1,7 +1,6 @@
 import React, { ReactElement } from 'react';
 import { Comment } from '../../graphql/comments';
 import { CommentBox, CommentPublishDate } from './common';
-import { commentDateFormat } from '../../lib/dateFormat';
 import CommentActionButtons from './CommentActionButtons';
 import { ProfileImageLink } from '../profile/ProfileImageLink';
 import CommentAuthor from './CommentAuthor';
@@ -15,6 +14,7 @@ export interface Props {
   parentId: string;
   onComment: (comment: Comment, parentId: string | null) => void;
   onDelete: (comment: Comment, parentId: string | null) => void;
+  onEdit: (comment: Comment) => void;
   postAuthorId: string | null;
 }
 
@@ -27,6 +27,7 @@ export default function SubComment({
   onComment,
   parentId,
   onDelete,
+  onEdit,
   postAuthorId,
 }: Props): ReactElement {
   return (
@@ -45,9 +46,7 @@ export default function SubComment({
       <div className="flex flex-col items-stretch flex-1 ml-2">
         <SubCommentBox>
           <CommentAuthor postAuthorId={postAuthorId} author={comment.author} />
-          <CommentPublishDate dateTime={comment.createdAt}>
-            {commentDateFormat(comment.createdAt)}
-          </CommentPublishDate>
+          <CommentPublishDate comment={comment} />
           <div className="mt-2">{comment.content}</div>
         </SubCommentBox>
         <CommentActionButtons
@@ -55,6 +54,7 @@ export default function SubComment({
           parentId={parentId}
           onComment={onComment}
           onDelete={onDelete}
+          onEdit={onEdit}
         />
       </div>
     </article>

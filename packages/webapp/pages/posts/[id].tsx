@@ -325,6 +325,8 @@ interface ParentComment {
   content: string;
   commentId: string | null;
   postId: string;
+  editContent?: string;
+  editId?: string;
 }
 
 const updatePost = (
@@ -516,12 +518,38 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         authorName: comment.author.name,
         authorImage: comment.author.image,
         content: comment.content,
-        publishDate: comment.createdAt,
+        publishDate: comment.lastUpdatedAt || comment.createdAt,
         commentId: parentId,
         postId: postById.post.id,
       });
     } else {
       showLogin(LoginModalMode.ContentQuality);
+    }
+  };
+
+  const onEditClick = (comment: Comment, parentComment?: Comment) => {
+    setLastScroll(window.scrollY);
+    const shared = { editContent: comment.content, editId: comment.id };
+    if (parentComment) {
+      setParentComment({
+        authorName: parentComment.author.name,
+        authorImage: parentComment.author.image,
+        content: parentComment.content,
+        publishDate: parentComment.lastUpdatedAt || parentComment.createdAt,
+        commentId: parentComment.id,
+        postId: postById.post.id,
+        ...shared,
+      });
+    } else {
+      setParentComment({
+        authorName: postById.post.source.name,
+        authorImage: postById.post.source.image,
+        content: postById.post.title,
+        publishDate: postById.post.createdAt,
+        commentId: null,
+        postId: postById.post.id,
+        ...shared,
+      });
     }
   };
 
@@ -733,6 +761,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             onDelete={(comment, parentId) =>
               setPendingComment({ comment, parentId })
             }
+            onEdit={onEditClick}
             postAuthorId={postById?.post?.author?.id}
           />
         ))}
