@@ -325,7 +325,7 @@ export default function Feed<T>({
     setPostMenuIndex(index);
     const { right, bottom } = e.currentTarget.getBoundingClientRect();
     showReportMenu(e, {
-      position: { x: right - 108, y: bottom + 4 },
+      position: { x: right - 147, y: bottom + 4 },
     });
   };
 
