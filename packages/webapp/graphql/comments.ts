@@ -15,6 +15,7 @@ export interface Comment {
   id: string;
   content: string;
   createdAt: string;
+  lastUpdatedAt?: string;
   author?: Author;
   permalink: string;
   upvoted?: boolean;
@@ -27,6 +28,7 @@ export const COMMENT_FRAGMENT = gql`
     id
     content
     createdAt
+    lastUpdatedAt
     permalink
     upvoted
     numUpvotes
@@ -146,4 +148,13 @@ export const DELETE_COMMENT_MUTATION = gql`
       _
     }
   }
+`;
+
+export const EDIT_COMMENT_MUTATION = gql`
+  mutation EDIT_COMMENT_MUTATION($id: ID!, $content: String!) {
+    comment: editComment(id: $id, content: $content) {
+      ...CommentFragment
+    }
+  }
+  ${COMMENT_FRAGMENT}
 `;
