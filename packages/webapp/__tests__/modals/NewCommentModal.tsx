@@ -248,7 +248,7 @@ it('should send editComment mutation', async () => {
   const input = await screen.findByRole('textbox');
   input.innerText = 'comment';
   input.dispatchEvent(new Event('input', { bubbles: true }));
-  const el = await screen.findByText('Edit');
+  const el = await screen.findByText('Update');
   el.click();
   await waitFor(() => mutationCalled);
   await waitFor(() => expect(onComment).toBeCalledTimes(0));

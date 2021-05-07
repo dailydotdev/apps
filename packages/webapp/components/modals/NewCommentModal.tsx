@@ -407,7 +407,7 @@ export default function NewCommentModal({
           onClick={sendComment}
           className="btn-primary-avocado"
         >
-          {editId ? 'Edit' : 'Comment'}
+          {editId ? 'Update' : 'Comment'}
         </Button>
       </Footer>
       <DiscardCommentModal
