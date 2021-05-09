@@ -23,7 +23,7 @@ export interface DropdownProps {
   selectedIndex: number;
   options: string[];
   onChange: (value: string, index: number) => unknown;
-  compact?: boolean;
+  buttonSize?: 'small' | 'medium' | 'large';
 }
 
 export default function Dropdown({
@@ -32,10 +32,10 @@ export default function Dropdown({
   selectedIndex,
   options,
   onChange,
-  compact,
+  buttonSize = 'large',
   ...props
 }: DropdownProps): ReactElement {
-  const id = 'my-custom-id';
+  const [id] = useState(`dropdown-${Math.random().toString(36).substring(7)}`);
   const [isVisible, setVisibility] = useState(false);
   const [menuWidth, setMenuWidth] = useState<number>();
   const triggerRef = useRef<HTMLButtonElement>();
@@ -86,8 +86,12 @@ export default function Dropdown({
       <button
         ref={triggerRef}
         className={classNames(
-          'group flex w-full px-3 items-center bg-theme-float rounded-xl typo-body text-theme-label-tertiary hover:text-theme-label-primary hover:bg-theme-hover',
-          compact ? 'h-10' : 'h-12',
+          'group flex w-full px-3 items-center bg-theme-float typo-body text-theme-label-tertiary hover:text-theme-label-primary hover:bg-theme-hover',
+          buttonSize === 'medium'
+            ? 'h-10 rounded-xl'
+            : buttonSize === 'small'
+            ? 'h-8 rounded-10'
+            : 'h-12 rounded-14',
         )}
         onClick={handleMenuTrigger}
         onKeyDown={handleKeyboard}

@@ -100,7 +100,8 @@ export default function MainFeedPage<T>({
 }: MainFeedPageProps<T>): ReactElement {
   const router = useRouter();
   const { user, tokenRefreshed } = useContext(AuthContext);
-  const { showWelcome, onboardingReady } = useContext(OnboardingContext);
+  const { onboardingStep, onboardingReady } = useContext(OnboardingContext);
+  const showWelcome = onboardingStep === 1;
   const finalQuery = getQueryBasedOnLogin(
     tokenRefreshed,
     user,
@@ -172,7 +173,7 @@ export default function MainFeedPage<T>({
   const tabClassNames = isSearch ? 'btn-tertiary invisible' : 'btn-tertiary';
   const periodDropdownProps: DropdownProps = {
     style: { width: '11rem' },
-    compact: true,
+    buttonSize: 'medium',
     icon: <CalendarIcon />,
     selectedIndex: selectedPeriod,
     options: periodTexts,

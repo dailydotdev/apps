@@ -92,6 +92,7 @@ module.exports = {
     extend: {
       borderRadius: {
         10: '0.625rem',
+        14: '0.875rem',
       },
       opacity: {
         24: '0.24',

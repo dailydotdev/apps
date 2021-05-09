@@ -28,9 +28,11 @@ export default function HeaderRankProgress({
   className?: string;
 }): ReactElement {
   const { user } = useContext(AuthContext);
-  const { showWelcome, onboardingReady, setShowWelcome } = useContext(
-    OnboardingContext,
-  );
+  const {
+    onboardingStep,
+    onboardingReady,
+    incrementOnboardingStep,
+  } = useContext(OnboardingContext);
   const [showModal, setShowModal] = useState(false);
 
   const {
@@ -47,11 +49,12 @@ export default function HeaderRankProgress({
     return <></>;
   }
 
+  const showWelcome = onboardingStep === 1;
   const showRankAnimation = levelUp && neverShowRankModal;
   const closeRanksModal = () => {
     setShowModal(false);
     if (showWelcome) {
-      setShowWelcome(false);
+      incrementOnboardingStep();
     }
   };
 

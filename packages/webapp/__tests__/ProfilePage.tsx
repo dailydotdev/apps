@@ -12,8 +12,18 @@ import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
 import nock from 'nock';
 import { Connection } from '../graphql/common';
 import { AUTHOR_FEED_QUERY, FeedData, Post } from '../graphql/posts';
-import { USER_STATS_QUERY, UserStats, UserStatsData } from '../graphql/users';
+import {
+  USER_READING_HISTORY_QUERY,
+  USER_STATS_QUERY,
+  UserReadHistoryData,
+  UserReadingRankHistory,
+  UserReadingRankHistoryData,
+  UserStats,
+  UserStatsData,
+} from '../graphql/users';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import { RANK_NAMES } from '../lib/rank';
+import { startOfTomorrow, subDays, subMonths } from 'date-fns';
 
 beforeEach(() => {
   nock.cleanAll();
@@ -122,6 +132,31 @@ const createUserStatsMock = (
   },
 });
 
+const before = startOfTomorrow();
+const after = subMonths(subDays(before, 2), 6);
+
+const createReadingHistoryMock = (
+  rankHistory: UserReadingRankHistory[] = [
+    { rank: 2, count: 5 },
+    { rank: 5, count: 3 },
+  ],
+): MockedGraphQLResponse<UserReadingRankHistoryData & UserReadHistoryData> => ({
+  request: {
+    query: USER_READING_HISTORY_QUERY,
+    variables: {
+      id: 'u2',
+      before: before.toISOString(),
+      after: after.toISOString(),
+    },
+  },
+  result: {
+    data: {
+      userReadingRankHistory: rankHistory,
+      userReadHistory: [{ date: '2021-02-01', reads: 2 }],
+    },
+  },
+});
+
 const defaultProfile: PublicProfile = {
   id: 'u2',
   name: 'Daily Dev',
@@ -141,6 +176,7 @@ const renderComponent = (
     createCommentsMock(),
     createFeedMock(),
     createUserStatsMock(),
+    createReadingHistoryMock(),
   ],
   profile: Partial<PublicProfile> = {},
 ): RenderResult => {
@@ -304,4 +340,16 @@ it('should not show overall stats when not available', async () => {
   await waitFor(() => nock.isDone());
   const el = screen.queryByText('Article views');
   expect(el).not.toBeInTheDocument();
+});
+
+it('should show the reading rank history of the user', async () => {
+  renderComponent();
+  await waitFor(() => nock.isDone());
+  const counts = [0, 5, 0, 0, 3];
+  await Promise.all(
+    counts.map(async (count, index) => {
+      const el = await screen.findByLabelText(`${RANK_NAMES[index]}: ${count}`);
+      expect(el).toBeInTheDocument();
+    }),
+  );
 });

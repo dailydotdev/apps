@@ -27,6 +27,7 @@ import UpvoteIcon from '../../icons/upvote.svg';
 import CommentIcon from '../../icons/comment.svg';
 import BookmarkIcon from '../../icons/bookmark.svg';
 import TrashIcon from '../../icons/trash.svg';
+import HammerIcon from '../../icons/hammer.svg';
 import FeatherIcon from '../../icons/feather.svg';
 import LazyImage from '../../components/LazyImage';
 import {
@@ -75,6 +76,9 @@ const DeleteCommentModal = dynamic(
 );
 const DeletePostModal = dynamic(
   () => import('../../components/modals/DeletePostModal'),
+);
+const BanPostModal = dynamic(
+  () => import('../../components/modals/BanPostModal'),
 );
 const ShareBar = dynamic(() => import('../../components/ShareBar'), {
   ssr: false,
@@ -321,6 +325,8 @@ interface ParentComment {
   content: string;
   commentId: string | null;
   postId: string;
+  editContent?: string;
+  editId?: string;
 }
 
 const updatePost = (
@@ -378,6 +384,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   const [showShareNewComment, setShowShareNewComment] = useState(false);
   const [lastScroll, setLastScroll] = useState(0);
   const [showDeletePost, setShowDeletePost] = useState(false);
+  const [showBanPost, setShowBanPost] = useState(false);
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
 
   const queryClient = useQueryClient();
@@ -511,12 +518,38 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         authorName: comment.author.name,
         authorImage: comment.author.image,
         content: comment.content,
-        publishDate: comment.createdAt,
+        publishDate: comment.lastUpdatedAt || comment.createdAt,
         commentId: parentId,
         postId: postById.post.id,
       });
     } else {
       showLogin(LoginModalMode.ContentQuality);
+    }
+  };
+
+  const onEditClick = (comment: Comment, parentComment?: Comment) => {
+    setLastScroll(window.scrollY);
+    const shared = { editContent: comment.content, editId: comment.id };
+    if (parentComment) {
+      setParentComment({
+        authorName: parentComment.author.name,
+        authorImage: parentComment.author.image,
+        content: parentComment.content,
+        publishDate: parentComment.lastUpdatedAt || parentComment.createdAt,
+        commentId: parentComment.id,
+        postId: postById.post.id,
+        ...shared,
+      });
+    } else {
+      setParentComment({
+        authorName: postById.post.source.name,
+        authorImage: postById.post.source.image,
+        content: postById.post.title,
+        publishDate: postById.post.createdAt,
+        commentId: null,
+        postId: postById.post.id,
+        ...shared,
+      });
     }
   };
 
@@ -626,11 +659,20 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             {...postLinkProps}
           />
           {user?.roles?.indexOf(Roles.Moderator) > -1 && (
-            <Button
-              className="btn-tertiary"
-              icon={<TrashIcon />}
-              onClick={() => setShowDeletePost(true)}
-            />
+            <>
+              <Button
+                className="btn-tertiary"
+                icon={<HammerIcon />}
+                onClick={() => setShowBanPost(true)}
+                {...getTooltipProps('Mighty ban hammer')}
+              />
+              <Button
+                className="btn-tertiary"
+                icon={<TrashIcon />}
+                onClick={() => setShowDeletePost(true)}
+                {...getTooltipProps('Delete post')}
+              />
+            </>
           )}
         </PostInfo>
         <Title>{postById?.post.title}</Title>
@@ -719,6 +761,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             onDelete={(comment, parentId) =>
               setPendingComment({ comment, parentId })
             }
+            onEdit={onEditClick}
             postAuthorId={postById?.post?.author?.id}
           />
         ))}
@@ -809,11 +852,20 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           onRequestClose={() => setShowShareNewComment(false)}
         />
       )}
-      <DeletePostModal
-        postId={id}
-        isOpen={showDeletePost}
-        onRequestClose={() => setShowDeletePost(false)}
-      />
+      {showDeletePost && (
+        <DeletePostModal
+          postId={id}
+          isOpen={showDeletePost}
+          onRequestClose={() => setShowDeletePost(false)}
+        />
+      )}
+      {showBanPost && (
+        <BanPostModal
+          postId={id}
+          isOpen={showBanPost}
+          onRequestClose={() => setShowBanPost(false)}
+        />
+      )}
     </>
   );
 };

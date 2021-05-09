@@ -13,7 +13,7 @@ import {
 } from './Card';
 import { SmallRoundedImage } from '../utilities';
 import FeatherIcon from '../../icons/feather.svg';
-import MenuIcon from '../../icons/menu.svg';
+import FlagIcon from '../../icons/flag.svg';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import { Comment } from '../../graphql/comments';
@@ -99,10 +99,10 @@ export function PostCard({
                   )}
                   style={{ marginLeft: 'auto', marginRight: '-0.125rem' }}
                   buttonSize="small"
-                  icon={<MenuIcon />}
+                  icon={<FlagIcon />}
                   onClick={(event) => onMenuClick?.(event, post)}
                   pressed={menuOpened}
-                  {...getTooltipProps('More')}
+                  {...getTooltipProps('Report post')}
                 />
               )}
             </>

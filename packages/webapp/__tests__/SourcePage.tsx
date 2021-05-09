@@ -119,9 +119,9 @@ const renderComponent = (
       >
         <OnboardingContext.Provider
           value={{
-            showWelcome: false,
+            onboardingStep: 3,
             onboardingReady: true,
-            setShowWelcome: jest.fn(),
+            incrementOnboardingStep: jest.fn(),
             trackEngagement: jest.fn(),
             closeReferral: jest.fn(),
             showReferral: false,
