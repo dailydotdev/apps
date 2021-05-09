@@ -9,7 +9,7 @@ commands:
     steps:
       - run:
           name: Combine package-lock.json files to single file
-          command: npx lerna la -a | awk -F packages '{printf "\"packages%s/package-lock.json\" ", $2}' | xargs cat > << parameters.filename >>
+          command: npx lerna la -a | awk -F packages '{printf "\"packages%s/package-lock.json\" ", $2}' | xargs cat > << parameters.filename >> 2>/dev/null
 
 jobs:
   build:
@@ -31,14 +31,17 @@ jobs:
           key: deps-v1-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "combined-package-lock.txt" }}
           paths:
             - ./node_modules
+            - ./packages/eslint-config/node_modules
+            - ./packages/prettier-config/node_modules
+            - ./packages/shared/node_modules
             - ./packages/webapp/node_modules
       - run:
           name: Test
           command: npx lerna run test:ci
           environment:
-            JEST_JUNIT_OUTPUT_DIR: ./test-results
+            JEST_JUNIT_OUTPUT_DIR: ../../test-results
       - store_test_results:
-          path: ./packages/webapp/test-results
+          path: ./test-results
 workflows:
   build:
     jobs:
