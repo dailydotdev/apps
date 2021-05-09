@@ -14,8 +14,11 @@
       border-radius: 100%;
       z-index: -1;
       transition: background 0.1s linear;
-      animation: rank-attention 2s infinite ease-in-out;
       will-change: opacity, transform, background;
+
+      &:global {
+        animation: rank-attention 2s infinite ease-in-out;
+      }
     }
 
     &:hover {
