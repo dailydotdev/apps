@@ -1,5 +1,5 @@
 {
-  "name": "@daily/eslint-config",
+  "name": "@dailydotdev/eslint-config",
   "version": "0.0.0",
   "main": "index.js",
   "devDependencies": {
