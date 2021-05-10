@@ -1,15 +1,20 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import sizeN from '../macros/sizeN.macro';
 import ArrowIcon from '../icons/arrow.svg';
 import classNames from 'classnames';
 import { getTooltipProps } from '../lib/tooltip';
 import FeedFilters from './filters/FeedFilters';
+import OnboardingContext from '../contexts/OnboardingContext';
 
 const asideWidth = sizeN(89);
 
 export default function Sidebar(): ReactElement {
   const [opened, setOpened] = useState(false);
   const [enableQueries, setEnableQueries] = useState(false);
+  const { onboardingStep, incrementOnboardingStep } = useContext(
+    OnboardingContext,
+  );
+  const hightlightTrigger = onboardingStep === 2;
 
   useEffect(() => {
     if (opened && !enableQueries) {
@@ -18,6 +23,17 @@ export default function Sidebar(): ReactElement {
       }, 300);
     }
   }, [opened]);
+
+  const toggleSidebar = () => {
+    if (opened) {
+      setOpened(false);
+    } else {
+      setOpened(true);
+      if (hightlightTrigger) {
+        incrementOnboardingStep();
+      }
+    }
+  };
 
   return (
     <div
@@ -47,10 +63,14 @@ export default function Sidebar(): ReactElement {
       </aside>
       <button
         className={classNames(
-          'flex w-12 h-14 items-center pl-3 bg-theme-bg-primary border border-l-0 rounded-r-2xl cursor-pointer focus-outline hover:text-theme-label-primary',
-          opened
-            ? 'text-theme-label-primary border-theme-divider-primary'
-            : 'text-theme-label-tertiary border-theme-divider-quaternary',
+          'flex w-12 h-14 items-center pl-3 border-l-0 rounded-r-2xl cursor-pointer focus-outline',
+          hightlightTrigger
+            ? 'bg-theme-label-primary text-theme-bg-primary'
+            : 'bg-theme-bg-primary border hover:text-theme-label-primary',
+          !hightlightTrigger &&
+            (opened
+              ? 'text-theme-label-primary border-theme-divider-primary'
+              : 'text-theme-label-tertiary border-theme-divider-quaternary'),
         )}
         style={{
           fontSize: '1.75rem',
@@ -58,7 +78,7 @@ export default function Sidebar(): ReactElement {
           marginTop: '6.375rem',
         }}
         {...getTooltipProps('Open sidebar', { position: 'right' })}
-        onClick={() => setOpened(!opened)}
+        onClick={toggleSidebar}
       >
         <ArrowIcon
           style={{
@@ -66,6 +86,16 @@ export default function Sidebar(): ReactElement {
             transition: 'transform 0.2s linear 0.1s',
           }}
         />
+        {hightlightTrigger && (
+          <div
+            className="absolute left-0 w-14 rounded-r-3xl -z-1 bg-theme-hover"
+            style={{
+              top: '-1rem',
+              height: '5.5rem',
+              animation: 'rank-attention 2s infinite ease-in-out',
+            }}
+          />
+        )}
       </button>
     </div>
   );

@@ -43,7 +43,7 @@ export default function DeletePostModal({
 
   return (
     <ConfirmationModal {...props}>
-      <ConfirmationHeading>Delete post</ConfirmationHeading>
+      <ConfirmationHeading>Delete post 🚫</ConfirmationHeading>
       <ConfirmationDescription>
         Are you sure you want to delete this post? This action cannot be undone.
       </ConfirmationDescription>

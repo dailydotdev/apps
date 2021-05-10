@@ -9,6 +9,7 @@ module.exports = {
     '<rootDir>/__tests__/helpers/',
     '<rootDir>/__tests__/fixture/',
   ],
+  transformIgnorePatterns: ['node_modules/(?!@dailydotdev)'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleNameMapper: {
     '\\.svg$': '<rootDir>/__mocks__/svgrMock.ts',

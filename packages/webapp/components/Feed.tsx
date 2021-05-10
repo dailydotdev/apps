@@ -11,7 +11,7 @@ import useFeed, { FeedItem, PostItem } from '../hooks/useFeed';
 import { PostCard } from './cards/PostCard';
 import { AdCard } from './cards/AdCard';
 import { PlaceholderCard } from './cards/PlaceholderCard';
-import { Ad, Post, ReportReason } from '../graphql/posts';
+import { Ad, Post } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
 import { useMutation } from 'react-query';
 import request from 'graphql-request';
@@ -29,8 +29,6 @@ import classNames from 'classnames';
 import SettingsContext from '../contexts/SettingsContext';
 import useUpvotePost from '../hooks/useUpvotePost';
 import useBookmarkPost from '../hooks/useBookmarkPost';
-import { Item, useContextMenu } from 'react-contexify';
-import useReportPost from '../hooks/useReportPost';
 import OnboardingContext, {
   EngagementAction,
 } from '../contexts/OnboardingContext';
@@ -38,12 +36,12 @@ import { PostList } from './cards/PostList';
 import { AdList } from './cards/AdList';
 import { PlaceholderList } from './cards/PlaceholderList';
 import { Spaciness } from '../graphql/settings';
+import useReportPostMenu from '../hooks/useReportPostMenu';
 
 const CommentPopup = dynamic(() => import('./cards/CommentPopup'));
-
-const PortalMenu = dynamic(() => import('../components/dropdown/PortalMenu'), {
-  ssr: false,
-});
+const ReportPostMenu = dynamic(
+  () => import(/* webpackChunkName: "reportPostMenu" */ './ReportPostMenu'),
+);
 
 export type FeedProps<T> = {
   query?: string;
@@ -139,7 +137,7 @@ export default function Feed<T>({
   const [showCommentPopupId, setShowCommentPopupId] = useState<string>();
   const [postMenuIndex, setPostMenuIndex] = useState<number>();
   const [postNotificationIndex, setPostNotificationIndex] = useState<number>();
-  const { show: showPostContext } = useContextMenu({ id: 'post-context' });
+  const { showReportMenu } = useReportPostMenu();
 
   useEffect(() => {
     if (emptyFeed) {
@@ -219,8 +217,6 @@ export default function Feed<T>({
       },
     },
   );
-
-  const { reportPost, hidePost } = useReportPost();
 
   const { ref: infiniteScrollRef, inView } = useInView({
     rootMargin: '20px',
@@ -313,31 +309,27 @@ export default function Feed<T>({
     });
   };
 
-  const onReportPost = async (reason: ReportReason): Promise<void> => {
-    trackEvent({ category: 'Post', action: 'Report', label: reason });
-    const promise = reportPost({
-      id: (items[postMenuIndex] as PostItem).post.id,
-      reason,
-    });
+  const onReportPost = async (): Promise<void> => {
     setPostNotificationIndex(postMenuIndex);
     await new Promise((resolve) => setTimeout(resolve, 1000));
     removeItem(postMenuIndex);
     setPostNotificationIndex(null);
-    await promise;
   };
 
   const onHidePost = async (): Promise<void> => {
-    trackEvent({ category: 'Post', action: 'Hide' });
     removeItem(postMenuIndex);
-    await hidePost((items[postMenuIndex] as PostItem).post.id);
   };
 
   const onMenuClick = (e: React.MouseEvent, index: number) => {
+    if (postMenuIndex === index) {
+      setPostMenuIndex(null);
+      return;
+    }
     trackEvent({ category: 'Post', action: 'Menu' });
     setPostMenuIndex(index);
     const { right, bottom } = e.currentTarget.getBoundingClientRect();
-    showPostContext(e, {
-      position: { x: right - 108, y: bottom + 4 },
+    showReportMenu(e, {
+      position: { x: right - 147, y: bottom + 4 },
     });
   };
 
@@ -366,7 +358,7 @@ export default function Feed<T>({
             onMenuClick={(event) => onMenuClick(event, index)}
             menuOpened={postMenuIndex === index}
             notification={
-              postNotificationIndex === index && 'Thanks for reporting!'
+              postNotificationIndex === index && 'Thanks for reporting! 🚨'
             }
             showImage={!insaneMode}
           >
@@ -435,16 +427,12 @@ export default function Feed<T>({
         ref={infiniteScrollRef}
         className={`absolute left-0 h-px w-px opacity-0 pointer-events-none ${styles.trigger}`}
       />
-      <PortalMenu
-        id="post-context"
-        className="menu-primary"
-        animation="fade"
+      <ReportPostMenu
+        postId={(items[postMenuIndex] as PostItem)?.post.id}
         onHidden={() => setPostMenuIndex(null)}
-      >
-        <Item onClick={() => onReportPost('BROKEN')}>Broken link</Item>
-        <Item onClick={() => onReportPost('NSFW')}>Report NSFW</Item>
-        <Item onClick={onHidePost}>Hide post</Item>
-      </PortalMenu>
+        onReportPost={onReportPost}
+        onHidePost={onHidePost}
+      />
     </div>
   );
 }

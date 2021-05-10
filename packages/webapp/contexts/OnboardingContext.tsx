@@ -7,8 +7,8 @@ export enum EngagementAction {
 }
 
 export interface OnboardingContextData {
-  showWelcome: boolean;
-  setShowWelcome: (showWelcome: boolean) => Promise<void>;
+  onboardingStep: number;
+  incrementOnboardingStep: () => Promise<void>;
   onboardingReady: boolean;
   showReferral: boolean;
   closeReferral: () => Promise<void>;

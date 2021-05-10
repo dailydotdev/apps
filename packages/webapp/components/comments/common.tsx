@@ -2,11 +2,22 @@ import React, { HTMLAttributes, ReactElement } from 'react';
 import Linkify from 'linkifyjs/react';
 import classed from '../../lib/classed';
 import styles from '../../styles/comments.module.css';
+import { Comment } from '../../graphql/comments';
+import { commentDateFormat } from '../../lib/dateFormat';
 
-export const CommentPublishDate = classed(
-  'time',
-  'text-theme-label-tertiary typo-callout',
-);
+export function CommentPublishDate({
+  comment,
+}: {
+  comment: Comment;
+}): ReactElement {
+  const edited = !!comment.lastUpdatedAt;
+  const date = edited ? comment.lastUpdatedAt : comment.createdAt;
+  return (
+    <time dateTime={date} className="text-theme-label-tertiary typo-callout">
+      {`${edited ? 'Modified ' : ''}${commentDateFormat(date)}`}
+    </time>
+  );
+}
 
 export const commentBoxClassNames = `py-3 px-4 bg-theme-bg-secondary rounded-lg whitespace-pre-wrap break-words typo-callout ${styles.commentBox}`;
 

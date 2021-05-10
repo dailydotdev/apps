@@ -3,7 +3,7 @@ import { Author, Comment } from './comments';
 import { Connection } from './common';
 import { Source } from './sources';
 
-export type ReportReason = 'BROKEN' | 'NSFW';
+export type ReportReason = 'BROKEN' | 'NSFW' | 'CLICKBAIT' | 'LOW';
 
 export interface Post {
   __typename?: string;
@@ -130,6 +130,14 @@ export const CANCEL_UPVOTE_MUTATION = gql`
 export const DELETE_POST_MUTATION = gql`
   mutation DeletePost($id: ID!) {
     deletePost(id: $id) {
+      _
+    }
+  }
+`;
+
+export const BAN_POST_MUTATION = gql`
+  mutation BanPost($id: ID!) {
+    banPost(id: $id) {
       _
     }
   }

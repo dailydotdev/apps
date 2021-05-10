@@ -3,6 +3,7 @@ import AuthContext from '../../contexts/AuthContext';
 import UpvoteIcon from '../../icons/upvote.svg';
 import CommentIcon from '../../icons/comment.svg';
 import TrashIcon from '../../icons/trash.svg';
+import EditIcon from '../../icons/edit.svg';
 import sizeN from '../../macros/sizeN.macro';
 import {
   CANCEL_COMMENT_UPVOTE_MUTATION,
@@ -22,6 +23,7 @@ export interface Props {
   parentId: string | null;
   onComment: (comment: Comment, parentId: string | null) => void;
   onDelete: (comment: Comment, parentId: string | null) => void;
+  onEdit: (comment: Comment) => void;
 }
 
 export default function CommentActionButtons({
@@ -29,6 +31,7 @@ export default function CommentActionButtons({
   parentId,
   onComment,
   onDelete,
+  onEdit,
 }: Props): ReactElement {
   const { user, showLogin } = useContext(AuthContext);
 
@@ -114,6 +117,16 @@ export default function CommentActionButtons({
         style={{ marginLeft: sizeN(7) }}
         className="btn-tertiary-avocado"
       />
+      <div className="flex-1" />
+      {user?.id === comment.author.id && (
+        <Button
+          buttonSize="small"
+          {...getTooltipProps('Edit')}
+          onClick={() => onEdit(comment)}
+          icon={<EditIcon />}
+          className="btn-tertiary mr-2"
+        />
+      )}
       {(user?.id === comment.author.id ||
         user?.roles?.indexOf(Roles.Moderator) > -1) && (
         <Button
@@ -121,7 +134,6 @@ export default function CommentActionButtons({
           {...getTooltipProps('Delete')}
           onClick={() => onDelete(comment, parentId)}
           icon={<TrashIcon />}
-          style={{ marginLeft: 'auto' }}
           className="btn-tertiary"
         />
       )}

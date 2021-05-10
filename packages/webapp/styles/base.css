@@ -216,3 +216,14 @@ img.lazyload:not([src]) {
     opacity: 1;
   }
 }
+
+@keyframes rank-attention {
+  0% {
+    transform: scale(0.5);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
