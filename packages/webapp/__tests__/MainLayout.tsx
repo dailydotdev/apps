@@ -28,8 +28,8 @@ const renderLayout = (user: LoggedUser = null): RenderResult => {
 };
 
 it('should show login button when not logged-in', async () => {
-  const res = renderLayout();
-  await res.findByText('Login');
+  renderLayout();
+  await screen.findByText('Login');
 });
 
 it('should show login when clicking on the button', async () => {
@@ -40,7 +40,7 @@ it('should show login when clicking on the button', async () => {
 });
 
 it('should show profile image and reputation when logged-in', async () => {
-  const res = renderLayout({
+  renderLayout({
     id: 'u1',
     name: 'Ido Shamun',
     providers: ['github'],
@@ -49,8 +49,8 @@ it('should show profile image and reputation when logged-in', async () => {
     createdAt: '',
     reputation: 5,
   });
-  const el = await res.findByAltText('Your profile image');
+  const el = await screen.findByAltText('Your profile image');
   expect(el).toHaveAttribute('data-src', 'https://daily.dev/ido.png');
-  const rep = await res.findByText('5');
+  const rep = await screen.findByText('5');
   expect(rep).toBeInTheDocument();
 });

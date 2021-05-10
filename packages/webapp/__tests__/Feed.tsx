@@ -14,6 +14,8 @@ import nock from 'nock';
 import AuthContext from '../contexts/AuthContext';
 import React from 'react';
 import {
+  findAllByRole,
+  findByRole,
   findByText,
   render,
   RenderResult,
@@ -142,16 +144,21 @@ it('should replace placeholders with posts and ad', async () => {
   renderComponent();
   const links = defaultFeedPage.edges.map((edge) => edge.node.permalink);
   await waitFor(() => nock.isDone());
-  await waitFor(async () => {
-    const elements = await screen.findAllByTestId('postItem');
-    expect(elements.length).toEqual(7);
-    return elements.map((el, i) =>
-      expect(el.querySelector('a')).toHaveAttribute('href', links[i]),
-    );
-  });
+  const elements = await screen.findAllByTestId('postItem');
+  expect(elements.length).toEqual(7);
+  await Promise.all(
+    elements.map(async (el, i) =>
+      // eslint-disable-next-line testing-library/prefer-screen-queries
+      expect((await findAllByRole(el, 'link'))[0]).toHaveAttribute(
+        'href',
+        links[i],
+      ),
+    ),
+  );
   await waitFor(async () => {
     const el = await screen.findByTestId('adItem');
-    expect(el.querySelector('a')).toHaveAttribute('href', ad.link);
+    // eslint-disable-next-line testing-library/prefer-screen-queries
+    expect(await findByRole(el, 'link')).toHaveAttribute('href', ad.link);
   });
 });
 
@@ -407,6 +414,7 @@ it('should update feed item on subscription message', async () => {
   );
   await waitFor(async () => {
     const [el] = await screen.findAllByLabelText('Upvote');
+    // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
     expect(await findByText(el.parentElement, '5')).toBeInTheDocument();
   });
   nextCallback({
@@ -418,6 +426,7 @@ it('should update feed item on subscription message', async () => {
   });
   await waitFor(async () => {
     const [el] = await screen.findAllByLabelText('Upvote');
+    // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
     expect(await findByText(el.parentElement, '6')).toBeInTheDocument();
   });
 });

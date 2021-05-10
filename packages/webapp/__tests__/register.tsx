@@ -65,12 +65,14 @@ it('should show profile image', () => {
 
 it('should disable submit when form is invalid', () => {
   renderComponent();
+  // eslint-disable-next-line testing-library/no-node-access
   const el = screen.getByText('Finish').parentElement;
   expect(el).toBeDisabled();
 });
 
 it('should enable submit when form is valid', () => {
   renderComponent({ username: 'idoshamun' });
+  // eslint-disable-next-line testing-library/no-node-access
   const el = screen.getByText('Finish').parentElement;
   expect(el).toBeEnabled();
 });
@@ -111,6 +113,7 @@ it('should set twitter to optional by default', async () => {
   renderComponent();
   const el = await screen.findByText('Twitter');
   expect(
+    // eslint-disable-next-line testing-library/no-node-access
     el.parentElement.querySelector('input').getAttribute('required'),
   ).toBeFalsy();
 });
@@ -125,5 +128,6 @@ it('should set twitter to required in author mode', async () => {
   );
   renderComponent();
   const el = await screen.findByText('Twitter');
+  // eslint-disable-next-line testing-library/no-node-access
   expect(el.parentElement.querySelector('input')).toBeRequired();
 });
