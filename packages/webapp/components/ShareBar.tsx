@@ -1,8 +1,8 @@
 import React, { FunctionComponent, ReactElement } from 'react';
-import CopyIcon from '../icons/copy.svg';
-import WhatsappIcon from '../icons/whatsapp_color.svg';
-import TwitterIcon from '../icons/twitter_color.svg';
-import FacebookIcon from '../icons/facebook_color.svg';
+import CopyIcon from '@dailydotdev/shared/icons/copy.svg';
+import WhatsappIcon from '@dailydotdev/shared/icons/whatsapp_color.svg';
+import TwitterIcon from '@dailydotdev/shared/icons/twitter_color.svg';
+import FacebookIcon from '@dailydotdev/shared/icons/facebook_color.svg';
 import { Post } from '../graphql/posts';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import {
@@ -11,7 +11,7 @@ import {
   getTwitterShareLink,
   getWhatsappShareLink,
 } from '../lib/share';
-import Button, { ButtonProps } from './buttons/Button';
+import { Button, ButtonProps } from '@dailydotdev/shared';
 import { trackEvent } from '../lib/analytics';
 import { getTooltipProps } from '../lib/tooltip';
 import styles from '../styles/shareBar.module.css';

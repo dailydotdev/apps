@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import sizeN from '../macros/sizeN.macro';
-import ArrowIcon from '../icons/arrow.svg';
+import ArrowIcon from '@dailydotdev/shared/icons/arrow.svg';
 import classNames from 'classnames';
 import { getTooltipProps } from '../lib/tooltip';
 import FeedFilters from './filters/FeedFilters';

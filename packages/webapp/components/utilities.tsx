@@ -1,5 +1,5 @@
 import React, { HTMLAttributes, ReactElement } from 'react';
-import LazyImage from './LazyImage';
+import { LazyImage } from '@dailydotdev/shared';
 import classNames from 'classnames';
 import classed from '../lib/classed';
 import styles from '../styles/utilities.module.css';

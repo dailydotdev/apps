@@ -1,9 +1,9 @@
 import { ModalCloseButton, ModalProps, StyledModal } from './StyledModal';
 import React, { ReactElement, useContext, useState } from 'react';
-import TextField from '../fields/TextField';
-import Button from '../buttons/Button';
-import CopyIcon from '../../icons/copy.svg';
-import TwitterIcon from '../../icons/twitter.svg';
+import { TextField } from '@dailydotdev/shared';
+import { Button } from '@dailydotdev/shared';
+import CopyIcon from '@dailydotdev/shared/icons/copy.svg';
+import TwitterIcon from '@dailydotdev/shared/icons/twitter.svg';
 import { useQuery } from 'react-query';
 import AuthContext from '../../contexts/AuthContext';
 import fetchTimeout from '../../lib/fetchTimeout';

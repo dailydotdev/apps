@@ -8,7 +8,7 @@ import rem from '../../macros/rem.macro';
 import styled from '@emotion/styled';
 import { RANK_NAMES, STEPS_PER_RANK } from '../../lib/rank';
 import Rank from '../Rank';
-import Button from '../buttons/Button';
+import { Button } from '@dailydotdev/shared';
 import classNames from 'classnames';
 import styles from '../../styles/ranksModal.module.css';
 

@@ -1,20 +1,16 @@
-/** @jsx jsx */
-import { jsx, css } from '@emotion/react';
-import {
+import React, {
   InputHTMLAttributes,
   ReactElement,
   SyntheticEvent,
   useEffect,
   useState,
 } from 'react';
-import styled from '@emotion/styled';
-import sizeN from '../../macros/sizeN.macro';
-import { typoCallout, typoCaption1 } from '../../styles/typography';
+import classNames from 'classnames';
 import { useInputField } from '../../hooks/useInputField';
 import { BaseField, FieldInput } from './common';
-import classNames from 'classnames';
+import styles from './TextField.module.css';
 
-export interface Props extends InputHTMLAttributes<HTMLInputElement> {
+export interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   inputId: string;
   label: string;
   saveHintSpace?: boolean;
@@ -25,100 +21,7 @@ export interface Props extends InputHTMLAttributes<HTMLInputElement> {
   compact?: boolean;
 }
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-`;
-
-const InputContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  flex: 1;
-`;
-
-const Label = styled.label`
-  ${typoCaption1}
-`;
-
-const CompactLabel = styled(Label)`
-  margin-bottom: ${sizeN(1)};
-  padding: 0 ${sizeN(2)};
-  color: var(--theme-label-primary);
-  font-weight: bold;
-`;
-
-const CharsCount = styled.div`
-  margin: 0 0 0 ${sizeN(2)};
-  font-weight: bold;
-  ${typoCallout}
-`;
-
-const Hint = styled.div`
-  margin-top: ${sizeN(1)};
-  padding: 0 ${sizeN(2)};
-  color: var(--theme-label-tertiary);
-  ${typoCaption1}
-
-  &[role="alert"] {
-    color: var(--theme-status-error);
-  }
-
-  &.saveHintSpace {
-    height: 1rem;
-  }
-`;
-
-const insetShadow = (color: string) =>
-  `box-shadow: inset ${sizeN(0.5)} 0 0 0 ${color};`;
-
-const Field = styled(BaseField)`
-  height: ${sizeN(12)};
-  border-radius: ${sizeN(3.5)};
-
-  &:hover {
-    ${insetShadow('var(--theme-label-primary)')}
-  }
-
-  &.focused {
-    border-color: var(--theme-label-primary);
-    ${insetShadow('var(--theme-label-primary)')}
-
-    ${Label} {
-      color: var(--theme-label-primary);
-    }
-  }
-
-  &.invalid {
-    && {
-      ${insetShadow('var(--theme-status-error)')}
-    }
-
-    &.focused {
-      border-color: var(--theme-status-error);
-    }
-  }
-
-  ${Label} {
-    display: none;
-
-    &.showLabel {
-      display: block;
-    }
-  }
-
-  ${Label}, ${CharsCount} {
-    color: var(--field-placeholder-color);
-  }
-
-  &.compact {
-    height: ${sizeN(9)};
-    border-radius: ${sizeN(2.5)};
-  }
-`;
-
-export default function TextField({
+export function TextField({
   className,
   inputId,
   name,
@@ -133,7 +36,7 @@ export default function TextField({
   placeholder,
   compact = false,
   ...props
-}: Props): ReactElement {
+}: TextFieldProps): ReactElement {
   const {
     inputRef,
     focused,
@@ -208,23 +111,42 @@ export default function TextField({
   };
 
   const showLabel = focused || hasInput;
+  const invalid = validInput === false;
   return (
-    <Container className={className}>
-      {compact && <CompactLabel htmlFor={inputId}>{label}</CompactLabel>}
-      <Field
+    <div className={classNames(className, 'flex flex-col items-stretch')}>
+      {compact && (
+        <label
+          className="mb-1 px-2 text-theme-label-primary font-bold"
+          htmlFor={inputId}
+        >
+          {label}
+        </label>
+      )}
+      <BaseField
         data-testid="field"
         onClick={focusInput}
-        className={classNames({
-          compact,
-          focused,
-          invalid: validInput === false,
-        })}
+        className={classNames(
+          compact ? 'h-9 rounded-10' : 'h-12 rounded-14',
+          {
+            focused,
+            invalid,
+          },
+          styles.field,
+        )}
       >
-        <InputContainer>
+        <div className="flex flex-col items-start flex-1">
           {!compact && (
-            <Label className={classNames({ showLabel })} htmlFor={inputId}>
+            <label
+              className={classNames('typo-caption1', !showLabel && 'hidden')}
+              style={{
+                color: focused
+                  ? 'var(--theme-label-primary)'
+                  : 'var(--field-placeholder-color)',
+              }}
+              htmlFor={inputId}
+            >
               {label}
-            </Label>
+            </label>
           )}
           <FieldInput
             placeholder={getPlaceholder()}
@@ -235,22 +157,31 @@ export default function TextField({
             onBlur={onBlur}
             onInput={onInput}
             maxLength={maxLength}
-            css={css`
-              align-self: stretch;
-            `}
+            className="self-stretch"
             {...props}
           />
-        </InputContainer>
-        {maxLength && <CharsCount>{maxLength - inputLength}</CharsCount>}
-      </Field>
+        </div>
+        {maxLength && (
+          <div
+            className="ml-2 font-bold typo-callout"
+            style={{ color: 'var(--field-placeholder-color)' }}
+          >
+            {maxLength - inputLength}
+          </div>
+        )}
+      </BaseField>
       {(hint?.length || saveHintSpace) && (
-        <Hint
-          role={validInput === false ? 'alert' : undefined}
-          className={classNames({ saveHintSpace })}
+        <div
+          role={invalid ? 'alert' : undefined}
+          className={classNames(
+            'mt-1 px-2 typo-caption1',
+            saveHintSpace && 'h-4',
+            invalid ? 'text-theme-status-error' : 'text-theme-label-tertiary',
+          )}
         >
           {hint}
-        </Hint>
+        </div>
       )}
-    </Container>
+    </div>
   );
 }

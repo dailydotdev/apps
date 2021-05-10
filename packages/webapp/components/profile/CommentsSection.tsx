@@ -3,7 +3,7 @@ import { useInfiniteQuery } from 'react-query';
 import { USER_COMMENTS_QUERY, UserCommentsData } from '../../graphql/comments';
 import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
-import UpvoteIcon from '../../icons/upvote.svg';
+import UpvoteIcon from '@dailydotdev/shared/icons/upvote.svg';
 import { largeNumberFormat } from '../../lib/numberFormat';
 import Link from 'next/link';
 import { format } from 'date-fns';

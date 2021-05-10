@@ -14,8 +14,8 @@ import {
   customFeedIcon,
   FeedPage,
 } from '../../components/utilities';
-import HashtagIcon from '../../icons/hashtag.svg';
-import PlusIcon from '../../icons/plus.svg';
+import HashtagIcon from '@dailydotdev/shared/icons/hashtag.svg';
+import PlusIcon from '@dailydotdev/shared/icons/plus.svg';
 import sizeN from '../../macros/sizeN.macro';
 import { useRouter } from 'next/router';
 import { NextSeoProps } from 'next-seo/lib/types';
@@ -31,7 +31,7 @@ import {
   FeedSettingsData,
   TAGS_SETTINGS_QUERY,
 } from '../../graphql/feedSettings';
-import Button, { ButtonProps } from '../../components/buttons/Button';
+import { Button, ButtonProps } from '@dailydotdev/shared';
 import useMutateFilters, {
   getTagsSettingsQueryKey,
 } from '../../hooks/useMutateFilters';

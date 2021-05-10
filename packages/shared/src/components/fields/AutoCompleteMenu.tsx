@@ -1,8 +1,8 @@
 import React, { ReactElement, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import MagnifyingIcon from '../../icons/magnifying.svg';
 import classNames from 'classnames';
 import createDOMPurify from 'dompurify';
+import MagnifyingIcon from '../../../icons/magnifying.svg';
 
 const preventDefault = (e: React.MouseEvent) => e.preventDefault();
 
@@ -14,7 +14,7 @@ export type AutoCompleteMenuProps = {
   isOpen: boolean;
 };
 
-export default function AutoCompleteMenu({
+export function AutoCompleteMenu({
   placement,
   focusedItemIndex,
   items,

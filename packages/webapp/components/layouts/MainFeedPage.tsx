@@ -24,13 +24,13 @@ import {
 import { FeedSettingsData } from '../../graphql/feedSettings';
 import { LoggedUser } from '../../lib/user';
 import OnboardingContext from '../../contexts/OnboardingContext';
-import MagnifyingIcon from '../../icons/magnifying.svg';
+import MagnifyingIcon from '@dailydotdev/shared/icons/magnifying.svg';
 import { SEARCH_POSTS_QUERY } from '../../graphql/feed';
-import Button from '../buttons/Button';
+import { Button } from '@dailydotdev/shared';
 import utilitiesStyles from '../../styles/utilities.module.css';
 import styles from '../../styles/mainFeed.module.css';
 import Dropdown, { DropdownProps } from '../dropdown/Dropdown';
-import CalendarIcon from '../../icons/calendar.svg';
+import CalendarIcon from '@dailydotdev/shared/icons/calendar.svg';
 
 const PostsSearch = dynamic(
   () => import(/* webpackChunkName: "search" */ '../PostsSearch'),

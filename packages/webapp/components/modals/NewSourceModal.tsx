@@ -1,10 +1,9 @@
 import React, { ReactElement, ReactNode, useRef, useState } from 'react';
 import { ModalCloseButton, ModalProps, StyledModal } from './StyledModal';
-import Button from '../buttons/Button';
-import ArrowIcon from '../../icons/arrow.svg';
-import SearchField from '../fields/SearchField';
+import { Button, Loader } from '@dailydotdev/shared';
+import ArrowIcon from '@dailydotdev/shared/icons/arrow.svg';
+import { SearchField } from '@dailydotdev/shared';
 import { formToJson } from '../../lib/form';
-import Loader from '../Loader';
 import { useMutation } from 'react-query';
 import { apiUrl } from '../../lib/config';
 import fetchTimeout from '../../lib/fetchTimeout';
@@ -15,7 +14,7 @@ import {
   SOURCE_BY_FEED_QUERY,
 } from '../../graphql/newSource';
 import { Source } from '../../graphql/sources';
-import Radio from '../fields/Radio';
+import { Radio } from '@dailydotdev/shared';
 
 interface RSS {
   url: string;

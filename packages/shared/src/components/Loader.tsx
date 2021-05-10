@@ -1,6 +1,6 @@
 import React, { HTMLAttributes, ReactElement } from 'react';
 import classNames from 'classnames';
-import styles from './styles.module.css';
+import styles from './Loader.module.css';
 
 export function Loader({
   className,

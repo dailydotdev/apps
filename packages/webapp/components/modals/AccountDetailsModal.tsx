@@ -4,7 +4,7 @@ import ResponsiveModal, { responsiveModalBreakpoint } from './ResponsiveModal';
 import styled from '@emotion/styled';
 import sizeN from '../../macros/sizeN.macro';
 import rem from '../../macros/rem.macro';
-import XIcon from '../../icons/x.svg';
+import XIcon from '@dailydotdev/shared/icons/x.svg';
 import { ProfileHeading } from '../utilities';
 import EditImageWithJoinedDate from '../profile/EditImageWithJoinedDate';
 import AuthContext from '../../contexts/AuthContext';
@@ -18,7 +18,7 @@ import {
   requestFeature,
   termsOfService,
 } from '../../lib/constants';
-import Button, { ButtonProps } from '../buttons/Button';
+import { Button, ButtonProps } from '@dailydotdev/shared';
 
 const headerHeight = sizeN(12);
 

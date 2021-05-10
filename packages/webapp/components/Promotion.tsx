@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
-import LazyImage from './LazyImage';
-import Button from './buttons/Button';
+import { LazyImage } from '@dailydotdev/shared';
+import { Button } from '@dailydotdev/shared';
 import styles from '../styles/promotion.module.css';
 import classNames from 'classnames';
 

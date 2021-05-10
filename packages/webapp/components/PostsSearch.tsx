@@ -1,16 +1,22 @@
-import SearchField from './fields/SearchField';
+import { SearchField } from '@dailydotdev/shared';
 import React, { ReactElement, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
-import useAutoComplete from './fields/useAutoComplete';
+import { useAutoComplete } from '@dailydotdev/shared';
 import { useQuery } from 'react-query';
 import request from 'graphql-request';
 import { apiUrl } from '../lib/config';
 import { SEARCH_POST_SUGGESTIONS } from '../graphql/search';
 
-const AutoCompleteMenu = dynamic(() => import('./fields/AutoCompleteMenu'), {
-  ssr: false,
-});
+const AutoCompleteMenu = dynamic(
+  () =>
+    import('@dailydotdev/shared/src/components/fields/AutoCompleteMenu').then(
+      (mod) => mod.AutoCompleteMenu,
+    ),
+  {
+    ssr: false,
+  },
+);
 
 export default function PostsSearch(): ReactElement {
   const router = useRouter();

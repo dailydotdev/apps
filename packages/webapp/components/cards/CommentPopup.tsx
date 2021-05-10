@@ -1,9 +1,9 @@
 import React, { KeyboardEvent, ReactElement, useState } from 'react';
 import { ModalCloseButton } from '../modals/StyledModal';
 import commentPopupText from '../../commentPopupText';
-import CommentIcon from '../../icons/comment.svg';
+import CommentIcon from '@dailydotdev/shared/icons/comment.svg';
 import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
-import Button from '../buttons/Button';
+import { Button } from '@dailydotdev/shared';
 import classNames from 'classnames';
 
 const transitionDuration = 150;

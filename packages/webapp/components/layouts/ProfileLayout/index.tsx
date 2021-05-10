@@ -14,7 +14,7 @@ import { NextSeo } from 'next-seo';
 import { ResponsivePageContainer } from '../../utilities';
 import styled from '@emotion/styled';
 import sizeN from '../../../macros/sizeN.macro';
-import LazyImage from '../../LazyImage';
+import { LazyImage } from '@dailydotdev/shared';
 import {
   typoCallout,
   typoFootnote,
@@ -22,10 +22,10 @@ import {
   typoTitle3,
 } from '../../../styles/typography';
 import JoinedDate from '../../profile/JoinedDate';
-import GitHubIcon from '../../../icons/github.svg';
-import TwitterIcon from '../../../icons/twitter.svg';
-import HashnodeIcon from '../../../icons/hashnode.svg';
-import LinkIcon from '../../../icons/link.svg';
+import GitHubIcon from '@dailydotdev/shared/icons/github.svg';
+import TwitterIcon from '@dailydotdev/shared/icons/twitter.svg';
+import HashnodeIcon from '@dailydotdev/shared/icons/hashnode.svg';
+import LinkIcon from '@dailydotdev/shared/icons/link.svg';
 import { tablet } from '../../../styles/media';
 import AuthContext from '../../../contexts/AuthContext';
 import dynamic from 'next/dynamic';
@@ -46,9 +46,9 @@ import {
   UserReadingRankData,
 } from '../../../graphql/users';
 import NavBar, { tabs } from './NavBar';
-import QuaternaryButton from '../../buttons/QuaternaryButton';
+import { QuaternaryButton } from '@dailydotdev/shared';
 import ProgressiveEnhancementContext from '../../../contexts/ProgressiveEnhancementContext';
-import Button from '../../buttons/Button';
+import { Button } from '@dailydotdev/shared';
 import { getTooltipProps } from '../../../lib/tooltip';
 
 const AccountDetailsModal = dynamic(

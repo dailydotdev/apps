@@ -1,8 +1,8 @@
 import React, { ReactElement } from 'react';
-import CopyIcon from '../icons/copy.svg';
-import ShareIcon from '../icons/share.svg';
+import CopyIcon from '@dailydotdev/shared/icons/copy.svg';
+import ShareIcon from '@dailydotdev/shared/icons/share.svg';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
-import Button from './buttons/Button';
+import { Button } from '@dailydotdev/shared';
 
 export interface Props {
   share: () => Promise<void>;

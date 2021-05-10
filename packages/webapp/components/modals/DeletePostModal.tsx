@@ -10,7 +10,7 @@ import { useMutation } from 'react-query';
 import { DELETE_POST_MUTATION, EmptyResponse } from '../../graphql/posts';
 import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
-import Button from '../buttons/Button';
+import { Button } from '@dailydotdev/shared';
 
 export interface Props extends ModalProps {
   postId: string;

@@ -1,5 +1,5 @@
 import React, { InputHTMLAttributes, ReactElement } from 'react';
-import styles from '../../styles/radio.module.css';
+import styles from './RadioItem.module.css';
 import classNames from 'classnames';
 
 export type RadioItemProps = Omit<
@@ -7,7 +7,7 @@ export type RadioItemProps = Omit<
   'type'
 >;
 
-export default function RadioItem({
+export function RadioItem({
   children,
   className,
   checked,

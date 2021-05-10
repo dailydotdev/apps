@@ -5,9 +5,9 @@ import React, {
   useState,
 } from 'react';
 import { changeProfileImage, LoggedUser } from '../../lib/user';
-import CameraIcon from '../../icons/camera.svg';
-import GoogleIcon from '../../icons/google.svg';
-import GitHubIcon from '../../icons/github.svg';
+import CameraIcon from '@dailydotdev/shared/icons/camera.svg';
+import GoogleIcon from '@dailydotdev/shared/icons/google.svg';
+import GitHubIcon from '@dailydotdev/shared/icons/github.svg';
 import JoinedDate from './JoinedDate';
 import styled from '@emotion/styled';
 import sizeN from '../../macros/sizeN.macro';

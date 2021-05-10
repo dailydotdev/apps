@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import RadioItem from './RadioItem';
+import { RadioItem } from './RadioItem';
 import classNames from 'classnames';
 
 export type RadioProps = {
@@ -10,7 +10,7 @@ export type RadioProps = {
   className?: string;
 };
 
-export default function Radio({
+export function Radio({
   name,
   options,
   value,

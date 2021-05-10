@@ -5,7 +5,7 @@ export type useAutoCompleteReturn = {
   onKeyDown: (event: React.KeyboardEvent) => void;
 };
 
-export default function useAutoComplete(
+export function useAutoComplete(
   items: string[],
   submitQuery: (query?: string) => unknown,
 ): useAutoCompleteReturn {

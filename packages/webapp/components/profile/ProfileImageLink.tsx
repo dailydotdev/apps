@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import styled from '@emotion/styled';
 import sizeN from '../../macros/sizeN.macro';
-import LazyImage from '../LazyImage';
+import { LazyImage } from '@dailydotdev/shared';
 import { ProfileLink, ProfileLinkProps } from './ProfileLink';
 
 const Container = styled(ProfileLink)`

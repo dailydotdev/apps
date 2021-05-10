@@ -1,9 +1,9 @@
 import React, { ReactElement } from 'react';
 import { useRouter } from 'next/router';
-import GitHubIcon from '../icons/github.svg';
+import GitHubIcon from '@dailydotdev/shared/icons/github.svg';
 import { LegalNotice } from './utilities';
 import { privacyPolicy, termsOfService } from '../lib/constants';
-import Button from './buttons/Button';
+import { Button } from '@dailydotdev/shared';
 
 export default function LoginButtons(): ReactElement {
   const router = useRouter();

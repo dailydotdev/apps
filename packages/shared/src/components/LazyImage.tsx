@@ -22,7 +22,7 @@ export interface LazyImageProps extends HTMLAttributes<HTMLDivElement> {
 
 const asyncImageSupport = false;
 
-export default function LazyImage({
+export function LazyImage({
   imgSrc,
   imgAlt,
   eager,

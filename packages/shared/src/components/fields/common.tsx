@@ -1,5 +1,5 @@
 import classed from '../../lib/classed';
-import styles from '../../styles/fields.module.css';
+import styles from './fields.module.css';
 
 export const FieldInput = classed(
   'input',

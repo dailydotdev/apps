@@ -31,10 +31,10 @@ import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import { Source } from '../../graphql/sources';
 import { getTooltipProps } from '../../lib/tooltip';
-import LazyImage from '../LazyImage';
+import { LazyImage } from '@dailydotdev/shared';
 import { trackEvent } from '../../lib/analytics';
-import Button from '../buttons/Button';
-import PlusIcon from '../../icons/plus.svg';
+import { Button } from '@dailydotdev/shared';
+import PlusIcon from '@dailydotdev/shared/icons/plus.svg';
 import { LoginModalMode } from '../modals/LoginModal';
 import dynamic from 'next/dynamic';
 

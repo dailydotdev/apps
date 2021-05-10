@@ -5,8 +5,8 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import Button, { ButtonProps } from './Button';
 import classNames from 'classnames';
+import { Button, ButtonProps } from './Button';
 
 type QuandaryButtonProps = {
   id: string;
@@ -14,9 +14,7 @@ type QuandaryButtonProps = {
   responsiveLabel?: boolean;
 };
 
-export default function QuaternaryButton<
-  Tag extends keyof JSX.IntrinsicElements
->({
+export function QuaternaryButton<Tag extends keyof JSX.IntrinsicElements>({
   id,
   children,
   style,

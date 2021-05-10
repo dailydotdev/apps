@@ -12,9 +12,9 @@ import sizeN from '../../macros/sizeN.macro';
 import rem from '../../macros/rem.macro';
 import { typoBody, typoCallout } from '../../styles/typography';
 import { focusOutline } from '../../styles/helpers';
-import TextField from '../fields/TextField';
-import Switch from '../fields/Switch';
-import ArrowIcon from '../../icons/arrow.svg';
+import { TextField } from '@dailydotdev/shared';
+import { Switch } from '@dailydotdev/shared';
+import ArrowIcon from '@dailydotdev/shared/icons/arrow.svg';
 import AuthContext from '../../contexts/AuthContext';
 import { formToJson } from '../../lib/form';
 

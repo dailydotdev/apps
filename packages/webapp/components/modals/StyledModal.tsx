@@ -8,8 +8,8 @@ import sizeN from '../../macros/sizeN.macro';
 import rem from '../../macros/rem.macro';
 import { focusOutline } from '../../styles/helpers';
 import { typoCallout, typoTitle3 } from '../../styles/typography';
-import Button, { ButtonProps } from '../buttons/Button';
-import XIcon from '../../icons/x.svg';
+import { Button, ButtonProps } from '@dailydotdev/shared';
+import XIcon from '@dailydotdev/shared/icons/x.svg';
 
 export interface ModalProps extends Modal.Props {
   children?: ReactNode;

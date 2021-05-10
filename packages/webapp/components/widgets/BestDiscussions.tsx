@@ -1,12 +1,12 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import Button from '../buttons/Button';
-import ArrowIcon from '../../icons/arrow.svg';
+import { Button } from '@dailydotdev/shared';
+import ArrowIcon from '@dailydotdev/shared/icons/arrow.svg';
 import Link from 'next/link';
 import { Post } from '../../graphql/posts';
 import styles from '../../styles/cards.module.css';
 import { CardLink } from '../cards/Card';
-import LazyImage from '../LazyImage';
+import { LazyImage } from '@dailydotdev/shared';
 import { trackEvent } from '../../lib/analytics';
 import { ElementPlaceholder } from '../utilities';
 import classed from '../../lib/classed';

@@ -14,7 +14,7 @@ module.exports = {
         alias: {
           // Required to remove duplicate dependencies from the build
           ...Object.keys(sharedPackage.peerDependencies).reduce((acc, dep) => {
-            if (dep.match(/(react)|(react-dom)/)) {
+            if (dep.match(/^(react)|(react-dom)$/)) {
               return {
                 ...acc,
                 [dep]: path.resolve('./node_modules/preact/compat'),

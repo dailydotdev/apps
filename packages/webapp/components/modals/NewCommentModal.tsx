@@ -37,7 +37,7 @@ import ResponsiveModal from './ResponsiveModal';
 import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import { trackEvent } from '../../lib/analytics';
-import Button from '../buttons/Button';
+import { Button } from '@dailydotdev/shared';
 import classed from '../../lib/classed';
 
 const DiscardCommentModal = dynamic(() => import('./DiscardCommentModal'));

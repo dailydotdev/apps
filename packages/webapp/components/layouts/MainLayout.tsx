@@ -6,11 +6,11 @@ import React, {
   useState,
 } from 'react';
 import Link from 'next/link';
-import LazyImage from '../LazyImage';
+import { LazyImage } from '@dailydotdev/shared';
 import AuthContext from '../../contexts/AuthContext';
-import Button from '../buttons/Button';
-import BookmarkIcon from '../../icons/bookmark.svg';
-import LayoutIcon from '../../icons/layout.svg';
+import { Button } from '@dailydotdev/shared';
+import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
+import LayoutIcon from '@dailydotdev/shared/icons/layout.svg';
 import Logo from '../svg/Logo';
 import LogoTextBeta from '../svg/LogoTextBeta';
 import dynamic from 'next/dynamic';

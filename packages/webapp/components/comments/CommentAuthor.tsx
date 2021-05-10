@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { Author } from '../../graphql/comments';
 import { ProfileLink } from '../profile/ProfileLink';
-import FeatherIcon from '../../icons/feather.svg';
+import FeatherIcon from '@dailydotdev/shared/icons/feather.svg';
 
 export interface CommentAuthorProps {
   postAuthorId: string | null;

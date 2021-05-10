@@ -14,7 +14,7 @@ import {
 import cloneDeep from 'lodash.clonedeep';
 import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
-import Button from '../buttons/Button';
+import { Button } from '@dailydotdev/shared';
 
 export interface Props extends ModalProps {
   commentId: string;

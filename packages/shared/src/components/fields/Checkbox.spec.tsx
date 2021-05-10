@@ -1,6 +1,6 @@
-import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
+import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import React from 'react';
-import Checkbox, { CheckboxProps } from '../../components/fields/Checkbox';
+import { Checkbox, CheckboxProps } from './Checkbox';
 
 const renderComponent = (props: Partial<CheckboxProps> = {}): RenderResult => {
   return render(<Checkbox name="field" {...props} />);
@@ -15,8 +15,7 @@ it('should trigger on toggle when clicked', async () => {
   const onToggle = jest.fn();
   renderComponent({ onToggle });
   const el = await screen.findByRole('checkbox');
-  (el as HTMLInputElement).checked = true;
-  el.dispatchEvent(new Event('change', { bubbles: true }));
+  el.click();
   await waitFor(() => expect(onToggle).toBeCalledWith(true));
 });
 
@@ -30,8 +29,7 @@ it('should add checked class', async () => {
   const onToggle = jest.fn();
   renderComponent({ onToggle });
   const el = await screen.findByRole('checkbox');
-  (el as HTMLInputElement).checked = true;
-  el.dispatchEvent(new Event('change', { bubbles: true }));
+  el.click();
   // eslint-disable-next-line testing-library/no-node-access
   await waitFor(() => expect(el.parentElement).toHaveClass('checked'));
 });

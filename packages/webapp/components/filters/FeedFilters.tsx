@@ -1,8 +1,8 @@
 import React, { ReactElement, useEffect, useRef, useState } from 'react';
-import HashtagIcon from '../../icons/hashtag.svg';
-import LinkIcon from '../../icons/link.svg';
-import IconsSwitch from '../fields/IconsSwitch';
-import SearchField from '../fields/SearchField';
+import HashtagIcon from '@dailydotdev/shared/icons/hashtag.svg';
+import LinkIcon from '@dailydotdev/shared/icons/link.svg';
+import { IconsSwitch } from '@dailydotdev/shared';
+import { SearchField } from '@dailydotdev/shared';
 import TagsFilter from './TagsFilter';
 import SourcesFilter from './SourcesFilter';
 

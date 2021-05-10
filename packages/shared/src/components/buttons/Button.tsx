@@ -1,6 +1,6 @@
 import React, { LegacyRef, ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
-import { Loader } from '@dailydotdev/shared';
+import { Loader } from '../Loader';
 
 export type ButtonSize = 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge';
 
@@ -26,7 +26,7 @@ export type ButtonProps<
     innerRef?: LegacyRef<JSX.IntrinsicElements[Tag]>;
   };
 
-export default function Button<Tag extends keyof JSX.IntrinsicElements>({
+export function Button<Tag extends keyof JSX.IntrinsicElements>({
   loading,
   pressed,
   icon,

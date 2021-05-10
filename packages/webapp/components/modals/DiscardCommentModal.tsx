@@ -6,7 +6,7 @@ import {
   ConfirmationButtons,
   ModalProps,
 } from './StyledModal';
-import Button from '../buttons/Button';
+import { Button } from '@dailydotdev/shared';
 
 export interface Props extends ModalProps {
   onDeleteComment: (event: MouseEvent) => void;

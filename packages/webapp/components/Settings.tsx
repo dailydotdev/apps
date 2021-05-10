@@ -5,13 +5,13 @@ import React, {
   useMemo,
 } from 'react';
 import classed from '../lib/classed';
-import Radio from './fields/Radio';
-import Switch from './fields/Switch';
+import { Radio } from '@dailydotdev/shared';
+import { Switch } from '@dailydotdev/shared';
 import SettingsContext from '../contexts/SettingsContext';
 import classNames from 'classnames';
-import CardIcon from '../icons/card.svg';
-import LineIcon from '../icons/line.svg';
-import IconsSwitch from './fields/IconsSwitch';
+import CardIcon from '@dailydotdev/shared/icons/card.svg';
+import LineIcon from '@dailydotdev/shared/icons/line.svg';
+import { IconsSwitch } from '@dailydotdev/shared';
 
 const densities = [
   { label: 'Eco', value: 'eco' },
@@ -103,18 +103,20 @@ export default function Settings({
           <Switch
             inputId="theme-switch"
             name="theme"
-            className="big my-3"
+            className="my-3"
             checked={lightMode}
             onToggle={toggleLightMode}
+            compact={false}
           >
             Light theme
           </Switch>
           <Switch
             inputId="hide-read-switch"
             name="hide-read"
-            className="big my-3"
+            className="my-3"
             checked={showOnlyUnreadPosts}
             onToggle={toggleShowOnlyUnreadPosts}
+            compact={false}
           >
             Hide read posts
           </Switch>
@@ -124,6 +126,7 @@ export default function Settings({
             className="big my-3"
             checked={openNewTab}
             onToggle={toggleOpenNewTab}
+            compact={false}
           >
             Open links in new tab
           </Switch>

@@ -1,9 +1,9 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import AuthContext from '../../contexts/AuthContext';
-import UpvoteIcon from '../../icons/upvote.svg';
-import CommentIcon from '../../icons/comment.svg';
-import TrashIcon from '../../icons/trash.svg';
-import EditIcon from '../../icons/edit.svg';
+import UpvoteIcon from '@dailydotdev/shared/icons/upvote.svg';
+import CommentIcon from '@dailydotdev/shared/icons/comment.svg';
+import TrashIcon from '@dailydotdev/shared/icons/trash.svg';
+import EditIcon from '@dailydotdev/shared/icons/edit.svg';
 import sizeN from '../../macros/sizeN.macro';
 import {
   CANCEL_COMMENT_UPVOTE_MUTATION,
@@ -14,8 +14,8 @@ import { useMutation, useQueryClient } from 'react-query';
 import { Roles } from '../../lib/user';
 import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
-import QuaternaryButton from '../buttons/QuaternaryButton';
-import Button from '../buttons/Button';
+import { QuaternaryButton } from '@dailydotdev/shared';
+import { Button } from '@dailydotdev/shared';
 import { getTooltipProps } from '../../lib/tooltip';
 
 export interface Props {

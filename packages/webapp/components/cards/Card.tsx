@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import LazyImage from '../LazyImage';
+import { LazyImage } from '@dailydotdev/shared';
 import { Comment } from '../../graphql/comments';
 import styles from '../../styles/cards.module.css';
 import classed from '../../lib/classed';

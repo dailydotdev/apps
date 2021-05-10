@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
-import styles from '../../styles/switch.module.css';
 import classNames from 'classnames';
+import styles from './IconsSwitch.module.css';
 import classed from '../../lib/classed';
 
 export interface IconsSwitchProps {
@@ -22,7 +22,7 @@ const baseIconClass = 'transform transition-transform text-base';
 const unselectedIconClass = 'text-theme-label-secondary scale-125';
 const selectedIconClass = 'scale-150';
 
-export default function IconsSwitch({
+export function IconsSwitch({
   className,
   inputId,
   name,

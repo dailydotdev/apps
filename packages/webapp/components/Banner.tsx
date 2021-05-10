@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext } from 'react';
-import Button from './buttons/Button';
-import XIcon from '../icons/x.svg';
+import { Button } from '@dailydotdev/shared';
+import XIcon from '@dailydotdev/shared/icons/x.svg';
 import classNames from 'classnames';
 import { useQuery } from 'react-query';
 import request from 'graphql-request';

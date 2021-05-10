@@ -5,10 +5,10 @@ import {
   CardTextContainer,
   featuredCommentsToButtons,
 } from './Card';
-import ArrowIcon from '../../icons/arrow.svg';
-import CommentIcon from '../../icons/comment.svg';
+import ArrowIcon from '@dailydotdev/shared/icons/arrow.svg';
+import CommentIcon from '@dailydotdev/shared/icons/comment.svg';
 import Link from 'next/link';
-import Button from '../buttons/Button';
+import { Button } from '@dailydotdev/shared';
 import { getTooltipProps } from '../../lib/tooltip';
 import classNames from 'classnames';
 

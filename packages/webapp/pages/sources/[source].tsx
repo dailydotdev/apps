@@ -30,8 +30,8 @@ import {
   SOURCES_SETTINGS_QUERY,
 } from '../../graphql/feedSettings';
 import AuthContext from '../../contexts/AuthContext';
-import Button, { ButtonProps } from '../../components/buttons/Button';
-import PlusIcon from '../../icons/plus.svg';
+import { Button, ButtonProps } from '@dailydotdev/shared';
+import PlusIcon from '@dailydotdev/shared/icons/plus.svg';
 import { trackEvent } from '../../lib/analytics';
 
 type SourcePageProps = { source: Source };

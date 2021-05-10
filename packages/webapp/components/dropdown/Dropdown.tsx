@@ -6,7 +6,7 @@ import React, {
   useState,
 } from 'react';
 import classNames from 'classnames';
-import ArrowIcon from '../../icons/arrow.svg';
+import ArrowIcon from '@dailydotdev/shared/icons/arrow.svg';
 import styles from '../../styles/dropdown.module.css';
 import {
   Item,

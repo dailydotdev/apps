@@ -22,14 +22,14 @@ import {
   typoTitle2,
 } from '../../styles/typography';
 import { postDateFormat } from '../../lib/dateFormat';
-import OpenLinkIcon from '../../icons/open_link.svg';
-import UpvoteIcon from '../../icons/upvote.svg';
-import CommentIcon from '../../icons/comment.svg';
-import BookmarkIcon from '../../icons/bookmark.svg';
-import TrashIcon from '../../icons/trash.svg';
-import HammerIcon from '../../icons/hammer.svg';
-import FeatherIcon from '../../icons/feather.svg';
-import LazyImage from '../../components/LazyImage';
+import OpenLinkIcon from '@dailydotdev/shared/icons/open_link.svg';
+import UpvoteIcon from '@dailydotdev/shared/icons/upvote.svg';
+import CommentIcon from '@dailydotdev/shared/icons/comment.svg';
+import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
+import TrashIcon from '@dailydotdev/shared/icons/trash.svg';
+import HammerIcon from '@dailydotdev/shared/icons/hammer.svg';
+import FeatherIcon from '@dailydotdev/shared/icons/feather.svg';
+import { LazyImage } from '@dailydotdev/shared';
 import {
   Post,
   POST_BY_ID_QUERY,
@@ -56,11 +56,11 @@ import request, { ClientError } from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import { ProfileLink } from '../../components/profile/ProfileLink';
 import { ownershipGuide } from '../../lib/constants';
-import QuaternaryButton from '../../components/buttons/QuaternaryButton';
+import { QuaternaryButton } from '@dailydotdev/shared';
 import { LoginModalMode } from '../../components/modals/LoginModal';
 import { logReadArticle, trackEvent } from '../../lib/analytics';
 import useSubscription from '../../hooks/useSubscription';
-import Button from '../../components/buttons/Button';
+import { Button } from '@dailydotdev/shared';
 import { getTooltipProps } from '../../lib/tooltip';
 import Link from 'next/link';
 import useUpvotePost from '../../hooks/useUpvotePost';

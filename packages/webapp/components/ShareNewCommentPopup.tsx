@@ -1,11 +1,11 @@
 import React, { ReactElement, useContext } from 'react';
 import { ModalCloseButton } from './modals/StyledModal';
 import AuthContext from '../contexts/AuthContext';
-import TwitterIcon from '../icons/twitter.svg';
-import WhatsappIcon from '../icons/whatsapp.svg';
-import FacebookIcon from '../icons/facebook.svg';
-import CopyIcon from '../icons/copy.svg';
-import ShareIcon from '../icons/share.svg';
+import TwitterIcon from '@dailydotdev/shared/icons/twitter.svg';
+import WhatsappIcon from '@dailydotdev/shared/icons/whatsapp.svg';
+import FacebookIcon from '@dailydotdev/shared/icons/facebook.svg';
+import CopyIcon from '@dailydotdev/shared/icons/copy.svg';
+import ShareIcon from '@dailydotdev/shared/icons/share.svg';
 import Confetti from './svg/ConfettiSvg';
 import {
   getFacebookShareLink,
@@ -15,7 +15,7 @@ import {
 } from '../lib/share';
 import { Post } from '../graphql/posts';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
-import Button, { ButtonProps } from './buttons/Button';
+import { Button, ButtonProps } from '@dailydotdev/shared';
 import { getTooltipProps } from '../lib/tooltip';
 import classed from '../lib/classed';
 

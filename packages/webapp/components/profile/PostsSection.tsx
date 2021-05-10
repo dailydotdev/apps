@@ -13,24 +13,24 @@ import {
   EmptyMessage,
 } from './common';
 import { ownershipGuide } from '../../lib/constants';
-import Button from '../buttons/Button';
+import { Button } from '@dailydotdev/shared';
 import ActivitySection from './ActivitySection';
 import Link from 'next/link';
 import { smallPostImage } from '../../lib/image';
-import EyeIcon from '../../icons/eye.svg';
+import EyeIcon from '@dailydotdev/shared/icons/eye.svg';
 import { largeNumberFormat } from '../../lib/numberFormat';
-import UpvoteIcon from '../../icons/upvote.svg';
-import CommentIcon from '../../icons/comment.svg';
+import UpvoteIcon from '@dailydotdev/shared/icons/upvote.svg';
+import CommentIcon from '@dailydotdev/shared/icons/comment.svg';
 import { useInfiniteQuery } from 'react-query';
 import { AUTHOR_FEED_QUERY, FeedData } from '../../graphql/posts';
 import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import styled from '@emotion/styled';
 import sizeN from '../../macros/sizeN.macro';
-import LazyImage from '../LazyImage';
+import { LazyImage } from '@dailydotdev/shared';
 import { tablet } from '../../styles/media';
 import { typoCallout } from '../../styles/typography';
-import TextField from '../fields/TextField';
+import { TextField } from '@dailydotdev/shared';
 import {
   loggedUserToProfile,
   updateProfile,

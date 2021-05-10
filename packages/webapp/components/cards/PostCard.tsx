@@ -12,12 +12,12 @@ import {
   getPostClassNames,
 } from './Card';
 import { SmallRoundedImage } from '../utilities';
-import FeatherIcon from '../../icons/feather.svg';
-import FlagIcon from '../../icons/flag.svg';
+import FeatherIcon from '@dailydotdev/shared/icons/feather.svg';
+import FlagIcon from '@dailydotdev/shared/icons/flag.svg';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import { Comment } from '../../graphql/comments';
-import Button from '../buttons/Button';
+import { Button } from '@dailydotdev/shared';
 import styles from '../../styles/cards.module.css';
 import { getTooltipProps } from '../../lib/tooltip';
 import TrendingFlag from './TrendingFlag';

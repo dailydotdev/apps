@@ -14,7 +14,7 @@ import EditImageWithJoinedDate from '../components/profile/EditImageWithJoinedDa
 import ProfileForm, {
   RegistrationMode,
 } from '../components/profile/ProfileForm';
-import Button, { ButtonProps } from '../components/buttons/Button';
+import { Button, ButtonProps } from '@dailydotdev/shared';
 
 const Subheading = styled.h2`
   margin: ${sizeN(2)} 0;

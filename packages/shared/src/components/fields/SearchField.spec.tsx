@@ -1,8 +1,6 @@
 import React from 'react';
-import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
-import SearchField, {
-  SearchFieldProps,
-} from '../../components/fields/SearchField';
+import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import { SearchField, SearchFieldProps } from './SearchField';
 
 const renderComponent = (
   props: Partial<SearchFieldProps> = {},

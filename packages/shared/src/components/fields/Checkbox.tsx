@@ -8,8 +8,8 @@ import React, {
   useState,
 } from 'react';
 import classNames from 'classnames';
-import VIcon from '../../icons/v.svg';
-import styles from '../../styles/checkbox.module.css';
+import VIcon from '../../../icons/v.svg';
+import styles from './Checkbox.module.css';
 
 export interface CheckboxProps {
   name: string;
@@ -19,7 +19,7 @@ export interface CheckboxProps {
   onToggle?: (checked: boolean) => unknown;
 }
 
-export default forwardRef(function Checkbox(
+export const Checkbox = forwardRef(function Checkbox(
   { name, checked, children, className, onToggle }: CheckboxProps,
   ref: LegacyRef<HTMLInputElement>,
 ): ReactElement {

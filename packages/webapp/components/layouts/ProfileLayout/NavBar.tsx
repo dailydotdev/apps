@@ -9,7 +9,7 @@ import { FlippedProps, FlipperProps } from 'flip-toolkit/lib/types';
 import dynamicParent from '../../../lib/dynamicParent';
 import { ActiveTabIndicator } from '../../utilities';
 import ProgressiveEnhancementContext from '../../../contexts/ProgressiveEnhancementContext';
-import Button from '../../buttons/Button';
+import { Button } from '@dailydotdev/shared';
 
 const flipperLoader = () =>
   import(/* webpackChunkName: "reactFlip" */ 'react-flip-toolkit');

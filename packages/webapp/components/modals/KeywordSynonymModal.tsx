@@ -3,9 +3,9 @@ import ResponsiveModal from './ResponsiveModal';
 import { mobileL } from '../../styles/media';
 import { ModalProps } from './StyledModal';
 import React, { ReactElement, useState } from 'react';
-import TextField from '../fields/TextField';
+import { TextField } from '@dailydotdev/shared';
 import sizeN from '../../macros/sizeN.macro';
-import XIcon from '../../icons/x.svg';
+import XIcon from '@dailydotdev/shared/icons/x.svg';
 import { useMutation, useQuery } from 'react-query';
 import {
   SEARCH_KEYWORDS_QUERY,
@@ -15,7 +15,7 @@ import {
 import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import { typoCallout } from '../../styles/typography';
-import Button, { ButtonProps } from '../buttons/Button';
+import { Button, ButtonProps } from '@dailydotdev/shared';
 
 const Modal = styled(ResponsiveModal)`
   .Modal {

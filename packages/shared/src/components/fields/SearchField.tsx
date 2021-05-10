@@ -6,11 +6,11 @@ import React, {
   ForwardedRef,
   ReactNode,
 } from 'react';
+import classNames from 'classnames';
 import { useInputField } from '../../hooks/useInputField';
 import { BaseField, FieldInput } from './common';
-import MagnifyingIcon from '../../icons/magnifying.svg';
-import XIcon from '../../icons/x.svg';
-import classNames from 'classnames';
+import MagnifyingIcon from '../../../icons/magnifying.svg';
+import XIcon from '../../../icons/x.svg';
 
 export interface SearchFieldProps
   extends Pick<
@@ -36,7 +36,7 @@ export interface SearchFieldProps
   rightChildren?: ReactNode;
 }
 
-export default forwardRef(function SearchField(
+export const SearchField = forwardRef(function SearchField(
   {
     inputId,
     name,

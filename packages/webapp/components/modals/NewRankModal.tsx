@@ -16,12 +16,12 @@ import { RankConfetti } from '../svg/RankConfetti';
 import { RANK_NAMES, rankToColor, STEPS_PER_RANK } from '../../lib/rank';
 import { LoggedUser } from '../../lib/user';
 import { typoCallout, typoTitle2 } from '../../styles/typography';
-import Checkbox from '../fields/Checkbox';
+import { Checkbox } from '@dailydotdev/shared';
 import LoginButtons from '../LoginButtons';
 import RadialProgress from '../RadialProgress';
 import Rank from '../Rank';
 import { CSSTransition } from 'react-transition-group';
-import Button from '../buttons/Button';
+import { Button } from '@dailydotdev/shared';
 
 export interface NewRankModalProps extends Omit<ModalProps, 'onRequestClose'> {
   rank: number;
