@@ -79,6 +79,7 @@ it('should fetch remote settings', async () => {
   const radio = await screen.findAllByRole('radio');
   await waitFor(() =>
     expect(
+      // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
       radio.find((el) => queryByText(el.parentElement, 'Roomy')),
     ).toBeChecked(),
   );
@@ -86,17 +87,20 @@ it('should fetch remote settings', async () => {
   const checkbox = await screen.findAllByRole('checkbox');
   await waitFor(() =>
     expect(
+      // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
       checkbox.find((el) => queryByText(el.parentElement, 'Light theme')),
     ).toBeChecked(),
   );
   await waitFor(() =>
     expect(
+      // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
       checkbox.find((el) => queryByText(el.parentElement, 'Hide read posts')),
     ).toBeChecked(),
   );
   await waitFor(() =>
     expect(
       checkbox.find((el) =>
+        // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
         queryByText(el.parentElement, 'Open links in new tab'),
       ),
     ).not.toBeChecked(),
@@ -127,6 +131,7 @@ const testSettingsMutation = async (
     const checkbox = await screen.findAllByRole('checkbox');
     await waitFor(() =>
       expect(
+        // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
         checkbox.find((el) => queryByText(el.parentElement, 'Light theme')),
       ).toBeChecked(),
     );
@@ -139,6 +144,7 @@ const testSettingsMutation = async (
 it('should mutate density setting', () =>
   testSettingsMutation({ spaciness: 'cozy' }, async () => {
     const radio = await screen.findAllByRole('radio');
+    // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
     const cozy = radio.find((el) => queryByText(el.parentElement, 'Cozy'));
     fireEvent.change(cozy);
   }));
@@ -147,6 +153,7 @@ it('should set theme to dark mode setting', () =>
   testSettingsMutation({ theme: 'darcula' }, async () => {
     const checkboxes = await screen.findAllByRole('checkbox');
     const checkbox = checkboxes.find((el) =>
+      // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
       queryByText(el.parentElement, 'Light theme'),
     ) as HTMLInputElement;
     fireEvent.change(checkbox);
@@ -158,6 +165,7 @@ it('should set light to dark mode setting', () =>
     async () => {
       const checkboxes = await screen.findAllByRole('checkbox');
       const checkbox = checkboxes.find((el) =>
+        // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
         queryByText(el.parentElement, 'Light theme'),
       ) as HTMLInputElement;
       fireEvent.change(checkbox);
@@ -169,6 +177,7 @@ it('should mutate hide read posts setting', () =>
   testSettingsMutation({ showOnlyUnreadPosts: false }, async () => {
     const checkboxes = await screen.findAllByRole('checkbox');
     const checkbox = checkboxes.find((el) =>
+      // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
       queryByText(el.parentElement, 'Hide read posts'),
     ) as HTMLInputElement;
     fireEvent.change(checkbox);
@@ -178,6 +187,7 @@ it('should mutate open links in new tab setting', () =>
   testSettingsMutation({ openNewTab: true }, async () => {
     const checkboxes = await screen.findAllByRole('checkbox');
     const checkbox = checkboxes.find((el) =>
+      // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
       queryByText(el.parentElement, 'Open links in new tab'),
     ) as HTMLInputElement;
     fireEvent.change(checkbox);

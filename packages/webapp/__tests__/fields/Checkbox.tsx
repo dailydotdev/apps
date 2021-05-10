@@ -32,5 +32,6 @@ it('should add checked class', async () => {
   const el = await screen.findByRole('checkbox');
   (el as HTMLInputElement).checked = true;
   el.dispatchEvent(new Event('change', { bubbles: true }));
+  // eslint-disable-next-line testing-library/no-node-access
   await waitFor(() => expect(el.parentElement).toHaveClass('checked'));
 });
