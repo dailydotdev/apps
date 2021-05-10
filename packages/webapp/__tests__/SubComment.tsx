@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, RenderResult, waitFor } from '@testing-library/preact';
+import { screen, render, RenderResult, waitFor } from '@testing-library/preact';
 import AuthContext from '../contexts/AuthContext';
 import { LoggedUser } from '../lib/user';
 import SubComment, { Props } from '../components/comments/SubComment';
