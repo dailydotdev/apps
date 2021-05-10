@@ -17,6 +17,7 @@
 }
 
 .item.checked:hover .checkmark, .checked input:focus-visible ~ .checkmark {
+  /* stylelint-disable-next-line unit-no-unknown */
   background: theme('colors.water.50')3D;
 
   & .innerRing {

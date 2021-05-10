@@ -1,6 +1,6 @@
 module.exports = {
   presets: ['next/babel'],
-  plugins: ['macros', '@emotion'],
+  plugins: ['macros'],
   env: {
     test: {
       plugins: ['dynamic-import-node'],
