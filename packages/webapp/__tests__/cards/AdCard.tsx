@@ -62,6 +62,7 @@ it('should show blurred image for carbon', async () => {
   const img = await screen.findByAltText('Ad image');
   const background = screen.queryByAltText('Ad image background');
   expect(img).toBeInTheDocument();
+  // eslint-disable-next-line testing-library/no-node-access
   expect(img.parentElement).toHaveClass('absolute');
   expect(background).toBeInTheDocument();
 });

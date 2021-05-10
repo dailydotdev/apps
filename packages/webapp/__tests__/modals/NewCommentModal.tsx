@@ -109,6 +109,7 @@ it('should close modal on cancel', async () => {
 it('should disable submit button when no input', async () => {
   renderComponent();
   const el = await screen.findByText('Comment');
+  // eslint-disable-next-line testing-library/no-node-access
   expect(el.parentElement).toBeDisabled();
 });
 

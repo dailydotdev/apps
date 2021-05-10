@@ -153,8 +153,8 @@ const renderPost = (
 };
 
 it('should show source image', async () => {
-  const res = renderPost();
-  const el = await res.findByAltText('Towards Data Science');
+  renderPost();
+  const el = await screen.findByAltText('Towards Data Science');
   expect(el).toHaveAttribute(
     'data-src',
     'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos/tds',
@@ -162,53 +162,50 @@ it('should show source image', async () => {
 });
 
 it('should show source name', async () => {
-  const res = renderPost();
-  await res.findByText('Towards Data Science');
+  renderPost();
+  await screen.findByText('Towards Data Science');
 });
 
 it('should format publication date', async () => {
-  const res = renderPost();
-  await res.findByText('May 16, 2019');
+  renderPost();
+  await screen.findByText('May 16, 2019');
 });
 
 it('should format read time when available', async () => {
-  const res = renderPost();
-  const el = await res.findByTestId('readTime');
+  renderPost();
+  const el = await screen.findByTestId('readTime');
   expect(el).toHaveTextContent('8m read time');
 });
 
 it('should hide read time when not available', async () => {
-  const res = renderPost({}, [
-    createPostMock({ readTime: null }),
-    createCommentsMock(),
-  ]);
-  await res.findByText('May 16, 2019');
-  expect(res.queryByTestId('readTime')).not.toBeInTheDocument();
+  renderPost({}, [createPostMock({ readTime: null }), createCommentsMock()]);
+  await screen.findByText('May 16, 2019');
+  expect(screen.queryByTestId('readTime')).not.toBeInTheDocument();
 });
 
 it('should set href to the post permalink', async () => {
-  const res = renderPost();
+  renderPost();
   // Wait for GraphQL to return
-  await res.findByText('Learn SQL');
-  const el = res.getAllByTitle('Go to article')[0];
+  await screen.findByText('Learn SQL');
+  const el = screen.getAllByTitle('Go to article')[0];
   expect(el).toHaveAttribute('href', 'http://localhost:4000/r/9CuRpr5NiEY5');
 });
 
 it('should show post title as heading', async () => {
-  const res = renderPost();
-  await res.findByText('Learn SQL');
+  renderPost();
+  await screen.findByText('Learn SQL');
 });
 
 it('should show post tags', async () => {
-  const res = renderPost();
-  await res.findByText('#development #data-science #sql');
+  renderPost();
+  await screen.findByText('#development #data-science #sql');
 });
 
 it('should show post image', async () => {
-  const res = renderPost();
+  renderPost();
   // Wait for GraphQL to return
-  await res.findByText('Learn SQL');
-  const el = await res.findByAltText('Post cover image');
+  await screen.findByText('Learn SQL');
+  const el = await screen.findByAltText('Post cover image');
   expect(el).toHaveAttribute(
     'src',
     'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/22fc3ac5cc3fedf281b6e4b46e8c0ba2',
@@ -216,15 +213,15 @@ it('should show post image', async () => {
 });
 
 it('should show login on upvote click', async () => {
-  const res = renderPost({}, [createPostMock(), createCommentsMock()], null);
-  const el = await res.findByText('Upvote');
+  renderPost({}, [createPostMock(), createCommentsMock()], null);
+  const el = await screen.findByText('Upvote');
   el.click();
   expect(showLogin).toBeCalledTimes(1);
 });
 
 it('should send upvote mutation', async () => {
   let mutationCalled = false;
-  const res = renderPost({}, [
+  renderPost({}, [
     createPostMock(),
     createCommentsMock(),
     {
@@ -238,14 +235,14 @@ it('should send upvote mutation', async () => {
       },
     },
   ]);
-  const el = await res.findByText('Upvote');
+  const el = await screen.findByText('Upvote');
   el.click();
   await waitFor(() => mutationCalled);
 });
 
 it('should send cancel upvote mutation', async () => {
   let mutationCalled = false;
-  const res = renderPost({}, [
+  renderPost({}, [
     createPostMock({ upvoted: true }),
     createCommentsMock(),
     {
@@ -259,7 +256,7 @@ it('should send cancel upvote mutation', async () => {
       },
     },
   ]);
-  const el = await res.findByText('Upvote');
+  const el = await screen.findByText('Upvote');
   el.click();
   await waitFor(() => mutationCalled);
 });
@@ -268,10 +265,10 @@ it('should send cancel upvote mutation', async () => {
 //   const mock = jest.fn();
 //   global.navigator.share = mock;
 //   mock.mockResolvedValue(null);
-//   const res = renderPost();
+//   renderPost();
 //   // Wait for GraphQL to return
-//   await res.findByText('Learn SQL');
-//   const el = await res.findByText('Share');
+//   await screen.findByText('Learn SQL');
+//   const el = await screen.findByText('Share');
 //   el.click();
 //   await waitFor(() =>
 //     expect(mock).toBeCalledWith({
@@ -289,10 +286,13 @@ it('should open new comment modal and set the correct props', async () => {
   el.click();
   const dialog = await screen.findByRole('dialog');
   expect(dialog).toBeInTheDocument();
+  // eslint-disable-next-line testing-library/prefer-screen-queries
   expect((await findAllByText(dialog, 'Towards Data Science')).length).toEqual(
     2,
   );
+  // eslint-disable-next-line testing-library/prefer-screen-queries
   await findByText(dialog, 'Learn SQL');
+  // eslint-disable-next-line testing-library/prefer-screen-queries
   await findByText(dialog, 'May 16, 2019');
 });
 
@@ -392,7 +392,7 @@ it('should update post on subscription message', async () => {
 
 it('should send bookmark mutation', async () => {
   let mutationCalled = false;
-  const res = renderPost({}, [
+  renderPost({}, [
     createPostMock(),
     createCommentsMock(),
     {
@@ -406,14 +406,14 @@ it('should send bookmark mutation', async () => {
       },
     },
   ]);
-  const el = await res.findByText('Bookmark');
+  const el = await screen.findByText('Bookmark');
   el.click();
   await waitFor(() => mutationCalled);
 });
 
 it('should send cancel upvote mutation', async () => {
   let mutationCalled = false;
-  const res = renderPost({}, [
+  renderPost({}, [
     createPostMock({ bookmarked: true }),
     createCommentsMock(),
     {
@@ -427,7 +427,7 @@ it('should send cancel upvote mutation', async () => {
       },
     },
   ]);
-  const el = await res.findByText('Bookmark');
+  const el = await screen.findByText('Bookmark');
   el.click();
   await waitFor(() => mutationCalled);
 });

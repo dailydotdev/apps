@@ -60,6 +60,7 @@ const renderComponent = (
     parentId: 'c1',
     onComment,
     onDelete,
+    onEdit: jest.fn(),
   };
 
   const client = new QueryClient();
@@ -84,12 +85,12 @@ const renderComponent = (
 };
 
 it('should not show delete button when user is not the author', async () => {
-  const res = renderComponent();
-  expect(res.queryByTitle('Delete')).not.toBeInTheDocument();
+  renderComponent();
+  expect(screen.queryByTitle('Delete')).not.toBeInTheDocument();
 });
 
 it('should show delete button when user is the author', async () => {
-  const res = renderComponent(
+  renderComponent(
     {},
     {
       id: 'u1',
@@ -100,7 +101,7 @@ it('should show delete button when user is the author', async () => {
       createdAt: '',
     },
   );
-  expect(res.getByLabelText('Delete')).toBeInTheDocument();
+  expect(screen.getByLabelText('Delete')).toBeInTheDocument();
 });
 
 it('should show login on upvote click', async () => {
@@ -112,7 +113,7 @@ it('should show login on upvote click', async () => {
 
 it('should send upvote mutation', async () => {
   let mutationCalled = false;
-  const res = renderComponent({}, loggedUser, [
+  renderComponent({}, loggedUser, [
     {
       request: {
         query: UPVOTE_COMMENT_MUTATION,
@@ -124,14 +125,14 @@ it('should send upvote mutation', async () => {
       },
     },
   ]);
-  const el = await res.findByLabelText('Upvote');
+  const el = await screen.findByLabelText('Upvote');
   el.click();
   await waitFor(() => mutationCalled);
 });
 
 it('should send cancel upvote mutation', async () => {
   let mutationCalled = false;
-  const res = renderComponent({ upvoted: true }, loggedUser, [
+  renderComponent({ upvoted: true }, loggedUser, [
     {
       request: {
         query: CANCEL_COMMENT_UPVOTE_MUTATION,
@@ -143,33 +144,33 @@ it('should send cancel upvote mutation', async () => {
       },
     },
   ]);
-  const el = await res.findByLabelText('Upvote');
+  const el = await screen.findByLabelText('Upvote');
   el.click();
   await waitFor(() => mutationCalled);
 });
 
 it('should call onComment callback', async () => {
-  const res = renderComponent();
-  const el = await res.findByLabelText('Comment');
+  renderComponent();
+  const el = await screen.findByLabelText('Comment');
   el.click();
   expect(onComment).toBeCalledWith(baseComment, 'c1');
 });
 
 it('should call onDelete callback', async () => {
-  const res = renderComponent({}, loggedUser);
-  const el = await res.findByLabelText('Delete');
+  renderComponent({}, loggedUser);
+  const el = await screen.findByLabelText('Delete');
   el.click();
   expect(onDelete).toBeCalledWith(baseComment, 'c1');
 });
 
 it('should not show num upvotes when it is zero', async () => {
-  const res = renderComponent();
-  const el = await res.findByLabelText('Upvote');
+  renderComponent();
+  const el = await screen.findByLabelText('Upvote');
   expect(el).toHaveTextContent('');
 });
 
 it('should show num upvotes when it is greater than zero', async () => {
-  const res = renderComponent({ numUpvotes: 2 });
-  const el = await res.findByText('2');
+  renderComponent({ numUpvotes: 2 });
+  const el = await screen.findByText('2');
   expect(el).toBeInTheDocument();
 });

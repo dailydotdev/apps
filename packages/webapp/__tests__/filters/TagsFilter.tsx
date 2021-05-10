@@ -84,9 +84,10 @@ const renderComponent = (
 };
 
 it('should show followed tags', async () => {
-  const res = renderComponent();
-  await waitFor(() => expect(res.baseElement).not.toHaveAttribute('aria-busy'));
+  const { baseElement } = renderComponent();
+  await waitFor(() => expect(baseElement).not.toHaveAttribute('aria-busy'));
   const { parentElement: section } = await screen.findByText('Tags you follow');
+  // eslint-disable-next-line testing-library/prefer-screen-queries
   const buttons = await findAllByRole(section, 'button');
   const tags = ['react', 'golang'];
   buttons.map((button, index) =>
@@ -95,9 +96,10 @@ it('should show followed tags', async () => {
 });
 
 it('should show available tags', async () => {
-  const res = renderComponent();
-  await waitFor(() => expect(res.baseElement).not.toHaveAttribute('aria-busy'));
+  const { baseElement } = renderComponent();
+  await waitFor(() => expect(baseElement).not.toHaveAttribute('aria-busy'));
   const { parentElement: section } = await screen.findByText('Everything else');
+  // eslint-disable-next-line testing-library/prefer-screen-queries
   const buttons = await findAllByRole(section, 'button');
   const tags = ['webdev', 'vue'];
   buttons.map((button, index) =>
@@ -106,17 +108,18 @@ it('should show available tags', async () => {
 });
 
 it('should show only available tags when no filters', async () => {
-  const res = renderComponent([
+  const { baseElement } = renderComponent([
     createAllTagsAndSettingsMock({ includeTags: [] }, [
       'react',
       'webdev',
       'vue',
     ]),
   ]);
-  await waitFor(() => expect(res.baseElement).not.toHaveAttribute('aria-busy'));
+  await waitFor(() => expect(baseElement).not.toHaveAttribute('aria-busy'));
   const { parentElement: section } = await screen.findByText(
     'Choose tags to follow',
   );
+  // eslint-disable-next-line testing-library/prefer-screen-queries
   const buttons = await findAllByRole(section, 'button');
   const tags = ['react', 'webdev', 'vue'];
   buttons.map((button, index) =>
@@ -131,6 +134,7 @@ it('should show login popup when logged-out on tag click', async () => {
   const { parentElement: section } = await screen.findByText(
     'Choose tags to follow',
   );
+  // eslint-disable-next-line testing-library/prefer-screen-queries
   const [button] = await findAllByRole(section, 'button');
   button.click();
   expect(showLogin).toBeCalledTimes(1);
@@ -156,6 +160,7 @@ it('should add new tag filter on tag click', async () => {
     },
   });
   const { parentElement: section } = await screen.findByText('Everything else');
+  // eslint-disable-next-line testing-library/prefer-screen-queries
   const [button] = await findAllByRole(section, 'button');
   button.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
@@ -184,6 +189,7 @@ it('should remove tag filter on tag click', async () => {
     },
   });
   const { parentElement: section } = await screen.findByText('Tags you follow');
+  // eslint-disable-next-line testing-library/prefer-screen-queries
   const [button] = await findAllByRole(section, 'button');
   button.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
@@ -193,7 +199,7 @@ it('should remove tag filter on tag click', async () => {
 });
 
 it('should show filter followed tags', async () => {
-  const res = renderComponent(
+  const { baseElement } = renderComponent(
     [
       createAllTagsAndSettingsMock(),
       {
@@ -211,10 +217,11 @@ it('should show filter followed tags', async () => {
     defaultUser,
     'r',
   );
-  await waitFor(() => expect(res.baseElement).not.toHaveAttribute('aria-busy'));
+  await waitFor(() => expect(baseElement).not.toHaveAttribute('aria-busy'));
   await waitFor(() => expect(nock.isDone()).toBeTruthy());
 
   const { parentElement: section } = await screen.findByText('Tags you follow');
+  // eslint-disable-next-line testing-library/prefer-screen-queries
   const buttons = await findAllByRole(section, 'button');
   const tags = ['react'];
   buttons.map((button, index) =>
@@ -223,7 +230,7 @@ it('should show filter followed tags', async () => {
 });
 
 it('should show filtered available tags', async () => {
-  const res = renderComponent(
+  const { baseElement } = renderComponent(
     [
       createAllTagsAndSettingsMock(),
       {
@@ -241,10 +248,11 @@ it('should show filtered available tags', async () => {
     defaultUser,
     'r',
   );
-  await waitFor(() => expect(res.baseElement).not.toHaveAttribute('aria-busy'));
+  await waitFor(() => expect(baseElement).not.toHaveAttribute('aria-busy'));
   await waitFor(() => expect(nock.isDone()).toBeTruthy());
 
   const { parentElement: section } = await screen.findByText('Everything else');
+  // eslint-disable-next-line testing-library/prefer-screen-queries
   const buttons = await findAllByRole(section, 'button');
   const tags = ['react-native'];
   buttons.map((button, index) =>

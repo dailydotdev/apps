@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, RenderResult, waitFor } from '@testing-library/preact';
+import { screen, render, RenderResult, waitFor } from '@testing-library/preact';
 import AuthContext from '../contexts/AuthContext';
 import { LoggedUser } from '../lib/user';
 import SubComment, { Props } from '../components/comments/SubComment';
@@ -75,64 +75,64 @@ const renderLayout = (
 };
 
 it('should show author profile image', async () => {
-  const res = renderLayout();
-  const el = await res.findByAltText(`Ido's profile image`);
+  renderLayout();
+  const el = await screen.findByAltText(`Ido's profile image`);
   expect(el).toHaveAttribute('data-src', 'https://daily.dev/ido.png');
 });
 
 it('should show author name', async () => {
-  const res = renderLayout();
-  await res.findByText('Ido');
+  renderLayout();
+  await screen.findByText('Ido');
 });
 
 it('should show formatted comment date', async () => {
-  const res = renderLayout();
-  await res.findByText('Feb 10, 2017');
+  renderLayout();
+  await screen.findByText('Feb 10, 2017');
 });
 
 it('should show last updated comment date', async () => {
-  const res = renderLayout({
+  renderLayout({
     comment: {
       ...baseComment,
       lastUpdatedAt: new Date(2017, 2, 10, 0, 0).toISOString(),
     },
   });
-  await res.findByText('Modified Mar 10, 2017');
+  await screen.findByText('Modified Mar 10, 2017');
 });
 
 it('should show comment content', async () => {
-  const res = renderLayout();
-  await res.findByText('my comment');
+  renderLayout();
+  await screen.findByText('my comment');
 });
 
 it('should move timeline above profile picture when not first comment', async () => {
-  const res = renderLayout();
-  const el = await res.findByTestId('timeline');
+  renderLayout();
+  const el = await screen.findByTestId('timeline');
   expect(el).toHaveClass('-top-4');
 });
 
 it('should move timeline to profile picture when first comment', async () => {
-  const res = renderLayout({ firstComment: true });
-  const el = await res.findByTestId('timeline');
+  renderLayout({ firstComment: true });
+  const el = await screen.findByTestId('timeline');
   await waitFor(() => expect(el).toHaveClass('top-0'));
 });
 
 it('should call onComment callback', async () => {
-  const res = renderLayout();
-  const el = await res.findByLabelText('Comment');
+  renderLayout();
+  const el = await screen.findByLabelText('Comment');
   el.click();
   expect(onComment).toBeCalledWith(baseComment, 'c1');
 });
 
 it('should call onDelete callback', async () => {
-  const res = renderLayout({}, loggedUser);
-  const el = await res.findByLabelText('Delete');
+  renderLayout({}, loggedUser);
+  const el = await screen.findByLabelText('Delete');
   el.click();
   expect(onDelete).toBeCalledWith(baseComment, 'c1');
 });
 
 it('should show author badge', async () => {
-  const res = renderLayout({ postAuthorId: 'u1' }, loggedUser);
-  const el = await res.findByText('Author');
+  renderLayout({ postAuthorId: 'u1' }, loggedUser);
+  const el = await screen.findByText('Author');
   expect(el).toBeInTheDocument();
 });
