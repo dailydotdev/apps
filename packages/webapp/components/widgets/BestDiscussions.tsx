@@ -4,7 +4,7 @@ import { Button } from '@dailydotdev/shared';
 import ArrowIcon from '@dailydotdev/shared/icons/arrow.svg';
 import Link from 'next/link';
 import { Post } from '../../graphql/posts';
-import styles from '../../styles/cards.module.css';
+import styles from '@dailydotdev/shared/src/components/cards/Card.module.css';
 import { LazyImage, CardLink, ElementPlaceholder } from '@dailydotdev/shared';
 import { trackEvent } from '../../lib/analytics';
 import classed from '../../lib/classed';

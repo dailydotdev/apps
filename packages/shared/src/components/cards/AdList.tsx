@@ -8,7 +8,7 @@ import {
   ListCardTitle,
 } from './Card';
 import classNames from 'classnames';
-import styles from '../../styles/cards.module.css';
+import styles from './Card.module.css';
 import AdLink from './AdLink';
 import AdAttribution from './AdAttribution';
 

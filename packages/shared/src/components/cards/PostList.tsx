@@ -16,7 +16,7 @@ import PostMetadata from './PostMetadata';
 import ActionButtons from './ActionButtons';
 import SourceButton from './SourceButton';
 import classNames from 'classnames';
-import styles from '../../styles/cards.module.css';
+import styles from './Card.module.css';
 import ListFeaturedComment from './ListFeaturedComment';
 import { Button } from '../buttons/Button';
 import FlagIcon from '../../../icons/flag.svg';

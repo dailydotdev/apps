@@ -1,4 +1,4 @@
-import styles from '../../styles/cards.module.css';
+import styles from './Card.module.css';
 import React, { ReactElement, ReactNode } from 'react';
 import { Post } from '../../graphql/posts';
 import UpvoteIcon from '../../../icons/upvote.svg';

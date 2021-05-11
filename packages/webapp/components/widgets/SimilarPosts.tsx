@@ -5,7 +5,7 @@ import ArrowIcon from '@dailydotdev/shared/icons/arrow.svg';
 import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
 import Link from 'next/link';
 import { Post } from '../../graphql/posts';
-import styles from '../../styles/cards.module.css';
+import styles from '@dailydotdev/shared/src/components/cards/Card.module.css';
 import {
   LazyImage,
   CardLink,
