@@ -1,41 +1,41 @@
 module.exports = {
-  parser: '@typescript-eslint/parser',
+  parser: "@typescript-eslint/parser",
   extends: [
-    'plugin:testing-library/react',
-    'plugin:jest-dom/recommended',
-    'plugin:react/recommended',
-    'plugin:@typescript-eslint/recommended',
-    'prettier',
-    'plugin:prettier/recommended',
+    "plugin:testing-library/react",
+    "plugin:jest-dom/recommended",
+    "plugin:react/recommended",
+    "plugin:@typescript-eslint/recommended",
+    "prettier",
+    "plugin:prettier/recommended",
   ],
-  plugins: ['prettier', '@emotion'],
+  plugins: ["prettier"],
   parserOptions: {
     ecmaVersion: 2020,
-    sourceType: 'module',
+    sourceType: "module",
     ecmaFeatures: {
       jsx: true,
     },
   },
   settings: {
     react: {
-      version: 'detect',
+      version: "detect",
     },
   },
   env: {
     node: true,
   },
   rules: {
-    'react/jsx-no-target-blank': 0,
-    'no-restricted-imports': [
-      'error',
+    "react/jsx-no-target-blank": 0,
+    "no-restricted-imports": [
+      "error",
       {
         paths: [
           {
-            name: 'styled-components',
-            message: 'Please import from styled-components/macro.',
+            name: "styled-components",
+            message: "Please import from styled-components/macro.",
           },
         ],
-        patterns: ['!styled-components/macro'],
+        patterns: ["!styled-components/macro"],
       },
     ],
   },
