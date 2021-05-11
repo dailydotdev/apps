@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import styled from '@emotion/styled';
 import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
-import DailyDevLogo from '../svg/DailyDevLogo';
+import DailyDevLogo from '@dailydotdev/shared/src/svg/DailyDevLogo';
 import { typoCallout } from '../../styles/typography';
 
 import {

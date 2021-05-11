@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { ReactElement } from 'react';
+import React, { ReactElement } from 'react';
 
 export default function LogoTextBeta(
   props: React.SVGProps<SVGSVGElement>,

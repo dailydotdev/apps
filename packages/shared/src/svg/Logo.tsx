@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { ReactElement } from 'react';
+import React, { ReactElement } from 'react';
 
 export default function Logo(
   props: React.SVGProps<SVGSVGElement>,

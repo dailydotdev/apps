@@ -3,7 +3,7 @@ import Head from 'next/head';
 import styled from '@emotion/styled';
 import { typoTitle1 } from '../styles/typography';
 import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
-import HelloWorldSvg from '../components/svg/HelloWorldSvg';
+import HelloWorldSvg from '@dailydotdev/shared/src/svg/HelloWorldSvg';
 
 const Container = styled.div`
   display: flex;

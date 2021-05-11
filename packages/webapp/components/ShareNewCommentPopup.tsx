@@ -5,7 +5,7 @@ import WhatsappIcon from '@dailydotdev/shared/icons/whatsapp.svg';
 import FacebookIcon from '@dailydotdev/shared/icons/facebook.svg';
 import CopyIcon from '@dailydotdev/shared/icons/copy.svg';
 import ShareIcon from '@dailydotdev/shared/icons/share.svg';
-import Confetti from './svg/ConfettiSvg';
+import Confetti from '@dailydotdev/shared/src/svg/ConfettiSvg';
 import {
   getFacebookShareLink,
   getShareableLink,
