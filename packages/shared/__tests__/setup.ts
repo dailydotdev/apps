@@ -1,10 +1,7 @@
 import '@testing-library/jest-dom';
-import { matchers } from '@emotion/jest';
 // import 'fake-indexeddb/auto';
 // import nodeFetch from 'node-fetch';
 import { NextRouter } from 'next/router';
-
-expect.extend(matchers);
 
 process.env.NEXT_PUBLIC_API_URL = 'http://localhost:3000';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
