@@ -1,6 +1,4 @@
 import React, { CSSProperties, ReactElement } from 'react';
-import { ModalCloseButton, ModalProps } from './StyledModal';
-import ResponsiveModal, { responsiveModalBreakpoint } from './ResponsiveModal';
 import RankProgress from '../RankProgress';
 import { headerRankHeight } from '../../styles/sizes';
 import sizeN from '../../macros/sizeN.macro';
@@ -8,7 +6,13 @@ import rem from '../../macros/rem.macro';
 import styled from '@emotion/styled';
 import { RANK_NAMES, STEPS_PER_RANK } from '../../lib/rank';
 import Rank from '../Rank';
-import { Button } from '@dailydotdev/shared';
+import {
+  Button,
+  ModalCloseButton,
+  ModalProps,
+  ResponsiveModal,
+  responsiveModalBreakpoint,
+} from '@dailydotdev/shared';
 import classNames from 'classnames';
 import styles from '../../styles/ranksModal.module.css';
 

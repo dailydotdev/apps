@@ -1,6 +1,12 @@
 import React, { ReactElement, ReactNode, useRef, useState } from 'react';
-import { ModalCloseButton, ModalProps, StyledModal } from './StyledModal';
-import { Button, Loader } from '@dailydotdev/shared';
+import {
+  Button,
+  Loader,
+  ModalCloseButton,
+  ModalProps,
+  StyledModal,
+  Radio,
+} from '@dailydotdev/shared';
 import ArrowIcon from '@dailydotdev/shared/icons/arrow.svg';
 import { SearchField } from '@dailydotdev/shared';
 import { formToJson } from '../../lib/form';
@@ -14,7 +20,6 @@ import {
   SOURCE_BY_FEED_QUERY,
 } from '../../graphql/newSource';
 import { Source } from '../../graphql/sources';
-import { Radio } from '@dailydotdev/shared';
 
 interface RSS {
   url: string;

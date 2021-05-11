@@ -7,8 +7,6 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { ModalCloseButton, ModalProps } from './StyledModal';
-import ResponsiveModal, { responsiveModalBreakpoint } from './ResponsiveModal';
 import RankProgress from '../RankProgress';
 import sizeN from '../../macros/sizeN.macro';
 import styled from '@emotion/styled';
@@ -21,7 +19,13 @@ import LoginButtons from '../LoginButtons';
 import RadialProgress from '../RadialProgress';
 import Rank from '../Rank';
 import { CSSTransition } from 'react-transition-group';
-import { Button } from '@dailydotdev/shared';
+import {
+  Button,
+  ModalCloseButton,
+  ModalProps,
+  ResponsiveModal,
+  responsiveModalBreakpoint,
+} from '@dailydotdev/shared';
 
 export interface NewRankModalProps extends Omit<ModalProps, 'onRequestClose'> {
   rank: number;
@@ -200,7 +204,7 @@ export default function NewRankModal({
       onRequestClose={closeModal}
       {...props}
       css={css`
-        .Modal {
+        .modal {
           max-width: ${sizeN(105)};
 
           ${responsiveModalBreakpoint} {

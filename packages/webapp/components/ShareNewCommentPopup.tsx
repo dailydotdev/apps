@@ -1,5 +1,4 @@
 import React, { ReactElement, useContext } from 'react';
-import { ModalCloseButton } from './modals/StyledModal';
 import AuthContext from '../contexts/AuthContext';
 import TwitterIcon from '@dailydotdev/shared/icons/twitter.svg';
 import WhatsappIcon from '@dailydotdev/shared/icons/whatsapp.svg';
@@ -15,7 +14,7 @@ import {
 } from '../lib/share';
 import { Post } from '../graphql/posts';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
-import { Button, ButtonProps } from '@dailydotdev/shared';
+import { Button, ButtonProps, ModalCloseButton } from '@dailydotdev/shared';
 import { getTooltipProps } from '../lib/tooltip';
 import classed from '../lib/classed';
 

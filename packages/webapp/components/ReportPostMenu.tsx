@@ -5,7 +5,7 @@ import { trackEvent } from '../lib/analytics';
 import { ReportReason } from '../graphql/posts';
 import dynamic from 'next/dynamic';
 
-const PortalMenu = dynamic(() => import('./dropdown/PortalMenu'), {
+const PortalMenu = dynamic(() => import('./PortalMenu'), {
   ssr: false,
 });
 

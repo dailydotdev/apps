@@ -8,8 +8,8 @@ export function ReactModalAdapter({
   return (
     <Modal
       portalClassName={className.toString()}
-      overlayClassName="Overlay"
-      className="Modal"
+      overlayClassName="overlay"
+      className="modal focus-outline"
       {...props}
     />
   );

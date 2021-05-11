@@ -1,6 +1,4 @@
 import React, { ReactElement, useContext, useState } from 'react';
-import { ModalProps } from './StyledModal';
-import ResponsiveModal, { responsiveModalBreakpoint } from './ResponsiveModal';
 import styled from '@emotion/styled';
 import sizeN from '../../macros/sizeN.macro';
 import rem from '../../macros/rem.macro';
@@ -18,12 +16,18 @@ import {
   requestFeature,
   termsOfService,
 } from '../../lib/constants';
-import { Button, ButtonProps } from '@dailydotdev/shared';
+import {
+  Button,
+  ButtonProps,
+  ResponsiveModal,
+  responsiveModalBreakpoint,
+  ModalProps,
+} from '@dailydotdev/shared';
 
 const headerHeight = sizeN(12);
 
 const MyModal = styled(ResponsiveModal)`
-  .Modal {
+  .modal {
     padding: ${headerHeight} 0 0;
 
     ${responsiveModalBreakpoint} {

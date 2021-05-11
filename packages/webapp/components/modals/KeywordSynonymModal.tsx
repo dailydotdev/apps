@@ -1,7 +1,5 @@
 import styled from '@emotion/styled';
-import ResponsiveModal from './ResponsiveModal';
 import { mobileL } from '../../styles/media';
-import { ModalProps } from './StyledModal';
 import React, { ReactElement, useState } from 'react';
 import { TextField } from '@dailydotdev/shared';
 import sizeN from '../../macros/sizeN.macro';
@@ -15,10 +13,15 @@ import {
 import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import { typoCallout } from '../../styles/typography';
-import { Button, ButtonProps } from '@dailydotdev/shared';
+import {
+  Button,
+  ButtonProps,
+  ModalProps,
+  ResponsiveModal,
+} from '@dailydotdev/shared';
 
 const Modal = styled(ResponsiveModal)`
-  .Modal {
+  .modal {
     ${mobileL} {
       max-height: 40rem;
     }

@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-
 const colors = require('./tailwind/colors');
 const overlay = require('./tailwind/overlay');
 const boxShadow = require('./tailwind/boxShadow');
@@ -95,6 +94,7 @@ module.exports = {
       desktop: '1976px',
       desktopL: '2156px',
       mouse: { raw: '(pointer: fine)' },
+      responsiveModalBreakpoint: '420px',
     },
     extend: {
       borderRadius: {

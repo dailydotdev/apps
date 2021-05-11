@@ -1,16 +1,16 @@
 import React, { ReactElement, MouseEvent, useState } from 'react';
+import { useMutation } from 'react-query';
+import { DELETE_POST_MUTATION, EmptyResponse } from '../../graphql/posts';
+import request from 'graphql-request';
+import { apiUrl } from '../../lib/config';
 import {
+  Button,
   ConfirmationModal,
   ConfirmationHeading,
   ConfirmationDescription,
   ConfirmationButtons,
   ModalProps,
-} from './StyledModal';
-import { useMutation } from 'react-query';
-import { DELETE_POST_MUTATION, EmptyResponse } from '../../graphql/posts';
-import request from 'graphql-request';
-import { apiUrl } from '../../lib/config';
-import { Button } from '@dailydotdev/shared';
+} from '@dailydotdev/shared';
 
 export interface Props extends ModalProps {
   postId: string;

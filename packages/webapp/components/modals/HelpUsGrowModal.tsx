@@ -1,7 +1,11 @@
-import { ModalCloseButton, ModalProps, StyledModal } from './StyledModal';
 import React, { ReactElement, useContext, useState } from 'react';
-import { TextField } from '@dailydotdev/shared';
-import { Button } from '@dailydotdev/shared';
+import {
+  Button,
+  ModalCloseButton,
+  ModalProps,
+  StyledModal,
+  TextField,
+} from '@dailydotdev/shared';
 import CopyIcon from '@dailydotdev/shared/icons/copy.svg';
 import TwitterIcon from '@dailydotdev/shared/icons/twitter.svg';
 import { useQuery } from 'react-query';

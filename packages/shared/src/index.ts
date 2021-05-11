@@ -10,6 +10,12 @@ export * from './components/fields/RadioItem';
 export * from './components/fields/SearchField';
 export * from './components/fields/Switch';
 export * from './components/fields/TextField';
+export * from './components/fields/Dropdown';
+export * from './components/fields/PortalMenu';
+export * from './components/modals/ModalCloseButton';
+export * from './components/modals/StyledModal';
+export * from './components/modals/ConfirmationModal';
+export * from './components/modals/ResponsiveModal';
 
 export * from './hooks/useAutoComplete';
 export * from './hooks/useInputField';

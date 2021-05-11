@@ -6,7 +6,7 @@ function Portal({ children }: { children: ReactNode }): ReactElement {
   return createPortal(children, document.body);
 }
 
-export default function PortalMenu(props: MenuProps): ReactElement {
+export function PortalMenu(props: MenuProps): ReactElement {
   return (
     <Portal>
       <Menu {...props} />

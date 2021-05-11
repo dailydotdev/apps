@@ -16,7 +16,9 @@
     "dompurify": "^2.2.7",
     "next": "^10.2.0",
     "react": "^17.0.5",
-    "react-dom": "^17.0.5"
+    "react-contexify": "^5.0.0",
+    "react-dom": "^17.0.5",
+    "react-modal": "^3.12.1"
   },
   "devDependencies": {
     "@dailydotdev/eslint-config": "*",
@@ -55,7 +57,9 @@
     "postcss-simple-vars": "^6.0.3",
     "prettier": "^2.2.1",
     "react": "^17.0.2",
+    "react-contexify": "^5.0.0",
     "react-dom": "^17.0.2",
+    "react-modal": "^3.12.1",
     "stylelint": "^13.12.0",
     "stylelint-config-recommended": "^4.0.0",
     "tailwindcss": "^2.1.1",

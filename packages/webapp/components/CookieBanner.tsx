@@ -1,8 +1,7 @@
 import React, { ReactElement } from 'react';
-import { ModalCloseButton } from './modals/StyledModal';
 import { cookiePolicy } from '../lib/constants';
 import CookieIcon from '@dailydotdev/shared/icons/cookie.svg';
-import { Button } from '@dailydotdev/shared';
+import { Button, ModalCloseButton } from '@dailydotdev/shared';
 import styles from '../styles/cookieBanner.module.css';
 import classNames from 'classnames';
 

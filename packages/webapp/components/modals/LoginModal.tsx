@@ -3,11 +3,11 @@ import styled from '@emotion/styled';
 import sizeN from '../../macros/sizeN.macro';
 import DailyDevLogo from '../svg/DailyDevLogo';
 import { typoCallout } from '../../styles/typography';
-import { StyledModal, ModalCloseButton, ModalProps } from './StyledModal';
+import { StyledModal, ModalCloseButton, ModalProps } from '@dailydotdev/shared';
 import LoginButtons from '../LoginButtons';
 
 const MyModal = styled(StyledModal)`
-  .Modal {
+  .modal {
     padding: ${sizeN(8)};
 
     .logo {

@@ -6,8 +6,6 @@ import React, {
   useState,
 } from 'react';
 import classNames from 'classnames';
-import ArrowIcon from '@dailydotdev/shared/icons/arrow.svg';
-import styles from '../../styles/dropdown.module.css';
 import {
   Item,
   ItemParams,
@@ -15,6 +13,8 @@ import {
   TriggerEvent,
   useContextMenu,
 } from 'react-contexify';
+import ArrowIcon from '../../../icons/arrow.svg';
+import styles from './Dropdown.module.css';
 
 export interface DropdownProps {
   icon?: ReactNode;
@@ -26,7 +26,7 @@ export interface DropdownProps {
   buttonSize?: 'small' | 'medium' | 'large';
 }
 
-export default function Dropdown({
+export function Dropdown({
   icon,
   className,
   selectedIndex,

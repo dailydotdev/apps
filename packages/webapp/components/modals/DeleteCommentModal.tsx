@@ -1,11 +1,4 @@
 import React, { ReactElement, MouseEvent, useState } from 'react';
-import {
-  ConfirmationModal,
-  ConfirmationHeading,
-  ConfirmationDescription,
-  ConfirmationButtons,
-  ModalProps,
-} from './StyledModal';
 import { useMutation, useQueryClient } from 'react-query';
 import {
   DELETE_COMMENT_MUTATION,
@@ -14,7 +7,14 @@ import {
 import cloneDeep from 'lodash.clonedeep';
 import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
-import { Button } from '@dailydotdev/shared';
+import {
+  Button,
+  ConfirmationModal,
+  ConfirmationHeading,
+  ConfirmationDescription,
+  ConfirmationButtons,
+  ModalProps,
+} from '@dailydotdev/shared';
 
 export interface Props extends ModalProps {
   commentId: string;

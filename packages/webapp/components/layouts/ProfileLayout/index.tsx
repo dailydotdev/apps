@@ -198,6 +198,7 @@ const ProfileInfo = styled.div`
 
 const EditProfileButton = styled(Button)`
   margin-top: ${sizeN(6)};
+  margin-bottom: 2px;
   align-self: flex-start;
 `;
 

@@ -1,15 +1,15 @@
 div.ranksModal {
-  & :global(.Modal) {
+  & :global(.modal) {
     align-items: center;
     max-width: 26.25rem;
   }
 
   @screen mobileL {
-    & :global(.Overlay) {
+    & :global(.overlay) {
       justify-content: flex-start;
     }
 
-    & :global(.Modal) {
+    & :global(.modal) {
       margin-top: $headerHeight;
       overflow: visible;
     }
