@@ -1,5 +1,5 @@
 import React from 'react';
-import { LoggedUser, updateProfile } from '../lib/user';
+import { LoggedUser, updateProfile } from '@dailydotdev/shared/src/lib/user';
 import ProfileForm from '../components/profile/ProfileForm';
 import {
   fireEvent,
@@ -11,8 +11,8 @@ import {
 import AuthContext from '../contexts/AuthContext';
 import { mocked } from 'ts-jest/utils';
 
-jest.mock('../lib/user', () => ({
-  ...jest.requireActual('../lib/user'),
+jest.mock('@dailydotdev/shared/src/lib/user', () => ({
+  ...jest.requireActual('@dailydotdev/shared/src/lib/user'),
   updateProfile: jest.fn(),
 }));
 

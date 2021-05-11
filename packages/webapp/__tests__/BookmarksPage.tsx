@@ -9,7 +9,7 @@ import defaultFeedPage from './fixture/feed';
 import defaultUser from './fixture/loggedUser';
 import ad from './fixture/ad';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { LoggedUser } from '../lib/user';
+import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import BookmarksPage from '../pages/bookmarks';
 import { NextRouter, useRouter } from 'next/router';
 import { mocked } from 'ts-jest/utils';

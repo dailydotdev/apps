@@ -6,7 +6,7 @@ import {
 } from '../../graphql/comments';
 import cloneDeep from 'lodash.clonedeep';
 import request from 'graphql-request';
-import { apiUrl } from '../../lib/config';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ModalProps } from '@dailydotdev/shared/src/components/modals/StyledModal';
 import {

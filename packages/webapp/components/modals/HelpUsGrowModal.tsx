@@ -10,8 +10,8 @@ import CopyIcon from '@dailydotdev/shared/icons/copy.svg';
 import TwitterIcon from '@dailydotdev/shared/icons/twitter.svg';
 import { useQuery } from 'react-query';
 import AuthContext from '../../contexts/AuthContext';
-import fetchTimeout from '../../lib/fetchTimeout';
-import { apiUrl } from '../../lib/config';
+import fetchTimeout from '@dailydotdev/shared/src/lib/fetchTimeout';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 
 function getTweet(link: string): string {
   const text =

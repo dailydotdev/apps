@@ -8,10 +8,10 @@ import {
   FurtherReadingData,
 } from '../../graphql/furtherReading';
 import request from 'graphql-request';
-import { apiUrl } from '../../lib/config';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import useBookmarkPost from '../../hooks/useBookmarkPost';
 import { Post } from '../../graphql/posts';
-import { trackEvent } from '../../lib/analytics';
+import { trackEvent } from '@dailydotdev/shared/src/lib/analytics';
 import BestDiscussions from './BestDiscussions';
 
 export type FurtherReadingProps = {

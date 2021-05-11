@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { Item } from 'react-contexify';
 import useReportPost from '../hooks/useReportPost';
-import { trackEvent } from '../lib/analytics';
+import { trackEvent } from '@dailydotdev/shared/src/lib/analytics';
 import { ReportReason } from '../graphql/posts';
 import dynamic from 'next/dynamic';
 

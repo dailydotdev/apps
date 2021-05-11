@@ -16,15 +16,15 @@ import {
   TagsData,
 } from '../../graphql/feedSettings';
 import request from 'graphql-request';
-import { apiUrl } from '../../lib/config';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import useMutateFilters, {
   getTagsSettingsQueryKey,
   getTagsFiltersQueryKey,
   getSearchTagsQueryKey,
 } from '../../hooks/useMutateFilters';
-import { trackEvent } from '../../lib/analytics';
+import { trackEvent } from '@dailydotdev/shared/src/lib/analytics';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
-import { getTooltipProps } from '../../lib/tooltip';
+import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 import {
   FiltersContainer,
   FiltersPlaceholder,

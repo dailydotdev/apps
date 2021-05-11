@@ -4,7 +4,10 @@ import React, {
   ReactElement,
   useState,
 } from 'react';
-import { changeProfileImage, LoggedUser } from '../../lib/user';
+import {
+  changeProfileImage,
+  LoggedUser,
+} from '@dailydotdev/shared/src/lib/user';
 import CameraIcon from '@dailydotdev/shared/icons/camera.svg';
 import GoogleIcon from '@dailydotdev/shared/icons/google.svg';
 import GitHubIcon from '@dailydotdev/shared/icons/github.svg';

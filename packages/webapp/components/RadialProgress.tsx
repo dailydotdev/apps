@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import styles from '../styles/radialProgress.module.css';
 import classNames from 'classnames';
-import classed from '../lib/classed';
+import classed from '@dailydotdev/shared/src/lib/classed';
 
 const RAD_TO_DEGREES = 180 / Math.PI;
 const TWO_PI = 2 * Math.PI;

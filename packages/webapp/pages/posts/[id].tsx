@@ -10,7 +10,7 @@ import {
   GetStaticPropsResult,
 } from 'next';
 import { ParsedUrlQuery } from 'querystring';
-import { Roles } from '../../lib/user';
+import { Roles } from '@dailydotdev/shared/src/lib/user';
 import styled from '@emotion/styled';
 import { NextSeo } from 'next-seo';
 import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
@@ -56,15 +56,18 @@ import { NextSeoProps } from 'next-seo/lib/types';
 import { ShareMobile } from '../../components/ShareMobile';
 import Head from 'next/head';
 import request, { ClientError } from 'graphql-request';
-import { apiUrl } from '../../lib/config';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import { ProfileLink } from '../../components/profile/ProfileLink';
-import { ownershipGuide } from '../../lib/constants';
+import { ownershipGuide } from '@dailydotdev/shared/src/lib/constants';
 import { QuaternaryButton } from '@dailydotdev/shared/src/components/buttons/QuaternaryButton';
 import { LoginModalMode } from '../../components/modals/LoginModal';
-import { logReadArticle, trackEvent } from '../../lib/analytics';
+import {
+  logReadArticle,
+  trackEvent,
+} from '@dailydotdev/shared/src/lib/analytics';
 import useSubscription from '../../hooks/useSubscription';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
-import { getTooltipProps } from '../../lib/tooltip';
+import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 import Link from 'next/link';
 import useUpvotePost from '../../hooks/useUpvotePost';
 import useBookmarkPost from '../../hooks/useBookmarkPost';

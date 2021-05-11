@@ -10,8 +10,11 @@ import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import { CardLink } from '@dailydotdev/shared/src/components/cards/Card';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
-import { logReadArticle, trackEvent } from '../../lib/analytics';
-import classed from '../../lib/classed';
+import {
+  logReadArticle,
+  trackEvent,
+} from '@dailydotdev/shared/src/lib/analytics';
+import classed from '@dailydotdev/shared/src/lib/classed';
 
 export type SimilarPostsProps = {
   posts: Post[] | null;

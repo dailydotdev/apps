@@ -4,7 +4,7 @@ import React, {
   useContext,
   useMemo,
 } from 'react';
-import classed from '../lib/classed';
+import classed from '@dailydotdev/shared/src/lib/classed';
 import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
 import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
 import SettingsContext from '../contexts/SettingsContext';

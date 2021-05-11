@@ -11,7 +11,7 @@ import {
   getShareableLink,
   getTwitterShareLink,
   getWhatsappShareLink,
-} from '../lib/share';
+} from '@dailydotdev/shared/src/lib/share';
 import { Post } from '../graphql/posts';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import {
@@ -19,8 +19,8 @@ import {
   ButtonProps,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ModalCloseButton } from '@dailydotdev/shared/src/components/modals/ModalCloseButton';
-import { getTooltipProps } from '../lib/tooltip';
-import classed from '../lib/classed';
+import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
+import classed from '@dailydotdev/shared/src/lib/classed';
 
 const ShareButton = classed<ButtonProps<'a'>>(Button, 'text-white');
 

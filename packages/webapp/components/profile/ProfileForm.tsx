@@ -7,7 +7,7 @@ import React, {
   useState,
 } from 'react';
 import styled from '@emotion/styled';
-import { updateProfile, UserProfile } from '../../lib/user';
+import { updateProfile, UserProfile } from '@dailydotdev/shared/src/lib/user';
 import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import rem from '@dailydotdev/shared/macros/rem.macro';
 import { typoBody, typoCallout } from '../../styles/typography';
@@ -16,7 +16,7 @@ import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
 import ArrowIcon from '@dailydotdev/shared/icons/arrow.svg';
 import AuthContext from '../../contexts/AuthContext';
-import { formToJson } from '../../lib/form';
+import { formToJson } from '@dailydotdev/shared/src/lib/form';
 
 export type RegistrationMode = 'default' | 'author' | 'update';
 

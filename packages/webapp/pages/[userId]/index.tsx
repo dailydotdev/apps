@@ -22,7 +22,7 @@ import {
   subYears,
 } from 'date-fns';
 import request from 'graphql-request';
-import { apiUrl } from '../../lib/config';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import {
   USER_READING_HISTORY_QUERY,
   USER_STATS_QUERY,
@@ -38,7 +38,7 @@ import {
 import AuthContext from '../../contexts/AuthContext';
 import dynamic from 'next/dynamic';
 import Rank from '../../components/Rank';
-import { RANK_NAMES } from '../../lib/rank';
+import { RANK_NAMES } from '@dailydotdev/shared/src/lib/rank';
 import CommentsSection from '../../components/profile/CommentsSection';
 import PostsSection from '../../components/profile/PostsSection';
 import AuthorStats from '../../components/profile/AuthorStats';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { LoggedUser, PublicProfile } from '../lib/user';
+import { LoggedUser, PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import AuthContext from '../contexts/AuthContext';
 import ProfileLayout from '../components/layouts/ProfileLayout';

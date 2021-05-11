@@ -1,7 +1,10 @@
 import React, { ReactElement } from 'react';
 import { useRouter } from 'next/router';
 import GitHubIcon from '@dailydotdev/shared/icons/github.svg';
-import { privacyPolicy, termsOfService } from '../lib/constants';
+import {
+  privacyPolicy,
+  termsOfService,
+} from '@dailydotdev/shared/src/lib/constants';
 import { LegalNotice } from '@dailydotdev/shared/src/components/utilities';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 

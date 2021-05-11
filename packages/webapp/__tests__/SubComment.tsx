@@ -1,7 +1,7 @@
 import React from 'react';
 import { screen, render, RenderResult, waitFor } from '@testing-library/preact';
 import AuthContext from '../contexts/AuthContext';
-import { LoggedUser } from '../lib/user';
+import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import SubComment, { Props } from '../components/comments/SubComment';
 import { QueryClient, QueryClientProvider } from 'react-query';
 

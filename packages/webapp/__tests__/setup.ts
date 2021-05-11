@@ -8,7 +8,7 @@ expect.extend(matchers);
 
 process.env.NEXT_PUBLIC_API_URL = 'http://localhost:3000';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
-window.ga = ((...args) => {}) as UniversalAnalytics.ga;
+// window.ga = ((...args) => {}) as UniversalAnalytics.ga;
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -63,8 +63,8 @@ jest.mock('next/router', () => ({
   ),
 }));
 
-jest.mock('../lib/analytics', () => ({
-  ...jest.requireActual('../lib/analytics'),
+jest.mock('@dailydotdev/shared/src/lib/analytics', () => ({
+  ...jest.requireActual('@dailydotdev/shared/src/lib/analytics'),
   getAmplitudeClient: jest.fn(),
   logRevenue: jest.fn(),
   logReadArticle: jest.fn(),

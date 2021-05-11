@@ -8,8 +8,8 @@ import styles from '@dailydotdev/shared/src/components/cards/Card.module.css';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import { CardLink } from '@dailydotdev/shared/src/components/cards/Card';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
-import { trackEvent } from '../../lib/analytics';
-import classed from '../../lib/classed';
+import { trackEvent } from '@dailydotdev/shared/src/lib/analytics';
+import classed from '@dailydotdev/shared/src/lib/classed';
 
 export type BestDiscussionsProps = {
   posts: Post[] | null;

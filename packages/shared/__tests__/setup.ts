@@ -1,11 +1,11 @@
 import '@testing-library/jest-dom';
 // import 'fake-indexeddb/auto';
-// import nodeFetch from 'node-fetch';
+import nodeFetch from 'node-fetch';
 import { NextRouter } from 'next/router';
 
 process.env.NEXT_PUBLIC_API_URL = 'http://localhost:3000';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
-// window.ga = ((...args) => {}) as UniversalAnalytics.ga;
+window.ga = ((...args) => {}) as UniversalAnalytics.ga;
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -20,7 +20,7 @@ jest.mock('next/dynamic', () => (func: () => Promise<any>) => {
   return DynamicComponent;
 });
 
-// global.fetch = (nodeFetch as any) as typeof fetch;
+global.fetch = (nodeFetch as any) as typeof fetch;
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 Object.defineProperty(global, 'IntersectionObserver', {
@@ -60,9 +60,9 @@ jest.mock('next/router', () => ({
   ),
 }));
 
-// jest.mock('../lib/analytics', () => ({
-//   ...jest.requireActual('../lib/analytics'),
-//   getAmplitudeClient: jest.fn(),
-//   logRevenue: jest.fn(),
-//   logReadArticle: jest.fn(),
-// }));
+jest.mock('../src/lib/analytics', () => ({
+  ...jest.requireActual('../src/lib/analytics'),
+  getAmplitudeClient: jest.fn(),
+  logRevenue: jest.fn(),
+  logReadArticle: jest.fn(),
+}));

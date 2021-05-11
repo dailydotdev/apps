@@ -5,7 +5,7 @@ import CommentActionButtons from './CommentActionButtons';
 import { ProfileImageLink } from '../profile/ProfileImageLink';
 import CommentAuthor from './CommentAuthor';
 import classNames from 'classnames';
-import classed from '../../lib/classed';
+import classed from '@dailydotdev/shared/src/lib/classed';
 
 export interface Props {
   comment: Comment;

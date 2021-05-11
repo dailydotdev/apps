@@ -9,7 +9,7 @@ import AuthContext from '../contexts/AuthContext';
 import { useRouter } from 'next/router';
 import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
-import { getTooltipProps } from '../lib/tooltip';
+import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 import classNames from 'classnames';
 import styles from '../styles/footerNavBar.module.css';
 

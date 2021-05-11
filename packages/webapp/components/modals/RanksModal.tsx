@@ -4,7 +4,7 @@ import { headerRankHeight } from '../../styles/sizes';
 import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import rem from '@dailydotdev/shared/macros/rem.macro';
 import styled from '@emotion/styled';
-import { RANK_NAMES, STEPS_PER_RANK } from '../../lib/rank';
+import { RANK_NAMES, STEPS_PER_RANK } from '@dailydotdev/shared/src/lib/rank';
 import Rank from '../Rank';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ModalCloseButton } from '@dailydotdev/shared/src/components/modals/ModalCloseButton';

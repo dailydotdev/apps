@@ -1,6 +1,6 @@
 import { useMutation } from 'react-query';
 import request from 'graphql-request';
-import { apiUrl } from '../lib/config';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import {
   ADD_BOOKMARKS_MUTATION,
   REMOVE_BOOKMARK_MUTATION,

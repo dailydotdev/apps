@@ -11,7 +11,7 @@ import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import defaultFeedPage from '../fixture/feed';
 import defaultUser from '../fixture/loggedUser';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { LoggedUser } from '../../lib/user';
+import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import FurtherReading from '../../components/widgets/FurtherReading';
 import {
   FURTHER_READING_QUERY,

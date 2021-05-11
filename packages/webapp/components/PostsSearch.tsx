@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import { useQuery } from 'react-query';
 import request from 'graphql-request';
-import { apiUrl } from '../lib/config';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import { SEARCH_POST_SUGGESTIONS } from '../graphql/search';
 
 const AutoCompleteMenu = dynamic(

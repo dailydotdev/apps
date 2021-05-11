@@ -9,10 +9,10 @@ import {
 import { SearchField } from '@dailydotdev/shared/src/components/fields/SearchField';
 import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
 import ArrowIcon from '@dailydotdev/shared/icons/arrow.svg';
-import { formToJson } from '../../lib/form';
+import { formToJson } from '@dailydotdev/shared/src/lib/form';
 import { useMutation } from 'react-query';
-import { apiUrl } from '../../lib/config';
-import fetchTimeout from '../../lib/fetchTimeout';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
+import fetchTimeout from '@dailydotdev/shared/src/lib/fetchTimeout';
 import classNames from 'classnames';
 import request from 'graphql-request';
 import {
@@ -20,6 +20,7 @@ import {
   SOURCE_BY_FEED_QUERY,
 } from '../../graphql/newSource';
 import { Source } from '../../graphql/sources';
+import { trackEvent } from '@dailydotdev/shared/src/lib/analytics';
 
 interface RSS {
   url: string;
@@ -122,7 +123,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
       }),
     {
       onSuccess: () => {
-        ga('send', 'event', 'Request Source', 'Submit');
+        trackEvent({ category: 'Request Source', action: 'Submit' });
         props.onRequestClose?.(null);
       },
     },

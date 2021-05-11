@@ -3,7 +3,7 @@ import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import HeaderRankProgress from '../components/HeaderRankProgress';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
-import { LoggedUser } from '../lib/user';
+import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import defaultUser from './fixture/loggedUser';
 import AuthContext from '../contexts/AuthContext';
 import nock from 'nock';

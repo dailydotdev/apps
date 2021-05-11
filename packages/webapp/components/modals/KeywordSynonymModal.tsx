@@ -11,7 +11,7 @@ import {
   SET_KEYWORD_AS_SYNONYM_MUTATION,
 } from '../../graphql/keywords';
 import request from 'graphql-request';
-import { apiUrl } from '../../lib/config';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import { typoCallout } from '../../styles/typography';
 import {
   Button,

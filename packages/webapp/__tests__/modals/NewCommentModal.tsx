@@ -3,7 +3,7 @@ import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import NewCommentModal, {
   NewCommentModalProps,
 } from '../../components/modals/NewCommentModal';
-import { LoggedUser } from '../../lib/user';
+import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import AuthContext from '../../contexts/AuthContext';
 import {
   COMMENT_ON_COMMENT_MUTATION,

@@ -6,13 +6,13 @@ import {
 } from '../graphql/keywords';
 import { useInfiniteQuery, useMutation } from 'react-query';
 import request from 'graphql-request';
-import { apiUrl } from '../lib/config';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import { FeedData, KEYWORD_FEED_QUERY } from '../graphql/posts';
 import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import { NextSeo } from 'next-seo';
 import ActivitySection from './profile/ActivitySection';
 import Link from 'next/link';
-import { smallPostImage } from '../lib/image';
+import { smallPostImage } from '@dailydotdev/shared/src/lib/image';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';

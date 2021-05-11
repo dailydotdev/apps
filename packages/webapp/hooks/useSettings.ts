@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { SettingsContextData } from '../contexts/SettingsContext';
 import { useMutation, useQuery } from 'react-query';
 import request from 'graphql-request';
-import { apiUrl } from '../lib/config';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import {
   RemoteSettings,
   Spaciness,

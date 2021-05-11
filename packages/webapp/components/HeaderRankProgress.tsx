@@ -8,7 +8,7 @@ import RankProgress from './RankProgress';
 import useReadingRank from '../hooks/useReadingRank';
 import dynamic from 'next/dynamic';
 import AuthContext from '../contexts/AuthContext';
-import { STEPS_PER_RANK } from '../lib/rank';
+import { STEPS_PER_RANK } from '@dailydotdev/shared/src/lib/rank';
 import OnboardingContext from '../contexts/OnboardingContext';
 import Rank from './Rank';
 import classNames from 'classnames';

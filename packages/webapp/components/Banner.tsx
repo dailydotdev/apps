@@ -4,7 +4,7 @@ import XIcon from '@dailydotdev/shared/icons/x.svg';
 import classNames from 'classnames';
 import { useQuery } from 'react-query';
 import request from 'graphql-request';
-import { apiUrl } from '../lib/config';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import { BANNER_QUERY, BannerData } from '../graphql/banner';
 import ProgressiveEnhancementContext from '../contexts/ProgressiveEnhancementContext';
 import usePersistentState from '../hooks/usePersistentState';

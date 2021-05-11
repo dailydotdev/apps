@@ -2,7 +2,7 @@ import React, { ReactElement, MouseEvent, useState } from 'react';
 import { useMutation } from 'react-query';
 import { BAN_POST_MUTATION, EmptyResponse } from '../../graphql/posts';
 import request from 'graphql-request';
-import { apiUrl } from '../../lib/config';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ModalProps } from '@dailydotdev/shared/src/components/modals/StyledModal';
 import {

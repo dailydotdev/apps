@@ -13,7 +13,7 @@ import {
   rankToGradientStopBottom,
   rankToGradientStopTop,
   STEPS_PER_RANK,
-} from '../lib/rank';
+} from '@dailydotdev/shared/src/lib/rank';
 import Rank from './Rank';
 import classNames from 'classnames';
 import styles from '../styles/rankProgress.module.css';

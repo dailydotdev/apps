@@ -2,7 +2,7 @@ import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import ArrowIcon from '@dailydotdev/shared/icons/arrow.svg';
 import classNames from 'classnames';
-import { getTooltipProps } from '../lib/tooltip';
+import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 import FeedFilters from './filters/FeedFilters';
 import OnboardingContext from '../contexts/OnboardingContext';
 

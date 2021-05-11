@@ -12,12 +12,16 @@ import { Ad, Post } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
 import { useMutation } from 'react-query';
 import request from 'graphql-request';
-import { apiUrl } from '../lib/config';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import { LoginModalMode } from './modals/LoginModal';
 import { useInView } from 'react-intersection-observer';
 import FeedContext from '../contexts/FeedContext';
 import useIncrementReadingRank from '../hooks/useIncrementReadingRank';
-import { logReadArticle, logRevenue, trackEvent } from '../lib/analytics';
+import {
+  logReadArticle,
+  logRevenue,
+  trackEvent,
+} from '@dailydotdev/shared/src/lib/analytics';
 import { COMMENT_ON_POST_MUTATION, CommentOnData } from '../graphql/comments';
 import dynamic from 'next/dynamic';
 import { requestIdleCallback } from 'next/dist/client/request-idle-callback';

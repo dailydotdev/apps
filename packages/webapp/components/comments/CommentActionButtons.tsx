@@ -11,12 +11,12 @@ import {
   UPVOTE_COMMENT_MUTATION,
 } from '../../graphql/comments';
 import { useMutation, useQueryClient } from 'react-query';
-import { Roles } from '../../lib/user';
+import { Roles } from '@dailydotdev/shared/src/lib/user';
 import request from 'graphql-request';
-import { apiUrl } from '../../lib/config';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import { QuaternaryButton } from '@dailydotdev/shared/src/components/buttons/QuaternaryButton';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
-import { getTooltipProps } from '../../lib/tooltip';
+import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 
 export interface Props {
   comment: Comment;

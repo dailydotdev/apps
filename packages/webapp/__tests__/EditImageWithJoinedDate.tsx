@@ -6,12 +6,15 @@ import {
   screen,
   waitFor,
 } from '@testing-library/preact';
-import { changeProfileImage, LoggedUser } from '../lib/user';
+import {
+  changeProfileImage,
+  LoggedUser,
+} from '@dailydotdev/shared/src/lib/user';
 import EditImageWithJoinedDate from '../components/profile/EditImageWithJoinedDate';
 import { mocked } from 'ts-jest/utils';
 
-jest.mock('../lib/user', () => ({
-  ...jest.requireActual('../lib/user'),
+jest.mock('@dailydotdev/shared/src/lib/user', () => ({
+  ...jest.requireActual('@dailydotdev/shared/src/lib/user'),
   changeProfileImage: jest.fn(),
 }));
 

@@ -12,19 +12,19 @@ import {
   commentInfoClass,
   EmptyMessage,
 } from './common';
-import { ownershipGuide } from '../../lib/constants';
+import { ownershipGuide } from '@dailydotdev/shared/src/lib/constants';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import ActivitySection from './ActivitySection';
 import Link from 'next/link';
-import { smallPostImage } from '../../lib/image';
+import { smallPostImage } from '@dailydotdev/shared/src/lib/image';
 import EyeIcon from '@dailydotdev/shared/icons/eye.svg';
-import { largeNumberFormat } from '../../lib/numberFormat';
+import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
 import UpvoteIcon from '@dailydotdev/shared/icons/upvote.svg';
 import CommentIcon from '@dailydotdev/shared/icons/comment.svg';
 import { useInfiniteQuery } from 'react-query';
 import { AUTHOR_FEED_QUERY, FeedData } from '../../graphql/posts';
 import request from 'graphql-request';
-import { apiUrl } from '../../lib/config';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import styled from '@emotion/styled';
 import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
@@ -35,10 +35,10 @@ import {
   loggedUserToProfile,
   updateProfile,
   UserProfile,
-} from '../../lib/user';
+} from '@dailydotdev/shared/src/lib/user';
 import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
 import AuthContext from '../../contexts/AuthContext';
-import { formToJson } from '../../lib/form';
+import { formToJson } from '@dailydotdev/shared/src/lib/form';
 import dynamic from 'next/dynamic';
 
 const AccountDetailsModal = dynamic(

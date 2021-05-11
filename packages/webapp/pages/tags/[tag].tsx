@@ -21,7 +21,7 @@ import { TAG_FEED_QUERY } from '../../graphql/feed';
 import AuthContext from '../../contexts/AuthContext';
 import { useQuery } from 'react-query';
 import request from 'graphql-request';
-import { apiUrl } from '../../lib/config';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import {
   FeedSettingsData,
   TAGS_SETTINGS_QUERY,
@@ -38,7 +38,7 @@ import {
 import useMutateFilters, {
   getTagsSettingsQueryKey,
 } from '../../hooks/useMutateFilters';
-import { trackEvent } from '../../lib/analytics';
+import { trackEvent } from '@dailydotdev/shared/src/lib/analytics';
 
 type TagPageProps = { tag: string };
 

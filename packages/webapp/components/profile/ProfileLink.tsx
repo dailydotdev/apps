@@ -1,7 +1,7 @@
 import React, { HTMLAttributes, ReactElement } from 'react';
 import Link from 'next/link';
 import styled from '@emotion/styled';
-import { getTooltipProps } from '../../lib/tooltip';
+import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 
 interface User {
   name: string;

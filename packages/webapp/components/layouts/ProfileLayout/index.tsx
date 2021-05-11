@@ -6,7 +6,11 @@ import React, {
   useState,
 } from 'react';
 import createDOMPurify from 'dompurify';
-import { getProfile, getProfileSSR, PublicProfile } from '../../../lib/user';
+import {
+  getProfile,
+  getProfileSSR,
+  PublicProfile,
+} from '@dailydotdev/shared/src/lib/user';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { getLayout as getMainLayout } from '../MainLayout';
 import Head from 'next/head';
@@ -34,11 +38,11 @@ import {
   GetStaticPropsResult,
 } from 'next';
 import { ParsedUrlQuery } from 'querystring';
-import { reputationGuide } from '../../../lib/constants';
+import { reputationGuide } from '@dailydotdev/shared/src/lib/constants';
 import { useQuery } from 'react-query';
 import Rank from '../../Rank';
 import request from 'graphql-request';
-import { apiUrl } from '../../../lib/config';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import {
   USER_READING_RANK_QUERY,
   UserReadingRankData,

@@ -14,7 +14,7 @@ import {
   reportIssue,
   requestFeature,
   termsOfService,
-} from '../../lib/constants';
+} from '@dailydotdev/shared/src/lib/constants';
 import {
   Button,
   ButtonProps,

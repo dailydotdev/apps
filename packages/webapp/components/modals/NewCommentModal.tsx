@@ -31,8 +31,8 @@ import {
 } from '../../graphql/comments';
 import { Edge } from '../../graphql/common';
 import request from 'graphql-request';
-import { apiUrl } from '../../lib/config';
-import { trackEvent } from '../../lib/analytics';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
+import { trackEvent } from '@dailydotdev/shared/src/lib/analytics';
 import {
   RoundedImage,
   SmallRoundedImage,
@@ -42,7 +42,7 @@ import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ResponsiveModal } from '@dailydotdev/shared/src/components/modals/ResponsiveModal';
 import { ModalProps } from '@dailydotdev/shared/src/components/modals/StyledModal';
 
-import classed from '../../lib/classed';
+import classed from '@dailydotdev/shared/src/lib/classed';
 
 const DiscardCommentModal = dynamic(() => import('./DiscardCommentModal'));
 

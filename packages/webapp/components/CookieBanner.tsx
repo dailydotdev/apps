@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { cookiePolicy } from '../lib/constants';
+import { cookiePolicy } from '@dailydotdev/shared/src/lib/constants';
 import CookieIcon from '@dailydotdev/shared/icons/cookie.svg';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ModalCloseButton } from '@dailydotdev/shared/src/components/modals/ModalCloseButton';

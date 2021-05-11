@@ -1,4 +1,4 @@
-import classed from '../../lib/classed';
+import classed from '@dailydotdev/shared/src/lib/classed';
 import styled from '@emotion/styled';
 import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import { tablet } from '../../styles/media';

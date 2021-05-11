@@ -27,7 +27,7 @@ import defaultFeedPage from './fixture/feed';
 import defaultUser from './fixture/loggedUser';
 import ad from './fixture/ad';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { LoggedUser } from '../lib/user';
+import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { LoginModalMode } from '../components/modals/LoginModal';
 import { MyRankData } from '../graphql/users';
 import { getRankQueryKey } from '../hooks/useReadingRank';

@@ -11,8 +11,12 @@ import RankProgress from '../RankProgress';
 import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import styled from '@emotion/styled';
 import { RankConfetti } from '@dailydotdev/shared/src/svg/RankConfetti';
-import { RANK_NAMES, rankToColor, STEPS_PER_RANK } from '../../lib/rank';
-import { LoggedUser } from '../../lib/user';
+import {
+  RANK_NAMES,
+  rankToColor,
+  STEPS_PER_RANK,
+} from '@dailydotdev/shared/src/lib/rank';
+import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { typoCallout, typoTitle2 } from '../../styles/typography';
 import { Checkbox } from '@dailydotdev/shared/src/components/fields/Checkbox';
 import LoginButtons from '../LoginButtons';

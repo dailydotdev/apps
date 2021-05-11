@@ -18,7 +18,7 @@ import Feed from '../../components/Feed';
 import { SOURCE_FEED_QUERY } from '../../graphql/feed';
 import { Source, SOURCE_QUERY, SourceData } from '../../graphql/sources';
 import request from 'graphql-request';
-import { apiUrl } from '../../lib/config';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import Custom404 from '../404';
 import useMutateFilters, {
   getSourcesSettingsQueryKey,
@@ -38,7 +38,7 @@ import {
   FeedPage,
 } from '@dailydotdev/shared/src/components/utilities';
 import PlusIcon from '@dailydotdev/shared/icons/plus.svg';
-import { trackEvent } from '../../lib/analytics';
+import { trackEvent } from '@dailydotdev/shared/src/lib/analytics';
 
 type SourcePageProps = { source: Source };
 

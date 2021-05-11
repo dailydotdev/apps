@@ -10,16 +10,16 @@ import {
   getShareableLink,
   getTwitterShareLink,
   getWhatsappShareLink,
-} from '../lib/share';
+} from '@dailydotdev/shared/src/lib/share';
 import {
   Button,
   ButtonProps,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { trackEvent } from '../lib/analytics';
-import { getTooltipProps } from '../lib/tooltip';
+import { trackEvent } from '@dailydotdev/shared/src/lib/analytics';
+import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 import styles from '../styles/shareBar.module.css';
 import classNames from 'classnames';
-import classed from '../lib/classed';
+import classed from '@dailydotdev/shared/src/lib/classed';
 
 const ShareButton = classed(Button, 'my-1');
 const ColorfulShareButton = (classed(

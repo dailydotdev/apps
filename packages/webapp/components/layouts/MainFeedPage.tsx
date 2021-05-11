@@ -21,7 +21,7 @@ import {
   getTagsSettingsQueryKey,
 } from '../../hooks/useMutateFilters';
 import { FeedSettingsData } from '../../graphql/feedSettings';
-import { LoggedUser } from '../../lib/user';
+import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import OnboardingContext from '../../contexts/OnboardingContext';
 import MagnifyingIcon from '@dailydotdev/shared/icons/magnifying.svg';
 import { SEARCH_POSTS_QUERY } from '../../graphql/feed';
@@ -31,7 +31,7 @@ import {
 } from '@dailydotdev/shared/src/components/fields/Dropdown';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { FeedPage } from '@dailydotdev/shared/src/components/utilities';
-import utilitiesStyles from '../../../shared/src/components/utilities.module.css';
+import utilitiesStyles from '@dailydotdev/shared/src/components/utilities.module.css';
 import styles from '../../styles/mainFeed.module.css';
 import CalendarIcon from '@dailydotdev/shared/icons/calendar.svg';
 

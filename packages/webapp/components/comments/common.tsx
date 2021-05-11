@@ -1,6 +1,6 @@
 import React, { HTMLAttributes, ReactElement } from 'react';
 import Linkify from 'linkifyjs/react';
-import classed from '../../lib/classed';
+import classed from '@dailydotdev/shared/src/lib/classed';
 import styles from '../../styles/comments.module.css';
 import { Comment } from '../../graphql/comments';
 import { commentDateFormat } from '@dailydotdev/shared/src/lib/dateFormat';

@@ -7,7 +7,7 @@ import {
 import ProfilePage from '../pages/[userId]/index';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import AuthContext from '../contexts/AuthContext';
-import { PublicProfile } from '../lib/user';
+import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
 import nock from 'nock';
 import { Connection } from '../graphql/common';
@@ -22,7 +22,7 @@ import {
   UserStatsData,
 } from '../graphql/users';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { RANK_NAMES } from '../lib/rank';
+import { RANK_NAMES } from '@dailydotdev/shared/src/lib/rank';
 import { startOfTomorrow, subDays, subMonths } from 'date-fns';
 
 beforeEach(() => {

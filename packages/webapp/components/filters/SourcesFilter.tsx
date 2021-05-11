@@ -28,11 +28,11 @@ import {
   SourcesData,
 } from '../../graphql/feedSettings';
 import request from 'graphql-request';
-import { apiUrl } from '../../lib/config';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import { Source } from '../../graphql/sources';
-import { getTooltipProps } from '../../lib/tooltip';
+import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
-import { trackEvent } from '../../lib/analytics';
+import { trackEvent } from '@dailydotdev/shared/src/lib/analytics';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import PlusIcon from '@dailydotdev/shared/icons/plus.svg';
 import { LoginModalMode } from '../modals/LoginModal';
