@@ -18,11 +18,13 @@ import {
 import {
   Button,
   ButtonProps,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import {
   ResponsiveModal,
   responsiveModalBreakpoint,
-  ModalProps,
-  ProfileHeading,
-} from '@dailydotdev/shared';
+} from '@dailydotdev/shared/src/components/modals/ResponsiveModal';
+import { ModalProps } from '@dailydotdev/shared/src/components/modals/StyledModal';
+import { ProfileHeading } from '@dailydotdev/shared/src/components/utilities';
 
 const headerHeight = sizeN(12);
 

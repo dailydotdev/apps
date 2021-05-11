@@ -25,7 +25,12 @@ import { LoggedUser } from '../../lib/user';
 import OnboardingContext from '../../contexts/OnboardingContext';
 import MagnifyingIcon from '@dailydotdev/shared/icons/magnifying.svg';
 import { SEARCH_POSTS_QUERY } from '../../graphql/feed';
-import { Button, Dropdown, DropdownProps, FeedPage } from '@dailydotdev/shared';
+import {
+  Dropdown,
+  DropdownProps,
+} from '@dailydotdev/shared/src/components/fields/Dropdown';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import { FeedPage } from '@dailydotdev/shared/src/components/utilities';
 import utilitiesStyles from '../../../shared/src/components/utilities.module.css';
 import styles from '../../styles/mainFeed.module.css';
 import CalendarIcon from '@dailydotdev/shared/icons/calendar.svg';

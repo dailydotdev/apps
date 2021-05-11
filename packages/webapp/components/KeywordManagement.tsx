@@ -13,11 +13,9 @@ import { NextSeo } from 'next-seo';
 import ActivitySection from './profile/ActivitySection';
 import Link from 'next/link';
 import { smallPostImage } from '../lib/image';
-import {
-  Button,
-  LazyImage,
-  ResponsivePageContainer,
-} from '@dailydotdev/shared';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
+import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
 import dynamic from 'next/dynamic';
 import ProgressiveEnhancementContext from '../contexts/ProgressiveEnhancementContext';
 import styles from '../styles/keywordManagement.module.css';

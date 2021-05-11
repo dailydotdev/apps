@@ -3,7 +3,7 @@ import Linkify from 'linkifyjs/react';
 import classed from '../../lib/classed';
 import styles from '../../styles/comments.module.css';
 import { Comment } from '../../graphql/comments';
-import { commentDateFormat } from '@dailydotdev/shared';
+import { commentDateFormat } from '@dailydotdev/shared/src/lib/dateFormat';
 
 export function CommentPublishDate({
   comment,

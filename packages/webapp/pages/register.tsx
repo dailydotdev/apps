@@ -13,9 +13,11 @@ import ProfileForm, {
 import {
   Button,
   ButtonProps,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import {
   ResponsivePageContainer,
   ProfileHeading,
-} from '@dailydotdev/shared';
+} from '@dailydotdev/shared/src/components/utilities';
 
 const Subheading = styled.h2`
   margin: ${sizeN(2)} 0;

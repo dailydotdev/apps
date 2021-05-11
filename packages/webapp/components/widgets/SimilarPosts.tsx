@@ -1,17 +1,15 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Button } from '@dailydotdev/shared';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import ArrowIcon from '@dailydotdev/shared/icons/arrow.svg';
 import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
 import Link from 'next/link';
 import { Post } from '../../graphql/posts';
 import styles from '@dailydotdev/shared/src/components/cards/Card.module.css';
-import {
-  LazyImage,
-  CardLink,
-  getTooltipProps,
-  ElementPlaceholder,
-} from '@dailydotdev/shared';
+import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
+import { CardLink } from '@dailydotdev/shared/src/components/cards/Card';
+import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
+import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 import { logReadArticle, trackEvent } from '../../lib/analytics';
 import classed from '../../lib/classed';
 

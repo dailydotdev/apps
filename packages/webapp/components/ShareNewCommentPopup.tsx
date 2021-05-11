@@ -14,7 +14,11 @@ import {
 } from '../lib/share';
 import { Post } from '../graphql/posts';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
-import { Button, ButtonProps, ModalCloseButton } from '@dailydotdev/shared';
+import {
+  Button,
+  ButtonProps,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import { ModalCloseButton } from '@dailydotdev/shared/src/components/modals/ModalCloseButton';
 import { getTooltipProps } from '../lib/tooltip';
 import classed from '../lib/classed';
 

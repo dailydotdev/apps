@@ -11,7 +11,10 @@ import {
   getTwitterShareLink,
   getWhatsappShareLink,
 } from '../lib/share';
-import { Button, ButtonProps } from '@dailydotdev/shared';
+import {
+  Button,
+  ButtonProps,
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import { trackEvent } from '../lib/analytics';
 import { getTooltipProps } from '../lib/tooltip';
 import styles from '../styles/shareBar.module.css';

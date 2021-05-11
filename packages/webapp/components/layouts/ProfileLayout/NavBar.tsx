@@ -8,7 +8,8 @@ import { PublicProfile } from '../../../lib/user';
 import { FlippedProps, FlipperProps } from 'flip-toolkit/lib/types';
 import dynamicParent from '../../../lib/dynamicParent';
 import ProgressiveEnhancementContext from '../../../contexts/ProgressiveEnhancementContext';
-import { Button, ActiveTabIndicator } from '@dailydotdev/shared';
+import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 
 const flipperLoader = () =>
   import(/* webpackChunkName: "reactFlip" */ 'react-flip-toolkit');

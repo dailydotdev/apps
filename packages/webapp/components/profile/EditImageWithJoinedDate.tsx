@@ -12,7 +12,7 @@ import JoinedDate from './JoinedDate';
 import styled from '@emotion/styled';
 import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import { typoCaption1 } from '../../styles/typography';
-import { FormErrorMessage } from '@dailydotdev/shared';
+import { FormErrorMessage } from '@dailydotdev/shared/src/components/utilities';
 
 export interface EditImageWithJoinedDateProps
   extends HTMLAttributes<HTMLDivElement> {

@@ -5,13 +5,13 @@ import React, {
   useMemo,
 } from 'react';
 import classed from '../lib/classed';
-import { Radio } from '@dailydotdev/shared';
-import { Switch } from '@dailydotdev/shared';
+import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
+import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
 import SettingsContext from '../contexts/SettingsContext';
 import classNames from 'classnames';
 import CardIcon from '@dailydotdev/shared/icons/card.svg';
 import LineIcon from '@dailydotdev/shared/icons/line.svg';
-import { IconsSwitch } from '@dailydotdev/shared';
+import { IconsSwitch } from '@dailydotdev/shared/src/components/fields/IconsSwitch';
 
 const densities = [
   { label: 'Eco', value: 'eco' },

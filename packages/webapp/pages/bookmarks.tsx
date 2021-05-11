@@ -16,12 +16,12 @@ import { mainFeedLayoutProps } from '../components/layouts/MainFeedPage';
 import AuthContext from '../contexts/AuthContext';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
-  Button,
   CustomFeedHeader,
   customFeedIcon,
   FeedPage,
-} from '@dailydotdev/shared';
+} from '@dailydotdev/shared/src/components/utilities';
 
 const EmptyScreenContainer = styled.main`
   position: fixed;

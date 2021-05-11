@@ -14,18 +14,18 @@ import { RankConfetti } from '../svg/RankConfetti';
 import { RANK_NAMES, rankToColor, STEPS_PER_RANK } from '../../lib/rank';
 import { LoggedUser } from '../../lib/user';
 import { typoCallout, typoTitle2 } from '../../styles/typography';
-import { Checkbox } from '@dailydotdev/shared';
+import { Checkbox } from '@dailydotdev/shared/src/components/fields/Checkbox';
 import LoginButtons from '../LoginButtons';
 import RadialProgress from '../RadialProgress';
 import Rank from '../Rank';
 import { CSSTransition } from 'react-transition-group';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import { ModalCloseButton } from '@dailydotdev/shared/src/components/modals/ModalCloseButton';
+import { ModalProps } from '@dailydotdev/shared/src/components/modals/StyledModal';
 import {
-  Button,
-  ModalCloseButton,
-  ModalProps,
   ResponsiveModal,
   responsiveModalBreakpoint,
-} from '@dailydotdev/shared';
+} from '@dailydotdev/shared/src/components/modals/ResponsiveModal';
 
 export interface NewRankModalProps extends Omit<ModalProps, 'onRequestClose'> {
   rank: number;

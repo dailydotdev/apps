@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import { mobileL } from '../../styles/media';
 import React, { ReactElement, useState } from 'react';
-import { TextField } from '@dailydotdev/shared';
+import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import XIcon from '@dailydotdev/shared/icons/x.svg';
 import { useMutation, useQuery } from 'react-query';
@@ -16,9 +16,9 @@ import { typoCallout } from '../../styles/typography';
 import {
   Button,
   ButtonProps,
-  ModalProps,
-  ResponsiveModal,
-} from '@dailydotdev/shared';
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import { ModalProps } from '@dailydotdev/shared/src/components/modals/StyledModal';
+import { ResponsiveModal } from '@dailydotdev/shared/src/components/modals/ResponsiveModal';
 
 const Modal = styled(ResponsiveModal)`
   .modal {

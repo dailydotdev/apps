@@ -23,7 +23,7 @@ import useMutateFilters, {
   getSearchTagsQueryKey,
 } from '../../hooks/useMutateFilters';
 import { trackEvent } from '../../lib/analytics';
-import { Button } from '@dailydotdev/shared';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { getTooltipProps } from '../../lib/tooltip';
 import {
   FiltersContainer,

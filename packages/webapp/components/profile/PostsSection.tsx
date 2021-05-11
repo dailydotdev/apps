@@ -13,7 +13,7 @@ import {
   EmptyMessage,
 } from './common';
 import { ownershipGuide } from '../../lib/constants';
-import { Button } from '@dailydotdev/shared';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import ActivitySection from './ActivitySection';
 import Link from 'next/link';
 import { smallPostImage } from '../../lib/image';
@@ -27,10 +27,10 @@ import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import styled from '@emotion/styled';
 import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
-import { LazyImage } from '@dailydotdev/shared';
+import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import { tablet } from '../../styles/media';
 import { typoCallout } from '../../styles/typography';
-import { TextField } from '@dailydotdev/shared';
+import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import {
   loggedUserToProfile,
   updateProfile,

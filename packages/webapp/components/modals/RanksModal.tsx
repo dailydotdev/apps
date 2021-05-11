@@ -6,13 +6,13 @@ import rem from '@dailydotdev/shared/macros/rem.macro';
 import styled from '@emotion/styled';
 import { RANK_NAMES, STEPS_PER_RANK } from '../../lib/rank';
 import Rank from '../Rank';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import { ModalCloseButton } from '@dailydotdev/shared/src/components/modals/ModalCloseButton';
+import { ModalProps } from '@dailydotdev/shared/src/components/modals/StyledModal';
 import {
-  Button,
-  ModalCloseButton,
-  ModalProps,
   ResponsiveModal,
   responsiveModalBreakpoint,
-} from '@dailydotdev/shared';
+} from '@dailydotdev/shared/src/components/modals/ResponsiveModal';
 import classNames from 'classnames';
 import styles from '../../styles/ranksModal.module.css';
 

@@ -1,4 +1,5 @@
-import { useAutoComplete, SearchField } from '@dailydotdev/shared';
+import { useAutoComplete } from '@dailydotdev/shared/src/hooks/useAutoComplete';
+import { SearchField } from '@dailydotdev/shared/src/components/fields/SearchField';
 import React, { ReactElement, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';

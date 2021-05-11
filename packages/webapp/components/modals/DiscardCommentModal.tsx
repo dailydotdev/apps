@@ -1,12 +1,12 @@
 import React, { ReactElement, MouseEvent } from 'react';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import { ModalProps } from '@dailydotdev/shared/src/components/modals/StyledModal';
 import {
-  Button,
   ConfirmationModal,
   ConfirmationHeading,
   ConfirmationDescription,
   ConfirmationButtons,
-  ModalProps,
-} from '@dailydotdev/shared';
+} from '@dailydotdev/shared/src/components/modals/ConfirmationModal';
 
 export interface Props extends ModalProps {
   onDeleteComment: (event: MouseEvent) => void;

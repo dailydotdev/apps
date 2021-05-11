@@ -32,9 +32,11 @@ import AuthContext from '../../contexts/AuthContext';
 import {
   Button,
   ButtonProps,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import {
   CustomFeedHeader,
   FeedPage,
-} from '@dailydotdev/shared';
+} from '@dailydotdev/shared/src/components/utilities';
 import PlusIcon from '@dailydotdev/shared/icons/plus.svg';
 import { trackEvent } from '../../lib/analytics';
 

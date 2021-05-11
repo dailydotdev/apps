@@ -34,13 +34,14 @@ import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import { trackEvent } from '../../lib/analytics';
 import {
-  Button,
-  ResponsiveModal,
-  ModalProps,
   RoundedImage,
   SmallRoundedImage,
-  commentDateFormat,
-} from '@dailydotdev/shared';
+} from '@dailydotdev/shared/src/components/utilities';
+import { commentDateFormat } from '@dailydotdev/shared/src/lib/dateFormat';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import { ResponsiveModal } from '@dailydotdev/shared/src/components/modals/ResponsiveModal';
+import { ModalProps } from '@dailydotdev/shared/src/components/modals/StyledModal';
+
 import classed from '../../lib/classed';
 
 const DiscardCommentModal = dynamic(() => import('./DiscardCommentModal'));

@@ -6,9 +6,9 @@ import React, {
   useState,
 } from 'react';
 import Link from 'next/link';
-import { LazyImage } from '@dailydotdev/shared';
+import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import AuthContext from '../../contexts/AuthContext';
-import { Button } from '@dailydotdev/shared';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
 import LayoutIcon from '@dailydotdev/shared/icons/layout.svg';
 import Logo from '../svg/Logo';

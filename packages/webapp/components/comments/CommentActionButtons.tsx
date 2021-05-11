@@ -14,8 +14,8 @@ import { useMutation, useQueryClient } from 'react-query';
 import { Roles } from '../../lib/user';
 import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
-import { QuaternaryButton } from '@dailydotdev/shared';
-import { Button } from '@dailydotdev/shared';
+import { QuaternaryButton } from '@dailydotdev/shared/src/components/buttons/QuaternaryButton';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { getTooltipProps } from '../../lib/tooltip';
 
 export interface Props {

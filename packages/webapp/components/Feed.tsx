@@ -31,14 +31,12 @@ import OnboardingContext, {
 } from '../contexts/OnboardingContext';
 import { Spaciness } from '../graphql/settings';
 import useReportPostMenu from '../hooks/useReportPostMenu';
-import {
-  PostCard,
-  AdCard,
-  PlaceholderCard,
-  PostList,
-  AdList,
-  PlaceholderList,
-} from '@dailydotdev/shared';
+import { PostCard } from '@dailydotdev/shared/src/components/cards/PostCard';
+import { AdCard } from '@dailydotdev/shared/src/components/cards/AdCard';
+import { PlaceholderCard } from '@dailydotdev/shared/src/components/cards/PlaceholderCard';
+import { PostList } from '@dailydotdev/shared/src/components/cards/PostList';
+import { AdList } from '@dailydotdev/shared/src/components/cards/AdList';
+import { PlaceholderList } from '@dailydotdev/shared/src/components/cards/PlaceholderList';
 
 const CommentPopup = dynamic(() => import('./CommentPopup'));
 const ReportPostMenu = dynamic(

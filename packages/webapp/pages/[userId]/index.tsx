@@ -44,7 +44,7 @@ import PostsSection from '../../components/profile/PostsSection';
 import AuthorStats from '../../components/profile/AuthorStats';
 import CalendarHeatmap from '../../components/CalendarHeatmap';
 import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
-import { Dropdown } from '@dailydotdev/shared';
+import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
 import useMedia from '../../hooks/useMedia';
 import { laptop } from '../../styles/media';
 import { requestIdleCallback } from 'next/dist/client/request-idle-callback';

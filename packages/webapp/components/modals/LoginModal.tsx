@@ -3,7 +3,12 @@ import styled from '@emotion/styled';
 import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import DailyDevLogo from '../svg/DailyDevLogo';
 import { typoCallout } from '../../styles/typography';
-import { StyledModal, ModalCloseButton, ModalProps } from '@dailydotdev/shared';
+
+import {
+  StyledModal,
+  ModalProps,
+} from '@dailydotdev/shared/src/components/modals/StyledModal';
+import { ModalCloseButton } from '@dailydotdev/shared/src/components/modals/ModalCloseButton';
 import LoginButtons from '../LoginButtons';
 
 const MyModal = styled(StyledModal)`

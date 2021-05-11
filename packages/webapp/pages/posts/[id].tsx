@@ -28,12 +28,12 @@ import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
 import TrashIcon from '@dailydotdev/shared/icons/trash.svg';
 import HammerIcon from '@dailydotdev/shared/icons/hammer.svg';
 import FeatherIcon from '@dailydotdev/shared/icons/feather.svg';
+import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import {
-  LazyImage,
-  postDateFormat,
   PageContainer,
   RoundedImage,
-} from '@dailydotdev/shared';
+} from '@dailydotdev/shared/src/components/utilities';
+import { postDateFormat } from '@dailydotdev/shared/src/lib/dateFormat';
 import {
   Post,
   POST_BY_ID_QUERY,
@@ -59,11 +59,11 @@ import request, { ClientError } from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import { ProfileLink } from '../../components/profile/ProfileLink';
 import { ownershipGuide } from '../../lib/constants';
-import { QuaternaryButton } from '@dailydotdev/shared';
+import { QuaternaryButton } from '@dailydotdev/shared/src/components/buttons/QuaternaryButton';
 import { LoginModalMode } from '../../components/modals/LoginModal';
 import { logReadArticle, trackEvent } from '../../lib/analytics';
 import useSubscription from '../../hooks/useSubscription';
-import { Button } from '@dailydotdev/shared';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { getTooltipProps } from '../../lib/tooltip';
 import Link from 'next/link';
 import useUpvotePost from '../../hooks/useUpvotePost';

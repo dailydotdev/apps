@@ -27,12 +27,14 @@ import {
   TAGS_SETTINGS_QUERY,
 } from '../../graphql/feedSettings';
 import {
+  Button,
+  ButtonProps,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import {
   CustomFeedHeader,
   customFeedIcon,
   FeedPage,
-  Button,
-  ButtonProps,
-} from '@dailydotdev/shared';
+} from '@dailydotdev/shared/src/components/utilities';
 import useMutateFilters, {
   getTagsSettingsQueryKey,
 } from '../../hooks/useMutateFilters';

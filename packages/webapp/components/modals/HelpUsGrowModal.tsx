@@ -1,11 +1,11 @@
 import React, { ReactElement, useContext, useState } from 'react';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
-  Button,
-  ModalCloseButton,
-  ModalProps,
   StyledModal,
-  TextField,
-} from '@dailydotdev/shared';
+  ModalProps,
+} from '@dailydotdev/shared/src/components/modals/StyledModal';
+import { ModalCloseButton } from '@dailydotdev/shared/src/components/modals/ModalCloseButton';
+import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import CopyIcon from '@dailydotdev/shared/icons/copy.svg';
 import TwitterIcon from '@dailydotdev/shared/icons/twitter.svg';
 import { useQuery } from 'react-query';

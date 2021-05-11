@@ -1,14 +1,14 @@
 import React, { ReactElement, ReactNode, useRef, useState } from 'react';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import { Loader } from '@dailydotdev/shared/src/components/Loader';
+import { ModalCloseButton } from '@dailydotdev/shared/src/components/modals/ModalCloseButton';
 import {
-  Button,
-  Loader,
-  ModalCloseButton,
-  ModalProps,
   StyledModal,
-  Radio,
-} from '@dailydotdev/shared';
+  ModalProps,
+} from '@dailydotdev/shared/src/components/modals/StyledModal';
+import { SearchField } from '@dailydotdev/shared/src/components/fields/SearchField';
+import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
 import ArrowIcon from '@dailydotdev/shared/icons/arrow.svg';
-import { SearchField } from '@dailydotdev/shared';
 import { formToJson } from '../../lib/form';
 import { useMutation } from 'react-query';
 import { apiUrl } from '../../lib/config';

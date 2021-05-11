@@ -45,13 +45,11 @@ import {
 } from '../../../graphql/users';
 import NavBar, { tabs } from './NavBar';
 import ProgressiveEnhancementContext from '../../../contexts/ProgressiveEnhancementContext';
-import {
-  LazyImage,
-  ResponsivePageContainer,
-  Button,
-  QuaternaryButton,
-  getTooltipProps,
-} from '@dailydotdev/shared';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import { QuaternaryButton } from '@dailydotdev/shared/src/components/buttons/QuaternaryButton';
+import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
+import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
+import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 
 const AccountDetailsModal = dynamic(
   () =>
