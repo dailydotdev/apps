@@ -26,7 +26,7 @@ import { AUTHOR_FEED_QUERY, FeedData } from '../../graphql/posts';
 import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import styled from '@emotion/styled';
-import sizeN from '../../macros/sizeN.macro';
+import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import { LazyImage } from '@dailydotdev/shared';
 import { tablet } from '../../styles/media';
 import { typoCallout } from '../../styles/typography';

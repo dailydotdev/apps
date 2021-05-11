@@ -1,6 +1,6 @@
 import React, { HTMLAttributes, ReactElement } from 'react';
 import { CardSpace, CardTextContainer } from './Card';
-import { ElementPlaceholder } from '../utilities';
+import { ElementPlaceholder } from '../ElementPlaceholder';
 import classed from '../../lib/classed';
 import classNames from 'classnames';
 

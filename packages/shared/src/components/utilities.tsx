@@ -1,8 +1,6 @@
-import React, { HTMLAttributes, ReactElement } from 'react';
-import { LazyImage } from '@dailydotdev/shared';
-import classNames from 'classnames';
+import { LazyImage } from './LazyImage';
 import classed from '../lib/classed';
-import styles from '../styles/utilities.module.css';
+import styles from './utilities.module.css';
 
 export const RoundedImage = classed(LazyImage, 'w-10 h-10 rounded-full');
 
@@ -42,21 +40,6 @@ export const ActiveTabIndicator = classed(
   'div',
   'absolute inset-x-0 bottom-0 h-0.5 my-0 mx-auto bg-theme-label-primary',
   styles.activeTabIndicator,
-);
-
-export const ElementPlaceholder = ({
-  className,
-  ...props
-}: HTMLAttributes<HTMLDivElement>): ReactElement => (
-  <div
-    className={classNames(
-      className,
-      'element-placeholder relative overflow-hidden bg-theme-float',
-    )}
-    {...props}
-  >
-    <div className="absolute top-0 left-0 w-full h-full" />
-  </div>
 );
 
 export const CustomFeedHeader = classed(

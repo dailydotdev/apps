@@ -9,8 +9,7 @@ import { ParsedUrlQuery } from 'querystring';
 import React, { ReactElement, useContext, useMemo } from 'react';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
-import { CustomFeedHeader, FeedPage } from '../../components/utilities';
-import sizeN from '../../macros/sizeN.macro';
+import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import { useRouter } from 'next/router';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -30,7 +29,12 @@ import {
   SOURCES_SETTINGS_QUERY,
 } from '../../graphql/feedSettings';
 import AuthContext from '../../contexts/AuthContext';
-import { Button, ButtonProps } from '@dailydotdev/shared';
+import {
+  Button,
+  ButtonProps,
+  CustomFeedHeader,
+  FeedPage,
+} from '@dailydotdev/shared';
 import PlusIcon from '@dailydotdev/shared/icons/plus.svg';
 import { trackEvent } from '../../lib/analytics';
 

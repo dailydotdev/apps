@@ -9,14 +9,9 @@ import { ParsedUrlQuery } from 'querystring';
 import React, { ReactElement, useContext, useMemo } from 'react';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
-import {
-  CustomFeedHeader,
-  customFeedIcon,
-  FeedPage,
-} from '../../components/utilities';
 import HashtagIcon from '@dailydotdev/shared/icons/hashtag.svg';
 import PlusIcon from '@dailydotdev/shared/icons/plus.svg';
-import sizeN from '../../macros/sizeN.macro';
+import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import { useRouter } from 'next/router';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -31,7 +26,13 @@ import {
   FeedSettingsData,
   TAGS_SETTINGS_QUERY,
 } from '../../graphql/feedSettings';
-import { Button, ButtonProps } from '@dailydotdev/shared';
+import {
+  CustomFeedHeader,
+  customFeedIcon,
+  FeedPage,
+  Button,
+  ButtonProps,
+} from '@dailydotdev/shared';
 import useMutateFilters, {
   getTagsSettingsQueryKey,
 } from '../../hooks/useMutateFilters';

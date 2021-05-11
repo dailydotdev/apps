@@ -1,6 +1,6 @@
 import classed from '../../lib/classed';
 import styled from '@emotion/styled';
-import sizeN from '../../macros/sizeN.macro';
+import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import { tablet } from '../../styles/media';
 import { typoCallout } from '../../styles/typography';
 import { multilineTextOverflow } from '../../styles/helpers';

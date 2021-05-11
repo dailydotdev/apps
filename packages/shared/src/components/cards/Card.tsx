@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
-import { LazyImage } from '@dailydotdev/shared';
+import { LazyImage } from '../LazyImage';
 import { Comment } from '../../graphql/comments';
-import styles from '../../styles/cards.module.css';
+import styles from './Card.module.css';
 import classed from '../../lib/classed';
 import classNames from 'classnames';
 import { getTooltipProps } from '../../lib/tooltip';

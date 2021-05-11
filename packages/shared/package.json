@@ -13,7 +13,9 @@
   "prettier": "@dailydotdev/prettier-config",
   "peerDependencies": {
     "classnames": "^2.3.1",
+    "date-fns": "^2.20.0",
     "dompurify": "^2.2.7",
+    "graphql-request": "^3.4.0",
     "next": "^10.2.0",
     "react": "^17.0.5",
     "react-contexify": "^5.0.0",
@@ -21,6 +23,9 @@
     "react-modal": "^3.12.1"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.14.1",
+    "@babel/preset-react": "^7.13.13",
+    "@babel/preset-typescript": "^7.13.0",
     "@dailydotdev/eslint-config": "*",
     "@dailydotdev/prettier-config": "*",
     "@testing-library/jest-dom": "^5.11.10",
@@ -37,6 +42,7 @@
     "babel-jest": "^26.6.3",
     "babel-plugin-dynamic-import-node": "^2.3.3",
     "babel-plugin-macros": "^3.0.1",
+    "date-fns": "^2.20.0",
     "dompurify": "^2.2.7",
     "eslint": "^7.2.3",
     "eslint-config-prettier": "^8.1.0",
@@ -45,6 +51,7 @@
     "eslint-plugin-react": "^7.23.1",
     "eslint-plugin-testing-library": "^4.2.0",
     "glob": "^7.1.6",
+    "graphql-request": "^3.4.0",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^26.6.3",
     "jest-junit": "^12.0.0",

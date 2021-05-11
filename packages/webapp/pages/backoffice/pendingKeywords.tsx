@@ -12,7 +12,7 @@ import {
 } from '../../graphql/keywords';
 import styled from '@emotion/styled';
 import { typoTitle3 } from '../../styles/typography';
-import { ResponsivePageContainer } from '../../components/utilities';
+import { ResponsivePageContainer } from '@dailydotdev/shared';
 import KeywordManagement from '../../components/KeywordManagement';
 import useRequirePermissions from '../../hooks/useRequirePermissions';
 

@@ -1,15 +1,14 @@
 import React, { ReactElement, useContext } from 'react';
 import Link from 'next/link';
 import styled from '@emotion/styled';
-import sizeN from '../../../macros/sizeN.macro';
+import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import { laptop } from '../../../styles/media';
 import { pageMaxWidth } from '../../../styles/helpers';
 import { PublicProfile } from '../../../lib/user';
 import { FlippedProps, FlipperProps } from 'flip-toolkit/lib/types';
 import dynamicParent from '../../../lib/dynamicParent';
-import { ActiveTabIndicator } from '../../utilities';
 import ProgressiveEnhancementContext from '../../../contexts/ProgressiveEnhancementContext';
-import { Button } from '@dailydotdev/shared';
+import { Button, ActiveTabIndicator } from '@dailydotdev/shared';
 
 const flipperLoader = () =>
   import(/* webpackChunkName: "reactFlip" */ 'react-flip-toolkit');

@@ -16,7 +16,7 @@ import {
   commentInfoClass,
 } from './common';
 import styled from '@emotion/styled';
-import sizeN from '../../macros/sizeN.macro';
+import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import { typoCallout } from '../../styles/typography';
 import { tablet } from '../../styles/media';
 

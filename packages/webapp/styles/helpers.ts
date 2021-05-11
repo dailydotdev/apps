@@ -1,4 +1,4 @@
-import sizeN from '../macros/sizeN.macro';
+import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 
 export const focusOutline = `
   &:focus {

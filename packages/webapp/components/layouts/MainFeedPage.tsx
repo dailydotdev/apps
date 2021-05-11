@@ -16,7 +16,6 @@ import dynamic from 'next/dynamic';
 import Feed, { FeedProps } from '../Feed';
 import AuthContext from '../../contexts/AuthContext';
 import { getLayout } from './FeedLayout';
-import { FeedPage } from '../utilities';
 import {
   getSourcesSettingsQueryKey,
   getTagsSettingsQueryKey,
@@ -26,8 +25,8 @@ import { LoggedUser } from '../../lib/user';
 import OnboardingContext from '../../contexts/OnboardingContext';
 import MagnifyingIcon from '@dailydotdev/shared/icons/magnifying.svg';
 import { SEARCH_POSTS_QUERY } from '../../graphql/feed';
-import { Button, Dropdown, DropdownProps } from '@dailydotdev/shared';
-import utilitiesStyles from '../../styles/utilities.module.css';
+import { Button, Dropdown, DropdownProps, FeedPage } from '@dailydotdev/shared';
+import utilitiesStyles from '../../../shared/src/components/utilities.module.css';
 import styles from '../../styles/mainFeed.module.css';
 import CalendarIcon from '@dailydotdev/shared/icons/calendar.svg';
 

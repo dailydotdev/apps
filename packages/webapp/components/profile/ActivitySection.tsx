@@ -1,6 +1,6 @@
 import React, { Fragment, ReactElement, ReactNode } from 'react';
 import styled from '@emotion/styled';
-import sizeN from '../../macros/sizeN.macro';
+import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import { typoBody, typoCallout } from '../../styles/typography';
 import { focusOutline } from '../../styles/helpers';
 import { Connection } from '../../graphql/common';

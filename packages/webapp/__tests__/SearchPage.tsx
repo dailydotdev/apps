@@ -102,6 +102,9 @@ const renderComponent = (
               onboardingStep: 3,
               onboardingReady: true,
               incrementOnboardingStep: jest.fn(),
+              showReferral: false,
+              closeReferral: jest.fn(),
+              trackEngagement: jest.fn(),
             }}
           >
             {SearchPage.getLayout(<SearchPage />, {}, SearchPage.layoutProps)}

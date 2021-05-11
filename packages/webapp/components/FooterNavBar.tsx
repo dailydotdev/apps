@@ -1,6 +1,5 @@
 import React, { ReactElement, ReactNode, useContext } from 'react';
 import Link from 'next/link';
-import { ActiveTabIndicator } from './utilities';
 import { Flipper, Flipped } from 'react-flip-toolkit';
 import HomeIcon from '@dailydotdev/shared/icons/home.svg';
 import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
@@ -8,7 +7,7 @@ import FilterIcon from '@dailydotdev/shared/icons/filter.svg';
 import LayoutIcon from '@dailydotdev/shared/icons/layout.svg';
 import AuthContext from '../contexts/AuthContext';
 import { useRouter } from 'next/router';
-import { Button } from '@dailydotdev/shared';
+import { Button, ActiveTabIndicator } from '@dailydotdev/shared';
 import { getTooltipProps } from '../lib/tooltip';
 import classNames from 'classnames';
 import styles from '../styles/footerNavBar.module.css';

@@ -5,7 +5,7 @@ import {
   getStaticProps as getProfileStaticProps,
 } from '../../components/layouts/ProfileLayout';
 import styled from '@emotion/styled';
-import sizeN from '../../macros/sizeN.macro';
+import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import { typoCallout } from '../../styles/typography';
 import { reputationGuide } from '../../lib/constants';
 

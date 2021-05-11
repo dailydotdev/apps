@@ -6,11 +6,13 @@ import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
 import Link from 'next/link';
 import { Post } from '../../graphql/posts';
 import styles from '../../styles/cards.module.css';
-import { CardLink } from '../cards/Card';
-import { LazyImage } from '@dailydotdev/shared';
+import {
+  LazyImage,
+  CardLink,
+  getTooltipProps,
+  ElementPlaceholder,
+} from '@dailydotdev/shared';
 import { logReadArticle, trackEvent } from '../../lib/analytics';
-import { getTooltipProps } from '../../lib/tooltip';
-import { ElementPlaceholder } from '../utilities';
 import classed from '../../lib/classed';
 
 export type SimilarPostsProps = {

@@ -8,7 +8,7 @@ import React, {
   useState,
 } from 'react';
 import RankProgress from '../RankProgress';
-import sizeN from '../../macros/sizeN.macro';
+import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import styled from '@emotion/styled';
 import { RankConfetti } from '../svg/RankConfetti';
 import { RANK_NAMES, rankToColor, STEPS_PER_RANK } from '../../lib/rank';

@@ -1,9 +1,8 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import styled from '@emotion/styled';
-import sizeN from '../../macros/sizeN.macro';
-import rem from '../../macros/rem.macro';
+import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
+import rem from '@dailydotdev/shared/macros/rem.macro';
 import XIcon from '@dailydotdev/shared/icons/x.svg';
-import { ProfileHeading } from '../utilities';
 import EditImageWithJoinedDate from '../profile/EditImageWithJoinedDate';
 import AuthContext from '../../contexts/AuthContext';
 import ProfileForm from '../profile/ProfileForm';
@@ -22,6 +21,7 @@ import {
   ResponsiveModal,
   responsiveModalBreakpoint,
   ModalProps,
+  ProfileHeading,
 } from '@dailydotdev/shared';
 
 const headerHeight = sizeN(12);

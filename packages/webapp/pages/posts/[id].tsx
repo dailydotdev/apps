@@ -13,7 +13,7 @@ import { ParsedUrlQuery } from 'querystring';
 import { Roles } from '../../lib/user';
 import styled from '@emotion/styled';
 import { NextSeo } from 'next-seo';
-import sizeN from '../../macros/sizeN.macro';
+import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import {
   typoBody,
   typoCallout,
@@ -21,7 +21,6 @@ import {
   typoSubhead,
   typoTitle2,
 } from '../../styles/typography';
-import { postDateFormat } from '../../lib/dateFormat';
 import OpenLinkIcon from '@dailydotdev/shared/icons/open_link.svg';
 import UpvoteIcon from '@dailydotdev/shared/icons/upvote.svg';
 import CommentIcon from '@dailydotdev/shared/icons/comment.svg';
@@ -29,7 +28,12 @@ import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
 import TrashIcon from '@dailydotdev/shared/icons/trash.svg';
 import HammerIcon from '@dailydotdev/shared/icons/hammer.svg';
 import FeatherIcon from '@dailydotdev/shared/icons/feather.svg';
-import { LazyImage } from '@dailydotdev/shared';
+import {
+  LazyImage,
+  postDateFormat,
+  PageContainer,
+  RoundedImage,
+} from '@dailydotdev/shared';
 import {
   Post,
   POST_BY_ID_QUERY,
@@ -38,7 +42,6 @@ import {
   POSTS_ENGAGED_SUBSCRIPTION,
   PostsEngaged,
 } from '../../graphql/posts';
-import { PageContainer, RoundedImage } from '../../components/utilities';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import AuthContext from '../../contexts/AuthContext';
 import MainComment from '../../components/comments/MainComment';

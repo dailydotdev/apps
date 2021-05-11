@@ -8,9 +8,6 @@ import React, {
   useState,
 } from 'react';
 import useFeed, { FeedItem, PostItem } from '../hooks/useFeed';
-import { PostCard } from './cards/PostCard';
-import { AdCard } from './cards/AdCard';
-import { PlaceholderCard } from './cards/PlaceholderCard';
 import { Ad, Post } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
 import { useMutation } from 'react-query';
@@ -32,13 +29,18 @@ import useBookmarkPost from '../hooks/useBookmarkPost';
 import OnboardingContext, {
   EngagementAction,
 } from '../contexts/OnboardingContext';
-import { PostList } from './cards/PostList';
-import { AdList } from './cards/AdList';
-import { PlaceholderList } from './cards/PlaceholderList';
 import { Spaciness } from '../graphql/settings';
 import useReportPostMenu from '../hooks/useReportPostMenu';
+import {
+  PostCard,
+  AdCard,
+  PlaceholderCard,
+  PostList,
+  AdList,
+  PlaceholderList,
+} from '@dailydotdev/shared';
 
-const CommentPopup = dynamic(() => import('./cards/CommentPopup'));
+const CommentPopup = dynamic(() => import('./CommentPopup'));
 const ReportPostMenu = dynamic(
   () => import(/* webpackChunkName: "reportPostMenu" */ './ReportPostMenu'),
 );

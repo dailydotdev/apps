@@ -12,11 +12,9 @@ import React, {
 import dynamic from 'next/dynamic';
 import styled from '@emotion/styled';
 import cloneDeep from 'lodash.clonedeep';
-import sizeN from '../../macros/sizeN.macro';
+import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import AuthContext from '../../contexts/AuthContext';
-import { RoundedImage, SmallRoundedImage } from '../utilities';
 import { commentBoxClassNames } from '../comments/common';
-import { commentDateFormat } from '../../lib/dateFormat';
 import {
   typoCallout,
   typoCaption1,
@@ -35,7 +33,14 @@ import { Edge } from '../../graphql/common';
 import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import { trackEvent } from '../../lib/analytics';
-import { Button, ResponsiveModal, ModalProps } from '@dailydotdev/shared';
+import {
+  Button,
+  ResponsiveModal,
+  ModalProps,
+  RoundedImage,
+  SmallRoundedImage,
+  commentDateFormat,
+} from '@dailydotdev/shared';
 import classed from '../../lib/classed';
 
 const DiscardCommentModal = dynamic(() => import('./DiscardCommentModal'));

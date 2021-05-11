@@ -1,5 +1,5 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
-import sizeN from '../macros/sizeN.macro';
+import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import ArrowIcon from '@dailydotdev/shared/icons/arrow.svg';
 import classNames from 'classnames';
 import { getTooltipProps } from '../lib/tooltip';

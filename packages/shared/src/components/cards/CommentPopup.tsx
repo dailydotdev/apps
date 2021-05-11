@@ -1,8 +1,9 @@
 import React, { KeyboardEvent, ReactElement, useState } from 'react';
 import commentPopupText from '../../commentPopupText';
-import CommentIcon from '@dailydotdev/shared/icons/comment.svg';
+import CommentIcon from '../../../icons/comment.svg';
 import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
-import { Button, ModalCloseButton } from '@dailydotdev/shared';
+import { Button } from '../buttons/Button';
+import { ModalCloseButton } from '../modals/ModalCloseButton';
 import classNames from 'classnames';
 
 const transitionDuration = 150;
@@ -15,7 +16,7 @@ export type CommentPopupProps = {
   compactCard?: boolean;
 };
 
-export default function CommentPopup({
+export function CommentPopup({
   onClose,
   onSubmit,
   loading,

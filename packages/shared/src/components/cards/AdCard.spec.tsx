@@ -1,6 +1,6 @@
 import React from 'react';
-import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
-import { AdCard, AdCardProps } from '../../components/cards/AdCard';
+import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import { AdCard, AdCardProps } from './AdCard';
 import { Ad } from '../../graphql/posts';
 
 const defaultAd: Ad = {

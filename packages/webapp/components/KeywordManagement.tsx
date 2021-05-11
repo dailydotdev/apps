@@ -8,16 +8,18 @@ import { useInfiniteQuery, useMutation } from 'react-query';
 import request from 'graphql-request';
 import { apiUrl } from '../lib/config';
 import { FeedData, KEYWORD_FEED_QUERY } from '../graphql/posts';
-import { ResponsivePageContainer } from './utilities';
-import sizeN from '../macros/sizeN.macro';
+import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import { NextSeo } from 'next-seo';
 import ActivitySection from './profile/ActivitySection';
 import Link from 'next/link';
 import { smallPostImage } from '../lib/image';
-import { LazyImage } from '@dailydotdev/shared';
+import {
+  Button,
+  LazyImage,
+  ResponsivePageContainer,
+} from '@dailydotdev/shared';
 import dynamic from 'next/dynamic';
 import ProgressiveEnhancementContext from '../contexts/ProgressiveEnhancementContext';
-import { Button } from '@dailydotdev/shared';
 import styles from '../styles/keywordManagement.module.css';
 import classNames from 'classnames';
 

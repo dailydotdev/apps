@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 import { mobileL } from '../../styles/media';
 import React, { ReactElement, useState } from 'react';
 import { TextField } from '@dailydotdev/shared';
-import sizeN from '../../macros/sizeN.macro';
+import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import XIcon from '@dailydotdev/shared/icons/x.svg';
 import { useMutation, useQuery } from 'react-query';
 import {

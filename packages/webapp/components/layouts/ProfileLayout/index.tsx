@@ -11,10 +11,8 @@ import { NextSeoProps } from 'next-seo/lib/types';
 import { getLayout as getMainLayout } from '../MainLayout';
 import Head from 'next/head';
 import { NextSeo } from 'next-seo';
-import { ResponsivePageContainer } from '../../utilities';
 import styled from '@emotion/styled';
-import sizeN from '../../../macros/sizeN.macro';
-import { LazyImage } from '@dailydotdev/shared';
+import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import {
   typoCallout,
   typoFootnote,
@@ -46,10 +44,14 @@ import {
   UserReadingRankData,
 } from '../../../graphql/users';
 import NavBar, { tabs } from './NavBar';
-import { QuaternaryButton } from '@dailydotdev/shared';
 import ProgressiveEnhancementContext from '../../../contexts/ProgressiveEnhancementContext';
-import { Button } from '@dailydotdev/shared';
-import { getTooltipProps } from '../../../lib/tooltip';
+import {
+  LazyImage,
+  ResponsivePageContainer,
+  Button,
+  QuaternaryButton,
+  getTooltipProps,
+} from '@dailydotdev/shared';
 
 const AccountDetailsModal = dynamic(
   () =>

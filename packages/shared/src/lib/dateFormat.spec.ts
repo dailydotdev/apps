@@ -1,4 +1,4 @@
-import { postDateFormat, commentDateFormat } from '../lib/dateFormat';
+import { postDateFormat, commentDateFormat } from './dateFormat';
 
 const now = new Date(2020, 5, 1, 12, 0, 0);
 

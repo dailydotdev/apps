@@ -1,8 +1,7 @@
 import React, { CSSProperties, ReactElement } from 'react';
 import classed from '../../lib/classed';
-import sizeN from '../../macros/sizeN.macro';
-import { ElementPlaceholder } from '../utilities';
-import { Button } from '@dailydotdev/shared';
+import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
+import { Button, ElementPlaceholder } from '@dailydotdev/shared';
 import ArrowIcon from '@dailydotdev/shared/icons/arrow.svg';
 import { getTooltipProps } from '../../lib/tooltip';
 import Link from 'next/link';

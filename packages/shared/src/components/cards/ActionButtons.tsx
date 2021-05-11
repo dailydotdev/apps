@@ -1,19 +1,19 @@
 import styles from '../../styles/cards.module.css';
 import React, { ReactElement, ReactNode } from 'react';
 import { Post } from '../../graphql/posts';
-import UpvoteIcon from '@dailydotdev/shared/icons/upvote.svg';
+import UpvoteIcon from '../../../icons/upvote.svg';
 import { getTooltipProps } from '../../lib/tooltip';
-import rem from '../../macros/rem.macro';
+import rem from '../../../macros/rem.macro';
 import InteractionCounter from '../InteractionCounter';
-import { QuaternaryButton } from '@dailydotdev/shared';
-import CommentIcon from '@dailydotdev/shared/icons/comment.svg';
+import { QuaternaryButton } from '../buttons/QuaternaryButton';
+import CommentIcon from '../../../icons/comment.svg';
 import Link from 'next/link';
-import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
-import { Button } from '@dailydotdev/shared';
+import BookmarkIcon from '../../../icons/bookmark.svg';
+import { Button } from '../buttons/Button';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 
-const ShareIcon = dynamic(() => import('@dailydotdev/shared/icons/share.svg'));
+const ShareIcon = dynamic(() => import('../../../icons/share.svg'));
 
 export type ActionButtonsProps = {
   post: Post;

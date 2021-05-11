@@ -4,7 +4,7 @@ import UpvoteIcon from '@dailydotdev/shared/icons/upvote.svg';
 import CommentIcon from '@dailydotdev/shared/icons/comment.svg';
 import TrashIcon from '@dailydotdev/shared/icons/trash.svg';
 import EditIcon from '@dailydotdev/shared/icons/edit.svg';
-import sizeN from '../../macros/sizeN.macro';
+import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import {
   CANCEL_COMMENT_UPVOTE_MUTATION,
   Comment,

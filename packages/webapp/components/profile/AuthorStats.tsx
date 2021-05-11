@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import { UserStats } from '../../graphql/users';
 import { ActivityContainer, ActivitySectionTitle } from './ActivitySection';
 import styled from '@emotion/styled';
-import sizeN from '../../macros/sizeN.macro';
+import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import { typoBody, typoSubhead } from '../../styles/typography';
 
 const OverallStats = styled.div`

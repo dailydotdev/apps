@@ -10,9 +10,9 @@ import GoogleIcon from '@dailydotdev/shared/icons/google.svg';
 import GitHubIcon from '@dailydotdev/shared/icons/github.svg';
 import JoinedDate from './JoinedDate';
 import styled from '@emotion/styled';
-import sizeN from '../../macros/sizeN.macro';
+import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import { typoCaption1 } from '../../styles/typography';
-import { FormErrorMessage } from '../utilities';
+import { FormErrorMessage } from '@dailydotdev/shared';
 
 export interface EditImageWithJoinedDateProps
   extends HTMLAttributes<HTMLDivElement> {

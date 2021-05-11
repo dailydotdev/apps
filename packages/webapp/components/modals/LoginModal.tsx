@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import styled from '@emotion/styled';
-import sizeN from '../../macros/sizeN.macro';
+import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import DailyDevLogo from '../svg/DailyDevLogo';
 import { typoCallout } from '../../styles/typography';
 import { StyledModal, ModalCloseButton, ModalProps } from '@dailydotdev/shared';

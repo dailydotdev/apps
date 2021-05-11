@@ -7,12 +7,7 @@ import { NextSeo } from 'next-seo';
 import Feed from '../components/Feed';
 import { BOOKMARKS_FEED_QUERY } from '../graphql/feed';
 import { headerHeight } from '../styles/sizes';
-import sizeN from '../macros/sizeN.macro';
-import {
-  CustomFeedHeader,
-  customFeedIcon,
-  FeedPage,
-} from '../components/utilities';
+import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import styled from '@emotion/styled';
 import { typoTitle1 } from '../styles/typography';
 import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
@@ -21,7 +16,12 @@ import { mainFeedLayoutProps } from '../components/layouts/MainFeedPage';
 import AuthContext from '../contexts/AuthContext';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { Button } from '@dailydotdev/shared';
+import {
+  Button,
+  CustomFeedHeader,
+  customFeedIcon,
+  FeedPage,
+} from '@dailydotdev/shared';
 
 const EmptyScreenContainer = styled.main`
   position: fixed;
