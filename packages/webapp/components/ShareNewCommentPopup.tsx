@@ -1,5 +1,5 @@
 import React, { ReactElement, useContext } from 'react';
-import AuthContext from '../contexts/AuthContext';
+import AuthContext from '../../shared/src/contexts/AuthContext';
 import TwitterIcon from '@dailydotdev/shared/icons/twitter.svg';
 import WhatsappIcon from '@dailydotdev/shared/icons/whatsapp.svg';
 import FacebookIcon from '@dailydotdev/shared/icons/facebook.svg';
@@ -13,7 +13,7 @@ import {
   getWhatsappShareLink,
 } from '@dailydotdev/shared/src/lib/share';
 import { Post } from '../graphql/posts';
-import { useCopyPostLink } from '../hooks/useCopyPostLink';
+import { useCopyPostLink } from '@dailydotdev/shared/src/hooks/useCopyPostLink';
 import {
   Button,
   ButtonProps,

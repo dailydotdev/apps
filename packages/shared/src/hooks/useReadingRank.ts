@@ -1,10 +1,10 @@
-import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import { LoggedUser } from '../lib/user';
 import { useContext, useEffect, useState } from 'react';
 import AuthContext from '../contexts/AuthContext';
 import { useQuery, useQueryClient } from 'react-query';
 import { MY_READING_RANK_QUERY, MyRankData } from '../graphql/users';
 import request from 'graphql-request';
-import { apiUrl } from '@dailydotdev/shared/src/lib/config';
+import { apiUrl } from '../lib/config';
 import usePersistentState from './usePersistentState';
 import { isThisISOWeek, isToday } from 'date-fns';
 

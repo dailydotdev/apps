@@ -36,8 +36,8 @@ import {
   updateProfile,
   UserProfile,
 } from '@dailydotdev/shared/src/lib/user';
-import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
-import AuthContext from '../../contexts/AuthContext';
+import ProgressiveEnhancementContext from '../../../shared/src/contexts/ProgressiveEnhancementContext';
+import AuthContext from '../../../shared/src/contexts/AuthContext';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
 import dynamic from 'next/dynamic';
 

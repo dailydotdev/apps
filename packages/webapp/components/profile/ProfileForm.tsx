@@ -15,7 +15,7 @@ import { focusOutline } from '../../styles/helpers';
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
 import ArrowIcon from '@dailydotdev/shared/icons/arrow.svg';
-import AuthContext from '../../contexts/AuthContext';
+import AuthContext from '../../../shared/src/contexts/AuthContext';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
 
 export type RegistrationMode = 'default' | 'author' | 'update';

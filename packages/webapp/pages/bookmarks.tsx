@@ -13,7 +13,7 @@ import { typoTitle1 } from '../styles/typography';
 import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
 import { getLayout } from '../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../components/layouts/MainFeedPage';
-import AuthContext from '../contexts/AuthContext';
+import AuthContext from '../../shared/src/contexts/AuthContext';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';

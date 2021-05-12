@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
-import AuthContext from '../contexts/AuthContext';
+import AuthContext from '../../shared/src/contexts/AuthContext';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import CommentActionButtons, {
   Props,

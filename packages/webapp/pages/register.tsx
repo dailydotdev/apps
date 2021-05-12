@@ -4,7 +4,7 @@ import { NextSeo } from 'next-seo';
 import MainLayout from '../components/layouts/MainLayout';
 import { typoCallout } from '../styles/typography';
 import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
-import AuthContext from '../contexts/AuthContext';
+import AuthContext from '../../shared/src/contexts/AuthContext';
 import { useRouter } from 'next/router';
 import EditImageWithJoinedDate from '../components/profile/EditImageWithJoinedDate';
 import ProfileForm, {

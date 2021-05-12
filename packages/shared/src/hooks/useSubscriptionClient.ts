@@ -16,7 +16,7 @@ export default function useSubscriptionClient(
     if (ready) {
       requestIdleCallback(() => {
         import(
-          /* webpackChunkName: "subscriptions" */ '../graphql/subscriptions'
+          /* webpackChunkName: "subscriptions" */ '../../../webapp/graphql/subscriptions'
         ).then(({ subscriptionClient }) => {
           setSubscriptionClient(subscriptionClient);
           subscriptionClient.onConnected(() => setConnected(true));

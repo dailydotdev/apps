@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import CopyIcon from '@dailydotdev/shared/icons/copy.svg';
 import ShareIcon from '@dailydotdev/shared/icons/share.svg';
-import { useCopyPostLink } from '../hooks/useCopyPostLink';
+import { useCopyPostLink } from '@dailydotdev/shared/src/hooks/useCopyPostLink';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 
 export interface Props {

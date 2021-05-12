@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, RenderResult, screen } from '@testing-library/preact';
-import OnboardingContext from '../contexts/OnboardingContext';
-import AuthContext from '../contexts/AuthContext';
+import OnboardingContext from '../../shared/src/contexts/OnboardingContext';
+import AuthContext from '../../shared/src/contexts/AuthContext';
 import Sidebar from '../components/Sidebar';
 import { QueryClient, QueryClientProvider } from 'react-query';
 

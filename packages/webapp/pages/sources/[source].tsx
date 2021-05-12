@@ -22,13 +22,13 @@ import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import Custom404 from '../404';
 import useMutateFilters, {
   getSourcesSettingsQueryKey,
-} from '../../hooks/useMutateFilters';
+} from '@dailydotdev/shared/src/hooks/useMutateFilters';
 import { useQuery } from 'react-query';
 import {
   FeedSettingsData,
   SOURCES_SETTINGS_QUERY,
 } from '../../graphql/feedSettings';
-import AuthContext from '../../contexts/AuthContext';
+import AuthContext from '../../../shared/src/contexts/AuthContext';
 import {
   Button,
   ButtonProps,

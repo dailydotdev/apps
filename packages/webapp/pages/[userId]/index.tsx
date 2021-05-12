@@ -35,7 +35,7 @@ import {
   ActivityContainer,
   ActivitySectionTitle,
 } from '../../components/profile/ActivitySection';
-import AuthContext from '../../contexts/AuthContext';
+import AuthContext from '../../../shared/src/contexts/AuthContext';
 import dynamic from 'next/dynamic';
 import Rank from '../../components/Rank';
 import { RANK_NAMES } from '@dailydotdev/shared/src/lib/rank';
@@ -43,9 +43,9 @@ import CommentsSection from '../../components/profile/CommentsSection';
 import PostsSection from '../../components/profile/PostsSection';
 import AuthorStats from '../../components/profile/AuthorStats';
 import CalendarHeatmap from '../../components/CalendarHeatmap';
-import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
+import ProgressiveEnhancementContext from '../../../shared/src/contexts/ProgressiveEnhancementContext';
 import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
-import useMedia from '../../hooks/useMedia';
+import useMedia from '@dailydotdev/shared/src/hooks/useMedia';
 import { laptop } from '../../styles/media';
 import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 

@@ -5,7 +5,7 @@ import {
 } from '../graphql/posts';
 import { useMutation } from 'react-query';
 import request from 'graphql-request';
-import { apiUrl } from '@dailydotdev/shared/src/lib/config';
+import { apiUrl } from '../lib/config';
 
 type UseReportPostRet = {
   reportPost: (variables: {

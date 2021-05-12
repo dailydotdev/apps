@@ -1,5 +1,5 @@
 import React, { ReactElement, useContext } from 'react';
-import AuthContext from '../../contexts/AuthContext';
+import AuthContext from '../../../shared/src/contexts/AuthContext';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { Roles } from '@dailydotdev/shared/src/lib/user';
 import { useQuery } from 'react-query';
@@ -14,7 +14,7 @@ import styled from '@emotion/styled';
 import { typoTitle3 } from '../../styles/typography';
 import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
 import KeywordManagement from '../../components/KeywordManagement';
-import useRequirePermissions from '../../hooks/useRequirePermissions';
+import useRequirePermissions from '@dailydotdev/shared/src/hooks/useRequirePermissions';
 
 const EmptyScreen = styled.div`
   font-weight: bold;

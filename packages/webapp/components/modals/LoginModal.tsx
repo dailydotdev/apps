@@ -10,6 +10,7 @@ import {
 } from '@dailydotdev/shared/src/components/modals/StyledModal';
 import { ModalCloseButton } from '@dailydotdev/shared/src/components/modals/ModalCloseButton';
 import LoginButtons from '../LoginButtons';
+import { LoginModalMode } from '@dailydotdev/shared/src/types/LoginModalMode';
 
 const MyModal = styled(StyledModal)`
   .modal {
@@ -27,11 +28,6 @@ const Content = styled.div`
   text-align: center;
   ${typoCallout}
 `;
-
-export enum LoginModalMode {
-  Default,
-  ContentQuality,
-}
 
 export type LoginModalProps = { mode: LoginModalMode } & ModalProps;
 

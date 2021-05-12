@@ -4,7 +4,7 @@ import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import rem from '@dailydotdev/shared/macros/rem.macro';
 import XIcon from '@dailydotdev/shared/icons/x.svg';
 import EditImageWithJoinedDate from '../profile/EditImageWithJoinedDate';
-import AuthContext from '../../contexts/AuthContext';
+import AuthContext from '../../../shared/src/contexts/AuthContext';
 import ProfileForm from '../profile/ProfileForm';
 import { typoFootnote } from '../../styles/typography';
 import {

@@ -2,7 +2,7 @@ import React from 'react';
 import { LoggedUser, updateProfile } from '@dailydotdev/shared/src/lib/user';
 import AccountDetailsModal from '../../components/modals/AccountDetailsModal';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
-import AuthContext from '../../contexts/AuthContext';
+import AuthContext from '../../../shared/src/contexts/AuthContext';
 import { mocked } from 'ts-jest/utils';
 
 jest.mock('@dailydotdev/shared/src/lib/user', () => ({

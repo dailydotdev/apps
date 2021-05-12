@@ -5,7 +5,7 @@ import HomeIcon from '@dailydotdev/shared/icons/home.svg';
 import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
 import FilterIcon from '@dailydotdev/shared/icons/filter.svg';
 import LayoutIcon from '@dailydotdev/shared/icons/layout.svg';
-import AuthContext from '../contexts/AuthContext';
+import AuthContext from '../../shared/src/contexts/AuthContext';
 import { useRouter } from 'next/router';
 import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';

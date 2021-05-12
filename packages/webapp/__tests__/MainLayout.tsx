@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, RenderResult, screen } from '@testing-library/preact';
 import MainLayout from '../components/layouts/MainLayout';
-import AuthContext from '../contexts/AuthContext';
+import AuthContext from '../../shared/src/contexts/AuthContext';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 
 const showLogin = jest.fn();

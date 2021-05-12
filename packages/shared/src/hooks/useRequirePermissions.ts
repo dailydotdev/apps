@@ -1,4 +1,4 @@
-import { Roles } from '@dailydotdev/shared/src/lib/user';
+import { Roles } from '../lib/user';
 import { useContext, useEffect } from 'react';
 import AuthContext from '../contexts/AuthContext';
 import { useRouter } from 'next/router';

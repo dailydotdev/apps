@@ -3,14 +3,14 @@ import { useEffect, useState } from 'react';
 import { SettingsContextData } from '../contexts/SettingsContext';
 import { useMutation, useQuery } from 'react-query';
 import request from 'graphql-request';
-import { apiUrl } from '@dailydotdev/shared/src/lib/config';
+import { apiUrl } from '../lib/config';
 import {
   RemoteSettings,
   Spaciness,
   UPDATE_USER_SETTINGS_MUTATION,
   USER_SETTINGS_QUERY,
   UserSettingsData,
-} from '../graphql/settings';
+} from '../../../webapp/graphql/settings';
 
 type Settings = {
   spaciness: Spaciness;

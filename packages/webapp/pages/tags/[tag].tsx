@@ -18,7 +18,7 @@ import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { NextSeo } from 'next-seo';
 import Feed from '../../components/Feed';
 import { TAG_FEED_QUERY } from '../../graphql/feed';
-import AuthContext from '../../contexts/AuthContext';
+import AuthContext from '../../../shared/src/contexts/AuthContext';
 import { useQuery } from 'react-query';
 import request from 'graphql-request';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
@@ -37,7 +37,7 @@ import {
 } from '@dailydotdev/shared/src/components/utilities';
 import useMutateFilters, {
   getTagsSettingsQueryKey,
-} from '../../hooks/useMutateFilters';
+} from '@dailydotdev/shared/src/hooks/useMutateFilters';
 import { trackEvent } from '@dailydotdev/shared/src/lib/analytics';
 
 type TagPageProps = { tag: string };

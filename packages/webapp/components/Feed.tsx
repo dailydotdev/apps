@@ -7,16 +7,19 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import useFeed, { FeedItem, PostItem } from '../hooks/useFeed';
+import useFeed, {
+  FeedItem,
+  PostItem,
+} from '@dailydotdev/shared/src/hooks/useFeed';
 import { Ad, Post } from '../graphql/posts';
-import AuthContext from '../contexts/AuthContext';
+import AuthContext from '../../shared/src/contexts/AuthContext';
 import { useMutation } from 'react-query';
 import request from 'graphql-request';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
-import { LoginModalMode } from './modals/LoginModal';
+import { LoginModalMode } from '@dailydotdev/shared/src/types/LoginModalMode';
 import { useInView } from 'react-intersection-observer';
-import FeedContext from '../contexts/FeedContext';
-import useIncrementReadingRank from '../hooks/useIncrementReadingRank';
+import FeedContext from '../../shared/src/contexts/FeedContext';
+import useIncrementReadingRank from '@dailydotdev/shared/src/hooks/useIncrementReadingRank';
 import {
   logReadArticle,
   logRevenue,
@@ -27,14 +30,14 @@ import dynamic from 'next/dynamic';
 import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 import styles from '../styles/feed.module.css';
 import classNames from 'classnames';
-import SettingsContext from '../contexts/SettingsContext';
-import useUpvotePost from '../hooks/useUpvotePost';
-import useBookmarkPost from '../hooks/useBookmarkPost';
+import SettingsContext from '../../shared/src/contexts/SettingsContext';
+import useUpvotePost from '@dailydotdev/shared/src/hooks/useUpvotePost';
+import useBookmarkPost from '@dailydotdev/shared/src/hooks/useBookmarkPost';
 import OnboardingContext, {
   EngagementAction,
-} from '../contexts/OnboardingContext';
+} from '../../shared/src/contexts/OnboardingContext';
 import { Spaciness } from '../graphql/settings';
-import useReportPostMenu from '../hooks/useReportPostMenu';
+import useReportPostMenu from '@dailydotdev/shared/src/hooks/useReportPostMenu';
 import { PostCard } from '@dailydotdev/shared/src/components/cards/PostCard';
 import { AdCard } from '@dailydotdev/shared/src/components/cards/AdCard';
 import { PlaceholderCard } from '@dailydotdev/shared/src/components/cards/PlaceholderCard';

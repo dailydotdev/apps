@@ -2,10 +2,10 @@ import {
   EngagementAction,
   OnboardingContextData,
 } from '../contexts/OnboardingContext';
-import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import { LoggedUser } from '../lib/user';
 import usePersistentState from './usePersistentState';
 import { useEffect, useState } from 'react';
-import { trackEvent } from '@dailydotdev/shared/src/lib/analytics';
+import { trackEvent } from '../lib/analytics';
 
 export default function useOnboarding(
   user?: LoggedUser,

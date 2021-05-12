@@ -8,7 +8,7 @@ import {
   screen,
   waitFor,
 } from '@testing-library/preact';
-import AuthContext from '../contexts/AuthContext';
+import AuthContext from '../../shared/src/contexts/AuthContext';
 import { mocked } from 'ts-jest/utils';
 
 jest.mock('@dailydotdev/shared/src/lib/user', () => ({

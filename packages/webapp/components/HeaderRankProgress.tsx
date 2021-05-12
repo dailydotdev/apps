@@ -5,11 +5,11 @@ import React, {
   useState,
 } from 'react';
 import RankProgress from './RankProgress';
-import useReadingRank from '../hooks/useReadingRank';
+import useReadingRank from '@dailydotdev/shared/src/hooks/useReadingRank';
 import dynamic from 'next/dynamic';
-import AuthContext from '../contexts/AuthContext';
+import AuthContext from '../../shared/src/contexts/AuthContext';
 import { STEPS_PER_RANK } from '@dailydotdev/shared/src/lib/rank';
-import OnboardingContext from '../contexts/OnboardingContext';
+import OnboardingContext from '../../shared/src/contexts/OnboardingContext';
 import Rank from './Rank';
 import classNames from 'classnames';
 import styles from '../styles/headerRankProgress.module.css';

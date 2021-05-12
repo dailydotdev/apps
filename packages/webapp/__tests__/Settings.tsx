@@ -9,8 +9,8 @@ import {
   screen,
   waitFor,
 } from '@testing-library/preact';
-import useSettings from '../hooks/useSettings';
-import SettingsContext from '../contexts/SettingsContext';
+import useSettings from '@dailydotdev/shared/src/hooks/useSettings';
+import SettingsContext from '../../shared/src/contexts/SettingsContext';
 import Settings from '../components/Settings';
 import {
   RemoteSettings,

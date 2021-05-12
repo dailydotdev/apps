@@ -2,7 +2,7 @@ import { FeedData } from '../graphql/posts';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
 import { SOURCE_FEED_QUERY } from '../graphql/feed';
 import nock from 'nock';
-import AuthContext from '../contexts/AuthContext';
+import AuthContext from '../../shared/src/contexts/AuthContext';
 import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import defaultFeedPage from './fixture/feed';
@@ -15,15 +15,15 @@ import SourcePage from '../pages/sources/[source]';
 import { Source } from '../graphql/sources';
 import SettingsContext, {
   SettingsContextData,
-} from '../contexts/SettingsContext';
+} from '../../shared/src/contexts/SettingsContext';
 import {
   FeedSettings,
   FeedSettingsData,
   REMOVE_FILTERS_FROM_FEED_MUTATION,
   SOURCES_SETTINGS_QUERY,
 } from '../graphql/feedSettings';
-import { getSourcesSettingsQueryKey } from '../hooks/useMutateFilters';
-import OnboardingContext from '../contexts/OnboardingContext';
+import { getSourcesSettingsQueryKey } from '@dailydotdev/shared/src/hooks/useMutateFilters';
+import OnboardingContext from '../../shared/src/contexts/OnboardingContext';
 
 const showLogin = jest.fn();
 

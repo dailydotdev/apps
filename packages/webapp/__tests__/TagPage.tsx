@@ -2,7 +2,7 @@ import { FeedData } from '../graphql/posts';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
 import { TAG_FEED_QUERY } from '../graphql/feed';
 import nock from 'nock';
-import AuthContext from '../contexts/AuthContext';
+import AuthContext from '../../shared/src/contexts/AuthContext';
 import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import defaultFeedPage from './fixture/feed';
@@ -18,11 +18,11 @@ import {
   FeedSettingsData,
   TAGS_SETTINGS_QUERY,
 } from '../graphql/feedSettings';
-import { getTagsSettingsQueryKey } from '../hooks/useMutateFilters';
+import { getTagsSettingsQueryKey } from '@dailydotdev/shared/src/hooks/useMutateFilters';
 import SettingsContext, {
   SettingsContextData,
-} from '../contexts/SettingsContext';
-import OnboardingContext from '../contexts/OnboardingContext';
+} from '../../shared/src/contexts/SettingsContext';
+import OnboardingContext from '../../shared/src/contexts/OnboardingContext';
 
 const showLogin = jest.fn();
 

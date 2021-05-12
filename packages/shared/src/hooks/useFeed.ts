@@ -14,7 +14,7 @@ import {
   PostsEngaged,
 } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
-import { apiUrl } from '@dailydotdev/shared/src/lib/config';
+import { apiUrl } from '../lib/config';
 import useSubscription from './useSubscription';
 
 export type PostItem = { type: 'post'; post: Post };

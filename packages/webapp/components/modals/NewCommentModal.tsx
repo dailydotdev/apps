@@ -13,7 +13,7 @@ import dynamic from 'next/dynamic';
 import styled from '@emotion/styled';
 import cloneDeep from 'lodash.clonedeep';
 import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
-import AuthContext from '../../contexts/AuthContext';
+import AuthContext from '../../../shared/src/contexts/AuthContext';
 import { commentBoxClassNames } from '../comments/common';
 import {
   typoCallout,

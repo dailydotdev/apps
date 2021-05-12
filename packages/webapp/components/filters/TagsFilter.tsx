@@ -5,7 +5,7 @@ import React, {
   useEffect,
   useMemo,
 } from 'react';
-import AuthContext from '../../contexts/AuthContext';
+import AuthContext from '../../../shared/src/contexts/AuthContext';
 import { useQuery, useQueryClient } from 'react-query';
 import {
   ALL_TAGS_AND_SETTINGS_QUERY,
@@ -21,7 +21,7 @@ import useMutateFilters, {
   getTagsSettingsQueryKey,
   getTagsFiltersQueryKey,
   getSearchTagsQueryKey,
-} from '../../hooks/useMutateFilters';
+} from '@dailydotdev/shared/src/hooks/useMutateFilters';
 import { trackEvent } from '@dailydotdev/shared/src/lib/analytics';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';

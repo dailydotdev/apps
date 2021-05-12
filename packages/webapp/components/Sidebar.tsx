@@ -4,7 +4,7 @@ import ArrowIcon from '@dailydotdev/shared/icons/arrow.svg';
 import classNames from 'classnames';
 import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 import FeedFilters from './filters/FeedFilters';
-import OnboardingContext from '../contexts/OnboardingContext';
+import OnboardingContext from '../../shared/src/contexts/OnboardingContext';
 
 const asideWidth = sizeN(89);
 

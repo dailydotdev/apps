@@ -43,7 +43,7 @@ import {
   PostsEngaged,
 } from '../../graphql/posts';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
-import AuthContext from '../../contexts/AuthContext';
+import AuthContext from '../../../shared/src/contexts/AuthContext';
 import MainComment from '../../components/comments/MainComment';
 import {
   Comment,
@@ -60,17 +60,17 @@ import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import { ProfileLink } from '../../components/profile/ProfileLink';
 import { ownershipGuide } from '@dailydotdev/shared/src/lib/constants';
 import { QuaternaryButton } from '@dailydotdev/shared/src/components/buttons/QuaternaryButton';
-import { LoginModalMode } from '../../components/modals/LoginModal';
+import { LoginModalMode } from '@dailydotdev/shared/src/types/LoginModalMode';
 import {
   logReadArticle,
   trackEvent,
 } from '@dailydotdev/shared/src/lib/analytics';
-import useSubscription from '../../hooks/useSubscription';
+import useSubscription from '@dailydotdev/shared/src/hooks/useSubscription';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 import Link from 'next/link';
-import useUpvotePost from '../../hooks/useUpvotePost';
-import useBookmarkPost from '../../hooks/useBookmarkPost';
+import useUpvotePost from '@dailydotdev/shared/src/hooks/useUpvotePost';
+import useBookmarkPost from '@dailydotdev/shared/src/hooks/useBookmarkPost';
 import styles from '../../styles/postPage.module.css';
 import classNames from 'classnames';
 

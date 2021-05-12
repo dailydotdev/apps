@@ -4,7 +4,7 @@ import WhatsappIcon from '@dailydotdev/shared/icons/whatsapp_color.svg';
 import TwitterIcon from '@dailydotdev/shared/icons/twitter_color.svg';
 import FacebookIcon from '@dailydotdev/shared/icons/facebook_color.svg';
 import { Post } from '../graphql/posts';
-import { useCopyPostLink } from '../hooks/useCopyPostLink';
+import { useCopyPostLink } from '@dailydotdev/shared/src/hooks/useCopyPostLink';
 import {
   getFacebookShareLink,
   getShareableLink,

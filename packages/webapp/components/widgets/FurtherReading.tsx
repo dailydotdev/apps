@@ -1,7 +1,7 @@
 import React, { ReactElement, useContext } from 'react';
 import SimilarPosts from './SimilarPosts';
 import classNames from 'classnames';
-import AuthContext from '../../contexts/AuthContext';
+import AuthContext from '../../../shared/src/contexts/AuthContext';
 import { QueryClient, useQuery, useQueryClient } from 'react-query';
 import {
   FURTHER_READING_QUERY,
@@ -9,7 +9,7 @@ import {
 } from '../../graphql/furtherReading';
 import request from 'graphql-request';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
-import useBookmarkPost from '../../hooks/useBookmarkPost';
+import useBookmarkPost from '@dailydotdev/shared/src/hooks/useBookmarkPost';
 import { Post } from '../../graphql/posts';
 import { trackEvent } from '@dailydotdev/shared/src/lib/analytics';
 import BestDiscussions from './BestDiscussions';

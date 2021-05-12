@@ -1,6 +1,6 @@
 import { MockedGraphQLResponse, mockGraphQL } from '../helpers/graphql';
 import nock from 'nock';
-import AuthContext from '../../contexts/AuthContext';
+import AuthContext from '../../../shared/src/contexts/AuthContext';
 import React from 'react';
 import {
   findAllByRole,
@@ -23,7 +23,7 @@ import {
   SEARCH_TAGS_QUERY,
   TagsData,
 } from '../../graphql/feedSettings';
-import { getTagsSettingsQueryKey } from '../../hooks/useMutateFilters';
+import { getTagsSettingsQueryKey } from '@dailydotdev/shared/src/hooks/useMutateFilters';
 
 const showLogin = jest.fn();
 

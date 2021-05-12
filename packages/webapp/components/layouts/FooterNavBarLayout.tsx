@@ -1,8 +1,8 @@
 import React, { ReactElement, ReactNode, useContext } from 'react';
 import { laptop } from '../../styles/media';
-import useMedia from '../../hooks/useMedia';
+import useMedia from '@dailydotdev/shared/src/hooks/useMedia';
 import dynamic from 'next/dynamic';
-import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
+import ProgressiveEnhancementContext from '../../../shared/src/contexts/ProgressiveEnhancementContext';
 
 export const footerNavBarBreakpoint = laptop;
 

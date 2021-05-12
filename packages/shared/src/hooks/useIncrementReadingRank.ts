@@ -3,7 +3,7 @@ import { useContext } from 'react';
 import AuthContext from '../contexts/AuthContext';
 import { getRankQueryKey } from './useReadingRank';
 import { MyRankData } from '../graphql/users';
-import { STEPS_PER_RANK } from '@dailydotdev/shared/src/lib/rank';
+import { STEPS_PER_RANK } from '../lib/rank';
 
 type ReturnType = {
   incrementReadingRank: () => MyRankData;

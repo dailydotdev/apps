@@ -4,8 +4,8 @@ import {
   initializeAnalyticsQueue,
   loadAnalyticsScript,
   trackPageView,
-} from '@dailydotdev/shared/src/lib/analytics';
-import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+} from '../lib/analytics';
+import { LoggedUser } from '../lib/user';
 
 export default function useAnalytics(
   trackingId: string,

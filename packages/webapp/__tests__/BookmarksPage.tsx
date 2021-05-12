@@ -2,7 +2,7 @@ import { FeedData } from '../graphql/posts';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
 import { BOOKMARKS_FEED_QUERY } from '../graphql/feed';
 import nock from 'nock';
-import AuthContext from '../contexts/AuthContext';
+import AuthContext from '../../shared/src/contexts/AuthContext';
 import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import defaultFeedPage from './fixture/feed';
@@ -15,8 +15,8 @@ import { NextRouter, useRouter } from 'next/router';
 import { mocked } from 'ts-jest/utils';
 import SettingsContext, {
   SettingsContextData,
-} from '../contexts/SettingsContext';
-import OnboardingContext from '../contexts/OnboardingContext';
+} from '../../shared/src/contexts/SettingsContext';
+import OnboardingContext from '../../shared/src/contexts/OnboardingContext';
 
 const showLogin = jest.fn();
 const routerReplace = jest.fn();

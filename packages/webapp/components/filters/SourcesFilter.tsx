@@ -16,11 +16,11 @@ import {
   FiltersSection,
   GoToFilterButton,
 } from './common';
-import AuthContext from '../../contexts/AuthContext';
+import AuthContext from '../../../shared/src/contexts/AuthContext';
 import useMutateFilters, {
   getSourcesFiltersQueryKey,
   getSourcesSettingsQueryKey,
-} from '../../hooks/useMutateFilters';
+} from '@dailydotdev/shared/src/hooks/useMutateFilters';
 import {
   ALL_SOURCES_AND_SETTINGS_QUERY,
   ALL_SOURCES_QUERY,
@@ -35,7 +35,7 @@ import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import { trackEvent } from '@dailydotdev/shared/src/lib/analytics';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import PlusIcon from '@dailydotdev/shared/icons/plus.svg';
-import { LoginModalMode } from '../modals/LoginModal';
+import { LoginModalMode } from '@dailydotdev/shared/src/types/LoginModalMode';
 import dynamic from 'next/dynamic';
 
 const NewSourceModal = dynamic(() => import('../modals/NewSourceModal'));

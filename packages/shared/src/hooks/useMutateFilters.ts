@@ -1,15 +1,15 @@
-import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import { LoggedUser } from '../lib/user';
 import { QueryClient, useMutation, useQueryClient } from 'react-query';
 import request from 'graphql-request';
-import { apiUrl } from '@dailydotdev/shared/src/lib/config';
+import { apiUrl } from '../lib/config';
 import {
   ADD_FILTERS_TO_FEED_MUTATION,
   FeedSettings,
   FeedSettingsData,
   REMOVE_FILTERS_FROM_FEED_MUTATION,
-} from '../graphql/feedSettings';
+} from '../../../webapp/graphql/feedSettings';
 import cloneDeep from 'lodash.clonedeep';
-import { Source } from '../graphql/sources';
+import { Source } from '../../../webapp/graphql/sources';
 
 export const getTagsFiltersQueryKey = (user?: LoggedUser): string[] => [
   user?.id,
