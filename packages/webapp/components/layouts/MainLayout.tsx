@@ -7,14 +7,14 @@ import React, {
 } from 'react';
 import Link from 'next/link';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
-import AuthContext from '../../../shared/src/contexts/AuthContext';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
 import LayoutIcon from '@dailydotdev/shared/icons/layout.svg';
 import Logo from '@dailydotdev/shared/src/svg/Logo';
 import LogoTextBeta from '@dailydotdev/shared/src/svg/LogoTextBeta';
 import dynamic from 'next/dynamic';
-import ProgressiveEnhancementContext from '../../../shared/src/contexts/ProgressiveEnhancementContext';
+import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import styles from '../../styles/mainLayout.module.css';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';

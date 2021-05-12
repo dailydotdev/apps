@@ -5,7 +5,7 @@ import React, {
   useEffect,
   useMemo,
 } from 'react';
-import AuthContext from '../../../shared/src/contexts/AuthContext';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useQuery, useQueryClient } from 'react-query';
 import {
   ALL_TAGS_AND_SETTINGS_QUERY,

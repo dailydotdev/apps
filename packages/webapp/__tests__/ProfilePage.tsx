@@ -6,7 +6,7 @@ import {
 } from '../graphql/comments';
 import ProfilePage from '../pages/[userId]/index';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
-import AuthContext from '../../shared/src/contexts/AuthContext';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
 import nock from 'nock';

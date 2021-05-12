@@ -11,7 +11,7 @@ import {
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
 import { ANONYMOUS_FEED_QUERY } from '../graphql/feed';
 import nock from 'nock';
-import AuthContext from '../../shared/src/contexts/AuthContext';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React from 'react';
 import {
   findAllByRole,
@@ -36,8 +36,8 @@ import { SubscriptionCallbacks } from '@dailydotdev/shared/src/hooks/useSubscrip
 import { COMMENT_ON_POST_MUTATION } from '../graphql/comments';
 import SettingsContext, {
   SettingsContextData,
-} from '../../shared/src/contexts/SettingsContext';
-import OnboardingContext from '../../shared/src/contexts/OnboardingContext';
+} from '@dailydotdev/shared/src/contexts/SettingsContext';
+import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;

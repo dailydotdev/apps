@@ -14,7 +14,7 @@ import { useQuery } from 'react-query';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import Feed, { FeedProps } from '../Feed';
-import AuthContext from '../../../shared/src/contexts/AuthContext';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getLayout } from './FeedLayout';
 import {
   getSourcesSettingsQueryKey,
@@ -22,7 +22,7 @@ import {
 } from '@dailydotdev/shared/src/hooks/useMutateFilters';
 import { FeedSettingsData } from '../../graphql/feedSettings';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
-import OnboardingContext from '../../../shared/src/contexts/OnboardingContext';
+import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import MagnifyingIcon from '@dailydotdev/shared/icons/magnifying.svg';
 import { SEARCH_POSTS_QUERY } from '../../graphql/feed';
 import {

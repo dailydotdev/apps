@@ -22,22 +22,22 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import Seo from '../next-seo';
 import AuthContext, {
   AuthContextData,
-} from '../../shared/src/contexts/AuthContext';
+} from '@dailydotdev/shared/src/contexts/AuthContext';
 import { logout as dispatchLogout } from '@dailydotdev/shared/src/lib/user';
 import { Router } from 'next/router';
 import { useCookieBanner } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import useLoggedUser from '@dailydotdev/shared/src/hooks/useLoggedUser';
 import { LoginModalMode } from '@dailydotdev/shared/src/types/LoginModalMode';
-import ProgressiveEnhancementContext from '../../shared/src/contexts/ProgressiveEnhancementContext';
+import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { trackPageView } from '@dailydotdev/shared/src/lib/analytics';
 import useOnboarding from '@dailydotdev/shared/src/hooks/useOnboarding';
-import OnboardingContext from '../../shared/src/contexts/OnboardingContext';
-import SubscriptionContext from '../../shared/src/contexts/SubscriptionContext';
+import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
+import SubscriptionContext from '@dailydotdev/shared/src/contexts/SubscriptionContext';
 import useSubscriptionClient from '@dailydotdev/shared/src/hooks/useSubscriptionClient';
 import useProgressiveEnhancement from '@dailydotdev/shared/src/hooks/useProgressiveEnhancement';
 import { canonicalFromRouter } from '@dailydotdev/shared/src/lib/canonical';
 import useSettings from '@dailydotdev/shared/src/hooks/useSettings';
-import SettingsContext from '../../shared/src/contexts/SettingsContext';
+import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import '../styles/globals.css';
 import useAnalytics from '@dailydotdev/shared/src/hooks/useAnalytics';
 

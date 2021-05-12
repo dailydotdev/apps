@@ -7,9 +7,9 @@ import React, {
 import RankProgress from './RankProgress';
 import useReadingRank from '@dailydotdev/shared/src/hooks/useReadingRank';
 import dynamic from 'next/dynamic';
-import AuthContext from '../../shared/src/contexts/AuthContext';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { STEPS_PER_RANK } from '@dailydotdev/shared/src/lib/rank';
-import OnboardingContext from '../../shared/src/contexts/OnboardingContext';
+import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import Rank from './Rank';
 import classNames from 'classnames';
 import styles from '../styles/headerRankProgress.module.css';

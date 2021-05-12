@@ -1,7 +1,7 @@
 import React, { ReactElement, useContext } from 'react';
 import SimilarPosts from './SimilarPosts';
 import classNames from 'classnames';
-import AuthContext from '../../../shared/src/contexts/AuthContext';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { QueryClient, useQuery, useQueryClient } from 'react-query';
 import {
   FURTHER_READING_QUERY,

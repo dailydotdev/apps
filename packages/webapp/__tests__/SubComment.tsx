@@ -1,6 +1,6 @@
 import React from 'react';
 import { screen, render, RenderResult, waitFor } from '@testing-library/preact';
-import AuthContext from '../../shared/src/contexts/AuthContext';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import SubComment, { Props } from '../components/comments/SubComment';
 import { QueryClient, QueryClientProvider } from 'react-query';

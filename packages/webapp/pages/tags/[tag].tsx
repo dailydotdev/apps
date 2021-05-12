@@ -18,7 +18,7 @@ import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { NextSeo } from 'next-seo';
 import Feed from '../../components/Feed';
 import { TAG_FEED_QUERY } from '../../graphql/feed';
-import AuthContext from '../../../shared/src/contexts/AuthContext';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useQuery } from 'react-query';
 import request from 'graphql-request';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';

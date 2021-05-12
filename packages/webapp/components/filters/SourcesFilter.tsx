@@ -16,7 +16,7 @@ import {
   FiltersSection,
   GoToFilterButton,
 } from './common';
-import AuthContext from '../../../shared/src/contexts/AuthContext';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import useMutateFilters, {
   getSourcesFiltersQueryKey,
   getSourcesSettingsQueryKey,

@@ -2,7 +2,7 @@ import { FeedData } from '../graphql/posts';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
 import { MOST_DISCUSSED_FEED_QUERY } from '../graphql/feed';
 import nock from 'nock';
-import AuthContext from '../../shared/src/contexts/AuthContext';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import defaultFeedPage from './fixture/feed';
@@ -11,10 +11,10 @@ import ad from './fixture/ad';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import Discussed from '../pages/discussed';
-import OnboardingContext from '../../shared/src/contexts/OnboardingContext';
+import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import SettingsContext, {
   SettingsContextData,
-} from '../../shared/src/contexts/SettingsContext';
+} from '@dailydotdev/shared/src/contexts/SettingsContext';
 
 const showLogin = jest.fn();
 

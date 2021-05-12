@@ -1,7 +1,7 @@
 import React from 'react';
 import { LoggedUser, PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
-import AuthContext from '../../shared/src/contexts/AuthContext';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import ProfileLayout from '../components/layouts/ProfileLayout';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { mockGraphQL } from './helpers/graphql';

@@ -5,11 +5,11 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import defaultUser from './fixture/loggedUser';
-import AuthContext from '../../shared/src/contexts/AuthContext';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import nock from 'nock';
 import { MY_READING_RANK_QUERY, MyRankData } from '../graphql/users';
 import { set as setCache } from 'idb-keyval';
-import OnboardingContext from '../../shared/src/contexts/OnboardingContext';
+import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 
 jest.mock('@dailydotdev/shared/src/hooks/usePersistentState', () => {
   const originalModule = jest.requireActual(

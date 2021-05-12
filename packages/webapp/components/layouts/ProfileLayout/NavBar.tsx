@@ -7,7 +7,7 @@ import { pageMaxWidth } from '../../../styles/helpers';
 import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { FlippedProps, FlipperProps } from 'flip-toolkit/lib/types';
 import dynamicParent from '@dailydotdev/shared/src/lib/dynamicParent';
-import ProgressiveEnhancementContext from '../../../../shared/src/contexts/ProgressiveEnhancementContext';
+import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 

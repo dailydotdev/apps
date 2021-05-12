@@ -13,7 +13,7 @@ import Custom404 from '../../404';
 import { useQuery } from 'react-query';
 import useRequirePermissions from '@dailydotdev/shared/src/hooks/useRequirePermissions';
 import { Roles } from '@dailydotdev/shared/src/lib/user';
-import AuthContext from '../../../../shared/src/contexts/AuthContext';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import KeywordManagement from '../../../components/KeywordManagement';
 
 export type KeywordPageProps = { keyword: string };

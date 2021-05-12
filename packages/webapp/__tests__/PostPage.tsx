@@ -19,7 +19,7 @@ import {
   REMOVE_BOOKMARK_MUTATION,
   UPVOTE_MUTATION,
 } from '../graphql/posts';
-import AuthContext from '../../shared/src/contexts/AuthContext';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { POST_COMMENTS_QUERY, PostCommentsData } from '../graphql/comments';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';

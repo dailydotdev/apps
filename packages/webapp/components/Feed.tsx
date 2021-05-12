@@ -12,13 +12,13 @@ import useFeed, {
   PostItem,
 } from '@dailydotdev/shared/src/hooks/useFeed';
 import { Ad, Post } from '../graphql/posts';
-import AuthContext from '../../shared/src/contexts/AuthContext';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useMutation } from 'react-query';
 import request from 'graphql-request';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import { LoginModalMode } from '@dailydotdev/shared/src/types/LoginModalMode';
 import { useInView } from 'react-intersection-observer';
-import FeedContext from '../../shared/src/contexts/FeedContext';
+import FeedContext from '@dailydotdev/shared/src/contexts/FeedContext';
 import useIncrementReadingRank from '@dailydotdev/shared/src/hooks/useIncrementReadingRank';
 import {
   logReadArticle,
@@ -30,12 +30,12 @@ import dynamic from 'next/dynamic';
 import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 import styles from '../styles/feed.module.css';
 import classNames from 'classnames';
-import SettingsContext from '../../shared/src/contexts/SettingsContext';
+import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import useUpvotePost from '@dailydotdev/shared/src/hooks/useUpvotePost';
 import useBookmarkPost from '@dailydotdev/shared/src/hooks/useBookmarkPost';
 import OnboardingContext, {
   EngagementAction,
-} from '../../shared/src/contexts/OnboardingContext';
+} from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import { Spaciness } from '../graphql/settings';
 import useReportPostMenu from '@dailydotdev/shared/src/hooks/useReportPostMenu';
 import { PostCard } from '@dailydotdev/shared/src/components/cards/PostCard';

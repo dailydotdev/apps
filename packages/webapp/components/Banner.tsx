@@ -6,7 +6,7 @@ import { useQuery } from 'react-query';
 import request from 'graphql-request';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import { BANNER_QUERY, BannerData } from '../graphql/banner';
-import ProgressiveEnhancementContext from '../../shared/src/contexts/ProgressiveEnhancementContext';
+import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState';
 
 export default function Banner(): ReactElement {

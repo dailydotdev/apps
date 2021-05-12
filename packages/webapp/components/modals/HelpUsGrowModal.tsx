@@ -9,7 +9,7 @@ import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import CopyIcon from '@dailydotdev/shared/icons/copy.svg';
 import TwitterIcon from '@dailydotdev/shared/icons/twitter.svg';
 import { useQuery } from 'react-query';
-import AuthContext from '../../../shared/src/contexts/AuthContext';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import fetchTimeout from '@dailydotdev/shared/src/lib/fetchTimeout';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 

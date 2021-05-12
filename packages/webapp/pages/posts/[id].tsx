@@ -43,7 +43,7 @@ import {
   PostsEngaged,
 } from '../../graphql/posts';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
-import AuthContext from '../../../shared/src/contexts/AuthContext';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import MainComment from '../../components/comments/MainComment';
 import {
   Comment,

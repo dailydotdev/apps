@@ -28,7 +28,7 @@ import {
   FeedSettingsData,
   SOURCES_SETTINGS_QUERY,
 } from '../../graphql/feedSettings';
-import AuthContext from '../../../shared/src/contexts/AuthContext';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   Button,
   ButtonProps,

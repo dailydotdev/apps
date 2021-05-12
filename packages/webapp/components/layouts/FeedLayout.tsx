@@ -11,7 +11,7 @@ import {
 import FeedContext, {
   defaultFeedContextData,
   FeedContextData,
-} from '../../../shared/src/contexts/FeedContext';
+} from '@dailydotdev/shared/src/contexts/FeedContext';
 import useMedia from '@dailydotdev/shared/src/hooks/useMedia';
 import { getLayout as getFooterNavBarLayout } from './FooterNavBarLayout';
 

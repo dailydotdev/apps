@@ -29,7 +29,7 @@ import TwitterIcon from '@dailydotdev/shared/icons/twitter.svg';
 import HashnodeIcon from '@dailydotdev/shared/icons/hashnode.svg';
 import LinkIcon from '@dailydotdev/shared/icons/link.svg';
 import { tablet } from '../../../styles/media';
-import AuthContext from '../../../../shared/src/contexts/AuthContext';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import {
@@ -48,7 +48,7 @@ import {
   UserReadingRankData,
 } from '../../../graphql/users';
 import NavBar, { tabs } from './NavBar';
-import ProgressiveEnhancementContext from '../../../../shared/src/contexts/ProgressiveEnhancementContext';
+import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { QuaternaryButton } from '@dailydotdev/shared/src/components/buttons/QuaternaryButton';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';

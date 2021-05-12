@@ -1,5 +1,5 @@
 import React, { ReactElement, useContext } from 'react';
-import AuthContext from '../../../shared/src/contexts/AuthContext';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { Roles } from '@dailydotdev/shared/src/lib/user';
 import { useQuery } from 'react-query';
