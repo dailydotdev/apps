@@ -10,7 +10,7 @@ import {
   UPDATE_USER_SETTINGS_MUTATION,
   USER_SETTINGS_QUERY,
   UserSettingsData,
-} from '../../../webapp/graphql/settings';
+} from '../graphql/settings';
 
 type Settings = {
   spaciness: Spaciness;

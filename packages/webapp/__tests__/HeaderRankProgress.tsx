@@ -11,8 +11,10 @@ import { MY_READING_RANK_QUERY, MyRankData } from '../graphql/users';
 import { set as setCache } from 'idb-keyval';
 import OnboardingContext from '../../shared/src/contexts/OnboardingContext';
 
-jest.mock('../hooks/usePersistentState', () => {
-  const originalModule = jest.requireActual('../hooks/usePersistentState');
+jest.mock('@dailydotdev/shared/src/hooks/usePersistentState', () => {
+  const originalModule = jest.requireActual(
+    '@dailydotdev/shared/src/hooks/usePersistentState',
+  );
   return {
     __esModule: true,
     ...originalModule,

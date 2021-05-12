@@ -7,9 +7,9 @@ import {
   FeedSettings,
   FeedSettingsData,
   REMOVE_FILTERS_FROM_FEED_MUTATION,
-} from '../../../webapp/graphql/feedSettings';
+} from '../graphql/feedSettings';
 import cloneDeep from 'lodash.clonedeep';
-import { Source } from '../../../webapp/graphql/sources';
+import { Source } from '../graphql/sources';
 
 export const getTagsFiltersQueryKey = (user?: LoggedUser): string[] => [
   user?.id,
