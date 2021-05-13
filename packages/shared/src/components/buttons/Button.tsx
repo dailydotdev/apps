@@ -47,21 +47,7 @@ export function Button<Tag extends keyof JSX.IntrinsicElements>({
       className={classNames(
         { iconOnly },
         props.buttonSize,
-        'btn',
-        'relative',
-        'flex',
-        'flex-row',
-        'items-center',
-        'justify-center',
-        'border',
-        'border-solid',
-        'typo-callout',
-        'font-bold',
-        'no-underline',
-        'shadow-none',
-        'cursor-pointer',
-        'select-none',
-        'focus-outline',
+        'btn relative flex flex-row items-center justify-center border typo-callout font-bold no-underline shadow-none cursor-pointer select-none focus-outline',
         className,
       )}
     >
