@@ -99,6 +99,7 @@ export default function NewRankModal({
           ...style?.content,
           '--rank-color': rankToColor(rank),
         } as CSSProperties,
+        // stylelint-disable-next-line property-no-unknown
         overlay: style?.overlay,
       }}
       {...props}
