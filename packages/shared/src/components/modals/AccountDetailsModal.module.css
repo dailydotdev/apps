@@ -1,0 +1,10 @@
+.accountDetailsModal {
+  & :global(.modal) {
+    padding: 3rem 0 0;
+
+    @screen responsiveModalBreakpoint {
+      max-height: 40rem;
+      padding-top: 0;
+    }
+  }
+}

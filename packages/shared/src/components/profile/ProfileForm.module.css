@@ -1,0 +1,27 @@
+.optionalSummary {
+  &::-webkit-details-marker {
+    display: none;
+  }
+}
+
+.optionalFields {
+  &[open] {
+    padding-bottom: 0.75rem;
+
+    & .optionalSummary :global(.icon) {
+      transform: rotate(180deg);
+    }
+  }
+}
+
+.optionalSummary + .sectionHeading {
+  margin-top: 0.75rem;
+}
+
+.optionalFields + .sectionHeading {
+  margin-top: 2.5rem;
+}
+
+.sectionHeading + .formSwitch {
+  margin-top: -0.25rem;
+}

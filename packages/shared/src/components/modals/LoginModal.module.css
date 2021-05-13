@@ -1,0 +1,9 @@
+.loginModal {
+  & :global(.modal) {
+    padding: 2rem;
+
+    & :global(.logo) {
+      width: 9.25rem;
+    }
+  }
+}

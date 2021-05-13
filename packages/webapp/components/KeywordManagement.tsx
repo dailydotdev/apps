@@ -10,7 +10,7 @@ import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import { FeedData, KEYWORD_FEED_QUERY } from '../graphql/posts';
 import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import { NextSeo } from 'next-seo';
-import ActivitySection from './profile/ActivitySection';
+import ActivitySection from '@dailydotdev/shared/src/components/profile/ActivitySection';
 import Link from 'next/link';
 import { smallPostImage } from '@dailydotdev/shared/src/lib/image';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
@@ -24,7 +24,7 @@ import classNames from 'classnames';
 const KeywordSynonymModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "keywordSynonymModal" */ './modals/KeywordSynonymModal'
+      /* webpackChunkName: "keywordSynonymModal" */ '@dailydotdev/shared/src/components/modals/KeywordSynonymModal'
     ),
 );
 

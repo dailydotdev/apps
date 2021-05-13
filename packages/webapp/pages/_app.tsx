@@ -46,12 +46,12 @@ const queryClient = new QueryClient();
 const LoginModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "loginModal"*/ '../components/modals/LoginModal'
+      /* webpackChunkName: "loginModal"*/ '@dailydotdev/shared/src/components/modals/LoginModal'
     ),
 );
 const CookieBanner = dynamic(() => import('../components/CookieBanner'));
 const HelpUsGrowModal = dynamic(
-  () => import('../components/modals/HelpUsGrowModal'),
+  () => import('@dailydotdev/shared/src/components/modals/HelpUsGrowModal'),
 );
 
 Modal.setAppElement('#__next');

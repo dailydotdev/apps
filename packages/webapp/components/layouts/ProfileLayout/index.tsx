@@ -23,7 +23,7 @@ import {
   typoTitle1,
   typoTitle3,
 } from '../../../styles/typography';
-import JoinedDate from '../../profile/JoinedDate';
+import JoinedDate from '@dailydotdev/shared/src/components/profile/JoinedDate';
 import GitHubIcon from '@dailydotdev/shared/icons/github.svg';
 import TwitterIcon from '@dailydotdev/shared/icons/twitter.svg';
 import HashnodeIcon from '@dailydotdev/shared/icons/hashnode.svg';
@@ -40,7 +40,7 @@ import {
 import { ParsedUrlQuery } from 'querystring';
 import { reputationGuide } from '@dailydotdev/shared/src/lib/constants';
 import { useQuery } from 'react-query';
-import Rank from '../../Rank';
+import Rank from '@dailydotdev/shared/src/components/Rank';
 import request from 'graphql-request';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import {
@@ -58,7 +58,7 @@ import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 const AccountDetailsModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "accountDetailsModal" */ '../../modals/AccountDetailsModal'
+      /* webpackChunkName: "accountDetailsModal" */ '@dailydotdev/shared/src/components/modals/AccountDetailsModal'
     ),
 );
 const Custom404 = dynamic(() => import('../../../pages/404'));

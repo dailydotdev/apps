@@ -1,0 +1,98 @@
+import React, { ReactElement, useState } from 'react';
+import { TextField } from '../fields/TextField';
+import XIcon from '../../../icons/x.svg';
+import { useMutation, useQuery } from 'react-query';
+import {
+  SEARCH_KEYWORDS_QUERY,
+  SearchKeywordData,
+  SET_KEYWORD_AS_SYNONYM_MUTATION,
+} from '../../graphql/keywords';
+import request from 'graphql-request';
+import { apiUrl } from '../../lib/config';
+import { Button } from '../buttons/Button';
+import { ModalProps } from './StyledModal';
+import { ResponsiveModal } from './ResponsiveModal';
+import classNames from 'classnames';
+import styles from './KeywordSynonymModal.module.css';
+
+export type KeywordSynonymModal = { selectedKeyword: string } & ModalProps;
+
+export default function KeywordSynonymModal({
+  selectedKeyword,
+  className,
+  ...props
+}: KeywordSynonymModal): ReactElement {
+  const [query, setQuery] = useState(selectedKeyword);
+
+  const {
+    data: searchResults,
+    isLoading: isSearching,
+  } = useQuery<SearchKeywordData>(['searchKeywords', query], () =>
+    request(`${apiUrl}/graphql`, SEARCH_KEYWORDS_QUERY, { query }),
+  );
+
+  const { mutateAsync: setSynonym } = useMutation(
+    (originalKeyword: string) =>
+      request(`${apiUrl}/graphql`, SET_KEYWORD_AS_SYNONYM_MUTATION, {
+        originalKeyword,
+        keywordToUpdate: selectedKeyword.toLowerCase(),
+      }),
+    {
+      onSuccess: () => props.onRequestClose(null),
+    },
+  );
+
+  const emptyResults =
+    !isSearching && !searchResults?.searchKeywords.hits.length;
+
+  const onQueryChanged = (value: string): void => {
+    setQuery(value);
+  };
+
+  return (
+    <ResponsiveModal
+      className={classNames(className, styles.keywordSynonymModal)}
+      {...props}
+    >
+      <Button
+        onClick={props.onRequestClose}
+        buttonSize="small"
+        title="Close"
+        className="btn-tertiary self-end"
+      >
+        <XIcon />
+      </Button>
+      <h1 className="typo-callout">{`Find synonym for "${selectedKeyword}"`}</h1>
+      <TextField
+        inputId="search"
+        name="search"
+        label="Search for a keyword"
+        value={selectedKeyword}
+        autoFocus
+        valueChanged={onQueryChanged}
+        autoComplete="off"
+        className="self-stretch mb-3"
+      />
+      {!emptyResults && (
+        <ul className="flex flex-col p-0 m-0 list-none gap-2">
+          {searchResults?.searchKeywords.hits.slice(0, 5).map((keyword) => (
+            <li className="m-0 p-0" key={keyword.value}>
+              <Button
+                onClick={() => setSynonym(keyword.value)}
+                className="btn-tertiary"
+              >
+                {keyword.value}
+              </Button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <Button
+        className="btn-primary mt-2 self-start"
+        onClick={() => setSynonym(query)}
+      >
+        Create
+      </Button>
+    </ResponsiveModal>
+  );
+}

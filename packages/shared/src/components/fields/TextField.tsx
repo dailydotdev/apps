@@ -35,6 +35,7 @@ export function TextField({
   valueChanged,
   placeholder,
   compact = false,
+  style,
   ...props
 }: TextFieldProps): ReactElement {
   const {
@@ -113,7 +114,10 @@ export function TextField({
   const showLabel = focused || hasInput;
   const invalid = validInput === false;
   return (
-    <div className={classNames(className, 'flex flex-col items-stretch')}>
+    <div
+      className={classNames(className, 'flex flex-col items-stretch')}
+      style={style}
+    >
       {compact && (
         <label
           className="mb-1 px-2 text-theme-label-primary font-bold"

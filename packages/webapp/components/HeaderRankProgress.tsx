@@ -4,22 +4,28 @@ import React, {
   useContext,
   useState,
 } from 'react';
-import RankProgress from './RankProgress';
+import { RankProgress } from '@dailydotdev/shared/src/components/RankProgress';
 import useReadingRank from '@dailydotdev/shared/src/hooks/useReadingRank';
 import dynamic from 'next/dynamic';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { STEPS_PER_RANK } from '@dailydotdev/shared/src/lib/rank';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
-import Rank from './Rank';
+import Rank from '@dailydotdev/shared/src/components/Rank';
 import classNames from 'classnames';
 import styles from '../styles/headerRankProgress.module.css';
 
 const RanksModal = dynamic(
-  () => import(/* webpackChunkName: "ranksModal" */ './modals/RanksModal'),
+  () =>
+    import(
+      /* webpackChunkName: "ranksModal" */ '@dailydotdev/shared/src/components/modals/RanksModal'
+    ),
 );
 
 const NewRankModal = dynamic(
-  () => import(/* webpackChunkName: "newRankModal" */ './modals/NewRankModal'),
+  () =>
+    import(
+      /* webpackChunkName: "newRankModal" */ '@dailydotdev/shared/src/components/modals/NewRankModal'
+    ),
 );
 
 export default function HeaderRankProgress({

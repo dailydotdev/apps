@@ -1,0 +1,23 @@
+.postImage {
+  width: 4.5rem;
+  height: 4.5rem;
+
+  @screen tablet {
+    width: 6rem;
+    height: 4rem;
+  }
+}
+
+.sourceImage {
+  & img {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 100%;
+  }
+}
+
+.postContent {
+  @screen tablet {
+    max-width: 17.5rem;
+  }
+}

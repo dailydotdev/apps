@@ -6,10 +6,10 @@ import { typoCallout } from '../styles/typography';
 import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useRouter } from 'next/router';
-import EditImageWithJoinedDate from '../components/profile/EditImageWithJoinedDate';
+import EditImageWithJoinedDate from '@dailydotdev/shared/src/components/profile/EditImageWithJoinedDate';
 import ProfileForm, {
   RegistrationMode,
-} from '../components/profile/ProfileForm';
+} from '@dailydotdev/shared/src/components/profile/ProfileForm';
 import {
   Button,
   ButtonProps,

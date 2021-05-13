@@ -44,7 +44,7 @@ import {
 } from '../../graphql/posts';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import MainComment from '../../components/comments/MainComment';
+import MainComment from '@dailydotdev/shared/src/components/comments/MainComment';
 import {
   Comment,
   POST_COMMENTS_QUERY,
@@ -57,7 +57,7 @@ import { ShareMobile } from '../../components/ShareMobile';
 import Head from 'next/head';
 import request, { ClientError } from 'graphql-request';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
-import { ProfileLink } from '../../components/profile/ProfileLink';
+import { ProfileLink } from '@dailydotdev/shared/src/components/profile/ProfileLink';
 import { ownershipGuide } from '@dailydotdev/shared/src/lib/constants';
 import { QuaternaryButton } from '@dailydotdev/shared/src/components/buttons/QuaternaryButton';
 import { LoginModalMode } from '@dailydotdev/shared/src/types/LoginModalMode';
@@ -75,16 +75,16 @@ import styles from '../../styles/postPage.module.css';
 import classNames from 'classnames';
 
 const NewCommentModal = dynamic(
-  () => import('../../components/modals/NewCommentModal'),
+  () => import('@dailydotdev/shared/src/components/modals/NewCommentModal'),
 );
 const DeleteCommentModal = dynamic(
-  () => import('../../components/modals/DeleteCommentModal'),
+  () => import('@dailydotdev/shared/src/components/modals/DeleteCommentModal'),
 );
 const DeletePostModal = dynamic(
-  () => import('../../components/modals/DeletePostModal'),
+  () => import('@dailydotdev/shared/src/components/modals/DeletePostModal'),
 );
 const BanPostModal = dynamic(
-  () => import('../../components/modals/BanPostModal'),
+  () => import('@dailydotdev/shared/src/components/modals/BanPostModal'),
 );
 const ShareBar = dynamic(() => import('../../components/ShareBar'), {
   ssr: false,

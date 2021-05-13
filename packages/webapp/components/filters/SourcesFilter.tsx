@@ -38,7 +38,9 @@ import PlusIcon from '@dailydotdev/shared/icons/plus.svg';
 import { LoginModalMode } from '@dailydotdev/shared/src/types/LoginModalMode';
 import dynamic from 'next/dynamic';
 
-const NewSourceModal = dynamic(() => import('../modals/NewSourceModal'));
+const NewSourceModal = dynamic(
+  () => import('@dailydotdev/shared/src/components/modals/NewSourceModal'),
+);
 
 const SourceItem = ({
   source,

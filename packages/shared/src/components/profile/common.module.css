@@ -1,0 +1,9 @@
+.commentContent {
+  max-height: 3.75rem;
+  word-break: break-word;
+  -webkit-line-clamp: 3;
+
+  @screen tablet {
+    max-width: 19.25rem;
+  }
+}
