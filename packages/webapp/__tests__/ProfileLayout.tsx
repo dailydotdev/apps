@@ -5,7 +5,7 @@ import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import ProfileLayout from '../components/layouts/ProfileLayout';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { mockGraphQL } from './helpers/graphql';
-import { USER_READING_RANK_QUERY } from '../graphql/users';
+import { USER_READING_RANK_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import nock from 'nock';
 
 jest.mock('next/router', () => ({

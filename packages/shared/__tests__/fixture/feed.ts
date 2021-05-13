@@ -1,5 +1,5 @@
-import { Connection } from '@dailydotdev/shared/src/graphql/common';
-import { Post } from '@dailydotdev/shared/src/graphql/posts';
+import { Connection } from '../../src/graphql/common';
+import { Post } from '../../src/graphql/posts';
 
 const feed: Connection<Post> = {
   pageInfo: {

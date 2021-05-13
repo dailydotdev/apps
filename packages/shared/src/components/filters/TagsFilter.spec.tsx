@@ -1,6 +1,9 @@
-import { MockedGraphQLResponse, mockGraphQL } from '../helpers/graphql';
+import {
+  MockedGraphQLResponse,
+  mockGraphQL,
+} from '../../../__tests__/helpers/graphql';
 import nock from 'nock';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import AuthContext from '../../contexts/AuthContext';
 import React from 'react';
 import {
   findAllByRole,
@@ -8,11 +11,11 @@ import {
   RenderResult,
   screen,
   waitFor,
-} from '@testing-library/preact';
-import defaultUser from '../fixture/loggedUser';
+} from '@testing-library/react';
+import defaultUser from '../../../__tests__/fixture/loggedUser';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
-import TagsFilter from '../../components/filters/TagsFilter';
+import { LoggedUser } from '../../lib/user';
+import TagsFilter from './TagsFilter';
 import {
   ADD_FILTERS_TO_FEED_MUTATION,
   ALL_TAGS_AND_SETTINGS_QUERY,
@@ -23,7 +26,7 @@ import {
   SEARCH_TAGS_QUERY,
   TagsData,
 } from '../../graphql/feedSettings';
-import { getTagsSettingsQueryKey } from '@dailydotdev/shared/src/hooks/useMutateFilters';
+import { getTagsSettingsQueryKey } from '../../hooks/useMutateFilters';
 
 const showLogin = jest.fn();
 

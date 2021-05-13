@@ -1,10 +1,10 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
-import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
-import ArrowIcon from '@dailydotdev/shared/icons/arrow.svg';
+import sizeN from '../../macros/sizeN.macro';
+import ArrowIcon from '../../icons/arrow.svg';
 import classNames from 'classnames';
-import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
+import { getTooltipProps } from '../lib/tooltip';
 import FeedFilters from './filters/FeedFilters';
-import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
+import OnboardingContext from '../contexts/OnboardingContext';
 
 const asideWidth = sizeN(89);
 

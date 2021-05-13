@@ -13,7 +13,7 @@ import {
   Keyword,
   KeywordData,
   RANDOM_PENDING_KEYWORD_QUERY,
-} from '../graphql/keywords';
+} from '@dailydotdev/shared/src/graphql/keywords';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),

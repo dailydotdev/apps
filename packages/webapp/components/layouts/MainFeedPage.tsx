@@ -20,11 +20,11 @@ import {
   getSourcesSettingsQueryKey,
   getTagsSettingsQueryKey,
 } from '@dailydotdev/shared/src/hooks/useMutateFilters';
-import { FeedSettingsData } from '../../graphql/feedSettings';
+import { FeedSettingsData } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import MagnifyingIcon from '@dailydotdev/shared/icons/magnifying.svg';
-import { SEARCH_POSTS_QUERY } from '../../graphql/feed';
+import { SEARCH_POSTS_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import {
   Dropdown,
   DropdownProps,
@@ -41,7 +41,10 @@ const PostsSearch = dynamic(
 );
 
 const SearchEmptyScreen = dynamic(
-  () => import(/* webpackChunkName: "emptySearch" */ '../SearchEmptyScreen'),
+  () =>
+    import(
+      /* webpackChunkName: "emptySearch" */ '@dailydotdev/shared/src/components/SearchEmptyScreen'
+    ),
 );
 
 export type Tab = { path: string; title: string; default?: boolean };

@@ -9,7 +9,7 @@ import {
   CountPendingKeywordsData,
   KeywordData,
   RANDOM_PENDING_KEYWORD_QUERY,
-} from '../../graphql/keywords';
+} from '@dailydotdev/shared/src/graphql/keywords';
 import styled from '@emotion/styled';
 import { typoTitle3 } from '../../styles/typography';
 import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';

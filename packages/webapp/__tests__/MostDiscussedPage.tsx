@@ -1,6 +1,6 @@
-import { FeedData } from '../graphql/posts';
+import { FeedData } from '@dailydotdev/shared/src/graphql/posts';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
-import { MOST_DISCUSSED_FEED_QUERY } from '../graphql/feed';
+import { MOST_DISCUSSED_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import nock from 'nock';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React from 'react';

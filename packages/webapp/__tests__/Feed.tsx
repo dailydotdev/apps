@@ -7,9 +7,9 @@ import {
   REMOVE_BOOKMARK_MUTATION,
   REPORT_POST_MUTATION,
   UPVOTE_MUTATION,
-} from '../graphql/posts';
+} from '@dailydotdev/shared/src/graphql/posts';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
-import { ANONYMOUS_FEED_QUERY } from '../graphql/feed';
+import { ANONYMOUS_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import nock from 'nock';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React from 'react';
@@ -29,11 +29,11 @@ import ad from './fixture/ad';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { LoginModalMode } from '@dailydotdev/shared/src/types/LoginModalMode';
-import { MyRankData } from '../graphql/users';
+import { MyRankData } from '@dailydotdev/shared/src/graphql/users';
 import { getRankQueryKey } from '@dailydotdev/shared/src/hooks/useReadingRank';
 import { OperationOptions } from 'subscriptions-transport-ws';
 import { SubscriptionCallbacks } from '@dailydotdev/shared/src/hooks/useSubscription';
-import { COMMENT_ON_POST_MUTATION } from '../graphql/comments';
+import { COMMENT_ON_POST_MUTATION } from '@dailydotdev/shared/src/graphql/comments';
 import SettingsContext, {
   SettingsContextData,
 } from '@dailydotdev/shared/src/contexts/SettingsContext';

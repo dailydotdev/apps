@@ -1,8 +1,8 @@
 import React from 'react';
-import { render, RenderResult, screen } from '@testing-library/preact';
-import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import Sidebar from '../components/Sidebar';
+import { render, RenderResult, screen } from '@testing-library/react';
+import OnboardingContext from '../contexts/OnboardingContext';
+import AuthContext from '../contexts/AuthContext';
+import Sidebar from './Sidebar';
 import { QueryClient, QueryClientProvider } from 'react-query';
 
 const incrementOnboardingStep = jest.fn();

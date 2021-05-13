@@ -5,7 +5,10 @@ import classNames from 'classnames';
 import { useQuery } from 'react-query';
 import request from 'graphql-request';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
-import { BANNER_QUERY, BannerData } from '../graphql/banner';
+import {
+  BANNER_QUERY,
+  BannerData,
+} from '@dailydotdev/shared/src/graphql/banner';
 import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState';
 

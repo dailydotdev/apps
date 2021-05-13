@@ -38,11 +38,17 @@ const HeaderRankProgress = dynamic(
 );
 
 const Settings = dynamic(
-  () => import(/* webpackChunkName: "settings" */ '../Settings'),
+  () =>
+    import(
+      /* webpackChunkName: "settings" */ '@dailydotdev/shared/src/components/Settings'
+    ),
 );
 
 const Greeting = dynamic(
-  () => import(/* webpackChunkName: "greeting" */ '../Greeting'),
+  () =>
+    import(
+      /* webpackChunkName: "greeting" */ '@dailydotdev/shared/src/components/Greeting'
+    ),
 );
 
 const HeaderButton = classed(Button, 'hidden mx-0.5 laptop:flex');

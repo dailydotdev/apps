@@ -1,26 +1,23 @@
 import React, { ReactElement, useContext } from 'react';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import TwitterIcon from '@dailydotdev/shared/icons/twitter.svg';
-import WhatsappIcon from '@dailydotdev/shared/icons/whatsapp.svg';
-import FacebookIcon from '@dailydotdev/shared/icons/facebook.svg';
-import CopyIcon from '@dailydotdev/shared/icons/copy.svg';
-import ShareIcon from '@dailydotdev/shared/icons/share.svg';
-import Confetti from '@dailydotdev/shared/src/svg/ConfettiSvg';
+import AuthContext from '../contexts/AuthContext';
+import TwitterIcon from '../../icons/twitter.svg';
+import WhatsappIcon from '../../icons/whatsapp.svg';
+import FacebookIcon from '../../icons/facebook.svg';
+import CopyIcon from '../../icons/copy.svg';
+import ShareIcon from '../../icons/share.svg';
+import Confetti from '../svg/ConfettiSvg';
 import {
   getFacebookShareLink,
   getShareableLink,
   getTwitterShareLink,
   getWhatsappShareLink,
-} from '@dailydotdev/shared/src/lib/share';
+} from '../lib/share';
 import { Post } from '../graphql/posts';
-import { useCopyPostLink } from '@dailydotdev/shared/src/hooks/useCopyPostLink';
-import {
-  Button,
-  ButtonProps,
-} from '@dailydotdev/shared/src/components/buttons/Button';
-import { ModalCloseButton } from '@dailydotdev/shared/src/components/modals/ModalCloseButton';
-import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
-import classed from '@dailydotdev/shared/src/lib/classed';
+import { useCopyPostLink } from '../hooks/useCopyPostLink';
+import { Button, ButtonProps } from './buttons/Button';
+import { ModalCloseButton } from './modals/ModalCloseButton';
+import { getTooltipProps } from '../lib/tooltip';
+import classed from '../lib/classed';
 
 const ShareButton = classed<ButtonProps<'a'>>(Button, 'text-white');
 

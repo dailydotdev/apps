@@ -1,25 +1,22 @@
 import React, { FunctionComponent, ReactElement } from 'react';
-import CopyIcon from '@dailydotdev/shared/icons/copy.svg';
-import WhatsappIcon from '@dailydotdev/shared/icons/whatsapp_color.svg';
-import TwitterIcon from '@dailydotdev/shared/icons/twitter_color.svg';
-import FacebookIcon from '@dailydotdev/shared/icons/facebook_color.svg';
+import CopyIcon from '../../icons/copy.svg';
+import WhatsappIcon from '../../icons/whatsapp_color.svg';
+import TwitterIcon from '../../icons/twitter_color.svg';
+import FacebookIcon from '../../icons/facebook_color.svg';
 import { Post } from '../graphql/posts';
-import { useCopyPostLink } from '@dailydotdev/shared/src/hooks/useCopyPostLink';
+import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import {
   getFacebookShareLink,
   getShareableLink,
   getTwitterShareLink,
   getWhatsappShareLink,
-} from '@dailydotdev/shared/src/lib/share';
-import {
-  Button,
-  ButtonProps,
-} from '@dailydotdev/shared/src/components/buttons/Button';
-import { trackEvent } from '@dailydotdev/shared/src/lib/analytics';
-import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
-import styles from '../styles/shareBar.module.css';
+} from '../lib/share';
+import { Button, ButtonProps } from './buttons/Button';
+import { trackEvent } from '../lib/analytics';
+import { getTooltipProps } from '../lib/tooltip';
+import styles from './ShareBar.module.css';
 import classNames from 'classnames';
-import classed from '@dailydotdev/shared/src/lib/classed';
+import classed from '../lib/classed';
 
 const ShareButton = classed(Button, 'my-1');
 const ColorfulShareButton = (classed(

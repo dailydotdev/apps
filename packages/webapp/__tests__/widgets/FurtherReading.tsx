@@ -2,7 +2,7 @@ import {
   ADD_BOOKMARKS_MUTATION,
   Post,
   REMOVE_BOOKMARK_MUTATION,
-} from '../../graphql/posts';
+} from '@dailydotdev/shared/src/graphql/posts';
 import { MockedGraphQLResponse, mockGraphQL } from '../helpers/graphql';
 import nock from 'nock';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -16,7 +16,7 @@ import FurtherReading from '../../components/widgets/FurtherReading';
 import {
   FURTHER_READING_QUERY,
   FurtherReadingData,
-} from '../../graphql/furtherReading';
+} from '@dailydotdev/shared/src/graphql/furtherReading';
 
 const showLogin = jest.fn();
 

@@ -5,7 +5,7 @@ import { NextSeoProps } from 'next-seo/lib/types';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { NextSeo } from 'next-seo';
 import Feed from '../components/Feed';
-import { BOOKMARKS_FEED_QUERY } from '../graphql/feed';
+import { BOOKMARKS_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import { headerHeight } from '../styles/sizes';
 import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import styled from '@emotion/styled';

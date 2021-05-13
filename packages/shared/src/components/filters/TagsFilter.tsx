@@ -5,7 +5,7 @@ import React, {
   useEffect,
   useMemo,
 } from 'react';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import AuthContext from '../../contexts/AuthContext';
 import { useQuery, useQueryClient } from 'react-query';
 import {
   ALL_TAGS_AND_SETTINGS_QUERY,
@@ -16,15 +16,15 @@ import {
   TagsData,
 } from '../../graphql/feedSettings';
 import request from 'graphql-request';
-import { apiUrl } from '@dailydotdev/shared/src/lib/config';
+import { apiUrl } from '../../lib/config';
 import useMutateFilters, {
   getTagsSettingsQueryKey,
   getTagsFiltersQueryKey,
   getSearchTagsQueryKey,
-} from '@dailydotdev/shared/src/hooks/useMutateFilters';
-import { trackEvent } from '@dailydotdev/shared/src/lib/analytics';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
-import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
+} from '../../hooks/useMutateFilters';
+import { trackEvent } from '../../lib/analytics';
+import { Button } from '../buttons/Button';
+import { getTooltipProps } from '../../lib/tooltip';
 import {
   FiltersContainer,
   FiltersPlaceholder,

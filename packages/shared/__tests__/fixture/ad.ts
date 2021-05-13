@@ -1,4 +1,4 @@
-import { Ad } from '@dailydotdev/shared/src/graphql/posts';
+import { Ad } from '../../src/graphql/posts';
 
 const ad: Ad = {
   description:

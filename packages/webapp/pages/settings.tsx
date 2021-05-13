@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { getLayout } from '../components/layouts/FooterNavBarLayout';
-import Settings from '../components/Settings';
+import Settings from '@dailydotdev/shared/src/components/Settings';
 
 const SettingsPage = (): ReactElement => (
   <main className="withNavBar">

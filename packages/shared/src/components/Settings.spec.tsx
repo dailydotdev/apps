@@ -1,6 +1,9 @@
 import React, { ReactElement } from 'react';
 import nock from 'nock';
-import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
+import {
+  MockedGraphQLResponse,
+  mockGraphQL,
+} from '../../__tests__/helpers/graphql';
 import {
   fireEvent,
   queryByText,
@@ -8,10 +11,10 @@ import {
   RenderResult,
   screen,
   waitFor,
-} from '@testing-library/preact';
-import useSettings from '@dailydotdev/shared/src/hooks/useSettings';
-import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
-import Settings from '../components/Settings';
+} from '@testing-library/react';
+import useSettings from '../hooks/useSettings';
+import SettingsContext from '../contexts/SettingsContext';
+import Settings from './Settings';
 import {
   RemoteSettings,
   UPDATE_USER_SETTINGS_MUTATION,
@@ -146,7 +149,7 @@ it('should mutate density setting', () =>
     const radio = await screen.findAllByRole('radio');
     // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
     const cozy = radio.find((el) => queryByText(el.parentElement, 'Cozy'));
-    fireEvent.change(cozy);
+    fireEvent.click(cozy);
   }));
 
 it('should set theme to dark mode setting', () =>
@@ -156,7 +159,7 @@ it('should set theme to dark mode setting', () =>
       // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
       queryByText(el.parentElement, 'Light theme'),
     ) as HTMLInputElement;
-    fireEvent.change(checkbox);
+    fireEvent.click(checkbox);
   }));
 
 it('should set light to dark mode setting', () =>
@@ -168,7 +171,7 @@ it('should set light to dark mode setting', () =>
         // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
         queryByText(el.parentElement, 'Light theme'),
       ) as HTMLInputElement;
-      fireEvent.change(checkbox);
+      fireEvent.click(checkbox);
     },
     { ...defaultSettings, theme: 'darcula' },
   ));
@@ -180,7 +183,7 @@ it('should mutate hide read posts setting', () =>
       // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
       queryByText(el.parentElement, 'Hide read posts'),
     ) as HTMLInputElement;
-    fireEvent.change(checkbox);
+    fireEvent.click(checkbox);
   }));
 
 it('should mutate open links in new tab setting', () =>
@@ -190,5 +193,5 @@ it('should mutate open links in new tab setting', () =>
       // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
       queryByText(el.parentElement, 'Open links in new tab'),
     ) as HTMLInputElement;
-    fireEvent.change(checkbox);
+    fireEvent.click(checkbox);
   }));

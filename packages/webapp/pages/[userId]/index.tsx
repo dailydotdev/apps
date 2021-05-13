@@ -30,7 +30,7 @@ import {
   UserReadHistoryData,
   UserReadingRankHistoryData,
   UserStatsData,
-} from '../../graphql/users';
+} from '@dailydotdev/shared/src/graphql/users';
 import {
   ActivityContainer,
   ActivitySectionTitle,

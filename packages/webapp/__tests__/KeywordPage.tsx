@@ -8,7 +8,11 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import KeywordsPage from '../pages/backoffice/keywords/[value]';
-import { Keyword, KeywordData, KEYWORD_QUERY } from '../graphql/keywords';
+import {
+  Keyword,
+  KeywordData,
+  KEYWORD_QUERY,
+} from '@dailydotdev/shared/src/graphql/keywords';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),

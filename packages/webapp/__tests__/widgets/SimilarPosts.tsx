@@ -1,4 +1,4 @@
-import { Post } from '../../graphql/posts';
+import { Post } from '@dailydotdev/shared/src/graphql/posts';
 import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import defaultFeedPage from '../fixture/feed';

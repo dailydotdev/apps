@@ -11,7 +11,7 @@ import useFeed, {
   FeedItem,
   PostItem,
 } from '@dailydotdev/shared/src/hooks/useFeed';
-import { Ad, Post } from '../graphql/posts';
+import { Ad, Post } from '@dailydotdev/shared/src/graphql/posts';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useMutation } from 'react-query';
 import request from 'graphql-request';
@@ -25,7 +25,10 @@ import {
   logRevenue,
   trackEvent,
 } from '@dailydotdev/shared/src/lib/analytics';
-import { COMMENT_ON_POST_MUTATION, CommentOnData } from '../graphql/comments';
+import {
+  COMMENT_ON_POST_MUTATION,
+  CommentOnData,
+} from '@dailydotdev/shared/src/graphql/comments';
 import dynamic from 'next/dynamic';
 import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 import styles from '../styles/feed.module.css';
@@ -36,7 +39,7 @@ import useBookmarkPost from '@dailydotdev/shared/src/hooks/useBookmarkPost';
 import OnboardingContext, {
   EngagementAction,
 } from '@dailydotdev/shared/src/contexts/OnboardingContext';
-import { Spaciness } from '../graphql/settings';
+import { Spaciness } from '@dailydotdev/shared/src/graphql/settings';
 import useReportPostMenu from '@dailydotdev/shared/src/hooks/useReportPostMenu';
 import { PostCard } from '@dailydotdev/shared/src/components/cards/PostCard';
 import { AdCard } from '@dailydotdev/shared/src/components/cards/AdCard';
@@ -47,7 +50,10 @@ import { PlaceholderList } from '@dailydotdev/shared/src/components/cards/Placeh
 
 const CommentPopup = dynamic(() => import('./CommentPopup'));
 const ReportPostMenu = dynamic(
-  () => import(/* webpackChunkName: "reportPostMenu" */ './ReportPostMenu'),
+  () =>
+    import(
+      /* webpackChunkName: "reportPostMenu" */ '@dailydotdev/shared/src/components/ReportPostMenu'
+    ),
 );
 
 export type FeedProps<T> = {

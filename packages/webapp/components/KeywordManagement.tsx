@@ -3,11 +3,14 @@ import {
   ALLOW_KEYWORD_MUTATION,
   DENY_KEYWORD_MUTATION,
   Keyword,
-} from '../graphql/keywords';
+} from '@dailydotdev/shared/src/graphql/keywords';
 import { useInfiniteQuery, useMutation } from 'react-query';
 import request from 'graphql-request';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
-import { FeedData, KEYWORD_FEED_QUERY } from '../graphql/posts';
+import {
+  FeedData,
+  KEYWORD_FEED_QUERY,
+} from '@dailydotdev/shared/src/graphql/posts';
 import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import { NextSeo } from 'next-seo';
 import ActivitySection from '@dailydotdev/shared/src/components/profile/ActivitySection';

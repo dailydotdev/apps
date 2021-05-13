@@ -7,7 +7,10 @@ import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/Prog
 export const footerNavBarBreakpoint = laptop;
 
 const Sidebar = dynamic(
-  () => import(/* webpackChunkName: "Sidebar" */ '../Sidebar'),
+  () =>
+    import(
+      /* webpackChunkName: "Sidebar" */ '@dailydotdev/shared/src/components/Sidebar'
+    ),
 );
 
 const FooterNavBar = dynamic(

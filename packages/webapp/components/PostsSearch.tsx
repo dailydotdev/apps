@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 import { useQuery } from 'react-query';
 import request from 'graphql-request';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
-import { SEARCH_POST_SUGGESTIONS } from '../graphql/search';
+import { SEARCH_POST_SUGGESTIONS } from '@dailydotdev/shared/src/graphql/search';
 
 const AutoCompleteMenu = dynamic(
   () => import('../components/AutoCompleteMenu'),

@@ -1,10 +1,10 @@
 import React, { CSSProperties, ReactElement } from 'react';
-import classed from '@dailydotdev/shared/src/lib/classed';
-import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
-import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
-import ArrowIcon from '@dailydotdev/shared/icons/arrow.svg';
-import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
+import classed from '../../lib/classed';
+import sizeN from '../../../macros/sizeN.macro';
+import { ElementPlaceholder } from '../ElementPlaceholder';
+import { Button } from '../buttons/Button';
+import ArrowIcon from '../../../icons/arrow.svg';
+import { getTooltipProps } from '../../lib/tooltip';
 import Link from 'next/link';
 import classNames from 'classnames';
 

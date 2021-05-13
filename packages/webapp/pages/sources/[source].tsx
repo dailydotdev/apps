@@ -15,8 +15,12 @@ import { NextSeoProps } from 'next-seo/lib/types';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { NextSeo } from 'next-seo';
 import Feed from '../../components/Feed';
-import { SOURCE_FEED_QUERY } from '../../graphql/feed';
-import { Source, SOURCE_QUERY, SourceData } from '../../graphql/sources';
+import { SOURCE_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
+import {
+  Source,
+  SOURCE_QUERY,
+  SourceData,
+} from '@dailydotdev/shared/src/graphql/sources';
 import request from 'graphql-request';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import Custom404 from '../404';
@@ -27,7 +31,7 @@ import { useQuery } from 'react-query';
 import {
   FeedSettingsData,
   SOURCES_SETTINGS_QUERY,
-} from '../../graphql/feedSettings';
+} from '@dailydotdev/shared/src/graphql/feedSettings';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   Button,

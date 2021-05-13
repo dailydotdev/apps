@@ -1,11 +1,11 @@
 import React, { ReactElement } from 'react';
 import { Item } from 'react-contexify';
-import useReportPost from '@dailydotdev/shared/src/hooks/useReportPost';
-import { trackEvent } from '@dailydotdev/shared/src/lib/analytics';
+import useReportPost from '../hooks/useReportPost';
+import { trackEvent } from '../lib/analytics';
 import { ReportReason } from '../graphql/posts';
 import dynamic from 'next/dynamic';
 
-const PortalMenu = dynamic(() => import('./PortalMenu'), {
+const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
   ssr: false,
 });
 

@@ -6,11 +6,11 @@ import { QueryClient, useQuery, useQueryClient } from 'react-query';
 import {
   FURTHER_READING_QUERY,
   FurtherReadingData,
-} from '../../graphql/furtherReading';
+} from '@dailydotdev/shared/src/graphql/furtherReading';
 import request from 'graphql-request';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import useBookmarkPost from '@dailydotdev/shared/src/hooks/useBookmarkPost';
-import { Post } from '../../graphql/posts';
+import { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { trackEvent } from '@dailydotdev/shared/src/lib/analytics';
 import BestDiscussions from './BestDiscussions';
 

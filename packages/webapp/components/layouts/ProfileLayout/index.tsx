@@ -46,7 +46,7 @@ import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import {
   USER_READING_RANK_QUERY,
   UserReadingRankData,
-} from '../../../graphql/users';
+} from '@dailydotdev/shared/src/graphql/users';
 import NavBar, { tabs } from './NavBar';
 import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';

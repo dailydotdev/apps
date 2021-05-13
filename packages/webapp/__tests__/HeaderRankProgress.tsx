@@ -7,7 +7,10 @@ import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import defaultUser from './fixture/loggedUser';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import nock from 'nock';
-import { MY_READING_RANK_QUERY, MyRankData } from '../graphql/users';
+import {
+  MY_READING_RANK_QUERY,
+  MyRankData,
+} from '@dailydotdev/shared/src/graphql/users';
 import { set as setCache } from 'idb-keyval';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 

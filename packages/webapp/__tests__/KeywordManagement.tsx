@@ -7,9 +7,13 @@ import {
   ALLOW_KEYWORD_MUTATION,
   DENY_KEYWORD_MUTATION,
   Keyword,
-} from '../graphql/keywords';
-import { FeedData, KEYWORD_FEED_QUERY, Post } from '../graphql/posts';
-import { Connection } from '../graphql/common';
+} from '@dailydotdev/shared/src/graphql/keywords';
+import {
+  FeedData,
+  KEYWORD_FEED_QUERY,
+  Post,
+} from '@dailydotdev/shared/src/graphql/posts';
+import { Connection } from '@dailydotdev/shared/src/graphql/common';
 import KeywordManagement from '../components/KeywordManagement';
 
 const onOperationCompleted = jest.fn();

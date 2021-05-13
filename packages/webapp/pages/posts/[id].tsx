@@ -41,7 +41,7 @@ import {
   PostData,
   POSTS_ENGAGED_SUBSCRIPTION,
   PostsEngaged,
-} from '../../graphql/posts';
+} from '@dailydotdev/shared/src/graphql/posts';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import MainComment from '@dailydotdev/shared/src/components/comments/MainComment';
@@ -49,11 +49,11 @@ import {
   Comment,
   POST_COMMENTS_QUERY,
   PostCommentsData,
-} from '../../graphql/comments';
+} from '@dailydotdev/shared/src/graphql/comments';
 import { laptop } from '../../styles/media';
 import { focusOutline } from '../../styles/helpers';
 import { NextSeoProps } from 'next-seo/lib/types';
-import { ShareMobile } from '../../components/ShareMobile';
+import { ShareMobile } from '@dailydotdev/shared/src/components/ShareMobile';
 import Head from 'next/head';
 import request, { ClientError } from 'graphql-request';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
@@ -86,11 +86,14 @@ const DeletePostModal = dynamic(
 const BanPostModal = dynamic(
   () => import('@dailydotdev/shared/src/components/modals/BanPostModal'),
 );
-const ShareBar = dynamic(() => import('../../components/ShareBar'), {
-  ssr: false,
-});
+const ShareBar = dynamic(
+  () => import('@dailydotdev/shared/src/components/ShareBar'),
+  {
+    ssr: false,
+  },
+);
 const ShareNewCommentPopup = dynamic(
-  () => import('../../components/ShareNewCommentPopup'),
+  () => import('@dailydotdev/shared/src/components/ShareNewCommentPopup'),
   {
     ssr: false,
   },

@@ -16,11 +16,11 @@ import {
   FiltersSection,
   GoToFilterButton,
 } from './common';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import AuthContext from '../../contexts/AuthContext';
 import useMutateFilters, {
   getSourcesFiltersQueryKey,
   getSourcesSettingsQueryKey,
-} from '@dailydotdev/shared/src/hooks/useMutateFilters';
+} from '../../hooks/useMutateFilters';
 import {
   ALL_SOURCES_AND_SETTINGS_QUERY,
   ALL_SOURCES_QUERY,
@@ -28,19 +28,17 @@ import {
   SourcesData,
 } from '../../graphql/feedSettings';
 import request from 'graphql-request';
-import { apiUrl } from '@dailydotdev/shared/src/lib/config';
+import { apiUrl } from '../../lib/config';
 import { Source } from '../../graphql/sources';
-import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
-import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
-import { trackEvent } from '@dailydotdev/shared/src/lib/analytics';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
-import PlusIcon from '@dailydotdev/shared/icons/plus.svg';
-import { LoginModalMode } from '@dailydotdev/shared/src/types/LoginModalMode';
+import { getTooltipProps } from '../../lib/tooltip';
+import { LazyImage } from '../LazyImage';
+import { trackEvent } from '../../lib/analytics';
+import { Button } from '../buttons/Button';
+import PlusIcon from '../../../icons/plus.svg';
+import { LoginModalMode } from '../../types/LoginModalMode';
 import dynamic from 'next/dynamic';
 
-const NewSourceModal = dynamic(
-  () => import('@dailydotdev/shared/src/components/modals/NewSourceModal'),
-);
+const NewSourceModal = dynamic(() => import('../modals/NewSourceModal'));
 
 const SourceItem = ({
   source,

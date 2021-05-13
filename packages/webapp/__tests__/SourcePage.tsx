@@ -1,6 +1,6 @@
-import { FeedData } from '../graphql/posts';
+import { FeedData } from '@dailydotdev/shared/src/graphql/posts';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
-import { SOURCE_FEED_QUERY } from '../graphql/feed';
+import { SOURCE_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import nock from 'nock';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React from 'react';
@@ -12,7 +12,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { NextRouter } from 'next/router';
 import SourcePage from '../pages/sources/[source]';
-import { Source } from '../graphql/sources';
+import { Source } from '@dailydotdev/shared/src/graphql/sources';
 import SettingsContext, {
   SettingsContextData,
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
@@ -21,7 +21,7 @@ import {
   FeedSettingsData,
   REMOVE_FILTERS_FROM_FEED_MUTATION,
   SOURCES_SETTINGS_QUERY,
-} from '../graphql/feedSettings';
+} from '@dailydotdev/shared/src/graphql/feedSettings';
 import { getSourcesSettingsQueryKey } from '@dailydotdev/shared/src/hooks/useMutateFilters';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 
