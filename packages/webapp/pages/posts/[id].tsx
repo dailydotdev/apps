@@ -74,6 +74,13 @@ import useBookmarkPost from '@dailydotdev/shared/src/hooks/useBookmarkPost';
 import styles from '../../styles/postPage.module.css';
 import classNames from 'classnames';
 
+declare module 'graphql-request/dist/types' {
+  interface GraphQLError {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    extensions?: Record<string, any>;
+  }
+}
+
 const NewCommentModal = dynamic(
   () => import('@dailydotdev/shared/src/components/modals/NewCommentModal'),
 );
