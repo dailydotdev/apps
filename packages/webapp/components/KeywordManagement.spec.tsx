@@ -2,7 +2,10 @@ import React from 'react';
 import nock from 'nock';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
+import {
+  MockedGraphQLResponse,
+  mockGraphQL,
+} from '../__tests__/helpers/graphql';
 import {
   ALLOW_KEYWORD_MUTATION,
   DENY_KEYWORD_MUTATION,
@@ -14,7 +17,7 @@ import {
   Post,
 } from '@dailydotdev/shared/src/graphql/posts';
 import { Connection } from '@dailydotdev/shared/src/graphql/common';
-import KeywordManagement from '../components/KeywordManagement';
+import KeywordManagement from './KeywordManagement';
 
 const onOperationCompleted = jest.fn();
 

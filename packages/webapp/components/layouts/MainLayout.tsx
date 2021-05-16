@@ -20,7 +20,7 @@ import classed from '@dailydotdev/shared/src/lib/classed';
 import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 import classNames from 'classnames';
 import { CSSTransition } from 'react-transition-group';
-import Banner from '../Banner';
+import Banner from '@dailydotdev/shared/src/components/Banner';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -33,7 +33,7 @@ export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
 const HeaderRankProgress = dynamic(
   () =>
     import(
-      /* webpackChunkName: "headerRankProgress" */ '../HeaderRankProgress'
+      /* webpackChunkName: "headerRankProgress" */ '@dailydotdev/shared/src/components/HeaderRankProgress'
     ),
 );
 

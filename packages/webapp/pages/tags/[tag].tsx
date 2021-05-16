@@ -16,7 +16,7 @@ import { useRouter } from 'next/router';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { NextSeo } from 'next-seo';
-import Feed from '../../components/Feed';
+import Feed from '@dailydotdev/shared/src/components/Feed';
 import { TAG_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useQuery } from 'react-query';

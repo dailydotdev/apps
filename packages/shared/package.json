@@ -93,6 +93,7 @@
     "node-fetch": "^2.6.1",
     "lazysizes": "^5.3.2",
     "linkifyjs": "^2.1.9",
+    "react-intersection-observer": "^8.31.0",
     "subscriptions-transport-ws": "^0.9.18"
   }
 }

@@ -7,55 +7,40 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import useFeed, {
-  FeedItem,
-  PostItem,
-} from '@dailydotdev/shared/src/hooks/useFeed';
-import { Ad, Post } from '@dailydotdev/shared/src/graphql/posts';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import useFeed, { FeedItem, PostItem } from '../hooks/useFeed';
+import { Ad, Post } from '../graphql/posts';
+import AuthContext from '../contexts/AuthContext';
 import { useMutation } from 'react-query';
 import request from 'graphql-request';
-import { apiUrl } from '@dailydotdev/shared/src/lib/config';
-import { LoginModalMode } from '@dailydotdev/shared/src/types/LoginModalMode';
+import { apiUrl } from '../lib/config';
+import { LoginModalMode } from '../types/LoginModalMode';
 import { useInView } from 'react-intersection-observer';
-import FeedContext from '@dailydotdev/shared/src/contexts/FeedContext';
-import useIncrementReadingRank from '@dailydotdev/shared/src/hooks/useIncrementReadingRank';
-import {
-  logReadArticle,
-  logRevenue,
-  trackEvent,
-} from '@dailydotdev/shared/src/lib/analytics';
-import {
-  COMMENT_ON_POST_MUTATION,
-  CommentOnData,
-} from '@dailydotdev/shared/src/graphql/comments';
+import FeedContext from '../contexts/FeedContext';
+import useIncrementReadingRank from '../hooks/useIncrementReadingRank';
+import { logReadArticle, logRevenue, trackEvent } from '../lib/analytics';
+import { COMMENT_ON_POST_MUTATION, CommentOnData } from '../graphql/comments';
 import dynamic from 'next/dynamic';
 import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 import styles from './Feed.module.css';
 import classNames from 'classnames';
-import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
-import useUpvotePost from '@dailydotdev/shared/src/hooks/useUpvotePost';
-import useBookmarkPost from '@dailydotdev/shared/src/hooks/useBookmarkPost';
+import SettingsContext from '../contexts/SettingsContext';
+import useUpvotePost from '../hooks/useUpvotePost';
+import useBookmarkPost from '../hooks/useBookmarkPost';
 import OnboardingContext, {
   EngagementAction,
-} from '@dailydotdev/shared/src/contexts/OnboardingContext';
-import { Spaciness } from '@dailydotdev/shared/src/graphql/settings';
-import useReportPostMenu from '@dailydotdev/shared/src/hooks/useReportPostMenu';
-import { PostCard } from '@dailydotdev/shared/src/components/cards/PostCard';
-import { AdCard } from '@dailydotdev/shared/src/components/cards/AdCard';
-import { PlaceholderCard } from '@dailydotdev/shared/src/components/cards/PlaceholderCard';
-import { PostList } from '@dailydotdev/shared/src/components/cards/PostList';
-import { AdList } from '@dailydotdev/shared/src/components/cards/AdList';
-import { PlaceholderList } from '@dailydotdev/shared/src/components/cards/PlaceholderList';
+} from '../contexts/OnboardingContext';
+import { Spaciness } from '../graphql/settings';
+import useReportPostMenu from '../hooks/useReportPostMenu';
+import { PostCard } from './cards/PostCard';
+import { AdCard } from './cards/AdCard';
+import { PlaceholderCard } from './cards/PlaceholderCard';
+import { PostList } from './cards/PostList';
+import { AdList } from './cards/AdList';
+import { PlaceholderList } from './cards/PlaceholderList';
 
-const CommentPopup = dynamic(
-  () => import('@dailydotdev/shared/src/components/cards/CommentPopup'),
-);
+const CommentPopup = dynamic(() => import('./cards/CommentPopup'));
 const ReportPostMenu = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "reportPostMenu" */ '@dailydotdev/shared/src/components/ReportPostMenu'
-    ),
+  () => import(/* webpackChunkName: "reportPostMenu" */ './ReportPostMenu'),
 );
 
 export type FeedProps<T> = {

@@ -13,7 +13,7 @@ import { useRouter } from 'next/router';
 import { useQuery } from 'react-query';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
-import Feed, { FeedProps } from '../Feed';
+import Feed, { FeedProps } from '@dailydotdev/shared/src/components/Feed';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getLayout } from './FeedLayout';
 import {

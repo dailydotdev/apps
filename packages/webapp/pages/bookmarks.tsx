@@ -4,7 +4,7 @@ import { ReactElement, useContext, useState } from 'react';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { NextSeo } from 'next-seo';
-import Feed from '../components/Feed';
+import Feed from '@dailydotdev/shared/src/components/Feed';
 import { BOOKMARKS_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import { headerHeight } from '@dailydotdev/shared/src/styles/sizes';
 import sizeN from '@dailydotdev/shared/macros/sizeN.macro';

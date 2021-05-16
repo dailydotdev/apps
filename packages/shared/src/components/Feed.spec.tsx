@@ -7,42 +7,46 @@ import {
   REMOVE_BOOKMARK_MUTATION,
   REPORT_POST_MUTATION,
   UPVOTE_MUTATION,
-} from '@dailydotdev/shared/src/graphql/posts';
-import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
-import { ANONYMOUS_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
+} from '../graphql/posts';
+import {
+  MockedGraphQLResponse,
+  mockGraphQL,
+} from '../../__tests__/helpers/graphql';
+import { ANONYMOUS_FEED_QUERY } from '../graphql/feed';
 import nock from 'nock';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import AuthContext from '../contexts/AuthContext';
 import React from 'react';
 import {
   findAllByRole,
   findByRole,
   findByText,
+  fireEvent,
   render,
   RenderResult,
   screen,
   waitFor,
-} from '@testing-library/preact';
-import Feed from '../components/Feed';
-import defaultFeedPage from './fixture/feed';
-import defaultUser from './fixture/loggedUser';
-import ad from './fixture/ad';
+} from '@testing-library/react';
+import Feed from './Feed';
+import defaultFeedPage from '../../__tests__/fixture/feed';
+import defaultUser from '../../__tests__/fixture/loggedUser';
+import ad from '../../__tests__/fixture/ad';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
-import { LoginModalMode } from '@dailydotdev/shared/src/types/LoginModalMode';
-import { MyRankData } from '@dailydotdev/shared/src/graphql/users';
-import { getRankQueryKey } from '@dailydotdev/shared/src/hooks/useReadingRank';
+import { LoggedUser } from '../lib/user';
+import { LoginModalMode } from '../types/LoginModalMode';
+import { MyRankData } from '../graphql/users';
+import { getRankQueryKey } from '../hooks/useReadingRank';
 import { OperationOptions } from 'subscriptions-transport-ws';
-import { SubscriptionCallbacks } from '@dailydotdev/shared/src/hooks/useSubscription';
-import { COMMENT_ON_POST_MUTATION } from '@dailydotdev/shared/src/graphql/comments';
+import { SubscriptionCallbacks } from '../hooks/useSubscription';
+import { COMMENT_ON_POST_MUTATION } from '../graphql/comments';
 import SettingsContext, {
   SettingsContextData,
-} from '@dailydotdev/shared/src/contexts/SettingsContext';
-import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
+} from '../contexts/SettingsContext';
+import OnboardingContext from '../contexts/OnboardingContext';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
 
-jest.mock('@dailydotdev/shared/src/hooks/useSubscription', () => ({
+jest.mock('../hooks/useSubscription', () => ({
   __esModule: true,
   default: jest
     .fn()
@@ -492,8 +496,7 @@ it('should send comment through the comment popup', async () => {
   const [upvoteBtn] = await screen.findAllByLabelText('Upvote');
   upvoteBtn.click();
   const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
-  input.value = 'comment';
-  input.dispatchEvent(new Event('input', { bubbles: true }));
+  fireEvent.change(input, { target: { value: 'comment' } });
   const commentBtn = await screen.findByText('Comment');
   commentBtn.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());

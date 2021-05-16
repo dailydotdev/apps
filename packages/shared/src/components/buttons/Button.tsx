@@ -31,6 +31,7 @@ export function Button<Tag extends keyof JSX.IntrinsicElements>({
   pressed,
   icon,
   rightIcon,
+  buttonSize,
   children,
   tag: Tag = 'button',
   innerRef,
@@ -46,7 +47,7 @@ export function Button<Tag extends keyof JSX.IntrinsicElements>({
       ref={innerRef}
       className={classNames(
         { iconOnly },
-        props.buttonSize,
+        buttonSize,
         'btn relative flex flex-row items-center justify-center border typo-callout font-bold no-underline shadow-none cursor-pointer select-none focus-outline',
         className,
       )}

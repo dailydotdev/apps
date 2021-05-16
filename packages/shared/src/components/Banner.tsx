@@ -1,16 +1,13 @@
 import React, { ReactElement, useContext } from 'react';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import { Button } from './buttons/Button';
 import XIcon from '@dailydotdev/shared/icons/x.svg';
 import classNames from 'classnames';
 import { useQuery } from 'react-query';
 import request from 'graphql-request';
-import { apiUrl } from '@dailydotdev/shared/src/lib/config';
-import {
-  BANNER_QUERY,
-  BannerData,
-} from '@dailydotdev/shared/src/graphql/banner';
-import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
-import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState';
+import { apiUrl } from '../lib/config';
+import { BANNER_QUERY, BannerData } from '../graphql/banner';
+import ProgressiveEnhancementContext from '../contexts/ProgressiveEnhancementContext';
+import usePersistentState from '../hooks/usePersistentState';
 
 export default function Banner(): ReactElement {
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
