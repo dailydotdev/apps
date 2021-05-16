@@ -40,6 +40,7 @@ html .invert .invert {
   --theme-active: theme('colors.salt.90')33;
   --theme-focus: theme('colors.blueCheese.40');
   --theme-float: theme('colors.salt.90')14;
+  /* stylelint-disable-next-line unit-no-unknown */
   --theme-hover: theme('colors.salt.90')1F;
 
   --theme-background-primary: theme('colors.pepper.90');
@@ -99,6 +100,7 @@ html.light .invert .invert {
   --theme-active: theme('colors.pepper.10')33;
   --theme-focus: theme('colors.blueCheese.60');
   --theme-float: theme('colors.pepper.10')14;
+  /* stylelint-disable-next-line unit-no-unknown */
   --theme-hover: theme('colors.pepper.10')1F;
 
   --theme-background-primary: #ffffff;
