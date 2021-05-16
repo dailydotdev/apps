@@ -1,4 +1,9 @@
-import React, { ReactElement, ReactNode, useContext } from 'react';
+import React, {
+  HTMLAttributes,
+  ReactElement,
+  ReactNode,
+  useContext,
+} from 'react';
 import Link from 'next/link';
 import { Flipper, Flipped } from 'react-flip-toolkit';
 import HomeIcon from '@dailydotdev/shared/icons/home.svg';
@@ -8,7 +13,10 @@ import LayoutIcon from '@dailydotdev/shared/icons/layout.svg';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useRouter } from 'next/router';
 import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  Button,
+  ButtonSize,
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 import classNames from 'classnames';
 import styles from './FooterNavBar.module.css';
@@ -48,6 +56,14 @@ export default function FooterNavBar(): ReactElement {
   const router = useRouter();
   const selectedTab = tabs.findIndex((tab) => tab.path === router?.pathname);
 
+  const buttonProps: HTMLAttributes<HTMLButtonElement> & {
+    buttonSize: ButtonSize;
+  } = {
+    className: 'btn-tertiary',
+    style: { width: '100%' },
+    buttonSize: 'large',
+  };
+
   return (
     <Flipper
       flipKey={selectedTab}
@@ -63,9 +79,7 @@ export default function FooterNavBar(): ReactElement {
           {!tab.requiresLogin || user ? (
             <Link href={tab.path} prefetch={false} passHref>
               <Button
-                className="btn-tertiary"
-                style={{ width: '100%' }}
-                buttonSize="large"
+                {...buttonProps}
                 tag="a"
                 icon={tab.icon}
                 pressed={index === selectedTab}
@@ -74,8 +88,7 @@ export default function FooterNavBar(): ReactElement {
             </Link>
           ) : (
             <Button
-              className="btn-tertiary w-full"
-              buttonSize="large"
+              {...buttonProps}
               icon={tab.icon}
               onClick={() => showLogin()}
               {...getTooltipProps(tab.title)}
