@@ -38,7 +38,7 @@ import useProgressiveEnhancement from '@dailydotdev/shared/src/hooks/useProgress
 import { canonicalFromRouter } from '@dailydotdev/shared/src/lib/canonical';
 import useSettings from '@dailydotdev/shared/src/hooks/useSettings';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
-import '../styles/globals.css';
+import '@dailydotdev/shared/src/styles/globals.css';
 import useAnalytics from '@dailydotdev/shared/src/hooks/useAnalytics';
 
 const queryClient = new QueryClient();

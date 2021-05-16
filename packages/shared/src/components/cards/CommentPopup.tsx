@@ -16,7 +16,7 @@ export type CommentPopupProps = {
   compactCard?: boolean;
 };
 
-export function CommentPopup({
+export default function CommentPopup({
   onClose,
   onSubmit,
   loading,

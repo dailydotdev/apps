@@ -15,7 +15,7 @@ import Logo from '@dailydotdev/shared/src/svg/Logo';
 import LogoTextBeta from '@dailydotdev/shared/src/svg/LogoTextBeta';
 import dynamic from 'next/dynamic';
 import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
-import styles from '../../styles/mainLayout.module.css';
+import styles from './MainLayout.module.css';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 import classNames from 'classnames';

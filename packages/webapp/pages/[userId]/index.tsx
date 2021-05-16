@@ -47,7 +47,7 @@ import CalendarHeatmap from '../../components/CalendarHeatmap';
 import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
 import useMedia from '@dailydotdev/shared/src/hooks/useMedia';
-import { laptop } from '../../styles/media';
+import { laptop } from '@dailydotdev/shared/src/styles/media';
 import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 
 const ReactTooltip = dynamic(() => import('react-tooltip'));

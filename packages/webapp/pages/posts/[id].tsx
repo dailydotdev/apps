@@ -20,7 +20,7 @@ import {
   typoFootnote,
   typoSubhead,
   typoTitle2,
-} from '../../styles/typography';
+} from '@dailydotdev/shared/src/styles/typography';
 import OpenLinkIcon from '@dailydotdev/shared/icons/open_link.svg';
 import UpvoteIcon from '@dailydotdev/shared/icons/upvote.svg';
 import CommentIcon from '@dailydotdev/shared/icons/comment.svg';
@@ -50,8 +50,8 @@ import {
   POST_COMMENTS_QUERY,
   PostCommentsData,
 } from '@dailydotdev/shared/src/graphql/comments';
-import { laptop } from '../../styles/media';
-import { focusOutline } from '../../styles/helpers';
+import { laptop } from '@dailydotdev/shared/src/styles/media';
+import { focusOutline } from '@dailydotdev/shared/src/styles/helpers';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { ShareMobile } from '@dailydotdev/shared/src/components/ShareMobile';
 import Head from 'next/head';
@@ -71,7 +71,7 @@ import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 import Link from 'next/link';
 import useUpvotePost from '@dailydotdev/shared/src/hooks/useUpvotePost';
 import useBookmarkPost from '@dailydotdev/shared/src/hooks/useBookmarkPost';
-import styles from '../../styles/postPage.module.css';
+import styles from './postPage.module.css';
 import classNames from 'classnames';
 
 declare module 'graphql-request/dist/types' {

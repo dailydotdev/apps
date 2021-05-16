@@ -32,7 +32,7 @@ import {
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { FeedPage } from '@dailydotdev/shared/src/components/utilities';
 import utilitiesStyles from '@dailydotdev/shared/src/components/utilities.module.css';
-import styles from '../../styles/mainFeed.module.css';
+import styles from './MainFeedPage.module.css';
 import CalendarIcon from '@dailydotdev/shared/icons/calendar.svg';
 
 const PostsSearch = dynamic(

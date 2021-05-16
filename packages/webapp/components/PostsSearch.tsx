@@ -9,7 +9,7 @@ import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import { SEARCH_POST_SUGGESTIONS } from '@dailydotdev/shared/src/graphql/search';
 
 const AutoCompleteMenu = dynamic(
-  () => import('../components/AutoCompleteMenu'),
+  () => import('@dailydotdev/shared/src/components/fields/AutoCompleteMenu'),
   {
     ssr: false,
   },

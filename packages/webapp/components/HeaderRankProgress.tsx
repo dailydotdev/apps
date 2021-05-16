@@ -12,7 +12,7 @@ import { STEPS_PER_RANK } from '@dailydotdev/shared/src/lib/rank';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import Rank from '@dailydotdev/shared/src/components/Rank';
 import classNames from 'classnames';
-import styles from '../styles/headerRankProgress.module.css';
+import styles from './HeaderRankProgress.module.css';
 
 const RanksModal = dynamic(
   () =>

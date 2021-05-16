@@ -22,13 +22,13 @@ import {
   typoFootnote,
   typoTitle1,
   typoTitle3,
-} from '../../../styles/typography';
+} from '@dailydotdev/shared/src/styles/typography';
 import JoinedDate from '@dailydotdev/shared/src/components/profile/JoinedDate';
 import GitHubIcon from '@dailydotdev/shared/icons/github.svg';
 import TwitterIcon from '@dailydotdev/shared/icons/twitter.svg';
 import HashnodeIcon from '@dailydotdev/shared/icons/hashnode.svg';
 import LinkIcon from '@dailydotdev/shared/icons/link.svg';
-import { tablet } from '../../../styles/media';
+import { tablet } from '@dailydotdev/shared/src/styles/media';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';

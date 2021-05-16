@@ -11,7 +11,7 @@ import {
   RANDOM_PENDING_KEYWORD_QUERY,
 } from '@dailydotdev/shared/src/graphql/keywords';
 import styled from '@emotion/styled';
-import { typoTitle3 } from '../../styles/typography';
+import { typoTitle3 } from '@dailydotdev/shared/src/styles/typography';
 import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
 import KeywordManagement from '../../components/KeywordManagement';
 import useRequirePermissions from '@dailydotdev/shared/src/hooks/useRequirePermissions';

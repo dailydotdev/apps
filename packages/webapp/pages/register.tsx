@@ -2,7 +2,7 @@ import React, { ReactElement, useContext, useState } from 'react';
 import styled from '@emotion/styled';
 import { NextSeo } from 'next-seo';
 import MainLayout from '../components/layouts/MainLayout';
-import { typoCallout } from '../styles/typography';
+import { typoCallout } from '@dailydotdev/shared/src/styles/typography';
 import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useRouter } from 'next/router';

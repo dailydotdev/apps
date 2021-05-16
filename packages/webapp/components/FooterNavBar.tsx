@@ -11,7 +11,7 @@ import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 import classNames from 'classnames';
-import styles from '../styles/footerNavBar.module.css';
+import styles from './FooterNavBar.module.css';
 
 type Tab = {
   path: string;

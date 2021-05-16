@@ -31,7 +31,7 @@ import {
 } from '@dailydotdev/shared/src/graphql/comments';
 import dynamic from 'next/dynamic';
 import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
-import styles from '../styles/feed.module.css';
+import styles from './Feed.module.css';
 import classNames from 'classnames';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import useUpvotePost from '@dailydotdev/shared/src/hooks/useUpvotePost';
@@ -48,7 +48,9 @@ import { PostList } from '@dailydotdev/shared/src/components/cards/PostList';
 import { AdList } from '@dailydotdev/shared/src/components/cards/AdList';
 import { PlaceholderList } from '@dailydotdev/shared/src/components/cards/PlaceholderList';
 
-const CommentPopup = dynamic(() => import('./CommentPopup'));
+const CommentPopup = dynamic(
+  () => import('@dailydotdev/shared/src/components/cards/CommentPopup'),
+);
 const ReportPostMenu = dynamic(
   () =>
     import(

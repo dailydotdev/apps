@@ -14,7 +14,7 @@ export type AutoCompleteMenuProps = {
   isOpen: boolean;
 };
 
-export function AutoCompleteMenu({
+export default function AutoCompleteMenu({
   placement,
   focusedItemIndex,
   items,

@@ -1,9 +1,11 @@
+import sizeN from '../../macros/sizeN.macro';
+
 export const focusOutline = `
   &:focus {
     outline: 0;
 
     &.focus-visible {
-      box-shadow: 0 0 0 0.125rem var(--theme-focus);
+      box-shadow: 0 0 0 ${sizeN(0.5)} var(--theme-focus);
     }
   }
 `;

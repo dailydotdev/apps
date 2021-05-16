@@ -7,7 +7,7 @@ import {
   laptopL,
   laptopXL,
   tablet,
-} from '../../styles/media';
+} from '@dailydotdev/shared/src/styles/media';
 import FeedContext, {
   defaultFeedContextData,
   FeedContextData,

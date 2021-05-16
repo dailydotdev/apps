@@ -1,5 +1,5 @@
 import React, { ReactElement, ReactNode, useContext } from 'react';
-import { laptop } from '../../styles/media';
+import { laptop } from '@dailydotdev/shared/src/styles/media';
 import useMedia from '@dailydotdev/shared/src/hooks/useMedia';
 import dynamic from 'next/dynamic';
 import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
