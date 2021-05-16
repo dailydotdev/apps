@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { MOST_UPVOTED_FEED_QUERY } from '../graphql/feed';
+import { MOST_UPVOTED_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import {
   generateMainFeedLayoutProps,
   getMainFeedLayout,

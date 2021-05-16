@@ -2,19 +2,22 @@ import React, { ReactElement, useContext, useState } from 'react';
 import styled from '@emotion/styled';
 import { NextSeo } from 'next-seo';
 import MainLayout from '../components/layouts/MainLayout';
-import { typoCallout } from '../styles/typography';
-import sizeN from '../macros/sizeN.macro';
+import { typoCallout } from '@dailydotdev/shared/src/styles/typography';
+import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useRouter } from 'next/router';
+import EditImageWithJoinedDate from '@dailydotdev/shared/src/components/profile/EditImageWithJoinedDate';
+import ProfileForm, {
+  RegistrationMode,
+} from '@dailydotdev/shared/src/components/profile/ProfileForm';
+import {
+  Button,
+  ButtonProps,
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   ResponsivePageContainer,
   ProfileHeading,
-} from '../components/utilities';
-import AuthContext from '../contexts/AuthContext';
-import { useRouter } from 'next/router';
-import EditImageWithJoinedDate from '../components/profile/EditImageWithJoinedDate';
-import ProfileForm, {
-  RegistrationMode,
-} from '../components/profile/ProfileForm';
-import Button, { ButtonProps } from '../components/buttons/Button';
+} from '@dailydotdev/shared/src/components/utilities';
 
 const Subheading = styled.h2`
   margin: ${sizeN(2)} 0;

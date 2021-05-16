@@ -6,14 +6,17 @@ import {
   GetStaticPropsResult,
 } from 'next';
 import request from 'graphql-request';
-import { apiUrl } from '../../../lib/config';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import { ParsedUrlQuery } from 'querystring';
-import { KEYWORD_QUERY, KeywordData } from '../../../graphql/keywords';
+import {
+  KEYWORD_QUERY,
+  KeywordData,
+} from '@dailydotdev/shared/src/graphql/keywords';
 import Custom404 from '../../404';
 import { useQuery } from 'react-query';
-import useRequirePermissions from '../../../hooks/useRequirePermissions';
-import { Roles } from '../../../lib/user';
-import AuthContext from '../../../contexts/AuthContext';
+import useRequirePermissions from '@dailydotdev/shared/src/hooks/useRequirePermissions';
+import { Roles } from '@dailydotdev/shared/src/lib/user';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import KeywordManagement from '../../../components/KeywordManagement';
 
 export type KeywordPageProps = { keyword: string };

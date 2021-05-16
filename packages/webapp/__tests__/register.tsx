@@ -1,8 +1,8 @@
 import React from 'react';
-import { LoggedUser, updateProfile } from '../lib/user';
+import { LoggedUser, updateProfile } from '@dailydotdev/shared/src/lib/user';
 import Page from '../pages/register';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
-import AuthContext from '../contexts/AuthContext';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { mocked } from 'ts-jest/utils';
 import { NextRouter, useRouter } from 'next/router';
 
@@ -10,8 +10,8 @@ jest.mock('next/router', () => ({
   useRouter: jest.fn(),
 }));
 
-jest.mock('../lib/user', () => ({
-  ...jest.requireActual('../lib/user'),
+jest.mock('@dailydotdev/shared/src/lib/user', () => ({
+  ...jest.requireActual('@dailydotdev/shared/src/lib/user'),
   updateProfile: jest.fn(),
 }));
 

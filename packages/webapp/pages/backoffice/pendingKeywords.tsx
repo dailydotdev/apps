@@ -1,20 +1,20 @@
 import React, { ReactElement, useContext } from 'react';
-import AuthContext from '../../contexts/AuthContext';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
-import { Roles } from '../../lib/user';
+import { Roles } from '@dailydotdev/shared/src/lib/user';
 import { useQuery } from 'react-query';
 import request from 'graphql-request';
-import { apiUrl } from '../../lib/config';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import {
   CountPendingKeywordsData,
   KeywordData,
   RANDOM_PENDING_KEYWORD_QUERY,
-} from '../../graphql/keywords';
+} from '@dailydotdev/shared/src/graphql/keywords';
 import styled from '@emotion/styled';
-import { typoTitle3 } from '../../styles/typography';
-import { ResponsivePageContainer } from '../../components/utilities';
+import { typoTitle3 } from '@dailydotdev/shared/src/styles/typography';
+import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
 import KeywordManagement from '../../components/KeywordManagement';
-import useRequirePermissions from '../../hooks/useRequirePermissions';
+import useRequirePermissions from '@dailydotdev/shared/src/hooks/useRequirePermissions';
 
 const EmptyScreen = styled.div`
   font-weight: bold;

@@ -22,7 +22,7 @@ import {
   subYears,
 } from 'date-fns';
 import request from 'graphql-request';
-import { apiUrl } from '../../lib/config';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import {
   USER_READING_HISTORY_QUERY,
   USER_STATS_QUERY,
@@ -30,23 +30,24 @@ import {
   UserReadHistoryData,
   UserReadingRankHistoryData,
   UserStatsData,
-} from '../../graphql/users';
+} from '@dailydotdev/shared/src/graphql/users';
 import {
   ActivityContainer,
   ActivitySectionTitle,
-} from '../../components/profile/ActivitySection';
-import AuthContext from '../../contexts/AuthContext';
+  ActivitySectionTitleStat,
+} from '@dailydotdev/shared/src/components/profile/ActivitySection';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import dynamic from 'next/dynamic';
-import Rank from '../../components/Rank';
-import { RANK_NAMES } from '../../lib/rank';
-import CommentsSection from '../../components/profile/CommentsSection';
-import PostsSection from '../../components/profile/PostsSection';
-import AuthorStats from '../../components/profile/AuthorStats';
+import Rank from '@dailydotdev/shared/src/components/Rank';
+import { RANK_NAMES } from '@dailydotdev/shared/src/lib/rank';
+import CommentsSection from '@dailydotdev/shared/src/components/profile/CommentsSection';
+import PostsSection from '@dailydotdev/shared/src/components/profile/PostsSection';
+import AuthorStats from '@dailydotdev/shared/src/components/profile/AuthorStats';
 import CalendarHeatmap from '../../components/CalendarHeatmap';
-import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
-import Dropdown from '../../components/dropdown/Dropdown';
-import useMedia from '../../hooks/useMedia';
-import { laptop } from '../../styles/media';
+import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
+import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
+import useMedia from '@dailydotdev/shared/src/hooks/useMedia';
+import { laptop } from '@dailydotdev/shared/src/styles/media';
 import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 
 const ReactTooltip = dynamic(() => import('react-tooltip'));
@@ -65,7 +66,7 @@ const Container = styled.div`
 const RanksModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "ranksModal" */ '../../components/modals/RanksModal'
+      /* webpackChunkName: "ranksModal" */ '@dailydotdev/shared/src/components/modals/RanksModal'
     ),
 );
 
@@ -243,7 +244,11 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
                   ? dropdownOptions[selectedHistoryYear]
                   : 'the last year'
                 : 'the last months'}
-              {totalReads >= 0 && <span>({totalReads})</span>}
+              {totalReads >= 0 && (
+                <ActivitySectionTitleStat>
+                  ({totalReads})
+                </ActivitySectionTitleStat>
+              )}
               <Dropdown
                 className="ml-auto hidden laptop:block"
                 selectedIndex={selectedHistoryYear}

@@ -1,15 +1,15 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import Button from '../buttons/Button';
-import ArrowIcon from '../../icons/arrow.svg';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import ArrowIcon from '@dailydotdev/shared/icons/arrow.svg';
 import Link from 'next/link';
-import { Post } from '../../graphql/posts';
-import styles from '../../styles/cards.module.css';
-import { CardLink } from '../cards/Card';
-import LazyImage from '../LazyImage';
-import { trackEvent } from '../../lib/analytics';
-import { ElementPlaceholder } from '../utilities';
-import classed from '../../lib/classed';
+import { Post } from '@dailydotdev/shared/src/graphql/posts';
+import styles from '@dailydotdev/shared/src/components/cards/Card.module.css';
+import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
+import { CardLink } from '@dailydotdev/shared/src/components/cards/Card';
+import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
+import { trackEvent } from '@dailydotdev/shared/src/lib/analytics';
+import classed from '@dailydotdev/shared/src/lib/classed';
 
 export type BestDiscussionsProps = {
   posts: Post[] | null;

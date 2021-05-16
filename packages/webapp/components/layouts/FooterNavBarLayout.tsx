@@ -1,13 +1,16 @@
 import React, { ReactElement, ReactNode, useContext } from 'react';
-import { laptop } from '../../styles/media';
-import useMedia from '../../hooks/useMedia';
+import { laptop } from '@dailydotdev/shared/src/styles/media';
+import useMedia from '@dailydotdev/shared/src/hooks/useMedia';
 import dynamic from 'next/dynamic';
-import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
+import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 
 export const footerNavBarBreakpoint = laptop;
 
 const Sidebar = dynamic(
-  () => import(/* webpackChunkName: "Sidebar" */ '../Sidebar'),
+  () =>
+    import(
+      /* webpackChunkName: "Sidebar" */ '@dailydotdev/shared/src/components/Sidebar'
+    ),
 );
 
 const FooterNavBar = dynamic(

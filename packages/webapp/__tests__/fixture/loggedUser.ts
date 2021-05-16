@@ -1,4 +1,4 @@
-import { LoggedUser } from '../../lib/user';
+import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 
 const user: LoggedUser = {
   id: 'u1',

@@ -1,20 +1,20 @@
-import { FeedData } from '../graphql/posts';
+import { FeedData } from '@dailydotdev/shared/src/graphql/posts';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
-import { MOST_UPVOTED_FEED_QUERY } from '../graphql/feed';
+import { MOST_UPVOTED_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import nock from 'nock';
-import AuthContext from '../contexts/AuthContext';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import defaultFeedPage from './fixture/feed';
 import defaultUser from './fixture/loggedUser';
 import ad from './fixture/ad';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { LoggedUser } from '../lib/user';
+import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import Upvoted from '../pages/upvoted';
-import OnboardingContext from '../contexts/OnboardingContext';
+import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import SettingsContext, {
   SettingsContextData,
-} from '../contexts/SettingsContext';
+} from '@dailydotdev/shared/src/contexts/SettingsContext';
 
 const showLogin = jest.fn();
 

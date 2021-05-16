@@ -4,24 +4,24 @@ import { ReactElement, useContext, useState } from 'react';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { NextSeo } from 'next-seo';
-import Feed from '../components/Feed';
-import { BOOKMARKS_FEED_QUERY } from '../graphql/feed';
-import { headerHeight } from '../styles/sizes';
-import sizeN from '../macros/sizeN.macro';
+import Feed from '@dailydotdev/shared/src/components/Feed';
+import { BOOKMARKS_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
+import { headerHeight } from '@dailydotdev/shared/src/styles/sizes';
+import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
+import styled from '@emotion/styled';
+import { typoTitle1 } from '@dailydotdev/shared/src/styles/typography';
+import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
+import { getLayout } from '../components/layouts/FeedLayout';
+import { mainFeedLayoutProps } from '../components/layouts/MainFeedPage';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useRouter } from 'next/router';
+import Link from 'next/link';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   CustomFeedHeader,
   customFeedIcon,
   FeedPage,
-} from '../components/utilities';
-import styled from '@emotion/styled';
-import { typoTitle1 } from '../styles/typography';
-import BookmarkIcon from '../icons/bookmark.svg';
-import { getLayout } from '../components/layouts/FeedLayout';
-import { mainFeedLayoutProps } from '../components/layouts/MainFeedPage';
-import AuthContext from '../contexts/AuthContext';
-import { useRouter } from 'next/router';
-import Link from 'next/link';
-import Button from '../components/buttons/Button';
+} from '@dailydotdev/shared/src/components/utilities';
 
 const EmptyScreenContainer = styled.main`
   position: fixed;

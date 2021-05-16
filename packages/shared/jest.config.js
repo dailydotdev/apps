@@ -13,5 +13,4 @@ module.exports = {
     '\\.svg$': '<rootDir>/__mocks__/svgrMock.ts',
     '\\.css$': 'identity-obj-proxy',
   },
-  snapshotSerializers: ['@emotion/jest/serializer'],
 };

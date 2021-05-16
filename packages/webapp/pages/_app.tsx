@@ -20,36 +20,38 @@ import Modal from 'react-modal';
 import { DefaultSeo } from 'next-seo';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import Seo from '../next-seo';
-import AuthContext, { AuthContextData } from '../contexts/AuthContext';
-import { logout as dispatchLogout } from '../lib/user';
+import AuthContext, {
+  AuthContextData,
+} from '@dailydotdev/shared/src/contexts/AuthContext';
+import { logout as dispatchLogout } from '@dailydotdev/shared/src/lib/user';
 import { Router } from 'next/router';
-import { useCookieBanner } from '../hooks/useCookieBanner';
-import useLoggedUser from '../hooks/useLoggedUser';
-import { LoginModalMode } from '../components/modals/LoginModal';
-import ProgressiveEnhancementContext from '../contexts/ProgressiveEnhancementContext';
-import { trackPageView } from '../lib/analytics';
-import useOnboarding from '../hooks/useOnboarding';
-import OnboardingContext from '../contexts/OnboardingContext';
-import SubscriptionContext from '../contexts/SubscriptionContext';
-import useSubscriptionClient from '../hooks/useSubscriptionClient';
-import useProgressiveEnhancement from '../hooks/useProgressiveEnhancement';
-import { canonicalFromRouter } from '../lib/canonical';
-import useSettings from '../hooks/useSettings';
-import SettingsContext from '../contexts/SettingsContext';
-import '../styles/globals.css';
-import useAnalytics from '../hooks/useAnalytics';
+import { useCookieBanner } from '@dailydotdev/shared/src/hooks/useCookieBanner';
+import useLoggedUser from '@dailydotdev/shared/src/hooks/useLoggedUser';
+import { LoginModalMode } from '@dailydotdev/shared/src/types/LoginModalMode';
+import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
+import { trackPageView } from '@dailydotdev/shared/src/lib/analytics';
+import useOnboarding from '@dailydotdev/shared/src/hooks/useOnboarding';
+import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
+import SubscriptionContext from '@dailydotdev/shared/src/contexts/SubscriptionContext';
+import useSubscriptionClient from '@dailydotdev/shared/src/hooks/useSubscriptionClient';
+import useProgressiveEnhancement from '@dailydotdev/shared/src/hooks/useProgressiveEnhancement';
+import { canonicalFromRouter } from '@dailydotdev/shared/src/lib/canonical';
+import useSettings from '@dailydotdev/shared/src/hooks/useSettings';
+import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
+import '@dailydotdev/shared/src/styles/globals.css';
+import useAnalytics from '@dailydotdev/shared/src/hooks/useAnalytics';
 
 const queryClient = new QueryClient();
 
 const LoginModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "loginModal"*/ '../components/modals/LoginModal'
+      /* webpackChunkName: "loginModal"*/ '@dailydotdev/shared/src/components/modals/LoginModal'
     ),
 );
 const CookieBanner = dynamic(() => import('../components/CookieBanner'));
 const HelpUsGrowModal = dynamic(
-  () => import('../components/modals/HelpUsGrowModal'),
+  () => import('@dailydotdev/shared/src/components/modals/HelpUsGrowModal'),
 );
 
 Modal.setAppElement('#__next');

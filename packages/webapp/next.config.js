@@ -17,7 +17,7 @@ module.exports = withTM(
         webpack: (config) => {
           config.module.rules.push({
             test: /icons\/.*\.svg$/,
-            exclude: /node_modules/,
+            exclude: /node_modules\/(?!@dailydotdev)/,
             use: [
               {
                 loader: '@svgr/webpack',

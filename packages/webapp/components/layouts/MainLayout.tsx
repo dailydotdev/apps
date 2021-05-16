@@ -6,21 +6,21 @@ import React, {
   useState,
 } from 'react';
 import Link from 'next/link';
-import LazyImage from '../LazyImage';
-import AuthContext from '../../contexts/AuthContext';
-import Button from '../buttons/Button';
-import BookmarkIcon from '../../icons/bookmark.svg';
-import LayoutIcon from '../../icons/layout.svg';
-import Logo from '../svg/Logo';
-import LogoTextBeta from '../svg/LogoTextBeta';
+import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
+import LayoutIcon from '@dailydotdev/shared/icons/layout.svg';
+import Logo from '@dailydotdev/shared/src/svg/Logo';
+import LogoTextBeta from '@dailydotdev/shared/src/svg/LogoTextBeta';
 import dynamic from 'next/dynamic';
-import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
-import styles from '../../styles/mainLayout.module.css';
-import classed from '../../lib/classed';
-import { getTooltipProps } from '../../lib/tooltip';
+import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
+import styles from './MainLayout.module.css';
+import classed from '@dailydotdev/shared/src/lib/classed';
+import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 import classNames from 'classnames';
 import { CSSTransition } from 'react-transition-group';
-import Banner from '../Banner';
+import Banner from '@dailydotdev/shared/src/components/Banner';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -33,16 +33,22 @@ export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
 const HeaderRankProgress = dynamic(
   () =>
     import(
-      /* webpackChunkName: "headerRankProgress" */ '../HeaderRankProgress'
+      /* webpackChunkName: "headerRankProgress" */ '@dailydotdev/shared/src/components/HeaderRankProgress'
     ),
 );
 
 const Settings = dynamic(
-  () => import(/* webpackChunkName: "settings" */ '../Settings'),
+  () =>
+    import(
+      /* webpackChunkName: "settings" */ '@dailydotdev/shared/src/components/Settings'
+    ),
 );
 
 const Greeting = dynamic(
-  () => import(/* webpackChunkName: "greeting" */ '../Greeting'),
+  () =>
+    import(
+      /* webpackChunkName: "greeting" */ '@dailydotdev/shared/src/components/Greeting'
+    ),
 );
 
 const HeaderButton = classed(Button, 'hidden mx-0.5 laptop:flex');

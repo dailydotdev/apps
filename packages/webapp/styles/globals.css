@@ -1,9 +1,0 @@
-@import 'tailwindcss/base';
-@import 'balloon-css';
-@import './base.css';
-
-@import 'tailwindcss/components';
-@import './components.css';
-
-@import 'tailwindcss/utilities';
-@import './utilities.css';

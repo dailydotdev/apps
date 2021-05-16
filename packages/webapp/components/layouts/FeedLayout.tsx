@@ -7,12 +7,12 @@ import {
   laptopL,
   laptopXL,
   tablet,
-} from '../../styles/media';
+} from '@dailydotdev/shared/src/styles/media';
 import FeedContext, {
   defaultFeedContextData,
   FeedContextData,
-} from '../../contexts/FeedContext';
-import useMedia from '../../hooks/useMedia';
+} from '@dailydotdev/shared/src/contexts/FeedContext';
+import useMedia from '@dailydotdev/shared/src/hooks/useMedia';
 import { getLayout as getFooterNavBarLayout } from './FooterNavBarLayout';
 
 export type FeedLayoutProps = { children?: ReactNode };

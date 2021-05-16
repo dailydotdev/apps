@@ -6,28 +6,30 @@ import React, {
   useState,
 } from 'react';
 import createDOMPurify from 'dompurify';
-import { getProfile, getProfileSSR, PublicProfile } from '../../../lib/user';
+import {
+  getProfile,
+  getProfileSSR,
+  PublicProfile,
+} from '@dailydotdev/shared/src/lib/user';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { getLayout as getMainLayout } from '../MainLayout';
 import Head from 'next/head';
 import { NextSeo } from 'next-seo';
-import { ResponsivePageContainer } from '../../utilities';
 import styled from '@emotion/styled';
-import sizeN from '../../../macros/sizeN.macro';
-import LazyImage from '../../LazyImage';
+import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import {
   typoCallout,
   typoFootnote,
   typoTitle1,
   typoTitle3,
-} from '../../../styles/typography';
-import JoinedDate from '../../profile/JoinedDate';
-import GitHubIcon from '../../../icons/github.svg';
-import TwitterIcon from '../../../icons/twitter.svg';
-import HashnodeIcon from '../../../icons/hashnode.svg';
-import LinkIcon from '../../../icons/link.svg';
-import { tablet } from '../../../styles/media';
-import AuthContext from '../../../contexts/AuthContext';
+} from '@dailydotdev/shared/src/styles/typography';
+import JoinedDate from '@dailydotdev/shared/src/components/profile/JoinedDate';
+import GitHubIcon from '@dailydotdev/shared/icons/github.svg';
+import TwitterIcon from '@dailydotdev/shared/icons/twitter.svg';
+import HashnodeIcon from '@dailydotdev/shared/icons/hashnode.svg';
+import LinkIcon from '@dailydotdev/shared/icons/link.svg';
+import { tablet } from '@dailydotdev/shared/src/styles/media';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import {
@@ -36,25 +38,27 @@ import {
   GetStaticPropsResult,
 } from 'next';
 import { ParsedUrlQuery } from 'querystring';
-import { reputationGuide } from '../../../lib/constants';
+import { reputationGuide } from '@dailydotdev/shared/src/lib/constants';
 import { useQuery } from 'react-query';
-import Rank from '../../Rank';
+import Rank from '@dailydotdev/shared/src/components/Rank';
 import request from 'graphql-request';
-import { apiUrl } from '../../../lib/config';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import {
   USER_READING_RANK_QUERY,
   UserReadingRankData,
-} from '../../../graphql/users';
+} from '@dailydotdev/shared/src/graphql/users';
 import NavBar, { tabs } from './NavBar';
-import QuaternaryButton from '../../buttons/QuaternaryButton';
-import ProgressiveEnhancementContext from '../../../contexts/ProgressiveEnhancementContext';
-import Button from '../../buttons/Button';
-import { getTooltipProps } from '../../../lib/tooltip';
+import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import { QuaternaryButton } from '@dailydotdev/shared/src/components/buttons/QuaternaryButton';
+import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
+import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
+import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 
 const AccountDetailsModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "accountDetailsModal" */ '../../modals/AccountDetailsModal'
+      /* webpackChunkName: "accountDetailsModal" */ '@dailydotdev/shared/src/components/modals/AccountDetailsModal'
     ),
 );
 const Custom404 = dynamic(() => import('../../../pages/404'));
@@ -198,6 +202,7 @@ const ProfileInfo = styled.div`
 
 const EditProfileButton = styled(Button)`
   margin-top: ${sizeN(6)};
+  margin-bottom: 2px;
   align-self: flex-start;
 `;
 

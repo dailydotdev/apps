@@ -1,22 +1,22 @@
-import { FeedData } from '../graphql/posts';
+import { FeedData } from '@dailydotdev/shared/src/graphql/posts';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
-import { BOOKMARKS_FEED_QUERY } from '../graphql/feed';
+import { BOOKMARKS_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import nock from 'nock';
-import AuthContext from '../contexts/AuthContext';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import defaultFeedPage from './fixture/feed';
 import defaultUser from './fixture/loggedUser';
 import ad from './fixture/ad';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { LoggedUser } from '../lib/user';
+import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import BookmarksPage from '../pages/bookmarks';
 import { NextRouter, useRouter } from 'next/router';
 import { mocked } from 'ts-jest/utils';
 import SettingsContext, {
   SettingsContextData,
-} from '../contexts/SettingsContext';
-import OnboardingContext from '../contexts/OnboardingContext';
+} from '@dailydotdev/shared/src/contexts/SettingsContext';
+import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 
 const showLogin = jest.fn();
 const routerReplace = jest.fn();

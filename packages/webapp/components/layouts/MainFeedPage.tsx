@@ -13,24 +13,27 @@ import { useRouter } from 'next/router';
 import { useQuery } from 'react-query';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
-import Feed, { FeedProps } from '../Feed';
-import AuthContext from '../../contexts/AuthContext';
+import Feed, { FeedProps } from '@dailydotdev/shared/src/components/Feed';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getLayout } from './FeedLayout';
-import { FeedPage } from '../utilities';
 import {
   getSourcesSettingsQueryKey,
   getTagsSettingsQueryKey,
-} from '../../hooks/useMutateFilters';
-import { FeedSettingsData } from '../../graphql/feedSettings';
-import { LoggedUser } from '../../lib/user';
-import OnboardingContext from '../../contexts/OnboardingContext';
-import MagnifyingIcon from '../../icons/magnifying.svg';
-import { SEARCH_POSTS_QUERY } from '../../graphql/feed';
-import Button from '../buttons/Button';
-import utilitiesStyles from '../../styles/utilities.module.css';
-import styles from '../../styles/mainFeed.module.css';
-import Dropdown, { DropdownProps } from '../dropdown/Dropdown';
-import CalendarIcon from '../../icons/calendar.svg';
+} from '@dailydotdev/shared/src/hooks/useMutateFilters';
+import { FeedSettingsData } from '@dailydotdev/shared/src/graphql/feedSettings';
+import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
+import MagnifyingIcon from '@dailydotdev/shared/icons/magnifying.svg';
+import { SEARCH_POSTS_QUERY } from '@dailydotdev/shared/src/graphql/feed';
+import {
+  Dropdown,
+  DropdownProps,
+} from '@dailydotdev/shared/src/components/fields/Dropdown';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import { FeedPage } from '@dailydotdev/shared/src/components/utilities';
+import utilitiesStyles from '@dailydotdev/shared/src/components/utilities.module.css';
+import styles from './MainFeedPage.module.css';
+import CalendarIcon from '@dailydotdev/shared/icons/calendar.svg';
 
 const PostsSearch = dynamic(
   () => import(/* webpackChunkName: "search" */ '../PostsSearch'),
@@ -38,7 +41,10 @@ const PostsSearch = dynamic(
 );
 
 const SearchEmptyScreen = dynamic(
-  () => import(/* webpackChunkName: "emptySearch" */ '../SearchEmptyScreen'),
+  () =>
+    import(
+      /* webpackChunkName: "emptySearch" */ '@dailydotdev/shared/src/components/SearchEmptyScreen'
+    ),
 );
 
 export type Tab = { path: string; title: string; default?: boolean };

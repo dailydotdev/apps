@@ -9,33 +9,36 @@ import { ParsedUrlQuery } from 'querystring';
 import React, { ReactElement, useContext, useMemo } from 'react';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
-import {
-  CustomFeedHeader,
-  customFeedIcon,
-  FeedPage,
-} from '../../components/utilities';
-import HashtagIcon from '../../icons/hashtag.svg';
-import PlusIcon from '../../icons/plus.svg';
-import sizeN from '../../macros/sizeN.macro';
+import HashtagIcon from '@dailydotdev/shared/icons/hashtag.svg';
+import PlusIcon from '@dailydotdev/shared/icons/plus.svg';
+import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import { useRouter } from 'next/router';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { NextSeo } from 'next-seo';
-import Feed from '../../components/Feed';
-import { TAG_FEED_QUERY } from '../../graphql/feed';
-import AuthContext from '../../contexts/AuthContext';
+import Feed from '@dailydotdev/shared/src/components/Feed';
+import { TAG_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useQuery } from 'react-query';
 import request from 'graphql-request';
-import { apiUrl } from '../../lib/config';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import {
   FeedSettingsData,
   TAGS_SETTINGS_QUERY,
-} from '../../graphql/feedSettings';
-import Button, { ButtonProps } from '../../components/buttons/Button';
+} from '@dailydotdev/shared/src/graphql/feedSettings';
+import {
+  Button,
+  ButtonProps,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  CustomFeedHeader,
+  customFeedIcon,
+  FeedPage,
+} from '@dailydotdev/shared/src/components/utilities';
 import useMutateFilters, {
   getTagsSettingsQueryKey,
-} from '../../hooks/useMutateFilters';
-import { trackEvent } from '../../lib/analytics';
+} from '@dailydotdev/shared/src/hooks/useMutateFilters';
+import { trackEvent } from '@dailydotdev/shared/src/lib/analytics';
 
 type TagPageProps = { tag: string };
 

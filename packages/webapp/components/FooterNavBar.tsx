@@ -1,17 +1,25 @@
-import React, { ReactElement, ReactNode, useContext } from 'react';
+import React, {
+  HTMLAttributes,
+  ReactElement,
+  ReactNode,
+  useContext,
+} from 'react';
 import Link from 'next/link';
-import { ActiveTabIndicator } from './utilities';
 import { Flipper, Flipped } from 'react-flip-toolkit';
-import HomeIcon from '../icons/home.svg';
-import BookmarkIcon from '../icons/bookmark.svg';
-import FilterIcon from '../icons/filter.svg';
-import LayoutIcon from '../icons/layout.svg';
-import AuthContext from '../contexts/AuthContext';
+import HomeIcon from '@dailydotdev/shared/icons/home.svg';
+import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
+import FilterIcon from '@dailydotdev/shared/icons/filter.svg';
+import LayoutIcon from '@dailydotdev/shared/icons/layout.svg';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useRouter } from 'next/router';
-import Button from './buttons/Button';
-import { getTooltipProps } from '../lib/tooltip';
+import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities';
+import {
+  Button,
+  ButtonSize,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 import classNames from 'classnames';
-import styles from '../styles/footerNavBar.module.css';
+import styles from './FooterNavBar.module.css';
 
 type Tab = {
   path: string;
@@ -48,6 +56,14 @@ export default function FooterNavBar(): ReactElement {
   const router = useRouter();
   const selectedTab = tabs.findIndex((tab) => tab.path === router?.pathname);
 
+  const buttonProps: HTMLAttributes<HTMLButtonElement> & {
+    buttonSize: ButtonSize;
+  } = {
+    className: 'btn-tertiary',
+    style: { width: '100%' },
+    buttonSize: 'large',
+  };
+
   return (
     <Flipper
       flipKey={selectedTab}
@@ -63,9 +79,7 @@ export default function FooterNavBar(): ReactElement {
           {!tab.requiresLogin || user ? (
             <Link href={tab.path} prefetch={false} passHref>
               <Button
-                className="btn-tertiary"
-                style={{ width: '100%' }}
-                buttonSize="large"
+                {...buttonProps}
                 tag="a"
                 icon={tab.icon}
                 pressed={index === selectedTab}
@@ -74,8 +88,7 @@ export default function FooterNavBar(): ReactElement {
             </Link>
           ) : (
             <Button
-              className="btn-tertiary w-full"
-              buttonSize="large"
+              {...buttonProps}
               icon={tab.icon}
               onClick={() => showLogin()}
               {...getTooltipProps(tab.title)}

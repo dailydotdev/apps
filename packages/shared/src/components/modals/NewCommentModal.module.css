@@ -1,0 +1,13 @@
+.textarea {
+  min-height: 11rem;
+  word-break: break-word;
+
+  &:focus {
+    outline: 0;
+  }
+
+  &:empty:before {
+    content: attr(aria-placeholder);
+    color: var(--theme-label-secondary);
+  }
+}

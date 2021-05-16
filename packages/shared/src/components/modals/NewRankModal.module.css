@@ -1,0 +1,88 @@
+$radialProgressSize: 6.75rem;
+$largeRadialProgressSize: 10.5rem;
+$badgeSize: 3rem;
+$largeBadgeSize: 4rem;
+
+.newRankModal {
+  & :global(.modal) {
+    max-width: 26.25rem;
+
+    @screen responsiveModalBreakpoint {
+      box-sizing: content-box;
+      border: 0.25rem solid var(--rank-color);
+    }
+  }
+}
+
+.rankProgressContainer {
+  height: 8.75rem;
+
+  @screen responsiveModalBreakpoint {
+    height: 12.5rem;
+  }
+
+  & :global(.confetti-transition-enter-active),
+  & :global(.confetti-transition-exit-active) {
+    transform-origin: center;
+    transition: opacity 0.3s linear, transform 0.3s ease-out;
+    will-change: opacity, transform;
+  }
+
+  & :global(.confetti-transition-enter) {
+    opacity: 0;
+    transform: scale(0);
+  }
+
+  & :global(.confetti-transition-enter-active),
+  & :global(.confetti-transition-exit) {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  & :global(.confetti-transition-exit-active) {
+    opacity: 0;
+    transform: scale(0);
+  }
+}
+
+.rankProgress {
+  font-size: $radialProgressSize;
+  @screen responsiveModalBreakpoint {
+    font-size: $largeRadialProgressSize;
+  }
+}
+
+.radialProgress {
+  font-size: $radialProgressSize;
+  --radial-progress-step: var(--rank-color);
+  @screen responsiveModalBreakpoint {
+    font-size: $largeRadialProgressSize;
+  }
+}
+
+.rankConfetti {
+  & path {
+    fill: var(--fill-color);
+  }
+}
+
+.profileImage {
+  width: 4.375rem;
+  height: 4.375rem;
+
+  @screen responsiveModalBreakpoint {
+    width: 7.5rem;
+    height: 7.5rem;
+  }
+}
+
+.newRankBadge {
+  width: $badgeSize;
+  height: $badgeSize;
+  transform: translateX(calc(($radialProgressSize - $badgeSize) / 2));
+
+  @screen responsiveModalBreakpoint {
+    width: $largeBadgeSize;
+    height: $largeBadgeSize;
+  }
+}

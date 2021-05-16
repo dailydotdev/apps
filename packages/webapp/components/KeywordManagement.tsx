@@ -3,28 +3,31 @@ import {
   ALLOW_KEYWORD_MUTATION,
   DENY_KEYWORD_MUTATION,
   Keyword,
-} from '../graphql/keywords';
+} from '@dailydotdev/shared/src/graphql/keywords';
 import { useInfiniteQuery, useMutation } from 'react-query';
 import request from 'graphql-request';
-import { apiUrl } from '../lib/config';
-import { FeedData, KEYWORD_FEED_QUERY } from '../graphql/posts';
-import { ResponsivePageContainer } from './utilities';
-import sizeN from '../macros/sizeN.macro';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
+import {
+  FeedData,
+  KEYWORD_FEED_QUERY,
+} from '@dailydotdev/shared/src/graphql/posts';
+import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import { NextSeo } from 'next-seo';
-import ActivitySection from './profile/ActivitySection';
+import ActivitySection from '@dailydotdev/shared/src/components/profile/ActivitySection';
 import Link from 'next/link';
-import { smallPostImage } from '../lib/image';
-import LazyImage from './LazyImage';
+import { smallPostImage } from '@dailydotdev/shared/src/lib/image';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
+import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
 import dynamic from 'next/dynamic';
-import ProgressiveEnhancementContext from '../contexts/ProgressiveEnhancementContext';
-import Button from './buttons/Button';
-import styles from '../styles/keywordManagement.module.css';
+import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
+import styles from './KeywordManagement.module.css';
 import classNames from 'classnames';
 
 const KeywordSynonymModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "keywordSynonymModal" */ './modals/KeywordSynonymModal'
+      /* webpackChunkName: "keywordSynonymModal" */ '@dailydotdev/shared/src/components/modals/KeywordSynonymModal'
     ),
 );
 

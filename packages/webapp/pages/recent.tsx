@@ -1,5 +1,8 @@
 import React, { ReactElement } from 'react';
-import { ANONYMOUS_FEED_QUERY, FEED_QUERY } from '../graphql/feed';
+import {
+  ANONYMOUS_FEED_QUERY,
+  FEED_QUERY,
+} from '@dailydotdev/shared/src/graphql/feed';
 import {
   generateMainFeedLayoutProps,
   getMainFeedLayout,

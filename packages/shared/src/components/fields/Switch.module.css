@@ -1,0 +1,48 @@
+.track {
+  will-change: background-color, opacity;
+  transition: background-color 0.1s linear, opacity 0.2s linear;
+}
+
+.knob {
+  will-change: transform, background-color;
+  transition: background-color 0.1s linear, transform 0.2s linear;
+}
+
+.switch {
+  &:hover .knob {
+    background: var(--theme-label-primary);
+  }
+
+  &:hover input:checked ~ * .knob {
+    background: theme('colors.water.20');
+  }
+
+  &:active {
+    background: none;
+  }
+
+  & input:checked {
+      & ~ * .track {
+        background: theme('colors.water.50');
+      }
+
+      & ~ * .knob {
+        transform: translateX(100%);
+        background: theme('colors.water.40');
+      }
+
+      & ~ .children {
+        color: var(--theme-label-primary);
+      }
+  }
+}
+
+:global(.light) .switch {
+   & input:checked ~ * .knob {
+    background: theme('colors.water.80');
+  }
+
+  &:hover input:checked ~ * .knob {
+    background: theme('colors.water.60');
+  }
+}

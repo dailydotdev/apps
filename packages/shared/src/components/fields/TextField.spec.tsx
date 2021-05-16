@@ -1,0 +1,65 @@
+import React from 'react';
+import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import { TextField, TextFieldProps } from './TextField';
+import userEvent from '@testing-library/user-event';
+
+const renderComponent = (props: Partial<TextFieldProps> = {}): RenderResult => {
+  const defaultProps: TextFieldProps = {
+    inputId: 'name',
+    name: 'name',
+    label: 'Name',
+  };
+  return render(<TextField {...defaultProps} {...props} />);
+};
+
+const getInput = (): HTMLInputElement =>
+  screen.getByRole('textbox') as HTMLInputElement;
+
+const getLabel = (): HTMLLabelElement =>
+  screen.getByText('Name') as HTMLLabelElement;
+
+it('should set by default placeholder as label', () => {
+  renderComponent();
+  expect(getInput().placeholder).toEqual('Name');
+});
+
+it('should show label when focused', async () => {
+  renderComponent();
+  expect(getLabel()).toHaveClass('hidden');
+  const input = getInput();
+  input.focus();
+  await waitFor(() => expect(input.placeholder).toEqual(''));
+  await waitFor(() => expect(getLabel()).not.toHaveClass('hidden'));
+});
+
+it('should show label when input is set', () => {
+  renderComponent({ value: 'Value' });
+  expect(getLabel()).not.toHaveClass('hidden');
+});
+
+it('should mark field as invalid', async () => {
+  renderComponent({ required: true });
+  userEvent.tab();
+  userEvent.tab();
+  await waitFor(() =>
+    expect(screen.getByTestId('field')).toHaveClass('invalid'),
+  );
+});
+
+it('should set hint role as alert when invalid', async () => {
+  renderComponent({ required: true, hint: 'Hint' });
+  userEvent.tab();
+  userEvent.tab();
+  const el = screen.getByText('Hint');
+  await waitFor(() =>
+    expect(el).toHaveStyle({ color: 'var(--theme-status-error)' }),
+  );
+  await waitFor(() => expect(el).toHaveAttribute('role', 'alert'));
+});
+
+it('should show both label and placeholder in compact mode', async () => {
+  renderComponent({ compact: true, placeholder: 'Placeholder' });
+  const input = getInput();
+  await waitFor(() => expect(input.placeholder).toEqual('Placeholder'));
+  await waitFor(() => expect(getLabel()).toHaveTextContent('Name'));
+});

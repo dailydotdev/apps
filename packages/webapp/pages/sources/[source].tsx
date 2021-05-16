@@ -9,30 +9,40 @@ import { ParsedUrlQuery } from 'querystring';
 import React, { ReactElement, useContext, useMemo } from 'react';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
-import { CustomFeedHeader, FeedPage } from '../../components/utilities';
-import sizeN from '../../macros/sizeN.macro';
+import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import { useRouter } from 'next/router';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { NextSeo } from 'next-seo';
-import Feed from '../../components/Feed';
-import { SOURCE_FEED_QUERY } from '../../graphql/feed';
-import { Source, SOURCE_QUERY, SourceData } from '../../graphql/sources';
+import Feed from '@dailydotdev/shared/src/components/Feed';
+import { SOURCE_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
+import {
+  Source,
+  SOURCE_QUERY,
+  SourceData,
+} from '@dailydotdev/shared/src/graphql/sources';
 import request from 'graphql-request';
-import { apiUrl } from '../../lib/config';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import Custom404 from '../404';
 import useMutateFilters, {
   getSourcesSettingsQueryKey,
-} from '../../hooks/useMutateFilters';
+} from '@dailydotdev/shared/src/hooks/useMutateFilters';
 import { useQuery } from 'react-query';
 import {
   FeedSettingsData,
   SOURCES_SETTINGS_QUERY,
-} from '../../graphql/feedSettings';
-import AuthContext from '../../contexts/AuthContext';
-import Button, { ButtonProps } from '../../components/buttons/Button';
-import PlusIcon from '../../icons/plus.svg';
-import { trackEvent } from '../../lib/analytics';
+} from '@dailydotdev/shared/src/graphql/feedSettings';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import {
+  Button,
+  ButtonProps,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  CustomFeedHeader,
+  FeedPage,
+} from '@dailydotdev/shared/src/components/utilities';
+import PlusIcon from '@dailydotdev/shared/icons/plus.svg';
+import { trackEvent } from '@dailydotdev/shared/src/lib/analytics';
 
 type SourcePageProps = { source: Source };
 

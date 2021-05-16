@@ -10,26 +10,30 @@ import {
   GetStaticPropsResult,
 } from 'next';
 import { ParsedUrlQuery } from 'querystring';
-import { Roles } from '../../lib/user';
+import { Roles } from '@dailydotdev/shared/src/lib/user';
 import styled from '@emotion/styled';
 import { NextSeo } from 'next-seo';
-import sizeN from '../../macros/sizeN.macro';
+import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import {
   typoBody,
   typoCallout,
   typoFootnote,
   typoSubhead,
   typoTitle2,
-} from '../../styles/typography';
-import { postDateFormat } from '../../lib/dateFormat';
-import OpenLinkIcon from '../../icons/open_link.svg';
-import UpvoteIcon from '../../icons/upvote.svg';
-import CommentIcon from '../../icons/comment.svg';
-import BookmarkIcon from '../../icons/bookmark.svg';
-import TrashIcon from '../../icons/trash.svg';
-import HammerIcon from '../../icons/hammer.svg';
-import FeatherIcon from '../../icons/feather.svg';
-import LazyImage from '../../components/LazyImage';
+} from '@dailydotdev/shared/src/styles/typography';
+import OpenLinkIcon from '@dailydotdev/shared/icons/open_link.svg';
+import UpvoteIcon from '@dailydotdev/shared/icons/upvote.svg';
+import CommentIcon from '@dailydotdev/shared/icons/comment.svg';
+import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
+import TrashIcon from '@dailydotdev/shared/icons/trash.svg';
+import HammerIcon from '@dailydotdev/shared/icons/hammer.svg';
+import FeatherIcon from '@dailydotdev/shared/icons/feather.svg';
+import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
+import {
+  PageContainer,
+  RoundedImage,
+} from '@dailydotdev/shared/src/components/utilities';
+import { postDateFormat } from '@dailydotdev/shared/src/lib/dateFormat';
 import {
   Post,
   POST_BY_ID_QUERY,
@@ -37,54 +41,66 @@ import {
   PostData,
   POSTS_ENGAGED_SUBSCRIPTION,
   PostsEngaged,
-} from '../../graphql/posts';
-import { PageContainer, RoundedImage } from '../../components/utilities';
+} from '@dailydotdev/shared/src/graphql/posts';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
-import AuthContext from '../../contexts/AuthContext';
-import MainComment from '../../components/comments/MainComment';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import MainComment from '@dailydotdev/shared/src/components/comments/MainComment';
 import {
   Comment,
   POST_COMMENTS_QUERY,
   PostCommentsData,
-} from '../../graphql/comments';
-import { laptop } from '../../styles/media';
-import { focusOutline } from '../../styles/helpers';
+} from '@dailydotdev/shared/src/graphql/comments';
+import { laptop } from '@dailydotdev/shared/src/styles/media';
+import { focusOutline } from '@dailydotdev/shared/src/styles/helpers';
 import { NextSeoProps } from 'next-seo/lib/types';
-import { ShareMobile } from '../../components/ShareMobile';
+import { ShareMobile } from '@dailydotdev/shared/src/components/ShareMobile';
 import Head from 'next/head';
 import request, { ClientError } from 'graphql-request';
-import { apiUrl } from '../../lib/config';
-import { ProfileLink } from '../../components/profile/ProfileLink';
-import { ownershipGuide } from '../../lib/constants';
-import QuaternaryButton from '../../components/buttons/QuaternaryButton';
-import { LoginModalMode } from '../../components/modals/LoginModal';
-import { logReadArticle, trackEvent } from '../../lib/analytics';
-import useSubscription from '../../hooks/useSubscription';
-import Button from '../../components/buttons/Button';
-import { getTooltipProps } from '../../lib/tooltip';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
+import { ProfileLink } from '@dailydotdev/shared/src/components/profile/ProfileLink';
+import { ownershipGuide } from '@dailydotdev/shared/src/lib/constants';
+import { QuaternaryButton } from '@dailydotdev/shared/src/components/buttons/QuaternaryButton';
+import { LoginModalMode } from '@dailydotdev/shared/src/types/LoginModalMode';
+import {
+  logReadArticle,
+  trackEvent,
+} from '@dailydotdev/shared/src/lib/analytics';
+import useSubscription from '@dailydotdev/shared/src/hooks/useSubscription';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 import Link from 'next/link';
-import useUpvotePost from '../../hooks/useUpvotePost';
-import useBookmarkPost from '../../hooks/useBookmarkPost';
-import styles from '../../styles/postPage.module.css';
+import useUpvotePost from '@dailydotdev/shared/src/hooks/useUpvotePost';
+import useBookmarkPost from '@dailydotdev/shared/src/hooks/useBookmarkPost';
+import styles from './postPage.module.css';
 import classNames from 'classnames';
 
+declare module 'graphql-request/dist/types' {
+  interface GraphQLError {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    extensions?: Record<string, any>;
+  }
+}
+
 const NewCommentModal = dynamic(
-  () => import('../../components/modals/NewCommentModal'),
+  () => import('@dailydotdev/shared/src/components/modals/NewCommentModal'),
 );
 const DeleteCommentModal = dynamic(
-  () => import('../../components/modals/DeleteCommentModal'),
+  () => import('@dailydotdev/shared/src/components/modals/DeleteCommentModal'),
 );
 const DeletePostModal = dynamic(
-  () => import('../../components/modals/DeletePostModal'),
+  () => import('@dailydotdev/shared/src/components/modals/DeletePostModal'),
 );
 const BanPostModal = dynamic(
-  () => import('../../components/modals/BanPostModal'),
+  () => import('@dailydotdev/shared/src/components/modals/BanPostModal'),
 );
-const ShareBar = dynamic(() => import('../../components/ShareBar'), {
-  ssr: false,
-});
+const ShareBar = dynamic(
+  () => import('@dailydotdev/shared/src/components/ShareBar'),
+  {
+    ssr: false,
+  },
+);
 const ShareNewCommentPopup = dynamic(
-  () => import('../../components/ShareNewCommentPopup'),
+  () => import('@dailydotdev/shared/src/components/ShareNewCommentPopup'),
   {
     ssr: false,
   },

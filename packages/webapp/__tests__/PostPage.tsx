@@ -18,10 +18,13 @@ import {
   PostsEngaged,
   REMOVE_BOOKMARK_MUTATION,
   UPVOTE_MUTATION,
-} from '../graphql/posts';
-import AuthContext from '../contexts/AuthContext';
-import { POST_COMMENTS_QUERY, PostCommentsData } from '../graphql/comments';
-import { LoggedUser } from '../lib/user';
+} from '@dailydotdev/shared/src/graphql/posts';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import {
+  POST_COMMENTS_QUERY,
+  PostCommentsData,
+} from '@dailydotdev/shared/src/graphql/comments';
+import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
 import nock from 'nock';
 import { QueryClient, QueryClientProvider } from 'react-query';
@@ -29,12 +32,12 @@ import { mocked } from 'ts-jest/utils';
 import { NextRouter, useRouter } from 'next/router';
 import defaultUser from './fixture/loggedUser';
 import { OperationOptions } from 'subscriptions-transport-ws';
-import { SubscriptionCallbacks } from '../hooks/useSubscription';
+import { SubscriptionCallbacks } from '@dailydotdev/shared/src/hooks/useSubscription';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
 
-jest.mock('../hooks/useSubscription', () => ({
+jest.mock('@dailydotdev/shared/src/hooks/useSubscription', () => ({
   __esModule: true,
   default: jest
     .fn()

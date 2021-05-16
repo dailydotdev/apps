@@ -1,0 +1,22 @@
+div.ranksModal {
+  & :global(.modal) {
+    align-items: center;
+    max-width: 26.25rem;
+  }
+
+  @screen mobileL {
+    & :global(.overlay) {
+      justify-content: flex-start;
+    }
+
+    & :global(.modal) {
+      margin-top: $headerHeight;
+      overflow: visible;
+    }
+  }
+}
+
+.rankProgress {
+  width: $headerRankHeight;
+  height: $headerRankHeight;
+}

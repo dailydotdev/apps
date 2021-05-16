@@ -1,0 +1,29 @@
+.responsiveModal {
+  & :global(.overlay) {
+    position: relative;
+    min-height: 100vh;
+    padding: 0;
+
+    @screen responsiveModalBreakpoint {
+      position: fixed;
+      min-height: unset;
+    }
+  }
+
+  & :global(.modal) {
+    position: absolute;
+    max-width: 30rem;
+    min-height: 100%;
+    align-items: stretch;
+    padding: 0.5rem;
+    border: none;
+    border-radius: 0;
+
+    @screen responsiveModalBreakpoint {
+      position: relative;
+      min-height: unset;
+      border: 1px solid var(--theme-divider-secondary);
+      border-radius: 1rem;
+    }
+  }
+}

@@ -1,17 +1,17 @@
 import React, { ReactElement, useContext } from 'react';
 import SimilarPosts from './SimilarPosts';
 import classNames from 'classnames';
-import AuthContext from '../../contexts/AuthContext';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { QueryClient, useQuery, useQueryClient } from 'react-query';
 import {
   FURTHER_READING_QUERY,
   FurtherReadingData,
-} from '../../graphql/furtherReading';
+} from '@dailydotdev/shared/src/graphql/furtherReading';
 import request from 'graphql-request';
-import { apiUrl } from '../../lib/config';
-import useBookmarkPost from '../../hooks/useBookmarkPost';
-import { Post } from '../../graphql/posts';
-import { trackEvent } from '../../lib/analytics';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
+import useBookmarkPost from '@dailydotdev/shared/src/hooks/useBookmarkPost';
+import { Post } from '@dailydotdev/shared/src/graphql/posts';
+import { trackEvent } from '@dailydotdev/shared/src/lib/analytics';
 import BestDiscussions from './BestDiscussions';
 
 export type FurtherReadingProps = {
