@@ -22,6 +22,7 @@
     "react": "^17.0.5",
     "react-contexify": "^5.0.0",
     "react-dom": "^17.0.5",
+    "react-intersection-observer": "^8.31.0",
     "react-modal": "^3.12.1",
     "react-query": "^3.13.8",
     "react-transition-group": "^4.4.1"
@@ -78,6 +79,7 @@
     "react": "^17.0.2",
     "react-contexify": "^5.0.0",
     "react-dom": "^17.0.2",
+    "react-intersection-observer": "^8.31.0",
     "react-modal": "^3.12.1",
     "react-query": "^3.13.8",
     "react-transition-group": "^4.4.1",
@@ -93,7 +95,6 @@
     "node-fetch": "^2.6.1",
     "lazysizes": "^5.3.2",
     "linkifyjs": "^2.1.9",
-    "react-intersection-observer": "^8.31.0",
     "subscriptions-transport-ws": "^0.9.18"
   }
 }
