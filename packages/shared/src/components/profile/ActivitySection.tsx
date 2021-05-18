@@ -59,7 +59,7 @@ export default function ActivitySection<TElement, TError>({
             {page.page.edges.map(({ node }) => elementToNode(node))}
           </Fragment>
         ))}
-      {showEmptyScreen && query.hasNextPage && (
+      {!showEmptyScreen && query.hasNextPage && (
         <LoadMore
           onClick={() => query.fetchNextPage()}
           style={{ visibility: showLoadMore ? 'unset' : 'hidden' }}
