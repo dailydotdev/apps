@@ -24,12 +24,10 @@ export default function KeywordSynonymModal({
 }: KeywordSynonymModal): ReactElement {
   const [query, setQuery] = useState(selectedKeyword);
 
-  const {
-    data: searchResults,
-    isLoading: isSearching,
-  } = useQuery<SearchKeywordData>(['searchKeywords', query], () =>
-    request(`${apiUrl}/graphql`, SEARCH_KEYWORDS_QUERY, { query }),
-  );
+  const { data: searchResults, isLoading: isSearching } =
+    useQuery<SearchKeywordData>(['searchKeywords', query], () =>
+      request(`${apiUrl}/graphql`, SEARCH_KEYWORDS_QUERY, { query }),
+    );
 
   const { mutateAsync: setSynonym } = useMutation(
     (originalKeyword: string) =>

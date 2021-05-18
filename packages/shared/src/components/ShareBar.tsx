@@ -19,10 +19,10 @@ import classNames from 'classnames';
 import classed from '../lib/classed';
 
 const ShareButton = classed(Button, 'my-1');
-const ColorfulShareButton = (classed(
+const ColorfulShareButton = classed(
   ShareButton,
   'text-white',
-) as unknown) as FunctionComponent<ButtonProps<'a'>>;
+) as unknown as FunctionComponent<ButtonProps<'a'>>;
 
 export default function ShareBar({ post }: { post: Post }): ReactElement {
   const href = getShareableLink();

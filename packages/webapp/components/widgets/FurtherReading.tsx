@@ -34,22 +34,24 @@ const transformPosts = (
       : post,
   );
 
-const updatePost = (
-  queryClient: QueryClient,
-  queryKey: string[],
-  update: (oldPost: Post) => Partial<Post>,
-): (({}: { id: string }) => Promise<() => void>) => async ({ id }) => {
-  await queryClient.cancelQueries(queryKey);
-  const previousData = queryClient.getQueryData<FurtherReadingData>(queryKey);
-  queryClient.setQueryData(queryKey, {
-    ...previousData,
-    trendingPosts: transformPosts(previousData.trendingPosts, id, update),
-    similarPosts: transformPosts(previousData.similarPosts, id, update),
-  });
-  return () => {
-    queryClient.setQueryData(queryKey, previousData);
+const updatePost =
+  (
+    queryClient: QueryClient,
+    queryKey: string[],
+    update: (oldPost: Post) => Partial<Post>,
+  ): (({}: { id: string }) => Promise<() => void>) =>
+  async ({ id }) => {
+    await queryClient.cancelQueries(queryKey);
+    const previousData = queryClient.getQueryData<FurtherReadingData>(queryKey);
+    queryClient.setQueryData(queryKey, {
+      ...previousData,
+      trendingPosts: transformPosts(previousData.trendingPosts, id, update),
+      similarPosts: transformPosts(previousData.similarPosts, id, update),
+    });
+    return () => {
+      queryClient.setQueryData(queryKey, previousData);
+    };
   };
-};
 
 export default function FurtherReading({
   postId,

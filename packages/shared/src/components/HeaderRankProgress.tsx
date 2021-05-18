@@ -28,11 +28,8 @@ export default function HeaderRankProgress({
   className?: string;
 }): ReactElement {
   const { user } = useContext(AuthContext);
-  const {
-    onboardingStep,
-    onboardingReady,
-    incrementOnboardingStep,
-  } = useContext(OnboardingContext);
+  const { onboardingStep, onboardingReady, incrementOnboardingStep } =
+    useContext(OnboardingContext);
   const [showModal, setShowModal] = useState(false);
 
   const {

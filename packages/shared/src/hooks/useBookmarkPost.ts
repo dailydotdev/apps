@@ -17,7 +17,7 @@ type UseBookmarkPostRet<T> = {
 };
 
 export default function useBookmarkPost<
-  T extends { id: string } = { id: string }
+  T extends { id: string } = { id: string },
 >({
   onBookmarkMutate,
   onRemoveBookmarkMutate,

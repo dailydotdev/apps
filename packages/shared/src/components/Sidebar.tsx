@@ -11,9 +11,8 @@ const asideWidth = sizeN(89);
 export default function Sidebar(): ReactElement {
   const [opened, setOpened] = useState(false);
   const [enableQueries, setEnableQueries] = useState(false);
-  const { onboardingStep, incrementOnboardingStep } = useContext(
-    OnboardingContext,
-  );
+  const { onboardingStep, incrementOnboardingStep } =
+    useContext(OnboardingContext);
   const hightlightTrigger = onboardingStep === 2;
 
   useEffect(() => {

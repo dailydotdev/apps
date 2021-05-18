@@ -27,16 +27,15 @@ const KeywordPage = ({
   useRequirePermissions(Roles.Moderator);
   const { tokenRefreshed } = useContext(AuthContext);
 
-  const {
-    data: keywordData,
-    isLoading: isLoadingKeyword,
-  } = useQuery<KeywordData>(
-    ['keyword', keywordValue],
-    () => request(`${apiUrl}/graphql`, KEYWORD_QUERY, { value: keywordValue }),
-    {
-      enabled: tokenRefreshed && !!keywordValue,
-    },
-  );
+  const { data: keywordData, isLoading: isLoadingKeyword } =
+    useQuery<KeywordData>(
+      ['keyword', keywordValue],
+      () =>
+        request(`${apiUrl}/graphql`, KEYWORD_QUERY, { value: keywordValue }),
+      {
+        enabled: tokenRefreshed && !!keywordValue,
+      },
+    );
 
   if (isLoadingKeyword || !keywordData) {
     return <></>;

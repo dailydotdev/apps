@@ -6,11 +6,10 @@ export interface ProgressiveEnhancementContextData {
   nativeShareSupport: boolean;
 }
 
-const ProgressiveEnhancementContext = React.createContext<ProgressiveEnhancementContextData>(
-  {
+const ProgressiveEnhancementContext =
+  React.createContext<ProgressiveEnhancementContextData>({
     windowLoaded: false,
     asyncImageSupport: false,
     nativeShareSupport: false,
-  },
-);
+  });
 export default ProgressiveEnhancementContext;

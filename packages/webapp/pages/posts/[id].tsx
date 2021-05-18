@@ -345,23 +345,25 @@ interface ParentComment {
   editId?: string;
 }
 
-const updatePost = (
-  queryClient: QueryClient,
-  postQueryKey: string[],
-  update: (oldPost: PostData) => Partial<Post>,
-): (() => Promise<() => void>) => async () => {
-  await queryClient.cancelQueries(postQueryKey);
-  const oldPost = queryClient.getQueryData<PostData>(postQueryKey);
-  queryClient.setQueryData<PostData>(postQueryKey, {
-    post: {
-      ...oldPost.post,
-      ...update(oldPost),
-    },
-  });
-  return () => {
-    queryClient.setQueryData<PostData>(postQueryKey, oldPost);
+const updatePost =
+  (
+    queryClient: QueryClient,
+    postQueryKey: string[],
+    update: (oldPost: PostData) => Partial<Post>,
+  ): (() => Promise<() => void>) =>
+  async () => {
+    await queryClient.cancelQueries(postQueryKey);
+    const oldPost = queryClient.getQueryData<PostData>(postQueryKey);
+    queryClient.setQueryData<PostData>(postQueryKey, {
+      post: {
+        ...oldPost.post,
+        ...update(oldPost),
+      },
+    });
+    return () => {
+      queryClient.setQueryData<PostData>(postQueryKey, oldPost);
+    };
   };
-};
 
 const onUpvoteMutation = (
   queryClient: QueryClient,
@@ -393,10 +395,11 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   const { user, showLogin, tokenRefreshed } = useContext(AuthContext);
   // const { nativeShareSupport } = useContext(ProgressiveEnhancementContext);
   const [parentComment, setParentComment] = useState<ParentComment>(null);
-  const [pendingComment, setPendingComment] = useState<{
-    comment: Comment;
-    parentId: string | null;
-  }>(null);
+  const [pendingComment, setPendingComment] =
+    useState<{
+      comment: Comment;
+      parentId: string | null;
+    }>(null);
   const [showShareNewComment, setShowShareNewComment] = useState(false);
   const [lastScroll, setLastScroll] = useState(0);
   const [showDeletePost, setShowDeletePost] = useState(false);

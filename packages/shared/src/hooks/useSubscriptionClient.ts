@@ -7,10 +7,8 @@ export default function useSubscriptionClient(
   ready: boolean,
 ): SubscriptionContextData {
   const [connected, setConnected] = useState(false);
-  const [
-    subscriptionClient,
-    setSubscriptionClient,
-  ] = useState<SubscriptionClient>(null);
+  const [subscriptionClient, setSubscriptionClient] =
+    useState<SubscriptionClient>(null);
 
   useEffect(() => {
     if (ready) {

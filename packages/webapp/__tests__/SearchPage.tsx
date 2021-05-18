@@ -34,12 +34,12 @@ beforeEach(() => {
   nock.cleanAll();
   mocked(useRouter).mockImplementation(
     () =>
-      (({
+      ({
         pathname: '/search',
         query: {},
         replace: routerReplace,
         push: jest.fn(),
-      } as unknown) as NextRouter),
+      } as unknown as NextRouter),
   );
 });
 
@@ -150,10 +150,10 @@ it('should request search feed', async () => {
   const query = { q: 'daily' };
   mocked(useRouter).mockImplementation(
     () =>
-      (({
+      ({
         pathname: '/search',
         query,
-      } as unknown) as NextRouter),
+      } as unknown as NextRouter),
   );
   renderComponent([
     createFeedMock(defaultFeedPage, SEARCH_POSTS_QUERY, {
@@ -198,10 +198,10 @@ it('should show empty screen on no results', async () => {
   const query = { q: 'daily' };
   mocked(useRouter).mockImplementation(
     () =>
-      (({
+      ({
         pathname: '/search',
         query,
-      } as unknown) as NextRouter),
+      } as unknown as NextRouter),
   );
   renderComponent([
     createFeedMock(

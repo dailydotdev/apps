@@ -19,12 +19,11 @@ export interface BaseButtonProps {
   children?: ReactNode;
 }
 
-export type ButtonProps<
-  Tag extends keyof JSX.IntrinsicElements
-> = BaseButtonProps &
-  JSX.IntrinsicElements[Tag] & {
-    innerRef?: LegacyRef<JSX.IntrinsicElements[Tag]>;
-  };
+export type ButtonProps<Tag extends keyof JSX.IntrinsicElements> =
+  BaseButtonProps &
+    JSX.IntrinsicElements[Tag] & {
+      innerRef?: LegacyRef<JSX.IntrinsicElements[Tag]>;
+    };
 
 export function Button<Tag extends keyof JSX.IntrinsicElements>({
   loading,

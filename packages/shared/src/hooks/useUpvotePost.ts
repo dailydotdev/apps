@@ -14,7 +14,7 @@ type UseUpvotePostRet<T> = {
 };
 
 export default function useUpvotePost<
-  T extends { id: string } = { id: string }
+  T extends { id: string } = { id: string },
 >({
   onUpvotePostMutate,
   onCancelPostUpvoteMutate,

@@ -11,11 +11,8 @@ export default function useOnboarding(
   user?: LoggedUser,
   loadedUserFromCache?: boolean,
 ): OnboardingContextData {
-  const [
-    onboardingStep,
-    setOnboardingStep,
-    loadedFromCache,
-  ] = usePersistentState<number | boolean>('showWelcome', null, 1);
+  const [onboardingStep, setOnboardingStep, loadedFromCache] =
+    usePersistentState<number | boolean>('showWelcome', null, 1);
   const [onboardingData, setOnboardingData] = usePersistentState(
     'onboarding',
     null,
