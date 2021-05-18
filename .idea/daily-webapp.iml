@@ -5,6 +5,7 @@
       <sourceFolder url="file://$MODULE_DIR$/__tests__" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/packages/webapp/__tests__" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/packages/shared/__tests__" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/packages/extension/__tests__" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/.next" />
       <excludeFolder url="file://$MODULE_DIR$/.tmp" />
       <excludeFolder url="file://$MODULE_DIR$/.vercel" />

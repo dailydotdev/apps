@@ -1,0 +1,50 @@
+{
+  "manifest_version": 2,
+  "version": "0.0.0",
+  "name": "daily.dev | All-in-one coding news reader",
+  "short_name": "daily.dev",
+  "description": "daily.dev is the easiest way to stay updated on the latest programming news",
+  "homepage_url": "https://daily.dev",
+  "icons": {
+    "16": "assets/icons/16.png",
+    "48": "assets/icons/48.png",
+    "128": "assets/icons/128.png"
+  },
+  "permissions": [
+    "storage",
+    "alarms",
+    "https://daily.dev/",
+    "https://*.daily.dev/",
+    "https://dailynow.co/",
+    "https://*.dailynow.co/"
+  ],
+  "optional_permissions": [
+    "topSites"
+  ],
+  "content_security_policy": "script-src 'self'; object-src 'self'",
+  "browser_action": {
+    "default_icon": {
+      "16": "assets/icons/action_16.png",
+      "32": "assets/icons/action_32.png"
+    }
+  },
+  "background": {
+    "scripts": [
+      "js/background.bundle.js"
+    ],
+    "__chrome|opera__persistent": true
+  },
+  "chrome_url_overrides": {
+    "newtab": "index.html"
+  },
+  "web_accessible_resources": [
+    "index.html"
+  ],
+  "__firefox__browser_specific_settings": {
+    "gecko": {
+      "strict_min_version": "54.0"
+    }
+  },
+
+  "__chrome__offline_enabled": true
+}

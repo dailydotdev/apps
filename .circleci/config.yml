@@ -35,6 +35,7 @@ jobs:
             - ./packages/prettier-config/node_modules
             - ./packages/shared/node_modules
             - ./packages/webapp/node_modules
+            - ./packages/extension/node_modules
       - run:
           name: Test
           command: npx lerna run test:ci
