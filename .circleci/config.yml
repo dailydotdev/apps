@@ -19,7 +19,7 @@ jobs:
       - checkout
       - run:
           name: Install lerna
-          command: npm i -g lerna
+          command: npm i --prefix=$HOME/.local -g lerna
       - create_concatenated_package_lock:
           filename: combined-package-lock.txt
       - restore_cache:
