@@ -1,9 +1,6 @@
 import '@testing-library/jest-dom';
-import { matchers } from '@emotion/jest';
 import 'fake-indexeddb/auto';
 import nodeFetch from 'node-fetch';
-
-expect.extend(matchers);
 
 process.env.NEXT_PUBLIC_API_URL = 'http://localhost:3000';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
@@ -22,7 +19,7 @@ jest.mock('next/dynamic', () => (func: () => Promise<any>) => {
   return DynamicComponent;
 });
 
-global.fetch = nodeFetch as any as typeof fetch;
+global.fetch = (nodeFetch as any) as typeof fetch;
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 Object.defineProperty(global, 'IntersectionObserver', {
