@@ -26,9 +26,9 @@ beforeEach(() => {
   jest.clearAllMocks();
   mocked(useRouter).mockImplementation(
     () =>
-      (({
+      ({
         replace: routerReplace,
-      } as unknown) as NextRouter),
+      } as unknown as NextRouter),
   );
 });
 

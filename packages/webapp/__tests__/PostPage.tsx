@@ -60,10 +60,10 @@ beforeEach(() => {
   jest.clearAllMocks();
   mocked(useRouter).mockImplementation(
     () =>
-      (({
+      ({
         isFallback: false,
         query: {},
-      } as unknown) as NextRouter),
+      } as unknown as NextRouter),
   );
 });
 
@@ -363,10 +363,10 @@ it('should not show author onboarding by default', () => {
 it('should show author onboarding when the query param is set', async () => {
   mocked(useRouter).mockImplementation(
     () =>
-      (({
+      ({
         isFallback: false,
         query: { author: 'true' },
-      } as unknown) as NextRouter),
+      } as unknown as NextRouter),
   );
   renderPost();
   const el = await screen.findByTestId('authorOnboarding');

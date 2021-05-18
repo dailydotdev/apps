@@ -103,10 +103,10 @@ export default function CalendarHeatmap<T extends { date: string }>({
     weekCount * squareSizeWithGutter - (gutterSize - weekdayLabelSize);
   const height = weekWidth + (MONTH_LABEL_SIZE - gutterSize);
 
-  const bins = useMemo<number[]>(() => getBins(values.map(valueToCount)), [
-    values,
-    valueToCount,
-  ]);
+  const bins = useMemo<number[]>(
+    () => getBins(values.map(valueToCount)),
+    [values, valueToCount],
+  );
   const computedValues = useMemo<
     Record<number, { count: number; date: Date; bin: number; originalValue: T }>
   >(

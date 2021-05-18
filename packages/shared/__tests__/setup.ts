@@ -20,7 +20,7 @@ jest.mock('next/dynamic', () => (func: () => Promise<any>) => {
   return DynamicComponent;
 });
 
-global.fetch = (nodeFetch as any) as typeof fetch;
+global.fetch = nodeFetch as any as typeof fetch;
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 Object.defineProperty(global, 'IntersectionObserver', {
@@ -54,9 +54,9 @@ Object.defineProperty(global, 'open', {
 jest.mock('next/router', () => ({
   useRouter: jest.fn().mockImplementation(
     () =>
-      (({
+      ({
         query: {},
-      } as unknown) as NextRouter),
+      } as unknown as NextRouter),
   ),
 }));
 

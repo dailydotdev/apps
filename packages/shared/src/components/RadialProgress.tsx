@@ -104,10 +104,10 @@ export default forwardRef(function RadialProgress(
     return [];
   }, [stepsPaths, progress]);
 
-  const remainingPaths = useMemo<string[]>(() => stepsPaths.slice(progress), [
-    stepsPaths,
-    progress,
-  ]);
+  const remainingPaths = useMemo<string[]>(
+    () => stepsPaths.slice(progress),
+    [stepsPaths, progress],
+  );
 
   return (
     <div

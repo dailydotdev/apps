@@ -21,10 +21,11 @@ export default function useLoggedUser(): [
   >('user', null);
 
   const queryClient = useQueryClient();
-  const { data: fetchedUser, isLoading, refetch } = useQuery(
-    queryKey,
-    getLoggedUser,
-  );
+  const {
+    data: fetchedUser,
+    isLoading,
+    refetch,
+  } = useQuery(queryKey, getLoggedUser);
 
   const availableUser = fetchedUser || cachedUser;
 
@@ -40,9 +41,10 @@ export default function useLoggedUser(): [
     await queryClient.invalidateQueries(['profile', user.id]);
   };
 
-  const trackingId = useMemo<string | null>(() => availableUser?.id, [
-    availableUser,
-  ]);
+  const trackingId = useMemo<string | null>(
+    () => availableUser?.id,
+    [availableUser],
+  );
 
   useEffect(() => {
     if (fetchedUser) {

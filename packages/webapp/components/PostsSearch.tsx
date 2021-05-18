@@ -21,11 +21,12 @@ export default function PostsSearch(): ReactElement {
   const [initialQuery, setInitialQuery] = useState<string>();
   const [query, setQuery] = useState<string>();
   const timeoutHandleRef = useRef<number>();
-  const [menuPosition, setMenuPosition] = useState<{
-    x: number;
-    y: number;
-    width: number;
-  }>(null);
+  const [menuPosition, setMenuPosition] =
+    useState<{
+      x: number;
+      y: number;
+      width: number;
+    }>(null);
   const [items, setItems] = useState<string[]>([]);
 
   const { data: searchResults, isLoading } = useQuery<{
@@ -50,11 +51,8 @@ export default function PostsSearch(): ReactElement {
     if (menuPosition) {
       return;
     }
-    const {
-      left,
-      bottom,
-      width,
-    } = searchBoxRef.current.getBoundingClientRect();
+    const { left, bottom, width } =
+      searchBoxRef.current.getBoundingClientRect();
     setMenuPosition({ x: left, y: bottom + window.scrollY, width });
   };
 

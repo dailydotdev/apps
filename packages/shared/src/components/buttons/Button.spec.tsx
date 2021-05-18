@@ -5,7 +5,7 @@ import UpvoteIcon from '../../../icons/upvote.svg';
 
 const renderComponent = <
   C extends HTMLElement = HTMLButtonElement,
-  P = HTMLAttributes<C>
+  P = HTMLAttributes<C>,
 >(
   props: Partial<BaseButtonProps & P> = {},
 ): RenderResult => {

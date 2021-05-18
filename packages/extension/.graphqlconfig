@@ -1,0 +1,12 @@
+{
+  "name": "Daily GraphQL Schema",
+  "extensions": {
+    "endpoints": {
+      "Daily GraphQL Endpoint": {
+        "url": "http://localhost:5000/graphql",
+        "introspect": true
+      }
+    }
+  },
+  "schemaPath": "./schema.graphql"
+}

@@ -21,11 +21,11 @@ beforeEach(() => {
   jest.clearAllMocks();
   mocked(useRouter).mockImplementation(
     () =>
-      (({
+      ({
         isFallback: false,
         query: {},
         replace: jest.fn(),
-      } as unknown) as NextRouter),
+      } as unknown as NextRouter),
   );
 });
 
@@ -121,10 +121,10 @@ it('should set twitter to optional by default', async () => {
 it('should set twitter to required in author mode', async () => {
   mocked(useRouter).mockImplementation(
     () =>
-      (({
+      ({
         isFallback: false,
         query: { mode: 'author' },
-      } as unknown) as NextRouter),
+      } as unknown as NextRouter),
   );
   renderComponent();
   const el = await screen.findByText('Twitter');

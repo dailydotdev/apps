@@ -9,7 +9,7 @@ commands:
     steps:
       - run:
           name: Combine package-lock.json files to single file
-          command: npx lerna la -a | awk -F packages '{printf "\"packages%s/package-lock.json\" ", $2}' | xargs cat > << parameters.filename >> 2>/dev/null
+          command: lerna la -a | awk -F packages '{printf "\"packages%s/package-lock.json\" ", $2}' | xargs cat > << parameters.filename >>
 
 jobs:
   build:
@@ -17,6 +17,9 @@ jobs:
       - image: cimg/node:14.16.0
     steps:
       - checkout
+      - run:
+          name: Install lerna
+          command: npm i --prefix=$HOME/.local -g lerna
       - create_concatenated_package_lock:
           filename: combined-package-lock.txt
       - restore_cache:
@@ -26,7 +29,7 @@ jobs:
             - deps-v1-
       - run:
           name: Install dependencies
-          command: npx lerna bootstrap
+          command: lerna bootstrap
       - save_cache:
           key: deps-v1-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "combined-package-lock.txt" }}
           paths:
@@ -35,9 +38,10 @@ jobs:
             - ./packages/prettier-config/node_modules
             - ./packages/shared/node_modules
             - ./packages/webapp/node_modules
+            - ./packages/extension/node_modules
       - run:
           name: Test
-          command: npx lerna run test:ci
+          command: lerna run test:ci
           environment:
             JEST_JUNIT_OUTPUT_DIR: ../../test-results
       - store_test_results:

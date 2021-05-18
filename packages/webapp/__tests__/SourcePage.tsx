@@ -30,10 +30,10 @@ const showLogin = jest.fn();
 jest.mock('next/router', () => ({
   useRouter: jest.fn().mockImplementation(
     () =>
-      (({
+      ({
         isFallback: false,
         query: {},
-      } as unknown) as NextRouter),
+      } as unknown as NextRouter),
   ),
 }));
 

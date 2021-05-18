@@ -61,14 +61,12 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
     setScrapeError('Failed to fetch information');
   };
 
-  const {
-    mutateAsync: checkIfSourceExists,
-    isLoading: checkingIfExists,
-  } = useMutation<{ source: Source }, unknown, string>((feed: string) =>
-    request(`${apiUrl}/graphql`, SOURCE_BY_FEED_QUERY, {
-      feed,
-    }),
-  );
+  const { mutateAsync: checkIfSourceExists, isLoading: checkingIfExists } =
+    useMutation<{ source: Source }, unknown, string>((feed: string) =>
+      request(`${apiUrl}/graphql`, SOURCE_BY_FEED_QUERY, {
+        feed,
+      }),
+    );
 
   const { mutateAsync: scrapeSource, isLoading: isScraping } = useMutation<
     ScrapeSourceResponse,
@@ -110,21 +108,19 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
     },
   );
 
-  const {
-    mutateAsync: requestSource,
-    isLoading: requestingSource,
-  } = useMutation<unknown, unknown, string>(
-    (feed: string) =>
-      request(`${apiUrl}/graphql`, REQUEST_SOURCE_MUTATION, {
-        data: { sourceUrl: feed },
-      }),
-    {
-      onSuccess: () => {
-        trackEvent({ category: 'Request Source', action: 'Submit' });
-        props.onRequestClose?.(null);
+  const { mutateAsync: requestSource, isLoading: requestingSource } =
+    useMutation<unknown, unknown, string>(
+      (feed: string) =>
+        request(`${apiUrl}/graphql`, REQUEST_SOURCE_MUTATION, {
+          data: { sourceUrl: feed },
+        }),
+      {
+        onSuccess: () => {
+          trackEvent({ category: 'Request Source', action: 'Submit' });
+          props.onRequestClose?.(null);
+        },
       },
-    },
-  );
+    );
 
   const onUrlChanged = () => {
     if (scrapeFormRef.current) {
