@@ -3,6 +3,7 @@ import 'fake-indexeddb/auto';
 import nodeFetch from 'node-fetch';
 
 process.env.NEXT_PUBLIC_API_URL = 'http://localhost:3000';
+process.env.NEXT_PUBLIC_WEBAPP_URL = 'https://app.daily.dev/';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
 // window.ga = ((...args) => {}) as UniversalAnalytics.ga;
 

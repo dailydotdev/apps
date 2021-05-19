@@ -72,7 +72,7 @@ const SourceItem = ({
       </span>
     </button>
     <GoToFilterButton
-      href={`/sources/${source.id}`}
+      href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}sources/${source.id}`}
       tooltip={`${source.name} feed`}
       className="right-4 my-auto"
       style={{ position: 'absolute' }}

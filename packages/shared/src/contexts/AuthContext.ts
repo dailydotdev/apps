@@ -11,6 +11,7 @@ export interface AuthContextData {
   loadingUser?: boolean;
   tokenRefreshed: boolean;
   loadedUserFromCache?: boolean;
+  getRedirectUri: () => string;
 }
 
 const AuthContext = React.createContext<AuthContextData>(null);

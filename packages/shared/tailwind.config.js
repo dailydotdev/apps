@@ -4,12 +4,6 @@ const overlay = require('./tailwind/overlay');
 const boxShadow = require('./tailwind/boxShadow');
 
 module.exports = {
-  purge: [
-    './pages/**/*.{js,ts,jsx,tsx}',
-    './components/**/*.{js,ts,jsx,tsx}',
-    './src/**/*.{js,ts,jsx,tsx}',
-    './node_modules/@dailydotdev/shared/src/**/*.{js,ts,jsx,tsx}',
-  ],
   theme: {
     colors: {
       ...colors,

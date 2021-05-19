@@ -26,7 +26,7 @@ export const CardSpace = classed('div', 'flex-1');
 export const CardLink = classed(
   'a',
   styles.link,
-  'absolute inset-0 w-full h-full',
+  'absolute inset-0 w-full h-full focus-outline',
 );
 
 export const Card = classed(

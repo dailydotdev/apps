@@ -9,7 +9,7 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0",
     "pretest": "npm run lint && npm run lint:css",
     "test": "node --expose-gc ./node_modules/.bin/jest --logHeapUsage",
-    "test:ci": "JEST_JUNIT_OUTPUT_NAME=webapp.xml  npm run test -- --ci --reporters=default --reporters=jest-junit --runInBand",
+    "test:ci": "JEST_JUNIT_OUTPUT_NAME=webapp.xml npm run test -- --ci --reporters=default --reporters=jest-junit --runInBand",
     "deploy": "vercel"
   },
   "prettier": "@dailydotdev/prettier-config",

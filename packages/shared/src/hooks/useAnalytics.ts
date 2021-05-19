@@ -12,6 +12,7 @@ export default function useAnalytics(
   user: LoggedUser,
   showCookie: boolean,
   canLoadScripts: boolean,
+  version: string,
 ): void {
   const [initializedGA, setInitializedGA] = useState(false);
   const [initializedAmp, setInitializedAmp] = useState(false);
@@ -42,7 +43,7 @@ export default function useAnalytics(
             sameSiteCookie: 'Lax',
             domain: process.env.NEXT_PUBLIC_DOMAIN,
           });
-          amplitude.setVersionName('webapp');
+          amplitude.setVersionName(version);
         });
       }
     }

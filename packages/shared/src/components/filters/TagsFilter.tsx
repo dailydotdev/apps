@@ -58,7 +58,10 @@ const Tag = ({
       #{tag}
     </Button>
     <FilterLine />
-    <GoToFilterButton href={`/tags/${tag}`} tooltip={`${tag} feed`} />
+    <GoToFilterButton
+      href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}tags/${tag}`}
+      tooltip={`${tag} feed`}
+    />
   </FilterItem>
 );
 

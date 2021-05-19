@@ -1,72 +1,18 @@
-import React, {
-  DependencyList,
-  ReactElement,
-  ReactNode,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
-import { MainLayoutProps } from './MainLayout';
-import Link from 'next/link';
+import React, { ReactElement, ReactNode, useMemo } from 'react';
 import { useRouter } from 'next/router';
-import { useQuery } from 'react-query';
-import classNames from 'classnames';
-import dynamic from 'next/dynamic';
-import Feed, { FeedProps } from '@dailydotdev/shared/src/components/Feed';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getLayout } from './FeedLayout';
-import {
-  getSourcesSettingsQueryKey,
-  getTagsSettingsQueryKey,
-} from '@dailydotdev/shared/src/hooks/useMutateFilters';
-import { FeedSettingsData } from '@dailydotdev/shared/src/graphql/feedSettings';
-import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
-import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
-import MagnifyingIcon from '@dailydotdev/shared/icons/magnifying.svg';
 import { SEARCH_POSTS_QUERY } from '@dailydotdev/shared/src/graphql/feed';
-import {
-  Dropdown,
-  DropdownProps,
-} from '@dailydotdev/shared/src/components/fields/Dropdown';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
-import { FeedPage } from '@dailydotdev/shared/src/components/utilities';
-import utilitiesStyles from '@dailydotdev/shared/src/components/utilities.module.css';
-import styles from './MainFeedPage.module.css';
-import CalendarIcon from '@dailydotdev/shared/icons/calendar.svg';
+import { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
+import MainFeedLayout, {
+  MainFeedLayoutProps,
+  tabs,
+} from '@dailydotdev/shared/src/components/MainFeedLayout';
+import dynamic from 'next/dynamic';
 
 const PostsSearch = dynamic(
-  () => import(/* webpackChunkName: "search" */ '../PostsSearch'),
+  () => import(/* webpackChunkName: "search" */ '../RouterPostsSearch'),
   { ssr: false },
 );
-
-const SearchEmptyScreen = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "emptySearch" */ '@dailydotdev/shared/src/components/SearchEmptyScreen'
-    ),
-);
-
-export type Tab = { path: string; title: string; default?: boolean };
-export const tabs: Tab[] = [
-  {
-    path: '/popular',
-    title: 'Popular',
-    default: true,
-  },
-  {
-    path: `/upvoted`,
-    title: 'Upvoted',
-  },
-  {
-    path: `/discussed`,
-    title: 'Discussed',
-  },
-  {
-    path: `/recent`,
-    title: 'Recent',
-  },
-];
 
 export type MainFeedPageProps<T> = {
   query: string;
@@ -75,28 +21,15 @@ export type MainFeedPageProps<T> = {
   children?: ReactNode;
 };
 
-const getQueryBasedOnLogin = (
-  tokenRefreshed: boolean,
-  user: LoggedUser | null,
-  query: string,
-  queryIfLogged: string | null,
-): string | null => {
-  if (tokenRefreshed) {
-    if (user && queryIfLogged) {
-      return queryIfLogged;
-    } else {
-      return query;
-    }
+const getFeedName = (path: string): string => {
+  if (path === '/search') {
+    return 'search';
   }
-  return null;
+  return (
+    tabs.find((tab) => (tab.default && path === '/') || path === tab.path)
+      ?.name ?? ''
+  );
 };
-
-const periods = [
-  { value: 7, text: 'Last week' },
-  { value: 30, text: 'Last month' },
-  { value: 365, text: 'Last year' },
-];
-const periodTexts = periods.map((period) => period.text);
 
 export default function MainFeedPage<T>({
   query,
@@ -105,145 +38,29 @@ export default function MainFeedPage<T>({
   children,
 }: MainFeedPageProps<T>): ReactElement {
   const router = useRouter();
-  const { user, tokenRefreshed } = useContext(AuthContext);
-  const { onboardingStep, onboardingReady } = useContext(OnboardingContext);
-  const showWelcome = onboardingStep === 1;
-  const finalQuery = getQueryBasedOnLogin(
-    tokenRefreshed,
-    user,
-    query,
-    queryIfLogged,
-  );
-  const [loadedTagsSettings, setLoadedTagsSettings] = useState(false);
-  const [loadedSourcesSettings, setLoadedSourcesSettings] = useState(false);
-  const [feedDeps, setFeedDeps] = useState<DependencyList>([0]);
-  const [selectedPeriod, setSelectedPeriod] = useState(0);
-
-  const tagsQueryKey = getTagsSettingsQueryKey(user);
-  const { data: tagsSettings } = useQuery<FeedSettingsData>(
-    tagsQueryKey,
-    () => ({ feedSettings: { includeTags: [] } }),
-    {
-      enabled: false,
-    },
-  );
-  const sourcesQueryKey = getSourcesSettingsQueryKey(user);
-  const { data: sourcesSettings } = useQuery<FeedSettingsData>(
-    sourcesQueryKey,
-    () => ({ feedSettings: { excludeSources: [] } }),
-    {
-      enabled: false,
-    },
-  );
-  useEffect(() => {
-    if (tagsSettings) {
-      if (loadedTagsSettings) {
-        setFeedDeps([feedDeps[0] + 1]);
-      } else {
-        setLoadedTagsSettings(true);
-      }
-    }
-  }, [tagsSettings]);
-
-  useEffect(() => {
-    if (sourcesSettings) {
-      if (loadedSourcesSettings) {
-        setFeedDeps([feedDeps[0] + 1]);
-      } else {
-        setLoadedSourcesSettings(true);
-      }
-    }
-  }, [sourcesSettings]);
-
-  const isSearch = '/search' === router?.pathname;
-  const isUpvoted = '/upvoted' === router?.pathname;
-
-  const feedProps = useMemo<FeedProps<unknown>>(() => {
-    if (isSearch && 'q' in router.query) {
+  const feedName = getFeedName(router?.pathname);
+  const layoutProps = useMemo<MainFeedLayoutProps<unknown>>(() => {
+    const baseProps = {
+      feedName,
+      searchChildren: <PostsSearch />,
+    };
+    if (feedName === 'search' && 'q' in router.query) {
       return {
         query: SEARCH_POSTS_QUERY,
         variables: { query: router.query.q },
-        emptyScreen: <SearchEmptyScreen />,
+        ...baseProps,
       };
     } else {
       return {
-        query: finalQuery,
-        variables: isUpvoted
-          ? { ...variables, period: periods[selectedPeriod].value }
-          : variables,
-        dep: feedDeps,
+        query,
+        queryIfLogged,
+        variables,
+        ...baseProps,
       };
     }
-  }, [isSearch, router.query, finalQuery, variables, feedDeps]);
+  }, [router?.pathname, router.query, query, queryIfLogged, variables]);
 
-  const tabClassNames = isSearch ? 'btn-tertiary invisible' : 'btn-tertiary';
-  const periodDropdownProps: DropdownProps = {
-    style: { width: '11rem' },
-    buttonSize: 'medium',
-    icon: <CalendarIcon />,
-    selectedIndex: selectedPeriod,
-    options: periodTexts,
-    onChange: (value, index) => {
-      setSelectedPeriod(index);
-      setFeedDeps([feedDeps[0] + 1]);
-    },
-  };
-
-  return (
-    <FeedPage
-      className={classNames({
-        [utilitiesStyles.notReady]: !onboardingReady,
-      })}
-    >
-      {showWelcome && (
-        <div
-          role="status"
-          className={`self-stretch -mt-1 mb-12 mx-auto py-3 px-6 text-theme-label-secondary rounded-2xl border border-theme-divider-secondary text-center typo-callout ${styles.welcome}`}
-        >
-          Dear developer, our mission is to serve all the best programming news
-          you’ll ever need. Ready?
-        </div>
-      )}
-      <nav className="relative h-11 flex self-stretch items-center mb-6 overflow-x-auto no-scrollbar">
-        <Link href="/search" passHref prefetch={false}>
-          <Button
-            tag="a"
-            buttonSize="small"
-            icon={<MagnifyingIcon />}
-            className={tabClassNames}
-            title="Search"
-          />
-        </Link>
-        {tabs.map((tab) => (
-          <Link href={tab.path} passHref prefetch={false} key={tab.path}>
-            <Button
-              tag="a"
-              buttonSize="small"
-              pressed={
-                tab.path === router?.pathname ||
-                (tab.default && router?.pathname === '/')
-              }
-              className={tabClassNames}
-            >
-              {tab.title}
-            </Button>
-          </Link>
-        ))}
-        {isUpvoted && (
-          <Dropdown
-            className="hidden laptop:block ml-auto mr-px"
-            {...periodDropdownProps}
-          />
-        )}
-        {isSearch && <PostsSearch />}
-      </nav>
-      {isUpvoted && (
-        <Dropdown className="laptop:hidden mb-6" {...periodDropdownProps} />
-      )}
-      <Feed {...feedProps} />
-      {children}
-    </FeedPage>
-  );
+  return <MainFeedLayout {...layoutProps}>{children}</MainFeedLayout>;
 }
 
 export function getMainFeedLayout<T>(

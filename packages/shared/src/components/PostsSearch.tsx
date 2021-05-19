@@ -1,22 +1,27 @@
-import { useAutoComplete } from '@dailydotdev/shared/src/hooks/useAutoComplete';
-import { SearchField } from '@dailydotdev/shared/src/components/fields/SearchField';
+import { useAutoComplete } from '../hooks/useAutoComplete';
+import { SearchField } from './fields/SearchField';
 import React, { ReactElement, useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import { useQuery } from 'react-query';
 import request from 'graphql-request';
-import { apiUrl } from '@dailydotdev/shared/src/lib/config';
-import { SEARCH_POST_SUGGESTIONS } from '@dailydotdev/shared/src/graphql/search';
+import { apiUrl } from '../lib/config';
+import { SEARCH_POST_SUGGESTIONS } from '../graphql/search';
 
-const AutoCompleteMenu = dynamic(
-  () => import('@dailydotdev/shared/src/components/fields/AutoCompleteMenu'),
-  {
-    ssr: false,
-  },
-);
+const AutoCompleteMenu = dynamic(() => import('./fields/AutoCompleteMenu'), {
+  ssr: false,
+});
 
-export default function PostsSearch(): ReactElement {
-  const router = useRouter();
+export type PostsSearchProps = {
+  initialQuery?: string;
+  onSubmitQuery: (query: string) => Promise<unknown>;
+  closeSearch: () => unknown;
+};
+
+export default function PostsSearch({
+  initialQuery: initialQueryProp,
+  onSubmitQuery,
+  closeSearch,
+}: PostsSearchProps): ReactElement {
   const searchBoxRef = useRef<HTMLDivElement>();
   const [initialQuery, setInitialQuery] = useState<string>();
   const [query, setQuery] = useState<string>();
@@ -41,9 +46,9 @@ export default function PostsSearch(): ReactElement {
 
   useEffect(() => {
     if (!initialQuery) {
-      setInitialQuery(router.query.q?.toString());
+      setInitialQuery(initialQueryProp);
     }
-  }, [router.query]);
+  }, [initialQueryProp]);
 
   const hideMenu = () => setMenuPosition(null);
 
@@ -70,10 +75,7 @@ export default function PostsSearch(): ReactElement {
 
   const submitQuery = async (item?: string) => {
     const itemQuery = item?.replace?.(/<(\/?)strong>/g, '');
-    await router.replace({
-      pathname: '/search',
-      query: { q: itemQuery || query },
-    });
+    await onSubmitQuery(itemQuery || query);
     if (itemQuery) {
       setInitialQuery(itemQuery);
     }
@@ -89,7 +91,7 @@ export default function PostsSearch(): ReactElement {
       return;
     }
 
-    if (value && value !== router.query?.q) {
+    if (value && value !== initialQueryProp) {
       if (timeoutHandleRef.current) {
         clearTimeout(timeoutHandleRef.current);
       }
@@ -113,7 +115,7 @@ export default function PostsSearch(): ReactElement {
         onKeyDown={onKeyDown}
         onBlur={() => {
           if (!query?.length) {
-            router.push('/');
+            closeSearch();
           } else {
             hideMenu();
           }

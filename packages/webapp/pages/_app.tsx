@@ -99,6 +99,8 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       loadingUser,
       tokenRefreshed,
       loadedUserFromCache,
+      getRedirectUri: () =>
+        `${window.location.origin}${window.location.pathname}`,
     }),
     [user, loginMode, loadingUser, tokenRefreshed],
   );
@@ -106,7 +108,13 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const onboardingContext = useOnboarding(user, loadedUserFromCache);
   const subscriptionContext = useSubscriptionClient(canFetchUserData);
   const settingsContext = useSettings(user?.id, canFetchUserData);
-  useAnalytics(trackingId, user, showCookie, progressiveContext.windowLoaded);
+  useAnalytics(
+    trackingId,
+    user,
+    showCookie,
+    progressiveContext.windowLoaded,
+    'webapp',
+  );
 
   useEffect(() => {
     if (

@@ -133,14 +133,14 @@ export async function getProfileSSR(id: string): Promise<PublicProfile> {
 }
 
 export async function getProfile(id: string): Promise<PublicProfile> {
-  const res = await fetch(`/api/v1/users/${id}`, {
+  const res = await fetch(`${apiUrl}/v1/users/${id}`, {
     credentials: 'include',
   });
   return res.json();
 }
 
 export async function getLoggedUser(): Promise<AnonymousUser | LoggedUser> {
-  const res = await fetch('/api/v1/users/me', {
+  const res = await fetch(`${apiUrl}/v1/users/me`, {
     credentials: 'include',
     headers: { app: 'web' },
   });
