@@ -18,12 +18,23 @@ import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContex
 import SettingsContext, {
   SettingsContextData,
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
+import { mocked } from 'ts-jest/utils';
+import { NextRouter, useRouter } from 'next/router';
 
 const showLogin = jest.fn();
 
 beforeEach(() => {
   jest.clearAllMocks();
   nock.cleanAll();
+  mocked(useRouter).mockImplementation(
+    () =>
+      ({
+        pathname: '/recent',
+        query: {},
+        replace: jest.fn(),
+        push: jest.fn(),
+      } as unknown as NextRouter),
+  );
 });
 
 const createFeedMock = (
@@ -77,6 +88,7 @@ const renderComponent = (
           logout: jest.fn(),
           updateUser: jest.fn(),
           tokenRefreshed: true,
+          getRedirectUri: jest.fn(),
         }}
       >
         <SettingsContext.Provider value={settingsContext}>

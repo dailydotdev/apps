@@ -27,6 +27,14 @@ import { FeedPage } from './utilities';
 import utilitiesStyles from './utilities.module.css';
 import styles from './MainFeedLayout.module.css';
 import CalendarIcon from '../../icons/calendar.svg';
+import {
+  ANONYMOUS_FEED_QUERY,
+  FEED_QUERY,
+  MOST_DISCUSSED_FEED_QUERY,
+  MOST_UPVOTED_FEED_QUERY,
+  SEARCH_POSTS_QUERY,
+} from '../graphql/feed';
+import usePersistentState from '../hooks/usePersistentState';
 
 const SearchEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "emptySearch" */ './SearchEmptyScreen'),
@@ -62,15 +70,38 @@ export const tabs: Tab[] = [
   },
 ];
 
-export type MainFeedLayoutProps<T> = {
-  feedName: string;
+type FeedQueryProps = {
   query: string;
   queryIfLogged?: string;
-  variables?: T;
+  variables?: Record<string, unknown>;
+};
+
+const propsByFeed: Record<string, FeedQueryProps> = {
+  popular: {
+    query: ANONYMOUS_FEED_QUERY,
+    queryIfLogged: FEED_QUERY,
+  },
+  upvoted: {
+    query: MOST_UPVOTED_FEED_QUERY,
+  },
+  discussed: {
+    query: MOST_DISCUSSED_FEED_QUERY,
+  },
+  recent: {
+    query: ANONYMOUS_FEED_QUERY,
+    queryIfLogged: FEED_QUERY,
+    variables: { ranking: 'TIME' },
+  },
+};
+
+export type MainFeedLayoutProps = {
+  feedName: string;
+  isSearchOn: boolean;
+  searchQuery?: string;
   children?: ReactNode;
   useNavButtonsNotLinks?: boolean;
-  onNavTabClicked?: (tab: Tab) => unknown;
-  onSearchButtonClicked?: () => unknown;
+  onNavTabClick?: (tab: Tab) => unknown;
+  onSearchButtonClick?: () => unknown;
   searchChildren: ReactNode;
 };
 
@@ -112,26 +143,43 @@ function ButtonOrLink({
   return <Button {...props} />;
 }
 
-export default function MainFeedLayout<T>({
-  feedName,
-  query,
-  queryIfLogged,
-  variables,
+export default function MainFeedLayout({
+  feedName: feedNameProp,
+  searchQuery,
+  isSearchOn,
   children,
   useNavButtonsNotLinks,
-  onNavTabClicked,
-  onSearchButtonClicked,
+  onNavTabClick,
+  onSearchButtonClick,
   searchChildren,
-}: MainFeedLayoutProps<T>): ReactElement {
+}: MainFeedLayoutProps): ReactElement {
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { onboardingStep, onboardingReady } = useContext(OnboardingContext);
-  const showWelcome = onboardingStep === 1;
-  const finalQuery = getQueryBasedOnLogin(
-    tokenRefreshed,
-    user,
-    query,
-    queryIfLogged,
+  const [defaultFeed, setDefaultFeed] = usePersistentState(
+    'defaultFeed',
+    null,
+    'popular',
   );
+  const showWelcome = onboardingStep === 1;
+
+  const feedName = feedNameProp === 'default' ? defaultFeed : feedNameProp;
+  const isUpvoted = !isSearchOn && feedName === 'upvoted';
+
+  let query: { query: string; variables?: Record<string, unknown> };
+  if (feedName) {
+    query = {
+      query: getQueryBasedOnLogin(
+        tokenRefreshed,
+        user,
+        propsByFeed[feedName].query,
+        propsByFeed[feedName].queryIfLogged,
+      ),
+      variables: propsByFeed[feedName].variables,
+    };
+  } else {
+    query = { query: null };
+  }
+
   const [loadedTagsSettings, setLoadedTagsSettings] = useState(false);
   const [loadedSourcesSettings, setLoadedSourcesSettings] = useState(false);
   const [feedDeps, setFeedDeps] = useState<DependencyList>([0]);
@@ -173,21 +221,27 @@ export default function MainFeedLayout<T>({
     }
   }, [sourcesSettings]);
 
-  const isSearch = feedName === 'search';
-  const isUpvoted = feedName === 'upvoted';
-
   const feedProps = useMemo<FeedProps<unknown>>(() => {
+    if (isSearchOn && searchQuery) {
+      return {
+        query: SEARCH_POSTS_QUERY,
+        variables: { query: searchQuery },
+        emptyScreen: <SearchEmptyScreen />,
+      };
+    }
+    if (!query.query) {
+      return null;
+    }
     return {
-      query: finalQuery,
+      query: query.query,
       variables: isUpvoted
-        ? { ...variables, period: periods[selectedPeriod].value }
-        : variables,
+        ? { ...query.variables, period: periods[selectedPeriod].value }
+        : query.variables,
       dep: feedDeps,
-      emptyScreen: isSearch ? <SearchEmptyScreen /> : undefined,
     };
-  }, [isSearch, finalQuery, variables, feedDeps]);
+  }, [isSearchOn ? searchQuery : feedDeps, query.query, query.variables]);
 
-  const tabClassNames = isSearch ? 'btn-tertiary invisible' : 'btn-tertiary';
+  const tabClassNames = isSearchOn ? 'btn-tertiary invisible' : 'btn-tertiary';
   const periodDropdownProps: DropdownProps = {
     style: { width: '11rem' },
     buttonSize: 'medium',
@@ -198,6 +252,11 @@ export default function MainFeedLayout<T>({
       setSelectedPeriod(index);
       setFeedDeps([feedDeps[0] + 1]);
     },
+  };
+
+  const onTabClick = (tab: Tab) => {
+    setDefaultFeed(tab.name);
+    onNavTabClick?.(tab);
   };
 
   return (
@@ -223,7 +282,7 @@ export default function MainFeedLayout<T>({
           icon={<MagnifyingIcon />}
           className={tabClassNames}
           title="Search"
-          onClick={onSearchButtonClicked}
+          onClick={onSearchButtonClick}
         />
         {tabs.map((tab) => (
           <ButtonOrLink
@@ -233,7 +292,7 @@ export default function MainFeedLayout<T>({
             buttonSize="small"
             pressed={tab.name === feedName}
             className={tabClassNames}
-            onClick={() => onNavTabClicked?.(tab)}
+            onClick={() => onTabClick(tab)}
           >
             {tab.title}
           </ButtonOrLink>
@@ -244,12 +303,12 @@ export default function MainFeedLayout<T>({
             {...periodDropdownProps}
           />
         )}
-        {isSearch ? searchChildren : undefined}
+        {isSearchOn ? searchChildren : undefined}
       </nav>
       {isUpvoted && (
         <Dropdown className="laptop:hidden mb-6" {...periodDropdownProps} />
       )}
-      <Feed {...feedProps} />
+      {feedProps && <Feed {...feedProps} />}
       {children}
     </FeedPage>
   );

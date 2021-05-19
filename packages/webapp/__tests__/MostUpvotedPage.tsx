@@ -15,12 +15,23 @@ import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContex
 import SettingsContext, {
   SettingsContextData,
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
+import { mocked } from 'ts-jest/utils';
+import { NextRouter, useRouter } from 'next/router';
 
 const showLogin = jest.fn();
 
 beforeEach(() => {
   jest.clearAllMocks();
   nock.cleanAll();
+  mocked(useRouter).mockImplementation(
+    () =>
+      ({
+        pathname: '/upvoted',
+        query: {},
+        replace: jest.fn(),
+        push: jest.fn(),
+      } as unknown as NextRouter),
+  );
 });
 
 const createFeedMock = (
@@ -74,6 +85,7 @@ const renderComponent = (
           logout: jest.fn(),
           updateUser: jest.fn(),
           tokenRefreshed: true,
+          getRedirectUri: jest.fn(),
         }}
       >
         <SettingsContext.Provider value={settingsContext}>
@@ -101,6 +113,7 @@ it('should request most upvoted feed when logged-in', async () => {
       first: 7,
       loggedIn: true,
       unreadOnly: false,
+      period: 7,
     }),
   ]);
   await waitFor(async () => {
@@ -116,6 +129,7 @@ it('should request most upvoted feed when not', async () => {
         first: 7,
         loggedIn: false,
         unreadOnly: false,
+        period: 7,
       }),
     ],
     null,
