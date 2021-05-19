@@ -1,22 +1,25 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import { useRouter } from 'next/router';
 import GitHubIcon from '../../icons/github.svg';
 import { privacyPolicy, termsOfService } from '../lib/constants';
 import { LegalNotice } from './utilities';
 import { Button } from './buttons/Button';
+import AuthContext from '../contexts/AuthContext';
+import { apiUrl } from '../lib/config';
 
 export default function LoginButtons(): ReactElement {
   const router = useRouter();
+  const { getRedirectUri } = useContext(AuthContext);
 
   const authUrl = (provider: string, redirectUri: string) =>
-    `/api/v1/auth/authorize?provider=${provider}&redirect_uri=${encodeURI(
+    `${apiUrl}/v1/auth/authorize?provider=${provider}&redirect_uri=${encodeURI(
       redirectUri,
     )}&skip_authenticate=true&register_mode=${
       router.query.author ? 'author' : 'default'
     }`;
 
-  const login = async (provider: string) => {
-    const redirectUri = `${window.location.origin}${window.location.pathname}`;
+  const login = (provider: string) => {
+    const redirectUri = getRedirectUri();
     window.location.href = authUrl(provider, redirectUri);
   };
 
