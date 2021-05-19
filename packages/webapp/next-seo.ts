@@ -21,7 +21,7 @@ export const defaultSeo: Partial<NextSeoProps> = {
 export const defaultOpenGraph: Partial<OpenGraph> = {
   images: [
     {
-      url: 'https://daily-now-res.cloudinary.com/image/upload/v1606054811/opengraph/Open_Grap_-_Home2.png',
+      url: 'https://daily-now-res.cloudinary.com/image/upload/v1621427800/opengraph/Open_Graph_2.jpg',
     },
   ],
 };
