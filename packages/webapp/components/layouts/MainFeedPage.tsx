@@ -83,12 +83,3 @@ export const mainFeedLayoutProps: MainLayoutProps = {
   greeting: true,
   mainPage: true,
 };
-
-export function generateMainFeedLayoutProps(
-  props: MainFeedPageProps,
-): MainLayoutProps & MainFeedPageProps {
-  return {
-    ...props,
-    ...mainFeedLayoutProps,
-  };
-}
