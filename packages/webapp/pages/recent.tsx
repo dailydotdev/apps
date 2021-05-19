@@ -1,11 +1,7 @@
 import React, { ReactElement } from 'react';
 import {
-  ANONYMOUS_FEED_QUERY,
-  FEED_QUERY,
-} from '@dailydotdev/shared/src/graphql/feed';
-import {
-  generateMainFeedLayoutProps,
   getMainFeedLayout,
+  mainFeedLayoutProps,
 } from '../components/layouts/MainFeedPage';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
@@ -18,8 +14,6 @@ const seo: NextSeoProps = {
   ...defaultSeo,
 };
 
-const variables = { ranking: 'TIME' };
-
 const Recent = (): ReactElement => {
   return (
     <>
@@ -29,10 +23,6 @@ const Recent = (): ReactElement => {
 };
 
 Recent.getLayout = getMainFeedLayout;
-Recent.layoutProps = generateMainFeedLayoutProps({
-  query: ANONYMOUS_FEED_QUERY,
-  queryIfLogged: FEED_QUERY,
-  variables,
-});
+Recent.layoutProps = mainFeedLayoutProps;
 
 export default Recent;

@@ -1,11 +1,7 @@
 import React, { ReactElement, useMemo } from 'react';
 import {
-  ANONYMOUS_FEED_QUERY,
-  FEED_QUERY,
-} from '@dailydotdev/shared/src/graphql/feed';
-import {
-  generateMainFeedLayoutProps,
   getMainFeedLayout,
+  mainFeedLayoutProps,
 } from '../components/layouts/MainFeedPage';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
@@ -42,9 +38,6 @@ const Search = (): ReactElement => {
 };
 
 Search.getLayout = getMainFeedLayout;
-Search.layoutProps = generateMainFeedLayoutProps({
-  query: ANONYMOUS_FEED_QUERY,
-  queryIfLogged: FEED_QUERY,
-});
+Search.layoutProps = mainFeedLayoutProps;
 
 export default Search;

@@ -1,11 +1,7 @@
 import React, { ReactElement } from 'react';
 import {
-  ANONYMOUS_FEED_QUERY,
-  FEED_QUERY,
-} from '@dailydotdev/shared/src/graphql/feed';
-import {
-  generateMainFeedLayoutProps,
   getMainFeedLayout,
+  mainFeedLayoutProps,
 } from '../components/layouts/MainFeedPage';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
@@ -27,9 +23,6 @@ const Popular = (): ReactElement => {
 };
 
 Popular.getLayout = getMainFeedLayout;
-Popular.layoutProps = generateMainFeedLayoutProps({
-  query: ANONYMOUS_FEED_QUERY,
-  queryIfLogged: FEED_QUERY,
-});
+Popular.layoutProps = mainFeedLayoutProps;
 
 export default Popular;

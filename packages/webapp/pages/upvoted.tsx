@@ -1,8 +1,7 @@
 import React, { ReactElement } from 'react';
-import { MOST_UPVOTED_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import {
-  generateMainFeedLayoutProps,
   getMainFeedLayout,
+  mainFeedLayoutProps,
 } from '../components/layouts/MainFeedPage';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
@@ -24,8 +23,6 @@ const Upvoted = (): ReactElement => {
 };
 
 Upvoted.getLayout = getMainFeedLayout;
-Upvoted.layoutProps = generateMainFeedLayoutProps({
-  query: MOST_UPVOTED_FEED_QUERY,
-});
+Upvoted.layoutProps = mainFeedLayoutProps;
 
 export default Upvoted;
