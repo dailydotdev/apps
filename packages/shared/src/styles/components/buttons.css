@@ -56,21 +56,30 @@
       width: 1.5rem;
       padding: 0;
       border-radius: 0.5rem;
-      font-size: 1rem;
+
+      & .icon {
+        font-size: 1rem;
+      }
     }
 
     &.small {
       width: 2rem;
       padding: 0;
       border-radius: 0.625rem;
-      font-size: 1.5rem;
+
+      & .icon {
+        font-size: 1.5rem;
+      }
     }
 
     &.large {
       width: 3rem;
       padding: 0;
       border-radius: 0.875rem;
-      font-size: 2rem;
+
+      & .icon {
+        font-size: 2rem;
+      }
     }
 
     &.xlarge {
@@ -78,7 +87,10 @@
       height: 4rem;
       padding: 0;
       border-radius: 1.375rem;
-      font-size: 2.5rem;
+
+      & .icon {
+        font-size: 2.5rem;
+      }
     }
   }
 
