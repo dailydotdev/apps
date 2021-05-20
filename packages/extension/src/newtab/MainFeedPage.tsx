@@ -5,6 +5,7 @@ import Sidebar from '@dailydotdev/shared/src/components/Sidebar';
 import MainFeedLayout from '../../../shared/src/components/MainFeedLayout';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import dynamic from 'next/dynamic';
+import MostVisitedSites from './MostVisitedSites';
 
 const PostsSearch = dynamic(
   () =>
@@ -47,6 +48,7 @@ export default function MainFeedPage(): ReactElement {
               onSubmitQuery={async (query) => setSearchQuery(query)}
             />
           }
+          navChildren={<MostVisitedSites />}
         />
       </FeedLayout>
     </MainLayout>

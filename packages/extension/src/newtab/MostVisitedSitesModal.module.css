@@ -1,0 +1,6 @@
+.mvsModal {
+  & :global(.modal) {
+    width: 26.25rem;
+    padding: 3.25rem 2.5rem 2rem;
+  }
+}

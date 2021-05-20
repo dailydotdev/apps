@@ -77,7 +77,7 @@ export default function MainLayout({
           pressed={!epicPrizesClicked}
           className="btn-tertiary-bacon mx-0.5 hidden tablet:flex"
           reverse
-          responsiveClass="laptop:flex"
+          responsiveLabelClass="laptop:flex"
           onClick={() => setEpicPrizesClicked(true)}
         >
           Win epic prizes
