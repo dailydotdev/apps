@@ -66,7 +66,7 @@ interface CompnentGetLayout {
   layoutProps?: Record<string, unknown>;
 }
 
-Router.events.on('routeChangeComplete', trackPageView);
+Router.events.on('routeChangeComplete', (page) => trackPageView(`/web${page}`));
 
 function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const [
@@ -114,6 +114,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     showCookie,
     progressiveContext.windowLoaded,
     'webapp',
+    () => `/web${window.location.pathname}${window.location.search}`,
   );
 
   useEffect(() => {

@@ -16,6 +16,10 @@ export const initializeAnalyticsQueue = (clientId: string): void => {
     }) as UniversalAnalytics.ga);
   window.ga.l = new Date().getTime();
   window.ga?.('create', process.env.NEXT_PUBLIC_GA, { clientId });
+  if (process.env.TARGET_BROWSER) {
+    window.ga?.('set', 'checkProtocolTask', () => {});
+    window.ga?.('require', 'displayfeatures');
+  }
 };
 
 export const loadAnalyticsScript = (): void => {
@@ -26,8 +30,7 @@ export const loadAnalyticsScript = (): void => {
   existingScript.parentNode.insertBefore(script, existingScript);
 };
 
-export const trackPageView = (url: string): void => {
-  const page = `/web${url}`;
+export const trackPageView = (page: string): void => {
   window.ga?.('set', 'page', page);
   window.ga?.('send', 'pageview');
 };

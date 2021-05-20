@@ -13,6 +13,7 @@ export default function useAnalytics(
   showCookie: boolean,
   canLoadScripts: boolean,
   version: string,
+  getPage: () => string,
 ): void {
   const [initializedGA, setInitializedGA] = useState(false);
   const [initializedAmp, setInitializedAmp] = useState(false);
@@ -20,7 +21,7 @@ export default function useAnalytics(
   useEffect(() => {
     if (trackingId && !initializedGA) {
       initializeAnalyticsQueue(trackingId);
-      trackPageView(`${window.location.pathname}${window.location.search}`);
+      trackPageView(getPage());
       setInitializedGA(true);
     }
   }, [trackingId]);
