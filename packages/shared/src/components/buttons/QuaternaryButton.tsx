@@ -11,7 +11,7 @@ import { Button, ButtonProps } from './Button';
 type QuandaryButtonProps = {
   id: string;
   reverse?: boolean;
-  responsiveLabel?: boolean;
+  responsiveClass?: string;
 };
 
 export function QuaternaryButton<Tag extends keyof JSX.IntrinsicElements>({
@@ -20,7 +20,7 @@ export function QuaternaryButton<Tag extends keyof JSX.IntrinsicElements>({
   style,
   className,
   reverse,
-  responsiveLabel,
+  responsiveClass,
   tag,
   ...props
 }: ButtonProps<Tag> & QuandaryButtonProps): ReactElement {
@@ -47,7 +47,7 @@ export function QuaternaryButton<Tag extends keyof JSX.IntrinsicElements>({
     };
   }
 
-  const labelDisplay = responsiveLabel ? `hidden mobileL:flex` : 'flex';
+  const labelDisplay = responsiveClass ? `hidden ${responsiveClass}` : 'flex';
 
   return (
     <div
@@ -55,12 +55,12 @@ export function QuaternaryButton<Tag extends keyof JSX.IntrinsicElements>({
       className={classNames(
         { reverse },
         props.buttonSize,
-        className,
         'btn-quaternary',
         'flex',
         'flex-row',
         'items-stretch',
         'select-none',
+        className,
       )}
     >
       <Button<Tag> id={id} {...props} tag={tag} {...buttonProps} />

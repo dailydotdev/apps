@@ -20,6 +20,10 @@ import LayoutIcon from '../../icons/layout.svg';
 import Link from 'next/link';
 import { CSSTransition } from 'react-transition-group';
 import classNames from 'classnames';
+import { QuaternaryButton } from './buttons/QuaternaryButton';
+import GiftIcon from '../../icons/gift.svg';
+import usePersistentState from '../hooks/usePersistentState';
+import OnboardingContext from '../contexts/OnboardingContext';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -54,18 +58,47 @@ export default function MainLayout({
 }: MainLayoutProps): ReactElement {
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user, showLogin, loadingUser } = useContext(AuthContext);
+  const { onboardingStep } = useContext(OnboardingContext);
   const [showSettings, setShowSettings] = useState(false);
   const [showGreeting, setShowGreeting] = useState(false);
+  const [epicPrizesClicked, setEpicPrizesClicked, epicPrizesLoaded] =
+    usePersistentState('epicPrizesClicked', undefined, false);
 
-  const settingsButton = mainPage ? (
-    <HeaderButton
-      icon={<LayoutIcon />}
-      {...getTooltipProps('Settings', { position: 'down' })}
-      className="btn-tertiary"
-      onClick={() => setShowSettings(!showSettings)}
-      pressed={showSettings}
-    />
-  ) : undefined;
+  const beforeBookmarkButtons = (
+    <>
+      {epicPrizesLoaded && (onboardingStep > 2 || user) && (
+        <QuaternaryButton
+          tag="a"
+          id="monthly-prizes-button"
+          href="https://daily.dev/monthly-prize"
+          target="_blank"
+          rel="noopener"
+          icon={<GiftIcon />}
+          pressed={!epicPrizesClicked}
+          className="btn-tertiary-bacon mx-0.5 hidden tablet:flex"
+          reverse
+          responsiveClass="laptop:flex"
+          onClick={() => setEpicPrizesClicked(true)}
+        >
+          Win epic prizes
+        </QuaternaryButton>
+      )}
+    </>
+  );
+
+  const afterBookmarkButtons = (
+    <>
+      {mainPage && (
+        <HeaderButton
+          icon={<LayoutIcon />}
+          {...getTooltipProps('Settings', { position: 'down' })}
+          className="btn-tertiary"
+          onClick={() => setShowSettings(!showSettings)}
+          pressed={showSettings}
+        />
+      )}
+    </>
+  );
 
   return (
     <>
@@ -112,59 +145,62 @@ export default function MainLayout({
           />
         )}
         <div className="flex-1" />
-        {!showOnlyLogo &&
-          !loadingUser &&
-          (user ? (
-            <>
-              <Link
-                href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}bookmarks`}
-                passHref
-                prefetch={false}
-              >
+        {!showOnlyLogo && !loadingUser && (
+          <>
+            {beforeBookmarkButtons}
+            {user ? (
+              <>
+                <Link
+                  href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}bookmarks`}
+                  passHref
+                  prefetch={false}
+                >
+                  <HeaderButton
+                    tag="a"
+                    icon={<BookmarkIcon />}
+                    {...getTooltipProps('Bookmarks', { position: 'down' })}
+                    className="btn-tertiary"
+                  />
+                </Link>
+                {afterBookmarkButtons}
+                <Link
+                  href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}${
+                    user.username || user.id
+                  }`}
+                  passHref
+                  prefetch={false}
+                >
+                  <a
+                    className="flex items-center ml-0.5 p-0 text-theme-label-primary bg-theme-bg-secondary border-none rounded-lg cursor-pointer no-underline font-bold typo-callout focus-outline"
+                    {...getTooltipProps('Profile', {
+                      position: 'left',
+                    })}
+                  >
+                    <span className="mr-2 ml-3">{user.reputation ?? 0}</span>
+                    <LazyImage
+                      className="w-8 h-8 rounded-lg"
+                      imgSrc={user.image}
+                      imgAlt="Your profile image"
+                    />
+                  </a>
+                </Link>
+              </>
+            ) : (
+              <>
                 <HeaderButton
-                  tag="a"
                   icon={<BookmarkIcon />}
                   {...getTooltipProps('Bookmarks', { position: 'down' })}
+                  onClick={() => showLogin()}
                   className="btn-tertiary"
                 />
-              </Link>
-              {settingsButton}
-              <Link
-                href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}${
-                  user.username || user.id
-                }`}
-                passHref
-                prefetch={false}
-              >
-                <a
-                  className="flex items-center ml-0.5 p-0 text-theme-label-primary bg-theme-bg-secondary border-none rounded-lg cursor-pointer no-underline font-bold typo-callout focus-outline"
-                  {...getTooltipProps('Profile', {
-                    position: 'left',
-                  })}
-                >
-                  <span className="mr-2 ml-3">{user.reputation ?? 0}</span>
-                  <LazyImage
-                    className="w-8 h-8 rounded-lg"
-                    imgSrc={user.image}
-                    imgAlt="Your profile image"
-                  />
-                </a>
-              </Link>
-            </>
-          ) : (
-            <>
-              <HeaderButton
-                icon={<BookmarkIcon />}
-                {...getTooltipProps('Bookmarks', { position: 'down' })}
-                onClick={() => showLogin()}
-                className="btn-tertiary"
-              />
-              {settingsButton}
-              <Button onClick={() => showLogin()} className="btn-tertiary">
-                Login
-              </Button>
-            </>
-          ))}
+                {afterBookmarkButtons}
+                <Button onClick={() => showLogin()} className="btn-tertiary">
+                  Login
+                </Button>
+              </>
+            )}
+          </>
+        )}
         {showRank && windowLoaded && (
           <HeaderRankProgress className="absolute left-0 right-0 -bottom-px my-0 mx-auto z-rank transform translate-y-1/2" />
         )}
