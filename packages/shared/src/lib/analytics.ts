@@ -17,6 +17,7 @@ export const initializeAnalyticsQueue = (clientId: string): void => {
   window.ga.l = new Date().getTime();
   window.ga?.('create', process.env.NEXT_PUBLIC_GA, { clientId });
   if (process.env.TARGET_BROWSER) {
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     window.ga?.('set', 'checkProtocolTask', () => {});
     window.ga?.('require', 'displayfeatures');
   }
