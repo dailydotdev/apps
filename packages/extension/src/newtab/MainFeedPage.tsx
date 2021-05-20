@@ -2,10 +2,14 @@ import React, { ReactElement, useContext, useState } from 'react';
 import MainLayout from '@dailydotdev/shared/src/components/MainLayout';
 import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import Sidebar from '@dailydotdev/shared/src/components/Sidebar';
-import MainFeedLayout from '../../../shared/src/components/MainFeedLayout';
+import MainFeedLayout, {
+  Tab,
+} from '@dailydotdev/shared/src/components/MainFeedLayout';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import dynamic from 'next/dynamic';
 import MostVisitedSites from './MostVisitedSites';
+import getPageForAnalytics from '../lib/getPageForAnalytics';
+import { trackPageView } from '@dailydotdev/shared/src/lib/analytics';
 
 const PostsSearch = dynamic(
   () =>
@@ -23,6 +27,17 @@ export default function MainFeedPage(): ReactElement {
   const enableSearch = () => {
     setIsSearchOn(true);
     setSearchQuery(null);
+    trackPageView(getPageForAnalytics('/search'));
+  };
+
+  const closeSearch = () => {
+    setIsSearchOn(false);
+    trackPageView(getPageForAnalytics(`/${feedName}`));
+  };
+
+  const onNavTabClick = (tab: Tab): void => {
+    setFeedName(tab.name);
+    trackPageView(getPageForAnalytics(`/${tab.name}`));
   };
 
   //TODO: main layout logo should redirect to extension's home page
@@ -41,10 +56,10 @@ export default function MainFeedPage(): ReactElement {
           isSearchOn={isSearchOn}
           searchQuery={searchQuery}
           onSearchButtonClick={enableSearch}
-          onNavTabClick={(tab) => setFeedName(tab.name)}
+          onNavTabClick={onNavTabClick}
           searchChildren={
             <PostsSearch
-              closeSearch={() => setIsSearchOn(false)}
+              closeSearch={closeSearch}
               onSubmitQuery={async (query) => setSearchQuery(query)}
             />
           }

@@ -23,6 +23,7 @@ import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
 import { browser } from 'webextension-polyfill-ts';
+import getPageForAnalytics from '../lib/getPageForAnalytics';
 
 const router = new CustomRouter();
 const queryClient = new QueryClient();
@@ -84,6 +85,7 @@ function InternalApp(): ReactElement {
     false,
     progressiveContext.windowLoaded,
     `extension v${version}`,
+    () => getPageForAnalytics(''),
   );
 
   useEffect(() => {
