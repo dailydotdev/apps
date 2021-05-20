@@ -733,7 +733,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             onClick={toggleUpvote}
             icon={<UpvoteIcon />}
             aria-label="Upvote"
-            responsiveClass="mobileL:flex"
+            responsiveLabelClass="mobileL:flex"
             className="btn-tertiary-avocado"
           >
             Upvote
@@ -744,7 +744,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             onClick={openNewComment}
             icon={<CommentIcon />}
             aria-label="Comment"
-            responsiveClass="mobileL:flex"
+            responsiveLabelClass="mobileL:flex"
             className="btn-tertiary-avocado"
           >
             Comment
@@ -754,7 +754,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             pressed={postById?.post.bookmarked}
             onClick={toggleBookmark}
             icon={<BookmarkIcon />}
-            responsiveClass="mobileL:flex"
+            responsiveLabelClass="mobileL:flex"
             className="btn-tertiary-bun"
           >
             Bookmark

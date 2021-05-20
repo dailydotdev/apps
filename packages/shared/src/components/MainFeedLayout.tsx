@@ -103,6 +103,7 @@ export type MainFeedLayoutProps = {
   onNavTabClick?: (tab: Tab) => unknown;
   onSearchButtonClick?: () => unknown;
   searchChildren: ReactNode;
+  navChildren?: ReactNode;
 };
 
 const getQueryBasedOnLogin = (
@@ -152,6 +153,7 @@ export default function MainFeedLayout({
   onNavTabClick,
   onSearchButtonClick,
   searchChildren,
+  navChildren,
 }: MainFeedLayoutProps): ReactElement {
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { onboardingStep, onboardingReady } = useContext(OnboardingContext);
@@ -297,9 +299,14 @@ export default function MainFeedLayout({
             {tab.title}
           </ButtonOrLink>
         ))}
+        <div className="flex-1" />
+        {navChildren}
         {isUpvoted && (
           <Dropdown
-            className="hidden laptop:block ml-auto mr-px"
+            className={classNames(
+              'hidden laptop:block mr-px',
+              navChildren && 'ml-4',
+            )}
             {...periodDropdownProps}
           />
         )}
