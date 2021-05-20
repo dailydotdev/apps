@@ -37,6 +37,7 @@ import { PlaceholderCard } from './cards/PlaceholderCard';
 import { PostList } from './cards/PostList';
 import { AdList } from './cards/AdList';
 import { PlaceholderList } from './cards/PlaceholderList';
+import ScrollToTopButton from './ScrollToTopButton';
 
 const CommentPopup = dynamic(() => import('./cards/CommentPopup'));
 const ReportPostMenu = dynamic(
@@ -417,6 +418,7 @@ export default function Feed<T>({
       )}
       style={settingsStyle}
     >
+      <ScrollToTopButton />
       {items.map(itemToComponent)}
       {!hasNoPlaceholderCard && (
         <div className={`invisible multi-truncate ${styles.stretcher}`}>
