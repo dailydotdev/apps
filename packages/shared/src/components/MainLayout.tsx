@@ -58,7 +58,7 @@ export default function MainLayout({
 }: MainLayoutProps): ReactElement {
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user, showLogin, loadingUser } = useContext(AuthContext);
-  const { onboardingStep } = useContext(OnboardingContext);
+  const { onboardingStep } = useContext(OnboardingContext) || {};
   const [showSettings, setShowSettings] = useState(false);
   const [showGreeting, setShowGreeting] = useState(false);
   const [epicPrizesClicked, setEpicPrizesClicked, epicPrizesLoaded] =
