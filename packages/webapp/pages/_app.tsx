@@ -212,6 +212,19 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
                   onRequestClose={onboardingContext.closeReferral}
                 />
               )}
+              <a
+                href="https://www.producthunt.com/posts/daily-dev-2?utm_source=badge-review&utm_medium=badge&utm_souce=badge-daily-dev-2#discussion-body"
+                target="_blank"
+              >
+                <img
+                  src="https://api.producthunt.com/widgets/embed-image/v1/review.svg?post_id=297063&theme=light"
+                  alt="daily.dev - All-in-one tech news reader for developers | Product Hunt"
+                  style={{ width: '250px', height: '54px', zIndex: 2 }}
+                  className="fixed left-12 bottom-12"
+                  width="250"
+                  height="54"
+                />
+              </a>
             </OnboardingContext.Provider>
           </SettingsContext.Provider>
         </SubscriptionContext.Provider>

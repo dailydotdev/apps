@@ -25,7 +25,7 @@ const Search = (): ReactElement => {
       };
     } else {
       return {
-        title: 'daily.dev | All-in-one coding news reader',
+        title: 'daily.dev | All-in-one developer news reader',
       };
     }
   }, [query]);

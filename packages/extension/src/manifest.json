@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "version": "0.0.0",
-  "name": "daily.dev | All-in-one coding news reader",
+  "name": "daily.dev | All-in-one developer news reader",
   "short_name": "daily.dev",
   "description": "daily.dev is the easiest way to stay updated on the latest programming news",
   "homepage_url": "https://daily.dev",
