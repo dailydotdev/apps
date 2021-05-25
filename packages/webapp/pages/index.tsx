@@ -27,22 +27,6 @@ const Home = (): ReactElement => {
           },
         ]}
       />
-      <a
-        href="https://www.producthunt.com/posts/daily-dev-2?utm_source=badge-review&utm_medium=badge&utm_souce=badge-daily-dev-2#discussion-body"
-        target="_blank"
-      >
-        <img
-          src="https://api.producthunt.com/widgets/embed-image/v1/review.svg?post_id=297063&theme=light"
-          alt="daily.dev - All-in-one tech news reader for developers | Product Hunt"
-          style={{
-            width: '222px',
-            height: '48px',
-            zIndex: 2,
-            bottom: '4.5rem',
-          }}
-          className="fixed left-4"
-        />
-      </a>
     </>
   );
 };
