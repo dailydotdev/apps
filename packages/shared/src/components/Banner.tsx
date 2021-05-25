@@ -13,13 +13,14 @@ export default function Banner(): ReactElement {
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const [lastSeen, setLastSeen] = usePersistentState(
     'lastSeenBanner',
+    null,
     new Date(0),
   );
   const { data } = useQuery<BannerData>(
     ['banner', lastSeen.getTime()],
     () => request(`${apiUrl}/graphql`, BANNER_QUERY, { lastSeen }),
     {
-      enabled: windowLoaded,
+      enabled: windowLoaded && !!lastSeen,
     },
   );
 
