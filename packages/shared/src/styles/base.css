@@ -46,7 +46,8 @@ html .invert .invert {
   --theme-background-primary: theme('colors.pepper.90');
   --theme-background-secondary: theme('colors.pepper.70');
   --theme-background-tertiary: theme('colors.pepper.80');
-  --theme-background-bacon: theme('colors.bacon.80');
+  --theme-background-bun: theme('colors.bun.80');
+  --theme-background-onion: theme('colors.onion.80');
 
   --theme-label-primary: #ffffff;
   --theme-label-secondary: theme('colors.salt.50');
@@ -55,7 +56,7 @@ html .invert .invert {
   --theme-label-disabled: theme('colors.salt.90')52;
   --theme-label-link: theme('colors.water.20');
   --theme-label-invert: theme('colors.pepper.90');
-  --theme-label-bacon: theme('colors.bacon.20');
+  --theme-label-bun: theme('colors.bun.20');
 
   --theme-divider-primary: theme('colors.salt.90');
   --theme-divider-secondary: theme('colors.salt.90')66;
@@ -107,6 +108,8 @@ html.light .invert .invert {
   --theme-background-secondary: theme('colors.salt.10');
   --theme-background-tertiary: theme('colors.salt.20');
   --theme-background-bacon: theme('colors.bacon.20');
+  --theme-background-bun: theme('colors.bun.20');
+  --theme-background-onion: theme('colors.onion.20');
 
   --theme-label-primary: theme('colors.pepper.90');
   --theme-label-secondary: theme('colors.pepper.50');
@@ -115,7 +118,7 @@ html.light .invert .invert {
   --theme-label-disabled: theme('colors.pepper.10')52;
   --theme-label-link: theme('colors.water.80');
   --theme-label-invert: #ffffff;
-  --theme-label-bacon: theme('colors.bacon.80');
+  --theme-label-bun: theme('colors.bun.80');
 
   --theme-divider-primary: theme('colors.pepper.10');
   --theme-divider-secondary: theme('colors.pepper.10')66;
