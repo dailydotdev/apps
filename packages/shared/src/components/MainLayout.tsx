@@ -1,6 +1,7 @@
 import React, {
   HTMLAttributes,
   ReactElement,
+  ReactNode,
   useContext,
   useState,
 } from 'react';
@@ -10,7 +11,7 @@ import dynamic from 'next/dynamic';
 import ProgressiveEnhancementContext from '../contexts/ProgressiveEnhancementContext';
 import AuthContext from '../contexts/AuthContext';
 import { getTooltipProps } from '../lib/tooltip';
-import Banner from './Banner';
+import PromotionalBanner from './PromotionalBanner';
 import Logo from '../svg/Logo';
 import LogoTextBeta from '../svg/LogoTextBeta';
 import BookmarkIcon from '../../icons/bookmark.svg';
@@ -31,6 +32,7 @@ export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showRank?: boolean;
   greeting?: boolean;
   mainPage?: boolean;
+  additionalButtons?: ReactNode;
 }
 
 const HeaderRankProgress = dynamic(
@@ -46,7 +48,7 @@ const Greeting = dynamic(
   () => import(/* webpackChunkName: "greeting" */ './Greeting'),
 );
 
-const HeaderButton = classed(Button, 'hidden mx-0.5 laptop:flex');
+export const HeaderButton = classed(Button, 'hidden mx-0.5 laptop:flex');
 
 export default function MainLayout({
   children,
@@ -55,6 +57,7 @@ export default function MainLayout({
   showRank,
   greeting,
   mainPage,
+  additionalButtons,
 }: MainLayoutProps): ReactElement {
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user, showLogin, loadingUser } = useContext(AuthContext);
@@ -88,6 +91,7 @@ export default function MainLayout({
 
   const afterBookmarkButtons = (
     <>
+      {additionalButtons}
       {mainPage && (
         <HeaderButton
           icon={<LayoutIcon />}
@@ -102,7 +106,7 @@ export default function MainLayout({
 
   return (
     <>
-      {!responsive && <Banner />}
+      {!responsive && <PromotionalBanner />}
       <header
         className={`${
           styles.header

@@ -24,6 +24,9 @@ import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
 import { browser } from 'webextension-polyfill-ts';
 import getPageForAnalytics from '../lib/getPageForAnalytics';
+import DndContext from './DndContext';
+import useDndContext from './useDndContext';
+import DndBanner from './DndBanner';
 
 const router = new CustomRouter();
 const queryClient = new QueryClient();
@@ -74,6 +77,7 @@ function InternalApp(): ReactElement {
     }),
     [user, loginMode, loadingUser, tokenRefreshed],
   );
+  const dndContext = useDndContext();
   const canFetchUserData = progressiveContext.windowLoaded && tokenRefreshed;
   const onboardingContext = useOnboarding(user, loadedUserFromCache);
   const subscriptionContext = useSubscriptionClient(canFetchUserData);
@@ -101,29 +105,32 @@ function InternalApp(): ReactElement {
   return (
     <ProgressiveEnhancementContext.Provider value={progressiveContext}>
       <AuthContext.Provider value={authContext}>
-        <SubscriptionContext.Provider value={subscriptionContext}>
-          <SettingsContext.Provider value={settingsContext}>
-            <OnboardingContext.Provider value={onboardingContext}>
-              <MainFeedPage />
-              {!user &&
-                !loadingUser &&
-                (progressiveContext.windowLoaded || loginMode !== null) && (
-                  <LoginModal
-                    isOpen={loginMode !== null}
-                    onRequestClose={closeLogin}
-                    contentLabel="Login Modal"
-                    mode={loginMode}
+        <DndContext.Provider value={dndContext}>
+          <SubscriptionContext.Provider value={subscriptionContext}>
+            <SettingsContext.Provider value={settingsContext}>
+              <OnboardingContext.Provider value={onboardingContext}>
+                {dndContext.isActive && <DndBanner />}
+                <MainFeedPage />
+                {!user &&
+                  !loadingUser &&
+                  (progressiveContext.windowLoaded || loginMode !== null) && (
+                    <LoginModal
+                      isOpen={loginMode !== null}
+                      onRequestClose={closeLogin}
+                      contentLabel="Login Modal"
+                      mode={loginMode}
+                    />
+                  )}
+                {onboardingContext.showReferral && (
+                  <HelpUsGrowModal
+                    isOpen={true}
+                    onRequestClose={onboardingContext.closeReferral}
                   />
                 )}
-              {onboardingContext.showReferral && (
-                <HelpUsGrowModal
-                  isOpen={true}
-                  onRequestClose={onboardingContext.closeReferral}
-                />
-              )}
-            </OnboardingContext.Provider>
-          </SettingsContext.Provider>
-        </SubscriptionContext.Provider>
+              </OnboardingContext.Provider>
+            </SettingsContext.Provider>
+          </SubscriptionContext.Provider>
+        </DndContext.Provider>
       </AuthContext.Provider>
     </ProgressiveEnhancementContext.Provider>
   );

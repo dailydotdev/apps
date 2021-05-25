@@ -17,7 +17,8 @@ module.exports = {
           primary: 'var(--theme-background-primary)',
           secondary: 'var(--theme-background-secondary)',
           tertiary: 'var(--theme-background-tertiary)',
-          bacon: 'var(--theme-background-bacon)',
+          bun: 'var(--theme-background-bun)',
+          onion: 'var(--theme-background-onion)',
         },
         label: {
           primary: 'var(--theme-label-primary)',

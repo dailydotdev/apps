@@ -9,7 +9,7 @@ import { BANNER_QUERY, BannerData } from '../graphql/banner';
 import ProgressiveEnhancementContext from '../contexts/ProgressiveEnhancementContext';
 import usePersistentState from '../hooks/usePersistentState';
 
-export default function Banner(): ReactElement {
+export default function PromotionalBanner(): ReactElement {
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const [lastSeen, setLastSeen] = usePersistentState(
     'lastSeenBanner',
@@ -17,7 +17,7 @@ export default function Banner(): ReactElement {
     new Date(0),
   );
   const { data } = useQuery<BannerData>(
-    ['banner', lastSeen.getTime()],
+    ['banner', lastSeen?.getTime()],
     () => request(`${apiUrl}/graphql`, BANNER_QUERY, { lastSeen }),
     {
       enabled: windowLoaded && !!lastSeen,
@@ -33,9 +33,9 @@ export default function Banner(): ReactElement {
     <div
       className={classNames(
         'relative flex flex-col items-start py-3 pl-3 pr-12 typo-footnote laptop:h-8 laptop:flex-row laptop:items-center laptop:justify-center laptop:p-0',
-        banner.theme === 'title-bacon' && 'text-theme-label-bacon',
+        banner.theme === 'title-bacon' && 'text-theme-label-bun',
         banner.theme === 'gradient-bacon-onion'
-          ? 'bg-theme-bg-bacon'
+          ? 'bg-theme-bg-bun'
           : 'bg-theme-bg-primary',
       )}
     >
