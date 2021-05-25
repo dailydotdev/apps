@@ -57,7 +57,8 @@ export default function Banner(): ReactElement {
       </Button>
       <Button
         buttonSize="xsmall"
-        className="absolute top-2 right-2 laptop:inset-y-0 laptop:my-auto btn-tertiary"
+        className="top-2 right-2 laptop:inset-y-0 laptop:my-auto btn-tertiary"
+        style={{ position: 'absolute' }}
         icon={<XIcon />}
         onClick={() =>
           setLastSeen(new Date(new Date(banner.timestamp).getTime() + 60_000))
