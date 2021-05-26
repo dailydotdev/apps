@@ -65,13 +65,21 @@ export default function MainFeedPage(): ReactElement {
     }
   };
 
-  //TODO: main layout logo should redirect to extension's home page
+  const onLogoClick = (e: React.MouseEvent): void => {
+    e.preventDefault();
+    e.stopPropagation();
+    setFeedName('default');
+    setIsSearchOn(false);
+    setSearchQuery(undefined);
+  };
+
   return (
     <MainLayout
       responsive={false}
       showRank={true}
       greeting={true}
       mainPage={true}
+      onLogoClick={onLogoClick}
       additionalButtons={
         (onboardingStep > 2 || user) && (
           <HeaderButton

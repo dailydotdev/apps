@@ -36,7 +36,7 @@ export default function MigrateSettingsModal({
       <Icon style={{ fontSize: '4rem' }} />
       <ConfirmationHeading>Sync your settings</ConfirmationHeading>
       <ConfirmationDescription>
-        Version 3.0 is finally here! We now have one code base for both the
+        Version 3.0 is finally here! We now have one codebase for both the
         browser extension and the new mobile-friendly web app!
         <br />
         <br />

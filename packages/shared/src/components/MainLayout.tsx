@@ -33,6 +33,7 @@ export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   greeting?: boolean;
   mainPage?: boolean;
   additionalButtons?: ReactNode;
+  onLogoClick?: (e: React.MouseEvent) => unknown;
 }
 
 const HeaderRankProgress = dynamic(
@@ -58,6 +59,7 @@ export default function MainLayout({
   greeting,
   mainPage,
   additionalButtons,
+  onLogoClick,
 }: MainLayoutProps): ReactElement {
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user, showLogin, loadingUser } = useContext(AuthContext);
@@ -123,6 +125,7 @@ export default function MainLayout({
         >
           <a
             className="flex items-center"
+            onClick={onLogoClick}
             {...getTooltipProps('Home', { position: 'right' })}
           >
             <Logo className={styles.homeSvg} />
