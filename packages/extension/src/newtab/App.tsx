@@ -28,8 +28,14 @@ import DndContext from './DndContext';
 import useDndContext from './useDndContext';
 import DndBanner from './DndBanner';
 import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState';
+import BellIcon from '@dailydotdev/shared/icons/bell.svg';
+import useSettingsMigration from './useSettingsMigration';
 
 const AnalyticsConsentModal = dynamic(() => import('./AnalyticsConsentModal'));
+const MigrateSettingsModal = dynamic(() => import('./MigrateSettingsModal'));
+const MigrationCompletedModal = dynamic(
+  () => import('./MigrationCompletedModal'),
+);
 
 const router = new CustomRouter();
 const queryClient = new QueryClient();
@@ -47,6 +53,16 @@ Modal.setAppElement('#__next');
 Modal.defaultStyles = {};
 
 const shouldShowConsent = process.env.TARGET_BROWSER === 'firefox';
+
+const syncSettingsNotification = (
+  <div className="flex bg-theme-status-help text-theme-label-invert py-3 px-4 mt-6 rounded-xl">
+    <BellIcon className="icon text-2xl" />
+    <p className="ml-2 flex-1 typo-callout">
+      We noticed that you filtered your feed or saved bookmarks (awesome!).
+      Please sign up to automatically sync everything to your account.
+    </p>
+  </div>
+);
 
 function InternalApp(): ReactElement {
   const [
@@ -92,7 +108,17 @@ function InternalApp(): ReactElement {
   const onboardingContext = useOnboarding(user, loadedUserFromCache);
   const subscriptionContext = useSubscriptionClient(canFetchUserData);
   const settingsContext = useSettings(user?.id, canFetchUserData);
-  // TODO: disable analytics until consent in ff
+  const {
+    hasSettings,
+    postponeMigration,
+    showMigrationModal,
+    migrateAfterSignIn,
+    migrate,
+    isMigrating,
+    migrationCompleted,
+    ackMigrationCompleted,
+  } = useSettingsMigration(authContext.user, authContext.tokenRefreshed);
+
   useAnalytics(
     trackingId,
     user,
@@ -112,6 +138,11 @@ function InternalApp(): ReactElement {
     }
   }, [user, loadingUser]);
 
+  const onMigrationSignIn = async () => {
+    await migrateAfterSignIn();
+    setLoginMode(LoginModalMode.Default);
+  };
+
   return (
     <ProgressiveEnhancementContext.Provider value={progressiveContext}>
       <AuthContext.Provider value={authContext}>
@@ -129,7 +160,9 @@ function InternalApp(): ReactElement {
                       onRequestClose={closeLogin}
                       contentLabel="Login Modal"
                       mode={loginMode}
-                    />
+                    >
+                      {hasSettings && syncSettingsNotification}
+                    </LoginModal>
                   )}
                 {onboardingContext.showReferral && (
                   <HelpUsGrowModal
@@ -142,6 +175,21 @@ function InternalApp(): ReactElement {
                     onDecline={() => setAnalyticsConsent(false)}
                     onAccept={() => setAnalyticsConsent(true)}
                     isOpen={true}
+                  />
+                )}
+                {showMigrationModal && (
+                  <MigrateSettingsModal
+                    isOpen={showMigrationModal}
+                    onLater={postponeMigration}
+                    onSignIn={onMigrationSignIn}
+                    onMerge={migrate}
+                    loading={isMigrating}
+                  />
+                )}
+                {migrationCompleted && (
+                  <MigrationCompletedModal
+                    isOpen={migrationCompleted}
+                    onRequestClose={ackMigrationCompleted}
                   />
                 )}
               </OnboardingContext.Provider>
