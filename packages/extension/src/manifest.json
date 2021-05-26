@@ -27,6 +27,7 @@
     "topSites"
   ],
   "content_security_policy": "script-src 'self' https://www.google-analytics.com; object-src 'self'",
+  "__firefox__content_security_policy": "object-src 'self'",
   "browser_action": {
     "default_icon": {
       "16": "icons/action_16.png",

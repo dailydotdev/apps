@@ -16,7 +16,7 @@ export const initializeAnalyticsQueue = (clientId: string): void => {
     }) as UniversalAnalytics.ga);
   window.ga.l = new Date().getTime();
   window.ga?.('create', process.env.NEXT_PUBLIC_GA, { clientId });
-  if (process.env.TARGET_BROWSER) {
+  if (process.env.TARGET_BROWSER && process.env.TARGET_BROWSER !== 'firefox') {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     window.ga?.('set', 'checkProtocolTask', () => {});
     window.ga?.('require', 'displayfeatures');
@@ -24,11 +24,66 @@ export const initializeAnalyticsQueue = (clientId: string): void => {
 };
 
 export const loadAnalyticsScript = (): void => {
-  const script = document.createElement('script');
-  const existingScript = document.getElementsByTagName('script')[0];
-  script.async = true;
-  script.src = 'https://www.google-analytics.com/analytics.js';
-  existingScript.parentNode.insertBefore(script, existingScript);
+  if (process.env.TARGET_BROWSER !== 'firefox') {
+    const script = document.createElement('script');
+    const existingScript = document.getElementsByTagName('script')[0];
+    script.async = true;
+    script.src = 'https://www.google-analytics.com/analytics.js';
+    existingScript.parentNode.insertBefore(script, existingScript);
+  } else {
+    let page;
+    let clientId;
+
+    const getMessage = (action, type, ...args) => {
+      if (action !== 'send') return null;
+
+      const prefix = `v=1&tid=${process.env.NEXT_PUBLIC_GA}&cid=${clientId}&aip=1&dp=${page}`;
+      if (type === 'event') {
+        return `${prefix}&t=event&ec=${encodeURIComponent(
+          args[0],
+        )}&ea=${encodeURIComponent(args[1])}&el=${encodeURIComponent(args[2])}`;
+      }
+      if (type === 'pageview') {
+        return `${prefix}&t=pageview`;
+      }
+      if (type === 'timing') {
+        return `${prefix}&t=timing&utc=${encodeURIComponent(
+          args[0],
+        )}&utv=${encodeURIComponent(args[1])}&utt=${encodeURIComponent(
+          args[2],
+        )}`;
+      }
+      if (type === 'exception') {
+        return `${prefix}&t=exception&exd=${encodeURIComponent(
+          args[0].exDescription,
+        )}&exf=${args[0].exFatal ? 1 : 0}`;
+      }
+
+      return null;
+    };
+
+    const queue = window.ga.q;
+    window.ga = ((action, type, ...args) => {
+      if (action === 'create') {
+        clientId = args[0]?.clientId;
+      } else if (action === 'set') {
+        if (type === 'page') {
+          page = encodeURIComponent(args[0]);
+        }
+        return;
+      }
+
+      const request = new XMLHttpRequest();
+      const message = getMessage(action, type, ...args);
+      if (message) {
+        request.withCredentials = true;
+        request.open('POST', 'https://www.google-analytics.com/collect', true);
+        request.send(message);
+      }
+    }) as UniversalAnalytics.ga;
+
+    queue.forEach((args) => window.ga(...(args as [string, ...unknown[]])));
+  }
 };
 
 export const trackPageView = (page: string): void => {

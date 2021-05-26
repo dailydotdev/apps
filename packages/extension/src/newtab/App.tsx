@@ -27,6 +27,9 @@ import getPageForAnalytics from '../lib/getPageForAnalytics';
 import DndContext from './DndContext';
 import useDndContext from './useDndContext';
 import DndBanner from './DndBanner';
+import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState';
+
+const AnalyticsConsentModal = dynamic(() => import('./AnalyticsConsentModal'));
 
 const router = new CustomRouter();
 const queryClient = new QueryClient();
@@ -43,6 +46,8 @@ const HelpUsGrowModal = dynamic(
 Modal.setAppElement('#__next');
 Modal.defaultStyles = {};
 
+const shouldShowConsent = process.env.TARGET_BROWSER === 'firefox';
+
 function InternalApp(): ReactElement {
   const [
     user,
@@ -54,6 +59,11 @@ function InternalApp(): ReactElement {
   ] = useLoggedUser();
   const progressiveContext = useProgressiveEnhancement();
   const [loginMode, setLoginMode] = useState<LoginModalMode | null>(null);
+  const [analyticsConsent, setAnalyticsConsent] = usePersistentState(
+    'consent',
+    false,
+    shouldShowConsent ? null : true,
+  );
 
   const closeLogin = () => setLoginMode(null);
 
@@ -86,7 +96,7 @@ function InternalApp(): ReactElement {
   useAnalytics(
     trackingId,
     user,
-    false,
+    analyticsConsent !== true,
     progressiveContext.windowLoaded,
     `extension v${version}`,
     () => getPageForAnalytics(''),
@@ -125,6 +135,13 @@ function InternalApp(): ReactElement {
                   <HelpUsGrowModal
                     isOpen={true}
                     onRequestClose={onboardingContext.closeReferral}
+                  />
+                )}
+                {analyticsConsent === null && (
+                  <AnalyticsConsentModal
+                    onDecline={() => setAnalyticsConsent(false)}
+                    onAccept={() => setAnalyticsConsent(true)}
+                    isOpen={true}
                   />
                 )}
               </OnboardingContext.Provider>
