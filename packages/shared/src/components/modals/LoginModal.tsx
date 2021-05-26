@@ -13,6 +13,7 @@ export default function LoginModal({
   mode = LoginModalMode.Default,
   className,
   onRequestClose,
+  children,
   ...props
 }: LoginModalProps): ReactElement {
   return (
@@ -29,6 +30,7 @@ export default function LoginModal({
           : `Unlock useful features by signing in. A bunch of cool stuff like content filters and bookmarks are waiting just for you.`}
       </div>
       <LoginButtons />
+      {children}
     </StyledModal>
   );
 }
