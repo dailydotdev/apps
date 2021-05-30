@@ -17,7 +17,7 @@ import { LoginModalMode } from '../types/LoginModalMode';
 import { useInView } from 'react-intersection-observer';
 import FeedContext from '../contexts/FeedContext';
 import useIncrementReadingRank from '../hooks/useIncrementReadingRank';
-import { logReadArticle, logRevenue, trackEvent } from '../lib/analytics';
+import { logReadArticle, trackEvent } from '../lib/analytics';
 import { COMMENT_ON_POST_MUTATION, CommentOnData } from '../graphql/comments';
 import dynamic from 'next/dynamic';
 import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
@@ -38,6 +38,7 @@ import { PostList } from './cards/PostList';
 import { AdList } from './cards/AdList';
 import { PlaceholderList } from './cards/PlaceholderList';
 import ScrollToTopButton from './ScrollToTopButton';
+import useAdImpressions from '../lib/useAdImpressions';
 
 const CommentPopup = dynamic(() => import('./cards/CommentPopup'));
 const ReportPostMenu = dynamic(
@@ -51,18 +52,6 @@ export type FeedProps<T> = {
   onEmptyFeed?: () => unknown;
   dep?: DependencyList;
   emptyScreen?: ReactNode;
-};
-
-const onAdImpression = async (ad: Ad): Promise<void> => {
-  trackEvent({
-    category: 'Ad',
-    action: 'Impression',
-    label: ad.source,
-    nonInteraction: true,
-  });
-  if (ad.providerId?.length) {
-    await logRevenue(ad.providerId);
-  }
 };
 
 const onAdClick = (ad: Ad) =>
@@ -139,6 +128,7 @@ export default function Feed<T>({
   const [postMenuIndex, setPostMenuIndex] = useState<number>();
   const [postNotificationIndex, setPostNotificationIndex] = useState<number>();
   const { showReportMenu } = useReportPostMenu();
+  const { onAdImpression } = useAdImpressions();
 
   useEffect(() => {
     if (emptyFeed) {
