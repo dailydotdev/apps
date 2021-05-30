@@ -13,7 +13,7 @@ import AuthContext from '../contexts/AuthContext';
 import { getTooltipProps } from '../lib/tooltip';
 import PromotionalBanner from './PromotionalBanner';
 import Logo from '../svg/Logo';
-import LogoTextBeta from '../svg/LogoTextBeta';
+import LogoText from '../svg/LogoText';
 import BookmarkIcon from '../../icons/bookmark.svg';
 import { LazyImage } from './LazyImage';
 import styles from './MainLayout.module.css';
@@ -135,7 +135,7 @@ export default function MainLayout({
               classNames="fade"
               unmountOnExit
             >
-              <LogoTextBeta
+              <LogoText
                 className={classNames(
                   styles.homeSvg,
                   'hidden ml-1 laptop:block',

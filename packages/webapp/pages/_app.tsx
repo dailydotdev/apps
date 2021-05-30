@@ -76,7 +76,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     loadingUser,
     tokenRefreshed,
     loadedUserFromCache,
-  ] = useLoggedUser();
+  ] = useLoggedUser('web');
   const progressiveContext = useProgressiveEnhancement();
   const [loginMode, setLoginMode] = useState<LoginModalMode | null>(null);
   const [showCookie, acceptCookies, updateCookieBanner] = useCookieBanner();

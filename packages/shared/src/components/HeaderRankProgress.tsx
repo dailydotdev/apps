@@ -89,7 +89,7 @@ export default function HeaderRankProgress({
               }
               rank={showRankAnimation ? nextRank : rank}
               showRankAnimation={showRankAnimation}
-              fillByDefault={showRankAnimation}
+              fillByDefault
               onRankAnimationFinish={() =>
                 setTimeout(() => confirmLevelUp(true), 1000)
               }
