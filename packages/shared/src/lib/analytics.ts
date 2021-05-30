@@ -96,9 +96,15 @@ export const getAmplitudeClient = async (): Promise<AmplitudeClient> => {
   return amp.getInstance();
 };
 
-export const logRevenue = async (productId: string): Promise<void> => {
+export const logRevenue = async (
+  productId: string,
+  count: number,
+): Promise<void> => {
   const amp = await import('amplitude-js');
-  const revenue = new amp.Revenue().setProductId(productId).setPrice(1);
+  const revenue = new amp.Revenue()
+    .setProductId(productId)
+    .setQuantity(count)
+    .setPrice(1);
   amp.getInstance().logRevenueV2(revenue);
 };
 
