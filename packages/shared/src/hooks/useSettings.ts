@@ -33,9 +33,8 @@ function toggleTheme(lightMode: boolean): void {
   } else {
     document.documentElement.classList.remove('light');
   }
-  document.cookie = `${themeCookieName}=${lightMode};path=/;domain=${
-    process.env.NEXT_PUBLIC_DOMAIN
-  };samesite=lax;expires=${60 * 60 * 24 * 365 * 10}`;
+  // Use localStorage for theme to prevent flickering on start up
+  localStorage.setItem(themeCookieName, lightMode ? 'true' : 'false');
 }
 
 export default function useSettings(
@@ -78,10 +77,7 @@ export default function useSettings(
   }, [remoteSettings]);
 
   useEffect(() => {
-    const lightModeCookieValue = document.cookie
-      .split('; ')
-      .find((row) => row.startsWith(themeCookieName))
-      ?.split('=')[1];
+    const lightModeCookieValue = localStorage.getItem(themeCookieName);
     if (lightModeCookieValue === 'true') {
       setLightMode(true);
       document.documentElement.classList.add('light');

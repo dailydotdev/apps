@@ -12,6 +12,8 @@ import classNames from 'classnames';
 import CardIcon from '../../icons/card.svg';
 import LineIcon from '../../icons/line.svg';
 import { IconsSwitch } from './fields/IconsSwitch';
+import AuthContext from '../contexts/AuthContext';
+import { LoginModalMode } from '../types/LoginModalMode';
 
 const densities = [
   { label: 'Eco', value: 'eco' },
@@ -26,6 +28,7 @@ export default function Settings({
 }: {
   panelMode?: boolean;
 } & HTMLAttributes<HTMLDivElement>): ReactElement {
+  const { user, showLogin } = useContext(AuthContext);
   const {
     spaciness,
     setSpaciness,
@@ -58,6 +61,14 @@ export default function Settings({
       ),
     [panelMode],
   );
+
+  const onShowOnlyUnreadPosts = (): Promise<void> | void => {
+    if (!user) {
+      showLogin(LoginModalMode.Default);
+    } else {
+      return toggleShowOnlyUnreadPosts();
+    }
+  };
 
   return (
     <div
@@ -115,7 +126,7 @@ export default function Settings({
             name="hide-read"
             className="my-3"
             checked={showOnlyUnreadPosts}
-            onToggle={toggleShowOnlyUnreadPosts}
+            onToggle={onShowOnlyUnreadPosts}
             compact={false}
           >
             Hide read posts

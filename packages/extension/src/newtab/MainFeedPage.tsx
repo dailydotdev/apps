@@ -107,7 +107,7 @@ export default function MainFeedPage(): ReactElement {
               onSubmitQuery={async (query) => setSearchQuery(query)}
             />
           }
-          navChildren={<MostVisitedSites />}
+          navChildren={!isSearchOn && <MostVisitedSites />}
         />
       </FeedLayout>
       <DndMenu onHidden={() => setShowDnd(false)} />
