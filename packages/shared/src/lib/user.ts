@@ -139,10 +139,12 @@ export async function getProfile(id: string): Promise<PublicProfile> {
   return res.json();
 }
 
-export async function getLoggedUser(): Promise<AnonymousUser | LoggedUser> {
+export async function getLoggedUser(
+  app: string,
+): Promise<AnonymousUser | LoggedUser> {
   const res = await fetch(`${apiUrl}/v1/users/me`, {
     credentials: 'include',
-    headers: { app: 'web' },
+    headers: { app },
   });
   return res.json();
 }

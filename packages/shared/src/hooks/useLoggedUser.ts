@@ -4,7 +4,9 @@ import { AnonymousUser, getLoggedUser, LoggedUser } from '../lib/user';
 import usePersistentState from './usePersistentState';
 import { differenceInMilliseconds } from 'date-fns';
 
-export default function useLoggedUser(): [
+export default function useLoggedUser(
+  app: string,
+): [
   LoggedUser | null,
   (LoggedUser) => Promise<void>,
   string,
@@ -25,7 +27,7 @@ export default function useLoggedUser(): [
     data: fetchedUser,
     isLoading,
     refetch,
-  } = useQuery(queryKey, getLoggedUser);
+  } = useQuery(queryKey, () => getLoggedUser(app));
 
   const availableUser = fetchedUser || cachedUser;
 

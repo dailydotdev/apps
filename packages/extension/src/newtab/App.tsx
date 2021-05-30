@@ -72,7 +72,7 @@ function InternalApp(): ReactElement {
     loadingUser,
     tokenRefreshed,
     loadedUserFromCache,
-  ] = useLoggedUser();
+  ] = useLoggedUser('extension');
   const progressiveContext = useProgressiveEnhancement();
   const [loginMode, setLoginMode] = useState<LoginModalMode | null>(null);
   const [analyticsConsent, setAnalyticsConsent] = usePersistentState(
