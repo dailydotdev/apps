@@ -22,11 +22,17 @@ import {
   UserSettingsData,
 } from '../graphql/settings';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import { LoggedUser } from '../lib/user';
+import defaultUser from '../../__tests__/fixture/loggedUser';
+import AuthContext from '../contexts/AuthContext';
+import { LoginModalMode } from '../types/LoginModalMode';
 
 beforeEach(() => {
   jest.clearAllMocks();
   nock.cleanAll();
 });
+
+const showLogin = jest.fn();
 
 const defaultSettings: RemoteSettings = {
   theme: 'bright',
@@ -64,13 +70,25 @@ const SettingsWithContext = ({
 
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createSettingsMock()],
-  userId: string | null = '1',
+  user: LoggedUser = defaultUser,
 ): RenderResult => {
   mocks.forEach(mockGraphQL);
   const queryClient = new QueryClient();
   return render(
     <QueryClientProvider client={queryClient}>
-      <SettingsWithContext userId={userId} />
+      <AuthContext.Provider
+        value={{
+          user,
+          shouldShowLogin: false,
+          showLogin,
+          logout: jest.fn(),
+          updateUser: jest.fn(),
+          tokenRefreshed: true,
+          getRedirectUri: jest.fn(),
+        }}
+      >
+        <SettingsWithContext userId={user?.id} />
+      </AuthContext.Provider>
     </QueryClientProvider>,
   );
 };
@@ -185,6 +203,17 @@ it('should mutate hide read posts setting', () =>
     ) as HTMLInputElement;
     fireEvent.click(checkbox);
   }));
+
+it('should open login when hide read posts is clicked and the user is logged out', async () => {
+  renderComponent([], null);
+  const checkboxes = await screen.findAllByRole('checkbox');
+  const checkbox = checkboxes.find((el) =>
+    // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
+    queryByText(el.parentElement, 'Hide read posts'),
+  ) as HTMLInputElement;
+  fireEvent.click(checkbox);
+  await waitFor(() => expect(showLogin).toBeCalledWith(LoginModalMode.Default));
+});
 
 it('should mutate open links in new tab setting', () =>
   testSettingsMutation({ openNewTab: true }, async () => {
