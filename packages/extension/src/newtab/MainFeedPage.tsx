@@ -18,6 +18,7 @@ import DndMenu from './DndMenu';
 import { useContextMenu } from 'react-contexify';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import SyncIcon from '@dailydotdev/shared/icons/sync.svg';
 
 const PostsSearch = dynamic(
   () =>
@@ -26,7 +27,13 @@ const PostsSearch = dynamic(
     ),
 );
 
-export default function MainFeedPage(): ReactElement {
+export default function MainFeedPage({
+  postponedMigration,
+  forceMigrationModal,
+}: {
+  postponedMigration: boolean;
+  forceMigrationModal: () => Promise<void>;
+}): ReactElement {
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user } = useContext(AuthContext);
   const { onboardingStep } = useContext(OnboardingContext) || {};
@@ -81,15 +88,25 @@ export default function MainFeedPage(): ReactElement {
       mainPage={true}
       onLogoClick={onLogoClick}
       additionalButtons={
-        (onboardingStep > 2 || user) && (
-          <HeaderButton
-            icon={<TimerIcon />}
-            {...getTooltipProps('Do Not Disturb', { position: 'down' })}
-            className="btn-tertiary"
-            onClick={onDndClick}
-            pressed={showDnd}
-          />
-        )
+        <>
+          {postponedMigration && (
+            <HeaderButton
+              icon={<SyncIcon />}
+              {...getTooltipProps('Sync settings', { position: 'down' })}
+              className="btn-tertiary"
+              onClick={forceMigrationModal}
+            />
+          )}
+          {(onboardingStep > 2 || user) && (
+            <HeaderButton
+              icon={<TimerIcon />}
+              {...getTooltipProps('Do Not Disturb', { position: 'down' })}
+              className="btn-tertiary"
+              onClick={onDndClick}
+              pressed={showDnd}
+            />
+          )}
+        </>
       }
     >
       <FeedLayout>

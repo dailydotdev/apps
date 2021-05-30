@@ -117,6 +117,8 @@ function InternalApp(): ReactElement {
     isMigrating,
     migrationCompleted,
     ackMigrationCompleted,
+    forceMigrationModal,
+    postponed,
   } = useSettingsMigration(authContext.user, authContext.tokenRefreshed);
 
   useAnalytics(
@@ -151,7 +153,10 @@ function InternalApp(): ReactElement {
             <SettingsContext.Provider value={settingsContext}>
               <OnboardingContext.Provider value={onboardingContext}>
                 {dndContext.isActive && <DndBanner />}
-                <MainFeedPage />
+                <MainFeedPage
+                  forceMigrationModal={forceMigrationModal}
+                  postponedMigration={postponed}
+                />
                 {!user &&
                   !loadingUser &&
                   (progressiveContext.windowLoaded || loginMode !== null) && (

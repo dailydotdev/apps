@@ -30,6 +30,8 @@ export type UseSettingsMigrationRet = {
   migrate: () => Promise<void>;
   migrationCompleted: boolean;
   ackMigrationCompleted: () => void;
+  forceMigrationModal: () => Promise<void>;
+  postponed: boolean;
 };
 
 const generateQuery = (settings: SettingsV2): string => {
@@ -129,6 +131,7 @@ export default function useSettingsMigration(
     hasSettings,
     showMigrationModal:
       hasSettings &&
+      !migrateAfterSignIn &&
       postpone !== null &&
       ((!user && postpone !== POSTPONE_ANONYMOUS) ||
         (user && postpone !== POSTPONE_LOGGED_IN)),
@@ -140,8 +143,10 @@ export default function useSettingsMigration(
       return setPostpone(POSTPONE_ANONYMOUS);
     },
     ackMigrationCompleted: () => setMigrationCompleted(false),
+    forceMigrationModal: () => setPostpone(POSTPONE_DONT),
     isMigrating,
     migrationCompleted,
     migrate,
+    postponed: hasSettings && postpone !== null && postpone !== POSTPONE_DONT,
   };
 }
