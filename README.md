@@ -1,56 +1,74 @@
-
 <div align="center">
-  <h1>Daily Webapp</h1>
-  <strong>The daily.dev webapp</strong>
+  <h1>daily.dev App Suite</h1>
+  <strong>Everything you see on daily.dev 👀</strong>
 </div>
 <br>
 <p align="center">
-  <a href="https://circleci.com/gh/dailydotdev/daily-webapp">
-    <img src="https://img.shields.io/circleci/build/github/dailydotdev/daily-webapp/master.svg" alt="Build Status">
+  <a href="https://circleci.com/gh/dailydotdev/daily-apps">
+    <img src="https://img.shields.io/circleci/build/github/dailydotdev/apps/master.svg" alt="Build Status">
   </a>
-  <a href="https://github.com/dailydotdev/daily-webapp/blob/master/LICENSE">
-    <img src="https://img.shields.io/github/license/dailydotdev/daily-webapp.svg" alt="License">
+  <a href="https://github.com/dailydotdev/daily-apps/blob/master/LICENSE">
+    <img src="https://img.shields.io/github/license/dailydotdev/apps.svg" alt="License">
   </a>
   <a href="https://stackshare.io/daily/daily">
     <img src="http://img.shields.io/badge/tech-stack-0690fa.svg?style=flat" alt="StackShare">
   </a>
 </p>
 
-A Next.js + React web application of daily.dev.
-It utilizes the brand new incremental static generation feature of Next.js to deliver pages fast.
+This monorepo contains daily.dev's application suite. The repo includes the web app and the extension, along with shared components for the two.
+The decision was made to allow faster iterations and to keep features parity in both platforms.
 
-## Stack
+## Technology
 
-* Node v14.3.0 (a `.nvmrc` is presented for [nvm](https://github.com/nvm-sh/nvm) users).
 * NPM for managing dependencies.
-* Next.js as a SSR (ISG) framework
-* React
-* styled-components for styling
+* Node v14.16.1 (a `.nvmrc` is presented for [nvm](https://github.com/nvm-sh/nvm) users).
+* [lerna](https://github.com/lerna/lerna) for managing the monorepo.
 
-## Project structure
+## Projects
 
-* `__mocks__` - Global mocks.
-* `__tests__` - There you can find all the tests and fixtures. Tests are written using `jest`.
-* `components` - React and styled-components components that are used across the app.
-* `graphql` - GraphQL types and queries.
-* `icons` - SVG icons.
-* `lib` - Common functions that are used across the app.
-* `pages` - Contains the pages of the app. This is required by Next.js
-* `public` - Files that should be publicly available and not processed by any way.
-* `styles` - Styles variables, functions, and everything necessary to make this webapp look good.
+### eslint-config
 
-## Local environment
+Shared settings for eslint for all the projects in this repo.
 
-Daily Webapp requires a running environment of daily.dev.
-[Check out this guide](https://github.com/dailydotdev/daily#-running-dailydev-locally) of how to run daily.dev locally.
+### extension
 
-Finally run `npm run dev` to run the service and listen to port `5002`.
+The browser extension project. Includes webpack configuration for browser extensions and the dedicated components just for the extension.
+
+### prettier-config
+
+Shared settings for prettier for all the projects in this repo.
+
+### shared
+
+The main project with most of the components that are used in the applications. Every component that need to be used in both platforms should be placed in this project. This includes the design system components, custom hooks, and many more.
+
+### webapp
+
+The web app project. It is a Next.js project and it has more pages than the extension. Such as registration page, article page, profile page, etc.
+For more information [click here](https://github.com/dailydotdev/apps/tree/master/packages/webapp).
 
 
 ## Want to Help?
 
-So you want to contribute to Daily Webapp and make an impact, we are glad to hear it. :heart_eyes:
+So you want to contribute to daily.dev app suite and make an impact, we are glad to hear it. :heart_eyes:
 
 Before you proceed we have a few guidelines for contribution that will make everything much easier.
 We would appreciate if you dedicate the time and read them carefully:
 https://github.com/dailydotdev/.github/blob/master/CONTRIBUTING.md
+
+## Bootstrap Project
+
+After cloning the project, please make sure to run the following commands to bootstrap the project:
+```
+npm i -g lerna
+lerna bootstrap
+```
+
+## Firefox Review
+
+* Install node v14.16.1 and npm v6.14.13
+* Install `lerna` as a global package `npm i -g lerna` 
+* Bootstrap project `lerna bootstrap`
+* Change working directory to extension project `cd packages/extension`
+* Build Firefox version `npm run build:firefox`
+* Firefox build should be located at `dist`
