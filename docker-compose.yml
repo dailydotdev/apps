@@ -1,0 +1,70 @@
+version: "3"
+
+volumes:
+  db:
+
+services:
+  daily-postgres:
+    image: postgres:11.6-alpine
+    ports:
+      - "5432:5432"
+    volumes:
+      - db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=api
+      - POSTGRES_PASSWORD=12345
+
+  daily-mysql:
+    image: gcr.io/daily-ops/mysql
+    ports:
+      - "3306:3306"
+
+  daily-gateway:
+    image: gcr.io/daily-ops/daily-gateway
+    depends_on:
+      - "daily-mysql"
+    volumes:
+      - ./wait-for.sh:/opt/app/wait-for.sh
+    command: ["./wait-for.sh", "daily-mysql:3306", "--", "yarn", "start"]
+    ports:
+      - "4000:4000"
+    environment:
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=12345
+      - MYSQL_DATABASE=gateway
+      - MYSQL_HOST=daily-mysql
+      - COOKIES_DOMAIN=localhost
+      - COOKIES_KEY=topsecret
+      - GITHUB_CLIENT_ID=7b514cee17923d0acedc
+      - GITHUB_CLIENT_SECRET=064d875c7b370d271be839242538c87ab8bb6f92
+      - GOOGLE_CLIENT_ID=750405661228-fmeg35uuaopbcnc4c6m6g51755s355bm.apps.googleusercontent.com
+      - GOOGLE_CLIENT_SECRET=MMv_wZAS6Etoleg-sn__BlDC
+      - URL_PREFIX=http://localhost:4000
+      - JWT_SECRET='|r+.2!!!.Qf_-|63*%.D'
+      - JWT_AUDIENCE='Daily Staging'
+      - JWT_ISSUER='Daily API Staging'
+      - CORS_ORIGIN='http://,chrome-extension://,moz-extension://'
+      - PORT=4000
+      - API_URL=http://daily-api:5000
+      - API_SECRET=topsecret
+
+  daily-api:
+    image: gcr.io/daily-ops/daily-api
+    depends_on:
+      - "daily-postgres"
+    volumes:
+      - ./wait-for.sh:/opt/app/wait-for.sh
+    command: ["./wait-for.sh", "daily-postgres:5432", "--", "npm", "run", "start"]
+    ports:
+      - "5000:5000"
+    environment:
+      - TYPEORM_HOST=daily-postgres
+      - PORT=5000
+      - TZ=UTC
+      - ACCESS_SECRET='topsecret'
+      - GATEWAY_URL=http://daily-gateway:4000
+      - GATEWAY_SECRET=topsecret
+      - DEFAULT_IMAGE_URL=https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1,https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/2,https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/3,https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/4,https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/5,https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/6,https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/7,https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/8
+      - DEFAULT_IMAGE_RATIO=1
+      - DEFAULT_IMAGE_PLACEHOLDER=data:image/jpeg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAKAAoDASIAAhEBAxEB/8QAFwAAAwEAAAAAAAAAAAAAAAAABAUGB//EACYQAAIABAQGAwAAAAAAAAAAAAECAAMEBRESE0IGByExQVFScZH/xAAVAQEBAAAAAAAAAAAAAAAAAAABA//EABURAQEAAAAAAAAAAAAAAAAAAAAR/9oADAMBAAIRAxEAPwCgPMKtsdvWjpamiGsuCBVZzn3NmOAB+wYUni23kkz71OM09XObd5jBKufNagklprk4jux9QBqP82/YpQ//2Q==
+      - URL_PREFIX=http://localhost:4000
