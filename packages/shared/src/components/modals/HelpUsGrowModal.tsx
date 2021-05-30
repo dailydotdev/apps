@@ -68,7 +68,11 @@ export default function HelpUsGrowModal(props: ModalProps): ReactElement {
           readOnly
           value={referralLink}
         />
-        <Button className="btn-primary" icon={<CopyIcon />} onClick={copy}>
+        <Button
+          className={copying ? 'btn-primary-avocado' : 'btn-primary'}
+          icon={<CopyIcon />}
+          onClick={copy}
+        >
           {copying ? 'Copied!' : 'Copy link'}
         </Button>
         <div className="typo-callout text-theme-label-quaternary text-center my-4">

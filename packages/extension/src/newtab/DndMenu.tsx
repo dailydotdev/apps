@@ -15,7 +15,7 @@ export type DndMenuProps = {
 };
 
 export default function DndMenu({ onHidden }: DndMenuProps): ReactElement {
-  const { setDndSettings } = useContext(DndContext);
+  const { setDndSettings, isActive } = useContext(DndContext);
 
   const set1Hour = async () => {
     const expiration = new Date();
@@ -45,16 +45,27 @@ export default function DndMenu({ onHidden }: DndMenuProps): ReactElement {
     });
   };
 
+  const turnOff = () => setDndSettings(null);
+
   return (
     <PortalMenu
       id="dnd-context"
       className="menu-primary"
       animation="fade"
       onHidden={onHidden}
+      style={{ width: '115px' }}
     >
-      <Item onClick={set1Hour}>For 1 hour</Item>
-      <Item onClick={setUntilTomorrow}>Until tomorrow</Item>
-      <Item onClick={setForever}>Forever</Item>
+      {isActive ? (
+        <>
+          <Item onClick={turnOff}>Turn off</Item>
+        </>
+      ) : (
+        <>
+          <Item onClick={set1Hour}>For 1 hour</Item>
+          <Item onClick={setUntilTomorrow}>Until tomorrow</Item>
+          <Item onClick={setForever}>Forever</Item>
+        </>
+      )}
     </PortalMenu>
   );
 }
