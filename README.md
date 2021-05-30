@@ -4,10 +4,10 @@
 </div>
 <br>
 <p align="center">
-  <a href="https://circleci.com/gh/dailydotdev/daily-apps">
+  <a href="https://circleci.com/gh/dailydotdev/apps">
     <img src="https://img.shields.io/circleci/build/github/dailydotdev/apps/master.svg" alt="Build Status">
   </a>
-  <a href="https://github.com/dailydotdev/daily-apps/blob/master/LICENSE">
+  <a href="https://github.com/dailydotdev/apps/blob/master/LICENSE">
     <img src="https://img.shields.io/github/license/dailydotdev/apps.svg" alt="License">
   </a>
   <a href="https://stackshare.io/daily/daily">
