@@ -80,7 +80,7 @@ export function PostList({
           onShare={onShare}
           className="relative mt-1 self-stretch"
         >
-          {enableMenu && (
+          {enableMenu && !selectedComment && (
             <Button
               className={classNames(
                 'btn-tertiary',

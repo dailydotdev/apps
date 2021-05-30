@@ -91,7 +91,7 @@ export function PostCard({
                 post.featuredComments,
                 setSelectedComment,
               )}
-              {enableMenu && (
+              {enableMenu && !selectedComment && (
                 <Button
                   className={classNames(
                     'btn-tertiary',

@@ -28,7 +28,7 @@ export default class CustomRouter implements NextRouter {
   }
 
   async push(url: Url): Promise<boolean> {
-    window.history.pushState({}, '', url as string);
+    window.location.href = url as string;
     return true;
   }
 
@@ -39,7 +39,7 @@ export default class CustomRouter implements NextRouter {
   }
 
   replace(url: Url): Promise<boolean> {
-    window.history.pushState({}, '', url as string);
+    window.location.href = url as string;
     return;
   }
 
