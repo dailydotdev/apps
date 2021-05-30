@@ -7,7 +7,7 @@ export default function DailyDevLogo(): ReactElement {
       xmlns="http://www.w3.org/2000/svg"
       className="logo"
     >
-      <g fill="#FFF" fillRule="evenodd">
+      <g fill="var(--theme-label-primary)" fillRule="evenodd">
         <g fillRule="nonzero">
           <path
             d="M18.377 5.996l-2.363-2.367 1.18-2.367 3.84 3.846c.488.49.488 1.285 0 1.775l-4.725 4.734a1.25 1.25 0 01-1.771 0 1.257 1.257 0 010-1.774l3.839-3.847z"
