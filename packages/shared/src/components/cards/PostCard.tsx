@@ -86,7 +86,7 @@ export function PostCard({
             </CardNotification>
           ) : (
             <>
-              <SourceButton post={post} className="pr-2" />
+              <SourceButton post={post} style={{ marginRight: '0.875rem' }} />
               {featuredCommentsToButtons(
                 post.featuredComments,
                 setSelectedComment,

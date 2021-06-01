@@ -122,7 +122,6 @@ export default function Feed<T>({
   );
   // const { nativeShareSupport } = useContext(ProgressiveEnhancementContext);
   const nativeShareSupport = false;
-  const [disableFetching, setDisableFetching] = useState(false);
   const { incrementReadingRank } = useIncrementReadingRank();
   const [showCommentPopupId, setShowCommentPopupId] = useState<string>();
   const [postMenuIndex, setPostMenuIndex] = useState<number>();
@@ -215,15 +214,12 @@ export default function Feed<T>({
   });
 
   useEffect(() => {
-    if (inView && !isLoading && canFetchMore && !disableFetching) {
-      // Disable fetching for a short time to prevent multi-fetching
-      setDisableFetching(true);
+    if (inView && !isLoading && canFetchMore) {
       fetchPage().then(async () => {
         await trackEngagement(EngagementAction.Scroll);
-        setTimeout(() => setDisableFetching(false), 100);
       });
     }
-  }, [inView, isLoading, canFetchMore, disableFetching]);
+  }, [inView, isLoading, canFetchMore]);
 
   const onUpvote = async (
     post: Post,

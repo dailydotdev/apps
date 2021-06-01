@@ -99,7 +99,7 @@ function InternalApp(): ReactElement {
       loadingUser,
       tokenRefreshed,
       loadedUserFromCache,
-      getRedirectUri: () => browser.extension.getURL('index.html'),
+      getRedirectUri: () => browser.runtime.getURL('index.html'),
     }),
     [user, loginMode, loadingUser, tokenRefreshed],
   );
@@ -131,14 +131,14 @@ function InternalApp(): ReactElement {
   );
 
   useEffect(() => {
-    if (user && !user.infoConfirmed) {
+    if (tokenRefreshed && user && !user.infoConfirmed) {
       window.location.replace(
         `${process.env.NEXT_PUBLIC_WEBAPP_URL}register?redirect_uri=${encodeURI(
-          window.location.pathname,
+          browser.runtime.getURL('index.html'),
         )}`,
       );
     }
-  }, [user, loadingUser]);
+  }, [user, loadingUser, tokenRefreshed]);
 
   const onMigrationSignIn = async () => {
     await migrateAfterSignIn();

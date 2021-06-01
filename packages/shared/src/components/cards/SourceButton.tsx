@@ -1,5 +1,5 @@
 import { Post } from '../../graphql/posts';
-import React, { ReactElement } from 'react';
+import React, { CSSProperties, ReactElement } from 'react';
 import { getTooltipProps } from '../../lib/tooltip';
 import Link from 'next/link';
 import classNames from 'classnames';
@@ -7,10 +7,12 @@ import classNames from 'classnames';
 export default function SourceButton({
   post,
   className,
+  style,
   tooltipPosition = 'down',
 }: {
   post: Post;
   className?: string;
+  style?: CSSProperties;
   tooltipPosition?: 'up' | 'down' | 'left' | 'right';
 }): ReactElement {
   return (
@@ -21,6 +23,7 @@ export default function SourceButton({
       <a
         {...getTooltipProps(post.source.name, { position: tooltipPosition })}
         className={classNames('flex cursor-pointer', className)}
+        style={style}
       >
         <img
           src={post.source.image}

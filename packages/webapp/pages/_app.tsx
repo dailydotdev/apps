@@ -119,6 +119,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
   useEffect(() => {
     if (
+      tokenRefreshed &&
       user &&
       !user.infoConfirmed &&
       window.location.pathname.indexOf('/register') !== 0
@@ -128,7 +129,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       );
     }
     updateCookieBanner(user);
-  }, [user, loadingUser]);
+  }, [user, loadingUser, tokenRefreshed]);
 
   const getLayout =
     (Component as CompnentGetLayout).getLayout || ((page) => page);
