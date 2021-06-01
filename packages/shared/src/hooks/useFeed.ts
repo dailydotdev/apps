@@ -44,6 +44,7 @@ export default function useFeed<T>(
 ): FeedReturnType {
   const [emptyFeed, setEmptyFeed] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [cooldown, setCooldown] = useState(false);
   const [loadedItems, setLoadedItems] = useState<FeedItem[]>([]);
   const [lastPage, setLastPage] = useState<FeedData>(null);
   const [lastAd, setLastAd] = useState<Ad>(null);
@@ -113,7 +114,7 @@ export default function useFeed<T>(
   );
 
   const fetchPage = async (lastPageParam: FeedData = lastPage) => {
-    if (isLoading && lastPageParam) {
+    if ((isLoading && lastPageParam) || cooldown) {
       return;
     }
     setIsLoading(true);
@@ -132,6 +133,9 @@ export default function useFeed<T>(
     }
     setLastPage(res);
     setIsLoading(false);
+    setCooldown(true);
+    // Disable fetching for a short time to prevent multi-fetching
+    setTimeout(() => setCooldown(false), 200);
     try {
       const adRes = await adPromise;
       const ads: Ad[] = await adRes.json();
