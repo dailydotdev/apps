@@ -209,6 +209,7 @@ export default function ProfileForm({
         value={user.name}
         required
         maxLength={50}
+        pattern="^\w(.*)?"
         validityChanged={updateDisableSubmit}
       />
       <FormField
