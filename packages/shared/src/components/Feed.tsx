@@ -103,23 +103,16 @@ export default function Feed<T>({
     insaneMode,
     loadedSettings,
   } = useContext(SettingsContext);
-  const {
-    items,
-    updatePost,
-    removeItem,
-    isLoading,
-    fetchPage,
-    canFetchMore,
-    emptyFeed,
-  } = useFeed(
-    currentSettings.pageSize,
-    currentSettings.adSpot,
-    currentSettings.numCards,
-    showOnlyUnreadPosts,
-    query,
-    variables,
-    dep,
-  );
+  const { items, updatePost, removeItem, fetchPage, canFetchMore, emptyFeed } =
+    useFeed(
+      currentSettings.pageSize,
+      currentSettings.adSpot,
+      currentSettings.numCards,
+      showOnlyUnreadPosts,
+      query,
+      variables,
+      dep,
+    );
   // const { nativeShareSupport } = useContext(ProgressiveEnhancementContext);
   const nativeShareSupport = false;
   const { incrementReadingRank } = useIncrementReadingRank();
@@ -214,12 +207,12 @@ export default function Feed<T>({
   });
 
   useEffect(() => {
-    if (inView && !isLoading && canFetchMore) {
+    if (inView && canFetchMore) {
       fetchPage().then(async () => {
         await trackEngagement(EngagementAction.Scroll);
       });
     }
-  }, [inView, isLoading, canFetchMore]);
+  }, [inView, canFetchMore]);
 
   const onUpvote = async (
     post: Post,

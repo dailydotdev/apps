@@ -196,7 +196,8 @@ export default function useFeed<T>(
     updatePost,
     removeItem,
     isLoading,
-    canFetchMore: lastPage?.page.pageInfo.hasNextPage,
+    canFetchMore:
+      lastPage?.page.pageInfo.hasNextPage && !cooldown && !isLoading,
     emptyFeed,
   };
 }

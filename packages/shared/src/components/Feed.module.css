@@ -82,6 +82,6 @@
   bottom: 100vh;
 
   @screen desktopL {
-    bottom: 30vh;
+    bottom: 20vh;
   }
 }
