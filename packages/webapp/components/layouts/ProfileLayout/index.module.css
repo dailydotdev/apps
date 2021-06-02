@@ -1,0 +1,18 @@
+.links {
+  & > * {
+    margin: 0 0.125rem;
+  }
+
+  & label {
+    color: var(--theme-label-link);
+  }
+}
+
+.header {
+  @screen tablet {
+    & > * {
+      margin-left: 1rem;
+      margin-right: 1rem;
+    }
+  }
+}

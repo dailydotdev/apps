@@ -1,5 +1,3 @@
-/** @jsx jsx */
-import { jsx, css } from '@emotion/react';
 import {
   GetStaticPathsResult,
   GetStaticPropsContext,
@@ -11,7 +9,6 @@ import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import HashtagIcon from '@dailydotdev/shared/icons/hashtag.svg';
 import PlusIcon from '@dailydotdev/shared/icons/plus.svg';
-import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import { useRouter } from 'next/router';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -81,9 +78,7 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
     ...defaultSeo,
   };
 
-  const buttonCss = css`
-    visibility: ${showAddTag ? 'visible' : 'hidden'};
-  `;
+  const buttonClass = showAddTag ? 'visible' : 'invisible';
   const buttonProps: ButtonProps<'button'> = {
     buttonSize: 'small',
     icon: <PlusIcon />,
@@ -105,23 +100,15 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
       <NextSeo {...seo} />
       <CustomFeedHeader>
         <HashtagIcon className={customFeedIcon} />
-        <span
-          css={css`
-            margin-right: auto;
-          `}
-        >
-          {tag}
-        </span>
+        <span className="mr-auto">{tag}</span>
         <Button
-          className="btn-primary laptop:hidden"
+          className={`btn-primary laptop:hidden ${buttonClass}`}
           {...buttonProps}
-          css={buttonCss}
           aria-label="Add tag to feed"
         />
         <Button
-          className="btn-primary hidden laptop:flex"
+          className={`btn-primary hidden laptop:flex ${buttonClass}`}
           {...buttonProps}
-          css={buttonCss}
         >
           Add to feed
         </Button>
@@ -129,10 +116,7 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
       <Feed
         query={TAG_FEED_QUERY}
         variables={queryVariables}
-        css={css`
-          margin-top: ${sizeN(3)};
-          margin-bottom: ${sizeN(3)};
-        `}
+        className="my-3"
       />
     </FeedPage>
   );

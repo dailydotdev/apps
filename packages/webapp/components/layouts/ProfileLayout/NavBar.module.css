@@ -1,0 +1,21 @@
+.nav {
+  &:before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: -99999px;
+    right: -99999px;
+    height: 0.063rem;
+    width: 100vw;
+    margin: 0 auto;
+    background: var(--theme-divider-tertiary);
+
+    @screen laptop {
+      width: $pageMaxWidth;
+    }
+  }
+
+  & > div {
+    position: relative;
+  }
+}

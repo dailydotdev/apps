@@ -4,35 +4,27 @@ import {
   getStaticPaths as getProfileStaticPaths,
   getStaticProps as getProfileStaticProps,
 } from '../../components/layouts/ProfileLayout';
-import styled from '@emotion/styled';
-import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
-import { typoCallout } from '@dailydotdev/shared/src/styles/typography';
 import { reputationGuide } from '@dailydotdev/shared/src/lib/constants';
 
 export const getStaticProps = getProfileStaticProps;
 export const getStaticPaths = getProfileStaticPaths;
 
-const Container = styled.section`
-  margin: ${sizeN(6)} 0;
-  ${typoCallout}
-
-  a {
-    color: var(--theme-label-link);
-    text-decoration: none;
-  }
-`;
-
 const ProfilePage = (): ReactElement => {
   return (
-    <Container>
+    <section className="my-6 typo-callout">
       Earning reputation points will allow you to gain special privileges
       (coming soon).
       <br />
       In the meantime,{' '}
-      <a href={reputationGuide} target="_blank" rel="noopener">
+      <a
+        href={reputationGuide}
+        target="_blank"
+        rel="noopener"
+        className="text-theme-label-link no-underline"
+      >
         learn how to earn reputation points.
       </a>
-    </Container>
+    </section>
   );
 };
 

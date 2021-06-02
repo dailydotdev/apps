@@ -15,20 +15,12 @@ import { NextSeoProps } from 'next-seo/lib/types';
 import { getLayout as getMainLayout } from '../MainLayout';
 import Head from 'next/head';
 import { NextSeo } from 'next-seo';
-import styled from '@emotion/styled';
 import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
-import {
-  typoCallout,
-  typoFootnote,
-  typoTitle1,
-  typoTitle3,
-} from '@dailydotdev/shared/src/styles/typography';
 import JoinedDate from '@dailydotdev/shared/src/components/profile/JoinedDate';
 import GitHubIcon from '@dailydotdev/shared/icons/github.svg';
 import TwitterIcon from '@dailydotdev/shared/icons/twitter.svg';
 import HashnodeIcon from '@dailydotdev/shared/icons/hashnode.svg';
 import LinkIcon from '@dailydotdev/shared/icons/link.svg';
-import { tablet } from '@dailydotdev/shared/src/styles/media';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
@@ -54,6 +46,8 @@ import { QuaternaryButton } from '@dailydotdev/shared/src/components/buttons/Qua
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
 import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
+import styles from './index.module.css';
+import classNames from 'classnames';
 
 const AccountDetailsModal = dynamic(
   () =>
@@ -67,144 +61,6 @@ export interface ProfileLayoutProps {
   profile: PublicProfile;
   children?: ReactNode;
 }
-
-const ProfileContainer = styled(ResponsivePageContainer)`
-  padding-left: ${sizeN(6)};
-  padding-right: ${sizeN(6)};
-`;
-
-const ProfileImageAndRep = styled.div`
-  display: flex;
-  margin-bottom: ${sizeN(6)};
-  background: var(--theme-background-secondary);
-  border-radius: ${sizeN(4)};
-  align-self: flex-start;
-  align-items: center;
-
-  ${tablet} {
-    flex-direction: column;
-    margin-bottom: 0;
-    padding: ${sizeN(2)} ${sizeN(2)} ${sizeN(4)};
-  }
-`;
-
-const ProfileImage = styled(LazyImage)`
-  width: ${sizeN(25)};
-  border-radius: ${sizeN(4)};
-`;
-
-const Reputation = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin: 0 ${sizeN(6)};
-  ${typoFootnote}
-
-  a {
-    color: var(--theme-label-tertiary);
-    text-decoration: none;
-  }
-
-  & > * {
-    margin: ${sizeN(0.5)} 0;
-
-    &:last-child {
-      color: var(--theme-label-primary);
-      font-weight: bold;
-      ${typoTitle1}
-    }
-  }
-
-  ${tablet} {
-    align-items: center;
-    margin: ${sizeN(4)} 0 0;
-  }
-`;
-
-const NameAndBadge = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: ${sizeN(2)};
-`;
-
-const Name = styled.h1`
-  margin: 0;
-  color: var(--theme-label-primary);
-  font-weight: bold;
-  ${typoTitle3}
-`;
-
-const StyledRank = styled(Rank)`
-  width: ${sizeN(6)};
-  height: ${sizeN(6)};
-  margin-left: ${sizeN(2)};
-`;
-
-const Username = styled.h2`
-  margin: 0;
-  font-weight: normal;
-  color: var(--theme-label-secondary);
-  ${typoCallout}
-`;
-
-const Bio = styled.p`
-  margin: ${sizeN(3)} 0 0;
-  color: var(--theme-label-tertiary);
-  word-break: break-word;
-  ${typoCallout}
-`;
-
-const JoinedDateStyled = styled(JoinedDate)`
-  margin-top: ${sizeN(3)};
-  color: var(--theme-label-quaternary);
-  ${typoFootnote}
-`;
-
-const Links = styled.div`
-  display: flex;
-  margin: ${sizeN(3)} ${sizeN(0.5)} 0;
-
-  > * {
-    margin: 0 ${sizeN(0.5)};
-  }
-
-  label {
-    color: var(--theme-label-link);
-  }
-`;
-
-const ProfileHeader = styled.section`
-  display: flex;
-  flex-direction: column;
-  align-self: flex-start;
-
-  ${tablet} {
-    flex-direction: row;
-    margin-left: -${sizeN(4)};
-    margin-right: -${sizeN(4)};
-    align-self: stretch;
-    overflow-x: hidden;
-
-    & > * {
-      margin-left: ${sizeN(4)};
-      margin-right: ${sizeN(4)};
-    }
-  }
-`;
-
-const ProfileInfo = styled.div`
-  display: flex;
-  flex-direction: column;
-
-  ${tablet} {
-    flex: 1;
-  }
-`;
-
-const EditProfileButton = styled(Button)`
-  margin-top: ${sizeN(6)};
-  margin-bottom: 2px;
-  align-self: flex-start;
-`;
 
 export default function ProfileLayout({
   profile: initialProfile,
@@ -291,37 +147,65 @@ export default function ProfileLayout({
         <link rel="preload" as="image" href={profile.image} />
       </Head>
       <NextSeo {...Seo} />
-      <ProfileContainer>
-        <ProfileHeader>
-          <ProfileImageAndRep>
-            <ProfileImage
+      <ResponsivePageContainer className="px-6">
+        <section
+          className={classNames(
+            'flex flex-col self-start tablet:flex-row tablet:-ml-4 tablet:-mr-4 tablet:self-stretch tablet:overflow-x-hidden',
+            styles.header,
+          )}
+        >
+          <div className="flex mb-6 bg-theme-bg-secondary rounded-2xl self-start items-center tablet:flex-col tablet:mb-0 tablet:pt-2 tablet:pb-4 tablet:px-2">
+            <LazyImage
               imgSrc={profile.image}
               imgAlt={`${profile.name}'s profile image`}
               eager={true}
               ratio="100%"
+              className="rounded-2xl"
+              style={{ width: sizeN(25) }}
             />
-            <Reputation>
-              <a href={reputationGuide} target="_blank" rel="noopener">
+            <div className="flex flex-col mx-6 typo-footnote tablet:items-center tablet:mt-4 tablet:mx-0">
+              <a
+                href={reputationGuide}
+                target="_blank"
+                rel="noopener"
+                className="text-theme-label-tertiary no-underline my-0.5"
+              >
                 Reputation
               </a>
-              <span>{profile.reputation}</span>
-            </Reputation>
-          </ProfileImageAndRep>
-          <ProfileInfo>
-            <NameAndBadge>
-              <Name>{profile.name}</Name>
+              <span className="my-0.5 text-theme-label-primary font-bold typo-title1">
+                {profile.reputation}
+              </span>
+            </div>
+          </div>
+          <div className="flex flex-col tablet:flex-1">
+            <div className="flex items-center mb-2">
+              <h1 className="m-0 text-theme-label-primary font-bold typo-title3">
+                {profile.name}
+              </h1>
               {userRank?.userReadingRank?.currentRank > 0 && (
-                <StyledRank
+                <Rank
                   rank={userRank.userReadingRank.currentRank}
                   colorByRank
                   data-testid="rank"
+                  className="w-6 h-6 ml-2"
                 />
               )}
-            </NameAndBadge>
-            {profile.username && <Username>@{profile.username}</Username>}
-            {profile.bio && <Bio>{profile.bio}</Bio>}
-            <JoinedDateStyled date={new Date(profile.createdAt)} />
-            <Links>
+            </div>
+            {profile.username && (
+              <h2 className="m-0 font-normal text-theme-label-secondary typo-callout">
+                @{profile.username}
+              </h2>
+            )}
+            {profile.bio && (
+              <p className="mt-3 text-theme-label-tertiary break-words typo-callout">
+                {profile.bio}
+              </p>
+            )}
+            <JoinedDate
+              className="mt-3 text-theme-label-quaternary typo-footnote"
+              date={new Date(profile.createdAt)}
+            />
+            <div className={classNames('flex mt-3 mx-0.5', styles.links)}>
               {twitterHandle && (
                 <Button
                   tag="a"
@@ -371,20 +255,20 @@ export default function ProfileLayout({
                     .replace(/\/?(\?.*)?$/, '')}
                 </QuaternaryButton>
               )}
-            </Links>
+            </div>
             {profile.id === user?.id && (
-              <EditProfileButton
-                className="btn-secondary"
+              <Button
+                className="btn-secondary mt-6 mb-0.5 self-start"
                 onClick={() => setShowAccountDetails(true)}
               >
                 Account details
-              </EditProfileButton>
+              </Button>
             )}
-          </ProfileInfo>
-        </ProfileHeader>
+          </div>
+        </section>
         <NavBar selectedTab={selectedTab} profile={profile} />
         {children}
-      </ProfileContainer>
+      </ResponsivePageContainer>
       {profile.id === user?.id && (windowLoaded || showAccountDetails) && (
         <AccountDetailsModal
           isOpen={showAccountDetails}

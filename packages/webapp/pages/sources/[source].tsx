@@ -1,5 +1,3 @@
-/** @jsx jsx */
-import { jsx, css } from '@emotion/react';
 import {
   GetStaticPathsResult,
   GetStaticPropsContext,
@@ -9,7 +7,6 @@ import { ParsedUrlQuery } from 'querystring';
 import React, { ReactElement, useContext, useMemo } from 'react';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
-import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import { useRouter } from 'next/router';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -89,9 +86,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
     ...defaultSeo,
   };
 
-  const buttonCss = css`
-    visibility: ${showAddSource ? 'visible' : 'hidden'};
-  `;
+  const buttonClass = showAddSource ? 'visible' : 'invisible';
   const buttonProps: ButtonProps<'button'> = {
     buttonSize: 'small',
     icon: <PlusIcon />,
@@ -115,30 +110,17 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
         <img
           src={source.image}
           alt={`${source.name} logo`}
-          css={css`
-            width: ${sizeN(6)};
-            height: ${sizeN(6)};
-            border-radius: ${sizeN(2)};
-            margin-right: ${sizeN(2)};
-          `}
+          className="w-6 h-6 rounded-lg mr-2"
         />
-        <span
-          css={css`
-            margin-right: auto;
-          `}
-        >
-          {source.name}
-        </span>
+        <span className="mr-auto">{source.name}</span>
         <Button
-          className="btn-primary laptop:hidden"
+          className={`btn-primary laptop:hidden ${buttonClass}`}
           {...buttonProps}
-          css={buttonCss}
           aria-label="Add source to feed"
         />
         <Button
-          className="btn-primary hidden laptop:flex"
+          className={`btn-primary hidden laptop:flex ${buttonClass}`}
           {...buttonProps}
-          css={buttonCss}
         >
           Add to feed
         </Button>
@@ -146,10 +128,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
       <Feed
         query={SOURCE_FEED_QUERY}
         variables={queryVariables}
-        css={css`
-          margin-top: ${sizeN(3)};
-          margin-bottom: ${sizeN(3)};
-        `}
+        className="my-3"
       />
     </FeedPage>
   );

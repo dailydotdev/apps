@@ -12,7 +12,6 @@ import {
   getStaticPaths as getProfileStaticPaths,
   ProfileLayoutProps,
 } from '../../components/layouts/ProfileLayout';
-import styled from '@emotion/styled';
 import {
   addDays,
   endOfYear,
@@ -54,14 +53,6 @@ const ReactTooltip = dynamic(() => import('react-tooltip'));
 
 export const getStaticProps = getProfileStaticProps;
 export const getStaticPaths = getProfileStaticPaths;
-
-const Container = styled.div`
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  padding: 0;
-`;
 
 const RanksModal = dynamic(
   () =>
@@ -199,7 +190,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
   );
 
   return (
-    <Container>
+    <div className="relative flex flex-col items-stretch">
       {readingHistory?.userReadingRankHistory && (
         <>
           <ActivityContainer>
@@ -306,7 +297,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
           {commentsSection}
         </>
       )}
-    </Container>
+    </div>
   );
 };
 

@@ -6,7 +6,6 @@ module.exports = {
   presets: ['next/babel'],
   plugins: [
     'macros',
-    '@emotion',
     [
       require.resolve('babel-plugin-module-resolver'),
       {

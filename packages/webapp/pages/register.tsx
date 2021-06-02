@@ -1,45 +1,17 @@
 import React, { ReactElement, useContext, useState } from 'react';
-import styled from '@emotion/styled';
 import { NextSeo } from 'next-seo';
 import MainLayout from '../components/layouts/MainLayout';
-import { typoCallout } from '@dailydotdev/shared/src/styles/typography';
-import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useRouter } from 'next/router';
 import EditImageWithJoinedDate from '@dailydotdev/shared/src/components/profile/EditImageWithJoinedDate';
 import ProfileForm, {
   RegistrationMode,
 } from '@dailydotdev/shared/src/components/profile/ProfileForm';
-import {
-  Button,
-  ButtonProps,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   ResponsivePageContainer,
   ProfileHeading,
 } from '@dailydotdev/shared/src/components/utilities';
-
-const Subheading = styled.h2`
-  margin: ${sizeN(2)} 0;
-  align-self: flex-start;
-  color: var(--theme-label-tertiary);
-  ${typoCallout}
-`;
-
-const LogoutButton = styled(Button)<ButtonProps<'button'>>`
-  margin-left: ${sizeN(4)};
-`;
-
-const FormButtons = styled.div`
-  display: flex;
-  margin-top: ${sizeN(10)};
-  align-items: center;
-  align-self: stretch;
-
-  [type='submit'] {
-    flex: 1;
-  }
-`;
 
 export default function Register(): ReactElement {
   const { user, logout } = useContext(AuthContext);
@@ -57,7 +29,9 @@ export default function Register(): ReactElement {
         {user && (
           <>
             <ProfileHeading>Set up your profile</ProfileHeading>
-            <Subheading>Please fill in your details below</Subheading>
+            <h2 className="my-2 self-start text-theme-label-tertiary typo-callout">
+              Please fill in your details below
+            </h2>
             <EditImageWithJoinedDate user={user} />
             <ProfileForm
               id="profileForm"
@@ -65,23 +39,23 @@ export default function Register(): ReactElement {
               onSuccessfulSubmit={onSuccessfulSubmit}
               mode={(router?.query.mode as RegistrationMode) || 'default'}
             />
-            <FormButtons>
+            <div className="flex mt-10 items-center self-stretch">
               <Button
-                className="btn-primary"
+                className="btn-primary flex-1"
                 type="submit"
                 disabled={disableSubmit}
                 form="profileForm"
               >
                 Finish
               </Button>
-              <LogoutButton
-                className="btn-tertiary"
+              <Button
+                className="btn-tertiary ml-4"
                 type="button"
                 onClick={logout}
               >
                 Logout
-              </LogoutButton>
-            </FormButtons>
+              </Button>
+            </div>
           </>
         )}
       </ResponsivePageContainer>

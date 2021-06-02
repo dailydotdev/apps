@@ -1,15 +1,13 @@
 import React, { ReactElement, useContext } from 'react';
 import Link from 'next/link';
-import styled from '@emotion/styled';
-import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
-import { laptop } from '@dailydotdev/shared/src/styles/media';
-import { pageMaxWidth } from '@dailydotdev/shared/src/styles/helpers';
 import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { FlippedProps, FlipperProps } from 'flip-toolkit/lib/types';
 import dynamicParent from '@dailydotdev/shared/src/lib/dynamicParent';
 import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import classNames from 'classnames';
+import styles from './NavBar.module.css';
 
 const flipperLoader = () =>
   import(/* webpackChunkName: "reactFlip" */ 'react-flip-toolkit');
@@ -24,32 +22,6 @@ const Flipped = dynamicParent<FlippedProps>(
 );
 
 export type Tab = { path: string; title: string };
-
-const Nav = styled(Flipper)`
-  position: relative;
-  display: flex;
-  margin: ${sizeN(6)} -${sizeN(6)} 0;
-
-  :before {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: -99999px;
-    right: -99999px;
-    height: 0.063rem;
-    width: 100vw;
-    margin: 0 auto;
-    background: var(--theme-divider-tertiary);
-
-    ${laptop} {
-      width: ${pageMaxWidth};
-    }
-  }
-
-  & > div {
-    position: relative;
-  }
-`;
 
 const basePath = `/[userId]`;
 export const tabs: Tab[] = [
@@ -77,11 +49,12 @@ export default function NavBar({
     tab.path.replace('[userId]', profile.username || profile.id);
 
   return (
-    <Nav
+    <Flipper
       flipKey={selectedTab}
       spring="veryGentle"
       element="nav"
       shouldLoad={windowLoaded}
+      className={classNames('relative flex mt-6 -mx-6', styles.nav)}
     >
       {tabs.map((tab, index) => (
         <div key={tab.path}>
@@ -102,6 +75,6 @@ export default function NavBar({
           </Flipped>
         </div>
       ))}
-    </Nav>
+    </Flipper>
   );
 }

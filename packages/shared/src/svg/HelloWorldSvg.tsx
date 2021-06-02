@@ -1,14 +1,15 @@
 import React, { ReactElement } from 'react';
 
-export default function HelloWorldSvg(
-  props: React.SVGProps<SVGSVGElement>,
-): ReactElement {
+export default function HelloWorldSvg({
+  style = {},
+  ...props
+}: React.SVGProps<SVGSVGElement>): ReactElement {
   return (
     <svg
       viewBox="0 0 240 160"
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
-      style={{ transform: 'translateX(22.798%)' }}
+      style={{ transform: 'translateX(22.798%)', ...style }}
       {...props}
     >
       <defs>

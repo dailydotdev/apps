@@ -1,10 +1,7 @@
 import '@testing-library/jest-dom';
-import { matchers } from '@emotion/jest';
 import 'fake-indexeddb/auto';
 import nodeFetch from 'node-fetch';
 import { NextRouter } from 'next/router';
-
-expect.extend(matchers);
 
 process.env.NEXT_PUBLIC_API_URL = 'http://localhost:3000';
 process.env.NEXT_PUBLIC_WEBAPP_URL = '/';
