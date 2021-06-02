@@ -1,5 +1,3 @@
-/** @jsx jsx */
-import { css, jsx } from '@emotion/react';
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
@@ -11,16 +9,8 @@ import {
 } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 import { Roles } from '@dailydotdev/shared/src/lib/user';
-import styled from '@emotion/styled';
 import { NextSeo } from 'next-seo';
 import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
-import {
-  typoBody,
-  typoCallout,
-  typoFootnote,
-  typoSubhead,
-  typoTitle2,
-} from '@dailydotdev/shared/src/styles/typography';
 import OpenLinkIcon from '@dailydotdev/shared/icons/open_link.svg';
 import UpvoteIcon from '@dailydotdev/shared/icons/upvote.svg';
 import CommentIcon from '@dailydotdev/shared/icons/comment.svg';
@@ -29,10 +19,7 @@ import TrashIcon from '@dailydotdev/shared/icons/trash.svg';
 import HammerIcon from '@dailydotdev/shared/icons/hammer.svg';
 import FeatherIcon from '@dailydotdev/shared/icons/feather.svg';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
-import {
-  PageContainer,
-  RoundedImage,
-} from '@dailydotdev/shared/src/components/utilities';
+import { PageContainer } from '@dailydotdev/shared/src/components/utilities';
 import { postDateFormat } from '@dailydotdev/shared/src/lib/dateFormat';
 import {
   Post,
@@ -50,8 +37,6 @@ import {
   POST_COMMENTS_QUERY,
   PostCommentsData,
 } from '@dailydotdev/shared/src/graphql/comments';
-import { laptop } from '@dailydotdev/shared/src/styles/media';
-import { focusOutline } from '@dailydotdev/shared/src/styles/helpers';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { ShareMobile } from '@dailydotdev/shared/src/components/ShareMobile';
 import Head from 'next/head';
@@ -73,6 +58,7 @@ import useUpvotePost from '@dailydotdev/shared/src/hooks/useUpvotePost';
 import useBookmarkPost from '@dailydotdev/shared/src/hooks/useBookmarkPost';
 import styles from './postPage.module.css';
 import classNames from 'classnames';
+import classed from '@dailydotdev/shared/src/lib/classed';
 
 declare module 'graphql-request/dist/types' {
   interface GraphQLError {
@@ -123,216 +109,12 @@ interface PostParams extends ParsedUrlQuery {
   id: string;
 }
 
-const PostInfo = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: ${sizeN(2)};
-`;
-
-const PostInfoSubContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  margin: 0 ${sizeN(2)};
-`;
-
-const MetadataContainer = styled.div`
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  margin: ${sizeN(2)} 0 ${sizeN(1)};
-`;
-
-const metadataStyle = css`
-  color: var(--theme-label-tertiary);
-  ${typoCallout}
-`;
-
-const MetadataSeparator = styled.div`
-  width: ${sizeN(0.5)};
-  height: ${sizeN(0.5)};
-  margin: 0 ${sizeN(1)};
-  background: var(--theme-label-tertiary);
-  border-radius: 100%;
-`;
-
-const SourceImage = styled(RoundedImage)`
-  width: ${sizeN(8)};
-  height: ${sizeN(8)};
-`;
-
-const SourceName = styled.div`
-  color: var(--theme-label-primary);
-  font-weight: bold;
-  ${typoCallout}
-`;
-
-const AuthorLink = styled(ProfileLink)`
-  margin-left: ${sizeN(2)};
-  margin-right: auto;
-
-  ${SourceName} {
-    margin-left: ${sizeN(2)};
-  }
-`;
-
-const Title = styled.h1`
-  margin: ${sizeN(2)} 0;
-  font-weight: bold;
-  ${typoTitle2}
-`;
-
-const Tags = styled.div`
-  margin-bottom: ${sizeN(4)};
-  color: var(--theme-label-quaternary);
-  font-weight: bold;
-  ${typoSubhead}
-`;
-
-const PostImage = styled.a`
-  display: block;
-  margin: ${sizeN(2)} 0 0;
-  border-radius: ${sizeN(4)};
-  overflow: hidden;
-  cursor: pointer;
-`;
-
-const StatsBar = styled.div`
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: max-content;
-  grid-column-gap: ${sizeN(4)};
-  margin: ${sizeN(4)} 0;
-  color: var(--theme-label-tertiary);
-
-  ${typoCallout}
-  span {
-    word-break: keep-all;
-  }
-`;
-
-const ActionButtons = styled.div`
-  display: flex;
-  justify-content: space-between;
-  padding: ${sizeN(2)} 0;
-  border-top: 0.063rem solid var(--theme-divider-tertiary);
-  border-bottom: 0.063rem solid var(--theme-divider-tertiary);
-`;
-
-const NewCommentContainer = styled.div`
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  padding: ${sizeN(3)} ${sizeN(4)};
-  background: var(--theme-background-primary);
-  z-index: 2;
-
-  ${laptop} {
-    position: relative;
-    left: unset;
-    right: unset;
-    bottom: unset;
-    padding: 0;
-    background: none;
-    box-shadow: none;
-    margin-top: auto;
-    padding-top: ${sizeN(4)};
-  }
-`;
-
-const NewCommentButton = styled.button`
-  display: flex;
-  width: 100%;
-  height: ${sizeN(10)};
-  align-items: center;
-  padding: 0 ${sizeN(4)};
-  background: var(--theme-background-secondary);
-  color: var(---theme-label-secondary);
-  border: none;
-  border-radius: ${sizeN(4)};
-  cursor: pointer;
-  ${typoCallout}
-  ${focusOutline}
-`;
-
-const NewCommentProfile = styled(LazyImage)`
-  width: ${sizeN(7)};
-  height: ${sizeN(7)};
-  border-radius: 100%;
-  margin-left: -${sizeN(2)};
-  margin-right: ${sizeN(3)};
-`;
-
-const Separator = styled.div`
-  height: 0.063rem;
-  margin: ${sizeN(6)} 0;
-  background: var(--theme-divider-tertiary);
-`;
-
-const AuthorOnboarding = styled.section`
-  padding: ${sizeN(6)};
-  background: var(--theme-background-secondary);
-  border-radius: ${sizeN(4)};
-
-  p {
-    margin: ${sizeN(4)} 0;
-  }
-
-  ol {
-    margin: -${sizeN(1)} 0;
-    padding-inline-start: ${sizeN(6)};
-  }
-
-  li {
-    margin: ${sizeN(1)} 0;
-  }
-
-  p,
-  ol {
-    color: var(--theme-label-secondary);
-    ${typoCallout}
-  }
-`;
-
-const AuthorOnboardingHeader = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, max-content);
-  align-items: center;
-  column-gap: ${sizeN(3)};
-
-  .icon {
-    grid-row-end: span 2;
-    font-size: ${sizeN(10)};
-    color: var(--theme-status-help);
-  }
-
-  h2,
-  h3 {
-    margin: 0;
-  }
-
-  h3 {
-    color: var(--theme-status-help);
-    font-weight: bold;
-    ${typoFootnote}
-  }
-
-  h2 {
-    font-weight: bold;
-    ${typoBody}
-  }
-`;
-
-const AuthorOnboardingButtons = styled.div`
-  display: grid;
-  max-width: ${sizeN(74)};
-  grid-auto-flow: column;
-  grid-template-columns: 1fr max-content;
-  column-gap: ${sizeN(4)};
-  margin-top: ${sizeN(6)};
-`;
+const metadataStyle = 'text-theme-label-tertiary typo-callout';
+const SourceImage = classed(LazyImage, 'w-8 h-8 rounded-full');
+const SourceName = classed(
+  'div',
+  'text-theme-label-primary font-bold typo-callout',
+);
 
 interface ParentComment {
   authorName: string;
@@ -632,7 +414,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           <link rel="preload" as="image" href={postById?.post.image} />
         </Head>
         <NextSeo {...seo} />
-        <PostInfo>
+        <div className="flex items-center mb-2">
           <Link
             href={`/sources/${postById?.post.source.id}`}
             passHref
@@ -654,22 +436,25 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             </a>
           </Link>
           {postById?.post.author ? (
-            <AuthorLink
+            <ProfileLink
               user={postById.post.author}
               data-testid="authorLink"
               disableTooltip
+              className="ml-2 mr-auto"
             >
               <SourceImage
                 imgSrc={postById.post.author.image}
                 imgAlt={postById.post.author.name}
                 background="var(--theme-background-secondary)"
               />
-              <SourceName>{postById.post.author.name}</SourceName>
-            </AuthorLink>
+              <SourceName className="ml-2">
+                {postById.post.author.name}
+              </SourceName>
+            </ProfileLink>
           ) : (
-            <PostInfoSubContainer>
+            <div className="flex flex-col flex-1 mx-2">
               <SourceName>{postById?.post.source.name}</SourceName>
-            </PostInfoSubContainer>
+            </div>
           )}
           <Button
             className="btn-tertiary"
@@ -693,29 +478,39 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
               />
             </>
           )}
-        </PostInfo>
-        <Title>{postById?.post.title}</Title>
-        <MetadataContainer>
-          <time dateTime={postById?.post?.createdAt} css={metadataStyle}>
+        </div>
+        <h1 className="my-2 font-bold typo-title2">{postById?.post.title}</h1>
+        <div className="flex items-center flex-wrap mt-2 mb-1">
+          <time dateTime={postById?.post?.createdAt} className={metadataStyle}>
             {postById && postDateFormat(postById.post.createdAt)}
           </time>
-          {!!postById?.post.readTime && <MetadataSeparator />}
           {!!postById?.post.readTime && (
-            <div data-testid="readTime" css={metadataStyle}>
+            <div className="w-0.5 h-0.5 mx-1 bg-theme-label-tertiary rounded-full" />
+          )}
+          {!!postById?.post.readTime && (
+            <div data-testid="readTime" className={metadataStyle}>
               {postById?.post.readTime}m read time
             </div>
           )}
-        </MetadataContainer>
-        <Tags>{tags !== '#' && tags}</Tags>
-        <PostImage {...postLinkProps}>
+        </div>
+        <div className="mb-4 text-theme-label-quaternary font-bold typo-subhead">
+          {tags !== '#' && tags}
+        </div>
+        <a
+          {...postLinkProps}
+          className="block mt-2 rounded-2xl overflow-hidden cursor-pointer"
+        >
           <LazyImage
             imgSrc={postById?.post.image}
             imgAlt="Post cover image"
             ratio="49%"
             eager={true}
           />
-        </PostImage>
-        <StatsBar data-testid="statsBar">
+        </a>
+        <div
+          className="flex gap-x-4 my-4 text-theme-label-tertiary typo-callout"
+          data-testid="statsBar"
+        >
           {postById?.post.views > 0 && (
             <span>{postById?.post.views.toLocaleString()} Views</span>
           )}
@@ -725,8 +520,8 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           {postById?.post.numComments > 0 && (
             <span>{postById?.post.numComments.toLocaleString()} Comments</span>
           )}
-        </StatsBar>
-        <ActionButtons>
+        </div>
+        <div className="flex justify-between py-2 border-t border-b border-theme-divider-tertiary">
           <QuaternaryButton
             id="upvote-post-btn"
             pressed={postById?.post.upvoted}
@@ -771,7 +566,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           {/*>*/}
           {/*  Share*/}
           {/*</QuaternaryButton>*/}
-        </ActionButtons>
+        </div>
         {comments?.postComments.edges.map((e) => (
           <MainComment
             comment={e.node}
@@ -784,14 +579,25 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             postAuthorId={postById?.post?.author?.id}
           />
         ))}
-        <Separator />
+        <div className="h-px my-6 bg-theme-divider-tertiary" />
         {authorOnboarding ? (
-          <AuthorOnboarding>
-            <AuthorOnboardingHeader>
+          <section
+            className={classNames(
+              'p-6 bg-theme-bg-secondary rounded-2xl',
+              styles.authorOnboarding,
+            )}
+          >
+            <div
+              className={classNames(
+                'grid items-center gap-x-3',
+                styles.authorOnboardingHeader,
+              )}
+              style={{ gridTemplateColumns: 'repeat(2, max-content)' }}
+            >
               <FeatherIcon />
               <h3>Author</h3>
               <h2>Is this article yours?</h2>
-            </AuthorOnboardingHeader>
+            </div>
             <p>Claim ownership and get the following perks:</p>
             <ol>
               <li>
@@ -803,7 +609,14 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
                 Gain reputation points by earning upvotes on articles you wrote
               </li>
             </ol>
-            <AuthorOnboardingButtons data-testid="authorOnboarding">
+            <div
+              className="grid grid-flow-col gap-x-4 mt-6"
+              data-testid="authorOnboarding"
+              style={{
+                maxWidth: sizeN(74),
+                gridTemplateColumns: '1fr max-content',
+              }}
+            >
               <Button className="btn-primary" onClick={() => showLogin()}>
                 Sign up
               </Button>
@@ -816,8 +629,8 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
               >
                 Learn more
               </Button>
-            </AuthorOnboardingButtons>
-          </AuthorOnboarding>
+            </div>
+          </section>
         ) : (
           <>
             <ShareMobile share={sharePost} />
@@ -833,17 +646,26 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             )}
           </>
         )}
-        <NewCommentContainer>
-          <NewCommentButton onClick={openNewComment}>
+        <div
+          className={classNames(
+            'fixed inset-x-0 bottom-0 w-full py-3 px-4 bg-theme-bg-primary z-2 laptop:relative laptop:px-0 laptop:pb-0 laptop:pt-4 laptop:bg-none laptop:mt-auto',
+            styles.newComment,
+          )}
+        >
+          <button
+            className="flex w-full h-10 items-center px-4 bg-theme-bg-secondary text-theme-label-secondary border-none rounded-2xl cursor-pointer typo-callout focus-outline"
+            onClick={openNewComment}
+          >
             {user && (
-              <NewCommentProfile
+              <LazyImage
                 imgSrc={user.image}
                 imgAlt="Your profile image"
+                className="w-7 h-7 rounded-full -ml-2 mr-3"
               />
             )}
             Write your comment...
-          </NewCommentButton>
-        </NewCommentContainer>
+          </button>
+        </div>
       </PageContainer>
       {pendingComment && (
         <DeleteCommentModal

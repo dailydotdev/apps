@@ -1,6 +1,4 @@
-/** @jsx jsx */
-import { css, jsx } from '@emotion/react';
-import { ReactElement, useContext, useState } from 'react';
+import React, { ReactElement, useContext, useState } from 'react';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { NextSeo } from 'next-seo';
@@ -8,8 +6,6 @@ import Feed from '@dailydotdev/shared/src/components/Feed';
 import { BOOKMARKS_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import { headerHeight } from '@dailydotdev/shared/src/styles/sizes';
 import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
-import styled from '@emotion/styled';
-import { typoTitle1 } from '@dailydotdev/shared/src/styles/typography';
 import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
 import { getLayout } from '../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../components/layouts/MainFeedPage';
@@ -22,27 +18,6 @@ import {
   customFeedIcon,
   FeedPage,
 } from '@dailydotdev/shared/src/components/utilities';
-
-const EmptyScreenContainer = styled.main`
-  position: fixed;
-  display: flex;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  margin-top: ${headerHeight};
-  padding: 0 ${sizeN(6)};
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: var(--theme-label-secondary);
-
-  p,
-  h1 {
-    text-align: center;
-    max-width: 32.5rem;
-  }
-`;
 
 const BookmarksPage = (): ReactElement => {
   const router = useRouter();
@@ -63,29 +38,22 @@ const BookmarksPage = (): ReactElement => {
 
   if (showEmptyScreen) {
     return (
-      <EmptyScreenContainer className="withNavBar">
+      <main
+        className="withNavBar fixed flex flex-col inset-0 px-6 items-center justify-center text-theme-label-secondary"
+        style={{ marginTop: headerHeight }}
+      >
         <NextSeo {...seo} />
         <BookmarkIcon
-          css={css`
-            margin: 0;
-            color: var(--theme-label-tertiary);
-            font-size: ${sizeN(20)};
-          `}
+          className="icon m-0 text-theme-label-tertiary"
+          style={{ fontSize: sizeN(20) }}
         />
         <h1
-          css={css`
-            margin: ${sizeN(4)} 0;
-            color: var(--theme-label-primary);
-            ${typoTitle1}
-          `}
+          className="my-4 text-theme-label-primary typo-title1 text-center"
+          style={{ maxWidth: '32.5rem' }}
         >
           Your bookmark list is empty.
         </h1>
-        <p
-          css={css`
-            margin-bottom: ${sizeN(10)};
-          `}
-        >
+        <p className="text-center mb-10" style={{ maxWidth: '32.5rem' }}>
           Go back to your feed and bookmark posts you’d like to keep or read
           later. Each post you bookmark will be stored here.
         </p>
@@ -94,7 +62,7 @@ const BookmarksPage = (): ReactElement => {
             Back to feed
           </Button>
         </Link>
-      </EmptyScreenContainer>
+      </main>
     );
   }
 
@@ -108,10 +76,7 @@ const BookmarksPage = (): ReactElement => {
       <Feed
         query={BOOKMARKS_FEED_QUERY}
         onEmptyFeed={() => setShowEmptyScreen(true)}
-        css={css`
-          margin-top: ${sizeN(3)};
-          margin-bottom: ${sizeN(3)};
-        `}
+        className="my-3"
       />
     </FeedPage>
   );

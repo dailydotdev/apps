@@ -115,6 +115,7 @@ const renderComponent = (
           logout: jest.fn(),
           updateUser: jest.fn(),
           tokenRefreshed: true,
+          getRedirectUri: jest.fn(),
         }}
       >
         <OnboardingContext.Provider
@@ -155,7 +156,7 @@ it('should show add to feed button', async () => {
   renderComponent();
   await waitFor(() => expect(nock.isDone()).toBeTruthy());
   const [button] = await screen.findAllByLabelText('Add source to feed');
-  expect(button).toHaveStyleRule('visibility', 'visible');
+  expect(button).toHaveClass('visible');
 });
 
 it('should not show add to feed button', async () => {
@@ -166,7 +167,7 @@ it('should not show add to feed button', async () => {
   await waitFor(() => expect(nock.isDone()).toBeTruthy());
   await waitFor(async () => {
     const [button] = await screen.findAllByLabelText('Add source to feed');
-    expect(button).toHaveStyleRule('visibility', 'hidden');
+    expect(button).toHaveClass('invisible');
   });
 });
 
@@ -184,7 +185,7 @@ it('should show add to feed button when logged-out', async () => {
   );
   await waitFor(() => expect(nock.isDone()).toBeTruthy());
   const [button] = await screen.findAllByLabelText('Add source to feed');
-  expect(button).toHaveStyleRule('visibility', 'visible');
+  expect(button).toHaveClass('visible');
 });
 
 it('should show login popup when logged-out on add to feed click', async () => {
@@ -228,6 +229,6 @@ it('should add new source filter', async () => {
   button.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
   await waitFor(async () => {
-    expect(button).toHaveStyleRule('visibility', 'hidden');
+    expect(button).toHaveClass('invisible');
   });
 });

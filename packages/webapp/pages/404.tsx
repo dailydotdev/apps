@@ -1,41 +1,23 @@
 import React, { ReactElement } from 'react';
 import Head from 'next/head';
-import styled from '@emotion/styled';
-import { typoTitle1 } from '@dailydotdev/shared/src/styles/typography';
-import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import HelloWorldSvg from '@dailydotdev/shared/src/svg/HelloWorldSvg';
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-`;
-
-const Heading = styled.h1`
-  margin: 0 ${sizeN(9)};
-  text-align: center;
-  word-break: break-word;
-  font-weight: bold;
-  ${typoTitle1}
-`;
-
-const Art = styled(HelloWorldSvg)`
-  width: 55%;
-  max-width: 32.75rem;
-  margin: 0 0 ${sizeN(10)};
-  align-self: center;
-`;
 
 export default function Custom404(): ReactElement {
   return (
-    <Container data-testid="notFound">
+    <div
+      className="flex flex-col items-center justify-center min-h-screen"
+      data-testid="notFound"
+    >
       <Head>
         <title>Page not found 😅</title>
       </Head>
-      <Art />
-      <Heading>Oops, this page couldn’t be found</Heading>
-    </Container>
+      <HelloWorldSvg
+        style={{ width: '55%', maxWidth: '32.75rem' }}
+        className="mb-10 self-center"
+      />
+      <h1 className="mx-9 text-center break-words font-bold typo-title1">
+        Oops, this page couldn’t be found
+      </h1>
+    </div>
   );
 }
