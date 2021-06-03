@@ -47,7 +47,10 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
   const { isFallback } = useRouter();
   const { user, showLogin, tokenRefreshed } = useContext(AuthContext);
   // Must be memoized to prevent refreshing the feed
-  const queryVariables = useMemo(() => ({ source: source?.id }), [source?.id]);
+  const queryVariables = useMemo(
+    () => ({ source: source?.id, ranking: 'TIME' }),
+    [source?.id],
+  );
 
   const queryKey = getSourcesSettingsQueryKey(user);
   const { data: feedSettings } = useQuery<FeedSettingsData>(

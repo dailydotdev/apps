@@ -43,7 +43,7 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
   const { isFallback } = useRouter();
   const { user, showLogin, tokenRefreshed } = useContext(AuthContext);
   // Must be memoized to prevent refreshing the feed
-  const queryVariables = useMemo(() => ({ tag }), [tag]);
+  const queryVariables = useMemo(() => ({ tag, ranking: 'TIME' }), [tag]);
 
   const queryKey = getTagsSettingsQueryKey(user);
   const { data: feedSettings } = useQuery<FeedSettingsData>(
