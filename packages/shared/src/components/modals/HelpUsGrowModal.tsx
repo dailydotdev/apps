@@ -12,8 +12,7 @@ import { apiUrl } from '../../lib/config';
 
 function getTweet(link: string): string {
   const text =
-    'Daily makes it extremely easy to stay updated with the latest dev news.\n' +
-    'It’s a 100% open-source browser extension, free (forever), and doesn’t even require a signup. A must-have tool for every busy developer. @dailydotdev\n';
+    'I rarely share products on Twitter, but @dailydotdev truly deserves it. It’s a free site that gathers all developer news in one place. I love it as it makes it extremely easy to stay updated on the latest tech news.';
   return `https://twitter.com/intent/tweet?text=${encodeURIComponent(
     text,
   )}&url=${encodeURIComponent(link)}`;
