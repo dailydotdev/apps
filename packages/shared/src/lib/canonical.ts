@@ -10,8 +10,9 @@ export const parsedQueryToString = (query: ParsedUrlQuery): string => {
 };
 
 export const canonicalFromRouter = (router: BaseRouter): string => {
-  const includeQuery = router.pathname === '/search';
-  return `https://app.daily.dev${router.pathname}${
+  const [path] = router.asPath.split('?');
+  const includeQuery = path === '/search';
+  return `https://app.daily.dev${path}${
     includeQuery ? parsedQueryToString(router.query) : ''
   }`;
 };
