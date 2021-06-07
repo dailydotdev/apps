@@ -25,7 +25,8 @@
     "react-intersection-observer": "^8.31.0",
     "react-modal": "^3.12.1",
     "react-query": "^3.13.8",
-    "react-transition-group": "^4.4.1"
+    "react-transition-group": "^4.4.1",
+    "react-virtual": "^2.7.1"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.14.1",
@@ -95,7 +96,6 @@
     "lazysizes": "^5.3.2",
     "linkifyjs": "^2.1.9",
     "node-fetch": "^2.6.1",
-    "react-virtual": "^2.7.1",
     "subscriptions-transport-ws": "^0.9.18"
   }
 }

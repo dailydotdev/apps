@@ -37,6 +37,7 @@
     "react-query": "^3.13.8",
     "react-tooltip": "^4.2.18",
     "react-transition-group": "^4.4.1",
+    "react-virtual": "^2.7.1",
     "webextension-polyfill-ts": "^0.22.0"
   },
   "devDependencies": {
