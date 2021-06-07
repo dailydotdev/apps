@@ -84,6 +84,7 @@
     "react-modal": "^3.12.1",
     "react-query": "^3.13.8",
     "react-transition-group": "^4.4.1",
+    "react-virtual": "^2.7.1",
     "stylelint": "^13.12.0",
     "stylelint-config-recommended": "^4.0.0",
     "tailwindcss": "^2.1.1",
