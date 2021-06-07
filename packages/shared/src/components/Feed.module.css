@@ -1,81 +1,22 @@
 .feed {
   grid-template-columns: 100%;
-  --num-cards: 1;
 }
 
-.grid {
-  @screen mobileL {
-    grid-template-columns: repeat(var(--num-cards), 1fr);
+.cards {
+  max-width: calc(20rem * var(--num-cards) + var(--feed-gap) * (var(--num-cards) - 1));
+}
 
-    & > * {
-      max-width: 20rem;
-    }
-  }
+.feedRow {
+  padding-bottom: var(--feed-gap);
+}
+
+.cards .feedRow {
+  grid-template-columns: repeat(var(--num-cards), 1fr);
+  grid-gap: var(--feed-gap);
 
   @screen tablet {
-    --num-cards: 2;
-    grid-auto-rows: 22.75rem;
-
-    &:global(.cozy) {
-      --num-cards: 1;
-    }
+    grid-auto-rows: var(--card-height);
   }
-
-  @screen laptop {
-    --num-cards: 3;
-
-    &:global(.cozy), &:global(.roomy) {
-      --num-cards: 2;
-    }
-  }
-
-  @screen laptopL {
-    --num-cards: 4;
-
-    &:global(.cozy), &:global(.roomy) {
-      --num-cards: 3;
-    }
-  }
-
-  @screen laptopXL {
-    --num-cards: 5;
-
-    &:global(.roomy) {
-      --num-cards: 4;
-    }
-
-    &:global(.cozy) {
-      --num-cards: 3;
-    }
-  }
-
-  @screen desktop {
-    --num-cards: 6;
-
-    &:global(.roomy) {
-      --num-cards: 5;
-    }
-
-    &:global(.cozy) {
-      --num-cards: 4;
-    }
-  }
-
-  @screen desktopL {
-    --num-cards: 7;
-
-    &:global(.roomy) {
-      --num-cards: 6;
-    }
-
-    &:global(.cozy) {
-      --num-cards: 5;
-    }
-  }
-}
-
-.stretcher {
-  -webkit-line-clamp: 1;
 }
 
 .trigger {

@@ -54,7 +54,7 @@ const feed: Connection<Post> = {
         numUpvotes: 1,
         commentsPermalink:
           'http://localhost:5002/posts/618ca73c969187a24b29205216eec3bd',
-        read: true,
+        read: false,
         upvoted: true,
         commented: true,
         bookmarked: true,

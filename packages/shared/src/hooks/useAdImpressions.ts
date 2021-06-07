@@ -1,6 +1,6 @@
-import usePersistentState from '../hooks/usePersistentState';
+import usePersistentState from './usePersistentState';
 import { Ad } from '../graphql/posts';
-import { logRevenue, trackEvent } from './analytics';
+import { logRevenue, trackEvent } from '../lib/analytics';
 import { isSameDay } from 'date-fns';
 
 type State = { lastSent: Date; count: number };
@@ -15,6 +15,10 @@ export default function useAdImpressions(): UseAdImpressionsRet {
   );
 
   const onAdImpression = async (ad: Ad): Promise<void> => {
+    if (ad.impressionTracked) {
+      return;
+    }
+    ad.impressionTracked = true;
     trackEvent({
       category: 'Ad',
       action: 'Impression',

@@ -150,7 +150,7 @@ it('should replace placeholders with posts and ad', async () => {
   const links = defaultFeedPage.edges.map((edge) => edge.node.permalink);
   await waitFor(() => nock.isDone());
   const elements = await screen.findAllByTestId('postItem');
-  expect(elements.length).toEqual(7);
+  expect(elements.length).toEqual(3);
   await Promise.all(
     elements.map(async (el, i) =>
       // eslint-disable-next-line testing-library/prefer-screen-queries
@@ -285,7 +285,9 @@ it('should increase reading rank progress', async () => {
   queryClient.setQueryData<MyRankData>(queryKey, {
     rank: { readToday: false, currentRank: 0, progressThisWeek: 0 },
   });
-  const el = await screen.findByTitle('Star night');
+  const el = await screen.findByTitle(
+    'One Word Domains — Database of all available one-word domains',
+  );
   el.click();
   await waitFor(async () => {
     const data = await queryClient.getQueryData<MyRankData>(queryKey);
@@ -306,7 +308,9 @@ it('should not increase reading rank progress when read today', async () => {
   queryClient.setQueryData<MyRankData>(queryKey, {
     rank: { readToday: true, currentRank: 0, progressThisWeek: 0 },
   });
-  const el = await screen.findByTitle('Star night');
+  const el = await screen.findByTitle(
+    'One Word Domains — Database of all available one-word domains',
+  );
   el.click();
   await waitFor(async () => {
     const data = await queryClient.getQueryData<MyRankData>(queryKey);
@@ -322,7 +326,9 @@ it('should increase reading rank progress and rank', async () => {
   queryClient.setQueryData<MyRankData>(queryKey, {
     rank: { readToday: false, currentRank: 0, progressThisWeek: 2 },
   });
-  const el = await screen.findByTitle('Star night');
+  const el = await screen.findByTitle(
+    'One Word Domains — Database of all available one-word domains',
+  );
   el.click();
   await waitFor(async () => {
     const data = await queryClient.getQueryData<MyRankData>(queryKey);
@@ -343,7 +349,9 @@ it('should not increase reading rank progress when reached final rank', async ()
   queryClient.setQueryData<MyRankData>(queryKey, {
     rank: { readToday: false, currentRank: 5, progressThisWeek: 7 },
   });
-  const el = await screen.findByTitle('Star night');
+  const el = await screen.findByTitle(
+    'One Word Domains — Database of all available one-word domains',
+  );
   el.click();
   await waitFor(async () => {
     const data = await queryClient.getQueryData<MyRankData>(queryKey);
@@ -368,7 +376,9 @@ it('should increase reading rank progress for anonymous users', async () => {
   queryClient.setQueryData<MyRankData>(queryKey, {
     rank: { readToday: false, currentRank: 0, progressThisWeek: 0 },
   });
-  const el = await screen.findByTitle('Star night');
+  const el = await screen.findByTitle(
+    'One Word Domains — Database of all available one-word domains',
+  );
   el.click();
   await waitFor(async () => {
     const data = await queryClient.getQueryData<MyRankData>(queryKey);
@@ -398,7 +408,9 @@ it('should not increase reading rank progress for anonymous users after the firs
   queryClient.setQueryData<MyRankData>(queryKey, {
     rank: { readToday: false, currentRank: 0, progressThisWeek: 3 },
   });
-  const el = await screen.findByTitle('Star night');
+  const el = await screen.findByTitle(
+    'One Word Domains — Database of all available one-word domains',
+  );
   el.click();
   await waitFor(async () => {
     const data = await queryClient.getQueryData<MyRankData>(queryKey);

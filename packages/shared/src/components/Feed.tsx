@@ -3,8 +3,10 @@ import React, {
   DependencyList,
   ReactElement,
   ReactNode,
+  useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from 'react';
 import useFeed, { FeedItem, PostItem } from '../hooks/useFeed';
@@ -38,7 +40,9 @@ import { PostList } from './cards/PostList';
 import { AdList } from './cards/AdList';
 import { PlaceholderList } from './cards/PlaceholderList';
 import ScrollToTopButton from './ScrollToTopButton';
-import useAdImpressions from '../lib/useAdImpressions';
+import useAdImpressions from '../hooks/useAdImpressions';
+import { useVirtualWindow } from '../hooks/useVirtualWindow';
+import rem from '../../macros/rem.macro';
 
 const CommentPopup = dynamic(() => import('./cards/CommentPopup'));
 const ReportPostMenu = dynamic(
@@ -61,19 +65,11 @@ const onAdClick = (ad: Ad) =>
     label: ad.source,
   });
 
-const getClassNames = (useList: boolean, spaciness: Spaciness): string => {
+const getFeedGap = (useList: boolean, spaciness: Spaciness): number => {
   if (useList) {
-    return spaciness === 'cozy'
-      ? 'gap-5'
-      : spaciness === 'roomy'
-      ? 'gap-3'
-      : 'gap-2';
+    return spaciness === 'cozy' ? 20 : spaciness === 'roomy' ? 12 : 8;
   }
-  return spaciness === 'cozy'
-    ? 'gap-14'
-    : spaciness === 'roomy'
-    ? 'gap-12'
-    : 'gap-8';
+  return spaciness === 'cozy' ? 56 : spaciness === 'roomy' ? 48 : 32;
 };
 
 const getStyle = (useList: boolean, spaciness: Spaciness): CSSProperties => {
@@ -84,6 +80,9 @@ const getStyle = (useList: boolean, spaciness: Spaciness): CSSProperties => {
   }
   return {};
 };
+
+const cardHeightPx = 364;
+const listHeightPx = 78;
 
 export default function Feed<T>({
   query,
@@ -103,11 +102,12 @@ export default function Feed<T>({
     insaneMode,
     loadedSettings,
   } = useContext(SettingsContext);
+  const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const { items, updatePost, removeItem, fetchPage, canFetchMore, emptyFeed } =
     useFeed(
       currentSettings.pageSize,
       currentSettings.adSpot,
-      currentSettings.numCards,
+      numCards,
       showOnlyUnreadPosts,
       query,
       variables,
@@ -313,12 +313,13 @@ export default function Feed<T>({
     });
   };
 
-  const useList = insaneMode && currentSettings.numCards > 1;
+  const useList = insaneMode && numCards > 1;
   const PostTag = useList ? PostList : PostCard;
   const AdTag = useList ? AdList : AdCard;
   const PlaceholderTag = useList ? PlaceholderList : PlaceholderCard;
 
-  const itemToComponent = (item: FeedItem, index: number): ReactElement => {
+  const itemToComponent = (index: number): ReactElement => {
+    const item: FeedItem = items[index];
     switch (item.type) {
       case 'post':
         return (
@@ -378,32 +379,61 @@ export default function Feed<T>({
     return <></>;
   }
 
-  const hasNoPlaceholderCard =
-    items.findIndex((item) => item.type !== 'placeholder') >= 0;
+  const feedGapPx = getFeedGap(useList, spaciness);
+  const parentRef = useRef<HTMLDivElement>();
+  const virtualizedNumCards = useList ? 1 : numCards;
+  const virtualizer = useVirtualWindow({
+    size: Math.ceil(items.length / virtualizedNumCards),
+    overscan: 1,
+    parentRef,
+    estimateSize: useCallback(
+      () => (useList ? listHeightPx : cardHeightPx) + feedGapPx,
+      [],
+    ),
+  });
 
-  const settingsClasses = getClassNames(useList, spaciness);
-  const settingsStyle = getStyle(useList, spaciness);
+  const style = {
+    height: `${virtualizer.totalSize}px`,
+    '--num-cards': numCards,
+    '--feed-gap': `${feedGapPx / 16}rem`,
+    '--card-height': rem(cardHeightPx),
+    ...getStyle(useList, spaciness),
+  };
   return emptyScreen && emptyFeed ? (
     <>{emptyScreen}</>
   ) : (
     <div
       className={classNames(
         className,
-        'relative grid mx-auto',
-        settingsClasses,
+        'relative mx-auto w-full',
         styles.feed,
-        insaneMode ? 'w-full' : styles.grid,
-        spaciness,
+        !useList && styles.cards,
       )}
-      style={settingsStyle}
+      style={style}
+      ref={parentRef}
     >
       <ScrollToTopButton />
-      {items.map(itemToComponent)}
-      {!hasNoPlaceholderCard && (
-        <div className={`invisible multi-truncate ${styles.stretcher}`}>
-          {Array(100).fill('a').join('')}
+      {virtualizer.virtualItems.map((virtualItem) => (
+        <div
+          key={virtualItem.index}
+          ref={virtualItem.measureRef}
+          className={`absolute grid top-0 left-0 w-full last:pb-0 ${styles.feedRow}`}
+          style={{
+            transform: `translateY(${virtualItem.start}px)`,
+          }}
+        >
+          {[
+            ...new Array(
+              Math.min(
+                virtualizedNumCards,
+                items.length - virtualItem.index * virtualizedNumCards,
+              ),
+            ),
+          ].map((_, i) =>
+            itemToComponent(virtualItem.index * virtualizedNumCards + i),
+          )}
         </div>
-      )}
+      ))}
       <div
         ref={infiniteScrollRef}
         className={`absolute left-0 h-px w-px opacity-0 pointer-events-none ${styles.trigger}`}

@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, ReactElement } from 'react';
+import React, { forwardRef, HTMLAttributes, ReactElement, Ref } from 'react';
 import { CardSpace, CardTextContainer } from './Card';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import classed from '../../lib/classed';
@@ -10,11 +10,10 @@ export type PlaceholderCardProps = {
   showImage?: boolean;
 } & HTMLAttributes<HTMLDivElement>;
 
-export function PlaceholderCard({
-  className,
-  showImage,
-  ...props
-}: PlaceholderCardProps): ReactElement {
+export const PlaceholderCard = forwardRef(function PlaceholderCard(
+  { className, showImage, ...props }: PlaceholderCardProps,
+  ref: Ref<HTMLElement>,
+): ReactElement {
   return (
     <article
       aria-busy
@@ -23,6 +22,7 @@ export function PlaceholderCard({
         'flex flex-col rounded-2xl p-2 bg-theme-post-disabled',
       )}
       {...props}
+      ref={ref}
     >
       <CardTextContainer>
         <ElementPlaceholder className="w-6 h-6 rounded-full my-2" />
@@ -37,4 +37,4 @@ export function PlaceholderCard({
       </CardTextContainer>
     </article>
   );
-}
+});

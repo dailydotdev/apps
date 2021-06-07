@@ -38,6 +38,7 @@ export interface Ad {
   placeholder?: string;
   referralLink?: string;
   providerId?: string;
+  impressionTracked?: boolean;
 }
 
 export interface PostData {

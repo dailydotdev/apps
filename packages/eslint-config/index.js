@@ -25,6 +25,7 @@ module.exports = {
     node: true,
   },
   rules: {
+    "react/prop-types": 0,
     "react/jsx-no-target-blank": 0,
     "no-restricted-imports": [
       "error",

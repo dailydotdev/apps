@@ -1,4 +1,10 @@
-import React, { HTMLAttributes, ReactElement, useState } from 'react';
+import React, {
+  forwardRef,
+  HTMLAttributes,
+  ReactElement,
+  Ref,
+  useState,
+} from 'react';
 import { Post } from '../../graphql/posts';
 import {
   Card,
@@ -47,25 +53,28 @@ export type PostCardProps = {
   showImage?: boolean;
 } & HTMLAttributes<HTMLDivElement>;
 
-export function PostCard({
-  post,
-  onLinkClick,
-  onUpvoteClick,
-  onCommentClick,
-  onBookmarkClick,
-  onMenuClick,
-  showShare,
-  onShare,
-  openNewTab,
-  enableMenu,
-  menuOpened,
-  notification,
-  className,
-  children,
-  showImage = true,
-  style,
-  ...props
-}: PostCardProps): ReactElement {
+export const PostCard = forwardRef(function PostCard(
+  {
+    post,
+    onLinkClick,
+    onUpvoteClick,
+    onCommentClick,
+    onBookmarkClick,
+    onMenuClick,
+    showShare,
+    onShare,
+    openNewTab,
+    enableMenu,
+    menuOpened,
+    notification,
+    className,
+    children,
+    showImage = true,
+    style,
+    ...props
+  }: PostCardProps,
+  ref: Ref<HTMLElement>,
+): ReactElement {
   const [selectedComment, setSelectedComment] = useState<Comment>();
 
   const { trending } = post;
@@ -76,6 +85,7 @@ export function PostCard({
       {...props}
       className={getPostClassNames(post, selectedComment, className)}
       style={{ ...style, ...customStyle }}
+      ref={ref}
     >
       <PostLink post={post} openNewTab={openNewTab} onLinkClick={onLinkClick} />
       <CardTextContainer>
@@ -174,4 +184,4 @@ export function PostCard({
     );
   }
   return card;
-}
+});

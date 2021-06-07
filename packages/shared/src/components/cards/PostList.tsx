@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { forwardRef, ReactElement, Ref, useState } from 'react';
 import { Comment } from '../../graphql/comments';
 import { PostCardProps } from './PostCard';
 import {
@@ -24,23 +24,26 @@ import { getTooltipProps } from '../../lib/tooltip';
 import TrendingFlag from './TrendingFlag';
 import PostAuthor from './PostAuthor';
 
-export function PostList({
-  post,
-  onLinkClick,
-  onUpvoteClick,
-  onCommentClick,
-  onBookmarkClick,
-  onMenuClick,
-  showShare,
-  onShare,
-  openNewTab,
-  enableMenu,
-  menuOpened,
-  notification,
-  className,
-  children,
-  ...props
-}: PostCardProps): ReactElement {
+export const PostList = forwardRef(function PostList(
+  {
+    post,
+    onLinkClick,
+    onUpvoteClick,
+    onCommentClick,
+    onBookmarkClick,
+    onMenuClick,
+    showShare,
+    onShare,
+    openNewTab,
+    enableMenu,
+    menuOpened,
+    notification,
+    className,
+    children,
+    ...props
+  }: PostCardProps,
+  ref: Ref<HTMLElement>,
+): ReactElement {
   const [selectedComment, setSelectedComment] = useState<Comment>();
 
   const { trending } = post;
@@ -49,6 +52,7 @@ export function PostList({
     <ListCard
       {...props}
       className={getPostClassNames(post, selectedComment, className)}
+      ref={ref}
     >
       <PostLink post={post} openNewTab={openNewTab} onLinkClick={onLinkClick} />
       <ListCardAside>
@@ -122,4 +126,4 @@ export function PostList({
     );
   }
   return card;
-}
+});
