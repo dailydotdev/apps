@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { forwardRef, ReactElement, Ref } from 'react';
 import { ListCardMain } from './Card';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import classed from '../../lib/classed';
@@ -7,10 +7,10 @@ import { PlaceholderCardProps } from './PlaceholderCard';
 
 const Text = classed(ElementPlaceholder, 'h-3 rounded-xl');
 
-export function PlaceholderList({
-  className,
-  ...props
-}: PlaceholderCardProps): ReactElement {
+export const PlaceholderList = forwardRef(function PlaceholderList(
+  { className, ...props }: PlaceholderCardProps,
+  ref: Ref<HTMLElement>,
+): ReactElement {
   return (
     <article
       aria-busy
@@ -19,6 +19,7 @@ export function PlaceholderList({
         'flex items-start rounded-2xl bg-theme-post-disabled py-4 pl-4 pr-10',
       )}
       {...props}
+      ref={ref}
     >
       <ElementPlaceholder className="w-6 h-6 rounded-full mr-4" />
       <ListCardMain>
@@ -39,4 +40,4 @@ export function PlaceholderList({
       </ListCardMain>
     </article>
   );
-}
+});
