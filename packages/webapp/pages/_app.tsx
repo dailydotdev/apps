@@ -40,6 +40,7 @@ import useSettings from '@dailydotdev/shared/src/hooks/useSettings';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import '@dailydotdev/shared/src/styles/globals.css';
 import useAnalytics from '@dailydotdev/shared/src/hooks/useAnalytics';
+import '../sentry.client.config';
 
 const queryClient = new QueryClient();
 

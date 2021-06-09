@@ -7,15 +7,15 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 });
 
-module.exports = withSentryConfig(
-  withTM(
-    withPWA({
-      pwa: {
-        dest: 'public',
-        disable: process.env.NODE_ENV === 'development',
-      },
-      ...withPreact(
-        withBundleAnalyzer({
+module.exports = withTM(
+  withPWA({
+    pwa: {
+      dest: 'public',
+      disable: process.env.NODE_ENV === 'development',
+    },
+    ...withPreact(
+      withBundleAnalyzer(
+        withSentryConfig({
           webpack: (config) => {
             config.module.rules.push({
               test: /icons\/.*\.svg$/,
@@ -54,6 +54,6 @@ module.exports = withSentryConfig(
           productionBrowserSourceMaps: process.env.SOURCE_MAPS === 'true',
         }),
       ),
-    }),
-  ),
+    ),
+  }),
 );
