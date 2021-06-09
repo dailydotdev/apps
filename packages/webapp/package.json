@@ -15,6 +15,7 @@
   "prettier": "@dailydotdev/prettier-config",
   "dependencies": {
     "@dailydotdev/shared": "*",
+    "@sentry/nextjs": "^6.5.1",
     "classnames": "^2.3.1",
     "date-fns": "^2.20.0",
     "dompurify": "^2.2.7",
@@ -32,8 +33,8 @@
     "react": "npm:@preact/compat@0.0.3",
     "react-contexify": "^5.0.0",
     "react-dom": "npm:@preact/compat@0.0.3",
-    "react-intersection-observer": "^8.31.0",
     "react-flip-toolkit": "^7.0.13",
+    "react-intersection-observer": "^8.31.0",
     "react-modal": "^3.12.1",
     "react-query": "^3.13.8",
     "react-tooltip": "^4.2.18",
