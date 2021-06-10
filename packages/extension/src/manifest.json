@@ -12,7 +12,6 @@
   },
   "__prod__permissions": [
     "storage",
-    "alarms",
     "https://daily.dev/",
     "https://*.daily.dev/",
     "https://dailynow.co/",
@@ -20,7 +19,6 @@
   ],
   "__dev__permissions": [
     "storage",
-    "alarms",
     "http://localhost/"
   ],
   "optional_permissions": [

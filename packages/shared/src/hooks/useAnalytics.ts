@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
   getAmplitudeClient,
+  initAmplitude,
   initializeAnalyticsQueue,
   loadAnalyticsScript,
   trackPageView,
@@ -37,15 +38,7 @@ export default function useAnalytics(
       loadAnalyticsScript();
       if (!initializedAmp) {
         setInitializedAmp(true);
-        getAmplitudeClient().then((amplitude) => {
-          amplitude.init(process.env.NEXT_PUBLIC_AMPLITUDE, user?.id, {
-            includeReferrer: true,
-            includeUtm: true,
-            sameSiteCookie: 'Lax',
-            domain: process.env.NEXT_PUBLIC_DOMAIN,
-          });
-          amplitude.setVersionName(version);
-        });
+        initAmplitude(user, version);
       }
     }
   }, [trackingId, canLoadScripts, showCookie]);

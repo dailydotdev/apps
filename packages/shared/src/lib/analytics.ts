@@ -1,4 +1,5 @@
 import { AmplitudeClient } from 'amplitude-js';
+import { LoggedUser } from './user';
 
 declare global {
   interface Window {
@@ -96,10 +97,21 @@ export const getAmplitudeClient = async (): Promise<AmplitudeClient> => {
   return amp.getInstance();
 };
 
+type LogRevenueEvent = { event: 'revenue'; args: [string, number] };
+type ReadArticleEvent = { event: 'read article'; args: [string] };
+type AmplitudeEvent = LogRevenueEvent | ReadArticleEvent;
+
+let ampInitialized = false;
+const ampQueue: AmplitudeEvent[] = [];
+
 export const logRevenue = async (
   productId: string,
   count: number,
 ): Promise<void> => {
+  if (!ampInitialized) {
+    ampQueue.push({ event: 'revenue', args: [productId, count] });
+    return;
+  }
   const amp = await import('amplitude-js');
   const revenue = new amp.Revenue()
     .setProductId(productId)
@@ -109,8 +121,37 @@ export const logRevenue = async (
 };
 
 export const logReadArticle = async (origin: string): Promise<void> => {
+  if (!ampInitialized) {
+    ampQueue.push({ event: 'read article', args: [origin] });
+    return;
+  }
   const amp = await getAmplitudeClient();
   amp.logEvent('read article', { origin });
+};
+
+export const initAmplitude = async (
+  user: LoggedUser | undefined,
+  version: string,
+): Promise<void> => {
+  const amp = await getAmplitudeClient();
+  amp.init(process.env.NEXT_PUBLIC_AMPLITUDE, user?.id, {
+    includeReferrer: true,
+    includeUtm: true,
+    sameSiteCookie: 'Lax',
+    domain: process.env.NEXT_PUBLIC_DOMAIN,
+  });
+  amp.setVersionName(version);
+  ampInitialized = true;
+  ampQueue.forEach(({ event, args }) => {
+    switch (event) {
+      case 'revenue':
+        logRevenue(...(args as [string, number]));
+        break;
+      case 'read article':
+        logReadArticle(...(args as [string]));
+        break;
+    }
+  });
 };
 
 export interface EventArgs {
