@@ -48,6 +48,7 @@ import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/util
 import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 import styles from './index.module.css';
 import classNames from 'classnames';
+import DOMPurify from 'dompurify';
 
 const AccountDetailsModal = dynamic(
   () =>
@@ -61,6 +62,11 @@ export interface ProfileLayoutProps {
   profile: PublicProfile;
   children?: ReactNode;
 }
+
+const sanitizeOrNull = (
+  purify: DOMPurify.DOMPurifyI,
+  value: string,
+): string | null => (value ? purify.sanitize(value) : null);
 
 export default function ProfileLayout({
   profile: initialProfile,
@@ -127,13 +133,11 @@ export default function ProfileLayout({
 
   useEffect(() => {
     if (profile) {
-      const DOMPurify = createDOMPurify(window);
-      profile.twitter && setTwitterHandle(DOMPurify.sanitize(profile.twitter));
-      profile.github && setGithubHandle(DOMPurify.sanitize(profile.github));
-      profile.hashnode &&
-        setHashnodeHandle(DOMPurify.sanitize(profile.hashnode));
-      profile.portfolio &&
-        setPortfolioLink(DOMPurify.sanitize(profile.portfolio));
+      const purify = createDOMPurify(window);
+      setTwitterHandle(sanitizeOrNull(purify, profile.twitter));
+      setGithubHandle(sanitizeOrNull(purify, profile.github));
+      setHashnodeHandle(sanitizeOrNull(purify, profile.hashnode));
+      setPortfolioLink(sanitizeOrNull(purify, profile.portfolio));
     }
   }, [profile]);
 
