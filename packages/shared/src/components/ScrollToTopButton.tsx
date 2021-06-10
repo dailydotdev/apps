@@ -19,9 +19,10 @@ export default function ScrollToTopButton(): ReactElement {
     return () => window.removeEventListener('scroll', callback);
   }, []);
 
-  const props: ButtonProps<'button'> = {
+  const props: ButtonProps<'a'> = {
+    tag: 'a',
+    href: '#',
     icon: <ArrowIcon />,
-    onClick: () => window.scrollTo({ top: 0, behavior: 'smooth' }),
   };
 
   const style: CSSProperties = {
