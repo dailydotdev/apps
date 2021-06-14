@@ -77,6 +77,7 @@ const renderComponent = (
           logout: jest.fn(),
           updateUser: jest.fn(),
           tokenRefreshed: true,
+          getRedirectUri: jest.fn(),
         }}
       >
         <FurtherReading postId="p1" tags={['webdev', 'javascript']} />

@@ -39,7 +39,7 @@ export default function useAnalytics(
       loadAnalyticsScript();
       if (!initializedAmp) {
         setInitializedAmp(true);
-        initAmplitude(user, version);
+        initAmplitude(user?.id || null, version);
       }
     }
   }, [trackingId, canLoadScripts, showCookie]);

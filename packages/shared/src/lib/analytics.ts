@@ -1,5 +1,5 @@
 import { AmplitudeClient, LogReturn } from 'amplitude-js';
-import { LoggedUser } from './user';
+import { initFlagsmith } from './featureManagement';
 
 declare global {
   interface Window {
@@ -101,7 +101,7 @@ export const trackPageView = (page: string): void => {
 };
 
 const getAmplitudeClientInternal = async (): Promise<AmplitudeClient> => {
-  const amp = await import('amplitude-js');
+  const amp = await import(/* webpackChunkName: "analytics" */ 'amplitude-js');
   return amp.getInstance();
 };
 
@@ -121,8 +121,7 @@ export const getAmplitudeClient = async (): Promise<AmplitudeClient> => {
     } as unknown as AmplitudeClient;
   }
 
-  const amp = await import('amplitude-js');
-  return amp.getInstance();
+  return getAmplitudeClientInternal();
 };
 
 export const logRevenue = async (
@@ -133,7 +132,7 @@ export const logRevenue = async (
     ampRevenueQueue.push([productId, count]);
     return;
   }
-  const amp = await import('amplitude-js');
+  const amp = await import(/* webpackChunkName: "analytics" */ 'amplitude-js');
   const revenue = new amp.Revenue()
     .setProductId(productId)
     .setQuantity(count)
@@ -171,17 +170,30 @@ export const logSignupFormSubmit = async (
 };
 
 export const initAmplitude = async (
-  user: LoggedUser | undefined,
+  userId: string,
   version: string,
 ): Promise<void> => {
   const amp = await getAmplitudeClientInternal();
-  amp.init(process.env.NEXT_PUBLIC_AMPLITUDE, user?.id, {
+  amp.init(process.env.NEXT_PUBLIC_AMPLITUDE, userId, {
     includeReferrer: true,
     includeUtm: true,
     sameSiteCookie: 'Lax',
     domain: process.env.NEXT_PUBLIC_DOMAIN,
   });
   amp.setVersionName(version);
+
+  const flags = await initFlagsmith(amp.options.userId || amp.options.deviceId);
+  // Sync flags to Amplitude
+  if (flags && Object.keys(flags)?.length) {
+    const userProps = Object.keys(flags).reduce((props, key) => {
+      const flag = flags[key];
+      return {
+        ...props,
+        [key]: flag.enabled ? flags[key].value || 'true' : 'false',
+      };
+    }, {});
+    amp.setUserProperties(userProps);
+  }
   ampInitialized = true;
   ampEventsQueue.forEach((args) => amp.logEvent(...args));
   ampRevenueQueue.forEach((args) => logRevenue(...args));
