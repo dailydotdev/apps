@@ -105,11 +105,11 @@ const getAmplitudeClientInternal = async (): Promise<AmplitudeClient> => {
   return amp.getInstance();
 };
 
-type AmplitudeEvent = [event: string, data?: unknown];
+type AmplitudeEvent = [string, unknown | undefined];
 
 let ampInitialized = false;
 const ampEventsQueue: AmplitudeEvent[] = [];
-const ampRevenueQueue: [productId: string, count: number][] = [];
+const ampRevenueQueue: [string, number][] = [];
 
 export const getAmplitudeClient = async (): Promise<AmplitudeClient> => {
   if (!ampInitialized) {
