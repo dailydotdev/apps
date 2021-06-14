@@ -1,7 +1,6 @@
 html {
   background: var(--theme-background-primary);
   color: var(--theme-label-primary);
-  scroll-behavior: smooth;
 }
 
 :root {
