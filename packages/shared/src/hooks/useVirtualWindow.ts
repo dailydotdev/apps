@@ -37,7 +37,7 @@ export function useVirtualWindow<T extends HTMLElement>(options: {
       return window.scrollY - (virtualizedBounds.current?.top ?? 0);
     },
     set scrollTop(value: number) {
-      window.scrollTo(0, value + (virtualizedBounds.current?.top ?? 0));
+      // window.scrollTo(0, value + (virtualizedBounds.current?.top ?? 0));
     },
     getBoundingClientRect: () => ({
       width: window.innerWidth,
