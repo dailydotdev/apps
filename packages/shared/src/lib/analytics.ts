@@ -40,9 +40,17 @@ export const loadAnalyticsScript = (): void => {
 
       const prefix = `v=1&tid=${process.env.NEXT_PUBLIC_GA}&cid=${clientId}&aip=1&dp=${page}`;
       if (type === 'event') {
-        return `${prefix}&t=event&ec=${encodeURIComponent(
-          args[0],
-        )}&ea=${encodeURIComponent(args[1])}&el=${encodeURIComponent(args[2])}`;
+        const { eventCategory, eventAction, eventLabel, nonInteraction } =
+          args[0] as EventFields;
+        let path = `${prefix}&t=event&ec=${encodeURIComponent(
+          eventCategory,
+        )}&ea=${encodeURIComponent(eventAction)}&el=${encodeURIComponent(
+          eventLabel,
+        )}`;
+        if (nonInteraction) {
+          path += '&ni=1';
+        }
+        return path;
       }
       if (type === 'pageview') {
         return `${prefix}&t=pageview`;
