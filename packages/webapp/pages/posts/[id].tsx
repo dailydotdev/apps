@@ -261,7 +261,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         return upvotePost({ id: postById.post.id });
       }
     } else {
-      showLogin(LoginModalMode.ContentQuality);
+      showLogin('upvote', LoginModalMode.ContentQuality);
     }
   };
 
@@ -291,13 +291,13 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         postId: postById.post.id,
       });
     } else {
-      showLogin(LoginModalMode.ContentQuality);
+      showLogin('comment', LoginModalMode.ContentQuality);
     }
   };
 
   const toggleBookmark = async (): Promise<void> => {
     if (!user) {
-      showLogin();
+      showLogin('bookmark');
       return;
     }
     trackEvent({
@@ -324,7 +324,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         postId: postById.post.id,
       });
     } else {
-      showLogin(LoginModalMode.ContentQuality);
+      showLogin('comment', LoginModalMode.ContentQuality);
     }
   };
 
@@ -617,7 +617,10 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
                 gridTemplateColumns: '1fr max-content',
               }}
             >
-              <Button className="btn-primary" onClick={() => showLogin()}>
+              <Button
+                className="btn-primary"
+                onClick={() => showLogin('author')}
+              >
                 Sign up
               </Button>
               <Button

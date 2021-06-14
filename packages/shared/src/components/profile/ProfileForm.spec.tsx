@@ -45,6 +45,7 @@ const renderComponent = (user: Partial<LoggedUser> = {}): RenderResult => {
         logout: jest.fn(),
         updateUser,
         tokenRefreshed: true,
+        getRedirectUri: jest.fn(),
       }}
     >
       <ProfileForm
@@ -83,8 +84,40 @@ it('should submit information', async () => {
     twitter: null,
     hashnode: null,
   });
-  expect(onSuccessfulSubmit).toBeCalledTimes(1);
+  expect(onSuccessfulSubmit).toBeCalledWith(false);
   expect(updateUser).toBeCalledWith({ ...defaultUser, username: 'idoshamun' });
+});
+
+it('should set optional fields on callback', async () => {
+  renderComponent({ username: 'idoshamun' });
+  mocked(updateProfile).mockResolvedValue({
+    ...defaultUser,
+    github: 'idoshamun',
+  });
+  fireEvent.input(screen.getByLabelText('GitHub'), {
+    target: { value: 'idoshamun' },
+  });
+  fireEvent.submit(screen.getByTestId('form'));
+  await waitFor(() => expect(updateProfile).toBeCalledTimes(1));
+  expect(updateProfile).toBeCalledWith({
+    name: 'Ido Shamun',
+    email: 'ido@acme.com',
+    username: 'idoshamun',
+    company: null,
+    title: null,
+    acceptedMarketing: false,
+    bio: null,
+    github: 'idoshamun',
+    portfolio: null,
+    twitter: null,
+    hashnode: null,
+  });
+  expect(onSuccessfulSubmit).toBeCalledWith(true);
+  expect(updateUser).toBeCalledWith({
+    ...defaultUser,
+    username: 'idoshamun',
+    github: 'idoshamun',
+  });
 });
 
 it('should show server error', async () => {

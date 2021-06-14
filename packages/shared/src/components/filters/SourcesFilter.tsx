@@ -94,7 +94,7 @@ export default function SourcesFilter({
 
   const onSuggestSource = (): void => {
     if (!user) {
-      showLogin(LoginModalMode.ContentQuality);
+      showLogin('add source', LoginModalMode.ContentQuality);
       return;
     }
 
@@ -103,7 +103,7 @@ export default function SourcesFilter({
 
   const onFollowSource = async (source: Source): Promise<void> => {
     if (!user) {
-      showLogin();
+      showLogin('filter');
       return;
     }
 
@@ -117,7 +117,7 @@ export default function SourcesFilter({
 
   const onUnfollowSource = async (source: Source): Promise<void> => {
     if (!user) {
-      showLogin();
+      showLogin('filter');
       return;
     }
 

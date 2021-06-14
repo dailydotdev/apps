@@ -22,6 +22,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import Seo from '../next-seo';
 import AuthContext, {
   AuthContextData,
+  LoginState,
 } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { logout as dispatchLogout } from '@dailydotdev/shared/src/lib/user';
 import { Router } from 'next/router';
@@ -78,10 +79,10 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     loadedUserFromCache,
   ] = useLoggedUser('web');
   const progressiveContext = useProgressiveEnhancement();
-  const [loginMode, setLoginMode] = useState<LoginModalMode | null>(null);
+  const [loginState, setLoginState] = useState<LoginState | null>(null);
   const [showCookie, acceptCookies, updateCookieBanner] = useCookieBanner();
 
-  const closeLogin = () => setLoginMode(null);
+  const closeLogin = () => setLoginState(null);
 
   const logout = async (): Promise<void> => {
     await dispatchLogout();
@@ -91,9 +92,9 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const authContext: AuthContextData = useMemo(
     () => ({
       user,
-      shouldShowLogin: loginMode !== null,
-      showLogin: (mode: LoginModalMode = LoginModalMode.Default) =>
-        setLoginMode(mode),
+      shouldShowLogin: loginState !== null,
+      showLogin: (trigger, mode = LoginModalMode.Default) =>
+        setLoginState({ trigger, mode }),
       updateUser: setUser,
       logout,
       loadingUser,
@@ -102,7 +103,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       getRedirectUri: () =>
         `${window.location.origin}${window.location.pathname}`,
     }),
-    [user, loginMode, loadingUser, tokenRefreshed],
+    [user, loginState, loadingUser, tokenRefreshed],
   );
   const canFetchUserData = progressiveContext.windowLoaded && tokenRefreshed;
   const onboardingContext = useOnboarding(user, loadedUserFromCache);
@@ -198,12 +199,12 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
               {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
               {!user &&
                 !loadingUser &&
-                (progressiveContext.windowLoaded || loginMode !== null) && (
+                (progressiveContext.windowLoaded || loginState !== null) && (
                   <LoginModal
-                    isOpen={loginMode !== null}
+                    isOpen={loginState !== null}
                     onRequestClose={closeLogin}
                     contentLabel="Login Modal"
-                    mode={loginMode}
+                    {...loginState}
                   />
                 )}
               {showCookie && <CookieBanner onAccepted={acceptCookies} />}

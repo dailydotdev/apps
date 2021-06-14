@@ -196,5 +196,5 @@ it('should open login modal on anonymous bookmark', async () => {
   );
   const [el] = await screen.findAllByLabelText('Bookmark');
   el.click();
-  expect(showLogin).toBeCalledWith();
+  expect(showLogin).toBeCalledWith('bookmark');
 });

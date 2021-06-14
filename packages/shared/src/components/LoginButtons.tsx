@@ -6,6 +6,7 @@ import { LegalNotice } from './utilities';
 import { Button } from './buttons/Button';
 import AuthContext from '../contexts/AuthContext';
 import { apiUrl } from '../lib/config';
+import { logSignupProviderClick } from '../lib/analytics';
 
 export default function LoginButtons(): ReactElement {
   const router = useRouter();
@@ -18,7 +19,8 @@ export default function LoginButtons(): ReactElement {
       router.query.author ? 'author' : 'default'
     }`;
 
-  const login = (provider: string) => {
+  const login = async (provider: string): Promise<void> => {
+    await logSignupProviderClick(provider);
     const redirectUri = getRedirectUri();
     window.location.href = authUrl(provider, redirectUri);
   };

@@ -220,7 +220,7 @@ export default function Feed<T>({
     upvoted: boolean,
   ): Promise<void> => {
     if (!user) {
-      showLogin(LoginModalMode.ContentQuality);
+      showLogin('upvote', LoginModalMode.ContentQuality);
       return;
     }
     trackEvent({
@@ -248,7 +248,7 @@ export default function Feed<T>({
     bookmarked: boolean,
   ): Promise<void> => {
     if (!user) {
-      showLogin();
+      showLogin('bookmark');
       return;
     }
     trackEvent({

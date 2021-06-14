@@ -212,7 +212,9 @@ it('should open login when hide read posts is clicked and the user is logged out
     queryByText(el.parentElement, 'Hide read posts'),
   ) as HTMLInputElement;
   fireEvent.click(checkbox);
-  await waitFor(() => expect(showLogin).toBeCalledWith(LoginModalMode.Default));
+  await waitFor(() =>
+    expect(showLogin).toBeCalledWith('settings', LoginModalMode.Default),
+  );
 });
 
 it('should mutate open links in new tab setting', () =>

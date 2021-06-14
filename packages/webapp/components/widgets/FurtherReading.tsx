@@ -106,7 +106,7 @@ export default function FurtherReading({
 
   const onBookmark = async (post: Post): Promise<void> => {
     if (!user) {
-      showLogin();
+      showLogin('bookmark');
       return;
     }
     const bookmarked = !post.bookmarked;

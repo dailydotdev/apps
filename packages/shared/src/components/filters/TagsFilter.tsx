@@ -131,7 +131,7 @@ export default function TagsFilter({
 
   const onFollowTag = async (tag: string): Promise<void> => {
     if (!user) {
-      showLogin();
+      showLogin('filter');
       return;
     }
 

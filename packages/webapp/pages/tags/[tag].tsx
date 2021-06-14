@@ -90,7 +90,7 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
       if (user) {
         await followTag({ tag });
       } else {
-        showLogin();
+        showLogin('filter');
       }
     },
   };

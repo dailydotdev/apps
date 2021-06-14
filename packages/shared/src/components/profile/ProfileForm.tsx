@@ -16,11 +16,13 @@ import classNames from 'classnames';
 import classed from '../../lib/classed';
 import styles from './ProfileForm.module.css';
 
+const REQUIRED_FIELDS_COUNT = 4;
+
 export type RegistrationMode = 'default' | 'author' | 'update';
 
 export interface ProfileForm extends HTMLAttributes<HTMLFormElement> {
   setDisableSubmit?: (disable: boolean) => void;
-  onSuccessfulSubmit?: () => void | Promise<void>;
+  onSuccessfulSubmit?: (optionalFields: boolean) => void | Promise<void>;
   mode?: RegistrationMode;
 }
 
@@ -98,7 +100,10 @@ export default function ProfileForm({
     } else {
       await updateUser({ ...user, ...res });
       setDisableSubmit?.(false);
-      onSuccessfulSubmit?.();
+      const filledFields = Object.keys(data).filter(
+        (key) => data[key] !== undefined && data[key] !== null,
+      );
+      onSuccessfulSubmit?.(filledFields.length > REQUIRED_FIELDS_COUNT);
     }
   };
 
