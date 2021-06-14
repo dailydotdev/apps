@@ -34,6 +34,7 @@ import { trackPageView } from '@dailydotdev/shared/src/lib/analytics';
 import useOnboarding from '@dailydotdev/shared/src/hooks/useOnboarding';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import SubscriptionContext from '@dailydotdev/shared/src/contexts/SubscriptionContext';
+import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import useSubscriptionClient from '@dailydotdev/shared/src/hooks/useSubscriptionClient';
 import useProgressiveEnhancement from '@dailydotdev/shared/src/hooks/useProgressiveEnhancement';
 import { canonicalFromRouter } from '@dailydotdev/shared/src/lib/canonical';
@@ -41,6 +42,7 @@ import useSettings from '@dailydotdev/shared/src/hooks/useSettings';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import '@dailydotdev/shared/src/styles/globals.css';
 import useAnalytics from '@dailydotdev/shared/src/hooks/useAnalytics';
+import useFeatures from '@dailydotdev/shared/src/lib/useFeatures';
 
 const queryClient = new QueryClient();
 
@@ -81,6 +83,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const progressiveContext = useProgressiveEnhancement();
   const [loginState, setLoginState] = useState<LoginState | null>(null);
   const [showCookie, acceptCookies, updateCookieBanner] = useCookieBanner();
+  const featuresContext = useFeatures();
 
   const closeLogin = () => setLoginState(null);
 
@@ -139,84 +142,93 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   return (
     <ProgressiveEnhancementContext.Provider value={progressiveContext}>
       <AuthContext.Provider value={authContext}>
-        <SubscriptionContext.Provider value={subscriptionContext}>
-          <SettingsContext.Provider value={settingsContext}>
-            <OnboardingContext.Provider value={onboardingContext}>
-              <Head>
-                <meta
-                  name="viewport"
-                  content="initial-scale=1.0, width=device-width"
-                />
-                <meta name="theme-color" content="#151618" />
-                <meta name="msapplication-navbutton-color" content="#151618" />
-                <meta
-                  name="apple-mobile-web-app-status-bar-style"
-                  content="#151618"
-                />
+        <FeaturesContext.Provider value={featuresContext}>
+          <SubscriptionContext.Provider value={subscriptionContext}>
+            <SettingsContext.Provider value={settingsContext}>
+              <OnboardingContext.Provider value={onboardingContext}>
+                <Head>
+                  <meta
+                    name="viewport"
+                    content="initial-scale=1.0, width=device-width"
+                  />
+                  <meta name="theme-color" content="#151618" />
+                  <meta
+                    name="msapplication-navbutton-color"
+                    content="#151618"
+                  />
+                  <meta
+                    name="apple-mobile-web-app-status-bar-style"
+                    content="#151618"
+                  />
 
-                <meta name="application-name" content="daily.dev" />
-                <meta name="apple-mobile-web-app-capable" content="yes" />
-                <meta
-                  name="apple-mobile-web-app-status-bar-style"
-                  content="default"
-                />
-                <meta name="apple-mobile-web-app-title" content="daily.dev" />
-                <meta name="format-detection" content="telephone=no" />
-                <meta name="mobile-web-app-capable" content="yes" />
-                <meta name="msapplication-TileColor" content="#151618" />
-                <meta name="msapplication-tap-highlight" content="no" />
+                  <meta name="application-name" content="daily.dev" />
+                  <meta name="apple-mobile-web-app-capable" content="yes" />
+                  <meta
+                    name="apple-mobile-web-app-status-bar-style"
+                    content="default"
+                  />
+                  <meta name="apple-mobile-web-app-title" content="daily.dev" />
+                  <meta name="format-detection" content="telephone=no" />
+                  <meta name="mobile-web-app-capable" content="yes" />
+                  <meta name="msapplication-TileColor" content="#151618" />
+                  <meta name="msapplication-tap-highlight" content="no" />
 
-                <link
-                  rel="apple-touch-icon"
-                  sizes="180x180"
-                  href="/apple-touch-icon.png"
-                />
-                <link
-                  rel="icon"
-                  type="image/png"
-                  sizes="32x32"
-                  href="/favicon-32x32.png"
-                />
-                <link
-                  rel="icon"
-                  type="image/png"
-                  sizes="16x16"
-                  href="/favicon-16x16.png"
-                />
-                <link rel="manifest" href="/manifest.json" />
+                  <link
+                    rel="apple-touch-icon"
+                    sizes="180x180"
+                    href="/apple-touch-icon.png"
+                  />
+                  <link
+                    rel="icon"
+                    type="image/png"
+                    sizes="32x32"
+                    href="/favicon-32x32.png"
+                  />
+                  <link
+                    rel="icon"
+                    type="image/png"
+                    sizes="16x16"
+                    href="/favicon-16x16.png"
+                  />
+                  <link rel="manifest" href="/manifest.json" />
 
-                <script
-                  dangerouslySetInnerHTML={{
-                    __html: `window.addEventListener('load', () => { window.windowLoaded = true; }, {
+                  <script
+                    dangerouslySetInnerHTML={{
+                      __html: `window.addEventListener('load', () => { window.windowLoaded = true; }, {
       once: true,
     });`,
-                  }}
-                />
+                    }}
+                  />
 
-                <link rel="preconnect" href="https://res.cloudinary.com" />
-              </Head>
-              <DefaultSeo {...Seo} canonical={canonicalFromRouter(router)} />
-              {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
-              {!user &&
-                !loadingUser &&
-                (progressiveContext.windowLoaded || loginState !== null) && (
-                  <LoginModal
-                    isOpen={loginState !== null}
-                    onRequestClose={closeLogin}
-                    contentLabel="Login Modal"
-                    {...loginState}
+                  <link rel="preconnect" href="https://res.cloudinary.com" />
+                </Head>
+                <DefaultSeo {...Seo} canonical={canonicalFromRouter(router)} />
+                {getLayout(
+                  <Component {...pageProps} />,
+                  pageProps,
+                  layoutProps,
+                )}
+                {!user &&
+                  !loadingUser &&
+                  (progressiveContext.windowLoaded || loginState !== null) && (
+                    <LoginModal
+                      isOpen={loginState !== null}
+                      onRequestClose={closeLogin}
+                      contentLabel="Login Modal"
+                      {...loginState}
+                    />
+                  )}
+                {showCookie && <CookieBanner onAccepted={acceptCookies} />}
+                {onboardingContext.showReferral && (
+                  <HelpUsGrowModal
+                    isOpen={true}
+                    onRequestClose={onboardingContext.closeReferral}
                   />
                 )}
-              {showCookie && <CookieBanner onAccepted={acceptCookies} />}
-              {onboardingContext.showReferral && (
-                <HelpUsGrowModal
-                  isOpen={true}
-                  onRequestClose={onboardingContext.closeReferral}
-                />
-              )}
-            </OnboardingContext.Provider>
-          </SettingsContext.Provider>
-        </SubscriptionContext.Provider>
+              </OnboardingContext.Provider>
+            </SettingsContext.Provider>
+          </SubscriptionContext.Provider>
+        </FeaturesContext.Provider>
       </AuthContext.Provider>
     </ProgressiveEnhancementContext.Provider>
   );

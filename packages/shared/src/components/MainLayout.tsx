@@ -3,6 +3,7 @@ import React, {
   ReactElement,
   ReactNode,
   useContext,
+  useMemo,
   useState,
 } from 'react';
 import classed from '../lib/classed';
@@ -25,6 +26,8 @@ import { QuaternaryButton } from './buttons/QuaternaryButton';
 import GiftIcon from '../../icons/gift.svg';
 import usePersistentState from '../hooks/usePersistentState';
 import OnboardingContext from '../contexts/OnboardingContext';
+import FeaturesContext from '../contexts/FeaturesContext';
+import { getFeatureValue } from '../lib/featureManagement';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -68,6 +71,19 @@ export default function MainLayout({
   const [showGreeting, setShowGreeting] = useState(false);
   const [epicPrizesClicked, setEpicPrizesClicked, epicPrizesLoaded] =
     usePersistentState('epicPrizesClicked', undefined, false);
+  const { flags: featureFlags } = useContext(FeaturesContext);
+
+  const loginClass = useMemo(() => {
+    const value = getFeatureValue('signup_button_variation', featureFlags);
+    switch (value) {
+      case 'primary':
+        return 'btn-primary';
+      case 'secondary':
+        return 'btn-secondary';
+      default:
+        return 'btn-tertiary';
+    }
+  }, [featureFlags]);
 
   const beforeBookmarkButtons = (
     <>
@@ -203,7 +219,7 @@ export default function MainLayout({
                 {afterBookmarkButtons}
                 <Button
                   onClick={() => showLogin('main button')}
-                  className="btn-tertiary"
+                  className={loginClass}
                 >
                   Login
                 </Button>

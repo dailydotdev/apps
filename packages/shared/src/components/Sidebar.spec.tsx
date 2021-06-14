@@ -23,6 +23,7 @@ const renderComponent = (onboardingStep = -1): RenderResult => {
           logout: jest.fn(),
           updateUser: jest.fn(),
           tokenRefreshed: true,
+          getRedirectUri: jest.fn(),
         }}
       >
         <OnboardingContext.Provider

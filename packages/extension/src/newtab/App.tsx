@@ -18,6 +18,7 @@ import AuthContext, {
 } from '@dailydotdev/shared/src/contexts/AuthContext';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import SubscriptionContext from '@dailydotdev/shared/src/contexts/SubscriptionContext';
+import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { RouterContext } from 'next/dist/next-server/lib/router-context';
 import CustomRouter from '../lib/CustomRouter';
@@ -31,6 +32,7 @@ import DndBanner from './DndBanner';
 import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState';
 import BellIcon from '@dailydotdev/shared/icons/bell.svg';
 import useSettingsMigration from './useSettingsMigration';
+import useFeatures from '@dailydotdev/shared/src/lib/useFeatures';
 
 const AnalyticsConsentModal = dynamic(() => import('./AnalyticsConsentModal'));
 const MigrateSettingsModal = dynamic(() => import('./MigrateSettingsModal'));
@@ -81,6 +83,7 @@ function InternalApp(): ReactElement {
     false,
     shouldShowConsent ? null : true,
   );
+  const featuresContext = useFeatures();
 
   const closeLogin = () => setLoginState(null);
 
@@ -149,59 +152,62 @@ function InternalApp(): ReactElement {
   return (
     <ProgressiveEnhancementContext.Provider value={progressiveContext}>
       <AuthContext.Provider value={authContext}>
-        <DndContext.Provider value={dndContext}>
-          <SubscriptionContext.Provider value={subscriptionContext}>
-            <SettingsContext.Provider value={settingsContext}>
-              <OnboardingContext.Provider value={onboardingContext}>
-                {dndContext.isActive && <DndBanner />}
-                <MainFeedPage
-                  forceMigrationModal={forceMigrationModal}
-                  postponedMigration={postponed}
-                />
-                {!user &&
-                  !loadingUser &&
-                  (progressiveContext.windowLoaded || loginState !== null) && (
-                    <LoginModal
-                      isOpen={loginState !== null}
-                      onRequestClose={closeLogin}
-                      contentLabel="Login Modal"
-                      {...loginState}
-                    >
-                      {hasSettings && syncSettingsNotification}
-                    </LoginModal>
+        <FeaturesContext.Provider value={featuresContext}>
+          <DndContext.Provider value={dndContext}>
+            <SubscriptionContext.Provider value={subscriptionContext}>
+              <SettingsContext.Provider value={settingsContext}>
+                <OnboardingContext.Provider value={onboardingContext}>
+                  {dndContext.isActive && <DndBanner />}
+                  <MainFeedPage
+                    forceMigrationModal={forceMigrationModal}
+                    postponedMigration={postponed}
+                  />
+                  {!user &&
+                    !loadingUser &&
+                    (progressiveContext.windowLoaded ||
+                      loginState !== null) && (
+                      <LoginModal
+                        isOpen={loginState !== null}
+                        onRequestClose={closeLogin}
+                        contentLabel="Login Modal"
+                        {...loginState}
+                      >
+                        {hasSettings && syncSettingsNotification}
+                      </LoginModal>
+                    )}
+                  {onboardingContext.showReferral && (
+                    <HelpUsGrowModal
+                      isOpen={true}
+                      onRequestClose={onboardingContext.closeReferral}
+                    />
                   )}
-                {onboardingContext.showReferral && (
-                  <HelpUsGrowModal
-                    isOpen={true}
-                    onRequestClose={onboardingContext.closeReferral}
-                  />
-                )}
-                {analyticsConsent === null && (
-                  <AnalyticsConsentModal
-                    onDecline={() => setAnalyticsConsent(false)}
-                    onAccept={() => setAnalyticsConsent(true)}
-                    isOpen={true}
-                  />
-                )}
-                {showMigrationModal && (
-                  <MigrateSettingsModal
-                    isOpen={showMigrationModal}
-                    onLater={postponeMigration}
-                    onSignIn={onMigrationSignIn}
-                    onMerge={migrate}
-                    loading={isMigrating}
-                  />
-                )}
-                {migrationCompleted && (
-                  <MigrationCompletedModal
-                    isOpen={migrationCompleted}
-                    onRequestClose={ackMigrationCompleted}
-                  />
-                )}
-              </OnboardingContext.Provider>
-            </SettingsContext.Provider>
-          </SubscriptionContext.Provider>
-        </DndContext.Provider>
+                  {analyticsConsent === null && (
+                    <AnalyticsConsentModal
+                      onDecline={() => setAnalyticsConsent(false)}
+                      onAccept={() => setAnalyticsConsent(true)}
+                      isOpen={true}
+                    />
+                  )}
+                  {showMigrationModal && (
+                    <MigrateSettingsModal
+                      isOpen={showMigrationModal}
+                      onLater={postponeMigration}
+                      onSignIn={onMigrationSignIn}
+                      onMerge={migrate}
+                      loading={isMigrating}
+                    />
+                  )}
+                  {migrationCompleted && (
+                    <MigrationCompletedModal
+                      isOpen={migrationCompleted}
+                      onRequestClose={ackMigrationCompleted}
+                    />
+                  )}
+                </OnboardingContext.Provider>
+              </SettingsContext.Provider>
+            </SubscriptionContext.Provider>
+          </DndContext.Provider>
+        </FeaturesContext.Provider>
       </AuthContext.Provider>
     </ProgressiveEnhancementContext.Provider>
   );
