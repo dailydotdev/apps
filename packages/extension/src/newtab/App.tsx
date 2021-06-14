@@ -14,6 +14,7 @@ import useAnalytics from '@dailydotdev/shared/src/hooks/useAnalytics';
 import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import AuthContext, {
   AuthContextData,
+  LoginState,
 } from '@dailydotdev/shared/src/contexts/AuthContext';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import SubscriptionContext from '@dailydotdev/shared/src/contexts/SubscriptionContext';
@@ -74,14 +75,14 @@ function InternalApp(): ReactElement {
     loadedUserFromCache,
   ] = useLoggedUser('extension');
   const progressiveContext = useProgressiveEnhancement();
-  const [loginMode, setLoginMode] = useState<LoginModalMode | null>(null);
+  const [loginState, setLoginState] = useState<LoginState | null>(null);
   const [analyticsConsent, setAnalyticsConsent] = usePersistentState(
     'consent',
     false,
     shouldShowConsent ? null : true,
   );
 
-  const closeLogin = () => setLoginMode(null);
+  const closeLogin = () => setLoginState(null);
 
   const logout = async (): Promise<void> => {
     await dispatchLogout();
@@ -91,9 +92,9 @@ function InternalApp(): ReactElement {
   const authContext: AuthContextData = useMemo(
     () => ({
       user,
-      shouldShowLogin: loginMode !== null,
-      showLogin: (mode: LoginModalMode = LoginModalMode.Default) =>
-        setLoginMode(mode),
+      shouldShowLogin: loginState !== null,
+      showLogin: (trigger, mode = LoginModalMode.Default) =>
+        setLoginState({ trigger, mode }),
       updateUser: setUser,
       logout,
       loadingUser,
@@ -101,7 +102,7 @@ function InternalApp(): ReactElement {
       loadedUserFromCache,
       getRedirectUri: () => browser.runtime.getURL('index.html'),
     }),
-    [user, loginMode, loadingUser, tokenRefreshed],
+    [user, loginState, loadingUser, tokenRefreshed],
   );
   const dndContext = useDndContext();
   const canFetchUserData = progressiveContext.windowLoaded && tokenRefreshed;
@@ -142,7 +143,7 @@ function InternalApp(): ReactElement {
 
   const onMigrationSignIn = async () => {
     await migrateAfterSignIn();
-    setLoginMode(LoginModalMode.Default);
+    setLoginState({ trigger: 'sync', mode: LoginModalMode.Default });
   };
 
   return (
@@ -159,12 +160,12 @@ function InternalApp(): ReactElement {
                 />
                 {!user &&
                   !loadingUser &&
-                  (progressiveContext.windowLoaded || loginMode !== null) && (
+                  (progressiveContext.windowLoaded || loginState !== null) && (
                     <LoginModal
-                      isOpen={loginMode !== null}
+                      isOpen={loginState !== null}
                       onRequestClose={closeLogin}
                       contentLabel="Login Modal"
-                      mode={loginMode}
+                      {...loginState}
                     >
                       {hasSettings && syncSettingsNotification}
                     </LoginModal>

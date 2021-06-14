@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useState } from 'react';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { NextSeo } from 'next-seo';
 import MainLayout from '../components/layouts/MainLayout';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -12,13 +12,22 @@ import {
   ResponsivePageContainer,
   ProfileHeading,
 } from '@dailydotdev/shared/src/components/utilities';
+import {
+  logSignupFormStart,
+  logSignupFormSubmit,
+} from '@dailydotdev/shared/src/lib/analytics';
 
 export default function Register(): ReactElement {
   const { user, logout } = useContext(AuthContext);
   const router = useRouter();
   const [disableSubmit, setDisableSubmit] = useState<boolean>(true);
 
-  const onSuccessfulSubmit = async () => {
+  useEffect(() => {
+    logSignupFormStart();
+  }, []);
+
+  const onSuccessfulSubmit = async (optionalFields: boolean) => {
+    await logSignupFormSubmit(optionalFields);
     await router?.replace((router.query.redirect_uri as string) || '/');
   };
 

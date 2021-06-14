@@ -101,7 +101,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
       if (user) {
         await followSource({ source });
       } else {
-        showLogin();
+        showLogin('filter');
       }
     },
   };

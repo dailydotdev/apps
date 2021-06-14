@@ -1,4 +1,4 @@
-import { AmplitudeClient } from 'amplitude-js';
+import { AmplitudeClient, LogReturn } from 'amplitude-js';
 import { LoggedUser } from './user';
 
 declare global {
@@ -100,24 +100,37 @@ export const trackPageView = (page: string): void => {
   window.ga?.('send', 'pageview');
 };
 
-export const getAmplitudeClient = async (): Promise<AmplitudeClient> => {
+const getAmplitudeClientInternal = async (): Promise<AmplitudeClient> => {
   const amp = await import('amplitude-js');
   return amp.getInstance();
 };
 
-type LogRevenueEvent = { event: 'revenue'; args: [string, number] };
-type ReadArticleEvent = { event: 'read article'; args: [string] };
-type AmplitudeEvent = LogRevenueEvent | ReadArticleEvent;
+type AmplitudeEvent = [string, unknown | undefined];
 
 let ampInitialized = false;
-const ampQueue: AmplitudeEvent[] = [];
+const ampEventsQueue: AmplitudeEvent[] = [];
+const ampRevenueQueue: [string, number][] = [];
+
+export const getAmplitudeClient = async (): Promise<AmplitudeClient> => {
+  if (!ampInitialized) {
+    return {
+      logEvent(event: string, data?: unknown): LogReturn {
+        ampEventsQueue.push([event, data]);
+        return;
+      },
+    } as unknown as AmplitudeClient;
+  }
+
+  const amp = await import('amplitude-js');
+  return amp.getInstance();
+};
 
 export const logRevenue = async (
   productId: string,
   count: number,
 ): Promise<void> => {
   if (!ampInitialized) {
-    ampQueue.push({ event: 'revenue', args: [productId, count] });
+    ampRevenueQueue.push([productId, count]);
     return;
   }
   const amp = await import('amplitude-js');
@@ -129,19 +142,39 @@ export const logRevenue = async (
 };
 
 export const logReadArticle = async (origin: string): Promise<void> => {
-  if (!ampInitialized) {
-    ampQueue.push({ event: 'read article', args: [origin] });
-    return;
-  }
   const amp = await getAmplitudeClient();
   amp.logEvent('read article', { origin });
+};
+
+export const logSignupStart = async (trigger: string): Promise<void> => {
+  const amp = await getAmplitudeClient();
+  amp.logEvent('signup start', { trigger });
+};
+
+export const logSignupProviderClick = async (
+  provider: string,
+): Promise<void> => {
+  const amp = await getAmplitudeClient();
+  amp.logEvent('signup provider click', { provider });
+};
+
+export const logSignupFormStart = async (): Promise<void> => {
+  const amp = await getAmplitudeClient();
+  amp.logEvent('signup form start');
+};
+
+export const logSignupFormSubmit = async (
+  optionalFields: boolean,
+): Promise<void> => {
+  const amp = await getAmplitudeClient();
+  amp.logEvent('signup form submit', { 'optional fields': optionalFields });
 };
 
 export const initAmplitude = async (
   user: LoggedUser | undefined,
   version: string,
 ): Promise<void> => {
-  const amp = await getAmplitudeClient();
+  const amp = await getAmplitudeClientInternal();
   amp.init(process.env.NEXT_PUBLIC_AMPLITUDE, user?.id, {
     includeReferrer: true,
     includeUtm: true,
@@ -150,16 +183,8 @@ export const initAmplitude = async (
   });
   amp.setVersionName(version);
   ampInitialized = true;
-  ampQueue.forEach(({ event, args }) => {
-    switch (event) {
-      case 'revenue':
-        logRevenue(...(args as [string, number]));
-        break;
-      case 'read article':
-        logReadArticle(...(args as [string]));
-        break;
-    }
-  });
+  ampEventsQueue.forEach((args) => amp.logEvent(...args));
+  ampRevenueQueue.forEach((args) => logRevenue(...args));
 };
 
 export interface EventArgs {

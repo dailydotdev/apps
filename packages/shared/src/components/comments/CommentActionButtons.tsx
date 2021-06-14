@@ -92,7 +92,7 @@ export default function CommentActionButtons({
         return upvoteComment();
       }
     } else {
-      showLogin();
+      showLogin('comment upvote');
     }
   };
 

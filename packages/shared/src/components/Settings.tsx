@@ -64,7 +64,7 @@ export default function Settings({
 
   const onShowOnlyUnreadPosts = (): Promise<void> | void => {
     if (!user) {
-      showLogin(LoginModalMode.Default);
+      showLogin('settings', LoginModalMode.Default);
     } else {
       return toggleShowOnlyUnreadPosts();
     }

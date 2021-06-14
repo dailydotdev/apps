@@ -220,7 +220,7 @@ it('should open login modal on anonymous upvote', async () => {
   );
   const [el] = await screen.findAllByLabelText('Upvote');
   el.click();
-  expect(showLogin).toBeCalledWith(LoginModalMode.ContentQuality);
+  expect(showLogin).toBeCalledWith('upvote', LoginModalMode.ContentQuality);
 });
 
 it('should send add bookmark mutation', async () => {
@@ -276,7 +276,7 @@ it('should open login modal on anonymous bookmark', async () => {
   );
   const [el] = await screen.findAllByLabelText('Bookmark');
   el.click();
-  expect(showLogin).toBeCalledWith();
+  expect(showLogin).toBeCalledWith('bookmark');
 });
 
 it('should increase reading rank progress', async () => {

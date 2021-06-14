@@ -90,7 +90,7 @@ export default function FooterNavBar(): ReactElement {
             <Button
               {...buttonProps}
               icon={tab.icon}
-              onClick={() => showLogin()}
+              onClick={() => showLogin('bookmark')}
               {...getTooltipProps(tab.title)}
             />
           )}

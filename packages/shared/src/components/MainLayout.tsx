@@ -197,11 +197,14 @@ export default function MainLayout({
                 <HeaderButton
                   icon={<BookmarkIcon />}
                   {...getTooltipProps('Bookmarks', { position: 'down' })}
-                  onClick={() => showLogin()}
+                  onClick={() => showLogin('bookmark')}
                   className="btn-tertiary"
                 />
                 {afterBookmarkButtons}
-                <Button onClick={() => showLogin()} className="btn-tertiary">
+                <Button
+                  onClick={() => showLogin('main button')}
+                  className="btn-tertiary"
+                >
                   Login
                 </Button>
               </>
