@@ -146,7 +146,7 @@ export default function PostsSection({
         <br />
         <a
           className="no-underline text-theme-label-link"
-          href="mailto:hi@daily.dev?subject=Add my articles retroactively"
+          href="mailto:hi@daily.dev?subject=Email us to add your articles retroactively"
           target="_blank"
           rel="noopener"
         >
