@@ -79,6 +79,11 @@ export const POST_BY_ID_QUERY = gql`
         name
         permalink
       }
+      description
+      toc {
+        text
+        id
+      }
     }
   }
 `;
