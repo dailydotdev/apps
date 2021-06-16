@@ -177,11 +177,10 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   const { user, showLogin, tokenRefreshed } = useContext(AuthContext);
   // const { nativeShareSupport } = useContext(ProgressiveEnhancementContext);
   const [parentComment, setParentComment] = useState<ParentComment>(null);
-  const [pendingComment, setPendingComment] =
-    useState<{
-      comment: Comment;
-      parentId: string | null;
-    }>(null);
+  const [pendingComment, setPendingComment] = useState<{
+    comment: Comment;
+    parentId: string | null;
+  }>(null);
   const [showShareNewComment, setShowShareNewComment] = useState(false);
   const [lastScroll, setLastScroll] = useState(0);
   const [showDeletePost, setShowDeletePost] = useState(false);

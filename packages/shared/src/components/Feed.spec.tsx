@@ -513,7 +513,9 @@ it('should send comment through the comment popup', async () => {
   const commentBtn = await screen.findByText('Comment');
   commentBtn.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
-  await waitFor(async () => expect(screen.queryByRole('textbox')).toBeFalsy());
+  await waitFor(async () =>
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument(),
+  );
 });
 
 it('should report broken link', async () => {

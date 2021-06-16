@@ -335,7 +335,7 @@ it('should show views when it is greater than zero', async () => {
 it('should not show author link when author is null', async () => {
   renderPost();
   const el = screen.queryByTestId('authorLink');
-  expect(el).toBeFalsy();
+  expect(el).not.toBeInTheDocument();
 });
 
 it('should show author link when author is defined', async () => {
@@ -357,7 +357,7 @@ it('should show author link when author is defined', async () => {
 it('should not show author onboarding by default', () => {
   renderPost();
   const el = screen.queryByTestId('authorOnboarding');
-  expect(el).toBeFalsy();
+  expect(el).not.toBeInTheDocument();
 });
 
 it('should show author onboarding when the query param is set', async () => {

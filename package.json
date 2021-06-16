@@ -1,7 +1,4 @@
 {
   "name": "daily-apps",
-  "private": true,
-  "devDependencies": {
-    "lerna": "^4.0.0"
-  }
+  "private": true
 }

@@ -24,14 +24,14 @@ jobs:
           filename: combined-package-lock.txt
       - restore_cache:
           keys:
-            - deps-v1-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "combined-package-lock.txt" }}
+            - deps-v1-{{ .Branch }}-{{ checksum "combined-package-lock.txt" }}
             - deps-v1-{{ .Branch }}
             - deps-v1-
       - run:
           name: Install dependencies
           command: lerna bootstrap
       - save_cache:
-          key: deps-v1-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "combined-package-lock.txt" }}
+          key: deps-v1-{{ .Branch }}-{{ checksum "combined-package-lock.txt" }}
           paths:
             - ./node_modules
             - ./packages/eslint-config/node_modules

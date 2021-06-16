@@ -29,7 +29,7 @@ export default function useLoggedUser(
     refetch,
   } = useQuery(queryKey, () => getLoggedUser(app));
 
-  const availableUser = fetchedUser || cachedUser;
+  const availableUser: AnonymousUser | LoggedUser = fetchedUser || cachedUser;
 
   const user = useMemo<LoggedUser | null>(() => {
     if (availableUser && 'providers' in availableUser) {
