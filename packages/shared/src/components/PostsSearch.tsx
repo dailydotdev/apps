@@ -26,12 +26,11 @@ export default function PostsSearch({
   const [initialQuery, setInitialQuery] = useState<string>();
   const [query, setQuery] = useState<string>();
   const timeoutHandleRef = useRef<number>();
-  const [menuPosition, setMenuPosition] =
-    useState<{
-      x: number;
-      y: number;
-      width: number;
-    }>(null);
+  const [menuPosition, setMenuPosition] = useState<{
+    x: number;
+    y: number;
+    width: number;
+  }>(null);
   const [items, setItems] = useState<string[]>([]);
 
   const { data: searchResults, isLoading } = useQuery<{

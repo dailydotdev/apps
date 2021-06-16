@@ -122,8 +122,9 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
     startYear.setFullYear(parseInt(dropdownOptions[selectedHistoryYear]));
     return [addDays(endOfYear(startYear), 1), startYear];
   }, [selectedHistoryYear]);
-  const [readingHistory, setReadingHistory] =
-    useState<UserReadingRankHistoryData & UserReadHistoryData>(null);
+  const [readingHistory, setReadingHistory] = useState<
+    UserReadingRankHistoryData & UserReadHistoryData
+  >(null);
 
   const { data: remoteReadingHistory } = useQuery<
     UserReadingRankHistoryData & UserReadHistoryData
