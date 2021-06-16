@@ -394,7 +394,10 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   const seo: NextSeoProps = {
     title: postById?.post.title,
     titleTemplate: '%s | daily.dev',
-    description: `Join us to the discussion about "${postById?.post.title}" on daily.dev ✌️`,
+    description:
+      postById?.post.description?.length > 0
+        ? postById.post.description
+        : `Join us to the discussion about "${postById?.post.title}" on daily.dev ✌️`,
     openGraph: {
       images: [{ url: postById?.post.image }],
       article: {

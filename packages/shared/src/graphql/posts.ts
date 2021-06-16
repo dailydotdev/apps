@@ -5,6 +5,9 @@ import { Source } from './sources';
 
 export type ReportReason = 'BROKEN' | 'NSFW' | 'CLICKBAIT' | 'LOW';
 
+export type TocItem = { text: string; id?: string; children?: TocItem[] };
+export type Toc = TocItem[];
+
 export interface Post {
   __typename?: string;
   id: string;
@@ -27,6 +30,8 @@ export interface Post {
   bookmarked?: boolean;
   featuredComments?: Comment[];
   trending?: number;
+  description?: string;
+  toc?: Toc;
 }
 
 export interface Ad {
@@ -95,6 +100,11 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
       source {
         name
         image
+      }
+      description
+      toc {
+        text
+        id
       }
     }
   }

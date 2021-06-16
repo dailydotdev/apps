@@ -147,6 +147,7 @@ const renderPost = (
           logout: jest.fn(),
           updateUser: jest.fn(),
           tokenRefreshed: true,
+          getRedirectUri: jest.fn(),
         }}
       >
         <PostPage {...defaultProps} {...props} />
