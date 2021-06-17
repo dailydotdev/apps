@@ -265,13 +265,15 @@ export default function ProfileForm({
           className={`flex flex-col w-full border-b border-theme-divider-tertiary ${styles.optionalFields}`}
         >
           <summary
-            className={`flex h-10 items-center text-theme-label-tertiary cursor-pointer font-bold typo-callout focus-outline ${styles.optionalSummary}`}
+            className={`cursor-pointer focus-outline ${styles.optionalSummary}`}
           >
-            More details (optional)
-            <ArrowIcon
-              className="icon ml-auto text-xl transform rotate-180"
-              style={{ transition: 'transform 0.1s linear' }}
-            />
+            <div className="flex h-10 items-center text-theme-label-tertiary font-bold typo-callout">
+              More details (optional)
+              <ArrowIcon
+                className="icon ml-auto text-xl transform rotate-180"
+                style={{ transition: 'transform 0.1s linear' }}
+              />
+            </div>
           </summary>
           {optionalFields}
         </details>

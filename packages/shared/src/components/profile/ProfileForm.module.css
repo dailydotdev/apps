@@ -1,4 +1,6 @@
 .optionalSummary {
+  list-style: none;
+
   &::-webkit-details-marker {
     display: none;
   }

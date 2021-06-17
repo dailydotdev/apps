@@ -68,14 +68,16 @@ export default function PostToc({
         )}
       >
         <summary
-          className={`cursor-pointer hover:bg-theme-hover ${titleClass}`}
+          className={`cursor-pointer focus-outline hover:bg-theme-hover ${styles.summary}`}
         >
-          <TocIcon className="text-2xl mr-2" />
-          Table of contents
-          <ArrowIcon
-            className={`icon ml-auto text-xl transform rotate-180 ${styles.arrow}`}
-            style={{ transition: 'transform 0.1s linear' }}
-          />
+          <div className={titleClass}>
+            <TocIcon className="text-2xl mr-2" />
+            Table of contents
+            <ArrowIcon
+              className={`icon ml-auto text-xl transform rotate-180 ${styles.arrow}`}
+              style={{ transition: 'transform 0.1s linear' }}
+            />
+          </div>
         </summary>
         {Separator}
         {items}
