@@ -9,7 +9,7 @@
     padding-bottom: 0.75rem;
 
     & .optionalSummary :global(.icon) {
-      transform: rotate(180deg);
+      transform: rotate(0deg);
     }
   }
 }

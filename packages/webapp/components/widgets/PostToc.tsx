@@ -73,7 +73,7 @@ export default function PostToc({
           <TocIcon className="text-2xl mr-2" />
           Table of contents
           <ArrowIcon
-            className={`icon ml-auto text-xl transform rotate-90 ${styles.arrow}`}
+            className={`icon ml-auto text-xl transform rotate-180 ${styles.arrow}`}
             style={{ transition: 'transform 0.1s linear' }}
           />
         </summary>

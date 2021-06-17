@@ -269,7 +269,7 @@ export default function ProfileForm({
           >
             More details (optional)
             <ArrowIcon
-              className="icon ml-auto text-xl transform rotate-90"
+              className="icon ml-auto text-xl transform rotate-180"
               style={{ transition: 'transform 0.1s linear' }}
             />
           </summary>
