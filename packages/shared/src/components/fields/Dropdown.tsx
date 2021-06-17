@@ -103,7 +103,8 @@ export function Dropdown({
         {options[selectedIndex]}
         <ArrowIcon
           className={classNames(
-            'text-xl ml-auto transform rotate-180 transition-transform group-hover:text-theme-label-tertiary',
+            'text-xl ml-auto transform transition-transform group-hover:text-theme-label-tertiary',
+            isVisible ? 'rotate-0' : 'rotate-180',
             styles.chevron,
           )}
         />
