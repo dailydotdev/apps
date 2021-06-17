@@ -136,7 +136,7 @@ export default function SimilarPosts({
   return (
     <section
       className={classNames(
-        'flex flex-col rounded-2xl bg-theme-bg-secondary',
+        'flex flex-col rounded-2xl bg-theme-bg-primary border-theme-divider-quaternary border',
         className,
       )}
     >

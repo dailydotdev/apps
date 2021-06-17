@@ -1,0 +1,15 @@
+.summary {
+  &::-webkit-details-marker {
+    display: none;
+  }
+}
+
+.details {
+  &[open] {
+    padding-bottom: 0.75rem;
+
+    & .arrow {
+      transform: rotate(180deg);
+    }
+  }
+}

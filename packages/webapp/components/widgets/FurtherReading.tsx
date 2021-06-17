@@ -13,10 +13,10 @@ import useBookmarkPost from '@dailydotdev/shared/src/hooks/useBookmarkPost';
 import { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { trackEvent } from '@dailydotdev/shared/src/lib/analytics';
 import BestDiscussions from './BestDiscussions';
+import PostToc from './PostToc';
 
 export type FurtherReadingProps = {
-  postId: string;
-  tags: string[];
+  currentPost: Post;
   className?: string;
 };
 
@@ -54,10 +54,11 @@ const updatePost =
   };
 
 export default function FurtherReading({
-  postId,
-  tags,
+  currentPost,
   className,
 }: FurtherReadingProps): ReactElement {
+  const postId = currentPost.id;
+  const { tags } = currentPost;
   const queryKey = ['furtherReading', postId];
   const { user, showLogin } = useContext(AuthContext);
   const queryClient = useQueryClient();
@@ -122,18 +123,20 @@ export default function FurtherReading({
     }
   };
 
+  const showToc = currentPost.toc?.length > 0;
   return (
-    <div className={classNames(className, 'flex flex-col')}>
-      <SimilarPosts
-        posts={similarPosts}
-        isLoading={isLoading}
-        onBookmark={onBookmark}
-      />
-      <BestDiscussions
-        posts={posts?.discussedPosts}
-        isLoading={isLoading}
-        className="mt-6"
-      />
+    <div className={classNames(className, 'flex flex-col gap-6')}>
+      {showToc && <PostToc post={currentPost} className="hidden laptop:flex" />}
+      {(isLoading || similarPosts?.length > 0) && (
+        <SimilarPosts
+          posts={similarPosts}
+          isLoading={isLoading}
+          onBookmark={onBookmark}
+        />
+      )}
+      {(isLoading || posts?.discussedPosts?.length > 0) && (
+        <BestDiscussions posts={posts?.discussedPosts} isLoading={isLoading} />
+      )}
     </div>
   );
 }

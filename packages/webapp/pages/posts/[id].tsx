@@ -59,6 +59,7 @@ import useBookmarkPost from '@dailydotdev/shared/src/hooks/useBookmarkPost';
 import styles from './postPage.module.css';
 import classNames from 'classnames';
 import classed from '@dailydotdev/shared/src/lib/classed';
+import PostToc from '../../components/widgets/PostToc';
 
 declare module 'graphql-request/dist/types' {
   interface GraphQLError {
@@ -498,6 +499,13 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         <div className="mb-4 text-theme-label-quaternary font-bold typo-subhead">
           {tags !== '#' && tags}
         </div>
+        {postById?.post?.toc?.length > 0 && (
+          <PostToc
+            post={postById.post}
+            collapsible
+            className="flex laptop:hidden mt-2 mb-4"
+          />
+        )}
         <a
           {...postLinkProps}
           className="block mt-2 rounded-2xl overflow-hidden cursor-pointer"
@@ -641,8 +649,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             <ShareMobile share={sharePost} />
             {postById?.post && tokenRefreshed && (
               <FurtherReading
-                postId={id}
-                tags={postById.post.tags}
+                currentPost={postById.post}
                 className={classNames(
                   styles.similarPosts,
                   'laptop:absolute laptop:left-full laptop:ml-6',
