@@ -146,11 +146,11 @@ export default function PostsSection({
         <br />
         <a
           className="no-underline text-theme-label-link"
-          href="mailto:hi@daily.dev?subject=Email us to add your articles retroactively"
+          href="mailto:support@daily.dev?subject=Add my articles retroactively&body=README: To add your articles retroactively, please reply with your username or a link to your profile on daily.dev. Keep in mind that we can only add articles that we're already picked up by daily.dev. Not sure if your article appeared in our feed? Try searching its headline here: https://app.daily.dev/search"
           target="_blank"
           rel="noopener"
         >
-          Add my articles retroactively
+          Email us to add your articles retroactively
         </a>
       </p>
     );
@@ -158,7 +158,7 @@ export default function PostsSection({
     postsEmptyScreen = (
       <>
         <EmptyMessage data-testid="emptyPosts">
-          {`Track when articles you publish around the web got picked up by
+          {`Track when articles you published are getting picked by
           daily.dev. Set up your Twitter handle and we'll do the rest 🙌`}
         </EmptyMessage>
         {user.email && user.username ? (
