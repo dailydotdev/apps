@@ -202,7 +202,9 @@ it('should show post title as heading', async () => {
 
 it('should show post tags', async () => {
   renderPost();
-  await screen.findByText('#development #data-science #sql');
+  await screen.findByText('#development');
+  await screen.findByText('#data-science');
+  await screen.findByText('#sql');
 });
 
 it('should show post image', async () => {
