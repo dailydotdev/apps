@@ -149,6 +149,11 @@ const variations = {
       },
     },
   }),
+  tertiaryFloat: (color) => {
+    const states = variations.tertiary(color);
+    states.darkStates.default.background = 'var(--theme-float)';
+    return states;
+  },
 };
 
 const statesToCssInJs = (states) =>

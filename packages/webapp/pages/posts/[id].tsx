@@ -409,8 +409,6 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     },
   };
 
-  const tags = postById?.post.tags.map((t) => `#${t}`).join(' ');
-
   return (
     <>
       <PageContainer className="pt-6 pb-20 laptop:pb-6 laptop:self-start laptop:border-theme-divider-tertiary laptop:border-r laptopL:self-center laptopL:border-l">
@@ -497,8 +495,14 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             </div>
           )}
         </div>
-        <div className="mb-4 text-theme-label-quaternary font-bold typo-subhead">
-          {tags !== '#' && tags}
+        <div className="mt-3 mb-4 flex gap-2">
+          {postById?.post.tags.map((t) => (
+            <Link href={`/tags/${t}`} passHref key={t}>
+              <Button tag="a" className="btn-tertiaryFloat xsmall">
+                #{t}
+              </Button>
+            </Link>
+          ))}
         </div>
         {postById?.post?.toc?.length > 0 && (
           <PostToc
