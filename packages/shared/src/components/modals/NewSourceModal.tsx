@@ -225,12 +225,12 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
       style={{ content: { paddingTop: '1.5rem', maxWidth: '27.5rem' } }}
     >
       <ModalCloseButton onClick={props.onRequestClose} />
-      <h2 className="text-2xl font-bold">Add new source</h2>
+      <h2 className="text-2xl font-bold">Suggest new source</h2>
       <p
         className="typo-callout text-theme-label-secondary text-center pt-1.5 pb-2"
         style={{ maxWidth: '18.75rem' }}
       >
-        Have an idea for a new source? Insert its link below to add it to your
+        Have an idea for a new source? Insert its link below to add it to the
         feed.
       </p>
       <form
