@@ -11,9 +11,7 @@ module.exports = {
         shareBarWidth: '1.75rem',
       },
     },
-    [process.env.NODE_ENV === 'production'
-      ? 'tailwindcss'
-      : '@tailwindcss/jit']: {},
+    tailwindcss: {},
     'postcss-focus-visible': {},
     autoprefixer: {},
     'postcss-nesting': {},

@@ -4,6 +4,7 @@ const overlay = require('./tailwind/overlay');
 const boxShadow = require('./tailwind/boxShadow');
 
 module.exports = {
+  mode: 'jit',
   theme: {
     colors: {
       ...colors,
