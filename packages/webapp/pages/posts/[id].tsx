@@ -202,17 +202,18 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     },
   );
 
-  const { data: comments } = useQuery<PostCommentsData>(
-    ['post_comments', id],
-    () =>
-      request(`${apiUrl}/graphql`, POST_COMMENTS_QUERY, {
-        postId: id,
-      }),
-    {
-      enabled: !!id && tokenRefreshed,
-      refetchInterval: 60 * 1000,
-    },
-  );
+  const { data: comments, isLoading: isLoadingComments } =
+    useQuery<PostCommentsData>(
+      ['post_comments', id],
+      () =>
+        request(`${apiUrl}/graphql`, POST_COMMENTS_QUERY, {
+          postId: id,
+        }),
+      {
+        enabled: !!id && tokenRefreshed,
+        refetchInterval: 60 * 1000,
+      },
+    );
 
   useSubscription(
     () => ({
@@ -577,19 +578,28 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           {/*  Share*/}
           {/*</QuaternaryButton>*/}
         </div>
-        {comments?.postComments.edges.map((e) => (
-          <MainComment
-            comment={e.node}
-            key={e.node.id}
-            onComment={onCommentClick}
-            onDelete={(comment, parentId) =>
-              setPendingComment({ comment, parentId })
-            }
-            onEdit={onEditClick}
-            postAuthorId={postById?.post?.author?.id}
-          />
-        ))}
-        <div className="h-px my-6 bg-theme-divider-tertiary" />
+        {comments?.postComments?.edges?.length > 0 && (
+          <>
+            {comments?.postComments.edges.map((e) => (
+              <MainComment
+                comment={e.node}
+                key={e.node.id}
+                onComment={onCommentClick}
+                onDelete={(comment, parentId) =>
+                  setPendingComment({ comment, parentId })
+                }
+                onEdit={onEditClick}
+                postAuthorId={postById?.post?.author?.id}
+              />
+            ))}
+            <div className="my-6" />
+          </>
+        )}
+        {comments?.postComments?.edges?.length === 0 && !isLoadingComments && (
+          <div className="text-center text-theme-label-quaternary typo-subhead my-10">
+            No comments yet
+          </div>
+        )}
         {authorOnboarding ? (
           <section
             className={classNames(
@@ -627,12 +637,14 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
                 gridTemplateColumns: '1fr max-content',
               }}
             >
-              <Button
-                className="btn-primary"
-                onClick={() => showLogin('author')}
-              >
-                Sign up
-              </Button>
+              {!user && (
+                <Button
+                  className="btn-primary"
+                  onClick={() => showLogin('author')}
+                >
+                  Sign up
+                </Button>
+              )}
               <Button
                 className="btn-secondary"
                 tag="a"
