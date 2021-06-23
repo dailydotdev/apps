@@ -149,7 +149,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
                 <Head>
                   <meta
                     name="viewport"
-                    content="initial-scale=1.0, width=device-width"
+                    content="initial-scale=1.0, width=device-width, viewport-fit=cover"
                   />
                   <meta name="theme-color" content="#151618" />
                   <meta
