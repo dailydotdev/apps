@@ -495,7 +495,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             </div>
           )}
         </div>
-        <div className="mt-3 mb-4 flex gap-2">
+        <div className="mt-3 mb-4 flex flex-wrap gap-2">
           {postById?.post.tags.map((t) => (
             <Link href={`/tags/${t}`} passHref key={t}>
               <Button tag="a" className="btn-tertiaryFloat xsmall">
