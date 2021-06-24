@@ -605,7 +605,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         )}
         {comments?.postComments?.edges?.length === 0 && !isLoadingComments && (
           <div className="text-center text-theme-label-quaternary typo-subhead my-10">
-            No comments yet
+            Be the first to comment.
           </div>
         )}
         {authorOnboarding ? (
@@ -695,7 +695,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
                 className="w-7 h-7 rounded-full -ml-2 mr-3"
               />
             )}
-            Write your comment...
+            Start the discussion...
           </button>
         </div>
       </PageContainer>
