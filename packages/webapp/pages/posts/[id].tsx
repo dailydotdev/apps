@@ -481,7 +481,11 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             </>
           )}
         </div>
-        <h1 className="my-2 font-bold typo-title2">{postById?.post.title}</h1>
+
+        <a {...postLinkProps} className="cursor-pointer">
+          <h1 className="my-2 font-bold typo-title2">{postById?.post.title}</h1>
+        </a>
+
         <div className="flex items-center flex-wrap mt-2 mb-1">
           <time dateTime={postById?.post?.createdAt} className={metadataStyle}>
             {postById && postDateFormat(postById.post.createdAt)}
