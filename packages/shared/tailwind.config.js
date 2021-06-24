@@ -116,4 +116,7 @@ module.exports = {
     require('./tailwind/typography'),
     require('./tailwind/buttons'),
   ],
+  corePlugins: {
+    invert: false,
+  },
 };
