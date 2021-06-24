@@ -15,6 +15,7 @@
   "prettier": "@dailydotdev/prettier-config",
   "dependencies": {
     "@dailydotdev/shared": "*",
+    "caniuse-lite": "^1.0.30001239",
     "classnames": "^2.3.1",
     "date-fns": "^2.22.1",
     "dompurify": "^2.2.9",
