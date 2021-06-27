@@ -20,6 +20,7 @@ type Settings = {
 };
 
 const themeCookieName = 'showmethelight';
+const themeModeCookieName = 'showmemymode';
 const defaultSettings: Settings = {
   spaciness: 'eco',
   showOnlyUnreadPosts: false,
@@ -37,15 +38,28 @@ function toggleTheme(lightMode: boolean): void {
   localStorage.setItem(themeCookieName, lightMode ? 'true' : 'false');
 }
 
+function isSystemThemeDark(): boolean {
+  if (window.matchMedia) {
+    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      // dark mode
+      return false;
+    } else {
+      return true;
+    }
+  }
+  return null;
+}
+
 export default function useSettings(
   userId: string | null,
-  canFetchRemote: boolean,
+  canFetchRemote: boolean
 ): SettingsContextData {
   const [settings, setCachedSettings, loadedSettings] = usePersistentState(
     'settings',
     defaultSettings,
   );
   const [lightMode, setLightMode] = useState(false);
+  const [themeMode, setThemeMode] = useState('dark');
 
   const { data: remoteSettings } = useQuery<UserSettingsData>(
     ['userSettings', userId],
@@ -82,7 +96,21 @@ export default function useSettings(
       setLightMode(true);
       document.documentElement.classList.add('light');
     }
+    const themeModeCookieValue = localStorage.getItem(themeModeCookieName);
+    setThemeMode(themeModeCookieValue);
   }, []);
+
+  const triggerThemeChange = async (isLightMode: boolean): Promise<void> => {
+    setLightMode(isLightMode);
+    toggleTheme(isLightMode);
+    if (userId) {
+      await updateRemoteSettings({
+        ...settings,
+        theme: isLightMode ? 'bright' : 'darcula',
+      });
+    }
+
+  }
 
   const setSettings = async (settings: Settings): Promise<void> => {
     await setCachedSettings(settings);
@@ -96,16 +124,16 @@ export default function useSettings(
 
   return {
     ...settings,
-    lightMode,
-    toggleLightMode: async () => {
-      setLightMode(!lightMode);
-      toggleTheme(!lightMode);
-      if (userId) {
-        await updateRemoteSettings({
-          ...settings,
-          theme: !lightMode ? 'bright' : 'darcula',
-        });
+    themeMode,
+    setUIThemeMode: async (mode: string) => {
+      if (mode == 'auto') {
+        const isLightMode = isSystemThemeDark();
+        triggerThemeChange(isLightMode);
+      } else {
+        triggerThemeChange(mode == 'light');
       }
+      setThemeMode(mode);
+      localStorage.setItem(themeModeCookieName, mode);
     },
     toggleShowOnlyUnreadPosts: () =>
       setSettings({

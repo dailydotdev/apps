@@ -21,6 +21,11 @@ const densities = [
   { label: 'Cozy', value: 'cozy' },
 ];
 
+const themes = [
+  { label: 'Dark', value: 'dark' },
+  { label: 'Light', value: 'light' }
+];
+
 export default function Settings({
   panelMode = false,
   className,
@@ -32,8 +37,8 @@ export default function Settings({
   const {
     spaciness,
     setSpaciness,
-    lightMode,
-    toggleLightMode,
+    themeMode,
+    setUIThemeMode,
     showOnlyUnreadPosts,
     toggleShowOnlyUnreadPosts,
     openNewTab,
@@ -70,6 +75,14 @@ export default function Settings({
     }
   };
 
+  // If browser supports color-scheme, add auto theme option
+  if (window.matchMedia('(prefers-color-scheme: dark)')) {
+    // Make sure themes does not already contain option. React re-render issue.
+    if(!themes.some(theme => theme.value === 'auto')){
+      themes.push({ label: 'Auto', value: 'auto' });
+    }
+  }
+
   return (
     <div
       className={classNames(
@@ -100,6 +113,15 @@ export default function Settings({
         />
       </Section>
       <Section>
+        <SectionTitle>Theme</SectionTitle>
+        <Radio
+          name="theme"
+          options={themes}
+          value={themeMode}
+          onChange={setUIThemeMode}
+        />
+      </Section>
+      <Section>
         <SectionTitle>Density</SectionTitle>
         <Radio
           name="density"
@@ -111,16 +133,6 @@ export default function Settings({
       <Section>
         <SectionTitle>Preferences</SectionTitle>
         <div className="flex flex-col items-start pl-1.5 -my-0.5">
-          <Switch
-            inputId="theme-switch"
-            name="theme"
-            className="my-3"
-            checked={lightMode}
-            onToggle={toggleLightMode}
-            compact={false}
-          >
-            Light theme
-          </Switch>
           <Switch
             inputId="hide-read-switch"
             name="hide-read"
