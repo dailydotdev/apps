@@ -48,7 +48,7 @@ export default function Sidebar(): ReactElement {
     >
       <aside
         className={classNames(
-          'scrollbar overflow-y-scroll self-stretch bg-theme-bg-primary rounded-r-2xl border-r border-theme-divider-primary',
+          'overflow-y-scroll self-stretch bg-theme-bg-primary rounded-r-2xl border-r border-theme-divider-primary',
           !opened && 'invisible',
         )}
         style={{
