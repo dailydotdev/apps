@@ -16,30 +16,6 @@
   text-overflow: ellipsis;
 }
 
-.scrollbar {
-  &::-webkit-scrollbar {
-    width: 0.5rem;
-    background-color: transparent;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    border-radius: 0.25rem;
-    background: var(--theme-label-tertiary);
-  }
-
-  &::-webkit-scrollbar-thumb:hover {
-    background: var(--theme-label-primary);
-  }
-
-  &::-webkit-scrollbar-thumb:active {
-    background: var(--theme-label-primary);
-  }
-}
-
 .no-scrollbar {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
