@@ -2,7 +2,9 @@ import React, {
   HTMLAttributes,
   ReactElement,
   useContext,
+  useEffect,
   useMemo,
+  useState,
 } from 'react';
 import classed from '../lib/classed';
 import { Radio } from './fields/Radio';
@@ -21,10 +23,7 @@ const densities = [
   { label: 'Cozy', value: 'cozy' },
 ];
 
-const themes = [
-  { label: 'Dark', value: 'dark' },
-  { label: 'Light', value: 'light' }
-];
+
 
 export default function Settings({
   panelMode = false,
@@ -46,7 +45,11 @@ export default function Settings({
     insaneMode,
     toggleInsaneMode,
   } = useContext(SettingsContext);
-
+  const [themes, setThemes] = useState([
+    { label: 'Dark', value: 'dark' },
+    { label: 'Light', value: 'light' },
+    { label: 'Auto', value: 'auto' }
+  ])
   const Section = useMemo(
     () =>
       classed(
@@ -75,13 +78,13 @@ export default function Settings({
     }
   };
 
-  // If browser supports color-scheme, add auto theme option
-  if (window.matchMedia('(prefers-color-scheme: dark)')) {
-    // Make sure themes does not already contain option. React re-render issue.
-    if(!themes.some(theme => theme.value === 'auto')){
-      themes.push({ label: 'Auto', value: 'auto' });
+  useEffect(() => {
+    // If browser does not supports color-scheme, remove auto theme option
+    if (window && !window.matchMedia('(prefers-color-scheme: dark)')) {
+      const updatedThemes = themes.filter(theme => theme.value !== 'auto');
+      setThemes(updatedThemes);
     }
-  }
+  }, [themes])
 
   return (
     <div
