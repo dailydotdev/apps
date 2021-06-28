@@ -27,7 +27,6 @@ const defaultSettings: Settings = {
   openNewTab: true,
   insaneMode: false,
 };
-let darkModeMediaQuery: MediaQueryList;
 
 function toggleTheme(lightMode: boolean): void {
   if (lightMode) {
