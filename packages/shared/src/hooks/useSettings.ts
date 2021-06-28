@@ -39,16 +39,13 @@ function toggleTheme(lightMode: boolean): void {
   localStorage.setItem(themeCookieName, lightMode ? 'true' : 'false');
 }
 
-function isSystemThemeLight(): boolean {
-  if (window.matchMedia) {
-    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      // dark mode
-      return false;
-    } else {
-      return true;
-    }
+function toggleSystemTheme(autoMode:boolean):void{
+  if(autoMode){
+    document.documentElement.classList.remove('light');
+    document.documentElement.classList.add('auto');
+  }else{
+    document.documentElement.classList.remove('auto');
   }
-  return null;
 }
 
 export default function useSettings(
@@ -61,7 +58,6 @@ export default function useSettings(
   );
   const [lightMode, setLightMode] = useState(false);
   const [themeMode, setThemeMode] = useState('dark');
-  const [isMonitoring, setIsMonitoring] = useState(false);
   const { data: remoteSettings } = useQuery<UserSettingsData>(
     ['userSettings', userId],
     () => request(`${apiUrl}/graphql`, USER_SETTINGS_QUERY),
@@ -82,9 +78,15 @@ export default function useSettings(
 
   useEffect(() => {
     if (remoteSettings) {
-      const lightMode = remoteSettings.userSettings.theme === 'bright';
-      setLightMode(lightMode);
-      toggleTheme(lightMode);
+      const theme = remoteSettings.userSettings.theme;
+      if(theme === 'auto'){
+        toggleSystemTheme(true);
+      }else{
+        const lightMode = theme === 'bright';
+        setLightMode(lightMode);
+        toggleTheme(lightMode);
+        toggleSystemTheme(false);
+      }
       const cloneSettings = { ...remoteSettings.userSettings };
       delete cloneSettings.theme;
       setCachedSettings(cloneSettings);
@@ -92,24 +94,10 @@ export default function useSettings(
   }, [remoteSettings]);
 
   useEffect(() => {
-    if (!darkModeMediaQuery) {
-      darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    }
-
     const themeModeCookieValue = localStorage.getItem(themeModeCookieName);
     setThemeMode(themeModeCookieValue);
-    // Start monitoring OS theme change, when auto is set at page load
     if (themeModeCookieValue == 'auto') {
-      // Make sure it is not already being monitored to avoid multiple event handlers
-      if (!isMonitoring) {
-        setIsMonitoring(true);
-        startWatchingForSystemThemeChange();
-      }
-      //Check if OS theme has changed since last saved state
-      if (isSystemThemeLight()) {
-        setLightMode(true);
-        document.documentElement.classList.add('light');
-      }
+      toggleSystemTheme(true);
     } else {
       const lightModeCookieValue = localStorage.getItem(themeCookieName);
       if (lightModeCookieValue === 'true') {
@@ -144,36 +132,22 @@ export default function useSettings(
     }
   };
 
-  const handleSystemThemeChangeCallback = useCallback((e: MediaQueryListEvent) => {
-    const newColorScheme = e.matches ? "dark" : "light";
-    triggerThemeChange(newColorScheme == 'light');
-  }, [])
-
-  const startWatchingForSystemThemeChange = () => {
-    if (darkModeMediaQuery)
-      darkModeMediaQuery.addEventListener('change', handleSystemThemeChangeCallback);
-  }
-
-  const stopWatchingForSystemThemeChange = () => {
-    if (darkModeMediaQuery)
-      darkModeMediaQuery.removeEventListener('change', handleSystemThemeChangeCallback);
-  }
 
   return {
     ...settings,
     themeMode,
     setUIThemeMode: async (mode: string) => {
       if (mode == 'auto') {
-        const isLightMode = isSystemThemeLight();
-        triggerThemeChange(isLightMode);
-        if (!isMonitoring) {
-          setIsMonitoring(true);
-          startWatchingForSystemThemeChange();
+        toggleSystemTheme(true);
+        if (userId) {
+          await updateRemoteSettings({
+            ...settings,
+            theme: 'auto',
+          });
         }
       } else {
+        toggleSystemTheme(false);
         triggerThemeChange(mode == 'light');
-        stopWatchingForSystemThemeChange();
-        setIsMonitoring(false);
       }
       setThemeMode(mode);
       localStorage.setItem(themeModeCookieName, mode);
