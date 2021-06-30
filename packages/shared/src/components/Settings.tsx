@@ -11,9 +11,11 @@ import SettingsContext from '../contexts/SettingsContext';
 import classNames from 'classnames';
 import CardIcon from '../../icons/card.svg';
 import LineIcon from '../../icons/line.svg';
+import OpenLink from '../../icons/open_link.svg';
 import { IconsSwitch } from './fields/IconsSwitch';
 import AuthContext from '../contexts/AuthContext';
 import { LoginModalMode } from '../types/LoginModalMode';
+import { Button } from './buttons/Button';
 
 const densities = [
   { label: 'Eco', value: 'eco' },
@@ -142,6 +144,18 @@ export default function Settings({
             Open links in new tab
           </Switch>
         </div>
+      </Section>
+      <Section className="laptop:hidden">
+        <SectionTitle>Contact</SectionTitle>
+        <Button
+          className="btn-secondary self-start mt-1"
+          tag="a"
+          href="mailto:support@daily.dev"
+          buttonSize="small"
+          rightIcon={<OpenLink />}
+        >
+          Send feedback
+        </Button>
       </Section>
     </div>
   );
