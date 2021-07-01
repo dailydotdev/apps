@@ -58,3 +58,12 @@
     @apply typo-body;
   }
 }
+
+@media not all and (min-resolution:.001dpcm)
+{ @supports (-webkit-appearance:none) {
+  @media screen and (max-width:375px){
+    .discussion_bar { 
+      margin-bottom: 1.5rem;
+    }
+  } 
+}}
