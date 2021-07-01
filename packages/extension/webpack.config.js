@@ -88,8 +88,8 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /icons\/.*\.svg$/,
-        exclude: /node_modules\/(?!@dailydotdev)/,
+        test: /icons(\/|\\).*\.svg$/,
+        exclude: /node_modules(\/|\\)(?!@dailydotdev)/,
         use: [
           {
             loader: '@svgr/webpack',
@@ -122,11 +122,11 @@ module.exports = {
       {
         test: /\.(js|ts)x?$/,
         loader: 'babel-loader',
-        exclude: /node_modules\/(?!@dailydotdev)/,
+        exclude: /node_modules(\/|\\)(?!@dailydotdev)/,
       },
       {
         test: /\.(sa|sc|c)ss$/,
-        exclude: /node_modules\/(?!@dailydotdev)/,
+        exclude: /node_modules(\/|\\)(?!@dailydotdev)/,
         use: [
           {
             loader: MiniCssExtractPlugin.loader, // It creates a CSS file per JS file which contains CSS
