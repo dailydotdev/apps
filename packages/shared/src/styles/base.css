@@ -37,7 +37,7 @@ body {
   
   @media (prefers-color-scheme: light) {
       html.auto,
-      html.auto .invert,
+      html .invert,
       html.auto .invert .invert {
         --theme-active: theme('colors.pepper.10')33;
         --theme-focus: theme('colors.blueCheese.60');
@@ -105,7 +105,7 @@ body {
 
       html.auto,
       html.auto .invert,
-      html.auto .invert .invert {
+      html .invert .invert {
         --theme-active: theme('colors.salt.90')33;
         --theme-focus: theme('colors.blueCheese.40');
         --theme-float: theme('colors.salt.90')14;
@@ -164,7 +164,7 @@ body {
         --theme-rank-5-color-bottom: theme('colors.onion.40');
       }
     }
-
+  
 
 
 html,

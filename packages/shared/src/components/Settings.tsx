@@ -84,7 +84,7 @@ export default function Settings({
       const updatedThemes = themes.filter(theme => theme.value !== 'auto');
       setThemes(updatedThemes);
     }
-  }, [themes])
+  }, [])
 
   return (
     <div

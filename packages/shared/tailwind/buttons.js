@@ -173,7 +173,7 @@ const statesToCssInJs = (states) =>
 
 const styleToCssInJs = (style) => ({
   '&, .light .invert &': statesToCssInJs(style.darkStates),
-  '.light &, .invert &': statesToCssInJs(style.lightStates),
+  '.light &, .invert &': statesToCssInJs(style.lightStates)
 });
 
 const variationToStyles = (variation) => ({
