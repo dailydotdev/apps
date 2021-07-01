@@ -16,8 +16,8 @@ module.exports = withTM(
       withBundleAnalyzer({
         webpack: (config) => {
           config.module.rules.push({
-            test: /icons\/.*\.svg$/,
-            exclude: /node_modules\/(?!@dailydotdev)/,
+            test: /icons(\/|\\).*\.svg$/,
+            exclude: /node_modules(\/|\\)(?!@dailydotdev)/,
             use: [
               {
                 loader: '@svgr/webpack',
