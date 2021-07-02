@@ -34,142 +34,7 @@ body {
   }
 }
 
-  
-  @media (prefers-color-scheme: light) {
-      html.auto,
-      html .invert,
-      html.auto .invert .invert {
-        --theme-active: theme('colors.pepper.10')33;
-        --theme-focus: theme('colors.blueCheese.60');
-        --theme-float: theme('colors.pepper.10')14;
-        /* stylelint-disable-next-line unit-no-unknown */
-        --theme-hover: theme('colors.pepper.10')1F;
-      
-        --theme-background-primary: #ffffff;
-        --theme-background-secondary: theme('colors.salt.10');
-        --theme-background-tertiary: theme('colors.salt.20');
-        --theme-background-bacon: theme('colors.bacon.20');
-        --theme-background-bun: theme('colors.bun.20');
-        --theme-background-onion: theme('colors.onion.20');
-      
-        --theme-label-primary: theme('colors.pepper.90');
-        --theme-label-secondary: theme('colors.pepper.50');
-        --theme-label-tertiary: theme('colors.pepper.10');
-        --theme-label-quaternary: theme('colors.pepper.10')A3;
-        --theme-label-disabled: theme('colors.pepper.10')52;
-        --theme-label-link: theme('colors.water.80');
-        --theme-label-invert: #ffffff;
-        --theme-label-bun: theme('colors.bun.80');
-      
-        --theme-divider-primary: theme('colors.pepper.10');
-        --theme-divider-secondary: theme('colors.pepper.10')66;
-        --theme-divider-tertiary: theme('colors.pepper.10')33;
-        --theme-divider-quaternary: theme('colors.pepper.10')14;
-      
-        --theme-status-error: theme('colors.ketchup.60');
-        --theme-status-help: theme('colors.cheese.60');
-        --theme-status-success: theme('colors.avocado.60');
-      
-        --theme-shadow2: theme('boxShadow.2-salt');
-        --theme-shadow3: theme('boxShadow.3-salt');
-      
-        --theme-post-disabled: #ffffff66;
-      
-        --theme-overlay-quaternary: theme('colors.overlay.quaternary.pepper');
-      
-        --theme-rank-1-color: theme('colors.burger.60');
-        --theme-rank-1-color-top: theme('colors.burger.60');
-        --theme-rank-1-color-bottom: theme('colors.bun.60');
-      
-        --theme-rank-2-color: theme('colors.pepper.60');
-        --theme-rank-2-color-top: theme('colors.salt.90');
-        --theme-rank-2-color-bottom: theme('colors.pepper.60');
-      
-        --theme-rank-3-color: theme('colors.cheese.60');
-        --theme-rank-3-color-top: theme('colors.cheese.60');
-        --theme-rank-3-color-bottom: theme('colors.bun.60');
-      
-        --theme-rank-4-color: theme('colors.blueCheese.60');
-        --theme-rank-4-color-top: theme('colors.water.60');
-        --theme-rank-4-color-bottom: theme('colors.blueCheese.60');
-      
-        --theme-rank-5-color: theme('colors.cabbage.60');
-        --theme-rank-5-color-top: theme('colors.cabbage.60');
-        --theme-rank-5-color-bottom: theme('colors.onion.60');
-      }
-    }
-
-
-  
-  @media (prefers-color-scheme: dark){
-
-      html.auto,
-      html.auto .invert,
-      html .invert .invert {
-        --theme-active: theme('colors.salt.90')33;
-        --theme-focus: theme('colors.blueCheese.40');
-        --theme-float: theme('colors.salt.90')14;
-        /* stylelint-disable-next-line unit-no-unknown */
-        --theme-hover: theme('colors.salt.90')1F;
-      
-        --theme-background-primary: theme('colors.pepper.90');
-        --theme-background-secondary: theme('colors.pepper.70');
-        --theme-background-tertiary: theme('colors.pepper.80');
-        --theme-background-bun: theme('colors.bun.80');
-        --theme-background-onion: theme('colors.onion.80');
-      
-        --theme-label-primary: #ffffff;
-        --theme-label-secondary: theme('colors.salt.50');
-        --theme-label-tertiary: theme('colors.salt.90');
-        --theme-label-quaternary: theme('colors.salt.90')A3;
-        --theme-label-disabled: theme('colors.salt.90')52;
-        --theme-label-link: theme('colors.water.20');
-        --theme-label-invert: theme('colors.pepper.90');
-        --theme-label-bun: theme('colors.bun.20');
-      
-        --theme-divider-primary: theme('colors.salt.90');
-        --theme-divider-secondary: theme('colors.salt.90')66;
-        --theme-divider-tertiary: theme('colors.salt.90')33;
-        --theme-divider-quaternary: theme('colors.salt.90')14;
-      
-        --theme-status-error: theme('colors.ketchup.40');
-        --theme-status-help: theme('colors.cheese.40');
-        --theme-status-success: theme('colors.avocado.40');
-      
-        --theme-shadow2: theme('boxShadow.2-black');
-        --theme-shadow3: theme('boxShadow.3-black');
-      
-        --theme-post-disabled: theme('colors.pepper.70')66;
-      
-        --theme-overlay-quaternary: theme('colors.overlay.quaternary.white');
-      
-        --theme-rank-1-color: theme('colors.burger.40');
-        --theme-rank-1-color-top: theme('colors.burger.40');
-        --theme-rank-1-color-bottom: theme('colors.bun.40');
-      
-        --theme-rank-2-color: theme('colors.salt.40');
-        --theme-rank-2-color-top: #ffffff;
-        --theme-rank-2-color-bottom: theme('colors.salt.40');
-      
-        --theme-rank-3-color: theme('colors.cheese.40');
-        --theme-rank-3-color-top: theme('colors.cheese.40');
-        --theme-rank-3-color-bottom: theme('colors.bun.40');
-      
-        --theme-rank-4-color: theme('colors.blueCheese.40');
-        --theme-rank-4-color-top: theme('colors.water.40');
-        --theme-rank-4-color-bottom: theme('colors.blueCheese.40');
-      
-        --theme-rank-5-color: theme('colors.cabbage.40');
-        --theme-rank-5-color-top: theme('colors.cabbage.40');
-        --theme-rank-5-color-bottom: theme('colors.onion.40');
-      }
-    }
-  
-
-
-html,
-html.light .invert,
-html .invert .invert {
+@define-mixin dark-mode{
   --theme-active: theme('colors.salt.90')33;
   --theme-focus: theme('colors.blueCheese.40');
   --theme-float: theme('colors.salt.90')14;
@@ -226,11 +91,11 @@ html .invert .invert {
   --theme-rank-5-color: theme('colors.cabbage.40');
   --theme-rank-5-color-top: theme('colors.cabbage.40');
   --theme-rank-5-color-bottom: theme('colors.onion.40');
+
 }
 
-html.light,
-html .invert,
-html.light .invert .invert {
+@define-mixin light-mode{
+
   --theme-active: theme('colors.pepper.10')33;
   --theme-focus: theme('colors.blueCheese.60');
   --theme-float: theme('colors.pepper.10')14;
@@ -288,8 +153,41 @@ html.light .invert .invert {
   --theme-rank-5-color: theme('colors.cabbage.60');
   --theme-rank-5-color-top: theme('colors.cabbage.60');
   --theme-rank-5-color-bottom: theme('colors.onion.60');
+
 }
 
+  
+  @media (prefers-color-scheme: light) {
+      html.auto,
+      html .invert,
+      html.auto .invert .invert{
+        @mixin light-mode;
+      }
+    }
+
+
+  
+  @media (prefers-color-scheme: dark){
+
+      html.auto,
+      html.auto .invert,
+      html .invert .invert{
+        @mixin dark-mode;
+      }
+    }
+  
+
+html,
+html.light .invert,
+html .invert .invert {
+  @mixin dark-mode;
+}
+
+html.light,
+html .invert,
+html.light .invert .invert{
+  @mixin light-mode;
+}
 
 .logo {
   width: 4.313rem;
