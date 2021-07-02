@@ -685,7 +685,10 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           )}
         >
           <button
-            className={classNames("flex w-full h-10 items-center px-4 bg-theme-bg-secondary text-theme-label-secondary border-none rounded-2xl cursor-pointer typo-callout focus-outline",styles.discussionBar)}
+            className={classNames(
+              'flex w-full h-10 items-center px-4 bg-theme-bg-secondary text-theme-label-secondary border-none rounded-2xl cursor-pointer typo-callout focus-outline',
+              styles.discussionBar,
+            )}
             onClick={openNewComment}
           >
             {user && (
