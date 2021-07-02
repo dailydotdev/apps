@@ -1,5 +1,5 @@
 import usePersistentState from './usePersistentState';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { SettingsContextData } from '../contexts/SettingsContext';
 import { useMutation, useQuery } from 'react-query';
 import request from 'graphql-request';
@@ -17,6 +17,7 @@ type Settings = {
   showOnlyUnreadPosts: boolean;
   openNewTab: boolean;
   insaneMode: boolean;
+  theme: string;
 };
 
 const themeCookieName = 'showmethelight';
@@ -26,6 +27,7 @@ const defaultSettings: Settings = {
   showOnlyUnreadPosts: false,
   openNewTab: true,
   insaneMode: false,
+  theme: 'dark',
 };
 
 function toggleTheme(lightMode: boolean): void {
@@ -38,18 +40,18 @@ function toggleTheme(lightMode: boolean): void {
   localStorage.setItem(themeCookieName, lightMode ? 'true' : 'false');
 }
 
-function toggleSystemTheme(autoMode:boolean):void{
-  if(autoMode){
+function toggleSystemTheme(autoMode: boolean): void {
+  if (autoMode) {
     document.documentElement.classList.remove('light');
     document.documentElement.classList.add('auto');
-  }else{
+  } else {
     document.documentElement.classList.remove('auto');
   }
 }
 
 export default function useSettings(
   userId: string | null,
-  canFetchRemote: boolean
+  canFetchRemote: boolean,
 ): SettingsContextData {
   const [settings, setCachedSettings, loadedSettings] = usePersistentState(
     'settings',
@@ -78,11 +80,14 @@ export default function useSettings(
   useEffect(() => {
     if (remoteSettings) {
       const theme = remoteSettings.userSettings.theme;
-      if(theme === 'auto'){
+      console.log(theme);
+      if (theme === 'auto') {
         toggleSystemTheme(true);
-      }else{
+        setThemeMode('auto');
+      } else {
         const lightMode = theme === 'bright';
         setLightMode(lightMode);
+        setThemeMode(lightMode ? 'light' : 'dark');
         toggleTheme(lightMode);
         toggleSystemTheme(false);
       }
@@ -104,10 +109,7 @@ export default function useSettings(
         document.documentElement.classList.add('light');
       }
     }
-
   }, []);
-
-
 
   const triggerThemeChange = async (isLightMode: boolean): Promise<void> => {
     setLightMode(isLightMode);
@@ -118,8 +120,7 @@ export default function useSettings(
         theme: isLightMode ? 'bright' : 'darcula',
       });
     }
-
-  }
+  };
 
   const setSettings = async (settings: Settings): Promise<void> => {
     await setCachedSettings(settings);
@@ -130,7 +131,6 @@ export default function useSettings(
       });
     }
   };
-
 
   return {
     ...settings,
@@ -150,7 +150,6 @@ export default function useSettings(
       }
       setThemeMode(mode);
       localStorage.setItem(themeModeCookieName, mode);
-
     },
     toggleShowOnlyUnreadPosts: () =>
       setSettings({

@@ -104,14 +104,15 @@ it('should fetch remote settings', async () => {
       radio.find((el) => queryByText(el.parentElement, 'Roomy')),
     ).toBeChecked(),
   );
-
-  const checkbox = await screen.findAllByRole('checkbox');
   await waitFor(() =>
     expect(
       // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
-      checkbox.find((el) => queryByText(el.parentElement, 'Light theme')),
+      radio.find((el) => queryByText(el.parentElement, 'Light')),
     ).toBeChecked(),
   );
+
+  const checkbox = await screen.findAllByRole('checkbox');
+
   await waitFor(() =>
     expect(
       // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
@@ -149,11 +150,11 @@ const testSettingsMutation = async (
   });
 
   if (initialSettings.theme === 'bright') {
-    const checkbox = await screen.findAllByRole('checkbox');
+    const radio = await screen.findAllByRole('radio');
     await waitFor(() =>
       expect(
         // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
-        checkbox.find((el) => queryByText(el.parentElement, 'Light theme')),
+        radio.find((el) => queryByText(el.parentElement, 'Light')),
       ).toBeChecked(),
     );
   }
@@ -172,24 +173,24 @@ it('should mutate density setting', () =>
 
 it('should set theme to dark mode setting', () =>
   testSettingsMutation({ theme: 'darcula' }, async () => {
-    const checkboxes = await screen.findAllByRole('checkbox');
-    const checkbox = checkboxes.find((el) =>
+    const radios = await screen.findAllByRole('radio');
+    const radio = radios.find((el) =>
       // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
-      queryByText(el.parentElement, 'Light theme'),
+      queryByText(el.parentElement, 'Dark'),
     ) as HTMLInputElement;
-    fireEvent.click(checkbox);
+    fireEvent.click(radio);
   }));
 
 it('should set light to dark mode setting', () =>
   testSettingsMutation(
     { theme: 'bright' },
     async () => {
-      const checkboxes = await screen.findAllByRole('checkbox');
-      const checkbox = checkboxes.find((el) =>
+      const radios = await screen.findAllByRole('radio');
+      const radio = radios.find((el) =>
         // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
-        queryByText(el.parentElement, 'Light theme'),
+        queryByText(el.parentElement, 'Light'),
       ) as HTMLInputElement;
-      fireEvent.click(checkbox);
+      fireEvent.click(radio);
     },
     { ...defaultSettings, theme: 'darcula' },
   ));

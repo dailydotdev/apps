@@ -3,7 +3,7 @@ import { Spaciness } from '../graphql/settings';
 
 export type SettingsContextData = {
   spaciness: Spaciness;
-  themeMode:string;
+  themeMode: string;
   showOnlyUnreadPosts: boolean;
   openNewTab: boolean;
   insaneMode: boolean;

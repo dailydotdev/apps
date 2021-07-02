@@ -81,3 +81,14 @@
 :global(.light) .label:global(.checked):focus-within .checkmark {
   background: theme('colors.water.80');
 }
+
+@media (prefers-color-scheme: light) {
+:global(.auto) .label:global(.checked) .checkmark {
+  background: theme('colors.water.60');
+}
+
+:global(.auto) .label:global(.checked):hover .checkmark,
+:global(.auto) .label:global(.checked):focus-within .checkmark {
+  background: theme('colors.water.80');
+}
+}

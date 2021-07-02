@@ -13,3 +13,13 @@
 :global(.light) :global(.group):hover .knob {
   @apply bg-water-80;
 }
+
+@media (prefers-color-scheme: light) {
+  :global(.auto) .knob {
+    @apply bg-water-60;
+  }
+  
+  :global(.auto) :global(.group):hover .knob {
+    @apply bg-water-80;
+  }
+}

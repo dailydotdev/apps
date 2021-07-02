@@ -23,8 +23,6 @@ const densities = [
   { label: 'Cozy', value: 'cozy' },
 ];
 
-
-
 export default function Settings({
   panelMode = false,
   className,
@@ -48,8 +46,8 @@ export default function Settings({
   const [themes, setThemes] = useState([
     { label: 'Dark', value: 'dark' },
     { label: 'Light', value: 'light' },
-    { label: 'Auto', value: 'auto' }
-  ])
+    { label: 'Auto', value: 'auto' },
+  ]);
   const Section = useMemo(
     () =>
       classed(
@@ -81,10 +79,10 @@ export default function Settings({
   useEffect(() => {
     // If browser does not supports color-scheme, remove auto theme option
     if (window && !window.matchMedia('(prefers-color-scheme: dark)')) {
-      const updatedThemes = themes.filter(theme => theme.value !== 'auto');
+      const updatedThemes = themes.filter((theme) => theme.value !== 'auto');
       setThemes(updatedThemes);
     }
-  }, [])
+  }, []);
 
   return (
     <div
