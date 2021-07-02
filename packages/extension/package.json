@@ -17,8 +17,8 @@
   },
   "prettier": "@dailydotdev/prettier-config",
   "dependencies": {
-    "@dailydotdev/shared": "*",
     "@babel/runtime": "^7.14.6",
+    "@dailydotdev/shared": "*",
     "classnames": "^2.3.1",
     "date-fns": "^2.22.1",
     "dompurify": "^2.2.9",
@@ -101,6 +101,7 @@
     "postcss-focus-visible": "^5.0.0",
     "postcss-import": "^14.0.1",
     "postcss-loader": "^4.0.4",
+    "postcss-mixins": "^8.1.0",
     "postcss-nesting": "^7.0.1",
     "postcss-simple-vars": "^6.0.3",
     "prettier": "^2.3.1",
