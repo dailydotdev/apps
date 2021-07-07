@@ -17,6 +17,7 @@ export interface BaseButtonProps {
   icon?: ReactNode;
   rightIcon?: ReactNode;
   children?: ReactNode;
+  displayClass?: string;
 }
 
 export type ButtonProps<Tag extends keyof JSX.IntrinsicElements> =
@@ -35,6 +36,7 @@ export function Button<Tag extends keyof JSX.IntrinsicElements>({
   tag: Tag = 'button',
   innerRef,
   className,
+  displayClass,
   ...props
 }: StyledButtonProps & ButtonProps<Tag>): ReactElement {
   const iconOnly = icon && !children && !rightIcon;
@@ -47,7 +49,8 @@ export function Button<Tag extends keyof JSX.IntrinsicElements>({
       className={classNames(
         { iconOnly },
         buttonSize,
-        'btn relative flex flex-row items-center justify-center border typo-callout font-bold no-underline shadow-none cursor-pointer select-none focus-outline',
+        'btn relative flex-row items-center justify-center border typo-callout font-bold no-underline shadow-none cursor-pointer select-none focus-outline',
+        displayClass || 'flex',
         className,
       )}
     >
