@@ -1,0 +1,19 @@
+.helpUsGrowModal {
+  & :global(.modal) {
+    max-width: 42.5rem;
+
+    @screen laptop {
+      flex-direction: row-reverse;
+    }
+  }
+}
+
+.image {
+  width: 100%;
+  max-height: 6.875rem;
+
+  @screen laptop {
+    max-width: 17.5rem;
+    max-height: unset;
+  }
+}

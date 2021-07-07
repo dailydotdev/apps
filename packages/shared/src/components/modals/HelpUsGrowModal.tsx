@@ -9,6 +9,8 @@ import { useQuery } from 'react-query';
 import AuthContext from '../../contexts/AuthContext';
 import fetchTimeout from '../../lib/fetchTimeout';
 import { apiUrl } from '../../lib/config';
+import styles from './HelpUsGrowModal.module.css';
+import classNames from 'classnames';
 
 function getTweet(link: string): string {
   const text =
@@ -18,7 +20,10 @@ function getTweet(link: string): string {
   )}&url=${encodeURIComponent(link)}`;
 }
 
-export default function HelpUsGrowModal(props: ModalProps): ReactElement {
+export default function HelpUsGrowModal({
+  className,
+  ...props
+}: ModalProps): ReactElement {
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { data } = useQuery<unknown, unknown, { link: string; cover: string }>(
     ['referralLink', user?.id],
@@ -50,17 +55,37 @@ export default function HelpUsGrowModal(props: ModalProps): ReactElement {
   return (
     <StyledModal
       {...props}
-      style={{ content: { flexDirection: 'row', maxWidth: 'max-content' } }}
+      className={classNames(className, styles.helpUsGrowModal)}
     >
       <ModalCloseButton onClick={props.onRequestClose} />
-      <div className="flex flex-col p-8" style={{ maxWidth: '21rem' }}>
-        <h2 className="typo-title2 font-bold">Enjoying daily.dev?</h2>
-        <p className="mt-1 mb-4 typo-callout text-theme-label-secondary">
-          Share your 💌 for daily.dev with your developer friends and help us
-          grow.
+      <div className={styles.image}>
+        <picture className="w-full h-full object-cover">
+          <source
+            media="(min-width: 1020px)"
+            srcSet="https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1625662066/webapp/desktop_monthly_prize"
+          />
+          <img
+            src="https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1625662066/webapp/mobile_monthly_prize"
+            alt="Help us grow cover"
+          />
+        </picture>
+      </div>
+      <div className="flex flex-col laptop:flex-1 p-8">
+        <h2 className="typo-title2 font-bold">Refer a friend 🎁</h2>
+        <p className="mt-1 typo-callout text-theme-label-secondary">
+          Once a month, we are giving an epic prize to one of our ambassadors.
+          Are you in?
         </p>
+        <a
+          href="https://daily.dev/monthly-prize"
+          target="_blank"
+          rel="noopener"
+          className="mt-3 mb-6 text-theme-label-link typo-callout font-bold underline"
+        >
+          More details
+        </a>
         <TextField
-          className="my-4"
+          className="mb-4"
           inputId="referral-link"
           label="Your link"
           compact
@@ -74,11 +99,12 @@ export default function HelpUsGrowModal(props: ModalProps): ReactElement {
         >
           {copying ? 'Copied!' : 'Copy link'}
         </Button>
-        <div className="typo-callout text-theme-label-quaternary text-center my-4">
+        <div className="typo-callout text-theme-label-quaternary text-center my-4 hidden laptop:block">
           or share via
         </div>
         <Button
           className="btn-primary-twitter text-white self-center"
+          displayClass="hidden laptop:flex"
           tag="a"
           href={getTweet(referralLink)}
           rel="noopener"
@@ -87,13 +113,6 @@ export default function HelpUsGrowModal(props: ModalProps): ReactElement {
         >
           Twitter
         </Button>
-      </div>
-      <div className="hidden laptop:block" style={{ width: '18.5rem' }}>
-        <img
-          className="w-full h-full object-cover"
-          src={data.cover}
-          alt="Help us grow cover"
-        />
       </div>
     </StyledModal>
   );

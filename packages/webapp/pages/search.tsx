@@ -25,7 +25,7 @@ const Search = (): ReactElement => {
       };
     } else {
       return {
-        title: 'daily.dev | The Home Page Every Developer Deserves',
+        title: 'daily.dev | The Homepage Developers Deserve',
       };
     }
   }, [query]);

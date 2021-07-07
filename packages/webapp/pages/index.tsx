@@ -8,7 +8,7 @@ import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { NextSeo, SiteLinksSearchBoxJsonLd } from 'next-seo';
 
 const seo: NextSeoProps = {
-  title: 'daily.dev | The Home Page Every Developer Deserves',
+  title: 'daily.dev | The Homepage Developers Deserve',
   titleTemplate: '%s',
   openGraph: { ...defaultOpenGraph },
   ...defaultSeo,
