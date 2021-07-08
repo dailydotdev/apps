@@ -63,7 +63,7 @@
 { @supports (-webkit-appearance:none) {
   @media screen and (max-width: 375px){
     .discussionBar{
-      margin-bottom: 3rem;
+      margin-bottom: 1.5rem;
     }
   }
 }}
