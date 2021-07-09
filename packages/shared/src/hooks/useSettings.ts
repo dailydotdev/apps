@@ -87,8 +87,9 @@ export default function useSettings(
 
   useEffect(() => {
     const themeModeCookieValue = localStorage.getItem(themeModeCookieName);
-    if(themeModeCookieValue)
-    setThemeMode(themeModeCookieValue);
+    if (themeModeCookieValue) {
+      setThemeMode(themeModeCookieValue);
+    }
     if (themeModeCookieValue == 'auto') {
       toggleTheme('auto');
     } else {
