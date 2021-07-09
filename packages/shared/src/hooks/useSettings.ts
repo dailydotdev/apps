@@ -17,7 +17,6 @@ type Settings = {
   showOnlyUnreadPosts: boolean;
   openNewTab: boolean;
   insaneMode: boolean;
-  theme: string;
 };
 
 const themeCookieName = 'showmethelight';
@@ -27,25 +26,22 @@ const defaultSettings: Settings = {
   showOnlyUnreadPosts: false,
   openNewTab: true,
   insaneMode: false,
-  theme: 'dark',
 };
 
-function toggleTheme(lightMode: boolean): void {
-  if (lightMode) {
-    document.documentElement.classList.add('light');
+function toggleTheme(themeMode: string): void {
+  if (themeMode !== 'auto') {
+    document.documentElement.classList.remove('auto');
+    const lightMode = themeMode === 'light';
+    if (lightMode) {
+      document.documentElement.classList.add('light');
+    } else {
+      document.documentElement.classList.remove('light');
+    }
+    // Use localStorage for theme to prevent flickering on start up
+    localStorage.setItem(themeCookieName, lightMode ? 'true' : 'false');
   } else {
-    document.documentElement.classList.remove('light');
-  }
-  // Use localStorage for theme to prevent flickering on start up
-  localStorage.setItem(themeCookieName, lightMode ? 'true' : 'false');
-}
-
-function toggleSystemTheme(autoMode: boolean): void {
-  if (autoMode) {
     document.documentElement.classList.remove('light');
     document.documentElement.classList.add('auto');
-  } else {
-    document.documentElement.classList.remove('auto');
   }
 }
 
@@ -57,7 +53,6 @@ export default function useSettings(
     'settings',
     defaultSettings,
   );
-  const [lightMode, setLightMode] = useState(false);
   const [themeMode, setThemeMode] = useState('dark');
   const { data: remoteSettings } = useQuery<UserSettingsData>(
     ['userSettings', userId],
@@ -80,17 +75,10 @@ export default function useSettings(
   useEffect(() => {
     if (remoteSettings) {
       const theme = remoteSettings.userSettings.theme;
-      console.log(theme);
-      if (theme === 'auto') {
-        toggleSystemTheme(true);
-        setThemeMode('auto');
-      } else {
-        const lightMode = theme === 'bright';
-        setLightMode(lightMode);
-        setThemeMode(lightMode ? 'light' : 'dark');
-        toggleTheme(lightMode);
-        toggleSystemTheme(false);
-      }
+      toggleTheme(theme);
+      const lightMode = theme === 'bright';
+      const darkMode = theme === 'darcula';
+      setThemeMode(lightMode ? 'light' : darkMode ? 'dark' : 'auto');
       const cloneSettings = { ...remoteSettings.userSettings };
       delete cloneSettings.theme;
       setCachedSettings(cloneSettings);
@@ -99,55 +87,43 @@ export default function useSettings(
 
   useEffect(() => {
     const themeModeCookieValue = localStorage.getItem(themeModeCookieName);
+    if(themeModeCookieValue)
     setThemeMode(themeModeCookieValue);
     if (themeModeCookieValue == 'auto') {
-      toggleSystemTheme(true);
+      toggleTheme('auto');
     } else {
       const lightModeCookieValue = localStorage.getItem(themeCookieName);
       if (lightModeCookieValue === 'true') {
-        setLightMode(true);
         document.documentElement.classList.add('light');
       }
     }
   }, []);
 
-  const triggerThemeChange = async (isLightMode: boolean): Promise<void> => {
-    setLightMode(isLightMode);
-    toggleTheme(isLightMode);
+  const updateRemoteSettingsFn = async (mode: string) => {
     if (userId) {
       await updateRemoteSettings({
         ...settings,
-        theme: isLightMode ? 'bright' : 'darcula',
+        theme:
+          mode === 'light' ? 'bright' : mode === 'dark' ? 'darcula' : 'auto',
       });
     }
   };
 
+  const triggerThemeChange = async (mode: string): Promise<void> => {
+    await updateRemoteSettingsFn(mode);
+  };
+
   const setSettings = async (settings: Settings): Promise<void> => {
     await setCachedSettings(settings);
-    if (userId) {
-      await updateRemoteSettings({
-        ...settings,
-        theme: lightMode ? 'bright' : 'darcula',
-      });
-    }
+    await updateRemoteSettingsFn(themeMode);
   };
 
   return {
     ...settings,
     themeMode,
     setUIThemeMode: async (mode: string) => {
-      if (mode == 'auto') {
-        toggleSystemTheme(true);
-        if (userId) {
-          await updateRemoteSettings({
-            ...settings,
-            theme: 'auto',
-          });
-        }
-      } else {
-        toggleSystemTheme(false);
-        triggerThemeChange(mode == 'light');
-      }
+      toggleTheme(mode);
+      triggerThemeChange(mode);
       setThemeMode(mode);
       localStorage.setItem(themeModeCookieName, mode);
     },
