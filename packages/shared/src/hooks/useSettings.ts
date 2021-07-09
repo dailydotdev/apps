@@ -100,23 +100,27 @@ export default function useSettings(
     }
   }, []);
 
-  const updateRemoteSettingsFn = async (mode: string) => {
+  const updateRemoteSettingsFn = async (settings: Settings, mode: string) => {
     if (userId) {
+      const themeMode =
+        mode === 'light' ? 'bright' : mode === 'dark' ? 'darcula' : 'auto';
       await updateRemoteSettings({
         ...settings,
-        theme:
-          mode === 'light' ? 'bright' : mode === 'dark' ? 'darcula' : 'auto',
+        theme: themeMode,
       });
     }
   };
 
-  const triggerThemeChange = async (mode: string): Promise<void> => {
-    await updateRemoteSettingsFn(mode);
+  const triggerThemeChange = async (
+    settings: Settings,
+    mode: string,
+  ): Promise<void> => {
+    await updateRemoteSettingsFn(settings, mode);
   };
 
   const setSettings = async (settings: Settings): Promise<void> => {
     await setCachedSettings(settings);
-    await updateRemoteSettingsFn(themeMode);
+    await updateRemoteSettingsFn(settings, themeMode);
   };
 
   return {
@@ -124,7 +128,7 @@ export default function useSettings(
     themeMode,
     setUIThemeMode: async (mode: string) => {
       toggleTheme(mode);
-      triggerThemeChange(mode);
+      triggerThemeChange(settings, mode);
       setThemeMode(mode);
       localStorage.setItem(themeModeCookieName, mode);
     },
