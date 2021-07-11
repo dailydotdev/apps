@@ -7,7 +7,7 @@ export type SettingsContextData = {
   showOnlyUnreadPosts: boolean;
   openNewTab: boolean;
   insaneMode: boolean;
-  setUIThemeMode: (mode) => Promise<void>;
+  setTheme: (theme) => Promise<void>;
   toggleShowOnlyUnreadPosts: () => Promise<void>;
   toggleOpenNewTab: () => Promise<void>;
   setSpaciness: (density: Spaciness) => Promise<void>;

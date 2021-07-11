@@ -19,8 +19,8 @@ type Settings = {
   insaneMode: boolean;
 };
 
-const themeCookieName = 'showmethelight';
-const themeModeCookieName = 'showmemymode';
+const deprecatedLightModeStorageKey = 'showmethelight';
+const themeModeStorageKey = 'theme';
 const defaultSettings: Settings = {
   spaciness: 'eco',
   showOnlyUnreadPosts: false,
@@ -28,7 +28,7 @@ const defaultSettings: Settings = {
   insaneMode: false,
 };
 
-function toggleTheme(themeMode: string): void {
+function applyTheme(themeMode: string): void {
   if (themeMode !== 'auto') {
     document.documentElement.classList.remove('auto');
     const lightMode = themeMode === 'light';
@@ -37,8 +37,6 @@ function toggleTheme(themeMode: string): void {
     } else {
       document.documentElement.classList.remove('light');
     }
-    // Use localStorage for theme to prevent flickering on start up
-    localStorage.setItem(themeCookieName, lightMode ? 'true' : 'false');
   } else {
     document.documentElement.classList.remove('light');
     document.documentElement.classList.add('auto');
@@ -53,7 +51,7 @@ export default function useSettings(
     'settings',
     defaultSettings,
   );
-  const [themeMode, setThemeMode] = useState('dark');
+  const [currentTheme, setCurrentTheme] = useState('dark');
   const { data: remoteSettings } = useQuery<UserSettingsData>(
     ['userSettings', userId],
     () => request(`${apiUrl}/graphql`, USER_SETTINGS_QUERY),
@@ -74,11 +72,13 @@ export default function useSettings(
 
   useEffect(() => {
     if (remoteSettings) {
-      const theme = remoteSettings.userSettings.theme;
-      toggleTheme(theme);
-      const lightMode = theme === 'bright';
-      const darkMode = theme === 'darcula';
-      setThemeMode(lightMode ? 'light' : darkMode ? 'dark' : 'auto');
+      const remoteTheme = remoteSettings.userSettings.theme;
+      const lightMode = remoteTheme === 'bright';
+      const darkMode = remoteTheme === 'darcula';
+      const theme = lightMode ? 'light' : darkMode ? 'dark' : 'auto';
+      applyTheme(theme);
+      setCurrentTheme(theme);
+      localStorage.setItem(themeModeStorageKey, theme);
       const cloneSettings = { ...remoteSettings.userSettings };
       delete cloneSettings.theme;
       setCachedSettings(cloneSettings);
@@ -86,16 +86,16 @@ export default function useSettings(
   }, [remoteSettings]);
 
   useEffect(() => {
-    const themeModeCookieValue = localStorage.getItem(themeModeCookieName);
+    const themeModeCookieValue = localStorage.getItem(themeModeStorageKey);
     if (themeModeCookieValue) {
-      setThemeMode(themeModeCookieValue);
-    }
-    if (themeModeCookieValue == 'auto') {
-      toggleTheme('auto');
+      setCurrentTheme(themeModeCookieValue);
+      applyTheme(themeModeCookieValue);
     } else {
-      const lightModeCookieValue = localStorage.getItem(themeCookieName);
+      const lightModeCookieValue = localStorage.getItem(
+        deprecatedLightModeStorageKey,
+      );
       if (lightModeCookieValue === 'true') {
-        document.documentElement.classList.add('light');
+        applyTheme('light');
       }
     }
   }, []);
@@ -111,26 +111,19 @@ export default function useSettings(
     }
   };
 
-  const triggerThemeChange = async (
-    settings: Settings,
-    mode: string,
-  ): Promise<void> => {
-    await updateRemoteSettingsFn(settings, mode);
-  };
-
   const setSettings = async (settings: Settings): Promise<void> => {
     await setCachedSettings(settings);
-    await updateRemoteSettingsFn(settings, themeMode);
+    await updateRemoteSettingsFn(settings, currentTheme);
   };
 
   return {
     ...settings,
-    themeMode,
-    setUIThemeMode: async (mode: string) => {
-      toggleTheme(mode);
-      triggerThemeChange(settings, mode);
-      setThemeMode(mode);
-      localStorage.setItem(themeModeCookieName, mode);
+    themeMode: currentTheme,
+    setTheme: async (theme: string) => {
+      applyTheme(theme);
+      await updateRemoteSettingsFn(settings, theme);
+      setCurrentTheme(theme);
+      localStorage.setItem(themeModeStorageKey, theme);
     },
     toggleShowOnlyUnreadPosts: () =>
       setSettings({
