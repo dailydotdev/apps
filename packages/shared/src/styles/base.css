@@ -34,7 +34,7 @@ body {
   }
 }
 
-@define-mixin dark-mode{
+@define-mixin dark-mode {
   --theme-active: theme('colors.salt.90')33;
   --theme-focus: theme('colors.blueCheese.40');
   --theme-float: theme('colors.salt.90')14;
@@ -94,7 +94,7 @@ body {
 
 }
 
-@define-mixin light-mode{
+@define-mixin light-mode {
 
   --theme-active: theme('colors.pepper.10')33;
   --theme-focus: theme('colors.blueCheese.60');
@@ -156,26 +156,30 @@ body {
 
 }
 
-  
-  @media (prefers-color-scheme: light) {
-      html.auto,
-      html .invert,
-      html.auto .invert .invert{
-        @mixin light-mode;
-      }
-    }
+
+@media (prefers-color-scheme: light) {
+  html.auto,
+  html.auto .invert .invert {
+    @mixin light-mode;
+  }
+
+  html.auto .invert {
+    @mixin dark-mode;
+  }
+}
 
 
-  
-  @media (prefers-color-scheme: dark){
+@media (prefers-color-scheme: dark) {
+  html.auto,
+  html.auto .invert .invert {
+    @mixin dark-mode;
+  }
 
-      html.auto,
-      html.auto .invert,
-      html .invert .invert{
-        @mixin dark-mode;
-      }
-    }
-  
+  html.auto .invert {
+    @mixin light-mode;
+  }
+}
+
 
 html,
 html.light .invert,
@@ -185,7 +189,7 @@ html .invert .invert {
 
 html.light,
 html .invert,
-html.light .invert .invert{
+html.light .invert .invert {
   @mixin light-mode;
 }
 

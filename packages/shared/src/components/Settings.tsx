@@ -37,7 +37,7 @@ export default function Settings({
     spaciness,
     setSpaciness,
     themeMode,
-    setUIThemeMode,
+    setTheme,
     showOnlyUnreadPosts,
     toggleShowOnlyUnreadPosts,
     openNewTab,
@@ -121,7 +121,7 @@ export default function Settings({
           name="theme"
           options={themes}
           value={themeMode}
-          onChange={setUIThemeMode}
+          onChange={setTheme}
         />
       </Section>
       <Section>

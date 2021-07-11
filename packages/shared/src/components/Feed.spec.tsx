@@ -99,7 +99,7 @@ const renderComponent = (
     spaciness: 'eco',
     showOnlyUnreadPosts: false,
     openNewTab: true,
-    setUIThemeMode: jest.fn(),
+    setTheme: jest.fn(),
     themeMode: 'dark',
     setSpaciness: jest.fn(),
     toggleOpenNewTab: jest.fn(),

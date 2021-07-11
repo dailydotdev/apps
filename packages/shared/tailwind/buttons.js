@@ -175,7 +175,6 @@ const styleToCssInJs = (style) => ({
   '&, .light .invert &': statesToCssInJs(style.darkStates),
   '.light &, .invert &': statesToCssInJs(style.lightStates),
   '@media (prefers-color-scheme: dark)': {
-    '.auto &': statesToCssInJs(style.darkStates),
     '.auto .invert &': statesToCssInJs(style.lightStates),
   },
   '@media (prefers-color-scheme: light)': {
