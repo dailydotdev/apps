@@ -3,11 +3,11 @@ import { Spaciness } from '../graphql/settings';
 
 export type SettingsContextData = {
   spaciness: Spaciness;
-  lightMode: boolean;
+  themeMode: string;
   showOnlyUnreadPosts: boolean;
   openNewTab: boolean;
   insaneMode: boolean;
-  toggleLightMode: () => Promise<void>;
+  setUIThemeMode: (mode) => Promise<void>;
   toggleShowOnlyUnreadPosts: () => Promise<void>;
   toggleOpenNewTab: () => Promise<void>;
   setSpaciness: (density: Spaciness) => Promise<void>;

@@ -2,7 +2,9 @@ import React, {
   HTMLAttributes,
   ReactElement,
   useContext,
+  useEffect,
   useMemo,
+  useState,
 } from 'react';
 import classed from '../lib/classed';
 import { Radio } from './fields/Radio';
@@ -34,8 +36,8 @@ export default function Settings({
   const {
     spaciness,
     setSpaciness,
-    lightMode,
-    toggleLightMode,
+    themeMode,
+    setUIThemeMode,
     showOnlyUnreadPosts,
     toggleShowOnlyUnreadPosts,
     openNewTab,
@@ -43,7 +45,11 @@ export default function Settings({
     insaneMode,
     toggleInsaneMode,
   } = useContext(SettingsContext);
-
+  const [themes, setThemes] = useState([
+    { label: 'Dark', value: 'dark' },
+    { label: 'Light', value: 'light' },
+    { label: 'Auto', value: 'auto' },
+  ]);
   const Section = useMemo(
     () =>
       classed(
@@ -71,6 +77,14 @@ export default function Settings({
       return toggleShowOnlyUnreadPosts();
     }
   };
+
+  useEffect(() => {
+    // If browser does not supports color-scheme, remove auto theme option
+    if (window && !window.matchMedia('(prefers-color-scheme: dark)')) {
+      const updatedThemes = themes.filter((theme) => theme.value !== 'auto');
+      setThemes(updatedThemes);
+    }
+  }, []);
 
   return (
     <div
@@ -102,6 +116,15 @@ export default function Settings({
         />
       </Section>
       <Section>
+        <SectionTitle>Theme</SectionTitle>
+        <Radio
+          name="theme"
+          options={themes}
+          value={themeMode}
+          onChange={setUIThemeMode}
+        />
+      </Section>
+      <Section>
         <SectionTitle>Density</SectionTitle>
         <Radio
           name="density"
@@ -113,16 +136,6 @@ export default function Settings({
       <Section>
         <SectionTitle>Preferences</SectionTitle>
         <div className="flex flex-col items-start pl-1.5 -my-0.5">
-          <Switch
-            inputId="theme-switch"
-            name="theme"
-            className="my-3"
-            checked={lightMode}
-            onToggle={toggleLightMode}
-            compact={false}
-          >
-            Light theme
-          </Switch>
           <Switch
             inputId="hide-read-switch"
             name="hide-read"

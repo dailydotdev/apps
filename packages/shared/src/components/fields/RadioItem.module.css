@@ -38,3 +38,19 @@
     }
   }
 }
+
+@media (prefers-color-scheme: light) {
+  :global(.auto) {
+    & .item.checked {
+      & .innerRing {
+        @apply border-water-60 bg-water-20;
+      }
+    }
+  
+    & .item.checked:hover .checkmark, & .checked input:focus-visible ~ .checkmark {
+      & .innerRing {
+        @apply border-water-80;
+      }
+    }
+  }
+}

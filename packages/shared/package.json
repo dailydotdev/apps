@@ -74,6 +74,7 @@
     "postcss-custom-media": "^8.0.0",
     "postcss-focus-visible": "^5.0.0",
     "postcss-import": "^14.0.2",
+    "postcss-mixins": "^8.1.0",
     "postcss-nesting": "^7.0.1",
     "postcss-simple-vars": "^6.0.3",
     "prettier": "^2.3.1",
