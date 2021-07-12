@@ -121,8 +121,8 @@ export default function useSettings(
     themeMode: currentTheme,
     setTheme: async (theme: string) => {
       applyTheme(theme);
-      await updateRemoteSettingsFn(settings, theme);
       setCurrentTheme(theme);
+      await updateRemoteSettingsFn(settings, theme);
       localStorage.setItem(themeModeStorageKey, theme);
     },
     toggleShowOnlyUnreadPosts: () =>
