@@ -158,12 +158,12 @@ export default function Settings({
           </Switch>
         </div>
       </Section>
-      <Section className="laptop:hidden">
+      <Section className="tablet:hidden">
         <SectionTitle>Contact</SectionTitle>
         <Button
           className="btn-secondary self-start mt-1"
           tag="a"
-          href="mailto:support@daily.dev"
+          href="https://daily.dev/contact"
           buttonSize="small"
           rightIcon={<OpenLink />}
         >
