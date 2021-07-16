@@ -1,22 +1,19 @@
-import { useState } from 'react';
 import { getShareableLink } from '../lib/share';
 import { trackEvent } from '../lib/analytics';
+import { useCopyLink } from './useCopyLink';
 
 export function useCopyPostLink(): [boolean, () => Promise<void>] {
-  const [copying, setCopying] = useState(false);
+  const [copying, copy] = useCopyLink(getShareableLink);
 
-  const copy = async () => {
-    await navigator.clipboard.writeText(getShareableLink());
-    setCopying(true);
-    trackEvent({
-      category: 'Post',
-      action: 'Share',
-      label: 'Copy',
-    });
-    setTimeout(() => {
-      setCopying(false);
-    }, 1000);
-  };
-
-  return [copying, copy];
+  return [
+    copying,
+    () => {
+      trackEvent({
+        category: 'Post',
+        action: 'Share',
+        label: 'Copy',
+      });
+      return copy();
+    },
+  ];
 }
