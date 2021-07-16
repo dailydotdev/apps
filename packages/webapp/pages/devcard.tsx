@@ -81,6 +81,19 @@ const Step2 = ({
   const embedCode = `<a href="https://app.daily.dev/${user?.username}"><img src="${devCardSrc}" width="400" alt="${user?.name}'s Dev Card"/></a>`;
   const [copyingEmbed, copyEmbed] = useCopyLink(() => embedCode);
 
+  const downloadImage = async (): Promise<void> => {
+    const image = await fetch(devCardSrc);
+    const imageBlog = await image.blob();
+    const imageURL = URL.createObjectURL(imageBlog);
+
+    const link = document.createElement('a');
+    link.href = imageURL;
+    link.download = `${user.username}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const onFileChange = (event: ChangeEvent) => {
     const input = event.target as HTMLInputElement;
     const file = input.files[0];
@@ -137,11 +150,9 @@ const Step2 = ({
         <h1 className="typo-title1 font-bold">Share your #DevCard</h1>
         <div className="flex mt-10">
           <Button
-            tag="a"
             className="btn-primary"
             buttonSize="large"
-            href="#"
-            download={devCardSrc}
+            onClick={downloadImage}
           >
             Download
           </Button>
