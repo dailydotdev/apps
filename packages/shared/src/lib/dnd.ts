@@ -66,20 +66,20 @@ const setDndMode = (dnd: DoNotDisturb): string => {
   localStorage.setItem(DND_STORAGE_KEY, JSON.stringify(dnd));
 };
 
-const isUnderDndMode = (): boolean => {
+const isUnderDndMode = (): string => {
   const stored = localStorage.getItem(DND_STORAGE_KEY);
 
-  if (!stored) return false;
+  if (!stored) return;
 
   const dnd = JSON.parse(stored) as DoNotDisturb;
   const now = new Date();
+  const difference = differenceInMinutes(now, dnd.timestamp);
 
-  if (differenceInMinutes(now, dnd.timestamp) <= dnd.minutes)
-    return location.replace(dnd.link.trim()), true;
+  if (difference <= dnd.minutes) return dnd.link.trim();
 
   localStorage.removeItem(DND_STORAGE_KEY);
 
-  return false;
+  return;
 };
 
 export default {
