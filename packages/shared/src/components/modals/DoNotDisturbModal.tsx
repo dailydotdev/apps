@@ -9,6 +9,7 @@ import dnd, {
 import { Radio } from '../fields/Radio';
 import { Dropdown } from '../fields/Dropdown';
 import { TextField } from '../fields/TextField';
+import { ModalCloseButton } from './ModalCloseButton';
 import { StyledModal, ModalProps } from './StyledModal';
 import styles from './DoNotDisturbModal.module.css';
 
@@ -63,6 +64,7 @@ const DoNotDisturbModal: React.FC<DoNotDisturbModalProps> = ({
         },
       }}
     >
+      <ModalCloseButton onClick={onRequestClose} />
       <div className={styles.heading}>
         <h3 className={styles.title}>Do Not Disturb</h3>
         <p className={styles.description}>
