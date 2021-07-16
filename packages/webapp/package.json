@@ -35,6 +35,7 @@
     "react-flip-toolkit": "^7.0.13",
     "react-intersection-observer": "^8.31.0",
     "react-modal": "^3.14.3",
+    "react-parallax-tilt": "^1.5.47",
     "react-query": "^3.17.2",
     "react-tooltip": "^4.2.21",
     "react-transition-group": "^4.4.2",

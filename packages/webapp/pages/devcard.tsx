@@ -12,6 +12,7 @@ import DevCardPlaceholder from '../components/DevCardPlaceholder';
 import rem from '@dailydotdev/shared/macros/rem.macro';
 import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopyLink';
 import { FormErrorMessage } from '@dailydotdev/shared/src/components/utilities';
+import Tilt from 'react-parallax-tilt';
 
 const TWO_MEGABYTES = 2 * 1024 * 1024;
 
@@ -97,13 +98,22 @@ const Step2 = ({
   return (
     <>
       <div className="flex flex-col self-stretch laptop:self-center items-center mx-2">
-        <LazyImage
+        <Tilt
           className="self-stretch laptop:w-96"
-          imgSrc={devCardSrc}
-          imgAlt="Your Dev Card"
-          ratio="136.5%"
-          eager
-        />
+          glareEnable
+          perspective={1000}
+          glareMaxOpacity={0.25}
+          glarePosition="all"
+          trackOnWindow
+          style={{ transformStyle: 'preserve-3d' }}
+        >
+          <LazyImage
+            imgSrc={devCardSrc}
+            imgAlt="Your Dev Card"
+            ratio="136.5%"
+            eager
+          />
+        </Tilt>
         <Button
           tag="label"
           className="btn-secondary mt-10"
