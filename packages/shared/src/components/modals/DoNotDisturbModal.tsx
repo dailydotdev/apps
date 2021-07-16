@@ -45,11 +45,9 @@ const DoNotDisturbModal: React.FC<DoNotDisturbModalProps> = ({
       timestamp: new Date(),
     });
 
-    if (!error) return;
+    if (!error) return onRequestClose(e);
 
     // display error here
-
-    onRequestClose(e);
   };
 
   return (
