@@ -79,7 +79,7 @@ const Step2 = ({
 }: StepProps): ReactElement => {
   const { user } = useContext(AuthContext);
   const [backgroundImageError, setBackgroundImageError] = useState<string>();
-  const [copyingImage, copyImageLink] = useCopyLink(() => devCardSrc);
+  // const [copyingImage, copyImageLink] = useCopyLink(() => devCardSrc);
 
   const embedCode = `<a href="https://app.daily.dev/${user?.username}"><img src="${devCardSrc}" width="400" alt="${user?.name}'s Dev Card"/></a>`;
   const [copyingEmbed, copyEmbed] = useCopyLink(() => embedCode);
@@ -163,13 +163,13 @@ const Step2 = ({
           >
             Download
           </Button>
-          <Button
-            className="btn-secondary ml-4"
-            buttonSize="large"
-            onClick={copyImageLink}
-          >
-            {!copyingImage ? 'Copy link' : 'Copied!'}
-          </Button>
+          {/*<Button*/}
+          {/*  className="btn-secondary ml-4"*/}
+          {/*  buttonSize="large"*/}
+          {/*  onClick={copyImageLink}*/}
+          {/*>*/}
+          {/*  {!copyingImage ? 'Copy link' : 'Copied!'}*/}
+          {/*</Button>*/}
         </div>
         <div className="flex flex-col self-stretch items-start mt-10">
           <h4 className="font-bold typo-caption1 mt-1">Embed</h4>
