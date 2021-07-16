@@ -25,6 +25,16 @@ const DEFAULT_URL = 'https://www.google.com';
 const HOUR_PER_DAY = 24;
 const MINUTES_PER_HOUR = 60;
 
+const isValidUrl = (link: string) => {
+  if (link.trim() === '') return false;
+
+  try {
+    if (new URL(link)) return true;
+  } catch (_) {
+    return false;
+  }
+};
+
 export const getTimeFormatValue = (timeFormat: TimeFormat): number => {
   if (timeFormat === TimeFormat.HALF_HOUR) return MINUTES_PER_HOUR / 2;
 
@@ -49,6 +59,8 @@ export const getTotalMinutes = (
 const setDndMode = (dnd: DoNotDisturb): string => {
   if (dnd.minutes === 0) return 'Time value cannot be zero or empty!';
 
+  if (dnd.link && isValidUrl(dnd.link)) return 'Link provided is invalid!';
+
   if (!dnd.link) dnd.link = DEFAULT_URL;
 
   localStorage.setItem(DND_STORAGE_KEY, JSON.stringify(dnd));
@@ -62,7 +74,8 @@ const isUnderDndMode = (): boolean => {
   const dnd = JSON.parse(stored) as DoNotDisturb;
   const now = new Date();
 
-  if (differenceInMinutes(now, dnd.timestamp) <= dnd.minutes) return true;
+  if (differenceInMinutes(now, dnd.timestamp) <= dnd.minutes)
+    return location.replace(dnd.link.trim()), true;
 
   localStorage.removeItem(DND_STORAGE_KEY);
 
