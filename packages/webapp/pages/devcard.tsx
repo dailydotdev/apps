@@ -13,6 +13,9 @@ import rem from '@dailydotdev/shared/macros/rem.macro';
 import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopyLink';
 import { FormErrorMessage } from '@dailydotdev/shared/src/components/utilities';
 import Tilt from 'react-parallax-tilt';
+import { NextSeoProps } from 'next-seo/lib/types';
+import { NextSeo } from 'next-seo';
+import { defaultOpenGraph } from '../next-seo';
 
 const TWO_MEGABYTES = 2 * 1024 * 1024;
 
@@ -80,8 +83,10 @@ const Step2 = ({
 
   const embedCode = `<a href="https://app.daily.dev/${user?.username}"><img src="${devCardSrc}" width="400" alt="${user?.name}'s Dev Card"/></a>`;
   const [copyingEmbed, copyEmbed] = useCopyLink(() => embedCode);
+  const [downloading, setDownloading] = useState(false);
 
   const downloadImage = async (): Promise<void> => {
+    setDownloading(true);
     const image = await fetch(devCardSrc);
     const imageBlog = await image.blob();
     const imageURL = URL.createObjectURL(imageBlog);
@@ -92,6 +97,7 @@ const Step2 = ({
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    setDownloading(false);
   };
 
   const onFileChange = (event: ChangeEvent) => {
@@ -153,6 +159,7 @@ const Step2 = ({
             className="btn-primary"
             buttonSize="large"
             onClick={downloadImage}
+            loading={downloading}
           >
             Download
           </Button>
@@ -181,6 +188,18 @@ const Step2 = ({
       </div>
     </>
   );
+};
+
+const seo: NextSeoProps = {
+  title: 'Grab your Dev Card',
+  titleTemplate: '%s | daily.dev',
+  description:
+    'Dev Card will show you stats about the publications and topics you love to read. Generate yours now.',
+  openGraph: {
+    ...defaultOpenGraph,
+    type: 'website',
+    site_name: 'daily.dev',
+  },
 };
 
 const DevCardPage = (): ReactElement => {
@@ -230,6 +249,7 @@ const DevCardPage = (): ReactElement => {
         step === 1 && 'laptop:flex-row laptop:gap-20',
       )}
     >
+      <NextSeo {...seo} />
       {!step ? <Step1 {...stepProps} /> : <Step2 {...stepProps} />}
     </div>
   );
