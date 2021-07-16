@@ -82,6 +82,7 @@ export default function MainFeedPage({
 
   return (
     <MainLayout
+      hasDnd
       responsive={false}
       showRank={true}
       greeting={true}
