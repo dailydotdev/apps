@@ -59,7 +59,7 @@ export const getTotalMinutes = (
 const setDndMode = (dnd: DoNotDisturb): string => {
   if (dnd.minutes === 0) return 'Time value cannot be zero or empty!';
 
-  if (dnd.link && isValidUrl(dnd.link)) return 'Link provided is invalid!';
+  if (dnd.link && !isValidUrl(dnd.link)) return 'Link provided is invalid!';
 
   if (!dnd.link) dnd.link = DEFAULT_URL;
 
