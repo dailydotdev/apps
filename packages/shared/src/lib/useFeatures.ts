@@ -7,6 +7,9 @@ export default function useFeatures(): FeaturesData {
 
   useEffect(() => {
     setFeatures(JSON.parse(localStorage.getItem(FEATURES_STATE_KEY)));
+    const callback = (event: CustomEvent): void => setFeatures(event.detail);
+    window.addEventListener('featuresLoaded', callback);
+    return () => window.removeEventListener('featuresLoaded', callback);
   }, []);
 
   return {
