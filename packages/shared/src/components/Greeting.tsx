@@ -48,7 +48,7 @@ export default function Greeting({
   const [show, setShow] = useState(false);
 
   const greetingElement = useMemo(() => {
-    const firstName = user?.name.split(' ')[0];
+    const firstName = user?.name?.split?.(' ')?.[0];
     const greeting = getGreetingData();
     return (
       <div className="typo-callout font-bold ml-2">
