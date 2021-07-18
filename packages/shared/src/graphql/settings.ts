@@ -5,7 +5,7 @@ export type Spaciness = 'eco' | 'roomy' | 'cozy';
 export type RemoteSettings = {
   openNewTab: boolean;
   showOnlyUnreadPosts: boolean;
-  theme: 'darcula' | 'bright';
+  theme: 'darcula' | 'bright' | 'auto';
   spaciness: Spaciness;
   insaneMode: boolean;
 };

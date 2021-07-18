@@ -9,7 +9,9 @@
         "ignoreAtRules": [
           "extends",
           "tailwind",
-          "screen"
+          "screen",
+          "define-mixin",
+          "mixin"
         ]
       }
     ],

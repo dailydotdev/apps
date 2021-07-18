@@ -34,9 +34,7 @@ body {
   }
 }
 
-html,
-html.light .invert,
-html .invert .invert {
+@define-mixin dark-mode {
   --theme-active: theme('colors.salt.90')33;
   --theme-focus: theme('colors.blueCheese.40');
   --theme-float: theme('colors.salt.90')14;
@@ -93,11 +91,11 @@ html .invert .invert {
   --theme-rank-5-color: theme('colors.cabbage.40');
   --theme-rank-5-color-top: theme('colors.cabbage.40');
   --theme-rank-5-color-bottom: theme('colors.onion.40');
+
 }
 
-html.light,
-html .invert,
-html.light .invert .invert {
+@define-mixin light-mode {
+
   --theme-active: theme('colors.pepper.10')33;
   --theme-focus: theme('colors.blueCheese.60');
   --theme-float: theme('colors.pepper.10')14;
@@ -155,6 +153,44 @@ html.light .invert .invert {
   --theme-rank-5-color: theme('colors.cabbage.60');
   --theme-rank-5-color-top: theme('colors.cabbage.60');
   --theme-rank-5-color-bottom: theme('colors.onion.60');
+
+}
+
+
+@media (prefers-color-scheme: light) {
+  html.auto,
+  html.auto .invert .invert {
+    @mixin light-mode;
+  }
+
+  html.auto .invert {
+    @mixin dark-mode;
+  }
+}
+
+
+@media (prefers-color-scheme: dark) {
+  html.auto,
+  html.auto .invert .invert {
+    @mixin dark-mode;
+  }
+
+  html.auto .invert {
+    @mixin light-mode;
+  }
+}
+
+
+html,
+html.light .invert,
+html .invert .invert {
+  @mixin dark-mode;
+}
+
+html.light,
+html .invert,
+html.light .invert .invert {
+  @mixin light-mode;
 }
 
 .logo {
@@ -253,4 +289,10 @@ img.lazyload:not([src]) {
 
 ::-webkit-scrollbar-thumb:active {
   background: var(--theme-label-primary);
+}
+
+.non-responsive-header ~ .page {
+  @screen laptop {
+    min-height: calc(100vh - $navBarHeight);
+  }
 }

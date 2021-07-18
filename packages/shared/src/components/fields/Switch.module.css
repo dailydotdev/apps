@@ -46,3 +46,15 @@
     background: theme('colors.water.60');
   }
 }
+
+@media (prefers-color-scheme: light) {
+  :global(.auto) .switch {
+    & input:checked ~ * .knob {
+     background: theme('colors.water.80');
+   }
+ 
+   &:hover input:checked ~ * .knob {
+     background: theme('colors.water.60');
+   }
+ }
+}

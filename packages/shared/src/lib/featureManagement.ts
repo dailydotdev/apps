@@ -22,13 +22,15 @@ export const initFlagsmith = async (userId: string): Promise<IFlags> => {
         onChange: (oldFlags, params) => {
           const { isFromServer } = params;
           if (isFromServer) {
-            localStorage.setItem(
-              FEATURES_STATE_KEY,
-              JSON.stringify({
-                lastSync: now.toISOString(),
-                flags: flagsmith.getAllFlags(),
-              }),
-            );
+            const features = {
+              lastSync: now.toISOString(),
+              flags: flagsmith.getAllFlags(),
+            };
+            localStorage.setItem(FEATURES_STATE_KEY, JSON.stringify(features));
+            const event = new CustomEvent('featuresLoaded', {
+              detail: features,
+            });
+            window.dispatchEvent(event);
             resolve({});
           }
         },

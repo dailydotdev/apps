@@ -1,5 +1,6 @@
 import { DndContextData, DndSettings } from './DndContext';
 import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState';
+import { useMemo } from 'react';
 
 const now = new Date();
 
@@ -8,9 +9,12 @@ export default function useDndContext(): DndContextData {
     DndSettings | undefined
   >('dnd', undefined);
 
-  return {
-    dndSettings,
-    isActive: dndSettings?.expiration?.getTime() > now.getTime(),
-    setDndSettings,
-  };
+  return useMemo<DndContextData>(
+    () => ({
+      dndSettings,
+      isActive: dndSettings?.expiration?.getTime() > now.getTime(),
+      setDndSettings,
+    }),
+    [dndSettings],
+  );
 }
