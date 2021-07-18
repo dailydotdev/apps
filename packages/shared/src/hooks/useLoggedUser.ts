@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
 import { AnonymousUser, getLoggedUser, LoggedUser } from '../lib/user';
 import usePersistentState from './usePersistentState';
@@ -38,10 +38,13 @@ export default function useLoggedUser(
     return null;
   }, [availableUser]);
 
-  const setUser = async (user: LoggedUser | AnonymousUser) => {
-    queryClient.setQueryData(queryKey, user);
-    await queryClient.invalidateQueries(['profile', user.id]);
-  };
+  const setUser = useCallback(
+    async (user: LoggedUser | AnonymousUser) => {
+      queryClient.setQueryData(queryKey, user);
+      await queryClient.invalidateQueries(['profile', user.id]);
+    },
+    [queryClient],
+  );
 
   const trackingId = useMemo<string | null>(
     () => availableUser?.id,
