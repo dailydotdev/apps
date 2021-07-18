@@ -150,7 +150,7 @@ it('should replace placeholders with posts and ad', async () => {
   const links = defaultFeedPage.edges.map((edge) => edge.node.permalink);
   await waitFor(() => nock.isDone());
   const elements = await screen.findAllByTestId('postItem');
-  expect(elements.length).toEqual(3);
+  expect(elements.length).toEqual(4);
   await Promise.all(
     elements.map(async (el, i) =>
       // eslint-disable-next-line testing-library/prefer-screen-queries
