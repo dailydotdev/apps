@@ -25,15 +25,13 @@ import ProgressiveEnhancementContext, {
 import { trackPageView } from '@dailydotdev/shared/src/lib/analytics';
 import useOnboarding from '@dailydotdev/shared/src/hooks/useOnboarding';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
-import SubscriptionContext from '@dailydotdev/shared/src/contexts/SubscriptionContext';
-import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
-import useSubscriptionClient from '@dailydotdev/shared/src/hooks/useSubscriptionClient';
+import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
+import { FeaturesContextProvider } from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import { canonicalFromRouter } from '@dailydotdev/shared/src/lib/canonical';
 import useSettings from '@dailydotdev/shared/src/hooks/useSettings';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import '@dailydotdev/shared/src/styles/globals.css';
 import useAnalytics from '@dailydotdev/shared/src/hooks/useAnalytics';
-import useFeatures from '@dailydotdev/shared/src/lib/useFeatures';
 
 const queryClient = new QueryClient();
 
@@ -78,11 +76,9 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   } = useContext(AuthContext);
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const [showCookie, acceptCookies, updateCookieBanner] = useCookieBanner();
-  const featuresContext = useFeatures();
 
   const canFetchUserData = windowLoaded && tokenRefreshed;
   const onboardingContext = useOnboarding(user, loadedUserFromCache);
-  const subscriptionContext = useSubscriptionClient(canFetchUserData);
   const settingsContext = useSettings(user?.id, canFetchUserData);
   useAnalytics(
     trackingId,
@@ -112,95 +108,95 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const { layoutProps } = Component as CompnentGetLayout;
 
   return (
-    <FeaturesContext.Provider value={featuresContext}>
-      <SubscriptionContext.Provider value={subscriptionContext}>
-        <SettingsContext.Provider value={settingsContext}>
-          <OnboardingContext.Provider value={onboardingContext}>
-            <Head>
-              <meta
-                name="viewport"
-                content="initial-scale=1.0, width=device-width, viewport-fit=cover"
-              />
-              <meta name="theme-color" content="#151618" />
-              <meta name="msapplication-navbutton-color" content="#151618" />
-              <meta
-                name="apple-mobile-web-app-status-bar-style"
-                content="#151618"
-              />
+    <SettingsContext.Provider value={settingsContext}>
+      <OnboardingContext.Provider value={onboardingContext}>
+        <Head>
+          <meta
+            name="viewport"
+            content="initial-scale=1.0, width=device-width, viewport-fit=cover"
+          />
+          <meta name="theme-color" content="#151618" />
+          <meta name="msapplication-navbutton-color" content="#151618" />
+          <meta
+            name="apple-mobile-web-app-status-bar-style"
+            content="#151618"
+          />
 
-              <meta name="application-name" content="daily.dev" />
-              <meta name="apple-mobile-web-app-capable" content="yes" />
-              <meta
-                name="apple-mobile-web-app-status-bar-style"
-                content="default"
-              />
-              <meta name="apple-mobile-web-app-title" content="daily.dev" />
-              <meta name="format-detection" content="telephone=no" />
-              <meta name="mobile-web-app-capable" content="yes" />
-              <meta name="msapplication-TileColor" content="#151618" />
-              <meta name="msapplication-tap-highlight" content="no" />
+          <meta name="application-name" content="daily.dev" />
+          <meta name="apple-mobile-web-app-capable" content="yes" />
+          <meta
+            name="apple-mobile-web-app-status-bar-style"
+            content="default"
+          />
+          <meta name="apple-mobile-web-app-title" content="daily.dev" />
+          <meta name="format-detection" content="telephone=no" />
+          <meta name="mobile-web-app-capable" content="yes" />
+          <meta name="msapplication-TileColor" content="#151618" />
+          <meta name="msapplication-tap-highlight" content="no" />
 
-              <link
-                rel="apple-touch-icon"
-                sizes="180x180"
-                href="/apple-touch-icon.png"
-              />
-              <link
-                rel="icon"
-                type="image/png"
-                sizes="32x32"
-                href="/favicon-32x32.png"
-              />
-              <link
-                rel="icon"
-                type="image/png"
-                sizes="16x16"
-                href="/favicon-16x16.png"
-              />
-              <link rel="manifest" href="/manifest.json" />
+          <link
+            rel="apple-touch-icon"
+            sizes="180x180"
+            href="/apple-touch-icon.png"
+          />
+          <link
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href="/favicon-32x32.png"
+          />
+          <link
+            rel="icon"
+            type="image/png"
+            sizes="16x16"
+            href="/favicon-16x16.png"
+          />
+          <link rel="manifest" href="/manifest.json" />
 
-              <script
-                dangerouslySetInnerHTML={{
-                  __html: `window.addEventListener('load', () => { window.windowLoaded = true; }, {
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `window.addEventListener('load', () => { window.windowLoaded = true; }, {
       once: true,
     });`,
-                }}
-              />
+            }}
+          />
 
-              <link rel="preconnect" href="https://res.cloudinary.com" />
-            </Head>
-            <DefaultSeo {...Seo} canonical={canonicalFromRouter(router)} />
-            {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
-            {!user && !loadingUser && (windowLoaded || shouldShowLogin) && (
-              <LoginModal
-                isOpen={shouldShowLogin}
-                onRequestClose={closeLogin}
-                contentLabel="Login Modal"
-                {...loginState}
-              />
-            )}
-            {showCookie && <CookieBanner onAccepted={acceptCookies} />}
-            {onboardingContext.showReferral && (
-              <HelpUsGrowModal
-                isOpen={true}
-                onRequestClose={onboardingContext.closeReferral}
-              />
-            )}
-          </OnboardingContext.Provider>
-        </SettingsContext.Provider>
-      </SubscriptionContext.Provider>
-    </FeaturesContext.Provider>
+          <link rel="preconnect" href="https://res.cloudinary.com" />
+        </Head>
+        <DefaultSeo {...Seo} canonical={canonicalFromRouter(router)} />
+        {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
+        {!user && !loadingUser && (windowLoaded || shouldShowLogin) && (
+          <LoginModal
+            isOpen={shouldShowLogin}
+            onRequestClose={closeLogin}
+            contentLabel="Login Modal"
+            {...loginState}
+          />
+        )}
+        {showCookie && <CookieBanner onAccepted={acceptCookies} />}
+        {onboardingContext.showReferral && (
+          <HelpUsGrowModal
+            isOpen={true}
+            onRequestClose={onboardingContext.closeReferral}
+          />
+        )}
+      </OnboardingContext.Provider>
+    </SettingsContext.Provider>
   );
 }
 
 export default function App(props: AppProps): ReactElement {
   return (
     <ProgressiveEnhancementContextProvider>
-      <QueryClientProvider client={queryClient}>
-        <AuthContextProvider app="web" getRedirectUri={getRedirectUri}>
-          <InternalApp {...props} />
-        </AuthContextProvider>
-      </QueryClientProvider>
+      <FeaturesContextProvider>
+        <QueryClientProvider client={queryClient}>
+          <AuthContextProvider app="web" getRedirectUri={getRedirectUri}>
+            <SubscriptionContextProvider>
+              <InternalApp {...props} />
+            </SubscriptionContextProvider>
+          </AuthContextProvider>
+        </QueryClientProvider>
+      </FeaturesContextProvider>
     </ProgressiveEnhancementContextProvider>
   );
 }

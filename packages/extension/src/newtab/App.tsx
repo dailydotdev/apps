@@ -4,7 +4,6 @@ import dynamic from 'next/dynamic';
 import Modal from 'react-modal';
 import 'focus-visible';
 import useOnboarding from '@dailydotdev/shared/src/hooks/useOnboarding';
-import useSubscriptionClient from '@dailydotdev/shared/src/hooks/useSubscriptionClient';
 import useSettings from '@dailydotdev/shared/src/hooks/useSettings';
 import useAnalytics from '@dailydotdev/shared/src/hooks/useAnalytics';
 import ProgressiveEnhancementContext, {
@@ -14,8 +13,8 @@ import AuthContext, {
   AuthContextProvider,
 } from '@dailydotdev/shared/src/contexts/AuthContext';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
-import SubscriptionContext from '@dailydotdev/shared/src/contexts/SubscriptionContext';
-import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
+import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
+import { FeaturesContextProvider } from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { RouterContext } from 'next/dist/next-server/lib/router-context';
 import CustomRouter from '../lib/CustomRouter';
@@ -29,7 +28,6 @@ import DndBanner from './DndBanner';
 import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState';
 import BellIcon from '@dailydotdev/shared/icons/bell.svg';
 import useSettingsMigration from './useSettingsMigration';
-import useFeatures from '@dailydotdev/shared/src/lib/useFeatures';
 
 const AnalyticsConsentModal = dynamic(() => import('./AnalyticsConsentModal'));
 const MigrateSettingsModal = dynamic(() => import('./MigrateSettingsModal'));
@@ -84,11 +82,9 @@ function InternalApp(): ReactElement {
     false,
     shouldShowConsent ? null : true,
   );
-  const featuresContext = useFeatures();
   const dndContext = useDndContext();
   const canFetchUserData = windowLoaded && tokenRefreshed;
   const onboardingContext = useOnboarding(user, loadedUserFromCache);
-  const subscriptionContext = useSubscriptionClient(canFetchUserData);
   const settingsContext = useSettings(user?.id, canFetchUserData);
   const {
     hasSettings,
@@ -128,59 +124,55 @@ function InternalApp(): ReactElement {
   };
 
   return (
-    <FeaturesContext.Provider value={featuresContext}>
-      <DndContext.Provider value={dndContext}>
-        <SubscriptionContext.Provider value={subscriptionContext}>
-          <SettingsContext.Provider value={settingsContext}>
-            <OnboardingContext.Provider value={onboardingContext}>
-              {dndContext.isActive && <DndBanner />}
-              <MainFeedPage
-                forceMigrationModal={forceMigrationModal}
-                postponedMigration={postponed}
-              />
-              {!user && !loadingUser && (windowLoaded || shouldShowLogin) && (
-                <LoginModal
-                  isOpen={shouldShowLogin}
-                  onRequestClose={closeLogin}
-                  contentLabel="Login Modal"
-                  {...loginState}
-                >
-                  {hasSettings && syncSettingsNotification}
-                </LoginModal>
-              )}
-              {onboardingContext.showReferral && (
-                <HelpUsGrowModal
-                  isOpen={true}
-                  onRequestClose={onboardingContext.closeReferral}
-                />
-              )}
-              {analyticsConsent === null && (
-                <AnalyticsConsentModal
-                  onDecline={() => setAnalyticsConsent(false)}
-                  onAccept={() => setAnalyticsConsent(true)}
-                  isOpen={true}
-                />
-              )}
-              {showMigrationModal && (
-                <MigrateSettingsModal
-                  isOpen={showMigrationModal}
-                  onLater={postponeMigration}
-                  onSignIn={onMigrationSignIn}
-                  onMerge={migrate}
-                  loading={isMigrating}
-                />
-              )}
-              {migrationCompleted && (
-                <MigrationCompletedModal
-                  isOpen={migrationCompleted}
-                  onRequestClose={ackMigrationCompleted}
-                />
-              )}
-            </OnboardingContext.Provider>
-          </SettingsContext.Provider>
-        </SubscriptionContext.Provider>
-      </DndContext.Provider>
-    </FeaturesContext.Provider>
+    <DndContext.Provider value={dndContext}>
+      <SettingsContext.Provider value={settingsContext}>
+        <OnboardingContext.Provider value={onboardingContext}>
+          {dndContext.isActive && <DndBanner />}
+          <MainFeedPage
+            forceMigrationModal={forceMigrationModal}
+            postponedMigration={postponed}
+          />
+          {!user && !loadingUser && (windowLoaded || shouldShowLogin) && (
+            <LoginModal
+              isOpen={shouldShowLogin}
+              onRequestClose={closeLogin}
+              contentLabel="Login Modal"
+              {...loginState}
+            >
+              {hasSettings && syncSettingsNotification}
+            </LoginModal>
+          )}
+          {onboardingContext.showReferral && (
+            <HelpUsGrowModal
+              isOpen={true}
+              onRequestClose={onboardingContext.closeReferral}
+            />
+          )}
+          {analyticsConsent === null && (
+            <AnalyticsConsentModal
+              onDecline={() => setAnalyticsConsent(false)}
+              onAccept={() => setAnalyticsConsent(true)}
+              isOpen={true}
+            />
+          )}
+          {showMigrationModal && (
+            <MigrateSettingsModal
+              isOpen={showMigrationModal}
+              onLater={postponeMigration}
+              onSignIn={onMigrationSignIn}
+              onMerge={migrate}
+              loading={isMigrating}
+            />
+          )}
+          {migrationCompleted && (
+            <MigrationCompletedModal
+              isOpen={migrationCompleted}
+              onRequestClose={ackMigrationCompleted}
+            />
+          )}
+        </OnboardingContext.Provider>
+      </SettingsContext.Provider>
+    </DndContext.Provider>
   );
 }
 
@@ -188,11 +180,18 @@ export default function App(): ReactElement {
   return (
     <RouterContext.Provider value={router}>
       <ProgressiveEnhancementContextProvider>
-        <QueryClientProvider client={queryClient}>
-          <AuthContextProvider app="extension" getRedirectUri={getRedirectUri}>
-            <InternalApp />
-          </AuthContextProvider>
-        </QueryClientProvider>
+        <FeaturesContextProvider>
+          <QueryClientProvider client={queryClient}>
+            <AuthContextProvider
+              app="extension"
+              getRedirectUri={getRedirectUri}
+            >
+              <SubscriptionContextProvider>
+                <InternalApp />
+              </SubscriptionContextProvider>
+            </AuthContextProvider>
+          </QueryClientProvider>
+        </FeaturesContextProvider>
       </ProgressiveEnhancementContextProvider>
     </RouterContext.Provider>
   );
