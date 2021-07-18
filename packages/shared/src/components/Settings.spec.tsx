@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React from 'react';
 import nock from 'nock';
 import {
   MockedGraphQLResponse,
@@ -12,8 +12,7 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
-import useSettings from '../hooks/useSettings';
-import SettingsContext from '../contexts/SettingsContext';
+import { SettingsContextProvider } from '../contexts/SettingsContext';
 import Settings from './Settings';
 import {
   RemoteSettings,
@@ -26,6 +25,7 @@ import { LoggedUser } from '../lib/user';
 import defaultUser from '../../__tests__/fixture/loggedUser';
 import AuthContext from '../contexts/AuthContext';
 import { LoginModalMode } from '../types/LoginModalMode';
+import ProgressiveEnhancementContext from '../contexts/ProgressiveEnhancementContext';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -55,19 +55,6 @@ const createSettingsMock = (
   },
 });
 
-const SettingsWithContext = ({
-  userId,
-}: {
-  userId: string | null;
-}): ReactElement => {
-  const settingsContext = useSettings(userId, true);
-  return (
-    <SettingsContext.Provider value={settingsContext}>
-      <Settings />
-    </SettingsContext.Provider>
-  );
-};
-
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createSettingsMock()],
   user: LoggedUser = defaultUser,
@@ -85,9 +72,24 @@ const renderComponent = (
           updateUser: jest.fn(),
           tokenRefreshed: true,
           getRedirectUri: jest.fn(),
+          loadedUserFromCache: true,
+          loginState: null,
+          loadingUser: false,
+          closeLogin: jest.fn(),
+          trackingId: user?.id,
         }}
       >
-        <SettingsWithContext userId={user?.id} />
+        <ProgressiveEnhancementContext.Provider
+          value={{
+            windowLoaded: true,
+            nativeShareSupport: true,
+            asyncImageSupport: true,
+          }}
+        >
+          <SettingsContextProvider>
+            <Settings />
+          </SettingsContextProvider>
+        </ProgressiveEnhancementContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
   );

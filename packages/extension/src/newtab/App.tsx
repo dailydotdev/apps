@@ -3,8 +3,6 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import dynamic from 'next/dynamic';
 import Modal from 'react-modal';
 import 'focus-visible';
-import useOnboarding from '@dailydotdev/shared/src/hooks/useOnboarding';
-import useSettings from '@dailydotdev/shared/src/hooks/useSettings';
 import useAnalytics from '@dailydotdev/shared/src/hooks/useAnalytics';
 import ProgressiveEnhancementContext, {
   ProgressiveEnhancementContextProvider,
@@ -12,10 +10,10 @@ import ProgressiveEnhancementContext, {
 import AuthContext, {
   AuthContextProvider,
 } from '@dailydotdev/shared/src/contexts/AuthContext';
-import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
+import { OnboardingContextProvider } from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
 import { FeaturesContextProvider } from '@dailydotdev/shared/src/contexts/FeaturesContext';
-import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
+import { SettingsContextProvider } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { RouterContext } from 'next/dist/next-server/lib/router-context';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
@@ -28,6 +26,7 @@ import DndBanner from './DndBanner';
 import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState';
 import BellIcon from '@dailydotdev/shared/icons/bell.svg';
 import useSettingsMigration from './useSettingsMigration';
+import HelpUsGrowModalWithContext from '@dailydotdev/shared/src/components/modals/HelpUsGrowModalWithContext';
 
 const AnalyticsConsentModal = dynamic(() => import('./AnalyticsConsentModal'));
 const MigrateSettingsModal = dynamic(() => import('./MigrateSettingsModal'));
@@ -42,9 +41,6 @@ const LoginModal = dynamic(
     import(
       /* webpackChunkName: "loginModal"*/ '@dailydotdev/shared/src/components/modals/LoginModal'
     ),
-);
-const HelpUsGrowModal = dynamic(
-  () => import('@dailydotdev/shared/src/components/modals/HelpUsGrowModal'),
 );
 
 Modal.setAppElement('#__next');
@@ -68,7 +64,6 @@ function InternalApp(): ReactElement {
   const {
     user,
     tokenRefreshed,
-    loadedUserFromCache,
     trackingId,
     closeLogin,
     loadingUser,
@@ -83,9 +78,6 @@ function InternalApp(): ReactElement {
     shouldShowConsent ? null : true,
   );
   const dndContext = useDndContext();
-  const canFetchUserData = windowLoaded && tokenRefreshed;
-  const onboardingContext = useOnboarding(user, loadedUserFromCache);
-  const settingsContext = useSettings(user?.id, canFetchUserData);
   const {
     hasSettings,
     postponeMigration,
@@ -125,53 +117,44 @@ function InternalApp(): ReactElement {
 
   return (
     <DndContext.Provider value={dndContext}>
-      <SettingsContext.Provider value={settingsContext}>
-        <OnboardingContext.Provider value={onboardingContext}>
-          {dndContext.isActive && <DndBanner />}
-          <MainFeedPage
-            forceMigrationModal={forceMigrationModal}
-            postponedMigration={postponed}
-          />
-          {!user && !loadingUser && (windowLoaded || shouldShowLogin) && (
-            <LoginModal
-              isOpen={shouldShowLogin}
-              onRequestClose={closeLogin}
-              contentLabel="Login Modal"
-              {...loginState}
-            >
-              {hasSettings && syncSettingsNotification}
-            </LoginModal>
-          )}
-          {onboardingContext.showReferral && (
-            <HelpUsGrowModal
-              isOpen={true}
-              onRequestClose={onboardingContext.closeReferral}
-            />
-          )}
-          {analyticsConsent === null && (
-            <AnalyticsConsentModal
-              onDecline={() => setAnalyticsConsent(false)}
-              onAccept={() => setAnalyticsConsent(true)}
-              isOpen={true}
-            />
-          )}
-          {showMigrationModal && (
-            <MigrateSettingsModal
-              isOpen={showMigrationModal}
-              onLater={postponeMigration}
-              onSignIn={onMigrationSignIn}
-              onMerge={migrate}
-              loading={isMigrating}
-            />
-          )}
-          {migrationCompleted && (
-            <MigrationCompletedModal
-              isOpen={migrationCompleted}
-              onRequestClose={ackMigrationCompleted}
-            />
-          )}
-        </OnboardingContext.Provider>
-      </SettingsContext.Provider>
+      {dndContext.isActive && <DndBanner />}
+      <MainFeedPage
+        forceMigrationModal={forceMigrationModal}
+        postponedMigration={postponed}
+      />
+      {!user && !loadingUser && (windowLoaded || shouldShowLogin) && (
+        <LoginModal
+          isOpen={shouldShowLogin}
+          onRequestClose={closeLogin}
+          contentLabel="Login Modal"
+          {...loginState}
+        >
+          {hasSettings && syncSettingsNotification}
+        </LoginModal>
+      )}
+      <HelpUsGrowModalWithContext />
+      {analyticsConsent === null && (
+        <AnalyticsConsentModal
+          onDecline={() => setAnalyticsConsent(false)}
+          onAccept={() => setAnalyticsConsent(true)}
+          isOpen={true}
+        />
+      )}
+      {showMigrationModal && (
+        <MigrateSettingsModal
+          isOpen={showMigrationModal}
+          onLater={postponeMigration}
+          onSignIn={onMigrationSignIn}
+          onMerge={migrate}
+          loading={isMigrating}
+        />
+      )}
+      {migrationCompleted && (
+        <MigrationCompletedModal
+          isOpen={migrationCompleted}
+          onRequestClose={ackMigrationCompleted}
+        />
+      )}
     </DndContext.Provider>
   );
 }
@@ -187,7 +170,11 @@ export default function App(): ReactElement {
               getRedirectUri={getRedirectUri}
             >
               <SubscriptionContextProvider>
-                <InternalApp />
+                <SettingsContextProvider>
+                  <OnboardingContextProvider>
+                    <InternalApp />
+                  </OnboardingContextProvider>
+                </SettingsContextProvider>
               </SubscriptionContextProvider>
             </AuthContextProvider>
           </QueryClientProvider>

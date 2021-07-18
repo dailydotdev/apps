@@ -1,9 +1,11 @@
-import usePersistentState from './usePersistentState';
-import { useEffect, useState } from 'react';
-import { SettingsContextData } from '../contexts/SettingsContext';
-import { useMutation, useQuery } from 'react-query';
-import request from 'graphql-request';
-import { apiUrl } from '../lib/config';
+import React, {
+  ReactElement,
+  ReactNode,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import {
   RemoteSettings,
   Spaciness,
@@ -11,6 +13,29 @@ import {
   USER_SETTINGS_QUERY,
   UserSettingsData,
 } from '../graphql/settings';
+import ProgressiveEnhancementContext from './ProgressiveEnhancementContext';
+import AuthContext from './AuthContext';
+import usePersistentState from '../hooks/usePersistentState';
+import { useMutation, useQuery } from 'react-query';
+import request from 'graphql-request';
+import { apiUrl } from '../lib/config';
+
+export type SettingsContextData = {
+  spaciness: Spaciness;
+  themeMode: string;
+  showOnlyUnreadPosts: boolean;
+  openNewTab: boolean;
+  insaneMode: boolean;
+  setTheme: (theme) => Promise<void>;
+  toggleShowOnlyUnreadPosts: () => Promise<void>;
+  toggleOpenNewTab: () => Promise<void>;
+  setSpaciness: (density: Spaciness) => Promise<void>;
+  toggleInsaneMode: () => Promise<void>;
+  loadedSettings: boolean;
+};
+
+const SettingsContext = React.createContext<SettingsContextData>(null);
+export default SettingsContext;
 
 type Settings = {
   spaciness: Spaciness;
@@ -43,10 +68,18 @@ function applyTheme(themeMode: string): void {
   }
 }
 
-export default function useSettings(
-  userId: string | null,
-  canFetchRemote: boolean,
-): SettingsContextData {
+export type SettingsContextProviderProps = {
+  children?: ReactNode;
+};
+
+export const SettingsContextProvider = ({
+  children,
+}: SettingsContextProviderProps): ReactElement => {
+  const { windowLoaded } = useContext(ProgressiveEnhancementContext);
+  const { user, tokenRefreshed } = useContext(AuthContext);
+  const canFetchRemote = windowLoaded && tokenRefreshed;
+  const userId = user?.id;
+
   const [settings, setCachedSettings, loadedSettings] = usePersistentState(
     'settings',
     defaultSettings,
@@ -116,25 +149,35 @@ export default function useSettings(
     await updateRemoteSettingsFn(settings, currentTheme);
   };
 
-  return {
-    ...settings,
-    themeMode: currentTheme,
-    setTheme: async (theme: string) => {
-      applyTheme(theme);
-      setCurrentTheme(theme);
-      await updateRemoteSettingsFn(settings, theme);
-      localStorage.setItem(themeModeStorageKey, theme);
-    },
-    toggleShowOnlyUnreadPosts: () =>
-      setSettings({
-        ...settings,
-        showOnlyUnreadPosts: !settings.showOnlyUnreadPosts,
-      }),
-    toggleOpenNewTab: () =>
-      setSettings({ ...settings, openNewTab: !settings.openNewTab }),
-    setSpaciness: (density) => setSettings({ ...settings, spaciness: density }),
-    toggleInsaneMode: () =>
-      setSettings({ ...settings, insaneMode: !settings.insaneMode }),
-    loadedSettings,
-  };
-}
+  const contextData = useMemo<SettingsContextData>(
+    () => ({
+      ...settings,
+      themeMode: currentTheme,
+      setTheme: async (theme: string) => {
+        applyTheme(theme);
+        setCurrentTheme(theme);
+        await updateRemoteSettingsFn(settings, theme);
+        localStorage.setItem(themeModeStorageKey, theme);
+      },
+      toggleShowOnlyUnreadPosts: () =>
+        setSettings({
+          ...settings,
+          showOnlyUnreadPosts: !settings.showOnlyUnreadPosts,
+        }),
+      toggleOpenNewTab: () =>
+        setSettings({ ...settings, openNewTab: !settings.openNewTab }),
+      setSpaciness: (density) =>
+        setSettings({ ...settings, spaciness: density }),
+      toggleInsaneMode: () =>
+        setSettings({ ...settings, insaneMode: !settings.insaneMode }),
+      loadedSettings,
+    }),
+    [settings, loadedSettings, userId, currentTheme],
+  );
+
+  return (
+    <SettingsContext.Provider value={contextData}>
+      {children}
+    </SettingsContext.Provider>
+  );
+};
