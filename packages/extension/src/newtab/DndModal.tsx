@@ -34,7 +34,7 @@ const DoNotDisturbModal: React.FC<DoNotDisturbModalProps> = ({
   onRequestClose,
   ...modalProps
 }) => {
-  const { setDndSettings } = React.useContext(DndContext);
+  const { setDndSettings, isActive } = React.useContext(DndContext);
   const [link, setLink] = React.useState('');
   const [customNumber, setCustomNumber] = React.useState(0);
   const [customTimeIndex, setCustomTimeIndex] = React.useState(0);
@@ -53,25 +53,10 @@ const DoNotDisturbModal: React.FC<DoNotDisturbModalProps> = ({
     onRequestClose(e);
   };
 
-  return (
-    <StyledModal
-      {...modalProps}
-      style={{
-        content: {
-          paddingTop: '2rem',
-          maxWidth: '27.5rem',
-          display: 'flex',
-          flexDirection: 'column',
-        },
-      }}
-    >
-      <ModalCloseButton onClick={onRequestClose} />
-      <div className={styles.heading}>
-        <h3 className={styles.title}>Do Not Disturb</h3>
-        <p className={styles.description}>
-          Choose your preferences while you&apos;re on Do Not Disturb mode
-        </p>
-      </div>
+  const renderForm = () => {
+    if (isActive) return <br />;
+
+    return (
       <div className={styles.content}>
         <TextField
           className={styles.url}
@@ -104,12 +89,37 @@ const DoNotDisturbModal: React.FC<DoNotDisturbModalProps> = ({
           </div>
         )}
       </div>
+    );
+  };
+
+  return (
+    <StyledModal
+      {...modalProps}
+      style={{
+        content: {
+          paddingTop: '2rem',
+          maxWidth: '27.5rem',
+          display: 'flex',
+          flexDirection: 'column',
+        },
+      }}
+    >
+      <ModalCloseButton onClick={onRequestClose} />
+      <div className={styles.heading}>
+        <h3 className={styles.title}>Do Not Disturb</h3>
+        {isActive ? null : (
+          <p className={styles.description}>
+            Choose your preferences while you&apos;re on Do Not Disturb mode
+          </p>
+        )}
+      </div>
+      {renderForm()}
       <div className={classnames(styles.footer, styles.centered)}>
         <button
           className={classnames(styles.done, styles.centered)}
-          onClick={handleSubmit}
+          onClick={(e) => (isActive ? setDndSettings(null) : handleSubmit(e))}
         >
-          Done
+          {isActive ? 'Turn off' : 'Done'}
         </button>
       </div>
     </StyledModal>
