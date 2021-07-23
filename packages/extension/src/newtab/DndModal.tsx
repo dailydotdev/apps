@@ -1,17 +1,22 @@
 import React from 'react';
 import classnames from 'classnames';
-import dnd, {
+import {
+  getDefaultLink,
   CustomTime,
   TimeFormat,
-  getTotalMinutes,
-  getTimeFormatValue,
-} from '../../lib/dnd';
-import { Radio } from '../fields/Radio';
-import { Dropdown } from '../fields/Dropdown';
-import { TextField } from '../fields/TextField';
-import { ModalCloseButton } from './ModalCloseButton';
-import { StyledModal, ModalProps } from './StyledModal';
+  getCustomExpiration,
+  getTimeFormatExpiration,
+} from './dnd';
+import { Radio } from '../../../shared/src/components/fields/Radio';
+import { Dropdown } from '../../../shared/src/components/fields/Dropdown';
+import { TextField } from '../../../shared/src/components/fields/TextField';
+import { ModalCloseButton } from '../../../shared/src/components/modals/ModalCloseButton';
+import {
+  StyledModal,
+  ModalProps,
+} from '../../../shared/src/components/modals/StyledModal';
 import styles from './DoNotDisturbModal.module.css';
+import DndContext from './DndContext';
 
 export interface DoNotDisturbModalProps extends ModalProps {
   defaultTimeFormat?: TimeFormat;
@@ -29,25 +34,23 @@ const DoNotDisturbModal: React.FC<DoNotDisturbModalProps> = ({
   onRequestClose,
   ...modalProps
 }) => {
+  const { setDndSettings } = React.useContext(DndContext);
   const [link, setLink] = React.useState('');
   const [customNumber, setCustomNumber] = React.useState(0);
   const [customTimeIndex, setCustomTimeIndex] = React.useState(0);
   const [dndTime, setDndTime] = React.useState(defaultTimeFormat);
 
-  const handleSubmit = (e: React.MouseEvent<Element, MouseEvent>) => {
-    const minutes =
+  const handleSubmit = async (e: React.MouseEvent<Element, MouseEvent>) => {
+    const expiration =
       dndTime === TimeFormat.CUSTOM
-        ? getTotalMinutes(customTimeOptions[customTimeIndex], customNumber)
-        : getTimeFormatValue(dndTime);
-    const error = dnd.setDndMode({
-      link,
-      minutes,
-      timestamp: new Date(),
-    });
+        ? getCustomExpiration(customTimeOptions[customTimeIndex], customNumber)
+        : getTimeFormatExpiration(dndTime);
 
-    if (!error) return onRequestClose(e);
+    const fallback = link || getDefaultLink();
 
-    // display error here
+    await setDndSettings({ expiration, link: fallback });
+
+    onRequestClose(e);
   };
 
   return (
