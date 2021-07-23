@@ -30,6 +30,10 @@ window.addEventListener(
   },
 );
 
+const renderApp = () => {
+  ReactDOM.render(<App />, document.getElementById('__next'));
+};
+
 (async () => {
   const source = window.location.href.split('source=')[1];
 
@@ -44,7 +48,3 @@ window.addEventListener(
   window.stop();
   await browser.tabs.update(tab.id, { url: dnd.link });
 })();
-
-const renderApp = () => {
-  ReactDOM.render(<App />, document.getElementById('__next'));
-};
