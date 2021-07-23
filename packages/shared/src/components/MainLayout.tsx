@@ -28,7 +28,7 @@ import usePersistentState from '../hooks/usePersistentState';
 import OnboardingContext from '../contexts/OnboardingContext';
 import FeaturesContext from '../contexts/FeaturesContext';
 import { getFeatureValue } from '../lib/featureManagement';
-import DoNotDisturbModal from './modals/DoNotDisturbModal';
+import DoNotDisturbModal from '../../../extension/src/newtab/DndModal';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
