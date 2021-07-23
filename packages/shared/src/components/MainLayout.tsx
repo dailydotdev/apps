@@ -14,7 +14,6 @@ import { getTooltipProps } from '../lib/tooltip';
 import PromotionalBanner from './PromotionalBanner';
 import Logo from '../svg/Logo';
 import LogoText from '../svg/LogoText';
-import TimerIcon from '../../icons/Timer.svg';
 import BookmarkIcon from '../../icons/bookmark.svg';
 import { LazyImage } from './LazyImage';
 import styles from './MainLayout.module.css';
@@ -26,8 +25,6 @@ import { QuaternaryButton } from './buttons/QuaternaryButton';
 import GiftIcon from '../../icons/gift.svg';
 import usePersistentState from '../hooks/usePersistentState';
 import OnboardingContext from '../contexts/OnboardingContext';
-import FeaturesContext from '../contexts/FeaturesContext';
-import { getFeatureValue } from '../lib/featureManagement';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
