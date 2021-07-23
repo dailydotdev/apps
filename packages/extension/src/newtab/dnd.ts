@@ -1,11 +1,3 @@
-import { differenceInMinutes } from 'date-fns';
-
-interface DoNotDisturb {
-  link?: string;
-  minutes: number;
-  timestamp: Date;
-}
-
 export enum TimeFormat {
   HALF_HOUR = '30 minutes',
   ONE_HOUR = '1 hour',
@@ -20,69 +12,39 @@ export enum CustomTime {
   DAYS = 'Days',
 }
 
-const DND_STORAGE_KEY = 'DoNotDisturb';
 const DEFAULT_URL = 'https://www.google.com';
-const HOUR_PER_DAY = 24;
-const MINUTES_PER_HOUR = 60;
+const CHROME_DEFAULT_URL = 'chrome-search://local-ntp/local-ntp.html';
 
-const isValidUrl = (link: string) => {
-  if (link.trim() === '') return false;
+export const getCustomExpiration = (time: CustomTime, value: number): Date => {
+  const exp = new Date();
 
-  try {
-    if (new URL(link)) return true;
-  } catch (_) {
-    return false;
+  if (time === CustomTime.DAYS) {
+    return new Date(exp.getFullYear(), exp.getMonth(), exp.getDate() + value);
   }
+
+  if (time === CustomTime.MINUTES) exp.setMinutes(exp.getMinutes() + value);
+
+  if (time === CustomTime.HOURS) exp.setHours(exp.getHours() + value);
+
+  return exp;
 };
 
-export const getTimeFormatValue = (timeFormat: TimeFormat): number => {
-  if (timeFormat === TimeFormat.HALF_HOUR) return MINUTES_PER_HOUR / 2;
+export const getTimeFormatExpiration = (format: TimeFormat): Date => {
+  const expiration = new Date();
 
-  if (timeFormat === TimeFormat.ONE_HOUR) return MINUTES_PER_HOUR;
+  if (format === TimeFormat.CUSTOM) throw new Error('Unable to fetch value!');
 
-  if (timeFormat === TimeFormat.TWO_HOURS) return 2 * MINUTES_PER_HOUR;
+  if (format === TimeFormat.HALF_HOUR) {
+    expiration.setMinutes(expiration.getMinutes() + 30);
+    return expiration;
+  }
 
-  return HOUR_PER_DAY * MINUTES_PER_HOUR;
+  const value = format === TimeFormat.ONE_HOUR ? 1 : 2;
+
+  expiration.setHours(expiration.getHours() + value);
+
+  return expiration;
 };
 
-export const getTotalMinutes = (
-  customTime: CustomTime,
-  value: number,
-): number => {
-  if (customTime === CustomTime.MINUTES) return value;
-
-  if (customTime === CustomTime.HOURS) return value * MINUTES_PER_HOUR;
-
-  return value * HOUR_PER_DAY * MINUTES_PER_HOUR;
-};
-
-const setDndMode = (dnd: DoNotDisturb): string => {
-  if (dnd.minutes === 0) return 'Time value cannot be zero or empty!';
-
-  if (dnd.link && !isValidUrl(dnd.link)) return 'Link provided is invalid!';
-
-  if (!dnd.link) dnd.link = DEFAULT_URL;
-
-  localStorage.setItem(DND_STORAGE_KEY, JSON.stringify(dnd));
-};
-
-const isUnderDndMode = (): string => {
-  const stored = localStorage.getItem(DND_STORAGE_KEY);
-
-  if (!stored) return;
-
-  const dnd = JSON.parse(stored) as DoNotDisturb;
-  const now = new Date();
-  const difference = differenceInMinutes(now, dnd.timestamp);
-
-  if (difference <= dnd.minutes) return dnd.link.trim();
-
-  localStorage.removeItem(DND_STORAGE_KEY);
-
-  return;
-};
-
-export default {
-  setDndMode,
-  isUnderDndMode,
-};
+export const getDefaultLink = (): string =>
+  process.env.TARGET_BROWSER === 'chrome' ? CHROME_DEFAULT_URL : DEFAULT_URL;
