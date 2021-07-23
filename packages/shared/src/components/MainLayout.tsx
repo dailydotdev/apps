@@ -28,7 +28,6 @@ import usePersistentState from '../hooks/usePersistentState';
 import OnboardingContext from '../contexts/OnboardingContext';
 import FeaturesContext from '../contexts/FeaturesContext';
 import { getFeatureValue } from '../lib/featureManagement';
-import DoNotDisturbModal from '../../../extension/src/newtab/DndModal';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -36,7 +35,6 @@ export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showRank?: boolean;
   greeting?: boolean;
   mainPage?: boolean;
-  hasDnd?: boolean;
   additionalButtons?: ReactNode;
   onLogoClick?: (e: React.MouseEvent) => unknown;
 }
@@ -63,14 +61,12 @@ export default function MainLayout({
   showRank,
   greeting,
   mainPage,
-  hasDnd,
   additionalButtons,
   onLogoClick,
 }: MainLayoutProps): ReactElement {
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user, showLogin, loadingUser } = useContext(AuthContext);
   const { onboardingStep } = useContext(OnboardingContext) || {};
-  const [showModalDND, setShowModalDND] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showGreeting, setShowGreeting] = useState(false);
   const [epicPrizesClicked, setEpicPrizesClicked, epicPrizesLoaded] =
@@ -159,20 +155,6 @@ export default function MainLayout({
           />
         )}
         <div className="flex-1" />
-        {!hasDnd ? null : (
-          <>
-            <HeaderButton
-              icon={<TimerIcon />}
-              {...getTooltipProps('Do Not Disturb', { position: 'down' })}
-              className="btn-tertiary"
-              onClick={() => setShowModalDND(true)}
-            />
-            <DoNotDisturbModal
-              isOpen={showModalDND}
-              onRequestClose={() => setShowModalDND(false)}
-            />
-          </>
-        )}
         {!showOnlyLogo && !loadingUser && (
           <>
             {beforeBookmarkButtons}

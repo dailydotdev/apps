@@ -9,13 +9,12 @@ import MainFeedLayout, {
 } from '@dailydotdev/shared/src/components/MainFeedLayout';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import dynamic from 'next/dynamic';
+import DndModal from './DndModal';
 import MostVisitedSites from './MostVisitedSites';
 import getPageForAnalytics from '../lib/getPageForAnalytics';
 import { trackPageView } from '@dailydotdev/shared/src/lib/analytics';
 import TimerIcon from '@dailydotdev/shared/icons/timer.svg';
 import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
-import DndMenu from './DndMenu';
-import { useContextMenu } from 'react-contexify';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import SyncIcon from '@dailydotdev/shared/icons/sync.svg';
@@ -41,7 +40,6 @@ export default function MainFeedPage({
   const [isSearchOn, setIsSearchOn] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>();
   const [showDnd, setShowDnd] = useState(false);
-  const { show: showDndMenu, hideAll } = useContextMenu({ id: 'dnd-context' });
 
   const enableSearch = () => {
     setIsSearchOn(true);
@@ -59,19 +57,6 @@ export default function MainFeedPage({
     trackPageView(getPageForAnalytics(`/${tab.name}`));
   };
 
-  const onDndClick = (e: React.MouseEvent): void => {
-    if (showDnd) {
-      hideAll();
-      setShowDnd(false);
-    } else {
-      const { right, bottom } = e.currentTarget.getBoundingClientRect();
-      showDndMenu(e, {
-        position: { x: right - 115, y: bottom + 4 },
-      });
-      setShowDnd(true);
-    }
-  };
-
   const onLogoClick = (e: React.MouseEvent): void => {
     e.preventDefault();
     e.stopPropagation();
@@ -82,7 +67,6 @@ export default function MainFeedPage({
 
   return (
     <MainLayout
-      hasDnd
       responsive={false}
       showRank={true}
       greeting={true}
@@ -103,7 +87,7 @@ export default function MainFeedPage({
               icon={<TimerIcon />}
               {...getTooltipProps('Do Not Disturb', { position: 'down' })}
               className="btn-tertiary"
-              onClick={onDndClick}
+              onClick={() => setShowDnd(true)}
               pressed={showDnd}
             />
           )}
@@ -128,7 +112,7 @@ export default function MainFeedPage({
           navChildren={!isSearchOn && <MostVisitedSites />}
         />
       </FeedLayout>
-      <DndMenu onHidden={() => setShowDnd(false)} />
+      <DndModal isOpen={showDnd} onRequestClose={() => setShowDnd(false)} />
     </MainLayout>
   );
 }
