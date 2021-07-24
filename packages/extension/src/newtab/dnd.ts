@@ -34,6 +34,8 @@ export const getTimeFormatExpiration = (format: TimeFormat): Date => {
 
   if (format === TimeFormat.CUSTOM) throw new Error('Unable to fetch value!');
 
+  if (format === TimeFormat.TOMORROW) return getExpiration(CustomTime.DAYS, 1);
+
   if (format === TimeFormat.HALF_HOUR) {
     expiration.setMinutes(expiration.getMinutes() + 30);
     return expiration;
