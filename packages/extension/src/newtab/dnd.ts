@@ -29,23 +29,16 @@ export const getExpiration = (time: CustomTime, value: number): Date => {
   return exp;
 };
 
-export const getTimeFormatExpiration = (format: TimeFormat): Date => {
-  const expiration = new Date();
+export const getTimeFormatExpiration = (tf: TimeFormat): Date => {
+  if (tf === TimeFormat.CUSTOM) throw new Error('Unable to fetch value!');
 
-  if (format === TimeFormat.CUSTOM) throw new Error('Unable to fetch value!');
+  if (tf === TimeFormat.TOMORROW) return getExpiration(CustomTime.DAYS, 1);
 
-  if (format === TimeFormat.TOMORROW) return getExpiration(CustomTime.DAYS, 1);
+  if (tf === TimeFormat.HALF_HOUR) return getExpiration(CustomTime.MINUTES, 30);
 
-  if (format === TimeFormat.HALF_HOUR) {
-    expiration.setMinutes(expiration.getMinutes() + 30);
-    return expiration;
-  }
+  const amount = tf === TimeFormat.ONE_HOUR ? 1 : 2;
 
-  const value = format === TimeFormat.ONE_HOUR ? 1 : 2;
-
-  expiration.setHours(expiration.getHours() + value);
-
-  return expiration;
+  return getExpiration(CustomTime.HOURS, amount);
 };
 
 export const getDefaultLink = (): string =>
