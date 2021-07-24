@@ -4,7 +4,7 @@ import {
   getDefaultLink,
   CustomTime,
   TimeFormat,
-  getCustomExpiration,
+  getExpiration,
   getTimeFormatExpiration,
 } from './dnd';
 import { Radio } from '../../../shared/src/components/fields/Radio';
@@ -43,7 +43,7 @@ const DoNotDisturbModal: React.FC<DoNotDisturbModalProps> = ({
   const handleSubmit = async (e: React.MouseEvent<Element, MouseEvent>) => {
     const expiration =
       dndTime === TimeFormat.CUSTOM
-        ? getCustomExpiration(customTimeOptions[customTimeIndex], customNumber)
+        ? getExpiration(customTimeOptions[customTimeIndex], customNumber)
         : getTimeFormatExpiration(dndTime);
 
     const fallback = link || getDefaultLink();

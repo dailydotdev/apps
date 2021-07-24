@@ -15,7 +15,7 @@ export enum CustomTime {
 const DEFAULT_URL = 'https://www.google.com';
 const CHROME_DEFAULT_URL = 'chrome-search://local-ntp/local-ntp.html';
 
-export const getCustomExpiration = (time: CustomTime, value: number): Date => {
+export const getExpiration = (time: CustomTime, value: number): Date => {
   const exp = new Date();
 
   if (time === CustomTime.DAYS) {
