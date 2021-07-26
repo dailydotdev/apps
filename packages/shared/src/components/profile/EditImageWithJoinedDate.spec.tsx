@@ -6,9 +6,9 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
+import { mocked } from 'ts-jest/utils';
 import { changeProfileImage, LoggedUser } from '../../lib/user';
 import EditImageWithJoinedDate from './EditImageWithJoinedDate';
-import { mocked } from 'ts-jest/utils';
 
 jest.mock('../../lib/user', () => ({
   ...jest.requireActual('../../lib/user'),

@@ -6,17 +6,17 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import styles from './RadialProgress.module.css';
 import classNames from 'classnames';
+import styles from './RadialProgress.module.css';
 import classed from '../lib/classed';
 
 const RAD_TO_DEGREES = 180 / Math.PI;
 const TWO_PI = 2 * Math.PI;
 
-const radius = 22;
+const defaultRadius = 22;
 const center = 24;
 const stepsGap = 8;
-const circumference = TWO_PI * radius;
+const circumference = TWO_PI * defaultRadius;
 
 function polarToCartesian(
   centerX: number,
@@ -33,8 +33,8 @@ function polarToCartesian(
 }
 
 function describeArc(startAngle: number, endAngle: number): string {
-  const start = polarToCartesian(center, center, radius, endAngle);
-  const end = polarToCartesian(center, center, radius, startAngle);
+  const start = polarToCartesian(center, center, defaultRadius, endAngle);
+  const end = polarToCartesian(center, center, defaultRadius, startAngle);
 
   const largeArcFlag = endAngle - startAngle <= 180 ? '0' : '1';
 
@@ -43,8 +43,8 @@ function describeArc(startAngle: number, endAngle: number): string {
     start.x,
     start.y,
     'A',
-    radius,
-    radius,
+    defaultRadius,
+    defaultRadius,
     0,
     largeArcFlag,
     0,
@@ -87,7 +87,7 @@ export default forwardRef(function RadialProgress(
   const stepsPaths = useMemo<string[]>(() => {
     if (steps > 0) {
       const stepAngle = maxDegrees / steps;
-      const gapDegrees = (stepsGap / radius) * RAD_TO_DEGREES;
+      const gapDegrees = (stepsGap / defaultRadius) * RAD_TO_DEGREES;
       return [...new Array(steps)].map((_, i) => {
         const startAngle = 180 + stepAngle * i + gapDegrees / 2;
         const endAngle = startAngle + stepAngle - gapDegrees;
@@ -130,9 +130,9 @@ export default forwardRef(function RadialProgress(
       >
         <defs>
           <g id={`${id}-group-completed`}>
-            {completedPaths.map((d, i) => (
+            {completedPaths.map((d) => (
               <path
-                key={i}
+                key={d}
                 d={d}
                 className="completed"
                 style={pathStyle}
@@ -141,9 +141,9 @@ export default forwardRef(function RadialProgress(
             ))}
           </g>
           <g id={`${id}-group-remaining`}>
-            {remainingPaths.map((d, i) => (
+            {remainingPaths.map((d) => (
               <path
-                key={i}
+                key={d}
                 d={d}
                 style={pathStyle}
                 data-testid="remainingPath"
@@ -159,14 +159,14 @@ export default forwardRef(function RadialProgress(
           <use xlinkHref={`#${id}-group-completed`} />
         </mask>
         <Circle
-          r={radius}
+          r={defaultRadius}
           cx={center}
           cy={center}
           mask={`url(#${id}-mask-all)`}
         />
         <g mask={`url(#${id}-mask-completed)`}>
           <Circle
-            r={radius}
+            r={defaultRadius}
             cx={center}
             cy={center}
             strokeDasharray={circumference}

@@ -1,5 +1,8 @@
-import styles from './Card.module.css';
 import React, { ReactElement, ReactNode } from 'react';
+import Link from 'next/link';
+import classNames from 'classnames';
+import dynamic from 'next/dynamic';
+import styles from './Card.module.css';
 import { Post } from '../../graphql/posts';
 import UpvoteIcon from '../../../icons/upvote.svg';
 import { getTooltipProps } from '../../lib/tooltip';
@@ -7,11 +10,8 @@ import rem from '../../../macros/rem.macro';
 import InteractionCounter from '../InteractionCounter';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import CommentIcon from '../../../icons/comment.svg';
-import Link from 'next/link';
 import BookmarkIcon from '../../../icons/bookmark.svg';
 import { Button } from '../buttons/Button';
-import classNames from 'classnames';
-import dynamic from 'next/dynamic';
 
 const ShareIcon = dynamic(() => import('../../../icons/share.svg'));
 

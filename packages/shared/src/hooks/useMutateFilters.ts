@@ -1,6 +1,7 @@
-import { LoggedUser } from '../lib/user';
 import { QueryClient, useMutation, useQueryClient } from 'react-query';
 import request from 'graphql-request';
+import cloneDeep from 'lodash.clonedeep';
+import { LoggedUser } from '../lib/user';
 import { apiUrl } from '../lib/config';
 import {
   ADD_FILTERS_TO_FEED_MUTATION,
@@ -8,7 +9,6 @@ import {
   FeedSettingsData,
   REMOVE_FILTERS_FROM_FEED_MUTATION,
 } from '../graphql/feedSettings';
-import cloneDeep from 'lodash.clonedeep';
 import { Source } from '../graphql/sources';
 
 export const getTagsFiltersQueryKey = (user?: LoggedUser): string[] => [
@@ -36,11 +36,15 @@ export const getSourcesSettingsQueryKey = (user?: LoggedUser): string[] => [
   'sourcesSettings',
 ];
 
+type FollowTag = ({ tag: string }) => Promise<unknown>;
+// eslint-disable-next-line @typescript-eslint/no-shadow
+type FollowSource = ({ source: Source }) => Promise<unknown>;
+
 type ReturnType = {
-  followTag: ({ tag: string }) => Promise<unknown>;
-  unfollowTag: ({ tag: string }) => Promise<unknown>;
-  followSource: ({ source: Source }) => Promise<unknown>;
-  unfollowSource: ({ source: Source }) => Promise<unknown>;
+  followTag: FollowTag;
+  unfollowTag: FollowTag;
+  followSource: FollowSource;
+  unfollowSource: FollowSource;
 };
 
 async function updateQueryData(
@@ -129,9 +133,9 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
         onMutateTagsSettings(
           tag,
           queryClient,
-          (feedSettings, tag) => {
+          (feedSettings, manipulateTag) => {
             const newData = cloneDeep(feedSettings);
-            newData.includeTags.push(tag);
+            newData.includeTags.push(manipulateTag);
             return newData;
           },
           user,
@@ -157,9 +161,9 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
         onMutateTagsSettings(
           tag,
           queryClient,
-          (feedSettings, tag) => {
+          (feedSettings, manipulateTag) => {
             const newData = cloneDeep(feedSettings);
-            const index = newData.includeTags.indexOf(tag);
+            const index = newData.includeTags.indexOf(manipulateTag);
             if (index > -1) {
               newData.includeTags.splice(index, 1);
             }
@@ -188,10 +192,10 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
         onMutateSourcesSettings(
           source,
           queryClient,
-          (feedSettings, source) => {
+          (feedSettings, manipulateSource) => {
             const newData = cloneDeep(feedSettings);
             const index = newData.excludeSources.findIndex(
-              (s) => s.id === source.id,
+              (s) => s.id === manipulateSource.id,
             );
             if (index > -1) {
               newData.excludeSources.splice(index, 1);
@@ -221,9 +225,9 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
         onMutateSourcesSettings(
           source,
           queryClient,
-          (feedSettings, source) => {
+          (feedSettings, manipulateSource) => {
             const newData = cloneDeep(feedSettings);
-            newData.excludeSources.push(source);
+            newData.excludeSources.push(manipulateSource);
             return newData;
           },
           user,

@@ -1,6 +1,6 @@
 import React, { Fragment, ReactElement, ReactNode } from 'react';
-import { Connection } from '../../graphql/common';
 import { InfiniteQueryObserverBaseResult } from 'react-query';
+import { Connection } from '../../graphql/common';
 import classed from '../../lib/classed';
 
 export const ActivityContainer = classed('section', 'flex flex-col mt-10');

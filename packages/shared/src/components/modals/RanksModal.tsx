@@ -1,4 +1,5 @@
 import React, { CSSProperties, ReactElement } from 'react';
+import classNames from 'classnames';
 import { RankProgress } from '../RankProgress';
 import { RANK_NAMES, STEPS_PER_RANK } from '../../lib/rank';
 import Rank from '../Rank';
@@ -6,7 +7,6 @@ import { Button } from '../buttons/Button';
 import { ModalCloseButton } from './ModalCloseButton';
 import { ModalProps } from './StyledModal';
 import { ResponsiveModal } from './ResponsiveModal';
-import classNames from 'classnames';
 import styles from './RanksModal.module.css';
 
 const RankItem = ({

@@ -2,6 +2,7 @@ import { gql } from 'graphql-request';
 import { Author, Comment } from './comments';
 import { Connection } from './common';
 import { Source } from './sources';
+import { EmptyResponse } from './emptyResponse';
 
 export type ReportReason = 'BROKEN' | 'NSFW' | 'CLICKBAIT' | 'LOW';
 
@@ -114,10 +115,6 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
     }
   }
 `;
-
-export interface EmptyResponse {
-  _: boolean;
-}
 
 export interface UpvoteData {
   upvote: EmptyResponse;

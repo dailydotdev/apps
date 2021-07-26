@@ -48,4 +48,5 @@ export const getFeatureValue = (
   if (flags[finalKey]?.enabled) {
     return flags[finalKey].value;
   }
+  return undefined;
 };

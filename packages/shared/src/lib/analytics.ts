@@ -116,7 +116,6 @@ export const getAmplitudeClient = async (): Promise<AmplitudeClient> => {
     return {
       logEvent(event: string, data?: unknown): LogReturn {
         ampEventsQueue.push([event, data]);
-        return;
       },
     } as unknown as AmplitudeClient;
   }

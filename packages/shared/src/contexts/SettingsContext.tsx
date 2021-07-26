@@ -6,8 +6,11 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import { useMutation, useQuery } from 'react-query';
+import request from 'graphql-request';
 import {
   RemoteSettings,
+  RemoteTheme,
   Spaciness,
   UPDATE_USER_SETTINGS_MUTATION,
   USER_SETTINGS_QUERY,
@@ -16,8 +19,6 @@ import {
 import ProgressiveEnhancementContext from './ProgressiveEnhancementContext';
 import AuthContext from './AuthContext';
 import usePersistentState from '../hooks/usePersistentState';
-import { useMutation, useQuery } from 'react-query';
-import request from 'graphql-request';
 import { apiUrl } from '../lib/config';
 
 export type SettingsContextData = {
@@ -97,18 +98,23 @@ export const SettingsContextProvider = ({
     unknown,
     unknown,
     RemoteSettings
-  >((settings) =>
+  >((newSettings) =>
     request(`${apiUrl}/graphql`, UPDATE_USER_SETTINGS_MUTATION, {
-      data: settings,
+      data: newSettings,
     }),
   );
 
   useEffect(() => {
     if (remoteSettings) {
       const remoteTheme = remoteSettings.userSettings.theme;
-      const lightMode = remoteTheme === 'bright';
-      const darkMode = remoteTheme === 'darcula';
-      const theme = lightMode ? 'light' : darkMode ? 'dark' : 'auto';
+      let theme: string;
+      if (remoteTheme === 'bright') {
+        theme = 'light';
+      } else if (remoteTheme === 'darcula') {
+        theme = 'dark';
+      } else {
+        theme = 'auto';
+      }
       applyTheme(theme);
       setCurrentTheme(theme);
       localStorage.setItem(themeModeStorageKey, theme);
@@ -133,20 +139,29 @@ export const SettingsContextProvider = ({
     }
   }, []);
 
-  const updateRemoteSettingsFn = async (settings: Settings, mode: string) => {
+  const updateRemoteSettingsFn = async (
+    newSettings: Settings,
+    theme: string,
+  ) => {
     if (userId) {
-      const themeMode =
-        mode === 'light' ? 'bright' : mode === 'dark' ? 'darcula' : 'auto';
+      let remoteTheme: RemoteTheme;
+      if (theme === 'light') {
+        remoteTheme = 'bright';
+      } else if (theme === 'dark') {
+        remoteTheme = 'darcula';
+      } else {
+        remoteTheme = 'auto';
+      }
       await updateRemoteSettings({
-        ...settings,
-        theme: themeMode,
+        ...newSettings,
+        theme: remoteTheme,
       });
     }
   };
 
-  const setSettings = async (settings: Settings): Promise<void> => {
-    await setCachedSettings(settings);
-    await updateRemoteSettingsFn(settings, currentTheme);
+  const setSettings = async (newSettings: Settings): Promise<void> => {
+    await setCachedSettings(newSettings);
+    await updateRemoteSettingsFn(newSettings, currentTheme);
   };
 
   const contextData = useMemo<SettingsContextData>(

@@ -54,7 +54,7 @@ const ListItem = ({ post, onLinkClick }: PostProps): ReactElement => (
         >
           {post.featuredComments.map((comment, index) => (
             <LazyImage
-              key={index}
+              key={comment.id}
               imgSrc={comment.author.image}
               imgAlt={`${comment.author.name}'s profile picture`}
               className="w-6 h-6 rounded-full top-0"
@@ -138,7 +138,7 @@ export default function BestDiscussions({
           onClick={onLucky}
           onMouseUp={(event) => event.button === 1 && onLucky()}
         >
-          {`I'm feeling lucky`}
+          I&apos;m feeling lucky
         </Button>
       </Link>
     </section>

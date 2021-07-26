@@ -1,10 +1,10 @@
 import React, { ReactElement } from 'react';
+import classNames from 'classnames';
 import { Comment } from '../../graphql/comments';
 import { CommentBox, CommentPublishDate } from './common';
 import CommentActionButtons from './CommentActionButtons';
 import { ProfileImageLink } from '../profile/ProfileImageLink';
 import CommentAuthor from './CommentAuthor';
-import classNames from 'classnames';
 import classed from '../../lib/classed';
 
 export interface Props {

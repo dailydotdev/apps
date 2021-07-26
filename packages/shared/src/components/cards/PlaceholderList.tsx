@@ -1,8 +1,8 @@
 import React, { forwardRef, ReactElement, Ref } from 'react';
+import classNames from 'classnames';
 import { ListCardMain } from './Card';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import classed from '../../lib/classed';
-import classNames from 'classnames';
 import { PlaceholderCardProps } from './PlaceholderCard';
 
 const Text = classed(ElementPlaceholder, 'h-3 rounded-xl');

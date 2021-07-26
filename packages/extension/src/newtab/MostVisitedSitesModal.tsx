@@ -3,13 +3,13 @@ import {
   ModalProps,
   StyledModal,
 } from '@dailydotdev/shared/src/components/modals/StyledModal';
-import { ConfirmationHeading } from '../../../shared/src/components/modals/ConfirmationModal';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { ModalCloseButton } from '@dailydotdev/shared/src/components/modals/ModalCloseButton';
 import classNames from 'classnames';
-import styles from './MostVisitedSitesModal.module.css';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import styles from './MostVisitedSitesModal.module.css';
+import { ConfirmationHeading } from '../../../shared/src/components/modals/ConfirmationModal';
 
 const Paragraph = classed(
   'p',

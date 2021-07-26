@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from 'react-query';
 import AuthContext from '../../contexts/AuthContext';
 import { LoggedUser } from '../../lib/user';
 import CommentActionButtons, { Props } from './CommentActionButtons';
@@ -12,7 +13,6 @@ import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '../../../__tests__/helpers/graphql';
-import { QueryClient, QueryClientProvider } from 'react-query';
 
 const showLogin = jest.fn();
 const onComment = jest.fn();

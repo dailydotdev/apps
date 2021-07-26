@@ -1,11 +1,11 @@
 import React, { ReactElement, ReactNode, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { getLayout } from './FeedLayout';
 import { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
 import MainFeedLayout, {
   tabs,
 } from '@dailydotdev/shared/src/components/MainFeedLayout';
 import dynamic from 'next/dynamic';
+import { getLayout } from './FeedLayout';
 
 const PostsSearch = dynamic(
   () => import(/* webpackChunkName: "search" */ '../RouterPostsSearch'),

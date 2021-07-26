@@ -1,6 +1,6 @@
 import { DependencyList, useContext, useEffect, useRef } from 'react';
-import SubscriptionContext from '../contexts/SubscriptionContext';
 import { OperationOptions } from 'subscriptions-transport-ws';
+import SubscriptionContext from '../contexts/SubscriptionContext';
 
 interface Payload<T> {
   data: T;
@@ -35,9 +35,10 @@ export default function useSubscription<T>(
         next: (value: Payload<T>) => {
           nextRef.current?.(value.data);
         },
-        error: (error) => errorRef.current?.(error),
+        error: (subscribeError) => errorRef.current?.(subscribeError),
       });
       return unsubscribe;
     }
+    return undefined;
   }, [connected, ...(deps ?? [])]);
 }

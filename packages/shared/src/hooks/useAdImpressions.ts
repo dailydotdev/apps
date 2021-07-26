@@ -1,7 +1,7 @@
+import { isSameDay } from 'date-fns';
 import usePersistentState from './usePersistentState';
 import { Ad } from '../graphql/posts';
 import { logRevenue, trackEvent } from '../lib/analytics';
-import { isSameDay } from 'date-fns';
 
 type State = { lastSent: Date; count: number };
 type UseAdImpressionsRet = { onAdImpression: (ad: Ad) => Promise<void> };
@@ -18,6 +18,7 @@ export default function useAdImpressions(): UseAdImpressionsRet {
     if (ad.impressionTracked) {
       return;
     }
+    // eslint-disable-next-line no-param-reassign
     ad.impressionTracked = true;
     trackEvent({
       category: 'Ad',

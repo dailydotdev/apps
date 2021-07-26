@@ -1,8 +1,8 @@
 import React, { ReactElement, useEffect, useMemo, useState } from 'react';
 import { CSSTransition } from 'react-transition-group';
 import { get as getCache, set as setCache } from 'idb-keyval';
-import { LoggedUser } from '../lib/user';
 import { isSameDay } from 'date-fns';
+import { LoggedUser } from '../lib/user';
 import { tablet } from '../styles/media';
 
 type GreetingData = { text: string; emoji: string };

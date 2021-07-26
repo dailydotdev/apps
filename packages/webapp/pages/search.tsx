@@ -1,12 +1,12 @@
 import React, { ReactElement, useMemo } from 'react';
+import { NextSeoProps } from 'next-seo/lib/types';
+import { NextSeo } from 'next-seo';
+import { useRouter } from 'next/router';
+import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import {
   getMainFeedLayout,
   mainFeedLayoutProps,
 } from '../components/layouts/MainFeedPage';
-import { NextSeoProps } from 'next-seo/lib/types';
-import { defaultOpenGraph, defaultSeo } from '../next-seo';
-import { NextSeo } from 'next-seo';
-import { useRouter } from 'next/router';
 
 const baseSeo: NextSeoProps = {
   titleTemplate: '%s',
@@ -23,11 +23,10 @@ const Search = (): ReactElement => {
       return {
         title: `${query.q} - daily.dev search`,
       };
-    } else {
-      return {
-        title: 'daily.dev | The Homepage Developers Deserve',
-      };
     }
+    return {
+      title: 'daily.dev | The Homepage Developers Deserve',
+    };
   }, [query]);
 
   return (

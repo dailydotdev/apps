@@ -4,11 +4,9 @@ import {
   USER_COMMENTS_QUERY,
   UserCommentsData,
 } from '@dailydotdev/shared/src/graphql/comments';
-import ProfilePage from '../pages/[userId]/index';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
-import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
 import nock from 'nock';
 import { Connection } from '@dailydotdev/shared/src/graphql/common';
 import {
@@ -28,6 +26,8 @@ import {
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { RANK_NAMES } from '@dailydotdev/shared/src/lib/rank';
 import { startOfTomorrow, subDays, subMonths } from 'date-fns';
+import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
+import ProfilePage from '../pages/[userId]/index';
 
 beforeEach(() => {
   nock.cleanAll();

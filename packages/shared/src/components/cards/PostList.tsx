@@ -1,4 +1,5 @@
 import React, { forwardRef, ReactElement, Ref, useState } from 'react';
+import classNames from 'classnames';
 import { Comment } from '../../graphql/comments';
 import { PostCardProps } from './PostCard';
 import {
@@ -15,7 +16,6 @@ import PostLink from './PostLink';
 import PostMetadata from './PostMetadata';
 import ActionButtons from './ActionButtons';
 import SourceButton from './SourceButton';
-import classNames from 'classnames';
 import styles from './Card.module.css';
 import ListFeaturedComment from './ListFeaturedComment';
 import { Button } from '../buttons/Button';

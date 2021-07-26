@@ -1,9 +1,9 @@
 import React from 'react';
+import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import { mocked } from 'ts-jest/utils';
 import { LoggedUser, updateProfile } from '../../lib/user';
 import AccountDetailsModal from './AccountDetailsModal';
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import AuthContext from '../../contexts/AuthContext';
-import { mocked } from 'ts-jest/utils';
 
 jest.mock('../../lib/user', () => ({
   ...jest.requireActual('../../lib/user'),
@@ -41,7 +41,7 @@ const renderComponent = (user: Partial<LoggedUser> = {}): RenderResult => {
       }}
     >
       <AccountDetailsModal
-        isOpen={true}
+        isOpen
         onRequestClose={onRequestClose}
         ariaHideApp={false}
       />

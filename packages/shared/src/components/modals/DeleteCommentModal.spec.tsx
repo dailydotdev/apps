@@ -1,12 +1,12 @@
-import DeleteCommentModal, { Props } from './DeleteCommentModal';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import React from 'react';
+import { QueryClient, QueryClientProvider } from 'react-query';
+import DeleteCommentModal, { Props } from './DeleteCommentModal';
 import { DELETE_COMMENT_MUTATION } from '../../graphql/comments';
 import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '../../../__tests__/helpers/graphql';
-import { QueryClient, QueryClientProvider } from 'react-query';
 
 const onRequestClose = jest.fn();
 

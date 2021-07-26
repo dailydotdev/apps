@@ -1,11 +1,14 @@
 const colors = require('./colors');
 
-const shadowColor = (color) =>
-  color === 'black'
-    ? '#000000'
-    : 'salt'
-    ? colors[color]['90']
-    : colors[color]['50'];
+const shadowColor = (color) => {
+  if (color === 'black') {
+    return '#000000';
+  }
+  if (color === 'salt') {
+    return colors[color]['90'];
+  }
+  return colors[color]['50'];
+};
 
 const getShadowPalette = (key, shadow) =>
   [...Object.keys(colors), 'black'].reduce(

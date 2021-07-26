@@ -1,4 +1,7 @@
 import React, { ReactElement, ReactNode, useRef, useState } from 'react';
+import { useMutation } from 'react-query';
+import classNames from 'classnames';
+import request from 'graphql-request';
 import { Button } from '../buttons/Button';
 import { Loader } from '../Loader';
 import { ModalCloseButton } from './ModalCloseButton';
@@ -7,11 +10,8 @@ import { SearchField } from '../fields/SearchField';
 import { Radio } from '../fields/Radio';
 import ArrowIcon from '../../../icons/arrow.svg';
 import { formToJson } from '../../lib/form';
-import { useMutation } from 'react-query';
 import { apiUrl } from '../../lib/config';
 import fetchTimeout from '../../lib/fetchTimeout';
-import classNames from 'classnames';
-import request from 'graphql-request';
 import {
   REQUEST_SOURCE_MUTATION,
   SOURCE_BY_FEED_QUERY,
@@ -219,12 +219,13 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
     );
   }
 
+  const { onRequestClose } = props;
   return (
     <StyledModal
       {...props}
       style={{ content: { paddingTop: '1.5rem', maxWidth: '27.5rem' } }}
     >
-      <ModalCloseButton onClick={props.onRequestClose} />
+      <ModalCloseButton onClick={onRequestClose} />
       <h2 className="text-2xl font-bold">Suggest new source</h2>
       <p
         className="typo-callout text-theme-label-secondary text-center pt-1.5 pb-2"

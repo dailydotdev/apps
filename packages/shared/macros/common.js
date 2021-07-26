@@ -4,7 +4,7 @@ const { createMacro } = require('babel-plugin-macros');
 exports.quickMacro = (requireFunc) =>
   createMacro(({ references, state, babel }) => {
     // lets walk through all calls of the macro
-    references.default.map((referencePath) => {
+    references.default.forEach((referencePath) => {
       // check if it is call expression e.g. someFunction("blah-blah")
       if (referencePath.parentPath.type === 'CallExpression') {
         // call our macro

@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
-import { responsiveModalBreakpoint } from '../components/modals/ResponsiveModal';
+import { mobileL } from '../styles/media';
+
+export const responsiveModalBreakpoint = mobileL;
 
 export function useResetScrollForResponsiveModal(): void {
   useEffect(() => {

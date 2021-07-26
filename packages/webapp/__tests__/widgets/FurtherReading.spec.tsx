@@ -3,20 +3,20 @@ import {
   Post,
   REMOVE_BOOKMARK_MUTATION,
 } from '@dailydotdev/shared/src/graphql/posts';
-import { MockedGraphQLResponse, mockGraphQL } from '../helpers/graphql';
 import nock from 'nock';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
-import defaultFeedPage from '../fixture/feed';
-import defaultUser from '../fixture/loggedUser';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
-import FurtherReading from '../../components/widgets/FurtherReading';
 import {
   FURTHER_READING_QUERY,
   FurtherReadingData,
 } from '@dailydotdev/shared/src/graphql/furtherReading';
+import defaultFeedPage from '../fixture/feed';
+import defaultUser from '../fixture/loggedUser';
+import FurtherReading from '../../components/widgets/FurtherReading';
+import { MockedGraphQLResponse, mockGraphQL } from '../helpers/graphql';
 
 const showLogin = jest.fn();
 

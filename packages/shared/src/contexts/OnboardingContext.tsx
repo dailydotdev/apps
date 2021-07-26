@@ -32,6 +32,16 @@ export type OnboardingContextProviderProps = {
   children?: ReactNode;
 };
 
+const getOnboardingStep = (onboardingStep: number | boolean): number => {
+  if (onboardingStep === true) {
+    return 1;
+  }
+  if (onboardingStep === false) {
+    return 2;
+  }
+  return onboardingStep;
+};
+
 export const OnboardingContextProvider = ({
   children,
 }: OnboardingContextProviderProps): ReactElement => {
@@ -72,8 +82,7 @@ export const OnboardingContextProvider = ({
     }
   }, [onboardingData?.firstUse]);
 
-  const backwardsCompatibleOnboardingStep =
-    onboardingStep === true ? 1 : onboardingStep === false ? 2 : onboardingStep;
+  const backwardsCompatibleOnboardingStep = getOnboardingStep(onboardingStep);
 
   const contextData = useMemo<OnboardingContextData>(
     () => ({
@@ -145,6 +154,7 @@ export const OnboardingContextProvider = ({
             // Nothing here
           }
         }
+        return undefined;
       },
     }),
     [

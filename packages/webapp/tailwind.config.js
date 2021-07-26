@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const config = require('@dailydotdev/shared/tailwind.config.js');
+const config = require('@dailydotdev/shared/tailwind.config');
 
 module.exports = {
   ...config,

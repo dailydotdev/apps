@@ -1,7 +1,7 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import classNames from 'classnames';
 import sizeN from '../../macros/sizeN.macro';
 import ArrowIcon from '../../icons/arrow.svg';
-import classNames from 'classnames';
 import { getTooltipProps } from '../lib/tooltip';
 import FeedFilters from './filters/FeedFilters';
 import OnboardingContext from '../contexts/OnboardingContext';
@@ -61,6 +61,7 @@ export default function Sidebar(): ReactElement {
         <FeedFilters enableQueries={enableQueries} />
       </aside>
       <button
+        type="button"
         className={classNames(
           'flex w-12 h-14 items-center pl-3 border-l-0 rounded-r-2xl cursor-pointer focus-outline',
           hightlightTrigger

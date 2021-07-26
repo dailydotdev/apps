@@ -6,13 +6,13 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import classNames from 'classnames';
 import { updateProfile, UserProfile } from '../../lib/user';
 import { TextField } from '../fields/TextField';
 import { Switch } from '../fields/Switch';
 import ArrowIcon from '../../../icons/arrow.svg';
 import AuthContext from '../../contexts/AuthContext';
 import { formToJson } from '../../lib/form';
-import classNames from 'classnames';
 import classed from '../../lib/classed';
 import styles from './ProfileForm.module.css';
 
@@ -20,7 +20,7 @@ const REQUIRED_FIELDS_COUNT = 4;
 
 export type RegistrationMode = 'default' | 'author' | 'update';
 
-export interface ProfileForm extends HTMLAttributes<HTMLFormElement> {
+export interface ProfileFormProps extends HTMLAttributes<HTMLFormElement> {
   setDisableSubmit?: (disable: boolean) => void;
   onSuccessfulSubmit?: (optionalFields: boolean) => void | Promise<void>;
   mode?: RegistrationMode;
@@ -42,7 +42,7 @@ export default function ProfileForm({
   mode,
   className,
   ...props
-}: ProfileForm): ReactElement {
+}: ProfileFormProps): ReactElement {
   const { user, updateUser } = useContext(AuthContext);
 
   const formRef = useRef<HTMLFormElement>(null);
@@ -109,7 +109,7 @@ export default function ProfileForm({
 
   const twitterField = (
     <FormField
-      compact={true}
+      compact
       inputId="twitter"
       name="twitter"
       label="Twitter"
@@ -129,7 +129,7 @@ export default function ProfileForm({
     <>
       <SectionHeading>About</SectionHeading>
       <FormField
-        compact={true}
+        compact
         inputId="bio"
         name="bio"
         label="Bio"
@@ -138,7 +138,7 @@ export default function ProfileForm({
         validityChanged={updateDisableSubmit}
       />
       <FormField
-        compact={true}
+        compact
         inputId="company"
         name="company"
         label="Company"
@@ -147,7 +147,7 @@ export default function ProfileForm({
         validityChanged={updateDisableSubmit}
       />
       <FormField
-        compact={true}
+        compact
         inputId="title"
         name="title"
         label="Job title"
@@ -158,7 +158,7 @@ export default function ProfileForm({
       <SectionHeading>Social</SectionHeading>
       {mode !== 'author' && twitterField}
       <FormField
-        compact={true}
+        compact
         inputId="github"
         name="github"
         label="GitHub"
@@ -172,7 +172,7 @@ export default function ProfileForm({
         valueChanged={() => githubHint && setGithubHint(null)}
       />
       <FormField
-        compact={true}
+        compact
         inputId="hashnode"
         name="hashnode"
         label="Hashnode"
@@ -186,7 +186,7 @@ export default function ProfileForm({
         valueChanged={() => hashnodeHint && setHashnodeHint(null)}
       />
       <FormField
-        compact={true}
+        compact
         inputId="portfolio"
         name="portfolio"
         label="Website"
@@ -207,7 +207,7 @@ export default function ProfileForm({
     >
       <SectionHeading>Profile</SectionHeading>
       <FormField
-        compact={true}
+        compact
         inputId="name"
         name="name"
         label="Name"
@@ -218,7 +218,7 @@ export default function ProfileForm({
         validityChanged={updateDisableSubmit}
       />
       <FormField
-        compact={true}
+        compact
         inputId="username"
         name="username"
         label="Username"
@@ -232,7 +232,7 @@ export default function ProfileForm({
         valueChanged={() => usernameHint && setUsernameHint(null)}
       />
       <FormField
-        compact={true}
+        compact
         inputId="email"
         name="email"
         label="Email"

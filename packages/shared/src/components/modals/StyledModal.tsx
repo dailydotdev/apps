@@ -1,7 +1,7 @@
-import classed from '../../lib/classed';
-import styles from './StyledModal.module.css';
 import Modal from 'react-modal';
 import React, { ReactElement, ReactNode } from 'react';
+import classed from '../../lib/classed';
+import styles from './StyledModal.module.css';
 
 export interface ModalProps extends Modal.Props {
   children?: ReactNode;

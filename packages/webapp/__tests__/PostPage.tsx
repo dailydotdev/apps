@@ -8,7 +8,6 @@ import {
   waitFor,
 } from '@testing-library/preact';
 
-import PostPage, { Props } from '../pages/posts/[id]';
 import {
   ADD_BOOKMARKS_MUTATION,
   CANCEL_UPVOTE_MUTATION,
@@ -25,14 +24,15 @@ import {
   PostCommentsData,
 } from '@dailydotdev/shared/src/graphql/comments';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
-import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
 import nock from 'nock';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { mocked } from 'ts-jest/utils';
 import { NextRouter, useRouter } from 'next/router';
-import defaultUser from './fixture/loggedUser';
 import { OperationOptions } from 'subscriptions-transport-ws';
 import { SubscriptionCallbacks } from '@dailydotdev/shared/src/hooks/useSubscription';
+import defaultUser from './fixture/loggedUser';
+import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
+import PostPage, { Props } from '../pages/posts/[id]';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;

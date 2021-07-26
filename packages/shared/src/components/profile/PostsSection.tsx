@@ -6,6 +6,10 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import Link from 'next/link';
+import { useInfiniteQuery } from 'react-query';
+import request from 'graphql-request';
+import dynamic from 'next/dynamic';
 import {
   commentContainerClass,
   CommentContent,
@@ -15,15 +19,12 @@ import {
 import { ownershipGuide } from '../../lib/constants';
 import { Button } from '../buttons/Button';
 import ActivitySection from './ActivitySection';
-import Link from 'next/link';
 import { smallPostImage } from '../../lib/image';
 import EyeIcon from '../../../icons/eye.svg';
 import { largeNumberFormat } from '../../lib/numberFormat';
 import UpvoteIcon from '../../../icons/upvote.svg';
 import CommentIcon from '../../../icons/comment.svg';
-import { useInfiniteQuery } from 'react-query';
 import { AUTHOR_FEED_QUERY, FeedData } from '../../graphql/posts';
-import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import { LazyImage } from '../LazyImage';
 import { TextField } from '../fields/TextField';
@@ -35,7 +36,6 @@ import {
 import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
 import AuthContext from '../../contexts/AuthContext';
 import { formToJson } from '../../lib/form';
-import dynamic from 'next/dynamic';
 import styles from './PostsSection.module.css';
 import classed from '../../lib/classed';
 import sizeN from '../../../macros/sizeN.macro';
@@ -43,7 +43,7 @@ import sizeN from '../../../macros/sizeN.macro';
 const AccountDetailsModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "accountDetailsModal"*/ '../modals/AccountDetailsModal'
+      /* webpackChunkName: "accountDetailsModal" */ '../modals/AccountDetailsModal'
     ),
 );
 
@@ -105,7 +105,7 @@ export default function PostsSection({
     ['user_posts', userId],
     ({ pageParam }) =>
       request(`${apiUrl}/graphql`, AUTHOR_FEED_QUERY, {
-        userId: userId,
+        userId,
         first: 3,
         after: pageParam,
       }),
@@ -194,6 +194,7 @@ export default function PostsSection({
         ) : (
           <>
             <button
+              type="button"
               className="btn-primary mt-4 self-start"
               onClick={() => setShowAccountDetails(true)}
             >

@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 import { NextRouter } from 'next/router';
 import { UrlObject } from 'url';
 
@@ -7,7 +8,7 @@ export default class CustomRouter implements NextRouter {
   asPath = '/';
 
   back(): void {
-    history.back();
+    window.history.back();
   }
 
   basePath = '/';
@@ -17,10 +18,15 @@ export default class CustomRouter implements NextRouter {
   }
 
   events = null;
+
   isFallback = false;
+
   isLocaleDomain = false;
+
   isPreview = false;
+
   isReady = true;
+
   pathname = '/';
 
   prefetch(): Promise<void> {
@@ -38,9 +44,9 @@ export default class CustomRouter implements NextRouter {
     window.location.reload();
   }
 
-  replace(url: Url): Promise<boolean> {
+  async replace(url: Url): Promise<boolean> {
     window.location.href = url as string;
-    return;
+    return true;
   }
 
   route = '/';

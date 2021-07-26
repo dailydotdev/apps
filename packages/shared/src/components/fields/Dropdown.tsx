@@ -26,6 +26,16 @@ export interface DropdownProps {
   buttonSize?: 'small' | 'medium' | 'large';
 }
 
+const getButtonSizeClass = (buttonSize: string): string => {
+  if (buttonSize === 'medium') {
+    return 'h-10 rounded-xl';
+  }
+  if (buttonSize === 'small') {
+    return 'h-8 rounded-10';
+  }
+  return 'h-12 rounded-14';
+};
+
 export function Dropdown({
   icon,
   className,
@@ -84,14 +94,11 @@ export function Dropdown({
   return (
     <div className={classNames(styles.dropdown, className)} {...props}>
       <button
+        type="button"
         ref={triggerRef}
         className={classNames(
           'group flex w-full px-3 items-center bg-theme-float typo-body text-theme-label-tertiary hover:text-theme-label-primary hover:bg-theme-hover',
-          buttonSize === 'medium'
-            ? 'h-10 rounded-xl'
-            : buttonSize === 'small'
-            ? 'h-8 rounded-10'
-            : 'h-12 rounded-14',
+          getButtonSizeClass(buttonSize),
         )}
         onClick={handleMenuTrigger}
         onKeyDown={handleKeyboard}

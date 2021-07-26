@@ -1,6 +1,6 @@
 import React, { InputHTMLAttributes, ReactElement } from 'react';
-import styles from './RadioItem.module.css';
 import classNames from 'classnames';
+import styles from './RadioItem.module.css';
 
 export type RadioItemProps = Omit<
   InputHTMLAttributes<HTMLInputElement>,
@@ -13,6 +13,7 @@ export function RadioItem({
   checked,
   ...props
 }: RadioItemProps): ReactElement {
+  const { id } = props;
   return (
     <label
       className={classNames(
@@ -21,6 +22,7 @@ export function RadioItem({
         'relative flex flex-row items-center typo-footnote text-theme-label-tertiary pointer font-bold cursor-pointer select-none hover:text-theme-label-primary focus-within:text-theme-label-primary pr-3',
         className,
       )}
+      htmlFor={id}
     >
       <input
         type="radio"

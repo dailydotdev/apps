@@ -1,16 +1,16 @@
 import React, { ReactElement, useContext, useState } from 'react';
+import { useQuery } from 'react-query';
+import classNames from 'classnames';
 import { Button } from '../buttons/Button';
 import { StyledModal, ModalProps } from './StyledModal';
 import { ModalCloseButton } from './ModalCloseButton';
 import { TextField } from '../fields/TextField';
 import CopyIcon from '../../../icons/copy.svg';
 import TwitterIcon from '../../../icons/twitter.svg';
-import { useQuery } from 'react-query';
 import AuthContext from '../../contexts/AuthContext';
 import fetchTimeout from '../../lib/fetchTimeout';
 import { apiUrl } from '../../lib/config';
 import styles from './HelpUsGrowModal.module.css';
-import classNames from 'classnames';
 
 function getTweet(link: string): string {
   const text =
