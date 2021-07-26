@@ -1,8 +1,8 @@
-import { Post } from '../../graphql/posts';
 import React, { CSSProperties, ReactElement } from 'react';
-import { getTooltipProps } from '../../lib/tooltip';
 import Link from 'next/link';
 import classNames from 'classnames';
+import { getTooltipProps } from '../../lib/tooltip';
+import { Post } from '../../graphql/posts';
 
 export default function SourceButton({
   post,

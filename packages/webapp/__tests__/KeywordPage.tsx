@@ -5,14 +5,14 @@ import { NextRouter, useRouter } from 'next/router';
 import { LoggedUser, Roles } from '@dailydotdev/shared/src/lib/user';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import KeywordsPage from '../pages/backoffice/keywords/[value]';
 import {
   Keyword,
   KeywordData,
   KEYWORD_QUERY,
 } from '@dailydotdev/shared/src/graphql/keywords';
+import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
+import KeywordsPage from '../pages/backoffice/keywords/[value]';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),

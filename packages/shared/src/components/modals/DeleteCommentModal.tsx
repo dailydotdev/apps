@@ -1,11 +1,11 @@
 import React, { ReactElement, MouseEvent, useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
+import cloneDeep from 'lodash.clonedeep';
+import request from 'graphql-request';
 import {
   DELETE_COMMENT_MUTATION,
   PostCommentsData,
 } from '../../graphql/comments';
-import cloneDeep from 'lodash.clonedeep';
-import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import { Button } from '../buttons/Button';
 import { ModalProps } from './StyledModal';

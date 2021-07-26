@@ -14,13 +14,14 @@ import styles from './Checkbox.module.css';
 export interface CheckboxProps {
   name: string;
   checked?: boolean;
+  id?: string;
   children?: ReactNode;
   className?: string;
   onToggle?: (checked: boolean) => unknown;
 }
 
 export const Checkbox = forwardRef(function Checkbox(
-  { name, checked, children, className, onToggle }: CheckboxProps,
+  { name, checked, children, className, onToggle, id }: CheckboxProps,
   ref: LegacyRef<HTMLInputElement>,
 ): ReactElement {
   const [actualChecked, setActualChecked] = useState(checked);
@@ -43,8 +44,10 @@ export const Checkbox = forwardRef(function Checkbox(
         { checked: actualChecked },
       )}
       style={{ transition: 'color 0.1s linear' }}
+      htmlFor={id}
     >
       <input
+        id={id}
         type="checkbox"
         className="absolute w-0 h-0 opacity-0"
         name={name}

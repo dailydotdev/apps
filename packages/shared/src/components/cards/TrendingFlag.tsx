@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
+import classNames from 'classnames';
 import { getTooltipProps } from '../../lib/tooltip';
 import styles from './Card.module.css';
-import classNames from 'classnames';
 
 export default function TrendingFlag({
   trending,

@@ -1,9 +1,9 @@
 import React from 'react';
 import { screen, render, RenderResult, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from 'react-query';
 import AuthContext from '../../contexts/AuthContext';
 import { LoggedUser } from '../../lib/user';
 import SubComment, { Props } from './SubComment';
-import { QueryClient, QueryClientProvider } from 'react-query';
 
 const baseComment = {
   id: 'c2',

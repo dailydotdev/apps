@@ -5,6 +5,8 @@ import React, {
   Ref,
   useState,
 } from 'react';
+import classNames from 'classnames';
+import dynamic from 'next/dynamic';
 import { Post } from '../../graphql/posts';
 import {
   Card,
@@ -20,8 +22,6 @@ import {
 import { SmallRoundedImage } from '../utilities';
 import FeatherIcon from '../../../icons/feather.svg';
 import FlagIcon from '../../../icons/flag.svg';
-import classNames from 'classnames';
-import dynamic from 'next/dynamic';
 import { Comment } from '../../graphql/comments';
 import { Button } from '../buttons/Button';
 import styles from './Card.module.css';

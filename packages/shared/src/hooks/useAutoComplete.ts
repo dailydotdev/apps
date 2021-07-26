@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-export type useAutoCompleteReturn = {
+export type UseAutoCompleteReturn = {
   selectedItemIndex: number;
   onKeyDown: (event: React.KeyboardEvent) => void;
 };
@@ -8,7 +8,7 @@ export type useAutoCompleteReturn = {
 export function useAutoComplete(
   items: string[],
   submitQuery: (query?: string) => unknown,
-): useAutoCompleteReturn {
+): UseAutoCompleteReturn {
   const [selectedItemIndex, setSelectedItemIndex] = useState(-1);
 
   useEffect(() => {

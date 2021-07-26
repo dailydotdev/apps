@@ -29,7 +29,6 @@ import {
   POSTS_ENGAGED_SUBSCRIPTION,
   PostsEngaged,
 } from '@dailydotdev/shared/src/graphql/posts';
-import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import MainComment from '@dailydotdev/shared/src/components/comments/MainComment';
 import {
@@ -56,9 +55,10 @@ import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 import Link from 'next/link';
 import useUpvotePost from '@dailydotdev/shared/src/hooks/useUpvotePost';
 import useBookmarkPost from '@dailydotdev/shared/src/hooks/useBookmarkPost';
-import styles from './postPage.module.css';
 import classNames from 'classnames';
 import classed from '@dailydotdev/shared/src/lib/classed';
+import styles from './postPage.module.css';
+import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import PostToc from '../../components/widgets/PostToc';
 
 declare module 'graphql-request/dist/types' {
@@ -257,13 +257,15 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
       if (postById?.post.upvoted) {
         trackEvent({ category: 'Post', action: 'Upvote', label: 'Remove' });
         return cancelPostUpvote({ id: postById.post.id });
-      } else if (postById) {
+      }
+      if (postById) {
         trackEvent({ category: 'Post', action: 'Add', label: 'Remove' });
         return upvotePost({ id: postById.post.id });
       }
     } else {
       showLogin('upvote', LoginModalMode.ContentQuality);
     }
+    return undefined;
   };
 
   const sharePost = async () => {
@@ -329,16 +331,17 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     }
   };
 
-  const onEditClick = (comment: Comment, parentComment?: Comment) => {
+  const onEditClick = (comment: Comment, localParentComment?: Comment) => {
     setLastScroll(window.scrollY);
     const shared = { editContent: comment.content, editId: comment.id };
-    if (parentComment) {
+    if (localParentComment) {
       setParentComment({
-        authorName: parentComment.author.name,
-        authorImage: parentComment.author.image,
-        content: parentComment.content,
-        publishDate: parentComment.lastUpdatedAt || parentComment.createdAt,
-        commentId: parentComment.id,
+        authorName: localParentComment.author.name,
+        authorImage: localParentComment.author.image,
+        content: localParentComment.content,
+        publishDate:
+          localParentComment.lastUpdatedAt || localParentComment.createdAt,
+        commentId: localParentComment.id,
         postId: postById.post.id,
         ...shared,
       });
@@ -523,7 +526,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             imgSrc={postById?.post.image}
             imgAlt="Post cover image"
             ratio="49%"
-            eager={true}
+            eager
           />
         </a>
         <div
@@ -573,18 +576,18 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           >
             Bookmark
           </QuaternaryButton>
-          {/*<QuaternaryButton*/}
-          {/*  id="share-post-btn"*/}
-          {/*  onClick={sharePost}*/}
-          {/*  {...getTooltipProps('Share')}*/}
-          {/*  icon={<ShareIcon />}*/}
-          {/*  style={{ visibility: nativeShareSupport ? 'visible' : 'hidden' }}*/}
-          {/*  aria-label="Share"*/}
-          {/*  responsiveClass="mobileL:flex"*/}
-          {/*  className="btn-tertiary"*/}
-          {/*>*/}
-          {/*  Share*/}
-          {/*</QuaternaryButton>*/}
+          {/* <QuaternaryButton */}
+          {/*  id="share-post-btn" */}
+          {/*  onClick={sharePost} */}
+          {/*  {...getTooltipProps('Share')} */}
+          {/*  icon={<ShareIcon />} */}
+          {/*  style={{ visibility: nativeShareSupport ? 'visible' : 'hidden' }} */}
+          {/*  aria-label="Share" */}
+          {/*  responsiveClass="mobileL:flex" */}
+          {/*  className="btn-tertiary" */}
+          {/* > */}
+          {/*  Share */}
+          {/* </QuaternaryButton> */}
         </div>
         {comments?.postComments?.edges?.length > 0 && (
           <>
@@ -685,6 +688,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           )}
         >
           <button
+            type="button"
             className={classNames(
               'flex w-full h-10 items-center px-4 bg-theme-bg-secondary text-theme-label-secondary border-none rounded-2xl cursor-pointer typo-callout focus-outline',
               styles.discussionBar,
@@ -781,8 +785,7 @@ export async function getStaticProps({
         props: { id: null },
         revalidate: 60,
       };
-    } else {
-      throw err;
     }
+    throw err;
   }
 }

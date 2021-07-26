@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
+import classNames from 'classnames';
 import { LazyImage } from '../LazyImage';
 import { ProfileLink, ProfileLinkProps } from './ProfileLink';
-import classNames from 'classnames';
 
 export function ProfileImageLink({
   className,

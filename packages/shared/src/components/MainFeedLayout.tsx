@@ -115,9 +115,8 @@ const getQueryBasedOnLogin = (
   if (tokenRefreshed) {
     if (user && queryIfLogged) {
       return queryIfLogged;
-    } else {
-      return query;
     }
+    return query;
   }
   return null;
 };

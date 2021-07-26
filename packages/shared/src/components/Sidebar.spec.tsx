@@ -1,9 +1,9 @@
 import React from 'react';
 import { render, RenderResult, screen } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from 'react-query';
 import OnboardingContext from '../contexts/OnboardingContext';
 import AuthContext from '../contexts/AuthContext';
 import Sidebar from './Sidebar';
-import { QueryClient, QueryClientProvider } from 'react-query';
 
 const incrementOnboardingStep = jest.fn();
 

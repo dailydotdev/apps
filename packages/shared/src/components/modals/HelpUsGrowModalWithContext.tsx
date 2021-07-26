@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext, useMemo } from 'react';
-import OnboardingContext from '../../contexts/OnboardingContext';
 import dynamic from 'next/dynamic';
+import OnboardingContext from '../../contexts/OnboardingContext';
 
 const HelpUsGrowModal = dynamic(() => import('./HelpUsGrowModal'));
 
@@ -11,7 +11,7 @@ export default function HelpUsGrowModalWithContext(): ReactElement {
     () => (
       <>
         {showReferral && (
-          <HelpUsGrowModal isOpen={true} onRequestClose={closeReferral} />
+          <HelpUsGrowModal isOpen onRequestClose={closeReferral} />
         )}
       </>
     ),

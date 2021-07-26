@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
-import { TextField, TextFieldProps } from './TextField';
 import userEvent from '@testing-library/user-event';
+import { TextField, TextFieldProps } from './TextField';
 
 const renderComponent = (props: Partial<TextFieldProps> = {}): RenderResult => {
   const defaultProps: TextFieldProps = {

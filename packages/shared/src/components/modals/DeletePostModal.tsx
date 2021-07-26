@@ -1,7 +1,7 @@
 import React, { ReactElement, MouseEvent, useState } from 'react';
 import { useMutation } from 'react-query';
-import { DELETE_POST_MUTATION, EmptyResponse } from '../../graphql/posts';
 import request from 'graphql-request';
+import { DELETE_POST_MUTATION } from '../../graphql/posts';
 import { apiUrl } from '../../lib/config';
 import { Button } from '../buttons/Button';
 import { ModalProps } from './StyledModal';
@@ -11,6 +11,7 @@ import {
   ConfirmationDescription,
   ConfirmationButtons,
 } from './ConfirmationModal';
+import { EmptyResponse } from '../../graphql/emptyResponse';
 
 export interface Props extends ModalProps {
   postId: string;

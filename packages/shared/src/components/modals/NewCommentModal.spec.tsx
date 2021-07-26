@@ -1,5 +1,7 @@
 import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import nock from 'nock';
+import { QueryClient, QueryClientProvider } from 'react-query';
 import NewCommentModal, { NewCommentModalProps } from './NewCommentModal';
 import { LoggedUser } from '../../lib/user';
 import AuthContext from '../../contexts/AuthContext';
@@ -12,8 +14,6 @@ import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '../../../__tests__/helpers/graphql';
-import nock from 'nock';
-import { QueryClient, QueryClientProvider } from 'react-query';
 
 const defaultUser = {
   id: 'u1',

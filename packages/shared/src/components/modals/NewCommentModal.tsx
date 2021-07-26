@@ -11,9 +11,11 @@ import React, {
 } from 'react';
 import dynamic from 'next/dynamic';
 import cloneDeep from 'lodash.clonedeep';
+import { useMutation, useQueryClient } from 'react-query';
+import request from 'graphql-request';
+import classNames from 'classnames';
 import AuthContext from '../../contexts/AuthContext';
 import { commentBoxClassNames } from '../comments/common';
-import { useMutation, useQueryClient } from 'react-query';
 import {
   Comment,
   COMMENT_ON_COMMENT_MUTATION,
@@ -23,7 +25,6 @@ import {
   PostCommentsData,
 } from '../../graphql/comments';
 import { Edge } from '../../graphql/common';
-import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import { trackEvent } from '../../lib/analytics';
 import { RoundedImage, SmallRoundedImage } from '../utilities';
@@ -32,7 +33,6 @@ import { Button } from '../buttons/Button';
 import { ResponsiveModal } from './ResponsiveModal';
 import { ModalProps } from './StyledModal';
 import styles from './NewCommentModal.module.css';
-import classNames from 'classnames';
 
 const DiscardCommentModal = dynamic(() => import('./DiscardCommentModal'));
 
@@ -177,6 +177,7 @@ export default function NewCommentModal({
 
   const modalRef = (element: HTMLDivElement): void => {
     if (element) {
+      // eslint-disable-next-line no-param-reassign
       element.scrollTop = element.scrollHeight - element.clientHeight;
     }
   };
@@ -301,6 +302,8 @@ export default function NewCommentModal({
           onInput={onInput}
           onKeyDown={onKeyDown}
           onPaste={onPaste}
+          tabIndex={0}
+          aria-label="New comment box"
         />
       </div>
       <div

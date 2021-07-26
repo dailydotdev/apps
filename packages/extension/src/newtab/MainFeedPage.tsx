@@ -9,16 +9,16 @@ import MainFeedLayout, {
 } from '@dailydotdev/shared/src/components/MainFeedLayout';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import dynamic from 'next/dynamic';
-import MostVisitedSites from './MostVisitedSites';
-import getPageForAnalytics from '../lib/getPageForAnalytics';
 import { trackPageView } from '@dailydotdev/shared/src/lib/analytics';
 import TimerIcon from '@dailydotdev/shared/icons/timer.svg';
 import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
-import DndMenu from './DndMenu';
 import { useContextMenu } from 'react-contexify';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import SyncIcon from '@dailydotdev/shared/icons/sync.svg';
+import DndMenu from './DndMenu';
+import getPageForAnalytics from '../lib/getPageForAnalytics';
+import MostVisitedSites from './MostVisitedSites';
 
 const PostsSearch = dynamic(
   () =>
@@ -83,9 +83,9 @@ export default function MainFeedPage({
   return (
     <MainLayout
       responsive={false}
-      showRank={true}
-      greeting={true}
-      mainPage={true}
+      showRank
+      greeting
+      mainPage
       onLogoClick={onLogoClick}
       additionalButtons={
         <>

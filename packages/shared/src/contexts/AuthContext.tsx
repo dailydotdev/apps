@@ -25,7 +25,7 @@ export default AuthContext;
 
 const logout = async (): Promise<void> => {
   await dispatchLogout();
-  location.reload();
+  window.location.reload();
 };
 
 export type AuthContextProviderProps = {

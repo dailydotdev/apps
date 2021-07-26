@@ -1,9 +1,9 @@
 import React, { ReactElement, useContext } from 'react';
-import { Button } from './buttons/Button';
-import XIcon from '../../icons/x.svg';
 import classNames from 'classnames';
 import { useQuery } from 'react-query';
 import request from 'graphql-request';
+import XIcon from '../../icons/x.svg';
+import { Button } from './buttons/Button';
 import { apiUrl } from '../lib/config';
 import { BANNER_QUERY, BannerData } from '../graphql/banner';
 import ProgressiveEnhancementContext from '../contexts/ProgressiveEnhancementContext';

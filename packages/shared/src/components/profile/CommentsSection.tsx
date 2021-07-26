@@ -1,12 +1,12 @@
 import React, { ReactElement } from 'react';
 import { useInfiniteQuery } from 'react-query';
-import { USER_COMMENTS_QUERY, UserCommentsData } from '../../graphql/comments';
 import request from 'graphql-request';
+import Link from 'next/link';
+import { format } from 'date-fns';
+import { USER_COMMENTS_QUERY, UserCommentsData } from '../../graphql/comments';
 import { apiUrl } from '../../lib/config';
 import UpvoteIcon from '../../../icons/upvote.svg';
 import { largeNumberFormat } from '../../lib/numberFormat';
-import Link from 'next/link';
-import { format } from 'date-fns';
 import ActivitySection from './ActivitySection';
 import {
   EmptyMessage,
@@ -33,7 +33,7 @@ export default function CommentsSection({
     ['user_comments', userId],
     ({ pageParam }) =>
       request(`${apiUrl}/graphql`, USER_COMMENTS_QUERY, {
-        userId: userId,
+        userId,
         first: 3,
         after: pageParam,
       }),

@@ -141,6 +141,7 @@ export default function useFeed<T>(
       const ads: Ad[] = await adRes.json();
       setLastAd(ads?.[0]);
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.error(err);
     }
   };

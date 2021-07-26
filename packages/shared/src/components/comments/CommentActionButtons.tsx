@@ -1,4 +1,6 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import { useMutation, useQueryClient } from 'react-query';
+import request from 'graphql-request';
 import AuthContext from '../../contexts/AuthContext';
 import UpvoteIcon from '../../../icons/upvote.svg';
 import CommentIcon from '../../../icons/comment.svg';
@@ -9,9 +11,7 @@ import {
   Comment,
   UPVOTE_COMMENT_MUTATION,
 } from '../../graphql/comments';
-import { useMutation, useQueryClient } from 'react-query';
 import { Roles } from '../../lib/user';
-import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import { Button } from '../buttons/Button';
@@ -88,12 +88,11 @@ export default function CommentActionButtons({
       // TODO: add GA tracking
       if (upvoted) {
         return cancelCommentUpvote();
-      } else {
-        return upvoteComment();
       }
-    } else {
-      showLogin('comment upvote');
+      return upvoteComment();
     }
+    showLogin('comment upvote');
+    return undefined;
   };
 
   return (

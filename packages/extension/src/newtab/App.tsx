@@ -15,18 +15,18 @@ import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/Su
 import { FeaturesContextProvider } from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import { SettingsContextProvider } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { RouterContext } from 'next/dist/next-server/lib/router-context';
+import { browser } from 'webextension-polyfill-ts';
+import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState';
+import BellIcon from '@dailydotdev/shared/icons/bell.svg';
+import HelpUsGrowModalWithContext from '@dailydotdev/shared/src/components/modals/HelpUsGrowModalWithContext';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
-import { browser } from 'webextension-polyfill-ts';
 import getPageForAnalytics from '../lib/getPageForAnalytics';
 import DndContext from './DndContext';
 import useDndContext from './useDndContext';
 import DndBanner from './DndBanner';
-import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState';
-import BellIcon from '@dailydotdev/shared/icons/bell.svg';
 import useSettingsMigration from './useSettingsMigration';
-import HelpUsGrowModalWithContext from '@dailydotdev/shared/src/components/modals/HelpUsGrowModalWithContext';
 
 const AnalyticsConsentModal = dynamic(() => import('./AnalyticsConsentModal'));
 const MigrateSettingsModal = dynamic(() => import('./MigrateSettingsModal'));
@@ -39,7 +39,7 @@ const queryClient = new QueryClient();
 const LoginModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "loginModal"*/ '@dailydotdev/shared/src/components/modals/LoginModal'
+      /* webpackChunkName: "loginModal" */ '@dailydotdev/shared/src/components/modals/LoginModal'
     ),
 );
 
@@ -137,7 +137,7 @@ function InternalApp(): ReactElement {
         <AnalyticsConsentModal
           onDecline={() => setAnalyticsConsent(false)}
           onAccept={() => setAnalyticsConsent(true)}
-          isOpen={true}
+          isOpen
         />
       )}
       {showMigrationModal && (

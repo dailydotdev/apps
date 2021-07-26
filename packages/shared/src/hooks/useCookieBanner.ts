@@ -26,7 +26,8 @@ export function useCookieBanner(): [
       return;
     }
     if (user) {
-      return acceptCookies();
+      acceptCookies();
+      return;
     }
     setShowCookie(true);
   };

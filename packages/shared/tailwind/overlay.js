@@ -1,11 +1,14 @@
 const colors = require('./colors');
 
-const overlayColor = (color) =>
-  color === 'white'
-    ? '#FFFFFF'
-    : 'pepper'
-    ? colors[color]['90']
-    : colors[color]['50'];
+const overlayColor = (color) => {
+  if (color === 'white') {
+    return '#FFFFFF';
+  }
+  if (color === 'pepper') {
+    return colors[color]['90'];
+  }
+  return colors[color]['50'];
+};
 
 const getOverlayPalette = (overlay) =>
   [...Object.keys(colors), 'white'].reduce(

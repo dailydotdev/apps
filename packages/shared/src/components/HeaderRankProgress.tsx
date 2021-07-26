@@ -4,14 +4,14 @@ import React, {
   useContext,
   useState,
 } from 'react';
+import dynamic from 'next/dynamic';
+import classNames from 'classnames';
 import { RankProgress } from './RankProgress';
 import useReadingRank from '../hooks/useReadingRank';
-import dynamic from 'next/dynamic';
 import AuthContext from '../contexts/AuthContext';
 import { STEPS_PER_RANK } from '../lib/rank';
 import OnboardingContext from '../contexts/OnboardingContext';
 import Rank from './Rank';
-import classNames from 'classnames';
 import styles from './HeaderRankProgress.module.css';
 
 const RanksModal = dynamic(
@@ -59,6 +59,7 @@ export default function HeaderRankProgress({
     <>
       {onboardingReady && (
         <button
+          type="button"
           className={classNames(
             'flex items-center justify-center bg-theme-bg-primary cursor-pointer focus-outline',
             styles.rankButton,

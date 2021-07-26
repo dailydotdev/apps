@@ -1,12 +1,12 @@
 import React, { CSSProperties, ReactElement } from 'react';
+import Link from 'next/link';
+import classNames from 'classnames';
 import classed from '../../lib/classed';
 import sizeN from '../../../macros/sizeN.macro';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { Button } from '../buttons/Button';
 import ArrowIcon from '../../../icons/arrow.svg';
 import { getTooltipProps } from '../../lib/tooltip';
-import Link from 'next/link';
-import classNames from 'classnames';
 
 export const FiltersContainer = classed(
   'div',

@@ -6,11 +6,11 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import classNames from 'classnames';
 import classed from '../lib/classed';
 import { Radio } from './fields/Radio';
 import { Switch } from './fields/Switch';
 import SettingsContext from '../contexts/SettingsContext';
-import classNames from 'classnames';
 import CardIcon from '../../icons/card.svg';
 import LineIcon from '../../icons/line.svg';
 import OpenLink from '../../icons/open_link.svg';
@@ -73,9 +73,10 @@ export default function Settings({
   const onShowOnlyUnreadPosts = (): Promise<void> | void => {
     if (!user) {
       showLogin('settings', LoginModalMode.Default);
-    } else {
-      return toggleShowOnlyUnreadPosts();
+      return undefined;
     }
+
+    return toggleShowOnlyUnreadPosts();
   };
 
   useEffect(() => {

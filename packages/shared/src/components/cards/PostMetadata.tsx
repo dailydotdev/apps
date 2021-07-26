@@ -1,7 +1,7 @@
 import React, { ReactElement, ReactNode, useMemo } from 'react';
+import classNames from 'classnames';
 import { Post } from '../../graphql/posts';
 import { postDateFormat } from '../../lib/dateFormat';
-import classNames from 'classnames';
 
 export default function PostMetadata({
   post,

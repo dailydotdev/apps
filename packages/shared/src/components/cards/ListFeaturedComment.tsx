@@ -1,4 +1,6 @@
 import React, { ReactElement } from 'react';
+import Link from 'next/link';
+import classNames from 'classnames';
 import {
   featuredCommentsToButtons,
   ListCardAside,
@@ -7,10 +9,8 @@ import {
 } from './Card';
 import ArrowIcon from '../../../icons/arrow.svg';
 import CommentIcon from '../../../icons/comment.svg';
-import Link from 'next/link';
 import { Button } from '../buttons/Button';
 import { getTooltipProps } from '../../lib/tooltip';
-import classNames from 'classnames';
 import { FeaturedCommentProps } from './FeaturedComment';
 
 export default function ListFeaturedComment({

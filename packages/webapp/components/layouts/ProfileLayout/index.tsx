@@ -5,14 +5,12 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import createDOMPurify from 'dompurify';
 import {
   getProfile,
   getProfileSSR,
   PublicProfile,
 } from '@dailydotdev/shared/src/lib/user';
 import { NextSeoProps } from 'next-seo/lib/types';
-import { getLayout as getMainLayout } from '../MainLayout';
 import Head from 'next/head';
 import { NextSeo } from 'next-seo';
 import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
@@ -39,16 +37,17 @@ import {
   USER_READING_RANK_QUERY,
   UserReadingRankData,
 } from '@dailydotdev/shared/src/graphql/users';
-import NavBar, { tabs } from './NavBar';
 import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { QuaternaryButton } from '@dailydotdev/shared/src/components/buttons/QuaternaryButton';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
 import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
-import styles from './index.module.css';
 import classNames from 'classnames';
 import DOMPurify from 'dompurify';
+import styles from './index.module.css';
+import NavBar, { tabs } from './NavBar';
+import { getLayout as getMainLayout } from '../MainLayout';
 
 const AccountDetailsModal = dynamic(
   () =>
@@ -133,7 +132,7 @@ export default function ProfileLayout({
 
   useEffect(() => {
     if (profile) {
-      const purify = createDOMPurify(window);
+      const purify = DOMPurify(window);
       setTwitterHandle(sanitizeOrNull(purify, profile.twitter));
       setGithubHandle(sanitizeOrNull(purify, profile.github));
       setHashnodeHandle(sanitizeOrNull(purify, profile.hashnode));
@@ -162,7 +161,7 @@ export default function ProfileLayout({
             <LazyImage
               imgSrc={profile.image}
               imgAlt={`${profile.name}'s profile image`}
-              eager={true}
+              eager
               ratio="100%"
               className="rounded-2xl"
               style={{ width: sizeN(25) }}
@@ -319,8 +318,7 @@ export async function getStaticProps({
         props: { profile: null },
         revalidate: 60,
       };
-    } else {
-      throw err;
     }
+    throw err;
   }
 }

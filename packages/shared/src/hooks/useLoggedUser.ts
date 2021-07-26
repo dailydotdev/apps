@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
+import { differenceInMilliseconds } from 'date-fns';
 import { AnonymousUser, getLoggedUser, LoggedUser } from '../lib/user';
 import usePersistentState from './usePersistentState';
-import { differenceInMilliseconds } from 'date-fns';
 
 export default function useLoggedUser(
   app: string,
@@ -39,9 +39,9 @@ export default function useLoggedUser(
   }, [availableUser]);
 
   const setUser = useCallback(
-    async (user: LoggedUser | AnonymousUser) => {
-      queryClient.setQueryData(queryKey, user);
-      await queryClient.invalidateQueries(['profile', user.id]);
+    async (newUser: LoggedUser | AnonymousUser) => {
+      queryClient.setQueryData(queryKey, newUser);
+      await queryClient.invalidateQueries(['profile', newUser.id]);
     },
     [queryClient],
   );

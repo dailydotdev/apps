@@ -1,6 +1,6 @@
-import { Ad } from '../../graphql/posts';
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import { Ad } from '../../graphql/posts';
 
 export type AdAttributionProps = {
   ad: Ad;

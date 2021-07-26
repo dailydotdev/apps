@@ -5,11 +5,8 @@ import {
 } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 import React, { ReactElement, useContext, useMemo } from 'react';
-import { getLayout } from '../../components/layouts/FeedLayout';
-import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { useRouter } from 'next/router';
 import { NextSeoProps } from 'next-seo/lib/types';
-import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { NextSeo } from 'next-seo';
 import Feed from '@dailydotdev/shared/src/components/Feed';
 import { SOURCE_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
@@ -20,7 +17,6 @@ import {
 } from '@dailydotdev/shared/src/graphql/sources';
 import request from 'graphql-request';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
-import Custom404 from '../404';
 import useMutateFilters, {
   getSourcesSettingsQueryKey,
 } from '@dailydotdev/shared/src/hooks/useMutateFilters';
@@ -40,6 +36,10 @@ import {
 } from '@dailydotdev/shared/src/components/utilities';
 import PlusIcon from '@dailydotdev/shared/icons/plus.svg';
 import { trackEvent } from '@dailydotdev/shared/src/lib/analytics';
+import Custom404 from '../404';
+import { defaultOpenGraph, defaultSeo } from '../../next-seo';
+import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
+import { getLayout } from '../../components/layouts/FeedLayout';
 
 type SourcePageProps = { source: Source };
 

@@ -1,10 +1,10 @@
 import React, { KeyboardEvent, ReactElement, useState } from 'react';
+import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
+import classNames from 'classnames';
 import commentPopupText from '../../commentPopupText';
 import CommentIcon from '../../../icons/comment.svg';
-import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 import { Button } from '../buttons/Button';
 import { ModalCloseButton } from '../modals/ModalCloseButton';
-import classNames from 'classnames';
 
 const transitionDuration = 150;
 
@@ -46,6 +46,14 @@ export default function CommentPopup({
     }
   };
 
+  let layoutModeClass: string;
+  if (listMode) {
+    layoutModeClass = 'h-full ml-14 justify-between';
+  } else if (compactCard) {
+    layoutModeClass = 'h-full';
+  } else {
+    layoutModeClass = 'h-3/4';
+  }
   return (
     <div
       className={classNames(
@@ -62,11 +70,7 @@ export default function CommentPopup({
       <div
         className={classNames(
           'invert relative flex flex-col p-4 bg-theme-bg-primary rounded-2xl',
-          listMode
-            ? 'h-full ml-14 justify-between'
-            : compactCard
-            ? 'h-full'
-            : 'h-3/4',
+          layoutModeClass,
         )}
       >
         <ModalCloseButton

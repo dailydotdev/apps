@@ -26,6 +26,7 @@ export type ButtonProps<Tag extends keyof JSX.IntrinsicElements> =
       innerRef?: LegacyRef<JSX.IntrinsicElements[Tag]>;
     };
 
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 export function Button<Tag extends keyof JSX.IntrinsicElements>({
   loading,
   pressed,

@@ -5,6 +5,7 @@ import React, {
   Ref,
   useEffect,
 } from 'react';
+import classNames from 'classnames';
 import {
   Card,
   CardImage,
@@ -14,7 +15,6 @@ import {
 } from './Card';
 import { Ad } from '../../graphql/posts';
 import styles from './Card.module.css';
-import classNames from 'classnames';
 import AdLink from './AdLink';
 import AdAttribution from './AdAttribution';
 
@@ -78,6 +78,7 @@ export const AdCard = forwardRef(function AdCard(
           key={pixel}
           data-testid="pixel"
           className="hidden w-0 h-0"
+          alt="Pixel"
         />
       ))}
     </Card>

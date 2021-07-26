@@ -1,5 +1,4 @@
 import React, { ReactElement, useContext } from 'react';
-import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 import {
   GetStaticPathsResult,
   GetStaticPropsContext,
@@ -12,11 +11,12 @@ import {
   KEYWORD_QUERY,
   KeywordData,
 } from '@dailydotdev/shared/src/graphql/keywords';
-import Custom404 from '../../404';
 import { useQuery } from 'react-query';
 import useRequirePermissions from '@dailydotdev/shared/src/hooks/useRequirePermissions';
 import { Roles } from '@dailydotdev/shared/src/lib/user';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import Custom404 from '../../404';
+import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 import KeywordManagement from '../../../components/KeywordManagement';
 
 export type KeywordPageProps = { keyword: string };

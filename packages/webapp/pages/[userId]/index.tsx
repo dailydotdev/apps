@@ -7,12 +7,6 @@ import React, {
 } from 'react';
 import { useQuery } from 'react-query';
 import {
-  getLayout as getProfileLayout,
-  getStaticProps as getProfileStaticProps,
-  getStaticPaths as getProfileStaticPaths,
-  ProfileLayoutProps,
-} from '../../components/layouts/ProfileLayout';
-import {
   addDays,
   endOfYear,
   startOfTomorrow,
@@ -42,12 +36,18 @@ import { RANK_NAMES } from '@dailydotdev/shared/src/lib/rank';
 import CommentsSection from '@dailydotdev/shared/src/components/profile/CommentsSection';
 import PostsSection from '@dailydotdev/shared/src/components/profile/PostsSection';
 import AuthorStats from '@dailydotdev/shared/src/components/profile/AuthorStats';
-import CalendarHeatmap from '../../components/CalendarHeatmap';
 import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
 import useMedia from '@dailydotdev/shared/src/hooks/useMedia';
 import { laptop } from '@dailydotdev/shared/src/styles/media';
 import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
+import CalendarHeatmap from '../../components/CalendarHeatmap';
+import {
+  getLayout as getProfileLayout,
+  getStaticProps as getProfileStaticProps,
+  getStaticPaths as getProfileStaticPaths,
+  ProfileLayoutProps,
+} from '../../components/layouts/ProfileLayout';
 
 const ReactTooltip = dynamic(() => import('react-tooltip'));
 
@@ -103,6 +103,19 @@ const dropdownOptions = [
   ),
 ];
 
+const getHistoryTitle = (
+  fullHistory: boolean,
+  selectedHistoryYear: number,
+): string => {
+  if (fullHistory) {
+    if (selectedHistoryYear > 0) {
+      return dropdownOptions[selectedHistoryYear];
+    }
+    return 'the last year';
+  }
+  return 'the last months';
+};
+
 const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
@@ -119,7 +132,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
       return [start, subYears(subDays(start, 2), 1)];
     }
     const startYear = new Date(0);
-    startYear.setFullYear(parseInt(dropdownOptions[selectedHistoryYear]));
+    startYear.setFullYear(parseInt(dropdownOptions[selectedHistoryYear], 10));
     return [addDays(endOfYear(startYear), 1), startYear];
   }, [selectedHistoryYear]);
   const [readingHistory, setReadingHistory] = useState<
@@ -211,6 +224,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
               ))}
             </div>
             <button
+              type="button"
               className="bg-none border-none typo-callout text-theme-label-link mt-4 self-start focus-outline"
               onClick={() => setShowRanksModal(true)}
             >
@@ -230,11 +244,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
           <ActivityContainer>
             <ActivitySectionTitle>
               Articles read in{' '}
-              {fullHistory
-                ? selectedHistoryYear > 0
-                  ? dropdownOptions[selectedHistoryYear]
-                  : 'the last year'
-                : 'the last months'}
+              {getHistoryTitle(fullHistory, selectedHistoryYear)}
               {totalReads >= 0 && (
                 <ActivitySectionTitleStat>
                   ({totalReads})
@@ -285,7 +295,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
               <ReactTooltip
                 backgroundColor="var(--balloon-color)"
                 delayHide={100}
-                html={true}
+                html
               />
             )}
           </ActivityContainer>

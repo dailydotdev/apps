@@ -5,8 +5,9 @@ import React, {
   useEffect,
   useMemo,
 } from 'react';
-import AuthContext from '../../contexts/AuthContext';
 import { useQuery, useQueryClient } from 'react-query';
+import request from 'graphql-request';
+import AuthContext from '../../contexts/AuthContext';
 import {
   ALL_TAGS_AND_SETTINGS_QUERY,
   ALL_TAGS_QUERY,
@@ -15,7 +16,6 @@ import {
   SearchTagsData,
   TagsData,
 } from '../../graphql/feedSettings';
-import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import useMutateFilters, {
   getTagsSettingsQueryKey,
@@ -91,7 +91,7 @@ export default function TagsFilter({
   const searchKey = getSearchTagsQueryKey(query);
   const { data: searchResults } = useQuery<SearchTagsData>(
     searchKey,
-    () => request(`${apiUrl}/graphql`, SEARCH_TAGS_QUERY, { query: query }),
+    () => request(`${apiUrl}/graphql`, SEARCH_TAGS_QUERY, { query }),
     {
       enabled: enabledSearch,
     },

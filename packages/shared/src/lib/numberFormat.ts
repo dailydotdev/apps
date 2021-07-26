@@ -4,7 +4,7 @@ export function largeNumberFormat(value: number): string {
   let suffixNum = 0;
   while (newValue >= 1000) {
     newValue /= 1000;
-    suffixNum++;
+    suffixNum += 1;
   }
   if (suffixNum > 0) {
     return newValue.toFixed(1) + suffixes[suffixNum];

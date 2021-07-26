@@ -1,9 +1,9 @@
 import React, { ReactNode } from 'react';
-import { getLayout as getFooterNavBarLayout } from './FooterNavBarLayout';
 import MainLayout, {
   MainLayoutProps,
 } from '@dailydotdev/shared/src/components/MainLayout';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
+import { getLayout as getFooterNavBarLayout } from './FooterNavBarLayout';
 
 export default FeedLayout;
 

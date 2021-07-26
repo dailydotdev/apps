@@ -4,13 +4,13 @@ import React, {
   ReactElement,
   useState,
 } from 'react';
+import classNames from 'classnames';
 import { changeProfileImage, LoggedUser } from '../../lib/user';
 import CameraIcon from '../../../icons/camera.svg';
 import GoogleIcon from '../../../icons/google.svg';
 import GitHubIcon from '../../../icons/github.svg';
 import JoinedDate from './JoinedDate';
 import { FormErrorMessage } from '../utilities';
-import classNames from 'classnames';
 import sizeN from '../../../macros/sizeN.macro';
 import classed from '../../lib/classed';
 
@@ -49,6 +49,7 @@ export default function EditImageWithJoinedDate({
       const newUser = await changeProfileImage(file);
       setProfileImage(newUser.image);
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.error('failed to change profile image', err);
       setProfileImage(user.image);
     }
@@ -61,6 +62,7 @@ export default function EditImageWithJoinedDate({
           className="relative overflow-hidden rounded-2xl cursor-pointer group"
           style={{ width: '6.25rem', height: '6.25rem' }}
           title="Update your image"
+          htmlFor="profileImage"
         >
           <input
             type="file"
@@ -75,7 +77,7 @@ export default function EditImageWithJoinedDate({
             className="w-full h-full object-cover group-hover:opacity-40"
             style={{ transition: 'opacity 0.1s linear' }}
             src={profileImage}
-            alt="Your profile image"
+            alt="Your profile"
           />
           <span
             className="absolute flex invisible left-0 top-0 w-full h-full items-center justify-center opacity-0 group-hover:visible group-hover:opacity-100"

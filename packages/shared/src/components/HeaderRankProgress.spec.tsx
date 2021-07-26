@@ -1,7 +1,9 @@
 import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
-import HeaderRankProgress from './HeaderRankProgress';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import nock from 'nock';
+import { set as setCache } from 'idb-keyval';
+import HeaderRankProgress from './HeaderRankProgress';
 import {
   MockedGraphQLResponse,
   mockGraphQL,
@@ -9,9 +11,7 @@ import {
 import { LoggedUser } from '../lib/user';
 import defaultUser from '../../__tests__/fixture/loggedUser';
 import AuthContext from '../contexts/AuthContext';
-import nock from 'nock';
 import { MY_READING_RANK_QUERY, MyRankData } from '../graphql/users';
-import { set as setCache } from 'idb-keyval';
 import OnboardingContext from '../contexts/OnboardingContext';
 
 jest.mock('../hooks/usePersistentState', () => {

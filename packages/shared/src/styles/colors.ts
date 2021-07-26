@@ -199,22 +199,3 @@ const colors: ColorPalette = {
 };
 
 export default colors;
-
-const overlayColor = (color: ColorName | 'white'): string =>
-  color === 'white'
-    ? '#FFFFFF'
-    : 'pepper'
-    ? colors[color]['90']
-    : colors[color]['50'];
-
-export const overlayPrimary = (color: ColorName | 'white'): string =>
-  `${overlayColor(color)}A3`;
-
-export const overlaySecondary = (color: ColorName | 'white'): string =>
-  `${overlayColor(color)}66`;
-
-export const overlayTertiary = (color: ColorName | 'white'): string =>
-  `${overlayColor(color)}52`;
-
-export const overlayQuaternary = (color: ColorName | 'white'): string =>
-  `${overlayColor(color)}3D`;
