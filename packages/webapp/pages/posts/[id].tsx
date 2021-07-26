@@ -442,14 +442,14 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
               user={postById.post.author}
               data-testid="authorLink"
               disableTooltip
-              className="ml-2 mr-auto"
+              className="ml-2 mr-auto flex-1"
             >
               <SourceImage
                 imgSrc={postById.post.author.image}
                 imgAlt={postById.post.author.name}
                 background="var(--theme-background-secondary)"
               />
-              <SourceName className="ml-2">
+              <SourceName className="ml-2 flex-1">
                 {postById.post.author.name}
               </SourceName>
             </ProfileLink>
