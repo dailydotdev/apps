@@ -169,6 +169,23 @@ export const logSignupFormSubmit = async (
   amp.logEvent('signup form submit', { 'optional fields': optionalFields });
 };
 
+export const logGoToDevCardImpression = async (
+  origin: string,
+): Promise<void> => {
+  const amp = await getAmplitudeClient();
+  amp.logEvent('go to devcard impression', { origin });
+};
+
+export const logGoToDevCardClick = async (origin: string): Promise<void> => {
+  const amp = await getAmplitudeClient();
+  amp.logEvent('go to devcard click', { origin });
+};
+
+export const logGenerateDevCard = async (): Promise<void> => {
+  const amp = await getAmplitudeClient();
+  amp.logEvent('generate devcard');
+};
+
 export const initAmplitude = async (
   userId: string,
   version: string,

@@ -12,7 +12,8 @@ import { FormErrorMessage } from '@dailydotdev/shared/src/components/utilities';
 import Tilt from 'react-parallax-tilt';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
-import DevCardPlaceholder from '../components/DevCardPlaceholder';
+import DevCardPlaceholder from '@dailydotdev/shared/src/components/DevCardPlaceholder';
+import { logGenerateDevCard } from '@dailydotdev/shared/src/lib/analytics';
 import { DevCardData, GENERATE_DEVCARD_MUTATION } from '../graphql/devcard';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
@@ -35,7 +36,7 @@ const Step1 = ({
 
   return (
     <>
-      <DevCardPlaceholder profileImage={user?.image} />
+      <DevCardPlaceholder profileImage={user?.image} width={108} />
       <h1 className="mt-10 typo-title1 font-bold">Grab your Dev Card</h1>
       <p
         className="mt-4 typo-body text-theme-label-secondary text-center"
@@ -220,6 +221,7 @@ const DevCardPage = (): ReactElement => {
       onMutate() {
         setImageError(null);
         setIsLoadingImage(true);
+        logGenerateDevCard();
       },
       onSuccess(data: DevCardData) {
         const img = new Image();

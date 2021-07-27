@@ -1,4 +1,4 @@
-import React, { CSSProperties, ReactElement } from 'react';
+import React, { CSSProperties, ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import { RankProgress } from '../RankProgress';
 import { RANK_NAMES, STEPS_PER_RANK } from '../../lib/rank';
@@ -8,6 +8,9 @@ import { ModalCloseButton } from './ModalCloseButton';
 import { ModalProps } from './StyledModal';
 import { ResponsiveModal } from './ResponsiveModal';
 import styles from './RanksModal.module.css';
+import useGoToDevCardButton from '../../hooks/useGoToDevCardButton';
+import DevCardPlaceholder from '../DevCardPlaceholder';
+import AuthContext from '../../contexts/AuthContext';
 
 const RankItem = ({
   rank,
@@ -74,6 +77,9 @@ export default function RanksModal({
   className,
   ...props
 }: RanksModalProps): ReactElement {
+  const { user } = useContext(AuthContext);
+  const [onGenerateDevCardClick] = useGoToDevCardButton('ranks instructions');
+
   return (
     <ResponsiveModal
       {...props}
@@ -106,9 +112,26 @@ export default function RanksModal({
           />
         ))}
       </ul>
-      <Button className="btn-primary m-8" onClick={onRequestClose}>
-        {confirmationText || `Ok, let’s do it`}
-      </Button>
+      <div className="h-px w-full bg-theme-divider-tertiary mt-8 mb-5 -mx-2" />
+      <div className="flex px-4 mb-6 self-stretch items-start">
+        <DevCardPlaceholder profileImage={user?.image} width={44} rank={rank} />
+        <div className="flex flex-col ml-4 flex-1">
+          <div className="font-bold typo-callout">Your Dev Card</div>
+          <div className="text-theme-label-tertiary typo-footnote mt-0.5">
+            Your Dev Card will show you stats about the publications and topics
+            you love to read.
+          </div>
+          <Button
+            className="btn-secondary mt-4 self-start"
+            tag="a"
+            href="/devcard"
+            target="_blank"
+            onClick={onGenerateDevCardClick}
+          >
+            Generate
+          </Button>
+        </div>
+      </div>
     </ResponsiveModal>
   );
 }

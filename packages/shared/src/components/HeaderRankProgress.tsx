@@ -30,7 +30,7 @@ export default function HeaderRankProgress({
   const { user } = useContext(AuthContext);
   const { onboardingStep, onboardingReady, incrementOnboardingStep } =
     useContext(OnboardingContext);
-  const [showModal, setShowModal] = useState(false);
+  const [showRanksModal, setShowRanksModal] = useState(false);
 
   const {
     isLoading,
@@ -49,7 +49,7 @@ export default function HeaderRankProgress({
   const showWelcome = onboardingStep === 1;
   const showRankAnimation = levelUp && neverShowRankModal;
   const closeRanksModal = () => {
-    setShowModal(false);
+    setShowRanksModal(false);
     if (showWelcome) {
       incrementOnboardingStep();
     }
@@ -66,7 +66,7 @@ export default function HeaderRankProgress({
             { [styles.attention]: showWelcome },
             className,
           )}
-          onClick={() => setShowModal(true)}
+          onClick={() => setShowRanksModal(true)}
         >
           {showWelcome ? (
             <div
@@ -98,11 +98,11 @@ export default function HeaderRankProgress({
           )}
         </button>
       )}
-      {showModal && (
+      {showRanksModal && (
         <RanksModal
           rank={rank}
           progress={progress}
-          isOpen={showModal}
+          isOpen={showRanksModal}
           onRequestClose={closeRanksModal}
         />
       )}
