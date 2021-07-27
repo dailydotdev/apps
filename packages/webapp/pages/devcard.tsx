@@ -1,4 +1,10 @@
-import React, { ChangeEvent, ReactElement, useContext, useState } from 'react';
+import React, {
+  ChangeEvent,
+  ReactElement,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
@@ -14,6 +20,7 @@ import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
 import DevCardPlaceholder from '@dailydotdev/shared/src/components/DevCardPlaceholder';
 import {
+  logDevCardPageView,
   logDownloadDevCard,
   logGenerateDevCard,
 } from '@dailydotdev/shared/src/lib/analytics';
@@ -212,6 +219,10 @@ const DevCardPage = (): ReactElement => {
   const [isLoadingImage, setIsLoadingImage] = useState(false);
   const [devCardSrc, setDevCardSrc] = useState<string>();
   const [imageError, setImageError] = useState<string>();
+
+  useEffect(() => {
+    logDevCardPageView();
+  }, []);
 
   const onError = () =>
     setImageError('Something went wrong, please try again...');
