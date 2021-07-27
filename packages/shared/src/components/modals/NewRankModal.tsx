@@ -172,7 +172,7 @@ export default function NewRankModal({
           <Button
             className="btn-secondary"
             tag="a"
-            href="/devcard"
+            href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}devcard`}
             target="_blank"
             onClick={onGenerateDevCardClick}
           >

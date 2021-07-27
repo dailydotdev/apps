@@ -123,7 +123,7 @@ export default function RanksModal({
           <Button
             className="btn-secondary mt-4 self-start"
             tag="a"
-            href="/devcard"
+            href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}devcard`}
             target="_blank"
             onClick={onGenerateDevCardClick}
           >
