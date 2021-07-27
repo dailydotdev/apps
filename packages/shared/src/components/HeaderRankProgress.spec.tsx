@@ -30,6 +30,7 @@ beforeEach(() => {
 const createRankMock = (
   data: MyRankData = {
     rank: { progressThisWeek: 2, currentRank: 0, readToday: false },
+    reads: 0,
   },
   userId: string = defaultUser.id,
 ): MockedGraphQLResponse<MyRankData> => ({

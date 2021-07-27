@@ -186,6 +186,11 @@ export const logGenerateDevCard = async (): Promise<void> => {
   amp.logEvent('generate devcard');
 };
 
+export const logDownloadDevCard = async (): Promise<void> => {
+  const amp = await getAmplitudeClient();
+  amp.logEvent('download devcard');
+};
+
 export const initAmplitude = async (
   userId: string,
   version: string,

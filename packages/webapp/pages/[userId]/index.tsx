@@ -238,6 +238,8 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
                 isOpen={showRanksModal}
                 onRequestClose={() => setShowRanksModal(false)}
                 confirmationText="Ok, got it"
+                reads={0}
+                devCardLimit={0}
               />
             )}
           </ActivityContainer>

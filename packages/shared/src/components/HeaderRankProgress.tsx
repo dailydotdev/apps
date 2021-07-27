@@ -13,6 +13,8 @@ import { STEPS_PER_RANK } from '../lib/rank';
 import OnboardingContext from '../contexts/OnboardingContext';
 import Rank from './Rank';
 import styles from './HeaderRankProgress.module.css';
+import FeaturesContext from '../contexts/FeaturesContext';
+import { getFeatureValue } from '../lib/featureManagement';
 
 const RanksModal = dynamic(
   () => import(/* webpackChunkName: "ranksModal" */ './modals/RanksModal'),
@@ -31,6 +33,8 @@ export default function HeaderRankProgress({
   const { onboardingStep, onboardingReady, incrementOnboardingStep } =
     useContext(OnboardingContext);
   const [showRanksModal, setShowRanksModal] = useState(false);
+  const { flags } = useContext(FeaturesContext);
+  const devCardLimit = parseInt(getFeatureValue('limit_dev_card', flags), 10);
 
   const {
     isLoading,
@@ -40,6 +44,7 @@ export default function HeaderRankProgress({
     neverShowRankModal,
     levelUp,
     confirmLevelUp,
+    reads,
   } = useReadingRank();
 
   if (isLoading) {
@@ -104,6 +109,8 @@ export default function HeaderRankProgress({
           progress={progress}
           isOpen={showRanksModal}
           onRequestClose={closeRanksModal}
+          reads={reads}
+          devCardLimit={devCardLimit}
         />
       )}
       {levelUp && !neverShowRankModal && (
@@ -113,6 +120,7 @@ export default function HeaderRankProgress({
           user={user}
           isOpen={levelUp && !neverShowRankModal}
           onRequestClose={confirmLevelUp}
+          showDevCard={reads >= devCardLimit || !devCardLimit}
         />
       )}
     </>

@@ -1,16 +1,21 @@
-import React, { CSSProperties, ReactElement, useContext } from 'react';
+import React, {
+  CSSProperties,
+  ReactElement,
+  ReactNode,
+  useContext,
+} from 'react';
 import classNames from 'classnames';
 import { RankProgress } from '../RankProgress';
 import { RANK_NAMES, STEPS_PER_RANK } from '../../lib/rank';
 import Rank from '../Rank';
-import { Button } from '../buttons/Button';
 import { ModalCloseButton } from './ModalCloseButton';
 import { ModalProps } from './StyledModal';
 import { ResponsiveModal } from './ResponsiveModal';
 import styles from './RanksModal.module.css';
-import useGoToDevCardButton from '../../hooks/useGoToDevCardButton';
 import DevCardPlaceholder from '../DevCardPlaceholder';
 import AuthContext from '../../contexts/AuthContext';
+import GoToDevCardButton from '../GoToDevCardButton';
+import { Button } from '../buttons/Button';
 
 const RankItem = ({
   rank,
@@ -66,6 +71,73 @@ export interface RanksModalProps extends ModalProps {
   progress: number;
   hideProgress?: boolean;
   confirmationText?: string;
+  reads: number;
+  devCardLimit: number;
+}
+
+function DevCardFooter({
+  rank,
+  reads,
+  devCardLimit,
+}: Pick<RanksModalProps, 'rank' | 'reads' | 'devCardLimit'>): ReactElement {
+  const { user, showLogin } = useContext(AuthContext);
+  const reachedLimit = devCardLimit && reads >= devCardLimit;
+  let devCardText: string;
+  let devCardCTA: ReactNode;
+  if (!user) {
+    if (devCardLimit && !reachedLimit) {
+      devCardText = `To generate a personal dev card you must read at least ${devCardLimit} articles and sign in`;
+    } else {
+      devCardText = 'To generate a personal dev card you must sign in';
+    }
+    devCardCTA = (
+      <Button
+        className="btn-primary mt-4 self-start"
+        onClick={() => showLogin('ranks instructions')}
+      >
+        Sign in
+      </Button>
+    );
+  } else if (devCardLimit && !reachedLimit) {
+    devCardText = `To generate a personal dev card you must read at least ${devCardLimit} articles`;
+    devCardCTA = (
+      <div className="mt-2 flex items-center">
+        <div className="typo-subhead font-bold">{`${reads}/${devCardLimit}`}</div>
+        <div className="ml-2 flex-1 h-1 rounded-2 bg-theme-active overflow-hidden">
+          <div
+            className="bg-theme-label-primary h-full rounded-2"
+            style={{ width: `${(reads * 100) / devCardLimit}%` }}
+          />
+        </div>
+      </div>
+    );
+  } else {
+    devCardText =
+      'Generate a personal dev card to show the world the topics you love';
+    devCardCTA = (
+      <GoToDevCardButton
+        origin="ranks instructions"
+        className="mt-4 self-start"
+      >
+        Generate
+      </GoToDevCardButton>
+    );
+  }
+  return (
+    <>
+      <div className="h-px w-full bg-theme-divider-tertiary mt-8 mb-5 -mx-2" />
+      <div className="flex px-4 mb-6 self-stretch items-start">
+        <DevCardPlaceholder profileImage={user?.image} width={44} rank={rank} />
+        <div className="flex flex-col ml-4 flex-1">
+          <div className="font-bold typo-callout">Your Dev Card</div>
+          <div className="text-theme-label-tertiary typo-footnote mt-0.5">
+            {devCardText}
+          </div>
+          {devCardCTA}
+        </div>
+      </div>
+    </>
+  );
 }
 
 export default function RanksModal({
@@ -73,13 +145,12 @@ export default function RanksModal({
   progress,
   hideProgress,
   confirmationText,
+  reads,
+  devCardLimit,
   onRequestClose,
   className,
   ...props
 }: RanksModalProps): ReactElement {
-  const { user } = useContext(AuthContext);
-  const [onGenerateDevCardClick] = useGoToDevCardButton('ranks instructions');
-
   return (
     <ResponsiveModal
       {...props}
@@ -112,25 +183,9 @@ export default function RanksModal({
           />
         ))}
       </ul>
-      <div className="h-px w-full bg-theme-divider-tertiary mt-8 mb-5 -mx-2" />
-      <div className="flex px-4 mb-6 self-stretch items-start">
-        <DevCardPlaceholder profileImage={user?.image} width={44} rank={rank} />
-        <div className="flex flex-col ml-4 flex-1">
-          <div className="font-bold typo-callout">Your Dev Card</div>
-          <div className="text-theme-label-tertiary typo-footnote mt-0.5">
-            Generate a personal dev card to show the world the topics you love.
-          </div>
-          <Button
-            className="btn-secondary mt-4 self-start"
-            tag="a"
-            href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}devcard`}
-            target="_blank"
-            onClick={onGenerateDevCardClick}
-          >
-            Generate
-          </Button>
-        </div>
-      </div>
+      {!hideProgress && (
+        <DevCardFooter rank={rank} reads={reads} devCardLimit={devCardLimit} />
+      )}
     </ResponsiveModal>
   );
 }
