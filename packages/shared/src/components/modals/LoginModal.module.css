@@ -1,4 +1,8 @@
 .loginModal {
+  & :global(.overlay) {
+    z-index: 11;
+  }
+
   & :global(.modal) {
     padding: 2rem;
 

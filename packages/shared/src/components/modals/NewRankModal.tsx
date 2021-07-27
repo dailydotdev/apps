@@ -21,13 +21,14 @@ import { ModalCloseButton } from './ModalCloseButton';
 import { ModalProps } from './StyledModal';
 import { ResponsiveModal } from './ResponsiveModal';
 import styles from './NewRankModal.module.css';
-import useGoToDevCardButton from '../../hooks/useGoToDevCardButton';
+import GoToDevCardButton from '../GoToDevCardButton';
 
 export interface NewRankModalProps extends Omit<ModalProps, 'onRequestClose'> {
   rank: number;
   progress: number;
   user?: LoggedUser;
   onRequestClose?: (neverShowAgain: boolean) => unknown;
+  showDevCard: boolean;
 }
 
 export default function NewRankModal({
@@ -35,6 +36,7 @@ export default function NewRankModal({
   progress,
   user,
   onRequestClose,
+  showDevCard,
   className,
   style,
   ...props
@@ -44,7 +46,6 @@ export default function NewRankModal({
   const [animatingRank, setAnimatingRank] = useState(false);
   const [rankAnimationEnded, setRankAnimationEnded] = useState(false);
   const inputRef = useRef<HTMLInputElement>();
-  const [onGenerateDevCardClick] = useGoToDevCardButton('new rank popup');
 
   const title = useMemo(() => {
     if (user) {
@@ -169,15 +170,11 @@ export default function NewRankModal({
       </p>
       {user ? (
         <div className="flex self-center gap-4">
-          <Button
-            className="btn-secondary"
-            tag="a"
-            href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}devcard`}
-            target="_blank"
-            onClick={onGenerateDevCardClick}
-          >
-            Generate Dev Card
-          </Button>
+          {showDevCard && (
+            <GoToDevCardButton origin="new rank popup">
+              Generate Dev Card
+            </GoToDevCardButton>
+          )}
           <Button className="btn-primary" onClick={closeModal}>
             Awesome!
           </Button>

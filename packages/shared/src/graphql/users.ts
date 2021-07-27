@@ -40,6 +40,7 @@ export interface MyRankData {
     readToday: boolean;
     lastReadTime?: Date;
   };
+  reads: number;
 }
 
 export const MY_READING_RANK_QUERY = gql`
@@ -49,6 +50,7 @@ export const MY_READING_RANK_QUERY = gql`
       progressThisWeek
       readToday
     }
+    reads: userReads
   }
 `;
 
