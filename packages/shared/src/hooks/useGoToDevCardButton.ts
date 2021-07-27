@@ -4,7 +4,7 @@ import {
   logGoToDevCardImpression,
 } from '../lib/analytics';
 
-export type UseGenerateDevCardButtonReturn = [onClick: () => Promise<void>];
+export type UseGenerateDevCardButtonReturn = [() => Promise<void>];
 
 export default function useGoToDevCardButton(
   origin: string,

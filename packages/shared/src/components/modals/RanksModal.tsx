@@ -118,8 +118,7 @@ export default function RanksModal({
         <div className="flex flex-col ml-4 flex-1">
           <div className="font-bold typo-callout">Your Dev Card</div>
           <div className="text-theme-label-tertiary typo-footnote mt-0.5">
-            Your Dev Card will show you stats about the publications and topics
-            you love to read.
+            Generate a personal dev card to show the world the topics you love.
           </div>
           <Button
             className="btn-secondary mt-4 self-start"
