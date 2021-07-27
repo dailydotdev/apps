@@ -188,6 +188,8 @@ export const initAmplitude = async (
   amp.init(process.env.NEXT_PUBLIC_AMPLITUDE, userId, {
     includeReferrer: true,
     includeUtm: true,
+    includeGclid: true,
+    includeFbclid: true,
     sameSiteCookie: 'Lax',
     domain: process.env.NEXT_PUBLIC_DOMAIN,
   });
