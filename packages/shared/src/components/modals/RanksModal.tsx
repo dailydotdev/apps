@@ -75,17 +75,11 @@ export interface RanksModalProps extends ModalProps {
   devCardLimit: number;
 }
 
-export default function RanksModal({
+function DevCardFooter({
   rank,
-  progress,
-  hideProgress,
-  confirmationText,
   reads,
   devCardLimit,
-  onRequestClose,
-  className,
-  ...props
-}: RanksModalProps): ReactElement {
+}: Pick<RanksModalProps, 'rank' | 'reads' | 'devCardLimit'>): ReactElement {
   const { user, showLogin } = useContext(AuthContext);
   const reachedLimit = devCardLimit && reads >= devCardLimit;
   let devCardText: string;
@@ -129,7 +123,34 @@ export default function RanksModal({
       </GoToDevCardButton>
     );
   }
+  return (
+    <>
+      <div className="h-px w-full bg-theme-divider-tertiary mt-8 mb-5 -mx-2" />
+      <div className="flex px-4 mb-6 self-stretch items-start">
+        <DevCardPlaceholder profileImage={user?.image} width={44} rank={rank} />
+        <div className="flex flex-col ml-4 flex-1">
+          <div className="font-bold typo-callout">Your Dev Card</div>
+          <div className="text-theme-label-tertiary typo-footnote mt-0.5">
+            {devCardText}
+          </div>
+          {devCardCTA}
+        </div>
+      </div>
+    </>
+  );
+}
 
+export default function RanksModal({
+  rank,
+  progress,
+  hideProgress,
+  confirmationText,
+  reads,
+  devCardLimit,
+  onRequestClose,
+  className,
+  ...props
+}: RanksModalProps): ReactElement {
   return (
     <ResponsiveModal
       {...props}
@@ -162,17 +183,9 @@ export default function RanksModal({
           />
         ))}
       </ul>
-      <div className="h-px w-full bg-theme-divider-tertiary mt-8 mb-5 -mx-2" />
-      <div className="flex px-4 mb-6 self-stretch items-start">
-        <DevCardPlaceholder profileImage={user?.image} width={44} rank={rank} />
-        <div className="flex flex-col ml-4 flex-1">
-          <div className="font-bold typo-callout">Your Dev Card</div>
-          <div className="text-theme-label-tertiary typo-footnote mt-0.5">
-            {devCardText}
-          </div>
-          {devCardCTA}
-        </div>
-      </div>
+      {!hideProgress && (
+        <DevCardFooter rank={rank} reads={reads} devCardLimit={devCardLimit} />
+      )}
     </ResponsiveModal>
   );
 }
