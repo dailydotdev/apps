@@ -21,6 +21,7 @@ import { ModalCloseButton } from './ModalCloseButton';
 import { ModalProps } from './StyledModal';
 import { ResponsiveModal } from './ResponsiveModal';
 import styles from './NewRankModal.module.css';
+import useGoToDevCardButton from '../../hooks/useGoToDevCardButton';
 
 export interface NewRankModalProps extends Omit<ModalProps, 'onRequestClose'> {
   rank: number;
@@ -43,6 +44,7 @@ export default function NewRankModal({
   const [animatingRank, setAnimatingRank] = useState(false);
   const [rankAnimationEnded, setRankAnimationEnded] = useState(false);
   const inputRef = useRef<HTMLInputElement>();
+  const [onGenerateDevCardClick] = useGoToDevCardButton('new rank popup');
 
   const title = useMemo(() => {
     if (user) {
@@ -166,9 +168,20 @@ export default function NewRankModal({
         )}
       </p>
       {user ? (
-        <Button className="btn-primary self-center" onClick={closeModal}>
-          Awesome!
-        </Button>
+        <div className="flex self-center gap-4">
+          <Button
+            className="btn-secondary"
+            tag="a"
+            href="/devcard"
+            target="_blank"
+            onClick={onGenerateDevCardClick}
+          >
+            Generate Dev Card
+          </Button>
+          <Button className="btn-primary" onClick={closeModal}>
+            Awesome!
+          </Button>
+        </div>
       ) : (
         <LoginButtons />
       )}
