@@ -9,7 +9,6 @@ import MainFeedLayout, {
 } from '@dailydotdev/shared/src/components/MainFeedLayout';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import dynamic from 'next/dynamic';
-import DndModal from './DndModal';
 import MostVisitedSites from './MostVisitedSites';
 import getPageForAnalytics from '../lib/getPageForAnalytics';
 import { trackPageView } from '@dailydotdev/shared/src/lib/analytics';
@@ -24,6 +23,10 @@ const PostsSearch = dynamic(
     import(
       /* webpackChunkName: "search" */ '@dailydotdev/shared/src/components/PostsSearch'
     ),
+);
+
+const DndModal = dynamic(
+  () => import(/* webpackChunkName: "search" */ './DndModal'),
 );
 
 export default function MainFeedPage({
