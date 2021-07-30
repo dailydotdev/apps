@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FC, useState, useContext } from 'react';
 import classnames from 'classnames';
 import { getDefaultLink, dndOption, CustomTime, TimeFormat } from './dnd';
 import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
@@ -23,16 +23,16 @@ const timeFormatOptions = Object.entries(dndOption).map(([k, v]) => ({
 
 const customTimeOptions = Object.values(CustomTime);
 
-const DoNotDisturbModal: React.FC<DoNotDisturbModalProps> = ({
+const DoNotDisturbModal: FC<DoNotDisturbModalProps> = ({
   defaultTimeFormat = TimeFormat.HALF_HOUR,
   onRequestClose,
   ...modalProps
 }) => {
-  const { setDndSettings, isActive } = React.useContext(DndContext);
-  const [link, setLink] = React.useState('');
-  const [customNumber, setCustomNumber] = React.useState(0);
-  const [customTimeIndex, setCustomTimeIndex] = React.useState(0);
-  const [dndTime, setDndTime] = React.useState(defaultTimeFormat);
+  const { setDndSettings, isActive } = useContext(DndContext);
+  const [link, setLink] = useState('');
+  const [customNumber, setCustomNumber] = useState(0);
+  const [customTimeIndex, setCustomTimeIndex] = useState(0);
+  const [dndTime, setDndTime] = useState(defaultTimeFormat);
 
   const handleSubmit = async (e: React.MouseEvent<Element, MouseEvent>) => {
     const settings = dndOption[dndTime];
