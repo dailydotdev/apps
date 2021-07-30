@@ -12,19 +12,13 @@ import {
 import styles from './DoNotDisturbModal.module.css';
 import DndContext from './DndContext';
 
-export interface DoNotDisturbModalProps extends ModalProps {
-  defaultTimeFormat?: TimeFormat;
-}
-
 const timeFormatOptions = Object.entries(dndOption).map(([k, v]) => ({
   label: v.label,
   value: k,
 }));
-
 const customTimeOptions = Object.values(CustomTime);
 
-const DoNotDisturbModal: FC<DoNotDisturbModalProps> = ({
-  defaultTimeFormat = TimeFormat.HALF_HOUR,
+const DoNotDisturbModal: FC<ModalProps> = ({
   onRequestClose,
   ...modalProps
 }) => {
@@ -32,12 +26,12 @@ const DoNotDisturbModal: FC<DoNotDisturbModalProps> = ({
   const [link, setLink] = useState('');
   const [customNumber, setCustomNumber] = useState(0);
   const [customTimeIndex, setCustomTimeIndex] = useState(0);
-  const [dndTime, setDndTime] = useState(defaultTimeFormat);
+  const [dndTime, setDndTime] = useState<TimeFormat>('HALF_HOUR');
 
   const handleSubmit = async (e: React.MouseEvent<Element, MouseEvent>) => {
-    const settings = dndOption[dndTime];
+    const option = dndOption[dndTime];
     const customTime = customTimeOptions[customTimeIndex];
-    const expiration = settings.getExpiration(customTime, customNumber);
+    const expiration = option.getExpiration(customTime, customNumber);
     const fallback = link || getDefaultLink();
 
     await setDndSettings({ expiration, link: fallback });
@@ -63,7 +57,7 @@ const DoNotDisturbModal: FC<DoNotDisturbModalProps> = ({
           options={timeFormatOptions}
           onChange={(value: TimeFormat) => setDndTime(value)}
         />
-        {dndTime !== TimeFormat.CUSTOM ? null : (
+        {dndTime !== 'CUSTOM' ? null : (
           <div className="grid grid-cols-2 gap-4 mt-4">
             <TextField
               className={styles.custom}

@@ -1,10 +1,9 @@
-export enum TimeFormat {
-  HALF_HOUR = '30 minutes',
-  ONE_HOUR = '1 hour',
-  TWO_HOURS = '2 hours',
-  TOMORROW = 'Tomorrow',
-  CUSTOM = 'Custom...',
-}
+export type TimeFormat =
+  | 'HALF_HOUR'
+  | 'ONE_HOUR'
+  | 'TWO_HOURS'
+  | 'TOMORROW'
+  | 'CUSTOM';
 
 export enum CustomTime {
   MINUTES = 'Minutes',
@@ -31,50 +30,46 @@ export const getExpiration = (time: CustomTime, value: number): Date => {
 
 export const getDefaultLink = (): string =>
   process.env.TARGET_BROWSER === 'chrome' ? CHROME_DEFAULT_URL : DEFAULT_URL;
-interface DndOption {
+interface DndOption<T extends TimeFormat> {
   value: number;
   label: string;
-  format: TimeFormat;
-  getExpiration: (time: CustomTime, value: number) => Date;
+  getExpiration: T extends 'CUSTOM'
+    ? (time: CustomTime, value: number) => Date
+    : () => Date;
 }
 
-export const dndOption: { [k: string]: DndOption } = {
-  halfHour: {
+export const dndOption: { [K in TimeFormat]: DndOption<K> } = {
+  HALF_HOUR: {
     value: 30,
     label: '30 minutes',
-    format: TimeFormat.HALF_HOUR,
     getExpiration(): Date {
       return getExpiration(CustomTime.MINUTES, this.value);
     },
   },
-  oneHour: {
+  ONE_HOUR: {
     value: 1,
     label: '1 hour',
-    format: TimeFormat.ONE_HOUR,
     getExpiration(): Date {
       return getExpiration(CustomTime.HOURS, this.value);
     },
   },
-  twoHour: {
+  TWO_HOURS: {
     value: 2,
     label: '2 hours',
-    format: TimeFormat.TWO_HOURS,
     getExpiration(): Date {
       return getExpiration(CustomTime.HOURS, this.value);
     },
   },
-  tomorrow: {
+  TOMORROW: {
     value: 1,
     label: 'Tomorrow',
-    format: TimeFormat.CUSTOM,
     getExpiration(): Date {
       return getExpiration(CustomTime.DAYS, this.value);
     },
   },
-  custom: {
+  CUSTOM: {
     value: 0,
     label: 'Custom...',
-    format: TimeFormat.CUSTOM,
     getExpiration(time: CustomTime, value: number): Date {
       return getExpiration(time, value);
     },
