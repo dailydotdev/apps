@@ -26,6 +26,12 @@ const renderApp = () => {
   ReactDOM.render(<App />, document.getElementById('__next'));
 };
 
+const redirectApp = async (url: string) => {
+  const tab = await browser.tabs.getCurrent();
+  window.stop();
+  await browser.tabs.update(tab.id, { url });
+};
+
 (async () => {
   const source = window.location.href.split('source=')[1];
 
@@ -34,9 +40,5 @@ const renderApp = () => {
   const dnd = await getCache<DndSettings>('dnd');
   const isDnd = dnd?.expiration?.getTime() > new Date().getTime();
 
-  if (!isDnd) return renderApp();
-
-  const tab = await browser.tabs.getCurrent();
-  window.stop();
-  return await browser.tabs.update(tab.id, { url: dnd.link });
+  return isDnd ? redirectApp(dnd.link) : renderApp();
 })();
