@@ -6,6 +6,8 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { CSSTransition } from 'react-transition-group';
+import classNames from 'classnames';
 import { RankProgress } from '../RankProgress';
 import { RankConfetti } from '../../svg/RankConfetti';
 import { RANK_NAMES, rankToColor, STEPS_PER_RANK } from '../../lib/rank';
@@ -14,19 +16,19 @@ import { Checkbox } from '../fields/Checkbox';
 import LoginButtons from '../LoginButtons';
 import RadialProgress from '../RadialProgress';
 import Rank from '../Rank';
-import { CSSTransition } from 'react-transition-group';
 import { Button } from '../buttons/Button';
 import { ModalCloseButton } from './ModalCloseButton';
 import { ModalProps } from './StyledModal';
 import { ResponsiveModal } from './ResponsiveModal';
 import styles from './NewRankModal.module.css';
-import classNames from 'classnames';
+import GoToDevCardButton from '../GoToDevCardButton';
 
 export interface NewRankModalProps extends Omit<ModalProps, 'onRequestClose'> {
   rank: number;
   progress: number;
   user?: LoggedUser;
   onRequestClose?: (neverShowAgain: boolean) => unknown;
+  showDevCard: boolean;
 }
 
 export default function NewRankModal({
@@ -34,6 +36,7 @@ export default function NewRankModal({
   progress,
   user,
   onRequestClose,
+  showDevCard,
   className,
   style,
   ...props
@@ -73,7 +76,7 @@ export default function NewRankModal({
       if (document.visibilityState === 'hidden') {
         document.addEventListener(
           'visibilitychange',
-          () => setTimeout(() => this.animateRank(), 1000),
+          () => setTimeout(animateRank, 1000),
           { once: true },
         );
       } else {
@@ -128,7 +131,7 @@ export default function NewRankModal({
             <img
               className={`${styles.profileImage} absolute inset-0 object-cover m-auto rounded-full`}
               src={user.image}
-              alt="Your profile picture"
+              alt="Your profile"
             />
             <Rank
               className={`${styles.newRankBadge} absolute inset-x-0 bottom-4 mx-auto rounded-full bg-theme-bg-tertiary`}
@@ -166,9 +169,16 @@ export default function NewRankModal({
         )}
       </p>
       {user ? (
-        <Button className="btn-primary self-center" onClick={closeModal}>
-          Awesome!
-        </Button>
+        <div className="flex self-center gap-4">
+          {showDevCard && (
+            <GoToDevCardButton origin="new rank popup">
+              Generate Dev Card
+            </GoToDevCardButton>
+          )}
+          <Button className="btn-primary" onClick={closeModal}>
+            Awesome!
+          </Button>
+        </div>
       ) : (
         <LoginButtons />
       )}

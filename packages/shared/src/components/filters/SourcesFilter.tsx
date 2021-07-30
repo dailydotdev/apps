@@ -6,6 +6,8 @@ import React, {
   useState,
 } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
+import request from 'graphql-request';
+import dynamic from 'next/dynamic';
 import {
   FilterItem,
   FilterProps,
@@ -27,7 +29,6 @@ import {
   FeedSettingsData,
   SourcesData,
 } from '../../graphql/feedSettings';
-import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import { Source } from '../../graphql/sources';
 import { getTooltipProps } from '../../lib/tooltip';
@@ -36,7 +37,6 @@ import { trackEvent } from '../../lib/analytics';
 import { Button } from '../buttons/Button';
 import PlusIcon from '../../../icons/plus.svg';
 import { LoginModalMode } from '../../types/LoginModalMode';
-import dynamic from 'next/dynamic';
 
 const NewSourceModal = dynamic(() => import('../modals/NewSourceModal'));
 
@@ -52,6 +52,7 @@ const SourceItem = ({
 } & Omit<HTMLAttributes<HTMLButtonElement>, 'onClick'>): ReactElement => (
   <FilterItem className="relative my-1">
     <button
+      type="button"
       className="flex flex-1 h-10 pl-6 pr-14 items-center rounded-md hover:bg-theme-hover active:bg-theme-active focus-outline"
       onClick={() => onClick?.(source)}
       {...props}
@@ -157,8 +158,8 @@ export default function SourcesFilter({
 
   useEffect(() => {
     if (settingsAndSources) {
-      const followedSources = [];
-      const moreSources = [];
+      const accumulatedFollowedSources = [];
+      const accumulatedMoreSources = [];
       const loweredCaseQuery = query?.toLowerCase();
       settingsAndSources.sources.edges.forEach(({ node }) => {
         if (loweredCaseQuery?.length) {
@@ -171,13 +172,13 @@ export default function SourcesFilter({
             (exSource) => exSource.id === node.id,
           ) < 0;
         if (followed) {
-          followedSources.push(node);
+          accumulatedFollowedSources.push(node);
         } else {
-          moreSources.push(node);
+          accumulatedMoreSources.push(node);
         }
       });
-      setFollowedSources(followedSources);
-      setMoreSources(moreSources);
+      setFollowedSources(accumulatedFollowedSources);
+      setMoreSources(accumulatedMoreSources);
     }
   }, [settingsAndSources, query]);
 

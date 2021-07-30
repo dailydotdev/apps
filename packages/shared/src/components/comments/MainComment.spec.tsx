@@ -1,9 +1,9 @@
 import React from 'react';
 import { render, RenderResult, screen } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from 'react-query';
 import AuthContext from '../../contexts/AuthContext';
 import { LoggedUser } from '../../lib/user';
 import MainComment, { Props } from './MainComment';
-import { QueryClient, QueryClientProvider } from 'react-query';
 
 const author = {
   image: 'https://daily.dev/ido.png',
@@ -15,7 +15,7 @@ const author = {
 const baseComment = {
   id: 'c1',
   content: 'my comment',
-  author: author,
+  author,
   createdAt: new Date(2017, 1, 10, 0, 0).toISOString(),
   upvoted: false,
   permalink: 'https://daily.dev',

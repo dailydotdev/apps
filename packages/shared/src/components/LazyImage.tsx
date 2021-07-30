@@ -39,19 +39,23 @@ export function LazyImage({
   const baseImageClass = `absolute block inset-0 w-full h-full m-auto ${
     fit === 'cover' ? 'object-cover' : 'object-contain'
   }`;
-  const imageProps: ImgHTMLAttributes<HTMLImageElement> & {
+  let imageProps: ImgHTMLAttributes<HTMLImageElement> & {
     'data-src'?: string;
-  } = eager
-    ? { src: imgSrc, className: baseImageClass }
-    : asyncImageSupport
-    ? { src: imgSrc, loading: 'lazy', className: baseImageClass }
-    : {
-        className: `lazyload ${baseImageClass}`,
-        'data-src': imgSrc,
-      };
+  };
+  if (eager) {
+    imageProps = { src: imgSrc, className: baseImageClass };
+  } else if (asyncImageSupport) {
+    imageProps = { src: imgSrc, loading: 'lazy', className: baseImageClass };
+  } else {
+    imageProps = {
+      className: `lazyload ${baseImageClass}`,
+      'data-src': imgSrc,
+    };
+  }
 
   const onError = (event: SyntheticEvent<HTMLImageElement>): void => {
     if (fallbackSrc) {
+      // eslint-disable-next-line no-param-reassign
       event.currentTarget.src = fallbackSrc;
     }
   };

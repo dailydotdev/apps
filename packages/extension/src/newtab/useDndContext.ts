@@ -1,6 +1,6 @@
-import { DndContextData, DndSettings } from './DndContext';
 import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState';
 import { useMemo } from 'react';
+import { DndContextData, DndSettings } from './DndContext';
 
 const now = new Date();
 

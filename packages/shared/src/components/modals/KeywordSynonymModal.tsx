@@ -1,27 +1,27 @@
 import React, { ReactElement, useState } from 'react';
+import { useMutation, useQuery } from 'react-query';
+import request from 'graphql-request';
+import classNames from 'classnames';
 import { TextField } from '../fields/TextField';
 import XIcon from '../../../icons/x.svg';
-import { useMutation, useQuery } from 'react-query';
 import {
   SEARCH_KEYWORDS_QUERY,
   SearchKeywordData,
   SET_KEYWORD_AS_SYNONYM_MUTATION,
 } from '../../graphql/keywords';
-import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import { Button } from '../buttons/Button';
 import { ModalProps } from './StyledModal';
 import { ResponsiveModal } from './ResponsiveModal';
-import classNames from 'classnames';
 import styles from './KeywordSynonymModal.module.css';
 
-export type KeywordSynonymModal = { selectedKeyword: string } & ModalProps;
+export type KeywordSynonymModalProps = { selectedKeyword: string } & ModalProps;
 
 export default function KeywordSynonymModal({
   selectedKeyword,
   className,
   ...props
-}: KeywordSynonymModal): ReactElement {
+}: KeywordSynonymModalProps): ReactElement {
   const [query, setQuery] = useState(selectedKeyword);
 
   const { data: searchResults, isLoading: isSearching } =

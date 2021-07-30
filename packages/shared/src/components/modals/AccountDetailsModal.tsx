@@ -1,4 +1,5 @@
 import React, { ReactElement, useContext, useState } from 'react';
+import classNames from 'classnames';
 import XIcon from '../../../icons/x.svg';
 import EditImageWithJoinedDate from '../profile/EditImageWithJoinedDate';
 import AuthContext from '../../contexts/AuthContext';
@@ -16,7 +17,6 @@ import { ResponsiveModal } from './ResponsiveModal';
 import { ModalProps } from './StyledModal';
 import { ProfileHeading } from '../utilities';
 import styles from './AccountDetailsModal.module.css';
-import classNames from 'classnames';
 import classed from '../../lib/classed';
 
 const FooterLink = classed(

@@ -23,7 +23,11 @@ export default function AutoCompleteMenu({
 }: AutoCompleteMenuProps): ReactElement {
   const DOMPurify = useRef<DOMPurify.DOMPurifyI>();
   const sanitizedItems = useMemo(
-    () => items.map((item) => ({ __html: DOMPurify.current.sanitize(item) })),
+    () =>
+      items.map((item, index) => ({
+        __html: DOMPurify.current.sanitize(item),
+        index,
+      })),
     [items],
   );
 
@@ -44,12 +48,13 @@ export default function AutoCompleteMenu({
       }}
     >
       {sanitizedItems.map((item, index) => (
+        // eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions
         <div
           className={classNames(
             { focus: index === focusedItemIndex },
             'react-contexify__item',
           )}
-          key={index}
+          key={item.index}
           onClick={() => onItemClick(items[index])}
           onMouseDown={preventDefault}
         >

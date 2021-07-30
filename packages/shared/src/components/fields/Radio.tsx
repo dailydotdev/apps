@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
-import { RadioItem } from './RadioItem';
 import classNames from 'classnames';
+import { RadioItem } from './RadioItem';
 
 export type RadioProps = {
   name: string;
@@ -19,9 +19,9 @@ export function Radio({
 }: RadioProps): ReactElement {
   return (
     <div className={classNames('flex flex-col -my-0.5 items-start', className)}>
-      {options.map((option, key) => (
+      {options.map((option) => (
         <RadioItem
-          key={key}
+          key={option.value}
           name={name}
           value={option.value}
           checked={value === option.value}

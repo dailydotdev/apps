@@ -43,11 +43,12 @@ export function useVirtualWindow<T extends HTMLElement>(options: {
       width: window.innerWidth,
       height: window.innerHeight,
     }),
-    addEventListener: (type, listener, ...args) => {
+    addEventListener: (type, originalListener, ...args) => {
       // Only proxy 'scroll' event listeners
+      let listener = originalListener;
       if (type === 'scroll') {
         const proxiedListener = listener;
-        listener = scrollListenerRef.current = () => {
+        scrollListenerRef.current = () => {
           // Some "scroll locking" implementations (such as for modals) work by
           // applying styling to the body. This optional offset will compensate
           // for that.
@@ -62,11 +63,13 @@ export function useVirtualWindow<T extends HTMLElement>(options: {
           };
           proxiedListener({ target });
         };
+        listener = scrollListenerRef.current;
         listener();
       }
       return document.addEventListener(type, listener, ...args);
     },
-    removeEventListener: (type, listener, ...args) => {
+    removeEventListener: (type, originalListener, ...args) => {
+      let listener = originalListener;
       if (type === 'scroll') {
         listener = scrollListenerRef.current;
       }
@@ -77,7 +80,7 @@ export function useVirtualWindow<T extends HTMLElement>(options: {
   // Track dimensions of the virtualized container
   React.useLayoutEffect(() => {
     if (!virtualizedRef.current) {
-      return;
+      return undefined;
     }
     const onResize = () => {
       const rect = virtualizedRef.current.getBoundingClientRect();

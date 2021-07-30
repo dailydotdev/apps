@@ -6,9 +6,9 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
+import { mocked } from 'ts-jest/utils';
 import { changeProfileImage, LoggedUser } from '../../lib/user';
 import EditImageWithJoinedDate from './EditImageWithJoinedDate';
-import { mocked } from 'ts-jest/utils';
 
 jest.mock('../../lib/user', () => ({
   ...jest.requireActual('../../lib/user'),
@@ -36,7 +36,7 @@ const renderComponent = (user: Partial<LoggedUser> = {}): RenderResult => {
 
 it('should show profile image', () => {
   renderComponent();
-  const el = screen.getByAltText('Your profile image');
+  const el = screen.getByAltText('Your profile');
   expect(el).toHaveAttribute('src', defaultUser.image);
 });
 
@@ -73,7 +73,7 @@ it('should upload the new image profile image', async () => {
   fireEvent.change(input);
   await waitFor(() => expect(readAsDataURL).toBeCalledTimes(1));
   expect(changeProfileImage).toBeCalledWith(file);
-  const el = screen.getByAltText('Your profile image');
+  const el = screen.getByAltText('Your profile');
   await waitFor(() =>
     expect(el).toHaveAttribute('src', 'https://daily.dev/new.png'),
   );

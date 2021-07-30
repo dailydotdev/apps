@@ -1,6 +1,7 @@
 import React, { ReactElement, useContext } from 'react';
 import Link from 'next/link';
 import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { FlippedProps, FlipperProps } from 'flip-toolkit/lib/types';
 import dynamicParent from '@dailydotdev/shared/src/lib/dynamicParent';
 import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';

@@ -1,7 +1,7 @@
 import React, { HTMLAttributes, ReactElement } from 'react';
 import Link from 'next/link';
-import { getTooltipProps } from '../../lib/tooltip';
 import classNames from 'classnames';
+import { getTooltipProps } from '../../lib/tooltip';
 
 interface User {
   name: string;

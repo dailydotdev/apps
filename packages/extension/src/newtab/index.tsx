@@ -1,18 +1,10 @@
-// Must be the first import
-import { DndSettings } from './DndContext';
-
-if (process.env.NODE_ENV === 'development') {
-  // Must use require here as import statements are only allowed
-  // to exist at top-level.
-  require('preact/debug');
-}
-
 import React from 'react';
 import ReactDOM from 'react-dom';
 import '@dailydotdev/shared/src/styles/globals.css';
 import { get as getCache } from 'idb-keyval';
-import App from './App';
 import { browser } from 'webextension-polyfill-ts';
+import App from './App';
+import { DndSettings } from './DndContext';
 
 declare global {
   interface Window {

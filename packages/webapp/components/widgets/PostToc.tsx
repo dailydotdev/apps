@@ -6,8 +6,8 @@ import {
   trackEvent,
 } from '@dailydotdev/shared/src/lib/analytics';
 import TocIcon from '@dailydotdev/shared/icons/toc.svg';
-import styles from './PostToc.module.css';
 import ArrowIcon from '@dailydotdev/shared/icons/arrow.svg';
+import styles from './PostToc.module.css';
 
 export type PostTocProps = {
   post: Post;

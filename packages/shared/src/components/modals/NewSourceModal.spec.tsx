@@ -2,8 +2,8 @@ import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import React from 'react';
-import NewSourceModal from './NewSourceModal';
 import nock from 'nock';
+import NewSourceModal from './NewSourceModal';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import {
   REQUEST_SOURCE_MUTATION,
@@ -22,7 +22,7 @@ const renderComponent = (): RenderResult => {
 
   return render(
     <QueryClientProvider client={client}>
-      <NewSourceModal isOpen={true} onRequestClose={onRequestClose} />
+      <NewSourceModal isOpen onRequestClose={onRequestClose} />
     </QueryClientProvider>,
   );
 };

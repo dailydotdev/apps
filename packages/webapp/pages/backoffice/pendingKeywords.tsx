@@ -1,6 +1,5 @@
 import React, { ReactElement, useContext } from 'react';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { Roles } from '@dailydotdev/shared/src/lib/user';
 import { useQuery } from 'react-query';
 import request from 'graphql-request';
@@ -11,8 +10,9 @@ import {
   RANDOM_PENDING_KEYWORD_QUERY,
 } from '@dailydotdev/shared/src/graphql/keywords';
 import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
-import KeywordManagement from '../../components/KeywordManagement';
 import useRequirePermissions from '@dailydotdev/shared/src/hooks/useRequirePermissions';
+import KeywordManagement from '../../components/KeywordManagement';
+import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 
 const PendingKeywords = (): ReactElement => {
   useRequirePermissions(Roles.Moderator);

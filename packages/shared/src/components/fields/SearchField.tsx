@@ -116,6 +116,7 @@ export const SearchField = forwardRef(function SearchField(
       />
       {rightChildren || (
         <button
+          type="button"
           title="Clear query"
           onClick={onClearClick}
           className={classNames(

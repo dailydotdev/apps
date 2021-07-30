@@ -1,11 +1,12 @@
 import { gql } from 'graphql-request';
 
 export type Spaciness = 'eco' | 'roomy' | 'cozy';
+export type RemoteTheme = 'darcula' | 'bright' | 'auto';
 
 export type RemoteSettings = {
   openNewTab: boolean;
   showOnlyUnreadPosts: boolean;
-  theme: 'darcula' | 'bright' | 'auto';
+  theme: RemoteTheme;
   spaciness: Spaciness;
   insaneMode: boolean;
 };

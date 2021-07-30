@@ -1,6 +1,5 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { NextSeo } from 'next-seo';
-import MainLayout from '../components/layouts/MainLayout';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useRouter } from 'next/router';
 import EditImageWithJoinedDate from '@dailydotdev/shared/src/components/profile/EditImageWithJoinedDate';
@@ -16,6 +15,7 @@ import {
   logSignupFormStart,
   logSignupFormSubmit,
 } from '@dailydotdev/shared/src/lib/analytics';
+import MainLayout from '../components/layouts/MainLayout';
 
 export default function Register(): ReactElement {
   const { user, logout } = useContext(AuthContext);
@@ -32,7 +32,7 @@ export default function Register(): ReactElement {
   };
 
   return (
-    <MainLayout showOnlyLogo={true}>
+    <MainLayout showOnlyLogo>
       <NextSeo title="Registration" />
       <ResponsivePageContainer>
         {user && (

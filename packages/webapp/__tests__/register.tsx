@@ -1,10 +1,10 @@
 import React from 'react';
 import { LoggedUser, updateProfile } from '@dailydotdev/shared/src/lib/user';
-import Page from '../pages/register';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { mocked } from 'ts-jest/utils';
 import { NextRouter, useRouter } from 'next/router';
+import Page from '../pages/register';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -59,7 +59,7 @@ const renderComponent = (user: Partial<LoggedUser> = {}): RenderResult => {
 
 it('should show profile image', () => {
   renderComponent();
-  const el = screen.getByAltText('Your profile image');
+  const el = screen.getByAltText('Your profile');
   expect(el).toHaveAttribute('src', defaultUser.image);
 });
 

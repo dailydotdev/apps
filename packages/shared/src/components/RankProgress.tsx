@@ -7,6 +7,7 @@ import React, {
   useState,
 } from 'react';
 import { CSSTransition } from 'react-transition-group';
+import classNames from 'classnames';
 import RadialProgress from './RadialProgress';
 import {
   rankToColor,
@@ -15,7 +16,6 @@ import {
   STEPS_PER_RANK,
 } from '../lib/rank';
 import Rank from './Rank';
-import classNames from 'classnames';
 import styles from './RankProgress.module.css';
 
 const notificationDuration = 300;

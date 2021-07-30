@@ -131,13 +131,13 @@ it('should show author name when available', async () => {
 
 it('should show featured comments authors profile image', async () => {
   renderComponent();
-  const el = await screen.findByAltText(`Nimrod's profile image`);
+  const el = await screen.findByAltText(`Nimrod's profile`);
   expect(el).toBeInTheDocument();
 });
 
 it('should show featured comment when clicking on the profile image', async () => {
   renderComponent();
-  const btn = await screen.findByAltText(`Nimrod's profile image`);
+  const btn = await screen.findByAltText(`Nimrod's profile`);
   btn.click();
   const el = await screen.findByText('My featured comment');
   expect(el).toBeInTheDocument();
@@ -145,7 +145,7 @@ it('should show featured comment when clicking on the profile image', async () =
 
 it('should return back to normal card form when clicking the back button', async () => {
   renderComponent();
-  const btn = await screen.findByAltText(`Nimrod's profile image`);
+  const btn = await screen.findByAltText(`Nimrod's profile`);
   btn.click();
   await screen.findByText('My featured comment');
   const back = await screen.findByLabelText('Back');

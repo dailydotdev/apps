@@ -1,11 +1,11 @@
 import React, { ReactElement } from 'react';
+import { NextSeoProps } from 'next-seo/lib/types';
+import { NextSeo, SiteLinksSearchBoxJsonLd } from 'next-seo';
 import {
   getMainFeedLayout,
   mainFeedLayoutProps,
 } from '../components/layouts/MainFeedPage';
-import { NextSeoProps } from 'next-seo/lib/types';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
-import { NextSeo, SiteLinksSearchBoxJsonLd } from 'next-seo';
 
 const seo: NextSeoProps = {
   title: 'daily.dev | The Homepage Developers Deserve',

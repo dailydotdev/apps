@@ -1,4 +1,5 @@
 import React, { FunctionComponent, ReactElement } from 'react';
+import classNames from 'classnames';
 import CopyIcon from '../../icons/copy.svg';
 import WhatsappIcon from '../../icons/whatsapp_color.svg';
 import TwitterIcon from '../../icons/twitter_color.svg';
@@ -15,7 +16,6 @@ import { Button, ButtonProps } from './buttons/Button';
 import { trackEvent } from '../lib/analytics';
 import { getTooltipProps } from '../lib/tooltip';
 import styles from './ShareBar.module.css';
-import classNames from 'classnames';
 import classed from '../lib/classed';
 
 const ShareButton = classed(Button, 'my-1');

@@ -21,8 +21,8 @@ import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
 import dynamic from 'next/dynamic';
 import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
-import styles from './KeywordManagement.module.css';
 import classNames from 'classnames';
+import styles from './KeywordManagement.module.css';
 
 const KeywordSynonymModal = dynamic(
   () =>

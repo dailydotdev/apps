@@ -1,3 +1,17 @@
+import nock from 'nock';
+import React from 'react';
+import {
+  findAllByRole,
+  findByRole,
+  findByText,
+  fireEvent,
+  render,
+  RenderResult,
+  screen,
+  waitFor,
+} from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from 'react-query';
+import { OperationOptions } from 'subscriptions-transport-ws';
 import {
   ADD_BOOKMARKS_MUTATION,
   CANCEL_UPVOTE_MUTATION,
@@ -13,29 +27,15 @@ import {
   mockGraphQL,
 } from '../../__tests__/helpers/graphql';
 import { ANONYMOUS_FEED_QUERY } from '../graphql/feed';
-import nock from 'nock';
 import AuthContext from '../contexts/AuthContext';
-import React from 'react';
-import {
-  findAllByRole,
-  findByRole,
-  findByText,
-  fireEvent,
-  render,
-  RenderResult,
-  screen,
-  waitFor,
-} from '@testing-library/react';
 import Feed from './Feed';
 import defaultFeedPage from '../../__tests__/fixture/feed';
 import defaultUser from '../../__tests__/fixture/loggedUser';
 import ad from '../../__tests__/fixture/ad';
-import { QueryClient, QueryClientProvider } from 'react-query';
 import { LoggedUser } from '../lib/user';
 import { LoginModalMode } from '../types/LoginModalMode';
 import { MyRankData } from '../graphql/users';
 import { getRankQueryKey } from '../hooks/useReadingRank';
-import { OperationOptions } from 'subscriptions-transport-ws';
 import { SubscriptionCallbacks } from '../hooks/useSubscription';
 import { COMMENT_ON_POST_MUTATION } from '../graphql/comments';
 import SettingsContext, {

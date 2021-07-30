@@ -1,6 +1,6 @@
-import { Post } from '../../graphql/posts';
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import { Post } from '../../graphql/posts';
 import styles from './Card.module.css';
 import FeatherIcon from '../../../icons/feather.svg';
 import { Comment } from '../../graphql/comments';

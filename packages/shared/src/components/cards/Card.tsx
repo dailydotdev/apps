@@ -1,9 +1,9 @@
 import React, { ReactNode } from 'react';
+import classNames from 'classnames';
 import { LazyImage } from '../LazyImage';
 import { Comment } from '../../graphql/comments';
 import styles from './Card.module.css';
 import classed from '../../lib/classed';
-import classNames from 'classnames';
 import { getTooltipProps } from '../../lib/tooltip';
 import { Post } from '../../graphql/posts';
 
@@ -89,6 +89,7 @@ export const featuredCommentsToButtons = (
 ): ReactNode[] =>
   comments?.map((comment) => (
     <button
+      type="button"
       {...getTooltipProps(`See ${comment.author.name}'s comment`, {
         position: tooltipPosition,
       })}
@@ -101,7 +102,7 @@ export const featuredCommentsToButtons = (
     >
       <img
         src={comment.author.image}
-        alt={`${comment.author.name}'s profile image`}
+        alt={`${comment.author.name}'s profile`}
         className={classNames(
           'w-6 h-6 rounded-full',
           selectedId === comment.id ? 'opacity-100' : 'opacity-64',

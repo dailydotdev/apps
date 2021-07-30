@@ -1,4 +1,5 @@
 import React, { forwardRef, ReactElement, Ref, useEffect } from 'react';
+import classNames from 'classnames';
 import { AdCardProps } from './AdCard';
 import {
   ListCard,
@@ -7,7 +8,6 @@ import {
   ListCardMain,
   ListCardTitle,
 } from './Card';
-import classNames from 'classnames';
 import styles from './Card.module.css';
 import AdLink from './AdLink';
 import AdAttribution from './AdAttribution';

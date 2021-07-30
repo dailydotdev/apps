@@ -2,14 +2,19 @@ import React, { ReactElement } from 'react';
 
 export default function DevCardPlaceholder({
   profileImage,
+  rank,
   ...props
-}: React.SVGProps<SVGSVGElement> & { profileImage?: string }): ReactElement {
+}: React.SVGProps<SVGSVGElement> & {
+  profileImage?: string;
+  rank?: number;
+}): ReactElement {
+  const colorPrefix =
+    rank > 0 ? `--theme-rank-${rank}-color` : '--theme-rank-5-color';
   return (
     <svg
-      width={108}
-      height={148}
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 108 148"
       {...props}
     >
       <defs>
@@ -20,8 +25,8 @@ export default function DevCardPlaceholder({
           y2="100%"
           id="devcard_placeholder_svg__b"
         >
-          <stop stopColor="#CE3AF3" offset="0%" />
-          <stop stopColor="#7147ED" offset="100%" />
+          <stop stopColor={`var(${colorPrefix}-top)`} offset="0%" />
+          <stop stopColor={`var(${colorPrefix}-bottom)`} offset="100%" />
         </linearGradient>
         <pattern
           id="devcard_placeholder_svg__c"

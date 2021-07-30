@@ -1,10 +1,10 @@
 import React, { ReactElement } from 'react';
+import { reputationGuide } from '@dailydotdev/shared/src/lib/constants';
 import {
   getLayout as getProfileLayout,
   getStaticPaths as getProfileStaticPaths,
   getStaticProps as getProfileStaticProps,
 } from '../../components/layouts/ProfileLayout';
-import { reputationGuide } from '@dailydotdev/shared/src/lib/constants';
 
 export const getStaticProps = getProfileStaticProps;
 export const getStaticPaths = getProfileStaticPaths;

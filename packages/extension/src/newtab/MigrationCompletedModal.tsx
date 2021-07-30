@@ -17,6 +17,7 @@ const style: Styles = {
 export default function MigrationCompletedModal(
   props: ModalProps,
 ): ReactElement {
+  const { onRequestClose } = props;
   return (
     <ConfirmationModal {...props} style={style}>
       <Icon style={{ fontSize: '4rem' }} />
@@ -29,7 +30,7 @@ export default function MigrationCompletedModal(
         Have a nice day 😊
       </ConfirmationDescription>
       <ConfirmationButtons>
-        <Button className="btn-primary-avocado" onClick={props.onRequestClose}>
+        <Button className="btn-primary-avocado" onClick={onRequestClose}>
           Cool, thanks!
         </Button>
       </ConfirmationButtons>

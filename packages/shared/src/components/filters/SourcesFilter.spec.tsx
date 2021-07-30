@@ -1,9 +1,4 @@
-import {
-  MockedGraphQLResponse,
-  mockGraphQL,
-} from '../../../__tests__/helpers/graphql';
 import nock from 'nock';
-import AuthContext from '../../contexts/AuthContext';
 import React from 'react';
 import {
   findAllByRole,
@@ -13,8 +8,13 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
-import defaultUser from '../../../__tests__/fixture/loggedUser';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import defaultUser from '../../../__tests__/fixture/loggedUser';
+import AuthContext from '../../contexts/AuthContext';
+import {
+  MockedGraphQLResponse,
+  mockGraphQL,
+} from '../../../__tests__/helpers/graphql';
 import { LoggedUser } from '../../lib/user';
 import SourcesFilter from './SourcesFilter';
 import {

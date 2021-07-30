@@ -1,9 +1,9 @@
 import React, { ReactElement } from 'react';
 import { Item } from 'react-contexify';
+import dynamic from 'next/dynamic';
 import useReportPost from '../hooks/useReportPost';
 import { trackEvent } from '../lib/analytics';
 import { ReportReason } from '../graphql/posts';
-import dynamic from 'next/dynamic';
 
 const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
   ssr: false,

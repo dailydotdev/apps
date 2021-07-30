@@ -5,9 +5,12 @@ import React, {
   useContext,
   useState,
 } from 'react';
+import dynamic from 'next/dynamic';
+import Link from 'next/link';
+import { CSSTransition } from 'react-transition-group';
+import classNames from 'classnames';
 import classed from '../lib/classed';
 import { Button } from './buttons/Button';
-import dynamic from 'next/dynamic';
 import ProgressiveEnhancementContext from '../contexts/ProgressiveEnhancementContext';
 import AuthContext from '../contexts/AuthContext';
 import { getTooltipProps } from '../lib/tooltip';
@@ -18,9 +21,6 @@ import BookmarkIcon from '../../icons/bookmark.svg';
 import { LazyImage } from './LazyImage';
 import styles from './MainLayout.module.css';
 import LayoutIcon from '../../icons/layout.svg';
-import Link from 'next/link';
-import { CSSTransition } from 'react-transition-group';
-import classNames from 'classnames';
 import { QuaternaryButton } from './buttons/QuaternaryButton';
 import GiftIcon from '../../icons/gift.svg';
 import usePersistentState from '../hooks/usePersistentState';
@@ -123,6 +123,7 @@ export default function MainLayout({
           passHref
           prefetch={false}
         >
+          {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
           <a
             className="flex items-center"
             onClick={onLogoClick}
@@ -217,7 +218,7 @@ export default function MainLayout({
       </header>
       {showSettings && (
         <Settings
-          panelMode={true}
+          panelMode
           className="border-b border-theme-divider-tertiary"
         />
       )}

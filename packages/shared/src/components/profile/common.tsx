@@ -1,6 +1,6 @@
 import React, { HTMLAttributes, ReactElement } from 'react';
-import classed from '../../lib/classed';
 import classNames from 'classnames';
+import classed from '../../lib/classed';
 import styles from './common.module.css';
 
 export const EmptyMessage = classed(

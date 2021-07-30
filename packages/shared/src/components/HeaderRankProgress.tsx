@@ -4,15 +4,17 @@ import React, {
   useContext,
   useState,
 } from 'react';
+import dynamic from 'next/dynamic';
+import classNames from 'classnames';
 import { RankProgress } from './RankProgress';
 import useReadingRank from '../hooks/useReadingRank';
-import dynamic from 'next/dynamic';
 import AuthContext from '../contexts/AuthContext';
 import { STEPS_PER_RANK } from '../lib/rank';
 import OnboardingContext from '../contexts/OnboardingContext';
 import Rank from './Rank';
-import classNames from 'classnames';
 import styles from './HeaderRankProgress.module.css';
+import FeaturesContext from '../contexts/FeaturesContext';
+import { getFeatureValue } from '../lib/featureManagement';
 
 const RanksModal = dynamic(
   () => import(/* webpackChunkName: "ranksModal" */ './modals/RanksModal'),
@@ -30,7 +32,9 @@ export default function HeaderRankProgress({
   const { user } = useContext(AuthContext);
   const { onboardingStep, onboardingReady, incrementOnboardingStep } =
     useContext(OnboardingContext);
-  const [showModal, setShowModal] = useState(false);
+  const [showRanksModal, setShowRanksModal] = useState(false);
+  const { flags } = useContext(FeaturesContext);
+  const devCardLimit = parseInt(getFeatureValue('limit_dev_card', flags), 10);
 
   const {
     isLoading,
@@ -40,6 +44,7 @@ export default function HeaderRankProgress({
     neverShowRankModal,
     levelUp,
     confirmLevelUp,
+    reads,
   } = useReadingRank();
 
   if (isLoading) {
@@ -49,7 +54,7 @@ export default function HeaderRankProgress({
   const showWelcome = onboardingStep === 1;
   const showRankAnimation = levelUp && neverShowRankModal;
   const closeRanksModal = () => {
-    setShowModal(false);
+    setShowRanksModal(false);
     if (showWelcome) {
       incrementOnboardingStep();
     }
@@ -59,13 +64,14 @@ export default function HeaderRankProgress({
     <>
       {onboardingReady && (
         <button
+          type="button"
           className={classNames(
             'flex items-center justify-center bg-theme-bg-primary cursor-pointer focus-outline',
             styles.rankButton,
             { [styles.attention]: showWelcome },
             className,
           )}
-          onClick={() => setShowModal(true)}
+          onClick={() => setShowRanksModal(true)}
         >
           {showWelcome ? (
             <div
@@ -97,12 +103,14 @@ export default function HeaderRankProgress({
           )}
         </button>
       )}
-      {showModal && (
+      {showRanksModal && (
         <RanksModal
           rank={rank}
           progress={progress}
-          isOpen={showModal}
+          isOpen={showRanksModal}
           onRequestClose={closeRanksModal}
+          reads={reads}
+          devCardLimit={devCardLimit}
         />
       )}
       {levelUp && !neverShowRankModal && (
@@ -112,6 +120,7 @@ export default function HeaderRankProgress({
           user={user}
           isOpen={levelUp && !neverShowRankModal}
           onRequestClose={confirmLevelUp}
+          showDevCard={reads >= devCardLimit || !devCardLimit}
         />
       )}
     </>

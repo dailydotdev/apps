@@ -1,6 +1,6 @@
 import { gql } from 'graphql-request';
 import { Connection } from './common';
-import { EmptyResponse } from './posts';
+import { EmptyResponse } from './emptyResponse';
 
 export interface Author {
   __typename?: string;

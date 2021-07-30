@@ -1,10 +1,10 @@
+import { useMutation } from 'react-query';
+import request from 'graphql-request';
 import {
   HIDE_POST_MUTATION,
   REPORT_POST_MUTATION,
   ReportReason,
 } from '../graphql/posts';
-import { useMutation } from 'react-query';
-import request from 'graphql-request';
 import { apiUrl } from '../lib/config';
 
 type UseReportPostRet = {

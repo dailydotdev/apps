@@ -7,9 +7,9 @@ import React, {
   useState,
 } from 'react';
 import { SubscriptionClient } from 'subscriptions-transport-ws';
+import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 import ProgressiveEnhancementContext from './ProgressiveEnhancementContext';
 import AuthContext from './AuthContext';
-import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 
 export interface SubscriptionContextData {
   subscriptionClient: SubscriptionClient;
@@ -41,9 +41,9 @@ export const SubscriptionContextProvider = ({
       requestIdleCallback(() => {
         import(
           /* webpackChunkName: "subscriptions" */ '../graphql/subscriptions'
-        ).then(({ subscriptionClient }) => {
-          setSubscriptionClient(subscriptionClient);
-          subscriptionClient.onConnected(() => setConnected(true));
+        ).then(({ subscriptionClient: loadedSubscriptionClient }) => {
+          setSubscriptionClient(loadedSubscriptionClient);
+          loadedSubscriptionClient.onConnected(() => setConnected(true));
         });
       });
     }

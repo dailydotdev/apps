@@ -1,6 +1,4 @@
 import React from 'react';
-import { LoggedUser, updateProfile } from '../../lib/user';
-import ProfileForm from './ProfileForm';
 import {
   fireEvent,
   render,
@@ -8,8 +6,10 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
-import AuthContext from '../../contexts/AuthContext';
 import { mocked } from 'ts-jest/utils';
+import { LoggedUser, updateProfile } from '../../lib/user';
+import ProfileForm from './ProfileForm';
+import AuthContext from '../../contexts/AuthContext';
 
 jest.mock('../../lib/user', () => ({
   ...jest.requireActual('../../lib/user'),

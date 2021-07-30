@@ -1,9 +1,9 @@
-import { useAutoComplete } from '../hooks/useAutoComplete';
-import { SearchField } from './fields/SearchField';
 import React, { ReactElement, useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useQuery } from 'react-query';
 import request from 'graphql-request';
+import { SearchField } from './fields/SearchField';
+import { useAutoComplete } from '../hooks/useAutoComplete';
 import { apiUrl } from '../lib/config';
 import { SEARCH_POST_SUGGESTIONS } from '../graphql/search';
 

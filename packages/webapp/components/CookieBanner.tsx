@@ -3,8 +3,8 @@ import { cookiePolicy } from '@dailydotdev/shared/src/lib/constants';
 import CookieIcon from '@dailydotdev/shared/icons/cookie.svg';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ModalCloseButton } from '@dailydotdev/shared/src/components/modals/ModalCloseButton';
-import styles from './CookieBanner.module.css';
 import classNames from 'classnames';
+import styles from './CookieBanner.module.css';
 
 export interface CookieBannerProps {
   onAccepted: () => void;

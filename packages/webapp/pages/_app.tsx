@@ -1,9 +1,9 @@
 // Must be the first import
-if (process.env.NODE_ENV === 'development') {
-  // Must use require here as import statements are only allowed
-  // to exist at top-level.
-  require('preact/debug');
-}
+// if (process.env.NODE_ENV === 'development') {
+//   // Must use require here as import statements are only allowed
+//   // to exist at top-level.
+//   require('preact/debug');
+// }
 
 import React, { ReactElement, ReactNode, useContext, useEffect } from 'react';
 import { AppProps } from 'next/app';
@@ -13,7 +13,6 @@ import 'focus-visible';
 import Modal from 'react-modal';
 import { DefaultSeo } from 'next-seo';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import Seo from '../next-seo';
 import AuthContext, {
   AuthContextProvider,
 } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -31,13 +30,14 @@ import { SettingsContextProvider } from '@dailydotdev/shared/src/contexts/Settin
 import '@dailydotdev/shared/src/styles/globals.css';
 import useAnalytics from '@dailydotdev/shared/src/hooks/useAnalytics';
 import HelpUsGrowModalWithContext from '@dailydotdev/shared/src/components/modals/HelpUsGrowModalWithContext';
+import Seo from '../next-seo';
 
 const queryClient = new QueryClient();
 
 const LoginModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "loginModal"*/ '@dailydotdev/shared/src/components/modals/LoginModal'
+      /* webpackChunkName: "loginModal" */ '@dailydotdev/shared/src/components/modals/LoginModal'
     ),
 );
 const CookieBanner = dynamic(() => import('../components/CookieBanner'));

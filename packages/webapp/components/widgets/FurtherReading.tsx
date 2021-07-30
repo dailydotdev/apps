@@ -1,5 +1,4 @@
 import React, { ReactElement, useContext } from 'react';
-import SimilarPosts from './SimilarPosts';
 import classNames from 'classnames';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { QueryClient, useQuery, useQueryClient } from 'react-query';
@@ -12,6 +11,7 @@ import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import useBookmarkPost from '@dailydotdev/shared/src/hooks/useBookmarkPost';
 import { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { trackEvent } from '@dailydotdev/shared/src/lib/analytics';
+import SimilarPosts from './SimilarPosts';
 import BestDiscussions from './BestDiscussions';
 import PostToc from './PostToc';
 
@@ -39,7 +39,7 @@ const updatePost =
     queryClient: QueryClient,
     queryKey: string[],
     update: (oldPost: Post) => Partial<Post>,
-  ): (({}: { id: string }) => Promise<() => void>) =>
+  ): ((args: { id: string }) => Promise<() => void>) =>
   async ({ id }) => {
     await queryClient.cancelQueries(queryKey);
     const previousData = queryClient.getQueryData<FurtherReadingData>(queryKey);

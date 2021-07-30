@@ -9,22 +9,22 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { useMutation } from 'react-query';
+import request from 'graphql-request';
+import { useInView } from 'react-intersection-observer';
+import dynamic from 'next/dynamic';
+import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
+import classNames from 'classnames';
 import useFeed, { FeedItem, PostItem } from '../hooks/useFeed';
 import { Ad, Post } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
-import { useMutation } from 'react-query';
-import request from 'graphql-request';
 import { apiUrl } from '../lib/config';
 import { LoginModalMode } from '../types/LoginModalMode';
-import { useInView } from 'react-intersection-observer';
 import FeedContext from '../contexts/FeedContext';
 import useIncrementReadingRank from '../hooks/useIncrementReadingRank';
 import { logReadArticle, trackEvent } from '../lib/analytics';
 import { COMMENT_ON_POST_MUTATION, CommentOnData } from '../graphql/comments';
-import dynamic from 'next/dynamic';
-import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 import styles from './Feed.module.css';
-import classNames from 'classnames';
 import SettingsContext from '../contexts/SettingsContext';
 import useUpvotePost from '../hooks/useUpvotePost';
 import useBookmarkPost from '../hooks/useBookmarkPost';
@@ -67,9 +67,21 @@ const onAdClick = (ad: Ad) =>
 
 const getFeedGap = (useList: boolean, spaciness: Spaciness): number => {
   if (useList) {
-    return spaciness === 'cozy' ? 20 : spaciness === 'roomy' ? 12 : 8;
+    if (spaciness === 'cozy') {
+      return 20;
+    }
+    if (spaciness === 'roomy') {
+      return 12;
+    }
+    return 8;
   }
-  return spaciness === 'cozy' ? 56 : spaciness === 'roomy' ? 48 : 32;
+  if (spaciness === 'cozy') {
+    return 56;
+  }
+  if (spaciness === 'roomy') {
+    return 48;
+  }
+  return 32;
 };
 
 const getStyle = (useList: boolean, spaciness: Spaciness): CSSProperties => {
@@ -186,8 +198,8 @@ export default function Feed<T>({
       content: string;
     }
   >(
-    (variables) =>
-      request(`${apiUrl}/graphql`, COMMENT_ON_POST_MUTATION, variables),
+    (requestVariables) =>
+      request(`${apiUrl}/graphql`, COMMENT_ON_POST_MUTATION, requestVariables),
     {
       onSuccess: async (data) => {
         trackEvent({

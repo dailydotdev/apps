@@ -1,8 +1,8 @@
 import React, { ReactElement } from 'react';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
-import styles from './Promotion.module.css';
 import classNames from 'classnames';
+import styles from './Promotion.module.css';
 
 export default function Promotion(): ReactElement {
   return (

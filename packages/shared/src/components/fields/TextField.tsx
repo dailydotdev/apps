@@ -51,6 +51,13 @@ export function TextField({
   const [validInput, setValidInput] = useState<boolean>(undefined);
   const [idleTimeout, setIdleTimeout] = useState<number>(undefined);
 
+  const clearIdleTimeout = () => {
+    if (idleTimeout) {
+      clearTimeout(idleTimeout);
+      setIdleTimeout(null);
+    }
+  };
+
   // Return the clearIdleTimeout to call it on cleanup
   useEffect(() => clearIdleTimeout, []);
 
@@ -65,13 +72,6 @@ export function TextField({
       setValidInput(valid);
     }
   }, [valid]);
-
-  const clearIdleTimeout = () => {
-    if (idleTimeout) {
-      clearTimeout(idleTimeout);
-      setIdleTimeout(null);
-    }
-  };
 
   const onBlur = () => {
     clearIdleTimeout();
@@ -91,8 +91,8 @@ export function TextField({
     }
     const len = event.currentTarget.value.length;
     setInputLength(len);
-    const valid = inputRef.current.checkValidity();
-    if (valid) {
+    const inputValidity = inputRef.current.checkValidity();
+    if (inputValidity) {
       setValidInput(true);
     } else {
       setIdleTimeout(

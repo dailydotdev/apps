@@ -5,13 +5,10 @@ import {
 } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 import React, { ReactElement, useContext, useMemo } from 'react';
-import { getLayout } from '../../components/layouts/FeedLayout';
-import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import HashtagIcon from '@dailydotdev/shared/icons/hashtag.svg';
 import PlusIcon from '@dailydotdev/shared/icons/plus.svg';
 import { useRouter } from 'next/router';
 import { NextSeoProps } from 'next-seo/lib/types';
-import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { NextSeo } from 'next-seo';
 import Feed from '@dailydotdev/shared/src/components/Feed';
 import { TAG_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
@@ -36,6 +33,9 @@ import useMutateFilters, {
   getTagsSettingsQueryKey,
 } from '@dailydotdev/shared/src/hooks/useMutateFilters';
 import { trackEvent } from '@dailydotdev/shared/src/lib/analytics';
+import { defaultOpenGraph, defaultSeo } from '../../next-seo';
+import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
+import { getLayout } from '../../components/layouts/FeedLayout';
 
 type TagPageProps = { tag: string };
 

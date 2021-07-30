@@ -1,14 +1,11 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import { NextSeoProps } from 'next-seo/lib/types';
-import { defaultOpenGraph, defaultSeo } from '../next-seo';
 import { NextSeo } from 'next-seo';
 import Feed from '@dailydotdev/shared/src/components/Feed';
 import { BOOKMARKS_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import { headerHeight } from '@dailydotdev/shared/src/styles/sizes';
 import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
-import { getLayout } from '../components/layouts/FeedLayout';
-import { mainFeedLayoutProps } from '../components/layouts/MainFeedPage';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
@@ -18,6 +15,9 @@ import {
   customFeedIcon,
   FeedPage,
 } from '@dailydotdev/shared/src/components/utilities';
+import { mainFeedLayoutProps } from '../components/layouts/MainFeedPage';
+import { getLayout } from '../components/layouts/FeedLayout';
+import { defaultOpenGraph, defaultSeo } from '../next-seo';
 
 const BookmarksPage = (): ReactElement => {
   const router = useRouter();

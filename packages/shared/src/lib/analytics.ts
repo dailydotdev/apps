@@ -116,7 +116,7 @@ export const getAmplitudeClient = async (): Promise<AmplitudeClient> => {
     return {
       logEvent(event: string, data?: unknown): LogReturn {
         ampEventsQueue.push([event, data]);
-        return;
+        return undefined;
       },
     } as unknown as AmplitudeClient;
   }
@@ -140,34 +140,45 @@ export const logRevenue = async (
   amp.getInstance().logRevenueV2(revenue);
 };
 
-export const logReadArticle = async (origin: string): Promise<void> => {
-  const amp = await getAmplitudeClient();
-  amp.logEvent('read article', { origin });
-};
-
-export const logSignupStart = async (trigger: string): Promise<void> => {
-  const amp = await getAmplitudeClient();
-  amp.logEvent('signup start', { trigger });
-};
-
-export const logSignupProviderClick = async (
-  provider: string,
+const logEvent = async (
+  event: string,
+  data?: Record<string, unknown>,
 ): Promise<void> => {
   const amp = await getAmplitudeClient();
-  amp.logEvent('signup provider click', { provider });
+  amp.logEvent(event, data);
 };
 
-export const logSignupFormStart = async (): Promise<void> => {
-  const amp = await getAmplitudeClient();
-  amp.logEvent('signup form start');
-};
+export const logReadArticle = async (origin: string): Promise<void> =>
+  logEvent('read article', { origin });
+
+export const logSignupStart = async (trigger: string): Promise<void> =>
+  logEvent('signup start', { trigger });
+
+export const logSignupProviderClick = async (provider: string): Promise<void> =>
+  logEvent('signup provider click', { provider });
+
+export const logSignupFormStart = async (): Promise<void> =>
+  logEvent('signup form start');
 
 export const logSignupFormSubmit = async (
   optionalFields: boolean,
-): Promise<void> => {
-  const amp = await getAmplitudeClient();
-  amp.logEvent('signup form submit', { 'optional fields': optionalFields });
-};
+): Promise<void> =>
+  logEvent('signup form submit', { 'optional fields': optionalFields });
+
+export const logGoToDevCardImpression = async (origin: string): Promise<void> =>
+  logEvent('go to devcard impression', { origin });
+
+export const logGoToDevCardClick = async (origin: string): Promise<void> =>
+  logEvent('go to devcard click', { origin });
+
+export const logGenerateDevCard = async (): Promise<void> =>
+  logEvent('generate devcard');
+
+export const logDownloadDevCard = async (): Promise<void> =>
+  logEvent('download devcard');
+
+export const logDevCardPageView = async (): Promise<void> =>
+  logEvent('devcard page view');
 
 export const initAmplitude = async (
   userId: string,
@@ -177,6 +188,8 @@ export const initAmplitude = async (
   amp.init(process.env.NEXT_PUBLIC_AMPLITUDE, userId, {
     includeReferrer: true,
     includeUtm: true,
+    includeGclid: true,
+    includeFbclid: true,
     sameSiteCookie: 'Lax',
     domain: process.env.NEXT_PUBLIC_DOMAIN,
   });

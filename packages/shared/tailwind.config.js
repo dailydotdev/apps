@@ -2,6 +2,9 @@
 const colors = require('./tailwind/colors');
 const overlay = require('./tailwind/overlay');
 const boxShadow = require('./tailwind/boxShadow');
+const caret = require('./tailwind/caret');
+const typography = require('./tailwind/typography');
+const buttons = require('./tailwind/buttons');
 
 module.exports = {
   mode: 'jit',
@@ -95,6 +98,7 @@ module.exports = {
     },
     extend: {
       borderRadius: {
+        2: '0.125rem',
         3: '0.1875rem',
         10: '0.625rem',
         14: '0.875rem',
@@ -111,11 +115,7 @@ module.exports = {
       visibility: ['group-hover'],
     },
   },
-  plugins: [
-    require('./tailwind/caret'),
-    require('./tailwind/typography'),
-    require('./tailwind/buttons'),
-  ],
+  plugins: [caret, typography, buttons],
   corePlugins: {
     invert: false,
   },

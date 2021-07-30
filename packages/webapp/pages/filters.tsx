@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
-import { getLayout } from '../components/layouts/FooterNavBarLayout';
 import FeedFilters from '@dailydotdev/shared/src/components/filters/FeedFilters';
+import { getLayout } from '../components/layouts/FooterNavBarLayout';
 
 const FiltersPage = (): ReactElement => (
   <main className="withNavBar">

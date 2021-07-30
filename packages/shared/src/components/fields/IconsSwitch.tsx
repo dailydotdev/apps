@@ -37,6 +37,7 @@ export function IconsSwitch({
         'group relative flex w-28 h-9 cursor-pointer',
         className,
       )}
+      htmlFor={inputId}
     >
       <input
         id={inputId}

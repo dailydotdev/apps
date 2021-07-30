@@ -1,10 +1,6 @@
 import React from 'react';
 import nock from 'nock';
 import {
-  MockedGraphQLResponse,
-  mockGraphQL,
-} from '../../__tests__/helpers/graphql';
-import {
   fireEvent,
   queryByText,
   render,
@@ -12,6 +8,11 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from 'react-query';
+import {
+  MockedGraphQLResponse,
+  mockGraphQL,
+} from '../../__tests__/helpers/graphql';
 import { SettingsContextProvider } from '../contexts/SettingsContext';
 import Settings from './Settings';
 import {
@@ -20,7 +21,6 @@ import {
   USER_SETTINGS_QUERY,
   UserSettingsData,
 } from '../graphql/settings';
-import { QueryClient, QueryClientProvider } from 'react-query';
 import { LoggedUser } from '../lib/user';
 import defaultUser from '../../__tests__/fixture/loggedUser';
 import AuthContext from '../contexts/AuthContext';

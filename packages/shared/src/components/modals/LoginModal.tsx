@@ -1,11 +1,11 @@
 import React, { ReactElement, useEffect } from 'react';
+import classNames from 'classnames';
 import DailyDevLogo from '../../svg/DailyDevLogo';
 import { StyledModal, ModalProps } from './StyledModal';
 import { ModalCloseButton } from './ModalCloseButton';
 import LoginButtons from '../LoginButtons';
 import { LoginModalMode } from '../../types/LoginModalMode';
 import styles from './LoginModal.module.css';
-import classNames from 'classnames';
 import { logSignupStart } from '../../lib/analytics';
 
 export type LoginModalProps = {

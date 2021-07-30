@@ -2,11 +2,11 @@ import React from 'react';
 import { LoggedUser, PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import ProfileLayout from '../components/layouts/ProfileLayout';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { mockGraphQL } from './helpers/graphql';
 import { USER_READING_RANK_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import nock from 'nock';
+import { mockGraphQL } from './helpers/graphql';
+import ProfileLayout from '../components/layouts/ProfileLayout';
 
 jest.mock('next/router', () => ({
   useRouter() {

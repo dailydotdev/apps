@@ -15,33 +15,32 @@ export default function dynamicParent<P, T = Record<string, unknown>>(
       this.state = { componentClass: null };
     }
 
-    async loadComponent() {
-      const componentClass = await loader();
-      this.setState({ componentClass });
-    }
-
     async componentDidMount() {
-      if (this.props.shouldLoad) {
+      const { shouldLoad } = this.props;
+      if (shouldLoad) {
         await this.loadComponent();
       }
     }
 
     async componentDidUpdate(prevProps) {
-      if (!prevProps.shouldLoad && this.props.shouldLoad) {
+      const { shouldLoad } = this.props;
+      if (!prevProps.shouldLoad && shouldLoad) {
         await this.loadComponent();
       }
     }
 
+    async loadComponent() {
+      const componentClass = await loader();
+      this.setState({ componentClass });
+    }
+
     render() {
       const { componentClass } = this.state;
+      const { children } = this.props;
       if (componentClass) {
-        return React.createElement(
-          componentClass,
-          this.props,
-          this.props.children,
-        );
+        return React.createElement(componentClass, this.props, children);
       }
-      return React.createElement(placeholder, this.props, this.props.children);
+      return React.createElement(placeholder, this.props, children);
     }
   };
 }
