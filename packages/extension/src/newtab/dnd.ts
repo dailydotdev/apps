@@ -1,3 +1,5 @@
+import { addDays, addHours, addMinutes } from 'date-fns';
+
 export type TimeFormat =
   | 'HALF_HOUR'
   | 'ONE_HOUR'
@@ -17,15 +19,11 @@ const CHROME_DEFAULT_URL = 'chrome-search://local-ntp/local-ntp.html';
 export const getExpiration = (time: CustomTime, value: number): Date => {
   const exp = new Date();
 
-  if (time === CustomTime.DAYS) {
-    return new Date(exp.getFullYear(), exp.getMonth(), exp.getDate() + value);
-  }
+  if (time === CustomTime.DAYS) return addDays(exp, value);
 
-  if (time === CustomTime.MINUTES) exp.setMinutes(exp.getMinutes() + value);
+  if (time === CustomTime.HOURS) return addHours(exp, value);
 
-  if (time === CustomTime.HOURS) exp.setHours(exp.getHours() + value);
-
-  return exp;
+  return addMinutes(exp, value);
 };
 
 export const getDefaultLink = (): string =>
