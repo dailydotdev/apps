@@ -1,12 +1,6 @@
 import React from 'react';
 import classnames from 'classnames';
-import {
-  getDefaultLink,
-  CustomTime,
-  TimeFormat,
-  getExpiration,
-  getTimeFormatExpiration,
-} from './dnd';
+import { getDefaultLink, dndOption, CustomTime, TimeFormat } from './dnd';
 import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
 import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
@@ -22,9 +16,9 @@ export interface DoNotDisturbModalProps extends ModalProps {
   defaultTimeFormat?: TimeFormat;
 }
 
-const timeFormatOptions = Object.values(TimeFormat).map((value) => ({
-  label: value,
-  value,
+const timeFormatOptions = Object.entries(dndOption).map(([k, v]) => ({
+  label: v.label,
+  value: k,
 }));
 
 const customTimeOptions = Object.values(CustomTime);
@@ -41,11 +35,9 @@ const DoNotDisturbModal: React.FC<DoNotDisturbModalProps> = ({
   const [dndTime, setDndTime] = React.useState(defaultTimeFormat);
 
   const handleSubmit = async (e: React.MouseEvent<Element, MouseEvent>) => {
-    const expiration =
-      dndTime === TimeFormat.CUSTOM
-        ? getExpiration(customTimeOptions[customTimeIndex], customNumber)
-        : getTimeFormatExpiration(dndTime);
-
+    const settings = dndOption[dndTime];
+    const customTime = customTimeOptions[customTimeIndex];
+    const expiration = settings.getExpiration(customTime, customNumber);
     const fallback = link || getDefaultLink();
 
     await setDndSettings({ expiration, link: fallback });

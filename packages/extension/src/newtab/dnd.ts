@@ -29,17 +29,54 @@ export const getExpiration = (time: CustomTime, value: number): Date => {
   return exp;
 };
 
-export const getTimeFormatExpiration = (tf: TimeFormat): Date => {
-  if (tf === TimeFormat.CUSTOM) throw new Error('Unable to fetch value!');
-
-  if (tf === TimeFormat.TOMORROW) return getExpiration(CustomTime.DAYS, 1);
-
-  if (tf === TimeFormat.HALF_HOUR) return getExpiration(CustomTime.MINUTES, 30);
-
-  const amount = tf === TimeFormat.ONE_HOUR ? 1 : 2;
-
-  return getExpiration(CustomTime.HOURS, amount);
-};
-
 export const getDefaultLink = (): string =>
   process.env.TARGET_BROWSER === 'chrome' ? CHROME_DEFAULT_URL : DEFAULT_URL;
+interface DndOption {
+  value: number;
+  label: string;
+  format: TimeFormat;
+  getExpiration: (time: CustomTime, value: number) => Date;
+}
+
+export const dndOption: { [k: string]: DndOption } = {
+  halfHour: {
+    value: 30,
+    label: '30 minutes',
+    format: TimeFormat.HALF_HOUR,
+    getExpiration(): Date {
+      return getExpiration(CustomTime.MINUTES, this.value);
+    },
+  },
+  oneHour: {
+    value: 1,
+    label: '1 hour',
+    format: TimeFormat.ONE_HOUR,
+    getExpiration(): Date {
+      return getExpiration(CustomTime.HOURS, this.value);
+    },
+  },
+  twoHour: {
+    value: 2,
+    label: '2 hours',
+    format: TimeFormat.TWO_HOURS,
+    getExpiration(): Date {
+      return getExpiration(CustomTime.HOURS, this.value);
+    },
+  },
+  tomorrow: {
+    value: 1,
+    label: 'Tomorrow',
+    format: TimeFormat.CUSTOM,
+    getExpiration(): Date {
+      return getExpiration(CustomTime.DAYS, this.value);
+    },
+  },
+  custom: {
+    value: 0,
+    label: 'Custom...',
+    format: TimeFormat.CUSTOM,
+    getExpiration(time: CustomTime, value: number): Date {
+      return getExpiration(time, value);
+    },
+  },
+};
