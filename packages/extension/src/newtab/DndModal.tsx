@@ -7,14 +7,14 @@ import {
   getExpiration,
   getTimeFormatExpiration,
 } from './dnd';
-import { Radio } from '../../../shared/src/components/fields/Radio';
-import { Dropdown } from '../../../shared/src/components/fields/Dropdown';
-import { TextField } from '../../../shared/src/components/fields/TextField';
-import { ModalCloseButton } from '../../../shared/src/components/modals/ModalCloseButton';
+import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
+import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
+import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
+import { ModalCloseButton } from '@dailydotdev/shared/src/components/modals/ModalCloseButton';
 import {
   StyledModal,
   ModalProps,
-} from '../../../shared/src/components/modals/StyledModal';
+} from '@dailydotdev/shared/src/components/modals/StyledModal';
 import styles from './DoNotDisturbModal.module.css';
 import DndContext from './DndContext';
 
