@@ -38,5 +38,5 @@ const renderApp = () => {
 
   const tab = await browser.tabs.getCurrent();
   window.stop();
-  await browser.tabs.update(tab.id, { url: dnd.link });
+  return await browser.tabs.update(tab.id, { url: dnd.link });
 })();

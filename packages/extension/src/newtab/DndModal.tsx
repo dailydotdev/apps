@@ -1,6 +1,5 @@
 import React, { FC, useState, useContext } from 'react';
 import { format } from 'date-fns';
-import { getDefaultLink, dndOption, CustomTime, TimeFormat } from './dnd';
 import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
 import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
@@ -9,6 +8,7 @@ import {
   StyledModal,
   ModalProps,
 } from '@dailydotdev/shared/src/components/modals/StyledModal';
+import { getDefaultLink, dndOption, CustomTime, TimeFormat } from './dnd';
 import DndContext from './DndContext';
 
 const timeFormatOptions = Object.entries(dndOption).map(([k, v]) => ({
@@ -41,12 +41,14 @@ const DoNotDisturbModal: FC<ModalProps> = ({
   const turnedOnContent = (
     <div className="grid grid-cols-2 gap-6 justify-center my-6">
       <button
+        type="submit"
         onClick={onRequestClose}
         className="flex justify-center items-center w-28 h-12 rounded-xl border border-white text-base text-white font-bold"
       >
         Cancel
       </button>
       <button
+        type="submit"
         onClick={() => setDndSettings(null)}
         className="flex justify-center items-center w-28 h-12 rounded-xl text-base text-white font-bold bg-onion-40"
       >
@@ -76,7 +78,7 @@ const DoNotDisturbModal: FC<ModalProps> = ({
             inputId="defaultURL"
             label="Number"
             type="number"
-            valueChanged={(number) => setCustomNumber(parseInt(number))}
+            valueChanged={(number) => setCustomNumber(parseInt(number, 10))}
           />
           <Dropdown
             className="w-40"
@@ -120,6 +122,7 @@ const DoNotDisturbModal: FC<ModalProps> = ({
       {isActive ? null : (
         <div className="flex flex-row justify-center items-center w-full py-5 border-t border-salt-90 border-opacity-40">
           <button
+            type="submit"
             className="flex flex-row justify-center items-center w-40 h-10 rounded-xl py-5 font-bold text-sm text-pepper-90 bg-white"
             onClick={handleSubmit}
           >

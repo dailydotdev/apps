@@ -15,7 +15,6 @@ import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import SyncIcon from '@dailydotdev/shared/icons/sync.svg';
-import DndMenu from './DndMenu';
 import getPageForAnalytics from '../lib/getPageForAnalytics';
 import MostVisitedSites from './MostVisitedSites';
 
