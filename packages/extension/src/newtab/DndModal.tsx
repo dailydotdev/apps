@@ -1,5 +1,4 @@
 import React, { FC, useState, useContext } from 'react';
-import classnames from 'classnames';
 import { getDefaultLink, dndOption, CustomTime, TimeFormat } from './dnd';
 import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
 import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
@@ -9,7 +8,6 @@ import {
   StyledModal,
   ModalProps,
 } from '@dailydotdev/shared/src/components/modals/StyledModal';
-import styles from './DoNotDisturbModal.module.css';
 import DndContext from './DndContext';
 
 const timeFormatOptions = Object.entries(dndOption).map(([k, v]) => ({
@@ -43,9 +41,8 @@ const DoNotDisturbModal: FC<ModalProps> = ({
     if (isActive) return <br />;
 
     return (
-      <div className={styles.content}>
+      <div className="w-full mt-2 py-4 px-10">
         <TextField
-          className={styles.url}
           inputId="defaultURL"
           label="Default URL (optional)"
           valueChanged={(text) => setLink(text)}
@@ -60,14 +57,14 @@ const DoNotDisturbModal: FC<ModalProps> = ({
         {dndTime !== 'CUSTOM' ? null : (
           <div className="grid grid-cols-2 gap-4 mt-4">
             <TextField
-              className={styles.custom}
+              className="w-40 appearance-none"
               inputId="defaultURL"
               label="Number"
               type="number"
               valueChanged={(number) => setCustomNumber(parseInt(number))}
             />
             <Dropdown
-              className={styles.custom}
+              className="w-40"
               options={customTimeOptions}
               selectedIndex={customTimeIndex}
               onChange={(_, index) => setCustomTimeIndex(index)}
@@ -91,18 +88,18 @@ const DoNotDisturbModal: FC<ModalProps> = ({
       }}
     >
       <ModalCloseButton onClick={onRequestClose} />
-      <div className={styles.heading}>
-        <h3 className={styles.title}>Do Not Disturb</h3>
+      <div className="px-16 text-center">
+        <h3 className="font-bold text-2xl text-white">Do Not Disturb</h3>
         {isActive ? null : (
-          <p className={styles.description}>
+          <p className="mt-1 text-sm text-salt-50">
             Choose your preferences while you&apos;re on Do Not Disturb mode
           </p>
         )}
       </div>
       {renderForm()}
-      <div className={classnames(styles.footer, styles.centered)}>
+      <div className="flex flex-row justify-center items-center w-full py-5 border-t border-salt-90 border-opacity-40">
         <button
-          className={classnames(styles.done, styles.centered)}
+          className="flex flex-row justify-center items-center w-40 h-10 rounded-xl py-5 font-bold text-sm text-pepper-90 bg-white"
           onClick={(e) => (isActive ? setDndSettings(null) : handleSubmit(e))}
         >
           {isActive ? 'Turn off' : 'Done'}
