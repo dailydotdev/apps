@@ -1,6 +1,8 @@
 import React, { FC, useState, useContext } from 'react';
+import classnames from 'classnames';
 import { format } from 'date-fns';
 import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import { ModalCloseButton } from '@dailydotdev/shared/src/components/modals/ModalCloseButton';
@@ -37,20 +39,20 @@ const DndModal: FC<ModalProps> = ({ onRequestClose, ...modalProps }) => {
 
   const turnedOnContent = (
     <div className="grid grid-cols-2 gap-6 justify-center my-6">
-      <button
-        type="button"
+      <Button
+        className="btn-secondary"
+        buttonSize="large"
         onClick={onRequestClose}
-        className="flex justify-center items-center w-28 h-12 rounded-xl border border-white text-base text-white font-bold"
       >
         Cancel
-      </button>
-      <button
-        type="button"
+      </Button>
+      <Button
+        className="btn-primary-onion text-theme-label-primary"
+        buttonSize="large"
         onClick={() => setDndSettings(null)}
-        className="flex justify-center items-center w-28 h-12 rounded-xl text-base text-white font-bold bg-onion-40"
       >
         Turn Off
-      </button>
+      </Button>
     </div>
   );
 
@@ -87,14 +89,14 @@ const DndModal: FC<ModalProps> = ({ onRequestClose, ...modalProps }) => {
           </div>
         )}
       </div>
-      <div className="flex flex-row justify-center items-center w-full py-5 border-t border-salt-90 border-opacity-40">
-        <button
-          type="submit"
-          className="flex flex-row justify-center items-center w-40 h-10 rounded-xl py-5 font-bold text-sm text-pepper-90 bg-white"
+      <div className="flex flex-row justify-center w-full py-5 border-t border-theme-divider-secondary">
+        <Button
+          className="btn-primary w-40"
+          buttonSize="large"
           onClick={handleSubmit}
         >
           Done
-        </button>
+        </Button>
       </div>
     </>
   );
@@ -108,6 +110,8 @@ const DndModal: FC<ModalProps> = ({ onRequestClose, ...modalProps }) => {
 
     return `Do Not Disturb is active and will be turned off on ${date} at ${time}`;
   };
+
+  const titleSize = isActive ? 'typo-title3' : 'typo-title2';
 
   return (
     <StyledModal
@@ -123,8 +127,17 @@ const DndModal: FC<ModalProps> = ({ onRequestClose, ...modalProps }) => {
     >
       <ModalCloseButton onClick={onRequestClose} />
       <div className="px-16 text-center">
-        <h3 className="font-bold text-2xl text-white">Do Not Disturb</h3>
-        <p className="mt-1 text-sm text-salt-50">{getDescription()}</p>
+        <h3
+          className={classnames(
+            'font-bold text-theme-label-primary',
+            titleSize,
+          )}
+        >
+          Do Not Disturb
+        </h3>
+        <p className="mt-1 typo-callout text-theme-label-secondary">
+          {getDescription()}
+        </p>
       </div>
       {isActive ? turnedOnContent : turnedOffContent}
     </StyledModal>
