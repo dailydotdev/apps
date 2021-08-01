@@ -55,37 +55,48 @@ const DndModal: FC<ModalProps> = ({ onRequestClose, ...modalProps }) => {
   );
 
   const turnedOffContent = (
-    <div className="w-full mt-2 py-4 px-10">
-      <TextField
-        inputId="defaultURL"
-        label="Default URL (optional)"
-        valueChanged={(text) => setLink(text)}
-      />
-      <Radio
-        className="mt-8"
-        name="timeOff"
-        value={dndTime}
-        options={timeFormatOptions}
-        onChange={(value: TimeFormat) => setDndTime(value)}
-      />
-      {dndTime !== 'CUSTOM' ? null : (
-        <div className="grid grid-cols-2 gap-4 mt-4">
-          <TextField
-            className="w-40"
-            inputId="defaultURL"
-            label="Number"
-            type="number"
-            valueChanged={(number) => setCustomNumber(parseInt(number, 10))}
-          />
-          <Dropdown
-            className="w-40"
-            options={customTimeOptions}
-            selectedIndex={customTimeIndex}
-            onChange={(_, index) => setCustomTimeIndex(index)}
-          />
-        </div>
-      )}
-    </div>
+    <>
+      <div className="w-full mt-2 py-4 px-10">
+        <TextField
+          inputId="defaultURL"
+          label="Default URL (optional)"
+          valueChanged={(text) => setLink(text)}
+        />
+        <Radio
+          className="mt-8"
+          name="timeOff"
+          value={dndTime}
+          options={timeFormatOptions}
+          onChange={(value: TimeFormat) => setDndTime(value)}
+        />
+        {dndTime !== 'CUSTOM' ? null : (
+          <div className="grid grid-cols-2 gap-4 mt-4">
+            <TextField
+              className="w-40"
+              inputId="defaultURL"
+              label="Number"
+              type="number"
+              valueChanged={(number) => setCustomNumber(parseInt(number, 10))}
+            />
+            <Dropdown
+              className="w-40"
+              options={customTimeOptions}
+              selectedIndex={customTimeIndex}
+              onChange={(_, index) => setCustomTimeIndex(index)}
+            />
+          </div>
+        )}
+      </div>
+      <div className="flex flex-row justify-center items-center w-full py-5 border-t border-salt-90 border-opacity-40">
+        <button
+          type="submit"
+          className="flex flex-row justify-center items-center w-40 h-10 rounded-xl py-5 font-bold text-sm text-pepper-90 bg-white"
+          onClick={handleSubmit}
+        >
+          Done
+        </button>
+      </div>
+    </>
   );
 
   const getDescription = () => {
@@ -116,17 +127,6 @@ const DndModal: FC<ModalProps> = ({ onRequestClose, ...modalProps }) => {
         <p className="mt-1 text-sm text-salt-50">{getDescription()}</p>
       </div>
       {isActive ? turnedOnContent : turnedOffContent}
-      {isActive ? null : (
-        <div className="flex flex-row justify-center items-center w-full py-5 border-t border-salt-90 border-opacity-40">
-          <button
-            type="submit"
-            className="flex flex-row justify-center items-center w-40 h-10 rounded-xl py-5 font-bold text-sm text-pepper-90 bg-white"
-            onClick={handleSubmit}
-          >
-            Done
-          </button>
-        </div>
-      )}
     </StyledModal>
   );
 };
