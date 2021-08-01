@@ -17,10 +17,7 @@ const timeFormatOptions = Object.entries(dndOption).map(([k, v]) => ({
 }));
 const customTimeOptions = Object.values(CustomTime);
 
-const DoNotDisturbModal: FC<ModalProps> = ({
-  onRequestClose,
-  ...modalProps
-}) => {
+const DndModal: FC<ModalProps> = ({ onRequestClose, ...modalProps }) => {
   const { dndSettings, setDndSettings, isActive } = useContext(DndContext);
   const [link, setLink] = useState('');
   const [customNumber, setCustomNumber] = useState(0);
@@ -134,4 +131,4 @@ const DoNotDisturbModal: FC<ModalProps> = ({
   );
 };
 
-export default DoNotDisturbModal;
+export default DndModal;
