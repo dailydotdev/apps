@@ -21,7 +21,7 @@ const customTimeOptions = Object.values(CustomTime);
 
 const DndModal: FC<ModalProps> = ({ onRequestClose, ...modalProps }) => {
   const { dndSettings, setDndSettings, isActive } = useContext(DndContext);
-  const [link, setLink] = useState('');
+  const [link, setLink] = useState<string>(null);
   const [customNumber, setCustomNumber] = useState(0);
   const [customTimeIndex, setCustomTimeIndex] = useState(0);
   const [dndTime, setDndTime] = useState<TimeFormat>('HALF_HOUR');
