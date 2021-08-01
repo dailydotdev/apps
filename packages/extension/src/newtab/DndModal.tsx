@@ -65,7 +65,7 @@ const DoNotDisturbModal: FC<ModalProps> = ({
         valueChanged={(text) => setLink(text)}
       />
       <Radio
-        className="mt-8 "
+        className="mt-8"
         name="timeOff"
         value={dndTime}
         options={timeFormatOptions}
