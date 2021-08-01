@@ -26,7 +26,7 @@ const PostsSearch = dynamic(
 );
 
 const DndModal = dynamic(
-  () => import(/* webpackChunkName: "search" */ './DndModal'),
+  () => import(/* webpackChunkName: "dnd" */ './DndModal'),
 );
 
 export default function MainFeedPage({
