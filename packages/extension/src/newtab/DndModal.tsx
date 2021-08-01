@@ -74,7 +74,7 @@ const DoNotDisturbModal: FC<ModalProps> = ({
       {dndTime !== 'CUSTOM' ? null : (
         <div className="grid grid-cols-2 gap-4 mt-4">
           <TextField
-            className="w-40 appearance-none"
+            className="w-40"
             inputId="defaultURL"
             label="Number"
             type="number"
