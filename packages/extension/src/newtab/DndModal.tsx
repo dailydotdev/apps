@@ -41,7 +41,7 @@ const DoNotDisturbModal: FC<ModalProps> = ({
   const turnedOnContent = (
     <div className="grid grid-cols-2 gap-6 justify-center my-6">
       <button
-        type="submit"
+        type="button"
         onClick={onRequestClose}
         className="flex justify-center items-center w-28 h-12 rounded-xl border border-white text-base text-white font-bold"
       >
