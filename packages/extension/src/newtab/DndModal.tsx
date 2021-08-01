@@ -48,7 +48,7 @@ const DoNotDisturbModal: FC<ModalProps> = ({
         Cancel
       </button>
       <button
-        type="submit"
+        type="button"
         onClick={() => setDndSettings(null)}
         className="flex justify-center items-center w-28 h-12 rounded-xl text-base text-white font-bold bg-onion-40"
       >
