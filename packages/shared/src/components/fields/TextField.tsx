@@ -138,7 +138,7 @@ export function TextField({
           styles.field,
         )}
       >
-        <div className="flex flex-col items-start flex-1">
+        <div className="flex flex-col items-start flex-1 max-w-full">
           {!compact && (
             <label
               className={classNames('typo-caption1', !showLabel && 'hidden')}
