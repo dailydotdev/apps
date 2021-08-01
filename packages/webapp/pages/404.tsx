@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
-import Head from 'next/head';
 import HelloWorldSvg from '@dailydotdev/shared/src/svg/HelloWorldSvg';
+import { NextSeo } from 'next-seo';
 
 export default function Custom404(): ReactElement {
   return (
@@ -8,9 +8,7 @@ export default function Custom404(): ReactElement {
       className="flex flex-col items-center justify-center min-h-screen"
       data-testid="notFound"
     >
-      <Head>
-        <title>Page not found 😅</title>
-      </Head>
+      <NextSeo title="Page not found" nofollow noindex />
       <HelloWorldSvg
         style={{ width: '55%', maxWidth: '32.75rem' }}
         className="mb-10 self-center"

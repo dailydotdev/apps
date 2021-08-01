@@ -33,7 +33,7 @@ export default function Register(): ReactElement {
 
   return (
     <MainLayout showOnlyLogo>
-      <NextSeo title="Registration" />
+      <NextSeo title="Registration" nofollow noindex />
       <ResponsivePageContainer>
         {user && (
           <>
