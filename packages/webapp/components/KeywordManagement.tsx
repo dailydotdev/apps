@@ -102,7 +102,7 @@ export default function KeywordManagement({
 
   return (
     <ResponsivePageContainer style={{ paddingBottom: sizeN(23) }}>
-      <NextSeo title="Pending Keywords" />
+      <NextSeo title="Pending Keywords" nofollow noindex />
       <h1 className="m-0 font-bold typo-title2">{keyword.value}</h1>
       <div className="flex my-1 items-center justify-between text-theme-label-tertiary typo-callout">
         <span>Occurrences: {keyword.occurrences}</span>
