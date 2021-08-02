@@ -50,7 +50,7 @@ export default function DndModal({
         Cancel
       </Button>
       <Button
-        className="btn-primary-onion text-theme-label-primary"
+        className="btn-primary-onion"
         buttonSize="large"
         onClick={() => setDndSettings(null)}
       >
