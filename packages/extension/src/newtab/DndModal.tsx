@@ -1,4 +1,4 @@
-import React, { FC, useState, useContext } from 'react';
+import React, { ReactElement, useState, useContext } from 'react';
 import classnames from 'classnames';
 import { format } from 'date-fns';
 import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
@@ -19,7 +19,10 @@ const timeFormatOptions = Object.entries(dndOption).map(([k, v]) => ({
 }));
 const customTimeOptions = Object.values(CustomTime);
 
-export default function DndModal({ onRequestClose, ...modalProps }: ModalProps): ReactElement {
+export default function DndModal({
+  onRequestClose,
+  ...modalProps
+}: ModalProps): ReactElement {
   const { dndSettings, setDndSettings, isActive } = useContext(DndContext);
   const [link, setLink] = useState<string>(null);
   const [customNumber, setCustomNumber] = useState(0);
@@ -142,6 +145,4 @@ export default function DndModal({ onRequestClose, ...modalProps }: ModalProps):
       {isActive ? turnedOnContent : turnedOffContent}
     </StyledModal>
   );
-};
-
-export default DndModal;
+}
