@@ -1,6 +1,6 @@
 import React from 'react';
 
-export type DndSettings = { expiration: Date };
+export type DndSettings = { expiration: Date; link: string };
 
 export interface DndContextData {
   dndSettings: DndSettings;

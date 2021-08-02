@@ -13,3 +13,8 @@
     border-color: var(--theme-status-error);
   }
 }
+
+.field input[type='number']::-webkit-inner-spin-button,
+.field input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
