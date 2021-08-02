@@ -19,7 +19,7 @@ const timeFormatOptions = Object.entries(dndOption).map(([k, v]) => ({
 }));
 const customTimeOptions = Object.values(CustomTime);
 
-const DndModal: FC<ModalProps> = ({ onRequestClose, ...modalProps }) => {
+export default function DndModal({ onRequestClose, ...modalProps }: ModalProps): ReactElement {
   const { dndSettings, setDndSettings, isActive } = useContext(DndContext);
   const [link, setLink] = useState<string>(null);
   const [customNumber, setCustomNumber] = useState(0);
