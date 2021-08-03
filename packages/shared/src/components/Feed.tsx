@@ -96,13 +96,13 @@ const cardHeightPx = 364;
 const listHeightPx = 78;
 
 export default function Feed<T>({
-                                  feedQueryKey,
-                                  query,
-                                  variables,
-                                  className,
-                                  onEmptyFeed,
-                                  emptyScreen,
-                                }: FeedProps<T>): ReactElement {
+  feedQueryKey,
+  query,
+  variables,
+  className,
+  onEmptyFeed,
+  emptyScreen,
+}: FeedProps<T>): ReactElement {
   const currentSettings = useContext(FeedContext);
   const { user, showLogin } = useContext(AuthContext);
   const { trackEngagement } = useContext(OnboardingContext);

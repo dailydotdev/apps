@@ -78,7 +78,7 @@ const BookmarksPage = (): ReactElement => {
           feedQueryKey={['bookmarks', user?.id ?? 'anonymous']}
           query={BOOKMARKS_FEED_QUERY}
           onEmptyFeed={() => setShowEmptyScreen(true)}
-          className='my-3'
+          className="my-3"
         />
       )}
     </FeedPage>

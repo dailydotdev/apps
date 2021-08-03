@@ -137,14 +137,14 @@ const generateFeedQueryKey = (
 };
 
 function ButtonOrLink({
-                        asLink,
-                        href,
-                        ...props
-                      }: { asLink: boolean; href: string } & ButtonProps<'button'>) {
+  asLink,
+  href,
+  ...props
+}: { asLink: boolean; href: string } & ButtonProps<'button'>) {
   if (asLink) {
     return (
       <Link href={href} passHref prefetch={false}>
-        <Button {...props} tag='a' />
+        <Button {...props} tag="a" />
       </Link>
     );
   }

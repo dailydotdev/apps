@@ -119,7 +119,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
         <Button
           className={`btn-primary laptop:hidden ${buttonClass}`}
           {...buttonProps}
-          aria-label='Add source to feed'
+          aria-label="Add source to feed"
         />
         <Button
           className={`btn-primary hidden laptop:flex ${buttonClass}`}
@@ -136,7 +136,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
         ]}
         query={SOURCE_FEED_QUERY}
         variables={queryVariables}
-        className='my-3'
+        className="my-3"
       />
     </FeedPage>
   );

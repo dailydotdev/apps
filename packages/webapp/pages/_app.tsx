@@ -29,8 +29,7 @@ import { canonicalFromRouter } from '@dailydotdev/shared/src/lib/canonical';
 import { SettingsContextProvider } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import '@dailydotdev/shared/src/styles/globals.css';
 import useAnalytics from '@dailydotdev/shared/src/hooks/useAnalytics';
-import HelpUsGrowModalWithContext
-  from '@dailydotdev/shared/src/components/modals/HelpUsGrowModalWithContext';
+import HelpUsGrowModalWithContext from '@dailydotdev/shared/src/components/modals/HelpUsGrowModalWithContext';
 import Seo from '../next-seo';
 
 // const ReactQueryDevtools = dynamic(
@@ -44,7 +43,7 @@ const LoginModal = dynamic(
   () =>
     import(
       /* webpackChunkName: "loginModal" */ '@dailydotdev/shared/src/components/modals/LoginModal'
-      ),
+    ),
 );
 const CookieBanner = dynamic(() => import('../components/CookieBanner'));
 
