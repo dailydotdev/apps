@@ -119,6 +119,9 @@ const renderComponent = (
           updateUser: jest.fn(),
           tokenRefreshed: true,
           getRedirectUri: jest.fn(),
+          closeLogin: jest.fn(),
+          trackingId: user?.id,
+          loginState: null,
         }}
       >
         <OnboardingContext.Provider
@@ -132,7 +135,7 @@ const renderComponent = (
           }}
         >
           <SettingsContext.Provider value={settingsContext}>
-            <Feed query={ANONYMOUS_FEED_QUERY} />
+            <Feed feedQueryKey={['feed']} query={ANONYMOUS_FEED_QUERY} />
           </SettingsContext.Provider>
         </OnboardingContext.Provider>
       </AuthContext.Provider>

@@ -73,11 +73,14 @@ const BookmarksPage = (): ReactElement => {
         <BookmarkIcon className={customFeedIcon} />
         <span>Bookmarks</span>
       </CustomFeedHeader>
-      <Feed
-        query={BOOKMARKS_FEED_QUERY}
-        onEmptyFeed={() => setShowEmptyScreen(true)}
-        className="my-3"
-      />
+      {tokenRefreshed && (
+        <Feed
+          feedQueryKey={['bookmarks', user?.id ?? 'anonymous']}
+          query={BOOKMARKS_FEED_QUERY}
+          onEmptyFeed={() => setShowEmptyScreen(true)}
+          className='my-3'
+        />
+      )}
     </FeedPage>
   );
 };

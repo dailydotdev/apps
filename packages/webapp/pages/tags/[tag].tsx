@@ -104,7 +104,7 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
         <Button
           className={`btn-primary laptop:hidden ${buttonClass}`}
           {...buttonProps}
-          aria-label="Add tag to feed"
+          aria-label='Add tag to feed'
         />
         <Button
           className={`btn-primary hidden laptop:flex ${buttonClass}`}
@@ -114,9 +114,14 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
         </Button>
       </CustomFeedHeader>
       <Feed
+        feedQueryKey={[
+          'tagFeed',
+          user?.id ?? 'anonymous',
+          Object.values(queryVariables),
+        ]}
         query={TAG_FEED_QUERY}
         variables={queryVariables}
-        className="my-3"
+        className='my-3'
       />
     </FeedPage>
   );
