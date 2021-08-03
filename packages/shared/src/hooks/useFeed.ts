@@ -1,11 +1,12 @@
-import {
-  DependencyList,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import { useContext, useMemo } from 'react';
 import request from 'graphql-request';
+import {
+  InfiniteData,
+  QueryClient,
+  useInfiniteQuery,
+  useQueryClient,
+} from 'react-query';
+import cloneDeep from 'lodash.clonedeep';
 import {
   Ad,
   FeedData,
@@ -16,8 +17,14 @@ import {
 import AuthContext from '../contexts/AuthContext';
 import { apiUrl } from '../lib/config';
 import useSubscription from './useSubscription';
+import { Connection } from '../graphql/common';
 
-export type PostItem = { type: 'post'; post: Post };
+export type PostItem = {
+  type: 'post';
+  post: Post;
+  page: number;
+  index: number;
+};
 export type AdItem = { type: 'ad'; ad: Ad };
 export type PlaceholderItem = { type: 'placeholder' };
 export type FeedItem = PostItem | AdItem | PlaceholderItem;
@@ -25,69 +32,171 @@ export type FeedItem = PostItem | AdItem | PlaceholderItem;
 export type FeedReturnType = {
   items: FeedItem[];
   fetchPage: () => Promise<void>;
-  updateItem: (index: number, item: FeedItem) => void;
-  updatePost: (index: number, post: Post) => void;
-  removeItem: (index: number) => void;
-  isLoading: boolean;
+  updatePost: (page: number, index: number, post: Post) => void;
+  removePost: (page: number, index: number) => void;
   canFetchMore: boolean;
   emptyFeed: boolean;
 };
 
+const updateCachedPage = (
+  feedQueryKey: unknown[],
+  queryClient: QueryClient,
+  pageIndex: number,
+  manipulate: (page: Connection<Post>) => Connection<Post>,
+): void => {
+  queryClient.setQueryData<InfiniteData<FeedData>>(
+    feedQueryKey,
+    (currentData) => {
+      const { pages } = currentData;
+      const currentPage = cloneDeep(pages[pageIndex]);
+      currentPage.page = manipulate(currentPage.page);
+      const newPages = [
+        ...pages.slice(0, pageIndex),
+        currentPage,
+        ...pages.slice(pageIndex + 1),
+      ];
+      return { pages: newPages, pageParams: currentData.pageParams };
+    },
+  );
+};
+
+const updateCachedPost =
+  (feedQueryKey: unknown[], queryClient: QueryClient) =>
+  (pageIndex: number, index: number, post: Post) => {
+    updateCachedPage(feedQueryKey, queryClient, pageIndex, (page) => {
+      // eslint-disable-next-line no-param-reassign
+      page.edges[index].node = post;
+      return page;
+    });
+  };
+
+const removeCachedPost =
+  (feedQueryKey: unknown[], queryClient: QueryClient) =>
+  (pageIndex: number, index: number) => {
+    updateCachedPage(feedQueryKey, queryClient, pageIndex, (page) => {
+      // eslint-disable-next-line no-param-reassign
+      page.edges.splice(index, 1);
+      return page;
+    });
+  };
+
+const findIndexOfPostInData = (
+  data: InfiniteData<FeedData>,
+  id: string,
+): { pageIndex: number; index: number } => {
+  for (let pageIndex = 0; pageIndex < data.pages.length; pageIndex += 1) {
+    const page = data.pages[pageIndex];
+    for (let index = 0; index < page.page.edges.length; index += 1) {
+      const item = page.page.edges[index];
+      if (item.node.id === id) {
+        return { pageIndex, index };
+      }
+    }
+  }
+  return { pageIndex: -1, index: -1 };
+};
+
 export default function useFeed<T>(
+  feedQueryKey: unknown[],
   pageSize: number,
   adSpot: number,
   placeholdersPerPage: number,
   showOnlyUnreadPosts: boolean,
   query?: string,
   variables?: T,
-  dep?: DependencyList,
 ): FeedReturnType {
-  const [emptyFeed, setEmptyFeed] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [cooldown, setCooldown] = useState(false);
-  const [loadedItems, setLoadedItems] = useState<FeedItem[]>([]);
-  const [lastPage, setLastPage] = useState<FeedData>(null);
-  const [lastAd, setLastAd] = useState<Ad>(null);
   const { user, tokenRefreshed } = useContext(AuthContext);
-  const [postIds, setPostIds] = useState<string[]>([]);
+  const queryClient = useQueryClient();
+  const feedQuery = useInfiniteQuery<FeedData>(
+    feedQueryKey,
+    ({ pageParam }) =>
+      request(`${apiUrl}/graphql`, query, {
+        ...variables,
+        first: pageSize,
+        after: pageParam,
+        loggedIn: !!user,
+        unreadOnly: showOnlyUnreadPosts,
+      }),
+    {
+      enabled: query && tokenRefreshed,
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
+      getNextPageParam: (lastPage) =>
+        lastPage.page.pageInfo.hasNextPage && lastPage.page.pageInfo.endCursor,
+    },
+  );
+
+  const adsQuery = useInfiniteQuery<Ad>(
+    ['ads'],
+    async () => {
+      const res = await fetch(`${apiUrl}/v1/a`);
+      const ads: Ad[] = await res.json();
+      return ads[0];
+    },
+    {
+      enabled: query && tokenRefreshed,
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
+      getNextPageParam: () => ({}),
+    },
+  );
+
   const items = useMemo(() => {
-    if (isLoading) {
-      return [
-        ...loadedItems,
+    let newItems: FeedItem[] = [];
+    if (feedQuery.data) {
+      newItems = feedQuery.data.pages.flatMap(
+        ({ page }, pageIndex): FeedItem[] => {
+          const posts: FeedItem[] = page.edges.map(({ node }, index) => ({
+            type: 'post',
+            post: node,
+            page: pageIndex,
+            index,
+          }));
+          if (adsQuery.data?.pages[pageIndex]) {
+            posts.splice(adSpot, 0, {
+              type: 'ad',
+              ad: adsQuery.data?.pages[pageIndex],
+            });
+          } else if (
+            adsQuery.isFetching &&
+            pageIndex === feedQuery.data.pages.length - 1
+          ) {
+            posts.splice(adSpot, 0, {
+              type: 'placeholder',
+            });
+          }
+          return posts;
+        },
+      );
+    }
+    if (feedQuery.isFetching) {
+      newItems.push(
         ...Array(placeholdersPerPage).fill({ type: 'placeholder' }),
-      ];
+      );
     }
-    return loadedItems;
-  }, [loadedItems, isLoading]);
+    return newItems;
+  }, [
+    feedQuery.data,
+    feedQuery.isFetching,
+    adsQuery.data,
+    adsQuery.isFetching,
+  ]);
 
-  const resetFeed = (): void => {
-    setLoadedItems([]);
-    setLastPage(null);
-    setLastAd(null);
-  };
-
-  const updateItem = (index: number, item: FeedItem): void =>
-    setLoadedItems([
-      ...loadedItems.slice(0, index),
-      item,
-      ...loadedItems.slice(index + 1),
-    ]);
-
-  const updatePost = (index: number, post: Post): void => {
-    const item = loadedItems[index];
-    if (item.type === 'post') {
-      updateItem(index, {
-        ...(item as PostItem),
-        post,
-      });
+  const postIds = useMemo(() => {
+    const ids = [];
+    // Use for loop to reduce number of iterations over the array
+    for (let i = 0; i < items.length; i += 1) {
+      const item = items[i];
+      if (item.type === 'post') {
+        ids.push(item.post.id);
+      }
     }
-  };
+    return ids;
+  }, [items]);
 
-  const removeItem = (index: number): void =>
-    setLoadedItems([
-      ...loadedItems.slice(0, index),
-      ...loadedItems.slice(index + 1),
-    ]);
+  const updatePost = updateCachedPost(feedQueryKey, queryClient);
 
   useSubscription(
     () => ({
@@ -98,13 +207,13 @@ export default function useFeed<T>(
     }),
     {
       next: (data: PostsEngaged) => {
-        const index = loadedItems.findIndex(
-          (item) =>
-            item.type === 'post' && item.post.id === data.postsEngaged.id,
+        const { pageIndex, index } = findIndexOfPostInData(
+          feedQuery.data,
+          data.postsEngaged.id,
         );
         if (index > -1) {
-          updatePost(index, {
-            ...(loadedItems[index] as PostItem).post,
+          updatePost(pageIndex, index, {
+            ...feedQuery.data.pages[pageIndex].page.edges[index].node,
             ...data.postsEngaged,
           });
         }
@@ -113,92 +222,17 @@ export default function useFeed<T>(
     [postIds],
   );
 
-  const fetchPage = async (lastPageParam: FeedData = lastPage) => {
-    if ((isLoading && lastPageParam) || cooldown) {
-      return;
-    }
-    setIsLoading(true);
-    const adPromise = fetch(`${apiUrl}/v1/a`);
-    const res = await request<FeedData>(`${apiUrl}/graphql`, query, {
-      ...variables,
-      first: pageSize,
-      after: lastPageParam?.page.pageInfo.endCursor,
-      loggedIn: !!user,
-      unreadOnly: showOnlyUnreadPosts,
-    });
-    if (!lastPageParam && !res.page.edges.length) {
-      setEmptyFeed(true);
-    } else if (emptyFeed) {
-      setEmptyFeed(false);
-    }
-    setLastPage(res);
-    setIsLoading(false);
-    setCooldown(true);
-    // Disable fetching for a short time to prevent multi-fetching
-    setTimeout(() => setCooldown(false), 200);
-    try {
-      const adRes = await adPromise;
-      const ads: Ad[] = await adRes.json();
-      setLastAd(ads?.[0]);
-    } catch (err) {
-      // eslint-disable-next-line no-console
-      console.error(err);
-    }
-  };
-
-  const refreshFeed = async (): Promise<void> => {
-    resetFeed();
-    await fetchPage(null);
-  };
-
-  // First page fetch
-  useEffect(() => {
-    if (query && tokenRefreshed) {
-      refreshFeed();
-    }
-  }, [query, tokenRefreshed, showOnlyUnreadPosts, variables, ...(dep ?? [])]);
-
-  // Add new posts to feed with a placeholder for the ad
-  useEffect(() => {
-    if (lastPage) {
-      const newItems: FeedItem[] = lastPage.page.edges.map(
-        ({ node }): PostItem => ({ type: 'post', post: node }),
-      );
-      newItems.splice(adSpot, 0, { type: 'placeholder' });
-      setLoadedItems([...loadedItems, ...newItems]);
-      setPostIds([
-        ...postIds,
-        ...lastPage.page.edges.map(({ node }): string => node.id),
-      ]);
-    } else {
-      setPostIds([]);
-    }
-  }, [lastPage]);
-
-  // Replace ad placeholder with an actual ad
-  useEffect(() => {
-    if (lastAd) {
-      let i;
-      for (
-        i = loadedItems.length - 1;
-        i >= 0 && loadedItems[i].type !== 'placeholder';
-        i -= 1
-      );
-      if (i >= 0 && i < loadedItems.length) {
-        updateItem(i, { type: 'ad', ad: lastAd });
-      }
-    }
-  }, [lastAd]);
-
   return {
     items,
-    fetchPage,
-    updateItem,
+    fetchPage: async () => {
+      const adPromise = adsQuery.fetchNextPage();
+      await feedQuery.fetchNextPage();
+      await adPromise;
+    },
     updatePost,
-    removeItem,
-    isLoading,
-    canFetchMore:
-      lastPage?.page.pageInfo.hasNextPage && !cooldown && !isLoading,
-    emptyFeed,
+    removePost: removeCachedPost(feedQueryKey, queryClient),
+    canFetchMore: feedQuery.hasNextPage,
+    emptyFeed:
+      !feedQuery?.data?.pages[0]?.page.edges.length && !feedQuery.isFetching,
   };
 }

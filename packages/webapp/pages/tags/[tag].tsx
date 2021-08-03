@@ -114,6 +114,11 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
         </Button>
       </CustomFeedHeader>
       <Feed
+        feedQueryKey={[
+          'tagFeed',
+          user?.id ?? 'anonymous',
+          Object.values(queryVariables),
+        ]}
         query={TAG_FEED_QUERY}
         variables={queryVariables}
         className="my-3"

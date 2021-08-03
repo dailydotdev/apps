@@ -1,6 +1,5 @@
 import React, {
   CSSProperties,
-  DependencyList,
   ReactElement,
   ReactNode,
   useCallback,
@@ -50,11 +49,11 @@ const ReportPostMenu = dynamic(
 );
 
 export type FeedProps<T> = {
+  feedQueryKey: unknown[];
   query?: string;
   variables?: T;
   className?: string;
   onEmptyFeed?: () => unknown;
-  dep?: DependencyList;
   emptyScreen?: ReactNode;
 };
 
@@ -97,11 +96,11 @@ const cardHeightPx = 364;
 const listHeightPx = 78;
 
 export default function Feed<T>({
+  feedQueryKey,
   query,
   variables,
   className,
   onEmptyFeed,
-  dep,
   emptyScreen,
 }: FeedProps<T>): ReactElement {
   const currentSettings = useContext(FeedContext);
@@ -115,15 +114,15 @@ export default function Feed<T>({
     loadedSettings,
   } = useContext(SettingsContext);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
-  const { items, updatePost, removeItem, fetchPage, canFetchMore, emptyFeed } =
+  const { items, updatePost, removePost, fetchPage, canFetchMore, emptyFeed } =
     useFeed(
+      feedQueryKey,
       currentSettings.pageSize,
       currentSettings.adSpot,
       numCards,
       showOnlyUnreadPosts,
       query,
       variables,
-      dep,
     );
   // const { nativeShareSupport } = useContext(ProgressiveEnhancementContext);
   const nativeShareSupport = false;
@@ -147,22 +146,22 @@ export default function Feed<T>({
     onUpvotePostMutate: async ({ index }) => {
       const item = items[index] as PostItem;
       const { post } = item;
-      updatePost(index, {
+      updatePost(item.page, item.index, {
         ...post,
         upvoted: true,
         numUpvotes: post.numUpvotes + 1,
       });
-      return () => updatePost(index, post);
+      return () => updatePost(item.page, item.index, post);
     },
     onCancelPostUpvoteMutate: async ({ index }) => {
       const item = items[index] as PostItem;
       const { post } = item;
-      updatePost(index, {
+      updatePost(item.page, item.index, {
         ...post,
         upvoted: false,
         numUpvotes: post.numUpvotes - 1,
       });
-      return () => updatePost(index, post);
+      return () => updatePost(item.page, item.index, post);
     },
   });
 
@@ -173,20 +172,20 @@ export default function Feed<T>({
     onBookmarkMutate: async ({ index }) => {
       const item = items[index] as PostItem;
       const { post } = item;
-      updatePost(index, {
+      updatePost(item.page, item.index, {
         ...post,
         bookmarked: true,
       });
-      return () => updatePost(index, post);
+      return () => updatePost(item.page, item.index, post);
     },
     onRemoveBookmarkMutate: async ({ index }) => {
       const item = items[index] as PostItem;
       const { post } = item;
-      updatePost(index, {
+      updatePost(item.page, item.index, {
         ...post,
         bookmarked: false,
       });
-      return () => updatePost(index, post);
+      return () => updatePost(item.page, item.index, post);
     },
   });
 
@@ -286,7 +285,8 @@ export default function Feed<T>({
     if (!post.read) {
       incrementReadingRank();
     }
-    updatePost(index, { ...post, read: true });
+    const item = items[index] as PostItem;
+    updatePost(item.page, item.index, { ...post, read: true });
     await trackEngagement(EngagementAction.Post_Click);
   };
 
@@ -304,12 +304,14 @@ export default function Feed<T>({
   const onReportPost = async (): Promise<void> => {
     setPostNotificationIndex(postMenuIndex);
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    removeItem(postMenuIndex);
+    const item = items[postMenuIndex] as PostItem;
     setPostNotificationIndex(null);
+    removePost(item.page, item.index);
   };
 
   const onHidePost = async (): Promise<void> => {
-    removeItem(postMenuIndex);
+    const item = items[postMenuIndex] as PostItem;
+    removePost(item.page, item.index);
   };
 
   const onMenuClick = (e: React.MouseEvent, index: number) => {
