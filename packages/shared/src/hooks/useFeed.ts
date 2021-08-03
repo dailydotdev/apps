@@ -1,4 +1,4 @@
-import { DependencyList, useContext, useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 import request from 'graphql-request';
 import {
   InfiniteData,
