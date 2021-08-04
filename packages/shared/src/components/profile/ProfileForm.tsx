@@ -10,11 +10,11 @@ import classNames from 'classnames';
 import { updateProfile, UserProfile } from '../../lib/user';
 import { TextField } from '../fields/TextField';
 import { Switch } from '../fields/Switch';
-import ArrowIcon from '../../../icons/arrow.svg';
 import AuthContext from '../../contexts/AuthContext';
 import { formToJson } from '../../lib/form';
 import classed from '../../lib/classed';
 import styles from './ProfileForm.module.css';
+import { Summary, SummaryArrow } from '../utilities';
 
 const REQUIRED_FIELDS_COUNT = 4;
 
@@ -264,17 +264,12 @@ export default function ProfileForm({
         <details
           className={`flex flex-col w-full border-b border-theme-divider-tertiary ${styles.optionalFields}`}
         >
-          <summary
-            className={`cursor-pointer focus-outline ${styles.optionalSummary}`}
-          >
+          <Summary className={styles.optionalSummary}>
             <div className="flex h-10 items-center text-theme-label-tertiary font-bold typo-callout">
               More details (optional)
-              <ArrowIcon
-                className="icon ml-auto text-xl transform rotate-180"
-                style={{ transition: 'transform 0.1s linear' }}
-              />
+              <SummaryArrow />
             </div>
-          </summary>
+          </Summary>
           {optionalFields}
         </details>
       )}

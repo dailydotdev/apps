@@ -12,6 +12,7 @@ import SettingsContext, {
   SettingsContextData,
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import {
+  ADD_FILTERS_TO_FEED_MUTATION,
   FeedSettings,
   FeedSettingsData,
   REMOVE_FILTERS_FROM_FEED_MUTATION,
@@ -156,38 +157,18 @@ it('should show source image', async () => {
 it('should show add to feed button', async () => {
   renderComponent();
   await waitFor(() => expect(nock.isDone()).toBeTruthy());
-  const [button] = await screen.findAllByLabelText('Add source to feed');
-  expect(button).toHaveClass('visible');
+  const button = await screen.findByLabelText('Follow');
+  expect(button).toBeInTheDocument();
 });
 
-it('should not show add to feed button', async () => {
+it('should show block button', async () => {
   renderComponent([
     createFeedMock(),
     createSourcesSettingsMock({ excludeSources: [] }),
   ]);
   await waitFor(() => expect(nock.isDone()).toBeTruthy());
-  await waitFor(async () => {
-    const [button] = await screen.findAllByLabelText('Add source to feed');
-    expect(button).toHaveClass('invisible');
-  });
-});
-
-it('should show add to feed button when logged-out', async () => {
-  renderComponent(
-    [
-      createFeedMock(defaultFeedPage, SOURCE_FEED_QUERY, {
-        first: 7,
-        loggedIn: false,
-        source: 'react',
-        unreadOnly: false,
-        ranking: 'TIME',
-      }),
-    ],
-    null,
-  );
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
-  const [button] = await screen.findAllByLabelText('Add source to feed');
-  expect(button).toHaveClass('visible');
+  const button = await screen.findByLabelText('Block');
+  expect(button).toBeInTheDocument();
 });
 
 it('should show login popup when logged-out on add to feed click', async () => {
@@ -204,12 +185,12 @@ it('should show login popup when logged-out on add to feed click', async () => {
     null,
   );
   await waitFor(() => expect(nock.isDone()).toBeTruthy());
-  const [button] = await screen.findAllByLabelText('Add source to feed');
+  const button = await screen.findByLabelText('Follow');
   button.click();
   expect(showLogin).toBeCalledTimes(1);
 });
 
-it('should add new source filter', async () => {
+it('should follow source', async () => {
   let mutationCalled = false;
   renderComponent();
   await waitFor(async () => {
@@ -228,10 +209,38 @@ it('should add new source filter', async () => {
       return { data: { feedSettings: { id: defaultUser.id } } };
     },
   });
-  const [button] = await screen.findAllByLabelText('Add source to feed');
+  const button = await screen.findByLabelText('Follow');
   button.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
+  const blockButton = await screen.findByLabelText('Block');
+  expect(blockButton).toBeInTheDocument();
+});
+
+it('should block source', async () => {
+  let mutationCalled = false;
+  renderComponent([
+    createFeedMock(),
+    createSourcesSettingsMock({ excludeSources: [] }),
+  ]);
   await waitFor(async () => {
-    expect(button).toHaveClass('invisible');
+    const data = await client.getQueryData(
+      getSourcesSettingsQueryKey(defaultUser),
+    );
+    expect(data).toBeTruthy();
   });
+  mockGraphQL({
+    request: {
+      query: ADD_FILTERS_TO_FEED_MUTATION,
+      variables: { filters: { excludeSources: ['react'] } },
+    },
+    result: () => {
+      mutationCalled = true;
+      return { data: { feedSettings: { id: defaultUser.id } } };
+    },
+  });
+  const button = await screen.findByLabelText('Block');
+  button.click();
+  await waitFor(() => expect(mutationCalled).toBeTruthy());
+  const blockButton = await screen.findByLabelText('Follow');
+  expect(blockButton).toBeInTheDocument();
 });

@@ -1,5 +1,5 @@
 .details {
   &[open] {
-    padding-bottom: 0.75rem;
+    padding-bottom: 2rem;
   }
 }

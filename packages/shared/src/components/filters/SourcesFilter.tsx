@@ -5,6 +5,7 @@ import React, {
   useEffect,
   useState,
 } from 'react';
+import Link from 'next/link';
 import { useQuery, useQueryClient } from 'react-query';
 import request from 'graphql-request';
 import dynamic from 'next/dynamic';
@@ -12,11 +13,11 @@ import {
   FilterItem,
   FilterProps,
   FiltersContainer,
+  FiltersDetails,
   FiltersHeadline,
   FiltersList,
   FiltersPlaceholder,
-  FiltersSection,
-  GoToFilterButton,
+  FiltersSummaryArrow,
 } from './common';
 import AuthContext from '../../contexts/AuthContext';
 import useMutateFilters, {
@@ -37,6 +38,9 @@ import { trackEvent } from '../../lib/analytics';
 import { Button } from '../buttons/Button';
 import PlusIcon from '../../../icons/plus.svg';
 import { LoginModalMode } from '../../types/LoginModalMode';
+import { Summary } from '../utilities';
+import BlockIcon from '../../../icons/block.svg';
+import XIcon from '../../../icons/x.svg';
 
 const NewSourceModal = dynamic(() => import('../modals/NewSourceModal'));
 
@@ -44,39 +48,49 @@ const SourceItem = ({
   source,
   selected,
   onClick,
+  blocked,
   ...props
 }: {
   source: Source;
   selected?: boolean;
   onClick?: (source: Source) => unknown;
-} & Omit<HTMLAttributes<HTMLButtonElement>, 'onClick'>): ReactElement => (
+  blocked?: boolean;
+} & Omit<HTMLAttributes<HTMLAnchorElement>, 'onClick'>): ReactElement => (
   <FilterItem className="relative my-1">
-    <button
-      type="button"
-      className="flex flex-1 h-10 pl-6 pr-14 items-center rounded-md hover:bg-theme-hover active:bg-theme-active focus-outline"
-      onClick={() => onClick?.(source)}
-      {...props}
-    >
-      <LazyImage
-        imgSrc={source.image}
-        imgAlt={`${source.name} logo`}
-        className="w-8 h-8 rounded-md"
-      />
-      <span
-        className={`flex-1 ml-3 text-left typo-callout truncate ${
-          selected
-            ? 'font-bold text-theme-label-primary'
-            : 'text-theme-label-tertiary'
-        }`}
-      >
-        {source.name}
-      </span>
-    </button>
-    <GoToFilterButton
+    <Link
       href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}sources/${source.id}`}
-      tooltip={`${source.name} feed`}
-      className="right-4 my-auto"
+      passHref
+      prefetch={false}
+    >
+      <a
+        className="flex flex-1 h-10 pl-6 pr-14 items-center rounded-md hover:bg-theme-hover active:bg-theme-active focus-outline"
+        {...getTooltipProps(`${source.name} feed`)}
+        {...props}
+      >
+        <LazyImage
+          imgSrc={source.image}
+          imgAlt={`${source.name} logo`}
+          className="w-8 h-8 rounded-md"
+        />
+        <span
+          className={`flex-1 ml-3 text-left typo-callout truncate ${
+            selected
+              ? 'font-bold text-theme-label-primary'
+              : 'text-theme-label-tertiary'
+          }`}
+        >
+          {source.name}
+        </span>
+      </a>
+    </Link>
+    <Button
+      className="btn-tertiary right-4 my-auto"
       style={{ position: 'absolute' }}
+      onClick={() => onClick?.(source)}
+      icon={blocked ? <XIcon /> : <BlockIcon />}
+      {...getTooltipProps(blocked ? 'Unblock source' : 'Block source', {
+        position: 'left',
+      })}
     />
   </FilterItem>
 );
@@ -189,16 +203,20 @@ export default function SourcesFilter({
       ) : (
         <>
           <Button
-            className="btn-secondary small mt-6"
+            className="btn-secondary mt-6 mr-4 ml-6 self-start"
             icon={<PlusIcon />}
             onClick={onSuggestSource}
+            buttonSize="small"
           >
             Suggest new source
           </Button>
-          <FiltersSection>
-            <FiltersHeadline className="text-theme-label-primary">
-              My sources
-            </FiltersHeadline>
+          <FiltersDetails open className="mt-5">
+            <Summary>
+              <FiltersHeadline>
+                All sources ({followedSources.length})
+                <FiltersSummaryArrow />
+              </FiltersHeadline>
+            </Summary>
             <FiltersList className="-my-1 -ml-6 -mr-4">
               {followedSources.map((source) => (
                 <SourceItem
@@ -206,27 +224,29 @@ export default function SourcesFilter({
                   selected
                   key={source.id}
                   onClick={() => onUnfollowSource(source)}
-                  {...getTooltipProps('Unfollow source')}
                 />
               ))}
             </FiltersList>
-          </FiltersSection>
+          </FiltersDetails>
           {moreSources.length > 0 && (
-            <FiltersSection>
-              <FiltersHeadline className="text-theme-label-tertiary">
-                More sources
-              </FiltersHeadline>
+            <FiltersDetails open>
+              <Summary>
+                <FiltersHeadline>
+                  Blocked sources ({moreSources.length})
+                  <FiltersSummaryArrow />
+                </FiltersHeadline>
+              </Summary>
               <FiltersList className="-my-1 -ml-6 -mr-4">
                 {moreSources.map((source) => (
                   <SourceItem
                     source={source}
+                    blocked
                     key={source.id}
                     onClick={() => onFollowSource(source)}
-                    {...getTooltipProps('Follow source')}
                   />
                 ))}
               </FiltersList>
-            </FiltersSection>
+            </FiltersDetails>
           )}
         </>
       )}

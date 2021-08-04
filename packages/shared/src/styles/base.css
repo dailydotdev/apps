@@ -296,3 +296,24 @@ img.lazyload:not([src]) {
     min-height: calc(100vh - $navBarHeight);
   }
 }
+
+summary {
+  list-style: none;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+}
+
+details {
+  & .arrow {
+    transform: rotate(180deg);
+    transition: transform 0.1s linear;
+  }
+
+  &[open] {
+    & .arrow {
+      transform: rotate(0deg);
+    }
+  }
+}

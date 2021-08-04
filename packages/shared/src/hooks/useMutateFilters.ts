@@ -43,6 +43,8 @@ type FollowSource = ({ source: Source }) => Promise<unknown>;
 type ReturnType = {
   followTag: FollowTag;
   unfollowTag: FollowTag;
+  blockTag: FollowTag;
+  unblockTag: FollowTag;
   followSource: FollowSource;
   unfollowSource: FollowSource;
 };
@@ -144,6 +146,34 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
     },
   );
 
+  const { mutateAsync: blockTag } = useMutation<
+    unknown,
+    unknown,
+    { tag: string },
+    () => Promise<void>
+  >(
+    ({ tag }) =>
+      request(`${apiUrl}/graphql`, ADD_FILTERS_TO_FEED_MUTATION, {
+        filters: {
+          blockedTags: [tag],
+        },
+      }),
+    {
+      onMutate: ({ tag }) =>
+        onMutateTagsSettings(
+          tag,
+          queryClient,
+          (feedSettings, manipulateTag) => {
+            const newData = cloneDeep(feedSettings);
+            newData.blockedTags.push(manipulateTag);
+            return newData;
+          },
+          user,
+        ),
+      onError: (err, _, rollback) => rollback(),
+    },
+  );
+
   const { mutateAsync: unfollowTag } = useMutation<
     unknown,
     unknown,
@@ -166,6 +196,37 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
             const index = newData.includeTags.indexOf(manipulateTag);
             if (index > -1) {
               newData.includeTags.splice(index, 1);
+            }
+            return newData;
+          },
+          user,
+        ),
+      onError: (err, _, rollback) => rollback(),
+    },
+  );
+
+  const { mutateAsync: unblockTag } = useMutation<
+    unknown,
+    unknown,
+    { tag: string },
+    () => void
+  >(
+    ({ tag }) =>
+      request(`${apiUrl}/graphql`, REMOVE_FILTERS_FROM_FEED_MUTATION, {
+        filters: {
+          blockedTags: [tag],
+        },
+      }),
+    {
+      onMutate: ({ tag }) =>
+        onMutateTagsSettings(
+          tag,
+          queryClient,
+          (feedSettings, manipulateTag) => {
+            const newData = cloneDeep(feedSettings);
+            const index = newData.blockedTags.indexOf(manipulateTag);
+            if (index > -1) {
+              newData.blockedTags.splice(index, 1);
             }
             return newData;
           },
@@ -236,5 +297,12 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
     },
   );
 
-  return { followTag, unfollowTag, followSource, unfollowSource };
+  return {
+    followTag,
+    unfollowTag,
+    blockTag,
+    unblockTag,
+    followSource,
+    unfollowSource,
+  };
 }

@@ -1,18 +1,6 @@
-.optionalSummary {
-  list-style: none;
-
-  &::-webkit-details-marker {
-    display: none;
-  }
-}
-
 .optionalFields {
   &[open] {
     padding-bottom: 0.75rem;
-
-    & .optionalSummary :global(.icon) {
-      transform: rotate(0deg);
-    }
   }
 }
 

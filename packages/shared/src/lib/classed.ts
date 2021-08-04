@@ -3,6 +3,7 @@ import React, {
   ClassAttributes,
   Component,
   ComponentType,
+  DetailsHTMLAttributes,
   ElementType,
   forwardRef,
   ForwardRefExoticComponent,
@@ -57,6 +58,17 @@ function classed(
     ImgHTMLAttributes<HTMLImageElement> & ClassAttributes<HTMLImageElement>
   > &
     RefAttributes<HTMLImageElement>
+>;
+
+function classed(
+  type: 'details',
+  ...className: string[]
+): ForwardRefExoticComponent<
+  PropsWithoutRef<
+    DetailsHTMLAttributes<HTMLDetailsElement> &
+      ClassAttributes<HTMLDetailsElement>
+  > &
+    RefAttributes<HTMLDetailsElement>
 >;
 
 function classed<P extends HTMLAttributes<T>, T extends HTMLElement>(

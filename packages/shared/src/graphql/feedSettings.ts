@@ -16,6 +16,7 @@ export interface SearchTagsData {
 
 export interface FeedSettings {
   includeTags?: string[];
+  blockedTags?: string[];
   excludeSources?: Source[];
 }
 
@@ -49,6 +50,7 @@ export const ALL_TAGS_AND_SETTINGS_QUERY = gql`
   query AllTagsAndSettings {
     feedSettings {
       includeTags
+      blockedTags
     }
     tags: popularTags {
       name

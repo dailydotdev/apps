@@ -97,6 +97,10 @@ const renderComponent = (
           logout: jest.fn(),
           updateUser: jest.fn(),
           tokenRefreshed: true,
+          trackingId: '',
+          loginState: null,
+          closeLogin: jest.fn(),
+          getRedirectUri: jest.fn(),
         }}
       >
         <SourcesFilter query={query} />
@@ -108,9 +112,11 @@ const renderComponent = (
 it('should show followed sources', async () => {
   const { baseElement } = renderComponent();
   await waitFor(() => expect(baseElement).not.toHaveAttribute('aria-busy'));
-  const { parentElement: section } = await screen.findByText('My sources');
+  const {
+    parentElement: { parentElement: section },
+  } = await screen.findByText('All sources (2)');
   // eslint-disable-next-line testing-library/prefer-screen-queries
-  const buttons = await findAllByRole(section, 'button');
+  const buttons = await findAllByRole(section, 'link');
   const sources = ['Go', 'Vue.js'];
   buttons.map((button, index) =>
     // eslint-disable-next-line testing-library/prefer-screen-queries
@@ -121,9 +127,11 @@ it('should show followed sources', async () => {
 it('should show unfollowed sources', async () => {
   const { baseElement } = renderComponent();
   await waitFor(() => expect(baseElement).not.toHaveAttribute('aria-busy'));
-  const { parentElement: section } = await screen.findByText('More sources');
+  const {
+    parentElement: { parentElement: section },
+  } = await screen.findByText('Blocked sources (1)');
   // eslint-disable-next-line testing-library/prefer-screen-queries
-  const buttons = await findAllByRole(section, 'button');
+  const buttons = await findAllByRole(section, 'link');
   const sources = ['React'];
   buttons.map((button, index) =>
     // eslint-disable-next-line testing-library/prefer-screen-queries
@@ -136,20 +144,24 @@ it('should show only followed sources when no filters', async () => {
     createAllSourcesAndSettingsMock({ excludeSources: [] }, allSources),
   ]);
   await waitFor(() => expect(baseElement).not.toHaveAttribute('aria-busy'));
-  const { parentElement: section } = await screen.findByText('My sources');
+  const {
+    parentElement: { parentElement: section },
+  } = await screen.findByText('All sources (3)');
   // eslint-disable-next-line testing-library/prefer-screen-queries
-  const buttons = await findAllByRole(section, 'button');
+  const buttons = await findAllByRole(section, 'link');
   buttons.map((button, index) =>
     // eslint-disable-next-line testing-library/prefer-screen-queries
     expect(queryByText(button, allSources[index].name)).toBeInTheDocument(),
   );
-  expect(screen.queryByText('More sources')).not.toBeInTheDocument();
+  expect(screen.queryByText('Blocked sources (0)')).not.toBeInTheDocument();
 });
 
 it('should show login popup when logged-out on source click', async () => {
   renderComponent([createAllSourcesMock()], null);
   await waitFor(() => expect(nock.isDone()).toBeTruthy());
-  const { parentElement: section } = await screen.findByText('My sources');
+  const {
+    parentElement: { parentElement: section },
+  } = await screen.findByText('All sources (3)');
   // eslint-disable-next-line testing-library/prefer-screen-queries
   const [button] = await findAllByRole(section, 'button');
   button.click();
@@ -175,7 +187,9 @@ it('should add source filter on source click', async () => {
       return { data: { feedSettings: { id: defaultUser.id } } };
     },
   });
-  const { parentElement: section } = await screen.findByText('My sources');
+  const {
+    parentElement: { parentElement: section },
+  } = await screen.findByText('All sources (2)');
   // eslint-disable-next-line testing-library/prefer-screen-queries
   const [button] = await findAllByRole(section, 'button');
   button.click();
@@ -204,7 +218,9 @@ it('should remove source filter on source click', async () => {
       return { data: { feedSettings: { id: defaultUser.id } } };
     },
   });
-  const { parentElement: section } = await screen.findByText('More sources');
+  const {
+    parentElement: { parentElement: section },
+  } = await screen.findByText('Blocked sources (1)');
   // eslint-disable-next-line testing-library/prefer-screen-queries
   const [button] = await findAllByRole(section, 'button');
   button.click();
@@ -214,7 +230,7 @@ it('should remove source filter on source click', async () => {
   });
 });
 
-it('should show filter followed sources', async () => {
+it('should show filtered followed sources', async () => {
   const { baseElement } = renderComponent(
     [createAllSourcesAndSettingsMock()],
     defaultUser,
@@ -222,9 +238,11 @@ it('should show filter followed sources', async () => {
   );
   await waitFor(() => expect(baseElement).not.toHaveAttribute('aria-busy'));
 
-  const { parentElement: section } = await screen.findByText('My sources');
+  const {
+    parentElement: { parentElement: section },
+  } = await screen.findByText('All sources (1)');
   // eslint-disable-next-line testing-library/prefer-screen-queries
-  const buttons = await findAllByRole(section, 'button');
+  const buttons = await findAllByRole(section, 'link');
   const sources = ['Go'];
   buttons.map((button, index) =>
     // eslint-disable-next-line testing-library/prefer-screen-queries
@@ -240,9 +258,11 @@ it('should show filtered unfollowed sources', async () => {
   );
   await waitFor(() => expect(baseElement).not.toHaveAttribute('aria-busy'));
 
-  const { parentElement: section } = await screen.findByText('More sources');
+  const {
+    parentElement: { parentElement: section },
+  } = await screen.findByText('Blocked sources (1)');
   // eslint-disable-next-line testing-library/prefer-screen-queries
-  const buttons = await findAllByRole(section, 'button');
+  const buttons = await findAllByRole(section, 'link');
   const sources = ['React'];
   buttons.map((button, index) =>
     // eslint-disable-next-line testing-library/prefer-screen-queries

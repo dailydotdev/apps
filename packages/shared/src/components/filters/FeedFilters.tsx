@@ -1,6 +1,6 @@
 import React, { ReactElement, useEffect, useRef, useState } from 'react';
 import HashtagIcon from '../../../icons/hashtag.svg';
-import LinkIcon from '../../../icons/link.svg';
+import SourceIcon from '../../../icons/source.svg';
 import { IconsSwitch } from '../fields/IconsSwitch';
 import { SearchField } from '../fields/SearchField';
 import TagsFilter from './TagsFilter';
@@ -27,7 +27,7 @@ export default function FeedFilters({
         inputId="icons-switch"
         name="icons-switch"
         leftIcon={HashtagIcon}
-        rightIcon={LinkIcon}
+        rightIcon={SourceIcon}
         checked={showSources}
         className="self-center my-6"
         onToggle={() => setShowSources(!showSources)}
