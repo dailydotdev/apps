@@ -6,7 +6,10 @@ import {
   trackEvent,
 } from '@dailydotdev/shared/src/lib/analytics';
 import TocIcon from '@dailydotdev/shared/icons/toc.svg';
-import ArrowIcon from '@dailydotdev/shared/icons/arrow.svg';
+import {
+  Summary,
+  SummaryArrow,
+} from '@dailydotdev/shared/src/components/utilities';
 import styles from './PostToc.module.css';
 
 export type PostTocProps = {
@@ -67,18 +70,13 @@ export default function PostToc({
           className,
         )}
       >
-        <summary
-          className={`cursor-pointer focus-outline hover:bg-theme-hover ${styles.summary}`}
-        >
+        <Summary className="hover:bg-theme-hover">
           <div className={titleClass}>
             <TocIcon className="text-2xl mr-2" />
             Table of contents
-            <ArrowIcon
-              className={`icon ml-auto text-xl transform rotate-180 ${styles.arrow}`}
-              style={{ transition: 'transform 0.1s linear' }}
-            />
+            <SummaryArrow />
           </div>
-        </summary>
+        </Summary>
         {Separator}
         {items}
       </details>

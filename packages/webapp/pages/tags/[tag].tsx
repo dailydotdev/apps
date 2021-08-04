@@ -7,6 +7,8 @@ import { ParsedUrlQuery } from 'querystring';
 import React, { ReactElement, useContext, useMemo } from 'react';
 import HashtagIcon from '@dailydotdev/shared/icons/hashtag.svg';
 import PlusIcon from '@dailydotdev/shared/icons/plus.svg';
+import BlockIcon from '@dailydotdev/shared/icons/block.svg';
+import XIcon from '@dailydotdev/shared/icons/x.svg';
 import { useRouter } from 'next/router';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
@@ -32,7 +34,7 @@ import {
 import useMutateFilters, {
   getTagsSettingsQueryKey,
 } from '@dailydotdev/shared/src/hooks/useMutateFilters';
-import { trackEvent } from '@dailydotdev/shared/src/lib/analytics';
+import classNames from 'classnames';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/FeedLayout';
@@ -54,17 +56,28 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
     },
   );
 
-  const { followTag } = useMutateFilters(user);
+  const { followTag, unfollowTag, blockTag, unblockTag } =
+    useMutateFilters(user);
 
-  const showAddTag = useMemo(() => {
+  const tagStatus = useMemo(() => {
     if (!feedSettings?.feedSettings) {
-      return true;
+      return 'unfollowed';
     }
-    return (
-      feedSettings.feedSettings.includeTags.findIndex(
+    if (
+      feedSettings.feedSettings.blockedTags?.findIndex(
+        (blockedTag) => tag === blockedTag,
+      ) > -1
+    ) {
+      return 'blocked';
+    }
+    if (
+      feedSettings.feedSettings?.includeTags?.findIndex(
         (includedTag) => tag === includedTag,
-      ) < 0
-    );
+      ) > -1
+    ) {
+      return 'followed';
+    }
+    return 'unfollowed';
   }, [feedSettings, tag]);
 
   if (isFallback) {
@@ -78,17 +91,32 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
     ...defaultSeo,
   };
 
-  const buttonClass = showAddTag ? 'visible' : 'invisible';
-  const buttonProps: ButtonProps<'button'> = {
+  const followButtonProps: ButtonProps<'button'> = {
     buttonSize: 'small',
-    icon: <PlusIcon />,
+    icon: tagStatus === 'followed' ? <XIcon /> : <PlusIcon />,
     onClick: async (): Promise<void> => {
-      trackEvent({
-        category: 'Feed',
-        action: 'Add Filter',
-      });
       if (user) {
-        await followTag({ tag });
+        if (tagStatus === 'followed') {
+          await unfollowTag({ tag });
+        } else {
+          await followTag({ tag });
+        }
+      } else {
+        showLogin('filter');
+      }
+    },
+  };
+
+  const blockButtonProps: ButtonProps<'button'> = {
+    buttonSize: 'small',
+    icon: tagStatus === 'blocked' ? <XIcon /> : <BlockIcon />,
+    onClick: async (): Promise<void> => {
+      if (user) {
+        if (tagStatus === 'blocked') {
+          await unblockTag({ tag });
+        } else {
+          await blockTag({ tag });
+        }
       } else {
         showLogin('filter');
       }
@@ -101,17 +129,42 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
       <CustomFeedHeader>
         <HashtagIcon className={customFeedIcon} />
         <span className="mr-auto">{tag}</span>
-        <Button
-          className={`btn-primary laptop:hidden ${buttonClass}`}
-          {...buttonProps}
-          aria-label="Add tag to feed"
-        />
-        <Button
-          className={`btn-primary hidden laptop:flex ${buttonClass}`}
-          {...buttonProps}
-        >
-          Add to feed
-        </Button>
+        {tagStatus !== 'followed' && (
+          <>
+            <Button
+              className="btn-secondary laptop:hidden"
+              {...blockButtonProps}
+              aria-label={tagStatus === 'blocked' ? 'Unblock' : 'Block'}
+            />
+            <Button
+              className="btn-secondary hidden laptop:flex"
+              {...blockButtonProps}
+            >
+              {tagStatus === 'blocked' ? 'Unblock' : 'Block'}
+            </Button>
+          </>
+        )}
+        {tagStatus !== 'blocked' && (
+          <>
+            <Button
+              className={classNames(
+                'btn-secondary laptop:hidden',
+                tagStatus !== 'followed' && 'ml-4',
+              )}
+              {...followButtonProps}
+              aria-label={tagStatus === 'followed' ? 'Unfollow' : 'Follow'}
+            />
+            <Button
+              className={classNames(
+                'btn-secondary hidden laptop:flex',
+                tagStatus !== 'followed' && 'ml-4',
+              )}
+              {...followButtonProps}
+            >
+              {tagStatus === 'followed' ? 'Unfollow' : 'Follow'}
+            </Button>
+          </>
+        )}
       </CustomFeedHeader>
       <Feed
         feedQueryKey={[

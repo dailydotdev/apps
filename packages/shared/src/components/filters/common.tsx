@@ -1,20 +1,14 @@
-import React, { CSSProperties, ReactElement } from 'react';
-import Link from 'next/link';
-import classNames from 'classnames';
+import React, { ReactElement } from 'react';
 import classed from '../../lib/classed';
 import sizeN from '../../../macros/sizeN.macro';
 import { ElementPlaceholder } from '../ElementPlaceholder';
-import { Button } from '../buttons/Button';
-import ArrowIcon from '../../../icons/arrow.svg';
-import { getTooltipProps } from '../../lib/tooltip';
+import { SummaryArrow } from '../utilities';
+import styles from './common.module.css';
 
-export const FiltersContainer = classed(
-  'div',
-  'flex flex-col w-full pr-4 pb-4 pl-6',
-);
+export const FiltersContainer = classed('div', 'flex flex-col w-full pb-4');
 
 const Placeholder = (
-  <div className="flex justify-between">
+  <div className="flex justify-between pr-4 pl-6">
     <ElementPlaceholder className="rounded-md" style={{ width: sizeN(30) }} />
     <ElementPlaceholder className="w-5 rounded-md" />
   </div>
@@ -29,46 +23,24 @@ export const FiltersPlaceholder = (): ReactElement => (
   </div>
 );
 
-export const FiltersSection = classed('section', 'flex flex-col items-stretch');
+export const FiltersDetails = classed(
+  'details',
+  'flex flex-col items-stretch border-t border-theme-divider-tertiary overflow-hidden select-none pr-4 pl-6',
+  styles.details,
+);
 
-export const FiltersHeadline = classed('h3', 'my-6 font-bold typo-callout');
+export const FiltersHeadline = classed(
+  'h3',
+  'h-12 flex items-center typo-callout text-theme-label-tertiary',
+);
+
+export const FiltersSummaryArrow = (): ReactElement => (
+  <SummaryArrow style={{ marginLeft: '0.5rem' }} />
+);
 
 export const FiltersList = classed('ul', 'flex flex-col p-0');
 
 export const FilterItem = classed('li', 'flex items-center p-0');
-
-export const FilterLine = classed(
-  'div',
-  'h-px flex-1 mx-3 bg-theme-divider-tertiary',
-);
-
-export const GoToFilterButton = ({
-  href,
-  tooltip,
-  className,
-  style,
-}: {
-  href: string;
-  tooltip: string;
-  className?: string;
-  style?: CSSProperties;
-}): ReactElement => (
-  <Link href={href} passHref prefetch={false}>
-    <Button
-      tag="a"
-      icon={
-        <ArrowIcon
-          style={{
-            transform: 'rotate(90deg)',
-          }}
-        />
-      }
-      className={classNames(className, 'btn-tertiary')}
-      style={style}
-      {...getTooltipProps(tooltip, { position: 'left' })}
-    />
-  </Link>
-);
 
 export type FilterProps = {
   enableQueries?: boolean;

@@ -11,6 +11,7 @@ import {
   ADD_FILTERS_TO_FEED_MUTATION,
   FeedSettings,
   FeedSettingsData,
+  REMOVE_FILTERS_FROM_FEED_MUTATION,
   TAGS_SETTINGS_QUERY,
 } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { getTagsSettingsQueryKey } from '@dailydotdev/shared/src/hooks/useMutateFilters';
@@ -64,7 +65,7 @@ const createFeedMock = (
 });
 
 const createTagsSettingsMock = (
-  feedSettings: FeedSettings = { includeTags: [] },
+  feedSettings: FeedSettings = { includeTags: [], blockedTags: [] },
 ): MockedGraphQLResponse<FeedSettingsData> => ({
   request: { query: TAGS_SETTINGS_QUERY },
   result: {
@@ -138,26 +139,28 @@ it('should request tag feed', async () => {
   });
 });
 
-it('should show add to feed button', async () => {
+it('should show follow and block buttons', async () => {
   renderComponent();
   await waitFor(() => expect(nock.isDone()).toBeTruthy());
-  const [button] = await screen.findAllByLabelText('Add tag to feed');
-  expect(button).toHaveClass('visible');
+  const followButton = await screen.findByLabelText('Follow');
+  expect(followButton).toBeInTheDocument();
+  const blockButton = await screen.findByLabelText('Block');
+  expect(blockButton).toBeInTheDocument();
 });
 
-it('should not show add to feed button', async () => {
+it('should show only unfollow button', async () => {
   renderComponent([
     createFeedMock(),
     createTagsSettingsMock({ includeTags: ['react'] }),
   ]);
   await waitFor(() => expect(nock.isDone()).toBeTruthy());
-  await waitFor(async () => {
-    const [button] = await screen.findAllByLabelText('Add tag to feed');
-    expect(button).toHaveClass('invisible');
-  });
+  const followButton = await screen.findByLabelText('Unfollow');
+  expect(followButton).toBeInTheDocument();
+  const blockButton = screen.queryByLabelText('Block');
+  expect(blockButton).not.toBeInTheDocument();
 });
 
-it('should show add to feed button when logged-out', async () => {
+it('should show follow and block buttons when logged-out', async () => {
   renderComponent(
     [
       createFeedMock(defaultFeedPage, TAG_FEED_QUERY, {
@@ -171,11 +174,13 @@ it('should show add to feed button when logged-out', async () => {
     null,
   );
   await waitFor(() => expect(nock.isDone()).toBeTruthy());
-  const [button] = await screen.findAllByLabelText('Add tag to feed');
-  expect(button).toHaveClass('visible');
+  const followButton = await screen.findByLabelText('Follow');
+  expect(followButton).toBeInTheDocument();
+  const blockButton = await screen.findByLabelText('Block');
+  expect(blockButton).toBeInTheDocument();
 });
 
-it('should show login popup when logged-out on add to feed click', async () => {
+it('should show login popup when logged-out on follow click', async () => {
   renderComponent(
     [
       createFeedMock(defaultFeedPage, TAG_FEED_QUERY, {
@@ -189,12 +194,31 @@ it('should show login popup when logged-out on add to feed click', async () => {
     null,
   );
   await waitFor(() => expect(nock.isDone()).toBeTruthy());
-  const [button] = await screen.findAllByLabelText('Add tag to feed');
-  button.click();
+  const followButton = await screen.findByLabelText('Follow');
+  followButton.click();
   expect(showLogin).toBeCalledTimes(1);
 });
 
-it('should add new tag filter', async () => {
+it('should show login popup when logged-out on block click', async () => {
+  renderComponent(
+    [
+      createFeedMock(defaultFeedPage, TAG_FEED_QUERY, {
+        first: 7,
+        loggedIn: false,
+        tag: 'react',
+        unreadOnly: false,
+        ranking: 'TIME',
+      }),
+    ],
+    null,
+  );
+  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  const blockButton = await screen.findByLabelText('Block');
+  blockButton.click();
+  expect(showLogin).toBeCalledTimes(1);
+});
+
+it('should follow tag', async () => {
   let mutationCalled = false;
   renderComponent();
   await waitFor(async () => {
@@ -213,10 +237,101 @@ it('should add new tag filter', async () => {
       return { data: { feedSettings: { id: defaultUser.id } } };
     },
   });
-  const [button] = await screen.findAllByLabelText('Add tag to feed');
+  const button = await screen.findByLabelText('Follow');
   button.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
   await waitFor(async () => {
-    expect(button).toHaveClass('invisible');
+    const unfollowButton = await screen.findByLabelText('Unfollow');
+    expect(unfollowButton).toBeInTheDocument();
+  });
+});
+
+it('should block tag', async () => {
+  let mutationCalled = false;
+  renderComponent();
+  await waitFor(async () => {
+    const data = await client.getQueryData(
+      getTagsSettingsQueryKey(defaultUser),
+    );
+    expect(data).toBeTruthy();
+  });
+  mockGraphQL({
+    request: {
+      query: ADD_FILTERS_TO_FEED_MUTATION,
+      variables: { filters: { blockedTags: ['react'] } },
+    },
+    result: () => {
+      mutationCalled = true;
+      return { data: { feedSettings: { id: defaultUser.id } } };
+    },
+  });
+  const button = await screen.findByLabelText('Block');
+  button.click();
+  await waitFor(() => expect(mutationCalled).toBeTruthy());
+  await waitFor(async () => {
+    const unfollowButton = await screen.findByLabelText('Unblock');
+    expect(unfollowButton).toBeInTheDocument();
+  });
+});
+
+it('should unfollow tag', async () => {
+  let mutationCalled = false;
+  renderComponent([
+    createFeedMock(),
+    createTagsSettingsMock({ includeTags: ['react'] }),
+  ]);
+  await waitFor(async () => {
+    const data = await client.getQueryData(
+      getTagsSettingsQueryKey(defaultUser),
+    );
+    expect(data).toBeTruthy();
+  });
+  mockGraphQL({
+    request: {
+      query: REMOVE_FILTERS_FROM_FEED_MUTATION,
+      variables: { filters: { includeTags: ['react'] } },
+    },
+    result: () => {
+      mutationCalled = true;
+      return { data: { feedSettings: { id: defaultUser.id } } };
+    },
+  });
+  const button = await screen.findByLabelText('Unfollow');
+  button.click();
+  await waitFor(() => expect(mutationCalled).toBeTruthy());
+  await waitFor(async () => {
+    const followButton = await screen.findByLabelText('Follow');
+    expect(followButton).toBeInTheDocument();
+  });
+});
+
+it('should unblock tag', async () => {
+  let mutationCalled = false;
+  renderComponent([
+    createFeedMock(),
+    createTagsSettingsMock({ blockedTags: ['react'] }),
+  ]);
+  await waitFor(async () => {
+    const data = await client.getQueryData(
+      getTagsSettingsQueryKey(defaultUser),
+    );
+    expect(data).toBeTruthy();
+  });
+  mockGraphQL({
+    request: {
+      query: REMOVE_FILTERS_FROM_FEED_MUTATION,
+      variables: { filters: { blockedTags: ['react'] } },
+    },
+    result: () => {
+      mutationCalled = true;
+      return { data: { feedSettings: { id: defaultUser.id } } };
+    },
+  });
+  const button = await screen.findByLabelText('Unblock');
+  button.click();
+  await waitFor(() => expect(mutationCalled).toBeTruthy());
+  await waitFor(async () => {
+    const followButton = await screen.findByLabelText('Block');
+    expect(followButton).toBeInTheDocument();
   });
 });

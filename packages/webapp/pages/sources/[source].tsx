@@ -35,7 +35,7 @@ import {
   FeedPage,
 } from '@dailydotdev/shared/src/components/utilities';
 import PlusIcon from '@dailydotdev/shared/icons/plus.svg';
-import { trackEvent } from '@dailydotdev/shared/src/lib/analytics';
+import BlockIcon from '@dailydotdev/shared/icons/block.svg';
 import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -61,9 +61,9 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
     },
   );
 
-  const { followSource } = useMutateFilters(user);
+  const { followSource, unfollowSource } = useMutateFilters(user);
 
-  const showAddSource = useMemo(() => {
+  const unfollowingSource = useMemo(() => {
     if (!feedSettings?.feedSettings) {
       return true;
     }
@@ -89,17 +89,16 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
     ...defaultSeo,
   };
 
-  const buttonClass = showAddSource ? 'visible' : 'invisible';
   const buttonProps: ButtonProps<'button'> = {
     buttonSize: 'small',
-    icon: <PlusIcon />,
+    icon: unfollowingSource ? <PlusIcon /> : <BlockIcon />,
     onClick: async (): Promise<void> => {
-      trackEvent({
-        category: 'Feed',
-        action: 'Add Filter',
-      });
       if (user) {
-        await followSource({ source });
+        if (unfollowingSource) {
+          await followSource({ source });
+        } else {
+          await unfollowSource({ source });
+        }
       } else {
         showLogin('filter');
       }
@@ -117,15 +116,12 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
         />
         <span className="mr-auto">{source.name}</span>
         <Button
-          className={`btn-primary laptop:hidden ${buttonClass}`}
+          className="btn-secondary laptop:hidden"
           {...buttonProps}
-          aria-label="Add source to feed"
+          aria-label={unfollowingSource ? 'Follow' : 'Block'}
         />
-        <Button
-          className={`btn-primary hidden laptop:flex ${buttonClass}`}
-          {...buttonProps}
-        >
-          Add to feed
+        <Button className="btn-secondary hidden laptop:flex" {...buttonProps}>
+          {unfollowingSource ? 'Follow' : 'Block'}
         </Button>
       </CustomFeedHeader>
       <Feed
