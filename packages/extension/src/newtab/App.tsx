@@ -17,7 +17,6 @@ import { SettingsContextProvider } from '@dailydotdev/shared/src/contexts/Settin
 import { RouterContext } from 'next/dist/next-server/lib/router-context';
 import { browser } from 'webextension-polyfill-ts';
 import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState';
-import BellIcon from '@dailydotdev/shared/icons/bell.svg';
 import HelpUsGrowModalWithContext from '@dailydotdev/shared/src/components/modals/HelpUsGrowModalWithContext';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
@@ -26,13 +25,8 @@ import getPageForAnalytics from '../lib/getPageForAnalytics';
 import DndContext from './DndContext';
 import useDndContext from './useDndContext';
 import DndBanner from './DndBanner';
-import useSettingsMigration from './useSettingsMigration';
 
 const AnalyticsConsentModal = dynamic(() => import('./AnalyticsConsentModal'));
-const MigrateSettingsModal = dynamic(() => import('./MigrateSettingsModal'));
-const MigrationCompletedModal = dynamic(
-  () => import('./MigrationCompletedModal'),
-);
 
 const router = new CustomRouter();
 const queryClient = new QueryClient();
@@ -48,16 +42,6 @@ Modal.defaultStyles = {};
 
 const shouldShowConsent = process.env.TARGET_BROWSER === 'firefox';
 
-const syncSettingsNotification = (
-  <div className="flex bg-theme-status-help text-theme-label-invert py-3 px-4 mt-6 rounded-xl">
-    <BellIcon className="icon text-2xl" />
-    <p className="ml-2 flex-1 typo-callout">
-      We noticed that you filtered your feed or saved bookmarks (awesome!).
-      Please sign up to automatically sync everything to your account.
-    </p>
-  </div>
-);
-
 const getRedirectUri = () => browser.runtime.getURL('index.html');
 
 function InternalApp(): ReactElement {
@@ -67,7 +51,6 @@ function InternalApp(): ReactElement {
     trackingId,
     closeLogin,
     loadingUser,
-    showLogin,
     shouldShowLogin,
     loginState,
   } = useContext(AuthContext);
@@ -78,18 +61,6 @@ function InternalApp(): ReactElement {
     shouldShowConsent ? null : true,
   );
   const dndContext = useDndContext();
-  const {
-    hasSettings,
-    postponeMigration,
-    showMigrationModal,
-    migrateAfterSignIn,
-    migrate,
-    isMigrating,
-    migrationCompleted,
-    ackMigrationCompleted,
-    forceMigrationModal,
-    postponed,
-  } = useSettingsMigration(user, tokenRefreshed);
 
   useAnalytics(
     trackingId,
@@ -110,27 +81,17 @@ function InternalApp(): ReactElement {
     }
   }, [user, loadingUser, tokenRefreshed]);
 
-  const onMigrationSignIn = async () => {
-    await migrateAfterSignIn();
-    showLogin('sync');
-  };
-
   return (
     <DndContext.Provider value={dndContext}>
       {dndContext.isActive && <DndBanner />}
-      <MainFeedPage
-        forceMigrationModal={forceMigrationModal}
-        postponedMigration={postponed}
-      />
+      <MainFeedPage />
       {!user && !loadingUser && (windowLoaded || shouldShowLogin) && (
         <LoginModal
           isOpen={shouldShowLogin}
           onRequestClose={closeLogin}
           contentLabel="Login Modal"
           {...loginState}
-        >
-          {hasSettings && syncSettingsNotification}
-        </LoginModal>
+        />
       )}
       <HelpUsGrowModalWithContext />
       {analyticsConsent === null && (
@@ -138,21 +99,6 @@ function InternalApp(): ReactElement {
           onDecline={() => setAnalyticsConsent(false)}
           onAccept={() => setAnalyticsConsent(true)}
           isOpen
-        />
-      )}
-      {showMigrationModal && (
-        <MigrateSettingsModal
-          isOpen={showMigrationModal}
-          onLater={postponeMigration}
-          onSignIn={onMigrationSignIn}
-          onMerge={migrate}
-          loading={isMigrating}
-        />
-      )}
-      {migrationCompleted && (
-        <MigrationCompletedModal
-          isOpen={migrationCompleted}
-          onRequestClose={ackMigrationCompleted}
         />
       )}
     </DndContext.Provider>

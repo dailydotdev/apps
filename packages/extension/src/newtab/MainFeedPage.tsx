@@ -14,7 +14,6 @@ import TimerIcon from '@dailydotdev/shared/icons/timer.svg';
 import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import SyncIcon from '@dailydotdev/shared/icons/sync.svg';
 import getPageForAnalytics from '../lib/getPageForAnalytics';
 import MostVisitedSites from './MostVisitedSites';
 
@@ -29,13 +28,7 @@ const DndModal = dynamic(
   () => import(/* webpackChunkName: "dnd" */ './DndModal'),
 );
 
-export default function MainFeedPage({
-  postponedMigration,
-  forceMigrationModal,
-}: {
-  postponedMigration: boolean;
-  forceMigrationModal: () => Promise<void>;
-}): ReactElement {
+export default function MainFeedPage(): ReactElement {
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user } = useContext(AuthContext);
   const { onboardingStep } = useContext(OnboardingContext) || {};
@@ -77,14 +70,6 @@ export default function MainFeedPage({
       onLogoClick={onLogoClick}
       additionalButtons={
         <>
-          {postponedMigration && (
-            <HeaderButton
-              icon={<SyncIcon />}
-              {...getTooltipProps('Sync settings', { position: 'down' })}
-              className="btn-tertiary"
-              onClick={forceMigrationModal}
-            />
-          )}
           {(onboardingStep > 2 || user) && (
             <HeaderButton
               icon={<TimerIcon />}
