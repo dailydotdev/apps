@@ -139,7 +139,7 @@ export const PostCard = forwardRef(function PostCard(
           {post.author && (
             <div
               className={classNames(
-                'relative flex items-center py-2 px-3 text-theme-label-secondary bg-theme-bg-primary z-1 font-bold typo-callout',
+                'absolute flex items-center py-2 px-3 text-theme-label-secondary bg-theme-bg-primary z-1 font-bold typo-callout w-full',
                 selectedComment ? 'invisible' : styles.authorBox,
               )}
             >
