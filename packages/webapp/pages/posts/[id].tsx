@@ -61,13 +61,6 @@ import styles from './postPage.module.css';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import PostToc from '../../components/widgets/PostToc';
 
-declare module 'graphql-request/dist/types' {
-  interface GraphQLError {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    extensions?: Record<string, any>;
-  }
-}
-
 const NewCommentModal = dynamic(
   () => import('@dailydotdev/shared/src/components/modals/NewCommentModal'),
 );

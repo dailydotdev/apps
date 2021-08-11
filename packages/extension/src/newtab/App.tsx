@@ -14,10 +14,10 @@ import { OnboardingContextProvider } from '@dailydotdev/shared/src/contexts/Onbo
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
 import { FeaturesContextProvider } from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import { SettingsContextProvider } from '@dailydotdev/shared/src/contexts/SettingsContext';
-import { RouterContext } from 'next/dist/next-server/lib/router-context';
 import { browser } from 'webextension-polyfill-ts';
 import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState';
 import HelpUsGrowModalWithContext from '@dailydotdev/shared/src/components/modals/HelpUsGrowModalWithContext';
+import { RouterContext } from 'next/dist/shared/lib/router-context';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';

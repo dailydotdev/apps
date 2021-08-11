@@ -1,8 +1,6 @@
 import { ParsedUrlQuery } from 'querystring';
-import {
-  BaseRouter,
-  NextRouter,
-} from 'next/dist/next-server/lib/router/router';
+import { BaseRouter } from 'next/dist/shared/lib/router/router';
+import { NextRouter } from 'next/router';
 
 export const parsedQueryToString = (query: ParsedUrlQuery): string => {
   const keys = Object.keys(query);
