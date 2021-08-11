@@ -153,7 +153,7 @@ it('should replace placeholders with posts and ad', async () => {
   const links = defaultFeedPage.edges.map((edge) => edge.node.permalink);
   await waitFor(() => nock.isDone());
   const elements = await screen.findAllByTestId('postItem');
-  expect(elements.length).toEqual(4);
+  expect(elements.length).toEqual(2);
   await Promise.all(
     elements.map(async (el, i) =>
       // eslint-disable-next-line testing-library/prefer-screen-queries
@@ -173,7 +173,10 @@ it('should replace placeholders with posts and ad', async () => {
 it('should send upvote mutation', async () => {
   let mutationCalled = false;
   renderComponent([
-    createFeedMock(),
+    createFeedMock({
+      pageInfo: defaultFeedPage.pageInfo,
+      edges: [defaultFeedPage.edges[0]],
+    }),
     {
       request: {
         query: UPVOTE_MUTATION,
@@ -193,11 +196,19 @@ it('should send upvote mutation', async () => {
 it('should send cancel upvote mutation', async () => {
   let mutationCalled = false;
   renderComponent([
-    createFeedMock(),
+    createFeedMock({
+      pageInfo: defaultFeedPage.pageInfo,
+      edges: [
+        {
+          ...defaultFeedPage.edges[0],
+          node: { ...defaultFeedPage.edges[0].node, upvoted: true },
+        },
+      ],
+    }),
     {
       request: {
         query: CANCEL_UPVOTE_MUTATION,
-        variables: { id: '618ca73c969187a24b29205216eec3bd' },
+        variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf' },
       },
       result: () => {
         mutationCalled = true;
@@ -213,11 +224,18 @@ it('should send cancel upvote mutation', async () => {
 it('should open login modal on anonymous upvote', async () => {
   renderComponent(
     [
-      createFeedMock(defaultFeedPage, ANONYMOUS_FEED_QUERY, {
-        first: 7,
-        loggedIn: false,
-        unreadOnly: false,
-      }),
+      createFeedMock(
+        {
+          pageInfo: defaultFeedPage.pageInfo,
+          edges: [defaultFeedPage.edges[0]],
+        },
+        ANONYMOUS_FEED_QUERY,
+        {
+          first: 7,
+          loggedIn: false,
+          unreadOnly: false,
+        },
+      ),
     ],
     null,
   );
@@ -229,7 +247,15 @@ it('should open login modal on anonymous upvote', async () => {
 it('should send add bookmark mutation', async () => {
   let mutationCalled = false;
   renderComponent([
-    createFeedMock(),
+    createFeedMock({
+      pageInfo: defaultFeedPage.pageInfo,
+      edges: [
+        {
+          ...defaultFeedPage.edges[0],
+          node: { ...defaultFeedPage.edges[0].node, bookmarked: false },
+        },
+      ],
+    }),
     {
       request: {
         query: ADD_BOOKMARKS_MUTATION,
@@ -249,11 +275,19 @@ it('should send add bookmark mutation', async () => {
 it('should send remove bookmark mutation', async () => {
   let mutationCalled = false;
   renderComponent([
-    createFeedMock(),
+    createFeedMock({
+      pageInfo: defaultFeedPage.pageInfo,
+      edges: [
+        {
+          ...defaultFeedPage.edges[0],
+          node: { ...defaultFeedPage.edges[0].node, bookmarked: true },
+        },
+      ],
+    }),
     {
       request: {
         query: REMOVE_BOOKMARK_MUTATION,
-        variables: { id: '618ca73c969187a24b29205216eec3bd' },
+        variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf' },
       },
       result: () => {
         mutationCalled = true;
@@ -269,27 +303,47 @@ it('should send remove bookmark mutation', async () => {
 it('should open login modal on anonymous bookmark', async () => {
   renderComponent(
     [
-      createFeedMock(defaultFeedPage, ANONYMOUS_FEED_QUERY, {
-        first: 7,
-        loggedIn: false,
-        unreadOnly: false,
-      }),
+      createFeedMock(
+        {
+          pageInfo: defaultFeedPage.pageInfo,
+          edges: [defaultFeedPage.edges[0]],
+        },
+        ANONYMOUS_FEED_QUERY,
+        {
+          first: 7,
+          loggedIn: false,
+          unreadOnly: false,
+        },
+      ),
     ],
     null,
   );
   const [el] = await screen.findAllByLabelText('Bookmark');
   el.click();
-  expect(showLogin).toBeCalledWith('bookmark');
+  await waitFor(() => expect(showLogin).toBeCalledWith('bookmark'));
 });
 
 it('should increase reading rank progress', async () => {
-  renderComponent();
+  renderComponent([
+    createFeedMock({
+      pageInfo: defaultFeedPage.pageInfo,
+      edges: [
+        {
+          ...defaultFeedPage.edges[0],
+          node: {
+            ...defaultFeedPage.edges[0].node,
+            read: false,
+          },
+        },
+      ],
+    }),
+  ]);
   const queryKey = getRankQueryKey(defaultUser);
   queryClient.setQueryData<MyRankData>(queryKey, {
     rank: { readToday: false, currentRank: 0, progressThisWeek: 0 },
   });
   const el = await screen.findByTitle(
-    'One Word Domains — Database of all available one-word domains',
+    'Eminem Quotes Generator - Simple PHP RESTful API',
   );
   el.click();
   await waitFor(async () => {
@@ -324,13 +378,23 @@ it('should not increase reading rank progress when read today', async () => {
 });
 
 it('should increase reading rank progress and rank', async () => {
-  renderComponent();
+  renderComponent([
+    createFeedMock({
+      pageInfo: defaultFeedPage.pageInfo,
+      edges: [
+        {
+          ...defaultFeedPage.edges[0],
+          node: { ...defaultFeedPage.edges[0].node, read: false },
+        },
+      ],
+    }),
+  ]);
   const queryKey = getRankQueryKey(defaultUser);
   queryClient.setQueryData<MyRankData>(queryKey, {
     rank: { readToday: false, currentRank: 0, progressThisWeek: 2 },
   });
   const el = await screen.findByTitle(
-    'One Word Domains — Database of all available one-word domains',
+    'Eminem Quotes Generator - Simple PHP RESTful API',
   );
   el.click();
   await waitFor(async () => {
@@ -367,11 +431,23 @@ it('should not increase reading rank progress when reached final rank', async ()
 it('should increase reading rank progress for anonymous users', async () => {
   renderComponent(
     [
-      createFeedMock(defaultFeedPage, ANONYMOUS_FEED_QUERY, {
-        first: 7,
-        loggedIn: false,
-        unreadOnly: false,
-      }),
+      createFeedMock(
+        {
+          pageInfo: defaultFeedPage.pageInfo,
+          edges: [
+            {
+              ...defaultFeedPage.edges[0],
+              node: { ...defaultFeedPage.edges[0].node, read: false },
+            },
+          ],
+        },
+        ANONYMOUS_FEED_QUERY,
+        {
+          first: 7,
+          loggedIn: false,
+          unreadOnly: false,
+        },
+      ),
     ],
     null,
   );
@@ -380,7 +456,7 @@ it('should increase reading rank progress for anonymous users', async () => {
     rank: { readToday: false, currentRank: 0, progressThisWeek: 0 },
   });
   const el = await screen.findByTitle(
-    'One Word Domains — Database of all available one-word domains',
+    'Eminem Quotes Generator - Simple PHP RESTful API',
   );
   el.click();
   await waitFor(async () => {
@@ -428,7 +504,12 @@ it('should not increase reading rank progress for anonymous users after the firs
 });
 
 it('should update feed item on subscription message', async () => {
-  renderComponent();
+  renderComponent([
+    createFeedMock({
+      pageInfo: defaultFeedPage.pageInfo,
+      edges: [defaultFeedPage.edges[0]],
+    }),
+  ]);
   await waitFor(() =>
     expect(screen.queryByTestId('adItem')).toBeInTheDocument(),
   );
@@ -453,7 +534,10 @@ it('should update feed item on subscription message', async () => {
 
 it('should open comment popup on upvote', async () => {
   renderComponent([
-    createFeedMock(),
+    createFeedMock({
+      pageInfo: defaultFeedPage.pageInfo,
+      edges: [defaultFeedPage.edges[0]],
+    }),
     {
       request: {
         query: UPVOTE_MUTATION,
@@ -481,7 +565,10 @@ it('should send comment through the comment popup', async () => {
     permalink: 'https://daily.dev',
   };
   renderComponent([
-    createFeedMock(),
+    createFeedMock({
+      pageInfo: defaultFeedPage.pageInfo,
+      edges: [defaultFeedPage.edges[0]],
+    }),
     {
       request: {
         query: UPVOTE_MUTATION,
@@ -524,7 +611,10 @@ it('should send comment through the comment popup', async () => {
 it('should report broken link', async () => {
   let mutationCalled = false;
   renderComponent([
-    createFeedMock(),
+    createFeedMock({
+      pageInfo: defaultFeedPage.pageInfo,
+      edges: [defaultFeedPage.edges[0]],
+    }),
     {
       request: {
         query: REPORT_POST_MUTATION,
@@ -551,7 +641,10 @@ it('should report broken link', async () => {
 it('should report nsfw', async () => {
   let mutationCalled = false;
   renderComponent([
-    createFeedMock(),
+    createFeedMock({
+      pageInfo: defaultFeedPage.pageInfo,
+      edges: [defaultFeedPage.edges[0]],
+    }),
     {
       request: {
         query: REPORT_POST_MUTATION,
@@ -578,7 +671,10 @@ it('should report nsfw', async () => {
 it('should hide post', async () => {
   let mutationCalled = false;
   renderComponent([
-    createFeedMock(),
+    createFeedMock({
+      pageInfo: defaultFeedPage.pageInfo,
+      edges: [defaultFeedPage.edges[0]],
+    }),
     {
       request: {
         query: HIDE_POST_MUTATION,

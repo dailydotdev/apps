@@ -453,7 +453,7 @@ export default function Feed<T>({
         className={`absolute left-0 h-px w-px opacity-0 pointer-events-none ${styles.trigger}`}
       />
       <ReportPostMenu
-        postId={(items[postMenuIndex] as PostItem)?.post.id}
+        postId={(items[postMenuIndex] as PostItem)?.post?.id}
         onHidden={() => setPostMenuIndex(null)}
         onReportPost={onReportPost}
         onHidePost={onHidePost}
