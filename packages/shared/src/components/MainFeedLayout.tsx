@@ -235,7 +235,12 @@ export default function MainFeedLayout({
       query: query.query,
       variables,
     };
-  }, [isSearchOn && searchQuery, query.query, query.variables]);
+  }, [
+    isSearchOn && searchQuery,
+    query.query,
+    query.variables,
+    isUpvoted && selectedPeriod,
+  ]);
 
   const refreshFeed = () =>
     requestIdleCallback(() =>
