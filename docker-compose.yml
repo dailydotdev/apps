@@ -80,3 +80,4 @@ services:
       - URL_PREFIX=http://localhost:4000
       - FLAGSMITH_KEY=secret
       - REDIS_HOST=daily-redis
+      - REDIS_PORT=6379
