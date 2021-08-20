@@ -38,7 +38,7 @@ export default function LoginModal({
       <div className="mt-6 mb-8 text-theme-label-secondary text-center typo-callout">
         {mode === LoginModalMode.ContentQuality
           ? `Our community cares about content quality. We require social authentication to prevent abuse.`
-          : `Unlock useful featu'es by signing in. A bunch of cool stuff like content filters 'nd bookmarks are waiting just for you.`}
+          : `Unlock useful features by signing in. A bunch of cool stuff like content filters and bookmarks are waiting just for you.`}
       </div>
       <LoginButtons />
       {children}
