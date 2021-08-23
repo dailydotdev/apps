@@ -25,9 +25,6 @@ export function useCookieBanner(): [
     ) {
       return;
     }
-    if (window?.location?.search.indexOf('heroic') > -1) {
-      return;
-    }
     if (user) {
       acceptCookies();
       return;
