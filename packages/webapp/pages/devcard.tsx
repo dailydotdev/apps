@@ -130,13 +130,13 @@ const Step2 = ({
     <>
       <div className="flex flex-col self-stretch laptop:self-center items-center mx-2">
         <Tilt
-          className="self-stretch laptop:w-96"
+          className="self-stretch laptop:w-96 overflow-hidden"
           glareEnable
           perspective={1000}
           glareMaxOpacity={0.25}
           glarePosition="all"
           trackOnWindow
-          style={{ transformStyle: 'preserve-3d' }}
+          style={{ transformStyle: 'preserve-3d', borderRadius: '2rem' }}
         >
           <LazyImage
             imgSrc={devCardSrc}
