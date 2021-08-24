@@ -136,7 +136,7 @@ const Step2 = ({
           glareMaxOpacity={0.25}
           glarePosition="all"
           trackOnWindow
-          style={{ transformStyle: 'preserve-3d', borderRadius: '35px' }}
+          style={{ transformStyle: 'preserve-3d', borderRadius: '2rem' }}
         >
           <LazyImage
             imgSrc={devCardSrc}
