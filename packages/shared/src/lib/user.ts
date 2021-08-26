@@ -8,6 +8,10 @@ export enum Roles {
 export interface AnonymousUser {
   id: string;
   ampStorage?: string;
+  sessionId?: string;
+  visitId?: string;
+  firstVisit?: string;
+  referrer?: string;
 }
 
 export interface PublicProfile {
@@ -39,9 +43,7 @@ export interface UserProfile {
   acceptedMarketing?: boolean;
 }
 
-export interface LoggedUser extends UserProfile {
-  id: string;
-  ampStorage?: string;
+export interface LoggedUser extends UserProfile, AnonymousUser {
   image: string;
   infoConfirmed?: boolean;
   premium?: boolean;

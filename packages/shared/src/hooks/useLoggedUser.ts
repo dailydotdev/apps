@@ -9,7 +9,7 @@ export default function useLoggedUser(
 ): [
   LoggedUser | null,
   (LoggedUser) => Promise<void>,
-  string,
+  AnonymousUser,
   boolean,
   boolean,
   boolean,
@@ -46,11 +46,6 @@ export default function useLoggedUser(
     [queryClient],
   );
 
-  const trackingId = useMemo<string | null>(
-    () => availableUser?.id,
-    [availableUser],
-  );
-
   useEffect(() => {
     if (fetchedUser) {
       if (refreshTokenTimeout) {
@@ -76,7 +71,7 @@ export default function useLoggedUser(
   return [
     user,
     setUser,
-    trackingId,
+    availableUser,
     isLoading && !availableUser,
     tokenRefreshed,
     loadedFromCache,

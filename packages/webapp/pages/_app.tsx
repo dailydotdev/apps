@@ -25,11 +25,13 @@ import { trackPageView } from '@dailydotdev/shared/src/lib/analytics';
 import { OnboardingContextProvider } from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
 import { FeaturesContextProvider } from '@dailydotdev/shared/src/contexts/FeaturesContext';
+import { AnalyticsContextProvider } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { canonicalFromRouter } from '@dailydotdev/shared/src/lib/canonical';
 import { SettingsContextProvider } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import '@dailydotdev/shared/src/styles/globals.css';
 import useAnalytics from '@dailydotdev/shared/src/hooks/useAnalytics';
 import HelpUsGrowModalWithContext from '@dailydotdev/shared/src/components/modals/HelpUsGrowModalWithContext';
+import useTrackPageView from '@dailydotdev/shared/src/hooks/useTrackPageView';
 import Seo from '../next-seo';
 
 // const ReactQueryDevtools = dynamic(
@@ -64,6 +66,8 @@ Router.events.on('routeChangeComplete', (page) => trackPageView(`/web${page}`));
 const getRedirectUri = () =>
   `${window.location.origin}${window.location.pathname}`;
 
+const getPage = () => window.location.pathname;
+
 function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const {
     user,
@@ -77,6 +81,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const [showCookie, acceptCookies, updateCookieBanner] = useCookieBanner();
 
+  useTrackPageView();
   useAnalytics(
     trackingId,
     user,
@@ -178,7 +183,9 @@ export default function App(props: AppProps): ReactElement {
             <SubscriptionContextProvider>
               <SettingsContextProvider>
                 <OnboardingContextProvider>
-                  <InternalApp {...props} />
+                  <AnalyticsContextProvider app="webapp" getPage={getPage}>
+                    <InternalApp {...props} />
+                  </AnalyticsContextProvider>
                 </OnboardingContextProvider>
               </SettingsContextProvider>
             </SubscriptionContextProvider>
