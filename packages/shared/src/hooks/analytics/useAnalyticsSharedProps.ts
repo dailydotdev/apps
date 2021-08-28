@@ -7,9 +7,9 @@ import {
 } from 'react';
 import { useRouter } from 'next/router';
 import { AnalyticsEvent } from './useAnalyticsQueue';
-import FeaturesContext from '../contexts/FeaturesContext';
-import SettingsContext from '../contexts/SettingsContext';
-import AuthContext from '../contexts/AuthContext';
+import FeaturesContext from '../../contexts/FeaturesContext';
+import SettingsContext from '../../contexts/SettingsContext';
+import AuthContext from '../../contexts/AuthContext';
 
 export default function useAnalyticsSharedProps(
   app: string,

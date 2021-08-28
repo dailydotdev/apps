@@ -20,6 +20,7 @@ export default function useDebounce(
   return useCallback(() => {
     if (!timeoutRef.current) {
       timeoutRef.current = window.setTimeout(() => {
+        timeoutRef.current = null;
         callbackRef.current?.();
       }, delay);
     }

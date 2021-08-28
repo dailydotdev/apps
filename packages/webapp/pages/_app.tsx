@@ -31,7 +31,7 @@ import { SettingsContextProvider } from '@dailydotdev/shared/src/contexts/Settin
 import '@dailydotdev/shared/src/styles/globals.css';
 import useAnalytics from '@dailydotdev/shared/src/hooks/useAnalytics';
 import HelpUsGrowModalWithContext from '@dailydotdev/shared/src/components/modals/HelpUsGrowModalWithContext';
-import useTrackPageView from '@dailydotdev/shared/src/hooks/useTrackPageView';
+import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPageView';
 import Seo from '../next-seo';
 
 // const ReactQueryDevtools = dynamic(

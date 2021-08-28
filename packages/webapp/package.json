@@ -4,7 +4,7 @@
   "scripts": {
     "dev": "next dev -p 5002",
     "build": "next build",
-    "start": "nexlernt start",
+    "start": "next start",
     "lint:css": "stylelint '**/*.{ts,tsx,css}'",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0",
     "pretest": "npm run lint && npm run lint:css",

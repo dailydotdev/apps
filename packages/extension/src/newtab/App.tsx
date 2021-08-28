@@ -19,7 +19,7 @@ import { browser } from 'webextension-polyfill-ts';
 import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState';
 import HelpUsGrowModalWithContext from '@dailydotdev/shared/src/components/modals/HelpUsGrowModalWithContext';
 import { RouterContext } from 'next/dist/shared/lib/router-context';
-import useTrackPageView from '@dailydotdev/shared/src/hooks/useTrackPageView';
+import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPageView';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
