@@ -14,10 +14,12 @@ import { OnboardingContextProvider } from '@dailydotdev/shared/src/contexts/Onbo
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
 import { FeaturesContextProvider } from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import { SettingsContextProvider } from '@dailydotdev/shared/src/contexts/SettingsContext';
+import { AnalyticsContextProvider } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { browser } from 'webextension-polyfill-ts';
 import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState';
 import HelpUsGrowModalWithContext from '@dailydotdev/shared/src/components/modals/HelpUsGrowModalWithContext';
 import { RouterContext } from 'next/dist/shared/lib/router-context';
+import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPageView';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
@@ -44,6 +46,8 @@ const shouldShowConsent = process.env.TARGET_BROWSER === 'firefox';
 
 const getRedirectUri = () => browser.runtime.getURL('index.html');
 
+const getPage = () => '/';
+
 function InternalApp(): ReactElement {
   const {
     user,
@@ -62,6 +66,7 @@ function InternalApp(): ReactElement {
   );
   const dndContext = useDndContext();
 
+  useTrackPageView();
   useAnalytics(
     trackingId,
     user,
@@ -118,7 +123,13 @@ export default function App(): ReactElement {
               <SubscriptionContextProvider>
                 <SettingsContextProvider>
                   <OnboardingContextProvider>
-                    <InternalApp />
+                    <AnalyticsContextProvider
+                      app="extension"
+                      version={version}
+                      getPage={getPage}
+                    >
+                      <InternalApp />
+                    </AnalyticsContextProvider>
                   </OnboardingContextProvider>
                 </SettingsContextProvider>
               </SubscriptionContextProvider>

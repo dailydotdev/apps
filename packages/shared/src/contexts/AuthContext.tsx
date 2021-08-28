@@ -1,23 +1,28 @@
 import React, { ReactElement, ReactNode, useMemo, useState } from 'react';
-import { LoggedUser, logout as dispatchLogout } from '../lib/user';
+import {
+  AnonymousUser,
+  LoggedUser,
+  logout as dispatchLogout,
+} from '../lib/user';
 import { LoginModalMode } from '../types/LoginModalMode';
 import useLoggedUser from '../hooks/useLoggedUser';
 
 export type LoginState = { mode: LoginModalMode; trigger: string };
 
 export interface AuthContextData {
-  user: LoggedUser;
-  trackingId: string;
+  user?: LoggedUser;
+  trackingId?: string;
   shouldShowLogin: boolean;
   showLogin: (trigger: string, mode?: LoginModalMode) => void;
   closeLogin: () => void;
-  loginState: LoginState;
+  loginState?: LoginState;
   logout: () => Promise<void>;
   updateUser: (user: LoggedUser) => Promise<void>;
   loadingUser?: boolean;
   tokenRefreshed: boolean;
   loadedUserFromCache?: boolean;
   getRedirectUri: () => string;
+  anonymous?: AnonymousUser;
 }
 
 const AuthContext = React.createContext<AuthContextData>(null);
@@ -42,7 +47,7 @@ export const AuthContextProvider = ({
   const [
     user,
     setUser,
-    trackingId,
+    anonymous,
     loadingUser,
     tokenRefreshed,
     loadedUserFromCache,
@@ -52,7 +57,7 @@ export const AuthContextProvider = ({
   const authContext: AuthContextData = useMemo(
     () => ({
       user,
-      trackingId,
+      trackingId: anonymous?.id,
       shouldShowLogin: loginState !== null,
       showLogin: (trigger, mode = LoginModalMode.Default) =>
         setLoginState({ trigger, mode }),
@@ -64,10 +69,11 @@ export const AuthContextProvider = ({
       tokenRefreshed,
       loadedUserFromCache,
       getRedirectUri,
+      anonymous,
     }),
     [
       user,
-      trackingId,
+      anonymous,
       loginState,
       loadingUser,
       tokenRefreshed,
