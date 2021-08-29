@@ -2,7 +2,6 @@ import React, { ReactElement } from 'react';
 import { Item } from 'react-contexify';
 import dynamic from 'next/dynamic';
 import useReportPost from '../hooks/useReportPost';
-import { trackEvent } from '../lib/analytics';
 import { ReportReason } from '../graphql/posts';
 
 const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
@@ -12,7 +11,7 @@ const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
 export type ReportPostMenuProps = {
   postId: string;
   onHidden?: () => unknown;
-  onReportPost?: () => Promise<unknown>;
+  onReportPost?: (reason: ReportReason) => Promise<unknown>;
   onHidePost?: () => Promise<unknown>;
 };
 
@@ -32,16 +31,14 @@ export default function ReportPostMenu({
   const { reportPost, hidePost } = useReportPost();
 
   const onLocalReportPost = async (reason: ReportReason): Promise<void> => {
-    trackEvent({ category: 'Post', action: 'Report', label: reason });
     const promise = reportPost({
       id: postId,
       reason,
     });
-    await Promise.all([promise, onReportPost?.()]);
+    await Promise.all([promise, onReportPost?.(reason)]);
   };
 
   const onLocalHidePost = async (): Promise<void> => {
-    trackEvent({ category: 'Post', action: 'Hide' });
     const promise = hidePost(postId);
     await Promise.all([promise, onHidePost?.()]);
   };

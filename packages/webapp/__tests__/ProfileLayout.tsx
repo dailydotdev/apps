@@ -131,7 +131,7 @@ it('should show rank when loaded', async () => {
     },
   });
   renderComponent();
-  await waitFor(() => nock.isDone());
+  await waitFor(() => expect(nock.isDone()).toBeTruthy());
   const el = await screen.findByTestId('rank');
   expect(el).toBeInTheDocument();
 });

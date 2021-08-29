@@ -33,6 +33,7 @@ export interface Post {
   trending?: number;
   description?: string;
   toc?: Toc;
+  impressionStatus?: number;
 }
 
 export interface Ad {
@@ -44,7 +45,8 @@ export interface Ad {
   placeholder?: string;
   referralLink?: string;
   providerId?: string;
-  impressionTracked?: boolean;
+  renderTracked?: boolean;
+  impressionStatus?: number;
 }
 
 export interface PostData {

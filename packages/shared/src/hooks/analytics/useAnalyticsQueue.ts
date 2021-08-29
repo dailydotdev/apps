@@ -1,5 +1,6 @@
 import { useMutation } from 'react-query';
 import { MutableRefObject, useMemo, useRef } from 'react';
+import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 import { apiUrl } from '../../lib/config';
 import useDebounce from '../useDebounce';
 
@@ -8,6 +9,7 @@ export type AnalyticsEvent = Record<string, unknown> & {
   event_timestamp?: Date;
   event_duration?: number;
   event_name?: string;
+  extra?: string;
 };
 
 export type PushToQueueFunc = (events: AnalyticsEvent[]) => void;
@@ -40,11 +42,13 @@ export default function useAnalyticsQueue(): {
 
   const queueRef = useRef<AnalyticsEvent[]>([]);
   const debouncedSendEvents = useDebounce(() => {
-    if (enabledRef.current) {
-      const queue = queueRef.current;
-      queueRef.current = [];
-      sendEvents(queue);
-    }
+    requestIdleCallback(() => {
+      if (enabledRef.current && queueRef.current.length) {
+        const queue = queueRef.current;
+        queueRef.current = [];
+        sendEvents(queue);
+      }
+    });
   }, 100);
 
   return useMemo(

@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import ArrowIcon from '@dailydotdev/shared/icons/arrow.svg';
@@ -8,8 +8,9 @@ import styles from '@dailydotdev/shared/src/components/cards/Card.module.css';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import { CardLink } from '@dailydotdev/shared/src/components/cards/Card';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
-import { trackEvent } from '@dailydotdev/shared/src/lib/analytics';
 import classed from '@dailydotdev/shared/src/lib/classed';
+import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
+import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 
 export type BestDiscussionsProps = {
   posts: Post[] | null;
@@ -84,19 +85,21 @@ export default function BestDiscussions({
   isLoading,
   className,
 }: BestDiscussionsProps): ReactElement {
-  const onLinkClick = (): void => {
-    trackEvent({
-      category: 'Post',
-      action: 'Click',
-      label: 'Best Discussions',
-    });
+  const { trackEvent } = useContext(AnalyticsContext);
+
+  const onLinkClick = (post: Post): void => {
+    trackEvent(
+      postAnalyticsEvent('open article page', post, {
+        extra: { origin: 'best discussions' },
+      }),
+    );
   };
 
   const onLucky = (): void => {
-    trackEvent({
-      category: 'Best Discussions',
-      action: 'Lucky',
-    });
+    // trackEvent({
+    //   category: 'Best Discussions',
+    //   action: 'Lucky',
+    // });
   };
 
   return (

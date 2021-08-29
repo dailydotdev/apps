@@ -12,7 +12,7 @@ const defaultAd: Ad = {
 
 const defaultProps: AdCardProps = {
   ad: defaultAd,
-  onImpression: jest.fn(),
+  onRender: jest.fn(),
   onLinkClick: jest.fn(),
 };
 
@@ -26,9 +26,7 @@ const renderComponent = (props: Partial<AdCardProps> = {}): RenderResult => {
 
 it('should call on impression as soon as the component is mounted', async () => {
   renderComponent();
-  await waitFor(() =>
-    expect(defaultProps.onImpression).toBeCalledWith(defaultAd),
-  );
+  await waitFor(() => expect(defaultProps.onRender).toBeCalledWith(defaultAd));
 });
 
 it('should call on click on component left click', async () => {

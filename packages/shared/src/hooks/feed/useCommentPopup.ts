@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useMutation } from 'react-query';
 import request from 'graphql-request';
 import {
@@ -6,35 +6,51 @@ import {
   CommentOnData,
 } from '../../graphql/comments';
 import { apiUrl } from '../../lib/config';
-import { trackEvent } from '../../lib/analytics';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { postAnalyticsEvent } from '../../lib/feed';
+import { Post } from '../../graphql/posts';
 
 export default function useCommentPopup(): {
   setShowCommentPopupId: (value: string | undefined) => void;
   isSendingComment: boolean;
   comment: (variables: {
-    id: string;
+    post: Post;
     content: string;
+    row: number;
+    column: number;
+    columns: number;
   }) => Promise<CommentOnData>;
   showCommentPopupId: string;
 } {
   const [showCommentPopupId, setShowCommentPopupId] = useState<string>();
+  const { trackEvent } = useContext(AnalyticsContext);
 
   const { mutateAsync: comment, isLoading: isSendingComment } = useMutation<
     CommentOnData,
     unknown,
     {
-      id: string;
+      post: Post;
       content: string;
+      row: number;
+      column: number;
+      columns: number;
     }
   >(
-    (requestVariables) =>
-      request(`${apiUrl}/graphql`, COMMENT_ON_POST_MUTATION, requestVariables),
+    ({ post, content }) =>
+      request(`${apiUrl}/graphql`, COMMENT_ON_POST_MUTATION, {
+        id: post.id,
+        content,
+      }),
     {
-      onSuccess: async (data) => {
-        trackEvent({
-          category: 'Comment Popup',
-          action: 'Comment',
-        });
+      onSuccess: async (data, { post, row, column, columns }) => {
+        trackEvent(
+          postAnalyticsEvent('comment post', post, {
+            columns,
+            column,
+            row,
+            extra: { origin: 'feed' },
+          }),
+        );
         const link = `${data.comment.permalink}?new=true`;
         setShowCommentPopupId(null);
         window.open(link, '_blank');

@@ -7,7 +7,7 @@ export type VirtualizedFeedGridProps = {
   items: FeedItem[];
   virtualizer: { virtualItems: VirtualItem[]; totalSize: number };
   virtualizedNumCards: number;
-  getNthChild: (index: number) => ReactElement;
+  getNthChild: (index: number, column: number, row: number) => ReactElement;
 };
 
 export default function VirtualizedFeedGrid({
@@ -35,7 +35,11 @@ export default function VirtualizedFeedGrid({
               ),
             ),
           ].map((_, i) =>
-            getNthChild(virtualItem.index * virtualizedNumCards + i),
+            getNthChild(
+              virtualItem.index * virtualizedNumCards + i,
+              i,
+              virtualItem.index,
+            ),
           )}
         </div>
       ))}

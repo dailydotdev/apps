@@ -4,16 +4,24 @@ import useUpvotePost from '../useUpvotePost';
 import { FeedItem } from '../useFeed';
 import { Post } from '../../graphql/posts';
 import { LoginModalMode } from '../../types/LoginModalMode';
-import { trackEvent } from '../../lib/analytics';
 import AuthContext from '../../contexts/AuthContext';
-import { optimisticPostUpdateInFeed } from '../../lib/feed';
+import { postAnalyticsEvent, optimisticPostUpdateInFeed } from '../../lib/feed';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
 
 export default function useFeedUpvotePost(
   items: FeedItem[],
   updatePost: (page: number, index: number, post: Post) => void,
   setShowCommentPopupId: (postId: string) => void,
-): (post: Post, index: number, upvoted: boolean) => Promise<void> {
+  columns: number,
+): (
+  post: Post,
+  index: number,
+  row: number,
+  column: number,
+  upvoted: boolean,
+) => Promise<void> {
   const { user, showLogin } = useContext(AuthContext);
+  const { trackEvent } = useContext(AnalyticsContext);
 
   const { upvotePost, cancelPostUpvote } = useUpvotePost<{
     id: string;
@@ -31,16 +39,19 @@ export default function useFeedUpvotePost(
     ),
   });
 
-  return async (post: Post, index: number, upvoted: boolean): Promise<void> => {
+  return async (post, index, row, column, upvoted): Promise<void> => {
     if (!user) {
       showLogin('upvote', LoginModalMode.ContentQuality);
       return;
     }
-    trackEvent({
-      category: 'Post',
-      action: 'Upvote',
-      label: upvoted ? 'Add' : 'Remove',
-    });
+    trackEvent(
+      postAnalyticsEvent(upvoted ? 'upvote post' : 'remove post upvote', post, {
+        columns,
+        column,
+        row,
+        extra: { origin: 'feed' },
+      }),
+    );
     if (upvoted) {
       await upvotePost({ id: post.id, index });
       requestIdleCallback(() => {

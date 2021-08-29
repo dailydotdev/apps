@@ -1,15 +1,14 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import { Post, TocItem } from '@dailydotdev/shared/src/graphql/posts';
-import {
-  logReadArticle,
-  trackEvent,
-} from '@dailydotdev/shared/src/lib/analytics';
+import { logReadArticle } from '@dailydotdev/shared/src/lib/analytics';
 import TocIcon from '@dailydotdev/shared/icons/toc.svg';
 import {
   Summary,
   SummaryArrow,
 } from '@dailydotdev/shared/src/components/utilities';
+import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import styles from './PostToc.module.css';
 
 export type PostTocProps = {
@@ -32,12 +31,12 @@ export default function PostToc({
   className,
   collapsible,
 }: PostTocProps): ReactElement {
+  const { trackEvent } = useContext(AnalyticsContext);
+
   const onLinkClick = async (): Promise<void> => {
-    trackEvent({
-      category: 'Post',
-      action: 'Click',
-      label: 'Toc',
-    });
+    trackEvent(
+      postAnalyticsEvent('read post', post, { extra: { origin: 'toc' } }),
+    );
     await logReadArticle('toc');
   };
 

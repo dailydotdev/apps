@@ -1,20 +1,28 @@
 import { useContext } from 'react';
 import useBookmarkPost from '../useBookmarkPost';
 import { FeedItem } from '../useFeed';
-import { optimisticPostUpdateInFeed } from '../../lib/feed';
+import { postAnalyticsEvent, optimisticPostUpdateInFeed } from '../../lib/feed';
 import { Post } from '../../graphql/posts';
-import { trackEvent } from '../../lib/analytics';
 import OnboardingContext, {
   EngagementAction,
 } from '../../contexts/OnboardingContext';
 import AuthContext from '../../contexts/AuthContext';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
 
 export default function useFeedBookmarkPost(
   items: FeedItem[],
   updatePost: (page: number, index: number, post: Post) => void,
-): (post: Post, index: number, bookmarked: boolean) => Promise<void> {
+  columns: number,
+): (
+  post: Post,
+  index: number,
+  row: number,
+  column: number,
+  bookmarked: boolean,
+) => Promise<void> {
   const { trackEngagement } = useContext(OnboardingContext);
   const { user, showLogin } = useContext(AuthContext);
+  const { trackEvent } = useContext(AnalyticsContext);
 
   const { bookmark, removeBookmark } = useBookmarkPost<{
     id: string;
@@ -30,20 +38,23 @@ export default function useFeedBookmarkPost(
     ),
   });
 
-  return async (
-    post: Post,
-    index: number,
-    bookmarked: boolean,
-  ): Promise<void> => {
+  return async (post, index, row, column, bookmarked): Promise<void> => {
     if (!user) {
       showLogin('bookmark');
       return;
     }
-    trackEvent({
-      category: 'Post',
-      action: 'Bookmark',
-      label: bookmarked ? 'Add' : 'Remove',
-    });
+    trackEvent(
+      postAnalyticsEvent(
+        bookmarked ? 'bookmark post' : 'remove post bookmark',
+        post,
+        {
+          columns,
+          column,
+          row,
+          extra: { origin: 'feed' },
+        },
+      ),
+    );
     if (bookmarked) {
       await trackEngagement(EngagementAction.Bookmark);
       await bookmark({ id: post.id, index });

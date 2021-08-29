@@ -12,7 +12,7 @@ import useFeed, { PostItem } from '../hooks/useFeed';
 import { Ad, Post } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
 import FeedContext from '../contexts/FeedContext';
-import { trackEvent } from '../lib/analytics';
+import { trackEvent as gaTrackEvent } from '../lib/analytics';
 import styles from './Feed.module.css';
 import SettingsContext from '../contexts/SettingsContext';
 import { Spaciness } from '../graphql/settings';
@@ -29,6 +29,8 @@ import useVirtualFeedGrid, {
   cardHeightPx,
 } from '../hooks/feed/useVirtualFeedGrid';
 import VirtualizedFeedGrid from './VirtualizedFeedGrid';
+import AnalyticsContext from '../contexts/AnalyticsContext';
+import { adAnalyticsEvent, postAnalyticsEvent } from '../lib/feed';
 
 const ReportPostMenu = dynamic(
   () => import(/* webpackChunkName: "reportPostMenu" */ './ReportPostMenu'),
@@ -44,12 +46,6 @@ export type FeedProps<T> = {
 };
 
 const nativeShareSupport = false;
-const onAdClick = (ad: Ad) =>
-  trackEvent({
-    category: 'Ad',
-    action: 'Click',
-    label: ad.source,
-  });
 
 const getStyle = (useList: boolean, spaciness: Spaciness): CSSProperties => {
   if (useList && spaciness !== 'eco') {
@@ -68,6 +64,7 @@ export default function Feed<T>({
   onEmptyFeed,
   emptyScreen,
 }: FeedProps<T>): ReactElement {
+  const { trackEvent } = useContext(AnalyticsContext);
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
   const {
@@ -103,17 +100,6 @@ export default function Feed<T>({
     comment,
     isSendingComment,
   } = useCommentPopup();
-  const onUpvote = useFeedUpvotePost(items, updatePost, setShowCommentPopupId);
-  const onBookmark = useFeedBookmarkPost(items, updatePost);
-  const onPostClick = useFeedOnPostClick(items, updatePost);
-  const {
-    onHidePost,
-    onReportPost,
-    postNotificationIndex,
-    onMenuClick,
-    postMenuIndex,
-    setPostMenuIndex,
-  } = useFeedReportMenu(items, removePost);
   const infiniteScrollRef = useFeedInfiniteScroll(fetchPage, canFetchMore);
 
   const onShare = async (post: Post): Promise<void> => {
@@ -142,6 +128,63 @@ export default function Feed<T>({
     spaciness,
   );
 
+  const onUpvote = useFeedUpvotePost(
+    items,
+    updatePost,
+    setShowCommentPopupId,
+    virtualizedNumCards,
+  );
+  const onBookmark = useFeedBookmarkPost(
+    items,
+    updatePost,
+    virtualizedNumCards,
+  );
+  const onPostClick = useFeedOnPostClick(
+    items,
+    updatePost,
+    virtualizedNumCards,
+  );
+  const {
+    onHidePost,
+    onReportPost,
+    postNotificationIndex,
+    onMenuClick,
+    postMenuIndex,
+    setPostMenuIndex,
+  } = useFeedReportMenu(items, removePost, virtualizedNumCards);
+
+  const onCommentClick = (
+    post: Post,
+    index: number,
+    row: number,
+    column: number,
+  ): void => {
+    trackEvent(
+      postAnalyticsEvent('open article page', post, {
+        columns: virtualizedNumCards,
+        column,
+        row,
+        extra: { origin: 'feed' },
+      }),
+    );
+  };
+
+  const onAdClick = (ad: Ad, index: number, row: number, column: number) => {
+    gaTrackEvent({
+      category: 'Ad',
+      action: 'Click',
+      label: ad.source,
+    });
+    trackEvent(
+      adAnalyticsEvent('ad click', ad, {
+        columns: virtualizedNumCards,
+        column,
+        row,
+        extra: { origin: 'feed' },
+      }),
+    );
+  };
+
   const style = {
     height: `${virtualizer.totalSize}px`,
     '--num-cards': numCards,
@@ -167,10 +210,13 @@ export default function Feed<T>({
         items={items}
         virtualizer={virtualizer}
         virtualizedNumCards={virtualizedNumCards}
-        getNthChild={(index) => (
+        getNthChild={(index, column, row) => (
           <FeedItemComponent
             items={items}
             index={index}
+            row={row}
+            column={column}
+            columns={virtualizedNumCards}
             key={getFeedItemKey(items, index)}
             useList={useList}
             openNewTab={openNewTab}
@@ -188,7 +234,8 @@ export default function Feed<T>({
             onPostClick={onPostClick}
             onShare={onShare}
             onMenuClick={onMenuClick}
-            onAdImpression={onAdImpression}
+            onCommentClick={onCommentClick}
+            onAdRender={onAdImpression}
             onAdClick={onAdClick}
           />
         )}

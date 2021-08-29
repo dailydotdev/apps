@@ -151,7 +151,7 @@ it('should add one placeholder when loading', async () => {
 it('should replace placeholders with posts and ad', async () => {
   renderComponent();
   const links = defaultFeedPage.edges.map((edge) => edge.node.permalink);
-  await waitFor(() => nock.isDone());
+  await waitFor(() => expect(nock.isDone()).toBeTruthy());
   const elements = await screen.findAllByTestId('postItem');
   expect(elements.length).toEqual(2);
   await Promise.all(
@@ -341,6 +341,7 @@ it('should increase reading rank progress', async () => {
   const queryKey = getRankQueryKey(defaultUser);
   queryClient.setQueryData<MyRankData>(queryKey, {
     rank: { readToday: false, currentRank: 0, progressThisWeek: 0 },
+    reads: 0,
   });
   const el = await screen.findByTitle(
     'Eminem Quotes Generator - Simple PHP RESTful API',
@@ -355,6 +356,7 @@ it('should increase reading rank progress', async () => {
         progressThisWeek: 1,
         lastReadTime: expect.anything(),
       },
+      reads: 0,
     });
   });
 });
@@ -364,6 +366,7 @@ it('should not increase reading rank progress when read today', async () => {
   const queryKey = getRankQueryKey(defaultUser);
   queryClient.setQueryData<MyRankData>(queryKey, {
     rank: { readToday: true, currentRank: 0, progressThisWeek: 0 },
+    reads: 0,
   });
   const el = await screen.findByTitle(
     'One Word Domains — Database of all available one-word domains',
@@ -373,6 +376,7 @@ it('should not increase reading rank progress when read today', async () => {
     const data = await queryClient.getQueryData<MyRankData>(queryKey);
     expect(data).toEqual({
       rank: { readToday: true, currentRank: 0, progressThisWeek: 0 },
+      reads: 0,
     });
   });
 });
@@ -392,6 +396,7 @@ it('should increase reading rank progress and rank', async () => {
   const queryKey = getRankQueryKey(defaultUser);
   queryClient.setQueryData<MyRankData>(queryKey, {
     rank: { readToday: false, currentRank: 0, progressThisWeek: 2 },
+    reads: 0,
   });
   const el = await screen.findByTitle(
     'Eminem Quotes Generator - Simple PHP RESTful API',
@@ -406,6 +411,7 @@ it('should increase reading rank progress and rank', async () => {
         progressThisWeek: 3,
         lastReadTime: expect.anything(),
       },
+      reads: 0,
     });
   });
 });
@@ -415,6 +421,7 @@ it('should not increase reading rank progress when reached final rank', async ()
   const queryKey = getRankQueryKey(defaultUser);
   queryClient.setQueryData<MyRankData>(queryKey, {
     rank: { readToday: false, currentRank: 5, progressThisWeek: 7 },
+    reads: 0,
   });
   const el = await screen.findByTitle(
     'One Word Domains — Database of all available one-word domains',
@@ -424,6 +431,7 @@ it('should not increase reading rank progress when reached final rank', async ()
     const data = await queryClient.getQueryData<MyRankData>(queryKey);
     expect(data).toEqual({
       rank: { readToday: false, currentRank: 5, progressThisWeek: 7 },
+      reads: 0,
     });
   });
 });
@@ -454,6 +462,7 @@ it('should increase reading rank progress for anonymous users', async () => {
   const queryKey = getRankQueryKey(null);
   queryClient.setQueryData<MyRankData>(queryKey, {
     rank: { readToday: false, currentRank: 0, progressThisWeek: 0 },
+    reads: 0,
   });
   const el = await screen.findByTitle(
     'Eminem Quotes Generator - Simple PHP RESTful API',
@@ -468,6 +477,7 @@ it('should increase reading rank progress for anonymous users', async () => {
         progressThisWeek: 1,
         lastReadTime: expect.anything(),
       },
+      reads: 0,
     });
   });
 });
@@ -486,6 +496,7 @@ it('should not increase reading rank progress for anonymous users after the firs
   const queryKey = getRankQueryKey(null);
   queryClient.setQueryData<MyRankData>(queryKey, {
     rank: { readToday: false, currentRank: 0, progressThisWeek: 3 },
+    reads: 0,
   });
   const el = await screen.findByTitle(
     'One Word Domains — Database of all available one-word domains',
@@ -499,6 +510,7 @@ it('should not increase reading rank progress for anonymous users after the firs
         currentRank: 0,
         progressThisWeek: 3,
       },
+      reads: 0,
     });
   });
 });

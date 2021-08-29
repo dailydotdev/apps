@@ -1,4 +1,4 @@
-import React, { FunctionComponent, ReactElement } from 'react';
+import React, { FunctionComponent, ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import CopyIcon from '../../icons/copy.svg';
 import WhatsappIcon from '../../icons/whatsapp_color.svg';
@@ -13,10 +13,11 @@ import {
   getWhatsappShareLink,
 } from '../lib/share';
 import { Button, ButtonProps } from './buttons/Button';
-import { trackEvent } from '../lib/analytics';
 import { getTooltipProps } from '../lib/tooltip';
 import styles from './ShareBar.module.css';
 import classed from '../lib/classed';
+import AnalyticsContext from '../contexts/AnalyticsContext';
+import { postAnalyticsEvent } from '../lib/feed';
 
 const ShareButton = classed(Button, 'my-1');
 const ColorfulShareButton = classed(
@@ -27,6 +28,14 @@ const ColorfulShareButton = classed(
 export default function ShareBar({ post }: { post: Post }): ReactElement {
   const href = getShareableLink();
   const [copying, copyLink] = useCopyPostLink();
+  const { trackEvent } = useContext(AnalyticsContext);
+
+  const onClick = (media: string) =>
+    trackEvent(
+      postAnalyticsEvent('share post', post, {
+        extra: { media, origin: 'share bar' },
+      }),
+    );
 
   return (
     <div
@@ -56,13 +65,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
           href={getWhatsappShareLink(href)}
           target="_blank"
           rel="noopener"
-          onClick={() =>
-            trackEvent({
-              category: 'Post',
-              action: 'Share',
-              label: 'WhatsApp',
-            })
-          }
+          onClick={() => onClick('whatsapp')}
           icon={<WhatsappIcon />}
           buttonSize="small"
           className="btn-tertiary"
@@ -73,13 +76,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
           href={getTwitterShareLink(href, post.title)}
           target="_blank"
           rel="noopener"
-          onClick={() =>
-            trackEvent({
-              category: 'Post',
-              action: 'Share',
-              label: 'Twitter',
-            })
-          }
+          onClick={() => onClick('twitter')}
           icon={<TwitterIcon />}
           buttonSize="small"
           className="btn-tertiary"
@@ -90,13 +87,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
           href={getFacebookShareLink(href)}
           target="_blank"
           rel="noopener"
-          onClick={() =>
-            trackEvent({
-              category: 'Post',
-              action: 'Share',
-              label: 'Facebook',
-            })
-          }
+          onClick={() => onClick('facebook')}
           icon={<FacebookIcon />}
           buttonSize="small"
           className="btn-tertiary"

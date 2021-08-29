@@ -10,7 +10,8 @@ import request from 'graphql-request';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import useBookmarkPost from '@dailydotdev/shared/src/hooks/useBookmarkPost';
 import { Post } from '@dailydotdev/shared/src/graphql/posts';
-import { trackEvent } from '@dailydotdev/shared/src/lib/analytics';
+import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import SimilarPosts from './SimilarPosts';
 import BestDiscussions from './BestDiscussions';
 import PostToc from './PostToc';
@@ -61,6 +62,7 @@ export default function FurtherReading({
   const { tags } = currentPost;
   const queryKey = ['furtherReading', postId];
   const { user, showLogin } = useContext(AuthContext);
+  const { trackEvent } = useContext(AnalyticsContext);
   const queryClient = useQueryClient();
   const { data: posts, isLoading } = useQuery<FurtherReadingData>(
     queryKey,
@@ -111,11 +113,13 @@ export default function FurtherReading({
       return;
     }
     const bookmarked = !post.bookmarked;
-    trackEvent({
-      category: 'Post',
-      action: 'Bookmark',
-      label: bookmarked ? 'Add' : 'Remove',
-    });
+    trackEvent(
+      postAnalyticsEvent(
+        bookmarked ? 'bookmark post' : 'remove post bookmark',
+        post,
+        { extra: { origin: 'recommendation' } },
+      ),
+    );
     if (bookmarked) {
       await bookmark({ id: post.id });
     } else {

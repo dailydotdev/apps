@@ -15,11 +15,11 @@ export default function useAdImpressions(): UseAdImpressionsRet {
   );
 
   const onAdImpression = async (ad: Ad): Promise<void> => {
-    if (ad.impressionTracked) {
+    if (ad.renderTracked) {
       return;
     }
     // eslint-disable-next-line no-param-reassign
-    ad.impressionTracked = true;
+    ad.renderTracked = true;
     trackEvent({
       category: 'Ad',
       action: 'Impression',
