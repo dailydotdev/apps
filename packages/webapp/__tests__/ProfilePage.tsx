@@ -88,7 +88,7 @@ const defaultFeedPage: Connection<Post> = {
         },
         commentsPermalink: 'https://localhost:5002/posts/9CuRpr5NiEY5',
         numUpvotes: 60,
-        numComments: 5,
+        numComments: 17,
         views: 1234,
       },
     },
@@ -288,7 +288,7 @@ it('should show the number of upvotes per post', async () => {
 it('should show the number of comments per post', async () => {
   renderComponent();
   await waitFor(() => expect(nock.isDone()).toBeTruthy());
-  const el = await screen.findByText('5');
+  const el = await screen.findByText('17');
   expect(el).toBeInTheDocument();
 });
 
