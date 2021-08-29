@@ -1,43 +1,76 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { FeedItem, PostItem } from '../useFeed';
-import { trackEvent } from '../../lib/analytics';
 import useReportPostMenu from '../useReportPostMenu';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { postAnalyticsEvent } from '../../lib/feed';
+import { ReportReason } from '../../graphql/posts';
 
 export default function useFeedReportMenu(
   items: FeedItem[],
   removePost: (page: number, index: number) => void,
+  columns: number,
 ): {
-  onMenuClick: (e: React.MouseEvent, index: number) => void;
+  onMenuClick: (
+    e: React.MouseEvent,
+    index: number,
+    row: number,
+    column: number,
+  ) => void;
   postNotificationIndex: number;
   postMenuIndex: number;
-  onReportPost: () => Promise<void>;
+  onReportPost: (reason: ReportReason) => Promise<void>;
   onHidePost: () => Promise<void>;
-  setPostMenuIndex: (value: number | undefined) => void;
+  setPostMenuIndex: (
+    value: { index: number; row: number; column: number } | undefined,
+  ) => void;
 } {
-  const [postMenuIndex, setPostMenuIndex] = useState<number>();
+  const { trackEvent } = useContext(AnalyticsContext);
+  const [postMenuLocation, setPostMenuLocation] =
+    useState<{ index: number; row: number; column: number }>();
+  const postMenuIndex = postMenuLocation?.index;
   const [postNotificationIndex, setPostNotificationIndex] = useState<number>();
   const { showReportMenu } = useReportPostMenu();
 
-  const onReportPost = async (): Promise<void> => {
+  const onReportPost = async (reason: ReportReason): Promise<void> => {
     setPostNotificationIndex(postMenuIndex);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
     const item = items[postMenuIndex] as PostItem;
+    trackEvent(
+      postAnalyticsEvent('report post', item.post, {
+        columns,
+        column: postMenuLocation.column,
+        row: postMenuLocation.row,
+        extra: { origin: 'feed', reason },
+      }),
+    );
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     setPostNotificationIndex(null);
     removePost(item.page, item.index);
   };
 
   const onHidePost = async (): Promise<void> => {
     const item = items[postMenuIndex] as PostItem;
+    trackEvent(
+      postAnalyticsEvent('hide post', item.post, {
+        columns,
+        column: postMenuLocation.column,
+        row: postMenuLocation.row,
+        extra: { origin: 'feed' },
+      }),
+    );
     removePost(item.page, item.index);
   };
 
-  const onMenuClick = (e: React.MouseEvent, index: number) => {
+  const onMenuClick = (
+    e: React.MouseEvent,
+    index: number,
+    row: number,
+    column: number,
+  ) => {
     if (postMenuIndex === index) {
-      setPostMenuIndex(null);
+      setPostMenuLocation(null);
       return;
     }
-    trackEvent({ category: 'Post', action: 'Menu' });
-    setPostMenuIndex(index);
+    setPostMenuLocation({ index, row, column });
     const { right, bottom } = e.currentTarget.getBoundingClientRect();
     showReportMenu(e, {
       position: { x: right - 147, y: bottom + 4 },
@@ -50,6 +83,6 @@ export default function useFeedReportMenu(
     onHidePost,
     onMenuClick,
     postMenuIndex,
-    setPostMenuIndex,
+    setPostMenuIndex: setPostMenuLocation,
   };
 }

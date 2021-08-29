@@ -22,10 +22,15 @@ export const FURTHER_READING_QUERY = gql`
       permalink
       bookmarked @include(if: $loggedIn)
       source {
+        id
         name
         image
       }
+      author {
+        id
+      }
       trending
+      tags
     }
     similarPosts: randomSimilarPostsByTags(
       tags: $tags
@@ -37,17 +42,30 @@ export const FURTHER_READING_QUERY = gql`
       permalink
       bookmarked @include(if: $loggedIn)
       source {
+        id
         name
         image
       }
+      author {
+        id
+      }
       numComments
       numUpvotes
+      tags
     }
     discussedPosts: randomDiscussedPosts(post: $post, first: $discussedFirst) {
       id
       title
+      permalink
       commentsPermalink
       numComments
+      source {
+        id
+      }
+      tags
+      author {
+        id
+      }
       featuredComments {
         author {
           image

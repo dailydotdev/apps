@@ -13,11 +13,11 @@ import AdLink from './AdLink';
 import AdAttribution from './AdAttribution';
 
 export const AdList = forwardRef(function AdList(
-  { ad, onImpression, onLinkClick, className, ...props }: AdCardProps,
+  { ad, onRender, onLinkClick, className, ...props }: AdCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
   useEffect(() => {
-    onImpression?.(ad);
+    onRender?.(ad);
   }, []);
 
   return (

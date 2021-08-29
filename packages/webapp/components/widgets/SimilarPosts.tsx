@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import ArrowIcon from '@dailydotdev/shared/icons/arrow.svg';
@@ -10,11 +10,10 @@ import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import { CardLink } from '@dailydotdev/shared/src/components/cards/Card';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
-import {
-  logReadArticle,
-  trackEvent,
-} from '@dailydotdev/shared/src/lib/analytics';
+import { logReadArticle } from '@dailydotdev/shared/src/lib/analytics';
 import classed from '@dailydotdev/shared/src/lib/classed';
+import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
+import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 
 export type SimilarPostsProps = {
   posts: Post[] | null;
@@ -117,20 +116,15 @@ export default function SimilarPosts({
   onBookmark,
   className,
 }: SimilarPostsProps): ReactElement {
-  const onLinkClick = async (): Promise<void> => {
-    trackEvent({
-      category: 'Post',
-      action: 'Click',
-      label: 'Similar Posts',
-    });
-    await logReadArticle('recommendation');
-  };
+  const { trackEvent } = useContext(AnalyticsContext);
 
-  const onShowMore = (): void => {
-    trackEvent({
-      category: 'Similar Posts',
-      action: 'More',
-    });
+  const onLinkClick = async (post: Post): Promise<void> => {
+    trackEvent(
+      postAnalyticsEvent('read post', post, {
+        extra: { origin: 'recommendation' },
+      }),
+    );
+    await logReadArticle('recommendation');
   };
 
   return (
@@ -170,8 +164,6 @@ export default function SimilarPosts({
           buttonSize="small"
           tag="a"
           rightIcon={<ArrowIcon className="icon transform rotate-90" />}
-          onClick={onShowMore}
-          onMouseUp={(event) => event.button === 1 && onShowMore()}
         >
           Show more
         </Button>

@@ -45,10 +45,7 @@ import { ProfileLink } from '@dailydotdev/shared/src/components/profile/ProfileL
 import { ownershipGuide } from '@dailydotdev/shared/src/lib/constants';
 import { QuaternaryButton } from '@dailydotdev/shared/src/components/buttons/QuaternaryButton';
 import { LoginModalMode } from '@dailydotdev/shared/src/types/LoginModalMode';
-import {
-  logReadArticle,
-  trackEvent,
-} from '@dailydotdev/shared/src/lib/analytics';
+import { logReadArticle } from '@dailydotdev/shared/src/lib/analytics';
 import useSubscription from '@dailydotdev/shared/src/hooks/useSubscription';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
@@ -57,6 +54,8 @@ import useUpvotePost from '@dailydotdev/shared/src/hooks/useUpvotePost';
 import useBookmarkPost from '@dailydotdev/shared/src/hooks/useBookmarkPost';
 import classNames from 'classnames';
 import classed from '@dailydotdev/shared/src/lib/classed';
+import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import styles from './postPage.module.css';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import PostToc from '../../components/widgets/PostToc';
@@ -116,7 +115,7 @@ interface ParentComment {
   publishDate: Date | string;
   content: string;
   commentId: string | null;
-  postId: string;
+  post: Post;
   editContent?: string;
   editId?: string;
 }
@@ -169,6 +168,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   }
 
   const { user, showLogin, tokenRefreshed } = useContext(AuthContext);
+  const { trackEvent } = useContext(AnalyticsContext);
   // const { nativeShareSupport } = useContext(ProgressiveEnhancementContext);
   const [parentComment, setParentComment] = useState<ParentComment>(null);
   const [pendingComment, setPendingComment] = useState<{
@@ -248,11 +248,19 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   const toggleUpvote = () => {
     if (user) {
       if (postById?.post.upvoted) {
-        trackEvent({ category: 'Post', action: 'Upvote', label: 'Remove' });
+        trackEvent(
+          postAnalyticsEvent('remove post upvote', postById.post, {
+            extra: { origin: 'article page' },
+          }),
+        );
         return cancelPostUpvote({ id: postById.post.id });
       }
       if (postById) {
-        trackEvent({ category: 'Post', action: 'Add', label: 'Remove' });
+        trackEvent(
+          postAnalyticsEvent('upvote post', postById.post, {
+            extra: { origin: 'article page' },
+          }),
+        );
         return upvotePost({ id: postById.post.id });
       }
     } else {
@@ -268,7 +276,11 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           text: postById.post.title,
           url: postById.post.commentsPermalink,
         });
-        trackEvent({ category: 'Post', action: 'Share', label: 'Native' });
+        trackEvent(
+          postAnalyticsEvent('share post', postById.post, {
+            extra: { origin: 'article page' },
+          }),
+        );
       } catch (err) {
         // Do nothing
       }
@@ -284,7 +296,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         content: postById.post.title,
         publishDate: postById.post.createdAt,
         commentId: null,
-        postId: postById.post.id,
+        post: postById.post,
       });
     } else {
       showLogin('comment', LoginModalMode.ContentQuality);
@@ -296,11 +308,13 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
       showLogin('bookmark');
       return;
     }
-    trackEvent({
-      category: 'Post',
-      action: 'Bookmark',
-      label: !postById.post.bookmarked ? 'Add' : 'Remove',
-    });
+    trackEvent(
+      postAnalyticsEvent(
+        !postById.post.bookmarked ? 'bookmark post' : 'remove post bookmark',
+        postById.post,
+        { extra: { origin: 'article page' } },
+      ),
+    );
     if (!postById.post.bookmarked) {
       await bookmark({ id: postById.post.id });
     } else {
@@ -317,7 +331,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         content: comment.content,
         publishDate: comment.lastUpdatedAt || comment.createdAt,
         commentId: parentId,
-        postId: postById.post.id,
+        post: postById.post,
       });
     } else {
       showLogin('comment', LoginModalMode.ContentQuality);
@@ -335,7 +349,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         publishDate:
           localParentComment.lastUpdatedAt || localParentComment.createdAt,
         commentId: localParentComment.id,
-        postId: postById.post.id,
+        post: postById.post,
         ...shared,
       });
     } else {
@@ -345,7 +359,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         content: postById.post.title,
         publishDate: postById.post.createdAt,
         commentId: null,
-        postId: postById.post.id,
+        post: postById.post,
         ...shared,
       });
     }
@@ -378,15 +392,22 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     return <></>;
   }
 
+  const onLinkClick = async () => {
+    trackEvent(
+      postAnalyticsEvent('read post', postById.post, {
+        extra: { origin: 'article page' },
+      }),
+    );
+    await logReadArticle('article page');
+  };
+
   const postLinkProps = {
     href: postById?.post.permalink,
     title: 'Go to article',
     target: '_blank',
     rel: 'noopener',
-    onClick: async () => {
-      trackEvent({ category: 'Post', action: 'Click' });
-      await logReadArticle('article page');
-    },
+    onClick: onLinkClick,
+    onMouseUp: (event: React.MouseEvent) => event.button === 1 && onLinkClick(),
   };
 
   const seo: NextSeoProps = {

@@ -26,13 +26,15 @@ import {
 } from '../../graphql/comments';
 import { Edge } from '../../graphql/common';
 import { apiUrl } from '../../lib/config';
-import { trackEvent } from '../../lib/analytics';
 import { RoundedImage, SmallRoundedImage } from '../utilities';
 import { commentDateFormat } from '../../lib/dateFormat';
 import { Button } from '../buttons/Button';
 import { ResponsiveModal } from './ResponsiveModal';
 import { ModalProps } from './StyledModal';
 import styles from './NewCommentModal.module.css';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { Post } from '../../graphql/posts';
+import { postAnalyticsEvent } from '../../lib/feed';
 
 const DiscardCommentModal = dynamic(() => import('./DiscardCommentModal'));
 
@@ -42,7 +44,7 @@ export interface NewCommentModalProps extends ModalProps {
   publishDate: Date | string;
   content: string;
   commentId: string | null;
-  postId: string;
+  post: Post;
   onComment?: (newComment: Comment, parentId: string | null) => void;
   editContent?: string;
   editId?: string;
@@ -65,6 +67,7 @@ export default function NewCommentModal({
   ...props
 }: NewCommentModalProps): ReactElement {
   const { user } = useContext(AuthContext);
+  const { trackEvent } = useContext(AnalyticsContext);
   const [input, setInput] = useState<string>(null);
   const [errorMessage, setErrorMessage] = useState<string>(null);
   const [sendingComment, setSendingComment] = useState<boolean>(false);
@@ -87,7 +90,7 @@ export default function NewCommentModal({
       ),
     {
       onSuccess: async (data) => {
-        const queryKey = ['post_comments', props.postId];
+        const queryKey = ['post_comments', props.post.id];
         const cached = cloneDeep(
           queryClient.getQueryData<PostCommentsData>(queryKey),
         );
@@ -134,7 +137,7 @@ export default function NewCommentModal({
       request(`${apiUrl}/graphql`, EDIT_COMMENT_MUTATION, variables),
     {
       onSuccess: async (data) => {
-        const queryKey = ['post_comments', props.postId];
+        const queryKey = ['post_comments', props.post.id];
         const cached = cloneDeep(
           queryClient.getQueryData<PostCommentsData>(queryKey),
         );
@@ -203,10 +206,14 @@ export default function NewCommentModal({
         onRequestClose(event);
       } else {
         const data = await comment({
-          id: props.commentId || props.postId,
+          id: props.commentId || props.post.id,
           content: input,
         });
-        trackEvent({ category: 'Comment Popup', action: 'Comment' });
+        trackEvent(
+          postAnalyticsEvent('comment post', props.post, {
+            extra: { commentId: props.commentId, origin: 'comment modal' },
+          }),
+        );
         onComment?.(data.comment, props.commentId);
         onRequestClose(event);
       }
@@ -250,7 +257,6 @@ export default function NewCommentModal({
     if (commentRef.current && editContent) {
       commentRef.current.textContent = editContent;
     }
-    trackEvent({ category: 'Comment Popup', action: 'Impression' });
   }, []);
 
   return (

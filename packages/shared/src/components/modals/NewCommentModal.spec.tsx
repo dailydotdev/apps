@@ -45,7 +45,12 @@ const renderComponent = (
     publishDate: new Date(2017, 1, 10, 0, 0),
     content: 'This is the main comment',
     commentId: null,
-    postId: 'p1',
+    post: {
+      id: 'p1',
+      title: 'Title',
+      image: 'https://image.com',
+      commentsPermalink: 'https://daily.dev',
+    },
     isOpen: true,
     ariaHideApp: false,
     onRequestClose,
@@ -65,6 +70,8 @@ const renderComponent = (
           logout: jest.fn(),
           updateUser: jest.fn(),
           tokenRefreshed: true,
+          closeLogin: jest.fn(),
+          getRedirectUri: jest.fn(),
         }}
       >
         <NewCommentModal {...defaultProps} {...props} />

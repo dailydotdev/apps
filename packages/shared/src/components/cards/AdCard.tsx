@@ -22,7 +22,7 @@ type Callback = (ad: Ad) => unknown;
 
 export type AdCardProps = {
   ad: Ad;
-  onImpression?: Callback;
+  onRender?: Callback;
   onLinkClick?: Callback;
   showImage?: boolean;
 } & HTMLAttributes<HTMLDivElement>;
@@ -30,7 +30,7 @@ export type AdCardProps = {
 export const AdCard = forwardRef(function AdCard(
   {
     ad,
-    onImpression,
+    onRender,
     onLinkClick,
     className,
     showImage = true,
@@ -41,7 +41,7 @@ export const AdCard = forwardRef(function AdCard(
   const showBlurredImage = ad.source === 'Carbon';
 
   useEffect(() => {
-    onImpression?.(ad);
+    onRender?.(ad);
   }, []);
 
   return (

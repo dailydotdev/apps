@@ -8,7 +8,7 @@ export type FeedContextData = {
 };
 
 export const defaultFeedContextData: FeedContextData = {
-  pageSize: 7,
+  pageSize: 100,
   adSpot: 2,
   numCards: {
     cozy: 1,
