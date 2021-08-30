@@ -18,11 +18,12 @@ export default function useDebounce(
   }, []);
 
   return useCallback(() => {
-    if (!timeoutRef.current) {
-      timeoutRef.current = window.setTimeout(() => {
-        timeoutRef.current = null;
-        callbackRef.current?.();
-      }, delay);
+    if (timeoutRef.current) {
+      window.clearTimeout(timeoutRef.current);
     }
+    timeoutRef.current = window.setTimeout(() => {
+      timeoutRef.current = null;
+      callbackRef.current?.();
+    }, delay);
   }, [delay, timeoutRef, callbackRef]);
 }

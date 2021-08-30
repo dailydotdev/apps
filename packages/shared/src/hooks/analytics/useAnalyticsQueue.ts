@@ -49,7 +49,7 @@ export default function useAnalyticsQueue(): {
         sendEvents(queue);
       }
     });
-  }, 100);
+  }, 500);
 
   return useMemo(
     () => ({
