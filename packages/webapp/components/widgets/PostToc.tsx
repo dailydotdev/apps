@@ -34,9 +34,7 @@ export default function PostToc({
   const { trackEvent } = useContext(AnalyticsContext);
 
   const onLinkClick = async (): Promise<void> => {
-    trackEvent(
-      postAnalyticsEvent('click', post, { extra: { origin: 'toc' } }),
-    );
+    trackEvent(postAnalyticsEvent('click', post, { extra: { origin: 'toc' } }));
     await logReadArticle('toc');
   };
 
