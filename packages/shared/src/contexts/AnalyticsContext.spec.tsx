@@ -165,7 +165,7 @@ it('should send events in different batches', async () => {
   const callback = async ({ trackEvent }: AnalyticsContextData) => {
     mockEventsEndpoint();
     trackEvent({ event_name: 'e1' });
-    await new Promise((resolve) => setTimeout(resolve, 200));
+    await new Promise((resolve) => setTimeout(resolve, 600));
     mockEventsEndpoint();
     trackEvent({ event_name: 'e2' });
     done = true;

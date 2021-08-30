@@ -1,6 +1,8 @@
 /* eslint-disable class-methods-use-this */
 import { NextRouter } from 'next/router';
 import { UrlObject } from 'url';
+import { MittEmitter } from 'next/dist/shared/lib/mitt';
+import { RouterEvent } from 'next/dist/client/router';
 
 declare type Url = UrlObject | string;
 
@@ -17,7 +19,14 @@ export default class CustomRouter implements NextRouter {
     // No need to do anything
   }
 
-  events = null;
+  events = {
+    on: () => {
+      // No need to do anything
+    },
+    off: () => {
+      // No need to do anything
+    },
+  } as unknown as MittEmitter<RouterEvent>;
 
   isFallback = false;
 
