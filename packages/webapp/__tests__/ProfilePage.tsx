@@ -198,6 +198,7 @@ const renderComponent = (
           updateUser: jest.fn(),
           tokenRefreshed: true,
           getRedirectUri: jest.fn(),
+          closeLogin: jest.fn(),
         }}
       >
         <ProfilePage profile={{ ...defaultProfile, ...profile }} />

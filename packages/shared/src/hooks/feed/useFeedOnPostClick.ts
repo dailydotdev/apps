@@ -20,7 +20,7 @@ export default function useFeedOnPostClick(
 
   return async (post, index, row, column): Promise<void> => {
     trackEvent(
-      postAnalyticsEvent('read post', post, {
+      postAnalyticsEvent('click', post, {
         columns,
         column,
         row,

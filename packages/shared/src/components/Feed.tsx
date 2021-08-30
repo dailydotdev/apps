@@ -160,7 +160,7 @@ export default function Feed<T>({
     column: number,
   ): void => {
     trackEvent(
-      postAnalyticsEvent('open article page', post, {
+      postAnalyticsEvent('comments click', post, {
         columns: virtualizedNumCards,
         column,
         row,
@@ -176,7 +176,7 @@ export default function Feed<T>({
       label: ad.source,
     });
     trackEvent(
-      adAnalyticsEvent('ad click', ad, {
+      adAnalyticsEvent('click', ad, {
         columns: virtualizedNumCards,
         column,
         row,

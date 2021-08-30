@@ -89,7 +89,7 @@ export default function BestDiscussions({
 
   const onLinkClick = (post: Post): void => {
     trackEvent(
-      postAnalyticsEvent('open article page', post, {
+      postAnalyticsEvent('click', post, {
         extra: { origin: 'best discussions' },
       }),
     );

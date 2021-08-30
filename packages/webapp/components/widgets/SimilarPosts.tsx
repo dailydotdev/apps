@@ -120,7 +120,7 @@ export default function SimilarPosts({
 
   const onLinkClick = async (post: Post): Promise<void> => {
     trackEvent(
-      postAnalyticsEvent('read post', post, {
+      postAnalyticsEvent('click', post, {
         extra: { origin: 'recommendation' },
       }),
     );

@@ -394,7 +394,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
 
   const onLinkClick = async () => {
     trackEvent(
-      postAnalyticsEvent('read post', postById.post, {
+      postAnalyticsEvent('click', postById.post, {
         extra: { origin: 'article page' },
       }),
     );
