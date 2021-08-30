@@ -9,12 +9,10 @@ import MainFeedLayout, {
 } from '@dailydotdev/shared/src/components/MainFeedLayout';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import dynamic from 'next/dynamic';
-import { trackPageView } from '@dailydotdev/shared/src/lib/analytics';
 import TimerIcon from '@dailydotdev/shared/icons/timer.svg';
 import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import getPageForAnalytics from '../lib/getPageForAnalytics';
 import MostVisitedSites from './MostVisitedSites';
 
 const PostsSearch = dynamic(
@@ -28,7 +26,13 @@ const DndModal = dynamic(
   () => import(/* webpackChunkName: "dnd" */ './DndModal'),
 );
 
-export default function MainFeedPage(): ReactElement {
+export type MainFeedPageProps = {
+  onPageChanged: (page: string) => unknown;
+};
+
+export default function MainFeedPage({
+  onPageChanged,
+}: MainFeedPageProps): ReactElement {
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user } = useContext(AuthContext);
   const { onboardingStep } = useContext(OnboardingContext) || {};
@@ -40,17 +44,17 @@ export default function MainFeedPage(): ReactElement {
   const enableSearch = () => {
     setIsSearchOn(true);
     setSearchQuery(null);
-    trackPageView(getPageForAnalytics('/search'));
+    onPageChanged('/search');
   };
 
   const closeSearch = () => {
     setIsSearchOn(false);
-    trackPageView(getPageForAnalytics(`/${feedName}`));
+    onPageChanged(`/${feedName}`);
   };
 
   const onNavTabClick = (tab: Tab): void => {
     setFeedName(tab.name);
-    trackPageView(getPageForAnalytics(`/${tab.name}`));
+    onPageChanged(`/${tab.name}`);
   };
 
   const onLogoClick = (e: React.MouseEvent): void => {

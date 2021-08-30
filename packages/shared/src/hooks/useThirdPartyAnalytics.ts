@@ -8,7 +8,7 @@ import {
 } from '../lib/analytics';
 import { LoggedUser } from '../lib/user';
 
-export default function useAnalytics(
+export default function useThirdPartyAnalytics(
   trackingId: string,
   user: LoggedUser,
   showCookie: boolean,

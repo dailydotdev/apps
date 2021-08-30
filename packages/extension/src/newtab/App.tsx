@@ -1,9 +1,15 @@
-import React, { ReactElement, useContext, useEffect } from 'react';
+import React, {
+  MutableRefObject,
+  ReactElement,
+  useContext,
+  useEffect,
+  useRef,
+} from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import dynamic from 'next/dynamic';
 import Modal from 'react-modal';
 import 'focus-visible';
-import useAnalytics from '@dailydotdev/shared/src/hooks/useAnalytics';
+import useThirdPartyAnalytics from '@dailydotdev/shared/src/hooks/useThirdPartyAnalytics';
 import ProgressiveEnhancementContext, {
   ProgressiveEnhancementContextProvider,
 } from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
@@ -20,6 +26,7 @@ import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState
 import HelpUsGrowModalWithContext from '@dailydotdev/shared/src/components/modals/HelpUsGrowModalWithContext';
 import { RouterContext } from 'next/dist/shared/lib/router-context';
 import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPageView';
+import { trackPageView } from '@dailydotdev/shared/src/lib/analytics';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
@@ -46,9 +53,11 @@ const shouldShowConsent = process.env.TARGET_BROWSER === 'firefox';
 
 const getRedirectUri = () => browser.runtime.getURL('index.html');
 
-const getPage = () => '/';
-
-function InternalApp(): ReactElement {
+function InternalApp({
+  pageRef,
+}: {
+  pageRef: MutableRefObject<string>;
+}): ReactElement {
   const {
     user,
     tokenRefreshed,
@@ -66,8 +75,8 @@ function InternalApp(): ReactElement {
   );
   const dndContext = useDndContext();
 
-  useTrackPageView();
-  useAnalytics(
+  const routeChangedCallbackRef = useTrackPageView();
+  useThirdPartyAnalytics(
     trackingId,
     user,
     analyticsConsent !== true,
@@ -86,10 +95,23 @@ function InternalApp(): ReactElement {
     }
   }, [user, loadingUser, tokenRefreshed]);
 
+  useEffect(() => {
+    if (routeChangedCallbackRef.current) {
+      routeChangedCallbackRef.current();
+    }
+  }, [routeChangedCallbackRef]);
+
+  const onPageChanged = (page: string): void => {
+    // eslint-disable-next-line no-param-reassign
+    pageRef.current = page;
+    routeChangedCallbackRef.current();
+    trackPageView(getPageForAnalytics(page));
+  };
+
   return (
     <DndContext.Provider value={dndContext}>
       {dndContext.isActive && <DndBanner />}
-      <MainFeedPage />
+      <MainFeedPage onPageChanged={onPageChanged} />
       {!user && !loadingUser && (windowLoaded || shouldShowLogin) && (
         <LoginModal
           isOpen={shouldShowLogin}
@@ -111,6 +133,8 @@ function InternalApp(): ReactElement {
 }
 
 export default function App(): ReactElement {
+  const pageRef = useRef('/');
+
   return (
     <RouterContext.Provider value={router}>
       <ProgressiveEnhancementContextProvider>
@@ -126,9 +150,9 @@ export default function App(): ReactElement {
                     <AnalyticsContextProvider
                       app="extension"
                       version={version}
-                      getPage={getPage}
+                      getPage={() => pageRef.current}
                     >
-                      <InternalApp />
+                      <InternalApp pageRef={pageRef} />
                     </AnalyticsContextProvider>
                   </OnboardingContextProvider>
                 </SettingsContextProvider>
