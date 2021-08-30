@@ -1,8 +1,8 @@
-import { useContext, useEffect, useRef } from 'react';
+import { MutableRefObject, useContext, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 
-export default function useTrackPageView(): void {
+export default function useTrackPageView(): MutableRefObject<() => void> {
   const router = useRouter();
   const { trackEventStart, trackEventEnd } = useContext(AnalyticsContext);
   const routeChangedCallbackRef = useRef<() => void>();
@@ -34,4 +34,6 @@ export default function useTrackPageView(): void {
       window.removeEventListener('statechange', handleLifecycle);
     };
   }, []);
+
+  return routeChangedCallbackRef;
 }

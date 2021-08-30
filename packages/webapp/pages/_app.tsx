@@ -29,10 +29,11 @@ import { AnalyticsContextProvider } from '@dailydotdev/shared/src/contexts/Analy
 import { canonicalFromRouter } from '@dailydotdev/shared/src/lib/canonical';
 import { SettingsContextProvider } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import '@dailydotdev/shared/src/styles/globals.css';
-import useAnalytics from '@dailydotdev/shared/src/hooks/useAnalytics';
+import useThirdPartyAnalytics from '@dailydotdev/shared/src/hooks/useThirdPartyAnalytics';
 import HelpUsGrowModalWithContext from '@dailydotdev/shared/src/components/modals/HelpUsGrowModalWithContext';
 import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPageView';
 import Seo from '../next-seo';
+import useWebappVersion from '../hooks/useWebappVersion';
 
 // const ReactQueryDevtools = dynamic(
 //   () => import('react-query/devtools').then((mod) => mod.ReactQueryDevtools),
@@ -82,7 +83,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const [showCookie, acceptCookies, updateCookieBanner] = useCookieBanner();
 
   useTrackPageView();
-  useAnalytics(
+  useThirdPartyAnalytics(
     trackingId,
     user,
     showCookie,
@@ -175,6 +176,8 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 }
 
 export default function App(props: AppProps): ReactElement {
+  const version = useWebappVersion();
+
   return (
     <ProgressiveEnhancementContextProvider>
       <FeaturesContextProvider>
@@ -183,7 +186,11 @@ export default function App(props: AppProps): ReactElement {
             <SubscriptionContextProvider>
               <SettingsContextProvider>
                 <OnboardingContextProvider>
-                  <AnalyticsContextProvider app="webapp" getPage={getPage}>
+                  <AnalyticsContextProvider
+                    app="webapp"
+                    version={version}
+                    getPage={getPage}
+                  >
                     <InternalApp {...props} />
                   </AnalyticsContextProvider>
                 </OnboardingContextProvider>
