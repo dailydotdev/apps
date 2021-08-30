@@ -10,7 +10,7 @@ import { PlaceholderCard } from './cards/PlaceholderCard';
 import { Ad, Post } from '../graphql/posts';
 import { LoggedUser } from '../lib/user';
 import { CommentOnData } from '../graphql/comments';
-import useTrackImpression from '../hooks/feed/useTrackImpression';
+// import useTrackImpression from '../hooks/feed/useTrackImpression';
 
 const CommentPopup = dynamic(() => import('./cards/CommentPopup'));
 
@@ -121,13 +121,13 @@ export default function FeedItemComponent({
   const AdTag = useList ? AdList : AdCard;
   const PlaceholderTag = useList ? PlaceholderList : PlaceholderCard;
   const item = items[index];
-  const inViewRef = useTrackImpression(item, index, columns, column, row);
+  // const inViewRef = useTrackImpression(item, index, columns, column, row);
 
   switch (item.type) {
     case 'post':
       return (
         <PostTag
-          ref={inViewRef}
+          // ref={inViewRef}
           post={item.post}
           data-testid="postItem"
           onUpvoteClick={(post, upvoted) =>
@@ -165,7 +165,7 @@ export default function FeedItemComponent({
     case 'ad':
       return (
         <AdTag
-          ref={inViewRef}
+          // ref={inViewRef}
           ad={item.ad}
           data-testid="adItem"
           onRender={(ad) => onAdRender(ad, index, row, column)}
