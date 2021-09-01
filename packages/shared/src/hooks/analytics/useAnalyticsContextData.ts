@@ -7,8 +7,11 @@ export type AnalyticsContextData = {
   trackEventEnd: (id: string, now?: Date) => void;
 };
 
-const generateEventId = (now = new Date()): string =>
-  `${now.getTime()}_${(Math.random() + 1).toString(36).substring(4)}`;
+const generateEventId = (now = new Date()): string => {
+  const randomStr = (Math.random() + 1).toString(36).substring(8);
+  const timePart = (now.getTime() / 1000).toFixed(0);
+  return `${timePart}${randomStr}`;
+};
 
 const getGlobalSharedProps = (): Partial<AnalyticsEvent> => ({
   screen_height: window.screen?.height,
