@@ -29,7 +29,7 @@ export default function useTrackImpression(
             columns,
             column,
             row,
-            extra: { origin: 'feed' },
+            extra: { origin: 'feed', scroll_y: window.scrollY },
           }),
         );
         // eslint-disable-next-line no-param-reassign
