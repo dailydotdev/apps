@@ -10,6 +10,7 @@ import { AnalyticsEvent } from './useAnalyticsQueue';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import SettingsContext from '../../contexts/SettingsContext';
 import AuthContext from '../../contexts/AuthContext';
+import { getCurrentLifecycleState } from '../../lib/lifecycle';
 
 export default function useAnalyticsSharedProps(
   app: string,
@@ -57,6 +58,7 @@ export default function useAnalyticsSharedProps(
       utm_term: query?.utm_term,
       visit_id: visitId,
       feature_flags: flags ? JSON.stringify(flags) : null,
+      page_state: getCurrentLifecycleState(),
     };
   }, [
     sharedPropsRef,

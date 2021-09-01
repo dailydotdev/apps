@@ -84,7 +84,7 @@ const getLegalStateTransitionPath = (oldState, newState) => {
  * for events.
  * @return {string}
  */
-const getCurrentState = () => {
+export const getCurrentLifecycleState = (): string => {
   if (document.visibilityState === HIDDEN) {
     return HIDDEN;
   }
@@ -113,7 +113,7 @@ export default function listenToLifecycleEvents(): void {
     SUPPORTS_PAGE_TRANSITION_EVENTS ? 'pagehide' : 'unload',
   ];
 
-  let state = getCurrentState();
+  let state = getCurrentLifecycleState();
   let safariBeforeUnloadTimeout: number;
 
   const dispatchChangesIfNeeded = (
@@ -152,7 +152,7 @@ export default function listenToLifecycleEvents(): void {
     switch (evt.type) {
       case 'pageshow':
       case 'resume':
-        dispatchChangesIfNeeded(evt, getCurrentState());
+        dispatchChangesIfNeeded(evt, getCurrentLifecycleState());
         break;
       case 'focus':
         dispatchChangesIfNeeded(evt, ACTIVE);
@@ -161,7 +161,7 @@ export default function listenToLifecycleEvents(): void {
         // The `blur` event can fire while the page is being unloaded, so we
         // only need to update the state if the current state is "active".
         if (state === ACTIVE) {
-          dispatchChangesIfNeeded(evt, getCurrentState());
+          dispatchChangesIfNeeded(evt, getCurrentLifecycleState());
         }
         break;
       case 'pagehide':
@@ -176,7 +176,7 @@ export default function listenToLifecycleEvents(): void {
         // is being unloaded, but in such cases the lifecycle state shouldn't
         // change.
         if (state !== FROZEN && state !== TERMINATED) {
-          dispatchChangesIfNeeded(evt, getCurrentState());
+          dispatchChangesIfNeeded(evt, getCurrentLifecycleState());
         }
         break;
       case 'freeze':
