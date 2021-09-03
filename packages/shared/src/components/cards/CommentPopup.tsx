@@ -69,7 +69,7 @@ export default function CommentPopup({
     >
       <div
         className={classNames(
-          'invert relative flex flex-col p-4 bg-theme-bg-primary rounded-2xl',
+          'relative flex flex-col p-4 bg-theme-bg-primary rounded-2xl',
           layoutModeClass,
         )}
       >
@@ -91,7 +91,7 @@ export default function CommentPopup({
             onChange={(event) => setComment(event.target.value)}
             onKeyDown={onKeyDown}
             className={classNames(
-              'flex-1 px-3 bg-theme-float text-theme-label-primary resize-none typo-callout focus-outline placeholder-theme-label-tertiary caret-theme-label-link',
+              'flex-1 px-3 bg-theme-float text-theme-label-primary resize-none typo-callout focus:outline-none focus:ring placeholder-theme-label-tertiary caret-theme-label-link',
               listMode ? 'h-10 mr-4 py-2.5' : 'my-4 py-3',
             )}
             style={{
@@ -103,7 +103,7 @@ export default function CommentPopup({
             onClick={() => onSubmit?.(comment)}
             disabled={!comment?.length}
             loading={loading}
-            className={classNames('btn-primary', listMode && 'self-end')}
+            className={classNames('btn-tertiary', listMode && 'self-end')}
           >
             Comment
           </Button>
