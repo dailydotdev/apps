@@ -60,6 +60,9 @@ import styles from './postPage.module.css';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import PostToc from '../../components/widgets/PostToc';
 
+const UpvotedPopupModal = dynamic(
+  () => import('@dailydotdev/shared/src/components/modals/UpvotedPopupModal'),
+);
 const NewCommentModal = dynamic(
   () => import('@dailydotdev/shared/src/components/modals/NewCommentModal'),
 );
@@ -177,6 +180,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   }>(null);
   const [showShareNewComment, setShowShareNewComment] = useState(false);
   const [lastScroll, setLastScroll] = useState(0);
+  const [showUpvotedPopup, setShowUpvotedPopup] = useState(false);
   const [showDeletePost, setShowDeletePost] = useState(false);
   const [showBanPost, setShowBanPost] = useState(false);
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
@@ -426,6 +430,8 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     },
   };
 
+  const hasUpvotes = postById?.post.numUpvotes > 0;
+
   return (
     <>
       <PageContainer className="pt-6 pb-20 laptop:pb-6 laptop:self-start laptop:border-theme-divider-tertiary laptop:border-r laptopL:self-center laptopL:border-l">
@@ -550,8 +556,14 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           {postById?.post.views > 0 && (
             <span>{postById?.post.views.toLocaleString()} Views</span>
           )}
-          {postById?.post.numUpvotes > 0 && (
-            <span>{postById?.post.numUpvotes.toLocaleString()} Upvotes</span>
+          {hasUpvotes && (
+            <span
+              className={hasUpvotes && 'cursor-pointer'}
+              onClick={() => hasUpvotes && setShowUpvotedPopup(true)}
+              aria-hidden="true"
+            >
+              {postById?.post.numUpvotes.toLocaleString()} Upvotes
+            </span>
           )}
           {postById?.post.numComments > 0 && (
             <span>{postById?.post.numComments.toLocaleString()} Comments</span>
@@ -720,6 +732,11 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           </button>
         </div>
       </PageContainer>
+      <UpvotedPopupModal
+        upvoters={[]}
+        isOpen={showUpvotedPopup}
+        onRequestClose={() => setShowUpvotedPopup(false)}
+      />
       {pendingComment && (
         <DeleteCommentModal
           isOpen={!!pendingComment}
