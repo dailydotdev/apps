@@ -91,6 +91,20 @@ export const POST_BY_ID_QUERY = gql`
   }
 `;
 
+export const POST_UPVOTES_BY_ID_QUERY = gql`
+  query postUpvotes($id: String!) {
+    postUpvotes(id: $id) {
+      postId
+      userId
+      user {
+        name
+        username
+        image
+      }
+    }
+  }
+`;
+
 export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
   query Post($id: ID!) {
     post(id: $id) {
