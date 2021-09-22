@@ -17,6 +17,8 @@ import {
 const showLogin = jest.fn();
 const onComment = jest.fn();
 const onDelete = jest.fn();
+const onEdit = jest.fn();
+const onShowUpvotes = jest.fn();
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -61,7 +63,8 @@ const renderComponent = (
     parentId: 'c1',
     onComment,
     onDelete,
-    onEdit: jest.fn(),
+    onEdit,
+    onShowUpvotes,
   };
 
   const client = new QueryClient();
@@ -172,6 +175,6 @@ it('should not show num upvotes when it is zero', async () => {
 
 it('should show num upvotes when it is greater than zero', async () => {
   renderComponent({ numUpvotes: 2 });
-  const el = await screen.findByText('2');
+  const el = await screen.findByText('2 upvotes');
   expect(el).toBeInTheDocument();
 });
