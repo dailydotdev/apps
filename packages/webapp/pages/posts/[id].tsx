@@ -23,7 +23,9 @@ import { PageContainer } from '@dailydotdev/shared/src/components/utilities';
 import { postDateFormat } from '@dailydotdev/shared/src/lib/dateFormat';
 import {
   Post,
+  PostUpvote,
   POST_BY_ID_QUERY,
+  POST_UPVOTES_BY_ID_QUERY,
   POST_BY_ID_STATIC_FIELDS_QUERY,
   PostData,
   POSTS_ENGAGED_SUBSCRIPTION,
@@ -184,6 +186,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   const [showDeletePost, setShowDeletePost] = useState(false);
   const [showBanPost, setShowBanPost] = useState(false);
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
+  const [postUpvotes, setPostUpvotes] = useState<PostUpvote[]>(() => []);
 
   const queryClient = useQueryClient();
   const postQueryKey = ['post', id];
@@ -198,6 +201,16 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
       enabled: !!id && tokenRefreshed,
     },
   );
+
+  const handleShowPostUpvotes = async () => {
+    setShowUpvotedPopup(true);
+
+    const req = await request(`${apiUrl}/graphql`, POST_UPVOTES_BY_ID_QUERY, {
+      id,
+    });
+
+    setPostUpvotes(req.postUpvotes);
+  };
 
   const { data: comments, isLoading: isLoadingComments } =
     useQuery<PostCommentsData>(
@@ -559,7 +572,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           {hasUpvotes && (
             <span
               className={hasUpvotes && 'cursor-pointer'}
-              onClick={() => hasUpvotes && setShowUpvotedPopup(true)}
+              onClick={() => handleShowPostUpvotes()}
               aria-hidden="true"
             >
               {postById?.post.numUpvotes.toLocaleString()} Upvotes
@@ -733,7 +746,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         </div>
       </PageContainer>
       <UpvotedPopupModal
-        upvoters={[]}
+        upvotes={postUpvotes}
         isOpen={showUpvotedPopup}
         onRequestClose={() => setShowUpvotedPopup(false)}
       />
