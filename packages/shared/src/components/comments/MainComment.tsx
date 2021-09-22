@@ -51,6 +51,7 @@ export default function MainComment({
           parentId={comment.id}
           onComment={onComment}
           onDelete={onDelete}
+          onShowUpvotes={onShowUpvotes}
           onEdit={(childComment) => onEdit(childComment, comment)}
           postAuthorId={postAuthorId}
         />
