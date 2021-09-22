@@ -139,7 +139,7 @@ export default function CommentActionButtons({
       </div>
       {comment.numUpvotes > 0 && (
         <span
-          className="btn-tertiary typo-callout text-salt-90 ml-auto"
+          className="btn-tertiary typo-callout text-salt-90 ml-auto cursor-pointer"
           onClick={() => onShowUpvotes(comment.id)}
           aria-hidden="true"
         >

@@ -588,7 +588,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           )}
           {hasUpvotes && (
             <span
-              className={hasUpvotes && 'cursor-pointer'}
+              className="cursor-pointer"
               onClick={() => handleShowUpvotes()}
               aria-hidden="true"
             >
