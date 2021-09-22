@@ -104,6 +104,20 @@ export const USER_COMMENTS_QUERY = gql`
   }
 `;
 
+export const COMMENT_UPVOTES_BY_ID_QUERY = gql`
+  query commentUpvotes($id: String!) {
+    commentUpvotes(id: $id) {
+      user {
+        id
+        name
+        username
+        image
+        bio
+      }
+    }
+  }
+`;
+
 export const UPVOTE_COMMENT_MUTATION = gql`
   mutation UpvoteComment($id: ID!) {
     upvoteComment(id: $id) {
