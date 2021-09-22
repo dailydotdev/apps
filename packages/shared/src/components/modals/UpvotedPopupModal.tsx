@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import { ResponsiveModal } from './ResponsiveModal';
 import { ModalProps } from './StyledModal';
 import { Upvote } from '../../graphql/common';
+import { ModalCloseButton } from './ModalCloseButton';
 
 interface UpvotedPopupModalProps extends ModalProps {
   upvotes?: Upvote[];
@@ -16,6 +17,7 @@ const imageClassName = 'w-12 h-12 rounded-10 bg-pepper-70';
 const UpvotedPopupModal: React.FC<UpvotedPopupModalProps> = ({
   upvotes,
   placeholderAmount = 5,
+  onRequestClose,
   ...modalProps
 }) => {
   const renderPlaceholder = () =>
@@ -68,9 +70,10 @@ const UpvotedPopupModal: React.FC<UpvotedPopupModalProps> = ({
     );
 
   return (
-    <ResponsiveModal {...modalProps} noPadding>
+    <ResponsiveModal {...modalProps} onRequestClose={onRequestClose} noPadding>
       <span className="py-4 px-6 border-b border-salt-90 border-opacity-24">
-        Upvoted by
+        <span>Upvoted by</span>
+        <ModalCloseButton onClick={onRequestClose} />
       </span>
       {upvotes?.length > 0 ? renderUpvoterList() : renderPlaceholder()}
     </ResponsiveModal>
