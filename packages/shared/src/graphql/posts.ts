@@ -1,6 +1,6 @@
 import { gql } from 'graphql-request';
 import { Author, Comment } from './comments';
-import { Connection, Upvote } from './common';
+import { Connection } from './common';
 import { Source } from './sources';
 import { EmptyResponse } from './emptyResponse';
 

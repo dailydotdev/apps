@@ -1,5 +1,5 @@
 import { gql } from 'graphql-request';
-import { Connection, Upvote } from './common';
+import { Connection } from './common';
 import { EmptyResponse } from './emptyResponse';
 
 export interface Author {
