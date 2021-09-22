@@ -1,18 +1,17 @@
 import React, { ReactElement } from 'react';
 import { Comment } from '../../graphql/comments';
 import { CommentBox, CommentPublishDate } from './common';
-import CommentActionButtons from './CommentActionButtons';
+import CommentActionButtons, {
+  CommentActionProps,
+} from './CommentActionButtons';
 import SubComment from './SubComment';
 import { ProfileImageLink } from '../profile/ProfileImageLink';
 import CommentAuthor from './CommentAuthor';
 import classed from '../../lib/classed';
 
-export interface Props {
+export interface Props extends CommentActionProps {
   comment: Comment;
   postAuthorId: string | null;
-  onComment: (comment: Comment, parentId: string | null) => void;
-  onDelete: (comment: Comment, parentId: string | null) => void;
-  onEdit: (comment: Comment, parentComment?: Comment) => void;
 }
 
 const MainCommentBox = classed(CommentBox, 'my-2');
@@ -22,6 +21,7 @@ export default function MainComment({
   onComment,
   onDelete,
   onEdit,
+  onShowUpvotes,
   postAuthorId,
 }: Props): ReactElement {
   return (
@@ -40,6 +40,7 @@ export default function MainComment({
         onComment={onComment}
         onDelete={onDelete}
         onEdit={onEdit}
+        onShowUpvotes={onShowUpvotes}
       />
       {comment.children?.edges.map((e, i) => (
         <SubComment

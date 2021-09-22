@@ -13,17 +13,19 @@ import {
 } from '../../graphql/comments';
 import { Roles } from '../../lib/user';
 import { apiUrl } from '../../lib/config';
-import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import { Button } from '../buttons/Button';
 import { getTooltipProps } from '../../lib/tooltip';
-import sizeN from '../../../macros/sizeN.macro';
 
-export interface Props {
-  comment: Comment;
-  parentId: string | null;
+export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
   onDelete: (comment: Comment, parentId: string | null) => void;
-  onEdit: (comment: Comment) => void;
+  onEdit: (comment: Comment, parentComment?: Comment) => void;
+  onShowUpvotes: (commentId: string) => void;
+}
+
+export interface Props extends CommentActionProps {
+  comment: Comment;
+  parentId: string | null;
 }
 
 export default function CommentActionButtons({
@@ -32,6 +34,7 @@ export default function CommentActionButtons({
   onComment,
   onDelete,
   onEdit,
+  onShowUpvotes,
 }: Props): ReactElement {
   const { user, showLogin } = useContext(AuthContext);
 
@@ -97,44 +100,51 @@ export default function CommentActionButtons({
 
   return (
     <div className="flex items-center">
-      <QuaternaryButton
-        id={`comment-${comment.id}-upvote-btn`}
-        buttonSize="small"
-        pressed={upvoted}
-        {...getTooltipProps('Upvote')}
-        onClick={toggleUpvote}
-        icon={<UpvoteIcon />}
-        className="btn-tertiary-avocado"
-      >
-        {numUpvotes > 0 ? numUpvotes : null}
-      </QuaternaryButton>
-      <Button
-        buttonSize="small"
-        {...getTooltipProps('Comment')}
-        onClick={() => onComment(comment, parentId)}
-        icon={<CommentIcon />}
-        style={{ marginLeft: sizeN(7) }}
-        className="btn-tertiary-avocado"
-      />
-      <div className="flex-1" />
-      {user?.id === comment.author.id && (
+      <div className="grid grid-cols-4 gap-4">
+        <Button
+          id={`comment-${comment.id}-upvote-btn`}
+          buttonSize="small"
+          pressed={upvoted}
+          {...getTooltipProps('Upvote')}
+          onClick={toggleUpvote}
+          icon={<UpvoteIcon />}
+          className="btn-tertiary-avocado"
+        />
         <Button
           buttonSize="small"
-          {...getTooltipProps('Edit')}
-          onClick={() => onEdit(comment)}
-          icon={<EditIcon />}
-          className="btn-tertiary mr-2"
+          {...getTooltipProps('Comment')}
+          onClick={() => onComment(comment, parentId)}
+          icon={<CommentIcon />}
+          className="btn-tertiary-avocado"
         />
-      )}
-      {(user?.id === comment.author.id ||
-        user?.roles?.indexOf(Roles.Moderator) > -1) && (
-        <Button
-          buttonSize="small"
-          {...getTooltipProps('Delete')}
-          onClick={() => onDelete(comment, parentId)}
-          icon={<TrashIcon />}
-          className="btn-tertiary"
-        />
+        {user?.id === comment.author.id && (
+          <Button
+            buttonSize="small"
+            {...getTooltipProps('Edit')}
+            onClick={() => onEdit(comment)}
+            icon={<EditIcon />}
+            className="btn-tertiary"
+          />
+        )}
+        {(user?.id === comment.author.id ||
+          user?.roles?.indexOf(Roles.Moderator) > -1) && (
+          <Button
+            buttonSize="small"
+            {...getTooltipProps('Delete')}
+            onClick={() => onDelete(comment, parentId)}
+            icon={<TrashIcon />}
+            className="btn-tertiary"
+          />
+        )}
+      </div>
+      {comment.numUpvotes > 0 && (
+        <span
+          className="btn-tertiary typo-callout text-salt-90 ml-auto"
+          onClick={() => onShowUpvotes(comment.id)}
+          aria-hidden="true"
+        >
+          {comment.numUpvotes} upvotes
+        </span>
       )}
     </div>
   );
