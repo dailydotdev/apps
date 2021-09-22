@@ -23,10 +23,6 @@ export interface Comment {
   children?: Connection<Comment>;
 }
 
-export interface CommentUpvote extends Upvote {
-  commentId: string;
-}
-
 export const COMMENT_FRAGMENT = gql`
   fragment CommentFragment on Comment {
     id
@@ -111,7 +107,6 @@ export const USER_COMMENTS_QUERY = gql`
 export const COMMENT_UPVOTES_BY_ID_QUERY = gql`
   query commentUpvotes($id: String!) {
     commentUpvotes(id: $id) {
-      commentId
       user {
         id
         name
