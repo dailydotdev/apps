@@ -1,3 +1,4 @@
+import { UserShortProfile } from '../lib/user';
 // GraphQL Relay pagination types
 
 export type ConnectionCursor = string;
@@ -20,4 +21,8 @@ export interface Edge<T> {
   __typename?: string;
   node: T;
   cursor?: ConnectionCursor;
+}
+
+export interface Upvote {
+  user: UserShortProfile;
 }

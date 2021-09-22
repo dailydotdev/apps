@@ -1,6 +1,6 @@
 import { gql } from 'graphql-request';
 import { Author, Comment } from './comments';
-import { Connection } from './common';
+import { Connection, Upvote } from './common';
 import { Source } from './sources';
 import { EmptyResponse } from './emptyResponse';
 
@@ -53,6 +53,10 @@ export interface PostData {
   post: Post;
 }
 
+export interface PostUpvote extends Upvote {
+  postId: string;
+}
+
 export const POST_BY_ID_QUERY = gql`
   query Post($id: ID!) {
     post(id: $id) {
@@ -94,6 +98,7 @@ export const POST_BY_ID_QUERY = gql`
 export const POST_UPVOTES_BY_ID_QUERY = gql`
   query postUpvotes($id: String!) {
     postUpvotes(id: $id) {
+      postId
       user {
         id
         name

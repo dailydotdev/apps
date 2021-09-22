@@ -2,16 +2,10 @@ import React from 'react';
 import classNames from 'classnames';
 import { ResponsiveModal } from './ResponsiveModal';
 import { ModalProps } from './StyledModal';
-
-interface Upvoter {
-  fullName: string;
-  handle: string;
-  img: string;
-  bio?: string;
-}
+import { Upvote } from '../../graphql/common';
 
 interface UpvotedPopupModalProps extends ModalProps {
-  upvoters: Upvoter[];
+  upvotes?: Upvote[];
   placeholderAmount?: number;
 }
 
@@ -20,7 +14,7 @@ const contentClassName = 'flex flex-col flex-1 ml-4';
 const imageClassName = 'w-12 h-12 rounded-10 bg-pepper-70';
 
 const UpvotedPopupModal: React.FC<UpvotedPopupModalProps> = ({
-  upvoters,
+  upvotes,
   placeholderAmount = 5,
   ...modalProps
 }) => {
@@ -47,26 +41,30 @@ const UpvotedPopupModal: React.FC<UpvotedPopupModalProps> = ({
   const renderUpvoterList = () =>
     React.useMemo(
       () =>
-        upvoters.map((user, i) => (
+        upvotes?.map((upvote, i) => (
           <div
-            key={user.handle}
+            key={upvote.user.username}
             className={classNames(containerClassName, i === 0 && 'mt-3')}
           >
-            <img src={user.img} alt={user.handle} className={imageClassName} />
+            <img
+              src={upvote.user.image}
+              alt={upvote.user.username}
+              className={imageClassName}
+            />
             <div className={contentClassName}>
-              <span className="typo-callout font-bold">{user.fullName}</span>
+              <span className="typo-callout font-bold">{upvote.user.name}</span>
               <span className="typo-callout text-theme-label-secondary">
-                @{user.handle}
+                @{upvote.user.username}
               </span>
-              {user.bio && (
+              {upvote.user.bio && (
                 <span className="mt-1 typo-callout text-salt-90">
-                  {user.bio}
+                  {upvote.user.bio}
                 </span>
               )}
             </div>
           </div>
         )),
-      [upvoters],
+      [upvotes],
     );
 
   return (
@@ -74,7 +72,7 @@ const UpvotedPopupModal: React.FC<UpvotedPopupModalProps> = ({
       <span className="py-4 px-6 border-b border-salt-90 border-opacity-24">
         Upvoted by
       </span>
-      {upvoters.length === 0 ? renderPlaceholder() : renderUpvoterList()}
+      {upvotes?.length > 0 ? renderUpvoterList() : renderPlaceholder()}
     </ResponsiveModal>
   );
 };

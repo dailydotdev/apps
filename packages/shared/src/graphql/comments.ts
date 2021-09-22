@@ -1,5 +1,5 @@
 import { gql } from 'graphql-request';
-import { Connection } from './common';
+import { Connection, Upvote } from './common';
 import { EmptyResponse } from './emptyResponse';
 
 export interface Author {
@@ -21,6 +21,10 @@ export interface Comment {
   upvoted?: boolean;
   numUpvotes: number;
   children?: Connection<Comment>;
+}
+
+export interface CommentUpvote extends Upvote {
+  commentId: string;
 }
 
 export const COMMENT_FRAGMENT = gql`
@@ -107,6 +111,7 @@ export const USER_COMMENTS_QUERY = gql`
 export const COMMENT_UPVOTES_BY_ID_QUERY = gql`
   query commentUpvotes($id: String!) {
     commentUpvotes(id: $id) {
+      commentId
       user {
         id
         name
