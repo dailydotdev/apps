@@ -5,6 +5,7 @@ import { ModalProps } from './StyledModal';
 import { Upvote } from '../../graphql/common';
 import { ModalCloseButton } from './ModalCloseButton';
 import { PlaceholderList } from '../cards/PlaceholderList';
+import { LazyImage } from '../LazyImage';
 
 interface UpvotedPopupModalProps extends ModalProps {
   upvotes?: Upvote[];
@@ -38,9 +39,9 @@ export function UpvotedPopupModal({
             key={upvote.user.username}
             className={classNames(containerClassName, i === 0 && 'mt-3')}
           >
-            <img
-              src={upvote.user.image}
-              alt={upvote.user.username}
+            <LazyImage
+              imgSrc={upvote.user.image}
+              imgAlt={upvote.user.username}
               className={imageClassName}
             />
             <div className={contentClassName}>
