@@ -1,4 +1,4 @@
-import React, { ReactElement, memo } from 'react';
+import React, { ReactElement } from 'react';
 import { PlaceholderList } from '../cards/PlaceholderList';
 
 export interface UpvoterListPlaceholderProps {
@@ -19,4 +19,4 @@ export function UpvoterListPlaceholder({
   );
 }
 
-export default memo(UpvoterListPlaceholder);
+export default UpvoterListPlaceholder;
