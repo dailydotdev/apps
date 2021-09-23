@@ -24,7 +24,6 @@ import { postDateFormat } from '@dailydotdev/shared/src/lib/dateFormat';
 import {
   Post,
   POST_BY_ID_QUERY,
-  POST_UPVOTES_BY_ID_QUERY,
   POST_BY_ID_STATIC_FIELDS_QUERY,
   PostData,
   POSTS_ENGAGED_SUBSCRIPTION,
