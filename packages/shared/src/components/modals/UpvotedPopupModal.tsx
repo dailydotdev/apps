@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { ResponsiveModal } from './ResponsiveModal';
 import { ModalProps } from './StyledModal';
@@ -14,12 +14,12 @@ const containerClassName = 'flex flex-row px-6 mb-3';
 const contentClassName = 'flex flex-col flex-1 ml-4';
 const imageClassName = 'w-12 h-12 rounded-10 bg-pepper-70';
 
-const UpvotedPopupModal: React.FC<UpvotedPopupModalProps> = ({
+function UpvotedPopupModal({
   upvotes,
   placeholderAmount = 5,
   onRequestClose,
   ...modalProps
-}) => {
+}: UpvotedPopupModalProps): ReactElement {
   const renderPlaceholder = () =>
     React.useMemo(
       () =>
@@ -84,6 +84,6 @@ const UpvotedPopupModal: React.FC<UpvotedPopupModalProps> = ({
       {upvotes?.length > 0 ? renderUpvoterList() : renderPlaceholder()}
     </ResponsiveModal>
   );
-};
+}
 
 export default UpvotedPopupModal;
