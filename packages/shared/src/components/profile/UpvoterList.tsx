@@ -20,7 +20,8 @@ export function UpvoterList({
             <LazyImage
               imgSrc={user.image}
               imgAlt={user.username}
-              className="w-12 h-12"
+              className="w-12 h-12 rounded-10"
+              ratio="1 / 1"
             />
             <div className="flex flex-col flex-1 ml-4">
               <span className="typo-callout font-bold">{user.name}</span>
