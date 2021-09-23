@@ -9,6 +9,7 @@ import SettingsContext, { SettingsContextData } from './SettingsContext';
 import AuthContext, { AuthContextData } from './AuthContext';
 import { AnonymousUser } from '../lib/user';
 import { AnalyticsEvent } from '../hooks/analytics/useAnalyticsQueue';
+import { Visit } from '../lib/boot';
 
 let queryClient: QueryClient;
 const getPage = jest.fn();
@@ -65,7 +66,10 @@ const TestComponent = ({
   authContext,
 }: {
   children: ReactNode;
-  authContext: Pick<AuthContextData, 'user' | 'anonymous' | 'tokenRefreshed'>;
+  authContext: Pick<
+    AuthContextData,
+    'user' | 'anonymous' | 'tokenRefreshed' | 'visit'
+  >;
 }): ReactElement => (
   <QueryClientProvider client={queryClient}>
     <FeaturesContext.Provider value={features}>
@@ -93,9 +97,12 @@ const TestComponent = ({
 
 const baseAnonymous: AnonymousUser = {
   id: 'u',
-  visitId: 'v',
   referrer: 'ido',
   firstVisit: new Date(Date.UTC(2021, 7, 28)).toISOString(),
+};
+
+const baseVisit: Visit = {
+  visitId: 'v',
   sessionId: 's',
 };
 
@@ -126,7 +133,11 @@ it('should batch events before sending', async () => {
 
   render(
     <TestComponent
-      authContext={{ anonymous: baseAnonymous, tokenRefreshed: true }}
+      authContext={{
+        anonymous: baseAnonymous,
+        tokenRefreshed: true,
+        visit: baseVisit,
+      }}
     >
       <AnalyticsContextTester callback={callback} />
     </TestComponent>,
@@ -143,6 +154,7 @@ it('should add relevant properties when user is signed-in', async () => {
     <TestComponent
       authContext={{
         anonymous: baseAnonymous,
+        visit: baseVisit,
         user: {
           id: 'u',
           createdAt: new Date(Date.UTC(2021, 7, 29)).toISOString(),
@@ -173,7 +185,11 @@ it('should send events in different batches', async () => {
 
   render(
     <TestComponent
-      authContext={{ anonymous: baseAnonymous, tokenRefreshed: true }}
+      authContext={{
+        anonymous: baseAnonymous,
+        tokenRefreshed: true,
+        visit: baseVisit,
+      }}
     >
       <AnalyticsContextTester callback={callback} />
     </TestComponent>,
@@ -201,7 +217,11 @@ it('should send event with duration', async () => {
 
   render(
     <TestComponent
-      authContext={{ anonymous: baseAnonymous, tokenRefreshed: true }}
+      authContext={{
+        anonymous: baseAnonymous,
+        tokenRefreshed: true,
+        visit: baseVisit,
+      }}
     >
       <AnalyticsContextTester callback={callback} />
     </TestComponent>,
@@ -228,7 +248,11 @@ it('should send pending events when page becomes invisible', async () => {
 
   render(
     <TestComponent
-      authContext={{ anonymous: baseAnonymous, tokenRefreshed: true }}
+      authContext={{
+        anonymous: baseAnonymous,
+        tokenRefreshed: true,
+        visit: baseVisit,
+      }}
     >
       <AnalyticsContextTester callback={callback} />
     </TestComponent>,
@@ -247,7 +271,11 @@ it('should send pending events when user information is fetched', async () => {
 
   const { rerender } = render(
     <TestComponent
-      authContext={{ anonymous: baseAnonymous, tokenRefreshed: false }}
+      authContext={{
+        anonymous: baseAnonymous,
+        tokenRefreshed: false,
+        visit: baseVisit,
+      }}
     >
       <AnalyticsContextTester callback={callback} />
     </TestComponent>,
@@ -260,10 +288,12 @@ it('should send pending events when user information is fetched', async () => {
         anonymous: {
           ...baseAnonymous,
           id: 'u2',
+        },
+        tokenRefreshed: true,
+        visit: {
           sessionId: 's2',
           visitId: 'v2',
         },
-        tokenRefreshed: true,
       }}
     >
       <AnalyticsContextTester callback={callback} />
