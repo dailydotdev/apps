@@ -13,9 +13,7 @@ import 'focus-visible';
 import Modal from 'react-modal';
 import { DefaultSeo } from 'next-seo';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import AuthContext, {
-  AuthContextProvider,
-} from '@dailydotdev/shared/src/contexts/AuthContext';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { Router } from 'next/router';
 import { useCookieBanner } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import ProgressiveEnhancementContext, {
@@ -24,7 +22,7 @@ import ProgressiveEnhancementContext, {
 import { trackPageView } from '@dailydotdev/shared/src/lib/analytics';
 import { OnboardingContextProvider } from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
-import { FeaturesContextProvider } from '@dailydotdev/shared/src/contexts/FeaturesContext';
+import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import { AnalyticsContextProvider } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { canonicalFromRouter } from '@dailydotdev/shared/src/lib/canonical';
 import { SettingsContextProvider } from '@dailydotdev/shared/src/contexts/SettingsContext';
@@ -32,6 +30,7 @@ import '@dailydotdev/shared/src/styles/globals.css';
 import useThirdPartyAnalytics from '@dailydotdev/shared/src/hooks/useThirdPartyAnalytics';
 import HelpUsGrowModalWithContext from '@dailydotdev/shared/src/components/modals/HelpUsGrowModalWithContext';
 import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPageView';
+import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
 import Seo from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 
@@ -79,6 +78,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     shouldShowLogin,
     loginState,
   } = useContext(AuthContext);
+  const { flags } = useContext(FeaturesContext);
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const [showCookie, acceptCookies, updateCookieBanner] = useCookieBanner();
 
@@ -90,6 +90,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     windowLoaded,
     'webapp',
     () => `/web${window.location.pathname}${window.location.search}`,
+    flags,
   );
 
   useEffect(() => {
@@ -180,25 +181,23 @@ export default function App(props: AppProps): ReactElement {
 
   return (
     <ProgressiveEnhancementContextProvider>
-      <FeaturesContextProvider>
-        <QueryClientProvider client={queryClient}>
-          <AuthContextProvider app="web" getRedirectUri={getRedirectUri}>
-            <SubscriptionContextProvider>
-              <SettingsContextProvider>
-                <OnboardingContextProvider>
-                  <AnalyticsContextProvider
-                    app="webapp"
-                    version={version}
-                    getPage={getPage}
-                  >
-                    <InternalApp {...props} />
-                  </AnalyticsContextProvider>
-                </OnboardingContextProvider>
-              </SettingsContextProvider>
-            </SubscriptionContextProvider>
-          </AuthContextProvider>
-        </QueryClientProvider>
-      </FeaturesContextProvider>
+      <QueryClientProvider client={queryClient}>
+        <BootDataProvider app="web" getRedirectUri={getRedirectUri}>
+          <SubscriptionContextProvider>
+            <SettingsContextProvider>
+              <OnboardingContextProvider>
+                <AnalyticsContextProvider
+                  app="webapp"
+                  version={version}
+                  getPage={getPage}
+                >
+                  <InternalApp {...props} />
+                </AnalyticsContextProvider>
+              </OnboardingContextProvider>
+            </SettingsContextProvider>
+          </SubscriptionContextProvider>
+        </BootDataProvider>
+      </QueryClientProvider>
     </ProgressiveEnhancementContextProvider>
   );
 }
