@@ -24,7 +24,7 @@ export function UpvotedPopupModal({
       {...modalProps}
       onRequestClose={onRequestClose}
       style={{
-        content: { padding: 0, maxHeight: '40rem' },
+        content: { padding: 0, maxHeight: '40rem', maxWidth: '30rem' },
       }}
     >
       <header className="py-4 px-6 border-b border-theme-divider-tertiary">

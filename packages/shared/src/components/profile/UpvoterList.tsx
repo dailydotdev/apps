@@ -9,7 +9,7 @@ export interface UpvoterListProps {
 
 export function UpvoterList({ upvotes }: UpvoterListProps): ReactElement {
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col">
       {upvotes.map(({ user }) => (
         <Link key={user.username} href="/test">
           <a className="flex flex-row hover:bg-theme-active px-6 py-3">
