@@ -100,8 +100,12 @@ export const POST_BY_ID_QUERY = gql`
 `;
 
 export const POST_UPVOTES_BY_ID_QUERY = gql`
-  query postUpvotes($id: String!) {
-    postUpvotes(id: $id) {
+  query postUpvotes($id: String!, $after: String, $first: Int) {
+    postUpvotes(id: $id, after: $after, first: $first) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
       edges {
         node {
           user {

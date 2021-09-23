@@ -114,7 +114,11 @@ export const USER_COMMENTS_QUERY = gql`
 
 export const COMMENT_UPVOTES_BY_ID_QUERY = gql`
   query commentUpvotes($id: String!) {
-    commentUpvotes(id: $id) {
+    commentUpvotes(id: $id, after: $after, first: $first) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
       edges {
         node {
           user {

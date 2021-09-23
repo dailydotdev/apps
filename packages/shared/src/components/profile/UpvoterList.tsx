@@ -1,15 +1,19 @@
-import React, { ReactElement, memo } from 'react';
+import React, { ReactElement, memo, ReactNode } from 'react';
 import Link from 'next/link';
 import { Upvote } from '../../graphql/common';
 import { LazyImage } from '../LazyImage';
 
 export interface UpvoterListProps {
   upvotes: Upvote[];
+  children?: ReactNode;
 }
 
-export function UpvoterList({ upvotes }: UpvoterListProps): ReactElement {
+export function UpvoterList({
+  upvotes,
+  children,
+}: UpvoterListProps): ReactElement {
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col relative">
       {upvotes.map(({ user }) => (
         <Link key={user.username} href="/test">
           <a className="flex flex-row hover:bg-theme-active px-6 py-3">
@@ -32,6 +36,7 @@ export function UpvoterList({ upvotes }: UpvoterListProps): ReactElement {
           </a>
         </Link>
       ))}
+      {children}
     </div>
   );
 }

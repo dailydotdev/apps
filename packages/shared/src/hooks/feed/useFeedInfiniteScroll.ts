@@ -5,7 +5,7 @@ import OnboardingContext, {
 } from '../../contexts/OnboardingContext';
 
 export default function useFeedInfiniteScroll(
-  fetchPage: () => Promise<void>,
+  fetchPage: () => Promise<void | unknown>,
   canFetchMore: boolean,
 ): (node?: Element | null) => void {
   const { trackEngagement } = useContext(OnboardingContext);
