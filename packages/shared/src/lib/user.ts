@@ -43,9 +43,9 @@ export interface UserProfile {
   acceptedMarketing?: boolean;
 }
 
-export type UserShortProfile = Pick<
-  LoggedUser,
-  'id' | 'name' | 'username' | 'image' | 'bio'
+export type UpvoterProfile = Pick<
+  PublicProfile,
+  'name' | 'username' | 'image' | 'bio'
 >;
 
 export interface LoggedUser extends UserProfile, AnonymousUser {
