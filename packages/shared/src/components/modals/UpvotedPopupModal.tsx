@@ -33,11 +33,11 @@ export function UpvotedPopupModal({
         },
       }}
     >
-      <header className="py-4 px-6 border-b border-theme-divider-tertiary">
+      <header className="w-full py-4 px-6 border-b border-theme-divider-tertiary">
         <h3 className="font-bold typo-title3">Upvoted by</h3>
         <ModalCloseButton onClick={onRequestClose} />
       </header>
-      <section className="relative flex-shrink h-full max-h-full overflow-auto">
+      <section className="w-full relative flex-shrink h-full max-h-full overflow-auto">
         {listProps.upvotes?.length > 0 ? (
           <UpvoterList {...listProps}>{children}</UpvoterList>
         ) : (
