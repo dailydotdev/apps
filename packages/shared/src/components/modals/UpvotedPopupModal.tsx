@@ -4,6 +4,7 @@ import { ResponsiveModal } from './ResponsiveModal';
 import { ModalProps } from './StyledModal';
 import { Upvote } from '../../graphql/common';
 import { ModalCloseButton } from './ModalCloseButton';
+import { PlaceholderList } from '../cards/PlaceholderList';
 
 interface UpvotedPopupModalProps extends ModalProps {
   upvotes?: Upvote[];
@@ -14,7 +15,7 @@ const containerClassName = 'flex flex-row px-6 mb-3';
 const contentClassName = 'flex flex-col flex-1 ml-4';
 const imageClassName = 'w-12 h-12 rounded-10 bg-pepper-70';
 
-function UpvotedPopupModal({
+export function UpvotedPopupModal({
   upvotes,
   placeholderAmount = 5,
   onRequestClose,
@@ -25,18 +26,7 @@ function UpvotedPopupModal({
       () =>
         Array(placeholderAmount)
           .fill(0)
-          .map(() => (
-            <div
-              key={Math.random()}
-              className={classNames(containerClassName, 'mt-3')}
-            >
-              <span className={imageClassName} />
-              <div className={contentClassName}>
-                <span className="rounded-10 bg-pepper-70 w-2/3 h-4" />
-                <span className="rounded-10 bg-pepper-70 w-1/3 h-4 mt-2" />
-              </div>
-            </div>
-          )),
+          .map(() => <PlaceholderList key={Math.random()} />),
       [placeholderAmount],
     );
 
