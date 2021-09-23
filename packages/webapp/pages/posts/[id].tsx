@@ -35,7 +35,6 @@ import MainComment from '@dailydotdev/shared/src/components/comments/MainComment
 import {
   Comment,
   POST_COMMENTS_QUERY,
-  COMMENT_UPVOTES_BY_ID_QUERY,
   PostCommentsData,
 } from '@dailydotdev/shared/src/graphql/comments';
 import { NextSeoProps } from 'next-seo/lib/types';
@@ -58,13 +57,12 @@ import classNames from 'classnames';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
-import { Connection, Upvote } from '@dailydotdev/shared/src/graphql/common';
 import styles from './postPage.module.css';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import PostToc from '../../components/widgets/PostToc';
 
-const UpvotedPopupModal = dynamic(
-  () => import('@dailydotdev/shared/src/components/modals/UpvotedPopupModal'),
+const PostUpvotersModal = dynamic(
+  () => import('@dailydotdev/shared/src/components/modals/PostUpvotersModal'),
 );
 const NewCommentModal = dynamic(
   () => import('@dailydotdev/shared/src/components/modals/NewCommentModal'),
@@ -187,7 +185,6 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   const [showDeletePost, setShowDeletePost] = useState(false);
   const [showBanPost, setShowBanPost] = useState(false);
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
-  const [upvotes, setUpvotes] = useState<Upvote[]>(() => []);
 
   const queryClient = useQueryClient();
   const postQueryKey = ['post', id];
@@ -202,36 +199,6 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
       enabled: !!id && tokenRefreshed,
     },
   );
-
-  const handleCommentUpvotes = async (commentId: string) => {
-    setUpvotes([]);
-    setShowUpvotedPopup(true);
-
-    const req = await request<{ commentUpvotes: Connection<Upvote> }>(
-      `${apiUrl}/graphql`,
-      COMMENT_UPVOTES_BY_ID_QUERY,
-      {
-        id: commentId,
-      },
-    );
-
-    setUpvotes(req.commentUpvotes.edges.map((edge) => edge.node));
-  };
-
-  const handleShowUpvotes = async () => {
-    setUpvotes([]);
-    setShowUpvotedPopup(true);
-
-    const req = await request<{ postUpvotes: Connection<Upvote> }>(
-      `${apiUrl}/graphql`,
-      POST_UPVOTES_BY_ID_QUERY,
-      {
-        id,
-      },
-    );
-
-    setUpvotes(req.postUpvotes.edges.map((edge) => edge.node));
-  };
 
   const { data: comments, isLoading: isLoadingComments } =
     useQuery<PostCommentsData>(
@@ -593,7 +560,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           {hasUpvotes && (
             <Button
               className="btn-tertiary"
-              onClick={() => handleShowUpvotes()}
+              onClick={() => setShowUpvotedPopup(true)}
             >
               {postById?.post.numUpvotes.toLocaleString()} Upvotes
             </Button>
@@ -659,7 +626,6 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
                   setPendingComment({ comment, parentId })
                 }
                 onEdit={onEditClick}
-                onShowUpvotes={handleCommentUpvotes}
                 postAuthorId={postById?.post?.author?.id}
               />
             ))}
@@ -766,11 +732,13 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           </button>
         </div>
       </PageContainer>
-      <UpvotedPopupModal
-        upvotes={upvotes}
-        isOpen={showUpvotedPopup}
-        onRequestClose={() => setShowUpvotedPopup(false)}
-      />
+      {showUpvotedPopup && (
+        <PostUpvotersModal
+          postId={id}
+          isOpen={showUpvotedPopup}
+          onRequestClose={() => setShowUpvotedPopup(false)}
+        />
+      )}
       {pendingComment && (
         <DeleteCommentModal
           isOpen={!!pendingComment}

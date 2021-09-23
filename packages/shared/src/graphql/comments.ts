@@ -1,5 +1,5 @@
 import { gql } from 'graphql-request';
-import { Connection } from './common';
+import { Connection, Upvote } from './common';
 import { EmptyResponse } from './emptyResponse';
 
 export interface Author {
@@ -21,6 +21,14 @@ export interface Comment {
   upvoted?: boolean;
   numUpvotes: number;
   children?: Connection<Comment>;
+}
+
+export interface CommentUpvote extends Upvote {
+  comment: Comment;
+}
+
+export interface CommentUpvotesData {
+  commentUpvotes: Connection<CommentUpvote>;
 }
 
 export const COMMENT_FRAGMENT = gql`

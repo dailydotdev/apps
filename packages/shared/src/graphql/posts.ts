@@ -1,6 +1,6 @@
 import { gql } from 'graphql-request';
 import { Author, Comment } from './comments';
-import { Connection } from './common';
+import { Connection, Upvote } from './common';
 import { Source } from './sources';
 import { EmptyResponse } from './emptyResponse';
 
@@ -51,6 +51,14 @@ export interface Ad {
 
 export interface PostData {
   post: Post;
+}
+
+export interface PostUpvote extends Upvote {
+  post: Post;
+}
+
+export interface PostUpvotesData {
+  postUpvotes: Connection<PostUpvote>;
 }
 
 export const POST_BY_ID_QUERY = gql`

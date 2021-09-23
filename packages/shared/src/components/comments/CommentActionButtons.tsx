@@ -15,12 +15,12 @@ import { Roles } from '../../lib/user';
 import { apiUrl } from '../../lib/config';
 import { Button } from '../buttons/Button';
 import { getTooltipProps } from '../../lib/tooltip';
+import { CommentUpvotersModal } from '../modals/CommentUpvotersModal';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
   onDelete: (comment: Comment, parentId: string | null) => void;
   onEdit: (comment: Comment, parentComment?: Comment) => void;
-  onShowUpvotes: (commentId: string) => void;
 }
 
 export interface Props extends CommentActionProps {
@@ -34,12 +34,12 @@ export default function CommentActionButtons({
   onComment,
   onDelete,
   onEdit,
-  onShowUpvotes,
 }: Props): ReactElement {
   const { user, showLogin } = useContext(AuthContext);
 
   const [upvoted, setUpvoted] = useState(comment.upvoted);
   const [numUpvotes, setNumUpvotes] = useState(comment.numUpvotes);
+  const [showUpvotedPopup, setShowUpvotedPopup] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -138,10 +138,17 @@ export default function CommentActionButtons({
       {comment.numUpvotes > 0 && (
         <Button
           className="btn-tertiary ml-auto"
-          onClick={() => onShowUpvotes(comment.id)}
+          onClick={() => setShowUpvotedPopup(true)}
         >
           {comment.numUpvotes} upvotes
         </Button>
+      )}
+      {showUpvotedPopup && (
+        <CommentUpvotersModal
+          commentId={comment.id}
+          isOpen={showUpvotedPopup}
+          onRequestClose={() => setShowUpvotedPopup(false)}
+        />
       )}
     </div>
   );
