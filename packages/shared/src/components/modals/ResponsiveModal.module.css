@@ -27,9 +27,3 @@
     }
   }
 }
-
-.noPadding {
-  & :global(.modal) {
-    padding: 0;
-  }
-}

@@ -10,26 +10,16 @@ import styles from './ResponsiveModal.module.css';
 
 export const responsiveModalBreakpoint = breakpoint;
 
-interface ResponsiveModalProps extends ModalProps {
-  noPadding?: boolean;
-}
-
 export function ResponsiveModal({
   className,
-  noPadding,
   ...props
-}: ResponsiveModalProps): ReactElement {
+}: ModalProps): ReactElement {
   useResetScrollForResponsiveModal();
   useHideOnModal(props.isOpen);
-
   return (
     <StyledModal
       {...props}
-      className={classNames(
-        className,
-        styles.responsiveModal,
-        noPadding && styles.noPadding,
-      )}
+      className={classNames(className, styles.responsiveModal)}
     />
   );
 }
