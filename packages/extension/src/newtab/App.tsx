@@ -13,14 +13,10 @@ import useThirdPartyAnalytics from '@dailydotdev/shared/src/hooks/useThirdPartyA
 import ProgressiveEnhancementContext, {
   ProgressiveEnhancementContextProvider,
 } from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
-import AuthContext, {
-  AuthContextProvider,
-} from '@dailydotdev/shared/src/contexts/AuthContext';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { OnboardingContextProvider } from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
-import FeaturesContext, {
-  FeaturesContextProvider,
-} from '@dailydotdev/shared/src/contexts/FeaturesContext';
+import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import { SettingsContextProvider } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { AnalyticsContextProvider } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { browser } from 'webextension-polyfill-ts';
