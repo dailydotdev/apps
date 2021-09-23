@@ -584,20 +584,19 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           />
         </a>
         <div
-          className="flex gap-x-4 my-4 text-theme-label-tertiary typo-callout"
+          className="flex items-center gap-x-4 my-4 text-theme-label-tertiary typo-callout"
           data-testid="statsBar"
         >
           {postById?.post.views > 0 && (
             <span>{postById?.post.views.toLocaleString()} Views</span>
           )}
           {hasUpvotes && (
-            <span
-              className="cursor-pointer"
+            <Button
+              className="btn-tertiary"
               onClick={() => handleShowUpvotes()}
-              aria-hidden="true"
             >
               {postById?.post.numUpvotes.toLocaleString()} Upvotes
-            </span>
+            </Button>
           )}
           {postById?.post.numComments > 0 && (
             <span>{postById?.post.numComments.toLocaleString()} Comments</span>
