@@ -27,7 +27,6 @@ export default function SubComment({
   onComment,
   onDelete,
   onEdit,
-  onShowUpvotes,
   postAuthorId,
 }: Props): ReactElement {
   return (
@@ -55,7 +54,6 @@ export default function SubComment({
           onComment={onComment}
           onDelete={onDelete}
           onEdit={onEdit}
-          onShowUpvotes={onShowUpvotes}
         />
       </div>
     </article>
