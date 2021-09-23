@@ -94,12 +94,15 @@ export const POST_BY_ID_QUERY = gql`
 export const POST_UPVOTES_BY_ID_QUERY = gql`
   query postUpvotes($id: String!) {
     postUpvotes(id: $id) {
-      user {
-        id
-        name
-        username
-        image
-        bio
+      edges {
+        node {
+          user {
+            name
+            username
+            bio
+            image
+          }
+        }
       }
     }
   }

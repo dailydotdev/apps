@@ -58,7 +58,7 @@ import classNames from 'classnames';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
-import { Upvote } from '@dailydotdev/shared/src/graphql/common';
+import { Connection, Upvote } from '@dailydotdev/shared/src/graphql/common';
 import styles from './postPage.module.css';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import PostToc from '../../components/widgets/PostToc';
@@ -207,7 +207,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     setUpvotes([]);
     setShowUpvotedPopup(true);
 
-    const req = await request(
+    const req = await request<{ commentUpvotes: Connection<Upvote> }>(
       `${apiUrl}/graphql`,
       COMMENT_UPVOTES_BY_ID_QUERY,
       {
@@ -215,18 +215,22 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
       },
     );
 
-    setUpvotes(req.commentUpvotes);
+    setUpvotes(req.commentUpvotes.edges.map((edge) => edge.node));
   };
 
   const handleShowUpvotes = async () => {
     setUpvotes([]);
     setShowUpvotedPopup(true);
 
-    const req = await request(`${apiUrl}/graphql`, POST_UPVOTES_BY_ID_QUERY, {
-      id,
-    });
+    const req = await request<{ postUpvotes: Connection<Upvote> }>(
+      `${apiUrl}/graphql`,
+      POST_UPVOTES_BY_ID_QUERY,
+      {
+        id,
+      },
+    );
 
-    setUpvotes(req.postUpvotes);
+    setUpvotes(req.postUpvotes.edges.map((edge) => edge.node));
   };
 
   const { data: comments, isLoading: isLoadingComments } =
