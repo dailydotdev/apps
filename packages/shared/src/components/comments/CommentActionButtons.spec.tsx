@@ -18,7 +18,6 @@ const showLogin = jest.fn();
 const onComment = jest.fn();
 const onDelete = jest.fn();
 const onEdit = jest.fn();
-const onShowUpvotes = jest.fn();
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -64,7 +63,6 @@ const renderComponent = (
     onComment,
     onDelete,
     onEdit,
-    onShowUpvotes,
   };
 
   const client = new QueryClient();
