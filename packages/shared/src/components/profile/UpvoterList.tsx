@@ -2,7 +2,6 @@ import React, { ReactElement, memo } from 'react';
 import Link from 'next/link';
 import { Upvote } from '../../graphql/common';
 import { LazyImage } from '../LazyImage';
-import { Button } from '../buttons/Button';
 
 export interface UpvoterListProps {
   upvotes: Upvote[];
