@@ -70,7 +70,13 @@ const UpvotedPopupModal: React.FC<UpvotedPopupModalProps> = ({
     );
 
   return (
-    <ResponsiveModal {...modalProps} onRequestClose={onRequestClose} noPadding>
+    <ResponsiveModal
+      {...modalProps}
+      onRequestClose={onRequestClose}
+      style={{
+        content: { padding: 0 },
+      }}
+    >
       <span className="py-4 px-6 border-b border-salt-90 border-opacity-24">
         <span>Upvoted by</span>
         <ModalCloseButton onClick={onRequestClose} />
