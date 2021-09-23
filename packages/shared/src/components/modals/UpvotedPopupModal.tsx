@@ -68,10 +68,10 @@ export function UpvotedPopupModal({
         content: { padding: 0, maxHeight: '40rem' },
       }}
     >
-      <span className="py-4 px-6 border-b border-salt-90 border-opacity-24">
-        <span>Upvoted by</span>
+      <header className="py-4 px-6 border-b border-theme-divider-tertiary">
+        <h3 className="font-bold typo-title3">Upvoted by</h3>
         <ModalCloseButton onClick={onRequestClose} />
-      </span>
+      </header>
       {upvotes?.length > 0 ? renderUpvoterList() : renderPlaceholder()}
     </ResponsiveModal>
   );
