@@ -65,7 +65,7 @@ export function UpvotedPopupModal({
       {...modalProps}
       onRequestClose={onRequestClose}
       style={{
-        content: { padding: 0 },
+        content: { padding: 0, maxHeight: '40rem' },
       }}
     >
       <span className="py-4 px-6 border-b border-salt-90 border-opacity-24">
