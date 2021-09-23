@@ -99,52 +99,49 @@ export default function CommentActionButtons({
   };
 
   return (
-    <div className="flex items-center">
-      <div className="grid grid-cols-4 gap-4">
+    <div className="flex flex-row gap-3 items-center">
+      <Button
+        id={`comment-${comment.id}-upvote-btn`}
+        buttonSize="small"
+        pressed={upvoted}
+        {...getTooltipProps('Upvote')}
+        onClick={toggleUpvote}
+        icon={<UpvoteIcon />}
+        className="btn-tertiary-avocado"
+      />
+      <Button
+        buttonSize="small"
+        {...getTooltipProps('Comment')}
+        onClick={() => onComment(comment, parentId)}
+        icon={<CommentIcon />}
+        className="btn-tertiary-avocado"
+      />
+      {user?.id === comment.author.id && (
         <Button
-          id={`comment-${comment.id}-upvote-btn`}
           buttonSize="small"
-          pressed={upvoted}
-          {...getTooltipProps('Upvote')}
-          onClick={toggleUpvote}
-          icon={<UpvoteIcon />}
-          className="btn-tertiary-avocado"
+          {...getTooltipProps('Edit')}
+          onClick={() => onEdit(comment)}
+          icon={<EditIcon />}
+          className="btn-tertiary"
         />
+      )}
+      {(user?.id === comment.author.id ||
+        user?.roles?.indexOf(Roles.Moderator) > -1) && (
         <Button
           buttonSize="small"
-          {...getTooltipProps('Comment')}
-          onClick={() => onComment(comment, parentId)}
-          icon={<CommentIcon />}
-          className="btn-tertiary-avocado"
+          {...getTooltipProps('Delete')}
+          onClick={() => onDelete(comment, parentId)}
+          icon={<TrashIcon />}
+          className="btn-tertiary"
         />
-        {user?.id === comment.author.id && (
-          <Button
-            buttonSize="small"
-            {...getTooltipProps('Edit')}
-            onClick={() => onEdit(comment)}
-            icon={<EditIcon />}
-            className="btn-tertiary"
-          />
-        )}
-        {(user?.id === comment.author.id ||
-          user?.roles?.indexOf(Roles.Moderator) > -1) && (
-          <Button
-            buttonSize="small"
-            {...getTooltipProps('Delete')}
-            onClick={() => onDelete(comment, parentId)}
-            icon={<TrashIcon />}
-            className="btn-tertiary"
-          />
-        )}
-      </div>
+      )}
       {comment.numUpvotes > 0 && (
-        <span
-          className="btn-tertiary typo-callout text-salt-90 ml-auto cursor-pointer"
+        <Button
+          className="btn-tertiary ml-auto"
           onClick={() => onShowUpvotes(comment.id)}
-          aria-hidden="true"
         >
           {comment.numUpvotes} upvotes
-        </span>
+        </Button>
       )}
     </div>
   );
