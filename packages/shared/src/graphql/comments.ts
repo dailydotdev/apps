@@ -113,7 +113,7 @@ export const USER_COMMENTS_QUERY = gql`
 `;
 
 export const COMMENT_UPVOTES_BY_ID_QUERY = gql`
-  query commentUpvotes($id: String!) {
+  query CommentUpvotes($id: String!, $after: String, $first: Int) {
     commentUpvotes(id: $id, after: $after, first: $first) {
       pageInfo {
         endCursor
