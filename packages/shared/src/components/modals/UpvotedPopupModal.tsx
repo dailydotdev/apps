@@ -8,7 +8,7 @@ import {
 import { ResponsiveModal } from './ResponsiveModal';
 import { ModalProps } from './StyledModal';
 import { ModalCloseButton } from './ModalCloseButton';
-import { HasConnection, UpvoterList } from '../profile/UpvoterList';
+import { HasUpvoteConnection, UpvoterList } from '../profile/UpvoterList';
 import {
   UpvoterListPlaceholder,
   UpvoterListPlaceholderProps,
@@ -21,7 +21,7 @@ export interface RequestQueryParams {
 }
 
 export interface RequestQuery<
-  T extends HasConnection<T, K>,
+  T extends HasUpvoteConnection<T, K>,
   K extends keyof T,
 > {
   resultKey: K;
@@ -32,7 +32,7 @@ export interface RequestQuery<
 }
 
 export interface UpvotedPopupModalProps<
-  T extends HasConnection<T, K>,
+  T extends HasUpvoteConnection<T, K>,
   K extends keyof T,
 > extends ModalProps {
   listPlaceholderProps: UpvoterListPlaceholderProps;
@@ -40,7 +40,7 @@ export interface UpvotedPopupModalProps<
 }
 
 export function UpvotedPopupModal<
-  T extends HasConnection<T, K>,
+  T extends HasUpvoteConnection<T, K>,
   K extends keyof T,
 >({
   listPlaceholderProps,

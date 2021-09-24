@@ -6,20 +6,23 @@ import { LazyImage } from '../LazyImage';
 import useFeedInfiniteScroll from '../../hooks/feed/useFeedInfiniteScroll';
 
 // export type ConnectionData<K extends > = { [key in K]: Connection<Upvote> };
-export type HasConnection<T, K extends keyof T> = Record<K, Connection<Upvote>>;
+export type HasUpvoteConnection<T, K extends keyof T> = Record<
+  K,
+  Connection<Upvote>
+>;
 
 export interface UpvoterListProps<
-  T extends HasConnection<T, K>,
+  T extends HasUpvoteConnection<T, K>,
   K extends keyof T,
 > {
   queryResult: UseInfiniteQueryResult<T>;
   objectKey: K;
 }
 
-export function UpvoterList<T extends HasConnection<T, K>, K extends keyof T>({
-  objectKey,
-  queryResult,
-}: UpvoterListProps<T, K>): ReactElement {
+export function UpvoterList<
+  T extends HasUpvoteConnection<T, K>,
+  K extends keyof T,
+>({ objectKey, queryResult }: UpvoterListProps<T, K>): ReactElement {
   const canFetchMore =
     !queryResult.isLoading &&
     !queryResult.isFetchingNextPage &&
