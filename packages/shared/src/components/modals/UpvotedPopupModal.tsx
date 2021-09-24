@@ -8,12 +8,13 @@ import {
 import { ResponsiveModal } from './ResponsiveModal';
 import { ModalProps } from './StyledModal';
 import { ModalCloseButton } from './ModalCloseButton';
-import { HasUpvoteConnection, UpvoterList } from '../profile/UpvoterList';
+import { UpvoterList } from '../profile/UpvoterList';
 import {
   UpvoterListPlaceholder,
   UpvoterListPlaceholderProps,
 } from '../profile/UpvoterListPlaceholder';
 import { apiUrl } from '../../lib/config';
+import { Connection, HasConnection, Upvote } from '../../graphql/common';
 
 export interface RequestQueryParams {
   [key: string]: unknown;
@@ -21,35 +22,35 @@ export interface RequestQueryParams {
 }
 
 export interface RequestQuery<
-  T extends HasUpvoteConnection<T, K>,
-  K extends keyof T,
+  TConnection extends HasConnection<Upvote, TKey>,
+  TKey extends keyof Connection<Upvote>,
 > {
-  resultKey: K;
+  resultKey: TKey;
   queryKey: QueryKey;
   query: string;
   params?: RequestQueryParams;
-  options?: UseInfiniteQueryOptions<T>;
+  options?: UseInfiniteQueryOptions<TConnection>;
 }
 
 export interface UpvotedPopupModalProps<
-  T extends HasUpvoteConnection<T, K>,
-  K extends keyof T,
+  TConnection extends HasConnection<Upvote, TKey>,
+  TKey extends keyof Connection<Upvote>,
 > extends ModalProps {
   listPlaceholderProps: UpvoterListPlaceholderProps;
-  requestQuery: RequestQuery<T, K>;
+  requestQuery: RequestQuery<TConnection, TKey>;
 }
 
 export function UpvotedPopupModal<
-  T extends HasUpvoteConnection<T, K>,
-  K extends keyof T,
+  TConnection extends HasConnection<Upvote, TKey>,
+  TKey extends keyof Connection<Upvote>,
 >({
   listPlaceholderProps,
   onRequestClose,
   requestQuery: { resultKey, queryKey, query, params, options = {} },
   children,
   ...modalProps
-}: UpvotedPopupModalProps<T, K>): ReactElement {
-  const queryResult = useInfiniteQuery<T>(
+}: UpvotedPopupModalProps<TConnection, TKey>): ReactElement {
+  const queryResult = useInfiniteQuery<TConnection>(
     queryKey,
     ({ pageParam }) =>
       request(`${apiUrl}/graphql`, query, { ...params, after: pageParam }),

@@ -1,27 +1,25 @@
 import React, { ReactElement } from 'react';
 import Link from 'next/link';
 import { UseInfiniteQueryResult } from 'react-query';
-import { Connection, Upvote } from '../../graphql/common';
+import { Connection, HasConnection, Upvote } from '../../graphql/common';
 import { LazyImage } from '../LazyImage';
 import useFeedInfiniteScroll from '../../hooks/feed/useFeedInfiniteScroll';
 
-export type HasUpvoteConnection<T, K extends keyof T> = Record<
-  K,
-  Connection<Upvote>
->;
-
 export interface UpvoterListProps<
-  T extends HasUpvoteConnection<T, K>,
-  K extends keyof T,
+  TConnection extends HasConnection<Upvote, TKey>,
+  TKey extends keyof Connection<Upvote>,
 > {
-  queryResult: UseInfiniteQueryResult<T>;
-  objectKey: K;
+  queryResult: UseInfiniteQueryResult<TConnection>;
+  objectKey: TKey;
 }
 
 export function UpvoterList<
-  T extends HasUpvoteConnection<T, K>,
-  K extends keyof T,
->({ objectKey, queryResult }: UpvoterListProps<T, K>): ReactElement {
+  TConnection extends HasConnection<Upvote, TKey>,
+  TKey extends keyof Connection<Upvote>,
+>({
+  objectKey,
+  queryResult,
+}: UpvoterListProps<TConnection, TKey>): ReactElement {
   const canFetchMore =
     !queryResult.isLoading &&
     !queryResult.isFetchingNextPage &&

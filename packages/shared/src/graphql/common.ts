@@ -23,6 +23,11 @@ export interface Edge<T> {
   cursor?: ConnectionCursor;
 }
 
+export type HasConnection<
+  TEntity,
+  TKey extends keyof Connection<TEntity>,
+> = Record<TKey, Connection<TEntity>>;
+
 export const DEFAULT_UPVOTES_PER_PAGE = 50;
 
 export interface Upvote {
