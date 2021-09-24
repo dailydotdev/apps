@@ -71,7 +71,6 @@ export function UpvotedPopupModal<
         content: {
           padding: 0,
           maxHeight: '40rem',
-          maxWidth: '30rem',
           overflow: 'hidden',
         },
       }}
