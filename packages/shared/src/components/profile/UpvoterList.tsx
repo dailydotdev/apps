@@ -5,7 +5,6 @@ import { Connection, Upvote } from '../../graphql/common';
 import { LazyImage } from '../LazyImage';
 import useFeedInfiniteScroll from '../../hooks/feed/useFeedInfiniteScroll';
 
-// export type ConnectionData<K extends > = { [key in K]: Connection<Upvote> };
 export type HasUpvoteConnection<T, K extends keyof T> = Record<
   K,
   Connection<Upvote>
