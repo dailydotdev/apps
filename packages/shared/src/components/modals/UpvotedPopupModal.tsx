@@ -1,25 +1,68 @@
 import React, { ReactElement } from 'react';
+import request from 'graphql-request';
+import {
+  QueryKey,
+  useInfiniteQuery,
+  UseInfiniteQueryOptions,
+} from 'react-query';
 import { ResponsiveModal } from './ResponsiveModal';
 import { ModalProps } from './StyledModal';
 import { ModalCloseButton } from './ModalCloseButton';
-import { UpvoterList, UpvoterListProps } from '../profile/UpvoterList';
+import { HasConnection, UpvoterList } from '../profile/UpvoterList';
 import {
   UpvoterListPlaceholder,
   UpvoterListPlaceholderProps,
 } from '../profile/UpvoterListPlaceholder';
+import { apiUrl } from '../../lib/config';
 
-export interface UpvotedPopupModalProps extends ModalProps {
-  listProps: UpvoterListProps;
-  listPlaceholderProps: UpvoterListPlaceholderProps;
+export interface RequestQueryParams {
+  [key: string]: unknown;
+  first: number;
 }
 
-export function UpvotedPopupModal({
-  listProps,
+export interface RequestQuery<
+  T extends HasConnection<T, K>,
+  K extends keyof T,
+> {
+  resultKey: K;
+  queryKey: QueryKey;
+  query: string;
+  params?: RequestQueryParams;
+  options?: UseInfiniteQueryOptions<T>;
+}
+
+export interface UpvotedPopupModalProps<
+  T extends HasConnection<T, K>,
+  K extends keyof T,
+> extends ModalProps {
+  listPlaceholderProps: UpvoterListPlaceholderProps;
+  requestQuery: RequestQuery<T, K>;
+}
+
+export function UpvotedPopupModal<
+  T extends HasConnection<T, K>,
+  K extends keyof T,
+>({
   listPlaceholderProps,
   onRequestClose,
+  requestQuery: { resultKey, queryKey, query, params, options = {} },
   children,
   ...modalProps
-}: UpvotedPopupModalProps): ReactElement {
+}: UpvotedPopupModalProps<T, K>): ReactElement {
+  const queryResult = useInfiniteQuery<T>(
+    queryKey,
+    ({ pageParam }) =>
+      request(`${apiUrl}/graphql`, query, { ...params, after: pageParam }),
+    {
+      ...options,
+      getNextPageParam: (lastPage) =>
+        lastPage[resultKey].pageInfo.hasNextPage &&
+        lastPage[resultKey].pageInfo.endCursor,
+    },
+  );
+
+  const [page] = queryResult?.data?.pages || [];
+
   return (
     <ResponsiveModal
       {...modalProps}
@@ -38,8 +81,8 @@ export function UpvotedPopupModal({
         <ModalCloseButton onClick={onRequestClose} />
       </header>
       <section className="w-full relative flex-shrink h-full max-h-full overflow-auto">
-        {listProps.upvotes?.length > 0 ? (
-          <UpvoterList {...listProps}>{children}</UpvoterList>
+        {page && page[resultKey].edges.length > 0 ? (
+          <UpvoterList objectKey={resultKey} queryResult={queryResult} />
         ) : (
           <UpvoterListPlaceholder {...listPlaceholderProps} />
         )}

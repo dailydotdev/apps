@@ -28,6 +28,7 @@ import {
   PostData,
   POSTS_ENGAGED_SUBSCRIPTION,
   PostsEngaged,
+  POST_UPVOTES_BY_ID_QUERY,
 } from '@dailydotdev/shared/src/graphql/posts';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import MainComment from '@dailydotdev/shared/src/components/comments/MainComment';
@@ -35,6 +36,7 @@ import {
   Comment,
   POST_COMMENTS_QUERY,
   PostCommentsData,
+  COMMENT_UPVOTES_BY_ID_QUERY,
 } from '@dailydotdev/shared/src/graphql/comments';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { ShareMobile } from '@dailydotdev/shared/src/components/ShareMobile';
@@ -60,12 +62,8 @@ import styles from './postPage.module.css';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import PostToc from '../../components/widgets/PostToc';
 
-const PostUpvotersModal = dynamic(
-  () => import('@dailydotdev/shared/src/components/modals/PostUpvotersModal'),
-);
-const CommentUpvotersModal = dynamic(
-  () =>
-    import('@dailydotdev/shared/src/components/modals/CommentUpvotersModal'),
+const UpvotedPopupModal = dynamic(
+  () => import('@dailydotdev/shared/src/components/modals/UpvotedPopupModal'),
 );
 const NewCommentModal = dynamic(
   () => import('@dailydotdev/shared/src/components/modals/NewCommentModal'),
@@ -109,6 +107,7 @@ interface PostParams extends ParsedUrlQuery {
   id: string;
 }
 
+const DEFAULT_UPVOTES_PER_PAGE = 50;
 const metadataStyle = 'text-theme-label-tertiary typo-callout';
 const SourceImage = classed(LazyImage, 'w-8 h-8 rounded-full');
 const SourceName = classed(
@@ -166,6 +165,12 @@ const onBookmarkMutation = (
     bookmarked,
   }));
 
+const getUpvotedPopupInitialState = () => ({
+  upvotes: 0,
+  modal: false,
+  requestQuery: null,
+});
+
 const PostPage = ({ id, postData }: Props): ReactElement => {
   const router = useRouter();
   const { isFallback } = router;
@@ -184,12 +189,9 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   }>(null);
   const [showShareNewComment, setShowShareNewComment] = useState(false);
   const [lastScroll, setLastScroll] = useState(0);
-  const [showPostUpvotedPopup, setShowPostUpvotedPopup] = useState(false);
-  const [upvotedComment, setUpvotedComment] = useState({
-    modal: false,
-    commentId: '',
-    upvotes: 0,
-  });
+  const [upvotedPopup, setUpvotedPopup] = useState(() =>
+    getUpvotedPopupInitialState(),
+  );
   const [showDeletePost, setShowDeletePost] = useState(false);
   const [showBanPost, setShowBanPost] = useState(false);
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
@@ -220,6 +222,34 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         refetchInterval: 60 * 1000,
       },
     );
+
+  const handleShowUpvotedPost = () => {
+    setUpvotedPopup({
+      modal: true,
+      upvotes: postById?.post.numUpvotes || 1,
+      requestQuery: {
+        resultKey: 'postUpvotes',
+        queryKey: ['postUpvotes', id],
+        query: POST_UPVOTES_BY_ID_QUERY,
+        options: { enabled: !!id },
+        params: { id, first: DEFAULT_UPVOTES_PER_PAGE },
+      },
+    });
+  };
+
+  const handleShowUpvotedComment = (commentId: string, upvotes: number) => {
+    setUpvotedPopup({
+      modal: true,
+      upvotes,
+      requestQuery: {
+        resultKey: 'commentUpvotes',
+        queryKey: ['commentUpvotes', commentId],
+        query: COMMENT_UPVOTES_BY_ID_QUERY,
+        options: { enabled: !!commentId },
+        params: { id: commentId, first: DEFAULT_UPVOTES_PER_PAGE },
+      },
+    });
+  };
 
   useSubscription(
     () => ({
@@ -568,7 +598,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           {hasUpvotes && (
             <Button
               className="btn-tertiary"
-              onClick={() => setShowPostUpvotedPopup(true)}
+              onClick={() => handleShowUpvotedPost()}
             >
               {postById?.post.numUpvotes.toLocaleString()} Upvotes
             </Button>
@@ -634,9 +664,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
                   setPendingComment({ comment, parentId })
                 }
                 onEdit={onEditClick}
-                onShowUpvotes={(commentId, upvotes) =>
-                  setUpvotedComment({ modal: true, commentId, upvotes })
-                }
+                onShowUpvotes={handleShowUpvotedComment}
                 postAuthorId={postById?.post?.author?.id}
               />
             ))}
@@ -743,24 +771,12 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           </button>
         </div>
       </PageContainer>
-      {showPostUpvotedPopup && (
-        <PostUpvotersModal
-          postId={id}
-          isOpen={showPostUpvotedPopup}
-          listPlaceholderProps={{
-            placeholderAmount: postById?.post.numUpvotes || 1,
-          }}
-          onRequestClose={() => setShowPostUpvotedPopup(false)}
-        />
-      )}
-      {upvotedComment.modal && (
-        <CommentUpvotersModal
-          commentId={upvotedComment.commentId}
-          listPlaceholderProps={{ placeholderAmount: upvotedComment.upvotes }}
-          isOpen={upvotedComment.modal}
-          onRequestClose={() =>
-            setUpvotedComment({ modal: false, commentId: '', upvotes: 0 })
-          }
+      {upvotedPopup.modal && (
+        <UpvotedPopupModal
+          requestQuery={upvotedPopup.requestQuery}
+          isOpen={upvotedPopup.modal}
+          listPlaceholderProps={{ placeholderAmount: upvotedPopup.upvotes }}
+          onRequestClose={() => setUpvotedPopup(getUpvotedPopupInitialState())}
         />
       )}
       {pendingComment && (
