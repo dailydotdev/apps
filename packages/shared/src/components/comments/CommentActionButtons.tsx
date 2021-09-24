@@ -141,7 +141,7 @@ export default function CommentActionButtons({
           {...getTooltipProps('Display Modal')}
           onClick={() => onShowUpvotes(comment.id, comment.numUpvotes)}
         >
-          {comment.numUpvotes} upvotes
+          {`${comment.numUpvotes} upvote${comment.numUpvotes === 1 ? '' : 's'}`}
         </Button>
       )}
     </div>

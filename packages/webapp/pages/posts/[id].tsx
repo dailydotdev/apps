@@ -209,6 +209,8 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
       enabled: !!id && tokenRefreshed,
     },
   );
+  const postUpvotesNum = postById?.post.numUpvotes || 0;
+  const postNumComments = postById?.post.numComments || 0;
 
   const { data: comments, isLoading: isLoadingComments } =
     useQuery<PostCommentsData>(
@@ -226,7 +228,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   const handleShowUpvotedPost = () => {
     setUpvotedPopup({
       modal: true,
-      upvotes: postById?.post.numUpvotes || 1,
+      upvotes: postUpvotesNum || 1,
       requestQuery: {
         resultKey: 'postUpvotes',
         queryKey: ['postUpvotes', id],
@@ -469,8 +471,6 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     },
   };
 
-  const hasUpvotes = postById?.post.numUpvotes > 0;
-
   return (
     <>
       <PageContainer className="pt-6 pb-20 laptop:pb-6 laptop:self-start laptop:border-theme-divider-tertiary laptop:border-r laptopL:self-center laptopL:border-l">
@@ -595,16 +595,20 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           {postById?.post.views > 0 && (
             <span>{postById?.post.views.toLocaleString()} Views</span>
           )}
-          {hasUpvotes && (
+          {postUpvotesNum > 0 && (
             <Button
               className="btn-tertiary"
               onClick={() => handleShowUpvotedPost()}
             >
-              {postById?.post.numUpvotes.toLocaleString()} Upvotes
+              {postUpvotesNum.toLocaleString()}
+              {` Upvote${postUpvotesNum === 1 ? '' : 's'}`}
             </Button>
           )}
-          {postById?.post.numComments > 0 && (
-            <span>{postById?.post.numComments.toLocaleString()} Comments</span>
+          {postNumComments > 0 && (
+            <span>
+              {postNumComments.toLocaleString()}
+              {` Comment${postNumComments === 1 ? '' : 's'}`}
+            </span>
           )}
         </div>
         <div className="flex justify-between py-2 border-t border-b border-theme-divider-tertiary">
