@@ -63,6 +63,10 @@ import PostToc from '../../components/widgets/PostToc';
 const PostUpvotersModal = dynamic(
   () => import('@dailydotdev/shared/src/components/modals/PostUpvotersModal'),
 );
+const CommentUpvotersModal = dynamic(
+  () =>
+    import('@dailydotdev/shared/src/components/modals/CommentUpvotersModal'),
+);
 const NewCommentModal = dynamic(
   () => import('@dailydotdev/shared/src/components/modals/NewCommentModal'),
 );
@@ -180,7 +184,11 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   }>(null);
   const [showShareNewComment, setShowShareNewComment] = useState(false);
   const [lastScroll, setLastScroll] = useState(0);
-  const [showUpvotedPopup, setShowUpvotedPopup] = useState(false);
+  const [showPostUpvotedPopup, setShowPostUpvotedPopup] = useState(false);
+  const [showCommentUpvoted, setShowCommentUpvoted] = useState({
+    modal: false,
+    commentId: '',
+  });
   const [showDeletePost, setShowDeletePost] = useState(false);
   const [showBanPost, setShowBanPost] = useState(false);
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
@@ -559,7 +567,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           {hasUpvotes && (
             <Button
               className="btn-tertiary"
-              onClick={() => setShowUpvotedPopup(true)}
+              onClick={() => setShowPostUpvotedPopup(true)}
             >
               {postById?.post.numUpvotes.toLocaleString()} Upvotes
             </Button>
@@ -731,11 +739,20 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           </button>
         </div>
       </PageContainer>
-      {showUpvotedPopup && (
+      {showPostUpvotedPopup && (
         <PostUpvotersModal
           postId={id}
-          isOpen={showUpvotedPopup}
-          onRequestClose={() => setShowUpvotedPopup(false)}
+          isOpen={showPostUpvotedPopup}
+          onRequestClose={() => setShowPostUpvotedPopup(false)}
+        />
+      )}
+      {showCommentUpvoted.modal && (
+        <CommentUpvotersModal
+          commentId={showCommentUpvoted.commentId}
+          isOpen={showCommentUpvoted.modal}
+          onRequestClose={() =>
+            setShowCommentUpvoted({ modal: false, commentId: '' })
+          }
         />
       )}
       {pendingComment && (
