@@ -18,6 +18,7 @@ const showLogin = jest.fn();
 const onComment = jest.fn();
 const onDelete = jest.fn();
 const onEdit = jest.fn();
+const onShowUpvotes = jest.fn();
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -63,6 +64,7 @@ const renderComponent = (
     onComment,
     onDelete,
     onEdit,
+    onShowUpvotes,
   };
 
   const client = new QueryClient();
@@ -163,6 +165,20 @@ it('should call onDelete callback', async () => {
   const el = await screen.findByLabelText('Delete');
   el.click();
   expect(onDelete).toBeCalledWith(baseComment, 'c1');
+});
+
+it('should call onEdit callback', async () => {
+  renderComponent({}, loggedUser);
+  const el = await screen.findByLabelText('Delete');
+  el.click();
+  expect(onEdit).toBeCalledWith(baseComment);
+});
+
+it('should call onShowUpvotes callback', async () => {
+  renderComponent({}, loggedUser);
+  const el = await screen.findByLabelText('Delete');
+  el.click();
+  expect(onShowUpvotes).toBeCalledWith(baseComment.id, baseComment.numUpvotes);
 });
 
 it('should not show num upvotes when it is zero', async () => {
