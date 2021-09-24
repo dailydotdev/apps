@@ -54,6 +54,7 @@ export function CommentUpvotersModal({
   const infiniteScrollRef = useFeedInfiniteScroll(
     query?.fetchNextPage,
     canFetchMore,
+    false,
   );
 
   return (

@@ -7,6 +7,7 @@ import OnboardingContext, {
 export default function useFeedInfiniteScroll(
   fetchPage: () => Promise<unknown>,
   canFetchMore: boolean,
+  enableTrackEngagement = true,
 ): (node?: Element | null) => void {
   const { trackEngagement } = useContext(OnboardingContext);
   const { ref: infiniteScrollRef, inView } = useInView({
@@ -17,7 +18,8 @@ export default function useFeedInfiniteScroll(
   useEffect(() => {
     if (inView && canFetchMore) {
       fetchPage().then(async () => {
-        await trackEngagement(EngagementAction.Scroll);
+        if (enableTrackEngagement)
+          await trackEngagement(EngagementAction.Scroll);
       });
     }
   }, [inView, canFetchMore]);
