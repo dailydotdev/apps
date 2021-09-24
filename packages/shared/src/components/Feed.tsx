@@ -100,7 +100,7 @@ export default function Feed<T>({
     comment,
     isSendingComment,
   } = useCommentPopup();
-  const infiniteScrollRef = useFeedInfiniteScroll(fetchPage, canFetchMore);
+  const infiniteScrollRef = useFeedInfiniteScroll({ fetchPage, canFetchMore });
 
   const onShare = async (post: Post): Promise<void> => {
     trackEvent({
