@@ -185,7 +185,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   const [showShareNewComment, setShowShareNewComment] = useState(false);
   const [lastScroll, setLastScroll] = useState(0);
   const [showPostUpvotedPopup, setShowPostUpvotedPopup] = useState(false);
-  const [showCommentUpvoted, setShowCommentUpvoted] = useState({
+  const [upvotedComment, setUpvotedComment] = useState({
     modal: false,
     commentId: '',
     upvotes: 0,
@@ -635,7 +635,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
                 }
                 onEdit={onEditClick}
                 onShowUpvotes={(commentId, upvotes) =>
-                  setShowCommentUpvoted({ modal: true, commentId, upvotes })
+                  setUpvotedComment({ modal: true, commentId, upvotes })
                 }
                 postAuthorId={postById?.post?.author?.id}
               />
@@ -747,15 +747,19 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         <PostUpvotersModal
           postId={id}
           isOpen={showPostUpvotedPopup}
+          listPlaceholderProps={{
+            placeholderAmount: postById?.post.numUpvotes || 1,
+          }}
           onRequestClose={() => setShowPostUpvotedPopup(false)}
         />
       )}
-      {showCommentUpvoted.modal && (
+      {upvotedComment.modal && (
         <CommentUpvotersModal
-          commentId={showCommentUpvoted.commentId}
-          isOpen={showCommentUpvoted.modal}
+          commentId={upvotedComment.commentId}
+          listPlaceholderProps={{ placeholderAmount: upvotedComment.upvotes }}
+          isOpen={upvotedComment.modal}
           onRequestClose={() =>
-            setShowCommentUpvoted({ modal: false, commentId: '', upvotes: 0 })
+            setUpvotedComment({ modal: false, commentId: '', upvotes: 0 })
           }
         />
       )}

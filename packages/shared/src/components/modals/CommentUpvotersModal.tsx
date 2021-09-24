@@ -8,15 +8,18 @@ import {
 import { DEFAULT_UPVOTES_PER_PAGE } from '../../graphql/common';
 import useFeedInfiniteScroll from '../../hooks/feed/useFeedInfiniteScroll';
 import { apiUrl } from '../../lib/config';
+import { UpvoterListPlaceholderProps } from '../profile/UpvoterListPlaceholder';
 import { ModalProps } from './StyledModal';
 import { UpvotedPopupModal } from './UpvotedPopupModal';
 
 interface CommentUpvotersModalProps extends ModalProps {
   commentId: string;
+  listPlaceholderProps: UpvoterListPlaceholderProps;
 }
 
 export function CommentUpvotersModal({
   commentId,
+  listPlaceholderProps,
   ...modalProps
 }: CommentUpvotersModalProps): ReactElement {
   const commentUpvotesQueryKey = ['commentUpvotes', commentId];
@@ -59,7 +62,11 @@ export function CommentUpvotersModal({
   );
 
   return (
-    <UpvotedPopupModal {...modalProps} listProps={{ upvotes }}>
+    <UpvotedPopupModal
+      {...modalProps}
+      listProps={{ upvotes }}
+      listPlaceholderProps={listPlaceholderProps}
+    >
       <div
         className="absolute bottom-0 left-0 h-px w-px opacity-0 pointer-events-none"
         ref={infiniteScrollRef}

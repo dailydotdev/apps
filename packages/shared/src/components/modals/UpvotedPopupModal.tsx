@@ -10,12 +10,12 @@ import {
 
 export interface UpvotedPopupModalProps extends ModalProps {
   listProps: UpvoterListProps;
-  listPlaceholderProps?: UpvoterListPlaceholderProps;
+  listPlaceholderProps: UpvoterListPlaceholderProps;
 }
 
 export function UpvotedPopupModal({
   listProps,
-  listPlaceholderProps = {},
+  listPlaceholderProps,
   onRequestClose,
   children,
   ...modalProps

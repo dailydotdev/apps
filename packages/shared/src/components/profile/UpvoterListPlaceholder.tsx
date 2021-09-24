@@ -2,18 +2,24 @@ import React, { ReactElement } from 'react';
 import { PlaceholderList } from '../cards/PlaceholderList';
 
 export interface UpvoterListPlaceholderProps {
-  placeholderAmount?: number;
+  placeholderAmount: number;
 }
 
+const MAX_DISPLAY = 5;
+
 export function UpvoterListPlaceholder({
-  placeholderAmount = 5,
+  placeholderAmount,
 }: UpvoterListPlaceholderProps): ReactElement {
+  const amount =
+    placeholderAmount <= MAX_DISPLAY ? placeholderAmount : MAX_DISPLAY;
+
   return (
     <div className="flex flex-col">
-      {Array(placeholderAmount)
+      {Array(amount)
         .fill(0)
-        .map(() => (
-          <PlaceholderList key={Math.random()} />
+        .map((_, i) => (
+          // eslint-disable-next-line react/no-array-index-key
+          <PlaceholderList key={i} />
         ))}
     </div>
   );

@@ -5,15 +5,18 @@ import { DEFAULT_UPVOTES_PER_PAGE } from '../../graphql/common';
 import { PostUpvotesData, POST_UPVOTES_BY_ID_QUERY } from '../../graphql/posts';
 import useFeedInfiniteScroll from '../../hooks/feed/useFeedInfiniteScroll';
 import { apiUrl } from '../../lib/config';
+import { UpvoterListPlaceholderProps } from '../profile/UpvoterListPlaceholder';
 import { ModalProps } from './StyledModal';
 import { UpvotedPopupModal } from './UpvotedPopupModal';
 
 interface PostUpvotersModalProps extends ModalProps {
   postId: string;
+  listPlaceholderProps: UpvoterListPlaceholderProps;
 }
 
 export function PostUpvotersModal({
   postId,
+  listPlaceholderProps,
   ...modalProps
 }: PostUpvotersModalProps): ReactElement {
   const postUpvotesQueryKey = ['postUpvotes', postId];
@@ -56,7 +59,11 @@ export function PostUpvotersModal({
   );
 
   return (
-    <UpvotedPopupModal {...modalProps} listProps={{ upvotes }}>
+    <UpvotedPopupModal
+      {...modalProps}
+      listProps={{ upvotes }}
+      listPlaceholderProps={listPlaceholderProps}
+    >
       <div
         className="absolute bottom-0 left-0 h-px w-px opacity-0 pointer-events-none"
         ref={infiniteScrollRef}
