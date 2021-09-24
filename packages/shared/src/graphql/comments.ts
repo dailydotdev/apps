@@ -1,5 +1,6 @@
 import { gql } from 'graphql-request';
 import { Connection, Upvote } from './common';
+import { UPVOTER_FRAGMENT } from './users';
 import { EmptyResponse } from './emptyResponse';
 
 export interface Author {
@@ -113,6 +114,7 @@ export const USER_COMMENTS_QUERY = gql`
 `;
 
 export const COMMENT_UPVOTES_BY_ID_QUERY = gql`
+  ${UPVOTER_FRAGMENT}
   query CommentUpvotes($id: String!, $after: String, $first: Int) {
     commentUpvotes(id: $id, after: $after, first: $first) {
       pageInfo {
@@ -122,10 +124,7 @@ export const COMMENT_UPVOTES_BY_ID_QUERY = gql`
       edges {
         node {
           user {
-            name
-            username
-            bio
-            image
+            ...UpvoterFragment
           }
         }
       }

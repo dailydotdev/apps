@@ -76,3 +76,12 @@ export const USER_READING_HISTORY_QUERY = gql`
     }
   }
 `;
+
+export const UPVOTER_FRAGMENT = gql`
+  fragment UpvoterFragment on User {
+    name
+    username
+    bio
+    image
+  }
+`;
