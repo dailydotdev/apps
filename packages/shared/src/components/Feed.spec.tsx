@@ -157,7 +157,7 @@ it('should replace placeholders with posts and ad', async () => {
   await Promise.all(
     elements.map(async (el, i) =>
       // eslint-disable-next-line testing-library/prefer-screen-queries
-      expect((await findAllByRole(el, 'link'))[0]).toHaveAttribute(
+      expect((await findAllByRole(el, 'link'))[i]).toHaveAttribute(
         'href',
         links[i],
       ),
