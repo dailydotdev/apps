@@ -1,4 +1,4 @@
-import React, { ReactElement, memo, ReactNode } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 import Link from 'next/link';
 import { Upvote } from '../../graphql/common';
 import { LazyImage } from '../LazyImage';
@@ -26,13 +26,13 @@ export function UpvoterList({
               className="w-12 h-12 rounded-10"
               ratio="1 / 1"
             />
-            <div className="flex flex-col flex-1 ml-4">
-              <span className="typo-callout font-bold">{user.name}</span>
-              <span className="typo-callout text-theme-label-secondary">
+            <div className="flex flex-col flex-1 ml-4 typo-callout">
+              <span className="font-bold">{user.name}</span>
+              <span className="text-theme-label-secondary">
                 @{user.username}
               </span>
               {user.bio && (
-                <span className="mt-1 typo-callout text-salt-90">
+                <span className="mt-1 text-theme-label-tertiary">
                   {user.bio}
                 </span>
               )}
@@ -45,4 +45,4 @@ export function UpvoterList({
   );
 }
 
-export default memo(UpvoterList);
+export default UpvoterList;
