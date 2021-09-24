@@ -21,6 +21,7 @@ export default function MainComment({
   onComment,
   onDelete,
   onEdit,
+  onShowUpvotes,
   postAuthorId,
 }: Props): ReactElement {
   return (
@@ -39,6 +40,7 @@ export default function MainComment({
         onComment={onComment}
         onDelete={onDelete}
         onEdit={onEdit}
+        onShowUpvotes={onShowUpvotes}
       />
       {comment.children?.edges.map((e, i) => (
         <SubComment
@@ -50,6 +52,7 @@ export default function MainComment({
           onComment={onComment}
           onDelete={onDelete}
           onEdit={(childComment) => onEdit(childComment, comment)}
+          onShowUpvotes={onShowUpvotes}
           postAuthorId={postAuthorId}
         />
       ))}

@@ -188,6 +188,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   const [showCommentUpvoted, setShowCommentUpvoted] = useState({
     modal: false,
     commentId: '',
+    upvotes: 0,
   });
   const [showDeletePost, setShowDeletePost] = useState(false);
   const [showBanPost, setShowBanPost] = useState(false);
@@ -633,6 +634,9 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
                   setPendingComment({ comment, parentId })
                 }
                 onEdit={onEditClick}
+                onShowUpvotes={(commentId, upvotes) =>
+                  setShowCommentUpvoted({ modal: true, commentId, upvotes })
+                }
                 postAuthorId={postById?.post?.author?.id}
               />
             ))}
@@ -751,7 +755,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           commentId={showCommentUpvoted.commentId}
           isOpen={showCommentUpvoted.modal}
           onRequestClose={() =>
-            setShowCommentUpvoted({ modal: false, commentId: '' })
+            setShowCommentUpvoted({ modal: false, commentId: '', upvotes: 0 })
           }
         />
       )}
