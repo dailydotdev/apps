@@ -138,6 +138,7 @@ export default function CommentActionButtons({
       {comment.numUpvotes > 0 && (
         <Button
           className="btn-tertiary ml-auto"
+          {...getTooltipProps('Display Modal')}
           onClick={() => onShowUpvotes(comment.id, comment.numUpvotes)}
         >
           {comment.numUpvotes} upvotes
