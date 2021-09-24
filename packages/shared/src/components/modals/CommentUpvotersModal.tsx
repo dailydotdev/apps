@@ -5,6 +5,7 @@ import {
   CommentUpvotesData,
   COMMENT_UPVOTES_BY_ID_QUERY,
 } from '../../graphql/comments';
+import { DEFAULT_UPVOTES_PER_PAGE } from '../../graphql/common';
 import useFeedInfiniteScroll from '../../hooks/feed/useFeedInfiniteScroll';
 import { apiUrl } from '../../lib/config';
 import { ModalProps } from './StyledModal';
@@ -24,7 +25,7 @@ export function CommentUpvotersModal({
     ({ pageParam }) =>
       request(`${apiUrl}/graphql`, COMMENT_UPVOTES_BY_ID_QUERY, {
         id: commentId,
-        first: 10,
+        first: DEFAULT_UPVOTES_PER_PAGE,
         after: pageParam,
       }),
     {

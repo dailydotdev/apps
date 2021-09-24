@@ -1,6 +1,7 @@
 import request from 'graphql-request';
 import React, { ReactElement } from 'react';
 import { useInfiniteQuery } from 'react-query';
+import { DEFAULT_UPVOTES_PER_PAGE } from '../../graphql/common';
 import { PostUpvotesData, POST_UPVOTES_BY_ID_QUERY } from '../../graphql/posts';
 import useFeedInfiniteScroll from '../../hooks/feed/useFeedInfiniteScroll';
 import { apiUrl } from '../../lib/config';
@@ -21,7 +22,7 @@ export function PostUpvotersModal({
     ({ pageParam }) =>
       request(`${apiUrl}/graphql`, POST_UPVOTES_BY_ID_QUERY, {
         id: postId,
-        first: 10,
+        first: DEFAULT_UPVOTES_PER_PAGE,
         after: pageParam,
       }),
     {

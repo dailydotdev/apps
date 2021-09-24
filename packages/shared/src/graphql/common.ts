@@ -23,6 +23,8 @@ export interface Edge<T> {
   cursor?: ConnectionCursor;
 }
 
+export const DEFAULT_UPVOTES_PER_PAGE = 50;
+
 export interface Upvote {
   user: UpvoterProfile;
   createdAt: Date;
