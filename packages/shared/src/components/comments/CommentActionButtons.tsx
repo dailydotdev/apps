@@ -99,7 +99,7 @@ export default function CommentActionButtons({
   };
 
   return (
-    <div className="flex flex-row gap-3 items-center">
+    <div className="flex flex-row items-center">
       <Button
         id={`comment-${comment.id}-upvote-btn`}
         buttonSize="small"
@@ -107,14 +107,14 @@ export default function CommentActionButtons({
         {...getTooltipProps('Upvote')}
         onClick={toggleUpvote}
         icon={<UpvoteIcon />}
-        className="btn-tertiary-avocado"
+        className="btn-tertiary-avocado mr-3"
       />
       <Button
         buttonSize="small"
         {...getTooltipProps('Comment')}
         onClick={() => onComment(comment, parentId)}
         icon={<CommentIcon />}
-        className="btn-tertiary-avocado"
+        className="btn-tertiary-avocado mr-3"
       />
       {user?.id === comment.author.id && (
         <Button
@@ -122,7 +122,7 @@ export default function CommentActionButtons({
           {...getTooltipProps('Edit')}
           onClick={() => onEdit(comment)}
           icon={<EditIcon />}
-          className="btn-tertiary"
+          className="btn-tertiary mr-3"
         />
       )}
       {(user?.id === comment.author.id ||
