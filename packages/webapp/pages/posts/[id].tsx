@@ -189,9 +189,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   }>(null);
   const [showShareNewComment, setShowShareNewComment] = useState(false);
   const [lastScroll, setLastScroll] = useState(0);
-  const [upvotedPopup, setUpvotedPopup] = useState(() =>
-    getUpvotedPopupInitialState(),
-  );
+  const [upvotedPopup, setUpvotedPopup] = useState(getUpvotedPopupInitialState);
   const [showDeletePost, setShowDeletePost] = useState(false);
   const [showBanPost, setShowBanPost] = useState(false);
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
