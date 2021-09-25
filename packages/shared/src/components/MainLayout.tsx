@@ -21,7 +21,6 @@ import BookmarkIcon from '../../icons/bookmark.svg';
 import { LazyImage } from './LazyImage';
 import styles from './MainLayout.module.css';
 import LayoutIcon from '../../icons/layout.svg';
-import usePersistentState from '../hooks/usePersistentState';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -62,7 +61,6 @@ export default function MainLayout({
   const { user, showLogin, loadingUser } = useContext(AuthContext);
   const [showSettings, setShowSettings] = useState(false);
   const [showGreeting, setShowGreeting] = useState(false);
-  usePersistentState('epicPrizesClicked', undefined, false);
 
   const afterBookmarkButtons = (
     <>
