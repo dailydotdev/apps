@@ -36,10 +36,7 @@ export function UpvoterList<
     <div className="flex flex-col relative">
       {queryResult.data.pages.map((page) =>
         page[objectKey].edges.map(({ node: { user } }) => (
-          <Link
-            key={user.username}
-            href={`https://app.daily.dev/${user.username}`}
-          >
+          <Link key={user.username} href={user.permalink}>
             <a className="flex flex-row hover:bg-theme-active px-6 py-3">
               <LazyImage
                 imgSrc={user.image}

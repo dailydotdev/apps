@@ -83,5 +83,6 @@ export const UPVOTER_FRAGMENT = gql`
     username
     bio
     image
+    permalink
   }
 `;

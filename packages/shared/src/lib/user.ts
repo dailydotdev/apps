@@ -43,10 +43,10 @@ export interface UserProfile {
   acceptedMarketing?: boolean;
 }
 
-export type UpvoterProfile = Pick<
-  PublicProfile,
-  'name' | 'username' | 'image' | 'bio'
->;
+export interface UpvoterProfile
+  extends Pick<PublicProfile, 'name' | 'username' | 'image' | 'bio'> {
+  permalink: string;
+}
 
 export interface LoggedUser extends UserProfile, AnonymousUser {
   image: string;
