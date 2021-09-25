@@ -103,7 +103,7 @@ export const POST_BY_ID_QUERY = gql`
 export const POST_UPVOTES_BY_ID_QUERY = gql`
   ${UPVOTER_FRAGMENT}
   query PostUpvotes($id: String!, $after: String, $first: Int) {
-    postUpvotes(id: $id, after: $after, first: $first) {
+    upvotes: postUpvotes(id: $id, after: $after, first: $first) {
       pageInfo {
         endCursor
         hasNextPage
