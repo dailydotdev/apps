@@ -24,8 +24,9 @@ export default function useFeedInfiniteScroll({
   useEffect(() => {
     if (inView && canFetchMore) {
       fetchPage().then(async () => {
-        if (enableTrackEngagement)
+        if (enableTrackEngagement) {
           await trackEngagement(EngagementAction.Scroll);
+        }
       });
     }
   }, [inView, canFetchMore]);
