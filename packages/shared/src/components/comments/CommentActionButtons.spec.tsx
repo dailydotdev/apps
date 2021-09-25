@@ -177,7 +177,7 @@ it('should call onEdit callback', async () => {
 it('should call onShowUpvotes callback', async () => {
   baseComment.numUpvotes = 1;
   renderComponent({}, loggedUser);
-  const el = await screen.findByLabelText('Display Modal');
+  const el = await screen.findByLabelText('See who upvoted');
   el.click();
   expect(onShowUpvotes).toBeCalledWith(baseComment.id, baseComment.numUpvotes);
 });
