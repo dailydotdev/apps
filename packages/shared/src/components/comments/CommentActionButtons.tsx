@@ -138,7 +138,7 @@ export default function CommentActionButtons({
       {comment.numUpvotes > 0 && (
         <Button
           className="btn-tertiary ml-auto"
-          {...getTooltipProps('Display Modal')}
+          {...getTooltipProps('See who upvoted')}
           onClick={() => onShowUpvotes(comment.id, comment.numUpvotes)}
         >
           {`${comment.numUpvotes} upvote${comment.numUpvotes === 1 ? '' : 's'}`}
