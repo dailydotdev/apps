@@ -1,25 +1,15 @@
 import React, { ReactElement } from 'react';
 import Link from 'next/link';
 import { UseInfiniteQueryResult } from 'react-query';
-import { Connection, HasConnection, Upvote } from '../../graphql/common';
 import { LazyImage } from '../LazyImage';
 import useFeedInfiniteScroll from '../../hooks/feed/useFeedInfiniteScroll';
+import { UpvotesData } from '../../graphql/common';
 
-export interface UpvoterListProps<
-  TConnection extends HasConnection<Upvote, TKey>,
-  TKey extends keyof Connection<Upvote>,
-> {
-  queryResult: UseInfiniteQueryResult<TConnection>;
-  objectKey: TKey;
+export interface UpvoterListProps {
+  queryResult: UseInfiniteQueryResult<UpvotesData>;
 }
 
-export function UpvoterList<
-  TConnection extends HasConnection<Upvote, TKey>,
-  TKey extends keyof Connection<Upvote>,
->({
-  objectKey,
-  queryResult,
-}: UpvoterListProps<TConnection, TKey>): ReactElement {
+export function UpvoterList({ queryResult }: UpvoterListProps): ReactElement {
   const canFetchMore =
     !queryResult.isLoading &&
     !queryResult.isFetchingNextPage &&
@@ -35,7 +25,7 @@ export function UpvoterList<
   return (
     <div className="flex flex-col relative">
       {queryResult.data.pages.map((page) =>
-        page[objectKey].edges.map(({ node: { user } }) => (
+        page.upvotes.edges.map(({ node: { user } }) => (
           <Link key={user.username} href={user.permalink}>
             <a className="flex flex-row hover:bg-theme-active px-6 py-3">
               <LazyImage

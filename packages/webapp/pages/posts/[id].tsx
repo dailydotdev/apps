@@ -228,7 +228,6 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
       modal: true,
       upvotes: postUpvotesNum || 1,
       requestQuery: {
-        resultKey: 'postUpvotes',
         queryKey: ['postUpvotes', id],
         query: POST_UPVOTES_BY_ID_QUERY,
         params: { id, first: DEFAULT_UPVOTES_PER_PAGE },
@@ -241,7 +240,6 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
       modal: true,
       upvotes,
       requestQuery: {
-        resultKey: 'commentUpvotes',
         queryKey: ['commentUpvotes', commentId],
         query: COMMENT_UPVOTES_BY_ID_QUERY,
         params: { id: commentId, first: DEFAULT_UPVOTES_PER_PAGE },

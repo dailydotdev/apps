@@ -1,10 +1,6 @@
 import React, { ReactElement } from 'react';
 import request from 'graphql-request';
-import {
-  QueryKey,
-  useInfiniteQuery,
-  UseInfiniteQueryOptions,
-} from 'react-query';
+import { useInfiniteQuery } from 'react-query';
 import { ResponsiveModal } from './ResponsiveModal';
 import { ModalProps } from './StyledModal';
 import { ModalCloseButton } from './ModalCloseButton';
@@ -14,51 +10,29 @@ import {
   UpvoterListPlaceholderProps,
 } from '../profile/UpvoterListPlaceholder';
 import { apiUrl } from '../../lib/config';
-import { Connection, HasConnection, Upvote } from '../../graphql/common';
+import { RequestQuery, UpvotesData } from '../../graphql/common';
 
-export interface RequestQueryParams {
-  [key: string]: unknown;
-  first: number;
-}
-
-export interface RequestQuery<
-  TConnection extends HasConnection<Upvote, TKey>,
-  TKey extends keyof Connection<Upvote>,
-> {
-  resultKey: TKey;
-  queryKey: QueryKey;
-  query: string;
-  params?: RequestQueryParams;
-  options?: UseInfiniteQueryOptions<TConnection>;
-}
-
-export interface UpvotedPopupModalProps<
-  TConnection extends HasConnection<Upvote, TKey>,
-  TKey extends keyof Connection<Upvote>,
-> extends ModalProps {
+export interface UpvotedPopupModalProps extends ModalProps {
   listPlaceholderProps: UpvoterListPlaceholderProps;
-  requestQuery: RequestQuery<TConnection, TKey>;
+  requestQuery: RequestQuery<UpvotesData>;
 }
 
-export function UpvotedPopupModal<
-  TConnection extends HasConnection<Upvote, TKey>,
-  TKey extends keyof Connection<Upvote>,
->({
+export function UpvotedPopupModal({
   listPlaceholderProps,
   onRequestClose,
-  requestQuery: { resultKey, queryKey, query, params, options = {} },
+  requestQuery: { queryKey, query, params, options = {} },
   children,
   ...modalProps
-}: UpvotedPopupModalProps<TConnection, TKey>): ReactElement {
-  const queryResult = useInfiniteQuery<TConnection>(
+}: UpvotedPopupModalProps): ReactElement {
+  const queryResult = useInfiniteQuery<UpvotesData>(
     queryKey,
     ({ pageParam }) =>
       request(`${apiUrl}/graphql`, query, { ...params, after: pageParam }),
     {
       ...options,
       getNextPageParam: (lastPage) =>
-        lastPage[resultKey].pageInfo.hasNextPage &&
-        lastPage[resultKey].pageInfo.endCursor,
+        lastPage.upvotes.pageInfo.hasNextPage &&
+        lastPage.upvotes.pageInfo.endCursor,
     },
   );
 
@@ -81,8 +55,8 @@ export function UpvotedPopupModal<
         <ModalCloseButton onClick={onRequestClose} />
       </header>
       <section className="w-full relative flex-shrink h-full max-h-full overflow-auto">
-        {page && page[resultKey].edges.length > 0 ? (
-          <UpvoterList objectKey={resultKey} queryResult={queryResult} />
+        {page && page.upvotes.edges.length > 0 ? (
+          <UpvoterList queryResult={queryResult} />
         ) : (
           <UpvoterListPlaceholder {...listPlaceholderProps} />
         )}
