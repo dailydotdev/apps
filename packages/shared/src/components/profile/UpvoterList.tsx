@@ -31,8 +31,7 @@ export function UpvoterList({ queryResult }: UpvoterListProps): ReactElement {
               <LazyImage
                 imgSrc={user.image}
                 imgAlt={user.username}
-                className="w-12 rounded-10"
-                ratio="100%"
+                className="w-12 h-12 rounded-10"
               />
               <div className="flex flex-col flex-1 ml-4 typo-callout">
                 <span className="font-bold">{user.name}</span>
