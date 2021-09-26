@@ -27,7 +27,7 @@ import {
   TagsData,
 } from '../../graphql/feedSettings';
 import { getTagsSettingsQueryKey } from '../../hooks/useMutateFilters';
-import { waitForNock } from '../../../../webapp/__tests__/helpers/utilities';
+import { waitForNock } from '../../../__tests__/helpers/utilities';
 
 const showLogin = jest.fn();
 

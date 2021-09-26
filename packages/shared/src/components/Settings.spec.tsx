@@ -26,7 +26,7 @@ import defaultUser from '../../__tests__/fixture/loggedUser';
 import AuthContext from '../contexts/AuthContext';
 import { LoginModalMode } from '../types/LoginModalMode';
 import ProgressiveEnhancementContext from '../contexts/ProgressiveEnhancementContext';
-import { waitForNock } from '../../../webapp/__tests__/helpers/utilities';
+import { waitForNock } from '../../__tests__/helpers/utilities';
 
 beforeEach(() => {
   jest.clearAllMocks();

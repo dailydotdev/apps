@@ -28,7 +28,7 @@ import {
 } from '../../graphql/feedSettings';
 import { Source } from '../../graphql/sources';
 import { getSourcesSettingsQueryKey } from '../../hooks/useMutateFilters';
-import { waitForNock } from '../../../../webapp/__tests__/helpers/utilities';
+import { waitForNock } from '../../../__tests__/helpers/utilities';
 
 const showLogin = jest.fn();
 

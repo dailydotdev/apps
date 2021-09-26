@@ -42,7 +42,7 @@ import SettingsContext, {
   SettingsContextData,
 } from '../contexts/SettingsContext';
 import OnboardingContext from '../contexts/OnboardingContext';
-import { waitForNock } from '../../../webapp/__tests__/helpers/utilities';
+import { waitForNock } from '../../__tests__/helpers/utilities';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
