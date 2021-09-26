@@ -24,6 +24,7 @@ import ad from './fixture/ad';
 import defaultUser from './fixture/loggedUser';
 import defaultFeedPage from './fixture/feed';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
+import { waitForNock } from './helpers/utilities';
 
 const showLogin = jest.fn();
 
@@ -132,7 +133,7 @@ const renderComponent = (
 
 it('should request tag feed', async () => {
   renderComponent();
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
   await waitFor(async () => {
     const elements = await screen.findAllByTestId('postItem');
     expect(elements.length).toBeTruthy();
@@ -141,7 +142,7 @@ it('should request tag feed', async () => {
 
 it('should show follow and block buttons', async () => {
   renderComponent();
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
   const followButton = await screen.findByLabelText('Follow');
   expect(followButton).toBeInTheDocument();
   const blockButton = await screen.findByLabelText('Block');
@@ -153,7 +154,7 @@ it('should show only unfollow button', async () => {
     createFeedMock(),
     createTagsSettingsMock({ includeTags: ['react'] }),
   ]);
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
   const followButton = await screen.findByLabelText('Unfollow');
   expect(followButton).toBeInTheDocument();
   const blockButton = screen.queryByLabelText('Block');
@@ -173,7 +174,7 @@ it('should show follow and block buttons when logged-out', async () => {
     ],
     null,
   );
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
   const followButton = await screen.findByLabelText('Follow');
   expect(followButton).toBeInTheDocument();
   const blockButton = await screen.findByLabelText('Block');
@@ -193,7 +194,7 @@ it('should show login popup when logged-out on follow click', async () => {
     ],
     null,
   );
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
   const followButton = await screen.findByLabelText('Follow');
   followButton.click();
   expect(showLogin).toBeCalledTimes(1);
@@ -212,7 +213,7 @@ it('should show login popup when logged-out on block click', async () => {
     ],
     null,
   );
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
   const blockButton = await screen.findByLabelText('Block');
   blockButton.click();
   expect(showLogin).toBeCalledTimes(1);

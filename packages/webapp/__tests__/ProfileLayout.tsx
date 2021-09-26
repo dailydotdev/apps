@@ -1,12 +1,12 @@
 import React from 'react';
 import { LoggedUser, PublicProfile } from '@dailydotdev/shared/src/lib/user';
-import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
+import { render, RenderResult, screen } from '@testing-library/preact';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { USER_READING_RANK_QUERY } from '@dailydotdev/shared/src/graphql/users';
-import nock from 'nock';
 import { mockGraphQL } from './helpers/graphql';
 import ProfileLayout from '../components/layouts/ProfileLayout';
+import { waitForNock } from './helpers/utilities';
 
 jest.mock('next/router', () => ({
   useRouter() {
@@ -131,7 +131,7 @@ it('should show rank when loaded', async () => {
     },
   });
   renderComponent();
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
   const el = await screen.findByTestId('rank');
   expect(el).toBeInTheDocument();
 });

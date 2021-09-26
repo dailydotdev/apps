@@ -31,8 +31,9 @@ export default function useTrackLifecycleEvents(
 
   useEffect(() => {
     listenToLifecycleEvents();
-    window.addEventListener('statechange', (event: CustomEvent) =>
-      lifecycleCallbackRef.current(event),
-    );
+    const callback = (event: CustomEvent) =>
+      lifecycleCallbackRef.current(event);
+    window.addEventListener('statechange', callback);
+    return () => window.removeEventListener('statechange', callback);
   }, []);
 }

@@ -17,6 +17,7 @@ import defaultFeedPage from '../fixture/feed';
 import defaultUser from '../fixture/loggedUser';
 import FurtherReading from '../../components/widgets/FurtherReading';
 import { MockedGraphQLResponse, mockGraphQL } from '../helpers/graphql';
+import { waitForNock } from '../helpers/utilities';
 
 const showLogin = jest.fn();
 
@@ -118,7 +119,7 @@ it('should show placeholders when loading', async () => {
 
 it('should show available articles', async () => {
   renderComponent();
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
   const [el] = await screen.findAllByRole('article');
   await waitFor(() => expect(el).not.toHaveAttribute('aria-busy'));
   expect(await screen.findAllByRole('article')).toHaveLength(5);
@@ -126,7 +127,7 @@ it('should show available articles', async () => {
 
 it('should show articles even when there are no trending articles', async () => {
   renderComponent();
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
   const [el] = await screen.findAllByRole('article');
   await waitFor(() => expect(el).not.toHaveAttribute('aria-busy'));
   expect(await screen.findAllByRole('article')).toHaveLength(5);

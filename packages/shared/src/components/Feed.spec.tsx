@@ -42,6 +42,7 @@ import SettingsContext, {
   SettingsContextData,
 } from '../contexts/SettingsContext';
 import OnboardingContext from '../contexts/OnboardingContext';
+import { waitForNock } from '../../__tests__/helpers/utilities';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
@@ -150,7 +151,7 @@ it('should add one placeholder when loading', async () => {
 
 it('should replace placeholders with posts and ad', async () => {
   renderComponent();
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
   const elements = await screen.findAllByTestId('postItem');
   expect(elements.length).toBeGreaterThan(0);
   await Promise.all(
@@ -518,9 +519,7 @@ it('should update feed item on subscription message', async () => {
       edges: [defaultFeedPage.edges[0]],
     }),
   ]);
-  await waitFor(() =>
-    expect(screen.queryByTestId('adItem')).toBeInTheDocument(),
-  );
+  await screen.findByTestId('adItem');
   await waitFor(async () => {
     const [el] = await screen.findAllByLabelText('Upvote');
     // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
