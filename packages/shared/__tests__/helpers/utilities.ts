@@ -1,4 +1,4 @@
-import { waitFor } from '@testing-library/preact';
+import { waitFor } from '@testing-library/react';
 import nock from 'nock';
 
 export const expectNockDone = (): void => expect(nock.isDone()).toBeTruthy();

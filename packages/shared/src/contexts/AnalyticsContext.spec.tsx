@@ -10,7 +10,7 @@ import AuthContext, { AuthContextData } from './AuthContext';
 import { AnonymousUser } from '../lib/user';
 import { AnalyticsEvent } from '../hooks/analytics/useAnalyticsQueue';
 import { Visit } from '../lib/boot';
-import { waitForNock } from '../../../webapp/__tests__/helpers/utilities';
+import { waitForNock } from '../../__tests__/helpers/utilities';
 
 let queryClient: QueryClient;
 const getPage = jest.fn();
