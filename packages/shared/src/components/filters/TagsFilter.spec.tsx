@@ -27,6 +27,7 @@ import {
   TagsData,
 } from '../../graphql/feedSettings';
 import { getTagsSettingsQueryKey } from '../../hooks/useMutateFilters';
+import { waitForNock } from '../../../../webapp/__tests__/helpers/utilities';
 
 const showLogin = jest.fn();
 
@@ -159,7 +160,7 @@ it('should show only available tags when no filters', async () => {
 
 it('should show login popup when logged-out on follow click', async () => {
   renderComponent([createAllTagsMock()], null);
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
   const {
     parentElement: { parentElement: section },
   } = await screen.findByText('All tags (4)');
@@ -173,7 +174,7 @@ it('should show login popup when logged-out on follow click', async () => {
 
 it('should show login popup when logged-out on block click', async () => {
   renderComponent([createAllTagsMock()], null);
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
   const {
     parentElement: { parentElement: section },
   } = await screen.findByText('All tags (4)');
@@ -333,7 +334,7 @@ it('should show filtered followed tags', async () => {
     'r',
   );
   await waitFor(() => expect(baseElement).not.toHaveAttribute('aria-busy'));
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
 
   const {
     parentElement: { parentElement: section },
@@ -366,7 +367,7 @@ it('should show filtered available tags', async () => {
     'r',
   );
   await waitFor(() => expect(baseElement).not.toHaveAttribute('aria-busy'));
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
 
   const {
     parentElement: { parentElement: section },

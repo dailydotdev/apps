@@ -126,7 +126,5 @@ it('should show a welcome button during the onboarding', async () => {
     userId: null,
   });
   renderComponent([], null, 1);
-  await waitFor(() =>
-    expect(screen.queryByTestId('welcomeButton')).toBeInTheDocument(),
-  );
+  await screen.findByTestId('welcomeButton');
 });

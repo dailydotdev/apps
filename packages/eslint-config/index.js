@@ -35,5 +35,6 @@ module.exports = {
     'react/jsx-props-no-spreading': 0,
     'jsx-a11y/anchor-is-valid': 0,
     'react/no-danger': 0,
+    '@typescript-eslint/return-await': 0
   },
 };

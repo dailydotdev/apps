@@ -25,6 +25,7 @@ import ad from './fixture/ad';
 import defaultUser from './fixture/loggedUser';
 import defaultFeedPage from './fixture/feed';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
+import { waitForNock } from './helpers/utilities';
 
 const showLogin = jest.fn();
 
@@ -141,7 +142,7 @@ const renderComponent = (
 
 it('should request source feed', async () => {
   renderComponent();
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
   await waitFor(async () => {
     const elements = await screen.findAllByTestId('postItem');
     expect(elements.length).toBeTruthy();
@@ -156,7 +157,7 @@ it('should show source image', async () => {
 
 it('should show add to feed button', async () => {
   renderComponent();
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
   const button = await screen.findByLabelText('Follow');
   expect(button).toBeInTheDocument();
 });
@@ -166,7 +167,7 @@ it('should show block button', async () => {
     createFeedMock(),
     createSourcesSettingsMock({ excludeSources: [] }),
   ]);
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
   const button = await screen.findByLabelText('Block');
   expect(button).toBeInTheDocument();
 });
@@ -184,7 +185,7 @@ it('should show login popup when logged-out on add to feed click', async () => {
     ],
     null,
   );
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
   const button = await screen.findByLabelText('Follow');
   button.click();
   expect(showLogin).toBeCalledTimes(1);

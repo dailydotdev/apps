@@ -26,6 +26,7 @@ import defaultUser from '../../__tests__/fixture/loggedUser';
 import AuthContext from '../contexts/AuthContext';
 import { LoginModalMode } from '../types/LoginModalMode';
 import ProgressiveEnhancementContext from '../contexts/ProgressiveEnhancementContext';
+import { waitForNock } from '../../../webapp/__tests__/helpers/utilities';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -97,7 +98,7 @@ const renderComponent = (
 
 it('should fetch remote settings', async () => {
   renderComponent();
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
 
   const radio = await screen.findAllByRole('radio');
   await waitFor(() =>
@@ -137,7 +138,7 @@ const testSettingsMutation = async (
   initialSettings = defaultSettings,
 ) => {
   renderComponent([createSettingsMock(initialSettings)]);
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
 
   let mutationCalled = false;
   mockGraphQL({

@@ -28,6 +28,7 @@ import {
 } from '../../graphql/feedSettings';
 import { Source } from '../../graphql/sources';
 import { getSourcesSettingsQueryKey } from '../../hooks/useMutateFilters';
+import { waitForNock } from '../../../../webapp/__tests__/helpers/utilities';
 
 const showLogin = jest.fn();
 
@@ -158,7 +159,7 @@ it('should show only followed sources when no filters', async () => {
 
 it('should show login popup when logged-out on source click', async () => {
   renderComponent([createAllSourcesMock()], null);
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
   const {
     parentElement: { parentElement: section },
   } = await screen.findByText('All sources (3)');

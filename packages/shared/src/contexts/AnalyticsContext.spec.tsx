@@ -10,6 +10,7 @@ import AuthContext, { AuthContextData } from './AuthContext';
 import { AnonymousUser } from '../lib/user';
 import { AnalyticsEvent } from '../hooks/analytics/useAnalyticsQueue';
 import { Visit } from '../lib/boot';
+import { waitForNock } from '../../../webapp/__tests__/helpers/utilities';
 
 let queryClient: QueryClient;
 const getPage = jest.fn();
@@ -142,7 +143,7 @@ it('should batch events before sending', async () => {
       <AnalyticsContextTester callback={callback} />
     </TestComponent>,
   );
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
 });
 
 it('should add relevant properties when user is signed-in', async () => {
@@ -169,7 +170,7 @@ it('should add relevant properties when user is signed-in', async () => {
       <AnalyticsContextTester callback={callback} />
     </TestComponent>,
   );
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
 });
 
 it('should send events in different batches', async () => {
@@ -195,7 +196,7 @@ it('should send events in different batches', async () => {
     </TestComponent>,
   );
   await waitFor(() => expect(done).toBeTruthy());
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
 });
 
 it('should send event with duration', async () => {
@@ -226,7 +227,7 @@ it('should send event with duration', async () => {
       <AnalyticsContextTester callback={callback} />
     </TestComponent>,
   );
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
 });
 
 it('should send pending events when page becomes invisible', async () => {
@@ -299,5 +300,5 @@ it('should send pending events when user information is fetched', async () => {
       <AnalyticsContextTester callback={callback} />
     </TestComponent>,
   );
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
 });
