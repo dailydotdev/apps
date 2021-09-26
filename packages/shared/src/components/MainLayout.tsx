@@ -21,10 +21,6 @@ import BookmarkIcon from '../../icons/bookmark.svg';
 import { LazyImage } from './LazyImage';
 import styles from './MainLayout.module.css';
 import LayoutIcon from '../../icons/layout.svg';
-import { QuaternaryButton } from './buttons/QuaternaryButton';
-import GiftIcon from '../../icons/gift.svg';
-import usePersistentState from '../hooks/usePersistentState';
-import OnboardingContext from '../contexts/OnboardingContext';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -63,33 +59,8 @@ export default function MainLayout({
 }: MainLayoutProps): ReactElement {
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user, showLogin, loadingUser } = useContext(AuthContext);
-  const { onboardingStep } = useContext(OnboardingContext) || {};
   const [showSettings, setShowSettings] = useState(false);
   const [showGreeting, setShowGreeting] = useState(false);
-  const [epicPrizesClicked, setEpicPrizesClicked, epicPrizesLoaded] =
-    usePersistentState('epicPrizesClicked', undefined, false);
-
-  const beforeBookmarkButtons = (
-    <>
-      {epicPrizesLoaded && (onboardingStep > 2 || user) && (
-        <QuaternaryButton
-          tag="a"
-          id="monthly-prizes-button"
-          href="https://daily.dev/monthly-prize"
-          target="_blank"
-          rel="noopener"
-          icon={<GiftIcon />}
-          pressed={!epicPrizesClicked}
-          className="btn-tertiary-bacon mx-0.5 hidden tablet:flex"
-          reverse
-          responsiveLabelClass="laptop:flex"
-          onClick={() => setEpicPrizesClicked(true)}
-        >
-          Win epic prizes
-        </QuaternaryButton>
-      )}
-    </>
-  );
 
   const afterBookmarkButtons = (
     <>
@@ -155,7 +126,6 @@ export default function MainLayout({
         <div className="flex-1" />
         {!showOnlyLogo && !loadingUser && (
           <>
-            {beforeBookmarkButtons}
             {user ? (
               <>
                 <Link
