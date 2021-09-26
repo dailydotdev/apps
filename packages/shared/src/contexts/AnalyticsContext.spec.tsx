@@ -1,6 +1,6 @@
 import React, { ReactElement, ReactNode, useContext, useEffect } from 'react';
 import nock from 'nock';
-import { render, waitFor } from '@testing-library/react';
+import { fireEvent, render, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import AnalyticsContext, { AnalyticsContextProvider } from './AnalyticsContext';
 import { AnalyticsContextData } from '../hooks/analytics/useAnalyticsContextData';
@@ -236,7 +236,8 @@ it('should send pending events when page becomes invisible', async () => {
   const callback = async ({ trackEventStart }: AnalyticsContextData) => {
     trackEventStart('event', { event_name: 'e1' });
     await new Promise((resolve) => setTimeout(resolve, 10));
-    window.dispatchEvent(
+    fireEvent(
+      window,
       new CustomEvent('statechange', {
         bubbles: true,
         detail: {
