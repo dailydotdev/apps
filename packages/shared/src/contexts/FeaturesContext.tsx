@@ -6,7 +6,8 @@ import React, {
   useState,
 } from 'react';
 import { IFlags } from 'flagsmith';
-import { FEATURES_STATE_KEY, FeaturesState } from '../lib/featureManagement';
+
+const FEATURES_STATE_KEY = 'features';
 
 export interface FeaturesData {
   flags: IFlags;
@@ -17,19 +18,26 @@ export default FeaturesContext;
 
 export type FeaturesContextProviderProps = {
   children?: ReactNode;
+  flags: IFlags | undefined;
 };
 
 export const FeaturesContextProvider = ({
   children,
+  flags,
 }: FeaturesContextProviderProps): ReactElement => {
-  const [features, setFeatures] = useState<FeaturesState>();
+  const [features, setFeatures] = useState<{ flags: IFlags }>();
 
   useEffect(() => {
     setFeatures(JSON.parse(localStorage.getItem(FEATURES_STATE_KEY)));
-    const callback = (event: CustomEvent): void => setFeatures(event.detail);
-    window.addEventListener('featuresLoaded', callback);
-    return () => window.removeEventListener('featuresLoaded', callback);
   }, []);
+
+  useEffect(() => {
+    if (flags && Object.keys(flags)?.length) {
+      const newFeats = { flags };
+      setFeatures(newFeats);
+      localStorage.setItem(FEATURES_STATE_KEY, JSON.stringify(newFeats));
+    }
+  }, [flags]);
 
   const contextData = useMemo<FeaturesData>(
     () => ({

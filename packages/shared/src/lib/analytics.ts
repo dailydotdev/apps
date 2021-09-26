@@ -1,5 +1,5 @@
 import { AmplitudeClient, LogReturn } from 'amplitude-js';
-import { initFlagsmith } from './featureManagement';
+import { IFlags } from 'flagsmith';
 
 declare global {
   interface Window {
@@ -242,6 +242,7 @@ export const logDevCardPageView = async (): Promise<void> =>
 export const initAmplitude = async (
   userId: string,
   version: string,
+  flags: IFlags,
 ): Promise<void> => {
   const amp = await getAmplitudeClientInternal();
   amp.init(process.env.NEXT_PUBLIC_AMPLITUDE, userId, {
@@ -253,8 +254,6 @@ export const initAmplitude = async (
     domain: process.env.NEXT_PUBLIC_DOMAIN,
   });
   amp.setVersionName(version);
-
-  const flags = await initFlagsmith(amp.options.userId || amp.options.deviceId);
   // Sync flags to Amplitude
   if (flags && Object.keys(flags)?.length) {
     const userProps = Object.keys(flags).reduce((props, key) => {

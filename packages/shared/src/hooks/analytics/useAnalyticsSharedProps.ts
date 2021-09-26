@@ -21,16 +21,16 @@ export default function useAnalyticsSharedProps(
   const { query } = useRouter();
   const { flags } = useContext(FeaturesContext);
   const { themeMode, spaciness, insaneMode } = useContext(SettingsContext);
-  const { anonymous, tokenRefreshed, user } = useContext(AuthContext);
+  const { visit, anonymous, tokenRefreshed, user } = useContext(AuthContext);
   const [sharedPropsSet, setSharedPropsSet] = useState(false);
 
   const [visitId, setVisitId] = useState<string>();
   useEffect(() => {
     // Visit ID should be set only at the beginning
     if (tokenRefreshed && !visitId) {
-      setVisitId(anonymous?.visitId);
+      setVisitId(visit?.visitId);
     }
-  }, [tokenRefreshed, anonymous?.visitId, setVisitId, visitId]);
+  }, [tokenRefreshed, visit?.visitId, setVisitId, visitId]);
 
   useEffect(() => {
     if (!visitId) {
@@ -46,7 +46,7 @@ export default function useAnalyticsSharedProps(
       feed_layout: insaneMode ? 'list' : 'cards',
       // By default query equals '{}'
       query_params: queryStr.length > 2 ? queryStr : undefined,
-      session_id: anonymous?.sessionId,
+      session_id: visit?.sessionId,
       user_first_visit: anonymous?.firstVisit,
       user_id: anonymous?.id,
       user_referrer: anonymous?.referrer,
@@ -69,7 +69,7 @@ export default function useAnalyticsSharedProps(
     spaciness,
     insaneMode,
     query,
-    anonymous,
+    visit,
     visitId,
     flags,
   ]);

@@ -5,7 +5,7 @@ import {
   logout as dispatchLogout,
 } from '../lib/user';
 import { LoginModalMode } from '../types/LoginModalMode';
-import useLoggedUser from '../hooks/useLoggedUser';
+import { Visit } from '../lib/boot';
 
 export type LoginState = { mode: LoginModalMode; trigger: string };
 
@@ -23,6 +23,7 @@ export interface AuthContextData {
   loadedUserFromCache?: boolean;
   getRedirectUri: () => string;
   anonymous?: AnonymousUser;
+  visit?: Visit;
 }
 
 const AuthContext = React.createContext<AuthContextData>(null);
@@ -34,51 +35,49 @@ const logout = async (): Promise<void> => {
 };
 
 export type AuthContextProviderProps = {
-  app: string;
-  getRedirectUri: () => string;
+  user: LoggedUser | AnonymousUser | undefined;
   children?: ReactNode;
-};
+} & Pick<
+  AuthContextData,
+  | 'getRedirectUri'
+  | 'updateUser'
+  | 'loadingUser'
+  | 'tokenRefreshed'
+  | 'loadedUserFromCache'
+  | 'visit'
+>;
 
 export const AuthContextProvider = ({
-  app,
   children,
+  user,
+  updateUser,
+  loadingUser,
+  tokenRefreshed,
+  loadedUserFromCache,
   getRedirectUri,
+  visit,
 }: AuthContextProviderProps): ReactElement => {
-  const [
-    user,
-    setUser,
-    anonymous,
-    loadingUser,
-    tokenRefreshed,
-    loadedUserFromCache,
-  ] = useLoggedUser(app);
   const [loginState, setLoginState] = useState<LoginState | null>(null);
 
   const authContext: AuthContextData = useMemo(
     () => ({
-      user,
-      trackingId: anonymous?.id,
+      user: user && 'providers' in user ? user : null,
+      trackingId: user?.id,
       shouldShowLogin: loginState !== null,
       showLogin: (trigger, mode = LoginModalMode.Default) =>
         setLoginState({ trigger, mode }),
       closeLogin: () => setLoginState(null),
       loginState,
-      updateUser: setUser,
+      updateUser,
       logout,
       loadingUser,
       tokenRefreshed,
       loadedUserFromCache,
       getRedirectUri,
-      anonymous,
+      anonymous: user,
+      visit,
     }),
-    [
-      user,
-      anonymous,
-      loginState,
-      loadingUser,
-      tokenRefreshed,
-      loadedUserFromCache,
-    ],
+    [user, loginState, loadingUser, tokenRefreshed, loadedUserFromCache, visit],
   );
 
   return (
