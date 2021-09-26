@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { IFlags } from 'flagsmith';
 import {
   getAmplitudeClient,
   initAmplitude,
@@ -15,6 +16,7 @@ export default function useThirdPartyAnalytics(
   canLoadScripts: boolean,
   version: string,
   getPage: () => string,
+  flags: IFlags,
 ): void {
   const [initializedGA, setInitializedGA] = useState(false);
   const [initializedAmp, setInitializedAmp] = useState(false);
@@ -41,8 +43,8 @@ export default function useThirdPartyAnalytics(
       loadAnalyticsScript();
       if (!initializedAmp) {
         setInitializedAmp(true);
-        initAmplitude(user?.id || null, version);
+        initAmplitude(user?.id || null, version, flags);
       }
     }
-  }, [trackingId, canLoadScripts, showCookie]);
+  }, [trackingId, canLoadScripts, showCookie, flags]);
 }

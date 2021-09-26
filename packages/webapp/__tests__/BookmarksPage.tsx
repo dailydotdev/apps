@@ -17,6 +17,7 @@ import ad from './fixture/ad';
 import defaultUser from './fixture/loggedUser';
 import defaultFeedPage from './fixture/feed';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
+import { waitForNock } from './helpers/utilities';
 
 const showLogin = jest.fn();
 const routerReplace = jest.fn();
@@ -111,7 +112,7 @@ const renderComponent = (
 
 it('should request bookmarks feed', async () => {
   renderComponent();
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
   await waitFor(async () => {
     const elements = await screen.findAllByTestId('postItem');
     expect(elements.length).toBeTruthy();
@@ -133,7 +134,7 @@ it('should show empty screen when feed is empty', async () => {
       edges: [],
     }),
   ]);
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
   expect(
     await screen.findByText('Your bookmark list is empty.'),
   ).toBeInTheDocument();

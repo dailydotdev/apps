@@ -13,12 +13,10 @@ import useThirdPartyAnalytics from '@dailydotdev/shared/src/hooks/useThirdPartyA
 import ProgressiveEnhancementContext, {
   ProgressiveEnhancementContextProvider,
 } from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
-import AuthContext, {
-  AuthContextProvider,
-} from '@dailydotdev/shared/src/contexts/AuthContext';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { OnboardingContextProvider } from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
-import { FeaturesContextProvider } from '@dailydotdev/shared/src/contexts/FeaturesContext';
+import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import { SettingsContextProvider } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { AnalyticsContextProvider } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { browser } from 'webextension-polyfill-ts';
@@ -34,6 +32,7 @@ import getPageForAnalytics from '../lib/getPageForAnalytics';
 import DndContext from './DndContext';
 import useDndContext from './useDndContext';
 import DndBanner from './DndBanner';
+import { BootDataProvider } from '../../../shared/src/contexts/BootProvider';
 
 const AnalyticsConsentModal = dynamic(() => import('./AnalyticsConsentModal'));
 
@@ -67,6 +66,7 @@ function InternalApp({
     shouldShowLogin,
     loginState,
   } = useContext(AuthContext);
+  const { flags } = useContext(FeaturesContext);
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const [analyticsConsent, setAnalyticsConsent] = usePersistentState(
     'consent',
@@ -83,6 +83,7 @@ function InternalApp({
     windowLoaded,
     `extension v${version}`,
     () => getPageForAnalytics(''),
+    flags,
   );
 
   useEffect(() => {
@@ -138,28 +139,23 @@ export default function App(): ReactElement {
   return (
     <RouterContext.Provider value={router}>
       <ProgressiveEnhancementContextProvider>
-        <FeaturesContextProvider>
-          <QueryClientProvider client={queryClient}>
-            <AuthContextProvider
-              app="extension"
-              getRedirectUri={getRedirectUri}
-            >
-              <SubscriptionContextProvider>
-                <SettingsContextProvider>
-                  <OnboardingContextProvider>
-                    <AnalyticsContextProvider
-                      app="extension"
-                      version={version}
-                      getPage={() => pageRef.current}
-                    >
-                      <InternalApp pageRef={pageRef} />
-                    </AnalyticsContextProvider>
-                  </OnboardingContextProvider>
-                </SettingsContextProvider>
-              </SubscriptionContextProvider>
-            </AuthContextProvider>
-          </QueryClientProvider>
-        </FeaturesContextProvider>
+        <QueryClientProvider client={queryClient}>
+          <BootDataProvider app="extension" getRedirectUri={getRedirectUri}>
+            <SubscriptionContextProvider>
+              <SettingsContextProvider>
+                <OnboardingContextProvider>
+                  <AnalyticsContextProvider
+                    app="extension"
+                    version={version}
+                    getPage={() => pageRef.current}
+                  >
+                    <InternalApp pageRef={pageRef} />
+                  </AnalyticsContextProvider>
+                </OnboardingContextProvider>
+              </SettingsContextProvider>
+            </SubscriptionContextProvider>
+          </BootDataProvider>
+        </QueryClientProvider>
       </ProgressiveEnhancementContextProvider>
     </RouterContext.Provider>
   );

@@ -154,7 +154,7 @@ it('should show welcome message during the onboarding', async () => {
     null,
     1,
   );
-  await waitFor(() => expect(screen.queryByRole('status')).toBeInTheDocument());
+  await screen.findByRole('status');
 });
 
 it('should not show welcome message after the onboarding', async () => {

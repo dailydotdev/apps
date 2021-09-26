@@ -4,7 +4,7 @@ import {
   USER_COMMENTS_QUERY,
   UserCommentsData,
 } from '@dailydotdev/shared/src/graphql/comments';
-import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
+import { render, RenderResult, screen } from '@testing-library/preact';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import nock from 'nock';
@@ -28,6 +28,7 @@ import { RANK_NAMES } from '@dailydotdev/shared/src/lib/rank';
 import { startOfTomorrow, subDays, subMonths } from 'date-fns';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
 import ProfilePage from '../pages/[userId]/index';
+import { waitForNock } from './helpers/utilities';
 
 beforeEach(() => {
   nock.cleanAll();
@@ -219,7 +220,7 @@ it('should show overall post views', async () => {
       numCommentUpvotes: 999,
     }),
   ]);
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
   const el = await screen.findByText('1,789');
   expect(el).toBeInTheDocument();
 });
@@ -236,28 +237,28 @@ it('should show overall upvotes', async () => {
       numCommentUpvotes: 999,
     }),
   ]);
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
   const el = await screen.findByText('1,001');
   expect(el).toBeInTheDocument();
 });
 
 it('should show the number of upvotes per comment', async () => {
   renderComponent();
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
   const el = await screen.findByText('50');
   expect(el).toBeInTheDocument();
 });
 
 it('should format creation time of comment', async () => {
   renderComponent();
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
   const el = await screen.findByText('Jul 26, 2020');
   expect(el).toBeInTheDocument();
 });
 
 it('should add link to the comment', async () => {
   renderComponent();
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
   const el = await screen.findByLabelText('My comment');
   expect(el).toHaveAttribute('href', 'https://daily.dev/c1');
 });
@@ -274,35 +275,35 @@ it('should show empty screen when no comments', async () => {
     createFeedMock(),
     createUserStatsMock(),
   ]);
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
   const el = await screen.findByTestId('emptyComments');
   expect(el).toBeInTheDocument();
 });
 
 it('should show the number of upvotes per post', async () => {
   renderComponent();
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
   const el = await screen.findByText('50');
   expect(el).toBeInTheDocument();
 });
 
 it('should show the number of comments per post', async () => {
   renderComponent();
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
   const el = await screen.findByText('17');
   expect(el).toBeInTheDocument();
 });
 
 it('should show the number of views per post', async () => {
   renderComponent();
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
   const el = await screen.findByText('1.2K');
   expect(el).toBeInTheDocument();
 });
 
 it('should add link to the post', async () => {
   renderComponent();
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
   const el = await screen.findByLabelText('Learn SQL');
   expect(el).toHaveAttribute(
     'href',
@@ -322,35 +323,35 @@ it('should show empty screen when no posts', async () => {
     }),
     createUserStatsMock(),
   ]);
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
   const el = await screen.findByTestId('emptyPosts');
   expect(el).toBeInTheDocument();
 });
 
 it('should show the total number of posts', async () => {
   renderComponent();
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
   const el = await screen.findByText('(123)');
   expect(el).toBeInTheDocument();
 });
 
 it('should show the total number of comments', async () => {
   renderComponent();
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
   const el = await screen.findByText('(52)');
   expect(el).toBeInTheDocument();
 });
 
 it('should not show overall stats when not available', async () => {
   renderComponent();
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
   const el = screen.queryByText('Article views');
   expect(el).not.toBeInTheDocument();
 });
 
 it('should show the reading rank history of the user', async () => {
   renderComponent();
-  await waitFor(() => expect(nock.isDone()).toBeTruthy());
+  await waitForNock();
   const counts = [0, 5, 0, 0, 3];
   await Promise.all(
     counts.map(async (count, index) => {

@@ -1,15 +1,15 @@
 import { browser, Runtime } from 'webextension-polyfill-ts';
-import { getLoggedUser } from '@dailydotdev/shared/src/lib/user';
+import { getBootData } from '@dailydotdev/shared/src/lib/boot';
 
 const cacheAmplitudeDeviceId = async ({
   reason,
 }: Runtime.OnInstalledDetailsType): Promise<void> => {
   if (reason === 'install') {
-    const user = await getLoggedUser('extension');
-    if (user.ampStorage) {
+    const boot = await getBootData('extension');
+    if (boot.visit.ampStorage) {
       localStorage.setItem(
         `amp_${process.env.NEXT_PUBLIC_AMPLITUDE.slice(0, 6)}`,
-        user.ampStorage,
+        boot.visit.ampStorage,
       );
     }
   }

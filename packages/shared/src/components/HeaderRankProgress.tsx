@@ -34,7 +34,10 @@ export default function HeaderRankProgress({
     useContext(OnboardingContext);
   const [showRanksModal, setShowRanksModal] = useState(false);
   const { flags } = useContext(FeaturesContext);
-  const devCardLimit = parseInt(getFeatureValue('limit_dev_card', flags), 10);
+  const devCardLimit = parseInt(
+    getFeatureValue('feat_limit_dev_card', flags),
+    10,
+  );
 
   const {
     isLoading,

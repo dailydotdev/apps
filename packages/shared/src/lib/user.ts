@@ -7,9 +7,6 @@ export enum Roles {
 
 export interface AnonymousUser {
   id: string;
-  ampStorage?: string;
-  sessionId?: string;
-  visitId?: string;
   firstVisit?: string;
   referrer?: string;
 }
@@ -56,7 +53,6 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
   roles?: Roles[];
   createdAt: string;
   reputation?: number;
-  accessToken?: { token: string; expiresIn: string };
 }
 
 interface BaseError {
