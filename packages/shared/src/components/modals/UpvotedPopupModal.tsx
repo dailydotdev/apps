@@ -54,7 +54,10 @@ export function UpvotedPopupModal({
         <h3 className="font-bold typo-title3">Upvoted by</h3>
         <ModalCloseButton onClick={onRequestClose} />
       </header>
-      <section className="w-full relative flex-shrink h-full max-h-full overflow-auto">
+      <section
+        className="w-full relative flex-shrink h-full max-h-full overflow-auto"
+        aria-label={`List of ${queryKey[0]} with ID ${queryKey[1]}`}
+      >
         {page && page.upvotes.edges.length > 0 ? (
           <UpvoterList queryResult={queryResult} />
         ) : (

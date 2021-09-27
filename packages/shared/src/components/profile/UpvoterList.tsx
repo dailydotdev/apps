@@ -27,7 +27,7 @@ export function UpvoterList({ queryResult }: UpvoterListProps): ReactElement {
       {queryResult.data.pages.map((page) =>
         page.upvotes.edges.map(({ node: { user } }) => (
           <Link key={user.username} href={user.permalink}>
-            <a className="flex flex-row hover:bg-theme-active px-6 py-3">
+            <a className="flex flex-row hover:bg-theme-hover px-6 py-3">
               <LazyImage
                 imgSrc={user.image}
                 imgAlt={user.username}
