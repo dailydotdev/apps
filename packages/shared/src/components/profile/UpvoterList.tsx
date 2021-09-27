@@ -4,6 +4,7 @@ import { UseInfiniteQueryResult } from 'react-query';
 import { LazyImage } from '../LazyImage';
 import useFeedInfiniteScroll from '../../hooks/feed/useFeedInfiniteScroll';
 import { UpvotesData } from '../../graphql/common';
+import { UpvoterListPlaceholder } from './UpvoterListPlaceholder';
 
 export interface UpvoterListProps {
   queryResult: UseInfiniteQueryResult<UpvotesData>;
@@ -47,6 +48,9 @@ export function UpvoterList({ queryResult }: UpvoterListProps): ReactElement {
             </a>
           </Link>
         )),
+      )}
+      {queryResult.isFetchingNextPage && (
+        <UpvoterListPlaceholder placeholderAmount={1} />
       )}
       <div
         className="absolute bottom-0 left-0 h-px w-px opacity-0 pointer-events-none"
