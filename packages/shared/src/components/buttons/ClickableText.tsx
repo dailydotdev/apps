@@ -36,8 +36,8 @@ export function ClickableText<Tag extends AvailableTags>({
       ref={innerRef}
       className={classNames(
         'text-theme-label-tertiary typo-callout hover:underline focus:underline cursor-pointer',
-        isLink && 'text-theme-label-link',
         pressed && 'text-theme-label-primary',
+        isLink && 'text-theme-label-link',
         disabled &&
           'text-theme-label-disabled pointer-events-none hover:no-underline',
         className,

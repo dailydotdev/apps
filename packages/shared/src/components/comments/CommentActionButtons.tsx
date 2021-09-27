@@ -138,7 +138,7 @@ export default function CommentActionButtons({
       )}
       {comment.numUpvotes > 0 && (
         <ClickableText
-          className="btn-tertiary ml-auto"
+          className="ml-auto"
           {...getTooltipProps('See who upvoted')}
           title={`${comment.numUpvotes} upvote${
             comment.numUpvotes === 1 ? '' : 's'
