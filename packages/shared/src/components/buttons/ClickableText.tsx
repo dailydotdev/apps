@@ -34,14 +34,12 @@ export function ClickableText<Tag extends AvailableTags>({
       {...props}
       aria-pressed={pressed}
       ref={innerRef}
-      disabled
-      href=""
       className={classNames(
         'text-theme-label-tertiary typo-callout hover:underline focus:underline cursor-pointer',
         isLink && 'text-theme-label-link',
         pressed && 'text-theme-label-primary',
         disabled &&
-          'text-theme-label-disabled cursor-not-allowed hover:no-underline',
+          'text-theme-label-disabled pointer-events-none hover:no-underline',
         className,
       )}
     >
