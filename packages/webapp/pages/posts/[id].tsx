@@ -50,6 +50,7 @@ import { LoginModalMode } from '@dailydotdev/shared/src/types/LoginModalMode';
 import { logReadArticle } from '@dailydotdev/shared/src/lib/analytics';
 import useSubscription from '@dailydotdev/shared/src/hooks/useSubscription';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
 import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 import Link from 'next/link';
 import useUpvotePost from '@dailydotdev/shared/src/hooks/useUpvotePost';
@@ -590,13 +591,10 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             <span>{postById?.post.views.toLocaleString()} Views</span>
           )}
           {postUpvotesNum > 0 && (
-            <Button
-              className="btn-tertiary"
+            <ClickableText
+              title={`${postUpvotesNum} Upvote${postUpvotesNum > 1 ? 's' : ''}`}
               onClick={() => handleShowUpvotedPost()}
-            >
-              {postUpvotesNum.toLocaleString()}
-              {` Upvote${postUpvotesNum === 1 ? '' : 's'}`}
-            </Button>
+            />
           )}
           {postNumComments > 0 && (
             <span>

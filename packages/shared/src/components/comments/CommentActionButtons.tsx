@@ -15,6 +15,7 @@ import { Roles } from '../../lib/user';
 import { apiUrl } from '../../lib/config';
 import { Button } from '../buttons/Button';
 import { getTooltipProps } from '../../lib/tooltip';
+import { ClickableText } from '../buttons/ClickableText';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
@@ -136,13 +137,14 @@ export default function CommentActionButtons({
         />
       )}
       {comment.numUpvotes > 0 && (
-        <Button
+        <ClickableText
           className="btn-tertiary ml-auto"
           {...getTooltipProps('See who upvoted')}
+          title={`${comment.numUpvotes} upvote${
+            comment.numUpvotes === 1 ? '' : 's'
+          }`}
           onClick={() => onShowUpvotes(comment.id, comment.numUpvotes)}
-        >
-          {`${comment.numUpvotes} upvote${comment.numUpvotes === 1 ? '' : 's'}`}
-        </Button>
+        />
       )}
     </div>
   );
