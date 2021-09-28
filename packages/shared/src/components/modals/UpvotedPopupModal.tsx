@@ -56,7 +56,7 @@ export function UpvotedPopupModal({
       </header>
       <section
         className="w-full relative flex-shrink h-full max-h-full overflow-auto"
-        aria-label={`List of ${queryKey[0]} with ID ${queryKey[1]}`}
+        data-testid={`List of ${queryKey[0]} with ID ${queryKey[1]}`}
       >
         {page && page.upvotes.edges.length > 0 ? (
           <UpvoterList queryResult={queryResult} />

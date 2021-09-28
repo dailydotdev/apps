@@ -121,13 +121,13 @@ it('should show upvoter list for post', async () => {
   const [key, id] = upvotedPostQueryAsDefault.requestQuery
     .queryKey as unknown[];
   renderComponent();
-  await screen.findByLabelText(`List of ${key} with ID ${id}`);
+  screen.getByTestId(`List of ${key} with ID ${id}`);
 });
 
 it('should show upvoter list for comment', async () => {
   const [key, id] = upvotedCommentQuery.requestQuery.queryKey as unknown[];
   renderComponent(upvotedCommentQuery);
-  await screen.findByLabelText(`List of ${key} with ID ${id}`);
+  screen.getByTestId(`List of ${key} with ID ${id}`);
 });
 
 it("should show user's handle", async () => {
