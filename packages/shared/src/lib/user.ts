@@ -40,6 +40,11 @@ export interface UserProfile {
   acceptedMarketing?: boolean;
 }
 
+export interface UpvoterProfile
+  extends Pick<PublicProfile, 'name' | 'username' | 'image' | 'bio'> {
+  permalink: string;
+}
+
 export interface LoggedUser extends UserProfile, AnonymousUser {
   image: string;
   infoConfirmed?: boolean;

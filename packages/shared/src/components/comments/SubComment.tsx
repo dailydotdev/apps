@@ -2,19 +2,18 @@ import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { Comment } from '../../graphql/comments';
 import { CommentBox, CommentPublishDate } from './common';
-import CommentActionButtons from './CommentActionButtons';
+import CommentActionButtons, {
+  CommentActionProps,
+} from './CommentActionButtons';
 import { ProfileImageLink } from '../profile/ProfileImageLink';
 import CommentAuthor from './CommentAuthor';
 import classed from '../../lib/classed';
 
-export interface Props {
+export interface Props extends CommentActionProps {
   comment: Comment;
   firstComment: boolean;
   lastComment: boolean;
   parentId: string;
-  onComment: (comment: Comment, parentId: string | null) => void;
-  onDelete: (comment: Comment, parentId: string | null) => void;
-  onEdit: (comment: Comment) => void;
   postAuthorId: string | null;
 }
 
@@ -24,10 +23,11 @@ export default function SubComment({
   comment,
   firstComment,
   lastComment,
-  onComment,
   parentId,
+  onComment,
   onDelete,
   onEdit,
+  onShowUpvotes,
   postAuthorId,
 }: Props): ReactElement {
   return (
@@ -55,6 +55,7 @@ export default function SubComment({
           onComment={onComment}
           onDelete={onDelete}
           onEdit={onEdit}
+          onShowUpvotes={onShowUpvotes}
         />
       </div>
     </article>

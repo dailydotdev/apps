@@ -4,10 +4,17 @@ import OnboardingContext, {
   EngagementAction,
 } from '../../contexts/OnboardingContext';
 
-export default function useFeedInfiniteScroll(
-  fetchPage: () => Promise<void>,
-  canFetchMore: boolean,
-): (node?: Element | null) => void {
+export interface UseFeedInfiniteScrollProps {
+  fetchPage: () => Promise<unknown>;
+  canFetchMore: boolean;
+  enableTrackEngagement?: boolean;
+}
+
+export default function useFeedInfiniteScroll({
+  fetchPage,
+  canFetchMore,
+  enableTrackEngagement = true,
+}: UseFeedInfiniteScrollProps): (node?: Element | null) => void {
   const { trackEngagement } = useContext(OnboardingContext);
   const { ref: infiniteScrollRef, inView } = useInView({
     rootMargin: '20px',
@@ -17,7 +24,9 @@ export default function useFeedInfiniteScroll(
   useEffect(() => {
     if (inView && canFetchMore) {
       fetchPage().then(async () => {
-        await trackEngagement(EngagementAction.Scroll);
+        if (enableTrackEngagement) {
+          await trackEngagement(EngagementAction.Scroll);
+        }
       });
     }
   }, [inView, canFetchMore]);

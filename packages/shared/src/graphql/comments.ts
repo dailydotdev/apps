@@ -1,5 +1,6 @@
 import { gql } from 'graphql-request';
-import { Connection } from './common';
+import { Connection, Upvote } from './common';
+import { UPVOTER_FRAGMENT } from './users';
 import { EmptyResponse } from './emptyResponse';
 
 export interface Author {
@@ -21,6 +22,14 @@ export interface Comment {
   upvoted?: boolean;
   numUpvotes: number;
   children?: Connection<Comment>;
+}
+
+export interface CommentUpvote extends Upvote {
+  comment: Comment;
+}
+
+export interface CommentUpvotesData {
+  commentUpvotes: Connection<CommentUpvote>;
 }
 
 export const COMMENT_FRAGMENT = gql`
@@ -98,6 +107,25 @@ export const USER_COMMENTS_QUERY = gql`
           numUpvotes
           createdAt
           permalink
+        }
+      }
+    }
+  }
+`;
+
+export const COMMENT_UPVOTES_BY_ID_QUERY = gql`
+  ${UPVOTER_FRAGMENT}
+  query CommentUpvotes($id: String!, $after: String, $first: Int) {
+    upvotes: commentUpvotes(id: $id, after: $after, first: $first) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          user {
+            ...UpvoterFragment
+          }
         }
       }
     }

@@ -1,6 +1,7 @@
 import { gql } from 'graphql-request';
 import { Author, Comment } from './comments';
-import { Connection } from './common';
+import { Connection, Upvote } from './common';
+import { UPVOTER_FRAGMENT } from './users';
 import { Source } from './sources';
 import { EmptyResponse } from './emptyResponse';
 
@@ -53,6 +54,14 @@ export interface PostData {
   post: Post;
 }
 
+export interface PostUpvote extends Upvote {
+  post: Post;
+}
+
+export interface PostUpvotesData {
+  postUpvotes: Connection<PostUpvote>;
+}
+
 export const POST_BY_ID_QUERY = gql`
   query Post($id: ID!) {
     post(id: $id) {
@@ -86,6 +95,25 @@ export const POST_BY_ID_QUERY = gql`
       toc {
         text
         id
+      }
+    }
+  }
+`;
+
+export const POST_UPVOTES_BY_ID_QUERY = gql`
+  ${UPVOTER_FRAGMENT}
+  query PostUpvotes($id: String!, $after: String, $first: Int) {
+    upvotes: postUpvotes(id: $id, after: $after, first: $first) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          user {
+            ...UpvoterFragment
+          }
+        }
       }
     }
   }

@@ -28,6 +28,7 @@ import {
   PostData,
   POSTS_ENGAGED_SUBSCRIPTION,
   PostsEngaged,
+  POST_UPVOTES_BY_ID_QUERY,
 } from '@dailydotdev/shared/src/graphql/posts';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import MainComment from '@dailydotdev/shared/src/components/comments/MainComment';
@@ -35,6 +36,7 @@ import {
   Comment,
   POST_COMMENTS_QUERY,
   PostCommentsData,
+  COMMENT_UPVOTES_BY_ID_QUERY,
 } from '@dailydotdev/shared/src/graphql/comments';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { ShareMobile } from '@dailydotdev/shared/src/components/ShareMobile';
@@ -48,6 +50,7 @@ import { LoginModalMode } from '@dailydotdev/shared/src/types/LoginModalMode';
 import { logReadArticle } from '@dailydotdev/shared/src/lib/analytics';
 import useSubscription from '@dailydotdev/shared/src/hooks/useSubscription';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
 import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 import Link from 'next/link';
 import useUpvotePost from '@dailydotdev/shared/src/hooks/useUpvotePost';
@@ -60,6 +63,9 @@ import styles from './postPage.module.css';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import PostToc from '../../components/widgets/PostToc';
 
+const UpvotedPopupModal = dynamic(
+  () => import('@dailydotdev/shared/src/components/modals/UpvotedPopupModal'),
+);
 const NewCommentModal = dynamic(
   () => import('@dailydotdev/shared/src/components/modals/NewCommentModal'),
 );
@@ -102,6 +108,7 @@ interface PostParams extends ParsedUrlQuery {
   id: string;
 }
 
+const DEFAULT_UPVOTES_PER_PAGE = 50;
 const metadataStyle = 'text-theme-label-tertiary typo-callout';
 const SourceImage = classed(LazyImage, 'w-8 h-8 rounded-full');
 const SourceName = classed(
@@ -159,6 +166,12 @@ const onBookmarkMutation = (
     bookmarked,
   }));
 
+const getUpvotedPopupInitialState = () => ({
+  upvotes: 0,
+  modal: false,
+  requestQuery: null,
+});
+
 const PostPage = ({ id, postData }: Props): ReactElement => {
   const router = useRouter();
   const { isFallback } = router;
@@ -177,6 +190,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   }>(null);
   const [showShareNewComment, setShowShareNewComment] = useState(false);
   const [lastScroll, setLastScroll] = useState(0);
+  const [upvotedPopup, setUpvotedPopup] = useState(getUpvotedPopupInitialState);
   const [showDeletePost, setShowDeletePost] = useState(false);
   const [showBanPost, setShowBanPost] = useState(false);
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
@@ -194,6 +208,8 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
       enabled: !!id && tokenRefreshed,
     },
   );
+  const postUpvotesNum = postById?.post.numUpvotes || 0;
+  const postNumComments = postById?.post.numComments || 0;
 
   const { data: comments, isLoading: isLoadingComments } =
     useQuery<PostCommentsData>(
@@ -207,6 +223,30 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         refetchInterval: 60 * 1000,
       },
     );
+
+  const handleShowUpvotedPost = () => {
+    setUpvotedPopup({
+      modal: true,
+      upvotes: postUpvotesNum || 1,
+      requestQuery: {
+        queryKey: ['postUpvotes', id],
+        query: POST_UPVOTES_BY_ID_QUERY,
+        params: { id, first: DEFAULT_UPVOTES_PER_PAGE },
+      },
+    });
+  };
+
+  const handleShowUpvotedComment = (commentId: string, upvotes: number) => {
+    setUpvotedPopup({
+      modal: true,
+      upvotes,
+      requestQuery: {
+        queryKey: ['commentUpvotes', commentId],
+        query: COMMENT_UPVOTES_BY_ID_QUERY,
+        params: { id: commentId, first: DEFAULT_UPVOTES_PER_PAGE },
+      },
+    });
+  };
 
   useSubscription(
     () => ({
@@ -544,17 +584,23 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           />
         </a>
         <div
-          className="flex gap-x-4 my-4 text-theme-label-tertiary typo-callout"
+          className="flex items-center gap-x-4 my-4 text-theme-label-tertiary typo-callout"
           data-testid="statsBar"
         >
           {postById?.post.views > 0 && (
             <span>{postById?.post.views.toLocaleString()} Views</span>
           )}
-          {postById?.post.numUpvotes > 0 && (
-            <span>{postById?.post.numUpvotes.toLocaleString()} Upvotes</span>
+          {postUpvotesNum > 0 && (
+            <ClickableText
+              title={`${postUpvotesNum} Upvote${postUpvotesNum > 1 ? 's' : ''}`}
+              onClick={() => handleShowUpvotedPost()}
+            />
           )}
-          {postById?.post.numComments > 0 && (
-            <span>{postById?.post.numComments.toLocaleString()} Comments</span>
+          {postNumComments > 0 && (
+            <span>
+              {postNumComments.toLocaleString()}
+              {` Comment${postNumComments === 1 ? '' : 's'}`}
+            </span>
           )}
         </div>
         <div className="flex justify-between py-2 border-t border-b border-theme-divider-tertiary">
@@ -614,6 +660,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
                   setPendingComment({ comment, parentId })
                 }
                 onEdit={onEditClick}
+                onShowUpvotes={handleShowUpvotedComment}
                 postAuthorId={postById?.post?.author?.id}
               />
             ))}
@@ -720,6 +767,14 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           </button>
         </div>
       </PageContainer>
+      {upvotedPopup.modal && (
+        <UpvotedPopupModal
+          requestQuery={upvotedPopup.requestQuery}
+          isOpen={upvotedPopup.modal}
+          listPlaceholderProps={{ placeholderAmount: upvotedPopup.upvotes }}
+          onRequestClose={() => setUpvotedPopup(getUpvotedPopupInitialState())}
+        />
+      )}
       {pendingComment && (
         <DeleteCommentModal
           isOpen={!!pendingComment}

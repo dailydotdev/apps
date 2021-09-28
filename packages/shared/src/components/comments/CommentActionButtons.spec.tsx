@@ -17,6 +17,8 @@ import {
 const showLogin = jest.fn();
 const onComment = jest.fn();
 const onDelete = jest.fn();
+const onEdit = jest.fn();
+const onShowUpvotes = jest.fn();
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -61,7 +63,8 @@ const renderComponent = (
     parentId: 'c1',
     onComment,
     onDelete,
-    onEdit: jest.fn(),
+    onEdit,
+    onShowUpvotes,
   };
 
   const client = new QueryClient();
@@ -164,6 +167,21 @@ it('should call onDelete callback', async () => {
   expect(onDelete).toBeCalledWith(baseComment, 'c1');
 });
 
+it('should call onEdit callback', async () => {
+  renderComponent({}, loggedUser);
+  const el = await screen.findByLabelText('Edit');
+  el.click();
+  expect(onEdit).toBeCalledWith(baseComment);
+});
+
+it('should call onShowUpvotes callback', async () => {
+  baseComment.numUpvotes = 1;
+  renderComponent({}, loggedUser);
+  const el = await screen.findByLabelText('See who upvoted');
+  el.click();
+  expect(onShowUpvotes).toBeCalledWith(baseComment.id, baseComment.numUpvotes);
+});
+
 it('should not show num upvotes when it is zero', async () => {
   renderComponent();
   const el = await screen.findByLabelText('Upvote');
@@ -172,6 +190,6 @@ it('should not show num upvotes when it is zero', async () => {
 
 it('should show num upvotes when it is greater than zero', async () => {
   renderComponent({ numUpvotes: 2 });
-  const el = await screen.findByText('2');
+  const el = await screen.findByText('2 upvotes');
   expect(el).toBeInTheDocument();
 });
