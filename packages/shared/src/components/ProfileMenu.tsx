@@ -13,6 +13,8 @@ export type ProfileMenuProps = {};
 export default function ProfileMenu({}: ProfileMenuProps): ReactElement {
   const { user } = useContext(AuthContext);
 
+  const shouldShowDnD = process.env.TARGET_BROWSER === 'chrome';
+
   return (
     <PortalMenu
       id="profile-context"
@@ -40,7 +42,9 @@ export default function ProfileMenu({}: ProfileMenuProps): ReactElement {
           Account details
         </Link>
       </Item>
-      <Item onClick={console.log('click')}>Do not disturb</Item>
+      {shouldShowDnD && (
+        <Item onClick={console.log('click')}>Do not disturb</Item>
+      )}
       <Item>
         <Link
           href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}devcard`}
