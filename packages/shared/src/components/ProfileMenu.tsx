@@ -35,16 +35,14 @@ export default function ProfileMenu({}: ProfileMenuProps): ReactElement {
       </Item>
       <Item>
         <Link
-          href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}bookmarks`}
+          href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}`}
           passHref
           prefetch={false}
         >
           Account details
         </Link>
       </Item>
-      {shouldShowDnD && (
-        <Item onClick={console.log('click')}>Do not disturb</Item>
-      )}
+      {shouldShowDnD && <Item>Do not disturb</Item>}
       <Item>
         <Link
           href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}devcard`}
@@ -63,7 +61,7 @@ export default function ProfileMenu({}: ProfileMenuProps): ReactElement {
           Feedback
         </a>
       </Item>
-      <Item onClick={console.log('click')}>Logout</Item>
+      <Item>Logout</Item>
     </PortalMenu>
   );
 }
