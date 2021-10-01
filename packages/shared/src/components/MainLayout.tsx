@@ -21,6 +21,8 @@ import BookmarkIcon from '../../icons/bookmark.svg';
 import { LazyImage } from './LazyImage';
 import styles from './MainLayout.module.css';
 import LayoutIcon from '../../icons/layout.svg';
+import { useContextMenu } from 'react-contexify';
+import useProfileMenu from '../hooks/useProfileMenu';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -31,6 +33,10 @@ export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   additionalButtons?: ReactNode;
   onLogoClick?: (e: React.MouseEvent) => unknown;
 }
+
+const ProfileMenu = dynamic(
+  () => import(/* webpackChunkName: "profileMenu" */ './ProfileMenu'),
+);
 
 const HeaderRankProgress = dynamic(
   () =>
@@ -61,6 +67,7 @@ export default function MainLayout({
   const { user, showLogin, loadingUser } = useContext(AuthContext);
   const [showSettings, setShowSettings] = useState(false);
   const [showGreeting, setShowGreeting] = useState(false);
+  const {onMenuClick} = useProfileMenu();
 
   const afterBookmarkButtons = (
     <>
@@ -141,27 +148,21 @@ export default function MainLayout({
                   />
                 </Link>
                 {afterBookmarkButtons}
-                <Link
-                  href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}${
-                    user.username || user.id
-                  }`}
-                  passHref
-                  prefetch={false}
+                <a
+                  className="flex items-center ml-0.5 p-0 text-theme-label-primary bg-theme-bg-secondary border-none rounded-lg cursor-pointer no-underline font-bold typo-callout focus-outline"
+                  {...getTooltipProps('Profile', {
+                    position: 'left',
+                  })}
+                  onClick={onMenuClick}
                 >
-                  <a
-                    className="flex items-center ml-0.5 p-0 text-theme-label-primary bg-theme-bg-secondary border-none rounded-lg cursor-pointer no-underline font-bold typo-callout focus-outline"
-                    {...getTooltipProps('Profile', {
-                      position: 'left',
-                    })}
-                  >
-                    <span className="mr-2 ml-3">{user.reputation ?? 0}</span>
-                    <LazyImage
-                      className="w-8 h-8 rounded-lg"
-                      imgSrc={user.image}
-                      imgAlt="Your profile image"
-                    />
-                  </a>
-                </Link>
+                  <span className="ml-3 mr-2">{user.reputation ?? 0}</span>
+                  <LazyImage
+                    className="w-8 h-8 rounded-lg"
+                    imgSrc={user.image}
+                    imgAlt="Your profile image"
+                  />
+                </a>
+                <ProfileMenu />
               </>
             ) : (
               <>
@@ -183,7 +184,7 @@ export default function MainLayout({
           </>
         )}
         {showRank && windowLoaded && (
-          <HeaderRankProgress className="absolute left-0 right-0 -bottom-px my-0 mx-auto z-rank transform translate-y-1/2" />
+          <HeaderRankProgress className="absolute left-0 right-0 mx-auto my-0 transform translate-y-1/2 -bottom-px z-rank" />
         )}
       </header>
       {showSettings && (
