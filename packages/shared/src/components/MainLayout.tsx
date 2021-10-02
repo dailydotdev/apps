@@ -32,6 +32,7 @@ export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   mainPage?: boolean;
   additionalButtons?: ReactNode;
   onLogoClick?: (e: React.MouseEvent) => unknown;
+  onShowDndClick?: (e: React.MouseEvent) => unknown;
 }
 
 const ProfileMenu = dynamic(
@@ -62,12 +63,13 @@ export default function MainLayout({
   mainPage,
   additionalButtons,
   onLogoClick,
+  onShowDndClick,
 }: MainLayoutProps): ReactElement {
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user, showLogin, loadingUser } = useContext(AuthContext);
   const [showSettings, setShowSettings] = useState(false);
   const [showGreeting, setShowGreeting] = useState(false);
-  const {onMenuClick} = useProfileMenu();
+  const { onMenuClick } = useProfileMenu();
 
   const afterBookmarkButtons = (
     <>
@@ -162,7 +164,7 @@ export default function MainLayout({
                     imgAlt="Your profile image"
                   />
                 </a>
-                <ProfileMenu />
+                <ProfileMenu onShowDndClick={onShowDndClick} />
               </>
             ) : (
               <>

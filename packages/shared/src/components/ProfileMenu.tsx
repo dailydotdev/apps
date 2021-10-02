@@ -15,9 +15,13 @@ const AccountDetailsModal = dynamic(
     ),
 );
 
-export type ProfileMenuProps = {};
+export type ProfileMenuProps = {
+  onShowDndClick?: () => void;
+};
 
-export default function ProfileMenu({}: ProfileMenuProps): ReactElement {
+export default function ProfileMenu({
+  onShowDndClick,
+}: ProfileMenuProps): ReactElement {
   const [showAccountDetails, setShowAccountDetails] = useState(false);
   const { user, logout } = useContext(AuthContext);
   const shouldShowDnD = process.env.TARGET_BROWSER === 'chrome';
@@ -46,7 +50,7 @@ export default function ProfileMenu({}: ProfileMenuProps): ReactElement {
           </Link>
         </Item>
         <Item onClick={() => setShowAccountDetails(true)}>Account details</Item>
-        {shouldShowDnD && <Item>Do not disturb</Item>}
+        {shouldShowDnD && <Item onClick={onShowDndClick}>Do not disturb</Item>}
         <Item>
           <Link
             href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}devcard`}
