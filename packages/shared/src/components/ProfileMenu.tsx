@@ -11,7 +11,7 @@ const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
 export type ProfileMenuProps = {};
 
 export default function ProfileMenu({}: ProfileMenuProps): ReactElement {
-  const { user } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
 
   const shouldShowDnD = process.env.TARGET_BROWSER === 'chrome';
 
@@ -61,7 +61,7 @@ export default function ProfileMenu({}: ProfileMenuProps): ReactElement {
           Feedback
         </a>
       </Item>
-      <Item>Logout</Item>
+      <Item onClick={logout}>Logout</Item>
     </PortalMenu>
   );
 }
