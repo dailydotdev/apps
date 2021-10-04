@@ -1,6 +1,5 @@
 import React from 'react';
-import { render, RenderResult, screen } from '@testing-library/react';
-import { findByRole, waitFor } from '@testing-library/react';
+import { waitFor, render, RenderResult, screen } from '@testing-library/react';
 import ProfileButton, { ProfileButtonProps } from './ProfileButton';
 import AuthContext from '../../contexts/AuthContext';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
