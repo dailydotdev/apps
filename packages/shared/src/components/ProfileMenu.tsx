@@ -22,15 +22,17 @@ const AccountDetailsModal = dynamic(
 );
 
 export type ProfileMenuProps = {
+  width: number;
   onShowDndClick?: () => void;
 };
 
 export default function ProfileMenu({
+  width,
   onShowDndClick,
 }: ProfileMenuProps): ReactElement {
   const [showAccountDetails, setShowAccountDetails] = useState(false);
   const { user, logout } = useContext(AuthContext);
-  const shouldShowDnD = process.env.TARGET_BROWSER === 'chrome';
+  const shouldShowDnD = !!process.env.TARGET_BROWSER;
 
   return (
     <>
@@ -44,16 +46,10 @@ export default function ProfileMenu({
         id="profile-context"
         className="menu-primary"
         animation="fade"
-        style={{ width: '10rem' }}
+        style={{ width: `${width}rem` }}
       >
         <Item>
-          <Link
-            href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}${
-              user.username || user.id
-            }`}
-            passHref
-            prefetch={false}
-          >
+          <Link href={user.permalink} passHref prefetch={false}>
             <a className="flex w-full">
               <UserIcon className="mr-2 text-xl" /> Profile
             </a>
@@ -82,6 +78,7 @@ export default function ProfileMenu({
           <a
             href="https://it057218.typeform.com/to/S9p9SVNI"
             target="_blank"
+            rel="noopener noreferrer"
             className="flex w-full"
           >
             <FeedbackIcon className="mr-2 text-xl" /> Feedback

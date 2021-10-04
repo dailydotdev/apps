@@ -18,10 +18,9 @@ import PromotionalBanner from './PromotionalBanner';
 import Logo from '../svg/Logo';
 import LogoText from '../svg/LogoText';
 import BookmarkIcon from '../../icons/bookmark.svg';
-import { LazyImage } from './LazyImage';
 import styles from './MainLayout.module.css';
 import LayoutIcon from '../../icons/layout.svg';
-import useProfileMenu from '../hooks/useProfileMenu';
+import ProfileButton from './profile/ProfileButton';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -33,10 +32,6 @@ export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   onLogoClick?: (e: React.MouseEvent) => unknown;
   onShowDndClick?: () => unknown;
 }
-
-const ProfileMenu = dynamic(
-  () => import(/* webpackChunkName: "profileMenu" */ './ProfileMenu'),
-);
 
 const HeaderRankProgress = dynamic(
   () =>
@@ -68,7 +63,6 @@ export default function MainLayout({
   const { user, showLogin, loadingUser } = useContext(AuthContext);
   const [showSettings, setShowSettings] = useState(false);
   const [showGreeting, setShowGreeting] = useState(false);
-  const { onMenuClick } = useProfileMenu();
 
   const afterBookmarkButtons = (
     <>
@@ -149,22 +143,7 @@ export default function MainLayout({
                   />
                 </Link>
                 {afterBookmarkButtons}
-                <button
-                  type="button"
-                  className="flex items-center ml-0.5 p-0 text-theme-label-primary bg-theme-bg-secondary border-none rounded-lg cursor-pointer no-underline font-bold typo-callout focus-outline"
-                  {...getTooltipProps('Profile', {
-                    position: 'left',
-                  })}
-                  onClick={onMenuClick}
-                >
-                  <span className="ml-3 mr-2">{user.reputation ?? 0}</span>
-                  <LazyImage
-                    className="w-8 h-8 rounded-lg"
-                    imgSrc={user.image}
-                    imgAlt="Your profile image"
-                  />
-                </button>
-                <ProfileMenu onShowDndClick={onShowDndClick} />
+                <ProfileButton onShowDndClick={onShowDndClick} />
               </>
             ) : (
               <>

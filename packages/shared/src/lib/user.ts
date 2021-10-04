@@ -53,6 +53,7 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
   roles?: Roles[];
   createdAt: string;
   reputation?: number;
+  permalink: string;
 }
 
 interface BaseError {

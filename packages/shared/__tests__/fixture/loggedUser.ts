@@ -8,7 +8,8 @@ const user: LoggedUser = {
   image: 'https://daily.dev/ido.png',
   infoConfirmed: true,
   premium: false,
-  createdAt: '',
+  createdAt: new Date().toISOString(),
+  permalink: 'https://app.daily.dev/Ido',
 };
 
 export default user;
