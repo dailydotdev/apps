@@ -21,7 +21,6 @@ import BookmarkIcon from '../../icons/bookmark.svg';
 import { LazyImage } from './LazyImage';
 import styles from './MainLayout.module.css';
 import LayoutIcon from '../../icons/layout.svg';
-import { useContextMenu } from 'react-contexify';
 import useProfileMenu from '../hooks/useProfileMenu';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
@@ -150,7 +149,8 @@ export default function MainLayout({
                   />
                 </Link>
                 {afterBookmarkButtons}
-                <a
+                <button
+                  type="button"
                   className="flex items-center ml-0.5 p-0 text-theme-label-primary bg-theme-bg-secondary border-none rounded-lg cursor-pointer no-underline font-bold typo-callout focus-outline"
                   {...getTooltipProps('Profile', {
                     position: 'left',
@@ -163,7 +163,7 @@ export default function MainLayout({
                     imgSrc={user.image}
                     imgAlt="Your profile image"
                   />
-                </a>
+                </button>
                 <ProfileMenu onShowDndClick={onShowDndClick} />
               </>
             ) : (
