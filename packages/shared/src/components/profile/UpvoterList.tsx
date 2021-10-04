@@ -5,6 +5,7 @@ import { LazyImage } from '../LazyImage';
 import useFeedInfiniteScroll from '../../hooks/feed/useFeedInfiniteScroll';
 import { UpvotesData } from '../../graphql/common';
 import { UpvoterListPlaceholder } from './UpvoterListPlaceholder';
+import { ProfileIntro } from './ProfileIntro';
 
 export interface UpvoterListProps {
   queryResult: UseInfiniteQueryResult<UpvotesData>;
@@ -34,17 +35,7 @@ export function UpvoterList({ queryResult }: UpvoterListProps): ReactElement {
                 imgAlt={user.username}
                 className="w-12 h-12 rounded-10"
               />
-              <div className="flex flex-col flex-1 ml-4 typo-callout">
-                <span className="font-bold">{user.name}</span>
-                <span className="text-theme-label-secondary">
-                  @{user.username}
-                </span>
-                {user.bio && (
-                  <span className="mt-1 text-theme-label-tertiary">
-                    {user.bio}
-                  </span>
-                )}
-              </div>
+              <ProfileIntro user={user} />
             </a>
           </Link>
         )),

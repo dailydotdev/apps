@@ -26,6 +26,15 @@ export interface PublicProfile {
   reputation: number;
 }
 
+export type UserIntroduction = Pick<PublicProfile, 'name' | 'username' | 'bio'>;
+
+export interface TooltipProfile
+  extends UserIntroduction,
+    Pick<PublicProfile, 'image'> {
+  permalink: string;
+  rank?: string;
+}
+
 export interface UserProfile {
   name: string;
   email: string;
@@ -41,7 +50,8 @@ export interface UserProfile {
 }
 
 export interface UpvoterProfile
-  extends Pick<PublicProfile, 'name' | 'username' | 'image' | 'bio'> {
+  extends UserIntroduction,
+    Pick<PublicProfile, 'image'> {
   permalink: string;
 }
 
