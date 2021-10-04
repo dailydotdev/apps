@@ -32,7 +32,7 @@ export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   mainPage?: boolean;
   additionalButtons?: ReactNode;
   onLogoClick?: (e: React.MouseEvent) => unknown;
-  onShowDndClick?: (e: React.MouseEvent) => unknown;
+  onShowDndClick?: () => unknown;
 }
 
 const ProfileMenu = dynamic(

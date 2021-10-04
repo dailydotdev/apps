@@ -3,6 +3,12 @@ import dynamic from 'next/dynamic';
 import { Item } from 'react-contexify';
 import Link from 'next/link';
 import AuthContext from '../contexts/AuthContext';
+import PowerIcon from '../../icons/power.svg';
+import UserIcon from '../../icons/user.svg';
+import TimerIcon from '../../icons/timer.svg';
+import SettingsIcon from '../../icons/settings.svg';
+import DevCardIcon from '../../icons/dev_card.svg';
+import FeedbackIcon from '../../icons/feedback.svg';
 
 const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
   ssr: false,
@@ -28,15 +34,17 @@ export default function ProfileMenu({
 
   return (
     <>
-      <AccountDetailsModal
-        isOpen={showAccountDetails}
-        onRequestClose={() => setShowAccountDetails(false)}
-      />
+      {showAccountDetails && (
+        <AccountDetailsModal
+          isOpen={showAccountDetails}
+          onRequestClose={() => setShowAccountDetails(false)}
+        />
+      )}
       <PortalMenu
         id="profile-context"
         className="menu-primary"
         animation="fade"
-        style={{ width: '9rem' }}
+        style={{ width: '10rem' }}
       >
         <Item>
           <Link
@@ -46,30 +54,42 @@ export default function ProfileMenu({
             passHref
             prefetch={false}
           >
-            <a className="w-full">Profile</a>
+            <a className="flex w-full">
+              <UserIcon className="mr-2 text-xl" /> Profile
+            </a>
           </Link>
         </Item>
-        <Item onClick={() => setShowAccountDetails(true)}>Account details</Item>
-        {shouldShowDnD && <Item onClick={onShowDndClick}>Do not disturb</Item>}
+        <Item onClick={() => setShowAccountDetails(true)}>
+          <SettingsIcon className="mr-2 text-xl" /> Account details
+        </Item>
+        {shouldShowDnD && (
+          <Item onClick={onShowDndClick}>
+            <TimerIcon className="mr-2 text-xl" /> Do not disturb
+          </Item>
+        )}
         <Item>
           <Link
             href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}devcard`}
             passHref
             prefetch={false}
           >
-            <a className="w-full">Dev card</a>
+            <a className="flex w-full">
+              <DevCardIcon className="mr-2 text-xl" /> Dev card
+            </a>
           </Link>
         </Item>
         <Item>
           <a
             href="https://it057218.typeform.com/to/S9p9SVNI"
             target="_blank"
-            className="w-full"
+            className="flex w-full"
           >
-            Feedback
+            <FeedbackIcon className="mr-2 text-xl" /> Feedback
           </a>
         </Item>
-        <Item onClick={logout}>Logout</Item>
+        <Item onClick={logout}>
+          <PowerIcon className="mr-2 text-xl" /> Logout
+        </Item>
       </PortalMenu>
     </>
   );

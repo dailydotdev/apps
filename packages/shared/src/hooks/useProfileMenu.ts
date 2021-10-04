@@ -8,7 +8,7 @@ export default function useProfileMenu(): {
   const onMenuClick = (e: React.MouseEvent) => {
     const { right, bottom } = e.currentTarget.getBoundingClientRect();
     show(e, {
-      position: { x: right - 142, y: bottom + 4 },
+      position: { x: right - 160, y: bottom + 4 },
     });
   };
 
