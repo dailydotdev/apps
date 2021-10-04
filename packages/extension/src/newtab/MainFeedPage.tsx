@@ -72,6 +72,7 @@ export default function MainFeedPage({
       greeting
       mainPage
       onLogoClick={onLogoClick}
+      onShowDndClick={() => setShowDnd(true)}
       additionalButtons={
         <>
           {(onboardingStep > 2 || user) && (
