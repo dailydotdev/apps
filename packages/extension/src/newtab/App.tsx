@@ -21,7 +21,6 @@ import { SettingsContextProvider } from '@dailydotdev/shared/src/contexts/Settin
 import { AnalyticsContextProvider } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { browser } from 'webextension-polyfill-ts';
 import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState';
-import HelpUsGrowModalWithContext from '@dailydotdev/shared/src/components/modals/HelpUsGrowModalWithContext';
 import { RouterContext } from 'next/dist/shared/lib/router-context';
 import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPageView';
 import { trackPageView } from '@dailydotdev/shared/src/lib/analytics';
@@ -121,7 +120,6 @@ function InternalApp({
           {...loginState}
         />
       )}
-      <HelpUsGrowModalWithContext />
       {analyticsConsent === null && (
         <AnalyticsConsentModal
           onDecline={() => setAnalyticsConsent(false)}
