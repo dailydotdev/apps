@@ -5,6 +5,8 @@ import AuthContext from '../../contexts/AuthContext';
 import { getTooltipProps } from '../../lib/tooltip';
 import useProfileMenu from '../../hooks/useProfileMenu';
 
+const profileContextMenuWidth = 10;
+
 const ProfileMenu = dynamic(
   () => import(/* webpackChunkName: "profileMenu" */ '../ProfileMenu'),
 );
@@ -17,7 +19,6 @@ export default function ProfileButton({
   onShowDndClick,
 }: ProfileButtonProps): ReactElement {
   const { user } = useContext(AuthContext);
-  const profileContextMenuWidth = 10;
   const { onMenuClick } = useProfileMenu(profileContextMenuWidth);
 
   return (
