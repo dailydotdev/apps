@@ -3,9 +3,6 @@ import useBookmarkPost from '../useBookmarkPost';
 import { FeedItem } from '../useFeed';
 import { postAnalyticsEvent, optimisticPostUpdateInFeed } from '../../lib/feed';
 import { Post } from '../../graphql/posts';
-import OnboardingContext, {
-  EngagementAction,
-} from '../../contexts/OnboardingContext';
 import AuthContext from '../../contexts/AuthContext';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 
@@ -20,7 +17,6 @@ export default function useFeedBookmarkPost(
   column: number,
   bookmarked: boolean,
 ) => Promise<void> {
-  const { trackEngagement } = useContext(OnboardingContext);
   const { user, showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
 
@@ -56,7 +52,6 @@ export default function useFeedBookmarkPost(
       ),
     );
     if (bookmarked) {
-      await trackEngagement(EngagementAction.Bookmark);
       await bookmark({ id: post.id, index });
     } else {
       await removeBookmark({ id: post.id, index });
