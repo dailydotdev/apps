@@ -20,7 +20,6 @@ export function UpvoterList({ queryResult }: UpvoterListProps): ReactElement {
   const infiniteScrollRef = useFeedInfiniteScroll({
     fetchPage: queryResult.fetchNextPage,
     canFetchMore,
-    enableTrackEngagement: false,
   });
 
   return (

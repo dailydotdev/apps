@@ -28,7 +28,6 @@ import { canonicalFromRouter } from '@dailydotdev/shared/src/lib/canonical';
 import { SettingsContextProvider } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import '@dailydotdev/shared/src/styles/globals.css';
 import useThirdPartyAnalytics from '@dailydotdev/shared/src/hooks/useThirdPartyAnalytics';
-import HelpUsGrowModalWithContext from '@dailydotdev/shared/src/components/modals/HelpUsGrowModalWithContext';
 import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPageView';
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
 import Seo from '../next-seo';
@@ -171,7 +170,6 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
         />
       )}
       {showCookie && <CookieBanner onAccepted={acceptCookies} />}
-      <HelpUsGrowModalWithContext />
     </>
   );
 }
