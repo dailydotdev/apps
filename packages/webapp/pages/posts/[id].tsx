@@ -656,11 +656,9 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         </div>
         {isLoadingComments && (
           <>
-            {Array(3)
-              .fill(0)
-              .map((key) => (
-                <PlaceholderComment key={key} />
-              ))}
+            {Object.keys([...Array(3)]).map((key) => (
+              <PlaceholderComment key={key} />
+            ))}
           </>
         )}
         {!isLoadingComments && comments?.postComments?.edges?.length > 0 && (
