@@ -658,8 +658,8 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           <>
             {Array(3)
               .fill(0)
-              .map((_, i) => (
-                <PlaceholderComment key={i} />
+              .map((key) => (
+                <PlaceholderComment key={key} />
               ))}
           </>
         )}
