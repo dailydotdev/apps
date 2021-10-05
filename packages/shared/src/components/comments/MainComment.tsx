@@ -8,6 +8,8 @@ import SubComment from './SubComment';
 import { ProfileImageLink } from '../profile/ProfileImageLink';
 import CommentAuthor from './CommentAuthor';
 import classed from '../../lib/classed';
+import LazyTooltip from '../LazyTooltip';
+import { ProfileTooltip } from '../profile/ProfileTooltip';
 
 export interface Props extends CommentActionProps {
   comment: Comment;
@@ -26,13 +28,22 @@ export default function MainComment({
 }: Props): ReactElement {
   return (
     <article className="flex flex-col items-stretch mt-4" data-testid="comment">
-      <div className="flex items-center">
-        <ProfileImageLink user={comment.author} />
-        <div className="flex flex-col ml-2">
-          <CommentAuthor postAuthorId={postAuthorId} author={comment.author} />
-          <CommentPublishDate comment={comment} />
+      <LazyTooltip
+        render={() => <ProfileTooltip user={comment.author} />}
+        delay={500}
+        placement="bottom-start"
+      >
+        <div className="flex items-center relative">
+          <ProfileImageLink user={comment.author} />
+          <div className="flex flex-col ml-2">
+            <CommentAuthor
+              postAuthorId={postAuthorId}
+              author={comment.author}
+            />
+            <CommentPublishDate comment={comment} />
+          </div>
         </div>
-      </div>
+      </LazyTooltip>
       <MainCommentBox>{comment.content}</MainCommentBox>
       <CommentActionButtons
         comment={comment}

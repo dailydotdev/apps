@@ -45,6 +45,8 @@ export const COMMENT_FRAGMENT = gql`
       id
       name
       image
+      bio
+      username
       permalink
     }
   }
