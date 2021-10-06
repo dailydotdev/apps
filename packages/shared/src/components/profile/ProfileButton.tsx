@@ -25,13 +25,13 @@ export default function ProfileButton({
     <>
       <button
         type="button"
-        className="flex items-center ml-0.5 p-0 text-theme-label-primary bg-theme-bg-secondary border-none rounded-lg cursor-pointer no-underline font-bold typo-callout focus-outline"
+        className="flex items-center p-0 ml-0.5 font-bold no-underline rounded-lg border-none cursor-pointer text-theme-label-primary bg-theme-bg-secondary typo-callout focus-outline"
         {...getTooltipProps('Profile settings', {
           position: 'left',
         })}
         onClick={onMenuClick}
       >
-        <span className="ml-3 mr-2">{user.reputation ?? 0}</span>
+        <span className="mr-2 ml-3">{user.reputation ?? 0}</span>
         <LazyImage
           className="w-8 h-8 rounded-lg"
           imgSrc={user.image}

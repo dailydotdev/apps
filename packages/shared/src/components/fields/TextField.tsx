@@ -120,7 +120,7 @@ export function TextField({
     >
       {compact && (
         <label
-          className="mb-1 px-2 text-theme-label-primary font-bold"
+          className="px-2 mb-1 font-bold text-theme-label-primary"
           htmlFor={inputId}
         >
           {label}
@@ -138,7 +138,7 @@ export function TextField({
           styles.field,
         )}
       >
-        <div className="flex flex-col items-start flex-1 max-w-full">
+        <div className="flex flex-col flex-1 items-start max-w-full">
           {!compact && (
             <label
               className={classNames('typo-caption1', !showLabel && 'hidden')}

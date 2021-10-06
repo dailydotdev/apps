@@ -132,12 +132,12 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
         {tagStatus !== 'followed' && (
           <>
             <Button
-              className="btn-secondary laptop:hidden"
+              className="laptop:hidden btn-secondary"
               {...blockButtonProps}
               aria-label={tagStatus === 'blocked' ? 'Unblock' : 'Block'}
             />
             <Button
-              className="btn-secondary hidden laptop:flex"
+              className="hidden laptop:flex btn-secondary"
               {...blockButtonProps}
             >
               {tagStatus === 'blocked' ? 'Unblock' : 'Block'}

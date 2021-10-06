@@ -79,7 +79,7 @@ const Tag = ({
       </Button>
     </Link>
     <Button
-      className="btn-tertiary right-4 my-auto"
+      className="right-4 my-auto btn-tertiary"
       style={{ position: 'absolute' }}
       onClick={(event) => onClick?.(event, tag)}
       icon={menu ? <MenuIcon /> : <XIcon />}

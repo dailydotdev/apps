@@ -88,7 +88,7 @@ export default function Sidebar(): ReactElement {
         />
         {hightlightTrigger && (
           <div
-            className="absolute left-0 w-14 rounded-r-3xl -z-1 bg-theme-hover"
+            className="absolute left-0 -z-1 w-14 bg-theme-hover rounded-r-3xl"
             style={{
               top: '-1rem',
               height: '5.5rem',

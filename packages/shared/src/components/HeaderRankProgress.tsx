@@ -78,7 +78,7 @@ export default function HeaderRankProgress({
         >
           {showWelcome ? (
             <div
-              className="flex w-12 h-12 items-center justify-center bg-theme-label-primary rounded-full"
+              className="flex justify-center items-center w-12 h-12 rounded-full bg-theme-label-primary"
               data-testid="welcomeButton"
             >
               <Rank

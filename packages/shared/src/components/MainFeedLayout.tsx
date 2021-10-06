@@ -299,7 +299,7 @@ export default function MainFeedLayout({
           you’ll ever need. Ready?
         </div>
       )}
-      <nav className="relative h-11 flex self-stretch items-center mb-6 overflow-x-auto no-scrollbar">
+      <nav className="flex overflow-x-auto relative items-center self-stretch mb-6 h-11 no-scrollbar">
         <ButtonOrLink
           asLink={!useNavButtonsNotLinks}
           href="/search"

@@ -15,12 +15,12 @@ export default function CommentAuthor({
   return (
     <ProfileLink
       user={author}
-      className="commentAuthor text-theme-label-primary whitespace-nowrap overflow-hidden font-bold typo-callout"
+      className="overflow-hidden font-bold whitespace-nowrap commentAuthor text-theme-label-primary typo-callout"
     >
       {author.name}
       {author.id === postAuthorId && (
         <span className="flex items-center ml-2 text-theme-status-help typo-footnote">
-          <FeatherIcon className="icon text-base ml-1" />
+          <FeatherIcon className="ml-1 text-base icon" />
           Author
         </span>
       )}

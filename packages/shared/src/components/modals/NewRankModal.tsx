@@ -158,7 +158,7 @@ export default function NewRankModal({
         </CSSTransition>
       </div>
       <h1 className="mt-2 font-bold text-center typo-callout">{title}</h1>
-      <p className="mt-1 mb-8 text-theme-label-secondary text-center typo-callout">
+      <p className="mt-1 mb-8 text-center text-theme-label-secondary typo-callout">
         You earned the {RANK_NAMES[rank - 1]?.toLowerCase()} rank
         {!user && (
           <>
@@ -169,7 +169,7 @@ export default function NewRankModal({
         )}
       </p>
       {user ? (
-        <div className="flex self-center gap-4">
+        <div className="flex gap-4 self-center">
           {showDevCard && (
             <GoToDevCardButton origin="new rank popup">
               Generate Dev Card

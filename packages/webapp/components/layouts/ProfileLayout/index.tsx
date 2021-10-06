@@ -157,7 +157,7 @@ export default function ProfileLayout({
             styles.header,
           )}
         >
-          <div className="flex mb-6 bg-theme-bg-secondary rounded-2xl self-start items-center tablet:flex-col tablet:mb-0 tablet:pt-2 tablet:pb-4 tablet:px-2">
+          <div className="flex tablet:flex-col items-center self-start tablet:px-2 tablet:pt-2 tablet:pb-4 mb-6 tablet:mb-0 rounded-2xl bg-theme-bg-secondary">
             <LazyImage
               imgSrc={profile.image}
               imgAlt={`${profile.name}'s profile image`}
@@ -166,23 +166,23 @@ export default function ProfileLayout({
               className="rounded-2xl"
               style={{ width: sizeN(25) }}
             />
-            <div className="flex flex-col mx-6 typo-footnote tablet:items-center tablet:mt-4 tablet:mx-0">
+            <div className="flex flex-col tablet:items-center mx-6 tablet:mx-0 tablet:mt-4 typo-footnote">
               <a
                 href={reputationGuide}
                 target="_blank"
                 rel="noopener"
-                className="text-theme-label-tertiary no-underline my-0.5"
+                className="my-0.5 no-underline text-theme-label-tertiary"
               >
                 Reputation
               </a>
-              <span className="my-0.5 text-theme-label-primary font-bold typo-title1">
+              <span className="my-0.5 font-bold text-theme-label-primary typo-title1">
                 {profile.reputation}
               </span>
             </div>
           </div>
           <div className="flex flex-col tablet:flex-1">
             <div className="flex items-center mb-2">
-              <h1 className="m-0 text-theme-label-primary font-bold typo-title3">
+              <h1 className="m-0 font-bold text-theme-label-primary typo-title3">
                 {profile.name}
               </h1>
               {userRank?.userReadingRank?.currentRank > 0 && (
@@ -190,7 +190,7 @@ export default function ProfileLayout({
                   rank={userRank.userReadingRank.currentRank}
                   colorByRank
                   data-testid="rank"
-                  className="w-6 h-6 ml-2"
+                  className="ml-2 w-6 h-6"
                 />
               )}
             </div>
@@ -200,7 +200,7 @@ export default function ProfileLayout({
               </h2>
             )}
             {profile.bio && (
-              <p className="mt-3 text-theme-label-tertiary break-words typo-callout">
+              <p className="mt-3 break-words text-theme-label-tertiary typo-callout">
                 {profile.bio}
               </p>
             )}
@@ -261,7 +261,7 @@ export default function ProfileLayout({
             </div>
             {profile.id === user?.id && (
               <Button
-                className="btn-secondary mt-6 mb-0.5 self-start"
+                className="self-start mt-6 mb-0.5 btn-secondary"
                 onClick={() => setShowAccountDetails(true)}
               >
                 Account details

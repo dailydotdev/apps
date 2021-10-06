@@ -284,11 +284,11 @@ export default function NewCommentModal({
         </header>
         <div>{content}</div>
       </article>
-      <div className="flex items-center h-11 px-2">
-        <div className="w-px h-full ml-3 bg-theme-divider-tertiary" />
+      <div className="flex items-center px-2 h-11">
+        <div className="ml-3 w-px h-full bg-theme-divider-tertiary" />
         <div className="ml-6 text-theme-label-secondary typo-caption1">
           Reply to{' '}
-          <strong className="text-theme-label-primary font-bold">
+          <strong className="font-bold text-theme-label-primary">
             {authorName}
           </strong>
         </div>
@@ -318,7 +318,7 @@ export default function NewCommentModal({
       >
         {errorMessage && <span role="alert">{errorMessage}</span>}
       </div>
-      <footer className="flex items-center justify-between py-2 border-t border-theme-divider-tertiary">
+      <footer className="flex justify-between items-center py-2 border-t border-theme-divider-tertiary">
         <Button className="btn-tertiary" onClick={confirmClose}>
           Cancel
         </Button>

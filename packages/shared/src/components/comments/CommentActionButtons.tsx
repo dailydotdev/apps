@@ -108,14 +108,14 @@ export default function CommentActionButtons({
         {...getTooltipProps('Upvote')}
         onClick={toggleUpvote}
         icon={<UpvoteIcon />}
-        className="btn-tertiary-avocado mr-3"
+        className="mr-3 btn-tertiary-avocado"
       />
       <Button
         buttonSize="small"
         {...getTooltipProps('Comment')}
         onClick={() => onComment(comment, parentId)}
         icon={<CommentIcon />}
-        className="btn-tertiary-avocado mr-3"
+        className="mr-3 btn-tertiary-avocado"
       />
       {user?.id === comment.author.id && (
         <Button
@@ -123,7 +123,7 @@ export default function CommentActionButtons({
           {...getTooltipProps('Edit')}
           onClick={() => onEdit(comment)}
           icon={<EditIcon />}
-          className="btn-tertiary mr-3"
+          className="mr-3 btn-tertiary"
         />
       )}
       {(user?.id === comment.author.id ||

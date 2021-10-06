@@ -37,7 +37,7 @@ export default function AccountDetailsModal({
       className={classNames(className, styles.accountDetailsModal)}
       {...props}
     >
-      <header className="fixed flex top-0 left-0 w-full h-12 items-center justify-between px-4 bg-theme-bg-secondary border-b border-theme-divider-tertiary z-3 responsiveModalBreakpoint:sticky">
+      <header className="flex fixed responsiveModalBreakpoint:sticky top-0 left-0 z-3 justify-between items-center px-4 w-full h-12 border-b bg-theme-bg-secondary border-theme-divider-tertiary">
         <Button
           title="Close"
           onClick={props.onRequestClose}
@@ -54,7 +54,7 @@ export default function AccountDetailsModal({
           Save changes
         </Button>
       </header>
-      <div className="pt-6 px-4 pb-4">
+      <div className="px-4 pt-6 pb-4">
         <ProfileHeading>Account Details</ProfileHeading>
         <EditImageWithJoinedDate user={user} />
         <ProfileForm
@@ -64,7 +64,7 @@ export default function AccountDetailsModal({
           mode="update"
         />
       </div>
-      <footer className="flex flex-col -my-1 px-4 pb-10">
+      <footer className="flex flex-col px-4 pb-10 -my-1">
         <FooterLink href={faq} target="_blank" rel="noopener">
           FAQ
         </FooterLink>
@@ -95,7 +95,7 @@ export default function AccountDetailsModal({
         <Button
           onClick={logout}
           buttonSize="small"
-          className="btn-tertiary self-start mt-5"
+          className="self-start mt-5 btn-tertiary"
         >
           Logout
         </Button>

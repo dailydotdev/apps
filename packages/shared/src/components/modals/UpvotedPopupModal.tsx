@@ -50,12 +50,12 @@ export function UpvotedPopupModal({
         },
       }}
     >
-      <header className="w-full py-4 px-6 border-b border-theme-divider-tertiary">
+      <header className="py-4 px-6 w-full border-b border-theme-divider-tertiary">
         <h3 className="font-bold typo-title3">Upvoted by</h3>
         <ModalCloseButton onClick={onRequestClose} />
       </header>
       <section
-        className="w-full relative flex-shrink h-full max-h-full overflow-auto"
+        className="overflow-auto relative flex-shrink w-full h-full max-h-full"
         data-testid={`List of ${queryKey[0]} with ID ${queryKey[1]}`}
       >
         {page && page.upvotes.edges.length > 0 ? (

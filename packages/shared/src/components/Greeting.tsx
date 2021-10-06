@@ -51,7 +51,7 @@ export default function Greeting({
     const firstName = user?.name?.split?.(' ')?.[0];
     const greeting = getGreetingData();
     return (
-      <div className="typo-callout font-bold ml-2">
+      <div className="ml-2 font-bold typo-callout">
         {greeting.text}
         {firstName && (
           <span className="hidden laptop:inline">, {firstName}</span>

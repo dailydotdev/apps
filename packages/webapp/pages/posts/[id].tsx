@@ -468,7 +468,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
 
   return (
     <>
-      <PageContainer className="pt-6 pb-20 laptop:pb-6 laptop:self-start laptop:border-theme-divider-tertiary laptop:border-r laptopL:self-center laptopL:border-l">
+      <PageContainer className="laptop:self-start laptopL:self-center pt-6 pb-20 laptop:pb-6 laptop:border-r laptopL:border-l laptop:border-theme-divider-tertiary">
         <Head>
           <link rel="preload" as="image" href={postById?.post.image} />
         </Head>
@@ -499,14 +499,14 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
               user={postById.post.author}
               data-testid="authorLink"
               disableTooltip
-              className="ml-2 mr-auto flex-1"
+              className="flex-1 mr-auto ml-2"
             >
               <SourceImage
                 imgSrc={postById.post.author.image}
                 imgAlt={postById.post.author.name}
                 background="var(--theme-background-secondary)"
               />
-              <SourceName className="ml-2 flex-1">
+              <SourceName className="flex-1 ml-2">
                 {postById.post.author.name}
               </SourceName>
             </ProfileLink>
@@ -543,12 +543,12 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           <h1 className="my-2 font-bold typo-title2">{postById?.post.title}</h1>
         </a>
 
-        <div className="flex items-center flex-wrap mt-2 mb-1">
+        <div className="flex flex-wrap items-center mt-2 mb-1">
           <time dateTime={postById?.post?.createdAt} className={metadataStyle}>
             {postById && postDateFormat(postById.post.createdAt)}
           </time>
           {!!postById?.post.readTime && (
-            <div className="w-0.5 h-0.5 mx-1 bg-theme-label-tertiary rounded-full" />
+            <div className="mx-1 w-0.5 h-0.5 rounded-full bg-theme-label-tertiary" />
           )}
           {!!postById?.post.readTime && (
             <div data-testid="readTime" className={metadataStyle}>
@@ -556,7 +556,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             </div>
           )}
         </div>
-        <div className="mt-3 mb-4 flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 mt-3 mb-4">
           {postById?.post.tags.map((t) => (
             <Link href={`/tags/${t}`} passHref key={t}>
               <Button tag="a" className="btn-tertiaryFloat xsmall">
@@ -574,7 +574,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         )}
         <a
           {...postLinkProps}
-          className="block mt-2 rounded-2xl overflow-hidden cursor-pointer"
+          className="block overflow-hidden mt-2 rounded-2xl cursor-pointer"
         >
           <LazyImage
             imgSrc={postById?.post.image}
@@ -584,7 +584,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           />
         </a>
         <div
-          className="flex items-center gap-x-4 my-4 text-theme-label-tertiary typo-callout"
+          className="flex gap-x-4 items-center my-4 text-theme-label-tertiary typo-callout"
           data-testid="statsBar"
         >
           {postById?.post.views > 0 && (
@@ -668,7 +668,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           </>
         )}
         {comments?.postComments?.edges?.length === 0 && !isLoadingComments && (
-          <div className="text-center text-theme-label-quaternary typo-subhead my-10">
+          <div className="my-10 text-center text-theme-label-quaternary typo-subhead">
             Be the first to comment.
           </div>
         )}
@@ -760,7 +760,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
               <LazyImage
                 imgSrc={user.image}
                 imgAlt="Your profile image"
-                className="w-7 h-7 rounded-full -ml-2 mr-3"
+                className="mr-3 -ml-2 w-7 h-7 rounded-full"
               />
             )}
             Start the discussion...

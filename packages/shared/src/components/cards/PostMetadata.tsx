@@ -24,7 +24,7 @@ export default function PostMetadata({
       <time dateTime={post.createdAt}>{date}</time>
       {!!post.readTime && (
         <>
-          <div className="w-0.5 h-0.5 mx-1 rounded-full bg-theme-label-tertiary" />
+          <div className="mx-1 w-0.5 h-0.5 rounded-full bg-theme-label-tertiary" />
           <span data-testid="readTime">{post.readTime}m read time</span>
         </>
       )}

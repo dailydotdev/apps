@@ -47,9 +47,9 @@ const Step1 = ({
   return (
     <>
       <DevCardPlaceholder profileImage={user?.image} width={108} />
-      <h1 className="mt-10 typo-title1 font-bold">Grab your Dev Card</h1>
+      <h1 className="mt-10 font-bold typo-title1">Grab your Dev Card</h1>
       <p
-        className="mt-4 typo-body text-theme-label-secondary text-center"
+        className="mt-4 text-center typo-body text-theme-label-secondary"
         style={{ maxWidth: rem(520) }}
       >
         Your Dev Card will show you stats about the publications and topics you
@@ -128,9 +128,9 @@ const Step2 = ({
 
   return (
     <>
-      <div className="flex flex-col self-stretch laptop:self-center items-center mx-2">
+      <div className="flex flex-col items-center self-stretch laptop:self-center mx-2">
         <Tilt
-          className="self-stretch laptop:w-96 overflow-hidden"
+          className="overflow-hidden self-stretch laptop:w-96"
           glareEnable
           perspective={1000}
           glareMaxOpacity={0.25}
@@ -147,7 +147,7 @@ const Step2 = ({
         </Tilt>
         <Button
           tag="label"
-          className="btn-secondary mt-10"
+          className="mt-10 btn-secondary"
           loading={isLoadingImage}
         >
           <input
@@ -165,7 +165,7 @@ const Step2 = ({
         )}
       </div>
       <div className="flex flex-col self-stretch laptop:self-center mt-16 laptop:mt-0">
-        <h1 className="typo-title1 font-bold">Share your #DevCard</h1>
+        <h1 className="font-bold typo-title1">Share your #DevCard</h1>
         <div className="flex mt-10">
           <Button
             className="btn-primary"
@@ -183,17 +183,17 @@ const Step2 = ({
           {/*  {!copyingImage ? 'Copy link' : 'Copied!'} */}
           {/* </Button> */}
         </div>
-        <div className="flex flex-col self-stretch items-start mt-10">
-          <h4 className="font-bold typo-caption1 mt-1">Embed</h4>
+        <div className="flex flex-col items-start self-stretch mt-10">
+          <h4 className="mt-1 font-bold typo-caption1">Embed</h4>
           <textarea
-            className="typo-body bg-theme-float py-2 px-4 resize-none self-stretch rounded-10 mt-1 laptop:w-80"
+            className="self-stretch py-2 px-4 mt-1 laptop:w-80 bg-theme-float rounded-10 resize-none typo-body"
             readOnly
             wrap="hard"
             style={{ height: rem(124) }}
           >
             {embedCode}
           </textarea>
-          <Button className="btn-secondary mt-4" onClick={copyEmbed}>
+          <Button className="mt-4 btn-secondary" onClick={copyEmbed}>
             {!copyingEmbed ? 'Copy code' : 'Copied!'}
           </Button>
         </div>

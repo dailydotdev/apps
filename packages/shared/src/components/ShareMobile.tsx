@@ -12,13 +12,13 @@ export function ShareMobile({ share }: Props): ReactElement {
   const [copying, copyLink] = useCopyPostLink();
 
   return (
-    <div className="flex flex-col items-start -mt-1 mb-5 laptop:hidden">
+    <div className="flex laptop:hidden flex-col items-start -mt-1 mb-5">
       <Button
         buttonSize="small"
         onClick={copyLink}
         pressed={copying}
         icon={<CopyIcon />}
-        className="btn-tertiary-avocado my-1"
+        className="my-1 btn-tertiary-avocado"
       >
         {copying ? 'Copied!' : 'Copy link'}
       </Button>
@@ -26,7 +26,7 @@ export function ShareMobile({ share }: Props): ReactElement {
         buttonSize="small"
         onClick={share}
         icon={<ShareIcon />}
-        className="btn-tertiary my-1"
+        className="my-1 btn-tertiary"
       >
         Share with your friends
       </Button>

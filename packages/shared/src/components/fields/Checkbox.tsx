@@ -62,7 +62,7 @@ export const Checkbox = forwardRef(function Checkbox(
         )}
       >
         <VIcon
-          className="icon w-full h-full text-theme-label-primary opacity-0"
+          className="w-full h-full opacity-0 icon text-theme-label-primary"
           style={{ transition: 'opacity 0.1s linear' }}
         />
       </div>

@@ -38,7 +38,7 @@ export default function MostVisitedSitesModal({
             : '/mvs_google.jpg'
         }
         imgAlt="Image of the browser's default home screen"
-        className="w-full my-8 rounded-2xl"
+        className="my-8 w-full rounded-2xl"
         ratio="45.8%"
         eager
       />
@@ -48,7 +48,7 @@ export default function MostVisitedSitesModal({
         We promise.
       </Paragraph>
       <Button
-        className="btn-primary mt-6"
+        className="mt-6 btn-primary"
         style={{ width: '13.125rem' }}
         onClick={onApprove}
       >
