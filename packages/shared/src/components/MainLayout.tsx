@@ -165,7 +165,7 @@ export default function MainLayout({
           </>
         )}
         {showRank && windowLoaded && (
-          <HeaderRankProgress className="absolute left-0 right-0 mx-auto my-0 transform translate-y-1/2 -bottom-px z-rank" />
+          <HeaderRankProgress className="absolute right-0 -bottom-px left-0 z-rank my-0 mx-auto transform translate-y-1/2" />
         )}
       </header>
       {showSettings && (

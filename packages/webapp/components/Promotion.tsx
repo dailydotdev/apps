@@ -23,7 +23,7 @@ export default function Promotion(): ReactElement {
         extension that boosts your professional growth.
       </div>
       <Button
-        className="btn-primary self-start"
+        className="self-start btn-primary"
         tag="a"
         href="/api/get?r=webapp"
       >

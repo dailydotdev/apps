@@ -36,7 +36,7 @@ export default function ShareNewCommentPopup({
 
   return (
     <div
-      className="fixed hidden right-6 bottom-6 flex-col pt-10 pb-6 px-6 bg-theme-bg-tertiary shadow-2 z-3 border border-theme-divider-secondary rounded-2xl laptop:flex"
+      className="hidden laptop:flex fixed right-6 bottom-6 z-3 flex-col px-6 pt-10 pb-6 rounded-2xl border shadow-2 bg-theme-bg-tertiary border-theme-divider-secondary"
       style={{ width: '20.625rem' }}
     >
       <ModalCloseButton onClick={onRequestClose} />
@@ -45,7 +45,7 @@ export default function ShareNewCommentPopup({
         style={{ top: '-4.375rem', width: '6.25rem' }}
       />
       <ShareIcon
-        className="absolute left-6 -top-8"
+        className="absolute -top-8 left-6"
         style={{ fontSize: '4rem' }}
       />
       <h2 className="mt-2 typo-title3">
@@ -55,7 +55,7 @@ export default function ShareNewCommentPopup({
         Discussions are super fun when shared with friends and team members.
         Give it a try!
       </div>
-      <div className="grid gap-4 grid-cols-2">
+      <div className="grid grid-cols-2 gap-4">
         <ShareButton
           tag="a"
           href={getTwitterShareLink(href, post.title)}

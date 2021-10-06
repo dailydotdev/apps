@@ -104,7 +104,7 @@ export default function KeywordManagement({
     <ResponsivePageContainer style={{ paddingBottom: sizeN(23) }}>
       <NextSeo title="Pending Keywords" nofollow noindex />
       <h1 className="m-0 font-bold typo-title2">{keyword.value}</h1>
-      <div className="flex my-1 items-center justify-between text-theme-label-tertiary typo-callout">
+      <div className="flex justify-between items-center my-1 text-theme-label-tertiary typo-callout">
         <span>Occurrences: {keyword.occurrences}</span>
         <span>{subtitle}</span>
       </div>
@@ -127,7 +127,7 @@ export default function KeywordManagement({
               target="_blank"
               rel="noopener noreferrer"
               aria-label={post.title}
-              className="flex py-3 items-start no-underline tablet:items-center"
+              className="flex items-start tablet:items-center py-3 no-underline"
             >
               <LazyImage
                 imgSrc={smallPostImage(post.image)}
@@ -135,7 +135,7 @@ export default function KeywordManagement({
                 className="w-16 h-16 rounded-2xl"
               />
               <p
-                className="p-0 ml-4 flex-1 self-center text-theme-label-primary break-words whitespace-pre-wrap typo-callout multi-truncate tablet:mr-6"
+                className="flex-1 self-center p-0 tablet:mr-6 ml-4 whitespace-pre-wrap break-words text-theme-label-primary typo-callout multi-truncate"
                 style={{
                   maxHeight: '3.75rem',
                   maxWidth: '19.25rem',

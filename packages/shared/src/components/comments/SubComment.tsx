@@ -43,7 +43,7 @@ export default function SubComment({
         />
         <ProfileImageLink className="w-8 h-8" user={comment.author} />
       </div>
-      <div className="flex flex-col items-stretch flex-1 ml-2">
+      <div className="flex flex-col flex-1 items-stretch ml-2">
         <SubCommentBox>
           <CommentAuthor postAuthorId={postAuthorId} author={comment.author} />
           <CommentPublishDate comment={comment} />

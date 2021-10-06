@@ -34,13 +34,13 @@ export default function ScrollToTopButton(): ReactElement {
     <>
       <Button
         {...props}
-        className="btn-primary right-4 laptop:hidden z-2"
+        className="laptop:hidden right-4 z-2 btn-primary"
         buttonSize="large"
         style={{ ...style, bottom: '4.5rem' }}
       />
       <Button
         {...props}
-        className="btn-primary right-8 bottom-8 hidden laptop:flex z-2"
+        className="hidden laptop:flex right-8 bottom-8 z-2 btn-primary"
         buttonSize="xlarge"
         style={style}
       />

@@ -56,7 +56,7 @@ export default function MigrateSettingsModal({
           {user ? 'Sync now' : 'Sign in'}
         </Button>
       </ConfirmationButtons>
-      <p className="typo-caption1 text-theme-label-quaternary mt-6 text-center">
+      <p className="mt-6 text-center typo-caption1 text-theme-label-quaternary">
         {user
           ? `p.s. Doing it later is fine. Your settings are saved locally and will be synced to your account next time you sign in.`
           : `P.S. Doing it later is fine. Your settings are saved locally and will be applied again once you sign up.`}

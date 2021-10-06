@@ -188,7 +188,7 @@ export function RankProgress({
     >
       {showRankAnimation && (
         <div
-          className="absolute l-0 t-0 w-full h-full rounded-full bg-theme-active -z-1 opacity-0"
+          className="absolute -z-1 w-full h-full bg-theme-active rounded-full opacity-0 l-0 t-0"
           ref={attentionRef}
         />
       )}
@@ -216,7 +216,7 @@ export function RankProgress({
         unmountOnExit
       >
         <div
-          className="absolute -left-14 top-full w-40 text-center mt-2 font-bold typo-caption1"
+          className="absolute top-full -left-14 mt-2 w-40 font-bold text-center typo-caption1"
           style={{ color: rankToColor(shownRank) }}
         >
           +{progressDelta} Article{progressDelta > 1 ? 's' : ''} read

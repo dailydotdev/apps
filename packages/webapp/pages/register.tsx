@@ -38,7 +38,7 @@ export default function Register(): ReactElement {
         {user && (
           <>
             <ProfileHeading>Set up your profile</ProfileHeading>
-            <h2 className="my-2 self-start text-theme-label-tertiary typo-callout">
+            <h2 className="self-start my-2 text-theme-label-tertiary typo-callout">
               Please fill in your details below
             </h2>
             <EditImageWithJoinedDate user={user} />
@@ -48,9 +48,9 @@ export default function Register(): ReactElement {
               onSuccessfulSubmit={onSuccessfulSubmit}
               mode={(router?.query.mode as RegistrationMode) || 'default'}
             />
-            <div className="flex mt-10 items-center self-stretch">
+            <div className="flex items-center self-stretch mt-10">
               <Button
-                className="btn-primary flex-1"
+                className="flex-1 btn-primary"
                 type="submit"
                 disabled={disableSubmit}
                 form="profileForm"
@@ -58,7 +58,7 @@ export default function Register(): ReactElement {
                 Finish
               </Button>
               <Button
-                className="btn-tertiary ml-4"
+                className="ml-4 btn-tertiary"
                 type="button"
                 onClick={logout}
               >

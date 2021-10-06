@@ -59,7 +59,7 @@ export default function HelpUsGrowModal({
     >
       <ModalCloseButton onClick={props.onRequestClose} />
       <div className={styles.image}>
-        <picture className="w-full h-full object-cover">
+        <picture className="object-cover w-full h-full">
           <source
             media="(min-width: 1020px)"
             srcSet="https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1625662066/webapp/desktop_monthly_prize"
@@ -71,7 +71,7 @@ export default function HelpUsGrowModal({
         </picture>
       </div>
       <div className="flex flex-col laptop:flex-1 p-8">
-        <h2 className="typo-title2 font-bold">Refer a friend 🎁</h2>
+        <h2 className="font-bold typo-title2">Refer a friend 🎁</h2>
         <p className="mt-1 typo-callout text-theme-label-secondary">
           Once a month, we are giving an epic prize to one of our ambassadors.
           Are you in?
@@ -80,7 +80,7 @@ export default function HelpUsGrowModal({
           href="https://daily.dev/monthly-prize"
           target="_blank"
           rel="noopener"
-          className="mt-3 mb-6 text-theme-label-link typo-callout font-bold underline"
+          className="mt-3 mb-6 font-bold underline text-theme-label-link typo-callout"
         >
           More details
         </a>
@@ -99,11 +99,11 @@ export default function HelpUsGrowModal({
         >
           {copying ? 'Copied!' : 'Copy link'}
         </Button>
-        <div className="typo-callout text-theme-label-quaternary text-center my-4 hidden laptop:block">
+        <div className="hidden laptop:block my-4 text-center typo-callout text-theme-label-quaternary">
           or share via
         </div>
         <Button
-          className="btn-primary-twitter text-white self-center"
+          className="self-center text-white btn-primary-twitter"
           displayClass="hidden laptop:flex"
           tag="a"
           href={getTweet(referralLink)}

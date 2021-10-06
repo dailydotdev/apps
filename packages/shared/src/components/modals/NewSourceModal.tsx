@@ -152,7 +152,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
   let children: ReactNode;
   if (existingSource) {
     children = (
-      <div className="flex w-full mb-6 px-12 self-start items-center typo-callout">
+      <div className="flex items-center self-start px-12 mb-6 w-full typo-callout">
         <img
           src={existingSource.image}
           alt={existingSource.name}
@@ -165,11 +165,11 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
   } else if (feeds?.length > 0) {
     children = (
       <>
-        <div className="typo-callout mb-6 text-theme-label-tertiary mx-10 self-start">
+        <div className="self-start mx-10 mb-6 typo-callout text-theme-label-tertiary">
           {feeds.length} RSS feed{feeds.length > 1 ? 's' : ''} found
         </div>
         <form
-          className="flex flex-col w-full items-center"
+          className="flex flex-col items-center w-full"
           onSubmit={onSubmitFeed}
         >
           <Radio
@@ -177,11 +177,11 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
             options={feeds}
             onChange={setSelectedFeed}
             value={selectedFeed}
-            className="mx-10 self-start"
+            className="self-start mx-10"
           />
-          <div className="w-full h-px bg-theme-divider-secondary my-4" />
+          <div className="my-4 w-full h-px bg-theme-divider-secondary" />
           <Button
-            className="btn-primary mb-5"
+            className="mb-5 btn-primary"
             type="submit"
             disabled={!selectedFeed}
             loading={checkingIfExists || requestingSource}
@@ -207,7 +207,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
         {showContact && scrapeError && (
           <Button
             tag="a"
-            className="btn-secondary small mt-3 mb-6 mx-10 self-start"
+            className="self-start mx-10 mt-3 mb-6 btn-secondary small"
             href="mailto:hi@daily.dev?subject=Failed to add new source"
             target="_blank"
             rel="noopener noreferrer"
@@ -228,14 +228,14 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
       <ModalCloseButton onClick={onRequestClose} />
       <h2 className="text-2xl font-bold">Suggest new source</h2>
       <p
-        className="typo-callout text-theme-label-secondary text-center pt-1.5 pb-2"
+        className="pt-1.5 pb-2 text-center typo-callout text-theme-label-secondary"
         style={{ maxWidth: '18.75rem' }}
       >
         Have an idea for a new source? Insert its link below to add it to the
         feed.
       </p>
       <form
-        className="flex flex-col w-full px-10"
+        className="flex flex-col px-10 w-full"
         ref={scrapeFormRef}
         onSubmit={onScrapeSubmit}
         aria-busy={isScraping}
