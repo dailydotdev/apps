@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useState } from 'react';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
 import Feed from '@dailydotdev/shared/src/components/Feed';
@@ -18,10 +18,18 @@ import {
 import { mainFeedLayoutProps } from '../components/layouts/MainFeedPage';
 import { getLayout } from '../components/layouts/FeedLayout';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
+import MagnifyingIcon from '@dailydotdev/shared/icons/magnifying.svg';
+import dynamic from 'next/dynamic';
+const PostsSearch = dynamic(
+  () =>
+    import(/* webpackChunkName: "search" */ '../components/RouterPostsSearch'),
+  { ssr: false },
+);
 
 const BookmarksPage = (): ReactElement => {
   const router = useRouter();
   const { user, tokenRefreshed } = useContext(AuthContext);
+  const [showSearch, setShowSearch] = useState(false);
   const [showEmptyScreen, setShowEmptyScreen] = useState(false);
 
   if (!user && tokenRefreshed) {
@@ -39,21 +47,21 @@ const BookmarksPage = (): ReactElement => {
   if (showEmptyScreen) {
     return (
       <main
-        className="withNavBar fixed flex flex-col inset-0 px-6 items-center justify-center text-theme-label-secondary"
+        className="fixed inset-0 flex flex-col items-center justify-center px-6 withNavBar text-theme-label-secondary"
         style={{ marginTop: headerHeight }}
       >
         <NextSeo {...seo} />
         <BookmarkIcon
-          className="icon m-0 text-theme-label-tertiary"
+          className="m-0 icon text-theme-label-tertiary"
           style={{ fontSize: sizeN(20) }}
         />
         <h1
-          className="my-4 text-theme-label-primary typo-title1 text-center"
+          className="my-4 text-center text-theme-label-primary typo-title1"
           style={{ maxWidth: '32.5rem' }}
         >
           Your bookmark list is empty.
         </h1>
-        <p className="text-center mb-10" style={{ maxWidth: '32.5rem' }}>
+        <p className="mb-10 text-center" style={{ maxWidth: '32.5rem' }}>
           Go back to your feed and bookmark posts you’d like to keep or read
           later. Each post you bookmark will be stored here.
         </p>
@@ -69,9 +77,17 @@ const BookmarksPage = (): ReactElement => {
   return (
     <FeedPage>
       <NextSeo {...seo} />
-      <CustomFeedHeader>
-        <BookmarkIcon className={customFeedIcon} />
-        <span>Bookmarks</span>
+      <CustomFeedHeader className="relative">
+        {!showSearch && (
+          <>
+            <Button title="Search" onClick={() => setShowSearch(true)}>
+              <MagnifyingIcon />
+            </Button>
+            <div className="w-px h-full mr-4 bg-theme-bg-tertiary"></div>
+            <span>Bookmarks</span>
+          </>
+        )}
+        {showSearch && <PostsSearch />}
       </CustomFeedHeader>
       {tokenRefreshed && (
         <Feed
