@@ -475,7 +475,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
 
   return (
     <>
-      <PageContainer className="pt-6 pb-20 laptop:self-start laptopL:self-center laptop:pb-6 laptop:border-r laptopL:border-l laptop:border-theme-divider-tertiary">
+      <PageContainer className="laptop:self-start laptopL:self-center pt-6 pb-20 laptop:pb-6 laptop:border-r laptopL:border-l laptop:border-theme-divider-tertiary">
         <Head>
           <link rel="preload" as="image" href={postById?.post.image} />
         </Head>
@@ -506,7 +506,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
               user={postById.post.author}
               data-testid="authorLink"
               disableTooltip
-              className="flex-1 ml-2 mr-auto"
+              className="flex-1 mr-auto ml-2"
             >
               <SourceImage
                 imgSrc={postById.post.author.image}
@@ -576,12 +576,12 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           <PostToc
             post={postById.post}
             collapsible
-            className="flex mt-2 mb-4 laptop:hidden"
+            className="flex laptop:hidden mt-2 mb-4"
           />
         )}
         <a
           {...postLinkProps}
-          className="block mt-2 overflow-hidden cursor-pointer rounded-2xl"
+          className="block overflow-hidden mt-2 rounded-2xl cursor-pointer"
         >
           <LazyImage
             imgSrc={postById?.post.image}
@@ -591,7 +591,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           />
         </a>
         <div
-          className="flex items-center my-4 gap-x-4 text-theme-label-tertiary typo-callout"
+          className="flex gap-x-4 items-center my-4 text-theme-label-tertiary typo-callout"
           data-testid="statsBar"
         >
           {postById?.post.views > 0 && (
@@ -710,7 +710,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
               </li>
             </ol>
             <div
-              className="grid grid-flow-col mt-6 gap-x-4"
+              className="grid grid-flow-col gap-x-4 mt-6"
               data-testid="authorOnboarding"
               style={{
                 maxWidth: sizeN(74),
@@ -768,7 +768,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
               <LazyImage
                 imgSrc={user.image}
                 imgAlt="Your profile image"
-                className="mr-3 -ml-2 rounded-full w-7 h-7"
+                className="mr-3 -ml-2 w-7 h-7 rounded-full"
               />
             )}
             Start the discussion...
