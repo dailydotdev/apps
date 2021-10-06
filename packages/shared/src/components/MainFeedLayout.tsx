@@ -80,6 +80,7 @@ const propsByFeed: Record<string, FeedQueryProps> = {
   popular: {
     query: ANONYMOUS_FEED_QUERY,
     queryIfLogged: FEED_QUERY,
+    variables: { version: 2 },
   },
   upvoted: {
     query: MOST_UPVOTED_FEED_QUERY,
