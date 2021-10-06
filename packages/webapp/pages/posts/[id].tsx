@@ -63,6 +63,13 @@ import styles from './postPage.module.css';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import PostToc from '../../components/widgets/PostToc';
 
+const PlaceholderCommentList = dynamic(
+  () =>
+    import(
+      '@dailydotdev/shared/src/components/comments/PlaceholderCommentList'
+    ),
+);
+
 const UpvotedPopupModal = dynamic(
   () => import('@dailydotdev/shared/src/components/modals/UpvotedPopupModal'),
 );
@@ -468,7 +475,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
 
   return (
     <>
-      <PageContainer className="laptop:self-start laptopL:self-center pt-6 pb-20 laptop:pb-6 laptop:border-r laptopL:border-l laptop:border-theme-divider-tertiary">
+      <PageContainer className="pt-6 pb-20 laptop:self-start laptopL:self-center laptop:pb-6 laptop:border-r laptopL:border-l laptop:border-theme-divider-tertiary">
         <Head>
           <link rel="preload" as="image" href={postById?.post.image} />
         </Head>
@@ -499,7 +506,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
               user={postById.post.author}
               data-testid="authorLink"
               disableTooltip
-              className="flex-1 mr-auto ml-2"
+              className="flex-1 ml-2 mr-auto"
             >
               <SourceImage
                 imgSrc={postById.post.author.image}
@@ -569,12 +576,12 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           <PostToc
             post={postById.post}
             collapsible
-            className="flex laptop:hidden mt-2 mb-4"
+            className="flex mt-2 mb-4 laptop:hidden"
           />
         )}
         <a
           {...postLinkProps}
-          className="block overflow-hidden mt-2 rounded-2xl cursor-pointer"
+          className="block mt-2 overflow-hidden cursor-pointer rounded-2xl"
         >
           <LazyImage
             imgSrc={postById?.post.image}
@@ -584,7 +591,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           />
         </a>
         <div
-          className="flex gap-x-4 items-center my-4 text-theme-label-tertiary typo-callout"
+          className="flex items-center my-4 gap-x-4 text-theme-label-tertiary typo-callout"
           data-testid="statsBar"
         >
           {postById?.post.views > 0 && (
@@ -649,7 +656,8 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           {/*  Share */}
           {/* </QuaternaryButton> */}
         </div>
-        {comments?.postComments?.edges?.length > 0 && (
+        {isLoadingComments && <PlaceholderCommentList />}
+        {!isLoadingComments && comments?.postComments?.edges?.length > 0 && (
           <>
             {comments?.postComments.edges.map((e) => (
               <MainComment
@@ -702,7 +710,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
               </li>
             </ol>
             <div
-              className="grid grid-flow-col gap-x-4 mt-6"
+              className="grid grid-flow-col mt-6 gap-x-4"
               data-testid="authorOnboarding"
               style={{
                 maxWidth: sizeN(74),
@@ -760,7 +768,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
               <LazyImage
                 imgSrc={user.image}
                 imgAlt="Your profile image"
-                className="mr-3 -ml-2 w-7 h-7 rounded-full"
+                className="mr-3 -ml-2 rounded-full w-7 h-7"
               />
             )}
             Start the discussion...
