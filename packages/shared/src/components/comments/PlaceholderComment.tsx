@@ -11,7 +11,7 @@ export default function PlaceholderComment(): ReactElement {
           <ElementPlaceholder className="w-1/5 h-3 rounded-xl" />
         </div>
       </div>
-      <ElementPlaceholder className="w-full h-3 py-4 my-2 rounded-full" />
+      <ElementPlaceholder className="w-full h-8 my-2 rounded-full" />
     </article>
   );
 }
