@@ -63,7 +63,7 @@ const SourceItem = ({
       prefetch={false}
     >
       <a
-        className="flex flex-1 h-10 pl-6 pr-14 items-center rounded-md hover:bg-theme-hover active:bg-theme-active focus-outline"
+        className="flex flex-1 items-center pr-14 pl-6 h-10 hover:bg-theme-hover active:bg-theme-active rounded-md focus-outline"
         {...getTooltipProps(`${source.name} feed`)}
         {...props}
       >
@@ -84,7 +84,7 @@ const SourceItem = ({
       </a>
     </Link>
     <Button
-      className="btn-tertiary right-4 my-auto"
+      className="right-4 my-auto btn-tertiary"
       style={{ position: 'absolute' }}
       onClick={() => onClick?.(source)}
       icon={blocked ? <XIcon /> : <BlockIcon />}
@@ -203,7 +203,7 @@ export default function SourcesFilter({
       ) : (
         <>
           <Button
-            className="btn-secondary mt-6 mr-4 ml-6 self-start"
+            className="self-start mt-6 mr-4 ml-6 btn-secondary"
             icon={<PlusIcon />}
             onClick={onSuggestSource}
             buttonSize="small"
@@ -217,7 +217,7 @@ export default function SourcesFilter({
                 <FiltersSummaryArrow />
               </FiltersHeadline>
             </Summary>
-            <FiltersList className="-my-1 -ml-6 -mr-4">
+            <FiltersList className="-my-1 -mr-4 -ml-6">
               {followedSources.map((source) => (
                 <SourceItem
                   source={source}
@@ -236,7 +236,7 @@ export default function SourcesFilter({
                   <FiltersSummaryArrow />
                 </FiltersHeadline>
               </Summary>
-              <FiltersList className="-my-1 -ml-6 -mr-4">
+              <FiltersList className="-my-1 -mr-4 -ml-6">
                 {moreSources.map((source) => (
                   <SourceItem
                     source={source}

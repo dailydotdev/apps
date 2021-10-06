@@ -21,7 +21,7 @@ export const PlaceholderList = forwardRef(function PlaceholderList(
       {...props}
       ref={ref}
     >
-      <ElementPlaceholder className="w-6 h-6 rounded-full mr-4" />
+      <ElementPlaceholder className="mr-4 w-6 h-6 rounded-full" />
       <ListCardMain>
         <Text style={{ width: '100%' }} />
         <Text

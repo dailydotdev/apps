@@ -39,21 +39,21 @@ const BookmarksPage = (): ReactElement => {
   if (showEmptyScreen) {
     return (
       <main
-        className="withNavBar fixed flex flex-col inset-0 px-6 items-center justify-center text-theme-label-secondary"
+        className="flex fixed inset-0 flex-col justify-center items-center px-6 withNavBar text-theme-label-secondary"
         style={{ marginTop: headerHeight }}
       >
         <NextSeo {...seo} />
         <BookmarkIcon
-          className="icon m-0 text-theme-label-tertiary"
+          className="m-0 icon text-theme-label-tertiary"
           style={{ fontSize: sizeN(20) }}
         />
         <h1
-          className="my-4 text-theme-label-primary typo-title1 text-center"
+          className="my-4 text-center text-theme-label-primary typo-title1"
           style={{ maxWidth: '32.5rem' }}
         >
           Your bookmark list is empty.
         </h1>
-        <p className="text-center mb-10" style={{ maxWidth: '32.5rem' }}>
+        <p className="mb-10 text-center" style={{ maxWidth: '32.5rem' }}>
           Go back to your feed and bookmark posts you’d like to keep or read
           later. Each post you bookmark will be stored here.
         </p>

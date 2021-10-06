@@ -82,7 +82,7 @@ export const PostList = forwardRef(function PostList(
           onBookmarkClick={onBookmarkClick}
           showShare={showShare}
           onShare={onShare}
-          className="relative mt-1 self-stretch"
+          className="relative self-stretch mt-1"
         >
           {enableMenu && !selectedComment && (
             <Button
@@ -99,7 +99,7 @@ export const PostList = forwardRef(function PostList(
             />
           )}
           {notification && (
-            <CardNotification className="absolute bottom-0 right-0 z-2">
+            <CardNotification className="absolute right-0 bottom-0 z-2">
               {notification}
             </CardNotification>
           )}

@@ -15,7 +15,7 @@ export function ReactModalAdapter({
     <Modal
       portalClassName={className.toString()}
       overlayClassName="overlay"
-      className="modal focus:outline-none"
+      className="focus:outline-none modal"
       {...props}
     />
   );

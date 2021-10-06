@@ -126,7 +126,7 @@ export const PostCard = forwardRef(function PostCard(
         <PostAuthor
           post={post}
           selectedComment={selectedComment}
-          className="mt-2 mx-4"
+          className="mx-4 mt-2"
         />
       )}
       {showImage && (

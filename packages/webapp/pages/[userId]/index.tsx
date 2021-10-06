@@ -90,7 +90,7 @@ const RankHistory = ({
     aria-label={`${rankName}: ${count}`}
   >
     <Rank rank={rank} colorByRank />
-    <span className="typo-callout font-bold">{count}</span>
+    <span className="font-bold typo-callout">{count}</span>
   </div>
 );
 
@@ -204,7 +204,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
   );
 
   return (
-    <div className="relative flex flex-col items-stretch">
+    <div className="flex relative flex-col items-stretch">
       {readingHistory?.userReadingRankHistory && (
         <>
           <ActivityContainer>
@@ -225,7 +225,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
             </div>
             <button
               type="button"
-              className="bg-none border-none typo-callout text-theme-label-link mt-4 self-start focus-outline"
+              className="self-start mt-4 bg-none border-none typo-callout text-theme-label-link focus-outline"
               onClick={() => setShowRanksModal(true)}
             >
               Learn how we count weekly goals
@@ -253,7 +253,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
                 </ActivitySectionTitleStat>
               )}
               <Dropdown
-                className="ml-auto hidden laptop:block"
+                className="hidden laptop:block ml-auto"
                 selectedIndex={selectedHistoryYear}
                 options={dropdownOptions}
                 onChange={(val, index) => setSelectedHistoryYear(index)}
@@ -268,26 +268,26 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
               valueToCount={readHistoryToValue}
               valueToTooltip={readHistoryToTooltip}
             />
-            <div className="flex items-center justify-between mt-4 typo-footnote">
+            <div className="flex justify-between items-center mt-4 typo-footnote">
               <div className="text-theme-label-quaternary">
                 Inspired by GitHub
               </div>
               <div className="flex items-center">
                 <div className="mr-2">Less</div>
                 <div
-                  className="w-2 h-2 mr-0.5 border border-theme-divider-quaternary"
+                  className="mr-0.5 w-2 h-2 border border-theme-divider-quaternary"
                   style={{ borderRadius: '0.1875rem' }}
                 />
                 <div
-                  className="w-2 h-2 mr-0.5 bg-theme-label-disabled"
+                  className="mr-0.5 w-2 h-2 bg-theme-label-disabled"
                   style={{ borderRadius: '0.1875rem' }}
                 />
                 <div
-                  className="w-2 h-2 mr-0.5 bg-theme-label-quaternary"
+                  className="mr-0.5 w-2 h-2 bg-theme-label-quaternary"
                   style={{ borderRadius: '0.1875rem' }}
                 />
                 <div
-                  className="w-2 h-2 mr-0.5 bg-theme-label-primary"
+                  className="mr-0.5 w-2 h-2 bg-theme-label-primary"
                   style={{ borderRadius: '0.1875rem' }}
                 />
                 <div className="ml-2">More</div>

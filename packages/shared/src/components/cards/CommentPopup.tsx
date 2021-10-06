@@ -77,7 +77,7 @@ export default function CommentPopup({
           onClick={onClose}
           style={{ top: '0.5rem', right: '0.75rem' }}
         />
-        <h3 className="text-theme-label-primary mr-11 ml-2 typo-callout">
+        <h3 className="mr-11 ml-2 text-theme-label-primary typo-callout">
           {text.title}
         </h3>
         <div

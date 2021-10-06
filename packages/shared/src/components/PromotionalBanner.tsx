@@ -58,7 +58,7 @@ export default function PromotionalBanner(): ReactElement {
       </Button>
       <Button
         buttonSize="xsmall"
-        className="top-2 right-2 laptop:inset-y-0 laptop:my-auto btn-tertiary"
+        className="laptop:inset-y-0 top-2 right-2 laptop:my-auto btn-tertiary"
         style={{ position: 'absolute' }}
         icon={<XIcon />}
         onClick={() =>

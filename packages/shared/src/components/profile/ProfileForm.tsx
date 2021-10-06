@@ -265,7 +265,7 @@ export default function ProfileForm({
           className={`flex flex-col w-full border-b border-theme-divider-tertiary ${styles.optionalFields}`}
         >
           <Summary className={styles.optionalSummary}>
-            <div className="flex h-10 items-center text-theme-label-tertiary font-bold typo-callout">
+            <div className="flex items-center h-10 font-bold text-theme-label-tertiary typo-callout">
               More details (optional)
               <SummaryArrow />
             </div>

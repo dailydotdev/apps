@@ -195,7 +195,7 @@ export default function PostsSection({
           <>
             <button
               type="button"
-              className="btn-primary mt-4 self-start"
+              className="self-start mt-4 btn-primary"
               onClick={() => setShowAccountDetails(true)}
             >
               Complete your profile

@@ -29,14 +29,14 @@ export default function LoginButtons(): ReactElement {
     <>
       <div className="flex flex-col items-stretch self-center -my-2">
         <Button
-          className="btn-primary my-2"
+          className="my-2 btn-primary"
           onClick={() => login('github')}
           icon={<GitHubIcon />}
         >
           Sign in with GitHub
         </Button>
         <Button
-          className="btn-primary my-2"
+          className="my-2 btn-primary"
           onClick={() => login('google')}
           icon={<img src="/google.svg" className="icon" alt="Google logo" />}
         >
@@ -44,7 +44,7 @@ export default function LoginButtons(): ReactElement {
         </Button>
       </div>
       <LegalNotice
-        className="mt-8 self-center"
+        className="self-center mt-8"
         style={{ maxWidth: '17.25rem' }}
       >
         By signing up I accept the{' '}

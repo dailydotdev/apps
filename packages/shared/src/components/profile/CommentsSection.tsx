@@ -56,8 +56,8 @@ export default function CommentsSection({
       }
       elementToNode={(comment) => (
         <CommentContainer key={comment.id}>
-          <div className="flex w-12 flex-col items-center py-2 bg-theme-bg-secondary rounded-xl font-bold typo-callout tablet:w-20 tablet:justify-center tablet:flex-row">
-            <UpvoteIcon className="icon mb-1 text-2xl tablet:mb-0 tablet:mr-1" />
+          <div className="flex flex-col tablet:flex-row tablet:justify-center items-center py-2 w-12 tablet:w-20 font-bold rounded-xl bg-theme-bg-secondary typo-callout">
+            <UpvoteIcon className="tablet:mr-1 mb-1 tablet:mb-0 text-2xl icon" />
             {largeNumberFormat(comment.numUpvotes)}
           </div>
           <Link href={comment.permalink} passHref prefetch={false}>

@@ -112,15 +112,15 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
         <img
           src={source.image}
           alt={`${source.name} logo`}
-          className="w-6 h-6 rounded-lg mr-2"
+          className="mr-2 w-6 h-6 rounded-lg"
         />
         <span className="mr-auto">{source.name}</span>
         <Button
-          className="btn-secondary laptop:hidden"
+          className="laptop:hidden btn-secondary"
           {...buttonProps}
           aria-label={unfollowingSource ? 'Follow' : 'Block'}
         />
-        <Button className="btn-secondary hidden laptop:flex" {...buttonProps}>
+        <Button className="hidden laptop:flex btn-secondary" {...buttonProps}>
           {unfollowingSource ? 'Follow' : 'Block'}
         </Button>
       </CustomFeedHeader>

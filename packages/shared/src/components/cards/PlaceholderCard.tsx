@@ -25,13 +25,13 @@ export const PlaceholderCard = forwardRef(function PlaceholderCard(
       ref={ref}
     >
       <CardTextContainer>
-        <ElementPlaceholder className="w-6 h-6 rounded-full my-2" />
+        <ElementPlaceholder className="my-2 w-6 h-6 rounded-full" />
         <Text style={{ width: '100%' }} />
         <Text style={{ width: '100%' }} />
         <Text style={{ width: '80%' }} />
       </CardTextContainer>
       <CardSpace className={showImage ? 'my-2' : 'my-6'} />
-      {showImage && <ElementPlaceholder className="rounded-xl h-40 my-2" />}
+      {showImage && <ElementPlaceholder className="my-2 h-40 rounded-xl" />}
       <CardTextContainer>
         <Text style={{ width: '32%' }} />
       </CardTextContainer>

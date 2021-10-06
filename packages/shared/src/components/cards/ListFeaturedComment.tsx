@@ -42,8 +42,8 @@ export default function ListFeaturedComment({
       </ListCardAside>
       <ListCardDivider />
       <ListCardMain>
-        <h4 className="mb-1 typo-body font-bold">{comment.author.name}</h4>
-        <p className="m-0 p-0 flex-1 text-theme-label-tertiary typo-callout multi-truncate">
+        <h4 className="mb-1 font-bold typo-body">{comment.author.name}</h4>
+        <p className="flex-1 p-0 m-0 text-theme-label-tertiary typo-callout multi-truncate">
           {comment.content}
         </p>
         <Link href={comment.permalink} passHref>
@@ -53,7 +53,7 @@ export default function ListFeaturedComment({
             rel="noopener"
             buttonSize="small"
             icon={<CommentIcon />}
-            className="btn-tertiary mt-auto"
+            className="mt-auto btn-tertiary"
           >
             View comment
           </Button>
