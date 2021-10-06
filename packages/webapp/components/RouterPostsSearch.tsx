@@ -4,7 +4,6 @@ import { useRouter } from 'next/router';
 
 export default function RouterPostsSearch(): ReactElement {
   const router = useRouter();
-  console.log(router?.pathname);
 
   const onSubmitQuery = (query: string): Promise<boolean> =>
     router.replace({

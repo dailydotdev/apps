@@ -1,16 +1,14 @@
 import React, { ReactElement, ReactNode, useState, useEffect } from 'react';
-import { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
-import { getLayout } from './FeedLayout';
-import { useRouter } from 'next/router';
-import { MainFeedPageProps } from './MainFeedPage';
-import BookmarkFeedLayout from '@dailydotdev/shared/src/components/BookmarkFeedLayout';
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
+import { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
+import BookmarkFeedLayout from '@dailydotdev/shared/src/components/BookmarkFeedLayout';
+import { getLayout } from './FeedLayout';
+import { MainFeedPageProps } from './MainFeedPage';
 
 const PostsSearch = dynamic(
   () =>
-    import(
-      /* webpackChunkName: "routerPostsSearch" */ '../../components/RouterPostsSearch'
-    ),
+    import(/* webpackChunkName: "routerPostsSearch" */ '../RouterPostsSearch'),
   {
     ssr: false,
   },
@@ -27,14 +25,11 @@ export default function BookmarkFeedPage({
   useEffect(() => {
     if (router?.pathname === '/bookmarks/search') {
       setIsSearchOn(true);
-    } else {
-      if (isSearchOn) {
-        setIsSearchOn(false);
-      }
+    } else if (isSearchOn) {
+      setIsSearchOn(false);
     }
   }, [router.pathname]);
 
-  console.log(`search on: ${isSearchOn}`);
   return (
     <BookmarkFeedLayout
       isSearchOn={isSearchOn}
