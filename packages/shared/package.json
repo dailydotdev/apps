@@ -99,6 +99,7 @@
     "typescript": "^4.4.3"
   },
   "dependencies": {
+    "@tippyjs/react": "^4.2.5",
     "amplitude-js": "^8.8.0",
     "balloon-css": "^1.2.0",
     "flagsmith": "^1.6.7",
