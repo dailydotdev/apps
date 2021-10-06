@@ -63,9 +63,11 @@ import styles from './postPage.module.css';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import PostToc from '../../components/widgets/PostToc';
 
-const PlaceholderComment = dynamic(
+const PlaceholderCommentList = dynamic(
   () =>
-    import('@dailydotdev/shared/src/components/comments/PlaceholderComment'),
+    import(
+      '@dailydotdev/shared/src/components/comments/PlaceholderCommentList'
+    ),
 );
 
 const UpvotedPopupModal = dynamic(
@@ -654,13 +656,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           {/*  Share */}
           {/* </QuaternaryButton> */}
         </div>
-        {isLoadingComments && (
-          <>
-            {Object.keys([...Array(3)]).map((key) => (
-              <PlaceholderComment key={key} />
-            ))}
-          </>
-        )}
+        {isLoadingComments && <PlaceholderCommentList />}
         {!isLoadingComments && comments?.postComments?.edges?.length > 0 && (
           <>
             {comments?.postComments.edges.map((e) => (
