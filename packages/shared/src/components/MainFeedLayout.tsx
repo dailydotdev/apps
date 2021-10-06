@@ -175,6 +175,8 @@ export default function MainFeedLayout({
   const feedName = feedNameProp === 'default' ? defaultFeed : feedNameProp;
   const isUpvoted = !isSearchOn && feedName === 'upvoted';
 
+  console.log(`feedname: ${feedName}`);
+
   let query: { query: string; variables?: Record<string, unknown> };
   if (feedName) {
     query = {
@@ -299,7 +301,7 @@ export default function MainFeedLayout({
           you’ll ever need. Ready?
         </div>
       )}
-      <nav className="relative h-11 flex self-stretch items-center mb-6 overflow-x-auto no-scrollbar">
+      <nav className="relative flex items-center self-stretch mb-6 overflow-x-auto h-11 no-scrollbar">
         <ButtonOrLink
           asLink={!useNavButtonsNotLinks}
           href="/search"
@@ -336,7 +338,7 @@ export default function MainFeedLayout({
         {isSearchOn ? searchChildren : undefined}
       </nav>
       {isUpvoted && (
-        <Dropdown className="laptop:hidden mb-6" {...periodDropdownProps} />
+        <Dropdown className="mb-6 laptop:hidden" {...periodDropdownProps} />
       )}
       {feedProps && <Feed {...feedProps} />}
       {children}
