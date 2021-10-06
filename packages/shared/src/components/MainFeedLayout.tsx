@@ -175,8 +175,6 @@ export default function MainFeedLayout({
   const feedName = feedNameProp === 'default' ? defaultFeed : feedNameProp;
   const isUpvoted = !isSearchOn && feedName === 'upvoted';
 
-  console.log(`feedname: ${feedName}`);
-
   let query: { query: string; variables?: Record<string, unknown> };
   if (feedName) {
     query = {

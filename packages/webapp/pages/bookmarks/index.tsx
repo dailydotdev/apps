@@ -2,10 +2,10 @@ import React, { ReactElement } from 'react';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
 import {
-  getMainFeedLayout,
-  mainFeedLayoutProps,
-} from '../components/layouts/BookmarkFeedPage';
-import { defaultOpenGraph, defaultSeo } from '../next-seo';
+  getBookmarkFeedLayout,
+  bookmarkFeedLayoutProps,
+} from '../../components/layouts/BookmarkFeedPage';
+import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 
 const seo: NextSeoProps = {
   title: `Your daily.dev bookmarks`,
@@ -22,7 +22,7 @@ const BookmarksPage = (): ReactElement => {
   );
 };
 
-BookmarksPage.getLayout = getMainFeedLayout;
-BookmarksPage.layoutProps = mainFeedLayoutProps;
+BookmarksPage.getLayout = getBookmarkFeedLayout;
+BookmarksPage.layoutProps = bookmarkFeedLayoutProps;
 
 export default BookmarksPage;

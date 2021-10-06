@@ -1,29 +1,60 @@
-import React, { ReactElement, ReactNode, useContext, useState } from 'react';
+import React, {
+  ReactElement,
+  ReactNode,
+  useContext,
+  useMemo,
+  useState,
+} from 'react';
+import MagnifyingIcon from '@dailydotdev/shared/icons/magnifying.svg';
+import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
+import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
+import {
+  BOOKMARKS_FEED_QUERY,
+  SEARCH_BOOKMARKS_QUERY,
+} from '@dailydotdev/shared/src/graphql/feed';
+import { headerHeight } from '@dailydotdev/shared/src/styles/sizes';
 import Link from 'next/link';
-import Feed from './Feed';
 import AuthContext from '../contexts/AuthContext';
 import { Button } from './buttons/Button';
-import { FeedPage } from './utilities';
-import { headerHeight } from '@dailydotdev/shared/src/styles/sizes';
-import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
-import { BOOKMARKS_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
-import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
+import { CustomFeedHeader, FeedPage } from './utilities';
+import SearchEmptyScreen from './SearchEmptyScreen';
+import Feed, { FeedProps } from './Feed';
 
 export type BookmarkFeedLayoutProps = {
   isSearchOn: boolean;
   searchQuery?: string;
   children?: ReactNode;
+  searchChildren: ReactNode;
   onSearchButtonClick?: () => unknown;
 };
 
 export default function BookmarkFeedLayout({
   searchQuery,
   isSearchOn,
+  searchChildren,
   children,
 }: BookmarkFeedLayoutProps): ReactElement {
   const { user, tokenRefreshed } = useContext(AuthContext);
-
   const [showEmptyScreen, setShowEmptyScreen] = useState(false);
+
+  const feedProps = useMemo<FeedProps<unknown>>(() => {
+    if (isSearchOn && searchQuery) {
+      return {
+        feedQueryKey: ['bookmarks', user?.id ?? 'anonymous', searchQuery],
+        query: SEARCH_BOOKMARKS_QUERY,
+        variables: { query: searchQuery },
+        emptyScreen: <SearchEmptyScreen />,
+        className: 'my-3',
+      };
+    }
+    return {
+      feedQueryKey: ['bookmarks', user?.id ?? 'anonymous'],
+      query: BOOKMARKS_FEED_QUERY,
+      className: 'my-3',
+      onEmptyFeed: () => setShowEmptyScreen(true),
+    };
+  }, [isSearchOn && searchQuery]);
+
   if (showEmptyScreen) {
     return (
       <main
@@ -57,14 +88,20 @@ export default function BookmarkFeedLayout({
   return (
     <FeedPage>
       {children}
-      {tokenRefreshed && (
-        <Feed
-          feedQueryKey={['bookmarks', user?.id ?? 'anonymous']}
-          query={BOOKMARKS_FEED_QUERY}
-          onEmptyFeed={() => setShowEmptyScreen(true)}
-          className="my-3"
-        />
-      )}
+      <CustomFeedHeader className="relative">
+        {!isSearchOn && (
+          <>
+            <Link href="/bookmarks/search">
+              <a>
+                <MagnifyingIcon />
+              </a>
+            </Link>
+            <span>Bookmarks</span>
+          </>
+        )}
+        {isSearchOn ? searchChildren : undefined}
+      </CustomFeedHeader>
+      {tokenRefreshed && <Feed {...feedProps} />}
     </FeedPage>
   );
 }
