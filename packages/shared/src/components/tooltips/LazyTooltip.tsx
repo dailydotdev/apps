@@ -12,7 +12,7 @@ export interface LazyTooltipProps extends TippyProps {
 }
 
 export default forwardRef<Element, LazyTooltipProps>(function LazyTippy(
-  { arrow = true, ...props },
+  { arrow = true, placement = 'top', ...props },
   ref,
 ): ReactElement {
   const [mounted, setMounted] = useState(false);
@@ -42,11 +42,12 @@ export default forwardRef<Element, LazyTooltipProps>(function LazyTippy(
     <Tippy
       ref={ref}
       {...computedProps}
+      placement={placement}
       onHide={onHide}
       onMount={() => setMounted(true)}
       render={(...args) => (
         <div
-          data-popper-placement={computedProps.placement}
+          data-popper-placement={placement}
           className={classNames(
             styles.tippyTooltip,
             'relative flex items-center py-1 px-3 rounded-10 bg-theme-label-primary text-theme-label-invert typo-subhead',
