@@ -1,4 +1,5 @@
 import React, {
+  forwardRef,
   HTMLAttributes,
   LegacyRef,
   ReactElement,
@@ -14,16 +15,21 @@ type QuandaryButtonProps = {
   responsiveLabelClass?: string;
 };
 
-export function QuaternaryButton<Tag extends keyof JSX.IntrinsicElements>({
-  id,
-  children,
-  style,
-  className,
-  reverse,
-  responsiveLabelClass,
-  tag,
-  ...props
-}: ButtonProps<Tag> & QuandaryButtonProps): ReactElement {
+export const QuaternaryButton = forwardRef(function QuaternaryButton<
+  Tag extends keyof JSX.IntrinsicElements,
+>(
+  {
+    id,
+    children,
+    style,
+    className,
+    reverse,
+    responsiveLabelClass,
+    tag,
+    ...props
+  }: ButtonProps<Tag> & QuandaryButtonProps,
+  ref?: LegacyRef<HTMLDivElement>,
+): ReactElement {
   let labelProps: HTMLAttributes<HTMLLabelElement> = {};
   let buttonProps: {
     className?: string;
@@ -64,8 +70,9 @@ export function QuaternaryButton<Tag extends keyof JSX.IntrinsicElements>({
         'select-none',
         className,
       )}
+      ref={ref}
     >
-      <Button<Tag> id={id} {...props} tag={tag} {...buttonProps} />
+      <Button id={id} {...props} tag={tag} {...buttonProps} />
       {children && (
         <label
           htmlFor={id}
@@ -77,4 +84,4 @@ export function QuaternaryButton<Tag extends keyof JSX.IntrinsicElements>({
       )}
     </div>
   );
-}
+});

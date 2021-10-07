@@ -21,14 +21,19 @@ export interface BaseButtonProps {
 }
 
 export type ButtonProps<Tag extends keyof JSX.IntrinsicElements> =
-  BaseButtonProps & JSX.IntrinsicElements[Tag];
+  BaseButtonProps &
+    JSX.IntrinsicElements[Tag] & {
+      innerRef?: LegacyRef<JSX.IntrinsicElements[Tag]>;
+    };
 
 type ForwardedRef<Tag extends keyof JSX.IntrinsicElements> = LegacyRef<
   JSX.IntrinsicElements[Tag]
 >;
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
-export function Button<TagName extends keyof JSX.IntrinsicElements>(
+export const Button = forwardRef(function Button<
+  TagName extends keyof JSX.IntrinsicElements,
+>(
   {
     loading,
     pressed,
@@ -39,6 +44,7 @@ export function Button<TagName extends keyof JSX.IntrinsicElements>(
     tag: Tag = 'button',
     className,
     displayClass,
+    innerRef,
     ...props
   }: StyledButtonProps & ButtonProps<TagName>,
   ref?: ForwardedRef<TagName>,
@@ -49,7 +55,7 @@ export function Button<TagName extends keyof JSX.IntrinsicElements>(
       {...(props as StyledButtonProps)}
       aria-busy={loading}
       aria-pressed={pressed}
-      ref={ref}
+      ref={ref || innerRef}
       className={classNames(
         { iconOnly },
         buttonSize,
@@ -69,6 +75,4 @@ export function Button<TagName extends keyof JSX.IntrinsicElements>(
       )}
     </Tag>
   );
-}
-
-export default forwardRef(Button);
+});
