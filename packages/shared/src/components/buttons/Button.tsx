@@ -1,4 +1,4 @@
-import React, { LegacyRef, ReactElement, ReactNode } from 'react';
+import React, { forwardRef, LegacyRef, ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
 import { Loader } from '../Loader';
 
@@ -21,32 +21,35 @@ export interface BaseButtonProps {
 }
 
 export type ButtonProps<Tag extends keyof JSX.IntrinsicElements> =
-  BaseButtonProps &
-    JSX.IntrinsicElements[Tag] & {
-      innerRef?: LegacyRef<JSX.IntrinsicElements[Tag]>;
-    };
+  BaseButtonProps & JSX.IntrinsicElements[Tag];
+
+type ForwardedRef<Tag extends keyof JSX.IntrinsicElements> = LegacyRef<
+  JSX.IntrinsicElements[Tag]
+>;
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
-export function Button<Tag extends keyof JSX.IntrinsicElements>({
-  loading,
-  pressed,
-  icon,
-  rightIcon,
-  buttonSize,
-  children,
-  tag: Tag = 'button',
-  innerRef,
-  className,
-  displayClass,
-  ...props
-}: StyledButtonProps & ButtonProps<Tag>): ReactElement {
+export function Button<TagName extends keyof JSX.IntrinsicElements>(
+  {
+    loading,
+    pressed,
+    icon,
+    rightIcon,
+    buttonSize,
+    children,
+    tag: Tag = 'button',
+    className,
+    displayClass,
+    ...props
+  }: StyledButtonProps & ButtonProps<TagName>,
+  ref?: ForwardedRef<TagName>,
+): ReactElement {
   const iconOnly = icon && !children && !rightIcon;
   return (
     <Tag
       {...(props as StyledButtonProps)}
       aria-busy={loading}
       aria-pressed={pressed}
-      ref={innerRef}
+      ref={ref}
       className={classNames(
         { iconOnly },
         buttonSize,
@@ -67,3 +70,5 @@ export function Button<Tag extends keyof JSX.IntrinsicElements>({
     </Tag>
   );
 }
+
+export default forwardRef(Button);
