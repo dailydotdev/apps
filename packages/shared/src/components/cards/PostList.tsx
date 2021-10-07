@@ -1,5 +1,6 @@
 import React, { forwardRef, ReactElement, Ref, useState } from 'react';
 import classNames from 'classnames';
+import dynamic from 'next/dynamic';
 import { Comment } from '../../graphql/comments';
 import { PostCardProps } from './PostCard';
 import {
@@ -20,9 +21,10 @@ import styles from './Card.module.css';
 import ListFeaturedComment from './ListFeaturedComment';
 import { Button } from '../buttons/Button';
 import FlagIcon from '../../../icons/flag.svg';
-import { getTooltipProps } from '../../lib/tooltip';
 import TrendingFlag from './TrendingFlag';
 import PostAuthor from './PostAuthor';
+
+const LazyTooltip = dynamic(() => import('../tooltips/LazyTooltip'));
 
 export const PostList = forwardRef(function PostList(
   {
@@ -56,13 +58,13 @@ export const PostList = forwardRef(function PostList(
     >
       <PostLink post={post} openNewTab={openNewTab} onLinkClick={onLinkClick} />
       <ListCardAside>
-        <SourceButton post={post} className="pb-2" tooltipPosition="up" />
+        <SourceButton post={post} className="pb-2" tooltipPosition="top" />
         {featuredCommentsToButtons(
           post.featuredComments,
           setSelectedComment,
           null,
           'my-1',
-          'up',
+          'top',
         )}
       </ListCardAside>
       <ListCardDivider />
@@ -85,18 +87,19 @@ export const PostList = forwardRef(function PostList(
           className="relative mt-1 self-stretch"
         >
           {enableMenu && !selectedComment && (
-            <Button
-              className={classNames(
-                'btn-tertiary',
-                !menuOpened && 'mouse:invisible mouse:group-hover:visible',
-              )}
-              style={{ marginLeft: 'auto' }}
-              buttonSize="small"
-              icon={<FlagIcon />}
-              onClick={(event) => onMenuClick?.(event, post)}
-              pressed={menuOpened}
-              {...getTooltipProps('Report post')}
-            />
+            <LazyTooltip content="Report post">
+              <Button
+                className={classNames(
+                  'btn-tertiary',
+                  !menuOpened && 'mouse:invisible mouse:group-hover:visible',
+                )}
+                style={{ marginLeft: 'auto' }}
+                buttonSize="small"
+                icon={<FlagIcon />}
+                onClick={(event) => onMenuClick?.(event, post)}
+                pressed={menuOpened}
+              />
+            </LazyTooltip>
           )}
           {notification && (
             <CardNotification className="absolute bottom-0 right-0 z-2">

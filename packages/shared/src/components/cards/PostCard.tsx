@@ -25,13 +25,14 @@ import FlagIcon from '../../../icons/flag.svg';
 import { Comment } from '../../graphql/comments';
 import { Button } from '../buttons/Button';
 import styles from './Card.module.css';
-import { getTooltipProps } from '../../lib/tooltip';
 import TrendingFlag from './TrendingFlag';
 import PostLink from './PostLink';
 import PostMetadata from './PostMetadata';
 import ActionButtons from './ActionButtons';
 import SourceButton from './SourceButton';
 import PostAuthor from './PostAuthor';
+
+const LazyTooltip = dynamic(() => import('../tooltips/LazyTooltip'));
 
 const FeaturedComment = dynamic(() => import('./FeaturedComment'));
 
@@ -102,18 +103,20 @@ export const PostCard = forwardRef(function PostCard(
                 setSelectedComment,
               )}
               {enableMenu && !selectedComment && (
-                <Button
-                  className={classNames(
-                    'btn-tertiary',
-                    !menuOpened && 'mouse:invisible mouse:group-hover:visible',
-                  )}
-                  style={{ marginLeft: 'auto', marginRight: '-0.125rem' }}
-                  buttonSize="small"
-                  icon={<FlagIcon />}
-                  onClick={(event) => onMenuClick?.(event, post)}
-                  pressed={menuOpened}
-                  {...getTooltipProps('Report post')}
-                />
+                <LazyTooltip content="Report post">
+                  <Button
+                    className={classNames(
+                      'btn-tertiary',
+                      !menuOpened &&
+                        'mouse:invisible mouse:group-hover:visible',
+                    )}
+                    style={{ marginLeft: 'auto', marginRight: '-0.125rem' }}
+                    buttonSize="small"
+                    icon={<FlagIcon />}
+                    onClick={(event) => onMenuClick?.(event, post)}
+                    pressed={menuOpened}
+                  />
+                </LazyTooltip>
               )}
             </>
           )}

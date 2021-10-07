@@ -1,4 +1,4 @@
-import React, { LegacyRef, ReactElement } from 'react';
+import React, { forwardRef, LegacyRef, ReactElement } from 'react';
 import classNames from 'classnames';
 
 type AvailableTags = keyof Pick<JSX.IntrinsicElements, 'a' | 'button'>;
@@ -16,24 +16,31 @@ export type ClickableTextProps<Tag extends AvailableTags> =
       innerRef?: LegacyRef<JSX.IntrinsicElements[Tag]>;
     };
 
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export function ClickableText<Tag extends AvailableTags>({
-  disabled,
-  pressed,
-  title,
-  children,
-  tag: Tag = 'button',
-  innerRef,
-  className,
-  ...props
-}: ClickableTextProps<Tag>): ReactElement {
+type ForwardedRef<Tag extends keyof JSX.IntrinsicElements> = LegacyRef<
+  JSX.IntrinsicElements[Tag]
+>;
+export const ClickableText = forwardRef(function ClickableText<
+  TagName extends AvailableTags,
+>(
+  {
+    disabled,
+    pressed,
+    title,
+    children,
+    tag: Tag = 'button',
+    innerRef,
+    className,
+    ...props
+  }: ClickableTextProps<TagName>,
+  ref?: ForwardedRef<TagName>,
+): ReactElement {
   const isLink = Tag === 'a';
 
   return (
     <Tag
       {...props}
       aria-pressed={pressed}
-      ref={innerRef}
+      ref={ref || innerRef}
       className={classNames(
         'text-theme-label-tertiary typo-callout hover:underline focus:underline cursor-pointer',
         pressed && 'text-theme-label-primary',
@@ -46,4 +53,4 @@ export function ClickableText<Tag extends AvailableTags>({
       {title}
     </Tag>
   );
-}
+});

@@ -1,5 +1,6 @@
 import React, { ReactElement } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import classNames from 'classnames';
 import {
   featuredCommentsToButtons,
@@ -10,8 +11,9 @@ import {
 import ArrowIcon from '../../../icons/arrow.svg';
 import CommentIcon from '../../../icons/comment.svg';
 import { Button } from '../buttons/Button';
-import { getTooltipProps } from '../../lib/tooltip';
 import { FeaturedCommentProps } from './FeaturedComment';
+
+const LazyTooltip = dynamic(() => import('../tooltips/LazyTooltip'));
 
 export default function ListFeaturedComment({
   featuredComments,
@@ -25,19 +27,20 @@ export default function ListFeaturedComment({
       className={classNames('absolute inset-0 flex pt-4 pb-3 pr-4', className)}
     >
       <ListCardAside>
-        <Button
-          icon={<ArrowIcon style={{ transform: 'rotate(-90deg)' }} />}
-          buttonSize="small"
-          {...getTooltipProps('Back', { position: 'down' })}
-          onClick={onBack}
-          className="btn-tertiary"
-        />
+        <LazyTooltip content="Back" placement="bottom">
+          <Button
+            icon={<ArrowIcon style={{ transform: 'rotate(-90deg)' }} />}
+            buttonSize="small"
+            onClick={onBack}
+            className="btn-tertiary"
+          />
+        </LazyTooltip>
         {featuredCommentsToButtons(
           featuredComments,
           onCommentClick,
           comment.id,
           'my-1',
-          'up',
+          'top',
         )}
       </ListCardAside>
       <ListCardDivider />

@@ -6,9 +6,11 @@ import styles from './LazyTooltip.module.css';
 const DEFAULT_DELAY_MS = 600;
 const DEFAULT_OUT_ANIMATION = 200;
 
+export type TooltipPosition = 'top' | 'right' | 'bottom' | 'left';
+
 export interface LazyTooltipProps extends TippyProps {
   arrow?: boolean;
-  placement?: 'top' | 'right' | 'bottom' | 'left' | 'auto';
+  placement?: TooltipPosition;
 }
 
 export default forwardRef<Element, LazyTooltipProps>(function LazyTippy(

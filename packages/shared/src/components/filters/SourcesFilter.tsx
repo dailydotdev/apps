@@ -32,7 +32,6 @@ import {
 } from '../../graphql/feedSettings';
 import { apiUrl } from '../../lib/config';
 import { Source } from '../../graphql/sources';
-import { getTooltipProps } from '../../lib/tooltip';
 import { LazyImage } from '../LazyImage';
 import { trackEvent } from '../../lib/analytics';
 import { Button } from '../buttons/Button';
@@ -41,6 +40,8 @@ import { LoginModalMode } from '../../types/LoginModalMode';
 import { Summary } from '../utilities';
 import BlockIcon from '../../../icons/block.svg';
 import XIcon from '../../../icons/x.svg';
+
+const LazyTooltip = dynamic(() => import('../tooltips/LazyTooltip'));
 
 const NewSourceModal = dynamic(() => import('../modals/NewSourceModal'));
 
@@ -62,36 +63,39 @@ const SourceItem = ({
       passHref
       prefetch={false}
     >
-      <a
-        className="flex flex-1 h-10 pl-6 pr-14 items-center rounded-md hover:bg-theme-hover active:bg-theme-active focus-outline"
-        {...getTooltipProps(`${source.name} feed`)}
-        {...props}
-      >
-        <LazyImage
-          imgSrc={source.image}
-          imgAlt={`${source.name} logo`}
-          className="w-8 h-8 rounded-md"
-        />
-        <span
-          className={`flex-1 ml-3 text-left typo-callout truncate ${
-            selected
-              ? 'font-bold text-theme-label-primary'
-              : 'text-theme-label-tertiary'
-          }`}
+      <LazyTooltip content={`${source.name} feed`}>
+        <a
+          className="flex flex-1 h-10 pl-6 pr-14 items-center rounded-md hover:bg-theme-hover active:bg-theme-active focus-outline"
+          {...props}
         >
-          {source.name}
-        </span>
-      </a>
+          <LazyImage
+            imgSrc={source.image}
+            imgAlt={`${source.name} logo`}
+            className="w-8 h-8 rounded-md"
+          />
+          <span
+            className={`flex-1 ml-3 text-left typo-callout truncate ${
+              selected
+                ? 'font-bold text-theme-label-primary'
+                : 'text-theme-label-tertiary'
+            }`}
+          >
+            {source.name}
+          </span>
+        </a>
+      </LazyTooltip>
     </Link>
-    <Button
-      className="btn-tertiary right-4 my-auto"
-      style={{ position: 'absolute' }}
-      onClick={() => onClick?.(source)}
-      icon={blocked ? <XIcon /> : <BlockIcon />}
-      {...getTooltipProps(blocked ? 'Unblock source' : 'Block source', {
-        position: 'left',
-      })}
-    />
+    <LazyTooltip
+      content={blocked ? 'Unblock source' : 'Block source'}
+      placement="left"
+    >
+      <Button
+        className="btn-tertiary right-4 my-auto"
+        style={{ position: 'absolute' }}
+        onClick={() => onClick?.(source)}
+        icon={blocked ? <XIcon /> : <BlockIcon />}
+      />
+    </LazyTooltip>
   </FilterItem>
 );
 

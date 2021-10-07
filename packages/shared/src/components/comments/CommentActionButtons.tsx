@@ -1,6 +1,7 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 import request from 'graphql-request';
+import dynamic from 'next/dynamic';
 import AuthContext from '../../contexts/AuthContext';
 import UpvoteIcon from '../../../icons/upvote.svg';
 import CommentIcon from '../../../icons/comment.svg';
@@ -14,8 +15,9 @@ import {
 import { Roles } from '../../lib/user';
 import { apiUrl } from '../../lib/config';
 import { Button } from '../buttons/Button';
-import { getTooltipProps } from '../../lib/tooltip';
 import { ClickableText } from '../buttons/ClickableText';
+
+const LazyTooltip = dynamic(() => import('../tooltips/LazyTooltip'));
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
@@ -101,48 +103,53 @@ export default function CommentActionButtons({
 
   return (
     <div className="flex flex-row items-center">
-      <Button
-        id={`comment-${comment.id}-upvote-btn`}
-        buttonSize="small"
-        pressed={upvoted}
-        {...getTooltipProps('Upvote')}
-        onClick={toggleUpvote}
-        icon={<UpvoteIcon />}
-        className="btn-tertiary-avocado mr-3"
-      />
-      <Button
-        buttonSize="small"
-        {...getTooltipProps('Comment')}
-        onClick={() => onComment(comment, parentId)}
-        icon={<CommentIcon />}
-        className="btn-tertiary-avocado mr-3"
-      />
-      {user?.id === comment.author.id && (
+      <LazyTooltip content="Upvote">
+        <Button
+          id={`comment-${comment.id}-upvote-btn`}
+          buttonSize="small"
+          pressed={upvoted}
+          onClick={toggleUpvote}
+          icon={<UpvoteIcon />}
+          className="btn-tertiary-avocado mr-3"
+        />
+      </LazyTooltip>
+      <LazyTooltip content="Comment">
         <Button
           buttonSize="small"
-          {...getTooltipProps('Edit')}
-          onClick={() => onEdit(comment)}
-          icon={<EditIcon />}
-          className="btn-tertiary mr-3"
+          onClick={() => onComment(comment, parentId)}
+          icon={<CommentIcon />}
+          className="btn-tertiary-avocado mr-3"
         />
+      </LazyTooltip>
+      {user?.id === comment.author.id && (
+        <LazyTooltip content="Edit">
+          <Button
+            buttonSize="small"
+            onClick={() => onEdit(comment)}
+            icon={<EditIcon />}
+            className="btn-tertiary mr-3"
+          />
+        </LazyTooltip>
       )}
       {(user?.id === comment.author.id ||
         user?.roles?.indexOf(Roles.Moderator) > -1) && (
-        <Button
-          buttonSize="small"
-          {...getTooltipProps('Delete')}
-          onClick={() => onDelete(comment, parentId)}
-          icon={<TrashIcon />}
-          className="btn-tertiary"
-        />
+        <LazyTooltip content="Delete">
+          <Button
+            buttonSize="small"
+            onClick={() => onDelete(comment, parentId)}
+            icon={<TrashIcon />}
+            className="btn-tertiary"
+          />
+        </LazyTooltip>
       )}
       {numUpvotes > 0 && (
-        <ClickableText
-          className="ml-auto"
-          {...getTooltipProps('See who upvoted')}
-          title={`${numUpvotes} upvote${numUpvotes === 1 ? '' : 's'}`}
-          onClick={() => onShowUpvotes(comment.id, numUpvotes)}
-        />
+        <LazyTooltip content="See who upvoted">
+          <ClickableText
+            className="ml-auto"
+            title={`${numUpvotes} upvote${numUpvotes === 1 ? '' : 's'}`}
+            onClick={() => onShowUpvotes(comment.id, numUpvotes)}
+          />
+        </LazyTooltip>
       )}
     </div>
   );

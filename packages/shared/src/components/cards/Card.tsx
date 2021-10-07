@@ -1,11 +1,14 @@
 import React, { ReactNode } from 'react';
 import classNames from 'classnames';
+import dynamic from 'next/dynamic';
 import { LazyImage } from '../LazyImage';
 import { Comment } from '../../graphql/comments';
 import styles from './Card.module.css';
 import classed from '../../lib/classed';
-import { getTooltipProps } from '../../lib/tooltip';
 import { Post } from '../../graphql/posts';
+import { TooltipPosition } from '../tooltips/LazyTooltip';
+
+const LazyTooltip = dynamic(() => import('../tooltips/LazyTooltip'));
 
 const Title = classed(
   'h3',
@@ -85,29 +88,31 @@ export const featuredCommentsToButtons = (
   onClick: (comment: Comment) => unknown,
   selectedId?: string,
   className = 'mx-1',
-  tooltipPosition: 'up' | 'down' | 'left' | 'right' = 'down',
+  tooltipPosition: TooltipPosition = 'bottom',
 ): ReactNode[] =>
   comments?.map((comment) => (
-    <button
-      type="button"
-      {...getTooltipProps(`See ${comment.author.name}'s comment`, {
-        position: tooltipPosition,
-      })}
-      onClick={() => onClick(comment)}
+    <LazyTooltip
       key={comment.id}
-      className={classNames(
-        'flex p-0 bg-none border-none rounded-full cursor-pointer focus-outline',
-        className,
-      )}
+      placement={tooltipPosition}
+      content={`See ${comment.author.name}'s comment`}
     >
-      <img
-        src={comment.author.image}
-        alt={`${comment.author.name}'s profile`}
+      <button
+        type="button"
+        onClick={() => onClick(comment)}
         className={classNames(
-          'w-6 h-6 rounded-full',
-          selectedId === comment.id ? 'opacity-100' : 'opacity-64',
+          'flex p-0 bg-none border-none rounded-full cursor-pointer focus-outline',
+          className,
         )}
-        style={{ background: 'var(--theme-background-tertiary)' }}
-      />
-    </button>
+      >
+        <img
+          src={comment.author.image}
+          alt={`${comment.author.name}'s profile`}
+          className={classNames(
+            'w-6 h-6 rounded-full',
+            selectedId === comment.id ? 'opacity-100' : 'opacity-64',
+          )}
+          style={{ background: 'var(--theme-background-tertiary)' }}
+        />
+      </button>
+    </LazyTooltip>
   ));
