@@ -78,11 +78,11 @@
 @keyframes fade-out-right {
   0% {
     opacity: 1;
-    transform: translateX(-0.1875rem);
+    transform: translateX(0);
   }
   100% {
     opacity: 0;
-    transform: translateY(0);
+    transform: translateX(-0.1875rem);
   }
 }
 
