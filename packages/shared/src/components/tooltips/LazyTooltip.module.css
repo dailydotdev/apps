@@ -1,0 +1,158 @@
+@keyframes fade-in-top {
+  0% {
+    opacity: 0;
+    transform: translateY(0.1875rem);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-bottom {
+  0% {
+    opacity: 0;
+    transform: translateY(-0.1875rem);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-left {
+  0% {
+    opacity: 0;
+    transform: translateX(0.1875rem);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fade-in-right {
+  0% {
+    opacity: 0;
+    transform: translateX(-0.1875rem);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fade-out-top {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(0.1875rem);
+  }
+}
+
+@keyframes fade-out-bottom {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-0.1875rem);
+  }
+}
+
+@keyframes fade-out-left {
+  0% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(0.1875rem);
+  }
+}
+
+@keyframes fade-out-right {
+  0% {
+    opacity: 1;
+    transform: translateX(-0.1875rem);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+}
+
+.tippyTooltipArrow,
+.tippyTooltipArrow::before {
+  position: absolute;
+  width: 0.5rem;
+  height: 0.5rem;
+  background: inherit;
+}
+
+.tippyTooltipArrow {
+  visibility: hidden;
+}
+
+.tippyTooltipArrow::before {
+  visibility: visible;
+  content: '';
+  transform: rotate(45deg);
+}
+
+.tippyTooltip {
+  &[data-popper-placement^='top'] {
+    animation: fade-in-top 0.2s ease-in-out;
+  }
+
+  &[data-popper-placement^='bottom'] {
+    animation: fade-in-bottom 0.2s ease-in-out;
+  }
+
+  &[data-popper-placement^='left'] {
+    animation: fade-in-left 0.2s ease-in-out;
+  }
+
+  &[data-popper-placement^='right'] {
+    animation: fade-in-right 0.2s ease-in-out;
+  }
+}
+
+.unMount {
+  opacity: 1;
+  &[data-popper-placement^='top'] {
+    animation: fade-out-top 0.2s ease-in-out;
+  }
+
+  &[data-popper-placement^='bottom'] {
+    animation: fade-out-bottom 0.2s ease-in-out;
+  }
+
+  &[data-popper-placement^='left'] {
+    animation: fade-out-left 0.2s ease-in-out;
+  }
+
+  &[data-popper-placement^='right'] {
+    animation: fade-out-right 0.2s ease-in-out;
+  }
+}
+
+.tippyTooltip[data-popper-placement^='top'] > .tippyTooltipArrow {
+  bottom: -0.1875rem;
+}
+
+.tippyTooltip[data-popper-placement^='bottom'] > .tippyTooltipArrow {
+  top: -0.1875rem;
+}
+
+.tippyTooltip[data-popper-placement^='left'] > .tippyTooltipArrow {
+  right: -0.1875rem;
+}
+
+.tippyTooltip[data-popper-placement^='right'] > .tippyTooltipArrow {
+  left: -0.1875rem;
+}
