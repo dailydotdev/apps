@@ -183,6 +183,16 @@ export const SEARCH_BOOKMARKS_QUERY = gql`
   ${FEED_POST_CONNECTION_FRAGMENT}
 `;
 
+export const SEARCH_BOOKMARKS_SUGGESTIONS = gql`
+  query SearchBookmarksSuggestions($query: String!) {
+    searchBookmarksSuggestions(query: $query) {
+      hits {
+        title
+      }
+    }
+  }
+`;
+
 export const SEARCH_POSTS_QUERY = gql`
   query SearchPosts(
     $loggedIn: Boolean! = false

@@ -299,7 +299,7 @@ export default function MainFeedLayout({
           you’ll ever need. Ready?
         </div>
       )}
-      <nav className="relative flex items-center self-stretch mb-6 overflow-x-auto h-11 no-scrollbar">
+      <nav className="flex overflow-x-auto relative items-center self-stretch mb-6 h-11 no-scrollbar">
         <ButtonOrLink
           asLink={!useNavButtonsNotLinks}
           href="/search"
@@ -336,7 +336,7 @@ export default function MainFeedLayout({
         {isSearchOn ? searchChildren : undefined}
       </nav>
       {isUpvoted && (
-        <Dropdown className="mb-6 laptop:hidden" {...periodDropdownProps} />
+        <Dropdown className="laptop:hidden mb-6" {...periodDropdownProps} />
       )}
       {feedProps && <Feed {...feedProps} />}
       {children}

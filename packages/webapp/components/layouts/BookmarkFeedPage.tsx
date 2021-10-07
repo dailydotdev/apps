@@ -1,6 +1,13 @@
-import React, { ReactElement, ReactNode, useState, useEffect } from 'react';
+import React, {
+  ReactElement,
+  ReactNode,
+  useState,
+  useEffect,
+  useContext,
+} from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
 import BookmarkFeedLayout from '@dailydotdev/shared/src/components/BookmarkFeedLayout';
 import { getLayout } from './FeedLayout';
@@ -18,9 +25,15 @@ export default function BookmarkFeedPage({
   children,
 }: MainFeedPageProps): ReactElement {
   const router = useRouter();
+  const { user, tokenRefreshed } = useContext(AuthContext);
   const [isSearchOn, setIsSearchOn] = useState(
     router?.pathname === '/bookmarks/search',
   );
+
+  if (!user && tokenRefreshed) {
+    router.replace('/');
+    return <></>;
+  }
 
   useEffect(() => {
     if (router?.pathname === '/bookmarks/search') {
@@ -34,7 +47,9 @@ export default function BookmarkFeedPage({
     <BookmarkFeedLayout
       isSearchOn={isSearchOn}
       searchQuery={router.query?.q?.toString()}
-      searchChildren={<PostsSearch />}
+      searchChildren={
+        <PostsSearch suggestionType="searchBookmarksSuggestions" />
+      }
     >
       {children}
     </BookmarkFeedLayout>

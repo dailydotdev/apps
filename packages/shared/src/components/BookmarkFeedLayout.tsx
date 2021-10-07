@@ -5,15 +5,12 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import MagnifyingIcon from '@dailydotdev/shared/icons/magnifying.svg';
-import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
-import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
-import {
-  BOOKMARKS_FEED_QUERY,
-  SEARCH_BOOKMARKS_QUERY,
-} from '@dailydotdev/shared/src/graphql/feed';
-import { headerHeight } from '@dailydotdev/shared/src/styles/sizes';
 import Link from 'next/link';
+import MagnifyingIcon from '../../icons/magnifying.svg';
+import BookmarkIcon from '../../icons/bookmark.svg';
+import sizeN from '../../macros/sizeN.macro';
+import { BOOKMARKS_FEED_QUERY, SEARCH_BOOKMARKS_QUERY } from '../graphql/feed';
+import { headerHeight } from '../styles/sizes';
 import AuthContext from '../contexts/AuthContext';
 import { Button } from './buttons/Button';
 import { CustomFeedHeader, FeedPage } from './utilities';
@@ -58,7 +55,7 @@ export default function BookmarkFeedLayout({
   if (showEmptyScreen) {
     return (
       <main
-        className="fixed inset-0 flex flex-col items-center justify-center px-6 withNavBar text-theme-label-secondary"
+        className="flex fixed inset-0 flex-col justify-center items-center px-6 withNavBar text-theme-label-secondary"
         style={{ marginTop: headerHeight }}
       >
         {children}
@@ -92,11 +89,12 @@ export default function BookmarkFeedLayout({
         {!isSearchOn && (
           <>
             <Link href="/bookmarks/search">
-              <a>
+              <a className="flex relative flex-row justify-center items-center font-bold no-underline border cursor-pointer select-none shadow-none iconOnly small btn typo-callout focus-outline btn-tertiary">
                 <MagnifyingIcon />
               </a>
             </Link>
-            <span>Bookmarks</span>
+            <div className="mx-4 w-px h-full bg-theme-bg-tertiary">&nbsp;</div>
+            <span className="font-bold typo-callout">Bookmarks</span>
           </>
         )}
         {isSearchOn ? searchChildren : undefined}

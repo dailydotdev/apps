@@ -2,7 +2,13 @@ import React, { ReactElement } from 'react';
 import PostsSearch from '@dailydotdev/shared/src/components/PostsSearch';
 import { useRouter } from 'next/router';
 
-export default function RouterPostsSearch(): ReactElement {
+export type RouterPostsSearchProps = {
+  suggestionType?: string;
+};
+
+export default function RouterPostsSearch({
+  suggestionType,
+}: RouterPostsSearchProps): ReactElement {
   const router = useRouter();
 
   const onSubmitQuery = (query: string): Promise<boolean> =>
@@ -18,6 +24,7 @@ export default function RouterPostsSearch(): ReactElement {
 
   return (
     <PostsSearch
+      suggestionType={suggestionType}
       initialQuery={router.query.q?.toString()}
       onSubmitQuery={onSubmitQuery}
       closeSearch={closeSearch}

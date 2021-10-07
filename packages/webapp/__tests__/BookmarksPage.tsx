@@ -102,7 +102,11 @@ const renderComponent = (
           }}
         >
           <SettingsContext.Provider value={settingsContext}>
-            <BookmarksPage />
+            {BookmarksPage.getLayout(
+              <BookmarksPage />,
+              {},
+              BookmarksPage.layoutProps,
+            )}
           </SettingsContext.Provider>
         </OnboardingContext.Provider>
       </AuthContext.Provider>
