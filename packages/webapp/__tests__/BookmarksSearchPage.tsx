@@ -32,6 +32,8 @@ beforeEach(() => {
   mocked(useRouter).mockImplementation(
     () =>
       ({
+        pathname: '/bookmarks/search',
+        query: {},
         replace: routerReplace,
       } as unknown as NextRouter),
   );
@@ -128,6 +130,12 @@ it('should redirect to home page when logged-out', async () => {
   await waitFor(() => expect(routerReplace).toBeCalledWith('/'));
 });
 
+it('should show the search bar', async () => {
+  renderComponent();
+  await waitForNock();
+  expect(await screen.findByTestId('searchField')).toBeInTheDocument();
+});
+
 it('should show empty screen when feed is empty', async () => {
   renderComponent([
     createFeedMock({
@@ -148,11 +156,22 @@ it('should show empty screen when feed is empty', async () => {
   });
 });
 
-it('should set href to the search permalink', async () => {
+it('should update query param on enter', async (done) => {
   renderComponent();
   await waitForNock();
-  await waitFor(async () => {
-    const searchBtn = await screen.findByLabelText('Search bookmarks');
-    expect(searchBtn).toHaveAttribute('href', '/bookmarks/search');
-  });
+  const input = (await screen.findByRole('textbox')) as HTMLInputElement;
+  input.value = 'daily';
+  input.dispatchEvent(new Event('input', { bubbles: true }));
+  setTimeout(async () => {
+    input.dispatchEvent(
+      new KeyboardEvent('keydown', { bubbles: true, keyCode: 13 }),
+    );
+    await waitFor(() =>
+      expect(routerReplace).toBeCalledWith({
+        pathname: '/bookmarks/search',
+        query: { q: 'daily' },
+      }),
+    );
+    done();
+  }, 150);
 });

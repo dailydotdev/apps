@@ -55,7 +55,7 @@ export default function BookmarkFeedLayout({
   if (showEmptyScreen) {
     return (
       <main
-        className="flex fixed inset-0 flex-col justify-center items-center px-6 withNavBar text-theme-label-secondary"
+        className="fixed inset-0 flex flex-col items-center justify-center px-6 withNavBar text-theme-label-secondary"
         style={{ marginTop: headerHeight }}
       >
         {children}
@@ -89,11 +89,14 @@ export default function BookmarkFeedLayout({
         {!isSearchOn && (
           <>
             <Link href="/bookmarks/search">
-              <a className="flex relative flex-row justify-center items-center font-bold no-underline border cursor-pointer select-none shadow-none iconOnly small btn typo-callout focus-outline btn-tertiary">
+              <a
+                aria-label="Search bookmarks"
+                className="relative flex flex-row items-center justify-center font-bold no-underline border shadow-none cursor-pointer select-none iconOnly small btn typo-callout focus-outline btn-tertiary"
+              >
                 <MagnifyingIcon />
               </a>
             </Link>
-            <div className="mx-4 w-px h-full bg-theme-bg-tertiary">&nbsp;</div>
+            <div className="w-px h-full mx-4 bg-theme-bg-tertiary">&nbsp;</div>
             <span className="font-bold typo-callout">Bookmarks</span>
           </>
         )}
