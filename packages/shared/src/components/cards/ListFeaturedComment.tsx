@@ -10,7 +10,7 @@ import {
 } from './Card';
 import ArrowIcon from '../../../icons/arrow.svg';
 import CommentIcon from '../../../icons/comment.svg';
-import { Button } from '../buttons/Button';
+import { ForwardedButton as Button } from '../buttons/Button';
 import { FeaturedCommentProps } from './FeaturedComment';
 
 const LazyTooltip = dynamic(() => import('../tooltips/LazyTooltip'));
@@ -51,7 +51,7 @@ export default function ListFeaturedComment({
         </p>
         <Link href={comment.permalink} passHref>
           <Button
-            as="a"
+            tag="a"
             target="_blank"
             rel="noopener"
             buttonSize="small"

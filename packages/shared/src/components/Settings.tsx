@@ -17,7 +17,7 @@ import OpenLink from '../../icons/open_link.svg';
 import { IconsSwitch } from './fields/IconsSwitch';
 import AuthContext from '../contexts/AuthContext';
 import { LoginModalMode } from '../types/LoginModalMode';
-import { Button } from './buttons/Button';
+import { ForwardedButton as Button } from './buttons/Button';
 
 const densities = [
   { label: 'Eco', value: 'eco' },

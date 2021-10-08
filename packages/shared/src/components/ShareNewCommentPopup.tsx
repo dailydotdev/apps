@@ -15,13 +15,13 @@ import {
 } from '../lib/share';
 import { Post } from '../graphql/posts';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
-import { Button, ButtonProps } from './buttons/Button';
+import { ForwardedButton as Button } from './buttons/Button';
 import { ModalCloseButton } from './modals/ModalCloseButton';
 import classed from '../lib/classed';
 
 const LazyTooltip = dynamic(() => import('./tooltips/LazyTooltip'));
 
-const ShareButton = classed<ButtonProps<'a'>>(Button, 'text-white');
+const ShareButton = classed(Button, 'text-white');
 
 interface ShareNewCommentPopupProps {
   onRequestClose: () => void;

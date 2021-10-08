@@ -27,7 +27,7 @@ import useMutateFilters, {
   getSearchTagsQueryKey,
 } from '../../hooks/useMutateFilters';
 import { trackEvent } from '../../lib/analytics';
-import { Button } from '../buttons/Button';
+import { ForwardedButton as Button } from '../buttons/Button';
 import {
   FiltersContainer,
   FiltersPlaceholder,

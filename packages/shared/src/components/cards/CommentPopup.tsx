@@ -3,7 +3,7 @@ import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 import classNames from 'classnames';
 import commentPopupText from '../../commentPopupText';
 import CommentIcon from '../../../icons/comment.svg';
-import { Button } from '../buttons/Button';
+import { ForwardedButton as Button } from '../buttons/Button';
 import { ModalCloseButton } from '../modals/ModalCloseButton';
 
 const transitionDuration = 150;

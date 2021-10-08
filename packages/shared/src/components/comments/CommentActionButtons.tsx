@@ -14,7 +14,7 @@ import {
 } from '../../graphql/comments';
 import { Roles } from '../../lib/user';
 import { apiUrl } from '../../lib/config';
-import { Button } from '../buttons/Button';
+import { ForwardedButton as Button } from '../buttons/Button';
 import { ClickableText } from '../buttons/ClickableText';
 
 const LazyTooltip = dynamic(() => import('../tooltips/LazyTooltip'));

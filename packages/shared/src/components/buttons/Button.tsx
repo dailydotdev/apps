@@ -1,10 +1,4 @@
-import React, {
-  HTMLAttributes,
-  forwardRef,
-  LegacyRef,
-  ReactNode,
-  Ref,
-} from 'react';
+import React, { HTMLAttributes, forwardRef, ReactNode, Ref } from 'react';
 import classNames from 'classnames';
 import { Loader } from '../Loader';
 
@@ -31,9 +25,7 @@ export type AllowedElements = HTMLButtonElement | HTMLAnchorElement;
 
 export type ButtonProps<Tag extends AllowedTags> = BaseButtonProps &
   HTMLAttributes<AllowedElements> &
-  JSX.IntrinsicElements[Tag] & {
-    innerRef?: LegacyRef<JSX.IntrinsicElements[Tag]>;
-  };
+  JSX.IntrinsicElements[Tag];
 
 export const Button: React.ForwardRefRenderFunction<
   AllowedElements,
@@ -49,7 +41,6 @@ export const Button: React.ForwardRefRenderFunction<
     tag: Tag = 'button',
     className,
     displayClass,
-    innerRef,
     ...props
   }: StyledButtonProps & ButtonProps<TagName>,
   ref?: Ref<HTMLButtonElement>,
@@ -60,7 +51,7 @@ export const Button: React.ForwardRefRenderFunction<
       {...(props as StyledButtonProps)}
       aria-busy={loading}
       aria-pressed={pressed}
-      ref={innerRef || ref}
+      ref={ref}
       className={classNames(
         { iconOnly },
         buttonSize,

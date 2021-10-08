@@ -7,10 +7,10 @@ import { Post } from '../../graphql/posts';
 import UpvoteIcon from '../../../icons/upvote.svg';
 import rem from '../../../macros/rem.macro';
 import InteractionCounter from '../InteractionCounter';
-import { QuaternaryButton } from '../buttons/QuaternaryButton';
+import { ForwardedQuaternaryButton as QuaternaryButton } from '../buttons/QuaternaryButton';
 import CommentIcon from '../../../icons/comment.svg';
 import BookmarkIcon from '../../../icons/bookmark.svg';
-import { Button } from '../buttons/Button';
+import { ForwardedButton as Button } from '../buttons/Button';
 
 const LazyTooltip = dynamic(() => import('../tooltips/LazyTooltip'));
 

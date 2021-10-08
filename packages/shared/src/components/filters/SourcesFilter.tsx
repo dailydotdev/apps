@@ -34,7 +34,7 @@ import { apiUrl } from '../../lib/config';
 import { Source } from '../../graphql/sources';
 import { LazyImage } from '../LazyImage';
 import { trackEvent } from '../../lib/analytics';
-import { Button } from '../buttons/Button';
+import { ForwardedButton as Button } from '../buttons/Button';
 import PlusIcon from '../../../icons/plus.svg';
 import { LoginModalMode } from '../../types/LoginModalMode';
 import { Summary } from '../utilities';

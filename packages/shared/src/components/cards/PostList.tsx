@@ -19,7 +19,7 @@ import ActionButtons from './ActionButtons';
 import SourceButton from './SourceButton';
 import styles from './Card.module.css';
 import ListFeaturedComment from './ListFeaturedComment';
-import { Button } from '../buttons/Button';
+import { ForwardedButton as Button } from '../buttons/Button';
 import FlagIcon from '../../../icons/flag.svg';
 import TrendingFlag from './TrendingFlag';
 import PostAuthor from './PostAuthor';
