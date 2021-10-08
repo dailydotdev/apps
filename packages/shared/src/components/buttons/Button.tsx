@@ -1,4 +1,10 @@
-import React, { forwardRef, LegacyRef, ReactElement, ReactNode } from 'react';
+import React, {
+  HTMLAttributes,
+  forwardRef,
+  LegacyRef,
+  ReactNode,
+  Ref,
+} from 'react';
 import classNames from 'classnames';
 import { Loader } from '../Loader';
 
@@ -20,20 +26,19 @@ export interface BaseButtonProps {
   displayClass?: string;
 }
 
-export type ButtonProps<Tag extends keyof JSX.IntrinsicElements> =
-  BaseButtonProps &
-    JSX.IntrinsicElements[Tag] & {
-      innerRef?: LegacyRef<JSX.IntrinsicElements[Tag]>;
-    };
+export type AllowedTags = keyof Pick<JSX.IntrinsicElements, 'a' | 'button'>;
+export type AllowedElements = HTMLButtonElement | HTMLAnchorElement;
 
-type ForwardedRef<Tag extends keyof JSX.IntrinsicElements> = LegacyRef<
-  JSX.IntrinsicElements[Tag]
->;
+export type ButtonProps<Tag extends AllowedTags> = BaseButtonProps &
+  HTMLAttributes<AllowedElements> &
+  JSX.IntrinsicElements[Tag] & {
+    innerRef?: LegacyRef<JSX.IntrinsicElements[Tag]>;
+  };
 
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const Button = forwardRef(function Button<
-  TagName extends keyof JSX.IntrinsicElements,
->(
+export const Button: React.ForwardRefRenderFunction<
+  AllowedElements,
+  StyledButtonProps & ButtonProps<AllowedTags>
+> = <TagName extends AllowedTags>(
   {
     loading,
     pressed,
@@ -47,15 +52,15 @@ export const Button = forwardRef(function Button<
     innerRef,
     ...props
   }: StyledButtonProps & ButtonProps<TagName>,
-  ref?: ForwardedRef<TagName>,
-): ReactElement {
+  ref?: Ref<HTMLButtonElement>,
+) => {
   const iconOnly = icon && !children && !rightIcon;
   return (
     <Tag
       {...(props as StyledButtonProps)}
       aria-busy={loading}
       aria-pressed={pressed}
-      ref={ref || innerRef}
+      ref={innerRef || ref}
       className={classNames(
         { iconOnly },
         buttonSize,
@@ -75,4 +80,6 @@ export const Button = forwardRef(function Button<
       )}
     </Tag>
   );
-});
+};
+
+export const ForwardedButton = forwardRef(Button);
