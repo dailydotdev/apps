@@ -2,6 +2,7 @@ import React, { useState, forwardRef, ReactElement } from 'react';
 import Tippy, { TippyProps } from '@tippyjs/react';
 import classNames from 'classnames';
 import styles from './LazyTooltip.module.css';
+import { isTesting } from '../../lib/constants';
 
 const DEFAULT_DELAY_MS = 600;
 const DEFAULT_OUT_ANIMATION = 200;
@@ -10,6 +11,7 @@ export type TooltipPosition = 'top' | 'right' | 'bottom' | 'left';
 
 export interface LazyTooltipProps extends TippyProps {
   arrow?: boolean;
+  content: string;
   placement?: TooltipPosition;
 }
 
@@ -35,9 +37,14 @@ export default forwardRef<Element, LazyTooltipProps>(function LazyTippy(
   computedProps.plugins = [...(props.plugins || [])];
 
   if (props.render) {
-    computedProps.render = (...args) => (mounted ? props.render(...args) : '');
+    computedProps.render = (...args) =>
+      mounted || isTesting ? props.render(...args) : '';
   } else {
-    computedProps.render = () => (mounted ? props.content : '');
+    computedProps.children = React.cloneElement(computedProps.children, {
+      ...computedProps.children.props,
+      'aria-label': props.content,
+    });
+    computedProps.render = () => (mounted || isTesting ? props.content : '');
   }
 
   return (
