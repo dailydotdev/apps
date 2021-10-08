@@ -6,7 +6,7 @@ import ArrowIcon from '../../icons/arrow.svg';
 import FeedFilters from './filters/FeedFilters';
 import OnboardingContext from '../contexts/OnboardingContext';
 
-const LazyTooltip = dynamic(() => import('./tooltips/LazyTooltip'));
+const LazyTooltip = dynamic(() => import('./tooltips/Tooltip'));
 
 const asideWidth = sizeN(89);
 

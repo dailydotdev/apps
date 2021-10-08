@@ -13,7 +13,7 @@ import CommentIcon from '../../../icons/comment.svg';
 import { ForwardedButton as Button } from '../buttons/Button';
 import { FeaturedCommentProps } from './FeaturedComment';
 
-const LazyTooltip = dynamic(() => import('../tooltips/LazyTooltip'));
+const LazyTooltip = dynamic(() => import('../tooltips/Tooltip'));
 
 export default function ListFeaturedComment({
   featuredComments,

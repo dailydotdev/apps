@@ -13,13 +13,13 @@ import {
   getTwitterShareLink,
   getWhatsappShareLink,
 } from '../lib/share';
-import { Button, ButtonProps } from './buttons/Button';
+import { ForwardedButton as Button, ButtonProps } from './buttons/Button';
 import styles from './ShareBar.module.css';
 import classed from '../lib/classed';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
 
-const LazyTooltip = dynamic(() => import('./tooltips/LazyTooltip'));
+const LazyTooltip = dynamic(() => import('./tooltips/Tooltip'));
 
 const ShareButton = classed(Button, 'my-1');
 const ColorfulShareButton = classed(

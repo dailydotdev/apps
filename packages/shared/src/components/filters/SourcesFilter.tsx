@@ -41,7 +41,7 @@ import { Summary } from '../utilities';
 import BlockIcon from '../../../icons/block.svg';
 import XIcon from '../../../icons/x.svg';
 
-const LazyTooltip = dynamic(() => import('../tooltips/LazyTooltip'));
+const LazyTooltip = dynamic(() => import('../tooltips/Tooltip'));
 
 const NewSourceModal = dynamic(() => import('../modals/NewSourceModal'));
 

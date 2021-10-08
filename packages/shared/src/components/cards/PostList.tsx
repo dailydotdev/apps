@@ -24,7 +24,7 @@ import FlagIcon from '../../../icons/flag.svg';
 import TrendingFlag from './TrendingFlag';
 import PostAuthor from './PostAuthor';
 
-const LazyTooltip = dynamic(() => import('../tooltips/LazyTooltip'));
+const LazyTooltip = dynamic(() => import('../tooltips/Tooltip'));
 
 export const PostList = forwardRef(function PostList(
   {

@@ -6,9 +6,9 @@ import { Comment } from '../../graphql/comments';
 import styles from './Card.module.css';
 import classed from '../../lib/classed';
 import { Post } from '../../graphql/posts';
-import { TooltipPosition } from '../tooltips/LazyTooltip';
+import { TooltipPosition } from '../tooltips/TooltipContainer';
 
-const LazyTooltip = dynamic(() => import('../tooltips/LazyTooltip'));
+const LazyTooltip = dynamic(() => import('../tooltips/Tooltip'));
 
 const Title = classed(
   'h3',

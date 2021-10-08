@@ -12,7 +12,7 @@ import ArrowIcon from '../../../icons/arrow.svg';
 import CommentIcon from '../../../icons/comment.svg';
 import { ForwardedButton as Button } from '../buttons/Button';
 
-const LazyTooltip = dynamic(() => import('../tooltips/LazyTooltip'));
+const LazyTooltip = dynamic(() => import('../tooltips/Tooltip'));
 
 export type FeaturedCommentProps = {
   featuredComments: Comment[];

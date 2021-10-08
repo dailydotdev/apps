@@ -19,7 +19,7 @@ import { ForwardedButton as Button } from './buttons/Button';
 import { ModalCloseButton } from './modals/ModalCloseButton';
 import classed from '../lib/classed';
 
-const LazyTooltip = dynamic(() => import('./tooltips/LazyTooltip'));
+const LazyTooltip = dynamic(() => import('./tooltips/Tooltip'));
 
 const ShareButton = classed(Button, 'text-white');
 

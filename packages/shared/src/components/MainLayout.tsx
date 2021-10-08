@@ -21,7 +21,7 @@ import styles from './MainLayout.module.css';
 import LayoutIcon from '../../icons/layout.svg';
 import ProfileButton from './profile/ProfileButton';
 
-const LazyTooltip = dynamic(() => import('./tooltips/LazyTooltip'));
+const LazyTooltip = dynamic(() => import('./tooltips/Tooltip'));
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;

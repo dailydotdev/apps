@@ -12,7 +12,7 @@ import CommentIcon from '../../../icons/comment.svg';
 import BookmarkIcon from '../../../icons/bookmark.svg';
 import { ForwardedButton as Button } from '../buttons/Button';
 
-const LazyTooltip = dynamic(() => import('../tooltips/LazyTooltip'));
+const LazyTooltip = dynamic(() => import('../tooltips/Tooltip'));
 
 const ShareIcon = dynamic(() => import('../../../icons/share.svg'));
 

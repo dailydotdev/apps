@@ -17,7 +17,7 @@ import { apiUrl } from '../../lib/config';
 import { ForwardedButton as Button } from '../buttons/Button';
 import { ClickableText } from '../buttons/ClickableText';
 
-const LazyTooltip = dynamic(() => import('../tooltips/LazyTooltip'));
+const LazyTooltip = dynamic(() => import('../tooltips/Tooltip'));
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;

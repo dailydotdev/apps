@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import styles from './Card.module.css';
 
-const LazyTooltip = dynamic(() => import('../tooltips/LazyTooltip'));
+const LazyTooltip = dynamic(() => import('../tooltips/Tooltip'));
 
 export default function TrendingFlag({
   trending,

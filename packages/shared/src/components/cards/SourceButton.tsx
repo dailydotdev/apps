@@ -3,9 +3,9 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import classNames from 'classnames';
 import { Post } from '../../graphql/posts';
-import { TooltipPosition } from '../tooltips/LazyTooltip';
+import { TooltipPosition } from '../tooltips/TooltipContainer';
 
-const LazyTooltip = dynamic(() => import('../tooltips/LazyTooltip'));
+const LazyTooltip = dynamic(() => import('../tooltips/Tooltip'));
 
 export default function SourceButton({
   post,

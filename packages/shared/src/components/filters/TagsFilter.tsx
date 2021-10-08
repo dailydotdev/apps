@@ -42,7 +42,7 @@ import { Summary } from '../utilities';
 import XIcon from '../../../icons/x.svg';
 import MenuIcon from '../../../icons/menu.svg';
 
-const LazyTooltip = dynamic(() => import('../tooltips/LazyTooltip'));
+const LazyTooltip = dynamic(() => import('../tooltips/Tooltip'));
 
 const TagOptionsMenu = dynamic(
   () => import(/* webpackChunkName: "tagOptionsMenu" */ './TagOptionsMenu'),
