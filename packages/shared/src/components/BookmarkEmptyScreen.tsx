@@ -8,7 +8,7 @@ import { Button } from './buttons/Button';
 export default function BookmarkEmptyScreen(): ReactElement {
   return (
     <main
-      className="fixed inset-0 flex flex-col items-center justify-center px-6 withNavBar text-theme-label-secondary"
+      className="flex fixed inset-0 flex-col justify-center items-center px-6 withNavBar text-theme-label-secondary"
       style={{ marginTop: headerHeight }}
     >
       <BookmarkIcon

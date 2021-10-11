@@ -13,6 +13,7 @@ import BookmarkFeedLayout from '@dailydotdev/shared/src/components/BookmarkFeedL
 import { getLayout } from './FeedLayout';
 import { MainFeedPageProps } from './MainFeedPage';
 
+const BOOKMARK_SEARCH_URL = '/bookmarks/search';
 const PostsSearch = dynamic(
   () =>
     import(/* webpackChunkName: "routerPostsSearch" */ '../RouterPostsSearch'),
@@ -27,7 +28,7 @@ export default function BookmarkFeedPage({
   const router = useRouter();
   const { user, tokenRefreshed } = useContext(AuthContext);
   const [isSearchOn, setIsSearchOn] = useState(
-    router?.pathname === '/bookmarks/search',
+    router?.pathname === BOOKMARK_SEARCH_URL,
   );
 
   if (!user && tokenRefreshed) {
@@ -36,7 +37,7 @@ export default function BookmarkFeedPage({
   }
 
   useEffect(() => {
-    if (router?.pathname === '/bookmarks/search') {
+    if (router?.pathname === BOOKMARK_SEARCH_URL) {
       setIsSearchOn(true);
     } else if (isSearchOn) {
       setIsSearchOn(false);

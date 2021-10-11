@@ -48,7 +48,7 @@ export default function BookmarkFeedLayout({
       className: 'my-3',
       onEmptyFeed: () => setShowEmptyScreen(true),
     };
-  }, [isSearchOn && searchQuery]);
+  }, [isSearchOn && searchQuery, user]);
 
   if (showEmptyScreen) {
     return <BookmarkEmptyScreen />;
@@ -63,7 +63,7 @@ export default function BookmarkFeedLayout({
             <Link href="/bookmarks/search">
               <Button aria-label="Search bookmarks" icon={<MagnifyingIcon />} />
             </Link>
-            <div className="w-px h-full mx-4 bg-theme-bg-tertiary">&nbsp;</div>
+            <div className="mx-4 w-px h-full bg-theme-bg-tertiary">&nbsp;</div>
             <span className="font-bold typo-callout">Bookmarks</span>
           </>
         )}
