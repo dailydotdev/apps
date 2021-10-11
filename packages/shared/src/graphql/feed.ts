@@ -169,6 +169,30 @@ export const BOOKMARKS_FEED_QUERY = gql`
   ${FEED_POST_CONNECTION_FRAGMENT}
 `;
 
+export const SEARCH_BOOKMARKS_QUERY = gql`
+  query SearchBookmarks(
+    $loggedIn: Boolean! = false
+    $first: Int
+    $after: String
+    $query: String!
+  ) {
+    page: searchBookmarks(first: $first, after: $after, query: $query) {
+      ...FeedPostConnection
+    }
+  }
+  ${FEED_POST_CONNECTION_FRAGMENT}
+`;
+
+export const SEARCH_BOOKMARKS_SUGGESTIONS = gql`
+  query SearchBookmarksSuggestions($query: String!) {
+    searchBookmarksSuggestions(query: $query) {
+      hits {
+        title
+      }
+    }
+  }
+`;
+
 export const SEARCH_POSTS_QUERY = gql`
   query SearchPosts(
     $loggedIn: Boolean! = false
