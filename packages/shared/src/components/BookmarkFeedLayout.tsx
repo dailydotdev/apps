@@ -61,9 +61,13 @@ export default function BookmarkFeedLayout({
         {!isSearchOn && (
           <>
             <Link href="/bookmarks/search">
-              <Button aria-label="Search bookmarks" icon={<MagnifyingIcon />} />
+              <Button
+                href="/bookmarks/search"
+                aria-label="Search bookmarks"
+                icon={<MagnifyingIcon />}
+              />
             </Link>
-            <div className="mx-4 w-px h-full bg-theme-bg-tertiary">&nbsp;</div>
+            <div className="w-px h-full mx-4 bg-theme-bg-tertiary">&nbsp;</div>
             <span className="font-bold typo-callout">Bookmarks</span>
           </>
         )}
