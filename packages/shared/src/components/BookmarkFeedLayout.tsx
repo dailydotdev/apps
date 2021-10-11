@@ -67,7 +67,7 @@ export default function BookmarkFeedLayout({
                 icon={<MagnifyingIcon />}
               />
             </Link>
-            <div className="w-px h-full mx-4 bg-theme-bg-tertiary">&nbsp;</div>
+            <div className="mx-4 w-px h-full bg-theme-bg-tertiary">&nbsp;</div>
             <span className="font-bold typo-callout">Bookmarks</span>
           </>
         )}
