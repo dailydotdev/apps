@@ -7,15 +7,13 @@ import React, {
 } from 'react';
 import Link from 'next/link';
 import MagnifyingIcon from '../../icons/magnifying.svg';
-import BookmarkIcon from '../../icons/bookmark.svg';
-import sizeN from '../../macros/sizeN.macro';
 import { BOOKMARKS_FEED_QUERY, SEARCH_BOOKMARKS_QUERY } from '../graphql/feed';
-import { headerHeight } from '../styles/sizes';
 import AuthContext from '../contexts/AuthContext';
-import { Button } from './buttons/Button';
 import { CustomFeedHeader, FeedPage } from './utilities';
 import SearchEmptyScreen from './SearchEmptyScreen';
 import Feed, { FeedProps } from './Feed';
+import BookmarkEmptyScreen from './BookmarkEmptyScreen';
+import { Button } from './buttons/Button';
 
 export type BookmarkFeedLayoutProps = {
   isSearchOn: boolean;
@@ -53,33 +51,7 @@ export default function BookmarkFeedLayout({
   }, [isSearchOn && searchQuery]);
 
   if (showEmptyScreen) {
-    return (
-      <main
-        className="flex fixed inset-0 flex-col justify-center items-center px-6 withNavBar text-theme-label-secondary"
-        style={{ marginTop: headerHeight }}
-      >
-        {children}
-        <BookmarkIcon
-          className="m-0 icon text-theme-label-tertiary"
-          style={{ fontSize: sizeN(20) }}
-        />
-        <h1
-          className="my-4 text-center text-theme-label-primary typo-title1"
-          style={{ maxWidth: '32.5rem' }}
-        >
-          Your bookmark list is empty.
-        </h1>
-        <p className="mb-10 text-center" style={{ maxWidth: '32.5rem' }}>
-          Go back to your feed and bookmark posts you’d like to keep or read
-          later. Each post you bookmark will be stored here.
-        </p>
-        <Link href="/" passHref>
-          <Button className="btn-primary" tag="a" buttonSize="large">
-            Back to feed
-          </Button>
-        </Link>
-      </main>
-    );
+    return <BookmarkEmptyScreen />;
   }
 
   return (
@@ -89,14 +61,9 @@ export default function BookmarkFeedLayout({
         {!isSearchOn && (
           <>
             <Link href="/bookmarks/search">
-              <a
-                aria-label="Search bookmarks"
-                className="flex relative flex-row justify-center items-center font-bold no-underline border cursor-pointer select-none shadow-none iconOnly small btn typo-callout focus-outline btn-tertiary"
-              >
-                <MagnifyingIcon />
-              </a>
+              <Button aria-label="Search bookmarks" icon={<MagnifyingIcon />} />
             </Link>
-            <div className="mx-4 w-px h-full bg-theme-bg-tertiary">&nbsp;</div>
+            <div className="w-px h-full mx-4 bg-theme-bg-tertiary">&nbsp;</div>
             <span className="font-bold typo-callout">Bookmarks</span>
           </>
         )}
