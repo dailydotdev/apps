@@ -8,10 +8,10 @@ import UpvoteIcon from '../../../icons/upvote.svg';
 import { getTooltipProps } from '../../lib/tooltip';
 import rem from '../../../macros/rem.macro';
 import InteractionCounter from '../InteractionCounter';
-import { ForwardedQuaternaryButton as QuaternaryButton } from '../buttons/QuaternaryButton';
+import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import CommentIcon from '../../../icons/comment.svg';
 import BookmarkIcon from '../../../icons/bookmark.svg';
-import { ForwardedButton as Button } from '../buttons/Button';
+import { Button } from '../buttons/Button';
 
 const ShareIcon = dynamic(() => import('../../../icons/share.svg'));
 

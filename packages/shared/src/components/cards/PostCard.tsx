@@ -23,7 +23,7 @@ import { SmallRoundedImage } from '../utilities';
 import FeatherIcon from '../../../icons/feather.svg';
 import FlagIcon from '../../../icons/flag.svg';
 import { Comment } from '../../graphql/comments';
-import { ForwardedButton as Button } from '../buttons/Button';
+import { Button } from '../buttons/Button';
 import styles from './Card.module.css';
 import { getTooltipProps } from '../../lib/tooltip';
 import TrendingFlag from './TrendingFlag';

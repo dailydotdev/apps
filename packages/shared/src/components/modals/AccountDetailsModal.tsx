@@ -12,7 +12,7 @@ import {
   requestFeature,
   termsOfService,
 } from '../../lib/constants';
-import { ForwardedButton as Button } from '../buttons/Button';
+import { Button } from '../buttons/Button';
 import { ResponsiveModal } from './ResponsiveModal';
 import { ModalProps } from './StyledModal';
 import { ProfileHeading } from '../utilities';

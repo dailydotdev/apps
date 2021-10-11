@@ -18,7 +18,7 @@ import ActionButtons from './ActionButtons';
 import SourceButton from './SourceButton';
 import styles from './Card.module.css';
 import ListFeaturedComment from './ListFeaturedComment';
-import { ForwardedButton as Button } from '../buttons/Button';
+import { Button } from '../buttons/Button';
 import FlagIcon from '../../../icons/flag.svg';
 import { getTooltipProps } from '../../lib/tooltip';
 import TrendingFlag from './TrendingFlag';

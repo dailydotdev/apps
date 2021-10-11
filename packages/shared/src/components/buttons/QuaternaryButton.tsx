@@ -1,6 +1,6 @@
-import React, { forwardRef, Ref, useRef, useState } from 'react';
+import React, { Ref, useRef, useState } from 'react';
 import classNames from 'classnames';
-import { ForwardedButton, AllowedTags, ButtonProps } from './Button';
+import { Button, AllowedTags, ButtonProps } from './Button';
 
 type QuandaryButtonProps = {
   id: string;
@@ -54,7 +54,7 @@ export const QuaternaryButton: React.ForwardRefRenderFunction<
       )}
       ref={ref}
     >
-      <ForwardedButton
+      <Button
         {...props}
         id={id}
         tag={tag}
@@ -73,5 +73,3 @@ export const QuaternaryButton: React.ForwardRefRenderFunction<
     </div>
   );
 };
-
-export const ForwardedQuaternaryButton = forwardRef(QuaternaryButton);

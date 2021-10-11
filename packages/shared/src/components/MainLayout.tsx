@@ -10,7 +10,7 @@ import Link from 'next/link';
 import { CSSTransition } from 'react-transition-group';
 import classNames from 'classnames';
 import classed from '../lib/classed';
-import { ForwardedButton as Button } from './buttons/Button';
+import { Button } from './buttons/Button';
 import ProgressiveEnhancementContext from '../contexts/ProgressiveEnhancementContext';
 import AuthContext from '../contexts/AuthContext';
 import { getTooltipProps } from '../lib/tooltip';

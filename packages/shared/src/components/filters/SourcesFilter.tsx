@@ -35,7 +35,7 @@ import { Source } from '../../graphql/sources';
 import { getTooltipProps } from '../../lib/tooltip';
 import { LazyImage } from '../LazyImage';
 import { trackEvent } from '../../lib/analytics';
-import { ForwardedButton as Button } from '../buttons/Button';
+import { Button } from '../buttons/Button';
 import PlusIcon from '../../../icons/plus.svg';
 import { LoginModalMode } from '../../types/LoginModalMode';
 import { Summary } from '../utilities';
