@@ -1,6 +1,5 @@
 import React, { FunctionComponent, ReactElement, useContext } from 'react';
 import classNames from 'classnames';
-import dynamic from 'next/dynamic';
 import CopyIcon from '../../icons/copy.svg';
 import WhatsappIcon from '../../icons/whatsapp_color.svg';
 import TwitterIcon from '../../icons/twitter_color.svg';
@@ -13,13 +12,12 @@ import {
   getTwitterShareLink,
   getWhatsappShareLink,
 } from '../lib/share';
-import { ForwardedButton as Button, ButtonProps } from './buttons/Button';
+import { Button, ButtonProps } from './buttons/Button';
+import { getTooltipProps } from '../lib/tooltip';
 import styles from './ShareBar.module.css';
 import classed from '../lib/classed';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
-
-const LazyTooltip = dynamic(() => import('./tooltips/Tooltip'));
 
 const ShareButton = classed(Button, 'my-1');
 const ColorfulShareButton = classed(
@@ -54,51 +52,47 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
             Copied!
           </div>
         )}
-        <LazyTooltip content="Copy link">
-          <ShareButton
-            onClick={copyLink}
-            pressed={copying}
-            icon={<CopyIcon />}
-            buttonSize="small"
-            className="btn-tertiary-avocado"
-          />
-        </LazyTooltip>
-        <LazyTooltip content="Share on WhatsApp">
-          <ColorfulShareButton
-            tag="a"
-            href={getWhatsappShareLink(href)}
-            target="_blank"
-            rel="noopener"
-            onClick={() => onClick('whatsapp')}
-            icon={<WhatsappIcon />}
-            buttonSize="small"
-            className="btn-tertiary"
-          />
-        </LazyTooltip>
-        <LazyTooltip content="Share on Twitter">
-          <ColorfulShareButton
-            tag="a"
-            href={getTwitterShareLink(href, post.title)}
-            target="_blank"
-            rel="noopener"
-            onClick={() => onClick('twitter')}
-            icon={<TwitterIcon />}
-            buttonSize="small"
-            className="btn-tertiary"
-          />
-        </LazyTooltip>
-        <LazyTooltip content="Share on Facebook">
-          <ColorfulShareButton
-            tag="a"
-            href={getFacebookShareLink(href)}
-            target="_blank"
-            rel="noopener"
-            onClick={() => onClick('facebook')}
-            icon={<FacebookIcon />}
-            buttonSize="small"
-            className="btn-tertiary"
-          />
-        </LazyTooltip>
+        <ShareButton
+          onClick={copyLink}
+          pressed={copying}
+          icon={<CopyIcon />}
+          buttonSize="small"
+          className="btn-tertiary-avocado"
+          {...getTooltipProps('Copy link')}
+        />
+        <ColorfulShareButton
+          tag="a"
+          href={getWhatsappShareLink(href)}
+          target="_blank"
+          rel="noopener"
+          onClick={() => onClick('whatsapp')}
+          icon={<WhatsappIcon />}
+          buttonSize="small"
+          className="btn-tertiary"
+          {...getTooltipProps('Share on WhatsApp')}
+        />
+        <ColorfulShareButton
+          tag="a"
+          href={getTwitterShareLink(href, post.title)}
+          target="_blank"
+          rel="noopener"
+          onClick={() => onClick('twitter')}
+          icon={<TwitterIcon />}
+          buttonSize="small"
+          className="btn-tertiary"
+          {...getTooltipProps('Share on Twitter')}
+        />
+        <ColorfulShareButton
+          tag="a"
+          href={getFacebookShareLink(href)}
+          target="_blank"
+          rel="noopener"
+          onClick={() => onClick('facebook')}
+          icon={<FacebookIcon />}
+          buttonSize="small"
+          className="btn-tertiary"
+          {...getTooltipProps('Share on Facebook')}
+        />
       </div>
     </div>
   );

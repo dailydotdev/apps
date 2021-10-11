@@ -1,9 +1,7 @@
 import React, { HTMLAttributes, ReactElement } from 'react';
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
 import classNames from 'classnames';
-
-const LazyTooltip = dynamic(() => import('../tooltips/Tooltip'));
+import { getTooltipProps } from '../../lib/tooltip';
 
 interface User {
   name: string;
@@ -23,25 +21,15 @@ export function ProfileLink({
   className,
   ...props
 }: ProfileLinkProps): ReactElement {
-  const anchor = (
-    <a
-      {...props}
-      href={user.permalink}
-      className={classNames(className, 'flex items-center no-underline')}
-    >
-      {children}
-    </a>
-  );
-
   return (
     <Link href={user.permalink} passHref prefetch={false}>
-      {disableTooltip ? (
-        anchor
-      ) : (
-        <LazyTooltip content={user.name} placement="left">
-          {anchor}
-        </LazyTooltip>
-      )}
+      <a
+        {...(disableTooltip ? {} : getTooltipProps(user.name))}
+        {...props}
+        className={classNames(className, 'flex items-center no-underline')}
+      >
+        {children}
+      </a>
     </Link>
   );
 }

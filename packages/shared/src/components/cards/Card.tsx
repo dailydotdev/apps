@@ -1,14 +1,11 @@
 import React, { ReactNode } from 'react';
 import classNames from 'classnames';
-import dynamic from 'next/dynamic';
 import { LazyImage } from '../LazyImage';
 import { Comment } from '../../graphql/comments';
 import styles from './Card.module.css';
 import classed from '../../lib/classed';
+import { getTooltipProps } from '../../lib/tooltip';
 import { Post } from '../../graphql/posts';
-import { TooltipPosition } from '../tooltips/TooltipContainer';
-
-const LazyTooltip = dynamic(() => import('../tooltips/Tooltip'));
 
 const Title = classed(
   'h3',
@@ -88,31 +85,29 @@ export const featuredCommentsToButtons = (
   onClick: (comment: Comment) => unknown,
   selectedId?: string,
   className = 'mx-1',
-  tooltipPosition: TooltipPosition = 'bottom',
+  tooltipPosition: 'up' | 'down' | 'left' | 'right' = 'down',
 ): ReactNode[] =>
   comments?.map((comment) => (
-    <LazyTooltip
+    <button
+      type="button"
+      {...getTooltipProps(`See ${comment.author.name}'s comment`, {
+        position: tooltipPosition,
+      })}
+      onClick={() => onClick(comment)}
       key={comment.id}
-      placement={tooltipPosition}
-      content={`See ${comment.author.name}'s comment`}
+      className={classNames(
+        'flex p-0 bg-none border-none rounded-full cursor-pointer focus-outline',
+        className,
+      )}
     >
-      <button
-        type="button"
-        onClick={() => onClick(comment)}
+      <img
+        src={comment.author.image}
+        alt={`${comment.author.name}'s profile`}
         className={classNames(
-          'flex p-0 bg-none border-none rounded-full cursor-pointer focus-outline',
-          className,
+          'w-6 h-6 rounded-full',
+          selectedId === comment.id ? 'opacity-100' : 'opacity-64',
         )}
-      >
-        <img
-          src={comment.author.image}
-          alt={`${comment.author.name}'s profile`}
-          className={classNames(
-            'w-6 h-6 rounded-full',
-            selectedId === comment.id ? 'opacity-100' : 'opacity-64',
-          )}
-          style={{ background: 'var(--theme-background-tertiary)' }}
-        />
-      </button>
-    </LazyTooltip>
+        style={{ background: 'var(--theme-background-tertiary)' }}
+      />
+    </button>
   ));

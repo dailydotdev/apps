@@ -27,7 +27,8 @@ import useMutateFilters, {
   getSearchTagsQueryKey,
 } from '../../hooks/useMutateFilters';
 import { trackEvent } from '../../lib/analytics';
-import { ForwardedButton as Button } from '../buttons/Button';
+import { Button } from '../buttons/Button';
+import { getTooltipProps } from '../../lib/tooltip';
 import {
   FiltersContainer,
   FiltersPlaceholder,
@@ -41,8 +42,6 @@ import {
 import { Summary } from '../utilities';
 import XIcon from '../../../icons/x.svg';
 import MenuIcon from '../../../icons/menu.svg';
-
-const LazyTooltip = dynamic(() => import('../tooltips/Tooltip'));
 
 const TagOptionsMenu = dynamic(
   () => import(/* webpackChunkName: "tagOptionsMenu" */ './TagOptionsMenu'),
@@ -68,26 +67,26 @@ const Tag = ({
       passHref
       prefetch={false}
     >
-      <LazyTooltip content={`${tag} feed`}>
-        <Button
-          tag="a"
-          buttonSize="small"
-          pressed={selected}
-          className="btn-tertiaryFloat"
-          {...props}
-        >
-          #{tag}
-        </Button>
-      </LazyTooltip>
-    </Link>
-    <LazyTooltip content={tooltip} placement="left">
       <Button
-        className="btn-tertiary right-4 my-auto"
-        style={{ position: 'absolute' }}
-        onClick={(event) => onClick?.(event, tag)}
-        icon={menu ? <MenuIcon /> : <XIcon />}
-      />
-    </LazyTooltip>
+        tag="a"
+        buttonSize="small"
+        pressed={selected}
+        className="btn-tertiaryFloat"
+        {...getTooltipProps(`${tag} feed`)}
+        {...props}
+      >
+        #{tag}
+      </Button>
+    </Link>
+    <Button
+      className="btn-tertiary right-4 my-auto"
+      style={{ position: 'absolute' }}
+      onClick={(event) => onClick?.(event, tag)}
+      icon={menu ? <MenuIcon /> : <XIcon />}
+      {...getTooltipProps(tooltip, {
+        position: 'left',
+      })}
+    />
   </FilterItem>
 );
 

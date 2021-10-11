@@ -1,12 +1,10 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import classNames from 'classnames';
-import dynamic from 'next/dynamic';
 import sizeN from '../../macros/sizeN.macro';
 import ArrowIcon from '../../icons/arrow.svg';
+import { getTooltipProps } from '../lib/tooltip';
 import FeedFilters from './filters/FeedFilters';
 import OnboardingContext from '../contexts/OnboardingContext';
-
-const LazyTooltip = dynamic(() => import('./tooltips/Tooltip'));
 
 const asideWidth = sizeN(89);
 
@@ -62,44 +60,43 @@ export default function Sidebar(): ReactElement {
       >
         <FeedFilters enableQueries={enableQueries} />
       </aside>
-      <LazyTooltip content="Open sidebar" placement="right">
-        <button
-          type="button"
-          className={classNames(
-            'flex w-12 h-14 items-center pl-3 border-l-0 rounded-r-2xl cursor-pointer focus-outline',
-            hightlightTrigger
-              ? 'bg-theme-label-primary text-theme-bg-primary'
-              : 'bg-theme-bg-primary border hover:text-theme-label-primary',
-            !hightlightTrigger &&
-              (opened
-                ? 'text-theme-label-primary border-theme-divider-primary'
-                : 'text-theme-label-tertiary border-theme-divider-quaternary'),
-          )}
+      <button
+        type="button"
+        className={classNames(
+          'flex w-12 h-14 items-center pl-3 border-l-0 rounded-r-2xl cursor-pointer focus-outline',
+          hightlightTrigger
+            ? 'bg-theme-label-primary text-theme-bg-primary'
+            : 'bg-theme-bg-primary border hover:text-theme-label-primary',
+          !hightlightTrigger &&
+            (opened
+              ? 'text-theme-label-primary border-theme-divider-primary'
+              : 'text-theme-label-tertiary border-theme-divider-quaternary'),
+        )}
+        style={{
+          fontSize: '1.75rem',
+          pointerEvents: 'all',
+          marginTop: '6.375rem',
+        }}
+        {...getTooltipProps('Open sidebar', { position: 'right' })}
+        onClick={toggleSidebar}
+      >
+        <ArrowIcon
           style={{
-            fontSize: '1.75rem',
-            pointerEvents: 'all',
-            marginTop: '6.375rem',
+            transform: opened ? 'rotate(270deg)' : 'rotate(90deg)',
+            transition: 'transform 0.2s linear 0.1s',
           }}
-          onClick={toggleSidebar}
-        >
-          <ArrowIcon
+        />
+        {hightlightTrigger && (
+          <div
+            className="absolute left-0 w-14 rounded-r-3xl -z-1 bg-theme-hover"
             style={{
-              transform: opened ? 'rotate(270deg)' : 'rotate(90deg)',
-              transition: 'transform 0.2s linear 0.1s',
+              top: '-1rem',
+              height: '5.5rem',
+              animation: 'rank-attention 2s infinite ease-in-out',
             }}
           />
-          {hightlightTrigger && (
-            <div
-              className="absolute left-0 w-14 rounded-r-3xl -z-1 bg-theme-hover"
-              style={{
-                top: '-1rem',
-                height: '5.5rem',
-                animation: 'rank-attention 2s infinite ease-in-out',
-              }}
-            />
-          )}
-        </button>
-      </LazyTooltip>
+        )}
+      </button>
     </div>
   );
 }

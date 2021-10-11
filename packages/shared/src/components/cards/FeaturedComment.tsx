@@ -1,6 +1,5 @@
 import React, { ReactElement } from 'react';
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
 import classNames from 'classnames';
 import { Comment } from '../../graphql/comments';
 import {
@@ -10,9 +9,8 @@ import {
 } from './Card';
 import ArrowIcon from '../../../icons/arrow.svg';
 import CommentIcon from '../../../icons/comment.svg';
-import { ForwardedButton as Button } from '../buttons/Button';
-
-const LazyTooltip = dynamic(() => import('../tooltips/Tooltip'));
+import { Button } from '../buttons/Button';
+import { getTooltipProps } from '../../lib/tooltip';
 
 export type FeaturedCommentProps = {
   featuredComments: Comment[];
@@ -34,14 +32,13 @@ export default function FeaturedComment({
       className={classNames('absolute inset-0 p-2', className)}
     >
       <CardHeader>
-        <LazyTooltip content="Back" placement="bottom">
-          <Button
-            icon={<ArrowIcon style={{ transform: 'rotate(-90deg)' }} />}
-            buttonSize="small"
-            onClick={onBack}
-            className="btn-tertiary"
-          />
-        </LazyTooltip>
+        <Button
+          icon={<ArrowIcon style={{ transform: 'rotate(-90deg)' }} />}
+          buttonSize="small"
+          {...getTooltipProps('Back', { position: 'down' })}
+          onClick={onBack}
+          className="btn-tertiary"
+        />
         {featuredCommentsToButtons(
           featuredComments,
           onCommentClick,

@@ -13,6 +13,7 @@ import classed from '../lib/classed';
 import { ForwardedButton as Button } from './buttons/Button';
 import ProgressiveEnhancementContext from '../contexts/ProgressiveEnhancementContext';
 import AuthContext from '../contexts/AuthContext';
+import { getTooltipProps } from '../lib/tooltip';
 import PromotionalBanner from './PromotionalBanner';
 import Logo from '../svg/Logo';
 import LogoText from '../svg/LogoText';
@@ -20,8 +21,6 @@ import BookmarkIcon from '../../icons/bookmark.svg';
 import styles from './MainLayout.module.css';
 import LayoutIcon from '../../icons/layout.svg';
 import ProfileButton from './profile/ProfileButton';
-
-const LazyTooltip = dynamic(() => import('./tooltips/Tooltip'));
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -69,14 +68,13 @@ export default function MainLayout({
     <>
       {additionalButtons}
       {mainPage && (
-        <LazyTooltip content="Settings" placement="bottom">
-          <HeaderButton
-            icon={<LayoutIcon />}
-            className="btn-tertiary"
-            onClick={() => setShowSettings(!showSettings)}
-            pressed={showSettings}
-          />
-        </LazyTooltip>
+        <HeaderButton
+          icon={<LayoutIcon />}
+          {...getTooltipProps('Settings', { position: 'down' })}
+          className="btn-tertiary"
+          onClick={() => setShowSettings(!showSettings)}
+          pressed={showSettings}
+        />
       )}
     </>
   );
@@ -98,28 +96,27 @@ export default function MainLayout({
           passHref
           prefetch={false}
         >
-          <LazyTooltip content="Home" placement="right">
-            <a
-              href={process.env.NEXT_PUBLIC_WEBAPP_URL}
-              className="flex items-center"
-              onClick={onLogoClick}
+          {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
+          <a
+            className="flex items-center"
+            onClick={onLogoClick}
+            {...getTooltipProps('Home', { position: 'right' })}
+          >
+            <Logo className={styles.homeSvg} />
+            <CSSTransition
+              in={!showGreeting}
+              timeout={500}
+              classNames="fade"
+              unmountOnExit
             >
-              <Logo className={styles.homeSvg} />
-              <CSSTransition
-                in={!showGreeting}
-                timeout={500}
-                classNames="fade"
-                unmountOnExit
-              >
-                <LogoText
-                  className={classNames(
-                    styles.homeSvg,
-                    'hidden ml-1 laptop:block',
-                  )}
-                />
-              </CSSTransition>
-            </a>
-          </LazyTooltip>
+              <LogoText
+                className={classNames(
+                  styles.homeSvg,
+                  'hidden ml-1 laptop:block',
+                )}
+              />
+            </CSSTransition>
+          </a>
         </Link>
         {windowLoaded && greeting && (
           <Greeting
@@ -138,26 +135,24 @@ export default function MainLayout({
                   passHref
                   prefetch={false}
                 >
-                  <LazyTooltip content="Bookmarks" placement="bottom">
-                    <HeaderButton
-                      tag="a"
-                      icon={<BookmarkIcon />}
-                      className="btn-tertiary"
-                    />
-                  </LazyTooltip>
+                  <HeaderButton
+                    tag="a"
+                    icon={<BookmarkIcon />}
+                    {...getTooltipProps('Bookmarks', { position: 'down' })}
+                    className="btn-tertiary"
+                  />
                 </Link>
                 {afterBookmarkButtons}
                 <ProfileButton onShowDndClick={onShowDndClick} />
               </>
             ) : (
               <>
-                <LazyTooltip content="Bookmarks" placement="bottom">
-                  <HeaderButton
-                    icon={<BookmarkIcon />}
-                    onClick={() => showLogin('bookmark')}
-                    className="btn-tertiary"
-                  />
-                </LazyTooltip>
+                <HeaderButton
+                  icon={<BookmarkIcon />}
+                  {...getTooltipProps('Bookmarks', { position: 'down' })}
+                  onClick={() => showLogin('bookmark')}
+                  className="btn-tertiary"
+                />
                 {afterBookmarkButtons}
                 <Button
                   onClick={() => showLogin('main button')}
