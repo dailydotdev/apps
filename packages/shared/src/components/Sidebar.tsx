@@ -1,10 +1,11 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import sizeN from '../../macros/sizeN.macro';
-import ArrowIcon from '../../icons/arrow.svg';
+import SettingsIcon from '../../icons/settings.svg';
 import { getTooltipProps } from '../lib/tooltip';
 import FeedFilters from './filters/FeedFilters';
 import OnboardingContext from '../contexts/OnboardingContext';
+import { useRedDot } from '../hooks/useRedDot';
 
 const asideWidth = sizeN(89);
 
@@ -14,6 +15,7 @@ export default function Sidebar(): ReactElement {
   const { onboardingStep, incrementOnboardingStep } =
     useContext(OnboardingContext);
   const hightlightTrigger = onboardingStep === 2;
+  const [showRedDot, hideRedDot] = useRedDot();
 
   useEffect(() => {
     if (opened && !enableQueries) {
@@ -28,6 +30,9 @@ export default function Sidebar(): ReactElement {
       setOpened(false);
     } else {
       setOpened(true);
+      if (showRedDot) {
+        hideRedDot();
+      }
       if (hightlightTrigger) {
         incrementOnboardingStep();
       }
@@ -80,12 +85,12 @@ export default function Sidebar(): ReactElement {
         {...getTooltipProps('Open sidebar', { position: 'right' })}
         onClick={toggleSidebar}
       >
-        <ArrowIcon
-          style={{
-            transform: opened ? 'rotate(270deg)' : 'rotate(90deg)',
-            transition: 'transform 0.2s linear 0.1s',
-          }}
-        />
+        <div className="relative">
+          <SettingsIcon />
+          {showRedDot && (
+            <div className="absolute top-0.5 right-0.5 w-2.5 h-2.5 bg-ketchup-40 rounded-full" />
+          )}
+        </div>
         {hightlightTrigger && (
           <div
             className="absolute left-0 -z-1 w-14 bg-theme-hover rounded-r-3xl"
