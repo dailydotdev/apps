@@ -35,6 +35,7 @@ import {
   SEARCH_POSTS_QUERY,
 } from '../graphql/feed';
 import usePersistentState from '../hooks/usePersistentState';
+import FeaturesContext from '../contexts/FeaturesContext';
 
 const SearchEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "emptySearch" */ './SearchEmptyScreen'),
@@ -80,7 +81,6 @@ const propsByFeed: Record<string, FeedQueryProps> = {
   popular: {
     query: ANONYMOUS_FEED_QUERY,
     queryIfLogged: FEED_QUERY,
-    variables: { version: 2 },
   },
   upvoted: {
     query: MOST_UPVOTED_FEED_QUERY,
@@ -166,6 +166,8 @@ export default function MainFeedLayout({
   const queryClient = useQueryClient();
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { onboardingStep, onboardingReady } = useContext(OnboardingContext);
+  const { flags } = useContext(FeaturesContext);
+  const feedVersion = parseInt(flags?.feed_version?.value, 10) || 1;
   const [defaultFeed, setDefaultFeed] = usePersistentState(
     'defaultFeed',
     null,
@@ -185,7 +187,10 @@ export default function MainFeedLayout({
         propsByFeed[feedName].query,
         propsByFeed[feedName].queryIfLogged,
       ),
-      variables: propsByFeed[feedName].variables,
+      variables: {
+        ...propsByFeed[feedName].variables,
+        version: feedVersion,
+      },
     };
   } else {
     query = { query: null };
