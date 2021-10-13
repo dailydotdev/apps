@@ -19,18 +19,22 @@ export default function usePersistentState<T>(
   };
 
   useEffect(() => {
-    getCache<T>(key).then(async (cachedValue) => {
-      if (cachedValue !== undefined) {
-        setValue(cachedValue);
-      } else if (valueWhenCacheEmpty !== undefined) {
-        if (persistIfEmpty) {
-          await setValueAndPersist(valueWhenCacheEmpty);
-        } else {
-          setValue(valueWhenCacheEmpty);
+    getCache<T>(key)
+      .then(async (cachedValue) => {
+        if (cachedValue !== undefined) {
+          setValue(cachedValue);
+        } else if (valueWhenCacheEmpty !== undefined) {
+          if (persistIfEmpty) {
+            await setValueAndPersist(valueWhenCacheEmpty);
+          } else {
+            setValue(valueWhenCacheEmpty);
+          }
         }
-      }
-      setLoaded(true);
-    });
+        setLoaded(true);
+      })
+      .catch(() => {
+        setLoaded(true);
+      });
   }, []);
 
   return [value, setValueAndPersist, loaded];
