@@ -6,6 +6,12 @@ import { SummaryArrow } from '../utilities';
 import styles from './common.module.css';
 
 export const FiltersContainer = classed('div', 'flex flex-col w-full pb-4');
+export interface MenuItem {
+  icon?: string;
+  title: string;
+  action?: () => unknown;
+  component?: () => unknown;
+}
 
 const Placeholder = (
   <div className="flex justify-between pr-4 pl-6">

@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { Flipper, Flipped } from 'react-flip-toolkit';
 import HomeIcon from '@dailydotdev/shared/icons/home.svg';
 import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
-import FilterIcon from '@dailydotdev/shared/icons/filter.svg';
+import SettingsIcon from '@dailydotdev/shared/icons/settings.svg';
 import LayoutIcon from '@dailydotdev/shared/icons/layout.svg';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useRouter } from 'next/router';
@@ -42,7 +42,7 @@ export const tabs: Tab[] = [
   {
     path: '/filters',
     title: 'Filters',
-    icon: <FilterIcon />,
+    icon: <SettingsIcon />,
   },
   {
     path: '/settings',
