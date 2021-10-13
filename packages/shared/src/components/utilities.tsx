@@ -45,7 +45,7 @@ export const ActiveTabIndicator = classed(
 
 export const CustomFeedHeader = classed(
   'div',
-  'flex h-9 self-stretch items-center mb-3 text-theme-label-secondary typo-callout',
+  'flex h-11 self-stretch items-center mb-6 text-theme-label-secondary typo-callout',
 );
 
 export const customFeedIcon = 'text-2xl text-theme-label-tertiary mr-2';
