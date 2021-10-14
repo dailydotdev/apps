@@ -1,5 +1,4 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
 import classNames from 'classnames';
 import sizeN from '../../macros/sizeN.macro';
 import SettingsIcon from '../../icons/settings.svg';
@@ -7,12 +6,10 @@ import { getTooltipProps } from '../lib/tooltip';
 import FeedFilters from './filters/FeedFilters';
 import OnboardingContext from '../contexts/OnboardingContext';
 import { useRedDot } from '../hooks/useRedDot';
+import RedDot from './RedDot';
 
 const asideWidth = sizeN(89);
 const SIDEBAR_RED_DOT_STATE = 'sidebar_red_dot';
-const RedDot = dynamic(
-  () => import(/* webpackChunkName: "redDot" */ './RedDot'),
-);
 
 export default function Sidebar(): ReactElement {
   const [opened, setOpened] = useState(false);
@@ -20,7 +17,10 @@ export default function Sidebar(): ReactElement {
   const { onboardingStep, incrementOnboardingStep } =
     useContext(OnboardingContext);
   const hightlightTrigger = onboardingStep === 2;
-  const [showRedDot, hideRedDot] = useRedDot(SIDEBAR_RED_DOT_STATE);
+  const [shouldShowRedDot, setShouldShowRedDot] = useRedDot(
+    SIDEBAR_RED_DOT_STATE,
+    true,
+  );
 
   useEffect(() => {
     if (opened && !enableQueries) {
@@ -35,8 +35,8 @@ export default function Sidebar(): ReactElement {
       setOpened(false);
     } else {
       setOpened(true);
-      if (showRedDot) {
-        hideRedDot();
+      if (shouldShowRedDot) {
+        setShouldShowRedDot(false);
       }
       if (hightlightTrigger) {
         incrementOnboardingStep();
@@ -92,7 +92,7 @@ export default function Sidebar(): ReactElement {
       >
         <div className="relative">
           <SettingsIcon />
-          {showRedDot && <RedDot />}
+          {shouldShowRedDot && <RedDot />}
         </div>
         {hightlightTrigger && (
           <div

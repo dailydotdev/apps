@@ -1,11 +1,14 @@
 import usePersistentState from './usePersistentState';
 
-export function useRedDot(key: string): [boolean, () => void] {
-  const [showRedDot, setShowRedDot] = usePersistentState(key, null, true);
+export function useRedDot(
+  key: string,
+  emptyValue?: boolean | string | null,
+): [boolean | string | null, (value) => Promise<void>] {
+  const [shouldShowRedDot, setShouldShowRedDot] = usePersistentState(
+    key,
+    null,
+    emptyValue,
+  );
 
-  const hideRedDot = (): void => {
-    setShowRedDot(false);
-  };
-
-  return [showRedDot, hideRedDot];
+  return [shouldShowRedDot, setShouldShowRedDot];
 }
