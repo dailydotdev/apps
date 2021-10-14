@@ -1,4 +1,5 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import classNames from 'classnames';
 import sizeN from '../../macros/sizeN.macro';
 import SettingsIcon from '../../icons/settings.svg';
@@ -8,6 +9,10 @@ import OnboardingContext from '../contexts/OnboardingContext';
 import { useRedDot } from '../hooks/useRedDot';
 
 const asideWidth = sizeN(89);
+const SIDEBAR_RED_DOT_STATE = 'sidebar_red_dot';
+const RedDot = dynamic(
+  () => import(/* webpackChunkName: "redDot" */ './RedDot'),
+);
 
 export default function Sidebar(): ReactElement {
   const [opened, setOpened] = useState(false);
@@ -15,7 +20,7 @@ export default function Sidebar(): ReactElement {
   const { onboardingStep, incrementOnboardingStep } =
     useContext(OnboardingContext);
   const hightlightTrigger = onboardingStep === 2;
-  const [showRedDot, hideRedDot] = useRedDot();
+  const [showRedDot, hideRedDot] = useRedDot(SIDEBAR_RED_DOT_STATE);
 
   useEffect(() => {
     if (opened && !enableQueries) {
@@ -87,9 +92,7 @@ export default function Sidebar(): ReactElement {
       >
         <div className="relative">
           <SettingsIcon />
-          {showRedDot && (
-            <div className="absolute top-0.5 right-0.5 w-2.5 h-2.5 bg-ketchup-40 rounded-full" />
-          )}
+          {showRedDot && <RedDot />}
         </div>
         {hightlightTrigger && (
           <div

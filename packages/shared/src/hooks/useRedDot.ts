@@ -1,20 +1,10 @@
-import { useState, useEffect } from 'react';
+import usePersistentState from './usePersistentState';
 
-const RED_DOT_STATE = 'red_dot';
-
-export function useRedDot(): [boolean, () => void] {
-  const [showRedDot, setShowRedDot] = useState(false);
-
-  useEffect(() => {
-    const redDotValue = localStorage.getItem(RED_DOT_STATE);
-    if (!redDotValue) {
-      setShowRedDot(true);
-    }
-  }, []);
+export function useRedDot(key: string): [boolean, () => void] {
+  const [showRedDot, setShowRedDot] = usePersistentState(key, null, true);
 
   const hideRedDot = (): void => {
     setShowRedDot(false);
-    localStorage.setItem(RED_DOT_STATE, '1');
   };
 
   return [showRedDot, hideRedDot];
