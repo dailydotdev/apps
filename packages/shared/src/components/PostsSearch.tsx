@@ -115,6 +115,7 @@ export default function PostsSearch({
       <SearchField
         className="absolute top-0 right-0 left-0 w-full compact"
         inputId="posts-search"
+        compact
         ref={searchBoxRef}
         value={initialQuery}
         valueChanged={onValueChanged}
