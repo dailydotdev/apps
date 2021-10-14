@@ -29,8 +29,10 @@ export const FeaturesContextProvider = ({
   const [features, setFeatures] = useState<{ flags: IFlags }>();
 
   useEffect(() => {
-    if (storageWrapper.getItem(FEATURES_STATE_KEY)) {
-      setFeatures(JSON.parse(storageWrapper.getItem(FEATURES_STATE_KEY)));
+    const storedFeatures = storageWrapper.getItem(FEATURES_STATE_KEY);
+    if (storedFeatures) {
+      const storedFeaturesFlag: { flags: IFlags } = JSON.parse(storedFeatures);
+      setFeatures(storedFeaturesFlag);
     }
   }, []);
 

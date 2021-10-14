@@ -33,7 +33,9 @@ export default function usePersistentState<T>(
         setLoaded(true);
       })
       .catch(() => {
-        setValue(valueWhenCacheEmpty);
+        if (valueWhenCacheEmpty !== undefined) {
+          setValue(valueWhenCacheEmpty);
+        }
         setLoaded(true);
       });
   }, []);

@@ -1,4 +1,4 @@
-export default function Storage(): void {
+export default function Storage(): Partial<Storage> {
   const inMemoryStorage: { [key: string]: string } = {};
 
   function isLocalStorageEnabled() {
@@ -9,15 +9,19 @@ export default function Storage(): void {
     }
   }
 
-  function getItem(key: string) {
+  function getItem(key: string): string | null {
     if (isLocalStorageEnabled()) {
       return localStorage.getItem(key);
     }
     return inMemoryStorage[key];
   }
 
-  function setItem(key: string, value: string) {
-    return localStorage.setItem(key, value);
+  function setItem(key: string, value: string): void {
+    if (isLocalStorageEnabled()) {
+      localStorage.setItem(key, value);
+    } else {
+      inMemoryStorage[key] = value;
+    }
   }
 
   return {
