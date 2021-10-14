@@ -33,6 +33,7 @@ export default function usePersistentState<T>(
         setLoaded(true);
       })
       .catch(() => {
+        setValue(valueWhenCacheEmpty);
         setLoaded(true);
       });
   }, []);
