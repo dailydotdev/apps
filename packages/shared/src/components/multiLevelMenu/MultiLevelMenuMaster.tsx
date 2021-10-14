@@ -1,14 +1,13 @@
 import React, { ReactElement } from 'react';
-import UserIcon from '../../../icons/user.svg';
 import ArrowIcon from '../../../icons/arrow.svg';
 import { MenuItem } from '../filters/common';
 
-export default function DrawerMaster({
+export default function MultiLevelMenuMaster({
   menuItems,
-  setDrawerDetail,
+  setMultiLevelMenuDetail,
 }: {
   menuItems: MenuItem[];
-  setDrawerDetail: (item, component) => unknown;
+  setMultiLevelMenuDetail: (item, component) => unknown;
 }): ReactElement {
   return (
     <ul className="mt-6">
@@ -21,12 +20,11 @@ export default function DrawerMaster({
             type="button"
             className="flex items-center w-full"
             onClick={
-              item.action
-                ? item.action
-                : () => setDrawerDetail(item, item.component)
+              item.action ||
+              (() => setMultiLevelMenuDetail(item, item.component))
             }
           >
-            <UserIcon className="mr-2 text-xl" />
+            {item.icon}
             <a className="flex-1 text-left typo-headline">{item.title}</a>
             <ArrowIcon className="text-xl transform rotate-90" />
           </button>

@@ -3,21 +3,21 @@ import { Button } from '../buttons/Button';
 import ArrowIcon from '../../../icons/arrow.svg';
 import { MenuItem } from '../filters/common';
 
-export default function DrawerDetail({
+export default function MultiLevelMenuDetail({
   children,
   item,
-  setDrawerDetail,
+  setMultiLevelMenuDetail,
 }: {
   children?: ReactNode;
   item: MenuItem;
-  setDrawerDetail: (item, component) => unknown;
+  setMultiLevelMenuDetail: (item, component) => unknown;
 }): ReactElement {
   return (
     <>
       <div className="py-1 px-4 mt-6 mb-6 border-t border-b border-theme-divider-tertiary">
         <Button
-          className="p-0"
-          onClick={() => setDrawerDetail(null, null)}
+          className="p-0 btn-quaternary"
+          onClick={() => setMultiLevelMenuDetail(null, null)}
           icon={<ArrowIcon className="mr-2 text-2xl transform -rotate-90" />}
         >
           {item?.title}

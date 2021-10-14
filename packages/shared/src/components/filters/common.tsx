@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 import classed from '../../lib/classed';
 import sizeN from '../../../macros/sizeN.macro';
 import { ElementPlaceholder } from '../ElementPlaceholder';
@@ -7,7 +7,7 @@ import styles from './common.module.css';
 
 export const FiltersContainer = classed('div', 'flex flex-col w-full pb-4');
 export interface MenuItem {
-  icon?: string;
+  icon?: ReactNode;
   title: string;
   action?: () => unknown;
   component?: () => unknown;
