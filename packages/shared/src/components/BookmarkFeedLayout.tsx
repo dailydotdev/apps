@@ -39,13 +39,11 @@ export default function BookmarkFeedLayout({
         query: SEARCH_BOOKMARKS_QUERY,
         variables: { query: searchQuery },
         emptyScreen: <SearchEmptyScreen />,
-        className: 'my-3',
       };
     }
     return {
       feedQueryKey: ['bookmarks', user?.id ?? 'anonymous'],
       query: BOOKMARKS_FEED_QUERY,
-      className: 'my-3',
       onEmptyFeed: () => setShowEmptyScreen(true),
     };
   }, [isSearchOn && searchQuery, user]);
@@ -57,7 +55,7 @@ export default function BookmarkFeedLayout({
   return (
     <FeedPage>
       {children}
-      <CustomFeedHeader className="relative">
+      <CustomFeedHeader className="relative mb-6">
         {!isSearchOn && (
           <>
             <Link href="/bookmarks/search">
