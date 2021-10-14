@@ -56,6 +56,7 @@ services:
       - PORT=4000
       - API_URL=http://daily-api:5000
       - API_SECRET=topsecret
+      - REDIS_HOST=daily-redis
 
   daily-api:
     image: gcr.io/daily-ops/daily-api

@@ -66,8 +66,14 @@ export const ANONYMOUS_FEED_QUERY = gql`
     $first: Int
     $after: String
     $ranking: Ranking
+    $version: Int
   ) {
-    page: anonymousFeed(first: $first, after: $after, ranking: $ranking) {
+    page: anonymousFeed(
+      first: $first
+      after: $after
+      ranking: $ranking
+      version: $version
+    ) {
       ...FeedPostConnection
     }
   }
@@ -81,12 +87,14 @@ export const FEED_QUERY = gql`
     $after: String
     $ranking: Ranking
     $unreadOnly: Boolean
+    $version: Int
   ) {
     page: feed(
       first: $first
       after: $after
       ranking: $ranking
       unreadOnly: $unreadOnly
+      version: $version
     ) {
       ...FeedPostConnection
     }
