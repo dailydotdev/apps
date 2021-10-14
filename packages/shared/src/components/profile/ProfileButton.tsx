@@ -1,15 +1,11 @@
 import React, { ReactElement, useContext } from 'react';
-import dynamic from 'next/dynamic';
 import { LazyImage } from '../LazyImage';
 import AuthContext from '../../contexts/AuthContext';
 import { getTooltipProps } from '../../lib/tooltip';
 import useProfileMenu from '../../hooks/useProfileMenu';
+import ProfileMenu from '../ProfileMenu';
 
 const profileContextMenuWidth = 10;
-
-const ProfileMenu = dynamic(
-  () => import(/* webpackChunkName: "profileMenu" */ '../ProfileMenu'),
-);
 
 export interface ProfileButtonProps {
   onShowDndClick?: () => unknown;
