@@ -14,7 +14,7 @@ export default function DrawerDetail({
 }): ReactElement {
   return (
     <>
-      <div className="px-4 py-1 mt-6 mb-6 border-t border-b border-theme-divider-tertiary">
+      <div className="py-1 px-4 mt-6 mb-6 border-t border-b border-theme-divider-tertiary">
         <Button
           className="p-0"
           onClick={() => setDrawerDetail(null, null)}
