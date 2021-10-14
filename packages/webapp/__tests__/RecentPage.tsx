@@ -117,6 +117,7 @@ it('should request user feed', async () => {
       loggedIn: true,
       ranking: 'TIME',
       unreadOnly: false,
+      version: 1,
     }),
   ]);
   await waitFor(async () => {
@@ -133,6 +134,7 @@ it('should request anonymous feed', async () => {
         loggedIn: false,
         ranking: 'TIME',
         unreadOnly: false,
+        version: 1,
       }),
     ],
     null,
