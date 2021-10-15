@@ -5,11 +5,10 @@ import SettingsIcon from '../../icons/settings.svg';
 import { getTooltipProps } from '../lib/tooltip';
 import FeedFilters from './filters/FeedFilters';
 import OnboardingContext from '../contexts/OnboardingContext';
-import { useRedDot } from '../hooks/useRedDot';
 import RedDot from './RedDot';
+import AlertContext from '../contexts/AlertContext';
 
 const asideWidth = sizeN(89);
-const SIDEBAR_RED_DOT_STATE = 'sidebar_red_dot';
 
 export default function Sidebar(): ReactElement {
   const [opened, setOpened] = useState(false);
@@ -17,10 +16,9 @@ export default function Sidebar(): ReactElement {
   const { onboardingStep, incrementOnboardingStep } =
     useContext(OnboardingContext);
   const hightlightTrigger = onboardingStep === 2;
-  const [shouldShowRedDot, setShouldShowRedDot] = useRedDot(
-    SIDEBAR_RED_DOT_STATE,
-    true,
-  );
+
+  const { alerts, setAlerts } = useContext(AlertContext);
+  const { filter: shouldShowFilterRedDot } = alerts;
 
   useEffect(() => {
     if (opened && !enableQueries) {
@@ -35,8 +33,8 @@ export default function Sidebar(): ReactElement {
       setOpened(false);
     } else {
       setOpened(true);
-      if (shouldShowRedDot) {
-        setShouldShowRedDot(false);
+      if (shouldShowFilterRedDot) {
+        setAlerts({ ...alerts, ...{ filter: false } });
       }
       if (hightlightTrigger) {
         incrementOnboardingStep();
@@ -92,7 +90,7 @@ export default function Sidebar(): ReactElement {
       >
         <div className="relative">
           <SettingsIcon />
-          {shouldShowRedDot && <RedDot />}
+          {shouldShowFilterRedDot && <RedDot />}
         </div>
         {hightlightTrigger && (
           <div
