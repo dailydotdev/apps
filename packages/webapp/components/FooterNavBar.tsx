@@ -19,7 +19,11 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 import classNames from 'classnames';
+import { useRedDot } from '@dailydotdev/shared/src/hooks/useRedDot';
+import RedDot from '@dailydotdev/shared/src/components/RedDot';
 import styles from './FooterNavBar.module.css';
+
+const SIDEBAR_RED_DOT_STATE = 'sidebar_red_dot';
 
 type Tab = {
   path: string;
@@ -27,6 +31,18 @@ type Tab = {
   icon: ReactNode;
   requiresLogin?: boolean;
 };
+
+export function SettingsTab(): ReactElement {
+  const [shouldShowRedDot] = useRedDot(SIDEBAR_RED_DOT_STATE, true);
+
+  return (
+    <div className="relative">
+      <SettingsIcon />
+      {shouldShowRedDot && <RedDot />}
+    </div>
+  );
+}
+
 export const tabs: Tab[] = [
   {
     path: '/',
@@ -42,7 +58,7 @@ export const tabs: Tab[] = [
   {
     path: '/filters',
     title: 'Filters',
-    icon: <SettingsIcon />,
+    icon: <SettingsTab />,
   },
   {
     path: '/settings',
