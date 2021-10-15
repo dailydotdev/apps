@@ -2,7 +2,10 @@ import React, { ReactElement, useState } from 'react';
 import dynamic from 'next/dynamic';
 import MultiLevelMenu from '../multiLevelMenu/MultiLevelMenu';
 import { MenuItem } from './common';
-import UserIcon from '../../../icons/user.svg';
+import HashtagIcon from '../../../icons/hashtag.svg';
+import FilterIcon from '../../../icons/filter.svg';
+import BlockIcon from '../../../icons/block.svg';
+import PlusIcon from '../../../icons/plus.svg';
 
 const NewSourceModal = dynamic(() => import('../modals/NewSourceModal'));
 
@@ -10,22 +13,22 @@ export default function FilterMenu(): ReactElement {
   const [showNewSourceModal, setShowNewSourceModal] = useState(false);
   const menuItems: MenuItem[] = [
     {
-      icon: <UserIcon className="mr-2 text-xl" />,
+      icon: <HashtagIcon className="mr-2 text-xl" />,
       title: 'Manage tags',
       component: () => dynamic(() => import('./Test')),
     },
     {
-      icon: <UserIcon className="mr-2 text-xl" />,
+      icon: <FilterIcon className="mr-2 text-xl" />,
       title: 'Advanced',
       component: () => dynamic(() => import('./Test')),
     },
     {
-      icon: <UserIcon className="mr-2 text-xl" />,
+      icon: <BlockIcon className="mr-2 text-xl" />,
       title: 'Blocked',
       component: () => dynamic(() => import('./Test')),
     },
     {
-      icon: <UserIcon className="mr-2 text-xl" />,
+      icon: <PlusIcon className="mr-2 text-xl" />,
       title: 'Suggest new source',
       action: () => setShowNewSourceModal(true),
     },

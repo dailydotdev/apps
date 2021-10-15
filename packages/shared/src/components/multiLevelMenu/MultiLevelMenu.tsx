@@ -22,7 +22,7 @@ export default function MultiLevelMenu({
   };
 
   return (
-    <div>
+    <>
       {!MultiLevelMenuDetailComponent && (
         <MultiLevelMenuMaster
           menuItems={menuItems}
@@ -38,6 +38,6 @@ export default function MultiLevelMenu({
           <MultiLevelMenuDetailComponent />
         </MultiLevelMenuDetail>
       )}
-    </div>
+    </>
   );
 }
