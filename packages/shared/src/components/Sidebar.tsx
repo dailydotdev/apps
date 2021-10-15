@@ -1,24 +1,34 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import classNames from 'classnames';
 import sizeN from '../../macros/sizeN.macro';
-import ArrowIcon from '../../icons/arrow.svg';
+import SettingsIcon from '../../icons/settings.svg';
 import { getTooltipProps } from '../lib/tooltip';
 import OnboardingContext from '../contexts/OnboardingContext';
 import FilterMenu from './filters/FilterMenu';
+import { useRedDot } from '../hooks/useRedDot';
+import RedDot from './RedDot';
 
 const asideWidth = sizeN(89);
+const SIDEBAR_RED_DOT_STATE = 'sidebar_red_dot';
 
 export default function Sidebar(): ReactElement {
   const [opened, setOpened] = useState(false);
   const { onboardingStep, incrementOnboardingStep } =
     useContext(OnboardingContext);
   const hightlightTrigger = onboardingStep === 2;
+  const [shouldShowRedDot, setShouldShowRedDot] = useRedDot(
+    SIDEBAR_RED_DOT_STATE,
+    true,
+  );
 
   const toggleSidebar = () => {
     if (opened) {
       setOpened(false);
     } else {
       setOpened(true);
+      if (shouldShowRedDot) {
+        setShouldShowRedDot(false);
+      }
       if (hightlightTrigger) {
         incrementOnboardingStep();
       }
@@ -72,12 +82,10 @@ export default function Sidebar(): ReactElement {
           {...getTooltipProps('Open sidebar', { position: 'right' })}
           onClick={toggleSidebar}
         >
-          <ArrowIcon
-            style={{
-              transform: opened ? 'rotate(270deg)' : 'rotate(90deg)',
-              transition: 'transform 0.2s linear 0.1s',
-            }}
-          />
+          <div className="relative">
+            <SettingsIcon />
+            {shouldShowRedDot && <RedDot />}
+          </div>
           {hightlightTrigger && (
             <div
               className="absolute left-0 -z-1 w-14 bg-theme-hover rounded-r-3xl"
