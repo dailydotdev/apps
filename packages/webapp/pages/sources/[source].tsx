@@ -132,7 +132,6 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
         ]}
         query={SOURCE_FEED_QUERY}
         variables={queryVariables}
-        className="my-3"
       />
     </FeedPage>
   );
