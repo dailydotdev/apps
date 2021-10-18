@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import OnboardingContext from '../contexts/OnboardingContext';
 import AuthContext from '../contexts/AuthContext';
 import Sidebar from './Sidebar';
+import AlertContext from '../contexts/AlertContext';
 
 const incrementOnboardingStep = jest.fn();
 
@@ -15,30 +16,40 @@ const renderComponent = (onboardingStep = -1): RenderResult => {
   const client = new QueryClient();
   return render(
     <QueryClientProvider client={client}>
-      <AuthContext.Provider
+      <AlertContext.Provider
         value={{
-          user: null,
-          shouldShowLogin: false,
-          showLogin: jest.fn(),
-          logout: jest.fn(),
-          updateUser: jest.fn(),
-          tokenRefreshed: true,
-          getRedirectUri: jest.fn(),
+          alerts: {
+            filter: true,
+          },
+          setAlerts: jest.fn(),
         }}
       >
-        <OnboardingContext.Provider
+        <AuthContext.Provider
           value={{
-            onboardingStep,
-            onboardingReady: true,
-            incrementOnboardingStep,
-            trackEngagement: jest.fn(),
-            closeReferral: jest.fn(),
-            showReferral: false,
+            user: null,
+            shouldShowLogin: false,
+            showLogin: jest.fn(),
+            logout: jest.fn(),
+            updateUser: jest.fn(),
+            tokenRefreshed: true,
+            getRedirectUri: jest.fn(),
           }}
         >
-          <Sidebar />
-        </OnboardingContext.Provider>
-      </AuthContext.Provider>
+          <OnboardingContext.Provider
+            value={{
+              onboardingStep,
+              onboardingReady: true,
+              incrementOnboardingStep,
+              trackEngagement: jest.fn(),
+              closeReferral: jest.fn(),
+              showReferral: false,
+            }}
+          >
+            <Sidebar />
+          </OnboardingContext.Provider>
+        </AuthContext.Provider>
+      </AlertContext.Provider>
+      ,
     </QueryClientProvider>,
   );
 };
