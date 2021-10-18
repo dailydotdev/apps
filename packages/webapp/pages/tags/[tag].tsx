@@ -174,7 +174,6 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
         ]}
         query={TAG_FEED_QUERY}
         variables={queryVariables}
-        className="my-3"
       />
     </FeedPage>
   );
