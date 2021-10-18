@@ -1,17 +1,17 @@
-import React, { ReactElement } from 'react';
-import { useRedDot } from '../../hooks/useRedDot';
+import React, { ReactElement, useContext } from 'react';
 import SettingsIcon from '../../../icons/settings.svg';
 import RedDot from '../RedDot';
-
-const FILTER_RED_DOT_STATE = 'filter_red_dot';
+import AlertContext from '../../contexts/AlertContext';
 
 export default function FilterRedDot(): ReactElement {
-  const [shouldShowRedDot] = useRedDot(FILTER_RED_DOT_STATE, true);
+  const {
+    alerts: { filter: shouldShowFilterRedDot },
+  } = useContext(AlertContext);
 
   return (
     <div className="relative">
       <SettingsIcon />
-      {shouldShowRedDot && <RedDot />}
+      {shouldShowFilterRedDot && <RedDot />}
     </div>
   );
 }
