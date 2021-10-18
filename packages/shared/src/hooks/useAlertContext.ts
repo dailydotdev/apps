@@ -1,7 +1,7 @@
 import { useMemo, useEffect } from 'react';
 import usePersistentState from './usePersistentState';
 import {
-  AlertDefaults,
+  ALERT_DEFAULTS,
   AlertContextData,
   Alerts,
 } from '../contexts/AlertContext';
@@ -9,7 +9,7 @@ import {
 export default function useAlertContext(
   fetchedAlerts: Alerts | undefined,
 ): AlertContextData {
-  const [alerts, setAlerts] = usePersistentState('alert', null, AlertDefaults);
+  const [alerts, setAlerts] = usePersistentState('alert', null, ALERT_DEFAULTS);
 
   useEffect(() => {
     if (fetchedAlerts) {

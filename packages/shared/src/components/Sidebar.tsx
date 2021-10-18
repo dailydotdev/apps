@@ -17,7 +17,7 @@ export default function Sidebar(): ReactElement {
     useContext(OnboardingContext);
   const hightlightTrigger = onboardingStep === 2;
 
-  const { alerts, setAlerts } = useContext(AlertContext);
+  const { alerts } = useContext(AlertContext);
   const { filter: shouldShowFilterRedDot } = alerts;
 
   useEffect(() => {
@@ -33,9 +33,6 @@ export default function Sidebar(): ReactElement {
       setOpened(false);
     } else {
       setOpened(true);
-      if (shouldShowFilterRedDot) {
-        setAlerts({ ...alerts, ...{ filter: false } });
-      }
       if (hightlightTrigger) {
         incrementOnboardingStep();
       }
