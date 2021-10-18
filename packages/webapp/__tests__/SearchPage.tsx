@@ -21,6 +21,7 @@ import ad from './fixture/ad';
 import defaultUser from './fixture/loggedUser';
 import defaultFeedPage from './fixture/feed';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
+import { waitForNock } from './helpers/utilities';
 
 const showLogin = jest.fn();
 const routerReplace = jest.fn();
@@ -122,8 +123,10 @@ it('should request user feed when query is empty and logged in', async () => {
       first: 7,
       loggedIn: true,
       unreadOnly: false,
+      version: 1,
     }),
   ]);
+  await waitForNock();
   await waitFor(async () => {
     const elements = await screen.findAllByTestId('postItem');
     expect(elements.length).toBeTruthy();
@@ -137,10 +140,12 @@ it('should request anonymous feed when query is empty and not logged in', async 
         first: 7,
         loggedIn: false,
         unreadOnly: false,
+        version: 1,
       }),
     ],
     null,
   );
+  await waitForNock();
   await waitFor(async () => {
     const elements = await screen.findAllByTestId('postItem');
     expect(elements.length).toBeTruthy();

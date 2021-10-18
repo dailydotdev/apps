@@ -117,6 +117,7 @@ it('should request user feed', async () => {
       first: 7,
       loggedIn: true,
       unreadOnly: false,
+      version: 1,
     }),
   ]);
   await waitFor(async () => {
@@ -132,6 +133,7 @@ it('should request anonymous feed', async () => {
         first: 7,
         loggedIn: false,
         unreadOnly: false,
+        version: 1,
       }),
     ],
     null,

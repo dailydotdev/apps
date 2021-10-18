@@ -20,6 +20,7 @@ import ProgressiveEnhancementContext from './ProgressiveEnhancementContext';
 import AuthContext from './AuthContext';
 import usePersistentState from '../hooks/usePersistentState';
 import { apiUrl } from '../lib/config';
+import { storageWrapper } from '../lib/storageWrapper';
 
 export type SettingsContextData = {
   spaciness: Spaciness;
@@ -117,7 +118,7 @@ export const SettingsContextProvider = ({
       }
       applyTheme(theme);
       setCurrentTheme(theme);
-      localStorage.setItem(themeModeStorageKey, theme);
+      storageWrapper.setItem(themeModeStorageKey, theme);
       const cloneSettings = { ...remoteSettings.userSettings };
       delete cloneSettings.theme;
       setCachedSettings(cloneSettings);
@@ -125,12 +126,12 @@ export const SettingsContextProvider = ({
   }, [remoteSettings]);
 
   useEffect(() => {
-    const themeModeCookieValue = localStorage.getItem(themeModeStorageKey);
+    const themeModeCookieValue = storageWrapper.getItem(themeModeStorageKey);
     if (themeModeCookieValue) {
       setCurrentTheme(themeModeCookieValue);
       applyTheme(themeModeCookieValue);
     } else {
-      const lightModeCookieValue = localStorage.getItem(
+      const lightModeCookieValue = storageWrapper.getItem(
         deprecatedLightModeStorageKey,
       );
       if (lightModeCookieValue === 'true') {
@@ -172,7 +173,7 @@ export const SettingsContextProvider = ({
         applyTheme(theme);
         setCurrentTheme(theme);
         await updateRemoteSettingsFn(settings, theme);
-        localStorage.setItem(themeModeStorageKey, theme);
+        storageWrapper.setItem(themeModeStorageKey, theme);
       },
       toggleShowOnlyUnreadPosts: () =>
         setSettings({

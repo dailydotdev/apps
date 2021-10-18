@@ -8,7 +8,6 @@ import Link from 'next/link';
 import { Flipper, Flipped } from 'react-flip-toolkit';
 import HomeIcon from '@dailydotdev/shared/icons/home.svg';
 import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
-import SettingsIcon from '@dailydotdev/shared/icons/settings.svg';
 import LayoutIcon from '@dailydotdev/shared/icons/layout.svg';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useRouter } from 'next/router';
@@ -19,22 +18,8 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 import classNames from 'classnames';
-import RedDot from '@dailydotdev/shared/src/components/RedDot';
-import AlertContext from '@dailydotdev/shared/src/contexts/AlertContext';
+import FilterRedDot from '@dailydotdev/shared/src/components/filters/FilterRedDot';
 import styles from './FooterNavBar.module.css';
-
-export function GetSettingsIcon(): ReactElement {
-  const {
-    alerts: { filter: shouldShowFilterRedDot },
-  } = useContext(AlertContext);
-
-  return (
-    <div className="relative">
-      <SettingsIcon />
-      {shouldShowFilterRedDot && <RedDot />}
-    </div>
-  );
-}
 
 type Tab = {
   path: string;
@@ -42,6 +27,7 @@ type Tab = {
   icon: ReactNode;
   requiresLogin?: boolean;
 };
+
 export const tabs: Tab[] = [
   {
     path: '/',
@@ -57,7 +43,7 @@ export const tabs: Tab[] = [
   {
     path: '/filters',
     title: 'Filters',
-    icon: <GetSettingsIcon />,
+    icon: <FilterRedDot />,
   },
   {
     path: '/settings',
