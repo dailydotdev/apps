@@ -13,22 +13,22 @@ export default function FilterMenu(): ReactElement {
   const [showNewSourceModal, setShowNewSourceModal] = useState(false);
   const menuItems: MenuItem[] = [
     {
-      icon: <HashtagIcon className="mr-2 text-xl" />,
+      icon: <HashtagIcon className="mr-3 text-xl" />,
       title: 'Manage tags',
       component: () => dynamic(() => import('./Test')),
     },
     {
-      icon: <FilterIcon className="mr-2 text-xl" />,
+      icon: <FilterIcon className="mr-3 text-xl" />,
       title: 'Advanced',
       component: () => dynamic(() => import('./Test')),
     },
     {
-      icon: <BlockIcon className="mr-2 text-xl" />,
+      icon: <BlockIcon className="mr-3 text-xl" />,
       title: 'Blocked',
       component: () => dynamic(() => import('./Test')),
     },
     {
-      icon: <PlusIcon className="mr-2 text-xl" />,
+      icon: <PlusIcon className="mr-3 text-xl" />,
       title: 'Suggest new source',
       action: () => setShowNewSourceModal(true),
     },
