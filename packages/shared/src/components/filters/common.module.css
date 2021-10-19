@@ -1,5 +1,12 @@
 .details {
   &[open] {
-    padding-bottom: 2rem;
+    &.icon {
+      --tw-rotate: 180deg;
+    }
+  }
+  &[open] {
+    & .icon {
+      transform: rotate(180deg);
+    }
   }
 }

@@ -15,7 +15,7 @@ export default function FilterMenu(): ReactElement {
     {
       icon: <HashtagIcon className="mr-3 text-xl" />,
       title: 'Manage tags',
-      component: () => dynamic(() => import('./Test')),
+      component: () => dynamic(() => import('./TagsFilter')),
     },
     {
       icon: <FilterIcon className="mr-3 text-xl" />,

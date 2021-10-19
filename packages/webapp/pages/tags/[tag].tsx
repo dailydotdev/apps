@@ -56,7 +56,7 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
     },
   );
 
-  const { followTag, unfollowTag, blockTag, unblockTag } =
+  const { followTags, unfollowTags, blockTag, unblockTag } =
     useMutateFilters(user);
 
   const tagStatus = useMemo(() => {
@@ -97,9 +97,9 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
     onClick: async (): Promise<void> => {
       if (user) {
         if (tagStatus === 'followed') {
-          await unfollowTag({ tag });
+          await unfollowTags({ tags: [tag] });
         } else {
-          await followTag({ tag });
+          await followTags({ tags: [tag] });
         }
       } else {
         showLogin('filter');

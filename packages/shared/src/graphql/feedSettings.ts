@@ -38,6 +38,22 @@ export const SEARCH_TAGS_QUERY = gql`
   }
 `;
 
+export const ALL_TAG_CATEGORIES_QUERY = gql`
+  query TagCategories($loggedIn: Boolean!) {
+    tagsCategories {
+      categories {
+        id
+        title
+        tags
+        emoji
+      }
+    }
+    feedSettings @include(if: $loggedIn) {
+      includeTags
+    }
+  }
+`;
+
 export const ALL_TAGS_QUERY = gql`
   query AllTags {
     tags: popularTags {

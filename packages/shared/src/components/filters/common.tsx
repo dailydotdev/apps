@@ -3,7 +3,6 @@ import classed from '../../lib/classed';
 import sizeN from '../../../macros/sizeN.macro';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { SummaryArrow } from '../utilities';
-import styles from './common.module.css';
 
 export const FiltersContainer = classed('div', 'flex flex-col w-full pb-4');
 export interface MenuItem {
@@ -31,8 +30,7 @@ export const FiltersPlaceholder = (): ReactElement => (
 
 export const FiltersDetails = classed(
   'details',
-  'flex flex-col items-stretch border-t border-theme-divider-tertiary overflow-hidden select-none pr-4 pl-6',
-  styles.details,
+  'p-6 border-t border-b border-theme-divider-tertiary right-icon',
 );
 
 export const FiltersHeadline = classed(
