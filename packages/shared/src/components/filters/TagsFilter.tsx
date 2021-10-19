@@ -19,6 +19,7 @@ import useMutateFilters, {
   getTagsSettingsQueryKey,
   getTagsFiltersQueryKey,
 } from '../../hooks/useMutateFilters';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
 import {
   SearchTagsData,
   SEARCH_TAGS_QUERY,
@@ -33,6 +34,7 @@ export default function TagsFilter(): ReactElement {
   const filtersKey = getTagsFiltersQueryKey(user);
   const searchKey = getSearchTagsQueryKey(query);
   const { followTags, unfollowTags } = useMutateFilters(user);
+  const { trackEvent } = useContext(AnalyticsContext);
 
   const { data: { tagsCategories, feedSettings } = {} } = useQuery(
     filtersKey,
@@ -62,31 +64,37 @@ export default function TagsFilter(): ReactElement {
     return feedSettings?.includeTags;
   }, [feedSettings]);
 
-  const onFollow = async (tags: Array<string>): Promise<void> => {
+  const onFollow = async (
+    tags: Array<string>,
+    category?: string,
+  ): Promise<void> => {
     if (!user) {
       showLogin('filter');
       return;
     }
 
-    // trackEvent({
-    //   category: 'Tags',
-    //   action: 'Toggle',
-    //   label: 'Check',
-    // });
+    trackEvent({
+      event_name: `follow ${category && 'all'}`,
+      target_type: 'tag',
+      target_id: category || tags[0],
+    });
     await followTags({ tags });
   };
 
-  const onUnfollow = async (tags: Array<string>): Promise<void> => {
-    // trackEvent({
-    //   category: 'Tags',
-    //   action: 'Toggle',
-    //   label: 'Uncheck',
-    // });
+  const onUnfollow = async (
+    tags: Array<string>,
+    category?: string,
+  ): Promise<void> => {
+    trackEvent({
+      event_name: `unfollow ${category && 'all'}`,
+      target_type: 'tag',
+      target_id: category || tags[0],
+    });
     await unfollowTags({ tags });
   };
 
   const CategoryButton = ({ category }) => {
-    let action = () => onFollow(category.tags);
+    let action = () => onFollow(category.tags, category.id);
     let btnText = 'Follow all';
     let btnClass = 'btn-primary';
 
@@ -95,7 +103,7 @@ export default function TagsFilter(): ReactElement {
     );
 
     if (tagMatches.length > 0) {
-      action = () => onUnfollow(tagMatches);
+      action = () => onUnfollow(tagMatches, category.id);
       btnText = `Clear (${tagMatches.length})`;
       btnClass = 'btn-secondary';
     }
