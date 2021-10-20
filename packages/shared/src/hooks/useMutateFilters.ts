@@ -162,11 +162,11 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
     {
       onMutate: ({ tag }) =>
         onMutateTagsSettings(
-          tag,
+          [tag],
           queryClient,
           (feedSettings, manipulateTag) => {
             const newData = cloneDeep(feedSettings);
-            newData.blockedTags.push(manipulateTag);
+            newData.blockedTags.push(manipulateTag[0]);
             return newData;
           },
           user,
@@ -220,11 +220,11 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
     {
       onMutate: ({ tag }) =>
         onMutateTagsSettings(
-          tag,
+          [tag],
           queryClient,
           (feedSettings, manipulateTag) => {
             const newData = cloneDeep(feedSettings);
-            const index = newData.blockedTags.indexOf(manipulateTag);
+            const index = newData.blockedTags.indexOf(manipulateTag[0]);
             if (index > -1) {
               newData.blockedTags.splice(index, 1);
             }
