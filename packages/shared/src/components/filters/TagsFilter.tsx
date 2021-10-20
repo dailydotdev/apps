@@ -24,6 +24,8 @@ import {
   SearchTagsData,
   SEARCH_TAGS_QUERY,
   ALL_TAG_CATEGORIES_QUERY,
+  AllTagCategoriesData,
+  TagCategory,
 } from '../../graphql/feedSettings';
 
 export default function TagsFilter(): ReactElement {
@@ -36,12 +38,13 @@ export default function TagsFilter(): ReactElement {
   const { followTags, unfollowTags } = useMutateFilters(user);
   const { trackEvent } = useContext(AnalyticsContext);
 
-  const { data: { tagsCategories, feedSettings } = {} } = useQuery(
-    filtersKey,
-    () =>
-      request(`${apiUrl}/graphql`, ALL_TAG_CATEGORIES_QUERY, {
-        loggedIn: !!user?.id,
-      }),
+  const {
+    data: { tagsCategories, feedSettings } = {},
+    isLoading: isLoadingQuery,
+  } = useQuery<AllTagCategoriesData>(filtersKey, () =>
+    request(`${apiUrl}/graphql`, ALL_TAG_CATEGORIES_QUERY, {
+      loggedIn: !!user?.id,
+    }),
   );
 
   const { data: searchResults } = useQuery<SearchTagsData>(
@@ -61,7 +64,7 @@ export default function TagsFilter(): ReactElement {
   }, [feedSettings, user]);
 
   const followedTags = useMemo(() => {
-    return feedSettings?.includeTags;
+    return feedSettings?.includeTags ?? [];
   }, [feedSettings]);
 
   const onFollow = async (
@@ -93,7 +96,11 @@ export default function TagsFilter(): ReactElement {
     await unfollowTags({ tags });
   };
 
-  const CategoryButton = ({ category }) => {
+  const CategoryButton = ({
+    category,
+  }: {
+    category: TagCategory;
+  }): ReactElement => {
     let action = () => onFollow(category.tags, category.id);
     let btnText = 'Follow all';
     let btnClass = 'btn-primary';
@@ -115,7 +122,7 @@ export default function TagsFilter(): ReactElement {
     );
   };
 
-  const TagButton = ({ tag }) => {
+  const TagButton = ({ tag }: { tag: string }): ReactElement => {
     let action = () => onFollow([tag]);
     let btnClasses = 'btn-tag';
     let iconClasses = 'rotate-0';
@@ -135,13 +142,13 @@ export default function TagsFilter(): ReactElement {
           />
         }
       >
-        #{tag}
+        {`#${tag}`}
       </Button>
     );
   };
 
   return (
-    <div>
+    <div aria-busy={isLoadingQuery}>
       <div className="px-6 pb-6">
         <SearchField
           inputId="search-filters"
@@ -181,7 +188,10 @@ export default function TagsFilter(): ReactElement {
               </div>
               <CategoryButton category={tagCategory} />
             </summary>
-            <div className="flex flex-wrap py-6 pt-8">
+            <div
+              data-testid="tagCategoryTags"
+              className="flex flex-wrap py-6 pt-8"
+            >
               {tagCategory.tags.map((tag) => (
                 <TagButton key={tag} tag={tag} />
               ))}

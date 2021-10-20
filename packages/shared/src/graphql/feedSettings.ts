@@ -20,6 +20,22 @@ export interface FeedSettings {
   excludeSources?: Source[];
 }
 
+export interface TagCategory {
+  id: string;
+  title: string;
+  tags: string[];
+  emoji: string;
+}
+export interface TagsCategories {
+  categories?: TagCategory[];
+}
+
+export interface AllTagCategoriesData {
+  feedSettings?: FeedSettings;
+  loggedIn?: boolean;
+  tagsCategories?: TagsCategories;
+}
+
 export interface FeedSettingsData {
   feedSettings: FeedSettings;
 }
