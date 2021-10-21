@@ -10,33 +10,29 @@ import { useQuery, useQueryClient } from 'react-query';
 import request from 'graphql-request';
 import { SearchField } from '../fields/SearchField';
 import ArrowIcon from '../../../icons/arrow.svg';
-import { Button } from '../buttons/Button';
-import PlusIcon from '../../../icons/plus.svg';
 import { apiUrl } from '../../lib/config';
 import AuthContext from '../../contexts/AuthContext';
-import useMutateFilters, {
+import {
   getSearchTagsQueryKey,
   getTagsSettingsQueryKey,
   getTagsFiltersQueryKey,
 } from '../../hooks/useMutateFilters';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
 import {
   SearchTagsData,
   SEARCH_TAGS_QUERY,
   ALL_TAG_CATEGORIES_QUERY,
   AllTagCategoriesData,
-  TagCategory,
 } from '../../graphql/feedSettings';
+import TagButton from './TagButton';
+import CategoryButton from './CategoryButton';
 
 export default function TagsFilter(): ReactElement {
   const searchRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState<string>(null);
-  const { user, showLogin } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const queryClient = useQueryClient();
   const filtersKey = getTagsFiltersQueryKey(user);
   const searchKey = getSearchTagsQueryKey(query);
-  const { followTags, unfollowTags } = useMutateFilters(user);
-  const { trackEvent } = useContext(AnalyticsContext);
 
   const {
     data: { tagsCategories, feedSettings } = {},
@@ -67,86 +63,6 @@ export default function TagsFilter(): ReactElement {
     return feedSettings?.includeTags ?? [];
   }, [feedSettings]);
 
-  const onFollow = async (
-    tags: Array<string>,
-    category?: string,
-  ): Promise<void> => {
-    if (!user) {
-      showLogin('filter');
-      return;
-    }
-
-    trackEvent({
-      event_name: `follow ${category && 'all'}`,
-      target_type: 'tag',
-      target_id: category || tags[0],
-    });
-    await followTags({ tags });
-  };
-
-  const onUnfollow = async (
-    tags: Array<string>,
-    category?: string,
-  ): Promise<void> => {
-    trackEvent({
-      event_name: `unfollow ${category && 'all'}`,
-      target_type: 'tag',
-      target_id: category || tags[0],
-    });
-    await unfollowTags({ tags });
-  };
-
-  const CategoryButton = ({
-    category,
-  }: {
-    category: TagCategory;
-  }): ReactElement => {
-    let action = () => onFollow(category.tags, category.id);
-    let btnText = 'Follow all';
-    let btnClass = 'btn-primary';
-
-    const tagMatches = category?.tags.filter(
-      (tag) => followedTags.indexOf(tag) !== -1,
-    );
-
-    if (tagMatches.length > 0) {
-      action = () => onUnfollow(tagMatches, category.id);
-      btnText = `Clear (${tagMatches.length})`;
-      btnClass = 'btn-secondary';
-    }
-
-    return (
-      <Button onClick={action} className={btnClass}>
-        {btnText}
-      </Button>
-    );
-  };
-
-  const TagButton = ({ tag }: { tag: string }): ReactElement => {
-    let action = () => onFollow([tag]);
-    let btnClasses = 'btn-tag';
-    let iconClasses = 'rotate-0';
-    if (followedTags.includes(tag)) {
-      action = () => onUnfollow([tag]);
-      btnClasses = 'btn-primary';
-      iconClasses = 'rotate-45';
-    }
-
-    return (
-      <Button
-        className={`mb-3 mr-3 font-bold ${btnClasses} typo-callout`}
-        onClick={action}
-        rightIcon={
-          <PlusIcon
-            className={`ml-2 transition-transform text-xl transform icon ${iconClasses}`}
-          />
-        }
-      >
-        {`#${tag}`}
-      </Button>
-    );
-  };
-
   return (
     <div aria-busy={isLoadingQuery}>
       <div className="px-6 pb-6">
@@ -160,7 +76,11 @@ export default function TagsFilter(): ReactElement {
         {query?.length > 0 ? (
           <>
             {searchResults?.searchTags.tags.map((tag) => (
-              <TagButton key={tag.name} tag={tag.name} />
+              <TagButton
+                followedTags={followedTags}
+                key={tag.name}
+                tag={tag.name}
+              />
             ))}
           </>
         ) : (
@@ -186,14 +106,17 @@ export default function TagsFilter(): ReactElement {
                 <span className="mr-3 typo-title1">{tagCategory.emoji}</span>{' '}
                 <h4 className="font-bold typo-callout">{tagCategory.title}</h4>{' '}
               </div>
-              <CategoryButton category={tagCategory} />
+              <CategoryButton
+                followedTags={followedTags}
+                category={tagCategory}
+              />
             </summary>
             <div
               data-testid="tagCategoryTags"
               className="flex flex-wrap py-6 pt-8"
             >
               {tagCategory.tags.map((tag) => (
-                <TagButton key={tag} tag={tag} />
+                <TagButton followedTags={followedTags} key={tag} tag={tag} />
               ))}
             </div>
           </details>

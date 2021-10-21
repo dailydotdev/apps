@@ -113,9 +113,9 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
     onClick: async (): Promise<void> => {
       if (user) {
         if (tagStatus === 'blocked') {
-          await unblockTag({ tag });
+          await unblockTag({ tags: [tag] });
         } else {
-          await blockTag({ tag });
+          await blockTag({ tags: [tag] });
         }
       } else {
         showLogin('filter');

@@ -269,6 +269,7 @@ it('should block tag', async () => {
   const button = await screen.findByLabelText('Block');
   button.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
+
   await waitFor(async () => {
     const unfollowButton = await screen.findByLabelText('Unblock');
     expect(unfollowButton).toBeInTheDocument();

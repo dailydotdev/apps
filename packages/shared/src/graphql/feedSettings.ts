@@ -70,30 +70,11 @@ export const ALL_TAG_CATEGORIES_QUERY = gql`
   }
 `;
 
-export const ALL_TAGS_QUERY = gql`
-  query AllTags {
-    tags: popularTags {
-      name
-    }
-  }
-`;
-
-export const ALL_TAGS_AND_SETTINGS_QUERY = gql`
-  query AllTagsAndSettings {
-    feedSettings {
-      includeTags
-      blockedTags
-    }
-    tags: popularTags {
-      name
-    }
-  }
-`;
-
 export const TAGS_SETTINGS_QUERY = gql`
   query FeedSettings {
     feedSettings {
       includeTags
+      blockedTags
     }
   }
 `;
