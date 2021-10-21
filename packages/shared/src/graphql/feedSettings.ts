@@ -46,6 +46,19 @@ export const ALL_TAGS_QUERY = gql`
   }
 `;
 
+export const ALL_BLOCKED_TAGS_AND_SOURCES = gql`
+  query AllBlockedTagsAndSources {
+    feedSettings {
+      excludeSources {
+        id
+        image
+        name
+      }
+      blockedTags
+    }
+  }
+`;
+
 export const ALL_TAGS_AND_SETTINGS_QUERY = gql`
   query AllTagsAndSettings {
     feedSettings {
