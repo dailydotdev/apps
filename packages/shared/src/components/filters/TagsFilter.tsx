@@ -9,7 +9,6 @@ import React, {
 import { useQuery, useQueryClient } from 'react-query';
 import request from 'graphql-request';
 import { SearchField } from '../fields/SearchField';
-import ArrowIcon from '../../../icons/arrow.svg';
 import { apiUrl } from '../../lib/config';
 import AuthContext from '../../contexts/AuthContext';
 import {
@@ -24,7 +23,7 @@ import {
   AllTagCategoriesData,
 } from '../../graphql/feedSettings';
 import TagButton from './TagButton';
-import CategoryButton from './CategoryButton';
+import TagCategoryDropdown from './TagCategoryDropdown';
 
 export default function TagsFilter(): ReactElement {
   const searchRef = useRef<HTMLDivElement>(null);
@@ -96,30 +95,11 @@ export default function TagsFilter(): ReactElement {
       </div>
       {(!query || query.length <= 0) &&
         tagsCategories?.categories.map((tagCategory) => (
-          <details
+          <TagCategoryDropdown
             key={tagCategory.id}
-            className="p-6 border-t border-b border-theme-divider-tertiary right-icon"
-          >
-            <summary className="flex justify-between items-center">
-              <div className="flex items-center">
-                <ArrowIcon className="mr-2 text-xl transition-transform transform rotate-90 icon text-theme-label-tertiary" />{' '}
-                <span className="mr-3 typo-title1">{tagCategory.emoji}</span>{' '}
-                <h4 className="font-bold typo-callout">{tagCategory.title}</h4>{' '}
-              </div>
-              <CategoryButton
-                followedTags={followedTags}
-                category={tagCategory}
-              />
-            </summary>
-            <div
-              data-testid="tagCategoryTags"
-              className="flex flex-wrap py-6 pt-8"
-            >
-              {tagCategory.tags.map((tag) => (
-                <TagButton followedTags={followedTags} key={tag} tag={tag} />
-              ))}
-            </div>
-          </details>
+            tagCategory={tagCategory}
+            followedTags={followedTags}
+          />
         ))}
     </div>
   );

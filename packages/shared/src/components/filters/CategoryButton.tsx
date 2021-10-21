@@ -3,6 +3,24 @@ import { Button } from '../buttons/Button';
 import useTag from '../../hooks/useTag';
 import { TagCategory } from '../../graphql/feedSettings';
 
+const ClearCategoryButton = ({
+  matches,
+  action,
+}: {
+  matches: number;
+  action: () => unknown;
+}) => (
+  <Button onClick={action} className="btn-secondary">
+    Clear ({matches})
+  </Button>
+);
+
+const FollowCategoryButton = ({ action }: { action: () => unknown }) => (
+  <Button onClick={action} className="btn-primary">
+    Follow all
+  </Button>
+);
+
 export default function CategoryButton({
   category,
   followedTags,
@@ -12,23 +30,22 @@ export default function CategoryButton({
 }): ReactElement {
   const { onFollow, onUnfollow } = useTag();
 
-  let action = () => onFollow({ tags: category.tags, category: category.id });
-  let btnText = 'Follow all';
-  let btnClass = 'btn-primary';
-
   const tagMatches = category?.tags.filter(
     (tag) => followedTags.indexOf(tag) !== -1,
   );
 
   if (tagMatches.length > 0) {
-    action = () => onUnfollow({ tags: tagMatches, category: category.id });
-    btnText = `Clear (${tagMatches.length})`;
-    btnClass = 'btn-secondary';
+    return (
+      <ClearCategoryButton
+        matches={tagMatches.length}
+        action={() => onUnfollow({ tags: tagMatches, category: category.id })}
+      />
+    );
   }
 
   return (
-    <Button onClick={action} className={btnClass}>
-      {btnText}
-    </Button>
+    <FollowCategoryButton
+      action={() => onFollow({ tags: category.tags, category: category.id })}
+    />
   );
 }
