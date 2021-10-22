@@ -283,6 +283,7 @@ const Step2 = ({
               icon={<GitHubIcon className="mr-2" />}
               className="mt-6 typo-body"
               defaultTypo={false}
+              target="_blank"
               title="Add DevCard to your GitHub profile"
             />
           </div>
