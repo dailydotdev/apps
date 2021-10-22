@@ -3,9 +3,11 @@ import React, {
   ReactElement,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from 'react';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { RadioItem } from '@dailydotdev/shared/src/components/fields/RadioItem';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import request from 'graphql-request';
@@ -82,6 +84,35 @@ const Step1 = ({
   );
 };
 
+function isValidHttpUrl(string) {
+  let url;
+
+  try {
+    url = new URL(string);
+  } catch (_) {
+    return false;
+  }
+
+  return url.protocol === 'http:' || url.protocol === 'https:';
+}
+
+const bgOptions = [
+  { label: 'By rank', value: '' },
+  {
+    label: 'Halloween',
+    value:
+      'https://daily-now-res.cloudinary.com/image/upload/v1634801813/devcard/bg/halloween.jpg',
+    caption: { text: '(Limited edition) 🎃', className: 'text-bun-40' },
+  },
+  {
+    label: 'Christmas',
+    value:
+      'https://daily-now-res.cloudinary.com/image/upload/v1634801812/devcard/bg/christmas.jpg',
+    caption: { text: '(Limited edition) 🎄', className: 'text-avocado-40' },
+  },
+  { value: 'Custom', label: 'Custom' },
+];
+
 const Step2 = ({
   onGenerateImage,
   devCardSrc,
@@ -89,12 +120,35 @@ const Step2 = ({
   error,
 }: StepProps): ReactElement => {
   const { user } = useContext(AuthContext);
+  const inputRef = useRef<HTMLInputElement>();
   const [backgroundImageError, setBackgroundImageError] = useState<string>();
   // const [copyingImage, copyImageLink] = useCopyLink(() => devCardSrc);
 
   const embedCode = `<a href="https://app.daily.dev/${user?.username}"><img src="${devCardSrc}" width="400" alt="${user?.name}'s Dev Card"/></a>`;
   const [copyingEmbed, copyEmbed] = useCopyLink(() => embedCode);
+  const [copyingLink, copyLink] = useCopyLink(() => devCardSrc);
   const [downloading, setDownloading] = useState(false);
+  const [bg, setBg] = useState('');
+
+  const onOptionChange = async (option) => {
+    setBg(option);
+
+    if (!option) {
+      return onGenerateImage();
+    }
+
+    const isLink = isValidHttpUrl(option);
+
+    if (!isLink) {
+      return inputRef.current.click();
+    }
+
+    const res = await fetch(option);
+    const blob = await res.blob();
+    const file = new File([blob], 'themed-devcard.jpg', { type: blob.type });
+
+    return onGenerateImage(file);
+  };
 
   const downloadImage = async (): Promise<void> => {
     setDownloading(true);
@@ -127,30 +181,45 @@ const Step2 = ({
   const finalError = error || backgroundImageError;
 
   return (
-    <>
-      <div className="flex flex-col items-center self-stretch laptop:self-center mx-2">
-        <Tilt
-          className="overflow-hidden self-stretch laptop:w-96"
-          glareEnable
-          perspective={1000}
-          glareMaxOpacity={0.25}
-          glarePosition="all"
-          trackOnWindow
-          style={{ transformStyle: 'preserve-3d', borderRadius: '2rem' }}
-        >
-          <LazyImage
-            imgSrc={devCardSrc}
-            imgAlt="Your Dev Card"
-            ratio="136.5%"
-            eager
-          />
-        </Tilt>
-        <Button
-          tag="label"
-          className="mt-10 btn-secondary"
-          loading={isLoadingImage}
-        >
+    <div className="flex flex-col self-stretch mx-2">
+      <h1 className="font-bold typo-title1 mb-8 mx-3">Share your #DevCard</h1>
+      <main className="grid grid-cols-2 gap-20 laptop:self-center">
+        <section className="flex flex-col">
+          <Tilt
+            className="overflow-hidden self-stretch laptop:w-96"
+            glareEnable
+            perspective={1000}
+            glareMaxOpacity={0.25}
+            glarePosition="all"
+            trackOnWindow
+            style={{ transformStyle: 'preserve-3d', borderRadius: '2rem' }}
+          >
+            <LazyImage
+              imgSrc={devCardSrc}
+              imgAlt="Your Dev Card"
+              ratio="136.5%"
+              eager
+            />
+          </Tilt>
+          <div className="grid grid-cols-2 gap-4 mt-8 mx-2">
+            <Button
+              className="btn-primary"
+              buttonSize="large"
+              onClick={downloadImage}
+              loading={downloading}
+            >
+              Download
+            </Button>
+            <Button
+              className="btn-secondary"
+              buttonSize="large"
+              onClick={copyLink}
+            >
+              {!copyingLink ? 'Copy link' : 'Copied!'}
+            </Button>
+          </div>
           <input
+            ref={inputRef}
             type="file"
             name="backgroundImage"
             data-testid="backgroundImage"
@@ -158,47 +227,57 @@ const Step2 = ({
             onChange={onFileChange}
             className="hidden"
           />
-          Change background
-        </Button>
-        {finalError && (
-          <FormErrorMessage role="alert">{finalError}</FormErrorMessage>
-        )}
-      </div>
-      <div className="flex flex-col self-stretch laptop:self-center mt-16 laptop:mt-0">
-        <h1 className="font-bold typo-title1">Share your #DevCard</h1>
-        <div className="flex mt-10">
-          <Button
-            className="btn-primary"
-            buttonSize="large"
-            onClick={downloadImage}
-            loading={downloading}
-          >
-            Download
-          </Button>
-          {/* <Button */}
-          {/*  className="btn-secondary ml-4" */}
-          {/*  buttonSize="large" */}
-          {/*  onClick={copyImageLink} */}
-          {/* > */}
-          {/*  {!copyingImage ? 'Copy link' : 'Copied!'} */}
-          {/* </Button> */}
-        </div>
-        <div className="flex flex-col items-start self-stretch mt-10">
-          <h4 className="mt-1 font-bold typo-caption1">Embed</h4>
-          <textarea
-            className="self-stretch py-2 px-4 mt-1 laptop:w-80 bg-theme-float rounded-10 resize-none typo-body"
-            readOnly
-            wrap="hard"
-            style={{ height: rem(124) }}
-          >
-            {embedCode}
-          </textarea>
-          <Button className="mt-4 btn-secondary" onClick={copyEmbed}>
-            {!copyingEmbed ? 'Copy code' : 'Copied!'}
-          </Button>
-        </div>
-      </div>
-    </>
+        </section>
+        <section className="flex flex-col self-stretch laptop:self-center mt-16 laptop:mt-0 text-theme-label-tertiary">
+          <h2 className="typo-headline">Customize Style</h2>
+          <div className={classNames('flex flex-col -my-0.5 items-start mt-8')}>
+            {bgOptions.map((option) => (
+              <RadioItem
+                key={option.value}
+                name="timeOff"
+                value={option.value}
+                checked={bg === option.value}
+                onChange={() => onOptionChange(option.value)}
+                className="my-0.5 truncate"
+              >
+                {option.label}
+                {option.caption && (
+                  <span
+                    className={classNames(
+                      'ml-2 typo-caption2',
+                      option.caption.className,
+                    )}
+                  >
+                    {option.caption.text}
+                  </span>
+                )}
+              </RadioItem>
+            ))}
+          </div>
+          {finalError && (
+            <FormErrorMessage role="alert">{finalError}</FormErrorMessage>
+          )}
+          <div className="flex flex-col items-start self-stretch mt-10">
+            <h4 className="mt-1 font-bold typo-caption1">Embed</h4>
+            <textarea
+              className="self-stretch py-2 px-4 mt-1 laptop:w-80 bg-theme-float rounded-10 resize-none typo-body"
+              readOnly
+              wrap="hard"
+              style={{ height: rem(124) }}
+            >
+              {embedCode}
+            </textarea>
+            <Button
+              className="mt-4 btn-secondary"
+              buttonSize="small"
+              onClick={copyEmbed}
+            >
+              {!copyingEmbed ? 'Copy code' : 'Copied!'}
+            </Button>
+          </div>
+        </section>
+      </main>
+    </div>
   );
 };
 
