@@ -233,6 +233,7 @@ const Step2 = ({
           <div className={classNames('flex flex-col -my-0.5 items-start mt-8')}>
             {bgOptions.map((option) => (
               <RadioItem
+                disabled={isLoadingImage}
                 key={option.value}
                 name="timeOff"
                 value={option.value}
