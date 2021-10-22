@@ -1,4 +1,4 @@
-import React, { LegacyRef, ReactElement } from 'react';
+import React, { LegacyRef, ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
 
 type AvailableTags = keyof Pick<JSX.IntrinsicElements, 'a' | 'button'>;
@@ -8,6 +8,9 @@ export interface BaseClickableTextProps {
   pressed?: boolean;
   tag?: React.ElementType & AvailableTags;
   title: string;
+  icon?: ReactNode;
+  rightIcon?: ReactNode;
+  defaultTypo?: boolean;
 }
 
 export type ClickableTextProps<Tag extends AvailableTags> =
@@ -20,10 +23,13 @@ export type ClickableTextProps<Tag extends AvailableTags> =
 export function ClickableText<Tag extends AvailableTags>({
   disabled,
   pressed,
+  icon,
+  rightIcon,
   title,
   children,
   tag: Tag = 'button',
   innerRef,
+  defaultTypo = true,
   className,
   ...props
 }: ClickableTextProps<Tag>): ReactElement {
@@ -35,7 +41,8 @@ export function ClickableText<Tag extends AvailableTags>({
       aria-pressed={pressed}
       ref={innerRef}
       className={classNames(
-        'text-theme-label-tertiary typo-callout hover:underline focus:underline cursor-pointer',
+        'flex flex-row items-center text-theme-label-tertiary hover:underline focus:underline cursor-pointer',
+        defaultTypo && 'typo-callout',
         pressed && 'text-theme-label-primary',
         isLink && 'text-theme-label-link',
         disabled &&
@@ -43,7 +50,9 @@ export function ClickableText<Tag extends AvailableTags>({
         className,
       )}
     >
+      {icon}
       {title}
+      {rightIcon}
     </Tag>
   );
 }

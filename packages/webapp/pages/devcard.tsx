@@ -7,8 +7,10 @@ import React, {
   useState,
 } from 'react';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import GitHubIcon from '@dailydotdev/shared/icons/github.svg';
 import { RadioItem } from '@dailydotdev/shared/src/components/fields/RadioItem';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import request from 'graphql-request';
 import { useMutation } from 'react-query';
@@ -274,6 +276,14 @@ const Step2 = ({
             >
               {!copyingEmbed ? 'Copy code' : 'Copied!'}
             </Button>
+            <ClickableText
+              tag="a"
+              href="#"
+              icon={<GitHubIcon className="mr-2" />}
+              className="mt-6 typo-body"
+              defaultTypo={false}
+              title="Add DevCard to your GitHub profile"
+            />
           </div>
         </section>
       </main>
