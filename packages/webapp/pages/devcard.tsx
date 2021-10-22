@@ -184,7 +184,7 @@ const Step2 = ({
 
   return (
     <div className="flex flex-col self-stretch mx-2">
-      <h1 className="font-bold typo-title1 mb-8 mx-3">Share your #DevCard</h1>
+      <h1 className="mx-3 mb-8 font-bold typo-title1">Share your #DevCard</h1>
       <main className="grid grid-cols-2 gap-20 laptop:self-center">
         <section className="flex flex-col">
           <Tilt
@@ -203,7 +203,7 @@ const Step2 = ({
               eager
             />
           </Tilt>
-          <div className="grid grid-cols-2 gap-4 mt-8 mx-2">
+          <div className="grid grid-cols-2 gap-4 mx-2 mt-8">
             <Button
               className="btn-primary"
               buttonSize="large"
@@ -235,6 +235,7 @@ const Step2 = ({
           <div className={classNames('flex flex-col -my-0.5 items-start mt-8')}>
             {bgOptions.map((option) => (
               <RadioItem
+                disabled={isLoadingImage}
                 key={option.value}
                 name="timeOff"
                 value={option.value}
