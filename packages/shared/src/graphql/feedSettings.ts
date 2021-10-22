@@ -54,6 +54,7 @@ export const ALL_BLOCKED_TAGS_AND_SOURCES = gql`
         image
         name
       }
+      includeTags
       blockedTags
     }
   }
