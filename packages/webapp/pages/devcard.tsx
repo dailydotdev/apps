@@ -279,7 +279,7 @@ const Step2 = ({
             </Button>
             <ClickableText
               tag="a"
-              href="#"
+              href="https://daily.dev/blog/adding-the-daily-devcard-to-your-github-profile"
               icon={<GitHubIcon className="mr-2" />}
               className="mt-6 typo-body"
               defaultTypo={false}
