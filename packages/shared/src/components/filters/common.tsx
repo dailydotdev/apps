@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { Source } from '../../graphql/sources';
 import classed from '../../lib/classed';
 
 export interface MenuItem {
@@ -6,6 +7,12 @@ export interface MenuItem {
   title: string;
   action?: () => unknown;
   component?: () => unknown;
+}
+
+export interface UnblockModalType {
+  tag?: string;
+  source?: Source;
+  action?: () => unknown;
 }
 
 export const TagCategoryDetails = classed(

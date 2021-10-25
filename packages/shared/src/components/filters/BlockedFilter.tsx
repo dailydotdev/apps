@@ -3,7 +3,7 @@ import dynamic from 'next/dynamic';
 import request from 'graphql-request';
 import { useQuery } from 'react-query';
 import { useContextMenu } from 'react-contexify';
-import { FiltersList } from './common';
+import { UnblockModalType } from './common';
 import useMutateFilters, {
   getTagsFiltersQueryKey,
 } from '../../hooks/useMutateFilters';
@@ -11,8 +11,8 @@ import AuthContext from '../../contexts/AuthContext';
 import { apiUrl } from '../../lib/config';
 import { ALL_BLOCKED_TAGS_AND_SOURCES } from '../../graphql/feedSettings';
 import { Source } from '../../graphql/sources';
-import SourceItemRow from './SourceItemRow';
-import TagItemRow from './TagItemRow';
+import SourceItemList from './SourceItemList';
+import TagItemList from './TagItemList';
 
 const TagOptionsMenu = dynamic(
   () => import(/* webpackChunkName: "tagOptionsMenu" */ './TagOptionsMenu'),
@@ -43,7 +43,7 @@ export default function BlockedFilter(): ReactElement {
     },
   );
 
-  const onOptions = (event: React.MouseEvent, tag: string): void => {
+  const onTagContextOptions = (event: React.MouseEvent, tag: string): void => {
     setSelectedTag(tag);
     const { right, bottom } = event.currentTarget.getBoundingClientRect();
     showTagOptionsMenu(event, {
@@ -55,11 +55,7 @@ export default function BlockedFilter(): ReactElement {
     tag = null,
     source = null,
     action,
-  }: {
-    tag?: string;
-    source?: Source;
-    action?: () => unknown;
-  }) => {
+  }: UnblockModalType) => {
     setUnblockItem({ tag, source });
     setUnblockItemAction(() => action);
     setShowUnblockModal(true);
@@ -69,53 +65,35 @@ export default function BlockedFilter(): ReactElement {
     await unblockItemAction();
   };
 
+  const sourceItemAction = (source) => {
+    initUnblockModal({
+      source,
+      action: () => followSource({ source }),
+    });
+  };
+
   return (
-    <div aria-busy={isLoadingQuery}>
-      <div className="px-6 pb-6">
-        <p className="typo-callout text-theme-label-tertiary">
-          Articles containing the following tags or sources will never be shown
-          on your feed, even if the article contains a specifc tag that you do
-          follow.
-        </p>
+    <div className="px-6 pb-6" aria-busy={isLoadingQuery}>
+      <p className="typo-callout text-theme-label-tertiary">
+        Blocking tags and sources can be done from the feed. Next time you seen
+        a post with a tag or source you wish to block, click on the ⋮ button and
+        click “Not interested in…”.
+      </p>
 
-        <h3 className="my-6 typo-headline">Blocked tags</h3>
+      <h3 className="my-6 typo-headline">Blocked tags</h3>
 
-        <FiltersList className="-mr-6">
-          {blockedTagsAndSources?.feedSettings?.blockedTags?.map((tag) => (
-            <TagItemRow
-              tag={tag}
-              key={tag}
-              tooltip="Options"
-              onClick={onOptions}
-              menu
-            />
-          ))}
-        </FiltersList>
+      <TagItemList
+        blockedTags={blockedTagsAndSources?.feedSettings?.blockedTags}
+        options={onTagContextOptions}
+      />
 
-        <h3 className="mt-10 mb-3 typo-headline">Blocked sources</h3>
+      <h3 className="mt-10 mb-6 typo-headline">Blocked sources</h3>
 
-        <p className="mb-6 typo-callout text-theme-label-tertiary">
-          Blocking sources can be done from the feed. Next time you’ve seen a
-          post from a source you wish to block, click on the ⋮ button and choose
-          “Don’t show articles from…”
-        </p>
+      <SourceItemList
+        excludeSources={blockedTagsAndSources?.feedSettings?.excludeSources}
+        action={sourceItemAction}
+      />
 
-        <FiltersList className="-mr-6 -ml-6">
-          {blockedTagsAndSources?.feedSettings?.excludeSources.map((source) => (
-            <SourceItemRow
-              key={source.id}
-              source={source}
-              blocked
-              onClick={() =>
-                initUnblockModal({
-                  source,
-                  action: () => followSource({ source }),
-                })
-              }
-            />
-          ))}
-        </FiltersList>
-      </div>
       <TagOptionsMenu
         showViewButton={selectedTag}
         onUnblock={() =>
