@@ -280,12 +280,13 @@ const Step2 = ({
             <ClickableText
               tag="a"
               href="https://daily.dev/blog/adding-the-daily-devcard-to-your-github-profile?utm_source=webapp&utm_medium=devcard&utm_campaign=devcardguide&utm_id=inapp"
-              icon={<GitHubIcon className="mr-2" />}
               className="mt-6 typo-body"
               defaultTypo={false}
               target="_blank"
-              title="Add DevCard to your GitHub profile"
-            />
+            >
+              <GitHubIcon className="mr-2" />
+              Add DevCard to your GitHub profile
+            </ClickableText>
           </div>
         </section>
       </main>
