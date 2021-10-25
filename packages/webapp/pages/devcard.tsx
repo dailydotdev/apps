@@ -182,9 +182,9 @@ const Step2 = ({
   const finalError = error || backgroundImageError;
 
   return (
-    <div className="flex flex-col self-stretch mx-2">
+    <div className="flex flex-col self-stretch laptop:self-center mx-2 mt-5">
       <h1 className="mx-3 mb-8 font-bold typo-title1">Share your #DevCard</h1>
-      <main className="grid grid-cols-2 gap-20 laptop:self-center">
+      <main className="grid grid-cols-2 gap-20">
         <section className="flex flex-col">
           <Tilt
             className="overflow-hidden self-stretch laptop:w-96"
