@@ -1,12 +1,13 @@
 import nock from 'nock';
 import React from 'react';
 import {
-  findAllByRole,
   render,
   RenderResult,
-  screen,
   waitFor,
+  findAllByRole,
+  screen,
 } from '@testing-library/react';
+
 import { QueryClient, QueryClientProvider } from 'react-query';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import AuthContext from '../../contexts/AuthContext';
@@ -18,16 +19,14 @@ import { LoggedUser } from '../../lib/user';
 import TagsFilter from './TagsFilter';
 import {
   ADD_FILTERS_TO_FEED_MUTATION,
-  ALL_TAGS_AND_SETTINGS_QUERY,
-  ALL_TAGS_QUERY,
+  AllTagCategoriesData,
+  ALL_TAG_CATEGORIES_QUERY,
   FeedSettings,
-  FeedSettingsData,
   REMOVE_FILTERS_FROM_FEED_MUTATION,
-  SEARCH_TAGS_QUERY,
-  TagsData,
+  TagsCategories,
 } from '../../graphql/feedSettings';
-import { getTagsSettingsQueryKey } from '../../hooks/useMutateFilters';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
+import { getTagsSettingsQueryKey } from '../../hooks/useMutateFilters';
 
 const showLogin = jest.fn();
 
@@ -36,29 +35,27 @@ beforeEach(() => {
   nock.cleanAll();
 });
 
-const createAllTagsAndSettingsMock = (
+const createAllTagCategoriesMock = (
   feedSettings: FeedSettings = {
     includeTags: ['react', 'golang'],
-    blockedTags: ['webdev'],
   },
-  tags: string[] = ['react', 'webdev', 'vue', 'golang'],
-): MockedGraphQLResponse<FeedSettingsData & TagsData> => ({
-  request: { query: ALL_TAGS_AND_SETTINGS_QUERY },
+  loggedIn = true,
+  tagsCategories: TagsCategories = {
+    categories: [
+      {
+        id: 'FE',
+        title: 'Frontend',
+        tags: ['react', 'webdev', 'vue', 'golang'],
+        emoji: '🦄',
+      },
+    ],
+  },
+): MockedGraphQLResponse<AllTagCategoriesData> => ({
+  request: { query: ALL_TAG_CATEGORIES_QUERY, variables: { loggedIn } },
   result: {
     data: {
       feedSettings,
-      tags: tags.map((tag) => ({ name: tag })),
-    },
-  },
-});
-
-const createAllTagsMock = (
-  tags: string[] = ['react', 'webdev', 'vue', 'golang'],
-): MockedGraphQLResponse<TagsData> => ({
-  request: { query: ALL_TAGS_QUERY },
-  result: {
-    data: {
-      tags: tags.map((tag) => ({ name: tag })),
+      tagsCategories,
     },
   },
 });
@@ -66,9 +63,8 @@ const createAllTagsMock = (
 let client: QueryClient;
 
 const renderComponent = (
-  mocks: MockedGraphQLResponse[] = [createAllTagsAndSettingsMock()],
+  mocks: MockedGraphQLResponse[] = [createAllTagCategoriesMock()],
   user: LoggedUser = defaultUser,
-  query?: string,
 ): RenderResult => {
   client = new QueryClient();
   mocks.forEach(mockGraphQL);
@@ -88,107 +84,71 @@ const renderComponent = (
           closeLogin: jest.fn(),
         }}
       >
-        <TagsFilter query={query} />
+        <TagsFilter />
       </AuthContext.Provider>
     </QueryClientProvider>,
   );
 };
 
-it('should show followed tags', async () => {
+it('should show tag categories', async () => {
   const { baseElement } = renderComponent();
   await waitFor(() => expect(baseElement).not.toHaveAttribute('aria-busy'));
+
   const {
-    parentElement: { parentElement: section },
-  } = await screen.findByText('Followed tags (2)');
-  // eslint-disable-next-line testing-library/prefer-screen-queries
-  const buttons = await findAllByRole(section, 'link');
-  const tags = ['react', 'golang'];
-  buttons.map((button, index) =>
-    expect(button).toHaveTextContent(`#${tags[index]}`),
-  );
+    parentElement: { parentElement: summary },
+  } = await screen.findByText('Frontend');
+
+  expect(summary).toBeInTheDocument();
 });
 
-it('should show available tags', async () => {
+it('should open the details element on category click', async () => {
   const { baseElement } = renderComponent();
   await waitFor(() => expect(baseElement).not.toHaveAttribute('aria-busy'));
+
   const {
-    parentElement: { parentElement: section },
-  } = await screen.findByText('All tags (1)');
-  // eslint-disable-next-line testing-library/prefer-screen-queries
-  const buttons = await findAllByRole(section, 'link');
-  const tags = ['vue'];
-  buttons.map((button, index) =>
-    expect(button).toHaveTextContent(`#${tags[index]}`),
-  );
+    parentElement: { parentElement: summary },
+  } = await screen.findByText('Frontend');
+
+  summary.click();
+
+  const buttonDiv = await screen.findByTestId('tagCategoryTags');
+  expect(buttonDiv).toBeVisible();
 });
 
-it('should show blocked tags', async () => {
+it('should show the tags for a open category', async () => {
   const { baseElement } = renderComponent();
   await waitFor(() => expect(baseElement).not.toHaveAttribute('aria-busy'));
+
   const {
-    parentElement: { parentElement: section },
-  } = await screen.findByText('Blocked tags (1)');
+    parentElement: { parentElement: summary },
+  } = await screen.findByText('Frontend');
+
+  summary.click();
+
+  const buttonDiv = await screen.findByTestId('tagCategoryTags');
+  expect(buttonDiv).toBeVisible();
+
   // eslint-disable-next-line testing-library/prefer-screen-queries
-  const buttons = await findAllByRole(section, 'link');
-  const tags = ['webdev'];
+  const buttons = await findAllByRole(buttonDiv, 'button');
+  const tags = ['react', 'webdev', 'vue', 'golang'];
   buttons.map((button, index) =>
     expect(button).toHaveTextContent(`#${tags[index]}`),
   );
 });
 
-it('should show only available tags when no filters', async () => {
-  const { baseElement } = renderComponent([
-    createAllTagsAndSettingsMock({ includeTags: [], blockedTags: [] }, [
-      'react',
-      'webdev',
-      'vue',
-    ]),
-  ]);
-  await waitFor(() => expect(baseElement).not.toHaveAttribute('aria-busy'));
-  const {
-    parentElement: { parentElement: section },
-  } = await screen.findByText('All tags (3)');
-  // eslint-disable-next-line testing-library/prefer-screen-queries
-  const buttons = await findAllByRole(section, 'link');
-  const tags = ['react', 'webdev', 'vue'];
-  buttons.map((button, index) =>
-    expect(button).toHaveTextContent(`#${tags[index]}`),
-  );
-  expect(screen.queryByText('Followed tags (0)')).not.toBeInTheDocument();
-  expect(screen.queryByText('Blocked tags (0)')).not.toBeInTheDocument();
-});
-
-it('should show login popup when logged-out on follow click', async () => {
-  renderComponent([createAllTagsMock()], null);
+it('should show login when not logged in', async () => {
+  renderComponent([createAllTagCategoriesMock(null, false)], null);
   await waitForNock();
-  const {
-    parentElement: { parentElement: section },
-  } = await screen.findByText('All tags (4)');
-  // eslint-disable-next-line testing-library/prefer-screen-queries
-  const [button] = await findAllByRole(section, 'button');
+  const button = await screen.findByText('Follow all');
   button.click();
-  const contextBtn = await screen.findByText('Follow');
-  contextBtn.click();
   expect(showLogin).toBeCalledTimes(1);
 });
 
-it('should show login popup when logged-out on block click', async () => {
-  renderComponent([createAllTagsMock()], null);
-  await waitForNock();
-  const {
-    parentElement: { parentElement: section },
-  } = await screen.findByText('All tags (4)');
-  // eslint-disable-next-line testing-library/prefer-screen-queries
-  const [button] = await findAllByRole(section, 'button');
-  button.click();
-  const contextBtn = await screen.findByText('Block');
-  contextBtn.click();
-  expect(showLogin).toBeCalledTimes(1);
-});
-
-it('should follow tag on follow button click', async () => {
+it('should follow a tag on click', async () => {
   let mutationCalled = false;
-  renderComponent();
+
+  const { baseElement } = renderComponent();
+
   await waitFor(async () => {
     const data = await client.getQueryData(
       getTagsSettingsQueryKey(defaultUser),
@@ -198,63 +158,37 @@ it('should follow tag on follow button click', async () => {
   mockGraphQL({
     request: {
       query: ADD_FILTERS_TO_FEED_MUTATION,
-      variables: { filters: { includeTags: ['vue'] } },
+      variables: { filters: { includeTags: ['webdev'] } },
     },
     result: () => {
       mutationCalled = true;
       return { data: { feedSettings: { id: defaultUser.id } } };
     },
   });
+
+  await waitFor(() => expect(baseElement).not.toHaveAttribute('aria-busy'));
+
   const {
-    parentElement: { parentElement: section },
-  } = await screen.findByText('All tags (1)');
+    parentElement: { parentElement: summary },
+  } = await screen.findByText('Frontend');
+
+  summary.click();
+
+  const buttonDiv = await screen.findByTestId('tagCategoryTags');
+  expect(buttonDiv).toBeVisible();
+
   // eslint-disable-next-line testing-library/prefer-screen-queries
-  const [button] = await findAllByRole(section, 'button');
+  const button = await screen.findByText('#webdev');
   button.click();
-  const contextBtn = await screen.findByText('Follow');
-  contextBtn.click();
+
   await waitFor(() => expect(mutationCalled).toBeTruthy());
-  await waitFor(async () => {
-    expect(button).not.toBeInTheDocument();
-  });
 });
 
-it('should block tag on block button click', async () => {
+it('should unfollow a tag on click', async () => {
   let mutationCalled = false;
-  renderComponent();
-  await waitFor(async () => {
-    const data = await client.getQueryData(
-      getTagsSettingsQueryKey(defaultUser),
-    );
-    expect(data).toBeTruthy();
-  });
-  mockGraphQL({
-    request: {
-      query: ADD_FILTERS_TO_FEED_MUTATION,
-      variables: { filters: { blockedTags: ['vue'] } },
-    },
-    result: () => {
-      mutationCalled = true;
-      return { data: { feedSettings: { id: defaultUser.id } } };
-    },
-  });
-  const {
-    parentElement: { parentElement: section },
-  } = await screen.findByText('All tags (1)');
-  // eslint-disable-next-line testing-library/prefer-screen-queries
-  const [button] = await findAllByRole(section, 'button');
-  button.click();
-  const contextBtn = await screen.findByText('Block');
-  contextBtn.click();
-  await waitFor(() => expect(mutationCalled).toBeTruthy());
-  await waitFor(async () => {
-    expect(button).not.toBeInTheDocument();
-  });
-});
 
-it('should unfollow tag on button click', async () => {
-  let mutationCalled = false;
-  renderComponent();
+  const { baseElement } = renderComponent();
+
   await waitFor(async () => {
     const data = await client.getQueryData(
       getTagsSettingsQueryKey(defaultUser),
@@ -271,21 +205,30 @@ it('should unfollow tag on button click', async () => {
       return { data: { feedSettings: { id: defaultUser.id } } };
     },
   });
+
+  await waitFor(() => expect(baseElement).not.toHaveAttribute('aria-busy'));
+
   const {
-    parentElement: { parentElement: section },
-  } = await screen.findByText('Followed tags (2)');
+    parentElement: { parentElement: summary },
+  } = await screen.findByText('Frontend');
+
+  summary.click();
+
+  const buttonDiv = await screen.findByTestId('tagCategoryTags');
+  expect(buttonDiv).toBeVisible();
+
   // eslint-disable-next-line testing-library/prefer-screen-queries
-  const [button] = await findAllByRole(section, 'button');
+  const button = await screen.findByText('#react');
   button.click();
+
   await waitFor(() => expect(mutationCalled).toBeTruthy());
-  await waitFor(async () => {
-    expect(button).not.toBeInTheDocument();
-  });
 });
 
-it('should unblock tag on button click', async () => {
+it('should clear all tags on click', async () => {
   let mutationCalled = false;
-  renderComponent();
+
+  const { baseElement } = renderComponent();
+
   await waitFor(async () => {
     const data = await client.getQueryData(
       getTagsSettingsQueryKey(defaultUser),
@@ -295,87 +238,18 @@ it('should unblock tag on button click', async () => {
   mockGraphQL({
     request: {
       query: REMOVE_FILTERS_FROM_FEED_MUTATION,
-      variables: { filters: { blockedTags: ['webdev'] } },
+      variables: { filters: { includeTags: ['react', 'golang'] } },
     },
     result: () => {
       mutationCalled = true;
       return { data: { feedSettings: { id: defaultUser.id } } };
     },
   });
-  const {
-    parentElement: { parentElement: section },
-  } = await screen.findByText('Blocked tags (1)');
-  // eslint-disable-next-line testing-library/prefer-screen-queries
-  const [button] = await findAllByRole(section, 'button');
+
+  await waitFor(() => expect(baseElement).not.toHaveAttribute('aria-busy'));
+
+  const button = await screen.findByText('Clear (2)');
   button.click();
+
   await waitFor(() => expect(mutationCalled).toBeTruthy());
-  await waitFor(async () => {
-    expect(button).not.toBeInTheDocument();
-  });
-});
-
-it('should show filtered followed tags', async () => {
-  const { baseElement } = renderComponent(
-    [
-      createAllTagsAndSettingsMock(),
-      {
-        request: {
-          query: SEARCH_TAGS_QUERY,
-          variables: { query: 'r' },
-        },
-        result: {
-          data: {
-            searchTags: { tags: [{ name: 'react' }, { name: 'react-native' }] },
-          },
-        },
-      },
-    ],
-    defaultUser,
-    'r',
-  );
-  await waitFor(() => expect(baseElement).not.toHaveAttribute('aria-busy'));
-  await waitForNock();
-
-  const {
-    parentElement: { parentElement: section },
-  } = await screen.findByText('Followed tags (1)');
-  // eslint-disable-next-line testing-library/prefer-screen-queries
-  const buttons = await findAllByRole(section, 'link');
-  const tags = ['react'];
-  buttons.map((button, index) =>
-    expect(button).toHaveTextContent(`#${tags[index]}`),
-  );
-});
-
-it('should show filtered available tags', async () => {
-  const { baseElement } = renderComponent(
-    [
-      createAllTagsAndSettingsMock(),
-      {
-        request: {
-          query: SEARCH_TAGS_QUERY,
-          variables: { query: 'r' },
-        },
-        result: {
-          data: {
-            searchTags: { tags: [{ name: 'react' }, { name: 'react-native' }] },
-          },
-        },
-      },
-    ],
-    defaultUser,
-    'r',
-  );
-  await waitFor(() => expect(baseElement).not.toHaveAttribute('aria-busy'));
-  await waitForNock();
-
-  const {
-    parentElement: { parentElement: section },
-  } = await screen.findByText('All tags (1)');
-  // eslint-disable-next-line testing-library/prefer-screen-queries
-  const buttons = await findAllByRole(section, 'link');
-  const tags = ['react-native'];
-  buttons.map((button, index) =>
-    expect(button).toHaveTextContent(`#${tags[index]}`),
-  );
 });

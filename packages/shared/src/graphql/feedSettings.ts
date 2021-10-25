@@ -20,6 +20,22 @@ export interface FeedSettings {
   excludeSources?: Source[];
 }
 
+export interface TagCategory {
+  id: string;
+  title: string;
+  tags: string[];
+  emoji: string;
+}
+export interface TagsCategories {
+  categories?: TagCategory[];
+}
+
+export interface AllTagCategoriesData {
+  feedSettings?: FeedSettings;
+  loggedIn?: boolean;
+  tagsCategories?: TagsCategories;
+}
+
 export interface FeedSettingsData {
   feedSettings: FeedSettings;
 }
@@ -38,22 +54,18 @@ export const SEARCH_TAGS_QUERY = gql`
   }
 `;
 
-export const ALL_TAGS_QUERY = gql`
-  query AllTags {
-    tags: popularTags {
-      name
+export const ALL_TAG_CATEGORIES_QUERY = gql`
+  query TagCategories($loggedIn: Boolean!) {
+    tagsCategories {
+      categories {
+        id
+        title
+        tags
+        emoji
+      }
     }
-  }
-`;
-
-export const ALL_TAGS_AND_SETTINGS_QUERY = gql`
-  query AllTagsAndSettings {
-    feedSettings {
+    feedSettings @include(if: $loggedIn) {
       includeTags
-      blockedTags
-    }
-    tags: popularTags {
-      name
     }
   }
 `;
@@ -62,6 +74,7 @@ export const TAGS_SETTINGS_QUERY = gql`
   query FeedSettings {
     feedSettings {
       includeTags
+      blockedTags
     }
   }
 `;
