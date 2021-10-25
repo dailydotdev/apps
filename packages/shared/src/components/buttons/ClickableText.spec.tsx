@@ -6,10 +6,9 @@ const renderComponent = <
   C extends HTMLElement = HTMLButtonElement,
   P = HTMLAttributes<C>,
 >({
-  title,
   ...props
 }: Partial<BaseClickableTextProps & P>): RenderResult => {
-  return render(<ClickableText {...props} title={title} />);
+  return render(<ClickableText {...props} />);
 };
 
 const dummyTitle = 'Clickable Text';

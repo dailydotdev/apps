@@ -7,7 +7,6 @@ export interface BaseClickableTextProps {
   disabled?: boolean;
   pressed?: boolean;
   tag?: React.ElementType & AvailableTags;
-  title?: string;
   defaultTypo?: boolean;
 }
 
@@ -21,7 +20,6 @@ export type ClickableTextProps<Tag extends AvailableTags> =
 export function ClickableText<Tag extends AvailableTags>({
   disabled,
   pressed,
-  title,
   children,
   tag: Tag = 'button',
   innerRef,
@@ -46,7 +44,7 @@ export function ClickableText<Tag extends AvailableTags>({
         className,
       )}
     >
-      {children || title}
+      {children}
     </Tag>
   );
 }
