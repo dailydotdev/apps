@@ -89,20 +89,10 @@ const Step1 = ({
   );
 };
 
-function isValidHttpUrl(string) {
-  let url;
+const CUSTOM_BG = 'CUSTOM_BG';
+const BY_RANK_BG = 'BY_RANK_BG';
 
-  try {
-    url = new URL(string);
-  } catch (_) {
-    return false;
-  }
-
-  return url.protocol === 'http:' || url.protocol === 'https:';
-}
-
-const bgOptions = [
-  { label: 'By rank', value: '' },
+const bgUrlOption = [
   {
     label: 'Halloween',
     value:
@@ -113,9 +103,11 @@ const bgOptions = [
     label: 'Christmas',
     value:
       'https://daily-now-res.cloudinary.com/image/upload/v1634801812/devcard/bg/christmas.jpg',
-    caption: { text: '(Limited edition) 🎄', className: 'text-avocado-40' },
+    caption: {
+      text: '(Limited edition) 🎄',
+      className: 'text-theme-status-success',
+    },
   },
-  { value: 'Custom', label: 'Custom' },
 ];
 
 const Step2 = ({
@@ -134,22 +126,6 @@ const Step2 = ({
   const [copyingLink, copyLink] = useCopyLink(() => devCardSrc);
   const [downloading, setDownloading] = useState(false);
   const [bg, setBg] = useState('');
-
-  const onOptionChange = async (option: string) => {
-    setBg(option);
-
-    if (!option) {
-      return onGenerateImage();
-    }
-
-    const isLink = isValidHttpUrl(option);
-
-    if (!isLink) {
-      return inputRef.current.click();
-    }
-
-    return onGenerateImage({ url: option });
-  };
 
   const downloadImage = async (): Promise<void> => {
     setDownloading(true);
@@ -177,6 +153,21 @@ const Step2 = ({
 
     setBackgroundImageError(null);
     onGenerateImage({ file });
+  };
+
+  const onByRankClick = () => {
+    setBg(CUSTOM_BG);
+    onGenerateImage();
+  };
+
+  const onOptionChange = async (option: string) => {
+    setBg(option);
+    onGenerateImage({ url: option });
+  };
+
+  const onCustomClick = () => {
+    setBg(CUSTOM_BG);
+    inputRef.current.click();
   };
 
   const finalError = error || backgroundImageError;
@@ -232,7 +223,17 @@ const Step2 = ({
         <section className="flex flex-col self-stretch laptop:self-center mt-16 laptop:mt-0 text-theme-label-tertiary">
           <h2 className="typo-headline">Customize Style</h2>
           <div className={classNames('flex flex-col -my-0.5 items-start mt-8')}>
-            {bgOptions.map((option) => (
+            <RadioItem
+              disabled={isLoadingImage}
+              name="timeOff"
+              value={BY_RANK_BG}
+              checked={bg === BY_RANK_BG}
+              onChange={onByRankClick}
+              className="my-0.5 truncate"
+            >
+              By rank
+            </RadioItem>
+            {bgUrlOption.map((option) => (
               <RadioItem
                 disabled={isLoadingImage}
                 key={option.value}
@@ -255,6 +256,16 @@ const Step2 = ({
                 )}
               </RadioItem>
             ))}
+            <RadioItem
+              disabled={isLoadingImage}
+              name="timeOff"
+              value={CUSTOM_BG}
+              checked={bg === CUSTOM_BG}
+              onChange={onCustomClick}
+              className="my-0.5 truncate"
+            >
+              Custom
+            </RadioItem>
           </div>
           {finalError && (
             <FormErrorMessage role="alert">{finalError}</FormErrorMessage>
