@@ -32,8 +32,13 @@ import { defaultOpenGraph } from '../next-seo';
 
 const TWO_MEGABYTES = 2 * 1024 * 1024;
 
+interface GenerateDevCardParams {
+  file?: File;
+  url?: string;
+}
+
 type StepProps = {
-  onGenerateImage: (file?: File) => unknown;
+  onGenerateImage: (params?: GenerateDevCardParams) => unknown;
   devCardSrc?: string;
   isLoadingImage: boolean;
   error?: string;
@@ -130,7 +135,7 @@ const Step2 = ({
   const [downloading, setDownloading] = useState(false);
   const [bg, setBg] = useState('');
 
-  const onOptionChange = async (option) => {
+  const onOptionChange = async (option: string) => {
     setBg(option);
 
     if (!option) {
@@ -143,11 +148,7 @@ const Step2 = ({
       return inputRef.current.click();
     }
 
-    const res = await fetch(option);
-    const blob = await res.blob();
-    const file = new File([blob], 'themed-devcard.jpg', { type: blob.type });
-
-    return onGenerateImage(file);
+    return onGenerateImage({ url: option });
   };
 
   const downloadImage = async (): Promise<void> => {
@@ -175,7 +176,7 @@ const Step2 = ({
     }
 
     setBackgroundImageError(null);
-    onGenerateImage(file);
+    onGenerateImage({ file });
   };
 
   const finalError = error || backgroundImageError;
@@ -308,9 +309,10 @@ const DevCardPage = (): ReactElement => {
     setImageError('Something went wrong, please try again...');
 
   const { mutateAsync: generateDevCard } = useMutation(
-    (file?: File | undefined) =>
+    ({ file, url }: GenerateDevCardParams = {}) =>
       request(`${apiUrl}/graphql`, GENERATE_DEVCARD_MUTATION, {
         file,
+        url,
       }),
     {
       onMutate() {
