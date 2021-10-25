@@ -156,7 +156,7 @@ const Step2 = ({
   };
 
   const onByRankClick = () => {
-    setBg(CUSTOM_BG);
+    setBg(BY_RANK_BG);
     onGenerateImage();
   };
 
