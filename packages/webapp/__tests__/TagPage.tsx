@@ -14,7 +14,7 @@ import {
   REMOVE_FILTERS_FROM_FEED_MUTATION,
   TAGS_SETTINGS_QUERY,
 } from '@dailydotdev/shared/src/graphql/feedSettings';
-import { getTagsSettingsQueryKey } from '@dailydotdev/shared/src/hooks/useMutateFilters';
+import { getTagsFiltersQueryKey } from '@dailydotdev/shared/src/hooks/useMutateFilters';
 import SettingsContext, {
   SettingsContextData,
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
@@ -223,9 +223,7 @@ it('should follow tag', async () => {
   let mutationCalled = false;
   renderComponent();
   await waitFor(async () => {
-    const data = await client.getQueryData(
-      getTagsSettingsQueryKey(defaultUser),
-    );
+    const data = await client.getQueryData(getTagsFiltersQueryKey(defaultUser));
     expect(data).toBeTruthy();
   });
   mockGraphQL({
@@ -251,9 +249,7 @@ it('should block tag', async () => {
   let mutationCalled = false;
   renderComponent();
   await waitFor(async () => {
-    const data = await client.getQueryData(
-      getTagsSettingsQueryKey(defaultUser),
-    );
+    const data = await client.getQueryData(getTagsFiltersQueryKey(defaultUser));
     expect(data).toBeTruthy();
   });
   mockGraphQL({
@@ -283,9 +279,7 @@ it('should unfollow tag', async () => {
     createTagsSettingsMock({ includeTags: ['react'] }),
   ]);
   await waitFor(async () => {
-    const data = await client.getQueryData(
-      getTagsSettingsQueryKey(defaultUser),
-    );
+    const data = await client.getQueryData(getTagsFiltersQueryKey(defaultUser));
     expect(data).toBeTruthy();
   });
   mockGraphQL({
@@ -314,9 +308,7 @@ it('should unblock tag', async () => {
     createTagsSettingsMock({ blockedTags: ['react'] }),
   ]);
   await waitFor(async () => {
-    const data = await client.getQueryData(
-      getTagsSettingsQueryKey(defaultUser),
-    );
+    const data = await client.getQueryData(getTagsFiltersQueryKey(defaultUser));
     expect(data).toBeTruthy();
   });
   mockGraphQL({

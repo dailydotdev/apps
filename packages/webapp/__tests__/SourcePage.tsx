@@ -18,7 +18,7 @@ import {
   REMOVE_FILTERS_FROM_FEED_MUTATION,
   SOURCES_SETTINGS_QUERY,
 } from '@dailydotdev/shared/src/graphql/feedSettings';
-import { getSourcesSettingsQueryKey } from '@dailydotdev/shared/src/hooks/useMutateFilters';
+import { getTagsFiltersQueryKey } from '@dailydotdev/shared/src/hooks/useMutateFilters';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import SourcePage from '../pages/sources/[source]';
 import ad from './fixture/ad';
@@ -195,9 +195,7 @@ it('should follow source', async () => {
   let mutationCalled = false;
   renderComponent();
   await waitFor(async () => {
-    const data = await client.getQueryData(
-      getSourcesSettingsQueryKey(defaultUser),
-    );
+    const data = await client.getQueryData(getTagsFiltersQueryKey(defaultUser));
     expect(data).toBeTruthy();
   });
   mockGraphQL({
@@ -224,9 +222,7 @@ it('should block source', async () => {
     createSourcesSettingsMock({ excludeSources: [] }),
   ]);
   await waitFor(async () => {
-    const data = await client.getQueryData(
-      getSourcesSettingsQueryKey(defaultUser),
-    );
+    const data = await client.getQueryData(getTagsFiltersQueryKey(defaultUser));
     expect(data).toBeTruthy();
   });
   mockGraphQL({

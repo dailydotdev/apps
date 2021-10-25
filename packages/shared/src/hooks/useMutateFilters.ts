@@ -80,7 +80,7 @@ const onMutateTagsSettings = async (
   manipulate: ManipulateTagFunc,
   user: LoggedUser,
 ): Promise<() => Promise<void>> => {
-  const queryKey = getSourcesFiltersQueryKey(user);
+  const queryKey = getTagsFiltersQueryKey(user);
   const feedSettings = await queryClient.getQueryData<FeedSettingsData>(
     queryKey,
   );
@@ -103,7 +103,7 @@ const onMutateSourcesSettings = async (
   manipulate: ManipulateSourceFunc,
   user: LoggedUser,
 ): Promise<() => Promise<void>> => {
-  const queryKey = getSourcesFiltersQueryKey(user);
+  const queryKey = getTagsFiltersQueryKey(user);
   const feedSettings = await queryClient.getQueryData<FeedSettingsData>(
     queryKey,
   );

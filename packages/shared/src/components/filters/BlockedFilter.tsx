@@ -5,7 +5,7 @@ import { useQuery } from 'react-query';
 import { useContextMenu } from 'react-contexify';
 import { FiltersList } from './common';
 import useMutateFilters, {
-  getSourcesFiltersQueryKey,
+  getTagsFiltersQueryKey,
 } from '../../hooks/useMutateFilters';
 import AuthContext from '../../contexts/AuthContext';
 import { apiUrl } from '../../lib/config';
@@ -34,7 +34,7 @@ export default function BlockedFilter(): ReactElement {
   });
   const { unblockTag, followSource } = useMutateFilters(user);
 
-  const filtersKey = getSourcesFiltersQueryKey(user);
+  const filtersKey = getTagsFiltersQueryKey(user);
   const { data: blockedTagsAndSources, isLoading: isLoadingQuery } = useQuery(
     filtersKey,
     () => request(`${apiUrl}/graphql`, ALL_BLOCKED_TAGS_AND_SOURCES),
@@ -81,7 +81,7 @@ export default function BlockedFilter(): ReactElement {
         <h3 className="my-6 typo-headline">Blocked tags</h3>
 
         <FiltersList className="-mr-6">
-          {blockedTagsAndSources?.feedSettings?.blockedTags.map((tag) => (
+          {blockedTagsAndSources?.feedSettings?.blockedTags?.map((tag) => (
             <TagItemRow
               tag={tag}
               key={tag}
@@ -121,7 +121,7 @@ export default function BlockedFilter(): ReactElement {
         onUnblock={() =>
           initUnblockModal({
             tag: selectedTag,
-            action: () => unblockTag({ tag: selectedTag }),
+            action: () => unblockTag({ tags: [selectedTag] }),
           })
         }
         onHidden={() => setSelectedTag(null)}

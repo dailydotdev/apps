@@ -64,6 +64,9 @@ export const ALL_TAG_CATEGORIES_QUERY = gql`
         emoji
       }
     }
+    feedSettings @include(if: $loggedIn) {
+      includeTags
+    }
   }
 `;
 

@@ -16,7 +16,7 @@ import {
   REMOVE_FILTERS_FROM_FEED_MUTATION,
 } from '../../graphql/feedSettings';
 import BlockedFilter from './BlockedFilter';
-import { getSourcesFiltersQueryKey } from '../../hooks/useMutateFilters';
+import { getTagsFiltersQueryKey } from '../../hooks/useMutateFilters';
 
 const showLogin = jest.fn();
 
@@ -104,9 +104,7 @@ it('should show unblock popup on option click', async () => {
   const { baseElement } = renderComponent();
 
   await waitFor(async () => {
-    const data = await client.getQueryData(
-      getSourcesFiltersQueryKey(defaultUser),
-    );
+    const data = await client.getQueryData(getTagsFiltersQueryKey(defaultUser));
     expect(data).toBeTruthy();
   });
 
@@ -145,9 +143,7 @@ it('should show unblock popup on source unblock click', async () => {
   const { baseElement } = renderComponent();
 
   await waitFor(async () => {
-    const data = await client.getQueryData(
-      getSourcesFiltersQueryKey(defaultUser),
-    );
+    const data = await client.getQueryData(getTagsFiltersQueryKey(defaultUser));
     expect(data).toBeTruthy();
   });
 

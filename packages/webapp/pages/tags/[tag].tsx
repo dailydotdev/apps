@@ -32,7 +32,7 @@ import {
   FeedPage,
 } from '@dailydotdev/shared/src/components/utilities';
 import useMutateFilters, {
-  getTagsSettingsQueryKey,
+  getTagsFiltersQueryKey,
 } from '@dailydotdev/shared/src/hooks/useMutateFilters';
 import classNames from 'classnames';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -47,7 +47,7 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
   // Must be memoized to prevent refreshing the feed
   const queryVariables = useMemo(() => ({ tag, ranking: 'TIME' }), [tag]);
 
-  const queryKey = getTagsSettingsQueryKey(user);
+  const queryKey = getTagsFiltersQueryKey(user);
   const { data: feedSettings } = useQuery<FeedSettingsData>(
     queryKey,
     () => request(`${apiUrl}/graphql`, TAGS_SETTINGS_QUERY),

@@ -18,7 +18,7 @@ import {
 import request from 'graphql-request';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import useMutateFilters, {
-  getSourcesSettingsQueryKey,
+  getTagsFiltersQueryKey,
 } from '@dailydotdev/shared/src/hooks/useMutateFilters';
 import { useQuery } from 'react-query';
 import {
@@ -52,7 +52,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
     [source?.id],
   );
 
-  const queryKey = getSourcesSettingsQueryKey(user);
+  const queryKey = getTagsFiltersQueryKey(user);
   const { data: feedSettings } = useQuery<FeedSettingsData>(
     queryKey,
     () => request(`${apiUrl}/graphql`, SOURCES_SETTINGS_QUERY),
