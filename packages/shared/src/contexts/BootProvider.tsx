@@ -12,6 +12,8 @@ import { FeaturesContextProvider } from './FeaturesContext';
 import { AuthContextProvider } from './AuthContext';
 import { AnonymousUser, LoggedUser } from '../lib/user';
 import usePersistentState from '../hooks/usePersistentState';
+import AlertContext from './AlertContext';
+import useAlertContext from '../hooks/useAlertContext';
 
 function useRefreshToken(
   accessToken: AccessToken,
@@ -88,20 +90,23 @@ export const BootDataProvider = ({
 
   useRefreshToken(bootData?.accessToken, refetch);
   const { user, updateUser, loadedFromCache } = useCacheUser(bootData?.user);
+  const alertContext = useAlertContext(null);
 
   return (
     <FeaturesContextProvider flags={bootData?.flags}>
-      <AuthContextProvider
-        user={user}
-        updateUser={updateUser}
-        tokenRefreshed={dataUpdatedAt > 0}
-        getRedirectUri={getRedirectUri}
-        loadingUser={!dataUpdatedAt || !user}
-        loadedUserFromCache={loadedFromCache}
-        visit={bootData?.visit}
-      >
-        {children}
-      </AuthContextProvider>
+      <AlertContext.Provider value={alertContext}>
+        <AuthContextProvider
+          user={user}
+          updateUser={updateUser}
+          tokenRefreshed={dataUpdatedAt > 0}
+          getRedirectUri={getRedirectUri}
+          loadingUser={!dataUpdatedAt || !user}
+          loadedUserFromCache={loadedFromCache}
+          visit={bootData?.visit}
+        >
+          {children}
+        </AuthContextProvider>
+      </AlertContext.Provider>
     </FeaturesContextProvider>
   );
 };

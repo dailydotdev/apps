@@ -36,15 +36,15 @@ export const getSourcesSettingsQueryKey = (user?: LoggedUser): string[] => [
   'sourcesSettings',
 ];
 
-type FollowTag = ({ tag: string }) => Promise<unknown>;
+type FollowTags = ({ tags: Array }) => Promise<unknown>;
 // eslint-disable-next-line @typescript-eslint/no-shadow
 type FollowSource = ({ source: Source }) => Promise<unknown>;
 
 type ReturnType = {
-  followTag: FollowTag;
-  unfollowTag: FollowTag;
-  blockTag: FollowTag;
-  unblockTag: FollowTag;
+  followTags: FollowTags;
+  unfollowTags: FollowTags;
+  blockTag: FollowTags;
+  unblockTag: FollowTags;
   followSource: FollowSource;
   unfollowSource: FollowSource;
 };
@@ -71,11 +71,11 @@ async function updateQueryData(
 
 type ManipulateTagFunc = (
   feedSettings: FeedSettings,
-  tag: string,
+  tags: Array<string>,
 ) => FeedSettings;
 
 const onMutateTagsSettings = async (
-  tag: string,
+  tags: Array<string>,
   queryClient: QueryClient,
   manipulate: ManipulateTagFunc,
   user: LoggedUser,
@@ -84,7 +84,7 @@ const onMutateTagsSettings = async (
   const feedSettings = await queryClient.getQueryData<FeedSettingsData>(
     queryKey,
   );
-  const newData = manipulate(feedSettings.feedSettings, tag);
+  const newData = manipulate(feedSettings.feedSettings, tags);
   const keys = [queryKey, getTagsFiltersQueryKey(user)];
   await updateQueryData(queryClient, newData, keys);
   return async () => {
@@ -118,26 +118,26 @@ const onMutateSourcesSettings = async (
 export default function useMutateFilters(user?: LoggedUser): ReturnType {
   const queryClient = useQueryClient();
 
-  const { mutateAsync: followTag } = useMutation<
+  const { mutateAsync: followTags } = useMutation<
     unknown,
     unknown,
-    { tag: string },
+    { tags: Array<string> },
     () => Promise<void>
   >(
-    ({ tag }) =>
+    ({ tags }) =>
       request(`${apiUrl}/graphql`, ADD_FILTERS_TO_FEED_MUTATION, {
         filters: {
-          includeTags: [tag],
+          includeTags: tags,
         },
       }),
     {
-      onMutate: ({ tag }) =>
+      onMutate: ({ tags }) =>
         onMutateTagsSettings(
-          tag,
+          tags,
           queryClient,
-          (feedSettings, manipulateTag) => {
+          (feedSettings, manipulateTags) => {
             const newData = cloneDeep(feedSettings);
-            newData.includeTags.push(manipulateTag);
+            newData.includeTags = newData.includeTags.concat(manipulateTags);
             return newData;
           },
           user,
@@ -149,23 +149,23 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
   const { mutateAsync: blockTag } = useMutation<
     unknown,
     unknown,
-    { tag: string },
+    { tags: Array<string> },
     () => Promise<void>
   >(
-    ({ tag }) =>
+    ({ tags }) =>
       request(`${apiUrl}/graphql`, ADD_FILTERS_TO_FEED_MUTATION, {
         filters: {
-          blockedTags: [tag],
+          blockedTags: tags,
         },
       }),
     {
-      onMutate: ({ tag }) =>
+      onMutate: ({ tags }) =>
         onMutateTagsSettings(
-          tag,
+          tags,
           queryClient,
-          (feedSettings, manipulateTag) => {
+          (feedSettings, manipulateTags) => {
             const newData = cloneDeep(feedSettings);
-            newData.blockedTags.push(manipulateTag);
+            newData.blockedTags = newData.blockedTags.concat(manipulateTags);
             return newData;
           },
           user,
@@ -174,29 +174,28 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
     },
   );
 
-  const { mutateAsync: unfollowTag } = useMutation<
+  const { mutateAsync: unfollowTags } = useMutation<
     unknown,
     unknown,
-    { tag: string },
+    { tags: Array<string> },
     () => void
   >(
-    ({ tag }) =>
+    ({ tags }) =>
       request(`${apiUrl}/graphql`, REMOVE_FILTERS_FROM_FEED_MUTATION, {
         filters: {
-          includeTags: [tag],
+          includeTags: tags,
         },
       }),
     {
-      onMutate: ({ tag }) =>
+      onMutate: ({ tags }) =>
         onMutateTagsSettings(
-          tag,
+          tags,
           queryClient,
-          (feedSettings, manipulateTag) => {
+          (feedSettings, manipulateTags) => {
             const newData = cloneDeep(feedSettings);
-            const index = newData.includeTags.indexOf(manipulateTag);
-            if (index > -1) {
-              newData.includeTags.splice(index, 1);
-            }
+            newData.includeTags = newData.includeTags.filter(
+              (value) => manipulateTags.indexOf(value) < 0,
+            );
             return newData;
           },
           user,
@@ -208,26 +207,25 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
   const { mutateAsync: unblockTag } = useMutation<
     unknown,
     unknown,
-    { tag: string },
+    { tags: Array<string> },
     () => void
   >(
-    ({ tag }) =>
+    ({ tags }) =>
       request(`${apiUrl}/graphql`, REMOVE_FILTERS_FROM_FEED_MUTATION, {
         filters: {
-          blockedTags: [tag],
+          blockedTags: tags,
         },
       }),
     {
-      onMutate: ({ tag }) =>
+      onMutate: ({ tags }) =>
         onMutateTagsSettings(
-          tag,
+          tags,
           queryClient,
-          (feedSettings, manipulateTag) => {
+          (feedSettings, manipulateTags) => {
             const newData = cloneDeep(feedSettings);
-            const index = newData.blockedTags.indexOf(manipulateTag);
-            if (index > -1) {
-              newData.blockedTags.splice(index, 1);
-            }
+            newData.blockedTags = newData.blockedTags.filter(
+              (value) => manipulateTags.indexOf(value) < 0,
+            );
             return newData;
           },
           user,
@@ -298,8 +296,8 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
   );
 
   return {
-    followTag,
-    unfollowTag,
+    followTags,
+    unfollowTags,
     blockTag,
     unblockTag,
     followSource,
