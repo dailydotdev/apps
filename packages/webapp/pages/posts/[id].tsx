@@ -598,10 +598,9 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             <span>{postById?.post.views.toLocaleString()} Views</span>
           )}
           {postUpvotesNum > 0 && (
-            <ClickableText
-              title={`${postUpvotesNum} Upvote${postUpvotesNum > 1 ? 's' : ''}`}
-              onClick={() => handleShowUpvotedPost()}
-            />
+            <ClickableText onClick={() => handleShowUpvotedPost()}>
+              {postUpvotesNum} Upvote{postUpvotesNum > 1 ? 's' : ''}
+            </ClickableText>
           )}
           {postNumComments > 0 && (
             <span>
