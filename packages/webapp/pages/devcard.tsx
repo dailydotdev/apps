@@ -99,7 +99,7 @@ const bgUrlOption = [
       'https://daily-now-res.cloudinary.com/image/upload/v1634801813/devcard/bg/halloween.jpg',
     caption: {
       text: '(Limited edition) 🎃',
-      className: 'text-theme-label-warning',
+      className: 'text-theme-status-warning',
     },
   },
   {
@@ -108,7 +108,7 @@ const bgUrlOption = [
       'https://daily-now-res.cloudinary.com/image/upload/v1634801812/devcard/bg/christmas.jpg',
     caption: {
       text: '(Limited edition) 🎄',
-      className: 'text-theme-label-success',
+      className: 'text-theme-status-success',
     },
   },
 ];
