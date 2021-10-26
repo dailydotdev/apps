@@ -26,16 +26,16 @@ export default function BookmarkFeedPage({
   children,
 }: MainFeedPageProps): ReactElement {
   const router = useRouter();
-  const { user, tokenRefreshed } = useContext(AuthContext);
+  const { user, tokenRefreshed, loadingUser } = useContext(AuthContext);
   const [isSearchOn, setIsSearchOn] = useState(
     router?.pathname === BOOKMARK_SEARCH_URL,
   );
 
   useEffect(() => {
-    if (!user && tokenRefreshed) {
+    if (!user && tokenRefreshed && !loadingUser) {
       router.replace('/');
     }
-  }, [tokenRefreshed, user]);
+  }, [tokenRefreshed, user, loadingUser]);
 
   useEffect(() => {
     if (router?.pathname === BOOKMARK_SEARCH_URL) {
