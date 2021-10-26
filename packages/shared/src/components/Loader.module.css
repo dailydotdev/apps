@@ -27,6 +27,16 @@
   }
 }
 
+.inner.invert {
+  &:before {
+    border-top-color: var(--theme-label-invert);
+  }
+
+  &:after {
+    border-color: var(--theme-label-invert);
+  }
+}
+
 .inner,
 .inner:before,
 .inner:after {
