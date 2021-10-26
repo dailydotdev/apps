@@ -33,8 +33,6 @@ module.exports = {
           link: 'var(--theme-label-link)',
           invert: 'var(--theme-label-invert)',
           bacon: 'var(--theme-label-bacon)',
-          success: 'var(--theme-label-success)',
-          warning: 'var(--theme-label-warning)',
         },
         divider: {
           primary: 'var(--theme-divider-primary)',
@@ -49,6 +47,7 @@ module.exports = {
           error: 'var(--theme-status-error)',
           help: 'var(--theme-status-help)',
           success: 'var(--theme-status-success)',
+          warning: 'var(--theme-status-warning)',
         },
         'post-disabled': 'var(--theme-post-disabled)',
       },

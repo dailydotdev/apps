@@ -55,8 +55,6 @@ body {
   --theme-label-link: theme('colors.water.20');
   --theme-label-invert: theme('colors.pepper.90');
   --theme-label-bun: theme('colors.bun.20');
-  --theme-label-success: theme('colors.avocado.40');
-  --theme-label-warning: theme('colors.bun.40');
 
   --theme-divider-primary: theme('colors.salt.90');
   --theme-divider-secondary: theme('colors.salt.90')66;
@@ -66,6 +64,7 @@ body {
   --theme-status-error: theme('colors.ketchup.40');
   --theme-status-help: theme('colors.cheese.40');
   --theme-status-success: theme('colors.avocado.40');
+  --theme-status-warning: theme('colors.bun.40');
 
   --theme-shadow2: theme('boxShadow.2-black');
   --theme-shadow3: theme('boxShadow.3-black');
@@ -119,8 +118,6 @@ body {
   --theme-label-link: theme('colors.water.80');
   --theme-label-invert: #ffffff;
   --theme-label-bun: theme('colors.bun.80');
-  --theme-label-success: theme('colors.avocado.60');
-  --theme-label-warning: theme('colors.bun.60');
 
   --theme-divider-primary: theme('colors.pepper.10');
   --theme-divider-secondary: theme('colors.pepper.10')66;
@@ -130,6 +127,7 @@ body {
   --theme-status-error: theme('colors.ketchup.60');
   --theme-status-help: theme('colors.cheese.60');
   --theme-status-success: theme('colors.avocado.60');
+  --theme-status-warning: theme('colors.bun.60');
 
   --theme-shadow2: theme('boxShadow.2-salt');
   --theme-shadow3: theme('boxShadow.3-salt');
