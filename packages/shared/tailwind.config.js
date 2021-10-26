@@ -47,6 +47,7 @@ module.exports = {
           error: 'var(--theme-status-error)',
           help: 'var(--theme-status-help)',
           success: 'var(--theme-status-success)',
+          warning: 'var(--theme-status-warning)',
         },
         'post-disabled': 'var(--theme-post-disabled)',
       },
