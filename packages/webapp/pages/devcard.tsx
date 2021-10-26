@@ -7,8 +7,10 @@ import React, {
   useState,
 } from 'react';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import GitHubIcon from '@dailydotdev/shared/icons/github.svg';
 import { RadioItem } from '@dailydotdev/shared/src/components/fields/RadioItem';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import request from 'graphql-request';
 import { useMutation } from 'react-query';
@@ -290,6 +292,16 @@ const Step2 = ({
             >
               {!copyingEmbed ? 'Copy code' : 'Copied!'}
             </Button>
+            <ClickableText
+              tag="a"
+              href="https://daily.dev/blog/adding-the-daily-devcard-to-your-github-profile?utm_source=webapp&utm_medium=devcard&utm_campaign=devcardguide&utm_id=inapp"
+              className="mt-6 typo-body"
+              defaultTypo={false}
+              target="_blank"
+            >
+              <GitHubIcon className="mr-2" />
+              Add DevCard to your GitHub profile
+            </ClickableText>
           </div>
         </section>
       </main>

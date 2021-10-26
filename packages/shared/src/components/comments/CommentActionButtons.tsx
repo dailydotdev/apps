@@ -140,9 +140,10 @@ export default function CommentActionButtons({
         <ClickableText
           className="ml-auto"
           {...getTooltipProps('See who upvoted')}
-          title={`${numUpvotes} upvote${numUpvotes === 1 ? '' : 's'}`}
           onClick={() => onShowUpvotes(comment.id, numUpvotes)}
-        />
+        >
+          {numUpvotes} upvote{numUpvotes === 1 ? '' : 's'}
+        </ClickableText>
       )}
     </div>
   );
