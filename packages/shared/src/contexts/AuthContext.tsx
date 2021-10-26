@@ -71,7 +71,7 @@ export const AuthContextProvider = ({
       updateUser,
       logout,
       loadingUser,
-      tokenRefreshed: !loadingUser ?? tokenRefreshed,
+      tokenRefreshed,
       loadedUserFromCache,
       getRedirectUri,
       anonymous: user,
