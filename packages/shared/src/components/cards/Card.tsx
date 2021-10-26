@@ -13,7 +13,7 @@ const Title = classed(
   'font-bold typo-body text-theme-label-primary multi-truncate',
 );
 
-export const CardTitle = classed(Title, 'my-2');
+export const CardTitle = classed(Title, 'my-2 break-word');
 
 export const ListCardTitle = classed(Title, 'mr-2');
 
