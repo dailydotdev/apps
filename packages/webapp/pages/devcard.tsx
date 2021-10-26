@@ -97,7 +97,10 @@ const bgUrlOption = [
     label: 'Halloween',
     value:
       'https://daily-now-res.cloudinary.com/image/upload/v1634801813/devcard/bg/halloween.jpg',
-    caption: { text: '(Limited edition) 🎃', className: 'text-bun-40' },
+    caption: {
+      text: '(Limited edition) 🎃',
+      className: 'text-theme-label-warning',
+    },
   },
   {
     label: 'Christmas',
@@ -105,7 +108,7 @@ const bgUrlOption = [
       'https://daily-now-res.cloudinary.com/image/upload/v1634801812/devcard/bg/christmas.jpg',
     caption: {
       text: '(Limited edition) 🎄',
-      className: 'text-theme-status-success',
+      className: 'text-theme-label-success',
     },
   },
 ];
