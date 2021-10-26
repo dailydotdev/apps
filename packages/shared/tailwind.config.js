@@ -33,6 +33,8 @@ module.exports = {
           link: 'var(--theme-label-link)',
           invert: 'var(--theme-label-invert)',
           bacon: 'var(--theme-label-bacon)',
+          success: 'var(--theme-label-success)',
+          warning: 'var(--theme-label-warning)',
         },
         divider: {
           primary: 'var(--theme-divider-primary)',
