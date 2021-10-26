@@ -39,7 +39,7 @@ export default function Sidebar(): ReactElement {
     >
       <aside
         className={classNames(
-          'self-stretch bg-theme-bg-primary rounded-r-2xl border-r border-theme-divider-primary',
+          'self-stretch bg-theme-bg-primary rounded-r-2xl border-r border-theme-divider-primary overflow-y-auto',
           !opened && 'invisible',
         )}
         style={{

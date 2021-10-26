@@ -14,9 +14,9 @@ export default function MultiLevelMenuDetail({
 }): ReactElement {
   return (
     <>
-      <div className="py-1 px-4 my-6 border-t border-b border-theme-divider-tertiary">
+      <div className="py-1 px-4 mb-6 border-b border-theme-divider-tertiary">
         <Button
-          className="p-0 btn-quaternary"
+          className="p-0 typo-callout text-theme-label-tertiary btn-quaternary"
           onClick={() => setMultiLevelMenuDetail(null, null)}
           icon={<ArrowIcon className="mr-2 text-2xl transform -rotate-90" />}
         >

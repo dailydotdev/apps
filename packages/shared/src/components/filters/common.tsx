@@ -30,17 +30,17 @@ export const FiltersPlaceholder = (): ReactElement => (
 
 export const TagCategoryDetails = classed(
   'details',
-  'p-6 border-t border-b border-theme-divider-tertiary right-icon',
+  'border-t border-b border-theme-divider-tertiary right-icon cursor-pointer',
 );
 
 export const TagCategorySummary = classed(
   'summary',
-  'flex justify-between items-center',
+  'flex justify-between items-center p-6 pl-4',
 );
 
 export const TagCategoryDetailsContent = classed(
   'div',
-  'flex flex-wrap py-6 pt-8',
+  'flex flex-wrap px-6 pb-6 pt-2',
 );
 
 export const FiltersDetails = classed(
