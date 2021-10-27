@@ -16,29 +16,9 @@ export const getFeedSettingsQueryKey = (user?: LoggedUser): string[] => [
   'feedSettings',
 ];
 
-export const getTagsFiltersQueryKey = (user?: LoggedUser): string[] => [
-  user?.id,
-  'tagsFilters',
-];
-
-export const getTagsSettingsQueryKey = (user?: LoggedUser): string[] => [
-  user?.id,
-  'tagsSettings',
-];
-
 export const getSearchTagsQueryKey = (query: string): string[] => [
   'searchTags',
   query,
-];
-
-export const getSourcesFiltersQueryKey = (user?: LoggedUser): string[] => [
-  user?.id,
-  'sourcesFilters',
-];
-
-export const getSourcesSettingsQueryKey = (user?: LoggedUser): string[] => [
-  user?.id,
-  'sourcesSettings',
 ];
 
 type FollowTags = ({ tags: Array }) => Promise<unknown>;
