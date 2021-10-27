@@ -10,6 +10,7 @@ import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import GitHubIcon from '@dailydotdev/shared/icons/github.svg';
 import { RadioItem } from '@dailydotdev/shared/src/components/fields/RadioItem';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import { LoaderOverlay } from '@dailydotdev/shared/src/components/LoaderOverlay';
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import request from 'graphql-request';
@@ -113,6 +114,15 @@ const bgUrlOption = [
       className: 'text-theme-status-success',
     },
   },
+  {
+    label: 'daily.dev 4th birthday',
+    value:
+      'https://daily-now-res.cloudinary.com/image/upload/v1635317135/devcard/bg/birthday.jpg',
+    caption: {
+      text: '(Limited Edition) 🎉',
+      className: 'text-theme-status-cabbage',
+    },
+  },
 ];
 
 const Step2 = ({
@@ -130,7 +140,7 @@ const Step2 = ({
   const [copyingEmbed, copyEmbed] = useCopyLink(() => embedCode);
   const [copyingLink, copyLink] = useCopyLink(() => devCardSrc);
   const [downloading, setDownloading] = useState(false);
-  const [bg, setBg] = useState('');
+  const [bg, setBg] = useState(BY_RANK_BG);
 
   const downloadImage = async (): Promise<void> => {
     setDownloading(true);
@@ -183,13 +193,14 @@ const Step2 = ({
       <main className="grid grid-cols-2 gap-20">
         <section className="flex flex-col">
           <Tilt
-            className="overflow-hidden self-stretch laptop:w-96"
+            className="overflow-hidden relative self-stretch laptop:w-96"
             glareEnable
             perspective={1000}
             glareMaxOpacity={0.25}
             glarePosition="all"
             trackOnWindow
             style={{ transformStyle: 'preserve-3d', borderRadius: '2rem' }}
+            aria-busy={isLoadingImage}
           >
             <LazyImage
               imgSrc={devCardSrc}
@@ -197,6 +208,7 @@ const Step2 = ({
               ratio="136.5%"
               eager
             />
+            {isLoadingImage && <LoaderOverlay invertColor />}
           </Tilt>
           <div className="grid grid-cols-2 gap-4 mx-2 mt-8">
             <Button

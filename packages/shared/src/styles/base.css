@@ -65,6 +65,7 @@ body {
   --theme-status-help: theme('colors.cheese.40');
   --theme-status-success: theme('colors.avocado.40');
   --theme-status-warning: theme('colors.bun.40');
+  --theme-status-cabbage: theme('colors.cabbage.40'); /* temporary */
 
   --theme-shadow2: theme('boxShadow.2-black');
   --theme-shadow3: theme('boxShadow.3-black');
@@ -128,6 +129,7 @@ body {
   --theme-status-help: theme('colors.cheese.60');
   --theme-status-success: theme('colors.avocado.60');
   --theme-status-warning: theme('colors.bun.60');
+  --theme-status-cabbage: theme('colors.cabbage.60'); /* temporary */
 
   --theme-shadow2: theme('boxShadow.2-salt');
   --theme-shadow3: theme('boxShadow.3-salt');
