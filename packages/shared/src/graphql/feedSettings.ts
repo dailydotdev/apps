@@ -1,6 +1,5 @@
 import { gql } from 'graphql-request';
 import { Source } from './sources';
-import { Connection } from './common';
 
 export interface Tag {
   name: string;
