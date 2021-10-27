@@ -114,6 +114,15 @@ const bgUrlOption = [
       className: 'text-theme-status-success',
     },
   },
+  {
+    label: 'daily.dev 4th birthday',
+    value:
+      'https://daily-now-res.cloudinary.com/image/upload/v1635317135/devcard/bg/birthday.jpg',
+    caption: {
+      text: '(Limited Edition) 🎉',
+      className: 'text-theme-status-cabbage',
+    },
+  },
 ];
 
 const Step2 = ({

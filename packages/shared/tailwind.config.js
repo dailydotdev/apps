@@ -48,6 +48,7 @@ module.exports = {
           help: 'var(--theme-status-help)',
           success: 'var(--theme-status-success)',
           warning: 'var(--theme-status-warning)',
+          cabbage: 'var(--theme-status-cabbage)',
         },
         'post-disabled': 'var(--theme-post-disabled)',
       },
