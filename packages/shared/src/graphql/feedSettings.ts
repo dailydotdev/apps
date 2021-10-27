@@ -1,6 +1,19 @@
 import { gql } from 'graphql-request';
 import { Source } from './sources';
 
+export interface AdvancedSettings {
+  id: number;
+  title: string;
+  description: string;
+  defaultEnabledState: boolean;
+}
+
+export interface FeedAdvancedSettings
+  extends Partial<Omit<AdvancedSettings, 'defaultEnabledState'>> {
+  id: number;
+  enabled: boolean;
+}
+
 export interface Tag {
   name: string;
 }
@@ -17,6 +30,7 @@ export interface FeedSettings {
   includeTags?: string[];
   blockedTags?: string[];
   excludeSources?: Source[];
+  advancedSettings?: FeedAdvancedSettings[];
 }
 
 export interface TagCategory {
@@ -57,6 +71,73 @@ export const FEED_SETTINGS_QUERY = gql`
     feedSettings @include(if: $loggedIn) {
       includeTags
       blockedTags
+    }
+    tags: popularTags {
+      name
+    }
+  }
+`;
+
+export const FEED_ADVANCED_SETTINGS_AND_LIST = gql`
+  query FeedAdvancedSettings($loggedIn: Boolean!) {
+    feedSettings @include(if: $loggedIn) {
+      advancedSettings {
+        id
+        enabled
+      }
+    }
+    advancedSettings {
+      id
+      title
+      description
+    }
+  }
+`;
+
+export const TAGS_SETTINGS_QUERY = gql`
+  query FeedSettings {
+    feedSettings {
+      includeTags
+    }
+  }
+`;
+
+export const ALL_SOURCES_QUERY = gql`
+  query AllSources {
+    sources(first: 500) {
+      edges {
+        node {
+          id
+          image
+          name
+        }
+      }
+    }
+  }
+`;
+
+export const ALL_SOURCES_AND_SETTINGS_QUERY = gql`
+  query AllSourcesAndSettings {
+    feedSettings {
+      excludeSources {
+        id
+      }
+    }
+    sources(first: 500) {
+      edges {
+        node {
+          id
+          image
+          name
+        }
+      }
+    }
+  }
+`;
+
+export const SOURCES_SETTINGS_QUERY = gql`
+  query SourcesSettings {
+    feedSettings {
       excludeSources {
         id
         image
@@ -78,6 +159,15 @@ export const REMOVE_FILTERS_FROM_FEED_MUTATION = gql`
   mutation RemoveFiltersFromFeed($filters: FiltersInput!) {
     feedSettings: removeFiltersFromFeed(filters: $filters) {
       id
+    }
+  }
+`;
+
+export const UPDATE_ADVANCED_SETTINGS_FILTERS_MUTATION = gql`
+  mutation UpdateFeedAdvancedSettings($settings: [FeedAdvancedSettingsInput]!) {
+    feedSettings: updateFeedAdvancedSettings(settings: $settings) {
+      id
+      enabled
     }
   }
 `;

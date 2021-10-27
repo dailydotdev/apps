@@ -5,21 +5,25 @@ import styles from './Switch.module.css';
 export interface SwitchProps {
   children?: ReactNode;
   className?: string;
+  labelClassName?: string;
   inputId: string;
   name: string;
   checked?: boolean;
   onToggle?: () => unknown;
   compact?: boolean;
+  defaultTypo?: boolean;
 }
 
 export function Switch({
   className,
+  labelClassName,
   inputId,
   name,
   checked,
   children,
   onToggle,
   compact = true,
+  defaultTypo = true,
 }: SwitchProps): ReactElement {
   return (
     <label
@@ -62,8 +66,10 @@ export function Switch({
       {children && (
         <span
           className={classNames(
-            'ml-3 text-theme-label-tertiary font-bold typo-footnote',
+            'ml-3 font-bold typo-footnote',
             styles.children,
+            defaultTypo && 'text-theme-label-tertiary',
+            labelClassName,
           )}
         >
           {children}

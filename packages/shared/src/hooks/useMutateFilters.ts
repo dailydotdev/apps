@@ -4,10 +4,12 @@ import cloneDeep from 'lodash.clonedeep';
 import { LoggedUser } from '../lib/user';
 import { apiUrl } from '../lib/config';
 import {
+  FeedAdvancedSettings,
   ADD_FILTERS_TO_FEED_MUTATION,
   FeedSettings,
   FeedSettingsData,
   REMOVE_FILTERS_FROM_FEED_MUTATION,
+  UPDATE_ADVANCED_SETTINGS_FILTERS_MUTATION,
 } from '../graphql/feedSettings';
 import { Source } from '../graphql/sources';
 
@@ -25,6 +27,10 @@ type FollowTags = ({ tags: Array }) => Promise<unknown>;
 // eslint-disable-next-line @typescript-eslint/no-shadow
 type FollowSource = ({ source: Source }) => Promise<unknown>;
 
+type UpdateAdvancedSettings = (params: {
+  advancedSettings: FeedAdvancedSettings[];
+}) => Promise<unknown>;
+
 type ReturnType = {
   followTags: FollowTags;
   unfollowTags: FollowTags;
@@ -32,6 +38,7 @@ type ReturnType = {
   unblockTag: FollowTags;
   followSource: FollowSource;
   unfollowSource: FollowSource;
+  updateAdvancedSettings: UpdateAdvancedSettings;
 };
 
 async function updateQueryData(
@@ -54,6 +61,27 @@ async function updateQueryData(
   );
 }
 
+type ManipulateAdvancedSettingsFunc = (
+  feedSettings: FeedSettings,
+  advancedSettings: FeedAdvancedSettings[],
+) => FeedSettings;
+
+const onMutateAdvancedSettings = async (
+  advancedSettings: FeedAdvancedSettings[],
+  queryClient: QueryClient,
+  manipulate: ManipulateAdvancedSettingsFunc,
+  user: LoggedUser,
+): Promise<() => Promise<void>> => {
+  const queryKey = getFeedSettingsQueryKey(user);
+  const feedSettings = queryClient.getQueryData<FeedSettingsData>(queryKey);
+  const newData = manipulate(feedSettings.feedSettings, advancedSettings);
+  const keys = [queryKey, queryKey];
+  await updateQueryData(queryClient, newData, keys);
+  return async () => {
+    await updateQueryData(queryClient, feedSettings.feedSettings, keys);
+  };
+};
+
 type ManipulateTagFunc = (
   feedSettings: FeedSettings,
   tags: Array<string>,
@@ -66,9 +94,7 @@ const onMutateTagsSettings = async (
   user: LoggedUser,
 ): Promise<() => Promise<void>> => {
   const queryKey = getFeedSettingsQueryKey(user);
-  const feedSettings = await queryClient.getQueryData<FeedSettingsData>(
-    queryKey,
-  );
+  const feedSettings = queryClient.getQueryData<FeedSettingsData>(queryKey);
   const newData = manipulate(feedSettings.feedSettings, tags);
   const keys = [queryKey, getFeedSettingsQueryKey(user)];
   await updateQueryData(queryClient, newData, keys);
@@ -102,6 +128,49 @@ const onMutateSourcesSettings = async (
 
 export default function useMutateFilters(user?: LoggedUser): ReturnType {
   const queryClient = useQueryClient();
+
+  const { mutateAsync: updateAdvancedSettings } = useMutation<
+    unknown,
+    unknown,
+    { advancedSettings: FeedAdvancedSettings[] },
+    () => Promise<void>
+  >(
+    (advancedSettings) =>
+      request(`${apiUrl}/graphql`, UPDATE_ADVANCED_SETTINGS_FILTERS_MUTATION, {
+        filters: { advancedSettings },
+      }),
+    {
+      onMutate: ({ advancedSettings }) =>
+        onMutateAdvancedSettings(
+          advancedSettings,
+          queryClient,
+          (feedSettings, feedAdvancedSettings) => {
+            const newData = cloneDeep(feedSettings);
+            const existing: { [key in string]: FeedAdvancedSettings } = {};
+            newData.advancedSettings.forEach(
+              // eslint-disable-next-line no-return-assign
+              (settings) => (existing[settings.id] = settings),
+            );
+            // eslint-disable-next-line no-return-assign
+            feedAdvancedSettings.forEach((settings) => {
+              if (existing[settings.id] === undefined) {
+                return newData.advancedSettings.push(settings);
+              }
+
+              if (existing[settings.id].enabled === settings.enabled) {
+                return null;
+              }
+
+              // eslint-disable-next-line no-return-assign
+              return (existing[settings.id].enabled = settings.enabled);
+            });
+            return newData;
+          },
+          user,
+        ),
+      onError: (err, _, rollback) => rollback(),
+    },
+  );
 
   const { mutateAsync: followTags } = useMutation<
     unknown,
@@ -287,5 +356,6 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
     unblockTag,
     followSource,
     unfollowSource,
+    updateAdvancedSettings,
   };
 }

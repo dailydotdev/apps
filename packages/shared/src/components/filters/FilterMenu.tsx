@@ -21,7 +21,7 @@ export default function FilterMenu(): ReactElement {
     {
       icon: <FilterIcon className="mr-3 text-xl" />,
       title: 'Advanced',
-      component: () => dynamic(() => import('./Test')),
+      component: () => dynamic(() => import('./AdvancedSettings')),
     },
     {
       icon: <BlockIcon className="mr-3 text-xl" />,
