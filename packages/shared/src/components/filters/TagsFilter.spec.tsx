@@ -7,7 +7,6 @@ import {
   findAllByRole,
   screen,
 } from '@testing-library/react';
-
 import { QueryClient, QueryClientProvider } from 'react-query';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import AuthContext from '../../contexts/AuthContext';
@@ -20,13 +19,13 @@ import TagsFilter from './TagsFilter';
 import {
   ADD_FILTERS_TO_FEED_MUTATION,
   AllTagCategoriesData,
-  ALL_TAG_CATEGORIES_QUERY,
+  FEED_SETTINGS_QUERY,
   FeedSettings,
   REMOVE_FILTERS_FROM_FEED_MUTATION,
   TagsCategories,
 } from '../../graphql/feedSettings';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
-import { getTagsSettingsQueryKey } from '../../hooks/useMutateFilters';
+import { getFeedSettingsQueryKey } from '../../hooks/useMutateFilters';
 
 const showLogin = jest.fn();
 
@@ -51,7 +50,7 @@ const createAllTagCategoriesMock = (
     ],
   },
 ): MockedGraphQLResponse<AllTagCategoriesData> => ({
-  request: { query: ALL_TAG_CATEGORIES_QUERY, variables: { loggedIn } },
+  request: { query: FEED_SETTINGS_QUERY, variables: { loggedIn } },
   result: {
     data: {
       feedSettings,
@@ -151,7 +150,7 @@ it('should follow a tag on click', async () => {
 
   await waitFor(async () => {
     const data = await client.getQueryData(
-      getTagsSettingsQueryKey(defaultUser),
+      getFeedSettingsQueryKey(defaultUser),
     );
     expect(data).toBeTruthy();
   });
@@ -191,7 +190,7 @@ it('should unfollow a tag on click', async () => {
 
   await waitFor(async () => {
     const data = await client.getQueryData(
-      getTagsSettingsQueryKey(defaultUser),
+      getFeedSettingsQueryKey(defaultUser),
     );
     expect(data).toBeTruthy();
   });
@@ -231,7 +230,7 @@ it('should clear all tags on click', async () => {
 
   await waitFor(async () => {
     const data = await client.getQueryData(
-      getTagsSettingsQueryKey(defaultUser),
+      getFeedSettingsQueryKey(defaultUser),
     );
     expect(data).toBeTruthy();
   });

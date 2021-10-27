@@ -13,12 +13,11 @@ import SettingsContext, {
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import {
   ADD_FILTERS_TO_FEED_MUTATION,
+  AllTagCategoriesData,
   FeedSettings,
-  FeedSettingsData,
   REMOVE_FILTERS_FROM_FEED_MUTATION,
-  SOURCES_SETTINGS_QUERY,
 } from '@dailydotdev/shared/src/graphql/feedSettings';
-import { getTagsFiltersQueryKey } from '@dailydotdev/shared/src/hooks/useMutateFilters';
+import { getFeedSettingsQueryKey } from '@dailydotdev/shared/src/hooks/useMutateFilters';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import SourcePage from '../pages/sources/[source]';
 import ad from './fixture/ad';
@@ -26,6 +25,7 @@ import defaultUser from './fixture/loggedUser';
 import defaultFeedPage from './fixture/feed';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
 import { waitForNock } from './helpers/utilities';
+import { FEED_SETTINGS_QUERY } from '../../shared/src/graphql/feedSettings';
 
 const showLogin = jest.fn();
 
@@ -72,8 +72,9 @@ const createSourcesSettingsMock = (
       { id: 'react', name: 'React', image: 'https://reactjs.org' },
     ],
   },
-): MockedGraphQLResponse<FeedSettingsData> => ({
-  request: { query: SOURCES_SETTINGS_QUERY },
+  loggedIn = true,
+): MockedGraphQLResponse<AllTagCategoriesData> => ({
+  request: { query: FEED_SETTINGS_QUERY, variables: { loggedIn } },
   result: {
     data: {
       feedSettings,
@@ -195,7 +196,9 @@ it('should follow source', async () => {
   let mutationCalled = false;
   renderComponent();
   await waitFor(async () => {
-    const data = await client.getQueryData(getTagsFiltersQueryKey(defaultUser));
+    const data = await client.getQueryData(
+      getFeedSettingsQueryKey(defaultUser),
+    );
     expect(data).toBeTruthy();
   });
   mockGraphQL({
@@ -222,7 +225,9 @@ it('should block source', async () => {
     createSourcesSettingsMock({ excludeSources: [] }),
   ]);
   await waitFor(async () => {
-    const data = await client.getQueryData(getTagsFiltersQueryKey(defaultUser));
+    const data = await client.getQueryData(
+      getFeedSettingsQueryKey(defaultUser),
+    );
     expect(data).toBeTruthy();
   });
   mockGraphQL({

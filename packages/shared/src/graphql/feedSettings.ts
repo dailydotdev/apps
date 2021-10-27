@@ -40,10 +40,6 @@ export interface FeedSettingsData {
   feedSettings: FeedSettings;
 }
 
-export interface SourcesData {
-  sources: Connection<Source>;
-}
-
 export const SEARCH_TAGS_QUERY = gql`
   query SearchTags($query: String!) {
     searchTags(query: $query) {
@@ -54,7 +50,7 @@ export const SEARCH_TAGS_QUERY = gql`
   }
 `;
 
-export const ALL_TAG_CATEGORIES_QUERY = gql`
+export const FEED_SETTINGS_QUERY = gql`
   query TagCategories($loggedIn: Boolean!) {
     tagsCategories {
       categories {
@@ -66,80 +62,11 @@ export const ALL_TAG_CATEGORIES_QUERY = gql`
     }
     feedSettings @include(if: $loggedIn) {
       includeTags
-    }
-  }
-`;
-
-export const ALL_BLOCKED_TAGS_AND_SOURCES = gql`
-  query AllBlockedTagsAndSources {
-    feedSettings {
+      blockedTags
       excludeSources {
         id
         image
         name
-      }
-      includeTags
-      blockedTags
-    }
-  }
-`;
-
-export const ALL_TAGS_AND_SETTINGS_QUERY = gql`
-  query AllTagsAndSettings {
-    feedSettings {
-    feedSettings @include(if: $loggedIn) {
-      includeTags
-    }
-  }
-`;
-
-export const TAGS_SETTINGS_QUERY = gql`
-  query FeedSettings {
-    feedSettings {
-      includeTags
-      blockedTags
-    }
-  }
-`;
-
-export const ALL_SOURCES_QUERY = gql`
-  query AllSources {
-    sources(first: 500) {
-      edges {
-        node {
-          id
-          image
-          name
-        }
-      }
-    }
-  }
-`;
-
-export const ALL_SOURCES_AND_SETTINGS_QUERY = gql`
-  query AllSourcesAndSettings {
-    feedSettings {
-      excludeSources {
-        id
-      }
-    }
-    sources(first: 500) {
-      edges {
-        node {
-          id
-          image
-          name
-        }
-      }
-    }
-  }
-`;
-
-export const SOURCES_SETTINGS_QUERY = gql`
-  query SourcesSettings {
-    feedSettings {
-      excludeSources {
-        id
       }
     }
   }

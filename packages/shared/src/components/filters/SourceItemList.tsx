@@ -11,7 +11,7 @@ export default function SourceItemList({
   action?: (source) => unknown;
 }): ReactElement {
   return (
-    <FiltersList className="-mr-6 -ml-6">
+    <FiltersList className="mt-6">
       {!excludeSources?.length && (
         <p className="mx-6 typo-callout text-theme-label-tertiary">
           No blocked sources.

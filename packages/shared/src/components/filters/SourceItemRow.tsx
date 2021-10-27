@@ -16,10 +16,10 @@ export default function SourceItemRow({
   blocked?: boolean;
 } & Omit<HTMLAttributes<HTMLAnchorElement>, 'onClick'>): ReactElement {
   return (
-    <FilterItem className="relative py-1">
+    <FilterItem className="relative">
       <a
         {...getTooltipProps(`${source.name} feed`)}
-        className="flex flex-1 items-center pr-14 pl-6 h-10 hover:bg-theme-hover active:bg-theme-active rounded-md focus-outline"
+        className="flex flex-1 items-center py-1 pr-14 pl-6 h-12 hover:bg-theme-hover active:bg-theme-active rounded-md focus-outline"
       >
         <LazyImage
           imgSrc={source.image}

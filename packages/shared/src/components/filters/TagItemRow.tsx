@@ -17,7 +17,7 @@ export default function TagItemRow({
   onClick?: (event: React.MouseEvent, tag: string) => unknown;
 } & Omit<HTMLAttributes<HTMLAnchorElement>, 'onClick'>): ReactElement {
   return (
-    <FilterItem className="relative my-2">
+    <FilterItem className="relative pl-6 my-2">
       <Button
         buttonSize="small"
         className="btn-tertiaryFloat"

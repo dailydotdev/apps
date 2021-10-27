@@ -11,6 +11,11 @@ import {
 } from '../graphql/feedSettings';
 import { Source } from '../graphql/sources';
 
+export const getFeedSettingsQueryKey = (user?: LoggedUser): string[] => [
+  user?.id,
+  'feedSettings',
+];
+
 export const getTagsFiltersQueryKey = (user?: LoggedUser): string[] => [
   user?.id,
   'tagsFilters',
@@ -80,12 +85,12 @@ const onMutateTagsSettings = async (
   manipulate: ManipulateTagFunc,
   user: LoggedUser,
 ): Promise<() => Promise<void>> => {
-  const queryKey = getTagsFiltersQueryKey(user);
+  const queryKey = getFeedSettingsQueryKey(user);
   const feedSettings = await queryClient.getQueryData<FeedSettingsData>(
     queryKey,
   );
   const newData = manipulate(feedSettings.feedSettings, tags);
-  const keys = [queryKey, getTagsFiltersQueryKey(user)];
+  const keys = [queryKey, getFeedSettingsQueryKey(user)];
   await updateQueryData(queryClient, newData, keys);
   return async () => {
     await updateQueryData(queryClient, feedSettings.feedSettings, keys);
@@ -103,12 +108,12 @@ const onMutateSourcesSettings = async (
   manipulate: ManipulateSourceFunc,
   user: LoggedUser,
 ): Promise<() => Promise<void>> => {
-  const queryKey = getTagsFiltersQueryKey(user);
+  const queryKey = getFeedSettingsQueryKey(user);
   const feedSettings = await queryClient.getQueryData<FeedSettingsData>(
     queryKey,
   );
   const newData = manipulate(feedSettings.feedSettings, source);
-  const keys = [queryKey, getSourcesFiltersQueryKey(user)];
+  const keys = [queryKey, getFeedSettingsQueryKey(user)];
   await updateQueryData(queryClient, newData, keys);
   return async () => {
     await updateQueryData(queryClient, feedSettings.feedSettings, keys);

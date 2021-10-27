@@ -10,13 +10,13 @@ import {
 } from '../../../__tests__/helpers/graphql';
 import { LoggedUser } from '../../lib/user';
 import {
-  ALL_BLOCKED_TAGS_AND_SOURCES,
+  FEED_SETTINGS_QUERY,
   FeedSettings,
-  FeedSettingsData,
   REMOVE_FILTERS_FROM_FEED_MUTATION,
+  AllTagCategoriesData,
 } from '../../graphql/feedSettings';
 import BlockedFilter from './BlockedFilter';
-import { getTagsFiltersQueryKey } from '../../hooks/useMutateFilters';
+import { getFeedSettingsQueryKey } from '../../hooks/useMutateFilters';
 
 const showLogin = jest.fn();
 
@@ -26,6 +26,7 @@ beforeEach(() => {
 });
 
 const createAllBlockedTagsAndSourcesMock = (
+  loggedIn = true,
   feedSettings: FeedSettings = {
     includeTags: ['react', 'golang'],
     blockedTags: ['javascript'],
@@ -38,8 +39,8 @@ const createAllBlockedTagsAndSourcesMock = (
       },
     ],
   },
-): MockedGraphQLResponse<FeedSettingsData> => ({
-  request: { query: ALL_BLOCKED_TAGS_AND_SOURCES },
+): MockedGraphQLResponse<AllTagCategoriesData> => ({
+  request: { query: FEED_SETTINGS_QUERY, variables: { loggedIn } },
   result: {
     data: {
       feedSettings,
@@ -104,7 +105,9 @@ it('should show unblock popup on option click', async () => {
   const { baseElement } = renderComponent();
 
   await waitFor(async () => {
-    const data = await client.getQueryData(getTagsFiltersQueryKey(defaultUser));
+    const data = await client.getQueryData(
+      getFeedSettingsQueryKey(defaultUser),
+    );
     expect(data).toBeTruthy();
   });
 
@@ -143,7 +146,9 @@ it('should show unblock popup on source unblock click', async () => {
   const { baseElement } = renderComponent();
 
   await waitFor(async () => {
-    const data = await client.getQueryData(getTagsFiltersQueryKey(defaultUser));
+    const data = await client.getQueryData(
+      getFeedSettingsQueryKey(defaultUser),
+    );
     expect(data).toBeTruthy();
   });
 

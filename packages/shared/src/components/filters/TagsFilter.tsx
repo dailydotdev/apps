@@ -1,46 +1,19 @@
-import React, {
-  ReactElement,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-import { useQuery, useQueryClient } from 'react-query';
+import React, { ReactElement, useMemo, useRef, useState } from 'react';
+import { useQuery } from 'react-query';
 import request from 'graphql-request';
 import { SearchField } from '../fields/SearchField';
 import { apiUrl } from '../../lib/config';
-import AuthContext from '../../contexts/AuthContext';
-import {
-  getSearchTagsQueryKey,
-  getTagsSettingsQueryKey,
-  getTagsFiltersQueryKey,
-} from '../../hooks/useMutateFilters';
-import {
-  SearchTagsData,
-  SEARCH_TAGS_QUERY,
-  ALL_TAG_CATEGORIES_QUERY,
-  AllTagCategoriesData,
-} from '../../graphql/feedSettings';
+import { getSearchTagsQueryKey } from '../../hooks/useMutateFilters';
+import { SearchTagsData, SEARCH_TAGS_QUERY } from '../../graphql/feedSettings';
 import TagButton from './TagButton';
 import TagCategoryDropdown from './TagCategoryDropdown';
+import useFeedSettings from '../../hooks/useFeedSettings';
 
 export default function TagsFilter(): ReactElement {
   const searchRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState<string>(null);
-  const { user } = useContext(AuthContext);
-  const queryClient = useQueryClient();
-  const filtersKey = getTagsFiltersQueryKey(user);
   const searchKey = getSearchTagsQueryKey(query);
-
-  const {
-    data: { tagsCategories, feedSettings } = {},
-    isLoading: isLoadingQuery,
-  } = useQuery<AllTagCategoriesData>(filtersKey, () =>
-    request(`${apiUrl}/graphql`, ALL_TAG_CATEGORIES_QUERY, {
-      loggedIn: !!user?.id,
-    }),
-  );
+  const { tagsCategories, feedSettings, isLoading } = useFeedSettings();
 
   const { data: searchResults } = useQuery<SearchTagsData>(
     searchKey,
@@ -50,20 +23,12 @@ export default function TagsFilter(): ReactElement {
     },
   );
 
-  useEffect(() => {
-    if (user && feedSettings) {
-      queryClient.setQueryData(getTagsSettingsQueryKey(user), {
-        feedSettings,
-      });
-    }
-  }, [feedSettings, user]);
-
   const followedTags = useMemo(() => {
     return feedSettings?.includeTags ?? [];
   }, [feedSettings]);
 
   return (
-    <div aria-busy={isLoadingQuery}>
+    <div aria-busy={isLoading}>
       <div className="px-6 pb-6">
         <SearchField
           inputId="search-filters"
@@ -94,7 +59,7 @@ export default function TagsFilter(): ReactElement {
         )}
       </div>
       {(!query || query.length <= 0) &&
-        tagsCategories?.categories.map((tagCategory) => (
+        tagsCategories?.categories?.map((tagCategory) => (
           <TagCategoryDropdown
             key={tagCategory.id}
             tagCategory={tagCategory}

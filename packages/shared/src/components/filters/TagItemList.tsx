@@ -10,9 +10,9 @@ export default function TagItemList({
   options?: (event: React.MouseEvent, tag: string) => void;
 }): ReactElement {
   return (
-    <FiltersList className="-mr-6">
+    <FiltersList className="mt-6">
       {!blockedTags?.length && (
-        <p className="typo-callout text-theme-label-tertiary">
+        <p className="mx-6 typo-callout text-theme-label-tertiary">
           No blocked tags.
         </p>
       )}
