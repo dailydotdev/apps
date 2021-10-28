@@ -28,7 +28,7 @@ export default function TagsFilter(): ReactElement {
   }, [feedSettings]);
 
   return (
-    <div aria-busy={isLoading}>
+    <div className="flex flex-col" aria-busy={isLoading}>
       <div className="px-6 pb-6">
         <SearchField
           inputId="search-filters"
@@ -59,7 +59,7 @@ export default function TagsFilter(): ReactElement {
         )}
       </div>
       {(!query || query.length <= 0) &&
-        tagsCategories?.categories?.map((tagCategory) => (
+        tagsCategories?.map((tagCategory) => (
           <TagCategoryDropdown
             key={tagCategory.id}
             tagCategory={tagCategory}

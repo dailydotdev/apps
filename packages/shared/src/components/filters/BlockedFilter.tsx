@@ -56,7 +56,7 @@ export default function BlockedFilter(): ReactElement {
   };
 
   return (
-    <div aria-busy={isLoading}>
+    <div className="flex flex-col" aria-busy={isLoading}>
       <p className="mx-6 mb-6 typo-callout text-theme-label-tertiary">
         Blocking tags and sources can be done from the feed. Next time you seen
         a post with a tag or source you wish to block, click on the ⋮ button and
@@ -74,7 +74,7 @@ export default function BlockedFilter(): ReactElement {
 
       <SourceItemList
         excludeSources={feedSettings?.excludeSources}
-        action={sourceItemAction}
+        onSourceClick={sourceItemAction}
       />
 
       <TagOptionsMenu

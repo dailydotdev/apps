@@ -39,16 +39,14 @@ const createAllTagCategoriesMock = (
     includeTags: ['react', 'golang'],
   },
   loggedIn = true,
-  tagsCategories: TagsCategories = {
-    categories: [
-      {
-        id: 'FE',
-        title: 'Frontend',
-        tags: ['react', 'webdev', 'vue', 'golang'],
-        emoji: '🦄',
-      },
-    ],
-  },
+  tagsCategories: TagsCategories = [
+    {
+      id: 'FE',
+      title: 'Frontend',
+      tags: ['react', 'webdev', 'vue', 'golang'],
+      emoji: '🦄',
+    },
+  ],
 ): MockedGraphQLResponse<AllTagCategoriesData> => ({
   request: { query: FEED_SETTINGS_QUERY, variables: { loggedIn } },
   result: {

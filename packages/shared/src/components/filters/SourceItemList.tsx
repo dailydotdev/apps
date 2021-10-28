@@ -5,13 +5,13 @@ import SourceItemRow from './SourceItemRow';
 
 export default function SourceItemList({
   excludeSources,
-  action,
+  onSourceClick,
 }: {
   excludeSources: Source[];
-  action?: (source) => unknown;
+  onSourceClick?: (source) => unknown;
 }): ReactElement {
   return (
-    <FiltersList className="mt-6">
+    <FiltersList className={!excludeSources?.length ? 'mt-0' : 'mt-3'}>
       {!excludeSources?.length && (
         <p className="mx-6 typo-callout text-theme-label-tertiary">
           No blocked sources.
@@ -22,7 +22,7 @@ export default function SourceItemList({
           key={source.id}
           source={source}
           blocked
-          onClick={() => action(source)}
+          onSourceClick={() => onSourceClick(source)}
         />
       ))}
     </FiltersList>

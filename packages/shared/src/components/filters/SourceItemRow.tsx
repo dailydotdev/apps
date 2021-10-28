@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, ReactElement } from 'react';
+import React, { ReactElement } from 'react';
 import { FilterItem } from './common';
 import { Source } from '../../graphql/sources';
 import { getTooltipProps } from '../../lib/tooltip';
@@ -8,18 +8,18 @@ import BlockIcon from '../../../icons/block.svg';
 
 export default function SourceItemRow({
   source,
-  onClick,
+  onSourceClick,
   blocked,
 }: {
   source: Source;
-  onClick?: (source: Source) => unknown;
+  onSourceClick?: (source: Source) => unknown;
   blocked?: boolean;
-} & Omit<HTMLAttributes<HTMLAnchorElement>, 'onClick'>): ReactElement {
+}): ReactElement {
   return (
     <FilterItem className="relative">
       <a
         {...getTooltipProps(`${source.name} feed`)}
-        className="flex flex-1 items-center py-1 pr-14 pl-6 h-12 hover:bg-theme-hover active:bg-theme-active rounded-md focus-outline"
+        className="flex flex-1 items-center py-2 pr-14 pl-6 h-12 hover:bg-theme-hover active:bg-theme-active rounded-md focus-outline"
       >
         <LazyImage
           imgSrc={source.image}
@@ -33,7 +33,7 @@ export default function SourceItemRow({
       <Button
         className="right-4 my-auto btn-tertiary"
         style={{ position: 'absolute' }}
-        onClick={() => onClick?.(source)}
+        onClick={() => onSourceClick?.(source)}
         icon={<BlockIcon />}
         {...getTooltipProps(blocked ? 'Unblock source' : 'Block source', {
           position: 'left',

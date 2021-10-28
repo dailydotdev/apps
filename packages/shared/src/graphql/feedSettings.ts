@@ -25,14 +25,11 @@ export interface TagCategory {
   tags: string[];
   emoji: string;
 }
-export interface TagsCategories {
-  categories?: TagCategory[];
-}
 
 export interface AllTagCategoriesData {
   feedSettings?: FeedSettings;
   loggedIn?: boolean;
-  tagsCategories?: TagsCategories;
+  tagsCategories?: TagCategory[];
 }
 
 export interface FeedSettingsData {
@@ -52,12 +49,10 @@ export const SEARCH_TAGS_QUERY = gql`
 export const FEED_SETTINGS_QUERY = gql`
   query TagCategories($loggedIn: Boolean!) {
     tagsCategories {
-      categories {
-        id
-        title
-        tags
-        emoji
-      }
+      id
+      title
+      tags
+      emoji
     }
     feedSettings @include(if: $loggedIn) {
       includeTags
