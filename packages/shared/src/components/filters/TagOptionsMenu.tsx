@@ -9,7 +9,7 @@ const PortalMenu = dynamic(() => import('../fields/PortalMenu'), {
 
 export type TagOptionsMenuProps = {
   onHidden?: () => unknown;
-  viewButtonLink?: string;
+  tag?: string;
   onBlock?: () => Promise<unknown>;
   onUnblock?: () => unknown;
   onFollow?: () => Promise<unknown>;
@@ -18,7 +18,7 @@ export type TagOptionsMenuProps = {
 
 export default function TagOptionsMenu({
   onHidden,
-  viewButtonLink,
+  tag,
   onBlock,
   onUnblock,
   onFollow,
@@ -32,10 +32,10 @@ export default function TagOptionsMenu({
       onHidden={onHidden}
       style={{ width: '7rem' }}
     >
-      {viewButtonLink && (
+      {tag && (
         <Item>
           <Link
-            href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}tags/${viewButtonLink}`}
+            href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}tags/${tag}`}
             passHref
             prefetch={false}
           >

@@ -16,7 +16,6 @@ export default function BlockedFilter(): ReactElement {
   const [unblockItem, setUnblockItem] = useState<{
     tag?: string;
     source?: Source;
-    showUnblockModal: boolean;
     action?: () => unknown;
   }>();
   const { show: showTagOptionsMenu } = useContextMenu({
@@ -36,10 +35,9 @@ export default function BlockedFilter(): ReactElement {
   const initUnblockModal = ({
     tag = null,
     source = null,
-    showUnblockModal = true,
     action,
   }: UnblockModalType) => {
-    setUnblockItem({ tag, source, showUnblockModal, action });
+    setUnblockItem({ tag, source, action });
   };
 
   const sourceItemAction = (source) => {
@@ -72,7 +70,7 @@ export default function BlockedFilter(): ReactElement {
       />
 
       <TagOptionsMenu
-        viewButtonLink={selectedTag}
+        tag={selectedTag}
         onUnblock={() =>
           initUnblockModal({
             tag: selectedTag,
@@ -82,12 +80,12 @@ export default function BlockedFilter(): ReactElement {
         onHidden={() => setSelectedTag(null)}
       />
 
-      {unblockItem?.showUnblockModal && (
+      {unblockItem && (
         <UnblockModal
           item={unblockItem}
-          isOpen={unblockItem.showUnblockModal}
-          onConfirm={() => unblockItem.action()}
-          onRequestClose={() => setUnblockItem({ showUnblockModal: false })}
+          isOpen={!!unblockItem}
+          onConfirm={unblockItem.action}
+          onRequestClose={() => setUnblockItem(null)}
         />
       )}
     </div>

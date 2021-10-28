@@ -46,7 +46,7 @@ export default function UnblockModal({
     props.onRequestClose(event);
   };
 
-  const UnblockCopy = item?.tag ? (
+  const unblockCopy = item?.tag ? (
     <UnblockTagCopy name={item?.tag} />
   ) : (
     <UnblockSourceCopy name={item?.source.name} />
@@ -55,7 +55,7 @@ export default function UnblockModal({
   return (
     <ConfirmationModal {...props}>
       <ConfirmationHeading>Are you sure?</ConfirmationHeading>
-      <ConfirmationDescription>{UnblockCopy}</ConfirmationDescription>
+      <ConfirmationDescription>{unblockCopy}</ConfirmationDescription>
       <ConfirmationButtons>
         <Button className="btn-secondary" onClick={props.onRequestClose}>
           Cancel

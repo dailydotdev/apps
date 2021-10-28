@@ -12,7 +12,6 @@ export interface MenuItem {
 export interface UnblockModalType {
   tag?: string;
   source?: Source;
-  showUnblockModal?: boolean;
   action?: () => unknown;
 }
 

@@ -28,7 +28,7 @@ import {
 } from '../graphql/feed';
 import usePersistentState from '../hooks/usePersistentState';
 import FeaturesContext from '../contexts/FeaturesContext';
-import { generateFeedQueryKey } from '../lib/feed';
+import { generateQueryKey } from '../lib/query';
 
 const SearchEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "emptySearch" */ './SearchEmptyScreen'),
@@ -183,7 +183,7 @@ export default function MainFeedLayout({
   const feedProps = useMemo<FeedProps<unknown>>(() => {
     if (isSearchOn && searchQuery) {
       return {
-        feedQueryKey: generateFeedQueryKey('search', user, searchQuery),
+        feedQueryKey: generateQueryKey('search', user, searchQuery),
         query: SEARCH_POSTS_QUERY,
         variables: { query: searchQuery },
         emptyScreen: <SearchEmptyScreen />,
@@ -196,7 +196,7 @@ export default function MainFeedLayout({
       ? { ...query.variables, period: periods[selectedPeriod].value }
       : query.variables;
     return {
-      feedQueryKey: generateFeedQueryKey(
+      feedQueryKey: generateQueryKey(
         feedName,
         user,
         ...Object.values(variables ?? {}),
