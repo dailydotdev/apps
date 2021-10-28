@@ -22,7 +22,7 @@ import {
   FEED_SETTINGS_QUERY,
   FeedSettings,
   REMOVE_FILTERS_FROM_FEED_MUTATION,
-  TagsCategories,
+  TagCategory,
 } from '../../graphql/feedSettings';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import { getFeedSettingsQueryKey } from '../../hooks/useMutateFilters';
@@ -39,7 +39,7 @@ const createAllTagCategoriesMock = (
     includeTags: ['react', 'golang'],
   },
   loggedIn = true,
-  tagsCategories: TagsCategories = [
+  tagsCategories: TagCategory[] = [
     {
       id: 'FE',
       title: 'Frontend',

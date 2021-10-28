@@ -6,14 +6,14 @@ import {
   AllTagCategoriesData,
   FeedSettings,
   FEED_SETTINGS_QUERY,
-  TagsCategories,
+  TagCategory,
 } from '../graphql/feedSettings';
 import AuthContext from '../contexts/AuthContext';
 import { getFeedSettingsQueryKey } from './useMutateFilters';
 import { apiUrl } from '../lib/config';
 
 export type FeedSettingsReturnType = {
-  tagsCategories: TagsCategories;
+  tagsCategories: TagCategory[];
   feedSettings: FeedSettings;
   isLoading: boolean;
 };
