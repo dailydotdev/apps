@@ -22,7 +22,7 @@ export default function SourceItemList({
           key={source.id}
           source={source}
           blocked
-          onSourceClick={() => onSourceClick(source)}
+          onSourceClick={onSourceClick}
         />
       ))}
     </FiltersList>
