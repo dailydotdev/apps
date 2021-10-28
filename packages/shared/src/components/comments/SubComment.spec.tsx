@@ -11,6 +11,7 @@ const baseComment = {
   author: {
     image: 'https://daily.dev/ido.png',
     id: 'u1',
+    username: 'idoshamun',
     name: 'Ido',
     permalink: 'https://daily.dev/ido',
   },
@@ -22,6 +23,7 @@ const baseComment = {
 
 const loggedUser = {
   id: 'u1',
+  username: 'idoshamun',
   name: 'Ido Shamun',
   providers: ['github'],
   email: 'ido@acme.com',
@@ -76,7 +78,7 @@ const renderLayout = (
 
 it('should show author profile image', async () => {
   renderLayout();
-  const el = await screen.findByAltText(`Ido's profile image`);
+  const el = await screen.findByAltText(`idoshamun profile picture`);
   expect(el).toHaveAttribute('data-src', 'https://daily.dev/ido.png');
 });
 

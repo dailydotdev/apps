@@ -59,6 +59,7 @@ import classNames from 'classnames';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
+import { ProfilePicture } from '@dailydotdev/shared/src/components/ProfilePicture';
 import styles from './postPage.module.css';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import PostToc from '../../components/widgets/PostToc';
@@ -764,11 +765,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             onClick={openNewComment}
           >
             {user && (
-              <LazyImage
-                imgSrc={user.image}
-                imgAlt="Your profile image"
-                className="mr-3 -ml-2 w-7 h-7 rounded-full"
-              />
+              <ProfilePicture user={user} size="small" className="mr-3 -ml-2" />
             )}
             Start the discussion...
           </button>
