@@ -17,6 +17,7 @@ import {
 
 const defaultUser = {
   id: 'u1',
+  username: 'idoshamun',
   name: 'Ido Shamun',
   providers: ['github'],
   email: 'ido@acme.com',
@@ -98,7 +99,7 @@ it('should show author profile picture', async () => {
 
 it('should show user profile picture', async () => {
   renderComponent();
-  const el = await screen.findByAltText('Your profile image');
+  const el = await screen.findByAltText('idoshamun profile picture');
   expect(el).toHaveAttribute('data-src', 'https://daily.dev/ido.png');
 });
 

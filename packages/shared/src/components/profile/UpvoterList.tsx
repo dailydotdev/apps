@@ -1,10 +1,10 @@
 import React, { ReactElement } from 'react';
 import Link from 'next/link';
 import { UseInfiniteQueryResult } from 'react-query';
-import { LazyImage } from '../LazyImage';
 import useFeedInfiniteScroll from '../../hooks/feed/useFeedInfiniteScroll';
 import { UpvotesData } from '../../graphql/common';
 import { UpvoterListPlaceholder } from './UpvoterListPlaceholder';
+import { ProfilePicture } from '../ProfilePicture';
 
 export interface UpvoterListProps {
   queryResult: UseInfiniteQueryResult<UpvotesData>;
@@ -28,11 +28,7 @@ export function UpvoterList({ queryResult }: UpvoterListProps): ReactElement {
         page.upvotes.edges.map(({ node: { user } }) => (
           <Link key={user.username} href={user.permalink}>
             <a className="flex flex-row py-3 px-6 hover:bg-theme-hover">
-              <LazyImage
-                imgSrc={user.image}
-                imgAlt={user.username}
-                className="w-12 h-12 rounded-10"
-              />
+              <ProfilePicture user={user} size="xlarge" />
               <div className="flex flex-col flex-1 ml-4 typo-callout">
                 <span className="font-bold">{user.name}</span>
                 <span className="text-theme-label-secondary">

@@ -1,9 +1,9 @@
 import React, { ReactElement, useContext } from 'react';
-import { LazyImage } from '../LazyImage';
 import AuthContext from '../../contexts/AuthContext';
 import { getTooltipProps } from '../../lib/tooltip';
 import useProfileMenu from '../../hooks/useProfileMenu';
 import ProfileMenu from '../ProfileMenu';
+import { ProfilePicture } from '../ProfilePicture';
 
 const profileContextMenuWidth = 10;
 
@@ -28,11 +28,7 @@ export default function ProfileButton({
         onClick={onMenuClick}
       >
         <span className="mr-2 ml-3">{user.reputation ?? 0}</span>
-        <LazyImage
-          className="w-8 h-8 rounded-lg"
-          imgSrc={user.image}
-          imgAlt="Your profile image"
-        />
+        <ProfilePicture user={user} size="medium" />
       </button>
       <ProfileMenu
         width={profileContextMenuWidth}

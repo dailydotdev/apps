@@ -26,7 +26,7 @@ import {
 } from '../../graphql/comments';
 import { Edge } from '../../graphql/common';
 import { apiUrl } from '../../lib/config';
-import { RoundedImage, SmallRoundedImage } from '../utilities';
+import { RoundedImage } from '../utilities';
 import { commentDateFormat } from '../../lib/dateFormat';
 import { Button } from '../buttons/Button';
 import { ResponsiveModal } from './ResponsiveModal';
@@ -35,6 +35,7 @@ import styles from './NewCommentModal.module.css';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { Post } from '../../graphql/posts';
 import { postAnalyticsEvent } from '../../lib/feed';
+import { ProfilePicture } from '../ProfilePicture';
 
 const DiscardCommentModal = dynamic(() => import('./DiscardCommentModal'));
 
@@ -294,7 +295,7 @@ export default function NewCommentModal({
         </div>
       </div>
       <div className="flex px-2">
-        <SmallRoundedImage imgSrc={user.image} imgAlt="Your profile image" />
+        <ProfilePicture user={user} size="small" />
         <div
           className={classNames(
             'ml-3 flex-1 text-theme-label-primary bg-none border-none caret-theme-label-link break-words typo-subhead',

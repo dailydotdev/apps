@@ -19,6 +19,7 @@ beforeEach(() => {
 
 const defaultUser = {
   id: 'u1',
+  username: 'idoshamun',
   name: 'Ido Shamun',
   providers: ['github'],
   email: 'ido@acme.com',
@@ -51,12 +52,12 @@ const renderComponent = (user: Partial<LoggedUser> = {}): RenderResult => {
 
 it('should show profile image', () => {
   renderComponent();
-  const el = screen.getByAltText('Your profile');
-  expect(el).toHaveAttribute('src', defaultUser.image);
+  const el = screen.getByAltText('idoshamun profile picture');
+  expect(el).toHaveAttribute('data-src', defaultUser.image);
 });
 
 it('should disable submit when form is invalid', async () => {
-  renderComponent();
+  renderComponent({ username: null });
   // eslint-disable-next-line testing-library/no-node-access
   const el = screen.getByText('Save changes').parentElement;
   expect(el).toBeDisabled();
