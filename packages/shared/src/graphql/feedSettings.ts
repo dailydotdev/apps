@@ -44,6 +44,7 @@ export interface AllTagCategoriesData {
   feedSettings?: FeedSettings;
   loggedIn?: boolean;
   tagsCategories?: TagCategory[];
+  advancedSettings: FeedAdvancedSettings[];
 }
 
 export interface FeedSettingsData {
@@ -71,9 +72,18 @@ export const FEED_SETTINGS_QUERY = gql`
     feedSettings @include(if: $loggedIn) {
       includeTags
       blockedTags
+      advancedSettings {
+        id
+        enabled
+      }
     }
     tags: popularTags {
       name
+    }
+    advancedSettings {
+      id
+      title
+      description
     }
   }
 `;
