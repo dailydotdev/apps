@@ -11,7 +11,7 @@ import { Source } from '../../graphql/sources';
 
 export interface Props extends ModalProps {
   item: { tag?: string; source?: Source };
-  action: () => unknown;
+  onConfirm: () => unknown;
 }
 
 export type CopyProps = {
@@ -38,27 +38,24 @@ const UnblockSourceCopy = ({ name }: CopyProps) => {
 
 export default function UnblockModal({
   item,
-  action,
+  onConfirm,
   ...props
 }: Props): ReactElement {
   const onUnblockClick = async (event: MouseEvent): Promise<void> => {
-    action();
+    onConfirm();
     props.onRequestClose(event);
   };
 
-  const UnblockCopy = () => {
-    if (item?.tag) {
-      return <UnblockTagCopy name={item?.tag} />;
-    }
-    return <UnblockSourceCopy name={item?.source.name} />;
-  };
+  const UnblockCopy = item?.tag ? (
+    <UnblockTagCopy name={item?.tag} />
+  ) : (
+    <UnblockSourceCopy name={item?.source.name} />
+  );
 
   return (
     <ConfirmationModal {...props}>
       <ConfirmationHeading>Are you sure?</ConfirmationHeading>
-      <ConfirmationDescription>
-        <UnblockCopy />
-      </ConfirmationDescription>
+      <ConfirmationDescription>{UnblockCopy}</ConfirmationDescription>
       <ConfirmationButtons>
         <Button className="btn-secondary" onClick={props.onRequestClose}>
           Cancel

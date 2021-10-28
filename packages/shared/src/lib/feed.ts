@@ -1,6 +1,15 @@
 import { FeedItem, PostItem } from '../hooks/useFeed';
 import { Ad, Post } from '../graphql/posts';
 import { AnalyticsEvent } from '../hooks/analytics/useAnalyticsQueue';
+import { LoggedUser } from './user';
+
+export const generateFeedQueryKey = (
+  feedName: string,
+  user: Pick<LoggedUser, 'id'> | null,
+  ...additional: unknown[]
+): unknown[] => {
+  return [feedName, user?.id ?? 'anonymous', ...additional];
+};
 
 export function optimisticPostUpdateInFeed(
   items: FeedItem[],

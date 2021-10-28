@@ -11,6 +11,7 @@ import {
 import AuthContext from '../contexts/AuthContext';
 import { getFeedSettingsQueryKey } from './useMutateFilters';
 import { apiUrl } from '../lib/config';
+import { generateFeedQueryKey } from '../lib/feed';
 
 export type FeedSettingsReturnType = {
   tagsCategories: TagCategory[];
@@ -38,8 +39,8 @@ export default function useFeedSettings(): FeedSettingsReturnType {
     }
 
     requestIdleCallback(() => {
-      queryClient.invalidateQueries(['popular', user?.id ?? 'anonymous']);
-      queryClient.invalidateQueries(['recent', user?.id ?? 'anonymous']);
+      queryClient.invalidateQueries(generateFeedQueryKey('popular', user));
+      queryClient.invalidateQueries(generateFeedQueryKey('recent', user));
     });
   }, [tagsCategories, feedSettings]);
 

@@ -28,6 +28,7 @@ import {
 } from '../graphql/feed';
 import usePersistentState from '../hooks/usePersistentState';
 import FeaturesContext from '../contexts/FeaturesContext';
+import { generateFeedQueryKey } from '../lib/feed';
 
 const SearchEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "emptySearch" */ './SearchEmptyScreen'),
@@ -120,14 +121,6 @@ const periods = [
   { value: 365, text: 'Last year' },
 ];
 const periodTexts = periods.map((period) => period.text);
-
-const generateFeedQueryKey = (
-  feedName: string,
-  user: LoggedUser | null,
-  ...additional: unknown[]
-): unknown[] => {
-  return [feedName, user?.id ?? 'anonymous', ...additional];
-};
 
 function ButtonOrLink({
   asLink,

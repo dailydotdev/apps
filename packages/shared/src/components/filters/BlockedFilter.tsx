@@ -1,5 +1,4 @@
 import React, { ReactElement, useContext, useState } from 'react';
-import dynamic from 'next/dynamic';
 import { useContextMenu } from 'react-contexify';
 import { UnblockModalType } from './common';
 import useMutateFilters from '../../hooks/useMutateFilters';
@@ -8,22 +7,18 @@ import SourceItemList from './SourceItemList';
 import TagItemList from './TagItemList';
 import AuthContext from '../../contexts/AuthContext';
 import useFeedSettings from '../../hooks/useFeedSettings';
-
-const TagOptionsMenu = dynamic(
-  () => import(/* webpackChunkName: "tagOptionsMenu" */ './TagOptionsMenu'),
-);
-
-const UnblockModal = dynamic(
-  () => import(/* webpackChunkName: "unblockModal" */ '../modals/UnblockModal'),
-);
+import TagOptionsMenu from './TagOptionsMenu';
+import UnblockModal from '../modals/UnblockModal';
 
 export default function BlockedFilter(): ReactElement {
   const { user } = useContext(AuthContext);
   const [selectedTag, setSelectedTag] = useState<string>();
-  const [unblockItem, setUnblockItem] =
-    useState<{ tag: string; source: Source }>();
-  const [unblockItemAction, setUnblockItemAction] = useState<() => unknown>();
-  const [showUnblockModal, setShowUnblockModal] = useState(false);
+  const [unblockItem, setUnblockItem] = useState<{
+    tag?: string;
+    source?: Source;
+    showUnblockModal: boolean;
+    action?: () => unknown;
+  }>();
   const { show: showTagOptionsMenu } = useContextMenu({
     id: 'tag-options-context',
   });
@@ -41,11 +36,10 @@ export default function BlockedFilter(): ReactElement {
   const initUnblockModal = ({
     tag = null,
     source = null,
+    showUnblockModal = true,
     action,
   }: UnblockModalType) => {
-    setUnblockItem({ tag, source });
-    setUnblockItemAction(() => action);
-    setShowUnblockModal(true);
+    setUnblockItem({ tag, source, showUnblockModal, action });
   };
 
   const sourceItemAction = (source) => {
@@ -78,7 +72,7 @@ export default function BlockedFilter(): ReactElement {
       />
 
       <TagOptionsMenu
-        showViewButton={selectedTag}
+        viewButtonLink={selectedTag}
         onUnblock={() =>
           initUnblockModal({
             tag: selectedTag,
@@ -88,12 +82,12 @@ export default function BlockedFilter(): ReactElement {
         onHidden={() => setSelectedTag(null)}
       />
 
-      {showUnblockModal && (
+      {unblockItem?.showUnblockModal && (
         <UnblockModal
           item={unblockItem}
-          isOpen={showUnblockModal}
-          action={() => unblockItemAction()}
-          onRequestClose={() => setShowUnblockModal(false)}
+          isOpen={unblockItem.showUnblockModal}
+          onConfirm={() => unblockItem.action()}
+          onRequestClose={() => setUnblockItem({ showUnblockModal: false })}
         />
       )}
     </div>
