@@ -676,7 +676,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           </>
         )}
         {comments?.postComments?.edges?.length === 0 && !isLoadingComments && (
-          <div className="my-10 text-center text-theme-label-quaternary typo-subhead">
+          <div className="my-8 text-center text-theme-label-quaternary typo-subhead">
             Be the first to comment.
           </div>
         )}
