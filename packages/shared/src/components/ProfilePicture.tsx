@@ -12,7 +12,7 @@ export interface ProfilePictureProps {
     | 'xlarge'
     | 'xxlarge'
     | 'xxxlarge';
-  extraClasses?: string;
+  className?: string;
 }
 
 const sizeClasses = {
@@ -28,13 +28,13 @@ const sizeClasses = {
 export function ProfilePicture({
   user,
   size = 'xlarge',
-  extraClasses,
+  className,
 }: ProfilePictureProps): ReactElement {
   return (
     <LazyImage
       imgSrc={user.image}
       imgAlt={`${user.username} profile picture`}
-      className={`${sizeClasses[size]} ${extraClasses}`}
+      className={`${sizeClasses[size]} ${className}`}
     />
   );
 }

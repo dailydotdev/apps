@@ -76,7 +76,7 @@ export default function EditImageWithJoinedDate({
           <ProfilePicture
             user={{ image: profileImage, username: user.username }}
             size="xxxlarge"
-            extraClasses="group-hover:opacity-40 transition-opacity"
+            className="group-hover:opacity-40 transition-opacity"
           />
           <span
             className="flex absolute top-0 left-0 invisible group-hover:visible justify-center items-center w-full h-full opacity-0 group-hover:opacity-100"

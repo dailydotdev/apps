@@ -765,11 +765,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             onClick={openNewComment}
           >
             {user && (
-              <ProfilePicture
-                user={user}
-                size="small"
-                extraClasses="mr-3 -ml-2"
-              />
+              <ProfilePicture user={user} size="small" className="mr-3 -ml-2" />
             )}
             Start the discussion...
           </button>
