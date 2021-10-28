@@ -11,6 +11,7 @@ const NewSourceModal = dynamic(() => import('../modals/NewSourceModal'));
 
 export default function FilterMenu(): ReactElement {
   const [showNewSourceModal, setShowNewSourceModal] = useState(false);
+
   const menuItems: MenuItem[] = [
     {
       icon: <HashtagIcon className="mr-3 text-xl" />,
@@ -25,8 +26,9 @@ export default function FilterMenu(): ReactElement {
     {
       icon: <BlockIcon className="mr-3 text-xl" />,
       title: 'Blocked',
-      component: () => dynamic(() => import('./Test')),
+      component: () => dynamic(() => import('./BlockedFilter')),
     },
+
     {
       icon: <PlusIcon className="mr-3 text-xl" />,
       title: 'Suggest new source',

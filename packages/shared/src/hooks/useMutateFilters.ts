@@ -11,29 +11,14 @@ import {
 } from '../graphql/feedSettings';
 import { Source } from '../graphql/sources';
 
-export const getTagsFiltersQueryKey = (user?: LoggedUser): string[] => [
+export const getFeedSettingsQueryKey = (user?: LoggedUser): string[] => [
   user?.id,
-  'tagsFilters',
-];
-
-export const getTagsSettingsQueryKey = (user?: LoggedUser): string[] => [
-  user?.id,
-  'tagsSettings',
+  'feedSettings',
 ];
 
 export const getSearchTagsQueryKey = (query: string): string[] => [
   'searchTags',
   query,
-];
-
-export const getSourcesFiltersQueryKey = (user?: LoggedUser): string[] => [
-  user?.id,
-  'sourcesFilters',
-];
-
-export const getSourcesSettingsQueryKey = (user?: LoggedUser): string[] => [
-  user?.id,
-  'sourcesSettings',
 ];
 
 type FollowTags = ({ tags: Array }) => Promise<unknown>;
@@ -80,12 +65,12 @@ const onMutateTagsSettings = async (
   manipulate: ManipulateTagFunc,
   user: LoggedUser,
 ): Promise<() => Promise<void>> => {
-  const queryKey = getTagsSettingsQueryKey(user);
+  const queryKey = getFeedSettingsQueryKey(user);
   const feedSettings = await queryClient.getQueryData<FeedSettingsData>(
     queryKey,
   );
   const newData = manipulate(feedSettings.feedSettings, tags);
-  const keys = [queryKey, getTagsFiltersQueryKey(user)];
+  const keys = [queryKey, getFeedSettingsQueryKey(user)];
   await updateQueryData(queryClient, newData, keys);
   return async () => {
     await updateQueryData(queryClient, feedSettings.feedSettings, keys);
@@ -103,12 +88,12 @@ const onMutateSourcesSettings = async (
   manipulate: ManipulateSourceFunc,
   user: LoggedUser,
 ): Promise<() => Promise<void>> => {
-  const queryKey = getSourcesSettingsQueryKey(user);
+  const queryKey = getFeedSettingsQueryKey(user);
   const feedSettings = await queryClient.getQueryData<FeedSettingsData>(
     queryKey,
   );
   const newData = manipulate(feedSettings.feedSettings, source);
-  const keys = [queryKey, getSourcesFiltersQueryKey(user)];
+  const keys = [queryKey, getFeedSettingsQueryKey(user)];
   await updateQueryData(queryClient, newData, keys);
   return async () => {
     await updateQueryData(queryClient, feedSettings.feedSettings, keys);

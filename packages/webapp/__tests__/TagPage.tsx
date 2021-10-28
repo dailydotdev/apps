@@ -9,12 +9,11 @@ import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { NextRouter } from 'next/router';
 import {
   ADD_FILTERS_TO_FEED_MUTATION,
+  AllTagCategoriesData,
   FeedSettings,
-  FeedSettingsData,
   REMOVE_FILTERS_FROM_FEED_MUTATION,
-  TAGS_SETTINGS_QUERY,
 } from '@dailydotdev/shared/src/graphql/feedSettings';
-import { getTagsSettingsQueryKey } from '@dailydotdev/shared/src/hooks/useMutateFilters';
+import { getFeedSettingsQueryKey } from '@dailydotdev/shared/src/hooks/useMutateFilters';
 import SettingsContext, {
   SettingsContextData,
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
@@ -25,6 +24,7 @@ import defaultUser from './fixture/loggedUser';
 import defaultFeedPage from './fixture/feed';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
 import { waitForNock } from './helpers/utilities';
+import { FEED_SETTINGS_QUERY } from '../../shared/src/graphql/feedSettings';
 
 const showLogin = jest.fn();
 
@@ -67,8 +67,9 @@ const createFeedMock = (
 
 const createTagsSettingsMock = (
   feedSettings: FeedSettings = { includeTags: [], blockedTags: [] },
-): MockedGraphQLResponse<FeedSettingsData> => ({
-  request: { query: TAGS_SETTINGS_QUERY },
+  loggedIn = true,
+): MockedGraphQLResponse<AllTagCategoriesData> => ({
+  request: { query: FEED_SETTINGS_QUERY, variables: { loggedIn } },
   result: {
     data: {
       feedSettings,
@@ -224,7 +225,7 @@ it('should follow tag', async () => {
   renderComponent();
   await waitFor(async () => {
     const data = await client.getQueryData(
-      getTagsSettingsQueryKey(defaultUser),
+      getFeedSettingsQueryKey(defaultUser),
     );
     expect(data).toBeTruthy();
   });
@@ -252,7 +253,7 @@ it('should block tag', async () => {
   renderComponent();
   await waitFor(async () => {
     const data = await client.getQueryData(
-      getTagsSettingsQueryKey(defaultUser),
+      getFeedSettingsQueryKey(defaultUser),
     );
     expect(data).toBeTruthy();
   });
@@ -284,7 +285,7 @@ it('should unfollow tag', async () => {
   ]);
   await waitFor(async () => {
     const data = await client.getQueryData(
-      getTagsSettingsQueryKey(defaultUser),
+      getFeedSettingsQueryKey(defaultUser),
     );
     expect(data).toBeTruthy();
   });
@@ -315,7 +316,7 @@ it('should unblock tag', async () => {
   ]);
   await waitFor(async () => {
     const data = await client.getQueryData(
-      getTagsSettingsQueryKey(defaultUser),
+      getFeedSettingsQueryKey(defaultUser),
     );
     expect(data).toBeTruthy();
   });

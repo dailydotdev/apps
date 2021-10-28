@@ -14,6 +14,7 @@ import { AnonymousUser, LoggedUser } from '../lib/user';
 import usePersistentState from '../hooks/usePersistentState';
 import AlertContext from './AlertContext';
 import useAlertContext from '../hooks/useAlertContext';
+import { generateQueryKey } from '../lib/query';
 
 function useRefreshToken(
   accessToken: AccessToken,
@@ -51,7 +52,7 @@ function useCacheUser(fetchedUser: LoggedUser | AnonymousUser | undefined): {
   const updateUser = useCallback(
     async (newUser: LoggedUser | AnonymousUser) => {
       await setCachedUser(newUser);
-      await queryClient.invalidateQueries(['profile', newUser.id]);
+      await queryClient.invalidateQueries(generateQueryKey('profile', newUser));
     },
     [queryClient],
   );

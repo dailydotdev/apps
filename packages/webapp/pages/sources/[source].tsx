@@ -17,14 +17,7 @@ import {
 } from '@dailydotdev/shared/src/graphql/sources';
 import request from 'graphql-request';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
-import useMutateFilters, {
-  getSourcesSettingsQueryKey,
-} from '@dailydotdev/shared/src/hooks/useMutateFilters';
-import { useQuery } from 'react-query';
-import {
-  FeedSettingsData,
-  SOURCES_SETTINGS_QUERY,
-} from '@dailydotdev/shared/src/graphql/feedSettings';
+import useMutateFilters from '@dailydotdev/shared/src/hooks/useMutateFilters';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   Button,
@@ -36,6 +29,7 @@ import {
 } from '@dailydotdev/shared/src/components/utilities';
 import PlusIcon from '@dailydotdev/shared/icons/plus.svg';
 import BlockIcon from '@dailydotdev/shared/icons/block.svg';
+import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -45,30 +39,22 @@ type SourcePageProps = { source: Source };
 
 const SourcePage = ({ source }: SourcePageProps): ReactElement => {
   const { isFallback } = useRouter();
-  const { user, showLogin, tokenRefreshed } = useContext(AuthContext);
+  const { user, showLogin } = useContext(AuthContext);
   // Must be memoized to prevent refreshing the feed
   const queryVariables = useMemo(
     () => ({ source: source?.id, ranking: 'TIME' }),
     [source?.id],
   );
 
-  const queryKey = getSourcesSettingsQueryKey(user);
-  const { data: feedSettings } = useQuery<FeedSettingsData>(
-    queryKey,
-    () => request(`${apiUrl}/graphql`, SOURCES_SETTINGS_QUERY),
-    {
-      enabled: !!user && tokenRefreshed,
-    },
-  );
-
+  const { feedSettings } = useFeedSettings();
   const { followSource, unfollowSource } = useMutateFilters(user);
 
   const unfollowingSource = useMemo(() => {
-    if (!feedSettings?.feedSettings) {
+    if (!feedSettings) {
       return true;
     }
     return (
-      feedSettings.feedSettings.excludeSources.findIndex(
+      feedSettings.excludeSources?.findIndex(
         (excludedSource) => source?.id === excludedSource.id,
       ) >= 0
     );
