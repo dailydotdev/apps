@@ -3,8 +3,8 @@ import { useQuery, useQueryClient } from 'react-query';
 import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 import { request } from 'graphql-request';
 import {
+  AdvancedSettings,
   AllTagCategoriesData,
-  FeedAdvancedSettings,
   FeedSettings,
   FEED_SETTINGS_QUERY,
   TagCategory,
@@ -18,7 +18,7 @@ export type FeedSettingsReturnType = {
   tagsCategories: TagCategory[];
   feedSettings: FeedSettings;
   isLoading: boolean;
-  advancedSettings: FeedAdvancedSettings[];
+  advancedSettings: AdvancedSettings[];
 };
 
 export default function useFeedSettings(): FeedSettingsReturnType {

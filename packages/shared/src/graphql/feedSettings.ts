@@ -44,7 +44,7 @@ export interface AllTagCategoriesData {
   feedSettings?: FeedSettings;
   loggedIn?: boolean;
   tagsCategories?: TagCategory[];
-  advancedSettings: FeedAdvancedSettings[];
+  advancedSettings: AdvancedSettings[];
 }
 
 export interface FeedSettingsData {

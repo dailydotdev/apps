@@ -8,23 +8,19 @@ import { Switch } from '../fields/Switch';
 const advancedSettingsKey = 'advancedSettings';
 
 function AdvancedSettingsFilter(): ReactElement {
+  const [settings, setSettings] = useState({});
   const { feedSettings, advancedSettings, isLoading } = useFeedSettings();
   const { user, showLogin } = useContext(AuthContext);
   const { updateAdvancedSettings } = useMutateFilters(user);
-  const [settingsMap, setSettingsMap] = useState<Record<number, boolean>>({});
 
   const onToggle = async (id: number) => {
     if (!user) {
-      showLogin('add source', LoginModalMode.ContentQuality);
+      showLogin('configure advanced settings', LoginModalMode.ContentQuality);
       return;
     }
-    setSettingsMap((state) => ({
-      ...state,
-      [id]: !settingsMap[id],
-    }));
 
     await updateAdvancedSettings({
-      advancedSettings: [{ id, enabled: !settingsMap[id] }],
+      advancedSettings: [{ id, enabled: !settings[id] }],
     });
   };
 
@@ -34,31 +30,29 @@ function AdvancedSettingsFilter(): ReactElement {
     }
 
     const map = {};
-
-    feedSettings?.advancedSettings?.forEach(
+    feedSettings.advancedSettings.forEach(
       // eslint-disable-next-line no-return-assign
-      (settings) => (map[settings.id] = settings.enabled),
+      ({ id, enabled }) => (map[id] = enabled),
     );
-
-    setSettingsMap(map);
+    setSettings(map);
   }, [feedSettings?.advancedSettings]);
 
   return (
     <section className="flex flex-col px-6" aria-busy={isLoading}>
-      {advancedSettings?.map((option, i) => (
-        <div key={option.title} className="flex flex-col my-4">
+      {advancedSettings?.map(({ id, title, description }, i) => (
+        <div key={title} className="flex flex-col my-4">
           <Switch
-            checked={settingsMap[option.id]}
+            checked={settings[id]}
             defaultTypo={false}
             labelClassName="typo-callout"
             name={advancedSettingsKey}
             inputId={`${advancedSettingsKey}-${i}`}
-            onToggle={() => onToggle(option.id)}
+            onToggle={() => onToggle(id)}
           >
-            {option.title}
+            {title}
           </Switch>
           <p className="mt-3 typo-callout text-theme-label-tertiary">
-            {option.description}
+            {description}
           </p>
         </div>
       ))}
