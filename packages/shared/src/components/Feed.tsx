@@ -5,6 +5,7 @@ import React, {
   useContext,
   useEffect,
   useRef,
+  useState,
 } from 'react';
 import dynamic from 'next/dynamic';
 import classNames from 'classnames';
@@ -31,6 +32,8 @@ import useVirtualFeedGrid, {
 import VirtualizedFeedGrid from './VirtualizedFeedGrid';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { adAnalyticsEvent, postAnalyticsEvent } from '../lib/feed';
+import PostOptionsMenu from './PostOptionsMenu';
+import RepostPostModal from './modals/ReportPostModal';
 
 const ReportPostMenu = dynamic(
   () => import(/* webpackChunkName: "reportPostMenu" */ './ReportPostMenu'),
@@ -87,6 +90,7 @@ export default function Feed<T>({
     );
   // const { nativeShareSupport } = useContext(ProgressiveEnhancementContext);
   const { onAdImpression } = useAdImpressions();
+  const [showReportModal, setShowReportModal] = useState(null);
 
   useEffect(() => {
     if (emptyFeed) {
@@ -152,6 +156,13 @@ export default function Feed<T>({
     postMenuIndex,
     setPostMenuIndex,
   } = useFeedReportMenu(items, removePost, virtualizedNumCards);
+
+  const onReportPostSubmit = (reason, comment, blockSource) => {
+    console.log(showReportModal);
+    console.log(reason);
+    console.log(comment);
+    console.log(blockSource);
+  };
 
   const onCommentClick = (
     post: Post,
@@ -244,12 +255,29 @@ export default function Feed<T>({
         ref={infiniteScrollRef}
         className={`absolute left-0 h-px w-px opacity-0 pointer-events-none ${styles.trigger}`}
       />
-      <ReportPostMenu
+      <PostOptionsMenu
+        post={(items[postMenuIndex] as PostItem)?.post}
+        onHidden={() => setPostMenuIndex(null)}
+        onReportPost={() => setShowReportModal(postMenuIndex)}
+        onHidePost={onHidePost}
+      />
+      {showReportModal && (
+        <RepostPostModal
+          postTitle={(items[showReportModal] as PostItem)?.post?.title}
+          sourceName={(items[showReportModal] as PostItem)?.post?.source?.name}
+          isOpen={showReportModal}
+          onReport={(reason, comment, blockSource) =>
+            onReportPostSubmit(reason, comment, blockSource)
+          }
+          onRequestClose={() => setShowReportModal(false)}
+        />
+      )}
+      {/* <ReportPostMenu
         postId={(items[postMenuIndex] as PostItem)?.post?.id}
         onHidden={() => setPostMenuIndex(null)}
         onReportPost={onReportPost}
         onHidePost={onHidePost}
-      />
+      /> */}
     </div>
   );
 }

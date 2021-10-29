@@ -32,19 +32,20 @@ export default function useFeedReportMenu(
   const { showReportMenu } = useReportPostMenu();
 
   const onReportPost = async (reason: ReportReason): Promise<void> => {
+    console.log('do something crazy');
     setPostNotificationIndex(postMenuIndex);
-    const item = items[postMenuIndex] as PostItem;
-    trackEvent(
-      postAnalyticsEvent('report post', item.post, {
-        columns,
-        column: postMenuLocation.column,
-        row: postMenuLocation.row,
-        extra: { origin: 'feed', reason },
-      }),
-    );
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setPostNotificationIndex(null);
-    removePost(item.page, item.index);
+    // const item = items[postMenuIndex] as PostItem;
+    // trackEvent(
+    //   postAnalyticsEvent('report post', item.post, {
+    //     columns,
+    //     column: postMenuLocation.column,
+    //     row: postMenuLocation.row,
+    //     extra: { origin: 'feed', reason },
+    //   }),
+    // );
+    // await new Promise((resolve) => setTimeout(resolve, 1000));
+    // setPostNotificationIndex(null);
+    // removePost(item.page, item.index);
   };
 
   const onHidePost = async (): Promise<void> => {

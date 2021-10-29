@@ -47,6 +47,7 @@ export const PostList = forwardRef(function PostList(
   const [selectedComment, setSelectedComment] = useState<Comment>();
 
   const { trending } = post;
+  notification = 'Blabla some comment';
 
   const card = (
     <ListCard

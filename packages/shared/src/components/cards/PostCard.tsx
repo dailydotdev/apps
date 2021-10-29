@@ -32,6 +32,7 @@ import PostMetadata from './PostMetadata';
 import ActionButtons from './ActionButtons';
 import SourceButton from './SourceButton';
 import PostAuthor from './PostAuthor';
+import PostOptions from './PostOptions';
 
 const FeaturedComment = dynamic(() => import('./FeaturedComment'));
 
@@ -76,7 +77,7 @@ export const PostCard = forwardRef(function PostCard(
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const [selectedComment, setSelectedComment] = useState<Comment>();
-
+  //notification = 'Testing notes';
   const { trending } = post;
   const customStyle =
     selectedComment && !showImage ? { minHeight: '15.125rem' } : {};
@@ -101,7 +102,11 @@ export const PostCard = forwardRef(function PostCard(
                 post.featuredComments,
                 setSelectedComment,
               )}
-              {enableMenu && !selectedComment && (
+              <PostOptions
+                onClick={(event) => onMenuClick?.(event, post)}
+                post={post}
+              />
+              {/* {enableMenu && !selectedComment && (
                 <Button
                   className={classNames(
                     'btn-tertiary',
@@ -114,7 +119,7 @@ export const PostCard = forwardRef(function PostCard(
                   pressed={menuOpened}
                   {...getTooltipProps('Report post')}
                 />
-              )}
+              )} */}
             </>
           )}
         </CardHeader>
