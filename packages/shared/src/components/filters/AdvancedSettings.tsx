@@ -42,6 +42,7 @@ function AdvancedSettingsFilter(): ReactElement {
       {advancedSettings?.map(({ id, title, description }, i) => (
         <div key={title} className="flex flex-col my-4">
           <Switch
+            className="h-8"
             checked={settings[id]}
             defaultTypo={false}
             labelClassName="typo-callout"
