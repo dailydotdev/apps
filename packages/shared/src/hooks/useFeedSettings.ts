@@ -55,5 +55,5 @@ export default function useFeedSettings(): FeedSettingsReturnType {
       isLoading,
       advancedSettings,
     };
-  }, [tagsCategories, feedSettings, isLoading]);
+  }, [tagsCategories, feedSettings, isLoading, advancedSettings]);
 }
