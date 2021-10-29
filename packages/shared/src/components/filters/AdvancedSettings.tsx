@@ -39,7 +39,7 @@ function AdvancedSettingsFilter(): ReactElement {
 
   return (
     <section className="flex flex-col px-6" aria-busy={isLoading}>
-      {advancedSettings?.map(({ id, title, description }, i) => (
+      {advancedSettings?.map(({ id, title, description }) => (
         <div key={title} className="flex flex-col my-4">
           <Switch
             className="h-8"
@@ -47,7 +47,7 @@ function AdvancedSettingsFilter(): ReactElement {
             defaultTypo={false}
             labelClassName="typo-callout"
             name={advancedSettingsKey}
-            inputId={`${advancedSettingsKey}-${i}`}
+            inputId={`${advancedSettingsKey}-${id}`}
             onToggle={() => onToggle(id)}
           >
             {title}
