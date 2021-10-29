@@ -66,9 +66,9 @@ export function Switch({
       {children && (
         <span
           className={classNames(
-            'ml-3 font-bold',
+            'ml-3 font-bold text-theme-label-tertiary',
+            defaultTypo && 'typo-footnote',
             styles.children,
-            defaultTypo && 'text-theme-label-tertiary typo-footnote',
             labelClassName,
           )}
         >
