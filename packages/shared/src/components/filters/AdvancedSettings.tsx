@@ -10,7 +10,7 @@ const advancedSettingsKey = 'advancedSettings';
 function AdvancedSettingsFilter(): ReactElement {
   const { feedSettings, advancedSettings, isLoading } = useFeedSettings();
   const { user, showLogin } = useContext(AuthContext);
-  const { updateAdvancedSettings } = useMutateFilters();
+  const { updateAdvancedSettings } = useMutateFilters(user);
   const [settingsMap, setSettingsMap] = useState<Record<number, boolean>>({});
 
   const onToggle = async (id: number) => {

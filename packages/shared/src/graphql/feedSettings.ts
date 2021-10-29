@@ -88,22 +88,6 @@ export const FEED_SETTINGS_QUERY = gql`
   }
 `;
 
-export const FEED_ADVANCED_SETTINGS_AND_LIST = gql`
-  query FeedAdvancedSettings($loggedIn: Boolean!) {
-    feedSettings @include(if: $loggedIn) {
-      advancedSettings {
-        id
-        enabled
-      }
-    }
-    advancedSettings {
-      id
-      title
-      description
-    }
-  }
-`;
-
 export const TAGS_SETTINGS_QUERY = gql`
   query FeedSettings {
     feedSettings {

@@ -135,9 +135,9 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
     { advancedSettings: FeedAdvancedSettings[] },
     () => Promise<void>
   >(
-    (advancedSettings) =>
+    ({ advancedSettings: settings }) =>
       request(`${apiUrl}/graphql`, UPDATE_ADVANCED_SETTINGS_FILTERS_MUTATION, {
-        filters: { advancedSettings },
+        settings,
       }),
     {
       onMutate: ({ advancedSettings }) =>
@@ -146,24 +146,7 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
           queryClient,
           (feedSettings, feedAdvancedSettings) => {
             const newData = cloneDeep(feedSettings);
-            const existing: { [key in string]: FeedAdvancedSettings } = {};
-            newData.advancedSettings.forEach(
-              // eslint-disable-next-line no-return-assign
-              (settings) => (existing[settings.id] = settings),
-            );
-            // eslint-disable-next-line no-return-assign
-            feedAdvancedSettings.forEach((settings) => {
-              if (existing[settings.id] === undefined) {
-                return newData.advancedSettings.push(settings);
-              }
-
-              if (existing[settings.id].enabled === settings.enabled) {
-                return null;
-              }
-
-              // eslint-disable-next-line no-return-assign
-              return (existing[settings.id].enabled = settings.enabled);
-            });
+            newData.advancedSettings = feedAdvancedSettings;
             return newData;
           },
           user,
