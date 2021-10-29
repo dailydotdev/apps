@@ -2,7 +2,8 @@ import { gql } from 'graphql-request';
 import { Source } from './sources';
 
 export interface Tag {
-  name: string;
+  name?: string;
+  string;
 }
 
 export interface TagsData {
@@ -22,7 +23,7 @@ export interface FeedSettings {
 export interface TagCategory {
   id: string;
   title: string;
-  tags: string[];
+  tags: Array<string>;
   emoji: string;
 }
 

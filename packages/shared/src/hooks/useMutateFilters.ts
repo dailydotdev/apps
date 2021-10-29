@@ -151,6 +151,9 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
           (feedSettings, manipulateTags) => {
             const newData = cloneDeep(feedSettings);
             newData.blockedTags = newData.blockedTags.concat(manipulateTags);
+            newData.includeTags = newData.includeTags.filter(
+              (value) => manipulateTags.indexOf(value) < 0,
+            );
             return newData;
           },
           user,

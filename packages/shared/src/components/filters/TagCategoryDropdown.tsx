@@ -28,7 +28,12 @@ export default function TagCategoryDropdown({
       </TagCategorySummary>
       <TagCategoryDetailsContent data-testid="tagCategoryTags">
         {tagCategory.tags.map((tag) => (
-          <TagButton followedTags={followedTags} key={tag} tag={tag} />
+          <TagButton
+            className="mr-3 mb-3"
+            tagItem={tag}
+            followedTags={followedTags}
+            key={tag}
+          />
         ))}
       </TagCategoryDetailsContent>
     </TagCategoryDetails>

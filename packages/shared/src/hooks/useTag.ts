@@ -11,10 +11,11 @@ interface ActionArguments {
 export default function useTag(): {
   onFollow: (tags, category?) => void;
   onUnfollow: (tags, category?) => void;
+  onBlock: (tags) => void;
 } {
   const { user, showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
-  const { followTags, unfollowTags } = useMutateFilters(user);
+  const { followTags, unfollowTags, blockTag } = useMutateFilters(user);
 
   const onFollow = async ({ tags, category }: ActionArguments) => {
     if (!user) {
@@ -39,8 +40,13 @@ export default function useTag(): {
     await unfollowTags({ tags });
   };
 
+  const onBlock = async ({ tags }: ActionArguments) => {
+    await blockTag({ tags });
+  };
+
   return {
     onFollow,
     onUnfollow,
+    onBlock,
   };
 }

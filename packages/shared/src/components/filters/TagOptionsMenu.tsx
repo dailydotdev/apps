@@ -2,6 +2,7 @@ import React, { ReactElement } from 'react';
 import dynamic from 'next/dynamic';
 import { Item } from 'react-contexify';
 import Link from 'next/link';
+import { Tag } from '../../graphql/feedSettings';
 
 const PortalMenu = dynamic(() => import('../fields/PortalMenu'), {
   ssr: false,
@@ -9,8 +10,8 @@ const PortalMenu = dynamic(() => import('../fields/PortalMenu'), {
 
 export type TagOptionsMenuProps = {
   onHidden?: () => unknown;
-  tag?: string;
-  onBlock?: () => Promise<unknown>;
+  tag?: Tag;
+  onBlock?: () => unknown;
   onUnblock?: () => unknown;
   onFollow?: () => Promise<unknown>;
   onUnfollow?: () => Promise<unknown>;

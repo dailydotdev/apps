@@ -7,7 +7,7 @@ import {
 } from '../contexts/AlertContext';
 
 export default function useAlertContext(
-  fetchedAlerts: Alerts | undefined,
+  fetchedAlerts?: Alerts | undefined,
 ): AlertContextData {
   const [alerts, setAlerts] = usePersistentState('alert', null, ALERT_DEFAULTS);
 
