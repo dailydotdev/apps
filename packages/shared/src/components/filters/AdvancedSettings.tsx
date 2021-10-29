@@ -42,11 +42,10 @@ function AdvancedSettingsFilter(): ReactElement {
       {advancedSettings?.map(({ id, title, description }) => (
         <FilterSwitch
           key={id}
-          id={id}
           title={title}
           name={advancedSettingsKey}
           description={description}
-          onToggleFilter={onToggle}
+          onToggle={() => onToggle(id)}
           inputId={`${title}-${id}`}
         />
       ))}

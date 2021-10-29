@@ -2,17 +2,13 @@ import React, { ReactElement } from 'react';
 import { Switch, SwitchProps } from '../fields/Switch';
 
 interface FilterSwitchProps extends SwitchProps {
-  id: number | string;
   title: string;
   description: string;
-  onToggleFilter: (id: number | string) => unknown;
 }
 
 export function FilterSwitch({
-  id,
   title,
   description,
-  onToggleFilter,
   ...props
 }: FilterSwitchProps): ReactElement {
   return (
@@ -21,7 +17,6 @@ export function FilterSwitch({
         className="h-8"
         defaultTypo={false}
         labelClassName="typo-callout"
-        onToggle={() => onToggleFilter(id)}
         {...props}
       >
         {title}
