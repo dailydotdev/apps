@@ -32,6 +32,11 @@ body {
       }
     }
   }
+
+  &.ReactModal__Body--open {
+    height: 100vh;
+    overflow: hidden;
+  }
 }
 
 @define-mixin dark-mode {
