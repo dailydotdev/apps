@@ -3,7 +3,7 @@ import AuthContext from '../../contexts/AuthContext';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import useMutateFilters from '../../hooks/useMutateFilters';
 import { LoginModalMode } from '../../types/LoginModalMode';
-import { Switch } from '../fields/Switch';
+import { FilterSwitch } from './FilterSwitch';
 
 const advancedSettingsKey = 'advancedSettings';
 
@@ -40,22 +40,15 @@ function AdvancedSettingsFilter(): ReactElement {
   return (
     <section className="flex flex-col px-6" aria-busy={isLoading}>
       {advancedSettings?.map(({ id, title, description }) => (
-        <div key={title} className="flex flex-col my-4">
-          <Switch
-            className="h-8"
-            checked={settings[id]}
-            defaultTypo={false}
-            labelClassName="typo-callout"
-            name={advancedSettingsKey}
-            inputId={`${advancedSettingsKey}-${id}`}
-            onToggle={() => onToggle(id)}
-          >
-            {title}
-          </Switch>
-          <p className="mt-3 typo-callout text-theme-label-tertiary">
-            {description}
-          </p>
-        </div>
+        <FilterSwitch
+          key={id}
+          id={id}
+          title={title}
+          name={advancedSettingsKey}
+          description={description}
+          onToggleFilter={onToggle}
+          inputId={`${title}-${id}`}
+        />
       ))}
     </section>
   );
