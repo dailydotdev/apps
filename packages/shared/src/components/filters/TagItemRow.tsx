@@ -3,29 +3,22 @@ import { FilterItem } from './common';
 import { getTooltipProps } from '../../lib/tooltip';
 import { Button } from '../buttons/Button';
 import MenuIcon from '../../../icons/menu.svg';
+import TagButton from './TagButton';
 
 export default function TagItemRow({
   tooltip,
   tag,
-  menu,
+  followedTags,
   onClick,
-  ...props
 }: {
   tooltip: string;
   tag: string;
-  menu?: boolean;
+  followedTags?: Array<string>;
   onClick?: (event: React.MouseEvent, tag: string) => unknown;
 } & Omit<HTMLAttributes<HTMLAnchorElement>, 'onClick'>): ReactElement {
   return (
     <FilterItem className="relative pl-6 my-2">
-      <Button
-        buttonSize="small"
-        className="btn-tertiaryFloat"
-        {...getTooltipProps(`${tag} feed`)}
-        {...props}
-      >
-        {`#${tag}`}
-      </Button>
+      <TagButton buttonSize="small" followedTags={followedTags} tagItem={tag} />
       <Button
         className="right-4 my-auto btn-tertiary"
         style={{ position: 'absolute' }}

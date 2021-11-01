@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { Tag } from '../../graphql/feedSettings';
 import { Source } from '../../graphql/sources';
 import classed from '../../lib/classed';
 
@@ -10,7 +11,7 @@ export interface MenuItem {
 }
 
 export interface UnblockModalType {
-  tag?: string;
+  tag?: Tag;
   source?: Source;
   action?: () => unknown;
 }

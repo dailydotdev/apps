@@ -6,7 +6,7 @@ import AlertContext from '../../contexts/AlertContext';
 export default function FilterRedDot(): ReactElement {
   const {
     alerts: { filter: shouldShowFilterRedDot },
-  } = useContext(AlertContext);
+  } = useContext(AlertContext) || {};
 
   return (
     <div className="relative">

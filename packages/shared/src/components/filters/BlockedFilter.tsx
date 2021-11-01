@@ -1,5 +1,4 @@
 import React, { ReactElement, useContext, useState } from 'react';
-import { useContextMenu } from 'react-contexify';
 import { UnblockModalType } from './common';
 import useMutateFilters from '../../hooks/useMutateFilters';
 import { Source } from '../../graphql/sources';
@@ -9,28 +8,20 @@ import AuthContext from '../../contexts/AuthContext';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import TagOptionsMenu from './TagOptionsMenu';
 import UnblockModal from '../modals/UnblockModal';
+import { Tag } from '../../graphql/feedSettings';
+import useTagContext from '../../hooks/useTagContext';
 
 export default function BlockedFilter(): ReactElement {
   const { user } = useContext(AuthContext);
-  const [selectedTag, setSelectedTag] = useState<string>();
   const [unblockItem, setUnblockItem] = useState<{
-    tag?: string;
+    tag?: Tag;
     source?: Source;
     action?: () => unknown;
   }>();
-  const { show: showTagOptionsMenu } = useContextMenu({
-    id: 'tag-options-context',
-  });
   const { feedSettings, isLoading } = useFeedSettings();
   const { unblockTag, followSource } = useMutateFilters(user);
-
-  const onTagContextOptions = (event: React.MouseEvent, tag: string): void => {
-    setSelectedTag(tag);
-    const { right, bottom } = event.currentTarget.getBoundingClientRect();
-    showTagOptionsMenu(event, {
-      position: { x: right - 112, y: bottom + 4 },
-    });
-  };
+  const { contextSelectedTag, setContextSelectedTag, onTagContextOptions } =
+    useTagContext();
 
   const initUnblockModal = ({
     tag = null,
@@ -50,16 +41,17 @@ export default function BlockedFilter(): ReactElement {
   return (
     <div className="flex flex-col" aria-busy={isLoading}>
       <p className="mx-6 mb-6 typo-callout text-theme-label-tertiary">
-        Blocking tags and sources can be done from the feed. Next time you seen
-        a post with a tag or source you wish to block, click on the ⋮ button and
-        click “Not interested in…”.
+        Block tags and sources directly from the feed. Whenever you see a post
+        with a tag/source you wish to block, click on the more options button
+        (⋮) and choose “Not interested in…“.
       </p>
 
       <h3 className="my-3 mx-6 typo-headline">Blocked tags</h3>
 
       <TagItemList
-        blockedTags={feedSettings?.blockedTags}
+        tags={feedSettings?.blockedTags}
         options={onTagContextOptions}
+        emptyText="No blocked tags."
       />
 
       <h3 className="mx-6 mt-10 mb-3 typo-headline">Blocked sources</h3>
@@ -70,14 +62,14 @@ export default function BlockedFilter(): ReactElement {
       />
 
       <TagOptionsMenu
-        tag={selectedTag}
+        tag={contextSelectedTag}
         onUnblock={() =>
           initUnblockModal({
-            tag: selectedTag,
-            action: () => unblockTag({ tags: [selectedTag] }),
+            tag: contextSelectedTag,
+            action: () => unblockTag({ tags: [contextSelectedTag] }),
           })
         }
-        onHidden={() => setSelectedTag(null)}
+        onHidden={() => setContextSelectedTag(null)}
       />
 
       {unblockItem && (

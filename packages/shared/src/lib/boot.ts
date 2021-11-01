@@ -1,12 +1,14 @@
 import { IFlags } from 'flagsmith';
 import { AnonymousUser, LoggedUser } from './user';
 import { apiUrl } from './config';
+import { Alerts } from '../contexts/AlertContext';
 
 export type AccessToken = { token: string; expiresIn: string };
 export type Visit = { ampStorage?: string; sessionId: string; visitId: string };
 export type Boot = {
   user: LoggedUser | AnonymousUser;
   accessToken: AccessToken;
+  alerts: Alerts;
   visit: Visit;
   flags: IFlags;
 };

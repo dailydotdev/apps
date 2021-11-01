@@ -8,14 +8,15 @@ import {
   ConfirmationButtons,
 } from './ConfirmationModal';
 import { Source } from '../../graphql/sources';
+import { Tag } from '../../graphql/feedSettings';
 
 export interface Props extends ModalProps {
-  item: { tag?: string; source?: Source };
+  item: { tag?: Tag; source?: Source };
   onConfirm: () => unknown;
 }
 
 export type CopyProps = {
-  name: string;
+  name: string | Tag;
 };
 
 const UnblockTagCopy = ({ name }: CopyProps) => {
