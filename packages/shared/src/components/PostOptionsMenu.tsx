@@ -36,24 +36,23 @@ export default function PostOptionsMenu({
   const [reportModal, setReportModal] =
     useState<{ index?: number; post?: Post }>();
 
-  const onReportPost = async ({
+  const onReportPost = async (
     reportPostIndex,
     postId,
     reason,
     comment,
     blockSource,
-  }: {
-    reportPostIndex: number;
-    postId: string;
-    reason: ReportReason;
-    comment: string;
-    blockSource: boolean;
-  }): Promise<void> => {
+  ): Promise<void> => {
     reportPost({
       id: postId,
       reason,
+      comment,
     });
-    console.log(reportPostIndex, reason, comment, blockSource);
+
+    if (blockSource) {
+      // Block source call
+    }
+
     onMessage('🚨 Thanks for reporting!', reportPostIndex);
     await new Promise((resolve) => setTimeout(resolve, 1000));
     onRemovePost?.(reportPostIndex);
@@ -64,12 +63,13 @@ export default function PostOptionsMenu({
   };
 
   const onBlockTag = async (tag: string): Promise<void> => {
-    onMessage(`⛔️ ${tag} blocked`, postIndex);
+    onMessage(`⛔️ #${tag} blocked`, postIndex);
   };
 
   const onHidePost = async (): Promise<void> => {
     const promise = hidePost(post.id);
     await Promise.all([promise, onRemovePost?.(postIndex)]);
+    onMessage('🙈 This article won’t show up on your feed anymore', postIndex);
   };
 
   const onSharePost = async () => {

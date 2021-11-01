@@ -63,6 +63,11 @@ import { ProfilePicture } from '@dailydotdev/shared/src/components/ProfilePictur
 import styles from './postPage.module.css';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import PostToc from '../../components/widgets/PostToc';
+import PostOptionsMenu from '@dailydotdev/shared/src/components/PostOptionsMenu';
+import PostOptions from '@dailydotdev/shared/src/components/cards/PostOptions';
+import useReportPostMenu from '@dailydotdev/shared/src/hooks/useReportPostMenu';
+import MenuIcon from '@dailydotdev/shared/icons/menu.svg';
+import { CardNotification } from '@dailydotdev/shared/src/components/cards/Card';
 
 const PlaceholderCommentList = dynamic(
   () =>
@@ -474,6 +479,21 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     },
   };
 
+  const { showReportMenu } = useReportPostMenu();
+  const showPostOptionsContext = (e) => {
+    const { right, bottom } = e.currentTarget.getBoundingClientRect();
+    showReportMenu(e, {
+      position: { x: right - 147, y: bottom + 4 },
+    });
+  };
+
+  const [notification, setNotification] = useState<string>();
+  const onMessage = async (message: string) => {
+    setNotification(message);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    setNotification(null);
+  };
+
   return (
     <>
       <PageContainer className="laptop:self-start laptopL:self-center pt-6 pb-20 laptop:pb-6 laptop:border-r laptopL:border-l laptop:border-theme-divider-tertiary">
@@ -482,53 +502,65 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         </Head>
         <NextSeo {...seo} />
         <div className="flex items-center mb-2">
-          <Link
-            href={`/sources/${postById?.post.source.id}`}
-            passHref
-            prefetch={false}
-          >
-            <a
-              className="flex no-underline cursor-pointer"
-              {...(!postById?.post.author
-                ? {}
-                : getTooltipProps(postById?.post.source.name, {
-                    position: 'down',
-                  }))}
-            >
-              <SourceImage
-                imgSrc={postById?.post.source.image}
-                imgAlt={postById?.post.source.name}
-                background="var(--theme-background-secondary)"
-              />
-            </a>
-          </Link>
-          {postById?.post.author ? (
-            <ProfileLink
-              user={postById.post.author}
-              data-testid="authorLink"
-              disableTooltip
-              className="flex-1 mr-auto ml-2"
-            >
-              <SourceImage
-                imgSrc={postById.post.author.image}
-                imgAlt={postById.post.author.name}
-                background="var(--theme-background-secondary)"
-              />
-              <SourceName className="flex-1 ml-2">
-                {postById.post.author.name}
-              </SourceName>
-            </ProfileLink>
+          {notification ? (
+            <CardNotification className="flex-1 text-center py-2.5">
+              {notification}
+            </CardNotification>
           ) : (
-            <div className="flex flex-col flex-1 mx-2">
-              <SourceName>{postById?.post.source.name}</SourceName>
-            </div>
+            <>
+              <Link
+                href={`/sources/${postById?.post.source.id}`}
+                passHref
+                prefetch={false}
+              >
+                <a
+                  className="flex no-underline cursor-pointer"
+                  {...(!postById?.post.author
+                    ? {}
+                    : getTooltipProps(postById?.post.source.name, {
+                        position: 'down',
+                      }))}
+                >
+                  <SourceImage
+                    imgSrc={postById?.post.source.image}
+                    imgAlt={postById?.post.source.name}
+                    background="var(--theme-background-secondary)"
+                  />
+                </a>
+              </Link>
+              {postById?.post.author ? (
+                <ProfileLink
+                  user={postById.post.author}
+                  data-testid="authorLink"
+                  disableTooltip
+                  className="flex-1 mr-auto ml-2"
+                >
+                  <SourceImage
+                    imgSrc={postById.post.author.image}
+                    imgAlt={postById.post.author.name}
+                    background="var(--theme-background-secondary)"
+                  />
+                  <SourceName className="flex-1 ml-2">
+                    {postById.post.author.name}
+                  </SourceName>
+                </ProfileLink>
+              ) : (
+                <div className="flex flex-col flex-1 mx-2">
+                  <SourceName>{postById?.post.source.name}</SourceName>
+                </div>
+              )}
+              <Button
+                className="right-4 my-auto btn-tertiary"
+                style={{ position: 'absolute' }}
+                icon={<MenuIcon />}
+                onClick={(event) => showPostOptionsContext(event)}
+                buttonSize="small"
+                {...getTooltipProps('Options', {
+                  position: 'left',
+                })}
+              />
+            </>
           )}
-          <Button
-            className="btn-tertiary"
-            icon={<OpenLinkIcon />}
-            tag="a"
-            {...postLinkProps}
-          />
           {user?.roles?.indexOf(Roles.Moderator) > -1 && (
             <>
               <Button
@@ -819,6 +851,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           onRequestClose={() => setShowBanPost(false)}
         />
       )}
+      <PostOptionsMenu post={postData?.post} onMessage={onMessage} />
     </>
   );
 };

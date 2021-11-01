@@ -271,8 +271,8 @@ export const POSTS_ENGAGED_SUBSCRIPTION = gql`
 `;
 
 export const REPORT_POST_MUTATION = gql`
-  mutation ReportPost($id: ID!, $reason: ReportReason!) {
-    reportPost(id: $id, reason: $reason) {
+  mutation ReportPost($id: ID!, $reason: ReportReason!, $comment: String) {
+    reportPost(id: $id, reason: $reason, comment: $comment) {
       _
     }
   }
