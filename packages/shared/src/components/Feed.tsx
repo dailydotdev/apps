@@ -7,7 +7,6 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import dynamic from 'next/dynamic';
 import classNames from 'classnames';
 import useFeed, { PostItem } from '../hooks/useFeed';
 import { Ad, Post } from '../graphql/posts';
@@ -33,7 +32,6 @@ import VirtualizedFeedGrid from './VirtualizedFeedGrid';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { adAnalyticsEvent, postAnalyticsEvent } from '../lib/feed';
 import PostOptionsMenu from './PostOptionsMenu';
-import RepostPostModal from './modals/ReportPostModal';
 
 export type FeedProps<T> = {
   feedQueryKey: unknown[];
@@ -85,7 +83,6 @@ export default function Feed<T>({
       variables,
     );
   const { onAdImpression } = useAdImpressions();
-  const [showReportModal, setShowReportModal] = useState(null);
 
   useEffect(() => {
     if (emptyFeed) {
@@ -144,31 +141,25 @@ export default function Feed<T>({
     updatePost,
     virtualizedNumCards,
   );
-  const {
-    onHidePost,
-    onBlockSource,
-    onBlockTag,
-    onReportPost,
-    onSharePost,
-    postNotificationIndex,
-    onMenuClick,
-    postMenuIndex,
-    setPostMenuIndex,
-  } = useFeedReportMenu(
+  const { onMenuClick, postMenuIndex, setPostMenuIndex } = useFeedReportMenu(
     items,
     removePost,
     virtualizedNumCards,
     setNotification,
   );
 
-  const onReportPostSubmit = (reason, comment, blockSource) => {
-    onReportPost(showReportModal, reason);
-    console.log(postNotificationIndex);
+  const [postNotificationIndex, setPostNotificationIndex] = useState<number>();
 
-    console.log(showReportModal);
-    console.log(reason);
-    console.log(comment);
-    console.log(blockSource);
+  const onMessage = async (message: string, messageIndex?: number) => {
+    setNotification(message);
+    setPostNotificationIndex(messageIndex);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    setPostNotificationIndex(null);
+  };
+
+  const onRemovePost = async (removePostIndex) => {
+    const item = items[removePostIndex] as PostItem;
+    removePost(item.page, item.index);
   };
 
   const onCommentClick = (
@@ -264,25 +255,12 @@ export default function Feed<T>({
         className={`absolute left-0 h-px w-px opacity-0 pointer-events-none ${styles.trigger}`}
       />
       <PostOptionsMenu
+        postIndex={postMenuIndex}
         post={(items[postMenuIndex] as PostItem)?.post}
         onHidden={() => setPostMenuIndex(null)}
-        onReportPost={() => setShowReportModal(postMenuIndex)}
-        onHidePost={onHidePost}
-        onBlockSource={onBlockSource}
-        onBlockTag={onBlockTag}
-        onSharePost={onSharePost}
+        onMessage={onMessage}
+        onRemovePost={onRemovePost}
       />
-      {showReportModal && (
-        <RepostPostModal
-          postTitle={(items[showReportModal] as PostItem)?.post?.title}
-          sourceName={(items[showReportModal] as PostItem)?.post?.source?.name}
-          isOpen={showReportModal}
-          onReport={(reason, comment, blockSource) =>
-            onReportPostSubmit(reason, comment, blockSource)
-          }
-          onRequestClose={() => setShowReportModal(false)}
-        />
-      )}
     </div>
   );
 }

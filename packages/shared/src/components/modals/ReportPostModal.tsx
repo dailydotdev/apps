@@ -1,7 +1,7 @@
 import React, { ReactElement, MouseEvent, useState, useRef } from 'react';
 import { useMutation } from 'react-query';
 import request from 'graphql-request';
-import { BAN_POST_MUTATION } from '../../graphql/posts';
+import { BAN_POST_MUTATION, Post } from '../../graphql/posts';
 import { apiUrl } from '../../lib/config';
 import { Button } from '../buttons/Button';
 import { ModalProps } from './StyledModal';
@@ -18,9 +18,9 @@ import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
 import { Checkbox } from '../fields/Checkbox';
 
 export interface Props extends ModalProps {
-  postTitle: string;
-  sourceName: string;
-  onReport: (reason, comment, blockSource) => unknown;
+  postIndex: number;
+  post: Post;
+  onReport: (postIndex, postId, reason, comment, blockSource) => unknown;
 }
 
 const reportReasons: { value: string; label: string }[] = [
@@ -32,8 +32,8 @@ const reportReasons: { value: string; label: string }[] = [
 ];
 
 export default function RepostPostModal({
-  postTitle,
-  sourceName,
+  postIndex,
+  post,
   onReport,
   ...props
 }: Props): ReactElement {
@@ -42,7 +42,7 @@ export default function RepostPostModal({
   const inputRef = useRef<HTMLInputElement>();
 
   const onReportPost = async (event: MouseEvent): Promise<void> => {
-    onReport(reason, comment, inputRef.current?.checked);
+    onReport(postIndex, post.id, reason, comment, inputRef.current?.checked);
     props.onRequestClose(event);
   };
 
@@ -50,7 +50,7 @@ export default function RepostPostModal({
     <ConfirmationModal {...props}>
       <ModalCloseButton onClick={props.onRequestClose} />
       <ConfirmationHeading>Report article</ConfirmationHeading>
-      <ConfirmationDescription>"{postTitle}"</ConfirmationDescription>
+      <ConfirmationDescription>"{post?.title}"</ConfirmationDescription>
       <div className="w-full">
         <Radio
           className=" mt-2 mb-4"
@@ -72,11 +72,15 @@ export default function RepostPostModal({
           name="blockSource"
           className="self-center mb-6 font-normal"
         >
-          Don't show articles from {sourceName}
+          Don't show articles from {post?.source?.name}
         </Checkbox>
       </div>
       <ConfirmationButtonsCenter>
-        <Button className="btn-primary" disabled={!reason} onClick={onReportPost}>
+        <Button
+          className="btn-primary"
+          disabled={!reason}
+          onClick={onReportPost}
+        >
           Submit report
         </Button>
       </ConfirmationButtonsCenter>

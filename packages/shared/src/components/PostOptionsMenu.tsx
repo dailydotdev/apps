@@ -1,25 +1,24 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useState } from 'react';
 import { Item } from 'react-contexify';
 import dynamic from 'next/dynamic';
 import useReportPost from '../hooks/useReportPost';
-import { Post } from '../graphql/posts';
+import { Post, ReportReason } from '../graphql/posts';
 import EyeIcon from '../../icons/eye.svg';
 import ShareIcon from '../../icons/share.svg';
 import BlockIcon from '../../icons/block.svg';
 import FlagIcon from '../../icons/flag.svg';
+import RepostPostModal from './modals/ReportPostModal';
 
 const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
   ssr: false,
 });
 
 export type PostOptionsMenuProps = {
+  postIndex?: number;
   post: Post;
   onHidden?: () => unknown;
-  onReportPost?: (id) => Promise<void>;
-  onHidePost?: () => Promise<unknown>;
-  onBlockSource?: () => Promise<unknown>;
-  onBlockTag?: (tag: string) => Promise<unknown>;
-  onSharePost?: () => Promise<unknown>;
+  onMessage?: (message: string, postIndex: number) => Promise<unknown>;
+  onRemovePost?: (postIndex: number) => Promise<unknown>;
 };
 
 const MenuIcon = ({ Icon }) => {
@@ -27,36 +26,76 @@ const MenuIcon = ({ Icon }) => {
 };
 
 export default function PostOptionsMenu({
+  postIndex,
   post,
   onHidden,
-  onReportPost,
-  onHidePost,
-  onBlockSource,
-  onBlockTag,
-  onSharePost,
+  onMessage,
+  onRemovePost,
 }: PostOptionsMenuProps): ReactElement {
-  const { hidePost } = useReportPost();
+  const { reportPost, hidePost } = useReportPost();
+  const [reportModal, setReportModal] =
+    useState<{ index?: number; post?: Post }>();
 
-  const onLocalHidePost = async (): Promise<void> => {
-    const promise = hidePost(post.id);
-    await Promise.all([promise, onHidePost?.()]);
+  const onReportPost = async ({
+    reportPostIndex,
+    postId,
+    reason,
+    comment,
+    blockSource,
+  }: {
+    reportPostIndex: number;
+    postId: string;
+    reason: ReportReason;
+    comment: string;
+    blockSource: boolean;
+  }): Promise<void> => {
+    reportPost({
+      id: postId,
+      reason,
+    });
+    console.log(reportPostIndex, reason, comment, blockSource);
+    onMessage('🚨 Thanks for reporting!', reportPostIndex);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    onRemovePost?.(reportPostIndex);
   };
 
-  const postOptions = [
+  const onBlockSource = async (): Promise<void> => {
+    onMessage(`🚫 ${post?.source?.name} blocked`, postIndex);
+  };
+
+  const onBlockTag = async (tag: string): Promise<void> => {
+    onMessage(`⛔️ ${tag} blocked`, postIndex);
+  };
+
+  const onHidePost = async (): Promise<void> => {
+    const promise = hidePost(post.id);
+    await Promise.all([promise, onRemovePost?.(postIndex)]);
+  };
+
+  const onSharePost = async () => {
+    await navigator.clipboard.writeText(post.permalink);
+    onMessage('✅ Copied link to clipboard', postIndex);
+  };
+
+  const postOptions: {
+    icon: ReactElement;
+    text: string;
+    action: () => unknown;
+  }[] = [
     {
       icon: <MenuIcon Icon={EyeIcon} />,
       text: 'Hide',
-      action: () => onHidePost(),
+      action: onHidePost,
     },
     {
       icon: <MenuIcon Icon={ShareIcon} />,
       text: 'Share article',
-      action: () => onSharePost(),
+      action: onSharePost,
     },
     {
       icon: <MenuIcon Icon={BlockIcon} />,
       text: `Don't show articles from ${post?.source?.name}`,
-      action: () => onBlockSource(),
+      action: onBlockSource,
     },
   ];
   post?.tags.forEach((tag) =>
@@ -69,7 +108,7 @@ export default function PostOptionsMenu({
   postOptions.push({
     icon: <MenuIcon Icon={FlagIcon} />,
     text: 'Report',
-    action: () => onReportPost(post?.id),
+    action: async () => setReportModal({ index: postIndex, post: post }),
   });
 
   return (
@@ -88,6 +127,15 @@ export default function PostOptionsMenu({
           </Item>
         ))}
       </PortalMenu>
+      {reportModal && (
+        <RepostPostModal
+          isOpen={!!reportModal}
+          postIndex={reportModal.index}
+          post={reportModal.post}
+          onReport={onReportPost}
+          onRequestClose={() => setReportModal(null)}
+        />
+      )}
     </>
   );
 }
