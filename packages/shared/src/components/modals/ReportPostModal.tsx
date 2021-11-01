@@ -76,7 +76,7 @@ export default function RepostPostModal({
         </Checkbox>
       </div>
       <ConfirmationButtonsCenter>
-        <Button className="btn-primary" onClick={onReportPost}>
+        <Button className="btn-primary" disabled={!reason} onClick={onReportPost}>
           Submit report
         </Button>
       </ConfirmationButtonsCenter>

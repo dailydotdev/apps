@@ -26,6 +26,7 @@ export type FeedItemComponentProps = {
   nativeShareSupport: boolean;
   postMenuIndex: number | undefined;
   postNotificationIndex: number | undefined;
+  notification: string | undefined;
   showCommentPopupId: string | undefined;
   setShowCommentPopupId: (value: string | undefined) => void;
   isSendingComment: boolean;
@@ -103,6 +104,7 @@ export default function FeedItemComponent({
   nativeShareSupport,
   postMenuIndex,
   postNotificationIndex,
+  notification,
   showCommentPopupId,
   setShowCommentPopupId,
   isSendingComment,
@@ -143,9 +145,7 @@ export default function FeedItemComponent({
           enableMenu={!!user}
           onMenuClick={(event) => onMenuClick(event, index, row, column)}
           menuOpened={postMenuIndex === index}
-          notification={
-            postNotificationIndex === index && 'Thanks for reporting! 🚨'
-          }
+          notification={postNotificationIndex === index && notification}
           showImage={!insaneMode}
           onCommentClick={(post) => onCommentClick(post, index, row, column)}
         >

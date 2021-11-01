@@ -92,7 +92,7 @@ export const PostCard = forwardRef(function PostCard(
       <CardTextContainer>
         <CardHeader>
           {notification ? (
-            <CardNotification className="flex-1">
+            <CardNotification className="flex-1 text-center">
               {notification}
             </CardNotification>
           ) : (
@@ -106,20 +106,6 @@ export const PostCard = forwardRef(function PostCard(
                 onClick={(event) => onMenuClick?.(event, post)}
                 post={post}
               />
-              {/* {enableMenu && !selectedComment && (
-                <Button
-                  className={classNames(
-                    'btn-tertiary',
-                    !menuOpened && 'mouse:invisible mouse:group-hover:visible',
-                  )}
-                  style={{ marginLeft: 'auto', marginRight: '-0.125rem' }}
-                  buttonSize="small"
-                  icon={<FlagIcon />}
-                  onClick={(event) => onMenuClick?.(event, post)}
-                  pressed={menuOpened}
-                  {...getTooltipProps('Report post')}
-                />
-              )} */}
             </>
           )}
         </CardHeader>

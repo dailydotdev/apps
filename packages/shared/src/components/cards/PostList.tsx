@@ -23,6 +23,7 @@ import FlagIcon from '../../../icons/flag.svg';
 import { getTooltipProps } from '../../lib/tooltip';
 import TrendingFlag from './TrendingFlag';
 import PostAuthor from './PostAuthor';
+import PostOptions from './PostOptions';
 
 export const PostList = forwardRef(function PostList(
   {
@@ -47,7 +48,6 @@ export const PostList = forwardRef(function PostList(
   const [selectedComment, setSelectedComment] = useState<Comment>();
 
   const { trending } = post;
-  notification = 'Blabla some comment';
 
   const card = (
     <ListCard
@@ -85,22 +85,12 @@ export const PostList = forwardRef(function PostList(
           onShare={onShare}
           className="relative self-stretch mt-1"
         >
-          {enableMenu && !selectedComment && (
-            <Button
-              className={classNames(
-                'btn-tertiary',
-                !menuOpened && 'mouse:invisible mouse:group-hover:visible',
-              )}
-              style={{ marginLeft: 'auto' }}
-              buttonSize="small"
-              icon={<FlagIcon />}
-              onClick={(event) => onMenuClick?.(event, post)}
-              pressed={menuOpened}
-              {...getTooltipProps('Report post')}
-            />
-          )}
+          <PostOptions
+            onClick={(event) => onMenuClick?.(event, post)}
+            post={post}
+          />
           {notification && (
-            <CardNotification className="absolute right-0 bottom-0 z-2">
+            <CardNotification className="absolute right-0 bottom-0 z-2 text-center">
               {notification}
             </CardNotification>
           )}

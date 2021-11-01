@@ -1,13 +1,12 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement } from 'react';
 import { Item } from 'react-contexify';
 import dynamic from 'next/dynamic';
 import useReportPost from '../hooks/useReportPost';
-import { Post, ReportReason } from '../graphql/posts';
+import { Post } from '../graphql/posts';
 import EyeIcon from '../../icons/eye.svg';
 import ShareIcon from '../../icons/share.svg';
 import BlockIcon from '../../icons/block.svg';
 import FlagIcon from '../../icons/flag.svg';
-import RepostPostModal from './modals/ReportPostModal';
 
 const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
   ssr: false,
@@ -18,6 +17,9 @@ export type PostOptionsMenuProps = {
   onHidden?: () => unknown;
   onReportPost?: (id) => Promise<void>;
   onHidePost?: () => Promise<unknown>;
+  onBlockSource?: () => Promise<unknown>;
+  onBlockTag?: (tag: string) => Promise<unknown>;
+  onSharePost?: () => Promise<unknown>;
 };
 
 const MenuIcon = ({ Icon }) => {
@@ -29,20 +31,13 @@ export default function PostOptionsMenu({
   onHidden,
   onReportPost,
   onHidePost,
+  onBlockSource,
+  onBlockTag,
+  onSharePost,
 }: PostOptionsMenuProps): ReactElement {
-  console.log(post);
-  const { reportPost, hidePost } = useReportPost();
-
-  const onLocalReportPost = async (reason: ReportReason): Promise<void> => {
-    const promise = reportPost({
-      id: postId,
-      reason,
-    });
-    await Promise.all([promise, onReportPost?.(reason)]);
-  };
+  const { hidePost } = useReportPost();
 
   const onLocalHidePost = async (): Promise<void> => {
-    console.log('hide', post.id);
     const promise = hidePost(post.id);
     await Promise.all([promise, onHidePost?.()]);
   };
@@ -51,18 +46,24 @@ export default function PostOptionsMenu({
     {
       icon: <MenuIcon Icon={EyeIcon} />,
       text: 'Hide',
-      action: () => onLocalHidePost(),
+      action: () => onHidePost(),
     },
-    { icon: <MenuIcon Icon={ShareIcon} />, text: 'Share article' },
+    {
+      icon: <MenuIcon Icon={ShareIcon} />,
+      text: 'Share article',
+      action: () => onSharePost(),
+    },
     {
       icon: <MenuIcon Icon={BlockIcon} />,
       text: `Don't show articles from ${post?.source?.name}`,
+      action: () => onBlockSource(),
     },
   ];
   post?.tags.forEach((tag) =>
     postOptions.push({
       icon: <MenuIcon Icon={BlockIcon} />,
       text: `Not interested in #${tag}`,
+      action: () => onBlockTag(tag),
     }),
   );
   postOptions.push({

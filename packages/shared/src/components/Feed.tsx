@@ -23,7 +23,7 @@ import useFeedUpvotePost from '../hooks/feed/useFeedUpvotePost';
 import useFeedBookmarkPost from '../hooks/feed/useFeedBookmarkPost';
 import useCommentPopup from '../hooks/feed/useCommentPopup';
 import useFeedOnPostClick from '../hooks/feed/useFeedOnPostClick';
-import useFeedReportMenu from '../hooks/feed/useFeedReportMenu';
+import useFeedReportMenu from '../hooks/feed/useFeedContextMenu';
 import useFeedInfiniteScroll from '../hooks/feed/useFeedInfiniteScroll';
 import FeedItemComponent, { getFeedItemKey } from './FeedItemComponent';
 import useVirtualFeedGrid, {
@@ -34,10 +34,6 @@ import AnalyticsContext from '../contexts/AnalyticsContext';
 import { adAnalyticsEvent, postAnalyticsEvent } from '../lib/feed';
 import PostOptionsMenu from './PostOptionsMenu';
 import RepostPostModal from './modals/ReportPostModal';
-
-const ReportPostMenu = dynamic(
-  () => import(/* webpackChunkName: "reportPostMenu" */ './ReportPostMenu'),
-);
 
 export type FeedProps<T> = {
   feedQueryKey: unknown[];
@@ -88,7 +84,6 @@ export default function Feed<T>({
       query,
       variables,
     );
-  // const { nativeShareSupport } = useContext(ProgressiveEnhancementContext);
   const { onAdImpression } = useAdImpressions();
   const [showReportModal, setShowReportModal] = useState(null);
 
@@ -105,6 +100,7 @@ export default function Feed<T>({
     isSendingComment,
   } = useCommentPopup();
   const infiniteScrollRef = useFeedInfiniteScroll({ fetchPage, canFetchMore });
+  const [notification, setNotification] = useState(null);
 
   const onShare = async (post: Post): Promise<void> => {
     trackEvent({
@@ -150,14 +146,25 @@ export default function Feed<T>({
   );
   const {
     onHidePost,
+    onBlockSource,
+    onBlockTag,
     onReportPost,
+    onSharePost,
     postNotificationIndex,
     onMenuClick,
     postMenuIndex,
     setPostMenuIndex,
-  } = useFeedReportMenu(items, removePost, virtualizedNumCards);
+  } = useFeedReportMenu(
+    items,
+    removePost,
+    virtualizedNumCards,
+    setNotification,
+  );
 
   const onReportPostSubmit = (reason, comment, blockSource) => {
+    onReportPost(showReportModal, reason);
+    console.log(postNotificationIndex);
+
     console.log(showReportModal);
     console.log(reason);
     console.log(comment);
@@ -235,6 +242,7 @@ export default function Feed<T>({
             nativeShareSupport={nativeShareSupport}
             postMenuIndex={postMenuIndex}
             postNotificationIndex={postNotificationIndex}
+            notification={notification}
             showCommentPopupId={showCommentPopupId}
             setShowCommentPopupId={setShowCommentPopupId}
             isSendingComment={isSendingComment}
@@ -260,6 +268,9 @@ export default function Feed<T>({
         onHidden={() => setPostMenuIndex(null)}
         onReportPost={() => setShowReportModal(postMenuIndex)}
         onHidePost={onHidePost}
+        onBlockSource={onBlockSource}
+        onBlockTag={onBlockTag}
+        onSharePost={onSharePost}
       />
       {showReportModal && (
         <RepostPostModal
@@ -272,12 +283,6 @@ export default function Feed<T>({
           onRequestClose={() => setShowReportModal(false)}
         />
       )}
-      {/* <ReportPostMenu
-        postId={(items[postMenuIndex] as PostItem)?.post?.id}
-        onHidden={() => setPostMenuIndex(null)}
-        onReportPost={onReportPost}
-        onHidePost={onHidePost}
-      /> */}
     </div>
   );
 }
