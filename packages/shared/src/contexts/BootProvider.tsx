@@ -91,7 +91,7 @@ export const BootDataProvider = ({
 
   useRefreshToken(bootData?.accessToken, refetch);
   const { user, updateUser, loadedFromCache } = useCacheUser(bootData?.user);
-  const alertContext = useAlertContext();
+  const alertContext = useAlertContext(bootData?.alerts);
 
   return (
     <FeaturesContextProvider flags={bootData?.flags}>
