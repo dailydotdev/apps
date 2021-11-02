@@ -101,7 +101,7 @@ it('should display advanced settings title and description', async () => {
   await waitFor(() => expect(checkbox).not.toBeChecked());
 });
 
-it('should display advanced settings title and description including the appropriate enabled state', async () => {
+it('should display advanced settings title and description including the appropriate enabled state using unregistered user', async () => {
   const { baseElement } = renderComponent([
     createAdvancedSettingsAndFiltersMock({}),
   ]);
