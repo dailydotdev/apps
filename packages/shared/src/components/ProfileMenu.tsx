@@ -46,7 +46,6 @@ export default function ProfileMenu({
         id="profile-context"
         className="menu-primary"
         animation="fade"
-        style={{ width: `${width}rem` }}
       >
         <Item>
           <Link href={user.permalink} passHref prefetch={false}>

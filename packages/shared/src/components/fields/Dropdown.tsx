@@ -52,11 +52,11 @@ export function Dropdown({
   const { show, hideAll } = useContextMenu({ id });
 
   const showMenu = (event: TriggerEvent): void => {
-    const { left, bottom, width } = triggerRef.current.getBoundingClientRect();
+    const { right, bottom, width } = triggerRef.current.getBoundingClientRect();
     setMenuWidth(width);
     setVisibility(true);
     show(event, {
-      position: { x: left, y: bottom + 8 },
+      position: { x: right, y: bottom + 8 },
     });
   };
 

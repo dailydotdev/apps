@@ -22,7 +22,7 @@ import useFeedUpvotePost from '../hooks/feed/useFeedUpvotePost';
 import useFeedBookmarkPost from '../hooks/feed/useFeedBookmarkPost';
 import useCommentPopup from '../hooks/feed/useCommentPopup';
 import useFeedOnPostClick from '../hooks/feed/useFeedOnPostClick';
-import useFeedReportMenu from '../hooks/feed/useFeedContextMenu';
+import useFeedContextMenu from '../hooks/feed/useFeedContextMenu';
 import useFeedInfiniteScroll from '../hooks/feed/useFeedInfiniteScroll';
 import FeedItemComponent, { getFeedItemKey } from './FeedItemComponent';
 import useVirtualFeedGrid, {
@@ -141,7 +141,7 @@ export default function Feed<T>({
     updatePost,
     virtualizedNumCards,
   );
-  const { onMenuClick, postMenuIndex, setPostMenuIndex } = useFeedReportMenu();
+  const { onMenuClick, postMenuIndex, setPostMenuIndex } = useFeedContextMenu();
 
   const [postNotificationIndex, setPostNotificationIndex] = useState<number>();
 

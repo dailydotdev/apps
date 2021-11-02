@@ -481,7 +481,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   const showPostOptionsContext = (e) => {
     const { right, bottom } = e.currentTarget.getBoundingClientRect();
     showReportMenu(e, {
-      position: { x: right - 147, y: bottom + 4 },
+      position: { x: right, y: bottom + 4 },
     });
   };
 

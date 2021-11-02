@@ -15,7 +15,7 @@ export default function useTagContext(): {
     setContextSelectedTag(tag);
     const { right, bottom } = event.currentTarget.getBoundingClientRect();
     showTagOptionsMenu(event, {
-      position: { x: right - 112, y: bottom + 4 },
+      position: { x: right, y: bottom + 4 },
     });
   };
 
