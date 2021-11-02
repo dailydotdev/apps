@@ -34,16 +34,19 @@ function AdvancedSettingsFilter(): ReactElement {
 
   return (
     <section className="flex flex-col px-6" aria-busy={isLoading}>
-      {advancedSettings?.map(({ id, title, description }) => (
-        <FilterSwitch
-          key={id}
-          title={title}
-          name={ADVANCED_SETTINGS_KEY}
-          description={description}
-          onToggle={() => onToggle(id)}
-          inputId={`${ADVANCED_SETTINGS_KEY}-${id}`}
-        />
-      ))}
+      {advancedSettings?.map(
+        ({ id, title, description, defaultEnabledState }) => (
+          <FilterSwitch
+            key={id}
+            title={title}
+            checked={settings[id] ?? defaultEnabledState}
+            name={ADVANCED_SETTINGS_KEY}
+            description={description}
+            onToggle={() => onToggle(id)}
+            inputId={`${ADVANCED_SETTINGS_KEY}-${id}`}
+          />
+        ),
+      )}
     </section>
   );
 }
