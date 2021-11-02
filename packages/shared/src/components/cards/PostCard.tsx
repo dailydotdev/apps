@@ -21,11 +21,8 @@ import {
 } from './Card';
 import { SmallRoundedImage } from '../utilities';
 import FeatherIcon from '../../../icons/feather.svg';
-import FlagIcon from '../../../icons/flag.svg';
 import { Comment } from '../../graphql/comments';
-import { Button } from '../buttons/Button';
 import styles from './Card.module.css';
-import { getTooltipProps } from '../../lib/tooltip';
 import TrendingFlag from './TrendingFlag';
 import PostLink from './PostLink';
 import PostMetadata from './PostMetadata';
@@ -77,7 +74,7 @@ export const PostCard = forwardRef(function PostCard(
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const [selectedComment, setSelectedComment] = useState<Comment>();
-  //notification = 'Testing notes';
+  // notification = 'Testing notes';
   const { trending } = post;
   const customStyle =
     selectedComment && !showImage ? { minHeight: '15.125rem' } : {};

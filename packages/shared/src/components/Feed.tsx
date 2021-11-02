@@ -141,20 +141,21 @@ export default function Feed<T>({
     updatePost,
     virtualizedNumCards,
   );
-  const { onMenuClick, postMenuIndex, setPostMenuIndex } = useFeedReportMenu(
-    items,
-    removePost,
-    virtualizedNumCards,
-    setNotification,
-  );
+  const { onMenuClick, postMenuIndex, setPostMenuIndex } = useFeedReportMenu();
 
   const [postNotificationIndex, setPostNotificationIndex] = useState<number>();
 
-  const onMessage = async (message: string, messageIndex?: number) => {
+  const onMessage = async (
+    message: string,
+    messageIndex?: number,
+    timeout = 1000,
+  ) => {
     setNotification(message);
     setPostNotificationIndex(messageIndex);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setPostNotificationIndex(null);
+    if (timeout !== 0) {
+      await new Promise((resolve) => setTimeout(resolve, timeout));
+      setPostNotificationIndex(null);
+    }
   };
 
   const onRemovePost = async (removePostIndex) => {

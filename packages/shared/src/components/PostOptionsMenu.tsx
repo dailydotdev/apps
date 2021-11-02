@@ -2,7 +2,7 @@ import React, { ReactElement, useState } from 'react';
 import { Item } from 'react-contexify';
 import dynamic from 'next/dynamic';
 import useReportPost from '../hooks/useReportPost';
-import { Post, ReportReason } from '../graphql/posts';
+import { Post } from '../graphql/posts';
 import EyeIcon from '../../icons/eye.svg';
 import ShareIcon from '../../icons/share.svg';
 import BlockIcon from '../../icons/block.svg';
@@ -17,12 +17,16 @@ export type PostOptionsMenuProps = {
   postIndex?: number;
   post: Post;
   onHidden?: () => unknown;
-  onMessage?: (message: string, postIndex: number) => Promise<unknown>;
+  onMessage?: (
+    message: string,
+    postIndex: number,
+    timeout?: number,
+  ) => Promise<unknown>;
   onRemovePost?: (postIndex: number) => Promise<unknown>;
 };
 
 const MenuIcon = ({ Icon }) => {
-  return <Icon className="text-2xl mr-2" />;
+  return <Icon className="mr-2 text-2xl" />;
 };
 
 export default function PostOptionsMenu({
@@ -69,7 +73,11 @@ export default function PostOptionsMenu({
   const onHidePost = async (): Promise<void> => {
     const promise = hidePost(post.id);
     await Promise.all([promise, onRemovePost?.(postIndex)]);
-    onMessage('🙈 This article won’t show up on your feed anymore', postIndex);
+    onMessage(
+      '🙈 This article won’t show up on your feed anymore',
+      postIndex,
+      0,
+    );
   };
 
   const onSharePost = async () => {
@@ -98,7 +106,7 @@ export default function PostOptionsMenu({
       action: onBlockSource,
     },
   ];
-  post?.tags.forEach((tag) =>
+  post?.tags?.forEach((tag) =>
     postOptions.push({
       icon: <MenuIcon Icon={BlockIcon} />,
       text: `Not interested in #${tag}`,
@@ -108,7 +116,7 @@ export default function PostOptionsMenu({
   postOptions.push({
     icon: <MenuIcon Icon={FlagIcon} />,
     text: 'Report',
-    action: async () => setReportModal({ index: postIndex, post: post }),
+    action: async () => setReportModal({ index: postIndex, post }),
   });
 
   return (

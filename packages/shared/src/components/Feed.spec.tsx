@@ -633,10 +633,14 @@ it('should report broken link', async () => {
       },
     },
   ]);
-  const [menuBtn] = await screen.findAllByLabelText('Report post');
+  const [menuBtn] = await screen.findAllByLabelText('Options');
   menuBtn.click();
-  const contextBtn = await screen.findByText('Broken link');
+  const contextBtn = await screen.findByText('Report');
   contextBtn.click();
+  const brokenLinkBtn = await screen.findByText('Broken link');
+  brokenLinkBtn.click();
+  const submitBtn = await screen.findByText('Submit report');
+  submitBtn.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
   await waitFor(() =>
     expect(
@@ -663,10 +667,14 @@ it('should report nsfw', async () => {
       },
     },
   ]);
-  const [menuBtn] = await screen.findAllByLabelText('Report post');
+  const [menuBtn] = await screen.findAllByLabelText('Options');
   menuBtn.click();
-  const contextBtn = await screen.findByText('Report NSFW');
+  const contextBtn = await screen.findByText('Report');
   contextBtn.click();
+  const brokenLinkBtn = await screen.findByText('NSFW');
+  brokenLinkBtn.click();
+  const submitBtn = await screen.findByText('Submit report');
+  submitBtn.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
   await waitFor(() =>
     expect(
@@ -693,9 +701,9 @@ it('should hide post', async () => {
       },
     },
   ]);
-  const [menuBtn] = await screen.findAllByLabelText('Report post');
+  const [menuBtn] = await screen.findAllByLabelText('Options');
   menuBtn.click();
-  const contextBtn = await screen.findByText('Hide post');
+  const contextBtn = await screen.findByText('Hide');
   contextBtn.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
   await waitFor(() =>
@@ -703,4 +711,68 @@ it('should hide post', async () => {
       screen.queryByTitle('Eminem Quotes Generator - Simple PHP RESTful API'),
     ).not.toBeInTheDocument(),
   );
+});
+
+it('should block a source', async () => {
+  // let mutationCalled = false;
+  renderComponent([
+    createFeedMock({
+      pageInfo: defaultFeedPage.pageInfo,
+      edges: [defaultFeedPage.edges[0]],
+    }),
+    {
+      request: {
+        query: REPORT_POST_MUTATION,
+        variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf', reason: 'NSFW' },
+      },
+      result: () => {
+        // mutationCalled = true;
+        return { data: { _: true } };
+      },
+    },
+  ]);
+  const [menuBtn] = await screen.findAllByLabelText('Options');
+  menuBtn.click();
+  const contextBtn = await screen.findByText(
+    "Don't show articles from Echo JS",
+  );
+  contextBtn.click();
+  expect(await contextBtn).toBeInTheDocument();
+  // await waitFor(() => expect(mutationCalled).toBeTruthy());
+  // await waitFor(() =>
+  //   expect(
+  //     screen.queryByTitle('Eminem Quotes Generator - Simple PHP RESTful API'),
+  //   ).not.toBeInTheDocument(),
+  // );
+});
+
+it('should block a tag', async () => {
+  // let mutationCalled = false;
+  renderComponent([
+    createFeedMock({
+      pageInfo: defaultFeedPage.pageInfo,
+      edges: [defaultFeedPage.edges[0]],
+    }),
+    {
+      request: {
+        query: REPORT_POST_MUTATION,
+        variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf', reason: 'NSFW' },
+      },
+      result: () => {
+        // mutationCalled = true;
+        return { data: { _: true } };
+      },
+    },
+  ]);
+  const [menuBtn] = await screen.findAllByLabelText('Options');
+  menuBtn.click();
+  const contextBtn = await screen.findByText('Not interested in #javascript');
+  contextBtn.click();
+  expect(await contextBtn).toBeInTheDocument();
+  // await waitFor(() => expect(mutationCalled).toBeTruthy());
+  // await waitFor(() =>
+  //   expect(
+  //     screen.queryByTitle('Eminem Quotes Generator - Simple PHP RESTful API'),
+  //   ).not.toBeInTheDocument(),
+  // );
 });

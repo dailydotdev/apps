@@ -488,10 +488,16 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   };
 
   const [notification, setNotification] = useState<string>();
-  const onMessage = async (message: string) => {
+  const onMessage = async (
+    message: string,
+    postIndex?: number,
+    timeout: number = 1000,
+  ) => {
     setNotification(message);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setNotification(null);
+    if (timeout != 0) {
+      await new Promise((resolve) => setTimeout(resolve, timeout));
+      setNotification(null);
+    }
   };
 
   return (
