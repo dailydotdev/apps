@@ -13,7 +13,6 @@ import {
 import { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
 import { NextSeo } from 'next-seo';
-import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import JoinedDate from '@dailydotdev/shared/src/components/profile/JoinedDate';
 import GitHubIcon from '@dailydotdev/shared/icons/github.svg';
 import TwitterIcon from '@dailydotdev/shared/icons/twitter.svg';
@@ -40,11 +39,11 @@ import {
 import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { QuaternaryButton } from '@dailydotdev/shared/src/components/buttons/QuaternaryButton';
-import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
 import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 import classNames from 'classnames';
 import DOMPurify from 'dompurify';
+import { ProfilePicture } from '@dailydotdev/shared/src/components/ProfilePicture';
 import styles from './index.module.css';
 import NavBar, { tabs } from './NavBar';
 import { getLayout as getMainLayout } from '../MainLayout';
@@ -159,14 +158,7 @@ export default function ProfileLayout({
             )}
           >
             <div className="flex tablet:flex-col items-center self-start tablet:px-2 tablet:pt-2 tablet:pb-4 mb-6 tablet:mb-0 rounded-2xl bg-theme-bg-secondary">
-              <LazyImage
-                imgSrc={profile.image}
-                imgAlt={`${profile.name}'s profile image`}
-                eager
-                ratio="100%"
-                className="rounded-2xl"
-                style={{ width: sizeN(25) }}
-              />
+              <ProfilePicture user={profile} size="xxxlarge" />
               <div className="flex flex-col tablet:items-center mx-6 tablet:mx-0 tablet:mt-4 typo-footnote">
                 <a
                   href={reputationGuide}

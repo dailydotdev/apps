@@ -31,10 +31,11 @@ export default function BookmarkFeedPage({
     router?.pathname === BOOKMARK_SEARCH_URL,
   );
 
-  if (!user && tokenRefreshed) {
-    router.replace('/');
-    return <></>;
-  }
+  useEffect(() => {
+    if (!user && tokenRefreshed) {
+      router.replace('/');
+    }
+  }, [tokenRefreshed, user]);
 
   useEffect(() => {
     if (router?.pathname === BOOKMARK_SEARCH_URL) {
