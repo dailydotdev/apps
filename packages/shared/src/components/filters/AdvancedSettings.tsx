@@ -17,7 +17,7 @@ function AdvancedSettingsFilter(): ReactElement {
         const map = { ...settingsMap };
         map[currentSettings.id] = currentSettings.enabled;
         return map;
-      }, {}),
+      }, {}) || {},
     [feedSettings?.advancedSettings],
   );
 

@@ -27,14 +27,16 @@ import { getFeedSettingsQueryKey } from '../../hooks/useMutateFilters';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 
 const showLogin = jest.fn();
+// eslint-disable-next-line prefer-const, no-undef-init
+let loggedUser: LoggedUser = undefined;
 
 beforeEach(() => {
+  loggedUser = undefined;
   jest.clearAllMocks();
   nock.cleanAll();
 });
 
 const createAdvancedSettingsAndFiltersMock = (
-  loggedIn = true,
   feedSettings: FeedSettings = {
     advancedSettings: [{ id: 1, enabled: false }],
   },
@@ -47,7 +49,10 @@ const createAdvancedSettingsAndFiltersMock = (
     },
   ],
 ): MockedGraphQLResponse<AllTagCategoriesData> => ({
-  request: { query: FEED_SETTINGS_QUERY, variables: { loggedIn } },
+  request: {
+    query: FEED_SETTINGS_QUERY,
+    variables: { loggedIn: !!loggedUser },
+  },
   result: {
     data: {
       feedSettings,
@@ -60,7 +65,6 @@ let client: QueryClient;
 
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createAdvancedSettingsAndFiltersMock()],
-  user: LoggedUser = defaultUser,
 ): RenderResult => {
   client = new QueryClient();
   mocks.forEach(mockGraphQL);
@@ -68,7 +72,7 @@ const renderComponent = (
     <QueryClientProvider client={client}>
       <AuthContext.Provider
         value={{
-          user,
+          user: loggedUser,
           shouldShowLogin: false,
           showLogin,
           logout: jest.fn(),
@@ -87,6 +91,7 @@ const renderComponent = (
 };
 
 it('should display advanced settings title and description', async () => {
+  loggedUser = defaultUser;
   const { baseElement } = renderComponent();
   await waitFor(() => expect(baseElement).not.toHaveAttribute('aria-busy'));
   expect(await screen.findByText('Tech magazines')).toBeInTheDocument();
@@ -97,7 +102,21 @@ it('should display advanced settings title and description', async () => {
   await waitFor(() => expect(checkbox).not.toBeChecked());
 });
 
+it('should display advanced settings title and description including the appropriate enabled state', async () => {
+  const { baseElement } = renderComponent([
+    createAdvancedSettingsAndFiltersMock({}),
+  ]);
+  await waitFor(() => expect(baseElement).not.toHaveAttribute('aria-busy'));
+  expect(await screen.findByText('Tech magazines')).toBeInTheDocument();
+  expect(
+    await screen.findByText('Description for Tech magazines'),
+  ).toBeInTheDocument();
+  const checkbox = await screen.findByRole('checkbox');
+  await waitFor(() => expect(checkbox).toBeChecked());
+});
+
 it('should mutate update feed advanced settings', async () => {
+  loggedUser = defaultUser;
   let mutationCalled = false;
 
   const { baseElement } = renderComponent();
