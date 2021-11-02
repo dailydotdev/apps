@@ -27,8 +27,7 @@ import { getFeedSettingsQueryKey } from '../../hooks/useMutateFilters';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 
 const showLogin = jest.fn();
-// eslint-disable-next-line prefer-const, no-undef-init
-let loggedUser: LoggedUser = undefined;
+let loggedUser: LoggedUser;
 
 beforeEach(() => {
   loggedUser = undefined;
