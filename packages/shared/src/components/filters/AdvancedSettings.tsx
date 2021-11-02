@@ -40,7 +40,7 @@ function AdvancedSettingsFilter(): ReactElement {
             key={id}
             label={title}
             checked={settings[id] ?? defaultEnabledState}
-            name={ADVANCED_SETTINGS_KEY}
+            name={`${ADVANCED_SETTINGS_KEY}-${id}`}
             description={description}
             onToggle={() => onToggle(id)}
             inputId={`${ADVANCED_SETTINGS_KEY}-${id}`}
