@@ -321,3 +321,14 @@ details {
     }
   }
 }
+details.right-icon {
+  & summary .icon {
+    --tw-rotate: 90deg;
+  }
+
+  &[open] {
+    & summary .icon {
+      --tw-rotate: 180deg;
+    }
+  }
+}

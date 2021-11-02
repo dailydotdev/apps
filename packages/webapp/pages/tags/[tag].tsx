@@ -9,19 +9,13 @@ import HashtagIcon from '@dailydotdev/shared/icons/hashtag.svg';
 import PlusIcon from '@dailydotdev/shared/icons/plus.svg';
 import BlockIcon from '@dailydotdev/shared/icons/block.svg';
 import XIcon from '@dailydotdev/shared/icons/x.svg';
+import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import { useRouter } from 'next/router';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
 import Feed from '@dailydotdev/shared/src/components/Feed';
 import { TAG_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import { useQuery } from 'react-query';
-import request from 'graphql-request';
-import { apiUrl } from '@dailydotdev/shared/src/lib/config';
-import {
-  FeedSettingsData,
-  TAGS_SETTINGS_QUERY,
-} from '@dailydotdev/shared/src/graphql/feedSettings';
 import {
   Button,
   ButtonProps,
@@ -31,9 +25,7 @@ import {
   customFeedIcon,
   FeedPage,
 } from '@dailydotdev/shared/src/components/utilities';
-import useMutateFilters, {
-  getTagsSettingsQueryKey,
-} from '@dailydotdev/shared/src/hooks/useMutateFilters';
+import useMutateFilters from '@dailydotdev/shared/src/hooks/useMutateFilters';
 import classNames from 'classnames';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -43,35 +35,27 @@ type TagPageProps = { tag: string };
 
 const TagPage = ({ tag }: TagPageProps): ReactElement => {
   const { isFallback } = useRouter();
-  const { user, showLogin, tokenRefreshed } = useContext(AuthContext);
+  const { user, showLogin } = useContext(AuthContext);
   // Must be memoized to prevent refreshing the feed
   const queryVariables = useMemo(() => ({ tag, ranking: 'TIME' }), [tag]);
 
-  const queryKey = getTagsSettingsQueryKey(user);
-  const { data: feedSettings } = useQuery<FeedSettingsData>(
-    queryKey,
-    () => request(`${apiUrl}/graphql`, TAGS_SETTINGS_QUERY),
-    {
-      enabled: !!user && tokenRefreshed,
-    },
-  );
+  const { feedSettings } = useFeedSettings();
 
-  const { followTag, unfollowTag, blockTag, unblockTag } =
+  const { followTags, unfollowTags, blockTag, unblockTag } =
     useMutateFilters(user);
 
   const tagStatus = useMemo(() => {
-    if (!feedSettings?.feedSettings) {
+    if (!feedSettings) {
       return 'unfollowed';
     }
     if (
-      feedSettings.feedSettings.blockedTags?.findIndex(
-        (blockedTag) => tag === blockedTag,
-      ) > -1
+      feedSettings.blockedTags?.findIndex((blockedTag) => tag === blockedTag) >
+      -1
     ) {
       return 'blocked';
     }
     if (
-      feedSettings.feedSettings?.includeTags?.findIndex(
+      feedSettings.includeTags?.findIndex(
         (includedTag) => tag === includedTag,
       ) > -1
     ) {
@@ -97,9 +81,9 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
     onClick: async (): Promise<void> => {
       if (user) {
         if (tagStatus === 'followed') {
-          await unfollowTag({ tag });
+          await unfollowTags({ tags: [tag] });
         } else {
-          await followTag({ tag });
+          await followTags({ tags: [tag] });
         }
       } else {
         showLogin('filter');
@@ -113,9 +97,9 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
     onClick: async (): Promise<void> => {
       if (user) {
         if (tagStatus === 'blocked') {
-          await unblockTag({ tag });
+          await unblockTag({ tags: [tag] });
         } else {
-          await blockTag({ tag });
+          await blockTag({ tags: [tag] });
         }
       } else {
         showLogin('filter');

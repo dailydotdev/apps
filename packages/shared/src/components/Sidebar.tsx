@@ -1,27 +1,18 @@
-import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import React, { ReactElement, useContext, useState } from 'react';
 import classNames from 'classnames';
 import sizeN from '../../macros/sizeN.macro';
-import ArrowIcon from '../../icons/arrow.svg';
 import { getTooltipProps } from '../lib/tooltip';
-import FeedFilters from './filters/FeedFilters';
 import OnboardingContext from '../contexts/OnboardingContext';
+import FilterMenu from './filters/FilterMenu';
+import FilterRedDot from './filters/FilterRedDot';
 
 const asideWidth = sizeN(89);
 
 export default function Sidebar(): ReactElement {
   const [opened, setOpened] = useState(false);
-  const [enableQueries, setEnableQueries] = useState(false);
   const { onboardingStep, incrementOnboardingStep } =
     useContext(OnboardingContext);
   const hightlightTrigger = onboardingStep === 2;
-
-  useEffect(() => {
-    if (opened && !enableQueries) {
-      setTimeout(() => {
-        setEnableQueries(true);
-      }, 300);
-    }
-  }, [opened]);
 
   const toggleSidebar = () => {
     if (opened) {
@@ -48,7 +39,7 @@ export default function Sidebar(): ReactElement {
     >
       <aside
         className={classNames(
-          'overflow-y-scroll self-stretch bg-theme-bg-primary rounded-r-2xl border-r border-theme-divider-primary',
+          'self-stretch bg-theme-bg-primary rounded-r-2xl border-r border-theme-divider-primary overflow-y-auto',
           !opened && 'invisible',
         )}
         style={{
@@ -58,7 +49,7 @@ export default function Sidebar(): ReactElement {
           transitionDelay: opened ? '0s' : '0.3s',
         }}
       >
-        <FeedFilters enableQueries={enableQueries} />
+        <FilterMenu />
       </aside>
       <button
         type="button"
@@ -80,12 +71,7 @@ export default function Sidebar(): ReactElement {
         {...getTooltipProps('Open sidebar', { position: 'right' })}
         onClick={toggleSidebar}
       >
-        <ArrowIcon
-          style={{
-            transform: opened ? 'rotate(270deg)' : 'rotate(90deg)',
-            transition: 'transform 0.2s linear 0.1s',
-          }}
-        />
+        <FilterRedDot />
         {hightlightTrigger && (
           <div
             className="absolute left-0 -z-1 w-14 bg-theme-hover rounded-r-3xl"

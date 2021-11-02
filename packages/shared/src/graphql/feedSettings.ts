@@ -1,9 +1,22 @@
 import { gql } from 'graphql-request';
 import { Source } from './sources';
-import { Connection } from './common';
+
+export interface AdvancedSettings {
+  id: number;
+  title: string;
+  description: string;
+  defaultEnabledState: boolean;
+}
+
+export interface FeedAdvancedSettings
+  extends Partial<Omit<AdvancedSettings, 'defaultEnabledState'>> {
+  id: number;
+  enabled: boolean;
+}
 
 export interface Tag {
-  name: string;
+  name?: string;
+  string;
 }
 
 export interface TagsData {
@@ -18,14 +31,25 @@ export interface FeedSettings {
   includeTags?: string[];
   blockedTags?: string[];
   excludeSources?: Source[];
+  advancedSettings?: FeedAdvancedSettings[];
+}
+
+export interface TagCategory {
+  id: string;
+  title: string;
+  tags: Array<string>;
+  emoji: string;
+}
+
+export interface AllTagCategoriesData {
+  feedSettings?: FeedSettings;
+  loggedIn?: boolean;
+  tagsCategories?: TagCategory[];
+  advancedSettings?: AdvancedSettings[];
 }
 
 export interface FeedSettingsData {
   feedSettings: FeedSettings;
-}
-
-export interface SourcesData {
-  sources: Connection<Source>;
 }
 
 export const SEARCH_TAGS_QUERY = gql`
@@ -38,73 +62,27 @@ export const SEARCH_TAGS_QUERY = gql`
   }
 `;
 
-export const ALL_TAGS_QUERY = gql`
-  query AllTags {
-    tags: popularTags {
-      name
+export const FEED_SETTINGS_QUERY = gql`
+  query TagCategories($loggedIn: Boolean!) {
+    tagsCategories {
+      id
+      title
+      tags
+      emoji
     }
-  }
-`;
-
-export const ALL_TAGS_AND_SETTINGS_QUERY = gql`
-  query AllTagsAndSettings {
-    feedSettings {
+    feedSettings @include(if: $loggedIn) {
       includeTags
       blockedTags
-    }
-    tags: popularTags {
-      name
-    }
-  }
-`;
-
-export const TAGS_SETTINGS_QUERY = gql`
-  query FeedSettings {
-    feedSettings {
-      includeTags
-    }
-  }
-`;
-
-export const ALL_SOURCES_QUERY = gql`
-  query AllSources {
-    sources(first: 500) {
-      edges {
-        node {
-          id
-          image
-          name
-        }
-      }
-    }
-  }
-`;
-
-export const ALL_SOURCES_AND_SETTINGS_QUERY = gql`
-  query AllSourcesAndSettings {
-    feedSettings {
-      excludeSources {
+      advancedSettings {
         id
+        enabled
       }
     }
-    sources(first: 500) {
-      edges {
-        node {
-          id
-          image
-          name
-        }
-      }
-    }
-  }
-`;
-
-export const SOURCES_SETTINGS_QUERY = gql`
-  query SourcesSettings {
-    feedSettings {
-      excludeSources {
-        id
-      }
+    advancedSettings {
+      id
+      title
+      description
+      defaultEnabledState
     }
   }
 `;
@@ -121,6 +99,15 @@ export const REMOVE_FILTERS_FROM_FEED_MUTATION = gql`
   mutation RemoveFiltersFromFeed($filters: FiltersInput!) {
     feedSettings: removeFiltersFromFeed(filters: $filters) {
       id
+    }
+  }
+`;
+
+export const UPDATE_ADVANCED_SETTINGS_FILTERS_MUTATION = gql`
+  mutation UpdateFeedAdvancedSettings($settings: [FeedAdvancedSettingsInput]!) {
+    feedSettings: updateFeedAdvancedSettings(settings: $settings) {
+      id
+      enabled
     }
   }
 `;
