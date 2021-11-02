@@ -81,6 +81,7 @@ export const FEED_SETTINGS_QUERY = gql`
       id
       title
       description
+      defaultEnabledState
     }
   }
 `;
