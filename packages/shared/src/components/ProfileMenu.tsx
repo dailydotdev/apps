@@ -22,12 +22,10 @@ const AccountDetailsModal = dynamic(
 );
 
 export type ProfileMenuProps = {
-  width: number;
   onShowDndClick?: () => void;
 };
 
 export default function ProfileMenu({
-  width,
   onShowDndClick,
 }: ProfileMenuProps): ReactElement {
   const [showAccountDetails, setShowAccountDetails] = useState(false);
@@ -43,7 +41,7 @@ export default function ProfileMenu({
         />
       )}
       <PortalMenu
-        disableBoundariesCheck={true}
+        disableBoundariesCheck
         id="profile-context"
         className="menu-primary"
         animation="fade"

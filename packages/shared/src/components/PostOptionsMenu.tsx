@@ -135,7 +135,7 @@ export default function PostOptionsMenu({
   return (
     <>
       <PortalMenu
-        disableBoundariesCheck={true}
+        disableBoundariesCheck
         id="post-context"
         className="menu-primary"
         animation="fade"

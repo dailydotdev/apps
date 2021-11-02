@@ -27,7 +27,7 @@ export default function TagOptionsMenu({
 }: TagOptionsMenuProps): ReactElement {
   return (
     <PortalMenu
-      disableBoundariesCheck={true}
+      disableBoundariesCheck
       id="tag-options-context"
       className="menu-primary"
       animation="fade"

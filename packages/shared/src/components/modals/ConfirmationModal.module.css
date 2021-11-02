@@ -7,7 +7,7 @@
 
   & :global(.modal) {
     max-width: 23.25rem;
-    padding: 1.5rem 2.5rem;
+    padding: 2rem;
   }
 }
 

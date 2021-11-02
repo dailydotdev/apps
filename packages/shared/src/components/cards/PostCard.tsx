@@ -29,7 +29,7 @@ import PostMetadata from './PostMetadata';
 import ActionButtons from './ActionButtons';
 import SourceButton from './SourceButton';
 import PostAuthor from './PostAuthor';
-import PostOptions from './PostOptions';
+import OptionsButton from '../buttons/OptionsButton';
 
 const FeaturedComment = dynamic(() => import('./FeaturedComment'));
 
@@ -99,7 +99,7 @@ export const PostCard = forwardRef(function PostCard(
                 post.featuredComments,
                 setSelectedComment,
               )}
-              <PostOptions
+              <OptionsButton
                 onClick={(event) => onMenuClick?.(event, post)}
                 post={post}
               />

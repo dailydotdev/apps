@@ -1,10 +1,10 @@
 import React, { ReactElement } from 'react';
 import { getTooltipProps } from '../../lib/tooltip';
-import { Button } from '../buttons/Button';
+import { Button } from './Button';
 import MenuIcon from '../../../icons/menu.svg';
 import { Post } from '../../graphql/posts';
 
-export default function PostOptions({
+export default function OptionsButton({
   post,
   onClick,
 }: {

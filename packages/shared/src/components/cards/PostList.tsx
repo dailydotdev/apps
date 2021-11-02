@@ -19,7 +19,7 @@ import styles from './Card.module.css';
 import ListFeaturedComment from './ListFeaturedComment';
 import TrendingFlag from './TrendingFlag';
 import PostAuthor from './PostAuthor';
-import PostOptions from './PostOptions';
+import PostOptions from '../buttons/OptionsButton';
 
 export const PostList = forwardRef(function PostList(
   {
