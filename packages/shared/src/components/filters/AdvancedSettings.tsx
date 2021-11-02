@@ -5,7 +5,7 @@ import useMutateFilters from '../../hooks/useMutateFilters';
 import { LoginModalMode } from '../../types/LoginModalMode';
 import { FilterSwitch } from './FilterSwitch';
 
-const advancedSettingsKey = 'advancedSettings';
+const ADVANCED_SETTINGS_KEY = 'advancedSettings';
 
 function AdvancedSettingsFilter(): ReactElement {
   const [settings, setSettings] = useState({});
@@ -43,10 +43,10 @@ function AdvancedSettingsFilter(): ReactElement {
         <FilterSwitch
           key={id}
           title={title}
-          name={advancedSettingsKey}
+          name={ADVANCED_SETTINGS_KEY}
           description={description}
           onToggle={() => onToggle(id)}
-          inputId={`${title}-${id}`}
+          inputId={`${ADVANCED_SETTINGS_KEY}-${id}`}
         />
       ))}
     </section>
