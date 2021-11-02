@@ -38,7 +38,7 @@ function AdvancedSettingsFilter(): ReactElement {
         ({ id, title, description, defaultEnabledState }) => (
           <FilterSwitch
             key={id}
-            title={title}
+            label={title}
             checked={settings[id] ?? defaultEnabledState}
             name={ADVANCED_SETTINGS_KEY}
             description={description}

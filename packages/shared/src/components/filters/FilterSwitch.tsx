@@ -1,13 +1,13 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 import { Switch, SwitchProps } from '../fields/Switch';
 
 interface FilterSwitchProps extends SwitchProps {
-  title: string;
-  description: string;
+  label: ReactNode;
+  description: ReactNode;
 }
 
 export function FilterSwitch({
-  title,
+  label,
   description,
   ...props
 }: FilterSwitchProps): ReactElement {
@@ -19,7 +19,7 @@ export function FilterSwitch({
         labelClassName="typo-callout"
         {...props}
       >
-        {title}
+        {label}
       </Switch>
       <p className="mt-3 typo-callout text-theme-label-tertiary">
         {description}
