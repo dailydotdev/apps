@@ -15,7 +15,7 @@ function AdvancedSettingsFilter(): ReactElement {
 
   const onToggle = async (id: number) => {
     if (!user) {
-      showLogin('configure advanced settings', LoginModalMode.ContentQuality);
+      showLogin('advanced settings', LoginModalMode.ContentQuality);
       return;
     }
 
