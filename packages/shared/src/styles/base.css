@@ -33,9 +33,10 @@ body {
     }
   }
 
-  &.ReactModal__Body--open {
-    height: 100vh;
-    overflow: hidden;
+  &.ReactModal__Body--open .ReactModal__Content,
+  &.ReactModal__Body--open .ReactModal__Content > * {
+    touch-action: none;
+    overscroll-behavior-y: none;
   }
 }
 
