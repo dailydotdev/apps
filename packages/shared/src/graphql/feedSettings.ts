@@ -77,9 +77,6 @@ export const FEED_SETTINGS_QUERY = gql`
         enabled
       }
     }
-    tags: popularTags {
-      name
-    }
     advancedSettings {
       id
       title
