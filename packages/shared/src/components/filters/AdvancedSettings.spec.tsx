@@ -93,6 +93,8 @@ it('should display advanced settings title and description', async () => {
   expect(
     await screen.findByText('Description for Tech magazines'),
   ).toBeInTheDocument();
+  const checkbox = await screen.findByRole('checkbox');
+  await waitFor(() => expect(checkbox).not.toBeChecked());
 });
 
 it('should mutate update feed advanced settings', async () => {
