@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from 'react-query';
 import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 import { request } from 'graphql-request';
 import {
+  AdvancedSettings,
   AllTagCategoriesData,
   FeedSettings,
   FEED_SETTINGS_QUERY,
@@ -17,6 +18,7 @@ export type FeedSettingsReturnType = {
   tagsCategories: TagCategory[];
   feedSettings: FeedSettings;
   isLoading: boolean;
+  advancedSettings: AdvancedSettings[];
 };
 
 export default function useFeedSettings(): FeedSettingsReturnType {
@@ -25,12 +27,14 @@ export default function useFeedSettings(): FeedSettingsReturnType {
   const filtersKey = getFeedSettingsQueryKey(user);
   const queryClient = useQueryClient();
 
-  const { data: { tagsCategories, feedSettings } = {}, isLoading } =
-    useQuery<AllTagCategoriesData>(filtersKey, () =>
-      request(`${apiUrl}/graphql`, FEED_SETTINGS_QUERY, {
-        loggedIn: !!user?.id,
-      }),
-    );
+  const {
+    data: { tagsCategories, feedSettings, advancedSettings } = {},
+    isLoading,
+  } = useQuery<AllTagCategoriesData>(filtersKey, () =>
+    request(`${apiUrl}/graphql`, FEED_SETTINGS_QUERY, {
+      loggedIn: !!user?.id,
+    }),
+  );
 
   useEffect(() => {
     if (isFirstLoad) {
@@ -49,6 +53,7 @@ export default function useFeedSettings(): FeedSettingsReturnType {
       tagsCategories,
       feedSettings,
       isLoading,
+      advancedSettings,
     };
-  }, [tagsCategories, feedSettings, isLoading]);
+  }, [tagsCategories, feedSettings, isLoading, advancedSettings]);
 }

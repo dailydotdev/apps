@@ -1,6 +1,19 @@
 import { gql } from 'graphql-request';
 import { Source } from './sources';
 
+export interface AdvancedSettings {
+  id: number;
+  title: string;
+  description: string;
+  defaultEnabledState: boolean;
+}
+
+export interface FeedAdvancedSettings
+  extends Partial<Omit<AdvancedSettings, 'defaultEnabledState'>> {
+  id: number;
+  enabled: boolean;
+}
+
 export interface Tag {
   name?: string;
   string;
@@ -18,6 +31,7 @@ export interface FeedSettings {
   includeTags?: string[];
   blockedTags?: string[];
   excludeSources?: Source[];
+  advancedSettings?: FeedAdvancedSettings[];
 }
 
 export interface TagCategory {
@@ -31,6 +45,7 @@ export interface AllTagCategoriesData {
   feedSettings?: FeedSettings;
   loggedIn?: boolean;
   tagsCategories?: TagCategory[];
+  advancedSettings?: AdvancedSettings[];
 }
 
 export interface FeedSettingsData {
@@ -58,11 +73,16 @@ export const FEED_SETTINGS_QUERY = gql`
     feedSettings @include(if: $loggedIn) {
       includeTags
       blockedTags
-      excludeSources {
+      advancedSettings {
         id
-        image
-        name
+        enabled
       }
+    }
+    advancedSettings {
+      id
+      title
+      description
+      defaultEnabledState
     }
   }
 `;
@@ -79,6 +99,15 @@ export const REMOVE_FILTERS_FROM_FEED_MUTATION = gql`
   mutation RemoveFiltersFromFeed($filters: FiltersInput!) {
     feedSettings: removeFiltersFromFeed(filters: $filters) {
       id
+    }
+  }
+`;
+
+export const UPDATE_ADVANCED_SETTINGS_FILTERS_MUTATION = gql`
+  mutation UpdateFeedAdvancedSettings($settings: [FeedAdvancedSettingsInput]!) {
+    feedSettings: updateFeedAdvancedSettings(settings: $settings) {
+      id
+      enabled
     }
   }
 `;
