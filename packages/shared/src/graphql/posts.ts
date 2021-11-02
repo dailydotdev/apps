@@ -134,6 +134,7 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
       numUpvotes
       numComments
       source {
+        id
         name
         image
       }
@@ -225,6 +226,7 @@ export const AUTHOR_FEED_QUERY = gql`
           commentsPermalink
           image
           source {
+            id
             name
             image
           }

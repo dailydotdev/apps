@@ -19,6 +19,7 @@ export type FeedSettingsReturnType = {
   feedSettings: FeedSettings;
   isLoading: boolean;
   advancedSettings: AdvancedSettings[];
+  refreshFeed: () => unknown;
 };
 
 export default function useFeedSettings(): FeedSettingsReturnType {
@@ -26,6 +27,13 @@ export default function useFeedSettings(): FeedSettingsReturnType {
   const [isFirstLoad, setIsFirstLoad] = useState(true);
   const filtersKey = getFeedSettingsQueryKey(user);
   const queryClient = useQueryClient();
+
+  const refreshFeed = () => {
+    requestIdleCallback(() => {
+      queryClient.invalidateQueries(generateQueryKey('popular', user));
+      queryClient.invalidateQueries(generateQueryKey('recent', user));
+    });
+  };
 
   const {
     data: { tagsCategories, feedSettings, advancedSettings } = {},
@@ -54,6 +62,7 @@ export default function useFeedSettings(): FeedSettingsReturnType {
       feedSettings,
       isLoading,
       advancedSettings,
+      refreshFeed,
     };
-  }, [tagsCategories, feedSettings, isLoading, advancedSettings]);
+  }, [tagsCategories, feedSettings, isLoading, advancedSettings, refreshFeed]);
 }

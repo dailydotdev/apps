@@ -1,6 +1,9 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useContext, useState } from 'react';
 import { Item } from 'react-contexify';
 import dynamic from 'next/dynamic';
+import useMutateFilters from '../hooks/useMutateFilters';
+import AuthContext from '../contexts/AuthContext';
+import useFeedSettings from '../hooks/useFeedSettings';
 import useReportPost from '../hooks/useReportPost';
 import { Post } from '../graphql/posts';
 import EyeIcon from '../../icons/eye.svg';
@@ -36,38 +39,48 @@ export default function PostOptionsMenu({
   onMessage,
   onRemovePost,
 }: PostOptionsMenuProps): ReactElement {
+  const { refreshFeed } = useFeedSettings();
+  const { user } = useContext(AuthContext);
   const { reportPost, hidePost } = useReportPost();
+  const { unfollowSource, blockTag } = useMutateFilters(user);
   const [reportModal, setReportModal] =
     useState<{ index?: number; post?: Post }>();
 
   const onReportPost = async (
     reportPostIndex,
-    postId,
+    reportedPost,
     reason,
     comment,
     blockSource,
   ): Promise<void> => {
     reportPost({
-      id: postId,
+      id: reportedPost?.id,
       reason,
       comment,
     });
 
-    if (blockSource) {
-      // Block source call
-    }
-
     onMessage('🚨 Thanks for reporting!', reportPostIndex);
     await new Promise((resolve) => setTimeout(resolve, 1000));
     onRemovePost?.(reportPostIndex);
+
+    if (blockSource) {
+      await unfollowSource({ source: reportedPost?.source });
+      await refreshFeed();
+    }
   };
 
   const onBlockSource = async (): Promise<void> => {
+    await unfollowSource({ source: post?.source });
     onMessage(`🚫 ${post?.source?.name} blocked`, postIndex);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await refreshFeed();
   };
 
   const onBlockTag = async (tag: string): Promise<void> => {
+    await blockTag({ tags: [tag] });
     onMessage(`⛔️ #${tag} blocked`, postIndex);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await refreshFeed();
   };
 
   const onHidePost = async (): Promise<void> => {

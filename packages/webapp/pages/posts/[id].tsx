@@ -11,7 +11,6 @@ import { ParsedUrlQuery } from 'querystring';
 import { Roles } from '@dailydotdev/shared/src/lib/user';
 import { NextSeo } from 'next-seo';
 import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
-import OpenLinkIcon from '@dailydotdev/shared/icons/open_link.svg';
 import UpvoteIcon from '@dailydotdev/shared/icons/upvote.svg';
 import CommentIcon from '@dailydotdev/shared/icons/comment.svg';
 import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
@@ -60,14 +59,13 @@ import classed from '@dailydotdev/shared/src/lib/classed';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import { ProfilePicture } from '@dailydotdev/shared/src/components/ProfilePicture';
-import styles from './postPage.module.css';
-import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
-import PostToc from '../../components/widgets/PostToc';
 import PostOptionsMenu from '@dailydotdev/shared/src/components/PostOptionsMenu';
-import PostOptions from '@dailydotdev/shared/src/components/cards/PostOptions';
 import useReportPostMenu from '@dailydotdev/shared/src/hooks/useReportPostMenu';
 import MenuIcon from '@dailydotdev/shared/icons/menu.svg';
 import { CardNotification } from '@dailydotdev/shared/src/components/cards/Card';
+import PostToc from '../../components/widgets/PostToc';
+import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
+import styles from './postPage.module.css';
 
 const PlaceholderCommentList = dynamic(
   () =>
@@ -491,10 +489,10 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   const onMessage = async (
     message: string,
     postIndex?: number,
-    timeout: number = 1000,
+    timeout = 1000,
   ) => {
     setNotification(message);
-    if (timeout != 0) {
+    if (timeout !== 0) {
       await new Promise((resolve) => setTimeout(resolve, timeout));
       setNotification(null);
     }
@@ -509,7 +507,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         <NextSeo {...seo} />
         <div className="flex items-center mb-2">
           {notification ? (
-            <CardNotification className="flex-1 text-center py-2.5">
+            <CardNotification className="flex-1 py-2.5 text-center">
               {notification}
             </CardNotification>
           ) : (

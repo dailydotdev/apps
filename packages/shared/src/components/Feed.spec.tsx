@@ -43,6 +43,13 @@ import SettingsContext, {
 } from '../contexts/SettingsContext';
 import OnboardingContext from '../contexts/OnboardingContext';
 import { waitForNock } from '../../__tests__/helpers/utilities';
+import {
+  ADD_FILTERS_TO_FEED_MUTATION,
+  AllTagCategoriesData,
+  FeedSettings,
+  FEED_SETTINGS_QUERY,
+} from '../graphql/feedSettings';
+import { getFeedSettingsQueryKey } from '../hooks/useMutateFilters';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
@@ -64,6 +71,22 @@ jest.mock('../hooks/useSubscription', () => ({
 beforeEach(() => {
   jest.clearAllMocks();
   nock.cleanAll();
+});
+
+const createTagsSettingsMock = (
+  feedSettings: FeedSettings = {
+    includeTags: [],
+    blockedTags: [],
+    excludeSources: [],
+  },
+  loggedIn = true,
+): MockedGraphQLResponse<AllTagCategoriesData> => ({
+  request: { query: FEED_SETTINGS_QUERY, variables: { loggedIn } },
+  result: {
+    data: {
+      feedSettings,
+    },
+  },
 });
 
 const createFeedMock = (
@@ -714,65 +737,67 @@ it('should hide post', async () => {
 });
 
 it('should block a source', async () => {
-  // let mutationCalled = false;
+  let mutationCalled = false;
   renderComponent([
     createFeedMock({
       pageInfo: defaultFeedPage.pageInfo,
       edges: [defaultFeedPage.edges[0]],
     }),
+    createTagsSettingsMock(),
     {
       request: {
-        query: REPORT_POST_MUTATION,
-        variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf', reason: 'NSFW' },
+        query: ADD_FILTERS_TO_FEED_MUTATION,
+        variables: { filters: { excludeSources: ['echojs'] } },
       },
       result: () => {
-        // mutationCalled = true;
+        mutationCalled = true;
         return { data: { _: true } };
       },
     },
   ]);
+  await waitFor(async () => {
+    const data = await queryClient.getQueryData(
+      getFeedSettingsQueryKey(defaultUser),
+    );
+    expect(data).toBeTruthy();
+  });
   const [menuBtn] = await screen.findAllByLabelText('Options');
   menuBtn.click();
   const contextBtn = await screen.findByText(
     "Don't show articles from Echo JS",
   );
   contextBtn.click();
-  expect(await contextBtn).toBeInTheDocument();
-  // await waitFor(() => expect(mutationCalled).toBeTruthy());
-  // await waitFor(() =>
-  //   expect(
-  //     screen.queryByTitle('Eminem Quotes Generator - Simple PHP RESTful API'),
-  //   ).not.toBeInTheDocument(),
-  // );
+  await waitFor(() => expect(mutationCalled).toBeTruthy());
 });
 
 it('should block a tag', async () => {
-  // let mutationCalled = false;
+  let mutationCalled = false;
   renderComponent([
     createFeedMock({
       pageInfo: defaultFeedPage.pageInfo,
       edges: [defaultFeedPage.edges[0]],
     }),
+    createTagsSettingsMock(),
     {
       request: {
-        query: REPORT_POST_MUTATION,
-        variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf', reason: 'NSFW' },
+        query: ADD_FILTERS_TO_FEED_MUTATION,
+        variables: { filters: { blockedTags: ['javascript'] } },
       },
       result: () => {
-        // mutationCalled = true;
+        mutationCalled = true;
         return { data: { _: true } };
       },
     },
   ]);
+  await waitFor(async () => {
+    const data = await queryClient.getQueryData(
+      getFeedSettingsQueryKey(defaultUser),
+    );
+    expect(data).toBeTruthy();
+  });
   const [menuBtn] = await screen.findAllByLabelText('Options');
   menuBtn.click();
   const contextBtn = await screen.findByText('Not interested in #javascript');
   contextBtn.click();
-  expect(await contextBtn).toBeInTheDocument();
-  // await waitFor(() => expect(mutationCalled).toBeTruthy());
-  // await waitFor(() =>
-  //   expect(
-  //     screen.queryByTitle('Eminem Quotes Generator - Simple PHP RESTful API'),
-  //   ).not.toBeInTheDocument(),
-  // );
+  await waitFor(() => expect(mutationCalled).toBeTruthy());
 });

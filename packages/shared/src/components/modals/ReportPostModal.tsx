@@ -37,7 +37,7 @@ export default function RepostPostModal({
   const inputRef = useRef<HTMLInputElement>();
 
   const onReportPost = async (event: MouseEvent): Promise<void> => {
-    onReport(postIndex, post.id, reason, comment, inputRef.current?.checked);
+    onReport(postIndex, post, reason, comment, inputRef.current?.checked);
     props.onRequestClose(event);
   };
 
