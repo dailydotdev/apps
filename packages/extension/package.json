@@ -30,7 +30,7 @@
     "preact": "^10.5.14",
     "preact-render-to-string": "^5.1.19",
     "react": "npm:@preact/compat@0.0.3",
-    "react-contexify": "^5.0.0",
+    "@rebelchris/react-contexify": "^5.0.0",
     "react-dom": "npm:@preact/compat@0.0.3",
     "react-intersection-observer": "^8.32.1",
     "react-modal": "^3.14.3",

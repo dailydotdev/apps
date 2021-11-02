@@ -1,5 +1,5 @@
 import React, { ReactElement, useContext, useState } from 'react';
-import { Item } from 'react-contexify';
+import { Item } from '@rebelchris/react-contexify';
 import dynamic from 'next/dynamic';
 import useMutateFilters from '../hooks/useMutateFilters';
 import AuthContext from '../contexts/AuthContext';
@@ -135,6 +135,7 @@ export default function PostOptionsMenu({
   return (
     <>
       <PortalMenu
+        disableBoundariesCheck={true}
         id="post-context"
         className="menu-primary"
         animation="fade"

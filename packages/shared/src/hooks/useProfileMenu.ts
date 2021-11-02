@@ -1,4 +1,4 @@
-import { useContextMenu } from 'react-contexify';
+import { useContextMenu } from '@rebelchris/react-contexify';
 
 export default function useProfileMenu(width: number): {
   onMenuClick: (e: React.MouseEvent) => void;

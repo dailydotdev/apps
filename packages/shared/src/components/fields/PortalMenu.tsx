@@ -1,5 +1,5 @@
 import React, { ReactElement, ReactNode } from 'react';
-import { Menu, MenuProps } from 'react-contexify';
+import { Menu, MenuProps } from '@rebelchris/react-contexify';
 import { createPortal } from 'react-dom';
 
 function Portal({ children }: { children: ReactNode }): ReactElement {
