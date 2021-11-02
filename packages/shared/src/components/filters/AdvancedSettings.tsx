@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import React, { ReactElement, useContext, useMemo } from 'react';
 import AuthContext from '../../contexts/AuthContext';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import useMutateFilters from '../../hooks/useMutateFilters';
@@ -8,10 +8,18 @@ import { FilterSwitch } from './FilterSwitch';
 const ADVANCED_SETTINGS_KEY = 'advancedSettings';
 
 function AdvancedSettingsFilter(): ReactElement {
-  const [settings, setSettings] = useState({});
   const { feedSettings, advancedSettings, isLoading } = useFeedSettings();
   const { user, showLogin } = useContext(AuthContext);
   const { updateAdvancedSettings } = useMutateFilters(user);
+  const settings = useMemo(
+    () =>
+      feedSettings?.advancedSettings?.reduce((settingsMap, currentSettings) => {
+        const map = { ...settingsMap };
+        map[currentSettings.id] = currentSettings.enabled;
+        return map;
+      }, {}),
+    [feedSettings?.advancedSettings],
+  );
 
   const onToggle = async (id: number) => {
     if (!user) {
@@ -23,19 +31,6 @@ function AdvancedSettingsFilter(): ReactElement {
       advancedSettings: [{ id, enabled: !settings[id] }],
     });
   };
-
-  useEffect(() => {
-    if (!feedSettings?.advancedSettings) {
-      return;
-    }
-
-    const map = {};
-    feedSettings.advancedSettings.forEach(
-      // eslint-disable-next-line no-return-assign
-      ({ id, enabled }) => (map[id] = enabled),
-    );
-    setSettings(map);
-  }, [feedSettings?.advancedSettings]);
 
   return (
     <section className="flex flex-col px-6" aria-busy={isLoading}>
