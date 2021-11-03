@@ -65,7 +65,7 @@ export default function RepostPostModal({
         <Checkbox
           ref={inputRef}
           name="blockSource"
-          className="self-center px-1 mx-2 mb-6 font-normal"
+          className="self-center mx-2 mb-6 font-normal"
         >
           {`Don't show articles from ${post?.source?.name}`}
         </Checkbox>
