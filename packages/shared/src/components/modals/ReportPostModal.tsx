@@ -72,7 +72,7 @@ export default function RepostPostModal({
       </div>
       <ReportButtonsCenter>
         <Button
-          className="mb-2 btn-primary"
+          className="flex-1 btn-primary"
           disabled={!reason || (reason === 'OTHER' && !comment)}
           onClick={onReportPost}
         >

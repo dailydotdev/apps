@@ -5,7 +5,6 @@ import React, {
   useContext,
   useEffect,
   useRef,
-  useState,
 } from 'react';
 import classNames from 'classnames';
 import useFeed, { PostItem } from '../hooks/useFeed';
@@ -32,6 +31,7 @@ import VirtualizedFeedGrid from './VirtualizedFeedGrid';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { adAnalyticsEvent, postAnalyticsEvent } from '../lib/feed';
 import PostOptionsMenu from './PostOptionsMenu';
+import useNotification from '../hooks/useNotification';
 
 export type FeedProps<T> = {
   feedQueryKey: unknown[];
@@ -97,7 +97,6 @@ export default function Feed<T>({
     isSendingComment,
   } = useCommentPopup();
   const infiniteScrollRef = useFeedInfiniteScroll({ fetchPage, canFetchMore });
-  const [notification, setNotification] = useState(null);
 
   const onShare = async (post: Post): Promise<void> => {
     trackEvent({
@@ -142,21 +141,7 @@ export default function Feed<T>({
     virtualizedNumCards,
   );
   const { onMenuClick, postMenuIndex, setPostMenuIndex } = useFeedContextMenu();
-
-  const [postNotificationIndex, setPostNotificationIndex] = useState<number>();
-
-  const onMessage = async (
-    message: string,
-    messageIndex?: number,
-    timeout = 1000,
-  ) => {
-    setNotification(message);
-    setPostNotificationIndex(messageIndex);
-    if (timeout !== 0) {
-      await new Promise((resolve) => setTimeout(resolve, timeout));
-      setPostNotificationIndex(null);
-    }
-  };
+  const { notification, notificationIndex, onMessage } = useNotification();
 
   const onRemovePost = async (removePostIndex) => {
     const item = items[removePostIndex] as PostItem;
@@ -233,7 +218,7 @@ export default function Feed<T>({
             insaneMode={insaneMode}
             nativeShareSupport={nativeShareSupport}
             postMenuIndex={postMenuIndex}
-            postNotificationIndex={postNotificationIndex}
+            postNotificationIndex={notificationIndex}
             notification={notification}
             showCommentPopupId={showCommentPopupId}
             setShowCommentPopupId={setShowCommentPopupId}

@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { Item } from '@rebelchris/react-contexify';
+import { Item } from 'react-contexify';
 import Link from 'next/link';
 import AuthContext from '../contexts/AuthContext';
 import PowerIcon from '../../icons/power.svg';

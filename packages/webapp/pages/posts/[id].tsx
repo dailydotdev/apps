@@ -54,6 +54,7 @@ import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 import Link from 'next/link';
 import useUpvotePost from '@dailydotdev/shared/src/hooks/useUpvotePost';
 import useBookmarkPost from '@dailydotdev/shared/src/hooks/useBookmarkPost';
+import useNotification from '@dailydotdev/shared/src/hooks/useNotification';
 import classNames from 'classnames';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
@@ -484,19 +485,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
       position: { x: right, y: bottom + 4 },
     });
   };
-
-  const [notification, setNotification] = useState<string>();
-  const onMessage = async (
-    message: string,
-    postIndex?: number,
-    timeout = 1000,
-  ) => {
-    setNotification(message);
-    if (timeout !== 0) {
-      await new Promise((resolve) => setTimeout(resolve, timeout));
-      setNotification(null);
-    }
-  };
+  const { notification, onMessage } = useNotification();
 
   return (
     <>

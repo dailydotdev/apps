@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import dynamic from 'next/dynamic';
-import { Item } from '@rebelchris/react-contexify';
+import { Item } from 'react-contexify';
 import Link from 'next/link';
 import { Tag } from '../../graphql/feedSettings';
 

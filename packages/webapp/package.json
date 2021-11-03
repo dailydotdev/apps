@@ -16,6 +16,7 @@
   "dependencies": {
     "@dailydotdev/shared": "*",
     "classnames": "^2.3.1",
+    "react-contexify": "github:dailydotdev/react-contexify",
     "date-fns": "^2.24.0",
     "dompurify": "^2.3.3",
     "focus-visible": "^5.2.0",
@@ -29,7 +30,6 @@
     "preact": "^10.5.14",
     "preact-render-to-string": "^5.1.19",
     "react": "npm:@preact/compat@0.0.3",
-    "@rebelchris/react-contexify": "^5.0.0",
     "react-dom": "npm:@preact/compat@0.0.3",
     "react-flip-toolkit": "^7.0.13",
     "react-intersection-observer": "^8.32.1",

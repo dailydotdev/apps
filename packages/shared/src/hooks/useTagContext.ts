@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useContextMenu } from '@rebelchris/react-contexify';
+import { useContextMenu } from 'react-contexify';
 import { Tag } from '../graphql/feedSettings';
 
 export default function useTagContext(): {

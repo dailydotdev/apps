@@ -1,5 +1,5 @@
 import React, { ReactElement, useContext, useState } from 'react';
-import { Item } from '@rebelchris/react-contexify';
+import { Item } from 'react-contexify';
 import dynamic from 'next/dynamic';
 import useMutateFilters from '../hooks/useMutateFilters';
 import AuthContext from '../contexts/AuthContext';
@@ -39,7 +39,8 @@ export default function PostOptionsMenu({
   onMessage,
   onRemovePost,
 }: PostOptionsMenuProps): ReactElement {
-  const { refreshFeed } = useFeedSettings();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { feedSettings } = useFeedSettings();
   const { user } = useContext(AuthContext);
   const { reportPost, hidePost } = useReportPost();
   const { unfollowSource, blockTag } = useMutateFilters(user);
@@ -65,7 +66,6 @@ export default function PostOptionsMenu({
 
     if (blockSource) {
       await unfollowSource({ source: reportedPost?.source });
-      await refreshFeed();
     }
   };
 
@@ -73,14 +73,14 @@ export default function PostOptionsMenu({
     await unfollowSource({ source: post?.source });
     onMessage(`🚫 ${post?.source?.name} blocked`, postIndex);
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    await refreshFeed();
+    onRemovePost?.(postIndex);
   };
 
   const onBlockTag = async (tag: string): Promise<void> => {
     await blockTag({ tags: [tag] });
     onMessage(`⛔️ #${tag} blocked`, postIndex);
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    await refreshFeed();
+    onRemovePost?.(postIndex);
   };
 
   const onHidePost = async (): Promise<void> => {

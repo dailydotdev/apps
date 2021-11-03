@@ -10,18 +10,3 @@
     padding: 2rem;
   }
 }
-
-.buttons {
-  & > button {
-    flex: 1;
-    margin: 0 0.5rem;
-
-    &:first-child {
-      margin-left: 0;
-    }
-
-    &:last-child {
-      margin-right: 0;
-    }
-  }
-}

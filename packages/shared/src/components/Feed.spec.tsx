@@ -672,6 +672,46 @@ it('should report broken link', async () => {
   );
 });
 
+it('should report broken link with comment', async () => {
+  let mutationCalled = false;
+  renderComponent([
+    createFeedMock({
+      pageInfo: defaultFeedPage.pageInfo,
+      edges: [defaultFeedPage.edges[0]],
+    }),
+    {
+      request: {
+        query: REPORT_POST_MUTATION,
+        variables: {
+          id: '4f354bb73009e4adfa5dbcbf9b3c4ebf',
+          reason: 'BROKEN',
+          comment: 'comment',
+        },
+      },
+      result: () => {
+        mutationCalled = true;
+        return { data: { _: true } };
+      },
+    },
+  ]);
+  const [menuBtn] = await screen.findAllByLabelText('Options');
+  menuBtn.click();
+  const contextBtn = await screen.findByText('Report');
+  contextBtn.click();
+  const brokenLinkBtn = await screen.findByText('Broken link');
+  brokenLinkBtn.click();
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  fireEvent.change(input, { target: { value: 'comment' } });
+  const submitBtn = await screen.findByText('Submit report');
+  submitBtn.click();
+  await waitFor(() => expect(mutationCalled).toBeTruthy());
+  await waitFor(() =>
+    expect(
+      screen.queryByTitle('Eminem Quotes Generator - Simple PHP RESTful API'),
+    ).not.toBeInTheDocument(),
+  );
+});
+
 it('should report nsfw', async () => {
   let mutationCalled = false;
   renderComponent([

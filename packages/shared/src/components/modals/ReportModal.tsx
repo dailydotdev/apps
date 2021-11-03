@@ -6,7 +6,6 @@ export const ReportModal = classed(StyledModal, styles.reportModal);
 export const ReportButtonsCenter = classed(
   'div',
   'flex items-center justify-between self-center',
-  styles.buttons,
 );
 export const ReportHeading = classed('h1', 'font-bold typo-title2 px-2');
 export const ReportDescription = classed(

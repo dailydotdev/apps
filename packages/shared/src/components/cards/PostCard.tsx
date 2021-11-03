@@ -74,7 +74,6 @@ export const PostCard = forwardRef(function PostCard(
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const [selectedComment, setSelectedComment] = useState<Comment>();
-  // notification = 'Testing notes';
   const { trending } = post;
   const customStyle =
     selectedComment && !showImage ? { minHeight: '15.125rem' } : {};
