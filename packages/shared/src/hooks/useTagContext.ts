@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useContextMenu } from 'react-contexify';
+import { useContextMenu } from '@dailydotdev/react-contexify';
 import { Tag } from '../graphql/feedSettings';
 
 export default function useTagContext(): {
@@ -15,7 +15,7 @@ export default function useTagContext(): {
     setContextSelectedTag(tag);
     const { right, bottom } = event.currentTarget.getBoundingClientRect();
     showTagOptionsMenu(event, {
-      position: { x: right - 112, y: bottom + 4 },
+      position: { x: right, y: bottom + 4 },
     });
   };
 

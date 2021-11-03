@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import dynamic from 'next/dynamic';
-import { Item } from 'react-contexify';
+import { Item } from '@dailydotdev/react-contexify';
 import Link from 'next/link';
 import { Tag } from '../../graphql/feedSettings';
 
@@ -27,6 +27,7 @@ export default function TagOptionsMenu({
 }: TagOptionsMenuProps): ReactElement {
   return (
     <PortalMenu
+      disableBoundariesCheck
       id="tag-options-context"
       className="menu-primary"
       animation="fade"

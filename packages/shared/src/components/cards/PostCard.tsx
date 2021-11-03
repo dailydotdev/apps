@@ -21,17 +21,15 @@ import {
 } from './Card';
 import { SmallRoundedImage } from '../utilities';
 import FeatherIcon from '../../../icons/feather.svg';
-import FlagIcon from '../../../icons/flag.svg';
 import { Comment } from '../../graphql/comments';
-import { Button } from '../buttons/Button';
 import styles from './Card.module.css';
-import { getTooltipProps } from '../../lib/tooltip';
 import TrendingFlag from './TrendingFlag';
 import PostLink from './PostLink';
 import PostMetadata from './PostMetadata';
 import ActionButtons from './ActionButtons';
 import SourceButton from './SourceButton';
 import PostAuthor from './PostAuthor';
+import OptionsButton from '../buttons/OptionsButton';
 
 const FeaturedComment = dynamic(() => import('./FeaturedComment'));
 
@@ -76,7 +74,6 @@ export const PostCard = forwardRef(function PostCard(
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const [selectedComment, setSelectedComment] = useState<Comment>();
-
   const { trending } = post;
   const customStyle =
     selectedComment && !showImage ? { minHeight: '15.125rem' } : {};
@@ -91,7 +88,7 @@ export const PostCard = forwardRef(function PostCard(
       <CardTextContainer>
         <CardHeader>
           {notification ? (
-            <CardNotification className="flex-1">
+            <CardNotification className="flex-1 text-center">
               {notification}
             </CardNotification>
           ) : (
@@ -101,20 +98,10 @@ export const PostCard = forwardRef(function PostCard(
                 post.featuredComments,
                 setSelectedComment,
               )}
-              {enableMenu && !selectedComment && (
-                <Button
-                  className={classNames(
-                    'btn-tertiary',
-                    !menuOpened && 'mouse:invisible mouse:group-hover:visible',
-                  )}
-                  style={{ marginLeft: 'auto', marginRight: '-0.125rem' }}
-                  buttonSize="small"
-                  icon={<FlagIcon />}
-                  onClick={(event) => onMenuClick?.(event, post)}
-                  pressed={menuOpened}
-                  {...getTooltipProps('Report post')}
-                />
-              )}
+              <OptionsButton
+                onClick={(event) => onMenuClick?.(event, post)}
+                post={post}
+              />
             </>
           )}
         </CardHeader>

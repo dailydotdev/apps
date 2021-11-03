@@ -5,8 +5,6 @@ import useProfileMenu from '../../hooks/useProfileMenu';
 import ProfileMenu from '../ProfileMenu';
 import { ProfilePicture } from '../ProfilePicture';
 
-const profileContextMenuWidth = 10;
-
 export interface ProfileButtonProps {
   onShowDndClick?: () => unknown;
 }
@@ -15,7 +13,7 @@ export default function ProfileButton({
   onShowDndClick,
 }: ProfileButtonProps): ReactElement {
   const { user } = useContext(AuthContext);
-  const { onMenuClick } = useProfileMenu(profileContextMenuWidth);
+  const { onMenuClick } = useProfileMenu();
 
   return (
     <>
@@ -30,10 +28,7 @@ export default function ProfileButton({
         <span className="mr-2 ml-3">{user.reputation ?? 0}</span>
         <ProfilePicture user={user} size="medium" />
       </button>
-      <ProfileMenu
-        width={profileContextMenuWidth}
-        onShowDndClick={onShowDndClick}
-      />
+      <ProfileMenu onShowDndClick={onShowDndClick} />
     </>
   );
 }

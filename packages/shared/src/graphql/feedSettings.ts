@@ -73,6 +73,10 @@ export const FEED_SETTINGS_QUERY = gql`
     feedSettings @include(if: $loggedIn) {
       includeTags
       blockedTags
+      excludeSources {
+        id
+        name
+      }
       advancedSettings {
         id
         enabled
