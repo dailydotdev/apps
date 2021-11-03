@@ -39,8 +39,7 @@ export default function PostOptionsMenu({
   onMessage,
   onRemovePost,
 }: PostOptionsMenuProps): ReactElement {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { feedSettings } = useFeedSettings();
+  useFeedSettings();
   const { user } = useContext(AuthContext);
   const { reportPost, hidePost } = useReportPost();
   const { unfollowSource, blockTag } = useMutateFilters(user);
@@ -60,26 +59,23 @@ export default function PostOptionsMenu({
       comment,
     });
 
-    onMessage('🚨 Thanks for reporting!', reportPostIndex);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    onRemovePost?.(reportPostIndex);
-
     if (blockSource) {
       await unfollowSource({ source: reportedPost?.source });
     }
+
+    await onMessage('🚨 Thanks for reporting!', reportPostIndex);
+    onRemovePost?.(reportPostIndex);
   };
 
   const onBlockSource = async (): Promise<void> => {
     await unfollowSource({ source: post?.source });
-    onMessage(`🚫 ${post?.source?.name} blocked`, postIndex);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await onMessage(`🚫 ${post?.source?.name} blocked`, postIndex);
     onRemovePost?.(postIndex);
   };
 
   const onBlockTag = async (tag: string): Promise<void> => {
     await blockTag({ tags: [tag] });
-    onMessage(`⛔️ #${tag} blocked`, postIndex);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await onMessage(`⛔️ #${tag} blocked`, postIndex);
     onRemovePost?.(postIndex);
   };
 
