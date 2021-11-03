@@ -23,7 +23,7 @@ export const TagCategoryDetails = classed(
 
 export const TagCategorySummary = classed(
   'summary',
-  'flex justify-between items-center p-6 pl-4',
+  'flex justify-between items-center p-6 pl-4 outline-none',
 );
 
 export const TagCategoryDetailsContent = classed(
