@@ -46,6 +46,14 @@ export default function PostOptionsMenu({
   const [reportModal, setReportModal] =
     useState<{ index?: number; post?: Post }>();
 
+  const showMessageAndRemovePost = async (
+    message: string,
+    _postIndex: number,
+  ) => {
+    await onMessage(message, _postIndex);
+    onRemovePost?.(_postIndex);
+  };
+
   const onReportPost = async (
     reportPostIndex,
     reportedPost,
@@ -63,20 +71,17 @@ export default function PostOptionsMenu({
       await unfollowSource({ source: reportedPost?.source });
     }
 
-    await onMessage('🚨 Thanks for reporting!', reportPostIndex);
-    onRemovePost?.(reportPostIndex);
+    showMessageAndRemovePost('🚨 Thanks for reporting!', reportPostIndex);
   };
 
   const onBlockSource = async (): Promise<void> => {
     await unfollowSource({ source: post?.source });
-    await onMessage(`🚫 ${post?.source?.name} blocked`, postIndex);
-    onRemovePost?.(postIndex);
+    showMessageAndRemovePost(`🚫 ${post?.source?.name} blocked`, postIndex);
   };
 
   const onBlockTag = async (tag: string): Promise<void> => {
     await blockTag({ tags: [tag] });
-    await onMessage(`⛔️ #${tag} blocked`, postIndex);
-    onRemovePost?.(postIndex);
+    showMessageAndRemovePost(`⛔️ #${tag} blocked`, postIndex);
   };
 
   const onHidePost = async (): Promise<void> => {
