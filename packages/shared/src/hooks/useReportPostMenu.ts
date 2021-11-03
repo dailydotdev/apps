@@ -1,4 +1,4 @@
-import { TriggerEvent, useContextMenu } from 'react-contexify';
+import { TriggerEvent, useContextMenu } from '@dailydotdev/react-contexify';
 import { ContextMenuParams } from 'react-contexify/dist/types';
 
 export default function useReportPostMenu(): {

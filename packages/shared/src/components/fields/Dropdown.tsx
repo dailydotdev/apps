@@ -12,7 +12,7 @@ import {
   Menu,
   TriggerEvent,
   useContextMenu,
-} from 'react-contexify';
+} from '@dailydotdev/react-contexify';
 import ArrowIcon from '../../../icons/arrow.svg';
 import styles from './Dropdown.module.css';
 

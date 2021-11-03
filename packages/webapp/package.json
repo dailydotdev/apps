@@ -29,7 +29,7 @@
     "preact": "^10.5.15",
     "preact-render-to-string": "^5.1.19",
     "react": "npm:@preact/compat@0.0.3",
-    "react-contexify": "github:dailydotdev/react-contexify",
+    "@dailydotdev/react-contexify": "^5.0.0",
     "react-dom": "npm:@preact/compat@0.0.3",
     "react-flip-toolkit": "^7.0.13",
     "react-intersection-observer": "^8.32.2",

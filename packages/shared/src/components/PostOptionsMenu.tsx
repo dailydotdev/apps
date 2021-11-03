@@ -1,5 +1,5 @@
 import React, { ReactElement, useContext, useState } from 'react';
-import { Item } from 'react-contexify';
+import { Item } from '@dailydotdev/react-contexify';
 import dynamic from 'next/dynamic';
 import useMutateFilters from '../hooks/useMutateFilters';
 import AuthContext from '../contexts/AuthContext';
