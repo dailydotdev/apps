@@ -39,6 +39,7 @@ const defaultUser = {
   infoConfirmed: true,
   premium: false,
   createdAt: '2020-07-26T13:04:35.000Z',
+  permalink: 'https://app.daily.dev/ido',
 };
 
 const renderComponent = (user: Partial<LoggedUser> = {}): RenderResult => {
@@ -60,7 +61,7 @@ const renderComponent = (user: Partial<LoggedUser> = {}): RenderResult => {
 
 it('should show profile image', () => {
   renderComponent();
-  const el = screen.getByAltText('idoshamun profile picture');
+  const el = screen.getByAltText(`idoshamun's profile`);
   expect(el).toHaveAttribute('data-src', defaultUser.image);
 });
 
