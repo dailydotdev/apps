@@ -1,6 +1,5 @@
 import React from 'react';
-
-export type Alerts = { filter?: boolean };
+import { Alerts } from '../graphql/alerts';
 
 export const ALERT_DEFAULTS: Alerts = {
   filter: false,

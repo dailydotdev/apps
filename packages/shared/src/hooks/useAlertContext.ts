@@ -1,10 +1,7 @@
 import { useMemo, useEffect } from 'react';
+import { Alerts } from '../graphql/alerts';
 import usePersistentState from './usePersistentState';
-import {
-  ALERT_DEFAULTS,
-  AlertContextData,
-  Alerts,
-} from '../contexts/AlertContext';
+import { ALERT_DEFAULTS, AlertContextData } from '../contexts/AlertContext';
 
 export default function useAlertContext(
   fetchedAlerts?: Alerts | undefined,
