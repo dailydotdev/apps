@@ -1,19 +1,17 @@
-import React, { ReactElement, useContext, useState } from 'react';
+import React, { ReactElement, useState } from 'react';
 import { UnblockModalType } from './common';
-import useMutateFilters from '../../hooks/useMutateFilters';
 import { Source } from '../../graphql/sources';
 import SourceItemList from './SourceItemList';
 import TagItemList from './TagItemList';
-import AuthContext from '../../contexts/AuthContext';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import TagOptionsMenu from './TagOptionsMenu';
 import UnblockModal from '../modals/UnblockModal';
 import { Tag } from '../../graphql/feedSettings';
 import useTagContext from '../../hooks/useTagContext';
 import useDisableFilterAlert from '../../hooks/useDisableFilterAlert';
+import useTagAndSource from '../../hooks/useTagAndSource';
 
 export default function BlockedFilter(): ReactElement {
-  const { user } = useContext(AuthContext);
   const [unblockItem, setUnblockItem] = useState<{
     tag?: Tag;
     source?: Source;
@@ -21,7 +19,9 @@ export default function BlockedFilter(): ReactElement {
   }>();
   const { feedSettings, isLoading } = useFeedSettings();
   useDisableFilterAlert(feedSettings);
-  const { unblockTag, followSource } = useMutateFilters(user);
+  const { onUnblockTags, onFollowSource } = useTagAndSource({
+    origin: 'blocked-filter',
+  });
   const { contextSelectedTag, setContextSelectedTag, onTagContextOptions } =
     useTagContext();
 
@@ -36,7 +36,7 @@ export default function BlockedFilter(): ReactElement {
   const sourceItemAction = (source) => {
     initUnblockModal({
       source,
-      action: () => followSource({ source }),
+      action: () => onFollowSource({ source }),
     });
   };
 
@@ -68,7 +68,7 @@ export default function BlockedFilter(): ReactElement {
         onUnblock={() =>
           initUnblockModal({
             tag: contextSelectedTag,
-            action: () => unblockTag({ tags: [contextSelectedTag] }),
+            action: () => onUnblockTags({ tags: [contextSelectedTag] }),
           })
         }
         onHidden={() => setContextSelectedTag(null)}

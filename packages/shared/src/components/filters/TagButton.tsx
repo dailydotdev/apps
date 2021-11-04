@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import PlusIcon from '../../../icons/plus.svg';
-import useTag from '../../hooks/useTag';
+import useTagAndSource from '../../hooks/useTagAndSource';
 import { Button, ButtonProps } from '../buttons/Button';
 
 const GenericTagButton = ({
@@ -80,14 +80,16 @@ export default function TagButton<Tag extends keyof JSX.IntrinsicElements>({
   followedTags,
   ...props
 }: ButtonProps<Tag> & TagButtonProps): ReactElement {
-  const { onFollow, onUnfollow } = useTag();
+  const { onFollowTags, onUnfollowTags } = useTagAndSource({
+    origin: 'tags-filter',
+  });
 
   if (followedTags?.includes(tagItem)) {
     return (
       <UnfollowTagButton
         {...props}
         tag={tagItem}
-        action={followedTags ? () => onUnfollow({ tags: [tagItem] }) : null}
+        action={followedTags ? () => onUnfollowTags({ tags: [tagItem] }) : null}
       />
     );
   }
@@ -96,7 +98,7 @@ export default function TagButton<Tag extends keyof JSX.IntrinsicElements>({
     <FollowTagButton
       {...props}
       tag={tagItem}
-      action={followedTags ? () => onFollow({ tags: [tagItem] }) : null}
+      action={followedTags ? () => onFollowTags({ tags: [tagItem] }) : null}
     />
   );
 }

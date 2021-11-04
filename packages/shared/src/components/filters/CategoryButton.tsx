@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { Button } from '../buttons/Button';
-import useTag from '../../hooks/useTag';
+import useTagAndSource from '../../hooks/useTagAndSource';
 import { TagCategory } from '../../graphql/feedSettings';
 
 const ClearCategoryButton = ({
@@ -28,7 +28,9 @@ export default function CategoryButton({
   category: TagCategory;
   followedTags?: Array<string>;
 }): ReactElement {
-  const { onFollow, onUnfollow } = useTag();
+  const { onFollowTags, onUnfollowTags } = useTagAndSource({
+    origin: 'tags-filter',
+  });
 
   const tagMatches = category?.tags.filter(
     (tag) => followedTags.indexOf(tag) !== -1,
@@ -38,14 +40,18 @@ export default function CategoryButton({
     return (
       <ClearCategoryButton
         matches={tagMatches.length}
-        action={() => onUnfollow({ tags: tagMatches, category: category.id })}
+        action={() =>
+          onUnfollowTags({ tags: tagMatches, category: category.id })
+        }
       />
     );
   }
 
   return (
     <FollowCategoryButton
-      action={() => onFollow({ tags: category.tags, category: category.id })}
+      action={() =>
+        onFollowTags({ tags: category.tags, category: category.id })
+      }
     />
   );
 }

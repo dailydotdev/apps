@@ -17,7 +17,6 @@ import {
 } from '@dailydotdev/shared/src/graphql/sources';
 import request from 'graphql-request';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
-import useMutateFilters from '@dailydotdev/shared/src/hooks/useMutateFilters';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   Button,
@@ -30,6 +29,7 @@ import {
 import PlusIcon from '@dailydotdev/shared/icons/plus.svg';
 import BlockIcon from '@dailydotdev/shared/icons/block.svg';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
+import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
 import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -47,7 +47,9 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
   );
 
   const { feedSettings } = useFeedSettings();
-  const { followSource, unfollowSource } = useMutateFilters(user);
+  const { onFollowSource, onUnfollowSource } = useTagAndSource({
+    origin: 'source-page',
+  });
 
   const unfollowingSource = useMemo(() => {
     if (!feedSettings) {
@@ -81,9 +83,9 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
     onClick: async (): Promise<void> => {
       if (user) {
         if (unfollowingSource) {
-          await followSource({ source });
+          await onFollowSource({ source });
         } else {
-          await unfollowSource({ source });
+          await onUnfollowSource({ source });
         }
       } else {
         showLogin('filter');

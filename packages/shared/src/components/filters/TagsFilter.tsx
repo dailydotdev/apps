@@ -10,7 +10,7 @@ import useFeedSettings from '../../hooks/useFeedSettings';
 import TagItemList from './TagItemList';
 import TagOptionsMenu from './TagOptionsMenu';
 import useTagContext from '../../hooks/useTagContext';
-import useTag from '../../hooks/useTag';
+import useTagAndSource from '../../hooks/useTagAndSource';
 import useDisableFilterAlert from '../../hooks/useDisableFilterAlert';
 
 export default function TagsFilter(): ReactElement {
@@ -21,7 +21,7 @@ export default function TagsFilter(): ReactElement {
   useDisableFilterAlert(feedSettings);
   const { contextSelectedTag, setContextSelectedTag, onTagContextOptions } =
     useTagContext();
-  const { onBlock } = useTag();
+  const { onBlockTags } = useTagAndSource({ origin: 'tags-filter-search' });
 
   const { data: searchResults } = useQuery<SearchTagsData>(
     searchKey,
@@ -54,7 +54,7 @@ export default function TagsFilter(): ReactElement {
           />
           <TagOptionsMenu
             tag={contextSelectedTag}
-            onBlock={() => onBlock({ tags: [contextSelectedTag] })}
+            onBlock={() => onBlockTags({ tags: [contextSelectedTag] })}
             onHidden={() => setContextSelectedTag(null)}
           />
         </>

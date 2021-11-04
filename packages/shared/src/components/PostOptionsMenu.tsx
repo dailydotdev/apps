@@ -1,8 +1,6 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import { Item } from '@dailydotdev/react-contexify';
 import dynamic from 'next/dynamic';
-import useMutateFilters from '../hooks/useMutateFilters';
-import AuthContext from '../contexts/AuthContext';
 import useFeedSettings from '../hooks/useFeedSettings';
 import useReportPost from '../hooks/useReportPost';
 import { Post } from '../graphql/posts';
@@ -11,6 +9,8 @@ import ShareIcon from '../../icons/share.svg';
 import BlockIcon from '../../icons/block.svg';
 import FlagIcon from '../../icons/flag.svg';
 import RepostPostModal from './modals/ReportPostModal';
+import useTagAndSource from '../hooks/useTagAndSource';
+import AnalyticsContext from '../contexts/AnalyticsContext';
 
 const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
   ssr: false,
@@ -40,9 +40,9 @@ export default function PostOptionsMenu({
   onRemovePost,
 }: PostOptionsMenuProps): ReactElement {
   useFeedSettings();
-  const { user } = useContext(AuthContext);
+  const { trackEvent } = useContext(AnalyticsContext);
   const { reportPost, hidePost } = useReportPost();
-  const { unfollowSource, blockTag } = useMutateFilters(user);
+  const { onUnfollowSource, onBlockTags } = useTagAndSource({ origin: 'feed' });
   const [reportModal, setReportModal] =
     useState<{ index?: number; post?: Post }>();
 
@@ -68,19 +68,19 @@ export default function PostOptionsMenu({
     });
 
     if (blockSource) {
-      await unfollowSource({ source: reportedPost?.source });
+      await onUnfollowSource({ source: reportedPost?.source });
     }
 
     showMessageAndRemovePost('🚨 Thanks for reporting!', reportPostIndex);
   };
 
   const onBlockSource = async (): Promise<void> => {
-    await unfollowSource({ source: post?.source });
+    await onUnfollowSource({ source: post?.source });
     showMessageAndRemovePost(`🚫 ${post?.source?.name} blocked`, postIndex);
   };
 
   const onBlockTag = async (tag: string): Promise<void> => {
-    await blockTag({ tags: [tag] });
+    await onBlockTags({ tags: [tag] });
     showMessageAndRemovePost(`⛔️ #${tag} blocked`, postIndex);
   };
 
@@ -97,6 +97,12 @@ export default function PostOptionsMenu({
   };
 
   const onSharePost = async () => {
+    trackEvent({
+      event_name: 'share post',
+      target_type: 'post',
+      target_id: post.id,
+      extra: JSON.stringify({ origin: 'feed' }),
+    });
     await navigator.clipboard.writeText(
       `https://app.daily.dev/posts/${post.id}?utm_source=inapp&utm_medium=article&utm_campaign=share_article&utm_id=share`,
     );

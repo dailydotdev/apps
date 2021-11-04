@@ -25,8 +25,8 @@ import {
   customFeedIcon,
   FeedPage,
 } from '@dailydotdev/shared/src/components/utilities';
-import useMutateFilters from '@dailydotdev/shared/src/hooks/useMutateFilters';
 import classNames from 'classnames';
+import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/FeedLayout';
@@ -38,11 +38,9 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
   const { user, showLogin } = useContext(AuthContext);
   // Must be memoized to prevent refreshing the feed
   const queryVariables = useMemo(() => ({ tag, ranking: 'TIME' }), [tag]);
-
   const { feedSettings } = useFeedSettings();
-
-  const { followTags, unfollowTags, blockTag, unblockTag } =
-    useMutateFilters(user);
+  const { onFollowTags, onUnfollowTags, onBlockTags, onUnblockTags } =
+    useTagAndSource({ origin: 'tag-page' });
 
   const tagStatus = useMemo(() => {
     if (!feedSettings) {
@@ -81,9 +79,9 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
     onClick: async (): Promise<void> => {
       if (user) {
         if (tagStatus === 'followed') {
-          await unfollowTags({ tags: [tag] });
+          await onUnfollowTags({ tags: [tag] });
         } else {
-          await followTags({ tags: [tag] });
+          await onFollowTags({ tags: [tag] });
         }
       } else {
         showLogin('filter');
@@ -97,9 +95,9 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
     onClick: async (): Promise<void> => {
       if (user) {
         if (tagStatus === 'blocked') {
-          await unblockTag({ tags: [tag] });
+          await onUnblockTags({ tags: [tag] });
         } else {
-          await blockTag({ tags: [tag] });
+          await onBlockTags({ tags: [tag] });
         }
       } else {
         showLogin('filter');
