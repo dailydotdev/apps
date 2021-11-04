@@ -144,9 +144,12 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
         onMutateAdvancedSettings(
           advancedSettings,
           queryClient,
-          (feedSettings, feedAdvancedSettings) => {
+          (feedSettings, [feedAdvancedSettings]) => {
             const newData = cloneDeep(feedSettings);
-            newData.advancedSettings = feedAdvancedSettings;
+            const index = newData.advancedSettings.findIndex(
+              (settings) => settings.id === feedAdvancedSettings.id,
+            );
+            newData.advancedSettings[index] = feedAdvancedSettings;
             return newData;
           },
           user,
