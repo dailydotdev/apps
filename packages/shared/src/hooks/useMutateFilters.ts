@@ -1,4 +1,3 @@
-import { useContext } from 'react';
 import { QueryClient, useMutation, useQueryClient } from 'react-query';
 import request from 'graphql-request';
 import cloneDeep from 'lodash.clonedeep';
@@ -13,8 +12,7 @@ import {
   UPDATE_ADVANCED_SETTINGS_FILTERS_MUTATION,
 } from '../graphql/feedSettings';
 import { Source } from '../graphql/sources';
-import AlertContext, { AlertContextData } from '../contexts/AlertContext';
-import { UPDATE_ALERTS } from '../graphql/alerts';
+import useFilterAlert from './useFilterAlert';
 
 export const getFeedSettingsQueryKey = (user?: LoggedUser): string[] => [
   user?.id,
@@ -48,7 +46,6 @@ async function updateQueryData(
   queryClient: QueryClient,
   newSettings: FeedSettings,
   keys: string[][],
-  { alerts, setAlerts }: AlertContextData,
 ): Promise<void> {
   await Promise.all(
     keys.map(async (key) => {
@@ -63,12 +60,6 @@ async function updateQueryData(
       });
     }),
   );
-  if (alerts.filter) {
-    await request(`${apiUrl}/graphql`, UPDATE_ALERTS, {
-      data: { filter: false },
-    });
-    setAlerts({ ...alerts, filter: false });
-  }
 }
 
 type ManipulateAdvancedSettingsFunc = (
@@ -81,20 +72,14 @@ const onMutateAdvancedSettings = async (
   queryClient: QueryClient,
   manipulate: ManipulateAdvancedSettingsFunc,
   user: LoggedUser,
-  alertsContext: AlertContextData,
 ): Promise<() => Promise<void>> => {
   const queryKey = getFeedSettingsQueryKey(user);
   const feedSettings = queryClient.getQueryData<FeedSettingsData>(queryKey);
   const newData = manipulate(feedSettings.feedSettings, advancedSettings);
   const keys = [queryKey, queryKey];
-  await updateQueryData(queryClient, newData, keys, alertsContext);
+  await updateQueryData(queryClient, newData, keys);
   return async () => {
-    await updateQueryData(
-      queryClient,
-      feedSettings.feedSettings,
-      keys,
-      alertsContext,
-    );
+    await updateQueryData(queryClient, feedSettings.feedSettings, keys);
   };
 };
 
@@ -108,20 +93,14 @@ const onMutateTagsSettings = async (
   queryClient: QueryClient,
   manipulate: ManipulateTagFunc,
   user: LoggedUser,
-  alertsContext: AlertContextData,
 ): Promise<() => Promise<void>> => {
   const queryKey = getFeedSettingsQueryKey(user);
   const feedSettings = queryClient.getQueryData<FeedSettingsData>(queryKey);
   const newData = manipulate(feedSettings.feedSettings, tags);
   const keys = [queryKey, getFeedSettingsQueryKey(user)];
-  await updateQueryData(queryClient, newData, keys, alertsContext);
+  await updateQueryData(queryClient, newData, keys);
   return async () => {
-    await updateQueryData(
-      queryClient,
-      feedSettings.feedSettings,
-      keys,
-      alertsContext,
-    );
+    await updateQueryData(queryClient, feedSettings.feedSettings, keys);
   };
 };
 
@@ -135,28 +114,25 @@ const onMutateSourcesSettings = async (
   queryClient: QueryClient,
   manipulate: ManipulateSourceFunc,
   user: LoggedUser,
-  alertsContext: AlertContextData,
 ): Promise<() => Promise<void>> => {
   const queryKey = getFeedSettingsQueryKey(user);
-  const feedSettings = await queryClient.getQueryData<FeedSettingsData>(
-    queryKey,
-  );
+  const feedSettings = queryClient.getQueryData<FeedSettingsData>(queryKey);
   const newData = manipulate(feedSettings.feedSettings, source);
   const keys = [queryKey, getFeedSettingsQueryKey(user)];
-  await updateQueryData(queryClient, newData, keys, alertsContext);
+  await updateQueryData(queryClient, newData, keys);
   return async () => {
-    await updateQueryData(
-      queryClient,
-      feedSettings.feedSettings,
-      keys,
-      alertsContext,
-    );
+    await updateQueryData(queryClient, feedSettings.feedSettings, keys);
   };
 };
 
 export default function useMutateFilters(user?: LoggedUser): ReturnType {
   const queryClient = useQueryClient();
-  const alertsContext = useContext(AlertContext);
+  const queryKey = getFeedSettingsQueryKey(user);
+  const currentSettings = queryClient.getQueryData<FeedSettingsData>(queryKey);
+  const { disableFilterAlert } = useFilterAlert(
+    currentSettings?.feedSettings,
+    false,
+  );
 
   const { mutateAsync: updateAdvancedSettings } = useMutation<
     unknown,
@@ -169,8 +145,10 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
         settings,
       }),
     {
-      onMutate: ({ advancedSettings }) =>
-        onMutateAdvancedSettings(
+      onMutate: ({ advancedSettings }) => {
+        disableFilterAlert();
+
+        return onMutateAdvancedSettings(
           advancedSettings,
           queryClient,
           (feedSettings, [feedAdvancedSettings]) => {
@@ -182,8 +160,8 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
             return newData;
           },
           user,
-          alertsContext,
-        ),
+        );
+      },
       onError: (err, _, rollback) => rollback(),
     },
   );
@@ -201,8 +179,10 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
         },
       }),
     {
-      onMutate: ({ tags }) =>
-        onMutateTagsSettings(
+      onMutate: ({ tags }) => {
+        disableFilterAlert();
+
+        return onMutateTagsSettings(
           tags,
           queryClient,
           (feedSettings, manipulateTags) => {
@@ -211,8 +191,8 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
             return newData;
           },
           user,
-          alertsContext,
-        ),
+        );
+      },
       onError: (err, _, rollback) => rollback(),
     },
   );
@@ -230,8 +210,10 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
         },
       }),
     {
-      onMutate: ({ tags }) =>
-        onMutateTagsSettings(
+      onMutate: ({ tags }) => {
+        disableFilterAlert();
+
+        return onMutateTagsSettings(
           tags,
           queryClient,
           (feedSettings, manipulateTags) => {
@@ -243,8 +225,8 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
             return newData;
           },
           user,
-          alertsContext,
-        ),
+        );
+      },
       onError: (err, _, rollback) => rollback(),
     },
   );
@@ -274,7 +256,6 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
             return newData;
           },
           user,
-          alertsContext,
         ),
       onError: (err, _, rollback) => rollback(),
     },
@@ -305,7 +286,6 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
             return newData;
           },
           user,
-          alertsContext,
         ),
       onError: (err, _, rollback) => rollback(),
     },
@@ -339,7 +319,6 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
             return newData;
           },
           user,
-          alertsContext,
         ),
       onError: (err, _, rollback) => rollback(),
     },
@@ -358,8 +337,10 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
         },
       }),
     {
-      onMutate: ({ source }) =>
-        onMutateSourcesSettings(
+      onMutate: ({ source }) => {
+        disableFilterAlert();
+
+        return onMutateSourcesSettings(
           source,
           queryClient,
           (feedSettings, manipulateSource) => {
@@ -368,8 +349,8 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
             return newData;
           },
           user,
-          alertsContext,
-        ),
+        );
+      },
       onError: (err, _, rollback) => rollback(),
     },
   );
