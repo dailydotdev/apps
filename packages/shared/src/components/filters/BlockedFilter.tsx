@@ -9,7 +9,6 @@ import UnblockModal from '../modals/UnblockModal';
 import { Tag } from '../../graphql/feedSettings';
 import useTagContext from '../../hooks/useTagContext';
 import useTagAndSource from '../../hooks/useTagAndSource';
-import useFilterAlert from '../../hooks/useFilterAlert';
 
 export default function BlockedFilter(): ReactElement {
   const [unblockItem, setUnblockItem] = useState<{
@@ -18,7 +17,6 @@ export default function BlockedFilter(): ReactElement {
     action?: () => unknown;
   }>();
   const { feedSettings, isLoading } = useFeedSettings();
-  useFilterAlert(feedSettings);
   const { onUnblockTags, onFollowSource } = useTagAndSource({
     origin: 'blocked filter',
   });

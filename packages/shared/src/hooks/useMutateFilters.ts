@@ -12,7 +12,7 @@ import {
   UPDATE_ADVANCED_SETTINGS_FILTERS_MUTATION,
 } from '../graphql/feedSettings';
 import { Source } from '../graphql/sources';
-import useFilterAlert from './useFilterAlert';
+import useAlertContext from './useAlertContext';
 
 export const getFeedSettingsQueryKey = (user?: LoggedUser): string[] => [
   user?.id,
@@ -127,12 +127,7 @@ const onMutateSourcesSettings = async (
 
 export default function useMutateFilters(user?: LoggedUser): ReturnType {
   const queryClient = useQueryClient();
-  const queryKey = getFeedSettingsQueryKey(user);
-  const currentSettings = queryClient.getQueryData<FeedSettingsData>(queryKey);
-  const { disableFilterAlert } = useFilterAlert(
-    currentSettings?.feedSettings,
-    false,
-  );
+  const { disableFilterAlert } = useAlertContext();
 
   const { mutateAsync: updateAdvancedSettings } = useMutation<
     unknown,
