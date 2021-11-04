@@ -87,15 +87,19 @@ export default function PostOptionsMenu({
   const onHidePost = async (): Promise<void> => {
     const promise = hidePost(post.id);
     await Promise.all([promise, onRemovePost?.(postIndex)]);
-    onMessage(
-      '🙈 This article won’t show up on your feed anymore',
-      postIndex,
-      0,
-    );
+    if (!postIndex) {
+      onMessage(
+        '🙈 This article won’t show up on your feed anymore',
+        postIndex,
+        0,
+      );
+    }
   };
 
   const onSharePost = async () => {
-    await navigator.clipboard.writeText(post.permalink);
+    await navigator.clipboard.writeText(
+      `https://app.daily.dev/posts/${post.id}?utm_source=inapp&utm_medium=article&utm_campaign=share_article&utm_id=share`,
+    );
     onMessage('✅ Copied link to clipboard', postIndex);
   };
 

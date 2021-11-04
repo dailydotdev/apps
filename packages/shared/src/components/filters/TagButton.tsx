@@ -87,9 +87,7 @@ export default function TagButton<Tag extends keyof JSX.IntrinsicElements>({
       <UnfollowTagButton
         {...props}
         tag={tagItem}
-        action={
-          followedTags?.length ? () => onUnfollow({ tags: [tagItem] }) : null
-        }
+        action={followedTags ? () => onUnfollow({ tags: [tagItem] }) : null}
       />
     );
   }
@@ -98,7 +96,7 @@ export default function TagButton<Tag extends keyof JSX.IntrinsicElements>({
     <FollowTagButton
       {...props}
       tag={tagItem}
-      action={followedTags?.length ? () => onFollow({ tags: [tagItem] }) : null}
+      action={followedTags ? () => onFollow({ tags: [tagItem] }) : null}
     />
   );
 }

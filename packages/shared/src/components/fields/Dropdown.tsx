@@ -117,6 +117,7 @@ export function Dropdown({
         />
       </button>
       <Menu
+        disableBoundariesCheck
         id={id}
         className="menu-primary"
         animation="fade"
