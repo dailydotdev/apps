@@ -12,7 +12,7 @@ export default function useDisableFilterAlert(
 
   useEffect(() => {
     if (
-      alerts.filter &&
+      alerts?.filter &&
       (feedSettings?.includeTags?.length ||
         feedSettings?.blockedTags?.length ||
         feedSettings?.excludeSources?.length ||
@@ -22,5 +22,5 @@ export default function useDisableFilterAlert(
         data: { filter: false },
       }).then(() => setAlerts({ ...alerts, filter: false }));
     }
-  }, [alerts.filter, feedSettings]);
+  }, [alerts?.filter, feedSettings]);
 }
