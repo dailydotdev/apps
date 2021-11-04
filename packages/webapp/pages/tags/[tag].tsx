@@ -40,7 +40,7 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
   const queryVariables = useMemo(() => ({ tag, ranking: 'TIME' }), [tag]);
   const { feedSettings } = useFeedSettings();
   const { onFollowTags, onUnfollowTags, onBlockTags, onUnblockTags } =
-    useTagAndSource({ origin: 'tag-page' });
+    useTagAndSource({ origin: 'tag page' });
 
   const tagStatus = useMemo(() => {
     if (!feedSettings) {

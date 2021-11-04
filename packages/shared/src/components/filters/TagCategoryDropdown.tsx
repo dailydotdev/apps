@@ -12,9 +12,13 @@ import {
 export default function TagCategoryDropdown({
   tagCategory,
   followedTags,
+  onFollowTags,
+  onUnfollowTags,
 }: {
   tagCategory: TagCategory;
   followedTags?: Array<string>;
+  onFollowTags: (tags, category?) => void;
+  onUnfollowTags: (tags, category?) => void;
 }): ReactElement {
   return (
     <TagCategoryDetails>
@@ -24,7 +28,12 @@ export default function TagCategoryDropdown({
           <span className="mr-3 typo-title1">{tagCategory.emoji}</span>{' '}
           <h4 className="font-bold typo-callout">{tagCategory.title}</h4>{' '}
         </div>
-        <CategoryButton followedTags={followedTags} category={tagCategory} />
+        <CategoryButton
+          followedTags={followedTags}
+          category={tagCategory}
+          onFollowTags={onFollowTags}
+          onUnfollowTags={onUnfollowTags}
+        />
       </TagCategorySummary>
       <TagCategoryDetailsContent data-testid="tagCategoryTags">
         {tagCategory.tags.map((tag) => (
@@ -32,6 +41,8 @@ export default function TagCategoryDropdown({
             className="mr-3 mb-3"
             tagItem={tag}
             followedTags={followedTags}
+            onFollowTags={onFollowTags}
+            onUnfollowTags={onUnfollowTags}
             key={tag}
           />
         ))}

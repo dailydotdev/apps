@@ -20,7 +20,7 @@ export default function BlockedFilter(): ReactElement {
   const { feedSettings, isLoading } = useFeedSettings();
   useDisableFilterAlert(feedSettings);
   const { onUnblockTags, onFollowSource } = useTagAndSource({
-    origin: 'blocked-filter',
+    origin: 'blocked filter',
   });
   const { contextSelectedTag, setContextSelectedTag, onTagContextOptions } =
     useTagContext();

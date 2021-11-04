@@ -48,7 +48,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
 
   const { feedSettings } = useFeedSettings();
   const { onFollowSource, onUnfollowSource } = useTagAndSource({
-    origin: 'source-page',
+    origin: 'source page',
   });
 
   const unfollowingSource = useMemo(() => {

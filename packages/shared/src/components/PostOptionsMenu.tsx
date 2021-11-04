@@ -11,6 +11,7 @@ import FlagIcon from '../../icons/flag.svg';
 import RepostPostModal from './modals/ReportPostModal';
 import useTagAndSource from '../hooks/useTagAndSource';
 import AnalyticsContext from '../contexts/AnalyticsContext';
+import { postAnalyticsEvent } from '../lib/feed';
 
 const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
   ssr: false,
@@ -42,7 +43,10 @@ export default function PostOptionsMenu({
   useFeedSettings();
   const { trackEvent } = useContext(AnalyticsContext);
   const { reportPost, hidePost } = useReportPost();
-  const { onUnfollowSource, onBlockTags } = useTagAndSource({ origin: 'feed' });
+  const { onUnfollowSource, onBlockTags } = useTagAndSource({
+    origin: 'post context menu',
+    postId: post?.id,
+  });
   const [reportModal, setReportModal] =
     useState<{ index?: number; post?: Post }>();
 
@@ -66,6 +70,11 @@ export default function PostOptionsMenu({
       reason,
       comment,
     });
+    trackEvent(
+      postAnalyticsEvent('report post', reportedPost, {
+        extra: { origin: 'post context menu' },
+      }),
+    );
 
     if (blockSource) {
       await onUnfollowSource({ source: reportedPost?.source });
@@ -86,6 +95,11 @@ export default function PostOptionsMenu({
 
   const onHidePost = async (): Promise<void> => {
     const promise = hidePost(post.id);
+    trackEvent(
+      postAnalyticsEvent('hide post', post, {
+        extra: { origin: 'post context menu' },
+      }),
+    );
     await Promise.all([promise, onRemovePost?.(postIndex)]);
     if (!postIndex) {
       onMessage(
@@ -97,16 +111,26 @@ export default function PostOptionsMenu({
   };
 
   const onSharePost = async () => {
-    trackEvent({
-      event_name: 'share post',
-      target_type: 'post',
-      target_id: post.id,
-      extra: JSON.stringify({ origin: 'feed' }),
-    });
-    await navigator.clipboard.writeText(
-      `https://app.daily.dev/posts/${post.id}?utm_source=inapp&utm_medium=article&utm_campaign=share_article&utm_id=share`,
+    trackEvent(
+      postAnalyticsEvent('share post', post, {
+        extra: { origin: 'post context menu' },
+      }),
     );
-    onMessage('✅ Copied link to clipboard', postIndex);
+    if ('share' in navigator) {
+      try {
+        await navigator.share({
+          text: post?.title,
+          url: post?.commentsPermalink,
+        });
+      } catch (err) {
+        // Do nothing
+      }
+    } else {
+      await navigator.clipboard.writeText(
+        `${post.commentsPermalink}?utm_source=inapp&utm_medium=article&utm_campaign=share_article&utm_id=share`,
+      );
+      onMessage('✅ Copied link to clipboard', postIndex);
+    }
   };
 
   const postOptions: {

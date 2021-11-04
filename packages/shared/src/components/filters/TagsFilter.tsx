@@ -21,7 +21,9 @@ export default function TagsFilter(): ReactElement {
   useDisableFilterAlert(feedSettings);
   const { contextSelectedTag, setContextSelectedTag, onTagContextOptions } =
     useTagContext();
-  const { onBlockTags } = useTagAndSource({ origin: 'tags-filter-search' });
+  const { onFollowTags, onUnfollowTags, onBlockTags } = useTagAndSource({
+    origin: 'tags search',
+  });
 
   const { data: searchResults } = useQuery<SearchTagsData>(
     searchKey,
@@ -74,6 +76,8 @@ export default function TagsFilter(): ReactElement {
             key={tagCategory.id}
             tagCategory={tagCategory}
             followedTags={followedTags}
+            onFollowTags={onFollowTags}
+            onUnfollowTags={onUnfollowTags}
           />
         ))}
     </div>

@@ -13,7 +13,13 @@ interface SourceActionArguments {
   source: Source;
 }
 
-export default function useTagAndSource({ origin }: { origin?: string }): {
+export default function useTagAndSource({
+  origin,
+  postId,
+}: {
+  origin?: string;
+  postId?: string;
+}): {
   onFollowTags: (tags, category?) => void;
   onUnfollowTags: (tags, category?) => void;
   onBlockTags: (tags) => Promise<unknown>;
@@ -62,7 +68,7 @@ export default function useTagAndSource({ origin }: { origin?: string }): {
       event_name: 'block',
       target_type: 'tag',
       target_id: tags[0],
-      extra: JSON.stringify({ origin }),
+      extra: JSON.stringify({ origin, postId }),
     });
     await blockTag({ tags });
   };
@@ -79,7 +85,7 @@ export default function useTagAndSource({ origin }: { origin?: string }): {
 
   const onFollowSource = async ({ source }: SourceActionArguments) => {
     trackEvent({
-      event_name: 'unfollow',
+      event_name: 'follow',
       target_type: 'source',
       target_id: source?.id,
       extra: JSON.stringify({ origin }),
@@ -89,10 +95,10 @@ export default function useTagAndSource({ origin }: { origin?: string }): {
 
   const onUnfollowSource = async ({ source }: SourceActionArguments) => {
     trackEvent({
-      event_name: 'follow',
+      event_name: 'unfollow',
       target_type: 'source',
       target_id: source?.id,
-      extra: JSON.stringify({ origin }),
+      extra: JSON.stringify({ origin, postId }),
     });
     await unfollowSource({ source });
   };
