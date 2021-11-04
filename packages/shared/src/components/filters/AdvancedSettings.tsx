@@ -1,5 +1,6 @@
 import React, { ReactElement, useContext, useMemo } from 'react';
 import AuthContext from '../../contexts/AuthContext';
+import useDisableFilterAlert from '../../hooks/useDisableFilterAlert';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import useMutateFilters from '../../hooks/useMutateFilters';
 import { LoginModalMode } from '../../types/LoginModalMode';
@@ -9,6 +10,7 @@ const ADVANCED_SETTINGS_KEY = 'advancedSettings';
 
 function AdvancedSettingsFilter(): ReactElement {
   const { feedSettings, advancedSettings, isLoading } = useFeedSettings();
+  useDisableFilterAlert(feedSettings);
   const { user, showLogin } = useContext(AuthContext);
   const { updateAdvancedSettings } = useMutateFilters(user);
   const settings = useMemo(

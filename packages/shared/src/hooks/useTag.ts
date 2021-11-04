@@ -11,7 +11,7 @@ interface ActionArguments {
 export default function useTag(): {
   onFollow: (tags, category?) => void;
   onUnfollow: (tags, category?) => void;
-  onBlock: (tags) => void;
+  onBlock: (tags) => Promise<unknown>;
 } {
   const { user, showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);

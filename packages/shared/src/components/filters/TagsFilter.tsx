@@ -11,12 +11,14 @@ import TagItemList from './TagItemList';
 import TagOptionsMenu from './TagOptionsMenu';
 import useTagContext from '../../hooks/useTagContext';
 import useTag from '../../hooks/useTag';
+import useDisableFilterAlert from '../../hooks/useDisableFilterAlert';
 
 export default function TagsFilter(): ReactElement {
   const searchRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState<string>(null);
   const searchKey = getSearchTagsQueryKey(query);
   const { tagsCategories, feedSettings, isLoading } = useFeedSettings();
+  useDisableFilterAlert(feedSettings);
   const { contextSelectedTag, setContextSelectedTag, onTagContextOptions } =
     useTagContext();
   const { onBlock } = useTag();

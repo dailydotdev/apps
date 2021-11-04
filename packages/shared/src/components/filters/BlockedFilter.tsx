@@ -10,6 +10,7 @@ import TagOptionsMenu from './TagOptionsMenu';
 import UnblockModal from '../modals/UnblockModal';
 import { Tag } from '../../graphql/feedSettings';
 import useTagContext from '../../hooks/useTagContext';
+import useDisableFilterAlert from '../../hooks/useDisableFilterAlert';
 
 export default function BlockedFilter(): ReactElement {
   const { user } = useContext(AuthContext);
@@ -19,6 +20,7 @@ export default function BlockedFilter(): ReactElement {
     action?: () => unknown;
   }>();
   const { feedSettings, isLoading } = useFeedSettings();
+  useDisableFilterAlert(feedSettings);
   const { unblockTag, followSource } = useMutateFilters(user);
   const { contextSelectedTag, setContextSelectedTag, onTagContextOptions } =
     useTagContext();
