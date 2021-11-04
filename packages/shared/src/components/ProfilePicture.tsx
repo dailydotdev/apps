@@ -1,6 +1,8 @@
 import React, { ReactElement } from 'react';
+import classNames from 'classnames';
 import { LazyImage } from './LazyImage';
 import { LoggedUser } from '../lib/user';
+import { fallbackImages } from '../lib/config';
 
 export interface ProfilePictureProps {
   user: Pick<LoggedUser, 'image' | 'username'>;
@@ -34,7 +36,8 @@ export function ProfilePicture({
     <LazyImage
       imgSrc={user.image}
       imgAlt={`${user.username} profile picture`}
-      className={`${sizeClasses[size]} ${className}`}
+      className={classNames(sizeClasses[size], className)}
+      fallbackSrc={fallbackImages.avatar}
     />
   );
 }

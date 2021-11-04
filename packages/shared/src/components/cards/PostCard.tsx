@@ -19,7 +19,6 @@ import {
   featuredCommentsToButtons,
   getPostClassNames,
 } from './Card';
-import { SmallRoundedImage } from '../utilities';
 import FeatherIcon from '../../../icons/feather.svg';
 import FlagIcon from '../../../icons/flag.svg';
 import { Comment } from '../../graphql/comments';
@@ -32,6 +31,7 @@ import PostMetadata from './PostMetadata';
 import ActionButtons from './ActionButtons';
 import SourceButton from './SourceButton';
 import PostAuthor from './PostAuthor';
+import { ProfilePicture } from '../ProfilePicture';
 
 const FeaturedComment = dynamic(() => import('./FeaturedComment'));
 
@@ -143,9 +143,10 @@ export const PostCard = forwardRef(function PostCard(
                 selectedComment ? 'invisible' : styles.authorBox,
               )}
             >
-              <SmallRoundedImage
-                imgSrc={post.author.image}
-                imgAlt="Author's profile picture"
+              <ProfilePicture
+                className="rounded-full"
+                size="small"
+                user={post.author}
               />
               <span className="flex-1 mx-3 truncate">{post.author.name}</span>
               <FeatherIcon className="text-2xl text-theme-status-help" />
