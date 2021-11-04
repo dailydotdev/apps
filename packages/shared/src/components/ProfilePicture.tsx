@@ -5,7 +5,7 @@ import { LoggedUser } from '../lib/user';
 import { fallbackImages } from '../lib/config';
 
 export interface ProfilePictureProps {
-  user: Pick<LoggedUser, 'image' | 'username'>;
+  user: Pick<LoggedUser, 'image' | 'name'>;
   size?:
     | 'xsmall'
     | 'small'
@@ -35,7 +35,7 @@ export function ProfilePicture({
   return (
     <LazyImage
       imgSrc={user.image}
-      imgAlt={`${user.username} profile picture`}
+      imgAlt={`${user.name}'s profile`}
       className={classNames(sizeClasses[size], className)}
       fallbackSrc={fallbackImages.avatar}
     />
