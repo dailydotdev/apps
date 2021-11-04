@@ -791,6 +791,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
       )}
       {parentComment && (
         <NewCommentModal
+          author={user}
           isOpen={!!parentComment}
           onRequestClose={closeNewComment}
           {...parentComment}

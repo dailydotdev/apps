@@ -101,10 +101,6 @@ export const featuredCommentsToButtons = (
         className,
       )}
     >
-      <ProfilePicture
-        size="small"
-        className="rounded-full bg-theme-bg-tertiary"
-        user={comment.author}
-      />
+      <ProfilePicture size="small" user={comment.author} />
     </button>
   ));

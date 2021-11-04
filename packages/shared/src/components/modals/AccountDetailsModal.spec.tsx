@@ -52,7 +52,7 @@ const renderComponent = (user: Partial<LoggedUser> = {}): RenderResult => {
 
 it('should show profile image', () => {
   renderComponent();
-  const el = screen.getByAltText('idoshamun profile picture');
+  const el = screen.getByAltText(`idoshamun's profile`);
   expect(el).toHaveAttribute('data-src', defaultUser.image);
 });
 

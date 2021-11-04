@@ -78,7 +78,7 @@ const renderLayout = (
 
 it('should show author profile image', async () => {
   renderLayout();
-  const el = await screen.findByAltText(`idoshamun profile picture`);
+  const el = await screen.findByAltText(`idoshamun's profile`);
   expect(el).toHaveAttribute('data-src', 'https://daily.dev/ido.png');
 });
 
@@ -107,13 +107,13 @@ it('should show comment content', async () => {
   await screen.findByText('my comment');
 });
 
-it('should move timeline above profile picture when not first comment', async () => {
+it(`should move timeline above's profile when not first comment`, async () => {
   renderLayout();
   const el = await screen.findByTestId('timeline');
   expect(el).toHaveClass('-top-4');
 });
 
-it('should move timeline to profile picture when first comment', async () => {
+it(`should move timeline to's profile when first comment`, async () => {
   renderLayout({ firstComment: true });
   const el = await screen.findByTestId('timeline');
   await waitFor(() => expect(el).toHaveClass('top-0'));
