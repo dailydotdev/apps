@@ -30,7 +30,7 @@ export interface PublicProfile {
 export interface UserProfile {
   name: string;
   email: string;
-  username?: string;
+  username: string;
   company?: string;
   title?: string;
   twitter?: string;
