@@ -75,9 +75,6 @@ export default function useTagAndSource({
       target_id: tags[0],
       extra: JSON.stringify({ origin, postId }),
     });
-    if (alerts?.filter) {
-      disableFilterAlert();
-    }
     await blockTag({ tags });
   };
 
@@ -98,9 +95,6 @@ export default function useTagAndSource({
       target_id: source?.id,
       extra: JSON.stringify({ origin }),
     });
-    if (alerts?.filter) {
-      disableFilterAlert();
-    }
     await followSource({ source });
   };
 

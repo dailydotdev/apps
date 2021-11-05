@@ -26,6 +26,10 @@ import {
 } from '../../graphql/feedSettings';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import { getFeedSettingsQueryKey } from '../../hooks/useMutateFilters';
+import AlertContext, {
+  AlertContextData,
+  ALERT_DEFAULTS,
+} from '../../contexts/AlertContext';
 
 const showLogin = jest.fn();
 
@@ -62,27 +66,30 @@ let client: QueryClient;
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createAllTagCategoriesMock()],
   user: LoggedUser = defaultUser,
+  alertsData: AlertContextData = { alerts: ALERT_DEFAULTS },
 ): RenderResult => {
   client = new QueryClient();
   mocks.forEach(mockGraphQL);
   return render(
     <QueryClientProvider client={client}>
-      <AuthContext.Provider
-        value={{
-          user,
-          shouldShowLogin: false,
-          showLogin,
-          logout: jest.fn(),
-          updateUser: jest.fn(),
-          tokenRefreshed: true,
-          getRedirectUri: jest.fn(),
-          trackingId: '',
-          loginState: null,
-          closeLogin: jest.fn(),
-        }}
-      >
-        <TagsFilter />
-      </AuthContext.Provider>
+      <AlertContext.Provider value={alertsData}>
+        <AuthContext.Provider
+          value={{
+            user,
+            shouldShowLogin: false,
+            showLogin,
+            logout: jest.fn(),
+            updateUser: jest.fn(),
+            tokenRefreshed: true,
+            getRedirectUri: jest.fn(),
+            trackingId: '',
+            loginState: null,
+            closeLogin: jest.fn(),
+          }}
+        >
+          <TagsFilter />
+        </AuthContext.Provider>
+      </AlertContext.Provider>
     </QueryClientProvider>,
   );
 };
@@ -141,24 +148,23 @@ it('should show login when not logged in', async () => {
   expect(showLogin).toBeCalledTimes(1);
 });
 
-it('should follow a tag on click', async () => {
-  let mutationCalled = false;
+it('should follow a tag on click and remove filter alert if enabled', async () => {
+  const disableAlertFilterMock = jest.fn();
+  const addFilterMutation = jest.fn();
 
-  const { baseElement } = renderComponent();
+  const { baseElement } = renderComponent(
+    [createAllTagCategoriesMock()],
+    defaultUser,
+    { alerts: { filter: true }, disableFilterAlert: disableAlertFilterMock },
+  );
 
-  await waitFor(async () => {
-    const data = await client.getQueryData(
-      getFeedSettingsQueryKey(defaultUser),
-    );
-    expect(data).toBeTruthy();
-  });
   mockGraphQL({
     request: {
       query: ADD_FILTERS_TO_FEED_MUTATION,
       variables: { filters: { includeTags: ['webdev'] } },
     },
     result: () => {
-      mutationCalled = true;
+      addFilterMutation();
       return { data: { feedSettings: { id: defaultUser.id } } };
     },
   });
@@ -178,7 +184,8 @@ it('should follow a tag on click', async () => {
   const button = await screen.findByText('#webdev');
   button.click();
 
-  await waitFor(() => expect(mutationCalled).toBeTruthy());
+  await waitFor(() => expect(addFilterMutation).toBeCalled());
+  await waitFor(() => expect(disableAlertFilterMock).toBeCalled());
 });
 
 it('should unfollow a tag on click', async () => {

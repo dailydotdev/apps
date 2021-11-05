@@ -25,6 +25,10 @@ import {
 import AdvancedSettingsPage from './AdvancedSettings';
 import { getFeedSettingsQueryKey } from '../../hooks/useMutateFilters';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
+import AlertContext, {
+  AlertContextData,
+  ALERT_DEFAULTS,
+} from '../../contexts/AlertContext';
 
 const showLogin = jest.fn();
 let loggedUser: LoggedUser;
@@ -64,27 +68,30 @@ let client: QueryClient;
 
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createAdvancedSettingsAndFiltersMock()],
+  alertsData: AlertContextData = { alerts: ALERT_DEFAULTS },
 ): RenderResult => {
   client = new QueryClient();
   mocks.forEach(mockGraphQL);
   return render(
     <QueryClientProvider client={client}>
-      <AuthContext.Provider
-        value={{
-          user: loggedUser,
-          shouldShowLogin: false,
-          showLogin,
-          logout: jest.fn(),
-          updateUser: jest.fn(),
-          tokenRefreshed: true,
-          getRedirectUri: jest.fn(),
-          trackingId: '',
-          loginState: null,
-          closeLogin: jest.fn(),
-        }}
-      >
-        <AdvancedSettingsPage />
-      </AuthContext.Provider>
+      <AlertContext.Provider value={alertsData}>
+        <AuthContext.Provider
+          value={{
+            user: loggedUser,
+            shouldShowLogin: false,
+            showLogin,
+            logout: jest.fn(),
+            updateUser: jest.fn(),
+            tokenRefreshed: true,
+            getRedirectUri: jest.fn(),
+            trackingId: '',
+            loginState: null,
+            closeLogin: jest.fn(),
+          }}
+        >
+          <AdvancedSettingsPage />
+        </AuthContext.Provider>
+      </AlertContext.Provider>
     </QueryClientProvider>,
   );
 };
@@ -116,9 +123,16 @@ it('should display advanced settings title and description including the appropr
 
 it('should mutate update feed advanced settings', async () => {
   loggedUser = defaultUser;
-  let mutationCalled = false;
+  const disableAlertFilterMock = jest.fn();
+  const advancedSettingsMutation = jest.fn();
 
-  const { baseElement } = renderComponent();
+  const { baseElement } = renderComponent(
+    [createAdvancedSettingsAndFiltersMock()],
+    {
+      alerts: { filter: true },
+      disableFilterAlert: disableAlertFilterMock,
+    },
+  );
 
   await waitForNock();
 
@@ -137,7 +151,7 @@ it('should mutate update feed advanced settings', async () => {
       variables: { settings: params },
     },
     result: () => {
-      mutationCalled = true;
+      advancedSettingsMutation();
       return { data: { advancedSettings: params } };
     },
   });
@@ -146,6 +160,7 @@ it('should mutate update feed advanced settings', async () => {
   fireEvent.click(checkbox);
 
   await waitFor(() => expect(baseElement).not.toHaveAttribute('aria-busy'));
-  await waitFor(() => expect(mutationCalled).toBeTruthy());
+  await waitFor(() => expect(advancedSettingsMutation).toBeCalled());
+  await waitFor(() => expect(disableAlertFilterMock).toBeCalled());
   await waitFor(() => expect(checkbox).toBeChecked());
 });
