@@ -76,11 +76,11 @@ export default function PostOptionsMenu({
       }),
     );
 
+    await showMessageAndRemovePost('🚨 Thanks for reporting!', reportPostIndex);
+
     if (blockSource) {
       await onUnfollowSource({ source: reportedPost?.source });
     }
-
-    showMessageAndRemovePost('🚨 Thanks for reporting!', reportPostIndex);
   };
 
   const onBlockSource = async (): Promise<void> => {
