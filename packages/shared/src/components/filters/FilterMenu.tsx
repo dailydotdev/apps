@@ -25,7 +25,7 @@ export default function FilterMenu(): ReactElement {
     },
     {
       icon: <BlockIcon className="mr-3 text-xl" />,
-      title: 'Blocked',
+      title: 'Blocked items',
       component: () => dynamic(() => import('./BlockedFilter')),
     },
 

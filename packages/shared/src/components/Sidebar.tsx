@@ -5,10 +5,14 @@ import { getTooltipProps } from '../lib/tooltip';
 import OnboardingContext from '../contexts/OnboardingContext';
 import FilterMenu from './filters/FilterMenu';
 import FilterRedDot from './filters/FilterRedDot';
+import useFeedSettings from '../hooks/useFeedSettings';
+import AlertContext from '../contexts/AlertContext';
 
 const asideWidth = sizeN(89);
 
 export default function Sidebar(): ReactElement {
+  const { alerts, disableFilterAlert } = useContext(AlertContext);
+  const { feedSettings } = useFeedSettings();
   const [opened, setOpened] = useState(false);
   const { onboardingStep, incrementOnboardingStep } =
     useContext(OnboardingContext);
@@ -21,6 +25,15 @@ export default function Sidebar(): ReactElement {
       setOpened(true);
       if (hightlightTrigger) {
         incrementOnboardingStep();
+      }
+      if (
+        alerts?.filter &&
+        (feedSettings?.includeTags?.length ||
+          feedSettings?.blockedTags?.length ||
+          feedSettings?.excludeSources?.length ||
+          feedSettings?.advancedSettings?.length)
+      ) {
+        disableFilterAlert();
       }
     }
   };

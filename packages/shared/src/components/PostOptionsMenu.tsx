@@ -1,8 +1,6 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import { Item } from '@dailydotdev/react-contexify';
 import dynamic from 'next/dynamic';
-import useMutateFilters from '../hooks/useMutateFilters';
-import AuthContext from '../contexts/AuthContext';
 import useFeedSettings from '../hooks/useFeedSettings';
 import useReportPost from '../hooks/useReportPost';
 import { Post } from '../graphql/posts';
@@ -11,6 +9,9 @@ import ShareIcon from '../../icons/share.svg';
 import BlockIcon from '../../icons/block.svg';
 import FlagIcon from '../../icons/flag.svg';
 import RepostPostModal from './modals/ReportPostModal';
+import useTagAndSource from '../hooks/useTagAndSource';
+import AnalyticsContext from '../contexts/AnalyticsContext';
+import { postAnalyticsEvent } from '../lib/feed';
 
 const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
   ssr: false,
@@ -40,9 +41,12 @@ export default function PostOptionsMenu({
   onRemovePost,
 }: PostOptionsMenuProps): ReactElement {
   useFeedSettings();
-  const { user } = useContext(AuthContext);
+  const { trackEvent } = useContext(AnalyticsContext);
   const { reportPost, hidePost } = useReportPost();
-  const { unfollowSource, blockTag } = useMutateFilters(user);
+  const { onUnfollowSource, onBlockTags } = useTagAndSource({
+    origin: 'post context menu',
+    postId: post?.id,
+  });
   const [reportModal, setReportModal] =
     useState<{ index?: number; post?: Post }>();
 
@@ -66,37 +70,67 @@ export default function PostOptionsMenu({
       reason,
       comment,
     });
+    trackEvent(
+      postAnalyticsEvent('report post', reportedPost, {
+        extra: { origin: 'post context menu' },
+      }),
+    );
 
     if (blockSource) {
-      await unfollowSource({ source: reportedPost?.source });
+      await onUnfollowSource({ source: reportedPost?.source });
     }
 
     showMessageAndRemovePost('🚨 Thanks for reporting!', reportPostIndex);
   };
 
   const onBlockSource = async (): Promise<void> => {
-    await unfollowSource({ source: post?.source });
+    await onUnfollowSource({ source: post?.source });
     showMessageAndRemovePost(`🚫 ${post?.source?.name} blocked`, postIndex);
   };
 
   const onBlockTag = async (tag: string): Promise<void> => {
-    await blockTag({ tags: [tag] });
+    await onBlockTags({ tags: [tag] });
     showMessageAndRemovePost(`⛔️ #${tag} blocked`, postIndex);
   };
 
   const onHidePost = async (): Promise<void> => {
     const promise = hidePost(post.id);
-    await Promise.all([promise, onRemovePost?.(postIndex)]);
-    onMessage(
-      '🙈 This article won’t show up on your feed anymore',
-      postIndex,
-      0,
+    trackEvent(
+      postAnalyticsEvent('hide post', post, {
+        extra: { origin: 'post context menu' },
+      }),
     );
+    await Promise.all([promise, onRemovePost?.(postIndex)]);
+    if (!postIndex) {
+      onMessage(
+        '🙈 This article won’t show up on your feed anymore',
+        postIndex,
+        0,
+      );
+    }
   };
 
   const onSharePost = async () => {
-    await navigator.clipboard.writeText(post.permalink);
-    onMessage('✅ Copied link to clipboard', postIndex);
+    trackEvent(
+      postAnalyticsEvent('share post', post, {
+        extra: { origin: 'post context menu' },
+      }),
+    );
+    if ('share' in navigator) {
+      try {
+        await navigator.share({
+          text: post?.title,
+          url: post?.commentsPermalink,
+        });
+      } catch (err) {
+        // Do nothing
+      }
+    } else {
+      await navigator.clipboard.writeText(
+        `${post.commentsPermalink}?utm_source=inapp&utm_medium=article&utm_campaign=share_article&utm_id=share`,
+      );
+      onMessage('✅ Copied link to clipboard', postIndex);
+    }
   };
 
   const postOptions: {

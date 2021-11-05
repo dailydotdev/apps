@@ -76,6 +76,7 @@ export const FEED_SETTINGS_QUERY = gql`
       excludeSources {
         id
         name
+        image
       }
       advancedSettings {
         id

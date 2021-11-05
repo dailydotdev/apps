@@ -1,7 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import PlusIcon from '../../../icons/plus.svg';
-import useTag from '../../hooks/useTag';
 import { Button, ButtonProps } from '../buttons/Button';
 
 const GenericTagButton = ({
@@ -73,23 +72,23 @@ const FollowTagButton = ({
 export interface TagButtonProps {
   tagItem: string;
   followedTags?: Array<string>;
+  onFollowTags?: (tags, category?) => void;
+  onUnfollowTags?: (tags, category?) => void;
 }
 
 export default function TagButton<Tag extends keyof JSX.IntrinsicElements>({
   tagItem,
   followedTags,
+  onFollowTags,
+  onUnfollowTags,
   ...props
 }: ButtonProps<Tag> & TagButtonProps): ReactElement {
-  const { onFollow, onUnfollow } = useTag();
-
   if (followedTags?.includes(tagItem)) {
     return (
       <UnfollowTagButton
         {...props}
         tag={tagItem}
-        action={
-          followedTags?.length ? () => onUnfollow({ tags: [tagItem] }) : null
-        }
+        action={followedTags ? () => onUnfollowTags({ tags: [tagItem] }) : null}
       />
     );
   }
@@ -98,7 +97,7 @@ export default function TagButton<Tag extends keyof JSX.IntrinsicElements>({
     <FollowTagButton
       {...props}
       tag={tagItem}
-      action={followedTags?.length ? () => onFollow({ tags: [tagItem] }) : null}
+      action={followedTags ? () => onFollowTags({ tags: [tagItem] }) : null}
     />
   );
 }

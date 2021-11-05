@@ -1,7 +1,7 @@
 import { IFlags } from 'flagsmith';
 import { AnonymousUser, LoggedUser } from './user';
 import { apiUrl } from './config';
-import { Alerts } from '../contexts/AlertContext';
+import { Alerts } from '../graphql/alerts';
 
 export type AccessToken = { token: string; expiresIn: string };
 export type Visit = { ampStorage?: string; sessionId: string; visitId: string };

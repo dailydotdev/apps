@@ -1,4 +1,6 @@
 import React, { ReactElement, useContext, useMemo } from 'react';
+import AlertContext from '../../contexts/AlertContext';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
 import AuthContext from '../../contexts/AuthContext';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import useMutateFilters from '../../hooks/useMutateFilters';
@@ -8,9 +10,11 @@ import { FilterSwitch } from './FilterSwitch';
 const ADVANCED_SETTINGS_KEY = 'advancedSettings';
 
 function AdvancedSettingsFilter(): ReactElement {
+  const { trackEvent } = useContext(AnalyticsContext);
   const { feedSettings, advancedSettings, isLoading } = useFeedSettings();
   const { user, showLogin } = useContext(AuthContext);
   const { updateAdvancedSettings } = useMutateFilters(user);
+  const { alerts, disableFilterAlert } = useContext(AlertContext);
   const settings = useMemo(
     () =>
       feedSettings?.advancedSettings?.reduce((settingsMap, currentSettings) => {
@@ -21,14 +25,27 @@ function AdvancedSettingsFilter(): ReactElement {
     [feedSettings?.advancedSettings],
   );
 
-  const onToggle = async (id: number) => {
+  const onToggle = (id: number) => {
     if (!user) {
       showLogin('advanced settings', LoginModalMode.ContentQuality);
       return;
     }
 
-    await updateAdvancedSettings({
-      advancedSettings: [{ id, enabled: !settings[id] }],
+    if (alerts?.filter) {
+      disableFilterAlert();
+    }
+
+    const enabled = !settings[id];
+
+    trackEvent({
+      event_name: `toggle ${enabled ? 'on' : 'off'}`,
+      target_type: 'advanced setting',
+      target_id: id.toString(),
+      extra: JSON.stringify({ origin: 'advanced settings filter' }),
+    });
+
+    updateAdvancedSettings({
+      advancedSettings: [{ id, enabled }],
     });
   };
 

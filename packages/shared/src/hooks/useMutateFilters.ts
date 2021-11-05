@@ -115,9 +115,7 @@ const onMutateSourcesSettings = async (
   user: LoggedUser,
 ): Promise<() => Promise<void>> => {
   const queryKey = getFeedSettingsQueryKey(user);
-  const feedSettings = await queryClient.getQueryData<FeedSettingsData>(
-    queryKey,
-  );
+  const feedSettings = queryClient.getQueryData<FeedSettingsData>(queryKey);
   const newData = manipulate(feedSettings.feedSettings, source);
   const keys = [queryKey, getFeedSettingsQueryKey(user)];
   await updateQueryData(queryClient, newData, keys);
@@ -144,9 +142,12 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
         onMutateAdvancedSettings(
           advancedSettings,
           queryClient,
-          (feedSettings, feedAdvancedSettings) => {
+          (feedSettings, [feedAdvancedSettings]) => {
             const newData = cloneDeep(feedSettings);
-            newData.advancedSettings = feedAdvancedSettings;
+            const index = newData.advancedSettings.findIndex(
+              (settings) => settings.id === feedAdvancedSettings.id,
+            );
+            newData.advancedSettings[index] = feedAdvancedSettings;
             return newData;
           },
           user,
