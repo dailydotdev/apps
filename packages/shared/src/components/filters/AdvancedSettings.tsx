@@ -36,7 +36,6 @@ function AdvancedSettingsFilter(): ReactElement {
     }
 
     const enabled = !settings[id];
-    const { title } = advancedSettings.find((adv) => adv.id === id);
 
     trackEvent({
       event_name: `toggle ${enabled ? 'on' : 'off'}`,
