@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import React, { ReactElement, useContext, useState } from 'react';
 import classNames from 'classnames';
 import sizeN from '../../macros/sizeN.macro';
 import { getTooltipProps } from '../lib/tooltip';
@@ -6,12 +6,12 @@ import OnboardingContext from '../contexts/OnboardingContext';
 import FilterMenu from './filters/FilterMenu';
 import FilterRedDot from './filters/FilterRedDot';
 import useFeedSettings from '../hooks/useFeedSettings';
-import useAlertContext from '../hooks/useAlertContext';
+import AlertContext from '../contexts/AlertContext';
 
 const asideWidth = sizeN(89);
 
 export default function Sidebar(): ReactElement {
-  const { alerts, disableFilterAlert } = useAlertContext();
+  const { alerts, disableFilterAlert } = useContext(AlertContext);
   const { feedSettings } = useFeedSettings();
   const [opened, setOpened] = useState(false);
   const { onboardingStep, incrementOnboardingStep } =
@@ -26,20 +26,17 @@ export default function Sidebar(): ReactElement {
       if (hightlightTrigger) {
         incrementOnboardingStep();
       }
+      if (
+        alerts?.filter &&
+        (feedSettings?.includeTags?.length ||
+          feedSettings?.blockedTags?.length ||
+          feedSettings?.excludeSources?.length ||
+          feedSettings?.advancedSettings?.length)
+      ) {
+        disableFilterAlert();
+      }
     }
   };
-
-  useEffect(() => {
-    if (
-      alerts?.filter &&
-      (feedSettings?.includeTags?.length ||
-        feedSettings?.blockedTags?.length ||
-        feedSettings?.excludeSources?.length ||
-        feedSettings?.advancedSettings?.length)
-    ) {
-      disableFilterAlert();
-    }
-  }, [alerts?.filter, feedSettings]);
 
   return (
     <div

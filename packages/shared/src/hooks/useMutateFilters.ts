@@ -12,7 +12,6 @@ import {
   UPDATE_ADVANCED_SETTINGS_FILTERS_MUTATION,
 } from '../graphql/feedSettings';
 import { Source } from '../graphql/sources';
-import useAlertContext from './useAlertContext';
 
 export const getFeedSettingsQueryKey = (user?: LoggedUser): string[] => [
   user?.id,
@@ -127,7 +126,6 @@ const onMutateSourcesSettings = async (
 
 export default function useMutateFilters(user?: LoggedUser): ReturnType {
   const queryClient = useQueryClient();
-  const { disableFilterAlert } = useAlertContext();
 
   const { mutateAsync: updateAdvancedSettings } = useMutation<
     unknown,
@@ -140,10 +138,8 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
         settings,
       }),
     {
-      onMutate: ({ advancedSettings }) => {
-        disableFilterAlert();
-
-        return onMutateAdvancedSettings(
+      onMutate: ({ advancedSettings }) =>
+        onMutateAdvancedSettings(
           advancedSettings,
           queryClient,
           (feedSettings, [feedAdvancedSettings]) => {
@@ -155,8 +151,7 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
             return newData;
           },
           user,
-        );
-      },
+        ),
       onError: (err, _, rollback) => rollback(),
     },
   );
@@ -174,10 +169,8 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
         },
       }),
     {
-      onMutate: ({ tags }) => {
-        disableFilterAlert();
-
-        return onMutateTagsSettings(
+      onMutate: ({ tags }) =>
+        onMutateTagsSettings(
           tags,
           queryClient,
           (feedSettings, manipulateTags) => {
@@ -186,8 +179,7 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
             return newData;
           },
           user,
-        );
-      },
+        ),
       onError: (err, _, rollback) => rollback(),
     },
   );
@@ -205,10 +197,8 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
         },
       }),
     {
-      onMutate: ({ tags }) => {
-        disableFilterAlert();
-
-        return onMutateTagsSettings(
+      onMutate: ({ tags }) =>
+        onMutateTagsSettings(
           tags,
           queryClient,
           (feedSettings, manipulateTags) => {
@@ -220,8 +210,7 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
             return newData;
           },
           user,
-        );
-      },
+        ),
       onError: (err, _, rollback) => rollback(),
     },
   );
@@ -332,10 +321,8 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
         },
       }),
     {
-      onMutate: ({ source }) => {
-        disableFilterAlert();
-
-        return onMutateSourcesSettings(
+      onMutate: ({ source }) =>
+        onMutateSourcesSettings(
           source,
           queryClient,
           (feedSettings, manipulateSource) => {
@@ -344,8 +331,7 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
             return newData;
           },
           user,
-        );
-      },
+        ),
       onError: (err, _, rollback) => rollback(),
     },
   );

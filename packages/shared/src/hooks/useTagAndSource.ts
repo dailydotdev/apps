@@ -3,6 +3,7 @@ import AuthContext from '../contexts/AuthContext';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import useMutateFilters from './useMutateFilters';
 import { Source } from '../graphql/sources';
+import AlertContext from '../contexts/AlertContext';
 
 interface TagActionArguments {
   tags: Array<string>;
@@ -27,6 +28,7 @@ export default function useTagAndSource({
   onFollowSource: (source) => Promise<unknown>;
   onUnfollowSource: (source) => Promise<unknown>;
 } {
+  const { alerts, disableFilterAlert } = useContext(AlertContext);
   const { user, showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const {
@@ -50,6 +52,9 @@ export default function useTagAndSource({
       target_id: category || tags[0],
       extra: JSON.stringify({ origin }),
     });
+    if (alerts?.filter) {
+      disableFilterAlert();
+    }
     await followTags({ tags });
   };
 
@@ -70,6 +75,9 @@ export default function useTagAndSource({
       target_id: tags[0],
       extra: JSON.stringify({ origin, postId }),
     });
+    if (alerts?.filter) {
+      disableFilterAlert();
+    }
     await blockTag({ tags });
   };
 
@@ -90,6 +98,9 @@ export default function useTagAndSource({
       target_id: source?.id,
       extra: JSON.stringify({ origin }),
     });
+    if (alerts?.filter) {
+      disableFilterAlert();
+    }
     await followSource({ source });
   };
 

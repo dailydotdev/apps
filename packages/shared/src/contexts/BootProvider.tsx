@@ -12,8 +12,7 @@ import { FeaturesContextProvider } from './FeaturesContext';
 import { AuthContextProvider } from './AuthContext';
 import { AnonymousUser, LoggedUser } from '../lib/user';
 import usePersistentState from '../hooks/usePersistentState';
-import AlertContext from './AlertContext';
-import useAlertContext from '../hooks/useAlertContext';
+import { AlertContextProvider } from './AlertContext';
 import { generateQueryKey } from '../lib/query';
 
 function useRefreshToken(
@@ -91,12 +90,11 @@ export const BootDataProvider = ({
 
   useRefreshToken(bootData?.accessToken, refetch);
   const { user, updateUser, loadedFromCache } = useCacheUser(bootData?.user);
-  const alertContext = useAlertContext(bootData?.alerts);
   const updatedAtActive = user ? dataUpdatedAt : null;
 
   return (
     <FeaturesContextProvider flags={bootData?.flags}>
-      <AlertContext.Provider value={alertContext}>
+      <AlertContextProvider alerts={bootData?.alerts}>
         <AuthContextProvider
           user={user}
           updateUser={updateUser}
@@ -108,7 +106,7 @@ export const BootDataProvider = ({
         >
           {children}
         </AuthContextProvider>
-      </AlertContext.Provider>
+      </AlertContextProvider>
     </FeaturesContextProvider>
   );
 };
