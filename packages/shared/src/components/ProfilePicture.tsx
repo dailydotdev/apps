@@ -1,11 +1,11 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { LazyImage } from './LazyImage';
-import { LoggedUser } from '../lib/user';
+import { PublicProfile } from '../lib/user';
 import { fallbackImages } from '../lib/config';
 
 export interface ProfilePictureProps {
-  user: Pick<LoggedUser, 'image' | 'username'>;
+  user: Pick<PublicProfile, 'image' | 'username'>;
   size?:
     | 'xsmall'
     | 'small'

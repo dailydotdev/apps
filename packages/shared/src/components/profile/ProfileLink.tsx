@@ -2,10 +2,10 @@ import React, { HTMLAttributes, ReactElement } from 'react';
 import Link from 'next/link';
 import classNames from 'classnames';
 import { getTooltipProps } from '../../lib/tooltip';
-import { UserProfile } from '../../lib/user';
+import { PublicProfile } from '../../lib/user';
 
 export interface ProfileLinkProps extends HTMLAttributes<HTMLAnchorElement> {
-  user: Omit<UserProfile, 'email'>;
+  user: Pick<PublicProfile, 'image' | 'permalink' | 'username' | 'name'>;
   disableTooltip?: boolean;
 }
 

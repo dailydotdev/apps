@@ -24,13 +24,13 @@ export interface PublicProfile {
   premium: boolean;
   image: string;
   reputation: number;
+  permalink: string;
 }
 
 export interface UserProfile {
   name: string;
   email: string;
-  image: string;
-  username: string;
+  username?: string;
   company?: string;
   title?: string;
   twitter?: string;
@@ -38,7 +38,6 @@ export interface UserProfile {
   hashnode?: string;
   portfolio?: string;
   bio?: string;
-  permalink: string;
   acceptedMarketing?: boolean;
 }
 
@@ -112,8 +111,6 @@ export function loggedUserToProfile(user: LoggedUser): UserProfile {
     portfolio: user.github,
     bio: user.bio,
     acceptedMarketing: user.acceptedMarketing,
-    permalink: `https://app.daily.dev/${user.username}`,
-    image: user.image,
   };
 }
 
