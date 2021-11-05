@@ -96,13 +96,13 @@ it('should show formatted date of publication', async () => {
   await screen.findByText('Feb 10, 2017');
 });
 
-it(`should show author's profile`, async () => {
+it('should show author profile picture', async () => {
   renderComponent();
   const el = await screen.findByAltText(`nimrodkramer's profile`);
   expect(el).toHaveAttribute('data-src', 'https://daily.dev/nimrod.png');
 });
 
-it(`should show user's profile`, async () => {
+it('should show user profile picture', async () => {
   renderComponent();
   const el = await screen.findByAltText(`idoshamun's profile`);
   expect(el).toHaveAttribute('data-src', 'https://daily.dev/ido.png');
