@@ -94,19 +94,19 @@ export const BootDataProvider = ({
 
   return (
     <FeaturesContextProvider flags={bootData?.flags}>
-      <AlertContextProvider alerts={bootData?.alerts}>
-        <AuthContextProvider
-          user={user}
-          updateUser={updateUser}
-          tokenRefreshed={updatedAtActive > 0}
-          getRedirectUri={getRedirectUri}
-          loadingUser={!dataUpdatedAt || !user}
-          loadedUserFromCache={loadedFromCache}
-          visit={bootData?.visit}
-        >
+      <AuthContextProvider
+        user={user}
+        updateUser={updateUser}
+        tokenRefreshed={updatedAtActive > 0}
+        getRedirectUri={getRedirectUri}
+        loadingUser={!dataUpdatedAt || !user}
+        loadedUserFromCache={loadedFromCache}
+        visit={bootData?.visit}
+      >
+        <AlertContextProvider alerts={bootData?.alerts}>
           {children}
-        </AuthContextProvider>
-      </AlertContextProvider>
+        </AlertContextProvider>
+      </AuthContextProvider>
     </FeaturesContextProvider>
   );
 };

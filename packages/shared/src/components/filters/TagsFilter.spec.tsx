@@ -150,7 +150,7 @@ it('should show login when not logged in', async () => {
 
 it('should follow a tag on click and remove filter alert if enabled', async () => {
   const disableAlertFilterMock = jest.fn();
-  const addFilterMutation = jest.fn();
+  let addFilterMutationCalled = false;
 
   const { baseElement } = renderComponent(
     [createAllTagCategoriesMock()],
@@ -164,7 +164,7 @@ it('should follow a tag on click and remove filter alert if enabled', async () =
       variables: { filters: { includeTags: ['webdev'] } },
     },
     result: () => {
-      addFilterMutation();
+      addFilterMutationCalled = true;
       return { data: { feedSettings: { id: defaultUser.id } } };
     },
   });
@@ -184,7 +184,7 @@ it('should follow a tag on click and remove filter alert if enabled', async () =
   const button = await screen.findByText('#webdev');
   button.click();
 
-  await waitFor(() => expect(addFilterMutation).toBeCalled());
+  await waitFor(() => expect(addFilterMutationCalled).toBeTruthy());
   await waitFor(() => expect(disableAlertFilterMock).toBeCalled());
 });
 
