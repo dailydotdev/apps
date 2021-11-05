@@ -2,15 +2,10 @@ import React, { HTMLAttributes, ReactElement } from 'react';
 import Link from 'next/link';
 import classNames from 'classnames';
 import { getTooltipProps } from '../../lib/tooltip';
-
-interface User {
-  name: string;
-  image: string;
-  permalink: string;
-}
+import { UserProfile } from '../../lib/user';
 
 export interface ProfileLinkProps extends HTMLAttributes<HTMLAnchorElement> {
-  user: User;
+  user: UserProfile;
   disableTooltip?: boolean;
 }
 

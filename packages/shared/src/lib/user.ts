@@ -29,7 +29,8 @@ export interface PublicProfile {
 export interface UserProfile {
   name: string;
   email: string;
-  username?: string;
+  image: string;
+  username: string;
   company?: string;
   title?: string;
   twitter?: string;
@@ -37,6 +38,7 @@ export interface UserProfile {
   hashnode?: string;
   portfolio?: string;
   bio?: string;
+  permalink: string;
   acceptedMarketing?: boolean;
 }
 
@@ -46,15 +48,12 @@ export interface UpvoterProfile
 }
 
 export interface LoggedUser extends UserProfile, AnonymousUser {
-  image: string;
   infoConfirmed?: boolean;
   premium?: boolean;
   providers: string[];
   roles?: Roles[];
   createdAt: string;
   reputation?: number;
-  permalink: string;
-  username: string;
 }
 
 interface BaseError {
@@ -113,6 +112,8 @@ export function loggedUserToProfile(user: LoggedUser): UserProfile {
     portfolio: user.github,
     bio: user.bio,
     acceptedMarketing: user.acceptedMarketing,
+    permalink: `https://app.daily.dev/${user.username}`,
+    image: user.image,
   };
 }
 
