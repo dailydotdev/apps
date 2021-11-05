@@ -5,7 +5,7 @@ import { getTooltipProps } from '../../lib/tooltip';
 import { UserProfile } from '../../lib/user';
 
 export interface ProfileLinkProps extends HTMLAttributes<HTMLAnchorElement> {
-  user: UserProfile;
+  user: Omit<UserProfile, 'email'>;
   disableTooltip?: boolean;
 }
 
