@@ -47,12 +47,14 @@ export interface UpvoterProfile
 }
 
 export interface LoggedUser extends UserProfile, AnonymousUser {
+  image: string;
   infoConfirmed?: boolean;
   premium?: boolean;
   providers: string[];
   roles?: Roles[];
   createdAt: string;
   reputation?: number;
+  permalink: string;
 }
 
 interface BaseError {
