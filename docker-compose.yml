@@ -24,7 +24,13 @@ services:
       - POSTGRES_PASSWORD=12345
 
   daily-mysql:
-    image: gcr.io/daily-ops/mysql
+    image: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: gateway
+      MYSQL_PASSWORD: root
+    volumes:
+      - db:/var/lib/mysql/data
     ports:
       - "3306:3306"
 
@@ -39,7 +45,7 @@ services:
       - "4000:4000"
     environment:
       - MYSQL_USER=root
-      - MYSQL_PASSWORD=12345
+      - MYSQL_PASSWORD=root
       - MYSQL_DATABASE=gateway
       - MYSQL_HOST=daily-mysql
       - COOKIES_DOMAIN=localhost
@@ -65,7 +71,8 @@ services:
       - "daily-redis"
     volumes:
       - ./wait-for.sh:/opt/app/wait-for.sh
-    command: ["./wait-for.sh", "daily-postgres:5432", "--", "npm", "run", "start"]
+    command:
+      ["./wait-for.sh", "daily-postgres:5432", "--", "npm", "run", "start"]
     ports:
       - "5000:5000"
     environment:
