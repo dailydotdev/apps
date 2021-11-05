@@ -9,16 +9,33 @@ export default function TagItemRow({
   tooltip,
   tag,
   followedTags,
+  blockedTags,
+  onFollowTags,
+  onUnfollowTags,
+  onUnblockTags,
   onClick,
 }: {
   tooltip: string;
   tag: string;
   followedTags?: Array<string>;
+  blockedTags?: Array<string>;
+  onFollowTags?: (tags, category?) => void;
+  onUnfollowTags?: (tags, category?) => void;
+  onUnblockTags?: (tags) => void;
   onClick?: (event: React.MouseEvent, tag: string) => unknown;
 } & Omit<HTMLAttributes<HTMLAnchorElement>, 'onClick'>): ReactElement {
   return (
     <FilterItem className="relative pl-6 my-2">
-      <TagButton buttonSize="small" followedTags={followedTags} tagItem={tag} />
+      <TagButton
+        className={!onFollowTags ? 'cursor-default' : ''}
+        buttonSize="small"
+        followedTags={followedTags}
+        blockedTags={blockedTags}
+        tagItem={tag}
+        onFollowTags={onFollowTags}
+        onUnfollowTags={onUnfollowTags}
+        onUnblockTags={onUnblockTags}
+      />
       <Button
         className="right-4 my-auto btn-tertiary"
         style={{ position: 'absolute' }}

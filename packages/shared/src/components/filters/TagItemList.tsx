@@ -7,11 +7,19 @@ export default function TagItemList({
   tags,
   emptyText,
   followedTags,
+  blockedTags,
+  onFollowTags,
+  onUnfollowTags,
+  onUnblockTags,
   options,
 }: {
   tags: Tag[] | Array<string>;
   emptyText: string;
   followedTags?: Array<string>;
+  blockedTags?: Array<string>;
+  onFollowTags?: (tags, category?) => void;
+  onUnfollowTags?: (tags, category?) => void;
+  onUnblockTags?: (tags) => void;
   options?: (event: React.MouseEvent, tag: string) => void;
 }): ReactElement {
   return (
@@ -25,6 +33,10 @@ export default function TagItemList({
         <TagItemRow
           tag={tag.name ? tag.name : tag}
           followedTags={followedTags}
+          blockedTags={blockedTags}
+          onFollowTags={onFollowTags}
+          onUnfollowTags={onUnfollowTags}
+          onUnblockTags={onUnblockTags}
           key={String(tag.name ? tag.name : tag)}
           tooltip="Options"
           onClick={options}

@@ -31,6 +31,25 @@ const GenericTagButton = ({
   </Button>
 );
 
+const UnblockTagButton = ({
+  tag,
+  className,
+  action,
+  ...props
+}: {
+  tag: string;
+  className?: string;
+  action: () => unknown;
+}) => (
+  <GenericTagButton
+    {...props}
+    className={classNames('btn-secondary', className)}
+    iconClass="rotate-45"
+    action={action}
+    tag={tag}
+  />
+);
+
 const UnfollowTagButton = ({
   tag,
   className,
@@ -72,15 +91,19 @@ const FollowTagButton = ({
 export interface TagButtonProps {
   tagItem: string;
   followedTags?: Array<string>;
+  blockedTags?: Array<string>;
   onFollowTags?: (tags, category?) => void;
   onUnfollowTags?: (tags, category?) => void;
+  onUnblockTags?: (tags) => void;
 }
 
 export default function TagButton<Tag extends keyof JSX.IntrinsicElements>({
   tagItem,
   followedTags,
+  blockedTags,
   onFollowTags,
   onUnfollowTags,
+  onUnblockTags,
   ...props
 }: ButtonProps<Tag> & TagButtonProps): ReactElement {
   if (followedTags?.includes(tagItem)) {
@@ -92,6 +115,24 @@ export default function TagButton<Tag extends keyof JSX.IntrinsicElements>({
           onUnfollowTags ? () => onUnfollowTags({ tags: [tagItem] }) : null
         }
       />
+    );
+  }
+
+  if (blockedTags?.includes(tagItem)) {
+    return (
+      <UnblockTagButton
+        {...props}
+        tag={tagItem}
+        action={() => onUnblockTags({ tags: tagItem })}
+      />
+    );
+  }
+
+  if (!onFollowTags) {
+    return (
+      <div className="flex items-center px-4 h-8 font-bold bg-theme-float rounded-xl typo-callout text-theme-label-tertiary">
+        <span>#{tagItem}</span>
+      </div>
     );
   }
 

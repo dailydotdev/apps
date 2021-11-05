@@ -1,35 +1,21 @@
-import React, { ReactElement, useState } from 'react';
-import { UnblockModalType } from './common';
-import { Source } from '../../graphql/sources';
+import React, { ReactElement } from 'react';
+import { FilterMenuProps } from './common';
 import SourceItemList from './SourceItemList';
 import TagItemList from './TagItemList';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import TagOptionsMenu from './TagOptionsMenu';
-import UnblockModal from '../modals/UnblockModal';
-import { Tag } from '../../graphql/feedSettings';
 import useTagContext from '../../hooks/useTagContext';
 import useTagAndSource from '../../hooks/useTagAndSource';
 
-export default function BlockedFilter(): ReactElement {
-  const [unblockItem, setUnblockItem] = useState<{
-    tag?: Tag;
-    source?: Source;
-    action?: () => unknown;
-  }>();
+export default function BlockedFilter({
+  initUnblockModal,
+}: FilterMenuProps): ReactElement {
   const { feedSettings, isLoading } = useFeedSettings();
   const { onUnblockTags, onFollowSource } = useTagAndSource({
     origin: 'blocked filter',
   });
   const { contextSelectedTag, setContextSelectedTag, onTagContextOptions } =
     useTagContext();
-
-  const initUnblockModal = ({
-    tag = null,
-    source = null,
-    action,
-  }: UnblockModalType) => {
-    setUnblockItem({ tag, source, action });
-  };
 
   const sourceItemAction = (source) => {
     initUnblockModal({
@@ -71,15 +57,6 @@ export default function BlockedFilter(): ReactElement {
         }
         onHidden={() => setContextSelectedTag(null)}
       />
-
-      {unblockItem && (
-        <UnblockModal
-          item={unblockItem}
-          isOpen={!!unblockItem}
-          onConfirm={unblockItem.action}
-          onRequestClose={() => setUnblockItem(null)}
-        />
-      )}
     </div>
   );
 }

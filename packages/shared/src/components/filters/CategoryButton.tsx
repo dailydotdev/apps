@@ -28,8 +28,8 @@ export default function CategoryButton({
 }: {
   category: TagCategory;
   followedTags?: Array<string>;
-  onFollowTags: (tags, category?) => void;
-  onUnfollowTags: (tags, category?) => void;
+  onFollowTags?: (tags, category?) => void;
+  onUnfollowTags?: (tags, category?) => void;
 }): ReactElement {
   const tagMatches = category?.tags.filter(
     (tag) => followedTags.indexOf(tag) !== -1,

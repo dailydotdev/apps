@@ -12,13 +12,17 @@ import {
 export default function TagCategoryDropdown({
   tagCategory,
   followedTags,
+  blockedTags,
   onFollowTags,
   onUnfollowTags,
+  onUnblockTags,
 }: {
   tagCategory: TagCategory;
   followedTags?: Array<string>;
-  onFollowTags: (tags, category?) => void;
-  onUnfollowTags: (tags, category?) => void;
+  blockedTags?: Array<string>;
+  onFollowTags?: (tags, category?) => void;
+  onUnfollowTags?: (tags, category?) => void;
+  onUnblockTags?: (tags) => void;
 }): ReactElement {
   return (
     <TagCategoryDetails>
@@ -41,8 +45,10 @@ export default function TagCategoryDropdown({
             className="mr-3 mb-3"
             tagItem={tag}
             followedTags={followedTags}
+            blockedTags={blockedTags}
             onFollowTags={onFollowTags}
             onUnfollowTags={onUnfollowTags}
+            onUnblockTags={onUnblockTags}
             key={tag}
           />
         ))}

@@ -7,7 +7,11 @@ export interface MenuItem {
   icon?: ReactNode;
   title: string;
   action?: () => unknown;
-  component?: () => unknown;
+  component?: ReactNode;
+}
+
+export interface FilterMenuProps {
+  initUnblockModal?: ({ tag, source, action }: UnblockModalType) => void;
 }
 
 export interface UnblockModalType {
