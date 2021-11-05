@@ -72,8 +72,8 @@ const FollowTagButton = ({
 export interface TagButtonProps {
   tagItem: string;
   followedTags?: Array<string>;
-  onFollowTags: (tags, category?) => void;
-  onUnfollowTags: (tags, category?) => void;
+  onFollowTags?: (tags, category?) => void;
+  onUnfollowTags?: (tags, category?) => void;
 }
 
 export default function TagButton<Tag extends keyof JSX.IntrinsicElements>({
