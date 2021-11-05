@@ -50,6 +50,12 @@ const createAdvancedSettingsAndFiltersMock = (
       description: 'Description for Tech magazines',
       defaultEnabledState: true,
     },
+    {
+      id: 2,
+      title: 'Newsletters',
+      description: 'Description for Newsletters',
+      defaultEnabledState: true,
+    },
   ],
 ): MockedGraphQLResponse<AllTagCategoriesData> => ({
   request: {
@@ -104,7 +110,7 @@ it('should display advanced settings title and description', async () => {
   expect(
     await screen.findByText('Description for Tech magazines'),
   ).toBeInTheDocument();
-  const checkbox = await screen.findByRole('checkbox');
+  const [checkbox] = await screen.findAllByRole('checkbox');
   await waitFor(() => expect(checkbox).not.toBeChecked());
 });
 
@@ -117,7 +123,7 @@ it('should display advanced settings title and description including the appropr
   expect(
     await screen.findByText('Description for Tech magazines'),
   ).toBeInTheDocument();
-  const checkbox = await screen.findByRole('checkbox');
+  const [checkbox] = await screen.findAllByRole('checkbox');
   await waitFor(() => expect(checkbox).toBeChecked());
 });
 
@@ -143,24 +149,24 @@ it('should mutate update feed advanced settings', async () => {
     expect(data).toBeTruthy();
   });
 
-  const params = [{ id: 1, enabled: true }];
+  const param = { id: 2, enabled: false };
 
   mockGraphQL({
     request: {
       query: UPDATE_ADVANCED_SETTINGS_FILTERS_MUTATION,
-      variables: { settings: params },
+      variables: { settings: [param] },
     },
     result: () => {
       advancedSettingsMutationCalled = true;
-      return { data: { advancedSettings: params } };
+      return { data: { advancedSettings: [{ id: 1, enabled: false }, param] } };
     },
   });
 
-  const checkbox = await screen.findByRole('checkbox');
+  const checkbox = (await screen.findAllByRole('checkbox'))[1];
   fireEvent.click(checkbox);
 
   await waitFor(() => expect(baseElement).not.toHaveAttribute('aria-busy'));
   await waitFor(() => expect(advancedSettingsMutationCalled).toBeTruthy());
   await waitFor(() => expect(disableAlertFilterMock).toBeCalled());
-  await waitFor(() => expect(checkbox).toBeChecked());
+  await waitFor(() => expect(checkbox).not.toBeChecked());
 });
