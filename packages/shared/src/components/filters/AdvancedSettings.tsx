@@ -25,7 +25,7 @@ function AdvancedSettingsFilter(): ReactElement {
     [feedSettings?.advancedSettings],
   );
 
-  const onToggle = (id: number) => {
+  const onToggle = (id: number, defaultEnabledState: boolean) => {
     if (!user) {
       showLogin('advanced settings', LoginModalMode.ContentQuality);
       return;
@@ -35,7 +35,7 @@ function AdvancedSettingsFilter(): ReactElement {
       disableFilterAlert();
     }
 
-    const enabled = !settings[id];
+    const enabled = !(settings[id] ?? defaultEnabledState);
 
     trackEvent({
       event_name: `toggle ${enabled ? 'on' : 'off'}`,
@@ -59,7 +59,7 @@ function AdvancedSettingsFilter(): ReactElement {
             checked={settings[id] ?? defaultEnabledState}
             name={`${ADVANCED_SETTINGS_KEY}-${id}`}
             description={description}
-            onToggle={() => onToggle(id)}
+            onToggle={() => onToggle(id, defaultEnabledState)}
             inputId={`${ADVANCED_SETTINGS_KEY}-${id}`}
           />
         ),
