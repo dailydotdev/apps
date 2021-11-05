@@ -40,15 +40,11 @@ export default function useTagAndSource({
     unfollowSource,
   } = useMutateFilters(user);
 
-  const validateLogin = () => {
+  const onFollowTags = async ({ tags, category }: TagActionArguments) => {
     if (!user) {
       showLogin(origin);
       return;
     }
-  };
-
-  const onFollowTags = async ({ tags, category }: TagActionArguments) => {
-    await validateLogin();
 
     trackEvent({
       event_name: `follow${category ? ' all' : ''}`,
@@ -63,7 +59,10 @@ export default function useTagAndSource({
   };
 
   const onUnfollowTags = async ({ tags, category }: TagActionArguments) => {
-    await validateLogin();
+    if (!user) {
+      showLogin(origin);
+      return;
+    }
 
     trackEvent({
       event_name: `unfollow${category ? ' all' : ''}`,
@@ -75,7 +74,10 @@ export default function useTagAndSource({
   };
 
   const onBlockTags = async ({ tags }: TagActionArguments) => {
-    await validateLogin();
+    if (!user) {
+      showLogin(origin);
+      return;
+    }
 
     trackEvent({
       event_name: 'block',
@@ -87,7 +89,10 @@ export default function useTagAndSource({
   };
 
   const onUnblockTags = async ({ tags }: TagActionArguments) => {
-    await validateLogin();
+    if (!user) {
+      showLogin(origin);
+      return;
+    }
 
     trackEvent({
       event_name: 'unblock',
@@ -99,7 +104,10 @@ export default function useTagAndSource({
   };
 
   const onFollowSource = async ({ source }: SourceActionArguments) => {
-    await validateLogin();
+    if (!user) {
+      showLogin(origin);
+      return;
+    }
 
     trackEvent({
       event_name: 'follow',
@@ -111,7 +119,10 @@ export default function useTagAndSource({
   };
 
   const onUnfollowSource = async ({ source }: SourceActionArguments) => {
-    await validateLogin();
+    if (!user) {
+      showLogin(origin);
+      return;
+    }
 
     trackEvent({
       event_name: 'unfollow',
