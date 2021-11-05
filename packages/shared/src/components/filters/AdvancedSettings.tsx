@@ -40,7 +40,7 @@ function AdvancedSettingsFilter(): ReactElement {
 
     trackEvent({
       event_name: `toggle ${enabled ? 'on' : 'off'}`,
-      target_type: 'advanced_settings',
+      target_type: 'advanced setting',
       target_id: `${id}_${title}`,
       extra: JSON.stringify({ origin: 'advanced settings filter' }),
     });
