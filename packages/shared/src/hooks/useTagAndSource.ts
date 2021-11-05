@@ -40,11 +40,15 @@ export default function useTagAndSource({
     unfollowSource,
   } = useMutateFilters(user);
 
-  const onFollowTags = async ({ tags, category }: TagActionArguments) => {
+  const validateLogin = () => {
     if (!user) {
-      showLogin('filter');
+      showLogin(origin);
       return;
     }
+  };
+
+  const onFollowTags = async ({ tags, category }: TagActionArguments) => {
+    await validateLogin();
 
     trackEvent({
       event_name: `follow${category ? ' all' : ''}`,
@@ -59,6 +63,8 @@ export default function useTagAndSource({
   };
 
   const onUnfollowTags = async ({ tags, category }: TagActionArguments) => {
+    await validateLogin();
+
     trackEvent({
       event_name: `unfollow${category ? ' all' : ''}`,
       target_type: 'tag',
@@ -69,41 +75,49 @@ export default function useTagAndSource({
   };
 
   const onBlockTags = async ({ tags }: TagActionArguments) => {
+    await validateLogin();
+
     trackEvent({
       event_name: 'block',
       target_type: 'tag',
       target_id: tags[0],
-      extra: JSON.stringify({ origin, postId }),
+      extra: JSON.stringify({ origin, post_id: postId }),
     });
     await blockTag({ tags });
   };
 
   const onUnblockTags = async ({ tags }: TagActionArguments) => {
+    await validateLogin();
+
     trackEvent({
       event_name: 'unblock',
       target_type: 'tag',
       target_id: tags[0],
-      extra: JSON.stringify({ origin }),
+      extra: JSON.stringify({ origin, post_id: postId }),
     });
     await unblockTag({ tags });
   };
 
   const onFollowSource = async ({ source }: SourceActionArguments) => {
+    await validateLogin();
+
     trackEvent({
       event_name: 'follow',
       target_type: 'source',
       target_id: source?.id,
-      extra: JSON.stringify({ origin }),
+      extra: JSON.stringify({ origin, post_id: postId }),
     });
     await followSource({ source });
   };
 
   const onUnfollowSource = async ({ source }: SourceActionArguments) => {
+    await validateLogin();
+
     trackEvent({
       event_name: 'unfollow',
       target_type: 'source',
       target_id: source?.id,
-      extra: JSON.stringify({ origin, postId }),
+      extra: JSON.stringify({ origin, post_id: postId }),
     });
     await unfollowSource({ source });
   };
