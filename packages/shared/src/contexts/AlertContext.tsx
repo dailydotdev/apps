@@ -41,9 +41,10 @@ export const AlertContextProvider = ({
       }),
     {
       onMutate: () => {
+        const previousFilterValue = alerts.filter;
         setAlerts({ ...alerts, filter: false });
 
-        return () => setAlerts({ ...alerts, filter: true });
+        return () => setAlerts({ ...alerts, filter: previousFilterValue });
       },
       onError: (_, __, rollback) => rollback(),
     },
