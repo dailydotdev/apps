@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import classNames from 'classnames';
-import { Source } from '@dailydotdev/shared/src/graphql/sources';
+import { Source } from '../graphql/sources';
 import sizeN from '../../macros/sizeN.macro';
 import { getTooltipProps } from '../lib/tooltip';
 import OnboardingContext from '../contexts/OnboardingContext';
