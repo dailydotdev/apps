@@ -11,7 +11,12 @@ import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '../../__tests__/helpers/graphql';
-import { FEED_SETTINGS_QUERY } from '../graphql/feedSettings';
+import {
+  AllTagCategoriesData,
+  FeedSettings,
+  FEED_SETTINGS_QUERY,
+  TagCategory,
+} from '../graphql/feedSettings';
 import { getFeedSettingsQueryKey } from '../hooks/useMutateFilters';
 import { LoggedUser } from '../lib/user';
 
@@ -24,8 +29,31 @@ beforeEach(() => {
   nock.cleanAll();
 });
 
+const createAllTagCategoriesMock = (
+  feedSettings: FeedSettings = {
+    includeTags: ['react', 'golang'],
+  },
+  loggedIn = true,
+  tagsCategories: TagCategory[] = [
+    {
+      id: 'FE',
+      title: 'Frontend',
+      tags: ['react', 'webdev', 'vue', 'golang'],
+      emoji: '🦄',
+    },
+  ],
+): MockedGraphQLResponse<AllTagCategoriesData> => ({
+  request: { query: FEED_SETTINGS_QUERY, variables: { loggedIn } },
+  result: {
+    data: {
+      feedSettings,
+      tagsCategories,
+    },
+  },
+});
+
 const renderComponent = (
-  mocks: MockedGraphQLResponse[] = [],
+  mocks: MockedGraphQLResponse[] = [createAllTagCategoriesMock()],
   onboardingStep = -1,
   user: LoggedUser = defaultUser,
   alertsData: AlertContextData = {

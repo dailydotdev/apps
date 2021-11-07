@@ -1,31 +1,26 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import PlusIcon from '../../../icons/plus.svg';
+import BlockIcon from '../../../icons/block.svg';
 import { Button, ButtonProps } from '../buttons/Button';
 
 const GenericTagButton = ({
   tag,
   className,
-  iconClass,
+  icon,
   action,
   ...props
 }: {
   tag: string;
   className?: string;
-  iconClass: string;
+  icon?: ReactElement;
   action: () => unknown;
 }) => (
   <Button
     {...props}
     className={classNames('font-bold typo-callout', className)}
     onClick={action}
-    rightIcon={
-      action ? (
-        <PlusIcon
-          className={`ml-2 transition-transform text-xl transform icon ${iconClass}`}
-        />
-      ) : null
-    }
+    rightIcon={action ? icon : null}
   >
     {`#${tag}`}
   </Button>
@@ -43,8 +38,10 @@ const UnblockTagButton = ({
 }) => (
   <GenericTagButton
     {...props}
-    className={classNames('btn-secondary', className)}
-    iconClass="rotate-45"
+    className={classNames('btn-tagBlocked', className)}
+    icon={
+      <BlockIcon className="ml-2 text-xl transition-transform transform icon" />
+    }
     action={action}
     tag={tag}
   />
@@ -63,7 +60,9 @@ const UnfollowTagButton = ({
   <GenericTagButton
     {...props}
     className={classNames('btn-primary', className)}
-    iconClass="rotate-45"
+    icon={
+      <PlusIcon className="ml-2 text-xl transition-transform transform rotate-45 icon" />
+    }
     action={action}
     tag={tag}
   />
@@ -82,7 +81,9 @@ const FollowTagButton = ({
   <GenericTagButton
     {...props}
     className={classNames('btn-tag', className)}
-    iconClass="rotate-0"
+    icon={
+      <PlusIcon className="ml-2 text-xl transition-transform transform rotate-0 icon" />
+    }
     action={action}
     tag={tag}
   />
@@ -130,9 +131,9 @@ export default function TagButton<Tag extends keyof JSX.IntrinsicElements>({
 
   if (!onFollowTags) {
     return (
-      <div className="flex items-center px-4 h-8 font-bold bg-theme-float rounded-xl typo-callout text-theme-label-tertiary">
-        <span>#{tagItem}</span>
-      </div>
+      <span className="flex-1 text-left truncate typo-callout text-theme-label-tertiary">
+        {`#${tagItem}`}
+      </span>
     );
   }
 

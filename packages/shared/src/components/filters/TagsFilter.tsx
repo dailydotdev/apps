@@ -50,7 +50,11 @@ export default function TagsFilter({
   };
 
   return (
-    <div className="flex flex-col" aria-busy={isLoading}>
+    <div
+      className="flex flex-col"
+      aria-busy={isLoading}
+      data-testid="tagsFilter"
+    >
       <SearchField
         inputId="search-filters"
         placeholder="Search"

@@ -2,7 +2,7 @@ import React, { HTMLAttributes, ReactElement } from 'react';
 import { FilterItem } from './common';
 import { getTooltipProps } from '../../lib/tooltip';
 import { Button } from '../buttons/Button';
-import MenuIcon from '../../../icons/menu.svg';
+import BlockIcon from '../../../icons/block.svg';
 import TagButton from './TagButton';
 
 export default function TagItemRow({
@@ -40,7 +40,7 @@ export default function TagItemRow({
         className="right-4 my-auto btn-tertiary"
         style={{ position: 'absolute' }}
         onClick={(event) => onClick?.(event, tag)}
-        icon={<MenuIcon />}
+        icon={<BlockIcon />}
         {...getTooltipProps(tooltip, {
           position: 'left',
         })}
