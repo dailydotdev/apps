@@ -21,7 +21,7 @@ export default function Sidebar(): ReactElement {
     useContext(OnboardingContext);
   const hightlightTrigger = onboardingStep === 2;
   const [unblockItem, setUnblockItem] = useState<{
-    tag?: Tag;
+    tag?: Tag | string;
     source?: Source;
     action?: () => unknown;
   }>();
@@ -89,7 +89,9 @@ export default function Sidebar(): ReactElement {
           pointerEvents: 'all',
           marginTop: '6.375rem',
         }}
-        {...getTooltipProps('Open sidebar', { position: 'right' })}
+        {...getTooltipProps(`${opened ? 'Close' : 'Open'} sidebar`, {
+          position: 'right',
+        })}
         onClick={toggleSidebar}
       >
         <FilterRedDot />

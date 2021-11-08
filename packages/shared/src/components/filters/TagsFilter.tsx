@@ -12,6 +12,7 @@ import TagOptionsMenu from './TagOptionsMenu';
 import useTagContext from '../../hooks/useTagContext';
 import useTagAndSource from '../../hooks/useTagAndSource';
 import { FilterMenuProps } from './common';
+import MenuIcon from '../../../icons/menu.svg';
 
 export default function TagsFilter({
   setUnblockItem,
@@ -67,12 +68,14 @@ export default function TagsFilter({
           <TagItemList
             tags={searchResults?.searchTags.tags}
             emptyText="No matching tags."
+            tooltip="Options"
             options={onTagContextOptions}
             followedTags={followedTags}
             blockedTags={blockedTags}
             onFollowTags={onFollowTags}
             onUnfollowTags={onUnfollowTags}
             onUnblockTags={tagUnblockAction}
+            rowIcon={<MenuIcon />}
           />
           <TagOptionsMenu
             tag={contextSelectedTag}

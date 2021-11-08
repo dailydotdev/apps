@@ -111,7 +111,7 @@ export default function PostOptionsMenu({
   };
 
   const onSharePost = async () => {
-    const shareLink = `${post.commentsPermalink}?utm_source=inapp&utm_medium=article&utm_campaign=share_article&utm_id=share`;
+    const shareLink = post.commentsPermalink;
     trackEvent(
       postAnalyticsEvent('share post', post, {
         extra: { origin: 'post context menu' },

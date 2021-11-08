@@ -6,6 +6,8 @@ import TagItemRow from './TagItemRow';
 
 type TagItemListProps = {
   tags: Tag[] | Array<string>;
+  rowIcon: ReactElement;
+  tooltip: string;
   emptyText: string;
   followedTags?: Array<string>;
   blockedTags?: Array<string>;
@@ -17,6 +19,8 @@ type TagItemListProps = {
 
 export default function TagItemList({
   tags,
+  rowIcon,
+  tooltip,
   emptyText,
   followedTags,
   blockedTags,
@@ -35,13 +39,14 @@ export default function TagItemList({
       {tags?.map((tag) => (
         <TagItemRow
           tag={tag.name ? tag.name : tag}
+          rowIcon={rowIcon}
           followedTags={followedTags}
           blockedTags={blockedTags}
           onFollowTags={onFollowTags}
           onUnfollowTags={onUnfollowTags}
           onUnblockTags={onUnblockTags}
           key={String(tag.name ? tag.name : tag)}
-          tooltip="Options"
+          tooltip={tooltip}
           onClick={options}
         />
       ))}
