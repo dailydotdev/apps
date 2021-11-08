@@ -15,7 +15,7 @@ export interface FilterMenuProps {
 }
 
 export interface UnblockModalType {
-  tag?: Tag;
+  tag?: Tag | string;
   source?: Source;
   action?: () => unknown;
 }

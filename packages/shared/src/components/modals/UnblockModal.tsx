@@ -11,7 +11,7 @@ import { Source } from '../../graphql/sources';
 import { Tag } from '../../graphql/feedSettings';
 
 export interface Props extends ModalProps {
-  item: { tag?: Tag; source?: Source };
+  item: { tag?: Tag | string; source?: Source };
   onConfirm: () => unknown;
 }
 

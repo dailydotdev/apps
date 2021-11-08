@@ -89,25 +89,13 @@ it('should show blocked sources', async () => {
   expect(await screen.findByText('The New Stack')).toBeInTheDocument();
 });
 
-it('should show unblock option for tag', async () => {
-  const { baseElement } = renderComponent();
-  await waitFor(() => expect(baseElement).not.toHaveAttribute('aria-busy'));
-
-  const el = await screen.findByLabelText('Options');
-  el.click();
-  expect(await screen.findByText('Unblock')).toBeInTheDocument();
-});
-
 it('should show unblock popup on option click', async () => {
   const { baseElement } = renderComponent();
 
   await waitFor(() => expect(baseElement).not.toHaveAttribute('aria-busy'));
 
-  const el = await screen.findByLabelText('Options');
+  const el = await screen.findByLabelText('Unblock tag');
   el.click();
-
-  const contextBtn = await screen.findByText('Unblock');
-  contextBtn.click();
 
   await waitFor(() => expect(setUnblockItem).toBeCalled());
 });

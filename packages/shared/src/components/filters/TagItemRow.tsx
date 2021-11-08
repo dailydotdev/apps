@@ -2,13 +2,13 @@ import React, { HTMLAttributes, ReactElement } from 'react';
 import { FilterItem } from './common';
 import { getTooltipProps } from '../../lib/tooltip';
 import { Button } from '../buttons/Button';
-import BlockIcon from '../../../icons/block.svg';
 import TagButton from './TagButton';
 import { TagActionArguments } from '../../hooks/useTagAndSource';
 
 type TagItemRowProps = {
   tooltip: string;
   tag: string;
+  rowIcon: ReactElement;
   followedTags?: Array<string>;
   blockedTags?: Array<string>;
   onFollowTags?: ({ tags, category }: TagActionArguments) => void;
@@ -20,6 +20,7 @@ type TagItemRowProps = {
 export default function TagItemRow({
   tooltip,
   tag,
+  rowIcon,
   followedTags,
   blockedTags,
   onFollowTags,
@@ -44,7 +45,7 @@ export default function TagItemRow({
         className="right-4 my-auto btn-tertiary"
         style={{ position: 'absolute' }}
         onClick={(event) => onClick?.(event, tag)}
-        icon={<BlockIcon />}
+        icon={rowIcon}
         {...getTooltipProps(tooltip, {
           position: 'left',
         })}
