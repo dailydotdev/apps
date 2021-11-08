@@ -76,11 +76,11 @@ export default function PostOptionsMenu({
       }),
     );
 
+    await showMessageAndRemovePost('🚨 Thanks for reporting!', reportPostIndex);
+
     if (blockSource) {
       await onUnfollowSource({ source: reportedPost?.source });
     }
-
-    showMessageAndRemovePost('🚨 Thanks for reporting!', reportPostIndex);
   };
 
   const onBlockSource = async (): Promise<void> => {
@@ -111,6 +111,7 @@ export default function PostOptionsMenu({
   };
 
   const onSharePost = async () => {
+    const shareLink = `${post.commentsPermalink}?utm_source=inapp&utm_medium=article&utm_campaign=share_article&utm_id=share`;
     trackEvent(
       postAnalyticsEvent('share post', post, {
         extra: { origin: 'post context menu' },
@@ -120,15 +121,13 @@ export default function PostOptionsMenu({
       try {
         await navigator.share({
           text: post?.title,
-          url: post?.commentsPermalink,
+          url: shareLink,
         });
       } catch (err) {
         // Do nothing
       }
     } else {
-      await navigator.clipboard.writeText(
-        `${post.commentsPermalink}?utm_source=inapp&utm_medium=article&utm_campaign=share_article&utm_id=share`,
-      );
+      await navigator.clipboard.writeText(shareLink);
       onMessage('✅ Copied link to clipboard', postIndex);
     }
   };

@@ -1,5 +1,6 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import classNames from 'classnames';
+import { Source } from '../graphql/sources';
 import sizeN from '../../macros/sizeN.macro';
 import { getTooltipProps } from '../lib/tooltip';
 import OnboardingContext from '../contexts/OnboardingContext';
@@ -7,6 +8,8 @@ import FilterMenu from './filters/FilterMenu';
 import FilterRedDot from './filters/FilterRedDot';
 import useFeedSettings from '../hooks/useFeedSettings';
 import AlertContext from '../contexts/AlertContext';
+import { Tag } from '../graphql/feedSettings';
+import UnblockModal from './modals/UnblockModal';
 
 const asideWidth = sizeN(89);
 
@@ -17,6 +20,11 @@ export default function Sidebar(): ReactElement {
   const { onboardingStep, incrementOnboardingStep } =
     useContext(OnboardingContext);
   const hightlightTrigger = onboardingStep === 2;
+  const [unblockItem, setUnblockItem] = useState<{
+    tag?: Tag;
+    source?: Source;
+    action?: () => unknown;
+  }>();
 
   const toggleSidebar = () => {
     if (opened) {
@@ -62,7 +70,7 @@ export default function Sidebar(): ReactElement {
           transitionDelay: opened ? '0s' : '0.3s',
         }}
       >
-        <FilterMenu />
+        <FilterMenu setUnblockItem={setUnblockItem} />
       </aside>
       <button
         type="button"
@@ -96,6 +104,14 @@ export default function Sidebar(): ReactElement {
           />
         )}
       </button>
+      {unblockItem && (
+        <UnblockModal
+          item={unblockItem}
+          isOpen={!!unblockItem}
+          onConfirm={unblockItem.action}
+          onRequestClose={() => setUnblockItem(null)}
+        />
+      )}
     </div>
   );
 }

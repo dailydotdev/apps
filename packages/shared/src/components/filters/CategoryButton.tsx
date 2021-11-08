@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react';
 import { Button } from '../buttons/Button';
 import { TagCategory } from '../../graphql/feedSettings';
+import { TagActionArguments } from '../../hooks/useTagAndSource';
 
 const ClearCategoryButton = ({
   matches,
@@ -20,17 +21,19 @@ const FollowCategoryButton = ({ action }: { action: () => unknown }) => (
   </Button>
 );
 
+type CategoryButtonProps = {
+  category: TagCategory;
+  followedTags?: Array<string>;
+  onFollowTags?: ({ tags, category }: TagActionArguments) => void;
+  onUnfollowTags?: ({ tags, category }: TagActionArguments) => void;
+};
+
 export default function CategoryButton({
   category,
   followedTags,
   onFollowTags,
   onUnfollowTags,
-}: {
-  category: TagCategory;
-  followedTags?: Array<string>;
-  onFollowTags: (tags, category?) => void;
-  onUnfollowTags: (tags, category?) => void;
-}): ReactElement {
+}: CategoryButtonProps): ReactElement {
   const tagMatches = category?.tags.filter(
     (tag) => followedTags.indexOf(tag) !== -1,
   );

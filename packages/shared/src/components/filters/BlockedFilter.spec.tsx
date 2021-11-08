@@ -12,13 +12,12 @@ import { LoggedUser } from '../../lib/user';
 import {
   FEED_SETTINGS_QUERY,
   FeedSettings,
-  REMOVE_FILTERS_FROM_FEED_MUTATION,
   AllTagCategoriesData,
 } from '../../graphql/feedSettings';
 import BlockedFilter from './BlockedFilter';
-import { getFeedSettingsQueryKey } from '../../hooks/useMutateFilters';
 
 const showLogin = jest.fn();
+const setUnblockItem = jest.fn();
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -72,7 +71,7 @@ const renderComponent = (
           closeLogin: jest.fn(),
         }}
       >
-        <BlockedFilter />
+        <BlockedFilter setUnblockItem={setUnblockItem} />
       </AuthContext.Provider>
     </QueryClientProvider>,
   );
@@ -100,27 +99,7 @@ it('should show unblock option for tag', async () => {
 });
 
 it('should show unblock popup on option click', async () => {
-  let mutationCalled = false;
-
   const { baseElement } = renderComponent();
-
-  await waitFor(async () => {
-    const data = await client.getQueryData(
-      getFeedSettingsQueryKey(defaultUser),
-    );
-    expect(data).toBeTruthy();
-  });
-
-  mockGraphQL({
-    request: {
-      query: REMOVE_FILTERS_FROM_FEED_MUTATION,
-      variables: { filters: { blockedTags: ['javascript'] } },
-    },
-    result: () => {
-      mutationCalled = true;
-      return { data: { feedSettings: { id: defaultUser.id } } };
-    },
-  });
 
   await waitFor(() => expect(baseElement).not.toHaveAttribute('aria-busy'));
 
@@ -130,50 +109,16 @@ it('should show unblock popup on option click', async () => {
   const contextBtn = await screen.findByText('Unblock');
   contextBtn.click();
 
-  const unblockBtn = await screen.findByText('Yes, unblock');
-  unblockBtn.click();
-
-  await waitFor(() => expect(mutationCalled).toBeTruthy());
-
-  await waitFor(async () => {
-    expect(el).not.toBeInTheDocument();
-  });
+  await waitFor(() => expect(setUnblockItem).toBeCalled());
 });
 
 it('should show unblock popup on source unblock click', async () => {
-  let mutationCalled = false;
-
   const { baseElement } = renderComponent();
-
-  await waitFor(async () => {
-    const data = await client.getQueryData(
-      getFeedSettingsQueryKey(defaultUser),
-    );
-    expect(data).toBeTruthy();
-  });
-
-  mockGraphQL({
-    request: {
-      query: REMOVE_FILTERS_FROM_FEED_MUTATION,
-      variables: { filters: { excludeSources: ['newstack'] } },
-    },
-    result: () => {
-      mutationCalled = true;
-      return { data: { feedSettings: { id: defaultUser.id } } };
-    },
-  });
 
   await waitFor(() => expect(baseElement).not.toHaveAttribute('aria-busy'));
 
   const el = await screen.findByLabelText('Unblock source');
   el.click();
 
-  const unblockBtn = await screen.findByText('Yes, unblock');
-  unblockBtn.click();
-
-  await waitFor(() => expect(mutationCalled).toBeTruthy());
-
-  await waitFor(async () => {
-    expect(el).not.toBeInTheDocument();
-  });
+  await waitFor(() => expect(setUnblockItem).toBeCalled());
 });

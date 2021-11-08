@@ -17,10 +17,7 @@ export default function SourceItemRow({
 }): ReactElement {
   return (
     <FilterItem className="relative">
-      <a
-        {...getTooltipProps(`${source.name} feed`)}
-        className="flex flex-1 items-center py-2 pr-14 pl-6 h-12 hover:bg-theme-hover active:bg-theme-active rounded-md focus-outline"
-      >
+      <a className="flex flex-1 items-center py-2 pr-14 pl-6 h-12 rounded-md cursor-default">
         <LazyImage
           imgSrc={source.image}
           imgAlt={`${source.name} logo`}

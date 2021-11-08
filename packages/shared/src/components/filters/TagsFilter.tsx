@@ -11,17 +11,21 @@ import TagItemList from './TagItemList';
 import TagOptionsMenu from './TagOptionsMenu';
 import useTagContext from '../../hooks/useTagContext';
 import useTagAndSource from '../../hooks/useTagAndSource';
+import { FilterMenuProps } from './common';
 
-export default function TagsFilter(): ReactElement {
+export default function TagsFilter({
+  setUnblockItem,
+}: FilterMenuProps): ReactElement {
   const searchRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState<string>(null);
   const searchKey = getSearchTagsQueryKey(query);
   const { tagsCategories, feedSettings, isLoading } = useFeedSettings();
   const { contextSelectedTag, setContextSelectedTag, onTagContextOptions } =
     useTagContext();
-  const { onFollowTags, onUnfollowTags, onBlockTags } = useTagAndSource({
-    origin: 'tags search',
-  });
+  const { onFollowTags, onUnfollowTags, onBlockTags, onUnblockTags } =
+    useTagAndSource({
+      origin: 'tags search',
+    });
 
   const { data: searchResults } = useQuery<SearchTagsData>(
     searchKey,
@@ -31,12 +35,26 @@ export default function TagsFilter(): ReactElement {
     },
   );
 
-  const followedTags = useMemo(() => {
-    return feedSettings?.includeTags ?? [];
+  const { followedTags, blockedTags } = useMemo(() => {
+    return {
+      followedTags: feedSettings?.includeTags ?? [],
+      blockedTags: feedSettings?.blockedTags ?? [],
+    };
   }, [feedSettings]);
 
+  const tagUnblockAction = ({ tags }) => {
+    setUnblockItem({
+      tag: tags,
+      action: () => onUnblockTags({ tags }),
+    });
+  };
+
   return (
-    <div className="flex flex-col" aria-busy={isLoading}>
+    <div
+      className="flex flex-col"
+      aria-busy={isLoading}
+      data-testid="tagsFilter"
+    >
       <SearchField
         inputId="search-filters"
         placeholder="Search"
@@ -51,6 +69,10 @@ export default function TagsFilter(): ReactElement {
             emptyText="No matching tags."
             options={onTagContextOptions}
             followedTags={followedTags}
+            blockedTags={blockedTags}
+            onFollowTags={onFollowTags}
+            onUnfollowTags={onUnfollowTags}
+            onUnblockTags={tagUnblockAction}
           />
           <TagOptionsMenu
             tag={contextSelectedTag}
@@ -74,8 +96,10 @@ export default function TagsFilter(): ReactElement {
             key={tagCategory.id}
             tagCategory={tagCategory}
             followedTags={followedTags}
+            blockedTags={blockedTags}
             onFollowTags={onFollowTags}
             onUnfollowTags={onUnfollowTags}
+            onUnblockTags={tagUnblockAction}
           />
         ))}
     </div>

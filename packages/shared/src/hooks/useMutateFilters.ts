@@ -147,7 +147,11 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
             const index = newData.advancedSettings.findIndex(
               (settings) => settings.id === feedAdvancedSettings.id,
             );
-            newData.advancedSettings[index] = feedAdvancedSettings;
+            if (index === -1) {
+              newData.advancedSettings.push(feedAdvancedSettings);
+            } else {
+              newData.advancedSettings[index] = feedAdvancedSettings;
+            }
             return newData;
           },
           user,

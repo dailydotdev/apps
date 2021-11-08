@@ -10,32 +10,26 @@ export default function MultiLevelMenu({
 }): ReactElement {
   const [multiLevelMenuDetailItem, setMultiLevelMenuDetailItem] =
     useState(null);
-  const [MultiLevelMenuDetailComponent, setMultiLevelMenuDetailComponent] =
-    useState(null);
 
-  const setMultiLevelMenuDetail = (
-    multiLevelMenuDetail,
-    multiLevelMenuDetailComponent,
-  ) => {
+  const setMultiLevelMenuDetail = (multiLevelMenuDetail) => {
     setMultiLevelMenuDetailItem(multiLevelMenuDetail);
-    setMultiLevelMenuDetailComponent(multiLevelMenuDetailComponent);
   };
 
   return (
     <>
-      {!MultiLevelMenuDetailComponent && (
+      {!multiLevelMenuDetailItem && (
         <MultiLevelMenuMaster
           menuItems={menuItems}
           setMultiLevelMenuDetail={setMultiLevelMenuDetail}
         />
       )}
 
-      {MultiLevelMenuDetailComponent && (
+      {multiLevelMenuDetailItem && (
         <MultiLevelMenuDetail
           item={multiLevelMenuDetailItem}
           setMultiLevelMenuDetail={setMultiLevelMenuDetail}
         >
-          <MultiLevelMenuDetailComponent />
+          {multiLevelMenuDetailItem.component}
         </MultiLevelMenuDetail>
       )}
     </>
