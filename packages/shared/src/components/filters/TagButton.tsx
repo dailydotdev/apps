@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import PlusIcon from '../../../icons/plus.svg';
 import BlockIcon from '../../../icons/block.svg';
 import { Button, ButtonProps } from '../buttons/Button';
+import { TagActionArguments } from '../../hooks/useTagAndSource';
 
 const GenericTagButton = ({
   tag,
@@ -93,9 +94,9 @@ export interface TagButtonProps {
   tagItem: string;
   followedTags?: Array<string>;
   blockedTags?: Array<string>;
-  onFollowTags?: (tags, category?) => void;
-  onUnfollowTags?: (tags, category?) => void;
-  onUnblockTags?: (tags) => void;
+  onFollowTags?: ({ tags, category }: TagActionArguments) => void;
+  onUnfollowTags?: ({ tags, category }: TagActionArguments) => void;
+  onUnblockTags?: ({ tags }: TagActionArguments) => void;
 }
 
 export default function TagButton<Tag extends keyof JSX.IntrinsicElements>({
@@ -124,7 +125,7 @@ export default function TagButton<Tag extends keyof JSX.IntrinsicElements>({
       <UnblockTagButton
         {...props}
         tag={tagItem}
-        action={() => onUnblockTags({ tags: tagItem })}
+        action={() => onUnblockTags({ tags: [tagItem] })}
       />
     );
   }

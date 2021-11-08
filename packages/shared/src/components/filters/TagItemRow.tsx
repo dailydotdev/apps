@@ -4,6 +4,18 @@ import { getTooltipProps } from '../../lib/tooltip';
 import { Button } from '../buttons/Button';
 import BlockIcon from '../../../icons/block.svg';
 import TagButton from './TagButton';
+import { TagActionArguments } from '../../hooks/useTagAndSource';
+
+type TagItemRowProps = {
+  tooltip: string;
+  tag: string;
+  followedTags?: Array<string>;
+  blockedTags?: Array<string>;
+  onFollowTags?: ({ tags, category }: TagActionArguments) => void;
+  onUnfollowTags?: ({ tags, category }: TagActionArguments) => void;
+  onUnblockTags?: ({ tags }: TagActionArguments) => void;
+  onClick?: (event: React.MouseEvent, tag: string) => unknown;
+};
 
 export default function TagItemRow({
   tooltip,
@@ -14,16 +26,8 @@ export default function TagItemRow({
   onUnfollowTags,
   onUnblockTags,
   onClick,
-}: {
-  tooltip: string;
-  tag: string;
-  followedTags?: Array<string>;
-  blockedTags?: Array<string>;
-  onFollowTags?: (tags, category?) => void;
-  onUnfollowTags?: (tags, category?) => void;
-  onUnblockTags?: (tags) => void;
-  onClick?: (event: React.MouseEvent, tag: string) => unknown;
-} & Omit<HTMLAttributes<HTMLAnchorElement>, 'onClick'>): ReactElement {
+}: TagItemRowProps &
+  Omit<HTMLAttributes<HTMLAnchorElement>, 'onClick'>): ReactElement {
   return (
     <FilterItem className="relative pl-6 my-2">
       <TagButton

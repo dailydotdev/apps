@@ -8,6 +8,16 @@ import {
   TagCategoryDetailsContent,
   TagCategorySummary,
 } from './common';
+import { TagActionArguments } from '../../hooks/useTagAndSource';
+
+type TagCategoryDropdownProps = {
+  tagCategory: TagCategory;
+  followedTags?: Array<string>;
+  blockedTags?: Array<string>;
+  onFollowTags?: ({ tags, category }: TagActionArguments) => void;
+  onUnfollowTags?: ({ tags, category }: TagActionArguments) => void;
+  onUnblockTags?: ({ tags }: TagActionArguments) => void;
+};
 
 export default function TagCategoryDropdown({
   tagCategory,
@@ -16,14 +26,7 @@ export default function TagCategoryDropdown({
   onFollowTags,
   onUnfollowTags,
   onUnblockTags,
-}: {
-  tagCategory: TagCategory;
-  followedTags?: Array<string>;
-  blockedTags?: Array<string>;
-  onFollowTags?: (tags, category?) => void;
-  onUnfollowTags?: (tags, category?) => void;
-  onUnblockTags?: (tags) => void;
-}): ReactElement {
+}: TagCategoryDropdownProps): ReactElement {
   return (
     <TagCategoryDetails>
       <TagCategorySummary>

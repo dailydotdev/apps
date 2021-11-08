@@ -10,7 +10,6 @@ import useFeedSettings from '../hooks/useFeedSettings';
 import AlertContext from '../contexts/AlertContext';
 import { Tag } from '../graphql/feedSettings';
 import UnblockModal from './modals/UnblockModal';
-import { UnblockModalType } from './filters/common';
 
 const asideWidth = sizeN(89);
 
@@ -26,14 +25,6 @@ export default function Sidebar(): ReactElement {
     source?: Source;
     action?: () => unknown;
   }>();
-
-  const initUnblockModal = ({
-    tag = null,
-    source = null,
-    action,
-  }: UnblockModalType) => {
-    setUnblockItem({ tag, source, action });
-  };
 
   const toggleSidebar = () => {
     if (opened) {
@@ -79,7 +70,7 @@ export default function Sidebar(): ReactElement {
           transitionDelay: opened ? '0s' : '0.3s',
         }}
       >
-        <FilterMenu initUnblockModal={initUnblockModal} />
+        <FilterMenu setUnblockItem={setUnblockItem} />
       </aside>
       <button
         type="button"

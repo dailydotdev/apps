@@ -13,7 +13,7 @@ import AdvancedSettingsFilter from './AdvancedSettings';
 const NewSourceModal = dynamic(() => import('../modals/NewSourceModal'));
 
 export default function FilterMenu({
-  initUnblockModal,
+  setUnblockItem,
 }: FilterMenuProps): ReactElement {
   const [showNewSourceModal, setShowNewSourceModal] = useState(false);
 
@@ -21,7 +21,7 @@ export default function FilterMenu({
     {
       icon: <HashtagIcon className="mr-3 text-xl" />,
       title: 'Manage tags',
-      component: <TagsFilter initUnblockModal={initUnblockModal} />,
+      component: <TagsFilter setUnblockItem={setUnblockItem} />,
     },
     {
       icon: <FilterIcon className="mr-3 text-xl" />,
@@ -31,7 +31,7 @@ export default function FilterMenu({
     {
       icon: <BlockIcon className="mr-3 text-xl" />,
       title: 'Blocked items',
-      component: <BlockedFilter initUnblockModal={initUnblockModal} />,
+      component: <BlockedFilter setUnblockItem={setUnblockItem} />,
     },
     {
       icon: <PlusIcon className="mr-3 text-xl" />,

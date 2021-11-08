@@ -14,7 +14,7 @@ import useTagAndSource from '../../hooks/useTagAndSource';
 import { FilterMenuProps } from './common';
 
 export default function TagsFilter({
-  initUnblockModal,
+  setUnblockItem,
 }: FilterMenuProps): ReactElement {
   const searchRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState<string>(null);
@@ -43,7 +43,7 @@ export default function TagsFilter({
   }, [feedSettings]);
 
   const tagUnblockAction = ({ tags }) => {
-    initUnblockModal({
+    setUnblockItem({
       tag: tags,
       action: () => onUnblockTags({ tags }),
     });

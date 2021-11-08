@@ -1,7 +1,19 @@
 import React, { ReactElement } from 'react';
 import { Tag } from '../../graphql/feedSettings';
+import { TagActionArguments } from '../../hooks/useTagAndSource';
 import { FiltersList } from './common';
 import TagItemRow from './TagItemRow';
+
+type TagItemListProps = {
+  tags: Tag[] | Array<string>;
+  emptyText: string;
+  followedTags?: Array<string>;
+  blockedTags?: Array<string>;
+  onFollowTags?: ({ tags, category }: TagActionArguments) => void;
+  onUnfollowTags?: ({ tags, category }: TagActionArguments) => void;
+  onUnblockTags?: ({ tags, category }: TagActionArguments) => void;
+  options?: (event: React.MouseEvent, tag: string) => void;
+};
 
 export default function TagItemList({
   tags,
@@ -12,16 +24,7 @@ export default function TagItemList({
   onUnfollowTags,
   onUnblockTags,
   options,
-}: {
-  tags: Tag[] | Array<string>;
-  emptyText: string;
-  followedTags?: Array<string>;
-  blockedTags?: Array<string>;
-  onFollowTags?: (tags, category?) => void;
-  onUnfollowTags?: (tags, category?) => void;
-  onUnblockTags?: (tags) => void;
-  options?: (event: React.MouseEvent, tag: string) => void;
-}): ReactElement {
+}: TagItemListProps): ReactElement {
   return (
     <FiltersList className={!tags?.length ? 'mt-0' : 'mt-3'}>
       {!tags?.length && (

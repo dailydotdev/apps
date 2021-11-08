@@ -17,7 +17,7 @@ import {
 import BlockedFilter from './BlockedFilter';
 
 const showLogin = jest.fn();
-const initUnblockModal = jest.fn();
+const setUnblockItem = jest.fn();
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -71,7 +71,7 @@ const renderComponent = (
           closeLogin: jest.fn(),
         }}
       >
-        <BlockedFilter initUnblockModal={initUnblockModal} />
+        <BlockedFilter setUnblockItem={setUnblockItem} />
       </AuthContext.Provider>
     </QueryClientProvider>,
   );
@@ -109,7 +109,7 @@ it('should show unblock popup on option click', async () => {
   const contextBtn = await screen.findByText('Unblock');
   contextBtn.click();
 
-  await waitFor(() => expect(initUnblockModal).toBeCalled());
+  await waitFor(() => expect(setUnblockItem).toBeCalled());
 });
 
 it('should show unblock popup on source unblock click', async () => {
@@ -120,5 +120,5 @@ it('should show unblock popup on source unblock click', async () => {
   const el = await screen.findByLabelText('Unblock source');
   el.click();
 
-  await waitFor(() => expect(initUnblockModal).toBeCalled());
+  await waitFor(() => expect(setUnblockItem).toBeCalled());
 });

@@ -11,7 +11,7 @@ export interface MenuItem {
 }
 
 export interface FilterMenuProps {
-  initUnblockModal?: ({ tag, source, action }: UnblockModalType) => void;
+  setUnblockItem?: ({ tag, source, action }: UnblockModalType) => void;
 }
 
 export interface UnblockModalType {

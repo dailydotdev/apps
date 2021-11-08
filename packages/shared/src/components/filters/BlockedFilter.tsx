@@ -8,7 +8,7 @@ import useTagContext from '../../hooks/useTagContext';
 import useTagAndSource from '../../hooks/useTagAndSource';
 
 export default function BlockedFilter({
-  initUnblockModal,
+  setUnblockItem,
 }: FilterMenuProps): ReactElement {
   const { feedSettings, isLoading } = useFeedSettings();
   const { onUnblockTags, onFollowSource } = useTagAndSource({
@@ -18,7 +18,7 @@ export default function BlockedFilter({
     useTagContext();
 
   const sourceItemAction = (source) => {
-    initUnblockModal({
+    setUnblockItem({
       source,
       action: () => onFollowSource({ source }),
     });
@@ -50,7 +50,7 @@ export default function BlockedFilter({
       <TagOptionsMenu
         tag={contextSelectedTag}
         onUnblock={() =>
-          initUnblockModal({
+          setUnblockItem({
             tag: contextSelectedTag,
             action: () => onUnblockTags({ tags: [contextSelectedTag] }),
           })

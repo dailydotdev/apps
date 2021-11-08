@@ -5,12 +5,12 @@ import useMutateFilters from './useMutateFilters';
 import { Source } from '../graphql/sources';
 import AlertContext from '../contexts/AlertContext';
 
-interface TagActionArguments {
+export interface TagActionArguments {
   tags: Array<string>;
   category?: string;
 }
 
-interface SourceActionArguments {
+export interface SourceActionArguments {
   source: Source;
 }
 
@@ -21,12 +21,12 @@ export default function useTagAndSource({
   origin?: string;
   postId?: string;
 }): {
-  onFollowTags: (tags, category?) => void;
-  onUnfollowTags: (tags, category?) => void;
-  onBlockTags: (tags) => Promise<unknown>;
-  onUnblockTags: (tags) => Promise<unknown>;
-  onFollowSource: (source) => Promise<unknown>;
-  onUnfollowSource: (source) => Promise<unknown>;
+  onFollowTags: ({ tags, category }: TagActionArguments) => void;
+  onUnfollowTags: ({ tags, category }: TagActionArguments) => void;
+  onBlockTags: ({ tags }: TagActionArguments) => Promise<unknown>;
+  onUnblockTags: ({ tags }: TagActionArguments) => Promise<unknown>;
+  onFollowSource: ({ source }: SourceActionArguments) => Promise<unknown>;
+  onUnfollowSource: ({ source }: SourceActionArguments) => Promise<unknown>;
 } {
   const { alerts, disableFilterAlert } = useContext(AlertContext);
   const { user, showLogin } = useContext(AuthContext);
