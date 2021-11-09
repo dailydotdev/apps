@@ -1,7 +1,7 @@
 import React, { ReactElement, useState } from 'react';
 import dynamic from 'next/dynamic';
 import MultiLevelMenu from '../multiLevelMenu/MultiLevelMenu';
-import { FilterMenuProps, MenuItem } from './common';
+import { MenuItem } from './common';
 import HashtagIcon from '../../../icons/hashtag.svg';
 import FilterIcon from '../../../icons/filter.svg';
 import BlockIcon from '../../../icons/block.svg';
@@ -9,13 +9,19 @@ import PlusIcon from '../../../icons/plus.svg';
 import TagsFilter from './TagsFilter';
 import BlockedFilter from './BlockedFilter';
 import AdvancedSettingsFilter from './AdvancedSettings';
+import UnblockModal from '../modals/UnblockModal';
+import { Tag } from '../../graphql/feedSettings';
+import { Source } from '../../graphql/sources';
 
 const NewSourceModal = dynamic(() => import('../modals/NewSourceModal'));
 
-export default function FilterMenu({
-  setUnblockItem,
-}: FilterMenuProps): ReactElement {
+export default function FilterMenu(): ReactElement {
   const [showNewSourceModal, setShowNewSourceModal] = useState(false);
+  const [unblockItem, setUnblockItem] = useState<{
+    tag?: Tag | string;
+    source?: Source;
+    action?: () => unknown;
+  }>();
 
   const menuItems: MenuItem[] = [
     {
@@ -47,6 +53,14 @@ export default function FilterMenu({
         <NewSourceModal
           isOpen={showNewSourceModal}
           onRequestClose={() => setShowNewSourceModal(false)}
+        />
+      )}
+      {unblockItem && (
+        <UnblockModal
+          item={unblockItem}
+          isOpen={!!unblockItem}
+          onConfirm={unblockItem.action}
+          onRequestClose={() => setUnblockItem(null)}
         />
       )}
     </>

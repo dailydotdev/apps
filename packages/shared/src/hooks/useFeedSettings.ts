@@ -1,6 +1,5 @@
 import { useContext, useMemo, useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
-import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 import { request } from 'graphql-request';
 import {
   AdvancedSettings,
@@ -42,10 +41,10 @@ export default function useFeedSettings(): FeedSettingsReturnType {
       return;
     }
 
-    requestIdleCallback(() => {
+    setTimeout(() => {
       queryClient.invalidateQueries(generateQueryKey('popular', user));
       queryClient.invalidateQueries(generateQueryKey('recent', user));
-    });
+    }, 100);
   }, [tagsCategories, feedSettings]);
 
   return useMemo(() => {
