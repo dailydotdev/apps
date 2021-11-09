@@ -12,6 +12,7 @@
   }
 
   &.menu-secondary {
+    @apply transform-none;
     & .react-contexify__item__content {
       @apply text-theme-label-primary;
 
