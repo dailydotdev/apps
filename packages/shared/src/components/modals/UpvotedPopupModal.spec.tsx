@@ -155,5 +155,5 @@ it('should show permalink', async () => {
 
 it('should show avatar', async () => {
   renderComponent();
-  await screen.findByAltText(`${defaultUser.username} profile picture`);
+  await screen.findByAltText(`${defaultUser.username}'s profile`);
 });

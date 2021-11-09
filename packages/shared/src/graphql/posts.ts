@@ -90,6 +90,7 @@ export const POST_BY_ID_QUERY = gql`
         image
         name
         permalink
+        username
       }
       description
       toc {

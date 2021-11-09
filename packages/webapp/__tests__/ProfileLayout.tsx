@@ -71,7 +71,7 @@ const renderComponent = (
 
 it('should show profile image', async () => {
   renderComponent();
-  const el = await screen.findByAltText(`dailydotdev profile picture`);
+  const el = await screen.findByAltText(`dailydotdev's profile`);
   expect(el).toHaveAttribute('data-src', defaultProfile.image);
 });
 

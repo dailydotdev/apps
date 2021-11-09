@@ -190,7 +190,7 @@ const Step2 = ({
   return (
     <div className="flex flex-col self-stretch laptop:self-center mx-2 mt-5">
       <h1 className="mx-3 mb-8 font-bold typo-title1">Share your #DevCard</h1>
-      <main className="grid grid-cols-2 gap-20">
+      <main className="grid grid-cols-1 laptop:grid-cols-2 gap-10 laptop:gap-20">
         <section className="flex flex-col">
           <Tilt
             className="overflow-hidden relative self-stretch laptop:w-96"
@@ -237,7 +237,7 @@ const Step2 = ({
             className="hidden"
           />
         </section>
-        <section className="flex flex-col self-stretch laptop:self-center mt-16 laptop:mt-0 text-theme-label-tertiary">
+        <section className="flex flex-col self-stretch text-theme-label-tertiary">
           <h2 className="typo-headline">Customize Style</h2>
           <div className={classNames('flex flex-col -my-0.5 items-start mt-8')}>
             <RadioItem

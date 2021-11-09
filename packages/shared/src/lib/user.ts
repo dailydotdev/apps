@@ -24,6 +24,7 @@ export interface PublicProfile {
   premium: boolean;
   image: string;
   reputation: number;
+  permalink: string;
 }
 
 export interface UserProfile {
@@ -54,6 +55,7 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
   createdAt: string;
   reputation?: number;
   permalink: string;
+  username: string;
 }
 
 interface BaseError {
