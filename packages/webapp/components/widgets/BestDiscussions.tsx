@@ -58,8 +58,8 @@ const ListItem = ({ post, onLinkClick }: PostProps): ReactElement => (
               key={comment.author.username}
               user={comment.author}
               size="small"
-              className="absolute"
-              style={{ left: `${index}rem` }}
+              className="top-0"
+              style={{ left: `${index}rem`, position: 'absolute' }}
             />
           ))}
         </div>
