@@ -1,6 +1,5 @@
 import { useContext, useMemo, useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
-import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 import { request } from 'graphql-request';
 import {
   AdvancedSettings,
