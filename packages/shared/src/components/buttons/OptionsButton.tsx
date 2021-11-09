@@ -13,8 +13,8 @@ export default function OptionsButton({
 }): ReactElement {
   return (
     <Button
-      className="right-4 my-auto btn-tertiary"
-      style={{ position: 'absolute' }}
+      className="mouse:invisible mouse:group-hover:visible my-auto btn-tertiary"
+      style={{ marginLeft: 'auto', marginRight: '-0.125rem' }}
       icon={<MenuIcon />}
       onClick={(event) => onClick?.(event, post)}
       buttonSize="small"

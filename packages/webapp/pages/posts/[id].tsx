@@ -14,8 +14,6 @@ import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import UpvoteIcon from '@dailydotdev/shared/icons/upvote.svg';
 import CommentIcon from '@dailydotdev/shared/icons/comment.svg';
 import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
-import TrashIcon from '@dailydotdev/shared/icons/trash.svg';
-import HammerIcon from '@dailydotdev/shared/icons/hammer.svg';
 import FeatherIcon from '@dailydotdev/shared/icons/feather.svg';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import { PageContainer } from '@dailydotdev/shared/src/components/utilities';
@@ -554,22 +552,6 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
               />
             </>
           )}
-          {user?.roles?.indexOf(Roles.Moderator) > -1 && (
-            <>
-              <Button
-                className="btn-tertiary"
-                icon={<HammerIcon />}
-                onClick={() => setShowBanPost(true)}
-                {...getTooltipProps('Mighty ban hammer')}
-              />
-              <Button
-                className="btn-tertiary"
-                icon={<TrashIcon />}
-                onClick={() => setShowDeletePost(true)}
-                {...getTooltipProps('Delete post')}
-              />
-            </>
-          )}
         </div>
 
         <a {...postLinkProps} className="cursor-pointer">
@@ -844,7 +826,20 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           onRequestClose={() => setShowBanPost(false)}
         />
       )}
-      <PostOptionsMenu post={postData?.post} onMessage={onMessage} />
+      <PostOptionsMenu
+        post={postData?.post}
+        onMessage={onMessage}
+        setShowBanPost={
+          user?.roles?.indexOf(Roles.Moderator) > -1
+            ? () => setShowBanPost(true)
+            : null
+        }
+        setShowDeletePost={
+          user?.roles?.indexOf(Roles.Moderator) > -1
+            ? () => setShowDeletePost(true)
+            : null
+        }
+      />
     </>
   );
 };
