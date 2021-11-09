@@ -14,8 +14,6 @@ import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import UpvoteIcon from '@dailydotdev/shared/icons/upvote.svg';
 import CommentIcon from '@dailydotdev/shared/icons/comment.svg';
 import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
-import TrashIcon from '@dailydotdev/shared/icons/trash.svg';
-import HammerIcon from '@dailydotdev/shared/icons/hammer.svg';
 import FeatherIcon from '@dailydotdev/shared/icons/feather.svg';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import { PageContainer } from '@dailydotdev/shared/src/components/utilities';
@@ -487,6 +485,8 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   };
   const { notification, onMessage } = useNotification();
 
+  const isModerator = user?.roles?.indexOf(Roles.Moderator) > -1;
+
   return (
     <>
       <PageContainer className="laptop:self-start laptopL:self-center pt-6 pb-20 laptop:pb-6 laptop:border-r laptopL:border-l laptop:border-theme-divider-tertiary">
@@ -551,22 +551,6 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
                 {...getTooltipProps('Options', {
                   position: 'left',
                 })}
-              />
-            </>
-          )}
-          {user?.roles?.indexOf(Roles.Moderator) > -1 && (
-            <>
-              <Button
-                className="btn-tertiary"
-                icon={<HammerIcon />}
-                onClick={() => setShowBanPost(true)}
-                {...getTooltipProps('Mighty ban hammer')}
-              />
-              <Button
-                className="btn-tertiary"
-                icon={<TrashIcon />}
-                onClick={() => setShowDeletePost(true)}
-                {...getTooltipProps('Delete post')}
               />
             </>
           )}
@@ -844,7 +828,12 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           onRequestClose={() => setShowBanPost(false)}
         />
       )}
-      <PostOptionsMenu post={postData?.post} onMessage={onMessage} />
+      <PostOptionsMenu
+        post={postData?.post}
+        onMessage={onMessage}
+        setShowBanPost={isModerator ? () => setShowBanPost(true) : null}
+        setShowDeletePost={isModerator ? () => setShowDeletePost(true) : null}
+      />
     </>
   );
 };

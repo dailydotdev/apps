@@ -4,6 +4,8 @@ import dynamic from 'next/dynamic';
 import useFeedSettings from '../hooks/useFeedSettings';
 import useReportPost from '../hooks/useReportPost';
 import { Post } from '../graphql/posts';
+import TrashIcon from '../../icons/trash.svg';
+import HammerIcon from '../../icons/hammer.svg';
 import EyeIcon from '../../icons/eye.svg';
 import ShareIcon from '../../icons/share.svg';
 import BlockIcon from '../../icons/block.svg';
@@ -27,6 +29,8 @@ export type PostOptionsMenuProps = {
     timeout?: number,
   ) => Promise<unknown>;
   onRemovePost?: (postIndex: number) => Promise<unknown>;
+  setShowDeletePost?: () => unknown;
+  setShowBanPost?: () => unknown;
 };
 
 const MenuIcon = ({ Icon }) => {
@@ -39,6 +43,8 @@ export default function PostOptionsMenu({
   onHidden,
   onMessage,
   onRemovePost,
+  setShowDeletePost,
+  setShowBanPost,
 }: PostOptionsMenuProps): ReactElement {
   useFeedSettings();
   const { trackEvent } = useContext(AnalyticsContext);
@@ -165,6 +171,20 @@ export default function PostOptionsMenu({
     text: 'Report',
     action: async () => setReportModal({ index: postIndex, post }),
   });
+  if (setShowDeletePost) {
+    postOptions.push({
+      icon: <MenuIcon Icon={TrashIcon} />,
+      text: 'Remove',
+      action: setShowDeletePost,
+    });
+  }
+  if (setShowBanPost) {
+    postOptions.push({
+      icon: <MenuIcon Icon={HammerIcon} />,
+      text: 'Ban',
+      action: setShowBanPost,
+    });
+  }
 
   return (
     <>
