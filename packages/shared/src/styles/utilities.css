@@ -16,6 +16,10 @@
   text-overflow: ellipsis;
 }
 
+.break-word {
+  word-break: break-word;
+}
+
 .no-scrollbar {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
