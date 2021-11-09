@@ -485,6 +485,8 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   };
   const { notification, onMessage } = useNotification();
 
+  const isModerator = user?.roles?.indexOf(Roles.Moderator) > -1;
+
   return (
     <>
       <PageContainer className="laptop:self-start laptopL:self-center pt-6 pb-20 laptop:pb-6 laptop:border-r laptopL:border-l laptop:border-theme-divider-tertiary">
@@ -829,16 +831,8 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
       <PostOptionsMenu
         post={postData?.post}
         onMessage={onMessage}
-        setShowBanPost={
-          user?.roles?.indexOf(Roles.Moderator) > -1
-            ? () => setShowBanPost(true)
-            : null
-        }
-        setShowDeletePost={
-          user?.roles?.indexOf(Roles.Moderator) > -1
-            ? () => setShowDeletePost(true)
-            : null
-        }
+        setShowBanPost={isModerator ? () => setShowBanPost(true) : null}
+        setShowDeletePost={isModerator ? () => setShowDeletePost(true) : null}
       />
     </>
   );

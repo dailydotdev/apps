@@ -175,14 +175,14 @@ export default function PostOptionsMenu({
     postOptions.push({
       icon: <MenuIcon Icon={TrashIcon} />,
       text: 'Remove',
-      action: () => setShowDeletePost(),
+      action: setShowDeletePost,
     });
   }
   if (setShowBanPost) {
     postOptions.push({
       icon: <MenuIcon Icon={HammerIcon} />,
       text: 'Ban',
-      action: () => setShowBanPost(),
+      action: setShowBanPost,
     });
   }
 
