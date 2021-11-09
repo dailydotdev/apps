@@ -46,7 +46,7 @@ export default function PostOptionsMenu({
   setShowDeletePost,
   setShowBanPost,
 }: PostOptionsMenuProps): ReactElement {
-  useFeedSettings();
+  const { setAvoidRefresh } = useFeedSettings();
   const { trackEvent } = useContext(AnalyticsContext);
   const { reportPost, hidePost } = useReportPost();
   const { onUnfollowSource, onBlockTags } = useTagAndSource({
@@ -90,13 +90,17 @@ export default function PostOptionsMenu({
   };
 
   const onBlockSource = async (): Promise<void> => {
+    setAvoidRefresh(true);
     await onUnfollowSource({ source: post?.source });
     showMessageAndRemovePost(`🚫 ${post?.source?.name} blocked`, postIndex);
+    setAvoidRefresh(false);
   };
 
   const onBlockTag = async (tag: string): Promise<void> => {
+    setAvoidRefresh(true);
     await onBlockTags({ tags: [tag] });
-    showMessageAndRemovePost(`⛔️ #${tag} blocked`, postIndex);
+    await showMessageAndRemovePost(`⛔️ #${tag} blocked`, postIndex);
+    setAvoidRefresh(false);
   };
 
   const onHidePost = async (): Promise<void> => {
@@ -159,13 +163,16 @@ export default function PostOptionsMenu({
       action: onBlockSource,
     },
   ];
-  post?.tags?.forEach((tag) =>
-    postOptions.push({
-      icon: <MenuIcon Icon={BlockIcon} />,
-      text: `Not interested in #${tag}`,
-      action: () => onBlockTag(tag),
-    }),
-  );
+  post?.tags?.forEach((tag) => {
+    if (tag.length) {
+      postOptions.push({
+        icon: <MenuIcon Icon={BlockIcon} />,
+        text: `Not interested in #${tag}`,
+        action: () => onBlockTag(tag),
+      });
+    }
+  });
+
   postOptions.push({
     icon: <MenuIcon Icon={FlagIcon} />,
     text: 'Report',

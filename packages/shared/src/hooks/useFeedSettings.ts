@@ -18,13 +18,19 @@ export type FeedSettingsReturnType = {
   feedSettings: FeedSettings;
   isLoading: boolean;
   advancedSettings: AdvancedSettings[];
+  setAvoidRefresh: (value: boolean) => void;
 };
+
+let avoidRefresh = false;
 
 export default function useFeedSettings(): FeedSettingsReturnType {
   const { user } = useContext(AuthContext);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
   const filtersKey = getFeedSettingsQueryKey(user);
   const queryClient = useQueryClient();
+  const setAvoidRefresh = (value: boolean) => {
+    avoidRefresh = value;
+  };
 
   const {
     data: { tagsCategories, feedSettings, advancedSettings } = {},
@@ -36,6 +42,9 @@ export default function useFeedSettings(): FeedSettingsReturnType {
   );
 
   useEffect(() => {
+    if (avoidRefresh) {
+      return;
+    }
     if (isFirstLoad) {
       setIsFirstLoad(false);
       return;
@@ -45,7 +54,7 @@ export default function useFeedSettings(): FeedSettingsReturnType {
       queryClient.invalidateQueries(generateQueryKey('popular', user));
       queryClient.invalidateQueries(generateQueryKey('recent', user));
     }, 100);
-  }, [tagsCategories, feedSettings]);
+  }, [tagsCategories, feedSettings, avoidRefresh]);
 
   return useMemo(() => {
     return {
@@ -53,6 +62,13 @@ export default function useFeedSettings(): FeedSettingsReturnType {
       feedSettings,
       isLoading,
       advancedSettings,
+      setAvoidRefresh,
     };
-  }, [tagsCategories, feedSettings, isLoading, advancedSettings]);
+  }, [
+    tagsCategories,
+    feedSettings,
+    isLoading,
+    advancedSettings,
+    setAvoidRefresh,
+  ]);
 }
