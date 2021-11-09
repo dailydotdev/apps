@@ -150,6 +150,22 @@ const variations = {
     states.darkStates.default.background = 'var(--theme-float)';
     return states;
   },
+  tag: (color) => {
+    const states = variations.tertiaryFloat(color);
+    states.darkStates.default.color = 'var(--theme-label-primary)';
+    states.darkStates.default.icon = 'var(--theme-label-secondary)';
+    states.darkStates.hover.icon = 'var(--theme-label-primary)';
+    return states;
+  },
+  tagBlocked: (color) => {
+    const states = variations.tag(color);
+    states.darkStates.default.color = 'var(--theme-label-secondary)';
+    states.darkStates.hover.color = 'var(--theme-label-primary)';
+    states.darkStates.default.icon = 'var(--theme-label-secondary)';
+    states.darkStates.hover.icon = 'var(--theme-status-error)';
+    states.darkStates.active.icon = 'var(--theme-status-error)';
+    return states;
+  },
 };
 
 const statesToCssInJs = (states) =>

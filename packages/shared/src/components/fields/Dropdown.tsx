@@ -12,7 +12,7 @@ import {
   Menu,
   TriggerEvent,
   useContextMenu,
-} from 'react-contexify';
+} from '@dailydotdev/react-contexify';
 import ArrowIcon from '../../../icons/arrow.svg';
 import styles from './Dropdown.module.css';
 
@@ -52,11 +52,11 @@ export function Dropdown({
   const { show, hideAll } = useContextMenu({ id });
 
   const showMenu = (event: TriggerEvent): void => {
-    const { left, bottom, width } = triggerRef.current.getBoundingClientRect();
+    const { right, bottom, width } = triggerRef.current.getBoundingClientRect();
     setMenuWidth(width);
     setVisibility(true);
     show(event, {
-      position: { x: left, y: bottom + 8 },
+      position: { x: right, y: bottom + 8 },
     });
   };
 
@@ -117,6 +117,7 @@ export function Dropdown({
         />
       </button>
       <Menu
+        disableBoundariesCheck
         id={id}
         className="menu-primary"
         animation="fade"

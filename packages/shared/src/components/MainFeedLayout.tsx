@@ -2,22 +2,14 @@ import React, {
   ReactElement,
   ReactNode,
   useContext,
-  useEffect,
   useMemo,
   useState,
 } from 'react';
 import Link from 'next/link';
-import { useQuery, useQueryClient } from 'react-query';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
-import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 import Feed, { FeedProps } from './Feed';
 import AuthContext from '../contexts/AuthContext';
-import {
-  getSourcesSettingsQueryKey,
-  getTagsSettingsQueryKey,
-} from '../hooks/useMutateFilters';
-import { FeedSettingsData } from '../graphql/feedSettings';
 import { LoggedUser } from '../lib/user';
 import OnboardingContext from '../contexts/OnboardingContext';
 import MagnifyingIcon from '../../icons/magnifying.svg';
@@ -36,6 +28,7 @@ import {
 } from '../graphql/feed';
 import usePersistentState from '../hooks/usePersistentState';
 import FeaturesContext from '../contexts/FeaturesContext';
+import { generateQueryKey } from '../lib/query';
 
 const SearchEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "emptySearch" */ './SearchEmptyScreen'),
@@ -129,14 +122,6 @@ const periods = [
 ];
 const periodTexts = periods.map((period) => period.text);
 
-const generateFeedQueryKey = (
-  feedName: string,
-  user: LoggedUser | null,
-  ...additional: unknown[]
-): unknown[] => {
-  return [feedName, user?.id ?? 'anonymous', ...additional];
-};
-
 function ButtonOrLink({
   asLink,
   href,
@@ -163,7 +148,6 @@ export default function MainFeedLayout({
   searchChildren,
   navChildren,
 }: MainFeedLayoutProps): ReactElement {
-  const queryClient = useQueryClient();
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { onboardingStep, onboardingReady } = useContext(OnboardingContext);
   const { flags } = useContext(FeaturesContext);
@@ -174,7 +158,6 @@ export default function MainFeedLayout({
     'popular',
   );
   const showWelcome = onboardingStep === 1;
-
   const feedName = feedNameProp === 'default' ? defaultFeed : feedNameProp;
   const isUpvoted = !isSearchOn && feedName === 'upvoted';
 
@@ -196,31 +179,11 @@ export default function MainFeedLayout({
     query = { query: null };
   }
 
-  const [loadedTagsSettings, setLoadedTagsSettings] = useState(false);
-  const [loadedSourcesSettings, setLoadedSourcesSettings] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState(0);
-
-  const tagsQueryKey = getTagsSettingsQueryKey(user);
-  const { data: tagsSettings } = useQuery<FeedSettingsData>(
-    tagsQueryKey,
-    () => ({ feedSettings: { includeTags: [] } }),
-    {
-      enabled: false,
-    },
-  );
-  const sourcesQueryKey = getSourcesSettingsQueryKey(user);
-  const { data: sourcesSettings } = useQuery<FeedSettingsData>(
-    sourcesQueryKey,
-    () => ({ feedSettings: { excludeSources: [] } }),
-    {
-      enabled: false,
-    },
-  );
-
   const feedProps = useMemo<FeedProps<unknown>>(() => {
     if (isSearchOn && searchQuery) {
       return {
-        feedQueryKey: generateFeedQueryKey('search', user, searchQuery),
+        feedQueryKey: generateQueryKey('search', user, searchQuery),
         query: SEARCH_POSTS_QUERY,
         variables: { query: searchQuery },
         emptyScreen: <SearchEmptyScreen />,
@@ -233,7 +196,7 @@ export default function MainFeedLayout({
       ? { ...query.variables, period: periods[selectedPeriod].value }
       : query.variables;
     return {
-      feedQueryKey: generateFeedQueryKey(
+      feedQueryKey: generateQueryKey(
         feedName,
         user,
         ...Object.values(variables ?? {}),
@@ -247,31 +210,6 @@ export default function MainFeedLayout({
     query.variables,
     isUpvoted && selectedPeriod,
   ]);
-
-  const refreshFeed = () =>
-    requestIdleCallback(() =>
-      queryClient.invalidateQueries(feedProps?.feedQueryKey),
-    );
-
-  useEffect(() => {
-    if (tagsSettings) {
-      if (loadedTagsSettings) {
-        refreshFeed();
-      } else {
-        setLoadedTagsSettings(true);
-      }
-    }
-  }, [tagsSettings]);
-
-  useEffect(() => {
-    if (sourcesSettings) {
-      if (loadedSourcesSettings) {
-        refreshFeed();
-      } else {
-        setLoadedSourcesSettings(true);
-      }
-    }
-  }, [sourcesSettings]);
 
   const tabClassNames = isSearchOn ? 'btn-tertiary invisible' : 'btn-tertiary';
   const periodDropdownProps: DropdownProps = {
