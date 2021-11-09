@@ -1,10 +1,11 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { LazyImage } from './LazyImage';
+import { LazyImage, LazyImageProps } from './LazyImage';
 import { PublicProfile } from '../lib/user';
 import { fallbackImages } from '../lib/config';
 
-export interface ProfilePictureProps {
+export interface ProfilePictureProps
+  extends Omit<LazyImageProps, 'imgSrc' | 'imgAlt'> {
   user: Pick<PublicProfile, 'image' | 'username'>;
   size?:
     | 'xsmall'
@@ -31,9 +32,11 @@ export function ProfilePicture({
   user,
   size = 'xlarge',
   className,
+  ...props
 }: ProfilePictureProps): ReactElement {
   return (
     <LazyImage
+      {...props}
       imgSrc={user.image}
       imgAlt={`${user.username}'s profile`}
       className={classNames(sizeClasses[size], className)}
