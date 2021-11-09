@@ -42,13 +42,10 @@ export default function useFeedSettings(): FeedSettingsReturnType {
       return;
     }
 
-    requestIdleCallback(
-      () => {
-        queryClient.invalidateQueries(generateQueryKey('popular', user));
-        queryClient.invalidateQueries(generateQueryKey('recent', user));
-      },
-      { timeout: 100 },
-    );
+    setTimeout(() => {
+      queryClient.invalidateQueries(generateQueryKey('popular', user));
+      queryClient.invalidateQueries(generateQueryKey('recent', user));
+    }, 100);
   }, [tagsCategories, feedSettings]);
 
   return useMemo(() => {
