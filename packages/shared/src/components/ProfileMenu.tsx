@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { Item } from 'react-contexify';
+import { Item } from '@dailydotdev/react-contexify';
 import Link from 'next/link';
 import AuthContext from '../contexts/AuthContext';
 import PowerIcon from '../../icons/power.svg';
@@ -22,12 +22,10 @@ const AccountDetailsModal = dynamic(
 );
 
 export type ProfileMenuProps = {
-  width: number;
   onShowDndClick?: () => void;
 };
 
 export default function ProfileMenu({
-  width,
   onShowDndClick,
 }: ProfileMenuProps): ReactElement {
   const [showAccountDetails, setShowAccountDetails] = useState(false);
@@ -43,10 +41,10 @@ export default function ProfileMenu({
         />
       )}
       <PortalMenu
+        disableBoundariesCheck
         id="profile-context"
         className="menu-primary"
         animation="fade"
-        style={{ width: `${width}rem` }}
       >
         <Item>
           <Link href={user.permalink} passHref prefetch={false}>

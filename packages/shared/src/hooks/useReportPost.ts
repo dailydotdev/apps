@@ -11,6 +11,7 @@ type UseReportPostRet = {
   reportPost: (variables: {
     id: string;
     reason: ReportReason;
+    comment?: string;
   }) => Promise<void>;
   hidePost: (id: string) => Promise<void>;
 };
@@ -19,7 +20,7 @@ export default function useReportPost(): UseReportPostRet {
   const { mutateAsync: reportPost } = useMutation<
     void,
     unknown,
-    { id: string; reason: ReportReason }
+    { id: string; reason: ReportReason; comment: string }
   >((variables) =>
     request(`${apiUrl}/graphql`, REPORT_POST_MUTATION, variables),
   );
