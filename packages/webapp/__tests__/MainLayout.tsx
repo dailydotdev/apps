@@ -49,8 +49,9 @@ it('should show profile image and reputation when logged-in', async () => {
     image: 'https://daily.dev/ido.png',
     createdAt: '',
     reputation: 5,
+    permalink: 'https://app.daily.dev/ido',
   });
-  const el = await screen.findByAltText('idoshamun profile picture');
+  const el = await screen.findByAltText(`idoshamun's profile`);
   expect(el).toHaveAttribute('data-src', 'https://daily.dev/ido.png');
   const rep = await screen.findByText('5');
   expect(rep).toBeInTheDocument();
