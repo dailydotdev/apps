@@ -19,6 +19,7 @@ export const FEED_POST_FRAGMENT = gql`
     author {
       name
       image
+      username
     }
     featuredComments {
       id
@@ -27,6 +28,7 @@ export const FEED_POST_FRAGMENT = gql`
       author {
         name
         image
+        username
       }
     }
     trending

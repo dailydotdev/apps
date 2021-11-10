@@ -90,6 +90,7 @@ export const POST_BY_ID_QUERY = gql`
         image
         name
         permalink
+        username
       }
       description
       toc {
@@ -134,6 +135,7 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
       numUpvotes
       numComments
       source {
+        id
         name
         image
       }
@@ -225,6 +227,7 @@ export const AUTHOR_FEED_QUERY = gql`
           commentsPermalink
           image
           source {
+            id
             name
             image
           }
@@ -271,8 +274,8 @@ export const POSTS_ENGAGED_SUBSCRIPTION = gql`
 `;
 
 export const REPORT_POST_MUTATION = gql`
-  mutation ReportPost($id: ID!, $reason: ReportReason!) {
-    reportPost(id: $id, reason: $reason) {
+  mutation ReportPost($id: ID!, $reason: ReportReason!, $comment: String) {
+    reportPost(id: $id, reason: $reason, comment: $comment) {
       _
     }
   }

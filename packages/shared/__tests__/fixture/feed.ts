@@ -23,6 +23,7 @@ const feed: Connection<Post> = {
           image:
             'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos/echojs',
         },
+        tags: ['javascript'],
         permalink: 'http://localhost:4000/r/hfX3FEcvaXhI',
         numComments: 1,
         numUpvotes: 5,

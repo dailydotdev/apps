@@ -9,6 +9,7 @@ export interface Author {
   name: string;
   image: string;
   permalink: string;
+  username: string;
 }
 
 export interface Comment {
@@ -46,6 +47,7 @@ export const COMMENT_FRAGMENT = gql`
       name
       image
       permalink
+      username
     }
   }
 `;
