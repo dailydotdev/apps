@@ -4,7 +4,7 @@ import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import { ReadHistory } from '@dailydotdev/shared/src/graphql/users';
 import XIcon from '@dailydotdev/shared/icons/x.svg';
-import React, { ReactElement } from 'react';
+import React, { MouseEvent, ReactElement } from 'react';
 import classed from '@dailydotdev/shared/src/lib/classed';
 
 export interface ReadingHistoryItemProps {
@@ -23,6 +23,11 @@ function ReadingHistoryItem({
   onHide,
   className,
 }: ReadingHistoryItemProps): ReactElement {
+  const onHideClick = (e: MouseEvent) => {
+    e.stopPropagation();
+    onHide(post.id, timestamp);
+  };
+
   return (
     <Link href={post.url}>
       <section
@@ -45,7 +50,11 @@ function ReadingHistoryItem({
         />
         <p className="flex flex-1 mr-6 ml-4 truncate">{post.title}</p>
         {onHide && (
-          <Button icon={<XIcon />} onClick={() => onHide(post.id, timestamp)} />
+          <Button
+            className="btn-tertiary"
+            icon={<XIcon />}
+            onClick={onHideClick}
+          />
         )}
       </section>
     </Link>
