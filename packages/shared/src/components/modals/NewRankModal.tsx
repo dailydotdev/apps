@@ -185,7 +185,7 @@ export default function NewRankModal({
       <Checkbox
         ref={inputRef}
         name="neverShow"
-        className="self-center mt-6 mb-7"
+        className="self-center mt-4 mb-7"
       >
         Never show this popup again
       </Checkbox>
