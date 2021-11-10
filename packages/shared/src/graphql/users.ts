@@ -77,6 +77,23 @@ export const USER_READING_HISTORY_QUERY = gql`
   }
 `;
 
+interface ReadHistorySource {
+  image: string;
+}
+
+interface ReadHistoryPost {
+  id: string;
+  title: string;
+  url: string;
+  image: string;
+  source: ReadHistorySource;
+}
+
+export interface ReadHistory {
+  timestamp: Date;
+  post: ReadHistoryPost;
+}
+
 export const UPVOTER_FRAGMENT = gql`
   fragment UpvoterFragment on User {
     name
@@ -84,5 +101,38 @@ export const UPVOTER_FRAGMENT = gql`
     bio
     image
     permalink
+  }
+`;
+
+export const READING_HISTORY_QUERY = gql`
+  query ReadHistory($after: String, $first: Int) {
+    readHistory(after: $after, first: $first) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          timestamp
+          post {
+            id
+            title
+            image
+            url
+            source {
+              image
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+export const HIDE_READING_HISTORY_MUTATION = gql`
+  query HideReadHistory($postId: String, $timestamp: DateTime) {
+    hideReadHistory(postId: $postId, timestamp: $timestamp) {
+      _
+    }
   }
 `;
