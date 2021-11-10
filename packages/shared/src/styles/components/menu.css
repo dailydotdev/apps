@@ -9,6 +9,11 @@
     & .react-contexify__item__content {
       @apply text-theme-label-tertiary;
     }
+
+    &.scrollable {
+      height: 240px;
+      overflow-y: scroll;
+    }
   }
 
   &.menu-secondary {

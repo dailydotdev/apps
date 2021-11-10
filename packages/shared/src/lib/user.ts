@@ -56,6 +56,7 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
   reputation?: number;
   permalink: string;
   username: string;
+  timeZone?: string;
 }
 
 interface BaseError {

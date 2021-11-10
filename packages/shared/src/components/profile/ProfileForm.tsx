@@ -21,8 +21,7 @@ const REQUIRED_FIELDS_COUNT = 4;
 
 import { getTimeZoneOptions } from '../../lib/timeZones';
 const timeZoneOptions = getTimeZoneOptions();
-console.log(timeZoneOptions);
-const timezoneValues = timeZoneOptions.map((timezone) => timezone.label);
+const timeZoneValues = timeZoneOptions.map((timeZone) => timeZone.label);
 
 export type RegistrationMode = 'default' | 'author' | 'update';
 
@@ -53,6 +52,7 @@ export default function ProfileForm({
 
   const formRef = useRef<HTMLFormElement>(null);
 
+  const [userTimeZone, setUserTimeZone] = useState<string>(user?.timeZone);
   const [usernameHint, setUsernameHint] = useState<string>();
   const [twitterHint, setTwitterHint] = useState<string>();
   const [githubHint, setGithubHint] = useState<string>();
@@ -144,16 +144,28 @@ export default function ProfileForm({
         validityChanged={updateDisableSubmit}
       />
 
-      <div className="flex flex-col items-stretch">
+      <div className="self-stretch mb-3 flex flex-col items-stretch">
         <label className="px-2 mb-1 font-bold text-theme-label-primary">
           Time zone
         </label>
         <Dropdown
-          selectedIndex={null}
-          onChange={() => console.log('load')}
-          className="w-40"
-          options={timezoneValues}
+          buttonSize="select"
+          selectedIndex={timeZoneOptions.findIndex(
+            (timeZone) => timeZone.value === userTimeZone,
+          )}
+          onChange={(timeZone) => {
+            const findTimeZoneRow = timeZoneOptions.find((_timeZone) => {
+              return _timeZone.label === timeZone;
+            });
+            setUserTimeZone(findTimeZoneRow.value);
+          }}
+          options={timeZoneValues}
+          scrollable={true}
         />
+        <div className="mt-1 px-2 typo-caption1 text-theme-label-tertiary">
+          Your current time zone. Used to calculate your weekly goal's cycle and
+          other time-based activities.
+        </div>
       </div>
       <FormField
         compact
