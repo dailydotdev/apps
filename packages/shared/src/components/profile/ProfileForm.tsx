@@ -19,7 +19,7 @@ import { Dropdown } from '../fields/Dropdown';
 
 const REQUIRED_FIELDS_COUNT = 4;
 
-import { getTimeZoneOptions } from '../../lib/timezones';
+import { getTimeZoneOptions } from '../../lib/timeZones';
 const timeZoneOptions = getTimeZoneOptions();
 console.log(timeZoneOptions);
 const timezoneValues = timeZoneOptions.map((timezone) => timezone.label);
