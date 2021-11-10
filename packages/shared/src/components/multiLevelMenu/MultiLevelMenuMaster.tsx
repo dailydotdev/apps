@@ -18,7 +18,7 @@ export default function MultiLevelMenuMaster({
         >
           <button
             type="button"
-            className="flex items-center w-full py-3 px-4"
+            className="flex items-center py-3 px-4 w-full"
             onClick={
               item.action ||
               (() => setMultiLevelMenuDetail(item, item.component))
