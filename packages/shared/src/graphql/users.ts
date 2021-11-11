@@ -26,8 +26,8 @@ export type UserReadingRank = { currentRank: number };
 export type UserReadingRankData = { userReadingRank: UserReadingRank };
 
 export const USER_READING_RANK_QUERY = gql`
-  query UserReadingRank($id: ID!) {
-    userReadingRank(id: $id) {
+  query UserReadingRank($id: ID!, $timezone: String) {
+    userReadingRank(id: $id, timezone: $timezone) {
       currentRank
     }
   }
@@ -44,8 +44,8 @@ export interface MyRankData {
 }
 
 export const MY_READING_RANK_QUERY = gql`
-  query UserReadingRank($id: ID!) {
-    rank: userReadingRank(id: $id) {
+  query UserReadingRank($id: ID!, $timezone: String) {
+    rank: userReadingRank(id: $id, timezone: $timezone) {
       currentRank
       progressThisWeek
       readToday
