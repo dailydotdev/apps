@@ -1,21 +1,18 @@
 import React, { ReactElement } from 'react';
-import classNames from 'classnames';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import classed from '@dailydotdev/shared/src/lib/classed';
 
 interface ReadingHistoryPlaceholderProps {
   amount?: number;
-  className?: string;
 }
 
 const Text = classed(ElementPlaceholder, 'h-3 rounded-12');
 
 function ReadingHistoryPlaceholder({
   amount = 7,
-  className,
 }: ReadingHistoryPlaceholderProps): ReactElement {
   return (
-    <div className={classNames('flex flex-col', className)}>
+    <div className="flex flex-col">
       {Array(amount)
         .fill(0)
         .map((_, i) => (

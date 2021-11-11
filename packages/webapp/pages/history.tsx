@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { NextSeo } from 'next-seo';
-import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
+import { ResponsiveNoPaddingPageContainer } from '@dailydotdev/shared/src/components/utilities';
 import useReadingHistory from '@dailydotdev/shared/src/hooks/useReadingHistory';
 import MainLayout from '../components/layouts/MainLayout';
 import ReadingHistoryList from '../components/ReadingHistoryList';
@@ -20,29 +20,25 @@ function History(): ReactElement {
   return (
     <MainLayout additionalButtons>
       <NextSeo title="Reading History" nofollow noindex />
-      <ResponsivePageContainer
+      <ResponsiveNoPaddingPageContainer
         className={classNames(
           'flex flex-col',
           isInitialLoading && 'h-screen overflow-hidden',
         )}
         aria-busy={isLoading}
       >
-        <h1 className="mb-2 font-bold typo-headline">Reading History</h1>
+        <h1 className="px-6 mb-2 font-bold typo-headline">Reading History</h1>
         {hasPages && (
           <ReadingHistoryList
-            itemClassName="-mx-8"
             data={data}
             onHide={hideReadHistory}
             infiniteScrollRef={infiniteScrollRef}
           />
         )}
         {isLoading && (
-          <ReadingHistoryPlaceholder
-            className="-mx-8"
-            amount={isInitialLoading ? 15 : 1}
-          />
+          <ReadingHistoryPlaceholder amount={isInitialLoading ? 15 : 1} />
         )}
-      </ResponsivePageContainer>
+      </ResponsiveNoPaddingPageContainer>
     </MainLayout>
   );
 }

@@ -11,18 +11,29 @@ import {
 } from '@dailydotdev/shared/src/lib/dateFormat';
 import ReadingHistoryItem from './ReadingHistoryItem';
 
+const DateTitle = classed('h2', 'typo-body text-theme-label-tertiary');
+
+const getDateGroup = (date: Date, isFirstLabel: boolean) => {
+  const label = getReadHistoryDateFormat(date);
+
+  return (
+    <DateTitle
+      key={label}
+      className={classNames('px-6 my-3', isFirstLabel && 'mt-0')}
+    >
+      {label}
+    </DateTitle>
+  );
+};
+
 export interface ReadHistoryListProps {
   data: ReadHistoryInfiniteData;
-  itemClassName?: string;
   onHide: HideReadHistory;
   infiniteScrollRef: (node?: Element | null) => void;
 }
 
-const DateTitle = classed('h2', 'typo-body text-theme-label-tertiary');
-
 function ReadHistoryList({
   data,
-  itemClassName,
   onHide,
   infiniteScrollRef,
 }: ReadHistoryListProps): ReactElement {
@@ -37,16 +48,7 @@ function ReadHistoryList({
 
           if (!currentDate || !isDateOnlyEqual(currentDate, date)) {
             currentDate = date;
-            const label = getReadHistoryDateFormat(date);
-            const isFirstLabel = pageIndex === 0 && edgeIndex === 0;
-            dom.push(
-              <DateTitle
-                key={label}
-                className={classNames('my-3', isFirstLabel && 'mt-0')}
-              >
-                {label}
-              </DateTitle>,
-            );
+            dom.push(getDateGroup(date, pageIndex === 0 && edgeIndex === 0));
           }
 
           const indexes = { page: pageIndex, edge: edgeIndex };
@@ -56,7 +58,6 @@ function ReadHistoryList({
               key={`${history.post.id}-${timestamp}`}
               history={history}
               onHide={(params) => onHide({ ...params, ...indexes })}
-              className={itemClassName}
             />,
           );
 
