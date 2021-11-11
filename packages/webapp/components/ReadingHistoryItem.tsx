@@ -6,11 +6,12 @@ import { ReadHistory } from '@dailydotdev/shared/src/graphql/users';
 import XIcon from '@dailydotdev/shared/icons/x.svg';
 import React, { MouseEvent, ReactElement } from 'react';
 import classed from '@dailydotdev/shared/src/lib/classed';
+import { HideReadHistory } from '@dailydotdev/shared/src/hooks/useReadingHistory';
 
-export interface ReadingHistoryItemProps {
+interface ReadingHistoryItemProps {
   className?: string;
   history: ReadHistory;
-  onHide?: (postId: string, timestamp: Date) => Promise<unknown>;
+  onHide?: HideReadHistory;
 }
 
 const SourceShadow = classed(
@@ -25,7 +26,7 @@ function ReadingHistoryItem({
 }: ReadingHistoryItemProps): ReactElement {
   const onHideClick = (e: MouseEvent) => {
     e.stopPropagation();
-    onHide(post.id, timestamp);
+    onHide({ postId: post.id, timestamp });
   };
 
   return (

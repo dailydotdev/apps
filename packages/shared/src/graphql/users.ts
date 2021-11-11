@@ -104,6 +104,11 @@ export const UPVOTER_FRAGMENT = gql`
   }
 `;
 
+export interface HideReadHistoryProps {
+  timestamp: Date;
+  postId: string;
+}
+
 export const READING_HISTORY_QUERY = gql`
   query ReadHistory($after: String, $first: Int) {
     readHistory(after: $after, first: $first) {

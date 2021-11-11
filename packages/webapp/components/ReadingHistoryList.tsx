@@ -1,49 +1,36 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { UseInfiniteQueryResult } from 'react-query';
-import { ReadHistory } from '@dailydotdev/shared/src/graphql/users';
-import { RequestDataConnection } from '@dailydotdev/shared/src/graphql/common';
-import useFeedInfiniteScroll from '@dailydotdev/shared/src/hooks/feed/useFeedInfiniteScroll';
+import {
+  HideReadHistory,
+  ReadHistoryInfiniteData,
+} from '@dailydotdev/shared/src/hooks/useReadingHistory';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import {
   isDateOnlyEqual,
   getReadHistoryDateFormat,
 } from '@dailydotdev/shared/src/lib/dateFormat';
-import ReadingHistoryItem, {
-  ReadingHistoryItemProps,
-} from './ReadingHistoryItem';
+import ReadingHistoryItem from './ReadingHistoryItem';
 
-export interface ReadHistoryListProps
-  extends Pick<ReadingHistoryItemProps, 'onHide'> {
-  queryResult: UseInfiniteQueryResult<
-    RequestDataConnection<ReadHistory, 'readHistory'>
-  >;
+export interface ReadHistoryListProps {
+  data: ReadHistoryInfiniteData;
   itemClassName?: string;
+  onHide: HideReadHistory;
+  infiniteScrollRef: (node?: Element | null) => void;
 }
 
 const DateTitle = classed('h2', 'typo-body text-theme-label-tertiary');
 
 function ReadHistoryList({
-  queryResult,
+  data,
   itemClassName,
   onHide,
+  infiniteScrollRef,
 }: ReadHistoryListProps): ReactElement {
-  const canFetchMore =
-    !queryResult.isLoading &&
-    !queryResult.isFetchingNextPage &&
-    queryResult.hasNextPage &&
-    queryResult.data.pages.length > 0;
-
-  const infiniteScrollRef = useFeedInfiniteScroll({
-    fetchPage: queryResult.fetchNextPage,
-    canFetchMore,
-  });
-
   let currentDate: Date;
 
   return (
     <div className="flex relative flex-col">
-      {queryResult.data.pages.map((page) =>
+      {data?.pages.map((page) =>
         page.readHistory.edges.reduce((dom, { node: history }, i) => {
           const { timestamp } = history;
           const date = new Date(timestamp);
