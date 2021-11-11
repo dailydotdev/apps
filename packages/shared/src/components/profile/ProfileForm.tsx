@@ -16,10 +16,9 @@ import classed from '../../lib/classed';
 import styles from './ProfileForm.module.css';
 import { Summary, SummaryArrow } from '../utilities';
 import { Dropdown } from '../fields/Dropdown';
+import { getTimeZoneOptions } from '../../lib/timezones';
 
 const REQUIRED_FIELDS_COUNT = 4;
-
-import { getTimeZoneOptions } from '../../lib/timeZones';
 const timeZoneOptions = getTimeZoneOptions();
 const timeZoneValues = timeZoneOptions.map((timeZone) => timeZone.label);
 
@@ -52,7 +51,7 @@ export default function ProfileForm({
 
   const formRef = useRef<HTMLFormElement>(null);
 
-  const [userTimeZone, setUserTimeZone] = useState<string>(user?.timeZone);
+  const [userTimeZone, setUserTimeZone] = useState<string>(user?.timezone);
   const [usernameHint, setUsernameHint] = useState<string>();
   const [twitterHint, setTwitterHint] = useState<string>();
   const [githubHint, setGithubHint] = useState<string>();
@@ -86,6 +85,7 @@ export default function ProfileForm({
       name: '',
       email: '',
       username: '',
+      timezone: userTimeZone,
     });
 
     const res = await updateProfile(data);
