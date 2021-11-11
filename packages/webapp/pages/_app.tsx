@@ -32,6 +32,7 @@ import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPa
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
 import Seo from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
+import NextNProgress from 'nextjs-progressbar';
 
 // const ReactQueryDevtools = dynamic(
 //   () => import('react-query/devtools').then((mod) => mod.ReactQueryDevtools),
@@ -160,6 +161,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
         <link rel="preconnect" href="https://res.cloudinary.com" />
       </Head>
       <DefaultSeo {...Seo} canonical={canonicalFromRouter(router)} />
+      <NextNProgress color="#fff" height={2} options={{ showSpinner: false }} />
       {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
       {!user && !loadingUser && (windowLoaded || shouldShowLogin) && (
         <LoginModal
