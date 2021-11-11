@@ -1,3 +1,4 @@
+import { cloneDeep } from 'lodash';
 import { apiUrl } from './../lib/config';
 import { READING_HISTORY_QUERY, HideReadHistoryProps, HIDE_READING_HISTORY_MUTATION } from './../graphql/users';
 import { RequestDataConnection } from './../graphql/common';
@@ -10,8 +11,9 @@ import { isEqual } from 'date-fns';
 import useFeedInfiniteScroll from './feed/useFeedInfiniteScroll';
 
 type ReadHistoryData = RequestDataConnection<ReadHistory, 'readHistory'>;
+export type QueryIndexes = { page: number, edge: number };
 
-export type HideReadHistory = (params: HideReadHistoryProps) => Promise<unknown>;
+export type HideReadHistory = (params: HideReadHistoryProps & QueryIndexes) => Promise<unknown>;
 
 export type ReadHistoryInfiniteData = InfiniteData<ReadHistoryData>
 
@@ -26,7 +28,7 @@ export interface UseReadingHistoryReturn {
 
 function useReadingHistory(): UseReadingHistoryReturn {
   const { user } = useContext(AuthContext);
-  const key = `readHistory-${user?.id}`;
+  const key = ['readHistory', user?.id];
   const client = useQueryClient();
   const query = useInfiniteQuery<ReadHistoryData>(
     key,
@@ -34,12 +36,12 @@ function useReadingHistory(): UseReadingHistoryReturn {
       request(`${apiUrl}/graphql`, READING_HISTORY_QUERY, { ...props }),
     {
       getNextPageParam: (lastPage) =>
-        lastPage.readHistory.pageInfo.hasNextPage &&
-        lastPage.readHistory.pageInfo.endCursor,
+        lastPage?.readHistory?.pageInfo.hasNextPage &&
+        lastPage?.readHistory?.pageInfo.endCursor,
     },
   );
 
-  const canFetchMore =
+    const canFetchMore =
     !query.isLoading &&
     !query.isFetchingNextPage &&
     query.hasNextPage &&
@@ -56,29 +58,23 @@ function useReadingHistory(): UseReadingHistoryReturn {
     HideReadHistoryProps,
     () => void
   >(
-    (props: HideReadHistoryProps) =>
-      request(`${apiUrl}/graphql`, HIDE_READING_HISTORY_MUTATION  , props),
+    ({ postId, timestamp }: HideReadHistoryProps) =>
+      request(`${apiUrl}/graphql`, HIDE_READING_HISTORY_MUTATION  , { postId, timestamp }),
     {
-      onMutate: ({ postId, timestamp }: HideReadHistoryProps) => {
-        const current =
-          client.getQueryData<UseInfiniteQueryResult>(key);
-        const history = query.data.pages.map((page) =>
-          page.readHistory.edges.filter(
-            ({ node: view }) =>
-              view.post.id !== postId &&
-              isEqual(new Date(timestamp), new Date(view.timestamp)),
-          ),
-        );
+      onMutate: ({ page, edge }: HideReadHistoryProps & QueryIndexes) => {
+        const current = client.getQueryData<ReadHistoryInfiniteData>(key);
+        const clone = cloneDeep(current);
 
-        client.setQueryData(key, (data: typeof current.data) => ({
-          pages: history,
+        current.pages[page].readHistory.edges.splice(edge, 1);
+        client.setQueryData(key, (data: ReadHistoryInfiniteData) => ({
+          pages: current.pages,
           pageParams: data.pageParams,
         }));
 
         return () =>
           client.setQueryData(key, () => ({
-            pages: current.data.pages,
-            pageParams: current.data.pageParams,
+            pages: clone.pages,
+            pageParams: clone.pageParams,
           }));
       },
       onError: (_, __, rollback) => rollback(),
@@ -88,13 +84,13 @@ function useReadingHistory(): UseReadingHistoryReturn {
   const hasPages = !!query?.data?.pages?.length;
 
   return useMemo(() => ({
-    hasPages,
+      hasPages,
     isLoading: query.isLoading,
     data: query?.data,
     isInitialLoading: !hasPages && query.isLoading,
     hideReadHistory,
     infiniteScrollRef,
-  }), [query, hasPages, hideReadHistory, infiniteScrollRef]);
+  }), [query, query?.data?.pages, hasPages, hideReadHistory, infiniteScrollRef]);
 }
 
 export default useReadingHistory;

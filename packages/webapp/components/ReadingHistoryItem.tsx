@@ -2,16 +2,18 @@ import classNames from 'classnames';
 import Link from 'next/link';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
-import { ReadHistory } from '@dailydotdev/shared/src/graphql/users';
+import {
+  HideReadHistoryProps,
+  ReadHistory,
+} from '@dailydotdev/shared/src/graphql/users';
 import XIcon from '@dailydotdev/shared/icons/x.svg';
 import React, { MouseEvent, ReactElement } from 'react';
 import classed from '@dailydotdev/shared/src/lib/classed';
-import { HideReadHistory } from '@dailydotdev/shared/src/hooks/useReadingHistory';
 
 interface ReadingHistoryItemProps {
   className?: string;
   history: ReadHistory;
-  onHide?: HideReadHistory;
+  onHide?: (params: HideReadHistoryProps) => Promise<unknown>;
 }
 
 const SourceShadow = classed(

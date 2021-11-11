@@ -30,24 +30,32 @@ function ReadHistoryList({
 
   return (
     <div className="flex relative flex-col">
-      {data?.pages.map((page) =>
-        page.readHistory.edges.reduce((dom, { node: history }, i) => {
+      {data?.pages.map((page, pageIndex) =>
+        page.readHistory.edges.reduce((dom, { node: history }, edgeIndex) => {
           const { timestamp } = history;
           const date = new Date(timestamp);
 
           if (!currentDate || !isDateOnlyEqual(currentDate, date)) {
             currentDate = date;
+            const label = getReadHistoryDateFormat(date);
+            const isFirstLabel = pageIndex === 0 && edgeIndex === 0;
             dom.push(
-              <DateTitle className={classNames('my-3', i === 0 && 'mt-0')}>
-                {getReadHistoryDateFormat(date)}
+              <DateTitle
+                key={label}
+                className={classNames('my-3', isFirstLabel && 'mt-0')}
+              >
+                {label}
               </DateTitle>,
             );
           }
 
+          const indexes = { page: pageIndex, edge: edgeIndex };
+
           dom.push(
             <ReadingHistoryItem
+              key={`${history.post.id}-${timestamp}`}
               history={history}
-              onHide={onHide}
+              onHide={(params) => onHide({ ...params, ...indexes })}
               className={itemClassName}
             />,
           );

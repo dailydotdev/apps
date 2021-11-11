@@ -135,7 +135,7 @@ export const READING_HISTORY_QUERY = gql`
 `;
 
 export const HIDE_READING_HISTORY_MUTATION = gql`
-  query HideReadHistory($postId: String, $timestamp: DateTime) {
+  mutation HideReadHistory($postId: String!, $timestamp: DateTime!) {
     hideReadHistory(postId: $postId, timestamp: $timestamp) {
       _
     }
