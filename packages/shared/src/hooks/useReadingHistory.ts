@@ -1,21 +1,31 @@
-import { cloneDeep } from 'lodash';
-import { apiUrl } from './../lib/config';
-import { READING_HISTORY_QUERY, HideReadHistoryProps, HIDE_READING_HISTORY_MUTATION } from './../graphql/users';
-import { RequestDataConnection } from './../graphql/common';
-import { useQueryClient, useInfiniteQuery, useMutation, UseInfiniteQueryResult, UseMutateAsyncFunction, InfiniteData } from 'react-query';
+import {
+  useQueryClient,
+  useInfiniteQuery,
+  useMutation,
+  InfiniteData,
+} from 'react-query';
+import cloneDeep from 'lodash.clonedeep';
 import { useContext, useMemo } from 'react';
-import AuthContext from '../contexts/AuthContext';
-import { ReadHistory } from '../graphql/users';
 import request from 'graphql-request';
-import { isEqual } from 'date-fns';
+import AuthContext from '../contexts/AuthContext';
+import { apiUrl } from '../lib/config';
+import {
+  READING_HISTORY_QUERY,
+  HideReadHistoryProps,
+  HIDE_READING_HISTORY_MUTATION,
+  ReadHistory,
+} from '../graphql/users';
+import { RequestDataConnection } from '../graphql/common';
 import useFeedInfiniteScroll from './feed/useFeedInfiniteScroll';
 
 type ReadHistoryData = RequestDataConnection<ReadHistory, 'readHistory'>;
-export type QueryIndexes = { page: number, edge: number };
+export type QueryIndexes = { page: number; edge: number };
 
-export type HideReadHistory = (params: HideReadHistoryProps & QueryIndexes) => Promise<unknown>;
+export type HideReadHistory = (
+  params: HideReadHistoryProps & QueryIndexes,
+) => Promise<unknown>;
 
-export type ReadHistoryInfiniteData = InfiniteData<ReadHistoryData>
+export type ReadHistoryInfiniteData = InfiniteData<ReadHistoryData>;
 
 export interface UseReadingHistoryReturn {
   hasPages: boolean;
@@ -41,7 +51,7 @@ function useReadingHistory(): UseReadingHistoryReturn {
     },
   );
 
-    const canFetchMore =
+  const canFetchMore =
     !query.isLoading &&
     !query.isFetchingNextPage &&
     query.hasNextPage &&
@@ -59,7 +69,10 @@ function useReadingHistory(): UseReadingHistoryReturn {
     () => void
   >(
     ({ postId, timestamp }: HideReadHistoryProps) =>
-      request(`${apiUrl}/graphql`, HIDE_READING_HISTORY_MUTATION  , { postId, timestamp }),
+      request(`${apiUrl}/graphql`, HIDE_READING_HISTORY_MUTATION, {
+        postId,
+        timestamp,
+      }),
     {
       onMutate: ({ page, edge }: HideReadHistoryProps & QueryIndexes) => {
         const current = client.getQueryData<ReadHistoryInfiniteData>(key);
@@ -83,14 +96,17 @@ function useReadingHistory(): UseReadingHistoryReturn {
 
   const hasPages = !!query?.data?.pages?.length;
 
-  return useMemo(() => ({
+  return useMemo(
+    () => ({
       hasPages,
-    isLoading: query.isLoading,
-    data: query?.data,
-    isInitialLoading: !hasPages && query.isLoading,
-    hideReadHistory,
-    infiniteScrollRef,
-  }), [query, query?.data?.pages, hasPages, hideReadHistory, infiniteScrollRef]);
+      isLoading: query.isLoading,
+      data: query?.data,
+      isInitialLoading: !hasPages && query.isLoading,
+      hideReadHistory,
+      infiniteScrollRef,
+    }),
+    [query, query?.data?.pages, hasPages, hideReadHistory, infiniteScrollRef],
+  );
 }
 
 export default useReadingHistory;
