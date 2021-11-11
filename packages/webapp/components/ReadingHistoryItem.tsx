@@ -39,7 +39,7 @@ function ReadingHistoryItem({
         <LazyImage
           imgSrc={post.image}
           imgAlt={post.title}
-          className="w-24 h-16 rounded-16"
+          className="w-16 laptop:w-24 h-16 rounded-16"
         />
         <SourceShadow />
         <LazyImage
@@ -48,7 +48,9 @@ function ReadingHistoryItem({
           className="left-6 w-6 h-6 rounded-full"
           absolute
         />
-        <p className="flex flex-1 mr-6 ml-4 truncate">{post.title}</p>
+        <p className="flex flex-wrap flex-1 mr-6 ml-4 line-clamp-3 typo-callout">
+          {post.title}
+        </p>
         {onHide && (
           <Button
             className="btn-tertiary"

@@ -122,7 +122,8 @@ module.exports = {
       visibility: ['group-hover'],
     },
   },
-  plugins: [caret, typography, buttons],
+  // eslint-disable-next-line global-require
+  plugins: [caret, typography, buttons, require('@tailwindcss/line-clamp')],
   corePlugins: {
     invert: false,
   },
