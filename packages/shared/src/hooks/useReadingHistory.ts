@@ -9,6 +9,7 @@ import { useContext, useMemo } from 'react';
 import request from 'graphql-request';
 import AuthContext from '../contexts/AuthContext';
 import { apiUrl } from '../lib/config';
+import { LoggedUser } from '../lib/user';
 import {
   READING_HISTORY_QUERY,
   HideReadHistoryProps,
@@ -18,7 +19,7 @@ import {
 import { RequestDataConnection } from '../graphql/common';
 import useFeedInfiniteScroll from './feed/useFeedInfiniteScroll';
 
-type ReadHistoryData = RequestDataConnection<ReadHistory, 'readHistory'>;
+export type ReadHistoryData = RequestDataConnection<ReadHistory, 'readHistory'>;
 export type QueryIndexes = { page: number; edge: number };
 
 export type HideReadHistory = (
@@ -36,8 +37,7 @@ export interface UseReadingHistoryReturn {
   infiniteScrollRef: (node?: Element | null) => void;
 }
 
-function useReadingHistory(): UseReadingHistoryReturn {
-  const { user } = useContext(AuthContext);
+function useReadingHistory(user?: LoggedUser): UseReadingHistoryReturn {
   const key = ['readHistory', user?.id];
   const client = useQueryClient();
   const query = useInfiniteQuery<ReadHistoryData>(
