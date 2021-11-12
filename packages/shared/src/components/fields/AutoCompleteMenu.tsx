@@ -45,6 +45,7 @@ export default function AutoCompleteMenu({
         left: placement?.x,
         opacity: isOpen ? 1 : 0,
         width: placement?.width,
+        transform: 'none',
       }}
     >
       {sanitizedItems.map((item, index) => (

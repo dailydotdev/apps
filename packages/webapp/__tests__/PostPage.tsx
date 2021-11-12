@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  findAllByText,
   findByText,
   render,
   RenderResult,
@@ -291,7 +292,10 @@ it('should open new comment modal and set the correct props', async () => {
   el.click();
   const dialog = await screen.findByRole('dialog');
   expect(dialog).toBeInTheDocument();
-  expect(await screen.findByText('Towards Data Science')).toBeInTheDocument();
+  // eslint-disable-next-line testing-library/prefer-screen-queries
+  expect((await findAllByText(dialog, 'Towards Data Science')).length).toEqual(
+    2,
+  );
   // eslint-disable-next-line testing-library/prefer-screen-queries
   await findByText(dialog, 'Learn SQL');
   // eslint-disable-next-line testing-library/prefer-screen-queries
