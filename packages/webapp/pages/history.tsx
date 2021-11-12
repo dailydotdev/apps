@@ -37,6 +37,7 @@ const History = (): ReactElement => {
           isInitialLoading && 'h-screen overflow-hidden',
         )}
         aria-busy={isLoading}
+        role="main"
       >
         <h1 className="px-6 mb-2 font-bold typo-headline">Reading History</h1>
         <ReadingHistoryList
