@@ -28,7 +28,7 @@ export type HideReadHistory = (
 export type ReadHistoryInfiniteData = InfiniteData<ReadHistoryData>;
 
 export interface UseReadingHistoryReturn {
-  hasPages: boolean;
+  hasData: boolean;
   data?: ReadHistoryInfiniteData;
   isInitialLoading: boolean;
   isLoading: boolean;
@@ -94,18 +94,20 @@ function useReadingHistory(): UseReadingHistoryReturn {
     },
   );
 
-  const hasPages = !!query?.data?.pages?.length;
+  const hasData = query?.data?.pages?.some(
+    (page) => page.readHistory.edges.length > 0,
+  );
 
   return useMemo(
     () => ({
-      hasPages,
+      hasData,
       isLoading: query.isLoading,
       data: query?.data,
-      isInitialLoading: !hasPages && query.isLoading,
+      isInitialLoading: !hasData && query.isLoading,
       hideReadHistory,
       infiniteScrollRef,
     }),
-    [query, query?.data?.pages, hasPages, hideReadHistory, infiniteScrollRef],
+    [query, query?.data?.pages, hasData, hideReadHistory, infiniteScrollRef],
   );
 }
 

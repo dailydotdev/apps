@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
-import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
-import classed from '@dailydotdev/shared/src/lib/classed';
+import { ElementPlaceholder } from '../ElementPlaceholder';
+import classed from '../../lib/classed';
 
 interface ReadingHistoryPlaceholderProps {
   amount?: number;

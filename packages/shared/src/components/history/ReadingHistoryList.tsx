@@ -3,12 +3,12 @@ import classNames from 'classnames';
 import {
   HideReadHistory,
   ReadHistoryInfiniteData,
-} from '@dailydotdev/shared/src/hooks/useReadingHistory';
-import classed from '@dailydotdev/shared/src/lib/classed';
+} from '../../hooks/useReadingHistory';
+import classed from '../../lib/classed';
 import {
   isDateOnlyEqual,
   getReadHistoryDateFormat,
-} from '@dailydotdev/shared/src/lib/dateFormat';
+} from '../../lib/dateFormat';
 import ReadingHistoryItem from './ReadingHistoryItem';
 
 const DateTitle = classed('h2', 'typo-body text-theme-label-tertiary');
