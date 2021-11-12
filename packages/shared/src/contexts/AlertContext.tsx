@@ -51,8 +51,8 @@ export const AlertContextProvider = ({
       }),
     {
       onMutate: (params) => {
-        const rollback = Object.entries(alerts).reduce(
-          (values, [key, value]) => ({ ...values, [key]: value }),
+        const rollback = Object.keys(alerts).reduce(
+          (values, key) => ({ ...values, [key]: alerts[key] }),
           {},
         );
 
