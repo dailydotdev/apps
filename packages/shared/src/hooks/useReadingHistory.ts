@@ -5,9 +5,8 @@ import {
   InfiniteData,
 } from 'react-query';
 import cloneDeep from 'lodash.clonedeep';
-import { useContext, useMemo } from 'react';
+import { useMemo } from 'react';
 import request from 'graphql-request';
-import AuthContext from '../contexts/AuthContext';
 import { apiUrl } from '../lib/config';
 import { LoggedUser } from '../lib/user';
 import {
