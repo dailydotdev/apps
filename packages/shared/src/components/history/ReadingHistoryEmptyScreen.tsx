@@ -12,7 +12,7 @@ import { PageContainer } from '../utilities';
 
 function ReadingHistoryEmptyScreen(): ReactElement {
   return (
-    <PageContainer role="main" aria-busy={true}>
+    <PageContainer>
       <EmptyScreenContainer>
         <EyeIcon
           className={EmptyScreenIcon.className}
