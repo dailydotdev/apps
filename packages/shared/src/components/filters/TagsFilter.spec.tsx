@@ -155,7 +155,7 @@ it('should follow a tag on click and remove filter alert if enabled', async () =
   const { baseElement } = renderComponent(
     [createAllTagCategoriesMock()],
     defaultUser,
-    { alerts: { filter: true }, disableFilterAlert: disableAlertFilterMock },
+    { alerts: { filter: true }, updateAlerts: disableAlertFilterMock },
   );
 
   mockGraphQL({

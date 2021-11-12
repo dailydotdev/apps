@@ -7,12 +7,18 @@ import { apiUrl } from '../lib/config';
 
 export const ALERT_DEFAULTS: Alerts = {
   filter: false,
+  rank: false,
 };
 
 export interface AlertContextData {
-  alerts: { filter?: boolean };
+  alerts: Alerts;
   setAlerts?: (alerts: Alerts) => Promise<void>;
-  disableFilterAlert?: UseMutateAsyncFunction;
+  updateAlerts?: UseMutateAsyncFunction<
+    unknown,
+    unknown,
+    Alerts,
+    () => Promise<void>
+  >;
 }
 
 const AlertContext = React.createContext<AlertContextData>({
@@ -28,23 +34,31 @@ export const AlertContextProvider = ({
   children,
   alerts: alertsProp,
 }: AlertContextProviderProps): ReactElement => {
-  const [alerts, setAlerts] = usePersistentState('alert', null, ALERT_DEFAULTS);
-  const { mutateAsync: disableFilterAlert } = useMutation<
+  const [alerts, setAlerts] = usePersistentState<Alerts>(
+    'alert',
+    null,
+    ALERT_DEFAULTS,
+  );
+  const { mutateAsync: updateAlerts } = useMutation<
     unknown,
     unknown,
-    void,
+    Alerts,
     () => Promise<void>
   >(
-    () =>
+    (params) =>
       request(`${apiUrl}/graphql`, UPDATE_ALERTS, {
-        data: { filter: false },
+        data: params,
       }),
     {
-      onMutate: () => {
-        const previousFilterValue = alerts.filter;
-        setAlerts({ ...alerts, filter: false });
+      onMutate: (params) => {
+        const rollback = Object.entries(alerts).reduce(
+          (values, [key, value]) => ({ ...values, [key]: value }),
+          {},
+        );
 
-        return () => setAlerts({ ...alerts, filter: previousFilterValue });
+        setAlerts({ ...alerts, ...params });
+
+        return () => setAlerts({ ...alerts, ...rollback });
       },
       onError: (_, __, rollback) => rollback(),
     },
@@ -54,9 +68,9 @@ export const AlertContextProvider = ({
     () => ({
       alerts,
       setAlerts,
-      disableFilterAlert,
+      updateAlerts,
     }),
-    [alerts, setAlerts, disableFilterAlert],
+    [alerts, setAlerts, updateAlerts],
   );
 
   useEffect(() => {

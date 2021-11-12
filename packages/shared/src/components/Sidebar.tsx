@@ -11,7 +11,7 @@ import AlertContext from '../contexts/AlertContext';
 const asideWidth = sizeN(89);
 
 export default function Sidebar(): ReactElement {
-  const { alerts, disableFilterAlert } = useContext(AlertContext);
+  const { alerts, updateAlerts } = useContext(AlertContext);
   const { feedSettings } = useFeedSettings();
   const [opened, setOpened] = useState(false);
   const { onboardingStep, incrementOnboardingStep } =
@@ -33,7 +33,7 @@ export default function Sidebar(): ReactElement {
           feedSettings?.excludeSources?.length ||
           feedSettings?.advancedSettings?.length)
       ) {
-        disableFilterAlert();
+        updateAlerts({ filter: false });
       }
     }
   };

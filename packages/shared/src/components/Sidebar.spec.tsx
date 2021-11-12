@@ -31,7 +31,7 @@ const renderComponent = (
   alertsData: AlertContextData = {
     alerts: { filter: true },
     setAlerts: jest.fn(),
-    disableFilterAlert: disableAlertFilterMock,
+    updateAlerts: disableAlertFilterMock,
   },
 ): RenderResult => {
   client = new QueryClient();

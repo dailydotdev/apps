@@ -136,7 +136,7 @@ it('should mutate update feed advanced settings', async () => {
     [createAdvancedSettingsAndFiltersMock()],
     {
       alerts: { filter: true },
-      disableFilterAlert: disableAlertFilterMock,
+      updateAlerts: disableAlertFilterMock,
     },
   );
 
