@@ -30,9 +30,9 @@ import '@dailydotdev/shared/src/styles/globals.css';
 import useThirdPartyAnalytics from '@dailydotdev/shared/src/hooks/useThirdPartyAnalytics';
 import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPageView';
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
+import NextNProgress from 'nextjs-progressbar';
 import Seo from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
-import NextNProgress from 'nextjs-progressbar';
 
 // const ReactQueryDevtools = dynamic(
 //   () => import('react-query/devtools').then((mod) => mod.ReactQueryDevtools),
