@@ -34,8 +34,6 @@ export function commentDateFormat(
   now = new Date(),
 ): string {
   const date = new Date(value);
-  const timezonedDate = date.toLocaleString('en-US', { timeZone: 'UTC' });
-
   const dt = (now.getTime() - date.getTime()) / 1000;
 
   if (dt <= oneMinute) return 'Now';

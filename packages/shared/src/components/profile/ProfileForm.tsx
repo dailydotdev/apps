@@ -144,10 +144,10 @@ export default function ProfileForm({
         validityChanged={updateDisableSubmit}
       />
 
-      <div className="self-stretch mb-3 flex flex-col items-stretch">
-        <label className="px-2 mb-1 font-bold text-theme-label-primary">
+      <div className="flex flex-col items-stretch self-stretch mb-3">
+        <p className="px-2 mb-1 font-bold text-theme-label-primary">
           Time zone
-        </label>
+        </p>
         <Dropdown
           buttonSize="select"
           selectedIndex={timeZoneOptions.findIndex(
@@ -160,11 +160,11 @@ export default function ProfileForm({
             setUserTimeZone(findTimeZoneRow.value);
           }}
           options={timeZoneValues}
-          scrollable={true}
+          scrollable
         />
-        <div className="mt-1 px-2 typo-caption1 text-theme-label-tertiary">
-          Your current time zone. Used to calculate your weekly goal's cycle and
-          other time-based activities.
+        <div className="px-2 mt-1 typo-caption1 text-theme-label-tertiary">
+          Your current time zone. Used to calculate your weekly goal&apos;s
+          cycle and other time-based activities.
         </div>
       </div>
       <FormField

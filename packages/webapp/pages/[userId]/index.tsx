@@ -146,6 +146,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
     () =>
       request(`${apiUrl}/graphql`, USER_READING_HISTORY_QUERY, {
         id: profile?.id,
+        timezone: profile?.timezone,
         before,
         after,
       }),

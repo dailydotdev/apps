@@ -15,6 +15,7 @@
     "@dailydotdev/react-contexify": "^5.0.0",
     "classnames": "^2.3.1",
     "date-fns": "^2.22.1",
+    "date-fns-tz": "^1.1.6",
     "dompurify": "^2.3.0",
     "graphql": "^15.5.0",
     "graphql-request": "^3.4.0",

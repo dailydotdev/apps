@@ -65,12 +65,22 @@ export interface UserReadHistoryData {
 }
 
 export const USER_READING_HISTORY_QUERY = gql`
-  query UserReadingHistory($id: ID!, $after: String!, $before: String!) {
-    userReadingRankHistory(id: $id) {
+  query UserReadingHistory(
+    $id: ID!
+    $timezone: String
+    $after: String!
+    $before: String!
+  ) {
+    userReadingRankHistory(id: $id, timezone: $timezone) {
       rank
       count
     }
-    userReadHistory(id: $id, after: $after, before: $before) {
+    userReadHistory(
+      id: $id
+      timezone: $timezone
+      after: $after
+      before: $before
+    ) {
       date
       reads
     }
