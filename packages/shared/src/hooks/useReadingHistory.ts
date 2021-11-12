@@ -4,7 +4,6 @@ import {
   useMutation,
   InfiniteData,
 } from 'react-query';
-import cloneDeep from 'lodash.clonedeep';
 import { useMemo } from 'react';
 import request from 'graphql-request';
 import { apiUrl } from '../lib/config';
@@ -75,19 +74,20 @@ function useReadingHistory(user?: LoggedUser): UseReadingHistoryReturn {
     {
       onMutate: ({ page, edge }: HideReadHistoryProps & QueryIndexes) => {
         const current = client.getQueryData<ReadHistoryInfiniteData>(key);
-        const clone = cloneDeep(current);
-
-        current.pages[page].readHistory.edges.splice(edge, 1);
+        const [history] = current.pages[page].readHistory.edges.splice(edge, 1);
         client.setQueryData(key, (data: ReadHistoryInfiniteData) => ({
           pages: current.pages,
           pageParams: data.pageParams,
         }));
 
         return () =>
-          client.setQueryData(key, () => ({
-            pages: clone.pages,
-            pageParams: clone.pageParams,
-          }));
+          client.setQueryData(key, (data: ReadHistoryInfiniteData) => {
+            data.pages[page].readHistory.edges.push(history);
+            return {
+              pages: data.pages,
+              pageParams: data.pageParams,
+            };
+          });
       },
       onError: (_, __, rollback) => rollback(),
     },
