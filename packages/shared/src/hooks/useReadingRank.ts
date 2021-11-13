@@ -57,7 +57,7 @@ export default function useReadingRank(): ReturnType {
     rank: MyRankData = remoteRank,
     newNeverShowRankModal = alerts.rank,
   ) => {
-    if (newNeverShowRankModal) {
+    if (!newNeverShowRankModal) {
       updateAlerts({ rank: false });
     }
 
