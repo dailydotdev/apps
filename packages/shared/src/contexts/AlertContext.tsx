@@ -12,7 +12,6 @@ export const ALERT_DEFAULTS: Alerts = {
 
 export interface AlertContextData {
   alerts: Alerts;
-  setAlerts?: (alerts: Alerts) => Promise<void>;
   updateAlerts?: UseMutateAsyncFunction<
     unknown,
     unknown,
@@ -67,10 +66,9 @@ export const AlertContextProvider = ({
   const alertContextData = useMemo(
     () => ({
       alerts,
-      setAlerts,
       updateAlerts,
     }),
-    [alerts, setAlerts, updateAlerts],
+    [alerts, updateAlerts],
   );
 
   useEffect(() => {
