@@ -6,10 +6,7 @@ import nock from 'nock';
 import { ReadHistoryData } from '@dailydotdev/shared/src/hooks/useReadingHistory';
 import { READING_HISTORY_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import {
-  MockedGraphQLResponse,
-  mockGraphQL,
-} from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
 import HistoryPage from '../pages/history';
 import { waitForNock } from './helpers/utilities';
 
@@ -18,38 +15,33 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-// const createdAtOld = new Date('2020-09-22T07:15:51.247Z');
-// const createdAtOlder = new Date('2021-08-22T07:15:51.247Z');
-// const createdAtNew = new Date('2021-09-22T07:15:51.247Z');
-const createdAtNewer = new Date('2021-10-22T07:15:51.247Z');
-
-const defaultReadingHistory: ReadHistoryData = {
+const timestamp = new Date('2021-10-22T07:15:51.247Z');
+const edge = {
+  node: {
+    timestamp,
+    post: {
+      id: 'p1',
+      title: 'Most Recent Post',
+      url: 'most.recent.post.url',
+      image: 'most.recent.post.image',
+      source: {
+        image: 'most.recent.post.source.image',
+      },
+    },
+  },
+};
+const getDefaultHistory = (edges = [edge]): ReadHistoryData => ({
   readHistory: {
     pageInfo: {
       hasNextPage: true,
       endCursor: '',
     },
-    edges: [
-      {
-        node: {
-          timestamp: createdAtNewer,
-          post: {
-            id: 'p1',
-            title: 'Most Recent Post',
-            url: 'most.recent.post.url',
-            image: 'most.recent.post.image',
-            source: {
-              image: 'most.recent.post.source.image',
-            },
-          },
-        },
-      },
-    ],
+    edges,
   },
-};
+});
 
 const createReadingHistoryMock = (
-  history = defaultReadingHistory,
+  history = getDefaultHistory(),
 ): MockedGraphQLResponse<ReadHistoryData> => ({
   request: { query: READING_HISTORY_QUERY },
   result: { data: history },
@@ -100,10 +92,17 @@ const renderComponent = (
 
 it('should show appropriate loading attributes', async () => {
   renderComponent();
-  const loading = await screen.findByRole('main');
-  expect(loading).toHaveAttribute('aria-busy');
+  const busy = (await screen.findByRole('main')).getAttribute('aria-busy');
+  expect(JSON.parse(busy)).toEqual(true);
   await waitForNock();
-  await screen.findByText('Most Recent Post');
-  const main = await screen.findByRole('main');
-  expect(main).not.toHaveAttribute('aria-busy');
+  const notBusy = (await screen.findByRole('main')).getAttribute('aria-busy');
+  expect(JSON.parse(notBusy)).toEqual(false);
+});
+
+it('should show display empty screen when no view history is found', async () => {
+  const emptyHistory = getDefaultHistory([]);
+  const mock = createReadingHistoryMock(emptyHistory);
+  renderComponent([mock]);
+  await waitForNock();
+  await screen.findByText('Your reading history is empty');
 });
