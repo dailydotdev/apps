@@ -1,4 +1,4 @@
-import React, { MouseEvent, ReactElement } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { HideReadHistoryProps, ReadHistory } from '../../graphql/users';
 import XIcon from '../../../icons/x.svg';
@@ -22,11 +22,6 @@ function ReadingHistoryItem({
   onHide,
   className,
 }: ReadingHistoryItemProps): ReactElement {
-  const onHideClick = (e: MouseEvent) => {
-    e.stopPropagation();
-    onHide({ postId: post.id, timestamp });
-  };
-
   return (
     <section className="flex relative items-center">
       <a
@@ -59,7 +54,7 @@ function ReadingHistoryItem({
           role="button"
           className="right-5 btn-tertiary"
           icon={<XIcon />}
-          onClick={onHideClick}
+          onClick={() => onHide({ postId: post.id, timestamp })}
         />
       )}
     </section>
