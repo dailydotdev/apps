@@ -25,7 +25,7 @@ export default function TagsFilter({
     useTagContext();
   const { onFollowTags, onUnfollowTags, onBlockTags, onUnblockTags } =
     useTagAndSource({
-      origin: 'tags search',
+      origin: `tags ${query?.length > 0 ? 'search' : 'filter'}`,
     });
 
   const { data: searchResults } = useQuery<SearchTagsData>(

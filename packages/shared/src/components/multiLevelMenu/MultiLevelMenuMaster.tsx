@@ -13,12 +13,12 @@ export default function MultiLevelMenuMaster({
     <ul className="mt-6">
       {menuItems.map((item) => (
         <li
-          className="py-3 px-4 first:border-t border-b cursor-pointer border-theme-divider-tertiary"
+          className="first:border-t border-b cursor-pointer border-theme-divider-tertiary"
           key={item.title}
         >
           <button
             type="button"
-            className="flex items-center w-full"
+            className="flex items-center py-3 px-4 w-full"
             onClick={
               item.action ||
               (() => setMultiLevelMenuDetail(item, item.component))
