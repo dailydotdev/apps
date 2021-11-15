@@ -23,10 +23,10 @@ function ReadingHistoryItem({
   className,
 }: ReadingHistoryItemProps): ReactElement {
   return (
-    <section className="flex relative items-center">
+    <section className="flex relative items-center hover:bg-theme-hover">
       <a
         className={classNames(
-          'flex flex-1 flex-row items-center py-3 pr-16 pl-9 hover:bg-theme-hover hover:cursor-pointer',
+          'flex flex-1 flex-row items-center py-3 pr-16 pl-9',
           className,
         )}
         href={post.url}
