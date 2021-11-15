@@ -18,7 +18,7 @@ import { Summary, SummaryArrow } from '../utilities';
 import { Dropdown } from '../fields/Dropdown';
 import {
   getTimeZoneOptions,
-  getUserDefaultTimezone,
+  getUserInitialTimezone,
 } from '../../lib/timezones';
 
 const REQUIRED_FIELDS_COUNT = 4;
@@ -53,11 +53,12 @@ export default function ProfileForm({
   const { user, updateUser } = useContext(AuthContext);
   const formRef = useRef<HTMLFormElement>(null);
 
-  const emptyTimezoneMode =
-    mode === 'update' ? 'Europe/London' : getUserDefaultTimezone();
-  const initialTimezone = user?.timezone ? user?.timezone : emptyTimezoneMode;
-
-  const [userTimeZone, setUserTimeZone] = useState<string>(initialTimezone);
+  const [userTimeZone, setUserTimeZone] = useState<string>(
+    getUserInitialTimezone({
+      userTimezone: user?.timezone,
+      update: !!(mode === 'update'),
+    }),
+  );
   const [usernameHint, setUsernameHint] = useState<string>();
   const [twitterHint, setTwitterHint] = useState<string>();
   const [githubHint, setGithubHint] = useState<string>();
