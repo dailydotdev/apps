@@ -150,16 +150,15 @@ const TimezoneText = ({ onShowAccount }) => {
 
   const signIn = (
     <p className={classes}>
-      To fit the weekly goal to your time zone, please{' '}
       <ClickableText
         tag="a"
         className="inline-flex text-theme-label-link"
         {...getTooltipProps('Login')}
         onClick={() => showLogin('ranks instructions')}
       >
-        sign in
+        Sign in
       </ClickableText>{' '}
-      and add it in the account details.
+      to add your weekly goal achievements to your profile.
     </p>
   );
 
