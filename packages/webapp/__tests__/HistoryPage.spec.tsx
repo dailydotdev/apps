@@ -43,7 +43,7 @@ const getDefaultHistory = (edges = [edge]): ReadHistoryData => ({
 const createReadingHistoryMock = (
   history = getDefaultHistory(),
 ): MockedGraphQLResponse<ReadHistoryData> => ({
-  request: { query: READING_HISTORY_QUERY },
+  request: { query: READING_HISTORY_QUERY, variables: { after: undefined } },
   result: { data: history },
 });
 
@@ -92,17 +92,13 @@ const renderComponent = (
 
 it('should show appropriate loading attributes', async () => {
   renderComponent();
-  const busy = (await screen.findByRole('main')).getAttribute('aria-busy');
-  expect(JSON.parse(busy)).toEqual(true);
+  const initialBusyState = (await screen.findByRole('main')).getAttribute(
+    'aria-busy',
+  );
+  expect(JSON.parse(initialBusyState)).toEqual(true);
   await waitForNock();
-  const notBusy = (await screen.findByRole('main')).getAttribute('aria-busy');
-  expect(JSON.parse(notBusy)).toEqual(false);
-});
-
-it('should show display empty screen when no view history is found', async () => {
-  const emptyHistory = getDefaultHistory([]);
-  const mock = createReadingHistoryMock(emptyHistory);
-  renderComponent([mock]);
-  await waitForNock();
-  await screen.findByText('Your reading history is empty');
+  const afterFetchingBusyState = (await screen.findByRole('main')).getAttribute(
+    'aria-busy',
+  );
+  expect(JSON.parse(afterFetchingBusyState)).toEqual(false);
 });

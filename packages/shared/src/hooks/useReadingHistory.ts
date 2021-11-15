@@ -42,7 +42,9 @@ function useReadingHistory(user?: LoggedUser): UseReadingHistoryReturn {
     useInfiniteQuery<ReadHistoryData>(
       key,
       ({ pageParam }) =>
-        request(`${apiUrl}/graphql`, READING_HISTORY_QUERY, { pageParam }),
+        request(`${apiUrl}/graphql`, READING_HISTORY_QUERY, {
+          after: pageParam,
+        }),
       {
         getNextPageParam: (lastPage) =>
           lastPage?.readHistory?.pageInfo.hasNextPage &&
