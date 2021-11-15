@@ -56,7 +56,7 @@ export default function ProfileForm({
   const [userTimeZone, setUserTimeZone] = useState<string>(
     getUserInitialTimezone({
       userTimezone: user?.timezone,
-      update: !!(mode === 'update'),
+      update: mode === 'update',
     }),
   );
   const [usernameHint, setUsernameHint] = useState<string>();
