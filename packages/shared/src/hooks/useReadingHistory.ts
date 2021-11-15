@@ -38,25 +38,23 @@ export interface UseReadingHistoryReturn {
 function useReadingHistory(user?: LoggedUser): UseReadingHistoryReturn {
   const key = ['readHistory', user?.id];
   const client = useQueryClient();
-  const query = useInfiniteQuery<ReadHistoryData>(
-    key,
-    (props) =>
-      request(`${apiUrl}/graphql`, READING_HISTORY_QUERY, { ...props }),
-    {
-      getNextPageParam: (lastPage) =>
-        lastPage?.readHistory?.pageInfo.hasNextPage &&
-        lastPage?.readHistory?.pageInfo.endCursor,
-    },
-  );
+  const { isLoading, isFetchingNextPage, hasNextPage, data, fetchNextPage } =
+    useInfiniteQuery<ReadHistoryData>(
+      key,
+      ({ pageParam }) =>
+        request(`${apiUrl}/graphql`, READING_HISTORY_QUERY, { pageParam }),
+      {
+        getNextPageParam: (lastPage) =>
+          lastPage?.readHistory?.pageInfo.hasNextPage &&
+          lastPage?.readHistory?.pageInfo.endCursor,
+      },
+    );
 
   const canFetchMore =
-    !query.isLoading &&
-    !query.isFetchingNextPage &&
-    query.hasNextPage &&
-    query.data.pages.length > 0;
+    !isLoading && !isFetchingNextPage && hasNextPage && data.pages.length > 0;
 
   const infiniteScrollRef = useFeedInfiniteScroll({
-    fetchPage: query.fetchNextPage,
+    fetchPage: fetchNextPage,
     canFetchMore,
   });
 
@@ -75,17 +73,17 @@ function useReadingHistory(user?: LoggedUser): UseReadingHistoryReturn {
       onMutate: ({ page, edge }: HideReadHistoryProps & QueryIndexes) => {
         const current = client.getQueryData<ReadHistoryInfiniteData>(key);
         const [history] = current.pages[page].readHistory.edges.splice(edge, 1);
-        client.setQueryData(key, (data: ReadHistoryInfiniteData) => ({
+        client.setQueryData(key, (result: ReadHistoryInfiniteData) => ({
           pages: current.pages,
-          pageParams: data.pageParams,
+          pageParams: result.pageParams,
         }));
 
         return () =>
-          client.setQueryData(key, (data: ReadHistoryInfiniteData) => {
-            data.pages[page].readHistory.edges.push(history);
+          client.setQueryData(key, (result: ReadHistoryInfiniteData) => {
+            result.pages[page].readHistory.edges.push(history);
             return {
-              pages: data.pages,
-              pageParams: data.pageParams,
+              pages: result.pages,
+              pageParams: result.pageParams,
             };
           });
       },
@@ -93,20 +91,20 @@ function useReadingHistory(user?: LoggedUser): UseReadingHistoryReturn {
     },
   );
 
-  const hasData = query?.data?.pages?.some(
+  const hasData = data?.pages?.some(
     (page) => page.readHistory.edges.length > 0,
   );
 
   return useMemo(
     () => ({
       hasData,
-      isLoading: query.isLoading,
-      data: query?.data,
-      isInitialLoading: !hasData && query.isLoading,
+      isLoading,
+      data,
+      isInitialLoading: !hasData && isLoading,
       hideReadHistory,
       infiniteScrollRef,
     }),
-    [query, query?.data?.pages, hasData, hideReadHistory, infiniteScrollRef],
+    [hasData, isLoading, data, hideReadHistory, infiniteScrollRef],
   );
 }
 
