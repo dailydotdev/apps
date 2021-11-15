@@ -6,7 +6,10 @@ import nock from 'nock';
 import { ReadHistoryData } from '@dailydotdev/shared/src/hooks/useReadingHistory';
 import { READING_HISTORY_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
+import {
+  MockedGraphQLResponse,
+  mockGraphQL,
+} from '@dailydotdev/shared/__tests__/helpers/graphql';
 import HistoryPage from '../pages/history';
 import { waitForNock } from './helpers/utilities';
 
@@ -95,13 +98,12 @@ const renderComponent = (
   );
 };
 
-it('should show user reading history with post title, image, and has source image', async () => {
+it('should show appropriate loading attributes', async () => {
   renderComponent();
-
+  const loading = await screen.findByRole('main');
+  expect(loading).toHaveAttribute('aria-busy');
   await waitForNock();
-
-  expect(await screen.findByRole('main')).not.toHaveAttribute('aria-busy');
-
-  const el = await screen.findByText('Most Recent Post');
-  expect(el).toBeInTheDocument();
+  await screen.findByText('Most Recent Post');
+  const main = await screen.findByRole('main');
+  expect(main).not.toHaveAttribute('aria-busy');
 });
