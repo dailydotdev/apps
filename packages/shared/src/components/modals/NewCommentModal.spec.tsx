@@ -41,13 +41,8 @@ const renderComponent = (
   user: Partial<LoggedUser> = {},
 ): RenderResult => {
   const defaultProps: NewCommentModalProps = {
-    author: {
-      id: 'n1',
-      permalink: '',
-      name: 'Nimrod',
-      image: 'https://daily.dev/nimrod.png',
-      username: 'nimrodkramer',
-    },
+    authorImage: 'https://daily.dev/nimrod.png',
+    authorName: 'Nimrod',
     publishDate: new Date(2017, 1, 10, 0, 0),
     content: 'This is the main comment',
     commentId: null,
@@ -98,7 +93,7 @@ it('should show formatted date of publication', async () => {
 
 it('should show author profile picture', async () => {
   renderComponent();
-  const el = await screen.findByAltText(`nimrodkramer's profile`);
+  const el = await screen.findByAltText(`Nimrod's profile`);
   expect(el).toHaveAttribute('data-src', 'https://daily.dev/nimrod.png');
 });
 

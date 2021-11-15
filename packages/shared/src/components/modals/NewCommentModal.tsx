@@ -23,13 +23,13 @@ import {
   CommentOnData,
   EDIT_COMMENT_MUTATION,
   PostCommentsData,
-  Author,
 } from '../../graphql/comments';
 import { Edge } from '../../graphql/common';
 import { apiUrl } from '../../lib/config';
 import { commentDateFormat } from '../../lib/dateFormat';
 import { Button } from '../buttons/Button';
 import { ResponsiveModal } from './ResponsiveModal';
+import { RoundedImage } from '../utilities';
 import { ModalProps } from './StyledModal';
 import styles from './NewCommentModal.module.css';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
@@ -40,7 +40,8 @@ import { ProfilePicture } from '../ProfilePicture';
 const DiscardCommentModal = dynamic(() => import('./DiscardCommentModal'));
 
 export interface NewCommentModalProps extends ModalProps {
-  author: Author;
+  authorName: string;
+  authorImage: string;
   publishDate: Date | string;
   content: string;
   commentId: string | null;
@@ -56,7 +57,8 @@ interface CommentVariables {
 }
 
 export default function NewCommentModal({
-  author,
+  authorImage,
+  authorName,
   publishDate,
   content,
   onRequestClose,
@@ -266,9 +268,13 @@ export default function NewCommentModal({
         className={`flex flex-col items-stretch ${commentBoxClassNames}`}
       >
         <header className="flex items-center mb-2">
-          <ProfilePicture user={author} size="large" />
+          <RoundedImage
+            imgSrc={authorImage}
+            imgAlt={`${authorName}'s profile`}
+            background="var(--theme-background-secondary)"
+          />
           <div className="flex flex-col ml-2">
-            <div className="truncate typo-callout">{author.name}</div>
+            <div className="truncate typo-callout">{authorName}</div>
             <time
               dateTime={publishDate.toString()}
               className="text-theme-label-tertiary typo-callout"
@@ -284,7 +290,7 @@ export default function NewCommentModal({
         <div className="ml-6 text-theme-label-secondary typo-caption1">
           Reply to{' '}
           <strong className="font-bold text-theme-label-primary">
-            {author.name}
+            {authorName}
           </strong>
         </div>
       </div>
