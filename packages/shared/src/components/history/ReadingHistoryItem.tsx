@@ -28,38 +28,41 @@ function ReadingHistoryItem({
   };
 
   return (
-    <a
-      className={classNames(
-        'flex relative flex-row items-center py-3 pr-5 pl-9 hover:bg-theme-hover hover:cursor-pointer',
-        className,
-      )}
-      href={post.url}
-      target="_blank"
-    >
-      <LazyImage
-        imgSrc={post.image}
-        imgAlt={post.title}
-        className="w-16 laptop:w-24 h-16 rounded-16"
-      />
-      <SourceShadow />
-      <LazyImage
-        imgSrc={post.source.image}
-        imgAlt={`source of ${post.title}`}
-        className="left-6 w-6 h-6 rounded-full"
-        absolute
-      />
-      <p className="flex flex-wrap flex-1 mr-6 ml-4 line-clamp-3 typo-callout">
-        {post.title}
-      </p>
+    <section className="flex relative items-center">
+      <a
+        className={classNames(
+          'flex flex-1 flex-row items-center py-3 pr-16 pl-9 hover:bg-theme-hover hover:cursor-pointer',
+          className,
+        )}
+        href={post.url}
+        target="_blank"
+      >
+        <LazyImage
+          imgSrc={post.image}
+          imgAlt={post.title}
+          className="w-16 laptop:w-24 h-16 rounded-16"
+        />
+        <SourceShadow />
+        <LazyImage
+          imgSrc={post.source.image}
+          imgAlt={`source of ${post.title}`}
+          className="left-6 w-6 h-6 rounded-full"
+          absolute
+        />
+        <p className="flex flex-wrap flex-1 mr-6 ml-4 line-clamp-3 typo-callout">
+          {post.title}
+        </p>
+      </a>
       {onHide && (
         <Button
+          absolute
           role="button"
-          className="btn-tertiary"
+          className="right-5 btn-tertiary"
           icon={<XIcon />}
           onClick={onHideClick}
         />
       )}
-    </a>
+    </section>
   );
 }
 
