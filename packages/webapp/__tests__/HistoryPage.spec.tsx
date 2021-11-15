@@ -96,9 +96,25 @@ it('should show appropriate loading attributes', async () => {
     'aria-busy',
   );
   expect(JSON.parse(initialBusyState)).toEqual(true);
+
   await waitForNock();
+
   const afterFetchingBusyState = (await screen.findByRole('main')).getAttribute(
     'aria-busy',
   );
   expect(JSON.parse(afterFetchingBusyState)).toEqual(false);
+});
+
+it('should show display empty screen when no view history is found', async () => {
+  const emptyHistory = getDefaultHistory([]);
+  const mock = createReadingHistoryMock(emptyHistory);
+  renderComponent([mock]);
+  await waitForNock();
+  await screen.findByText('Your reading history is empty.');
+});
+
+it('should show display the list of viewing history', async () => {
+  renderComponent();
+  await waitForNock();
+  await screen.findByText('Most Recent Post');
 });
