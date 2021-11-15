@@ -47,7 +47,7 @@ export default function LoginButtons(): ReactElement {
         className="self-center mt-8"
         style={{ maxWidth: '17.25rem' }}
       >
-        By signing up I accept the{' '}
+        By signing in I accept the{' '}
         <a href={termsOfService} target="_blank" rel="noopener">
           Terms of Service
         </a>{' '}
