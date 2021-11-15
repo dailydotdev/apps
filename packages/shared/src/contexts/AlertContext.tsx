@@ -73,7 +73,7 @@ export const AlertContextProvider = ({
 
   useEffect(() => {
     if (alertsProp) {
-      setAlerts(alertsProp);
+      setAlerts({ ...alerts, ...alertsProp });
     }
   }, [alertsProp]);
 
