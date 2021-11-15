@@ -16,7 +16,10 @@ import classed from '../../lib/classed';
 import styles from './ProfileForm.module.css';
 import { Summary, SummaryArrow } from '../utilities';
 import { Dropdown } from '../fields/Dropdown';
-import { getTimeZoneOptions } from '../../lib/timezones';
+import {
+  getTimeZoneOptions,
+  getUserDefaultTimezone,
+} from '../../lib/timezones';
 
 const REQUIRED_FIELDS_COUNT = 4;
 const timeZoneOptions = getTimeZoneOptions();
@@ -48,10 +51,13 @@ export default function ProfileForm({
   ...props
 }: ProfileFormProps): ReactElement {
   const { user, updateUser } = useContext(AuthContext);
-
   const formRef = useRef<HTMLFormElement>(null);
 
-  const [userTimeZone, setUserTimeZone] = useState<string>(user?.timezone);
+  const emptyTimezoneMode =
+    mode === 'update' ? 'Europe/London' : getUserDefaultTimezone();
+  const initialTimezone = user?.timezone ? user?.timezone : emptyTimezoneMode;
+
+  const [userTimeZone, setUserTimeZone] = useState<string>(initialTimezone);
   const [usernameHint, setUsernameHint] = useState<string>();
   const [twitterHint, setTwitterHint] = useState<string>();
   const [githubHint, setGithubHint] = useState<string>();
@@ -76,6 +82,13 @@ export default function ProfileForm({
       setEmailHint('Must be a valid email');
     }
     updateDisableSubmit();
+  };
+
+  const timezoneUpdated = (timezone: string) => {
+    const findTimeZoneRow = timeZoneOptions.find((_timeZone) => {
+      return _timeZone.label === timezone;
+    });
+    setUserTimeZone(findTimeZoneRow.value);
   };
 
   const onSubmit = async (event: FormEvent): Promise<void> => {
@@ -153,12 +166,7 @@ export default function ProfileForm({
           selectedIndex={timeZoneOptions.findIndex(
             (timeZone) => timeZone.value === userTimeZone,
           )}
-          onChange={(timeZone) => {
-            const findTimeZoneRow = timeZoneOptions.find((_timeZone) => {
-              return _timeZone.label === timeZone;
-            });
-            setUserTimeZone(findTimeZoneRow.value);
-          }}
+          onChange={timezoneUpdated}
           options={timeZoneValues}
           scrollable
         />

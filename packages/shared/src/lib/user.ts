@@ -25,7 +25,6 @@ export interface PublicProfile {
   image: string;
   reputation: number;
   permalink: string;
-  timezone?: string;
 }
 
 export interface UserProfile {

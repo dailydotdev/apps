@@ -16,6 +16,8 @@ import DevCardPlaceholder from '../DevCardPlaceholder';
 import AuthContext from '../../contexts/AuthContext';
 import GoToDevCardButton from '../GoToDevCardButton';
 import { Button } from '../buttons/Button';
+import { ClickableText } from '../buttons/ClickableText';
+import { getTooltipProps } from '../../lib/tooltip';
 
 const RankItem = ({
   rank,
@@ -73,6 +75,7 @@ export interface RanksModalProps extends ModalProps {
   confirmationText?: string;
   reads: number;
   devCardLimit: number;
+  onShowAccount?: () => void;
 }
 
 function DevCardFooter({
@@ -140,6 +143,47 @@ function DevCardFooter({
   );
 }
 
+const TimezoneText = ({ onShowAccount }) => {
+  const classes =
+    'mt-4 mx-10 font-normal text-center  text-theme-label-secondary typo-callout';
+  const { user, showLogin } = useContext(AuthContext);
+
+  const signIn = (
+    <p className={classes}>
+      To fit the weekly goal to your time zone, please{' '}
+      <ClickableText
+        tag="a"
+        className="inline-flex text-theme-label-link"
+        {...getTooltipProps('Login')}
+        onClick={() => showLogin('ranks instructions')}
+      >
+        sign in
+      </ClickableText>{' '}
+      and add it in the account details.
+    </p>
+  );
+
+  const accountDetails = (
+    <p className={classes}>
+      To fit the weekly goal to your time zone, please add it in your{' '}
+      <ClickableText
+        tag="a"
+        className="inline-flex text-theme-label-link"
+        {...getTooltipProps('Open account details')}
+        onClick={() => onShowAccount()}
+      >
+        account details
+      </ClickableText>
+      .
+    </p>
+  );
+
+  const loggedTimezoneDescription = !user.timezone ? accountDetails : null;
+  const timezoneDescription = !user ? signIn : loggedTimezoneDescription;
+
+  return timezoneDescription;
+};
+
 export default function RanksModal({
   rank,
   progress,
@@ -148,6 +192,7 @@ export default function RanksModal({
   reads,
   devCardLimit,
   onRequestClose,
+  onShowAccount,
   className,
   ...props
 }: RanksModalProps): ReactElement {
@@ -171,6 +216,8 @@ export default function RanksModal({
       <h2 className="mt-1 font-normal text-theme-label-secondary typo-callout">
         Read content you love to stay updated
       </h2>
+      <TimezoneText onShowAccount={onShowAccount} />
+
       <ul className="flex flex-col self-stretch mt-4">
         {ranksMetadata.map((meta) => (
           <RankItem

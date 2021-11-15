@@ -11,7 +11,7 @@
     }
 
     &.scrollable {
-      height: 240px;
+      height: 15rem;
       overflow-y: scroll;
     }
   }

@@ -519,3 +519,19 @@ export const getTimeZoneOptions = (): { value: string; label: string }[] => {
     return { ...timeZone, label: timeZoneCurrentOffsetLabel(timeZone) };
   });
 };
+
+export const getUserDefaultTimezone = (): string => {
+  const timeZoneOptions = getTimeZoneOptions();
+  const timeZoneOffset = (new Date().getTimezoneOffset() / 60) * -1;
+  const timezoneGuess = timeZoneOptions.find((timezone) =>
+    timezone.label.startsWith(
+      `(UTC ${timeZoneOffset > 0 ? '+' : ''}${timeZoneOffset})`,
+    ),
+  );
+
+  if (timezoneGuess) {
+    return timezoneGuess.value;
+  }
+
+  return 'Europe/London';
+};
