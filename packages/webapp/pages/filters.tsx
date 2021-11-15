@@ -1,10 +1,10 @@
 import React, { ReactElement } from 'react';
-import FeedFilters from '@dailydotdev/shared/src/components/filters/FeedFilters';
+import FilterMenu from '@dailydotdev/shared/src/components/filters/FilterMenu';
 import { getLayout } from '../components/layouts/FooterNavBarLayout';
 
 const FiltersPage = (): ReactElement => (
   <main className="withNavBar">
-    <FeedFilters />
+    <FilterMenu />
   </main>
 );
 

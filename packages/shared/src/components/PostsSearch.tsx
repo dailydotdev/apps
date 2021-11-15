@@ -6,6 +6,7 @@ import { SearchField } from './fields/SearchField';
 import { useAutoComplete } from '../hooks/useAutoComplete';
 import { apiUrl } from '../lib/config';
 import { SEARCH_POST_SUGGESTIONS } from '../graphql/search';
+import { SEARCH_BOOKMARKS_SUGGESTIONS } from '../graphql/feed';
 
 const AutoCompleteMenu = dynamic(() => import('./fields/AutoCompleteMenu'), {
   ssr: false,
@@ -15,12 +16,14 @@ export type PostsSearchProps = {
   initialQuery?: string;
   onSubmitQuery: (query: string) => Promise<unknown>;
   closeSearch: () => unknown;
+  suggestionType?: string;
 };
 
 export default function PostsSearch({
   initialQuery: initialQueryProp,
   onSubmitQuery,
   closeSearch,
+  suggestionType = 'searchPostSuggestions',
 }: PostsSearchProps): ReactElement {
   const searchBoxRef = useRef<HTMLDivElement>();
   const [initialQuery, setInitialQuery] = useState<string>();
@@ -33,11 +36,16 @@ export default function PostsSearch({
   }>(null);
   const [items, setItems] = useState<string[]>([]);
 
+  const SEARCH_URL =
+    suggestionType === 'searchPostSuggestions'
+      ? SEARCH_POST_SUGGESTIONS
+      : SEARCH_BOOKMARKS_SUGGESTIONS;
+
   const { data: searchResults, isLoading } = useQuery<{
-    searchPostSuggestions: { hits: { title: string }[] };
+    [suggestionType: string]: { hits: { title: string }[] };
   }>(
-    ['searchPostSuggestions', query],
-    () => request(`${apiUrl}/graphql`, SEARCH_POST_SUGGESTIONS, { query }),
+    [suggestionType, query],
+    () => request(`${apiUrl}/graphql`, SEARCH_URL, { query }),
     {
       enabled: !!query,
     },
@@ -62,12 +70,11 @@ export default function PostsSearch({
 
   useEffect(() => {
     if (!isLoading) {
-      if (!items?.length && searchResults?.searchPostSuggestions?.hits.length) {
+      if (!items?.length && searchResults?.[suggestionType]?.hits.length) {
         showSuggestions();
       }
       setItems(
-        searchResults?.searchPostSuggestions?.hits.map((hit) => hit.title) ??
-          [],
+        searchResults?.[suggestionType]?.hits.map((hit) => hit.title) ?? [],
       );
     }
   }, [searchResults, isLoading]);
@@ -108,6 +115,7 @@ export default function PostsSearch({
       <SearchField
         className="absolute top-0 right-0 left-0 w-full compact"
         inputId="posts-search"
+        compact
         ref={searchBoxRef}
         value={initialQuery}
         valueChanged={onValueChanged}

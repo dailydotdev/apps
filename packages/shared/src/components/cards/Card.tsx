@@ -6,6 +6,7 @@ import styles from './Card.module.css';
 import classed from '../../lib/classed';
 import { getTooltipProps } from '../../lib/tooltip';
 import { Post } from '../../graphql/posts';
+import { ProfilePicture } from '../ProfilePicture';
 
 const Title = classed(
   'h3',
@@ -13,7 +14,7 @@ const Title = classed(
   'font-bold typo-body text-theme-label-primary multi-truncate',
 );
 
-export const CardTitle = classed(Title, 'my-2');
+export const CardTitle = classed(Title, 'my-2 break-word');
 
 export const ListCardTitle = classed(Title, 'mr-2');
 
@@ -100,14 +101,10 @@ export const featuredCommentsToButtons = (
         className,
       )}
     >
-      <img
-        src={comment.author.image}
-        alt={`${comment.author.name}'s profile`}
-        className={classNames(
-          'w-6 h-6 rounded-full',
-          selectedId === comment.id ? 'opacity-100' : 'opacity-64',
-        )}
-        style={{ background: 'var(--theme-background-tertiary)' }}
+      <ProfilePicture
+        size="small"
+        user={comment.author}
+        className="rounded-full"
       />
     </button>
   ));

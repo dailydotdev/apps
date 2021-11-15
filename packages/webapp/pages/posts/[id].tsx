@@ -11,12 +11,9 @@ import { ParsedUrlQuery } from 'querystring';
 import { Roles } from '@dailydotdev/shared/src/lib/user';
 import { NextSeo } from 'next-seo';
 import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
-import OpenLinkIcon from '@dailydotdev/shared/icons/open_link.svg';
 import UpvoteIcon from '@dailydotdev/shared/icons/upvote.svg';
 import CommentIcon from '@dailydotdev/shared/icons/comment.svg';
 import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
-import TrashIcon from '@dailydotdev/shared/icons/trash.svg';
-import HammerIcon from '@dailydotdev/shared/icons/hammer.svg';
 import FeatherIcon from '@dailydotdev/shared/icons/feather.svg';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import { PageContainer } from '@dailydotdev/shared/src/components/utilities';
@@ -55,13 +52,19 @@ import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 import Link from 'next/link';
 import useUpvotePost from '@dailydotdev/shared/src/hooks/useUpvotePost';
 import useBookmarkPost from '@dailydotdev/shared/src/hooks/useBookmarkPost';
+import useNotification from '@dailydotdev/shared/src/hooks/useNotification';
 import classNames from 'classnames';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
-import styles from './postPage.module.css';
-import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
+import { ProfilePicture } from '@dailydotdev/shared/src/components/ProfilePicture';
+import PostOptionsMenu from '@dailydotdev/shared/src/components/PostOptionsMenu';
+import useReportPostMenu from '@dailydotdev/shared/src/hooks/useReportPostMenu';
+import MenuIcon from '@dailydotdev/shared/icons/menu.svg';
+import { CardNotification } from '@dailydotdev/shared/src/components/cards/Card';
 import PostToc from '../../components/widgets/PostToc';
+import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
+import styles from './postPage.module.css';
 
 const PlaceholderCommentList = dynamic(
   () =>
@@ -473,6 +476,17 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     },
   };
 
+  const { showReportMenu } = useReportPostMenu();
+  const showPostOptionsContext = (e) => {
+    const { right, bottom } = e.currentTarget.getBoundingClientRect();
+    showReportMenu(e, {
+      position: { x: right, y: bottom + 4 },
+    });
+  };
+  const { notification, onMessage } = useNotification();
+
+  const isModerator = user?.roles?.indexOf(Roles.Moderator) > -1;
+
   return (
     <>
       <PageContainer className="laptop:self-start laptopL:self-center pt-6 pb-20 laptop:pb-6 laptop:border-r laptopL:border-l laptop:border-theme-divider-tertiary">
@@ -481,66 +495,62 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         </Head>
         <NextSeo {...seo} />
         <div className="flex items-center mb-2">
-          <Link
-            href={`/sources/${postById?.post.source.id}`}
-            passHref
-            prefetch={false}
-          >
-            <a
-              className="flex no-underline cursor-pointer"
-              {...(!postById?.post.author
-                ? {}
-                : getTooltipProps(postById?.post.source.name, {
-                    position: 'down',
-                  }))}
-            >
-              <SourceImage
-                imgSrc={postById?.post.source.image}
-                imgAlt={postById?.post.source.name}
-                background="var(--theme-background-secondary)"
-              />
-            </a>
-          </Link>
-          {postById?.post.author ? (
-            <ProfileLink
-              user={postById.post.author}
-              data-testid="authorLink"
-              disableTooltip
-              className="flex-1 mr-auto ml-2"
-            >
-              <SourceImage
-                imgSrc={postById.post.author.image}
-                imgAlt={postById.post.author.name}
-                background="var(--theme-background-secondary)"
-              />
-              <SourceName className="flex-1 ml-2">
-                {postById.post.author.name}
-              </SourceName>
-            </ProfileLink>
+          {notification ? (
+            <CardNotification className="flex-1 py-2.5 text-center">
+              {notification}
+            </CardNotification>
           ) : (
-            <div className="flex flex-col flex-1 mx-2">
-              <SourceName>{postById?.post.source.name}</SourceName>
-            </div>
-          )}
-          <Button
-            className="btn-tertiary"
-            icon={<OpenLinkIcon />}
-            tag="a"
-            {...postLinkProps}
-          />
-          {user?.roles?.indexOf(Roles.Moderator) > -1 && (
             <>
+              <Link
+                href={`/sources/${postById?.post.source.id}`}
+                passHref
+                prefetch={false}
+              >
+                <a
+                  className="flex no-underline cursor-pointer"
+                  {...(!postById?.post.author
+                    ? {}
+                    : getTooltipProps(postById?.post.source.name, {
+                        position: 'down',
+                      }))}
+                >
+                  <SourceImage
+                    imgSrc={postById?.post.source.image}
+                    imgAlt={postById?.post.source.name}
+                    background="var(--theme-background-secondary)"
+                  />
+                </a>
+              </Link>
+              {postById?.post.author ? (
+                <ProfileLink
+                  user={postById.post.author}
+                  data-testid="authorLink"
+                  disableTooltip
+                  className="flex-1 mr-auto ml-2"
+                >
+                  <SourceImage
+                    imgSrc={postById.post.author.image}
+                    imgAlt={postById.post.author.name}
+                    background="var(--theme-background-secondary)"
+                  />
+                  <SourceName className="flex-1 ml-2">
+                    {postById.post.author.name}
+                  </SourceName>
+                </ProfileLink>
+              ) : (
+                <div className="flex flex-col flex-1 mx-2">
+                  <SourceName>{postById?.post.source.name}</SourceName>
+                </div>
+              )}
               <Button
-                className="btn-tertiary"
-                icon={<HammerIcon />}
-                onClick={() => setShowBanPost(true)}
-                {...getTooltipProps('Mighty ban hammer')}
-              />
-              <Button
-                className="btn-tertiary"
-                icon={<TrashIcon />}
-                onClick={() => setShowDeletePost(true)}
-                {...getTooltipProps('Delete post')}
+                className="right-4 my-auto btn-tertiary"
+                style={{ position: 'absolute' }}
+                icon={<MenuIcon />}
+                onClick={(event) => showPostOptionsContext(event)}
+                buttonSize="small"
+                {...getTooltipProps('Options', {
+                  position: 'left',
+                })}
               />
             </>
           )}
@@ -598,10 +608,9 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             <span>{postById?.post.views.toLocaleString()} Views</span>
           )}
           {postUpvotesNum > 0 && (
-            <ClickableText
-              title={`${postUpvotesNum} Upvote${postUpvotesNum > 1 ? 's' : ''}`}
-              onClick={() => handleShowUpvotedPost()}
-            />
+            <ClickableText onClick={() => handleShowUpvotedPost()}>
+              {postUpvotesNum} Upvote{postUpvotesNum > 1 ? 's' : ''}
+            </ClickableText>
           )}
           {postNumComments > 0 && (
             <span>
@@ -676,7 +685,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           </>
         )}
         {comments?.postComments?.edges?.length === 0 && !isLoadingComments && (
-          <div className="my-10 text-center text-theme-label-quaternary typo-subhead">
+          <div className="my-8 text-center text-theme-label-quaternary typo-subhead">
             Be the first to comment.
           </div>
         )}
@@ -765,11 +774,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             onClick={openNewComment}
           >
             {user && (
-              <LazyImage
-                imgSrc={user.image}
-                imgAlt="Your profile image"
-                className="mr-3 -ml-2 w-7 h-7 rounded-full"
-              />
+              <ProfilePicture user={user} size="small" className="mr-3 -ml-2" />
             )}
             Start the discussion...
           </button>
@@ -823,6 +828,12 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           onRequestClose={() => setShowBanPost(false)}
         />
       )}
+      <PostOptionsMenu
+        post={postData?.post}
+        onMessage={onMessage}
+        setShowBanPost={isModerator ? () => setShowBanPost(true) : null}
+        setShowDeletePost={isModerator ? () => setShowDeletePost(true) : null}
+      />
     </>
   );
 };

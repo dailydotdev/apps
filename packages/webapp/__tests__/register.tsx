@@ -31,6 +31,7 @@ beforeEach(() => {
 
 const defaultUser = {
   id: 'u1',
+  username: 'idoshamun',
   name: 'Ido Shamun',
   providers: ['github'],
   email: 'ido@acme.com',
@@ -38,6 +39,7 @@ const defaultUser = {
   infoConfirmed: true,
   premium: false,
   createdAt: '2020-07-26T13:04:35.000Z',
+  permalink: 'https://app.daily.dev/ido',
 };
 
 const renderComponent = (user: Partial<LoggedUser> = {}): RenderResult => {
@@ -59,12 +61,12 @@ const renderComponent = (user: Partial<LoggedUser> = {}): RenderResult => {
 
 it('should show profile image', () => {
   renderComponent();
-  const el = screen.getByAltText('Your profile');
-  expect(el).toHaveAttribute('src', defaultUser.image);
+  const el = screen.getByAltText(`idoshamun's profile`);
+  expect(el).toHaveAttribute('data-src', defaultUser.image);
 });
 
 it('should disable submit when form is invalid', () => {
-  renderComponent();
+  renderComponent({ username: null });
   // eslint-disable-next-line testing-library/no-node-access
   const el = screen.getByText('Finish').parentElement;
   expect(el).toBeDisabled();

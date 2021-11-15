@@ -349,6 +349,7 @@ it('should show author link when author is defined', async () => {
         name: 'Ido Shamun',
         image: 'https://daily.dev/ido.jpg',
         permalink: 'https://daily.dev/idoshamun',
+        username: 'idoshamun',
       },
     }),
     createCommentsMock(),

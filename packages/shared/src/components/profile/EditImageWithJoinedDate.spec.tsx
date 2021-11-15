@@ -22,6 +22,7 @@ beforeEach(() => {
 const defaultUser: LoggedUser = {
   id: 'u1',
   name: 'Ido Shamun',
+  username: 'idoshamun',
   providers: ['github'],
   email: 'ido@acme.com',
   image: 'https://daily.dev/ido.png',
@@ -36,8 +37,8 @@ const renderComponent = (user: Partial<LoggedUser> = {}): RenderResult => {
 
 it('should show profile image', () => {
   renderComponent();
-  const el = screen.getByAltText('Your profile');
-  expect(el).toHaveAttribute('src', defaultUser.image);
+  const el = screen.getByAltText(`idoshamun's profile`);
+  expect(el).toHaveAttribute('data-src', defaultUser.image);
 });
 
 it('should show github provider information', () => {
@@ -73,8 +74,8 @@ it('should upload the new image profile image', async () => {
   fireEvent.change(input);
   await waitFor(() => expect(readAsDataURL).toBeCalledTimes(1));
   expect(changeProfileImage).toBeCalledWith(file);
-  const el = screen.getByAltText('Your profile');
+  const el = screen.getByAltText(`idoshamun's profile`);
   await waitFor(() =>
-    expect(el).toHaveAttribute('src', 'https://daily.dev/new.png'),
+    expect(el).toHaveAttribute('data-src', 'https://daily.dev/new.png'),
   );
 });

@@ -28,6 +28,7 @@ export const FURTHER_READING_QUERY = gql`
       }
       author {
         id
+        username
       }
       trending
       tags
@@ -48,6 +49,7 @@ export const FURTHER_READING_QUERY = gql`
       }
       author {
         id
+        username
       }
       numComments
       numUpvotes
@@ -65,11 +67,13 @@ export const FURTHER_READING_QUERY = gql`
       tags
       author {
         id
+        username
       }
       featuredComments {
         author {
           image
           name
+          username
         }
       }
     }

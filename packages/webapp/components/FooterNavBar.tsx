@@ -8,7 +8,6 @@ import Link from 'next/link';
 import { Flipper, Flipped } from 'react-flip-toolkit';
 import HomeIcon from '@dailydotdev/shared/icons/home.svg';
 import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
-import FilterIcon from '@dailydotdev/shared/icons/filter.svg';
 import LayoutIcon from '@dailydotdev/shared/icons/layout.svg';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useRouter } from 'next/router';
@@ -19,6 +18,7 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 import classNames from 'classnames';
+import FilterRedDot from '@dailydotdev/shared/src/components/filters/FilterRedDot';
 import styles from './FooterNavBar.module.css';
 
 type Tab = {
@@ -27,6 +27,7 @@ type Tab = {
   icon: ReactNode;
   requiresLogin?: boolean;
 };
+
 export const tabs: Tab[] = [
   {
     path: '/',
@@ -42,7 +43,7 @@ export const tabs: Tab[] = [
   {
     path: '/filters',
     title: 'Filters',
-    icon: <FilterIcon />,
+    icon: <FilterRedDot />,
   },
   {
     path: '/settings',

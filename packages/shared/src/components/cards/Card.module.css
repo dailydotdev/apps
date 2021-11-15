@@ -1,5 +1,6 @@
 .title {
   -webkit-line-clamp: 3;
+  word-break: break-word;
 }
 
 .blur {

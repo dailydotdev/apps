@@ -1,0 +1,12 @@
+.reportModal {
+  & :global(.overlay) {
+    justify-content: center;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  & :global(.modal) {
+    max-width: 23.25rem;
+    padding: 2rem;
+  }
+}

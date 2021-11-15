@@ -47,6 +47,8 @@ module.exports = {
           error: 'var(--theme-status-error)',
           help: 'var(--theme-status-help)',
           success: 'var(--theme-status-success)',
+          warning: 'var(--theme-status-warning)',
+          cabbage: 'var(--theme-status-cabbage)',
         },
         'post-disabled': 'var(--theme-post-disabled)',
       },
@@ -100,8 +102,13 @@ module.exports = {
       borderRadius: {
         2: '0.125rem',
         3: '0.1875rem',
+        6: '0.375rem',
+        8: '0.5rem',
         10: '0.625rem',
+        12: '0.75rem',
         14: '0.875rem',
+        16: '1rem',
+        26: '1.625rem',
       },
       opacity: {
         24: '0.24',

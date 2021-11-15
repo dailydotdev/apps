@@ -19,6 +19,7 @@ export const FEED_POST_FRAGMENT = gql`
     author {
       name
       image
+      username
     }
     featuredComments {
       id
@@ -27,6 +28,7 @@ export const FEED_POST_FRAGMENT = gql`
       author {
         name
         image
+        username
       }
     }
     trending
@@ -66,8 +68,14 @@ export const ANONYMOUS_FEED_QUERY = gql`
     $first: Int
     $after: String
     $ranking: Ranking
+    $version: Int
   ) {
-    page: anonymousFeed(first: $first, after: $after, ranking: $ranking) {
+    page: anonymousFeed(
+      first: $first
+      after: $after
+      ranking: $ranking
+      version: $version
+    ) {
       ...FeedPostConnection
     }
   }
@@ -81,12 +89,14 @@ export const FEED_QUERY = gql`
     $after: String
     $ranking: Ranking
     $unreadOnly: Boolean
+    $version: Int
   ) {
     page: feed(
       first: $first
       after: $after
       ranking: $ranking
       unreadOnly: $unreadOnly
+      version: $version
     ) {
       ...FeedPostConnection
     }
@@ -167,6 +177,30 @@ export const BOOKMARKS_FEED_QUERY = gql`
     }
   }
   ${FEED_POST_CONNECTION_FRAGMENT}
+`;
+
+export const SEARCH_BOOKMARKS_QUERY = gql`
+  query SearchBookmarks(
+    $loggedIn: Boolean! = false
+    $first: Int
+    $after: String
+    $query: String!
+  ) {
+    page: searchBookmarks(first: $first, after: $after, query: $query) {
+      ...FeedPostConnection
+    }
+  }
+  ${FEED_POST_CONNECTION_FRAGMENT}
+`;
+
+export const SEARCH_BOOKMARKS_SUGGESTIONS = gql`
+  query SearchBookmarksSuggestions($query: String!) {
+    searchBookmarksSuggestions(query: $query) {
+      hits {
+        title
+      }
+    }
+  }
 `;
 
 export const SEARCH_POSTS_QUERY = gql`

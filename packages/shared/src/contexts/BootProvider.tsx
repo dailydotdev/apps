@@ -12,6 +12,8 @@ import { FeaturesContextProvider } from './FeaturesContext';
 import { AuthContextProvider } from './AuthContext';
 import { AnonymousUser, LoggedUser } from '../lib/user';
 import usePersistentState from '../hooks/usePersistentState';
+import { AlertContextProvider } from './AlertContext';
+import { generateQueryKey } from '../lib/query';
 
 function useRefreshToken(
   accessToken: AccessToken,
@@ -49,7 +51,7 @@ function useCacheUser(fetchedUser: LoggedUser | AnonymousUser | undefined): {
   const updateUser = useCallback(
     async (newUser: LoggedUser | AnonymousUser) => {
       await setCachedUser(newUser);
-      await queryClient.invalidateQueries(['profile', newUser.id]);
+      await queryClient.invalidateQueries(generateQueryKey('profile', newUser));
     },
     [queryClient],
   );
@@ -88,19 +90,22 @@ export const BootDataProvider = ({
 
   useRefreshToken(bootData?.accessToken, refetch);
   const { user, updateUser, loadedFromCache } = useCacheUser(bootData?.user);
+  const updatedAtActive = user ? dataUpdatedAt : null;
 
   return (
     <FeaturesContextProvider flags={bootData?.flags}>
       <AuthContextProvider
         user={user}
         updateUser={updateUser}
-        tokenRefreshed={dataUpdatedAt > 0}
+        tokenRefreshed={updatedAtActive > 0}
         getRedirectUri={getRedirectUri}
         loadingUser={!dataUpdatedAt || !user}
         loadedUserFromCache={loadedFromCache}
         visit={bootData?.visit}
       >
-        {children}
+        <AlertContextProvider alerts={bootData?.alerts}>
+          {children}
+        </AlertContextProvider>
       </AuthContextProvider>
     </FeaturesContextProvider>
   );

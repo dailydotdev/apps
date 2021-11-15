@@ -102,7 +102,11 @@ const renderComponent = (
           }}
         >
           <SettingsContext.Provider value={settingsContext}>
-            <BookmarksPage />
+            {BookmarksPage.getLayout(
+              <BookmarksPage />,
+              {},
+              BookmarksPage.layoutProps,
+            )}
           </SettingsContext.Provider>
         </OnboardingContext.Provider>
       </AuthContext.Provider>
@@ -141,5 +145,14 @@ it('should show empty screen when feed is empty', async () => {
   await waitFor(() => {
     const elements = screen.queryAllByTestId('postItem');
     expect(elements.length).toBeFalsy();
+  });
+});
+
+it('should set href to the search permalink', async () => {
+  renderComponent();
+  await waitForNock();
+  await waitFor(async () => {
+    const searchBtn = await screen.findByLabelText('Search bookmarks');
+    expect(searchBtn).toHaveAttribute('href', '/bookmarks/search');
   });
 });

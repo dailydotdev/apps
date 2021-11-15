@@ -71,8 +71,8 @@ const renderComponent = (
 
 it('should show profile image', async () => {
   renderComponent();
-  const el = await screen.findByAltText(`Daily Dev's profile image`);
-  expect(el).toHaveAttribute('src', defaultProfile.image);
+  const el = await screen.findByAltText(`dailydotdev's profile`);
+  expect(el).toHaveAttribute('data-src', defaultProfile.image);
 });
 
 it('should show join date', () => {
