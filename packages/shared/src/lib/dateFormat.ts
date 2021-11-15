@@ -34,7 +34,6 @@ export function commentDateFormat(
   now = new Date(),
 ): string {
   const date = new Date(value);
-
   const dt = (now.getTime() - date.getTime()) / 1000;
 
   if (dt <= oneMinute) return 'Now';

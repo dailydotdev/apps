@@ -39,6 +39,7 @@ export interface UserProfile {
   portfolio?: string;
   bio?: string;
   acceptedMarketing?: boolean;
+  timezone?: string;
 }
 
 export interface UpvoterProfile
@@ -56,6 +57,7 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
   reputation?: number;
   permalink: string;
   username: string;
+  timezone?: string;
 }
 
 interface BaseError {
