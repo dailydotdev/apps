@@ -85,6 +85,7 @@ it('should submit information on button click', async () => {
     bio: null,
     github: null,
     portfolio: null,
+    timezone: 'Europe/London',
     twitter: null,
     hashnode: null,
   });

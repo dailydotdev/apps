@@ -10,6 +10,7 @@ import { mocked } from 'ts-jest/utils';
 import { LoggedUser, updateProfile } from '../../lib/user';
 import ProfileForm from './ProfileForm';
 import AuthContext from '../../contexts/AuthContext';
+import { getUserDefaultTimezone } from '../../lib/timezones';
 
 jest.mock('../../lib/user', () => ({
   ...jest.requireActual('../../lib/user'),
@@ -19,6 +20,7 @@ jest.mock('../../lib/user', () => ({
 const setDisableSubmit = jest.fn();
 const onSuccessfulSubmit = jest.fn();
 const updateUser = jest.fn();
+const userTimezone = getUserDefaultTimezone();
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -81,10 +83,11 @@ it('should submit information', async () => {
     bio: null,
     github: null,
     portfolio: null,
+    timezone: userTimezone,
     twitter: null,
     hashnode: null,
   });
-  expect(onSuccessfulSubmit).toBeCalledWith(false);
+  expect(onSuccessfulSubmit).toBeCalledWith(true);
   expect(updateUser).toBeCalledWith({ ...defaultUser, username: 'idoshamun' });
 });
 
@@ -109,6 +112,7 @@ it('should set optional fields on callback', async () => {
     bio: null,
     github: 'idoshamun',
     portfolio: null,
+    timezone: userTimezone,
     twitter: null,
     hashnode: null,
   });
