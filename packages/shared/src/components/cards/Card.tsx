@@ -11,7 +11,7 @@ import { ProfilePicture } from '../ProfilePicture';
 const Title = classed(
   'h3',
   styles.title,
-  'font-bold typo-body text-theme-label-primary multi-truncate',
+  'font-bold typo-body text-theme-label-primary multi-truncate line-clamp-3',
 );
 
 export const CardTitle = classed(Title, 'my-2 break-word');
@@ -33,7 +33,7 @@ export const CardLink = classed(
 export const Card = classed(
   'article',
   styles.card,
-  'relative flex flex-col p-2 rounded-2xl bg-theme-bg-secondary border border-theme-divider-tertiary hover:border-theme-divider-secondary shadow-2 line-clamp-3',
+  'relative flex flex-col p-2 rounded-2xl bg-theme-bg-secondary border border-theme-divider-tertiary hover:border-theme-divider-secondary shadow-2',
 );
 
 export const CardHeader = classed(
