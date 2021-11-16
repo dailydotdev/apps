@@ -2,12 +2,6 @@
   filter: blur(1.25rem);
 }
 
-.ad {
-  & .title {
-    -webkit-line-clamp: 4;
-  }
-}
-
 .actionButtons {
   & > * {
     margin-left: 0.25rem;

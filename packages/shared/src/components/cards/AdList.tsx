@@ -8,7 +8,6 @@ import {
   ListCardMain,
   ListCardTitle,
 } from './Card';
-import styles from './Card.module.css';
 import AdLink from './AdLink';
 import AdAttribution from './AdAttribution';
 
@@ -21,12 +20,12 @@ export const AdList = forwardRef(function AdList(
   }, []);
 
   return (
-    <ListCard {...props} className={classNames(className, styles.ad)} ref={ref}>
+    <ListCard {...props} className={classNames(className)} ref={ref}>
       <AdLink ad={ad} onLinkClick={onLinkClick} />
       <ListCardAside />
       <ListCardDivider />
       <ListCardMain>
-        <ListCardTitle>{ad.description}</ListCardTitle>
+        <ListCardTitle className="line-clamp-4">{ad.description}</ListCardTitle>
         <AdAttribution ad={ad} className="mt-2" />
       </ListCardMain>
     </ListCard>

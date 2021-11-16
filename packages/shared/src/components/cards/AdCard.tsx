@@ -5,7 +5,6 @@ import React, {
   Ref,
   useEffect,
 } from 'react';
-import classNames from 'classnames';
 import {
   Card,
   CardImage,
@@ -45,10 +44,10 @@ export const AdCard = forwardRef(function AdCard(
   }, []);
 
   return (
-    <Card {...props} className={classNames(className, styles.ad)} ref={ref}>
+    <Card {...props} className={className} ref={ref}>
       <AdLink ad={ad} onLinkClick={onLinkClick} />
       <CardTextContainer>
-        <CardTitle className="my-4">{ad.description}</CardTitle>
+        <CardTitle className="my-4 line-clamp-4">{ad.description}</CardTitle>
       </CardTextContainer>
       <CardSpace />
       {showImage && (
