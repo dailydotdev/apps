@@ -11,6 +11,7 @@ import classed from '@dailydotdev/shared/src/lib/classed';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { ProfilePicture } from '@dailydotdev/shared/src/components/ProfilePicture';
+import { unqiueAuthors } from '@dailydotdev/shared/src/components/comments/common';
 
 export type BestDiscussionsProps = {
   posts: Post[] | null;
@@ -51,9 +52,11 @@ const ListItem = ({ post, onLinkClick }: PostProps): ReactElement => (
       {post.featuredComments?.length > 0 && (
         <div
           className="relative mr-2 h-6"
-          style={{ width: `${post.featuredComments.length + 0.5}rem` }}
+          style={{
+            width: `${unqiueAuthors(post.featuredComments).length + 0.5}rem`,
+          }}
         >
-          {post.featuredComments.map((comment, index) => (
+          {unqiueAuthors(post.featuredComments).map((comment, index) => (
             <ProfilePicture
               key={comment.author.username}
               user={comment.author}

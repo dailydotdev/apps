@@ -5,6 +5,15 @@ import styles from './comments.module.css';
 import { Comment } from '../../graphql/comments';
 import { commentDateFormat } from '../../lib/dateFormat';
 
+export const unqiueAuthors = (comments: Comment[]): Comment[] =>
+  comments.filter(
+    (comment, i) =>
+      comments.findIndex(
+        (matchComment) =>
+          matchComment?.author?.username === comment?.author?.username,
+      ) === i,
+  );
+
 export function CommentPublishDate({
   comment,
 }: {

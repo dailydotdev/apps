@@ -7,6 +7,7 @@ import classed from '../../lib/classed';
 import { getTooltipProps } from '../../lib/tooltip';
 import { Post } from '../../graphql/posts';
 import { ProfilePicture } from '../ProfilePicture';
+import { unqiueAuthors } from '../comments/common';
 
 const Title = classed(
   'h3',
@@ -88,7 +89,7 @@ export const featuredCommentsToButtons = (
   className = 'mx-1',
   tooltipPosition: 'up' | 'down' | 'left' | 'right' = 'down',
 ): ReactNode[] =>
-  comments?.map((comment) => (
+  unqiueAuthors(comments)?.map((comment) => (
     <button
       type="button"
       {...getTooltipProps(`See ${comment.author.name}'s comment`, {
