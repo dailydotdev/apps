@@ -40,7 +40,7 @@ function ReadHistoryList({
   let currentDate: Date;
 
   return (
-    <div className="flex relative flex-col">
+    <section className="flex relative flex-col">
       {data?.pages.map((page, pageIndex) =>
         page.readHistory.edges.reduce((dom, { node: history }, edgeIndex) => {
           const { timestamp } = history;
@@ -68,7 +68,7 @@ function ReadHistoryList({
         className="absolute bottom-0 left-0 w-px h-px opacity-0 pointer-events-none"
         ref={infiniteScrollRef}
       />
-    </div>
+    </section>
   );
 }
 
