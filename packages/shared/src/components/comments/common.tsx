@@ -6,7 +6,7 @@ import { Comment } from '../../graphql/comments';
 import { commentDateFormat } from '../../lib/dateFormat';
 
 export const unqiueAuthors = (comments: Comment[]): Comment[] =>
-  comments.filter(
+  comments?.filter(
     (comment, i) =>
       comments.findIndex(
         (matchComment) =>
