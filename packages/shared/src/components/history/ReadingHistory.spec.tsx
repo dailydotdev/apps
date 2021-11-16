@@ -105,11 +105,6 @@ describe('ReadingHistoryItem component', () => {
     await screen.findByAltText(`source of ${defaultHistory.post.title}`);
   });
 
-  it('should have the link for the view history post', async () => {
-    render(<ReadingHistoryItem history={defaultHistory} />);
-    await screen.findByRole('link');
-  });
-
   it('should call onHide on close button clicked', async () => {
     render(<ReadingHistoryItem history={defaultHistory} onHide={onHide} />);
     const btn = await screen.findByRole('button');
