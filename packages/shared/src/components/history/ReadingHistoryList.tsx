@@ -36,31 +36,34 @@ function ReadHistoryList({
 }: ReadHistoryListProps): ReactElement {
   let currentDate: Date;
 
+  const renderList = () =>
+    data?.pages.map((page, pageIndex) =>
+      page.readHistory.edges.reduce((dom, { node: history }, edgeIndex) => {
+        const { timestamp } = history;
+        const date = new Date(timestamp);
+
+        if (!currentDate || !isDateOnlyEqual(currentDate, date)) {
+          currentDate = date;
+          dom.push(getDateGroup(date));
+        }
+
+        const indexes = { page: pageIndex, edge: edgeIndex };
+
+        dom.push(
+          <ReadingHistoryItem
+            key={`${history.post.id}-${timestamp}`}
+            history={history}
+            onHide={(params) => onHide({ ...params, ...indexes })}
+          />,
+        );
+
+        return dom;
+      }, []),
+    );
+
   return (
     <section className="flex relative flex-col">
-      {data?.pages.map((page, pageIndex) =>
-        page.readHistory.edges.reduce((dom, { node: history }, edgeIndex) => {
-          const { timestamp } = history;
-          const date = new Date(timestamp);
-
-          if (!currentDate || !isDateOnlyEqual(currentDate, date)) {
-            currentDate = date;
-            dom.push(getDateGroup(date));
-          }
-
-          const indexes = { page: pageIndex, edge: edgeIndex };
-
-          dom.push(
-            <ReadingHistoryItem
-              key={`${history.post.id}-${timestamp}`}
-              history={history}
-              onHide={(params) => onHide({ ...params, ...indexes })}
-            />,
-          );
-
-          return dom;
-        }, []),
-      )}
+      {renderList()}
       <div
         className="absolute bottom-0 left-0 w-px h-px opacity-0 pointer-events-none"
         ref={infiniteScrollRef}
