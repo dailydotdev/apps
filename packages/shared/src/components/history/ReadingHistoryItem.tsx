@@ -29,7 +29,7 @@ function ReadingHistoryItem({
   };
 
   return (
-    <Link href={post.url}>
+    <Link href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}posts/${post.id}`}>
       <section
         className={classNames(
           'flex relative flex-row items-center py-3 pr-5 pl-9 hover:bg-theme-hover hover:cursor-pointer',
