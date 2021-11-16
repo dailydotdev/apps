@@ -35,7 +35,6 @@ body {
 
   &.ReactModal__Body--open .ReactModal__Content,
   &.ReactModal__Body--open .ReactModal__Content > * {
-    touch-action: none;
     overscroll-behavior-y: none;
   }
 }
