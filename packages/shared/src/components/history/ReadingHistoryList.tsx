@@ -13,14 +13,11 @@ import ReadingHistoryItem from './ReadingHistoryItem';
 
 const DateTitle = classed('h2', 'typo-body text-theme-label-tertiary');
 
-const getDateGroup = (date: Date, isFirstLabel: boolean) => {
+const getDateGroup = (date: Date) => {
   const label = getReadHistoryDateFormat(date);
 
   return (
-    <DateTitle
-      key={label}
-      className={classNames('px-6 my-3', isFirstLabel && 'mt-0')}
-    >
+    <DateTitle key={label} className={classNames('px-6 my-3 first:mt-0')}>
       {label}
     </DateTitle>
   );
@@ -48,7 +45,7 @@ function ReadHistoryList({
 
           if (!currentDate || !isDateOnlyEqual(currentDate, date)) {
             currentDate = date;
-            dom.push(getDateGroup(date, pageIndex === 0 && edgeIndex === 0));
+            dom.push(getDateGroup(date));
           }
 
           const indexes = { page: pageIndex, edge: edgeIndex };
