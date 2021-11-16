@@ -35,6 +35,7 @@ const defaultUser = {
   infoConfirmed: true,
   premium: false,
   createdAt: '2020-07-26T13:04:35.000Z',
+  showTopSites: true,
 };
 
 const renderComponent = (user: Partial<LoggedUser> = {}): RenderResult => {
@@ -86,6 +87,7 @@ it('should submit information', async () => {
     timezone: userTimezone,
     twitter: null,
     hashnode: null,
+    showTopSites: true,
   });
   expect(onSuccessfulSubmit).toBeCalledWith(true);
   expect(updateUser).toBeCalledWith({ ...defaultUser, username: 'idoshamun' });
@@ -115,6 +117,7 @@ it('should set optional fields on callback', async () => {
     timezone: userTimezone,
     twitter: null,
     hashnode: null,
+    showTopSites: true,
   });
   expect(onSuccessfulSubmit).toBeCalledWith(true);
   expect(updateUser).toBeCalledWith({

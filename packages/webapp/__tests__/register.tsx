@@ -42,6 +42,7 @@ const defaultUser = {
   premium: false,
   createdAt: '2020-07-26T13:04:35.000Z',
   permalink: 'https://app.daily.dev/ido',
+  showTopSites: true,
 };
 
 const renderComponent = (user: Partial<LoggedUser> = {}): RenderResult => {
@@ -99,6 +100,7 @@ it('should submit information on button click', async () => {
     timezone: userTimezone,
     twitter: null,
     hashnode: null,
+    showTopSites: true,
   });
 });
 

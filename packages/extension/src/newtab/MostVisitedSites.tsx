@@ -1,13 +1,24 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import PlusIcon from '@dailydotdev/shared/icons/plus.svg';
 import { QuaternaryButton } from '@dailydotdev/shared/src/components/buttons/QuaternaryButton';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import useTopSites from './useTopSites';
 import MostVisitedSitesModal from './MostVisitedSitesModal';
 
 export default function MostVisitedSites(): ReactElement {
+  const { user, tokenRefreshed } = useContext(AuthContext);
   const { topSites, askTopSitesPermission } = useTopSites();
   const [showModal, setShowModal] = useState(false);
+  const [showTopSites, setShowTopSites] = useState(true);
+
+  useEffect(() => {
+    if (tokenRefreshed && user && !user.showTopSites) {
+      setShowTopSites(false);
+    }
+  }, [user, tokenRefreshed]);
+
+  if (!showTopSites) return <></>;
 
   return (
     <>

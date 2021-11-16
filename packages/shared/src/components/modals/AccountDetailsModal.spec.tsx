@@ -27,6 +27,7 @@ const defaultUser = {
   infoConfirmed: true,
   premium: false,
   createdAt: '2020-07-26T13:04:35.000Z',
+  showTopSites: true,
 };
 
 const renderComponent = (user: Partial<LoggedUser> = {}): RenderResult => {
@@ -88,6 +89,7 @@ it('should submit information on button click', async () => {
     timezone: 'Europe/London',
     twitter: null,
     hashnode: null,
+    showTopSites: true,
   });
   expect(onRequestClose).toBeCalledTimes(1);
 });

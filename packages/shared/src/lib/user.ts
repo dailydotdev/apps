@@ -40,6 +40,7 @@ export interface UserProfile {
   bio?: string;
   acceptedMarketing?: boolean;
   timezone?: string;
+  showTopSites?: boolean;
 }
 
 export interface UpvoterProfile
@@ -116,6 +117,7 @@ export function loggedUserToProfile(user: LoggedUser): UserProfile {
     portfolio: user.github,
     bio: user.bio,
     acceptedMarketing: user.acceptedMarketing,
+    showTopSites: user.showTopSites,
   };
 }
 

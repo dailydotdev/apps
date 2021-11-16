@@ -299,6 +299,13 @@ export default function ProfileForm({
       >
         Subscribe to the Weekly Recap
       </FormSwitch>
+      <FormSwitch
+        name="showTopSites"
+        inputId="showTopSites"
+        checked={user.showTopSites}
+      >
+        Show top sites
+      </FormSwitch>
       {mode !== 'update' && (
         <details
           className={`flex flex-col w-full border-b border-theme-divider-tertiary ${styles.optionalFields}`}
