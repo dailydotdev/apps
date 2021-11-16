@@ -24,6 +24,13 @@ const NewRankModal = dynamic(
   () => import(/* webpackChunkName: "newRankModal" */ './modals/NewRankModal'),
 );
 
+const AccountDetailsModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "accountDetailsModal" */ './modals/AccountDetailsModal'
+    ),
+);
+
 export default function HeaderRankProgress({
   className,
 }: {
@@ -32,6 +39,7 @@ export default function HeaderRankProgress({
   const { user } = useContext(AuthContext);
   const { onboardingStep, onboardingReady, incrementOnboardingStep } =
     useContext(OnboardingContext);
+  const [showAccountDetails, setShowAccountDetails] = useState(false);
   const [showRanksModal, setShowRanksModal] = useState(false);
   const { flags } = useContext(FeaturesContext);
   const devCardLimit = parseInt(
@@ -112,6 +120,7 @@ export default function HeaderRankProgress({
           progress={progress}
           isOpen={showRanksModal}
           onRequestClose={closeRanksModal}
+          onShowAccount={() => setShowAccountDetails(true)}
           reads={reads}
           devCardLimit={devCardLimit}
         />
@@ -124,6 +133,12 @@ export default function HeaderRankProgress({
           isOpen={levelUp && !neverShowRankModal}
           onRequestClose={confirmLevelUp}
           showDevCard={reads >= devCardLimit || !devCardLimit}
+        />
+      )}
+      {showAccountDetails && (
+        <AccountDetailsModal
+          isOpen={showAccountDetails}
+          onRequestClose={() => setShowAccountDetails(false)}
         />
       )}
     </>

@@ -44,6 +44,7 @@ export default function useReadingRank(): ReturnType {
     () =>
       request(`${apiUrl}/graphql`, MY_READING_RANK_QUERY, {
         id: user.id,
+        timezone: user.timezone,
       }),
     {
       enabled: !!user && tokenRefreshed,

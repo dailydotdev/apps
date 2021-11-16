@@ -4,6 +4,7 @@ import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { mocked } from 'ts-jest/utils';
 import { NextRouter, useRouter } from 'next/router';
+import { getUserDefaultTimezone } from '@dailydotdev/shared/src/lib/timezones';
 import Page from '../pages/register';
 
 jest.mock('next/router', () => ({
@@ -16,6 +17,7 @@ jest.mock('@dailydotdev/shared/src/lib/user', () => ({
 }));
 
 const logout = jest.fn();
+const userTimezone = getUserDefaultTimezone();
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -94,6 +96,7 @@ it('should submit information on button click', async () => {
     bio: null,
     github: null,
     portfolio: null,
+    timezone: userTimezone,
     twitter: null,
     hashnode: null,
   });
