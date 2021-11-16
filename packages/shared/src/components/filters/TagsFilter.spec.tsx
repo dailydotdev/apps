@@ -149,13 +149,13 @@ it('should show login when not logged in', async () => {
 });
 
 it('should follow a tag on click and remove filter alert if enabled', async () => {
-  const disableAlertFilterMock = jest.fn();
+  const updateAlerts = jest.fn();
   let addFilterMutationCalled = false;
 
   const { baseElement } = renderComponent(
     [createAllTagCategoriesMock()],
     defaultUser,
-    { alerts: { filter: true }, updateAlerts: disableAlertFilterMock },
+    { alerts: { filter: true }, updateAlerts },
   );
 
   mockGraphQL({
@@ -185,7 +185,7 @@ it('should follow a tag on click and remove filter alert if enabled', async () =
   button.click();
 
   await waitFor(() => expect(addFilterMutationCalled).toBeTruthy());
-  await waitFor(() => expect(disableAlertFilterMock).toBeCalled());
+  await waitFor(() => expect(updateAlerts).toBeCalled());
 });
 
 it('should unfollow a tag on click', async () => {

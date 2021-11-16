@@ -129,14 +129,14 @@ it('should display advanced settings title and description including the appropr
 
 it('should mutate update feed advanced settings', async () => {
   loggedUser = defaultUser;
-  const disableAlertFilterMock = jest.fn();
+  const updateAlerts = jest.fn();
   let advancedSettingsMutationCalled = false;
 
   const { baseElement } = renderComponent(
     [createAdvancedSettingsAndFiltersMock()],
     {
       alerts: { filter: true },
-      updateAlerts: disableAlertFilterMock,
+      updateAlerts,
     },
   );
 
@@ -167,6 +167,6 @@ it('should mutate update feed advanced settings', async () => {
 
   await waitFor(() => expect(baseElement).not.toHaveAttribute('aria-busy'));
   await waitFor(() => expect(advancedSettingsMutationCalled).toBeTruthy());
-  await waitFor(() => expect(disableAlertFilterMock).toBeCalled());
+  await waitFor(() => expect(updateAlerts).toBeCalled());
   await waitFor(() => expect(checkbox).not.toBeChecked());
 });

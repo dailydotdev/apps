@@ -17,7 +17,7 @@ import { LoggedUser } from '../lib/user';
 
 let client: QueryClient;
 const incrementOnboardingStep = jest.fn();
-const disableAlertFilterMock = jest.fn();
+const updateAlerts = jest.fn();
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -30,8 +30,7 @@ const renderComponent = (
   user: LoggedUser = defaultUser,
   alertsData: AlertContextData = {
     alerts: { filter: true },
-    setAlerts: jest.fn(),
-    updateAlerts: disableAlertFilterMock,
+    updateAlerts,
   },
 ): RenderResult => {
   client = new QueryClient();
@@ -84,7 +83,7 @@ it('should remove red dot for filter alert when there is a pre-configured feedSe
   });
   const trigger = await screen.findByLabelText('Open sidebar');
   trigger.click();
-  expect(disableAlertFilterMock).toBeCalled();
+  expect(updateAlerts).toBeCalled();
   expect(incrementOnboardingStep).toBeCalledTimes(0);
 });
 
