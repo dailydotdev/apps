@@ -1,8 +1,3 @@
-.title {
-  -webkit-line-clamp: 3;
-  word-break: break-word;
-}
-
 .blur {
   filter: blur(1.25rem);
 }

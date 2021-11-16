@@ -33,7 +33,7 @@ export const CardLink = classed(
 export const Card = classed(
   'article',
   styles.card,
-  'relative flex flex-col p-2 rounded-2xl bg-theme-bg-secondary border border-theme-divider-tertiary hover:border-theme-divider-secondary shadow-2',
+  'relative flex flex-col p-2 rounded-2xl bg-theme-bg-secondary border border-theme-divider-tertiary hover:border-theme-divider-secondary shadow-2 line-clamp-3',
 );
 
 export const CardHeader = classed(
