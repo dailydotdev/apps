@@ -10,7 +10,6 @@ import { ProfilePicture } from '../ProfilePicture';
 
 const Title = classed(
   'h3',
-  styles.title,
   'font-bold typo-body text-theme-label-primary multi-truncate line-clamp-3',
 );
 
