@@ -20,7 +20,6 @@ type ReturnType = {
   nextRank: number;
   progress: number;
   levelUp: boolean;
-  neverShowRankModal: boolean;
   shouldShowRankModal: boolean;
   confirmLevelUp: (neverShowRankModal: boolean) => Promise<void>;
   reads: number;
@@ -48,10 +47,10 @@ export default function useReadingRank(): ReturnType {
   const [cachedRank, setCachedRank, loadedCache] = usePersistentState<
     MyRankData & { userId: string; neverShowRankModal?: boolean }
   >('rank', null);
+  const neverShowRankModal = cachedRank?.neverShowRankModal;
   const shouldShowRankModal = user
     ? checkShouldShowRankModal(alerts.rankLastSeen)
-    : !cachedRank?.neverShowRankModal;
-  const neverShowRankModal = cachedRank?.neverShowRankModal;
+    : !neverShowRankModal;
   const queryKey = getRankQueryKey(user);
   const { data: remoteRank } = useQuery<MyRankData>(
     queryKey,
@@ -68,7 +67,7 @@ export default function useReadingRank(): ReturnType {
 
   const cacheRank = (
     rank: MyRankData = remoteRank,
-    newNeverShowRankModal = cachedRank?.neverShowRankModal,
+    newNeverShowRankModal = neverShowRankModal,
   ) => {
     return setCachedRank({
       rank: rank.rank,
@@ -134,7 +133,7 @@ export default function useReadingRank(): ReturnType {
   }, [user, tokenRefreshed, loadedCache]);
 
   useEffect(() => {
-    if (!cachedRank?.neverShowRankModal || !user) {
+    if (!neverShowRankModal || !user) {
       return;
     }
 
@@ -148,7 +147,6 @@ export default function useReadingRank(): ReturnType {
     progress: cachedRank?.rank.progressThisWeek,
     reads: remoteRank?.reads,
     levelUp,
-    neverShowRankModal,
     shouldShowRankModal,
     confirmLevelUp: (newNeverShowRankModal) => {
       setLevelUp(false);
