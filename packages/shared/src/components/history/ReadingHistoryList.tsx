@@ -1,15 +1,13 @@
 import React, { ReactElement, useCallback } from 'react';
 import classNames from 'classnames';
-import {
-  HideReadHistory,
-  ReadHistoryInfiniteData,
-} from '../../hooks/useReadingHistory';
+import { HideReadHistory } from '../../hooks/useReadingHistory';
 import classed from '../../lib/classed';
 import {
   isDateOnlyEqual,
   getReadHistoryDateFormat,
 } from '../../lib/dateFormat';
 import ReadingHistoryItem from './ReadingHistoryItem';
+import { ReadHistoryInfiniteData } from '../../hooks/useInfiniteReadingHistory';
 
 const DateTitle = classed('h2', 'typo-body text-theme-label-tertiary');
 

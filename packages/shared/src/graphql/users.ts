@@ -106,7 +106,7 @@ export const READING_HISTORY_QUERY = gql`
             id
             title
             image
-            url
+            commentsPermalink
             source {
               image
             }
