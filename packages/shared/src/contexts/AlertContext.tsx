@@ -24,11 +24,17 @@ interface AlertContextProviderProps {
   alerts?: Alerts;
 }
 
+const STORAGE_KEY = 'alert';
+
 export const AlertContextProvider = ({
   children,
   alerts: alertsProp,
 }: AlertContextProviderProps): ReactElement => {
-  const [alerts, setAlerts] = usePersistentState('alert', null, ALERT_DEFAULTS);
+  const [alerts, setAlerts] = usePersistentState(
+    STORAGE_KEY,
+    null,
+    ALERT_DEFAULTS,
+  );
   const { mutateAsync: disableFilterAlert } = useMutation<
     unknown,
     unknown,

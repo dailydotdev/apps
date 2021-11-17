@@ -18,6 +18,7 @@ export interface BaseButtonProps {
   rightIcon?: ReactNode;
   children?: ReactNode;
   displayClass?: string;
+  absolute?: boolean;
 }
 
 export type ButtonProps<Tag extends keyof JSX.IntrinsicElements> =
@@ -38,6 +39,7 @@ export function Button<Tag extends keyof JSX.IntrinsicElements>({
   innerRef,
   className,
   displayClass,
+  absolute,
   ...props
 }: StyledButtonProps & ButtonProps<Tag>): ReactElement {
   const iconOnly = icon && !children && !rightIcon;
@@ -50,8 +52,9 @@ export function Button<Tag extends keyof JSX.IntrinsicElements>({
       className={classNames(
         { iconOnly },
         buttonSize,
-        'btn relative flex-row items-center justify-center border typo-callout font-bold no-underline shadow-none cursor-pointer select-none focus-outline',
+        'btn flex-row items-center justify-center border typo-callout font-bold no-underline shadow-none cursor-pointer select-none focus-outline',
         displayClass || 'flex',
+        absolute ? 'absolute' : 'relative',
         className,
       )}
     >

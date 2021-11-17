@@ -1,4 +1,4 @@
-import { isSameDay, subDays } from 'date-fns';
+import { addDays, format, isEqual, isSameDay, subDays } from 'date-fns';
 
 const oneMinute = 60;
 const oneHour = 3600;
@@ -61,3 +61,38 @@ export function commentDateFormat(
     year: 'numeric',
   });
 }
+
+export const isDateOnlyEqual = (left: Date, right: Date): boolean => {
+  const formattedLeft = new Date(
+    left.getFullYear(),
+    left.getMonth(),
+    left.getDate(),
+  );
+  const formattedRight = new Date(
+    right.getFullYear(),
+    right.getMonth(),
+    right.getDate(),
+  );
+
+  return isEqual(formattedLeft, formattedRight);
+};
+
+export const getReadHistoryDateFormat = (currentDate: Date): string => {
+  const today = new Date();
+
+  if (isDateOnlyEqual(today, currentDate)) {
+    return 'Today';
+  }
+
+  if (isDateOnlyEqual(today, addDays(currentDate, 1))) {
+    return 'Yesterday';
+  }
+
+  const dayOfTheWeek = format(currentDate, 'EEE');
+  const dayOfTheMonth = currentDate.getDate();
+  const month = format(currentDate, 'MMM');
+  const currentYear = currentDate.getFullYear();
+  const year = currentYear === today.getFullYear() ? '' : ` ${currentYear}`;
+
+  return `${dayOfTheWeek}, ${dayOfTheMonth} ${month}${year}`;
+};
