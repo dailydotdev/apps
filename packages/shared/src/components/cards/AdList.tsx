@@ -1,5 +1,4 @@
 import React, { forwardRef, ReactElement, Ref, useEffect } from 'react';
-import classNames from 'classnames';
 import { AdCardProps } from './AdCard';
 import {
   ListCard,
@@ -12,7 +11,7 @@ import AdLink from './AdLink';
 import AdAttribution from './AdAttribution';
 
 export const AdList = forwardRef(function AdList(
-  { ad, onRender, onLinkClick, className, ...props }: AdCardProps,
+  { ad, onRender, onLinkClick, ...props }: AdCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
   useEffect(() => {
@@ -20,7 +19,7 @@ export const AdList = forwardRef(function AdList(
   }, []);
 
   return (
-    <ListCard {...props} className={classNames(className)} ref={ref}>
+    <ListCard {...props} ref={ref}>
       <AdLink ad={ad} onLinkClick={onLinkClick} />
       <ListCardAside />
       <ListCardDivider />
