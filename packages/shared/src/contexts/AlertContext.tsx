@@ -7,7 +7,7 @@ import { apiUrl } from '../lib/config';
 
 export const ALERT_DEFAULTS: Alerts = {
   filter: false,
-  rank: true,
+  rankLastSeen: null,
 };
 
 export interface AlertContextData {
@@ -19,6 +19,8 @@ export interface AlertContextData {
     () => Promise<void>
   >;
 }
+
+export const MAX_DATE = new Date(3021, 0, 1);
 
 const AlertContext = React.createContext<AlertContextData>({
   alerts: ALERT_DEFAULTS,
