@@ -1,13 +1,19 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useContext, useState } from 'react';
 import classNames from 'classnames';
 import PlusIcon from '@dailydotdev/shared/icons/plus.svg';
+import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { QuaternaryButton } from '@dailydotdev/shared/src/components/buttons/QuaternaryButton';
 import useTopSites from './useTopSites';
 import MostVisitedSitesModal from './MostVisitedSitesModal';
 
 export default function MostVisitedSites(): ReactElement {
+  const { showTopSites } = useContext(SettingsContext);
   const { topSites, askTopSitesPermission } = useTopSites();
   const [showModal, setShowModal] = useState(false);
+
+  if (!showTopSites) {
+    return <></>;
+  }
 
   return (
     <>
