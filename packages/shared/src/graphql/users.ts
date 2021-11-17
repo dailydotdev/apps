@@ -77,23 +77,6 @@ export const USER_READING_HISTORY_QUERY = gql`
   }
 `;
 
-interface ReadHistorySource {
-  image: string;
-}
-
-interface ReadHistoryPost {
-  id: string;
-  title: string;
-  url: string;
-  image: string;
-  source: ReadHistorySource;
-}
-
-export interface ReadHistory {
-  timestamp: Date;
-  post: ReadHistoryPost;
-}
-
 export const UPVOTER_FRAGMENT = gql`
   fragment UpvoterFragment on User {
     name

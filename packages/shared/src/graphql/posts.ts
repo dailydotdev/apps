@@ -50,6 +50,16 @@ export interface Ad {
   impressionStatus?: number;
 }
 
+type ReadHistoryPost = Pick<
+  Post,
+  'id' | 'title' | 'commentsPermalink' | 'image' | 'source'
+> & { source?: Pick<Source, 'image'> };
+
+export interface ReadHistory {
+  timestamp: Date;
+  post: ReadHistoryPost;
+}
+
 export interface PostData {
   post: Post;
 }

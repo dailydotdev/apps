@@ -12,8 +12,8 @@ import {
   READING_HISTORY_QUERY,
   HideReadHistoryProps,
   HIDE_READING_HISTORY_MUTATION,
-  ReadHistory,
 } from '../graphql/users';
+import { ReadHistory } from '../graphql/posts';
 import { RequestDataConnection } from '../graphql/common';
 import useFeedInfiniteScroll from './feed/useFeedInfiniteScroll';
 

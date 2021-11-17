@@ -1,7 +1,8 @@
 import React, { MouseEvent, ReactElement } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
-import { HideReadHistoryProps, ReadHistory } from '../../graphql/users';
+import { HideReadHistoryProps } from '../../graphql/users';
+import { ReadHistory } from '../../graphql/posts';
 import XIcon from '../../../icons/x.svg';
 import classed from '../../lib/classed';
 import { Button } from '../buttons/Button';
@@ -29,7 +30,7 @@ function ReadingHistoryItem({
   };
 
   return (
-    <Link href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}posts/${post.id}`}>
+    <Link href={post.commentsPermalink}>
       <article
         className={classNames(
           'flex relative flex-row items-center py-3 pr-5 pl-9 hover:bg-theme-hover hover:cursor-pointer',
@@ -43,7 +44,7 @@ function ReadingHistoryItem({
         />
         <SourceShadow />
         <LazyImage
-          imgSrc={post.source.image}
+          imgSrc={post.source?.image}
           imgAlt={`source of ${post.title}`}
           className="left-6 w-6 h-6 rounded-full"
           absolute
