@@ -25,11 +25,12 @@ export interface DropdownProps {
   onChange: (value: string, index: number) => unknown;
   buttonSize?: 'small' | 'medium' | 'large' | 'select';
   scrollable?: boolean;
+  menuClassName?: string;
 }
 
 const getButtonSizeClass = (buttonSize: string): string => {
   if (buttonSize === 'select') {
-    return 'h-9 rounded-10';
+    return 'h-9 rounded-10 text-theme-label-primary typo-callout';
   }
   if (buttonSize === 'medium') {
     return 'h-10 rounded-xl';
@@ -48,6 +49,7 @@ export function Dropdown({
   onChange,
   buttonSize = 'large',
   scrollable = false,
+  menuClassName = 'menu-primary',
   ...props
 }: DropdownProps): ReactElement {
   const [id] = useState(`dropdown-${Math.random().toString(36).substring(7)}`);
@@ -124,7 +126,7 @@ export function Dropdown({
       <Menu
         disableBoundariesCheck
         id={id}
-        className={`menu-primary ${scrollable && 'scrollable'}`}
+        className={`${scrollable && 'scrollable'} ${menuClassName}`}
         animation="fade"
         onHidden={() => setVisibility(false)}
         style={{ width: menuWidth }}

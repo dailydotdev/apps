@@ -170,6 +170,7 @@ export default function ProfileForm({
           onChange={timezoneUpdated}
           options={timeZoneValues}
           scrollable
+          menuClassName="menu-secondary"
         />
         <div className="px-2 mt-1 typo-caption1 text-theme-label-tertiary">
           Your current time zone. Used to calculate your weekly goal&apos;s
