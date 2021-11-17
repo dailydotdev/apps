@@ -6,6 +6,7 @@ import AuthContext from '../contexts/AuthContext';
 import PowerIcon from '../../icons/power.svg';
 import UserIcon from '../../icons/user.svg';
 import TimerIcon from '../../icons/timer.svg';
+import EyeIcon from '../../icons/eye.svg';
 import SettingsIcon from '../../icons/settings.svg';
 import DevCardIcon from '../../icons/dev_card.svg';
 import FeedbackIcon from '../../icons/feedback.svg';
@@ -55,6 +56,17 @@ export default function ProfileMenu({
         </Item>
         <Item onClick={() => setShowAccountDetails(true)}>
           <SettingsIcon className="mr-2 text-xl" /> Account details
+        </Item>
+        <Item>
+          <Link
+            href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}history`}
+            passHref
+            prefetch={false}
+          >
+            <a className="flex w-full">
+              <EyeIcon className="mr-2 text-xl" /> Reading history
+            </a>
+          </Link>
         </Item>
         {shouldShowDnD && (
           <Item onClick={onShowDndClick}>

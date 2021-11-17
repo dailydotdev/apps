@@ -5,7 +5,6 @@ import React, {
   Ref,
   useEffect,
 } from 'react';
-import classNames from 'classnames';
 import {
   Card,
   CardImage,
@@ -28,14 +27,7 @@ export type AdCardProps = {
 } & HTMLAttributes<HTMLDivElement>;
 
 export const AdCard = forwardRef(function AdCard(
-  {
-    ad,
-    onRender,
-    onLinkClick,
-    className,
-    showImage = true,
-    ...props
-  }: AdCardProps,
+  { ad, onRender, onLinkClick, showImage = true, ...props }: AdCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const showBlurredImage = ad.source === 'Carbon';
@@ -45,10 +37,10 @@ export const AdCard = forwardRef(function AdCard(
   }, []);
 
   return (
-    <Card {...props} className={classNames(className, styles.ad)} ref={ref}>
+    <Card {...props} ref={ref}>
       <AdLink ad={ad} onLinkClick={onLinkClick} />
       <CardTextContainer>
-        <CardTitle className="my-4">{ad.description}</CardTitle>
+        <CardTitle className="my-4 line-clamp-4">{ad.description}</CardTitle>
       </CardTextContainer>
       <CardSpace />
       {showImage && (

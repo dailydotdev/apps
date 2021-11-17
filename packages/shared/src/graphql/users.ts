@@ -86,3 +86,41 @@ export const UPVOTER_FRAGMENT = gql`
     permalink
   }
 `;
+
+export interface HideReadHistoryProps {
+  timestamp: Date;
+  postId: string;
+}
+
+export const READING_HISTORY_QUERY = gql`
+  query ReadHistory($after: String, $first: Int) {
+    readHistory(after: $after, first: $first) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          timestamp
+          post {
+            id
+            title
+            image
+            commentsPermalink
+            source {
+              image
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+export const HIDE_READING_HISTORY_MUTATION = gql`
+  mutation HideReadHistory($postId: String!, $timestamp: DateTime!) {
+    hideReadHistory(postId: $postId, timestamp: $timestamp) {
+      _
+    }
+  }
+`;

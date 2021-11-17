@@ -114,6 +114,13 @@ module.exports = {
         24: '0.24',
         32: '0.32',
       },
+      inset: {
+        'screen-20': '20vh',
+        'screen-40': '40vh',
+        'screen-60': '60vh',
+        'screen-80': '80vh',
+        screen: '100vh',
+      },
     },
   },
   variants: {
@@ -122,7 +129,8 @@ module.exports = {
       visibility: ['group-hover'],
     },
   },
-  plugins: [caret, typography, buttons],
+  // eslint-disable-next-line global-require
+  plugins: [caret, typography, buttons, require('@tailwindcss/line-clamp')],
   corePlugins: {
     invert: false,
   },

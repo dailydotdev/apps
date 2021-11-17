@@ -46,3 +46,8 @@ export interface RequestQuery<T> {
   params?: RequestQueryParams;
   options?: UseInfiniteQueryOptions<T>;
 }
+
+export type RequestDataConnection<TEntity, TKey extends string> = Record<
+  TKey,
+  Connection<TEntity>
+>;
