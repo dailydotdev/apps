@@ -9,11 +9,6 @@
     & .react-contexify__item__content {
       @apply text-theme-label-tertiary;
     }
-
-    &.scrollable {
-      height: 15rem;
-      overflow-y: scroll;
-    }
   }
 
   &.menu-secondary {
@@ -29,6 +24,10 @@
         flex: 1;
         @apply truncate;
       }
+    }
+    &.scrollable {
+      height: 15rem;
+      overflow-y: scroll;
     }
   }
 

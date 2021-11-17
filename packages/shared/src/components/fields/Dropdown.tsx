@@ -29,7 +29,7 @@ export interface DropdownProps {
 
 const getButtonSizeClass = (buttonSize: string): string => {
   if (buttonSize === 'select') {
-    return 'h-9 rounded-10';
+    return 'h-9 rounded-10 text-theme-label-primary typo-callout';
   }
   if (buttonSize === 'medium') {
     return 'h-10 rounded-xl';
@@ -124,7 +124,9 @@ export function Dropdown({
       <Menu
         disableBoundariesCheck
         id={id}
-        className={`menu-primary ${scrollable && 'scrollable'}`}
+        className={`${
+          scrollable ? 'menu-secondary scrollable' : 'menu-primary'
+        }`}
         animation="fade"
         onHidden={() => setVisibility(false)}
         style={{ width: menuWidth }}
