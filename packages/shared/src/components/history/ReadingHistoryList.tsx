@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useCallback } from 'react';
 import classNames from 'classnames';
 import {
   HideReadHistory,
@@ -34,10 +34,10 @@ function ReadHistoryList({
   onHide,
   infiniteScrollRef,
 }: ReadHistoryListProps): ReactElement {
-  let currentDate: Date;
+  const renderList = useCallback(() => {
+    let currentDate: Date;
 
-  const renderList = () =>
-    data?.pages.map((page, pageIndex) =>
+    return data?.pages.map((page, pageIndex) =>
       page.readHistory.edges.reduce((dom, { node: history }, edgeIndex) => {
         const { timestamp } = history;
         const date = new Date(timestamp);
@@ -60,6 +60,7 @@ function ReadHistoryList({
         return dom;
       }, []),
     );
+  }, [data, onHide]);
 
   return (
     <section className="flex relative flex-col">
