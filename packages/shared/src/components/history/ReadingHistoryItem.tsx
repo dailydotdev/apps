@@ -48,9 +48,9 @@ function ReadingHistoryItem({
           className="left-6 w-6 h-6 rounded-full"
           absolute
         />
-        <p className="flex flex-wrap flex-1 mr-6 ml-4 line-clamp-3 typo-callout">
+        <h3 className="flex flex-wrap flex-1 mr-6 ml-4 line-clamp-3 typo-callout">
           {post.title}
-        </p>
+        </h3>
         {onHide && (
           <Button
             className="btn-tertiary"
