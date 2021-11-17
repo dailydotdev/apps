@@ -29,12 +29,14 @@ interface AlertContextProviderProps {
   alerts?: Alerts;
 }
 
+const STORAGE_KEY = 'alert';
+
 export const AlertContextProvider = ({
   children,
   alerts: alertsProp,
 }: AlertContextProviderProps): ReactElement => {
-  const [alerts, setAlerts] = usePersistentState<Alerts>(
-    'alert',
+  const [alerts, setAlerts] = usePersistentState(
+    STORAGE_KEY,
     null,
     ALERT_DEFAULTS,
   );

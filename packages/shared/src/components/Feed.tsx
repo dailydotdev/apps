@@ -22,7 +22,9 @@ import useFeedBookmarkPost from '../hooks/feed/useFeedBookmarkPost';
 import useCommentPopup from '../hooks/feed/useCommentPopup';
 import useFeedOnPostClick from '../hooks/feed/useFeedOnPostClick';
 import useFeedContextMenu from '../hooks/feed/useFeedContextMenu';
-import useFeedInfiniteScroll from '../hooks/feed/useFeedInfiniteScroll';
+import useFeedInfiniteScroll, {
+  InfiniteScrollScreenOffset,
+} from '../hooks/feed/useFeedInfiniteScroll';
 import FeedItemComponent, { getFeedItemKey } from './FeedItemComponent';
 import useVirtualFeedGrid, {
   cardHeightPx,
@@ -236,10 +238,7 @@ export default function Feed<T>({
           />
         )}
       />
-      <div
-        ref={infiniteScrollRef}
-        className={`absolute left-0 h-px w-px opacity-0 pointer-events-none ${styles.trigger}`}
-      />
+      <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
       <PostOptionsMenu
         postIndex={postMenuIndex}
         post={(items[postMenuIndex] as PostItem)?.post}

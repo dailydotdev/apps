@@ -20,11 +20,3 @@
     grid-auto-rows: var(--card-height);
   }
 }
-
-.trigger {
-  bottom: 100vh;
-
-  @screen desktopL {
-    bottom: 20vh;
-  }
-}

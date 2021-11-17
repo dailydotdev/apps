@@ -28,11 +28,13 @@ export type SettingsContextData = {
   showOnlyUnreadPosts: boolean;
   openNewTab: boolean;
   insaneMode: boolean;
+  showTopSites: boolean;
   setTheme: (theme) => Promise<void>;
   toggleShowOnlyUnreadPosts: () => Promise<void>;
   toggleOpenNewTab: () => Promise<void>;
   setSpaciness: (density: Spaciness) => Promise<void>;
   toggleInsaneMode: () => Promise<void>;
+  toggleShowTopSites: () => Promise<void>;
   loadedSettings: boolean;
 };
 
@@ -44,6 +46,7 @@ type Settings = {
   showOnlyUnreadPosts: boolean;
   openNewTab: boolean;
   insaneMode: boolean;
+  showTopSites: boolean;
 };
 
 const deprecatedLightModeStorageKey = 'showmethelight';
@@ -53,6 +56,7 @@ const defaultSettings: Settings = {
   showOnlyUnreadPosts: false,
   openNewTab: true,
   insaneMode: false,
+  showTopSites: true,
 };
 
 function applyTheme(themeMode: string): void {
@@ -186,6 +190,8 @@ export const SettingsContextProvider = ({
         setSettings({ ...settings, spaciness: density }),
       toggleInsaneMode: () =>
         setSettings({ ...settings, insaneMode: !settings.insaneMode }),
+      toggleShowTopSites: () =>
+        setSettings({ ...settings, showTopSites: !settings.showTopSites }),
       loadedSettings,
     }),
     [settings, loadedSettings, userId, currentTheme],
