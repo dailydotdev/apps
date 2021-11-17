@@ -8,6 +8,7 @@ import {
 } from '../../lib/dateFormat';
 import ReadingHistoryItem from './ReadingHistoryItem';
 import { ReadHistoryInfiniteData } from '../../hooks/useInfiniteReadingHistory';
+import { InfiniteScrollScreenOffset } from '../../hooks/feed/useFeedInfiniteScroll';
 
 const DateTitle = classed('h2', 'typo-body text-theme-label-tertiary');
 
@@ -63,10 +64,7 @@ function ReadHistoryList({
   return (
     <section className="flex relative flex-col">
       {renderList()}
-      <div
-        className="absolute bottom-0 left-0 w-px h-px opacity-0 pointer-events-none"
-        ref={infiniteScrollRef}
-      />
+      <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
     </section>
   );
 }

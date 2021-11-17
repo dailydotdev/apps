@@ -114,6 +114,13 @@ module.exports = {
         24: '0.24',
         32: '0.32',
       },
+      inset: {
+        'screen-20': '20vh',
+        'screen-40': '40vh',
+        'screen-60': '60vh',
+        'screen-80': '80vh',
+        screen: '100vh',
+      },
     },
   },
   variants: {
