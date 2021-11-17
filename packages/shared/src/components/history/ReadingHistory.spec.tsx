@@ -4,7 +4,7 @@ import { render, screen } from '@testing-library/react';
 import nock from 'nock';
 import ReadingHistoryItem from './ReadingHistoryItem';
 import ReadHistoryList, { ReadHistoryListProps } from './ReadingHistoryList';
-import { ReadHistoryInfiniteData } from '../../hooks/useReadingHistory';
+import { ReadHistoryInfiniteData } from '../../hooks/useInfiniteReadingHistory';
 
 beforeEach(() => {
   nock.cleanAll();
@@ -26,7 +26,7 @@ describe('ReadingHistoryList component', () => {
   const post = {
     id: 'p1',
     title: 'Most Recent Post',
-    url: 'most.recent.post.url',
+    commentsPermalink: 'most.recent.post.url',
     image: 'most.recent.post.image',
     source: {
       image: 'most.recent.post.source.image',
@@ -82,7 +82,7 @@ describe('ReadingHistoryItem component', () => {
     post: {
       id: 'p1',
       title: 'Most Recent Post',
-      url: 'most.recent.post.url',
+      commentsPermalink: 'most.recent.post.url',
       image: 'most.recent.post.image',
       source: {
         image: 'most.recent.post.source.image',

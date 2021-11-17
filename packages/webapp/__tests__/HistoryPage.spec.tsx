@@ -3,7 +3,7 @@ import { render, RenderResult, screen } from '@testing-library/preact';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import nock from 'nock';
-import { ReadHistoryData } from '@dailydotdev/shared/src/hooks/useReadingHistory';
+import { ReadHistoryData } from '@dailydotdev/shared/src/hooks/useInfiniteReadingHistory';
 import { READING_HISTORY_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
@@ -22,7 +22,7 @@ const edge = {
     post: {
       id: 'p1',
       title: 'Most Recent Post',
-      url: 'most.recent.post.url',
+      commentsPermalink: 'most.recent.post.url',
       image: 'most.recent.post.image',
       source: {
         image: 'most.recent.post.source.image',

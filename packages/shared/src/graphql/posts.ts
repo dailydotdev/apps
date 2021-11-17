@@ -52,7 +52,7 @@ export interface Ad {
 
 type ReadHistoryPost = Pick<
   Post,
-  'id' | 'title' | 'commentsPermalink' | 'image' | 'source'
+  'id' | 'title' | 'commentsPermalink' | 'image'
 > & { source?: Pick<Source, 'image'> };
 
 export interface ReadHistory {
