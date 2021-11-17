@@ -1,4 +1,9 @@
-import { postDateFormat, commentDateFormat } from './dateFormat';
+import { subDays } from 'date-fns';
+import {
+  postDateFormat,
+  commentDateFormat,
+  getReadHistoryDateFormat,
+} from './dateFormat';
 
 const now = new Date(2020, 5, 1, 12, 0, 0);
 
@@ -65,6 +70,37 @@ describe('commentDateFormat', () => {
     const expected = 'Oct 4, 2017';
     const date = new Date(2017, 9, 4, 12, 0, 0);
     const actual = commentDateFormat(date.toISOString(), now);
+    expect(actual).toEqual(expected);
+  });
+});
+
+describe('getReadHistoryDateFormat', () => {
+  it('should return formatted date for the same day', () => {
+    const expected = 'Today';
+    const date = new Date();
+    const actual = getReadHistoryDateFormat(date);
+    expect(actual).toEqual(expected);
+  });
+
+  it('should return formatted date for the day before', () => {
+    const expected = 'Yesterday';
+    const date = subDays(new Date(), 1);
+    const actual = getReadHistoryDateFormat(date);
+    expect(actual).toEqual(expected);
+  });
+
+  it('should return formatted date for the same year', () => {
+    const expected = 'Wed, 31 Mar';
+    const year = new Date().getFullYear();
+    const date = new Date(`${year}-03-31 07:15:51.247`);
+    const actual = getReadHistoryDateFormat(date);
+    expect(actual).toEqual(expected);
+  });
+
+  it('should return formatted date with a different year from today', () => {
+    const expected = 'Sat, 31 Mar 2018';
+    const date = new Date('2018-03-31 07:15:51.247');
+    const actual = getReadHistoryDateFormat(date);
     expect(actual).toEqual(expected);
   });
 });

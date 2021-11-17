@@ -19,8 +19,19 @@ export const PageContainer = classed(
   'relative flex flex-col w-full items-stretch px-4 z-1 tablet:px-8 tablet:self-center',
 );
 
+export const NoPaddingPageContainer = classed(
+  'main',
+  styles.pageContainer,
+  'relative flex flex-col w-full items-stretch z-1 tablet:self-center',
+);
+
 export const ResponsivePageContainer = classed(
   PageContainer,
+  'py-6 laptop:border-theme-divider-tertiary laptop:border-l laptop:border-r laptop:min-h-screen',
+);
+
+export const ResponsiveNoPaddingPageContainer = classed(
+  NoPaddingPageContainer,
   'py-6 laptop:border-theme-divider-tertiary laptop:border-l laptop:border-r laptop:min-h-screen',
 );
 
