@@ -6,6 +6,7 @@ import React, {
   useState,
 } from 'react';
 import { IFlags } from 'flagsmith';
+import { storageWrapper } from '../lib/storageWrapper';
 
 const FEATURES_STATE_KEY = 'features';
 
@@ -28,14 +29,18 @@ export const FeaturesContextProvider = ({
   const [features, setFeatures] = useState<{ flags: IFlags }>();
 
   useEffect(() => {
-    setFeatures(JSON.parse(localStorage.getItem(FEATURES_STATE_KEY)));
+    const storedFeatures = storageWrapper.getItem(FEATURES_STATE_KEY);
+    if (storedFeatures) {
+      const storedFeaturesFlag: { flags: IFlags } = JSON.parse(storedFeatures);
+      setFeatures(storedFeaturesFlag);
+    }
   }, []);
 
   useEffect(() => {
     if (flags && Object.keys(flags)?.length) {
       const newFeats = { flags };
       setFeatures(newFeats);
-      localStorage.setItem(FEATURES_STATE_KEY, JSON.stringify(newFeats));
+      storageWrapper.setItem(FEATURES_STATE_KEY, JSON.stringify(newFeats));
     }
   }, [flags]);
 

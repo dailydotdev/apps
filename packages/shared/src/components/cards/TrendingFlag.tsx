@@ -28,10 +28,10 @@ export default function TrendingFlag({
         )}
         {...getTooltipProps(description)}
       >
-        <span className="typo-caption2 uppercase font-bold">Hot</span>
+        <span className="font-bold uppercase typo-caption2">Hot</span>
       </div>
       {!listMode && (
-        <span className="ml-2 typo-footnote text-theme-label-tertiary mouse:hidden">
+        <span className="mouse:hidden ml-2 typo-footnote text-theme-label-tertiary">
           {description}
         </span>
       )}

@@ -13,12 +13,11 @@ import SettingsContext, {
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import {
   ADD_FILTERS_TO_FEED_MUTATION,
+  AllTagCategoriesData,
   FeedSettings,
-  FeedSettingsData,
   REMOVE_FILTERS_FROM_FEED_MUTATION,
-  SOURCES_SETTINGS_QUERY,
 } from '@dailydotdev/shared/src/graphql/feedSettings';
-import { getSourcesSettingsQueryKey } from '@dailydotdev/shared/src/hooks/useMutateFilters';
+import { getFeedSettingsQueryKey } from '@dailydotdev/shared/src/hooks/useMutateFilters';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import SourcePage from '../pages/sources/[source]';
 import ad from './fixture/ad';
@@ -26,6 +25,7 @@ import defaultUser from './fixture/loggedUser';
 import defaultFeedPage from './fixture/feed';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
 import { waitForNock } from './helpers/utilities';
+import { FEED_SETTINGS_QUERY } from '../../shared/src/graphql/feedSettings';
 
 const showLogin = jest.fn();
 
@@ -72,8 +72,9 @@ const createSourcesSettingsMock = (
       { id: 'react', name: 'React', image: 'https://reactjs.org' },
     ],
   },
-): MockedGraphQLResponse<FeedSettingsData> => ({
-  request: { query: SOURCES_SETTINGS_QUERY },
+  loggedIn = true,
+): MockedGraphQLResponse<AllTagCategoriesData> => ({
+  request: { query: FEED_SETTINGS_QUERY, variables: { loggedIn } },
   result: {
     data: {
       feedSettings,
@@ -107,6 +108,8 @@ const renderComponent = (
     insaneMode: false,
     loadedSettings: true,
     toggleInsaneMode: jest.fn(),
+    showTopSites: true,
+    toggleShowTopSites: jest.fn(),
   };
   return render(
     <QueryClientProvider client={client}>
@@ -196,7 +199,7 @@ it('should follow source', async () => {
   renderComponent();
   await waitFor(async () => {
     const data = await client.getQueryData(
-      getSourcesSettingsQueryKey(defaultUser),
+      getFeedSettingsQueryKey(defaultUser),
     );
     expect(data).toBeTruthy();
   });
@@ -225,7 +228,7 @@ it('should block source', async () => {
   ]);
   await waitFor(async () => {
     const data = await client.getQueryData(
-      getSourcesSettingsQueryKey(defaultUser),
+      getFeedSettingsQueryKey(defaultUser),
     );
     expect(data).toBeTruthy();
   });

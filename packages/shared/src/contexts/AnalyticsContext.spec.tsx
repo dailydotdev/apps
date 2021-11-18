@@ -40,11 +40,13 @@ const settings: SettingsContextData = {
   setTheme: jest.fn(),
   themeMode: 'light',
   insaneMode: true,
+  showTopSites: true,
   toggleInsaneMode: jest.fn(),
   openNewTab: true,
   setSpaciness: jest.fn(),
   toggleOpenNewTab: jest.fn(),
   toggleShowOnlyUnreadPosts: jest.fn(),
+  toggleShowTopSites: jest.fn(),
   showOnlyUnreadPosts: false,
 };
 

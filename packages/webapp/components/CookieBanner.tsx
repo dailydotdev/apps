@@ -39,7 +39,7 @@ export default function CookieBanner({
     >
       <ModalCloseButton onClick={close} />
       <CookieIcon
-        className="hidden mb-4 text-theme-label-primary laptop:block"
+        className="hidden laptop:block mb-4 text-theme-label-primary"
         style={{ fontSize: '3.5rem' }}
       />
       <div>
@@ -48,7 +48,7 @@ export default function CookieBanner({
           href={cookiePolicy}
           target="_blank"
           rel="noopener"
-          className="no-underline contents"
+          className="contents no-underline"
           style={{ color: 'inherit' }}
         >
           cookies
@@ -57,7 +57,7 @@ export default function CookieBanner({
       </div>
       <Button
         onClick={close}
-        className="btn-primary mt-4 self-start laptop:self-stretch"
+        className="self-start laptop:self-stretch mt-4 btn-primary"
         buttonSize="small"
       >
         I like cookies

@@ -19,19 +19,17 @@ import {
   featuredCommentsToButtons,
   getPostClassNames,
 } from './Card';
-import { SmallRoundedImage } from '../utilities';
 import FeatherIcon from '../../../icons/feather.svg';
-import FlagIcon from '../../../icons/flag.svg';
 import { Comment } from '../../graphql/comments';
-import { Button } from '../buttons/Button';
 import styles from './Card.module.css';
-import { getTooltipProps } from '../../lib/tooltip';
 import TrendingFlag from './TrendingFlag';
 import PostLink from './PostLink';
 import PostMetadata from './PostMetadata';
 import ActionButtons from './ActionButtons';
 import SourceButton from './SourceButton';
 import PostAuthor from './PostAuthor';
+import OptionsButton from '../buttons/OptionsButton';
+import { ProfilePicture } from '../ProfilePicture';
 
 const FeaturedComment = dynamic(() => import('./FeaturedComment'));
 
@@ -76,7 +74,6 @@ export const PostCard = forwardRef(function PostCard(
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const [selectedComment, setSelectedComment] = useState<Comment>();
-
   const { trending } = post;
   const customStyle =
     selectedComment && !showImage ? { minHeight: '15.125rem' } : {};
@@ -91,7 +88,7 @@ export const PostCard = forwardRef(function PostCard(
       <CardTextContainer>
         <CardHeader>
           {notification ? (
-            <CardNotification className="flex-1">
+            <CardNotification className="flex-1 text-center">
               {notification}
             </CardNotification>
           ) : (
@@ -101,20 +98,10 @@ export const PostCard = forwardRef(function PostCard(
                 post.featuredComments,
                 setSelectedComment,
               )}
-              {enableMenu && !selectedComment && (
-                <Button
-                  className={classNames(
-                    'btn-tertiary',
-                    !menuOpened && 'mouse:invisible mouse:group-hover:visible',
-                  )}
-                  style={{ marginLeft: 'auto', marginRight: '-0.125rem' }}
-                  buttonSize="small"
-                  icon={<FlagIcon />}
-                  onClick={(event) => onMenuClick?.(event, post)}
-                  pressed={menuOpened}
-                  {...getTooltipProps('Report post')}
-                />
-              )}
+              <OptionsButton
+                onClick={(event) => onMenuClick?.(event, post)}
+                post={post}
+              />
             </>
           )}
         </CardHeader>
@@ -126,7 +113,7 @@ export const PostCard = forwardRef(function PostCard(
         <PostAuthor
           post={post}
           selectedComment={selectedComment}
-          className="mt-2 mx-4"
+          className="mx-4 mt-2"
         />
       )}
       {showImage && (
@@ -143,9 +130,10 @@ export const PostCard = forwardRef(function PostCard(
                 selectedComment ? 'invisible' : styles.authorBox,
               )}
             >
-              <SmallRoundedImage
-                imgSrc={post.author.image}
-                imgAlt="Author's profile picture"
+              <ProfilePicture
+                className="rounded-full"
+                size="small"
+                user={post.author}
               />
               <span className="flex-1 mx-3 truncate">{post.author.name}</span>
               <FeatherIcon className="text-2xl text-theme-status-help" />

@@ -35,7 +35,7 @@ export default function LoginModal({
     >
       <ModalCloseButton onClick={onRequestClose} />
       <DailyDevLogo />
-      <div className="mt-6 mb-8 text-theme-label-secondary text-center typo-callout">
+      <div className="mt-6 mb-8 text-center text-theme-label-secondary typo-callout">
         {mode === LoginModalMode.ContentQuality
           ? `Our community cares about content quality. We require social authentication to prevent abuse.`
           : `Unlock useful features by signing in. A bunch of cool stuff like content filters and bookmarks are waiting just for you.`}

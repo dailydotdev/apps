@@ -1,15 +1,9 @@
 import React, { ReactElement, useContext } from 'react';
-import dynamic from 'next/dynamic';
-import { LazyImage } from '../LazyImage';
 import AuthContext from '../../contexts/AuthContext';
 import { getTooltipProps } from '../../lib/tooltip';
 import useProfileMenu from '../../hooks/useProfileMenu';
-
-const profileContextMenuWidth = 10;
-
-const ProfileMenu = dynamic(
-  () => import(/* webpackChunkName: "profileMenu" */ '../ProfileMenu'),
-);
+import ProfileMenu from '../ProfileMenu';
+import { ProfilePicture } from '../ProfilePicture';
 
 export interface ProfileButtonProps {
   onShowDndClick?: () => unknown;
@@ -19,29 +13,22 @@ export default function ProfileButton({
   onShowDndClick,
 }: ProfileButtonProps): ReactElement {
   const { user } = useContext(AuthContext);
-  const { onMenuClick } = useProfileMenu(profileContextMenuWidth);
+  const { onMenuClick } = useProfileMenu();
 
   return (
     <>
       <button
         type="button"
-        className="flex items-center ml-0.5 p-0 text-theme-label-primary bg-theme-bg-secondary border-none rounded-lg cursor-pointer no-underline font-bold typo-callout focus-outline"
+        className="flex items-center p-0 ml-0.5 font-bold no-underline rounded-lg border-none cursor-pointer text-theme-label-primary bg-theme-bg-secondary typo-callout focus-outline"
         {...getTooltipProps('Profile settings', {
           position: 'left',
         })}
         onClick={onMenuClick}
       >
-        <span className="ml-3 mr-2">{user.reputation ?? 0}</span>
-        <LazyImage
-          className="w-8 h-8 rounded-lg"
-          imgSrc={user.image}
-          imgAlt="Your profile image"
-        />
+        <span className="mr-2 ml-3">{user.reputation ?? 0}</span>
+        <ProfilePicture user={user} size="medium" />
       </button>
-      <ProfileMenu
-        width={profileContextMenuWidth}
-        onShowDndClick={onShowDndClick}
-      />
+      <ProfileMenu onShowDndClick={onShowDndClick} />
     </>
   );
 }

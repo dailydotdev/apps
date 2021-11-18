@@ -26,15 +26,16 @@ import {
 } from '../../graphql/comments';
 import { Edge } from '../../graphql/common';
 import { apiUrl } from '../../lib/config';
-import { RoundedImage, SmallRoundedImage } from '../utilities';
 import { commentDateFormat } from '../../lib/dateFormat';
 import { Button } from '../buttons/Button';
 import { ResponsiveModal } from './ResponsiveModal';
+import { RoundedImage } from '../utilities';
 import { ModalProps } from './StyledModal';
 import styles from './NewCommentModal.module.css';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { Post } from '../../graphql/posts';
 import { postAnalyticsEvent } from '../../lib/feed';
+import { ProfilePicture } from '../ProfilePicture';
 
 const DiscardCommentModal = dynamic(() => import('./DiscardCommentModal'));
 
@@ -269,7 +270,7 @@ export default function NewCommentModal({
         <header className="flex items-center mb-2">
           <RoundedImage
             imgSrc={authorImage}
-            imgAlt={`${authorName}'s profile image`}
+            imgAlt={`${authorName}'s profile`}
             background="var(--theme-background-secondary)"
           />
           <div className="flex flex-col ml-2">
@@ -284,17 +285,17 @@ export default function NewCommentModal({
         </header>
         <div>{content}</div>
       </article>
-      <div className="flex items-center h-11 px-2">
-        <div className="w-px h-full ml-3 bg-theme-divider-tertiary" />
+      <div className="flex items-center px-2 h-11">
+        <div className="ml-3 w-px h-full bg-theme-divider-tertiary" />
         <div className="ml-6 text-theme-label-secondary typo-caption1">
           Reply to{' '}
-          <strong className="text-theme-label-primary font-bold">
+          <strong className="font-bold text-theme-label-primary">
             {authorName}
           </strong>
         </div>
       </div>
       <div className="flex px-2">
-        <SmallRoundedImage imgSrc={user.image} imgAlt="Your profile image" />
+        <ProfilePicture user={user} size="small" />
         <div
           className={classNames(
             'ml-3 flex-1 text-theme-label-primary bg-none border-none caret-theme-label-link break-words typo-subhead',
@@ -318,7 +319,7 @@ export default function NewCommentModal({
       >
         {errorMessage && <span role="alert">{errorMessage}</span>}
       </div>
-      <footer className="flex items-center justify-between py-2 border-t border-theme-divider-tertiary">
+      <footer className="flex justify-between items-center py-2 border-t border-theme-divider-tertiary">
         <Button className="btn-tertiary" onClick={confirmClose}>
           Cancel
         </Button>

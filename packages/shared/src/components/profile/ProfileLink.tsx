@@ -2,17 +2,11 @@ import React, { HTMLAttributes, ReactElement } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import classNames from 'classnames';
+import { PublicProfile } from '../../lib/user';
 
 const Tooltip = dynamic(() => import('../tooltips/Tooltip'));
-
-interface User {
-  name: string;
-  image: string;
-  permalink: string;
-}
-
 export interface ProfileLinkProps extends HTMLAttributes<HTMLAnchorElement> {
-  user: User;
+  user: Pick<PublicProfile, 'image' | 'permalink' | 'username' | 'name'>;
   disableTooltip?: boolean;
 }
 

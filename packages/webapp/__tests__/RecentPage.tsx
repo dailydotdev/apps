@@ -77,6 +77,8 @@ const renderComponent = (
     insaneMode: false,
     loadedSettings: true,
     toggleInsaneMode: jest.fn(),
+    showTopSites: true,
+    toggleShowTopSites: jest.fn(),
   };
   return render(
     <QueryClientProvider client={client}>
@@ -117,6 +119,7 @@ it('should request user feed', async () => {
       loggedIn: true,
       ranking: 'TIME',
       unreadOnly: false,
+      version: 1,
     }),
   ]);
   await waitFor(async () => {
@@ -133,6 +136,7 @@ it('should request anonymous feed', async () => {
         loggedIn: false,
         ranking: 'TIME',
         unreadOnly: false,
+        version: 1,
       }),
     ],
     null,

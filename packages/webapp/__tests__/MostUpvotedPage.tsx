@@ -74,6 +74,8 @@ const renderComponent = (
     insaneMode: false,
     loadedSettings: true,
     toggleInsaneMode: jest.fn(),
+    showTopSites: true,
+    toggleShowTopSites: jest.fn(),
   };
   return render(
     <QueryClientProvider client={client}>
@@ -114,6 +116,7 @@ it('should request most upvoted feed when logged-in', async () => {
       loggedIn: true,
       unreadOnly: false,
       period: 7,
+      version: 1,
     }),
   ]);
   await waitFor(async () => {
@@ -130,6 +133,7 @@ it('should request most upvoted feed when not', async () => {
         loggedIn: false,
         unreadOnly: false,
         period: 7,
+        version: 1,
       }),
     ],
     null,

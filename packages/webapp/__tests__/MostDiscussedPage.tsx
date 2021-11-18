@@ -74,6 +74,8 @@ const renderComponent = (
     insaneMode: false,
     loadedSettings: true,
     toggleInsaneMode: jest.fn(),
+    showTopSites: true,
+    toggleShowTopSites: jest.fn(),
   };
   return render(
     <QueryClientProvider client={client}>
@@ -113,6 +115,7 @@ it('should request most discussed feed when logged-in', async () => {
       first: 7,
       loggedIn: true,
       unreadOnly: false,
+      version: 1,
     }),
   ]);
   await waitFor(async () => {
@@ -128,6 +131,7 @@ it('should request most discussed feed when not', async () => {
         first: 7,
         loggedIn: false,
         unreadOnly: false,
+        version: 1,
       }),
     ],
     null,

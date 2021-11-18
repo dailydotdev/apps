@@ -3,10 +3,15 @@ import React, {
   ReactElement,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from 'react';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import GitHubIcon from '@dailydotdev/shared/icons/github.svg';
+import { RadioItem } from '@dailydotdev/shared/src/components/fields/RadioItem';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import { LoaderOverlay } from '@dailydotdev/shared/src/components/LoaderOverlay';
+import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import request from 'graphql-request';
 import { useMutation } from 'react-query';
@@ -30,8 +35,13 @@ import { defaultOpenGraph } from '../next-seo';
 
 const TWO_MEGABYTES = 2 * 1024 * 1024;
 
+interface GenerateDevCardParams {
+  file?: File;
+  url?: string;
+}
+
 type StepProps = {
-  onGenerateImage: (file?: File) => unknown;
+  onGenerateImage: (params?: GenerateDevCardParams) => unknown;
   devCardSrc?: string;
   isLoadingImage: boolean;
   error?: string;
@@ -47,9 +57,9 @@ const Step1 = ({
   return (
     <>
       <DevCardPlaceholder profileImage={user?.image} width={108} />
-      <h1 className="mt-10 typo-title1 font-bold">Grab your Dev Card</h1>
+      <h1 className="mt-10 font-bold typo-title1">Grab your Dev Card</h1>
       <p
-        className="mt-4 typo-body text-theme-label-secondary text-center"
+        className="mt-4 text-center typo-body text-theme-label-secondary"
         style={{ maxWidth: rem(520) }}
       >
         Your Dev Card will show you stats about the publications and topics you
@@ -82,6 +92,39 @@ const Step1 = ({
   );
 };
 
+const CUSTOM_BG = 'CUSTOM_BG';
+const BY_RANK_BG = 'BY_RANK_BG';
+
+const bgUrlOption = [
+  {
+    label: 'Halloween',
+    value:
+      'https://daily-now-res.cloudinary.com/image/upload/v1634801813/devcard/bg/halloween.jpg',
+    caption: {
+      text: '(Limited edition) 🎃',
+      className: 'text-theme-status-warning',
+    },
+  },
+  {
+    label: 'Christmas',
+    value:
+      'https://daily-now-res.cloudinary.com/image/upload/v1634801812/devcard/bg/christmas.jpg',
+    caption: {
+      text: '(Limited edition) 🎄',
+      className: 'text-theme-status-success',
+    },
+  },
+  {
+    label: 'daily.dev 4th birthday',
+    value:
+      'https://daily-now-res.cloudinary.com/image/upload/v1635317135/devcard/bg/birthday.jpg',
+    caption: {
+      text: '(Limited Edition) 🎉',
+      className: 'text-theme-status-cabbage',
+    },
+  },
+];
+
 const Step2 = ({
   onGenerateImage,
   devCardSrc,
@@ -89,12 +132,15 @@ const Step2 = ({
   error,
 }: StepProps): ReactElement => {
   const { user } = useContext(AuthContext);
+  const inputRef = useRef<HTMLInputElement>();
   const [backgroundImageError, setBackgroundImageError] = useState<string>();
   // const [copyingImage, copyImageLink] = useCopyLink(() => devCardSrc);
 
   const embedCode = `<a href="https://app.daily.dev/${user?.username}"><img src="${devCardSrc}" width="400" alt="${user?.name}'s Dev Card"/></a>`;
   const [copyingEmbed, copyEmbed] = useCopyLink(() => embedCode);
+  const [copyingLink, copyLink] = useCopyLink(() => devCardSrc);
   const [downloading, setDownloading] = useState(false);
+  const [bg, setBg] = useState(BY_RANK_BG);
 
   const downloadImage = async (): Promise<void> => {
     setDownloading(true);
@@ -121,36 +167,68 @@ const Step2 = ({
     }
 
     setBackgroundImageError(null);
-    onGenerateImage(file);
+    onGenerateImage({ file });
+  };
+
+  const onByRankClick = () => {
+    setBg(BY_RANK_BG);
+    onGenerateImage();
+  };
+
+  const onOptionChange = async (option: string) => {
+    setBg(option);
+    onGenerateImage({ url: option });
+  };
+
+  const onCustomClick = () => {
+    setBg(CUSTOM_BG);
+    inputRef.current.click();
   };
 
   const finalError = error || backgroundImageError;
 
   return (
-    <>
-      <div className="flex flex-col self-stretch laptop:self-center items-center mx-2">
-        <Tilt
-          className="self-stretch laptop:w-96 overflow-hidden"
-          glareEnable
-          perspective={1000}
-          glareMaxOpacity={0.25}
-          glarePosition="all"
-          trackOnWindow
-          style={{ transformStyle: 'preserve-3d', borderRadius: '2rem' }}
-        >
-          <LazyImage
-            imgSrc={devCardSrc}
-            imgAlt="Your Dev Card"
-            ratio="136.5%"
-            eager
-          />
-        </Tilt>
-        <Button
-          tag="label"
-          className="btn-secondary mt-10"
-          loading={isLoadingImage}
-        >
+    <div className="flex flex-col self-stretch laptop:self-center mx-2 mt-5">
+      <h1 className="mx-3 mb-8 font-bold typo-title1">Share your #DevCard</h1>
+      <main className="grid grid-cols-1 laptop:grid-cols-2 gap-10 laptop:gap-20">
+        <section className="flex flex-col">
+          <Tilt
+            className="overflow-hidden relative self-stretch laptop:w-96"
+            glareEnable
+            perspective={1000}
+            glareMaxOpacity={0.25}
+            glarePosition="all"
+            trackOnWindow
+            style={{ transformStyle: 'preserve-3d', borderRadius: '2rem' }}
+            aria-busy={isLoadingImage}
+          >
+            <LazyImage
+              imgSrc={devCardSrc}
+              imgAlt="Your Dev Card"
+              ratio="136.5%"
+              eager
+            />
+            {isLoadingImage && <LoaderOverlay invertColor />}
+          </Tilt>
+          <div className="grid grid-cols-2 gap-4 mx-2 mt-8">
+            <Button
+              className="btn-primary"
+              buttonSize="large"
+              onClick={downloadImage}
+              loading={downloading}
+            >
+              Download
+            </Button>
+            <Button
+              className="btn-secondary"
+              buttonSize="large"
+              onClick={copyLink}
+            >
+              {!copyingLink ? 'Copy link' : 'Copied!'}
+            </Button>
+          </div>
           <input
+            ref={inputRef}
             type="file"
             name="backgroundImage"
             data-testid="backgroundImage"
@@ -158,47 +236,88 @@ const Step2 = ({
             onChange={onFileChange}
             className="hidden"
           />
-          Change background
-        </Button>
-        {finalError && (
-          <FormErrorMessage role="alert">{finalError}</FormErrorMessage>
-        )}
-      </div>
-      <div className="flex flex-col self-stretch laptop:self-center mt-16 laptop:mt-0">
-        <h1 className="typo-title1 font-bold">Share your #DevCard</h1>
-        <div className="flex mt-10">
-          <Button
-            className="btn-primary"
-            buttonSize="large"
-            onClick={downloadImage}
-            loading={downloading}
-          >
-            Download
-          </Button>
-          {/* <Button */}
-          {/*  className="btn-secondary ml-4" */}
-          {/*  buttonSize="large" */}
-          {/*  onClick={copyImageLink} */}
-          {/* > */}
-          {/*  {!copyingImage ? 'Copy link' : 'Copied!'} */}
-          {/* </Button> */}
-        </div>
-        <div className="flex flex-col self-stretch items-start mt-10">
-          <h4 className="font-bold typo-caption1 mt-1">Embed</h4>
-          <textarea
-            className="typo-body bg-theme-float py-2 px-4 resize-none self-stretch rounded-10 mt-1 laptop:w-80"
-            readOnly
-            wrap="hard"
-            style={{ height: rem(124) }}
-          >
-            {embedCode}
-          </textarea>
-          <Button className="btn-secondary mt-4" onClick={copyEmbed}>
-            {!copyingEmbed ? 'Copy code' : 'Copied!'}
-          </Button>
-        </div>
-      </div>
-    </>
+        </section>
+        <section className="flex flex-col self-stretch text-theme-label-tertiary">
+          <h2 className="typo-headline">Customize Style</h2>
+          <div className={classNames('flex flex-col -my-0.5 items-start mt-8')}>
+            <RadioItem
+              disabled={isLoadingImage}
+              name="timeOff"
+              value={BY_RANK_BG}
+              checked={bg === BY_RANK_BG}
+              onChange={onByRankClick}
+              className="my-0.5 truncate"
+            >
+              By rank
+            </RadioItem>
+            {bgUrlOption.map((option) => (
+              <RadioItem
+                disabled={isLoadingImage}
+                key={option.value}
+                name="timeOff"
+                value={option.value}
+                checked={bg === option.value}
+                onChange={() => onOptionChange(option.value)}
+                className="my-0.5 truncate"
+              >
+                {option.label}
+                {option.caption && (
+                  <span
+                    className={classNames(
+                      'ml-2 typo-caption2',
+                      option.caption.className,
+                    )}
+                  >
+                    {option.caption.text}
+                  </span>
+                )}
+              </RadioItem>
+            ))}
+            <RadioItem
+              disabled={isLoadingImage}
+              name="timeOff"
+              value={CUSTOM_BG}
+              checked={bg === CUSTOM_BG}
+              onChange={onCustomClick}
+              className="my-0.5 truncate"
+            >
+              Custom
+            </RadioItem>
+          </div>
+          {finalError && (
+            <FormErrorMessage role="alert">{finalError}</FormErrorMessage>
+          )}
+          <div className="flex flex-col items-start self-stretch mt-10">
+            <h4 className="mt-1 font-bold typo-caption1">Embed</h4>
+            <textarea
+              className="self-stretch py-2 px-4 mt-1 laptop:w-80 bg-theme-float rounded-10 resize-none typo-body"
+              readOnly
+              wrap="hard"
+              style={{ height: rem(124) }}
+            >
+              {embedCode}
+            </textarea>
+            <Button
+              className="mt-4 btn-secondary"
+              buttonSize="small"
+              onClick={copyEmbed}
+            >
+              {!copyingEmbed ? 'Copy code' : 'Copied!'}
+            </Button>
+            <ClickableText
+              tag="a"
+              href="https://daily.dev/blog/adding-the-daily-devcard-to-your-github-profile?utm_source=webapp&utm_medium=devcard&utm_campaign=devcardguide&utm_id=inapp"
+              className="mt-6 typo-body"
+              defaultTypo={false}
+              target="_blank"
+            >
+              <GitHubIcon className="mr-2" />
+              Add DevCard to your GitHub profile
+            </ClickableText>
+          </div>
+        </section>
+      </main>
+    </div>
   );
 };
 
@@ -228,9 +347,10 @@ const DevCardPage = (): ReactElement => {
     setImageError('Something went wrong, please try again...');
 
   const { mutateAsync: generateDevCard } = useMutation(
-    (file?: File | undefined) =>
+    ({ file, url }: GenerateDevCardParams = {}) =>
       request(`${apiUrl}/graphql`, GENERATE_DEVCARD_MUTATION, {
         file,
+        url,
       }),
     {
       onMutate() {

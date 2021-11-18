@@ -1,11 +1,12 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { Item } from 'react-contexify';
+import { Item } from '@dailydotdev/react-contexify';
 import Link from 'next/link';
 import AuthContext from '../contexts/AuthContext';
 import PowerIcon from '../../icons/power.svg';
 import UserIcon from '../../icons/user.svg';
 import TimerIcon from '../../icons/timer.svg';
+import EyeIcon from '../../icons/eye.svg';
 import SettingsIcon from '../../icons/settings.svg';
 import DevCardIcon from '../../icons/dev_card.svg';
 import FeedbackIcon from '../../icons/feedback.svg';
@@ -22,12 +23,10 @@ const AccountDetailsModal = dynamic(
 );
 
 export type ProfileMenuProps = {
-  width: number;
   onShowDndClick?: () => void;
 };
 
 export default function ProfileMenu({
-  width,
   onShowDndClick,
 }: ProfileMenuProps): ReactElement {
   const [showAccountDetails, setShowAccountDetails] = useState(false);
@@ -43,10 +42,10 @@ export default function ProfileMenu({
         />
       )}
       <PortalMenu
+        disableBoundariesCheck
         id="profile-context"
         className="menu-primary"
         animation="fade"
-        style={{ width: `${width}rem` }}
       >
         <Item>
           <Link href={user.permalink} passHref prefetch={false}>
@@ -57,6 +56,17 @@ export default function ProfileMenu({
         </Item>
         <Item onClick={() => setShowAccountDetails(true)}>
           <SettingsIcon className="mr-2 text-xl" /> Account details
+        </Item>
+        <Item>
+          <Link
+            href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}history`}
+            passHref
+            prefetch={false}
+          >
+            <a className="flex w-full">
+              <EyeIcon className="mr-2 text-xl" /> Reading history
+            </a>
+          </Link>
         </Item>
         {shouldShowDnD && (
           <Item onClick={onShowDndClick}>

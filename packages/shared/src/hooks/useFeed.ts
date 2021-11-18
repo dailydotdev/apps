@@ -107,6 +107,7 @@ export default function useFeed<T>(
 ): FeedReturnType {
   const { user, tokenRefreshed } = useContext(AuthContext);
   const queryClient = useQueryClient();
+
   const feedQuery = useInfiniteQuery<FeedData>(
     feedQueryKey,
     ({ pageParam }) =>

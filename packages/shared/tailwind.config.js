@@ -47,6 +47,8 @@ module.exports = {
           error: 'var(--theme-status-error)',
           help: 'var(--theme-status-help)',
           success: 'var(--theme-status-success)',
+          warning: 'var(--theme-status-warning)',
+          cabbage: 'var(--theme-status-cabbage)',
         },
         'post-disabled': 'var(--theme-post-disabled)',
       },
@@ -100,12 +102,24 @@ module.exports = {
       borderRadius: {
         2: '0.125rem',
         3: '0.1875rem',
+        6: '0.375rem',
+        8: '0.5rem',
         10: '0.625rem',
+        12: '0.75rem',
         14: '0.875rem',
+        16: '1rem',
+        26: '1.625rem',
       },
       opacity: {
         24: '0.24',
         32: '0.32',
+      },
+      inset: {
+        'screen-20': '20vh',
+        'screen-40': '40vh',
+        'screen-60': '60vh',
+        'screen-80': '80vh',
+        screen: '100vh',
       },
     },
   },
@@ -115,7 +129,8 @@ module.exports = {
       visibility: ['group-hover'],
     },
   },
-  plugins: [caret, typography, buttons],
+  // eslint-disable-next-line global-require
+  plugins: [caret, typography, buttons, require('@tailwindcss/line-clamp')],
   corePlugins: {
     invert: false,
   },

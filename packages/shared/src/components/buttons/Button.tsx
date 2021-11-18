@@ -18,6 +18,7 @@ export interface BaseButtonProps {
   rightIcon?: ReactNode;
   children?: ReactNode;
   displayClass?: string;
+  absolute?: boolean;
 }
 
 export type AllowedTags = keyof Pick<JSX.IntrinsicElements, 'a' | 'button'>;
@@ -41,6 +42,7 @@ export const Button: React.ForwardRefRenderFunction<
     tag: Tag = 'button',
     className,
     displayClass,
+    absolute,
     ...props
   }: StyledButtonProps & ButtonProps<TagName>,
   ref?: Ref<HTMLButtonElement>,
@@ -55,8 +57,9 @@ export const Button: React.ForwardRefRenderFunction<
       className={classNames(
         { iconOnly },
         buttonSize,
-        'btn relative flex-row items-center justify-center border typo-callout font-bold no-underline shadow-none cursor-pointer select-none focus-outline',
+        'btn flex-row items-center justify-center border typo-callout font-bold no-underline shadow-none cursor-pointer select-none focus-outline',
         displayClass || 'flex',
+        absolute ? 'absolute' : 'relative',
         className,
       )}
     >
@@ -66,7 +69,7 @@ export const Button: React.ForwardRefRenderFunction<
       {loading && (
         <Loader
           data-testid="buttonLoader"
-          className="btn-loader absolute left-0 right-0 top-0 bottom-0 m-auto hidden"
+          className="hidden absolute top-0 right-0 bottom-0 left-0 m-auto btn-loader"
         />
       )}
     </Tag>

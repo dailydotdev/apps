@@ -15,8 +15,15 @@ import { formToJson } from '../../lib/form';
 import classed from '../../lib/classed';
 import styles from './ProfileForm.module.css';
 import { Summary, SummaryArrow } from '../utilities';
+import { Dropdown } from '../fields/Dropdown';
+import {
+  getTimeZoneOptions,
+  getUserInitialTimezone,
+} from '../../lib/timezones';
 
 const REQUIRED_FIELDS_COUNT = 4;
+const timeZoneOptions = getTimeZoneOptions();
+const timeZoneValues = timeZoneOptions.map((timeZone) => timeZone.label);
 
 export type RegistrationMode = 'default' | 'author' | 'update';
 
@@ -44,9 +51,14 @@ export default function ProfileForm({
   ...props
 }: ProfileFormProps): ReactElement {
   const { user, updateUser } = useContext(AuthContext);
-
   const formRef = useRef<HTMLFormElement>(null);
 
+  const [userTimeZone, setUserTimeZone] = useState<string>(
+    getUserInitialTimezone({
+      userTimezone: user?.timezone,
+      update: mode === 'update',
+    }),
+  );
   const [usernameHint, setUsernameHint] = useState<string>();
   const [twitterHint, setTwitterHint] = useState<string>();
   const [githubHint, setGithubHint] = useState<string>();
@@ -73,6 +85,13 @@ export default function ProfileForm({
     updateDisableSubmit();
   };
 
+  const timezoneUpdated = (timezone: string) => {
+    const findTimeZoneRow = timeZoneOptions.find((_timeZone) => {
+      return _timeZone.label === timezone;
+    });
+    setUserTimeZone(findTimeZoneRow.value);
+  };
+
   const onSubmit = async (event: FormEvent): Promise<void> => {
     event.preventDefault();
     setDisableSubmit?.(true);
@@ -80,6 +99,7 @@ export default function ProfileForm({
       name: '',
       email: '',
       username: '',
+      timezone: userTimeZone,
     });
 
     const res = await updateProfile(data);
@@ -137,6 +157,26 @@ export default function ProfileForm({
         maxLength={160}
         validityChanged={updateDisableSubmit}
       />
+
+      <div className="flex flex-col items-stretch self-stretch mb-3">
+        <p className="px-2 mb-1 font-bold text-theme-label-primary">
+          Time zone
+        </p>
+        <Dropdown
+          buttonSize="select"
+          selectedIndex={timeZoneOptions.findIndex(
+            (timeZone) => timeZone.value === userTimeZone,
+          )}
+          onChange={timezoneUpdated}
+          options={timeZoneValues}
+          scrollable
+          menuClassName="menu-secondary"
+        />
+        <div className="px-2 mt-1 typo-caption1 text-theme-label-tertiary">
+          Your current time zone. Used to calculate your weekly goal&apos;s
+          cycle and other time-based activities.
+        </div>
+      </div>
       <FormField
         compact
         inputId="company"
@@ -265,7 +305,7 @@ export default function ProfileForm({
           className={`flex flex-col w-full border-b border-theme-divider-tertiary ${styles.optionalFields}`}
         >
           <Summary className={styles.optionalSummary}>
-            <div className="flex h-10 items-center text-theme-label-tertiary font-bold typo-callout">
+            <div className="flex items-center h-10 font-bold text-theme-label-tertiary typo-callout">
               More details (optional)
               <SummaryArrow />
             </div>

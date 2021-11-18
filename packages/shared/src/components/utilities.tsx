@@ -19,8 +19,19 @@ export const PageContainer = classed(
   'relative flex flex-col w-full items-stretch px-4 z-1 tablet:px-8 tablet:self-center',
 );
 
+export const NoPaddingPageContainer = classed(
+  'main',
+  styles.pageContainer,
+  'relative flex flex-col w-full items-stretch z-1 tablet:self-center',
+);
+
 export const ResponsivePageContainer = classed(
   PageContainer,
+  'py-6 laptop:border-theme-divider-tertiary laptop:border-l laptop:border-r laptop:min-h-screen',
+);
+
+export const ResponsiveNoPaddingPageContainer = classed(
+  NoPaddingPageContainer,
   'py-6 laptop:border-theme-divider-tertiary laptop:border-l laptop:border-r laptop:min-h-screen',
 );
 
@@ -45,7 +56,7 @@ export const ActiveTabIndicator = classed(
 
 export const CustomFeedHeader = classed(
   'div',
-  'flex h-9 self-stretch items-center mb-3 text-theme-label-secondary typo-callout',
+  'flex h-11 self-stretch items-center mb-6 text-theme-label-secondary typo-callout',
 );
 
 export const customFeedIcon = 'text-2xl text-theme-label-tertiary mr-2';

@@ -20,6 +20,7 @@ import ProgressiveEnhancementContext from './ProgressiveEnhancementContext';
 import AuthContext from './AuthContext';
 import usePersistentState from '../hooks/usePersistentState';
 import { apiUrl } from '../lib/config';
+import { storageWrapper } from '../lib/storageWrapper';
 
 export type SettingsContextData = {
   spaciness: Spaciness;
@@ -27,11 +28,13 @@ export type SettingsContextData = {
   showOnlyUnreadPosts: boolean;
   openNewTab: boolean;
   insaneMode: boolean;
+  showTopSites: boolean;
   setTheme: (theme) => Promise<void>;
   toggleShowOnlyUnreadPosts: () => Promise<void>;
   toggleOpenNewTab: () => Promise<void>;
   setSpaciness: (density: Spaciness) => Promise<void>;
   toggleInsaneMode: () => Promise<void>;
+  toggleShowTopSites: () => Promise<void>;
   loadedSettings: boolean;
 };
 
@@ -43,6 +46,7 @@ type Settings = {
   showOnlyUnreadPosts: boolean;
   openNewTab: boolean;
   insaneMode: boolean;
+  showTopSites: boolean;
 };
 
 const deprecatedLightModeStorageKey = 'showmethelight';
@@ -52,6 +56,7 @@ const defaultSettings: Settings = {
   showOnlyUnreadPosts: false,
   openNewTab: true,
   insaneMode: false,
+  showTopSites: true,
 };
 
 function applyTheme(themeMode: string): void {
@@ -117,7 +122,7 @@ export const SettingsContextProvider = ({
       }
       applyTheme(theme);
       setCurrentTheme(theme);
-      localStorage.setItem(themeModeStorageKey, theme);
+      storageWrapper.setItem(themeModeStorageKey, theme);
       const cloneSettings = { ...remoteSettings.userSettings };
       delete cloneSettings.theme;
       setCachedSettings(cloneSettings);
@@ -125,12 +130,12 @@ export const SettingsContextProvider = ({
   }, [remoteSettings]);
 
   useEffect(() => {
-    const themeModeCookieValue = localStorage.getItem(themeModeStorageKey);
+    const themeModeCookieValue = storageWrapper.getItem(themeModeStorageKey);
     if (themeModeCookieValue) {
       setCurrentTheme(themeModeCookieValue);
       applyTheme(themeModeCookieValue);
     } else {
-      const lightModeCookieValue = localStorage.getItem(
+      const lightModeCookieValue = storageWrapper.getItem(
         deprecatedLightModeStorageKey,
       );
       if (lightModeCookieValue === 'true') {
@@ -172,7 +177,7 @@ export const SettingsContextProvider = ({
         applyTheme(theme);
         setCurrentTheme(theme);
         await updateRemoteSettingsFn(settings, theme);
-        localStorage.setItem(themeModeStorageKey, theme);
+        storageWrapper.setItem(themeModeStorageKey, theme);
       },
       toggleShowOnlyUnreadPosts: () =>
         setSettings({
@@ -185,6 +190,8 @@ export const SettingsContextProvider = ({
         setSettings({ ...settings, spaciness: density }),
       toggleInsaneMode: () =>
         setSettings({ ...settings, insaneMode: !settings.insaneMode }),
+      toggleShowTopSites: () =>
+        setSettings({ ...settings, showTopSites: !settings.showTopSites }),
       loadedSettings,
     }),
     [settings, loadedSettings, userId, currentTheme],

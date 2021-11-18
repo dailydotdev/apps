@@ -38,13 +38,14 @@ export default function AutoCompleteMenu({
   return createPortal(
     <div
       role="menu"
-      className="react-contexify menu-secondary top-full mt-1"
+      className="top-full mt-1 react-contexify menu-secondary"
       style={{
         position: 'absolute',
         top: placement?.y,
         left: placement?.x,
         opacity: isOpen ? 1 : 0,
         width: placement?.width,
+        transform: 'none',
       }}
     >
       {sanitizedItems.map((item, index) => (

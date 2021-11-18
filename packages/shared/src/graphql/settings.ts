@@ -9,6 +9,7 @@ export type RemoteSettings = {
   theme: RemoteTheme;
   spaciness: Spaciness;
   insaneMode: boolean;
+  showTopSites: boolean;
 };
 
 export type UserSettingsData = { userSettings: RemoteSettings };
@@ -21,6 +22,7 @@ export const USER_SETTINGS_QUERY = gql`
       theme
       spaciness
       insaneMode
+      showTopSites
     }
   }
 `;

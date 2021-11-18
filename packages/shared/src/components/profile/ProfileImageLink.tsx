@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { LazyImage } from '../LazyImage';
 import { ProfileLink, ProfileLinkProps } from './ProfileLink';
+import { ProfilePicture } from '../ProfilePicture';
 
 export function ProfileImageLink({
   className,
@@ -12,12 +12,7 @@ export function ProfileImageLink({
       className={classNames(className, 'block w-10 h-10')}
       {...props}
     >
-      <LazyImage
-        imgSrc={props.user.image}
-        imgAlt={`${props.user.name}'s profile image`}
-        background="var(--theme-background-secondary)"
-        className="w-full h-full rounded-full"
-      />
+      <ProfilePicture user={props.user} size="large" />
     </ProfileLink>
   );
 }

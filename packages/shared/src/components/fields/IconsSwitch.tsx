@@ -63,7 +63,7 @@ export function IconsSwitch({
           )}
         />
       </IconContainer>
-      <span className="absolute left-0 top-0 bottom-0 w-full h-7 my-auto rounded-10 bg-water-50 opacity-24 group-hover:opacity-32" />
+      <span className="absolute top-0 bottom-0 left-0 my-auto w-full h-7 bg-water-50 rounded-10 opacity-24 group-hover:opacity-32" />
       <span
         className={classNames(
           'absolute left-0 top-0 w-1/2 h-full rounded-xl z-1 transition-transform transform',

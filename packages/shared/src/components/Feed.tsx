@@ -6,7 +6,6 @@ import React, {
   useEffect,
   useRef,
 } from 'react';
-import dynamic from 'next/dynamic';
 import classNames from 'classnames';
 import useFeed, { PostItem } from '../hooks/useFeed';
 import { Ad, Post } from '../graphql/posts';
@@ -22,8 +21,10 @@ import useFeedUpvotePost from '../hooks/feed/useFeedUpvotePost';
 import useFeedBookmarkPost from '../hooks/feed/useFeedBookmarkPost';
 import useCommentPopup from '../hooks/feed/useCommentPopup';
 import useFeedOnPostClick from '../hooks/feed/useFeedOnPostClick';
-import useFeedReportMenu from '../hooks/feed/useFeedReportMenu';
-import useFeedInfiniteScroll from '../hooks/feed/useFeedInfiniteScroll';
+import useFeedContextMenu from '../hooks/feed/useFeedContextMenu';
+import useFeedInfiniteScroll, {
+  InfiniteScrollScreenOffset,
+} from '../hooks/feed/useFeedInfiniteScroll';
 import FeedItemComponent, { getFeedItemKey } from './FeedItemComponent';
 import useVirtualFeedGrid, {
   cardHeightPx,
@@ -31,10 +32,8 @@ import useVirtualFeedGrid, {
 import VirtualizedFeedGrid from './VirtualizedFeedGrid';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { adAnalyticsEvent, postAnalyticsEvent } from '../lib/feed';
-
-const ReportPostMenu = dynamic(
-  () => import(/* webpackChunkName: "reportPostMenu" */ './ReportPostMenu'),
-);
+import PostOptionsMenu from './PostOptionsMenu';
+import useNotification from '../hooks/useNotification';
 
 export type FeedProps<T> = {
   feedQueryKey: unknown[];
@@ -85,7 +84,6 @@ export default function Feed<T>({
       query,
       variables,
     );
-  // const { nativeShareSupport } = useContext(ProgressiveEnhancementContext);
   const { onAdImpression } = useAdImpressions();
 
   useEffect(() => {
@@ -144,14 +142,13 @@ export default function Feed<T>({
     updatePost,
     virtualizedNumCards,
   );
-  const {
-    onHidePost,
-    onReportPost,
-    postNotificationIndex,
-    onMenuClick,
-    postMenuIndex,
-    setPostMenuIndex,
-  } = useFeedReportMenu(items, removePost, virtualizedNumCards);
+  const { onMenuClick, postMenuIndex, setPostMenuIndex } = useFeedContextMenu();
+  const { notification, notificationIndex, onMessage } = useNotification();
+
+  const onRemovePost = async (removePostIndex) => {
+    const item = items[removePostIndex] as PostItem;
+    removePost(item.page, item.index);
+  };
 
   const onCommentClick = (
     post: Post,
@@ -223,7 +220,8 @@ export default function Feed<T>({
             insaneMode={insaneMode}
             nativeShareSupport={nativeShareSupport}
             postMenuIndex={postMenuIndex}
-            postNotificationIndex={postNotificationIndex}
+            postNotificationIndex={notificationIndex}
+            notification={notification}
             showCommentPopupId={showCommentPopupId}
             setShowCommentPopupId={setShowCommentPopupId}
             isSendingComment={isSendingComment}
@@ -240,15 +238,13 @@ export default function Feed<T>({
           />
         )}
       />
-      <div
-        ref={infiniteScrollRef}
-        className={`absolute left-0 h-px w-px opacity-0 pointer-events-none ${styles.trigger}`}
-      />
-      <ReportPostMenu
-        postId={(items[postMenuIndex] as PostItem)?.post?.id}
+      <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
+      <PostOptionsMenu
+        postIndex={postMenuIndex}
+        post={(items[postMenuIndex] as PostItem)?.post}
         onHidden={() => setPostMenuIndex(null)}
-        onReportPost={onReportPost}
-        onHidePost={onHidePost}
+        onMessage={onMessage}
+        onRemovePost={onRemovePost}
       />
     </div>
   );

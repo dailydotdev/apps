@@ -13,7 +13,6 @@ import {
 import { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
 import { NextSeo } from 'next-seo';
-import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import JoinedDate from '@dailydotdev/shared/src/components/profile/JoinedDate';
 import GitHubIcon from '@dailydotdev/shared/icons/github.svg';
 import TwitterIcon from '@dailydotdev/shared/icons/twitter.svg';
@@ -40,11 +39,11 @@ import {
 import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { QuaternaryButton } from '@dailydotdev/shared/src/components/buttons/QuaternaryButton';
-import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
 import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 import classNames from 'classnames';
 import DOMPurify from 'dompurify';
+import { ProfilePicture } from '@dailydotdev/shared/src/components/ProfilePicture';
 import styles from './index.module.css';
 import NavBar, { tabs } from './NavBar';
 import { getLayout as getMainLayout } from '../MainLayout';
@@ -150,128 +149,123 @@ export default function ProfileLayout({
         <link rel="preload" as="image" href={profile.image} />
       </Head>
       <NextSeo {...Seo} />
-      <ResponsivePageContainer className="px-6">
-        <section
-          className={classNames(
-            'flex flex-col self-start tablet:flex-row tablet:-ml-4 tablet:-mr-4 tablet:self-stretch tablet:overflow-x-hidden',
-            styles.header,
-          )}
-        >
-          <div className="flex mb-6 bg-theme-bg-secondary rounded-2xl self-start items-center tablet:flex-col tablet:mb-0 tablet:pt-2 tablet:pb-4 tablet:px-2">
-            <LazyImage
-              imgSrc={profile.image}
-              imgAlt={`${profile.name}'s profile image`}
-              eager
-              ratio="100%"
-              className="rounded-2xl"
-              style={{ width: sizeN(25) }}
-            />
-            <div className="flex flex-col mx-6 typo-footnote tablet:items-center tablet:mt-4 tablet:mx-0">
-              <a
-                href={reputationGuide}
-                target="_blank"
-                rel="noopener"
-                className="text-theme-label-tertiary no-underline my-0.5"
-              >
-                Reputation
-              </a>
-              <span className="my-0.5 text-theme-label-primary font-bold typo-title1">
-                {profile.reputation}
-              </span>
-            </div>
-          </div>
-          <div className="flex flex-col tablet:flex-1">
-            <div className="flex items-center mb-2">
-              <h1 className="m-0 text-theme-label-primary font-bold typo-title3">
-                {profile.name}
-              </h1>
-              {userRank?.userReadingRank?.currentRank > 0 && (
-                <Rank
-                  rank={userRank.userReadingRank.currentRank}
-                  colorByRank
-                  data-testid="rank"
-                  className="w-6 h-6 ml-2"
-                />
-              )}
-            </div>
-            {profile.username && (
-              <h2 className="m-0 font-normal text-theme-label-secondary typo-callout">
-                @{profile.username}
-              </h2>
+      <div className="flex overflow-x-hidden flex-col">
+        <ResponsivePageContainer className="px-6">
+          <section
+            className={classNames(
+              'flex flex-col self-start tablet:flex-row tablet:-ml-4 tablet:-mr-4 tablet:self-stretch tablet:overflow-x-hidden',
+              styles.header,
             )}
-            {profile.bio && (
-              <p className="mt-3 text-theme-label-tertiary break-words typo-callout">
-                {profile.bio}
-              </p>
-            )}
-            <JoinedDate
-              className="mt-3 text-theme-label-quaternary typo-footnote"
-              date={new Date(profile.createdAt)}
-            />
-            <div className={classNames('flex mt-3 mx-0.5', styles.links)}>
-              {twitterHandle && (
-                <Button
-                  tag="a"
-                  href={`https://twitter.com/${twitterHandle}`}
-                  {...getTooltipProps('Twitter')}
+          >
+            <div className="flex tablet:flex-col items-center self-start tablet:px-2 tablet:pt-2 tablet:pb-4 mb-6 tablet:mb-0 rounded-2xl bg-theme-bg-secondary">
+              <ProfilePicture user={profile} size="xxxlarge" />
+              <div className="flex flex-col tablet:items-center mx-6 tablet:mx-0 tablet:mt-4 typo-footnote">
+                <a
+                  href={reputationGuide}
                   target="_blank"
                   rel="noopener"
-                  icon={<TwitterIcon />}
-                  className="btn-tertiary"
-                />
-              )}
-              {githubHandle && (
-                <Button
-                  tag="a"
-                  href={`https://github.com/${githubHandle}`}
-                  {...getTooltipProps('GitHub')}
-                  target="_blank"
-                  rel="noopener"
-                  icon={<GitHubIcon />}
-                  className="btn-tertiary"
-                />
-              )}
-              {hashnodeHandle && (
-                <Button
-                  tag="a"
-                  href={`https://hashnode.com/@${hashnodeHandle}`}
-                  {...getTooltipProps('Hashnode')}
-                  target="_blank"
-                  rel="noopener"
-                  icon={<HashnodeIcon />}
-                  className="btn-tertiary"
-                />
-              )}
-              {portfolioLink && (
-                <QuaternaryButton
-                  tag="a"
-                  id="portfolio-link"
-                  href={portfolioLink}
-                  {...getTooltipProps('Portfolio')}
-                  target="_blank"
-                  rel="noopener"
-                  icon={<LinkIcon />}
-                  className="btn-tertiary"
+                  className="my-0.5 no-underline text-theme-label-tertiary"
                 >
-                  {portfolioLink
-                    .replace(/(^\w+:|^)\/\//, '')
-                    .replace(/\/?(\?.*)?$/, '')}
-                </QuaternaryButton>
+                  Reputation
+                </a>
+                <span className="my-0.5 font-bold text-theme-label-primary typo-title1">
+                  {profile.reputation}
+                </span>
+              </div>
+            </div>
+            <div className="flex flex-col tablet:flex-1">
+              <div className="flex items-center mb-2">
+                <h1 className="m-0 font-bold text-theme-label-primary typo-title3">
+                  {profile.name}
+                </h1>
+                {userRank?.userReadingRank?.currentRank > 0 && (
+                  <Rank
+                    rank={userRank.userReadingRank.currentRank}
+                    colorByRank
+                    data-testid="rank"
+                    className="ml-2 w-6 h-6"
+                  />
+                )}
+              </div>
+              {profile.username && (
+                <h2 className="m-0 font-normal text-theme-label-secondary typo-callout">
+                  @{profile.username}
+                </h2>
+              )}
+              {profile.bio && (
+                <p className="mt-3 break-words text-theme-label-tertiary typo-callout">
+                  {profile.bio}
+                </p>
+              )}
+              <JoinedDate
+                className="mt-3 text-theme-label-quaternary typo-footnote"
+                date={new Date(profile.createdAt)}
+              />
+              <div className={classNames('flex mt-3 mx-0.5', styles.links)}>
+                {twitterHandle && (
+                  <Button
+                    tag="a"
+                    href={`https://twitter.com/${twitterHandle}`}
+                    {...getTooltipProps('Twitter')}
+                    target="_blank"
+                    rel="noopener"
+                    icon={<TwitterIcon />}
+                    className="btn-tertiary"
+                  />
+                )}
+                {githubHandle && (
+                  <Button
+                    tag="a"
+                    href={`https://github.com/${githubHandle}`}
+                    {...getTooltipProps('GitHub')}
+                    target="_blank"
+                    rel="noopener"
+                    icon={<GitHubIcon />}
+                    className="btn-tertiary"
+                  />
+                )}
+                {hashnodeHandle && (
+                  <Button
+                    tag="a"
+                    href={`https://hashnode.com/@${hashnodeHandle}`}
+                    {...getTooltipProps('Hashnode')}
+                    target="_blank"
+                    rel="noopener"
+                    icon={<HashnodeIcon />}
+                    className="btn-tertiary"
+                  />
+                )}
+                {portfolioLink && (
+                  <QuaternaryButton
+                    tag="a"
+                    id="portfolio-link"
+                    href={portfolioLink}
+                    {...getTooltipProps('Portfolio')}
+                    target="_blank"
+                    rel="noopener"
+                    icon={<LinkIcon />}
+                    className="btn-tertiary"
+                  >
+                    {portfolioLink
+                      .replace(/(^\w+:|^)\/\//, '')
+                      .replace(/\/?(\?.*)?$/, '')}
+                  </QuaternaryButton>
+                )}
+              </div>
+              {profile.id === user?.id && (
+                <Button
+                  className="self-start mt-6 mb-0.5 btn-secondary"
+                  onClick={() => setShowAccountDetails(true)}
+                >
+                  Account details
+                </Button>
               )}
             </div>
-            {profile.id === user?.id && (
-              <Button
-                className="btn-secondary mt-6 mb-0.5 self-start"
-                onClick={() => setShowAccountDetails(true)}
-              >
-                Account details
-              </Button>
-            )}
-          </div>
-        </section>
-        <NavBar selectedTab={selectedTab} profile={profile} />
-        {children}
-      </ResponsivePageContainer>
+          </section>
+          <NavBar selectedTab={selectedTab} profile={profile} />
+          {children}
+        </ResponsivePageContainer>
+      </div>
       {profile.id === user?.id && (windowLoaded || showAccountDetails) && (
         <AccountDetailsModal
           isOpen={showAccountDetails}

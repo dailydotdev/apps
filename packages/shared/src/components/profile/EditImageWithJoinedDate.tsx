@@ -13,6 +13,7 @@ import JoinedDate from './JoinedDate';
 import { FormErrorMessage } from '../utilities';
 import sizeN from '../../../macros/sizeN.macro';
 import classed from '../../lib/classed';
+import { ProfilePicture } from '../ProfilePicture';
 
 export interface EditImageWithJoinedDateProps
   extends HTMLAttributes<HTMLDivElement> {
@@ -57,10 +58,9 @@ export default function EditImageWithJoinedDate({
 
   return (
     <div className={classNames(className, 'flex flex-col')} {...props}>
-      <div className="flex mt-6 items-center">
+      <div className="flex items-center mt-6">
         <label
-          className="relative overflow-hidden rounded-2xl cursor-pointer group"
-          style={{ width: '6.25rem', height: '6.25rem' }}
+          className="group overflow-hidden relative w-24 h-24 rounded-2xl cursor-pointer"
           title="Update your image"
           htmlFor="profileImage"
         >
@@ -73,14 +73,13 @@ export default function EditImageWithJoinedDate({
             onChange={onFileChange}
             className="hidden"
           />
-          <img
-            className="w-full h-full object-cover group-hover:opacity-40"
-            style={{ transition: 'opacity 0.1s linear' }}
-            src={profileImage}
-            alt="Your profile"
+          <ProfilePicture
+            user={{ image: profileImage, username: user.username }}
+            size="xxxlarge"
+            className="group-hover:opacity-40 transition-opacity"
           />
           <span
-            className="absolute flex invisible left-0 top-0 w-full h-full items-center justify-center opacity-0 group-hover:visible group-hover:opacity-100"
+            className="flex absolute top-0 left-0 invisible group-hover:visible justify-center items-center w-full h-full opacity-0 group-hover:opacity-100"
             style={{ transition: 'opacity 0.1s linear' }}
           >
             <CameraIcon style={{ fontSize: sizeN(11) }} />

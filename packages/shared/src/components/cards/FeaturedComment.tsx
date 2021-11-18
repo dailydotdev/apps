@@ -45,11 +45,11 @@ export default function FeaturedComment({
           comment.id,
         )}
       </CardHeader>
-      <h4 className="my-2 typo-body font-bold">{comment.author.name}</h4>
-      <p className="m-0 p-0 flex-1 text-theme-label-tertiary typo-callout multi-truncate">
+      <h4 className="my-2 font-bold typo-body">{comment.author.name}</h4>
+      <p className="flex-1 p-0 m-0 text-theme-label-tertiary typo-callout multi-truncate">
         {comment.content}
       </p>
-      <div className="w-full h-px my-2 bg-theme-divider-tertiary" />
+      <div className="my-2 w-full h-px bg-theme-divider-tertiary" />
       <Link href={comment.permalink} passHref>
         <Button
           tag="a"
@@ -57,7 +57,7 @@ export default function FeaturedComment({
           rel="noopener"
           buttonSize="small"
           icon={<CommentIcon />}
-          className="btn-tertiary self-center"
+          className="self-center btn-tertiary"
         >
           View comment
         </Button>

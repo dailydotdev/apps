@@ -16,6 +16,8 @@ import DevCardPlaceholder from '../DevCardPlaceholder';
 import AuthContext from '../../contexts/AuthContext';
 import GoToDevCardButton from '../GoToDevCardButton';
 import { Button } from '../buttons/Button';
+import { ClickableText } from '../buttons/ClickableText';
+import { getTooltipProps } from '../../lib/tooltip';
 
 const RankItem = ({
   rank,
@@ -53,7 +55,7 @@ const RankItem = ({
         } as CSSProperties
       }
     />
-    <div className="capitalize font-bold typo-callout">{rankName} level</div>
+    <div className="font-bold capitalize typo-callout">{rankName} level</div>
     <div className="text-theme-label-tertiary typo-footnote">
       Read at least 1 article on {steps} different days
     </div>
@@ -73,6 +75,7 @@ export interface RanksModalProps extends ModalProps {
   confirmationText?: string;
   reads: number;
   devCardLimit: number;
+  onShowAccount?: () => void;
 }
 
 function DevCardFooter({
@@ -92,7 +95,7 @@ function DevCardFooter({
     }
     devCardCTA = (
       <Button
-        className="btn-primary mt-4 self-start"
+        className="self-start mt-4 btn-primary"
         onClick={() => showLogin('ranks instructions')}
       >
         Sign in
@@ -101,11 +104,11 @@ function DevCardFooter({
   } else if (devCardLimit && !reachedLimit) {
     devCardText = `To generate a personal dev card you must read at least ${devCardLimit} articles`;
     devCardCTA = (
-      <div className="mt-2 flex items-center">
-        <div className="typo-subhead font-bold">{`${reads}/${devCardLimit}`}</div>
-        <div className="ml-2 flex-1 h-1 rounded-2 bg-theme-active overflow-hidden">
+      <div className="flex items-center mt-2">
+        <div className="font-bold typo-subhead">{`${reads}/${devCardLimit}`}</div>
+        <div className="overflow-hidden flex-1 ml-2 h-1 bg-theme-active rounded-2">
           <div
-            className="bg-theme-label-primary h-full rounded-2"
+            className="h-full rounded-2 bg-theme-label-primary"
             style={{ width: `${(reads * 100) / devCardLimit}%` }}
           />
         </div>
@@ -117,7 +120,7 @@ function DevCardFooter({
     devCardCTA = (
       <GoToDevCardButton
         origin="ranks instructions"
-        className="mt-4 self-start"
+        className="self-start mt-4"
       >
         Generate
       </GoToDevCardButton>
@@ -125,12 +128,12 @@ function DevCardFooter({
   }
   return (
     <>
-      <div className="h-px w-full bg-theme-divider-tertiary mt-8 mb-5 -mx-2" />
-      <div className="flex px-4 mb-6 self-stretch items-start">
+      <div className="-mx-2 mt-8 mb-5 w-full h-px bg-theme-divider-tertiary" />
+      <div className="flex items-start self-stretch px-4 mb-6">
         <DevCardPlaceholder profileImage={user?.image} width={44} rank={rank} />
-        <div className="flex flex-col ml-4 flex-1">
+        <div className="flex flex-col flex-1 ml-4">
           <div className="font-bold typo-callout">Your Dev Card</div>
-          <div className="text-theme-label-tertiary typo-footnote mt-0.5">
+          <div className="mt-0.5 text-theme-label-tertiary typo-footnote">
             {devCardText}
           </div>
           {devCardCTA}
@@ -140,6 +143,46 @@ function DevCardFooter({
   );
 }
 
+const TimezoneText = ({ onShowAccount }) => {
+  const classes =
+    'mt-4 mx-10 font-normal text-center  text-theme-label-secondary typo-callout';
+  const { user, showLogin } = useContext(AuthContext);
+
+  const signIn = (
+    <p className={classes}>
+      <ClickableText
+        tag="a"
+        className="inline-flex text-theme-label-link"
+        {...getTooltipProps('Login')}
+        onClick={() => showLogin('ranks instructions')}
+      >
+        Sign in
+      </ClickableText>{' '}
+      to add your weekly goal achievements to your profile.
+    </p>
+  );
+
+  const accountDetails = (
+    <p className={classes}>
+      To fit the weekly goal to your time zone, please add it in your{' '}
+      <ClickableText
+        tag="a"
+        className="inline-flex text-theme-label-link"
+        {...getTooltipProps('Open account details')}
+        onClick={() => onShowAccount()}
+      >
+        account details
+      </ClickableText>
+      .
+    </p>
+  );
+
+  const loggedTimezoneDescription = !user.timezone ? accountDetails : null;
+  const timezoneDescription = !user ? signIn : loggedTimezoneDescription;
+
+  return timezoneDescription;
+};
+
 export default function RanksModal({
   rank,
   progress,
@@ -148,6 +191,7 @@ export default function RanksModal({
   reads,
   devCardLimit,
   onRequestClose,
+  onShowAccount,
   className,
   ...props
 }: RanksModalProps): ReactElement {
@@ -165,12 +209,14 @@ export default function RanksModal({
           <RankProgress rank={rank} progress={progress} fillByDefault />
         </div>
       )}
-      <h1 className="mt-4 uppercase font-bold typo-title2 mobileL:mt-11">
+      <h1 className="mt-4 mobileL:mt-11 font-bold uppercase typo-title2">
         Your weekly goal
       </h1>
-      <h2 className="mt-1 text-theme-label-secondary font-normal typo-callout">
+      <h2 className="mt-1 font-normal text-theme-label-secondary typo-callout">
         Read content you love to stay updated
       </h2>
+      <TimezoneText onShowAccount={onShowAccount} />
+
       <ul className="flex flex-col self-stretch mt-4">
         {ranksMetadata.map((meta) => (
           <RankItem

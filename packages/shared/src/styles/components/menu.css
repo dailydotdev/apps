@@ -3,7 +3,12 @@
   opacity: 0;
   user-select: none;
   z-index: 100;
-  @apply py-1 px-0 m-0 bg-theme-bg-secondary rounded-xl border border-theme-divider-secondary shadow-2;
+  @apply py-1 px-0 m-0 bg-theme-bg-secondary rounded-xl border border-theme-divider-secondary shadow-2 transform -translate-x-full;
+
+  &.scrollable {
+    height: 15rem;
+    overflow-y: scroll;
+  }
 
   &.menu-primary {
     & .react-contexify__item__content {

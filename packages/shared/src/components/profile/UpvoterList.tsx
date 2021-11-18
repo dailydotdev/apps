@@ -1,10 +1,10 @@
 import React, { ReactElement } from 'react';
 import Link from 'next/link';
 import { UseInfiniteQueryResult } from 'react-query';
-import { LazyImage } from '../LazyImage';
 import useFeedInfiniteScroll from '../../hooks/feed/useFeedInfiniteScroll';
 import { UpvotesData } from '../../graphql/common';
 import { UpvoterListPlaceholder } from './UpvoterListPlaceholder';
+import { ProfilePicture } from '../ProfilePicture';
 
 export interface UpvoterListProps {
   queryResult: UseInfiniteQueryResult<UpvotesData>;
@@ -23,16 +23,12 @@ export function UpvoterList({ queryResult }: UpvoterListProps): ReactElement {
   });
 
   return (
-    <div className="flex flex-col relative">
+    <div className="flex relative flex-col">
       {queryResult.data.pages.map((page) =>
         page.upvotes.edges.map(({ node: { user } }) => (
           <Link key={user.username} href={user.permalink}>
-            <a className="flex flex-row hover:bg-theme-hover px-6 py-3">
-              <LazyImage
-                imgSrc={user.image}
-                imgAlt={user.username}
-                className="w-12 h-12 rounded-10"
-              />
+            <a className="flex flex-row py-3 px-6 hover:bg-theme-hover">
+              <ProfilePicture user={user} size="xlarge" />
               <div className="flex flex-col flex-1 ml-4 typo-callout">
                 <span className="font-bold">{user.name}</span>
                 <span className="text-theme-label-secondary">
@@ -52,7 +48,7 @@ export function UpvoterList({ queryResult }: UpvoterListProps): ReactElement {
         <UpvoterListPlaceholder placeholderAmount={1} />
       )}
       <div
-        className="absolute bottom-0 left-0 h-px w-px opacity-0 pointer-events-none"
+        className="absolute bottom-0 left-0 w-px h-px opacity-0 pointer-events-none"
         ref={infiniteScrollRef}
       />
     </div>

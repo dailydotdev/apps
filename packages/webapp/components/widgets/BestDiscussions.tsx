@@ -5,12 +5,12 @@ import ArrowIcon from '@dailydotdev/shared/icons/arrow.svg';
 import Link from 'next/link';
 import { Post } from '@dailydotdev/shared/src/graphql/posts';
 import styles from '@dailydotdev/shared/src/components/cards/Card.module.css';
-import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import { CardLink } from '@dailydotdev/shared/src/components/cards/Card';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { ProfilePicture } from '@dailydotdev/shared/src/components/ProfilePicture';
 
 export type BestDiscussionsProps = {
   posts: Post[] | null;
@@ -50,17 +50,16 @@ const ListItem = ({ post, onLinkClick }: PostProps): ReactElement => (
     <div className="flex items-center typo-footnote text-theme-label-tertiary">
       {post.featuredComments?.length > 0 && (
         <div
-          className="relative h-6 mr-2"
+          className="relative mr-2 h-6"
           style={{ width: `${post.featuredComments.length + 0.5}rem` }}
         >
           {post.featuredComments.map((comment, index) => (
-            <LazyImage
-              key={comment.id}
-              imgSrc={comment.author.image}
-              imgAlt={`${comment.author.name}'s profile picture`}
-              className="w-6 h-6 rounded-full top-0"
-              absolute
-              style={{ left: `${index}rem` }}
+            <ProfilePicture
+              key={comment.author.username}
+              user={comment.author}
+              size="small"
+              className="top-0"
+              style={{ left: `${index}rem`, position: 'absolute' }}
             />
           ))}
         </div>
@@ -73,7 +72,7 @@ const ListItem = ({ post, onLinkClick }: PostProps): ReactElement => (
 const TextPlaceholder = classed(ElementPlaceholder, 'h-3 rounded-xl my-0.5');
 
 const ListItemPlaceholder = (): ReactElement => (
-  <article aria-busy className="relative flex flex-col py-3 px-4 items-start">
+  <article aria-busy className="flex relative flex-col items-start py-3 px-4">
     <TextPlaceholder style={{ width: '80%' }} />
     <TextPlaceholder style={{ width: '80%' }} />
     <TextPlaceholder style={{ width: '40%' }} />
@@ -109,7 +108,7 @@ export default function BestDiscussions({
         className,
       )}
     >
-      <h4 className="pl-6 pr-4 py-3 typo-body text-theme-label-tertiary">
+      <h4 className="py-3 pr-4 pl-6 typo-body text-theme-label-tertiary">
         Best discussions
       </h4>
       {Separator}
@@ -134,10 +133,10 @@ export default function BestDiscussions({
         passHref
       >
         <Button
-          className="btn-tertiary self-start ml-2 my-2"
+          className="self-start my-2 ml-2 btn-tertiary"
           buttonSize="small"
           tag="a"
-          rightIcon={<ArrowIcon className="icon transform rotate-90" />}
+          rightIcon={<ArrowIcon className="transform rotate-90 icon" />}
           onClick={onLucky}
           onMouseUp={(event) => event.button === 1 && onLucky()}
         >

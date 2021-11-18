@@ -17,6 +17,7 @@ import {
 
 const defaultUser = {
   id: 'u1',
+  username: 'idoshamun',
   name: 'Ido Shamun',
   providers: ['github'],
   email: 'ido@acme.com',
@@ -40,8 +41,8 @@ const renderComponent = (
   user: Partial<LoggedUser> = {},
 ): RenderResult => {
   const defaultProps: NewCommentModalProps = {
-    authorName: 'Nimrod',
     authorImage: 'https://daily.dev/nimrod.png',
+    authorName: 'Nimrod',
     publishDate: new Date(2017, 1, 10, 0, 0),
     content: 'This is the main comment',
     commentId: null,
@@ -92,13 +93,13 @@ it('should show formatted date of publication', async () => {
 
 it('should show author profile picture', async () => {
   renderComponent();
-  const el = await screen.findByAltText(`Nimrod's profile image`);
+  const el = await screen.findByAltText(`Nimrod's profile`);
   expect(el).toHaveAttribute('data-src', 'https://daily.dev/nimrod.png');
 });
 
 it('should show user profile picture', async () => {
   renderComponent();
-  const el = await screen.findByAltText('Your profile image');
+  const el = await screen.findByAltText(`idoshamun's profile`);
   expect(el).toHaveAttribute('data-src', 'https://daily.dev/ido.png');
 });
 

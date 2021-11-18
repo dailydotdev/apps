@@ -56,7 +56,7 @@ export default function KeywordSynonymModal({
         onClick={props.onRequestClose}
         buttonSize="small"
         title="Close"
-        className="btn-tertiary self-end"
+        className="self-end btn-tertiary"
       >
         <XIcon />
       </Button>
@@ -72,9 +72,9 @@ export default function KeywordSynonymModal({
         className="self-stretch mb-3"
       />
       {!emptyResults && (
-        <ul className="flex flex-col p-0 m-0 list-none gap-2">
+        <ul className="flex flex-col gap-2 p-0 m-0 list-none">
           {searchResults?.searchKeywords.hits.slice(0, 5).map((keyword) => (
-            <li className="m-0 p-0" key={keyword.value}>
+            <li className="p-0 m-0" key={keyword.value}>
               <Button
                 onClick={() => setSynonym(keyword.value)}
                 className="btn-tertiary"
@@ -86,7 +86,7 @@ export default function KeywordSynonymModal({
         </ul>
       )}
       <Button
-        className="btn-primary mt-2 self-start"
+        className="self-start mt-2 btn-primary"
         onClick={() => setSynonym(query)}
       >
         Create

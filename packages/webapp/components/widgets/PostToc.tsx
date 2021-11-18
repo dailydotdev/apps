@@ -17,7 +17,7 @@ export type PostTocProps = {
   collapsible?: boolean;
 };
 
-const Separator = <div className="h-px bg-theme-divider-tertiary mb-3" />;
+const Separator = <div className="mb-3 h-px bg-theme-divider-tertiary" />;
 
 const generateTocLink = (post: Post, item: TocItem): string => {
   if (!item.id) {
@@ -48,7 +48,7 @@ export default function PostToc({
           rel="noopener"
           title={item.text}
           onClick={onLinkClick}
-          className="flex-1 py-2 px-4 hover:bg-theme-hover truncate typo-callout"
+          className="flex-1 py-2 px-4 truncate hover:bg-theme-hover typo-callout"
         >
           {item.text}
         </a>
@@ -69,7 +69,7 @@ export default function PostToc({
       >
         <Summary className="hover:bg-theme-hover">
           <div className={titleClass}>
-            <TocIcon className="text-2xl mr-2" />
+            <TocIcon className="mr-2 text-2xl" />
             Table of contents
             <SummaryArrow />
           </div>
@@ -87,7 +87,7 @@ export default function PostToc({
       )}
     >
       <h4 className={titleClass}>
-        <TocIcon className="text-2xl mr-2" />
+        <TocIcon className="mr-2 text-2xl" />
         Table of contents
       </h4>
       {Separator}

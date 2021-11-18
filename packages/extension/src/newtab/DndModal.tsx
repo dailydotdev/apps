@@ -61,7 +61,7 @@ export default function DndModal({
 
   const turnedOffContent = (
     <>
-      <div className="w-full mt-2 py-4 px-10">
+      <div className="py-4 px-10 mt-2 w-full">
         <TextField
           inputId="defaultURL"
           label="Default URL (optional)"
@@ -92,9 +92,9 @@ export default function DndModal({
           </div>
         )}
       </div>
-      <div className="flex flex-row justify-center w-full py-5 border-t border-theme-divider-secondary">
+      <div className="flex flex-row justify-center py-5 w-full border-t border-theme-divider-secondary">
         <Button
-          className="btn-primary w-40"
+          className="w-40 btn-primary"
           buttonSize="large"
           onClick={handleSubmit}
         >

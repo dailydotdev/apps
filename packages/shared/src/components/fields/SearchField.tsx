@@ -84,7 +84,7 @@ export const SearchField = forwardRef(function SearchField(
     >
       {showIcon && (
         <MagnifyingIcon
-          className="icon text-2xl mr-2"
+          className="mr-2 text-2xl icon"
           style={{
             color:
               focused || hasInput
@@ -124,7 +124,7 @@ export const SearchField = forwardRef(function SearchField(
             { invisible: !hasInput },
           )}
         >
-          <XIcon className="icon text-lg text-theme-label-tertiary group-hover:text-theme-label-primary" />
+          <XIcon className="text-lg icon text-theme-label-tertiary group-hover:text-theme-label-primary" />
         </button>
       )}
     </BaseField>

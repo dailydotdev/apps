@@ -24,6 +24,7 @@ const densities = [
   { label: 'Roomy', value: 'roomy' },
   { label: 'Cozy', value: 'cozy' },
 ];
+const isExtension = process.env.TARGET_BROWSER;
 
 export default function Settings({
   panelMode = false,
@@ -44,6 +45,8 @@ export default function Settings({
     toggleOpenNewTab,
     insaneMode,
     toggleInsaneMode,
+    showTopSites,
+    toggleShowTopSites,
   } = useContext(SettingsContext);
   const [themes, setThemes] = useState([
     { label: 'Dark', value: 'dark' },
@@ -150,19 +153,31 @@ export default function Settings({
           <Switch
             inputId="new-tab-switch"
             name="new-tab"
-            className="big my-3"
+            className="my-3 big"
             checked={openNewTab}
             onToggle={toggleOpenNewTab}
             compact={false}
           >
             Open links in new tab
           </Switch>
+          {isExtension && (
+            <Switch
+              inputId="top-sites-switch"
+              name="top-sites"
+              className="my-3 big"
+              checked={showTopSites}
+              onToggle={toggleShowTopSites}
+              compact={false}
+            >
+              Show top sites
+            </Switch>
+          )}
         </div>
       </Section>
       <Section className="tablet:hidden">
         <SectionTitle>Contact</SectionTitle>
         <Button
-          className="btn-secondary self-start mt-1"
+          className="self-start mt-1 btn-secondary"
           tag="a"
           href="https://daily.dev/contact"
           buttonSize="small"

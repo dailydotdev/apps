@@ -17,14 +17,6 @@ import {
 } from '@dailydotdev/shared/src/graphql/sources';
 import request from 'graphql-request';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
-import useMutateFilters, {
-  getSourcesSettingsQueryKey,
-} from '@dailydotdev/shared/src/hooks/useMutateFilters';
-import { useQuery } from 'react-query';
-import {
-  FeedSettingsData,
-  SOURCES_SETTINGS_QUERY,
-} from '@dailydotdev/shared/src/graphql/feedSettings';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   Button,
@@ -36,6 +28,8 @@ import {
 } from '@dailydotdev/shared/src/components/utilities';
 import PlusIcon from '@dailydotdev/shared/icons/plus.svg';
 import BlockIcon from '@dailydotdev/shared/icons/block.svg';
+import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
+import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
 import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -45,30 +39,24 @@ type SourcePageProps = { source: Source };
 
 const SourcePage = ({ source }: SourcePageProps): ReactElement => {
   const { isFallback } = useRouter();
-  const { user, showLogin, tokenRefreshed } = useContext(AuthContext);
+  const { user, showLogin } = useContext(AuthContext);
   // Must be memoized to prevent refreshing the feed
   const queryVariables = useMemo(
     () => ({ source: source?.id, ranking: 'TIME' }),
     [source?.id],
   );
 
-  const queryKey = getSourcesSettingsQueryKey(user);
-  const { data: feedSettings } = useQuery<FeedSettingsData>(
-    queryKey,
-    () => request(`${apiUrl}/graphql`, SOURCES_SETTINGS_QUERY),
-    {
-      enabled: !!user && tokenRefreshed,
-    },
-  );
-
-  const { followSource, unfollowSource } = useMutateFilters(user);
+  const { feedSettings } = useFeedSettings();
+  const { onFollowSource, onUnfollowSource } = useTagAndSource({
+    origin: 'source page',
+  });
 
   const unfollowingSource = useMemo(() => {
-    if (!feedSettings?.feedSettings) {
+    if (!feedSettings) {
       return true;
     }
     return (
-      feedSettings.feedSettings.excludeSources.findIndex(
+      feedSettings.excludeSources?.findIndex(
         (excludedSource) => source?.id === excludedSource.id,
       ) >= 0
     );
@@ -95,9 +83,9 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
     onClick: async (): Promise<void> => {
       if (user) {
         if (unfollowingSource) {
-          await followSource({ source });
+          await onFollowSource({ source });
         } else {
-          await unfollowSource({ source });
+          await onUnfollowSource({ source });
         }
       } else {
         showLogin('filter');
@@ -112,15 +100,15 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
         <img
           src={source.image}
           alt={`${source.name} logo`}
-          className="w-6 h-6 rounded-lg mr-2"
+          className="mr-2 w-6 h-6 rounded-lg"
         />
         <span className="mr-auto">{source.name}</span>
         <Button
-          className="btn-secondary laptop:hidden"
+          className="laptop:hidden btn-secondary"
           {...buttonProps}
           aria-label={unfollowingSource ? 'Follow' : 'Block'}
         />
-        <Button className="btn-secondary hidden laptop:flex" {...buttonProps}>
+        <Button className="hidden laptop:flex btn-secondary" {...buttonProps}>
           {unfollowingSource ? 'Follow' : 'Block'}
         </Button>
       </CustomFeedHeader>
@@ -132,7 +120,6 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
         ]}
         query={SOURCE_FEED_QUERY}
         variables={queryVariables}
-        className="my-3"
       />
     </FeedPage>
   );

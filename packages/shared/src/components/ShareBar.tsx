@@ -41,7 +41,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
     <div
       className={classNames('hidden absolute laptopL:block', styles.shareBar)}
     >
-      <div className="sticky flex flex-col top-10 w-full items-center -my-1">
+      <div className="flex sticky top-10 flex-col items-center -my-1 w-full">
         {copying && (
           <div
             className={classNames(
