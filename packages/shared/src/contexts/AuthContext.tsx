@@ -3,6 +3,7 @@ import {
   AnonymousUser,
   LoggedUser,
   logout as dispatchLogout,
+  deleteAccount as dispatchDeleteAccount,
 } from '../lib/user';
 import { LoginModalMode } from '../types/LoginModalMode';
 import { Visit } from '../lib/boot';
@@ -24,6 +25,7 @@ export interface AuthContextData {
   getRedirectUri: () => string;
   anonymous?: AnonymousUser;
   visit?: Visit;
+  deleteAccount?: () => Promise<void>;
 }
 
 const AuthContext = React.createContext<AuthContextData>(null);
@@ -31,6 +33,11 @@ export default AuthContext;
 
 const logout = async (): Promise<void> => {
   await dispatchLogout();
+  window.location.reload();
+};
+
+const deleteAccount = async (): Promise<void> => {
+  await dispatchDeleteAccount();
   window.location.reload();
 };
 
@@ -76,6 +83,7 @@ export const AuthContextProvider = ({
       getRedirectUri,
       anonymous: user,
       visit,
+      deleteAccount,
     }),
     [user, loginState, loadingUser, tokenRefreshed, loadedUserFromCache, visit],
   );

@@ -28,7 +28,7 @@ export default function AccountDetailsModal({
   className,
   ...props
 }: ModalProps): ReactElement {
-  const { user, logout } = useContext(AuthContext);
+  const { user, logout, deleteAccount } = useContext(AuthContext);
 
   const [disableSubmit, setDisableSubmit] = useState<boolean>(false);
 
@@ -64,7 +64,7 @@ export default function AccountDetailsModal({
           mode="update"
         />
       </div>
-      <footer className="flex flex-col px-4 pb-10 -my-1">
+      <footer className="flex flex-col px-4 pb-6 -my-1">
         <FooterLink href={faq} target="_blank" rel="noopener">
           FAQ
         </FooterLink>
@@ -100,6 +100,46 @@ export default function AccountDetailsModal({
           Logout
         </Button>
       </footer>
+      <section className="px-4 pb-10 flex flex-col">
+        <strong className="typo-headline text-theme-status-error mb-4">
+          Danger Zone
+        </strong>
+        <p className="typo-callout text-theme-label-tertiary">
+          Deleting your account will:
+          <br />
+          <br />
+          <ol>
+            <li>
+              1. Permanently delete your profile, along with your authentication
+              associations.
+            </li>
+            <li>
+              2. Permanently delete all your content, including your articles,
+              bookmarks, comments, upvotes, etc.
+            </li>
+            <li>3. Allow your username to become available to anyone.</li>
+          </ol>
+          <br />
+          Important: deleting your account is unrecoverable and cannot be
+          undone. Feel free to contact{' '}
+          <a
+            className="text-theme-label-link"
+            href="mailto:support@daily.dev?subject=I have a question about deleting my account"
+            target="_blank"
+            rel="noopener"
+          >
+            support@daily.dev
+          </a>{' '}
+          with any questions.
+        </p>
+        <Button
+          onClick={deleteAccount}
+          buttonSize="small"
+          className="self-start mt-5 btn-primary-ketchup text-theme-label-primary"
+        >
+          Delete account
+        </Button>
+      </section>
     </ResponsiveModal>
   );
 }
