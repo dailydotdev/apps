@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "main": "index.js",
   "devDependencies": {
+    "eslint-plugin-daily": "*",
     "@typescript-eslint/eslint-plugin": "^4.31.2",
     "@typescript-eslint/parser": "^4.31.2",
     "eslint-config-airbnb-typescript": "^12.3.1",
@@ -16,6 +17,7 @@
     "typescript": "^4.2.4"
   },
   "peerDependencies": {
+    "@dailydotdev/eslint-plugin-daily-dev-eslint-rules": "*",
     "@typescript-eslint/eslint-plugin": "^4.21.0",
     "@typescript-eslint/parser": "^4.22.0",
     "eslint-config-prettier": "^8.1.0",
