@@ -63,7 +63,7 @@ export default function HeaderRankProgress({
   }
 
   const showWelcome = onboardingStep === 1;
-  const showRankAnimation = levelUp && shouldShowRankModal;
+  const showRankAnimation = levelUp && !shouldShowRankModal;
   const closeRanksModal = () => {
     setShowRanksModal(false);
     if (showWelcome) {
