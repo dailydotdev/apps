@@ -80,7 +80,7 @@ export async function logout(): Promise<void> {
   });
 }
 
-export async function deleteAccount() {
+export async function deleteAccount(): Promise<void> {
   await fetch(`${apiUrl}/v1/users/delete`, {
     method: 'POST',
     credentials: 'include',

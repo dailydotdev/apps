@@ -38,7 +38,6 @@ const logout = async (): Promise<void> => {
 
 const deleteAccount = async (): Promise<void> => {
   await dispatchDeleteAccount();
-  window.location.reload();
 };
 
 export type AuthContextProviderProps = {
