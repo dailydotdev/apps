@@ -8,3 +8,6 @@ export const getTooltipProps = (
   'data-balloon-pos': opts?.position ?? 'up',
   'data-balloon-nofocus': true,
 });
+
+export const isTouchDevice = (): boolean =>
+  'ontouchstart' in window || navigator.maxTouchPoints > 0;
