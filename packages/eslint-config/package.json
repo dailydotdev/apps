@@ -2,8 +2,10 @@
   "name": "@dailydotdev/eslint-config",
   "version": "0.0.0",
   "main": "index.js",
+  "prettier": "@dailydotdev/prettier-config",
   "devDependencies": {
-    "eslint-plugin-daily": "*",
+    "@dailydotdev/prettier-config": "*",
+    "@dailydotdev/eslint-plugin-daily-dev-eslint-rules": "*",
     "@typescript-eslint/eslint-plugin": "^4.31.2",
     "@typescript-eslint/parser": "^4.31.2",
     "eslint-config-airbnb-typescript": "^12.3.1",

@@ -1,5 +1,5 @@
 {
-  "name": "eslint-plugin-daily",
+  "name": "@dailydotdev/eslint-plugin-daily-dev-eslint-rules",
   "version": "0.0.0",
   "description": "> TODO: description",
   "author": "Chris Bongers <chrisbongers@gmail.com>",
@@ -9,6 +9,10 @@
   "directories": {
     "lib": "lib",
     "test": "__tests__"
+  },
+  "prettier": "@dailydotdev/prettier-config",
+  "devDependencies": {
+    "@dailydotdev/prettier-config": "*"
   },
   "files": [
     "lib"

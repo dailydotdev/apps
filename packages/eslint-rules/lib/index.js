@@ -1,3 +1,3 @@
 module.exports.rules = {
-  "no-custom-color": require("./rules/no-custom-color"),
+  'no-custom-color': require('./rules/no-custom-color'),
 };

@@ -48,7 +48,7 @@
     "@babel/preset-react": "^7.16.0",
     "@babel/preset-typescript": "^7.16.0",
     "@dailydotdev/eslint-config": "*",
-    "eslint-plugin-daily": "*",
+    "@dailydotdev/eslint-plugin-daily-dev-eslint-rules": "*",
     "@dailydotdev/prettier-config": "*",
     "@svgr/cli": "^5.5.0",
     "@svgr/webpack": "^5.5.0",

@@ -44,7 +44,7 @@
   "devDependencies": {
     "@babel/preset-typescript": "^7.16.0",
     "@dailydotdev/eslint-config": "*",
-    "eslint-plugin-daily": "*",
+    "@dailydotdev/eslint-plugin-daily-dev-eslint-rules": "*",
     "@dailydotdev/prettier-config": "*",
     "@next/bundle-analyzer": "^10.2.3",
     "@svgr/cli": "^5.5.0",
