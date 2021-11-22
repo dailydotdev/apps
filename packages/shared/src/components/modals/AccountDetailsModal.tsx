@@ -59,7 +59,7 @@ export default function AccountDetailsModal({
             Save changes
           </Button>
         </header>
-        <div className="responsiveModalBreakpoint:px-10 pt-6 pb-4 px-6z">
+        <div className="mobileL:px-10 pt-6 pb-4 px-6">
           <ProfileHeading>Account Details</ProfileHeading>
           <EditImageWithJoinedDate user={user} />
           <ProfileForm
@@ -69,7 +69,7 @@ export default function AccountDetailsModal({
             mode="update"
           />
         </div>
-        <footer className="flex flex-col px-6 responsiveModalBreakpoint:px-10 pb-6 -my-1">
+        <footer className="flex flex-col px-6 mobileL:px-10 pb-6 -my-1">
           <FooterLink href={faq} target="_blank" rel="noopener">
             FAQ
           </FooterLink>
@@ -105,7 +105,7 @@ export default function AccountDetailsModal({
             Logout
           </Button>
         </footer>
-        <section className="flex flex-col px-6 responsiveModalBreakpoint:px-10 pb-10">
+        <section className="flex flex-col px-6 mobileL:px-10 pb-10">
           <strong className="mb-4 typo-headline text-theme-status-error">
             Danger Zone
           </strong>
