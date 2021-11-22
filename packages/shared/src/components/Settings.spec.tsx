@@ -232,19 +232,19 @@ it('should mutate open links in new tab setting', () =>
     fireEvent.click(checkbox);
   }));
 
-it('should not have the show top sites switch in the webapp', async () => {
+it('should not have the show most visited sites switch in the webapp', async () => {
   renderComponent([], null);
-  const checkbox = screen.queryByText('Show top sites');
+  const checkbox = screen.queryByText('Show most visited sites');
   expect(checkbox).not.toBeInTheDocument();
 });
 
-it('should mutate show top sites setting in extension', () => {
+it('should mutate show most visited sites setting in extension', () => {
   process.env.TARGET_BROWSER = 'chrome';
   testSettingsMutation({ showTopSites: false }, async () => {
     const checkboxes = await screen.findAllByRole('checkbox');
     const checkbox = checkboxes.find((el) =>
       // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
-      queryByText(el.parentElement, 'Show top sites'),
+      queryByText(el.parentElement, 'Show most visited sites'),
     ) as HTMLInputElement;
 
     await waitFor(() => expect(checkbox).toBeChecked());

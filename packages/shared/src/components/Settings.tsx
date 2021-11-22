@@ -169,7 +169,7 @@ export default function Settings({
               onToggle={toggleShowTopSites}
               compact={false}
             >
-              Show top sites
+              Show most visited sites
             </Switch>
           )}
         </div>
