@@ -59,7 +59,7 @@ export default function AccountDetailsModal({
             Save changes
           </Button>
         </header>
-        <div className="mobileL:px-10 pt-6 pb-4 px-6">
+        <div className="px-6 mobileL:px-10 pt-6 pb-4">
           <ProfileHeading>Account Details</ProfileHeading>
           <EditImageWithJoinedDate user={user} />
           <ProfileForm
