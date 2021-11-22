@@ -81,8 +81,8 @@ export async function logout(): Promise<void> {
 }
 
 export async function deleteAccount(): Promise<void> {
-  await fetch(`${apiUrl}/v1/users/delete`, {
-    method: 'POST',
+  await fetch(`${apiUrl}/v1/users/me`, {
+    method: 'DELETE',
     credentials: 'include',
   });
 }

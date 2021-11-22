@@ -3,7 +3,7 @@ import {
   AnonymousUser,
   LoggedUser,
   logout as dispatchLogout,
-  deleteAccount as dispatchDeleteAccount,
+  deleteAccount,
 } from '../lib/user';
 import { LoginModalMode } from '../types/LoginModalMode';
 import { Visit } from '../lib/boot';
@@ -34,10 +34,6 @@ export default AuthContext;
 const logout = async (): Promise<void> => {
   await dispatchLogout();
   window.location.reload();
-};
-
-const deleteAccount = async (): Promise<void> => {
-  await dispatchDeleteAccount();
 };
 
 export type AuthContextProviderProps = {

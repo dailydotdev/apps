@@ -20,7 +20,7 @@ export default function DeleteAccountModal({
 }: Props): ReactElement {
   const [deleting, setDeleting] = useState<boolean>(false);
 
-  const onBanPost = async (event: MouseEvent): Promise<void> => {
+  const onDeleteAccount = async (event: MouseEvent): Promise<void> => {
     if (deleting) {
       return;
     }
@@ -48,7 +48,7 @@ export default function DeleteAccountModal({
         <Button
           className="btn-primary-ketchup"
           loading={deleting}
-          onClick={onBanPost}
+          onClick={onDeleteAccount}
         >
           Delete
         </Button>
