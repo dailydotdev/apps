@@ -59,7 +59,7 @@ export default function AccountDetailsModal({
             Save changes
           </Button>
         </header>
-        <div className="px-4 pt-6 pb-4">
+        <div className="responsiveModalBreakpoint:px-10 pt-6 pb-4 px-6z">
           <ProfileHeading>Account Details</ProfileHeading>
           <EditImageWithJoinedDate user={user} />
           <ProfileForm
@@ -69,7 +69,7 @@ export default function AccountDetailsModal({
             mode="update"
           />
         </div>
-        <footer className="flex flex-col px-4 pb-6 -my-1">
+        <footer className="flex flex-col px-6 responsiveModalBreakpoint:px-10 pb-6 -my-1">
           <FooterLink href={faq} target="_blank" rel="noopener">
             FAQ
           </FooterLink>
@@ -100,12 +100,12 @@ export default function AccountDetailsModal({
           <Button
             onClick={logout}
             buttonSize="small"
-            className="self-start mt-5 btn-tertiary"
+            className="self-start mt-5 btn-secondary"
           >
             Logout
           </Button>
         </footer>
-        <section className="flex flex-col px-4 pb-10">
+        <section className="flex flex-col px-6 responsiveModalBreakpoint:px-10 pb-10">
           <strong className="mb-4 typo-headline text-theme-status-error">
             Danger Zone
           </strong>
@@ -140,7 +140,7 @@ export default function AccountDetailsModal({
           <Button
             onClick={() => setShowDeleteAccount(true)}
             buttonSize="small"
-            className="self-start mt-5 btn-primary-ketchup text-theme-label-primary"
+            className="self-start mt-6 btn-primary-ketchup text-theme-label-primary"
           >
             Delete account
           </Button>
