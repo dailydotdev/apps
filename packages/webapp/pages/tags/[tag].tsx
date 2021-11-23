@@ -16,10 +16,7 @@ import { NextSeo } from 'next-seo';
 import Feed from '@dailydotdev/shared/src/components/Feed';
 import { TAG_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import {
-  Button,
-  ButtonProps,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   CustomFeedHeader,
   customFeedIcon,
@@ -73,8 +70,7 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
     ...defaultSeo,
   };
 
-  const followButtonProps: ButtonProps<'button'> = {
-    buttonSize: 'small',
+  const followButtonProps = {
     icon: tagStatus === 'followed' ? <XIcon /> : <PlusIcon />,
     onClick: async (): Promise<void> => {
       if (user) {
@@ -89,8 +85,7 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
     },
   };
 
-  const blockButtonProps: ButtonProps<'button'> = {
-    buttonSize: 'small',
+  const blockButtonProps = {
     icon: tagStatus === 'blocked' ? <XIcon /> : <BlockIcon />,
     onClick: async (): Promise<void> => {
       if (user) {
@@ -114,12 +109,14 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
         {tagStatus !== 'followed' && (
           <>
             <Button
-              className="laptop:hidden btn-secondary"
               {...blockButtonProps}
+              buttonSize="small"
+              className="laptop:hidden btn-secondary"
               aria-label={tagStatus === 'blocked' ? 'Unblock' : 'Block'}
             />
             <Button
               className="hidden laptop:flex btn-secondary"
+              buttonSize="small"
               {...blockButtonProps}
             >
               {tagStatus === 'blocked' ? 'Unblock' : 'Block'}
@@ -134,6 +131,7 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
                 tagStatus !== 'followed' && 'ml-4',
               )}
               {...followButtonProps}
+              buttonSize="small"
               aria-label={tagStatus === 'followed' ? 'Unfollow' : 'Follow'}
             />
             <Button
@@ -142,6 +140,7 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
                 tagStatus !== 'followed' && 'ml-4',
               )}
               {...followButtonProps}
+              buttonSize="small"
             >
               {tagStatus === 'followed' ? 'Unfollow' : 'Follow'}
             </Button>

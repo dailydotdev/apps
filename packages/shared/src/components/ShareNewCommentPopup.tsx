@@ -14,12 +14,12 @@ import {
 } from '../lib/share';
 import { Post } from '../graphql/posts';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
-import { Button, ButtonProps } from './buttons/Button';
+import { Button } from './buttons/Button';
 import { ModalCloseButton } from './modals/ModalCloseButton';
 import { getTooltipProps } from '../lib/tooltip';
 import classed from '../lib/classed';
 
-const ShareButton = classed<ButtonProps<'a'>>(Button, 'text-white');
+const ShareButton = classed(Button, 'text-white');
 
 interface ShareNewCommentPopupProps {
   onRequestClose: () => void;

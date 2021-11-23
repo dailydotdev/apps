@@ -18,10 +18,7 @@ import {
 import request from 'graphql-request';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import {
-  Button,
-  ButtonProps,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   CustomFeedHeader,
   FeedPage,
@@ -77,8 +74,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
     ...defaultSeo,
   };
 
-  const buttonProps: ButtonProps<'button'> = {
-    buttonSize: 'small',
+  const buttonProps = {
     icon: unfollowingSource ? <PlusIcon /> : <BlockIcon />,
     onClick: async (): Promise<void> => {
       if (user) {
@@ -104,11 +100,17 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
         />
         <span className="mr-auto">{source.name}</span>
         <Button
-          className="laptop:hidden btn-secondary"
           {...buttonProps}
+          buttonSize="small"
+          icon={unfollowingSource ? <PlusIcon /> : <BlockIcon />}
+          className="laptop:hidden btn-secondary"
           aria-label={unfollowingSource ? 'Follow' : 'Block'}
         />
-        <Button className="hidden laptop:flex btn-secondary" {...buttonProps}>
+        <Button
+          className="hidden laptop:flex btn-secondary"
+          buttonSize="small"
+          {...buttonProps}
+        >
           {unfollowingSource ? 'Follow' : 'Block'}
         </Button>
       </CustomFeedHeader>
