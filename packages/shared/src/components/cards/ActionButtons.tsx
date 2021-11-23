@@ -14,6 +14,9 @@ import BookmarkIcon from '../../../icons/bookmark.svg';
 import { Button } from '../buttons/Button';
 
 const ShareIcon = dynamic(() => import('../../../icons/share.svg'));
+const Tooltip = dynamic(
+  () => import(/* webpackChunkName: "tooltip" */ '@tippyjs/react'),
+);
 
 export type ActionButtonsProps = {
   post: Post;
@@ -44,18 +47,19 @@ export default function ActionButtons({
         className,
       )}
     >
-      <QuaternaryButton
-        id={`post-${post.id}-upvote-btn`}
-        icon={<UpvoteIcon />}
-        buttonSize="small"
-        pressed={post.upvoted}
-        {...getTooltipProps(post.upvoted ? 'Remove upvote' : 'Upvote')}
-        onClick={() => onUpvoteClick?.(post, !post.upvoted)}
-        style={{ width: rem(78) }}
-        className="btn-tertiary-avocado"
-      >
-        <InteractionCounter value={post.numUpvotes > 0 && post.numUpvotes} />
-      </QuaternaryButton>
+      <Tooltip content={post.upvoted ? 'Remove upvote' : 'Upvote'}>
+        <QuaternaryButton
+          id={`post-${post.id}-upvote-btn`}
+          icon={<UpvoteIcon />}
+          buttonSize="small"
+          pressed={post.upvoted}
+          onClick={() => onUpvoteClick?.(post, !post.upvoted)}
+          style={{ width: rem(78) }}
+          className="btn-tertiary-avocado"
+        >
+          <InteractionCounter value={post.numUpvotes > 0 && post.numUpvotes} />
+        </QuaternaryButton>
+      </Tooltip>
       <Link href={post.commentsPermalink} passHref prefetch={false}>
         <QuaternaryButton
           id={`post-${post.id}-comment-btn`}
