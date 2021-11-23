@@ -1,6 +1,8 @@
 import React, {
+  forwardRef,
   ReactElement,
   ReactNode,
+  Ref,
   useContext,
   useMemo,
   useState,
@@ -14,8 +16,7 @@ import { LoggedUser } from '../lib/user';
 import OnboardingContext from '../contexts/OnboardingContext';
 import MagnifyingIcon from '../../icons/magnifying.svg';
 import { Dropdown, DropdownProps } from './fields/Dropdown';
-// eslint-disable-next-line import/no-named-as-default
-import Button, { ButtonProps } from './buttons/Button';
+import { Button, ButtonProps } from './buttons/Button';
 import { FeedPage } from './utilities';
 import utilitiesStyles from './utilities.module.css';
 import styles from './MainFeedLayout.module.css';
@@ -123,20 +124,25 @@ const periods = [
 ];
 const periodTexts = periods.map((period) => period.text);
 
-function ButtonOrLink({
-  asLink,
-  href,
-  ...props
-}: { asLink: boolean; href: string } & ButtonProps<'button'>) {
+function ButtonOrLinkComponent(
+  {
+    asLink,
+    href,
+    ...props
+  }: { asLink: boolean; href: string } & ButtonProps<'button'>,
+  ref?: Ref<HTMLButtonElement>,
+) {
   if (asLink) {
     return (
       <Link href={href} passHref prefetch={false}>
-        <Button {...props} tag="a" />
+        <Button {...props} ref={ref} tag="a" />
       </Link>
     );
   }
-  return <Button {...props} />;
+  return <Button {...props} ref={ref} />;
 }
+
+const ButtonOrLink = forwardRef(ButtonOrLinkComponent);
 
 export default function MainFeedLayout({
   feedName: feedNameProp,
