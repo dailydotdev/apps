@@ -22,6 +22,7 @@ export default function LoginButtons(): ReactElement {
   const login = async (provider: string): Promise<void> => {
     await logSignupProviderClick(provider);
     const redirectUri = getRedirectUri();
+    console.log(authUrl(provider, redirectUri));
     window.location.href = authUrl(provider, redirectUri);
   };
 

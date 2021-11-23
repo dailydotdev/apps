@@ -97,3 +97,7 @@ services:
       - FLAGSMITH_KEY=secret
       - REDIS_HOST=daily-redis
       - REDIS_PORT=6379
+      - COOKIES_KEY=topsecret
+      - JWT_SECRET='|r+.2!!!.Qf_-|63*%.D'
+      - JWT_AUDIENCE='Daily Staging'
+      - JWT_ISSUER='Daily API Staging'
