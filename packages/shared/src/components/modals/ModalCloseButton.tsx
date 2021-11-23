@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Button, ButtonProps } from '../buttons/Button';
+// eslint-disable-next-line import/no-named-as-default
+import Button, { ButtonProps } from '../buttons/Button';
 import XIcon from '../../../icons/x.svg';
 
 export function ModalCloseButton({
