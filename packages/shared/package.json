@@ -7,7 +7,7 @@
     "lint:css": "stylelint '**/*.{ts,tsx,css}'",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0",
     "pretest": "npm run lint && npm run lint:css",
-    "test": "NODE_ENV=test node --expose-gc ./node_modules/.bin/jest --logHeapUsage",
+    "test": "node --expose-gc ./node_modules/.bin/jest --logHeapUsage",
     "test:ci": "JEST_JUNIT_OUTPUT_NAME=shared.xml npm run test -- --ci --reporters=default --reporters=jest-junit --runInBand"
   },
   "prettier": "@dailydotdev/prettier-config",

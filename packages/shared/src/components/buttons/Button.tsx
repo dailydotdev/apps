@@ -1,4 +1,10 @@
-import React, { HTMLAttributes, forwardRef, ReactNode, Ref } from 'react';
+import React, {
+  HTMLAttributes,
+  ReactNode,
+  ReactElement,
+  Ref,
+  forwardRef,
+} from 'react';
 import classNames from 'classnames';
 import { Loader } from '../Loader';
 
@@ -28,10 +34,7 @@ export type ButtonProps<Tag extends AllowedTags> = BaseButtonProps &
   HTMLAttributes<AllowedElements> &
   JSX.IntrinsicElements[Tag];
 
-export const Button: React.ForwardRefRenderFunction<
-  AllowedElements,
-  StyledButtonProps & ButtonProps<AllowedTags>
-> = <TagName extends AllowedTags>(
+export default function ButtonComponent<TagName extends AllowedTags>(
   {
     loading,
     pressed,
@@ -46,7 +49,7 @@ export const Button: React.ForwardRefRenderFunction<
     ...props
   }: StyledButtonProps & ButtonProps<TagName>,
   ref?: Ref<HTMLButtonElement>,
-) => {
+): ReactElement {
   const iconOnly = icon && !children && !rightIcon;
   return (
     <Tag
@@ -74,6 +77,6 @@ export const Button: React.ForwardRefRenderFunction<
       )}
     </Tag>
   );
-};
+}
 
-export const ForwardedButton = forwardRef(Button);
+export const Button = forwardRef(ButtonComponent);

@@ -1,4 +1,4 @@
-import React, { useState, forwardRef, ReactElement } from 'react';
+import React, { useState, ReactElement, Ref } from 'react';
 import Tippy, { TippyProps } from '@tippyjs/react';
 import classNames from 'classnames';
 import styles from './LazyTooltip.module.css';
@@ -9,11 +9,11 @@ const DEFAULT_OUT_ANIMATION = 200;
 
 export interface LazyTooltipProps extends TippyProps {
   arrow?: boolean;
-  content: string;
+  content?: string;
   placement?: TooltipPosition;
 }
 
-export default forwardRef<Element, LazyTooltipProps>(function LazyTippy(
+export default function LazyTippy(
   {
     render,
     arrow,
@@ -22,8 +22,8 @@ export default forwardRef<Element, LazyTooltipProps>(function LazyTippy(
     className,
     children,
     ...props
-  },
-  ref,
+  }: LazyTooltipProps,
+  ref?: Ref<Element>,
 ): ReactElement {
   const [unMounting, setUnMounting] = useState(false);
   const tooltip = {
@@ -74,4 +74,4 @@ export default forwardRef<Element, LazyTooltipProps>(function LazyTippy(
       {tooltip.children || children}
     </Tippy>
   );
-});
+}

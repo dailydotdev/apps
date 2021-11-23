@@ -1,4 +1,11 @@
-import React, { Ref, useRef, useState } from 'react';
+import React, {
+  forwardRef,
+  ReactElement,
+  Ref,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import { Button, AllowedTags, ButtonProps } from './Button';
 
@@ -8,10 +15,7 @@ type QuandaryButtonProps = {
   responsiveLabelClass?: string;
 };
 
-export const QuaternaryButton: React.ForwardRefRenderFunction<
-  HTMLDivElement,
-  ButtonProps<AllowedTags> & QuandaryButtonProps
-> = <TagName extends AllowedTags>(
+export default function QuaternaryButtonComponent<TagName extends AllowedTags>(
   {
     id,
     children,
@@ -22,19 +26,23 @@ export const QuaternaryButton: React.ForwardRefRenderFunction<
     tag = 'button',
     ...props
   }: ButtonProps<TagName> & QuandaryButtonProps,
-  ref?: Ref<HTMLDivElement>,
-) => {
-  const buttonRef = useRef<HTMLAnchorElement>();
+  ref?: Ref<HTMLButtonElement>,
+): ReactElement {
+  const anchorRef = useRef<HTMLButtonElement>(null);
+  useImperativeHandle(ref, () => anchorRef?.current);
   const [isHovered, setIsHovered] = useState(false);
   const onLabelClick = (event: React.MouseEvent<HTMLLabelElement>): void => {
     event.preventDefault();
-    buttonRef?.current.click();
+    anchorRef?.current?.click();
   };
-  const labelProps = {
-    onMouseOver: () => setIsHovered(true),
-    onMouseLeave: () => setIsHovered(false),
-    onClick: onLabelClick,
-  };
+  const labelProps =
+    tag === 'a'
+      ? {
+          onMouseOver: () => setIsHovered(true),
+          onMouseLeave: () => setIsHovered(false),
+          onClick: onLabelClick,
+        }
+      : {};
   const labelDisplay = responsiveLabelClass
     ? `hidden ${responsiveLabelClass}`
     : 'flex';
@@ -52,19 +60,18 @@ export const QuaternaryButton: React.ForwardRefRenderFunction<
         'select-none',
         className,
       )}
-      ref={ref}
     >
       <Button
         {...props}
         id={id}
         tag={tag}
-        ref={buttonRef}
+        ref={anchorRef}
         className={classNames(tag === 'a' && isHovered && 'hover')}
       />
       {children && (
         <label
           htmlFor={id}
-          {...(tag === 'a' ? labelProps : {})}
+          {...labelProps}
           className={`${labelDisplay} items-center font-bold cursor-pointer typo-callout`}
         >
           {children}
@@ -72,4 +79,6 @@ export const QuaternaryButton: React.ForwardRefRenderFunction<
       )}
     </div>
   );
-};
+}
+
+export const QuaternaryButton = forwardRef(QuaternaryButtonComponent);
