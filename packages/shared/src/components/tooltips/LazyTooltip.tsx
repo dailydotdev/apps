@@ -2,13 +2,18 @@ import React, { useState, ReactElement, Ref } from 'react';
 import Tippy, { TippyProps } from '@tippyjs/react';
 import classNames from 'classnames';
 import styles from './LazyTooltip.module.css';
-import { TooltipContainer, TooltipContainerProps } from './TooltipContainer';
+import {
+  TooltipContainer,
+  TooltipContainerProps,
+  TooltipPosition,
+} from './TooltipContainer';
 
 const DEFAULT_DELAY_MS = 400;
 const DEFAULT_OUT_ANIMATION = 200;
 
 export interface LazyTooltipProps extends TippyProps {
   container?: Omit<TooltipContainerProps, 'children'>;
+  placement?: TooltipPosition;
 }
 
 export default function LazyTippy(
@@ -44,6 +49,7 @@ export default function LazyTippy(
       content={
         <TooltipContainer
           {...container}
+          placement={placement}
           arrowClassName={styles.tippyTooltipArrow}
           className={classNames(
             styles.tippyTooltip,
