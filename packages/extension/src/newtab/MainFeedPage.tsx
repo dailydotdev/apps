@@ -10,7 +10,6 @@ import MainFeedLayout, {
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import dynamic from 'next/dynamic';
 import TimerIcon from '@dailydotdev/shared/icons/timer.svg';
-import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import MostVisitedSites from './MostVisitedSites';
@@ -19,6 +18,13 @@ const PostsSearch = dynamic(
   () =>
     import(
       /* webpackChunkName: "search" */ '@dailydotdev/shared/src/components/PostsSearch'
+    ),
+);
+
+const Tooltip = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "tooltip" */ '@dailydotdev/shared/src/components/tooltips/Tooltip'
     ),
 );
 
@@ -76,13 +82,14 @@ export default function MainFeedPage({
       additionalButtons={
         <>
           {(onboardingStep > 2 || user) && (
-            <HeaderButton
-              icon={<TimerIcon />}
-              {...getTooltipProps('Do Not Disturb', { position: 'down' })}
-              className="btn-tertiary"
-              onClick={() => setShowDnd(true)}
-              pressed={showDnd}
-            />
+            <Tooltip content="Do Not Disturb" placement="bottom">
+              <HeaderButton
+                icon={<TimerIcon />}
+                className="btn-tertiary"
+                onClick={() => setShowDnd(true)}
+                pressed={showDnd}
+              />
+            </Tooltip>
           )}
         </>
       }
