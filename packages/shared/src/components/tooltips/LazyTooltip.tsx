@@ -2,6 +2,8 @@ import React, { useState, ReactElement, Ref } from 'react';
 import Tippy, { TippyProps } from '@tippyjs/react';
 import classNames from 'classnames';
 import styles from './LazyTooltip.module.css';
+import { isTouchDevice } from '../../lib/tooltip';
+import { isTesting } from '../../lib/constants';
 import {
   TooltipContainer,
   TooltipContainerProps,
@@ -10,6 +12,9 @@ import {
 
 const DEFAULT_DELAY_MS = 400;
 const DEFAULT_OUT_ANIMATION = 200;
+
+export const getShouldLoadTooltip = (disableTooltip?: boolean): boolean =>
+  !isTouchDevice() && !isTesting && !disableTooltip;
 
 export interface LazyTooltipProps extends TippyProps {
   container?: Omit<TooltipContainerProps, 'children'>;
