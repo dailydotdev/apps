@@ -73,6 +73,7 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
   };
 
   const followButtonProps: ButtonProps<'button'> = {
+    buttonSize: 'small',
     icon: tagStatus === 'followed' ? <XIcon /> : <PlusIcon />,
     onClick: async (): Promise<void> => {
       if (user) {
@@ -112,9 +113,8 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
         {tagStatus !== 'followed' && (
           <>
             <Button
-              {...blockButtonProps}
-              buttonSize="small"
               className="laptop:hidden btn-secondary"
+              {...blockButtonProps}
               aria-label={tagStatus === 'blocked' ? 'Unblock' : 'Block'}
             />
             <Button
