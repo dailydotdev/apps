@@ -44,6 +44,7 @@ jobs:
           command: lerna run test:ci
           environment:
             JEST_JUNIT_OUTPUT_DIR: ../../test-results
+            NODE_ENV: test
       - store_test_results:
           path: ./test-results
 workflows:
