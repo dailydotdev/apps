@@ -5,6 +5,7 @@ import React, {
   useContext,
 } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { Flipper, Flipped } from 'react-flip-toolkit';
 import HomeIcon from '@dailydotdev/shared/icons/home.svg';
 import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
@@ -16,10 +17,16 @@ import {
   Button,
   ButtonSize,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 import classNames from 'classnames';
 import FilterRedDot from '@dailydotdev/shared/src/components/filters/FilterRedDot';
 import styles from './FooterNavBar.module.css';
+
+const Tooltip = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "tooltip" */ '@dailydotdev/shared/src/components/tooltips/Tooltip'
+    ),
+);
 
 type Tab = {
   path: string;
@@ -79,21 +86,23 @@ export default function FooterNavBar(): ReactElement {
         <div key={tab.path} className="relative">
           {!tab.requiresLogin || user ? (
             <Link href={tab.path} prefetch={false} passHref>
-              <Button
-                {...buttonProps}
-                tag="a"
-                icon={tab.icon}
-                pressed={index === selectedTab}
-                {...getTooltipProps(tab.title)}
-              />
+              <Tooltip content={tab.title}>
+                <Button
+                  {...buttonProps}
+                  tag="a"
+                  icon={tab.icon}
+                  pressed={index === selectedTab}
+                />
+              </Tooltip>
             </Link>
           ) : (
-            <Button
-              {...buttonProps}
-              icon={tab.icon}
-              onClick={() => showLogin('bookmark')}
-              {...getTooltipProps(tab.title)}
-            />
+            <Tooltip content={tab.title}>
+              <Button
+                {...buttonProps}
+                icon={tab.icon}
+                onClick={() => showLogin('bookmark')}
+              />
+            </Tooltip>
           )}
           <Flipped flipId="activeTabIndicator">
             {selectedTab === index && (

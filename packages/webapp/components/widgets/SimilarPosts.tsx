@@ -9,11 +9,18 @@ import styles from '@dailydotdev/shared/src/components/cards/Card.module.css';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import { CardLink } from '@dailydotdev/shared/src/components/cards/Card';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
-import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 import { logReadArticle } from '@dailydotdev/shared/src/lib/analytics';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import dynamic from 'next/dynamic';
+
+const Tooltip = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "tooltip" */ '@dailydotdev/shared/src/components/tooltips/Tooltip'
+    ),
+);
 
 export type SimilarPostsProps = {
   posts: Post[] | null;
@@ -86,14 +93,15 @@ const ListItem = ({
         )}
       </div>
     </div>
-    <Button
-      className="group-hover:visible mouse:invisible mt-1 btn-tertiary-bun"
-      pressed={post.bookmarked}
-      buttonSize="small"
-      icon={<BookmarkIcon />}
-      {...getTooltipProps(post.bookmarked ? 'Remove bookmark' : 'Bookmark')}
-      onClick={() => onBookmark(post)}
-    />
+    <Tooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
+      <Button
+        className="group-hover:visible mouse:invisible mt-1 btn-tertiary-bun"
+        pressed={post.bookmarked}
+        buttonSize="small"
+        icon={<BookmarkIcon />}
+        onClick={() => onBookmark(post)}
+      />
+    </Tooltip>
   </article>
 );
 
