@@ -15,7 +15,7 @@ import { Button } from '../buttons/Button';
 
 const ShareIcon = dynamic(() => import('../../../icons/share.svg'));
 const Tooltip = dynamic(
-  () => import(/* webpackChunkName: "tooltip" */ '@tippyjs/react'),
+  () => import(/* webpackChunkName: "tooltip" */ '../tooltips/Tooltip'),
 );
 
 export type ActionButtonsProps = {
@@ -77,14 +77,15 @@ export default function ActionButtons({
           />
         </QuaternaryButton>
       </Link>
-      <Button
-        icon={<BookmarkIcon />}
-        buttonSize="small"
-        pressed={post.bookmarked}
-        {...getTooltipProps(post.bookmarked ? 'Remove bookmark' : 'Bookmark')}
-        onClick={() => onBookmarkClick?.(post, !post.bookmarked)}
-        className="btn-tertiary-bun"
-      />
+      <Tooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
+        <Button
+          icon={<BookmarkIcon />}
+          buttonSize="small"
+          pressed={post.bookmarked}
+          onClick={() => onBookmarkClick?.(post, !post.bookmarked)}
+          className="btn-tertiary-bun"
+        />
+      </Tooltip>
       {showShare && (
         <Button
           icon={<ShareIcon />}
