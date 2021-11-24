@@ -16,7 +16,9 @@ import { NextSeo } from 'next-seo';
 import Feed from '@dailydotdev/shared/src/components/Feed';
 import { TAG_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import Button, {
+  ButtonProps,
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   CustomFeedHeader,
   customFeedIcon,
@@ -70,7 +72,7 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
     ...defaultSeo,
   };
 
-  const followButtonProps = {
+  const followButtonProps: ButtonProps<'button'> = {
     icon: tagStatus === 'followed' ? <XIcon /> : <PlusIcon />,
     onClick: async (): Promise<void> => {
       if (user) {
@@ -85,7 +87,8 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
     },
   };
 
-  const blockButtonProps = {
+  const blockButtonProps: ButtonProps<'button'> = {
+    buttonSize: 'small',
     icon: tagStatus === 'blocked' ? <XIcon /> : <BlockIcon />,
     onClick: async (): Promise<void> => {
       if (user) {
@@ -116,7 +119,6 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
             />
             <Button
               className="hidden laptop:flex btn-secondary"
-              buttonSize="small"
               {...blockButtonProps}
             >
               {tagStatus === 'blocked' ? 'Unblock' : 'Block'}
@@ -131,7 +133,6 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
                 tagStatus !== 'followed' && 'ml-4',
               )}
               {...followButtonProps}
-              buttonSize="small"
               aria-label={tagStatus === 'followed' ? 'Unfollow' : 'Follow'}
             />
             <Button
@@ -140,7 +141,6 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
                 tagStatus !== 'followed' && 'ml-4',
               )}
               {...followButtonProps}
-              buttonSize="small"
             >
               {tagStatus === 'followed' ? 'Unfollow' : 'Follow'}
             </Button>
