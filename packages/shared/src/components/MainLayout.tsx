@@ -105,7 +105,11 @@ export default function MainLayout({
         {getShouldLoadTooltip() && (
           <LazyTooltip placement="right" content="Home" reference={homeRef} />
         )}
-        <Link href={process.env.NEXT_PUBLIC_WEBAPP_URL} prefetch={false}>
+        <Link
+          href={process.env.NEXT_PUBLIC_WEBAPP_URL}
+          passHref
+          prefetch={false}
+        >
           {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
           <a
             className="flex items-center"

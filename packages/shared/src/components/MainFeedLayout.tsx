@@ -2,7 +2,6 @@ import React, {
   forwardRef,
   ReactElement,
   ReactNode,
-  Ref,
   useContext,
   useMemo,
   useState,
@@ -16,7 +15,8 @@ import { LoggedUser } from '../lib/user';
 import OnboardingContext from '../contexts/OnboardingContext';
 import MagnifyingIcon from '../../icons/magnifying.svg';
 import { Dropdown, DropdownProps } from './fields/Dropdown';
-import { Button, ButtonProps } from './buttons/Button';
+// eslint-disable-next-line import/no-named-as-default
+import Button, { ButtonProps } from './buttons/Button';
 import { FeedPage } from './utilities';
 import utilitiesStyles from './utilities.module.css';
 import styles from './MainFeedLayout.module.css';
@@ -124,22 +124,19 @@ const periods = [
 ];
 const periodTexts = periods.map((period) => period.text);
 
-function ButtonOrLinkComponent(
-  {
-    asLink,
-    href,
-    ...props
-  }: { asLink: boolean; href: string } & ButtonProps<'button'>,
-  ref?: Ref<HTMLButtonElement>,
-) {
+function ButtonOrLinkComponent({
+  asLink,
+  href,
+  ...props
+}: { asLink: boolean; href: string } & ButtonProps<'button'>) {
   if (asLink) {
     return (
       <Link href={href} passHref prefetch={false}>
-        <Button {...props} ref={ref} tag="a" />
+        <Button {...props} tag="a" />
       </Link>
     );
   }
-  return <Button {...props} ref={ref} />;
+  return <Button {...props} />;
 }
 
 const ButtonOrLink = forwardRef(ButtonOrLinkComponent);

@@ -1,12 +1,6 @@
-import React, {
-  CSSProperties,
-  forwardRef,
-  ReactElement,
-  Ref,
-  useEffect,
-  useState,
-} from 'react';
-import { Button, ButtonProps } from './buttons/Button';
+import React, { CSSProperties, ReactElement, useEffect, useState } from 'react';
+// eslint-disable-next-line import/no-named-as-default
+import Button, { ButtonProps } from './buttons/Button';
 import ArrowIcon from '../../icons/arrow.svg';
 
 const baseStyle: CSSProperties = {
@@ -15,7 +9,7 @@ const baseStyle: CSSProperties = {
   willChange: 'transform, opacity',
 };
 
-function ScrollToTopButton(_, ref: Ref<HTMLButtonElement>): ReactElement {
+export default function ScrollToTopButton(): ReactElement {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -41,14 +35,12 @@ function ScrollToTopButton(_, ref: Ref<HTMLButtonElement>): ReactElement {
     <>
       <Button
         {...props}
-        ref={ref}
         className="laptop:hidden right-4 z-2 btn-primary"
         buttonSize="large"
         style={{ ...style, bottom: '4.5rem' }}
       />
       <Button
         {...props}
-        ref={ref}
         className="hidden laptop:flex right-8 bottom-8 z-2 btn-primary"
         buttonSize="xlarge"
         style={style}
@@ -56,5 +48,3 @@ function ScrollToTopButton(_, ref: Ref<HTMLButtonElement>): ReactElement {
     </>
   );
 }
-
-export default forwardRef(ScrollToTopButton);
