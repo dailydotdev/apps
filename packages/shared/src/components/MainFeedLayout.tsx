@@ -1,5 +1,4 @@
 import React, {
-  forwardRef,
   ReactElement,
   ReactNode,
   useContext,
@@ -124,7 +123,7 @@ const periods = [
 ];
 const periodTexts = periods.map((period) => period.text);
 
-function ButtonOrLinkComponent({
+function ButtonOrLink({
   asLink,
   href,
   ...props
@@ -138,8 +137,6 @@ function ButtonOrLinkComponent({
   }
   return <Button {...props} />;
 }
-
-const ButtonOrLink = forwardRef(ButtonOrLinkComponent);
 
 export default function MainFeedLayout({
   feedName: feedNameProp,
