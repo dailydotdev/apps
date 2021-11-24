@@ -103,11 +103,11 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
         />
         <span className="mr-auto">{source.name}</span>
         <Button
-          {...buttonProps}
           className="laptop:hidden btn-secondary"
+          {...buttonProps}
           aria-label={unfollowingSource ? 'Follow' : 'Block'}
         />
-        <Button {...buttonProps} className="hidden laptop:flex btn-secondary">
+        <Button className="hidden laptop:flex btn-secondary" {...buttonProps}>
           {unfollowingSource ? 'Follow' : 'Block'}
         </Button>
       </CustomFeedHeader>
