@@ -101,15 +101,14 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
         <span className="mr-auto">{source.name}</span>
         <Button
           {...buttonProps}
-          buttonSize="small"
-          icon={unfollowingSource ? <PlusIcon /> : <BlockIcon />}
           className="laptop:hidden btn-secondary"
+          buttonSize="small"
           aria-label={unfollowingSource ? 'Follow' : 'Block'}
         />
         <Button
+          {...buttonProps}
           className="hidden laptop:flex btn-secondary"
           buttonSize="small"
-          {...buttonProps}
         >
           {unfollowingSource ? 'Follow' : 'Block'}
         </Button>
