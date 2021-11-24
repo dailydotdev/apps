@@ -1,12 +1,17 @@
 import React, { ReactNode } from 'react';
 import classNames from 'classnames';
+import dynamic from 'next/dynamic';
 import { LazyImage } from '../LazyImage';
 import { Comment } from '../../graphql/comments';
 import styles from './Card.module.css';
 import classed from '../../lib/classed';
-import { getTooltipProps } from '../../lib/tooltip';
 import { Post } from '../../graphql/posts';
 import { ProfilePicture } from '../ProfilePicture';
+import { TooltipPosition } from '../tooltips/TooltipContainer';
+
+const Tooltip = dynamic(
+  () => import(/* webpackChunkName: "tooltip" */ '../tooltips/Tooltip'),
+);
 
 const Title = classed(
   'h3',
@@ -86,25 +91,27 @@ export const featuredCommentsToButtons = (
   onClick: (comment: Comment) => unknown,
   selectedId?: string,
   className = 'mx-1',
-  tooltipPosition: 'up' | 'down' | 'left' | 'right' = 'down',
+  tooltipPosition: TooltipPosition = 'bottom',
 ): ReactNode[] =>
   comments?.map((comment) => (
-    <button
-      type="button"
-      {...getTooltipProps(`See ${comment.author.name}'s comment`, {
-        position: tooltipPosition,
-      })}
-      onClick={() => onClick(comment)}
+    <Tooltip
       key={comment.id}
-      className={classNames(
-        'flex p-0 bg-none border-none rounded-full cursor-pointer focus-outline',
-        className,
-      )}
+      placement={tooltipPosition}
+      content={`See ${comment.author.name}'s comment`}
     >
-      <ProfilePicture
-        size="small"
-        user={comment.author}
-        className="rounded-full"
-      />
-    </button>
+      <button
+        type="button"
+        onClick={() => onClick(comment)}
+        className={classNames(
+          'flex p-0 bg-none border-none rounded-full cursor-pointer focus-outline',
+          className,
+        )}
+      >
+        <ProfilePicture
+          size="small"
+          user={comment.author}
+          className="rounded-full"
+        />
+      </button>
+    </Tooltip>
   ));

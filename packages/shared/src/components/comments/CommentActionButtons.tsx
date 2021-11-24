@@ -1,6 +1,7 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 import request from 'graphql-request';
+import dynamic from 'next/dynamic';
 import AuthContext from '../../contexts/AuthContext';
 import UpvoteIcon from '../../../icons/upvote.svg';
 import CommentIcon from '../../../icons/comment.svg';
@@ -14,8 +15,11 @@ import {
 import { Roles } from '../../lib/user';
 import { apiUrl } from '../../lib/config';
 import { Button } from '../buttons/Button';
-import { getTooltipProps } from '../../lib/tooltip';
 import { ClickableText } from '../buttons/ClickableText';
+
+const Tooltip = dynamic(
+  () => import(/* webpackChunkName: "tooltip" */ '../tooltips/Tooltip'),
+);
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
@@ -101,49 +105,54 @@ export default function CommentActionButtons({
 
   return (
     <div className="flex flex-row items-center">
-      <Button
-        id={`comment-${comment.id}-upvote-btn`}
-        buttonSize="small"
-        pressed={upvoted}
-        {...getTooltipProps('Upvote')}
-        onClick={toggleUpvote}
-        icon={<UpvoteIcon />}
-        className="mr-3 btn-tertiary-avocado"
-      />
-      <Button
-        buttonSize="small"
-        {...getTooltipProps('Comment')}
-        onClick={() => onComment(comment, parentId)}
-        icon={<CommentIcon />}
-        className="mr-3 btn-tertiary-avocado"
-      />
-      {user?.id === comment.author.id && (
+      <Tooltip content="Upvote">
+        <Button
+          id={`comment-${comment.id}-upvote-btn`}
+          buttonSize="small"
+          pressed={upvoted}
+          onClick={toggleUpvote}
+          icon={<UpvoteIcon />}
+          className="mr-3 btn-tertiary-avocado"
+        />
+      </Tooltip>
+      <Tooltip content="Comment">
         <Button
           buttonSize="small"
-          {...getTooltipProps('Edit')}
-          onClick={() => onEdit(comment)}
-          icon={<EditIcon />}
-          className="mr-3 btn-tertiary"
+          onClick={() => onComment(comment, parentId)}
+          icon={<CommentIcon />}
+          className="mr-3 btn-tertiary-avocado"
         />
+      </Tooltip>
+      {user?.id === comment.author.id && (
+        <Tooltip content="Edit">
+          <Button
+            buttonSize="small"
+            onClick={() => onEdit(comment)}
+            icon={<EditIcon />}
+            className="mr-3 btn-tertiary"
+          />
+        </Tooltip>
       )}
       {(user?.id === comment.author.id ||
         user?.roles?.indexOf(Roles.Moderator) > -1) && (
-        <Button
-          buttonSize="small"
-          {...getTooltipProps('Delete')}
-          onClick={() => onDelete(comment, parentId)}
-          icon={<TrashIcon />}
-          className="btn-tertiary"
-        />
+        <Tooltip content="Delete">
+          <Button
+            buttonSize="small"
+            onClick={() => onDelete(comment, parentId)}
+            icon={<TrashIcon />}
+            className="btn-tertiary"
+          />
+        </Tooltip>
       )}
       {numUpvotes > 0 && (
-        <ClickableText
-          className="ml-auto"
-          {...getTooltipProps('See who upvoted')}
-          onClick={() => onShowUpvotes(comment.id, numUpvotes)}
-        >
-          {numUpvotes} upvote{numUpvotes === 1 ? '' : 's'}
-        </ClickableText>
+        <Tooltip content="See who upvoted">
+          <ClickableText
+            className="ml-auto"
+            onClick={() => onShowUpvotes(comment.id, numUpvotes)}
+          >
+            {numUpvotes} upvote{numUpvotes === 1 ? '' : 's'}
+          </ClickableText>
+        </Tooltip>
       )}
     </div>
   );

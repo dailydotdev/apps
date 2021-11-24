@@ -1,21 +1,25 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement, ReactNode, useRef } from 'react';
 import Link from 'next/link';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import styles from './Card.module.css';
 import { Post } from '../../graphql/posts';
 import UpvoteIcon from '../../../icons/upvote.svg';
-import { getTooltipProps } from '../../lib/tooltip';
 import rem from '../../../macros/rem.macro';
 import InteractionCounter from '../InteractionCounter';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import CommentIcon from '../../../icons/comment.svg';
 import BookmarkIcon from '../../../icons/bookmark.svg';
 import { Button } from '../buttons/Button';
+import { getShouldLoadTooltip } from '../tooltips/LazyTooltip';
 
 const ShareIcon = dynamic(() => import('../../../icons/share.svg'));
 const Tooltip = dynamic(
   () => import(/* webpackChunkName: "tooltip" */ '../tooltips/Tooltip'),
+);
+
+const LazyTooltip = dynamic(
+  () => import(/* webpackChunkName: "lazyTooltip" */ '../tooltips/LazyTooltip'),
 );
 
 export type ActionButtonsProps = {
@@ -39,6 +43,8 @@ export default function ActionButtons({
   className,
   children,
 }: ActionButtonsProps): ReactElement {
+  const commentRef = useRef();
+
   return (
     <div
       className={classNames(
@@ -60,6 +66,13 @@ export default function ActionButtons({
           <InteractionCounter value={post.numUpvotes > 0 && post.numUpvotes} />
         </QuaternaryButton>
       </Tooltip>
+      {getShouldLoadTooltip() && (
+        <LazyTooltip
+          placement="right"
+          content="Comments"
+          reference={commentRef}
+        />
+      )}
       <Link href={post.commentsPermalink} passHref prefetch={false}>
         <QuaternaryButton
           id={`post-${post.id}-comment-btn`}
@@ -67,10 +80,11 @@ export default function ActionButtons({
           icon={<CommentIcon />}
           buttonSize="small"
           pressed={post.commented}
-          {...getTooltipProps('Comments')}
+          aria-label="Comments"
           onClick={() => onCommentClick?.(post)}
           style={{ width: rem(78) }}
           className="btn-tertiary-avocado"
+          ref={commentRef}
         >
           <InteractionCounter
             value={post.numComments > 0 && post.numComments}
@@ -87,13 +101,14 @@ export default function ActionButtons({
         />
       </Tooltip>
       {showShare && (
-        <Button
-          icon={<ShareIcon />}
-          buttonSize="small"
-          {...getTooltipProps('Share post')}
-          onClick={() => onShare?.(post)}
-          className="btn-tertiary"
-        />
+        <Tooltip content="Share post">
+          <Button
+            icon={<ShareIcon />}
+            buttonSize="small"
+            onClick={() => onShare?.(post)}
+            className="btn-tertiary"
+          />
+        </Tooltip>
       )}
       {children}
     </div>

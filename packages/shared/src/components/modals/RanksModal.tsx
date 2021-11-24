@@ -4,6 +4,7 @@ import React, {
   ReactNode,
   useContext,
 } from 'react';
+import dynamic from 'next/dynamic';
 import classNames from 'classnames';
 import { RankProgress } from '../RankProgress';
 import { RANK_NAMES, STEPS_PER_RANK } from '../../lib/rank';
@@ -17,7 +18,10 @@ import AuthContext from '../../contexts/AuthContext';
 import GoToDevCardButton from '../GoToDevCardButton';
 import { Button } from '../buttons/Button';
 import { ClickableText } from '../buttons/ClickableText';
-import { getTooltipProps } from '../../lib/tooltip';
+
+const Tooltip = dynamic(
+  () => import(/* webpackChunkName: "tooltip" */ '../tooltips/Tooltip'),
+);
 
 const RankItem = ({
   rank,
@@ -150,14 +154,15 @@ const TimezoneText = ({ onShowAccount }) => {
 
   const signIn = (
     <p className={classes}>
-      <ClickableText
-        tag="a"
-        className="inline-flex text-theme-label-link"
-        {...getTooltipProps('Login')}
-        onClick={() => showLogin('ranks instructions')}
-      >
-        Sign in
-      </ClickableText>{' '}
+      <Tooltip content="Login">
+        <ClickableText
+          tag="a"
+          className="inline-flex text-theme-label-link"
+          onClick={() => showLogin('ranks instructions')}
+        >
+          Sign in
+        </ClickableText>
+      </Tooltip>{' '}
       to add your weekly goal achievements to your profile.
     </p>
   );
@@ -165,14 +170,15 @@ const TimezoneText = ({ onShowAccount }) => {
   const accountDetails = (
     <p className={classes}>
       To fit the weekly goal to your time zone, please add it in your{' '}
-      <ClickableText
-        tag="a"
-        className="inline-flex text-theme-label-link"
-        {...getTooltipProps('Open account details')}
-        onClick={() => onShowAccount()}
-      >
-        account details
-      </ClickableText>
+      <Tooltip content="Open account details">
+        <ClickableText
+          tag="a"
+          className="inline-flex text-theme-label-link"
+          onClick={() => onShowAccount()}
+        >
+          account details
+        </ClickableText>
+      </Tooltip>
       .
     </p>
   );

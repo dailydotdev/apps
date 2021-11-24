@@ -13,26 +13,6 @@ body {
   min-width: 20rem;
   overflow-y: scroll;
 
-  & [aria-label][data-balloon-pos] {
-    &:hover {
-      &:after, &:before {
-        transition-delay: 0.6s;
-      }
-    }
-
-    &:after {
-      font-family: inherit;
-      padding: 0.25rem 0.75rem;
-      @apply typo-subhead
-    }
-
-    @media (pointer: coarse) {
-      &:after, &:before {
-        display: none;
-      }
-    }
-  }
-
   &.ReactModal__Body--open .ReactModal__Content,
   &.ReactModal__Body--open .ReactModal__Content > * {
     overscroll-behavior-y: none;
@@ -254,17 +234,6 @@ img.lazyload:not([src]) {
 
 .fade-exit-active {
   opacity: 0;
-}
-
-.__react_component_tooltip.__react_component_tooltip {
-  color: var(--balloon-text-color);
-  border-radius: var(--balloon-border-radius);
-  padding: 0.25rem 0.75rem;
-  @apply typo-subhead;
-
-  &.show {
-    opacity: 1;
-  }
 }
 
 @keyframes rank-attention {

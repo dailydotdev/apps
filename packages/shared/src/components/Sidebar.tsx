@@ -1,12 +1,16 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import classNames from 'classnames';
+import dynamic from 'next/dynamic';
 import sizeN from '../../macros/sizeN.macro';
-import { getTooltipProps } from '../lib/tooltip';
 import OnboardingContext from '../contexts/OnboardingContext';
 import FilterMenu from './filters/FilterMenu';
 import FilterRedDot from './filters/FilterRedDot';
 import useFeedSettings from '../hooks/useFeedSettings';
 import AlertContext from '../contexts/AlertContext';
+
+const Tooltip = dynamic(
+  () => import(/* webpackChunkName: "tooltip" */ './tooltips/Tooltip'),
+);
 
 const asideWidth = sizeN(89);
 
@@ -64,40 +68,42 @@ export default function Sidebar(): ReactElement {
       >
         <FilterMenu />
       </aside>
-      <button
-        type="button"
-        className={classNames(
-          'flex w-12 h-14 items-center pl-3 border-l-0 rounded-r-2xl cursor-pointer focus-outline',
-          hightlightTrigger
-            ? 'bg-theme-label-primary text-theme-bg-primary'
-            : 'bg-theme-bg-primary border hover:text-theme-label-primary',
-          !hightlightTrigger &&
-            (opened
-              ? 'text-theme-label-primary border-theme-divider-primary'
-              : 'text-theme-label-tertiary border-theme-divider-quaternary'),
-        )}
-        style={{
-          fontSize: '1.75rem',
-          pointerEvents: 'all',
-          marginTop: '6.375rem',
-        }}
-        {...getTooltipProps(`${opened ? 'Close' : 'Open'} sidebar`, {
-          position: 'right',
-        })}
-        onClick={toggleSidebar}
+      <Tooltip
+        placement="right"
+        content={`${opened ? 'Close' : 'Open'} sidebar`}
       >
-        <FilterRedDot />
-        {hightlightTrigger && (
-          <div
-            className="absolute left-0 -z-1 w-14 bg-theme-hover rounded-r-3xl"
-            style={{
-              top: '-1rem',
-              height: '5.5rem',
-              animation: 'rank-attention 2s infinite ease-in-out',
-            }}
-          />
-        )}
-      </button>
+        <button
+          type="button"
+          className={classNames(
+            'flex w-12 h-14 items-center pl-3 border-l-0 rounded-r-2xl cursor-pointer focus-outline',
+            hightlightTrigger
+              ? 'bg-theme-label-primary text-theme-bg-primary'
+              : 'bg-theme-bg-primary border hover:text-theme-label-primary',
+            !hightlightTrigger &&
+              (opened
+                ? 'text-theme-label-primary border-theme-divider-primary'
+                : 'text-theme-label-tertiary border-theme-divider-quaternary'),
+          )}
+          style={{
+            fontSize: '1.75rem',
+            pointerEvents: 'all',
+            marginTop: '6.375rem',
+          }}
+          onClick={toggleSidebar}
+        >
+          <FilterRedDot />
+          {hightlightTrigger && (
+            <div
+              className="absolute left-0 -z-1 w-14 bg-theme-hover rounded-r-3xl"
+              style={{
+                top: '-1rem',
+                height: '5.5rem',
+                animation: 'rank-attention 2s infinite ease-in-out',
+              }}
+            />
+          )}
+        </button>
+      </Tooltip>
     </div>
   );
 }

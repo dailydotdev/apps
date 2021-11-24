@@ -3,6 +3,7 @@ import React, {
   ReactElement,
   ReactNode,
   useContext,
+  useRef,
   useState,
 } from 'react';
 import dynamic from 'next/dynamic';
@@ -13,7 +14,6 @@ import classed from '../lib/classed';
 import { Button } from './buttons/Button';
 import ProgressiveEnhancementContext from '../contexts/ProgressiveEnhancementContext';
 import AuthContext from '../contexts/AuthContext';
-import { getTooltipProps } from '../lib/tooltip';
 import PromotionalBanner from './PromotionalBanner';
 import Logo from '../svg/Logo';
 import LogoText from '../svg/LogoText';
@@ -21,6 +21,7 @@ import BookmarkIcon from '../../icons/bookmark.svg';
 import styles from './MainLayout.module.css';
 import LayoutIcon from '../../icons/layout.svg';
 import ProfileButton from './profile/ProfileButton';
+import { getShouldLoadTooltip } from './tooltips/LazyTooltip';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -46,6 +47,14 @@ const Greeting = dynamic(
   () => import(/* webpackChunkName: "greeting" */ './Greeting'),
 );
 
+const Tooltip = dynamic(
+  () => import(/* webpackChunkName: "tooltip" */ './tooltips/Tooltip'),
+);
+
+const LazyTooltip = dynamic(
+  () => import(/* webpackChunkName: "lazyTooltip" */ './tooltips/LazyTooltip'),
+);
+
 export const HeaderButton = classed(Button, 'hidden mx-0.5 laptop:flex');
 
 export default function MainLayout({
@@ -63,18 +72,20 @@ export default function MainLayout({
   const { user, showLogin, loadingUser } = useContext(AuthContext);
   const [showSettings, setShowSettings] = useState(false);
   const [showGreeting, setShowGreeting] = useState(false);
+  const homeRef = useRef();
 
   const afterBookmarkButtons = (
     <>
       {additionalButtons}
       {mainPage && (
-        <HeaderButton
-          icon={<LayoutIcon />}
-          {...getTooltipProps('Settings', { position: 'down' })}
-          className="btn-tertiary"
-          onClick={() => setShowSettings(!showSettings)}
-          pressed={showSettings}
-        />
+        <Tooltip placement="bottom" content="Settings">
+          <HeaderButton
+            icon={<LayoutIcon />}
+            className="btn-tertiary"
+            onClick={() => setShowSettings(!showSettings)}
+            pressed={showSettings}
+          />
+        </Tooltip>
       )}
     </>
   );
@@ -91,16 +102,16 @@ export default function MainLayout({
             : 'non-responsive-header'
         }`}
       >
-        <Link
-          href={process.env.NEXT_PUBLIC_WEBAPP_URL}
-          passHref
-          prefetch={false}
-        >
+        {getShouldLoadTooltip() && (
+          <LazyTooltip placement="right" content="Home" reference={homeRef} />
+        )}
+        <Link href={process.env.NEXT_PUBLIC_WEBAPP_URL} prefetch={false}>
           {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
           <a
             className="flex items-center"
             onClick={onLogoClick}
-            {...getTooltipProps('Home', { position: 'right' })}
+            ref={homeRef}
+            aria-label="Home"
           >
             <Logo className={styles.homeSvg} />
             <CSSTransition
@@ -135,24 +146,26 @@ export default function MainLayout({
                   passHref
                   prefetch={false}
                 >
-                  <HeaderButton
-                    tag="a"
-                    icon={<BookmarkIcon />}
-                    {...getTooltipProps('Bookmarks', { position: 'down' })}
-                    className="btn-tertiary"
-                  />
+                  <Tooltip placement="bottom" content="Bookmarks">
+                    <HeaderButton
+                      tag="a"
+                      icon={<BookmarkIcon />}
+                      className="btn-tertiary"
+                    />
+                  </Tooltip>
                 </Link>
                 {afterBookmarkButtons}
                 <ProfileButton onShowDndClick={onShowDndClick} />
               </>
             ) : (
               <>
-                <HeaderButton
-                  icon={<BookmarkIcon />}
-                  {...getTooltipProps('Bookmarks', { position: 'down' })}
-                  onClick={() => showLogin('bookmark')}
-                  className="btn-tertiary"
-                />
+                <Tooltip placement="bottom" content="Bookmarks">
+                  <HeaderButton
+                    icon={<BookmarkIcon />}
+                    onClick={() => showLogin('bookmark')}
+                    className="btn-tertiary"
+                  />
+                </Tooltip>
                 {afterBookmarkButtons}
                 <Button
                   onClick={() => showLogin('main button')}
