@@ -9,7 +9,7 @@ module.exports = {
     'prettier',
     'plugin:prettier/recommended',
   ],
-  plugins: ['prettier', 'tailwindcss'],
+  plugins: ['prettier', 'tailwindcss', '@dailydotdev/daily-dev-eslint-rules'],
   parserOptions: {
     project: './tsconfig.eslint.json',
     ecmaVersion: 2020,
@@ -38,5 +38,6 @@ module.exports = {
     '@typescript-eslint/return-await': 0,
     'tailwindcss/classnames-order': 'warn',
     'tailwindcss/no-contradicting-classname': 'error',
+    '@dailydotdev/daily-dev-eslint-rules/no-custom-color': 'error',
   },
 };

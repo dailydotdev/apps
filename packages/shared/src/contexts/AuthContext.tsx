@@ -3,6 +3,7 @@ import {
   AnonymousUser,
   LoggedUser,
   logout as dispatchLogout,
+  deleteAccount,
 } from '../lib/user';
 import { LoginModalMode } from '../types/LoginModalMode';
 import { Visit } from '../lib/boot';
@@ -24,6 +25,7 @@ export interface AuthContextData {
   getRedirectUri: () => string;
   anonymous?: AnonymousUser;
   visit?: Visit;
+  deleteAccount?: () => Promise<void>;
 }
 
 const AuthContext = React.createContext<AuthContextData>(null);
@@ -76,6 +78,7 @@ export const AuthContextProvider = ({
       getRedirectUri,
       anonymous: user,
       visit,
+      deleteAccount,
     }),
     [user, loginState, loadingUser, tokenRefreshed, loadedUserFromCache, visit],
   );

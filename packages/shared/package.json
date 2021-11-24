@@ -34,6 +34,7 @@
     "@babel/preset-react": "^7.16.0",
     "@babel/preset-typescript": "^7.16.0",
     "@dailydotdev/eslint-config": "*",
+    "@dailydotdev/eslint-plugin-daily-dev-eslint-rules": "*",
     "@dailydotdev/prettier-config": "*",
     "@dailydotdev/react-contexify": "^5.0.0",
     "@testing-library/jest-dom": "^5.15.0",
