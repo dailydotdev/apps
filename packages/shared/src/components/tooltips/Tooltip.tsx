@@ -13,7 +13,6 @@ const TippyTooltip = dynamicParent<
 
 interface TooltipProps extends Omit<LazyTooltipProps, 'render'> {
   disableTooltip?: boolean;
-  passRef?: boolean;
 }
 
 export function Tooltip({
