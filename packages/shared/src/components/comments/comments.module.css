@@ -3,4 +3,66 @@
     color: var(--theme-label-link);
     word-break: break-all;
   }
+  & .markdown {
+    & :where(h1) {
+      @apply font-bold typo-title2 mt-16 mb-8;
+    }
+    & :where(h2) {
+      @apply font-bold typo-title3 mt-12 mb-7;
+    }
+    & :where(h3) {
+      @apply font-bold typo-headline mt-8 mb-6;
+    }
+    & :where(h4) {
+      @apply typo-headline mt-6 mb-5;
+    }
+    & :where(h5) {
+      @apply text-theme-label-tertiary font-bold typo-body mt-6 mb-4;
+    }
+    & :where(h6) {
+      @apply text-theme-label-tertiary font-bold mt-4 mb-3;
+    }
+    & :where(p) {
+      @apply my-8;
+    }
+    & :where(blockquote) {
+      @apply typo-body italic pl-7 my-8 border-l border-theme-divider-secondary;
+    }
+    & :where(pre) {
+      @apply bg-theme-divider-quaternary py-8 px-6 my-8 rounded-12 border border-theme-divider-quaternary;
+    }
+    & :not(pre) > code {
+      @apply bg-theme-divider-quaternary border border-theme-divider-quaternary px-2 py-1 mx-1 rounded-6;
+    }
+    & :where(ul) {
+      @apply list-disc my-8 pl-8;
+    }
+    & :where(ol) {
+      @apply list-decimal my-8 pl-8;
+    }
+    & :where(li) {
+      @apply my-2 pl-2;
+    }
+    & ::marker {
+      @apply text-theme-label-secondary;
+    }
+    & :where(ul ul,ul ol,ol ul,ol ol) {
+      @apply my-2;
+    }
+    & :where(a) {
+      @apply hover:underline;
+    }
+    & :where(hr) {
+      @apply border-theme-divider-secondary my-10;
+    }
+    & :where(img) {
+      @apply rounded-16;
+    }
+    & >:where(:first-child) {
+      @apply mt-0;
+    }
+    & >:where(:last-child) {
+      @apply mb-0;
+    }
+  }
 }

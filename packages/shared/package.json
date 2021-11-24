@@ -111,6 +111,7 @@
     "linkifyjs": "^2.1.9",
     "lodash.clonedeep": "^4.5.0",
     "node-fetch": "^2.6.6",
+    "react-markdown": "^7.1.0",
     "subscriptions-transport-ws": "^0.9.19"
   }
 }
