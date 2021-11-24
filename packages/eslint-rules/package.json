@@ -1,0 +1,30 @@
+{
+  "name": "@dailydotdev/eslint-plugin-daily-dev-eslint-rules",
+  "version": "0.0.0",
+  "description": "> TODO: description",
+  "author": "Chris Bongers <chrisbongers@gmail.com>",
+  "homepage": "https://github.com/dailydotdev/apps#readme",
+  "license": "ISC",
+  "main": "lib/index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "prettier": "@dailydotdev/prettier-config",
+  "devDependencies": {
+    "@dailydotdev/prettier-config": "*"
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dailydotdev/apps.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/dailydotdev/apps/issues"
+  }
+}
