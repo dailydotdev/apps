@@ -40,10 +40,6 @@ export default function LazyTippy(
   };
 
   if (!render) {
-    tooltip.children = React.cloneElement(children, {
-      ...children.props,
-      'aria-label': props.content,
-    });
     tooltip.render = () => props.content;
   }
 
@@ -56,8 +52,9 @@ export default function LazyTippy(
       placement={placement}
       onHide={onHide}
       delay={delay}
-      render={(...args) => (
+      render={(args) => (
         <TooltipContainer
+          {...args}
           arrow={arrow}
           arrowClassName={styles.tippyTooltipArrow}
           placement={placement}
@@ -67,7 +64,7 @@ export default function LazyTippy(
             className,
           )}
         >
-          {renderer(...args)}
+          {renderer()}
         </TooltipContainer>
       )}
     >
