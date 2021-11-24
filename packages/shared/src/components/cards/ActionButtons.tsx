@@ -67,11 +67,7 @@ export default function ActionButtons({
         </QuaternaryButton>
       </Tooltip>
       {getShouldLoadTooltip() && (
-        <LazyTooltip
-          placement="right"
-          content="Comments"
-          reference={commentRef}
-        />
+        <LazyTooltip content="Comments" reference={commentRef} />
       )}
       <Link href={post.commentsPermalink} passHref prefetch={false}>
         <QuaternaryButton
