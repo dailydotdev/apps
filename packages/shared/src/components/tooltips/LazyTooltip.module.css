@@ -92,6 +92,7 @@
   width: 0.5rem;
   height: 0.5rem;
   background: inherit;
+  left: calc(50% - 0.25rem);
 }
 
 .tippyTooltipArrow {

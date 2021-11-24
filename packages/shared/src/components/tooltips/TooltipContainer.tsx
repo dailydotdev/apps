@@ -3,7 +3,7 @@ import classNames from 'classnames';
 
 export type TooltipPosition = 'top' | 'right' | 'bottom' | 'left';
 
-interface TooltipContainerProps {
+export interface TooltipContainerProps {
   arrow?: boolean;
   children: ReactNode;
   className?: string;
@@ -22,8 +22,8 @@ export function TooltipContainer({
     <div
       data-popper-placement={placement}
       className={classNames(
-        className,
         'relative flex items-center py-1 px-3 rounded-10 bg-theme-label-primary text-theme-label-invert typo-subhead',
+        className,
       )}
     >
       {children}
