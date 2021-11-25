@@ -13,8 +13,8 @@ import {
 const DEFAULT_DELAY_MS = 400;
 const DEFAULT_OUT_ANIMATION = 200;
 
-export const getShouldLoadTooltip = (disableTooltip?: boolean): boolean =>
-  !isTouchDevice() && !isTesting && !disableTooltip;
+export const getShouldLoadTooltip = (): boolean =>
+  !isTouchDevice() && !isTesting;
 
 export interface BaseTooltipProps extends TippyProps {
   container?: Omit<BaseTooltipContainerProps, 'children'>;

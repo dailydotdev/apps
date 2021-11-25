@@ -1,4 +1,5 @@
-import React, { HTMLAttributes, ReactElement, useRef } from 'react';
+import React, { HTMLAttributes, ReactElement } from 'react';
+import Link from 'next/link';
 import classNames from 'classnames';
 import { PublicProfile } from '../../lib/user';
 import LinkWithTooltip from '../tooltips/LinkWithTooltip';
@@ -15,9 +16,10 @@ export function ProfileLink({
   className,
   ...props
 }: ProfileLinkProps): ReactElement {
-  const userRef = useRef();
+  const LinkComponent = disableTooltip ? Link : LinkWithTooltip;
+
   return (
-    <LinkWithTooltip
+    <LinkComponent
       href={user.permalink}
       passHref
       prefetch={false}
@@ -26,10 +28,9 @@ export function ProfileLink({
       <a
         {...props}
         className={classNames(className, 'flex items-center no-underline')}
-        ref={userRef}
       >
         {children}
       </a>
-    </LinkWithTooltip>
+    </LinkComponent>
   );
 }
