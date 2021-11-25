@@ -106,6 +106,8 @@
 }
 
 .tippyTooltip {
+  will-change: transform;
+
   &[data-popper-placement^='top'] {
     animation: fade-in-top 0.2s ease-in-out;
   }
