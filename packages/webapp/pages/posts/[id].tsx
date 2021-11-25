@@ -62,6 +62,7 @@ import useReportPostMenu from '@dailydotdev/shared/src/hooks/useReportPostMenu';
 import MenuIcon from '@dailydotdev/shared/icons/menu.svg';
 import { CardNotification } from '@dailydotdev/shared/src/components/cards/Card';
 import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
+import LinkWithTooltip from '@dailydotdev/shared/src/components/tooltips/LinkWithTooltip';
 import PostToc from '../../components/widgets/PostToc';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import styles from './postPage.module.css';
@@ -501,15 +502,15 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             </CardNotification>
           ) : (
             <>
-              <Link
-                href={`/sources/${postById?.post.source.id}`}
-                passHref
-                prefetch={false}
-              >
-                <SimpleTooltip
-                  disableTooltip={!postById?.post.author}
-                  content={postById?.post.source.name}
-                  placement="bottom"
+              {postById?.post.author ? (
+                <LinkWithTooltip
+                  href={`/sources/${postById?.post.source.id}`}
+                  passHref
+                  prefetch={false}
+                  tooltip={{
+                    placement: 'bottom',
+                    content: postById?.post.source.name,
+                  }}
                 >
                   <SourceImage
                     className="cursor-pointer"
@@ -517,8 +518,15 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
                     imgAlt={postById?.post.source.name}
                     background="var(--theme-background-secondary)"
                   />
-                </SimpleTooltip>
-              </Link>
+                </LinkWithTooltip>
+              ) : (
+                <SourceImage
+                  className="cursor-pointer"
+                  imgSrc={postById?.post.source.image}
+                  imgAlt={postById?.post.source.name}
+                  background="var(--theme-background-secondary)"
+                />
+              )}
               {postById?.post.author ? (
                 <ProfileLink
                   user={postById.post.author}
