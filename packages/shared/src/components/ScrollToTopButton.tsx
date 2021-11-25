@@ -1,6 +1,5 @@
 import React, { CSSProperties, ReactElement, useEffect, useState } from 'react';
-// eslint-disable-next-line import/no-named-as-default
-import Button, { ButtonProps } from './buttons/Button';
+import { Button, ButtonProps } from './buttons/Button';
 import ArrowIcon from '../../icons/arrow.svg';
 
 const baseStyle: CSSProperties = {

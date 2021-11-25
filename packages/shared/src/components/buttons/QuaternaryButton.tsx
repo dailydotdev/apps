@@ -7,7 +7,7 @@ import React, {
   useState,
 } from 'react';
 import classNames from 'classnames';
-import { Button, AllowedTags, ButtonProps } from './Button';
+import { Button, AllowedTags, ButtonProps, ProperButtonType } from './Button';
 
 type QuandaryButtonProps = {
   id: string;
@@ -26,9 +26,9 @@ export default function QuaternaryButtonComponent<TagName extends AllowedTags>(
     tag = 'button',
     ...props
   }: ButtonProps<TagName> & QuandaryButtonProps,
-  ref?: Ref<HTMLButtonElement>,
+  ref?: Ref<ProperButtonType<TagName>>,
 ): ReactElement {
-  const anchorRef = useRef<HTMLButtonElement>(null);
+  const anchorRef = useRef<ProperButtonType<TagName>>(null);
   useImperativeHandle(ref, () => anchorRef?.current);
   const [isHovered, setIsHovered] = useState(false);
   const onLabelClick = (event: React.MouseEvent<HTMLLabelElement>): void => {

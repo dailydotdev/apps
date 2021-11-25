@@ -18,7 +18,8 @@ import {
 import request from 'graphql-request';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import Button, {
+import {
+  Button,
   ButtonProps,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {

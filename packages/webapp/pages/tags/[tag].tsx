@@ -16,7 +16,8 @@ import { NextSeo } from 'next-seo';
 import Feed from '@dailydotdev/shared/src/components/Feed';
 import { TAG_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import Button, {
+import {
+  Button,
   ButtonProps,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {

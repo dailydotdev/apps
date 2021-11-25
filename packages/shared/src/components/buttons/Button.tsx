@@ -29,10 +29,15 @@ export interface BaseButtonProps {
 
 export type AllowedTags = keyof Pick<JSX.IntrinsicElements, 'a' | 'button'>;
 export type AllowedElements = HTMLButtonElement | HTMLAnchorElement;
+export type ProperButtonType<Tag extends AllowedTags> = Tag extends 'a'
+  ? HTMLAnchorElement
+  : HTMLButtonElement;
 
 export type ButtonProps<Tag extends AllowedTags> = BaseButtonProps &
   HTMLAttributes<AllowedElements> &
-  JSX.IntrinsicElements[Tag];
+  JSX.IntrinsicElements[Tag] & {
+    ref?: Ref<ProperButtonType<Tag>>;
+  };
 
 export default function ButtonComponent<TagName extends AllowedTags>(
   {
@@ -48,7 +53,7 @@ export default function ButtonComponent<TagName extends AllowedTags>(
     absolute,
     ...props
   }: StyledButtonProps & ButtonProps<TagName>,
-  ref?: Ref<HTMLButtonElement>,
+  ref?: Ref<ProperButtonType<TagName>>,
 ): ReactElement {
   const iconOnly = icon && !children && !rightIcon;
   return (

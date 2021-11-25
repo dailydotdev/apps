@@ -14,8 +14,7 @@ import { LoggedUser } from '../lib/user';
 import OnboardingContext from '../contexts/OnboardingContext';
 import MagnifyingIcon from '../../icons/magnifying.svg';
 import { Dropdown, DropdownProps } from './fields/Dropdown';
-// eslint-disable-next-line import/no-named-as-default
-import Button, { ButtonProps } from './buttons/Button';
+import { Button, ButtonProps } from './buttons/Button';
 import { FeedPage } from './utilities';
 import utilitiesStyles from './utilities.module.css';
 import styles from './MainFeedLayout.module.css';
