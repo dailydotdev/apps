@@ -5,13 +5,13 @@ import React, {
   useContext,
 } from 'react';
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
 import { Flipper, Flipped } from 'react-flip-toolkit';
 import HomeIcon from '@dailydotdev/shared/icons/home.svg';
 import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
 import LayoutIcon from '@dailydotdev/shared/icons/layout.svg';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useRouter } from 'next/router';
+import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities';
 import {
   Button,
@@ -20,13 +20,6 @@ import {
 import classNames from 'classnames';
 import FilterRedDot from '@dailydotdev/shared/src/components/filters/FilterRedDot';
 import styles from './FooterNavBar.module.css';
-
-const Tooltip = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "tooltip" */ '@dailydotdev/shared/src/components/tooltips/Tooltip'
-    ),
-);
 
 type Tab = {
   path: string;
@@ -86,23 +79,23 @@ export default function FooterNavBar(): ReactElement {
         <div key={tab.path} className="relative">
           {!tab.requiresLogin || user ? (
             <Link href={tab.path} prefetch={false} passHref>
-              <Tooltip content={tab.title}>
+              <SimpleTooltip content={tab.title}>
                 <Button
                   {...buttonProps}
                   tag="a"
                   icon={tab.icon}
                   pressed={index === selectedTab}
                 />
-              </Tooltip>
+              </SimpleTooltip>
             </Link>
           ) : (
-            <Tooltip content={tab.title}>
+            <SimpleTooltip content={tab.title}>
               <Button
                 {...buttonProps}
                 icon={tab.icon}
                 onClick={() => showLogin('bookmark')}
               />
-            </Tooltip>
+            </SimpleTooltip>
           )}
           <Flipped flipId="activeTabIndicator">
             {selectedTab === index && (

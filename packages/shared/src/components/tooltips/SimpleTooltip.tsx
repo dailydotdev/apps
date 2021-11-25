@@ -1,19 +1,19 @@
 import React, { ReactElement, useMemo } from 'react';
 import dynamicParent from '../../lib/dynamicParent';
-import { getShouldLoadTooltip, LazyTooltipProps } from './LazyTooltip';
+import { getShouldLoadTooltip, BaseTooltipProps } from './BaseTooltip';
 
-const LazyTooltipLoader = () =>
-  import(/* webpackChunkName: "lazyTooltip" */ './LazyTooltip');
+const BaseTooltipLoader = () =>
+  import(/* webpackChunkName: "lazyTooltip" */ './BaseTooltip');
 
 const TippyTooltip = dynamicParent<
-  Omit<LazyTooltipProps, 'render' | 'allowHTML'>
->(() => LazyTooltipLoader().then((mod) => mod.default), React.Fragment);
+  Omit<BaseTooltipProps, 'render' | 'allowHTML'>
+>(() => BaseTooltipLoader().then((mod) => mod.BaseTooltip), React.Fragment);
 
-interface TooltipProps extends Omit<LazyTooltipProps, 'render'> {
+interface TooltipProps extends Omit<BaseTooltipProps, 'render'> {
   disableTooltip?: boolean;
 }
 
-export function Tooltip({
+export function SimpleTooltip({
   children,
   content,
   allowHTML,
@@ -40,4 +40,4 @@ export function Tooltip({
   );
 }
 
-export default Tooltip;
+export default SimpleTooltip;

@@ -1,11 +1,7 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import dynamic from 'next/dynamic';
 import styles from './Card.module.css';
-
-const Tooltip = dynamic(
-  () => import(/* webpackChunkName: "tooltip" */ '../tooltips/Tooltip'),
-);
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 export default function TrendingFlag({
   trending,
@@ -22,7 +18,7 @@ export default function TrendingFlag({
         listMode ? 'top-0 right-full w-10 mt-5' : 'left-0 bottom-full ml-5 h-5',
       )}
     >
-      <Tooltip content={description}>
+      <SimpleTooltip content={description}>
         <div
           className={classNames(
             'flex items-center bg-theme-status-error transform',
@@ -34,7 +30,7 @@ export default function TrendingFlag({
         >
           <span className="font-bold uppercase typo-caption2">Hot</span>
         </div>
-      </Tooltip>
+      </SimpleTooltip>
       {!listMode && (
         <span className="mouse:hidden ml-2 typo-footnote text-theme-label-tertiary">
           {description}

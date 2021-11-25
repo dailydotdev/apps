@@ -11,16 +11,10 @@ import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import CommentIcon from '../../../icons/comment.svg';
 import BookmarkIcon from '../../../icons/bookmark.svg';
 import { Button } from '../buttons/Button';
-import { getShouldLoadTooltip } from '../tooltips/LazyTooltip';
+import { BaseTooltip, getShouldLoadTooltip } from '../tooltips/BaseTooltip';
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 const ShareIcon = dynamic(() => import('../../../icons/share.svg'));
-const Tooltip = dynamic(
-  () => import(/* webpackChunkName: "tooltip" */ '../tooltips/Tooltip'),
-);
-
-const LazyTooltip = dynamic(
-  () => import(/* webpackChunkName: "lazyTooltip" */ '../tooltips/LazyTooltip'),
-);
 
 export type ActionButtonsProps = {
   post: Post;
@@ -53,7 +47,7 @@ export default function ActionButtons({
         className,
       )}
     >
-      <Tooltip content={post.upvoted ? 'Remove upvote' : 'Upvote'}>
+      <SimpleTooltip content={post.upvoted ? 'Remove upvote' : 'Upvote'}>
         <QuaternaryButton
           id={`post-${post.id}-upvote-btn`}
           icon={<UpvoteIcon />}
@@ -65,9 +59,9 @@ export default function ActionButtons({
         >
           <InteractionCounter value={post.numUpvotes > 0 && post.numUpvotes} />
         </QuaternaryButton>
-      </Tooltip>
+      </SimpleTooltip>
       {getShouldLoadTooltip() && (
-        <LazyTooltip content="Comments" reference={commentRef} />
+        <BaseTooltip content="Comments" reference={commentRef} />
       )}
       <Link href={post.commentsPermalink} passHref prefetch={false}>
         <QuaternaryButton
@@ -87,7 +81,7 @@ export default function ActionButtons({
           />
         </QuaternaryButton>
       </Link>
-      <Tooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
+      <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
         <Button
           icon={<BookmarkIcon />}
           buttonSize="small"
@@ -95,16 +89,16 @@ export default function ActionButtons({
           onClick={() => onBookmarkClick?.(post, !post.bookmarked)}
           className="btn-tertiary-bun"
         />
-      </Tooltip>
+      </SimpleTooltip>
       {showShare && (
-        <Tooltip content="Share post">
+        <SimpleTooltip content="Share post">
           <Button
             icon={<ShareIcon />}
             buttonSize="small"
             onClick={() => onShare?.(post)}
             className="btn-tertiary"
           />
-        </Tooltip>
+        </SimpleTooltip>
       )}
       {children}
     </div>

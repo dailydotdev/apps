@@ -1,16 +1,12 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import classNames from 'classnames';
-import dynamic from 'next/dynamic';
 import sizeN from '../../macros/sizeN.macro';
 import OnboardingContext from '../contexts/OnboardingContext';
 import FilterMenu from './filters/FilterMenu';
 import FilterRedDot from './filters/FilterRedDot';
 import useFeedSettings from '../hooks/useFeedSettings';
 import AlertContext from '../contexts/AlertContext';
-
-const Tooltip = dynamic(
-  () => import(/* webpackChunkName: "tooltip" */ './tooltips/Tooltip'),
-);
+import { SimpleTooltip } from './tooltips/SimpleTooltip';
 
 const asideWidth = sizeN(89);
 
@@ -68,7 +64,7 @@ export default function Sidebar(): ReactElement {
       >
         <FilterMenu />
       </aside>
-      <Tooltip
+      <SimpleTooltip
         placement="right"
         content={`${opened ? 'Close' : 'Open'} sidebar`}
       >
@@ -103,7 +99,7 @@ export default function Sidebar(): ReactElement {
             />
           )}
         </button>
-      </Tooltip>
+      </SimpleTooltip>
     </div>
   );
 }

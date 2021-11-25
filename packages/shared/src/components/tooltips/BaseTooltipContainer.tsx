@@ -3,7 +3,7 @@ import classNames from 'classnames';
 
 export type TooltipPosition = 'top' | 'right' | 'bottom' | 'left';
 
-export interface TooltipContainerProps {
+export interface BaseTooltipContainerProps {
   arrow?: boolean;
   children: ReactNode;
   className?: string;
@@ -11,13 +11,13 @@ export interface TooltipContainerProps {
   placement?: TooltipPosition;
 }
 
-export function TooltipContainer({
+export function BaseTooltipContainer({
   className,
   arrow = true,
   arrowClassName,
   placement = 'top',
   children,
-}: TooltipContainerProps): ReactElement {
+}: BaseTooltipContainerProps): ReactElement {
   return (
     <div
       data-popper-placement={placement}
@@ -37,4 +37,4 @@ export function TooltipContainer({
   );
 }
 
-export default TooltipContainer;
+export default BaseTooltipContainer;

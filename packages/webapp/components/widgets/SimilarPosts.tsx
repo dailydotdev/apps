@@ -13,14 +13,7 @@ import { logReadArticle } from '@dailydotdev/shared/src/lib/analytics';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
-import dynamic from 'next/dynamic';
-
-const Tooltip = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "tooltip" */ '@dailydotdev/shared/src/components/tooltips/Tooltip'
-    ),
-);
+import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 
 export type SimilarPostsProps = {
   posts: Post[] | null;
@@ -93,7 +86,7 @@ const ListItem = ({
         )}
       </div>
     </div>
-    <Tooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
+    <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
       <Button
         className="group-hover:visible mouse:invisible mt-1 btn-tertiary-bun"
         pressed={post.bookmarked}
@@ -101,7 +94,7 @@ const ListItem = ({
         icon={<BookmarkIcon />}
         onClick={() => onBookmark(post)}
       />
-    </Tooltip>
+    </SimpleTooltip>
   </article>
 );
 

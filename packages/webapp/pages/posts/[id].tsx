@@ -61,6 +61,7 @@ import PostOptionsMenu from '@dailydotdev/shared/src/components/PostOptionsMenu'
 import useReportPostMenu from '@dailydotdev/shared/src/hooks/useReportPostMenu';
 import MenuIcon from '@dailydotdev/shared/icons/menu.svg';
 import { CardNotification } from '@dailydotdev/shared/src/components/cards/Card';
+import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import PostToc from '../../components/widgets/PostToc';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import styles from './postPage.module.css';
@@ -105,13 +106,6 @@ const FurtherReading = dynamic(
   () =>
     import(
       /* webpackChunkName: "furtherReading" */ '../../components/widgets/FurtherReading'
-    ),
-);
-
-const Tooltip = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "tooltip" */ '@dailydotdev/shared/src/components/tooltips/Tooltip'
     ),
 );
 
@@ -512,7 +506,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
                 passHref
                 prefetch={false}
               >
-                <Tooltip
+                <SimpleTooltip
                   disableTooltip={!postById?.post.author}
                   content={postById?.post.source.name}
                   placement="bottom"
@@ -523,7 +517,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
                     imgAlt={postById?.post.source.name}
                     background="var(--theme-background-secondary)"
                   />
-                </Tooltip>
+                </SimpleTooltip>
               </Link>
               {postById?.post.author ? (
                 <ProfileLink
@@ -546,7 +540,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
                   <SourceName>{postById?.post.source.name}</SourceName>
                 </div>
               )}
-              <Tooltip placement="left" content="Options">
+              <SimpleTooltip placement="left" content="Options">
                 <Button
                   className="right-4 my-auto btn-tertiary"
                   style={{ position: 'absolute' }}
@@ -554,7 +548,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
                   onClick={(event) => showPostOptionsContext(event)}
                   buttonSize="small"
                 />
-              </Tooltip>
+              </SimpleTooltip>
             </>
           )}
         </div>

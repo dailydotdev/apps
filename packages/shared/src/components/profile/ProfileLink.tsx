@@ -1,13 +1,8 @@
 import React, { HTMLAttributes, ReactElement, useRef } from 'react';
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
 import classNames from 'classnames';
 import { PublicProfile } from '../../lib/user';
-import { getShouldLoadTooltip } from '../tooltips/LazyTooltip';
-
-const LazyTooltip = dynamic(
-  () => import(/* webpackChunkName: "lazyTooltip" */ '../tooltips/LazyTooltip'),
-);
+import { BaseTooltip, getShouldLoadTooltip } from '../tooltips/BaseTooltip';
 
 export interface ProfileLinkProps extends HTMLAttributes<HTMLAnchorElement> {
   user: Pick<PublicProfile, 'image' | 'permalink' | 'username' | 'name'>;
@@ -25,7 +20,7 @@ export function ProfileLink({
   return (
     <>
       {getShouldLoadTooltip(disableTooltip) && (
-        <LazyTooltip content={user.name} reference={userRef} />
+        <BaseTooltip content={user.name} reference={userRef} />
       )}
       <Link href={user.permalink} passHref prefetch={false}>
         <a

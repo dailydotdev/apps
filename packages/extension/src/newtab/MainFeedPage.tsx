@@ -21,10 +21,10 @@ const PostsSearch = dynamic(
     ),
 );
 
-const Tooltip = dynamic(
+const SimpleTooltip = dynamic(
   () =>
     import(
-      /* webpackChunkName: "tooltip" */ '@dailydotdev/shared/src/components/tooltips/Tooltip'
+      /* webpackChunkName: "tooltip" */ '@dailydotdev/shared/src/components/tooltips/SimpleTooltip'
     ),
 );
 
@@ -82,14 +82,14 @@ export default function MainFeedPage({
       additionalButtons={
         <>
           {(onboardingStep > 2 || user) && (
-            <Tooltip content="Do Not Disturb" placement="bottom">
+            <SimpleTooltip content="Do Not Disturb" placement="bottom">
               <HeaderButton
                 icon={<TimerIcon />}
                 className="btn-tertiary"
                 onClick={() => setShowDnd(true)}
                 pressed={showDnd}
               />
-            </Tooltip>
+            </SimpleTooltip>
           )}
         </>
       }

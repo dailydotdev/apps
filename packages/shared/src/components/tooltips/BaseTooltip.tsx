@@ -1,14 +1,14 @@
 import React, { useState, ReactElement, Ref } from 'react';
 import Tippy, { TippyProps } from '@tippyjs/react';
 import classNames from 'classnames';
-import styles from './LazyTooltip.module.css';
+import styles from './BaseTooltip.module.css';
 import { isTouchDevice } from '../../lib/tooltip';
 import { isTesting } from '../../lib/constants';
 import {
-  TooltipContainer,
-  TooltipContainerProps,
+  BaseTooltipContainer,
+  BaseTooltipContainerProps,
   TooltipPosition,
-} from './TooltipContainer';
+} from './BaseTooltipContainer';
 
 const DEFAULT_DELAY_MS = 400;
 const DEFAULT_OUT_ANIMATION = 200;
@@ -16,12 +16,12 @@ const DEFAULT_OUT_ANIMATION = 200;
 export const getShouldLoadTooltip = (disableTooltip?: boolean): boolean =>
   !isTouchDevice() && !isTesting && !disableTooltip;
 
-export interface LazyTooltipProps extends TippyProps {
-  container?: Omit<TooltipContainerProps, 'children'>;
+export interface BaseTooltipProps extends TippyProps {
+  container?: Omit<BaseTooltipContainerProps, 'children'>;
   placement?: TooltipPosition;
 }
 
-export default function LazyTippy(
+export function BaseTooltip(
   {
     render,
     arrow,
@@ -31,7 +31,7 @@ export default function LazyTippy(
     children,
     content,
     ...props
-  }: LazyTooltipProps,
+  }: BaseTooltipProps,
   ref?: Ref<Element>,
 ): ReactElement {
   const [unMounting, setUnMounting] = useState(false);
@@ -52,7 +52,7 @@ export default function LazyTippy(
       delay={delay}
       allowHTML
       content={
-        <TooltipContainer
+        <BaseTooltipContainer
           {...container}
           placement={placement}
           arrowClassName={styles.tippyTooltipArrow}
@@ -62,7 +62,7 @@ export default function LazyTippy(
           )}
         >
           {content}
-        </TooltipContainer>
+        </BaseTooltipContainer>
       }
     >
       {children}

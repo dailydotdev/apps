@@ -1,6 +1,5 @@
 import React, { ReactElement } from 'react';
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
 import classNames from 'classnames';
 import {
   featuredCommentsToButtons,
@@ -12,10 +11,7 @@ import ArrowIcon from '../../../icons/arrow.svg';
 import CommentIcon from '../../../icons/comment.svg';
 import { Button } from '../buttons/Button';
 import { FeaturedCommentProps } from './FeaturedComment';
-
-const Tooltip = dynamic(
-  () => import(/* webpackChunkName: "tooltip" */ '../tooltips/Tooltip'),
-);
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 export default function ListFeaturedComment({
   featuredComments,
@@ -29,14 +25,14 @@ export default function ListFeaturedComment({
       className={classNames('absolute inset-0 flex pt-4 pb-3 pr-4', className)}
     >
       <ListCardAside>
-        <Tooltip placement="bottom" content="Back">
+        <SimpleTooltip placement="bottom" content="Back">
           <Button
             icon={<ArrowIcon style={{ transform: 'rotate(-90deg)' }} />}
             buttonSize="small"
             onClick={onBack}
             className="btn-tertiary"
           />
-        </Tooltip>
+        </SimpleTooltip>
         {featuredCommentsToButtons(
           featuredComments,
           onCommentClick,

@@ -4,7 +4,6 @@ import React, {
   ReactNode,
   useContext,
 } from 'react';
-import dynamic from 'next/dynamic';
 import classNames from 'classnames';
 import { RankProgress } from '../RankProgress';
 import { RANK_NAMES, STEPS_PER_RANK } from '../../lib/rank';
@@ -18,10 +17,7 @@ import AuthContext from '../../contexts/AuthContext';
 import GoToDevCardButton from '../GoToDevCardButton';
 import { Button } from '../buttons/Button';
 import { ClickableText } from '../buttons/ClickableText';
-
-const Tooltip = dynamic(
-  () => import(/* webpackChunkName: "tooltip" */ '../tooltips/Tooltip'),
-);
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 const RankItem = ({
   rank,
@@ -154,7 +150,7 @@ const TimezoneText = ({ onShowAccount }) => {
 
   const signIn = (
     <p className={classes}>
-      <Tooltip content="Login">
+      <SimpleTooltip content="Login">
         <ClickableText
           tag="a"
           className="inline-flex text-theme-label-link"
@@ -162,7 +158,7 @@ const TimezoneText = ({ onShowAccount }) => {
         >
           Sign in
         </ClickableText>
-      </Tooltip>{' '}
+      </SimpleTooltip>{' '}
       to add your weekly goal achievements to your profile.
     </p>
   );
@@ -170,7 +166,7 @@ const TimezoneText = ({ onShowAccount }) => {
   const accountDetails = (
     <p className={classes}>
       To fit the weekly goal to your time zone, please add it in your{' '}
-      <Tooltip content="Open account details">
+      <SimpleTooltip content="Open account details">
         <ClickableText
           tag="a"
           className="inline-flex text-theme-label-link"
@@ -178,7 +174,7 @@ const TimezoneText = ({ onShowAccount }) => {
         >
           account details
         </ClickableText>
-      </Tooltip>
+      </SimpleTooltip>
       .
     </p>
   );

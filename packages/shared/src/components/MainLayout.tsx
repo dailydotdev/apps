@@ -21,7 +21,8 @@ import BookmarkIcon from '../../icons/bookmark.svg';
 import styles from './MainLayout.module.css';
 import LayoutIcon from '../../icons/layout.svg';
 import ProfileButton from './profile/ProfileButton';
-import { getShouldLoadTooltip } from './tooltips/LazyTooltip';
+import { BaseTooltip, getShouldLoadTooltip } from './tooltips/BaseTooltip';
+import { SimpleTooltip } from './tooltips/SimpleTooltip';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -47,14 +48,6 @@ const Greeting = dynamic(
   () => import(/* webpackChunkName: "greeting" */ './Greeting'),
 );
 
-const Tooltip = dynamic(
-  () => import(/* webpackChunkName: "tooltip" */ './tooltips/Tooltip'),
-);
-
-const LazyTooltip = dynamic(
-  () => import(/* webpackChunkName: "lazyTooltip" */ './tooltips/LazyTooltip'),
-);
-
 export const HeaderButton = classed(Button, 'hidden mx-0.5 laptop:flex');
 
 export default function MainLayout({
@@ -78,14 +71,14 @@ export default function MainLayout({
     <>
       {additionalButtons}
       {mainPage && (
-        <Tooltip placement="bottom" content="Settings">
+        <SimpleTooltip placement="bottom" content="Settings">
           <HeaderButton
             icon={<LayoutIcon />}
             className="btn-tertiary"
             onClick={() => setShowSettings(!showSettings)}
             pressed={showSettings}
           />
-        </Tooltip>
+        </SimpleTooltip>
       )}
     </>
   );
@@ -103,7 +96,7 @@ export default function MainLayout({
         }`}
       >
         {getShouldLoadTooltip() && (
-          <LazyTooltip placement="right" content="Home" reference={homeRef} />
+          <BaseTooltip placement="right" content="Home" reference={homeRef} />
         )}
         <Link
           href={process.env.NEXT_PUBLIC_WEBAPP_URL}
@@ -150,26 +143,26 @@ export default function MainLayout({
                   passHref
                   prefetch={false}
                 >
-                  <Tooltip placement="bottom" content="Bookmarks">
+                  <SimpleTooltip placement="bottom" content="Bookmarks">
                     <HeaderButton
                       tag="a"
                       icon={<BookmarkIcon />}
                       className="btn-tertiary"
                     />
-                  </Tooltip>
+                  </SimpleTooltip>
                 </Link>
                 {afterBookmarkButtons}
                 <ProfileButton onShowDndClick={onShowDndClick} />
               </>
             ) : (
               <>
-                <Tooltip placement="bottom" content="Bookmarks">
+                <SimpleTooltip placement="bottom" content="Bookmarks">
                   <HeaderButton
                     icon={<BookmarkIcon />}
                     onClick={() => showLogin('bookmark')}
                     className="btn-tertiary"
                   />
-                </Tooltip>
+                </SimpleTooltip>
                 {afterBookmarkButtons}
                 <Button
                   onClick={() => showLogin('main button')}

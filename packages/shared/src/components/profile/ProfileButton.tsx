@@ -1,13 +1,9 @@
 import React, { ReactElement, useContext } from 'react';
-import dynamic from 'next/dynamic';
 import AuthContext from '../../contexts/AuthContext';
 import useProfileMenu from '../../hooks/useProfileMenu';
 import ProfileMenu from '../ProfileMenu';
 import { ProfilePicture } from '../ProfilePicture';
-
-const Tooltip = dynamic(
-  () => import(/* webpackChunkName: "tooltip" */ '../tooltips/Tooltip'),
-);
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 export interface ProfileButtonProps {
   onShowDndClick?: () => unknown;
@@ -21,7 +17,7 @@ export default function ProfileButton({
 
   return (
     <>
-      <Tooltip placement="left" content="Profile settings">
+      <SimpleTooltip placement="left" content="Profile settings">
         <button
           type="button"
           className="flex items-center p-0 ml-0.5 font-bold no-underline rounded-lg border-none cursor-pointer text-theme-label-primary bg-theme-bg-secondary typo-callout focus-outline"
@@ -30,7 +26,7 @@ export default function ProfileButton({
           <span className="mr-2 ml-3">{user.reputation ?? 0}</span>
           <ProfilePicture user={user} size="medium" />
         </button>
-      </Tooltip>
+      </SimpleTooltip>
       <ProfileMenu onShowDndClick={onShowDndClick} />
     </>
   );

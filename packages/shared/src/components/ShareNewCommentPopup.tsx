@@ -1,5 +1,4 @@
 import React, { ReactElement, useContext } from 'react';
-import dynamic from 'next/dynamic';
 import AuthContext from '../contexts/AuthContext';
 import TwitterIcon from '../../icons/twitter.svg';
 import WhatsappIcon from '../../icons/whatsapp.svg';
@@ -18,13 +17,9 @@ import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import { Button } from './buttons/Button';
 import { ModalCloseButton } from './modals/ModalCloseButton';
 import classed from '../lib/classed';
+import { SimpleTooltip } from './tooltips/SimpleTooltip';
 
 const ShareButton = classed(Button, 'text-white');
-
-const Tooltip = dynamic(
-  () => import(/* webpackChunkName: "tooltip" */ './tooltips/Tooltip'),
-);
-
 interface ShareNewCommentPopupProps {
   onRequestClose: () => void;
   post: Post;
@@ -60,7 +55,7 @@ export default function ShareNewCommentPopup({
         Give it a try!
       </div>
       <div className="grid grid-cols-2 gap-4">
-        <Tooltip content="Share on Twitter">
+        <SimpleTooltip content="Share on Twitter">
           <ShareButton
             tag="a"
             href={getTwitterShareLink(href, post.title)}
@@ -72,8 +67,8 @@ export default function ShareNewCommentPopup({
           >
             Twitter
           </ShareButton>
-        </Tooltip>
-        <Tooltip content="Share on WhatsApp">
+        </SimpleTooltip>
+        <SimpleTooltip content="Share on WhatsApp">
           <ShareButton
             tag="a"
             href={getWhatsappShareLink(href)}
@@ -85,8 +80,8 @@ export default function ShareNewCommentPopup({
           >
             Whatsapp
           </ShareButton>
-        </Tooltip>
-        <Tooltip content="Share on Facebook">
+        </SimpleTooltip>
+        <SimpleTooltip content="Share on Facebook">
           <ShareButton
             tag="a"
             href={getFacebookShareLink(href)}
@@ -98,7 +93,7 @@ export default function ShareNewCommentPopup({
           >
             Facebook
           </ShareButton>
-        </Tooltip>
+        </SimpleTooltip>
         <Button
           className="btn-primary"
           buttonSize="small"

@@ -43,6 +43,7 @@ import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/util
 import classNames from 'classnames';
 import DOMPurify from 'dompurify';
 import { ProfilePicture } from '@dailydotdev/shared/src/components/ProfilePicture';
+import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import styles from './index.module.css';
 import NavBar, { tabs } from './NavBar';
 import { getLayout as getMainLayout } from '../MainLayout';
@@ -54,12 +55,6 @@ const AccountDetailsModal = dynamic(
     ),
 );
 
-const Tooltip = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "tooltip" */ '@dailydotdev/shared/src/components/tooltips/Tooltip'
-    ),
-);
 const Custom404 = dynamic(() => import('../../../pages/404'));
 
 export interface ProfileLayoutProps {
@@ -209,7 +204,7 @@ export default function ProfileLayout({
               />
               <div className={classNames('flex mt-3 mx-0.5', styles.links)}>
                 {twitterHandle && (
-                  <Tooltip content="Twitter">
+                  <SimpleTooltip content="Twitter">
                     <Button
                       tag="a"
                       href={`https://twitter.com/${twitterHandle}`}
@@ -218,10 +213,10 @@ export default function ProfileLayout({
                       icon={<TwitterIcon />}
                       className="btn-tertiary"
                     />
-                  </Tooltip>
+                  </SimpleTooltip>
                 )}
                 {githubHandle && (
-                  <Tooltip content="GitHub">
+                  <SimpleTooltip content="GitHub">
                     <Button
                       tag="a"
                       href={`https://github.com/${githubHandle}`}
@@ -230,10 +225,10 @@ export default function ProfileLayout({
                       icon={<GitHubIcon />}
                       className="btn-tertiary"
                     />
-                  </Tooltip>
+                  </SimpleTooltip>
                 )}
                 {hashnodeHandle && (
-                  <Tooltip content="Hashnode">
+                  <SimpleTooltip content="Hashnode">
                     <Button
                       tag="a"
                       href={`https://hashnode.com/@${hashnodeHandle}`}
@@ -242,10 +237,10 @@ export default function ProfileLayout({
                       icon={<HashnodeIcon />}
                       className="btn-tertiary"
                     />
-                  </Tooltip>
+                  </SimpleTooltip>
                 )}
                 {portfolioLink && (
-                  <Tooltip content="Portfolio">
+                  <SimpleTooltip content="Portfolio">
                     <QuaternaryButton
                       tag="a"
                       href={portfolioLink}
@@ -259,7 +254,7 @@ export default function ProfileLayout({
                         .replace(/(^\w+:|^)\/\//, '')
                         .replace(/\/?(\?.*)?$/, '')}
                     </QuaternaryButton>
-                  </Tooltip>
+                  </SimpleTooltip>
                 )}
               </div>
               {profile.id === user?.id && (

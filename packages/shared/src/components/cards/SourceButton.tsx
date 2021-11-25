@@ -1,14 +1,9 @@
 import React, { CSSProperties, ReactElement, useRef } from 'react';
 import Link from 'next/link';
 import classNames from 'classnames';
-import dynamic from 'next/dynamic';
 import { Post } from '../../graphql/posts';
-import { TooltipPosition } from '../tooltips/TooltipContainer';
-import { getShouldLoadTooltip } from '../tooltips/LazyTooltip';
-
-const LazyTooltip = dynamic(
-  () => import(/* webpackChunkName: "lazyTooltip" */ '../tooltips/LazyTooltip'),
-);
+import { TooltipPosition } from '../tooltips/BaseTooltipContainer';
+import { BaseTooltip, getShouldLoadTooltip } from '../tooltips/BaseTooltip';
 
 export default function SourceButton({
   post,
@@ -26,7 +21,7 @@ export default function SourceButton({
   return (
     <>
       {getShouldLoadTooltip() && (
-        <LazyTooltip
+        <BaseTooltip
           placement={tooltipPosition}
           content={post.source.name}
           reference={sourceRef}

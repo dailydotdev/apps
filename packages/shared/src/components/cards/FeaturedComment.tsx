@@ -1,6 +1,5 @@
 import React, { ReactElement } from 'react';
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
 import classNames from 'classnames';
 import { Comment } from '../../graphql/comments';
 import {
@@ -11,10 +10,7 @@ import {
 import ArrowIcon from '../../../icons/arrow.svg';
 import CommentIcon from '../../../icons/comment.svg';
 import { Button } from '../buttons/Button';
-
-const Tooltip = dynamic(
-  () => import(/* webpackChunkName: "tooltip" */ '../tooltips/Tooltip'),
-);
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 export type FeaturedCommentProps = {
   featuredComments: Comment[];
@@ -36,14 +32,14 @@ export default function FeaturedComment({
       className={classNames('absolute inset-0 p-2', className)}
     >
       <CardHeader>
-        <Tooltip placement="bottom" content="Back">
+        <SimpleTooltip placement="bottom" content="Back">
           <Button
             icon={<ArrowIcon style={{ transform: 'rotate(-90deg)' }} />}
             buttonSize="small"
             onClick={onBack}
             className="btn-tertiary"
           />
-        </Tooltip>
+        </SimpleTooltip>
         {featuredCommentsToButtons(
           featuredComments,
           onCommentClick,

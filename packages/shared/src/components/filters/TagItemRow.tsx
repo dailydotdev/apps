@@ -1,13 +1,9 @@
 import React, { HTMLAttributes, ReactElement } from 'react';
-import dynamic from 'next/dynamic';
 import { FilterItem } from './common';
 import { Button } from '../buttons/Button';
 import TagButton from './TagButton';
 import { TagActionArguments } from '../../hooks/useTagAndSource';
-
-const Tooltip = dynamic(
-  () => import(/* webpackChunkName: "tooltip" */ '../tooltips/Tooltip'),
-);
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 type TagItemRowProps = {
   tooltip: string;
@@ -45,14 +41,14 @@ export default function TagItemRow({
         onUnfollowTags={onUnfollowTags}
         onUnblockTags={onUnblockTags}
       />
-      <Tooltip placement="left" content={tooltip}>
+      <SimpleTooltip placement="left" content={tooltip}>
         <Button
           className="right-4 my-auto btn-tertiary"
           style={{ position: 'absolute' }}
           onClick={(event) => onClick?.(event, tag)}
           icon={rowIcon}
         />
-      </Tooltip>
+      </SimpleTooltip>
     </FilterItem>
   );
 }

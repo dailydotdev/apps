@@ -1,17 +1,13 @@
 import React, { ReactNode } from 'react';
 import classNames from 'classnames';
-import dynamic from 'next/dynamic';
 import { LazyImage } from '../LazyImage';
 import { Comment } from '../../graphql/comments';
 import styles from './Card.module.css';
 import classed from '../../lib/classed';
 import { Post } from '../../graphql/posts';
 import { ProfilePicture } from '../ProfilePicture';
-import { TooltipPosition } from '../tooltips/TooltipContainer';
-
-const Tooltip = dynamic(
-  () => import(/* webpackChunkName: "tooltip" */ '../tooltips/Tooltip'),
-);
+import { TooltipPosition } from '../tooltips/BaseTooltipContainer';
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 const Title = classed(
   'h3',
@@ -94,7 +90,7 @@ export const featuredCommentsToButtons = (
   tooltipPosition: TooltipPosition = 'bottom',
 ): ReactNode[] =>
   comments?.map((comment) => (
-    <Tooltip
+    <SimpleTooltip
       key={comment.id}
       placement={tooltipPosition}
       content={`See ${comment.author.name}'s comment`}
@@ -113,5 +109,5 @@ export const featuredCommentsToButtons = (
           className="rounded-full"
         />
       </button>
-    </Tooltip>
+    </SimpleTooltip>
   ));

@@ -1,14 +1,10 @@
 import React, { ReactElement } from 'react';
-import dynamic from 'next/dynamic';
 import { FilterItem } from './common';
 import { Source } from '../../graphql/sources';
 import { LazyImage } from '../LazyImage';
 import { Button } from '../buttons/Button';
 import BlockIcon from '../../../icons/block.svg';
-
-const Tooltip = dynamic(
-  () => import(/* webpackChunkName: "tooltip" */ '../tooltips/Tooltip'),
-);
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 export default function SourceItemRow({
   source,
@@ -31,7 +27,7 @@ export default function SourceItemRow({
           {source.name}
         </span>
       </a>
-      <Tooltip
+      <SimpleTooltip
         placement="left"
         content={blocked ? 'Unblock source' : 'Block source'}
       >
@@ -41,7 +37,7 @@ export default function SourceItemRow({
           onClick={() => onSourceClick?.(source)}
           icon={<BlockIcon />}
         />
-      </Tooltip>
+      </SimpleTooltip>
     </FilterItem>
   );
 }

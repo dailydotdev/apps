@@ -1,6 +1,5 @@
 import React, { FunctionComponent, ReactElement, useContext } from 'react';
 import classNames from 'classnames';
-import dynamic from 'next/dynamic';
 import CopyIcon from '../../icons/copy.svg';
 import WhatsappIcon from '../../icons/whatsapp_color.svg';
 import TwitterIcon from '../../icons/twitter_color.svg';
@@ -18,10 +17,7 @@ import styles from './ShareBar.module.css';
 import classed from '../lib/classed';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
-
-const Tooltip = dynamic(
-  () => import(/* webpackChunkName: "tooltip" */ './tooltips/Tooltip'),
-);
+import { SimpleTooltip } from './tooltips/SimpleTooltip';
 
 const ShareButton = classed(Button, 'my-1');
 const ColorfulShareButton = classed(
@@ -56,7 +52,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
             Copied!
           </div>
         )}
-        <Tooltip content="Copy link">
+        <SimpleTooltip content="Copy link">
           <ShareButton
             onClick={copyLink}
             pressed={copying}
@@ -64,8 +60,8 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
             buttonSize="small"
             className="btn-tertiary-avocado"
           />
-        </Tooltip>
-        <Tooltip content="Share on WhatsApp">
+        </SimpleTooltip>
+        <SimpleTooltip content="Share on WhatsApp">
           <ColorfulShareButton
             tag="a"
             href={getWhatsappShareLink(href)}
@@ -76,8 +72,8 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
             buttonSize="small"
             className="btn-tertiary"
           />
-        </Tooltip>
-        <Tooltip content="Share on Twitter">
+        </SimpleTooltip>
+        <SimpleTooltip content="Share on Twitter">
           <ColorfulShareButton
             tag="a"
             href={getTwitterShareLink(href, post.title)}
@@ -88,8 +84,8 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
             buttonSize="small"
             className="btn-tertiary"
           />
-        </Tooltip>
-        <Tooltip content="Share on Facebook">
+        </SimpleTooltip>
+        <SimpleTooltip content="Share on Facebook">
           <ColorfulShareButton
             tag="a"
             href={getFacebookShareLink(href)}
@@ -100,7 +96,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
             buttonSize="small"
             className="btn-tertiary"
           />
-        </Tooltip>
+        </SimpleTooltip>
       </div>
     </div>
   );
