@@ -22,7 +22,7 @@ export function BaseTooltipContainer({
     <div
       data-popper-placement={placement}
       className={classNames(
-        'relative flex items-center py-1 px-3 rounded-10 bg-theme-label-primary text-theme-label-invert typo-subhead',
+        'relative flex flex-row items-center py-1 px-3 rounded-10 bg-theme-label-primary text-theme-label-invert typo-subhead',
         className,
       )}
     >
