@@ -9,15 +9,12 @@ const TippyTooltip = dynamicParent<
   Omit<BaseTooltipProps, 'render' | 'allowHTML'>
 >(() => BaseTooltipLoader().then((mod) => mod.BaseTooltip), React.Fragment);
 
-interface TooltipProps extends Omit<BaseTooltipProps, 'render'> {
-  disableTooltip?: boolean;
-}
+type TooltipProps = Omit<BaseTooltipProps, 'render'>;
 
 export function SimpleTooltip({
   children,
   content,
   allowHTML,
-  disableTooltip,
   ...props
 }: TooltipProps): ReactElement {
   const component = useMemo(
@@ -31,7 +28,7 @@ export function SimpleTooltip({
 
   return (
     <TippyTooltip
-      shouldLoad={getShouldLoadTooltip(disableTooltip)}
+      shouldLoad={getShouldLoadTooltip()}
       {...props}
       content={content}
     >
