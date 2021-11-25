@@ -1,8 +1,7 @@
 import React, { HTMLAttributes, ReactElement, useRef } from 'react';
-import Link from 'next/link';
 import classNames from 'classnames';
 import { PublicProfile } from '../../lib/user';
-import { BaseTooltip, getShouldLoadTooltip } from '../tooltips/BaseTooltip';
+import LinkWithTooltip from '../tooltips/LinkWithTooltip';
 
 export interface ProfileLinkProps extends HTMLAttributes<HTMLAnchorElement> {
   user: Pick<PublicProfile, 'image' | 'permalink' | 'username' | 'name'>;
@@ -18,19 +17,19 @@ export function ProfileLink({
 }: ProfileLinkProps): ReactElement {
   const userRef = useRef();
   return (
-    <>
-      {getShouldLoadTooltip(disableTooltip) && (
-        <BaseTooltip content={user.name} reference={userRef} />
-      )}
-      <Link href={user.permalink} passHref prefetch={false}>
-        <a
-          {...props}
-          className={classNames(className, 'flex items-center no-underline')}
-          ref={userRef}
-        >
-          {children}
-        </a>
-      </Link>
-    </>
+    <LinkWithTooltip
+      href={user.permalink}
+      passHref
+      prefetch={false}
+      tooltip={{ content: user.name }}
+    >
+      <a
+        {...props}
+        className={classNames(className, 'flex items-center no-underline')}
+        ref={userRef}
+      >
+        {children}
+      </a>
+    </LinkWithTooltip>
   );
 }

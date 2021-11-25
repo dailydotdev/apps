@@ -3,7 +3,6 @@ import React, {
   ReactElement,
   ReactNode,
   useContext,
-  useRef,
   useState,
 } from 'react';
 import dynamic from 'next/dynamic';
@@ -21,8 +20,8 @@ import BookmarkIcon from '../../icons/bookmark.svg';
 import styles from './MainLayout.module.css';
 import LayoutIcon from '../../icons/layout.svg';
 import ProfileButton from './profile/ProfileButton';
-import { BaseTooltip, getShouldLoadTooltip } from './tooltips/BaseTooltip';
 import { SimpleTooltip } from './tooltips/SimpleTooltip';
+import LinkWithTooltip from './tooltips/LinkWithTooltip';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -65,7 +64,6 @@ export default function MainLayout({
   const { user, showLogin, loadingUser } = useContext(AuthContext);
   const [showSettings, setShowSettings] = useState(false);
   const [showGreeting, setShowGreeting] = useState(false);
-  const homeRef = useRef();
 
   const afterBookmarkButtons = (
     <>
@@ -95,21 +93,14 @@ export default function MainLayout({
             : 'non-responsive-header'
         }`}
       >
-        {getShouldLoadTooltip() && (
-          <BaseTooltip placement="right" content="Home" reference={homeRef} />
-        )}
-        <Link
+        <LinkWithTooltip
           href={process.env.NEXT_PUBLIC_WEBAPP_URL}
           passHref
           prefetch={false}
+          tooltip={{ placement: 'right', content: 'Home' }}
         >
           {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
-          <a
-            className="flex items-center"
-            onClick={onLogoClick}
-            ref={homeRef}
-            aria-label="Home"
-          >
+          <a className="flex items-center" onClick={onLogoClick}>
             <Logo className={styles.homeSvg} />
             <CSSTransition
               in={!showGreeting}
@@ -125,7 +116,7 @@ export default function MainLayout({
               />
             </CSSTransition>
           </a>
-        </Link>
+        </LinkWithTooltip>
         {windowLoaded && greeting && (
           <Greeting
             user={user}

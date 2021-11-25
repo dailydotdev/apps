@@ -4,7 +4,6 @@ import React, {
   ReactNode,
   useContext,
 } from 'react';
-import Link from 'next/link';
 import { Flipper, Flipped } from 'react-flip-toolkit';
 import HomeIcon from '@dailydotdev/shared/icons/home.svg';
 import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
@@ -12,6 +11,7 @@ import LayoutIcon from '@dailydotdev/shared/icons/layout.svg';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useRouter } from 'next/router';
 import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
+import LinkWithTooltip from '@dailydotdev/shared/src/components/tooltips/LinkWithTooltip';
 import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities';
 import {
   Button,
@@ -78,16 +78,19 @@ export default function FooterNavBar(): ReactElement {
       {tabs.map((tab, index) => (
         <div key={tab.path} className="relative">
           {!tab.requiresLogin || user ? (
-            <Link href={tab.path} prefetch={false} passHref>
-              <SimpleTooltip content={tab.title}>
-                <Button
-                  {...buttonProps}
-                  tag="a"
-                  icon={tab.icon}
-                  pressed={index === selectedTab}
-                />
-              </SimpleTooltip>
-            </Link>
+            <LinkWithTooltip
+              href={tab.path}
+              prefetch={false}
+              passHref
+              tooltip={{ content: tab.title }}
+            >
+              <Button
+                {...buttonProps}
+                tag="a"
+                icon={tab.icon}
+                pressed={index === selectedTab}
+              />
+            </LinkWithTooltip>
           ) : (
             <SimpleTooltip content={tab.title}>
               <Button

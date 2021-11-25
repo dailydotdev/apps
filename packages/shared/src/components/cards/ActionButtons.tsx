@@ -1,5 +1,4 @@
-import React, { ReactElement, ReactNode, useRef } from 'react';
-import Link from 'next/link';
+import React, { ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import styles from './Card.module.css';
@@ -11,8 +10,8 @@ import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import CommentIcon from '../../../icons/comment.svg';
 import BookmarkIcon from '../../../icons/bookmark.svg';
 import { Button } from '../buttons/Button';
-import { BaseTooltip, getShouldLoadTooltip } from '../tooltips/BaseTooltip';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
+import LinkWithTooltip from '../tooltips/LinkWithTooltip';
 
 const ShareIcon = dynamic(() => import('../../../icons/share.svg'));
 
@@ -37,8 +36,6 @@ export default function ActionButtons({
   className,
   children,
 }: ActionButtonsProps): ReactElement {
-  const commentRef = useRef();
-
   return (
     <div
       className={classNames(
@@ -60,27 +57,27 @@ export default function ActionButtons({
           <InteractionCounter value={post.numUpvotes > 0 && post.numUpvotes} />
         </QuaternaryButton>
       </SimpleTooltip>
-      {getShouldLoadTooltip() && (
-        <BaseTooltip content="Comments" reference={commentRef} />
-      )}
-      <Link href={post.commentsPermalink} passHref prefetch={false}>
+      <LinkWithTooltip
+        href={post.commentsPermalink}
+        passHref
+        prefetch={false}
+        tooltip={{ content: 'Comments' }}
+      >
         <QuaternaryButton
           id={`post-${post.id}-comment-btn`}
           tag="a"
           icon={<CommentIcon />}
           buttonSize="small"
           pressed={post.commented}
-          aria-label="Comments"
           onClick={() => onCommentClick?.(post)}
           style={{ width: rem(78) }}
           className="btn-tertiary-avocado"
-          ref={commentRef}
         >
           <InteractionCounter
             value={post.numComments > 0 && post.numComments}
           />
         </QuaternaryButton>
-      </Link>
+      </LinkWithTooltip>
       <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
         <Button
           icon={<BookmarkIcon />}
