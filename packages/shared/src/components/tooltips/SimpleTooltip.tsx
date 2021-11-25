@@ -5,23 +5,26 @@ import { getShouldLoadTooltip, BaseTooltipProps } from './BaseTooltip';
 const BaseTooltipLoader = () =>
   import(/* webpackChunkName: "lazyTooltip" */ './BaseTooltip');
 
-const TippyTooltip = dynamicParent<
-  Omit<BaseTooltipProps, 'render' | 'allowHTML'>
->(() => BaseTooltipLoader().then((mod) => mod.BaseTooltip), React.Fragment);
+export type SimpleTooltipProps = Pick<
+  BaseTooltipProps,
+  'content' | 'children' | 'placement'
+>;
 
-type TooltipProps = Omit<BaseTooltipProps, 'render'>;
+const TippyTooltip = dynamicParent<SimpleTooltipProps>(
+  () => BaseTooltipLoader().then((mod) => mod.BaseTooltip),
+  React.Fragment,
+);
 
 export function SimpleTooltip({
   children,
   content,
-  allowHTML,
   ...props
-}: TooltipProps): ReactElement {
+}: SimpleTooltipProps): ReactElement {
   const component = useMemo(
     () =>
       React.cloneElement(children, {
         ...children.props,
-        'aria-label': allowHTML ? children.props['aria-label'] : content,
+        'aria-label': typeof content === 'string' && content,
       }),
     [children],
   );

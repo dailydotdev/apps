@@ -1,14 +1,11 @@
 import React, { ReactElement, useMemo, useState } from 'react';
 import Link, { LinkProps } from 'next/link';
-import {
-  BaseTooltip,
-  BaseTooltipProps,
-  getShouldLoadTooltip,
-} from './BaseTooltip';
+import { BaseTooltip, getShouldLoadTooltip } from './BaseTooltip';
+import { SimpleTooltipProps } from './SimpleTooltip';
 
 interface LinkWithTooltipProps extends LinkProps {
   children?: ReactElement;
-  tooltip: BaseTooltipProps;
+  tooltip: SimpleTooltipProps;
 }
 
 function LinkWithTooltip({
