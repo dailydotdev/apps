@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo, useRef } from 'react';
+import React, { ReactElement, useMemo, useState } from 'react';
 import Link, { LinkProps } from 'next/link';
 import {
   BaseTooltip,
@@ -16,20 +16,22 @@ function LinkWithTooltip({
   tooltip,
   ...props
 }: LinkWithTooltipProps): ReactElement {
-  const ref = useRef();
+  const [element, setElement] = useState<Element>();
   const component = useMemo(
     () =>
       React.cloneElement(children, {
         ...children.props,
         'aria-label': tooltip.content,
-        ref,
+        ref: (el: Element) => setElement(el),
       }),
     [children],
   );
 
   return (
     <>
-      {getShouldLoadTooltip() && <BaseTooltip {...tooltip} reference={ref} />}
+      {getShouldLoadTooltip() && (
+        <BaseTooltip {...tooltip} reference={element} />
+      )}
       <Link {...props}>{component}</Link>
     </>
   );
