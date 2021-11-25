@@ -39,7 +39,7 @@ export type ButtonProps<Tag extends AllowedTags> = BaseButtonProps &
     ref?: Ref<ProperButtonType<Tag>>;
   };
 
-export default function ButtonComponent<TagName extends AllowedTags>(
+function ButtonComponent<TagName extends AllowedTags>(
   {
     loading,
     pressed,

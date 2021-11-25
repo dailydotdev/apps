@@ -15,7 +15,7 @@ type QuandaryButtonProps = {
   responsiveLabelClass?: string;
 };
 
-export default function QuaternaryButtonComponent<TagName extends AllowedTags>(
+function QuaternaryButtonComponent<TagName extends AllowedTags>(
   {
     id,
     children,

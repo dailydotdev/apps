@@ -14,7 +14,7 @@ export type ClickableTextProps<Tag extends AvailableTags> =
   BaseClickableTextProps & JSX.IntrinsicElements[Tag];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
-export default function ClickableTextComponent<Tag extends AvailableTags>(
+function ClickableTextComponent<Tag extends AvailableTags>(
   {
     disabled,
     pressed,
