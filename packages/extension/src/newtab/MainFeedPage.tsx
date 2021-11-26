@@ -12,19 +12,13 @@ import dynamic from 'next/dynamic';
 import TimerIcon from '@dailydotdev/shared/icons/timer.svg';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import MostVisitedSites from './MostVisitedSites';
 
 const PostsSearch = dynamic(
   () =>
     import(
       /* webpackChunkName: "search" */ '@dailydotdev/shared/src/components/PostsSearch'
-    ),
-);
-
-const SimpleTooltip = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "tooltip" */ '@dailydotdev/shared/src/components/tooltips/SimpleTooltip'
     ),
 );
 
