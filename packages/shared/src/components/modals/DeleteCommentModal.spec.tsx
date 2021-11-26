@@ -37,13 +37,6 @@ const renderComponent = (
   );
 };
 
-it('should close modal on cancel', async () => {
-  renderComponent();
-  const el = await screen.findByText('Cancel');
-  el.click();
-  expect(onRequestClose).toBeCalledTimes(1);
-});
-
 it('should send deleteComment mutation', async () => {
   let mutationCalled = false;
   renderComponent({}, [

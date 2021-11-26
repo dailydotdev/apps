@@ -37,6 +37,7 @@ import { Post } from '../../graphql/posts';
 import { postAnalyticsEvent } from '../../lib/feed';
 import { ProfilePicture } from '../ProfilePicture';
 import Markdown from '../Markdown';
+import { ClickableText } from '../buttons/ClickableText';
 
 const DiscardCommentModal = dynamic(() => import('./DiscardCommentModal'));
 
@@ -322,9 +323,15 @@ export default function NewCommentModal({
         {errorMessage && <span role="alert">{errorMessage}</span>}
       </div>
       <footer className="flex justify-between items-center py-2 border-t border-theme-divider-tertiary">
-        <Button className="btn-tertiary" onClick={confirmClose}>
-          Cancel
-        </Button>
+        <ClickableText
+          tag="a"
+          href="https://www.markdownguide.org/cheat-sheet/"
+          className="ml-4 typo-caption1"
+          defaultTypo={false}
+          target="_blank"
+        >
+          Markdown supported
+        </ClickableText>
         <Button
           disabled={!input?.length}
           loading={sendingComment}
