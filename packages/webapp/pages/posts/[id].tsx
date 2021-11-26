@@ -131,6 +131,7 @@ interface ParentComment {
   authorImage: string;
   publishDate: Date | string;
   content: string;
+  content_html: string;
   commentId: string | null;
   post: Post;
   editContent?: string;
@@ -344,6 +345,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         authorName: postById.post.source.name,
         authorImage: postById.post.source.image,
         content: postById.post.title,
+        content_html: postById.post.title,
         publishDate: postById.post.createdAt,
         commentId: null,
         post: postById.post,
@@ -379,6 +381,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         authorName: comment.author.name,
         authorImage: comment.author.image,
         content: comment.content,
+        content_html: comment.content_html,
         publishDate: comment.lastUpdatedAt || comment.createdAt,
         commentId: parentId,
         post: postById.post,

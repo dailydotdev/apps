@@ -49,7 +49,7 @@ export default function SubComment({
           <CommentAuthor postAuthorId={postAuthorId} author={comment.author} />
           <CommentPublishDate comment={comment} />
           <div className="mt-2">
-            <CommentMarkdown>{comment.content}</CommentMarkdown>
+            <CommentMarkdown>{comment.content_html}</CommentMarkdown>
           </div>
         </SubCommentBox>
         <CommentActionButtons

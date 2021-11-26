@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import ReactMarkdown from 'react-markdown';
+import { sanitize } from 'dompurify';
 import styles from './comments.module.css';
 
 export default function CommentMarkdown({
@@ -7,5 +7,10 @@ export default function CommentMarkdown({
 }: {
   children: string;
 }): ReactElement {
-  return <ReactMarkdown className={styles.markdown}>{children}</ReactMarkdown>;
+  return (
+    <div
+      className={styles.markdown}
+      dangerouslySetInnerHTML={{ __html: sanitize(children) }}
+    />
+  );
 }
