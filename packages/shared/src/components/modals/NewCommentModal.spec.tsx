@@ -109,13 +109,6 @@ it('should show content of parent', async () => {
   await screen.findByText('This is the main comment');
 });
 
-it('should close modal on cancel', async () => {
-  renderComponent();
-  const el = await screen.findByText('Cancel');
-  el.click();
-  expect(onRequestClose).toBeCalledTimes(1);
-});
-
 it('should disable submit button when no input', async () => {
   renderComponent();
   const el = await screen.findByText('Comment');
