@@ -399,6 +399,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         authorName: localParentComment.author.name,
         authorImage: localParentComment.author.image,
         content: localParentComment.content,
+        content_html: localParentComment.content_html,
         publishDate:
           localParentComment.lastUpdatedAt || localParentComment.createdAt,
         commentId: localParentComment.id,
@@ -410,6 +411,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         authorName: postById.post.source.name,
         authorImage: postById.post.source.image,
         content: postById.post.title,
+        content_html: postById.post.title,
         publishDate: postById.post.createdAt,
         commentId: null,
         post: postById.post,
