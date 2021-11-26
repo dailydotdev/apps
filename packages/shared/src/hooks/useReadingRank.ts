@@ -30,12 +30,16 @@ const defaultRank: MyRankData = {
   reads: 0,
 };
 
-const checkShouldShowRankModal = (rankLastSeen: Date) => {
+const checkShouldShowRankModal = (rankLastSeen: Date, lastReadTime: Date) => {
   if (!rankLastSeen) {
     return true;
   }
 
-  return new Date(rankLastSeen) < new Date();
+  if (!lastReadTime) {
+    return true;
+  }
+
+  return new Date(rankLastSeen) < new Date(lastReadTime);
 };
 
 export default function useReadingRank(): ReturnType {
@@ -48,9 +52,6 @@ export default function useReadingRank(): ReturnType {
     MyRankData & { userId: string; neverShowRankModal?: boolean }
   >('rank', null);
   const neverShowRankModal = cachedRank?.neverShowRankModal;
-  const shouldShowRankModal = user
-    ? checkShouldShowRankModal(alerts.rankLastSeen)
-    : !neverShowRankModal;
   const queryKey = getRankQueryKey(user);
   const { data: remoteRank } = useQuery<MyRankData>(
     queryKey,
@@ -75,6 +76,13 @@ export default function useReadingRank(): ReturnType {
       userId: user?.id,
       neverShowRankModal: newNeverShowRankModal,
     });
+
+  const shouldShowRankModal =
+    !neverShowRankModal ??
+    checkShouldShowRankModal(
+      alerts.rankLastSeen,
+      cachedRank?.rank?.lastReadTime || remoteRank?.rank?.lastReadTime,
+    );
 
   const updateShownProgress = async () => {
     if (document.visibilityState === 'hidden') {
@@ -133,12 +141,14 @@ export default function useReadingRank(): ReturnType {
   }, [user, tokenRefreshed, loadedCache]);
 
   useEffect(() => {
-    if (!neverShowRankModal || !user) {
+    if (!neverShowRankModal || !user || !alerts?.rankLastSeen) {
       return;
     }
 
-    updateAlerts({ rankLastSeen: MAX_DATE });
-  }, [cachedRank, user]);
+    if (new Date(alerts.rankLastSeen) !== MAX_DATE) {
+      updateAlerts({ rankLastSeen: MAX_DATE });
+    }
+  }, [cachedRank, alerts, user]);
 
   return {
     isLoading: !cachedRank,
