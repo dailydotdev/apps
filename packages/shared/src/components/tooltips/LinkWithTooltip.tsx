@@ -8,7 +8,7 @@ interface LinkWithTooltipProps extends LinkProps {
   tooltip: SimpleTooltipProps;
 }
 
-function LinkWithTooltip({
+export function LinkWithTooltip({
   children,
   tooltip,
   ...props
@@ -33,5 +33,3 @@ function LinkWithTooltip({
     </>
   );
 }
-
-export default LinkWithTooltip;

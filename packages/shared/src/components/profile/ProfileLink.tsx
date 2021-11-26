@@ -2,7 +2,7 @@ import React, { HTMLAttributes, ReactElement } from 'react';
 import Link from 'next/link';
 import classNames from 'classnames';
 import { PublicProfile } from '../../lib/user';
-import LinkWithTooltip from '../tooltips/LinkWithTooltip';
+import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 
 export interface ProfileLinkProps extends HTMLAttributes<HTMLAnchorElement> {
   user: Pick<PublicProfile, 'image' | 'permalink' | 'username' | 'name'>;

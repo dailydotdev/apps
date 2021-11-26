@@ -21,7 +21,7 @@ import styles from './MainLayout.module.css';
 import LayoutIcon from '../../icons/layout.svg';
 import ProfileButton from './profile/ProfileButton';
 import { SimpleTooltip } from './tooltips/SimpleTooltip';
-import LinkWithTooltip from './tooltips/LinkWithTooltip';
+import { LinkWithTooltip } from './tooltips/LinkWithTooltip';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;

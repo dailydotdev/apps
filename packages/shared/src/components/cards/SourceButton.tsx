@@ -2,7 +2,7 @@ import React, { CSSProperties, ReactElement } from 'react';
 import classNames from 'classnames';
 import { Post } from '../../graphql/posts';
 import { TooltipPosition } from '../tooltips/BaseTooltipContainer';
-import LinkWithTooltip from '../tooltips/LinkWithTooltip';
+import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 
 export default function SourceButton({
   post,

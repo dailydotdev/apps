@@ -11,7 +11,7 @@ import LayoutIcon from '@dailydotdev/shared/icons/layout.svg';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useRouter } from 'next/router';
 import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
-import LinkWithTooltip from '@dailydotdev/shared/src/components/tooltips/LinkWithTooltip';
+import { LinkWithTooltip } from '@dailydotdev/shared/src/components/tooltips/LinkWithTooltip';
 import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities';
 import {
   Button,

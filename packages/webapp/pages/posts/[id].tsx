@@ -62,7 +62,7 @@ import useReportPostMenu from '@dailydotdev/shared/src/hooks/useReportPostMenu';
 import MenuIcon from '@dailydotdev/shared/icons/menu.svg';
 import { CardNotification } from '@dailydotdev/shared/src/components/cards/Card';
 import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
-import LinkWithTooltip from '@dailydotdev/shared/src/components/tooltips/LinkWithTooltip';
+import { LinkWithTooltip } from '@dailydotdev/shared/src/components/tooltips/LinkWithTooltip';
 import PostToc from '../../components/widgets/PostToc';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import styles from './postPage.module.css';

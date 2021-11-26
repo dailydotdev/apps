@@ -11,7 +11,7 @@ import CommentIcon from '../../../icons/comment.svg';
 import BookmarkIcon from '../../../icons/bookmark.svg';
 import { Button } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import LinkWithTooltip from '../tooltips/LinkWithTooltip';
+import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 
 const ShareIcon = dynamic(() => import('../../../icons/share.svg'));
 
