@@ -6,12 +6,7 @@ export const ElementPlaceholder = ({
   ...props
 }: HTMLAttributes<HTMLDivElement>): ReactElement => (
   <div
-    className={classNames(
-      className,
-      'element-placeholder relative overflow-hidden bg-theme-float',
-    )}
+    className={classNames(className, 'relative overflow-hidden bg-theme-float')}
     {...props}
-  >
-    <div className="absolute top-0 left-0 w-full h-full" />
-  </div>
+  />
 );
