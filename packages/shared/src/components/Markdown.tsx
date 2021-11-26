@@ -1,8 +1,8 @@
 import React, { ReactElement } from 'react';
 import { sanitize } from 'dompurify';
-import styles from './comments.module.css';
+import styles from './markdown.module.css';
 
-export default function CommentMarkdown({
+export default function Markdown({
   children,
 }: {
   children: string;

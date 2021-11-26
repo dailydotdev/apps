@@ -36,7 +36,7 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { Post } from '../../graphql/posts';
 import { postAnalyticsEvent } from '../../lib/feed';
 import { ProfilePicture } from '../ProfilePicture';
-import CommentMarkdown from '../comments/CommentMarkdown';
+import Markdown from '../Markdown';
 
 const DiscardCommentModal = dynamic(() => import('./DiscardCommentModal'));
 
@@ -285,7 +285,7 @@ export default function NewCommentModal({
             </time>
           </div>
         </header>
-        <CommentMarkdown>{content_html}</CommentMarkdown>
+        <Markdown>{content_html}</Markdown>
       </article>
       <div className="flex items-center px-2 h-11">
         <div className="ml-3 w-px h-full bg-theme-divider-tertiary" />
