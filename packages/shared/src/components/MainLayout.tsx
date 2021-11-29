@@ -21,6 +21,7 @@ import BookmarkIcon from '../../icons/bookmark.svg';
 import styles from './MainLayout.module.css';
 import LayoutIcon from '../../icons/layout.svg';
 import ProfileButton from './profile/ProfileButton';
+import FeedSettingsModal from './modals/FeedSettingsModal';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -68,13 +69,16 @@ export default function MainLayout({
     <>
       {additionalButtons}
       {mainPage && (
-        <HeaderButton
-          icon={<LayoutIcon />}
-          {...getTooltipProps('Settings', { position: 'down' })}
-          className="btn-tertiary"
-          onClick={() => setShowSettings(!showSettings)}
-          pressed={showSettings}
-        />
+        <>
+          <HeaderButton
+            icon={<LayoutIcon />}
+            {...getTooltipProps('Settings', { position: 'down' })}
+            className="btn-tertiary"
+            onClick={() => setShowSettings(!showSettings)}
+            pressed={showSettings}
+          />
+          <FeedSettingsModal />
+        </>
       )}
     </>
   );
