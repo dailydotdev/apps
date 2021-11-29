@@ -45,7 +45,7 @@ const renderComponent = (
     authorName: 'Nimrod',
     publishDate: new Date(2017, 1, 10, 0, 0),
     content: 'This is the main comment',
-    content_html: '<p>This is the main comment</p>',
+    contentHtml: '<p>This is the main comment</p>',
     commentId: null,
     post: {
       id: 'p1',

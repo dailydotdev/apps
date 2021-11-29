@@ -8,7 +8,7 @@ import SubComment, { Props } from './SubComment';
 const baseComment = {
   id: 'c2',
   content: 'my comment',
-  content_html: '<p>my comment</p>',
+  contentHtml: '<p>my comment</p>',
   author: {
     image: 'https://daily.dev/ido.png',
     id: 'u1',

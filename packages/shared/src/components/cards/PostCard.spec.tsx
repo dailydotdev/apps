@@ -31,7 +31,7 @@ const defaultPost: Post = {
     {
       permalink: 'https://app.daily.dev/c1',
       content: 'My featured comment',
-      content_html: '<p>My featured comment</p>',
+      contentHtml: '<p>My featured comment</p>',
       author: {
         username: 'nimrodkramer',
         name: 'Nimrod',

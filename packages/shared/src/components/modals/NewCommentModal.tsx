@@ -46,7 +46,7 @@ export interface NewCommentModalProps extends ModalProps {
   authorImage: string;
   publishDate: Date | string;
   content: string;
-  content_html: string;
+  contentHtml: string;
   commentId: string | null;
   post: Post;
   onComment?: (newComment: Comment, parentId: string | null) => void;
@@ -64,7 +64,7 @@ export default function NewCommentModal({
   authorName,
   publishDate,
   content,
-  content_html,
+  contentHtml,
   onRequestClose,
   onComment,
   editContent,
@@ -286,7 +286,7 @@ export default function NewCommentModal({
             </time>
           </div>
         </header>
-        <Markdown content={content_html} />
+        <Markdown content={contentHtml} />
       </article>
       <div className="flex items-center px-2 h-11">
         <div className="ml-3 w-px h-full bg-theme-divider-tertiary" />

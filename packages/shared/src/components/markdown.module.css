@@ -24,10 +24,13 @@
     @apply typo-body italic pl-7 my-8 border-l border-theme-divider-secondary;
   }
   & :where(pre) {
-    @apply relative bg-theme-divider-quaternary py-8 px-6 my-8 rounded-12 border border-theme-divider-quaternary;
+    @apply relative bg-theme-float py-8 px-6 my-8 rounded-12 border border-theme-divider-quaternary;
+  }
+  & :where(pre) > code {
+    @apply whitespace-pre-wrap;
   }
   & :not(pre) > code {
-    @apply bg-theme-divider-quaternary border border-theme-divider-quaternary px-2 py-1 mx-1 rounded-6;
+    @apply bg-theme-float border border-theme-divider-quaternary px-2 py-1 mx-1 rounded-6;
   }
   & :where(ul) {
     @apply list-disc my-8 pl-8;
@@ -60,7 +63,7 @@
     @apply mb-0;
   }
   & :where(pre) :global(:where(.hljs-comment, .hljs-title)) {
-    color: #989498;
+    color: var(--theme-highlight-comment);
   }
   &
     :where(pre)
@@ -68,28 +71,28 @@
         .hljs-constant, .xml .hljs-tag .hljs-title, .xml .hljs-pi, .xml
         .hljs-doctype, .html .hljs-doctype, .css .hljs-id, .css
         .hljs-class, .css .hljs-pseudo)) {
-    color: #dd464c;
+          color: var(--theme-highlight-red);
   }
   &
     :where(pre)
     :global(:where(.hljs-number, .hljs-preprocessor, .hljs-built_in, .hljs-literal, .hljs-params, .hljs-constant)) {
-    color: #fd8b19;
+      color: var(--theme-highlight-orange);
   }
   &
     :where(pre)
     :global(:where(.ruby .hljs-class .hljs-title, .css
         .hljs-rules
         .hljs-attribute)) {
-    color: #fdcc59;
+          color: var(--theme-highlight-yellow);
   }
   &
     :where(pre)
     :global(:where(.hljs-string, .hljs-value, .hljs-inheritance, .hljs-header, .ruby
         .hljs-symbol, .xml .hljs-cdata)) {
-    color: #8fc13e;
+          color: var(--theme-highlight-green);
   }
   & :where(pre) :global(:where(.css .hljs-hexcolor)) {
-    color: #149b93;
+    color: var(--theme-highlight-aqua);
   }
   &
     :where(pre)
@@ -98,16 +101,15 @@
         .hljs-title
         .hljs-keyword, .perl .hljs-sub, .javascript .hljs-title, .coffeescript
         .hljs-title)) {
-    color: #1290bf;
+          color: var(--theme-highlight-blue);
   }
 
   & :where(pre) :global(:where(.hljs-keyword, .javascript .hljs-function)) {
-    color: #c85e7c;
+    color: var(--theme-highlight-purple);
   }
   & :where(pre) :global(:where(.hljs)) {
     display: block;
-    background: #322931;
-    color: #b9b5b8;
+    color: var(--theme-highlight-label);
     padding: 0.5em;
     font-size: 16px;
     line-height: 1.375;

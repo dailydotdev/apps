@@ -16,7 +16,7 @@ const author = {
 const baseComment = {
   id: 'c1',
   content: 'my comment',
-  content_html: '<p>my comment</p>',
+  contentHtml: '<p>my comment</p>',
   author,
   createdAt: new Date(2017, 1, 10, 0, 0).toISOString(),
   upvoted: false,

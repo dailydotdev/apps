@@ -16,7 +16,7 @@ export interface Comment {
   __typename?: string;
   id: string;
   content: string;
-  content_html: string;
+  contentHtml: string;
   createdAt: string;
   lastUpdatedAt?: string;
   author?: Author;
@@ -38,7 +38,7 @@ export const COMMENT_FRAGMENT = gql`
   fragment CommentFragment on Comment {
     id
     content
-    content_html
+    contentHtml
     createdAt
     lastUpdatedAt
     permalink
