@@ -35,7 +35,7 @@ export default function MainComment({
         </div>
       </div>
       <MainCommentBox>
-        <Markdown>{comment.content_html}</Markdown>
+        <Markdown content={comment.content_html} />
       </MainCommentBox>
       <CommentActionButtons
         comment={comment}

@@ -286,7 +286,7 @@ export default function NewCommentModal({
             </time>
           </div>
         </header>
-        <Markdown>{content_html}</Markdown>
+        <Markdown content={content_html} />
       </article>
       <div className="flex items-center px-2 h-11">
         <div className="ml-3 w-px h-full bg-theme-divider-tertiary" />
