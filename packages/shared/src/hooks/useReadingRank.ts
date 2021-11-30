@@ -147,16 +147,6 @@ export default function useReadingRank(): ReturnType {
     }
   }, [user, tokenRefreshed, loadedCache]);
 
-  useEffect(() => {
-    if (!neverShowRankModal || !user || !alerts?.rankLastSeen) {
-      return;
-    }
-
-    if (new Date(alerts.rankLastSeen) !== MAX_DATE) {
-      updateAlerts({ rankLastSeen: MAX_DATE });
-    }
-  }, [cachedRank, alerts, user]);
-
   return {
     isLoading: !cachedRank,
     rank: cachedRank?.rank.currentRank,
