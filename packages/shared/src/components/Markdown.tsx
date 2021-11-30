@@ -10,7 +10,9 @@ export default function Markdown({
   return (
     <div
       className={styles.markdown}
-      dangerouslySetInnerHTML={{ __html: sanitize(content) }}
+      dangerouslySetInnerHTML={{
+        __html: sanitize(content, { ADD_ATTR: ['target'] }),
+      }}
     />
   );
 }
