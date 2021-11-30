@@ -92,7 +92,6 @@
   width: 0.5rem;
   height: 0.5rem;
   background: inherit;
-  left: calc(50% - 0.25rem);
 }
 
 .tippyTooltipArrow {
@@ -145,10 +144,12 @@
 }
 
 .tippyTooltip[data-popper-placement^='top'] > .tippyTooltipArrow {
+  left: calc(50% - 0.25rem);
   bottom: -0.1875rem;
 }
 
 .tippyTooltip[data-popper-placement^='bottom'] > .tippyTooltipArrow {
+  left: calc(50% - 0.25rem);
   top: -0.1875rem;
 }
 
