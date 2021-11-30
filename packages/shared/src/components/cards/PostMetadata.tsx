@@ -1,7 +1,8 @@
-import React, { ReactElement, ReactNode, useMemo } from 'react';
+import React, { ReactElement, ReactNode, useContext, useMemo } from 'react';
 import classNames from 'classnames';
 import { Post } from '../../graphql/posts';
 import { postDateFormat } from '../../lib/dateFormat';
+import FeaturesContext from '../../contexts/FeaturesContext';
 
 export default function PostMetadata({
   post,
@@ -12,6 +13,7 @@ export default function PostMetadata({
   className?: string;
   children?: ReactNode;
 }): ReactElement {
+  const { flags } = useContext(FeaturesContext);
   const date = useMemo(() => postDateFormat(post.createdAt), [post.createdAt]);
 
   return (
@@ -21,13 +23,13 @@ export default function PostMetadata({
         className,
       )}
     >
-      <time dateTime={post.createdAt}>{date}</time>
-      {!!post.readTime && (
+      {flags && !flags.feat_hide_article_date && (
         <>
+          <time dateTime={post.createdAt}>{date}</time>
           <div className="mx-1 w-0.5 h-0.5 rounded-full bg-theme-label-tertiary" />
-          <span data-testid="readTime">{post.readTime}m read time</span>
         </>
       )}
+      <span data-testid="readTime">{post.readTime}m read time</span>
       {children}
     </div>
   );
