@@ -36,6 +36,8 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { Post } from '../../graphql/posts';
 import { postAnalyticsEvent } from '../../lib/feed';
 import { ProfilePicture } from '../ProfilePicture';
+import Markdown from '../Markdown';
+import { ClickableText } from '../buttons/ClickableText';
 
 const DiscardCommentModal = dynamic(() => import('./DiscardCommentModal'));
 
@@ -44,6 +46,7 @@ export interface NewCommentModalProps extends ModalProps {
   authorImage: string;
   publishDate: Date | string;
   content: string;
+  contentHtml: string;
   commentId: string | null;
   post: Post;
   onComment?: (newComment: Comment, parentId: string | null) => void;
@@ -61,6 +64,7 @@ export default function NewCommentModal({
   authorName,
   publishDate,
   content,
+  contentHtml,
   onRequestClose,
   onComment,
   editContent,
@@ -74,7 +78,6 @@ export default function NewCommentModal({
   const [sendingComment, setSendingComment] = useState<boolean>(false);
   const [showDiscardModal, setShowDiscardModal] = useState<boolean>(false);
   const commentRef = useRef<HTMLDivElement>(null);
-
   const queryClient = useQueryClient();
   const { mutateAsync: comment } = useMutation<
     CommentOnData,
@@ -283,7 +286,7 @@ export default function NewCommentModal({
             </time>
           </div>
         </header>
-        <div>{content}</div>
+        <Markdown content={contentHtml} />
       </article>
       <div className="flex items-center px-2 h-11">
         <div className="ml-3 w-px h-full bg-theme-divider-tertiary" />
@@ -298,7 +301,7 @@ export default function NewCommentModal({
         <ProfilePicture user={user} size="small" />
         <div
           className={classNames(
-            'ml-3 flex-1 text-theme-label-primary bg-none border-none caret-theme-label-link break-words typo-subhead',
+            'ml-3 flex-1 text-theme-label-primary bg-none border-none caret-theme-label-link whitespace-pre-line break-words typo-subhead',
             styles.textarea,
           )}
           ref={commentRef}
@@ -320,9 +323,15 @@ export default function NewCommentModal({
         {errorMessage && <span role="alert">{errorMessage}</span>}
       </div>
       <footer className="flex justify-between items-center py-2 border-t border-theme-divider-tertiary">
-        <Button className="btn-tertiary" onClick={confirmClose}>
-          Cancel
-        </Button>
+        <ClickableText
+          tag="a"
+          href="https://www.markdownguide.org/cheat-sheet/"
+          className="ml-4 typo-caption1"
+          defaultTypo={false}
+          target="_blank"
+        >
+          Markdown supported
+        </ClickableText>
         <Button
           disabled={!input?.length}
           loading={sendingComment}

@@ -8,6 +8,7 @@ import SubComment from './SubComment';
 import { ProfileImageLink } from '../profile/ProfileImageLink';
 import CommentAuthor from './CommentAuthor';
 import classed from '../../lib/classed';
+import Markdown from '../Markdown';
 
 export interface Props extends CommentActionProps {
   comment: Comment;
@@ -33,7 +34,9 @@ export default function MainComment({
           <CommentPublishDate comment={comment} />
         </div>
       </div>
-      <MainCommentBox>{comment.content}</MainCommentBox>
+      <MainCommentBox>
+        <Markdown content={comment.contentHtml} />
+      </MainCommentBox>
       <CommentActionButtons
         comment={comment}
         parentId={comment.id}

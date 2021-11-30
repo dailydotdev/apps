@@ -1,0 +1,127 @@
+.markdown {
+  & :where(h1) {
+    @apply font-bold typo-title2 mt-16 mb-8;
+  }
+  & :where(h2) {
+    @apply font-bold typo-title3 mt-12 mb-7;
+  }
+  & :where(h3) {
+    @apply font-bold typo-headline mt-8 mb-6;
+  }
+  & :where(h4) {
+    @apply typo-headline mt-6 mb-5;
+  }
+  & :where(h5) {
+    @apply text-theme-label-tertiary font-bold typo-body mt-6 mb-4;
+  }
+  & :where(h6) {
+    @apply text-theme-label-tertiary font-bold mt-4 mb-3;
+  }
+  & :where(p) {
+    @apply my-8;
+  }
+  & :where(blockquote) {
+    @apply typo-body italic pl-7 my-8 border-l border-theme-divider-secondary;
+  }
+  & :where(pre) {
+    @apply relative bg-theme-float py-8 px-6 my-8 rounded-12 border border-theme-divider-quaternary;
+  }
+  & :where(pre) > code {
+    @apply whitespace-pre-wrap;
+  }
+  & :not(pre) > code {
+    @apply bg-theme-float border border-theme-divider-quaternary px-2 py-1 mx-1 rounded-6;
+  }
+  & :where(ul) {
+    @apply list-disc my-8 pl-8;
+  }
+  & :where(ol) {
+    @apply list-decimal my-8 pl-8;
+  }
+  & :where(li) {
+    @apply my-2 pl-2;
+  }
+  & ::marker {
+    @apply text-theme-label-secondary;
+  }
+  & :where(ul ul, ul ol, ol ul, ol ol) {
+    @apply my-2;
+  }
+  & :where(a) {
+    @apply hover:underline;
+  }
+  & :where(hr) {
+    @apply border-theme-divider-secondary my-10;
+  }
+  & :where(img) {
+    @apply rounded-16;
+  }
+  & > :where(:first-child) {
+    @apply mt-0;
+  }
+  & > :where(:last-child) {
+    @apply mb-0;
+  }
+  & :where(pre) :global(:where(.hljs-comment, .hljs-title)) {
+    color: var(--theme-highlight-comment);
+  }
+  &
+    :where(pre)
+    :global(:where(.hljs-variable, .hljs-attribute, .hljs-tag, .hljs-regexp, .ruby
+        .hljs-constant, .xml .hljs-tag .hljs-title, .xml .hljs-pi, .xml
+        .hljs-doctype, .html .hljs-doctype, .css .hljs-id, .css
+        .hljs-class, .css .hljs-pseudo)) {
+          color: var(--theme-highlight-red);
+  }
+  &
+    :where(pre)
+    :global(:where(.hljs-number, .hljs-preprocessor, .hljs-built_in, .hljs-literal, .hljs-params, .hljs-constant)) {
+      color: var(--theme-highlight-orange);
+  }
+  &
+    :where(pre)
+    :global(:where(.ruby .hljs-class .hljs-title, .css
+        .hljs-rules
+        .hljs-attribute)) {
+          color: var(--theme-highlight-yellow);
+  }
+  &
+    :where(pre)
+    :global(:where(.hljs-string, .hljs-value, .hljs-inheritance, .hljs-header, .ruby
+        .hljs-symbol, .xml .hljs-cdata)) {
+          color: var(--theme-highlight-green);
+  }
+  & :where(pre) :global(:where(.css .hljs-hexcolor)) {
+    color: var(--theme-highlight-aqua);
+  }
+  &
+    :where(pre)
+    :global(:where(.hljs-function, .python .hljs-decorator, .python
+        .hljs-title, .ruby .hljs-function .hljs-title, .ruby
+        .hljs-title
+        .hljs-keyword, .perl .hljs-sub, .javascript .hljs-title, .coffeescript
+        .hljs-title)) {
+          color: var(--theme-highlight-blue);
+  }
+
+  & :where(pre) :global(:where(.hljs-keyword, .javascript .hljs-function)) {
+    color: var(--theme-highlight-purple);
+  }
+  & :where(pre) :global(:where(.hljs)) {
+    display: block;
+    color: var(--theme-highlight-label);
+    padding: 0.5em;
+    font-size: 16px;
+    line-height: 1.375;
+    direction: ltr;
+    text-align: left;
+    word-spacing: normal;
+  }
+  &
+    :where(pre)
+    :global(:where(.coffeescript .javascript, .javascript .xml, .tex
+        .hljs-formula, .xml .javascript, .xml .vbscript, .xml .css, .xml
+        .hljs-cdata)) {
+    opacity: 0.5;
+  }
+}
