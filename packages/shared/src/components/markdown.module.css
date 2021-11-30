@@ -30,7 +30,7 @@
     @apply whitespace-pre-wrap;
   }
   & :not(pre) > code {
-    @apply bg-theme-float border border-theme-divider-quaternary px-2 py-1 mx-1 rounded-6;
+    @apply bg-theme-float typo-footnote border border-theme-divider-quaternary px-1 rounded-6;
   }
   & :where(ul) {
     @apply list-disc my-8 pl-8;
