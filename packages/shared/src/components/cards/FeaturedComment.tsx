@@ -10,7 +10,7 @@ import {
 import ArrowIcon from '../../../icons/arrow.svg';
 import CommentIcon from '../../../icons/comment.svg';
 import { Button } from '../buttons/Button';
-import { getTooltipProps } from '../../lib/tooltip';
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 export type FeaturedCommentProps = {
   featuredComments: Comment[];
@@ -32,13 +32,14 @@ export default function FeaturedComment({
       className={classNames('absolute inset-0 p-2', className)}
     >
       <CardHeader>
-        <Button
-          icon={<ArrowIcon style={{ transform: 'rotate(-90deg)' }} />}
-          buttonSize="small"
-          {...getTooltipProps('Back', { position: 'down' })}
-          onClick={onBack}
-          className="btn-tertiary"
-        />
+        <SimpleTooltip placement="bottom" content="Back">
+          <Button
+            icon={<ArrowIcon style={{ transform: 'rotate(-90deg)' }} />}
+            buttonSize="small"
+            onClick={onBack}
+            className="btn-tertiary"
+          />
+        </SimpleTooltip>
         {featuredCommentsToButtons(
           featuredComments,
           onCommentClick,
@@ -52,7 +53,7 @@ export default function FeaturedComment({
       <div className="my-2 w-full h-px bg-theme-divider-tertiary" />
       <Link href={comment.permalink} passHref>
         <Button
-          as="a"
+          tag="a"
           target="_blank"
           rel="noopener"
           buttonSize="small"
