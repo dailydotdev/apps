@@ -3,6 +3,7 @@ import React, {
   ReactElement,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 import classNames from 'classnames';
@@ -47,7 +48,11 @@ export default function Settings({
     { label: 'Light', value: 'light' },
     { label: 'Auto', value: 'auto' },
   ]);
-  const Section = classed('section', 'flex flex-col font-bold mt-6');
+
+  const Section = useMemo(
+    () => classed('section', 'flex flex-col font-bold mt-6'),
+    [],
+  );
 
   const SectionTitle = classed(
     'h3',
