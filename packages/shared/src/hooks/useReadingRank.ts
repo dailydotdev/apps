@@ -40,11 +40,11 @@ const checkShouldShowRankModal = (
   }
 
   if (!rankLastSeen) {
-    return true;
+    return false;
   }
 
   if (!lastReadTime) {
-    return true;
+    return false;
   }
 
   return new Date(rankLastSeen) < new Date(lastReadTime);
