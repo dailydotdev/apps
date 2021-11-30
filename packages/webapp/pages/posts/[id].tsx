@@ -131,6 +131,7 @@ interface ParentComment {
   authorImage: string;
   publishDate: Date | string;
   content: string;
+  contentHtml: string;
   commentId: string | null;
   post: Post;
   editContent?: string;
@@ -344,6 +345,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         authorName: postById.post.source.name,
         authorImage: postById.post.source.image,
         content: postById.post.title,
+        contentHtml: postById.post.title,
         publishDate: postById.post.createdAt,
         commentId: null,
         post: postById.post,
@@ -379,6 +381,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         authorName: comment.author.name,
         authorImage: comment.author.image,
         content: comment.content,
+        contentHtml: comment.contentHtml,
         publishDate: comment.lastUpdatedAt || comment.createdAt,
         commentId: parentId,
         post: postById.post,
@@ -396,6 +399,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         authorName: localParentComment.author.name,
         authorImage: localParentComment.author.image,
         content: localParentComment.content,
+        contentHtml: localParentComment.contentHtml,
         publishDate:
           localParentComment.lastUpdatedAt || localParentComment.createdAt,
         commentId: localParentComment.id,
@@ -407,6 +411,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         authorName: postById.post.source.name,
         authorImage: postById.post.source.image,
         content: postById.post.title,
+        contentHtml: postById.post.title,
         publishDate: postById.post.createdAt,
         commentId: null,
         post: postById.post,

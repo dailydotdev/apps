@@ -20,13 +20,6 @@ const renderComponent = (props: Partial<Props> = {}): RenderResult => {
   return render(<DiscardCommentModal {...defaultProps} {...props} />);
 };
 
-it('should close modal on cancel', async () => {
-  renderComponent();
-  const el = await screen.findByText('Stay');
-  el.click();
-  expect(onRequestClose).toBeCalledTimes(1);
-});
-
 it('should confirm comment delete', async () => {
   renderComponent();
   const el = await screen.findByText('Discard');

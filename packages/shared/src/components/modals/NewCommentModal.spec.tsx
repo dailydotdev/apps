@@ -45,6 +45,7 @@ const renderComponent = (
     authorName: 'Nimrod',
     publishDate: new Date(2017, 1, 10, 0, 0),
     content: 'This is the main comment',
+    contentHtml: '<p>This is the main comment</p>',
     commentId: null,
     post: {
       id: 'p1',
@@ -106,13 +107,6 @@ it('should show user profile picture', async () => {
 it('should show content of parent', async () => {
   renderComponent();
   await screen.findByText('This is the main comment');
-});
-
-it('should close modal on cancel', async () => {
-  renderComponent();
-  const el = await screen.findByText('Cancel');
-  el.click();
-  expect(onRequestClose).toBeCalledTimes(1);
 });
 
 it('should disable submit button when no input', async () => {
