@@ -1,31 +1,25 @@
 import React, { ReactElement } from 'react';
-import request from 'graphql-request';
-import { useInfiniteQuery } from 'react-query';
+import dynamic from 'next/dynamic';
 import { ResponsiveModal } from './ResponsiveModal';
 import { ModalProps } from './StyledModal';
 import { ModalCloseButton } from './ModalCloseButton';
-import { UpvoterList } from '../profile/UpvoterList';
-import {
-  UpvoterListPlaceholder,
-  UpvoterListPlaceholderProps,
-} from '../profile/UpvoterListPlaceholder';
-import { apiUrl } from '../../lib/config';
-import { RequestQuery, UpvotesData } from '../../graphql/common';
 
-export interface UpvotedPopupModalProps extends ModalProps {
-  listPlaceholderProps: UpvoterListPlaceholderProps;
-  requestQuery: RequestQuery<UpvotesData>;
-}
+const Settings = dynamic(
+  () => import(/* webpackChunkName: "settings" */ '../Settings'),
+);
 
-export function FeedSettingsModal(): ReactElement {
+export function FeedSettingsModal({
+  onRequestClose,
+  ...modalProps
+}: ModalProps): ReactElement {
   return (
-    <ResponsiveModal isOpen={false}>
+    <ResponsiveModal {...modalProps} onRequestClose={onRequestClose}>
       <header className="py-4 px-6 w-full border-b border-theme-divider-tertiary">
-        <h3 className="font-bold typo-title3">Upvoted by</h3>
-        <ModalCloseButton />
+        <h3 className="font-bold typo-title3">Customize</h3>
+        <ModalCloseButton onClick={onRequestClose} />
       </header>
       <section className="overflow-auto relative flex-shrink w-full h-full max-h-full">
-        Content here
+        <Settings />
       </section>
     </ResponsiveModal>
   );
