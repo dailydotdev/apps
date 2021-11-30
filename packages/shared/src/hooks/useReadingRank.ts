@@ -30,7 +30,15 @@ const defaultRank: MyRankData = {
   reads: 0,
 };
 
-const checkShouldShowRankModal = (rankLastSeen: Date, lastReadTime: Date) => {
+const checkShouldShowRankModal = (
+  rankLastSeen: Date,
+  lastReadTime: Date,
+  neverShowRankModal?: boolean,
+) => {
+  if (neverShowRankModal !== null && neverShowRankModal !== undefined) {
+    return neverShowRankModal;
+  }
+
   if (!rankLastSeen) {
     return true;
   }
@@ -77,12 +85,11 @@ export default function useReadingRank(): ReturnType {
       neverShowRankModal: newNeverShowRankModal,
     });
 
-  const shouldShowRankModal =
-    !neverShowRankModal ??
-    checkShouldShowRankModal(
-      alerts.rankLastSeen,
-      cachedRank?.rank?.lastReadTime || remoteRank?.rank?.lastReadTime,
-    );
+  const shouldShowRankModal = checkShouldShowRankModal(
+    alerts.rankLastSeen,
+    cachedRank?.rank?.lastReadTime || remoteRank?.rank?.lastReadTime,
+    neverShowRankModal,
+  );
 
   const updateShownProgress = async () => {
     if (document.visibilityState === 'hidden') {
