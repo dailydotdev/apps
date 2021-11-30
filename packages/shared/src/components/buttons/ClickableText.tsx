@@ -1,4 +1,4 @@
-import React, { LegacyRef, ReactElement } from 'react';
+import React, { forwardRef, ReactElement, Ref } from 'react';
 import classNames from 'classnames';
 
 type AvailableTags = keyof Pick<JSX.IntrinsicElements, 'a' | 'button'>;
@@ -11,29 +11,28 @@ export interface BaseClickableTextProps {
 }
 
 export type ClickableTextProps<Tag extends AvailableTags> =
-  BaseClickableTextProps &
-    JSX.IntrinsicElements[Tag] & {
-      innerRef?: LegacyRef<JSX.IntrinsicElements[Tag]>;
-    };
+  BaseClickableTextProps & JSX.IntrinsicElements[Tag];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
-export function ClickableText<Tag extends AvailableTags>({
-  disabled,
-  pressed,
-  children,
-  tag: Tag = 'button',
-  innerRef,
-  defaultTypo = true,
-  className,
-  ...props
-}: ClickableTextProps<Tag>): ReactElement {
+function ClickableTextComponent<Tag extends AvailableTags>(
+  {
+    disabled,
+    pressed,
+    children,
+    tag: Tag = 'button',
+    defaultTypo = true,
+    className,
+    ...props
+  }: ClickableTextProps<Tag>,
+  ref: Ref<HTMLButtonElement>,
+): ReactElement {
   const isLink = Tag === 'a';
 
   return (
     <Tag
       {...props}
       aria-pressed={pressed}
-      ref={innerRef}
+      ref={ref}
       className={classNames(
         'flex flex-row items-center text-theme-label-tertiary hover:underline focus:underline cursor-pointer',
         defaultTypo && 'typo-callout',
@@ -48,3 +47,5 @@ export function ClickableText<Tag extends AvailableTags>({
     </Tag>
   );
 }
+
+export const ClickableText = forwardRef(ClickableTextComponent);

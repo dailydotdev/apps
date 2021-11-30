@@ -40,10 +40,10 @@ import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/Prog
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { QuaternaryButton } from '@dailydotdev/shared/src/components/buttons/QuaternaryButton';
 import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
-import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 import classNames from 'classnames';
 import DOMPurify from 'dompurify';
 import { ProfilePicture } from '@dailydotdev/shared/src/components/ProfilePicture';
+import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import styles from './index.module.css';
 import NavBar, { tabs } from './NavBar';
 import { getLayout as getMainLayout } from '../MainLayout';
@@ -54,6 +54,7 @@ const AccountDetailsModal = dynamic(
       /* webpackChunkName: "accountDetailsModal" */ '@dailydotdev/shared/src/components/modals/AccountDetailsModal'
     ),
 );
+
 const Custom404 = dynamic(() => import('../../../pages/404'));
 
 export interface ProfileLayoutProps {
@@ -203,53 +204,57 @@ export default function ProfileLayout({
               />
               <div className={classNames('flex mt-3 mx-0.5', styles.links)}>
                 {twitterHandle && (
-                  <Button
-                    tag="a"
-                    href={`https://twitter.com/${twitterHandle}`}
-                    {...getTooltipProps('Twitter')}
-                    target="_blank"
-                    rel="noopener"
-                    icon={<TwitterIcon />}
-                    className="btn-tertiary"
-                  />
+                  <SimpleTooltip content="Twitter">
+                    <Button
+                      tag="a"
+                      href={`https://twitter.com/${twitterHandle}`}
+                      target="_blank"
+                      rel="noopener"
+                      icon={<TwitterIcon />}
+                      className="btn-tertiary"
+                    />
+                  </SimpleTooltip>
                 )}
                 {githubHandle && (
-                  <Button
-                    tag="a"
-                    href={`https://github.com/${githubHandle}`}
-                    {...getTooltipProps('GitHub')}
-                    target="_blank"
-                    rel="noopener"
-                    icon={<GitHubIcon />}
-                    className="btn-tertiary"
-                  />
+                  <SimpleTooltip content="GitHub">
+                    <Button
+                      tag="a"
+                      href={`https://github.com/${githubHandle}`}
+                      target="_blank"
+                      rel="noopener"
+                      icon={<GitHubIcon />}
+                      className="btn-tertiary"
+                    />
+                  </SimpleTooltip>
                 )}
                 {hashnodeHandle && (
-                  <Button
-                    tag="a"
-                    href={`https://hashnode.com/@${hashnodeHandle}`}
-                    {...getTooltipProps('Hashnode')}
-                    target="_blank"
-                    rel="noopener"
-                    icon={<HashnodeIcon />}
-                    className="btn-tertiary"
-                  />
+                  <SimpleTooltip content="Hashnode">
+                    <Button
+                      tag="a"
+                      href={`https://hashnode.com/@${hashnodeHandle}`}
+                      target="_blank"
+                      rel="noopener"
+                      icon={<HashnodeIcon />}
+                      className="btn-tertiary"
+                    />
+                  </SimpleTooltip>
                 )}
                 {portfolioLink && (
-                  <QuaternaryButton
-                    tag="a"
-                    id="portfolio-link"
-                    href={portfolioLink}
-                    {...getTooltipProps('Portfolio')}
-                    target="_blank"
-                    rel="noopener"
-                    icon={<LinkIcon />}
-                    className="btn-tertiary"
-                  >
-                    {portfolioLink
-                      .replace(/(^\w+:|^)\/\//, '')
-                      .replace(/\/?(\?.*)?$/, '')}
-                  </QuaternaryButton>
+                  <SimpleTooltip content="Portfolio">
+                    <QuaternaryButton
+                      tag="a"
+                      href={portfolioLink}
+                      id="portfolio-link"
+                      target="_blank"
+                      rel="noopener"
+                      icon={<LinkIcon />}
+                      className="btn-tertiary"
+                    >
+                      {portfolioLink
+                        .replace(/(^\w+:|^)\/\//, '')
+                        .replace(/\/?(\?.*)?$/, '')}
+                    </QuaternaryButton>
+                  </SimpleTooltip>
                 )}
               </div>
               {profile.id === user?.id && (

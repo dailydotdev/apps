@@ -10,8 +10,8 @@ import {
 import ArrowIcon from '../../../icons/arrow.svg';
 import CommentIcon from '../../../icons/comment.svg';
 import { Button } from '../buttons/Button';
-import { getTooltipProps } from '../../lib/tooltip';
 import { FeaturedCommentProps } from './FeaturedComment';
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 export default function ListFeaturedComment({
   featuredComments,
@@ -25,19 +25,20 @@ export default function ListFeaturedComment({
       className={classNames('absolute inset-0 flex pt-4 pb-3 pr-4', className)}
     >
       <ListCardAside>
-        <Button
-          icon={<ArrowIcon style={{ transform: 'rotate(-90deg)' }} />}
-          buttonSize="small"
-          {...getTooltipProps('Back', { position: 'down' })}
-          onClick={onBack}
-          className="btn-tertiary"
-        />
+        <SimpleTooltip placement="bottom" content="Back">
+          <Button
+            icon={<ArrowIcon style={{ transform: 'rotate(-90deg)' }} />}
+            buttonSize="small"
+            onClick={onBack}
+            className="btn-tertiary"
+          />
+        </SimpleTooltip>
         {featuredCommentsToButtons(
           featuredComments,
           onCommentClick,
           comment.id,
           'my-1',
-          'up',
+          'top',
         )}
       </ListCardAside>
       <ListCardDivider />
@@ -48,7 +49,7 @@ export default function ListFeaturedComment({
         </p>
         <Link href={comment.permalink} passHref>
           <Button
-            as="a"
+            tag="a"
             target="_blank"
             rel="noopener"
             buttonSize="small"

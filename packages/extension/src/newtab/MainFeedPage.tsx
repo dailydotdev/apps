@@ -10,9 +10,9 @@ import MainFeedLayout, {
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import dynamic from 'next/dynamic';
 import TimerIcon from '@dailydotdev/shared/icons/timer.svg';
-import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import MostVisitedSites from './MostVisitedSites';
 
 const PostsSearch = dynamic(
@@ -76,13 +76,14 @@ export default function MainFeedPage({
       additionalButtons={
         <>
           {(onboardingStep > 2 || user) && (
-            <HeaderButton
-              icon={<TimerIcon />}
-              {...getTooltipProps('Do Not Disturb', { position: 'down' })}
-              className="btn-tertiary"
-              onClick={() => setShowDnd(true)}
-              pressed={showDnd}
-            />
+            <SimpleTooltip content="Do Not Disturb" placement="bottom">
+              <HeaderButton
+                icon={<TimerIcon />}
+                className="btn-tertiary"
+                onClick={() => setShowDnd(true)}
+                pressed={showDnd}
+              />
+            </SimpleTooltip>
           )}
         </>
       }

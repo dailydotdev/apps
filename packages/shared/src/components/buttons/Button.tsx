@@ -1,4 +1,10 @@
-import React, { LegacyRef, ReactElement, ReactNode } from 'react';
+import React, {
+  HTMLAttributes,
+  ReactNode,
+  ReactElement,
+  Ref,
+  forwardRef,
+} from 'react';
 import classNames from 'classnames';
 import { Loader } from '../Loader';
 
@@ -21,34 +27,41 @@ export interface BaseButtonProps {
   absolute?: boolean;
 }
 
-export type ButtonProps<Tag extends keyof JSX.IntrinsicElements> =
-  BaseButtonProps &
-    JSX.IntrinsicElements[Tag] & {
-      innerRef?: LegacyRef<JSX.IntrinsicElements[Tag]>;
-    };
+export type AllowedTags = keyof Pick<JSX.IntrinsicElements, 'a' | 'button'>;
+export type AllowedElements = HTMLButtonElement | HTMLAnchorElement;
+export type ButtonElementType<Tag extends AllowedTags> = Tag extends 'a'
+  ? HTMLAnchorElement
+  : HTMLButtonElement;
 
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export function Button<Tag extends keyof JSX.IntrinsicElements>({
-  loading,
-  pressed,
-  icon,
-  rightIcon,
-  buttonSize,
-  children,
-  tag: Tag = 'button',
-  innerRef,
-  className,
-  displayClass,
-  absolute,
-  ...props
-}: StyledButtonProps & ButtonProps<Tag>): ReactElement {
+export type ButtonProps<Tag extends AllowedTags> = BaseButtonProps &
+  HTMLAttributes<AllowedElements> &
+  JSX.IntrinsicElements[Tag] & {
+    ref?: Ref<ButtonElementType<Tag>>;
+  };
+
+function ButtonComponent<TagName extends AllowedTags>(
+  {
+    loading,
+    pressed,
+    icon,
+    rightIcon,
+    buttonSize,
+    children,
+    tag: Tag = 'button',
+    className,
+    displayClass,
+    absolute,
+    ...props
+  }: StyledButtonProps & ButtonProps<TagName>,
+  ref?: Ref<ButtonElementType<TagName>>,
+): ReactElement {
   const iconOnly = icon && !children && !rightIcon;
   return (
     <Tag
       {...(props as StyledButtonProps)}
       aria-busy={loading}
       aria-pressed={pressed}
-      ref={innerRef}
+      ref={ref}
       className={classNames(
         { iconOnly },
         buttonSize,
@@ -70,3 +83,5 @@ export function Button<Tag extends keyof JSX.IntrinsicElements>({
     </Tag>
   );
 }
+
+export const Button = forwardRef(ButtonComponent);

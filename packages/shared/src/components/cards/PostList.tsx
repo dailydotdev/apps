@@ -53,13 +53,13 @@ export const PostList = forwardRef(function PostList(
     >
       <PostLink post={post} openNewTab={openNewTab} onLinkClick={onLinkClick} />
       <ListCardAside>
-        <SourceButton post={post} className="pb-2" tooltipPosition="up" />
+        <SourceButton post={post} className="pb-2" tooltipPosition="top" />
         {featuredCommentsToButtons(
           post.featuredComments,
           setSelectedComment,
           null,
           'my-1',
-          'up',
+          'top',
         )}
       </ListCardAside>
       <ListCardDivider />
