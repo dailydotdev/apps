@@ -129,9 +129,11 @@ it('should not display publication date based on features flags', async () => {
 });
 
 it('should format publication date', async () => {
-  renderComponent();
-  const el = await screen.findByText('Jun 13, 2018');
-  expect(el).toBeInTheDocument();
+  act(async () => {
+    renderComponent();
+    const el = await screen.findByText('Jun 13, 2018');
+    expect(el).toBeInTheDocument();
+  });
 });
 
 it('should format read time when available', async () => {
