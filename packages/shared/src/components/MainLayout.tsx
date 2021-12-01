@@ -6,10 +6,8 @@ import React, {
   useState,
 } from 'react';
 import dynamic from 'next/dynamic';
-import Link from 'next/link';
 import { CSSTransition } from 'react-transition-group';
 import classNames from 'classnames';
-import classed from '../lib/classed';
 import { Button } from './buttons/Button';
 import ProgressiveEnhancementContext from '../contexts/ProgressiveEnhancementContext';
 import AuthContext from '../contexts/AuthContext';
@@ -18,7 +16,8 @@ import Logo from '../svg/Logo';
 import LogoText from '../svg/LogoText';
 import BookmarkIcon from '../../icons/bookmark.svg';
 import styles from './MainLayout.module.css';
-import LayoutIcon from '../../icons/layout.svg';
+import FeedSettingsButton from './FeedSettingsButton';
+import { HeaderButton } from './buttons/common';
 import ProfileButton from './profile/ProfileButton';
 import { SimpleTooltip } from './tooltips/SimpleTooltip';
 import { LinkWithTooltip } from './tooltips/LinkWithTooltip';
@@ -39,15 +38,9 @@ const HeaderRankProgress = dynamic(
     import(/* webpackChunkName: "headerRankProgress" */ './HeaderRankProgress'),
 );
 
-const Settings = dynamic(
-  () => import(/* webpackChunkName: "settings" */ './Settings'),
-);
-
 const Greeting = dynamic(
   () => import(/* webpackChunkName: "greeting" */ './Greeting'),
 );
-
-export const HeaderButton = classed(Button, 'hidden mx-0.5 laptop:flex');
 
 export default function MainLayout({
   children,
@@ -62,22 +55,12 @@ export default function MainLayout({
 }: MainLayoutProps): ReactElement {
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user, showLogin, loadingUser } = useContext(AuthContext);
-  const [showSettings, setShowSettings] = useState(false);
   const [showGreeting, setShowGreeting] = useState(false);
 
   const afterBookmarkButtons = (
     <>
       {additionalButtons}
-      {mainPage && (
-        <SimpleTooltip placement="bottom" content="Settings">
-          <HeaderButton
-            icon={<LayoutIcon />}
-            className="btn-tertiary"
-            onClick={() => setShowSettings(!showSettings)}
-            pressed={showSettings}
-          />
-        </SimpleTooltip>
-      )}
+      {mainPage && <FeedSettingsButton />}
     </>
   );
 
@@ -129,19 +112,18 @@ export default function MainLayout({
           <>
             {user ? (
               <>
-                <Link
+                <LinkWithTooltip
                   href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}bookmarks`}
                   passHref
                   prefetch={false}
+                  tooltip={{ placement: 'bottom', content: 'Bookmarks' }}
                 >
-                  <SimpleTooltip placement="bottom" content="Bookmarks">
-                    <HeaderButton
-                      tag="a"
-                      icon={<BookmarkIcon />}
-                      className="btn-tertiary"
-                    />
-                  </SimpleTooltip>
-                </Link>
+                  <HeaderButton
+                    tag="a"
+                    icon={<BookmarkIcon />}
+                    className="btn-tertiary"
+                  />
+                </LinkWithTooltip>
                 {afterBookmarkButtons}
                 <ProfileButton onShowDndClick={onShowDndClick} />
               </>
@@ -169,12 +151,6 @@ export default function MainLayout({
           <HeaderRankProgress className="absolute right-0 -bottom-px left-0 z-rank my-0 mx-auto transform translate-y-1/2" />
         )}
       </header>
-      {showSettings && (
-        <Settings
-          panelMode
-          className="border-b border-theme-divider-tertiary"
-        />
-      )}
       {children}
     </>
   );
