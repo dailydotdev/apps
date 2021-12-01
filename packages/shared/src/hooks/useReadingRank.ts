@@ -39,7 +39,11 @@ const checkShouldShowRankModal = (
     return neverShowRankModal;
   }
 
-  if (!rankLastSeen) {
+  if (rankLastSeen === undefined) {
+    return true;
+  }
+
+  if (rankLastSeen === null) {
     return false;
   }
 

@@ -77,7 +77,9 @@ export const AlertContextProvider = ({
 
   useEffect(() => {
     if (alertsProp) {
-      setAlerts({ ...alerts, ...alertsProp });
+      const { rankLastSeen: lastSeen, ...props } = alertsProp;
+      const rankLastSeen = lastSeen ?? undefined;
+      setAlerts({ ...alerts, ...props, rankLastSeen });
     }
   }, [alertsProp]);
 
