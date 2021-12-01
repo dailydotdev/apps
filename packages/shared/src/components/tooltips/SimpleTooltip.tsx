@@ -50,7 +50,6 @@ export function SimpleTooltip({
       shouldLoad={getShouldLoadTooltip()}
       {...props}
       content={content}
-      onClick
       onTrigger={onTrigger}
       onUntrigger={onUntrigger}
       onShow={() => shouldShow}
