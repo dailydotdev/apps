@@ -1,10 +1,7 @@
 import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
-import { act } from '@testing-library/react-hooks';
-import { IFlags } from 'flagsmith';
 import { Post } from '../../graphql/posts';
 import { PostCard, PostCardProps } from './PostCard';
-import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
 
 const defaultPost: Post = {
   id: 'e3fd75b62cadd02073a31ee3444975cc',
@@ -61,15 +58,8 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-const renderComponent = (
-  props: Partial<PostCardProps> = {},
-  flags: IFlags = {},
-): RenderResult => {
-  return render(
-    <FeaturesContextProvider flags={flags}>
-      <PostCard {...defaultProps} {...props} />
-    </FeaturesContextProvider>,
-  );
+const renderComponent = (props: Partial<PostCardProps> = {}): RenderResult => {
+  return render(<PostCard {...defaultProps} {...props} />);
 };
 
 it('should call on link click on component left click', async () => {
@@ -117,23 +107,19 @@ it('should call on bookmark click on bookmark button click', async () => {
   );
 });
 
-it('should not display publication date based on features flags', async () => {
-  act(async () => {
-    renderComponent(
-      {},
-      { hide_publication_date: { enabled: true, value: '1' } },
-    );
-    const el = await screen.findByText('Jun 13, 2018');
-    expect(el).not.toBeInTheDocument();
+it('should not display publication date if empty', async () => {
+  renderComponent({
+    ...defaultProps,
+    post: { ...defaultPost, createdAt: null },
   });
+  const el = await screen.findByText('Jun 13, 2018');
+  expect(el).not.toBeInTheDocument();
 });
 
 it('should format publication date', async () => {
-  act(async () => {
-    renderComponent();
-    const el = await screen.findByText('Jun 13, 2018');
-    expect(el).toBeInTheDocument();
-  });
+  renderComponent();
+  const el = await screen.findByText('Jun 13, 2018');
+  expect(el).toBeInTheDocument();
 });
 
 it('should format read time when available', async () => {
