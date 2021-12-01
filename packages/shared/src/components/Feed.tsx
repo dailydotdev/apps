@@ -7,6 +7,7 @@ import React, {
   useRef,
 } from 'react';
 import classNames from 'classnames';
+import { IBulletTrainFeature } from 'flagsmith';
 import useFeed, { PostItem } from '../hooks/useFeed';
 import { Ad, Post } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
@@ -34,6 +35,7 @@ import AnalyticsContext from '../contexts/AnalyticsContext';
 import { adAnalyticsEvent, postAnalyticsEvent } from '../lib/feed';
 import PostOptionsMenu from './PostOptionsMenu';
 import useNotification from '../hooks/useNotification';
+import FeaturesContext from '../contexts/FeaturesContext';
 
 export type FeedProps<T> = {
   feedQueryKey: unknown[];
@@ -55,6 +57,9 @@ const getStyle = (useList: boolean, spaciness: Spaciness): CSSProperties => {
   return {};
 };
 
+const getShouldDisplayPublishDate = (hideDate: IBulletTrainFeature) =>
+  !hideDate?.enabled ? true : !parseInt(hideDate.value, 10);
+
 export default function Feed<T>({
   feedQueryKey,
   query,
@@ -63,6 +68,10 @@ export default function Feed<T>({
   onEmptyFeed,
   emptyScreen,
 }: FeedProps<T>): ReactElement {
+  const { flags } = useContext(FeaturesContext);
+  const displayPublicationDate = getShouldDisplayPublishDate(
+    flags?.hide_publication_date,
+  );
   const { trackEvent } = useContext(AnalyticsContext);
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
@@ -213,6 +222,7 @@ export default function Feed<T>({
             index={index}
             row={row}
             column={column}
+            displayPublicationDate={displayPublicationDate}
             columns={virtualizedNumCards}
             key={getFeedItemKey(items, index)}
             useList={useList}
