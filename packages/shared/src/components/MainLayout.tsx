@@ -6,7 +6,6 @@ import React, {
   useState,
 } from 'react';
 import dynamic from 'next/dynamic';
-import Link from 'next/link';
 import { CSSTransition } from 'react-transition-group';
 import classNames from 'classnames';
 import { Button } from './buttons/Button';
@@ -113,19 +112,18 @@ export default function MainLayout({
           <>
             {user ? (
               <>
-                <Link
+                <LinkWithTooltip
                   href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}bookmarks`}
                   passHref
                   prefetch={false}
+                  tooltip={{ placement: 'bottom', content: 'Bookmarks' }}
                 >
-                  <SimpleTooltip placement="bottom" content="Bookmarks">
-                    <HeaderButton
-                      tag="a"
-                      icon={<BookmarkIcon />}
-                      className="btn-tertiary"
-                    />
-                  </SimpleTooltip>
-                </Link>
+                  <HeaderButton
+                    tag="a"
+                    icon={<BookmarkIcon />}
+                    className="btn-tertiary"
+                  />
+                </LinkWithTooltip>
                 {afterBookmarkButtons}
                 <ProfileButton onShowDndClick={onShowDndClick} />
               </>
