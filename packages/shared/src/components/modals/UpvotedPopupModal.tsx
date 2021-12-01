@@ -42,9 +42,9 @@ export function UpvotedPopupModal({
     <ResponsiveModal
       {...modalProps}
       onRequestClose={onRequestClose}
+      padding={false}
       style={{
         content: {
-          padding: 0,
           maxHeight: '40rem',
           overflow: 'hidden',
         },
