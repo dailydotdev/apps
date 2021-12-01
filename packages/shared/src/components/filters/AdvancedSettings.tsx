@@ -14,7 +14,7 @@ function AdvancedSettingsFilter(): ReactElement {
   const { feedSettings, advancedSettings, isLoading } = useFeedSettings();
   const { user, showLogin } = useContext(AuthContext);
   const { updateAdvancedSettings } = useMutateFilters(user);
-  const { alerts, disableFilterAlert } = useContext(AlertContext);
+  const { alerts, updateAlerts } = useContext(AlertContext);
   const settings = useMemo(
     () =>
       feedSettings?.advancedSettings?.reduce((settingsMap, currentSettings) => {
@@ -32,7 +32,7 @@ function AdvancedSettingsFilter(): ReactElement {
     }
 
     if (alerts?.filter) {
-      disableFilterAlert();
+      updateAlerts({ filter: false });
     }
 
     const enabled = !(settings[id] ?? defaultEnabledState);
