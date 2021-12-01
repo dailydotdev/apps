@@ -1,12 +1,8 @@
 import React, { ReactElement } from 'react';
-import dynamic from 'next/dynamic';
 import { ResponsiveModal } from './ResponsiveModal';
 import { ModalProps } from './StyledModal';
 import { ModalCloseButton } from './ModalCloseButton';
-
-const Settings = dynamic(
-  () => import(/* webpackChunkName: "settings" */ '../Settings'),
-);
+import Settings from '../Settings';
 
 export function FeedSettingsModal({
   onRequestClose,

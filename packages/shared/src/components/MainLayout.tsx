@@ -12,7 +12,6 @@ import classNames from 'classnames';
 import { Button } from './buttons/Button';
 import ProgressiveEnhancementContext from '../contexts/ProgressiveEnhancementContext';
 import AuthContext from '../contexts/AuthContext';
-import { getTooltipProps } from '../lib/tooltip';
 import PromotionalBanner from './PromotionalBanner';
 import Logo from '../svg/Logo';
 import LogoText from '../svg/LogoText';
@@ -21,6 +20,8 @@ import styles from './MainLayout.module.css';
 import FeedSettingsButton from './FeedSettingsButton';
 import { HeaderButton } from './buttons/common';
 import ProfileButton from './profile/ProfileButton';
+import { SimpleTooltip } from './tooltips/SimpleTooltip';
+import { LinkWithTooltip } from './tooltips/LinkWithTooltip';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -76,17 +77,14 @@ export default function MainLayout({
             : 'non-responsive-header'
         }`}
       >
-        <Link
+        <LinkWithTooltip
           href={process.env.NEXT_PUBLIC_WEBAPP_URL}
           passHref
           prefetch={false}
+          tooltip={{ placement: 'right', content: 'Home' }}
         >
           {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
-          <a
-            className="flex items-center"
-            onClick={onLogoClick}
-            {...getTooltipProps('Home', { position: 'right' })}
-          >
+          <a className="flex items-center" onClick={onLogoClick}>
             <Logo className={styles.homeSvg} />
             <CSSTransition
               in={!showGreeting}
@@ -102,7 +100,7 @@ export default function MainLayout({
               />
             </CSSTransition>
           </a>
-        </Link>
+        </LinkWithTooltip>
         {windowLoaded && greeting && (
           <Greeting
             user={user}
@@ -120,24 +118,26 @@ export default function MainLayout({
                   passHref
                   prefetch={false}
                 >
-                  <HeaderButton
-                    tag="a"
-                    icon={<BookmarkIcon />}
-                    {...getTooltipProps('Bookmarks', { position: 'down' })}
-                    className="btn-tertiary"
-                  />
+                  <SimpleTooltip placement="bottom" content="Bookmarks">
+                    <HeaderButton
+                      tag="a"
+                      icon={<BookmarkIcon />}
+                      className="btn-tertiary"
+                    />
+                  </SimpleTooltip>
                 </Link>
                 {afterBookmarkButtons}
                 <ProfileButton onShowDndClick={onShowDndClick} />
               </>
             ) : (
               <>
-                <HeaderButton
-                  icon={<BookmarkIcon />}
-                  {...getTooltipProps('Bookmarks', { position: 'down' })}
-                  onClick={() => showLogin('bookmark')}
-                  className="btn-tertiary"
-                />
+                <SimpleTooltip placement="bottom" content="Bookmarks">
+                  <HeaderButton
+                    icon={<BookmarkIcon />}
+                    onClick={() => showLogin('bookmark')}
+                    className="btn-tertiary"
+                  />
+                </SimpleTooltip>
                 {afterBookmarkButtons}
                 <Button
                   onClick={() => showLogin('main button')}

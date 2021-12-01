@@ -1,8 +1,8 @@
 import React, { ReactElement, useState } from 'react';
 import dynamic from 'next/dynamic';
 import LayoutIcon from '../../icons/layout.svg';
-import { getTooltipProps } from '../lib/tooltip';
 import { HeaderButton } from './buttons/common';
+import { SimpleTooltip } from './tooltips/SimpleTooltip';
 
 const FeedSettingsModal = dynamic(
   () =>
@@ -16,13 +16,14 @@ export default function FeedSettingsButton(): ReactElement {
 
   return (
     <>
-      <HeaderButton
-        icon={<LayoutIcon />}
-        {...getTooltipProps('Settings', { position: 'down' })}
-        className="btn-tertiary"
-        onClick={() => setShowSettings(true)}
-        pressed={showSettings}
-      />
+      <SimpleTooltip placement="bottom" content="Settings">
+        <HeaderButton
+          icon={<LayoutIcon />}
+          className="btn-tertiary"
+          onClick={() => setShowSettings(!showSettings)}
+          pressed={showSettings}
+        />
+      </SimpleTooltip>
       {showSettings && (
         <FeedSettingsModal
           isOpen={showSettings}

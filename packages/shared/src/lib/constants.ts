@@ -10,3 +10,8 @@ export const reputationGuide =
   'https://daily.dev/posts/what-is-reputation-how-do-i-earn-it';
 export const ownershipGuide =
   'https://daily.dev/posts/claiming-ownership-on-an-article-you-wrote';
+
+export const isDevelopment = process.env.NODE_ENV === 'development';
+export const isProduction = process.env.NODE_ENV === 'production';
+export const isTesting =
+  process.env.NODE_ENV === 'test' || (!isDevelopment && !isProduction);

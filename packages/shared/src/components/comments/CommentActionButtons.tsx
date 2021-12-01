@@ -14,8 +14,8 @@ import {
 import { Roles } from '../../lib/user';
 import { apiUrl } from '../../lib/config';
 import { Button } from '../buttons/Button';
-import { getTooltipProps } from '../../lib/tooltip';
 import { ClickableText } from '../buttons/ClickableText';
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
@@ -101,49 +101,54 @@ export default function CommentActionButtons({
 
   return (
     <div className="flex flex-row items-center">
-      <Button
-        id={`comment-${comment.id}-upvote-btn`}
-        buttonSize="small"
-        pressed={upvoted}
-        {...getTooltipProps('Upvote')}
-        onClick={toggleUpvote}
-        icon={<UpvoteIcon />}
-        className="mr-3 btn-tertiary-avocado"
-      />
-      <Button
-        buttonSize="small"
-        {...getTooltipProps('Comment')}
-        onClick={() => onComment(comment, parentId)}
-        icon={<CommentIcon />}
-        className="mr-3 btn-tertiary-avocado"
-      />
-      {user?.id === comment.author.id && (
+      <SimpleTooltip content="Upvote">
+        <Button
+          id={`comment-${comment.id}-upvote-btn`}
+          buttonSize="small"
+          pressed={upvoted}
+          onClick={toggleUpvote}
+          icon={<UpvoteIcon />}
+          className="mr-3 btn-tertiary-avocado"
+        />
+      </SimpleTooltip>
+      <SimpleTooltip content="Comment">
         <Button
           buttonSize="small"
-          {...getTooltipProps('Edit')}
-          onClick={() => onEdit(comment)}
-          icon={<EditIcon />}
-          className="mr-3 btn-tertiary"
+          onClick={() => onComment(comment, parentId)}
+          icon={<CommentIcon />}
+          className="mr-3 btn-tertiary-avocado"
         />
+      </SimpleTooltip>
+      {user?.id === comment.author.id && (
+        <SimpleTooltip content="Edit">
+          <Button
+            buttonSize="small"
+            onClick={() => onEdit(comment)}
+            icon={<EditIcon />}
+            className="mr-3 btn-tertiary"
+          />
+        </SimpleTooltip>
       )}
       {(user?.id === comment.author.id ||
         user?.roles?.indexOf(Roles.Moderator) > -1) && (
-        <Button
-          buttonSize="small"
-          {...getTooltipProps('Delete')}
-          onClick={() => onDelete(comment, parentId)}
-          icon={<TrashIcon />}
-          className="btn-tertiary"
-        />
+        <SimpleTooltip content="Delete">
+          <Button
+            buttonSize="small"
+            onClick={() => onDelete(comment, parentId)}
+            icon={<TrashIcon />}
+            className="btn-tertiary"
+          />
+        </SimpleTooltip>
       )}
       {numUpvotes > 0 && (
-        <ClickableText
-          className="ml-auto"
-          {...getTooltipProps('See who upvoted')}
-          onClick={() => onShowUpvotes(comment.id, numUpvotes)}
-        >
-          {numUpvotes} upvote{numUpvotes === 1 ? '' : 's'}
-        </ClickableText>
+        <SimpleTooltip content="See who upvoted">
+          <ClickableText
+            className="ml-auto"
+            onClick={() => onShowUpvotes(comment.id, numUpvotes)}
+          >
+            {numUpvotes} upvote{numUpvotes === 1 ? '' : 's'}
+          </ClickableText>
+        </SimpleTooltip>
       )}
     </div>
   );

@@ -3,7 +3,6 @@ import React, {
   ReactElement,
   useContext,
   useEffect,
-  useMemo,
   useState,
 } from 'react';
 import classNames from 'classnames';
@@ -23,6 +22,11 @@ const densities = [
   { label: 'Cozy', value: 'cozy' },
 ];
 const isExtension = process.env.TARGET_BROWSER;
+const Section = classed('section', 'flex flex-col font-bold mt-6');
+const SectionTitle = classed(
+  'h3',
+  'text-theme-label-tertiary mb-4 font-bold typo-footnote',
+);
 
 export default function Settings({
   className,
@@ -48,16 +52,6 @@ export default function Settings({
     { label: 'Light', value: 'light' },
     { label: 'Auto', value: 'auto' },
   ]);
-
-  const Section = useMemo(
-    () => classed('section', 'flex flex-col font-bold mt-6'),
-    [],
-  );
-
-  const SectionTitle = classed(
-    'h3',
-    'text-theme-label-tertiary mb-4 font-bold typo-footnote',
-  );
 
   const onShowOnlyUnreadPosts = (): Promise<void> | void => {
     if (!user) {
