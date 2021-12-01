@@ -82,6 +82,10 @@ module.exports = {
       rank: '3',
       '-1': '-1',
     },
+    maxHeight: {
+      'img-desktop': '400px',
+      'img-mobile': '280px',
+    },
     fontFamily: {
       sans: [
         'system-ui',
