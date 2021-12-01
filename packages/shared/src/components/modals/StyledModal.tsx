@@ -4,6 +4,7 @@ import classed from '../../lib/classed';
 import styles from './StyledModal.module.css';
 
 export interface ModalProps extends Modal.Props {
+  padding?: boolean;
   children?: ReactNode;
 }
 

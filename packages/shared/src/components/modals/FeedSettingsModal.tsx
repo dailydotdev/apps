@@ -9,7 +9,11 @@ export function FeedSettingsModal({
   ...modalProps
 }: ModalProps): ReactElement {
   return (
-    <ResponsiveModal {...modalProps} onRequestClose={onRequestClose}>
+    <ResponsiveModal
+      {...modalProps}
+      onRequestClose={onRequestClose}
+      padding={false}
+    >
       <header className="py-4 px-6 w-full border-b border-theme-divider-tertiary">
         <h3 className="font-bold typo-title3">Customize</h3>
         <ModalCloseButton onClick={onRequestClose} />
