@@ -7,13 +7,20 @@ import { apiUrl } from '../lib/config';
 
 export const ALERT_DEFAULTS: Alerts = {
   filter: false,
+  rankLastSeen: null,
 };
 
 export interface AlertContextData {
-  alerts: { filter?: boolean };
-  setAlerts?: (alerts: Alerts) => Promise<void>;
-  disableFilterAlert?: UseMutateAsyncFunction;
+  alerts: Alerts;
+  updateAlerts?: UseMutateAsyncFunction<
+    unknown,
+    unknown,
+    Alerts,
+    () => Promise<void>
+  >;
 }
+
+export const MAX_DATE = new Date(3021, 0, 1);
 
 const AlertContext = React.createContext<AlertContextData>({
   alerts: ALERT_DEFAULTS,
@@ -35,22 +42,26 @@ export const AlertContextProvider = ({
     null,
     ALERT_DEFAULTS,
   );
-  const { mutateAsync: disableFilterAlert } = useMutation<
+  const { mutateAsync: updateAlerts } = useMutation<
     unknown,
     unknown,
-    void,
+    Alerts,
     () => Promise<void>
   >(
-    () =>
+    (params) =>
       request(`${apiUrl}/graphql`, UPDATE_ALERTS, {
-        data: { filter: false },
+        data: params,
       }),
     {
-      onMutate: () => {
-        const previousFilterValue = alerts.filter;
-        setAlerts({ ...alerts, filter: false });
+      onMutate: (params) => {
+        const rollback = Object.keys(params).reduce(
+          (values, key) => ({ ...values, [key]: alerts[key] }),
+          {},
+        );
 
-        return () => setAlerts({ ...alerts, filter: previousFilterValue });
+        setAlerts({ ...alerts, ...params });
+
+        return () => setAlerts({ ...alerts, ...rollback });
       },
       onError: (_, __, rollback) => rollback(),
     },
@@ -59,15 +70,16 @@ export const AlertContextProvider = ({
   const alertContextData = useMemo(
     () => ({
       alerts,
-      setAlerts,
-      disableFilterAlert,
+      updateAlerts,
     }),
-    [alerts, setAlerts, disableFilterAlert],
+    [alerts, updateAlerts],
   );
 
   useEffect(() => {
     if (alertsProp) {
-      setAlerts(alertsProp);
+      const { rankLastSeen: lastSeen, ...props } = alertsProp;
+      const rankLastSeen = lastSeen ?? undefined;
+      setAlerts({ ...alerts, ...props, rankLastSeen });
     }
   }, [alertsProp]);
 

@@ -49,6 +49,7 @@ export const MY_READING_RANK_QUERY = gql`
       currentRank
       progressThisWeek
       readToday
+      lastReadTime
     }
     reads: userReads
   }

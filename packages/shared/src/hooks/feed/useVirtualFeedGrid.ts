@@ -4,7 +4,7 @@ import { FeedItem } from '../useFeed';
 import { useVirtualWindow } from '../useVirtualWindow';
 import { Spaciness } from '../../graphql/settings';
 
-export const cardHeightPx = 364;
+export const cardHeightPx = 366;
 export const listHeightPx = 78;
 
 const getFeedGap = (useList: boolean, spaciness: Spaciness): number => {
