@@ -20,6 +20,11 @@ export function SimpleTooltip({
   content,
   ...props
 }: SimpleTooltipProps): ReactElement {
+  /**
+   * We introduced the `shouldShow` variable to manage a re-focus issue
+   * The old implementation would re-focus the tooltip whenever a modal would close
+   * Read more on the PR: https://github.com/dailydotdev/apps/pull/713
+   */
   let shouldShow = true;
   const component = useMemo(
     () =>
