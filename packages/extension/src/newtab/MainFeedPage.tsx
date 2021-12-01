@@ -1,7 +1,5 @@
 import React, { ReactElement, useContext, useState } from 'react';
-import MainLayout, {
-  HeaderButton,
-} from '@dailydotdev/shared/src/components/MainLayout';
+import MainLayout from '@dailydotdev/shared/src/components/MainLayout';
 import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import Sidebar from '@dailydotdev/shared/src/components/Sidebar';
 import MainFeedLayout, {
@@ -13,6 +11,7 @@ import TimerIcon from '@dailydotdev/shared/icons/timer.svg';
 import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
+import { HeaderButton } from '@dailydotdev/shared/src/components/buttons/common';
 import MostVisitedSites from './MostVisitedSites';
 
 const PostsSearch = dynamic(

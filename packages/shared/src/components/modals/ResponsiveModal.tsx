@@ -16,6 +16,7 @@ export function ResponsiveModal({
 }: ModalProps): ReactElement {
   useResetScrollForResponsiveModal();
   useHideOnModal(props.isOpen);
+
   return (
     <StyledModal
       {...props}
