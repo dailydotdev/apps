@@ -26,7 +26,7 @@ export default function ProfileButton({
         onClick={onMenuClick}
       >
         <span className="mr-2 ml-3">{user.reputation ?? 0}</span>
-        <ProfilePicture user={user} size="medium" />
+        <ProfilePicture user={user} size="large" />
       </button>
       <ProfileMenu onShowDndClick={onShowDndClick} />
     </>

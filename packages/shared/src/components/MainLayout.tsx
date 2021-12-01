@@ -17,9 +17,7 @@ import { getTooltipProps } from '../lib/tooltip';
 import PromotionalBanner from './PromotionalBanner';
 import Logo from '../svg/Logo';
 import LogoText from '../svg/LogoText';
-import BookmarkIcon from '../../icons/bookmark.svg';
 import styles from './MainLayout.module.css';
-import LayoutIcon from '../../icons/layout.svg';
 import ProfileButton from './profile/ProfileButton';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
@@ -33,15 +31,6 @@ export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   onShowDndClick?: () => unknown;
 }
 
-const HeaderRankProgress = dynamic(
-  () =>
-    import(/* webpackChunkName: "headerRankProgress" */ './HeaderRankProgress'),
-);
-
-const Settings = dynamic(
-  () => import(/* webpackChunkName: "settings" */ './Settings'),
-);
-
 const Greeting = dynamic(
   () => import(/* webpackChunkName: "greeting" */ './Greeting'),
 );
@@ -52,32 +41,13 @@ export default function MainLayout({
   children,
   showOnlyLogo,
   responsive = true,
-  showRank,
   greeting,
-  mainPage,
-  additionalButtons,
   onLogoClick,
   onShowDndClick,
 }: MainLayoutProps): ReactElement {
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user, showLogin, loadingUser } = useContext(AuthContext);
-  const [showSettings, setShowSettings] = useState(false);
   const [showGreeting, setShowGreeting] = useState(false);
-
-  const afterBookmarkButtons = (
-    <>
-      {additionalButtons}
-      {mainPage && (
-        <HeaderButton
-          icon={<LayoutIcon />}
-          {...getTooltipProps('Settings', { position: 'down' })}
-          className="btn-tertiary"
-          onClick={() => setShowSettings(!showSettings)}
-          pressed={showSettings}
-        />
-      )}
-    </>
-  );
 
   return (
     <>
@@ -85,7 +55,7 @@ export default function MainLayout({
       <header
         className={`${
           styles.header
-        } relative flex items-center px-4 border-b border-theme-divider-tertiary tablet:px-8 laptop:px-4 ${
+        } relative flex items-center px-4 border-b border-theme-divider-tertiary tablet:px-8 laptop:px-4 py-2 ${
           responsive
             ? 'laptop:absolute laptop:top-0 laptop:left-0 laptop:w-full laptop:border-b-0'
             : 'non-responsive-header'
@@ -129,51 +99,18 @@ export default function MainLayout({
         {!showOnlyLogo && !loadingUser && (
           <>
             {user ? (
-              <>
-                <Link
-                  href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}bookmarks`}
-                  passHref
-                  prefetch={false}
-                >
-                  <HeaderButton
-                    tag="a"
-                    icon={<BookmarkIcon />}
-                    {...getTooltipProps('Bookmarks', { position: 'down' })}
-                    className="btn-tertiary"
-                  />
-                </Link>
-                {afterBookmarkButtons}
-                <ProfileButton onShowDndClick={onShowDndClick} />
-              </>
+              <ProfileButton onShowDndClick={onShowDndClick} />
             ) : (
-              <>
-                <HeaderButton
-                  icon={<BookmarkIcon />}
-                  {...getTooltipProps('Bookmarks', { position: 'down' })}
-                  onClick={() => showLogin('bookmark')}
-                  className="btn-tertiary"
-                />
-                {afterBookmarkButtons}
-                <Button
-                  onClick={() => showLogin('main button')}
-                  className="btn-primary"
-                >
-                  Login
-                </Button>
-              </>
+              <Button
+                onClick={() => showLogin('main button')}
+                className="btn-primary"
+              >
+                Login
+              </Button>
             )}
           </>
         )}
-        {showRank && windowLoaded && (
-          <HeaderRankProgress className="absolute right-0 -bottom-px left-0 z-rank my-0 mx-auto transform translate-y-1/2" />
-        )}
       </header>
-      {showSettings && (
-        <Settings
-          panelMode
-          className="border-b border-theme-divider-tertiary"
-        />
-      )}
       {children}
     </>
   );
