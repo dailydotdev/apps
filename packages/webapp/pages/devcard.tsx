@@ -97,30 +97,12 @@ const BY_RANK_BG = 'BY_RANK_BG';
 
 const bgUrlOption = [
   {
-    label: 'Halloween',
-    value:
-      'https://daily-now-res.cloudinary.com/image/upload/v1634801813/devcard/bg/halloween.jpg',
-    caption: {
-      text: '(Limited edition) 🎃',
-      className: 'text-theme-status-warning',
-    },
-  },
-  {
     label: 'Christmas',
     value:
       'https://daily-now-res.cloudinary.com/image/upload/v1634801812/devcard/bg/christmas.jpg',
     caption: {
       text: '(Limited edition) 🎄',
       className: 'text-theme-status-success',
-    },
-  },
-  {
-    label: 'daily.dev 4th birthday',
-    value:
-      'https://daily-now-res.cloudinary.com/image/upload/v1635317135/devcard/bg/birthday.jpg',
-    caption: {
-      text: '(Limited Edition) 🎉',
-      className: 'text-theme-status-cabbage',
     },
   },
 ];
