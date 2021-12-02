@@ -107,6 +107,15 @@ it('should call on bookmark click on bookmark button click', async () => {
   );
 });
 
+it('should not display publication date createdAt is empty', async () => {
+  renderComponent({
+    ...defaultProps,
+    post: { ...defaultPost, createdAt: null },
+  });
+  const el = screen.queryByText('Jun 13, 2018');
+  expect(el).not.toBeInTheDocument();
+});
+
 it('should format publication date', async () => {
   renderComponent();
   const el = await screen.findByText('Jun 13, 2018');

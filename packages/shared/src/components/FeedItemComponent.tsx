@@ -23,6 +23,7 @@ export type FeedItemComponentProps = {
   useList: boolean;
   openNewTab: boolean;
   insaneMode: boolean;
+  displayPublicationDate: boolean;
   nativeShareSupport: boolean;
   postMenuIndex: number | undefined;
   postNotificationIndex: number | undefined;
@@ -104,6 +105,7 @@ export default function FeedItemComponent({
   nativeShareSupport,
   postMenuIndex,
   postNotificationIndex,
+  displayPublicationDate,
   notification,
   showCommentPopupId,
   setShowCommentPopupId,
@@ -130,7 +132,10 @@ export default function FeedItemComponent({
       return (
         <PostTag
           ref={inViewRef}
-          post={item.post}
+          post={{
+            ...item.post,
+            createdAt: displayPublicationDate && item.post.createdAt,
+          }}
           data-testid="postItem"
           onUpvoteClick={(post, upvoted) =>
             onUpvote(post, index, row, column, upvoted)

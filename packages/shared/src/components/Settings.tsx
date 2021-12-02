@@ -3,7 +3,6 @@ import React, {
   ReactElement,
   useContext,
   useEffect,
-  useMemo,
   useState,
 } from 'react';
 import classNames from 'classnames';
@@ -13,11 +12,9 @@ import { Switch } from './fields/Switch';
 import SettingsContext from '../contexts/SettingsContext';
 import CardIcon from '../../icons/card.svg';
 import LineIcon from '../../icons/line.svg';
-import OpenLink from '../../icons/open_link.svg';
 import { IconsSwitch } from './fields/IconsSwitch';
 import AuthContext from '../contexts/AuthContext';
 import { LoginModalMode } from '../types/LoginModalMode';
-import { Button } from './buttons/Button';
 
 const densities = [
   { label: 'Eco', value: 'eco' },
@@ -25,14 +22,16 @@ const densities = [
   { label: 'Cozy', value: 'cozy' },
 ];
 const isExtension = process.env.TARGET_BROWSER;
+const Section = classed('section', 'flex flex-col font-bold mt-6');
+const SectionTitle = classed(
+  'h3',
+  'text-theme-label-tertiary mb-4 font-bold typo-footnote',
+);
 
 export default function Settings({
-  panelMode = false,
   className,
   ...props
-}: {
-  panelMode?: boolean;
-} & HTMLAttributes<HTMLDivElement>): ReactElement {
+}: HTMLAttributes<HTMLDivElement>): ReactElement {
   const { user, showLogin } = useContext(AuthContext);
   const {
     spaciness,
@@ -53,25 +52,6 @@ export default function Settings({
     { label: 'Light', value: 'light' },
     { label: 'Auto', value: 'auto' },
   ]);
-  const Section = useMemo(
-    () =>
-      classed(
-        'section',
-        'flex flex-col font-bold',
-        panelMode ? 'mx-5' : 'mt-6',
-      ),
-    [panelMode],
-  );
-
-  const SectionTitle = useMemo(
-    () =>
-      classed(
-        'h3',
-        'text-theme-label-tertiary mb-4 font-bold',
-        panelMode ? 'typo-callout' : 'typo-body',
-      ),
-    [panelMode],
-  );
 
   const onShowOnlyUnreadPosts = (): Promise<void> | void => {
     if (!user) {
@@ -91,23 +71,8 @@ export default function Settings({
   }, []);
 
   return (
-    <div
-      className={classNames(
-        'flex',
-        panelMode ? 'flex-row pl-20 pr-6 pt-10 pb-6' : 'flex-col p-6',
-        className,
-      )}
-      {...props}
-    >
-      <h2
-        className={classNames(
-          'font-bold',
-          panelMode ? 'typo-body mr-5' : 'typo-title2',
-        )}
-      >
-        Settings
-      </h2>
-      <Section>
+    <div className={classNames('flex', 'flex-col p-6', className)} {...props}>
+      <Section className="mt-0">
         <SectionTitle>Layout</SectionTitle>
         <IconsSwitch
           inputId="layout-switch"
@@ -173,18 +138,6 @@ export default function Settings({
             </Switch>
           )}
         </div>
-      </Section>
-      <Section className="tablet:hidden">
-        <SectionTitle>Contact</SectionTitle>
-        <Button
-          className="self-start mt-1 btn-secondary"
-          tag="a"
-          href="https://daily.dev/contact"
-          buttonSize="small"
-          rightIcon={<OpenLink />}
-        >
-          Send feedback
-        </Button>
       </Section>
     </div>
   );

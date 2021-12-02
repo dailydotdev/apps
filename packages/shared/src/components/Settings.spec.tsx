@@ -209,19 +209,6 @@ it('should mutate hide read posts setting', () =>
     fireEvent.click(checkbox);
   }));
 
-it('should open login when hide read posts is clicked and the user is logged out', async () => {
-  renderComponent([], null);
-  const checkboxes = await screen.findAllByRole('checkbox');
-  const checkbox = checkboxes.find((el) =>
-    // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
-    queryByText(el.parentElement, 'Hide read posts'),
-  ) as HTMLInputElement;
-  fireEvent.click(checkbox);
-  await waitFor(() =>
-    expect(showLogin).toBeCalledWith('settings', LoginModalMode.Default),
-  );
-});
-
 it('should mutate open links in new tab setting', () =>
   testSettingsMutation({ openNewTab: true }, async () => {
     const checkboxes = await screen.findAllByRole('checkbox');
@@ -236,6 +223,17 @@ it('should not have the show most visited sites switch in the webapp', async () 
   renderComponent([], null);
   const checkbox = screen.queryByText('Show most visited sites');
   expect(checkbox).not.toBeInTheDocument();
+});
+
+it('should open login when hide read posts is clicked and the user is logged out', async () => {
+  renderComponent([], null);
+
+  const [el] = await screen.findAllByLabelText('Hide read posts');
+  el.click();
+
+  await waitFor(() =>
+    expect(showLogin).toBeCalledWith('settings', LoginModalMode.Default),
+  );
 });
 
 it('should mutate show most visited sites setting in extension', () => {

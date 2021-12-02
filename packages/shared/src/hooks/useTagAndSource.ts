@@ -28,7 +28,7 @@ export default function useTagAndSource({
   onFollowSource: ({ source }: SourceActionArguments) => Promise<unknown>;
   onUnfollowSource: ({ source }: SourceActionArguments) => Promise<unknown>;
 } {
-  const { alerts, disableFilterAlert } = useContext(AlertContext);
+  const { alerts, updateAlerts } = useContext(AlertContext);
   const { user, showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const {
@@ -53,7 +53,7 @@ export default function useTagAndSource({
       extra: JSON.stringify({ origin }),
     });
     if (alerts?.filter) {
-      disableFilterAlert();
+      updateAlerts({ filter: false });
     }
     await followTags({ tags });
   };
