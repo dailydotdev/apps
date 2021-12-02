@@ -15,9 +15,9 @@ import PromotionalBanner from './PromotionalBanner';
 import Logo from '../svg/Logo';
 import LogoText from '../svg/LogoText';
 import styles from './MainLayout.module.css';
-import useSidebarMenu from '../hooks/useSidebarMenu';
 import ProfileButton from './profile/ProfileButton';
 import { LinkWithTooltip } from './tooltips/LinkWithTooltip';
+import SettingsContext from '../contexts/SettingsContext';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -49,8 +49,8 @@ export default function MainLayout({
 }: MainLayoutProps): ReactElement {
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user, showLogin, loadingUser } = useContext(AuthContext);
+  const { openSidebar, toggleOpenSidebar } = useContext(SettingsContext);
   const [showGreeting, setShowGreeting] = useState(false);
-  const { sidebarOpen, setSidebarOpen } = useSidebarMenu();
 
   return (
     <>
@@ -113,9 +113,9 @@ export default function MainLayout({
       </header>
       <main className="flex flex-row">
         <aside
-          className="bg-theme-float transform"
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          style={{ width: sidebarOpen ? 240 : 44 }}
+          className="bg-theme-float transition-all transform duration-500 ease-in-out"
+          onClick={() => toggleOpenSidebar()}
+          style={{ width: openSidebar ? 240 : 44 }}
         >
           Sidebar
         </aside>

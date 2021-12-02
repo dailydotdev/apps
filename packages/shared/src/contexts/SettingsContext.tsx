@@ -29,12 +29,14 @@ export type SettingsContextData = {
   openNewTab: boolean;
   insaneMode: boolean;
   showTopSites: boolean;
+  openSidebar: boolean;
   setTheme: (theme) => Promise<void>;
   toggleShowOnlyUnreadPosts: () => Promise<void>;
   toggleOpenNewTab: () => Promise<void>;
   setSpaciness: (density: Spaciness) => Promise<void>;
   toggleInsaneMode: () => Promise<void>;
   toggleShowTopSites: () => Promise<void>;
+  toggleOpenSidebar: () => Promise<void>;
   loadedSettings: boolean;
 };
 
@@ -47,6 +49,7 @@ type Settings = {
   openNewTab: boolean;
   insaneMode: boolean;
   showTopSites: boolean;
+  openSidebar: boolean;
 };
 
 const deprecatedLightModeStorageKey = 'showmethelight';
@@ -57,6 +60,7 @@ const defaultSettings: Settings = {
   openNewTab: true,
   insaneMode: false,
   showTopSites: true,
+  openSidebar: false,
 };
 
 function applyTheme(themeMode: string): void {
@@ -192,6 +196,8 @@ export const SettingsContextProvider = ({
         setSettings({ ...settings, insaneMode: !settings.insaneMode }),
       toggleShowTopSites: () =>
         setSettings({ ...settings, showTopSites: !settings.showTopSites }),
+      toggleOpenSidebar: () =>
+        setSettings({ ...settings, openSidebar: !settings.openSidebar }),
       loadedSettings,
     }),
     [settings, loadedSettings, userId, currentTheme],
