@@ -7,7 +7,15 @@ const BaseTooltipLoader = () =>
   import(/* webpackChunkName: "lazyTooltip" */ './BaseTooltip');
 
 export interface SimpleTooltipProps
-  extends Pick<BaseTooltipProps, 'content' | 'children' | 'placement'> {
+  extends Pick<
+    BaseTooltipProps,
+    | 'content'
+    | 'children'
+    | 'placement'
+    | 'delay'
+    | 'disableInAnimation'
+    | 'disableOutAnimation'
+  > {
   container?: Omit<BaseTooltipContainerProps, 'placement' | 'children'>;
 }
 

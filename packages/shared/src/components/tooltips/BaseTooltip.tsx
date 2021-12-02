@@ -19,6 +19,8 @@ export const getShouldLoadTooltip = (): boolean =>
 export interface BaseTooltipProps extends TippyProps {
   container?: Omit<BaseTooltipContainerProps, 'children'>;
   placement?: TooltipPosition;
+  disableInAnimation?: boolean;
+  disableOutAnimation?: boolean;
 }
 
 export function BaseTooltip(
@@ -30,12 +32,17 @@ export function BaseTooltip(
     container = {},
     children,
     content,
+    disableInAnimation,
+    disableOutAnimation,
     ...props
   }: BaseTooltipProps,
   ref?: Ref<Element>,
 ): ReactElement {
   const [unMounting, setUnMounting] = useState(false);
   const onHide = ({ unmount }) => {
+    if (disableOutAnimation) {
+      return;
+    }
     setUnMounting(true);
     setTimeout(() => {
       setUnMounting(false);
@@ -61,6 +68,7 @@ export function BaseTooltip(
           )}
           className={classNames(
             styles.tippyTooltip,
+            !disableInAnimation && styles.animate,
             unMounting && styles.unMount,
             container.className,
           )}
