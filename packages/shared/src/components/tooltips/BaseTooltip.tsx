@@ -27,7 +27,7 @@ export function BaseTooltip(
     arrow,
     placement = 'top',
     delay = DEFAULT_DELAY_MS,
-    container,
+    container = {},
     children,
     content,
     ...props
@@ -55,10 +55,14 @@ export function BaseTooltip(
         <BaseTooltipContainer
           {...container}
           placement={placement}
-          arrowClassName={styles.tippyTooltipArrow}
+          arrowClassName={classNames(
+            styles.tippyTooltipArrow,
+            container.arrowClassName,
+          )}
           className={classNames(
             styles.tippyTooltip,
             unMounting && styles.unMount,
+            container.className,
           )}
         >
           {content}

@@ -1,14 +1,15 @@
 import React, { ReactElement, useMemo } from 'react';
 import dynamicParent from '../../lib/dynamicParent';
 import { getShouldLoadTooltip, BaseTooltipProps } from './BaseTooltip';
+import { BaseTooltipContainerProps } from './BaseTooltipContainer';
 
 const BaseTooltipLoader = () =>
   import(/* webpackChunkName: "lazyTooltip" */ './BaseTooltip');
 
-export type SimpleTooltipProps = Pick<
-  BaseTooltipProps,
-  'content' | 'children' | 'placement'
->;
+export interface SimpleTooltipProps
+  extends Pick<BaseTooltipProps, 'content' | 'children' | 'placement'> {
+  container?: Omit<BaseTooltipContainerProps, 'placement' | 'children'>;
+}
 
 const TippyTooltip = dynamicParent<SimpleTooltipProps>(
   () => BaseTooltipLoader().then((mod) => mod.BaseTooltip),
@@ -52,8 +53,8 @@ export function SimpleTooltip({
 
   return (
     <TippyTooltip
-      shouldLoad={getShouldLoadTooltip()}
       {...props}
+      shouldLoad={getShouldLoadTooltip()}
       content={content}
       onTrigger={onTrigger}
       onUntrigger={onUntrigger}
