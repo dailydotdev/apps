@@ -58,6 +58,7 @@ export function BaseTooltip(
       onHide={onHide}
       delay={delay}
       allowHTML
+      animation={!(disableInAnimation && disableOutAnimation)}
       content={
         <BaseTooltipContainer
           {...container}
