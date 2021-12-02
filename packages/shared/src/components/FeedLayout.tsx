@@ -12,6 +12,7 @@ import FeedContext, {
   FeedContextData,
 } from '../contexts/FeedContext';
 import useMedia from '../hooks/useMedia';
+import useSidebarMenu from '../hooks/useSidebarMenu';
 
 export type FeedLayoutProps = { children?: ReactNode };
 
@@ -90,6 +91,8 @@ const reversedSettings = baseFeedSettings.reverse();
 export default function FeedLayout({
   children,
 }: FeedLayoutProps): ReactElement {
+  const { sidebarOpen } = useSidebarMenu();
+  console.log(sidebarOpen);
   const currentSettings = useMedia(
     reversedBreakpoints,
     reversedSettings,

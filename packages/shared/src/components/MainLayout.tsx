@@ -19,6 +19,7 @@ import Logo from '../svg/Logo';
 import LogoText from '../svg/LogoText';
 import styles from './MainLayout.module.css';
 import ProfileButton from './profile/ProfileButton';
+import useSidebarMenu from '../hooks/useSidebarMenu';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -48,6 +49,7 @@ export default function MainLayout({
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user, showLogin, loadingUser } = useContext(AuthContext);
   const [showGreeting, setShowGreeting] = useState(false);
+  const { sidebarOpen, setSidebarOpen } = useSidebarMenu();
 
   return (
     <>
@@ -111,7 +113,16 @@ export default function MainLayout({
           </>
         )}
       </header>
-      {children}
+      <main className="flex flex-row">
+        <aside
+          className="bg-theme-float transform"
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          style={{ width: sidebarOpen ? 240 : 44 }}
+        >
+          Sidebar
+        </aside>
+        {children}
+      </main>
     </>
   );
 }
