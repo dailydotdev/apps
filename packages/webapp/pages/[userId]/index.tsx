@@ -78,7 +78,7 @@ const readHistoryToTooltip = (
   return (
     <>
       <strong>
-        {value.reads} article${value.reads > 1 ? 's' : ''} read
+        {value.reads} article{value.reads > 1 ? 's' : ''} read
       </strong>{' '}
       on {formattedDate}
     </>
