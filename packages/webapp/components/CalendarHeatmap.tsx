@@ -184,19 +184,19 @@ export default function CalendarHeatmap<T extends { date: string }>({
     const bin = value?.bin || 0;
     const attrs = binsAttributes[bin];
     return (
-      <>
-        <SimpleTooltip
-          content={valueToTooltip(
-            value?.originalValue,
-            addDays(startDateWithEmptyDays, index),
-          )}
-          disableOutAnimation
-          delay={10}
-          container={{
-            paddingClassName: 'py-3 px-4',
-            roundedClassName: 'rounded-3',
-          }}
-        >
+      <SimpleTooltip
+        content={valueToTooltip(
+          value?.originalValue,
+          addDays(startDateWithEmptyDays, index),
+        )}
+        disableOutAnimation
+        delay={10}
+        container={{
+          paddingClassName: 'py-3 px-4',
+          roundedClassName: 'rounded-3',
+        }}
+      >
+        <g>
           <rect
             key={index}
             width={SQUARE_SIZE}
@@ -206,18 +206,18 @@ export default function CalendarHeatmap<T extends { date: string }>({
             rx="3"
             {...attrs}
           />
-        </SimpleTooltip>
-        {!bin && (
-          <rect
-            width={SQUARE_SIZE - 2}
-            height={SQUARE_SIZE - 2}
-            x={x + 1}
-            y={y + 1}
-            rx="2"
-            fill="var(--theme-background-primary)"
-          />
-        )}
-      </>
+          {!bin && (
+            <rect
+              width={SQUARE_SIZE - 2}
+              height={SQUARE_SIZE - 2}
+              x={x + 1}
+              y={y + 1}
+              rx="2"
+              fill="var(--theme-background-primary)"
+            />
+          )}
+        </g>
+      </SimpleTooltip>
     );
   };
 
