@@ -244,28 +244,7 @@ export default function MainFeedLayout({
         </div>
       )}
       <nav className="flex overflow-x-auto relative items-center self-stretch mb-6 h-11 no-scrollbar">
-        <ButtonOrLink
-          asLink={!useNavButtonsNotLinks}
-          href="/search"
-          buttonSize="small"
-          icon={<MagnifyingIcon />}
-          className={tabClassNames}
-          title="Search"
-          onClick={onSearchButtonClick}
-        />
-        {tabs.map((tab) => (
-          <ButtonOrLink
-            asLink={!useNavButtonsNotLinks}
-            href={tab.path}
-            key={tab.path}
-            buttonSize="small"
-            pressed={tab.name === feedName}
-            className={tabClassNames}
-            onClick={() => onTabClick(tab)}
-          >
-            {tab.title}
-          </ButtonOrLink>
-        ))}
+        <h3 className="typo-headline capitalize">{feedName}</h3>
         <div className="flex-1" />
         {navChildren}
         {isUpvoted && (
