@@ -90,7 +90,7 @@ export default function useReadingRank(): ReturnType {
     });
 
   const shouldShowRankModal = checkShouldShowRankModal(
-    alerts.rankLastSeen,
+    alerts?.rankLastSeen,
     cachedRank?.rank?.lastReadTime || remoteRank?.rank?.lastReadTime,
     neverShowRankModal,
   );

@@ -39,7 +39,7 @@ export const AlertContextProvider = ({
 }: AlertContextProviderProps): ReactElement => {
   const [alerts, setAlerts] = usePersistentState(
     STORAGE_KEY,
-    null,
+    ALERT_DEFAULTS,
     ALERT_DEFAULTS,
   );
   const { mutateAsync: updateAlerts } = useMutation<
