@@ -6,20 +6,18 @@ import React, {
   useState,
 } from 'react';
 import dynamic from 'next/dynamic';
-import Link from 'next/link';
 import { CSSTransition } from 'react-transition-group';
 import classNames from 'classnames';
-import classed from '../lib/classed';
 import { Button } from './buttons/Button';
 import ProgressiveEnhancementContext from '../contexts/ProgressiveEnhancementContext';
 import AuthContext from '../contexts/AuthContext';
-import { getTooltipProps } from '../lib/tooltip';
 import PromotionalBanner from './PromotionalBanner';
 import Logo from '../svg/Logo';
 import LogoText from '../svg/LogoText';
 import styles from './MainLayout.module.css';
-import ProfileButton from './profile/ProfileButton';
 import useSidebarMenu from '../hooks/useSidebarMenu';
+import ProfileButton from './profile/ProfileButton';
+import { LinkWithTooltip } from './tooltips/LinkWithTooltip';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -32,11 +30,14 @@ export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   onShowDndClick?: () => unknown;
 }
 
+const HeaderRankProgress = dynamic(
+  () =>
+    import(/* webpackChunkName: "headerRankProgress" */ './HeaderRankProgress'),
+);
+
 const Greeting = dynamic(
   () => import(/* webpackChunkName: "greeting" */ './Greeting'),
 );
-
-export const HeaderButton = classed(Button, 'hidden mx-0.5 laptop:flex');
 
 export default function MainLayout({
   children,
@@ -63,17 +64,14 @@ export default function MainLayout({
             : 'non-responsive-header'
         }`}
       >
-        <Link
+        <LinkWithTooltip
           href={process.env.NEXT_PUBLIC_WEBAPP_URL}
           passHref
           prefetch={false}
+          tooltip={{ placement: 'right', content: 'Home' }}
         >
           {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
-          <a
-            className="flex items-center"
-            onClick={onLogoClick}
-            {...getTooltipProps('Home', { position: 'right' })}
-          >
+          <a className="flex items-center" onClick={onLogoClick}>
             <Logo className={styles.homeSvg} />
             <CSSTransition
               in={!showGreeting}
@@ -89,7 +87,7 @@ export default function MainLayout({
               />
             </CSSTransition>
           </a>
-        </Link>
+        </LinkWithTooltip>
         {windowLoaded && greeting && (
           <Greeting
             user={user}

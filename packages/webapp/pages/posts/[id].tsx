@@ -48,7 +48,6 @@ import { logReadArticle } from '@dailydotdev/shared/src/lib/analytics';
 import useSubscription from '@dailydotdev/shared/src/hooks/useSubscription';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
-import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 import Link from 'next/link';
 import useUpvotePost from '@dailydotdev/shared/src/hooks/useUpvotePost';
 import useBookmarkPost from '@dailydotdev/shared/src/hooks/useBookmarkPost';
@@ -62,6 +61,8 @@ import PostOptionsMenu from '@dailydotdev/shared/src/components/PostOptionsMenu'
 import useReportPostMenu from '@dailydotdev/shared/src/hooks/useReportPostMenu';
 import MenuIcon from '@dailydotdev/shared/icons/menu.svg';
 import { CardNotification } from '@dailydotdev/shared/src/components/cards/Card';
+import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
+import { LinkWithTooltip } from '@dailydotdev/shared/src/components/tooltips/LinkWithTooltip';
 import PostToc from '../../components/widgets/PostToc';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import styles from './postPage.module.css';
@@ -506,26 +507,31 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             </CardNotification>
           ) : (
             <>
-              <Link
-                href={`/sources/${postById?.post.source.id}`}
-                passHref
-                prefetch={false}
-              >
-                <a
-                  className="flex no-underline cursor-pointer"
-                  {...(!postById?.post.author
-                    ? {}
-                    : getTooltipProps(postById?.post.source.name, {
-                        position: 'down',
-                      }))}
+              {postById?.post.author ? (
+                <LinkWithTooltip
+                  href={`/sources/${postById?.post.source.id}`}
+                  passHref
+                  prefetch={false}
+                  tooltip={{
+                    placement: 'bottom',
+                    content: postById?.post.source.name,
+                  }}
                 >
                   <SourceImage
+                    className="cursor-pointer"
                     imgSrc={postById?.post.source.image}
                     imgAlt={postById?.post.source.name}
                     background="var(--theme-background-secondary)"
                   />
-                </a>
-              </Link>
+                </LinkWithTooltip>
+              ) : (
+                <SourceImage
+                  className="cursor-pointer"
+                  imgSrc={postById?.post.source.image}
+                  imgAlt={postById?.post.source.name}
+                  background="var(--theme-background-secondary)"
+                />
+              )}
               {postById?.post.author ? (
                 <ProfileLink
                   user={postById.post.author}
@@ -547,16 +553,15 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
                   <SourceName>{postById?.post.source.name}</SourceName>
                 </div>
               )}
-              <Button
-                className="right-4 my-auto btn-tertiary"
-                style={{ position: 'absolute' }}
-                icon={<MenuIcon />}
-                onClick={(event) => showPostOptionsContext(event)}
-                buttonSize="small"
-                {...getTooltipProps('Options', {
-                  position: 'left',
-                })}
-              />
+              <SimpleTooltip placement="left" content="Options">
+                <Button
+                  className="right-4 my-auto btn-tertiary"
+                  style={{ position: 'absolute' }}
+                  icon={<MenuIcon />}
+                  onClick={(event) => showPostOptionsContext(event)}
+                  buttonSize="small"
+                />
+              </SimpleTooltip>
             </>
           )}
         </div>
@@ -657,18 +662,6 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           >
             Bookmark
           </QuaternaryButton>
-          {/* <QuaternaryButton */}
-          {/*  id="share-post-btn" */}
-          {/*  onClick={sharePost} */}
-          {/*  {...getTooltipProps('Share')} */}
-          {/*  icon={<ShareIcon />} */}
-          {/*  style={{ visibility: nativeShareSupport ? 'visible' : 'hidden' }} */}
-          {/*  aria-label="Share" */}
-          {/*  responsiveClass="mobileL:flex" */}
-          {/*  className="btn-tertiary" */}
-          {/* > */}
-          {/*  Share */}
-          {/* </QuaternaryButton> */}
         </div>
         {isLoadingComments && <PlaceholderCommentList />}
         {!isLoadingComments && comments?.postComments?.edges?.length > 0 && (

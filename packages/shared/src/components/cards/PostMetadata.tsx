@@ -2,6 +2,12 @@ import React, { ReactElement, ReactNode, useMemo } from 'react';
 import classNames from 'classnames';
 import { Post } from '../../graphql/posts';
 import { postDateFormat } from '../../lib/dateFormat';
+import classed from '../../lib/classed';
+
+const Separator = classed(
+  'div',
+  'mx-1 w-0.5 h-0.5 rounded-full bg-theme-label-tertiary',
+);
 
 export default function PostMetadata({
   post,
@@ -12,7 +18,10 @@ export default function PostMetadata({
   className?: string;
   children?: ReactNode;
 }): ReactElement {
-  const date = useMemo(() => postDateFormat(post.createdAt), [post.createdAt]);
+  const date = useMemo(
+    () => post.createdAt && postDateFormat(post.createdAt),
+    [post.createdAt],
+  );
 
   return (
     <div
@@ -21,12 +30,10 @@ export default function PostMetadata({
         className,
       )}
     >
-      <time dateTime={post.createdAt}>{date}</time>
+      {!!post.createdAt && <time dateTime={post.createdAt}>{date}</time>}
+      {!!post.createdAt && !!post.readTime && <Separator />}
       {!!post.readTime && (
-        <>
-          <div className="mx-1 w-0.5 h-0.5 rounded-full bg-theme-label-tertiary" />
-          <span data-testid="readTime">{post.readTime}m read time</span>
-        </>
+        <span data-testid="readTime">{post.readTime}m read time</span>
       )}
       {children}
     </div>

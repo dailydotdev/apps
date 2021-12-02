@@ -1,12 +1,13 @@
 import React, {
-  HTMLAttributes,
-  LegacyRef,
+  forwardRef,
   ReactElement,
+  Ref,
+  useImperativeHandle,
   useRef,
   useState,
 } from 'react';
 import classNames from 'classnames';
-import { Button, ButtonProps } from './Button';
+import { Button, AllowedTags, ButtonProps, ButtonElementType } from './Button';
 
 type QuandaryButtonProps = {
   id: string;
@@ -14,39 +15,34 @@ type QuandaryButtonProps = {
   responsiveLabelClass?: string;
 };
 
-export function QuaternaryButton<Tag extends keyof JSX.IntrinsicElements>({
-  id,
-  children,
-  style,
-  className,
-  reverse,
-  responsiveLabelClass,
-  tag,
-  ...props
-}: ButtonProps<Tag> & QuandaryButtonProps): ReactElement {
-  let labelProps: HTMLAttributes<HTMLLabelElement> = {};
-  let buttonProps: {
-    className?: string;
-    innerRef?: LegacyRef<HTMLButtonElement>;
-  } = {};
-  if (tag === 'a') {
-    const buttonRef = useRef<HTMLButtonElement>(null);
-    const [isHovered, setIsHovered] = useState(false);
-    const onLabelClick = (event: React.MouseEvent<HTMLLabelElement>): void => {
-      event.preventDefault();
-      buttonRef.current.click();
-    };
-    labelProps = {
-      onMouseOver: () => setIsHovered(true),
-      onMouseLeave: () => setIsHovered(false),
-      onClick: onLabelClick,
-    };
-    buttonProps = {
-      className: isHovered && 'hover',
-      innerRef: buttonRef,
-    };
-  }
-
+function QuaternaryButtonComponent<TagName extends AllowedTags>(
+  {
+    id,
+    children,
+    style,
+    className,
+    reverse,
+    responsiveLabelClass,
+    tag = 'button',
+    ...props
+  }: ButtonProps<TagName> & QuandaryButtonProps,
+  ref?: Ref<ButtonElementType<TagName>>,
+): ReactElement {
+  const anchorRef = useRef<ButtonElementType<TagName>>(null);
+  useImperativeHandle(ref, () => anchorRef?.current);
+  const [isHovered, setIsHovered] = useState(false);
+  const onLabelClick = (event: React.MouseEvent<HTMLLabelElement>): void => {
+    event.preventDefault();
+    anchorRef?.current?.click();
+  };
+  const labelProps =
+    tag === 'a'
+      ? {
+          onMouseOver: () => setIsHovered(true),
+          onMouseLeave: () => setIsHovered(false),
+          onClick: onLabelClick,
+        }
+      : {};
   const labelDisplay = responsiveLabelClass
     ? `hidden ${responsiveLabelClass}`
     : 'flex';
@@ -65,7 +61,13 @@ export function QuaternaryButton<Tag extends keyof JSX.IntrinsicElements>({
         className,
       )}
     >
-      <Button<Tag> id={id} {...props} tag={tag} {...buttonProps} />
+      <Button
+        {...props}
+        id={id}
+        tag={tag}
+        ref={anchorRef}
+        className={classNames(tag === 'a' && isHovered && 'hover')}
+      />
       {children && (
         <label
           htmlFor={id}
@@ -78,3 +80,5 @@ export function QuaternaryButton<Tag extends keyof JSX.IntrinsicElements>({
     </div>
   );
 }
+
+export const QuaternaryButton = forwardRef(QuaternaryButtonComponent);

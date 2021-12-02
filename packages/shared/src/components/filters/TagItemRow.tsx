@@ -1,9 +1,9 @@
 import React, { HTMLAttributes, ReactElement } from 'react';
 import { FilterItem } from './common';
-import { getTooltipProps } from '../../lib/tooltip';
 import { Button } from '../buttons/Button';
 import TagButton from './TagButton';
 import { TagActionArguments } from '../../hooks/useTagAndSource';
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 type TagItemRowProps = {
   tooltip: string;
@@ -41,15 +41,14 @@ export default function TagItemRow({
         onUnfollowTags={onUnfollowTags}
         onUnblockTags={onUnblockTags}
       />
-      <Button
-        className="right-4 my-auto btn-tertiary"
-        style={{ position: 'absolute' }}
-        onClick={(event) => onClick?.(event, tag)}
-        icon={rowIcon}
-        {...getTooltipProps(tooltip, {
-          position: 'left',
-        })}
-      />
+      <SimpleTooltip placement="left" content={tooltip}>
+        <Button
+          className="right-4 my-auto btn-tertiary"
+          style={{ position: 'absolute' }}
+          onClick={(event) => onClick?.(event, tag)}
+          icon={rowIcon}
+        />
+      </SimpleTooltip>
     </FilterItem>
   );
 }

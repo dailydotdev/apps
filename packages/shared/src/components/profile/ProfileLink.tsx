@@ -1,8 +1,8 @@
 import React, { HTMLAttributes, ReactElement } from 'react';
 import Link from 'next/link';
 import classNames from 'classnames';
-import { getTooltipProps } from '../../lib/tooltip';
 import { PublicProfile } from '../../lib/user';
+import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 
 export interface ProfileLinkProps extends HTMLAttributes<HTMLAnchorElement> {
   user: Pick<PublicProfile, 'image' | 'permalink' | 'username' | 'name'>;
@@ -16,15 +16,21 @@ export function ProfileLink({
   className,
   ...props
 }: ProfileLinkProps): ReactElement {
+  const LinkComponent = disableTooltip ? Link : LinkWithTooltip;
+
   return (
-    <Link href={user.permalink} passHref prefetch={false}>
+    <LinkComponent
+      href={user.permalink}
+      passHref
+      prefetch={false}
+      tooltip={{ content: user.name }}
+    >
       <a
-        {...(disableTooltip ? {} : getTooltipProps(user.name))}
         {...props}
         className={classNames(className, 'flex items-center no-underline')}
       >
         {children}
       </a>
-    </Link>
+    </LinkComponent>
   );
 }

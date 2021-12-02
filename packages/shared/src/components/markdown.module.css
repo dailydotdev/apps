@@ -1,42 +1,43 @@
 .markdown {
   & :where(h1) {
-    @apply font-bold typo-title2 mt-16 mb-8;
+    @apply font-bold typo-title2 mt-10 mb-7;
   }
   & :where(h2) {
-    @apply font-bold typo-title3 mt-12 mb-7;
+    @apply font-bold typo-title3 mt-8 mb-6;
   }
   & :where(h3) {
-    @apply font-bold typo-headline mt-8 mb-6;
+    @apply font-bold typo-headline mt-7 mb-5;
   }
   & :where(h4) {
-    @apply typo-headline mt-6 mb-5;
+    @apply typo-headline mt-6 mb-4;
   }
   & :where(h5) {
-    @apply text-theme-label-tertiary font-bold typo-body mt-6 mb-4;
+    @apply text-theme-label-tertiary font-bold typo-body mt-5 mb-4;
   }
   & :where(h6) {
     @apply text-theme-label-tertiary font-bold mt-4 mb-3;
   }
   & :where(p) {
-    @apply my-8;
+    @apply my-7;
   }
   & :where(blockquote) {
-    @apply typo-body italic pl-7 my-8 border-l border-theme-divider-secondary;
+    @apply typo-body italic pl-7 my-7 border-l border-theme-divider-secondary;
   }
   & :where(pre) {
-    @apply relative bg-theme-float py-8 px-6 my-8 rounded-12 border border-theme-divider-quaternary;
+    @apply relative bg-theme-float py-7 px-6 my-7 rounded-12 border border-theme-divider-quaternary;
   }
   & :where(pre) > code {
     @apply whitespace-pre-wrap;
+    color: var(--theme-highlight-label);
   }
   & :not(pre) > code {
     @apply bg-theme-float typo-footnote border border-theme-divider-quaternary px-1 rounded-6;
   }
   & :where(ul) {
-    @apply list-disc my-8 pl-8;
+    @apply list-disc my-7 pl-7;
   }
   & :where(ol) {
-    @apply list-decimal my-8 pl-8;
+    @apply list-decimal my-7 pl-7;
   }
   & :where(li) {
     @apply my-2 pl-2;
@@ -54,7 +55,7 @@
     @apply border-theme-divider-secondary my-10;
   }
   & :where(img) {
-    @apply rounded-16;
+    @apply rounded-16 max-h-img-mobile tablet:max-h-img-desktop;
   }
   & > :where(:first-child) {
     @apply mt-0;

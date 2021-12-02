@@ -52,7 +52,7 @@ export default function HeaderRankProgress({
     rank,
     nextRank,
     progress,
-    neverShowRankModal,
+    shouldShowRankModal,
     levelUp,
     confirmLevelUp,
     reads,
@@ -63,7 +63,7 @@ export default function HeaderRankProgress({
   }
 
   const showWelcome = onboardingStep === 1;
-  const showRankAnimation = levelUp && neverShowRankModal;
+  const showRankAnimation = levelUp && !shouldShowRankModal;
   const closeRanksModal = () => {
     setShowRanksModal(false);
     if (showWelcome) {
@@ -125,12 +125,12 @@ export default function HeaderRankProgress({
           devCardLimit={devCardLimit}
         />
       )}
-      {levelUp && !neverShowRankModal && (
+      {levelUp && shouldShowRankModal && (
         <NewRankModal
           rank={nextRank}
           progress={progress}
           user={user}
-          isOpen={levelUp && !neverShowRankModal}
+          isOpen={levelUp && shouldShowRankModal}
           onRequestClose={confirmLevelUp}
           showDevCard={reads >= devCardLimit || !devCardLimit}
         />

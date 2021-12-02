@@ -1,10 +1,10 @@
 import React, { ReactElement } from 'react';
 import { FilterItem } from './common';
 import { Source } from '../../graphql/sources';
-import { getTooltipProps } from '../../lib/tooltip';
 import { LazyImage } from '../LazyImage';
 import { Button } from '../buttons/Button';
 import BlockIcon from '../../../icons/block.svg';
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 export default function SourceItemRow({
   source,
@@ -27,15 +27,17 @@ export default function SourceItemRow({
           {source.name}
         </span>
       </a>
-      <Button
-        className="right-4 my-auto btn-tertiary"
-        style={{ position: 'absolute' }}
-        onClick={() => onSourceClick?.(source)}
-        icon={<BlockIcon />}
-        {...getTooltipProps(blocked ? 'Unblock source' : 'Block source', {
-          position: 'left',
-        })}
-      />
+      <SimpleTooltip
+        placement="left"
+        content={blocked ? 'Unblock source' : 'Block source'}
+      >
+        <Button
+          className="right-4 my-auto btn-tertiary"
+          style={{ position: 'absolute' }}
+          onClick={() => onSourceClick?.(source)}
+          icon={<BlockIcon />}
+        />
+      </SimpleTooltip>
     </FilterItem>
   );
 }

@@ -1,5 +1,6 @@
 import React, {
   ReactElement,
+  ReactNode,
   useContext,
   useEffect,
   useMemo,
@@ -62,7 +63,10 @@ const RanksModal = dynamic(
 );
 
 const readHistoryToValue = (value: UserReadHistory): number => value.reads;
-const readHistoryToTooltip = (value: UserReadHistory, date: Date): string => {
+const readHistoryToTooltip = (
+  value: UserReadHistory,
+  date: Date,
+): ReactNode => {
   const formattedDate = date.toLocaleString('en-US', {
     month: 'short',
     day: '2-digit',
@@ -71,9 +75,14 @@ const readHistoryToTooltip = (value: UserReadHistory, date: Date): string => {
   if (!value?.reads) {
     return `No articles read on ${formattedDate}`;
   }
-  return `<strong>${value.reads} article${
-    value.reads > 1 ? 's' : ''
-  } read</strong> on ${formattedDate}`;
+  return (
+    <>
+      <strong>
+        {value.reads} article{value.reads > 1 ? 's' : ''} read
+      </strong>{' '}
+      on {formattedDate}
+    </>
+  );
 };
 
 const RankHistory = ({

@@ -14,13 +14,12 @@ import {
 } from '../lib/share';
 import { Post } from '../graphql/posts';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
-import { Button, ButtonProps } from './buttons/Button';
+import { Button } from './buttons/Button';
 import { ModalCloseButton } from './modals/ModalCloseButton';
-import { getTooltipProps } from '../lib/tooltip';
 import classed from '../lib/classed';
+import { SimpleTooltip } from './tooltips/SimpleTooltip';
 
-const ShareButton = classed<ButtonProps<'a'>>(Button, 'text-white');
-
+const ShareButton = classed(Button, 'text-white');
 interface ShareNewCommentPopupProps {
   onRequestClose: () => void;
   post: Post;
@@ -56,42 +55,45 @@ export default function ShareNewCommentPopup({
         Give it a try!
       </div>
       <div className="grid grid-cols-2 gap-4">
-        <ShareButton
-          tag="a"
-          href={getTwitterShareLink(href, post.title)}
-          target="_blank"
-          rel="noopener"
-          icon={<TwitterIcon />}
-          className="btn-primary-twitter"
-          buttonSize="small"
-          {...getTooltipProps('Share on Twitter')}
-        >
-          Twitter
-        </ShareButton>
-        <ShareButton
-          tag="a"
-          href={getWhatsappShareLink(href)}
-          target="_blank"
-          rel="noopener"
-          icon={<WhatsappIcon />}
-          className="btn-primary-whatsapp"
-          buttonSize="small"
-          {...getTooltipProps('Share on WhatsApp')}
-        >
-          Whatsapp
-        </ShareButton>
-        <ShareButton
-          tag="a"
-          href={getFacebookShareLink(href)}
-          target="_blank"
-          rel="noopener"
-          icon={<FacebookIcon />}
-          className="btn-primary-facebook"
-          buttonSize="small"
-          {...getTooltipProps('Share on Facebook')}
-        >
-          Facebook
-        </ShareButton>
+        <SimpleTooltip content="Share on Twitter">
+          <ShareButton
+            tag="a"
+            href={getTwitterShareLink(href, post.title)}
+            target="_blank"
+            rel="noopener"
+            icon={<TwitterIcon />}
+            className="btn-primary-twitter"
+            buttonSize="small"
+          >
+            Twitter
+          </ShareButton>
+        </SimpleTooltip>
+        <SimpleTooltip content="Share on WhatsApp">
+          <ShareButton
+            tag="a"
+            href={getWhatsappShareLink(href)}
+            target="_blank"
+            rel="noopener"
+            icon={<WhatsappIcon />}
+            className="btn-primary-whatsapp"
+            buttonSize="small"
+          >
+            Whatsapp
+          </ShareButton>
+        </SimpleTooltip>
+        <SimpleTooltip content="Share on Facebook">
+          <ShareButton
+            tag="a"
+            href={getFacebookShareLink(href)}
+            target="_blank"
+            rel="noopener"
+            icon={<FacebookIcon />}
+            className="btn-primary-facebook"
+            buttonSize="small"
+          >
+            Facebook
+          </ShareButton>
+        </SimpleTooltip>
         <Button
           className="btn-primary"
           buttonSize="small"

@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import PlusIcon from '../../../icons/plus.svg';
 import BlockIcon from '../../../icons/block.svg';
-import { Button, ButtonProps } from '../buttons/Button';
+import { AllowedTags, Button, ButtonProps } from '../buttons/Button';
 import { TagActionArguments } from '../../hooks/useTagAndSource';
 
 const GenericTagButton = ({
@@ -99,7 +99,7 @@ export interface TagButtonProps {
   onUnblockTags?: ({ tags }: TagActionArguments) => void;
 }
 
-export default function TagButton<Tag extends keyof JSX.IntrinsicElements>({
+export default function TagButton<Tag extends AllowedTags>({
   tagItem,
   followedTags,
   blockedTags,

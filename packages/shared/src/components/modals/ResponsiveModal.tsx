@@ -12,14 +12,20 @@ export const responsiveModalBreakpoint = breakpoint;
 
 export function ResponsiveModal({
   className,
+  padding = true,
   ...props
 }: ModalProps): ReactElement {
   useResetScrollForResponsiveModal();
   useHideOnModal(props.isOpen);
+
   return (
     <StyledModal
       {...props}
-      className={classNames(className, styles.responsiveModal)}
+      className={classNames(
+        className,
+        styles.responsiveModal,
+        padding && styles.addPadding,
+      )}
     />
   );
 }
