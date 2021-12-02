@@ -24,7 +24,6 @@ import { LinkWithTooltip } from './tooltips/LinkWithTooltip';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
-  responsive?: boolean;
   showRank?: boolean;
   greeting?: boolean;
   mainPage?: boolean;
@@ -45,7 +44,6 @@ const Greeting = dynamic(
 export default function MainLayout({
   children,
   showOnlyLogo,
-  responsive = true,
   showRank,
   greeting,
   mainPage,
@@ -66,15 +64,9 @@ export default function MainLayout({
 
   return (
     <>
-      {!responsive && <PromotionalBanner />}
+      <PromotionalBanner />
       <header
-        className={`${
-          styles.header
-        } relative flex items-center px-4 border-b border-theme-divider-tertiary tablet:px-8 laptop:px-4 ${
-          responsive
-            ? 'laptop:absolute laptop:top-0 laptop:left-0 laptop:w-full laptop:border-b-0'
-            : 'non-responsive-header'
-        }`}
+        className={`${styles.header} relative flex items-center px-4 border-b border-theme-divider-tertiary tablet:px-8 laptop:px-4 non-responsive-header`}
       >
         <LinkWithTooltip
           href={process.env.NEXT_PUBLIC_WEBAPP_URL}
