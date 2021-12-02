@@ -837,9 +837,6 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
 };
 
 PostPage.getLayout = getMainLayout;
-PostPage.layoutProps = {
-  responsive: false,
-};
 
 export default PostPage;
 

@@ -78,7 +78,6 @@ export function getMainFeedLayout(
 }
 
 export const mainFeedLayoutProps: MainLayoutProps = {
-  responsive: false,
   showRank: true,
   greeting: true,
   mainPage: true,

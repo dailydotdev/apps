@@ -66,7 +66,6 @@ export default function MainFeedPage({
 
   return (
     <MainLayout
-      responsive={false}
       showRank
       greeting
       mainPage
