@@ -104,7 +104,7 @@
   transform: rotate(45deg);
 }
 
-.tippyTooltip {
+.animate {
   will-change: transform;
 
   &[data-popper-placement^='top'] {

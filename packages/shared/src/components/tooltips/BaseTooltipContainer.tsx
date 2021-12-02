@@ -9,6 +9,8 @@ export interface BaseTooltipContainerProps {
   className?: string;
   arrowClassName?: string;
   placement?: TooltipPosition;
+  paddingClassName?: string;
+  roundedClassName?: string;
 }
 
 export function BaseTooltipContainer({
@@ -16,13 +18,17 @@ export function BaseTooltipContainer({
   arrow = true,
   arrowClassName,
   placement = 'top',
+  paddingClassName = 'py-1 px-3',
+  roundedClassName = 'rounded-10',
   children,
 }: BaseTooltipContainerProps): ReactElement {
   return (
     <div
       data-popper-placement={placement}
       className={classNames(
-        'relative flex flex-row items-center py-1 px-3 rounded-10 bg-theme-label-primary text-theme-label-invert typo-subhead',
+        'relative flex flex-row items-center bg-theme-label-primary text-theme-label-invert typo-subhead',
+        paddingClassName,
+        roundedClassName,
         className,
       )}
     >
