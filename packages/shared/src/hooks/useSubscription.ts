@@ -1,18 +1,13 @@
 import { DependencyList, useContext, useEffect, useRef } from 'react';
-import { OperationOptions } from 'subscriptions-transport-ws';
 import SubscriptionContext from '../contexts/SubscriptionContext';
-
-interface Payload<T> {
-  data: T;
-}
 
 export interface SubscriptionCallbacks<T> {
   next?: (value: T) => unknown;
-  error?: (error: Error) => unknown;
+  error?: (error: unknown) => unknown;
 }
 
 export default function useSubscription<T>(
-  request: () => OperationOptions,
+  request: () => { query: string; variables?: Record<string, unknown> },
   { next, error }: SubscriptionCallbacks<T>,
   deps?: DependencyList,
 ): void {
@@ -30,14 +25,13 @@ export default function useSubscription<T>(
 
   useEffect(() => {
     if (connected) {
-      const observable = subscriptionClient.request(request());
-      const { unsubscribe } = observable.subscribe({
-        next: (value: Payload<T>) => {
-          nextRef.current?.(value.data);
+      return subscriptionClient.subscribe<T>(request(), {
+        next: (value: T) => {
+          nextRef.current?.(value);
         },
         error: (subscribeError) => errorRef.current?.(subscribeError),
+        complete: () => {},
       });
-      return unsubscribe;
     }
     return undefined;
   }, [connected, ...(deps ?? [])]);
