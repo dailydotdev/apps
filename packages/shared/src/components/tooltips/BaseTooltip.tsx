@@ -38,6 +38,7 @@ export function BaseTooltip(
   }: BaseTooltipProps,
   ref?: Ref<Element>,
 ): ReactElement {
+  const [mounted, setMounted] = useState(false);
   const [unMounting, setUnMounting] = useState(false);
   const onHide = ({ unmount }) => {
     if (disableOutAnimation) {
@@ -50,10 +51,18 @@ export function BaseTooltip(
     }, DEFAULT_OUT_ANIMATION);
   };
 
+  const lazyPlugin = {
+    fn: () => ({
+      onMount: () => setMounted(true),
+      onHidden: () => setMounted(false),
+    }),
+  };
+
   return (
     <Tippy
       ref={ref}
       {...props}
+      plugins={[lazyPlugin]}
       placement={placement}
       onHide={onHide}
       delay={delay}
@@ -74,7 +83,7 @@ export function BaseTooltip(
             container.className,
           )}
         >
-          {content}
+          {mounted && content}
         </BaseTooltipContainer>
       }
     >
