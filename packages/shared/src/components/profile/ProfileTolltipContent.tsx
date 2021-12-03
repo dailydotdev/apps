@@ -27,7 +27,7 @@ export function ProfileTooltipContent({
   );
 
   return (
-    <div className="flex flex-col font-normal typo-callout">
+    <div className="flex flex-col flex-shrink font-normal typo-callout">
       <div className="relative w-fit">
         <ProfileImageLink user={user} picture={{ size: 'xxlarge' }} />
         {userReadingRank && (
@@ -47,7 +47,7 @@ export function ProfileTooltipContent({
       <ProfileLink className="text-theme-label-secondary" user={user}>
         @{user.username}
       </ProfileLink>
-      <p className="mt-3 text-theme-label-tertiary">{user.bio}</p>
+      <p className="mt-3 line-clamp-3 text-theme-label-tertiary">{user.bio}</p>
     </div>
   );
 }
