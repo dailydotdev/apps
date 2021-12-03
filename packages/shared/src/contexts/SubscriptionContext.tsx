@@ -6,13 +6,13 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { SubscriptionClient } from 'subscriptions-transport-ws';
+import { Client } from 'graphql-ws';
 import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 import ProgressiveEnhancementContext from './ProgressiveEnhancementContext';
 import AuthContext from './AuthContext';
 
 export interface SubscriptionContextData {
-  subscriptionClient: SubscriptionClient;
+  subscriptionClient: Client;
   connected: boolean;
 }
 
@@ -33,8 +33,7 @@ export const SubscriptionContextProvider = ({
   const { tokenRefreshed } = useContext(AuthContext);
 
   const [connected, setConnected] = useState(false);
-  const [subscriptionClient, setSubscriptionClient] =
-    useState<SubscriptionClient>(null);
+  const [subscriptionClient, setSubscriptionClient] = useState<Client>(null);
 
   useEffect(() => {
     if (windowLoaded && tokenRefreshed) {
@@ -43,7 +42,7 @@ export const SubscriptionContextProvider = ({
           /* webpackChunkName: "subscriptions" */ '../graphql/subscriptions'
         ).then(({ subscriptionClient: loadedSubscriptionClient }) => {
           setSubscriptionClient(loadedSubscriptionClient);
-          loadedSubscriptionClient.onConnected(() => setConnected(true));
+          loadedSubscriptionClient.on('connected', () => setConnected(true));
         });
       });
     }

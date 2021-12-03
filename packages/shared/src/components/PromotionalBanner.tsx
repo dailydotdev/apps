@@ -8,8 +8,13 @@ import { apiUrl } from '../lib/config';
 import { BANNER_QUERY, BannerData } from '../graphql/banner';
 import ProgressiveEnhancementContext from '../contexts/ProgressiveEnhancementContext';
 import usePersistentState from '../hooks/usePersistentState';
+import { isTesting } from '../lib/constants';
 
 export default function PromotionalBanner(): ReactElement {
+  // Disable this component in Jest environment
+  if (isTesting) {
+    return <></>;
+  }
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const [lastSeen, setLastSeen] = usePersistentState(
     'lastSeenBanner',

@@ -375,8 +375,5 @@ const DevCardPage = (): ReactElement => {
 };
 
 DevCardPage.getLayout = getMainLayout;
-DevCardPage.layoutProps = {
-  responsive: false,
-};
 
 export default DevCardPage;
