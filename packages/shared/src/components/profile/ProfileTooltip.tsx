@@ -11,7 +11,7 @@ import {
 
 export interface ProfileTooltipProps extends ProfileTooltipContentProps {
   children: ReactElement;
-  link?: Omit<LinkWithTooltipProps, 'children'>;
+  link?: Omit<LinkWithTooltipProps, 'children' | 'tooltip'>;
 }
 
 export function ProfileTooltip({
@@ -20,19 +20,23 @@ export function ProfileTooltip({
   link,
 }: ProfileTooltipProps): ReactElement {
   const Tooltip = link ? LinkWithTooltip : SimpleTooltip;
+  const props = {
+    interactive: true,
+    container: {
+      arrow: false,
+      paddingClassName: 'p-6',
+      roundedClassName: 'rounded-16',
+      className:
+        'w-72 bg-theme-bg-primary shadow-2 border border-theme-divider-secondary',
+    },
+  };
 
   return (
     <Tooltip
       content={<ProfileTooltipContent user={user} />}
       {...link}
-      interactive
-      container={{
-        arrow: false,
-        paddingClassName: 'p-6',
-        roundedClassName: 'rounded-16',
-        className:
-          'w-72 bg-theme-bg-primary shadow-2 border border-theme-divider-secondary',
-      }}
+      {...props}
+      tooltip={props}
     >
       {children}
     </Tooltip>
