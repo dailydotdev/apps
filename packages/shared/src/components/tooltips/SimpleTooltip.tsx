@@ -15,6 +15,7 @@ export interface SimpleTooltipProps
     | 'delay'
     | 'disableInAnimation'
     | 'disableOutAnimation'
+    | 'interactive'
   > {
   container?: Omit<BaseTooltipContainerProps, 'placement' | 'children'>;
 }
