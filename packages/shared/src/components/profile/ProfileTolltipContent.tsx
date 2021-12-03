@@ -48,7 +48,11 @@ export function ProfileTooltipContent({
       <ProfileLink className="text-theme-label-secondary" user={user}>
         @{user.username}
       </ProfileLink>
-      <p className="mt-3 line-clamp-3 text-theme-label-tertiary">{user.bio}</p>
+      {user.bio && (
+        <p className="mt-3 line-clamp-3 text-theme-label-tertiary">
+          {user.bio}
+        </p>
+      )}
     </div>
   );
 }
