@@ -536,7 +536,6 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
                 <ProfileLink
                   user={postById.post.author}
                   data-testid="authorLink"
-                  disableTooltip
                   className="flex-1 mr-auto ml-2"
                 >
                   <SourceImage

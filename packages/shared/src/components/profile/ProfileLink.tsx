@@ -1,29 +1,36 @@
 import React, { HTMLAttributes, ReactElement } from 'react';
 import Link from 'next/link';
 import classNames from 'classnames';
-import { PublicProfile } from '../../lib/user';
 import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
+import { Author } from '../../graphql/comments';
+import { SimpleTooltipProps } from '../tooltips/SimpleTooltip';
+
+export enum ProfileLinkTooltip {
+  Text = 'text',
+  Profile = 'profile',
+  Disabled = 'disabled',
+}
 
 export interface ProfileLinkProps extends HTMLAttributes<HTMLAnchorElement> {
-  user: Pick<PublicProfile, 'image' | 'permalink' | 'username' | 'name'>;
-  disableTooltip?: boolean;
+  user: Author;
+  tooltip?: SimpleTooltipProps;
 }
 
 export function ProfileLink({
   user,
-  disableTooltip,
+  tooltip,
   children,
   className,
   ...props
 }: ProfileLinkProps): ReactElement {
-  const LinkComponent = disableTooltip ? Link : LinkWithTooltip;
+  const LinkComponent = tooltip ? LinkWithTooltip : Link;
 
   return (
     <LinkComponent
       href={user.permalink}
       passHref
       prefetch={false}
-      tooltip={{ content: user.name }}
+      tooltip={tooltip}
     >
       <a
         {...props}

@@ -1,5 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import styles from './comments.module.css';
 import { Comment } from '../../graphql/comments';
 import { CommentBox, CommentPublishDate } from './common';
 import CommentActionButtons, {
@@ -42,13 +43,17 @@ export default function SubComment({
             lastComment ? 'h-4' : 'bottom-0',
           )}
         />
-        <ProfileImageLink className="w-8 h-8" user={comment.author} />
+        <ProfileImageLink
+          user={comment.author}
+          picture={{ size: 'medium' }}
+          tooltip={{ content: comment.author.username }}
+        />
       </div>
       <div className="flex flex-col flex-1 items-stretch ml-2">
         <SubCommentBox>
           <CommentAuthor postAuthorId={postAuthorId} author={comment.author} />
           <CommentPublishDate comment={comment} />
-          <div className="mt-2">
+          <div className={classNames(styles.commentBox, 'mt-2')}>
             <Markdown content={comment.contentHtml} />
           </div>
         </SubCommentBox>

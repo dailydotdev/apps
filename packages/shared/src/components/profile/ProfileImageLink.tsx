@@ -1,18 +1,18 @@
 import React, { ReactElement } from 'react';
-import classNames from 'classnames';
 import { ProfileLink, ProfileLinkProps } from './ProfileLink';
-import { ProfilePicture } from '../ProfilePicture';
+import { ProfilePicture, ProfilePictureProps } from '../ProfilePicture';
+
+interface ProfileImageLinkProps extends ProfileLinkProps {
+  picture?: Omit<ProfilePictureProps, 'user'>;
+}
 
 export function ProfileImageLink({
-  className,
+  picture = { size: 'large' },
   ...props
-}: ProfileLinkProps): ReactElement {
+}: ProfileImageLinkProps): ReactElement {
   return (
-    <ProfileLink
-      className={classNames(className, 'block w-10 h-10')}
-      {...props}
-    >
-      <ProfilePicture user={props.user} size="large" />
+    <ProfileLink {...props}>
+      <ProfilePicture {...picture} user={props.user} />
     </ProfileLink>
   );
 }
