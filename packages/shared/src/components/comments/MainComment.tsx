@@ -1,5 +1,6 @@
 import React, { ReactElement } from 'react';
 import { Comment } from '../../graphql/comments';
+import styles from './comments.module.css';
 import { CommentBox, CommentPublishDate } from './common';
 import CommentActionButtons, {
   CommentActionProps,
@@ -9,13 +10,14 @@ import { ProfileImageLink } from '../profile/ProfileImageLink';
 import CommentAuthor from './CommentAuthor';
 import classed from '../../lib/classed';
 import Markdown from '../Markdown';
+import { ProfileTooltip } from '../profile/ProfileTooltip';
 
 export interface Props extends CommentActionProps {
   comment: Comment;
   postAuthorId: string | null;
 }
 
-const MainCommentBox = classed(CommentBox, 'my-2');
+const MainCommentBox = classed(CommentBox, 'my-2', styles.commentBox);
 
 export default function MainComment({
   comment,
@@ -28,7 +30,9 @@ export default function MainComment({
   return (
     <article className="flex flex-col items-stretch mt-4" data-testid="comment">
       <div className="flex items-center">
-        <ProfileImageLink user={comment.author} />
+        <ProfileTooltip user={comment.author}>
+          <ProfileImageLink user={comment.author} />
+        </ProfileTooltip>
         <div className="flex flex-col ml-2">
           <CommentAuthor postAuthorId={postAuthorId} author={comment.author} />
           <CommentPublishDate comment={comment} />
