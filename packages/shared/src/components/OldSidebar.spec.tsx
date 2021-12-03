@@ -4,7 +4,7 @@ import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import OnboardingContext from '../contexts/OnboardingContext';
 import AuthContext from '../contexts/AuthContext';
-import Sidebar from './Sidebar';
+import OldSidebar from './OldSidebar';
 import defaultUser from '../../__tests__/fixture/loggedUser';
 import AlertContext, { AlertContextData } from '../contexts/AlertContext';
 import {
@@ -59,7 +59,7 @@ const renderComponent = (
               showReferral: false,
             }}
           >
-            <Sidebar />
+            <OldSidebar />
           </OnboardingContext.Provider>
         </AuthContext.Provider>
       </AlertContext.Provider>

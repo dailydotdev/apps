@@ -5,16 +5,13 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import Link from 'next/link';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import Feed, { FeedProps } from './Feed';
 import AuthContext from '../contexts/AuthContext';
 import { LoggedUser } from '../lib/user';
 import OnboardingContext from '../contexts/OnboardingContext';
-import MagnifyingIcon from '../../icons/magnifying.svg';
 import { Dropdown, DropdownProps } from './fields/Dropdown';
-import { Button, ButtonProps } from './buttons/Button';
 import { FeedPage } from './utilities';
 import utilitiesStyles from './utilities.module.css';
 import styles from './MainFeedLayout.module.css';
@@ -94,8 +91,6 @@ export type MainFeedLayoutProps = {
   searchQuery?: string;
   children?: ReactNode;
   useNavButtonsNotLinks?: boolean;
-  onNavTabClick?: (tab: Tab) => unknown;
-  onSearchButtonClick?: () => unknown;
   searchChildren: ReactNode;
   navChildren?: ReactNode;
 };
@@ -122,29 +117,11 @@ const periods = [
 ];
 const periodTexts = periods.map((period) => period.text);
 
-function ButtonOrLink({
-  asLink,
-  href,
-  ...props
-}: { asLink: boolean; href: string } & ButtonProps<'button'>) {
-  if (asLink) {
-    return (
-      <Link href={href} passHref prefetch={false}>
-        <Button {...props} tag="a" />
-      </Link>
-    );
-  }
-  return <Button {...props} />;
-}
-
 export default function MainFeedLayout({
   feedName: feedNameProp,
   searchQuery,
   isSearchOn,
   children,
-  useNavButtonsNotLinks,
-  onNavTabClick,
-  onSearchButtonClick,
   searchChildren,
   navChildren,
 }: MainFeedLayoutProps): ReactElement {
@@ -152,11 +129,7 @@ export default function MainFeedLayout({
   const { onboardingStep, onboardingReady } = useContext(OnboardingContext);
   const { flags } = useContext(FeaturesContext);
   const feedVersion = parseInt(flags?.feed_version?.value, 10) || 1;
-  const [defaultFeed, setDefaultFeed] = usePersistentState(
-    'defaultFeed',
-    null,
-    'popular',
-  );
+  const [defaultFeed] = usePersistentState('defaultFeed', null, 'popular');
   const showWelcome = onboardingStep === 1;
   const feedName = feedNameProp === 'default' ? defaultFeed : feedNameProp;
   const isUpvoted = !isSearchOn && feedName === 'upvoted';
@@ -211,7 +184,6 @@ export default function MainFeedLayout({
     isUpvoted && selectedPeriod,
   ]);
 
-  const tabClassNames = isSearchOn ? 'btn-tertiary invisible' : 'btn-tertiary';
   const periodDropdownProps: DropdownProps = {
     style: { width: '11rem' },
     buttonSize: 'medium',
@@ -221,11 +193,6 @@ export default function MainFeedLayout({
     onChange: (value, index) => {
       setSelectedPeriod(index);
     },
-  };
-
-  const onTabClick = (tab: Tab) => {
-    setDefaultFeed(tab.name);
-    onNavTabClick?.(tab);
   };
 
   return (
@@ -244,7 +211,9 @@ export default function MainFeedLayout({
         </div>
       )}
       <nav className="flex overflow-x-auto relative items-center self-stretch mb-6 h-11 no-scrollbar">
-        <h3 className="typo-headline capitalize">{feedName}</h3>
+        {!isSearchOn && (
+          <h3 className="capitalize typo-headline">{feedName}</h3>
+        )}
         <div className="flex-1" />
         {navChildren}
         {isUpvoted && (

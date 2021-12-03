@@ -1,105 +1,167 @@
 import React, { ReactElement, useContext, useState } from 'react';
-import classNames from 'classnames';
-import sizeN from '../../macros/sizeN.macro';
-import OnboardingContext from '../contexts/OnboardingContext';
-import FilterMenu from './filters/FilterMenu';
-import FilterRedDot from './filters/FilterRedDot';
-import useFeedSettings from '../hooks/useFeedSettings';
-import AlertContext from '../contexts/AlertContext';
-import { SimpleTooltip } from './tooltips/SimpleTooltip';
+import Link from 'next/link';
+import SettingsContext from '../contexts/SettingsContext';
+import { Button } from './buttons/Button';
+import { FeedSettingsModal } from './modals/FeedSettingsModal';
+import ArrowIcon from '../../icons/arrow.svg';
+import HotIcon from '../../icons/hot.svg';
+import FilterIcon from '../../icons/filter.svg';
+import UpvoteIcon from '../../icons/upvote.svg';
+import SearchIcon from '../../icons/magnifying.svg';
+import DisqusIcon from '../../icons/comment.svg';
+import BookmarkIcon from '../../icons/bookmark.svg';
+import EyeIcon from '../../icons/eye.svg';
+import SettingsIcon from '../../icons/settings.svg';
 
-const asideWidth = sizeN(89);
+interface SidebarMenuItems {
+  key: string;
+  items: SidebarMenuItem[];
+}
+
+interface SidebarMenuItem {
+  icon: ReactElement;
+  title: string;
+  path?: string;
+  action?: () => unknown;
+}
+
+const ListIcon = ({ Icon }): ReactElement => <Icon className="mr-3 w-5 h-5" />;
 
 export default function Sidebar(): ReactElement {
-  const { alerts, updateAlerts } = useContext(AlertContext);
-  const { feedSettings } = useFeedSettings();
-  const [opened, setOpened] = useState(false);
-  const { onboardingStep, incrementOnboardingStep } =
-    useContext(OnboardingContext);
-  const hightlightTrigger = onboardingStep === 2;
+  const { openSidebar, toggleOpenSidebar } = useContext(SettingsContext);
+  const [showSettings, setShowSettings] = useState(false);
 
-  const toggleSidebar = () => {
-    if (opened) {
-      setOpened(false);
-    } else {
-      setOpened(true);
-      if (hightlightTrigger) {
-        incrementOnboardingStep();
-      }
-      if (
-        alerts?.filter &&
-        (feedSettings?.includeTags?.length ||
-          feedSettings?.blockedTags?.length ||
-          feedSettings?.excludeSources?.length ||
-          feedSettings?.advancedSettings?.length)
-      ) {
-        updateAlerts({ filter: false });
-      }
-    }
-  };
+  const topMenuItems: SidebarMenuItems[] = [
+    {
+      key: 'Discover',
+      items: [
+        {
+          icon: <ListIcon Icon={FilterIcon} />,
+          title: 'Feed filters',
+          path: '/sidebar',
+        },
+        {
+          icon: <ListIcon Icon={HotIcon} />,
+          title: 'Popular',
+          path: '/popular',
+        },
+        {
+          icon: <ListIcon Icon={UpvoteIcon} />,
+          title: 'Most upvoted',
+          path: '/upvoted',
+        },
+        {
+          icon: <ListIcon Icon={DisqusIcon} />,
+          title: 'Best discussions',
+          path: '/discussed',
+        },
+        {
+          icon: <ListIcon Icon={SearchIcon} />,
+          title: 'Search',
+          path: '/search',
+        },
+      ],
+    },
+    {
+      key: 'Manage',
+      items: [
+        {
+          icon: <ListIcon Icon={BookmarkIcon} />,
+          title: 'Bookmarks',
+          path: '/bookmarks',
+        },
+        {
+          icon: <ListIcon Icon={EyeIcon} />,
+          title: 'Reading history',
+          path: '/history',
+        },
+        {
+          icon: <ListIcon Icon={SettingsIcon} />,
+          title: 'Customize',
+          action: () => setShowSettings(!showSettings),
+        },
+      ],
+    },
+  ];
+
+  const ItemInner = ({ item }: { item: SidebarMenuItem }) => (
+    <>
+      {item.icon}
+      <span
+        className={`flex-1 text-left transition-opacity ${
+          openSidebar ? 'opacity-100' : 'opacity-0'
+        }`}
+      >
+        {item.title}
+      </span>
+    </>
+  );
 
   return (
-    <div
-      className={classNames(
-        'fixed flex items-start top-0 left-0 h-full z-3 pointer-events-none',
-        { opened },
-      )}
-      style={{
-        transform: opened ? 'translateX(0)' : `translateX(-${asideWidth})`,
-        willChange: 'transform',
-        transition: 'transform 0.2s linear 0.1s',
-      }}
-    >
+    <>
       <aside
-        className={classNames(
-          'self-stretch bg-theme-bg-primary rounded-r-2xl border-r border-theme-divider-primary overflow-y-auto',
-          !opened && 'invisible',
-        )}
-        style={{
-          width: asideWidth,
-          transition: 'visibility 0s',
-          pointerEvents: 'all',
-          transitionDelay: opened ? '0s' : '0.3s',
-        }}
+        className={`border-r border-theme-divider-tertiary transition-all transform duration-500 ease-in-out min-h-screen group ${
+          openSidebar ? 'w-60' : 'w-11'
+        }`}
       >
-        <FilterMenu />
-      </aside>
-      <SimpleTooltip
-        placement="right"
-        content={`${opened ? 'Close' : 'Open'} sidebar`}
-      >
-        <button
-          type="button"
-          className={classNames(
-            'flex w-12 h-14 items-center pl-3 border-l-0 rounded-r-2xl cursor-pointer focus-outline',
-            hightlightTrigger
-              ? 'bg-theme-label-primary text-theme-bg-primary'
-              : 'bg-theme-bg-primary border hover:text-theme-label-primary',
-            !hightlightTrigger &&
-              (opened
-                ? 'text-theme-label-primary border-theme-divider-primary'
-                : 'text-theme-label-tertiary border-theme-divider-quaternary'),
-          )}
-          style={{
-            fontSize: '1.75rem',
-            pointerEvents: 'all',
-            marginTop: '6.375rem',
-          }}
-          onClick={toggleSidebar}
+        <Button
+          onClick={() => toggleOpenSidebar()}
+          absolute
+          className={`btn btn-primary h-6 w-6 top-3 -right-3 z-3 ${
+            openSidebar
+              ? 'transition-opacity  invisible group-hover:visible opacity-0 group-hover:opacity-100'
+              : ''
+          }`}
+          buttonSize="xsmall"
         >
-          <FilterRedDot />
-          {hightlightTrigger && (
-            <div
-              className="absolute left-0 -z-1 w-14 bg-theme-hover rounded-r-3xl"
-              style={{
-                top: '-1rem',
-                height: '5.5rem',
-                animation: 'rank-attention 2s infinite ease-in-out',
-              }}
-            />
-          )}
-        </button>
-      </SimpleTooltip>
-    </div>
+          <ArrowIcon
+            className={`typo-title3 ${
+              openSidebar ? '-rotate-90' : 'rotate-90'
+            }`}
+          />
+        </Button>
+        <nav className="mt-4">
+          {topMenuItems.map(({ key, items }) => (
+            <ul key={key} className="mt-2">
+              <li
+                className={`typo-footnote text-theme-label-quaternary h-7 flex items-center font-bold  transition-opacity ${
+                  openSidebar ? 'opacity-100 px-3' : 'opacity-0 px-0'
+                }`}
+              >
+                {key}
+              </li>
+              {items.map((item) => (
+                <li
+                  key={item.title}
+                  className="flex items-center typo-callout text-theme-label-tertiary"
+                >
+                  {item.path ? (
+                    <Link href={item.path} passHref prefetch={false}>
+                      <a className="flex flex-1 items-center px-3 h-7">
+                        <ItemInner item={item} />
+                      </a>
+                    </Link>
+                  ) : (
+                    <button
+                      type="button"
+                      className="flex flex-1 items-center px-3 h-7"
+                      onClick={item.action}
+                    >
+                      <ItemInner item={item} />
+                    </button>
+                  )}
+                </li>
+              ))}
+            </ul>
+          ))}
+        </nav>
+      </aside>
+      {showSettings && (
+        <FeedSettingsModal
+          isOpen={showSettings}
+          onRequestClose={() => setShowSettings(false)}
+        />
+      )}
+    </>
   );
 }

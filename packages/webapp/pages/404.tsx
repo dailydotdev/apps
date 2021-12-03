@@ -5,7 +5,7 @@ import { NextSeo } from 'next-seo';
 export default function Custom404(): ReactElement {
   return (
     <div
-      className="flex flex-col justify-center items-center min-h-screen"
+      className="flex flex-col justify-center items-center mx-auto min-h-screen"
       data-testid="notFound"
     >
       <NextSeo title="Page not found" nofollow noindex />

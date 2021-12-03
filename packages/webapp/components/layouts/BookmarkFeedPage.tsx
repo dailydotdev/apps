@@ -71,7 +71,6 @@ export function getBookmarkFeedLayout(
 }
 
 export const bookmarkFeedLayoutProps: MainLayoutProps = {
-  showRank: true,
   greeting: true,
   mainPage: true,
 };

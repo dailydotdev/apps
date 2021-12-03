@@ -66,7 +66,6 @@ export default function MainFeedPage({
 
   return (
     <MainLayout
-      showRank
       greeting
       mainPage
       onLogoClick={onLogoClick}
