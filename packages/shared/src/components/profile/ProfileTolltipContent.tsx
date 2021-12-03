@@ -35,6 +35,7 @@ export function ProfileTooltipContent({
             className="absolute -right-2 -bottom-2 rounded-8 bg-theme-bg-primary"
             rank={userReadingRank.currentRank}
             colorByRank
+            data-testid={userReadingRank.currentRank}
           />
         )}
       </div>
