@@ -14,6 +14,7 @@ import { FEED_SETTINGS_QUERY } from '../graphql/feedSettings';
 import { getFeedSettingsQueryKey } from '../hooks/useMutateFilters';
 import AlertContext, { AlertContextData } from '../contexts/AlertContext';
 import OnboardingContext from '../contexts/OnboardingContext';
+import { waitForNock } from '../../__tests__/helpers/utilities';
 
 let client: QueryClient;
 const updateAlerts = jest.fn();
@@ -143,6 +144,7 @@ it('should invoke the feed customization modal', async () => {
 
 it('should set all navigation urls', async () => {
   renderComponent();
+  waitForNock();
 
   const linkableElements = [
     { text: 'Popular', path: '/popular' },
