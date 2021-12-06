@@ -99,10 +99,7 @@ export function Dropdown({
   };
 
   return (
-    <div
-      className={classNames('truncate', styles.dropdown, className)}
-      {...props}
-    >
+    <div className={classNames(styles.dropdown, className)} {...props}>
       <button
         type="button"
         ref={triggerRef}
@@ -117,7 +114,9 @@ export function Dropdown({
         aria-expanded={isVisible}
       >
         {icon}
-        {options[selectedIndex]}
+        <span className="flex flex-1 mr-1 truncate">
+          {options[selectedIndex]}
+        </span>
         <ArrowIcon
           className={classNames(
             'text-xl ml-auto transform transition-transform group-hover:text-theme-label-tertiary',
