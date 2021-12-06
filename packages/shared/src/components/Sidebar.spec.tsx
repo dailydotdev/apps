@@ -9,16 +9,31 @@ import Sidebar from './Sidebar';
 import SettingsContext, {
   SettingsContextData,
 } from '../contexts/SettingsContext';
+import { mockGraphQL } from '../../__tests__/helpers/graphql';
+import { FEED_SETTINGS_QUERY } from '../graphql/feedSettings';
+import { getFeedSettingsQueryKey } from '../hooks/useMutateFilters';
+import AlertContext, { AlertContextData } from '../contexts/AlertContext';
+import OnboardingContext from '../contexts/OnboardingContext';
 
+let client: QueryClient;
+const updateAlerts = jest.fn();
 const toggleOpenSidebar = jest.fn();
+const incrementOnboardingStep = jest.fn();
 
 beforeEach(() => {
   nock.cleanAll();
 });
 
+const defaultAlerts: AlertContextData = {
+  alerts: { filter: true },
+  updateAlerts,
+};
+
 const renderComponent = (
   user: LoggedUser = defaultUser,
   openSidebar = true,
+  onboardingStep = -1,
+  alertsData = defaultAlerts,
 ): RenderResult => {
   const settingsContext: SettingsContextData = {
     spaciness: 'eco',
@@ -37,29 +52,57 @@ const renderComponent = (
     openSidebar,
     toggleOpenSidebar,
   };
-  const client = new QueryClient();
+  client = new QueryClient();
 
   return render(
     <QueryClientProvider client={client}>
-      <AuthContext.Provider
-        value={{
-          user,
-          shouldShowLogin: false,
-          showLogin: jest.fn(),
-          logout: jest.fn(),
-          updateUser: jest.fn(),
-          tokenRefreshed: true,
-          getRedirectUri: jest.fn(),
-          closeLogin: jest.fn(),
-        }}
-      >
-        <SettingsContext.Provider value={settingsContext}>
-          <Sidebar />
-        </SettingsContext.Provider>
-      </AuthContext.Provider>
+      <AlertContext.Provider value={alertsData}>
+        <AuthContext.Provider
+          value={{
+            user,
+            shouldShowLogin: false,
+            showLogin: jest.fn(),
+            logout: jest.fn(),
+            updateUser: jest.fn(),
+            tokenRefreshed: true,
+            getRedirectUri: jest.fn(),
+            closeLogin: jest.fn(),
+          }}
+        >
+          <SettingsContext.Provider value={settingsContext}>
+            <OnboardingContext.Provider
+              value={{
+                onboardingStep,
+                onboardingReady: true,
+                incrementOnboardingStep,
+              }}
+            >
+              <Sidebar />
+            </OnboardingContext.Provider>
+          </SettingsContext.Provider>
+        </AuthContext.Provider>
+      </AlertContext.Provider>
     </QueryClientProvider>,
   );
 };
+
+it('should remove red dot for filter alert when there is a pre-configured feedSettings', async () => {
+  mockGraphQL({
+    request: { query: FEED_SETTINGS_QUERY, variables: { loggedIn: true } },
+    result: { data: { feedSettings: { blockedTags: ['javascript'] } } },
+  });
+  renderComponent();
+  await waitFor(async () => {
+    const data = await client.getQueryData(
+      getFeedSettingsQueryKey(defaultUser),
+    );
+    expect(data).toBeTruthy();
+  });
+  const trigger = await screen.findByText('Feed filters');
+  trigger.click();
+  expect(updateAlerts).toBeCalled();
+  expect(incrementOnboardingStep).toBeCalledTimes(0);
+});
 
 it('should render the sidebar as open by default', async () => {
   renderComponent();
