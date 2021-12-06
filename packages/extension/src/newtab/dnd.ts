@@ -20,7 +20,7 @@ const BRAVE_DEFAULT_URL = 'chrome://new-tab-page';
 
 const browserTest = () =>
   process.env.TARGET_BROWSER === 'chrome' ? CHROME_DEFAULT_URL : DEFAULT_URL;
-export const getDefaultLink = () =>
+export const getDefaultLink = (): string =>
   isBrave() ? BRAVE_DEFAULT_URL : browserTest();
 interface DndOption<T extends TimeFormat> {
   value: number;
