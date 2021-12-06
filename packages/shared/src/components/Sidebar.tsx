@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useState } from 'react';
+import React, { ReactElement, ReactNode, useContext, useState } from 'react';
 import Link from 'next/link';
 import SettingsContext from '../contexts/SettingsContext';
 import { Button } from './buttons/Button';
@@ -13,6 +13,7 @@ import BookmarkIcon from '../../icons/bookmark.svg';
 import EyeIcon from '../../icons/eye.svg';
 import SettingsIcon from '../../icons/settings.svg';
 import { SimpleTooltip } from './tooltips/SimpleTooltip';
+import classed from '../lib/classed';
 
 interface SidebarMenuItems {
   key: string;
@@ -27,6 +28,81 @@ interface SidebarMenuItem {
 }
 
 const ListIcon = ({ Icon }): ReactElement => <Icon className="mr-3 w-5 h-5" />;
+const ItemInner = ({
+  item,
+  openSidebar,
+}: {
+  item: SidebarMenuItem;
+  openSidebar: boolean;
+}) => (
+  <>
+    {item.icon}
+    <span
+      className={`flex-1 text-left transition-opacity ${
+        openSidebar ? 'opacity-100' : 'opacity-0'
+      }`}
+    >
+      {item.title}
+    </span>
+  </>
+);
+const btnClass = 'flex flex-1 items-center px-3 h-7';
+const ButtonOrLink = ({
+  item,
+  children,
+}: {
+  item: SidebarMenuItem;
+  children?: ReactNode;
+}) =>
+  item.path ? (
+    <Link href={item.path} passHref prefetch={false}>
+      <a className={btnClass}>{children}</a>
+    </Link>
+  ) : (
+    <button type="button" className={btnClass} onClick={item.action}>
+      {children}
+    </button>
+  );
+const MenuIcon = ({
+  openSidebar,
+  toggleOpenSidebar,
+}: {
+  openSidebar: boolean;
+  toggleOpenSidebar: () => Promise<void>;
+}) => (
+  <SimpleTooltip
+    placement="right"
+    content={`${openSidebar ? 'Close' : 'Open'} sidebar`}
+  >
+    <Button
+      onClick={() => toggleOpenSidebar()}
+      absolute
+      className={`btn btn-primary h-6 w-6 top-3 -right-3 z-3 ${
+        openSidebar &&
+        'transition-opacity  invisible group-hover:visible opacity-0 group-hover:opacity-100'
+      }`}
+      buttonSize="xsmall"
+    >
+      <ArrowIcon
+        className={`typo-title3 ${openSidebar ? '-rotate-90' : 'rotate-90'}`}
+      />
+    </Button>
+  </SimpleTooltip>
+);
+const SidebarAside = classed(
+  'aside',
+  'border-r border-theme-divider-tertiary transition-all transform duration-500 ease-in-out min-h-screen group',
+);
+const Nav = classed('nav', 'mt-4');
+const NavSection = classed('ul', 'mt-2');
+const NavHeader = classed(
+  'li',
+  'typo-footnote text-theme-label-quaternary h-7 flex items-center font-bold  transition-opacity',
+);
+const NavItem = classed(
+  'li',
+  'flex items-center typo-callout text-theme-label-tertiary',
+);
 
 export default function Sidebar(): ReactElement {
   const { openSidebar, toggleOpenSidebar } = useContext(SettingsContext);
@@ -85,83 +161,32 @@ export default function Sidebar(): ReactElement {
     },
   ];
 
-  const ItemInner = ({ item }: { item: SidebarMenuItem }) => (
-    <>
-      {item.icon}
-      <span
-        className={`flex-1 text-left transition-opacity ${
-          openSidebar ? 'opacity-100' : 'opacity-0'
-        }`}
-      >
-        {item.title}
-      </span>
-    </>
-  );
-
   return (
     <>
-      <aside
-        className={`border-r border-theme-divider-tertiary transition-all transform duration-500 ease-in-out min-h-screen group ${
-          openSidebar ? 'w-60' : 'w-11'
-        }`}
-      >
-        <SimpleTooltip
-          placement="right"
-          content={`${openSidebar ? 'Close' : 'Open'} sidebar`}
-        >
-          <Button
-            onClick={() => toggleOpenSidebar()}
-            absolute
-            className={`btn btn-primary h-6 w-6 top-3 -right-3 z-3 ${
-              openSidebar
-                ? 'transition-opacity  invisible group-hover:visible opacity-0 group-hover:opacity-100'
-                : ''
-            }`}
-            buttonSize="xsmall"
-          >
-            <ArrowIcon
-              className={`typo-title3 ${
-                openSidebar ? '-rotate-90' : 'rotate-90'
-              }`}
-            />
-          </Button>
-        </SimpleTooltip>
-        <nav className="mt-4">
+      <SidebarAside className={openSidebar ? 'w-60' : 'w-11'}>
+        <MenuIcon
+          openSidebar={openSidebar}
+          toggleOpenSidebar={toggleOpenSidebar}
+        />
+        <Nav>
           {topMenuItems.map(({ key, items }) => (
-            <ul key={key} className="mt-2">
-              <li
-                className={`typo-footnote text-theme-label-quaternary h-7 flex items-center font-bold  transition-opacity ${
-                  openSidebar ? 'opacity-100 px-3' : 'opacity-0 px-0'
-                }`}
+            <NavSection key={key}>
+              <NavHeader
+                className={openSidebar ? 'opacity-100 px-3' : 'opacity-0 px-0'}
               >
                 {key}
-              </li>
+              </NavHeader>
               {items.map((item) => (
-                <li
-                  key={item.title}
-                  className="flex items-center typo-callout text-theme-label-tertiary"
-                >
-                  {item.path ? (
-                    <Link href={item.path} passHref prefetch={false}>
-                      <a className="flex flex-1 items-center px-3 h-7">
-                        <ItemInner item={item} />
-                      </a>
-                    </Link>
-                  ) : (
-                    <button
-                      type="button"
-                      className="flex flex-1 items-center px-3 h-7"
-                      onClick={item.action}
-                    >
-                      <ItemInner item={item} />
-                    </button>
-                  )}
-                </li>
+                <NavItem key={item.title}>
+                  <ButtonOrLink item={item}>
+                    <ItemInner item={item} openSidebar={openSidebar} />
+                  </ButtonOrLink>
+                </NavItem>
               ))}
-            </ul>
+            </NavSection>
           ))}
-        </nav>
-      </aside>
+        </Nav>
+      </SidebarAside>
       {showSettings && (
         <FeedSettingsModal
           isOpen={showSettings}
