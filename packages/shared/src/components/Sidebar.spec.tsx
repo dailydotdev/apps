@@ -1,6 +1,7 @@
 import React from 'react';
 import nock from 'nock';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from 'react-query';
 import AuthContext from '../contexts/AuthContext';
 import defaultUser from '../../__tests__/fixture/loggedUser';
 import { LoggedUser } from '../lib/user';
@@ -36,22 +37,27 @@ const renderComponent = (
     openSidebar,
     toggleOpenSidebar,
   };
+  const client = new QueryClient();
+
   return render(
-    <AuthContext.Provider
-      value={{
-        user,
-        shouldShowLogin: false,
-        showLogin: jest.fn(),
-        logout: jest.fn(),
-        updateUser: jest.fn(),
-        tokenRefreshed: true,
-        getRedirectUri: jest.fn(),
-      }}
-    >
-      <SettingsContext.Provider value={settingsContext}>
-        <Sidebar />
-      </SettingsContext.Provider>
-    </AuthContext.Provider>,
+    <QueryClientProvider client={client}>
+      <AuthContext.Provider
+        value={{
+          user,
+          shouldShowLogin: false,
+          showLogin: jest.fn(),
+          logout: jest.fn(),
+          updateUser: jest.fn(),
+          tokenRefreshed: true,
+          getRedirectUri: jest.fn(),
+          closeLogin: jest.fn(),
+        }}
+      >
+        <SettingsContext.Provider value={settingsContext}>
+          <Sidebar />
+        </SettingsContext.Provider>
+      </AuthContext.Provider>
+    </QueryClientProvider>,
   );
 };
 
@@ -92,7 +98,6 @@ it('should set all navigation urls', async () => {
   renderComponent();
 
   const linkableElements = [
-    { text: 'Feed filters', path: '/sidebar' },
     { text: 'Popular', path: '/popular' },
     { text: 'Most upvoted', path: '/upvoted' },
     { text: 'Best discussions', path: '/discussed' },
