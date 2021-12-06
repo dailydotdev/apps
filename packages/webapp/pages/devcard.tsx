@@ -364,7 +364,7 @@ const DevCardPage = (): ReactElement => {
   return (
     <div
       className={classNames(
-        'page flex flex-col items-center px-6 py-10 laptop:-mt-12 laptop:justify-center',
+        'page flex flex-col items-center px-6 py-10 laptop:-mt-12 laptop:justify-center mx-auto',
         step === 1 && 'laptop:flex-row laptop:gap-20',
       )}
     >

@@ -37,7 +37,7 @@ export default function useMedia<T>(
           mql.removeListener(handler);
         }
       });
-  }, []);
+  }, [values]);
 
   return value;
 }

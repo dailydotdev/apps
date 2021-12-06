@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement, ReactNode, useContext } from 'react';
 import {
   desktop,
   desktopL,
@@ -12,6 +12,7 @@ import FeedContext, {
   FeedContextData,
 } from '../contexts/FeedContext';
 import useMedia from '../hooks/useMedia';
+import SettingsContext from '../contexts/SettingsContext';
 
 export type FeedLayoutProps = { children?: ReactNode };
 
@@ -81,18 +82,78 @@ const baseFeedSettings: FeedContextData[] = [
   },
 ];
 
+const sidebarOpenFeedSettings: FeedContextData[] = [
+  {
+    pageSize: 7,
+    adSpot: 2,
+    numCards: {
+      cozy: 1,
+      eco: 1,
+      roomy: 1,
+    },
+  },
+  {
+    pageSize: 9,
+    adSpot: 0,
+    numCards: {
+      eco: 2,
+      roomy: 2,
+      cozy: 1,
+    },
+  },
+  {
+    pageSize: 13,
+    adSpot: 0,
+    numCards: {
+      eco: 3,
+      roomy: 2,
+      cozy: 2,
+    },
+  },
+  {
+    pageSize: 17,
+    adSpot: 0,
+    numCards: {
+      eco: 4,
+      roomy: 3,
+      cozy: 3,
+    },
+  },
+  {
+    pageSize: 21,
+    adSpot: 0,
+    numCards: {
+      eco: 5,
+      roomy: 4,
+      cozy: 3,
+    },
+  },
+  {
+    pageSize: 25,
+    adSpot: 0,
+    numCards: {
+      eco: 6,
+      roomy: 5,
+      cozy: 4,
+    },
+  },
+];
+
 const reversedBreakpoints = feedBreakpoints
   .map((media) => media.replace('@media ', ''))
   .reverse();
 
 const reversedSettings = baseFeedSettings.reverse();
+const reversedSettingsSidebar = sidebarOpenFeedSettings.reverse();
 
 export default function FeedLayout({
   children,
 }: FeedLayoutProps): ReactElement {
+  const { openSidebar } = useContext(SettingsContext);
+
   const currentSettings = useMedia(
     reversedBreakpoints,
-    reversedSettings,
+    openSidebar ? reversedSettingsSidebar : reversedSettings,
     defaultFeedContextData,
   );
 

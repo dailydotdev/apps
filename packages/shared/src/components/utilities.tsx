@@ -16,7 +16,7 @@ export const LegalNotice = classed(
 export const PageContainer = classed(
   'main',
   styles.pageContainer,
-  'relative flex flex-col w-full items-stretch px-4 z-1 tablet:px-8 tablet:self-center',
+  'relative flex flex-col w-full items-stretch px-4 z-1 tablet:px-8 tablet:self-center mx-auto',
 );
 
 export const NoPaddingPageContainer = classed(
@@ -37,7 +37,7 @@ export const ResponsiveNoPaddingPageContainer = classed(
 
 export const FeedPage = classed(
   'main',
-  'withNavBar flex flex-col items-start pb-3 px-6 laptop:px-16',
+  'withNavBar flex flex-col flex-1 items-start pb-3 px-6 laptop:px-16 pt-10',
   styles.feedPage,
 );
 
