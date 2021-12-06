@@ -18,7 +18,7 @@ import LogoText from '../svg/LogoText';
 import styles from './MainLayout.module.css';
 import ProfileButton from './profile/ProfileButton';
 import { LinkWithTooltip } from './tooltips/LinkWithTooltip';
-import Sidebar from './Sidebar';
+import Sidebar from './sidebar/Sidebar';
 
 export const footerNavBarBreakpoint = laptop;
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
@@ -48,7 +48,7 @@ export default function MainLayout({
   return (
     <>
       <PromotionalBanner />
-      <header className="flex relative items-center py-3 px-4 tablet:px-8 laptop:px-4 border-b border-theme-divider-tertiary non-responsive-header">
+      <header className="flex relative laptop:fixed laptop:top-0 laptop:left-0 z-3 items-center py-3 px-4 tablet:px-8 laptop:px-4 laptop:w-full h-14 border-b bg-theme-bg-primary border-theme-divider-tertiary">
         <LinkWithTooltip
           href={process.env.NEXT_PUBLIC_WEBAPP_URL}
           passHref
@@ -96,7 +96,7 @@ export default function MainLayout({
           </>
         )}
       </header>
-      <main className="flex flex-row">
+      <main className="flex flex-row pt-14">
         {!showOnlyLogo && <Sidebar />}
         {children}
       </main>

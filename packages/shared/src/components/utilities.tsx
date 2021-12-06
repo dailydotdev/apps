@@ -3,6 +3,8 @@ import classed from '../lib/classed';
 import styles from './utilities.module.css';
 import ArrowIcon from '../../icons/arrow.svg';
 
+export type TargetTypes = '_blank' | '_parent' | '_self' | '_top';
+
 export const RoundedImage = classed(LazyImage, 'w-10 h-10 rounded-full');
 
 export const SmallRoundedImage = classed(LazyImage, 'w-6 h-6 rounded-full');

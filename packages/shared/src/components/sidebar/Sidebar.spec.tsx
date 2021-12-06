@@ -1,13 +1,13 @@
 import React from 'react';
 import nock from 'nock';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
-import AuthContext from '../contexts/AuthContext';
-import defaultUser from '../../__tests__/fixture/loggedUser';
-import { LoggedUser } from '../lib/user';
+import AuthContext from '../../contexts/AuthContext';
+import defaultUser from '../../../__tests__/fixture/loggedUser';
+import { LoggedUser } from '../../lib/user';
 import Sidebar from './Sidebar';
 import SettingsContext, {
   SettingsContextData,
-} from '../contexts/SettingsContext';
+} from '../../contexts/SettingsContext';
 
 const toggleOpenSidebar = jest.fn();
 
