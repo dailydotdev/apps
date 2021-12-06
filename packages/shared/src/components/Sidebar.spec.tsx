@@ -24,12 +24,18 @@ beforeEach(() => {
   nock.cleanAll();
 });
 
+const createMockFeedSettings = () => ({
+  request: { query: FEED_SETTINGS_QUERY, variables: { loggedIn: true } },
+  result: { data: { feedSettings: { blockedTags: ['javascript'] } } },
+});
+
 const defaultAlerts: AlertContextData = {
   alerts: { filter: true },
   updateAlerts,
 };
 
 const renderComponent = (
+  mocks = [createMockFeedSettings()],
   user: LoggedUser = defaultUser,
   openSidebar = true,
   onboardingStep = -1,
@@ -53,6 +59,7 @@ const renderComponent = (
     toggleOpenSidebar,
   };
   client = new QueryClient();
+  mocks.forEach(mockGraphQL);
 
   return render(
     <QueryClientProvider client={client}>
@@ -87,10 +94,6 @@ const renderComponent = (
 };
 
 it('should remove red dot for filter alert when there is a pre-configured feedSettings', async () => {
-  mockGraphQL({
-    request: { query: FEED_SETTINGS_QUERY, variables: { loggedIn: true } },
-    result: { data: { feedSettings: { blockedTags: ['javascript'] } } },
-  });
   renderComponent();
   await waitFor(async () => {
     const data = await client.getQueryData(
@@ -99,7 +102,8 @@ it('should remove red dot for filter alert when there is a pre-configured feedSe
     expect(data).toBeTruthy();
   });
   const trigger = await screen.findByText('Feed filters');
-  trigger.click();
+  // eslint-disable-next-line testing-library/no-node-access
+  trigger.parentElement.click();
   expect(updateAlerts).toBeCalled();
   expect(incrementOnboardingStep).toBeCalledTimes(0);
 });
@@ -120,7 +124,7 @@ it('should toggle the sidebar on button click', async () => {
 });
 
 it('should show the sidebar as closed if user has this set', async () => {
-  renderComponent(null, false);
+  renderComponent([], null, false);
   const trigger = await screen.findByLabelText('Open sidebar');
   expect(trigger).toBeInTheDocument();
 
