@@ -8,6 +8,7 @@ import React, {
 import dynamic from 'next/dynamic';
 import { CSSTransition } from 'react-transition-group';
 import classNames from 'classnames';
+import { laptop } from '../styles/media';
 import { Button } from './buttons/Button';
 import ProgressiveEnhancementContext from '../contexts/ProgressiveEnhancementContext';
 import AuthContext from '../contexts/AuthContext';
@@ -17,10 +18,11 @@ import LogoText from '../svg/LogoText';
 import styles from './MainLayout.module.css';
 import ProfileButton from './profile/ProfileButton';
 import { LinkWithTooltip } from './tooltips/LinkWithTooltip';
+import Sidebar from './Sidebar';
 
+export const footerNavBarBreakpoint = laptop;
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
-  showRank?: boolean;
   greeting?: boolean;
   mainPage?: boolean;
   additionalButtons?: ReactNode;
@@ -35,7 +37,6 @@ const Greeting = dynamic(
 export default function MainLayout({
   children,
   showOnlyLogo,
-  showRank,
   greeting,
   onLogoClick,
   onShowDndClick,
@@ -47,9 +48,7 @@ export default function MainLayout({
   return (
     <>
       <PromotionalBanner />
-      <header
-        className={`${styles.header} relative flex items-center px-4 border-b border-theme-divider-tertiary tablet:px-8 laptop:px-4 non-responsive-header`}
-      >
+      <header className="flex relative items-center py-3 px-4 tablet:px-8 laptop:px-4 border-b border-theme-divider-tertiary non-responsive-header">
         <LinkWithTooltip
           href={process.env.NEXT_PUBLIC_WEBAPP_URL}
           passHref
@@ -97,7 +96,10 @@ export default function MainLayout({
           </>
         )}
       </header>
-      {children}
+      <main className="flex flex-row">
+        {!showOnlyLogo && <Sidebar />}
+        {children}
+      </main>
     </>
   );
 }

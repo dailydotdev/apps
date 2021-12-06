@@ -20,8 +20,6 @@
 }
 
 .feedPage {
-  padding-top: 3.75rem;
-
   &.notReady {
     & > * {
       visibility: hidden;

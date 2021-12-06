@@ -6,13 +6,6 @@ import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/Prog
 
 export const footerNavBarBreakpoint = laptop;
 
-const Sidebar = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "Sidebar" */ '@dailydotdev/shared/src/components/Sidebar'
-    ),
-);
-
 const FooterNavBar = dynamic(
   () => import(/* webpackChunkName: "Sidebar" */ '../FooterNavBar'),
 );
@@ -31,7 +24,6 @@ export default function FooterNavBarLayout({
 
   return (
     <>
-      {showSidebar && windowLoaded && <Sidebar />}
       {!showSidebar && windowLoaded && <FooterNavBar />}
       {children}
     </>
