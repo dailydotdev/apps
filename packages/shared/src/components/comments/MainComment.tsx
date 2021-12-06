@@ -1,6 +1,5 @@
 import React, { ReactElement } from 'react';
 import { Comment } from '../../graphql/comments';
-import styles from './comments.module.css';
 import { CommentBox, CommentPublishDate } from './common';
 import CommentActionButtons, {
   CommentActionProps,
@@ -17,7 +16,7 @@ export interface Props extends CommentActionProps {
   postAuthorId: string | null;
 }
 
-const MainCommentBox = classed(CommentBox, 'my-2', styles.commentBox);
+const MainCommentBox = classed(CommentBox, 'my-2');
 
 export default function MainComment({
   comment,
