@@ -1,3 +1,4 @@
+declare const navigator: any;
 export const faq = 'https://github.com/dailydotdev/daily/blob/master/FAQs.md';
 export const requestFeature =
   'https://github.com/dailydotdev/daily/issues/new?assignees=&labels=Type%3A+Feature&template=---feature-request.md&title=%F0%9F%A7%A9+FEATURE+REQUEST%3A+';
@@ -15,3 +16,16 @@ export const isDevelopment = process.env.NODE_ENV === 'development';
 export const isProduction = process.env.NODE_ENV === 'production';
 export const isTesting =
   process.env.NODE_ENV === 'test' || (!isDevelopment && !isProduction);
+
+export const isBrave = () => {
+  if (!window.Promise) {
+    return false;
+  }
+  if (
+    typeof navigator.brave == 'undefined' ||
+    typeof navigator.brave.isBrave != 'function'
+  ) {
+    return false;
+  }
+  return true;
+};
