@@ -18,7 +18,8 @@ export function LinkWithTooltip({
     () =>
       React.cloneElement(children, {
         ...children.props,
-        'aria-label': typeof tooltip.content === 'string' ? tooltip.content : undefined,
+        'aria-label':
+          typeof tooltip.content === 'string' ? tooltip.content : undefined,
         ref: (el: Element) => setElement(el),
       }),
     [children],
