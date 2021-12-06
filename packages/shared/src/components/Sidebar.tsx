@@ -12,6 +12,7 @@ import DisqusIcon from '../../icons/comment.svg';
 import BookmarkIcon from '../../icons/bookmark.svg';
 import EyeIcon from '../../icons/eye.svg';
 import SettingsIcon from '../../icons/settings.svg';
+import { SimpleTooltip } from './tooltips/SimpleTooltip';
 
 interface SidebarMenuItems {
   key: string;
@@ -104,22 +105,27 @@ export default function Sidebar(): ReactElement {
           openSidebar ? 'w-60' : 'w-11'
         }`}
       >
-        <Button
-          onClick={() => toggleOpenSidebar()}
-          absolute
-          className={`btn btn-primary h-6 w-6 top-3 -right-3 z-3 ${
-            openSidebar
-              ? 'transition-opacity  invisible group-hover:visible opacity-0 group-hover:opacity-100'
-              : ''
-          }`}
-          buttonSize="xsmall"
+        <SimpleTooltip
+          placement="right"
+          content={`${openSidebar ? 'Close' : 'Open'} sidebar`}
         >
-          <ArrowIcon
-            className={`typo-title3 ${
-              openSidebar ? '-rotate-90' : 'rotate-90'
+          <Button
+            onClick={() => toggleOpenSidebar()}
+            absolute
+            className={`btn btn-primary h-6 w-6 top-3 -right-3 z-3 ${
+              openSidebar
+                ? 'transition-opacity  invisible group-hover:visible opacity-0 group-hover:opacity-100'
+                : ''
             }`}
-          />
-        </Button>
+            buttonSize="xsmall"
+          >
+            <ArrowIcon
+              className={`typo-title3 ${
+                openSidebar ? '-rotate-90' : 'rotate-90'
+              }`}
+            />
+          </Button>
+        </SimpleTooltip>
         <nav className="mt-4">
           {topMenuItems.map(({ key, items }) => (
             <ul key={key} className="mt-2">
