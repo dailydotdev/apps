@@ -99,7 +99,10 @@ export function Dropdown({
   };
 
   return (
-    <div className={classNames(styles.dropdown, className)} {...props}>
+    <div
+      className={classNames('truncate', styles.dropdown, className)}
+      {...props}
+    >
       <button
         type="button"
         ref={triggerRef}
