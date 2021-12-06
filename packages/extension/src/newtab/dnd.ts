@@ -1,3 +1,4 @@
+import { isBrave } from '@dailydotdev/shared/src/lib/constants';
 import { addDays, addHours, addMinutes } from 'date-fns';
 
 export type TimeFormat =
@@ -15,9 +16,12 @@ export enum CustomTime {
 
 const DEFAULT_URL = 'https://www.google.com';
 const CHROME_DEFAULT_URL = 'chrome-search://local-ntp/local-ntp.html';
+const BRAVE_DEFAULT_URL = 'chrome://new-tab-page';
 
-export const getDefaultLink = (): string =>
+const browserTest = () =>
   process.env.TARGET_BROWSER === 'chrome' ? CHROME_DEFAULT_URL : DEFAULT_URL;
+export const getDefaultLink = (): string =>
+  isBrave() ? BRAVE_DEFAULT_URL : browserTest();
 interface DndOption<T extends TimeFormat> {
   value: number;
   label: string;
