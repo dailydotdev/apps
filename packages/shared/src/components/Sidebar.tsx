@@ -2,6 +2,7 @@ import React, { ReactElement, ReactNode, useContext, useState } from 'react';
 import Link from 'next/link';
 import SettingsContext from '../contexts/SettingsContext';
 import { Button } from './buttons/Button';
+import { BlueDot } from './notifs';
 import { FeedSettingsModal } from './modals/FeedSettingsModal';
 import ArrowIcon from '../../icons/arrow.svg';
 import HotIcon from '../../icons/hot.svg';
@@ -15,6 +16,8 @@ import SettingsIcon from '../../icons/settings.svg';
 import { SimpleTooltip } from './tooltips/SimpleTooltip';
 import classed from '../lib/classed';
 import FeedFilters from './filters/FeedFilters';
+import AlertContext from '../contexts/AlertContext';
+import useFeedSettings from '../hooks/useFeedSettings';
 
 interface SidebarMenuItems {
   key: string;
@@ -26,9 +29,10 @@ interface SidebarMenuItem {
   title: string;
   path?: string;
   action?: () => unknown;
+  notif?: ReactElement;
 }
 
-const ListIcon = ({ Icon }): ReactElement => <Icon className="mr-3 w-5 h-5" />;
+const ListIcon = ({ Icon }): ReactElement => <Icon className="w-5 h-5" />;
 const ItemInner = ({
   item,
   openSidebar,
@@ -37,7 +41,10 @@ const ItemInner = ({
   openSidebar: boolean;
 }) => (
   <>
-    {item.icon}
+    <span className="relative mr-3">
+      {item.notif}
+      {item.icon}
+    </span>
     <span
       className={`flex-1 text-left transition-opacity ${
         openSidebar ? 'opacity-100' : 'opacity-0'
@@ -107,8 +114,24 @@ const NavItem = classed(
 
 export default function Sidebar(): ReactElement {
   const { openSidebar, toggleOpenSidebar } = useContext(SettingsContext);
+  const { feedSettings } = useFeedSettings();
+  const { alerts, updateAlerts } = useContext(AlertContext);
   const [showSettings, setShowSettings] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  const showFilters = () => {
+    if (
+      alerts?.filter &&
+      (feedSettings?.includeTags?.length ||
+        feedSettings?.blockedTags?.length ||
+        feedSettings?.excludeSources?.length ||
+        feedSettings?.advancedSettings?.length)
+    ) {
+      updateAlerts({ filter: false });
+    }
+
+    setIsFilterOpen(true);
+  };
 
   const topMenuItems: SidebarMenuItems[] = [
     {
@@ -116,8 +139,11 @@ export default function Sidebar(): ReactElement {
       items: [
         {
           icon: <ListIcon Icon={FilterIcon} />,
+          notif: alerts.filter && (
+            <BlueDot style={{ top: `-${0.125}rem`, right: `-${0.125}rem` }} />
+          ),
           title: 'Feed filters',
-          action: () => setIsFilterOpen(true),
+          action: showFilters,
         },
         {
           icon: <ListIcon Icon={HotIcon} />,

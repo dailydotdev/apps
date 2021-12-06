@@ -1,9 +1,7 @@
-import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import sizeN from '../../../macros/sizeN.macro';
 import FilterMenu from './FilterMenu';
-import useFeedSettings from '../../hooks/useFeedSettings';
-import AlertContext from '../../contexts/AlertContext';
 import { ClickableText } from '../buttons/ClickableText';
 import FilterIcon from '../../../icons/arrow.svg';
 
@@ -21,24 +19,12 @@ export default function FeedFilters({
   onBack,
 }: FeedFiltersProps): ReactElement {
   const [hidden, setHidden] = useState(true);
-  const { alerts, updateAlerts } = useContext(AlertContext);
-  const { feedSettings } = useFeedSettings();
 
   useEffect(() => {
     if (isOpen) {
       if (timeout) clearTimeout(timeout);
       setHidden(false);
       return;
-    }
-
-    if (
-      alerts?.filter &&
-      (feedSettings?.includeTags?.length ||
-        feedSettings?.blockedTags?.length ||
-        feedSettings?.excludeSources?.length ||
-        feedSettings?.advancedSettings?.length)
-    ) {
-      updateAlerts({ filter: false });
     }
 
     timeout = setTimeout(() => setHidden(true), 300);
