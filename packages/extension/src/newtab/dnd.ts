@@ -18,12 +18,11 @@ const DEFAULT_URL = 'https://www.google.com';
 const CHROME_DEFAULT_URL = 'chrome-search://local-ntp/local-ntp.html';
 const BRAVE_DEFAULT_URL = 'chrome://new-tab-page';
 
-export const getDefaultLink = (): string => {
-  const browserTest = () =>
-    process.env.TARGET_BROWSER === 'chrome' ? CHROME_DEFAULT_URL : DEFAULT_URL;
-  const braveTest = () => (isBrave() ? BRAVE_DEFAULT_URL : browserTest());
-  return braveTest();
-};
+const browserTest = () =>
+  process.env.TARGET_BROWSER === 'chrome' ? CHROME_DEFAULT_URL : DEFAULT_URL;
+const braveTest = () => (isBrave() ? BRAVE_DEFAULT_URL : browserTest());
+
+export const getDefaultLink = (): string => braveTest();
 interface DndOption<T extends TimeFormat> {
   value: number;
   label: string;
