@@ -1,3 +1,5 @@
+// We have to declare the navigator because brave is not set in the types of the navigator, yet it does exist
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare const navigator: any;
 export const faq = 'https://github.com/dailydotdev/daily/blob/master/FAQs.md';
 export const requestFeature =
@@ -17,13 +19,13 @@ export const isProduction = process.env.NODE_ENV === 'production';
 export const isTesting =
   process.env.NODE_ENV === 'test' || (!isDevelopment && !isProduction);
 
-export const isBrave = () => {
+export const isBrave = (): boolean => {
   if (!window.Promise) {
     return false;
   }
   if (
-    typeof navigator.brave == 'undefined' ||
-    typeof navigator.brave.isBrave != 'function'
+    typeof navigator.brave === 'undefined' ||
+    typeof navigator.brave.isBrave !== 'function'
   ) {
     return false;
   }
