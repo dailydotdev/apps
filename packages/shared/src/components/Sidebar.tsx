@@ -221,12 +221,10 @@ export default function Sidebar(): ReactElement {
           onRequestClose={() => setShowSettings(false)}
         />
       )}
-      {isFilterOpen && (
-        <FeedFilters
-          isOpen={isFilterOpen}
-          onBack={() => setIsFilterOpen(false)}
-        />
-      )}
+      <FeedFilters
+        isOpen={isFilterOpen}
+        onBack={() => setIsFilterOpen(false)}
+      />
     </>
   );
 }
