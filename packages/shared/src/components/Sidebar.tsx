@@ -14,6 +14,7 @@ import EyeIcon from '../../icons/eye.svg';
 import SettingsIcon from '../../icons/settings.svg';
 import { SimpleTooltip } from './tooltips/SimpleTooltip';
 import classed from '../lib/classed';
+import FeedFilters from './filters/FeedFilters';
 
 interface SidebarMenuItems {
   key: string;
@@ -107,6 +108,7 @@ const NavItem = classed(
 export default function Sidebar(): ReactElement {
   const { openSidebar, toggleOpenSidebar } = useContext(SettingsContext);
   const [showSettings, setShowSettings] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const topMenuItems: SidebarMenuItems[] = [
     {
@@ -115,7 +117,7 @@ export default function Sidebar(): ReactElement {
         {
           icon: <ListIcon Icon={FilterIcon} />,
           title: 'Feed filters',
-          path: '/sidebar',
+          action: () => setIsFilterOpen(true),
         },
         {
           icon: <ListIcon Icon={HotIcon} />,
@@ -193,6 +195,10 @@ export default function Sidebar(): ReactElement {
           onRequestClose={() => setShowSettings(false)}
         />
       )}
+      <FeedFilters
+        isOpen={isFilterOpen}
+        onBack={() => setIsFilterOpen(false)}
+      />
     </>
   );
 }

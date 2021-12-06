@@ -47,7 +47,7 @@ export default function FeedFilters({
   return (
     <aside
       className={classNames(
-        'fixed top-12 left-0 z-3 bottom-0 self-stretch bg-theme-bg-primary rounded-r-2xl border-t border-r border-theme-divider-primary overflow-y-auto',
+        'fixed top-14 left-0 z-3 bottom-0 self-stretch bg-theme-bg-primary rounded-r-2xl border-t border-r border-theme-divider-primary overflow-y-auto',
         !isOpen && 'pointer-events-none',
         hidden && 'invisible',
       )}
@@ -59,10 +59,10 @@ export default function FeedFilters({
       }}
     >
       <ClickableText
-        className="p-4 font-semibold text-theme-label-tertiary"
+        className="p-4 font-semibold no-underline text-theme-label-tertiary"
         onClick={onBack}
       >
-        <FilterIcon className="mr-3 text-xl -rotate-90" />
+        <FilterIcon className="mr-2 text-2xl -rotate-90" />
         Back
       </ClickableText>
       <div className="border-t border-theme-divider-tertiary" />
