@@ -46,6 +46,7 @@ module.exports = {
         status: {
           error: 'var(--theme-status-error)',
           help: 'var(--theme-status-help)',
+          fill: 'var(--theme-status-fill)',
           success: 'var(--theme-status-success)',
           warning: 'var(--theme-status-warning)',
           cabbage: 'var(--theme-status-cabbage)',
