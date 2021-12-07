@@ -79,8 +79,8 @@ const readHistoryToTooltip = (
     <>
       <strong>
         {value.reads} article{value.reads > 1 ? 's' : ''} read
-      </strong>{' '}
-      on {formattedDate}
+      </strong>
+      {' on'} {formattedDate}
     </>
   );
 };
@@ -267,7 +267,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
                 options={dropdownOptions}
                 onChange={(val, index) => setSelectedHistoryYear(index)}
                 buttonSize="small"
-                style={{ width: '7.5rem' }}
+                style={{ width: '8rem', minWidth: 'fit-content' }}
               />
             </ActivitySectionTitle>
             <CalendarHeatmap
