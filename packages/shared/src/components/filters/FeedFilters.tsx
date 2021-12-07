@@ -25,19 +25,13 @@ export default function FeedFilters({
   onBack,
 }: FeedFiltersProps): ReactElement {
   const { alerts, updateAlerts } = useContext(AlertContext);
-  const { feedSettings } = useFeedSettings();
+  const { hasAnyFilter } = useFeedSettings();
   const [hidden, setHidden] = useState(true);
   const timeoutRef = useRef<number>();
 
   useEffect(() => {
     if (isOpen) {
-      if (
-        alerts?.filter &&
-        (feedSettings?.includeTags?.length ||
-          feedSettings?.blockedTags?.length ||
-          feedSettings?.excludeSources?.length ||
-          feedSettings?.advancedSettings?.length)
-      ) {
+      if (alerts?.filter && hasAnyFilter) {
         updateAlerts({ filter: false });
       }
 
@@ -55,8 +49,9 @@ export default function FeedFilters({
     }
 
     timeoutRef.current = window.setTimeout(() => setHidden(true), 300);
+    // eslint-disable-next-line consistent-return
     return () => timeoutRef.current && clearTimeout(timeoutRef.current);
-  }, [isOpen, alerts, feedSettings]);
+  }, [isOpen, alerts, hasAnyFilter]);
 
   return (
     <aside
