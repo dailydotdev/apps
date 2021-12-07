@@ -2,14 +2,15 @@ import React, { ReactElement } from 'react';
 import request from 'graphql-request';
 import { useQuery } from 'react-query';
 import {
-  UserReadingRankData,
-  USER_READING_RANK_QUERY,
+  UserTooltipContentData,
+  USER_TOOLTIP_CONTENT_QUERY,
 } from '../../graphql/users';
 import { apiUrl } from '../../lib/config';
 import { Author } from '../../graphql/comments';
 import Rank from '../Rank';
 import { ProfileImageLink } from './ProfileImageLink';
 import { ProfileLink } from './ProfileLink';
+import { TagLinks } from '../TagLinks';
 
 export interface ProfileTooltipContentProps {
   user: Author;
@@ -19,10 +20,10 @@ export function ProfileTooltipContent({
   user,
 }: ProfileTooltipContentProps): ReactElement {
   const key = ['readingRank', user.id];
-  const { data: { userReadingRank } = {} } = useQuery<UserReadingRankData>(
+  const { data: { rank, tags } = {} } = useQuery<UserTooltipContentData>(
     key,
     () =>
-      request(`${apiUrl}/graphql`, USER_READING_RANK_QUERY, { id: user.id }),
+      request(`${apiUrl}/graphql`, USER_TOOLTIP_CONTENT_QUERY, { id: user.id }),
     { refetchOnWindowFocus: false },
   );
 
@@ -30,12 +31,12 @@ export function ProfileTooltipContent({
     <div className="flex flex-col flex-shrink font-normal typo-callout">
       <div className="relative w-fit">
         <ProfileImageLink user={user} picture={{ size: 'xxlarge' }} />
-        {userReadingRank && (
+        {rank && (
           <Rank
             className="absolute -right-2 -bottom-2 rounded-8 bg-theme-bg-primary"
-            rank={userReadingRank.currentRank}
+            rank={rank.currentRank}
             colorByRank
-            data-testid={userReadingRank.currentRank}
+            data-testid={rank.currentRank}
           />
         )}
       </div>
@@ -45,14 +46,20 @@ export function ProfileTooltipContent({
       >
         {user.name}
       </ProfileLink>
-      <ProfileLink className="text-theme-label-secondary" user={user}>
+      <ProfileLink className="mb-3 text-theme-label-secondary" user={user}>
         @{user.username}
       </ProfileLink>
       {user.bio && (
-        <p className="mt-3 line-clamp-3 text-theme-label-tertiary">
+        <p className="mb-3 line-clamp-3 text-theme-label-tertiary">
           {user.bio}
         </p>
       )}
+      {tags?.length && (
+        <span className="typo-subhead text-theme-label-quaternary">
+          Loves reading about
+        </span>
+      )}
+      <TagLinks className="mb-0" tags={tags?.map(({ value }) => value) || []} />
     </div>
   );
 }
