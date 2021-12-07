@@ -74,7 +74,7 @@ export default function FeedFilters({
         )}
       >
         <button onClick={onBack} type="button">
-          <XIcon className="mr-2 text-2xl -rotate-90 text-theme-label-tertiary" />
+          <XIcon className="text-2xl -rotate-90 text-theme-label-tertiary" />
         </button>
       </div>
       <FilterMenu />
