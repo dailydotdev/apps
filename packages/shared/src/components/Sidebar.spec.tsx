@@ -13,13 +13,11 @@ import { mockGraphQL } from '../../__tests__/helpers/graphql';
 import { FEED_SETTINGS_QUERY } from '../graphql/feedSettings';
 import { getFeedSettingsQueryKey } from '../hooks/useMutateFilters';
 import AlertContext, { AlertContextData } from '../contexts/AlertContext';
-import OnboardingContext from '../contexts/OnboardingContext';
 import { waitForNock } from '../../__tests__/helpers/utilities';
 
 let client: QueryClient;
 const updateAlerts = jest.fn();
 const toggleOpenSidebar = jest.fn();
-const incrementOnboardingStep = jest.fn();
 
 beforeEach(() => {
   nock.cleanAll();
@@ -39,7 +37,6 @@ const renderComponent = (
   mocks = [createMockFeedSettings()],
   user: LoggedUser = defaultUser,
   openSidebar = true,
-  onboardingStep = -1,
   alertsData = defaultAlerts,
 ): RenderResult => {
   const settingsContext: SettingsContextData = {
@@ -78,15 +75,7 @@ const renderComponent = (
           }}
         >
           <SettingsContext.Provider value={settingsContext}>
-            <OnboardingContext.Provider
-              value={{
-                onboardingStep,
-                onboardingReady: true,
-                incrementOnboardingStep,
-              }}
-            >
-              <Sidebar />
-            </OnboardingContext.Provider>
+            <Sidebar />
           </SettingsContext.Provider>
         </AuthContext.Provider>
       </AlertContext.Provider>
@@ -96,17 +85,16 @@ const renderComponent = (
 
 it('should remove alert dot for filter alert when there is a pre-configured feedSettings', async () => {
   renderComponent();
+  const trigger = await screen.findByText('Feed filters');
+  // eslint-disable-next-line testing-library/no-node-access
+  trigger.parentElement.click();
   await waitFor(async () => {
     const data = await client.getQueryData(
       getFeedSettingsQueryKey(defaultUser),
     );
     expect(data).toBeTruthy();
   });
-  const trigger = await screen.findByText('Feed filters');
-  // eslint-disable-next-line testing-library/no-node-access
-  trigger.parentElement.click();
   expect(updateAlerts).toBeCalled();
-  expect(incrementOnboardingStep).toBeCalledTimes(0);
 });
 
 it('should render the sidebar as open by default', async () => {
