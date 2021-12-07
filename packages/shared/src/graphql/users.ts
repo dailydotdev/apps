@@ -24,11 +24,28 @@ export const USER_STATS_QUERY = gql`
 
 export type UserReadingRank = { currentRank: number };
 export type UserReadingRankData = { userReadingRank: UserReadingRank };
+export type MostReadTag = { value: string; count: number };
+export type UserTooltipContentData = {
+  rank: UserReadingRank;
+  tags: MostReadTag[];
+};
 
 export const USER_READING_RANK_QUERY = gql`
   query UserReadingRank($id: ID!) {
     userReadingRank(id: $id) {
       currentRank
+    }
+  }
+`;
+
+export const USER_TOOLTIP_CONTENT_QUERY = gql`
+  query UserTooltipContent($id: ID!) {
+    rank: userReadingRank(id: $id) {
+      currentRank
+    }
+    tags: userMostReadTags(id: $id) {
+      value
+      count
     }
   }
 `;
