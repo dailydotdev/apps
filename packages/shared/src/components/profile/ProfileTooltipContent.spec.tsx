@@ -5,8 +5,8 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { ProfileTooltipContent } from './ProfileTolltipContent';
 import { Author } from '../../graphql/comments';
 import {
-  UserReadingRankData,
-  USER_READING_RANK_QUERY,
+  UserTooltipContentData,
+  USER_TOOLTIP_CONTENT_QUERY,
 } from '../../graphql/users';
 import {
   MockedGraphQLResponse,
@@ -27,18 +27,25 @@ const defaultUser = {
   bio: 'Sample bio',
 };
 
+const defaultRankData = { currentRank: 5 };
+const defaultTagsData = [
+  { value: 'javascript', count: 5 },
+  { value: 'ai', count: 4 },
+  { value: 'devops', count: 3 },
+  { value: 'cloud', count: 2 },
+  { value: 'webdev', count: 1 },
+];
+
 const createRankMock = (
-  data: UserReadingRankData = {
-    userReadingRank: { currentRank: 5 },
-  },
+  { rank = defaultRankData, tags = defaultTagsData } = {},
   userId: string = defaultUser.id,
-): MockedGraphQLResponse<UserReadingRankData> => ({
+): MockedGraphQLResponse<UserTooltipContentData> => ({
   request: {
-    query: USER_READING_RANK_QUERY,
+    query: USER_TOOLTIP_CONTENT_QUERY,
     variables: { id: userId },
   },
   result: {
-    data,
+    data: { rank, tags },
   },
 });
 
@@ -79,5 +86,12 @@ describe('ProfileTooltipContent component', () => {
   it('should show user rank', async () => {
     renderComponent();
     await screen.findByTestId('5');
+  });
+
+  it('should show most read tags', async () => {
+    renderComponent();
+    defaultTagsData.forEach(async (tag) => {
+      expect(await screen.findByText(tag.value));
+    });
   });
 });
