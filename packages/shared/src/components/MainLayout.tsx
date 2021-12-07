@@ -96,7 +96,7 @@ export default function MainLayout({
           </>
         )}
       </header>
-      <main className="flex flex-row pt-14">
+      <main className="flex flex-row laptop:pt-14">
         {!showOnlyLogo && <Sidebar />}
         {children}
       </main>
