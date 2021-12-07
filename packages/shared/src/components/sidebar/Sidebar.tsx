@@ -1,10 +1,4 @@
-import React, {
-  ReactElement,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { ReactElement, useContext, useState } from 'react';
 import SettingsContext from '../../contexts/SettingsContext';
 import { FeedSettingsModal } from '../modals/FeedSettingsModal';
 import HotIcon from '../../../icons/hot.svg';
@@ -35,6 +29,7 @@ import InvitePeople from './InvitePeople';
 import AlertContext from '../../contexts/AlertContext';
 import FeedFilters from '../filters/FeedFilters';
 import { AlertColor, AlertDot } from '../AlertDot';
+import { useDynamicLoadedAnimation } from '../../hooks/useDynamicLoadAnimated';
 
 const bottomMenuItems: SidebarMenuItem[] = [
   {
@@ -59,11 +54,10 @@ const bottomMenuItems: SidebarMenuItem[] = [
 
 export default function Sidebar(): ReactElement {
   const { alerts } = useContext(AlertContext);
+  const { isLoaded, isAnimated, setLoaded, setHidden } =
+    useDynamicLoadedAnimation();
   const { openSidebar, toggleOpenSidebar } = useContext(SettingsContext);
   const [showSettings, setShowSettings] = useState(false);
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [animateFilter, setAnimteFilter] = useState(false);
-  const animationRef = useRef<number>();
 
   const topMenuItems: SidebarMenuItems[] = [
     {
@@ -75,7 +69,7 @@ export default function Sidebar(): ReactElement {
             <AlertDot className="-top-0.5 -right-0.5" color={AlertColor.Fill} />
           ),
           title: 'Feed filters',
-          action: () => setAnimteFilter(true),
+          action: setLoaded,
         },
         {
           icon: <ListIcon Icon={HotIcon} />,
@@ -121,30 +115,6 @@ export default function Sidebar(): ReactElement {
     },
   ];
 
-  useEffect(() => {
-    if (!animateFilter) {
-      return;
-    }
-
-    if (animationRef.current) {
-      clearTimeout(animationRef.current);
-    }
-
-    animationRef.current = window.setTimeout(() => setIsFilterOpen(true), 100);
-  }, [animateFilter]);
-
-  useEffect(() => {
-    if (isFilterOpen) {
-      return;
-    }
-
-    if (animationRef.current) {
-      clearTimeout(animationRef.current);
-    }
-
-    animationRef.current = window.setTimeout(() => setAnimteFilter(false), 300);
-  }, [isFilterOpen]);
-
   return (
     <>
       <SidebarAside className={openSidebar ? 'w-60' : 'w-11'}>
@@ -188,12 +158,7 @@ export default function Sidebar(): ReactElement {
           onRequestClose={() => setShowSettings(false)}
         />
       )}
-      {animateFilter && (
-        <FeedFilters
-          isOpen={isFilterOpen}
-          onBack={() => setIsFilterOpen(false)}
-        />
-      )}
+      {isLoaded && <FeedFilters isOpen={isAnimated} onBack={setHidden} />}
     </>
   );
 }
