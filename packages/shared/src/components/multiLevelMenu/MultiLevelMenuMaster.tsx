@@ -3,10 +3,9 @@ import ArrowIcon from '../../../icons/arrow.svg';
 import classed from '../../lib/classed';
 import { MenuItem } from '../filters/common';
 
-export const MenuButton = classed(
-  'button',
-  'flex items-center py-3 px-4 w-full',
-);
+export const menuItemClassNames = 'flex items-center py-3 px-4 w-full';
+
+export const MenuButton = classed('button', menuItemClassNames);
 
 export default function MultiLevelMenuMaster({
   menuItems,

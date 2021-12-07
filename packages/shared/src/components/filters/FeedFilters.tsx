@@ -8,8 +8,8 @@ import React, {
 import classNames from 'classnames';
 import sizeN from '../../../macros/sizeN.macro';
 import FilterMenu from './FilterMenu';
-import FilterIcon from '../../../icons/arrow.svg';
-import { MenuButton } from '../multiLevelMenu/MultiLevelMenuMaster';
+import XIcon from '../../../icons/x.svg';
+import { menuItemClassNames } from '../multiLevelMenu/MultiLevelMenuMaster';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import AlertContext from '../../contexts/AlertContext';
 
@@ -67,13 +67,16 @@ export default function FeedFilters({
       )}
       style={{ width: asideWidth }}
     >
-      <MenuButton
-        className="font-bold border-b typo-callout text-theme-label-tertiary border-theme-divider-tertiary"
-        onClick={onBack}
+      <div
+        className={classNames(
+          menuItemClassNames,
+          'border-b border-theme-divider-tertiary',
+        )}
       >
-        <FilterIcon className="mr-2 text-2xl -rotate-90" />
-        Back
-      </MenuButton>
+        <button onClick={onBack} type="button">
+          <XIcon className="mr-2 text-2xl -rotate-90 text-theme-label-tertiary" />
+        </button>
+      </div>
       <FilterMenu />
     </aside>
   );
