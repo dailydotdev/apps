@@ -1,4 +1,11 @@
-import React, { ReactElement, ReactNode, useContext, useState } from 'react';
+import React, {
+  ReactElement,
+  ReactNode,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import Link from 'next/link';
 import SettingsContext from '../contexts/SettingsContext';
 import { Button } from './buttons/Button';
@@ -17,7 +24,6 @@ import { SimpleTooltip } from './tooltips/SimpleTooltip';
 import classed from '../lib/classed';
 import FeedFilters from './filters/FeedFilters';
 import AlertContext from '../contexts/AlertContext';
-import useFeedSettings from '../hooks/useFeedSettings';
 
 interface SidebarMenuItems {
   key: string;
@@ -114,25 +120,11 @@ const NavItem = classed(
 
 export default function Sidebar(): ReactElement {
   const { openSidebar, toggleOpenSidebar } = useContext(SettingsContext);
-  const { feedSettings } = useFeedSettings();
-  const { alerts, updateAlerts } = useContext(AlertContext);
+  const { alerts } = useContext(AlertContext);
   const [showSettings, setShowSettings] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-
-  const showFilters = () => {
-    if (
-      alerts?.filter &&
-      (feedSettings?.includeTags?.length ||
-        feedSettings?.blockedTags?.length ||
-        feedSettings?.excludeSources?.length ||
-        feedSettings?.advancedSettings?.length)
-    ) {
-      updateAlerts({ filter: false });
-    }
-
-    setIsFilterOpen(true);
-  };
-
+  const [animateFilter, setAnimteFilter] = useState(false);
+  const animationRef = useRef<number>();
   const topMenuItems: SidebarMenuItems[] = [
     {
       key: 'Discover',
@@ -143,7 +135,7 @@ export default function Sidebar(): ReactElement {
             <BlueDot style={{ top: `-${0.125}rem`, right: `-${0.125}rem` }} />
           ),
           title: 'Feed filters',
-          action: showFilters,
+          action: () => setAnimteFilter(true),
         },
         {
           icon: <ListIcon Icon={HotIcon} />,
@@ -189,6 +181,30 @@ export default function Sidebar(): ReactElement {
     },
   ];
 
+  useEffect(() => {
+    if (!animateFilter) {
+      return;
+    }
+
+    if (animationRef.current) {
+      clearTimeout(animationRef.current);
+    }
+
+    animationRef.current = window.setTimeout(() => setIsFilterOpen(true), 100);
+  }, [animateFilter]);
+
+  useEffect(() => {
+    if (isFilterOpen) {
+      return;
+    }
+
+    if (animationRef.current) {
+      clearTimeout(animationRef.current);
+    }
+
+    animationRef.current = window.setTimeout(() => setAnimteFilter(false), 300);
+  }, [isFilterOpen]);
+
   return (
     <>
       <SidebarAside className={openSidebar ? 'w-60' : 'w-11'}>
@@ -221,10 +237,12 @@ export default function Sidebar(): ReactElement {
           onRequestClose={() => setShowSettings(false)}
         />
       )}
-      <FeedFilters
-        isOpen={isFilterOpen}
-        onBack={() => setIsFilterOpen(false)}
-      />
+      {animateFilter && (
+        <FeedFilters
+          isOpen={isFilterOpen}
+          onBack={() => setIsFilterOpen(false)}
+        />
+      )}
     </>
   );
 }
