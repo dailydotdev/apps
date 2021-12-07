@@ -48,7 +48,6 @@ import { logReadArticle } from '@dailydotdev/shared/src/lib/analytics';
 import useSubscription from '@dailydotdev/shared/src/hooks/useSubscription';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
-import Link from 'next/link';
 import useUpvotePost from '@dailydotdev/shared/src/hooks/useUpvotePost';
 import useBookmarkPost from '@dailydotdev/shared/src/hooks/useBookmarkPost';
 import useNotification from '@dailydotdev/shared/src/hooks/useNotification';
@@ -63,6 +62,7 @@ import MenuIcon from '@dailydotdev/shared/icons/menu.svg';
 import { CardNotification } from '@dailydotdev/shared/src/components/cards/Card';
 import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import { LinkWithTooltip } from '@dailydotdev/shared/src/components/tooltips/LinkWithTooltip';
+import { TagLinks } from '@dailydotdev/shared/src/components/TagLinks';
 import PostToc from '../../components/widgets/PostToc';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import styles from './postPage.module.css';
@@ -582,15 +582,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             </div>
           )}
         </div>
-        <div className="flex flex-wrap gap-2 mt-3 mb-4">
-          {postById?.post.tags.map((t) => (
-            <Link href={`/tags/${t}`} passHref key={t}>
-              <Button tag="a" className="btn-tertiaryFloat xsmall">
-                #{t}
-              </Button>
-            </Link>
-          ))}
-        </div>
+        <TagLinks tags={postById?.post.tags || []} />
         {postById?.post?.toc?.length > 0 && (
           <PostToc
             post={postById.post}
