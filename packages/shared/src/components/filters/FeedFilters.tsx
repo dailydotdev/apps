@@ -2,8 +2,8 @@ import React, { ReactElement, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import sizeN from '../../../macros/sizeN.macro';
 import FilterMenu from './FilterMenu';
-import { ClickableText } from '../buttons/ClickableText';
 import FilterIcon from '../../../icons/arrow.svg';
+import { MenuButton } from '../multiLevelMenu/MultiLevelMenuMaster';
 
 const asideWidth = sizeN(89);
 
@@ -43,14 +43,13 @@ export default function FeedFilters({
         transition: 'transform 0.2s linear 0.1s',
       }}
     >
-      <ClickableText
-        className="p-4 font-semibold no-underline text-theme-label-tertiary"
+      <MenuButton
+        className="font-bold border-b typo-callout text-theme-label-tertiary border-theme-divider-tertiary"
         onClick={onBack}
       >
         <FilterIcon className="mr-2 text-2xl -rotate-90" />
         Back
-      </ClickableText>
-      <div className="border-t border-theme-divider-tertiary" />
+      </MenuButton>
       <FilterMenu />
     </aside>
   );
