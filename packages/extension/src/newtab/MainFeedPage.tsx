@@ -11,7 +11,7 @@ import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContex
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import { HeaderButton } from '@dailydotdev/shared/src/components/buttons/common';
-import { Sidebar } from '@dailydotdev/shared/src/components/Sidebar';
+import Sidebar from '@dailydotdev/shared/src/components/sidebar/Sidebar';
 import MostVisitedSites from './MostVisitedSites';
 
 const PostsSearch = dynamic(
