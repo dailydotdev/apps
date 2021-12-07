@@ -1,7 +1,6 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import MainLayout from '@dailydotdev/shared/src/components/MainLayout';
 import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
-import Sidebar from '@dailydotdev/shared/src/components/Sidebar';
 import MainFeedLayout, {
   Tab,
 } from '@dailydotdev/shared/src/components/MainFeedLayout';
@@ -12,6 +11,7 @@ import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContex
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import { HeaderButton } from '@dailydotdev/shared/src/components/buttons/common';
+import { Sidebar } from '@dailydotdev/shared/src/components/Sidebar';
 import MostVisitedSites from './MostVisitedSites';
 
 const PostsSearch = dynamic(
