@@ -9,7 +9,7 @@ import React, {
 import Link from 'next/link';
 import SettingsContext from '../contexts/SettingsContext';
 import { Button } from './buttons/Button';
-import { BlueDot } from './notifs';
+import { AlertColor, AlertDot } from './AlertDot';
 import { FeedSettingsModal } from './modals/FeedSettingsModal';
 import ArrowIcon from '../../icons/arrow.svg';
 import HotIcon from '../../icons/hot.svg';
@@ -35,7 +35,7 @@ interface SidebarMenuItem {
   title: string;
   path?: string;
   action?: () => unknown;
-  notif?: ReactElement;
+  alert?: ReactElement;
 }
 
 const ListIcon = ({ Icon }): ReactElement => <Icon className="w-5 h-5" />;
@@ -48,7 +48,7 @@ const ItemInner = ({
 }) => (
   <>
     <span className="relative mr-3">
-      {item.notif}
+      {item.alert}
       {item.icon}
     </span>
     <span
@@ -131,8 +131,8 @@ export default function Sidebar(): ReactElement {
       items: [
         {
           icon: <ListIcon Icon={FilterIcon} />,
-          notif: alerts.filter && (
-            <BlueDot style={{ top: `-${0.125}rem`, right: `-${0.125}rem` }} />
+          alert: alerts.filter && (
+            <AlertDot className="-top-0.5 -right-0.5" color={AlertColor.Fill} />
           ),
           title: 'Feed filters',
           action: () => setAnimteFilter(true),
