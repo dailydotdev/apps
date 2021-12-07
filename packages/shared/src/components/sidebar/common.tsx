@@ -19,18 +19,50 @@ export interface SidebarMenuItem {
   action?: () => unknown;
 }
 
-export const ListIcon = ({
-  Icon,
-}: {
+interface ButtonOrLinkProps {
+  item: SidebarMenuItem;
+  children?: ReactNode;
+}
+
+interface ListIconProps {
   Icon: React.ComponentType<{ className }>;
-}): ReactElement => <Icon className="mr-3 w-5 h-5" />;
+}
+
+interface ItemInnerProps {
+  item: SidebarMenuItem;
+  openSidebar: boolean;
+}
+
+interface MenuIconProps {
+  openSidebar: boolean;
+  toggleOpenSidebar: () => Promise<void>;
+}
+
+interface NavItemProps {
+  color?: string;
+  children?: ReactNode;
+}
+
+export const btnClass = 'flex flex-1 items-center px-3 h-7';
+export const SidebarAside = classed(
+  'aside',
+  'flex flex-col border-r border-theme-divider-tertiary transition-all transform duration-500 ease-in-out group sticky top-14 h-[calc(100vh-theme(space.14))]',
+);
+export const Nav = classed('nav', 'my-4');
+export const NavSection = classed('ul', 'mt-2');
+export const NavHeader = classed(
+  'li',
+  'typo-footnote text-theme-label-quaternary h-7 flex items-center font-bold  transition-opacity',
+);
+export const RawNavItem = classed('li', 'flex items-center typo-callout');
+
+export const ListIcon = ({ Icon }: ListIconProps): ReactElement => (
+  <Icon className="mr-3 w-5 h-5" />
+);
 export const ItemInner = ({
   item,
   openSidebar,
-}: {
-  item: SidebarMenuItem;
-  openSidebar: boolean;
-}): ReactElement => (
+}: ItemInnerProps): ReactElement => (
   <>
     {item.icon}
     <span
@@ -42,14 +74,11 @@ export const ItemInner = ({
     </span>
   </>
 );
-export const btnClass = 'flex flex-1 items-center px-3 h-7';
+
 export const ButtonOrLink = ({
   item,
   children,
-}: {
-  item: SidebarMenuItem;
-  children?: ReactNode;
-}): ReactElement =>
+}: ButtonOrLinkProps): ReactElement =>
   item.path ? (
     <Link href={item.path} passHref prefetch={false}>
       <a target={item?.target} className={btnClass} rel="noopener noreferrer">
@@ -64,10 +93,7 @@ export const ButtonOrLink = ({
 export const MenuIcon = ({
   openSidebar,
   toggleOpenSidebar,
-}: {
-  openSidebar: boolean;
-  toggleOpenSidebar: () => Promise<void>;
-}): ReactElement => (
+}: MenuIconProps): ReactElement => (
   <SimpleTooltip
     placement="right"
     content={`${openSidebar ? 'Close' : 'Open'} sidebar`}
@@ -87,24 +113,7 @@ export const MenuIcon = ({
     </Button>
   </SimpleTooltip>
 );
-export const SidebarAside = classed(
-  'aside',
-  'flex flex-col border-r border-theme-divider-tertiary transition-all transform duration-500 ease-in-out group sticky top-14 h-[calc(100vh-theme(space.14))]',
-);
-export const Nav = classed('nav', 'my-4');
-export const NavSection = classed('ul', 'mt-2');
-export const NavHeader = classed(
-  'li',
-  'typo-footnote text-theme-label-quaternary h-7 flex items-center font-bold  transition-opacity',
-);
-export const RawNavItem = classed('li', 'flex items-center typo-callout');
-export const NavItem = ({
-  color,
-  children,
-}: {
-  color?: string;
-  children?: ReactNode;
-}): ReactElement => (
+export const NavItem = ({ color, children }: NavItemProps): ReactElement => (
   <RawNavItem className={color || 'text-theme-label-tertiary'}>
     {children}
   </RawNavItem>
