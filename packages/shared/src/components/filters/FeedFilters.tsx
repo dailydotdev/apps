@@ -1,9 +1,17 @@
-import React, { ReactElement, useEffect, useRef, useState } from 'react';
+import React, {
+  ReactElement,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import sizeN from '../../../macros/sizeN.macro';
 import FilterMenu from './FilterMenu';
 import FilterIcon from '../../../icons/arrow.svg';
 import { MenuButton } from '../multiLevelMenu/MultiLevelMenuMaster';
+import useFeedSettings from '../../hooks/useFeedSettings';
+import AlertContext from '../../contexts/AlertContext';
 
 const asideWidth = sizeN(89);
 
@@ -16,18 +24,38 @@ export default function FeedFilters({
   isOpen,
   onBack,
 }: FeedFiltersProps): ReactElement {
+  const { alerts, updateAlerts } = useContext(AlertContext);
+  const { feedSettings } = useFeedSettings();
   const [hidden, setHidden] = useState(true);
   const timeoutRef = useRef<number>();
 
   useEffect(() => {
     if (isOpen) {
+      if (
+        alerts?.filter &&
+        (feedSettings?.includeTags?.length ||
+          feedSettings?.blockedTags?.length ||
+          feedSettings?.excludeSources?.length ||
+          feedSettings?.advancedSettings?.length)
+      ) {
+        updateAlerts({ filter: false });
+      }
+
+      if (!hidden) {
+        return;
+      }
+
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       setHidden(false);
       return;
     }
 
+    if (hidden) {
+      return;
+    }
+
     timeoutRef.current = window.setTimeout(() => setHidden(true), 300);
-  }, [isOpen]);
+  }, [isOpen, alerts, feedSettings]);
 
   return (
     <aside
