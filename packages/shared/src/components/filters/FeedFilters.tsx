@@ -55,6 +55,7 @@ export default function FeedFilters({
     }
 
     timeoutRef.current = window.setTimeout(() => setHidden(true), 300);
+    return () => timeoutRef.current && clearTimeout(timeoutRef.current);
   }, [isOpen, alerts, feedSettings]);
 
   return (
