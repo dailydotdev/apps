@@ -94,7 +94,7 @@ const renderComponent = (
   );
 };
 
-it('should remove red dot for filter alert when there is a pre-configured feedSettings', async () => {
+it('should remove alert dot for filter alert when there is a pre-configured feedSettings', async () => {
   renderComponent();
   await waitFor(async () => {
     const data = await client.getQueryData(
