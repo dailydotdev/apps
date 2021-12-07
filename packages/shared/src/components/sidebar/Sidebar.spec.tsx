@@ -2,21 +2,21 @@ import React from 'react';
 import nock from 'nock';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import AuthContext from '../contexts/AuthContext';
-import defaultUser from '../../__tests__/fixture/loggedUser';
-import { LoggedUser } from '../lib/user';
+import AuthContext from '../../contexts/AuthContext';
+import defaultUser from '../../../__tests__/fixture/loggedUser';
+import { LoggedUser } from '../../lib/user';
 import Sidebar from './Sidebar';
 import SettingsContext, {
   SettingsContextData,
-} from '../contexts/SettingsContext';
-import { mockGraphQL } from '../../__tests__/helpers/graphql';
-import { FEED_SETTINGS_QUERY } from '../graphql/feedSettings';
-import { getFeedSettingsQueryKey } from '../hooks/useMutateFilters';
-import AlertContext, { AlertContextData } from '../contexts/AlertContext';
+} from '../../contexts/SettingsContext';
+import { mockGraphQL } from '../../../__tests__/helpers/graphql';
+import { FEED_SETTINGS_QUERY } from '../../graphql/feedSettings';
+import { getFeedSettingsQueryKey } from '../../hooks/useMutateFilters';
+import AlertContext, { AlertContextData } from '../../contexts/AlertContext';
 import {
   waitForRerender,
   waitForNock,
-} from '../../__tests__/helpers/utilities';
+} from '../../../__tests__/helpers/utilities';
 
 let client: QueryClient;
 const updateAlerts = jest.fn();
