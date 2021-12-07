@@ -2,6 +2,7 @@ import React from 'react';
 import nock from 'nock';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import { act } from '@testing-library/react-hooks';
 import AuthContext from '../../contexts/AuthContext';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import { LoggedUser } from '../../lib/user';
@@ -13,10 +14,7 @@ import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { FEED_SETTINGS_QUERY } from '../../graphql/feedSettings';
 import { getFeedSettingsQueryKey } from '../../hooks/useMutateFilters';
 import AlertContext, { AlertContextData } from '../../contexts/AlertContext';
-import {
-  waitForRerender,
-  waitForNock,
-} from '../../../__tests__/helpers/utilities';
+import { waitForNock } from '../../../__tests__/helpers/utilities';
 
 let client: QueryClient;
 const updateAlerts = jest.fn();
@@ -88,16 +86,17 @@ const renderComponent = (
 
 it('should remove alert dot for filter alert when there is a pre-configured feedSettings', async () => {
   renderComponent();
-  const trigger = await screen.findByText('Feed filters');
-  // eslint-disable-next-line testing-library/no-node-access
-  trigger.parentElement.click();
+  await act(async () => {
+    const trigger = await screen.findByText('Feed filters');
+    // eslint-disable-next-line testing-library/no-node-access
+    trigger.parentElement.click();
+  });
   await waitFor(async () => {
     const data = await client.getQueryData(
       getFeedSettingsQueryKey(defaultUser),
     );
     expect(data).toBeTruthy();
   });
-  await waitForRerender();
   expect(updateAlerts).toBeCalled();
 });
 
