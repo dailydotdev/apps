@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import sizeN from '../../../macros/sizeN.macro';
 import FilterMenu from './FilterMenu';
@@ -12,22 +12,21 @@ interface FeedFiltersProps {
   onBack?: () => void;
 }
 
-let timeout: NodeJS.Timeout;
-
 export default function FeedFilters({
   isOpen,
   onBack,
 }: FeedFiltersProps): ReactElement {
   const [hidden, setHidden] = useState(true);
+  const timeoutRef = useRef<number>();
 
   useEffect(() => {
     if (isOpen) {
-      if (timeout) clearTimeout(timeout);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
       setHidden(false);
       return;
     }
 
-    timeout = setTimeout(() => setHidden(true), 300);
+    timeoutRef.current = window.setTimeout(() => setHidden(true), 300);
   }, [isOpen]);
 
   return (
