@@ -6,6 +6,10 @@ export interface SubscriptionCallbacks<T> {
   error?: (error: unknown) => unknown;
 }
 
+interface Payload<T> {
+  data: T;
+}
+
 export default function useSubscription<T>(
   request: () => { query: string; variables?: Record<string, unknown> },
   { next, error }: SubscriptionCallbacks<T>,
@@ -26,8 +30,8 @@ export default function useSubscription<T>(
   useEffect(() => {
     if (connected) {
       return subscriptionClient.subscribe<T>(request(), {
-        next: (value: T) => {
-          nextRef.current?.(value);
+        next: ({ data }: Payload<T>) => {
+          nextRef.current?.(data);
         },
         error: (subscribeError) => errorRef.current?.(subscribeError),
         complete: () => {},
