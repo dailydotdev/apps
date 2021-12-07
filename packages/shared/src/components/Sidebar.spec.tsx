@@ -13,7 +13,10 @@ import { mockGraphQL } from '../../__tests__/helpers/graphql';
 import { FEED_SETTINGS_QUERY } from '../graphql/feedSettings';
 import { getFeedSettingsQueryKey } from '../hooks/useMutateFilters';
 import AlertContext, { AlertContextData } from '../contexts/AlertContext';
-import { waitForNock } from '../../__tests__/helpers/utilities';
+import {
+  waitForRerender,
+  waitForNock,
+} from '../../__tests__/helpers/utilities';
 
 let client: QueryClient;
 const updateAlerts = jest.fn();
@@ -94,6 +97,7 @@ it('should remove alert dot for filter alert when there is a pre-configured feed
     );
     expect(data).toBeTruthy();
   });
+  await waitForRerender();
   expect(updateAlerts).toBeCalled();
 });
 
