@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext } from 'react';
 import SettingsIcon from '../../../icons/settings.svg';
-import RedDot from '../RedDot';
+import { AlertColor, AlertDot } from '../AlertDot';
 import AlertContext from '../../contexts/AlertContext';
 
 export default function FilterRedDot(): ReactElement {
@@ -10,7 +10,9 @@ export default function FilterRedDot(): ReactElement {
   return (
     <div className="relative">
       <SettingsIcon />
-      {shouldShowFilterRedDot && <RedDot />}
+      {shouldShowFilterRedDot && (
+        <AlertDot className="top-0.5 right-0.5" color={AlertColor.BrightRed} />
+      )}
     </div>
   );
 }

@@ -26,6 +26,10 @@ import {
   SidebarMenuItems,
 } from './common';
 import InvitePeople from './InvitePeople';
+import AlertContext from '../../contexts/AlertContext';
+import FeedFilters from '../filters/FeedFilters';
+import { AlertColor, AlertDot } from '../AlertDot';
+import { useDynamicLoadedAnimation } from '../../hooks/useDynamicLoadAnimated';
 
 const bottomMenuItems: SidebarMenuItem[] = [
   {
@@ -49,6 +53,9 @@ const bottomMenuItems: SidebarMenuItem[] = [
 ];
 
 export default function Sidebar(): ReactElement {
+  const { alerts } = useContext(AlertContext);
+  const { isLoaded, isAnimated, setLoaded, setHidden } =
+    useDynamicLoadedAnimation();
   const { openSidebar, toggleOpenSidebar } = useContext(SettingsContext);
   const [showSettings, setShowSettings] = useState(false);
 
@@ -58,8 +65,11 @@ export default function Sidebar(): ReactElement {
       items: [
         {
           icon: <ListIcon Icon={FilterIcon} />,
+          alert: alerts.filter && (
+            <AlertDot className="-top-0.5 -right-0.5" color={AlertColor.Fill} />
+          ),
           title: 'Feed filters',
-          path: '/sidebar',
+          action: setLoaded,
         },
         {
           icon: <ListIcon Icon={HotIcon} />,
@@ -148,6 +158,7 @@ export default function Sidebar(): ReactElement {
           onRequestClose={() => setShowSettings(false)}
         />
       )}
+      {isLoaded && <FeedFilters isOpen={isAnimated} onBack={setHidden} />}
     </>
   );
 }

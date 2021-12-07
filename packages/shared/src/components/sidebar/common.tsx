@@ -20,6 +20,7 @@ export interface SidebarMenuItem {
   path?: string;
   target?: HTMLAttributeAnchorTarget | undefined;
   action?: () => unknown;
+  alert?: ReactElement;
 }
 
 interface ButtonOrLinkProps {
@@ -60,14 +61,17 @@ export const NavHeader = classed(
 export const RawNavItem = classed('li', 'flex items-center typo-callout');
 
 export const ListIcon = ({ Icon }: ListIconProps): ReactElement => (
-  <Icon className="mr-3 w-5 h-5" />
+  <Icon className="w-5 h-5" />
 );
 export const ItemInner = ({
   item,
   openSidebar,
 }: ItemInnerProps): ReactElement => (
   <>
-    {item.icon}
+    <span className="relative mr-3">
+      {item.alert}
+      {item.icon}
+    </span>
     <span
       className={`flex-1 text-left transition-opacity ${
         openSidebar ? 'opacity-100' : 'opacity-0'

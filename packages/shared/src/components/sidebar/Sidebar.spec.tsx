@@ -1,6 +1,8 @@
 import React from 'react';
 import nock from 'nock';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from 'react-query';
+import { act } from '@testing-library/react-hooks';
 import AuthContext from '../../contexts/AuthContext';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import { LoggedUser } from '../../lib/user';
@@ -8,16 +10,35 @@ import Sidebar from './Sidebar';
 import SettingsContext, {
   SettingsContextData,
 } from '../../contexts/SettingsContext';
+import { mockGraphQL } from '../../../__tests__/helpers/graphql';
+import { FEED_SETTINGS_QUERY } from '../../graphql/feedSettings';
+import { getFeedSettingsQueryKey } from '../../hooks/useMutateFilters';
+import AlertContext, { AlertContextData } from '../../contexts/AlertContext';
+import { waitForNock } from '../../../__tests__/helpers/utilities';
 
+let client: QueryClient;
+const updateAlerts = jest.fn();
 const toggleOpenSidebar = jest.fn();
 
 beforeEach(() => {
   nock.cleanAll();
 });
 
+const createMockFeedSettings = () => ({
+  request: { query: FEED_SETTINGS_QUERY, variables: { loggedIn: true } },
+  result: { data: { feedSettings: { blockedTags: ['javascript'] } } },
+});
+
+const defaultAlerts: AlertContextData = {
+  alerts: { filter: true },
+  updateAlerts,
+};
+
 const renderComponent = (
+  mocks = [createMockFeedSettings()],
   user: LoggedUser = defaultUser,
   openSidebar = true,
+  alertsData = defaultAlerts,
 ): RenderResult => {
   const settingsContext: SettingsContextData = {
     spaciness: 'eco',
@@ -36,24 +57,48 @@ const renderComponent = (
     openSidebar,
     toggleOpenSidebar,
   };
+  client = new QueryClient();
+  mocks.forEach(mockGraphQL);
+
   return render(
-    <AuthContext.Provider
-      value={{
-        user,
-        shouldShowLogin: false,
-        showLogin: jest.fn(),
-        logout: jest.fn(),
-        updateUser: jest.fn(),
-        tokenRefreshed: true,
-        getRedirectUri: jest.fn(),
-      }}
-    >
-      <SettingsContext.Provider value={settingsContext}>
-        <Sidebar />
-      </SettingsContext.Provider>
-    </AuthContext.Provider>,
+    <QueryClientProvider client={client}>
+      <AlertContext.Provider value={alertsData}>
+        <AuthContext.Provider
+          value={{
+            user,
+            shouldShowLogin: false,
+            showLogin: jest.fn(),
+            logout: jest.fn(),
+            updateUser: jest.fn(),
+            tokenRefreshed: true,
+            getRedirectUri: jest.fn(),
+            closeLogin: jest.fn(),
+          }}
+        >
+          <SettingsContext.Provider value={settingsContext}>
+            <Sidebar />
+          </SettingsContext.Provider>
+        </AuthContext.Provider>
+      </AlertContext.Provider>
+    </QueryClientProvider>,
   );
 };
+
+it('should remove alert dot for filter alert when there is a pre-configured feedSettings', async () => {
+  renderComponent();
+  await act(async () => {
+    const trigger = await screen.findByText('Feed filters');
+    // eslint-disable-next-line testing-library/no-node-access
+    trigger.parentElement.click();
+  });
+  await waitFor(async () => {
+    const data = await client.getQueryData(
+      getFeedSettingsQueryKey(defaultUser),
+    );
+    expect(data).toBeTruthy();
+  });
+  expect(updateAlerts).toBeCalled();
+});
 
 it('should render the sidebar as open by default', async () => {
   renderComponent();
@@ -71,7 +116,7 @@ it('should toggle the sidebar on button click', async () => {
 });
 
 it('should show the sidebar as closed if user has this set', async () => {
-  renderComponent(null, false);
+  renderComponent([], null, false);
   const trigger = await screen.findByLabelText('Open sidebar');
   expect(trigger).toBeInTheDocument();
 
@@ -90,9 +135,9 @@ it('should invoke the feed customization modal', async () => {
 
 it('should set all navigation urls', async () => {
   renderComponent();
+  waitForNock();
 
   const linkableElements = [
-    { text: 'Feed filters', path: '/sidebar' },
     { text: 'Popular', path: '/popular' },
     { text: 'Most upvoted', path: '/upvoted' },
     { text: 'Best discussions', path: '/discussed' },

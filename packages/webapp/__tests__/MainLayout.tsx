@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, RenderResult, screen } from '@testing-library/preact';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { QueryClient, QueryClientProvider } from 'react-query';
 import SettingsContext, {
   SettingsContextData,
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
@@ -8,6 +9,7 @@ import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import MainLayout from '../components/layouts/MainLayout';
 
 const showLogin = jest.fn();
+let client: QueryClient;
 
 beforeEach(() => {
   showLogin.mockReset();
@@ -31,21 +33,26 @@ const renderLayout = (user: LoggedUser = null): RenderResult => {
     openSidebar: true,
     toggleOpenSidebar: jest.fn(),
   };
+  client = new QueryClient();
+
   return render(
-    <AuthContext.Provider
-      value={{
-        user,
-        shouldShowLogin: false,
-        showLogin,
-        logout: jest.fn(),
-        updateUser: jest.fn(),
-        tokenRefreshed: true,
-      }}
-    >
-      <SettingsContext.Provider value={settingsContext}>
-        <MainLayout />
-      </SettingsContext.Provider>
-    </AuthContext.Provider>,
+    <QueryClientProvider client={client}>
+      <AuthContext.Provider
+        value={{
+          user,
+          shouldShowLogin: false,
+          showLogin,
+          logout: jest.fn(),
+          updateUser: jest.fn(),
+          tokenRefreshed: true,
+        }}
+      >
+        <SettingsContext.Provider value={settingsContext}>
+          <MainLayout />
+        </SettingsContext.Provider>
+      </AuthContext.Provider>
+      ,
+    </QueryClientProvider>,
   );
 };
 
