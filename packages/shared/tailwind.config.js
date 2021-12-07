@@ -17,6 +17,7 @@ module.exports = {
         focus: 'var(--theme-focus)',
         float: 'var(--theme-float)',
         hover: 'var(--theme-hover)',
+        rank: 'var(--rank-color)',
         bg: {
           primary: 'var(--theme-background-primary)',
           secondary: 'var(--theme-background-secondary)',

@@ -35,6 +35,7 @@ export const USER_READING_RANK_QUERY = gql`
 
 export interface MyRankData {
   rank: {
+    rankLastWeek: number;
     currentRank: number;
     progressThisWeek: number;
     readToday: boolean;
@@ -46,6 +47,7 @@ export interface MyRankData {
 export const MY_READING_RANK_QUERY = gql`
   query UserReadingRank($id: ID!) {
     rank: userReadingRank(id: $id) {
+      rankLastWeek
       currentRank
       progressThisWeek
       readToday

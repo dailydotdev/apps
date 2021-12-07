@@ -26,6 +26,8 @@ import {
   SidebarMenuItems,
 } from './common';
 import InvitePeople from './InvitePeople';
+import { RankProgress } from '../RankProgress';
+import SidebarRankProgress from '../SidebarRankProgress';
 
 const bottomMenuItems: SidebarMenuItem[] = [
   {
@@ -140,6 +142,7 @@ export default function Sidebar(): ReactElement {
             </NavItem>
           ))}
           <InvitePeople openSidebar={openSidebar} />
+          <SidebarRankProgress />
         </Nav>
       </SidebarAside>
       {showSettings && (

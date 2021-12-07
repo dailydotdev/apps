@@ -28,6 +28,7 @@ export type RankProgressProps = {
   className?: string;
   onRankAnimationFinish?: () => unknown;
   fillByDefault?: boolean;
+  smallVersion?: boolean;
 };
 
 export function RankProgress({
@@ -38,6 +39,7 @@ export function RankProgress({
   className,
   onRankAnimationFinish,
   fillByDefault = false,
+  smallVersion = false,
 }: RankProgressProps): ReactElement {
   const [prevProgress, setPrevProgress] = useState(progress);
   const [animatingProgress, setAnimatingProgress] = useState(false);
@@ -172,10 +174,16 @@ export function RankProgress({
   const shouldForceColor = animatingProgress || forceColor || fillByDefault;
   return (
     <div
-      className={classNames(className, 'relative z-1', styles.rankProgress, {
-        [styles.enableColors]: shownRank > 0,
-        [styles.forceColor]: shouldForceColor,
-      })}
+      className={classNames(
+        className,
+        'relative z-1 border-1',
+        styles.rankProgress,
+        {
+          [styles.enableColors]: shownRank > 0,
+          [styles.forceColor]: shouldForceColor,
+          [styles.smallVersion]: smallVersion,
+        },
+      )}
       style={
         shownRank > 0
           ? ({
