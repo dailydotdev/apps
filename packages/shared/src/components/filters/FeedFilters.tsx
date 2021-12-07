@@ -61,15 +61,11 @@ export default function FeedFilters({
     <aside
       className={classNames(
         'fixed top-14 left-0 z-3 bottom-0 self-stretch bg-theme-bg-primary rounded-r-2xl border-t border-r border-theme-divider-primary overflow-y-auto',
-        !isOpen && 'pointer-events-none',
+        'transition-transform duration-200 ease-linear delay-100',
+        isOpen ? 'translate-x-0' : '-translate-x-96 pointer-events-none',
         hidden && 'invisible',
       )}
-      style={{
-        width: asideWidth,
-        transform: isOpen ? 'translateX(0)' : `translateX(-${asideWidth})`,
-        willChange: 'transform',
-        transition: 'transform 0.2s linear 0.1s',
-      }}
+      style={{ width: asideWidth }}
     >
       <MenuButton
         className="font-bold border-b typo-callout text-theme-label-tertiary border-theme-divider-tertiary"
