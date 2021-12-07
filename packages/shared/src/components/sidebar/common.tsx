@@ -1,9 +1,12 @@
-import React, { ReactNode, ReactElement } from 'react';
+import React, {
+  ReactNode,
+  ReactElement,
+  HTMLAttributeAnchorTarget,
+} from 'react';
 import Link from 'next/link';
 import classed from '../../lib/classed';
 import { Button } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { TargetTypes } from '../utilities';
 import ArrowIcon from '../../../icons/arrow.svg';
 
 export interface SidebarMenuItems {
@@ -15,7 +18,7 @@ export interface SidebarMenuItem {
   icon: ReactElement;
   title: string;
   path?: string;
-  target?: TargetTypes;
+  target?: HTMLAttributeAnchorTarget | undefined;
   action?: () => unknown;
 }
 
