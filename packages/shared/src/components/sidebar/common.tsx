@@ -4,6 +4,7 @@ import React, {
   HTMLAttributeAnchorTarget,
 } from 'react';
 import Link from 'next/link';
+import classNames from 'classnames';
 import classed from '../../lib/classed';
 import { Button } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
@@ -21,6 +22,7 @@ export interface SidebarMenuItem {
   target?: HTMLAttributeAnchorTarget | undefined;
   action?: () => unknown;
   alert?: ReactElement;
+  active?: boolean;
 }
 
 interface ButtonOrLinkProps {
@@ -44,6 +46,7 @@ interface MenuIconProps {
 
 interface NavItemProps {
   color?: string;
+  active?: boolean;
   children?: ReactNode;
 }
 
@@ -58,7 +61,10 @@ export const NavHeader = classed(
   'li',
   'typo-footnote text-theme-label-quaternary h-7 flex items-center font-bold  transition-opacity',
 );
-export const RawNavItem = classed('li', 'flex items-center typo-callout');
+export const RawNavItem = classed(
+  'li',
+  'flex items-center typo-callout hover:bg-theme-active hover:text-theme-label-primary',
+);
 
 export const ListIcon = ({ Icon }: ListIconProps): ReactElement => (
   <Icon className="w-5 h-5" />
@@ -120,8 +126,17 @@ export const MenuIcon = ({
     </Button>
   </SimpleTooltip>
 );
-export const NavItem = ({ color, children }: NavItemProps): ReactElement => (
-  <RawNavItem className={color || 'text-theme-label-tertiary'}>
+export const NavItem = ({
+  color,
+  active,
+  children,
+}: NavItemProps): ReactElement => (
+  <RawNavItem
+    className={classNames(
+      color || 'text-theme-label-tertiary',
+      active && 'bg-theme-active text-theme-label-primary',
+    )}
+  >
     {children}
   </RawNavItem>
 );

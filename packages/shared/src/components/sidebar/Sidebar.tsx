@@ -1,4 +1,5 @@
 import React, { ReactElement, useContext, useState } from 'react';
+import { useRouter } from 'next/router';
 import SettingsContext from '../../contexts/SettingsContext';
 import { FeedSettingsModal } from '../modals/FeedSettingsModal';
 import HotIcon from '../../../icons/hot.svg';
@@ -53,6 +54,7 @@ const bottomMenuItems: SidebarMenuItem[] = [
 ];
 
 export default function Sidebar(): ReactElement {
+  const router = useRouter();
   const { alerts } = useContext(AlertContext);
   const { isLoaded, isAnimated, setLoaded, setHidden } =
     useDynamicLoadedAnimation();
@@ -110,6 +112,7 @@ export default function Sidebar(): ReactElement {
           icon: <ListIcon Icon={SettingsIcon} />,
           title: 'Customize',
           action: () => setShowSettings(!showSettings),
+          active: showSettings,
         },
       ],
     },
@@ -131,7 +134,10 @@ export default function Sidebar(): ReactElement {
                 {key}
               </NavHeader>
               {items.map((item) => (
-                <NavItem key={item.title}>
+                <NavItem
+                  key={item.title}
+                  active={item.active || item.path === router?.pathname}
+                >
                   <ButtonOrLink item={item}>
                     <ItemInner item={item} openSidebar={openSidebar} />
                   </ButtonOrLink>
@@ -143,7 +149,10 @@ export default function Sidebar(): ReactElement {
         <div className="flex-1" />
         <Nav>
           {bottomMenuItems.map((item) => (
-            <NavItem key={item.title}>
+            <NavItem
+              key={item.title}
+              active={item.active || item.path === router?.pathname}
+            >
               <ButtonOrLink item={item}>
                 <ItemInner item={item} openSidebar={openSidebar} />
               </ButtonOrLink>
