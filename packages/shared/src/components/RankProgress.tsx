@@ -10,6 +10,7 @@ import { CSSTransition, SwitchTransition } from 'react-transition-group';
 import classNames from 'classnames';
 import RadialProgress from './RadialProgress';
 import {
+  FINAL_RANK,
   NO_RANK,
   rankToColor,
   rankToGradientStopBottom,
@@ -25,6 +26,7 @@ const notificationDuration = 300;
 export type RankProgressProps = {
   progress: number;
   rank: number;
+  nextRank?: number;
   showRankAnimation?: boolean;
   showCurrentRankSteps?: boolean;
   className?: string;
@@ -39,6 +41,7 @@ export type RankProgressProps = {
 export function RankProgress({
   progress,
   rank,
+  nextRank,
   showRankAnimation = false,
   showCurrentRankSteps = false,
   className,
@@ -185,7 +188,7 @@ export function RankProgress({
   useEffect(() => {
     if (
       progress > prevProgress &&
-      (rank || showRankAnimation || STEPS_PER_RANK[rank - 1] !== progress)
+      (!rank || showRankAnimation || STEPS_PER_RANK[rank - 1] !== progress)
     ) {
       if (!showRadialProgress) animateRank();
       setProgressDelta(progress - prevProgress);
@@ -193,6 +196,14 @@ export function RankProgress({
     }
     setPrevProgress(progress);
   }, [progress]);
+
+  const getRank = (rank: number): string =>
+    rank > 0 ? RANK_NAMES[rank - 1] : NO_RANK;
+
+  const getNextRank = (rank: number): string =>
+    rank >= 5 ? FINAL_RANK : `Next level: ${RANK_NAMES[rank]}`;
+
+  const getLevelText = rank >= shownRank ? 'Level up' : '+1 Reading day';
 
   const shouldForceColor = animatingProgress || forceColor || fillByDefault;
   return (
@@ -255,17 +266,10 @@ export function RankProgress({
           >
             <div className="flex flex-col items-start ml-3">
               <span className="font-bold text-theme-rank typo-callout">
-                {animatingProgress
-                  ? `+${progressDelta} Article${
-                      progressDelta > 1 ? 's' : ''
-                    } read`
-                  : rank > 0
-                  ? RANK_NAMES[rank - 1]
-                  : NO_RANK}
+                {animatingProgress ? getLevelText : getRank(shownRank)}
               </span>
               <span className="typo-footnote text-theme-label-tertiary">
-                Next level:{' '}
-                {rankLastWeek > 0 ? RANK_NAMES[rankLastWeek - 1] : NO_RANK}
+                {getNextRank(nextRank)}
               </span>
             </div>
           </CSSTransition>

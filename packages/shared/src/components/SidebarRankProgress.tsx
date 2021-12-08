@@ -53,6 +53,8 @@ export default function SidebarRankProgress({
     reads,
   } = useReadingRank();
 
+  console.log('next', nextRank);
+
   if (isLoading) {
     return <></>;
   }
@@ -85,6 +87,7 @@ export default function SidebarRankProgress({
               showRankAnimation ? STEPS_PER_RANK[nextRank - 1] : progress
             }
             rank={showRankAnimation ? nextRank : rank}
+            nextRank={nextRank}
             showRankAnimation={showRankAnimation}
             showRadialProgress={openSidebar}
             fillByDefault

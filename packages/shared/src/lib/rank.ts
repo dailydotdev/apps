@@ -1,4 +1,5 @@
 export const NO_RANK = 'No rank';
+export const FINAL_RANK = 'You made it 🎉';
 export const STEPS_PER_RANK = [3, 4, 5, 6, 7];
 export const RANK_NAMES = ['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'];
 
