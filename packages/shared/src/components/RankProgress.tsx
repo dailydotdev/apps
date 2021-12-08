@@ -10,6 +10,7 @@ import { CSSTransition, SwitchTransition } from 'react-transition-group';
 import classNames from 'classnames';
 import RadialProgress from './RadialProgress';
 import {
+  NO_RANK,
   rankToColor,
   rankToGradientStopBottom,
   rankToGradientStopTop,
@@ -113,19 +114,21 @@ export function RankProgress({
       setShownRank(rank);
       // Let the new rank update
       setTimeout(() => {
-        const attentionAnimation = attentionRef.current.animate(
-          [
-            {
-              transform: 'scale(0.5)',
-              opacity: 1,
-            },
-            {
-              transform: 'scale(1.5)',
-              opacity: 0,
-            },
-          ],
-          { duration: 600, fill: 'forwards' },
-        );
+        const attentionAnimation = showRankAnimation
+          ? attentionRef.current.animate(
+              [
+                {
+                  transform: 'scale(0.5)',
+                  opacity: 1,
+                },
+                {
+                  transform: 'scale(1.5)',
+                  opacity: 0,
+                },
+              ],
+              { duration: 600, fill: 'forwards' },
+            )
+          : null;
         const lastBadgeAnimation = badgeRef.current.animate(
           [
             {
@@ -143,14 +146,23 @@ export function RankProgress({
           ],
           { duration: 100, fill: 'forwards' },
         );
-        attentionAnimation.onfinish = () => {
+        if (attentionAnimation) {
+          attentionAnimation.onfinish = () => {
+            progressAnimation?.cancel();
+            firstBadgeAnimation.cancel();
+            lastBadgeAnimation.cancel();
+            attentionAnimation.cancel();
+            setForceColor(false);
+            onRankAnimationFinish?.();
+          };
+        } else {
           progressAnimation?.cancel();
           firstBadgeAnimation.cancel();
           lastBadgeAnimation.cancel();
-          attentionAnimation.cancel();
+          attentionAnimation?.cancel();
           setForceColor(false);
           onRankAnimationFinish?.();
-        };
+        }
       });
     };
   };
@@ -247,12 +259,13 @@ export function RankProgress({
                   ? `+${progressDelta} Article${
                       progressDelta > 1 ? 's' : ''
                     } read`
-                  : RANK_NAMES[rank > 0 ? rank - 1 : 0]}
+                  : rank > 0
+                  ? RANK_NAMES[rank - 1]
+                  : NO_RANK}
               </span>
               <span className="typo-footnote text-theme-label-tertiary">
-                {animatingProgress
-                  ? `${5} articles read this week`
-                  : `Last week: ${RANK_NAMES[rankLastWeek > 0 ? rank - 1 : 0]}`}
+                Next level:{' '}
+                {rankLastWeek > 0 ? RANK_NAMES[rankLastWeek - 1] : NO_RANK}
               </span>
             </div>
           </CSSTransition>
