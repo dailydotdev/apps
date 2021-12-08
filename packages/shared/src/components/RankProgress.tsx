@@ -6,13 +6,14 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { CSSTransition } from 'react-transition-group';
+import { CSSTransition, SwitchTransition } from 'react-transition-group';
 import classNames from 'classnames';
 import RadialProgress from './RadialProgress';
 import {
   rankToColor,
   rankToGradientStopBottom,
   rankToGradientStopTop,
+  RANK_NAMES,
   STEPS_PER_RANK,
 } from '../lib/rank';
 import Rank from './Rank';
@@ -29,6 +30,9 @@ export type RankProgressProps = {
   onRankAnimationFinish?: () => unknown;
   fillByDefault?: boolean;
   smallVersion?: boolean;
+  showRadialProgress?: boolean;
+  showTextProgress?: boolean;
+  rankLastWeek?: number;
 };
 
 export function RankProgress({
@@ -40,6 +44,9 @@ export function RankProgress({
   onRankAnimationFinish,
   fillByDefault = false,
   smallVersion = false,
+  showRadialProgress = true,
+  showTextProgress = false,
+  rankLastWeek,
 }: RankProgressProps): ReactElement {
   const [prevProgress, setPrevProgress] = useState(progress);
   const [animatingProgress, setAnimatingProgress] = useState(false);
@@ -72,20 +79,23 @@ export function RankProgress({
     setForceColor(true);
     const firstAnimationDuration = 400;
     const maxScale = 1.666;
-    const progressAnimation = progressRef.current.animate(
-      [
-        {
-          transform: 'scale(1)',
-          '--radial-progress-completed-step': rankToColor(shownRank),
-        },
-        { transform: `scale(${maxScale})` },
-        {
-          transform: 'scale(1)',
-          '--radial-progress-completed-step': rankToColor(rank),
-        },
-      ],
-      { duration: firstAnimationDuration, fill: 'forwards' },
-    );
+
+    const progressAnimation = showRadialProgress
+      ? progressRef.current.animate(
+          [
+            {
+              transform: 'scale(1)',
+              '--radial-progress-completed-step': rankToColor(shownRank),
+            },
+            { transform: `scale(${maxScale})` },
+            {
+              transform: 'scale(1)',
+              '--radial-progress-completed-step': rankToColor(rank),
+            },
+          ],
+          { duration: firstAnimationDuration, fill: 'forwards' },
+        )
+      : null;
 
     const firstBadgeAnimation = badgeRef.current.animate(
       [
@@ -134,7 +144,7 @@ export function RankProgress({
           { duration: 100, fill: 'forwards' },
         );
         attentionAnimation.onfinish = () => {
-          progressAnimation.cancel();
+          progressAnimation?.cancel();
           firstBadgeAnimation.cancel();
           lastBadgeAnimation.cancel();
           attentionAnimation.cancel();
@@ -163,8 +173,9 @@ export function RankProgress({
   useEffect(() => {
     if (
       progress > prevProgress &&
-      (!rank || showRankAnimation || STEPS_PER_RANK[rank - 1] !== progress)
+      (rank || showRankAnimation || STEPS_PER_RANK[rank - 1] !== progress)
     ) {
+      if (!showRadialProgress) animateRank();
       setProgressDelta(progress - prevProgress);
       setAnimatingProgress(true);
     }
@@ -173,63 +184,80 @@ export function RankProgress({
 
   const shouldForceColor = animatingProgress || forceColor || fillByDefault;
   return (
-    <div
-      className={classNames(
-        className,
-        'relative z-1 border-1',
-        styles.rankProgress,
-        {
-          [styles.enableColors]: shownRank > 0,
-          [styles.forceColor]: shouldForceColor,
-          [styles.smallVersion]: smallVersion,
-        },
-      )}
-      style={
-        shownRank > 0
-          ? ({
-              '--rank-color': rankToColor(shownRank),
-              '--rank-stop-color1': rankToGradientStopBottom(shownRank),
-              '--rank-stop-color2': rankToGradientStopTop(shownRank),
-            } as CSSProperties)
-          : {}
-      }
-    >
-      {showRankAnimation && (
-        <div
-          className="absolute -z-1 w-full h-full bg-theme-active rounded-full opacity-0 l-0 t-0"
-          ref={attentionRef}
-        />
-      )}
-      <RadialProgress
-        progress={progress}
-        steps={steps}
-        onTransitionEnd={onProgressTransitionEnd}
-        ref={progressRef}
-        className={styles.radialProgress}
-      />
-      <Rank
-        rank={shownRank}
+    <>
+      <div
         className={classNames(
-          'absolute inset-0 w-2/3 h-2/3 m-auto',
-          styles.rank,
-          shownRank && styles.hasRank,
+          className,
+          'relative z-1 border-1',
+          styles.rankProgress,
+          {
+            [styles.enableColors]: shownRank > 0,
+            [styles.forceColor]: shouldForceColor,
+            [styles.smallVersion]: smallVersion && showRadialProgress,
+            [styles.smallVersionClosed]: smallVersion && !showRadialProgress,
+          },
         )}
-        ref={badgeRef}
-      />
-      <CSSTransition
-        in={animatingProgress && !showRankAnimation}
-        timeout={notificationDuration}
-        classNames="rank-notification-slide-down"
-        mountOnEnter
-        unmountOnExit
+        style={
+          shownRank > 0
+            ? ({
+                '--rank-color': rankToColor(shownRank),
+                '--rank-stop-color1': rankToGradientStopBottom(shownRank),
+                '--rank-stop-color2': rankToGradientStopTop(shownRank),
+              } as CSSProperties)
+            : {}
+        }
       >
-        <div
-          className="absolute top-full -left-14 mt-2 w-40 font-bold text-center typo-caption1"
-          style={{ color: rankToColor(shownRank) }}
-        >
-          +{progressDelta} Article{progressDelta > 1 ? 's' : ''} read
-        </div>
-      </CSSTransition>
-    </div>
+        {showRankAnimation && (
+          <div
+            className="absolute -z-1 w-full h-full bg-theme-active rounded-full opacity-0 l-0 t-0"
+            ref={attentionRef}
+          />
+        )}
+        {showRadialProgress && (
+          <RadialProgress
+            progress={progress}
+            steps={steps}
+            onTransitionEnd={onProgressTransitionEnd}
+            ref={progressRef}
+            className={styles.radialProgress}
+          />
+        )}
+        <Rank
+          rank={shownRank}
+          className={classNames(
+            'absolute inset-0 w-2/3 h-2/3 m-auto',
+            styles.rank,
+            shownRank && styles.hasRank,
+          )}
+          ref={badgeRef}
+        />
+      </div>
+      {showTextProgress && (
+        <SwitchTransition mode="out-in">
+          <CSSTransition
+            timeout={notificationDuration}
+            key={animatingProgress}
+            classNames="rank-notification-slide-down"
+            mountOnEnter
+            unmountOnExit
+          >
+            <div className="flex flex-col items-start ml-3">
+              <span className="font-bold text-theme-rank typo-callout">
+                {animatingProgress
+                  ? `+${progressDelta} Article${
+                      progressDelta > 1 ? 's' : ''
+                    } read`
+                  : RANK_NAMES[rank > 0 ? rank - 1 : 0]}
+              </span>
+              <span className="typo-footnote text-theme-label-tertiary">
+                {animatingProgress
+                  ? `${5} articles read this week`
+                  : `Last week: ${RANK_NAMES[rankLastWeek > 0 ? rank - 1 : 0]}`}
+              </span>
+            </div>
+          </CSSTransition>
+        </SwitchTransition>
+      )}
+    </>
   );
 }

@@ -165,7 +165,7 @@ export default function useReadingRank(): ReturnType {
     progress: cachedRank?.rank.progressThisWeek,
     reads: remoteRank?.reads,
     levelUp,
-    shouldShowRankModal: false,
+    shouldShowRankModal,
     confirmLevelUp: (newNeverShowRankModal) => {
       setLevelUp(false);
       if (user) {

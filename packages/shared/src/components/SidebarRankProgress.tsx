@@ -9,7 +9,7 @@ import classNames from 'classnames';
 import { RankProgress } from './RankProgress';
 import useReadingRank from '../hooks/useReadingRank';
 import AuthContext from '../contexts/AuthContext';
-import { rankToColor, RANK_NAMES, STEPS_PER_RANK } from '../lib/rank';
+import { rankToColor, STEPS_PER_RANK } from '../lib/rank';
 import FeaturesContext from '../contexts/FeaturesContext';
 import { getFeatureValue } from '../lib/featureManagement';
 
@@ -29,9 +29,9 @@ const AccountDetailsModal = dynamic(
 );
 
 export default function SidebarRankProgress({
-  className,
+  openSidebar,
 }: {
-  className?: string;
+  openSidebar?: boolean;
 }): ReactElement {
   const { user } = useContext(AuthContext);
   const [showAccountDetails, setShowAccountDetails] = useState(false);
@@ -41,7 +41,6 @@ export default function SidebarRankProgress({
     getFeatureValue('feat_limit_dev_card', flags),
     10,
   );
-
   const {
     isLoading,
     rank,
@@ -53,8 +52,6 @@ export default function SidebarRankProgress({
     confirmLevelUp,
     reads,
   } = useReadingRank();
-
-  console.log('pg', progress);
 
   if (isLoading) {
     return <></>;
@@ -68,18 +65,18 @@ export default function SidebarRankProgress({
   return (
     <>
       <li
-        className="flex items-center px-3 mt-4"
+        className={`flex items-center mt-4 ${openSidebar ? 'px-3' : 'px-1.5'}`}
         style={
           {
-            '--rank-color': rankToColor(rank),
+            '--rank-color': rankToColor(nextRank || rank),
           } as CSSProperties
         }
       >
         <button
           type="button"
           className={classNames(
-            'flex items-center bg-theme-bg-secondary border border-theme-rank rounded-12 cursor-pointer focus-outline w-full p-3',
-            className,
+            'flex items-center bg-theme-bg-secondary border border-theme-rank cursor-pointer focus-outline w-full',
+            openSidebar ? 'rounded-12 p-3' : 'rounded-10',
           )}
           onClick={() => setShowRanksModal(true)}
         >
@@ -89,20 +86,15 @@ export default function SidebarRankProgress({
             }
             rank={showRankAnimation ? nextRank : rank}
             showRankAnimation={showRankAnimation}
+            showRadialProgress={openSidebar}
             fillByDefault
             onRankAnimationFinish={() =>
               setTimeout(() => confirmLevelUp(true), 1000)
             }
+            showTextProgress={openSidebar}
             smallVersion
+            rankLastWeek={rankLastWeek}
           />
-          <div className="flex flex-col ml-3 items-start">
-            <span className="typo-callout text-theme-rank">
-              {RANK_NAMES[rank > 0 ? rank - 1 : 0]}
-            </span>
-            <span className="typo-footnote text-theme-label-tertiary">
-              Last week: {RANK_NAMES[rankLastWeek > 0 ? rankLastWeek - 1 : 0]}
-            </span>
-          </div>
         </button>
       </li>
       {showRanksModal && (

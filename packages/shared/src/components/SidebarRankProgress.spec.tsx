@@ -3,7 +3,6 @@ import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import nock from 'nock';
 import { set as setCache } from 'idb-keyval';
-import HeaderRankProgress from './HeaderRankProgress';
 import {
   MockedGraphQLResponse,
   mockGraphQL,
@@ -13,6 +12,7 @@ import defaultUser from '../../__tests__/fixture/loggedUser';
 import AuthContext from '../contexts/AuthContext';
 import { MY_READING_RANK_QUERY, MyRankData } from '../graphql/users';
 import OnboardingContext from '../contexts/OnboardingContext';
+import SidebarRankProgress from './SidebarRankProgress';
 
 jest.mock('../hooks/usePersistentState', () => {
   const originalModule = jest.requireActual('../hooks/usePersistentState');
@@ -77,7 +77,7 @@ const renderComponent = (
             showReferral: false,
           }}
         >
-          <HeaderRankProgress />
+          <SidebarRankProgress />
         </OnboardingContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
