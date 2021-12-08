@@ -42,8 +42,7 @@ const bottomMenuItems: SidebarMenuItem[] = [
   {
     icon: <ListIcon Icon={TerminalIcon} />,
     title: 'Changelog',
-    path: 'https://changelog.daily.dev/',
-    target: '_blank',
+    path: '/sources/daily_updates',
   },
   {
     icon: <ListIcon Icon={FeedbackIcon} />,
@@ -136,7 +135,7 @@ export default function Sidebar(): ReactElement {
               {items.map((item) => (
                 <NavItem
                   key={item.title}
-                  active={item.active || item.path === router?.pathname}
+                  active={item.active || item.path === router?.asPath}
                 >
                   <ButtonOrLink item={item}>
                     <ItemInner item={item} openSidebar={openSidebar} />
@@ -151,7 +150,7 @@ export default function Sidebar(): ReactElement {
           {bottomMenuItems.map((item) => (
             <NavItem
               key={item.title}
-              active={item.active || item.path === router?.pathname}
+              active={item.active || item.path === router?.asPath}
             >
               <ButtonOrLink item={item}>
                 <ItemInner item={item} openSidebar={openSidebar} />
