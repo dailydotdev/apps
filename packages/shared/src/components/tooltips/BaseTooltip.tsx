@@ -69,7 +69,9 @@ export function BaseTooltip(
       className={styles.tippyTooltip}
       allowHTML
       content={
-        !content ? null : (
+        !content ? (
+          <></>
+        ) : (
           <BaseTooltipContainer
             {...container}
             placement={placement}
