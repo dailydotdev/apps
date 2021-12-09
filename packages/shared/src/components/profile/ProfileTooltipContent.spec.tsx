@@ -1,17 +1,9 @@
 import React from 'react';
 import nock from 'nock';
 import { render, screen } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from 'react-query';
 import { ProfileTooltipContent } from './ProfileTolltipContent';
 import { Author } from '../../graphql/comments';
-import {
-  UserTooltipContentData,
-  USER_TOOLTIP_CONTENT_QUERY,
-} from '../../graphql/users';
-import {
-  MockedGraphQLResponse,
-  mockGraphQL,
-} from '../../../__tests__/helpers/graphql';
+import { UserTooltipContentData } from '../../graphql/users';
 
 beforeEach(() => {
   nock.cleanAll();
@@ -36,30 +28,13 @@ const defaultTagsData = [
   { value: 'webdev', count: 1 },
 ];
 
-const createRankMock = (
-  { rank = defaultRankData, tags = defaultTagsData } = {},
-  userId: string = defaultUser.id,
-): MockedGraphQLResponse<UserTooltipContentData> => ({
-  request: {
-    query: USER_TOOLTIP_CONTENT_QUERY,
-    variables: { id: userId },
-  },
-  result: {
-    data: { rank, tags },
-  },
-});
+const mockRank = { rank: defaultRankData, tags: defaultTagsData };
 
 const renderComponent = (
-  mocks: MockedGraphQLResponse[] = [createRankMock()],
   user: Author = defaultUser,
+  rank: UserTooltipContentData = mockRank,
 ) => {
-  const client = new QueryClient();
-  mocks.forEach(mockGraphQL);
-  return render(
-    <QueryClientProvider client={client}>
-      <ProfileTooltipContent user={user} />
-    </QueryClientProvider>,
-  );
+  return render(<ProfileTooltipContent user={user} data={rank} />);
 };
 
 describe('ProfileTooltipContent component', () => {
