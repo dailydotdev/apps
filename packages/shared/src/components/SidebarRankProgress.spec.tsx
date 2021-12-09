@@ -119,12 +119,3 @@ it('should show rank for anonymous users', async () => {
     expect(screen.queryAllByTestId('remainingPath').length).toEqual(2);
   });
 });
-
-it('should show a welcome button during the onboarding', async () => {
-  await setCache('rank', {
-    rank: { progressThisWeek: 1, currentRank: 0, readToday: false },
-    userId: null,
-  });
-  renderComponent([], null, 1);
-  await screen.findByTestId('welcomeButton');
-});

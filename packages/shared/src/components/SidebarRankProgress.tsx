@@ -53,8 +53,6 @@ export default function SidebarRankProgress({
     reads,
   } = useReadingRank();
 
-  console.log('next', nextRank);
-
   if (isLoading) {
     return <></>;
   }

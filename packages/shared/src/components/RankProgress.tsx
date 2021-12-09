@@ -38,6 +38,9 @@ export type RankProgressProps = {
   rankLastWeek?: number;
 };
 
+const getRank = (rank: number): string =>
+  rank > 0 ? RANK_NAMES[rank - 1] : NO_RANK;
+
 export function RankProgress({
   progress,
   rank,
@@ -54,7 +57,6 @@ export function RankProgress({
 }: RankProgressProps): ReactElement {
   const [prevProgress, setPrevProgress] = useState(progress);
   const [animatingProgress, setAnimatingProgress] = useState(false);
-  const [progressDelta, setProgressDelta] = useState(1);
   const [forceColor, setForceColor] = useState(false);
   const [shownRank, setShownRank] = useState(
     showRankAnimation ? rank - 1 : rank,
@@ -191,21 +193,26 @@ export function RankProgress({
       (!rank || showRankAnimation || STEPS_PER_RANK[rank - 1] !== progress)
     ) {
       if (!showRadialProgress) animateRank();
-      setProgressDelta(progress - prevProgress);
       setAnimatingProgress(true);
     }
     setPrevProgress(progress);
   }, [progress]);
 
-  const getRank = (rank: number): string =>
-    rank > 0 ? RANK_NAMES[rank - 1] : NO_RANK;
+  const getNextRank = (useRank: number): string => {
+    if (finalRank && progress >= STEPS_PER_RANK[useRank - 1]) return FINAL_RANK;
+    if (
+      finalRank ||
+      (useRank === rankLastWeek && progress < STEPS_PER_RANK[rank - 1])
+    )
+      return `Re-earn: ${progress}/${STEPS_PER_RANK[rank - 1]} reading days`;
+    if (useRank === 0) return `Earn: ${progress}/3 reading days`;
+    return `Next level: ${RANK_NAMES[rank]}`;
+  };
 
-  const getNextRank = (rank: number): string =>
-    rank >= 5 ? FINAL_RANK : `Next level: ${RANK_NAMES[rank]}`;
-
-  const getLevelText = rank >= shownRank ? 'Level up' : '+1 Reading day';
-
+  const levelUp = () => rank >= shownRank && rank > 0;
+  const getLevelText = levelUp() ? 'Level up' : '+1 Reading day';
   const shouldForceColor = animatingProgress || forceColor || fillByDefault;
+
   return (
     <>
       <div
@@ -245,15 +252,31 @@ export function RankProgress({
             className={styles.radialProgress}
           />
         )}
-        <Rank
-          rank={shownRank}
-          className={classNames(
-            'absolute inset-0 w-2/3 h-2/3 m-auto',
-            styles.rank,
-            shownRank && styles.hasRank,
-          )}
-          ref={badgeRef}
-        />
+        <SwitchTransition mode="out-in">
+          <CSSTransition
+            timeout={notificationDuration}
+            key={animatingProgress}
+            classNames="rank-notification-slide-down"
+            mountOnEnter
+            unmountOnExit
+          >
+            {levelUp() || !animatingProgress ? (
+              <Rank
+                rank={shownRank}
+                className={classNames(
+                  'absolute inset-0 w-2/3 h-2/3 m-auto',
+                  styles.rank,
+                  shownRank && styles.hasRank,
+                )}
+                ref={badgeRef}
+              />
+            ) : (
+              <strong className="flex absolute inset-0 justify-center items-center typo-callout">
+                +1
+              </strong>
+            )}
+          </CSSTransition>
+        </SwitchTransition>
       </div>
       {showTextProgress && (
         <SwitchTransition mode="out-in">
