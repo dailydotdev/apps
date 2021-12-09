@@ -23,8 +23,6 @@ export interface TooltipProps
     | 'children'
     | 'placement'
     | 'delay'
-    | 'disableInAnimation'
-    | 'disableOutAnimation'
     | 'interactive'
     | 'onTrigger'
     | 'duration'
@@ -35,8 +33,6 @@ export interface TooltipProps
 export interface BaseTooltipProps extends TippyProps {
   container?: Omit<BaseTooltipContainerProps, 'children'>;
   placement?: TooltipPosition;
-  disableInAnimation?: boolean;
-  disableOutAnimation?: boolean;
 }
 
 export function BaseTooltip(
@@ -49,8 +45,6 @@ export function BaseTooltip(
     container = {},
     children,
     content,
-    disableInAnimation,
-    disableOutAnimation,
     ...props
   }: BaseTooltipProps,
   ref?: Ref<Element>,
@@ -74,7 +68,6 @@ export function BaseTooltip(
       duration={duration}
       className={styles.tippyTooltip}
       allowHTML
-      animation={!(disableInAnimation && disableOutAnimation)}
       content={
         !content ? null : (
           <BaseTooltipContainer

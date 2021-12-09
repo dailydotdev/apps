@@ -189,9 +189,8 @@ export default function CalendarHeatmap<T extends { date: string }>({
           value?.originalValue,
           addDays(startDateWithEmptyDays, index),
         )}
-        disableOutAnimation
-        disableInAnimation
-        delay={[1, 90]}
+        duration={0}
+        delay={[0, 70]}
         container={{
           paddingClassName: 'py-3 px-4',
           roundedClassName: 'rounded-3',
