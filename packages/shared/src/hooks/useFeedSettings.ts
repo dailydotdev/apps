@@ -17,6 +17,7 @@ export type FeedSettingsReturnType = {
   tagsCategories: TagCategory[];
   feedSettings: FeedSettings;
   isLoading: boolean;
+  hasAnyFilter?: boolean;
   advancedSettings: AdvancedSettings[];
   setAvoidRefresh: (value: boolean) => void;
 };
@@ -56,12 +57,19 @@ export default function useFeedSettings(): FeedSettingsReturnType {
     }, 100);
   }, [tagsCategories, feedSettings, avoidRefresh]);
 
+  const hasAnyFilter =
+    feedSettings?.includeTags?.length > 0 ||
+    feedSettings?.blockedTags?.length > 0 ||
+    feedSettings?.excludeSources?.length > 0 ||
+    feedSettings?.advancedSettings?.length > 0;
+
   return useMemo(() => {
     return {
       tagsCategories,
       feedSettings,
       isLoading,
       advancedSettings,
+      hasAnyFilter,
       setAvoidRefresh,
     };
   }, [
@@ -69,6 +77,7 @@ export default function useFeedSettings(): FeedSettingsReturnType {
     feedSettings,
     isLoading,
     advancedSettings,
+    hasAnyFilter,
     setAvoidRefresh,
   ]);
 }

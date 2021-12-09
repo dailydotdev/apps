@@ -4,11 +4,18 @@ import React, {
   HTMLAttributeAnchorTarget,
 } from 'react';
 import Link from 'next/link';
+import classNames from 'classnames';
 import classed from '../../lib/classed';
 import { Button } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import ArrowIcon from '../../../icons/arrow.svg';
 
+export interface SidebarProps {
+  useNavButtonsNotLinks?: boolean;
+  activePage?: string;
+  onNavTabClick?: (tab: string) => void;
+  enableSearch?: () => void;
+}
 export interface SidebarMenuItems {
   key: string;
   items: SidebarMenuItem[];
@@ -20,10 +27,13 @@ export interface SidebarMenuItem {
   path?: string;
   target?: HTMLAttributeAnchorTarget | undefined;
   action?: () => unknown;
+  alert?: ReactElement;
+  active?: boolean;
 }
 
 interface ButtonOrLinkProps {
   item: SidebarMenuItem;
+  useNavButtonsNotLinks?: boolean;
   children?: ReactNode;
 }
 
@@ -43,6 +53,7 @@ interface MenuIconProps {
 
 interface NavItemProps {
   color?: string;
+  active?: boolean;
   children?: ReactNode;
 }
 
@@ -57,17 +68,23 @@ export const NavHeader = classed(
   'li',
   'typo-footnote text-theme-label-quaternary h-7 flex items-center font-bold  transition-opacity',
 );
-export const RawNavItem = classed('li', 'flex items-center typo-callout');
+export const RawNavItem = classed(
+  'li',
+  'flex items-center typo-callout hover:bg-theme-active hover:text-theme-label-primary',
+);
 
 export const ListIcon = ({ Icon }: ListIconProps): ReactElement => (
-  <Icon className="mr-3 w-5 h-5" />
+  <Icon className="w-5 h-5" />
 );
 export const ItemInner = ({
   item,
   openSidebar,
 }: ItemInnerProps): ReactElement => (
   <>
-    {item.icon}
+    <span className="relative mr-3">
+      {item.alert}
+      {item.icon}
+    </span>
     <span
       className={`flex-1 text-left transition-opacity ${
         openSidebar ? 'opacity-100' : 'opacity-0'
@@ -80,9 +97,11 @@ export const ItemInner = ({
 
 export const ButtonOrLink = ({
   item,
+  useNavButtonsNotLinks,
   children,
-}: ButtonOrLinkProps): ReactElement =>
-  item.path ? (
+}: ButtonOrLinkProps): ReactElement => {
+  return (useNavButtonsNotLinks && !item.action) ||
+    (item.path && !useNavButtonsNotLinks) ? (
     <Link href={item.path} passHref prefetch={false}>
       <a target={item?.target} className={btnClass} rel="noopener noreferrer">
         {children}
@@ -93,6 +112,8 @@ export const ButtonOrLink = ({
       {children}
     </button>
   );
+};
+
 export const MenuIcon = ({
   openSidebar,
   toggleOpenSidebar,
@@ -116,8 +137,17 @@ export const MenuIcon = ({
     </Button>
   </SimpleTooltip>
 );
-export const NavItem = ({ color, children }: NavItemProps): ReactElement => (
-  <RawNavItem className={color || 'text-theme-label-tertiary'}>
+export const NavItem = ({
+  color,
+  active,
+  children,
+}: NavItemProps): ReactElement => (
+  <RawNavItem
+    className={classNames(
+      color || 'text-theme-label-tertiary',
+      active && 'bg-theme-active text-theme-label-primary',
+    )}
+  >
     {children}
   </RawNavItem>
 );

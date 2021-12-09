@@ -24,9 +24,14 @@ import {
   SidebarAside,
   SidebarMenuItem,
   SidebarMenuItems,
+  SidebarProps,
 } from './common';
 import InvitePeople from './InvitePeople';
 import SidebarRankProgress from '../SidebarRankProgress';
+import AlertContext from '../../contexts/AlertContext';
+import FeedFilters from '../filters/FeedFilters';
+import { AlertColor, AlertDot } from '../AlertDot';
+import { useDynamicLoadedAnimation } from '../../hooks/useDynamicLoadAnimated';
 
 const bottomMenuItems: SidebarMenuItem[] = [
   {
@@ -38,8 +43,7 @@ const bottomMenuItems: SidebarMenuItem[] = [
   {
     icon: <ListIcon Icon={TerminalIcon} />,
     title: 'Changelog',
-    path: 'https://changelog.daily.dev/',
-    target: '_blank',
+    path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}sources/changelog`,
   },
   {
     icon: <ListIcon Icon={FeedbackIcon} />,
@@ -49,7 +53,15 @@ const bottomMenuItems: SidebarMenuItem[] = [
   },
 ];
 
-export default function Sidebar(): ReactElement {
+export default function Sidebar({
+  useNavButtonsNotLinks = false,
+  activePage,
+  onNavTabClick,
+  enableSearch,
+}: SidebarProps): ReactElement {
+  const { alerts } = useContext(AlertContext);
+  const { isLoaded, isAnimated, setLoaded, setHidden } =
+    useDynamicLoadedAnimation();
   const { openSidebar, toggleOpenSidebar } = useContext(SettingsContext);
   const [showSettings, setShowSettings] = useState(false);
 
@@ -59,28 +71,35 @@ export default function Sidebar(): ReactElement {
       items: [
         {
           icon: <ListIcon Icon={FilterIcon} />,
+          alert: alerts.filter && (
+            <AlertDot className="-top-0.5 -right-0.5" color={AlertColor.Fill} />
+          ),
           title: 'Feed filters',
-          path: '/sidebar',
+          action: setLoaded,
         },
         {
           icon: <ListIcon Icon={HotIcon} />,
           title: 'Popular',
           path: '/popular',
+          action: () => onNavTabClick?.('popular'),
         },
         {
           icon: <ListIcon Icon={UpvoteIcon} />,
           title: 'Most upvoted',
           path: '/upvoted',
+          action: () => onNavTabClick?.('upvoted'),
         },
         {
           icon: <ListIcon Icon={DiscussIcon} />,
           title: 'Best discussions',
           path: '/discussed',
+          action: () => onNavTabClick?.('discussed'),
         },
         {
           icon: <ListIcon Icon={SearchIcon} />,
           title: 'Search',
           path: '/search',
+          action: enableSearch ? () => enableSearch() : null,
         },
       ],
     },
@@ -90,17 +109,18 @@ export default function Sidebar(): ReactElement {
         {
           icon: <ListIcon Icon={BookmarkIcon} />,
           title: 'Bookmarks',
-          path: '/bookmarks',
+          path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}bookmarks`,
         },
         {
           icon: <ListIcon Icon={EyeIcon} />,
           title: 'Reading history',
-          path: '/history',
+          path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}history`,
         },
         {
           icon: <ListIcon Icon={SettingsIcon} />,
           title: 'Customize',
           action: () => setShowSettings(!showSettings),
+          active: showSettings,
         },
       ],
     },
@@ -122,8 +142,14 @@ export default function Sidebar(): ReactElement {
                 {key}
               </NavHeader>
               {items.map((item) => (
-                <NavItem key={item.title}>
-                  <ButtonOrLink item={item}>
+                <NavItem
+                  key={item.title}
+                  active={item.active || item.path === activePage}
+                >
+                  <ButtonOrLink
+                    item={item}
+                    useNavButtonsNotLinks={useNavButtonsNotLinks}
+                  >
                     <ItemInner item={item} openSidebar={openSidebar} />
                   </ButtonOrLink>
                 </NavItem>
@@ -134,8 +160,14 @@ export default function Sidebar(): ReactElement {
         <div className="flex-1" />
         <Nav>
           {bottomMenuItems.map((item) => (
-            <NavItem key={item.title}>
-              <ButtonOrLink item={item}>
+            <NavItem
+              key={item.title}
+              active={item.active || item.path === activePage}
+            >
+              <ButtonOrLink
+                item={item}
+                useNavButtonsNotLinks={useNavButtonsNotLinks}
+              >
                 <ItemInner item={item} openSidebar={openSidebar} />
               </ButtonOrLink>
             </NavItem>
@@ -150,6 +182,7 @@ export default function Sidebar(): ReactElement {
           onRequestClose={() => setShowSettings(false)}
         />
       )}
+      {isLoaded && <FeedFilters isOpen={isAnimated} onBack={setHidden} />}
     </>
   );
 }

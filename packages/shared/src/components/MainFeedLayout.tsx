@@ -90,7 +90,6 @@ export type MainFeedLayoutProps = {
   isSearchOn: boolean;
   searchQuery?: string;
   children?: ReactNode;
-  useNavButtonsNotLinks?: boolean;
   searchChildren: ReactNode;
   navChildren?: ReactNode;
 };
