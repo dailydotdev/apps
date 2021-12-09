@@ -1,4 +1,4 @@
-import React, { useState, ReactElement, Ref } from 'react';
+import React, { useState, ReactElement, Ref, useRef, useEffect } from 'react';
 import Tippy, { TippyProps } from '@tippyjs/react';
 import classNames from 'classnames';
 import styles from './BaseTooltip.module.css';
@@ -53,17 +53,22 @@ export function BaseTooltip(
   }: BaseTooltipProps,
   ref?: Ref<Element>,
 ): ReactElement {
+  const timeoutRef = useRef<number>();
   const [mounted, setMounted] = useState(false);
   const [unMounting, setUnMounting] = useState(false);
   const onHide = ({ unmount }) => {
-    if (disableOutAnimation) {
+    if (disableOutAnimation || unMounting) {
       return;
     }
+
     setUnMounting(true);
-    setTimeout(() => {
-      setUnMounting(false);
-      unmount();
-    }, DEFAULT_OUT_ANIMATION);
+    if (!timeoutRef.current) {
+      timeoutRef.current = window.setTimeout(() => {
+        setUnMounting(false);
+        unmount();
+        timeoutRef.current = null;
+      }, DEFAULT_OUT_ANIMATION);
+    }
   };
 
   const lazyPlugin = {
@@ -72,6 +77,11 @@ export function BaseTooltip(
       onHidden: () => setMounted(false),
     }),
   };
+
+  useEffect(
+    () => () => timeoutRef.current && clearTimeout(timeoutRef.current),
+    [timeoutRef],
+  );
 
   return (
     <Tippy
