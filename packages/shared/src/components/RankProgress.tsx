@@ -38,7 +38,7 @@ export type RankProgressProps = {
   rankLastWeek?: number;
 };
 
-const getRank = (rank: number): string =>
+const getRankName = (rank: number): string =>
   rank > 0 ? RANK_NAMES[rank - 1] : NO_RANK;
 
 export function RankProgress({
@@ -198,7 +198,7 @@ export function RankProgress({
     setPrevProgress(progress);
   }, [progress]);
 
-  const getNextRank = (useRank: number): string => {
+  const getNextRankText = (useRank: number): string => {
     if (finalRank && progress >= STEPS_PER_RANK[useRank - 1]) return FINAL_RANK;
     if (
       finalRank ||
@@ -289,10 +289,10 @@ export function RankProgress({
           >
             <div className="flex flex-col items-start ml-3">
               <span className="font-bold text-theme-rank typo-callout">
-                {animatingProgress ? getLevelText : getRank(shownRank)}
+                {animatingProgress ? getLevelText : getRankName(shownRank)}
               </span>
               <span className="typo-footnote text-theme-label-tertiary">
-                {getNextRank(nextRank)}
+                {getNextRankText(nextRank)}
               </span>
             </div>
           </CSSTransition>

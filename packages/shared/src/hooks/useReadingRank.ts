@@ -87,14 +87,13 @@ export default function useReadingRank(): ReturnType {
   const cacheRank = (
     rank: MyRankData = remoteRank,
     newNeverShowRankModal = neverShowRankModal,
-  ) => {
-    return setCachedRank({
+  ) =>
+    setCachedRank({
       rank: rank.rank,
       reads: rank.reads,
       userId: user?.id,
       neverShowRankModal: newNeverShowRankModal,
     });
-  };
 
   const shouldShowRankModal = checkShouldShowRankModal(
     alerts?.rankLastSeen,

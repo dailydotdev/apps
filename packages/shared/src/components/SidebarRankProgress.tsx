@@ -54,7 +54,7 @@ export default function SidebarRankProgress({
   } = useReadingRank();
 
   if (isLoading) {
-    return <></>;
+    return <li className={`flex ${openSidebar ? 'h-20' : 'h-12'}`}>&nbsp;</li>;
   }
 
   const showRankAnimation = levelUp && !shouldShowRankModal;
