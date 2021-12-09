@@ -5,7 +5,6 @@ import React, {
   useContext,
   useState,
 } from 'react';
-import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import { CSSTransition } from 'react-transition-group';
 import classNames from 'classnames';
@@ -48,12 +47,9 @@ export default function MainLayout({
   enableSearch,
   onShowDndClick,
 }: MainLayoutProps): ReactElement {
-  const router = useRouter();
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user, showLogin, loadingUser } = useContext(AuthContext);
   const [showGreeting, setShowGreeting] = useState(false);
-
-  const useActivePage = activePage || router?.asPath;
 
   return (
     <>
@@ -112,7 +108,7 @@ export default function MainLayout({
             useNavButtonsNotLinks
             onNavTabClick={onNavTabClick}
             enableSearch={enableSearch}
-            activePage={useActivePage}
+            activePage={activePage}
           />
         )}
         {children}

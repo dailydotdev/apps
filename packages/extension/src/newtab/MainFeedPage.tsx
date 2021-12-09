@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useState } from 'react';
+import React, { ReactElement, useContext, useMemo, useState } from 'react';
 import MainLayout from '@dailydotdev/shared/src/components/MainLayout';
 import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
@@ -31,9 +31,6 @@ export default function MainFeedPage({
   const { user } = useContext(AuthContext);
   const { onboardingStep } = useContext(OnboardingContext) || {};
   const [feedName, setFeedName] = useState<string>('default');
-  const [activePage, setActivePage] = useState<string>(
-    feedName === 'default' ? '/popular' : feedName,
-  );
   const [isSearchOn, setIsSearchOn] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>();
   const [showDnd, setShowDnd] = useState(false);
@@ -41,27 +38,30 @@ export default function MainFeedPage({
   const enableSearch = () => {
     setIsSearchOn(true);
     setSearchQuery(null);
-    setActivePage('/search');
     onPageChanged('/search');
   };
 
   const closeSearch = () => {
     setIsSearchOn(false);
-    setActivePage(`/${feedName}`);
     onPageChanged(`/${feedName}`);
   };
 
   const onNavTabClick = (tab: string): void => {
     setFeedName(tab);
-    setActivePage(`/${tab}`);
     onPageChanged(`/${tab}`);
   };
+
+  const activePage = useMemo(() => {
+    if (isSearchOn) {
+      return '/search';
+    }
+    return `/${feedName === 'default' ? 'popular' : feedName}`;
+  }, [isSearchOn, feedName]);
 
   const onLogoClick = (e: React.MouseEvent): void => {
     e.preventDefault();
     e.stopPropagation();
     setFeedName('default');
-    setActivePage(`/popular`);
     setIsSearchOn(false);
     setSearchQuery(undefined);
   };
