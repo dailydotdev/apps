@@ -70,6 +70,7 @@ export default function MainFeedPage({
     <MainLayout
       greeting
       mainPage
+      useNavButtonsNotLinks
       activePage={activePage}
       onLogoClick={onLogoClick}
       onShowDndClick={() => setShowDnd(true)}
@@ -92,7 +93,6 @@ export default function MainFeedPage({
     >
       <FeedLayout>
         <MainFeedLayout
-          useNavButtonsNotLinks
           feedName={feedName}
           isSearchOn={isSearchOn}
           searchQuery={searchQuery}

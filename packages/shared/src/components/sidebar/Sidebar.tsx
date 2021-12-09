@@ -53,7 +53,7 @@ const bottomMenuItems: SidebarMenuItem[] = [
 ];
 
 export default function Sidebar({
-  useNavButtonsNotLinks,
+  useNavButtonsNotLinks = false,
   activePage,
   onNavTabClick,
   enableSearch,
@@ -80,19 +80,19 @@ export default function Sidebar({
           icon: <ListIcon Icon={HotIcon} />,
           title: 'Popular',
           path: '/popular',
-          action: onNavTabClick ? () => onNavTabClick('popular') : null,
+          action: () => onNavTabClick?.('popular'),
         },
         {
           icon: <ListIcon Icon={UpvoteIcon} />,
           title: 'Most upvoted',
           path: '/upvoted',
-          action: onNavTabClick ? () => onNavTabClick('upvoted') : null,
+          action: () => onNavTabClick?.('upvoted'),
         },
         {
           icon: <ListIcon Icon={DiscussIcon} />,
           title: 'Best discussions',
           path: '/discussed',
-          action: onNavTabClick ? () => onNavTabClick('discussed') : null,
+          action: () => onNavTabClick?.('discussed'),
         },
         {
           icon: <ListIcon Icon={SearchIcon} />,

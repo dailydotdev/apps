@@ -27,6 +27,7 @@ export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   mainPage?: boolean;
   additionalButtons?: ReactNode;
   activePage?: string;
+  useNavButtonsNotLinks?: boolean;
   onLogoClick?: (e: React.MouseEvent) => unknown;
   enableSearch?: () => void;
   onNavTabClick?: (tab: string) => void;
@@ -42,6 +43,7 @@ export default function MainLayout({
   showOnlyLogo,
   greeting,
   activePage,
+  useNavButtonsNotLinks,
   onLogoClick,
   onNavTabClick,
   enableSearch,
@@ -105,10 +107,10 @@ export default function MainLayout({
       <main className="flex flex-row laptop:pt-14">
         {!showOnlyLogo && (
           <Sidebar
-            useNavButtonsNotLinks
             onNavTabClick={onNavTabClick}
             enableSearch={enableSearch}
             activePage={activePage}
+            useNavButtonsNotLinks={useNavButtonsNotLinks}
           />
         )}
         {children}
