@@ -17,6 +17,7 @@ export const getRankQueryKey = (user?: LoggedUser): string[] => [
 type ReturnType = {
   isLoading: boolean;
   rank: number;
+  rankLastWeek: number;
   nextRank: number;
   progress: number;
   levelUp: boolean;
@@ -26,7 +27,12 @@ type ReturnType = {
 };
 
 const defaultRank: MyRankData = {
-  rank: { progressThisWeek: 0, currentRank: 0, readToday: false },
+  rank: {
+    progressThisWeek: 0,
+    currentRank: 0,
+    readToday: false,
+    rankLastWeek: 0,
+  },
   reads: 0,
 };
 
@@ -153,6 +159,7 @@ export default function useReadingRank(): ReturnType {
 
   return {
     isLoading: !cachedRank,
+    rankLastWeek: cachedRank?.rank.rankLastWeek,
     rank: cachedRank?.rank.currentRank,
     nextRank: remoteRank?.rank.currentRank,
     progress: cachedRank?.rank.progressThisWeek,

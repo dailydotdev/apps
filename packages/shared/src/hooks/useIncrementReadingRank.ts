@@ -32,6 +32,7 @@ export default function useIncrementReadingRank(): ReturnType {
           const progress = currentRank.rank.progressThisWeek + 1;
           return {
             rank: {
+              rankLastWeek: currentRank.rank.rankLastWeek,
               readToday: true,
               currentRank: progress >= STEPS_PER_RANK[rank] ? rank + 1 : rank,
               progressThisWeek: progress,

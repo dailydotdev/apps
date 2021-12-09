@@ -9,10 +9,7 @@ import classNames from 'classnames';
 import { RankProgress } from './RankProgress';
 import useReadingRank from '../hooks/useReadingRank';
 import AuthContext from '../contexts/AuthContext';
-import { STEPS_PER_RANK } from '../lib/rank';
-import OnboardingContext from '../contexts/OnboardingContext';
-import Rank from './Rank';
-import styles from './HeaderRankProgress.module.css';
+import { rankToColor, STEPS_PER_RANK } from '../lib/rank';
 import FeaturesContext from '../contexts/FeaturesContext';
 import { getFeatureValue } from '../lib/featureManagement';
 
@@ -31,14 +28,12 @@ const AccountDetailsModal = dynamic(
     ),
 );
 
-export default function HeaderRankProgress({
-  className,
+export default function SidebarRankProgress({
+  openSidebar,
 }: {
-  className?: string;
+  openSidebar?: boolean;
 }): ReactElement {
   const { user } = useContext(AuthContext);
-  const { onboardingStep, onboardingReady, incrementOnboardingStep } =
-    useContext(OnboardingContext);
   const [showAccountDetails, setShowAccountDetails] = useState(false);
   const [showRanksModal, setShowRanksModal] = useState(false);
   const { flags } = useContext(FeaturesContext);
@@ -46,10 +41,10 @@ export default function HeaderRankProgress({
     getFeatureValue('feat_limit_dev_card', flags),
     10,
   );
-
   const {
     isLoading,
     rank,
+    rankLastWeek,
     nextRank,
     progress,
     shouldShowRankModal,
@@ -59,61 +54,50 @@ export default function HeaderRankProgress({
   } = useReadingRank();
 
   if (isLoading) {
-    return <></>;
+    return <li className={`flex ${openSidebar ? 'h-20' : 'h-12'}`}>&nbsp;</li>;
   }
 
-  const showWelcome = onboardingStep === 1;
   const showRankAnimation = levelUp && !shouldShowRankModal;
   const closeRanksModal = () => {
     setShowRanksModal(false);
-    if (showWelcome) {
-      incrementOnboardingStep();
-    }
   };
 
   return (
     <>
-      {onboardingReady && (
+      <li
+        className={`flex items-center mt-4 ${openSidebar ? 'px-3' : 'px-1.5'}`}
+        style={
+          {
+            '--rank-color': rankToColor(nextRank || rank),
+          } as CSSProperties
+        }
+      >
         <button
           type="button"
           className={classNames(
-            'flex items-center justify-center bg-theme-bg-primary cursor-pointer focus-outline',
-            styles.rankButton,
-            { [styles.attention]: showWelcome },
-            className,
+            'flex items-center bg-theme-bg-secondary border border-theme-rank cursor-pointer focus-outline w-full',
+            openSidebar ? 'rounded-12 p-3' : 'rounded-10',
           )}
           onClick={() => setShowRanksModal(true)}
         >
-          {showWelcome ? (
-            <div
-              className="flex justify-center items-center w-12 h-12 rounded-full bg-theme-label-primary"
-              data-testid="welcomeButton"
-            >
-              <Rank
-                rank={1}
-                style={
-                  {
-                    '--stop-color1': 'var(--theme-background-primary)',
-                    '--stop-color2': 'var(--theme-background-primary)',
-                  } as CSSProperties
-                }
-              />
-            </div>
-          ) : (
-            <RankProgress
-              progress={
-                showRankAnimation ? STEPS_PER_RANK[nextRank - 1] : progress
-              }
-              rank={showRankAnimation ? nextRank : rank}
-              showRankAnimation={showRankAnimation}
-              fillByDefault
-              onRankAnimationFinish={() =>
-                setTimeout(() => confirmLevelUp(true), 1000)
-              }
-            />
-          )}
+          <RankProgress
+            progress={
+              showRankAnimation ? STEPS_PER_RANK[nextRank - 1] : progress
+            }
+            rank={showRankAnimation ? nextRank : rank}
+            nextRank={nextRank}
+            showRankAnimation={showRankAnimation}
+            showRadialProgress={openSidebar}
+            fillByDefault
+            onRankAnimationFinish={() =>
+              setTimeout(() => confirmLevelUp(true), 1000)
+            }
+            showTextProgress={openSidebar}
+            smallVersion
+            rankLastWeek={rankLastWeek}
+          />
         </button>
-      )}
+      </li>
       {showRanksModal && (
         <RanksModal
           rank={rank}

@@ -27,6 +27,7 @@ import {
   SidebarProps,
 } from './common';
 import InvitePeople from './InvitePeople';
+import SidebarRankProgress from '../SidebarRankProgress';
 import AlertContext from '../../contexts/AlertContext';
 import FeedFilters from '../filters/FeedFilters';
 import { AlertColor, AlertDot } from '../AlertDot';
@@ -172,6 +173,7 @@ export default function Sidebar({
             </NavItem>
           ))}
           <InvitePeople openSidebar={openSidebar} />
+          <SidebarRankProgress openSidebar={openSidebar} />
         </Nav>
       </SidebarAside>
       {showSettings && (
