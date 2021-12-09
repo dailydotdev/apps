@@ -1,9 +1,6 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import MainLayout from '@dailydotdev/shared/src/components/MainLayout';
-import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
-import MainFeedLayout, {
-  Tab,
-} from '@dailydotdev/shared/src/components/MainFeedLayout';
+import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import dynamic from 'next/dynamic';
 import TimerIcon from '@dailydotdev/shared/icons/timer.svg';
@@ -11,7 +8,6 @@ import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContex
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import { HeaderButton } from '@dailydotdev/shared/src/components/buttons/common';
-import Sidebar from '@dailydotdev/shared/src/components/sidebar/Sidebar';
 import MostVisitedSites from './MostVisitedSites';
 
 const PostsSearch = dynamic(
@@ -32,10 +28,12 @@ export type MainFeedPageProps = {
 export default function MainFeedPage({
   onPageChanged,
 }: MainFeedPageProps): ReactElement {
-  const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user } = useContext(AuthContext);
   const { onboardingStep } = useContext(OnboardingContext) || {};
   const [feedName, setFeedName] = useState<string>('default');
+  const [activePage, setActivePage] = useState<string>(
+    feedName === 'default' ? '/popular' : feedName,
+  );
   const [isSearchOn, setIsSearchOn] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>();
   const [showDnd, setShowDnd] = useState(false);
@@ -43,23 +41,27 @@ export default function MainFeedPage({
   const enableSearch = () => {
     setIsSearchOn(true);
     setSearchQuery(null);
+    setActivePage('/search');
     onPageChanged('/search');
   };
 
   const closeSearch = () => {
     setIsSearchOn(false);
+    setActivePage(`/${feedName}`);
     onPageChanged(`/${feedName}`);
   };
 
-  const onNavTabClick = (tab: Tab): void => {
-    setFeedName(tab.name);
-    onPageChanged(`/${tab.name}`);
+  const onNavTabClick = (tab: string): void => {
+    setFeedName(tab);
+    setActivePage(`/${tab}`);
+    onPageChanged(`/${tab}`);
   };
 
   const onLogoClick = (e: React.MouseEvent): void => {
     e.preventDefault();
     e.stopPropagation();
     setFeedName('default');
+    setActivePage(`/popular`);
     setIsSearchOn(false);
     setSearchQuery(undefined);
   };
@@ -68,8 +70,11 @@ export default function MainFeedPage({
     <MainLayout
       greeting
       mainPage
+      activePage={activePage}
       onLogoClick={onLogoClick}
       onShowDndClick={() => setShowDnd(true)}
+      enableSearch={enableSearch}
+      onNavTabClick={onNavTabClick}
       additionalButtons={
         <>
           {(onboardingStep > 2 || user) && (
@@ -86,14 +91,11 @@ export default function MainFeedPage({
       }
     >
       <FeedLayout>
-        {windowLoaded && <Sidebar />}
         <MainFeedLayout
           useNavButtonsNotLinks
           feedName={feedName}
           isSearchOn={isSearchOn}
           searchQuery={searchQuery}
-          onSearchButtonClick={enableSearch}
-          onNavTabClick={onNavTabClick}
           searchChildren={
             <PostsSearch
               closeSearch={closeSearch}

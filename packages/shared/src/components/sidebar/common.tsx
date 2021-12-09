@@ -10,6 +10,12 @@ import { Button } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import ArrowIcon from '../../../icons/arrow.svg';
 
+export interface SidebarProps {
+  useNavButtonsNotLinks?: boolean;
+  activePage?: string;
+  onNavTabClick?: (tab: string) => void;
+  enableSearch?: () => void;
+}
 export interface SidebarMenuItems {
   key: string;
   items: SidebarMenuItem[];
@@ -27,6 +33,7 @@ export interface SidebarMenuItem {
 
 interface ButtonOrLinkProps {
   item: SidebarMenuItem;
+  useNavButtonsNotLinks?: boolean;
   children?: ReactNode;
 }
 
@@ -90,9 +97,11 @@ export const ItemInner = ({
 
 export const ButtonOrLink = ({
   item,
+  useNavButtonsNotLinks,
   children,
-}: ButtonOrLinkProps): ReactElement =>
-  item.path ? (
+}: ButtonOrLinkProps): ReactElement => {
+  return (useNavButtonsNotLinks && !item.action) ||
+    (item.path && !useNavButtonsNotLinks) ? (
     <Link href={item.path} passHref prefetch={false}>
       <a target={item?.target} className={btnClass} rel="noopener noreferrer">
         {children}
@@ -103,6 +112,8 @@ export const ButtonOrLink = ({
       {children}
     </button>
   );
+};
+
 export const MenuIcon = ({
   openSidebar,
   toggleOpenSidebar,

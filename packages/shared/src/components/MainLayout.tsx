@@ -5,6 +5,7 @@ import React, {
   useContext,
   useState,
 } from 'react';
+import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import { CSSTransition } from 'react-transition-group';
 import classNames from 'classnames';
@@ -26,7 +27,10 @@ export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   greeting?: boolean;
   mainPage?: boolean;
   additionalButtons?: ReactNode;
+  activePage?: string;
   onLogoClick?: (e: React.MouseEvent) => unknown;
+  enableSearch?: () => void;
+  onNavTabClick?: (tab: string) => void;
   onShowDndClick?: () => unknown;
 }
 
@@ -38,12 +42,18 @@ export default function MainLayout({
   children,
   showOnlyLogo,
   greeting,
+  activePage,
   onLogoClick,
+  onNavTabClick,
+  enableSearch,
   onShowDndClick,
 }: MainLayoutProps): ReactElement {
+  const router = useRouter();
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user, showLogin, loadingUser } = useContext(AuthContext);
   const [showGreeting, setShowGreeting] = useState(false);
+
+  const useActivePage = activePage || router?.asPath;
 
   return (
     <>
@@ -97,7 +107,14 @@ export default function MainLayout({
         )}
       </header>
       <main className="flex flex-row laptop:pt-14">
-        {!showOnlyLogo && <Sidebar />}
+        {!showOnlyLogo && (
+          <Sidebar
+            useNavButtonsNotLinks
+            onNavTabClick={onNavTabClick}
+            enableSearch={enableSearch}
+            activePage={useActivePage}
+          />
+        )}
         {children}
       </main>
     </>

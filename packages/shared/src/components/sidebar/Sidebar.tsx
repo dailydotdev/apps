@@ -1,5 +1,4 @@
 import React, { ReactElement, useContext, useState } from 'react';
-import { useRouter } from 'next/router';
 import SettingsContext from '../../contexts/SettingsContext';
 import { FeedSettingsModal } from '../modals/FeedSettingsModal';
 import HotIcon from '../../../icons/hot.svg';
@@ -25,6 +24,7 @@ import {
   SidebarAside,
   SidebarMenuItem,
   SidebarMenuItems,
+  SidebarProps,
 } from './common';
 import InvitePeople from './InvitePeople';
 import AlertContext from '../../contexts/AlertContext';
@@ -42,7 +42,7 @@ const bottomMenuItems: SidebarMenuItem[] = [
   {
     icon: <ListIcon Icon={TerminalIcon} />,
     title: 'Changelog',
-    path: '/sources/daily_updates',
+    path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}sources/changelog`,
   },
   {
     icon: <ListIcon Icon={FeedbackIcon} />,
@@ -52,8 +52,12 @@ const bottomMenuItems: SidebarMenuItem[] = [
   },
 ];
 
-export default function Sidebar(): ReactElement {
-  const router = useRouter();
+export default function Sidebar({
+  useNavButtonsNotLinks,
+  activePage,
+  onNavTabClick,
+  enableSearch,
+}: SidebarProps): ReactElement {
   const { alerts } = useContext(AlertContext);
   const { isLoaded, isAnimated, setLoaded, setHidden } =
     useDynamicLoadedAnimation();
@@ -76,21 +80,25 @@ export default function Sidebar(): ReactElement {
           icon: <ListIcon Icon={HotIcon} />,
           title: 'Popular',
           path: '/popular',
+          action: () => onNavTabClick('popular'),
         },
         {
           icon: <ListIcon Icon={UpvoteIcon} />,
           title: 'Most upvoted',
           path: '/upvoted',
+          action: () => onNavTabClick('upvoted'),
         },
         {
           icon: <ListIcon Icon={DiscussIcon} />,
           title: 'Best discussions',
           path: '/discussed',
+          action: () => onNavTabClick('discussed'),
         },
         {
           icon: <ListIcon Icon={SearchIcon} />,
           title: 'Search',
           path: '/search',
+          action: () => enableSearch(),
         },
       ],
     },
@@ -100,12 +108,12 @@ export default function Sidebar(): ReactElement {
         {
           icon: <ListIcon Icon={BookmarkIcon} />,
           title: 'Bookmarks',
-          path: '/bookmarks',
+          path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}bookmarks`,
         },
         {
           icon: <ListIcon Icon={EyeIcon} />,
           title: 'Reading history',
-          path: '/history',
+          path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}history`,
         },
         {
           icon: <ListIcon Icon={SettingsIcon} />,
@@ -135,9 +143,12 @@ export default function Sidebar(): ReactElement {
               {items.map((item) => (
                 <NavItem
                   key={item.title}
-                  active={item.active || item.path === router?.asPath}
+                  active={item.active || item.path === activePage}
                 >
-                  <ButtonOrLink item={item}>
+                  <ButtonOrLink
+                    item={item}
+                    useNavButtonsNotLinks={useNavButtonsNotLinks}
+                  >
                     <ItemInner item={item} openSidebar={openSidebar} />
                   </ButtonOrLink>
                 </NavItem>
@@ -150,9 +161,12 @@ export default function Sidebar(): ReactElement {
           {bottomMenuItems.map((item) => (
             <NavItem
               key={item.title}
-              active={item.active || item.path === router?.asPath}
+              active={item.active || item.path === activePage}
             >
-              <ButtonOrLink item={item}>
+              <ButtonOrLink
+                item={item}
+                useNavButtonsNotLinks={useNavButtonsNotLinks}
+              >
                 <ItemInner item={item} openSidebar={openSidebar} />
               </ButtonOrLink>
             </NavItem>
