@@ -45,7 +45,6 @@ export const USER_TOOLTIP_CONTENT_QUERY = gql`
     }
     tags: userMostReadTags(id: $id) {
       value
-      count
     }
   }
 `;
