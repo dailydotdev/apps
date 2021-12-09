@@ -9,6 +9,7 @@ import { ProfileImageLink } from '../profile/ProfileImageLink';
 import CommentAuthor from './CommentAuthor';
 import classed from '../../lib/classed';
 import Markdown from '../Markdown';
+import { ProfileTooltip } from '../profile/ProfileTooltip';
 
 export interface Props extends CommentActionProps {
   comment: Comment;
@@ -28,7 +29,9 @@ export default function MainComment({
   return (
     <article className="flex flex-col items-stretch mt-4" data-testid="comment">
       <div className="flex items-center">
-        <ProfileImageLink user={comment.author} />
+        <ProfileTooltip user={comment.author}>
+          <ProfileImageLink user={comment.author} />
+        </ProfileTooltip>
         <div className="flex flex-col ml-2">
           <CommentAuthor postAuthorId={postAuthorId} author={comment.author} />
           <CommentPublishDate comment={comment} />

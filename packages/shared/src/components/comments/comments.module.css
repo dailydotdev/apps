@@ -1,6 +1,0 @@
-.commentBox {
-  & a:not(:global(.commentAuthor)) {
-    color: var(--theme-label-link);
-    word-break: break-all;
-  }
-}

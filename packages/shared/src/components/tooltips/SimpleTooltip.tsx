@@ -1,25 +1,11 @@
 import React, { ReactElement, useMemo } from 'react';
 import dynamicParent from '../../lib/dynamicParent';
-import { getShouldLoadTooltip, BaseTooltipProps } from './BaseTooltip';
-import { BaseTooltipContainerProps } from './BaseTooltipContainer';
+import { getShouldLoadTooltip, TooltipProps } from './BaseTooltip';
 
 const BaseTooltipLoader = () =>
   import(/* webpackChunkName: "lazyTooltip" */ './BaseTooltip');
 
-export interface SimpleTooltipProps
-  extends Pick<
-    BaseTooltipProps,
-    | 'content'
-    | 'children'
-    | 'placement'
-    | 'delay'
-    | 'disableInAnimation'
-    | 'disableOutAnimation'
-  > {
-  container?: Omit<BaseTooltipContainerProps, 'placement' | 'children'>;
-}
-
-const TippyTooltip = dynamicParent<SimpleTooltipProps>(
+const TippyTooltip = dynamicParent<TooltipProps>(
   () => BaseTooltipLoader().then((mod) => mod.BaseTooltip),
   React.Fragment,
 );
@@ -27,8 +13,9 @@ const TippyTooltip = dynamicParent<SimpleTooltipProps>(
 export function SimpleTooltip({
   children,
   content,
+  onTrigger,
   ...props
-}: SimpleTooltipProps): ReactElement {
+}: TooltipProps): ReactElement {
   /**
    * We introduced the `shouldShow` variable to manage a re-focus issue
    * The old implementation would re-focus the tooltip whenever a modal would close
@@ -44,10 +31,11 @@ export function SimpleTooltip({
     [children],
   );
 
-  const onTrigger = (_, event) => {
+  const onTooltipTrigger = (_, event) => {
     if (event.type !== 'focus') {
       shouldShow = true;
     }
+    onTrigger?.(_, event);
   };
 
   const onUntrigger = (_, event) => {
@@ -64,7 +52,7 @@ export function SimpleTooltip({
       {...props}
       shouldLoad={getShouldLoadTooltip()}
       content={content}
-      onTrigger={onTrigger}
+      onTrigger={onTooltipTrigger}
       onUntrigger={onUntrigger}
       onShow={() => shouldShow}
     >

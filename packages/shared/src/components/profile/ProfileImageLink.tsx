@@ -1,18 +1,21 @@
-import React, { ReactElement } from 'react';
-import classNames from 'classnames';
+import React, { forwardRef, ReactElement, Ref } from 'react';
 import { ProfileLink, ProfileLinkProps } from './ProfileLink';
-import { ProfilePicture } from '../ProfilePicture';
+import { ProfilePicture, ProfilePictureProps } from '../ProfilePicture';
 
-export function ProfileImageLink({
-  className,
-  ...props
-}: ProfileLinkProps): ReactElement {
+interface ProfileImageLinkProps extends ProfileLinkProps {
+  picture?: Omit<ProfilePictureProps, 'user'>;
+  ref?: Ref<HTMLAnchorElement>;
+}
+
+function ProfileImageLinkComponent(
+  { picture = { size: 'large' }, ...props }: ProfileImageLinkProps,
+  ref?: Ref<HTMLAnchorElement>,
+): ReactElement {
   return (
-    <ProfileLink
-      className={classNames(className, 'block w-10 h-10')}
-      {...props}
-    >
-      <ProfilePicture user={props.user} size="large" />
+    <ProfileLink {...props} ref={ref}>
+      <ProfilePicture {...picture} user={props.user} />
     </ProfileLink>
   );
 }
+
+export const ProfileImageLink = forwardRef(ProfileImageLinkComponent);
