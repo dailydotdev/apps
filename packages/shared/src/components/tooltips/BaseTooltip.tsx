@@ -81,7 +81,6 @@ export function BaseTooltip(
       placement={placement}
       onHide={onHide}
       delay={delay}
-      on
       allowHTML
       animation={!(disableInAnimation && disableOutAnimation)}
       content={
