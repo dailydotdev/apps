@@ -84,22 +84,24 @@ export function BaseTooltip(
       allowHTML
       animation={!(disableInAnimation && disableOutAnimation)}
       content={
-        <BaseTooltipContainer
-          {...container}
-          placement={placement}
-          arrowClassName={classNames(
-            styles.tippyTooltipArrow,
-            container.arrowClassName,
-          )}
-          className={classNames(
-            styles.tippyTooltip,
-            !disableInAnimation && styles.animate,
-            unMounting && styles.unMount,
-            container.className,
-          )}
-        >
-          {mounted && content}
-        </BaseTooltipContainer>
+        !content ? null : (
+          <BaseTooltipContainer
+            {...container}
+            placement={placement}
+            arrowClassName={classNames(
+              styles.tippyTooltipArrow,
+              container.arrowClassName,
+            )}
+            className={classNames(
+              styles.tippyTooltip,
+              !disableInAnimation && styles.animate,
+              unMounting && styles.unMount,
+              container.className,
+            )}
+          >
+            {mounted && content}
+          </BaseTooltipContainer>
+        )
       }
     >
       {children}
