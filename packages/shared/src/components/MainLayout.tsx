@@ -26,7 +26,11 @@ export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   greeting?: boolean;
   mainPage?: boolean;
   additionalButtons?: ReactNode;
+  activePage?: string;
+  useNavButtonsNotLinks?: boolean;
   onLogoClick?: (e: React.MouseEvent) => unknown;
+  enableSearch?: () => void;
+  onNavTabClick?: (tab: string) => void;
   onShowDndClick?: () => unknown;
 }
 
@@ -38,7 +42,11 @@ export default function MainLayout({
   children,
   showOnlyLogo,
   greeting,
+  activePage,
+  useNavButtonsNotLinks,
   onLogoClick,
+  onNavTabClick,
+  enableSearch,
   onShowDndClick,
 }: MainLayoutProps): ReactElement {
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
@@ -97,7 +105,14 @@ export default function MainLayout({
         )}
       </header>
       <main className="flex flex-row laptop:pt-14">
-        {!showOnlyLogo && <Sidebar />}
+        {!showOnlyLogo && (
+          <Sidebar
+            onNavTabClick={onNavTabClick}
+            enableSearch={enableSearch}
+            activePage={activePage}
+            useNavButtonsNotLinks={useNavButtonsNotLinks}
+          />
+        )}
         {children}
       </main>
     </>
