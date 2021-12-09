@@ -1,4 +1,4 @@
-import React, { useState, ReactElement, Ref, useRef, useEffect } from 'react';
+import React, { useState, ReactElement, Ref } from 'react';
 import Tippy, { TippyProps } from '@tippyjs/react';
 import classNames from 'classnames';
 import styles from './BaseTooltip.module.css';
@@ -10,8 +10,8 @@ import {
   TooltipPosition,
 } from './BaseTooltipContainer';
 
-const DEFAULT_DELAY_MS = 400;
-const DEFAULT_OUT_ANIMATION = 200;
+const DEFAULT_DELAY_MS = 300;
+const DEFAULT_DURATION = 200;
 
 export const getShouldLoadTooltip = (): boolean =>
   !isTouchDevice() && !isTesting;
@@ -27,6 +27,7 @@ export interface TooltipProps
     | 'disableOutAnimation'
     | 'interactive'
     | 'onTrigger'
+    | 'duration'
   > {
   container?: Omit<BaseTooltipContainerProps, 'placement' | 'children'>;
 }
@@ -44,6 +45,7 @@ export function BaseTooltip(
     arrow,
     placement = 'top',
     delay = DEFAULT_DELAY_MS,
+    duration = DEFAULT_DURATION,
     container = {},
     children,
     content,
@@ -53,23 +55,7 @@ export function BaseTooltip(
   }: BaseTooltipProps,
   ref?: Ref<Element>,
 ): ReactElement {
-  const timeoutRef = useRef<number>();
   const [mounted, setMounted] = useState(false);
-  const [unMounting, setUnMounting] = useState(false);
-  const onHide = ({ unmount }) => {
-    if (disableOutAnimation || unMounting) {
-      return;
-    }
-
-    setUnMounting(true);
-    if (!timeoutRef.current) {
-      timeoutRef.current = window.setTimeout(() => {
-        setUnMounting(false);
-        unmount();
-        timeoutRef.current = null;
-      }, DEFAULT_OUT_ANIMATION);
-    }
-  };
 
   const lazyPlugin = {
     fn: () => ({
@@ -78,19 +64,15 @@ export function BaseTooltip(
     }),
   };
 
-  useEffect(
-    () => () => timeoutRef.current && clearTimeout(timeoutRef.current),
-    [timeoutRef],
-  );
-
   return (
     <Tippy
       ref={ref}
       {...props}
       plugins={[lazyPlugin]}
       placement={placement}
-      onHide={onHide}
       delay={delay}
+      duration={duration}
+      className={styles.tippyTooltip}
       allowHTML
       animation={!(disableInAnimation && disableOutAnimation)}
       content={
@@ -101,12 +83,6 @@ export function BaseTooltip(
             arrowClassName={classNames(
               styles.tippyTooltipArrow,
               container.arrowClassName,
-            )}
-            className={classNames(
-              styles.tippyTooltip,
-              !disableInAnimation && styles.animate,
-              unMounting && styles.unMount,
-              container.className,
             )}
           >
             {mounted && content}
