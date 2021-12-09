@@ -1,11 +1,5 @@
 import React, { ReactElement } from 'react';
-import request from 'graphql-request';
-import { useQuery } from 'react-query';
-import {
-  UserTooltipContentData,
-  USER_TOOLTIP_CONTENT_QUERY,
-} from '../../graphql/users';
-import { apiUrl } from '../../lib/config';
+import { UserTooltipContentData } from '../../graphql/users';
 import { Author } from '../../graphql/comments';
 import Rank from '../Rank';
 import { ProfileImageLink } from './ProfileImageLink';
@@ -14,19 +8,13 @@ import { TagLinks } from '../TagLinks';
 
 export interface ProfileTooltipContentProps {
   user: Author;
+  data?: UserTooltipContentData;
 }
 
 export function ProfileTooltipContent({
   user,
+  data: { rank, tags },
 }: ProfileTooltipContentProps): ReactElement {
-  const key = ['readingRank', user.id];
-  const { data: { rank, tags } = {} } = useQuery<UserTooltipContentData>(
-    key,
-    () =>
-      request(`${apiUrl}/graphql`, USER_TOOLTIP_CONTENT_QUERY, { id: user.id }),
-    { refetchOnWindowFocus: false },
-  );
-
   return (
     <div className="flex flex-col flex-shrink font-normal typo-callout">
       <div className="relative w-fit">

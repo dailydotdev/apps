@@ -16,6 +16,21 @@ const DEFAULT_OUT_ANIMATION = 200;
 export const getShouldLoadTooltip = (): boolean =>
   !isTouchDevice() && !isTesting;
 
+export interface TooltipProps
+  extends Pick<
+    BaseTooltipProps,
+    | 'content'
+    | 'children'
+    | 'placement'
+    | 'delay'
+    | 'disableInAnimation'
+    | 'disableOutAnimation'
+    | 'interactive'
+    | 'onTrigger'
+  > {
+  container?: Omit<BaseTooltipContainerProps, 'placement' | 'children'>;
+}
+
 export interface BaseTooltipProps extends TippyProps {
   container?: Omit<BaseTooltipContainerProps, 'children'>;
   placement?: TooltipPosition;
