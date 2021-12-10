@@ -45,9 +45,10 @@
   "chrome_url_overrides": {
     "newtab": "index.html"
   },
-  "web_accessible_resources": [
-    "index.html"
-  ],
+  "web_accessible_resources": [{
+    "resources": ["index.html"],
+    "matches": ""
+  }],
   "__firefox__browser_specific_settings": {
     "gecko": {
       "strict_min_version": "54.0"
