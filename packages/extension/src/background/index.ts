@@ -1,4 +1,4 @@
-import { browser, Runtime } from 'webextension-polyfill-ts';
+import { action, tabs, runtime, Runtime } from 'webextension-polyfill';
 import { getBootData } from '@dailydotdev/shared/src/lib/boot';
 
 const cacheAmplitudeDeviceId = async ({
@@ -15,14 +15,14 @@ const cacheAmplitudeDeviceId = async ({
   }
 };
 
-browser.browserAction.onClicked.addListener(() => {
-  const url = browser.extension.getURL('index.html?source=button');
-  browser.tabs.create({ url, active: true });
+action.onClicked.addListener(() => {
+  const url = runtime.getURL('index.html?source=button');
+  tabs.create({ url, active: true });
 });
 
-browser.runtime.onInstalled.addListener(async (details) => {
+runtime.onInstalled.addListener(async (details) => {
   await Promise.all([
     cacheAmplitudeDeviceId(details),
-    browser.runtime.setUninstallURL('https://daily.dev/uninstall'),
+    runtime.setUninstallURL('https://daily.dev/uninstall'),
   ]);
 });

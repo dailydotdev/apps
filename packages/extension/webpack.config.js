@@ -73,9 +73,6 @@ module.exports = {
   resolve: {
     extensions: ['.svg', '.ts', '.tsx', '.js', '.json'],
     alias: {
-      'webextension-polyfill-ts': path.resolve(
-        path.join(__dirname, 'node_modules', 'webextension-polyfill-ts'),
-      ),
       react: path.resolve(
         path.join(__dirname, 'node_modules', 'preact', 'compat'),
       ),

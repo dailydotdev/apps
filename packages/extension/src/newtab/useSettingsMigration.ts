@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { browser } from 'webextension-polyfill-ts';
+import { storage } from 'webextension-polyfill';
 import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import request, { gql } from 'graphql-request';
@@ -108,15 +108,15 @@ export default function useSettingsMigration(
       }),
     {
       onSuccess: async () => {
-        await setSettings(null);
-        await browser.storage.local.set({ [SETTINGS_V2_KEY]: {} });
+        setSettings(null);
+        await storage.local.set({ [SETTINGS_V2_KEY]: {} });
         setMigrationCompleted(true);
       },
     },
   );
 
   useEffect(() => {
-    browser.storage.local.get(SETTINGS_V2_KEY).then(setSettings);
+    storage.local.get(SETTINGS_V2_KEY).then(setSettings);
   }, []);
 
   const hasSettings = checkIfHasSettings(settings);

@@ -19,7 +19,7 @@ import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/Su
 import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import { SettingsContextProvider } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { AnalyticsContextProvider } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
-import { browser } from 'webextension-polyfill-ts';
+import { runtime } from 'webextension-polyfill';
 import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState';
 import { RouterContext } from 'next/dist/shared/lib/router-context';
 import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPageView';
@@ -49,7 +49,7 @@ Modal.defaultStyles = {};
 
 const shouldShowConsent = process.env.TARGET_BROWSER === 'firefox';
 
-const getRedirectUri = () => browser.runtime.getURL('index.html');
+const getRedirectUri = () => runtime.getURL('index.html');
 
 function InternalApp({
   pageRef,
@@ -89,7 +89,7 @@ function InternalApp({
     if (tokenRefreshed && user && !user.infoConfirmed) {
       window.location.replace(
         `${process.env.NEXT_PUBLIC_WEBAPP_URL}register?redirect_uri=${encodeURI(
-          browser.runtime.getURL('index.html'),
+          runtime.getURL('index.html'),
         )}`,
       );
     }

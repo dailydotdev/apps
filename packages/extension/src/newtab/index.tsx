@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import '@dailydotdev/shared/src/styles/globals.css';
 import { get as getCache } from 'idb-keyval';
-import { browser } from 'webextension-polyfill-ts';
+import { tabs } from 'webextension-polyfill';
 import App from './App';
 import { DndSettings } from './DndContext';
 
@@ -27,9 +27,9 @@ const renderApp = () => {
 };
 
 const redirectApp = async (url: string) => {
-  const tab = await browser.tabs.getCurrent();
+  const tab = await tabs.getCurrent();
   window.stop();
-  await browser.tabs.update(tab.id, { url });
+  await tabs.update(tab.id, { url });
 };
 
 (async () => {
