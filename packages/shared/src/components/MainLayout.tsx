@@ -19,6 +19,7 @@ import styles from './MainLayout.module.css';
 import ProfileButton from './profile/ProfileButton';
 import { LinkWithTooltip } from './tooltips/LinkWithTooltip';
 import Sidebar from './sidebar/Sidebar';
+import SidebarRankProgress from './SidebarRankProgress';
 
 export const footerNavBarBreakpoint = laptop;
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
@@ -37,6 +38,8 @@ export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
 const Greeting = dynamic(
   () => import(/* webpackChunkName: "greeting" */ './Greeting'),
 );
+import MobileHeaderRankProgress from './MobileHeaderRankProgress';
+import useMedia from '../hooks/useMedia';
 
 export default function MainLayout({
   children,
@@ -52,11 +55,23 @@ export default function MainLayout({
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user, showLogin, loadingUser } = useContext(AuthContext);
   const [showGreeting, setShowGreeting] = useState(false);
+  const showSidebar = useMedia(
+    [footerNavBarBreakpoint.replace('@media ', '')],
+    [true],
+    false,
+  );
+  const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
 
   return (
     <>
       <PromotionalBanner />
-      <header className="flex relative laptop:fixed laptop:top-0 laptop:left-0 z-3 items-center py-3 px-4 tablet:px-8 laptop:px-4 laptop:w-full h-14 border-b bg-theme-bg-primary border-theme-divider-tertiary">
+      <header className="flex flex-row-reverse laptop:flex-row relative laptop:fixed laptop:top-0 laptop:left-0 z-3 items-center py-3 px-4 tablet:px-8 laptop:px-4 laptop:w-full h-14 border-b bg-theme-bg-primary border-theme-divider-tertiary">
+        {!showSidebar && (
+          <>
+            <MobileHeaderRankProgress />
+            <div className="flex-1" />
+          </>
+        )}
         <LinkWithTooltip
           href={process.env.NEXT_PUBLIC_WEBAPP_URL}
           passHref
@@ -92,7 +107,10 @@ export default function MainLayout({
         {!showOnlyLogo && !loadingUser && (
           <>
             {user ? (
-              <ProfileButton onShowDndClick={onShowDndClick} />
+              <ProfileButton
+                onShowDndClick={onShowDndClick}
+                onClick={!showSidebar ? () => setOpenMobileSidebar(true) : null}
+              />
             ) : (
               <Button
                 onClick={() => showLogin('main button')}
@@ -107,10 +125,12 @@ export default function MainLayout({
       <main className="flex flex-row laptop:pt-14">
         {!showOnlyLogo && (
           <Sidebar
+            openMobileSidebar={openMobileSidebar}
             onNavTabClick={onNavTabClick}
             enableSearch={enableSearch}
             activePage={activePage}
             useNavButtonsNotLinks={useNavButtonsNotLinks}
+            setOpenMobileSidebar={() => setOpenMobileSidebar(false)}
           />
         )}
         {children}

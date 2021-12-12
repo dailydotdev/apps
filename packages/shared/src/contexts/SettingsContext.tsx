@@ -21,6 +21,8 @@ import AuthContext from './AuthContext';
 import usePersistentState from '../hooks/usePersistentState';
 import { apiUrl } from '../lib/config';
 import { storageWrapper } from '../lib/storageWrapper';
+import useMedia from '../hooks/useMedia';
+import { footerNavBarBreakpoint } from '../components/MainLayout';
 
 export type SettingsContextData = {
   spaciness: Spaciness;

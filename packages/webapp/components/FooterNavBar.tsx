@@ -7,6 +7,7 @@ import React, {
 import { Flipper, Flipped } from 'react-flip-toolkit';
 import HomeIcon from '@dailydotdev/shared/icons/home.svg';
 import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
+import SearchIcon from '@dailydotdev/shared/icons/magnifying.svg';
 import LayoutIcon from '@dailydotdev/shared/icons/layout.svg';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useRouter } from 'next/router';
@@ -18,7 +19,6 @@ import {
   ButtonSize,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import classNames from 'classnames';
-import FilterRedDot from '@dailydotdev/shared/src/components/filters/FilterRedDot';
 import styles from './FooterNavBar.module.css';
 
 type Tab = {
@@ -41,9 +41,9 @@ export const tabs: Tab[] = [
     requiresLogin: true,
   },
   {
-    path: '/filters',
-    title: 'Filters',
-    icon: <FilterRedDot />,
+    path: '/search',
+    title: 'Search',
+    icon: <SearchIcon />,
   },
   {
     path: '/settings',

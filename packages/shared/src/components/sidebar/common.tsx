@@ -12,9 +12,11 @@ import ArrowIcon from '../../../icons/arrow.svg';
 
 export interface SidebarProps {
   useNavButtonsNotLinks?: boolean;
+  openMobileSidebar?: boolean;
   activePage?: string;
   onNavTabClick?: (tab: string) => void;
   enableSearch?: () => void;
+  setOpenMobileSidebar?: () => unknown;
 }
 export interface SidebarMenuItems {
   key: string;
@@ -58,9 +60,13 @@ interface NavItemProps {
 }
 
 export const btnClass = 'flex flex-1 items-center px-3 h-7';
+export const SidebarBackdrop = classed(
+  'div',
+  'fixed w-full h-full bg-theme-overlay-quaternary z-3 cursor-pointer inset-0',
+);
 export const SidebarAside = classed(
   'aside',
-  'flex flex-col border-r border-theme-divider-tertiary transition-all transform duration-500 ease-in-out group sticky top-14 h-[calc(100vh-theme(space.14))]',
+  'flex flex-col bg-theme-bg-primary z-3 border-r border-theme-divider-tertiary transition-all transform duration-500 ease-in-out group fixed laptop:sticky top-0 laptop:top-14 h-screen laptop:h-[calc(100vh-theme(space.14))]',
 );
 export const Nav = classed('nav', 'my-4');
 export const NavSection = classed('ul', 'mt-2');

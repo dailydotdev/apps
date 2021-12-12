@@ -13,6 +13,7 @@ import FeedContext, {
 } from '../contexts/FeedContext';
 import useMedia from '../hooks/useMedia';
 import SettingsContext from '../contexts/SettingsContext';
+import { footerNavBarBreakpoint } from './MainLayout';
 
 export type FeedLayoutProps = { children?: ReactNode };
 
@@ -150,12 +151,19 @@ export default function FeedLayout({
   children,
 }: FeedLayoutProps): ReactElement {
   const { openSidebar } = useContext(SettingsContext);
+  const hiddenSidebar = useMedia(
+    [footerNavBarBreakpoint.replace('@media ', '')],
+    [true],
+    false,
+  );
 
   const currentSettings = useMedia(
     reversedBreakpoints,
-    openSidebar ? reversedSettingsSidebar : reversedSettings,
+    openSidebar && hiddenSidebar ? reversedSettingsSidebar : reversedSettings,
     defaultFeedContextData,
   );
+
+  console.log(openSidebar && hiddenSidebar ? 'sidebar' : 'no sidebar');
 
   return (
     <FeedContext.Provider value={currentSettings}>

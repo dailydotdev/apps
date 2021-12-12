@@ -25,6 +25,7 @@ import {
   SidebarMenuItem,
   SidebarMenuItems,
   SidebarProps,
+  SidebarBackdrop,
 } from './common';
 import InvitePeople from './InvitePeople';
 import SidebarRankProgress from '../SidebarRankProgress';
@@ -32,6 +33,7 @@ import AlertContext from '../../contexts/AlertContext';
 import FeedFilters from '../filters/FeedFilters';
 import { AlertColor, AlertDot } from '../AlertDot';
 import { useDynamicLoadedAnimation } from '../../hooks/useDynamicLoadAnimated';
+import classNames from 'classnames';
 
 const bottomMenuItems: SidebarMenuItem[] = [
   {
@@ -56,8 +58,10 @@ const bottomMenuItems: SidebarMenuItem[] = [
 export default function Sidebar({
   useNavButtonsNotLinks = false,
   activePage,
+  openMobileSidebar = false,
   onNavTabClick,
   enableSearch,
+  setOpenMobileSidebar,
 }: SidebarProps): ReactElement {
   const { alerts } = useContext(AlertContext);
   const { isLoaded, isAnimated, setLoaded, setHidden } =
@@ -128,7 +132,14 @@ export default function Sidebar({
 
   return (
     <>
-      <SidebarAside className={openSidebar ? 'w-60' : 'w-11'}>
+      {openMobileSidebar && <SidebarBackdrop onClick={setOpenMobileSidebar} />}
+      <SidebarAside
+        className={classNames(
+          'w-70 laptop:-translate-x-0',
+          openSidebar ? 'laptop:w-60' : 'laptop:w-11',
+          openMobileSidebar ? '-translate-x-0' : '-translate-x-70',
+        )}
+      >
         <MenuIcon
           openSidebar={openSidebar}
           toggleOpenSidebar={toggleOpenSidebar}
