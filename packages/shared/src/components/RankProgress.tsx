@@ -66,6 +66,12 @@ export function RankProgress({
   const badgeRef = useRef<SVGSVGElement>();
 
   const finalRank = shownRank === STEPS_PER_RANK.length;
+  const levelUp = () =>
+    rank >= shownRank &&
+    rank > 0 &&
+    (rank !== rankLastWeek || progress === STEPS_PER_RANK[rank - 1]);
+  const getLevelText = levelUp() ? 'Level up' : '+1 Reading day';
+  const shouldForceColor = animatingProgress || forceColor || fillByDefault;
 
   const steps = useMemo(() => {
     if (
@@ -212,13 +218,6 @@ export function RankProgress({
     return `Next level: ${RANK_NAMES[rank]}`;
   };
 
-  const levelUp = () =>
-    rank >= shownRank &&
-    rank > 0 &&
-    (rank !== rankLastWeek || progress === STEPS_PER_RANK[rank - 1]);
-  const getLevelText = levelUp() ? 'Level up' : '+1 Reading day';
-  const shouldForceColor = animatingProgress || forceColor || fillByDefault;
-
   return (
     <>
       <div
@@ -277,7 +276,7 @@ export function RankProgress({
                 ref={badgeRef}
               />
             ) : (
-              <strong className="flex absolute inset-0 justify-center items-center typo-callout text-theme-rank">
+              <strong className="flex absolute inset-0 justify-center items-center text-theme-rank typo-callout">
                 +1
               </strong>
             )}
