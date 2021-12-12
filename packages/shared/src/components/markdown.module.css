@@ -49,7 +49,7 @@
     @apply my-2;
   }
   & :where(a) {
-    @apply hover:underline;
+    @apply text-theme-label-link hover:underline;
   }
   & :where(hr) {
     @apply border-theme-divider-secondary my-10;
