@@ -173,7 +173,7 @@ export function RankProgress({
   };
 
   const onProgressTransitionEnd = () => {
-    if (showRankAnimation) {
+    if (showRankAnimation || levelUp()) {
       setAnimatingProgress(false);
       animateRank();
     } else {
@@ -190,7 +190,10 @@ export function RankProgress({
   useEffect(() => {
     if (
       progress > prevProgress &&
-      (!rank || showRankAnimation || STEPS_PER_RANK[rank - 1] !== progress)
+      (!rank ||
+        showRankAnimation ||
+        levelUp() ||
+        STEPS_PER_RANK[rank - 1] !== progress)
     ) {
       if (!showRadialProgress) animateRank();
       setAnimatingProgress(true);
@@ -209,7 +212,10 @@ export function RankProgress({
     return `Next level: ${RANK_NAMES[rank]}`;
   };
 
-  const levelUp = () => rank >= shownRank && rank > 0;
+  const levelUp = () =>
+    rank >= shownRank &&
+    rank > 0 &&
+    (rank !== rankLastWeek || progress === STEPS_PER_RANK[rank - 1]);
   const getLevelText = levelUp() ? 'Level up' : '+1 Reading day';
   const shouldForceColor = animatingProgress || forceColor || fillByDefault;
 
@@ -271,7 +277,7 @@ export function RankProgress({
                 ref={badgeRef}
               />
             ) : (
-              <strong className="flex absolute inset-0 justify-center items-center typo-callout">
+              <strong className="flex absolute inset-0 justify-center items-center typo-callout text-theme-rank">
                 +1
               </strong>
             )}
