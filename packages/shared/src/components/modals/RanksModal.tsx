@@ -179,7 +179,7 @@ const TimezoneText = ({ onShowAccount }) => {
     </p>
   );
 
-  const loggedTimezoneDescription = !user.timezone ? accountDetails : null;
+  const loggedTimezoneDescription = !user?.timezone ? accountDetails : null;
   const timezoneDescription = !user ? signIn : loggedTimezoneDescription;
 
   return timezoneDescription;

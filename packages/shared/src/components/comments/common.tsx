@@ -1,6 +1,5 @@
 import React, { HTMLAttributes, ReactElement, ReactNode } from 'react';
 import classed from '../../lib/classed';
-import styles from './comments.module.css';
 import { Comment } from '../../graphql/comments';
 import { commentDateFormat } from '../../lib/dateFormat';
 
@@ -18,7 +17,8 @@ export function CommentPublishDate({
   );
 }
 
-export const commentBoxClassNames = `py-3 px-4 bg-theme-bg-secondary rounded-lg break-words typo-callout ${styles.commentBox}`;
+export const commentBoxClassNames =
+  'py-3 px-4 bg-theme-bg-secondary rounded-lg break-words typo-callout';
 
 const StyledCommentBox = classed('div', commentBoxClassNames);
 

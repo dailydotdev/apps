@@ -104,59 +104,61 @@
   transform: rotate(45deg);
 }
 
-.animate {
+.tippyTooltip {
   will-change: transform;
 
-  &[data-popper-placement^='top'] {
-    animation: fade-in-top 0.2s ease-in-out;
+  &[data-state='visible'] {
+    &[data-popper-placement^='top'] {
+      animation: fade-in-top ease-in-out;
+    }
+
+    &[data-popper-placement^='bottom'] {
+      animation: fade-in-bottom ease-in-out;
+    }
+
+    &[data-popper-placement^='left'] {
+      animation: fade-in-left ease-in-out;
+    }
+
+    &[data-popper-placement^='right'] {
+      animation: fade-in-right ease-in-out;
+    }
   }
 
-  &[data-popper-placement^='bottom'] {
-    animation: fade-in-bottom 0.2s ease-in-out;
+  &[data-state='hidden'] {
+    opacity: 0;
+    &[data-placement^='top'] {
+      animation: fade-out-top ease-in-out;
+    }
+
+    &[data-placement^='bottom'] {
+      animation: fade-out-bottom ease-in-out;
+    }
+
+    &[data-placement^='left'] {
+      animation: fade-out-left ease-in-out;
+    }
+
+    &[data-placement^='right'] {
+      animation: fade-out-right ease-in-out;
+    }
   }
 
-  &[data-popper-placement^='left'] {
-    animation: fade-in-left 0.2s ease-in-out;
+  &[data-placement^='top'] .tippyTooltipArrow {
+    left: calc(50% - 0.25rem);
+    bottom: -0.1875rem;
   }
 
-  &[data-popper-placement^='right'] {
-    animation: fade-in-right 0.2s ease-in-out;
-  }
-}
-
-.unMount {
-  opacity: 1;
-  &[data-popper-placement^='top'] {
-    animation: fade-out-top 0.2s ease-in-out;
+  &[data-placement^='bottom'] .tippyTooltipArrow {
+    left: calc(50% - 0.25rem);
+    top: -0.1875rem;
   }
 
-  &[data-popper-placement^='bottom'] {
-    animation: fade-out-bottom 0.2s ease-in-out;
+  &[data-placement^='left'] .tippyTooltipArrow {
+    right: -0.1875rem;
   }
 
-  &[data-popper-placement^='left'] {
-    animation: fade-out-left 0.2s ease-in-out;
+  &[data-placement^='right'] .tippyTooltipArrow {
+    left: -0.1875rem;
   }
-
-  &[data-popper-placement^='right'] {
-    animation: fade-out-right 0.2s ease-in-out;
-  }
-}
-
-.tippyTooltip[data-popper-placement^='top'] > .tippyTooltipArrow {
-  left: calc(50% - 0.25rem);
-  bottom: -0.1875rem;
-}
-
-.tippyTooltip[data-popper-placement^='bottom'] > .tippyTooltipArrow {
-  left: calc(50% - 0.25rem);
-  top: -0.1875rem;
-}
-
-.tippyTooltip[data-popper-placement^='left'] > .tippyTooltipArrow {
-  right: -0.1875rem;
-}
-
-.tippyTooltip[data-popper-placement^='right'] > .tippyTooltipArrow {
-  left: -0.1875rem;
 }

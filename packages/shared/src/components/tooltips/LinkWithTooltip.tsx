@@ -1,11 +1,10 @@
 import React, { ReactElement, useMemo, useState } from 'react';
 import Link, { LinkProps } from 'next/link';
-import { BaseTooltip, getShouldLoadTooltip } from './BaseTooltip';
-import { SimpleTooltipProps } from './SimpleTooltip';
+import { BaseTooltip, getShouldLoadTooltip, TooltipProps } from './BaseTooltip';
 
-interface LinkWithTooltipProps extends LinkProps {
+export interface LinkWithTooltipProps extends LinkProps {
   children?: ReactElement;
-  tooltip: SimpleTooltipProps;
+  tooltip: TooltipProps;
 }
 
 export function LinkWithTooltip({
@@ -18,7 +17,8 @@ export function LinkWithTooltip({
     () =>
       React.cloneElement(children, {
         ...children.props,
-        'aria-label': tooltip.content,
+        'aria-label':
+          typeof tooltip.content === 'string' ? tooltip.content : undefined,
         ref: (el: Element) => setElement(el),
       }),
     [children],

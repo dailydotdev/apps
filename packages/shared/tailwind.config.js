@@ -138,6 +138,12 @@ module.exports = {
         'screen-80': '80vh',
         screen: '100vh',
       },
+      width: {
+        fit: 'fit-content',
+      },
+      height: {
+        fit: 'fit-content',
+      },
     },
   },
   variants: {

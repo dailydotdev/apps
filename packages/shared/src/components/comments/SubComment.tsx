@@ -9,6 +9,7 @@ import { ProfileImageLink } from '../profile/ProfileImageLink';
 import CommentAuthor from './CommentAuthor';
 import classed from '../../lib/classed';
 import Markdown from '../Markdown';
+import { ProfileTooltip } from '../profile/ProfileTooltip';
 
 export interface Props extends CommentActionProps {
   comment: Comment;
@@ -42,7 +43,12 @@ export default function SubComment({
             lastComment ? 'h-4' : 'bottom-0',
           )}
         />
-        <ProfileImageLink className="w-8 h-8" user={comment.author} />
+        <ProfileTooltip user={comment.author}>
+          <ProfileImageLink
+            user={comment.author}
+            picture={{ size: 'medium' }}
+          />
+        </ProfileTooltip>
       </div>
       <div className="flex flex-col flex-1 items-stretch ml-2">
         <SubCommentBox>

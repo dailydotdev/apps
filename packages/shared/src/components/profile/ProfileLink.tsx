@@ -1,36 +1,28 @@
-import React, { HTMLAttributes, ReactElement } from 'react';
+import React, { forwardRef, HTMLAttributes, ReactElement, Ref } from 'react';
 import Link from 'next/link';
 import classNames from 'classnames';
-import { PublicProfile } from '../../lib/user';
-import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
+import { Author } from '../../graphql/comments';
 
 export interface ProfileLinkProps extends HTMLAttributes<HTMLAnchorElement> {
-  user: Pick<PublicProfile, 'image' | 'permalink' | 'username' | 'name'>;
-  disableTooltip?: boolean;
+  user: Author;
+  ref?: Ref<HTMLAnchorElement>;
 }
 
-export function ProfileLink({
-  user,
-  disableTooltip,
-  children,
-  className,
-  ...props
-}: ProfileLinkProps): ReactElement {
-  const LinkComponent = disableTooltip ? Link : LinkWithTooltip;
-
+function ProfileLinkComponent(
+  { user, children, className, ...props }: ProfileLinkProps,
+  ref?: Ref<HTMLAnchorElement>,
+): ReactElement {
   return (
-    <LinkComponent
-      href={user.permalink}
-      passHref
-      prefetch={false}
-      tooltip={{ content: user.name }}
-    >
+    <Link href={user.permalink} passHref prefetch={false}>
       <a
         {...props}
+        ref={ref}
         className={classNames(className, 'flex items-center no-underline')}
       >
         {children}
       </a>
-    </LinkComponent>
+    </Link>
   );
 }
+
+export const ProfileLink = forwardRef(ProfileLinkComponent);
