@@ -141,7 +141,6 @@ export function RankProgress({
             )
           : null;
 
-        console.log(badgeRef);
         const lastBadgeAnimation = badgeRef.current
           ? badgeRef.current.animate(
               [
