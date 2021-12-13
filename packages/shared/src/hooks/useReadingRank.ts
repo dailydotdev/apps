@@ -119,7 +119,8 @@ export default function useReadingRank(): ReturnType {
     if (remoteRank && loadedCache) {
       if (
         !cachedRank ||
-        remoteRank.rank.progressThisWeek < cachedRank.rank.progressThisWeek
+        remoteRank.rank.progressThisWeek < cachedRank.rank.progressThisWeek ||
+        !cachedRank.rank.rankLastWeek
       ) {
         cacheRank();
         return;
