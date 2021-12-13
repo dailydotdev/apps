@@ -140,23 +140,28 @@ export function RankProgress({
               { duration: 600, fill: 'forwards' },
             )
           : null;
-        const lastBadgeAnimation = badgeRef.current.animate(
-          [
-            {
-              transform: `scale(${2 - maxScale})`,
-              opacity: 0,
-              '--stop-color1': rankToGradientStopBottom(rank),
-              '--stop-color2': rankToGradientStopTop(rank),
-            },
-            {
-              transform: 'scale(1)',
-              opacity: 1,
-              '--stop-color1': rankToGradientStopBottom(rank),
-              '--stop-color2': rankToGradientStopTop(rank),
-            },
-          ],
-          { duration: 100, fill: 'forwards' },
-        );
+
+        console.log(badgeRef);
+        const lastBadgeAnimation = badgeRef.current
+          ? badgeRef.current.animate(
+              [
+                {
+                  transform: `scale(${2 - maxScale})`,
+                  opacity: 0,
+                  '--stop-color1': rankToGradientStopBottom(rank),
+                  '--stop-color2': rankToGradientStopTop(rank),
+                },
+                {
+                  transform: 'scale(1)',
+                  opacity: 1,
+                  '--stop-color1': rankToGradientStopBottom(rank),
+                  '--stop-color2': rankToGradientStopTop(rank),
+                },
+              ],
+              { duration: 100, fill: 'forwards' },
+            )
+          : null;
+
         if (attentionAnimation) {
           attentionAnimation.onfinish = () => {
             progressAnimation?.cancel();
@@ -169,10 +174,11 @@ export function RankProgress({
         } else {
           progressAnimation?.cancel();
           firstBadgeAnimation.cancel();
-          lastBadgeAnimation.cancel();
+          lastBadgeAnimation?.cancel();
           attentionAnimation?.cancel();
           setForceColor(false);
           onRankAnimationFinish?.();
+          setTimeout(() => setAnimatingProgress(false), 2000);
         }
       });
     };
@@ -293,10 +299,18 @@ export function RankProgress({
             unmountOnExit
           >
             <div className="flex flex-col items-start ml-3">
-              <span className="font-bold text-theme-rank typo-callout">
+              <span
+                className={`font-bold text-theme-rank typo-callout transition-opacity ${
+                  showTextProgress ? 'opacity-100 delay-150' : 'opacity-0'
+                }`}
+              >
                 {animatingProgress ? getLevelText : getRankName(shownRank)}
               </span>
-              <span className="typo-footnote text-theme-label-tertiary">
+              <span
+                className={`typo-footnote text-theme-label-tertiary transition-opacity ${
+                  showTextProgress ? 'opacity-100 delay-150' : 'opacity-0'
+                }`}
+              >
                 {getNextRankText(nextRank)}
               </span>
             </div>

@@ -34,6 +34,11 @@ import FeedFilters from '../filters/FeedFilters';
 import { AlertColor, AlertDot } from '../AlertDot';
 import { useDynamicLoadedAnimation } from '../../hooks/useDynamicLoadAnimated';
 import classNames from 'classnames';
+import ProfileButton from '../profile/ProfileButton';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import AuthContext from '../../contexts/AuthContext';
+import useProfileMenu from '../../hooks/useProfileMenu';
+const { onMenuClick } = useProfileMenu();
 
 const bottomMenuItems: SidebarMenuItem[] = [
   {
@@ -58,12 +63,14 @@ const bottomMenuItems: SidebarMenuItem[] = [
 export default function Sidebar({
   useNavButtonsNotLinks = false,
   activePage,
+  showSidebar = false,
   openMobileSidebar = false,
   onNavTabClick,
   enableSearch,
   setOpenMobileSidebar,
 }: SidebarProps): ReactElement {
   const { alerts } = useContext(AlertContext);
+  const { user, showLogin, loadingUser } = useContext(AuthContext);
   const { isLoaded, isAnimated, setLoaded, setHidden } =
     useDynamicLoadedAnimation();
   const { openSidebar, toggleOpenSidebar } = useContext(SettingsContext);
@@ -80,6 +87,7 @@ export default function Sidebar({
           ),
           title: 'Feed filters',
           action: setLoaded,
+          hideOnMobile: true,
         },
         {
           icon: <ListIcon Icon={HotIcon} />,
@@ -104,6 +112,7 @@ export default function Sidebar({
           title: 'Search',
           path: '/search',
           action: enableSearch ? () => enableSearch() : null,
+          hideOnMobile: true,
         },
       ],
     },
@@ -114,6 +123,7 @@ export default function Sidebar({
           icon: <ListIcon Icon={BookmarkIcon} />,
           title: 'Bookmarks',
           path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}bookmarks`,
+          hideOnMobile: true,
         },
         {
           icon: <ListIcon Icon={EyeIcon} />,
@@ -130,6 +140,9 @@ export default function Sidebar({
     },
   ];
 
+  const mobileItemsFilter = (item) =>
+    (!showSidebar && !item.hideOnMobile) || showSidebar;
+
   return (
     <>
       {openMobileSidebar && <SidebarBackdrop onClick={setOpenMobileSidebar} />}
@@ -140,19 +153,49 @@ export default function Sidebar({
           openMobileSidebar ? '-translate-x-0' : '-translate-x-70',
         )}
       >
-        <MenuIcon
-          openSidebar={openSidebar}
-          toggleOpenSidebar={toggleOpenSidebar}
-        />
+        {showSidebar && (
+          <MenuIcon
+            openSidebar={openSidebar}
+            toggleOpenSidebar={toggleOpenSidebar}
+          />
+        )}
         <Nav>
+          {!loadingUser && !showSidebar && (
+            <li className="flex flex-col p-6">
+              {user ? (
+                <>
+                  <div className="flex mb-4 justify-between">
+                    <ProfileButton onClick={() => {}} />
+                    <Button className="btn btn-tertiary" onClick={onMenuClick}>
+                      <SettingsIcon />
+                    </Button>
+                  </div>
+                  <strong className="typo-callout mb-0.5">{user.name}</strong>
+                  <p className="typo-footnote text-theme-label-secondary">
+                    @{user.username}
+                  </p>
+                </>
+              ) : (
+                <Button
+                  onClick={() => showLogin('main button')}
+                  className="btn-primary"
+                >
+                  Login
+                </Button>
+              )}
+            </li>
+          )}
           {topMenuItems.map(({ key, items }) => (
             <NavSection key={key}>
               <NavHeader
-                className={openSidebar ? 'opacity-100 px-3' : 'opacity-0 px-0'}
+                className={classNames(
+                  'hidden laptop:block',
+                  openSidebar ? 'opacity-100 px-3' : 'opacity-0 px-0',
+                )}
               >
                 {key}
               </NavHeader>
-              {items.map((item) => (
+              {items.filter(mobileItemsFilter).map((item) => (
                 <NavItem
                   key={item.title}
                   active={item.active || item.path === activePage}
@@ -170,7 +213,7 @@ export default function Sidebar({
         </Nav>
         <div className="flex-1" />
         <Nav>
-          {bottomMenuItems.map((item) => (
+          {bottomMenuItems.filter(mobileItemsFilter).map((item) => (
             <NavItem
               key={item.title}
               active={item.active || item.path === activePage}
@@ -184,7 +227,7 @@ export default function Sidebar({
             </NavItem>
           ))}
           <InvitePeople openSidebar={openSidebar} />
-          <SidebarRankProgress openSidebar={openSidebar} />
+          {showSidebar && <SidebarRankProgress openSidebar={openSidebar} />}
         </Nav>
       </SidebarAside>
       {showSettings && (

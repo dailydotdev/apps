@@ -12,6 +12,7 @@ import ArrowIcon from '../../../icons/arrow.svg';
 
 export interface SidebarProps {
   useNavButtonsNotLinks?: boolean;
+  showSidebar?: boolean;
   openMobileSidebar?: boolean;
   activePage?: string;
   onNavTabClick?: (tab: string) => void;
@@ -31,6 +32,7 @@ export interface SidebarMenuItem {
   action?: () => unknown;
   alert?: ReactElement;
   active?: boolean;
+  hideOnMobile?: boolean;
 }
 
 interface ButtonOrLinkProps {
@@ -66,10 +68,10 @@ export const SidebarBackdrop = classed(
 );
 export const SidebarAside = classed(
   'aside',
-  'flex flex-col bg-theme-bg-primary z-3 border-r border-theme-divider-tertiary transition-all transform duration-500 ease-in-out group fixed laptop:sticky top-0 laptop:top-14 h-screen laptop:h-[calc(100vh-theme(space.14))]',
+  'flex flex-col bg-theme-bg-primary z-3 border-r border-theme-divider-tertiary transition-all transform duration-300 ease-in-out group fixed laptop:sticky top-0 laptop:top-14 h-screen laptop:h-[calc(100vh-theme(space.14))]',
 );
 export const Nav = classed('nav', 'my-4');
-export const NavSection = classed('ul', 'mt-2');
+export const NavSection = classed('ul', 'mt-0 laptop:mt-2');
 export const NavHeader = classed(
   'li',
   'typo-footnote text-theme-label-quaternary h-7 flex items-center font-bold  transition-opacity',
@@ -92,8 +94,8 @@ export const ItemInner = ({
       {item.icon}
     </span>
     <span
-      className={`flex-1 text-left transition-opacity ${
-        openSidebar ? 'opacity-100' : 'opacity-0'
+      className={`flex-1 text-left  transition-opacity ${
+        openSidebar ? 'opacity-100 delay-150' : 'opacity-0'
       }`}
     >
       {item.title}

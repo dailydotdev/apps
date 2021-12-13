@@ -65,13 +65,8 @@ export default function MainLayout({
   return (
     <>
       <PromotionalBanner />
-      <header className="flex flex-row-reverse laptop:flex-row relative laptop:fixed laptop:top-0 laptop:left-0 z-3 items-center py-3 px-4 tablet:px-8 laptop:px-4 laptop:w-full h-14 border-b bg-theme-bg-primary border-theme-divider-tertiary">
-        {!showSidebar && (
-          <>
-            <MobileHeaderRankProgress />
-            <div className="flex-1" />
-          </>
-        )}
+      <header className="flex flex-row-reverse justify-between laptop:flex-row relative laptop:fixed laptop:top-0 laptop:left-0 z-3 items-center py-3 px-4 tablet:px-8 laptop:px-4 laptop:w-full h-14 border-b bg-theme-bg-primary border-theme-divider-tertiary">
+        {!showSidebar && <MobileHeaderRankProgress />}
         <LinkWithTooltip
           href={process.env.NEXT_PUBLIC_WEBAPP_URL}
           passHref
@@ -103,7 +98,6 @@ export default function MainLayout({
             onExit={() => setShowGreeting(false)}
           />
         )}
-        <div className="flex-1" />
         {!showOnlyLogo && !loadingUser && (
           <>
             {user ? (
@@ -125,6 +119,7 @@ export default function MainLayout({
       <main className="flex flex-row laptop:pt-14">
         {!showOnlyLogo && (
           <Sidebar
+            showSidebar={showSidebar}
             openMobileSidebar={openMobileSidebar}
             onNavTabClick={onNavTabClick}
             enableSearch={enableSearch}

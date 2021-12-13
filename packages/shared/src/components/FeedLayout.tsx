@@ -163,8 +163,6 @@ export default function FeedLayout({
     defaultFeedContextData,
   );
 
-  console.log(openSidebar && hiddenSidebar ? 'sidebar' : 'no sidebar');
-
   return (
     <FeedContext.Provider value={currentSettings}>
       {children}

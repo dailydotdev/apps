@@ -29,6 +29,9 @@ export default function ProfileButton({
             {user.reputation ?? 0}
           </span>
           <ProfilePicture user={user} size="medium" />
+          <span className="mr-2 ml-3 laptop:hidden">
+            {user.reputation ?? 0}
+          </span>
         </button>
       </SimpleTooltip>
       <ProfileMenu onShowDndClick={onShowDndClick} />
