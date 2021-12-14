@@ -61,7 +61,7 @@ export const CustomFeedHeader = classed(
 
 export const FeedPageHeader = classed(
   'nav',
-  'flex overflow-x-auto self-stretch mb-6 no-scrollbar',
+  'overflow-x-auto self-stretch mb-6 no-scrollbar hidden laptop:flex',
 );
 
 export const customFeedIcon = 'text-2xl text-theme-label-tertiary mr-2';
