@@ -19,7 +19,9 @@ import styles from './MainLayout.module.css';
 import ProfileButton from './profile/ProfileButton';
 import { LinkWithTooltip } from './tooltips/LinkWithTooltip';
 import Sidebar from './sidebar/Sidebar';
-import SidebarRankProgress from './SidebarRankProgress';
+import MenuIcon from '../../icons/filled/hamburger.svg';
+import MobileHeaderRankProgress from './MobileHeaderRankProgress';
+import useMedia from '../hooks/useMedia';
 
 export const footerNavBarBreakpoint = laptop;
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
@@ -38,8 +40,6 @@ export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
 const Greeting = dynamic(
   () => import(/* webpackChunkName: "greeting" */ './Greeting'),
 );
-import MobileHeaderRankProgress from './MobileHeaderRankProgress';
-import useMedia from '../hooks/useMedia';
 
 export default function MainLayout({
   children,
@@ -65,7 +65,7 @@ export default function MainLayout({
   return (
     <>
       <PromotionalBanner />
-      <header className="flex flex-row-reverse justify-between laptop:flex-row relative laptop:fixed laptop:top-0 laptop:left-0 z-3 items-center py-3 px-4 tablet:px-8 laptop:px-4 laptop:w-full h-14 border-b bg-theme-bg-primary border-theme-divider-tertiary">
+      <header className="flex relative laptop:fixed laptop:top-0 laptop:left-0 z-3 flex-row-reverse laptop:flex-row justify-between items-center py-3 px-4 tablet:px-8 laptop:px-4 laptop:w-full h-14 border-b bg-theme-bg-primary border-theme-divider-tertiary">
         {!showSidebar && <MobileHeaderRankProgress />}
         <LinkWithTooltip
           href={process.env.NEXT_PUBLIC_WEBAPP_URL}
@@ -98,7 +98,15 @@ export default function MainLayout({
             onExit={() => setShowGreeting(false)}
           />
         )}
-        {!showOnlyLogo && !loadingUser && (
+        {!showSidebar && (
+          <Button
+            className="btn-tertiary"
+            onClick={() => setOpenMobileSidebar(true)}
+          >
+            <MenuIcon />
+          </Button>
+        )}
+        {!showOnlyLogo && !loadingUser && showSidebar && (
           <>
             {user ? (
               <ProfileButton
@@ -125,6 +133,7 @@ export default function MainLayout({
             enableSearch={enableSearch}
             activePage={activePage}
             useNavButtonsNotLinks={useNavButtonsNotLinks}
+            onShowDndClick={onShowDndClick}
             setOpenMobileSidebar={() => setOpenMobileSidebar(false)}
           />
         )}

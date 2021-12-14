@@ -18,6 +18,7 @@ export interface SidebarProps {
   onNavTabClick?: (tab: string) => void;
   enableSearch?: () => void;
   setOpenMobileSidebar?: () => unknown;
+  onShowDndClick?: () => void;
 }
 export interface SidebarMenuItems {
   key: string;

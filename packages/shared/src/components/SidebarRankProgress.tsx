@@ -25,7 +25,7 @@ export default function SidebarRankProgress({
     >
       <RankProgressWrapper
         openSidebar={openSidebar}
-        className="bg-theme-bg-secondary border border-theme-rank"
+        className="border border-theme-rank bg-theme-bg-secondary"
       />
     </li>
   );

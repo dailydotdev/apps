@@ -1,4 +1,6 @@
-import React, { ReactElement, useContext, useState } from 'react';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import SettingsContext from '../../contexts/SettingsContext';
 import { FeedSettingsModal } from '../modals/FeedSettingsModal';
 import HotIcon from '../../../icons/hot.svg';
@@ -12,6 +14,8 @@ import SettingsIcon from '../../../icons/settings.svg';
 import FeedbackIcon from '../../../icons/feedback.svg';
 import DocsIcon from '../../../icons/docs.svg';
 import TerminalIcon from '../../../icons/terminal.svg';
+import UserIcon from '../../../icons/user.svg';
+import { Button } from '../buttons/Button';
 import {
   ButtonOrLink,
   ItemInner,
@@ -33,11 +37,12 @@ import AlertContext from '../../contexts/AlertContext';
 import FeedFilters from '../filters/FeedFilters';
 import { AlertColor, AlertDot } from '../AlertDot';
 import { useDynamicLoadedAnimation } from '../../hooks/useDynamicLoadAnimated';
-import classNames from 'classnames';
-import ProfileButton from '../profile/ProfileButton';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import AuthContext from '../../contexts/AuthContext';
 import useProfileMenu from '../../hooks/useProfileMenu';
+import { ProfileLink } from '../profile/ProfileLink';
+import { ProfilePicture } from '../ProfilePicture';
+import ProfileMenu from '../ProfileMenu';
+
 const { onMenuClick } = useProfileMenu();
 
 const bottomMenuItems: SidebarMenuItem[] = [
@@ -68,6 +73,7 @@ export default function Sidebar({
   onNavTabClick,
   enableSearch,
   setOpenMobileSidebar,
+  onShowDndClick,
 }: SidebarProps): ReactElement {
   const { alerts } = useContext(AlertContext);
   const { user, showLogin, loadingUser } = useContext(AuthContext);
@@ -75,6 +81,19 @@ export default function Sidebar({
     useDynamicLoadedAnimation();
   const { openSidebar, toggleOpenSidebar } = useContext(SettingsContext);
   const [showSettings, setShowSettings] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    const handleRouteChange = () => {
+      setOpenMobileSidebar();
+    };
+
+    router?.events?.on('routeChangeStart', handleRouteChange);
+
+    return () => {
+      router?.events?.off('routeChangeStart', handleRouteChange);
+    };
+  }, []);
 
   const topMenuItems: SidebarMenuItems[] = [
     {
@@ -159,76 +178,91 @@ export default function Sidebar({
             toggleOpenSidebar={toggleOpenSidebar}
           />
         )}
-        <Nav>
-          {!loadingUser && !showSidebar && (
-            <li className="flex flex-col p-6">
-              {user ? (
-                <>
-                  <div className="flex mb-4 justify-between">
-                    <ProfileButton onClick={() => {}} />
-                    <Button className="btn btn-tertiary" onClick={onMenuClick}>
-                      <SettingsIcon />
-                    </Button>
-                  </div>
-                  <strong className="typo-callout mb-0.5">{user.name}</strong>
-                  <p className="typo-footnote text-theme-label-secondary">
-                    @{user.username}
-                  </p>
-                </>
-              ) : (
-                <Button
-                  onClick={() => showLogin('main button')}
-                  className="btn-primary"
-                >
-                  Login
-                </Button>
-              )}
-            </li>
-          )}
-          {topMenuItems.map(({ key, items }) => (
-            <NavSection key={key}>
-              <NavHeader
-                className={classNames(
-                  'hidden laptop:block',
-                  openSidebar ? 'opacity-100 px-3' : 'opacity-0 px-0',
-                )}
-              >
-                {key}
-              </NavHeader>
-              {items.filter(mobileItemsFilter).map((item) => (
-                <NavItem
-                  key={item.title}
-                  active={item.active || item.path === activePage}
-                >
-                  <ButtonOrLink
-                    item={item}
-                    useNavButtonsNotLinks={useNavButtonsNotLinks}
+        <div className="flex overflow-x-hidden overflow-y-auto flex-col h-full no-scrollbar">
+          <Nav>
+            {!loadingUser && !showSidebar && (
+              <li className="flex flex-col p-6 pt-2">
+                {user ? (
+                  <>
+                    <div className="flex justify-between items-center mb-4">
+                      <ProfileLink
+                        user={user}
+                        className="flex items-center p-0 ml-0.5 font-bold no-underline rounded-lg border-none cursor-pointer text-theme-label-primary bg-theme-bg-secondary typo-callout focus-outline"
+                      >
+                        <ProfilePicture user={user} size="medium" />
+                        <span className="laptop:hidden mr-2 ml-3">
+                          {user.reputation ?? 0}
+                        </span>
+                      </ProfileLink>
+                      <Button
+                        className="btn btn-tertiary"
+                        onClick={onMenuClick}
+                      >
+                        <SettingsIcon />
+                      </Button>
+                    </div>
+                    <strong className="mb-0.5 typo-callout">{user.name}</strong>
+                    <p className="typo-footnote text-theme-label-secondary">
+                      @{user.username}
+                    </p>
+                    <ProfileMenu onShowDndClick={onShowDndClick} />
+                  </>
+                ) : (
+                  <Button
+                    onClick={() => showLogin('main button')}
+                    className="btn-primary"
+                    icon={<UserIcon />}
                   >
-                    <ItemInner item={item} openSidebar={openSidebar} />
-                  </ButtonOrLink>
-                </NavItem>
-              ))}
-            </NavSection>
-          ))}
-        </Nav>
-        <div className="flex-1" />
-        <Nav>
-          {bottomMenuItems.filter(mobileItemsFilter).map((item) => (
-            <NavItem
-              key={item.title}
-              active={item.active || item.path === activePage}
-            >
-              <ButtonOrLink
-                item={item}
-                useNavButtonsNotLinks={useNavButtonsNotLinks}
+                    Login
+                  </Button>
+                )}
+              </li>
+            )}
+            {topMenuItems.map(({ key, items }) => (
+              <NavSection key={key}>
+                <NavHeader
+                  className={classNames(
+                    'hidden laptop:block',
+                    openSidebar ? 'opacity-100 px-3' : 'opacity-0 px-0',
+                  )}
+                >
+                  {key}
+                </NavHeader>
+                {items.filter(mobileItemsFilter).map((item) => (
+                  <NavItem
+                    key={item.title}
+                    active={item.active || item.path === activePage}
+                  >
+                    <ButtonOrLink
+                      item={item}
+                      useNavButtonsNotLinks={useNavButtonsNotLinks}
+                    >
+                      <ItemInner item={item} openSidebar={openSidebar} />
+                    </ButtonOrLink>
+                  </NavItem>
+                ))}
+              </NavSection>
+            ))}
+          </Nav>
+          <div className="flex-1" />
+          <Nav>
+            {bottomMenuItems.filter(mobileItemsFilter).map((item) => (
+              <NavItem
+                key={item.title}
+                active={item.active || item.path === activePage}
               >
-                <ItemInner item={item} openSidebar={openSidebar} />
-              </ButtonOrLink>
-            </NavItem>
-          ))}
-          <InvitePeople openSidebar={openSidebar} />
-          {showSidebar && <SidebarRankProgress openSidebar={openSidebar} />}
-        </Nav>
+                <ButtonOrLink
+                  item={item}
+                  useNavButtonsNotLinks={useNavButtonsNotLinks}
+                >
+                  <ItemInner item={item} openSidebar={openSidebar} />
+                </ButtonOrLink>
+              </NavItem>
+            ))}
+            <InvitePeople openSidebar={openSidebar} />
+            {showSidebar && <SidebarRankProgress openSidebar={openSidebar} />}
+          </Nav>
+        </div>
       </SidebarAside>
       {showSettings && (
         <FeedSettingsModal

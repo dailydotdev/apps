@@ -76,7 +76,7 @@ const renderComponent = (
           }}
         >
           <SettingsContext.Provider value={settingsContext}>
-            <Sidebar />
+            <Sidebar showSidebar />
           </SettingsContext.Provider>
         </AuthContext.Provider>
       </AlertContext.Provider>

@@ -8,7 +8,7 @@ import { Flipper, Flipped } from 'react-flip-toolkit';
 import HomeIcon from '@dailydotdev/shared/icons/home.svg';
 import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
 import SearchIcon from '@dailydotdev/shared/icons/magnifying.svg';
-import LayoutIcon from '@dailydotdev/shared/icons/layout.svg';
+import FilterIcon from '@dailydotdev/shared/icons/outline/filter.svg';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useRouter } from 'next/router';
 import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
@@ -48,7 +48,7 @@ export const tabs: Tab[] = [
   {
     path: '/settings',
     title: 'Settings',
-    icon: <LayoutIcon />,
+    icon: <FilterIcon />,
   },
 ];
 
