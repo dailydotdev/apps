@@ -161,22 +161,21 @@ export function RankProgress({
             )
           : null;
 
-        if (attentionAnimation) {
-          attentionAnimation.onfinish = () => {
-            progressAnimation?.cancel();
-            firstBadgeAnimation.cancel();
-            lastBadgeAnimation.cancel();
-            attentionAnimation.cancel();
-            setForceColor(false);
-            onRankAnimationFinish?.();
-          };
-        } else {
+        const cancelAnimations = () => {
           progressAnimation?.cancel();
           firstBadgeAnimation.cancel();
           lastBadgeAnimation?.cancel();
           attentionAnimation?.cancel();
           setForceColor(false);
           onRankAnimationFinish?.();
+        };
+
+        if (attentionAnimation) {
+          attentionAnimation.onfinish = () => {
+            cancelAnimations();
+          };
+        } else {
+          cancelAnimations();
           setTimeout(() => setAnimatingProgress(false), 2000);
         }
       });
@@ -298,18 +297,10 @@ export function RankProgress({
             unmountOnExit
           >
             <div className="flex flex-col items-start ml-3">
-              <span
-                className={`font-bold text-theme-rank typo-callout transition-opacity ${
-                  showTextProgress ? 'opacity-100 delay-150' : 'opacity-0'
-                }`}
-              >
+              <span className="font-bold text-theme-rank typo-callout">
                 {animatingProgress ? getLevelText : getRankName(shownRank)}
               </span>
-              <span
-                className={`typo-footnote text-theme-label-tertiary transition-opacity ${
-                  showTextProgress ? 'opacity-100 delay-150' : 'opacity-0'
-                }`}
-              >
+              <span className="typo-footnote text-theme-label-tertiary">
                 {getNextRankText(nextRank)}
               </span>
             </div>

@@ -142,7 +142,6 @@ module.exports = {
         70: '17.5rem',
       },
       width: {
-        13: '3.25rem',
         70: '17.5rem',
         fit: 'fit-content',
       },

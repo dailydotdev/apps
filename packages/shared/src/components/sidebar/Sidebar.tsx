@@ -30,6 +30,7 @@ import {
   SidebarMenuItems,
   SidebarProps,
   SidebarBackdrop,
+  SidebarScrollWrapper,
 } from './common';
 import InvitePeople from './InvitePeople';
 import SidebarRankProgress from '../SidebarRankProgress';
@@ -42,6 +43,7 @@ import useProfileMenu from '../../hooks/useProfileMenu';
 import { ProfileLink } from '../profile/ProfileLink';
 import { ProfilePicture } from '../ProfilePicture';
 import ProfileMenu from '../ProfileMenu';
+import SidebarUserButton from './SidebarUserButton';
 
 const { onMenuClick } = useProfileMenu();
 
@@ -76,7 +78,6 @@ export default function Sidebar({
   onShowDndClick,
 }: SidebarProps): ReactElement {
   const { alerts } = useContext(AlertContext);
-  const { user, showLogin, loadingUser } = useContext(AuthContext);
   const { isLoaded, isAnimated, setLoaded, setHidden } =
     useDynamicLoadedAnimation();
   const { openSidebar, toggleOpenSidebar } = useContext(SettingsContext);
@@ -167,7 +168,6 @@ export default function Sidebar({
       {openMobileSidebar && <SidebarBackdrop onClick={setOpenMobileSidebar} />}
       <SidebarAside
         className={classNames(
-          'w-70 laptop:-translate-x-0',
           openSidebar ? 'laptop:w-60' : 'laptop:w-11',
           openMobileSidebar ? '-translate-x-0' : '-translate-x-70',
         )}
@@ -178,46 +178,12 @@ export default function Sidebar({
             toggleOpenSidebar={toggleOpenSidebar}
           />
         )}
-        <div className="flex overflow-x-hidden overflow-y-auto flex-col h-full no-scrollbar">
+        <SidebarScrollWrapper>
           <Nav>
-            {!loadingUser && !showSidebar && (
-              <li className="flex flex-col p-6 pt-2">
-                {user ? (
-                  <>
-                    <div className="flex justify-between items-center mb-4">
-                      <ProfileLink
-                        user={user}
-                        className="flex items-center p-0 ml-0.5 font-bold no-underline rounded-lg border-none cursor-pointer text-theme-label-primary bg-theme-bg-secondary typo-callout focus-outline"
-                      >
-                        <ProfilePicture user={user} size="medium" />
-                        <span className="laptop:hidden mr-2 ml-3">
-                          {user.reputation ?? 0}
-                        </span>
-                      </ProfileLink>
-                      <Button
-                        className="btn btn-tertiary"
-                        onClick={onMenuClick}
-                      >
-                        <SettingsIcon />
-                      </Button>
-                    </div>
-                    <strong className="mb-0.5 typo-callout">{user.name}</strong>
-                    <p className="typo-footnote text-theme-label-secondary">
-                      @{user.username}
-                    </p>
-                    <ProfileMenu onShowDndClick={onShowDndClick} />
-                  </>
-                ) : (
-                  <Button
-                    onClick={() => showLogin('main button')}
-                    className="btn-primary"
-                    icon={<UserIcon />}
-                  >
-                    Login
-                  </Button>
-                )}
-              </li>
-            )}
+            <SidebarUserButton
+              showSidebar={showSidebar}
+              onShowDndClick={onShowDndClick}
+            />
             {topMenuItems.map(({ key, items }) => (
               <NavSection key={key}>
                 <NavHeader
@@ -262,7 +228,7 @@ export default function Sidebar({
             <InvitePeople openSidebar={openSidebar} />
             {showSidebar && <SidebarRankProgress openSidebar={openSidebar} />}
           </Nav>
-        </div>
+        </SidebarScrollWrapper>
       </SidebarAside>
       {showSettings && (
         <FeedSettingsModal
