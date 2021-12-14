@@ -14,8 +14,6 @@ import SettingsIcon from '../../../icons/settings.svg';
 import FeedbackIcon from '../../../icons/feedback.svg';
 import DocsIcon from '../../../icons/docs.svg';
 import TerminalIcon from '../../../icons/terminal.svg';
-import UserIcon from '../../../icons/user.svg';
-import { Button } from '../buttons/Button';
 import {
   ButtonOrLink,
   ItemInner,
@@ -38,14 +36,7 @@ import AlertContext from '../../contexts/AlertContext';
 import FeedFilters from '../filters/FeedFilters';
 import { AlertColor, AlertDot } from '../AlertDot';
 import { useDynamicLoadedAnimation } from '../../hooks/useDynamicLoadAnimated';
-import AuthContext from '../../contexts/AuthContext';
-import useProfileMenu from '../../hooks/useProfileMenu';
-import { ProfileLink } from '../profile/ProfileLink';
-import { ProfilePicture } from '../ProfilePicture';
-import ProfileMenu from '../ProfileMenu';
 import SidebarUserButton from './SidebarUserButton';
-
-const { onMenuClick } = useProfileMenu();
 
 const bottomMenuItems: SidebarMenuItem[] = [
   {
