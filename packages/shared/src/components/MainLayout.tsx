@@ -63,30 +63,36 @@ export default function MainLayout({
       <PromotionalBanner />
       <header className="flex relative laptop:fixed laptop:top-0 laptop:left-0 z-3 flex-row-reverse laptop:flex-row justify-between items-center py-3 px-4 tablet:px-8 laptop:px-4 laptop:w-full h-14 border-b bg-theme-bg-primary border-theme-divider-tertiary">
         {!showSidebar && <MobileHeaderRankProgress />}
-        <LinkWithTooltip
-          href={process.env.NEXT_PUBLIC_WEBAPP_URL}
-          passHref
-          prefetch={false}
-          tooltip={{ placement: 'right', content: 'Home' }}
-        >
-          {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
-          <a className="flex items-center" onClick={onLogoClick}>
-            <Logo className={styles.homeSvg} />
-            <CSSTransition
-              in={!showGreeting}
-              timeout={500}
-              classNames="fade"
-              unmountOnExit
+        {mobileTitle && (
+          <h3 className="block laptop:hidden typo-callout">{mobileTitle}</h3>
+        )}
+        {!mobileTitle ||
+          (showSidebar && (
+            <LinkWithTooltip
+              href={process.env.NEXT_PUBLIC_WEBAPP_URL}
+              passHref
+              prefetch={false}
+              tooltip={{ placement: 'right', content: 'Home' }}
             >
-              <LogoText
-                className={classNames(
-                  styles.homeSvg,
-                  'hidden ml-1 laptop:block',
-                )}
-              />
-            </CSSTransition>
-          </a>
-        </LinkWithTooltip>
+              {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
+              <a className="flex items-center" onClick={onLogoClick}>
+                <Logo className={styles.homeSvg} />
+                <CSSTransition
+                  in={!showGreeting}
+                  timeout={500}
+                  classNames="fade"
+                  unmountOnExit
+                >
+                  <LogoText
+                    className={classNames(
+                      styles.homeSvg,
+                      'hidden ml-1 laptop:block',
+                    )}
+                  />
+                </CSSTransition>
+              </a>
+            </LinkWithTooltip>
+          ))}
         {windowLoaded && greeting && (
           <Greeting
             user={user}
@@ -102,8 +108,19 @@ export default function MainLayout({
             <MenuIcon />
           </Button>
         )}
-        {mobileTitle && (
-          <h3 className="block laptop:hidden typo-callout">{mobileTitle}</h3>
+        {!showOnlyLogo && !loadingUser && showSidebar && (
+          <>
+            {user ? (
+              <ProfileButton onShowDndClick={onShowDndClick} />
+            ) : (
+              <Button
+                onClick={() => showLogin('main button')}
+                className="btn-primary"
+              >
+                Login
+              </Button>
+            )}
+          </>
         )}
       </header>
       <main className="flex flex-row laptop:pt-14">
