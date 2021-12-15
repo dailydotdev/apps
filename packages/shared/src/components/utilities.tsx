@@ -60,7 +60,7 @@ export const CustomFeedHeader = classed(
 );
 
 export const FeedPageHeader = classed(
-  'nav',
+  'header',
   'overflow-x-auto self-stretch mb-6 no-scrollbar hidden laptop:flex',
 );
 
