@@ -106,9 +106,10 @@ export const ItemInner = ({
       {item.icon}
     </span>
     <span
-      className={`flex-1 text-left  transition-opacity ${
-        openSidebar ? 'opacity-100 delay-150' : 'opacity-0'
-      }`}
+      className={classNames(
+        'flex-1 text-left transition-opacity',
+        openSidebar ? 'opacity-100 delay-150' : 'opacity-0',
+      )}
     >
       {item.title}
     </span>

@@ -13,9 +13,14 @@ import FeedContext, {
 } from '../contexts/FeedContext';
 import useMedia from '../hooks/useMedia';
 import SettingsContext from '../contexts/SettingsContext';
-import { footerNavBarBreakpoint } from './MainLayout';
+import useShowSidebar from '../hooks/useShowSidebar';
 
 export type FeedLayoutProps = { children?: ReactNode };
+
+type DetermineFeedSettingsProps = {
+  openSidebar: boolean;
+  showSidebar: boolean;
+};
 
 export const feedBreakpoints = [
   tablet,
@@ -147,19 +152,23 @@ const reversedBreakpoints = feedBreakpoints
 const reversedSettings = baseFeedSettings.reverse();
 const reversedSettingsSidebar = sidebarOpenFeedSettings.reverse();
 
+const determineFeedSettings = ({
+  openSidebar,
+  showSidebar,
+}: DetermineFeedSettingsProps): FeedContextData[] => {
+  return openSidebar && showSidebar
+    ? reversedSettingsSidebar
+    : reversedSettings;
+};
+
 export default function FeedLayout({
   children,
 }: FeedLayoutProps): ReactElement {
   const { openSidebar } = useContext(SettingsContext);
-  const hiddenSidebar = useMedia(
-    [footerNavBarBreakpoint.replace('@media ', '')],
-    [true],
-    false,
-  );
-
+  const { showSidebar } = useShowSidebar();
   const currentSettings = useMedia(
     reversedBreakpoints,
-    openSidebar && hiddenSidebar ? reversedSettingsSidebar : reversedSettings,
+    determineFeedSettings({ openSidebar, showSidebar }),
     defaultFeedContextData,
   );
 

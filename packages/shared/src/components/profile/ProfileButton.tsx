@@ -7,12 +7,10 @@ import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 export interface ProfileButtonProps {
   onShowDndClick?: () => unknown;
-  onClick?: () => unknown;
 }
 
 export default function ProfileButton({
   onShowDndClick,
-  onClick,
 }: ProfileButtonProps): ReactElement {
   const { user } = useContext(AuthContext);
   const { onMenuClick } = useProfileMenu();
@@ -23,7 +21,7 @@ export default function ProfileButton({
         <button
           type="button"
           className="flex items-center p-0 ml-0.5 font-bold no-underline rounded-lg border-none cursor-pointer text-theme-label-primary bg-theme-bg-secondary typo-callout focus-outline"
-          onClick={onClick || onMenuClick}
+          onClick={onMenuClick}
         >
           <span className="hidden laptop:block mr-2 ml-3">
             {user.reputation ?? 0}

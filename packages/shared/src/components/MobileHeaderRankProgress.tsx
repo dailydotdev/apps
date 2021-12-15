@@ -7,7 +7,7 @@ export default function MobileHeaderRankProgress(): ReactElement {
   const { isLoading, rank, nextRank } = useReadingRank();
 
   if (isLoading) {
-    return <div className="">&nbsp;</div>;
+    return <></>;
   }
 
   return (

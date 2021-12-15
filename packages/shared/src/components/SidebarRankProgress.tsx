@@ -1,4 +1,5 @@
 import React, { CSSProperties, ReactElement } from 'react';
+import classnames from 'classnames';
 import useReadingRank from '../hooks/useReadingRank';
 import RankProgressWrapper from './RankProgressWrapper';
 import { rankToColor } from '../lib/rank';
@@ -16,7 +17,10 @@ export default function SidebarRankProgress({
 
   return (
     <li
-      className={`flex items-center mt-4 ${openSidebar ? 'px-3' : 'px-1.5'}`}
+      className={classnames(
+        'flex items-center mt-4',
+        openSidebar ? 'px-3' : 'px-1.5',
+      )}
       style={
         {
           '--rank-color': rankToColor(nextRank || rank),

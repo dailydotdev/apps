@@ -171,9 +171,7 @@ export function RankProgress({
         };
 
         if (attentionAnimation) {
-          attentionAnimation.onfinish = () => {
-            cancelAnimations();
-          };
+          attentionAnimation.onfinish = cancelAnimations;
         } else {
           cancelAnimations();
           setTimeout(() => setAnimatingProgress(false), 2000);

@@ -1,6 +1,5 @@
-import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import React, { ReactElement, useContext, useState } from 'react';
 import classNames from 'classnames';
-import { useRouter } from 'next/router';
 import SettingsContext from '../../contexts/SettingsContext';
 import { FeedSettingsModal } from '../modals/FeedSettingsModal';
 import HotIcon from '../../../icons/hot.svg';
@@ -38,6 +37,7 @@ import { AlertColor, AlertDot } from '../AlertDot';
 import { useDynamicLoadedAnimation } from '../../hooks/useDynamicLoadAnimated';
 import SidebarUserButton from './SidebarUserButton';
 import AuthContext from '../../contexts/AuthContext';
+import useHideMobileSidebar from '../../hooks/useHideMobileSidebar';
 
 const bottomMenuItems: SidebarMenuItem[] = [
   {
@@ -75,19 +75,7 @@ export default function Sidebar({
     useDynamicLoadedAnimation();
   const { openSidebar, toggleOpenSidebar } = useContext(SettingsContext);
   const [showSettings, setShowSettings] = useState(false);
-  const router = useRouter();
-
-  useEffect(() => {
-    const handleRouteChange = () => {
-      setOpenMobileSidebar();
-    };
-
-    router?.events?.on('routeChangeStart', handleRouteChange);
-
-    return () => {
-      router?.events?.off('routeChangeStart', handleRouteChange);
-    };
-  }, []);
+  useHideMobileSidebar({ action: setOpenMobileSidebar });
 
   const topMenuItems: SidebarMenuItems[] = [
     {

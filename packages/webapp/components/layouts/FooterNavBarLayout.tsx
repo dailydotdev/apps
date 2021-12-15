@@ -1,10 +1,7 @@
 import React, { ReactElement, ReactNode, useContext } from 'react';
-import { laptop } from '@dailydotdev/shared/src/styles/media';
-import useMedia from '@dailydotdev/shared/src/hooks/useMedia';
 import dynamic from 'next/dynamic';
 import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
-
-export const footerNavBarBreakpoint = laptop;
+import useShowSidebar from '@dailydotdev/shared/src/hooks/useShowSidebar';
 
 const FooterNavBar = dynamic(
   () => import(/* webpackChunkName: "Sidebar" */ '../FooterNavBar'),
@@ -16,11 +13,7 @@ export default function FooterNavBarLayout({
   children,
 }: FooterNavBarLayoutProps): ReactElement {
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
-  const showSidebar = useMedia(
-    [footerNavBarBreakpoint.replace('@media ', '')],
-    [true],
-    false,
-  );
+  const { showSidebar } = useShowSidebar();
 
   return (
     <>

@@ -8,7 +8,6 @@ import React, {
 import dynamic from 'next/dynamic';
 import { CSSTransition } from 'react-transition-group';
 import classNames from 'classnames';
-import { laptop } from '../styles/media';
 import { Button } from './buttons/Button';
 import ProgressiveEnhancementContext from '../contexts/ProgressiveEnhancementContext';
 import AuthContext from '../contexts/AuthContext';
@@ -21,9 +20,8 @@ import { LinkWithTooltip } from './tooltips/LinkWithTooltip';
 import Sidebar from './sidebar/Sidebar';
 import MenuIcon from '../../icons/filled/hamburger.svg';
 import MobileHeaderRankProgress from './MobileHeaderRankProgress';
-import useMedia from '../hooks/useMedia';
+import useShowSidebar from '../hooks/useShowSidebar';
 
-export const footerNavBarBreakpoint = laptop;
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
   greeting?: boolean;
@@ -55,11 +53,7 @@ export default function MainLayout({
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user, showLogin, loadingUser } = useContext(AuthContext);
   const [showGreeting, setShowGreeting] = useState(false);
-  const showSidebar = useMedia(
-    [footerNavBarBreakpoint.replace('@media ', '')],
-    [true],
-    false,
-  );
+  const { showSidebar } = useShowSidebar();
   const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
 
   return (
