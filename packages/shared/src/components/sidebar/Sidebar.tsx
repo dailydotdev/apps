@@ -207,7 +207,9 @@ export default function Sidebar({
               >
                 <ButtonOrLink
                   item={item}
-                  showLogin={item.requiresLogin && !user ? showLogin : null}
+                  showLogin={
+                    item.requiresLogin && !user ? () => showLogin : null
+                  }
                   useNavButtonsNotLinks={useNavButtonsNotLinks}
                 >
                   <ItemInner item={item} openSidebar={openSidebar} />
