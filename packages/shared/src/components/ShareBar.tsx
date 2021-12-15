@@ -38,66 +38,58 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
     );
 
   return (
-    <div
-      className={classNames('hidden absolute laptopL:block', styles.shareBar)}
-    >
-      <div className="flex sticky top-10 flex-col items-center -my-1 w-full">
-        {copying && (
-          <div
-            className={classNames(
-              'absolute flex top-2 right-full items-center mr-1 text-theme-status-success font-bold typo-caption1',
-              styles.copied,
-            )}
-          >
-            Copied!
-          </div>
-        )}
-        <SimpleTooltip content="Copy link">
-          <ShareButton
-            onClick={copyLink}
-            pressed={copying}
-            icon={<CopyIcon />}
-            buttonSize="small"
-            className="btn-tertiary-avocado"
-          />
-        </SimpleTooltip>
-        <SimpleTooltip content="Share on WhatsApp">
-          <ColorfulShareButton
-            tag="a"
-            href={getWhatsappShareLink(href)}
-            target="_blank"
-            rel="noopener"
-            onClick={() => onClick('whatsapp')}
-            icon={<WhatsappIcon />}
-            buttonSize="small"
-            className="btn-tertiary"
-          />
-        </SimpleTooltip>
-        <SimpleTooltip content="Share on Twitter">
-          <ColorfulShareButton
-            tag="a"
-            href={getTwitterShareLink(href, post.title)}
-            target="_blank"
-            rel="noopener"
-            onClick={() => onClick('twitter')}
-            icon={<TwitterIcon />}
-            buttonSize="small"
-            className="btn-tertiary"
-          />
-        </SimpleTooltip>
-        <SimpleTooltip content="Share on Facebook">
-          <ColorfulShareButton
-            tag="a"
-            href={getFacebookShareLink(href)}
-            target="_blank"
-            rel="noopener"
-            onClick={() => onClick('facebook')}
-            icon={<FacebookIcon />}
-            buttonSize="small"
-            className="btn-tertiary"
-          />
-        </SimpleTooltip>
-      </div>
+    <div className="hidden laptopL:inline-flex flex-row items-center rounded-2xl bg-theme-bg-primary border-theme-divider-quaternary border mt-20 mb-6 px-3">
+      {copying && (
+        <div
+          className={classNames(
+            'absolute flex top-2 right-full items-center mr-1 text-theme-status-success font-bold typo-caption1',
+            styles.copied,
+          )}
+        >
+          Copied!
+        </div>
+      )}
+      <SimpleTooltip content="Copy link">
+        <ShareButton
+          onClick={copyLink}
+          pressed={copying}
+          icon={<CopyIcon />}
+          className="btn-tertiary-avocado"
+        />
+      </SimpleTooltip>
+      <SimpleTooltip content="Share on WhatsApp">
+        <ColorfulShareButton
+          tag="a"
+          href={getWhatsappShareLink(href)}
+          target="_blank"
+          rel="noopener"
+          onClick={() => onClick('whatsapp')}
+          icon={<WhatsappIcon />}
+          className="btn-tertiary"
+        />
+      </SimpleTooltip>
+      <SimpleTooltip content="Share on Twitter">
+        <ColorfulShareButton
+          tag="a"
+          href={getTwitterShareLink(href, post.title)}
+          target="_blank"
+          rel="noopener"
+          onClick={() => onClick('twitter')}
+          icon={<TwitterIcon />}
+          className="btn-tertiary"
+        />
+      </SimpleTooltip>
+      <SimpleTooltip content="Share on Facebook">
+        <ColorfulShareButton
+          tag="a"
+          href={getFacebookShareLink(href)}
+          target="_blank"
+          rel="noopener"
+          onClick={() => onClick('facebook')}
+          icon={<FacebookIcon />}
+          className="btn-tertiary"
+        />
+      </SimpleTooltip>
     </div>
   );
 }

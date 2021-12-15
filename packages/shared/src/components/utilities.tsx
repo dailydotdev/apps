@@ -19,6 +19,18 @@ export const PageContainer = classed(
   'relative flex flex-col w-full items-stretch px-4 z-1 tablet:px-8 tablet:self-center mx-auto',
 );
 
+export const PageSidebar = classed(
+  'aside',
+  styles.pageSidebar,
+  'px-4 tablet:px-8 laptopL:px-6 laptop:border-r laptop:border-l laptop:border-theme-divider-tertiary laptopL:border-none',
+);
+
+export const NewCommentContainer = classed(
+  'div',
+  styles.newCommentContainer,
+  'pb-20 laptop:pb-6 laptop:border-r laptop:border-l laptop:border-theme-divider-tertiary relative flex flex-col w-full items-stretch px-4 z-1 tablet:px-8',
+);
+
 export const NoPaddingPageContainer = classed(
   'main',
   styles.pageContainer,

@@ -1,6 +1,5 @@
 .similarPosts {
-  @screen laptop {
-    top: 5.5rem;
+  @screen laptopL {
     width: 19.5rem;
   }
 }
@@ -31,7 +30,7 @@
   & p,
   & ol {
     color: var(--theme-label-secondary);
-    @apply typo-callout
+    @apply typo-callout;
   }
 }
 
@@ -59,11 +58,12 @@
   }
 }
 
-@media not all and (min-resolution:.001dpcm)
-{ @supports (-webkit-appearance:none) {
-  @media screen and (max-width: 375px){
-    .discussionBar{
-      margin-bottom: 1.5rem;
+@media not all and (min-resolution: 0.001dpcm) {
+  @supports (-webkit-appearance: none) {
+    @media screen and (max-width: 375px) {
+      .discussionBar {
+        margin-bottom: 1.5rem;
+      }
     }
   }
-}}
+}
