@@ -5,18 +5,14 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import Link from 'next/link';
-import MagnifyingIcon from '../../icons/magnifying.svg';
 import { BOOKMARKS_FEED_QUERY, SEARCH_BOOKMARKS_QUERY } from '../graphql/feed';
 import AuthContext from '../contexts/AuthContext';
-import { CustomFeedHeader, FeedPage } from './utilities';
+import { CustomFeedHeader, FeedPage, FeedPageHeader } from './utilities';
 import SearchEmptyScreen from './SearchEmptyScreen';
 import Feed, { FeedProps } from './Feed';
 import BookmarkEmptyScreen from './BookmarkEmptyScreen';
-import { Button } from './buttons/Button';
 
 export type BookmarkFeedLayoutProps = {
-  isSearchOn: boolean;
   searchQuery?: string;
   children?: ReactNode;
   searchChildren: ReactNode;
@@ -25,7 +21,6 @@ export type BookmarkFeedLayoutProps = {
 
 export default function BookmarkFeedLayout({
   searchQuery,
-  isSearchOn,
   searchChildren,
   children,
 }: BookmarkFeedLayoutProps): ReactElement {
@@ -33,7 +28,7 @@ export default function BookmarkFeedLayout({
   const [showEmptyScreen, setShowEmptyScreen] = useState(false);
 
   const feedProps = useMemo<FeedProps<unknown>>(() => {
-    if (isSearchOn && searchQuery) {
+    if (searchQuery) {
       return {
         feedQueryKey: ['bookmarks', user?.id ?? 'anonymous', searchQuery],
         query: SEARCH_BOOKMARKS_QUERY,
@@ -46,7 +41,7 @@ export default function BookmarkFeedLayout({
       query: BOOKMARKS_FEED_QUERY,
       onEmptyFeed: () => setShowEmptyScreen(true),
     };
-  }, [isSearchOn && searchQuery, user]);
+  }, [searchQuery, user]);
 
   if (showEmptyScreen) {
     return <BookmarkEmptyScreen />;
@@ -55,21 +50,11 @@ export default function BookmarkFeedLayout({
   return (
     <FeedPage>
       {children}
+      <FeedPageHeader className="mb-5">
+        <h3 className="font-bold typo-callout">Bookmarks</h3>
+      </FeedPageHeader>
       <CustomFeedHeader className="relative mb-6">
-        {!isSearchOn && (
-          <>
-            <Link href="/bookmarks/search">
-              <Button
-                href="/bookmarks/search"
-                aria-label="Search bookmarks"
-                icon={<MagnifyingIcon />}
-              />
-            </Link>
-            <div className="mx-4 w-px h-full bg-theme-bg-tertiary">&nbsp;</div>
-            <span className="font-bold typo-callout">Bookmarks</span>
-          </>
-        )}
-        {isSearchOn ? searchChildren : undefined}
+        {searchChildren}
       </CustomFeedHeader>
       {tokenRefreshed && <Feed {...feedProps} />}
     </FeedPage>

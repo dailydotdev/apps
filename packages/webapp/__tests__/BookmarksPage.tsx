@@ -32,7 +32,10 @@ beforeEach(() => {
   mocked(useRouter).mockImplementation(
     () =>
       ({
+        pathname: '/bookmarks',
+        query: {},
         replace: routerReplace,
+        push: jest.fn(),
       } as unknown as NextRouter),
   );
 });
@@ -115,7 +118,6 @@ const renderComponent = (
     </QueryClientProvider>,
   );
 };
-
 it('should request bookmarks feed', async () => {
   renderComponent();
   await waitForNock();
@@ -150,11 +152,28 @@ it('should show empty screen when feed is empty', async () => {
   });
 });
 
-it('should set href to the search permalink', async () => {
+it('should show the search bar', async () => {
   renderComponent();
   await waitForNock();
-  await waitFor(async () => {
-    const searchBtn = await screen.findByLabelText('Search bookmarks');
-    expect(searchBtn).toHaveAttribute('href', '/bookmarks/search');
-  });
+  expect(await screen.findByTestId('searchField')).toBeInTheDocument();
+});
+
+it('should update query param on enter', async (done) => {
+  renderComponent();
+  await waitForNock();
+  const input = (await screen.findByRole('textbox')) as HTMLInputElement;
+  input.value = 'daily';
+  input.dispatchEvent(new Event('input', { bubbles: true }));
+  setTimeout(async () => {
+    input.dispatchEvent(
+      new KeyboardEvent('keydown', { bubbles: true, keyCode: 13 }),
+    );
+    await waitFor(() =>
+      expect(routerReplace).toBeCalledWith({
+        pathname: '/bookmarks',
+        query: { q: 'daily' },
+      }),
+    );
+    done();
+  }, 150);
 });
