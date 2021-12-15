@@ -8,7 +8,6 @@ import React, {
 import dynamic from 'next/dynamic';
 import { CSSTransition } from 'react-transition-group';
 import classNames from 'classnames';
-import { Button } from './buttons/Button';
 import ProgressiveEnhancementContext from '../contexts/ProgressiveEnhancementContext';
 import AuthContext from '../contexts/AuthContext';
 import PromotionalBanner from './PromotionalBanner';
@@ -21,6 +20,7 @@ import { HeaderButton } from './buttons/common';
 import ProfileButton from './profile/ProfileButton';
 import { SimpleTooltip } from './tooltips/SimpleTooltip';
 import { LinkWithTooltip } from './tooltips/LinkWithTooltip';
+import LoginButton from './LoginButton';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -129,12 +129,7 @@ export default function MainLayout({
                   />
                 </SimpleTooltip>
                 {afterBookmarkButtons}
-                <Button
-                  onClick={() => showLogin('main button')}
-                  className="btn-primary"
-                >
-                  Login
-                </Button>
+                <LoginButton />
               </>
             )}
           </>

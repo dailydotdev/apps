@@ -6,11 +6,12 @@ import { LegalNotice } from './utilities';
 import { Button } from './buttons/Button';
 import AuthContext from '../contexts/AuthContext';
 import { apiUrl } from '../lib/config';
-import { logSignupProviderClick } from '../lib/analytics';
+import AnalyticsContext from '../contexts/AnalyticsContext';
 
 export default function LoginButtons(): ReactElement {
   const router = useRouter();
   const { getRedirectUri } = useContext(AuthContext);
+  const { trackEvent } = useContext(AnalyticsContext);
 
   const authUrl = (provider: string, redirectUri: string) =>
     `${apiUrl}/v1/auth/authorize?provider=${provider}&redirect_uri=${encodeURI(
@@ -19,8 +20,12 @@ export default function LoginButtons(): ReactElement {
       router.query.author ? 'author' : 'default'
     }`;
 
-  const login = async (provider: string): Promise<void> => {
-    await logSignupProviderClick(provider);
+  const login = (provider: string): void => {
+    trackEvent({
+      event_name: 'click',
+      target_type: 'signup provider',
+      target_id: provider,
+    });
     const redirectUri = getRedirectUri();
     window.location.href = authUrl(provider, redirectUri);
   };

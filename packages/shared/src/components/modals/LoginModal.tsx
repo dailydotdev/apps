@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect } from 'react';
+import React, { ReactElement, useContext, useEffect } from 'react';
 import classNames from 'classnames';
 import DailyDevLogo from '../../svg/DailyDevLogo';
 import { StyledModal, ModalProps } from './StyledModal';
@@ -6,7 +6,7 @@ import { ModalCloseButton } from './ModalCloseButton';
 import LoginButtons from '../LoginButtons';
 import { LoginModalMode } from '../../types/LoginModalMode';
 import styles from './LoginModal.module.css';
-import { logSignupStart } from '../../lib/analytics';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
 
 export type LoginModalProps = {
   mode: LoginModalMode;
@@ -21,10 +21,13 @@ export default function LoginModal({
   children,
   ...props
 }: LoginModalProps): ReactElement {
+  const { trackEvent } = useContext(AnalyticsContext);
+
   useEffect(() => {
-    if (props.isOpen) {
-      logSignupStart(trigger);
-    }
+    trackEvent({
+      event_name: `${props.isOpen ? 'open' : 'close'} signup`,
+      extra: JSON.stringify({ trigger }),
+    });
   }, [props.isOpen]);
 
   return (
