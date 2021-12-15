@@ -66,8 +66,10 @@ export default function Feed<T>({
   emptyScreen,
 }: FeedProps<T>): ReactElement {
   const { flags } = useContext(FeaturesContext);
-  const displayPublicationDate =
-    !parseInt(getFeatureValue(Features.HidePublicationDate, flags), 10) || true;
+  const displayPublicationDate = !parseInt(
+    getFeatureValue(Features.HidePublicationDate, flags, '0'),
+    10,
+  );
   const { trackEvent } = useContext(AnalyticsContext);
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);

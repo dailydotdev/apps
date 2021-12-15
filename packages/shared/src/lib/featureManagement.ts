@@ -10,9 +10,10 @@ export enum Features {
 export const getFeatureValue = (
   key: Features,
   flags: IFlags,
+  defaultValue: string = undefined,
 ): string | undefined => {
   if (flags[key]?.enabled) {
     return flags[key].value;
   }
-  return undefined;
+  return defaultValue;
 };
