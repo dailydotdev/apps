@@ -39,12 +39,14 @@ export interface SidebarMenuItem {
   alert?: ReactElement;
   active?: boolean;
   hideOnMobile?: boolean;
+  requiresLogin?: boolean;
 }
 
 interface ButtonOrLinkProps {
   item: SidebarMenuItem;
   useNavButtonsNotLinks?: boolean;
   children?: ReactNode;
+  showLogin?: () => unknown;
 }
 
 interface ListIconProps {
@@ -116,9 +118,17 @@ export const ItemInner = ({
 export const ButtonOrLink = ({
   item,
   useNavButtonsNotLinks,
+  showLogin,
   children,
 }: ButtonOrLinkProps): ReactElement => {
-  return (useNavButtonsNotLinks && !item.action) ||
+  if (showLogin) {
+    return (
+      <button type="button" className={btnClass} onClick={showLogin}>
+        {children}
+      </button>
+    );
+  }
+  return (!useNavButtonsNotLinks && !item.action) ||
     (item.path && !useNavButtonsNotLinks) ? (
     <Link href={item.path} passHref prefetch={false}>
       <a target={item?.target} className={btnClass} rel="noopener noreferrer">

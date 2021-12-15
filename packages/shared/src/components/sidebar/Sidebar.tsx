@@ -37,6 +37,7 @@ import FeedFilters from '../filters/FeedFilters';
 import { AlertColor, AlertDot } from '../AlertDot';
 import { useDynamicLoadedAnimation } from '../../hooks/useDynamicLoadAnimated';
 import SidebarUserButton from './SidebarUserButton';
+import AuthContext from '../../contexts/AuthContext';
 
 const bottomMenuItems: SidebarMenuItem[] = [
   {
@@ -68,6 +69,7 @@ export default function Sidebar({
   setOpenMobileSidebar,
   onShowDndClick,
 }: SidebarProps): ReactElement {
+  const { user, showLogin } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
   const { isLoaded, isAnimated, setLoaded, setHidden } =
     useDynamicLoadedAnimation();
@@ -135,11 +137,13 @@ export default function Sidebar({
           title: 'Bookmarks',
           path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}bookmarks`,
           hideOnMobile: true,
+          requiresLogin: true,
         },
         {
           icon: <ListIcon Icon={EyeIcon} />,
           title: 'Reading history',
           path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}history`,
+          requiresLogin: true,
         },
         {
           icon: <ListIcon Icon={SettingsIcon} />,
@@ -192,6 +196,11 @@ export default function Sidebar({
                   >
                     <ButtonOrLink
                       item={item}
+                      showLogin={
+                        item.requiresLogin && !user
+                          ? () => showLogin(item.title)
+                          : null
+                      }
                       useNavButtonsNotLinks={useNavButtonsNotLinks}
                     >
                       <ItemInner item={item} openSidebar={openSidebar} />
@@ -210,6 +219,7 @@ export default function Sidebar({
               >
                 <ButtonOrLink
                   item={item}
+                  showLogin={item.requiresLogin && !user ? showLogin : null}
                   useNavButtonsNotLinks={useNavButtonsNotLinks}
                 >
                   <ItemInner item={item} openSidebar={openSidebar} />
