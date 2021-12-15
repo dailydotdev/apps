@@ -11,23 +11,26 @@ import {
   ResponsivePageContainer,
   ProfileHeading,
 } from '@dailydotdev/shared/src/components/utilities';
-import {
-  logSignupFormStart,
-  logSignupFormSubmit,
-} from '@dailydotdev/shared/src/lib/analytics';
+import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import MainLayout from '../components/layouts/MainLayout';
 
 export default function Register(): ReactElement {
   const { user, logout } = useContext(AuthContext);
   const router = useRouter();
   const [disableSubmit, setDisableSubmit] = useState<boolean>(true);
+  const { trackEvent } = useContext(AnalyticsContext);
 
   useEffect(() => {
-    logSignupFormStart();
+    trackEvent({
+      event_name: 'start signup form',
+    });
   }, []);
 
   const onSuccessfulSubmit = async (optionalFields: boolean) => {
-    await logSignupFormSubmit(optionalFields);
+    trackEvent({
+      event_name: 'submit signup form',
+      extra: JSON.stringify({ optional_fields: optionalFields }),
+    });
     await router?.replace((router.query.redirect_uri as string) || '/');
   };
 
