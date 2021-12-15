@@ -14,7 +14,7 @@ import OnboardingContext from '../contexts/OnboardingContext';
 import Rank from './Rank';
 import styles from './HeaderRankProgress.module.css';
 import FeaturesContext from '../contexts/FeaturesContext';
-import { getFeatureValue } from '../lib/featureManagement';
+import { Features, getFeatureValue } from '../lib/featureManagement';
 
 const RanksModal = dynamic(
   () => import(/* webpackChunkName: "ranksModal" */ './modals/RanksModal'),
@@ -43,7 +43,7 @@ export default function HeaderRankProgress({
   const [showRanksModal, setShowRanksModal] = useState(false);
   const { flags } = useContext(FeaturesContext);
   const devCardLimit = parseInt(
-    getFeatureValue('feat_limit_dev_card', flags),
+    getFeatureValue(Features.DevcardLimit, flags),
     10,
   );
 
