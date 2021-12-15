@@ -28,6 +28,7 @@ export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   additionalButtons?: ReactNode;
   activePage?: string;
   useNavButtonsNotLinks?: boolean;
+  mobileTitle?: string;
   onLogoClick?: (e: React.MouseEvent) => unknown;
   enableSearch?: () => void;
   onNavTabClick?: (tab: string) => void;
@@ -44,6 +45,7 @@ export default function MainLayout({
   greeting,
   activePage,
   useNavButtonsNotLinks,
+  mobileTitle,
   onLogoClick,
   onNavTabClick,
   enableSearch,
@@ -87,6 +89,10 @@ export default function MainLayout({
             onEnter={() => setShowGreeting(true)}
             onExit={() => setShowGreeting(false)}
           />
+        )}
+        <div className="flex-1" />
+        {mobileTitle && (
+          <h3 className="block laptop:hidden typo-callout">{mobileTitle}</h3>
         )}
         <div className="flex-1" />
         {!showOnlyLogo && !loadingUser && (
