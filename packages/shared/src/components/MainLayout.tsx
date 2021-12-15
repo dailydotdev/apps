@@ -92,9 +92,7 @@ export default function MainLayout({
         )}
         <div className="flex-1" />
         {mobileTitle && (
-          <strong className="block laptop:hidden typo-callout">
-            {mobileTitle}
-          </strong>
+          <h3 className="block laptop:hidden typo-callout">{mobileTitle}</h3>
         )}
         <div className="flex-1" />
         {!showOnlyLogo && !loadingUser && (
