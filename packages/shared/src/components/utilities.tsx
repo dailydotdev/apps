@@ -22,7 +22,7 @@ export const PageContainer = classed(
 export const NoPaddingPageContainer = classed(
   'main',
   styles.pageContainer,
-  'relative flex flex-col w-full items-stretch z-1 tablet:self-center',
+  'relative flex flex-col w-full items-stretch z-1 tablet:self-center mx-auto',
 );
 
 export const ResponsivePageContainer = classed(
