@@ -14,15 +14,15 @@ const AutoCompleteMenu = dynamic(() => import('./fields/AutoCompleteMenu'), {
 
 export type PostsSearchProps = {
   initialQuery?: string;
+  placeholder?: string;
   onSubmitQuery: (query: string) => Promise<unknown>;
-  closeSearch: () => unknown;
   suggestionType?: string;
 };
 
 export default function PostsSearch({
   initialQuery: initialQueryProp,
+  placeholder,
   onSubmitQuery,
-  closeSearch,
   suggestionType = 'searchPostSuggestions',
 }: PostsSearchProps): ReactElement {
   const searchBoxRef = useRef<HTMLDivElement>();
@@ -116,14 +116,13 @@ export default function PostsSearch({
         className="absolute top-0 right-0 left-0 w-full compact"
         inputId="posts-search"
         compact
+        placeholder={placeholder}
         ref={searchBoxRef}
         value={initialQuery}
         valueChanged={onValueChanged}
         onKeyDown={onKeyDown}
         onBlur={() => {
-          if (!query?.length) {
-            closeSearch();
-          } else {
+          if (query?.length) {
             hideMenu();
           }
         }}

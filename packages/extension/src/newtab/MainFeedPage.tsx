@@ -41,12 +41,10 @@ export default function MainFeedPage({
     onPageChanged('/search');
   };
 
-  const closeSearch = () => {
-    setIsSearchOn(false);
-    onPageChanged(`/${feedName}`);
-  };
-
   const onNavTabClick = (tab: string): void => {
+    if (tab !== 'search') {
+      setIsSearchOn(false);
+    }
     setFeedName(tab);
     onPageChanged(`/${tab}`);
   };
@@ -98,7 +96,6 @@ export default function MainFeedPage({
           searchQuery={searchQuery}
           searchChildren={
             <PostsSearch
-              closeSearch={closeSearch}
               onSubmitQuery={async (query) => setSearchQuery(query)}
             />
           }
