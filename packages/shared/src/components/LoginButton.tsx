@@ -2,7 +2,7 @@ import React, { ReactElement, useContext, useEffect } from 'react';
 import { Button } from './buttons/Button';
 import AuthContext from '../contexts/AuthContext';
 import FeaturesContext from '../contexts/FeaturesContext';
-import { getFeatureValue } from '../lib/featureManagement';
+import { Features, getFeatureValue } from '../lib/featureManagement';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../hooks/analytics/useAnalyticsQueue';
 
@@ -20,7 +20,8 @@ export default function LoginButton(): ReactElement {
   const { showLogin } = useContext(AuthContext);
   const { flags } = useContext(FeaturesContext);
   const { trackEvent } = useContext(AnalyticsContext);
-  const buttonCopy = getFeatureValue('signup_button_copy', flags) || 'Login';
+  const buttonCopy =
+    getFeatureValue(Features.SignupButtonCopy, flags) || 'Login';
 
   useEffect(() => {
     trackEvent(getAnalyticsEvent('impression', buttonCopy));
