@@ -20,20 +20,20 @@ export default function LoginButton(): ReactElement {
   const { showLogin } = useContext(AuthContext);
   const { flags } = useContext(FeaturesContext);
   const { trackEvent } = useContext(AnalyticsContext);
-  const copy = getFeatureValue('signup_button_copy', flags) || 'Login';
+  const buttonCopy = getFeatureValue('signup_button_copy', flags) || 'Login';
 
   useEffect(() => {
-    trackEvent(getAnalyticsEvent('impression', copy));
-  }, [copy]);
+    trackEvent(getAnalyticsEvent('impression', buttonCopy));
+  }, [buttonCopy]);
 
   const onClick = () => {
-    trackEvent(getAnalyticsEvent('click', copy));
+    trackEvent(getAnalyticsEvent('click', buttonCopy));
     showLogin('main button');
   };
 
   return (
     <Button onClick={onClick} className="btn-primary">
-      <span className="hidden laptop:inline">{copy}</span>
+      <span className="hidden laptop:inline">{buttonCopy}</span>
       <span className="laptop:hidden">Login</span>
     </Button>
   );
