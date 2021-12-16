@@ -20,7 +20,6 @@ import ProgressiveEnhancementContext, {
   ProgressiveEnhancementContextProvider,
 } from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { trackPageView } from '@dailydotdev/shared/src/lib/analytics';
-import { OnboardingContextProvider } from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
 import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import { AnalyticsContextProvider } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
@@ -183,15 +182,13 @@ export default function App(props: AppProps): ReactElement {
         <BootDataProvider app="web" getRedirectUri={getRedirectUri}>
           <SubscriptionContextProvider>
             <SettingsContextProvider>
-              <OnboardingContextProvider>
-                <AnalyticsContextProvider
-                  app="webapp"
-                  version={version}
-                  getPage={getPage}
-                >
-                  <InternalApp {...props} />
-                </AnalyticsContextProvider>
-              </OnboardingContextProvider>
+              <AnalyticsContextProvider
+                app="webapp"
+                version={version}
+                getPage={getPage}
+              >
+                <InternalApp {...props} />
+              </AnalyticsContextProvider>
             </SettingsContextProvider>
           </SubscriptionContextProvider>
         </BootDataProvider>

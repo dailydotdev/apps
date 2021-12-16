@@ -9,6 +9,7 @@ const user: LoggedUser = {
   infoConfirmed: true,
   premium: false,
   createdAt: '',
+  permalink: 'https://daily.dev/ido',
 };
 
 export default user;

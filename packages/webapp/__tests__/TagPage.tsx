@@ -17,7 +17,6 @@ import { getFeedSettingsQueryKey } from '@dailydotdev/shared/src/hooks/useMutate
 import SettingsContext, {
   SettingsContextData,
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
-import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import TagPage from '../pages/tags/[tag]';
 import ad from './fixture/ad';
 import defaultUser from './fixture/loggedUser';
@@ -115,20 +114,9 @@ const renderComponent = (
           getRedirectUri: jest.fn(),
         }}
       >
-        <OnboardingContext.Provider
-          value={{
-            onboardingStep: 3,
-            onboardingReady: true,
-            incrementOnboardingStep: jest.fn(),
-            trackEngagement: jest.fn(),
-            closeReferral: jest.fn(),
-            showReferral: false,
-          }}
-        >
-          <SettingsContext.Provider value={settingsContext}>
-            <TagPage tag="react" />
-          </SettingsContext.Provider>
-        </OnboardingContext.Provider>
+        <SettingsContext.Provider value={settingsContext}>
+          <TagPage tag="react" />
+        </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
   );

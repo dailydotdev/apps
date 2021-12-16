@@ -18,7 +18,7 @@ import { waitForNock } from '../../../__tests__/helpers/utilities';
 
 let client: QueryClient;
 const updateAlerts = jest.fn();
-const toggleOpenSidebar = jest.fn();
+const toggleSidebarExpanded = jest.fn();
 
 beforeEach(() => {
   nock.cleanAll();
@@ -37,7 +37,7 @@ const defaultAlerts: AlertContextData = {
 const renderComponent = (
   mocks = [createMockFeedSettings()],
   user: LoggedUser = defaultUser,
-  openSidebar = true,
+  sidebarExpanded = true,
   alertsData = defaultAlerts,
 ): RenderResult => {
   const settingsContext: SettingsContextData = {
@@ -54,8 +54,8 @@ const renderComponent = (
     toggleInsaneMode: jest.fn(),
     showTopSites: true,
     toggleShowTopSites: jest.fn(),
-    openSidebar,
-    toggleOpenSidebar,
+    sidebarExpanded,
+    toggleSidebarExpanded,
   };
   client = new QueryClient();
   mocks.forEach(mockGraphQL);
@@ -76,7 +76,7 @@ const renderComponent = (
           }}
         >
           <SettingsContext.Provider value={settingsContext}>
-            <Sidebar />
+            <Sidebar sidebarRendered />
           </SettingsContext.Provider>
         </AuthContext.Provider>
       </AlertContext.Provider>
@@ -112,7 +112,7 @@ it('should toggle the sidebar on button click', async () => {
   renderComponent();
   const trigger = await screen.findByLabelText('Close sidebar');
   trigger.click();
-  await waitFor(() => expect(toggleOpenSidebar).toBeCalled());
+  await waitFor(() => expect(toggleSidebarExpanded).toBeCalled());
 });
 
 it('should show the sidebar as closed if user has this set', async () => {

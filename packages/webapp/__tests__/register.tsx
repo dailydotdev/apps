@@ -1,4 +1,8 @@
 import React from 'react';
+import { QueryClient, QueryClientProvider } from 'react-query';
+import SettingsContext, {
+  SettingsContextData,
+} from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { LoggedUser, updateProfile } from '@dailydotdev/shared/src/lib/user';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -45,19 +49,40 @@ const defaultUser = {
 };
 
 const renderComponent = (user: Partial<LoggedUser> = {}): RenderResult => {
+  const client = new QueryClient();
+  const settingsContext: SettingsContextData = {
+    spaciness: 'eco',
+    showOnlyUnreadPosts: false,
+    openNewTab: true,
+    setTheme: jest.fn(),
+    themeMode: 'dark',
+    setSpaciness: jest.fn(),
+    toggleOpenNewTab: jest.fn(),
+    toggleShowOnlyUnreadPosts: jest.fn(),
+    insaneMode: false,
+    loadedSettings: true,
+    toggleInsaneMode: jest.fn(),
+    showTopSites: true,
+    toggleShowTopSites: jest.fn(),
+  };
+
   return render(
-    <AuthContext.Provider
-      value={{
-        user: { ...defaultUser, ...user },
-        shouldShowLogin: false,
-        showLogin: jest.fn(),
-        updateUser: jest.fn(),
-        logout,
-        tokenRefreshed: true,
-      }}
-    >
-      <Page />
-    </AuthContext.Provider>,
+    <QueryClientProvider client={client}>
+      <AuthContext.Provider
+        value={{
+          user: { ...defaultUser, ...user },
+          shouldShowLogin: false,
+          showLogin: jest.fn(),
+          updateUser: jest.fn(),
+          logout,
+          tokenRefreshed: true,
+        }}
+      >
+        <SettingsContext.Provider value={settingsContext}>
+          <Page />
+        </SettingsContext.Provider>
+      </AuthContext.Provider>
+    </QueryClientProvider>,
   );
 };
 

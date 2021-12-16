@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 
-export default function Logo(
+export default function LogoIcon(
   props: React.SVGProps<SVGSVGElement>,
 ): ReactElement {
   return (
