@@ -6,21 +6,17 @@ import React, {
   useState,
 } from 'react';
 import dynamic from 'next/dynamic';
-import { CSSTransition } from 'react-transition-group';
-import classNames from 'classnames';
-import { laptop } from '../styles/media';
 import { Button } from './buttons/Button';
 import ProgressiveEnhancementContext from '../contexts/ProgressiveEnhancementContext';
 import AuthContext from '../contexts/AuthContext';
 import PromotionalBanner from './PromotionalBanner';
-import Logo from '../svg/Logo';
-import LogoText from '../svg/LogoText';
-import styles from './MainLayout.module.css';
+import Logo from './Logo';
 import ProfileButton from './profile/ProfileButton';
-import { LinkWithTooltip } from './tooltips/LinkWithTooltip';
 import Sidebar from './sidebar/Sidebar';
+import MenuIcon from '../../icons/filled/hamburger.svg';
+import MobileHeaderRankProgress from './MobileHeaderRankProgress';
+import useSidebarRendered from '../hooks/useSidebarRendered';
 
-export const footerNavBarBreakpoint = laptop;
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
   greeting?: boolean;
@@ -39,6 +35,17 @@ const Greeting = dynamic(
   () => import(/* webpackChunkName: "greeting" */ './Greeting'),
 );
 
+interface ShouldShowLogoProps {
+  mobileTitle?: string;
+  sidebarRendered?: boolean;
+}
+const shouldShowLogo = ({
+  mobileTitle,
+  sidebarRendered,
+}: ShouldShowLogoProps) => {
+  return !mobileTitle ? true : mobileTitle && sidebarRendered;
+};
+
 export default function MainLayout({
   children,
   showOnlyLogo,
@@ -54,35 +61,20 @@ export default function MainLayout({
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user, showLogin, loadingUser } = useContext(AuthContext);
   const [showGreeting, setShowGreeting] = useState(false);
+  const { sidebarRendered } = useSidebarRendered();
+  const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
 
   return (
     <>
       <PromotionalBanner />
-      <header className="flex relative laptop:fixed laptop:top-0 laptop:left-0 z-3 items-center py-3 px-4 tablet:px-8 laptop:px-4 laptop:w-full h-14 border-b bg-theme-bg-primary border-theme-divider-tertiary">
-        <LinkWithTooltip
-          href={process.env.NEXT_PUBLIC_WEBAPP_URL}
-          passHref
-          prefetch={false}
-          tooltip={{ placement: 'right', content: 'Home' }}
-        >
-          {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
-          <a className="flex items-center" onClick={onLogoClick}>
-            <Logo className={styles.homeSvg} />
-            <CSSTransition
-              in={!showGreeting}
-              timeout={500}
-              classNames="fade"
-              unmountOnExit
-            >
-              <LogoText
-                className={classNames(
-                  styles.homeSvg,
-                  'hidden ml-1 laptop:block',
-                )}
-              />
-            </CSSTransition>
-          </a>
-        </LinkWithTooltip>
+      <header className="flex relative laptop:fixed laptop:top-0 laptop:left-0 z-3 flex-row-reverse laptop:flex-row justify-between items-center py-3 px-4 tablet:px-8 laptop:px-4 laptop:w-full h-14 border-b bg-theme-bg-primary border-theme-divider-tertiary">
+        {!sidebarRendered && <MobileHeaderRankProgress />}
+        {mobileTitle && (
+          <h3 className="block laptop:hidden typo-callout">{mobileTitle}</h3>
+        )}
+        {shouldShowLogo({ mobileTitle, sidebarRendered }) && (
+          <Logo onLogoClick={onLogoClick} showGreeting={showGreeting} />
+        )}
         {windowLoaded && greeting && (
           <Greeting
             user={user}
@@ -90,12 +82,15 @@ export default function MainLayout({
             onExit={() => setShowGreeting(false)}
           />
         )}
-        <div className="flex-1" />
-        {mobileTitle && (
-          <h3 className="block laptop:hidden typo-callout">{mobileTitle}</h3>
+        {!sidebarRendered && (
+          <Button
+            className="btn-tertiary"
+            iconOnly
+            onClick={() => setOpenMobileSidebar(true)}
+            icon={<MenuIcon />}
+          />
         )}
-        <div className="flex-1" />
-        {!showOnlyLogo && !loadingUser && (
+        {!showOnlyLogo && !loadingUser && sidebarRendered && (
           <>
             {user ? (
               <ProfileButton onShowDndClick={onShowDndClick} />
@@ -113,10 +108,14 @@ export default function MainLayout({
       <main className="flex flex-row laptop:pt-14">
         {!showOnlyLogo && (
           <Sidebar
+            sidebarRendered={sidebarRendered}
+            openMobileSidebar={openMobileSidebar}
             onNavTabClick={onNavTabClick}
             enableSearch={enableSearch}
             activePage={activePage}
             useNavButtonsNotLinks={useNavButtonsNotLinks}
+            onShowDndClick={onShowDndClick}
+            setOpenMobileSidebar={() => setOpenMobileSidebar(false)}
           />
         )}
         {children}

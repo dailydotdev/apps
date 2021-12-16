@@ -12,7 +12,6 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { mocked } from 'ts-jest/utils';
 import { NextRouter, useRouter } from 'next/router';
-import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import SettingsContext, {
   SettingsContextData,
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
@@ -101,18 +100,7 @@ const renderComponent = (
         }}
       >
         <SettingsContext.Provider value={settingsContext}>
-          <OnboardingContext.Provider
-            value={{
-              onboardingStep: 3,
-              onboardingReady: true,
-              incrementOnboardingStep: jest.fn(),
-              showReferral: false,
-              closeReferral: jest.fn(),
-              trackEngagement: jest.fn(),
-            }}
-          >
-            {SearchPage.getLayout(<SearchPage />, {}, SearchPage.layoutProps)}
-          </OnboardingContext.Provider>
+          {SearchPage.getLayout(<SearchPage />, {}, SearchPage.layoutProps)}
         </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,

@@ -41,7 +41,6 @@ import { COMMENT_ON_POST_MUTATION } from '../graphql/comments';
 import SettingsContext, {
   SettingsContextData,
 } from '../contexts/SettingsContext';
-import OnboardingContext from '../contexts/OnboardingContext';
 import { waitForNock } from '../../__tests__/helpers/utilities';
 import {
   ADD_FILTERS_TO_FEED_MUTATION,
@@ -150,20 +149,9 @@ const renderComponent = (
           loginState: null,
         }}
       >
-        <OnboardingContext.Provider
-          value={{
-            onboardingStep: 3,
-            onboardingReady: true,
-            incrementOnboardingStep: jest.fn(),
-            trackEngagement: jest.fn(),
-            closeReferral: jest.fn(),
-            showReferral: false,
-          }}
-        >
-          <SettingsContext.Provider value={settingsContext}>
-            <Feed feedQueryKey={['feed']} query={ANONYMOUS_FEED_QUERY} />
-          </SettingsContext.Provider>
-        </OnboardingContext.Provider>
+        <SettingsContext.Provider value={settingsContext}>
+          <Feed feedQueryKey={['feed']} query={ANONYMOUS_FEED_QUERY} />
+        </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
   );

@@ -30,8 +30,8 @@ const renderLayout = (user: LoggedUser = null): RenderResult => {
     toggleInsaneMode: jest.fn(),
     showTopSites: true,
     toggleShowTopSites: jest.fn(),
-    openSidebar: true,
-    toggleOpenSidebar: jest.fn(),
+    sidebarExpanded: true,
+    toggleSidebarExpanded: jest.fn(),
   };
   client = new QueryClient();
 
