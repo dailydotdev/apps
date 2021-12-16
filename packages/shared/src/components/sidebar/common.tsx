@@ -152,7 +152,7 @@ export const MenuIcon = ({
     content={`${sidebarExpanded ? 'Close' : 'Open'} sidebar`}
   >
     <Button
-      onClick={() => toggleSidebarExpanded()}
+      onClick={toggleSidebarExpanded}
       absolute
       className={`btn btn-primary h-6 w-6 top-3 -right-3 z-3 ${
         sidebarExpanded &&
