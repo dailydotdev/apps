@@ -3,16 +3,16 @@ import { laptop } from '../styles/media';
 
 export const footerNavBarBreakpoint = laptop;
 
-export default function useShowSidebar(): {
-  showSidebar: boolean;
+export default function useSidebarRendered(): {
+  sidebarRendered: boolean;
 } {
-  const showSidebar = useMedia(
+  const sidebarRendered = useMedia(
     [footerNavBarBreakpoint.replace('@media ', '')],
     [true],
     false,
   );
 
   return {
-    showSidebar,
+    sidebarRendered,
   };
 }

@@ -31,9 +31,9 @@ const onInvitePeople = async ({
 };
 
 export default function InvitePeople({
-  openSidebar,
+  sidebarExpanded,
 }: {
-  openSidebar: boolean;
+  sidebarExpanded: boolean;
 }): ReactElement {
   const { user } = useContext(AuthContext);
   const inviteLink = user?.referralLink
@@ -49,7 +49,7 @@ export default function InvitePeople({
   return (
     <NavItem color={copyingLink && 'text-theme-status-success'}>
       <ButtonOrLink item={item}>
-        <ItemInner item={item} openSidebar={openSidebar} />
+        <ItemInner item={item} sidebarExpanded={sidebarExpanded} />
       </ButtonOrLink>
     </NavItem>
   );

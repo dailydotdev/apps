@@ -1,7 +1,7 @@
 import React, { ReactElement, ReactNode, useContext } from 'react';
 import dynamic from 'next/dynamic';
 import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
-import useShowSidebar from '@dailydotdev/shared/src/hooks/useShowSidebar';
+import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
 
 const FooterNavBar = dynamic(
   () => import(/* webpackChunkName: "Sidebar" */ '../FooterNavBar'),
@@ -13,11 +13,11 @@ export default function FooterNavBarLayout({
   children,
 }: FooterNavBarLayoutProps): ReactElement {
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
-  const { showSidebar } = useShowSidebar();
+  const { sidebarRendered } = useSidebarRendered();
 
   return (
     <>
-      {!showSidebar && windowLoaded && <FooterNavBar />}
+      {!sidebarRendered && windowLoaded && <FooterNavBar />}
       {children}
     </>
   );

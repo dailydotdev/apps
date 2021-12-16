@@ -24,10 +24,10 @@ const AccountDetailsModal = dynamic(
 );
 
 export default function RankProgressWrapper({
-  openSidebar,
+  sidebarExpanded,
   className,
 }: {
-  openSidebar?: boolean;
+  sidebarExpanded?: boolean;
   className?: string;
 }): ReactElement {
   const { user } = useContext(AuthContext);
@@ -61,7 +61,7 @@ export default function RankProgressWrapper({
         className={classNames(
           className,
           'flex items-center cursor-pointer focus-outline w-full',
-          openSidebar ? 'rounded-12 p-3' : 'rounded-10',
+          sidebarExpanded ? 'rounded-12 p-3' : 'rounded-10',
         )}
         onClick={() => setShowRanksModal(true)}
       >
@@ -70,12 +70,12 @@ export default function RankProgressWrapper({
           rank={showRankAnimation ? nextRank : rank}
           nextRank={nextRank}
           showRankAnimation={showRankAnimation}
-          showRadialProgress={openSidebar}
+          showRadialProgress={sidebarExpanded}
           fillByDefault
           onRankAnimationFinish={() =>
             setTimeout(() => confirmLevelUp(true), 1000)
           }
-          showTextProgress={openSidebar}
+          showTextProgress={sidebarExpanded}
           smallVersion
           rankLastWeek={rankLastWeek}
         />

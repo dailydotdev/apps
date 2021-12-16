@@ -16,14 +16,14 @@ const ProfileMenu = dynamic(
 );
 
 export default function SidebarUserButton({
-  showSidebar,
+  sidebarRendered,
   onShowDndClick,
 }: SidebarUserButtonProps): ReactElement {
   const { user, showLogin, loadingUser } = useContext(AuthContext);
 
   return (
     <>
-      {!loadingUser && !showSidebar && (
+      {!loadingUser && !sidebarRendered && (
         <li className="flex flex-col p-6 pt-2">
           {user ? (
             <>
@@ -35,9 +35,12 @@ export default function SidebarUserButton({
                   <ProfilePicture user={user} size="medium" />
                   <span className="mr-3 ml-2">{user.reputation ?? 0}</span>
                 </ProfileLink>
-                <Button className="btn btn-tertiary" onClick={onMenuClick}>
-                  <SettingsIcon />
-                </Button>
+                <Button
+                  iconOnly
+                  className="btn btn-tertiary"
+                  onClick={onMenuClick}
+                  icon={<SettingsIcon />}
+                />
               </div>
               <strong className="mb-0.5 typo-callout">{user.name}</strong>
               <p className="typo-footnote text-theme-label-secondary">

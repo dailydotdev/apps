@@ -49,7 +49,7 @@ const bottomMenuItems: SidebarMenuItem[] = [
   {
     icon: <ListIcon Icon={TerminalIcon} />,
     title: 'Changelog',
-    path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}sources/changelog`,
+    path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}sources/daily_updates `,
   },
   {
     icon: <ListIcon Icon={FeedbackIcon} />,
@@ -62,7 +62,7 @@ const bottomMenuItems: SidebarMenuItem[] = [
 export default function Sidebar({
   useNavButtonsNotLinks = false,
   activePage,
-  showSidebar = false,
+  sidebarRendered = false,
   openMobileSidebar = false,
   onNavTabClick,
   enableSearch,
@@ -73,7 +73,8 @@ export default function Sidebar({
   const { alerts } = useContext(AlertContext);
   const { isLoaded, isAnimated, setLoaded, setHidden } =
     useDynamicLoadedAnimation();
-  const { openSidebar, toggleOpenSidebar } = useContext(SettingsContext);
+  const { sidebarExpanded, toggleSidebarExpanded } =
+    useContext(SettingsContext);
   const [showSettings, setShowSettings] = useState(false);
   useHideMobileSidebar({ action: setOpenMobileSidebar });
 
@@ -144,27 +145,27 @@ export default function Sidebar({
   ];
 
   const mobileItemsFilter = (item) =>
-    (!showSidebar && !item.hideOnMobile) || showSidebar;
+    (!sidebarRendered && !item.hideOnMobile) || sidebarRendered;
 
   return (
     <>
       {openMobileSidebar && <SidebarBackdrop onClick={setOpenMobileSidebar} />}
       <SidebarAside
         className={classNames(
-          openSidebar ? 'laptop:w-60' : 'laptop:w-11',
+          sidebarExpanded ? 'laptop:w-60' : 'laptop:w-11',
           openMobileSidebar ? '-translate-x-0' : '-translate-x-70',
         )}
       >
-        {showSidebar && (
+        {sidebarRendered && (
           <MenuIcon
-            openSidebar={openSidebar}
-            toggleOpenSidebar={toggleOpenSidebar}
+            sidebarExpanded={sidebarExpanded}
+            toggleSidebarExpanded={toggleSidebarExpanded}
           />
         )}
         <SidebarScrollWrapper>
           <Nav>
             <SidebarUserButton
-              showSidebar={showSidebar}
+              sidebarRendered={sidebarRendered}
               onShowDndClick={onShowDndClick}
             />
             {topMenuItems.map(({ key, items }) => (
@@ -172,7 +173,7 @@ export default function Sidebar({
                 <NavHeader
                   className={classNames(
                     'hidden laptop:block',
-                    openSidebar ? 'opacity-100 px-3' : 'opacity-0 px-0',
+                    sidebarExpanded ? 'opacity-100 px-3' : 'opacity-0 px-0',
                   )}
                 >
                   {key}
@@ -191,7 +192,10 @@ export default function Sidebar({
                       }
                       useNavButtonsNotLinks={useNavButtonsNotLinks}
                     >
-                      <ItemInner item={item} openSidebar={openSidebar} />
+                      <ItemInner
+                        item={item}
+                        sidebarExpanded={sidebarExpanded}
+                      />
                     </ButtonOrLink>
                   </NavItem>
                 ))}
@@ -212,12 +216,14 @@ export default function Sidebar({
                   }
                   useNavButtonsNotLinks={useNavButtonsNotLinks}
                 >
-                  <ItemInner item={item} openSidebar={openSidebar} />
+                  <ItemInner item={item} sidebarExpanded={sidebarExpanded} />
                 </ButtonOrLink>
               </NavItem>
             ))}
-            <InvitePeople openSidebar={openSidebar} />
-            {showSidebar && <SidebarRankProgress openSidebar={openSidebar} />}
+            <InvitePeople sidebarExpanded={sidebarExpanded} />
+            {sidebarRendered && (
+              <SidebarRankProgress sidebarExpanded={sidebarExpanded} />
+            )}
           </Nav>
         </SidebarScrollWrapper>
       </SidebarAside>

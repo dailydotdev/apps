@@ -13,13 +13,13 @@ import FeedContext, {
 } from '../contexts/FeedContext';
 import useMedia from '../hooks/useMedia';
 import SettingsContext from '../contexts/SettingsContext';
-import useShowSidebar from '../hooks/useShowSidebar';
+import useSidebarRendered from '../hooks/useSidebarRendered';
 
 export type FeedLayoutProps = { children?: ReactNode };
 
 type DetermineFeedSettingsProps = {
-  openSidebar: boolean;
-  showSidebar: boolean;
+  sidebarExpanded: boolean;
+  sidebarRendered: boolean;
 };
 
 export const feedBreakpoints = [
@@ -153,10 +153,10 @@ const reversedSettings = baseFeedSettings.reverse();
 const reversedSettingsSidebar = sidebarOpenFeedSettings.reverse();
 
 const determineFeedSettings = ({
-  openSidebar,
-  showSidebar,
+  sidebarExpanded,
+  sidebarRendered,
 }: DetermineFeedSettingsProps): FeedContextData[] => {
-  return openSidebar && showSidebar
+  return sidebarExpanded && sidebarRendered
     ? reversedSettingsSidebar
     : reversedSettings;
 };
@@ -164,11 +164,11 @@ const determineFeedSettings = ({
 export default function FeedLayout({
   children,
 }: FeedLayoutProps): ReactElement {
-  const { openSidebar } = useContext(SettingsContext);
-  const { showSidebar } = useShowSidebar();
+  const { sidebarExpanded } = useContext(SettingsContext);
+  const { sidebarRendered } = useSidebarRendered();
   const currentSettings = useMedia(
     reversedBreakpoints,
-    determineFeedSettings({ openSidebar, showSidebar }),
+    determineFeedSettings({ sidebarExpanded, sidebarRendered }),
     defaultFeedContextData,
   );
 

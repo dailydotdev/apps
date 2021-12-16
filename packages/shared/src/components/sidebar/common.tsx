@@ -12,7 +12,7 @@ import ArrowIcon from '../../../icons/arrow.svg';
 
 export interface SidebarProps {
   useNavButtonsNotLinks?: boolean;
-  showSidebar?: boolean;
+  sidebarRendered?: boolean;
   openMobileSidebar?: boolean;
   activePage?: string;
   onNavTabClick?: (tab: string) => void;
@@ -22,7 +22,7 @@ export interface SidebarProps {
 }
 
 export interface SidebarUserButtonProps {
-  showSidebar?: boolean;
+  sidebarRendered?: boolean;
   onShowDndClick?: () => void;
 }
 export interface SidebarMenuItems {
@@ -55,12 +55,12 @@ interface ListIconProps {
 
 interface ItemInnerProps {
   item: SidebarMenuItem;
-  openSidebar: boolean;
+  sidebarExpanded: boolean;
 }
 
 interface MenuIconProps {
-  openSidebar: boolean;
-  toggleOpenSidebar: () => Promise<void>;
+  sidebarExpanded: boolean;
+  toggleSidebarExpanded: () => Promise<void>;
 }
 
 interface NavItemProps {
@@ -98,7 +98,7 @@ export const ListIcon = ({ Icon }: ListIconProps): ReactElement => (
 );
 export const ItemInner = ({
   item,
-  openSidebar,
+  sidebarExpanded,
 }: ItemInnerProps): ReactElement => (
   <>
     <span className="relative mr-3">
@@ -108,7 +108,7 @@ export const ItemInner = ({
     <span
       className={classNames(
         'flex-1 text-left transition-opacity',
-        openSidebar ? 'opacity-100 delay-150' : 'opacity-0',
+        sidebarExpanded ? 'opacity-100 delay-150' : 'opacity-0',
       )}
     >
       {item.title}
@@ -144,24 +144,26 @@ export const ButtonOrLink = ({
 };
 
 export const MenuIcon = ({
-  openSidebar,
-  toggleOpenSidebar,
+  sidebarExpanded,
+  toggleSidebarExpanded,
 }: MenuIconProps): ReactElement => (
   <SimpleTooltip
     placement="right"
-    content={`${openSidebar ? 'Close' : 'Open'} sidebar`}
+    content={`${sidebarExpanded ? 'Close' : 'Open'} sidebar`}
   >
     <Button
-      onClick={() => toggleOpenSidebar()}
+      onClick={() => toggleSidebarExpanded()}
       absolute
       className={`btn btn-primary h-6 w-6 top-3 -right-3 z-3 ${
-        openSidebar &&
+        sidebarExpanded &&
         'transition-opacity  invisible group-hover:visible opacity-0 group-hover:opacity-100'
       }`}
       buttonSize="xsmall"
     >
       <ArrowIcon
-        className={`typo-title3 ${openSidebar ? '-rotate-90' : 'rotate-90'}`}
+        className={`typo-title3 ${
+          sidebarExpanded ? '-rotate-90' : 'rotate-90'
+        }`}
       />
     </Button>
   </SimpleTooltip>

@@ -146,6 +146,7 @@ module.exports = {
         fit: 'fit-content',
       },
       height: {
+        logo: '1.125rem',
         fit: 'fit-content',
       },
     },
