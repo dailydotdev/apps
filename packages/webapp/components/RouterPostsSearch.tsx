@@ -4,10 +4,12 @@ import { useRouter } from 'next/router';
 
 export type RouterPostsSearchProps = {
   suggestionType?: string;
+  placeholder?: string;
 };
 
 export default function RouterPostsSearch({
   suggestionType,
+  placeholder,
 }: RouterPostsSearchProps): ReactElement {
   const router = useRouter();
 
@@ -17,17 +19,12 @@ export default function RouterPostsSearch({
       query: { q: query },
     });
 
-  const closeSearch = () => {
-    const redirectUrl = router?.pathname.replace('/search', '');
-    router.push(redirectUrl);
-  };
-
   return (
     <PostsSearch
       suggestionType={suggestionType}
+      placeholder={placeholder}
       initialQuery={router.query.q?.toString()}
       onSubmitQuery={onSubmitQuery}
-      closeSearch={closeSearch}
     />
   );
 }
