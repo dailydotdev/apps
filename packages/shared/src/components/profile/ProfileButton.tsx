@@ -23,7 +23,9 @@ export default function ProfileButton({
           className="flex items-center p-0 ml-0.5 font-bold no-underline rounded-lg border-none cursor-pointer text-theme-label-primary bg-theme-bg-secondary typo-callout focus-outline"
           onClick={onMenuClick}
         >
-          <span className="mr-2 ml-3">{user.reputation ?? 0}</span>
+          <span className="hidden laptop:block mr-2 ml-3">
+            {user.reputation ?? 0}
+          </span>
           <ProfilePicture user={user} size="medium" />
         </button>
       </SimpleTooltip>

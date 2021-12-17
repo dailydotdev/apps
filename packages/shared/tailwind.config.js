@@ -138,10 +138,15 @@ module.exports = {
         'screen-80': '80vh',
         screen: '100vh',
       },
+      spacing: {
+        70: '17.5rem',
+      },
       width: {
+        70: '17.5rem',
         fit: 'fit-content',
       },
       height: {
+        logo: '1.125rem',
         fit: 'fit-content',
       },
     },

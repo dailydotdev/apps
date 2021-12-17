@@ -14,7 +14,6 @@ import ProgressiveEnhancementContext, {
   ProgressiveEnhancementContextProvider,
 } from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import { OnboardingContextProvider } from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
 import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import { SettingsContextProvider } from '@dailydotdev/shared/src/contexts/SettingsContext';
@@ -141,15 +140,13 @@ export default function App(): ReactElement {
           <BootDataProvider app="extension" getRedirectUri={getRedirectUri}>
             <SubscriptionContextProvider>
               <SettingsContextProvider>
-                <OnboardingContextProvider>
-                  <AnalyticsContextProvider
-                    app="extension"
-                    version={version}
-                    getPage={() => pageRef.current}
-                  >
-                    <InternalApp pageRef={pageRef} />
-                  </AnalyticsContextProvider>
-                </OnboardingContextProvider>
+                <AnalyticsContextProvider
+                  app="extension"
+                  version={version}
+                  getPage={() => pageRef.current}
+                >
+                  <InternalApp pageRef={pageRef} />
+                </AnalyticsContextProvider>
               </SettingsContextProvider>
             </SubscriptionContextProvider>
           </BootDataProvider>

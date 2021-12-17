@@ -58,7 +58,7 @@ export default function MainFeedPage({
       feedName={feedName}
       isSearchOn={isSearchOn}
       searchQuery={router.query?.q?.toString()}
-      searchChildren={<PostsSearch />}
+      searchChildren={<PostsSearch placeholder="Search articles" />}
     >
       {children}
     </MainFeedLayout>

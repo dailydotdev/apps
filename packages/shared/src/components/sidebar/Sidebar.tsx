@@ -1,4 +1,5 @@
 import React, { ReactElement, useContext, useState } from 'react';
+import classNames from 'classnames';
 import SettingsContext from '../../contexts/SettingsContext';
 import { FeedSettingsModal } from '../modals/FeedSettingsModal';
 import HotIcon from '../../../icons/hot.svg';
@@ -25,6 +26,8 @@ import {
   SidebarMenuItem,
   SidebarMenuItems,
   SidebarProps,
+  SidebarBackdrop,
+  SidebarScrollWrapper,
 } from './common';
 import InvitePeople from './InvitePeople';
 import SidebarRankProgress from '../SidebarRankProgress';
@@ -32,6 +35,9 @@ import AlertContext from '../../contexts/AlertContext';
 import FeedFilters from '../filters/FeedFilters';
 import { AlertColor, AlertDot } from '../AlertDot';
 import { useDynamicLoadedAnimation } from '../../hooks/useDynamicLoadAnimated';
+import SidebarUserButton from './SidebarUserButton';
+import AuthContext from '../../contexts/AuthContext';
+import useHideMobileSidebar from '../../hooks/useHideMobileSidebar';
 
 const bottomMenuItems: SidebarMenuItem[] = [
   {
@@ -43,7 +49,7 @@ const bottomMenuItems: SidebarMenuItem[] = [
   {
     icon: <ListIcon Icon={TerminalIcon} />,
     title: 'Changelog',
-    path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}sources/changelog`,
+    path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}sources/daily_updates `,
   },
   {
     icon: <ListIcon Icon={FeedbackIcon} />,
@@ -56,14 +62,21 @@ const bottomMenuItems: SidebarMenuItem[] = [
 export default function Sidebar({
   useNavButtonsNotLinks = false,
   activePage,
+  sidebarRendered = false,
+  openMobileSidebar = false,
   onNavTabClick,
   enableSearch,
+  setOpenMobileSidebar,
+  onShowDndClick,
 }: SidebarProps): ReactElement {
+  const { user, showLogin } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
   const { isLoaded, isAnimated, setLoaded, setHidden } =
     useDynamicLoadedAnimation();
-  const { openSidebar, toggleOpenSidebar } = useContext(SettingsContext);
+  const { sidebarExpanded, toggleSidebarExpanded } =
+    useContext(SettingsContext);
   const [showSettings, setShowSettings] = useState(false);
+  useHideMobileSidebar({ action: setOpenMobileSidebar });
 
   const topMenuItems: SidebarMenuItems[] = [
     {
@@ -76,6 +89,7 @@ export default function Sidebar({
           ),
           title: 'Feed filters',
           action: setLoaded,
+          hideOnMobile: true,
         },
         {
           icon: <ListIcon Icon={HotIcon} />,
@@ -100,6 +114,7 @@ export default function Sidebar({
           title: 'Search',
           path: '/search',
           action: enableSearch ? () => enableSearch() : null,
+          hideOnMobile: true,
         },
       ],
     },
@@ -110,11 +125,14 @@ export default function Sidebar({
           icon: <ListIcon Icon={BookmarkIcon} />,
           title: 'Bookmarks',
           path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}bookmarks`,
+          hideOnMobile: true,
+          requiresLogin: true,
         },
         {
           icon: <ListIcon Icon={EyeIcon} />,
           title: 'Reading history',
           path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}history`,
+          requiresLogin: true,
         },
         {
           icon: <ListIcon Icon={SettingsIcon} />,
@@ -126,55 +144,88 @@ export default function Sidebar({
     },
   ];
 
+  const mobileItemsFilter = (item) =>
+    (!sidebarRendered && !item.hideOnMobile) || sidebarRendered;
+
   return (
     <>
-      <SidebarAside className={openSidebar ? 'w-60' : 'w-11'}>
-        <MenuIcon
-          openSidebar={openSidebar}
-          toggleOpenSidebar={toggleOpenSidebar}
-        />
-        <Nav>
-          {topMenuItems.map(({ key, items }) => (
-            <NavSection key={key}>
-              <NavHeader
-                className={openSidebar ? 'opacity-100 px-3' : 'opacity-0 px-0'}
-              >
-                {key}
-              </NavHeader>
-              {items.map((item) => (
-                <NavItem
-                  key={item.title}
-                  active={item.active || item.path === activePage}
+      {openMobileSidebar && <SidebarBackdrop onClick={setOpenMobileSidebar} />}
+      <SidebarAside
+        className={classNames(
+          sidebarExpanded ? 'laptop:w-60' : 'laptop:w-11',
+          openMobileSidebar ? '-translate-x-0' : '-translate-x-70',
+        )}
+      >
+        {sidebarRendered && (
+          <MenuIcon
+            sidebarExpanded={sidebarExpanded}
+            toggleSidebarExpanded={toggleSidebarExpanded}
+          />
+        )}
+        <SidebarScrollWrapper>
+          <Nav>
+            <SidebarUserButton
+              sidebarRendered={sidebarRendered}
+              onShowDndClick={onShowDndClick}
+            />
+            {topMenuItems.map(({ key, items }) => (
+              <NavSection key={key}>
+                <NavHeader
+                  className={classNames(
+                    'hidden laptop:block',
+                    sidebarExpanded ? 'opacity-100 px-3' : 'opacity-0 px-0',
+                  )}
                 >
-                  <ButtonOrLink
-                    item={item}
-                    useNavButtonsNotLinks={useNavButtonsNotLinks}
+                  {key}
+                </NavHeader>
+                {items.filter(mobileItemsFilter).map((item) => (
+                  <NavItem
+                    key={item.title}
+                    active={item.active || item.path === activePage}
                   >
-                    <ItemInner item={item} openSidebar={openSidebar} />
-                  </ButtonOrLink>
-                </NavItem>
-              ))}
-            </NavSection>
-          ))}
-        </Nav>
-        <div className="flex-1" />
-        <Nav>
-          {bottomMenuItems.map((item) => (
-            <NavItem
-              key={item.title}
-              active={item.active || item.path === activePage}
-            >
-              <ButtonOrLink
-                item={item}
-                useNavButtonsNotLinks={useNavButtonsNotLinks}
+                    <ButtonOrLink
+                      item={item}
+                      showLogin={
+                        item.requiresLogin && !user
+                          ? () => showLogin(item.title)
+                          : null
+                      }
+                      useNavButtonsNotLinks={useNavButtonsNotLinks}
+                    >
+                      <ItemInner
+                        item={item}
+                        sidebarExpanded={sidebarExpanded}
+                      />
+                    </ButtonOrLink>
+                  </NavItem>
+                ))}
+              </NavSection>
+            ))}
+          </Nav>
+          <div className="flex-1" />
+          <Nav>
+            {bottomMenuItems.filter(mobileItemsFilter).map((item) => (
+              <NavItem
+                key={item.title}
+                active={item.active || item.path === activePage}
               >
-                <ItemInner item={item} openSidebar={openSidebar} />
-              </ButtonOrLink>
-            </NavItem>
-          ))}
-          <InvitePeople openSidebar={openSidebar} />
-          <SidebarRankProgress openSidebar={openSidebar} />
-        </Nav>
+                <ButtonOrLink
+                  item={item}
+                  showLogin={
+                    item.requiresLogin && !user ? () => showLogin : null
+                  }
+                  useNavButtonsNotLinks={useNavButtonsNotLinks}
+                >
+                  <ItemInner item={item} sidebarExpanded={sidebarExpanded} />
+                </ButtonOrLink>
+              </NavItem>
+            ))}
+            <InvitePeople sidebarExpanded={sidebarExpanded} />
+            {sidebarRendered && (
+              <SidebarRankProgress sidebarExpanded={sidebarExpanded} />
+            )}
+          </Nav>
+        </SidebarScrollWrapper>
       </SidebarAside>
       {showSettings && (
         <FeedSettingsModal

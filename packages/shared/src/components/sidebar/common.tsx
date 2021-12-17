@@ -12,9 +12,18 @@ import ArrowIcon from '../../../icons/arrow.svg';
 
 export interface SidebarProps {
   useNavButtonsNotLinks?: boolean;
+  sidebarRendered?: boolean;
+  openMobileSidebar?: boolean;
   activePage?: string;
   onNavTabClick?: (tab: string) => void;
   enableSearch?: () => void;
+  setOpenMobileSidebar?: () => unknown;
+  onShowDndClick?: () => void;
+}
+
+export interface SidebarUserButtonProps {
+  sidebarRendered?: boolean;
+  onShowDndClick?: () => void;
 }
 export interface SidebarMenuItems {
   key: string;
@@ -29,12 +38,15 @@ export interface SidebarMenuItem {
   action?: () => unknown;
   alert?: ReactElement;
   active?: boolean;
+  hideOnMobile?: boolean;
+  requiresLogin?: boolean;
 }
 
 interface ButtonOrLinkProps {
   item: SidebarMenuItem;
   useNavButtonsNotLinks?: boolean;
   children?: ReactNode;
+  showLogin?: () => unknown;
 }
 
 interface ListIconProps {
@@ -43,12 +55,12 @@ interface ListIconProps {
 
 interface ItemInnerProps {
   item: SidebarMenuItem;
-  openSidebar: boolean;
+  sidebarExpanded: boolean;
 }
 
 interface MenuIconProps {
-  openSidebar: boolean;
-  toggleOpenSidebar: () => Promise<void>;
+  sidebarExpanded: boolean;
+  toggleSidebarExpanded: () => Promise<void>;
 }
 
 interface NavItemProps {
@@ -58,12 +70,20 @@ interface NavItemProps {
 }
 
 export const btnClass = 'flex flex-1 items-center px-3 h-7';
+export const SidebarBackdrop = classed(
+  'div',
+  'fixed w-full h-full bg-theme-overlay-quaternary z-3 cursor-pointer inset-0',
+);
 export const SidebarAside = classed(
   'aside',
-  'flex flex-col border-r border-theme-divider-tertiary transition-all transform duration-500 ease-in-out group sticky top-14 h-[calc(100vh-theme(space.14))]',
+  'flex flex-col w-70 laptop:-translate-x-0 bg-theme-bg-primary z-3 border-r border-theme-divider-tertiary transition-all transform duration-300 ease-in-out group fixed laptop:sticky top-0 laptop:top-14 h-screen laptop:h-[calc(100vh-theme(space.14))]',
+);
+export const SidebarScrollWrapper = classed(
+  'div',
+  'flex overflow-x-hidden overflow-y-auto flex-col h-full no-scrollbar',
 );
 export const Nav = classed('nav', 'my-4');
-export const NavSection = classed('ul', 'mt-2');
+export const NavSection = classed('ul', 'mt-0 laptop:mt-2');
 export const NavHeader = classed(
   'li',
   'typo-footnote text-theme-label-quaternary h-7 flex items-center font-bold  transition-opacity',
@@ -78,7 +98,7 @@ export const ListIcon = ({ Icon }: ListIconProps): ReactElement => (
 );
 export const ItemInner = ({
   item,
-  openSidebar,
+  sidebarExpanded,
 }: ItemInnerProps): ReactElement => (
   <>
     <span className="relative mr-3">
@@ -86,9 +106,10 @@ export const ItemInner = ({
       {item.icon}
     </span>
     <span
-      className={`flex-1 text-left transition-opacity ${
-        openSidebar ? 'opacity-100' : 'opacity-0'
-      }`}
+      className={classNames(
+        'flex-1 text-left transition-opacity',
+        sidebarExpanded ? 'opacity-100 delay-150' : 'opacity-0',
+      )}
     >
       {item.title}
     </span>
@@ -98,9 +119,17 @@ export const ItemInner = ({
 export const ButtonOrLink = ({
   item,
   useNavButtonsNotLinks,
+  showLogin,
   children,
 }: ButtonOrLinkProps): ReactElement => {
-  return (useNavButtonsNotLinks && !item.action) ||
+  if (showLogin) {
+    return (
+      <button type="button" className={btnClass} onClick={showLogin}>
+        {children}
+      </button>
+    );
+  }
+  return (!useNavButtonsNotLinks && !item.action) ||
     (item.path && !useNavButtonsNotLinks) ? (
     <Link href={item.path} passHref prefetch={false}>
       <a target={item?.target} className={btnClass} rel="noopener noreferrer">
@@ -115,24 +144,26 @@ export const ButtonOrLink = ({
 };
 
 export const MenuIcon = ({
-  openSidebar,
-  toggleOpenSidebar,
+  sidebarExpanded,
+  toggleSidebarExpanded,
 }: MenuIconProps): ReactElement => (
   <SimpleTooltip
     placement="right"
-    content={`${openSidebar ? 'Close' : 'Open'} sidebar`}
+    content={`${sidebarExpanded ? 'Close' : 'Open'} sidebar`}
   >
     <Button
-      onClick={() => toggleOpenSidebar()}
+      onClick={toggleSidebarExpanded}
       absolute
       className={`btn btn-primary h-6 w-6 top-3 -right-3 z-3 ${
-        openSidebar &&
+        sidebarExpanded &&
         'transition-opacity  invisible group-hover:visible opacity-0 group-hover:opacity-100'
       }`}
       buttonSize="xsmall"
     >
       <ArrowIcon
-        className={`typo-title3 ${openSidebar ? '-rotate-90' : 'rotate-90'}`}
+        className={`typo-title3 ${
+          sidebarExpanded ? '-rotate-90' : 'rotate-90'
+        }`}
       />
     </Button>
   </SimpleTooltip>

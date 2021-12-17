@@ -10,11 +10,8 @@ import dynamic from 'next/dynamic';
 import Feed, { FeedProps } from './Feed';
 import AuthContext from '../contexts/AuthContext';
 import { LoggedUser } from '../lib/user';
-import OnboardingContext from '../contexts/OnboardingContext';
 import { Dropdown, DropdownProps } from './fields/Dropdown';
 import { FeedPage } from './utilities';
-import utilitiesStyles from './utilities.module.css';
-import styles from './MainFeedLayout.module.css';
 import CalendarIcon from '../../icons/calendar.svg';
 import {
   ANONYMOUS_FEED_QUERY,
@@ -125,11 +122,9 @@ export default function MainFeedLayout({
   navChildren,
 }: MainFeedLayoutProps): ReactElement {
   const { user, tokenRefreshed } = useContext(AuthContext);
-  const { onboardingStep, onboardingReady } = useContext(OnboardingContext);
   const { flags } = useContext(FeaturesContext);
   const feedVersion = parseInt(flags?.feed_version?.value, 10) || 1;
   const [defaultFeed] = usePersistentState('defaultFeed', null, 'popular');
-  const showWelcome = onboardingStep === 1;
   const feedName = feedNameProp === 'default' ? defaultFeed : feedNameProp;
   const isUpvoted = !isSearchOn && feedName === 'upvoted';
 
@@ -195,20 +190,7 @@ export default function MainFeedLayout({
   };
 
   return (
-    <FeedPage
-      className={classNames({
-        [utilitiesStyles.notReady]: !onboardingReady,
-      })}
-    >
-      {showWelcome && (
-        <div
-          role="status"
-          className={`self-stretch -mt-1 mb-12 mx-auto py-3 px-6 text-theme-label-secondary rounded-2xl border border-theme-divider-secondary text-center typo-callout ${styles.welcome}`}
-        >
-          Dear developer, our mission is to serve all the best programming news
-          you’ll ever need. Ready?
-        </div>
-      )}
+    <FeedPage>
       <nav className="flex overflow-x-auto relative items-center self-stretch mb-6 h-11 no-scrollbar">
         {!isSearchOn && (
           <h3 className="capitalize typo-headline">{feedName}</h3>

@@ -4,7 +4,6 @@ import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import dynamic from 'next/dynamic';
 import TimerIcon from '@dailydotdev/shared/icons/timer.svg';
-import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import { HeaderButton } from '@dailydotdev/shared/src/components/buttons/common';
@@ -29,7 +28,6 @@ export default function MainFeedPage({
   onPageChanged,
 }: MainFeedPageProps): ReactElement {
   const { user } = useContext(AuthContext);
-  const { onboardingStep } = useContext(OnboardingContext) || {};
   const [feedName, setFeedName] = useState<string>('default');
   const [isSearchOn, setIsSearchOn] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>();
@@ -41,12 +39,10 @@ export default function MainFeedPage({
     onPageChanged('/search');
   };
 
-  const closeSearch = () => {
-    setIsSearchOn(false);
-    onPageChanged(`/${feedName}`);
-  };
-
   const onNavTabClick = (tab: string): void => {
+    if (tab !== 'search') {
+      setIsSearchOn(false);
+    }
     setFeedName(tab);
     onPageChanged(`/${tab}`);
   };
@@ -78,7 +74,7 @@ export default function MainFeedPage({
       onNavTabClick={onNavTabClick}
       additionalButtons={
         <>
-          {(onboardingStep > 2 || user) && (
+          {user && (
             <SimpleTooltip content="Do Not Disturb" placement="bottom">
               <HeaderButton
                 icon={<TimerIcon />}
@@ -98,7 +94,6 @@ export default function MainFeedPage({
           searchQuery={searchQuery}
           searchChildren={
             <PostsSearch
-              closeSearch={closeSearch}
               onSubmitQuery={async (query) => setSearchQuery(query)}
             />
           }

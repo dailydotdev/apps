@@ -140,39 +140,41 @@ export function RankProgress({
               { duration: 600, fill: 'forwards' },
             )
           : null;
-        const lastBadgeAnimation = badgeRef.current.animate(
-          [
-            {
-              transform: `scale(${2 - maxScale})`,
-              opacity: 0,
-              '--stop-color1': rankToGradientStopBottom(rank),
-              '--stop-color2': rankToGradientStopTop(rank),
-            },
-            {
-              transform: 'scale(1)',
-              opacity: 1,
-              '--stop-color1': rankToGradientStopBottom(rank),
-              '--stop-color2': rankToGradientStopTop(rank),
-            },
-          ],
-          { duration: 100, fill: 'forwards' },
-        );
-        if (attentionAnimation) {
-          attentionAnimation.onfinish = () => {
-            progressAnimation?.cancel();
-            firstBadgeAnimation.cancel();
-            lastBadgeAnimation.cancel();
-            attentionAnimation.cancel();
-            setForceColor(false);
-            onRankAnimationFinish?.();
-          };
-        } else {
+
+        const lastBadgeAnimation = badgeRef.current
+          ? badgeRef.current.animate(
+              [
+                {
+                  transform: `scale(${2 - maxScale})`,
+                  opacity: 0,
+                  '--stop-color1': rankToGradientStopBottom(rank),
+                  '--stop-color2': rankToGradientStopTop(rank),
+                },
+                {
+                  transform: 'scale(1)',
+                  opacity: 1,
+                  '--stop-color1': rankToGradientStopBottom(rank),
+                  '--stop-color2': rankToGradientStopTop(rank),
+                },
+              ],
+              { duration: 100, fill: 'forwards' },
+            )
+          : null;
+
+        const cancelAnimations = () => {
           progressAnimation?.cancel();
           firstBadgeAnimation.cancel();
-          lastBadgeAnimation.cancel();
+          lastBadgeAnimation?.cancel();
           attentionAnimation?.cancel();
           setForceColor(false);
           onRankAnimationFinish?.();
+        };
+
+        if (attentionAnimation) {
+          attentionAnimation.onfinish = cancelAnimations;
+        } else {
+          cancelAnimations();
+          setTimeout(() => setAnimatingProgress(false), 2000);
         }
       });
     };
