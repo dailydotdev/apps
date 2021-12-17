@@ -74,23 +74,22 @@ export default function MainLayout({
     <>
       <PromotionalBanner />
       <header className="flex relative laptop:fixed laptop:top-0 laptop:left-0 z-3 flex-row-reverse laptop:flex-row justify-between items-center py-3 px-4 tablet:px-8 laptop:px-4 laptop:w-full h-14 border-b bg-theme-bg-primary border-theme-divider-tertiary">
-        {!sidebarRendered && windowLoaded && <MobileHeaderRankProgress />}
+        {!sidebarRendered && <MobileHeaderRankProgress />}
         {mobileTitle && (
           <h3 className="block laptop:hidden typo-callout">{mobileTitle}</h3>
         )}
-        <div className="test">
-          {shouldShowLogo({ mobileTitle, sidebarRendered }) && (
+        {shouldShowLogo({ mobileTitle, sidebarRendered }) && windowLoaded && (
+          <div className="flex flex-row">
             <Logo onLogoClick={onLogoClick} showGreeting={showGreeting} />
-          )}
-          <div className="ml-2 font-bold typo-callout">Testing Greeting</div>
-          {windowLoaded && greeting && (
-            <Greeting
-              user={user}
-              onEnter={() => setShowGreeting(true)}
-              onExit={() => setShowGreeting(false)}
-            />
-          )}
-        </div>
+            {greeting && (
+              <Greeting
+                user={user}
+                onEnter={() => setShowGreeting(true)}
+                onExit={() => setShowGreeting(false)}
+              />
+            )}
+          </div>
+        )}
         {!sidebarRendered && (
           <Button
             className="btn-tertiary"

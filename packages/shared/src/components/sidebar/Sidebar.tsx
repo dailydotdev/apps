@@ -38,6 +38,7 @@ import { useDynamicLoadedAnimation } from '../../hooks/useDynamicLoadAnimated';
 import SidebarUserButton from './SidebarUserButton';
 import AuthContext from '../../contexts/AuthContext';
 import useHideMobileSidebar from '../../hooks/useHideMobileSidebar';
+import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
 
 const bottomMenuItems: SidebarMenuItem[] = [
   {
@@ -69,6 +70,8 @@ export default function Sidebar({
   setOpenMobileSidebar,
   onShowDndClick,
 }: SidebarProps): ReactElement {
+  const { windowLoaded } = useContext(ProgressiveEnhancementContext);
+
   const { user, showLogin } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
   const { isLoaded, isAnimated, setLoaded, setHidden } =
@@ -168,39 +171,40 @@ export default function Sidebar({
               sidebarRendered={sidebarRendered}
               onShowDndClick={onShowDndClick}
             />
-            {topMenuItems.map(({ key, items }) => (
-              <NavSection key={key}>
-                <NavHeader
-                  className={classNames(
-                    'hidden laptop:block',
-                    sidebarExpanded ? 'opacity-100 px-3' : 'opacity-0 px-0',
-                  )}
-                >
-                  {key}
-                </NavHeader>
-                {items.filter(mobileItemsFilter).map((item) => (
-                  <NavItem
-                    key={item.title}
-                    active={item.active || item.path === activePage}
+            {windowLoaded &&
+              topMenuItems.filter(mobileItemsFilter).map(({ key, items }) => (
+                <NavSection key={key}>
+                  <NavHeader
+                    className={classNames(
+                      'hidden laptop:block',
+                      sidebarExpanded ? 'opacity-100 px-3' : 'opacity-0 px-0',
+                    )}
                   >
-                    <ButtonOrLink
-                      item={item}
-                      showLogin={
-                        item.requiresLogin && !user
-                          ? () => showLogin(item.title)
-                          : null
-                      }
-                      useNavButtonsNotLinks={useNavButtonsNotLinks}
+                    {key}
+                  </NavHeader>
+                  {items.filter(mobileItemsFilter).map((item) => (
+                    <NavItem
+                      key={item.title}
+                      active={item.active || item.path === activePage}
                     >
-                      <ItemInner
+                      <ButtonOrLink
                         item={item}
-                        sidebarExpanded={sidebarExpanded || !sidebarRendered}
-                      />
-                    </ButtonOrLink>
-                  </NavItem>
-                ))}
-              </NavSection>
-            ))}
+                        showLogin={
+                          item.requiresLogin && !user
+                            ? () => showLogin(item.title)
+                            : null
+                        }
+                        useNavButtonsNotLinks={useNavButtonsNotLinks}
+                      >
+                        <ItemInner
+                          item={item}
+                          sidebarExpanded={sidebarExpanded || !sidebarRendered}
+                        />
+                      </ButtonOrLink>
+                    </NavItem>
+                  ))}
+                </NavSection>
+              ))}
           </Nav>
           <div className="flex-1" />
           <Nav>
