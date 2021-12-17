@@ -16,6 +16,7 @@ import Sidebar from './sidebar/Sidebar';
 import MenuIcon from '../../icons/filled/hamburger.svg';
 import MobileHeaderRankProgress from './MobileHeaderRankProgress';
 import useSidebarRendered from '../hooks/useSidebarRendered';
+import { trackEvent } from '../lib/analytics';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -64,6 +65,14 @@ export default function MainLayout({
   const { sidebarRendered } = useSidebarRendered();
   const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
 
+  const trackAndToggleMobileSidebar = (state: boolean) => {
+    trackEvent({
+      category: 'Sidebar',
+      action: state ? 'Open' : 'Close',
+    });
+    setOpenMobileSidebar(state);
+  };
+
   return (
     <>
       <PromotionalBanner />
@@ -86,7 +95,7 @@ export default function MainLayout({
           <Button
             className="btn-tertiary"
             iconOnly
-            onClick={() => setOpenMobileSidebar(true)}
+            onClick={() => trackAndToggleMobileSidebar(true)}
             icon={<MenuIcon />}
           />
         )}
@@ -115,7 +124,7 @@ export default function MainLayout({
             activePage={activePage}
             useNavButtonsNotLinks={useNavButtonsNotLinks}
             onShowDndClick={onShowDndClick}
-            setOpenMobileSidebar={() => setOpenMobileSidebar(false)}
+            setOpenMobileSidebar={() => trackAndToggleMobileSidebar(false)}
           />
         )}
         {children}

@@ -38,6 +38,7 @@ import { useDynamicLoadedAnimation } from '../../hooks/useDynamicLoadAnimated';
 import SidebarUserButton from './SidebarUserButton';
 import AuthContext from '../../contexts/AuthContext';
 import useHideMobileSidebar from '../../hooks/useHideMobileSidebar';
+import { trackEvent } from '../../lib/analytics';
 
 const bottomMenuItems: SidebarMenuItem[] = [
   {
@@ -76,7 +77,19 @@ export default function Sidebar({
   const { sidebarExpanded, toggleSidebarExpanded } =
     useContext(SettingsContext);
   const [showSettings, setShowSettings] = useState(false);
-  useHideMobileSidebar({ action: setOpenMobileSidebar });
+
+  useHideMobileSidebar({
+    state: openMobileSidebar,
+    action: setOpenMobileSidebar,
+  });
+
+  const trackAndToggleSidebarExpanded = () => {
+    trackEvent({
+      category: 'Sidebar',
+      action: sidebarExpanded ? 'Open' : 'Close',
+    });
+    toggleSidebarExpanded();
+  };
 
   const topMenuItems: SidebarMenuItems[] = [
     {
@@ -137,7 +150,13 @@ export default function Sidebar({
         {
           icon: <ListIcon Icon={SettingsIcon} />,
           title: 'Customize',
-          action: () => setShowSettings(!showSettings),
+          action: () => {
+            trackEvent({
+              category: 'Settings Modal',
+              action: 'Show',
+            });
+            setShowSettings(!showSettings);
+          },
           active: showSettings,
         },
       ],
@@ -159,7 +178,7 @@ export default function Sidebar({
         {sidebarRendered && (
           <MenuIcon
             sidebarExpanded={sidebarExpanded}
-            toggleSidebarExpanded={toggleSidebarExpanded}
+            toggleSidebarExpanded={trackAndToggleSidebarExpanded}
           />
         )}
         <SidebarScrollWrapper>

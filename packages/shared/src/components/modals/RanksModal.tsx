@@ -3,6 +3,7 @@ import React, {
   ReactElement,
   ReactNode,
   useContext,
+  useEffect,
 } from 'react';
 import classNames from 'classnames';
 import { RankProgress } from '../RankProgress';
@@ -18,6 +19,7 @@ import GoToDevCardButton from '../GoToDevCardButton';
 import { Button } from '../buttons/Button';
 import { ClickableText } from '../buttons/ClickableText';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
+import { trackEvent } from '../../lib/analytics';
 
 const RankItem = ({
   rank,
@@ -197,6 +199,13 @@ export default function RanksModal({
   className,
   ...props
 }: RanksModalProps): ReactElement {
+  useEffect(() => {
+    trackEvent({
+      category: 'Ranks Modal',
+      action: 'Show',
+    });
+  }, []);
+
   return (
     <ResponsiveModal
       {...props}

@@ -3,6 +3,7 @@ import { useCopyLink } from '../../hooks/useCopyLink';
 import { ButtonOrLink, ItemInner, ListIcon, NavItem } from './common';
 import UserShareIcon from '../../../icons/user_share.svg';
 import AuthContext from '../../contexts/AuthContext';
+import { trackEvent } from '../../lib/analytics';
 
 const DEFAULT_INVITE_LINK = 'https://daily.dev/';
 const INVITE_TEXT = `I'm using daily.dev to stay updated on developer news. I think you will find it helpful:`;
@@ -16,6 +17,10 @@ const onInvitePeople = async ({
   copyLink,
   inviteLink,
 }: OnInivitePeopleProps) => {
+  trackEvent({
+    category: 'Invite',
+    action: 'Share',
+  });
   if ('share' in navigator) {
     try {
       await navigator.share({
