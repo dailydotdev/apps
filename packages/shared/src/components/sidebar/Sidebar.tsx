@@ -194,7 +194,7 @@ export default function Sidebar({
                     >
                       <ItemInner
                         item={item}
-                        sidebarExpanded={sidebarExpanded}
+                        sidebarExpanded={sidebarExpanded || !sidebarRendered}
                       />
                     </ButtonOrLink>
                   </NavItem>
@@ -216,7 +216,10 @@ export default function Sidebar({
                   }
                   useNavButtonsNotLinks={useNavButtonsNotLinks}
                 >
-                  <ItemInner item={item} sidebarExpanded={sidebarExpanded} />
+                  <ItemInner
+                    item={item}
+                    sidebarExpanded={sidebarExpanded || !sidebarRendered}
+                  />
                 </ButtonOrLink>
               </NavItem>
             ))}

@@ -14,7 +14,6 @@ import Logo from './Logo';
 import ProfileButton from './profile/ProfileButton';
 import Sidebar from './sidebar/Sidebar';
 import MenuIcon from '../../icons/filled/hamburger.svg';
-import MobileHeaderRankProgress from './MobileHeaderRankProgress';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
@@ -33,6 +32,13 @@ export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
 
 const Greeting = dynamic(
   () => import(/* webpackChunkName: "greeting" */ './Greeting'),
+);
+
+const MobileHeaderRankProgress = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "mobileHeaderRankProgress" */ './MobileHeaderRankProgress'
+    ),
 );
 
 interface ShouldShowLogoProps {
@@ -68,20 +74,23 @@ export default function MainLayout({
     <>
       <PromotionalBanner />
       <header className="flex relative laptop:fixed laptop:top-0 laptop:left-0 z-3 flex-row-reverse laptop:flex-row justify-between items-center py-3 px-4 tablet:px-8 laptop:px-4 laptop:w-full h-14 border-b bg-theme-bg-primary border-theme-divider-tertiary">
-        {!sidebarRendered && <MobileHeaderRankProgress />}
+        {!sidebarRendered && windowLoaded && <MobileHeaderRankProgress />}
         {mobileTitle && (
           <h3 className="block laptop:hidden typo-callout">{mobileTitle}</h3>
         )}
-        {shouldShowLogo({ mobileTitle, sidebarRendered }) && (
-          <Logo onLogoClick={onLogoClick} showGreeting={showGreeting} />
-        )}
-        {windowLoaded && greeting && (
-          <Greeting
-            user={user}
-            onEnter={() => setShowGreeting(true)}
-            onExit={() => setShowGreeting(false)}
-          />
-        )}
+        <div className="test">
+          {shouldShowLogo({ mobileTitle, sidebarRendered }) && (
+            <Logo onLogoClick={onLogoClick} showGreeting={showGreeting} />
+          )}
+          <div className="ml-2 font-bold typo-callout">Testing Greeting</div>
+          {windowLoaded && greeting && (
+            <Greeting
+              user={user}
+              onEnter={() => setShowGreeting(true)}
+              onExit={() => setShowGreeting(false)}
+            />
+          )}
+        </div>
         {!sidebarRendered && (
           <Button
             className="btn-tertiary"

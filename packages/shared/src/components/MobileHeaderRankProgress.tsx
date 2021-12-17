@@ -12,8 +12,9 @@ interface WrapperProps extends HTMLAttributes<HTMLDivElement> {
   children?: ReactNode;
 }
 const Wrapper = ({ children, ...props }: WrapperProps) => {
+  console.log('wrapper called');
   return (
-    <div className="w-8 h-8" {...props}>
+    <div className="w-8 h-8 chris" {...props}>
       {children}
     </div>
   );
