@@ -10,16 +10,13 @@ import {
 import { ParsedUrlQuery } from 'querystring';
 import { Roles } from '@dailydotdev/shared/src/lib/user';
 import { NextSeo } from 'next-seo';
-import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import UpvoteIcon from '@dailydotdev/shared/icons/upvote.svg';
 import CommentIcon from '@dailydotdev/shared/icons/comment.svg';
 import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
-import FeatherIcon from '@dailydotdev/shared/icons/feather.svg';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import {
   PageContainer,
   NewCommentContainer,
-  PageSidebar,
 } from '@dailydotdev/shared/src/components/utilities';
 import { postDateFormat } from '@dailydotdev/shared/src/lib/dateFormat';
 import {
@@ -40,12 +37,10 @@ import {
   COMMENT_UPVOTES_BY_ID_QUERY,
 } from '@dailydotdev/shared/src/graphql/comments';
 import { NextSeoProps } from 'next-seo/lib/types';
-import { ShareMobile } from '@dailydotdev/shared/src/components/ShareMobile';
 import Head from 'next/head';
 import request, { ClientError } from 'graphql-request';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import { ProfileLink } from '@dailydotdev/shared/src/components/profile/ProfileLink';
-import { ownershipGuide } from '@dailydotdev/shared/src/lib/constants';
 import { QuaternaryButton } from '@dailydotdev/shared/src/components/buttons/QuaternaryButton';
 import { LoginModalMode } from '@dailydotdev/shared/src/types/LoginModalMode';
 import { logReadArticle } from '@dailydotdev/shared/src/lib/analytics';
@@ -70,6 +65,7 @@ import { TagLinks } from '@dailydotdev/shared/src/components/TagLinks';
 import PostToc from '../../components/widgets/PostToc';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import styles from './postPage.module.css';
+import PostSidebar from '../../components/posts/PostSidebar';
 
 const PlaceholderCommentList = dynamic(
   () =>
@@ -93,12 +89,7 @@ const DeletePostModal = dynamic(
 const BanPostModal = dynamic(
   () => import('@dailydotdev/shared/src/components/modals/BanPostModal'),
 );
-const ShareBar = dynamic(
-  () => import('@dailydotdev/shared/src/components/ShareBar'),
-  {
-    ssr: false,
-  },
-);
+
 const ShareNewCommentPopup = dynamic(
   () => import('@dailydotdev/shared/src/components/ShareNewCommentPopup'),
   {
@@ -106,13 +97,6 @@ const ShareNewCommentPopup = dynamic(
   },
 );
 const Custom404 = dynamic(() => import('../404'));
-
-const FurtherReading = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "furtherReading" */ '../../components/widgets/FurtherReading'
-    ),
-);
 
 export interface Props {
   id: string;
@@ -209,7 +193,6 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   const [upvotedPopup, setUpvotedPopup] = useState(getUpvotedPopupInitialState);
   const [showDeletePost, setShowDeletePost] = useState(false);
   const [showBanPost, setShowBanPost] = useState(false);
-  const [authorOnboarding, setAuthorOnboarding] = useState(false);
 
   const queryClient = useQueryClient();
   const postQueryKey = ['post', id];
@@ -325,24 +308,6 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     return undefined;
   };
 
-  const sharePost = async () => {
-    if ('share' in navigator) {
-      try {
-        await navigator.share({
-          text: postById.post.title,
-          url: postById.post.commentsPermalink,
-        });
-        trackEvent(
-          postAnalyticsEvent('share post', postById.post, {
-            extra: { origin: 'article page' },
-          }),
-        );
-      } catch (err) {
-        // Do nothing
-      }
-    }
-  };
-
   const openNewComment = () => {
     if (user) {
       setLastScroll(window.scrollY);
@@ -442,12 +407,6 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     }
   }, [router.query?.new]);
 
-  useEffect(() => {
-    if (router?.query.author) {
-      setAuthorOnboarding(true);
-    }
-  }, [router.query?.author]);
-
   if (!postById?.post || (isFallback && !id)) {
     return <></>;
   }
@@ -499,270 +458,198 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
 
   return (
     <>
-      <div className="flex flex-col mx-auto">
-        <div className="flex flex-col laptopL:flex-row">
-          <PageContainer className="laptop:self-start laptopL:self-center pt-6 pb-20 laptop:pb-6 laptop:border-r laptop:border-l laptop:border-theme-divider-tertiary">
-            <Head>
-              <link rel="preload" as="image" href={postById?.post.image} />
-            </Head>
-            <NextSeo {...seo} />
-            <div className="flex items-center mb-2">
-              {notification ? (
-                <CardNotification className="flex-1 py-2.5 text-center">
-                  {notification}
-                </CardNotification>
-              ) : (
-                <>
-                  {postById?.post.author ? (
-                    <LinkWithTooltip
-                      href={`/sources/${postById?.post.source.id}`}
-                      passHref
-                      prefetch={false}
-                      tooltip={{
-                        placement: 'bottom',
-                        content: postById?.post.source.name,
-                      }}
-                    >
-                      <SourceImage
-                        className="cursor-pointer"
-                        imgSrc={postById?.post.source.image}
-                        imgAlt={postById?.post.source.name}
-                        background="var(--theme-background-secondary)"
-                      />
-                    </LinkWithTooltip>
-                  ) : (
+      <div className="flex relative flex-col flex-wrap mx-auto">
+        <PageContainer className="pt-6 laptop:pb-6 laptopL:mr-[22.5rem] laptop:border-r laptop:border-l laptop:border-theme-divider-tertiary">
+          <Head>
+            <link rel="preload" as="image" href={postById?.post.image} />
+          </Head>
+          <NextSeo {...seo} />
+          <div className="flex items-center mb-2">
+            {notification ? (
+              <CardNotification className="flex-1 py-2.5 text-center">
+                {notification}
+              </CardNotification>
+            ) : (
+              <>
+                {postById?.post.author ? (
+                  <LinkWithTooltip
+                    href={`/sources/${postById?.post.source.id}`}
+                    passHref
+                    prefetch={false}
+                    tooltip={{
+                      placement: 'bottom',
+                      content: postById?.post.source.name,
+                    }}
+                  >
                     <SourceImage
                       className="cursor-pointer"
                       imgSrc={postById?.post.source.image}
                       imgAlt={postById?.post.source.name}
                       background="var(--theme-background-secondary)"
                     />
-                  )}
-                  {postById?.post.author ? (
-                    <ProfileLink
-                      user={postById.post.author}
-                      data-testid="authorLink"
-                      className="flex-1 mr-auto ml-2"
-                    >
-                      <SourceImage
-                        imgSrc={postById.post.author.image}
-                        imgAlt={postById.post.author.name}
-                        background="var(--theme-background-secondary)"
-                      />
-                      <SourceName className="flex-1 ml-2">
-                        {postById.post.author.name}
-                      </SourceName>
-                    </ProfileLink>
-                  ) : (
-                    <div className="flex flex-col flex-1 mx-2">
-                      <SourceName>{postById?.post.source.name}</SourceName>
-                    </div>
-                  )}
-                  <SimpleTooltip placement="left" content="Options">
-                    <Button
-                      className="right-4 my-auto btn-tertiary"
-                      style={{ position: 'absolute' }}
-                      icon={<MenuIcon />}
-                      onClick={(event) => showPostOptionsContext(event)}
-                      buttonSize="small"
-                    />
-                  </SimpleTooltip>
-                </>
-              )}
-            </div>
-
-            <a {...postLinkProps} className="cursor-pointer">
-              <h1 className="my-2 font-bold typo-title2">
-                {postById?.post.title}
-              </h1>
-            </a>
-
-            <div className="flex flex-wrap items-center mt-2 mb-1">
-              <time
-                dateTime={postById?.post?.createdAt}
-                className={metadataStyle}
-              >
-                {postById && postDateFormat(postById.post.createdAt)}
-              </time>
-              {!!postById?.post.readTime && (
-                <div className="mx-1 w-0.5 h-0.5 rounded-full bg-theme-label-tertiary" />
-              )}
-              {!!postById?.post.readTime && (
-                <div data-testid="readTime" className={metadataStyle}>
-                  {postById?.post.readTime}m read time
-                </div>
-              )}
-            </div>
-            <TagLinks tags={postById?.post.tags || []} />
-            {postById?.post?.toc?.length > 0 && (
-              <PostToc
-                post={postById.post}
-                collapsible
-                className="flex laptop:hidden mt-2 mb-4"
-              />
-            )}
-            <a
-              {...postLinkProps}
-              className="block overflow-hidden mt-2 rounded-2xl cursor-pointer"
-            >
-              <LazyImage
-                imgSrc={postById?.post.image}
-                imgAlt="Post cover image"
-                ratio="49%"
-                eager
-              />
-            </a>
-            <div
-              className="flex gap-x-4 items-center my-4 text-theme-label-tertiary typo-callout"
-              data-testid="statsBar"
-            >
-              {postById?.post.views > 0 && (
-                <span>{postById?.post.views.toLocaleString()} Views</span>
-              )}
-              {postUpvotesNum > 0 && (
-                <ClickableText onClick={() => handleShowUpvotedPost()}>
-                  {postUpvotesNum} Upvote{postUpvotesNum > 1 ? 's' : ''}
-                </ClickableText>
-              )}
-              {postNumComments > 0 && (
-                <span>
-                  {postNumComments.toLocaleString()}
-                  {` Comment${postNumComments === 1 ? '' : 's'}`}
-                </span>
-              )}
-            </div>
-            <div className="flex justify-between py-2 border-t border-b border-theme-divider-tertiary">
-              <QuaternaryButton
-                id="upvote-post-btn"
-                pressed={postById?.post.upvoted}
-                onClick={toggleUpvote}
-                icon={<UpvoteIcon />}
-                aria-label="Upvote"
-                responsiveLabelClass="mobileL:flex"
-                className="btn-tertiary-avocado"
-              >
-                Upvote
-              </QuaternaryButton>
-              <QuaternaryButton
-                id="comment-post-btn"
-                pressed={postById?.post.commented}
-                onClick={openNewComment}
-                icon={<CommentIcon />}
-                aria-label="Comment"
-                responsiveLabelClass="mobileL:flex"
-                className="btn-tertiary-avocado"
-              >
-                Comment
-              </QuaternaryButton>
-              <QuaternaryButton
-                id="bookmark-post-btn"
-                pressed={postById?.post.bookmarked}
-                onClick={toggleBookmark}
-                icon={<BookmarkIcon />}
-                responsiveLabelClass="mobileL:flex"
-                className="btn-tertiary-bun"
-              >
-                Bookmark
-              </QuaternaryButton>
-            </div>
-            {isLoadingComments && <PlaceholderCommentList />}
-            {!isLoadingComments && comments?.postComments?.edges?.length > 0 && (
-              <>
-                {comments?.postComments.edges.map((e) => (
-                  <MainComment
-                    comment={e.node}
-                    key={e.node.id}
-                    onComment={onCommentClick}
-                    onDelete={(comment, parentId) =>
-                      setPendingComment({ comment, parentId })
-                    }
-                    onEdit={onEditClick}
-                    onShowUpvotes={handleShowUpvotedComment}
-                    postAuthorId={postById?.post?.author?.id}
+                  </LinkWithTooltip>
+                ) : (
+                  <SourceImage
+                    className="cursor-pointer"
+                    imgSrc={postById?.post.source.image}
+                    imgAlt={postById?.post.source.name}
+                    background="var(--theme-background-secondary)"
                   />
-                ))}
-                <div className="my-6" />
-              </>
-            )}
-            {comments?.postComments?.edges?.length === 0 &&
-              !isLoadingComments && (
-                <div className="my-8 text-center text-theme-label-quaternary typo-subhead">
-                  Be the first to comment.
-                </div>
-              )}
-          </PageContainer>
-          <PageSidebar>
-            {authorOnboarding ? (
-              <section
-                className={classNames(
-                  'p-6 bg-theme-bg-secondary rounded-2xl',
-                  styles.authorOnboarding,
                 )}
-              >
-                <div
-                  className={classNames(
-                    'grid items-center gap-x-3',
-                    styles.authorOnboardingHeader,
-                  )}
-                  style={{ gridTemplateColumns: 'repeat(2, max-content)' }}
-                >
-                  <FeatherIcon />
-                  <h3>Author</h3>
-                  <h2>Is this article yours?</h2>
-                </div>
-                <p>Claim ownership and get the following perks:</p>
-                <ol>
-                  <li>
-                    Get notified when your articles are picked by daily.dev feed
-                  </li>
-                  <li>Exclusive author badge on your comments</li>
-                  <li>Analytics report for every post you wrote</li>
-                  <li>
-                    Gain reputation points by earning upvotes on articles you
-                    wrote
-                  </li>
-                </ol>
-                <div
-                  className="grid grid-flow-col gap-x-4 mt-6"
-                  data-testid="authorOnboarding"
-                  style={{
-                    maxWidth: sizeN(74),
-                    gridTemplateColumns: '1fr max-content',
-                  }}
-                >
-                  {!user && (
-                    <Button
-                      className="btn-primary"
-                      onClick={() => showLogin('author')}
-                    >
-                      Sign up
-                    </Button>
-                  )}
-                  <Button
-                    className="btn-secondary"
-                    tag="a"
-                    href={ownershipGuide}
-                    target="_blank"
-                    rel="noopener"
+                {postById?.post.author ? (
+                  <ProfileLink
+                    user={postById.post.author}
+                    data-testid="authorLink"
+                    className="flex-1 mr-auto ml-2"
                   >
-                    Learn more
-                  </Button>
-                </div>
-              </section>
-            ) : (
-              <>
-                {postById && <ShareBar post={postById.post} />}
-                <ShareMobile share={sharePost} />
-                {postById?.post && tokenRefreshed && (
-                  <FurtherReading
-                    currentPost={postById.post}
-                    className={classNames(styles.similarPosts)}
-                  />
+                    <SourceImage
+                      imgSrc={postById.post.author.image}
+                      imgAlt={postById.post.author.name}
+                      background="var(--theme-background-secondary)"
+                    />
+                    <SourceName className="flex-1 ml-2">
+                      {postById.post.author.name}
+                    </SourceName>
+                  </ProfileLink>
+                ) : (
+                  <div className="flex flex-col flex-1 mx-2">
+                    <SourceName>{postById?.post.source.name}</SourceName>
+                  </div>
                 )}
+                <SimpleTooltip placement="left" content="Options">
+                  <Button
+                    className="right-4 my-auto btn-tertiary"
+                    style={{ position: 'absolute' }}
+                    icon={<MenuIcon />}
+                    onClick={(event) => showPostOptionsContext(event)}
+                    buttonSize="small"
+                  />
+                </SimpleTooltip>
               </>
             )}
-          </PageSidebar>
-        </div>
+          </div>
+
+          <a {...postLinkProps} className="cursor-pointer">
+            <h1 className="my-2 font-bold typo-title2">
+              {postById?.post.title}
+            </h1>
+          </a>
+
+          <div className="flex flex-wrap items-center mt-2 mb-1">
+            <time
+              dateTime={postById?.post?.createdAt}
+              className={metadataStyle}
+            >
+              {postById && postDateFormat(postById.post.createdAt)}
+            </time>
+            {!!postById?.post.readTime && (
+              <div className="mx-1 w-0.5 h-0.5 rounded-full bg-theme-label-tertiary" />
+            )}
+            {!!postById?.post.readTime && (
+              <div data-testid="readTime" className={metadataStyle}>
+                {postById?.post.readTime}m read time
+              </div>
+            )}
+          </div>
+          <TagLinks tags={postById?.post.tags || []} />
+          {postById?.post?.toc?.length > 0 && (
+            <PostToc
+              post={postById.post}
+              collapsible
+              className="flex laptop:hidden mt-2 mb-4"
+            />
+          )}
+          <a
+            {...postLinkProps}
+            className="block overflow-hidden mt-2 rounded-2xl cursor-pointer"
+          >
+            <LazyImage
+              imgSrc={postById?.post.image}
+              imgAlt="Post cover image"
+              ratio="49%"
+              eager
+            />
+          </a>
+          <div
+            className="flex gap-x-4 items-center my-4 text-theme-label-tertiary typo-callout"
+            data-testid="statsBar"
+          >
+            {postById?.post.views > 0 && (
+              <span>{postById?.post.views.toLocaleString()} Views</span>
+            )}
+            {postUpvotesNum > 0 && (
+              <ClickableText onClick={() => handleShowUpvotedPost()}>
+                {postUpvotesNum} Upvote{postUpvotesNum > 1 ? 's' : ''}
+              </ClickableText>
+            )}
+            {postNumComments > 0 && (
+              <span>
+                {postNumComments.toLocaleString()}
+                {` Comment${postNumComments === 1 ? '' : 's'}`}
+              </span>
+            )}
+          </div>
+          <div className="flex justify-between py-2 border-t border-b border-theme-divider-tertiary">
+            <QuaternaryButton
+              id="upvote-post-btn"
+              pressed={postById?.post.upvoted}
+              onClick={toggleUpvote}
+              icon={<UpvoteIcon />}
+              aria-label="Upvote"
+              responsiveLabelClass="mobileL:flex"
+              className="btn-tertiary-avocado"
+            >
+              Upvote
+            </QuaternaryButton>
+            <QuaternaryButton
+              id="comment-post-btn"
+              pressed={postById?.post.commented}
+              onClick={openNewComment}
+              icon={<CommentIcon />}
+              aria-label="Comment"
+              responsiveLabelClass="mobileL:flex"
+              className="btn-tertiary-avocado"
+            >
+              Comment
+            </QuaternaryButton>
+            <QuaternaryButton
+              id="bookmark-post-btn"
+              pressed={postById?.post.bookmarked}
+              onClick={toggleBookmark}
+              icon={<BookmarkIcon />}
+              responsiveLabelClass="mobileL:flex"
+              className="btn-tertiary-bun"
+            >
+              Bookmark
+            </QuaternaryButton>
+          </div>
+          {isLoadingComments && <PlaceholderCommentList />}
+          {!isLoadingComments && comments?.postComments?.edges?.length > 0 && (
+            <>
+              {comments?.postComments.edges.map((e) => (
+                <MainComment
+                  comment={e.node}
+                  key={e.node.id}
+                  onComment={onCommentClick}
+                  onDelete={(comment, parentId) =>
+                    setPendingComment({ comment, parentId })
+                  }
+                  onEdit={onEditClick}
+                  onShowUpvotes={handleShowUpvotedComment}
+                  postAuthorId={postById?.post?.author?.id}
+                />
+              ))}
+              <div className="my-6" />
+            </>
+          )}
+          {comments?.postComments?.edges?.length === 0 &&
+            !isLoadingComments && (
+              <div className="my-8 text-center text-theme-label-quaternary typo-subhead">
+                Be the first to comment.
+              </div>
+            )}
+        </PageContainer>
+        <PostSidebar postById={postById} />
         <NewCommentContainer>
           <div
             className={classNames(
@@ -790,6 +677,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           </div>
         </NewCommentContainer>
       </div>
+
       {upvotedPopup.modal && (
         <UpvotedPopupModal
           requestQuery={upvotedPopup.requestQuery}
