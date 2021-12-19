@@ -9,23 +9,17 @@ import {
   waitFor,
 } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import {
-  MockedGraphQLResponse,
-  mockGraphQL,
-} from '../../__tests__/helpers/graphql';
+import { mockGraphQL } from '../../__tests__/helpers/graphql';
 import { SettingsContextProvider } from '../contexts/SettingsContext';
 import Settings from './Settings';
 import {
   RemoteSettings,
   UPDATE_USER_SETTINGS_MUTATION,
-  USER_SETTINGS_QUERY,
-  UserSettingsData,
 } from '../graphql/settings';
 import { LoggedUser } from '../lib/user';
 import defaultUser from '../../__tests__/fixture/loggedUser';
 import AuthContext from '../contexts/AuthContext';
 import { LoginModalMode } from '../types/LoginModalMode';
-import ProgressiveEnhancementContext from '../contexts/ProgressiveEnhancementContext';
 import { waitForNock } from '../../__tests__/helpers/utilities';
 
 beforeEach(() => {
@@ -44,24 +38,10 @@ const defaultSettings: RemoteSettings = {
   showTopSites: true,
 };
 
-const createSettingsMock = (
-  settings: RemoteSettings = defaultSettings,
-): MockedGraphQLResponse<UserSettingsData> => ({
-  request: {
-    query: USER_SETTINGS_QUERY,
-  },
-  result: {
-    data: {
-      userSettings: settings,
-    },
-  },
-});
-
 const renderComponent = (
-  mocks: MockedGraphQLResponse[] = [createSettingsMock()],
+  settings: RemoteSettings = defaultSettings,
   user: LoggedUser = defaultUser,
 ): RenderResult => {
-  mocks.forEach(mockGraphQL);
   const queryClient = new QueryClient();
   return render(
     <QueryClientProvider client={queryClient}>
@@ -81,17 +61,9 @@ const renderComponent = (
           trackingId: user?.id,
         }}
       >
-        <ProgressiveEnhancementContext.Provider
-          value={{
-            windowLoaded: true,
-            nativeShareSupport: true,
-            asyncImageSupport: true,
-          }}
-        >
-          <SettingsContextProvider>
-            <Settings />
-          </SettingsContextProvider>
-        </ProgressiveEnhancementContext.Provider>
+        <SettingsContextProvider remoteSettings={settings}>
+          <Settings />
+        </SettingsContextProvider>
       </AuthContext.Provider>
     </QueryClientProvider>,
   );
@@ -99,7 +71,6 @@ const renderComponent = (
 
 it('should fetch remote settings', async () => {
   renderComponent();
-  await waitForNock();
 
   const radio = await screen.findAllByRole('radio');
   await waitFor(() =>
@@ -138,8 +109,7 @@ const testSettingsMutation = async (
   updateFunc: () => Promise<void>,
   initialSettings = defaultSettings,
 ) => {
-  renderComponent([createSettingsMock(initialSettings)]);
-  await waitForNock();
+  renderComponent();
 
   let mutationCalled = false;
   mockGraphQL({
@@ -164,7 +134,8 @@ const testSettingsMutation = async (
   }
 
   await updateFunc();
-  await waitFor(() => expect(mutationCalled).toBeTruthy());
+  await waitForNock();
+  expect(mutationCalled).toBeTruthy();
 };
 
 it('should mutate density setting', () =>
@@ -220,13 +191,13 @@ it('should mutate open links in new tab setting', () =>
   }));
 
 it('should not have the show most visited sites switch in the webapp', async () => {
-  renderComponent([], null);
+  renderComponent(defaultSettings, null);
   const checkbox = screen.queryByText('Show most visited sites');
   expect(checkbox).not.toBeInTheDocument();
 });
 
 it('should open login when hide read posts is clicked and the user is logged out', async () => {
-  renderComponent([], null);
+  renderComponent(defaultSettings, null);
 
   const [el] = await screen.findAllByLabelText('Hide read posts');
   el.click();
