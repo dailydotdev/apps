@@ -126,11 +126,7 @@ export default function MainFeedLayout({
   const { flags } = useContext(FeaturesContext);
   const feedVersion =
     parseInt(getFeatureValue(Features.FeedVersion, flags), 10) || 1;
-  const [defaultFeed, setDefaultFeed] = usePersistentState(
-    'defaultFeed',
-    null,
-    'popular',
-  );
+  const [defaultFeed] = usePersistentState('defaultFeed', null, 'popular');
   const feedName = feedNameProp === 'default' ? defaultFeed : feedNameProp;
   const isUpvoted = !isSearchOn && feedName === 'upvoted';
 
