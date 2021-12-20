@@ -3,7 +3,6 @@ import React, {
   ReactElement,
   ReactNode,
   useContext,
-  useEffect,
 } from 'react';
 import classNames from 'classnames';
 import { RankProgress } from '../RankProgress';
@@ -19,7 +18,7 @@ import GoToDevCardButton from '../GoToDevCardButton';
 import { Button } from '../buttons/Button';
 import { ClickableText } from '../buttons/ClickableText';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { useTrackModal } from '../../hooks/useTrackModal';
 
 const RankItem = ({
   rank,
@@ -199,21 +198,19 @@ export default function RanksModal({
   className,
   ...props
 }: RanksModalProps): ReactElement {
-  const { trackEvent } = useContext(AnalyticsContext);
+  useTrackModal({ isOpen: props.isOpen, title: 'ranks modal' });
 
-  useEffect(() => {
-    trackEvent({
-      event_name: 'show ranks modal',
-    });
-  }, []);
+  const onClose = (event: React.MouseEvent | React.KeyboardEvent): void => {
+    onRequestClose(event);
+  };
 
   return (
     <ResponsiveModal
       {...props}
-      onRequestClose={onRequestClose}
+      onRequestClose={onClose}
       className={classNames(styles.ranksModal, className)}
     >
-      <ModalCloseButton onClick={onRequestClose} />
+      <ModalCloseButton onClick={onClose} />
       {!hideProgress && (
         <div
           className={`${styles.rankProgress} flex mt-2 items-center justify-center rounded-full responsiveModalBreakpoint:absolute responsiveModalBreakpoint:left-0 responsiveModalBreakpoint:right-0 responsiveModalBreakpoint:-top-px responsiveModalBreakpoint:bg-theme-bg-primary responsiveModalBreakpoint:my-0 responsiveModalBreakpoint:mx-auto responsiveModalBreakpoint:transform responsiveModalBreakpoint:-translate-y-1/2 responsiveModalBreakpoint:z-1`}

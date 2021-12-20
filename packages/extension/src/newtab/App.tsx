@@ -111,7 +111,7 @@ function InternalApp({
     <DndContext.Provider value={dndContext}>
       {dndContext.isActive && <DndBanner />}
       <MainFeedPage onPageChanged={onPageChanged} />
-      {!user && !loadingUser && (windowLoaded || shouldShowLogin) && (
+      {!user && !loadingUser && shouldShowLogin && (
         <LoginModal
           isOpen={shouldShowLogin}
           onRequestClose={closeLogin}
