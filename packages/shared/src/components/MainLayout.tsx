@@ -15,6 +15,7 @@ import Sidebar from './sidebar/Sidebar';
 import MenuIcon from '../../icons/filled/hamburger.svg';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 import MobileHeaderRankProgress from './MobileHeaderRankProgress';
+import { LoggedUser } from '../lib/user';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -45,6 +46,32 @@ const shouldShowLogo = ({
   return !mobileTitle ? true : mobileTitle && sidebarRendered;
 };
 
+interface LogoAndGreetingProps {
+  user?: LoggedUser;
+  greeting?: boolean;
+  onLogoClick?: (e: React.MouseEvent) => unknown;
+}
+const LogoAndGreeting = ({
+  user,
+  onLogoClick,
+  greeting,
+}: LogoAndGreetingProps) => {
+  const [showGreeting, setShowGreeting] = useState(false);
+
+  return (
+    <>
+      <Logo onLogoClick={onLogoClick} showGreeting={showGreeting} />
+      {greeting && (
+        <Greeting
+          user={user}
+          onEnter={() => setShowGreeting(true)}
+          onExit={() => setShowGreeting(false)}
+        />
+      )}
+    </>
+  );
+};
+
 export default function MainLayout({
   children,
   showOnlyLogo,
@@ -58,24 +85,8 @@ export default function MainLayout({
   onShowDndClick,
 }: MainLayoutProps): ReactElement {
   const { user, showLogin, loadingUser } = useContext(AuthContext);
-  const [showGreeting, setShowGreeting] = useState(false);
   const { sidebarRendered } = useSidebarRendered();
   const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
-
-  const LogoAndGreeting = () => {
-    return (
-      <>
-        <Logo onLogoClick={onLogoClick} showGreeting={showGreeting} />
-        {greeting && (
-          <Greeting
-            user={user}
-            onEnter={() => setShowGreeting(true)}
-            onExit={() => setShowGreeting(false)}
-          />
-        )}
-      </>
-    );
-  };
 
   return (
     <>
@@ -94,7 +105,11 @@ export default function MainLayout({
             <h3 className="block laptop:hidden typo-callout">{mobileTitle}</h3>
           )}
           {shouldShowLogo({ mobileTitle, sidebarRendered }) && (
-            <LogoAndGreeting />
+            <LogoAndGreeting
+              user={user}
+              onLogoClick={onLogoClick}
+              greeting={greeting}
+            />
           )}
         </div>
         {!showOnlyLogo && !loadingUser && sidebarRendered && (
