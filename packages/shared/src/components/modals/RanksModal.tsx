@@ -206,7 +206,7 @@ export default function RanksModal({
       onRequestClose={onRequestClose}
       className={classNames(styles.ranksModal, className)}
     >
-      <ModalCloseButton onClick={onClose} />
+      <ModalCloseButton onClick={onRequestClose} />
       {!hideProgress && (
         <div
           className={`${styles.rankProgress} flex mt-2 items-center justify-center rounded-full responsiveModalBreakpoint:absolute responsiveModalBreakpoint:left-0 responsiveModalBreakpoint:right-0 responsiveModalBreakpoint:-top-px responsiveModalBreakpoint:bg-theme-bg-primary responsiveModalBreakpoint:my-0 responsiveModalBreakpoint:mx-auto responsiveModalBreakpoint:transform responsiveModalBreakpoint:-translate-y-1/2 responsiveModalBreakpoint:z-1`}
