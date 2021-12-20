@@ -36,7 +36,7 @@
     "react-intersection-observer": "^8.33.1",
     "react-modal": "^3.14.4",
     "react-parallax-tilt": "^1.5.83",
-    "react-query": "^3.34.5",
+    "react-query": "^3.31.0",
     "react-tooltip": "^4.2.21",
     "react-transition-group": "^4.4.2",
     "react-virtual": "^2.10.0"
