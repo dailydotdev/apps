@@ -68,9 +68,7 @@ export default function MainLayout({
 
   const trackAndToggleMobileSidebar = (state: boolean) => {
     trackEvent({
-      event_name: state ? 'Open' : 'Close',
-      target_type: 'sidebar',
-      extra: JSON.stringify({ origin: 'main layout' }),
+      event_name: `${state ? 'open' : 'close'} sidebar`,
     });
     setOpenMobileSidebar(state);
   };

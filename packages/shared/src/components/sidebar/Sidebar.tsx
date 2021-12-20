@@ -86,9 +86,7 @@ export default function Sidebar({
 
   const trackAndToggleSidebarExpanded = () => {
     trackEvent({
-      event_name: sidebarExpanded ? 'Open' : 'Close',
-      target_type: 'sidebar',
-      extra: JSON.stringify({ origin: 'main layout' }),
+      event_name: `${sidebarExpanded ? 'open' : 'close'} sidebar`,
     });
     toggleSidebarExpanded();
   };
@@ -154,9 +152,7 @@ export default function Sidebar({
           title: 'Customize',
           action: () => {
             trackEvent({
-              event_name: 'Show',
-              target_type: 'settings modal',
-              extra: JSON.stringify({ origin: 'main layout' }),
+              event_name: 'show settings modal',
             });
             setShowSettings(!showSettings);
           },

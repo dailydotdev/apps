@@ -203,9 +203,7 @@ export default function RanksModal({
 
   useEffect(() => {
     trackEvent({
-      event_name: 'Show',
-      target_type: 'Ranks modal',
-      extra: JSON.stringify({ origin: 'Ranks modal' }),
+      event_name: 'show ranks modal',
     });
   }, []);
 

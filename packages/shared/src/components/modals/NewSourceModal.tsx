@@ -17,7 +17,7 @@ import {
   SOURCE_BY_FEED_QUERY,
 } from '../../graphql/newSource';
 import { Source } from '../../graphql/sources';
-import { trackEvent } from '../../lib/analytics';
+import { gaTrackEvent } from '../../lib/analytics';
 
 interface RSS {
   url: string;
@@ -116,7 +116,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
         }),
       {
         onSuccess: () => {
-          trackEvent({ category: 'Request Source', action: 'Submit' });
+          gaTrackEvent({ category: 'Request Source', action: 'Submit' });
           props.onRequestClose?.(null);
         },
       },

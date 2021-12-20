@@ -43,9 +43,7 @@ export default function InvitePeople({
   const { trackEvent } = useContext(AnalyticsContext);
   const trackInvite = () => {
     trackEvent({
-      event_name: 'Invite people',
-      target_type: 'share',
-      extra: JSON.stringify({ origin: 'main layout' }),
+      event_name: 'invite people',
     });
   };
 
