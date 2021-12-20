@@ -6,7 +6,7 @@ import useReadingRank from '../hooks/useReadingRank';
 import AuthContext from '../contexts/AuthContext';
 import { STEPS_PER_RANK } from '../lib/rank';
 import FeaturesContext from '../contexts/FeaturesContext';
-import { getFeatureValue } from '../lib/featureManagement';
+import { Features, getFeatureValue } from '../lib/featureManagement';
 
 const RanksModal = dynamic(
   () => import(/* webpackChunkName: "ranksModal" */ './modals/RanksModal'),
@@ -35,7 +35,7 @@ export default function RankProgressWrapper({
   const [showRanksModal, setShowRanksModal] = useState(false);
   const { flags } = useContext(FeaturesContext);
   const devCardLimit = parseInt(
-    getFeatureValue('feat_limit_dev_card', flags),
+    getFeatureValue(Features.DevcardLimit, flags),
     10,
   );
   const {

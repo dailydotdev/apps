@@ -39,7 +39,8 @@ export function SimpleTooltip({
   };
 
   const onUntrigger = (_, event) => {
-    const bodyPath = event.path.filter((path) => document.body === path)[0];
+    const eventPath = event.path || event.composedPath?.();
+    const bodyPath = eventPath.filter((path) => document.body === path)[0];
     if (bodyPath.className === 'ReactModal__Body--open') {
       shouldShow = false;
       return;
