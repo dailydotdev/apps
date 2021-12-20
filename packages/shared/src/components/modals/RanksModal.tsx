@@ -200,14 +200,10 @@ export default function RanksModal({
 }: RanksModalProps): ReactElement {
   useTrackModal({ isOpen: props.isOpen, title: 'ranks modal' });
 
-  const onClose = (event: React.MouseEvent | React.KeyboardEvent): void => {
-    onRequestClose(event);
-  };
-
   return (
     <ResponsiveModal
       {...props}
-      onRequestClose={onClose}
+      onRequestClose={onRequestClose}
       className={classNames(styles.ranksModal, className)}
     >
       <ModalCloseButton onClick={onClose} />

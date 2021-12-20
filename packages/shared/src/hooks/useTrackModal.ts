@@ -19,12 +19,12 @@ export function useTrackModal({
     };
     trackEvent(trackObject);
 
-    return () => {
-      if (isOpen === true) {
+    if (isOpen === true) {
+      return () => {
         // The modal was conditionally rendered we should fire a close event
         trackObject.event_name = `close ${title}`;
         trackEvent(trackObject);
-      }
-    };
+      };
+    }
   }, [isOpen]);
 }
