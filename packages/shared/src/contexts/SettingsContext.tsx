@@ -171,18 +171,22 @@ export const SettingsContextProvider = ({
     }
   }, []);
 
-  const setSettings = async (
+  const updateRemoteSettingsFn = async (
     newSettings: Settings,
-    remoteTheme?: RemoteTheme,
+    theme: ThemeMode,
   ): Promise<void> => {
-    await setCachedSettings(newSettings);
-
     if (userId) {
+      const remoteTheme = getRemoteTheme(theme);
       await updateRemoteSettings({
         ...newSettings,
         theme: remoteTheme,
       });
     }
+  };
+
+  const setSettings = async (newSettings: Settings): Promise<void> => {
+    await setCachedSettings(newSettings);
+    await updateRemoteSettingsFn(newSettings, currentTheme);
   };
 
   const contextData = useMemo<SettingsContextData>(
@@ -191,8 +195,7 @@ export const SettingsContextProvider = ({
       themeMode: currentTheme,
       setTheme: async (theme: ThemeMode) => {
         setCurrentTheme(theme);
-        const remoteTheme = getRemoteTheme(theme);
-        await setSettings(settings, remoteTheme);
+        await updateRemoteSettingsFn(settings, theme);
         storageWrapper.setItem(themeModeStorageKey, theme);
       },
       toggleShowOnlyUnreadPosts: () =>
