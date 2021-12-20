@@ -7,7 +7,6 @@ import React, {
 } from 'react';
 import dynamic from 'next/dynamic';
 import { Button } from './buttons/Button';
-import ProgressiveEnhancementContext from '../contexts/ProgressiveEnhancementContext';
 import AuthContext from '../contexts/AuthContext';
 import PromotionalBanner from './PromotionalBanner';
 import Logo from './Logo';
@@ -15,6 +14,7 @@ import ProfileButton from './profile/ProfileButton';
 import Sidebar from './sidebar/Sidebar';
 import MenuIcon from '../../icons/filled/hamburger.svg';
 import useSidebarRendered from '../hooks/useSidebarRendered';
+import MobileHeaderRankProgress from './MobileHeaderRankProgress';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -32,13 +32,6 @@ export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
 
 const Greeting = dynamic(
   () => import(/* webpackChunkName: "greeting" */ './Greeting'),
-);
-
-const MobileHeaderRankProgress = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "mobileHeaderRankProgress" */ './MobileHeaderRankProgress'
-    ),
 );
 
 interface ShouldShowLogoProps {
@@ -64,32 +57,30 @@ export default function MainLayout({
   enableSearch,
   onShowDndClick,
 }: MainLayoutProps): ReactElement {
-  const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user, showLogin, loadingUser } = useContext(AuthContext);
   const [showGreeting, setShowGreeting] = useState(false);
   const { sidebarRendered } = useSidebarRendered();
   const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
 
+  const LogoAndGreeting = () => {
+    return (
+      <>
+        <Logo onLogoClick={onLogoClick} showGreeting={showGreeting} />
+        {greeting && (
+          <Greeting
+            user={user}
+            onEnter={() => setShowGreeting(true)}
+            onExit={() => setShowGreeting(false)}
+          />
+        )}
+      </>
+    );
+  };
+
   return (
     <>
       <PromotionalBanner />
-      <header className="flex relative laptop:fixed laptop:top-0 laptop:left-0 z-3 flex-row-reverse laptop:flex-row justify-between items-center py-3 px-4 tablet:px-8 laptop:px-4 laptop:w-full h-14 border-b bg-theme-bg-primary border-theme-divider-tertiary">
-        {!sidebarRendered && <MobileHeaderRankProgress />}
-        {mobileTitle && (
-          <h3 className="block laptop:hidden typo-callout">{mobileTitle}</h3>
-        )}
-        {shouldShowLogo({ mobileTitle, sidebarRendered }) && windowLoaded && (
-          <div className="flex flex-row">
-            <Logo onLogoClick={onLogoClick} showGreeting={showGreeting} />
-            {greeting && (
-              <Greeting
-                user={user}
-                onEnter={() => setShowGreeting(true)}
-                onExit={() => setShowGreeting(false)}
-              />
-            )}
-          </div>
-        )}
+      <header className="flex relative laptop:fixed laptop:top-0 laptop:left-0 z-3 flex-row laptop:flex-row justify-between items-center py-3 px-4 tablet:px-8 laptop:px-4 laptop:w-full h-14 border-b bg-theme-bg-primary border-theme-divider-tertiary">
         {!sidebarRendered && (
           <Button
             className="btn-tertiary"
@@ -98,6 +89,14 @@ export default function MainLayout({
             icon={<MenuIcon />}
           />
         )}
+        <div className="flex flex-row">
+          {mobileTitle && (
+            <h3 className="block laptop:hidden typo-callout">{mobileTitle}</h3>
+          )}
+          {shouldShowLogo({ mobileTitle, sidebarRendered }) && (
+            <LogoAndGreeting />
+          )}
+        </div>
         {!showOnlyLogo && !loadingUser && sidebarRendered && (
           <>
             {user ? (
@@ -112,6 +111,7 @@ export default function MainLayout({
             )}
           </>
         )}
+        {!sidebarRendered && <MobileHeaderRankProgress />}
       </header>
       <main className="flex flex-row laptop:pt-14">
         {!showOnlyLogo && (
