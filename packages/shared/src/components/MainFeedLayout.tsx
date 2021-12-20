@@ -23,6 +23,7 @@ import {
 import usePersistentState from '../hooks/usePersistentState';
 import FeaturesContext from '../contexts/FeaturesContext';
 import { generateQueryKey } from '../lib/query';
+import { Features, getFeatureValue } from '../lib/featureManagement';
 
 const SearchEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "emptySearch" */ './SearchEmptyScreen'),
@@ -123,7 +124,8 @@ export default function MainFeedLayout({
 }: MainFeedLayoutProps): ReactElement {
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { flags } = useContext(FeaturesContext);
-  const feedVersion = parseInt(flags?.feed_version?.value, 10) || 1;
+  const feedVersion =
+    parseInt(getFeatureValue(Features.FeedVersion, flags), 10) || 1;
   const [defaultFeed] = usePersistentState('defaultFeed', null, 'popular');
   const feedName = feedNameProp === 'default' ? defaultFeed : feedNameProp;
   const isUpvoted = !isSearchOn && feedName === 'upvoted';

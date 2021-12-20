@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import useMedia from './useMedia';
 import { laptop } from '../styles/media';
 
@@ -12,7 +13,9 @@ export default function useSidebarRendered(): {
     false,
   );
 
-  return {
-    sidebarRendered,
-  };
+  return useMemo(() => {
+    return {
+      sidebarRendered,
+    };
+  }, [sidebarRendered]);
 }

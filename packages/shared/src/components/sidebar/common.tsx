@@ -25,10 +25,6 @@ export interface SidebarUserButtonProps {
   sidebarRendered?: boolean;
   onShowDndClick?: () => void;
 }
-export interface SidebarMenuItems {
-  key: string;
-  items: SidebarMenuItem[];
-}
 
 export interface SidebarMenuItem {
   icon: ReactElement;
