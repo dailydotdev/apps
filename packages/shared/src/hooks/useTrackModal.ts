@@ -12,6 +12,7 @@ export function useTrackModal({
   trigger,
 }: UseTrackModalProps): void {
   const { trackEvent } = useContext(AnalyticsContext);
+  // eslint-disable-next-line consistent-return
   useEffect(() => {
     const trackObject = {
       event_name: `${isOpen ? 'open' : 'close'} ${title}`,
