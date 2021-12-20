@@ -19,7 +19,7 @@ import GoToDevCardButton from '../GoToDevCardButton';
 import { Button } from '../buttons/Button';
 import { ClickableText } from '../buttons/ClickableText';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { trackEvent } from '../../lib/analytics';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
 
 const RankItem = ({
   rank,
@@ -199,10 +199,13 @@ export default function RanksModal({
   className,
   ...props
 }: RanksModalProps): ReactElement {
+  const { trackEvent } = useContext(AnalyticsContext);
+
   useEffect(() => {
     trackEvent({
-      category: 'Ranks Modal',
-      action: 'Show',
+      event_name: 'Show',
+      target_type: 'Ranks modal',
+      extra: JSON.stringify({ origin: 'Ranks modal' }),
     });
   }, []);
 

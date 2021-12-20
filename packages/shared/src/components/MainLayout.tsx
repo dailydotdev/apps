@@ -16,7 +16,7 @@ import Sidebar from './sidebar/Sidebar';
 import MenuIcon from '../../icons/filled/hamburger.svg';
 import MobileHeaderRankProgress from './MobileHeaderRankProgress';
 import useSidebarRendered from '../hooks/useSidebarRendered';
-import { trackEvent } from '../lib/analytics';
+import AnalyticsContext from '../contexts/AnalyticsContext';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -61,14 +61,16 @@ export default function MainLayout({
 }: MainLayoutProps): ReactElement {
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user, showLogin, loadingUser } = useContext(AuthContext);
+  const { trackEvent } = useContext(AnalyticsContext);
   const [showGreeting, setShowGreeting] = useState(false);
   const { sidebarRendered } = useSidebarRendered();
   const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
 
   const trackAndToggleMobileSidebar = (state: boolean) => {
     trackEvent({
-      category: 'Sidebar',
-      action: state ? 'Open' : 'Close',
+      event_name: state ? 'Open' : 'Close',
+      target_type: 'sidebar',
+      extra: JSON.stringify({ origin: 'main layout' }),
     });
     setOpenMobileSidebar(state);
   };

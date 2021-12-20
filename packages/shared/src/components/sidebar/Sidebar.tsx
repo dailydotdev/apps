@@ -38,7 +38,7 @@ import { useDynamicLoadedAnimation } from '../../hooks/useDynamicLoadAnimated';
 import SidebarUserButton from './SidebarUserButton';
 import AuthContext from '../../contexts/AuthContext';
 import useHideMobileSidebar from '../../hooks/useHideMobileSidebar';
-import { trackEvent } from '../../lib/analytics';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
 
 const bottomMenuItems: SidebarMenuItem[] = [
   {
@@ -72,6 +72,7 @@ export default function Sidebar({
 }: SidebarProps): ReactElement {
   const { user, showLogin } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
+  const { trackEvent } = useContext(AnalyticsContext);
   const { isLoaded, isAnimated, setLoaded, setHidden } =
     useDynamicLoadedAnimation();
   const { sidebarExpanded, toggleSidebarExpanded } =
@@ -85,8 +86,9 @@ export default function Sidebar({
 
   const trackAndToggleSidebarExpanded = () => {
     trackEvent({
-      category: 'Sidebar',
-      action: sidebarExpanded ? 'Open' : 'Close',
+      event_name: sidebarExpanded ? 'Open' : 'Close',
+      target_type: 'sidebar',
+      extra: JSON.stringify({ origin: 'main layout' }),
     });
     toggleSidebarExpanded();
   };
@@ -152,8 +154,9 @@ export default function Sidebar({
           title: 'Customize',
           action: () => {
             trackEvent({
-              category: 'Settings Modal',
-              action: 'Show',
+              event_name: 'Show',
+              target_type: 'settings modal',
+              extra: JSON.stringify({ origin: 'main layout' }),
             });
             setShowSettings(!showSettings);
           },
