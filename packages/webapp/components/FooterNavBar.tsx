@@ -46,8 +46,8 @@ export const tabs: Tab[] = [
     icon: <SearchIcon />,
   },
   {
-    path: '/settings',
-    title: 'Settings',
+    path: '/filters',
+    title: 'Filters',
     icon: <FilterIcon />,
   },
 ];
