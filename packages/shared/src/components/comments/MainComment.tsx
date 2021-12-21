@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import classNames from 'classnames';
 import { Comment } from '../../graphql/comments';
 import { CommentBox, CommentPublishDate } from './common';
 import CommentActionButtons, {
@@ -14,6 +15,7 @@ import { ProfileTooltip } from '../profile/ProfileTooltip';
 export interface Props extends CommentActionProps {
   comment: Comment;
   postAuthorId: string | null;
+  className?: string;
 }
 
 const MainCommentBox = classed(CommentBox, 'my-2');
@@ -24,10 +26,14 @@ export default function MainComment({
   onDelete,
   onEdit,
   onShowUpvotes,
+  className,
   postAuthorId,
 }: Props): ReactElement {
   return (
-    <article className="flex flex-col items-stretch mt-4" data-testid="comment">
+    <article
+      className={classNames('flex flex-col items-stretch mt-4', className)}
+      data-testid="comment"
+    >
       <div className="flex items-center">
         <ProfileTooltip user={comment.author}>
           <ProfileImageLink user={comment.author} />

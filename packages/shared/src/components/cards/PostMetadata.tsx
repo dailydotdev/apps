@@ -9,15 +9,19 @@ const Separator = classed(
   'mx-1 w-0.5 h-0.5 rounded-full bg-theme-label-tertiary',
 );
 
+interface PostMetadataProps {
+  post: Post;
+  className?: string;
+  children?: ReactNode;
+  typoClassName?: string;
+}
+
 export default function PostMetadata({
   post,
   className,
   children,
-}: {
-  post: Post;
-  className?: string;
-  children?: ReactNode;
-}): ReactElement {
+  typoClassName = 'typo-footnote',
+}: PostMetadataProps): ReactElement {
   const date = useMemo(
     () => post.createdAt && postDateFormat(post.createdAt),
     [post.createdAt],
@@ -26,7 +30,8 @@ export default function PostMetadata({
   return (
     <div
       className={classNames(
-        'flex items-center text-theme-label-tertiary typo-footnote',
+        'flex items-center text-theme-label-tertiary',
+        typoClassName,
         className,
       )}
     >

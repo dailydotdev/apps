@@ -12,7 +12,7 @@ import { PageContainer } from '../utilities';
 
 function ReadingHistoryEmptyScreen(): ReactElement {
   return (
-    <PageContainer>
+    <PageContainer className="mx-auto">
       <EmptyScreenContainer>
         <EyeIcon
           className={EmptyScreenIcon.className}

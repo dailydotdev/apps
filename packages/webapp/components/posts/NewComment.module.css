@@ -1,0 +1,9 @@
+@media not all and (min-resolution: 0.001dpcm) {
+  @supports (-webkit-appearance: none) {
+    @media screen and (max-width: 375px) {
+      .discussionBar {
+        margin-bottom: 1.5rem;
+      }
+    }
+  }
+}
