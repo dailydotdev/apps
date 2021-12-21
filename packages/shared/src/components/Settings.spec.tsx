@@ -10,6 +10,7 @@ import {
 } from '@testing-library/react';
 import { act } from '@testing-library/react-hooks';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import { clear } from 'idb-keyval';
 import { mockGraphQL } from '../../__tests__/helpers/graphql';
 import { SettingsContextProvider } from '../contexts/SettingsContext';
 import Settings from './Settings';
@@ -25,6 +26,7 @@ import { LoginModalMode } from '../types/LoginModalMode';
 beforeEach(() => {
   jest.clearAllMocks();
   nock.cleanAll();
+  clear();
 });
 
 const showLogin = jest.fn();
@@ -109,9 +111,7 @@ const testSettingsMutation = async (
   updateFunc: () => Promise<void>,
   initialSettings = defaultSettings,
 ) => {
-  await act(async () => {
-    renderComponent();
-  });
+  renderComponent(defaultUser, initialSettings);
 
   let mutationCalled = false;
   mockGraphQL({
@@ -147,29 +147,29 @@ it('should mutate density setting', () =>
     fireEvent.click(cozy);
   }));
 
-// it('should set theme to dark mode setting', () =>
-//   testSettingsMutation({ theme: 'darcula' }, async () => {
-//     const radios = await screen.findAllByRole('radio');
-//     const radio = radios.find((el) =>
-//       // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
-//       queryByText(el.parentElement, 'Dark'),
-//     ) as HTMLInputElement;
-//     fireEvent.click(radio);
-//   }));
+it('should set theme to dark mode setting', () =>
+  testSettingsMutation({ theme: 'darcula' }, async () => {
+    const radios = await screen.findAllByRole('radio');
+    const radio = radios.find((el) =>
+      // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
+      queryByText(el.parentElement, 'Dark'),
+    ) as HTMLInputElement;
+    fireEvent.click(radio);
+  }));
 
-// it('should set light to dark mode setting', () =>
-//   testSettingsMutation(
-//     { theme: 'bright' },
-//     async () => {
-//       const radios = await screen.findAllByRole('radio');
-//       const radio = radios.find((el) =>
-//         // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
-//         queryByText(el.parentElement, 'Light'),
-//       ) as HTMLInputElement;
-//       fireEvent.click(radio);
-//     },
-//     { ...defaultSettings, theme: 'darcula' },
-//   ));
+it('should set light to dark mode setting', () =>
+  testSettingsMutation(
+    { theme: 'bright' },
+    async () => {
+      const radios = await screen.findAllByRole('radio');
+      const radio = radios.find((el) =>
+        // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
+        queryByText(el.parentElement, 'Light'),
+      ) as HTMLInputElement;
+      fireEvent.click(radio);
+    },
+    { ...defaultSettings, theme: 'darcula' },
+  ));
 
 it('should mutate hide read posts setting', () =>
   testSettingsMutation({ showOnlyUnreadPosts: false }, async () => {
