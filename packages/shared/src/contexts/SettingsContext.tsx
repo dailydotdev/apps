@@ -163,11 +163,11 @@ export const SettingsContextProvider = ({
     const theme = storageWrapper.getItem(themeModeStorageKey) as ThemeMode;
     if (theme) {
       setCurrentTheme(theme);
-      return;
-    }
-    const lightMode = storageWrapper.getItem(deprecatedLightModeStorageKey);
-    if (lightMode === 'true') {
-      applyTheme(ThemeMode.Light);
+    } else {
+      const lightMode = storageWrapper.getItem(deprecatedLightModeStorageKey);
+      if (lightMode === 'true') {
+        applyTheme(ThemeMode.Light);
+      }
     }
   }, []);
 
