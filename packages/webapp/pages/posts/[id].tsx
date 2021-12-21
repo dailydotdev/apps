@@ -12,7 +12,6 @@ import { NextSeo } from 'next-seo';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import { PageContainer } from '@dailydotdev/shared/src/components/utilities';
 import {
-  Post,
   POST_BY_ID_QUERY,
   POST_BY_ID_STATIC_FIELDS_QUERY,
   PostData,
@@ -21,11 +20,8 @@ import {
   POST_UPVOTES_BY_ID_QUERY,
 } from '@dailydotdev/shared/src/graphql/posts';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import MainComment from '@dailydotdev/shared/src/components/comments/MainComment';
 import {
   Comment,
-  POST_COMMENTS_QUERY,
-  PostCommentsData,
   COMMENT_UPVOTES_BY_ID_QUERY,
 } from '@dailydotdev/shared/src/graphql/comments';
 import { NextSeoProps } from 'next-seo/lib/types';
@@ -47,13 +43,10 @@ import { AuthorOnboarding } from '../../components/posts/AuthorOnboarding';
 import { PostActions } from '../../components/posts/PostActions';
 import { PostUpvotesCommentsCount } from '../../components/posts/PostUpvotesCommentsCount';
 import { PostHeader } from '../../components/posts/PostHeader';
-
-const PlaceholderCommentList = dynamic(
-  () =>
-    import(
-      '@dailydotdev/shared/src/components/comments/PlaceholderCommentList'
-    ),
-);
+import {
+  ParentComment,
+  PostComments,
+} from '../../components/posts/PostComments';
 
 const UpvotedPopupModal = dynamic(
   () => import('@dailydotdev/shared/src/components/modals/UpvotedPopupModal'),
@@ -61,10 +54,6 @@ const UpvotedPopupModal = dynamic(
 const NewCommentModal = dynamic(
   () => import('@dailydotdev/shared/src/components/modals/NewCommentModal'),
 );
-const DeleteCommentModal = dynamic(
-  () => import('@dailydotdev/shared/src/components/modals/DeleteCommentModal'),
-);
-
 const ShareNewCommentPopup = dynamic(
   () => import('@dailydotdev/shared/src/components/ShareNewCommentPopup'),
   {
@@ -84,18 +73,6 @@ interface PostParams extends ParsedUrlQuery {
 
 const DEFAULT_UPVOTES_PER_PAGE = 50;
 
-interface ParentComment {
-  authorName: string;
-  authorImage: string;
-  publishDate: Date | string;
-  content: string;
-  contentHtml: string;
-  commentId: string | null;
-  post: Post;
-  editContent?: string;
-  editId?: string;
-}
-
 const getUpvotedPopupInitialState = () => ({
   upvotes: 0,
   modal: false,
@@ -114,10 +91,6 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
   // const { nativeShareSupport } = useContext(ProgressiveEnhancementContext);
   const [parentComment, setParentComment] = useState<ParentComment>(null);
-  const [pendingComment, setPendingComment] = useState<{
-    comment: Comment;
-    parentId: string | null;
-  }>(null);
   const [showShareNewComment, setShowShareNewComment] = useState(false);
   const [lastScroll, setLastScroll] = useState(0);
   const [upvotedPopup, setUpvotedPopup] = useState(getUpvotedPopupInitialState);
@@ -142,18 +115,6 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
       enabled: !!id && tokenRefreshed,
     },
   );
-  const { data: comments, isLoading: isLoadingComments } =
-    useQuery<PostCommentsData>(
-      ['post_comments', id],
-      () =>
-        request(`${apiUrl}/graphql`, POST_COMMENTS_QUERY, {
-          postId: id,
-        }),
-      {
-        enabled: !!id && tokenRefreshed,
-        refetchInterval: 60 * 1000,
-      },
-    );
 
   const handleShowUpvotedPost = (upvotes: number) => {
     setUpvotedPopup({
@@ -198,58 +159,12 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     },
   );
 
-  const onCommentClick = (comment: Comment, parentId: string | null) => {
-    if (user) {
-      setLastScroll(window.scrollY);
-      setParentComment({
-        authorName: comment.author.name,
-        authorImage: comment.author.image,
-        content: comment.content,
-        contentHtml: comment.contentHtml,
-        publishDate: comment.lastUpdatedAt || comment.createdAt,
-        commentId: parentId,
-        post: postById.post,
-      });
-    } else {
-      showLogin('comment', LoginModalMode.ContentQuality);
-    }
-  };
-
-  const onEditClick = (comment: Comment, localParentComment?: Comment) => {
-    setLastScroll(window.scrollY);
-    const shared = { editContent: comment.content, editId: comment.id };
-    if (localParentComment) {
-      setParentComment({
-        authorName: localParentComment.author.name,
-        authorImage: localParentComment.author.image,
-        content: localParentComment.content,
-        contentHtml: localParentComment.contentHtml,
-        publishDate:
-          localParentComment.lastUpdatedAt || localParentComment.createdAt,
-        commentId: localParentComment.id,
-        post: postById.post,
-        ...shared,
-      });
-    } else {
-      setParentComment({
-        authorName: postById.post.source.name,
-        authorImage: postById.post.source.image,
-        content: postById.post.title,
-        contentHtml: postById.post.title,
-        publishDate: postById.post.createdAt,
-        commentId: null,
-        post: postById.post,
-        ...shared,
-      });
-    }
-  };
-
   const closeNewComment = () => {
     setParentComment(null);
     document.documentElement.scrollTop = lastScroll;
   };
 
-  const onNewComment = (newComment: Comment, parentId: string | null): void => {
+  const onNewComment = (_: Comment, parentId: string | null): void => {
     if (!parentId) {
       setTimeout(() => setShowShareNewComment(true), 700);
     }
@@ -270,6 +185,11 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     } else {
       showLogin('comment', LoginModalMode.ContentQuality);
     }
+  };
+
+  const onCommentClick = (parent: ParentComment) => {
+    setLastScroll(window.scrollY);
+    setParentComment(parent);
   };
 
   useEffect(() => {
@@ -315,8 +235,6 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
       },
     },
   };
-
-  const commentsCount = comments?.postComments?.edges?.length || 0;
 
   return (
     <>
@@ -367,28 +285,11 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             postQueryKey={postQueryKey}
             onComment={openNewComment}
           />
-          {isLoadingComments && <PlaceholderCommentList />}
-          {!isLoadingComments &&
-            commentsCount > 0 &&
-            comments.postComments.edges.map((e, i) => (
-              <MainComment
-                className={i === commentsCount - 1 && 'mb-12'}
-                comment={e.node}
-                key={e.node.id}
-                onComment={onCommentClick}
-                onDelete={(comment, parentId) =>
-                  setPendingComment({ comment, parentId })
-                }
-                onEdit={onEditClick}
-                onShowUpvotes={handleShowUpvotedComment}
-                postAuthorId={postById?.post?.author?.id}
-              />
-            ))}
-          {commentsCount === 0 && !isLoadingComments && (
-            <div className="my-8 text-center text-theme-label-quaternary typo-subhead">
-              Be the first to comment.
-            </div>
-          )}
+          <PostComments
+            post={postById.post}
+            onClick={onCommentClick}
+            onClickUpvote={handleShowUpvotedComment}
+          />
           {authorOnboarding && (
             <AuthorOnboarding onSignUp={!user && (() => showLogin('author'))} />
           )}
@@ -403,16 +304,6 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           isOpen={upvotedPopup.modal}
           listPlaceholderProps={{ placeholderAmount: upvotedPopup.upvotes }}
           onRequestClose={() => setUpvotedPopup(getUpvotedPopupInitialState())}
-        />
-      )}
-      {pendingComment && (
-        <DeleteCommentModal
-          isOpen={!!pendingComment}
-          onRequestClose={() => setPendingComment(null)}
-          commentId={pendingComment.comment.id}
-          parentId={pendingComment.parentId}
-          postId={postById.post.id}
-          ariaHideApp={!(process?.env?.NODE_ENV === 'test')}
         />
       )}
       {parentComment && (
