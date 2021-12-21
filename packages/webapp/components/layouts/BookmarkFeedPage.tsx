@@ -31,7 +31,12 @@ export default function BookmarkFeedPage({
     <BookmarkFeedLayout
       searchQuery={router.query?.q?.toString()}
       searchChildren={
-        user && <PostsSearch suggestionType="searchBookmarksSuggestions" />
+        user && (
+          <PostsSearch
+            autoFocus={false}
+            suggestionType="searchBookmarksSuggestions"
+          />
+        )
       }
     >
       {children}

@@ -15,12 +15,14 @@ const AutoCompleteMenu = dynamic(() => import('./fields/AutoCompleteMenu'), {
 export type PostsSearchProps = {
   initialQuery?: string;
   placeholder?: string;
-  onSubmitQuery: (query: string) => Promise<unknown>;
   suggestionType?: string;
+  autoFocus?: boolean;
+  onSubmitQuery: (query: string) => Promise<unknown>;
 };
 
 export default function PostsSearch({
   initialQuery: initialQueryProp,
+  autoFocus = true,
   placeholder,
   onSubmitQuery,
   suggestionType = 'searchPostSuggestions',
@@ -105,9 +107,11 @@ export default function PostsSearch({
     }
   };
 
-  useEffect(() => {
-    searchBoxRef.current?.querySelector('input').focus();
-  }, [searchBoxRef]);
+  if (autoFocus) {
+    useEffect(() => {
+      searchBoxRef.current?.querySelector('input').focus();
+    }, [searchBoxRef]);
+  }
 
   const isOpen = !!menuPosition && !!items.length;
   return (
