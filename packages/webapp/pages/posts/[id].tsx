@@ -14,10 +14,7 @@ import UpvoteIcon from '@dailydotdev/shared/icons/upvote.svg';
 import CommentIcon from '@dailydotdev/shared/icons/comment.svg';
 import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
-import {
-  PageContainer,
-  NewCommentContainer,
-} from '@dailydotdev/shared/src/components/utilities';
+import { PageContainer } from '@dailydotdev/shared/src/components/utilities';
 import { postDateFormat } from '@dailydotdev/shared/src/lib/dateFormat';
 import {
   Post,
@@ -50,11 +47,9 @@ import { ClickableText } from '@dailydotdev/shared/src/components/buttons/Clicka
 import useUpvotePost from '@dailydotdev/shared/src/hooks/useUpvotePost';
 import useBookmarkPost from '@dailydotdev/shared/src/hooks/useBookmarkPost';
 import useNotification from '@dailydotdev/shared/src/hooks/useNotification';
-import classNames from 'classnames';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
-import { ProfilePicture } from '@dailydotdev/shared/src/components/ProfilePicture';
 import PostOptionsMenu from '@dailydotdev/shared/src/components/PostOptionsMenu';
 import useReportPostMenu from '@dailydotdev/shared/src/hooks/useReportPostMenu';
 import MenuIcon from '@dailydotdev/shared/icons/menu.svg';
@@ -64,7 +59,7 @@ import { LinkWithTooltip } from '@dailydotdev/shared/src/components/tooltips/Lin
 import { TagLinks } from '@dailydotdev/shared/src/components/TagLinks';
 import PostToc from '../../components/widgets/PostToc';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
-import styles from './postPage.module.css';
+import { NewComment } from '../../components/posts/NewComment';
 import { PostWidgets } from '../../components/posts/PostWidgets';
 import { AuthorOnboarding } from '../../components/posts/AuthorOnboarding';
 
@@ -661,32 +656,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           <AuthorOnboarding onSignUp={!user && (() => showLogin('author'))} />
         )}
         <PostWidgets postById={postById} />
-        <NewCommentContainer>
-          <div
-            className={classNames(
-              'fixed inset-x-0 bottom-0 w-full py-3 px-4 bg-theme-bg-primary z-2 laptop:relative laptop:px-0 laptop:pb-0 laptop:pt-4 laptop:bg-none laptop:mt-auto',
-              styles.newComment,
-            )}
-          >
-            <button
-              type="button"
-              className={classNames(
-                'flex w-full h-10 items-center px-4 bg-theme-bg-secondary text-theme-label-secondary border-none rounded-2xl cursor-pointer typo-callout focus-outline',
-                styles.discussionBar,
-              )}
-              onClick={openNewComment}
-            >
-              {user && (
-                <ProfilePicture
-                  user={user}
-                  size="small"
-                  className="mr-3 -ml-2"
-                />
-              )}
-              Start the discussion...
-            </button>
-          </div>
-        </NewCommentContainer>
+        <NewComment user={user} onNewComment={openNewComment} />
       </div>
 
       {upvotedPopup.modal && (

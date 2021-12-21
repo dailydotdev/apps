@@ -1,12 +1,3 @@
-.newComment {
-  @screen laptop {
-    left: unset;
-    right: unset;
-    bottom: unset;
-    box-shadow: none;
-  }
-}
-
 @media not all and (min-resolution: 0.001dpcm) {
   @supports (-webkit-appearance: none) {
     @media screen and (max-width: 375px) {
