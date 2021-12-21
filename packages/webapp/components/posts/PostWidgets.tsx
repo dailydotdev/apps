@@ -1,31 +1,18 @@
 import React, { ReactElement, useContext } from 'react';
-import dynamic from 'next/dynamic';
 import { PageSidebar } from '@dailydotdev/shared/src/components/utilities';
 import { ShareMobile } from '@dailydotdev/shared/src/components/ShareMobile';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
-import { PostData } from '@dailydotdev/shared/src/graphql/posts';
-
-const ShareBar = dynamic(
-  () => import('@dailydotdev/shared/src/components/ShareBar'),
-  {
-    ssr: false,
-  },
-);
-
-const FurtherReading = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "furtherReading" */ '../widgets/FurtherReading'
-    ),
-);
+import { Post } from '@dailydotdev/shared/src/graphql/posts';
+import ShareBar from '@dailydotdev/shared/src/components/ShareBar';
+import FurtherReading from '../widgets/FurtherReading';
 
 interface PostWidgetsProps {
-  postById: PostData;
+  post: Post;
 }
 
-export function PostWidgets({ postById }: PostWidgetsProps): ReactElement {
+export function PostWidgets({ post }: PostWidgetsProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
 
@@ -33,11 +20,11 @@ export function PostWidgets({ postById }: PostWidgetsProps): ReactElement {
     if ('share' in navigator) {
       try {
         await navigator.share({
-          text: postById.post.title,
-          url: postById.post.commentsPermalink,
+          text: post.title,
+          url: post.commentsPermalink,
         });
         trackEvent(
-          postAnalyticsEvent('share post', postById.post, {
+          postAnalyticsEvent('share post', post, {
             extra: { origin: 'article page' },
           }),
         );
@@ -49,13 +36,10 @@ export function PostWidgets({ postById }: PostWidgetsProps): ReactElement {
 
   return (
     <PageSidebar>
-      {postById && <ShareBar post={postById.post} />}
+      <ShareBar post={post} />
       <ShareMobile share={sharePost} />
-      {postById?.post && tokenRefreshed && (
-        <FurtherReading
-          currentPost={postById.post}
-          className="laptopL:w-[19.5rem]"
-        />
+      {tokenRefreshed && (
+        <FurtherReading currentPost={post} className="laptopL:w-[19.5rem]" />
       )}
     </PageSidebar>
   );

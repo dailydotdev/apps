@@ -295,7 +295,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           )}
         </PageContainer>
         <NewComment user={user} onNewComment={openNewComment} />
-        <PostWidgets postById={postById} />
+        <PostWidgets post={postById.post} />
       </div>
 
       {upvotedPopup.modal && (
