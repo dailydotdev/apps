@@ -6,6 +6,7 @@ import React, {
   useState,
 } from 'react';
 import dynamic from 'next/dynamic';
+import { useSwipeable } from 'react-swipeable';
 import { Button } from './buttons/Button';
 import AuthContext from '../contexts/AuthContext';
 import PromotionalBanner from './PromotionalBanner';
@@ -89,6 +90,19 @@ export default function MainLayout({
   const { trackEvent } = useContext(AnalyticsContext);
   const { sidebarRendered } = useSidebarRendered();
   const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
+  const handlers = useSwipeable({
+    onSwipedLeft: () => {
+      if (!sidebarRendered && openMobileSidebar) {
+        setOpenMobileSidebar(false);
+      }
+    },
+    onSwipedRight: () => {
+      if (!sidebarRendered && !openMobileSidebar) {
+        setOpenMobileSidebar(true);
+      }
+    },
+    preventDefaultTouchmoveEvent: true,
+  });
 
   const trackAndToggleMobileSidebar = (state: boolean) => {
     trackEvent({
@@ -98,7 +112,7 @@ export default function MainLayout({
   };
 
   return (
-    <>
+    <div {...handlers}>
       <PromotionalBanner />
       <header className="flex relative laptop:fixed laptop:top-0 laptop:left-0 z-3 flex-row laptop:flex-row justify-between items-center py-3 px-4 tablet:px-8 laptop:px-4 laptop:w-full h-14 border-b bg-theme-bg-primary border-theme-divider-tertiary">
         {!sidebarRendered && (
@@ -152,6 +166,6 @@ export default function MainLayout({
         )}
         {children}
       </main>
-    </>
+    </div>
   );
 }
