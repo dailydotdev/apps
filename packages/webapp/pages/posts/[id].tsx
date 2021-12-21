@@ -66,6 +66,7 @@ import PostToc from '../../components/widgets/PostToc';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import styles from './postPage.module.css';
 import PostSidebar from '../../components/posts/PostSidebar';
+import { AuthorOnboarding } from '../../components/posts/AuthorOnboarding';
 
 const PlaceholderCommentList = dynamic(
   () =>
@@ -193,6 +194,13 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   const [upvotedPopup, setUpvotedPopup] = useState(getUpvotedPopupInitialState);
   const [showDeletePost, setShowDeletePost] = useState(false);
   const [showBanPost, setShowBanPost] = useState(false);
+  const [authorOnboarding, setAuthorOnboarding] = useState(false);
+
+  useEffect(() => {
+    if (router?.query.author) {
+      setAuthorOnboarding(true);
+    }
+  }, [router.query?.author]);
 
   const queryClient = useQueryClient();
   const postQueryKey = ['post', id];
@@ -649,6 +657,9 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
               </div>
             )}
         </PageContainer>
+        {authorOnboarding && (
+          <AuthorOnboarding onSignUp={!user && (() => showLogin('author'))} />
+        )}
         <PostSidebar postById={postById} />
         <NewCommentContainer>
           <div
