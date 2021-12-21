@@ -8,7 +8,6 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
-import { act } from '@testing-library/react-hooks';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { clear } from 'idb-keyval';
 import { mockGraphQL } from '../../__tests__/helpers/graphql';
