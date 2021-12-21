@@ -11,11 +11,14 @@ export default function useHideMobileSidebar({
 }: UseHideMobileSidebarProps): void {
   const router = useRouter();
 
+  // eslint-disable-next-line consistent-return
   useEffect(() => {
-    router?.events?.on('routeChangeStart', state && action);
+    if (state) {
+      router?.events?.on('routeChangeStart', action);
 
-    return () => {
-      router?.events?.off('routeChangeStart', state && action);
-    };
+      return () => {
+        router?.events?.off('routeChangeStart', action);
+      };
+    }
   }, [state]);
 }
