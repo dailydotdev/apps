@@ -39,7 +39,6 @@ import { LoginModalMode } from '@dailydotdev/shared/src/types/LoginModalMode';
 import { logReadArticle } from '@dailydotdev/shared/src/lib/analytics';
 import useSubscription from '@dailydotdev/shared/src/hooks/useSubscription';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
-import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
 import useNotification from '@dailydotdev/shared/src/hooks/useNotification';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
@@ -57,6 +56,7 @@ import { NewComment } from '../../components/posts/NewComment';
 import { PostWidgets } from '../../components/posts/PostWidgets';
 import { AuthorOnboarding } from '../../components/posts/AuthorOnboarding';
 import { PostActions } from '../../components/posts/PostActions';
+import { PostUpvotesCommentsCount } from '../../components/posts/PostUpvotesCommentsCount';
 
 const PlaceholderCommentList = dynamic(
   () =>
@@ -166,9 +166,6 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
       enabled: !!id && tokenRefreshed,
     },
   );
-  const postUpvotesNum = postById?.post.numUpvotes || 0;
-  const postNumComments = postById?.post.numComments || 0;
-
   const { data: comments, isLoading: isLoadingComments } =
     useQuery<PostCommentsData>(
       ['post_comments', id],
@@ -182,10 +179,10 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
       },
     );
 
-  const handleShowUpvotedPost = () => {
+  const handleShowUpvotedPost = (upvotes: number) => {
     setUpvotedPopup({
       modal: true,
-      upvotes: postUpvotesNum || 1,
+      upvotes,
       requestQuery: {
         queryKey: ['postUpvotes', id],
         query: POST_UPVOTES_BY_ID_QUERY,
@@ -468,25 +465,10 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
               eager
             />
           </a>
-          <div
-            className="flex gap-x-4 items-center my-4 text-theme-label-tertiary typo-callout"
-            data-testid="statsBar"
-          >
-            {postById?.post.views > 0 && (
-              <span>{postById?.post.views.toLocaleString()} Views</span>
-            )}
-            {postUpvotesNum > 0 && (
-              <ClickableText onClick={() => handleShowUpvotedPost()}>
-                {postUpvotesNum} Upvote{postUpvotesNum > 1 ? 's' : ''}
-              </ClickableText>
-            )}
-            {postNumComments > 0 && (
-              <span>
-                {postNumComments.toLocaleString()}
-                {` Comment${postNumComments === 1 ? '' : 's'}`}
-              </span>
-            )}
-          </div>
+          <PostUpvotesCommentsCount
+            post={postById.post}
+            onUpvotesClick={handleShowUpvotedPost}
+          />
           <PostActions
             post={postById.post}
             postQueryKey={postQueryKey}
