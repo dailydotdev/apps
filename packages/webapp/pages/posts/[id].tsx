@@ -1,7 +1,7 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
-import { useQuery, useQueryClient, QueryClient } from 'react-query';
+import { useQuery, useQueryClient } from 'react-query';
 import {
   GetStaticPathsResult,
   GetStaticPropsContext,
@@ -10,9 +10,6 @@ import {
 import { ParsedUrlQuery } from 'querystring';
 import { Roles } from '@dailydotdev/shared/src/lib/user';
 import { NextSeo } from 'next-seo';
-import UpvoteIcon from '@dailydotdev/shared/icons/upvote.svg';
-import CommentIcon from '@dailydotdev/shared/icons/comment.svg';
-import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import { PageContainer } from '@dailydotdev/shared/src/components/utilities';
 import { postDateFormat } from '@dailydotdev/shared/src/lib/dateFormat';
@@ -38,14 +35,11 @@ import Head from 'next/head';
 import request, { ClientError } from 'graphql-request';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import { ProfileLink } from '@dailydotdev/shared/src/components/profile/ProfileLink';
-import { QuaternaryButton } from '@dailydotdev/shared/src/components/buttons/QuaternaryButton';
 import { LoginModalMode } from '@dailydotdev/shared/src/types/LoginModalMode';
 import { logReadArticle } from '@dailydotdev/shared/src/lib/analytics';
 import useSubscription from '@dailydotdev/shared/src/hooks/useSubscription';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
-import useUpvotePost from '@dailydotdev/shared/src/hooks/useUpvotePost';
-import useBookmarkPost from '@dailydotdev/shared/src/hooks/useBookmarkPost';
 import useNotification from '@dailydotdev/shared/src/hooks/useNotification';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
@@ -62,6 +56,7 @@ import { getLayout as getMainLayout } from '../../components/layouts/MainLayout'
 import { NewComment } from '../../components/posts/NewComment';
 import { PostWidgets } from '../../components/posts/PostWidgets';
 import { AuthorOnboarding } from '../../components/posts/AuthorOnboarding';
+import { PostActions } from '../../components/posts/PostActions';
 
 const PlaceholderCommentList = dynamic(
   () =>
@@ -122,45 +117,6 @@ interface ParentComment {
   editContent?: string;
   editId?: string;
 }
-
-const updatePost =
-  (
-    queryClient: QueryClient,
-    postQueryKey: string[],
-    update: (oldPost: PostData) => Partial<Post>,
-  ): (() => Promise<() => void>) =>
-  async () => {
-    await queryClient.cancelQueries(postQueryKey);
-    const oldPost = queryClient.getQueryData<PostData>(postQueryKey);
-    queryClient.setQueryData<PostData>(postQueryKey, {
-      post: {
-        ...oldPost.post,
-        ...update(oldPost),
-      },
-    });
-    return () => {
-      queryClient.setQueryData<PostData>(postQueryKey, oldPost);
-    };
-  };
-
-const onUpvoteMutation = (
-  queryClient: QueryClient,
-  postQueryKey: string[],
-  upvoted: boolean,
-): (() => Promise<() => void>) =>
-  updatePost(queryClient, postQueryKey, (oldPost) => ({
-    upvoted,
-    numUpvotes: oldPost.post.numUpvotes + (upvoted ? 1 : -1),
-  }));
-
-const onBookmarkMutation = (
-  queryClient: QueryClient,
-  postQueryKey: string[],
-  bookmarked: boolean,
-): (() => Promise<() => void>) =>
-  updatePost(queryClient, postQueryKey, () => ({
-    bookmarked,
-  }));
 
 const getUpvotedPopupInitialState = () => ({
   upvotes: 0,
@@ -269,84 +225,6 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     },
   );
 
-  const { upvotePost, cancelPostUpvote } = useUpvotePost({
-    onUpvotePostMutate: onUpvoteMutation(queryClient, postQueryKey, true),
-    onCancelPostUpvoteMutate: onUpvoteMutation(
-      queryClient,
-      postQueryKey,
-      false,
-    ),
-  });
-
-  const { bookmark, removeBookmark } = useBookmarkPost({
-    onBookmarkMutate: onBookmarkMutation(queryClient, postQueryKey, true),
-    onRemoveBookmarkMutate: onBookmarkMutation(
-      queryClient,
-      postQueryKey,
-      false,
-    ),
-  });
-
-  const toggleUpvote = () => {
-    if (user) {
-      if (postById?.post.upvoted) {
-        trackEvent(
-          postAnalyticsEvent('remove post upvote', postById.post, {
-            extra: { origin: 'article page' },
-          }),
-        );
-        return cancelPostUpvote({ id: postById.post.id });
-      }
-      if (postById) {
-        trackEvent(
-          postAnalyticsEvent('upvote post', postById.post, {
-            extra: { origin: 'article page' },
-          }),
-        );
-        return upvotePost({ id: postById.post.id });
-      }
-    } else {
-      showLogin('upvote', LoginModalMode.ContentQuality);
-    }
-    return undefined;
-  };
-
-  const openNewComment = () => {
-    if (user) {
-      setLastScroll(window.scrollY);
-      setParentComment({
-        authorName: postById.post.source.name,
-        authorImage: postById.post.source.image,
-        content: postById.post.title,
-        contentHtml: postById.post.title,
-        publishDate: postById.post.createdAt,
-        commentId: null,
-        post: postById.post,
-      });
-    } else {
-      showLogin('comment', LoginModalMode.ContentQuality);
-    }
-  };
-
-  const toggleBookmark = async (): Promise<void> => {
-    if (!user) {
-      showLogin('bookmark');
-      return;
-    }
-    trackEvent(
-      postAnalyticsEvent(
-        !postById.post.bookmarked ? 'bookmark post' : 'remove post bookmark',
-        postById.post,
-        { extra: { origin: 'article page' } },
-      ),
-    );
-    if (!postById.post.bookmarked) {
-      await bookmark({ id: postById.post.id });
-    } else {
-      await removeBookmark({ id: postById.post.id });
-    }
-  };
-
   const onCommentClick = (comment: Comment, parentId: string | null) => {
     if (user) {
       setLastScroll(window.scrollY);
@@ -401,6 +279,23 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   const onNewComment = (newComment: Comment, parentId: string | null): void => {
     if (!parentId) {
       setTimeout(() => setShowShareNewComment(true), 700);
+    }
+  };
+
+  const openNewComment = () => {
+    if (user) {
+      setLastScroll(window.scrollY);
+      setParentComment({
+        authorName: postById.post.source.name,
+        authorImage: postById.post.source.image,
+        content: postById.post.title,
+        contentHtml: postById.post.title,
+        publishDate: postById.post.createdAt,
+        commentId: null,
+        post: postById.post,
+      });
+    } else {
+      showLogin('comment', LoginModalMode.ContentQuality);
     }
   };
 
@@ -592,40 +487,11 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
               </span>
             )}
           </div>
-          <div className="flex justify-between py-2 border-t border-b border-theme-divider-tertiary">
-            <QuaternaryButton
-              id="upvote-post-btn"
-              pressed={postById?.post.upvoted}
-              onClick={toggleUpvote}
-              icon={<UpvoteIcon />}
-              aria-label="Upvote"
-              responsiveLabelClass="mobileL:flex"
-              className="btn-tertiary-avocado"
-            >
-              Upvote
-            </QuaternaryButton>
-            <QuaternaryButton
-              id="comment-post-btn"
-              pressed={postById?.post.commented}
-              onClick={openNewComment}
-              icon={<CommentIcon />}
-              aria-label="Comment"
-              responsiveLabelClass="mobileL:flex"
-              className="btn-tertiary-avocado"
-            >
-              Comment
-            </QuaternaryButton>
-            <QuaternaryButton
-              id="bookmark-post-btn"
-              pressed={postById?.post.bookmarked}
-              onClick={toggleBookmark}
-              icon={<BookmarkIcon />}
-              responsiveLabelClass="mobileL:flex"
-              className="btn-tertiary-bun"
-            >
-              Bookmark
-            </QuaternaryButton>
-          </div>
+          <PostActions
+            post={postById.post}
+            postQueryKey={postQueryKey}
+            onComment={openNewComment}
+          />
           {isLoadingComments && <PlaceholderCommentList />}
           {!isLoadingComments && comments?.postComments?.edges?.length > 0 && (
             <>
