@@ -350,6 +350,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   const { notification, onMessage } = useNotification();
 
   const isModerator = user?.roles?.indexOf(Roles.Moderator) > -1;
+  const commentsCount = comments?.postComments?.edges?.length || 0;
 
   return (
     <>
@@ -475,36 +476,33 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             onComment={openNewComment}
           />
           {isLoadingComments && <PlaceholderCommentList />}
-          {!isLoadingComments && comments?.postComments?.edges?.length > 0 && (
-            <>
-              {comments?.postComments.edges.map((e) => (
-                <MainComment
-                  comment={e.node}
-                  key={e.node.id}
-                  onComment={onCommentClick}
-                  onDelete={(comment, parentId) =>
-                    setPendingComment({ comment, parentId })
-                  }
-                  onEdit={onEditClick}
-                  onShowUpvotes={handleShowUpvotedComment}
-                  postAuthorId={postById?.post?.author?.id}
-                />
-              ))}
-              <div className="my-6" />
-            </>
+          {!isLoadingComments &&
+            commentsCount > 0 &&
+            comments.postComments.edges.map((e, i) => (
+              <MainComment
+                className={i === commentsCount - 1 && 'mb-12'}
+                comment={e.node}
+                key={e.node.id}
+                onComment={onCommentClick}
+                onDelete={(comment, parentId) =>
+                  setPendingComment({ comment, parentId })
+                }
+                onEdit={onEditClick}
+                onShowUpvotes={handleShowUpvotedComment}
+                postAuthorId={postById?.post?.author?.id}
+              />
+            ))}
+          {commentsCount === 0 && !isLoadingComments && (
+            <div className="my-8 text-center text-theme-label-quaternary typo-subhead">
+              Be the first to comment.
+            </div>
           )}
-          {comments?.postComments?.edges?.length === 0 &&
-            !isLoadingComments && (
-              <div className="my-8 text-center text-theme-label-quaternary typo-subhead">
-                Be the first to comment.
-              </div>
-            )}
+          {authorOnboarding && (
+            <AuthorOnboarding onSignUp={!user && (() => showLogin('author'))} />
+          )}
         </PageContainer>
-        {authorOnboarding && (
-          <AuthorOnboarding onSignUp={!user && (() => showLogin('author'))} />
-        )}
-        <PostWidgets postById={postById} />
         <NewComment user={user} onNewComment={openNewComment} />
+        <PostWidgets postById={postById} />
       </div>
 
       {upvotedPopup.modal && (
