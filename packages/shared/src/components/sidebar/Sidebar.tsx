@@ -224,7 +224,9 @@ export default function Sidebar({
           <div className="flex-1" />
           <Nav>
             <RenderSection items={bottomMenuItems} />
-            <InvitePeople sidebarExpanded={sidebarExpanded} />
+            <InvitePeople
+              sidebarExpanded={sidebarExpanded || !sidebarRendered}
+            />
             {sidebarRendered && (
               <SidebarRankProgress sidebarExpanded={sidebarExpanded} />
             )}
