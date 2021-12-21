@@ -63,26 +63,16 @@ const defaultSettings: Settings = {
   showTopSites: true,
 };
 
-const getThemeMode = (remoteTheme: RemoteTheme): ThemeMode => {
-  switch (remoteTheme) {
-    case 'bright':
-      return ThemeMode.Light;
-    case 'darcula':
-      return ThemeMode.Dark;
-    default:
-      return ThemeMode.Auto;
-  }
+const themeModes: Record<RemoteTheme, ThemeMode> = {
+  bright: ThemeMode.Light,
+  darcula: ThemeMode.Dark,
+  auto: ThemeMode.Auto,
 };
 
-const getRemoteTheme = (theme: ThemeMode): RemoteTheme => {
-  switch (theme) {
-    case ThemeMode.Light:
-      return 'bright';
-    case ThemeMode.Dark:
-      return 'darcula';
-    default:
-      return ThemeMode.Auto;
-  }
+const remoteThemes: Record<ThemeMode, RemoteTheme> = {
+  [ThemeMode.Light]: 'bright',
+  [ThemeMode.Dark]: 'darcula',
+  [ThemeMode.Auto]: 'auto',
 };
 
 function applyTheme(themeMode: ThemeMode): void {
@@ -152,7 +142,7 @@ export const SettingsContextProvider = ({
   useEffect(() => {
     if (remoteSettings) {
       const { theme: remoteTheme, ...remoteData } = remoteSettings;
-      const theme = getThemeMode(remoteTheme);
+      const theme = themeModes[remoteTheme];
       setCurrentTheme(theme);
       storageWrapper.setItem(themeModeStorageKey, theme);
       setCachedSettings(remoteData);
@@ -176,7 +166,7 @@ export const SettingsContextProvider = ({
     theme: ThemeMode,
   ): Promise<void> => {
     if (userId) {
-      const remoteTheme = getRemoteTheme(theme);
+      const remoteTheme = remoteThemes[theme];
       await updateRemoteSettings({
         ...newSettings,
         theme: remoteTheme,
