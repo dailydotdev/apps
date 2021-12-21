@@ -196,8 +196,11 @@ export default function Sidebar({
 
   return (
     <>
-      {openMobileSidebar && <SidebarBackdrop onClick={setOpenMobileSidebar} />}
+      {openMobileSidebar && !sidebarRendered && (
+        <SidebarBackdrop onClick={setOpenMobileSidebar} />
+      )}
       <SidebarAside
+        data-testid="sidebar-aside"
         className={classNames(
           sidebarExpanded ? 'laptop:w-60' : 'laptop:w-11',
           openMobileSidebar ? '-translate-x-0' : '-translate-x-70',

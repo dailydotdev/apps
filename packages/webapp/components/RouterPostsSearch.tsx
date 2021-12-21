@@ -5,11 +5,13 @@ import { useRouter } from 'next/router';
 export type RouterPostsSearchProps = {
   suggestionType?: string;
   placeholder?: string;
+  autoFocus?: boolean;
 };
 
 export default function RouterPostsSearch({
   suggestionType,
   placeholder,
+  autoFocus,
 }: RouterPostsSearchProps): ReactElement {
   const router = useRouter();
 
@@ -25,6 +27,7 @@ export default function RouterPostsSearch({
       placeholder={placeholder}
       initialQuery={router.query.q?.toString()}
       onSubmitQuery={onSubmitQuery}
+      autoFocus={autoFocus}
     />
   );
 }

@@ -35,6 +35,11 @@ const defaultAlerts: AlertContextData = {
   updateAlerts,
 };
 
+const resizeWindow = (x, y) => {
+  window.resizeTo(x, y);
+  window.dispatchEvent(new Event('resize'));
+};
+
 const renderComponent = (
   mocks = [createMockFeedSettings()],
   user: LoggedUser = defaultUser,
@@ -161,4 +166,12 @@ it('should set all navigation urls', async () => {
       element.path,
     );
   });
+});
+
+it('should render the mobile sidebar version on small screens', async () => {
+  await resizeWindow(1019, 768);
+  renderComponent();
+
+  const sidebar = await screen.findByTestId('sidebar-aside');
+  expect(sidebar).toHaveClass('-translate-x-70');
 });

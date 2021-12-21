@@ -65,7 +65,8 @@ interface NavItemProps {
   children?: ReactNode;
 }
 
-export const btnClass = 'flex flex-1 items-center px-3 h-7';
+export const btnClass =
+  'flex flex-1 items-center px-5 laptop:px-3 h-10 laptop:h-7';
 export const SidebarBackdrop = classed(
   'div',
   'fixed w-full h-full bg-theme-overlay-quaternary z-3 cursor-pointer inset-0',
