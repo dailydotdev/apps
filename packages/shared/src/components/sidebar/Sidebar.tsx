@@ -37,6 +37,7 @@ import { useDynamicLoadedAnimation } from '../../hooks/useDynamicLoadAnimated';
 import SidebarUserButton from './SidebarUserButton';
 import AuthContext from '../../contexts/AuthContext';
 import useHideMobileSidebar from '../../hooks/useHideMobileSidebar';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
 
 const bottomMenuItems: SidebarMenuItem[] = [
   {
@@ -70,12 +71,24 @@ export default function Sidebar({
 }: SidebarProps): ReactElement {
   const { user, showLogin } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
+  const { trackEvent } = useContext(AnalyticsContext);
   const { isLoaded, isAnimated, setLoaded, setHidden } =
     useDynamicLoadedAnimation();
   const { sidebarExpanded, toggleSidebarExpanded } =
     useContext(SettingsContext);
   const [showSettings, setShowSettings] = useState(false);
-  useHideMobileSidebar({ action: setOpenMobileSidebar });
+
+  useHideMobileSidebar({
+    state: openMobileSidebar,
+    action: setOpenMobileSidebar,
+  });
+
+  const trackAndToggleSidebarExpanded = () => {
+    trackEvent({
+      event_name: `${sidebarExpanded ? 'open' : 'close'} sidebar`,
+    });
+    toggleSidebarExpanded();
+  };
 
   const discoverMenuItems: SidebarMenuItem[] = [
     {
@@ -193,7 +206,7 @@ export default function Sidebar({
         {sidebarRendered && (
           <MenuIcon
             sidebarExpanded={sidebarExpanded}
-            toggleSidebarExpanded={toggleSidebarExpanded}
+            toggleSidebarExpanded={trackAndToggleSidebarExpanded}
           />
         )}
         <SidebarScrollWrapper>

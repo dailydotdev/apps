@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useEffect } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import DailyDevLogo from '../../svg/DailyDevLogo';
 import { StyledModal, ModalProps } from './StyledModal';
@@ -6,7 +6,7 @@ import { ModalCloseButton } from './ModalCloseButton';
 import LoginButtons from '../LoginButtons';
 import { LoginModalMode } from '../../types/LoginModalMode';
 import styles from './LoginModal.module.css';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { useTrackModal } from '../../hooks/useTrackModal';
 
 export type LoginModalProps = {
   mode: LoginModalMode;
@@ -21,14 +21,7 @@ export default function LoginModal({
   children,
   ...props
 }: LoginModalProps): ReactElement {
-  const { trackEvent } = useContext(AnalyticsContext);
-
-  useEffect(() => {
-    trackEvent({
-      event_name: `${props.isOpen ? 'open' : 'close'} signup`,
-      extra: JSON.stringify({ trigger }),
-    });
-  }, [props.isOpen]);
+  useTrackModal({ isOpen: props.isOpen, title: 'signup', trigger });
 
   return (
     <StyledModal

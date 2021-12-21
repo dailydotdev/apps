@@ -3,11 +3,14 @@ import { ResponsiveModal } from './ResponsiveModal';
 import { ModalProps } from './StyledModal';
 import { ModalCloseButton } from './ModalCloseButton';
 import Settings from '../Settings';
+import { useTrackModal } from '../../hooks/useTrackModal';
 
 export function FeedSettingsModal({
   onRequestClose,
   ...modalProps
 }: ModalProps): ReactElement {
+  useTrackModal({ isOpen: modalProps.isOpen, title: 'feed settings' });
+
   return (
     <ResponsiveModal
       {...modalProps}

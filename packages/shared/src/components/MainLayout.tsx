@@ -14,6 +14,7 @@ import ProfileButton from './profile/ProfileButton';
 import Sidebar from './sidebar/Sidebar';
 import MenuIcon from '../../icons/filled/hamburger.svg';
 import useSidebarRendered from '../hooks/useSidebarRendered';
+import AnalyticsContext from '../contexts/AnalyticsContext';
 import MobileHeaderRankProgress from './MobileHeaderRankProgress';
 import { LoggedUser } from '../lib/user';
 
@@ -85,8 +86,16 @@ export default function MainLayout({
   onShowDndClick,
 }: MainLayoutProps): ReactElement {
   const { user, showLogin, loadingUser } = useContext(AuthContext);
+  const { trackEvent } = useContext(AnalyticsContext);
   const { sidebarRendered } = useSidebarRendered();
   const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
+
+  const trackAndToggleMobileSidebar = (state: boolean) => {
+    trackEvent({
+      event_name: `${state ? 'open' : 'close'} sidebar`,
+    });
+    setOpenMobileSidebar(state);
+  };
 
   return (
     <>
@@ -96,7 +105,7 @@ export default function MainLayout({
           <Button
             className="btn-tertiary"
             iconOnly
-            onClick={() => setOpenMobileSidebar(true)}
+            onClick={() => trackAndToggleMobileSidebar(true)}
             icon={<MenuIcon />}
           />
         )}
@@ -138,7 +147,7 @@ export default function MainLayout({
             activePage={activePage}
             useNavButtonsNotLinks={useNavButtonsNotLinks}
             onShowDndClick={onShowDndClick}
-            setOpenMobileSidebar={() => setOpenMobileSidebar(false)}
+            setOpenMobileSidebar={() => trackAndToggleMobileSidebar(false)}
           />
         )}
         {children}

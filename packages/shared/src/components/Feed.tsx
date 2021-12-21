@@ -11,7 +11,7 @@ import useFeed, { PostItem } from '../hooks/useFeed';
 import { Ad, Post } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
 import FeedContext from '../contexts/FeedContext';
-import { trackEvent as gaTrackEvent } from '../lib/analytics';
+import { gaTrackEvent } from '../lib/analytics';
 import styles from './Feed.module.css';
 import SettingsContext from '../contexts/SettingsContext';
 import { Spaciness } from '../graphql/settings';

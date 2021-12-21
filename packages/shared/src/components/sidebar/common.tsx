@@ -56,7 +56,7 @@ interface ItemInnerProps {
 
 interface MenuIconProps {
   sidebarExpanded: boolean;
-  toggleSidebarExpanded: () => Promise<void>;
+  toggleSidebarExpanded: () => void;
 }
 
 interface NavItemProps {

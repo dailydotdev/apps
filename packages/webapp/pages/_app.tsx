@@ -160,7 +160,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       </Head>
       <DefaultSeo {...Seo} canonical={canonicalFromRouter(router)} />
       {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
-      {!user && !loadingUser && (windowLoaded || shouldShowLogin) && (
+      {!user && !loadingUser && shouldShowLogin && (
         <LoginModal
           isOpen={shouldShowLogin}
           onRequestClose={closeLogin}
