@@ -65,7 +65,7 @@ import { TagLinks } from '@dailydotdev/shared/src/components/TagLinks';
 import PostToc from '../../components/widgets/PostToc';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import styles from './postPage.module.css';
-import PostSidebar from '../../components/posts/PostSidebar';
+import { PostWidgets } from '../../components/posts/PostWidgets';
 import { AuthorOnboarding } from '../../components/posts/AuthorOnboarding';
 
 const PlaceholderCommentList = dynamic(
@@ -660,7 +660,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         {authorOnboarding && (
           <AuthorOnboarding onSignUp={!user && (() => showLogin('author'))} />
         )}
-        <PostSidebar postById={postById} />
+        <PostWidgets postById={postById} />
         <NewCommentContainer>
           <div
             className={classNames(

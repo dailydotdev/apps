@@ -21,13 +21,11 @@ const FurtherReading = dynamic(
     ),
 );
 
-interface PostSidebarProps {
+interface PostWidgetsProps {
   postById: PostData;
 }
 
-export default function PostSidebar({
-  postById,
-}: PostSidebarProps): ReactElement {
+export function PostWidgets({ postById }: PostWidgetsProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
 
