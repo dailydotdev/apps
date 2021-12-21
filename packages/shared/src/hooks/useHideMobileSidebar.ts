@@ -12,10 +12,12 @@ export default function useHideMobileSidebar({
   const router = useRouter();
 
   useEffect(() => {
-    router?.events?.on('routeChangeStart', state && action);
+    if (state) {
+      router?.events?.on('routeChangeStart', action);
 
-    return () => {
-      router?.events?.off('routeChangeStart', state && action);
-    };
+      return () => {
+        router?.events?.off('routeChangeStart', action);
+      };
+    }
   }, [state]);
 }
