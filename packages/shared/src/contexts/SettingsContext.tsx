@@ -80,18 +80,14 @@ function applyTheme(themeMode: ThemeMode): void {
     return;
   }
 
-  if (themeMode === ThemeMode.Auto) {
-    document.documentElement.classList.remove(ThemeMode.Light);
-    document.documentElement.classList.add(ThemeMode.Auto);
+  document.documentElement.classList.remove(ThemeMode.Light);
+  document.documentElement.classList.remove(ThemeMode.Auto);
+
+  if (themeMode === ThemeMode.Dark) {
     return;
   }
 
-  document.documentElement.classList.remove(ThemeMode.Auto);
-  if (themeMode === ThemeMode.Light) {
-    document.documentElement.classList.add(ThemeMode.Light);
-  } else {
-    document.documentElement.classList.remove(ThemeMode.Light);
-  }
+  document.documentElement.classList.add(themeMode);
 }
 
 export type SettingsContextProviderProps = {
