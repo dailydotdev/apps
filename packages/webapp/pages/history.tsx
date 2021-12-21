@@ -40,7 +40,7 @@ const History = (): ReactElement => {
       {seo}
       <ResponsiveNoPaddingPageContainer
         className={classNames(
-          'flex flex-col',
+          'flex flex-col mx-auto',
           isInitialLoading && 'h-screen overflow-hidden',
         )}
         aria-busy={isLoading}
