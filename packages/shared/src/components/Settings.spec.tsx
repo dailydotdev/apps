@@ -209,17 +209,17 @@ it('should open login when hide read posts is clicked and the user is logged out
   );
 });
 
-// it('should mutate show most visited sites setting in extension', () => {
-//   process.env.TARGET_BROWSER = 'chrome';
-//   testSettingsMutation({ showTopSites: false }, async () => {
-//     const checkboxes = await screen.findAllByRole('checkbox');
-//     const checkbox = checkboxes.find((el) =>
-//       // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
-//       queryByText(el.parentElement, 'Show most visited sites'),
-//     ) as HTMLInputElement;
+it('should mutate show most visited sites setting in extension', () => {
+  process.env.TARGET_BROWSER = 'chrome';
+  testSettingsMutation({ showTopSites: false }, async () => {
+    const checkboxes = await screen.findAllByRole('checkbox');
+    const checkbox = checkboxes.find((el) =>
+      // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
+      queryByText(el.parentElement, 'Show most visited sites'),
+    ) as HTMLInputElement;
 
-//     await waitFor(() => expect(checkbox).toBeChecked());
+    await waitFor(() => expect(checkbox).toBeChecked());
 
-//     fireEvent.click(checkbox);
-//   });
-// });
+    fireEvent.click(checkbox);
+  });
+});
