@@ -1,6 +1,7 @@
 html {
   background: var(--theme-background-primary);
   color: var(--theme-label-primary);
+  height: -webkit-fill-available;
 }
 
 :root {
@@ -12,6 +13,9 @@ html {
 body {
   min-width: 20rem;
   overflow-y: scroll;
+  min-height: 100vh;
+  /* mobile viewport bug fix */
+  min-height: -webkit-fill-available;
 
   &.ReactModal__Body--open .ReactModal__Content,
   &.ReactModal__Body--open .ReactModal__Content > * {
