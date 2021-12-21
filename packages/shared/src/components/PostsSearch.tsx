@@ -107,11 +107,11 @@ export default function PostsSearch({
     }
   };
 
-  if (autoFocus) {
-    useEffect(() => {
+  useEffect(() => {
+    if (autoFocus) {
       searchBoxRef.current?.querySelector('input').focus();
-    }, [searchBoxRef]);
-  }
+    }
+  }, [searchBoxRef, autoFocus]);
 
   const isOpen = !!menuPosition && !!items.length;
   return (
