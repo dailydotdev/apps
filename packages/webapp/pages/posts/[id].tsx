@@ -8,7 +8,6 @@ import {
   GetStaticPropsResult,
 } from 'next';
 import { ParsedUrlQuery } from 'querystring';
-import { Roles } from '@dailydotdev/shared/src/lib/user';
 import { NextSeo } from 'next-seo';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import { PageContainer } from '@dailydotdev/shared/src/components/utilities';
@@ -33,22 +32,12 @@ import { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
 import request, { ClientError } from 'graphql-request';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
-import { ProfileLink } from '@dailydotdev/shared/src/components/profile/ProfileLink';
 import { LoginModalMode } from '@dailydotdev/shared/src/types/LoginModalMode';
 import { logReadArticle } from '@dailydotdev/shared/src/lib/analytics';
 import useSubscription from '@dailydotdev/shared/src/hooks/useSubscription';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
-import useNotification from '@dailydotdev/shared/src/hooks/useNotification';
-import classed from '@dailydotdev/shared/src/lib/classed';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import PostMetadata from '@dailydotdev/shared/src/components/cards/PostMetadata';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
-import PostOptionsMenu from '@dailydotdev/shared/src/components/PostOptionsMenu';
-import useReportPostMenu from '@dailydotdev/shared/src/hooks/useReportPostMenu';
-import MenuIcon from '@dailydotdev/shared/icons/menu.svg';
-import { CardNotification } from '@dailydotdev/shared/src/components/cards/Card';
-import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
-import { LinkWithTooltip } from '@dailydotdev/shared/src/components/tooltips/LinkWithTooltip';
 import { TagLinks } from '@dailydotdev/shared/src/components/TagLinks';
 import PostToc from '../../components/widgets/PostToc';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
@@ -57,6 +46,7 @@ import { PostWidgets } from '../../components/posts/PostWidgets';
 import { AuthorOnboarding } from '../../components/posts/AuthorOnboarding';
 import { PostActions } from '../../components/posts/PostActions';
 import { PostUpvotesCommentsCount } from '../../components/posts/PostUpvotesCommentsCount';
+import { PostHeader } from '../../components/posts/PostHeader';
 
 const PlaceholderCommentList = dynamic(
   () =>
@@ -73,12 +63,6 @@ const NewCommentModal = dynamic(
 );
 const DeleteCommentModal = dynamic(
   () => import('@dailydotdev/shared/src/components/modals/DeleteCommentModal'),
-);
-const DeletePostModal = dynamic(
-  () => import('@dailydotdev/shared/src/components/modals/DeletePostModal'),
-);
-const BanPostModal = dynamic(
-  () => import('@dailydotdev/shared/src/components/modals/BanPostModal'),
 );
 
 const ShareNewCommentPopup = dynamic(
@@ -99,11 +83,6 @@ interface PostParams extends ParsedUrlQuery {
 }
 
 const DEFAULT_UPVOTES_PER_PAGE = 50;
-const SourceImage = classed(LazyImage, 'w-8 h-8 rounded-full');
-const SourceName = classed(
-  'div',
-  'text-theme-label-primary font-bold typo-callout',
-);
 
 interface ParentComment {
   authorName: string;
@@ -142,8 +121,6 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   const [showShareNewComment, setShowShareNewComment] = useState(false);
   const [lastScroll, setLastScroll] = useState(0);
   const [upvotedPopup, setUpvotedPopup] = useState(getUpvotedPopupInitialState);
-  const [showDeletePost, setShowDeletePost] = useState(false);
-  const [showBanPost, setShowBanPost] = useState(false);
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
 
   useEffect(() => {
@@ -339,16 +316,6 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     },
   };
 
-  const { showReportMenu } = useReportPostMenu();
-  const showPostOptionsContext = (e) => {
-    const { right, bottom } = e.currentTarget.getBoundingClientRect();
-    showReportMenu(e, {
-      position: { x: right, y: bottom + 4 },
-    });
-  };
-  const { notification, onMessage } = useNotification();
-
-  const isModerator = user?.roles?.indexOf(Roles.Moderator) > -1;
   const commentsCount = comments?.postComments?.edges?.length || 0;
 
   return (
@@ -359,70 +326,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             <link rel="preload" as="image" href={postById?.post.image} />
           </Head>
           <NextSeo {...seo} />
-          <div className="flex items-center mb-2">
-            {notification ? (
-              <CardNotification className="flex-1 py-2.5 text-center">
-                {notification}
-              </CardNotification>
-            ) : (
-              <>
-                {postById?.post.author ? (
-                  <LinkWithTooltip
-                    href={`/sources/${postById?.post.source.id}`}
-                    passHref
-                    prefetch={false}
-                    tooltip={{
-                      placement: 'bottom',
-                      content: postById?.post.source.name,
-                    }}
-                  >
-                    <SourceImage
-                      className="cursor-pointer"
-                      imgSrc={postById?.post.source.image}
-                      imgAlt={postById?.post.source.name}
-                      background="var(--theme-background-secondary)"
-                    />
-                  </LinkWithTooltip>
-                ) : (
-                  <SourceImage
-                    className="cursor-pointer"
-                    imgSrc={postById?.post.source.image}
-                    imgAlt={postById?.post.source.name}
-                    background="var(--theme-background-secondary)"
-                  />
-                )}
-                {postById?.post.author ? (
-                  <ProfileLink
-                    user={postById.post.author}
-                    data-testid="authorLink"
-                    className="flex-1 mr-auto ml-2"
-                  >
-                    <SourceImage
-                      imgSrc={postById.post.author.image}
-                      imgAlt={postById.post.author.name}
-                      background="var(--theme-background-secondary)"
-                    />
-                    <SourceName className="flex-1 ml-2">
-                      {postById.post.author.name}
-                    </SourceName>
-                  </ProfileLink>
-                ) : (
-                  <div className="flex flex-col flex-1 mx-2">
-                    <SourceName>{postById?.post.source.name}</SourceName>
-                  </div>
-                )}
-                <SimpleTooltip placement="left" content="Options">
-                  <Button
-                    className="right-4 my-auto btn-tertiary"
-                    style={{ position: 'absolute' }}
-                    icon={<MenuIcon />}
-                    onClick={(event) => showPostOptionsContext(event)}
-                    buttonSize="small"
-                  />
-                </SimpleTooltip>
-              </>
-            )}
-          </div>
+          <PostHeader post={postById.post} />
 
           <a {...postLinkProps} className="cursor-pointer">
             <h1 className="my-2 font-bold typo-title2">
@@ -526,26 +430,6 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           onRequestClose={() => setShowShareNewComment(false)}
         />
       )}
-      {showDeletePost && (
-        <DeletePostModal
-          postId={id}
-          isOpen={showDeletePost}
-          onRequestClose={() => setShowDeletePost(false)}
-        />
-      )}
-      {showBanPost && (
-        <BanPostModal
-          postId={id}
-          isOpen={showBanPost}
-          onRequestClose={() => setShowBanPost(false)}
-        />
-      )}
-      <PostOptionsMenu
-        post={postData?.post}
-        onMessage={onMessage}
-        setShowBanPost={isModerator ? () => setShowBanPost(true) : null}
-        setShowDeletePost={isModerator ? () => setShowDeletePost(true) : null}
-      />
     </>
   );
 };
