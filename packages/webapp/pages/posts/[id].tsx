@@ -12,7 +12,6 @@ import { Roles } from '@dailydotdev/shared/src/lib/user';
 import { NextSeo } from 'next-seo';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import { PageContainer } from '@dailydotdev/shared/src/components/utilities';
-import { postDateFormat } from '@dailydotdev/shared/src/lib/dateFormat';
 import {
   Post,
   POST_BY_ID_QUERY,
@@ -42,6 +41,7 @@ import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import useNotification from '@dailydotdev/shared/src/hooks/useNotification';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import PostMetadata from '@dailydotdev/shared/src/components/cards/PostMetadata';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import PostOptionsMenu from '@dailydotdev/shared/src/components/PostOptionsMenu';
 import useReportPostMenu from '@dailydotdev/shared/src/hooks/useReportPostMenu';
@@ -99,7 +99,6 @@ interface PostParams extends ParsedUrlQuery {
 }
 
 const DEFAULT_UPVOTES_PER_PAGE = 50;
-const metadataStyle = 'text-theme-label-tertiary typo-callout';
 const SourceImage = classed(LazyImage, 'w-8 h-8 rounded-full');
 const SourceName = classed(
   'div',
@@ -431,22 +430,11 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             </h1>
           </a>
 
-          <div className="flex flex-wrap items-center mt-2 mb-1">
-            <time
-              dateTime={postById?.post?.createdAt}
-              className={metadataStyle}
-            >
-              {postById && postDateFormat(postById.post.createdAt)}
-            </time>
-            {!!postById?.post.readTime && (
-              <div className="mx-1 w-0.5 h-0.5 rounded-full bg-theme-label-tertiary" />
-            )}
-            {!!postById?.post.readTime && (
-              <div data-testid="readTime" className={metadataStyle}>
-                {postById?.post.readTime}m read time
-              </div>
-            )}
-          </div>
+          <PostMetadata
+            post={postById.post}
+            className="mt-2 mb-1"
+            typoClassName="typo-callout"
+          />
           <TagLinks tags={postById?.post.tags || []} />
           {postById?.post?.toc?.length > 0 && (
             <PostToc
