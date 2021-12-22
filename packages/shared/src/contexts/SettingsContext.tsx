@@ -143,7 +143,7 @@ export const SettingsContextProvider = ({
       storageWrapper.setItem(themeModeStorageKey, theme);
       setCachedSettings(remoteData);
     }
-  }, [remoteSettings]);
+  }, [remoteSettings, userId]);
 
   useEffect(() => {
     const theme = storageWrapper.getItem(themeModeStorageKey) as ThemeMode;
