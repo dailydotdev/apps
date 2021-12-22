@@ -44,6 +44,7 @@ export type FeedProps<T> = {
   className?: string;
   onEmptyFeed?: () => unknown;
   emptyScreen?: ReactNode;
+  header?: ReactNode;
 };
 
 const nativeShareSupport = false;
@@ -62,6 +63,7 @@ export default function Feed<T>({
   query,
   variables,
   className,
+  header,
   onEmptyFeed,
   emptyScreen,
 }: FeedProps<T>): ReactElement {
@@ -209,9 +211,11 @@ export default function Feed<T>({
       style={style}
       ref={parentRef}
     >
+      {header}
       <ScrollToTopButton />
       <VirtualizedFeedGrid
         items={items}
+        hasHeader={!!header}
         virtualizer={virtualizer}
         virtualizedNumCards={virtualizedNumCards}
         getNthChild={(index, column, row) => (
