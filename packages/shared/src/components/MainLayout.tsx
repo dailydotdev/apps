@@ -6,7 +6,6 @@ import React, {
   useState,
 } from 'react';
 import dynamic from 'next/dynamic';
-import { useSwipeable } from 'react-swipeable';
 import { Button } from './buttons/Button';
 import AuthContext from '../contexts/AuthContext';
 import PromotionalBanner from './PromotionalBanner';
@@ -18,6 +17,7 @@ import useSidebarRendered from '../hooks/useSidebarRendered';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import MobileHeaderRankProgress from './MobileHeaderRankProgress';
 import { LoggedUser } from '../lib/user';
+import { useSwipeableSidebar } from '../hooks/useSwipeableSidebar';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -90,18 +90,10 @@ export default function MainLayout({
   const { trackEvent } = useContext(AnalyticsContext);
   const { sidebarRendered } = useSidebarRendered();
   const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
-  const handlers = useSwipeable({
-    onSwipedLeft: () => {
-      if (!sidebarRendered && openMobileSidebar) {
-        setOpenMobileSidebar(false);
-      }
-    },
-    onSwipedRight: () => {
-      if (!sidebarRendered && !openMobileSidebar) {
-        setOpenMobileSidebar(true);
-      }
-    },
-    preventDefaultTouchmoveEvent: true,
+  const { handlers } = useSwipeableSidebar({
+    sidebarRendered,
+    openMobileSidebar,
+    setOpenMobileSidebar,
   });
 
   const trackAndToggleMobileSidebar = (state: boolean) => {
