@@ -29,35 +29,11 @@ const SearchEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "emptySearch" */ './SearchEmptyScreen'),
 );
 
-export type Tab = {
-  name: string;
-  path: string;
-  title: string;
-  default?: boolean;
+const feedTitles = {
+  popular: 'Popular',
+  upvoted: 'Most upvoted',
+  discussed: 'Best discussions',
 };
-export const tabs: Tab[] = [
-  {
-    name: 'popular',
-    path: '/popular',
-    title: 'Popular',
-    default: true,
-  },
-  {
-    name: 'upvoted',
-    path: `/upvoted`,
-    title: 'Upvoted',
-  },
-  {
-    name: 'discussed',
-    path: `/discussed`,
-    title: 'Discussed',
-  },
-  {
-    name: 'recent',
-    path: `/recent`,
-    title: 'Recent',
-  },
-];
 
 type FeedQueryProps = {
   query: string;
@@ -195,7 +171,7 @@ export default function MainFeedLayout({
     <FeedPage>
       <nav className="flex overflow-x-auto relative items-center self-stretch mb-6 h-11 no-scrollbar">
         {!isSearchOn && (
-          <h3 className="capitalize typo-headline">{feedName}</h3>
+          <h3 className="capitalize typo-headline">{feedTitles[feedName]}</h3>
         )}
         <div className="flex-1" />
         {navChildren}

@@ -69,6 +69,7 @@ export default function Sidebar({
   setOpenMobileSidebar,
   onShowDndClick,
 }: SidebarProps): ReactElement {
+  activePage = activePage === '/' ? '/popular' : activePage;
   const { user, showLogin } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
   const { trackEvent } = useContext(AnalyticsContext);
