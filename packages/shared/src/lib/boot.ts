@@ -2,6 +2,7 @@ import { IFlags } from 'flagsmith';
 import { AnonymousUser, LoggedUser } from './user';
 import { apiUrl } from './config';
 import { Alerts } from '../graphql/alerts';
+import { RemoteSettings } from '../graphql/settings';
 
 export type AccessToken = { token: string; expiresIn: string };
 export type Visit = { ampStorage?: string; sessionId: string; visitId: string };
@@ -11,6 +12,7 @@ export type Boot = {
   alerts: Alerts;
   visit: Visit;
   flags: IFlags;
+  settings: RemoteSettings;
 };
 
 export async function getBootData(app: string): Promise<Boot> {

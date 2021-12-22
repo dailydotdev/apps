@@ -6,21 +6,24 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { useMutation, useQuery } from 'react-query';
+import { useMutation } from 'react-query';
 import request from 'graphql-request';
 import {
   RemoteSettings,
   RemoteTheme,
   Spaciness,
   UPDATE_USER_SETTINGS_MUTATION,
-  USER_SETTINGS_QUERY,
-  UserSettingsData,
 } from '../graphql/settings';
-import ProgressiveEnhancementContext from './ProgressiveEnhancementContext';
 import AuthContext from './AuthContext';
 import usePersistentState from '../hooks/usePersistentState';
 import { apiUrl } from '../lib/config';
 import { storageWrapper } from '../lib/storageWrapper';
+
+enum ThemeMode {
+  Light = 'light',
+  Dark = 'dark',
+  Auto = 'auto',
+}
 
 export type SettingsContextData = {
   spaciness: Spaciness;
@@ -29,7 +32,7 @@ export type SettingsContextData = {
   openNewTab: boolean;
   insaneMode: boolean;
   showTopSites: boolean;
-  setTheme: (theme) => Promise<void>;
+  setTheme: (theme: ThemeMode) => Promise<void>;
   toggleShowOnlyUnreadPosts: () => Promise<void>;
   toggleOpenNewTab: () => Promise<void>;
   setSpaciness: (density: Spaciness) => Promise<void>;
@@ -49,6 +52,7 @@ type Settings = {
   showTopSites: boolean;
 };
 
+const settingsCacheKey = 'settings';
 const deprecatedLightModeStorageKey = 'showmethelight';
 const themeModeStorageKey = 'theme';
 const defaultSettings: Settings = {
@@ -59,104 +63,106 @@ const defaultSettings: Settings = {
   showTopSites: true,
 };
 
-function applyTheme(themeMode: string): void {
-  if (themeMode !== 'auto') {
-    document.documentElement.classList.remove('auto');
-    const lightMode = themeMode === 'light';
-    if (lightMode) {
-      document.documentElement.classList.add('light');
-    } else {
-      document.documentElement.classList.remove('light');
-    }
-  } else {
-    document.documentElement.classList.remove('light');
-    document.documentElement.classList.add('auto');
+const themeModes: Record<RemoteTheme, ThemeMode> = {
+  bright: ThemeMode.Light,
+  darcula: ThemeMode.Dark,
+  auto: ThemeMode.Auto,
+};
+
+const remoteThemes: Record<ThemeMode, RemoteTheme> = {
+  [ThemeMode.Light]: 'bright',
+  [ThemeMode.Dark]: 'darcula',
+  [ThemeMode.Auto]: 'auto',
+};
+
+function applyTheme(themeMode: ThemeMode): void {
+  if (document.documentElement.classList.contains(themeMode)) {
+    return;
   }
+
+  document.documentElement.classList.remove(ThemeMode.Light);
+  document.documentElement.classList.remove(ThemeMode.Auto);
+
+  if (themeMode === ThemeMode.Dark) {
+    return;
+  }
+
+  document.documentElement.classList.add(themeMode);
 }
 
 export type SettingsContextProviderProps = {
   children?: ReactNode;
+  remoteSettings?: RemoteSettings;
 };
 
 export const SettingsContextProvider = ({
   children,
+  remoteSettings,
 }: SettingsContextProviderProps): ReactElement => {
-  const { windowLoaded } = useContext(ProgressiveEnhancementContext);
-  const { user, tokenRefreshed } = useContext(AuthContext);
-  const canFetchRemote = windowLoaded && tokenRefreshed;
+  const { user } = useContext(AuthContext);
   const userId = user?.id;
 
   const [settings, setCachedSettings, loadedSettings] = usePersistentState(
-    'settings',
+    settingsCacheKey,
     defaultSettings,
   );
-  const [currentTheme, setCurrentTheme] = useState('dark');
-  const { data: remoteSettings } = useQuery<UserSettingsData>(
-    ['userSettings', userId],
-    () => request(`${apiUrl}/graphql`, USER_SETTINGS_QUERY),
-    {
-      enabled: canFetchRemote && !!userId,
-    },
-  );
+  const [currentTheme, setCurrentTheme] = useState(ThemeMode.Dark);
+
+  useEffect(() => {
+    applyTheme(currentTheme);
+  }, [currentTheme]);
 
   const { mutateAsync: updateRemoteSettings } = useMutation<
     unknown,
     unknown,
-    RemoteSettings
-  >((newSettings) =>
-    request(`${apiUrl}/graphql`, UPDATE_USER_SETTINGS_MUTATION, {
-      data: newSettings,
-    }),
+    RemoteSettings,
+    () => Promise<void>
+  >(
+    (params) =>
+      request(`${apiUrl}/graphql`, UPDATE_USER_SETTINGS_MUTATION, {
+        data: params,
+      }),
+    {
+      onMutate: (params) => {
+        const rollback = Object.keys(params).reduce(
+          (values, key) => ({ ...values, [key]: settings[key] }),
+          {},
+        );
+
+        return () => setCachedSettings({ ...settings, ...rollback });
+      },
+      onError: (_, __, rollback) => rollback(),
+    },
   );
 
   useEffect(() => {
-    if (remoteSettings) {
-      const remoteTheme = remoteSettings.userSettings.theme;
-      let theme: string;
-      if (remoteTheme === 'bright') {
-        theme = 'light';
-      } else if (remoteTheme === 'darcula') {
-        theme = 'dark';
-      } else {
-        theme = 'auto';
-      }
-      applyTheme(theme);
+    if (remoteSettings && userId) {
+      const { theme: remoteTheme, ...remoteData } = remoteSettings;
+      const theme = themeModes[remoteTheme];
       setCurrentTheme(theme);
       storageWrapper.setItem(themeModeStorageKey, theme);
-      const cloneSettings = { ...remoteSettings.userSettings };
-      delete cloneSettings.theme;
-      setCachedSettings(cloneSettings);
+      setCachedSettings(remoteData);
     }
-  }, [remoteSettings]);
+  }, [remoteSettings, userId]);
 
   useEffect(() => {
-    const themeModeCookieValue = storageWrapper.getItem(themeModeStorageKey);
-    if (themeModeCookieValue) {
-      setCurrentTheme(themeModeCookieValue);
-      applyTheme(themeModeCookieValue);
+    const theme = storageWrapper.getItem(themeModeStorageKey) as ThemeMode;
+    if (theme) {
+      setCurrentTheme(theme);
     } else {
-      const lightModeCookieValue = storageWrapper.getItem(
-        deprecatedLightModeStorageKey,
-      );
-      if (lightModeCookieValue === 'true') {
-        applyTheme('light');
+      const lightMode = storageWrapper.getItem(deprecatedLightModeStorageKey);
+      if (lightMode === 'true') {
+        applyTheme(ThemeMode.Light);
       }
     }
   }, []);
 
   const updateRemoteSettingsFn = async (
     newSettings: Settings,
-    theme: string,
-  ) => {
+    theme: ThemeMode,
+  ): Promise<void> => {
     if (userId) {
-      let remoteTheme: RemoteTheme;
-      if (theme === 'light') {
-        remoteTheme = 'bright';
-      } else if (theme === 'dark') {
-        remoteTheme = 'darcula';
-      } else {
-        remoteTheme = 'auto';
-      }
+      const remoteTheme = remoteThemes[theme];
       await updateRemoteSettings({
         ...newSettings,
         theme: remoteTheme,
@@ -173,8 +179,7 @@ export const SettingsContextProvider = ({
     () => ({
       ...settings,
       themeMode: currentTheme,
-      setTheme: async (theme: string) => {
-        applyTheme(theme);
+      setTheme: async (theme: ThemeMode) => {
         setCurrentTheme(theme);
         await updateRemoteSettingsFn(settings, theme);
         storageWrapper.setItem(themeModeStorageKey, theme);

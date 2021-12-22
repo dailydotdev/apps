@@ -21,7 +21,6 @@ const densities = [
   { label: 'Roomy', value: 'roomy' },
   { label: 'Cozy', value: 'cozy' },
 ];
-const isExtension = process.env.TARGET_BROWSER;
 const Section = classed('section', 'flex flex-col font-bold mt-6');
 const SectionTitle = classed(
   'h3',
@@ -32,6 +31,7 @@ export default function Settings({
   className,
   ...props
 }: HTMLAttributes<HTMLDivElement>): ReactElement {
+  const isExtension = process.env.TARGET_BROWSER;
   const { user, showLogin } = useContext(AuthContext);
   const {
     spaciness,
