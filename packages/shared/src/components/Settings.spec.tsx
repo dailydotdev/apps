@@ -9,7 +9,6 @@ import {
   waitFor,
 } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { clear } from 'idb-keyval';
 import { mockGraphQL } from '../../__tests__/helpers/graphql';
 import { SettingsContextProvider } from '../contexts/SettingsContext';
 import Settings from './Settings';
@@ -25,7 +24,6 @@ import { LoginModalMode } from '../types/LoginModalMode';
 beforeEach(() => {
   jest.clearAllMocks();
   nock.cleanAll();
-  clear();
 });
 
 const showLogin = jest.fn();
