@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { SwipeableHandlers, useSwipeable } from 'react-swipeable';
 
 interface UseSwipeableSidebarProps {
@@ -25,9 +24,5 @@ export function useSwipeableSidebar({
     preventDefaultTouchmoveEvent: true,
   });
 
-  return useMemo(() => {
-    return {
-      ...handlers,
-    };
-  }, [handlers]);
+  return handlers;
 }

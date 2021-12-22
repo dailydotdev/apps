@@ -27,7 +27,8 @@
     "react-modal": "^3.14.3",
     "react-query": "^3.19.0",
     "react-transition-group": "^4.4.2",
-    "react-virtual": "^2.8.0"
+    "react-virtual": "^2.8.0",
+    "react-swipeable": "^6.2.0"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.16.0",
@@ -100,7 +101,8 @@
     "stylelint-config-recommended": "^4.0.0",
     "tailwindcss": "^2.2.19",
     "ts-jest": "^26.5.6",
-    "typescript": "^4.4.4"
+    "typescript": "^4.4.4",
+    "react-swipeable": "^6.2.0"
   },
   "dependencies": {
     "@tailwindcss/line-clamp": "^0.2.2",
@@ -112,7 +114,6 @@
     "lazysizes": "^5.3.2",
     "linkifyjs": "^2.1.9",
     "lodash.clonedeep": "^4.5.0",
-    "node-fetch": "^2.6.6",
-    "react-swipeable": "^6.2.0"
+    "node-fetch": "^2.6.6"
   }
 }

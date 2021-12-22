@@ -90,7 +90,7 @@ export default function MainLayout({
   const { trackEvent } = useContext(AnalyticsContext);
   const { sidebarRendered } = useSidebarRendered();
   const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
-  const { handlers } = useSwipeableSidebar({
+  const handlers = useSwipeableSidebar({
     sidebarRendered,
     openMobileSidebar,
     setOpenMobileSidebar,

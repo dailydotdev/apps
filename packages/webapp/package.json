@@ -37,6 +37,7 @@
     "react-modal": "^3.14.3",
     "react-parallax-tilt": "^1.5.74",
     "react-query": "^3.31.0",
+    "react-swipeable": "^6.2.0",
     "react-tooltip": "^4.2.21",
     "react-transition-group": "^4.4.2",
     "react-virtual": "^2.8.2"
