@@ -1,5 +1,10 @@
-export const getShareableLink = (): string =>
-  window.location.href.split('?')[0];
+export const getShareableLink = (): string => {
+  try {
+    return window.location.href.split('?')[0];
+  } catch (ex) {
+    return '';
+  }
+};
 export const getWhatsappShareLink = (link: string): string =>
   `https://wa.me/?text=${encodeURIComponent(link)}`;
 export const getTwitterShareLink = (link: string, text: string): string =>
