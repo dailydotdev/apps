@@ -24,6 +24,7 @@ import usePersistentState from '../hooks/usePersistentState';
 import FeaturesContext from '../contexts/FeaturesContext';
 import { generateQueryKey } from '../lib/query';
 import { Features, getFeatureValue } from '../lib/featureManagement';
+import classed from '../lib/classed';
 
 const SearchEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "emptySearch" */ './SearchEmptyScreen'),
@@ -62,6 +63,11 @@ const propsByFeed: Record<string, FeedQueryProps> = {
     variables: { ranking: 'TIME' },
   },
 };
+
+const LayoutHeader = classed(
+  'header',
+  'flex overflow-x-auto relative items-center self-stretch mb-6 h-11 no-scrollbar',
+);
 
 export type MainFeedLayoutProps = {
   feedName: string;
@@ -129,6 +135,45 @@ export default function MainFeedLayout({
   }
 
   const [selectedPeriod, setSelectedPeriod] = useState(0);
+
+  const periodDropdownProps: DropdownProps = {
+    style: { width: '11rem' },
+    buttonSize: 'medium',
+    icon: <CalendarIcon />,
+    selectedIndex: selectedPeriod,
+    options: periodTexts,
+    onChange: (_, index) => setSelectedPeriod(index),
+  };
+
+  const search = (
+    <LayoutHeader>
+      {navChildren}
+      {isSearchOn ? searchChildren : undefined}
+    </LayoutHeader>
+  );
+
+  const header = (
+    <LayoutHeader>
+      {!isSearchOn && (
+        <h3 className="capitalize typo-headline">{feedTitles[feedName]}</h3>
+      )}
+      <div className="flex-1" />
+      {navChildren}
+      {isUpvoted && (
+        <>
+          <Dropdown
+            className={classNames(
+              'hidden laptop:block mr-px',
+              navChildren && 'ml-4',
+            )}
+            {...periodDropdownProps}
+          />
+          <Dropdown className="laptop:hidden mb-6" {...periodDropdownProps} />
+        </>
+      )}
+    </LayoutHeader>
+  );
+
   const feedProps = useMemo<FeedProps<unknown>>(() => {
     if (isSearchOn && searchQuery) {
       return {
@@ -152,6 +197,7 @@ export default function MainFeedLayout({
       ),
       query: query.query,
       variables,
+      header: !isSearchOn && header,
     };
   }, [
     isSearchOn && searchQuery,
@@ -160,39 +206,9 @@ export default function MainFeedLayout({
     isUpvoted && selectedPeriod,
   ]);
 
-  const periodDropdownProps: DropdownProps = {
-    style: { width: '11rem' },
-    buttonSize: 'medium',
-    icon: <CalendarIcon />,
-    selectedIndex: selectedPeriod,
-    options: periodTexts,
-    onChange: (value, index) => {
-      setSelectedPeriod(index);
-    },
-  };
-
   return (
     <FeedPage>
-      <nav className="flex overflow-x-auto relative items-center self-stretch mb-6 h-11 no-scrollbar">
-        {!isSearchOn && (
-          <h3 className="capitalize typo-headline">{feedTitles[feedName]}</h3>
-        )}
-        <div className="flex-1" />
-        {navChildren}
-        {isUpvoted && (
-          <Dropdown
-            className={classNames(
-              'hidden laptop:block mr-px',
-              navChildren && 'ml-4',
-            )}
-            {...periodDropdownProps}
-          />
-        )}
-        {isSearchOn ? searchChildren : undefined}
-      </nav>
-      {isUpvoted && (
-        <Dropdown className="laptop:hidden mb-6" {...periodDropdownProps} />
-      )}
+      {isSearchOn && search}
       {feedProps && <Feed {...feedProps} />}
       {children}
     </FeedPage>
