@@ -88,6 +88,7 @@ export default function MainLayout({
   const { user, showLogin, loadingUser } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const { sidebarRendered } = useSidebarRendered();
+
   const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
 
   const trackAndToggleMobileSidebar = (state: boolean) => {
@@ -138,7 +139,7 @@ export default function MainLayout({
         {!sidebarRendered && <MobileHeaderRankProgress />}
       </header>
       <main className="flex flex-row laptop:pt-14">
-        {!showOnlyLogo && (
+        {!showOnlyLogo && sidebarRendered !== null && (
           <Sidebar
             sidebarRendered={sidebarRendered}
             openMobileSidebar={openMobileSidebar}
