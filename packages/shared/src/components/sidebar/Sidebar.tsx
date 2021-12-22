@@ -113,8 +113,9 @@ const RenderSection = ({
 };
 
 export default function Sidebar({
+  promotionalBannerActive = false,
   useNavButtonsNotLinks = false,
-  activePage,
+  activePage: activePageProp,
   sidebarRendered = false,
   openMobileSidebar = false,
   onNavTabClick,
@@ -122,7 +123,7 @@ export default function Sidebar({
   setOpenMobileSidebar,
   onShowDndClick,
 }: SidebarProps): ReactElement {
-  activePage = activePage === '/' ? '/popular' : activePage;
+  const activePage = activePageProp === '/' ? '/popular' : activePageProp;
   const { alerts } = useContext(AlertContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const { isLoaded, isAnimated, setLoaded, setHidden } =
@@ -221,6 +222,9 @@ export default function Sidebar({
         className={classNames(
           sidebarExpanded ? 'laptop:w-60' : 'laptop:w-11',
           openMobileSidebar ? '-translate-x-0' : '-translate-x-70',
+          promotionalBannerActive
+            ? 'laptop:top-22 laptop:h-[calc(100vh-theme(space.22))]'
+            : 'laptop:top-14 laptop:h-[calc(100vh-theme(space.14))]',
         )}
       >
         {sidebarRendered && (

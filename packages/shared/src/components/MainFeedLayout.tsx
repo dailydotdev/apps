@@ -46,6 +46,10 @@ const propsByFeed: Record<string, FeedQueryProps> = {
     query: ANONYMOUS_FEED_QUERY,
     queryIfLogged: FEED_QUERY,
   },
+  search: {
+    query: ANONYMOUS_FEED_QUERY,
+    queryIfLogged: FEED_QUERY,
+  },
   upvoted: {
     query: MOST_UPVOTED_FEED_QUERY,
   },
