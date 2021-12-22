@@ -60,7 +60,7 @@ const defaultSettings: Settings = {
   openNewTab: true,
   insaneMode: false,
   showTopSites: true,
-  sidebarExpanded: false,
+  sidebarExpanded: true,
 };
 
 function applyTheme(themeMode: string): void {
