@@ -136,7 +136,7 @@ export const SettingsContextProvider = ({
   );
 
   useEffect(() => {
-    if (remoteSettings) {
+    if (remoteSettings && userId) {
       const { theme: remoteTheme, ...remoteData } = remoteSettings;
       const theme = themeModes[remoteTheme];
       setCurrentTheme(theme);
