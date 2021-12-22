@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useState } from 'react';
+import React, { ReactElement, useContext, useState, useMemo } from 'react';
 import classNames from 'classnames';
 import SettingsContext from '../../contexts/SettingsContext';
 import { FeedSettingsModal } from '../modals/FeedSettingsModal';
@@ -59,9 +59,63 @@ const bottomMenuItems: SidebarMenuItem[] = [
   },
 ];
 
-export default function Sidebar({
-  useNavButtonsNotLinks = false,
+interface RenderSectionProps {
+  title?: string;
+  items: SidebarMenuItem[];
+  sidebarExpanded: boolean;
+  sidebarRendered: boolean;
+  activePage: string;
+  useNavButtonsNotLinks: boolean;
+}
+const RenderSection = ({
+  title,
+  items,
+  sidebarExpanded,
+  sidebarRendered,
   activePage,
+  useNavButtonsNotLinks,
+}: RenderSectionProps) => {
+  const { user, showLogin } = useContext(AuthContext);
+
+  const mobileItemsFilter = (item) =>
+    (!sidebarRendered && !item.hideOnMobile) || sidebarRendered;
+
+  return (
+    <NavSection>
+      {title && (
+        <NavHeader
+          className={classNames(
+            'hidden laptop:block',
+            sidebarExpanded ? 'opacity-100 px-3' : 'opacity-0 px-0',
+          )}
+        >
+          {title}
+        </NavHeader>
+      )}
+      {items.filter(mobileItemsFilter).map((item) => (
+        <NavItem
+          key={item.title}
+          active={item.active || item.path === activePage}
+        >
+          <ButtonOrLink
+            item={item}
+            showLogin={
+              item.requiresLogin && !user ? () => showLogin(item.title) : null
+            }
+            useNavButtonsNotLinks={useNavButtonsNotLinks}
+          >
+            <ItemInner item={item} sidebarExpanded={sidebarExpanded} />
+          </ButtonOrLink>
+        </NavItem>
+      ))}
+    </NavSection>
+  );
+};
+
+export default function Sidebar({
+  promotionalBannerActive = false,
+  useNavButtonsNotLinks = false,
+  activePage: activePageProp,
   sidebarRendered = false,
   openMobileSidebar = false,
   onNavTabClick,
@@ -69,7 +123,7 @@ export default function Sidebar({
   setOpenMobileSidebar,
   onShowDndClick,
 }: SidebarProps): ReactElement {
-  const { user, showLogin } = useContext(AuthContext);
+  const activePage = activePageProp === '/' ? '/popular' : activePageProp;
   const { alerts } = useContext(AlertContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const { isLoaded, isAnimated, setLoaded, setHidden } =
@@ -149,50 +203,14 @@ export default function Sidebar({
     },
   ];
 
-  const mobileItemsFilter = (item) =>
-    (!sidebarRendered && !item.hideOnMobile) || sidebarRendered;
-
-  const RenderSection = ({
-    title,
-    items,
-  }: {
-    title?: string;
-    items: SidebarMenuItem[];
-  }) => {
-    return (
-      <NavSection>
-        {title && (
-          <NavHeader
-            className={classNames(
-              'hidden laptop:block',
-              sidebarExpanded ? 'opacity-100 px-3' : 'opacity-0 px-0',
-            )}
-          >
-            {title}
-          </NavHeader>
-        )}
-        {items.filter(mobileItemsFilter).map((item) => (
-          <NavItem
-            key={item.title}
-            active={item.active || item.path === activePage}
-          >
-            <ButtonOrLink
-              item={item}
-              showLogin={
-                item.requiresLogin && !user ? () => showLogin(item.title) : null
-              }
-              useNavButtonsNotLinks={useNavButtonsNotLinks}
-            >
-              <ItemInner
-                item={item}
-                sidebarExpanded={sidebarExpanded || !sidebarRendered}
-              />
-            </ButtonOrLink>
-          </NavItem>
-        ))}
-      </NavSection>
-    );
-  };
+  const defaultRenderSectionProps = useMemo(() => {
+    return {
+      useNavButtonsNotLinks,
+      sidebarExpanded,
+      sidebarRendered,
+      activePage,
+    };
+  }, [sidebarExpanded, sidebarRendered, activePage]);
 
   return (
     <>
@@ -204,6 +222,9 @@ export default function Sidebar({
         className={classNames(
           sidebarExpanded ? 'laptop:w-60' : 'laptop:w-11',
           openMobileSidebar ? '-translate-x-0' : '-translate-x-70',
+          promotionalBannerActive
+            ? 'laptop:top-22 laptop:h-[calc(100vh-theme(space.22))]'
+            : 'laptop:top-14 laptop:h-[calc(100vh-theme(space.14))]',
         )}
       >
         {sidebarRendered && (
@@ -218,12 +239,23 @@ export default function Sidebar({
               sidebarRendered={sidebarRendered}
               onShowDndClick={onShowDndClick}
             />
-            <RenderSection title="Discover" items={discoverMenuItems} />
-            <RenderSection title="Manage" items={manageMenuItems} />
+            <RenderSection
+              {...defaultRenderSectionProps}
+              title="Discover"
+              items={discoverMenuItems}
+            />
+            <RenderSection
+              {...defaultRenderSectionProps}
+              title="Manage"
+              items={manageMenuItems}
+            />
           </Nav>
           <div className="flex-1" />
           <Nav>
-            <RenderSection items={bottomMenuItems} />
+            <RenderSection
+              {...defaultRenderSectionProps}
+              items={bottomMenuItems}
+            />
             <InvitePeople
               sidebarExpanded={sidebarExpanded || !sidebarRendered}
             />

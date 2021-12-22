@@ -11,6 +11,7 @@ export default function useSidebarRendered(): {
     [footerNavBarBreakpoint.replace('@media ', '')],
     [true],
     false,
+    null,
   );
 
   return useMemo(() => {

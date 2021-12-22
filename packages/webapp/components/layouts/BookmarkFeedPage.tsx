@@ -34,6 +34,7 @@ export default function BookmarkFeedPage({
         user && (
           <PostsSearch
             autoFocus={false}
+            placeholder="Search bookmarks"
             suggestionType="searchBookmarksSuggestions"
           />
         )

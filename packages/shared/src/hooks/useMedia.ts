@@ -4,6 +4,7 @@ export default function useMedia<T>(
   queries: string[],
   values: T[],
   defaultValue: T,
+  ssrValue = defaultValue,
 ): T {
   const getMedia = (): MediaQueryList[] =>
     queries.map((q) => window.matchMedia(q));
@@ -14,7 +15,7 @@ export default function useMedia<T>(
   };
 
   const [value, setValue] = useState<T>(
-    typeof window !== 'undefined' ? getValue(getMedia()) : defaultValue,
+    typeof window !== 'undefined' ? getValue(getMedia()) : ssrValue,
   );
 
   useEffect(() => {

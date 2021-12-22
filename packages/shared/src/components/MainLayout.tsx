@@ -6,6 +6,7 @@ import React, {
   useState,
 } from 'react';
 import dynamic from 'next/dynamic';
+import classNames from 'classnames';
 import { Button } from './buttons/Button';
 import AuthContext from '../contexts/AuthContext';
 import PromotionalBanner from './PromotionalBanner';
@@ -17,6 +18,7 @@ import useSidebarRendered from '../hooks/useSidebarRendered';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import MobileHeaderRankProgress from './MobileHeaderRankProgress';
 import { LoggedUser } from '../lib/user';
+import usePromotionalBanner from '../hooks/usePromotionalBanner';
 import { useSwipeableSidebar } from '../hooks/useSwipeableSidebar';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
@@ -89,6 +91,7 @@ export default function MainLayout({
   const { user, showLogin, loadingUser } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const { sidebarRendered } = useSidebarRendered();
+  const { bannerData, setLastSeen } = usePromotionalBanner();
   const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
   const handlers = useSwipeableSidebar({
     sidebarRendered,
@@ -105,8 +108,13 @@ export default function MainLayout({
 
   return (
     <div {...handlers}>
-      <PromotionalBanner />
-      <header className="flex relative laptop:fixed laptop:top-0 laptop:left-0 z-3 flex-row laptop:flex-row justify-between items-center py-3 px-4 tablet:px-8 laptop:px-4 laptop:w-full h-14 border-b bg-theme-bg-primary border-theme-divider-tertiary">
+      <PromotionalBanner bannerData={bannerData} setLastSeen={setLastSeen} />
+      <header
+        className={classNames(
+          'flex relative laptop:fixed laptop:left-0 z-3 flex-row laptop:flex-row justify-between items-center py-3 px-4 tablet:px-8 laptop:px-4 laptop:w-full h-14 border-b bg-theme-bg-primary border-theme-divider-tertiary',
+          bannerData?.banner ? 'laptop:top-8' : 'laptop:top-0',
+        )}
+      >
         {!sidebarRendered && (
           <Button
             className="btn-tertiary"
@@ -143,9 +151,15 @@ export default function MainLayout({
         )}
         {!sidebarRendered && <MobileHeaderRankProgress />}
       </header>
-      <main className="flex flex-row laptop:pt-14">
-        {!showOnlyLogo && (
+      <main
+        className={classNames(
+          'flex flex-row',
+          bannerData?.banner ? 'laptop:pt-22' : 'laptop:pt-14',
+        )}
+      >
+        {!showOnlyLogo && sidebarRendered !== null && (
           <Sidebar
+            promotionalBannerActive={!!bannerData?.banner}
             sidebarRendered={sidebarRendered}
             openMobileSidebar={openMobileSidebar}
             onNavTabClick={onNavTabClick}

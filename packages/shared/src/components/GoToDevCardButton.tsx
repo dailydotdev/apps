@@ -20,8 +20,7 @@ export default function GoToDevCardButton({
     <Button
       className={classNames('btn-secondary', className)}
       tag="a"
-      href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}devcard?utm_source=dailydev&utm_medium=app&utm_campaign=${origin}`}
-      target="_blank"
+      href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}devcard`}
       onClick={onGenerateDevCardClick}
     >
       {children}

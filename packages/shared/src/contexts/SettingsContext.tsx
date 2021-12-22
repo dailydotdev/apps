@@ -64,7 +64,7 @@ const defaultSettings: Settings = {
   openNewTab: true,
   insaneMode: false,
   showTopSites: true,
-  sidebarExpanded: false,
+  sidebarExpanded: true,
 };
 
 const themeModes: Record<RemoteTheme, ThemeMode> = {

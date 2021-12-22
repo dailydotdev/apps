@@ -139,6 +139,7 @@ module.exports = {
         screen: '100vh',
       },
       spacing: {
+        22: '5.5rem',
         70: '17.5rem',
       },
       width: {
