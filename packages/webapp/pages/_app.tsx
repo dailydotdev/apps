@@ -24,7 +24,6 @@ import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/Su
 import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import { AnalyticsContextProvider } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { canonicalFromRouter } from '@dailydotdev/shared/src/lib/canonical';
-import { SettingsContextProvider } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import '@dailydotdev/shared/src/styles/globals.css';
 import useThirdPartyAnalytics from '@dailydotdev/shared/src/hooks/useThirdPartyAnalytics';
 import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPageView';
@@ -181,15 +180,13 @@ export default function App(props: AppProps): ReactElement {
       <QueryClientProvider client={queryClient}>
         <BootDataProvider app="web" getRedirectUri={getRedirectUri}>
           <SubscriptionContextProvider>
-            <SettingsContextProvider>
-              <AnalyticsContextProvider
-                app="webapp"
-                version={version}
-                getPage={getPage}
-              >
-                <InternalApp {...props} />
-              </AnalyticsContextProvider>
-            </SettingsContextProvider>
+            <AnalyticsContextProvider
+              app="webapp"
+              version={version}
+              getPage={getPage}
+            >
+              <InternalApp {...props} />
+            </AnalyticsContextProvider>
           </SubscriptionContextProvider>
         </BootDataProvider>
       </QueryClientProvider>

@@ -14,6 +14,7 @@ import { AnonymousUser, LoggedUser } from '../lib/user';
 import usePersistentState from '../hooks/usePersistentState';
 import { AlertContextProvider } from './AlertContext';
 import { generateQueryKey } from '../lib/query';
+import { SettingsContextProvider } from './SettingsContext';
 
 function useRefreshToken(
   accessToken: AccessToken,
@@ -103,9 +104,11 @@ export const BootDataProvider = ({
         loadedUserFromCache={loadedFromCache}
         visit={bootData?.visit}
       >
-        <AlertContextProvider alerts={bootData?.alerts}>
-          {children}
-        </AlertContextProvider>
+        <SettingsContextProvider remoteSettings={bootData?.settings}>
+          <AlertContextProvider alerts={bootData?.alerts}>
+            {children}
+          </AlertContextProvider>
+        </SettingsContextProvider>
       </AuthContextProvider>
     </FeaturesContextProvider>
   );
