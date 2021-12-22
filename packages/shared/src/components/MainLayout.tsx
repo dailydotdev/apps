@@ -19,6 +19,7 @@ import AnalyticsContext from '../contexts/AnalyticsContext';
 import MobileHeaderRankProgress from './MobileHeaderRankProgress';
 import { LoggedUser } from '../lib/user';
 import usePromotionalBanner from '../hooks/usePromotionalBanner';
+import { useSwipeableSidebar } from '../hooks/useSwipeableSidebar';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -92,6 +93,11 @@ export default function MainLayout({
   const { sidebarRendered } = useSidebarRendered();
   const { bannerData, setLastSeen } = usePromotionalBanner();
   const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
+  const handlers = useSwipeableSidebar({
+    sidebarRendered,
+    openMobileSidebar,
+    setOpenMobileSidebar,
+  });
 
   const trackAndToggleMobileSidebar = (state: boolean) => {
     trackEvent({
@@ -101,7 +107,7 @@ export default function MainLayout({
   };
 
   return (
-    <>
+    <div {...handlers}>
       <PromotionalBanner bannerData={bannerData} setLastSeen={setLastSeen} />
       <header
         className={classNames(
@@ -166,6 +172,6 @@ export default function MainLayout({
         )}
         {children}
       </main>
-    </>
+    </div>
   );
 }
