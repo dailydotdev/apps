@@ -18,7 +18,6 @@ import classed from '../lib/classed';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
 import { SimpleTooltip } from './tooltips/SimpleTooltip';
-import ProgressiveEnhancementContext from '../contexts/ProgressiveEnhancementContext';
 
 const ShareButton = classed(Button, 'my-1');
 const ColorfulShareButton = classed(
@@ -27,7 +26,7 @@ const ColorfulShareButton = classed(
 ) as unknown as FunctionComponent<ButtonProps<'a'>>;
 
 export default function ShareBar({ post }: { post: Post }): ReactElement {
-  const { windowLoaded } = useContext(ProgressiveEnhancementContext);
+  const href = getShareableLink();
   const [copying, copyLink] = useCopyPostLink();
   const { trackEvent } = useContext(AnalyticsContext);
 
@@ -37,12 +36,6 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
         extra: { media, origin: 'share bar' },
       }),
     );
-
-  if (!windowLoaded) {
-    return <></>;
-  }
-
-  const href = getShareableLink();
 
   return (
     <div className="hidden laptopL:inline-flex flex-row items-center px-3 mt-20 mb-6 rounded-2xl border bg-theme-bg-primary border-theme-divider-quaternary">
