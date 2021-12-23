@@ -10,7 +10,7 @@
     }
   }
 
-  & :global(.modal) {
+  & :global(.modal):global(.responsive) {
     position: absolute;
     max-width: 30rem;
     min-height: 100%;
