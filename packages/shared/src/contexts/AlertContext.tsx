@@ -1,8 +1,13 @@
 import request from 'graphql-request';
-import React, { ReactNode, ReactElement, useMemo, useEffect } from 'react';
+import React, {
+  ReactNode,
+  ReactElement,
+  useMemo,
+  useEffect,
+  useState,
+} from 'react';
 import { UseMutateAsyncFunction, useMutation } from 'react-query';
 import { Alerts, UPDATE_ALERTS } from '../graphql/alerts';
-import usePersistentState from '../hooks/usePersistentState';
 import { apiUrl } from '../lib/config';
 
 export const ALERT_DEFAULTS: Alerts = {
@@ -29,59 +34,53 @@ const AlertContext = React.createContext<AlertContextData>({
 interface AlertContextProviderProps {
   children: ReactNode;
   alerts?: Alerts;
+  updateAlerts: (alerts: Alerts) => unknown;
 }
-
-const STORAGE_KEY = 'alert';
 
 export const AlertContextProvider = ({
   children,
-  alerts: alertsProp,
+  alerts = ALERT_DEFAULTS,
+  updateAlerts,
 }: AlertContextProviderProps): ReactElement => {
-  const [alerts, setAlerts] = usePersistentState(
-    STORAGE_KEY,
-    ALERT_DEFAULTS,
-    ALERT_DEFAULTS,
-  );
-  const { mutateAsync: updateAlerts } = useMutation<
+  const [loadedRankLastSeen, setLoadedRankLastSeen] = useState(false);
+  const { mutateAsync: updateRemoteAlerts } = useMutation<
     unknown,
     unknown,
-    Alerts,
-    () => Promise<void>
+    Alerts
   >(
     (params) =>
       request(`${apiUrl}/graphql`, UPDATE_ALERTS, {
         data: params,
       }),
     {
-      onMutate: (params) => {
+      onMutate: (params) => updateAlerts({ ...alerts, ...params }),
+      onError: (_, params) => {
         const rollback = Object.keys(params).reduce(
           (values, key) => ({ ...values, [key]: alerts[key] }),
           {},
         );
 
-        setAlerts({ ...alerts, ...params });
-
-        return () => setAlerts({ ...alerts, ...rollback });
+        updateAlerts({ ...alerts, ...rollback });
       },
-      onError: (_, __, rollback) => rollback(),
     },
   );
 
   const alertContextData = useMemo(
     () => ({
       alerts,
-      updateAlerts,
+      updateRemoteAlerts,
     }),
-    [alerts, updateAlerts],
+    [alerts, updateRemoteAlerts],
   );
 
   useEffect(() => {
-    if (alertsProp) {
-      const { rankLastSeen: lastSeen, ...props } = alertsProp;
+    if (alerts && !loadedRankLastSeen) {
+      const { rankLastSeen: lastSeen, ...props } = alerts;
       const rankLastSeen = lastSeen ?? undefined;
-      setAlerts({ ...alerts, ...props, rankLastSeen });
+      updateAlerts({ ...alerts, ...props, rankLastSeen });
+      setLoadedRankLastSeen(true);
     }
-  }, [alertsProp]);
+  }, [loadedRankLastSeen]);
 
   return (
     <AlertContext.Provider value={alertContextData}>

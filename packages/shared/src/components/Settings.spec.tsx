@@ -35,7 +35,10 @@ const defaultSettings: RemoteSettings = {
   spaciness: 'roomy',
   insaneMode: false,
   showTopSites: true,
+  sidebarExpanded: true,
 };
+
+const updateSettings = jest.fn();
 
 const renderComponent = (
   user: LoggedUser = defaultUser,
@@ -60,7 +63,11 @@ const renderComponent = (
           trackingId: user?.id,
         }}
       >
-        <SettingsContextProvider remoteSettings={settings}>
+        <SettingsContextProvider
+          settings={settings}
+          updateSettings={updateSettings}
+          loadedSettings
+        >
           <Settings />
         </SettingsContextProvider>
       </AuthContext.Provider>
