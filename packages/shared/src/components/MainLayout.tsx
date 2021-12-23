@@ -115,45 +115,47 @@ export default function MainLayout({
           bannerData?.banner ? 'laptop:top-8' : 'laptop:top-0',
         )}
       >
-        {sidebarRendered === false && (
-          <Button
-            className="btn-tertiary"
-            iconOnly
-            onClick={() => trackAndToggleMobileSidebar(true)}
-            icon={<MenuIcon />}
-          />
-        )}
         {sidebarRendered !== undefined && (
-          <div className="flex flex-row flex-1 justify-center laptop:justify-start">
-            {mobileTitle && (
-              <h3 className="block laptop:hidden typo-callout">
-                {mobileTitle}
-              </h3>
-            )}
-            {shouldShowLogo({ mobileTitle, sidebarRendered }) && (
-              <LogoAndGreeting
-                user={user}
-                onLogoClick={onLogoClick}
-                greeting={greeting}
+          <>
+            {sidebarRendered === false && (
+              <Button
+                className="btn-tertiary"
+                iconOnly
+                onClick={() => trackAndToggleMobileSidebar(true)}
+                icon={<MenuIcon />}
               />
             )}
-          </div>
-        )}
-        {!showOnlyLogo && !loadingUser && sidebarRendered && (
-          <>
-            {user ? (
-              <ProfileButton onShowDndClick={onShowDndClick} />
-            ) : (
-              <Button
-                onClick={() => showLogin('main button')}
-                className="btn-primary"
-              >
-                Login
-              </Button>
+            <div className="flex flex-row flex-1 justify-center laptop:justify-start">
+              {mobileTitle && (
+                <h3 className="block laptop:hidden typo-callout">
+                  {mobileTitle}
+                </h3>
+              )}
+              {shouldShowLogo({ mobileTitle, sidebarRendered }) && (
+                <LogoAndGreeting
+                  user={user}
+                  onLogoClick={onLogoClick}
+                  greeting={greeting}
+                />
+              )}
+            </div>
+            {!showOnlyLogo && !loadingUser && sidebarRendered && (
+              <>
+                {user ? (
+                  <ProfileButton onShowDndClick={onShowDndClick} />
+                ) : (
+                  <Button
+                    onClick={() => showLogin('main button')}
+                    className="btn-primary"
+                  >
+                    Login
+                  </Button>
+                )}
+              </>
             )}
+            {sidebarRendered === false && <MobileHeaderRankProgress />}
           </>
         )}
-        {sidebarRendered === false && <MobileHeaderRankProgress />}
       </header>
       <main
         className={classNames(
