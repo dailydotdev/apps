@@ -1,6 +1,12 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement, useContext, useState } from 'react';
 import { useCopyLink } from '../../hooks/useCopyLink';
-import { ButtonOrLink, ItemInner, ListIcon, NavItem } from './common';
+import {
+  ButtonOrLink,
+  ItemInner,
+  ListIcon,
+  NavItem,
+  SidebarMenuItem,
+} from './common';
 import UserShareIcon from '../../../icons/user_share.svg';
 import AuthContext from '../../contexts/AuthContext';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
@@ -39,6 +45,7 @@ export default function InvitePeople({
 }: {
   sidebarExpanded: boolean;
 }): ReactElement {
+  const [visible, setVisible] = useState(false);
   const { user } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const trackInvite = () => {
@@ -51,15 +58,21 @@ export default function InvitePeople({
     ? user?.referralLink
     : DEFAULT_INVITE_LINK;
   const [copyingLink, copyLink] = useCopyLink(() => inviteLink);
+  const tooltipBg = copyingLink ? 'bg-theme-status-success' : undefined;
 
-  const item = {
+  const item: SidebarMenuItem = {
     icon: <ListIcon Icon={UserShareIcon} />,
     title: copyingLink ? 'Link copied to clipboard' : 'Invite people',
     action: () => onInvitePeople({ copyLink, inviteLink, trackInvite }),
+    tooltip: { visible, container: { bgClassName: tooltipBg } },
   };
   return (
     <NavItem color={copyingLink && 'text-theme-status-success'}>
-      <ButtonOrLink item={item}>
+      <ButtonOrLink
+        item={item}
+        onMouseEnter={() => !sidebarExpanded && !visible && setVisible(true)}
+        onMouseOut={() => !sidebarExpanded && visible && setVisible(false)}
+      >
         <ItemInner item={item} sidebarExpanded={sidebarExpanded} />
       </ButtonOrLink>
     </NavItem>

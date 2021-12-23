@@ -2,6 +2,7 @@ import React, {
   ReactNode,
   ReactElement,
   HTMLAttributeAnchorTarget,
+  HTMLAttributes,
 } from 'react';
 import Link from 'next/link';
 import classNames from 'classnames';
@@ -9,6 +10,7 @@ import classed from '../../lib/classed';
 import { Button } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import ArrowIcon from '../../../icons/arrow.svg';
+import { TooltipProps } from '../tooltips/BaseTooltip';
 
 export interface SidebarProps {
   promotionalBannerActive?: boolean;
@@ -37,9 +39,11 @@ export interface SidebarMenuItem {
   active?: boolean;
   hideOnMobile?: boolean;
   requiresLogin?: boolean;
+  tooltip?: TooltipProps;
 }
 
-interface ButtonOrLinkProps {
+interface ButtonOrLinkProps
+  extends HTMLAttributes<HTMLButtonElement | HTMLAnchorElement> {
   item: SidebarMenuItem;
   useNavButtonsNotLinks?: boolean;
   children?: ReactNode;
@@ -92,37 +96,68 @@ export const RawNavItem = classed(
 );
 
 export const ListIcon = ({ Icon }: ListIconProps): ReactElement => (
-  <Icon className="w-5 h-5" />
+  <Icon className="w-5 h-5 pointer-events-none" />
 );
+
+const ItemInnerIcon = ({ alert, icon }: SidebarMenuItem) => {
+  return (
+    <span className="relative mr-3">
+      {alert}
+      {icon}
+    </span>
+  );
+};
+
+const ItemInnerIconTooltip = ({
+  alert,
+  icon,
+  title,
+  tooltip = {},
+}: SidebarMenuItem) => (
+  <SimpleTooltip {...tooltip} content={title} placement="right">
+    <span
+      className={classNames(
+        'relative mr-3',
+        tooltip.visible !== undefined && 'pointer-events-none',
+      )}
+    >
+      {alert}
+      {icon}
+    </span>
+  </SimpleTooltip>
+);
+
 export const ItemInner = ({
   item,
   sidebarExpanded,
-}: ItemInnerProps): ReactElement => (
-  <>
-    <span className="relative mr-3">
-      {item.alert}
-      {item.icon}
-    </span>
-    <span
-      className={classNames(
-        'flex-1 text-left transition-opacity',
-        sidebarExpanded ? 'opacity-100 delay-150' : 'opacity-0',
-      )}
-    >
-      {item.title}
-    </span>
-  </>
-);
+}: ItemInnerProps): ReactElement => {
+  const Icon = sidebarExpanded ? ItemInnerIcon : ItemInnerIconTooltip;
+
+  return (
+    <>
+      <Icon {...item} />
+      <span
+        className={classNames(
+          'flex-1 text-left transition-opacity',
+          sidebarExpanded ? 'opacity-100 delay-150' : 'opacity-0',
+        )}
+      >
+        {item.title}
+      </span>
+    </>
+  );
+};
 
 export const ButtonOrLink = ({
   item,
   useNavButtonsNotLinks,
   showLogin,
   children,
+  ...props
 }: ButtonOrLinkProps): ReactElement => {
   if (showLogin) {
     return (
-      <button type="button" className={btnClass} onClick={showLogin}>
+      <button {...props} type="button" className={btnClass} onClick={showLogin}>
         {children}
       </button>
     );
@@ -130,12 +165,17 @@ export const ButtonOrLink = ({
   return (!useNavButtonsNotLinks && !item.action) ||
     (item.path && !useNavButtonsNotLinks) ? (
     <Link href={item.path} passHref prefetch={false}>
-      <a target={item?.target} className={btnClass} rel="noopener noreferrer">
+      <a
+        {...props}
+        target={item?.target}
+        className={btnClass}
+        rel="noopener noreferrer"
+      >
         {children}
       </a>
     </Link>
   ) : (
-    <button type="button" className={btnClass} onClick={item.action}>
+    <button {...props} type="button" className={btnClass} onClick={item.action}>
       {children}
     </button>
   );
