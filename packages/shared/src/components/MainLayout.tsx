@@ -123,18 +123,22 @@ export default function MainLayout({
             icon={<MenuIcon />}
           />
         )}
-        <div className="flex flex-row">
-          {mobileTitle && (
-            <h3 className="block laptop:hidden typo-callout">{mobileTitle}</h3>
-          )}
-          {shouldShowLogo({ mobileTitle, sidebarRendered }) && (
-            <LogoAndGreeting
-              user={user}
-              onLogoClick={onLogoClick}
-              greeting={greeting}
-            />
-          )}
-        </div>
+        {sidebarRendered !== undefined && (
+          <div className="flex flex-row">
+            {mobileTitle && (
+              <h3 className="block laptop:hidden typo-callout">
+                {mobileTitle}
+              </h3>
+            )}
+            {shouldShowLogo({ mobileTitle, sidebarRendered }) && (
+              <LogoAndGreeting
+                user={user}
+                onLogoClick={onLogoClick}
+                greeting={greeting}
+              />
+            )}
+          </div>
+        )}
         {!showOnlyLogo && !loadingUser && sidebarRendered && (
           <>
             {user ? (
