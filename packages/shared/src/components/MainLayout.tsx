@@ -124,7 +124,7 @@ export default function MainLayout({
           />
         )}
         {sidebarRendered !== undefined && (
-          <div className="flex flex-row">
+          <div className="flex flex-row flex-1 justify-center laptop:justify-start">
             {mobileTitle && (
               <h3 className="block laptop:hidden typo-callout">
                 {mobileTitle}
