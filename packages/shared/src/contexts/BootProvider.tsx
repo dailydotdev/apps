@@ -153,7 +153,12 @@ export const BootDataProvider = ({
             setBootData({ settings: updatedSettings })
           }
         >
-          <AlertContextProvider alerts={alerts}>
+          <AlertContextProvider
+            alerts={alerts}
+            updateAlerts={(updatedAlerts) =>
+              setBootData({ alerts: updatedAlerts })
+            }
+          >
             {children}
           </AlertContextProvider>
         </SettingsContextProvider>
