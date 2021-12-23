@@ -149,14 +149,9 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
         <script
           dangerouslySetInnerHTML={{
-            __html: `
-              window.addEventListener('load', () => { window.windowLoaded = true; }, {
-                once: true,
-              });
-              try {
-                window.bootData = 'localStorage' in window && window.localStorage !== null ? JSON.parse(window.localStorage.getItem('boot:local')) : null;
-              } catch (ex) {}
-            `,
+            __html: `window.addEventListener('load', () => { window.windowLoaded = true; }, {
+      once: true,
+    });`,
           }}
         />
 

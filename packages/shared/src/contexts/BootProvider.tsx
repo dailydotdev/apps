@@ -16,12 +16,6 @@ import { generateQueryKey } from '../lib/query';
 import { SettingsContextProvider } from './SettingsContext';
 import { storageWrapper as storage } from '../lib/storageWrapper';
 
-declare global {
-  interface Window {
-    bootData: BootCacheData;
-  }
-}
-
 function useRefreshToken(
   accessToken: AccessToken,
   refresh: () => Promise<unknown>,
@@ -67,7 +61,14 @@ export type BootDataProviderProps = {
   getRedirectUri: () => string;
 };
 
-const getLocalBootData = () => window.bootData;
+const getLocalBootData = () => {
+  const local = storage.getItem(BOOT_LOCAL_KEY);
+  if (local) {
+    return JSON.parse(storage.getItem(BOOT_LOCAL_KEY)) as BootCacheData;
+  }
+
+  return null;
+};
 
 const updateLocalBootData = (
   current: Partial<BootCacheData>,
