@@ -293,8 +293,8 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           {authorOnboarding && (
             <AuthorOnboarding onSignUp={!user && (() => showLogin('author'))} />
           )}
-          <NewComment user={user} onNewComment={openNewComment} />
         </PageContainer>
+        <NewComment user={user} onNewComment={openNewComment} />
         <PostWidgets post={postById.post} />
       </div>
 
