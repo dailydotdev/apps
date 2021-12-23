@@ -18,7 +18,7 @@ const Wrapper = ({ sidebarExpanded, children, ...props }: WrapperProps) => {
     <li
       className={classnames(
         'flex items-center mt-4',
-        sidebarExpanded ? 'px-3' : 'px-1.5',
+        sidebarExpanded ? 'px-3 h-16' : 'px-1.5 h-8',
       )}
       {...props}
     >
