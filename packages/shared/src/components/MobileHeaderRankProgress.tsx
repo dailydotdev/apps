@@ -13,7 +13,7 @@ interface WrapperProps extends HTMLAttributes<HTMLDivElement> {
 }
 const Wrapper = ({ children, ...props }: WrapperProps) => {
   return (
-    <div className="w-8 h-8" {...props}>
+    <div className="block laptop:hidden w-8 h-8" {...props}>
       {children}
     </div>
   );

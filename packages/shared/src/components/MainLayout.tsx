@@ -41,13 +41,9 @@ const Greeting = dynamic(
 
 interface ShouldShowLogoProps {
   mobileTitle?: string;
-  sidebarRendered?: boolean;
 }
-const shouldShowLogo = ({
-  mobileTitle,
-  sidebarRendered,
-}: ShouldShowLogoProps) => {
-  return !mobileTitle ? true : mobileTitle && sidebarRendered;
+const shouldShowLogo = ({ mobileTitle }: ShouldShowLogoProps) => {
+  return !mobileTitle ? true : mobileTitle;
 };
 
 interface LogoAndGreetingProps {
@@ -117,21 +113,19 @@ export default function MainLayout({
       >
         {sidebarRendered !== undefined && (
           <>
-            {sidebarRendered === false && (
-              <Button
-                className="btn-tertiary"
-                iconOnly
-                onClick={() => trackAndToggleMobileSidebar(true)}
-                icon={<MenuIcon />}
-              />
-            )}
+            <Button
+              className="block laptop:hidden btn-tertiary"
+              iconOnly
+              onClick={() => trackAndToggleMobileSidebar(true)}
+              icon={<MenuIcon />}
+            />
             <div className="flex flex-row flex-1 justify-center laptop:justify-start">
               {mobileTitle && (
                 <h3 className="block laptop:hidden typo-callout">
                   {mobileTitle}
                 </h3>
               )}
-              {shouldShowLogo({ mobileTitle, sidebarRendered }) && (
+              {shouldShowLogo({ mobileTitle }) && (
                 <LogoAndGreeting
                   user={user}
                   onLogoClick={onLogoClick}
@@ -139,21 +133,24 @@ export default function MainLayout({
                 />
               )}
             </div>
-            {!showOnlyLogo && !loadingUser && sidebarRendered && (
+            {!showOnlyLogo && !loadingUser && (
               <>
                 {user ? (
-                  <ProfileButton onShowDndClick={onShowDndClick} />
+                  <ProfileButton
+                    className="hidden laptop:flex"
+                    onShowDndClick={onShowDndClick}
+                  />
                 ) : (
                   <Button
                     onClick={() => showLogin('main button')}
-                    className="btn-primary"
+                    className="hidden laptop:block btn-primary"
                   >
                     Login
                   </Button>
                 )}
               </>
             )}
-            {sidebarRendered === false && <MobileHeaderRankProgress />}
+            <MobileHeaderRankProgress />
           </>
         )}
       </header>

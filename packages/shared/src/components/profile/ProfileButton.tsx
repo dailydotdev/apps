@@ -1,16 +1,18 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { HTMLProps, ReactElement, useContext } from 'react';
+import classNames from 'classnames';
 import AuthContext from '../../contexts/AuthContext';
 import useProfileMenu from '../../hooks/useProfileMenu';
 import ProfileMenu from '../ProfileMenu';
 import { ProfilePicture } from '../ProfilePicture';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
-export interface ProfileButtonProps {
+export interface ProfileButtonProps extends HTMLProps<HTMLButtonElement> {
   onShowDndClick?: () => unknown;
 }
 
 export default function ProfileButton({
   onShowDndClick,
+  className,
 }: ProfileButtonProps): ReactElement {
   const { user } = useContext(AuthContext);
   const { onMenuClick } = useProfileMenu();
@@ -20,7 +22,10 @@ export default function ProfileButton({
       <SimpleTooltip placement="left" content="Profile settings">
         <button
           type="button"
-          className="flex items-center p-0 ml-0.5 font-bold no-underline rounded-lg border-none cursor-pointer text-theme-label-primary bg-theme-bg-secondary typo-callout focus-outline"
+          className={classNames(
+            'items-center p-0 ml-0.5 font-bold no-underline rounded-lg border-none cursor-pointer text-theme-label-primary bg-theme-bg-secondary typo-callout focus-outline',
+            className ?? 'flex',
+          )}
           onClick={onMenuClick}
         >
           <span className="hidden laptop:block mr-2 ml-3">
