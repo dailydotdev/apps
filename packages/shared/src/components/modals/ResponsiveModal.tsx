@@ -21,7 +21,6 @@ export function ResponsiveModal({
   return (
     <StyledModal
       {...props}
-      contentClassName="responsive"
       className={classNames(
         className,
         styles.responsiveModal,
