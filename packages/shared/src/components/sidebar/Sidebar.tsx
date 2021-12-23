@@ -104,7 +104,10 @@ const RenderSection = ({
             }
             useNavButtonsNotLinks={useNavButtonsNotLinks}
           >
-            <ItemInner item={item} sidebarExpanded={sidebarExpanded} />
+            <ItemInner
+              item={item}
+              sidebarExpanded={sidebarExpanded || !sidebarRendered}
+            />
           </ButtonOrLink>
         </NavItem>
       ))}
