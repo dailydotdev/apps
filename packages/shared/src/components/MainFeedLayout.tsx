@@ -154,9 +154,7 @@ export default function MainFeedLayout({
 
   const header = (
     <LayoutHeader>
-      {!isSearchOn && (
-        <h3 className="capitalize typo-headline">{feedTitles[feedName]}</h3>
-      )}
+      {!isSearchOn && <h3 className="typo-headline">{feedTitles[feedName]}</h3>}
       <div className="flex-1" />
       {navChildren}
       {isUpvoted && (
