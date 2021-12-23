@@ -42,9 +42,13 @@ const Greeting = dynamic(
 
 interface ShouldShowLogoProps {
   mobileTitle?: string;
+  sidebarRendered?: boolean;
 }
-const shouldShowLogo = ({ mobileTitle }: ShouldShowLogoProps) => {
-  return !mobileTitle ? true : mobileTitle;
+const shouldShowLogo = ({
+  mobileTitle,
+  sidebarRendered,
+}: ShouldShowLogoProps) => {
+  return !mobileTitle ? true : mobileTitle && sidebarRendered;
 };
 
 interface LogoAndGreetingProps {
@@ -127,7 +131,7 @@ export default function MainLayout({
                   {mobileTitle}
                 </h3>
               )}
-              {shouldShowLogo({ mobileTitle }) && (
+              {shouldShowLogo({ mobileTitle, sidebarRendered }) && (
                 <LogoAndGreeting
                   user={user}
                   onLogoClick={onLogoClick}
