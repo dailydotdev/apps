@@ -208,7 +208,6 @@ export default function Sidebar({
 
   const defaultRenderSectionProps = useMemo(() => {
     return {
-      useNavButtonsNotLinks,
       sidebarExpanded,
       sidebarRendered,
       activePage,
@@ -246,11 +245,13 @@ export default function Sidebar({
               {...defaultRenderSectionProps}
               title="Discover"
               items={discoverMenuItems}
+              useNavButtonsNotLinks={useNavButtonsNotLinks}
             />
             <RenderSection
               {...defaultRenderSectionProps}
               title="Manage"
               items={manageMenuItems}
+              useNavButtonsNotLinks={false}
             />
           </Nav>
           <div className="flex-1" />
@@ -258,6 +259,7 @@ export default function Sidebar({
             <RenderSection
               {...defaultRenderSectionProps}
               items={bottomMenuItems}
+              useNavButtonsNotLinks={false}
             />
             <InvitePeople
               sidebarExpanded={sidebarExpanded || !sidebarRendered}
