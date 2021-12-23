@@ -1,11 +1,5 @@
 import request from 'graphql-request';
-import React, {
-  ReactNode,
-  ReactElement,
-  useMemo,
-  useEffect,
-  useState,
-} from 'react';
+import React, { ReactNode, ReactElement, useMemo } from 'react';
 import { UseMutateAsyncFunction, useMutation } from 'react-query';
 import { Alerts, UPDATE_ALERTS } from '../graphql/alerts';
 import { apiUrl } from '../lib/config';
@@ -42,7 +36,6 @@ export const AlertContextProvider = ({
   alerts = ALERT_DEFAULTS,
   updateAlerts,
 }: AlertContextProviderProps): ReactElement => {
-  const [loadedRankLastSeen, setLoadedRankLastSeen] = useState(false);
   const { mutateAsync: updateRemoteAlerts } = useMutation<
     unknown,
     unknown,
@@ -72,15 +65,6 @@ export const AlertContextProvider = ({
     }),
     [alerts, updateRemoteAlerts],
   );
-
-  useEffect(() => {
-    if (alerts && !loadedRankLastSeen) {
-      const { rankLastSeen: lastSeen, ...props } = alerts;
-      const rankLastSeen = lastSeen ?? undefined;
-      updateAlerts({ ...alerts, ...props, rankLastSeen });
-      setLoadedRankLastSeen(true);
-    }
-  }, [loadedRankLastSeen]);
 
   return (
     <AlertContext.Provider value={alertContextData}>

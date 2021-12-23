@@ -131,7 +131,7 @@ export default function Sidebar({
   const { trackEvent } = useContext(AnalyticsContext);
   const { isLoaded, isAnimated, setLoaded, setHidden } =
     useDynamicLoadedAnimation();
-  const { sidebarExpanded, toggleSidebarExpanded } =
+  const { sidebarExpanded, toggleSidebarExpanded, loadedSettings } =
     useContext(SettingsContext);
   const [showSettings, setShowSettings] = useState(false);
 
@@ -213,6 +213,10 @@ export default function Sidebar({
       activePage,
     };
   }, [sidebarExpanded, sidebarRendered, activePage]);
+
+  if (!loadedSettings) {
+    return <></>;
+  }
 
   return (
     <>
