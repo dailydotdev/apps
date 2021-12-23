@@ -11,6 +11,9 @@
 
 .pageContainer {
   max-width: $pageMaxWidth;
+  @screen laptopL {
+    width: $pageMaxWidth;
+  }
 }
 
 .newCommentContainer {
