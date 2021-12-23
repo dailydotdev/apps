@@ -3,7 +3,6 @@ import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import nock from 'nock';
 import { set as setCache } from 'idb-keyval';
-import HeaderRankProgress from './HeaderRankProgress';
 import {
   MockedGraphQLResponse,
   mockGraphQL,
@@ -12,7 +11,7 @@ import { LoggedUser } from '../lib/user';
 import defaultUser from '../../__tests__/fixture/loggedUser';
 import AuthContext from '../contexts/AuthContext';
 import { MY_READING_RANK_QUERY, MyRankData } from '../graphql/users';
-import OnboardingContext from '../contexts/OnboardingContext';
+import SidebarRankProgress from './SidebarRankProgress';
 
 jest.mock('../hooks/usePersistentState', () => {
   const originalModule = jest.requireActual('../hooks/usePersistentState');
@@ -44,12 +43,10 @@ const createRankMock = (
 });
 
 let queryClient: QueryClient;
-const incrementOnboardingStep = jest.fn();
 
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createRankMock()],
   user: LoggedUser = defaultUser,
-  onboardingStep = 3,
 ): RenderResult => {
   queryClient = new QueryClient();
   mocks.forEach(mockGraphQL);
@@ -67,18 +64,7 @@ const renderComponent = (
           closeLogin: jest.fn(),
         }}
       >
-        <OnboardingContext.Provider
-          value={{
-            onboardingStep,
-            onboardingReady: true,
-            incrementOnboardingStep,
-            trackEngagement: jest.fn(),
-            closeReferral: jest.fn(),
-            showReferral: false,
-          }}
-        >
-          <HeaderRankProgress />
-        </OnboardingContext.Provider>
+        <SidebarRankProgress />
       </AuthContext.Provider>
     </QueryClientProvider>,
   );
@@ -118,13 +104,4 @@ it('should show rank for anonymous users', async () => {
     expect(screen.queryAllByTestId('completedPath').length).toEqual(1);
     expect(screen.queryAllByTestId('remainingPath').length).toEqual(2);
   });
-});
-
-it('should show a welcome button during the onboarding', async () => {
-  await setCache('rank', {
-    rank: { progressThisWeek: 1, currentRank: 0, readToday: false },
-    userId: null,
-  });
-  renderComponent([], null, 1);
-  await screen.findByTestId('welcomeButton');
 });

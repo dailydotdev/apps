@@ -1,4 +1,5 @@
 import React, { ReactNode } from 'react';
+import { useRouter } from 'next/router';
 import MainLayout, {
   MainLayoutProps,
 } from '@dailydotdev/shared/src/components/MainLayout';
@@ -11,9 +12,11 @@ export const getLayout = (
   page: ReactNode,
   pageProps: Record<string, unknown>,
   layoutProps: MainLayoutProps,
-): ReactNode =>
-  getFooterNavBarLayout(
-    <MainLayout {...layoutProps}>
+): ReactNode => {
+  const router = useRouter();
+  return getFooterNavBarLayout(
+    <MainLayout {...layoutProps} activePage={router?.asPath}>
       <FeedLayout>{page}</FeedLayout>
     </MainLayout>,
   );
+};

@@ -9,7 +9,6 @@ import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
-import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import SettingsContext, {
   SettingsContextData,
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
@@ -60,7 +59,6 @@ const createFeedMock = (
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createFeedMock()],
   user: LoggedUser = defaultUser,
-  onboardingStep = 3,
 ): RenderResult => {
   const client = new QueryClient();
 
@@ -95,18 +93,7 @@ const renderComponent = (
         }}
       >
         <SettingsContext.Provider value={settingsContext}>
-          <OnboardingContext.Provider
-            value={{
-              onboardingStep,
-              onboardingReady: true,
-              incrementOnboardingStep: jest.fn(),
-              trackEngagement: jest.fn(),
-              closeReferral: jest.fn(),
-              showReferral: false,
-            }}
-          >
-            {Popular.getLayout(<Popular />, {}, Popular.layoutProps)}
-          </OnboardingContext.Provider>
+          {Popular.getLayout(<Popular />, {}, Popular.layoutProps)}
         </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
@@ -144,35 +131,4 @@ it('should request anonymous feed', async () => {
     const elements = await screen.findAllByTestId('postItem');
     expect(elements.length).toBeTruthy();
   });
-});
-
-it('should show welcome message during the onboarding', async () => {
-  renderComponent(
-    [
-      createFeedMock(defaultFeedPage, ANONYMOUS_FEED_QUERY, {
-        first: 7,
-        loggedIn: false,
-        unreadOnly: false,
-      }),
-    ],
-    null,
-    1,
-  );
-  await screen.findByRole('status');
-});
-
-it('should not show welcome message after the onboarding', async () => {
-  renderComponent(
-    [
-      createFeedMock(defaultFeedPage, ANONYMOUS_FEED_QUERY, {
-        first: 7,
-        loggedIn: false,
-        unreadOnly: false,
-      }),
-    ],
-    null,
-  );
-  await waitFor(() =>
-    expect(screen.queryByRole('status')).not.toBeInTheDocument(),
-  );
 });

@@ -20,7 +20,6 @@ import ProgressiveEnhancementContext, {
   ProgressiveEnhancementContextProvider,
 } from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { trackPageView } from '@dailydotdev/shared/src/lib/analytics';
-import { OnboardingContextProvider } from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
 import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import { AnalyticsContextProvider } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
@@ -160,7 +159,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       </Head>
       <DefaultSeo {...Seo} canonical={canonicalFromRouter(router)} />
       {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
-      {!user && !loadingUser && (windowLoaded || shouldShowLogin) && (
+      {!user && !loadingUser && shouldShowLogin && (
         <LoginModal
           isOpen={shouldShowLogin}
           onRequestClose={closeLogin}
@@ -181,15 +180,13 @@ export default function App(props: AppProps): ReactElement {
       <QueryClientProvider client={queryClient}>
         <BootDataProvider app="web" getRedirectUri={getRedirectUri}>
           <SubscriptionContextProvider>
-            <OnboardingContextProvider>
-              <AnalyticsContextProvider
-                app="webapp"
-                version={version}
-                getPage={getPage}
-              >
-                <InternalApp {...props} />
-              </AnalyticsContextProvider>
-            </OnboardingContextProvider>
+            <AnalyticsContextProvider
+              app="webapp"
+              version={version}
+              getPage={getPage}
+            >
+              <InternalApp {...props} />
+            </AnalyticsContextProvider>
           </SubscriptionContextProvider>
         </BootDataProvider>
       </QueryClientProvider>

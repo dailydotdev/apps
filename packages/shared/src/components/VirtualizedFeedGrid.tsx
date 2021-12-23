@@ -1,10 +1,12 @@
 import React, { ReactElement } from 'react';
 import { VirtualItem } from 'react-virtual';
+import classNames from 'classnames';
 import styles from './Feed.module.css';
 import { FeedItem } from '../hooks/useFeed';
 
 export type VirtualizedFeedGridProps = {
   items: FeedItem[];
+  hasHeader: boolean;
   virtualizer: { virtualItems: VirtualItem[]; totalSize: number };
   virtualizedNumCards: number;
   getNthChild: (index: number, column: number, row: number) => ReactElement;
@@ -12,6 +14,7 @@ export type VirtualizedFeedGridProps = {
 
 export default function VirtualizedFeedGrid({
   items,
+  hasHeader,
   virtualizer,
   virtualizedNumCards,
   getNthChild,
@@ -22,7 +25,11 @@ export default function VirtualizedFeedGrid({
         <div
           key={virtualItem.index}
           ref={virtualItem.measureRef}
-          className={`absolute grid top-0 left-0 w-full last:pb-0 ${styles.feedRow}`}
+          className={classNames(
+            'absolute grid left-0 w-full last:pb-0',
+            hasHeader ? 'top-[18]' : 'top-0',
+            styles.feedRow,
+          )}
           style={{
             transform: `translateY(${virtualItem.start}px)`,
           }}

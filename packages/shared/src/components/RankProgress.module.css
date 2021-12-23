@@ -39,6 +39,14 @@
   }
 }
 
+.smallVersion {
+  font-size: 2rem;
+}
+
+.smallVersionClosed {
+  font-size: 1.85rem;
+}
+
 .radialProgress {
   font-size: inherit;
   --radial-progress-step: var(--theme-label-disabled);

@@ -150,7 +150,7 @@ export default function ProfileLayout({
         <link rel="preload" as="image" href={profile.image} />
       </Head>
       <NextSeo {...Seo} />
-      <div className="flex overflow-x-hidden flex-col">
+      <div className="flex overflow-x-hidden flex-col flex-1">
         <ResponsivePageContainer className="px-6">
           <section
             className={classNames(

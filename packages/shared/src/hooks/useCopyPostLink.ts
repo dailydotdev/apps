@@ -1,5 +1,5 @@
 import { getShareableLink } from '../lib/share';
-import { trackEvent } from '../lib/analytics';
+import { gaTrackEvent } from '../lib/analytics';
 import { useCopyLink } from './useCopyLink';
 
 export function useCopyPostLink(): [boolean, () => Promise<void>] {
@@ -8,7 +8,7 @@ export function useCopyPostLink(): [boolean, () => Promise<void>] {
   return [
     copying,
     () => {
-      trackEvent({
+      gaTrackEvent({
         category: 'Post',
         action: 'Share',
         label: 'Copy',

@@ -7,14 +7,14 @@ import React, {
 } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
 import { differenceInMilliseconds } from 'date-fns';
-import { AccessToken, getBootData } from '../lib/boot';
-import { FeaturesContextProvider } from './FeaturesContext';
+import { AccessToken, BootCacheData, getBootData } from '../lib/boot';
+import FeaturesContext from './FeaturesContext';
 import { AuthContextProvider } from './AuthContext';
 import { AnonymousUser, LoggedUser } from '../lib/user';
-import usePersistentState from '../hooks/usePersistentState';
 import { AlertContextProvider } from './AlertContext';
 import { generateQueryKey } from '../lib/query';
 import { SettingsContextProvider } from './SettingsContext';
+import { storageWrapper as storage } from '../lib/storageWrapper';
 
 function useRefreshToken(
   accessToken: AccessToken,
@@ -39,38 +39,17 @@ function useRefreshToken(
   }, [accessToken, refresh]);
 }
 
-function useCacheUser(fetchedUser: LoggedUser | AnonymousUser | undefined): {
-  user: LoggedUser | AnonymousUser | undefined;
-  updateUser: (LoggedUser) => Promise<void>;
-  loadedFromCache: boolean;
-} {
-  const queryClient = useQueryClient();
-  const [cachedUser, setCachedUser, loadedFromCache] = usePersistentState<
-    AnonymousUser | LoggedUser
-  >('user', null);
+const BOOT_LOCAL_KEY = 'boot:local';
+const BOOT_QUERY_KEY = 'boot';
 
-  const updateUser = useCallback(
-    async (newUser: LoggedUser | AnonymousUser) => {
-      await setCachedUser(newUser);
-      await queryClient.invalidateQueries(generateQueryKey('profile', newUser));
-    },
-    [queryClient],
-  );
-
-  useEffect(() => {
-    if (fetchedUser) {
-      setCachedUser(fetchedUser);
-    }
-  }, [fetchedUser]);
-
-  return {
-    user: cachedUser,
-    loadedFromCache,
-    updateUser,
-  };
+function filteredProps<T extends Record<string, unknown>>(
+  obj: T,
+  filteredKeys: (keyof T)[],
+): Partial<T> {
+  return filteredKeys.reduce((result, key) => {
+    return { ...result, [key]: obj[key] };
+  }, {});
 }
-
-const bootQueryKey = 'boot';
 
 export type BootDataProviderProps = {
   children?: ReactNode;
@@ -78,23 +57,84 @@ export type BootDataProviderProps = {
   getRedirectUri: () => string;
 };
 
+const getLocalBootData = () => {
+  const local = storage.getItem(BOOT_LOCAL_KEY);
+  if (local) {
+    return JSON.parse(storage.getItem(BOOT_LOCAL_KEY)) as BootCacheData;
+  }
+
+  return null;
+};
+
+const updateLocalBootData = (
+  current: Partial<BootCacheData>,
+  boot: Partial<BootCacheData>,
+) => {
+  const localData = { ...current, ...boot };
+  const result = filteredProps(localData, [
+    'alerts',
+    'flags',
+    'settings',
+    'user',
+  ]);
+
+  storage.setItem(BOOT_LOCAL_KEY, JSON.stringify(result));
+
+  return result;
+};
+
 export const BootDataProvider = ({
   children,
   app,
   getRedirectUri,
 }: BootDataProviderProps): ReactElement => {
+  const queryClient = useQueryClient();
+  const [cachedBootData, setCachedBootData] =
+    useState<Partial<BootCacheData>>();
+  const loadedFromCache = cachedBootData !== undefined;
+  const { user, settings, flags = {}, alerts } = cachedBootData || {};
   const {
-    data: bootData,
+    data: bootRemoteData,
     refetch,
     dataUpdatedAt,
-  } = useQuery(bootQueryKey, () => getBootData(app));
+  } = useQuery(BOOT_QUERY_KEY, () => getBootData(app));
 
-  useRefreshToken(bootData?.accessToken, refetch);
-  const { user, updateUser, loadedFromCache } = useCacheUser(bootData?.user);
+  useEffect(() => {
+    const boot = getLocalBootData();
+    if (boot) {
+      setCachedBootData(boot);
+    }
+  }, []);
+
+  const setBootData = (updatedBootData: Partial<BootCacheData>) => {
+    const updated = updateLocalBootData(cachedBootData, updatedBootData);
+    setCachedBootData(updated);
+  };
+
+  useEffect(() => {
+    if (bootRemoteData) {
+      // We need to remove the settings for annoymous users as they might have changed them already
+      if (!bootRemoteData.user || !('providers' in bootRemoteData.user)) {
+        delete bootRemoteData.settings;
+      }
+      setBootData(bootRemoteData);
+    }
+  }, [bootRemoteData]);
+
+  useRefreshToken(bootRemoteData?.accessToken, refetch);
   const updatedAtActive = user ? dataUpdatedAt : null;
 
+  const updateUser = useCallback(
+    async (newUser: LoggedUser | AnonymousUser) => {
+      const updated = updateLocalBootData(cachedBootData, { user: newUser });
+      setCachedBootData(updated);
+      await queryClient.invalidateQueries(generateQueryKey('profile', newUser));
+    },
+    [queryClient],
+  );
+
   return (
-    <FeaturesContextProvider flags={bootData?.flags}>
+    <FeaturesContext.Provider value={{ flags }}>
       <AuthContextProvider
         user={user}
         updateUser={updateUser}
@@ -102,14 +142,25 @@ export const BootDataProvider = ({
         getRedirectUri={getRedirectUri}
         loadingUser={!dataUpdatedAt || !user}
         loadedUserFromCache={loadedFromCache}
-        visit={bootData?.visit}
+        visit={bootRemoteData?.visit}
       >
-        <SettingsContextProvider remoteSettings={bootData?.settings}>
-          <AlertContextProvider alerts={bootData?.alerts}>
+        <SettingsContextProvider
+          settings={settings}
+          loadedSettings={loadedFromCache}
+          updateSettings={(updatedSettings) =>
+            setBootData({ settings: updatedSettings })
+          }
+        >
+          <AlertContextProvider
+            alerts={alerts}
+            updateAlerts={(updatedAlerts) =>
+              setBootData({ alerts: updatedAlerts })
+            }
+          >
             {children}
           </AlertContextProvider>
         </SettingsContextProvider>
       </AuthContextProvider>
-    </FeaturesContextProvider>
+    </FeaturesContext.Provider>
   );
 };

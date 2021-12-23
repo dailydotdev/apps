@@ -4,7 +4,6 @@ import React, {
   useContext,
   useEffect,
   useMemo,
-  useState,
 } from 'react';
 import { useMutation } from 'react-query';
 import request from 'graphql-request';
@@ -15,7 +14,6 @@ import {
   UPDATE_USER_SETTINGS_MUTATION,
 } from '../graphql/settings';
 import AuthContext from './AuthContext';
-import usePersistentState from '../hooks/usePersistentState';
 import { apiUrl } from '../lib/config';
 import { storageWrapper } from '../lib/storageWrapper';
 
@@ -27,41 +25,26 @@ enum ThemeMode {
 
 export type SettingsContextData = {
   spaciness: Spaciness;
-  themeMode: string;
+  themeMode: ThemeMode;
   showOnlyUnreadPosts: boolean;
   openNewTab: boolean;
   insaneMode: boolean;
   showTopSites: boolean;
+  sidebarExpanded: boolean;
   setTheme: (theme: ThemeMode) => Promise<void>;
   toggleShowOnlyUnreadPosts: () => Promise<void>;
   toggleOpenNewTab: () => Promise<void>;
   setSpaciness: (density: Spaciness) => Promise<void>;
   toggleInsaneMode: () => Promise<void>;
   toggleShowTopSites: () => Promise<void>;
+  toggleSidebarExpanded: () => Promise<void>;
   loadedSettings: boolean;
 };
 
 const SettingsContext = React.createContext<SettingsContextData>(null);
 export default SettingsContext;
 
-type Settings = {
-  spaciness: Spaciness;
-  showOnlyUnreadPosts: boolean;
-  openNewTab: boolean;
-  insaneMode: boolean;
-  showTopSites: boolean;
-};
-
-const settingsCacheKey = 'settings';
 const deprecatedLightModeStorageKey = 'showmethelight';
-const themeModeStorageKey = 'theme';
-const defaultSettings: Settings = {
-  spaciness: 'eco',
-  showOnlyUnreadPosts: false,
-  openNewTab: true,
-  insaneMode: false,
-  showTopSites: true,
-};
 
 const themeModes: Record<RemoteTheme, ThemeMode> = {
   bright: ThemeMode.Light,
@@ -92,98 +75,84 @@ function applyTheme(themeMode: ThemeMode): void {
 
 export type SettingsContextProviderProps = {
   children?: ReactNode;
-  remoteSettings?: RemoteSettings;
+  settings?: RemoteSettings;
+  updateSettings: (settings: RemoteSettings) => unknown;
+  loadedSettings: boolean;
+};
+
+const defaultSettings: RemoteSettings = {
+  spaciness: 'eco',
+  showOnlyUnreadPosts: false,
+  openNewTab: true,
+  insaneMode: false,
+  showTopSites: true,
+  sidebarExpanded: true,
+  theme: remoteThemes[ThemeMode.Dark],
 };
 
 export const SettingsContextProvider = ({
   children,
-  remoteSettings,
+  settings = defaultSettings,
+  updateSettings,
+  loadedSettings,
 }: SettingsContextProviderProps): ReactElement => {
   const { user } = useContext(AuthContext);
   const userId = user?.id;
 
-  const [settings, setCachedSettings, loadedSettings] = usePersistentState(
-    settingsCacheKey,
-    defaultSettings,
-  );
-  const [currentTheme, setCurrentTheme] = useState(ThemeMode.Dark);
-
   useEffect(() => {
-    applyTheme(currentTheme);
-  }, [currentTheme]);
+    const theme = themeModes[settings.theme];
+    applyTheme(theme);
+  }, [settings.theme]);
 
   const { mutateAsync: updateRemoteSettings } = useMutation<
     unknown,
     unknown,
-    RemoteSettings,
-    () => Promise<void>
+    RemoteSettings
   >(
     (params) =>
       request(`${apiUrl}/graphql`, UPDATE_USER_SETTINGS_MUTATION, {
         data: params,
       }),
     {
-      onMutate: (params) => {
+      onError: (_, params) => {
         const rollback = Object.keys(params).reduce(
           (values, key) => ({ ...values, [key]: settings[key] }),
           {},
         );
 
-        return () => setCachedSettings({ ...settings, ...rollback });
+        updateSettings({ ...settings, ...rollback });
       },
-      onError: (_, __, rollback) => rollback(),
     },
   );
 
   useEffect(() => {
-    if (remoteSettings && userId) {
-      const { theme: remoteTheme, ...remoteData } = remoteSettings;
-      const theme = themeModes[remoteTheme];
-      setCurrentTheme(theme);
-      storageWrapper.setItem(themeModeStorageKey, theme);
-      setCachedSettings(remoteData);
-    }
-  }, [remoteSettings, userId]);
-
-  useEffect(() => {
-    const theme = storageWrapper.getItem(themeModeStorageKey) as ThemeMode;
-    if (theme) {
-      setCurrentTheme(theme);
-    } else {
-      const lightMode = storageWrapper.getItem(deprecatedLightModeStorageKey);
-      if (lightMode === 'true') {
-        applyTheme(ThemeMode.Light);
-      }
+    const lightMode = storageWrapper.getItem(deprecatedLightModeStorageKey);
+    if (lightMode === 'true') {
+      applyTheme(ThemeMode.Light);
     }
   }, []);
 
   const updateRemoteSettingsFn = async (
-    newSettings: Settings,
-    theme: ThemeMode,
+    newSettings: RemoteSettings,
   ): Promise<void> => {
     if (userId) {
-      const remoteTheme = remoteThemes[theme];
       await updateRemoteSettings({
         ...newSettings,
-        theme: remoteTheme,
       });
     }
   };
 
-  const setSettings = async (newSettings: Settings): Promise<void> => {
-    await setCachedSettings(newSettings);
-    await updateRemoteSettingsFn(newSettings, currentTheme);
+  const setSettings = async (newSettings: RemoteSettings): Promise<void> => {
+    updateSettings({ ...settings, ...newSettings });
+    await updateRemoteSettingsFn(newSettings);
   };
 
   const contextData = useMemo<SettingsContextData>(
     () => ({
       ...settings,
-      themeMode: currentTheme,
-      setTheme: async (theme: ThemeMode) => {
-        setCurrentTheme(theme);
-        await updateRemoteSettingsFn(settings, theme);
-        storageWrapper.setItem(themeModeStorageKey, theme);
-      },
+      themeMode: themeModes[settings.theme],
+      setTheme: (theme: ThemeMode) =>
+        setSettings({ ...settings, theme: remoteThemes[theme] }),
       toggleShowOnlyUnreadPosts: () =>
         setSettings({
           ...settings,
@@ -197,9 +166,14 @@ export const SettingsContextProvider = ({
         setSettings({ ...settings, insaneMode: !settings.insaneMode }),
       toggleShowTopSites: () =>
         setSettings({ ...settings, showTopSites: !settings.showTopSites }),
+      toggleSidebarExpanded: () =>
+        setSettings({
+          ...settings,
+          sidebarExpanded: !settings.sidebarExpanded,
+        }),
       loadedSettings,
     }),
-    [settings, loadedSettings, userId, currentTheme],
+    [settings, loadedSettings, userId],
   );
 
   return (

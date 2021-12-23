@@ -6,139 +6,178 @@ import React, {
   useState,
 } from 'react';
 import dynamic from 'next/dynamic';
-import { CSSTransition } from 'react-transition-group';
 import classNames from 'classnames';
-import ProgressiveEnhancementContext from '../contexts/ProgressiveEnhancementContext';
+import { Button } from './buttons/Button';
 import AuthContext from '../contexts/AuthContext';
 import PromotionalBanner from './PromotionalBanner';
-import Logo from '../svg/Logo';
-import LogoText from '../svg/LogoText';
-import BookmarkIcon from '../../icons/bookmark.svg';
-import styles from './MainLayout.module.css';
-import FeedSettingsButton from './FeedSettingsButton';
-import { HeaderButton } from './buttons/common';
+import Logo from './Logo';
 import ProfileButton from './profile/ProfileButton';
-import { SimpleTooltip } from './tooltips/SimpleTooltip';
-import { LinkWithTooltip } from './tooltips/LinkWithTooltip';
-import LoginButton from './LoginButton';
+import Sidebar from './sidebar/Sidebar';
+import MenuIcon from '../../icons/filled/hamburger.svg';
+import useSidebarRendered from '../hooks/useSidebarRendered';
+import AnalyticsContext from '../contexts/AnalyticsContext';
+import MobileHeaderRankProgress from './MobileHeaderRankProgress';
+import { LoggedUser } from '../lib/user';
+import usePromotionalBanner from '../hooks/usePromotionalBanner';
+import { useSwipeableSidebar } from '../hooks/useSwipeableSidebar';
+import SettingsContext from '../contexts/SettingsContext';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
-  showRank?: boolean;
   greeting?: boolean;
   mainPage?: boolean;
   additionalButtons?: ReactNode;
+  activePage?: string;
+  useNavButtonsNotLinks?: boolean;
+  mobileTitle?: string;
   onLogoClick?: (e: React.MouseEvent) => unknown;
+  enableSearch?: () => void;
+  onNavTabClick?: (tab: string) => void;
   onShowDndClick?: () => unknown;
 }
-
-const HeaderRankProgress = dynamic(
-  () =>
-    import(/* webpackChunkName: "headerRankProgress" */ './HeaderRankProgress'),
-);
 
 const Greeting = dynamic(
   () => import(/* webpackChunkName: "greeting" */ './Greeting'),
 );
 
-export default function MainLayout({
-  children,
-  showOnlyLogo,
-  showRank,
-  greeting,
-  mainPage,
-  additionalButtons,
-  onLogoClick,
-  onShowDndClick,
-}: MainLayoutProps): ReactElement {
-  const { windowLoaded } = useContext(ProgressiveEnhancementContext);
-  const { user, showLogin, loadingUser } = useContext(AuthContext);
-  const [showGreeting, setShowGreeting] = useState(false);
+interface ShouldShowLogoProps {
+  mobileTitle?: string;
+}
+const shouldShowLogo = ({ mobileTitle }: ShouldShowLogoProps) => {
+  return !mobileTitle ? true : mobileTitle;
+};
 
-  const afterBookmarkButtons = (
-    <>
-      {additionalButtons}
-      {mainPage && <FeedSettingsButton />}
-    </>
-  );
+interface LogoAndGreetingProps {
+  user?: LoggedUser;
+  greeting?: boolean;
+  onLogoClick?: (e: React.MouseEvent) => unknown;
+}
+const LogoAndGreeting = ({
+  user,
+  onLogoClick,
+  greeting,
+}: LogoAndGreetingProps) => {
+  const [showGreeting, setShowGreeting] = useState(false);
 
   return (
     <>
-      <PromotionalBanner />
+      <Logo onLogoClick={onLogoClick} showGreeting={showGreeting} />
+      {greeting && (
+        <Greeting
+          user={user}
+          onEnter={() => setShowGreeting(true)}
+          onExit={() => setShowGreeting(false)}
+        />
+      )}
+    </>
+  );
+};
+
+export default function MainLayout({
+  children,
+  showOnlyLogo,
+  greeting,
+  activePage,
+  useNavButtonsNotLinks,
+  mobileTitle,
+  onLogoClick,
+  onNavTabClick,
+  enableSearch,
+  onShowDndClick,
+}: MainLayoutProps): ReactElement {
+  const { user, showLogin, loadingUser } = useContext(AuthContext);
+  const { trackEvent } = useContext(AnalyticsContext);
+  const { sidebarRendered } = useSidebarRendered();
+  const { bannerData, setLastSeen } = usePromotionalBanner();
+  const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
+  const { sidebarExpanded } = useContext(SettingsContext);
+  const handlers = useSwipeableSidebar({
+    sidebarRendered,
+    openMobileSidebar,
+    setOpenMobileSidebar,
+  });
+
+  const trackAndToggleMobileSidebar = (state: boolean) => {
+    trackEvent({
+      event_name: `${state ? 'open' : 'close'} sidebar`,
+    });
+    setOpenMobileSidebar(state);
+  };
+
+  return (
+    <div {...handlers}>
+      <PromotionalBanner bannerData={bannerData} setLastSeen={setLastSeen} />
       <header
-        className={`${styles.header} relative flex items-center px-4 border-b border-theme-divider-tertiary tablet:px-8 laptop:px-4 non-responsive-header`}
-      >
-        <LinkWithTooltip
-          href={process.env.NEXT_PUBLIC_WEBAPP_URL}
-          passHref
-          prefetch={false}
-          tooltip={{ placement: 'right', content: 'Home' }}
-        >
-          {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
-          <a className="flex items-center" onClick={onLogoClick}>
-            <Logo className={styles.homeSvg} />
-            <CSSTransition
-              in={!showGreeting}
-              timeout={500}
-              classNames="fade"
-              unmountOnExit
-            >
-              <LogoText
-                className={classNames(
-                  styles.homeSvg,
-                  'hidden ml-1 laptop:block',
-                )}
-              />
-            </CSSTransition>
-          </a>
-        </LinkWithTooltip>
-        {windowLoaded && greeting && (
-          <Greeting
-            user={user}
-            onEnter={() => setShowGreeting(true)}
-            onExit={() => setShowGreeting(false)}
-          />
+        className={classNames(
+          'flex relative laptop:fixed laptop:left-0 z-3 flex-row laptop:flex-row justify-between items-center py-3 px-4 tablet:px-8 laptop:px-4 laptop:w-full h-14 border-b bg-theme-bg-primary border-theme-divider-tertiary',
+          bannerData?.banner ? 'laptop:top-8' : 'laptop:top-0',
         )}
-        <div className="flex-1" />
-        {!showOnlyLogo && !loadingUser && (
+      >
+        {sidebarRendered !== undefined && (
           <>
-            {user ? (
+            <Button
+              className="block laptop:hidden btn-tertiary"
+              iconOnly
+              onClick={() => trackAndToggleMobileSidebar(true)}
+              icon={<MenuIcon />}
+            />
+            <div className="flex flex-row flex-1 justify-center laptop:justify-start">
+              {mobileTitle && (
+                <h3 className="block laptop:hidden typo-callout">
+                  {mobileTitle}
+                </h3>
+              )}
+              {shouldShowLogo({ mobileTitle }) && (
+                <LogoAndGreeting
+                  user={user}
+                  onLogoClick={onLogoClick}
+                  greeting={greeting}
+                />
+              )}
+            </div>
+            {!showOnlyLogo && !loadingUser && (
               <>
-                <LinkWithTooltip
-                  href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}bookmarks`}
-                  passHref
-                  prefetch={false}
-                  tooltip={{ placement: 'bottom', content: 'Bookmarks' }}
-                >
-                  <HeaderButton
-                    tag="a"
-                    icon={<BookmarkIcon />}
-                    className="btn-tertiary"
+                {user ? (
+                  <ProfileButton
+                    className="hidden laptop:flex"
+                    onShowDndClick={onShowDndClick}
                   />
-                </LinkWithTooltip>
-                {afterBookmarkButtons}
-                <ProfileButton onShowDndClick={onShowDndClick} />
-              </>
-            ) : (
-              <>
-                <SimpleTooltip placement="bottom" content="Bookmarks">
-                  <HeaderButton
-                    icon={<BookmarkIcon />}
-                    onClick={() => showLogin('bookmark')}
-                    className="btn-tertiary"
-                  />
-                </SimpleTooltip>
-                {afterBookmarkButtons}
-                <LoginButton />
+                ) : (
+                  <Button
+                    onClick={() => showLogin('main button')}
+                    className="hidden laptop:block btn-primary"
+                  >
+                    Login
+                  </Button>
+                )}
               </>
             )}
+            <MobileHeaderRankProgress />
           </>
         )}
-        {showRank && windowLoaded && (
-          <HeaderRankProgress className="absolute right-0 -bottom-px left-0 z-rank my-0 mx-auto transform translate-y-1/2" />
-        )}
       </header>
-      {children}
-    </>
+      <main
+        className={classNames(
+          'flex flex-row',
+          sidebarExpanded ? 'laptop:pl-70' : 'laptop:pl-11',
+          bannerData?.banner ? 'laptop:pt-22' : 'laptop:pt-14',
+        )}
+      >
+        {!showOnlyLogo && sidebarRendered !== null && (
+          <Sidebar
+            promotionalBannerActive={!!bannerData?.banner}
+            sidebarRendered={sidebarRendered}
+            openMobileSidebar={openMobileSidebar}
+            onNavTabClick={onNavTabClick}
+            enableSearch={enableSearch}
+            activePage={activePage}
+            useNavButtonsNotLinks={useNavButtonsNotLinks}
+            onShowDndClick={onShowDndClick}
+            setOpenMobileSidebar={() => trackAndToggleMobileSidebar(false)}
+          />
+        )}
+        {children}
+      </main>
+    </div>
   );
 }

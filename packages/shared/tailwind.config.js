@@ -17,6 +17,7 @@ module.exports = {
         focus: 'var(--theme-focus)',
         float: 'var(--theme-float)',
         hover: 'var(--theme-hover)',
+        rank: 'var(--rank-color)',
         bg: {
           primary: 'var(--theme-background-primary)',
           secondary: 'var(--theme-background-secondary)',
@@ -46,6 +47,7 @@ module.exports = {
         status: {
           error: 'var(--theme-status-error)',
           help: 'var(--theme-status-help)',
+          fill: 'var(--theme-status-fill)',
           success: 'var(--theme-status-success)',
           warning: 'var(--theme-status-warning)',
           cabbage: 'var(--theme-status-cabbage)',
@@ -136,10 +138,16 @@ module.exports = {
         'screen-80': '80vh',
         screen: '100vh',
       },
+      spacing: {
+        22: '5.5rem',
+        70: '17.5rem',
+      },
       width: {
+        70: '17.5rem',
         fit: 'fit-content',
       },
       height: {
+        logo: '1.125rem',
         fit: 'fit-content',
       },
     },

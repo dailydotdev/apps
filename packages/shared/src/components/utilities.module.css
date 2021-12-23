@@ -11,6 +11,17 @@
 
 .pageContainer {
   max-width: $pageMaxWidth;
+  @screen laptopL {
+    width: $pageMaxWidth;
+  }
+}
+
+.newCommentContainer {
+  max-width: $pageMaxWidth;
+}
+
+.pageSidebar {
+  max-width: $pageMaxWidth;
 }
 
 :global(.non-responsive-header) ~ .pageContainer {
@@ -20,8 +31,6 @@
 }
 
 .feedPage {
-  padding-top: 3.75rem;
-
   &.notReady {
     & > * {
       visibility: hidden;

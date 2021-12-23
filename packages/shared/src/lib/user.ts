@@ -58,6 +58,7 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
   permalink: string;
   username: string;
   timezone?: string;
+  referralLink?: string;
 }
 
 interface BaseError {

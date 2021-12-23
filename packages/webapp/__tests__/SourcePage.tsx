@@ -18,7 +18,6 @@ import {
   REMOVE_FILTERS_FROM_FEED_MUTATION,
 } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { getFeedSettingsQueryKey } from '@dailydotdev/shared/src/hooks/useMutateFilters';
-import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import SourcePage from '../pages/sources/[source]';
 import ad from './fixture/ad';
 import defaultUser from './fixture/loggedUser';
@@ -124,20 +123,9 @@ const renderComponent = (
           getRedirectUri: jest.fn(),
         }}
       >
-        <OnboardingContext.Provider
-          value={{
-            onboardingStep: 3,
-            onboardingReady: true,
-            incrementOnboardingStep: jest.fn(),
-            trackEngagement: jest.fn(),
-            closeReferral: jest.fn(),
-            showReferral: false,
-          }}
-        >
-          <SettingsContext.Provider value={settingsContext}>
-            <SourcePage source={source} />
-          </SettingsContext.Provider>
-        </OnboardingContext.Provider>
+        <SettingsContext.Provider value={settingsContext}>
+          <SourcePage source={source} />
+        </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
   );

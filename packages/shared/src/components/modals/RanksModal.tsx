@@ -18,6 +18,7 @@ import GoToDevCardButton from '../GoToDevCardButton';
 import { Button } from '../buttons/Button';
 import { ClickableText } from '../buttons/ClickableText';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
+import { useTrackModal } from '../../hooks/useTrackModal';
 
 const RankItem = ({
   rank,
@@ -197,6 +198,8 @@ export default function RanksModal({
   className,
   ...props
 }: RanksModalProps): ReactElement {
+  useTrackModal({ isOpen: props.isOpen, title: 'ranks modal' });
+
   return (
     <ResponsiveModal
       {...props}

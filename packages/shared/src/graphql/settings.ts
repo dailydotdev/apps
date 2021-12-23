@@ -10,6 +10,7 @@ export type RemoteSettings = {
   spaciness: Spaciness;
   insaneMode: boolean;
   showTopSites: boolean;
+  sidebarExpanded: boolean;
 };
 
 export type UserSettingsData = { userSettings: RemoteSettings };
@@ -23,6 +24,7 @@ export const USER_SETTINGS_QUERY = gql`
       spaciness
       insaneMode
       showTopSites
+      sidebarExpanded
     }
   }
 `;

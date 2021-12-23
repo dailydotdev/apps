@@ -19,10 +19,22 @@ export const PageContainer = classed(
   'relative flex flex-col w-full items-stretch px-4 z-1 tablet:px-8 tablet:self-center',
 );
 
+export const PageSidebar = classed(
+  'aside',
+  styles.pageSidebar,
+  'laptopL:absolute right-0 px-4 tablet:px-8 order-2 laptop:pb-10 laptopL:pb-0 laptop:order-3 laptopL:order-2 laptopL:px-6 laptop:border-r laptop:border-l laptop:border-theme-divider-tertiary laptopL:border-none',
+);
+
+export const NewCommentContainer = classed(
+  'div',
+  styles.newCommentContainer,
+  'pb-20 laptop:pb-6 laptop:border-r order-3 laptop:order-2 laptopL:order-3 laptop:border-l laptop:border-theme-divider-tertiary relative flex flex-col w-full items-stretch px-4 z-1 tablet:px-8 laptopL:mr-[22.5rem]',
+);
+
 export const NoPaddingPageContainer = classed(
   'main',
   styles.pageContainer,
-  'relative flex flex-col w-full items-stretch z-1 tablet:self-center',
+  'relative flex flex-col w-full items-stretch z-1 tablet:self-center mx-auto',
 );
 
 export const ResponsivePageContainer = classed(
@@ -37,7 +49,7 @@ export const ResponsiveNoPaddingPageContainer = classed(
 
 export const FeedPage = classed(
   'main',
-  'withNavBar flex flex-col items-start pb-3 px-6 laptop:px-16',
+  'withNavBar flex flex-col flex-1 items-start pb-3 px-6 laptop:px-16 pt-10',
   styles.feedPage,
 );
 
@@ -56,7 +68,12 @@ export const ActiveTabIndicator = classed(
 
 export const CustomFeedHeader = classed(
   'div',
-  'flex h-11 self-stretch items-center mb-6 text-theme-label-secondary typo-callout',
+  'flex h-11 self-stretch items-center mb-6 typo-callout',
+);
+
+export const FeedPageHeader = classed(
+  'header',
+  'overflow-x-auto self-stretch mb-6 no-scrollbar hidden laptop:flex',
 );
 
 export const customFeedIcon = 'text-2xl text-theme-label-tertiary mr-2';

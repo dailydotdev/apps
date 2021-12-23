@@ -1,9 +1,3 @@
-.shareBar {
-  top: 11.5rem;
-  left: calc((100vw - $pageMaxWidth) / 2 - $shareBarWidth - 1rem);
-  width: $shareBarWidth;
-}
-
 .copied {
   height: $shareBarWidth;
 }

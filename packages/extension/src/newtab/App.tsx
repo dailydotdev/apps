@@ -14,7 +14,6 @@ import ProgressiveEnhancementContext, {
   ProgressiveEnhancementContextProvider,
 } from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import { OnboardingContextProvider } from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
 import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import { AnalyticsContextProvider } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
@@ -111,7 +110,7 @@ function InternalApp({
     <DndContext.Provider value={dndContext}>
       {dndContext.isActive && <DndBanner />}
       <MainFeedPage onPageChanged={onPageChanged} />
-      {!user && !loadingUser && (windowLoaded || shouldShowLogin) && (
+      {!user && !loadingUser && shouldShowLogin && (
         <LoginModal
           isOpen={shouldShowLogin}
           onRequestClose={closeLogin}
@@ -139,15 +138,13 @@ export default function App(): ReactElement {
         <QueryClientProvider client={queryClient}>
           <BootDataProvider app="extension" getRedirectUri={getRedirectUri}>
             <SubscriptionContextProvider>
-              <OnboardingContextProvider>
-                <AnalyticsContextProvider
-                  app="extension"
-                  version={version}
-                  getPage={() => pageRef.current}
-                >
-                  <InternalApp pageRef={pageRef} />
-                </AnalyticsContextProvider>
-              </OnboardingContextProvider>
+              <AnalyticsContextProvider
+                app="extension"
+                version={version}
+                getPage={() => pageRef.current}
+              >
+                <InternalApp pageRef={pageRef} />
+              </AnalyticsContextProvider>
             </SubscriptionContextProvider>
           </BootDataProvider>
         </QueryClientProvider>

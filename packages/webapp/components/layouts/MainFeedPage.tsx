@@ -1,9 +1,7 @@
 import React, { ReactElement, ReactNode, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
-import MainFeedLayout, {
-  tabs,
-} from '@dailydotdev/shared/src/components/MainFeedLayout';
+import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
 import dynamic from 'next/dynamic';
 import { getLayout } from './FeedLayout';
 
@@ -20,7 +18,7 @@ const getFeedName = (path: string): string => {
   if (path === '/') {
     return 'default';
   }
-  return tabs.find((tab) => path === tab.path)?.name;
+  return path.replace(/^\/+/, '');
 };
 
 export default function MainFeedPage({
@@ -58,7 +56,7 @@ export default function MainFeedPage({
       feedName={feedName}
       isSearchOn={isSearchOn}
       searchQuery={router.query?.q?.toString()}
-      searchChildren={<PostsSearch />}
+      searchChildren={<PostsSearch placeholder="Search articles" />}
     >
       {children}
     </MainFeedLayout>
@@ -78,7 +76,6 @@ export function getMainFeedLayout(
 }
 
 export const mainFeedLayoutProps: MainLayoutProps = {
-  showRank: true,
   greeting: true,
   mainPage: true,
 };

@@ -15,7 +15,6 @@ import {
 } from '../../graphql/common';
 import { POST_UPVOTES_BY_ID_QUERY } from '../../graphql/posts';
 import { UpvotedPopupModal, UpvotedPopupModalProps } from './UpvotedPopupModal';
-import OnboardingContext from '../../contexts/OnboardingContext';
 
 const defaultUser = {
   id: 'u1',
@@ -100,18 +99,7 @@ const renderComponent = (
           getRedirectUri: jest.fn(),
         }}
       >
-        <OnboardingContext.Provider
-          value={{
-            onboardingStep: 3,
-            onboardingReady: true,
-            incrementOnboardingStep: jest.fn(),
-            trackEngagement: jest.fn(),
-            closeReferral: jest.fn(),
-            showReferral: false,
-          }}
-        >
-          <UpvotedPopupModal {...upvotedPostQueryAsDefault} {...props} />
-        </OnboardingContext.Provider>
+        <UpvotedPopupModal {...upvotedPostQueryAsDefault} {...props} />
       </AuthContext.Provider>
     </QueryClientProvider>,
   );

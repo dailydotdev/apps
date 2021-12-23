@@ -272,7 +272,7 @@ interface EventFields {
   nonInteraction?: boolean;
 }
 
-export const trackEvent = ({
+export const gaTrackEvent = ({
   category,
   action,
   label,

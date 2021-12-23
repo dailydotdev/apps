@@ -1,10 +1,4 @@
-import React, {
-  ReactElement,
-  ReactNode,
-  useState,
-  useEffect,
-  useContext,
-} from 'react';
+import React, { ReactElement, ReactNode, useEffect, useContext } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -13,7 +7,6 @@ import BookmarkFeedLayout from '@dailydotdev/shared/src/components/BookmarkFeedL
 import { getLayout } from './FeedLayout';
 import { MainFeedPageProps } from './MainFeedPage';
 
-const BOOKMARK_SEARCH_URL = '/bookmarks/search';
 const PostsSearch = dynamic(
   () =>
     import(/* webpackChunkName: "routerPostsSearch" */ '../RouterPostsSearch'),
@@ -27,9 +20,6 @@ export default function BookmarkFeedPage({
 }: MainFeedPageProps): ReactElement {
   const router = useRouter();
   const { user, tokenRefreshed } = useContext(AuthContext);
-  const [isSearchOn, setIsSearchOn] = useState(
-    router?.pathname === BOOKMARK_SEARCH_URL,
-  );
 
   useEffect(() => {
     if (!user && tokenRefreshed) {
@@ -37,20 +27,17 @@ export default function BookmarkFeedPage({
     }
   }, [tokenRefreshed, user]);
 
-  useEffect(() => {
-    if (router?.pathname === BOOKMARK_SEARCH_URL) {
-      setIsSearchOn(true);
-    } else if (isSearchOn) {
-      setIsSearchOn(false);
-    }
-  }, [router.pathname]);
-
   return (
     <BookmarkFeedLayout
-      isSearchOn={isSearchOn}
       searchQuery={router.query?.q?.toString()}
       searchChildren={
-        <PostsSearch suggestionType="searchBookmarksSuggestions" />
+        user && (
+          <PostsSearch
+            autoFocus={false}
+            placeholder="Search bookmarks"
+            suggestionType="searchBookmarksSuggestions"
+          />
+        )
       }
     >
       {children}
@@ -71,7 +58,7 @@ export function getBookmarkFeedLayout(
 }
 
 export const bookmarkFeedLayoutProps: MainLayoutProps = {
-  showRank: true,
   greeting: true,
   mainPage: true,
+  mobileTitle: 'Bookmarks',
 };
