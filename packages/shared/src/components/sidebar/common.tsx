@@ -92,7 +92,7 @@ export const NavHeader = classed(
 );
 export const RawNavItem = classed(
   'li',
-  'flex items-center typo-callout hover:bg-theme-active hover:text-theme-label-primary',
+  'flex items-center typo-callout hover:bg-theme-active',
 );
 
 export const ListIcon = ({ Icon }: ListIconProps): ReactElement => (
@@ -210,13 +210,16 @@ export const NavItem = ({
   color,
   active,
   children,
-}: NavItemProps): ReactElement => (
-  <RawNavItem
-    className={classNames(
-      color || 'text-theme-label-tertiary',
-      active && 'bg-theme-active text-theme-label-primary',
-    )}
-  >
-    {children}
-  </RawNavItem>
-);
+}: NavItemProps): ReactElement => {
+  const baseClasses = active
+    ? 'text-theme-label-primary'
+    : 'hover:text-theme-label-primary text-theme-label-tertiary';
+
+  return (
+    <RawNavItem
+      className={classNames(color || baseClasses, active && 'bg-theme-active')}
+    >
+      {children}
+    </RawNavItem>
+  );
+};
