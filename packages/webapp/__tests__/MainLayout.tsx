@@ -58,7 +58,8 @@ const renderLayout = (user: LoggedUser = null): RenderResult => {
 
 it('should show login button when not logged-in', async () => {
   renderLayout();
-  expect(screen.queryByText('Login')).toBeInTheDocument();
+  // Experiment doesn't support mobile resolution which yields two elements
+  expect(await screen.findAllByText('Login')).toHaveLength(2);
 });
 
 it('should show login when clicking on the button', async () => {
@@ -80,8 +81,7 @@ it('should show profile image and reputation when logged-in', async () => {
     reputation: 5,
     permalink: 'https://app.daily.dev/ido',
   });
-  const el = await screen.findByAltText(`idoshamun's profile`);
+  const [el] = await screen.findAllByAltText(`idoshamun's profile`);
   expect(el).toHaveAttribute('data-src', 'https://daily.dev/ido.png');
-  const rep = await screen.findByText('5');
-  expect(rep).toBeInTheDocument();
+  expect(await screen.findAllByText('5')).toHaveLength(2);
 });

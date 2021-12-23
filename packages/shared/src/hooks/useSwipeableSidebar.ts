@@ -12,12 +12,12 @@ export function useSwipeableSidebar({
 }: UseSwipeableSidebarProps): SwipeableHandlers {
   const handlers = useSwipeable({
     onSwipedLeft: () => {
-      if (!sidebarRendered && openMobileSidebar) {
+      if (sidebarRendered === false && openMobileSidebar) {
         setOpenMobileSidebar(false);
       }
     },
     onSwipedRight: () => {
-      if (!sidebarRendered && !openMobileSidebar) {
+      if (sidebarRendered === false && !openMobileSidebar) {
         setOpenMobileSidebar(true);
       }
     },

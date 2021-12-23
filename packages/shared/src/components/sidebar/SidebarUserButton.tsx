@@ -23,7 +23,7 @@ export default function SidebarUserButton({
 
   return (
     <>
-      {!loadingUser && !sidebarRendered && (
+      {!loadingUser && sidebarRendered === false && (
         <li className="flex flex-col p-6 pt-2">
           {user ? (
             <>

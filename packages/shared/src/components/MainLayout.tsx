@@ -41,13 +41,9 @@ const Greeting = dynamic(
 
 interface ShouldShowLogoProps {
   mobileTitle?: string;
-  sidebarRendered?: boolean;
 }
-const shouldShowLogo = ({
-  mobileTitle,
-  sidebarRendered,
-}: ShouldShowLogoProps) => {
-  return !mobileTitle ? true : mobileTitle && sidebarRendered;
+const shouldShowLogo = ({ mobileTitle }: ShouldShowLogoProps) => {
+  return !mobileTitle ? true : mobileTitle;
 };
 
 interface LogoAndGreetingProps {
@@ -115,41 +111,48 @@ export default function MainLayout({
           bannerData?.banner ? 'laptop:top-8' : 'laptop:top-0',
         )}
       >
-        {!sidebarRendered && (
-          <Button
-            className="btn-tertiary"
-            iconOnly
-            onClick={() => trackAndToggleMobileSidebar(true)}
-            icon={<MenuIcon />}
-          />
-        )}
-        <div className="flex flex-row">
-          {mobileTitle && (
-            <h3 className="block laptop:hidden typo-callout">{mobileTitle}</h3>
-          )}
-          {shouldShowLogo({ mobileTitle, sidebarRendered }) && (
-            <LogoAndGreeting
-              user={user}
-              onLogoClick={onLogoClick}
-              greeting={greeting}
-            />
-          )}
-        </div>
-        {!showOnlyLogo && !loadingUser && sidebarRendered && (
+        {sidebarRendered !== undefined && (
           <>
-            {user ? (
-              <ProfileButton onShowDndClick={onShowDndClick} />
-            ) : (
-              <Button
-                onClick={() => showLogin('main button')}
-                className="btn-primary"
-              >
-                Login
-              </Button>
+            <Button
+              className="block laptop:hidden btn-tertiary"
+              iconOnly
+              onClick={() => trackAndToggleMobileSidebar(true)}
+              icon={<MenuIcon />}
+            />
+            <div className="flex flex-row flex-1 justify-center laptop:justify-start">
+              {mobileTitle && (
+                <h3 className="block laptop:hidden typo-callout">
+                  {mobileTitle}
+                </h3>
+              )}
+              {shouldShowLogo({ mobileTitle }) && (
+                <LogoAndGreeting
+                  user={user}
+                  onLogoClick={onLogoClick}
+                  greeting={greeting}
+                />
+              )}
+            </div>
+            {!showOnlyLogo && !loadingUser && (
+              <>
+                {user ? (
+                  <ProfileButton
+                    className="hidden laptop:flex"
+                    onShowDndClick={onShowDndClick}
+                  />
+                ) : (
+                  <Button
+                    onClick={() => showLogin('main button')}
+                    className="hidden laptop:block btn-primary"
+                  >
+                    Login
+                  </Button>
+                )}
+              </>
             )}
+            <MobileHeaderRankProgress />
           </>
         )}
-        {!sidebarRendered && <MobileHeaderRankProgress />}
       </header>
       <main
         className={classNames(
