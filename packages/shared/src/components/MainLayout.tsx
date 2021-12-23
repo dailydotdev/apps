@@ -20,6 +20,7 @@ import MobileHeaderRankProgress from './MobileHeaderRankProgress';
 import { LoggedUser } from '../lib/user';
 import usePromotionalBanner from '../hooks/usePromotionalBanner';
 import { useSwipeableSidebar } from '../hooks/useSwipeableSidebar';
+import SettingsContext from '../contexts/SettingsContext';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -89,6 +90,7 @@ export default function MainLayout({
   const { sidebarRendered } = useSidebarRendered();
   const { bannerData, setLastSeen } = usePromotionalBanner();
   const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
+  const { sidebarExpanded } = useContext(SettingsContext);
   const handlers = useSwipeableSidebar({
     sidebarRendered,
     openMobileSidebar,
@@ -157,6 +159,7 @@ export default function MainLayout({
       <main
         className={classNames(
           'flex flex-row',
+          sidebarExpanded ? 'laptop:pl-70' : 'laptop:pl-11',
           bannerData?.banner ? 'laptop:pt-22' : 'laptop:pt-14',
         )}
       >

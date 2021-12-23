@@ -78,7 +78,7 @@ export const SidebarBackdrop = classed(
 );
 export const SidebarAside = classed(
   'aside',
-  'flex flex-col w-70 laptop:-translate-x-0 bg-theme-bg-primary z-3 border-r border-theme-divider-tertiary transition-[width] transform duration-300 ease-in-out group fixed laptop:sticky top-0  h-full ',
+  'flex flex-col w-70 laptop:-translate-x-0 left-0 bg-theme-bg-primary z-3 border-r border-theme-divider-tertiary transition-[width] transform duration-300 ease-in-out group fixed top-0  h-full ',
 );
 export const SidebarScrollWrapper = classed(
   'div',
