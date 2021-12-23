@@ -46,12 +46,8 @@ function filteredProps<T extends Record<string, unknown>>(
   obj: T,
   filteredKeys: (keyof T)[],
 ): Partial<T> {
-  return Object.keys(obj).reduce((result, key) => {
-    if (filteredKeys.some((excluded) => excluded === key)) {
-      return { ...result, [key]: obj[key] };
-    }
-
-    return result;
+  return filteredKeys.reduce((result, key) => {
+    return { ...result, [key]: obj[key] };
   }, {});
 }
 
@@ -93,11 +89,10 @@ export const BootDataProvider = ({
   getRedirectUri,
 }: BootDataProviderProps): ReactElement => {
   const queryClient = useQueryClient();
-  const [loadedFromCache, setLoadedFromCache] = useState(false);
-  const [cachedBootData, setCachedBootData] = useState<Partial<BootCacheData>>(
-    {},
-  );
-  const { user, settings, flags = {}, alerts } = cachedBootData;
+  const [cachedBootData, setCachedBootData] =
+    useState<Partial<BootCacheData>>();
+  const loadedFromCache = cachedBootData !== undefined;
+  const { user, settings, flags = {}, alerts } = cachedBootData || {};
   const {
     data: bootRemoteData,
     refetch,
@@ -109,19 +104,22 @@ export const BootDataProvider = ({
     if (boot) {
       setCachedBootData(boot);
     }
-    setLoadedFromCache(true);
   }, []);
-
-  useEffect(() => {
-    if (bootRemoteData) {
-      setCachedBootData(bootRemoteData);
-    }
-  }, [bootRemoteData]);
 
   const setBootData = (updatedBootData: Partial<BootCacheData>) => {
     const updated = updateLocalBootData(cachedBootData, updatedBootData);
     setCachedBootData(updated);
   };
+
+  useEffect(() => {
+    if (bootRemoteData) {
+      // We need to remove the settings for annoymous users as they might have changed them already
+      if (!bootRemoteData.user || !('providers' in bootRemoteData.user)) {
+        delete bootRemoteData.settings;
+      }
+      setBootData(bootRemoteData);
+    }
+  }, [bootRemoteData]);
 
   useRefreshToken(bootRemoteData?.accessToken, refetch);
   const updatedAtActive = user ? dataUpdatedAt : null;

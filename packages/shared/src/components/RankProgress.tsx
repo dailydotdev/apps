@@ -216,7 +216,7 @@ export function RankProgress({
       (useRank === rankLastWeek && progress < STEPS_PER_RANK[rank - 1])
     )
       return `Re-earn: ${progress}/${STEPS_PER_RANK[rank - 1]} days`;
-    if (useRank === 0) return `Earn: ${progress}/3 days`;
+    if (useRank === 0) return `Earn: ${progress ?? 0}/3 days`;
     return `Next level: ${RANK_NAMES[rank]}`;
   };
 
