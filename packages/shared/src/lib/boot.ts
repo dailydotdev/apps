@@ -15,6 +15,11 @@ export type Boot = {
   settings: RemoteSettings;
 };
 
+export type BootCacheData = Pick<
+  Boot,
+  'user' | 'alerts' | 'settings' | 'flags'
+>;
+
 export async function getBootData(app: string): Promise<Boot> {
   const res = await fetch(`${apiUrl}/boot`, {
     credentials: 'include',
