@@ -1,11 +1,5 @@
 import request from 'graphql-request';
-import React, {
-  ReactNode,
-  ReactElement,
-  useMemo,
-  useEffect,
-  useState,
-} from 'react';
+import React, { ReactNode, ReactElement, useMemo } from 'react';
 import { UseMutateAsyncFunction, useMutation } from 'react-query';
 import { Alerts, UPDATE_ALERTS } from '../graphql/alerts';
 import { apiUrl } from '../lib/config';
