@@ -78,7 +78,7 @@ const RenderSection = ({
   const { user, showLogin } = useContext(AuthContext);
 
   const mobileItemsFilter = (item) =>
-    (!sidebarRendered && !item.hideOnMobile) || sidebarRendered;
+    (sidebarRendered === false && !item.hideOnMobile) || sidebarRendered;
 
   return (
     <NavSection>
@@ -106,7 +106,7 @@ const RenderSection = ({
           >
             <ItemInner
               item={item}
-              sidebarExpanded={sidebarExpanded || !sidebarRendered}
+              sidebarExpanded={sidebarExpanded || sidebarRendered === false}
             />
           </ButtonOrLink>
         </NavItem>
@@ -217,7 +217,7 @@ export default function Sidebar({
 
   return (
     <>
-      {openMobileSidebar && !sidebarRendered && (
+      {openMobileSidebar && sidebarRendered === false && (
         <SidebarBackdrop onClick={setOpenMobileSidebar} />
       )}
       <SidebarAside
@@ -260,7 +260,7 @@ export default function Sidebar({
               items={bottomMenuItems}
             />
             <InvitePeople
-              sidebarExpanded={sidebarExpanded || !sidebarRendered}
+              sidebarExpanded={sidebarExpanded || sidebarRendered === false}
             />
             {sidebarRendered && (
               <SidebarRankProgress sidebarExpanded={sidebarExpanded} />

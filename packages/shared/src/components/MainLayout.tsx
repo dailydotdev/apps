@@ -115,7 +115,7 @@ export default function MainLayout({
           bannerData?.banner ? 'laptop:top-8' : 'laptop:top-0',
         )}
       >
-        {!sidebarRendered && (
+        {sidebarRendered === false && (
           <Button
             className="btn-tertiary"
             iconOnly
@@ -149,7 +149,7 @@ export default function MainLayout({
             )}
           </>
         )}
-        {!sidebarRendered && <MobileHeaderRankProgress />}
+        {sidebarRendered === false && <MobileHeaderRankProgress />}
       </header>
       <main
         className={classNames(
