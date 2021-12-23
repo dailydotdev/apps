@@ -8,6 +8,7 @@ import {
   SidebarMenuItem,
 } from './common';
 import UserShareIcon from '../../../icons/user_share.svg';
+import UserShareFilledIcon from '../../../icons/filled/user_share.svg';
 import AuthContext from '../../contexts/AuthContext';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 
@@ -61,7 +62,7 @@ export default function InvitePeople({
   const tooltipBg = copyingLink ? 'bg-theme-status-success' : undefined;
 
   const item: SidebarMenuItem = {
-    icon: <ListIcon Icon={UserShareIcon} />,
+    icon: <ListIcon Icon={copyingLink ? UserShareFilledIcon : UserShareIcon} />,
     title: copyingLink ? 'Link copied to clipboard' : 'Invite people',
     action: () => onInvitePeople({ copyLink, inviteLink, trackInvite }),
     tooltip: { visible, container: { bgClassName: tooltipBg } },
