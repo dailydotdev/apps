@@ -38,7 +38,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
     );
 
   return (
-    <div className="hidden laptopL:inline-flex flex-row items-center px-3 mt-20 mb-6 rounded-2xl border bg-theme-bg-primary border-theme-divider-quaternary">
+    <div className="hidden laptopL:inline-flex relative flex-row items-center px-3 mt-20 mb-6 rounded-2xl border bg-theme-bg-primary border-theme-divider-quaternary">
       {copying && (
         <div
           className={classNames(
