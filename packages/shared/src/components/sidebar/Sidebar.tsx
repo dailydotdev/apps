@@ -151,7 +151,7 @@ export default function Sidebar({
     {
       icon: <ListIcon Icon={FilterIcon} />,
       alert: alerts.filter && (
-        <AlertDot className="-top-0.5 -right-0.5" color={AlertColor.Fill} />
+        <AlertDot className="-top-0.5 right-2.5" color={AlertColor.Fill} />
       ),
       title: 'Feed filters',
       action: setLoaded,
