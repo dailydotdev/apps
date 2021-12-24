@@ -31,6 +31,10 @@ export default function ProfileMenu({
   const { user, logout } = useContext(AuthContext);
   const shouldShowDnD = !!process.env.TARGET_BROWSER;
 
+  if (!user) {
+    return <></>;
+  }
+
   return (
     <>
       {showAccountDetails && (
