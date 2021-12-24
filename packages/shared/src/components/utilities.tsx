@@ -22,13 +22,13 @@ export const PageContainer = classed(
 export const PageSidebar = classed(
   'aside',
   styles.pageSidebar,
-  'laptopL:absolute right-0 px-4 tablet:px-8 order-2 laptop:pb-10 laptopL:pb-0 laptop:order-3 laptopL:order-2 laptopL:px-6 laptop:border-r laptop:border-l laptop:border-theme-divider-tertiary laptopL:border-none',
+  'laptopL:absolute right-0 px-4 tablet:px-8 order-2 laptop:pb-10 laptopL:pb-0 laptop:order-3 laptopL:order-2 laptopL:px-6 laptop:border-r laptop:border-l w-full laptopL:w-auto laptop:border-theme-divider-tertiary laptopL:border-none tablet:self-center',
 );
 
 export const NewCommentContainer = classed(
   'div',
   styles.newCommentContainer,
-  'pb-20 laptop:pb-6 laptop:border-r order-3 laptop:order-2 laptopL:order-3 laptop:border-l laptop:border-theme-divider-tertiary relative flex flex-col w-full items-stretch px-4 z-1 tablet:px-8 laptopL:mr-[22.5rem]',
+  'pb-20 laptop:pb-6 laptop:border-r order-3 laptop:order-2 laptopL:order-3 laptop:border-l laptop:border-theme-divider-tertiary relative flex flex-col w-full items-stretch px-4 z-1 tablet:px-8 laptopL:mr-[22.5rem] tablet:self-center',
 );
 
 export const NoPaddingPageContainer = classed(
