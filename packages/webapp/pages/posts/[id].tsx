@@ -238,7 +238,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
 
   return (
     <>
-      <div className="flex relative flex-col flex-wrap mx-auto max-w-full">
+      <div className="flex relative flex-col flex-wrap mx-auto w-full laptopL:w-auto max-w-full">
         <PageContainer className="pt-6 laptop:pb-6 laptopL:mr-[22.5rem] laptop:border-r laptop:border-l laptop:border-theme-divider-tertiary">
           <Head>
             <link rel="preload" as="image" href={postById?.post.image} />
