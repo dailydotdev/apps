@@ -133,6 +133,16 @@ export const BootDataProvider = ({
     [queryClient],
   );
 
+  const updateSettings = useCallback(
+    (updatedSettings) => setBootData({ settings: updatedSettings }),
+    [setBootData],
+  );
+
+  const updateAlerts = useCallback(
+    (updatedAlerts) => setBootData({ alerts: updatedAlerts }),
+    [setBootData],
+  );
+
   return (
     <FeaturesContext.Provider value={{ flags }}>
       <AuthContextProvider
@@ -147,16 +157,9 @@ export const BootDataProvider = ({
         <SettingsContextProvider
           settings={settings}
           loadedSettings={loadedFromCache}
-          updateSettings={(updatedSettings) =>
-            setBootData({ settings: updatedSettings })
-          }
+          updateSettings={updateSettings}
         >
-          <AlertContextProvider
-            alerts={alerts}
-            updateAlerts={(updatedAlerts) =>
-              setBootData({ alerts: updatedAlerts })
-            }
-          >
+          <AlertContextProvider alerts={alerts} updateAlerts={updateAlerts}>
             {children}
           </AlertContextProvider>
         </SettingsContextProvider>

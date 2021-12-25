@@ -58,10 +58,10 @@ export const AlertContextProvider = ({
     },
   );
 
-  const alertContextData = useMemo(
+  const alertContextData = useMemo<AlertContextData>(
     () => ({
       alerts,
-      updateRemoteAlerts,
+      updateAlerts: updateRemoteAlerts,
     }),
     [alerts, updateRemoteAlerts],
   );
