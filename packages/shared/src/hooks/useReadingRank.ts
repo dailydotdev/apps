@@ -39,13 +39,14 @@ const defaultRank: MyRankData = {
 const checkShouldShowRankModal = (
   rankLastSeen: Date,
   lastReadTime: Date,
+  loadedAlerts: boolean,
   neverShowRankModal?: boolean,
 ) => {
   if (neverShowRankModal !== null && neverShowRankModal !== undefined) {
     return !neverShowRankModal;
   }
 
-  if (rankLastSeen === undefined) {
+  if (loadedAlerts && !rankLastSeen) {
     return true;
   }
 
@@ -92,8 +93,9 @@ export default function useReadingRank(): ReturnType {
     });
 
   const shouldShowRankModal = checkShouldShowRankModal(
-    loadedAlerts && alerts?.rankLastSeen,
+    alerts?.rankLastSeen,
     cachedRank?.rank?.lastReadTime || remoteRank?.rank?.lastReadTime,
+    loadedAlerts,
     neverShowRankModal,
   );
 
