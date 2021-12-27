@@ -58,8 +58,9 @@ const renderLayout = (user: LoggedUser = null): RenderResult => {
 
 it('should show login button when not logged-in', async () => {
   renderLayout();
-  // Experiment doesn't support mobile resolution which both yields two elements, for a total of 4
-  expect(await screen.findAllByText('Login')).toHaveLength(4);
+  // Experiment doesn't support mobile resolution which both yields two elements.
+  expect(await screen.findAllByText('Access all features')).toHaveLength(2);
+  expect(await screen.findAllByText('Login')).toHaveLength(2);
 });
 
 it('should show login when clicking on the button', async () => {
