@@ -47,7 +47,7 @@ export default function LoginButton({
       className={classNames('btn-primary', className)}
     >
       <span className="hidden laptop:inline">{buttonCopy}</span>
-      <span className="laptop:hidden">Login</span>
+      <span className="laptop:hidden">Sign up</span>
     </Button>
   );
 }
