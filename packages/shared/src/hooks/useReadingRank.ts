@@ -39,21 +39,18 @@ const defaultRank: MyRankData = {
 const checkShouldShowRankModal = (
   rankLastSeen: Date,
   lastReadTime: Date,
+  loadedAlerts: boolean,
   neverShowRankModal?: boolean,
 ) => {
   if (neverShowRankModal !== null && neverShowRankModal !== undefined) {
-    return neverShowRankModal;
+    return !neverShowRankModal;
   }
 
-  if (rankLastSeen === undefined) {
+  if (loadedAlerts && !rankLastSeen) {
     return true;
   }
 
-  if (rankLastSeen === null) {
-    return false;
-  }
-
-  if (!lastReadTime) {
+  if (!rankLastSeen) {
     return false;
   }
 
@@ -61,7 +58,7 @@ const checkShouldShowRankModal = (
 };
 
 export default function useReadingRank(): ReturnType {
-  const { alerts, updateAlerts } = useContext(AlertContext);
+  const { alerts, loadedAlerts, updateAlerts } = useContext(AlertContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
   const [levelUp, setLevelUp] = useState(false);
   const queryClient = useQueryClient();
@@ -98,6 +95,7 @@ export default function useReadingRank(): ReturnType {
   const shouldShowRankModal = checkShouldShowRankModal(
     alerts?.rankLastSeen,
     cachedRank?.rank?.lastReadTime || remoteRank?.rank?.lastReadTime,
+    loadedAlerts,
     neverShowRankModal,
   );
 
@@ -115,19 +113,28 @@ export default function useReadingRank(): ReturnType {
     }
   };
 
+  // Let the rank update and then show progress animation, slight delay so the user won't miss it
+  const displayProgress = () => setTimeout(updateShownProgress, 300);
+
   useEffect(() => {
     if (remoteRank && loadedCache) {
       if (
         !cachedRank ||
-        remoteRank.rank.progressThisWeek < cachedRank.rank.progressThisWeek ||
-        !cachedRank.rank.rankLastWeek
+        remoteRank.rank.progressThisWeek < cachedRank.rank.progressThisWeek
       ) {
+        /* if there is no cache value or it is not the most updated let's set the cache */
         cacheRank();
-        return;
+      } else if (cachedRank && !cachedRank.rank.rankLastWeek) {
+        /*
+          else if the cache value has data but missing some properties rankLastWeek, let's re-set it
+          with that, this can mean the user is on their first week, which should see the progress animation
+        */
+        cacheRank();
+        displayProgress();
+      } else {
+        /* else - the cache has pre-existing value so we just need to check if we should display the progress */
+        displayProgress();
       }
-
-      // Let the rank update and then show progress animation, slight delay so the user won't miss it
-      setTimeout(updateShownProgress, 300);
     }
   }, [remoteRank, loadedCache]);
 

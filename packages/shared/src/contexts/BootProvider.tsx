@@ -177,7 +177,11 @@ export const BootDataProvider = ({
           loadedSettings={loadedFromCache}
           updateSettings={updateSettings}
         >
-          <AlertContextProvider alerts={alerts} updateAlerts={updateAlerts}>
+          <AlertContextProvider
+            alerts={alerts}
+            updateAlerts={updateAlerts}
+            loadedAlerts={loadedFromCache}
+          >
             {children}
           </AlertContextProvider>
         </SettingsContextProvider>
