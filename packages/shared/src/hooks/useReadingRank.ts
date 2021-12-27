@@ -42,15 +42,11 @@ const checkShouldShowRankModal = (
   neverShowRankModal?: boolean,
 ) => {
   if (neverShowRankModal !== null && neverShowRankModal !== undefined) {
-    return neverShowRankModal;
+    return !neverShowRankModal;
   }
 
-  if (rankLastSeen === undefined) {
+  if (!rankLastSeen) {
     return true;
-  }
-
-  if (rankLastSeen === null) {
-    return false;
   }
 
   if (!lastReadTime) {
@@ -61,7 +57,7 @@ const checkShouldShowRankModal = (
 };
 
 export default function useReadingRank(): ReturnType {
-  const { alerts, updateAlerts } = useContext(AlertContext);
+  const { alerts, loadedAlerts, updateAlerts } = useContext(AlertContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
   const [levelUp, setLevelUp] = useState(false);
   const queryClient = useQueryClient();
@@ -95,11 +91,13 @@ export default function useReadingRank(): ReturnType {
       neverShowRankModal: newNeverShowRankModal,
     });
 
-  const shouldShowRankModal = checkShouldShowRankModal(
-    alerts?.rankLastSeen,
-    cachedRank?.rank?.lastReadTime || remoteRank?.rank?.lastReadTime,
-    neverShowRankModal,
-  );
+  const shouldShowRankModal =
+    loadedAlerts &&
+    checkShouldShowRankModal(
+      alerts?.rankLastSeen,
+      cachedRank?.rank?.lastReadTime || remoteRank?.rank?.lastReadTime,
+      neverShowRankModal,
+    );
 
   const updateShownProgress = async () => {
     if (document.visibilityState === 'hidden') {
