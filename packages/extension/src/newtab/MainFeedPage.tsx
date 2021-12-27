@@ -3,7 +3,6 @@ import MainLayout from '@dailydotdev/shared/src/components/MainLayout';
 import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import dynamic from 'next/dynamic';
-import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState';
 import TimerIcon from '@dailydotdev/shared/icons/timer.svg';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
@@ -29,11 +28,7 @@ export default function MainFeedPage({
   onPageChanged,
 }: MainFeedPageProps): ReactElement {
   const { user } = useContext(AuthContext);
-  const [feedName, setFeedName] = usePersistentState(
-    'defaultFeed',
-    null,
-    'popular',
-  );
+  const [feedName, setFeedName] = useState<string>('default');
   const [isSearchOn, setIsSearchOn] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>();
   const [showDnd, setShowDnd] = useState(false);
@@ -67,6 +62,10 @@ export default function MainFeedPage({
     setSearchQuery(undefined);
   };
 
+  const onDefaultFeedUpdate = (defaultFeed: string) => {
+    setFeedName(defaultFeed);
+  };
+
   return (
     <MainLayout
       greeting
@@ -97,6 +96,7 @@ export default function MainFeedPage({
           feedName={feedName}
           isSearchOn={isSearchOn}
           searchQuery={searchQuery}
+          onDefaultFeedUpdate={onDefaultFeedUpdate}
           searchChildren={
             <PostsSearch
               onSubmitQuery={async (query) => setSearchQuery(query)}

@@ -2,6 +2,7 @@ import React, {
   ReactElement,
   ReactNode,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from 'react';
@@ -76,6 +77,7 @@ export type MainFeedLayoutProps = {
   children?: ReactNode;
   searchChildren: ReactNode;
   navChildren?: ReactNode;
+  onDefaultFeedUpdate?: (feedName: string) => void;
 };
 
 const getQueryBasedOnLogin = (
@@ -107,6 +109,7 @@ export default function MainFeedLayout({
   children,
   searchChildren,
   navChildren,
+  onDefaultFeedUpdate,
 }: MainFeedLayoutProps): ReactElement {
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { flags } = useContext(FeaturesContext);
@@ -119,9 +122,16 @@ export default function MainFeedLayout({
   );
   const feedName = feedNameProp === 'default' ? defaultFeed : feedNameProp;
 
-  if (defaultFeed !== null && feedName !== null && feedName !== defaultFeed) {
-    setDefaultFeed(feedName);
-  }
+  useEffect(() => {
+    if (defaultFeed !== null && feedName !== null && feedName !== defaultFeed) {
+      setDefaultFeed(feedName);
+    }
+  }, [defaultFeed, feedName]);
+
+  useEffect(() => {
+    // This will only need to fire on the default feed once to set the initial state for the extension
+    onDefaultFeedUpdate?.(defaultFeed);
+  }, [defaultFeed]);
 
   const isUpvoted = !isSearchOn && feedName === 'upvoted';
 
