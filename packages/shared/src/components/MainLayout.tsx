@@ -77,6 +77,9 @@ const LogoAndGreeting = ({
   );
 };
 
+const mainLayoutClass = (sidebarExpanded: boolean) =>
+  sidebarExpanded ? 'laptop:pl-70' : 'laptop:pl-11';
+
 export default function MainLayout({
   children,
   showOnlyLogo,
@@ -163,7 +166,7 @@ export default function MainLayout({
       <main
         className={classNames(
           'flex flex-row',
-          sidebarExpanded ? 'laptop:pl-70' : 'laptop:pl-11',
+          !showOnlyLogo && mainLayoutClass(sidebarExpanded),
           bannerData?.banner ? 'laptop:pt-22' : 'laptop:pt-14',
         )}
       >
