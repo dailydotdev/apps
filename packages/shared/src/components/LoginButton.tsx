@@ -1,4 +1,5 @@
-import React, { ReactElement, useContext, useEffect } from 'react';
+import React, { ReactElement, ReactNode, useContext, useEffect } from 'react';
+import classNames from 'classnames';
 import { Button } from './buttons/Button';
 import AuthContext from '../contexts/AuthContext';
 import FeaturesContext from '../contexts/FeaturesContext';
@@ -16,12 +17,19 @@ const getAnalyticsEvent = (
   feed_item_title: copy,
 });
 
-export default function LoginButton(): ReactElement {
+interface LoginButtonProps {
+  icon?: ReactNode;
+  className?: string;
+}
+export default function LoginButton({
+  icon,
+  className,
+}: LoginButtonProps): ReactElement {
   const { showLogin } = useContext(AuthContext);
   const { flags } = useContext(FeaturesContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const buttonCopy =
-    getFeatureValue(Features.SignupButtonCopy, flags) || 'Login';
+    getFeatureValue(Features.SignupButtonCopy, flags) || 'Access all features';
 
   useEffect(() => {
     trackEvent(getAnalyticsEvent('impression', buttonCopy));
@@ -33,9 +41,13 @@ export default function LoginButton(): ReactElement {
   };
 
   return (
-    <Button onClick={onClick} className="btn-primary">
+    <Button
+      onClick={onClick}
+      icon={icon}
+      className={classNames('btn-primary', className)}
+    >
       <span className="hidden laptop:inline">{buttonCopy}</span>
-      <span className="laptop:hidden">Login</span>
+      <span className="laptop:hidden">Sign up</span>
     </Button>
   );
 }
