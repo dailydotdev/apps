@@ -13,7 +13,9 @@ import 'focus-visible';
 import Modal from 'react-modal';
 import { DefaultSeo } from 'next-seo';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import AuthContext, {
+  REGISTRATION_PATH,
+} from '@dailydotdev/shared/src/contexts/AuthContext';
 import { Router } from 'next/router';
 import { useCookieBanner } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import ProgressiveEnhancementContext, {
@@ -95,14 +97,20 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       tokenRefreshed &&
       user &&
       !user.infoConfirmed &&
-      window.location.pathname.indexOf('/register') !== 0
+      window.location.pathname.indexOf(REGISTRATION_PATH) !== 0
     ) {
+      const referrer = document.referrer && new URL(document.referrer);
+      if (referrer.pathname?.indexOf(REGISTRATION_PATH) !== -1) {
+        window.location.reload();
+        return;
+      }
+
       window.location.replace(
         `/register?redirect_uri=${encodeURI(window.location.pathname)}`,
       );
     }
     updateCookieBanner(user);
-  }, [user, loadingUser, tokenRefreshed]);
+  }, [user, loadingUser, tokenRefreshed, router.pathname]);
 
   const getLayout =
     (Component as CompnentGetLayout).getLayout || ((page) => page);
