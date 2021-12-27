@@ -157,26 +157,6 @@ export default function ProfileForm({
         maxLength={160}
         validityChanged={updateDisableSubmit}
       />
-
-      <div className="flex flex-col items-stretch self-stretch mb-3">
-        <p className="px-2 mb-1 font-bold text-theme-label-primary">
-          Time zone
-        </p>
-        <Dropdown
-          buttonSize="select"
-          selectedIndex={timeZoneOptions.findIndex(
-            (timeZone) => timeZone.value === userTimeZone,
-          )}
-          onChange={timezoneUpdated}
-          options={timeZoneValues}
-          scrollable
-          menuClassName="menu-secondary"
-        />
-        <div className="px-2 mt-1 typo-caption1 text-theme-label-tertiary">
-          Your current time zone. Used to calculate your weekly goal&apos;s
-          cycle and other time-based activities.
-        </div>
-      </div>
       <FormField
         compact
         inputId="company"
@@ -286,6 +266,25 @@ export default function ProfileForm({
           emailHint !== defaultEmailHint && setEmailHint(defaultEmailHint)
         }
       />
+      <div className="flex flex-col items-stretch self-stretch mb-3">
+        <p className="px-2 mb-1 font-bold text-theme-label-primary">
+          Time zone
+        </p>
+        <Dropdown
+          buttonSize="select"
+          selectedIndex={timeZoneOptions.findIndex(
+            (timeZone) => timeZone.value === userTimeZone,
+          )}
+          onChange={timezoneUpdated}
+          options={timeZoneValues}
+          scrollable
+          menuClassName="menu-secondary"
+        />
+        <div className="px-2 mt-1 typo-caption1 text-theme-label-tertiary">
+          Your current time zone. Used to calculate your weekly goal&apos;s
+          cycle and other time-based activities.
+        </div>
+      </div>
       {mode === 'author' && twitterField}
       {mode === 'update' && (
         <>
