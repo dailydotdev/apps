@@ -21,6 +21,7 @@ import { LoggedUser } from '../lib/user';
 import usePromotionalBanner from '../hooks/usePromotionalBanner';
 import { useSwipeableSidebar } from '../hooks/useSwipeableSidebar';
 import SettingsContext from '../contexts/SettingsContext';
+import LoginButton from './LoginButton';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -89,7 +90,7 @@ export default function MainLayout({
   enableSearch,
   onShowDndClick,
 }: MainLayoutProps): ReactElement {
-  const { user, showLogin, loadingUser } = useContext(AuthContext);
+  const { user, loadingUser } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const { sidebarRendered } = useSidebarRendered();
   const { bannerData, setLastSeen } = usePromotionalBanner();
@@ -147,12 +148,7 @@ export default function MainLayout({
                     onShowDndClick={onShowDndClick}
                   />
                 ) : (
-                  <Button
-                    onClick={() => showLogin('main button')}
-                    className="hidden laptop:block btn-primary"
-                  >
-                    Login
-                  </Button>
+                  <LoginButton className="hidden laptop:block" />
                 )}
               </>
             )}

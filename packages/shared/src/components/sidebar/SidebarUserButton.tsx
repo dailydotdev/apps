@@ -8,6 +8,7 @@ import AuthContext from '../../contexts/AuthContext';
 import SettingsIcon from '../../../icons/settings.svg';
 import UserIcon from '../../../icons/user.svg';
 import { SidebarUserButtonProps } from './common';
+import LoginButton from '../LoginButton';
 
 const { onMenuClick } = useProfileMenu();
 
@@ -19,7 +20,7 @@ export default function SidebarUserButton({
   sidebarRendered,
   onShowDndClick,
 }: SidebarUserButtonProps): ReactElement {
-  const { user, showLogin, loadingUser } = useContext(AuthContext);
+  const { user, loadingUser } = useContext(AuthContext);
 
   return (
     <>
@@ -49,13 +50,7 @@ export default function SidebarUserButton({
               <ProfileMenu onShowDndClick={onShowDndClick} />
             </>
           ) : (
-            <Button
-              onClick={() => showLogin('main button')}
-              className="btn-primary"
-              icon={<UserIcon />}
-            >
-              Login
-            </Button>
+            <LoginButton icon={<UserIcon />} />
           )}
         </li>
       )}
