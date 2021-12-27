@@ -91,6 +91,8 @@ export const BootDataProvider = ({
   const queryClient = useQueryClient();
   const [cachedBootData, setCachedBootData] =
     useState<Partial<BootCacheData>>();
+  const [lastAppliedChange, setLastAppliedChange] =
+    useState<Partial<BootCacheData>>();
   const loadedFromCache = cachedBootData !== undefined;
   const { user, settings, flags = {}, alerts } = cachedBootData || {};
   const {
@@ -106,7 +108,22 @@ export const BootDataProvider = ({
     }
   }, []);
 
-  const setBootData = (updatedBootData: Partial<BootCacheData>) => {
+  const setBootData = (
+    updatedBootData: Partial<BootCacheData>,
+    update = true,
+  ) => {
+    if (update) {
+      if (lastAppliedChange) {
+        updatedBootData = { ...lastAppliedChange, ...updatedBootData };
+      }
+      setLastAppliedChange(updatedBootData);
+    } else {
+      if (lastAppliedChange) {
+        updatedBootData = { ...updatedBootData, ...lastAppliedChange };
+      }
+      setLastAppliedChange(null);
+    }
+
     const updated = updateLocalBootData(cachedBootData, updatedBootData);
     setCachedBootData(updated);
   };
@@ -117,7 +134,7 @@ export const BootDataProvider = ({
       if (!bootRemoteData.user || !('providers' in bootRemoteData.user)) {
         delete bootRemoteData.settings;
       }
-      setBootData(bootRemoteData);
+      setBootData(bootRemoteData, false);
     }
   }, [bootRemoteData]);
 
