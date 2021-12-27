@@ -112,8 +112,17 @@ export default function MainFeedLayout({
   const { flags } = useContext(FeaturesContext);
   const feedVersion =
     parseInt(getFeatureValue(Features.FeedVersion, flags), 10) || 1;
-  const [defaultFeed] = usePersistentState('defaultFeed', null, 'popular');
+  const [defaultFeed, setDefaultFeed] = usePersistentState(
+    'defaultFeed',
+    null,
+    'popular',
+  );
   const feedName = feedNameProp === 'default' ? defaultFeed : feedNameProp;
+
+  if (defaultFeed !== null && feedName !== null && feedName !== defaultFeed) {
+    setDefaultFeed(feedName);
+  }
+
   const isUpvoted = !isSearchOn && feedName === 'upvoted';
 
   let query: { query: string; variables?: Record<string, unknown> };
