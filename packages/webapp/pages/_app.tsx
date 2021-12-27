@@ -99,6 +99,10 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       !user.infoConfirmed &&
       window.location.pathname.indexOf(REGISTRATION_PATH) !== 0
     ) {
+      /*  this will check if the user came from our registration
+          if the user has clicked the logout button in the registration - it should go through here because the user will be redirected
+          and since the window.location.replace did not clear all the local state and data like window.location.replace - we will have to force a reload
+      */
       const referrer = document.referrer && new URL(document.referrer);
       if (referrer.pathname?.indexOf(REGISTRATION_PATH) !== -1) {
         window.location.reload();
