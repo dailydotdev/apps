@@ -45,11 +45,11 @@ const checkShouldShowRankModal = (
     return !neverShowRankModal;
   }
 
-  if (!rankLastSeen) {
+  if (rankLastSeen === undefined) {
     return true;
   }
 
-  if (!lastReadTime) {
+  if (!rankLastSeen) {
     return false;
   }
 
