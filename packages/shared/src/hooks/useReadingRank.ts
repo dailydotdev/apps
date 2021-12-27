@@ -113,6 +113,9 @@ export default function useReadingRank(): ReturnType {
     }
   };
 
+  // Let the rank update and then show progress animation, slight delay so the user won't miss it
+  const displayProgress = () => setTimeout(updateShownProgress, 300);
+
   useEffect(() => {
     if (remoteRank && loadedCache) {
       if (
@@ -120,11 +123,12 @@ export default function useReadingRank(): ReturnType {
         remoteRank.rank.progressThisWeek < cachedRank.rank.progressThisWeek
       ) {
         cacheRank();
-        return;
+      } else if (cachedRank && !cachedRank.rank.rankLastWeek) {
+        cacheRank();
+        displayProgress();
+      } else {
+        displayProgress();
       }
-
-      // Let the rank update and then show progress animation, slight delay so the user won't miss it
-      setTimeout(updateShownProgress, 300);
     }
   }, [remoteRank, loadedCache]);
 
