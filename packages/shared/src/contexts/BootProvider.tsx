@@ -112,19 +112,20 @@ export const BootDataProvider = ({
     updatedBootData: Partial<BootCacheData>,
     update = true,
   ) => {
+    let updatedData = { ...updatedBootData };
     if (update) {
       if (lastAppliedChange) {
-        updatedBootData = { ...lastAppliedChange, ...updatedBootData };
+        updatedData = { ...lastAppliedChange, ...updatedData };
       }
-      setLastAppliedChange(updatedBootData);
+      setLastAppliedChange(updatedData);
     } else {
       if (lastAppliedChange) {
-        updatedBootData = { ...updatedBootData, ...lastAppliedChange };
+        updatedData = { ...updatedData, ...lastAppliedChange };
       }
       setLastAppliedChange(null);
     }
 
-    const updated = updateLocalBootData(cachedBootData, updatedBootData);
+    const updated = updateLocalBootData(cachedBootData, updatedData);
     setCachedBootData(updated);
   };
 
