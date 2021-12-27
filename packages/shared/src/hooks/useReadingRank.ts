@@ -91,13 +91,11 @@ export default function useReadingRank(): ReturnType {
       neverShowRankModal: newNeverShowRankModal,
     });
 
-  const shouldShowRankModal =
-    loadedAlerts &&
-    checkShouldShowRankModal(
-      alerts?.rankLastSeen,
-      cachedRank?.rank?.lastReadTime || remoteRank?.rank?.lastReadTime,
-      neverShowRankModal,
-    );
+  const shouldShowRankModal = checkShouldShowRankModal(
+    loadedAlerts && alerts?.rankLastSeen,
+    cachedRank?.rank?.lastReadTime || remoteRank?.rank?.lastReadTime,
+    neverShowRankModal,
+  );
 
   const updateShownProgress = async () => {
     if (document.visibilityState === 'hidden') {
