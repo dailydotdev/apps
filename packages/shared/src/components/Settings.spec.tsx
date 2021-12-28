@@ -147,7 +147,7 @@ it('should utilize front-end default settings for first time users', async () =>
 it('should utilize local cache settings for anonymous users', async () => {
   const localBootData = {
     ...defaultBootData,
-    settings: { ...defaultBootData.settings, theme: 'darcula' },
+    settings: { ...defaultBootData.settings, theme: 'cozy' },
   };
   localStorage.setItem(BOOT_LOCAL_KEY, JSON.stringify(localBootData));
   renderBootProvider(defaultBootData);
@@ -156,7 +156,7 @@ it('should utilize local cache settings for anonymous users', async () => {
   await waitFor(() =>
     expect(
       // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
-      radio.find((el) => queryByText(el.parentElement, 'Dark')),
+      radio.find((el) => queryByText(el.parentElement, 'Cozy')),
     ).toBeChecked(),
   );
 });
