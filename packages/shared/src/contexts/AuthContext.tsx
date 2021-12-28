@@ -31,9 +31,25 @@ export interface AuthContextData {
 const AuthContext = React.createContext<AuthContextData>(null);
 export default AuthContext;
 
+const getQueryParams = () => {
+  const urlSearchParams = new URLSearchParams(window.location.search);
+  const params = Object.fromEntries(urlSearchParams.entries());
+
+  return params;
+};
+
+const REGISTRATION_PATH = '/register';
+
 const logout = async (): Promise<void> => {
   await dispatchLogout();
-  window.location.reload();
+  const params = getQueryParams();
+  if (params.redirect_uri) {
+    window.location.replace(params.redirect_uri);
+  } else if (window.location.pathname === REGISTRATION_PATH) {
+    window.location.replace(process.env.NEXT_PUBLIC_WEBAPP_URL);
+  } else {
+    window.location.reload();
+  }
 };
 
 export type AuthContextProviderProps = {

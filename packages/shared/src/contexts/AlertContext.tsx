@@ -11,6 +11,7 @@ export const ALERT_DEFAULTS: Alerts = {
 
 export interface AlertContextData {
   alerts: Alerts;
+  loadedAlerts?: boolean;
   updateAlerts?: UseMutateAsyncFunction<
     unknown,
     unknown,
@@ -23,17 +24,20 @@ export const MAX_DATE = new Date(3021, 0, 1);
 
 const AlertContext = React.createContext<AlertContextData>({
   alerts: ALERT_DEFAULTS,
+  loadedAlerts: false,
 });
 
 interface AlertContextProviderProps {
   children: ReactNode;
   alerts?: Alerts;
+  loadedAlerts?: boolean;
   updateAlerts: (alerts: Alerts) => unknown;
 }
 
 export const AlertContextProvider = ({
   children,
   alerts = ALERT_DEFAULTS,
+  loadedAlerts,
   updateAlerts,
 }: AlertContextProviderProps): ReactElement => {
   const { mutateAsync: updateRemoteAlerts } = useMutation<
@@ -61,6 +65,7 @@ export const AlertContextProvider = ({
   const alertContextData = useMemo<AlertContextData>(
     () => ({
       alerts,
+      loadedAlerts,
       updateAlerts: updateRemoteAlerts,
     }),
     [alerts, updateRemoteAlerts],
