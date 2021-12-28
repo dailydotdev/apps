@@ -16,11 +16,7 @@
   }
 }
 
-.newCommentContainer {
-  max-width: $pageMaxWidth;
-}
-
-.pageSidebar {
+.pageWidgets {
   max-width: $pageMaxWidth;
 }
 
