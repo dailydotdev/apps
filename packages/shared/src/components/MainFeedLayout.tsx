@@ -21,11 +21,11 @@ import {
   MOST_UPVOTED_FEED_QUERY,
   SEARCH_POSTS_QUERY,
 } from '../graphql/feed';
-import usePersistentState from '../hooks/usePersistentState';
 import FeaturesContext from '../contexts/FeaturesContext';
 import { generateQueryKey } from '../lib/query';
 import { Features, getFeatureValue } from '../lib/featureManagement';
 import classed from '../lib/classed';
+import useDefaultFeed from '../hooks/useDefaultFeed';
 
 const SearchEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "emptySearch" */ './SearchEmptyScreen'),
@@ -77,7 +77,6 @@ export type MainFeedLayoutProps = {
   children?: ReactNode;
   searchChildren: ReactNode;
   navChildren?: ReactNode;
-  onDefaultFeedUpdate?: (feedName: string) => void;
 };
 
 const getQueryBasedOnLogin = (
@@ -109,17 +108,12 @@ export default function MainFeedLayout({
   children,
   searchChildren,
   navChildren,
-  onDefaultFeedUpdate,
 }: MainFeedLayoutProps): ReactElement {
+  const { defaultFeed, setDefaultFeed } = useDefaultFeed();
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { flags } = useContext(FeaturesContext);
   const feedVersion =
     parseInt(getFeatureValue(Features.FeedVersion, flags), 10) || 1;
-  const [defaultFeed, setDefaultFeed] = usePersistentState(
-    'defaultFeed',
-    null,
-    'popular',
-  );
   const feedName = feedNameProp === 'default' ? defaultFeed : feedNameProp;
 
   useEffect(() => {
@@ -127,11 +121,6 @@ export default function MainFeedLayout({
       setDefaultFeed(feedName);
     }
   }, [defaultFeed, feedName]);
-
-  useEffect(() => {
-    // This will only need to fire on the default feed once to set the initial state for the extension
-    onDefaultFeedUpdate?.(defaultFeed);
-  }, [defaultFeed]);
 
   const isUpvoted = !isSearchOn && feedName === 'upvoted';
 

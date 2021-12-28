@@ -38,7 +38,7 @@ import SidebarUserButton from './SidebarUserButton';
 import AuthContext from '../../contexts/AuthContext';
 import useHideMobileSidebar from '../../hooks/useHideMobileSidebar';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
-import usePersistentState from '../../hooks/usePersistentState';
+import useDefaultFeed from '../../hooks/useDefaultFeed';
 
 const bottomMenuItems: SidebarMenuItem[] = [
   {
@@ -127,7 +127,7 @@ export default function Sidebar({
   setOpenMobileSidebar,
   onShowDndClick,
 }: SidebarProps): ReactElement {
-  const [defaultFeed] = usePersistentState('defaultFeed', null, 'popular');
+  const { defaultFeed } = useDefaultFeed();
   const activePage =
     activePageProp === '/' ? `/${defaultFeed}` : activePageProp;
   const { alerts } = useContext(AlertContext);

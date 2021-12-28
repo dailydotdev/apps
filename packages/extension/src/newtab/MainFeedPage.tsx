@@ -1,5 +1,6 @@
 import React, { ReactElement, useContext, useMemo, useState } from 'react';
 import MainLayout from '@dailydotdev/shared/src/components/MainLayout';
+import useDefaultFeed from '@dailydotdev/shared/src/hooks/useDefaultFeed';
 import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import dynamic from 'next/dynamic';
@@ -32,6 +33,7 @@ export default function MainFeedPage({
   const [isSearchOn, setIsSearchOn] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>();
   const [showDnd, setShowDnd] = useState(false);
+  const { defaultFeed } = useDefaultFeed();
 
   const enableSearch = () => {
     setIsSearchOn(true);
@@ -51,8 +53,8 @@ export default function MainFeedPage({
     if (isSearchOn) {
       return '/search';
     }
-    return `/${feedName === 'default' ? 'popular' : feedName}`;
-  }, [isSearchOn, feedName]);
+    return `/${feedName === 'default' ? defaultFeed : feedName}`;
+  }, [isSearchOn, feedName, defaultFeed]);
 
   const onLogoClick = (e: React.MouseEvent): void => {
     e.preventDefault();
@@ -60,10 +62,6 @@ export default function MainFeedPage({
     setFeedName('popular');
     setIsSearchOn(false);
     setSearchQuery(undefined);
-  };
-
-  const onDefaultFeedUpdate = (defaultFeed: string) => {
-    setFeedName(defaultFeed);
   };
 
   return (
@@ -96,7 +94,6 @@ export default function MainFeedPage({
           feedName={feedName}
           isSearchOn={isSearchOn}
           searchQuery={searchQuery}
-          onDefaultFeedUpdate={onDefaultFeedUpdate}
           searchChildren={
             <PostsSearch
               onSubmitQuery={async (query) => setSearchQuery(query)}
