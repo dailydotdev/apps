@@ -21,7 +21,7 @@ export const PageContainer = classed(
   'main',
   styles.pageContainer,
   pagePaddings,
-  'relative flex flex-col w-full items-stretch z-1',
+  'relative flex flex-col w-full items-stretch z-1 tablet:self-center',
 );
 
 export const PageWidgets = classed(
