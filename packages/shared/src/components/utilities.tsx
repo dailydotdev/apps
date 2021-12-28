@@ -21,15 +21,17 @@ export const PageContainer = classed(
   'main',
   styles.pageContainer,
   pagePaddings,
-  'relative flex flex-col w-full items-stretch z-1 tablet:self-center',
+  'relative flex flex-col w-full items-stretch z-1',
 );
 
+export const widgetsWidth = 'laptopL:w-[19.5rem]';
 export const PageWidgets = classed(
   'aside',
   styles.pageWidgets,
   pagePaddings,
   pageBorders,
-  'w-full min-w-[19.5rem] laptopL:px-6 laptopL:w-auto laptopL:border-none',
+  widgetsWidth,
+  'w-full laptopL:px-6 laptopL:w-auto laptopL:border-none',
 );
 
 export const NewCommentContainer = classed(

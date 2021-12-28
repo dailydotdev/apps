@@ -1,5 +1,8 @@
 import React, { ReactElement, useContext } from 'react';
-import { PageWidgets } from '@dailydotdev/shared/src/components/utilities';
+import {
+  PageWidgets,
+  widgetsWidth,
+} from '@dailydotdev/shared/src/components/utilities';
 import { ShareMobile } from '@dailydotdev/shared/src/components/ShareMobile';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
@@ -39,7 +42,7 @@ export function PostWidgets({ post }: PostWidgetsProps): ReactElement {
       <ShareBar post={post} />
       <ShareMobile share={sharePost} />
       {tokenRefreshed && (
-        <FurtherReading currentPost={post} className="laptopL:w-[19.5rem]" />
+        <FurtherReading currentPost={post} className={widgetsWidth} />
       )}
     </PageWidgets>
   );
