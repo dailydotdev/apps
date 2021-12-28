@@ -29,7 +29,7 @@ export const PageWidgets = classed(
   styles.pageWidgets,
   pagePaddings,
   pageBorders,
-  'laptopL:min-w-[2.5rem]',
+  'laptopL:min-w-[22.5rem]',
   'w-full laptopL:px-6 laptopL:w-auto laptopL:border-none',
 );
 
