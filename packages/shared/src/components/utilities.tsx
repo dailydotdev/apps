@@ -29,8 +29,7 @@ export const PageWidgets = classed(
   styles.pageWidgets,
   pagePaddings,
   pageBorders,
-  'w-full',
-  'laptopL:px-6 laptopL:w-auto laptopL:border-none',
+  'w-full laptopL:px-6 laptopL:w-auto laptopL:border-none',
 );
 
 export const NewCommentContainer = classed(
