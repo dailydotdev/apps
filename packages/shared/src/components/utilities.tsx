@@ -24,13 +24,12 @@ export const PageContainer = classed(
   'relative flex flex-col w-full items-stretch z-1',
 );
 
-export const widgetsWidth = 'laptopL:w-[19.5rem]';
 export const PageWidgets = classed(
   'aside',
   styles.pageWidgets,
   pagePaddings,
   pageBorders,
-  widgetsWidth,
+  'laptopL:min-w-[19.5rem]',
   'w-full laptopL:px-6 laptopL:w-auto laptopL:border-none',
 );
 
