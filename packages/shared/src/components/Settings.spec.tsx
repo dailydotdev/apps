@@ -20,6 +20,9 @@ import { LoggedUser } from '../lib/user';
 import defaultUser from '../../__tests__/fixture/loggedUser';
 import AuthContext from '../contexts/AuthContext';
 import { LoginModalMode } from '../types/LoginModalMode';
+import { BootDataProvider, BOOT_LOCAL_KEY } from '../contexts/BootProvider';
+import { apiUrl } from '../lib/config';
+import { BootCacheData } from '../lib/boot';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -107,6 +110,54 @@ it('should fetch remote settings', async () => {
         queryByText(el.parentElement, 'Open links in new tab'),
       ),
     ).not.toBeChecked(),
+  );
+});
+
+const defaultBootData: Partial<BootCacheData> = {
+  settings: { ...defaultSettings, spaciness: 'cozy' },
+};
+const renderBootProvider = (
+  bootData: Partial<BootCacheData> = defaultBootData,
+) => {
+  const queryClient = new QueryClient();
+  const app = 'extension';
+  nock(apiUrl).get('/boot', { headers: { app } }).reply(200, bootData);
+
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <BootDataProvider app={app} getRedirectUri={jest.fn()}>
+        <Settings />
+      </BootDataProvider>
+    </QueryClientProvider>,
+  );
+};
+
+it('should utilize front-end default settings for first time users', async () => {
+  renderBootProvider();
+
+  const radio = await screen.findAllByRole('radio');
+  await waitFor(() =>
+    expect(
+      // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
+      radio.find((el) => queryByText(el.parentElement, 'Eco')),
+    ).toBeChecked(),
+  );
+});
+
+it('should utilize local cache settings for anonymous users', async () => {
+  const localBootData = {
+    ...defaultBootData,
+    settings: { ...defaultBootData.settings, theme: 'darcula' },
+  };
+  localStorage.setItem(BOOT_LOCAL_KEY, JSON.stringify(localBootData));
+  renderBootProvider(defaultBootData);
+
+  const radio = await screen.findAllByRole('radio');
+  await waitFor(() =>
+    expect(
+      // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
+      radio.find((el) => queryByText(el.parentElement, 'Dark')),
+    ).toBeChecked(),
   );
 });
 
