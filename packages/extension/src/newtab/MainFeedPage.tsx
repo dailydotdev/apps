@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext, useMemo, useState } from 'react';
+import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import MainLayout from '@dailydotdev/shared/src/components/MainLayout';
-import useDefaultFeed from '@dailydotdev/shared/src/hooks/useDefaultFeed';
 import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import dynamic from 'next/dynamic';
@@ -33,8 +33,7 @@ export default function MainFeedPage({
   const [isSearchOn, setIsSearchOn] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>();
   const [showDnd, setShowDnd] = useState(false);
-  const { defaultFeed } = useDefaultFeed();
-
+  const [defaultFeed] = usePersistentContext('defaultFeed', 'popular');
   const enableSearch = () => {
     setIsSearchOn(true);
     setSearchQuery(null);

@@ -25,7 +25,7 @@ import FeaturesContext from '../contexts/FeaturesContext';
 import { generateQueryKey } from '../lib/query';
 import { Features, getFeatureValue } from '../lib/featureManagement';
 import classed from '../lib/classed';
-import useDefaultFeed from '../hooks/useDefaultFeed';
+import usePersistentContext from '../hooks/usePersistentContext';
 
 const SearchEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "emptySearch" */ './SearchEmptyScreen'),
@@ -109,7 +109,10 @@ export default function MainFeedLayout({
   searchChildren,
   navChildren,
 }: MainFeedLayoutProps): ReactElement {
-  const { defaultFeed, setDefaultFeed } = useDefaultFeed();
+  const [defaultFeed, updateDefaultFeed] = usePersistentContext(
+    'defaultFeed',
+    'popular',
+  );
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { flags } = useContext(FeaturesContext);
   const feedVersion =
@@ -118,7 +121,7 @@ export default function MainFeedLayout({
 
   useEffect(() => {
     if (defaultFeed !== null && feedName !== null && feedName !== defaultFeed) {
-      setDefaultFeed(feedName);
+      updateDefaultFeed(feedName);
     }
   }, [defaultFeed, feedName]);
 
