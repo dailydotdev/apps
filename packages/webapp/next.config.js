@@ -14,28 +14,12 @@ module.exports = withTM(
     },
     ...withPreact(
       withBundleAnalyzer({
-        webpack5: false,
+        webpack5: true,
         webpack: (config) => {
           config.module.rules.push({
-            test: /icons(\/|\\).*\.svg$/,
-            exclude: /node_modules(\/|\\)(?!@dailydotdev)/,
-            use: [
-              {
-                loader: '@svgr/webpack',
-                options: {
-                  icon: true,
-                  svgo: true,
-                  replaceAttrValues: {
-                    '#fff': 'currentcolor',
-                    '#FFF': 'currentcolor',
-                    '#FFFFFF': 'currentcolor',
-                  },
-                  svgProps: {
-                    className: 'icon',
-                  },
-                },
-              },
-            ],
+            test: /\.svg$/i,
+            issuer: /\.[jt]sx?$/,
+            use: ['@svgr/webpack'],
           });
 
           return config;
