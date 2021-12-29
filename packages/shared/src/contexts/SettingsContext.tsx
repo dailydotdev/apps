@@ -17,7 +17,7 @@ import AuthContext from './AuthContext';
 import { apiUrl } from '../lib/config';
 import { storageWrapper } from '../lib/storageWrapper';
 
-enum ThemeMode {
+export enum ThemeMode {
   Light = 'light',
   Dark = 'dark',
   Auto = 'auto',
