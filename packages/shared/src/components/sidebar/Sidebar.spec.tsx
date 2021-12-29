@@ -9,13 +9,18 @@ import { LoggedUser } from '../../lib/user';
 import Sidebar from './Sidebar';
 import SettingsContext, {
   SettingsContextData,
+  ThemeMode,
 } from '../../contexts/SettingsContext';
-import { mockGraphQL } from '../../../__tests__/helpers/graphql';
+import {
+  mockGraphQL,
+  MockedGraphQLResponse,
+} from '../../../__tests__/helpers/graphql';
 import { FEED_SETTINGS_QUERY } from '../../graphql/feedSettings';
 import { getFeedSettingsQueryKey } from '../../hooks/useMutateFilters';
-import AlertContext, { AlertContextData } from '../../contexts/AlertContext';
+import { AlertContextProvider } from '../../contexts/AlertContext';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
+import { Alerts, UPDATE_ALERTS } from '../../graphql/alerts';
 
 let client: QueryClient;
 const updateAlerts = jest.fn();
@@ -30,10 +35,7 @@ const createMockFeedSettings = () => ({
   result: { data: { feedSettings: { blockedTags: ['javascript'] } } },
 });
 
-const defaultAlerts: AlertContextData = {
-  alerts: { filter: true },
-  updateAlerts,
-};
+const defaultAlerts: Alerts = { filter: true };
 
 const resizeWindow = (x, y) => {
   window.resizeTo(x, y);
@@ -41,7 +43,7 @@ const resizeWindow = (x, y) => {
 };
 
 const renderComponent = (
-  mocks = [createMockFeedSettings()],
+  mocks: MockedGraphQLResponse[] = [createMockFeedSettings()],
   user: LoggedUser = defaultUser,
   sidebarExpanded = true,
   alertsData = defaultAlerts,
@@ -51,7 +53,7 @@ const renderComponent = (
     showOnlyUnreadPosts: false,
     openNewTab: true,
     setTheme: jest.fn(),
-    themeMode: 'dark',
+    themeMode: ThemeMode.Dark,
     setSpaciness: jest.fn(),
     toggleOpenNewTab: jest.fn(),
     toggleShowOnlyUnreadPosts: jest.fn(),
@@ -68,7 +70,11 @@ const renderComponent = (
 
   return render(
     <QueryClientProvider client={client}>
-      <AlertContext.Provider value={alertsData}>
+      <AlertContextProvider
+        alerts={alertsData}
+        updateAlerts={updateAlerts}
+        loadedAlerts
+      >
         <AuthContext.Provider
           value={{
             user,
@@ -93,12 +99,23 @@ const renderComponent = (
             </SettingsContext.Provider>
           </ProgressiveEnhancementContext.Provider>
         </AuthContext.Provider>
-      </AlertContext.Provider>
+      </AlertContextProvider>
     </QueryClientProvider>,
   );
 };
 
 it('should remove alert dot for filter alert when there is a pre-configured feedSettings', async () => {
+  let mutationCalled = false;
+  mockGraphQL({
+    request: {
+      query: UPDATE_ALERTS,
+      variables: { data: { filter: false } },
+    },
+    result: () => {
+      mutationCalled = true;
+      return { data: { _: true } };
+    },
+  });
   renderComponent();
   await act(async () => {
     const trigger = await screen.findByText('Feed filters');
@@ -111,7 +128,9 @@ it('should remove alert dot for filter alert when there is a pre-configured feed
     );
     expect(data).toBeTruthy();
   });
+
   expect(updateAlerts).toBeCalled();
+  expect(mutationCalled).toBeTruthy();
 });
 
 it('should render the sidebar as open by default', async () => {

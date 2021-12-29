@@ -38,7 +38,7 @@ const getQueryParams = () => {
   return params;
 };
 
-const REGISTRATION_PATH = '/register';
+export const REGISTRATION_PATH = '/register';
 
 const logout = async (): Promise<void> => {
   await dispatchLogout();
