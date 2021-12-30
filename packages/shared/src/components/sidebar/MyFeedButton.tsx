@@ -8,6 +8,39 @@ import FeaturesContext from '../../contexts/FeaturesContext';
 import { Features, getFeatureValue } from '../../lib/featureManagement';
 import { ButtonOrLink, ItemInner, NavItem, SidebarMenuItem } from './common';
 
+const statusColor = {
+  success: {
+    border: 'border-theme-status-success',
+    shadow: 'shadow-2-avocado',
+    button: 'btn-primary-avocado',
+  },
+  error: {
+    border: 'border-theme-status-error',
+    shadow: 'shadow-2-ketchup',
+    button: 'btn-primary-ketchup',
+  },
+  help: {
+    border: 'border-theme-status-help',
+    shadow: 'shadow-2-cheese',
+    button: 'btn-primary-cheese',
+  },
+  warning: {
+    border: 'border-theme-status-warning',
+    shadow: 'shadow-2-bun',
+    button: 'btn-primary-bun',
+  },
+  cabbage: {
+    border: 'border-theme-status-cabbage',
+    shadow: 'shadow-2-cabbage',
+    button: 'btn-primary-cabbage',
+  },
+  fill: {
+    border: 'border-theme-status-fill',
+    shadow: 'shadow-2-water',
+    button: 'btn-primary-water',
+  },
+};
+
 const UnfilteredMyFeedButton = ({
   sidebarExpanded,
   flags,
@@ -19,22 +52,27 @@ const UnfilteredMyFeedButton = ({
 }) => {
   const buttonCopy =
     getFeatureValue(Features.MyFeedButtonCopy, flags) || 'Create my feed';
+  const buttonColor =
+    getFeatureValue(Features.MyFeedButtonColor, flags) || 'success';
   const explainerCopy =
     getFeatureValue(Features.MyFeedExplainerCopy, flags) ||
     'Devs with a personal feed get 11.5x more relevant articles';
+  const explainerColor =
+    getFeatureValue(Features.MyFeedExplainerColor, flags) || 'success';
 
   return (
     <div
       className={classNames(
-        'flex flex-col items-center rounded-12 border-theme-status-success',
+        `flex flex-col items-center rounded-12 `,
+        statusColor[explainerColor].border,
         sidebarExpanded
-          ? 'shadow-2-avocado border p-3 m-4'
+          ? `${statusColor[explainerColor].shadow} border p-3 m-4`
           : 'mx-3 mb-2.5 mt-16',
       )}
     >
       <p
         className={classNames(
-          'typo-footnote  transition-all ',
+          'typo-footnote transition-all',
           sidebarExpanded
             ? 'mb-3 h-auto transform opacity-100 ease-linear duration-200 translate-y-0 delay-200'
             : 'm-0 transform duration-0 delay-0 opacity-0 translate-y-full h-0',
@@ -44,7 +82,7 @@ const UnfilteredMyFeedButton = ({
       </p>
 
       <Button
-        className="btn-primary-avocado"
+        className={statusColor[buttonColor].button}
         buttonSize={sidebarExpanded ? 'medium' : 'xsmall'}
         icon={<PlusIcon />}
         iconOnly={!sidebarExpanded}

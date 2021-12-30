@@ -2,7 +2,9 @@ import { IFlags } from 'flagsmith';
 
 export enum Features {
   MyFeedButtonCopy = 'my_feed_button_copy',
+  MyFeedButtonColor = 'my_feed_button_color',
   MyFeedExplainerCopy = 'my_feed_explainer_copy',
+  MyFeedExplainerColor = 'my_feed_explainer_color',
   SignupButtonCopy = 'signup_button_copy',
   DevcardLimit = 'feat_limit_dev_card',
   FeedVersion = 'feed_version',
