@@ -1,6 +1,8 @@
 import { IFlags } from 'flagsmith';
 
 export enum Features {
+  MyFeedButtonCopy = 'my_feed_button_copy',
+  MyFeedExplainerCopy = 'my_feed_explainer_copy',
   SignupButtonCopy = 'signup_button_copy',
   DevcardLimit = 'feat_limit_dev_card',
   FeedVersion = 'feed_version',
