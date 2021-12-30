@@ -63,33 +63,40 @@ const UnfilteredMyFeedButton = ({
   return (
     <div
       className={classNames(
-        `flex flex-col items-center rounded-12 `,
-        statusColor[explainerColor].border,
-        sidebarExpanded
-          ? `${statusColor[explainerColor].shadow} border p-3 m-4`
-          : 'mx-3 mb-2.5 mt-16',
+        'h-[8.125rem] flex flex-col',
+        !sidebarExpanded && 'justify-center',
       )}
     >
-      <p
+      <div
         className={classNames(
-          'typo-footnote transition-all',
+          `flex flex-col items-center rounded-12`,
+          statusColor[explainerColor].border,
           sidebarExpanded
-            ? 'mb-3 h-auto transform opacity-100 ease-linear duration-200 translate-y-0 delay-200'
-            : 'm-0 transform duration-0 delay-0 opacity-0 translate-y-full h-0',
+            ? `${statusColor[explainerColor].shadow} border p-3 m-4`
+            : 'mx-3 ',
         )}
       >
-        {explainerCopy}
-      </p>
+        <p
+          className={classNames(
+            'typo-footnote transition-all w-[11.25rem]',
+            sidebarExpanded
+              ? 'mb-3 h-auto transform opacity-100 ease-linear duration-200  delay-200'
+              : 'm-0 transform duration-0 delay-0 opacity-0  h-0',
+          )}
+        >
+          {explainerCopy}
+        </p>
 
-      <Button
-        className={statusColor[buttonColor].button}
-        buttonSize={sidebarExpanded ? 'medium' : 'xsmall'}
-        icon={<PlusIcon />}
-        iconOnly={!sidebarExpanded}
-        onClick={action}
-      >
-        {sidebarExpanded && buttonCopy}
-      </Button>
+        <Button
+          className={classNames('w-full', statusColor[buttonColor].button)}
+          buttonSize={sidebarExpanded ? 'small' : 'xsmall'}
+          icon={<PlusIcon />}
+          iconOnly={!sidebarExpanded}
+          onClick={action}
+        >
+          {sidebarExpanded && buttonCopy}
+        </Button>
+      </div>
     </div>
   );
 };
