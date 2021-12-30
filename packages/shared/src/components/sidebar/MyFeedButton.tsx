@@ -80,8 +80,8 @@ const UnfilteredMyFeedButton = ({
           className={classNames(
             'typo-footnote transition-all w-[11.25rem]',
             sidebarExpanded
-              ? 'mb-3 h-auto transform opacity-100 ease-linear duration-200  delay-200'
-              : 'm-0 transform duration-0 delay-0 opacity-0  h-0',
+              ? 'mb-3 transform opacity-100 ease-linear duration-200  delay-200'
+              : 'm-0 transform duration-0 delay-0 opacity-0',
           )}
         >
           {explainerCopy}
