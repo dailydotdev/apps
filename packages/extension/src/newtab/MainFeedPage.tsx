@@ -1,4 +1,5 @@
 import React, { ReactElement, useContext, useMemo, useState } from 'react';
+import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import MainLayout from '@dailydotdev/shared/src/components/MainLayout';
 import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
@@ -32,7 +33,7 @@ export default function MainFeedPage({
   const [isSearchOn, setIsSearchOn] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>();
   const [showDnd, setShowDnd] = useState(false);
-
+  const [defaultFeed] = usePersistentContext('defaultFeed', 'popular');
   const enableSearch = () => {
     setIsSearchOn(true);
     setSearchQuery(null);
@@ -51,13 +52,13 @@ export default function MainFeedPage({
     if (isSearchOn) {
       return '/search';
     }
-    return `/${feedName === 'default' ? 'popular' : feedName}`;
-  }, [isSearchOn, feedName]);
+    return `/${feedName === 'default' ? defaultFeed : feedName}`;
+  }, [isSearchOn, feedName, defaultFeed]);
 
   const onLogoClick = (e: React.MouseEvent): void => {
     e.preventDefault();
     e.stopPropagation();
-    setFeedName('default');
+    setFeedName('popular');
     setIsSearchOn(false);
     setSearchQuery(undefined);
   };
