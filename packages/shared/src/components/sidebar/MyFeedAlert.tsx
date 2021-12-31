@@ -27,7 +27,7 @@ export default function MyFeedAlert({
         {alertCopy[alerts.myFeed]}
         {alerts.myFeed === 'default' && (
           <a
-            className="text-theme-label-link hover:underline"
+            className="hover:underline text-theme-label-link"
             href=""
             target="_blank"
             rel="noopener"
