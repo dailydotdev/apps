@@ -90,9 +90,33 @@ export const NavHeader = classed(
   'li',
   'typo-footnote text-theme-label-quaternary h-7 flex items-center font-bold  transition-opacity',
 );
-export const RawNavItem = classed(
+export const AlertContainer = classed(
+  'div',
+  'mx-4 my-3 px-1 py-1 border border-theme-status-success rounded-10 flex flex-row flex-wrap relative',
+);
+export const AlertCopy = classed(
+  'p',
+  'typo-subhead p-1 pl-2 pr-1.5 max-w-[calc(100%-1.5rem)]',
+);
+const RawNavItem = classed(
   'li',
   'flex items-center typo-callout hover:bg-theme-active',
+);
+const PointerContainer = classed(
+  'div',
+  'h-5 -top-5 right-1 flex flex-col items-center absolute',
+);
+const PointerPoint = classed(
+  'i',
+  'w-1.5 h-1.5 rounded-full bg-theme-status-success block',
+);
+const PointerLine = classed('i', 'w-px h-3.5 bg-theme-status-success block');
+
+export const Pointer = (): ReactElement => (
+  <PointerContainer>
+    <PointerPoint />
+    <PointerLine />
+  </PointerContainer>
 );
 
 export const ListIcon = ({ Icon }: ListIconProps): ReactElement => (

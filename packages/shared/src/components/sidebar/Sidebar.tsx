@@ -39,6 +39,7 @@ import AuthContext from '../../contexts/AuthContext';
 import useHideMobileSidebar from '../../hooks/useHideMobileSidebar';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import usePersistentContext from '../../hooks/usePersistentContext';
+import MyFeedAlert from './MyFeedAlert';
 
 const bottomMenuItems: SidebarMenuItem[] = [
   {
@@ -130,7 +131,7 @@ export default function Sidebar({
   const [defaultFeed] = usePersistentContext('defaultFeed', 'popular');
   const activePage =
     activePageProp === '/' ? `/${defaultFeed}` : activePageProp;
-  const { alerts } = useContext(AlertContext);
+  const { alerts, updateAlerts } = useContext(AlertContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const { isLoaded, isAnimated, setLoaded, setHidden } =
     useDynamicLoadedAnimation();
@@ -142,6 +143,10 @@ export default function Sidebar({
     state: openMobileSidebar,
     action: setOpenMobileSidebar,
   });
+
+  const hideMyFeedAlert = () => {
+    updateAlerts({ myFeed: null });
+  };
 
   const trackAndToggleSidebarExpanded = () => {
     trackEvent({
@@ -248,6 +253,9 @@ export default function Sidebar({
               sidebarRendered={sidebarRendered}
               onShowDndClick={onShowDndClick}
             />
+            {sidebarExpanded && (
+              <MyFeedAlert alerts={alerts} hideAlert={hideMyFeedAlert} />
+            )}
             <RenderSection
               {...defaultRenderSectionProps}
               title="Discover"
