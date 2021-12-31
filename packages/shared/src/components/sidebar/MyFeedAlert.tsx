@@ -5,7 +5,7 @@ import { Button } from '../buttons/Button';
 import { AlertContainer, AlertCopy, Pointer } from './common';
 
 const alertCopy = {
-  default: `Psst, your feed has a new name! We've already applied your content filters to it.`,
+  default: `Psst, your feed has a new name! We've already applied your content filters to it. `,
   manual: `🎉 Your feed is ready! Click here to manage your feed's settings`,
 };
 
@@ -23,7 +23,19 @@ export default function MyFeedAlert({
   return (
     <AlertContainer>
       <Pointer />
-      <AlertCopy>{alertCopy[alerts.myFeed]}</AlertCopy>
+      <AlertCopy>
+        {alertCopy[alerts.myFeed]}
+        {alerts.myFeed === 'default' && (
+          <a
+            className="text-theme-label-link hover:underline"
+            href=""
+            target="_blank"
+            rel="noopener"
+          >
+            Learn more.
+          </a>
+        )}
+      </AlertCopy>
       <Button
         onClick={hideAlert}
         icon={<XIcon />}
