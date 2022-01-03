@@ -90,9 +90,14 @@ describe('getReadHistoryDateFormat', () => {
   });
 
   it('should return formatted date for the same year', () => {
-    const expected = 'Wed, 31 Mar';
     const year = new Date().getFullYear();
     const date = new Date(`${year}-03-31 07:15:51.247`);
+
+    const weekday = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][
+      date.getDay()
+    ];
+    const expected = `${weekday}, 31 Mar`;
+
     const actual = getReadHistoryDateFormat(date);
     expect(actual).toEqual(expected);
   });
