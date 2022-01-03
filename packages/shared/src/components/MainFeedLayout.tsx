@@ -115,8 +115,10 @@ export default function MainFeedLayout({
   );
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { flags } = useContext(FeaturesContext);
-  const feedVersion =
-    parseInt(getFeatureValue(Features.FeedVersion, flags), 10) || 1;
+  const feedVersion = parseInt(
+    getFeatureValue(Features.FeedVersion, flags, '1'),
+    10,
+  );
   const feedName = feedNameProp === 'default' ? defaultFeed : feedNameProp;
 
   useEffect(() => {
