@@ -102,22 +102,6 @@ const RawNavItem = classed(
   'li',
   'flex items-center typo-callout hover:bg-theme-active',
 );
-const PointerContainer = classed(
-  'div',
-  'h-5 -top-5 right-1 flex flex-col items-center absolute',
-);
-const PointerPoint = classed(
-  'i',
-  'w-1.5 h-1.5 rounded-full bg-theme-status-success block',
-);
-const PointerLine = classed('i', 'w-px h-3.5 bg-theme-status-success block');
-
-export const Pointer = (): ReactElement => (
-  <PointerContainer>
-    <PointerPoint />
-    <PointerLine />
-  </PointerContainer>
-);
 
 export const ListIcon = ({ Icon }: ListIconProps): ReactElement => (
   <Icon className="w-5 h-5 pointer-events-none" />

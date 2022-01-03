@@ -1,10 +1,9 @@
 import { gql } from 'graphql-request';
 
-export type MyFeedEnum = 'default' | 'manual';
 export type Alerts = {
   filter?: boolean;
   rankLastSeen?: Date;
-  myFeed?: MyFeedEnum;
+  myFeed?: string;
 };
 
 export const UPDATE_ALERTS = gql`

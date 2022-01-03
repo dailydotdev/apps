@@ -12,7 +12,7 @@ export const getFeatureValue = (
   flags: IFlags,
   defaultValue: string = undefined,
 ): string | undefined => {
-  if (flags[key]?.enabled) {
+  if (flags && flags[key]?.enabled) {
     return flags[key].value;
   }
   return defaultValue;
