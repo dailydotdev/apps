@@ -133,8 +133,12 @@ export default function Sidebar({
     activePageProp === '/' ? `/${defaultFeed}` : activePageProp;
   const { alerts } = useContext(AlertContext);
   const { trackEvent } = useContext(AnalyticsContext);
-  const { isLoaded, isAnimated, setLoaded, setHidden } =
-    useDynamicLoadedAnimation();
+  const {
+    isLoaded,
+    isAnimated,
+    setLoaded: openFeedFilters,
+    setHidden,
+  } = useDynamicLoadedAnimation();
   const { sidebarExpanded, toggleSidebarExpanded, loadedSettings } =
     useContext(SettingsContext);
   const [showSettings, setShowSettings] = useState(false);
@@ -251,8 +255,8 @@ export default function Sidebar({
               <MyFeedButton
                 sidebarExpanded={sidebarExpanded}
                 filtered={!alerts?.filter}
-                menuItem={myFeedMenuItem}
-                action={setLoaded}
+                item={myFeedMenuItem}
+                action={openFeedFilters}
               />
             )}
             <RenderSection

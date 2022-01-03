@@ -41,24 +41,46 @@ const statusColor = {
   },
 };
 
+interface MyFeedButtonSharedProps {
+  sidebarExpanded: boolean;
+  action: () => unknown;
+}
+type UnfilteredMyFeedButtonProps = MyFeedButtonSharedProps & {
+  flags: IFlags;
+};
+type MyFeedButtonProps = MyFeedButtonSharedProps & {
+  item: SidebarMenuItem;
+  filtered: boolean;
+};
+type FilteredMyFeedButtonProps = MyFeedButtonSharedProps & {
+  item: SidebarMenuItem;
+};
+
 const UnfilteredMyFeedButton = ({
   sidebarExpanded,
   flags,
   action,
-}: {
-  sidebarExpanded: boolean;
-  flags: IFlags;
-  action: () => unknown;
-}) => {
-  const buttonCopy =
-    getFeatureValue(Features.MyFeedButtonCopy, flags) || 'Create my feed';
-  const buttonColor =
-    getFeatureValue(Features.MyFeedButtonColor, flags) || 'success';
-  const explainerCopy =
-    getFeatureValue(Features.MyFeedExplainerCopy, flags) ||
-    'Devs with a personal feed get 11.5x more relevant articles';
-  const explainerColor =
-    getFeatureValue(Features.MyFeedExplainerColor, flags) || 'success';
+}: UnfilteredMyFeedButtonProps) => {
+  const buttonCopy = getFeatureValue(
+    Features.MyFeedButtonCopy,
+    flags,
+    'Create my feed',
+  );
+  const buttonColor = getFeatureValue(
+    Features.MyFeedButtonColor,
+    flags,
+    'success',
+  );
+  const explainerCopy = getFeatureValue(
+    Features.MyFeedExplainerCopy,
+    flags,
+    'Devs with a personal feed get 11.5x more relevant articles',
+  );
+  const explainerColor = getFeatureValue(
+    Features.MyFeedExplainerColor,
+    flags,
+    'success',
+  );
 
   return (
     <div
@@ -105,11 +127,7 @@ const FilteredMyFeedButton = ({
   item,
   sidebarExpanded,
   action,
-}: {
-  item: SidebarMenuItem;
-  sidebarExpanded: boolean;
-  action: () => unknown;
-}) => {
+}: FilteredMyFeedButtonProps) => {
   return (
     <NavItem className="mt-6">
       <ButtonOrLink item={item}>
@@ -127,16 +145,11 @@ const FilteredMyFeedButton = ({
 };
 
 export default function MyFeedButton({
-  menuItem,
+  item,
   sidebarExpanded,
   filtered = false,
   action,
-}: {
-  menuItem: SidebarMenuItem;
-  sidebarExpanded: boolean;
-  filtered: boolean;
-  action: () => unknown;
-}): ReactElement {
+}: MyFeedButtonProps): ReactElement {
   const { flags } = useContext(FeaturesContext);
 
   if (filtered) {
@@ -144,7 +157,7 @@ export default function MyFeedButton({
       <FilteredMyFeedButton
         action={action}
         sidebarExpanded={sidebarExpanded}
-        item={menuItem}
+        item={item}
       />
     );
   }
