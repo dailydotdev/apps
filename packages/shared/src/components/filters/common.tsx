@@ -1,5 +1,4 @@
 import { ReactNode } from 'react';
-import { Tag } from '../../graphql/feedSettings';
 import { Source } from '../../graphql/sources';
 import classed from '../../lib/classed';
 
@@ -11,11 +10,11 @@ export interface MenuItem {
 }
 
 export interface FilterMenuProps {
-  setUnblockItem?: ({ tag, source, action }: UnblockModalType) => void;
+  onUnblockItem?: ({ tag, source, action }: UnblockModalType) => void;
 }
 
 export interface UnblockModalType {
-  tag?: Tag | string;
+  tag?: string;
   source?: Source;
   action?: () => unknown;
 }

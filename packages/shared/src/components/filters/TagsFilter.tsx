@@ -10,12 +10,14 @@ import useFeedSettings from '../../hooks/useFeedSettings';
 import TagItemList from './TagItemList';
 import TagOptionsMenu from './TagOptionsMenu';
 import useTagContext from '../../hooks/useTagContext';
-import useTagAndSource from '../../hooks/useTagAndSource';
+import useTagAndSource, {
+  TagActionArguments,
+} from '../../hooks/useTagAndSource';
 import { FilterMenuProps } from './common';
 import MenuIcon from '../../../icons/menu.svg';
 
 export default function TagsFilter({
-  setUnblockItem,
+  onUnblockItem,
 }: FilterMenuProps): ReactElement {
   const searchRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState<string>(null);
@@ -43,12 +45,11 @@ export default function TagsFilter({
     };
   }, [feedSettings]);
 
-  const tagUnblockAction = ({ tags }) => {
-    setUnblockItem({
-      tag: tags,
-      action: () => onUnblockTags({ tags }),
+  const tagUnblockAction = ({ tags: [tag] }: TagActionArguments) =>
+    onUnblockItem({
+      tag,
+      action: () => onUnblockTags({ tags: [tag] }),
     });
-  };
 
   return (
     <div

@@ -12,7 +12,9 @@ import XIcon from '../../../icons/x.svg';
 import { menuItemClassNames } from '../multiLevelMenu/MultiLevelMenuMaster';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import AlertContext from '../../contexts/AlertContext';
-import { useDynamicLoadedAnimation } from '../../hooks/useDynamicLoadAnimated';
+import { Source } from '../../graphql/sources';
+import UnblockModal from '../modals/UnblockModal';
+import AuthContext from '../../contexts/AuthContext';
 
 const asideWidth = sizeN(89);
 
@@ -21,20 +23,28 @@ interface FeedFiltersProps {
   onBack?: () => void;
 }
 
+interface UnblockItem {
+  tag?: string;
+  source?: Source;
+  action?: () => unknown;
+}
+
 export default function FeedFilters({
   isOpen,
   onBack,
 }: FeedFiltersProps): ReactElement {
+  const [unblockItem, setUnblockItem] = useState<UnblockItem>();
+  const { user } = useContext(AuthContext);
   const { alerts, updateAlerts } = useContext(AlertContext);
   const { hasAnyFilter } = useFeedSettings();
 
   useEffect(() => {
     if (isOpen) {
-      if (alerts?.filter && hasAnyFilter) {
+      if (alerts?.filter && hasAnyFilter && user) {
         updateAlerts({ filter: false });
       }
     }
-  }, [isOpen, alerts, hasAnyFilter]);
+  }, [isOpen, alerts, user, hasAnyFilter]);
 
   return (
     <aside
@@ -55,7 +65,15 @@ export default function FeedFilters({
           <XIcon className="text-2xl -rotate-90 text-theme-label-tertiary" />
         </button>
       </div>
-      <FilterMenu />
+      <FilterMenu onUnblockItem={setUnblockItem} />
+      {unblockItem && (
+        <UnblockModal
+          item={unblockItem}
+          isOpen={!!unblockItem}
+          onConfirm={unblockItem.action}
+          onRequestClose={() => setUnblockItem(null)}
+        />
+      )}
     </aside>
   );
 }

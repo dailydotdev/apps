@@ -1,7 +1,7 @@
 import React, { ReactElement, useState } from 'react';
 import dynamic from 'next/dynamic';
 import MultiLevelMenu from '../multiLevelMenu/MultiLevelMenu';
-import { MenuItem } from './common';
+import { FilterMenuProps, MenuItem } from './common';
 import HashtagIcon from '../../../icons/hashtag.svg';
 import FilterIcon from '../../../icons/filter.svg';
 import BlockIcon from '../../../icons/block.svg';
@@ -15,19 +15,16 @@ import { Source } from '../../graphql/sources';
 
 const NewSourceModal = dynamic(() => import('../modals/NewSourceModal'));
 
-export default function FilterMenu(): ReactElement {
+export default function FilterMenu({
+  onUnblockItem,
+}: FilterMenuProps): ReactElement {
   const [showNewSourceModal, setShowNewSourceModal] = useState(false);
-  const [unblockItem, setUnblockItem] = useState<{
-    tag?: Tag | string;
-    source?: Source;
-    action?: () => unknown;
-  }>();
 
   const menuItems: MenuItem[] = [
     {
       icon: <HashtagIcon className="mr-3 text-xl" />,
       title: 'Manage tags',
-      component: <TagsFilter setUnblockItem={setUnblockItem} />,
+      component: <TagsFilter onUnblockItem={onUnblockItem} />,
     },
     {
       icon: <FilterIcon className="mr-3 text-xl" />,
@@ -37,7 +34,7 @@ export default function FilterMenu(): ReactElement {
     {
       icon: <BlockIcon className="mr-3 text-xl" />,
       title: 'Blocked items',
-      component: <BlockedFilter setUnblockItem={setUnblockItem} />,
+      component: <BlockedFilter onUnblockItem={onUnblockItem} />,
     },
     {
       icon: <PlusIcon className="mr-3 text-xl" />,
@@ -53,14 +50,6 @@ export default function FilterMenu(): ReactElement {
         <NewSourceModal
           isOpen={showNewSourceModal}
           onRequestClose={() => setShowNewSourceModal(false)}
-        />
-      )}
-      {unblockItem && (
-        <UnblockModal
-          item={unblockItem}
-          isOpen={!!unblockItem}
-          onConfirm={unblockItem.action}
-          onRequestClose={() => setUnblockItem(null)}
         />
       )}
     </>
