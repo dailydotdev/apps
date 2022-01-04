@@ -43,10 +43,10 @@ const resizeWindow = (x, y) => {
 };
 
 const renderComponent = (
+  alertsData = defaultAlerts,
   mocks: MockedGraphQLResponse[] = [createMockFeedSettings()],
   user: LoggedUser = defaultUser,
   sidebarExpanded = true,
-  alertsData = defaultAlerts,
 ): RenderResult => {
   const settingsContext: SettingsContextData = {
     spaciness: 'eco',
@@ -104,7 +104,7 @@ const renderComponent = (
   );
 };
 
-it('should remove alert dot for filter alert when there is a pre-configured feedSettings', async () => {
+it('should remove feed filter button once user has filters', async () => {
   let mutationCalled = false;
   mockGraphQL({
     request: {
@@ -117,8 +117,9 @@ it('should remove alert dot for filter alert when there is a pre-configured feed
     },
   });
   renderComponent();
+
   await act(async () => {
-    const trigger = await screen.findByText('Feed filters');
+    const trigger = await screen.findByText('Create my feed');
     // eslint-disable-next-line testing-library/no-node-access
     trigger.parentElement.click();
   });
@@ -149,7 +150,7 @@ it('should toggle the sidebar on button click', async () => {
 });
 
 it('should show the sidebar as closed if user has this set', async () => {
-  renderComponent([], null, false);
+  renderComponent(defaultAlerts, [], null, false);
   const trigger = await screen.findByLabelText('Open sidebar');
   expect(trigger).toBeInTheDocument();
 
@@ -193,4 +194,10 @@ it('should render the mobile sidebar version on small screens', async () => {
 
   const sidebar = await screen.findByTestId('sidebar-aside');
   expect(sidebar).toHaveClass('-translate-x-70');
+});
+
+it('should show the my feed items if the user has filters', async () => {
+  renderComponent({ filter: false });
+  const section = await screen.findByText('My feed');
+  expect(section).toBeInTheDocument();
 });

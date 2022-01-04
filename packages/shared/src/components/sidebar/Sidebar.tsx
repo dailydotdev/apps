@@ -3,7 +3,6 @@ import classNames from 'classnames';
 import SettingsContext from '../../contexts/SettingsContext';
 import { FeedSettingsModal } from '../modals/FeedSettingsModal';
 import HotIcon from '../../../icons/hot.svg';
-import FilterIcon from '../../../icons/filter.svg';
 import UpvoteIcon from '../../../icons/upvote.svg';
 import SearchIcon from '../../../icons/magnifying.svg';
 import DiscussIcon from '../../../icons/comment.svg';
@@ -13,6 +12,8 @@ import SettingsIcon from '../../../icons/settings.svg';
 import FeedbackIcon from '../../../icons/feedback.svg';
 import DocsIcon from '../../../icons/docs.svg';
 import TerminalIcon from '../../../icons/terminal.svg';
+import HomeIcon from '../../../icons/home.svg';
+
 import {
   ButtonOrLink,
   ItemInner,
@@ -32,12 +33,12 @@ import InvitePeople from './InvitePeople';
 import SidebarRankProgress from '../SidebarRankProgress';
 import AlertContext from '../../contexts/AlertContext';
 import FeedFilters from '../filters/FeedFilters';
-import { AlertColor, AlertDot } from '../AlertDot';
 import { useDynamicLoadedAnimation } from '../../hooks/useDynamicLoadAnimated';
 import SidebarUserButton from './SidebarUserButton';
 import AuthContext from '../../contexts/AuthContext';
 import useHideMobileSidebar from '../../hooks/useHideMobileSidebar';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
+import MyFeedButton from './MyFeedButton';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import MyFeedAlert from './MyFeedAlert';
 
@@ -133,8 +134,12 @@ export default function Sidebar({
     activePageProp === '/' ? `/${defaultFeed}` : activePageProp;
   const { alerts, updateAlerts } = useContext(AlertContext);
   const { trackEvent } = useContext(AnalyticsContext);
-  const { isLoaded, isAnimated, setLoaded, setHidden } =
-    useDynamicLoadedAnimation();
+  const {
+    isLoaded,
+    isAnimated,
+    setLoaded: openFeedFilters,
+    setHidden,
+  } = useDynamicLoadedAnimation();
   const { sidebarExpanded, toggleSidebarExpanded, loadedSettings } =
     useContext(SettingsContext);
   const [showSettings, setShowSettings] = useState(false);
@@ -156,15 +161,6 @@ export default function Sidebar({
   };
 
   const discoverMenuItems: SidebarMenuItem[] = [
-    {
-      icon: <ListIcon Icon={FilterIcon} />,
-      alert: alerts.filter && (
-        <AlertDot className="-top-0.5 right-2.5" color={AlertColor.Fill} />
-      ),
-      title: 'Feed filters',
-      action: setLoaded,
-      hideOnMobile: true,
-    },
     {
       icon: <ListIcon Icon={HotIcon} />,
       title: 'Popular',
@@ -191,6 +187,13 @@ export default function Sidebar({
       hideOnMobile: true,
     },
   ];
+
+  const myFeedMenuItem: SidebarMenuItem = {
+    icon: <ListIcon Icon={HomeIcon} />,
+    title: 'My feed',
+    path: '/my-feed',
+    action: () => onNavTabClick?.('my-feed'),
+  };
 
   const manageMenuItems: SidebarMenuItem[] = [
     {
@@ -253,6 +256,14 @@ export default function Sidebar({
               sidebarRendered={sidebarRendered}
               onShowDndClick={onShowDndClick}
             />
+            {sidebarRendered && (
+              <MyFeedButton
+                sidebarExpanded={sidebarExpanded}
+                filtered={!alerts?.filter}
+                item={myFeedMenuItem}
+                action={openFeedFilters}
+              />
+            )}
             {sidebarExpanded && (
               <MyFeedAlert alerts={alerts} hideAlert={hideMyFeedAlert} />
             )}
