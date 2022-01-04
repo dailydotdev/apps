@@ -39,11 +39,11 @@ type FollowTagsPromise = (params: TagsMutationProps) => Promise<unknown>;
 
 type FollowTags = FollowTagsFunc | FollowTagsPromise;
 // eslint-disable-next-line @typescript-eslint/no-shadow
-type FollowSource = ({ source: Source }) => Promise<unknown>;
+type FollowSource = (params: SourceMutationProps) => Promise<unknown>;
 
-type UpdateAdvancedSettings = (params: {
-  advancedSettings: FeedAdvancedSettings[];
-}) => Promise<unknown>;
+type UpdateAdvancedSettings = (
+  params: AdvancedSettingsMutationProps,
+) => Promise<unknown>;
 
 type ReturnType = {
   followTags: FollowTags;
