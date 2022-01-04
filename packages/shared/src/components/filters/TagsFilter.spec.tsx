@@ -6,7 +6,9 @@ import {
   waitFor,
   findAllByRole,
   screen,
+  fireEvent,
 } from '@testing-library/react';
+import { act } from '@testing-library/react-hooks';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import AuthContext from '../../contexts/AuthContext';
@@ -14,7 +16,6 @@ import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '../../../__tests__/helpers/graphql';
-import { LoggedUser } from '../../lib/user';
 import TagsFilter from './TagsFilter';
 import {
   ADD_FILTERS_TO_FEED_MUTATION,
@@ -26,23 +27,24 @@ import {
 } from '../../graphql/feedSettings';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import { getFeedSettingsQueryKey } from '../../hooks/useFeedSettings';
-import AlertContext, {
-  AlertContextData,
-  ALERT_DEFAULTS,
-} from '../../contexts/AlertContext';
+import { AlertContextProvider } from '../../contexts/AlertContext';
+import { Alerts, UPDATE_ALERTS } from '../../graphql/alerts';
 
 const showLogin = jest.fn();
+const updateAlerts = jest.fn();
+let user = defaultUser;
 
 beforeEach(() => {
   jest.clearAllMocks();
   nock.cleanAll();
+  user = defaultUser;
 });
 
 const createAllTagCategoriesMock = (
   feedSettings: FeedSettings = {
     includeTags: ['react', 'golang'],
   },
-  loggedIn = true,
+  loggedIn = !!user,
   tagsCategories: TagCategory[] = [
     {
       id: 'FE',
@@ -63,16 +65,21 @@ const createAllTagCategoriesMock = (
 
 let client: QueryClient;
 
+const defaultAlerts: Alerts = { filter: false };
+
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createAllTagCategoriesMock()],
-  user: LoggedUser = defaultUser,
-  alertsData: AlertContextData = { alerts: ALERT_DEFAULTS },
+  alertsData = defaultAlerts,
 ): RenderResult => {
   client = new QueryClient();
   mocks.forEach(mockGraphQL);
   return render(
     <QueryClientProvider client={client}>
-      <AlertContext.Provider value={alertsData}>
+      <AlertContextProvider
+        alerts={alertsData}
+        updateAlerts={updateAlerts}
+        loadedAlerts
+      >
         <AuthContext.Provider
           value={{
             user,
@@ -85,11 +92,12 @@ const renderComponent = (
             trackingId: '',
             loginState: null,
             closeLogin: jest.fn(),
+            loadedUserFromCache: true,
           }}
         >
           <TagsFilter />
         </AuthContext.Provider>
-      </AlertContext.Provider>
+      </AlertContextProvider>
     </QueryClientProvider>,
   );
 };
@@ -140,23 +148,24 @@ it('should show the tags for a open category', async () => {
   );
 });
 
-it('should show login when not logged in', async () => {
-  renderComponent([createAllTagCategoriesMock(null, false)], null);
-  await waitForNock();
-  const button = await screen.findByText('Follow all');
-  button.click();
-  expect(showLogin).toBeCalledTimes(1);
-});
-
 it('should follow a tag on click and remove filter alert if enabled', async () => {
-  const updateAlerts = jest.fn();
+  let alertsMutationCalled = false;
   let addFilterMutationCalled = false;
 
-  const { baseElement } = renderComponent(
-    [createAllTagCategoriesMock()],
-    defaultUser,
-    { alerts: { filter: true }, updateAlerts },
-  );
+  const { baseElement } = renderComponent([createAllTagCategoriesMock()], {
+    filter: true,
+  });
+
+  mockGraphQL({
+    request: {
+      query: UPDATE_ALERTS,
+      variables: { data: { filter: false } },
+    },
+    result: () => {
+      alertsMutationCalled = true;
+      return { data: { _: true } };
+    },
+  });
 
   mockGraphQL({
     request: {
@@ -180,11 +189,14 @@ it('should follow a tag on click and remove filter alert if enabled', async () =
   const buttonDiv = await screen.findByTestId('tagCategoryTags');
   expect(buttonDiv).toBeVisible();
 
-  // eslint-disable-next-line testing-library/prefer-screen-queries
-  const button = await screen.findByText('#webdev');
-  button.click();
+  await act(async () => {
+    // eslint-disable-next-line testing-library/prefer-screen-queries
+    const button = await screen.findByText('#webdev');
+    fireEvent.click(button);
+  });
 
   await waitFor(() => expect(addFilterMutationCalled).toBeTruthy());
+  await waitFor(() => expect(alertsMutationCalled).toBeTruthy());
   await waitFor(() => expect(updateAlerts).toBeCalled());
 });
 
@@ -256,4 +268,13 @@ it('should clear all tags on click', async () => {
   button.click();
 
   await waitFor(() => expect(mutationCalled).toBeTruthy());
+});
+
+it('should show login when not logged in', async () => {
+  user = null;
+  renderComponent([createAllTagCategoriesMock(null)]);
+  await waitForNock();
+  const button = await screen.findByText('Follow all');
+  button.click();
+  expect(showLogin).toBeCalledTimes(1);
 });
