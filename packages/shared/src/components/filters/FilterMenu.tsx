@@ -9,9 +9,6 @@ import PlusIcon from '../../../icons/plus.svg';
 import TagsFilter from './TagsFilter';
 import BlockedFilter from './BlockedFilter';
 import AdvancedSettingsFilter from './AdvancedSettings';
-import UnblockModal from '../modals/UnblockModal';
-import { Tag } from '../../graphql/feedSettings';
-import { Source } from '../../graphql/sources';
 
 const NewSourceModal = dynamic(() => import('../modals/NewSourceModal'));
 
