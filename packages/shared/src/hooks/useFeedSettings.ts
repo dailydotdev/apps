@@ -7,11 +7,18 @@ import {
   FeedSettings,
   FEED_SETTINGS_QUERY,
   TagCategory,
+  getEmptyFeedSettings,
 } from '../graphql/feedSettings';
+import { storageWrapper as storage } from '../lib/storageWrapper';
 import AuthContext from '../contexts/AuthContext';
-import { getFeedSettingsQueryKey } from './useMutateFilters';
 import { apiUrl } from '../lib/config';
 import { generateQueryKey } from '../lib/query';
+import { LoggedUser } from '../lib/user';
+
+export const getFeedSettingsQueryKey = (user?: LoggedUser): string[] => [
+  user?.id,
+  'feedSettings',
+];
 
 export type FeedSettingsReturnType = {
   tagsCategories: TagCategory[];
@@ -23,9 +30,31 @@ export type FeedSettingsReturnType = {
 };
 
 let avoidRefresh = false;
+let checkedCache = false;
+
+export const LOCAL_FEED_SETTINGS_KEY = 'feedSettings:local';
+
+export const updateLocalFeedSettings = (feedSettings: FeedSettings): void => {
+  storage.setItem(LOCAL_FEED_SETTINGS_KEY, JSON.stringify(feedSettings));
+};
+
+const getLocalFeedSettings = () => {
+  const value = storage.getItem(LOCAL_FEED_SETTINGS_KEY);
+  checkedCache = true;
+  if (!value) {
+    return getEmptyFeedSettings();
+  }
+
+  const localFeedSettings = JSON.parse(
+    storage.getItem(LOCAL_FEED_SETTINGS_KEY),
+  ) as FeedSettings;
+
+  return localFeedSettings;
+};
 
 export default function useFeedSettings(): FeedSettingsReturnType {
-  const { user } = useContext(AuthContext);
+  const { user, loadedUserFromCache } = useContext(AuthContext);
+  const client = useQueryClient();
   const [isFirstLoad, setIsFirstLoad] = useState(true);
   const filtersKey = getFeedSettingsQueryKey(user);
   const queryClient = useQueryClient();
@@ -34,15 +63,24 @@ export default function useFeedSettings(): FeedSettingsReturnType {
   };
 
   const {
-    data: { tagsCategories, feedSettings, advancedSettings } = {},
+    data = {},
     isLoading,
-  } = useQuery<AllTagCategoriesData>(filtersKey, () =>
-    request(`${apiUrl}/graphql`, FEED_SETTINGS_QUERY, {
+    isFetched,
+  } = useQuery<AllTagCategoriesData>(filtersKey, async () => {
+    const req = await request(`${apiUrl}/graphql`, FEED_SETTINGS_QUERY, {
       loggedIn: !!user?.id,
-    }),
-  );
+    });
+
+    return { ...data, ...req };
+  });
+
+  const { tagsCategories, feedSettings, advancedSettings } = data;
 
   useEffect(() => {
+    if (!user?.id) {
+      return;
+    }
+
     if (avoidRefresh) {
       return;
     }
@@ -56,6 +94,27 @@ export default function useFeedSettings(): FeedSettingsReturnType {
       queryClient.invalidateQueries(generateQueryKey('recent', user));
     }, 100);
   }, [tagsCategories, feedSettings, avoidRefresh]);
+
+  useEffect(() => {
+    if (checkedCache || !isFetched || !loadedUserFromCache) {
+      return;
+    }
+
+    if (user) {
+      storage.removeItem(LOCAL_FEED_SETTINGS_KEY);
+      checkedCache = true;
+      return;
+    }
+
+    const localFeedSettings = getLocalFeedSettings();
+    const queryData = client.getQueryData<AllTagCategoriesData>(filtersKey);
+    const updatedFeedSettings = {
+      ...queryData,
+      feedSettings: { ...localFeedSettings },
+    };
+    client.setQueryData<AllTagCategoriesData>(filtersKey, updatedFeedSettings);
+    updateLocalFeedSettings(updatedFeedSettings.feedSettings);
+  }, [isFetched, loadedUserFromCache, user]);
 
   const hasAnyFilter =
     feedSettings?.includeTags?.length > 0 ||
