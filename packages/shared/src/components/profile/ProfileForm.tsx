@@ -297,7 +297,7 @@ export default function ProfileForm({
         inputId="acceptedMarketing"
         checked={user.acceptedMarketing}
       >
-        Subscribe to the Weekly Recap
+        Subscribe to the Community Newsletter
       </FormSwitch>
       {mode !== 'update' && (
         <details
