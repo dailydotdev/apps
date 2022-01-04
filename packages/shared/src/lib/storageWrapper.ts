@@ -24,9 +24,18 @@ export default function Storage(): Partial<Storage> {
     }
   }
 
+  function removeItem(key: string): void {
+    if (isLocalStorageEnabled()) {
+      localStorage.removeItem(key);
+    } else {
+      delete inMemoryStorage[key];
+    }
+  }
+
   return {
     getItem,
     setItem,
+    removeItem,
   };
 }
 export const storageWrapper = Storage();
