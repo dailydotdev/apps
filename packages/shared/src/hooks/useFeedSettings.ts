@@ -30,7 +30,6 @@ export type FeedSettingsReturnType = {
 };
 
 let avoidRefresh = false;
-let checkedCache = false;
 
 export const LOCAL_FEED_SETTINGS_KEY = 'feedSettings:local';
 
@@ -38,9 +37,8 @@ export const updateLocalFeedSettings = (feedSettings: FeedSettings): void => {
   storage.setItem(LOCAL_FEED_SETTINGS_KEY, JSON.stringify(feedSettings));
 };
 
-const getLocalFeedSettings = () => {
+export const getLocalFeedSettings = (): FeedSettings => {
   const value = storage.getItem(LOCAL_FEED_SETTINGS_KEY);
-  checkedCache = true;
   if (!value) {
     return getEmptyFeedSettings();
   }
@@ -96,18 +94,20 @@ export default function useFeedSettings(): FeedSettingsReturnType {
   }, [tagsCategories, feedSettings, avoidRefresh]);
 
   useEffect(() => {
-    if (checkedCache || !isFetched || !loadedUserFromCache) {
+    const haveNotFetched = Object.keys(data).length === 0;
+    const isEmpty = typeof data.feedSettings === 'undefined';
+    if (!isEmpty || !isFetched || !loadedUserFromCache || haveNotFetched) {
       return;
     }
 
     if (user) {
       storage.removeItem(LOCAL_FEED_SETTINGS_KEY);
-      checkedCache = true;
       return;
     }
 
     const localFeedSettings = getLocalFeedSettings();
-    const queryData = client.getQueryData<AllTagCategoriesData>(filtersKey);
+    const queryData =
+      client.getQueryData<AllTagCategoriesData>(filtersKey) || {};
     const updatedFeedSettings = {
       ...queryData,
       feedSettings: { ...localFeedSettings },
