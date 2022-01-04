@@ -5,6 +5,7 @@ export enum Features {
   DevcardLimit = 'feat_limit_dev_card',
   FeedVersion = 'feed_version',
   HidePublicationDate = 'hide_publication_date',
+  LoginModalButtonCopyPrefix = 'login_modal_button_copy_prefix',
 }
 
 export const getFeatureValue = (

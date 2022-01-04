@@ -5,6 +5,8 @@ import { privacyPolicy, termsOfService } from '../lib/constants';
 import { LegalNotice } from './utilities';
 import { Button } from './buttons/Button';
 import AuthContext from '../contexts/AuthContext';
+import FeaturesContext from '../contexts/FeaturesContext';
+import { Features, getFeatureValue } from '../lib/featureManagement';
 import { apiUrl } from '../lib/config';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 
@@ -12,6 +14,12 @@ export default function LoginButtons(): ReactElement {
   const router = useRouter();
   const { getRedirectUri } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
+  const { flags } = useContext(FeaturesContext);
+  const buttonCopyPrefix = getFeatureValue(
+    Features.LoginModalButtonCopyPrefix,
+    flags,
+    'Sign in with',
+  );
 
   const authUrl = (provider: string, redirectUri: string) =>
     `${apiUrl}/v1/auth/authorize?provider=${provider}&redirect_uri=${encodeURI(
@@ -38,14 +46,14 @@ export default function LoginButtons(): ReactElement {
           onClick={() => login('github')}
           icon={<GitHubIcon />}
         >
-          Sign in with GitHub
+          {buttonCopyPrefix} GitHub
         </Button>
         <Button
           className="my-2 btn-primary"
           onClick={() => login('google')}
           icon={<img src="/google.svg" className="icon" alt="Google logo" />}
         >
-          Sign in with Google
+          {buttonCopyPrefix} Google
         </Button>
       </div>
       <LegalNotice
