@@ -25,7 +25,7 @@ import {
   TagCategory,
 } from '../../graphql/feedSettings';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
-import { getFeedSettingsQueryKey } from '../../hooks/useMutateFilters';
+import { getFeedSettingsQueryKey } from '../../hooks/useFeedSettings';
 import AlertContext, {
   AlertContextData,
   ALERT_DEFAULTS,
