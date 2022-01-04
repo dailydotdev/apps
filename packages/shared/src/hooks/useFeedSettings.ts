@@ -50,6 +50,14 @@ export const getLocalFeedSettings = (): FeedSettings => {
   return localFeedSettings;
 };
 
+const isObjectEmpty = (obj: unknown) => {
+  if (typeof obj === 'undefined' || obj === null) {
+    return true;
+  }
+
+  return Object.keys(obj).length === 0;
+};
+
 export default function useFeedSettings(): FeedSettingsReturnType {
   const { user, loadedUserFromCache } = useContext(AuthContext);
   const client = useQueryClient();
@@ -60,19 +68,18 @@ export default function useFeedSettings(): FeedSettingsReturnType {
     avoidRefresh = value;
   };
 
-  const {
-    data = {},
-    isLoading,
-    isFetched,
-  } = useQuery<AllTagCategoriesData>(filtersKey, async () => {
-    const req = await request(`${apiUrl}/graphql`, FEED_SETTINGS_QUERY, {
-      loggedIn: !!user?.id,
-    });
+  const { data: feedQuery = {}, isLoading } = useQuery<AllTagCategoriesData>(
+    filtersKey,
+    async () => {
+      const req = await request(`${apiUrl}/graphql`, FEED_SETTINGS_QUERY, {
+        loggedIn: !!user?.id,
+      });
 
-    return { ...data, ...req };
-  });
+      return { ...feedQuery, ...req };
+    },
+  );
 
-  const { tagsCategories, feedSettings, advancedSettings } = data;
+  const { tagsCategories, feedSettings, advancedSettings } = feedQuery;
 
   useEffect(() => {
     if (!user?.id) {
@@ -94,9 +101,9 @@ export default function useFeedSettings(): FeedSettingsReturnType {
   }, [tagsCategories, feedSettings, avoidRefresh]);
 
   useEffect(() => {
-    const haveNotFetched = Object.keys(data).length === 0;
-    const isEmpty = typeof data.feedSettings === 'undefined';
-    if (!isEmpty || !isFetched || !loadedUserFromCache || haveNotFetched) {
+    const isEmpty = isObjectEmpty(feedSettings);
+    const isFeedQueryEmpty = Object.keys(feedQuery).length === 0;
+    if (!isEmpty || !loadedUserFromCache || isFeedQueryEmpty) {
       return;
     }
 
@@ -114,7 +121,7 @@ export default function useFeedSettings(): FeedSettingsReturnType {
     };
     client.setQueryData<AllTagCategoriesData>(filtersKey, updatedFeedSettings);
     updateLocalFeedSettings(updatedFeedSettings.feedSettings);
-  }, [isFetched, loadedUserFromCache, user]);
+  }, [feedQuery, loadedUserFromCache, user]);
 
   const hasAnyFilter =
     feedSettings?.includeTags?.length > 0 ||

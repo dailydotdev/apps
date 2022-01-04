@@ -26,25 +26,28 @@ import {
   TagCategory,
 } from '../../graphql/feedSettings';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
-import { getFeedSettingsQueryKey } from '../../hooks/useFeedSettings';
+import {
+  getFeedSettingsQueryKey,
+  getLocalFeedSettings,
+} from '../../hooks/useFeedSettings';
 import { AlertContextProvider } from '../../contexts/AlertContext';
 import { Alerts, UPDATE_ALERTS } from '../../graphql/alerts';
 
 const showLogin = jest.fn();
 const updateAlerts = jest.fn();
-let user = defaultUser;
+let loggedUser = defaultUser;
 
 beforeEach(() => {
   jest.clearAllMocks();
   nock.cleanAll();
-  user = defaultUser;
+  loggedUser = defaultUser;
 });
 
 const createAllTagCategoriesMock = (
   feedSettings: FeedSettings = {
     includeTags: ['react', 'golang'],
   },
-  loggedIn = !!user,
+  loggedIn = !!loggedUser,
   tagsCategories: TagCategory[] = [
     {
       id: 'FE',
@@ -82,7 +85,7 @@ const renderComponent = (
       >
         <AuthContext.Provider
           value={{
-            user,
+            user: loggedUser,
             shouldShowLogin: false,
             showLogin,
             logout: jest.fn(),
@@ -270,11 +273,23 @@ it('should clear all tags on click', async () => {
   await waitFor(() => expect(mutationCalled).toBeTruthy());
 });
 
-it('should show login when not logged in', async () => {
-  user = null;
+it('should utilize local storage when not logged in', async () => {
+  loggedUser = null;
   renderComponent([createAllTagCategoriesMock(null)]);
   await waitForNock();
-  const button = await screen.findByText('Follow all');
-  button.click();
-  expect(showLogin).toBeCalledTimes(1);
+  const category = await screen.findByText('Frontend');
+  // eslint-disable-next-line testing-library/no-node-access
+  const container = category.parentElement.parentElement;
+
+  container.click();
+
+  const button = await screen.findByTestId('tagCategoryTags');
+  expect(button).toBeVisible();
+
+  const webdev = await waitFor(() => screen.findByText('#webdev'));
+  expect(webdev).toBeVisible();
+  fireEvent.click(webdev);
+
+  const feedSettings = getLocalFeedSettings();
+  expect(feedSettings.includeTags.length).toEqual(1);
 });
