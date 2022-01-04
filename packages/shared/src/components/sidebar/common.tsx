@@ -68,6 +68,7 @@ interface NavItemProps {
   color?: string;
   active?: boolean;
   children?: ReactNode;
+  className?: string;
 }
 
 export const btnClass =
@@ -207,6 +208,7 @@ export const MenuIcon = ({
   </SimpleTooltip>
 );
 export const NavItem = ({
+  className,
   color,
   active,
   children,
@@ -217,7 +219,11 @@ export const NavItem = ({
 
   return (
     <RawNavItem
-      className={classNames(color || baseClasses, active && 'bg-theme-active')}
+      className={classNames(
+        className,
+        color || baseClasses,
+        active && 'bg-theme-active',
+      )}
     >
       {children}
     </RawNavItem>
