@@ -103,9 +103,9 @@ export default function useFeedSettings(): FeedSettingsReturnType {
   }, [tagsCategories, feedSettings, avoidRefresh]);
 
   useEffect(() => {
-    const isEmpty = isObjectEmpty(feedSettings);
-    const isFeedQueryEmpty = Object.keys(feedQuery).length === 0;
-    if (!isEmpty || !loadedUserFromCache || isFeedQueryEmpty) {
+    const isFeedQueryEmpty = isObjectEmpty(feedQuery);
+    const isFeedSettingsEmpty = isObjectEmpty(feedSettings);
+    if (!isFeedSettingsEmpty || !loadedUserFromCache || isFeedQueryEmpty) {
       return;
     }
 
