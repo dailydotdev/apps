@@ -8,7 +8,6 @@ import {
   screen,
   fireEvent,
 } from '@testing-library/react';
-import { act } from '@testing-library/react-hooks';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import AuthContext from '../../contexts/AuthContext';
@@ -197,11 +196,8 @@ it('should follow a tag on click and remove filter alert if enabled', async () =
   const buttonDiv = await screen.findByTestId('tagCategoryTags');
   expect(buttonDiv).toBeVisible();
 
-  await act(async () => {
-    // eslint-disable-next-line testing-library/prefer-screen-queries
-    const button = await screen.findByText('#webdev');
-    fireEvent.click(button);
-  });
+  const button = await waitFor(() => screen.findByText('#webdev'));
+  fireEvent.click(button);
 
   await waitFor(() => expect(addFilterMutationCalled).toBeTruthy());
   await waitFor(() => expect(alertsMutationCalled).toBeTruthy());
@@ -291,7 +287,7 @@ it('should utilize local storage to follow a tag when not logged in', async () =
   const button = await screen.findByTestId('tagCategoryTags');
   expect(button).toBeVisible();
 
-  const webdev = await waitFor(() => screen.findByText('#webdev'));
+  const webdev = await screen.findByText('#webdev');
   expect(webdev).toBeVisible();
   fireEvent.click(webdev);
 
@@ -313,7 +309,7 @@ it('should utilize local storage to unfollow a tag when not logged in', async ()
   const button = await screen.findByTestId('tagCategoryTags');
   expect(button).toBeVisible();
 
-  const webdev = await waitFor(() => screen.findByText(`#${unfollow}`));
+  const webdev = await screen.findByText(`#${unfollow}`);
   expect(webdev).toBeVisible();
   fireEvent.click(webdev);
 
