@@ -19,7 +19,6 @@ import {
 import { LoggedUser } from '../lib/user';
 import defaultUser from '../../__tests__/fixture/loggedUser';
 import AuthContext from '../contexts/AuthContext';
-import { LoginModalMode } from '../types/LoginModalMode';
 import { BootDataProvider, BOOT_LOCAL_KEY } from '../contexts/BootProvider';
 import { apiUrl } from '../lib/config';
 import { BootCacheData } from '../lib/boot';
@@ -261,7 +260,7 @@ it('should open login when hide read posts is clicked and the user is logged out
   fireEvent.click(el);
 
   await waitFor(() =>
-    expect(showLogin).toBeCalledWith('settings', LoginModalMode.Default),
+    expect(showLogin).toBeCalledWith('settings'),
   );
 });
 

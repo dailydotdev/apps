@@ -11,7 +11,6 @@ import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import request from 'graphql-request';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import dynamic from 'next/dynamic';
-import { LoginModalMode } from '@dailydotdev/shared/src/types/LoginModalMode';
 
 const PlaceholderCommentList = dynamic(
   () =>
@@ -123,7 +122,7 @@ export function PostComments({
 
       onClick(parent);
     } else {
-      showLogin('comment', LoginModalMode.ContentQuality);
+      showLogin('comment');
     }
   };
 
