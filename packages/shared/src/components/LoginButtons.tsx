@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, ReactElement, useContext } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import { useRouter } from 'next/router';
 import GitHubIcon from '../../icons/github.svg';
 import { privacyPolicy, termsOfService } from '../lib/constants';
@@ -8,7 +8,7 @@ import AuthContext from '../contexts/AuthContext';
 import { apiUrl } from '../lib/config';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 
-export interface LoginButtonsProps extends HTMLAttributes<HTMLDivElement> {
+interface LoginButtonsProps {
   buttonCopyPrefix?: string;
 }
 
