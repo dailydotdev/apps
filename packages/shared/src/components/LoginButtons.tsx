@@ -1,25 +1,23 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { HTMLAttributes, ReactElement, useContext } from 'react';
 import { useRouter } from 'next/router';
 import GitHubIcon from '../../icons/github.svg';
 import { privacyPolicy, termsOfService } from '../lib/constants';
 import { LegalNotice } from './utilities';
 import { Button } from './buttons/Button';
 import AuthContext from '../contexts/AuthContext';
-import FeaturesContext from '../contexts/FeaturesContext';
-import { Features, getFeatureValue } from '../lib/featureManagement';
 import { apiUrl } from '../lib/config';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 
-export default function LoginButtons(): ReactElement {
+export interface LoginButtonsProps extends HTMLAttributes<HTMLDivElement> {
+  buttonCopyPrefix?: string;
+}
+
+export default function LoginButtons({
+  buttonCopyPrefix,
+}: LoginButtonsProps): ReactElement {
   const router = useRouter();
   const { getRedirectUri } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
-  const { flags } = useContext(FeaturesContext);
-  const buttonCopyPrefix = getFeatureValue(
-    Features.LoginModalButtonCopyPrefix,
-    flags,
-    'Sign in with',
-  );
 
   const authUrl = (provider: string, redirectUri: string) =>
     `${apiUrl}/v1/auth/authorize?provider=${provider}&redirect_uri=${encodeURI(
