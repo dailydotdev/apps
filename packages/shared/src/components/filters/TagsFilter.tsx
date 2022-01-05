@@ -29,6 +29,9 @@ export default function TagsFilter({
     useTagAndSource({
       origin: `tags ${query?.length > 0 ? 'search' : 'filter'}`,
     });
+  const isTagBlocked = feedSettings?.blockedTags?.some(
+    (tag) => tag === contextSelectedTag,
+  );
 
   const { data: searchResults } = useQuery<SearchTagsData>(
     searchKey,
@@ -80,7 +83,14 @@ export default function TagsFilter({
           />
           <TagOptionsMenu
             tag={contextSelectedTag}
-            onBlock={() => onBlockTags({ tags: [contextSelectedTag] })}
+            onBlock={
+              !isTagBlocked &&
+              (() => onBlockTags({ tags: [contextSelectedTag] }))
+            }
+            onUnblock={
+              isTagBlocked &&
+              (() => onUnblockTags({ tags: [contextSelectedTag] }))
+            }
             onHidden={() => setContextSelectedTag(null)}
           />
         </>
