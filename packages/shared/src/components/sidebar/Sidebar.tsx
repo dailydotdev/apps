@@ -41,7 +41,7 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import MyFeedButton from './MyFeedButton';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import FeaturesContext from '../../contexts/FeaturesContext';
-import { Features, getFeatureValue } from '../../lib/featureManagement';
+import { Features, isFeaturedEnabled } from '../../lib/featureManagement';
 import { AlertColor, AlertDot } from '../AlertDot';
 
 const bottomMenuItems: SidebarMenuItem[] = [
@@ -146,7 +146,7 @@ export default function Sidebar({
     useContext(SettingsContext);
   const [showSettings, setShowSettings] = useState(false);
   const { flags } = useContext(FeaturesContext);
-  const shouldShowMyFeed = getFeatureValue(Features.MyFeedOn, flags, false);
+  const shouldShowMyFeed = isFeaturedEnabled(Features.MyFeedOn, flags);
 
   useHideMobileSidebar({
     state: openMobileSidebar,
