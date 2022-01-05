@@ -21,6 +21,7 @@ import { AlertContextProvider } from '../../contexts/AlertContext';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
 import { Alerts, UPDATE_ALERTS } from '../../graphql/alerts';
+import FeaturesContext, { FeaturesData } from '../../contexts/FeaturesContext';
 
 let client: QueryClient;
 const updateAlerts = jest.fn();
@@ -42,11 +43,20 @@ const resizeWindow = (x, y) => {
   window.dispatchEvent(new Event('resize'));
 };
 
+const features: FeaturesData = {
+  flags: {
+    my_feed_on: {
+      enabled: true,
+      value: 'true',
+    },
+  },
+};
+
 const renderComponent = (
+  alertsData = defaultAlerts,
   mocks: MockedGraphQLResponse[] = [createMockFeedSettings()],
   user: LoggedUser = defaultUser,
   sidebarExpanded = true,
-  alertsData = defaultAlerts,
 ): RenderResult => {
   const settingsContext: SettingsContextData = {
     spaciness: 'eco',
@@ -70,41 +80,43 @@ const renderComponent = (
 
   return render(
     <QueryClientProvider client={client}>
-      <AlertContextProvider
-        alerts={alertsData}
-        updateAlerts={updateAlerts}
-        loadedAlerts
-      >
-        <AuthContext.Provider
-          value={{
-            user,
-            shouldShowLogin: false,
-            showLogin: jest.fn(),
-            logout: jest.fn(),
-            updateUser: jest.fn(),
-            tokenRefreshed: true,
-            getRedirectUri: jest.fn(),
-            closeLogin: jest.fn(),
-          }}
+      <FeaturesContext.Provider value={features}>
+        <AlertContextProvider
+          alerts={alertsData}
+          updateAlerts={updateAlerts}
+          loadedAlerts
         >
-          <ProgressiveEnhancementContext.Provider
+          <AuthContext.Provider
             value={{
-              windowLoaded: true,
-              nativeShareSupport: true,
-              asyncImageSupport: true,
+              user,
+              shouldShowLogin: false,
+              showLogin: jest.fn(),
+              logout: jest.fn(),
+              updateUser: jest.fn(),
+              tokenRefreshed: true,
+              getRedirectUri: jest.fn(),
+              closeLogin: jest.fn(),
             }}
           >
-            <SettingsContext.Provider value={settingsContext}>
-              <Sidebar sidebarRendered />
-            </SettingsContext.Provider>
-          </ProgressiveEnhancementContext.Provider>
-        </AuthContext.Provider>
-      </AlertContextProvider>
+            <ProgressiveEnhancementContext.Provider
+              value={{
+                windowLoaded: true,
+                nativeShareSupport: true,
+                asyncImageSupport: true,
+              }}
+            >
+              <SettingsContext.Provider value={settingsContext}>
+                <Sidebar sidebarRendered />
+              </SettingsContext.Provider>
+            </ProgressiveEnhancementContext.Provider>
+          </AuthContext.Provider>
+        </AlertContextProvider>
+      </FeaturesContext.Provider>
     </QueryClientProvider>,
   );
 };
 
-it('should remove alert dot for filter alert when there is a pre-configured feedSettings', async () => {
+it('should remove feed filter button once user has filters', async () => {
   let mutationCalled = false;
   mockGraphQL({
     request: {
@@ -117,8 +129,9 @@ it('should remove alert dot for filter alert when there is a pre-configured feed
     },
   });
   renderComponent();
+
   await act(async () => {
-    const trigger = await screen.findByText('Feed filters');
+    const trigger = await screen.findByText('Create my feed');
     // eslint-disable-next-line testing-library/no-node-access
     trigger.parentElement.click();
   });
@@ -149,7 +162,7 @@ it('should toggle the sidebar on button click', async () => {
 });
 
 it('should show the sidebar as closed if user has this set', async () => {
-  renderComponent([], null, false);
+  renderComponent(defaultAlerts, [], null, false);
   const trigger = await screen.findByLabelText('Open sidebar');
   expect(trigger).toBeInTheDocument();
 
@@ -193,4 +206,10 @@ it('should render the mobile sidebar version on small screens', async () => {
 
   const sidebar = await screen.findByTestId('sidebar-aside');
   expect(sidebar).toHaveClass('-translate-x-70');
+});
+
+it('should show the my feed items if the user has filters', async () => {
+  renderComponent({ filter: false });
+  const section = await screen.findByText('My feed');
+  expect(section).toBeInTheDocument();
 });
