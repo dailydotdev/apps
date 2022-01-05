@@ -13,7 +13,7 @@ import FeedbackIcon from '../../../icons/feedback.svg';
 import DocsIcon from '../../../icons/docs.svg';
 import TerminalIcon from '../../../icons/terminal.svg';
 import HomeIcon from '../../../icons/home.svg';
-
+import FilterIcon from '../../../icons/outline/filter.svg';
 import {
   ButtonOrLink,
   ItemInner,
@@ -40,6 +40,9 @@ import useHideMobileSidebar from '../../hooks/useHideMobileSidebar';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import MyFeedButton from './MyFeedButton';
 import usePersistentContext from '../../hooks/usePersistentContext';
+import FeaturesContext from '../../contexts/FeaturesContext';
+import { Features, isFeaturedEnabled } from '../../lib/featureManagement';
+import { AlertColor, AlertDot } from '../AlertDot';
 
 const bottomMenuItems: SidebarMenuItem[] = [
   {
@@ -142,6 +145,8 @@ export default function Sidebar({
   const { sidebarExpanded, toggleSidebarExpanded, loadedSettings } =
     useContext(SettingsContext);
   const [showSettings, setShowSettings] = useState(false);
+  const { flags } = useContext(FeaturesContext);
+  const shouldShowMyFeed = isFeaturedEnabled(Features.MyFeedOn, flags);
 
   useHideMobileSidebar({
     state: openMobileSidebar,
@@ -182,6 +187,17 @@ export default function Sidebar({
       hideOnMobile: true,
     },
   ];
+  if (shouldShowMyFeed) {
+    discoverMenuItems.unshift({
+      icon: <ListIcon Icon={FilterIcon} />,
+      alert: alerts.filter && (
+        <AlertDot className="-top-0.5 right-2.5" color={AlertColor.Fill} />
+      ),
+      title: 'Feed filters',
+      action: openFeedFilters,
+      hideOnMobile: true,
+    });
+  }
 
   const myFeedMenuItem: SidebarMenuItem = {
     icon: <ListIcon Icon={HomeIcon} />,
@@ -251,11 +267,12 @@ export default function Sidebar({
               sidebarRendered={sidebarRendered}
               onShowDndClick={onShowDndClick}
             />
-            {sidebarRendered && (
+            {sidebarRendered && shouldShowMyFeed && (
               <MyFeedButton
                 sidebarExpanded={sidebarExpanded}
                 filtered={!alerts?.filter}
                 item={myFeedMenuItem}
+                flags={flags}
                 action={openFeedFilters}
               />
             )}

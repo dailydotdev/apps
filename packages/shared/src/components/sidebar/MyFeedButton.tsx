@@ -1,10 +1,9 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { IFlags } from 'flagsmith';
 import PlusIcon from '../../../icons/plus.svg';
 import FilterIcon from '../../../icons/outline/filter.svg';
 import { Button } from '../buttons/Button';
-import FeaturesContext from '../../contexts/FeaturesContext';
 import { Features, getFeatureValue } from '../../lib/featureManagement';
 import { ButtonOrLink, ItemInner, NavItem, SidebarMenuItem } from './common';
 
@@ -50,6 +49,7 @@ type UnfilteredMyFeedButtonProps = MyFeedButtonSharedProps & {
 };
 type MyFeedButtonProps = MyFeedButtonSharedProps & {
   item: SidebarMenuItem;
+  flags: IFlags;
   filtered: boolean;
 };
 type FilteredMyFeedButtonProps = MyFeedButtonSharedProps & {
@@ -148,15 +148,9 @@ export default function MyFeedButton({
   item,
   sidebarExpanded,
   filtered = false,
+  flags,
   action,
 }: MyFeedButtonProps): ReactElement {
-  const { flags } = useContext(FeaturesContext);
-  const shouldShowMyFeed = getFeatureValue(Features.MyFeedOn, flags, 'false');
-
-  if (shouldShowMyFeed === 'false') {
-    return <></>;
-  }
-
   if (filtered) {
     return (
       <FilteredMyFeedButton
