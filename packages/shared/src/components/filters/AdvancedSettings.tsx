@@ -4,7 +4,6 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import AuthContext from '../../contexts/AuthContext';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import useMutateFilters from '../../hooks/useMutateFilters';
-import { LoginModalMode } from '../../types/LoginModalMode';
 import { FilterSwitch } from './FilterSwitch';
 
 const ADVANCED_SETTINGS_KEY = 'advancedSettings';
@@ -27,7 +26,7 @@ function AdvancedSettingsFilter(): ReactElement {
 
   const onToggle = (id: number, defaultEnabledState: boolean) => {
     if (!user) {
-      showLogin('advanced settings', LoginModalMode.ContentQuality);
+      showLogin('advanced settings');
       return;
     }
 

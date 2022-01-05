@@ -5,16 +5,15 @@ import {
   logout as dispatchLogout,
   deleteAccount,
 } from '../lib/user';
-import { LoginModalMode } from '../types/LoginModalMode';
 import { Visit } from '../lib/boot';
 
-export type LoginState = { mode: LoginModalMode; trigger: string };
+export type LoginState = { trigger: string };
 
 export interface AuthContextData {
   user?: LoggedUser;
   trackingId?: string;
   shouldShowLogin: boolean;
-  showLogin: (trigger: string, mode?: LoginModalMode) => void;
+  showLogin: (trigger: string) => void;
   closeLogin: () => void;
   loginState?: LoginState;
   logout: () => Promise<void>;
@@ -82,8 +81,7 @@ export const AuthContextProvider = ({
       user: user && 'providers' in user ? user : null,
       trackingId: user?.id,
       shouldShowLogin: loginState !== null,
-      showLogin: (trigger, mode = LoginModalMode.Default) =>
-        setLoginState({ trigger, mode }),
+      showLogin: (trigger) => setLoginState({ trigger }),
       closeLogin: () => setLoginState(null),
       loginState,
       updateUser,
