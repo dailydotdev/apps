@@ -11,7 +11,7 @@ export enum Features {
   FeedVersion = 'feed_version',
   HidePublicationDate = 'hide_publication_date',
 }
-const isBoolean = (val) => 'boolean' === typeof val;
+const isBoolean = (val) => !!val === val;
 
 export const getFeatureValue = (
   key: Features,

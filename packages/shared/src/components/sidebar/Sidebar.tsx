@@ -146,7 +146,7 @@ export default function Sidebar({
     useContext(SettingsContext);
   const [showSettings, setShowSettings] = useState(false);
   const { flags } = useContext(FeaturesContext);
-  const shouldShowMyFeed = getFeatureValue(Features.MyFeedOn, flags, true);
+  const shouldShowMyFeed = getFeatureValue(Features.MyFeedOn, flags, false);
 
   useHideMobileSidebar({
     state: openMobileSidebar,
@@ -187,7 +187,7 @@ export default function Sidebar({
       hideOnMobile: true,
     },
   ];
-  if (shouldShowMyFeed !== 'true') {
+  if (shouldShowMyFeed) {
     discoverMenuItems.unshift({
       icon: <ListIcon Icon={FilterIcon} />,
       alert: alerts.filter && (
@@ -267,7 +267,7 @@ export default function Sidebar({
               sidebarRendered={sidebarRendered}
               onShowDndClick={onShowDndClick}
             />
-            {sidebarRendered && shouldShowMyFeed === 'true' && (
+            {sidebarRendered && shouldShowMyFeed && (
               <MyFeedButton
                 sidebarExpanded={sidebarExpanded}
                 filtered={!alerts?.filter}
