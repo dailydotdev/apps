@@ -6,7 +6,7 @@ import { AlertContainer, AlertCopy } from './common';
 import { Pointer, PointerColor } from '../Pointer';
 
 const alertCopy = {
-  migrated: `Psst, your feed has a new name! We've already applied your content filters to it. `,
+  migrated: `Psst, your feed has a new name! We've already applied your content filters to it.`,
   created: `🎉 Your feed is ready! Click here to manage your feed's settings`,
 };
 

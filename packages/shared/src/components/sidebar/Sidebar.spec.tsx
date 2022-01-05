@@ -213,3 +213,37 @@ it('should show the my feed items if the user has filters', async () => {
   const section = await screen.findByText('My feed');
   expect(section).toBeInTheDocument();
 });
+
+it('should show the migrated message if the user has existing filters', async () => {
+  renderComponent({ filter: false, myFeed: 'migrated' });
+  const section = await screen.findByText(
+    `Psst, your feed has a new name! We've already applied your content filters to it.`,
+  );
+  expect(section).toBeInTheDocument();
+});
+
+it('should show the created message if the user added filters', async () => {
+  renderComponent({ filter: false, myFeed: 'created' });
+  const section = await screen.findByText(
+    `🎉 Your feed is ready! Click here to manage your feed's settings`,
+  );
+  expect(section).toBeInTheDocument();
+});
+
+it('should not show the my feed alert if the user removed it', async () => {
+  renderComponent({ filter: false, myFeed: null });
+  await waitFor(() =>
+    expect(
+      screen.queryByText(
+        `🎉 Your feed is ready! Click here to manage your feed's settings`,
+      ),
+    ).not.toBeInTheDocument(),
+  );
+  await waitFor(() =>
+    expect(
+      screen.queryByText(
+        `Psst, your feed has a new name! We've already applied your content filters to it.`,
+      ),
+    ).not.toBeInTheDocument(),
+  );
+});
