@@ -18,7 +18,7 @@ import {
   updateLocalFeedSettings,
 } from './useFeedSettings';
 import FeaturesContext from '../contexts/FeaturesContext';
-import { Features, getFeatureValue } from '../lib/featureManagement';
+import { Features, isFeaturedEnabled } from '../lib/featureManagement';
 
 export const getSearchTagsQueryKey = (query: string): string[] => [
   'searchTags',
@@ -166,8 +166,8 @@ const onMutateSourcesSettings = async (
 export default function useMutateFilters(user?: LoggedUser): ReturnType {
   const queryClient = useQueryClient();
   const { flags } = useContext(FeaturesContext);
-  const shouldShowMyFeed = getFeatureValue(Features.MyFeedOn, flags, 'false');
-  const shouldStoreFiltersLocally = shouldShowMyFeed === 'true' && !user;
+  const shouldShowMyFeed = isFeaturedEnabled(Features.MyFeedOn, flags);
+  const shouldStoreFiltersLocally = shouldShowMyFeed && !user;
 
   const onAdvancedSettingsUpdate = ({
     advancedSettings,

@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { Features, getFeatureValue } from '../lib/featureManagement';
+import { Features, isFeaturedEnabled } from '../lib/featureManagement';
 import AuthContext from '../contexts/AuthContext';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import useMutateFilters from './useMutateFilters';
@@ -37,8 +37,7 @@ export default function useTagAndSource({
   postId,
 }: UseTagAndSourceProps): UseTagAndSource {
   const { flags } = useContext(FeaturesContext);
-  const myFeed = getFeatureValue(Features.MyFeedOn, flags, 'false');
-  const shouldShowMyFeed = myFeed === 'true';
+  const shouldShowMyFeed = isFeaturedEnabled(Features.MyFeedOn, flags);
   const { alerts, updateAlerts } = useContext(AlertContext);
   const { user, showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);

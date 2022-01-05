@@ -15,7 +15,7 @@ import { apiUrl } from '../lib/config';
 import { generateQueryKey } from '../lib/query';
 import { LoggedUser } from '../lib/user';
 import FeaturesContext from '../contexts/FeaturesContext';
-import { Features, getFeatureValue } from '../lib/featureManagement';
+import { Features, isFeaturedEnabled } from '../lib/featureManagement';
 
 export const getFeedSettingsQueryKey = (user?: LoggedUser): string[] => [
   user?.id,
@@ -67,8 +67,7 @@ export default function useFeedSettings(): FeedSettingsReturnType {
   const filtersKey = getFeedSettingsQueryKey(user);
   const queryClient = useQueryClient();
   const { flags } = useContext(FeaturesContext);
-  const myFeed = getFeatureValue(Features.MyFeedOn, flags, 'false');
-  const shouldShowMyFeed = myFeed === 'true';
+  const shouldShowMyFeed = isFeaturedEnabled(Features.MyFeedOn, flags);
   const setAvoidRefresh = (value: boolean) => {
     avoidRefresh = value;
   };

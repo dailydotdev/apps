@@ -22,7 +22,7 @@ import useTagAndSource, {
 import { FilterMenuProps } from './common';
 import MenuIcon from '../../../icons/menu.svg';
 import FeaturesContext from '../../contexts/FeaturesContext';
-import { Features, getFeatureValue } from '../../lib/featureManagement';
+import { Features, isFeaturedEnabled } from '../../lib/featureManagement';
 
 export default function TagsFilter({
   onUnblockItem,
@@ -31,8 +31,7 @@ export default function TagsFilter({
   const [query, setQuery] = useState<string>(null);
   const searchKey = getSearchTagsQueryKey(query);
   const { flags } = useContext(FeaturesContext);
-  const myFeed = getFeatureValue(Features.MyFeedOn, flags, 'false');
-  const shouldShowMyFeed = myFeed === 'true';
+  const shouldShowMyFeed = isFeaturedEnabled(Features.MyFeedOn, flags);
   const { tagsCategories, feedSettings, isLoading } = useFeedSettings();
   const { contextSelectedTag, setContextSelectedTag, onTagContextOptions } =
     useTagContext();
