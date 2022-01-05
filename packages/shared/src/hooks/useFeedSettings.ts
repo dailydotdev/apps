@@ -87,13 +87,10 @@ export default function useFeedSettings(): FeedSettingsReturnType {
   const { tagsCategories, feedSettings, advancedSettings } = feedQuery;
 
   useEffect(() => {
-    if (!user?.id) {
+    if (!user?.id || avoidRefresh) {
       return;
     }
 
-    if (avoidRefresh) {
-      return;
-    }
     if (isFirstLoad) {
       setIsFirstLoad(false);
       return;
