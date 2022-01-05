@@ -167,7 +167,7 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
   const queryClient = useQueryClient();
   const { flags } = useContext(FeaturesContext);
   const shouldShowMyFeed = getFeatureValue(Features.MyFeedOn, flags, 'false');
-  const shouldStoreFiltersLocally = shouldShowMyFeed && !user;
+  const shouldStoreFiltersLocally = shouldShowMyFeed === 'true' && !user;
 
   const onAdvancedSettingsUpdate = ({
     advancedSettings,

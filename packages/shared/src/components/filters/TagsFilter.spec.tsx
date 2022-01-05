@@ -32,6 +32,7 @@ import {
 } from '../../hooks/useFeedSettings';
 import { AlertContextProvider } from '../../contexts/AlertContext';
 import { Alerts, UPDATE_ALERTS } from '../../graphql/alerts';
+import FeaturesContext from '../../contexts/FeaturesContext';
 
 const showLogin = jest.fn();
 const updateAlerts = jest.fn();
@@ -78,29 +79,33 @@ const renderComponent = (
   mocks.forEach(mockGraphQL);
   return render(
     <QueryClientProvider client={client}>
-      <AlertContextProvider
-        alerts={alertsData}
-        updateAlerts={updateAlerts}
-        loadedAlerts
+      <FeaturesContext.Provider
+        value={{ flags: { my_feed_on: { enabled: true, value: 'true' } } }}
       >
-        <AuthContext.Provider
-          value={{
-            user: loggedUser,
-            shouldShowLogin: false,
-            showLogin,
-            logout: jest.fn(),
-            updateUser: jest.fn(),
-            tokenRefreshed: true,
-            getRedirectUri: jest.fn(),
-            trackingId: '',
-            loginState: null,
-            closeLogin: jest.fn(),
-            loadedUserFromCache: true,
-          }}
+        <AlertContextProvider
+          alerts={alertsData}
+          updateAlerts={updateAlerts}
+          loadedAlerts
         >
-          <TagsFilter />
-        </AuthContext.Provider>
-      </AlertContextProvider>
+          <AuthContext.Provider
+            value={{
+              user: loggedUser,
+              shouldShowLogin: false,
+              showLogin,
+              logout: jest.fn(),
+              updateUser: jest.fn(),
+              tokenRefreshed: true,
+              getRedirectUri: jest.fn(),
+              trackingId: '',
+              loginState: null,
+              closeLogin: jest.fn(),
+              loadedUserFromCache: true,
+            }}
+          >
+            <TagsFilter />
+          </AuthContext.Provider>
+        </AlertContextProvider>
+      </FeaturesContext.Provider>
     </QueryClientProvider>,
   );
 };
