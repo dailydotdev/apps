@@ -146,7 +146,7 @@ export default function Sidebar({
     useContext(SettingsContext);
   const [showSettings, setShowSettings] = useState(false);
   const { flags } = useContext(FeaturesContext);
-  const shouldShowMyFeed = getFeatureValue(Features.MyFeedOn, flags, 'false');
+  const shouldShowMyFeed = getFeatureValue(Features.MyFeedOn, flags, true);
 
   useHideMobileSidebar({
     state: openMobileSidebar,

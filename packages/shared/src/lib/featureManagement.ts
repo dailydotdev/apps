@@ -11,14 +11,16 @@ export enum Features {
   FeedVersion = 'feed_version',
   HidePublicationDate = 'hide_publication_date',
 }
+const isBoolean = (val) => 'boolean' === typeof val;
 
 export const getFeatureValue = (
   key: Features,
   flags: IFlags,
-  defaultValue: string = undefined,
-): string | undefined => {
+  defaultValue: boolean | string = undefined,
+): string | undefined | boolean => {
   if (flags[key]?.enabled) {
-    return flags[key].value;
+    return isBoolean(defaultValue) ? true : flags[key].value;
   }
+
   return defaultValue;
 };
