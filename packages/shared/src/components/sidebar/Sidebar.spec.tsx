@@ -21,6 +21,7 @@ import { AlertContextProvider } from '../../contexts/AlertContext';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
 import { Alerts, UPDATE_ALERTS } from '../../graphql/alerts';
+import FeaturesContext, { FeaturesData } from '../../contexts/FeaturesContext';
 
 let client: QueryClient;
 const updateAlerts = jest.fn();
@@ -40,6 +41,15 @@ const defaultAlerts: Alerts = { filter: true };
 const resizeWindow = (x, y) => {
   window.resizeTo(x, y);
   window.dispatchEvent(new Event('resize'));
+};
+
+const features: FeaturesData = {
+  flags: {
+    my_feed_on: {
+      enabled: true,
+      value: 'true',
+    },
+  },
 };
 
 const renderComponent = (
@@ -70,36 +80,38 @@ const renderComponent = (
 
   return render(
     <QueryClientProvider client={client}>
-      <AlertContextProvider
-        alerts={alertsData}
-        updateAlerts={updateAlerts}
-        loadedAlerts
-      >
-        <AuthContext.Provider
-          value={{
-            user,
-            shouldShowLogin: false,
-            showLogin: jest.fn(),
-            logout: jest.fn(),
-            updateUser: jest.fn(),
-            tokenRefreshed: true,
-            getRedirectUri: jest.fn(),
-            closeLogin: jest.fn(),
-          }}
+      <FeaturesContext.Provider value={features}>
+        <AlertContextProvider
+          alerts={alertsData}
+          updateAlerts={updateAlerts}
+          loadedAlerts
         >
-          <ProgressiveEnhancementContext.Provider
+          <AuthContext.Provider
             value={{
-              windowLoaded: true,
-              nativeShareSupport: true,
-              asyncImageSupport: true,
+              user,
+              shouldShowLogin: false,
+              showLogin: jest.fn(),
+              logout: jest.fn(),
+              updateUser: jest.fn(),
+              tokenRefreshed: true,
+              getRedirectUri: jest.fn(),
+              closeLogin: jest.fn(),
             }}
           >
-            <SettingsContext.Provider value={settingsContext}>
-              <Sidebar sidebarRendered />
-            </SettingsContext.Provider>
-          </ProgressiveEnhancementContext.Provider>
-        </AuthContext.Provider>
-      </AlertContextProvider>
+            <ProgressiveEnhancementContext.Provider
+              value={{
+                windowLoaded: true,
+                nativeShareSupport: true,
+                asyncImageSupport: true,
+              }}
+            >
+              <SettingsContext.Provider value={settingsContext}>
+                <Sidebar sidebarRendered />
+              </SettingsContext.Provider>
+            </ProgressiveEnhancementContext.Provider>
+          </AuthContext.Provider>
+        </AlertContextProvider>
+      </FeaturesContext.Provider>
     </QueryClientProvider>,
   );
 };

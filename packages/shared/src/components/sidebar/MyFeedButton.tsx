@@ -151,6 +151,11 @@ export default function MyFeedButton({
   action,
 }: MyFeedButtonProps): ReactElement {
   const { flags } = useContext(FeaturesContext);
+  const shouldShowMyFeed = getFeatureValue(Features.MyFeedOn, flags, 'false');
+
+  if (shouldShowMyFeed === 'false') {
+    return <></>;
+  }
 
   if (filtered) {
     return (
