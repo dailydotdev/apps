@@ -43,11 +43,11 @@ export const getLocalFeedSettings = (): FeedSettings => {
     return getEmptyFeedSettings();
   }
 
-  const localFeedSettings = JSON.parse(
-    storage.getItem(LOCAL_FEED_SETTINGS_KEY),
-  ) as FeedSettings;
-
-  return localFeedSettings;
+  try {
+    return JSON.parse(value) as FeedSettings;
+  } catch (ex) {
+    return getEmptyFeedSettings();
+  }
 };
 
 const isObjectEmpty = (obj: unknown) => {
