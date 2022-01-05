@@ -11,7 +11,7 @@ import { HeaderButton } from '@dailydotdev/shared/src/components/buttons/common'
 import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import {
   Features,
-  getFeatureValue,
+  isFeaturedEnabled,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import MostVisitedSites from './MostVisitedSites';
 
@@ -40,8 +40,7 @@ export default function MainFeedPage({
   const [showDnd, setShowDnd] = useState(false);
   const [defaultFeed] = usePersistentContext('defaultFeed', 'popular');
   const { flags } = useContext(FeaturesContext);
-  const myFeed = getFeatureValue(Features.MyFeedOn, flags, 'false');
-  const shouldShowMyFeed = myFeed === 'true';
+  const shouldShowMyFeed = isFeaturedEnabled(Features.MyFeedOn, flags);
   const enableSearch = () => {
     setIsSearchOn(true);
     setSearchQuery(null);

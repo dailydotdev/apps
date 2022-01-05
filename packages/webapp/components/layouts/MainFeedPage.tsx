@@ -12,7 +12,7 @@ import dynamic from 'next/dynamic';
 import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import {
   Features,
-  getFeatureValue,
+  isFeaturedEnabled,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getLayout } from './FeedLayout';
@@ -39,8 +39,7 @@ export default function MainFeedPage({
   const router = useRouter();
   const { user } = useContext(AuthContext);
   const { flags } = useContext(FeaturesContext);
-  const myFeed = getFeatureValue(Features.MyFeedOn, flags, 'false');
-  const shouldShowMyFeed = myFeed === 'true';
+  const shouldShowMyFeed = isFeaturedEnabled(Features.MyFeedOn, flags);
   const [feedName, setFeedName] = useState(getFeedName(router?.pathname));
   const [isSearchOn, setIsSearchOn] = useState(router?.pathname === '/search');
 
