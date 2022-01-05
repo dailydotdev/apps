@@ -22,3 +22,6 @@ export const getFeatureValue = (
   }
   return defaultValue;
 };
+
+export const isFeaturedEnabled = (key: Features, flags: IFlags): boolean =>
+  flags[key]?.enabled;
