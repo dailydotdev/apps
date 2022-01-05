@@ -67,7 +67,8 @@ export default function useFeedSettings(): FeedSettingsReturnType {
   const filtersKey = getFeedSettingsQueryKey(user);
   const queryClient = useQueryClient();
   const { flags } = useContext(FeaturesContext);
-  const shouldShowMyFeed = getFeatureValue(Features.MyFeedOn, flags, 'false');
+  const myFeed = getFeatureValue(Features.MyFeedOn, flags, 'false');
+  const shouldShowMyFeed = myFeed === 'true';
   const setAvoidRefresh = (value: boolean) => {
     avoidRefresh = value;
   };
