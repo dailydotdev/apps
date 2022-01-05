@@ -1,4 +1,10 @@
-import React, { ReactElement, useMemo, useRef, useState } from 'react';
+import React, {
+  ReactElement,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useQuery } from 'react-query';
 import request from 'graphql-request';
 import { SearchField } from '../fields/SearchField';
@@ -15,6 +21,8 @@ import useTagAndSource, {
 } from '../../hooks/useTagAndSource';
 import { FilterMenuProps } from './common';
 import MenuIcon from '../../../icons/menu.svg';
+import FeaturesContext from '../../contexts/FeaturesContext';
+import { Features, getFeatureValue } from '../../lib/featureManagement';
 
 export default function TagsFilter({
   onUnblockItem,
@@ -22,6 +30,9 @@ export default function TagsFilter({
   const searchRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState<string>(null);
   const searchKey = getSearchTagsQueryKey(query);
+  const { flags } = useContext(FeaturesContext);
+  const myFeed = getFeatureValue(Features.MyFeedOn, flags, 'false');
+  const shouldShowMyFeed = myFeed === 'true';
   const { tagsCategories, feedSettings, isLoading } = useFeedSettings();
   const { contextSelectedTag, setContextSelectedTag, onTagContextOptions } =
     useTagContext();
@@ -48,12 +59,16 @@ export default function TagsFilter({
     };
   }, [feedSettings]);
 
-  const tagUnblockAction = ({ tags: [tag] }: TagActionArguments) =>
-    onUnblockItem({
+  const tagUnblockAction = ({ tags: [tag] }: TagActionArguments) => {
+    if (shouldShowMyFeed) {
+      return onUnblockTags({ tags: [tag] });
+    }
+
+    return onUnblockItem({
       tag,
       action: () => onUnblockTags({ tags: [tag] }),
     });
-
+  };
   return (
     <div
       className="flex flex-col"
