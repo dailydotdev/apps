@@ -47,7 +47,6 @@ const features: FeaturesData = {
   flags: {
     my_feed_on: {
       enabled: true,
-      value: 'true',
     },
   },
 };
