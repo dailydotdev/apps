@@ -259,9 +259,7 @@ it('should open login when hide read posts is clicked and the user is logged out
   );
   fireEvent.click(el);
 
-  await waitFor(() =>
-    expect(showLogin).toBeCalledWith('settings'),
-  );
+  await waitFor(() => expect(showLogin).toBeCalledWith('settings'));
 });
 
 it('should mutate show most visited sites setting in extension', async () => {

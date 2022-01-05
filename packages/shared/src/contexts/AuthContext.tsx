@@ -81,8 +81,7 @@ export const AuthContextProvider = ({
       user: user && 'providers' in user ? user : null,
       trackingId: user?.id,
       shouldShowLogin: loginState !== null,
-      showLogin: (trigger) =>
-        setLoginState({ trigger }),
+      showLogin: (trigger) => setLoginState({ trigger }),
       closeLogin: () => setLoginState(null),
       loginState,
       updateUser,
