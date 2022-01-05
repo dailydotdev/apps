@@ -1,5 +1,8 @@
 import { FeedData } from '@dailydotdev/shared/src/graphql/posts';
-import { ANONYMOUS_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
+import {
+  ANONYMOUS_FEED_QUERY,
+  FEED_QUERY,
+} from '@dailydotdev/shared/src/graphql/feed';
 import nock from 'nock';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React from 'react';
@@ -11,7 +14,7 @@ import SettingsContext, {
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { mocked } from 'ts-jest/utils';
 import { NextRouter, useRouter } from 'next/router';
-import Popular from '../pages/popular';
+import MyFeed from '../pages/my-feed';
 import ad from './fixture/ad';
 import defaultUser from './fixture/loggedUser';
 import defaultFeedPage from './fixture/feed';
@@ -25,7 +28,7 @@ beforeEach(() => {
   mocked(useRouter).mockImplementation(
     () =>
       ({
-        pathname: '/popular',
+        pathname: '/my-feed',
         query: {},
         replace: jest.fn(),
         push: jest.fn(),
@@ -90,16 +93,16 @@ const renderComponent = (
         }}
       >
         <SettingsContext.Provider value={settingsContext}>
-          {Popular.getLayout(<Popular />, {}, Popular.layoutProps)}
+          {MyFeed.getLayout(<MyFeed />, {}, MyFeed.layoutProps)}
         </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
   );
 };
 
-it('should request anonymous feed', async () => {
+it('should request user feed', async () => {
   renderComponent([
-    createFeedMock(defaultFeedPage, ANONYMOUS_FEED_QUERY, {
+    createFeedMock(defaultFeedPage, FEED_QUERY, {
       first: 7,
       loggedIn: true,
       unreadOnly: false,
