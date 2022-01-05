@@ -44,9 +44,13 @@ type FeedQueryProps = {
 };
 
 const propsByFeed: Record<string, FeedQueryProps> = {
-  popular: {
+  'my-feed': {
     query: ANONYMOUS_FEED_QUERY,
     queryIfLogged: FEED_QUERY,
+  },
+  popular: {
+    query: ANONYMOUS_FEED_QUERY,
+    queryIfLogged: ANONYMOUS_FEED_QUERY,
   },
   search: {
     query: ANONYMOUS_FEED_QUERY,
