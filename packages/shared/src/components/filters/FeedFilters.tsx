@@ -78,7 +78,7 @@ export default function FeedFilters({
         <button onClick={onBack} type="button">
           <XIcon className="text-2xl -rotate-90 text-theme-label-tertiary" />
         </button>
-        {shouldShowMyFeed && (
+        {shouldShowMyFeed && !user && (
           <Button
             className="btn-primary-avocado"
             buttonSize="small"
