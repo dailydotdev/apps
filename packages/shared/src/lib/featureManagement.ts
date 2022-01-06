@@ -1,26 +1,47 @@
 import { IFlags } from 'flagsmith';
 
-export enum Features {
-  MyFeedOn = 'my_feed_on',
-  MyFeedButtonCopy = 'my_feed_button_copy',
-  MyFeedButtonColor = 'my_feed_button_color',
-  MyFeedExplainerCopy = 'my_feed_explainer_copy',
-  MyFeedExplainerColor = 'my_feed_explainer_color',
-  SignupButtonCopy = 'signup_button_copy',
-  DevcardLimit = 'feat_limit_dev_card',
-  FeedVersion = 'feed_version',
-  HidePublicationDate = 'hide_publication_date',
+export class Features {
+  static readonly SignupButtonCopy = new Features(
+    'signup_button_copy',
+    'Access all features',
+  );
+
+  static readonly DevcardLimit = new Features(
+    'DevcardLimit',
+    'feat_limit_dev_card',
+  );
+
+  static readonly FeedVersion = new Features('feed_version', '1');
+
+  static readonly HidePublicationDate = new Features(
+    'hide_publication_date',
+    '0',
+  );
+
+  static readonly LoginModalButtonCopyPrefix = new Features(
+    'login_modal_button_copy_prefix',
+    'Sign in with',
+  );
+
+  static readonly LoginModalDescriptionCopy = new Features(
+    'login_modal_description_copy',
+    'Unlock useful features by signing in. A bunch of cool stuff like content filters and bookmarks are waiting just for you.',
+  );
+
+  private constructor(
+    public readonly id: string,
+    public readonly defaultValue?: string,
+  ) {}
 }
 
 export const getFeatureValue = (
   key: Features,
   flags: IFlags,
-  defaultValue: string = undefined,
 ): string | undefined => {
-  if (flags[key]?.enabled) {
-    return flags[key].value;
+  if (flags[key?.id]?.enabled) {
+    return flags[key?.id].value;
   }
-  return defaultValue;
+  return key?.defaultValue ?? undefined;
 };
 
 export const isFeaturedEnabled = (key: Features, flags: IFlags): boolean =>

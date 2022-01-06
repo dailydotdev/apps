@@ -69,7 +69,7 @@ export default function Feed<T>({
 }: FeedProps<T>): ReactElement {
   const { flags } = useContext(FeaturesContext);
   const displayPublicationDate = !parseInt(
-    getFeatureValue(Features.HidePublicationDate, flags, '0'),
+    getFeatureValue(Features.HidePublicationDate, flags),
     10,
   );
   const { trackEvent } = useContext(AnalyticsContext);

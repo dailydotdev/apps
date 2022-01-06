@@ -28,11 +28,7 @@ export default function LoginButton({
   const { showLogin } = useContext(AuthContext);
   const { flags } = useContext(FeaturesContext);
   const { trackEvent } = useContext(AnalyticsContext);
-  const buttonCopy = getFeatureValue(
-    Features.SignupButtonCopy,
-    flags,
-    'Access all features',
-  );
+  const buttonCopy = getFeatureValue(Features.SignupButtonCopy, flags);
 
   useEffect(() => {
     trackEvent(getAnalyticsEvent('impression', buttonCopy));
