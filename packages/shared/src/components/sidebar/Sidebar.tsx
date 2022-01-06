@@ -55,7 +55,7 @@ const bottomMenuItems: SidebarMenuItem[] = [
   {
     icon: <ListIcon Icon={FeedbackIcon} />,
     title: 'Feedback',
-    path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}feedback`,
+    path: 'https://daily.dev/feedback',
     target: '_blank',
   },
 ];
