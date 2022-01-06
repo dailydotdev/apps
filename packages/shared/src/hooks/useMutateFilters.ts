@@ -1,3 +1,4 @@
+import { useContext } from 'react';
 import { QueryClient, useMutation, useQueryClient } from 'react-query';
 import request from 'graphql-request';
 import cloneDeep from 'lodash.clonedeep';
@@ -13,6 +14,8 @@ import {
 } from '../graphql/feedSettings';
 import { Source } from '../graphql/sources';
 import { getFeedSettingsQueryKey } from './useFeedSettings';
+import FeaturesContext from '../contexts/FeaturesContext';
+import { Features, isFeaturedEnabled } from '../lib/featureManagement';
 
 export const getSearchTagsQueryKey = (query: string): string[] => [
   'searchTags',
@@ -33,9 +36,7 @@ interface AdvancedSettingsMutationProps {
 
 type FollowTagsFunc = (params: TagsMutationProps) => unknown;
 type FollowTagsPromise = (params: TagsMutationProps) => Promise<unknown>;
-
 type FollowTags = FollowTagsFunc | FollowTagsPromise;
-// eslint-disable-next-line @typescript-eslint/no-shadow
 type FollowSource = (params: SourceMutationProps) => Promise<unknown>;
 
 type UpdateAdvancedSettings = (
@@ -137,6 +138,9 @@ const onMutateSourcesSettings = async (
 
 export default function useMutateFilters(user?: LoggedUser): ReturnType {
   const queryClient = useQueryClient();
+  const { flags } = useContext(FeaturesContext);
+  const shouldShowMyFeed = isFeaturedEnabled(Features.MyFeedOn, flags);
+  const shouldFilterLocally = shouldShowMyFeed && !user;
 
   const onAdvancedSettingsUpdate = ({
     advancedSettings,
@@ -371,14 +375,16 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
   );
 
   return {
-    followTags: user ? followTagsRemote : onFollowTags,
-    unfollowTags: user ? unfollowTagsRemote : onUnfollowTags,
-    blockTag: user ? blockTagRemote : onBlockTags,
-    unblockTag: user ? unblockTagRemote : onUnblockTags,
-    followSource: user ? followSourceRemote : onFollowSource,
-    unfollowSource: user ? unfollowSourceRemote : onUnfollowSource,
-    updateAdvancedSettings: user
-      ? updateAdvancedSettingsRemote
-      : onAdvancedSettingsUpdate,
+    followTags: shouldFilterLocally ? onFollowTags : followTagsRemote,
+    unfollowTags: shouldFilterLocally ? onUnfollowTags : unfollowTagsRemote,
+    blockTag: shouldFilterLocally ? onBlockTags : blockTagRemote,
+    unblockTag: shouldFilterLocally ? onUnblockTags : unblockTagRemote,
+    followSource: shouldFilterLocally ? onFollowSource : followSourceRemote,
+    unfollowSource: shouldFilterLocally
+      ? onUnfollowSource
+      : unfollowSourceRemote,
+    updateAdvancedSettings: shouldFilterLocally
+      ? onAdvancedSettingsUpdate
+      : updateAdvancedSettingsRemote,
   };
 }
