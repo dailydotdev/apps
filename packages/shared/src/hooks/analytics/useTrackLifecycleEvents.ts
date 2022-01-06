@@ -17,7 +17,10 @@ export default function useTrackLifecycleEvents(
         contextData.trackEventEnd('page inactive');
         // Update events page state to active
         durationEventsQueue.current.forEach((value, key) => {
-          if (value.page_state !== 'active' && value.event_name !== 'page inactive') {
+          if (
+            value.page_state !== 'active' &&
+            value.event_name !== 'page inactive'
+          ) {
             durationEventsQueue.current.set(key, {
               ...value,
               page_state: 'active',
