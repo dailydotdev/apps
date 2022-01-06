@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useContext, useEffect } from 'react';
 import classNames from 'classnames';
 import PlusIcon from '@dailydotdev/shared/icons/plus.svg';
 import FilterIcon from '@dailydotdev/shared/icons/outline/filter.svg';
@@ -6,6 +6,8 @@ import { IFlags } from 'flagsmith';
 import { Button } from '../buttons/Button';
 import { Features, getFeatureValue } from '../../lib/featureManagement';
 import { ButtonOrLink, ItemInner, NavItem, SidebarMenuItem } from './common';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { AnalyticsEvent } from '../../hooks/analytics/useAnalyticsQueue';
 
 const statusColor = {
   success: {
@@ -56,15 +58,36 @@ type FilteredMyFeedButtonProps = MyFeedButtonSharedProps & {
   item: SidebarMenuItem;
 };
 
+const getAnalyticsEvent = (
+  eventName: string,
+  copy: string,
+): Partial<AnalyticsEvent> => ({
+  event_name: eventName,
+  target_type: 'my feed button',
+  target_id: 'sidebar',
+  feed_item_title: copy,
+});
+
 const UnfilteredMyFeedButton = ({
   sidebarExpanded,
   flags,
   action,
 }: UnfilteredMyFeedButtonProps) => {
+  const { trackEvent } = useContext(AnalyticsContext);
+
   const buttonCopy = getFeatureValue(Features.MyFeedButtonCopy, flags);
   const buttonColor = getFeatureValue(Features.MyFeedButtonColor, flags);
   const explainerCopy = getFeatureValue(Features.MyFeedExplainerCopy, flags);
   const explainerColor = getFeatureValue(Features.MyFeedExplainerColor, flags);
+
+  useEffect(() => {
+    trackEvent(getAnalyticsEvent('impression', buttonCopy));
+  }, [buttonCopy]);
+
+  const onClick = () => {
+    trackEvent(getAnalyticsEvent('click', buttonCopy));
+    action();
+  };
 
   return (
     <div
@@ -98,7 +121,7 @@ const UnfilteredMyFeedButton = ({
           buttonSize={sidebarExpanded ? 'small' : 'xsmall'}
           icon={<PlusIcon />}
           iconOnly={!sidebarExpanded}
-          onClick={action}
+          onClick={onClick}
         >
           {sidebarExpanded && buttonCopy}
         </Button>
