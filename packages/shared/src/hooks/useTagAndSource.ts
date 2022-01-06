@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 import { Features, isFeaturedEnabled } from '../lib/featureManagement';
 import AuthContext from '../contexts/AuthContext';
 import AnalyticsContext from '../contexts/AnalyticsContext';
@@ -170,12 +170,22 @@ export default function useTagAndSource({
     return true;
   };
 
-  return {
-    onFollowTags,
-    onUnfollowTags,
-    onBlockTags,
-    onUnblockTags,
-    onFollowSource,
-    onUnfollowSource,
-  };
+  return useMemo(
+    () => ({
+      onFollowTags,
+      onUnfollowTags,
+      onBlockTags,
+      onUnblockTags,
+      onFollowSource,
+      onUnfollowSource,
+    }),
+    [
+      onFollowTags,
+      onUnfollowTags,
+      onBlockTags,
+      onUnblockTags,
+      onFollowSource,
+      onUnfollowSource,
+    ],
+  );
 }

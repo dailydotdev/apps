@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 import { QueryClient, useMutation, useQueryClient } from 'react-query';
 import request from 'graphql-request';
 import cloneDeep from 'lodash.clonedeep';
@@ -374,17 +374,36 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
     },
   );
 
-  return {
-    followTags: shouldFilterLocally ? onFollowTags : followTagsRemote,
-    unfollowTags: shouldFilterLocally ? onUnfollowTags : unfollowTagsRemote,
-    blockTag: shouldFilterLocally ? onBlockTags : blockTagRemote,
-    unblockTag: shouldFilterLocally ? onUnblockTags : unblockTagRemote,
-    followSource: shouldFilterLocally ? onFollowSource : followSourceRemote,
-    unfollowSource: shouldFilterLocally
-      ? onUnfollowSource
-      : unfollowSourceRemote,
-    updateAdvancedSettings: shouldFilterLocally
-      ? onAdvancedSettingsUpdate
-      : updateAdvancedSettingsRemote,
-  };
+  return useMemo(
+    () => ({
+      followTags: shouldFilterLocally ? onFollowTags : followTagsRemote,
+      unfollowTags: shouldFilterLocally ? onUnfollowTags : unfollowTagsRemote,
+      blockTag: shouldFilterLocally ? onBlockTags : blockTagRemote,
+      unblockTag: shouldFilterLocally ? onUnblockTags : unblockTagRemote,
+      followSource: shouldFilterLocally ? onFollowSource : followSourceRemote,
+      unfollowSource: shouldFilterLocally
+        ? onUnfollowSource
+        : unfollowSourceRemote,
+      updateAdvancedSettings: shouldFilterLocally
+        ? onAdvancedSettingsUpdate
+        : updateAdvancedSettingsRemote,
+    }),
+    [
+      shouldFilterLocally,
+      onFollowTags,
+      onUnfollowTags,
+      onBlockTags,
+      onUnblockTags,
+      onFollowSource,
+      onUnfollowSource,
+      onAdvancedSettingsUpdate,
+      followTagsRemote,
+      unfollowTagsRemote,
+      blockTagRemote,
+      unblockTagRemote,
+      followSourceRemote,
+      unfollowSourceRemote,
+      updateAdvancedSettingsRemote,
+    ],
+  );
 }
