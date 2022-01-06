@@ -116,7 +116,7 @@ export default function MainFeedLayout({
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { flags } = useContext(FeaturesContext);
   const feedVersion = parseInt(
-    getFeatureValue(Features.FeedVersion, flags, '1'),
+    getFeatureValue(Features.FeedVersion, flags),
     10,
   );
   const feedName = feedNameProp === 'default' ? defaultFeed : feedNameProp;

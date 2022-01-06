@@ -24,12 +24,10 @@ export default function LoginModal({
   const loginModalDescriptionCopy = getFeatureValue(
     Features.LoginModalDescriptionCopy,
     flags,
-    'Unlock useful features by signing in. A bunch of cool stuff like content filters and bookmarks are waiting just for you.',
   );
   const buttonCopyPrefix = getFeatureValue(
     Features.LoginModalButtonCopyPrefix,
     flags,
-    'Sign in with',
   );
   useTrackModal({ isOpen: props.isOpen, title: 'signup', trigger });
 
