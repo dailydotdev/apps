@@ -16,7 +16,6 @@ export interface FeedAdvancedSettings
 
 export interface Tag {
   name?: string;
-  string;
 }
 
 export interface TagsData {
@@ -33,6 +32,13 @@ export interface FeedSettings {
   excludeSources?: Source[];
   advancedSettings?: FeedAdvancedSettings[];
 }
+
+export const getEmptyFeedSettings = (): FeedSettings => ({
+  includeTags: [],
+  blockedTags: [],
+  excludeSources: [],
+  advancedSettings: [],
+});
 
 export interface TagCategory {
   id: string;

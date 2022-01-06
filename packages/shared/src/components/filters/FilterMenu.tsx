@@ -10,24 +10,25 @@ import TagsFilter from './TagsFilter';
 import BlockedFilter from './BlockedFilter';
 import AdvancedSettingsFilter from './AdvancedSettings';
 import UnblockModal from '../modals/UnblockModal';
-import { Tag } from '../../graphql/feedSettings';
 import { Source } from '../../graphql/sources';
 
 const NewSourceModal = dynamic(() => import('../modals/NewSourceModal'));
 
+interface UnblockItem {
+  tag?: string;
+  source?: Source;
+  action?: () => unknown;
+}
+
 export default function FilterMenu(): ReactElement {
+  const [unblockItem, setUnblockItem] = useState<UnblockItem>();
   const [showNewSourceModal, setShowNewSourceModal] = useState(false);
-  const [unblockItem, setUnblockItem] = useState<{
-    tag?: Tag | string;
-    source?: Source;
-    action?: () => unknown;
-  }>();
 
   const menuItems: MenuItem[] = [
     {
       icon: <HashtagIcon className="mr-3 text-xl" />,
       title: 'Manage tags',
-      component: <TagsFilter setUnblockItem={setUnblockItem} />,
+      component: <TagsFilter onUnblockItem={setUnblockItem} />,
     },
     {
       icon: <FilterIcon className="mr-3 text-xl" />,
@@ -37,7 +38,7 @@ export default function FilterMenu(): ReactElement {
     {
       icon: <BlockIcon className="mr-3 text-xl" />,
       title: 'Blocked items',
-      component: <BlockedFilter setUnblockItem={setUnblockItem} />,
+      component: <BlockedFilter onUnblockItem={setUnblockItem} />,
     },
     {
       icon: <PlusIcon className="mr-3 text-xl" />,

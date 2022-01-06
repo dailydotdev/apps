@@ -16,7 +16,7 @@ import {
   MockedGraphQLResponse,
 } from '../../../__tests__/helpers/graphql';
 import { FEED_SETTINGS_QUERY } from '../../graphql/feedSettings';
-import { getFeedSettingsQueryKey } from '../../hooks/useMutateFilters';
+import { getFeedSettingsQueryKey } from '../../hooks/useFeedSettings';
 import { AlertContextProvider } from '../../contexts/AlertContext';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
