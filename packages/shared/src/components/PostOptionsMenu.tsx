@@ -79,13 +79,13 @@ export default function PostOptionsMenu({
     comment,
     blockSource,
   ): Promise<void> => {
-    const shouldProceed = await reportPost({
+    const { successful } = await reportPost({
       id: reportedPost?.id,
       reason,
       comment,
     });
 
-    if (!shouldProceed) {
+    if (!successful) {
       return;
     }
 
@@ -104,11 +104,11 @@ export default function PostOptionsMenu({
 
   const onBlockSource = async (): Promise<void> => {
     setAvoidRefresh(true);
-    const shouldProceed = await onUnfollowSource({
+    const { successful } = await onUnfollowSource({
       source: post?.source,
       requireLogin: true,
     });
-    if (!shouldProceed) {
+    if (!successful) {
       setAvoidRefresh(false);
       return;
     }
@@ -118,12 +118,12 @@ export default function PostOptionsMenu({
 
   const onBlockTag = async (tag: string): Promise<void> => {
     setAvoidRefresh(true);
-    const shouldProceed = await onBlockTags({
+    const { successful } = await onBlockTags({
       tags: [tag],
       requireLogin: true,
     });
 
-    if (!shouldProceed) {
+    if (!successful) {
       setAvoidRefresh(false);
       return;
     }
@@ -133,9 +133,9 @@ export default function PostOptionsMenu({
   };
 
   const onHidePost = async (): Promise<void> => {
-    const shouldProceed = await hidePost(post.id);
+    const { successful } = await hidePost(post.id);
 
-    if (!shouldProceed) {
+    if (!successful) {
       return;
     }
 

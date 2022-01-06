@@ -6,6 +6,7 @@ import useMutateFilters from './useMutateFilters';
 import { Source } from '../graphql/sources';
 import AlertContext from '../contexts/AlertContext';
 import FeaturesContext from '../contexts/FeaturesContext';
+import { BooleanPromise } from '../components/filters/common';
 
 export interface TagActionArguments {
   tags: Array<string>;
@@ -24,12 +25,12 @@ interface UseTagAndSourceProps {
 }
 
 interface UseTagAndSource {
-  onFollowTags: (params: TagActionArguments) => void;
-  onUnfollowTags: (params: TagActionArguments) => void;
-  onBlockTags: (params: TagActionArguments) => Promise<boolean>;
-  onUnblockTags: (params: TagActionArguments) => Promise<unknown>;
-  onFollowSource: (params: SourceActionArguments) => Promise<unknown>;
-  onUnfollowSource: (params: SourceActionArguments) => Promise<unknown>;
+  onFollowTags: (params: TagActionArguments) => BooleanPromise;
+  onUnfollowTags: (params: TagActionArguments) => BooleanPromise;
+  onBlockTags: (params: TagActionArguments) => BooleanPromise;
+  onUnblockTags: (params: TagActionArguments) => BooleanPromise;
+  onFollowSource: (params: SourceActionArguments) => BooleanPromise;
+  onUnfollowSource: (params: SourceActionArguments) => BooleanPromise;
 }
 
 export default function useTagAndSource({
@@ -52,7 +53,7 @@ export default function useTagAndSource({
 
     return requireLogin;
   };
-  // (!shouldShowMyFeed && !user) || (requireLogin && !user);
+
   const {
     followTags,
     unfollowTags,
@@ -69,7 +70,7 @@ export default function useTagAndSource({
   }: TagActionArguments) => {
     if (shouldShowLogin(requireLogin)) {
       showLogin(origin);
-      return false;
+      return { successful: false };
     }
     trackEvent({
       event_name: `follow${category ? ' all' : ''}`,
@@ -81,7 +82,7 @@ export default function useTagAndSource({
       updateAlerts({ filter: false });
     }
     await followTags({ tags });
-    return true;
+    return { successful: true };
   };
 
   const onUnfollowTags = async ({
@@ -91,7 +92,7 @@ export default function useTagAndSource({
   }: TagActionArguments) => {
     if (shouldShowLogin(requireLogin)) {
       showLogin(origin);
-      return false;
+      return { successful: false };
     }
     trackEvent({
       event_name: `unfollow${category ? ' all' : ''}`,
@@ -100,13 +101,13 @@ export default function useTagAndSource({
       extra: JSON.stringify({ origin }),
     });
     await unfollowTags({ tags });
-    return true;
+    return { successful: true };
   };
 
   const onBlockTags = async ({ tags, requireLogin }: TagActionArguments) => {
     if (shouldShowLogin(requireLogin)) {
       showLogin(origin);
-      return false;
+      return { successful: false };
     }
 
     trackEvent({
@@ -116,13 +117,13 @@ export default function useTagAndSource({
       extra: JSON.stringify({ origin, post_id: postId }),
     });
     await blockTag({ tags });
-    return true;
+    return { successful: true };
   };
 
   const onUnblockTags = async ({ tags, requireLogin }: TagActionArguments) => {
     if (shouldShowLogin(requireLogin)) {
       showLogin(origin);
-      return false;
+      return { successful: false };
     }
     trackEvent({
       event_name: 'unblock',
@@ -131,7 +132,7 @@ export default function useTagAndSource({
       extra: JSON.stringify({ origin, post_id: postId }),
     });
     await unblockTag({ tags });
-    return true;
+    return { successful: true };
   };
 
   const onFollowSource = async ({
@@ -140,7 +141,7 @@ export default function useTagAndSource({
   }: SourceActionArguments) => {
     if (shouldShowLogin(requireLogin)) {
       showLogin(origin);
-      return false;
+      return { successful: false };
     }
     trackEvent({
       event_name: 'follow',
@@ -149,7 +150,7 @@ export default function useTagAndSource({
       extra: JSON.stringify({ origin, post_id: postId }),
     });
     await followSource({ source });
-    return true;
+    return { successful: true };
   };
 
   const onUnfollowSource = async ({
@@ -158,7 +159,7 @@ export default function useTagAndSource({
   }: SourceActionArguments) => {
     if (shouldShowLogin(requireLogin)) {
       showLogin(origin);
-      return false;
+      return { successful: false };
     }
     trackEvent({
       event_name: 'unfollow',
@@ -167,7 +168,7 @@ export default function useTagAndSource({
       extra: JSON.stringify({ origin, post_id: postId }),
     });
     await unfollowSource({ source });
-    return true;
+    return { successful: true };
   };
 
   return useMemo(

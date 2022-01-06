@@ -8,14 +8,15 @@ import {
 } from '../graphql/posts';
 import { apiUrl } from '../lib/config';
 import AuthContext from '../contexts/AuthContext';
+import { BooleanPromise } from '../components/filters/common';
 
 type UseReportPostRet = {
   reportPost: (variables: {
     id: string;
     reason: ReportReason;
     comment?: string;
-  }) => Promise<boolean>;
-  hidePost: (id: string) => Promise<boolean>;
+  }) => BooleanPromise;
+  hidePost: (id: string) => BooleanPromise;
 };
 
 interface ReportPostProps {
@@ -41,23 +42,23 @@ export default function useReportPost(): UseReportPostRet {
   const reportPost = async (params: ReportPostProps) => {
     if (!user) {
       showLogin('report post');
-      return false;
+      return { success: false };
     }
 
     await reportPostAsync(params);
 
-    return true;
+    return { success: true };
   };
 
   const hidePost = async (id: string) => {
     if (!user) {
       showLogin('hide post');
-      return false;
+      return { success: false };
     }
 
     await hidePostAsync(id);
 
-    return true;
+    return { success: true };
   };
 
   return { reportPost, hidePost };
