@@ -141,8 +141,31 @@ it('should remove feed filter button once user has filters', async () => {
     expect(data).toBeTruthy();
   });
 
-  expect(updateAlerts).toBeCalled();
+  expect(updateAlerts).toBeCalledWith({ filter: false });
   expect(mutationCalled).toBeTruthy();
+});
+
+it('should remove the my feed alert if the user clicks the cross', async () => {
+  let mutationCalled = false;
+  mockGraphQL({
+    request: {
+      query: UPDATE_ALERTS,
+      variables: { data: { myFeed: null } },
+    },
+    result: () => {
+      mutationCalled = true;
+      return { data: { _: true } };
+    },
+  });
+  renderComponent({ filter: false, myFeed: 'created' });
+
+  const closeButton = await screen.findByTestId('alert-close');
+  closeButton.click();
+
+  await waitFor(() => {
+    expect(updateAlerts).toBeCalledWith({ filter: false, myFeed: null });
+    expect(mutationCalled).toBeTruthy();
+  });
 });
 
 it('should render the sidebar as open by default', async () => {
@@ -227,35 +250,6 @@ it('should show the created message if the user added filters', async () => {
     `🎉 Your feed is ready! Click here to manage your feed's settings`,
   );
   expect(section).toBeInTheDocument();
-});
-
-it('should remove the my feed alert if the user clicks the cross', async () => {
-  let mutationCalled = false;
-  mockGraphQL({
-    request: {
-      query: UPDATE_ALERTS,
-      variables: { data: { myFeed: null } },
-    },
-    result: () => {
-      mutationCalled = true;
-      return { data: { _: true } };
-    },
-  });
-  renderComponent({ filter: false, myFeed: 'created' });
-
-  await act(async () => {
-    const closeButton = await screen.findByTestId('alert-close');
-    closeButton.click();
-  });
-  await waitFor(async () => {
-    const data = await client.getQueryData(
-      getFeedSettingsQueryKey(defaultUser),
-    );
-    expect(data).toBeTruthy();
-  });
-
-  expect(updateAlerts).toBeCalled();
-  expect(mutationCalled).toBeTruthy();
 });
 
 it('should not show the my feed alert if the user removed it', async () => {
