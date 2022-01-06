@@ -8,7 +8,13 @@ import AuthContext from '../contexts/AuthContext';
 import { apiUrl } from '../lib/config';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 
-export default function LoginButtons(): ReactElement {
+interface LoginButtonsProps {
+  buttonCopyPrefix?: string;
+}
+
+export default function LoginButtons({
+  buttonCopyPrefix,
+}: LoginButtonsProps): ReactElement {
   const router = useRouter();
   const { getRedirectUri } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
@@ -38,14 +44,14 @@ export default function LoginButtons(): ReactElement {
           onClick={() => login('github')}
           icon={<GitHubIcon />}
         >
-          Sign in with GitHub
+          {buttonCopyPrefix} GitHub
         </Button>
         <Button
           className="my-2 btn-primary"
           onClick={() => login('google')}
           icon={<img src="/google.svg" className="icon" alt="Google logo" />}
         >
-          Sign in with Google
+          {buttonCopyPrefix} Google
         </Button>
       </div>
       <LegalNotice

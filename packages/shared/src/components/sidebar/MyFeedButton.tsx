@@ -1,8 +1,8 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import PlusIcon from '@dailydotdev/shared/icons/plus.svg';
-import FilterIcon from '@dailydotdev/shared/icons/outline/filter.svg';
 import { IFlags } from 'flagsmith';
+import PlusIcon from '../../../icons/plus.svg';
+import FilterIcon from '../../../icons/outline/filter.svg';
 import { Button } from '../buttons/Button';
 import { Features, getFeatureValue } from '../../lib/featureManagement';
 import { ButtonOrLink, ItemInner, NavItem, SidebarMenuItem } from './common';
@@ -61,26 +61,10 @@ const UnfilteredMyFeedButton = ({
   flags,
   action,
 }: UnfilteredMyFeedButtonProps) => {
-  const buttonCopy = getFeatureValue(
-    Features.MyFeedButtonCopy,
-    flags,
-    'Create my feed',
-  );
-  const buttonColor = getFeatureValue(
-    Features.MyFeedButtonColor,
-    flags,
-    'success',
-  );
-  const explainerCopy = getFeatureValue(
-    Features.MyFeedExplainerCopy,
-    flags,
-    'Devs with a personal feed get 11.5x more relevant articles',
-  );
-  const explainerColor = getFeatureValue(
-    Features.MyFeedExplainerColor,
-    flags,
-    'success',
-  );
+  const buttonCopy = getFeatureValue(Features.MyFeedButtonCopy, flags);
+  const buttonColor = getFeatureValue(Features.MyFeedButtonColor, flags);
+  const explainerCopy = getFeatureValue(Features.MyFeedExplainerCopy, flags);
+  const explainerColor = getFeatureValue(Features.MyFeedExplainerColor, flags);
 
   return (
     <div

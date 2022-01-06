@@ -1,7 +1,9 @@
 import React, { ReactElement, useContext, useMemo, useState } from 'react';
 import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import MainLayout from '@dailydotdev/shared/src/components/MainLayout';
-import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
+import MainFeedLayout, {
+  getShouldRedirect,
+} from '@dailydotdev/shared/src/components/MainFeedLayout';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import dynamic from 'next/dynamic';
 import TimerIcon from '@dailydotdev/shared/icons/timer.svg';
@@ -45,7 +47,12 @@ export default function MainFeedPage({
       setIsSearchOn(false);
     }
     setFeedName(tab);
-    onPageChanged(`/${tab}`);
+    const isMyFeed = tab === '/my-feed';
+    if (getShouldRedirect(isMyFeed, !!user)) {
+      onPageChanged(`/`);
+    } else {
+      onPageChanged(`/${tab}`);
+    }
   };
 
   const activePage = useMemo(() => {
