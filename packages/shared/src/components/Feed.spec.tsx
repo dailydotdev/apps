@@ -47,7 +47,7 @@ import {
   FeedSettings,
   FEED_SETTINGS_QUERY,
 } from '../graphql/feedSettings';
-import { getFeedSettingsQueryKey } from '../hooks/useMutateFilters';
+import { getFeedSettingsQueryKey } from '../hooks/useFeedSettings';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;

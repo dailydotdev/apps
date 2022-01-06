@@ -17,7 +17,7 @@ import {
   FeedSettings,
   REMOVE_FILTERS_FROM_FEED_MUTATION,
 } from '@dailydotdev/shared/src/graphql/feedSettings';
-import { getFeedSettingsQueryKey } from '@dailydotdev/shared/src/hooks/useMutateFilters';
+import { getFeedSettingsQueryKey } from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import SourcePage from '../pages/sources/[source]';
 import ad from './fixture/ad';
 import defaultUser from './fixture/loggedUser';
