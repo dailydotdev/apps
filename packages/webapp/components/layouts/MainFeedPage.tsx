@@ -7,13 +7,10 @@ import React, {
 } from 'react';
 import { useRouter } from 'next/router';
 import { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
-import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
+import MainFeedLayout, {
+  getShouldRedirect,
+} from '@dailydotdev/shared/src/components/MainFeedLayout';
 import dynamic from 'next/dynamic';
-import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
-import {
-  Features,
-  isFeaturedEnabled,
-} from '@dailydotdev/shared/src/lib/featureManagement';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getLayout } from './FeedLayout';
 
@@ -38,15 +35,13 @@ export default function MainFeedPage({
 }: MainFeedPageProps): ReactElement {
   const router = useRouter();
   const { user } = useContext(AuthContext);
-  const { flags } = useContext(FeaturesContext);
-  const shouldShowMyFeed = isFeaturedEnabled(Features.MyFeedOn, flags);
   const [feedName, setFeedName] = useState(getFeedName(router?.pathname));
   const [isSearchOn, setIsSearchOn] = useState(router?.pathname === '/search');
 
   useEffect(() => {
     const isMyFeed = router?.pathname === '/my-feed';
-    if ((isMyFeed && !shouldShowMyFeed) || (isMyFeed && !user)) {
-      router.replace('popular');
+    if (getShouldRedirect(isMyFeed, !!user)) {
+      router.replace('/');
     } else if (router?.pathname === '/search') {
       setIsSearchOn(true);
       if (!feedName) {

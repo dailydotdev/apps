@@ -1,18 +1,15 @@
 import React, { ReactElement, useContext, useMemo, useState } from 'react';
 import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import MainLayout from '@dailydotdev/shared/src/components/MainLayout';
-import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
+import MainFeedLayout, {
+  getShouldRedirect,
+} from '@dailydotdev/shared/src/components/MainFeedLayout';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import dynamic from 'next/dynamic';
 import TimerIcon from '@dailydotdev/shared/icons/timer.svg';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import { HeaderButton } from '@dailydotdev/shared/src/components/buttons/common';
-import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
-import {
-  Features,
-  isFeaturedEnabled,
-} from '@dailydotdev/shared/src/lib/featureManagement';
 import MostVisitedSites from './MostVisitedSites';
 
 const PostsSearch = dynamic(
@@ -39,8 +36,6 @@ export default function MainFeedPage({
   const [searchQuery, setSearchQuery] = useState<string>();
   const [showDnd, setShowDnd] = useState(false);
   const [defaultFeed] = usePersistentContext('defaultFeed', 'popular');
-  const { flags } = useContext(FeaturesContext);
-  const shouldShowMyFeed = isFeaturedEnabled(Features.MyFeedOn, flags);
   const enableSearch = () => {
     setIsSearchOn(true);
     setSearchQuery(null);
@@ -53,9 +48,11 @@ export default function MainFeedPage({
     }
     setFeedName(tab);
     const isMyFeed = tab === '/my-feed';
-    const shouldRedirect =
-      (isMyFeed && !shouldShowMyFeed) || (isMyFeed && !user);
-    onPageChanged(`/${shouldRedirect ? 'popular' : tab}`);
+    if (getShouldRedirect(isMyFeed, !!user)) {
+      onPageChanged(`/`);
+    } else {
+      onPageChanged(`/${tab}`);
+    }
   };
 
   const activePage = useMemo(() => {

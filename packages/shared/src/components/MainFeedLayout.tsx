@@ -47,24 +47,18 @@ type FeedQueryProps = {
   variables?: Record<string, unknown>;
 };
 
-interface PropsByFeedOptionalParams {
+interface FeedOptionalParams {
   shouldShowMyFeed?: boolean;
 }
 
 const getPropsByFeed = ({
   shouldShowMyFeed = false,
-}: PropsByFeedOptionalParams = {}): Record<string, FeedQueryProps> => {
-  const myFeed = shouldShowMyFeed
-    ? {
-        'my-feed': {
-          query: ANONYMOUS_FEED_QUERY,
-          queryIfLogged: FEED_QUERY,
-        },
-      }
-    : {};
-
+}: FeedOptionalParams = {}): Record<string, FeedQueryProps> => {
   return {
-    ...myFeed,
+    'my-feed': {
+      query: ANONYMOUS_FEED_QUERY,
+      queryIfLogged: FEED_QUERY,
+    },
     popular: {
       query: ANONYMOUS_FEED_QUERY,
       queryIfLogged: shouldShowMyFeed ? ANONYMOUS_FEED_QUERY : FEED_QUERY,
@@ -91,6 +85,21 @@ const LayoutHeader = classed(
   'header',
   'flex overflow-x-auto relative items-center self-stretch mb-6 h-11 no-scrollbar',
 );
+
+export const getShouldRedirect = (
+  isOnMyFeed: boolean,
+  isLoggedIn: boolean,
+): boolean => {
+  if (!isOnMyFeed) {
+    return false;
+  }
+
+  if (!isLoggedIn) {
+    return true;
+  }
+
+  return false;
+};
 
 export type MainFeedLayoutProps = {
   feedName: string;
