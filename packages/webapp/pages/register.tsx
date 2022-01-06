@@ -30,6 +30,10 @@ export default function Register(): ReactElement {
     return getFeatureValue(featureFlag, flags);
   };
 
+  const isFeatureEnabled = (featureFlag: Features) => {
+    return parseInt(getSignupModalFeatureValue(featureFlag), 10);
+  };
+
   useEffect(() => {
     trackEvent({
       event_name: 'start signup form',
@@ -56,10 +60,9 @@ export default function Register(): ReactElement {
             <h2 className="self-start my-2 text-theme-label-tertiary typo-callout">
               Please fill in your details below
             </h2>
-            {!parseInt(
-              getSignupModalFeatureValue(Features.HideSignupModalProfileImage),
-              10,
-            ) && <EditImageWithJoinedDate user={user} />}
+            {!isFeatureEnabled(Features.HideSignupModalProfileImage) && (
+              <EditImageWithJoinedDate user={user} />
+            )}
             <ProfileForm
               id="profileForm"
               setDisableSubmit={setDisableSubmit}
