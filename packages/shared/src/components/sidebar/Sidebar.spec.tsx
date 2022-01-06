@@ -127,7 +127,7 @@ it('should remove feed filter button once user has filters', async () => {
       return { data: { _: true } };
     },
   });
-  renderComponent();
+  renderComponent({ filter: true });
 
   await act(async () => {
     const trigger = await screen.findByText('Create my feed');

@@ -14,7 +14,6 @@ import CardIcon from '../../icons/card.svg';
 import LineIcon from '../../icons/line.svg';
 import { IconsSwitch } from './fields/IconsSwitch';
 import AuthContext from '../contexts/AuthContext';
-import { LoginModalMode } from '../types/LoginModalMode';
 
 const densities = [
   { label: 'Eco', value: 'eco' },
@@ -55,7 +54,7 @@ export default function Settings({
 
   const onShowOnlyUnreadPosts = (): Promise<void> | void => {
     if (!user) {
-      showLogin('settings', LoginModalMode.Default);
+      showLogin('settings');
       return undefined;
     }
 

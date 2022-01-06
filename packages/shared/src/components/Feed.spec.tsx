@@ -33,7 +33,6 @@ import defaultFeedPage from '../../__tests__/fixture/feed';
 import defaultUser from '../../__tests__/fixture/loggedUser';
 import ad from '../../__tests__/fixture/ad';
 import { LoggedUser } from '../lib/user';
-import { LoginModalMode } from '../types/LoginModalMode';
 import { MyRankData } from '../graphql/users';
 import { getRankQueryKey } from '../hooks/useReadingRank';
 import { SubscriptionCallbacks } from '../hooks/useSubscription';
@@ -251,7 +250,7 @@ it('should open login modal on anonymous upvote', async () => {
   );
   const [el] = await screen.findAllByLabelText('Upvote');
   el.click();
-  expect(showLogin).toBeCalledWith('upvote', LoginModalMode.ContentQuality);
+  expect(showLogin).toBeCalledWith('upvote');
 });
 
 it('should send add bookmark mutation', async () => {
