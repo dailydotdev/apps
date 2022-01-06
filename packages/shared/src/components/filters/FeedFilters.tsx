@@ -1,14 +1,21 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import { useQueryClient } from 'react-query';
 import classNames from 'classnames';
 import sizeN from '../../../macros/sizeN.macro';
 import FilterMenu from './FilterMenu';
 import XIcon from '../../../icons/x.svg';
+import PlusIcon from '../../../icons/plus.svg';
 import { menuItemClassNames } from '../multiLevelMenu/MultiLevelMenuMaster';
-import useFeedSettings from '../../hooks/useFeedSettings';
+import useFeedSettings, {
+  getFeedSettingsQueryKey,
+  updateLocalFeedSettings,
+} from '../../hooks/useFeedSettings';
 import AlertContext from '../../contexts/AlertContext';
 import { Source } from '../../graphql/sources';
 import UnblockModal from '../modals/UnblockModal';
 import AuthContext from '../../contexts/AuthContext';
+import { Button } from '../buttons/Button';
+import { AllTagCategoriesData } from '../../graphql/feedSettings';
 
 const asideWidth = sizeN(89);
 
@@ -27,6 +34,7 @@ export default function FeedFilters({
   isOpen,
   onBack,
 }: FeedFiltersProps): ReactElement {
+  const client = useQueryClient();
   const [unblockItem, setUnblockItem] = useState<UnblockItem>();
   const { user } = useContext(AuthContext);
   const { alerts, updateAlerts } = useContext(AlertContext);
@@ -40,6 +48,14 @@ export default function FeedFilters({
     }
   }, [isOpen, alerts, user, hasAnyFilter]);
 
+  const onCreate = () => {
+    // apply analytics
+    const key = getFeedSettingsQueryKey(user);
+    const { feedSettings } = client.getQueryData(key) as AllTagCategoriesData;
+    updateLocalFeedSettings(feedSettings);
+    window.location.replace(`${process.env.NEXT_PUBLIC_WEBAPP_URL}register`);
+  };
+
   return (
     <aside
       className={classNames(
@@ -52,12 +68,20 @@ export default function FeedFilters({
       <div
         className={classNames(
           menuItemClassNames,
-          'border-b border-theme-divider-tertiary',
+          'border-b border-theme-divider-tertiary flex-row justify-between',
         )}
       >
         <button onClick={onBack} type="button">
           <XIcon className="text-2xl -rotate-90 text-theme-label-tertiary" />
         </button>
+        <Button
+          className="btn-primary-avocado"
+          buttonSize="small"
+          icon={<PlusIcon className="mr-1" />}
+          onClick={onCreate}
+        >
+          Create
+        </Button>
       </div>
       <FilterMenu onUnblockItem={setUnblockItem} />
       {unblockItem && (
