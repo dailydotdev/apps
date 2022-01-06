@@ -38,7 +38,7 @@ export default function FeedFilters({
 }: FeedFiltersProps): ReactElement {
   const client = useQueryClient();
   const [unblockItem, setUnblockItem] = useState<UnblockItem>();
-  const { user } = useContext(AuthContext);
+  const { user, showLogin } = useContext(AuthContext);
   const { alerts, updateAlerts } = useContext(AlertContext);
   const { hasAnyFilter } = useFeedSettings();
   const { flags } = useContext(FeaturesContext);
@@ -57,7 +57,7 @@ export default function FeedFilters({
     const key = getFeedSettingsQueryKey(user);
     const { feedSettings } = client.getQueryData(key) as AllTagCategoriesData;
     updateLocalFeedSettings(feedSettings);
-    window.location.replace(`${process.env.NEXT_PUBLIC_WEBAPP_URL}register`);
+    showLogin('create feed filters');
   };
 
   return (
