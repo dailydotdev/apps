@@ -60,19 +60,6 @@ const isObjectEmpty = (obj: unknown) => {
   return Object.keys(obj).length === 0;
 };
 
-const getQueryFeedSettings = (
-  { feedSettings: remoteSettings }: AllTagCategoriesData,
-  { feedSettings: localSettings }: AllTagCategoriesData,
-  isLoggedIn: boolean,
-  shouldShowMyFeed: boolean,
-): FeedSettings => {
-  if (!shouldShowMyFeed || isLoggedIn) {
-    return remoteSettings;
-  }
-
-  return isObjectEmpty(localSettings) ? getEmptyFeedSettings() : localSettings;
-};
-
 export default function useFeedSettings(): FeedSettingsReturnType {
   const { user } = useContext(AuthContext);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
@@ -93,12 +80,13 @@ export default function useFeedSettings(): FeedSettingsReturnType {
         { loggedIn: !!user?.id },
       );
 
-      const feedSettings = getQueryFeedSettings(
-        req,
-        feedQuery,
-        !!user,
-        shouldShowMyFeed,
-      );
+      if (user || !shouldShowMyFeed) {
+        return req;
+      }
+
+      const feedSettings = isObjectEmpty(feedQuery.feedSettings)
+        ? getEmptyFeedSettings()
+        : feedQuery.feedSettings;
 
       return { ...req, feedSettings };
     },
