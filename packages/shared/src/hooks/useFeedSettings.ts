@@ -24,6 +24,13 @@ export type FeedSettingsReturnType = {
 
 let avoidRefresh = false;
 
+export const getLocalFeedSettings = (): FeedSettings => ({
+  includeTags: [],
+  blockedTags: [],
+  excludeSources: [],
+  advancedSettings: [],
+});
+
 export default function useFeedSettings(): FeedSettingsReturnType {
   const { user } = useContext(AuthContext);
   const [isFirstLoad, setIsFirstLoad] = useState(true);

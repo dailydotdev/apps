@@ -7,6 +7,7 @@ import React, {
   useState,
 } from 'react';
 import classNames from 'classnames';
+import request from 'graphql-request';
 import { updateProfile, UserProfile } from '../../lib/user';
 import { TextField } from '../fields/TextField';
 import { Switch } from '../fields/Switch';
@@ -20,6 +21,8 @@ import {
   getTimeZoneOptions,
   getUserInitialTimezone,
 } from '../../lib/timezones';
+import useMutateFilters from '../../hooks/useMutateFilters';
+import { getLocalFeedSettings } from '../../hooks/useFeedSettings';
 
 const REQUIRED_FIELDS_COUNT = 4;
 const timeZoneOptions = getTimeZoneOptions();
@@ -59,6 +62,8 @@ export default function ProfileForm({
       update: mode === 'update',
     }),
   );
+  const { followTags, blockTag, unfollowSource, updateAdvancedSettings } =
+    useMutateFilters();
   const [usernameHint, setUsernameHint] = useState<string>();
   const [twitterHint, setTwitterHint] = useState<string>();
   const [githubHint, setGithubHint] = useState<string>();
@@ -123,6 +128,26 @@ export default function ProfileForm({
       const filledFields = Object.keys(data).filter(
         (key) => data[key] !== undefined && data[key] !== null,
       );
+      const { includeTags, blockedTags, excludeSources, advancedSettings } =
+        getLocalFeedSettings();
+      const onFollowTags = includeTags?.length
+        ? followTags({ tags: includeTags })
+        : Promise.resolve();
+      const onBlockTags = blockedTags?.length
+        ? blockTag({ tags: blockedTags })
+        : Promise.resolve();
+      const onUnfollowSource = excludeSources?.length
+        ? unfollowSource({ source: excludeSources })
+        : Promise.resolve();
+      const onUpdateAdvancedSettings = advancedSettings?.length
+        ? updateAdvancedSettings({ advancedSettings })
+        : Promise.resolve();
+      await Promise.all([
+        onFollowTags,
+        onBlockTags,
+        onUnfollowSource,
+        onUpdateAdvancedSettings,
+      ]);
       onSuccessfulSubmit?.(filledFields.length > REQUIRED_FIELDS_COUNT);
     }
   };
