@@ -16,6 +16,8 @@ import UnblockModal from '../modals/UnblockModal';
 import AuthContext from '../../contexts/AuthContext';
 import { Button } from '../buttons/Button';
 import { AllTagCategoriesData } from '../../graphql/feedSettings';
+import { Features, isFeaturedEnabled } from '../../lib/featureManagement';
+import FeaturesContext from '../../contexts/FeaturesContext';
 
 const asideWidth = sizeN(89);
 
@@ -39,6 +41,8 @@ export default function FeedFilters({
   const { user } = useContext(AuthContext);
   const { alerts, updateAlerts } = useContext(AlertContext);
   const { hasAnyFilter } = useFeedSettings();
+  const { flags } = useContext(FeaturesContext);
+  const shouldShowMyFeed = isFeaturedEnabled(Features.MyFeedOn, flags);
 
   useEffect(() => {
     if (isOpen) {
@@ -74,14 +78,16 @@ export default function FeedFilters({
         <button onClick={onBack} type="button">
           <XIcon className="text-2xl -rotate-90 text-theme-label-tertiary" />
         </button>
-        <Button
-          className="btn-primary-avocado"
-          buttonSize="small"
-          icon={<PlusIcon className="mr-1" />}
-          onClick={onCreate}
-        >
-          Create
-        </Button>
+        {shouldShowMyFeed && (
+          <Button
+            className="btn-primary-avocado"
+            buttonSize="small"
+            icon={<PlusIcon className="mr-1" />}
+            onClick={onCreate}
+          >
+            Create
+          </Button>
+        )}
       </div>
       <FilterMenu onUnblockItem={setUnblockItem} />
       {unblockItem && (
