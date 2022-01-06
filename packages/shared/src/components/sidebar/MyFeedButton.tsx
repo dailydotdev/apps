@@ -1,8 +1,8 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import PlusIcon from '@dailydotdev/shared/icons/plus.svg';
-import FilterIcon from '@dailydotdev/shared/icons/outline/filter.svg';
 import { IFlags } from 'flagsmith';
+import PlusIcon from '../../../icons/plus.svg';
+import FilterIcon from '../../../icons/outline/filter.svg';
 import { Button } from '../buttons/Button';
 import { Features, getFeatureValue } from '../../lib/featureManagement';
 import { ButtonOrLink, ItemInner, NavItem, SidebarMenuItem } from './common';
