@@ -6,6 +6,7 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from 'react-query';
 import { mocked } from 'ts-jest/utils';
 import { LoggedUser, updateProfile } from '../../lib/user';
 import ProfileForm from './ProfileForm';
@@ -38,23 +39,27 @@ const defaultUser = {
 };
 
 const renderComponent = (user: Partial<LoggedUser> = {}): RenderResult => {
+  const client = new QueryClient();
+
   return render(
-    <AuthContext.Provider
-      value={{
-        user: { ...defaultUser, ...user },
-        shouldShowLogin: false,
-        showLogin: jest.fn(),
-        logout: jest.fn(),
-        updateUser,
-        tokenRefreshed: true,
-        getRedirectUri: jest.fn(),
-      }}
-    >
-      <ProfileForm
-        setDisableSubmit={setDisableSubmit}
-        onSuccessfulSubmit={onSuccessfulSubmit}
-      />
-    </AuthContext.Provider>,
+    <QueryClientProvider client={client}>
+      <AuthContext.Provider
+        value={{
+          user: { ...defaultUser, ...user },
+          shouldShowLogin: false,
+          showLogin: jest.fn(),
+          logout: jest.fn(),
+          updateUser,
+          tokenRefreshed: true,
+          getRedirectUri: jest.fn(),
+        }}
+      >
+        <ProfileForm
+          setDisableSubmit={setDisableSubmit}
+          onSuccessfulSubmit={onSuccessfulSubmit}
+        />
+      </AuthContext.Provider>
+    </QueryClientProvider>,
   );
 };
 
