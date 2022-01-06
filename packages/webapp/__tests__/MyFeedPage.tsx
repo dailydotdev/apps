@@ -3,6 +3,7 @@ import {
   ANONYMOUS_FEED_QUERY,
   FEED_QUERY,
 } from '@dailydotdev/shared/src/graphql/feed';
+import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import nock from 'nock';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React from 'react';
@@ -81,21 +82,25 @@ const renderComponent = (
   };
   return render(
     <QueryClientProvider client={client}>
-      <AuthContext.Provider
-        value={{
-          user,
-          shouldShowLogin: false,
-          showLogin,
-          logout: jest.fn(),
-          updateUser: jest.fn(),
-          tokenRefreshed: true,
-          getRedirectUri: jest.fn(),
-        }}
+      <FeaturesContext.Provider
+        value={{ flags: { my_feed_on: { enabled: true } } }}
       >
-        <SettingsContext.Provider value={settingsContext}>
-          {MyFeed.getLayout(<MyFeed />, {}, MyFeed.layoutProps)}
-        </SettingsContext.Provider>
-      </AuthContext.Provider>
+        <AuthContext.Provider
+          value={{
+            user,
+            shouldShowLogin: false,
+            showLogin,
+            logout: jest.fn(),
+            updateUser: jest.fn(),
+            tokenRefreshed: true,
+            getRedirectUri: jest.fn(),
+          }}
+        >
+          <SettingsContext.Provider value={settingsContext}>
+            {MyFeed.getLayout(<MyFeed />, {}, MyFeed.layoutProps)}
+          </SettingsContext.Provider>
+        </AuthContext.Provider>
+      </FeaturesContext.Provider>
     </QueryClientProvider>,
   );
 };
