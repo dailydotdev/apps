@@ -1,430 +1,364 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="196" failures="0" errors="0" time="27.118">
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2021-11-03T11:23:54" time="8.356" tests="23">
-    <testcase classname=" should add one placeholder when loading" name=" should add one placeholder when loading" time="0.138">
+<testsuites name="jest tests" tests="222" failures="0" errors="0" time="28.204">
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-01-06T07:50:52" time="3.636" tests="8">
+    <testcase classname=" should remove feed filter button once user has filters" name=" should remove feed filter button once user has filters" time="0.182">
     </testcase>
-    <testcase classname=" should replace placeholders with posts and ad" name=" should replace placeholders with posts and ad" time="0.262">
+    <testcase classname=" should render the sidebar as open by default" name=" should render the sidebar as open by default" time="0.027">
     </testcase>
-    <testcase classname=" should send upvote mutation" name=" should send upvote mutation" time="0.073">
+    <testcase classname=" should toggle the sidebar on button click" name=" should toggle the sidebar on button click" time="0.031">
     </testcase>
-    <testcase classname=" should send cancel upvote mutation" name=" should send cancel upvote mutation" time="0.111">
+    <testcase classname=" should show the sidebar as closed if user has this set" name=" should show the sidebar as closed if user has this set" time="0.038">
     </testcase>
-    <testcase classname=" should open login modal on anonymous upvote" name=" should open login modal on anonymous upvote" time="0.065">
+    <testcase classname=" should invoke the feed customization modal" name=" should invoke the feed customization modal" time="0.07">
     </testcase>
-    <testcase classname=" should send add bookmark mutation" name=" should send add bookmark mutation" time="0.107">
+    <testcase classname=" should set all navigation urls" name=" should set all navigation urls" time="0.03">
     </testcase>
-    <testcase classname=" should send remove bookmark mutation" name=" should send remove bookmark mutation" time="0.106">
+    <testcase classname=" should render the mobile sidebar version on small screens" name=" should render the mobile sidebar version on small screens" time="0.028">
     </testcase>
-    <testcase classname=" should open login modal on anonymous bookmark" name=" should open login modal on anonymous bookmark" time="0.05">
-    </testcase>
-    <testcase classname=" should increase reading rank progress" name=" should increase reading rank progress" time="0.052">
-    </testcase>
-    <testcase classname=" should not increase reading rank progress when read today" name=" should not increase reading rank progress when read today" time="0.124">
-    </testcase>
-    <testcase classname=" should increase reading rank progress and rank" name=" should increase reading rank progress and rank" time="0.033">
-    </testcase>
-    <testcase classname=" should not increase reading rank progress when reached final rank" name=" should not increase reading rank progress when reached final rank" time="0.092">
-    </testcase>
-    <testcase classname=" should increase reading rank progress for anonymous users" name=" should increase reading rank progress for anonymous users" time="0.046">
-    </testcase>
-    <testcase classname=" should not increase reading rank progress for anonymous users after the first rank" name=" should not increase reading rank progress for anonymous users after the first rank" time="0.097">
-    </testcase>
-    <testcase classname=" should update feed item on subscription message" name=" should update feed item on subscription message" time="0.052">
-    </testcase>
-    <testcase classname=" should open comment popup on upvote" name=" should open comment popup on upvote" time="0.144">
-    </testcase>
-    <testcase classname=" should send comment through the comment popup" name=" should send comment through the comment popup" time="0.173">
-    </testcase>
-    <testcase classname=" should report broken link" name=" should report broken link" time="1.191">
-    </testcase>
-    <testcase classname=" should report broken link with comment" name=" should report broken link with comment" time="1.124">
-    </testcase>
-    <testcase classname=" should report nsfw" name=" should report nsfw" time="1.137">
-    </testcase>
-    <testcase classname=" should hide post" name=" should hide post" time="0.131">
-    </testcase>
-    <testcase classname=" should block a source" name=" should block a source" time="0.092">
-    </testcase>
-    <testcase classname=" should block a tag" name=" should block a tag" time="0.059">
+    <testcase classname=" should show the my feed items if the user has filters" name=" should show the my feed items if the user has filters" time="0.026">
     </testcase>
   </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2021-11-03T11:24:03" time="3.704" tests="6">
-    <testcase classname=" should batch events before sending" name=" should batch events before sending" time="0.539">
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-01-06T07:50:55" time="5.718" tests="23">
+    <testcase classname=" should add one placeholder when loading" name=" should add one placeholder when loading" time="0.072">
     </testcase>
-    <testcase classname=" should add relevant properties when user is signed-in" name=" should add relevant properties when user is signed-in" time="0.535">
+    <testcase classname=" should replace placeholders with posts and ad" name=" should replace placeholders with posts and ad" time="0.261">
     </testcase>
-    <testcase classname=" should send events in different batches" name=" should send events in different batches" time="1.158">
+    <testcase classname=" should send upvote mutation" name=" should send upvote mutation" time="0.097">
     </testcase>
-    <testcase classname=" should send event with duration" name=" should send event with duration" time="0.532">
+    <testcase classname=" should send cancel upvote mutation" name=" should send cancel upvote mutation" time="0.115">
     </testcase>
-    <testcase classname=" should send pending events when page becomes invisible" name=" should send pending events when page becomes invisible" time="0.065">
+    <testcase classname=" should open login modal on anonymous upvote" name=" should open login modal on anonymous upvote" time="0.054">
     </testcase>
-    <testcase classname=" should send pending events when user information is fetched" name=" should send pending events when user information is fetched" time="0.64">
+    <testcase classname=" should send add bookmark mutation" name=" should send add bookmark mutation" time="0.126">
     </testcase>
-  </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2021-11-03T11:24:07" time="1.17" tests="7">
-    <testcase classname=" should fetch remote settings" name=" should fetch remote settings" time="0.202">
+    <testcase classname=" should send remove bookmark mutation" name=" should send remove bookmark mutation" time="0.114">
     </testcase>
-    <testcase classname=" should mutate density setting" name=" should mutate density setting" time="0.186">
+    <testcase classname=" should open login modal on anonymous bookmark" name=" should open login modal on anonymous bookmark" time="0.037">
     </testcase>
-    <testcase classname=" should set theme to dark mode setting" name=" should set theme to dark mode setting" time="0.146">
+    <testcase classname=" should increase reading rank progress" name=" should increase reading rank progress" time="0.047">
     </testcase>
-    <testcase classname=" should set light to dark mode setting" name=" should set light to dark mode setting" time="0.119">
+    <testcase classname=" should not increase reading rank progress when read today" name=" should not increase reading rank progress when read today" time="0.083">
     </testcase>
-    <testcase classname=" should mutate hide read posts setting" name=" should mutate hide read posts setting" time="0.155">
+    <testcase classname=" should increase reading rank progress and rank" name=" should increase reading rank progress and rank" time="0.061">
     </testcase>
-    <testcase classname=" should open login when hide read posts is clicked and the user is logged out" name=" should open login when hide read posts is clicked and the user is logged out" time="0.039">
+    <testcase classname=" should not increase reading rank progress when reached final rank" name=" should not increase reading rank progress when reached final rank" time="0.087">
     </testcase>
-    <testcase classname=" should mutate open links in new tab setting" name=" should mutate open links in new tab setting" time="0.13">
+    <testcase classname=" should increase reading rank progress for anonymous users" name=" should increase reading rank progress for anonymous users" time="0.054">
     </testcase>
-  </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2021-11-03T11:24:08" time="0.844" tests="12">
-    <testcase classname=" should show twice the author name as title and in reply to" name=" should show twice the author name as title and in reply to" time="0.041">
+    <testcase classname=" should not increase reading rank progress for anonymous users after the first rank" name=" should not increase reading rank progress for anonymous users after the first rank" time="0.091">
     </testcase>
-    <testcase classname=" should show formatted date of publication" name=" should show formatted date of publication" time="0.014">
+    <testcase classname=" should update feed item on subscription message" name=" should update feed item on subscription message" time="0.079">
     </testcase>
-    <testcase classname=" should show author profile picture" name=" should show author profile picture" time="0.011">
+    <testcase classname=" should open comment popup on upvote" name=" should open comment popup on upvote" time="0.168">
     </testcase>
-    <testcase classname=" should show user profile picture" name=" should show user profile picture" time="0.011">
+    <testcase classname=" should send comment through the comment popup" name=" should send comment through the comment popup" time="0.125">
     </testcase>
-    <testcase classname=" should show content of parent" name=" should show content of parent" time="0.012">
+    <testcase classname=" should report broken link" name=" should report broken link" time="1.156">
     </testcase>
-    <testcase classname=" should close modal on cancel" name=" should close modal on cancel" time="0.013">
+    <testcase classname=" should report broken link with comment" name=" should report broken link with comment" time="1.134">
     </testcase>
-    <testcase classname=" should disable submit button when no input" name=" should disable submit button when no input" time="0.014">
+    <testcase classname=" should report nsfw" name=" should report nsfw" time="1.149">
     </testcase>
-    <testcase classname=" should enable submit button when no input" name=" should enable submit button when no input" time="0.084">
+    <testcase classname=" should hide post" name=" should hide post" time="0.114">
     </testcase>
-    <testcase classname=" should send commentOnPost mutation" name=" should send commentOnPost mutation" time="0.105">
+    <testcase classname=" should block a source" name=" should block a source" time="0.052">
     </testcase>
-    <testcase classname=" should send commentOnComment mutation" name=" should send commentOnComment mutation" time="0.08">
-    </testcase>
-    <testcase classname=" should show alert in case of an error" name=" should show alert in case of an error" time="0.072">
-    </testcase>
-    <testcase classname=" should send editComment mutation" name=" should send editComment mutation" time="0.082">
+    <testcase classname=" should block a tag" name=" should block a tag" time="0.064">
     </testcase>
   </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2021-11-03T11:24:09" time="0.709" tests="4">
-    <testcase classname=" should show a message that no rss found" name=" should show a message that no rss found" time="0.192">
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-01-06T07:51:01" time="3.585" tests="6">
+    <testcase classname=" should batch events before sending" name=" should batch events before sending" time="0.532">
     </testcase>
-    <testcase classname=" should show a contact button on an unexpected error" name=" should show a contact button on an unexpected error" time="0.07">
+    <testcase classname=" should add relevant properties when user is signed-in" name=" should add relevant properties when user is signed-in" time="0.532">
     </testcase>
-    <testcase classname=" should show if the source already exists in the system" name=" should show if the source already exists in the system" time="0.121">
+    <testcase classname=" should send events in different batches" name=" should send events in different batches" time="1.129">
     </testcase>
-    <testcase classname=" should send source request" name=" should send source request" time="0.127">
+    <testcase classname=" should send event with duration" name=" should send event with duration" time="0.531">
+    </testcase>
+    <testcase classname=" should send pending events when page becomes invisible" name=" should send pending events when page becomes invisible" time="0.068">
+    </testcase>
+    <testcase classname=" should send pending events when user information is fetched" name=" should send pending events when user information is fetched" time="0.643">
     </testcase>
   </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2021-11-03T11:24:10" time="0.516" tests="7">
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-01-06T07:51:05" time="1.125" tests="11">
+    <testcase classname=" should fetch remote settings" name=" should fetch remote settings" time="0.17">
+    </testcase>
+    <testcase classname=" should utilize front-end default settings for first time users" name=" should utilize front-end default settings for first time users" time="0.072">
+    </testcase>
+    <testcase classname=" should utilize local cache settings for anonymous users" name=" should utilize local cache settings for anonymous users" time="0.051">
+    </testcase>
+    <testcase classname=" should mutate density setting" name=" should mutate density setting" time="0.12">
+    </testcase>
+    <testcase classname=" should set theme to dark mode setting" name=" should set theme to dark mode setting" time="0.121">
+    </testcase>
+    <testcase classname=" should set light to dark mode setting" name=" should set light to dark mode setting" time="0.085">
+    </testcase>
+    <testcase classname=" should mutate hide read posts setting" name=" should mutate hide read posts setting" time="0.098">
+    </testcase>
+    <testcase classname=" should mutate open links in new tab setting" name=" should mutate open links in new tab setting" time="0.102">
+    </testcase>
+    <testcase classname=" should not have the show most visited sites switch in the webapp" name=" should not have the show most visited sites switch in the webapp" time="0.008">
+    </testcase>
+    <testcase classname=" should open login when hide read posts is clicked and the user is logged out" name=" should open login when hide read posts is clicked and the user is logged out" time="0.013">
+    </testcase>
+    <testcase classname=" should mutate show most visited sites setting in extension" name=" should mutate show most visited sites setting in extension" time="0.091">
+    </testcase>
+  </testsuite>
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-01-06T07:51:06" time="0.742" tests="11">
+    <testcase classname=" should show twice the author name as title and in reply to" name=" should show twice the author name as title and in reply to" time="0.05">
+    </testcase>
+    <testcase classname=" should show formatted date of publication" name=" should show formatted date of publication" time="0.015">
+    </testcase>
+    <testcase classname=" should show author profile picture" name=" should show author profile picture" time="0.012">
+    </testcase>
+    <testcase classname=" should show user profile picture" name=" should show user profile picture" time="0.012">
+    </testcase>
+    <testcase classname=" should show content of parent" name=" should show content of parent" time="0.014">
+    </testcase>
+    <testcase classname=" should disable submit button when no input" name=" should disable submit button when no input" time="0.015">
+    </testcase>
+    <testcase classname=" should enable submit button when no input" name=" should enable submit button when no input" time="0.091">
+    </testcase>
+    <testcase classname=" should send commentOnPost mutation" name=" should send commentOnPost mutation" time="0.099">
+    </testcase>
+    <testcase classname=" should send commentOnComment mutation" name=" should send commentOnComment mutation" time="0.082">
+    </testcase>
+    <testcase classname=" should show alert in case of an error" name=" should show alert in case of an error" time="0.075">
+    </testcase>
+    <testcase classname=" should send editComment mutation" name=" should send editComment mutation" time="0.08">
+    </testcase>
+  </testsuite>
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-01-06T07:51:07" time="0.644" tests="4">
+    <testcase classname=" should show a message that no rss found" name=" should show a message that no rss found" time="0.147">
+    </testcase>
+    <testcase classname=" should show a contact button on an unexpected error" name=" should show a contact button on an unexpected error" time="0.059">
+    </testcase>
+    <testcase classname=" should show if the source already exists in the system" name=" should show if the source already exists in the system" time="0.164">
+    </testcase>
+    <testcase classname=" should send source request" name=" should send source request" time="0.099">
+    </testcase>
+  </testsuite>
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-01-06T07:51:08" time="0.456" tests="7">
     <testcase classname=" should show tag categories" name=" should show tag categories" time="0.031">
     </testcase>
-    <testcase classname=" should open the details element on category click" name=" should open the details element on category click" time="0.026">
+    <testcase classname=" should open the details element on category click" name=" should open the details element on category click" time="0.021">
     </testcase>
-    <testcase classname=" should show the tags for a open category" name=" should show the tags for a open category" time="0.04">
+    <testcase classname=" should show the tags for a open category" name=" should show the tags for a open category" time="0.036">
     </testcase>
-    <testcase classname=" should show login when not logged in" name=" should show login when not logged in" time="0.019">
+    <testcase classname=" should show login when not logged in" name=" should show login when not logged in" time="0.011">
     </testcase>
-    <testcase classname=" should follow a tag on click" name=" should follow a tag on click" time="0.072">
+    <testcase classname=" should follow a tag on click and remove filter alert if enabled" name=" should follow a tag on click and remove filter alert if enabled" time="0.066">
     </testcase>
-    <testcase classname=" should unfollow a tag on click" name=" should unfollow a tag on click" time="0.076">
+    <testcase classname=" should unfollow a tag on click" name=" should unfollow a tag on click" time="0.072">
     </testcase>
-    <testcase classname=" should clear all tags on click" name=" should clear all tags on click" time="0.079">
-    </testcase>
-  </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2021-11-03T11:24:10" time="0.65" tests="4">
-    <testcase classname=" should create dynamically the progress bar according to the props" name=" should create dynamically the progress bar according to the props" time="0.062">
-    </testcase>
-    <testcase classname=" should first show cached rank and animate to fetched rank" name=" should first show cached rank and animate to fetched rank" time="0.339">
-    </testcase>
-    <testcase classname=" should show rank for anonymous users" name=" should show rank for anonymous users" time="0.015">
-    </testcase>
-    <testcase classname=" should show a welcome button during the onboarding" name=" should show a welcome button during the onboarding" time="0.006">
+    <testcase classname=" should clear all tags on click" name=" should clear all tags on click" time="0.063">
     </testcase>
   </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2021-11-03T11:24:11" time="0.388" tests="2">
-    <testcase classname=" should click the account details and show the pop up" name=" should click the account details and show the pop up" time="0.176">
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-01-06T07:51:08" time="0.458" tests="5">
+    <testcase classname=" should disable submit when form is invalid" name=" should disable submit when form is invalid" time="0.042">
     </testcase>
-    <testcase classname=" should click the logout button and logout" name=" should click the logout button and logout" time="0.02">
+    <testcase classname=" should enable submit when form is valid" name=" should enable submit when form is valid" time="0.043">
     </testcase>
-  </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2021-11-03T11:24:12" time="0.4" tests="5">
-    <testcase classname=" should show blocked tags" name=" should show blocked tags" time="0.027">
+    <testcase classname=" should submit information" name=" should submit information" time="0.052">
     </testcase>
-    <testcase classname=" should show blocked sources" name=" should show blocked sources" time="0.012">
+    <testcase classname=" should set optional fields on callback" name=" should set optional fields on callback" time="0.047">
     </testcase>
-    <testcase classname=" should show unblock option for tag" name=" should show unblock option for tag" time="0.017">
-    </testcase>
-    <testcase classname=" should show unblock popup on option click" name=" should show unblock popup on option click" time="0.116">
-    </testcase>
-    <testcase classname=" should show unblock popup on source unblock click" name=" should show unblock popup on source unblock click" time="0.076">
+    <testcase classname=" should show server error" name=" should show server error" time="0.082">
     </testcase>
   </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2021-11-03T11:24:12" time="0.411" tests="5">
-    <testcase classname=" should show profile image" name=" should show profile image" time="0.059">
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-01-06T07:51:09" time="0.407" tests="14">
+    <testcase classname=" should call on link click on component left click" name=" should call on link click on component left click" time="0.071">
     </testcase>
-    <testcase classname=" should disable submit when form is invalid" name=" should disable submit when form is invalid" time="0.043">
+    <testcase classname=" should call on link click on component middle mouse up" name=" should call on link click on component middle mouse up" time="0.022">
     </testcase>
-    <testcase classname=" should enable submit when form is valid" name=" should enable submit when form is valid" time="0.028">
+    <testcase classname=" should call on upvote click on upvote button click" name=" should call on upvote click on upvote button click" time="0.011">
     </testcase>
-    <testcase classname=" should submit information on button click" name=" should submit information on button click" time="0.037">
+    <testcase classname=" should call on comment click on comment button click" name=" should call on comment click on comment button click" time="0.011">
     </testcase>
-    <testcase classname=" should logout on button click" name=" should logout on button click" time="0.03">
+    <testcase classname=" should call on bookmark click on bookmark button click" name=" should call on bookmark click on bookmark button click" time="0.011">
     </testcase>
-  </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2021-11-03T11:24:13" time="0.439" tests="13">
-    <testcase classname=" should call on link click on component left click" name=" should call on link click on component left click" time="0.075">
+    <testcase classname=" should not display publication date createdAt is empty" name=" should not display publication date createdAt is empty" time="0.007">
     </testcase>
-    <testcase classname=" should call on link click on component middle mouse up" name=" should call on link click on component middle mouse up" time="0.026">
+    <testcase classname=" should format publication date" name=" should format publication date" time="0.013">
     </testcase>
-    <testcase classname=" should call on upvote click on upvote button click" name=" should call on upvote click on upvote button click" time="0.012">
+    <testcase classname=" should format read time when available" name=" should format read time when available" time="0.011">
     </testcase>
-    <testcase classname=" should call on comment click on comment button click" name=" should call on comment click on comment button click" time="0.009">
-    </testcase>
-    <testcase classname=" should call on bookmark click on bookmark button click" name=" should call on bookmark click on bookmark button click" time="0.008">
-    </testcase>
-    <testcase classname=" should format publication date" name=" should format publication date" time="0.011">
-    </testcase>
-    <testcase classname=" should format read time when available" name=" should format read time when available" time="0.006">
-    </testcase>
-    <testcase classname=" should hide read time when not available" name=" should hide read time when not available" time="0.006">
+    <testcase classname=" should hide read time when not available" name=" should hide read time when not available" time="0.008">
     </testcase>
     <testcase classname=" should show author name when available" name=" should show author name when available" time="0.008">
     </testcase>
-    <testcase classname=" should show featured comments authors profile image" name=" should show featured comments authors profile image" time="0.005">
+    <testcase classname=" should show featured comments authors profile image" name=" should show featured comments authors profile image" time="0.012">
     </testcase>
-    <testcase classname=" should show featured comment when clicking on the profile image" name=" should show featured comment when clicking on the profile image" time="0.01">
+    <testcase classname=" should show featured comment when clicking on the profile image" name=" should show featured comment when clicking on the profile image" time="0.021">
     </testcase>
-    <testcase classname=" should return back to normal card form when clicking the back button" name=" should return back to normal card form when clicking the back button" time="0.013">
+    <testcase classname=" should return back to normal card form when clicking the back button" name=" should return back to normal card form when clicking the back button" time="0.021">
     </testcase>
-    <testcase classname=" should show trending flag" name=" should show trending flag" time="0.01">
-    </testcase>
-  </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2021-11-03T11:24:13" time="0.329" tests="5">
-    <testcase classname=" should disable submit when form is invalid" name=" should disable submit when form is invalid" time="0.023">
-    </testcase>
-    <testcase classname=" should enable submit when form is valid" name=" should enable submit when form is valid" time="0.015">
-    </testcase>
-    <testcase classname=" should submit information" name=" should submit information" time="0.03">
-    </testcase>
-    <testcase classname=" should set optional fields on callback" name=" should set optional fields on callback" time="0.028">
-    </testcase>
-    <testcase classname=" should show server error" name=" should show server error" time="0.046">
+    <testcase classname=" should show trending flag" name=" should show trending flag" time="0.016">
     </testcase>
   </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2021-11-03T11:24:14" time="0.316" tests="7">
-    <testcase classname=" should show upvoter list for post" name=" should show upvoter list for post" time="0.023">
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-01-06T07:51:09" time="0.411" tests="5">
+    <testcase classname=" should show profile image" name=" should show profile image" time="0.059">
     </testcase>
-    <testcase classname=" should show upvoter list for comment" name=" should show upvoter list for comment" time="0.016">
+    <testcase classname=" should disable submit when form is invalid" name=" should disable submit when form is invalid" time="0.045">
     </testcase>
-    <testcase classname=" should show user&apos;s handle" name=" should show user&apos;s handle" time="0.019">
+    <testcase classname=" should enable submit when form is valid" name=" should enable submit when form is valid" time="0.037">
     </testcase>
-    <testcase classname=" should show name" name=" should show name" time="0.015">
+    <testcase classname=" should submit information on button click" name=" should submit information on button click" time="0.053">
     </testcase>
-    <testcase classname=" should show bio" name=" should show bio" time="0.016">
-    </testcase>
-    <testcase classname=" should show permalink" name=" should show permalink" time="0.035">
-    </testcase>
-    <testcase classname=" should show avatar" name=" should show avatar" time="0.015">
+    <testcase classname=" should logout on button click" name=" should logout on button click" time="0.038">
     </testcase>
   </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2021-11-03T11:24:14" time="0.314" tests="2">
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-01-06T07:51:10" time="0.332" tests="2">
+    <testcase classname=" should click the account details and show the pop up" name=" should click the account details and show the pop up" time="0.127">
+    </testcase>
+    <testcase classname=" should click the logout button and logout" name=" should click the logout button and logout" time="0.014">
+    </testcase>
+  </testsuite>
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-01-06T07:51:10" time="0.289" tests="10">
+    <testcase classname=" should show author profile image" name=" should show author profile image" time="0.037">
+    </testcase>
+    <testcase classname=" should show author name" name=" should show author name" time="0.014">
+    </testcase>
+    <testcase classname=" should show formatted comment date" name=" should show formatted comment date" time="0.007">
+    </testcase>
+    <testcase classname=" should show last updated comment date" name=" should show last updated comment date" time="0.006">
+    </testcase>
+    <testcase classname=" should show comment content" name=" should show comment content" time="0.006">
+    </testcase>
+    <testcase classname=" should move timeline above profile picture when not first comment" name=" should move timeline above profile picture when not first comment" time="0.006">
+    </testcase>
+    <testcase classname=" should move timeline to profile picture when first comment" name=" should move timeline to profile picture when first comment" time="0.01">
+    </testcase>
+    <testcase classname=" should call onComment callback" name=" should call onComment callback" time="0.009">
+    </testcase>
+    <testcase classname=" should call onDelete callback" name=" should call onDelete callback" time="0.006">
+    </testcase>
+    <testcase classname=" should show author badge" name=" should show author badge" time="0.007">
+    </testcase>
+  </testsuite>
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-01-06T07:51:11" time="0.303" tests="3">
+    <testcase classname=" should display advanced settings title and description" name=" should display advanced settings title and description" time="0.057">
+    </testcase>
+    <testcase classname=" should display advanced settings title and description including the appropriate enabled state using unregistered user" name=" should display advanced settings title and description including the appropriate enabled state using unregistered user" time="0.03">
+    </testcase>
+    <testcase classname=" should mutate update feed advanced settings" name=" should mutate update feed advanced settings" time="0.078">
+    </testcase>
+  </testsuite>
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-01-06T07:51:11" time="0.292" tests="3">
+    <testcase classname=" should create dynamically the progress bar according to the props" name=" should create dynamically the progress bar according to the props" time="0.044">
+    </testcase>
+    <testcase classname=" should first show cached rank and animate to fetched rank" name=" should first show cached rank and animate to fetched rank" time="0.024">
+    </testcase>
+    <testcase classname=" should show rank for anonymous users" name=" should show rank for anonymous users" time="0.018">
+    </testcase>
+  </testsuite>
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-01-06T07:51:12" time="0.198" tests="4">
+    <testcase classname=" should show profile image" name=" should show profile image" time="0.013">
+    </testcase>
+    <testcase classname=" should show github provider information" name=" should show github provider information" time="0.007">
+    </testcase>
+    <testcase classname=" should show google provider information" name=" should show google provider information" time="0.006">
+    </testcase>
+    <testcase classname=" should upload the new image profile image" name=" should upload the new image profile image" time="0.015">
+    </testcase>
+  </testsuite>
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-01-06T07:51:12" time="0.304" tests="2">
     <testcase classname=" should call the callback only once" name=" should call the callback only once" time="0.057">
     </testcase>
     <testcase classname=" should call the callback again after the cooldown period" name=" should call the callback again after the cooldown period" time="0.105">
     </testcase>
   </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2021-11-03T11:24:15" time="0.286" tests="10">
-    <testcase classname=" should show author profile image" name=" should show author profile image" time="0.024">
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-01-06T07:51:12" time="0.349" tests="7">
+    <testcase classname=" should show upvoter list for post" name=" should show upvoter list for post" time="0.025">
     </testcase>
-    <testcase classname=" should show author name" name=" should show author name" time="0.013">
+    <testcase classname=" should show upvoter list for comment" name=" should show upvoter list for comment" time="0.019">
     </testcase>
-    <testcase classname=" should show formatted comment date" name=" should show formatted comment date" time="0.004">
+    <testcase classname=" should show user&apos;s handle" name=" should show user&apos;s handle" time="0.029">
     </testcase>
-    <testcase classname=" should show last updated comment date" name=" should show last updated comment date" time="0.004">
+    <testcase classname=" should show name" name=" should show name" time="0.019">
+    </testcase>
+    <testcase classname=" should show bio" name=" should show bio" time="0.015">
+    </testcase>
+    <testcase classname=" should show permalink" name=" should show permalink" time="0.064">
+    </testcase>
+    <testcase classname=" should show avatar" name=" should show avatar" time="0.015">
+    </testcase>
+  </testsuite>
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-01-06T07:51:13" time="0.297" tests="10">
+    <testcase classname=" should show author profile image" name=" should show author profile image" time="0.028">
+    </testcase>
+    <testcase classname=" should show author name" name=" should show author name" time="0.011">
+    </testcase>
+    <testcase classname=" should show formatted comment date" name=" should show formatted comment date" time="0.017">
+    </testcase>
+    <testcase classname=" should show last updated comment date" name=" should show last updated comment date" time="0.006">
     </testcase>
     <testcase classname=" should show comment content" name=" should show comment content" time="0.005">
     </testcase>
     <testcase classname=" should have no subcomments" name=" should have no subcomments" time="0.005">
     </testcase>
-    <testcase classname=" should have subcomments" name=" should have subcomments" time="0.007">
+    <testcase classname=" should have subcomments" name=" should have subcomments" time="0.01">
     </testcase>
-    <testcase classname=" should call onComment callback" name=" should call onComment callback" time="0.007">
+    <testcase classname=" should call onComment callback" name=" should call onComment callback" time="0.008">
     </testcase>
-    <testcase classname=" should call onDelete callback" name=" should call onDelete callback" time="0.004">
+    <testcase classname=" should call onDelete callback" name=" should call onDelete callback" time="0.01">
     </testcase>
-    <testcase classname=" should show author badge" name=" should show author badge" time="0.006">
-    </testcase>
-  </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2021-11-03T11:24:15" time="0.326" tests="10">
-    <testcase classname=" should show author profile image" name=" should show author profile image" time="0.022">
-    </testcase>
-    <testcase classname=" should show author name" name=" should show author name" time="0.01">
-    </testcase>
-    <testcase classname=" should show formatted comment date" name=" should show formatted comment date" time="0.014">
-    </testcase>
-    <testcase classname=" should show last updated comment date" name=" should show last updated comment date" time="0.01">
-    </testcase>
-    <testcase classname=" should show comment content" name=" should show comment content" time="0.005">
-    </testcase>
-    <testcase classname=" should move timeline above profile picture when not first comment" name=" should move timeline above profile picture when not first comment" time="0.007">
-    </testcase>
-    <testcase classname=" should move timeline to profile picture when first comment" name=" should move timeline to profile picture when first comment" time="0.01">
-    </testcase>
-    <testcase classname=" should call onComment callback" name=" should call onComment callback" time="0.005">
-    </testcase>
-    <testcase classname=" should call onDelete callback" name=" should call onDelete callback" time="0.005">
-    </testcase>
-    <testcase classname=" should show author badge" name=" should show author badge" time="0.006">
+    <testcase classname=" should show author badge" name=" should show author badge" time="0.007">
     </testcase>
   </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2021-11-03T11:24:15" time="0.344" tests="3">
-    <testcase classname=" should display advanced settings title and description" name=" should display advanced settings title and description" time="0.097">
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-01-06T07:51:13" time="0.163" tests="2">
+    <testcase classname=" should close modal on cancel" name=" should close modal on cancel" time="0.016">
     </testcase>
-    <testcase classname=" should display advanced settings title and description including the appropriate enabled state using unregistered user" name=" should display advanced settings title and description including the appropriate enabled state using unregistered user" time="0.02">
-    </testcase>
-    <testcase classname=" should mutate update feed advanced settings" name=" should mutate update feed advanced settings" time="0.075">
+    <testcase classname=" should send deletePost mutation" name=" should send deletePost mutation" time="0.014">
     </testcase>
   </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2021-11-03T11:24:16" time="0.244" tests="6">
-    <testcase classname=" should set by default placeholder as label" name=" should set by default placeholder as label" time="0.031">
+  <testsuite name="ReadingHistoryList component" errors="0" failures="0" skipped="0" timestamp="2022-01-06T07:51:14" time="0.333" tests="8">
+    <testcase classname="ReadingHistoryList component should show date section for reads today" name="ReadingHistoryList component should show date section for reads today" time="0.024">
     </testcase>
-    <testcase classname=" should show label when focused" name=" should show label when focused" time="0.022">
+    <testcase classname="ReadingHistoryList component should show date section for reads yesterday" name="ReadingHistoryList component should show date section for reads yesterday" time="0.009">
     </testcase>
-    <testcase classname=" should show label when input is set" name=" should show label when input is set" time="0.005">
+    <testcase classname="ReadingHistoryList component should show date section for reads of the same year" name="ReadingHistoryList component should show date section for reads of the same year" time="0.008">
     </testcase>
-    <testcase classname=" should mark field as invalid" name=" should mark field as invalid" time="0.017">
+    <testcase classname="ReadingHistoryList component should show date section for reads of the different year" name="ReadingHistoryList component should show date section for reads of the different year" time="0.011">
     </testcase>
-    <testcase classname=" should set hint role as alert when invalid" name=" should set hint role as alert when invalid" time="0.016">
+    <testcase classname="ReadingHistoryItem component should show view history post title" name="ReadingHistoryItem component should show view history post title" time="0.003">
     </testcase>
-    <testcase classname=" should show both label and placeholder in compact mode" name=" should show both label and placeholder in compact mode" time="0.009">
+    <testcase classname="ReadingHistoryItem component should show view history post image" name="ReadingHistoryItem component should show view history post image" time="0.004">
     </testcase>
-  </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2021-11-03T11:24:16" time="0.226" tests="6">
-    <testcase classname=" should render children" name=" should render children" time="0.015">
+    <testcase classname="ReadingHistoryItem component should show view history post source image" name="ReadingHistoryItem component should show view history post source image" time="0.004">
     </testcase>
-    <testcase classname=" should render icon" name=" should render icon" time="0.002">
-    </testcase>
-    <testcase classname=" should render right icon" name=" should render right icon" time="0.002">
-    </testcase>
-    <testcase classname=" should render loader and set aria-busy when loading" name=" should render loader and set aria-busy when loading" time="0.018">
-    </testcase>
-    <testcase classname=" should set aria-pressed when pressed is true" name=" should set aria-pressed when pressed is true" time="0.008">
-    </testcase>
-    <testcase classname=" should render the button as an anchor element" name=" should render the button as an anchor element" time="0.012">
+    <testcase classname="ReadingHistoryItem component should call onHide on close button clicked" name="ReadingHistoryItem component should call onHide on close button clicked" time="0.024">
     </testcase>
   </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2021-11-03T11:24:17" time="0.25" tests="11">
-    <testcase classname=" should not show delete button when user is not the author" name=" should not show delete button when user is not the author" time="0.013">
-    </testcase>
-    <testcase classname=" should show delete button when user is the author" name=" should show delete button when user is the author" time="0.004">
-    </testcase>
-    <testcase classname=" should show login on upvote click" name=" should show login on upvote click" time="0.007">
-    </testcase>
-    <testcase classname=" should send upvote mutation" name=" should send upvote mutation" time="0.007">
-    </testcase>
-    <testcase classname=" should send cancel upvote mutation" name=" should send cancel upvote mutation" time="0.008">
-    </testcase>
-    <testcase classname=" should call onComment callback" name=" should call onComment callback" time="0.003">
-    </testcase>
-    <testcase classname=" should call onDelete callback" name=" should call onDelete callback" time="0.003">
-    </testcase>
-    <testcase classname=" should call onEdit callback" name=" should call onEdit callback" time="0.003">
-    </testcase>
-    <testcase classname=" should call onShowUpvotes callback" name=" should call onShowUpvotes callback" time="0.002">
-    </testcase>
-    <testcase classname=" should not show num upvotes when it is zero" name=" should not show num upvotes when it is zero" time="0.003">
-    </testcase>
-    <testcase classname=" should show num upvotes when it is greater than zero" name=" should show num upvotes when it is greater than zero" time="0.004">
-    </testcase>
-  </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2021-11-03T11:24:17" time="0.199" tests="4">
-    <testcase classname=" should show profile image" name=" should show profile image" time="0.016">
-    </testcase>
-    <testcase classname=" should show github provider information" name=" should show github provider information" time="0.007">
-    </testcase>
-    <testcase classname=" should show google provider information" name=" should show google provider information" time="0.003">
-    </testcase>
-    <testcase classname=" should upload the new image profile image" name=" should upload the new image profile image" time="0.012">
-    </testcase>
-  </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2021-11-03T11:24:17" time="0.265" tests="4">
-    <testcase classname=" should render children" name=" should render children" time="0.02">
-    </testcase>
-    <testcase classname=" should trigger on toggle when clicked" name=" should trigger on toggle when clicked" time="0.039">
-    </testcase>
-    <testcase classname=" should set value according to the checked property" name=" should set value according to the checked property" time="0.023">
-    </testcase>
-    <testcase classname=" should add checked class" name=" should add checked class" time="0.053">
-    </testcase>
-  </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2021-11-03T11:24:18" time="0.189" tests="8">
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-01-06T07:51:14" time="0.215" tests="8">
     <testcase classname=" should call on impression as soon as the component is mounted" name=" should call on impression as soon as the component is mounted" time="0.011">
     </testcase>
-    <testcase classname=" should call on click on component left click" name=" should call on click on component left click" time="0.018">
+    <testcase classname=" should call on click on component left click" name=" should call on click on component left click" time="0.023">
     </testcase>
-    <testcase classname=" should call on click on component middle mouse up" name=" should call on click on component middle mouse up" time="0.011">
+    <testcase classname=" should call on click on component middle mouse up" name=" should call on click on component middle mouse up" time="0.018">
     </testcase>
-    <testcase classname=" should show a single image by default" name=" should show a single image by default" time="0.002">
+    <testcase classname=" should show a single image by default" name=" should show a single image by default" time="0.004">
     </testcase>
-    <testcase classname=" should show blurred image for carbon" name=" should show blurred image for carbon" time="0.003">
+    <testcase classname=" should show blurred image for carbon" name=" should show blurred image for carbon" time="0.004">
     </testcase>
-    <testcase classname=" should show promoted text by default" name=" should show promoted text by default" time="0.003">
+    <testcase classname=" should show promoted text by default" name=" should show promoted text by default" time="0.008">
     </testcase>
-    <testcase classname=" should show referral text when available" name=" should show referral text when available" time="0.002">
+    <testcase classname=" should show referral text when available" name=" should show referral text when available" time="0.006">
     </testcase>
-    <testcase classname=" should show pixel images" name=" should show pixel images" time="0.002">
-    </testcase>
-  </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2021-11-03T11:24:18" time="0.186" tests="3">
-    <testcase classname=" should not show clear button when input is empty" name=" should not show clear button when input is empty" time="0.015">
-    </testcase>
-    <testcase classname=" should show clear button when input is filled" name=" should show clear button when input is filled" time="0.003">
-    </testcase>
-    <testcase classname=" should clear input when clicking" name=" should clear input when clicking" time="0.022">
+    <testcase classname=" should show pixel images" name=" should show pixel images" time="0.005">
     </testcase>
   </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2021-11-03T11:24:18" time="0.163" tests="2">
-    <testcase classname=" should close modal on cancel" name=" should close modal on cancel" time="0.017">
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-01-06T07:51:14" time="0.357" tests="4">
+    <testcase classname=" should show blocked tags" name=" should show blocked tags" time="0.043">
     </testcase>
-    <testcase classname=" should send deletePost mutation" name=" should send deletePost mutation" time="0.008">
+    <testcase classname=" should show blocked sources" name=" should show blocked sources" time="0.016">
     </testcase>
-  </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2021-11-03T11:24:19" time="0.182" tests="2">
-    <testcase classname=" should not increment onboarding step when it is done" name=" should not increment onboarding step when it is done" time="0.023">
+    <testcase classname=" should show unblock popup on option click" name=" should show unblock popup on option click" time="0.023">
     </testcase>
-    <testcase classname=" should increment onboarding step on trigger click" name=" should increment onboarding step on trigger click" time="0.005">
+    <testcase classname=" should show unblock popup on source unblock click" name=" should show unblock popup on source unblock click" time="0.014">
     </testcase>
   </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2021-11-03T11:24:19" time="0.212" tests="2">
-    <testcase classname=" should close modal on cancel" name=" should close modal on cancel" time="0.02">
-    </testcase>
-    <testcase classname=" should send banPost mutation" name=" should send banPost mutation" time="0.008">
-    </testcase>
-  </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2021-11-03T11:24:19" time="0.175" tests="3">
-    <testcase classname=" should render title" name=" should render title" time="0.012">
-    </testcase>
-    <testcase classname=" should set aria-pressed when pressed is true" name=" should set aria-pressed when pressed is true" time="0.025">
-    </testcase>
-    <testcase classname=" should render the clickable text as an anchor element" name=" should render the clickable text as an anchor element" time="0.01">
-    </testcase>
-  </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2021-11-03T11:24:20" time="0.174" tests="2">
-    <testcase classname=" should close modal on cancel" name=" should close modal on cancel" time="0.019">
-    </testcase>
-    <testcase classname=" should send deleteComment mutation" name=" should send deleteComment mutation" time="0.008">
-    </testcase>
-  </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2021-11-03T11:24:20" time="0.158" tests="4">
-    <testcase classname=" should create dynamically the progress bar according to the props" name=" should create dynamically the progress bar according to the props" time="0.017">
-    </testcase>
-    <testcase classname=" should add completed bars according to the progress" name=" should add completed bars according to the progress" time="0.003">
-    </testcase>
-    <testcase classname=" should create dynamically the progress bar in the last rank if not completed everything" name=" should create dynamically the progress bar in the last rank if not completed everything" time="0.005">
-    </testcase>
-    <testcase classname=" should create only one bar in the last rank if completed everything" name=" should create only one bar in the last rank if completed everything" time="0.004">
-    </testcase>
-  </testsuite>
-  <testsuite name="postDateFormat" errors="0" failures="0" skipped="0" timestamp="2021-11-03T11:24:20" time="0.133" tests="9">
+  <testsuite name="postDateFormat" errors="0" failures="0" skipped="0" timestamp="2022-01-06T07:51:15" time="0.165" tests="13">
     <testcase classname="postDateFormat should return &quot;Now&quot; when less than a minute" name="postDateFormat should return &quot;Now&quot; when less than a minute" time="0.001">
     </testcase>
     <testcase classname="postDateFormat should return &quot;Today&quot; when less than 24 hours" name="postDateFormat should return &quot;Today&quot; when less than 24 hours" time="0">
@@ -433,7 +367,7 @@
     </testcase>
     <testcase classname="postDateFormat should return formatted date when more than 2 days" name="postDateFormat should return formatted date when more than 2 days" time="0">
     </testcase>
-    <testcase classname="commentDateFormat should return &quot;Now&quot; when less than a minute" name="commentDateFormat should return &quot;Now&quot; when less than a minute" time="0">
+    <testcase classname="commentDateFormat should return &quot;Now&quot; when less than a minute" name="commentDateFormat should return &quot;Now&quot; when less than a minute" time="0.001">
     </testcase>
     <testcase classname="commentDateFormat should return time ago in minutes when less than an hour" name="commentDateFormat should return time ago in minutes when less than an hour" time="0">
     </testcase>
@@ -443,19 +377,143 @@
     </testcase>
     <testcase classname="commentDateFormat should return formatted date when more than one year" name="commentDateFormat should return formatted date when more than one year" time="0.001">
     </testcase>
+    <testcase classname="getReadHistoryDateFormat should return formatted date for the same day" name="getReadHistoryDateFormat should return formatted date for the same day" time="0">
+    </testcase>
+    <testcase classname="getReadHistoryDateFormat should return formatted date for the day before" name="getReadHistoryDateFormat should return formatted date for the day before" time="0">
+    </testcase>
+    <testcase classname="getReadHistoryDateFormat should return formatted date for the same year" name="getReadHistoryDateFormat should return formatted date for the same year" time="0.001">
+    </testcase>
+    <testcase classname="getReadHistoryDateFormat should return formatted date with a different year from today" name="getReadHistoryDateFormat should return formatted date with a different year from today" time="0">
+    </testcase>
   </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2021-11-03T11:24:20" time="0.207" tests="3">
-    <testcase classname=" should create dynamically the progress bar according to the props" name=" should create dynamically the progress bar according to the props" time="0.02">
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-01-06T07:51:15" time="0.309" tests="6">
+    <testcase classname=" should set by default placeholder as label" name=" should set by default placeholder as label" time="0.076">
+    </testcase>
+    <testcase classname=" should show label when focused" name=" should show label when focused" time="0.026">
+    </testcase>
+    <testcase classname=" should show label when input is set" name=" should show label when input is set" time="0.004">
+    </testcase>
+    <testcase classname=" should mark field as invalid" name=" should mark field as invalid" time="0.029">
+    </testcase>
+    <testcase classname=" should set hint role as alert when invalid" name=" should set hint role as alert when invalid" time="0.013">
+    </testcase>
+    <testcase classname=" should show both label and placeholder in compact mode" name=" should show both label and placeholder in compact mode" time="0.015">
+    </testcase>
+  </testsuite>
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-01-06T07:51:16" time="0.231" tests="11">
+    <testcase classname=" should not show delete button when user is not the author" name=" should not show delete button when user is not the author" time="0.018">
+    </testcase>
+    <testcase classname=" should show delete button when user is the author" name=" should show delete button when user is the author" time="0.007">
+    </testcase>
+    <testcase classname=" should show login on upvote click" name=" should show login on upvote click" time="0.009">
+    </testcase>
+    <testcase classname=" should send upvote mutation" name=" should send upvote mutation" time="0.012">
+    </testcase>
+    <testcase classname=" should send cancel upvote mutation" name=" should send cancel upvote mutation" time="0.008">
+    </testcase>
+    <testcase classname=" should call onComment callback" name=" should call onComment callback" time="0.004">
+    </testcase>
+    <testcase classname=" should call onDelete callback" name=" should call onDelete callback" time="0.003">
+    </testcase>
+    <testcase classname=" should call onEdit callback" name=" should call onEdit callback" time="0.004">
+    </testcase>
+    <testcase classname=" should call onShowUpvotes callback" name=" should call onShowUpvotes callback" time="0.006">
+    </testcase>
+    <testcase classname=" should not show num upvotes when it is zero" name=" should not show num upvotes when it is zero" time="0.003">
+    </testcase>
+    <testcase classname=" should show num upvotes when it is greater than zero" name=" should show num upvotes when it is greater than zero" time="0.005">
+    </testcase>
+  </testsuite>
+  <testsuite name="ProfileTooltipContent component" errors="0" failures="0" skipped="0" timestamp="2022-01-06T07:51:16" time="0.201" tests="6">
+    <testcase classname="ProfileTooltipContent component should show username" name="ProfileTooltipContent component should show username" time="0.023">
+    </testcase>
+    <testcase classname="ProfileTooltipContent component should show full name" name="ProfileTooltipContent component should show full name" time="0.011">
+    </testcase>
+    <testcase classname="ProfileTooltipContent component should show bio" name="ProfileTooltipContent component should show bio" time="0.008">
+    </testcase>
+    <testcase classname="ProfileTooltipContent component should show user image" name="ProfileTooltipContent component should show user image" time="0.01">
+    </testcase>
+    <testcase classname="ProfileTooltipContent component should show user rank" name="ProfileTooltipContent component should show user rank" time="0.007">
+    </testcase>
+    <testcase classname="ProfileTooltipContent component should show most read tags" name="ProfileTooltipContent component should show most read tags" time="0.017">
+    </testcase>
+  </testsuite>
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-01-06T07:51:16" time="0.173" tests="3">
+    <testcase classname=" should render title" name=" should render title" time="0.012">
+    </testcase>
+    <testcase classname=" should set aria-pressed when pressed is true" name=" should set aria-pressed when pressed is true" time="0.021">
+    </testcase>
+    <testcase classname=" should render the clickable text as an anchor element" name=" should render the clickable text as an anchor element" time="0.007">
+    </testcase>
+  </testsuite>
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-01-06T07:51:16" time="0.366" tests="2">
+    <testcase classname=" should close modal on cancel" name=" should close modal on cancel" time="0.024">
+    </testcase>
+    <testcase classname=" should send banPost mutation" name=" should send banPost mutation" time="0.016">
+    </testcase>
+  </testsuite>
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-01-06T07:51:17" time="0.262" tests="6">
+    <testcase classname=" should render children" name=" should render children" time="0.015">
+    </testcase>
+    <testcase classname=" should render icon" name=" should render icon" time="0.004">
+    </testcase>
+    <testcase classname=" should render right icon" name=" should render right icon" time="0.002">
+    </testcase>
+    <testcase classname=" should render loader and set aria-busy when loading" name=" should render loader and set aria-busy when loading" time="0.034">
+    </testcase>
+    <testcase classname=" should set aria-pressed when pressed is true" name=" should set aria-pressed when pressed is true" time="0.012">
+    </testcase>
+    <testcase classname=" should render the button as an anchor element" name=" should render the button as an anchor element" time="0.014">
+    </testcase>
+  </testsuite>
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-01-06T07:51:17" time="0.154" tests="2">
+    <testcase classname=" should close modal on cancel" name=" should close modal on cancel" time="0.019">
+    </testcase>
+    <testcase classname=" should send deleteAccount action" name=" should send deleteAccount action" time="0.007">
+    </testcase>
+  </testsuite>
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-01-06T07:51:18" time="0.17" tests="1">
+    <testcase classname=" should send deleteComment mutation" name=" should send deleteComment mutation" time="0.027">
+    </testcase>
+  </testsuite>
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-01-06T07:51:18" time="0.211" tests="4">
+    <testcase classname=" should render children" name=" should render children" time="0.015">
+    </testcase>
+    <testcase classname=" should trigger on toggle when clicked" name=" should trigger on toggle when clicked" time="0.037">
+    </testcase>
+    <testcase classname=" should set value according to the checked property" name=" should set value according to the checked property" time="0.01">
+    </testcase>
+    <testcase classname=" should add checked class" name=" should add checked class" time="0.019">
+    </testcase>
+  </testsuite>
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-01-06T07:51:18" time="0.173" tests="3">
+    <testcase classname=" should not show clear button when input is empty" name=" should not show clear button when input is empty" time="0.018">
+    </testcase>
+    <testcase classname=" should show clear button when input is filled" name=" should show clear button when input is filled" time="0.004">
+    </testcase>
+    <testcase classname=" should clear input when clicking" name=" should clear input when clicking" time="0.024">
+    </testcase>
+  </testsuite>
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-01-06T07:51:19" time="0.166" tests="4">
+    <testcase classname=" should create dynamically the progress bar according to the props" name=" should create dynamically the progress bar according to the props" time="0.015">
+    </testcase>
+    <testcase classname=" should add completed bars according to the progress" name=" should add completed bars according to the progress" time="0.004">
+    </testcase>
+    <testcase classname=" should create dynamically the progress bar in the last rank if not completed everything" name=" should create dynamically the progress bar in the last rank if not completed everything" time="0.005">
+    </testcase>
+    <testcase classname=" should create only one bar in the last rank if completed everything" name=" should create only one bar in the last rank if completed everything" time="0.003">
+    </testcase>
+  </testsuite>
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-01-06T07:51:19" time="0.167" tests="3">
+    <testcase classname=" should create dynamically the progress bar according to the props" name=" should create dynamically the progress bar according to the props" time="0.015">
     </testcase>
     <testcase classname=" should add completed bars according to the progress" name=" should add completed bars according to the progress" time="0.003">
     </testcase>
-    <testcase classname=" should set accessibility attributes" name=" should set accessibility attributes" time="0.056">
+    <testcase classname=" should set accessibility attributes" name=" should set accessibility attributes" time="0.017">
     </testcase>
   </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2021-11-03T11:24:21" time="0.152" tests="2">
-    <testcase classname=" should close modal on cancel" name=" should close modal on cancel" time="0.019">
-    </testcase>
-    <testcase classname=" should confirm comment delete" name=" should confirm comment delete" time="0.005">
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-01-06T07:51:19" time="0.149" tests="1">
+    <testcase classname=" should confirm comment delete" name=" should confirm comment delete" time="0.018">
     </testcase>
   </testsuite>
 </testsuites>
