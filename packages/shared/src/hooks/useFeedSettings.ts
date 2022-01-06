@@ -114,6 +114,12 @@ export default function useFeedSettings(): FeedSettingsReturnType {
       return;
     }
 
+    /*
+      This sets the initial value for the `feedSettings` property
+      The query that fetches the information related to this property doesn't include this mentioned prop if not logged in - results to be `undefined`
+      This also covers to initially load the filters left by the user if they have not finished the registration and came back
+    */
+
     const localFeedSettings = getLocalFeedSettings();
     client.setQueryData<AllTagCategoriesData>(filtersKey, (current) => ({
       ...current,
