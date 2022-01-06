@@ -32,6 +32,7 @@ export type FeedSettingsReturnType = {
 };
 
 let avoidRefresh = false;
+let hasClearedCache = false;
 
 export const LOCAL_FEED_SETTINGS_KEY = 'feedSettings:local';
 
@@ -104,12 +105,12 @@ export default function useFeedSettings(): FeedSettingsReturnType {
   useEffect(() => {
     const isFeedQueryEmpty = isObjectEmpty(feedQuery);
     const isFeedSettingsEmpty = isObjectEmpty(feedSettings);
-    if (!isFeedSettingsEmpty || !loadedUserFromCache || isFeedQueryEmpty) {
-      return;
-    }
-
-    if (user || !shouldShowMyFeed) {
-      storage.removeItem(LOCAL_FEED_SETTINGS_KEY);
+    if (
+      !isFeedSettingsEmpty ||
+      !loadedUserFromCache ||
+      isFeedQueryEmpty ||
+      !shouldShowMyFeed
+    ) {
       return;
     }
 
@@ -118,7 +119,14 @@ export default function useFeedSettings(): FeedSettingsReturnType {
       ...current,
       feedSettings: { ...localFeedSettings },
     }));
-  }, [feedQuery, loadedUserFromCache, user]);
+  }, [feedQuery, feedSettings, loadedUserFromCache, user]);
+
+  useEffect(() => {
+    if (!hasClearedCache && loadedUserFromCache && user) {
+      hasClearedCache = true;
+      storage.removeItem(LOCAL_FEED_SETTINGS_KEY);
+    }
+  }, [loadedUserFromCache, user]);
 
   const hasAnyFilter =
     feedSettings?.includeTags?.length > 0 ||
