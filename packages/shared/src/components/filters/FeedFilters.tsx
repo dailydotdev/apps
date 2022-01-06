@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import React, { ReactElement, useContext, useEffect } from 'react';
 import { useQueryClient } from 'react-query';
 import classNames from 'classnames';
 import sizeN from '../../../macros/sizeN.macro';
@@ -11,8 +11,6 @@ import useFeedSettings, {
   updateLocalFeedSettings,
 } from '../../hooks/useFeedSettings';
 import AlertContext from '../../contexts/AlertContext';
-import { Source } from '../../graphql/sources';
-import UnblockModal from '../modals/UnblockModal';
 import AuthContext from '../../contexts/AuthContext';
 import { Button } from '../buttons/Button';
 import { AllTagCategoriesData } from '../../graphql/feedSettings';
@@ -26,18 +24,11 @@ interface FeedFiltersProps {
   onBack?: () => void;
 }
 
-interface UnblockItem {
-  tag?: string;
-  source?: Source;
-  action?: () => unknown;
-}
-
 export default function FeedFilters({
   isOpen,
   onBack,
 }: FeedFiltersProps): ReactElement {
   const client = useQueryClient();
-  const [unblockItem, setUnblockItem] = useState<UnblockItem>();
   const { user, showLogin } = useContext(AuthContext);
   const { alerts, updateAlerts } = useContext(AlertContext);
   const { hasAnyFilter } = useFeedSettings();
@@ -89,15 +80,7 @@ export default function FeedFilters({
           </Button>
         )}
       </div>
-      <FilterMenu onUnblockItem={setUnblockItem} />
-      {unblockItem && (
-        <UnblockModal
-          item={unblockItem}
-          isOpen={!!unblockItem}
-          onConfirm={unblockItem.action}
-          onRequestClose={() => setUnblockItem(null)}
-        />
-      )}
+      <FilterMenu />
     </aside>
   );
 }
