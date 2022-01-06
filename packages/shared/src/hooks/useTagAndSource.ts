@@ -41,8 +41,18 @@ export default function useTagAndSource({
   const { alerts, updateAlerts } = useContext(AlertContext);
   const { user, showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
-  const shouldShowLogin = (requireLogin?: boolean) =>
-    (!shouldShowMyFeed && !user) || (requireLogin && !user);
+  const shouldShowLogin = (requireLogin?: boolean) => {
+    if (user) {
+      return false;
+    }
+
+    if (!shouldShowMyFeed) {
+      return true;
+    }
+
+    return requireLogin;
+  };
+  // (!shouldShowMyFeed && !user) || (requireLogin && !user);
   const {
     followTags,
     unfollowTags,
