@@ -18,10 +18,6 @@ export default function MyFeedAlert({
   alerts,
   hideAlert,
 }: MyFeedAlertProps): ReactElement {
-  if (alerts?.filter || (!alerts?.filter && alerts?.myFeed === null)) {
-    return <></>;
-  }
-
   return (
     <AlertContainer>
       <Pointer color={PointerColor.Success} />
