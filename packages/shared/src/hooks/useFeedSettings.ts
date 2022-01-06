@@ -121,7 +121,6 @@ export default function useFeedSettings(): FeedSettingsReturnType {
       feedSettings: { ...localFeedSettings },
     };
     client.setQueryData<AllTagCategoriesData>(filtersKey, updatedFeedSettings);
-    updateLocalFeedSettings(updatedFeedSettings.feedSettings);
   }, [feedQuery, loadedUserFromCache, user]);
 
   const hasAnyFilter =
