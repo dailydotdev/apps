@@ -47,9 +47,13 @@ type FeedQueryProps = {
   variables?: Record<string, unknown>;
 };
 
-const getPropsByFeed = (
-  shouldShowMyFeed: boolean,
-): Record<string, FeedQueryProps> => {
+interface PropsByFeedOptionalParams {
+  shouldShowMyFeed?: boolean;
+}
+
+const getPropsByFeed = ({
+  shouldShowMyFeed = false,
+}: PropsByFeedOptionalParams = {}): Record<string, FeedQueryProps> => {
   const myFeed = shouldShowMyFeed
     ? {
         'my-feed': {
@@ -139,7 +143,7 @@ export default function MainFeedLayout({
     10,
   );
   const feedName = feedNameProp === 'default' ? defaultFeed : feedNameProp;
-  const propsByFeed = getPropsByFeed(shouldShowMyFeed);
+  const propsByFeed = getPropsByFeed({ shouldShowMyFeed });
 
   useEffect(() => {
     if (defaultFeed !== null && feedName !== null && feedName !== defaultFeed) {
