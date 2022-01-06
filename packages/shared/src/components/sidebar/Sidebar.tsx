@@ -40,6 +40,7 @@ import useHideMobileSidebar from '../../hooks/useHideMobileSidebar';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import MyFeedButton from './MyFeedButton';
 import usePersistentContext from '../../hooks/usePersistentContext';
+import MyFeedAlert from './MyFeedAlert';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { AlertColor, AlertDot } from '../AlertDot';
 
@@ -133,7 +134,7 @@ export default function Sidebar({
   const [defaultFeed] = usePersistentContext('defaultFeed', 'popular');
   const activePage =
     activePageProp === '/' ? `/${defaultFeed}` : activePageProp;
-  const { alerts } = useContext(AlertContext);
+  const { alerts, updateAlerts } = useContext(AlertContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const {
     isLoaded,
@@ -152,6 +153,10 @@ export default function Sidebar({
     state: openMobileSidebar,
     action: setOpenMobileSidebar,
   });
+
+  const hideMyFeedAlert = () => {
+    updateAlerts({ myFeed: null });
+  };
 
   const trackAndToggleSidebarExpanded = () => {
     trackEvent({
@@ -240,6 +245,9 @@ export default function Sidebar({
     return <></>;
   }
 
+  const shouldHideMyFeedAlert =
+    alerts?.filter || (!alerts?.filter && !alerts?.myFeed);
+
   return (
     <>
       {openMobileSidebar && sidebarRendered === false && (
@@ -275,6 +283,9 @@ export default function Sidebar({
                 flags={flags}
                 action={openFeedFilters}
               />
+            )}
+            {sidebarExpanded && !shouldHideMyFeedAlert && (
+              <MyFeedAlert alerts={alerts} hideAlert={hideMyFeedAlert} />
             )}
             <RenderSection
               {...defaultRenderSectionProps}
