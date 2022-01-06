@@ -12,12 +12,12 @@ import {
   ProfileHeading,
 } from '@dailydotdev/shared/src/components/utilities';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
-import MainLayout from '../components/layouts/MainLayout';
 import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import {
   Features,
   getFeatureValue,
 } from '@dailydotdev/shared/src/lib/featureManagement';
+import MainLayout from '../components/layouts/MainLayout';
 
 export default function Register(): ReactElement {
   const { user, logout } = useContext(AuthContext);
