@@ -35,6 +35,7 @@ export default function MyFeedAlert({
         )}
       </AlertCopy>
       <Button
+        data-testid="alert-close"
         onClick={hideAlert}
         icon={<XIcon />}
         buttonSize="xsmall"

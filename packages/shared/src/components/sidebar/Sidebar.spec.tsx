@@ -229,6 +229,35 @@ it('should show the created message if the user added filters', async () => {
   expect(section).toBeInTheDocument();
 });
 
+it('should remove the my feed alert if the user clicks the cross', async () => {
+  let mutationCalled = false;
+  mockGraphQL({
+    request: {
+      query: UPDATE_ALERTS,
+      variables: { data: { myFeed: null } },
+    },
+    result: () => {
+      mutationCalled = true;
+      return { data: { _: true } };
+    },
+  });
+  renderComponent({ filter: false, myFeed: 'created' });
+
+  await act(async () => {
+    const closeButton = await screen.findByTestId('alert-close');
+    closeButton.click();
+  });
+  await waitFor(async () => {
+    const data = await client.getQueryData(
+      getFeedSettingsQueryKey(defaultUser),
+    );
+    expect(data).toBeTruthy();
+  });
+
+  expect(updateAlerts).toBeCalled();
+  expect(mutationCalled).toBeTruthy();
+});
+
 it('should not show the my feed alert if the user removed it', async () => {
   renderComponent({ filter: false, myFeed: null });
   await waitFor(() =>
