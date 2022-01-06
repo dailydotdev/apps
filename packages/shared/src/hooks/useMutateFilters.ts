@@ -1,4 +1,3 @@
-import { useContext } from 'react';
 import { QueryClient, useMutation, useQueryClient } from 'react-query';
 import request from 'graphql-request';
 import cloneDeep from 'lodash.clonedeep';
@@ -13,12 +12,7 @@ import {
   UPDATE_ADVANCED_SETTINGS_FILTERS_MUTATION,
 } from '../graphql/feedSettings';
 import { Source } from '../graphql/sources';
-import {
-  getFeedSettingsQueryKey,
-  updateLocalFeedSettings,
-} from './useFeedSettings';
-import FeaturesContext from '../contexts/FeaturesContext';
-import { Features, isFeaturedEnabled } from '../lib/featureManagement';
+import { getFeedSettingsQueryKey } from './useFeedSettings';
 
 export const getSearchTagsQueryKey = (query: string): string[] => [
   'searchTags',
@@ -62,11 +56,7 @@ async function updateQueryData(
   queryClient: QueryClient,
   newSettings: FeedSettings,
   keys: string[][],
-  storeFiltersLocally: boolean,
 ): Promise<void> {
-  if (storeFiltersLocally) {
-    updateLocalFeedSettings(newSettings);
-  }
   await Promise.all(
     keys.map(async (key) => {
       await queryClient.cancelQueries(key);
@@ -92,20 +82,14 @@ const onMutateAdvancedSettings = async (
   queryClient: QueryClient,
   manipulate: ManipulateAdvancedSettingsFunc,
   user: LoggedUser,
-  storeFiltersLocally: boolean,
 ): Promise<() => Promise<void>> => {
   const queryKey = getFeedSettingsQueryKey(user);
   const feedSettings = queryClient.getQueryData<FeedSettingsData>(queryKey);
   const newData = manipulate(feedSettings.feedSettings, advancedSettings);
   const keys = [queryKey, queryKey];
-  await updateQueryData(queryClient, newData, keys, storeFiltersLocally);
+  await updateQueryData(queryClient, newData, keys);
   return async () => {
-    await updateQueryData(
-      queryClient,
-      feedSettings.feedSettings,
-      keys,
-      storeFiltersLocally,
-    );
+    await updateQueryData(queryClient, feedSettings.feedSettings, keys);
   };
 };
 
@@ -119,20 +103,14 @@ const onMutateTagsSettings = async (
   queryClient: QueryClient,
   manipulate: ManipulateTagFunc,
   user: LoggedUser,
-  storeFiltersLocally: boolean,
 ): Promise<() => Promise<void>> => {
   const queryKey = getFeedSettingsQueryKey(user);
   const feedSettings = queryClient.getQueryData<FeedSettingsData>(queryKey);
   const newData = manipulate(feedSettings.feedSettings, tags);
   const keys = [queryKey, getFeedSettingsQueryKey(user)];
-  await updateQueryData(queryClient, newData, keys, storeFiltersLocally);
+  await updateQueryData(queryClient, newData, keys);
   return async () => {
-    await updateQueryData(
-      queryClient,
-      feedSettings.feedSettings,
-      keys,
-      storeFiltersLocally,
-    );
+    await updateQueryData(queryClient, feedSettings.feedSettings, keys);
   };
 };
 
@@ -146,28 +124,19 @@ const onMutateSourcesSettings = async (
   queryClient: QueryClient,
   manipulate: ManipulateSourceFunc,
   user: LoggedUser,
-  storeFiltersLocally: boolean,
 ): Promise<() => Promise<void>> => {
   const queryKey = getFeedSettingsQueryKey(user);
   const feedSettings = queryClient.getQueryData<FeedSettingsData>(queryKey);
   const newData = manipulate(feedSettings.feedSettings, source);
   const keys = [queryKey, getFeedSettingsQueryKey(user)];
-  await updateQueryData(queryClient, newData, keys, storeFiltersLocally);
+  await updateQueryData(queryClient, newData, keys);
   return async () => {
-    await updateQueryData(
-      queryClient,
-      feedSettings.feedSettings,
-      keys,
-      storeFiltersLocally,
-    );
+    await updateQueryData(queryClient, feedSettings.feedSettings, keys);
   };
 };
 
 export default function useMutateFilters(user?: LoggedUser): ReturnType {
   const queryClient = useQueryClient();
-  const { flags } = useContext(FeaturesContext);
-  const shouldShowMyFeed = isFeaturedEnabled(Features.MyFeedOn, flags);
-  const shouldStoreFiltersLocally = shouldShowMyFeed && !user;
 
   const onAdvancedSettingsUpdate = ({
     advancedSettings,
@@ -188,7 +157,6 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
         return newData;
       },
       user,
-      shouldStoreFiltersLocally,
     );
 
   const { mutateAsync: updateAdvancedSettingsRemote } = useMutation<
@@ -217,7 +185,6 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
         return newData;
       },
       user,
-      shouldStoreFiltersLocally,
     );
 
   const { mutateAsync: followTagsRemote } = useMutation<
@@ -254,7 +221,6 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
         return newData;
       },
       user,
-      shouldStoreFiltersLocally,
     );
 
   const { mutateAsync: blockTagRemote } = useMutation<
@@ -287,7 +253,6 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
         return newData;
       },
       user,
-      shouldStoreFiltersLocally,
     );
 
   const { mutateAsync: unfollowTagsRemote } = useMutation<
@@ -320,7 +285,6 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
         return newData;
       },
       user,
-      shouldStoreFiltersLocally,
     );
 
   const { mutateAsync: unblockTagRemote } = useMutation<
@@ -356,7 +320,6 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
         return newData;
       },
       user,
-      shouldStoreFiltersLocally,
     );
 
   const { mutateAsync: followSourceRemote } = useMutation<
@@ -387,7 +350,6 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
         return newData;
       },
       user,
-      shouldStoreFiltersLocally,
     );
 
   const { mutateAsync: unfollowSourceRemote } = useMutation<
