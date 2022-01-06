@@ -3,28 +3,32 @@ import { waitFor, render, RenderResult, screen } from '@testing-library/react';
 import ProfileButton, { ProfileButtonProps } from './ProfileButton';
 import AuthContext from '../../contexts/AuthContext';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
+import FeaturesContext from '../../contexts/FeaturesContext';
 
 const onShowDndClick = jest.fn();
 const logout = jest.fn();
 
 const renderComponent = (props: ProfileButtonProps): RenderResult => {
   return render(
-    <AuthContext.Provider
-      value={{
-        user: defaultUser,
-        shouldShowLogin: false,
-        showLogin: jest.fn(),
-        logout,
-        updateUser: jest.fn(),
-        tokenRefreshed: true,
-        getRedirectUri: jest.fn(),
-        closeLogin: jest.fn(),
-        trackingId: '21',
-        loginState: null,
-      }}
-    >
-      <ProfileButton {...props} />
-    </AuthContext.Provider>,
+    <FeaturesContext.Provider value={{ flags: {} }}>
+      <AuthContext.Provider
+        value={{
+          user: defaultUser,
+          shouldShowLogin: false,
+          showLogin: jest.fn(),
+          logout,
+          updateUser: jest.fn(),
+          tokenRefreshed: true,
+          getRedirectUri: jest.fn(),
+          closeLogin: jest.fn(),
+          trackingId: '21',
+          loginState: null,
+        }}
+      >
+        <ProfileButton {...props} />
+      </AuthContext.Provider>
+      ,
+    </FeaturesContext.Provider>,
   );
 };
 
