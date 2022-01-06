@@ -1,8 +1,8 @@
 import React, { ReactElement, useContext, useEffect } from 'react';
 import classNames from 'classnames';
+import { IFlags } from 'flagsmith';
 import PlusIcon from '../../../icons/plus.svg';
 import FilterIcon from '../../../icons/outline/filter.svg';
-import { IFlags } from 'flagsmith';
 import { Button } from '../buttons/Button';
 import { Features, getFeatureValue } from '../../lib/featureManagement';
 import { ButtonOrLink, ItemInner, NavItem, SidebarMenuItem } from './common';

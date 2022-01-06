@@ -69,7 +69,6 @@ export default function Feed<T>({
   onEmptyFeed,
   emptyScreen,
 }: FeedProps<T>): ReactElement {
-  console.log('feedname: ', feedName);
   const { flags } = useContext(FeaturesContext);
   const displayPublicationDate = !parseInt(
     getFeatureValue(Features.HidePublicationDate, flags),
