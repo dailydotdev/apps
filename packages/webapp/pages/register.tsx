@@ -13,12 +13,22 @@ import {
 } from '@dailydotdev/shared/src/components/utilities';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import MainLayout from '../components/layouts/MainLayout';
+import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
+import {
+  Features,
+  getFeatureValue,
+} from '@dailydotdev/shared/src/lib/featureManagement';
 
 export default function Register(): ReactElement {
   const { user, logout } = useContext(AuthContext);
   const router = useRouter();
   const [disableSubmit, setDisableSubmit] = useState<boolean>(true);
   const { trackEvent } = useContext(AnalyticsContext);
+  const { flags } = useContext(FeaturesContext);
+
+  const getSignupModalFeatureValue = (featureFlag: Features) => {
+    return getFeatureValue(featureFlag, flags);
+  };
 
   useEffect(() => {
     trackEvent({
@@ -40,11 +50,16 @@ export default function Register(): ReactElement {
       <ResponsivePageContainer className="mx-auto">
         {user && (
           <>
-            <ProfileHeading>Set up your profile</ProfileHeading>
+            <ProfileHeading>
+              {getSignupModalFeatureValue(Features.SignupModalTitleCopy)}
+            </ProfileHeading>
             <h2 className="self-start my-2 text-theme-label-tertiary typo-callout">
               Please fill in your details below
             </h2>
-            <EditImageWithJoinedDate user={user} />
+            {!parseInt(
+              getSignupModalFeatureValue(Features.HideSignupModalProfileImage),
+              10,
+            ) && <EditImageWithJoinedDate user={user} />}
             <ProfileForm
               id="profileForm"
               setDisableSubmit={setDisableSubmit}
@@ -58,14 +73,18 @@ export default function Register(): ReactElement {
                 disabled={disableSubmit}
                 form="profileForm"
               >
-                Finish
+                {getSignupModalFeatureValue(
+                  Features.SignupModalSubmitButtonCopy,
+                )}
               </Button>
               <Button
                 className="ml-4 btn-tertiary"
                 type="button"
                 onClick={logout}
               >
-                Logout
+                {getSignupModalFeatureValue(
+                  Features.SignupModalLogoutButtonCopy,
+                )}
               </Button>
             </div>
           </>
