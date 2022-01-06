@@ -1,5 +1,6 @@
 import { MutableRefObject, useMemo } from 'react';
 import { AnalyticsEvent, PushToQueueFunc } from './useAnalyticsQueue';
+import { getCurrentLifecycleState } from '../../lib/lifecycle';
 
 export type AnalyticsContextData = {
   trackEvent: (event: AnalyticsEvent) => void;
@@ -19,6 +20,7 @@ const getGlobalSharedProps = (): Partial<AnalyticsEvent> => ({
   page_referrer: document.referrer,
   window_height: window.innerHeight,
   window_width: window.innerWidth,
+  page_state: getCurrentLifecycleState(),
 });
 
 const generateEvent = (
@@ -60,6 +62,9 @@ export default function useAnalyticsContextData(
           durationEventsQueue.current.delete(id);
           event.event_duration =
             now.getTime() - event.event_timestamp.getTime();
+          if (window.scrollY > 0 && event.event_name !== 'page inactive') {
+            event.page_state = 'active';
+          }
           pushToQueue([event]);
         }
       },
