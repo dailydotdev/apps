@@ -52,21 +52,25 @@ export const getLocalFeedSettings = (): FeedSettings => {
   }
 };
 
+const isObjectEmpty = (obj: unknown) => {
+  if (typeof obj === 'undefined' || obj === null) {
+    return true;
+  }
+
+  return Object.keys(obj).length === 0;
+};
+
 const getQueryFeedSettings = (
-  response: AllTagCategoriesData,
-  local: AllTagCategoriesData,
+  { feedSettings: remoteSettings }: AllTagCategoriesData,
+  { feedSettings: localSettings }: AllTagCategoriesData,
   isLoggedIn: boolean,
   shouldShowMyFeed: boolean,
 ): FeedSettings => {
-  if (!shouldShowMyFeed) {
-    return response.feedSettings;
+  if (!shouldShowMyFeed || isLoggedIn) {
+    return remoteSettings;
   }
 
-  if (!response.feedSettings && !local.feedSettings) {
-    return getEmptyFeedSettings();
-  }
-
-  return isLoggedIn ? response.feedSettings : local.feedSettings;
+  return isObjectEmpty(localSettings) ? getEmptyFeedSettings() : localSettings;
 };
 
 export default function useFeedSettings(): FeedSettingsReturnType {

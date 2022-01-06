@@ -322,9 +322,22 @@ it('should utilize query cache to unfollow a tag when not logged in', async () =
   expect(button).toBeVisible();
 
   await act(async () => {
-    const webdev = await screen.findByText(`#${unfollow}`);
-    expect(webdev).toBeVisible();
-    fireEvent.click(webdev);
+    const react = await screen.findByText(`#${unfollow}`);
+    expect(react).toBeVisible();
+    fireEvent.click(react);
+  });
+
+  const { feedSettings: initialSettings } = client.getQueryData(
+    getFeedSettingsQueryKey(),
+  ) as AllTagCategoriesData;
+  expect(
+    initialSettings.includeTags.find((tag) => tag === unfollow),
+  ).toBeTruthy();
+
+  await act(async () => {
+    const react = await screen.findByText(`#${unfollow}`);
+    expect(react).toBeVisible();
+    fireEvent.click(react);
   });
 
   const { feedSettings } = client.getQueryData(
