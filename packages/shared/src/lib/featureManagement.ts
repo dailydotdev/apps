@@ -67,4 +67,4 @@ export const getFeatureValue = (
 };
 
 export const isFeaturedEnabled = (key: Features, flags: IFlags): boolean =>
-  flags[key]?.enabled;
+  flags[key?.id]?.enabled;
