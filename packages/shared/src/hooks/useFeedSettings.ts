@@ -32,7 +32,6 @@ export type FeedSettingsReturnType = {
 };
 
 let avoidRefresh = false;
-let hasClearedCache = false;
 
 export const LOCAL_FEED_SETTINGS_KEY = 'feedSettings:local';
 
@@ -53,17 +52,25 @@ export const getLocalFeedSettings = (): FeedSettings => {
   }
 };
 
-const isObjectEmpty = (obj: unknown) => {
-  if (typeof obj === 'undefined' || obj === null) {
-    return true;
+const getQueryFeedSettings = (
+  response: AllTagCategoriesData,
+  local: AllTagCategoriesData,
+  isLoggedIn: boolean,
+  shouldShowMyFeed: boolean,
+): FeedSettings => {
+  if (!shouldShowMyFeed) {
+    return response.feedSettings;
   }
 
-  return Object.keys(obj).length === 0;
+  if (!response.feedSettings && !local.feedSettings) {
+    return getEmptyFeedSettings();
+  }
+
+  return isLoggedIn ? response.feedSettings : local.feedSettings;
 };
 
 export default function useFeedSettings(): FeedSettingsReturnType {
-  const { user, loadedUserFromCache } = useContext(AuthContext);
-  const client = useQueryClient();
+  const { user } = useContext(AuthContext);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
   const filtersKey = getFeedSettingsQueryKey(user);
   const queryClient = useQueryClient();
@@ -76,11 +83,20 @@ export default function useFeedSettings(): FeedSettingsReturnType {
   const { data: feedQuery = {}, isLoading } = useQuery<AllTagCategoriesData>(
     filtersKey,
     async () => {
-      const req = await request(`${apiUrl}/graphql`, FEED_SETTINGS_QUERY, {
-        loggedIn: !!user?.id,
-      });
+      const req = await request<AllTagCategoriesData>(
+        `${apiUrl}/graphql`,
+        FEED_SETTINGS_QUERY,
+        { loggedIn: !!user?.id },
+      );
 
-      return { ...feedQuery, ...req };
+      const feedSettings = getQueryFeedSettings(
+        req,
+        feedQuery,
+        !!user,
+        shouldShowMyFeed,
+      );
+
+      return { ...req, feedSettings };
     },
   );
 
@@ -101,38 +117,6 @@ export default function useFeedSettings(): FeedSettingsReturnType {
       queryClient.invalidateQueries(generateQueryKey('recent', user));
     }, 100);
   }, [tagsCategories, feedSettings, avoidRefresh]);
-
-  useEffect(() => {
-    const isFeedQueryEmpty = isObjectEmpty(feedQuery);
-    const isFeedSettingsEmpty = isObjectEmpty(feedSettings);
-    if (
-      !isFeedSettingsEmpty ||
-      !loadedUserFromCache ||
-      isFeedQueryEmpty ||
-      !shouldShowMyFeed
-    ) {
-      return;
-    }
-
-    /*
-      This sets the initial value for the `feedSettings` property
-      The query that fetches the information related to this property doesn't include this mentioned prop if not logged in - results to be `undefined`
-      This also covers to initially load the filters left by the user if they have not finished the registration and came back
-    */
-
-    const localFeedSettings = getLocalFeedSettings();
-    client.setQueryData<AllTagCategoriesData>(filtersKey, (current) => ({
-      ...current,
-      feedSettings: { ...localFeedSettings },
-    }));
-  }, [feedQuery, feedSettings, loadedUserFromCache, user]);
-
-  useEffect(() => {
-    if (!hasClearedCache && loadedUserFromCache && user) {
-      hasClearedCache = true;
-      storage.removeItem(LOCAL_FEED_SETTINGS_KEY);
-    }
-  }, [loadedUserFromCache, user]);
 
   const hasAnyFilter =
     feedSettings?.includeTags?.length > 0 ||
