@@ -26,7 +26,7 @@ export default function MyFeedAlert({
         {alerts.myFeed === 'migrated' && (
           <a
             className="hover:underline text-theme-label-link"
-            href=""
+            href="https://docs.daily.dev/docs/key-features/default-feeds#my-feed"
             target="_blank"
             rel="noopener"
           >
