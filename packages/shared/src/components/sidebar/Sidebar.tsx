@@ -187,7 +187,8 @@ export default function Sidebar({
       hideOnMobile: true,
     },
   ];
-  if (shouldShowMyFeed) {
+
+  if (!shouldShowMyFeed) {
     discoverMenuItems.unshift({
       icon: <ListIcon Icon={FilterIcon} />,
       alert: alerts.filter && (
