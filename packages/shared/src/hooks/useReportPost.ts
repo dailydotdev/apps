@@ -42,23 +42,23 @@ export default function useReportPost(): UseReportPostRet {
   const reportPost = async (params: ReportPostProps) => {
     if (!user) {
       showLogin('report post');
-      return { success: false };
+      return { successful: false };
     }
 
     await reportPostAsync(params);
 
-    return { success: true };
+    return { successful: true };
   };
 
   const hidePost = async (id: string) => {
     if (!user) {
       showLogin('hide post');
-      return { success: false };
+      return { successful: false };
     }
 
     await hidePostAsync(id);
 
-    return { success: true };
+    return { successful: true };
   };
 
   return { reportPost, hidePost };
