@@ -188,6 +188,7 @@ export default function MainFeedLayout({
   const feedProps = useMemo<FeedProps<unknown>>(() => {
     if (isSearchOn && searchQuery) {
       return {
+        feedName: 'search',
         feedQueryKey: generateQueryKey('search', user, searchQuery),
         query: SEARCH_POSTS_QUERY,
         variables: { query: searchQuery },
@@ -201,6 +202,7 @@ export default function MainFeedLayout({
       ? { ...query.variables, period: periods[selectedPeriod].value }
       : query.variables;
     return {
+      feedName,
       feedQueryKey: generateQueryKey(
         feedName,
         user,
