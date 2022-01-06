@@ -7,6 +7,7 @@ import {
   findAllByRole,
   screen,
   fireEvent,
+  act,
 } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
@@ -25,10 +26,7 @@ import {
   TagCategory,
 } from '../../graphql/feedSettings';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
-import {
-  getFeedSettingsQueryKey,
-  getLocalFeedSettings,
-} from '../../hooks/useFeedSettings';
+import { getFeedSettingsQueryKey } from '../../hooks/useFeedSettings';
 import { AlertContextProvider } from '../../contexts/AlertContext';
 import { Alerts, UPDATE_ALERTS } from '../../graphql/alerts';
 import FeaturesContext from '../../contexts/FeaturesContext';
@@ -274,7 +272,7 @@ it('should clear all tags on click', async () => {
   await waitFor(() => expect(mutationCalled).toBeTruthy());
 });
 
-it('should utilize local storage to follow a tag when not logged in', async () => {
+it('should utilize query cache to follow a tag when not logged in', async () => {
   loggedUser = null;
   renderComponent([createAllTagCategoriesMock(null)]);
   await waitForNock();
@@ -287,15 +285,19 @@ it('should utilize local storage to follow a tag when not logged in', async () =
   const button = await screen.findByTestId('tagCategoryTags');
   expect(button).toBeVisible();
 
-  const webdev = await screen.findByText('#webdev');
-  expect(webdev).toBeVisible();
-  fireEvent.click(webdev);
+  await act(async () => {
+    const webdev = await screen.findByText('#webdev');
+    expect(webdev).toBeVisible();
+    fireEvent.click(webdev);
+  });
 
-  const feedSettings = getLocalFeedSettings();
+  const { feedSettings } = client.getQueryData(
+    getFeedSettingsQueryKey(),
+  ) as AllTagCategoriesData;
   expect(feedSettings.includeTags.length).toEqual(1);
 });
 
-it('should utilize local storage to unfollow a tag when not logged in', async () => {
+it('should utilize query cache to unfollow a tag when not logged in', async () => {
   loggedUser = null;
   const unfollow = 'react';
   renderComponent();
@@ -309,10 +311,14 @@ it('should utilize local storage to unfollow a tag when not logged in', async ()
   const button = await screen.findByTestId('tagCategoryTags');
   expect(button).toBeVisible();
 
-  const webdev = await screen.findByText(`#${unfollow}`);
-  expect(webdev).toBeVisible();
-  fireEvent.click(webdev);
+  await act(async () => {
+    const webdev = await screen.findByText(`#${unfollow}`);
+    expect(webdev).toBeVisible();
+    fireEvent.click(webdev);
+  });
 
-  const feedSettings = getLocalFeedSettings();
+  const { feedSettings } = client.getQueryData(
+    getFeedSettingsQueryKey(),
+  ) as AllTagCategoriesData;
   expect(feedSettings.includeTags.find((tag) => tag === unfollow)).toBeFalsy();
 });
