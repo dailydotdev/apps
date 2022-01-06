@@ -1,5 +1,8 @@
 import { FeedData } from '@dailydotdev/shared/src/graphql/posts';
-import { ANONYMOUS_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
+import {
+  ANONYMOUS_FEED_QUERY,
+  FEED_QUERY,
+} from '@dailydotdev/shared/src/graphql/feed';
 import nock from 'nock';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React from 'react';
@@ -97,9 +100,9 @@ const renderComponent = (
   );
 };
 
-it('should request anonymous feed', async () => {
+it('should request user feed', async () => {
   renderComponent([
-    createFeedMock(defaultFeedPage, ANONYMOUS_FEED_QUERY, {
+    createFeedMock(defaultFeedPage, FEED_QUERY, {
       first: 7,
       loggedIn: true,
       unreadOnly: false,

@@ -23,7 +23,11 @@ import {
 } from '../graphql/feed';
 import FeaturesContext from '../contexts/FeaturesContext';
 import { generateQueryKey } from '../lib/query';
-import { Features, getFeatureValue } from '../lib/featureManagement';
+import {
+  Features,
+  getFeatureValue,
+  isFeaturedEnabled,
+} from '../lib/featureManagement';
 import classed from '../lib/classed';
 import usePersistentContext from '../hooks/usePersistentContext';
 
@@ -43,30 +47,40 @@ type FeedQueryProps = {
   variables?: Record<string, unknown>;
 };
 
-const propsByFeed: Record<string, FeedQueryProps> = {
-  'my-feed': {
-    query: ANONYMOUS_FEED_QUERY,
-    queryIfLogged: FEED_QUERY,
-  },
-  popular: {
-    query: ANONYMOUS_FEED_QUERY,
-    queryIfLogged: ANONYMOUS_FEED_QUERY,
-  },
-  search: {
-    query: ANONYMOUS_FEED_QUERY,
-    queryIfLogged: FEED_QUERY,
-  },
-  upvoted: {
-    query: MOST_UPVOTED_FEED_QUERY,
-  },
-  discussed: {
-    query: MOST_DISCUSSED_FEED_QUERY,
-  },
-  recent: {
-    query: ANONYMOUS_FEED_QUERY,
-    queryIfLogged: FEED_QUERY,
-    variables: { ranking: 'TIME' },
-  },
+const getPropsByFeed = (
+  shouldShowMyFeed: boolean,
+): Record<string, FeedQueryProps> => {
+  const myFeed = shouldShowMyFeed
+    ? {
+        'my-feed': {
+          query: ANONYMOUS_FEED_QUERY,
+          queryIfLogged: FEED_QUERY,
+        },
+      }
+    : {};
+
+  return {
+    ...myFeed,
+    popular: {
+      query: ANONYMOUS_FEED_QUERY,
+      queryIfLogged: shouldShowMyFeed ? ANONYMOUS_FEED_QUERY : FEED_QUERY,
+    },
+    search: {
+      query: ANONYMOUS_FEED_QUERY,
+      queryIfLogged: FEED_QUERY,
+    },
+    upvoted: {
+      query: MOST_UPVOTED_FEED_QUERY,
+    },
+    discussed: {
+      query: MOST_DISCUSSED_FEED_QUERY,
+    },
+    recent: {
+      query: ANONYMOUS_FEED_QUERY,
+      queryIfLogged: FEED_QUERY,
+      variables: { ranking: 'TIME' },
+    },
+  };
 };
 
 const LayoutHeader = classed(
@@ -119,11 +133,13 @@ export default function MainFeedLayout({
   );
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { flags } = useContext(FeaturesContext);
+  const shouldShowMyFeed = isFeaturedEnabled(Features.MyFeedOn, flags);
   const feedVersion = parseInt(
     getFeatureValue(Features.FeedVersion, flags),
     10,
   );
   const feedName = feedNameProp === 'default' ? defaultFeed : feedNameProp;
+  const propsByFeed = getPropsByFeed(shouldShowMyFeed);
 
   useEffect(() => {
     if (defaultFeed !== null && feedName !== null && feedName !== defaultFeed) {
