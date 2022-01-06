@@ -23,7 +23,11 @@ import {
 } from '../graphql/feed';
 import FeaturesContext from '../contexts/FeaturesContext';
 import { generateQueryKey } from '../lib/query';
-import { Features, getFeatureValue } from '../lib/featureManagement';
+import {
+  Features,
+  getFeatureValue,
+  isFeaturedEnabled,
+} from '../lib/featureManagement';
 import classed from '../lib/classed';
 import usePersistentContext from '../hooks/usePersistentContext';
 
@@ -43,32 +47,59 @@ type FeedQueryProps = {
   variables?: Record<string, unknown>;
 };
 
-const propsByFeed: Record<string, FeedQueryProps> = {
-  popular: {
-    query: ANONYMOUS_FEED_QUERY,
-    queryIfLogged: FEED_QUERY,
-  },
-  search: {
-    query: ANONYMOUS_FEED_QUERY,
-    queryIfLogged: FEED_QUERY,
-  },
-  upvoted: {
-    query: MOST_UPVOTED_FEED_QUERY,
-  },
-  discussed: {
-    query: MOST_DISCUSSED_FEED_QUERY,
-  },
-  recent: {
-    query: ANONYMOUS_FEED_QUERY,
-    queryIfLogged: FEED_QUERY,
-    variables: { ranking: 'TIME' },
-  },
+interface FeedOptionalParams {
+  shouldShowMyFeed?: boolean;
+}
+
+const getPropsByFeed = ({
+  shouldShowMyFeed = false,
+}: FeedOptionalParams = {}): Record<string, FeedQueryProps> => {
+  return {
+    'my-feed': {
+      query: ANONYMOUS_FEED_QUERY,
+      queryIfLogged: FEED_QUERY,
+    },
+    popular: {
+      query: ANONYMOUS_FEED_QUERY,
+      queryIfLogged: shouldShowMyFeed ? ANONYMOUS_FEED_QUERY : FEED_QUERY,
+    },
+    search: {
+      query: ANONYMOUS_FEED_QUERY,
+      queryIfLogged: FEED_QUERY,
+    },
+    upvoted: {
+      query: MOST_UPVOTED_FEED_QUERY,
+    },
+    discussed: {
+      query: MOST_DISCUSSED_FEED_QUERY,
+    },
+    recent: {
+      query: ANONYMOUS_FEED_QUERY,
+      queryIfLogged: FEED_QUERY,
+      variables: { ranking: 'TIME' },
+    },
+  };
 };
 
 const LayoutHeader = classed(
   'header',
   'flex overflow-x-auto relative items-center self-stretch mb-6 h-11 no-scrollbar',
 );
+
+export const getShouldRedirect = (
+  isOnMyFeed: boolean,
+  isLoggedIn: boolean,
+): boolean => {
+  if (!isOnMyFeed) {
+    return false;
+  }
+
+  if (!isLoggedIn) {
+    return true;
+  }
+
+  return false;
+};
 
 export type MainFeedLayoutProps = {
   feedName: string;
@@ -115,11 +146,13 @@ export default function MainFeedLayout({
   );
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { flags } = useContext(FeaturesContext);
+  const shouldShowMyFeed = isFeaturedEnabled(Features.MyFeedOn, flags);
   const feedVersion = parseInt(
     getFeatureValue(Features.FeedVersion, flags),
     10,
   );
   const feedName = feedNameProp === 'default' ? defaultFeed : feedNameProp;
+  const propsByFeed = getPropsByFeed({ shouldShowMyFeed });
 
   useEffect(() => {
     if (defaultFeed !== null && feedName !== null && feedName !== defaultFeed) {
