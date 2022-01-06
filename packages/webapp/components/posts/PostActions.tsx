@@ -9,7 +9,6 @@ import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
 import { QueryClient, useQueryClient, QueryKey } from 'react-query';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
-import { LoginModalMode } from '@dailydotdev/shared/src/types/LoginModalMode';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 
 interface PostActionsProps {
@@ -102,7 +101,7 @@ export function PostActions({
         return upvotePost({ id: post.id });
       }
     } else {
-      showLogin('upvote', LoginModalMode.ContentQuality);
+      showLogin('upvote');
     }
     return undefined;
   };
