@@ -23,12 +23,22 @@ import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancement
 import { Alerts, UPDATE_ALERTS } from '../../graphql/alerts';
 import FeaturesContext, { FeaturesData } from '../../contexts/FeaturesContext';
 
+let features: FeaturesData;
 let client: QueryClient;
 const updateAlerts = jest.fn();
 const toggleSidebarExpanded = jest.fn();
 
+const defaultFeatures: FeaturesData = {
+  flags: {
+    my_feed_on: {
+      enabled: true,
+    },
+  },
+};
+
 beforeEach(() => {
   nock.cleanAll();
+  features = { flags: {} };
 });
 
 const createMockFeedSettings = () => ({
@@ -41,14 +51,6 @@ const defaultAlerts: Alerts = { filter: true };
 const resizeWindow = (x, y) => {
   window.resizeTo(x, y);
   window.dispatchEvent(new Event('resize'));
-};
-
-const features: FeaturesData = {
-  flags: {
-    my_feed_on: {
-      enabled: true,
-    },
-  },
 };
 
 const renderComponent = (
@@ -115,7 +117,20 @@ const renderComponent = (
   );
 };
 
-it('should remove feed filter button once user has filters', async () => {
+it('should not render create my feed button once user has filters', async () => {
+  features = defaultFeatures;
+  renderComponent({ filter: false });
+  await waitFor(() => {
+    const data = client.getQueryData(getFeedSettingsQueryKey(defaultUser));
+    expect(data).toBeTruthy();
+  });
+
+  const createMyFeed = screen.queryByText('Create my feed');
+  expect(createMyFeed).not.toBeInTheDocument();
+});
+
+it('should remove filter alert if the user has filters and opened feed filters', async () => {
+  features = defaultFeatures;
   let mutationCalled = false;
   mockGraphQL({
     request: {
@@ -130,14 +145,12 @@ it('should remove feed filter button once user has filters', async () => {
   renderComponent({ filter: true });
 
   await act(async () => {
-    const trigger = await screen.findByText('Create my feed');
-    // eslint-disable-next-line testing-library/no-node-access
-    trigger.parentElement.click();
+    const feedFilters = await screen.findByTestId('myFeedFilter');
+    feedFilters.click();
   });
-  await waitFor(async () => {
-    const data = await client.getQueryData(
-      getFeedSettingsQueryKey(defaultUser),
-    );
+
+  await waitFor(() => {
+    const data = client.getQueryData(getFeedSettingsQueryKey(defaultUser));
     expect(data).toBeTruthy();
   });
 
@@ -146,6 +159,7 @@ it('should remove feed filter button once user has filters', async () => {
 });
 
 it('should remove the my feed alert if the user clicks the cross', async () => {
+  features = defaultFeatures;
   let mutationCalled = false;
   mockGraphQL({
     request: {
@@ -201,6 +215,58 @@ it('should invoke the feed customization modal', async () => {
   );
 });
 
+it('should render the mobile sidebar version on small screens', async () => {
+  await resizeWindow(1019, 768);
+  renderComponent();
+
+  const sidebar = await screen.findByTestId('sidebar-aside');
+  expect(sidebar).toHaveClass('-translate-x-70');
+});
+
+it('should show the my feed items if the user has filters', async () => {
+  features = defaultFeatures;
+  renderComponent({ filter: false });
+  const section = await screen.findByText('My feed');
+  expect(section).toBeInTheDocument();
+});
+
+it('should show the migrated message if the user has existing filters', async () => {
+  features = defaultFeatures;
+  renderComponent({ filter: false, myFeed: 'migrated' });
+  const section = await screen.findByText(
+    `Psst, your feed has a new name! We've already applied your content filters to it.`,
+  );
+  expect(section).toBeInTheDocument();
+});
+
+it('should show the created message if the user added filters', async () => {
+  features = defaultFeatures;
+  renderComponent({ filter: false, myFeed: 'created' });
+  const section = await screen.findByText(
+    `🎉 Your feed is ready! Click here to manage your feed's settings`,
+  );
+  expect(section).toBeInTheDocument();
+});
+
+it('should not show the my feed alert if the user removed it', async () => {
+  features = defaultFeatures;
+  renderComponent({ filter: false, myFeed: null });
+  await waitFor(() =>
+    expect(
+      screen.queryByText(
+        `🎉 Your feed is ready! Click here to manage your feed's settings`,
+      ),
+    ).not.toBeInTheDocument(),
+  );
+  await waitFor(() =>
+    expect(
+      screen.queryByText(
+        `Psst, your feed has a new name! We've already applied your content filters to it.`,
+      ),
+    ).not.toBeInTheDocument(),
+  );
+});
+
 it('should set all navigation urls', async () => {
   renderComponent();
   waitForNock();
@@ -220,52 +286,4 @@ it('should set all navigation urls', async () => {
       element.path,
     );
   });
-});
-
-it('should render the mobile sidebar version on small screens', async () => {
-  await resizeWindow(1019, 768);
-  renderComponent();
-
-  const sidebar = await screen.findByTestId('sidebar-aside');
-  expect(sidebar).toHaveClass('-translate-x-70');
-});
-
-it('should show the my feed items if the user has filters', async () => {
-  renderComponent({ filter: false });
-  const section = await screen.findByText('My feed');
-  expect(section).toBeInTheDocument();
-});
-
-it('should show the migrated message if the user has existing filters', async () => {
-  renderComponent({ filter: false, myFeed: 'migrated' });
-  const section = await screen.findByText(
-    `Psst, your feed has a new name! We've already applied your content filters to it.`,
-  );
-  expect(section).toBeInTheDocument();
-});
-
-it('should show the created message if the user added filters', async () => {
-  renderComponent({ filter: false, myFeed: 'created' });
-  const section = await screen.findByText(
-    `🎉 Your feed is ready! Click here to manage your feed's settings`,
-  );
-  expect(section).toBeInTheDocument();
-});
-
-it('should not show the my feed alert if the user removed it', async () => {
-  renderComponent({ filter: false, myFeed: null });
-  await waitFor(() =>
-    expect(
-      screen.queryByText(
-        `🎉 Your feed is ready! Click here to manage your feed's settings`,
-      ),
-    ).not.toBeInTheDocument(),
-  );
-  await waitFor(() =>
-    expect(
-      screen.queryByText(
-        `Psst, your feed has a new name! We've already applied your content filters to it.`,
-      ),
-    ).not.toBeInTheDocument(),
-  );
 });

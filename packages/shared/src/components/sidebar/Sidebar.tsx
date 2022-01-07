@@ -1,4 +1,10 @@
-import React, { ReactElement, useContext, useState, useMemo } from 'react';
+import React, {
+  ReactElement,
+  useContext,
+  useState,
+  useMemo,
+  useEffect,
+} from 'react';
 import classNames from 'classnames';
 import SettingsContext from '../../contexts/SettingsContext';
 import { FeedSettingsModal } from '../modals/FeedSettingsModal';
@@ -43,6 +49,8 @@ import usePersistentContext from '../../hooks/usePersistentContext';
 import MyFeedAlert from './MyFeedAlert';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { AlertColor, AlertDot } from '../AlertDot';
+import { Features, isFeaturedEnabled } from '../../lib/featureManagement';
+import useFeedSettings from '../../hooks/useFeedSettings';
 
 const bottomMenuItems: SidebarMenuItem[] = [
   {
@@ -145,9 +153,18 @@ export default function Sidebar({
   const { sidebarExpanded, toggleSidebarExpanded, loadedSettings } =
     useContext(SettingsContext);
   const [showSettings, setShowSettings] = useState(false);
+  const { user } = useContext(AuthContext);
+  const { hasAnyFilter } = useFeedSettings();
   const { flags } = useContext(FeaturesContext);
-  // const shouldShowMyFeed = isFeaturedEnabled(Features.MyFeedOn, flags);
-  const shouldShowMyFeed = true;
+  const shouldShowMyFeed = isFeaturedEnabled(Features.MyFeedOn, flags);
+
+  useEffect(() => {
+    if (isLoaded) {
+      if (alerts?.filter && hasAnyFilter && user) {
+        updateAlerts({ filter: false });
+      }
+    }
+  }, [isLoaded, alerts, user, hasAnyFilter]);
 
   useHideMobileSidebar({
     state: openMobileSidebar,
@@ -278,7 +295,7 @@ export default function Sidebar({
             {sidebarRendered && shouldShowMyFeed && (
               <MyFeedButton
                 sidebarExpanded={sidebarExpanded}
-                filtered={!alerts?.filter}
+                filtered={user && hasAnyFilter}
                 item={myFeedMenuItem}
                 flags={flags}
                 action={openFeedFilters}
