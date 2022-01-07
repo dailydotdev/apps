@@ -61,8 +61,7 @@ export default function ProfileForm({
       update: mode === 'update',
     }),
   );
-  const { followTags, blockTag, unfollowSource, updateAdvancedSettings } =
-    useMutateFilters();
+  const { updateFeedFilters } = useMutateFilters();
   const [usernameHint, setUsernameHint] = useState<string>();
   const [twitterHint, setTwitterHint] = useState<string>();
   const [githubHint, setGithubHint] = useState<string>();
@@ -127,26 +126,13 @@ export default function ProfileForm({
       const filledFields = Object.keys(data).filter(
         (key) => data[key] !== undefined && data[key] !== null,
       );
-      const { includeTags, blockedTags, excludeSources, advancedSettings } =
-        getLocalFeedSettings();
-      const onFollowTags = includeTags?.length
-        ? followTags({ tags: includeTags })
-        : Promise.resolve();
-      const onBlockTags = blockedTags?.length
-        ? blockTag({ tags: blockedTags })
-        : Promise.resolve();
-      const onUnfollowSource = excludeSources?.length
-        ? unfollowSource({ source: excludeSources })
-        : Promise.resolve();
-      const onUpdateAdvancedSettings = advancedSettings?.length
-        ? updateAdvancedSettings({ advancedSettings })
-        : Promise.resolve();
-      await Promise.all([
-        onFollowTags,
-        onBlockTags,
-        onUnfollowSource,
-        onUpdateAdvancedSettings,
-      ]);
+
+      const feedSettings = getLocalFeedSettings(true);
+
+      if (feedSettings) {
+        await updateFeedFilters(feedSettings);
+      }
+
       onSuccessfulSubmit?.(filledFields.length > REQUIRED_FIELDS_COUNT);
     }
   };

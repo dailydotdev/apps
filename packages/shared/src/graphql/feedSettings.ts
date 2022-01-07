@@ -98,6 +98,20 @@ export const FEED_SETTINGS_QUERY = gql`
   }
 `;
 
+export const UPDATE_FEED_FILTERS_MUTATION = gql`
+  mutation AddFiltersToFeed(
+    $filters: FiltersInput!
+    $settings: [FeedAdvancedSettingsInput]!
+  ) {
+    addFiltersToFeed(filters: $filters) {
+      id
+    }
+    updateFeedAdvancedSettings(settings: $settings) {
+      id
+    }
+  }
+`;
+
 export const ADD_FILTERS_TO_FEED_MUTATION = gql`
   mutation AddFiltersToFeed($filters: FiltersInput!) {
     feedSettings: addFiltersToFeed(filters: $filters) {
