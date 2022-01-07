@@ -63,31 +63,22 @@ export function PostHeader({ post }: PostHeaderProps): ReactElement {
 
   return (
     <Container className="flex items-center mb-2">
-      {author ? (
-        <LinkWithTooltip
-          href={`/sources/${source.id}`}
-          passHref
-          prefetch={false}
-          tooltip={{
-            placement: 'bottom',
-            content: source.name,
-          }}
-        >
-          <SourceImage
-            className="cursor-pointer"
-            imgSrc={source.image}
-            imgAlt={source.name}
-            background="var(--theme-background-secondary)"
-          />
-        </LinkWithTooltip>
-      ) : (
+      <LinkWithTooltip
+        href={`/sources/${source.id}`}
+        passHref
+        prefetch={false}
+        tooltip={{
+          placement: 'bottom',
+          content: source.name,
+        }}
+      >
         <SourceImage
           className="cursor-pointer"
           imgSrc={source.image}
           imgAlt={source.name}
           background="var(--theme-background-secondary)"
         />
-      )}
+      </LinkWithTooltip>
       {author ? (
         <ProfileLink
           user={author}
