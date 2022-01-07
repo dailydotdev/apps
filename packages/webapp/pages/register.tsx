@@ -19,6 +19,7 @@ import {
   isFeaturedEnabled,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import MainLayout from '../components/layouts/MainLayout';
+import classNames from 'classnames';
 
 export default function Register(): ReactElement {
   const { user, logout } = useContext(AuthContext);
@@ -52,12 +53,12 @@ export default function Register(): ReactElement {
         {user && (
           <>
             <ProfileHeading>
-              {getSignupModalFeatureValue(Features.SignupModalTitleCopy)}
+              {getSignupModalFeatureValue(Features.SignupTitleCopy)}
             </ProfileHeading>
             <h2 className="self-start my-2 text-theme-label-tertiary typo-callout">
               Please fill in your details below
             </h2>
-            {!isFeaturedEnabled(Features.HideSignupModalProfileImage, flags) && (
+            {!isFeaturedEnabled(Features.HideSignupProfileImage, flags) && (
               <EditImageWithJoinedDate user={user} />
             )}
             <ProfileForm
@@ -73,18 +74,14 @@ export default function Register(): ReactElement {
                 disabled={disableSubmit}
                 form="profileForm"
               >
-                {getSignupModalFeatureValue(
-                  Features.SignupModalSubmitButtonCopy,
-                )}
+                {getSignupModalFeatureValue(Features.SignupSubmitButtonCopy)}
               </Button>
               <Button
                 className="ml-4 btn-tertiary"
                 type="button"
                 onClick={logout}
               >
-                {getSignupModalFeatureValue(
-                  Features.SignupModalLogoutButtonCopy,
-                )}
+                {getSignupModalFeatureValue(Features.SignupLogoutButtonCopy)}
               </Button>
             </div>
           </>

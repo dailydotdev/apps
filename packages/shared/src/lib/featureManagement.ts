@@ -28,22 +28,22 @@ export class Features {
     'Unlock useful features by signing in. A bunch of cool stuff like content filters and bookmarks are waiting just for you.',
   );
 
-  static readonly SignupModalTitleCopy = new Features(
-    'signup_modal_title_copy',
+  static readonly SignupTitleCopy = new Features(
+    'signup_title_copy',
     'Set up your profile',
   );
 
-  static readonly HideSignupModalProfileImage = new Features(
-    'hide_signup_modal_profile_image',
+  static readonly HideSignupProfileImage = new Features(
+    'hide_signup_profile_image',
   );
 
-  static readonly SignupModalSubmitButtonCopy = new Features(
-    'signup_modal_submit_button_copy',
+  static readonly SignupSubmitButtonCopy = new Features(
+    'signup_submit_button_copy',
     'Finish',
   );
 
-  static readonly SignupModalLogoutButtonCopy = new Features(
-    'signup_modal_logout_button_copy',
+  static readonly SignupLogoutButtonCopy = new Features(
+    'signup_logout_button_copy',
     'Logout',
   );
 
