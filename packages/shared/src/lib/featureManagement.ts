@@ -35,7 +35,6 @@ export class Features {
 
   static readonly HideSignupModalProfileImage = new Features(
     'hide_signup_modal_profile_image',
-    '0',
   );
 
   static readonly SignupModalSubmitButtonCopy = new Features(
@@ -63,3 +62,6 @@ export const getFeatureValue = (
   }
   return key?.defaultValue ?? undefined;
 };
+
+export const isFeaturedEnabled = (key: Features, flags: IFlags): boolean =>
+  flags[key?.id]?.enabled;

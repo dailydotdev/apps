@@ -16,6 +16,7 @@ import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import {
   Features,
   getFeatureValue,
+  isFeaturedEnabled,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import MainLayout from '../components/layouts/MainLayout';
 
@@ -28,10 +29,6 @@ export default function Register(): ReactElement {
 
   const getSignupModalFeatureValue = (featureFlag: Features) => {
     return getFeatureValue(featureFlag, flags);
-  };
-
-  const isFeatureEnabled = (featureFlag: Features) => {
-    return parseInt(getSignupModalFeatureValue(featureFlag), 10);
   };
 
   useEffect(() => {
@@ -60,7 +57,7 @@ export default function Register(): ReactElement {
             <h2 className="self-start my-2 text-theme-label-tertiary typo-callout">
               Please fill in your details below
             </h2>
-            {!isFeatureEnabled(Features.HideSignupModalProfileImage) && (
+            {!isFeaturedEnabled(Features.HideSignupModalProfileImage, flags) && (
               <EditImageWithJoinedDate user={user} />
             )}
             <ProfileForm
