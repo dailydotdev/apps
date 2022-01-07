@@ -19,7 +19,6 @@ import {
   isFeaturedEnabled,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import MainLayout from '../components/layouts/MainLayout';
-import classNames from 'classnames';
 
 export default function Register(): ReactElement {
   const { user, logout } = useContext(AuthContext);
