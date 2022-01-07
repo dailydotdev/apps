@@ -15,12 +15,26 @@ module.exports = withTM(
     ...withPreact(
       withBundleAnalyzer({
         webpack5: true,
-        webpack: (config) => {
+        webpack: (config, { isServer }) => {
           config.module.rules.push({
             test: /\.svg$/i,
             issuer: /\.[jt]sx?$/,
             use: ['@svgr/webpack'],
           });
+          config.module.rules.push({
+            test: /\.m?js/,
+            resolve: {
+              fullySpecified: false,
+            },
+          });
+
+          if (!isServer) {
+            config.externals = {
+              next: 'next',
+              react: 'React',
+              'react-dom': 'ReactDOM',
+            };
+          }
 
           return config;
         },
