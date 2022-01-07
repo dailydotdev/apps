@@ -15,8 +15,14 @@ import {
   mockGraphQL,
   MockedGraphQLResponse,
 } from '../../../__tests__/helpers/graphql';
-import { FEED_SETTINGS_QUERY } from '../../graphql/feedSettings';
-import { getFeedSettingsQueryKey } from '../../hooks/useFeedSettings';
+import {
+  AllTagCategoriesData,
+  FEED_SETTINGS_QUERY,
+} from '../../graphql/feedSettings';
+import {
+  getFeedSettingsQueryKey,
+  getHasAnyFilter,
+} from '../../hooks/useFeedSettings';
 import { AlertContextProvider } from '../../contexts/AlertContext';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
@@ -150,8 +156,9 @@ it('should remove filter alert if the user has filters and opened feed filters',
   });
 
   await waitFor(() => {
-    const data = client.getQueryData(getFeedSettingsQueryKey(defaultUser));
-    expect(data).toBeTruthy();
+    const key = getFeedSettingsQueryKey(defaultUser);
+    const data = client.getQueryData(key) as AllTagCategoriesData;
+    expect(getHasAnyFilter(data.feedSettings)).toBeTruthy();
   });
 
   expect(updateAlerts).toBeCalledWith({ filter: false });
