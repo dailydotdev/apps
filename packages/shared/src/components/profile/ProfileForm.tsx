@@ -21,7 +21,11 @@ import {
   getUserInitialTimezone,
 } from '../../lib/timezones';
 import useMutateFilters from '../../hooks/useMutateFilters';
-import { getLocalFeedSettings } from '../../hooks/useFeedSettings';
+import {
+  getLocalFeedSettings,
+  LOCAL_FEED_SETTINGS_KEY,
+} from '../../hooks/useFeedSettings';
+import { storageWrapper as storage } from '../../lib/storageWrapper';
 
 const REQUIRED_FIELDS_COUNT = 4;
 const timeZoneOptions = getTimeZoneOptions();
@@ -131,6 +135,7 @@ export default function ProfileForm({
 
       if (feedSettings) {
         await updateFeedFilters(feedSettings);
+        storage.removeItem(LOCAL_FEED_SETTINGS_KEY);
       }
 
       onSuccessfulSubmit?.(filledFields.length > REQUIRED_FIELDS_COUNT);
