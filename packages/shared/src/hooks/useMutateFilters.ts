@@ -144,9 +144,9 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
   const shouldShowMyFeed = isFeaturedEnabled(Features.MyFeedOn, flags);
   const shouldFilterLocally = shouldShowMyFeed && !user;
 
-  const updateFeedFilters = ({ advancedSettings, ...rest }: FeedSettings) =>
+  const updateFeedFilters = ({ advancedSettings, ...filters }: FeedSettings) =>
     request(`${apiUrl}/graphql`, UPDATE_FEED_FILTERS_MUTATION, {
-      filters: rest,
+      filters,
       settings: advancedSettings,
     });
 
