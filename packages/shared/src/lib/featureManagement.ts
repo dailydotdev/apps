@@ -28,6 +28,25 @@ export class Features {
     'Unlock useful features by signing in. A bunch of cool stuff like content filters and bookmarks are waiting just for you.',
   );
 
+  static readonly SignupTitleCopy = new Features(
+    'signup_title_copy',
+    'Set up your profile',
+  );
+
+  static readonly HideSignupProfileImage = new Features(
+    'hide_signup_profile_image',
+  );
+
+  static readonly SignupSubmitButtonCopy = new Features(
+    'signup_submit_button_copy',
+    'Finish',
+  );
+
+  static readonly SignupLogoutButtonCopy = new Features(
+    'signup_logout_button_copy',
+    'Logout',
+  );
+
   private constructor(
     public readonly id: string,
     public readonly defaultValue?: string,
@@ -43,3 +62,6 @@ export const getFeatureValue = (
   }
   return key?.defaultValue ?? undefined;
 };
+
+export const isFeaturedEnabled = (key: Features, flags: IFlags): boolean =>
+  flags[key?.id]?.enabled;
