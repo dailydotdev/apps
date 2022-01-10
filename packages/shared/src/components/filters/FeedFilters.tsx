@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement, useContext, useEffect } from 'react';
 import { useQueryClient } from 'react-query';
 import classNames from 'classnames';
 import sizeN from '../../../macros/sizeN.macro';
@@ -6,7 +6,7 @@ import FilterMenu from './FilterMenu';
 import XIcon from '../../../icons/x.svg';
 import PlusIcon from '../../../icons/plus.svg';
 import { menuItemClassNames } from '../multiLevelMenu/MultiLevelMenuMaster';
-import {
+import useFeedSettings, {
   getFeedSettingsQueryKey,
   updateLocalFeedSettings,
 } from '../../hooks/useFeedSettings';
@@ -15,6 +15,7 @@ import { Button } from '../buttons/Button';
 import { AllTagCategoriesData } from '../../graphql/feedSettings';
 import { Features, isFeaturedEnabled } from '../../lib/featureManagement';
 import FeaturesContext from '../../contexts/FeaturesContext';
+import AlertContext from '../../contexts/AlertContext';
 
 const asideWidth = sizeN(89);
 
@@ -28,7 +29,9 @@ export default function FeedFilters({
   onBack,
 }: FeedFiltersProps): ReactElement {
   const client = useQueryClient();
+  const { alerts, updateAlerts } = useContext(AlertContext);
   const { user, showLogin } = useContext(AuthContext);
+  const { hasAnyFilter } = useFeedSettings();
   const { flags } = useContext(FeaturesContext);
   const shouldShowMyFeed = isFeaturedEnabled(Features.MyFeedOn, flags);
 
@@ -39,6 +42,12 @@ export default function FeedFilters({
     updateLocalFeedSettings(feedSettings);
     showLogin('create feed filters');
   };
+
+  useEffect(() => {
+    if (isOpen && alerts?.filter && hasAnyFilter && user && !shouldShowMyFeed) {
+      updateAlerts({ filter: false });
+    }
+  }, [isOpen, alerts, user, hasAnyFilter]);
 
   return (
     <aside
