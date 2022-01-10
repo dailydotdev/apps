@@ -14,7 +14,7 @@ import AuthContext from '../../contexts/AuthContext';
 import { getUserDefaultTimezone } from '../../lib/timezones';
 import {
   FeedSettings,
-  UPDATE_FEED_FILTERS_MUTATION,
+  FEED_FILTERS_FROM_REGISTRATION,
 } from '../../graphql/feedSettings';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { updateLocalFeedSettings } from '../../hooks/useFeedSettings';
@@ -60,7 +60,7 @@ const createUpdateFeedFiltersMock = (
 
   return {
     request: {
-      query: UPDATE_FEED_FILTERS_MUTATION,
+      query: FEED_FILTERS_FROM_REGISTRATION,
       variables,
     },
     result: () => {

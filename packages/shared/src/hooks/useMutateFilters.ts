@@ -11,7 +11,7 @@ import {
   FeedSettingsData,
   REMOVE_FILTERS_FROM_FEED_MUTATION,
   UPDATE_ADVANCED_SETTINGS_FILTERS_MUTATION,
-  UPDATE_FEED_FILTERS_MUTATION,
+  FEED_FILTERS_FROM_REGISTRATION,
 } from '../graphql/feedSettings';
 import { Source } from '../graphql/sources';
 import { getFeedSettingsQueryKey } from './useFeedSettings';
@@ -145,7 +145,7 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
   const shouldFilterLocally = shouldShowMyFeed && !user;
 
   const updateFeedFilters = ({ advancedSettings, ...filters }: FeedSettings) =>
-    request(`${apiUrl}/graphql`, UPDATE_FEED_FILTERS_MUTATION, {
+    request(`${apiUrl}/graphql`, FEED_FILTERS_FROM_REGISTRATION, {
       filters,
       settings: advancedSettings,
     });

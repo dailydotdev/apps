@@ -98,7 +98,7 @@ export const FEED_SETTINGS_QUERY = gql`
   }
 `;
 
-export const UPDATE_FEED_FILTERS_MUTATION = gql`
+export const FEED_FILTERS_FROM_REGISTRATION = gql`
   mutation AddFiltersToFeed(
     $filters: FiltersInput!
     $settings: [FeedAdvancedSettingsInput]!
@@ -108,6 +108,9 @@ export const UPDATE_FEED_FILTERS_MUTATION = gql`
     }
     updateFeedAdvancedSettings(settings: $settings) {
       id
+    }
+    updateUserAlerts(data: { filter: false }) {
+      filter
     }
   }
 `;
