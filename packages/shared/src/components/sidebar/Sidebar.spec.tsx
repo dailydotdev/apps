@@ -123,20 +123,14 @@ const renderComponent = (
   );
 };
 
-it('should not render create my feed button once user has filters', async () => {
+it('should not render create my feed button if user has alerts.filter as false', async () => {
   features = defaultFeatures;
   renderComponent({ filter: false });
-  await waitFor(() => {
-    const data = client.getQueryData(getFeedSettingsQueryKey(defaultUser));
-    expect(data).toBeTruthy();
-  });
-
   const createMyFeed = screen.queryByText('Create my feed');
   expect(createMyFeed).not.toBeInTheDocument();
 });
 
 it('should remove filter alert if the user has filters and opened feed filters', async () => {
-  features = defaultFeatures;
   let mutationCalled = false;
   mockGraphQL({
     request: {
@@ -151,7 +145,7 @@ it('should remove filter alert if the user has filters and opened feed filters',
   renderComponent({ filter: true });
 
   await act(async () => {
-    const feedFilters = await screen.findByTestId('myFeedFilter');
+    const feedFilters = await screen.findByText('Feed filters');
     feedFilters.click();
   });
 
