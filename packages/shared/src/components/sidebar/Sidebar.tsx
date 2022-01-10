@@ -281,7 +281,7 @@ export default function Sidebar({
                 action={openFeedFilters}
               />
             )}
-            {sidebarExpanded && !alerts?.myFeed && (
+            {sidebarExpanded && alerts?.myFeed && (
               <MyFeedAlert alerts={alerts} hideAlert={hideMyFeedAlert} />
             )}
             <RenderSection
