@@ -8,9 +8,10 @@ import {
   waitFor,
 } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import { mocked } from 'ts-jest/utils';
 import AuthContext from './AuthContext';
 import defaultUser from '../../__tests__/fixture/loggedUser';
-import { LoggedUser } from '../lib/user';
+import { LoggedUser, deleteAccount, AnonymousUser } from '../lib/user';
 import SettingsContext, {
   remoteThemes,
   ThemeMode,
@@ -24,10 +25,20 @@ import {
   Spaciness,
   UPDATE_USER_SETTINGS_MUTATION,
 } from '../graphql/settings';
-import * as bootProdiver from './BootProvider';
-import * as boot from '../lib/boot';
+import { BootDataProvider } from './BootProvider';
+import { getBootData, Boot, BootCacheData } from '../lib/boot';
 
-const getRedirectUri = jest.fn();
+jest.mock('../lib/boot', () => ({
+  ...jest.requireActual('../lib/boot'),
+  getBootData: jest.fn(),
+}));
+
+jest.mock('../lib/user', () => ({
+  ...jest.requireActual('../lib/user'),
+  deleteAccount: jest.fn(),
+}));
+
+const getRedirectUriMock = jest.fn();
 
 beforeEach(() => {
   nock.cleanAll();
@@ -46,14 +57,14 @@ const defaultSettings: RemoteSettings = {
   sidebarExpanded: true,
 };
 
-const defaultBootData: boot.BootCacheData = {
+const defaultBootData: BootCacheData = {
   alerts: defaultAlerts,
   user: defaultUser,
   settings: defaultSettings,
   flags: {},
 };
 
-const getBootMock = (bootMock: boot.BootCacheData): boot.Boot => ({
+const getBootMock = (bootMock: BootCacheData): Boot => ({
   ...bootMock,
   accessToken: { token: '1', expiresIn: '1' },
   visit: { sessionId: '1', visitId: '1' },
@@ -65,13 +76,12 @@ const renderComponent = (
 ): RenderResult => {
   const queryClient = new QueryClient();
   const app = 'extension';
-  const bootCall = jest.spyOn(boot, 'getBootData');
-  bootCall.mockReturnValue(Promise.resolve(getBootMock(bootData)));
+  mocked(getBootData).mockResolvedValue(getBootMock(bootData));
   return render(
     <QueryClientProvider client={queryClient}>
-      <bootProdiver.BootDataProvider app={app} getRedirectUri={getRedirectUri}>
+      <BootDataProvider app={app} getRedirectUri={getRedirectUriMock}>
         {children}
-      </bootProdiver.BootDataProvider>
+      </BootDataProvider>
     </QueryClientProvider>,
   );
 };
@@ -299,31 +309,62 @@ it('should trigger update alerts callback', async () => {
 
 interface AuthMockProps {
   updatedUser?: LoggedUser;
+  loginTrigger?: string;
 }
 
-const AuthMock = ({ updatedUser }: AuthMockProps) => {
-  const { updateUser, user, deleteAccount, logout } = useContext(AuthContext);
+const AuthMock = ({ updatedUser, loginTrigger }: AuthMockProps) => {
+  const {
+    updateUser,
+    user,
+    deleteAccount: deleteUserAccount,
+    logout,
+    showLogin,
+    closeLogin,
+    loginState,
+    getRedirectUri,
+    trackingId,
+    anonymous,
+  } = useContext(AuthContext);
 
   return (
     <>
       <button
         onClick={() => updateUser(updatedUser)}
         type="button"
-        data-test-value={user?.name}
+        data-test-value={user?.name || 'anonymous'}
       >
         User
       </button>
-      <button onClick={deleteAccount} type="button">
+      <button onClick={deleteUserAccount} type="button">
         Delete
       </button>
       <button onClick={logout} type="button">
         Logout
       </button>
+      <button
+        onClick={() => showLogin(loginTrigger)}
+        type="button"
+        data-test-value={JSON.stringify(loginState)}
+      >
+        Login
+      </button>
+      <button
+        onClick={closeLogin}
+        type="button"
+        data-test-value={JSON.stringify(loginState)}
+      >
+        Close Login
+      </button>
+      <button onClick={getRedirectUri} type="button">
+        Redirect
+      </button>
+      <span data-test-value={trackingId}>Tracking ID</span>
+      <span data-test-value={JSON.stringify(anonymous)}>Anonymous User</span>
     </>
   );
 };
 
-it('should trigger update alerts callback', async () => {
+it('should trigger update user callback', async () => {
   const expected = 'Lee';
   renderComponent(
     <AuthMock updatedUser={{ ...defaultUser, name: expected }} />,
@@ -332,4 +373,85 @@ it('should trigger update alerts callback', async () => {
   expect(user).toHaveAttribute('data-test-value', defaultUser.name);
   fireEvent.click(user);
   expect(user).toHaveAttribute('data-test-value', expected);
+});
+
+it('should trigger delete account callback', async () => {
+  renderComponent(<AuthMock />);
+  const deleteUser = await screen.findByText('Delete');
+  fireEvent.click(deleteUser);
+  expect(deleteAccount).toHaveBeenCalled();
+});
+
+const defaultAnonymousUser: AnonymousUser = {
+  id: 'anonymous user',
+  firstVisit: 'first visit',
+  referrer: 'string',
+};
+
+it('should trigger show login callback', async () => {
+  const expected = 'mock';
+  renderComponent(<AuthMock loginTrigger={expected} />, {
+    ...defaultBootData,
+    user: defaultAnonymousUser,
+  });
+  const login = await screen.findByText('Login');
+  expect(login).toHaveAttribute('data-test-value', 'null');
+  fireEvent.click(login);
+  expect(login).toHaveAttribute(
+    'data-test-value',
+    JSON.stringify({ trigger: expected }),
+  );
+});
+
+it('should trigger close login callback', async () => {
+  const expected = 'mock';
+  renderComponent(<AuthMock loginTrigger={expected} />, {
+    ...defaultBootData,
+    user: defaultAnonymousUser,
+  });
+  const login = await screen.findByText('Login');
+  const closeLogin = await screen.findByText('Close Login');
+  expect(closeLogin).toHaveAttribute('data-test-value', 'null');
+  fireEvent.click(login);
+  expect(closeLogin).toHaveAttribute(
+    'data-test-value',
+    JSON.stringify({ trigger: expected }),
+  );
+  fireEvent.click(closeLogin);
+  expect(closeLogin).toHaveAttribute('data-test-value', 'null');
+});
+
+it('should trigger get redirect uri callback', async () => {
+  renderComponent(<AuthMock />);
+  const getRedirect = await screen.findByText('Redirect');
+  fireEvent.click(getRedirect);
+  expect(getRedirectUriMock).toHaveBeenCalled();
+});
+
+it('should display user tracking id for anonymous user', async () => {
+  renderComponent(<AuthMock />, {
+    ...defaultBootData,
+    user: defaultAnonymousUser,
+  });
+  const trackingId = await screen.findByText('Tracking ID');
+  expect(trackingId).toHaveAttribute(
+    'data-test-value',
+    defaultAnonymousUser.id,
+  );
+  const user = await screen.findByText('User');
+  expect(user).toHaveAttribute('data-test-value', 'anonymous');
+});
+
+it('should display accurate information of anonymous user', async () => {
+  renderComponent(<AuthMock />, {
+    ...defaultBootData,
+    user: defaultAnonymousUser,
+  });
+  const anonymousUser = await screen.findByText('Anonymous User');
+  expect(anonymousUser).toHaveAttribute(
+    'data-test-value',
+    JSON.stringify(defaultAnonymousUser),
+  );
+  const user = await screen.findByText('User');
+  expect(user).toHaveAttribute('data-test-value', 'anonymous');
 });
