@@ -21,7 +21,7 @@ export function FeedSettingsModal({
         <h3 className="font-bold typo-title3">Customize</h3>
         <ModalCloseButton onClick={onRequestClose} />
       </header>
-      <section className="overflow-auto relative shrink w-full h-full max-h-full">
+      <section className="overflow-auto relative w-full h-full shrink max-h-full">
         <Settings />
       </section>
     </ResponsiveModal>

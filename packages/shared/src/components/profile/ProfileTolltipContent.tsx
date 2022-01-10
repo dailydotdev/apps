@@ -16,7 +16,7 @@ export function ProfileTooltipContent({
   data: { rank, tags },
 }: ProfileTooltipContentProps): ReactElement {
   return (
-    <div className="flex flex-col shrink font-normal typo-callout">
+    <div className="flex flex-col font-normal shrink typo-callout">
       <div className="relative w-fit">
         <ProfileImageLink user={user} picture={{ size: 'xxlarge' }} />
         {rank && (
