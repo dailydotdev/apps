@@ -7,7 +7,6 @@ const typography = require('./tailwind/typography');
 const buttons = require('./tailwind/buttons');
 
 module.exports = {
-  mode: 'jit',
   theme: {
     colors: {
       ...colors,
@@ -150,12 +149,6 @@ module.exports = {
         logo: '1.125rem',
         fit: 'fit-content',
       },
-    },
-  },
-  variants: {
-    extend: {
-      borderWidth: ['group-hover'],
-      visibility: ['group-hover'],
     },
   },
   // eslint-disable-next-line global-require
