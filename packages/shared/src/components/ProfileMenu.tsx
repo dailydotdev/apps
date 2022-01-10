@@ -5,7 +5,6 @@ import Link from 'next/link';
 import AuthContext from '../contexts/AuthContext';
 import PowerIcon from '../../icons/power.svg';
 import UserIcon from '../../icons/user.svg';
-import TimerIcon from '../../icons/timer.svg';
 import SettingsIcon from '../../icons/settings.svg';
 import DevCardIcon from '../../icons/dev_card.svg';
 
@@ -20,16 +19,9 @@ const AccountDetailsModal = dynamic(
     ),
 );
 
-export type ProfileMenuProps = {
-  onShowDndClick?: () => void;
-};
-
-export default function ProfileMenu({
-  onShowDndClick,
-}: ProfileMenuProps): ReactElement {
+export default function ProfileMenu(): ReactElement {
   const [showAccountDetails, setShowAccountDetails] = useState(false);
   const { user, logout } = useContext(AuthContext);
-  const shouldShowDnD = !!process.env.TARGET_BROWSER;
 
   if (!user) {
     return <></>;
@@ -59,11 +51,6 @@ export default function ProfileMenu({
         <Item onClick={() => setShowAccountDetails(true)}>
           <SettingsIcon className="mr-2 text-xl" /> Account details
         </Item>
-        {shouldShowDnD && (
-          <Item onClick={onShowDndClick}>
-            <TimerIcon className="mr-2 text-xl" /> Do not disturb
-          </Item>
-        )}
         <Item>
           <Link
             href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}devcard`}
