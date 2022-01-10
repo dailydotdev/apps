@@ -40,6 +40,37 @@ jobs:
             - ./packages/webapp/node_modules
             - ./packages/extension/node_modules
       - run:
+          name: Build
+          command: npm run build:chrome
+          working_directory: packages/extension
+  test:
+    docker:
+      - image: cimg/node:14.16.0
+    steps:
+      - checkout
+      - run:
+          name: Install lerna
+          command: npm i --prefix=$HOME/.local -g lerna
+      - create_concatenated_package_lock:
+          filename: combined-package-lock.txt
+      - restore_cache:
+          keys:
+            - deps-v2-{{ .Branch }}-{{ checksum "combined-package-lock.txt" }}
+            - deps-v2-{{ .Branch }}
+            - deps-v2-
+      - run:
+          name: Install dependencies
+          command: lerna bootstrap
+      - save_cache:
+          key: deps-v2-{{ .Branch }}-{{ checksum "combined-package-lock.txt" }}
+          paths:
+            - ./node_modules
+            - ./packages/eslint-config/node_modules
+            - ./packages/prettier-config/node_modules
+            - ./packages/shared/node_modules
+            - ./packages/webapp/node_modules
+            - ./packages/extension/node_modules
+      - run:
           name: Test
           command: lerna run test:ci
           environment:
