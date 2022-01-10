@@ -50,6 +50,25 @@ export class Features {
     'success',
   );
 
+  static readonly SignupTitleCopy = new Features(
+    'signup_title_copy',
+    'Set up your profile',
+  );
+
+  static readonly HideSignupProfileImage = new Features(
+    'hide_signup_profile_image',
+  );
+
+  static readonly SignupSubmitButtonCopy = new Features(
+    'signup_submit_button_copy',
+    'Finish',
+  );
+
+  static readonly SignupLogoutButtonCopy = new Features(
+    'signup_logout_button_copy',
+    'Logout',
+  );
+
   private constructor(
     public readonly id: string,
     public readonly defaultValue?: string,
