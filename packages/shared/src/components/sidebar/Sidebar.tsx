@@ -246,7 +246,7 @@ export default function Sidebar({
   }
 
   const shouldHideMyFeedAlert =
-    (alerts?.filter && !alerts?.myFeed) || (!alerts?.filter && !alerts?.myFeed);
+    alerts?.filter || (!alerts?.filter && !alerts?.myFeed);
 
   return (
     <>

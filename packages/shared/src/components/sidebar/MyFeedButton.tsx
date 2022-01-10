@@ -123,7 +123,6 @@ const FilteredMyFeedButton = ({
         buttonSize="xsmall"
         icon={<FilterIcon />}
         onClick={action}
-        data-testId="myFeedFilter"
       />
     </NavItem>
   );
