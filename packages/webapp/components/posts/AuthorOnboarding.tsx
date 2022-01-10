@@ -16,7 +16,7 @@ export function AuthorOnboarding({
   return (
     <section
       className={classNames(
-        'p-6 bg-theme-bg-secondary rounded-2xl',
+        'p-6 bg-theme-bg-secondary rounded-2xl mb-6',
         styles.authorOnboarding,
       )}
     >
