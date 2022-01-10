@@ -245,9 +245,6 @@ export default function Sidebar({
     return <></>;
   }
 
-  const shouldHideMyFeedAlert =
-    alerts?.filter || (!alerts?.filter && !alerts?.myFeed);
-
   return (
     <>
       {openMobileSidebar && sidebarRendered === false && (
@@ -284,7 +281,7 @@ export default function Sidebar({
                 action={openFeedFilters}
               />
             )}
-            {sidebarExpanded && !shouldHideMyFeedAlert && (
+            {sidebarExpanded && !alerts?.myFeed && (
               <MyFeedAlert alerts={alerts} hideAlert={hideMyFeedAlert} />
             )}
             <RenderSection
