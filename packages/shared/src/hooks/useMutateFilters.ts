@@ -11,6 +11,7 @@ import {
   FeedSettingsData,
   REMOVE_FILTERS_FROM_FEED_MUTATION,
   UPDATE_ADVANCED_SETTINGS_FILTERS_MUTATION,
+  FEED_FILTERS_FROM_REGISTRATION,
 } from '../graphql/feedSettings';
 import { Source } from '../graphql/sources';
 import { getFeedSettingsQueryKey } from './useFeedSettings';
@@ -51,6 +52,7 @@ type ReturnType = {
   followSource: FollowSource;
   unfollowSource: FollowSource;
   updateAdvancedSettings: UpdateAdvancedSettings;
+  updateFeedFilters: (feedSettings: FeedSettings) => Promise<unknown>;
 };
 
 async function updateQueryData(
@@ -141,6 +143,12 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
   const { flags } = useContext(FeaturesContext);
   const shouldShowMyFeed = isFeaturedEnabled(Features.MyFeedOn, flags);
   const shouldFilterLocally = shouldShowMyFeed && !user;
+
+  const updateFeedFilters = ({ advancedSettings, ...filters }: FeedSettings) =>
+    request(`${apiUrl}/graphql`, FEED_FILTERS_FROM_REGISTRATION, {
+      filters,
+      settings: advancedSettings,
+    });
 
   const onAdvancedSettingsUpdate = ({
     advancedSettings,
@@ -376,6 +384,7 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
 
   return useMemo(
     () => ({
+      updateFeedFilters,
       followTags: shouldFilterLocally ? onFollowTags : followTagsRemote,
       unfollowTags: shouldFilterLocally ? onUnfollowTags : unfollowTagsRemote,
       blockTag: shouldFilterLocally ? onBlockTags : blockTagRemote,
@@ -390,6 +399,7 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
     }),
     [
       shouldFilterLocally,
+      updateFeedFilters,
       onFollowTags,
       onUnfollowTags,
       onBlockTags,

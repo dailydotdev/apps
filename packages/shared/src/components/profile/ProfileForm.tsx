@@ -20,6 +20,12 @@ import {
   getTimeZoneOptions,
   getUserInitialTimezone,
 } from '../../lib/timezones';
+import useMutateFilters from '../../hooks/useMutateFilters';
+import {
+  getLocalFeedSettings,
+  LOCAL_FEED_SETTINGS_KEY,
+} from '../../hooks/useFeedSettings';
+import { storageWrapper as storage } from '../../lib/storageWrapper';
 
 const REQUIRED_FIELDS_COUNT = 4;
 const timeZoneOptions = getTimeZoneOptions();
@@ -59,6 +65,7 @@ export default function ProfileForm({
       update: mode === 'update',
     }),
   );
+  const { updateFeedFilters } = useMutateFilters();
   const [usernameHint, setUsernameHint] = useState<string>();
   const [twitterHint, setTwitterHint] = useState<string>();
   const [githubHint, setGithubHint] = useState<string>();
@@ -123,6 +130,14 @@ export default function ProfileForm({
       const filledFields = Object.keys(data).filter(
         (key) => data[key] !== undefined && data[key] !== null,
       );
+
+      const feedSettings = getLocalFeedSettings(true);
+
+      if (feedSettings) {
+        await updateFeedFilters(feedSettings);
+        storage.removeItem(LOCAL_FEED_SETTINGS_KEY);
+      }
+
       onSuccessfulSubmit?.(filledFields.length > REQUIRED_FIELDS_COUNT);
     }
   };

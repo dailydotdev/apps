@@ -45,10 +45,12 @@ export const updateLocalFeedSettings = (feedSettings: FeedSettings): void => {
   storage.setItem(LOCAL_FEED_SETTINGS_KEY, JSON.stringify(feedSettings));
 };
 
-export const getLocalFeedSettings = (): FeedSettings => {
+export const getLocalFeedSettings = (
+  nullIfUndefined?: boolean,
+): FeedSettings => {
   const value = storage.getItem(LOCAL_FEED_SETTINGS_KEY);
   if (!value) {
-    return getEmptyFeedSettings();
+    return nullIfUndefined ? null : getEmptyFeedSettings();
   }
 
   try {
