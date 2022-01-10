@@ -10,12 +10,12 @@ import useFeedSettings, {
   getFeedSettingsQueryKey,
   updateLocalFeedSettings,
 } from '../../hooks/useFeedSettings';
-import AlertContext from '../../contexts/AlertContext';
 import AuthContext from '../../contexts/AuthContext';
 import { Button } from '../buttons/Button';
 import { AllTagCategoriesData } from '../../graphql/feedSettings';
 import { Features, isFeaturedEnabled } from '../../lib/featureManagement';
 import FeaturesContext from '../../contexts/FeaturesContext';
+import AlertContext from '../../contexts/AlertContext';
 
 const asideWidth = sizeN(89);
 
@@ -29,19 +29,11 @@ export default function FeedFilters({
   onBack,
 }: FeedFiltersProps): ReactElement {
   const client = useQueryClient();
-  const { user, showLogin } = useContext(AuthContext);
   const { alerts, updateAlerts } = useContext(AlertContext);
+  const { user, showLogin } = useContext(AuthContext);
   const { hasAnyFilter } = useFeedSettings();
   const { flags } = useContext(FeaturesContext);
   const shouldShowMyFeed = isFeaturedEnabled(Features.MyFeedOn, flags);
-
-  useEffect(() => {
-    if (isOpen) {
-      if (alerts?.filter && hasAnyFilter && user) {
-        updateAlerts({ filter: false });
-      }
-    }
-  }, [isOpen, alerts, user, hasAnyFilter]);
 
   const onCreate = () => {
     // apply analytics
@@ -50,6 +42,12 @@ export default function FeedFilters({
     updateLocalFeedSettings(feedSettings);
     showLogin('create feed filters');
   };
+
+  useEffect(() => {
+    if (isOpen && alerts?.filter && hasAnyFilter && user && !shouldShowMyFeed) {
+      updateAlerts({ filter: false });
+    }
+  }, [isOpen, alerts, user, hasAnyFilter]);
 
   return (
     <aside

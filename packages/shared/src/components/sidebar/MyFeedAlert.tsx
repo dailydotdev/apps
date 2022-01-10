@@ -30,6 +30,7 @@ export default function MyFeedAlert({
             target="_blank"
             rel="noopener"
           >
+            {' '}
             Learn more.
           </a>
         )}
