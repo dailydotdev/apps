@@ -31,6 +31,7 @@ export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   activePage?: string;
   useNavButtonsNotLinks?: boolean;
   mobileTitle?: string;
+  showDnd?: boolean;
   onLogoClick?: (e: React.MouseEvent) => unknown;
   enableSearch?: () => void;
   onNavTabClick?: (tab: string) => void;
@@ -88,6 +89,7 @@ export default function MainLayout({
   activePage,
   useNavButtonsNotLinks,
   mobileTitle,
+  showDnd,
   onLogoClick,
   onNavTabClick,
   enableSearch,
@@ -146,10 +148,7 @@ export default function MainLayout({
             {!showOnlyLogo && !loadingUser && (
               <>
                 {user ? (
-                  <ProfileButton
-                    className="hidden laptop:flex"
-                    onShowDndClick={onShowDndClick}
-                  />
+                  <ProfileButton className="hidden laptop:flex" />
                 ) : (
                   <LoginButton className="hidden laptop:block" />
                 )}
@@ -174,6 +173,7 @@ export default function MainLayout({
             onNavTabClick={onNavTabClick}
             enableSearch={enableSearch}
             activePage={activePage}
+            showDnd={showDnd}
             useNavButtonsNotLinks={useNavButtonsNotLinks}
             onShowDndClick={onShowDndClick}
             setOpenMobileSidebar={() => trackAndToggleMobileSidebar(false)}
