@@ -50,12 +50,12 @@ const bottomMenuItems: SidebarMenuItem[] = [
   {
     icon: <ListIcon Icon={TerminalIcon} />,
     title: 'Changelog',
-    path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}sources/daily_updates `,
+    path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}sources/daily_updates`,
   },
   {
     icon: <ListIcon Icon={FeedbackIcon} />,
     title: 'Feedback',
-    path: 'https://it057218.typeform.com/to/S9p9SVNI',
+    path: 'https://daily.dev/feedback',
     target: '_blank',
   },
 ];
