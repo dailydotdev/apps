@@ -1,13 +1,12 @@
 import React from 'react';
 import { waitFor, render, RenderResult, screen } from '@testing-library/react';
-import ProfileButton, { ProfileButtonProps } from './ProfileButton';
+import ProfileButton from './ProfileButton';
 import AuthContext from '../../contexts/AuthContext';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 
-const onShowDndClick = jest.fn();
 const logout = jest.fn();
 
-const renderComponent = (props: ProfileButtonProps): RenderResult => {
+const renderComponent = (): RenderResult => {
   return render(
     <AuthContext.Provider
       value={{
@@ -23,13 +22,13 @@ const renderComponent = (props: ProfileButtonProps): RenderResult => {
         loginState: null,
       }}
     >
-      <ProfileButton {...props} />
+      <ProfileButton />
     </AuthContext.Provider>,
   );
 };
 
 it('should click the account details and show the pop up', async () => {
-  renderComponent({ onShowDndClick });
+  renderComponent();
 
   const profileBtn = await screen.findByLabelText('Profile settings');
   profileBtn.click();
@@ -43,7 +42,7 @@ it('should click the account details and show the pop up', async () => {
 });
 
 it('should click the logout button and logout', async () => {
-  renderComponent({ onShowDndClick });
+  renderComponent();
 
   const profileBtn = await screen.findByLabelText('Profile settings');
   profileBtn.click();
