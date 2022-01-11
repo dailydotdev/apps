@@ -43,6 +43,7 @@ const statusColor = {
 interface MyFeedButtonSharedProps {
   sidebarExpanded: boolean;
   action: () => unknown;
+  isActive?: boolean;
 }
 type UnfilteredMyFeedButtonProps = MyFeedButtonSharedProps & {
   flags: IFlags;
@@ -111,9 +112,10 @@ const FilteredMyFeedButton = ({
   item,
   sidebarExpanded,
   action,
+  isActive,
 }: FilteredMyFeedButtonProps) => {
   return (
-    <NavItem className="mt-6">
+    <NavItem className="mt-6" active={isActive}>
       <ButtonOrLink item={item}>
         <ItemInner item={item} sidebarExpanded={sidebarExpanded} />
       </ButtonOrLink>
@@ -134,6 +136,7 @@ export default function MyFeedButton({
   filtered = false,
   flags,
   action,
+  isActive,
 }: MyFeedButtonProps): ReactElement {
   if (filtered) {
     return (
@@ -141,6 +144,7 @@ export default function MyFeedButton({
         action={action}
         sidebarExpanded={sidebarExpanded}
         item={item}
+        isActive={isActive}
       />
     );
   }
