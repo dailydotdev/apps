@@ -143,10 +143,7 @@ export default function Sidebar({
   const [showSettings, setShowSettings] = useState(false);
   const shouldShowDnD = !!process.env.TARGET_BROWSER;
   const { flags } = useContext(FeaturesContext);
-  const sidebarFeedCopy = getFeatureValue(
-    Features.SidebarPopularFeedCopy,
-    flags,
-  );
+  const popularFeedCopy = getFeatureValue(Features.PopularFeedCopy, flags);
 
   useHideMobileSidebar({
     state: openMobileSidebar,
@@ -172,7 +169,7 @@ export default function Sidebar({
     },
     {
       icon: <ListIcon Icon={HotIcon} />,
-      title: sidebarFeedCopy,
+      title: popularFeedCopy,
       path: '/popular',
       action: () => onNavTabClick?.('popular'),
     },

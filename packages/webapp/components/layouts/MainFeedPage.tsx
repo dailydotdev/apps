@@ -1,9 +1,14 @@
-import React, { ReactElement, ReactNode, useEffect, useState } from 'react';
+import React, { ReactElement, ReactNode, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
 import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
 import dynamic from 'next/dynamic';
 import { getLayout } from './FeedLayout';
+import {
+  Features,
+  getFeatureValue,
+} from '@dailydotdev/shared/src/lib/featureManagement';
+import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
 
 const PostsSearch = dynamic(
   () => import(/* webpackChunkName: "search" */ '../RouterPostsSearch'),
@@ -27,12 +32,17 @@ export default function MainFeedPage({
   const router = useRouter();
   const [feedName, setFeedName] = useState(getFeedName(router?.pathname));
   const [isSearchOn, setIsSearchOn] = useState(router?.pathname === '/search');
+  const { flags } = useContext(FeaturesContext);
+  const feedNameCopy = getFeatureValue(
+    Features.SidebarPopularFeedCopy,
+    flags,
+  );
 
   useEffect(() => {
     if (router?.pathname === '/search') {
       setIsSearchOn(true);
       if (!feedName) {
-        setFeedName('popular');
+        setFeedName(feedNameCopy);
       }
     } else {
       const newFeed = getFeedName(router?.pathname);
