@@ -43,6 +43,7 @@ import usePersistentContext from '../../hooks/usePersistentContext';
 import MyFeedAlert from './MyFeedAlert';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { AlertColor, AlertDot } from '../AlertDot';
+import { Features, isFeaturedEnabled } from '../../lib/featureManagement';
 
 const bottomMenuItems: SidebarMenuItem[] = [
   {
@@ -54,12 +55,12 @@ const bottomMenuItems: SidebarMenuItem[] = [
   {
     icon: <ListIcon Icon={TerminalIcon} />,
     title: 'Changelog',
-    path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}sources/daily_updates `,
+    path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}sources/daily_updates`,
   },
   {
     icon: <ListIcon Icon={FeedbackIcon} />,
     title: 'Feedback',
-    path: 'https://it057218.typeform.com/to/S9p9SVNI',
+    path: 'https://daily.dev/feedback',
     target: '_blank',
   },
 ];
@@ -146,8 +147,7 @@ export default function Sidebar({
     useContext(SettingsContext);
   const [showSettings, setShowSettings] = useState(false);
   const { flags } = useContext(FeaturesContext);
-  // const shouldShowMyFeed = isFeaturedEnabled(Features.MyFeedOn, flags);
-  const shouldShowMyFeed = true;
+  const shouldShowMyFeed = isFeaturedEnabled(Features.MyFeedOn, flags);
 
   useHideMobileSidebar({
     state: openMobileSidebar,
@@ -246,7 +246,7 @@ export default function Sidebar({
   }
 
   const shouldHideMyFeedAlert =
-    alerts?.filter || (!alerts?.filter && !alerts?.myFeed);
+    !shouldShowMyFeed || alerts?.filter || (!alerts?.filter && !alerts?.myFeed);
 
   return (
     <>

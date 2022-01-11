@@ -16,7 +16,6 @@ export interface FeedAdvancedSettings
 
 export interface Tag {
   name?: string;
-  string;
 }
 
 export interface TagsData {
@@ -33,6 +32,13 @@ export interface FeedSettings {
   excludeSources?: Source[];
   advancedSettings?: FeedAdvancedSettings[];
 }
+
+export const getEmptyFeedSettings = (): FeedSettings => ({
+  includeTags: [],
+  blockedTags: [],
+  excludeSources: [],
+  advancedSettings: [],
+});
 
 export interface TagCategory {
   id: string;
@@ -88,6 +94,23 @@ export const FEED_SETTINGS_QUERY = gql`
       title
       description
       defaultEnabledState
+    }
+  }
+`;
+
+export const FEED_FILTERS_FROM_REGISTRATION = gql`
+  mutation AddFiltersToFeed(
+    $filters: FiltersInput!
+    $settings: [FeedAdvancedSettingsInput]!
+  ) {
+    addFiltersToFeed(filters: $filters) {
+      id
+    }
+    updateFeedAdvancedSettings(settings: $settings) {
+      id
+    }
+    updateUserAlerts(data: { filter: false }) {
+      filter
     }
   }
 `;

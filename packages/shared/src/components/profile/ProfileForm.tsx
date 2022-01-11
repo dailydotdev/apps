@@ -20,6 +20,14 @@ import {
   getTimeZoneOptions,
   getUserInitialTimezone,
 } from '../../lib/timezones';
+import useMutateFilters from '../../hooks/useMutateFilters';
+import {
+  getLocalFeedSettings,
+  LOCAL_FEED_SETTINGS_KEY,
+} from '../../hooks/useFeedSettings';
+import { storageWrapper as storage } from '../../lib/storageWrapper';
+import { Features, isFeaturedEnabled } from '../../lib/featureManagement';
+import FeaturesContext from '../../contexts/FeaturesContext';
 
 const REQUIRED_FIELDS_COUNT = 4;
 const timeZoneOptions = getTimeZoneOptions();
@@ -59,11 +67,13 @@ export default function ProfileForm({
       update: mode === 'update',
     }),
   );
+  const { updateFeedFilters } = useMutateFilters();
   const [usernameHint, setUsernameHint] = useState<string>();
   const [twitterHint, setTwitterHint] = useState<string>();
   const [githubHint, setGithubHint] = useState<string>();
   const [hashnodeHint, setHashnodeHint] = useState<string>();
   const [emailHint, setEmailHint] = useState(defaultEmailHint);
+  const { flags } = useContext(FeaturesContext);
 
   const updateDisableSubmit = () => {
     if (formRef.current) {
@@ -123,6 +133,14 @@ export default function ProfileForm({
       const filledFields = Object.keys(data).filter(
         (key) => data[key] !== undefined && data[key] !== null,
       );
+
+      const feedSettings = getLocalFeedSettings(true);
+
+      if (feedSettings) {
+        await updateFeedFilters(feedSettings);
+        storage.removeItem(LOCAL_FEED_SETTINGS_KEY);
+      }
+
       onSuccessfulSubmit?.(filledFields.length > REQUIRED_FIELDS_COUNT);
     }
   };
@@ -217,9 +235,18 @@ export default function ProfileForm({
     </>
   );
 
+  const isImageHidden = isFeaturedEnabled(
+    Features.HideSignupProfileImage,
+    flags,
+  );
+
   return (
     <form
-      className={classNames(className, 'flex flex-col w-full mt-10 p-0')}
+      className={classNames(
+        className,
+        'flex flex-col w-full p-0',
+        isImageHidden ? 'mt-4' : 'mt-10',
+      )}
       ref={formRef}
       onSubmit={onSubmit}
       {...props}

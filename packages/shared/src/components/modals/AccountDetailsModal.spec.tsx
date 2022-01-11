@@ -1,4 +1,5 @@
 import React from 'react';
+import { QueryClient, QueryClientProvider } from 'react-query';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { mocked } from 'ts-jest/utils';
 import { LoggedUser, updateProfile } from '../../lib/user';
@@ -30,23 +31,27 @@ const defaultUser = {
 };
 
 const renderComponent = (user: Partial<LoggedUser> = {}): RenderResult => {
+  const client = new QueryClient();
+
   return render(
-    <AuthContext.Provider
-      value={{
-        user: { ...defaultUser, ...user },
-        shouldShowLogin: false,
-        showLogin: jest.fn(),
-        updateUser: jest.fn(),
-        logout,
-        tokenRefreshed: true,
-      }}
-    >
-      <AccountDetailsModal
-        isOpen
-        onRequestClose={onRequestClose}
-        ariaHideApp={false}
-      />
-    </AuthContext.Provider>,
+    <QueryClientProvider client={client}>
+      <AuthContext.Provider
+        value={{
+          user: { ...defaultUser, ...user },
+          shouldShowLogin: false,
+          showLogin: jest.fn(),
+          updateUser: jest.fn(),
+          logout,
+          tokenRefreshed: true,
+        }}
+      >
+        <AccountDetailsModal
+          isOpen
+          onRequestClose={onRequestClose}
+          ariaHideApp={false}
+        />
+      </AuthContext.Provider>
+    </QueryClientProvider>,
   );
 };
 
