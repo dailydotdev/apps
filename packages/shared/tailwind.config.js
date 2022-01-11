@@ -143,11 +143,9 @@ module.exports = {
       },
       width: {
         70: '17.5rem',
-        fit: 'fit-content',
       },
       height: {
         logo: '1.125rem',
-        fit: 'fit-content',
       },
     },
   },
