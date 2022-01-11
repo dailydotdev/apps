@@ -119,7 +119,7 @@ const FilteredMyFeedButton = ({
       </ButtonOrLink>
       <Button
         iconOnly
-        className="mr-3"
+        className="mr-3 btn-tertiary"
         buttonSize="xsmall"
         icon={<FilterIcon />}
         onClick={action}
