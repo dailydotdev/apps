@@ -47,6 +47,11 @@ export class Features {
     'Logout',
   );
 
+  static readonly SidebarPopularFeedCopy = new Features(
+    'sidebar_popular_feed_copy',
+    'Popular',
+  );
+
   private constructor(
     public readonly id: string,
     public readonly defaultValue?: string,

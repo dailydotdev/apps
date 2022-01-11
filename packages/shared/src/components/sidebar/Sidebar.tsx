@@ -40,6 +40,8 @@ import AuthContext from '../../contexts/AuthContext';
 import useHideMobileSidebar from '../../hooks/useHideMobileSidebar';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import usePersistentContext from '../../hooks/usePersistentContext';
+import { Features, getFeatureValue } from '../../lib/featureManagement';
+import FeaturesContext from '../../contexts/FeaturesContext';
 
 const bottomMenuItems: SidebarMenuItem[] = [
   {
@@ -140,6 +142,11 @@ export default function Sidebar({
     useContext(SettingsContext);
   const [showSettings, setShowSettings] = useState(false);
   const shouldShowDnD = !!process.env.TARGET_BROWSER;
+  const { flags } = useContext(FeaturesContext);
+  const sidebarFeedCopy = getFeatureValue(
+    Features.SidebarPopularFeedCopy,
+    flags,
+  );
 
   useHideMobileSidebar({
     state: openMobileSidebar,
@@ -165,7 +172,7 @@ export default function Sidebar({
     },
     {
       icon: <ListIcon Icon={HotIcon} />,
-      title: 'Popular',
+      title: sidebarFeedCopy,
       path: '/popular',
       action: () => onNavTabClick?.('popular'),
     },
