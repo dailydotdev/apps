@@ -44,6 +44,7 @@ interface MyFeedButtonSharedProps {
   sidebarExpanded: boolean;
   action: () => unknown;
   isActive?: boolean;
+  useNavButtonsNotLinks?: boolean;
 }
 type UnfilteredMyFeedButtonProps = MyFeedButtonSharedProps & {
   flags: IFlags;
@@ -113,10 +114,11 @@ const FilteredMyFeedButton = ({
   sidebarExpanded,
   action,
   isActive,
+  useNavButtonsNotLinks,
 }: FilteredMyFeedButtonProps) => {
   return (
     <NavItem className="mt-6" active={isActive}>
-      <ButtonOrLink item={item}>
+      <ButtonOrLink item={item} useNavButtonsNotLinks={useNavButtonsNotLinks}>
         <ItemInner item={item} sidebarExpanded={sidebarExpanded} />
       </ButtonOrLink>
       <Button
@@ -137,6 +139,7 @@ export default function MyFeedButton({
   flags,
   action,
   isActive,
+  useNavButtonsNotLinks,
 }: MyFeedButtonProps): ReactElement {
   if (filtered) {
     return (
@@ -145,6 +148,7 @@ export default function MyFeedButton({
         sidebarExpanded={sidebarExpanded}
         item={item}
         isActive={isActive}
+        useNavButtonsNotLinks={useNavButtonsNotLinks}
       />
     );
   }
