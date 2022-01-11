@@ -30,7 +30,7 @@ export interface DropdownProps {
 
 const getButtonSizeClass = (buttonSize: string): string => {
   if (buttonSize === 'select') {
-    return 'h-9 rounded-10 text-theme-label-primary typo-callout';
+    return 'h-9 rounded-10 text-theme-label-primary typo-body';
   }
   if (buttonSize === 'medium') {
     return 'h-10 rounded-xl';
