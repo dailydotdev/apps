@@ -61,6 +61,7 @@ module.exports = {
 
   entry: {
     manifest: path.join(sourcePath, 'manifest.json'),
+    content: path.join(sourcePath, 'content'),
     background: path.join(sourcePath, 'background', 'index.ts'),
     newtab: path.join(sourcePath, 'newtab', 'index.tsx'),
   },
