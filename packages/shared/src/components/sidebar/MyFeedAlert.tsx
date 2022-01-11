@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import XIcon from '@dailydotdev/shared/icons/x.svg';
+import XIcon from '../../../icons/x.svg';
 import { Alerts } from '../../graphql/alerts';
 import { Button } from '../buttons/Button';
 import { AlertContainer, AlertCopy } from './common';
