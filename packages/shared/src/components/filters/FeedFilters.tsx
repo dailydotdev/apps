@@ -16,9 +16,9 @@ import { AllTagCategoriesData } from '../../graphql/feedSettings';
 import { Features, isFeaturedEnabled } from '../../lib/featureManagement';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import AlertContext from '../../contexts/AlertContext';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
 
 const asideWidth = sizeN(89);
-
 interface FeedFiltersProps {
   isOpen?: boolean;
   onBack?: () => void;
@@ -29,6 +29,7 @@ export default function FeedFilters({
   onBack,
 }: FeedFiltersProps): ReactElement {
   const client = useQueryClient();
+  const { trackEvent } = useContext(AnalyticsContext);
   const { alerts, updateAlerts } = useContext(AlertContext);
   const { user, showLogin } = useContext(AuthContext);
   const { hasAnyFilter } = useFeedSettings();
@@ -36,7 +37,12 @@ export default function FeedFilters({
   const shouldShowMyFeed = isFeaturedEnabled(Features.MyFeedOn, flags);
 
   const onCreate = () => {
-    // apply analytics
+    trackEvent({
+      event_name: 'click',
+      target_type: 'create my feed button',
+      target_id: 'feed-filters',
+      feed_item_title: 'create feed filters',
+    });
     const key = getFeedSettingsQueryKey(user);
     const { feedSettings } = client.getQueryData(key) as AllTagCategoriesData;
     updateLocalFeedSettings(feedSettings);

@@ -28,6 +28,7 @@ import {
 import { storageWrapper as storage } from '../../lib/storageWrapper';
 import { Features, isFeaturedEnabled } from '../../lib/featureManagement';
 import FeaturesContext from '../../contexts/FeaturesContext';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
 
 const REQUIRED_FIELDS_COUNT = 4;
 const timeZoneOptions = getTimeZoneOptions();
@@ -59,6 +60,7 @@ export default function ProfileForm({
   ...props
 }: ProfileFormProps): ReactElement {
   const { user, updateUser } = useContext(AuthContext);
+  const { trackEvent } = useContext(AnalyticsContext);
   const formRef = useRef<HTMLFormElement>(null);
 
   const [userTimeZone, setUserTimeZone] = useState<string>(
@@ -137,6 +139,9 @@ export default function ProfileForm({
       const feedSettings = getLocalFeedSettings(true);
 
       if (feedSettings) {
+        trackEvent({
+          event_name: 'create feed',
+        });
         await updateFeedFilters(feedSettings);
         storage.removeItem(LOCAL_FEED_SETTINGS_KEY);
       }
