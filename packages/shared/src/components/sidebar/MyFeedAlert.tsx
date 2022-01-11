@@ -41,6 +41,7 @@ export default function MyFeedAlert({
         icon={<XIcon />}
         buttonSize="xsmall"
         iconOnly
+        className="btn-tertiary"
       />
     </AlertContainer>
   );
