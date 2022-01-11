@@ -13,6 +13,7 @@ import SettingsIcon from '../../../icons/settings.svg';
 import FeedbackIcon from '../../../icons/feedback.svg';
 import DocsIcon from '../../../icons/docs.svg';
 import TerminalIcon from '../../../icons/terminal.svg';
+import MoonIcon from '../../../icons/filled/moon.svg';
 import {
   ButtonOrLink,
   ItemInner,
@@ -122,6 +123,7 @@ export default function Sidebar({
   activePage: activePageProp,
   sidebarRendered = false,
   openMobileSidebar = false,
+  showDnd = false,
   onNavTabClick,
   enableSearch,
   setOpenMobileSidebar,
@@ -137,6 +139,7 @@ export default function Sidebar({
   const { sidebarExpanded, toggleSidebarExpanded, loadedSettings } =
     useContext(SettingsContext);
   const [showSettings, setShowSettings] = useState(false);
+  const shouldShowDnD = !!process.env.TARGET_BROWSER;
 
   useHideMobileSidebar({
     state: openMobileSidebar,
@@ -208,6 +211,15 @@ export default function Sidebar({
       active: showSettings,
     },
   ];
+  if (shouldShowDnD) {
+    const dndMenuItem = {
+      icon: <ListIcon Icon={MoonIcon} />,
+      title: 'Focus mode',
+      action: onShowDndClick,
+      active: showDnd,
+    };
+    manageMenuItems.splice(2, 0, dndMenuItem);
+  }
 
   const defaultRenderSectionProps = useMemo(() => {
     return {
@@ -244,10 +256,7 @@ export default function Sidebar({
         )}
         <SidebarScrollWrapper>
           <Nav>
-            <SidebarUserButton
-              sidebarRendered={sidebarRendered}
-              onShowDndClick={onShowDndClick}
-            />
+            <SidebarUserButton sidebarRendered={sidebarRendered} />
             <RenderSection
               {...defaultRenderSectionProps}
               title="Discover"
