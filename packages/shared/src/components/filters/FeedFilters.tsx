@@ -54,6 +54,9 @@ export default function FeedFilters({
     }
   }, [isOpen, alerts, user, hasAnyFilter]);
 
+  const directlyOpenedTab =
+    isOpen && shouldShowMyFeed && alerts?.filter && 'Manage tags';
+
   return (
     <aside
       className={classNames(
@@ -83,7 +86,7 @@ export default function FeedFilters({
           </Button>
         )}
       </div>
-      <FilterMenu />
+      <FilterMenu directlyOpenedTab={directlyOpenedTab} />
     </aside>
   );
 }
