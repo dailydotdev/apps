@@ -1,37 +1,23 @@
-import React, { useState, ReactElement, useEffect } from 'react';
+import React, { useState, ReactElement } from 'react';
 import { MenuItem } from '../filters/common';
 import MultiLevelMenuDetail from './MultiLevelMenuDetail';
 import MultiLevelMenuMaster from './MultiLevelMenuMaster';
 
 interface MultiLevelMenuProps {
   menuItems: MenuItem[];
-  directlyOpenedTab?: string;
+  directlyOpenedTab?: MenuItem;
 }
 
 export default function MultiLevelMenu({
   menuItems,
-  directlyOpenedTab,
+  directlyOpenedTab = null,
 }: MultiLevelMenuProps): ReactElement {
   const [multiLevelMenuDetailItem, setMultiLevelMenuDetailItem] =
-    useState(null);
+    useState(directlyOpenedTab);
 
   const setMultiLevelMenuDetail = (multiLevelMenuDetail) => {
     setMultiLevelMenuDetailItem(multiLevelMenuDetail);
   };
-
-  useEffect(() => {
-    if (!directlyOpenedTab) {
-      return;
-    }
-
-    const menuItem = menuItems.find((item) => item.title === directlyOpenedTab);
-
-    if (!menuItem) {
-      return;
-    }
-
-    setMultiLevelMenuDetailItem(menuItem);
-  }, [directlyOpenedTab]);
 
   return (
     <>
