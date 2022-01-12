@@ -10,6 +10,7 @@ export default function useFeedBookmarkPost(
   items: FeedItem[],
   updatePost: (page: number, index: number, post: Post) => void,
   columns: number,
+  feedName: string,
 ): (
   post: Post,
   index: number,
@@ -47,7 +48,7 @@ export default function useFeedBookmarkPost(
           columns,
           column,
           row,
-          extra: { origin: 'feed' },
+          extra: { origin: 'feed', feed: feedName },
         },
       ),
     );

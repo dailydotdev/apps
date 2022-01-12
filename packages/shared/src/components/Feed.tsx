@@ -38,6 +38,7 @@ import FeaturesContext from '../contexts/FeaturesContext';
 import { Features, getFeatureValue } from '../lib/featureManagement';
 
 export type FeedProps<T> = {
+  feedName: string;
   feedQueryKey: unknown[];
   query?: string;
   variables?: T;
@@ -59,6 +60,7 @@ const getStyle = (useList: boolean, spaciness: Spaciness): CSSProperties => {
 };
 
 export default function Feed<T>({
+  feedName,
   feedQueryKey,
   query,
   variables,
@@ -106,7 +108,7 @@ export default function Feed<T>({
     setShowCommentPopupId,
     comment,
     isSendingComment,
-  } = useCommentPopup();
+  } = useCommentPopup(feedName);
   const infiniteScrollRef = useFeedInfiniteScroll({ fetchPage, canFetchMore });
 
   const onShare = async (post: Post): Promise<void> => {
@@ -140,16 +142,19 @@ export default function Feed<T>({
     updatePost,
     setShowCommentPopupId,
     virtualizedNumCards,
+    feedName,
   );
   const onBookmark = useFeedBookmarkPost(
     items,
     updatePost,
     virtualizedNumCards,
+    feedName,
   );
   const onPostClick = useFeedOnPostClick(
     items,
     updatePost,
     virtualizedNumCards,
+    feedName,
   );
   const { onMenuClick, postMenuIndex, setPostMenuIndex } = useFeedContextMenu();
   const { notification, notificationIndex, onMessage } = useNotification();
@@ -170,7 +175,7 @@ export default function Feed<T>({
         columns: virtualizedNumCards,
         column,
         row,
-        extra: { origin: 'feed' },
+        extra: { origin: 'feed', feed: feedName },
       }),
     );
   };
@@ -186,7 +191,7 @@ export default function Feed<T>({
         columns: virtualizedNumCards,
         column,
         row,
-        extra: { origin: 'feed' },
+        extra: { origin: 'feed', feed: feedName },
       }),
     );
   };
@@ -239,6 +244,7 @@ export default function Feed<T>({
             isSendingComment={isSendingComment}
             comment={comment}
             user={user}
+            feedName={feedName}
             onUpvote={onUpvote}
             onBookmark={onBookmark}
             onPostClick={onPostClick}
