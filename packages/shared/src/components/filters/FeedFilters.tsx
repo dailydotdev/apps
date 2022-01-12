@@ -39,9 +39,8 @@ export default function FeedFilters({
   const onCreate = () => {
     trackEvent({
       event_name: 'click',
-      target_type: 'create my feed button',
+      target_type: 'create feed filters',
       target_id: 'feed-filters',
-      feed_item_title: 'create feed filters',
     });
     const key = getFeedSettingsQueryKey(user);
     const { feedSettings } = client.getQueryData(key) as AllTagCategoriesData;

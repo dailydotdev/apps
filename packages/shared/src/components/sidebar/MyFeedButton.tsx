@@ -64,7 +64,7 @@ const getAnalyticsEvent = (
 ): Partial<AnalyticsEvent> => ({
   event_name: eventName,
   target_type: 'my feed button',
-  target_id: 'sidebar',
+  target_id: 'my-feed',
   feed_item_title: copy,
 });
 
