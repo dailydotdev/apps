@@ -18,7 +18,6 @@ const ProfileMenu = dynamic(
 
 export default function SidebarUserButton({
   sidebarRendered,
-  onShowDndClick,
 }: SidebarUserButtonProps): ReactElement {
   const { user, loadingUser } = useContext(AuthContext);
 
@@ -47,7 +46,7 @@ export default function SidebarUserButton({
               <p className="typo-footnote text-theme-label-secondary">
                 @{user.username}
               </p>
-              <ProfileMenu onShowDndClick={onShowDndClick} />
+              <ProfileMenu />
             </>
           ) : (
             <LoginButton icon={<UserIcon />} />

@@ -6,14 +6,9 @@ import ProfileMenu from '../ProfileMenu';
 import { ProfilePicture } from '../ProfilePicture';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
-export interface ProfileButtonProps extends HTMLProps<HTMLButtonElement> {
-  onShowDndClick?: () => unknown;
-}
-
 export default function ProfileButton({
-  onShowDndClick,
   className,
-}: ProfileButtonProps): ReactElement {
+}: HTMLProps<HTMLButtonElement>): ReactElement {
   const { user } = useContext(AuthContext);
   const { onMenuClick } = useProfileMenu();
 
@@ -34,7 +29,7 @@ export default function ProfileButton({
           <ProfilePicture user={user} size="medium" />
         </button>
       </SimpleTooltip>
-      <ProfileMenu onShowDndClick={onShowDndClick} />
+      <ProfileMenu />
     </>
   );
 }

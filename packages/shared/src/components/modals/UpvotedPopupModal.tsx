@@ -55,7 +55,7 @@ export function UpvotedPopupModal({
         <ModalCloseButton onClick={onRequestClose} />
       </header>
       <section
-        className="overflow-auto relative flex-shrink w-full h-full max-h-full"
+        className="overflow-auto relative w-full h-full shrink max-h-full"
         data-testid={`List of ${queryKey[0]} with ID ${queryKey[1]}`}
       >
         {page && page.upvotes.edges.length > 0 ? (
