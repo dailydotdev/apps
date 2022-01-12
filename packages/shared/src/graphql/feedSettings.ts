@@ -109,7 +109,7 @@ export const FEED_FILTERS_FROM_REGISTRATION = gql`
     updateFeedAdvancedSettings(settings: $settings) {
       id
     }
-    updateUserAlerts(data: { filter: false, myFeed: 'created' }) {
+    updateUserAlerts(data: { filter: false, myFeed: "created" }) {
       filter
       myFeed
     }
