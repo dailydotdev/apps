@@ -32,7 +32,10 @@ export type RegistrationMode = 'default' | 'author' | 'update';
 
 export interface ProfileFormProps extends HTMLAttributes<HTMLFormElement> {
   setDisableSubmit?: (disable: boolean) => void;
-  onSuccessfulSubmit?: (optionalFields: boolean) => void | Promise<void>;
+  onSuccessfulSubmit?: (
+    optionalFields: boolean,
+    hasFilters?: boolean,
+  ) => void | Promise<void>;
   mode?: RegistrationMode;
 }
 
@@ -129,8 +132,12 @@ export default function ProfileForm({
         (key) => data[key] !== undefined && data[key] !== null,
       );
 
-      await registerLocalFilters();
-      onSuccessfulSubmit?.(filledFields.length > REQUIRED_FIELDS_COUNT);
+      const { hasFilters } = await registerLocalFilters();
+
+      onSuccessfulSubmit?.(
+        filledFields.length > REQUIRED_FIELDS_COUNT,
+        hasFilters,
+      );
     }
   };
 

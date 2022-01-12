@@ -12,7 +12,7 @@ import {
 import useMutateFilters from './useMutateFilters';
 
 interface UseMyFeed {
-  registerLocalFilters: () => Promise<unknown>;
+  registerLocalFilters: () => Promise<{ hasFilters: boolean }>;
   shouldShowMyFeed: boolean;
 }
 
@@ -26,14 +26,18 @@ export function useMyFeed(): UseMyFeed {
   const registerLocalFilters = async () => {
     const feedSettings = getLocalFeedSettings(true);
 
-    if (feedSettings) {
-      trackEvent({
-        event_name: 'create feed',
-      });
-      await updateFeedFilters(feedSettings);
-      storage.removeItem(LOCAL_FEED_SETTINGS_KEY);
-      await client.invalidateQueries(BOOT_QUERY_KEY);
+    if (!feedSettings) {
+      return { hasFilters: false };
     }
+
+    trackEvent({
+      event_name: 'create feed',
+    });
+    await updateFeedFilters(feedSettings);
+    storage.removeItem(LOCAL_FEED_SETTINGS_KEY);
+    await client.invalidateQueries(BOOT_QUERY_KEY);
+
+    return { hasFilters: true };
   };
 
   return useMemo(

@@ -28,20 +28,21 @@ export default function Register(): ReactElement {
   const [disableSubmit, setDisableSubmit] = useState<boolean>(true);
   const { trackEvent } = useContext(AnalyticsContext);
   const { flags } = useContext(FeaturesContext);
-  const shouldShowMyFeed = isFeaturedEnabled(Features.MyFeedOn, flags);
 
   const getSignupModalFeatureValue = (featureFlag: Features) => {
     return getFeatureValue(featureFlag, flags);
   };
 
-  const getRedirectUri = () => {
+  const getRedirectUri = (hasFilters?: boolean) => {
     const uri = router.query.redirect_uri as string;
 
     if (!uri) {
-      return '/';
+      return hasFilters ? '/my-feed' : '/';
     }
 
-    return shouldShowMyFeed ? `${uri}?create_filter=true` : uri;
+    const param = 'create_filter=true';
+
+    return hasFilters ? `${uri}/my-feed?${param}` : `${uri}?${param}`;
   };
 
   useEffect(() => {
@@ -50,12 +51,15 @@ export default function Register(): ReactElement {
     });
   }, []);
 
-  const onSuccessfulSubmit = async (optionalFields: boolean) => {
+  const onSuccessfulSubmit = async (
+    optionalFields: boolean,
+    hasFilters?: boolean,
+  ) => {
     trackEvent({
       event_name: 'submit signup form',
       extra: JSON.stringify({ optional_fields: optionalFields }),
     });
-    await router?.replace(getRedirectUri());
+    await router?.replace(getRedirectUri(hasFilters));
   };
 
   const onCancel = () => {
