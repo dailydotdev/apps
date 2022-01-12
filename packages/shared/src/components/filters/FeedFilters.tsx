@@ -54,8 +54,7 @@ export default function FeedFilters({
     }
   }, [isOpen, alerts, user, hasAnyFilter]);
 
-  const directlyOpenedTab =
-    isOpen && shouldShowMyFeed && alerts?.filter && 'Manage tags';
+  const directlyOpenedTab = shouldShowMyFeed && alerts?.filter && 'Manage tags';
 
   return (
     <aside

@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import MultiLevelMenu from '../multiLevelMenu/MultiLevelMenu';
 import { MenuItem } from './common';
@@ -53,12 +53,16 @@ export default function FilterMenu({
     },
   ];
 
+  const initialTab = useMemo(
+    () =>
+      directlyOpenedTab &&
+      menuItems.find((item) => item.title === directlyOpenedTab),
+    [directlyOpenedTab],
+  );
+
   return (
     <>
-      <MultiLevelMenu
-        menuItems={menuItems}
-        directlyOpenedTab={directlyOpenedTab}
-      />
+      <MultiLevelMenu menuItems={menuItems} directlyOpenedTab={initialTab} />
       {showNewSourceModal && (
         <NewSourceModal
           isOpen={showNewSourceModal}
