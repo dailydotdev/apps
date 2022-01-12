@@ -46,13 +46,13 @@ export default SettingsContext;
 
 const deprecatedLightModeStorageKey = 'showmethelight';
 
-const themeModes: Record<RemoteTheme, ThemeMode> = {
+export const themeModes: Record<RemoteTheme, ThemeMode> = {
   bright: ThemeMode.Light,
   darcula: ThemeMode.Dark,
   auto: ThemeMode.Auto,
 };
 
-const remoteThemes: Record<ThemeMode, RemoteTheme> = {
+export const remoteThemes: Record<ThemeMode, RemoteTheme> = {
   [ThemeMode.Light]: 'bright',
   [ThemeMode.Dark]: 'darcula',
   [ThemeMode.Auto]: 'auto',
