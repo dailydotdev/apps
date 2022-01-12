@@ -7,6 +7,7 @@ import React, {
   useState,
 } from 'react';
 import classNames from 'classnames';
+import { useQueryClient } from 'react-query';
 import { updateProfile, UserProfile } from '../../lib/user';
 import { TextField } from '../fields/TextField';
 import { Switch } from '../fields/Switch';
@@ -28,6 +29,7 @@ import {
 import { storageWrapper as storage } from '../../lib/storageWrapper';
 import { Features, isFeaturedEnabled } from '../../lib/featureManagement';
 import FeaturesContext from '../../contexts/FeaturesContext';
+import { BOOT_QUERY_KEY } from '../../contexts/BootProvider';
 
 const REQUIRED_FIELDS_COUNT = 4;
 const timeZoneOptions = getTimeZoneOptions();
@@ -74,6 +76,7 @@ export default function ProfileForm({
   const [hashnodeHint, setHashnodeHint] = useState<string>();
   const [emailHint, setEmailHint] = useState(defaultEmailHint);
   const { flags } = useContext(FeaturesContext);
+  const client = useQueryClient();
 
   const updateDisableSubmit = () => {
     if (formRef.current) {
@@ -139,6 +142,7 @@ export default function ProfileForm({
       if (feedSettings) {
         await updateFeedFilters(feedSettings);
         storage.removeItem(LOCAL_FEED_SETTINGS_KEY);
+        await client.invalidateQueries(BOOT_QUERY_KEY);
       }
 
       onSuccessfulSubmit?.(filledFields.length > REQUIRED_FIELDS_COUNT);

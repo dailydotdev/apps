@@ -208,6 +208,9 @@ export default function Sidebar({
     icon: <ListIcon Icon={HomeIcon} />,
     title: 'My feed',
     path: '/my-feed',
+    alert: (alerts.filter || alerts.myFeed) && !sidebarExpanded && (
+      <AlertDot className="top-0 right-2.5" color={AlertColor.Success} />
+    ),
     action: () => onNavTabClick?.('my-feed'),
   };
 
@@ -282,6 +285,8 @@ export default function Sidebar({
                 item={myFeedMenuItem}
                 flags={flags}
                 action={openFeedFilters}
+                isActive={activePageProp === myFeedMenuItem.path}
+                useNavButtonsNotLinks={useNavButtonsNotLinks}
               />
             )}
             {sidebarExpanded && !shouldHideMyFeedAlert && (
