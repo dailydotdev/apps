@@ -36,6 +36,7 @@ const SearchEmptyScreen = dynamic(
 );
 
 const feedTitles = {
+  'my-feed': 'My feed',
   popular: 'Popular',
   upvoted: 'Most upvoted',
   discussed: 'Best discussions',
@@ -152,10 +153,16 @@ export default function MainFeedLayout({
     10,
   );
   const feedName = feedNameProp === 'default' ? defaultFeed : feedNameProp;
+  const isMyFeed = feedName === 'my-feed';
   const propsByFeed = getPropsByFeed({ shouldShowMyFeed });
 
   useEffect(() => {
-    if (defaultFeed !== null && feedName !== null && feedName !== defaultFeed) {
+    if (
+      defaultFeed !== null &&
+      feedName !== null &&
+      feedName !== defaultFeed &&
+      !getShouldRedirect(isMyFeed, !!user)
+    ) {
       updateDefaultFeed(feedName);
     }
   }, [defaultFeed, feedName]);
