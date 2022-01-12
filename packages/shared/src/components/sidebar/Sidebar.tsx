@@ -285,6 +285,8 @@ export default function Sidebar({
                 item={myFeedMenuItem}
                 flags={flags}
                 action={openFeedFilters}
+                isActive={activePageProp === myFeedMenuItem.path}
+                useNavButtonsNotLinks={useNavButtonsNotLinks}
               />
             )}
             {sidebarExpanded && !shouldHideMyFeedAlert && (
