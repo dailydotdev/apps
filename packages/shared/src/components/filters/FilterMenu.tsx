@@ -20,7 +20,13 @@ interface UnblockItem {
   action?: () => unknown;
 }
 
-export default function FilterMenu(): ReactElement {
+interface FilterMenuProps {
+  directlyOpenedTab?: string;
+}
+
+export default function FilterMenu({
+  directlyOpenedTab,
+}: FilterMenuProps): ReactElement {
   const [unblockItem, setUnblockItem] = useState<UnblockItem>();
   const [showNewSourceModal, setShowNewSourceModal] = useState(false);
 
@@ -49,7 +55,10 @@ export default function FilterMenu(): ReactElement {
 
   return (
     <>
-      <MultiLevelMenu menuItems={menuItems} />
+      <MultiLevelMenu
+        menuItems={menuItems}
+        directlyOpenedTab={directlyOpenedTab}
+      />
       {showNewSourceModal && (
         <NewSourceModal
           isOpen={showNewSourceModal}
