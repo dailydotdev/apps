@@ -138,7 +138,7 @@ it('should submit information', async () => {
     settings: advancedSettings,
     filters,
   });
-  expect(onSuccessfulSubmit).toBeCalledWith(true);
+  expect(onSuccessfulSubmit).toBeCalledWith(true, true);
   expect(updateUser).toBeCalledWith({ ...defaultUser, username: 'idoshamun' });
 });
 
@@ -167,7 +167,7 @@ it('should set optional fields on callback', async () => {
     twitter: null,
     hashnode: null,
   });
-  expect(onSuccessfulSubmit).toBeCalledWith(true);
+  expect(onSuccessfulSubmit).toBeCalledWith(true, false);
   expect(updateUser).toBeCalledWith({
     ...defaultUser,
     username: 'idoshamun',
