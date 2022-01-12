@@ -22,6 +22,7 @@ import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState
 import { RouterContext } from 'next/dist/shared/lib/router-context';
 import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPageView';
 import { trackPageView } from '@dailydotdev/shared/src/lib/analytics';
+import { useMyFeed } from '@dailydotdev/shared/src/hooks/useMyFeed';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
@@ -65,6 +66,7 @@ function InternalApp({
   } = useContext(AuthContext);
   const { flags } = useContext(FeaturesContext);
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
+  const { registerLocalFilters } = useMyFeed();
   const [analyticsConsent, setAnalyticsConsent] = usePersistentState(
     'consent',
     false,
@@ -92,6 +94,15 @@ function InternalApp({
       );
     }
   }, [user, loadingUser, tokenRefreshed]);
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const createFilter = urlParams.get('create_filter');
+
+    if (createFilter) {
+      registerLocalFilters();
+    }
+  }, []);
 
   useEffect(() => {
     if (routeChangedCallbackRef.current) {

@@ -28,9 +28,20 @@ export default function Register(): ReactElement {
   const [disableSubmit, setDisableSubmit] = useState<boolean>(true);
   const { trackEvent } = useContext(AnalyticsContext);
   const { flags } = useContext(FeaturesContext);
+  const shouldShowMyFeed = isFeaturedEnabled(Features.MyFeedOn, flags);
 
   const getSignupModalFeatureValue = (featureFlag: Features) => {
     return getFeatureValue(featureFlag, flags);
+  };
+
+  const getRedirectUri = () => {
+    const uri = router.query.redirect_uri as string;
+
+    if (!uri) {
+      return '/';
+    }
+
+    return shouldShowMyFeed ? `${uri}?create_filter=true` : uri;
   };
 
   useEffect(() => {
@@ -44,7 +55,7 @@ export default function Register(): ReactElement {
       event_name: 'submit signup form',
       extra: JSON.stringify({ optional_fields: optionalFields }),
     });
-    await router?.replace((router.query.redirect_uri as string) || '/');
+    await router?.replace(getRedirectUri());
   };
 
   const onCancel = () => {
