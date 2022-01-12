@@ -40,9 +40,7 @@ export default function Register(): ReactElement {
       return hasFilters ? '/my-feed' : '/';
     }
 
-    const param = 'create_filter=true';
-
-    return hasFilters ? `${uri}/my-feed?${param}` : `${uri}?${param}`;
+    return hasFilters ? `${uri}?create_filter=true` : uri;
   };
 
   useEffect(() => {
