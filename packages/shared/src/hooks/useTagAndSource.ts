@@ -1,12 +1,11 @@
 import { useContext, useMemo } from 'react';
-import { Features, isFeaturedEnabled } from '../lib/featureManagement';
 import AuthContext from '../contexts/AuthContext';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import useMutateFilters from './useMutateFilters';
 import { Source } from '../graphql/sources';
 import AlertContext from '../contexts/AlertContext';
-import FeaturesContext from '../contexts/FeaturesContext';
 import { BooleanPromise } from '../components/filters/common';
+import { useMyFeed } from './useMyFeed';
 
 export interface TagActionArguments {
   tags: Array<string>;
@@ -37,8 +36,7 @@ export default function useTagAndSource({
   origin,
   postId,
 }: UseTagAndSourceProps): UseTagAndSource {
-  const { flags } = useContext(FeaturesContext);
-  const shouldShowMyFeed = isFeaturedEnabled(Features.MyFeedOn, flags);
+  const { shouldShowMyFeed } = useMyFeed();
   const { alerts, updateAlerts } = useContext(AlertContext);
   const { user, showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);

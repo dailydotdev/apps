@@ -21,9 +21,8 @@ import useTagAndSource, {
 } from '../../hooks/useTagAndSource';
 import { FilterMenuProps } from './common';
 import MenuIcon from '../../../icons/menu.svg';
-import FeaturesContext from '../../contexts/FeaturesContext';
-import { Features, isFeaturedEnabled } from '../../lib/featureManagement';
 import AuthContext from '../../contexts/AuthContext';
+import { useMyFeed } from '../../hooks/useMyFeed';
 
 export default function TagsFilter({
   onUnblockItem,
@@ -31,10 +30,9 @@ export default function TagsFilter({
   const searchRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState<string>(null);
   const searchKey = getSearchTagsQueryKey(query);
-  const { flags } = useContext(FeaturesContext);
   const { user } = useContext(AuthContext);
-  const shouldShowMyFeed = isFeaturedEnabled(Features.MyFeedOn, flags);
   const { tagsCategories, feedSettings, isLoading } = useFeedSettings();
+  const { shouldShowMyFeed } = useMyFeed();
   const { contextSelectedTag, setContextSelectedTag, onTagContextOptions } =
     useTagContext();
   const { onFollowTags, onUnfollowTags, onBlockTags, onUnblockTags } =
