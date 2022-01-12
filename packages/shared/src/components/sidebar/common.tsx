@@ -18,6 +18,7 @@ export interface SidebarProps {
   sidebarRendered?: boolean;
   openMobileSidebar?: boolean;
   activePage?: string;
+  showDnd?: boolean;
   onNavTabClick?: (tab: string) => void;
   enableSearch?: () => void;
   setOpenMobileSidebar?: () => unknown;
@@ -26,7 +27,6 @@ export interface SidebarProps {
 
 export interface SidebarUserButtonProps {
   sidebarRendered?: boolean;
-  onShowDndClick?: () => void;
 }
 
 export interface SidebarMenuItem {

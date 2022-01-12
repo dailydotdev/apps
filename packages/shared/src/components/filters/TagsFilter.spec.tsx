@@ -166,7 +166,7 @@ it('should follow a tag on click and remove filter alert if enabled', async () =
   mockGraphQL({
     request: {
       query: UPDATE_ALERTS,
-      variables: { data: { filter: false } },
+      variables: { data: { filter: false, myFeed: 'created' } },
     },
     result: () => {
       alertsMutationCalled = true;

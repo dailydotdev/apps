@@ -77,6 +77,7 @@ export default function MainFeedPage({
       useNavButtonsNotLinks
       activePage={activePage}
       onLogoClick={onLogoClick}
+      showDnd={showDnd}
       onShowDndClick={() => setShowDnd(true)}
       enableSearch={enableSearch}
       onNavTabClick={onNavTabClick}

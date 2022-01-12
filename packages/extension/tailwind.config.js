@@ -3,7 +3,7 @@ const config = require('@dailydotdev/shared/tailwind.config');
 
 module.exports = {
   ...config,
-  purge: [
+  content: [
     './src/**/*.{js,ts,jsx,tsx}',
     './node_modules/@dailydotdev/shared/src/**/*.{js,ts,jsx,tsx}',
   ],
