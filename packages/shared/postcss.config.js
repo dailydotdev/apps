@@ -1,3 +1,5 @@
+/* eslint-disable global-require, import/no-extraneous-dependencies, @typescript-eslint/no-var-requires */
+
 module.exports = {
   plugins: [
     'postcss-import',
