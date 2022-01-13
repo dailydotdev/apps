@@ -1,4 +1,3 @@
-import { FeedSettings } from './../graphql/feedSettings';
 import { useContext, useMemo } from 'react';
 import { useQueryClient } from 'react-query';
 import AnalyticsContext from '../contexts/AnalyticsContext';
