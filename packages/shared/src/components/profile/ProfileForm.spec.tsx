@@ -12,7 +12,6 @@ import { LoggedUser, updateProfile } from '../../lib/user';
 import ProfileForm from './ProfileForm';
 import AuthContext from '../../contexts/AuthContext';
 import { getUserDefaultTimezone } from '../../lib/timezones';
-import { FeedSettings } from '../../graphql/feedSettings';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 
 jest.mock('../../lib/user', () => ({
