@@ -39,6 +39,7 @@ export type FeedItemComponentProps = {
     columns: number;
   }) => Promise<CommentOnData>;
   user: LoggedUser | undefined;
+  feedName: string;
   onUpvote: (
     post: Post,
     index: number,
@@ -112,6 +113,7 @@ export default function FeedItemComponent({
   isSendingComment,
   comment,
   user,
+  feedName,
   onUpvote,
   onBookmark,
   onPostClick,
@@ -125,7 +127,14 @@ export default function FeedItemComponent({
   const AdTag = useList ? AdList : AdCard;
   const PlaceholderTag = useList ? PlaceholderList : PlaceholderCard;
   const item = items[index];
-  const inViewRef = useTrackImpression(item, index, columns, column, row);
+  const inViewRef = useTrackImpression(
+    item,
+    index,
+    columns,
+    column,
+    row,
+    feedName,
+  );
 
   switch (item.type) {
     case 'post':

@@ -28,6 +28,28 @@ export class Features {
     'Unlock useful features by signing in. A bunch of cool stuff like content filters and bookmarks are waiting just for you.',
   );
 
+  static readonly MyFeedOn = new Features('my_feed_on');
+
+  static readonly MyFeedButtonCopy = new Features(
+    'my_feed_button_copy',
+    'Create my feed',
+  );
+
+  static readonly MyFeedButtonColor = new Features(
+    'my_feed_button_color',
+    'success',
+  );
+
+  static readonly MyFeedExplainerCopy = new Features(
+    'my_feed_explainer_copy',
+    'Devs with a personal feed get 11.5x more relevant articles',
+  );
+
+  static readonly MyFeedExplainerColor = new Features(
+    'my_feed_explainer_color',
+    'success',
+  );
+
   static readonly SignupTitleCopy = new Features(
     'signup_title_copy',
     'Set up your profile',

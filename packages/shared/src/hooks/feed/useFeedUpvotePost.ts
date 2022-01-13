@@ -12,6 +12,7 @@ export default function useFeedUpvotePost(
   updatePost: (page: number, index: number, post: Post) => void,
   setShowCommentPopupId: (postId: string) => void,
   columns: number,
+  feedName: string,
 ): (
   post: Post,
   index: number,
@@ -48,7 +49,7 @@ export default function useFeedUpvotePost(
         columns,
         column,
         row,
-        extra: { origin: 'feed' },
+        extra: { origin: 'feed', feed: feedName },
       }),
     );
     if (upvoted) {

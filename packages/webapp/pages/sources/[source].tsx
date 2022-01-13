@@ -113,6 +113,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
         </Button>
       </CustomFeedHeader>
       <Feed
+        feedName="source"
         feedQueryKey={[
           'sourceFeed',
           user?.id ?? 'anonymous',

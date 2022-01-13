@@ -26,12 +26,14 @@ import { generateQueryKey } from '../lib/query';
 import { Features, getFeatureValue } from '../lib/featureManagement';
 import classed from '../lib/classed';
 import usePersistentContext from '../hooks/usePersistentContext';
+import { useMyFeed } from '../hooks/useMyFeed';
 
 const SearchEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "emptySearch" */ './SearchEmptyScreen'),
 );
 
 const feedTitles = {
+  'my-feed': 'My feed',
   popular: 'Popular',
   upvoted: 'Most upvoted',
   discussed: 'Best discussions',
@@ -43,32 +45,59 @@ type FeedQueryProps = {
   variables?: Record<string, unknown>;
 };
 
-const propsByFeed: Record<string, FeedQueryProps> = {
-  popular: {
-    query: ANONYMOUS_FEED_QUERY,
-    queryIfLogged: FEED_QUERY,
-  },
-  search: {
-    query: ANONYMOUS_FEED_QUERY,
-    queryIfLogged: FEED_QUERY,
-  },
-  upvoted: {
-    query: MOST_UPVOTED_FEED_QUERY,
-  },
-  discussed: {
-    query: MOST_DISCUSSED_FEED_QUERY,
-  },
-  recent: {
-    query: ANONYMOUS_FEED_QUERY,
-    queryIfLogged: FEED_QUERY,
-    variables: { ranking: 'TIME' },
-  },
+interface FeedOptionalParams {
+  shouldShowMyFeed?: boolean;
+}
+
+const getPropsByFeed = ({
+  shouldShowMyFeed = false,
+}: FeedOptionalParams = {}): Record<string, FeedQueryProps> => {
+  return {
+    'my-feed': {
+      query: ANONYMOUS_FEED_QUERY,
+      queryIfLogged: FEED_QUERY,
+    },
+    popular: {
+      query: ANONYMOUS_FEED_QUERY,
+      queryIfLogged: shouldShowMyFeed ? ANONYMOUS_FEED_QUERY : FEED_QUERY,
+    },
+    search: {
+      query: ANONYMOUS_FEED_QUERY,
+      queryIfLogged: FEED_QUERY,
+    },
+    upvoted: {
+      query: MOST_UPVOTED_FEED_QUERY,
+    },
+    discussed: {
+      query: MOST_DISCUSSED_FEED_QUERY,
+    },
+    recent: {
+      query: ANONYMOUS_FEED_QUERY,
+      queryIfLogged: FEED_QUERY,
+      variables: { ranking: 'TIME' },
+    },
+  };
 };
 
 const LayoutHeader = classed(
   'header',
   'flex overflow-x-auto relative items-center self-stretch mb-6 h-11 no-scrollbar',
 );
+
+export const getShouldRedirect = (
+  isOnMyFeed: boolean,
+  isLoggedIn: boolean,
+): boolean => {
+  if (!isOnMyFeed) {
+    return false;
+  }
+
+  if (!isLoggedIn) {
+    return true;
+  }
+
+  return false;
+};
 
 export type MainFeedLayoutProps = {
   feedName: string;
@@ -115,14 +144,22 @@ export default function MainFeedLayout({
   );
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { flags } = useContext(FeaturesContext);
+  const { shouldShowMyFeed } = useMyFeed();
   const feedVersion = parseInt(
     getFeatureValue(Features.FeedVersion, flags),
     10,
   );
   const feedName = feedNameProp === 'default' ? defaultFeed : feedNameProp;
+  const isMyFeed = feedName === 'my-feed';
+  const propsByFeed = getPropsByFeed({ shouldShowMyFeed });
 
   useEffect(() => {
-    if (defaultFeed !== null && feedName !== null && feedName !== defaultFeed) {
+    if (
+      defaultFeed !== null &&
+      feedName !== null &&
+      feedName !== defaultFeed &&
+      !getShouldRedirect(isMyFeed, !!user)
+    ) {
       updateDefaultFeed(feedName);
     }
   }, [defaultFeed, feedName]);
@@ -188,6 +225,7 @@ export default function MainFeedLayout({
   const feedProps = useMemo<FeedProps<unknown>>(() => {
     if (isSearchOn && searchQuery) {
       return {
+        feedName: 'search',
         feedQueryKey: generateQueryKey('search', user, searchQuery),
         query: SEARCH_POSTS_QUERY,
         variables: { query: searchQuery },
@@ -201,6 +239,7 @@ export default function MainFeedLayout({
       ? { ...query.variables, period: periods[selectedPeriod].value }
       : query.variables;
     return {
+      feedName,
       feedQueryKey: generateQueryKey(
         feedName,
         user,

@@ -3,7 +3,7 @@ import { Item } from '@dailydotdev/react-contexify';
 import dynamic from 'next/dynamic';
 import useFeedSettings from '../hooks/useFeedSettings';
 import useReportPost from '../hooks/useReportPost';
-import { Post } from '../graphql/posts';
+import { Post, ReportReason } from '../graphql/posts';
 import TrashIcon from '../../icons/trash.svg';
 import HammerIcon from '../../icons/hammer.svg';
 import EyeIcon from '../../icons/eye.svg';
@@ -37,6 +37,14 @@ const MenuIcon = ({ Icon }) => {
   return <Icon className="mr-2 text-2xl" />;
 };
 
+type ReportPostAsync = (
+  postIndex: number,
+  post: Post,
+  reason: ReportReason,
+  comment: string,
+  blockSource: boolean,
+) => Promise<unknown>;
+
 export default function PostOptionsMenu({
   postIndex,
   post,
@@ -64,18 +72,23 @@ export default function PostOptionsMenu({
     onRemovePost?.(_postIndex);
   };
 
-  const onReportPost = async (
+  const onReportPost: ReportPostAsync = async (
     reportPostIndex,
     reportedPost,
     reason,
     comment,
     blockSource,
   ): Promise<void> => {
-    reportPost({
+    const { successful } = await reportPost({
       id: reportedPost?.id,
       reason,
       comment,
     });
+
+    if (!successful) {
+      return;
+    }
+
     trackEvent(
       postAnalyticsEvent('report post', reportedPost, {
         extra: { origin: 'post context menu' },
@@ -91,26 +104,49 @@ export default function PostOptionsMenu({
 
   const onBlockSource = async (): Promise<void> => {
     setAvoidRefresh(true);
-    await onUnfollowSource({ source: post?.source });
+    const { successful } = await onUnfollowSource({
+      source: post?.source,
+      requireLogin: true,
+    });
+    if (!successful) {
+      setAvoidRefresh(false);
+      return;
+    }
     showMessageAndRemovePost(`🚫 ${post?.source?.name} blocked`, postIndex);
     setAvoidRefresh(false);
   };
 
   const onBlockTag = async (tag: string): Promise<void> => {
     setAvoidRefresh(true);
-    await onBlockTags({ tags: [tag] });
+    const { successful } = await onBlockTags({
+      tags: [tag],
+      requireLogin: true,
+    });
+
+    if (!successful) {
+      setAvoidRefresh(false);
+      return;
+    }
+
     await showMessageAndRemovePost(`⛔️ #${tag} blocked`, postIndex);
     setAvoidRefresh(false);
   };
 
   const onHidePost = async (): Promise<void> => {
-    const promise = hidePost(post.id);
+    const { successful } = await hidePost(post.id);
+
+    if (!successful) {
+      return;
+    }
+
     trackEvent(
       postAnalyticsEvent('hide post', post, {
         extra: { origin: 'post context menu' },
       }),
     );
-    await Promise.all([promise, onRemovePost?.(postIndex)]);
+
+    await onRemovePost?.(postIndex);
+
     if (!postIndex) {
       onMessage(
         '🙈 This article won’t show up on your feed anymore',

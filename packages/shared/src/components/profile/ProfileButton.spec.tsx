@@ -1,4 +1,5 @@
 import React from 'react';
+import { QueryClient, QueryClientProvider } from 'react-query';
 import { waitFor, render, RenderResult, screen } from '@testing-library/react';
 import ProfileButton from './ProfileButton';
 import AuthContext from '../../contexts/AuthContext';
@@ -6,24 +7,29 @@ import defaultUser from '../../../__tests__/fixture/loggedUser';
 
 const logout = jest.fn();
 
-const renderComponent = (): RenderResult => {
+const renderComponent = (props: ProfileButtonProps): RenderResult => {
+  const client = new QueryClient();
+
   return render(
-    <AuthContext.Provider
-      value={{
-        user: defaultUser,
-        shouldShowLogin: false,
-        showLogin: jest.fn(),
-        logout,
-        updateUser: jest.fn(),
-        tokenRefreshed: true,
-        getRedirectUri: jest.fn(),
-        closeLogin: jest.fn(),
-        trackingId: '21',
-        loginState: null,
-      }}
-    >
-      <ProfileButton />
-    </AuthContext.Provider>,
+    <QueryClientProvider client={client}>
+      <AuthContext.Provider
+        value={{
+          user: defaultUser,
+          shouldShowLogin: false,
+          showLogin: jest.fn(),
+          logout,
+          updateUser: jest.fn(),
+          tokenRefreshed: true,
+          getRedirectUri: jest.fn(),
+          closeLogin: jest.fn(),
+          trackingId: '21',
+          loginState: null,
+        }}
+      >
+        <ProfileButton {...props} />
+      </AuthContext.Provider>
+      ,
+    </QueryClientProvider>,
   );
 };
 

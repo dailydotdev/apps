@@ -68,6 +68,7 @@ interface NavItemProps {
   color?: string;
   active?: boolean;
   children?: ReactNode;
+  className?: string;
 }
 
 export const btnClass =
@@ -90,7 +91,15 @@ export const NavHeader = classed(
   'li',
   'typo-footnote text-theme-label-quaternary h-7 flex items-center font-bold  transition-opacity',
 );
-export const RawNavItem = classed(
+export const AlertContainer = classed(
+  'div',
+  'mx-4 my-3 px-1 py-1 border border-theme-status-success rounded-10 flex flex-row flex-wrap relative',
+);
+export const AlertCopy = classed(
+  'p',
+  'typo-subhead p-1 pl-2 pr-1.5 max-w-[calc(100%-1.5rem)]',
+);
+const RawNavItem = classed(
   'li',
   'flex items-center typo-callout hover:bg-theme-active',
 );
@@ -207,6 +216,7 @@ export const MenuIcon = ({
   </SimpleTooltip>
 );
 export const NavItem = ({
+  className,
   color,
   active,
   children,
@@ -217,7 +227,11 @@ export const NavItem = ({
 
   return (
     <RawNavItem
-      className={classNames(color || baseClasses, active && 'bg-theme-active')}
+      className={classNames(
+        className,
+        color || baseClasses,
+        active && 'bg-theme-active',
+      )}
     >
       {children}
     </RawNavItem>

@@ -7,6 +7,7 @@ import { Button } from './buttons/Button';
 import AuthContext from '../contexts/AuthContext';
 import { apiUrl } from '../lib/config';
 import AnalyticsContext from '../contexts/AnalyticsContext';
+import { useMyFeed } from '../hooks/useMyFeed';
 
 interface LoginButtonsProps {
   buttonCopyPrefix?: string;
@@ -18,13 +19,19 @@ export default function LoginButtons({
   const router = useRouter();
   const { getRedirectUri } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
+  const { checkHasLocalFilters } = useMyFeed();
 
-  const authUrl = (provider: string, redirectUri: string) =>
-    `${apiUrl}/v1/auth/authorize?provider=${provider}&redirect_uri=${encodeURI(
-      redirectUri,
+  const authUrl = (provider: string, redirectUri: string) => {
+    const uri = checkHasLocalFilters()
+      ? `${redirectUri}?create_filters=true`
+      : redirectUri;
+
+    return `${apiUrl}/v1/auth/authorize?provider=${provider}&redirect_uri=${encodeURI(
+      uri,
     )}&skip_authenticate=true&register_mode=${
       router.query.author ? 'author' : 'default'
     }`;
+  };
 
   const login = (provider: string): void => {
     trackEvent({
