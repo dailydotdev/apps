@@ -12,12 +12,6 @@ import { LoggedUser, updateProfile } from '../../lib/user';
 import ProfileForm from './ProfileForm';
 import AuthContext from '../../contexts/AuthContext';
 import { getUserDefaultTimezone } from '../../lib/timezones';
-import {
-  FeedSettings,
-  FEED_FILTERS_FROM_REGISTRATION,
-} from '../../graphql/feedSettings';
-import { mockGraphQL } from '../../../__tests__/helpers/graphql';
-import { updateLocalFeedSettings } from '../../hooks/useFeedSettings';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 
 jest.mock('../../lib/user', () => ({
@@ -43,31 +37,6 @@ const defaultUser = {
   infoConfirmed: true,
   premium: false,
   createdAt: '2020-07-26T13:04:35.000Z',
-};
-
-const defaultFeedSettings: FeedSettings = {
-  advancedSettings: [{ id: 1, enabled: false }],
-  blockedTags: ['javascript'],
-  includeTags: ['react'],
-  excludeSources: [{ id: 'test', name: 'Source', image: 'a.b.c' }],
-};
-
-const createUpdateFeedFiltersMock = (
-  mock: ReturnType<typeof jest.fn>,
-  { advancedSettings, ...rest }: FeedSettings = defaultFeedSettings,
-) => {
-  const variables = { filters: rest, settings: advancedSettings };
-
-  return {
-    request: {
-      query: FEED_FILTERS_FROM_REGISTRATION,
-      variables,
-    },
-    result: () => {
-      mock(variables);
-      return { data: { _: true } };
-    },
-  };
 };
 
 const renderComponent = (user: Partial<LoggedUser> = {}): RenderResult => {
@@ -107,15 +76,7 @@ it('should enable submit when form is valid', () => {
 });
 
 it('should submit information', async () => {
-  const updateFeedSettings = jest.fn();
-  const expected: FeedSettings = {
-    ...defaultFeedSettings,
-    includeTags: [...defaultFeedSettings.includeTags, 'webdev'],
-  };
-  const { advancedSettings, ...filters } = expected;
   renderComponent({ username: 'idoshamun' });
-  updateLocalFeedSettings(expected);
-  mockGraphQL(createUpdateFeedFiltersMock(updateFeedSettings, expected));
   mocked(updateProfile).mockResolvedValue(defaultUser);
   fireEvent.submit(screen.getByTestId('form'));
   await waitForNock();
@@ -133,10 +94,6 @@ it('should submit information', async () => {
     timezone: userTimezone,
     twitter: null,
     hashnode: null,
-  });
-  expect(updateFeedSettings).toBeCalledWith({
-    settings: advancedSettings,
-    filters,
   });
   expect(onSuccessfulSubmit).toBeCalledWith(true);
   expect(updateUser).toBeCalledWith({ ...defaultUser, username: 'idoshamun' });

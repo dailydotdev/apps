@@ -13,10 +13,9 @@ import useFeedSettings, {
 import AuthContext from '../../contexts/AuthContext';
 import { Button } from '../buttons/Button';
 import { AllTagCategoriesData } from '../../graphql/feedSettings';
-import { Features, isFeaturedEnabled } from '../../lib/featureManagement';
-import FeaturesContext from '../../contexts/FeaturesContext';
 import AlertContext from '../../contexts/AlertContext';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { useMyFeed } from '../../hooks/useMyFeed';
 
 const asideWidth = sizeN(89);
 interface FeedFiltersProps {
@@ -33,8 +32,7 @@ export default function FeedFilters({
   const { alerts, updateAlerts } = useContext(AlertContext);
   const { user, showLogin } = useContext(AuthContext);
   const { hasAnyFilter } = useFeedSettings();
-  const { flags } = useContext(FeaturesContext);
-  const shouldShowMyFeed = isFeaturedEnabled(Features.MyFeedOn, flags);
+  const { shouldShowMyFeed } = useMyFeed();
 
   const onCreate = () => {
     trackEvent({

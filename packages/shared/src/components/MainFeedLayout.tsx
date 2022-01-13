@@ -23,13 +23,10 @@ import {
 } from '../graphql/feed';
 import FeaturesContext from '../contexts/FeaturesContext';
 import { generateQueryKey } from '../lib/query';
-import {
-  Features,
-  getFeatureValue,
-  isFeaturedEnabled,
-} from '../lib/featureManagement';
+import { Features, getFeatureValue } from '../lib/featureManagement';
 import classed from '../lib/classed';
 import usePersistentContext from '../hooks/usePersistentContext';
+import { useMyFeed } from '../hooks/useMyFeed';
 
 const SearchEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "emptySearch" */ './SearchEmptyScreen'),
@@ -147,7 +144,7 @@ export default function MainFeedLayout({
   );
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { flags } = useContext(FeaturesContext);
-  const shouldShowMyFeed = isFeaturedEnabled(Features.MyFeedOn, flags);
+  const { shouldShowMyFeed } = useMyFeed();
   const feedVersion = parseInt(
     getFeatureValue(Features.FeedVersion, flags),
     10,
