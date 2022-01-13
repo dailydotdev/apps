@@ -33,31 +33,18 @@ export default function Register(): ReactElement {
     return getFeatureValue(featureFlag, flags);
   };
 
-  const getRedirectUri = (hasFilters?: boolean) => {
-    const uri = router.query.redirect_uri as string;
-
-    if (!uri) {
-      return hasFilters ? '/my-feed' : '/';
-    }
-
-    return hasFilters ? `${uri}?create_filter=true` : uri;
-  };
-
   useEffect(() => {
     trackEvent({
       event_name: 'start signup form',
     });
   }, []);
 
-  const onSuccessfulSubmit = async (
-    optionalFields: boolean,
-    hasFilters?: boolean,
-  ) => {
+  const onSuccessfulSubmit = async (optionalFields: boolean) => {
     trackEvent({
       event_name: 'submit signup form',
       extra: JSON.stringify({ optional_fields: optionalFields }),
     });
-    await router?.replace(getRedirectUri(hasFilters));
+    await router?.replace((router.query.redirect_uri as string) || '/');
   };
 
   const onCancel = () => {

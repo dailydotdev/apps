@@ -22,7 +22,6 @@ import {
 } from '../../lib/timezones';
 import { Features, isFeaturedEnabled } from '../../lib/featureManagement';
 import FeaturesContext from '../../contexts/FeaturesContext';
-import { useMyFeed } from '../../hooks/useMyFeed';
 
 const REQUIRED_FIELDS_COUNT = 4;
 const timeZoneOptions = getTimeZoneOptions();
@@ -57,7 +56,6 @@ export default function ProfileForm({
   ...props
 }: ProfileFormProps): ReactElement {
   const { user, updateUser } = useContext(AuthContext);
-  const { registerLocalFilters } = useMyFeed();
   const formRef = useRef<HTMLFormElement>(null);
 
   const [userTimeZone, setUserTimeZone] = useState<string>(
@@ -132,12 +130,7 @@ export default function ProfileForm({
         (key) => data[key] !== undefined && data[key] !== null,
       );
 
-      const { hasFilters } = await registerLocalFilters();
-
-      onSuccessfulSubmit?.(
-        filledFields.length > REQUIRED_FIELDS_COUNT,
-        hasFilters,
-      );
+      onSuccessfulSubmit?.(filledFields.length > REQUIRED_FIELDS_COUNT);
     }
   };
 
