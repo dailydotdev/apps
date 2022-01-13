@@ -30,6 +30,7 @@ import '@dailydotdev/shared/src/styles/globals.css';
 import useThirdPartyAnalytics from '@dailydotdev/shared/src/hooks/useThirdPartyAnalytics';
 import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPageView';
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
+import { useMyFeed } from '@dailydotdev/shared/src/hooks/useMyFeed';
 import Seo from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 
@@ -77,6 +78,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     shouldShowLogin,
     loginState,
   } = useContext(AuthContext);
+  const { registerLocalFilters } = useMyFeed();
   const { flags } = useContext(FeaturesContext);
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const [showCookie, acceptCookies, updateCookieBanner] = useCookieBanner();
@@ -115,6 +117,20 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     }
     updateCookieBanner(user);
   }, [user, loadingUser, tokenRefreshed, router.pathname]);
+
+  useEffect(() => {
+    if (!tokenRefreshed || !user) {
+      return;
+    }
+
+    if (router.query.create_filters === 'true') {
+      registerLocalFilters().then(({ hasFilters }) => {
+        if (hasFilters) {
+          router.replace('/my-feed');
+        }
+      });
+    }
+  }, [user, loadingUser, tokenRefreshed, router.query]);
 
   const getLayout =
     (Component as CompnentGetLayout).getLayout || ((page) => page);

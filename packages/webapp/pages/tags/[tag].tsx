@@ -149,6 +149,7 @@ const TagPage = ({ tag }: TagPageProps): ReactElement => {
         )}
       </CustomFeedHeader>
       <Feed
+        feedName="tag"
         feedQueryKey={[
           'tagFeed',
           user?.id ?? 'anonymous',

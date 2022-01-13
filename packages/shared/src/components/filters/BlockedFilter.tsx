@@ -7,7 +7,7 @@ import useTagAndSource from '../../hooks/useTagAndSource';
 import BlockIcon from '../../../icons/block.svg';
 
 export default function BlockedFilter({
-  setUnblockItem,
+  onUnblockItem,
 }: FilterMenuProps): ReactElement {
   const { feedSettings, isLoading } = useFeedSettings();
   const { onUnblockTags, onFollowSource } = useTagAndSource({
@@ -15,14 +15,14 @@ export default function BlockedFilter({
   });
 
   const tagItemAction = (event: React.MouseEvent, tag: string) => {
-    setUnblockItem({
+    onUnblockItem({
       tag,
       action: () => onUnblockTags({ tags: [tag] }),
     });
   };
 
   const sourceItemAction = (source) => {
-    setUnblockItem({
+    onUnblockItem({
       source,
       action: () => onFollowSource({ source }),
     });

@@ -7,6 +7,7 @@ import { apiUrl } from '../lib/config';
 export const ALERT_DEFAULTS: Alerts = {
   filter: false,
   rankLastSeen: null,
+  myFeed: null,
 };
 
 export interface AlertContextData {

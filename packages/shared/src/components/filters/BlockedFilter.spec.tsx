@@ -71,7 +71,7 @@ const renderComponent = (
           closeLogin: jest.fn(),
         }}
       >
-        <BlockedFilter setUnblockItem={setUnblockItem} />
+        <BlockedFilter onUnblockItem={setUnblockItem} />
       </AuthContext.Provider>
     </QueryClientProvider>,
   );

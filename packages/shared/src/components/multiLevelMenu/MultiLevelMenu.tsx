@@ -3,13 +3,17 @@ import { MenuItem } from '../filters/common';
 import MultiLevelMenuDetail from './MultiLevelMenuDetail';
 import MultiLevelMenuMaster from './MultiLevelMenuMaster';
 
+interface MultiLevelMenuProps {
+  menuItems: MenuItem[];
+  directlyOpenedTab?: MenuItem;
+}
+
 export default function MultiLevelMenu({
   menuItems,
-}: {
-  menuItems: MenuItem[];
-}): ReactElement {
+  directlyOpenedTab = null,
+}: MultiLevelMenuProps): ReactElement {
   const [multiLevelMenuDetailItem, setMultiLevelMenuDetailItem] =
-    useState(null);
+    useState(directlyOpenedTab);
 
   const setMultiLevelMenuDetail = (multiLevelMenuDetail) => {
     setMultiLevelMenuDetailItem(multiLevelMenuDetail);

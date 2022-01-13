@@ -1,13 +1,22 @@
-import React, { ReactElement, useContext, useMemo, useState } from 'react';
+import React, {
+  ReactElement,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import MainLayout from '@dailydotdev/shared/src/components/MainLayout';
-import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
+import MainFeedLayout, {
+  getShouldRedirect,
+} from '@dailydotdev/shared/src/components/MainFeedLayout';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import dynamic from 'next/dynamic';
 import TimerIcon from '@dailydotdev/shared/icons/timer.svg';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import { HeaderButton } from '@dailydotdev/shared/src/components/buttons/common';
+import { useMyFeed } from '@dailydotdev/shared/src/hooks/useMyFeed';
 import MostVisitedSites from './MostVisitedSites';
 
 const PostsSearch = dynamic(
@@ -33,6 +42,7 @@ export default function MainFeedPage({
   const [isSearchOn, setIsSearchOn] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>();
   const [showDnd, setShowDnd] = useState(false);
+  const { registerLocalFilters } = useMyFeed();
   const [defaultFeed] = usePersistentContext('defaultFeed', 'popular');
   const enableSearch = () => {
     setIsSearchOn(true);
@@ -45,7 +55,12 @@ export default function MainFeedPage({
       setIsSearchOn(false);
     }
     setFeedName(tab);
-    onPageChanged(`/${tab}`);
+    const isMyFeed = tab === '/my-feed';
+    if (getShouldRedirect(isMyFeed, !!user)) {
+      onPageChanged(`/`);
+    } else {
+      onPageChanged(`/${tab}`);
+    }
   };
 
   const activePage = useMemo(() => {
@@ -62,6 +77,19 @@ export default function MainFeedPage({
     setIsSearchOn(false);
     setSearchQuery(undefined);
   };
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const createFilter = urlParams.get('create_filters');
+
+    if (createFilter) {
+      registerLocalFilters().then(({ hasFilters }) => {
+        if (hasFilters) {
+          setFeedName('my-feed');
+        }
+      });
+    }
+  }, []);
 
   return (
     <MainLayout
