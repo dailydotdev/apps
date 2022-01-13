@@ -114,7 +114,7 @@ export default function useFeedSettings(): FeedSettingsReturnType {
 
     setTimeout(() => {
       queryClient.invalidateQueries(generateQueryKey('popular', user));
-      queryClient.invalidateQueries(generateQueryKey('recent', user));
+      queryClient.invalidateQueries(generateQueryKey('my-feed', user));
     }, 100);
   }, [tagsCategories, feedSettings, avoidRefresh]);
 
