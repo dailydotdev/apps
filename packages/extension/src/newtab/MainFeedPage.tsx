@@ -80,7 +80,7 @@ export default function MainFeedPage({
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const createFilter = urlParams.get('create_filter');
+    const createFilter = urlParams.get('create_filters');
 
     if (createFilter) {
       registerLocalFilters().then(({ hasFilters }) => {
