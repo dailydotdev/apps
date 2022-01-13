@@ -14,6 +14,7 @@ import useMutateFilters from './useMutateFilters';
 interface UseMyFeed {
   registerLocalFilters: () => Promise<{ hasFilters: boolean }>;
   shouldShowMyFeed: boolean;
+  hasAnyLocalFilter: boolean;
 }
 
 export function useMyFeed(): UseMyFeed {
@@ -41,7 +42,11 @@ export function useMyFeed(): UseMyFeed {
   };
 
   return useMemo(
-    () => ({ registerLocalFilters, shouldShowMyFeed }),
+    () => ({
+      registerLocalFilters,
+      shouldShowMyFeed,
+      hasAnyLocalFilter: !!getLocalFeedSettings(true),
+    }),
     [registerLocalFilters, shouldShowMyFeed],
   );
 }
