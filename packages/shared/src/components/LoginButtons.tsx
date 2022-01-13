@@ -19,10 +19,10 @@ export default function LoginButtons({
   const router = useRouter();
   const { getRedirectUri } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
-  const { hasAnyLocalFilter } = useMyFeed();
+  const { checkHasLocalFilters } = useMyFeed();
 
   const authUrl = (provider: string, redirectUri: string) => {
-    const uri = hasAnyLocalFilter
+    const uri = checkHasLocalFilters()
       ? `${redirectUri}?create_filters=true`
       : redirectUri;
 
