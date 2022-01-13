@@ -8,6 +8,7 @@ import { Features, getFeatureValue } from '../../lib/featureManagement';
 import { ButtonOrLink, ItemInner, NavItem, SidebarMenuItem } from './common';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../../hooks/analytics/useAnalyticsQueue';
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 const statusColor = {
   success: {
@@ -144,13 +145,15 @@ const FilteredMyFeedButton = ({
       <ButtonOrLink item={item} useNavButtonsNotLinks={useNavButtonsNotLinks}>
         <ItemInner item={item} sidebarExpanded={sidebarExpanded} />
       </ButtonOrLink>
-      <Button
-        iconOnly
-        className="mr-3 btn-tertiary"
-        buttonSize="xsmall"
-        icon={<FilterIcon />}
-        onClick={action}
-      />
+      <SimpleTooltip placement="right" content="Feed filters">
+        <Button
+          iconOnly
+          className="mr-3 btn-tertiary"
+          buttonSize="xsmall"
+          icon={<FilterIcon />}
+          onClick={action}
+        />
+      </SimpleTooltip>
     </NavItem>
   );
 };
