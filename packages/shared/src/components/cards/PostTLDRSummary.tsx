@@ -1,8 +1,7 @@
-import React, { ReactElement, ReactNode, useMemo } from 'react';
-import classNames from 'classnames';
+import React, { ReactElement, ReactNode } from 'react';
 import { Post } from '../../graphql/posts';
-import classed from '../../lib/classed';
 import { TLDRSummary } from '../utilities';
+import PostReadMore from './ShowMoreContent';
 
 interface PostTLDRSummaryProps {
   post: Post;
@@ -10,13 +9,11 @@ interface PostTLDRSummaryProps {
 }
 
 export default function PostTLDRSummary({
-  post,
-  children,
+  post
 }: PostTLDRSummaryProps): ReactElement {
   return (
     <TLDRSummary>
-      <span>{post.summary}</span>
-      {children}
+      <PostReadMore content={post.summary} charactersLimit={300}/>
     </TLDRSummary>
   );
 }

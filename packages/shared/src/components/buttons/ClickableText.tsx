@@ -8,6 +8,8 @@ export interface BaseClickableTextProps {
   pressed?: boolean;
   tag?: React.ElementType & AvailableTags;
   defaultTypo?: boolean;
+  flexRowApplied?: boolean;
+  underlined?: boolean;
 }
 
 export type ClickableTextProps<Tag extends AvailableTags> =
@@ -21,6 +23,8 @@ function ClickableTextComponent<Tag extends AvailableTags>(
     children,
     tag: Tag = 'button',
     defaultTypo = true,
+    flexRowApplied = true,
+    underlined = true, 
     className,
     ...props
   }: ClickableTextProps<Tag>,
@@ -34,10 +38,12 @@ function ClickableTextComponent<Tag extends AvailableTags>(
       aria-pressed={pressed}
       ref={ref}
       className={classNames(
-        'flex flex-row items-center text-theme-label-tertiary hover:underline focus:underline cursor-pointer',
+        'items-center text-theme-label-tertiary cursor-pointer',
+        flexRowApplied && 'flex flex-row', 
         defaultTypo && 'typo-callout',
         pressed && 'text-theme-label-primary',
         isLink && 'text-theme-label-link',
+        underlined && 'hover:underline focus:underline',
         disabled &&
           'text-theme-label-disabled pointer-events-none hover:no-underline',
         className,
