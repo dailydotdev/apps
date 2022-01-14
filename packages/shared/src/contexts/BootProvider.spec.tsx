@@ -55,6 +55,7 @@ const defaultSettings: RemoteSettings = {
   insaneMode: false,
   showTopSites: true,
   sidebarExpanded: true,
+  sortingEnabled: false,
 };
 
 const defaultBootData: BootCacheData = {
@@ -118,6 +119,8 @@ const SettingsMock = ({ toTheme, toSpaciness }: SettingsMockProps) => {
     insaneMode,
     toggleShowTopSites,
     showTopSites,
+    toggleSortingEnabled,
+    sortingEnabled,
   } = useContext(SettingsContext);
 
   return (
@@ -170,6 +173,13 @@ const SettingsMock = ({ toTheme, toSpaciness }: SettingsMockProps) => {
         data-test-value={showTopSites}
       >
         Show Top Sites
+      </button>
+      <button
+        onClick={toggleSortingEnabled}
+        type="button"
+        data-test-value={sortingEnabled}
+      >
+        Sorting Feed
       </button>
     </>
   );
@@ -264,6 +274,19 @@ it('should toggle show top sites callback', async () => {
   );
   fireEvent.click(showTopSites);
   expect(showTopSites).toHaveAttribute('data-test-value', expected.toString());
+});
+
+it('should toggle sorting enabled callback', async () => {
+  const expected = true;
+  mockSettingsMutation({ sortingEnabled: expected });
+  renderComponent(<SettingsMock />);
+  const sorting = await screen.findByText('Sorting Feed');
+  expect(sorting).toHaveAttribute(
+    'data-test-value',
+    defaultSettings.sortingEnabled.toString(),
+  );
+  fireEvent.click(sorting);
+  expect(sorting).toHaveAttribute('data-test-value', expected.toString());
 });
 
 const AlertsMock = (params: Partial<Alerts>) => {
