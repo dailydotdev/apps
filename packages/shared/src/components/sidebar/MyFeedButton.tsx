@@ -185,6 +185,10 @@ export default function MyFeedButton({
     );
   }
 
+  if (!sidebarRendered) {
+    return <></>;
+  }
+
   return (
     <UnfilteredMyFeedButton
       action={action}
