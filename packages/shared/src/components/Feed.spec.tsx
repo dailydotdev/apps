@@ -68,7 +68,6 @@ jest.mock('../hooks/useSubscription', () => ({
 }));
 
 let variables: unknown;
-
 const defaultVariables = {
   first: 7,
   loggedIn: true,
