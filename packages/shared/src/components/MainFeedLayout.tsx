@@ -18,6 +18,7 @@ import {
   FEED_QUERY,
   MOST_DISCUSSED_FEED_QUERY,
   MOST_UPVOTED_FEED_QUERY,
+  RankingAlgorithm,
   SEARCH_POSTS_QUERY,
 } from '../graphql/feed';
 import FeaturesContext from '../contexts/FeaturesContext';
@@ -124,8 +125,8 @@ const getQueryBasedOnLogin = (
 };
 
 const algorithms = [
-  { value: 'POPULARITY', text: 'By popularity' },
-  { value: 'TIME', text: 'By date' },
+  { value: RankingAlgorithm.Popularity, text: 'By popularity' },
+  { value: RankingAlgorithm.Time, text: 'By date' },
 ];
 const algorithmsList = algorithms.map((algo) => algo.text);
 
