@@ -287,8 +287,9 @@ export default function Sidebar({
         <SidebarScrollWrapper>
           <Nav>
             <SidebarUserButton sidebarRendered={sidebarRendered} />
-            {sidebarRendered && shouldShowMyFeed && (
+            {shouldShowMyFeed && (
               <MyFeedButton
+                sidebarRendered={sidebarRendered}
                 sidebarExpanded={sidebarExpanded}
                 filtered={!alerts?.filter}
                 item={myFeedMenuItem}
