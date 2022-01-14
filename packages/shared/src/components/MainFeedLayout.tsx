@@ -124,8 +124,8 @@ const getQueryBasedOnLogin = (
 };
 
 const algorithms = [
-  { value: 'date', text: 'By date' },
-  { value: 'popularity', text: 'By popularity' },
+  { value: 'POPULARITY', text: 'By popularity' },
+  { value: 'TIME', text: 'By date' },
 ];
 const algorithmsList = algorithms.map((algo) => algo.text);
 
@@ -244,9 +244,21 @@ export default function MainFeedLayout({
     if (!query.query) {
       return null;
     }
-    const variables = isUpvoted
-      ? { ...query.variables, period: periods[selectedPeriod].value }
-      : query.variables;
+
+    const getVariables = () => {
+      if (isUpvoted) {
+        return { ...query.variables, period: periods[selectedPeriod].value };
+      }
+
+      if (sortingEnabled && isSortableFeed) {
+        return { ...query.variables, ranking: algorithms[selectedAlgo].value };
+      }
+
+      return query.variables;
+    };
+
+    const variables = getVariables();
+
     return {
       feedName,
       feedQueryKey: generateQueryKey(
