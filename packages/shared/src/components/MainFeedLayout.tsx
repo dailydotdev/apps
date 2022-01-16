@@ -72,11 +72,6 @@ const getPropsByFeed = ({
     discussed: {
       query: MOST_DISCUSSED_FEED_QUERY,
     },
-    recent: {
-      query: ANONYMOUS_FEED_QUERY,
-      queryIfLogged: FEED_QUERY,
-      variables: { ranking: 'TIME' },
-    },
   };
 };
 
