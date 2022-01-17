@@ -246,7 +246,7 @@ export default function MainFeedLayout({
         return { ...query.variables, period: periods[selectedPeriod].value };
       }
 
-      if (sortingEnabled && isSortableFeed) {
+      if (isSortableFeed) {
         return { ...query.variables, ranking: algorithms[selectedAlgo].value };
       }
 
@@ -254,6 +254,12 @@ export default function MainFeedLayout({
     };
 
     const variables = getVariables();
+
+    useEffect(() => {
+      if (!sortingEnabled && selectedAlgo > 0) {
+        setSelectedAlgo(0);
+      }
+    }, [sortingEnabled]);
 
     return {
       feedName,
