@@ -255,12 +255,6 @@ export default function MainFeedLayout({
 
     const variables = getVariables();
 
-    useEffect(() => {
-      if (!sortingEnabled && selectedAlgo > 0) {
-        setSelectedAlgo(0);
-      }
-    }, [sortingEnabled]);
-
     return {
       feedName,
       feedQueryKey: generateQueryKey(
@@ -278,6 +272,12 @@ export default function MainFeedLayout({
     query.variables,
     isUpvoted && selectedPeriod,
   ]);
+
+  useEffect(() => {
+    if (!sortingEnabled && selectedAlgo > 0) {
+      setSelectedAlgo(0);
+    }
+  }, [sortingEnabled]);
 
   return (
     <FeedPage>
