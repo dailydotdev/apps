@@ -134,10 +134,14 @@ export default function MainFeedLayout({
   navChildren,
 }: MainFeedLayoutProps): ReactElement {
   const { shouldShowMyFeed } = useMyFeed();
-  const [defaultFeed, updateDefaultFeed] = usePersistentContext(
+  const [defaultFeed, updateDefaultFeed, deleteFeedKey] = usePersistentContext(
     'defaultFeed',
     shouldShowMyFeed ? 'my-feed' : 'popular',
   );
+  if (defaultFeed === 'recent') {
+    deleteFeedKey();
+    feedNameProp = shouldShowMyFeed ? 'my-feed' : 'popular';
+  }
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { flags } = useContext(FeaturesContext);
   const feedVersion = parseInt(

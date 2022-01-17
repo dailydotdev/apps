@@ -43,10 +43,14 @@ export default function MainFeedPage({
   const [searchQuery, setSearchQuery] = useState<string>();
   const [showDnd, setShowDnd] = useState(false);
   const { registerLocalFilters, shouldShowMyFeed } = useMyFeed();
-  const [defaultFeed] = usePersistentContext(
+  const [defaultFeed, undefined, deleteFeedKey] = usePersistentContext(
     'defaultFeed',
     shouldShowMyFeed ? 'my-feed' : 'popular',
   );
+  if (defaultFeed === 'recent') {
+    deleteFeedKey();
+    setFeedName(shouldShowMyFeed ? 'my-feed' : 'popular');
+  }
   const enableSearch = () => {
     setIsSearchOn(true);
     setSearchQuery(null);

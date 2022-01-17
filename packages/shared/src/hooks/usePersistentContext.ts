@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from 'react-query';
-import { get as getCache, set as setCache } from 'idb-keyval';
+import { get as getCache, set as setCache, del as delCache } from 'idb-keyval';
 
 function getAsyncCache<T>(key, valueWhenCacheEmpty): Promise<T> {
   return getCache<T>(key)
@@ -17,7 +17,7 @@ function getAsyncCache<T>(key, valueWhenCacheEmpty): Promise<T> {
 export default function usePersistentContext<T>(
   key: string,
   valueWhenCacheEmpty?: T,
-): [T, (value: T) => Promise<void>] {
+): [T, (value: T) => Promise<void>, () => Promise<void>] {
   const queryClient = useQueryClient();
 
   const { data } = useQuery<unknown, unknown, T>(
@@ -36,5 +36,7 @@ export default function usePersistentContext<T>(
     },
   );
 
-  return [data, updateValue];
+  const deleteKey = () => delCache(key);
+
+  return [data, updateValue, deleteKey];
 }
