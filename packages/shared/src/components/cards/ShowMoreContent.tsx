@@ -5,12 +5,14 @@ interface ShowMoreContentProps {
   content: string;
   charactersLimit?: number;
   contentPrefix?: ReactNode;
+  className?: string;
 }
 
 export default function ShowMoreContent({
   content,
   charactersLimit = 150,
   contentPrefix,
+  className,
 }: ShowMoreContentProps): ReactElement {
   const [isTextExpanded, setIsTextExpanded] = useState(false);
   const linkName = isTextExpanded ? 'Show less' : 'Show more';
@@ -23,7 +25,7 @@ export default function ShowMoreContent({
     return content?.slice(0, charactersLimit);
   };
   return (
-    <div>
+    <div className={className}>
       <p className="typo-callout">
         {contentPrefix}
         {isTextExpanded ? content : getSlicedContent()}

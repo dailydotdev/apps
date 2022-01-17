@@ -90,7 +90,10 @@ export const Summary = classed('summary', 'cursor-pointer focus-outline');
 
 export const SummaryArrow = classed(ArrowIcon, 'icon arrow ml-auto text-xl');
 
+export const TLDRSummaryBorder = 'border-l border-theme-status-cabbage';
+
 export const TLDRSummary = classed(
   'span',
   'text-theme-label-secondary multi-truncate',
+  TLDRSummaryBorder,
 );

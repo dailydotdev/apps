@@ -253,33 +253,9 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             <link rel="preload" as="image" href={postById?.post.image} />
           </Head>
           <NextSeo {...seo} />
-          <PostHeader post={postById.post} />
-
-          <a {...postLinkProps} className="cursor-pointer">
-            <h1 className="my-2 font-bold typo-title2">
-              {postById?.post.title}
-            </h1>
-          </a>
-          <PostTLDRSummary
-            post={postById.post}
-          />
-          <PostMetadata
-            post={postById.post}
-            className="mt-2 mb-1"
-            typoClassName="typo-callout"
-          />
-
-          <TagLinks tags={postById?.post.tags || []} />
-          {postById?.post?.toc?.length > 0 && (
-            <PostToc
-              post={postById.post}
-              collapsible
-              className="flex laptop:hidden mt-2 mb-4"
-            />
-          )}
           <a
             {...postLinkProps}
-            className="block overflow-hidden mt-2 rounded-2xl cursor-pointer"
+            className="block overflow-hidden mt-2 mb-2.5 rounded-2xl cursor-pointer h-1/5"
           >
             <LazyImage
               imgSrc={postById?.post.image}
@@ -288,6 +264,26 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
               eager
             />
           </a>
+          <PostHeader post={postById.post} />
+          <a {...postLinkProps} className="cursor-pointer">
+            <h1 className="my-2 font-bold typo-title2">
+              {postById?.post.title}
+            </h1>
+          </a>
+          <PostTLDRSummary post={postById.post} />
+          <PostMetadata
+            post={postById.post}
+            className="mt-2 mb-1"
+            typoClassName="typo-callout"
+          />
+          <TagLinks tags={postById?.post.tags || []} />
+          {postById?.post?.toc?.length > 0 && (
+            <PostToc
+              post={postById.post}
+              collapsible
+              className="flex laptop:hidden mt-2 mb-4"
+            />
+          )}
           <PostUpvotesCommentsCount
             post={postById.post}
             onUpvotesClick={handleShowUpvotedPost}

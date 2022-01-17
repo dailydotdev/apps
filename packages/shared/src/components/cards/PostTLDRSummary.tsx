@@ -13,13 +13,11 @@ export default function PostTLDRSummary({
   return (
     <TLDRSummary>
       <ShowMoreContent
+        className="pl-2"
         content={post.summary}
         charactersLimit={300}
         contentPrefix={
-          <span
-            className="pr-1 typo-headline text-theme-status-cabbage
-"
-          >
+          <span className="pr-1 typo-headline text-theme-status-cabbage">
             TLDR
           </span>
         }
