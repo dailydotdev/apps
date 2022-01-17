@@ -216,7 +216,7 @@ export default function MainFeedLayout({
         )}
         {sortingEnabled && isSortableFeed && (
           <Dropdown
-            className="w-40"
+            className="w-[10.25rem]"
             buttonSize="medium"
             selectedIndex={selectedAlgo}
             options={algorithmsList}
