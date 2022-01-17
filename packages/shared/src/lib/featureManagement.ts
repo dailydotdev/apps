@@ -75,15 +75,15 @@ export class Features {
   ) {}
 }
 
+export const isFeaturedEnabled = (key: Features, flags: IFlags): boolean =>
+  flags?.[key?.id]?.enabled;
+
 export const getFeatureValue = (
   key: Features,
   flags: IFlags,
 ): string | undefined => {
-  if (flags[key?.id]?.enabled) {
+  if (isFeaturedEnabled(key, flags)) {
     return flags[key?.id].value;
   }
   return key?.defaultValue ?? undefined;
 };
-
-export const isFeaturedEnabled = (key: Features, flags: IFlags): boolean =>
-  flags[key?.id]?.enabled;
