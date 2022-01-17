@@ -133,13 +133,13 @@ export default function MainFeedLayout({
   searchChildren,
   navChildren,
 }: MainFeedLayoutProps): ReactElement {
+  const { shouldShowMyFeed } = useMyFeed();
   const [defaultFeed, updateDefaultFeed] = usePersistentContext(
     'defaultFeed',
-    'popular',
+    shouldShowMyFeed ? 'my-feed' : 'popular',
   );
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { flags } = useContext(FeaturesContext);
-  const { shouldShowMyFeed } = useMyFeed();
   const feedVersion = parseInt(
     getFeatureValue(Features.FeedVersion, flags),
     10,
@@ -157,7 +157,7 @@ export default function MainFeedLayout({
     ) {
       updateDefaultFeed(feedName);
     }
-  }, [defaultFeed, feedName]);
+  }, [defaultFeed, feedName, shouldShowMyFeed]);
 
   const isUpvoted = !isSearchOn && feedName === 'upvoted';
 
