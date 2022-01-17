@@ -6,12 +6,11 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import Feed, { FeedProps } from './Feed';
 import AuthContext from '../contexts/AuthContext';
 import { LoggedUser } from '../lib/user';
-import { Dropdown, DropdownProps } from './fields/Dropdown';
+import { Dropdown } from './fields/Dropdown';
 import { FeedPage } from './utilities';
 import CalendarIcon from '../../icons/calendar.svg';
 import {
@@ -19,6 +18,7 @@ import {
   FEED_QUERY,
   MOST_DISCUSSED_FEED_QUERY,
   MOST_UPVOTED_FEED_QUERY,
+  RankingAlgorithm,
   SEARCH_POSTS_QUERY,
 } from '../graphql/feed';
 import FeaturesContext from '../contexts/FeaturesContext';
@@ -27,6 +27,7 @@ import { Features, getFeatureValue } from '../lib/featureManagement';
 import classed from '../lib/classed';
 import { useMyFeed } from '../hooks/useMyFeed';
 import useDefaultFeed from '../hooks/useDefaultFeed';
+import SettingsContext from '../contexts/SettingsContext';
 
 const SearchEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "emptySearch" */ './SearchEmptyScreen'),
@@ -76,7 +77,7 @@ const getPropsByFeed = ({
 
 const LayoutHeader = classed(
   'header',
-  'flex overflow-x-auto relative items-center self-stretch mb-6 h-11 no-scrollbar',
+  'flex flex-wrap overflow-x-auto relative justify-between items-center self-stretch mb-6 h-11 no-scrollbar',
 );
 
 export const getShouldRedirect = (
@@ -118,6 +119,12 @@ const getQueryBasedOnLogin = (
   return null;
 };
 
+const algorithms = [
+  { value: RankingAlgorithm.Popularity, text: 'Recommended' },
+  { value: RankingAlgorithm.Time, text: 'By date' },
+];
+const algorithmsList = algorithms.map((algo) => algo.text);
+
 const periods = [
   { value: 7, text: 'Last week' },
   { value: 30, text: 'Last month' },
@@ -135,6 +142,7 @@ export default function MainFeedLayout({
 }: MainFeedLayoutProps): ReactElement {
   const { shouldShowMyFeed } = useMyFeed();
   const [defaultFeed, updateDefaultFeed] = useDefaultFeed(shouldShowMyFeed);
+  const { sortingEnabled } = useContext(SettingsContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { flags } = useContext(FeaturesContext);
   const feedVersion = parseInt(
@@ -157,6 +165,8 @@ export default function MainFeedLayout({
   }, [defaultFeed, feedName, shouldShowMyFeed]);
 
   const isUpvoted = !isSearchOn && feedName === 'upvoted';
+  const isSortableFeed =
+    !isSearchOn && (feedName === 'popular' || feedName === 'my-feed');
 
   let query: { query: string; variables?: Record<string, unknown> };
   if (feedName) {
@@ -176,16 +186,8 @@ export default function MainFeedLayout({
     query = { query: null };
   }
 
+  const [selectedAlgo, setSelectedAlgo] = useState(0);
   const [selectedPeriod, setSelectedPeriod] = useState(0);
-
-  const periodDropdownProps: DropdownProps = {
-    style: { width: '11rem' },
-    buttonSize: 'medium',
-    icon: <CalendarIcon />,
-    selectedIndex: selectedPeriod,
-    options: periodTexts,
-    onChange: (_, index) => setSelectedPeriod(index),
-  };
 
   const search = (
     <LayoutHeader>
@@ -197,20 +199,28 @@ export default function MainFeedLayout({
   const header = (
     <LayoutHeader>
       {!isSearchOn && <h3 className="typo-headline">{feedTitles[feedName]}</h3>}
-      <div className="flex-1" />
-      {navChildren}
-      {isUpvoted && (
-        <>
+      <div className="flex flex-row flex-wrap gap-4 mr-px">
+        {navChildren}
+        {isUpvoted && (
           <Dropdown
-            className={classNames(
-              'hidden laptop:block mr-px',
-              navChildren && 'ml-4',
-            )}
-            {...periodDropdownProps}
+            className="w-44"
+            buttonSize="medium"
+            icon={<CalendarIcon />}
+            selectedIndex={selectedPeriod}
+            options={periodTexts}
+            onChange={(_, index) => setSelectedPeriod(index)}
           />
-          <Dropdown className="laptop:hidden mb-6" {...periodDropdownProps} />
-        </>
-      )}
+        )}
+        {sortingEnabled && isSortableFeed && (
+          <Dropdown
+            className="w-[10.25rem]"
+            buttonSize="medium"
+            selectedIndex={selectedAlgo}
+            options={algorithmsList}
+            onChange={(_, index) => setSelectedAlgo(index)}
+          />
+        )}
+      </div>
     </LayoutHeader>
   );
 
@@ -227,9 +237,21 @@ export default function MainFeedLayout({
     if (!query.query) {
       return null;
     }
-    const variables = isUpvoted
-      ? { ...query.variables, period: periods[selectedPeriod].value }
-      : query.variables;
+
+    const getVariables = () => {
+      if (isUpvoted) {
+        return { ...query.variables, period: periods[selectedPeriod].value };
+      }
+
+      if (isSortableFeed) {
+        return { ...query.variables, ranking: algorithms[selectedAlgo].value };
+      }
+
+      return query.variables;
+    };
+
+    const variables = getVariables();
+
     return {
       feedName,
       feedQueryKey: generateQueryKey(
@@ -247,6 +269,12 @@ export default function MainFeedLayout({
     query.variables,
     isUpvoted && selectedPeriod,
   ]);
+
+  useEffect(() => {
+    if (!sortingEnabled && selectedAlgo > 0) {
+      setSelectedAlgo(0);
+    }
+  }, [sortingEnabled, selectedAlgo]);
 
   return (
     <FeedPage>
