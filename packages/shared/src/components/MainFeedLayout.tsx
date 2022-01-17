@@ -277,7 +277,7 @@ export default function MainFeedLayout({
     if (!sortingEnabled && selectedAlgo > 0) {
       setSelectedAlgo(0);
     }
-  }, [sortingEnabled]);
+  }, [sortingEnabled, selectedAlgo]);
 
   return (
     <FeedPage>
