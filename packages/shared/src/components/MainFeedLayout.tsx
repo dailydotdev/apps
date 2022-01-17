@@ -120,7 +120,7 @@ const getQueryBasedOnLogin = (
 };
 
 const algorithms = [
-  { value: RankingAlgorithm.Popularity, text: 'By popularity' },
+  { value: RankingAlgorithm.Popularity, text: 'Recommended' },
   { value: RankingAlgorithm.Time, text: 'By date' },
 ];
 const algorithmsList = algorithms.map((algo) => algo.text);
