@@ -40,11 +40,11 @@ import AuthContext from '../../contexts/AuthContext';
 import useHideMobileSidebar from '../../hooks/useHideMobileSidebar';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import MyFeedButton from './MyFeedButton';
-import usePersistentContext from '../../hooks/usePersistentContext';
 import MyFeedAlert from './MyFeedAlert';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { AlertColor, AlertDot } from '../AlertDot';
 import { useMyFeed } from '../../hooks/useMyFeed';
+import useDefaultFeed from '../../hooks/useDefaultFeed';
 
 const bottomMenuItems: SidebarMenuItem[] = [
   {
@@ -135,10 +135,7 @@ export default function Sidebar({
   onShowDndClick,
 }: SidebarProps): ReactElement {
   const { shouldShowMyFeed } = useMyFeed();
-  const [defaultFeed] = usePersistentContext(
-    'defaultFeed',
-    shouldShowMyFeed ? 'my-feed' : 'popular',
-  );
+  const [defaultFeed] = useDefaultFeed(shouldShowMyFeed);
   const activePage =
     activePageProp === '/' ? `/${defaultFeed}` : activePageProp;
   const { alerts, updateAlerts } = useContext(AlertContext);

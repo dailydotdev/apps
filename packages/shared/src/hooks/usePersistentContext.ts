@@ -1,10 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { get as getCache, set as setCache } from 'idb-keyval';
 
-function getAsyncCache<T>(key, valueWhenCacheEmpty): Promise<T> {
+function getAsyncCache<T>(key, valueWhenCacheEmpty, validValues): Promise<T> {
   return getCache<T>(key)
     .then((cachedValue) => {
-      if (cachedValue !== undefined) {
+      if (
+        cachedValue !== undefined &&
+        (validValues === undefined || validValues.includes(cachedValue))
+      ) {
         return cachedValue;
       }
       return valueWhenCacheEmpty;
@@ -17,12 +20,13 @@ function getAsyncCache<T>(key, valueWhenCacheEmpty): Promise<T> {
 export default function usePersistentContext<T>(
   key: string,
   valueWhenCacheEmpty?: T,
+  validValues?: T[],
 ): [T, (value: T) => Promise<void>] {
   const queryClient = useQueryClient();
 
   const { data } = useQuery<unknown, unknown, T>(
     [key, valueWhenCacheEmpty],
-    () => getAsyncCache<T>(key, valueWhenCacheEmpty),
+    () => getAsyncCache<T>(key, valueWhenCacheEmpty, validValues),
   );
 
   const { mutateAsync: updateValue } = useMutation(

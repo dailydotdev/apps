@@ -25,8 +25,8 @@ import FeaturesContext from '../contexts/FeaturesContext';
 import { generateQueryKey } from '../lib/query';
 import { Features, getFeatureValue } from '../lib/featureManagement';
 import classed from '../lib/classed';
-import usePersistentContext from '../hooks/usePersistentContext';
 import { useMyFeed } from '../hooks/useMyFeed';
+import useDefaultFeed from '../hooks/useDefaultFeed';
 import SettingsContext from '../contexts/SettingsContext';
 
 const SearchEmptyScreen = dynamic(
@@ -141,10 +141,7 @@ export default function MainFeedLayout({
   navChildren,
 }: MainFeedLayoutProps): ReactElement {
   const { shouldShowMyFeed } = useMyFeed();
-  const [defaultFeed, updateDefaultFeed] = usePersistentContext(
-    'defaultFeed',
-    shouldShowMyFeed ? 'my-feed' : 'popular',
-  );
+  const [defaultFeed, updateDefaultFeed] = useDefaultFeed(shouldShowMyFeed);
   const { sortingEnabled } = useContext(SettingsContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { flags } = useContext(FeaturesContext);
