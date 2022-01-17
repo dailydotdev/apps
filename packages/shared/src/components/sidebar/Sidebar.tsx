@@ -40,11 +40,11 @@ import AuthContext from '../../contexts/AuthContext';
 import useHideMobileSidebar from '../../hooks/useHideMobileSidebar';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import MyFeedButton from './MyFeedButton';
-import usePersistentContext from '../../hooks/usePersistentContext';
 import MyFeedAlert from './MyFeedAlert';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { AlertColor, AlertDot } from '../AlertDot';
-import { Features, isFeaturedEnabled } from '../../lib/featureManagement';
+import { useMyFeed } from '../../hooks/useMyFeed';
+import useDefaultFeed from '../../hooks/useDefaultFeed';
 
 const bottomMenuItems: SidebarMenuItem[] = [
   {
@@ -134,7 +134,8 @@ export default function Sidebar({
   setOpenMobileSidebar,
   onShowDndClick,
 }: SidebarProps): ReactElement {
-  const [defaultFeed] = usePersistentContext('defaultFeed', 'popular');
+  const { shouldShowMyFeed } = useMyFeed();
+  const [defaultFeed] = useDefaultFeed(shouldShowMyFeed);
   const activePage =
     activePageProp === '/' ? `/${defaultFeed}` : activePageProp;
   const { alerts, updateAlerts } = useContext(AlertContext);
@@ -149,7 +150,6 @@ export default function Sidebar({
     useContext(SettingsContext);
   const [showSettings, setShowSettings] = useState(false);
   const { flags } = useContext(FeaturesContext);
-  const shouldShowMyFeed = isFeaturedEnabled(Features.MyFeedOn, flags);
   const shouldShowDnD = !!process.env.TARGET_BROWSER;
 
   useHideMobileSidebar({

@@ -5,7 +5,6 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import MainLayout from '@dailydotdev/shared/src/components/MainLayout';
 import MainFeedLayout, {
   getShouldRedirect,
@@ -14,6 +13,7 @@ import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import dynamic from 'next/dynamic';
 import TimerIcon from '@dailydotdev/shared/icons/timer.svg';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import useDefaultFeed from '@dailydotdev/shared/src/hooks/useDefaultFeed';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import { HeaderButton } from '@dailydotdev/shared/src/components/buttons/common';
 import { useMyFeed } from '@dailydotdev/shared/src/hooks/useMyFeed';
@@ -42,8 +42,8 @@ export default function MainFeedPage({
   const [isSearchOn, setIsSearchOn] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>();
   const [showDnd, setShowDnd] = useState(false);
-  const { registerLocalFilters } = useMyFeed();
-  const [defaultFeed] = usePersistentContext('defaultFeed', 'popular');
+  const { registerLocalFilters, shouldShowMyFeed } = useMyFeed();
+  const [defaultFeed] = useDefaultFeed(shouldShowMyFeed);
   const enableSearch = () => {
     setIsSearchOn(true);
     setSearchQuery(null);
