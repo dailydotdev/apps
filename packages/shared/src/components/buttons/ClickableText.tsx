@@ -24,7 +24,7 @@ function ClickableTextComponent<Tag extends AvailableTags>(
     tag: Tag = 'button',
     defaultTypo = true,
     flexRowApplied = true,
-    underlined = true, 
+    underlined = true,
     className,
     ...props
   }: ClickableTextProps<Tag>,
@@ -39,7 +39,7 @@ function ClickableTextComponent<Tag extends AvailableTags>(
       ref={ref}
       className={classNames(
         'items-center text-theme-label-tertiary cursor-pointer',
-        flexRowApplied && 'flex flex-row', 
+        flexRowApplied && 'flex flex-row',
         defaultTypo && 'typo-callout',
         pressed && 'text-theme-label-primary',
         isLink && 'text-theme-label-link',

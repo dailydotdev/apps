@@ -1,19 +1,29 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement } from 'react';
 import { Post } from '../../graphql/posts';
 import { TLDRSummary } from '../utilities';
-import PostReadMore from './ShowMoreContent';
+import ShowMoreContent from './ShowMoreContent';
 
 interface PostTLDRSummaryProps {
   post: Post;
-  children?: ReactNode;
 }
 
 export default function PostTLDRSummary({
-  post
+  post,
 }: PostTLDRSummaryProps): ReactElement {
   return (
     <TLDRSummary>
-      <PostReadMore content={post.summary} charactersLimit={300}/>
+      <ShowMoreContent
+        content={post.summary}
+        charactersLimit={300}
+        contentPrefix={
+          <span
+            className="pr-1 typo-headline text-theme-status-cabbage
+"
+          >
+            TLDR
+          </span>
+        }
+      />
     </TLDRSummary>
   );
 }

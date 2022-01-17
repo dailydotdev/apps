@@ -92,6 +92,5 @@ export const SummaryArrow = classed(ArrowIcon, 'icon arrow ml-auto text-xl');
 
 export const TLDRSummary = classed(
   'span',
-  'typo-headline text-theme-label-secondary multi-truncate',
+  'text-theme-label-secondary multi-truncate',
 );
-
