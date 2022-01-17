@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { get as getCache, set as setCache } from 'idb-keyval';
-import { useEffect } from 'react';
 
 function getAsyncCache<T>(key, valueWhenCacheEmpty): Promise<T> {
   return getCache<T>(key)
