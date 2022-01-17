@@ -20,8 +20,9 @@ export default function usePersistentContext<T>(
 ): [T, (value: T) => Promise<void>] {
   const queryClient = useQueryClient();
 
-  const { data } = useQuery<unknown, unknown, T>(key, () =>
-    getAsyncCache<T>(key, valueWhenCacheEmpty),
+  const { data } = useQuery<unknown, unknown, T>(
+    [key, valueWhenCacheEmpty],
+    () => getAsyncCache<T>(key, valueWhenCacheEmpty),
   );
 
   const { mutateAsync: updateValue } = useMutation(
