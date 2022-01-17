@@ -2,6 +2,7 @@ import { FeedData } from '@dailydotdev/shared/src/graphql/posts';
 import {
   ANONYMOUS_FEED_QUERY,
   FEED_QUERY,
+  RankingAlgorithm,
 } from '@dailydotdev/shared/src/graphql/feed';
 import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import nock from 'nock';
@@ -112,6 +113,7 @@ it('should request user feed', async () => {
       loggedIn: true,
       unreadOnly: false,
       version: 1,
+      ranking: RankingAlgorithm.Popularity,
     }),
   ]);
   await waitFor(async () => {
@@ -128,6 +130,7 @@ it('should request anonymous feed', async () => {
         loggedIn: false,
         unreadOnly: false,
         version: 1,
+        ranking: RankingAlgorithm.Popularity,
       }),
     ],
     null,

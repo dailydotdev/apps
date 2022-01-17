@@ -45,6 +45,8 @@ export default function Settings({
     toggleInsaneMode,
     showTopSites,
     toggleShowTopSites,
+    sortingEnabled,
+    toggleSortingEnabled,
   } = useContext(SettingsContext);
   const [themes, setThemes] = useState([
     { label: 'Dark', value: 'dark' },
@@ -136,6 +138,16 @@ export default function Settings({
               Show most visited sites
             </Switch>
           )}
+          <Switch
+            inputId="feed-sorting-switch"
+            name="feed-sorting"
+            className="my-3 big"
+            checked={sortingEnabled}
+            onToggle={toggleSortingEnabled}
+            compact={false}
+          >
+            Show feed sorting menu
+          </Switch>
         </div>
       </Section>
     </div>
