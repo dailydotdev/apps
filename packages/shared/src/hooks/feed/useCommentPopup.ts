@@ -7,7 +7,7 @@ import {
 } from '../../graphql/comments';
 import { apiUrl } from '../../lib/config';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { postAnalyticsEvent } from '../../lib/feed';
+import { feedAnalyticsExtra, postAnalyticsEvent } from '../../lib/feed';
 import { Post } from '../../graphql/posts';
 
 export default function useCommentPopup(
@@ -51,11 +51,7 @@ export default function useCommentPopup(
             columns,
             column,
             row,
-            extra: {
-              origin: 'feed',
-              feed: feedName,
-              ...(ranking && { ranking }),
-            },
+            ...feedAnalyticsExtra(feedName, ranking),
           }),
         );
         const link = `${data.comment.permalink}?new=true`;
