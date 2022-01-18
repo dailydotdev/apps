@@ -28,7 +28,7 @@ import classed from '../lib/classed';
 import { useMyFeed } from '../hooks/useMyFeed';
 import useDefaultFeed from '../hooks/useDefaultFeed';
 import SettingsContext from '../contexts/SettingsContext';
-import usePersistentState from '../hooks/usePersistentState';
+import usePersistentContext from '../hooks/usePersistentContext';
 
 const SearchEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "emptySearch" */ './SearchEmptyScreen'),
@@ -188,7 +188,7 @@ export default function MainFeedLayout({
     query = { query: null };
   }
 
-  const [selectedAlgo, setSelectedAlgo, loadedAlgo] = usePersistentState(
+  const [selectedAlgo, setSelectedAlgo, loadedAlgo] = usePersistentContext(
     DEFAULT_ALGORITHM_KEY,
     0,
   );
