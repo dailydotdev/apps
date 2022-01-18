@@ -196,7 +196,7 @@ export default function NewCommentModal({
   const sendComment = async (
     event: MouseEvent | KeyboardEvent,
   ): Promise<void> => {
-    if (sendingComment) {
+    if (sendingComment || !input?.trim().length) {
       return;
     }
     setErrorMessage(null);
@@ -333,7 +333,7 @@ export default function NewCommentModal({
           Markdown supported
         </ClickableText>
         <Button
-          disabled={!input?.length}
+          disabled={!input?.trim().length}
           loading={sendingComment}
           onClick={sendComment}
           className="btn-primary-avocado"
