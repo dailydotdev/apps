@@ -21,11 +21,11 @@ export default function usePersistentContext<T>(
   key: string,
   valueWhenCacheEmpty?: T,
   validValues?: T[],
-): [T, (value: T) => Promise<void>] {
+): [T, (value: T) => Promise<void>, boolean] {
   const queryKey = [key, valueWhenCacheEmpty];
   const queryClient = useQueryClient();
 
-  const { data } = useQuery<unknown, unknown, T>(queryKey, () =>
+  const { data, isFetched } = useQuery<unknown, unknown, T>(queryKey, () =>
     getAsyncCache<T>(key, valueWhenCacheEmpty, validValues),
   );
 
@@ -43,5 +43,5 @@ export default function usePersistentContext<T>(
     },
   );
 
-  return [data, updateValue];
+  return [data, updateValue, isFetched];
 }
