@@ -1,7 +1,11 @@
 import { useContext } from 'react';
 import useBookmarkPost from '../useBookmarkPost';
 import { FeedItem } from '../useFeed';
-import { postAnalyticsEvent, optimisticPostUpdateInFeed } from '../../lib/feed';
+import {
+  postAnalyticsEvent,
+  optimisticPostUpdateInFeed,
+  feedAnalyticsExtra,
+} from '../../lib/feed';
 import { Post } from '../../graphql/posts';
 import AuthContext from '../../contexts/AuthContext';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
@@ -11,6 +15,7 @@ export default function useFeedBookmarkPost(
   updatePost: (page: number, index: number, post: Post) => void,
   columns: number,
   feedName: string,
+  ranking?: string,
 ): (
   post: Post,
   index: number,
@@ -48,7 +53,7 @@ export default function useFeedBookmarkPost(
           columns,
           column,
           row,
-          extra: { origin: 'feed', feed: feedName },
+          ...feedAnalyticsExtra(feedName, ranking),
         },
       ),
     );
