@@ -40,6 +40,7 @@ export type FeedItemComponentProps = {
   }) => Promise<CommentOnData>;
   user: LoggedUser | undefined;
   feedName: string;
+  ranking?: string;
   onUpvote: (
     post: Post,
     index: number,
@@ -114,6 +115,7 @@ export default function FeedItemComponent({
   comment,
   user,
   feedName,
+  ranking,
   onUpvote,
   onBookmark,
   onPostClick,
@@ -134,6 +136,7 @@ export default function FeedItemComponent({
     column,
     row,
     feedName,
+    ranking,
   );
 
   switch (item.type) {

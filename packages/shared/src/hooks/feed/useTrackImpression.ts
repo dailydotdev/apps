@@ -14,6 +14,7 @@ export default function useTrackImpression(
   column: number,
   row: number,
   feedName: string,
+  ranking?: string,
 ): (node?: Element | null) => void {
   const { trackEventStart, trackEventEnd } = useContext(AnalyticsContext);
   const { ref: inViewRef, inView } = useInView({
@@ -30,7 +31,12 @@ export default function useTrackImpression(
             columns,
             column,
             row,
-            extra: { origin: 'feed', feed: feedName, scroll_y: window.scrollY },
+            extra: {
+              origin: 'feed',
+              feed: feedName,
+              ...(ranking && { ranking }),
+              scroll_y: window.scrollY,
+            },
           }),
         );
         // eslint-disable-next-line no-param-reassign
@@ -49,7 +55,11 @@ export default function useTrackImpression(
             columns,
             column,
             row,
-            extra: { origin: 'feed', feed: feedName },
+            extra: {
+              origin: 'feed',
+              feed: feedName,
+              ...(ranking && { ranking }),
+            },
           }),
         );
         // eslint-disable-next-line no-param-reassign

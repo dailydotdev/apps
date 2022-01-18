@@ -48,6 +48,10 @@ export type FeedProps<T> = {
   header?: ReactNode;
 };
 
+interface RankVariables {
+  ranking?: string;
+}
+
 const nativeShareSupport = false;
 
 const getStyle = (useList: boolean, spaciness: Spaciness): CSSProperties => {
@@ -96,6 +100,7 @@ export default function Feed<T>({
       variables,
     );
   const { onAdImpression } = useAdImpressions();
+  const { ranking } = variables as RankVariables;
 
   useEffect(() => {
     if (emptyFeed) {
@@ -143,18 +148,21 @@ export default function Feed<T>({
     setShowCommentPopupId,
     virtualizedNumCards,
     feedName,
+    ranking,
   );
   const onBookmark = useFeedBookmarkPost(
     items,
     updatePost,
     virtualizedNumCards,
     feedName,
+    ranking,
   );
   const onPostClick = useFeedOnPostClick(
     items,
     updatePost,
     virtualizedNumCards,
     feedName,
+    ranking,
   );
   const { onMenuClick, postMenuIndex, setPostMenuIndex } = useFeedContextMenu();
   const { notification, notificationIndex, onMessage } = useNotification();
@@ -175,7 +183,11 @@ export default function Feed<T>({
         columns: virtualizedNumCards,
         column,
         row,
-        extra: { origin: 'feed', feed: feedName },
+        extra: {
+          origin: 'feed',
+          feed: feedName,
+          ...(ranking && { ranking }),
+        },
       }),
     );
   };
@@ -191,7 +203,11 @@ export default function Feed<T>({
         columns: virtualizedNumCards,
         column,
         row,
-        extra: { origin: 'feed', feed: feedName },
+        extra: {
+          origin: 'feed',
+          feed: feedName,
+          ...(ranking && { ranking }),
+        },
       }),
     );
   };
@@ -245,6 +261,7 @@ export default function Feed<T>({
             comment={comment}
             user={user}
             feedName={feedName}
+            ranking={ranking}
             onUpvote={onUpvote}
             onBookmark={onBookmark}
             onPostClick={onPostClick}
