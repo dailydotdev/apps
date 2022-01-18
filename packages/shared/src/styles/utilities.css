@@ -25,11 +25,9 @@
   }
 }
 
-@layer utilities {
-  .break-words {
-    word-break: break-word;
-  }
-  .break-words-overflow {
-    overflow-wrap: break-word;
-  }
+.break-words {
+  word-break: break-word;
+}
+.break-words-overflow {
+  overflow-wrap: break-word;
 }
