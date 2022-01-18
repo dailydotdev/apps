@@ -43,5 +43,5 @@ export default function usePersistentContext<T>(
     },
   );
 
-  return [data, updateValue, isFetched];
+  return [data ?? valueWhenCacheEmpty, updateValue, isFetched];
 }
