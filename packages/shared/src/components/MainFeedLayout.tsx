@@ -77,7 +77,7 @@ const getPropsByFeed = ({
 
 const LayoutHeader = classed(
   'header',
-  'flex flex-wrap overflow-x-auto relative justify-between items-center self-stretch mb-6 h-11 no-scrollbar',
+  'flex flex-wrap overflow-x-auto relative justify-between items-center self-stretch mb-6 h-14 no-scrollbar',
 );
 
 export const getShouldRedirect = (
