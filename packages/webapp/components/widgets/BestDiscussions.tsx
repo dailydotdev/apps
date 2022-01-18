@@ -136,7 +136,7 @@ export default function BestDiscussions({
           className="self-start my-2 ml-2 btn-tertiary"
           buttonSize="small"
           tag="a"
-          rightIcon={<ArrowIcon className="transform rotate-90 icon" />}
+          rightIcon={<ArrowIcon className="rotate-90 icon" />}
           onClick={onLucky}
           onMouseUp={(event) => event.button === 1 && onLucky()}
         >

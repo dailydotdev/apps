@@ -24,3 +24,12 @@
     display: none; /* Chrome, Safari and Opera */
   }
 }
+
+@layer utilities {
+  .break-words {
+    word-break: break-word;
+  }
+  .break-words-overflow {
+    overflow-wrap: break-word;
+  }
+}
