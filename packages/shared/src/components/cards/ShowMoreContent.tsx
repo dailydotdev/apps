@@ -22,7 +22,7 @@ export default function ShowMoreContent({
   };
 
   const displayShowMoreLink = () => {
-    if (content?.length > 300) {
+    if (content?.length > charactersLimit) {
       return linkName;
     }
     return '';
