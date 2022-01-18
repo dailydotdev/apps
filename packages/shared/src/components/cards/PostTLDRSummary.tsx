@@ -13,7 +13,6 @@ export default function PostTLDRSummary({
   return (
     <TLDRSummary>
       <ShowMoreContent
-        className="pl-2"
         content={post.summary}
         charactersLimit={300}
         contentPrefix={

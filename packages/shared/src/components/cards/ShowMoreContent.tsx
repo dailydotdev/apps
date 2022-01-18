@@ -21,6 +21,12 @@ export default function ShowMoreContent({
     setIsTextExpanded(!isTextExpanded);
   };
 
+  const displayShowMoreLink = () => {
+    if(content?.length > 300){
+      return linkName;
+    }
+  };
+
   const getSlicedContent = () => {
     return content?.slice(0, charactersLimit);
   };
@@ -36,7 +42,7 @@ export default function ShowMoreContent({
           underlined={false}
           onClick={toggleTextExpanded}
         >
-          {linkName}
+          {displayShowMoreLink()}
         </ClickableText>
       </p>
     </div>

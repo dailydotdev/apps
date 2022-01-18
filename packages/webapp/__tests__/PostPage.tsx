@@ -2,6 +2,7 @@ import React from 'react';
 import {
   findAllByText,
   findByText,
+  queryByText,
   render,
   RenderResult,
   screen,
@@ -437,4 +438,36 @@ it('should send cancel upvote mutation', async () => {
   const el = await screen.findByText('Bookmark');
   el.click();
   await waitFor(() => mutationCalled);
+});
+
+it('should not show TLDR when there is no summary', async () => {
+  renderPost();
+  const el = screen.queryByText('TLDR');
+  expect(el).not.toBeInTheDocument();
+});
+
+it('should show TLDR when there is a summary', async () => {
+  renderPost({}, [createPostMock({ summary: 'test summary' })]);
+  const el = await screen.findByText('TLDR');
+  expect(el).toBeInTheDocument();
+  // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
+  const link = queryByText(el.parentElement, 'Show more');
+  expect(link).not.toBeInTheDocument();
+});
+
+it('should toggle TLDR on click', async () => {
+  renderPost({}, [
+    createPostMock({
+      summary:
+        "Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book type specimen book type specimen book type specimen book type.",
+    }),
+  ]);
+  const el = await screen.findByText('TLDR');
+  expect(el).toBeInTheDocument();
+  // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
+  const showMoreLink = queryByText(el.parentElement, 'Show more');
+  expect(showMoreLink).toBeInTheDocument();
+  showMoreLink.click();
+  const showLessLink = await screen.findByText('Show less');
+  expect(showLessLink).toBeInTheDocument();
 });

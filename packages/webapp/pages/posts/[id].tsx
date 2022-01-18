@@ -244,10 +244,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     <>
       <div className="flex relative flex-row flex-wrap justify-center pb-20 laptop:pb-0 w-full max-w-full">
         <PageContainer
-          className={classNames(
-            'pt-6 laptop:pb-6 laptop:self-stretch',
-            pageBorders,
-          )}
+          className={classNames('laptop:pb-6 laptop:self-stretch', pageBorders)}
         >
           <Head>
             <link rel="preload" as="image" href={postById?.post.image} />
@@ -255,18 +252,18 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           <NextSeo {...seo} />
           <a
             {...postLinkProps}
-            className="block overflow-hidden mt-2 mb-2.5 rounded-2xl cursor-pointer h-1/5"
+            className="block overflow-hidden mb-10 rounded-b-2xl cursor-pointer"
           >
             <LazyImage
               imgSrc={postById?.post.image}
               imgAlt="Post cover image"
-              ratio="49%"
+              ratio="21%"
               eager
             />
           </a>
           <PostHeader post={postById.post} />
           <a {...postLinkProps} className="cursor-pointer">
-            <h1 className="my-2 font-bold typo-title2">
+            <h1 className="my-2 font-bold typo-large-title">
               {postById?.post.title}
             </h1>
           </a>
