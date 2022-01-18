@@ -22,9 +22,10 @@ export default function ShowMoreContent({
   };
 
   const displayShowMoreLink = () => {
-    if(content?.length > 300){
+    if (content?.length > 300) {
       return linkName;
     }
+    return '';
   };
 
   const getSlicedContent = () => {
