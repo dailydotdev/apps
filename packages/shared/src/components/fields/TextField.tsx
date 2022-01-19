@@ -137,7 +137,6 @@ export function TextField({
           },
           styles.field,
         )}
-        style={{ ...style, borderRadius: 'rounded-10' }}
       >
         <div className="flex flex-col flex-1 items-start max-w-full">
           {!compact && (
