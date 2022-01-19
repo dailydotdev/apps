@@ -45,6 +45,7 @@ import FeaturesContext from '../../contexts/FeaturesContext';
 import { AlertColor, AlertDot } from '../AlertDot';
 import { useMyFeed } from '../../hooks/useMyFeed';
 import useDefaultFeed from '../../hooks/useDefaultFeed';
+import { Features, getFeatureValue } from '../../lib/featureManagement';
 
 const bottomMenuItems: SidebarMenuItem[] = [
   {
@@ -149,8 +150,9 @@ export default function Sidebar({
   const { sidebarExpanded, toggleSidebarExpanded, loadedSettings } =
     useContext(SettingsContext);
   const [showSettings, setShowSettings] = useState(false);
-  const { flags } = useContext(FeaturesContext);
   const shouldShowDnD = !!process.env.TARGET_BROWSER;
+  const { flags } = useContext(FeaturesContext);
+  const popularFeedCopy = getFeatureValue(Features.PopularFeedCopy, flags);
 
   useHideMobileSidebar({
     state: openMobileSidebar,
@@ -171,7 +173,7 @@ export default function Sidebar({
   const discoverMenuItems: SidebarMenuItem[] = [
     {
       icon: <ListIcon Icon={HotIcon} />,
-      title: 'Popular',
+      title: popularFeedCopy,
       path: '/popular',
       action: () => onNavTabClick?.('popular'),
     },
