@@ -39,8 +39,8 @@ function useRefreshToken(
   }, [accessToken, refresh]);
 }
 
-const BOOT_LOCAL_KEY = 'boot:local';
-const BOOT_QUERY_KEY = 'boot';
+export const BOOT_LOCAL_KEY = 'boot:local';
+export const BOOT_QUERY_KEY = 'boot';
 
 function filteredProps<T extends Record<string, unknown>>(
   obj: T,

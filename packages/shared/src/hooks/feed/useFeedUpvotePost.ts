@@ -3,9 +3,12 @@ import { useContext } from 'react';
 import useUpvotePost from '../useUpvotePost';
 import { FeedItem } from '../useFeed';
 import { Post } from '../../graphql/posts';
-import { LoginModalMode } from '../../types/LoginModalMode';
 import AuthContext from '../../contexts/AuthContext';
-import { postAnalyticsEvent, optimisticPostUpdateInFeed } from '../../lib/feed';
+import {
+  postAnalyticsEvent,
+  optimisticPostUpdateInFeed,
+  feedAnalyticsExtra,
+} from '../../lib/feed';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 
 export default function useFeedUpvotePost(
@@ -13,6 +16,8 @@ export default function useFeedUpvotePost(
   updatePost: (page: number, index: number, post: Post) => void,
   setShowCommentPopupId: (postId: string) => void,
   columns: number,
+  feedName: string,
+  ranking?: string,
 ): (
   post: Post,
   index: number,
@@ -41,7 +46,7 @@ export default function useFeedUpvotePost(
 
   return async (post, index, row, column, upvoted): Promise<void> => {
     if (!user) {
-      showLogin('upvote', LoginModalMode.ContentQuality);
+      showLogin('upvote');
       return;
     }
     trackEvent(
@@ -49,7 +54,7 @@ export default function useFeedUpvotePost(
         columns,
         column,
         row,
-        extra: { origin: 'feed' },
+        ...feedAnalyticsExtra(feedName, ranking),
       }),
     );
     if (upvoted) {

@@ -2,7 +2,9 @@ import { FeedData } from '@dailydotdev/shared/src/graphql/posts';
 import {
   ANONYMOUS_FEED_QUERY,
   FEED_QUERY,
+  RankingAlgorithm,
 } from '@dailydotdev/shared/src/graphql/feed';
+import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import nock from 'nock';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React from 'react';
@@ -14,7 +16,7 @@ import SettingsContext, {
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { mocked } from 'ts-jest/utils';
 import { NextRouter, useRouter } from 'next/router';
-import Recent from '../pages/recent';
+import MyFeed from '../pages/my-feed';
 import ad from './fixture/ad';
 import defaultUser from './fixture/loggedUser';
 import defaultFeedPage from './fixture/feed';
@@ -28,7 +30,7 @@ beforeEach(() => {
   mocked(useRouter).mockImplementation(
     () =>
       ({
-        pathname: '/recent',
+        pathname: '/my-feed',
         query: {},
         replace: jest.fn(),
         push: jest.fn(),
@@ -81,21 +83,25 @@ const renderComponent = (
   };
   return render(
     <QueryClientProvider client={client}>
-      <AuthContext.Provider
-        value={{
-          user,
-          shouldShowLogin: false,
-          showLogin,
-          logout: jest.fn(),
-          updateUser: jest.fn(),
-          tokenRefreshed: true,
-          getRedirectUri: jest.fn(),
-        }}
+      <FeaturesContext.Provider
+        value={{ flags: { my_feed_on: { enabled: true } } }}
       >
-        <SettingsContext.Provider value={settingsContext}>
-          {Recent.getLayout(<Recent />, {}, Recent.layoutProps)}
-        </SettingsContext.Provider>
-      </AuthContext.Provider>
+        <AuthContext.Provider
+          value={{
+            user,
+            shouldShowLogin: false,
+            showLogin,
+            logout: jest.fn(),
+            updateUser: jest.fn(),
+            tokenRefreshed: true,
+            getRedirectUri: jest.fn(),
+          }}
+        >
+          <SettingsContext.Provider value={settingsContext}>
+            {MyFeed.getLayout(<MyFeed />, {}, MyFeed.layoutProps)}
+          </SettingsContext.Provider>
+        </AuthContext.Provider>
+      </FeaturesContext.Provider>
     </QueryClientProvider>,
   );
 };
@@ -105,9 +111,9 @@ it('should request user feed', async () => {
     createFeedMock(defaultFeedPage, FEED_QUERY, {
       first: 7,
       loggedIn: true,
-      ranking: 'TIME',
       unreadOnly: false,
       version: 1,
+      ranking: RankingAlgorithm.Popularity,
     }),
   ]);
   await waitFor(async () => {
@@ -122,9 +128,9 @@ it('should request anonymous feed', async () => {
       createFeedMock(defaultFeedPage, ANONYMOUS_FEED_QUERY, {
         first: 7,
         loggedIn: false,
-        ranking: 'TIME',
         unreadOnly: false,
         version: 1,
+        ranking: RankingAlgorithm.Popularity,
       }),
     ],
     null,

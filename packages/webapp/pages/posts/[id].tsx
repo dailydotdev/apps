@@ -1,4 +1,5 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import { useQuery, useQueryClient } from 'react-query';
@@ -10,7 +11,10 @@ import {
 import { ParsedUrlQuery } from 'querystring';
 import { NextSeo } from 'next-seo';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
-import { PageContainer } from '@dailydotdev/shared/src/components/utilities';
+import {
+  pageBorders,
+  PageContainer,
+} from '@dailydotdev/shared/src/components/utilities';
 import {
   POST_BY_ID_QUERY,
   POST_BY_ID_STATIC_FIELDS_QUERY,
@@ -28,7 +32,6 @@ import { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
 import request, { ClientError } from 'graphql-request';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
-import { LoginModalMode } from '@dailydotdev/shared/src/types/LoginModalMode';
 import { logReadArticle } from '@dailydotdev/shared/src/lib/analytics';
 import useSubscription from '@dailydotdev/shared/src/hooks/useSubscription';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
@@ -183,7 +186,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         post: postById.post,
       });
     } else {
-      showLogin('comment', LoginModalMode.ContentQuality);
+      showLogin('comment');
     }
   };
 
@@ -238,8 +241,13 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
 
   return (
     <>
-      <div className="flex relative flex-col flex-wrap mx-auto w-full laptopL:w-auto max-w-full">
-        <PageContainer className="pt-6 laptop:pb-6 laptopL:mr-[22.5rem] laptop:border-r laptop:border-l laptop:border-theme-divider-tertiary">
+      <div className="flex relative flex-row flex-wrap justify-center pb-20 laptop:pb-0 w-full max-w-full">
+        <PageContainer
+          className={classNames(
+            'pt-6 laptop:pb-6 laptop:self-stretch',
+            pageBorders,
+          )}
+        >
           <Head>
             <link rel="preload" as="image" href={postById?.post.image} />
           </Head>
@@ -293,8 +301,8 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           {authorOnboarding && (
             <AuthorOnboarding onSignUp={!user && (() => showLogin('author'))} />
           )}
+          <NewComment user={user} onNewComment={openNewComment} />
         </PageContainer>
-        <NewComment user={user} onNewComment={openNewComment} />
         <PostWidgets post={postById.post} />
       </div>
 

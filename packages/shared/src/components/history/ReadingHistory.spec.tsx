@@ -64,8 +64,13 @@ describe('ReadingHistoryList component', () => {
   });
 
   it('should show date section for reads of the same year', async () => {
+    const year = new Date().getFullYear();
+    const date = new Date(`${year}-03-31 07:15:51.247`);
+    const weekday = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][
+      date.getDay()
+    ];
     render(<ReadHistoryList {...props} />);
-    await screen.findByText('Wed, 31 Mar');
+    await screen.findByText(`${weekday}, 31 Mar`);
   });
 
   it('should show date section for reads of the different year', async () => {

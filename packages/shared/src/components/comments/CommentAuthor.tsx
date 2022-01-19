@@ -17,7 +17,7 @@ export default function CommentAuthor({
     <ProfileTooltip user={author}>
       <ProfileLink
         user={author}
-        className="overflow-hidden w-fit font-bold whitespace-nowrap commentAuthor text-theme-label-primary typo-callout"
+        className="overflow-hidden font-bold whitespace-nowrap w-fit commentAuthor text-theme-label-primary typo-callout"
       >
         {author.name}
         {author.id === postAuthorId && (

@@ -23,7 +23,7 @@ import {
   UPDATE_ADVANCED_SETTINGS_FILTERS_MUTATION,
 } from '../../graphql/feedSettings';
 import AdvancedSettingsPage from './AdvancedSettings';
-import { getFeedSettingsQueryKey } from '../../hooks/useMutateFilters';
+import { getFeedSettingsQueryKey } from '../../hooks/useFeedSettings';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import AlertContext, {
   AlertContextData,

@@ -1,5 +1,10 @@
 import { gql } from 'graphql-request';
 
+export enum RankingAlgorithm {
+  Popularity = 'POPULARITY',
+  Time = 'TIME',
+}
+
 export const FEED_POST_FRAGMENT = gql`
   fragment FeedPost on Post {
     id

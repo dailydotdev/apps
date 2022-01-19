@@ -13,7 +13,7 @@ import {
   FeedSettings,
   REMOVE_FILTERS_FROM_FEED_MUTATION,
 } from '@dailydotdev/shared/src/graphql/feedSettings';
-import { getFeedSettingsQueryKey } from '@dailydotdev/shared/src/hooks/useMutateFilters';
+import { getFeedSettingsQueryKey } from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import SettingsContext, {
   SettingsContextData,
 } from '@dailydotdev/shared/src/contexts/SettingsContext';

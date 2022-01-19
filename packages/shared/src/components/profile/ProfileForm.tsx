@@ -20,6 +20,8 @@ import {
   getTimeZoneOptions,
   getUserInitialTimezone,
 } from '../../lib/timezones';
+import { Features, isFeaturedEnabled } from '../../lib/featureManagement';
+import FeaturesContext from '../../contexts/FeaturesContext';
 
 const REQUIRED_FIELDS_COUNT = 4;
 const timeZoneOptions = getTimeZoneOptions();
@@ -64,6 +66,7 @@ export default function ProfileForm({
   const [githubHint, setGithubHint] = useState<string>();
   const [hashnodeHint, setHashnodeHint] = useState<string>();
   const [emailHint, setEmailHint] = useState(defaultEmailHint);
+  const { flags } = useContext(FeaturesContext);
 
   const updateDisableSubmit = () => {
     if (formRef.current) {
@@ -123,6 +126,7 @@ export default function ProfileForm({
       const filledFields = Object.keys(data).filter(
         (key) => data[key] !== undefined && data[key] !== null,
       );
+
       onSuccessfulSubmit?.(filledFields.length > REQUIRED_FIELDS_COUNT);
     }
   };
@@ -217,9 +221,18 @@ export default function ProfileForm({
     </>
   );
 
+  const isImageHidden = isFeaturedEnabled(
+    Features.HideSignupProfileImage,
+    flags,
+  );
+
   return (
     <form
-      className={classNames(className, 'flex flex-col w-full mt-10 p-0')}
+      className={classNames(
+        className,
+        'flex flex-col w-full p-0',
+        isImageHidden ? 'mt-4' : 'mt-10',
+      )}
       ref={formRef}
       onSubmit={onSubmit}
       {...props}
@@ -297,7 +310,7 @@ export default function ProfileForm({
         inputId="acceptedMarketing"
         checked={user.acceptedMarketing}
       >
-        Subscribe to the Weekly Recap
+        Subscribe to the Community Newsletter
       </FormSwitch>
       {mode !== 'update' && (
         <details

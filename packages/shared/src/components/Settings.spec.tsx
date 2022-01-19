@@ -19,7 +19,9 @@ import {
 import { LoggedUser } from '../lib/user';
 import defaultUser from '../../__tests__/fixture/loggedUser';
 import AuthContext from '../contexts/AuthContext';
-import { LoginModalMode } from '../types/LoginModalMode';
+import { BootDataProvider, BOOT_LOCAL_KEY } from '../contexts/BootProvider';
+import { apiUrl } from '../lib/config';
+import { BootCacheData } from '../lib/boot';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -36,6 +38,7 @@ const defaultSettings: RemoteSettings = {
   insaneMode: false,
   showTopSites: true,
   sidebarExpanded: true,
+  sortingEnabled: false,
 };
 
 const updateSettings = jest.fn();
@@ -107,6 +110,63 @@ it('should fetch remote settings', async () => {
         queryByText(el.parentElement, 'Open links in new tab'),
       ),
     ).not.toBeChecked(),
+  );
+
+  await waitFor(() =>
+    expect(
+      checkbox.find((el) =>
+        // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
+        queryByText(el.parentElement, 'Show feed sorting menu'),
+      ),
+    ).not.toBeChecked(),
+  );
+});
+
+const defaultBootData: Partial<BootCacheData> = {
+  settings: { ...defaultSettings, spaciness: 'cozy' },
+};
+const renderBootProvider = (
+  bootData: Partial<BootCacheData> = defaultBootData,
+) => {
+  const queryClient = new QueryClient();
+  const app = 'extension';
+  nock(apiUrl).get('/boot', { headers: { app } }).reply(200, bootData);
+
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <BootDataProvider app={app} getRedirectUri={jest.fn()}>
+        <Settings />
+      </BootDataProvider>
+    </QueryClientProvider>,
+  );
+};
+
+it('should utilize front-end default settings for first time users', async () => {
+  renderBootProvider();
+
+  const radio = await screen.findAllByRole('radio');
+  await waitFor(() =>
+    expect(
+      // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
+      radio.find((el) => queryByText(el.parentElement, 'Eco')),
+    ).toBeChecked(),
+  );
+});
+
+it('should utilize local cache settings for anonymous users', async () => {
+  const localBootData = {
+    ...defaultBootData,
+    settings: { ...defaultBootData.settings, theme: 'cozy' },
+  };
+  localStorage.setItem(BOOT_LOCAL_KEY, JSON.stringify(localBootData));
+  renderBootProvider(defaultBootData);
+
+  const radio = await screen.findAllByRole('radio');
+  await waitFor(() =>
+    expect(
+      // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
+      radio.find((el) => queryByText(el.parentElement, 'Cozy')),
+    ).toBeChecked(),
   );
 });
 
@@ -195,6 +255,16 @@ it('should mutate open links in new tab setting', () =>
     fireEvent.click(checkbox);
   }));
 
+it('should mutate feed sorting enabled setting', () =>
+  testSettingsMutation({ sortingEnabled: true }, async () => {
+    const checkboxes = await screen.findAllByRole('checkbox');
+    const checkbox = checkboxes.find((el) =>
+      // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
+      queryByText(el.parentElement, 'Show feed sorting menu'),
+    ) as HTMLInputElement;
+    fireEvent.click(checkbox);
+  }));
+
 it('should not have the show most visited sites switch in the webapp', async () => {
   renderComponent(null);
   const checkbox = screen.queryByText('Show most visited sites');
@@ -209,9 +279,7 @@ it('should open login when hide read posts is clicked and the user is logged out
   );
   fireEvent.click(el);
 
-  await waitFor(() =>
-    expect(showLogin).toBeCalledWith('settings', LoginModalMode.Default),
-  );
+  await waitFor(() => expect(showLogin).toBeCalledWith('settings'));
 });
 
 it('should mutate show most visited sites setting in extension', async () => {

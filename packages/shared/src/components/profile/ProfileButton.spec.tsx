@@ -1,35 +1,40 @@
 import React from 'react';
+import { QueryClient, QueryClientProvider } from 'react-query';
 import { waitFor, render, RenderResult, screen } from '@testing-library/react';
-import ProfileButton, { ProfileButtonProps } from './ProfileButton';
+import ProfileButton from './ProfileButton';
 import AuthContext from '../../contexts/AuthContext';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 
-const onShowDndClick = jest.fn();
 const logout = jest.fn();
 
 const renderComponent = (props: ProfileButtonProps): RenderResult => {
+  const client = new QueryClient();
+
   return render(
-    <AuthContext.Provider
-      value={{
-        user: defaultUser,
-        shouldShowLogin: false,
-        showLogin: jest.fn(),
-        logout,
-        updateUser: jest.fn(),
-        tokenRefreshed: true,
-        getRedirectUri: jest.fn(),
-        closeLogin: jest.fn(),
-        trackingId: '21',
-        loginState: null,
-      }}
-    >
-      <ProfileButton {...props} />
-    </AuthContext.Provider>,
+    <QueryClientProvider client={client}>
+      <AuthContext.Provider
+        value={{
+          user: defaultUser,
+          shouldShowLogin: false,
+          showLogin: jest.fn(),
+          logout,
+          updateUser: jest.fn(),
+          tokenRefreshed: true,
+          getRedirectUri: jest.fn(),
+          closeLogin: jest.fn(),
+          trackingId: '21',
+          loginState: null,
+        }}
+      >
+        <ProfileButton {...props} />
+      </AuthContext.Provider>
+      ,
+    </QueryClientProvider>,
   );
 };
 
 it('should click the account details and show the pop up', async () => {
-  renderComponent({ onShowDndClick });
+  renderComponent();
 
   const profileBtn = await screen.findByLabelText('Profile settings');
   profileBtn.click();
@@ -43,7 +48,7 @@ it('should click the account details and show the pop up', async () => {
 });
 
 it('should click the logout button and logout', async () => {
-  renderComponent({ onShowDndClick });
+  renderComponent();
 
   const profileBtn = await screen.findByLabelText('Profile settings');
   profileBtn.click();

@@ -1,4 +1,10 @@
-import React, { ReactElement, useMemo, useRef, useState } from 'react';
+import React, {
+  ReactElement,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useQuery } from 'react-query';
 import request from 'graphql-request';
 import { SearchField } from '../fields/SearchField';
@@ -10,23 +16,32 @@ import useFeedSettings from '../../hooks/useFeedSettings';
 import TagItemList from './TagItemList';
 import TagOptionsMenu from './TagOptionsMenu';
 import useTagContext from '../../hooks/useTagContext';
-import useTagAndSource from '../../hooks/useTagAndSource';
+import useTagAndSource, {
+  TagActionArguments,
+} from '../../hooks/useTagAndSource';
 import { FilterMenuProps } from './common';
 import MenuIcon from '../../../icons/menu.svg';
+import AuthContext from '../../contexts/AuthContext';
+import { useMyFeed } from '../../hooks/useMyFeed';
 
 export default function TagsFilter({
-  setUnblockItem,
+  onUnblockItem,
 }: FilterMenuProps): ReactElement {
   const searchRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState<string>(null);
   const searchKey = getSearchTagsQueryKey(query);
+  const { user } = useContext(AuthContext);
   const { tagsCategories, feedSettings, isLoading } = useFeedSettings();
+  const { shouldShowMyFeed } = useMyFeed();
   const { contextSelectedTag, setContextSelectedTag, onTagContextOptions } =
     useTagContext();
   const { onFollowTags, onUnfollowTags, onBlockTags, onUnblockTags } =
     useTagAndSource({
       origin: `tags ${query?.length > 0 ? 'search' : 'filter'}`,
     });
+  const isTagBlocked = feedSettings?.blockedTags?.some(
+    (tag) => tag === contextSelectedTag,
+  );
 
   const { data: searchResults } = useQuery<SearchTagsData>(
     searchKey,
@@ -43,13 +58,16 @@ export default function TagsFilter({
     };
   }, [feedSettings]);
 
-  const tagUnblockAction = ({ tags }) => {
-    setUnblockItem({
-      tag: tags,
-      action: () => onUnblockTags({ tags }),
+  const tagUnblockAction = ({ tags: [tag] }: TagActionArguments) => {
+    if (shouldShowMyFeed && !user) {
+      return onUnblockTags({ tags: [tag] });
+    }
+
+    return onUnblockItem({
+      tag,
+      action: () => onUnblockTags({ tags: [tag] }),
     });
   };
-
   return (
     <div
       className="flex flex-col"
@@ -79,7 +97,14 @@ export default function TagsFilter({
           />
           <TagOptionsMenu
             tag={contextSelectedTag}
-            onBlock={() => onBlockTags({ tags: [contextSelectedTag] })}
+            onBlock={
+              !isTagBlocked &&
+              (() => onBlockTags({ tags: [contextSelectedTag] }))
+            }
+            onUnblock={
+              isTagBlocked &&
+              (() => onUnblockTags({ tags: [contextSelectedTag] }))
+            }
             onHidden={() => setContextSelectedTag(null)}
           />
         </>

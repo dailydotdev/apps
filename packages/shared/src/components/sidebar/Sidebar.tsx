@@ -3,7 +3,6 @@ import classNames from 'classnames';
 import SettingsContext from '../../contexts/SettingsContext';
 import { FeedSettingsModal } from '../modals/FeedSettingsModal';
 import HotIcon from '../../../icons/hot.svg';
-import FilterIcon from '../../../icons/filter.svg';
 import UpvoteIcon from '../../../icons/upvote.svg';
 import SearchIcon from '../../../icons/magnifying.svg';
 import DiscussIcon from '../../../icons/comment.svg';
@@ -13,6 +12,9 @@ import SettingsIcon from '../../../icons/settings.svg';
 import FeedbackIcon from '../../../icons/feedback.svg';
 import DocsIcon from '../../../icons/docs.svg';
 import TerminalIcon from '../../../icons/terminal.svg';
+import HomeIcon from '../../../icons/home.svg';
+import FilterIcon from '../../../icons/outline/filter.svg';
+import MoonIcon from '../../../icons/filled/moon.svg';
 import {
   ButtonOrLink,
   ItemInner,
@@ -32,12 +34,18 @@ import InvitePeople from './InvitePeople';
 import SidebarRankProgress from '../SidebarRankProgress';
 import AlertContext from '../../contexts/AlertContext';
 import FeedFilters from '../filters/FeedFilters';
-import { AlertColor, AlertDot } from '../AlertDot';
 import { useDynamicLoadedAnimation } from '../../hooks/useDynamicLoadAnimated';
 import SidebarUserButton from './SidebarUserButton';
 import AuthContext from '../../contexts/AuthContext';
 import useHideMobileSidebar from '../../hooks/useHideMobileSidebar';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
+import MyFeedButton from './MyFeedButton';
+import MyFeedAlert from './MyFeedAlert';
+import FeaturesContext from '../../contexts/FeaturesContext';
+import { AlertColor, AlertDot } from '../AlertDot';
+import { useMyFeed } from '../../hooks/useMyFeed';
+import useDefaultFeed from '../../hooks/useDefaultFeed';
+import { Features, getFeatureValue } from '../../lib/featureManagement';
 
 const bottomMenuItems: SidebarMenuItem[] = [
   {
@@ -49,12 +57,12 @@ const bottomMenuItems: SidebarMenuItem[] = [
   {
     icon: <ListIcon Icon={TerminalIcon} />,
     title: 'Changelog',
-    path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}sources/daily_updates `,
+    path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}sources/daily_updates`,
   },
   {
     icon: <ListIcon Icon={FeedbackIcon} />,
     title: 'Feedback',
-    path: 'https://it057218.typeform.com/to/S9p9SVNI',
+    path: 'https://daily.dev/feedback',
     target: '_blank',
   },
 ];
@@ -121,24 +129,39 @@ export default function Sidebar({
   activePage: activePageProp,
   sidebarRendered = false,
   openMobileSidebar = false,
+  showDnd = false,
   onNavTabClick,
   enableSearch,
   setOpenMobileSidebar,
   onShowDndClick,
 }: SidebarProps): ReactElement {
-  const activePage = activePageProp === '/' ? '/popular' : activePageProp;
-  const { alerts } = useContext(AlertContext);
+  const { shouldShowMyFeed } = useMyFeed();
+  const [defaultFeed] = useDefaultFeed(shouldShowMyFeed);
+  const activePage =
+    activePageProp === '/' ? `/${defaultFeed}` : activePageProp;
+  const { alerts, updateAlerts } = useContext(AlertContext);
   const { trackEvent } = useContext(AnalyticsContext);
-  const { isLoaded, isAnimated, setLoaded, setHidden } =
-    useDynamicLoadedAnimation();
+  const {
+    isLoaded,
+    isAnimated,
+    setLoaded: openFeedFilters,
+    setHidden,
+  } = useDynamicLoadedAnimation();
   const { sidebarExpanded, toggleSidebarExpanded, loadedSettings } =
     useContext(SettingsContext);
   const [showSettings, setShowSettings] = useState(false);
+  const shouldShowDnD = !!process.env.TARGET_BROWSER;
+  const { flags } = useContext(FeaturesContext);
+  const popularFeedCopy = getFeatureValue(Features.PopularFeedCopy, flags);
 
   useHideMobileSidebar({
     state: openMobileSidebar,
     action: setOpenMobileSidebar,
   });
+
+  const hideMyFeedAlert = () => {
+    updateAlerts({ myFeed: null });
+  };
 
   const trackAndToggleSidebarExpanded = () => {
     trackEvent({
@@ -149,17 +172,8 @@ export default function Sidebar({
 
   const discoverMenuItems: SidebarMenuItem[] = [
     {
-      icon: <ListIcon Icon={FilterIcon} />,
-      alert: alerts.filter && (
-        <AlertDot className="-top-0.5 right-2.5" color={AlertColor.Fill} />
-      ),
-      title: 'Feed filters',
-      action: setLoaded,
-      hideOnMobile: true,
-    },
-    {
       icon: <ListIcon Icon={HotIcon} />,
-      title: 'Popular',
+      title: popularFeedCopy,
       path: '/popular',
       action: () => onNavTabClick?.('popular'),
     },
@@ -183,6 +197,27 @@ export default function Sidebar({
       hideOnMobile: true,
     },
   ];
+  if (!shouldShowMyFeed) {
+    discoverMenuItems.unshift({
+      icon: <ListIcon Icon={FilterIcon} />,
+      alert: alerts.filter && (
+        <AlertDot className="-top-0.5 right-2.5" color={AlertColor.Fill} />
+      ),
+      title: 'Feed filters',
+      action: openFeedFilters,
+      hideOnMobile: true,
+    });
+  }
+
+  const myFeedMenuItem: SidebarMenuItem = {
+    icon: <ListIcon Icon={HomeIcon} />,
+    title: 'My feed',
+    path: '/my-feed',
+    alert: (alerts.filter || alerts.myFeed) && !sidebarExpanded && (
+      <AlertDot className="top-0 right-2.5" color={AlertColor.Success} />
+    ),
+    action: () => onNavTabClick?.('my-feed'),
+  };
 
   const manageMenuItems: SidebarMenuItem[] = [
     {
@@ -205,6 +240,15 @@ export default function Sidebar({
       active: showSettings,
     },
   ];
+  if (shouldShowDnD) {
+    const dndMenuItem = {
+      icon: <ListIcon Icon={MoonIcon} />,
+      title: 'Focus mode',
+      action: onShowDndClick,
+      active: showDnd,
+    };
+    manageMenuItems.splice(2, 0, dndMenuItem);
+  }
 
   const defaultRenderSectionProps = useMemo(() => {
     return {
@@ -217,6 +261,9 @@ export default function Sidebar({
   if (!loadedSettings) {
     return <></>;
   }
+
+  const shouldHideMyFeedAlert =
+    !shouldShowMyFeed || alerts?.filter || (!alerts?.filter && !alerts?.myFeed);
 
   return (
     <>
@@ -241,10 +288,22 @@ export default function Sidebar({
         )}
         <SidebarScrollWrapper>
           <Nav>
-            <SidebarUserButton
-              sidebarRendered={sidebarRendered}
-              onShowDndClick={onShowDndClick}
-            />
+            <SidebarUserButton sidebarRendered={sidebarRendered} />
+            {shouldShowMyFeed && (
+              <MyFeedButton
+                sidebarRendered={sidebarRendered}
+                sidebarExpanded={sidebarExpanded}
+                filtered={!alerts?.filter}
+                item={myFeedMenuItem}
+                flags={flags}
+                action={openFeedFilters}
+                isActive={activePage === myFeedMenuItem.path}
+                useNavButtonsNotLinks={useNavButtonsNotLinks}
+              />
+            )}
+            {sidebarExpanded && !shouldHideMyFeedAlert && (
+              <MyFeedAlert alerts={alerts} hideAlert={hideMyFeedAlert} />
+            )}
             <RenderSection
               {...defaultRenderSectionProps}
               title="Discover"

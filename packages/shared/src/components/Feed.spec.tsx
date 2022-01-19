@@ -33,13 +33,13 @@ import defaultFeedPage from '../../__tests__/fixture/feed';
 import defaultUser from '../../__tests__/fixture/loggedUser';
 import ad from '../../__tests__/fixture/ad';
 import { LoggedUser } from '../lib/user';
-import { LoginModalMode } from '../types/LoginModalMode';
 import { MyRankData } from '../graphql/users';
 import { getRankQueryKey } from '../hooks/useReadingRank';
 import { SubscriptionCallbacks } from '../hooks/useSubscription';
 import { COMMENT_ON_POST_MUTATION } from '../graphql/comments';
 import SettingsContext, {
   SettingsContextData,
+  ThemeMode,
 } from '../contexts/SettingsContext';
 import { waitForNock } from '../../__tests__/helpers/utilities';
 import {
@@ -48,7 +48,7 @@ import {
   FeedSettings,
   FEED_SETTINGS_QUERY,
 } from '../graphql/feedSettings';
-import { getFeedSettingsQueryKey } from '../hooks/useMutateFilters';
+import { getFeedSettingsQueryKey } from '../hooks/useFeedSettings';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
@@ -67,9 +67,17 @@ jest.mock('../hooks/useSubscription', () => ({
     ),
 }));
 
+let variables: unknown;
+const defaultVariables = {
+  first: 7,
+  loggedIn: true,
+  unreadOnly: false,
+};
+
 beforeEach(() => {
   jest.clearAllMocks();
   nock.cleanAll();
+  variables = defaultVariables;
 });
 
 const createTagsSettingsMock = (
@@ -91,15 +99,11 @@ const createTagsSettingsMock = (
 const createFeedMock = (
   page = defaultFeedPage,
   query: string = ANONYMOUS_FEED_QUERY,
-  variables: unknown = {
-    first: 7,
-    loggedIn: true,
-    unreadOnly: false,
-  },
+  params: unknown = variables,
 ): MockedGraphQLResponse<FeedData> => ({
   request: {
     query,
-    variables,
+    variables: params,
   },
   result: {
     data: {
@@ -123,7 +127,7 @@ const renderComponent = (
     showOnlyUnreadPosts: false,
     openNewTab: true,
     setTheme: jest.fn(),
-    themeMode: 'dark',
+    themeMode: ThemeMode.Dark,
     setSpaciness: jest.fn(),
     toggleOpenNewTab: jest.fn(),
     toggleShowOnlyUnreadPosts: jest.fn(),
@@ -132,6 +136,10 @@ const renderComponent = (
     toggleInsaneMode: jest.fn(),
     showTopSites: true,
     toggleShowTopSites: jest.fn(),
+    toggleSortingEnabled: jest.fn(),
+    sortingEnabled: false,
+    sidebarExpanded: true,
+    toggleSidebarExpanded: jest.fn(),
   };
   return render(
     <QueryClientProvider client={queryClient}>
@@ -150,7 +158,11 @@ const renderComponent = (
         }}
       >
         <SettingsContext.Provider value={settingsContext}>
-          <Feed feedQueryKey={['feed']} query={ANONYMOUS_FEED_QUERY} />
+          <Feed
+            feedQueryKey={['feed']}
+            query={ANONYMOUS_FEED_QUERY}
+            variables={variables}
+          />
         </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
@@ -178,6 +190,31 @@ it('should replace placeholders with posts and ad', async () => {
     // eslint-disable-next-line testing-library/prefer-screen-queries
     expect(await findByRole(el, 'link')).toHaveAttribute('href', ad.link);
   });
+});
+
+it('should render feed with sorting ranking by date', async () => {
+  variables = { ...defaultVariables, ranking: 'TIME' };
+  renderComponent(
+    [createFeedMock(defaultFeedPage, ANONYMOUS_FEED_QUERY)],
+    defaultUser,
+  );
+  await waitForNock();
+  const elements = await screen.findAllByTestId('postItem');
+  expect(elements.length).toBeGreaterThan(0);
+  const [latest, old] = elements;
+  // eslint-disable-next-line testing-library/no-node-access
+  const latestTitle = latest.querySelector('a').getAttribute('title');
+  const latestPost = defaultFeedPage.edges.find(
+    (edge) => edge.node.title === latestTitle,
+  ).node;
+  // eslint-disable-next-line testing-library/no-node-access
+  const oldTitle = old.querySelector('a').getAttribute('title');
+  const oldPost = defaultFeedPage.edges.find(
+    (edge) => edge.node.title === oldTitle,
+  ).node;
+  expect(new Date(latestPost.createdAt).getTime()).toBeGreaterThan(
+    new Date(oldPost.createdAt).getTime(),
+  );
 });
 
 it('should send upvote mutation', async () => {
@@ -251,7 +288,7 @@ it('should open login modal on anonymous upvote', async () => {
   );
   const [el] = await screen.findAllByLabelText('Upvote');
   el.click();
-  expect(showLogin).toBeCalledWith('upvote', LoginModalMode.ContentQuality);
+  expect(showLogin).toBeCalledWith('upvote');
 });
 
 it('should send add bookmark mutation', async () => {

@@ -7,18 +7,31 @@ import { Button } from './buttons/Button';
 import AuthContext from '../contexts/AuthContext';
 import { apiUrl } from '../lib/config';
 import AnalyticsContext from '../contexts/AnalyticsContext';
+import { useMyFeed } from '../hooks/useMyFeed';
 
-export default function LoginButtons(): ReactElement {
+interface LoginButtonsProps {
+  buttonCopyPrefix?: string;
+}
+
+export default function LoginButtons({
+  buttonCopyPrefix,
+}: LoginButtonsProps): ReactElement {
   const router = useRouter();
   const { getRedirectUri } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
+  const { checkHasLocalFilters } = useMyFeed();
 
-  const authUrl = (provider: string, redirectUri: string) =>
-    `${apiUrl}/v1/auth/authorize?provider=${provider}&redirect_uri=${encodeURI(
-      redirectUri,
+  const authUrl = (provider: string, redirectUri: string) => {
+    const uri = checkHasLocalFilters()
+      ? `${redirectUri}?create_filters=true`
+      : redirectUri;
+
+    return `${apiUrl}/v1/auth/authorize?provider=${provider}&redirect_uri=${encodeURI(
+      uri,
     )}&skip_authenticate=true&register_mode=${
       router.query.author ? 'author' : 'default'
     }`;
+  };
 
   const login = (provider: string): void => {
     trackEvent({
@@ -38,14 +51,14 @@ export default function LoginButtons(): ReactElement {
           onClick={() => login('github')}
           icon={<GitHubIcon />}
         >
-          Sign in with GitHub
+          {buttonCopyPrefix} GitHub
         </Button>
         <Button
           className="my-2 btn-primary"
           onClick={() => login('google')}
           icon={<img src="/google.svg" className="icon" alt="Google logo" />}
         >
-          Sign in with Google
+          {buttonCopyPrefix} Google
         </Button>
       </div>
       <LegalNotice

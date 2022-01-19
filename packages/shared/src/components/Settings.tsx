@@ -14,7 +14,6 @@ import CardIcon from '../../icons/card.svg';
 import LineIcon from '../../icons/line.svg';
 import { IconsSwitch } from './fields/IconsSwitch';
 import AuthContext from '../contexts/AuthContext';
-import { LoginModalMode } from '../types/LoginModalMode';
 
 const densities = [
   { label: 'Eco', value: 'eco' },
@@ -46,6 +45,8 @@ export default function Settings({
     toggleInsaneMode,
     showTopSites,
     toggleShowTopSites,
+    sortingEnabled,
+    toggleSortingEnabled,
   } = useContext(SettingsContext);
   const [themes, setThemes] = useState([
     { label: 'Dark', value: 'dark' },
@@ -55,7 +56,7 @@ export default function Settings({
 
   const onShowOnlyUnreadPosts = (): Promise<void> | void => {
     if (!user) {
-      showLogin('settings', LoginModalMode.Default);
+      showLogin('settings');
       return undefined;
     }
 
@@ -137,6 +138,16 @@ export default function Settings({
               Show most visited sites
             </Switch>
           )}
+          <Switch
+            inputId="feed-sorting-switch"
+            name="feed-sorting"
+            className="my-3 big"
+            checked={sortingEnabled}
+            onToggle={toggleSortingEnabled}
+            compact={false}
+          >
+            Show feed sorting menu
+          </Switch>
         </div>
       </Section>
     </div>
