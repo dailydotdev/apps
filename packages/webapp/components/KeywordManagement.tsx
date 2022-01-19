@@ -135,7 +135,7 @@ export default function KeywordManagement({
                 className="w-16 h-16 rounded-2xl"
               />
               <p
-                className="flex-1 self-center p-0 tablet:mr-6 ml-4 whitespace-pre-wrap break-words text-theme-label-primary typo-callout multi-truncate"
+                className="flex-1 self-center p-0 tablet:mr-6 ml-4 whitespace-pre-wrap break-words-overflow text-theme-label-primary typo-callout multi-truncate"
                 style={{
                   maxHeight: '3.75rem',
                   maxWidth: '19.25rem',

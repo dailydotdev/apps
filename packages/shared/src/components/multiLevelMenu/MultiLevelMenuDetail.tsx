@@ -18,7 +18,7 @@ export default function MultiLevelMenuDetail({
         <Button
           className="p-0 typo-callout text-theme-label-tertiary btn-quaternary"
           onClick={() => setMultiLevelMenuDetail(null, null)}
-          icon={<ArrowIcon className="mr-2 text-2xl transform -rotate-90" />}
+          icon={<ArrowIcon className="mr-2 text-2xl -rotate-90" />}
         >
           {item?.title}
         </Button>

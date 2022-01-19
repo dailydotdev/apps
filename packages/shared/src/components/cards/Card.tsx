@@ -15,7 +15,7 @@ const Title = classed(
   'font-bold typo-body text-theme-label-primary multi-truncate line-clamp-3',
 );
 
-export const CardTitle = classed(Title, 'my-2 break-word');
+export const CardTitle = classed(Title, 'my-2 break-words');
 
 export const ListCardTitle = classed(Title, 'mr-2');
 
@@ -34,7 +34,7 @@ export const CardLink = classed(
 export const Card = classed(
   'article',
   styles.card,
-  'relative flex flex-col p-2 rounded-2xl bg-theme-bg-secondary border border-theme-divider-tertiary hover:border-theme-divider-secondary shadow-2',
+  'relative h-full flex flex-col p-2 rounded-2xl bg-theme-bg-secondary border border-theme-divider-tertiary hover:border-theme-divider-secondary shadow-2',
 );
 
 export const CardHeader = classed(
