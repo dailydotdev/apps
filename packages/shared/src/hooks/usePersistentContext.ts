@@ -21,6 +21,7 @@ export default function usePersistentContext<T>(
   key: string,
   valueWhenCacheEmpty?: T,
   validValues?: T[],
+  fallbackValue?: T,
 ): [T, (value: T) => Promise<void>, boolean] {
   const queryKey = [key, valueWhenCacheEmpty];
   const queryClient = useQueryClient();
@@ -43,5 +44,5 @@ export default function usePersistentContext<T>(
     },
   );
 
-  return [data ?? valueWhenCacheEmpty, updateValue, isFetched];
+  return [data ?? fallbackValue, updateValue, isFetched];
 }

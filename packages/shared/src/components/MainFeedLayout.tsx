@@ -191,6 +191,8 @@ export default function MainFeedLayout({
   const [selectedAlgo, setSelectedAlgo, loadedAlgo] = usePersistentContext(
     DEFAULT_ALGORITHM_KEY,
     0,
+    [0, 1],
+    0,
   );
   const [selectedPeriod, setSelectedPeriod] = useState(0);
   const search = (
