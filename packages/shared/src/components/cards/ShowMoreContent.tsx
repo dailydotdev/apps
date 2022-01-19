@@ -33,7 +33,7 @@ export default function ShowMoreContent({
   };
   return (
     <div className={className}>
-      <p className="typo-callout">
+      <p className="typo-body">
         {contentPrefix}
         {getContent()}{' '}
         {displayShowMoreLink() && (
