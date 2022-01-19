@@ -28,6 +28,7 @@ import classed from '../lib/classed';
 import { useMyFeed } from '../hooks/useMyFeed';
 import useDefaultFeed from '../hooks/useDefaultFeed';
 import SettingsContext from '../contexts/SettingsContext';
+import usePersistentContext from '../hooks/usePersistentContext';
 
 const SearchEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "emptySearch" */ './SearchEmptyScreen'),
@@ -124,6 +125,7 @@ const algorithms = [
   { value: RankingAlgorithm.Time, text: 'By date' },
 ];
 const algorithmsList = algorithms.map((algo) => algo.text);
+const DEFAULT_ALGORITHM_KEY = 'feed:algorithm';
 
 const periods = [
   { value: 7, text: 'Last week' },
@@ -142,7 +144,7 @@ export default function MainFeedLayout({
 }: MainFeedLayoutProps): ReactElement {
   const { shouldShowMyFeed } = useMyFeed();
   const [defaultFeed, updateDefaultFeed] = useDefaultFeed(shouldShowMyFeed);
-  const { sortingEnabled } = useContext(SettingsContext);
+  const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { flags } = useContext(FeaturesContext);
   const popularFeedCopy = getFeatureValue(Features.PopularFeedCopy, flags);
@@ -192,9 +194,13 @@ export default function MainFeedLayout({
     query = { query: null };
   }
 
-  const [selectedAlgo, setSelectedAlgo] = useState(0);
+  const [selectedAlgo, setSelectedAlgo, loadedAlgo] = usePersistentContext(
+    DEFAULT_ALGORITHM_KEY,
+    0,
+    [0, 1],
+    0,
+  );
   const [selectedPeriod, setSelectedPeriod] = useState(0);
-
   const search = (
     <LayoutHeader>
       {navChildren}
@@ -277,10 +283,10 @@ export default function MainFeedLayout({
   ]);
 
   useEffect(() => {
-    if (!sortingEnabled && selectedAlgo > 0) {
+    if (!sortingEnabled && selectedAlgo > 0 && loadedSettings && loadedAlgo) {
       setSelectedAlgo(0);
     }
-  }, [sortingEnabled, selectedAlgo]);
+  }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
 
   return (
     <FeedPage>
