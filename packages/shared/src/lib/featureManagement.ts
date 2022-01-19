@@ -69,21 +69,26 @@ export class Features {
     'Logout',
   );
 
+  static readonly PopularFeedCopy = new Features(
+    'popular_feed_copy',
+    'Popular',
+  );
+
   private constructor(
     public readonly id: string,
     public readonly defaultValue?: string,
   ) {}
 }
 
+export const isFeaturedEnabled = (key: Features, flags: IFlags): boolean =>
+  flags?.[key?.id]?.enabled;
+
 export const getFeatureValue = (
   key: Features,
   flags: IFlags,
 ): string | undefined => {
-  if (flags[key?.id]?.enabled) {
+  if (isFeaturedEnabled(key, flags)) {
     return flags[key?.id].value;
   }
   return key?.defaultValue ?? undefined;
 };
-
-export const isFeaturedEnabled = (key: Features, flags: IFlags): boolean =>
-  flags[key?.id]?.enabled;

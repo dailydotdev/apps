@@ -30,7 +30,7 @@ export default function MultiLevelMenuMaster({
           >
             {item.icon}
             <a className="flex-1 text-left typo-headline">{item.title}</a>
-            <ArrowIcon className="text-xl transform rotate-90" />
+            <ArrowIcon className="text-xl rotate-90" />
           </MenuButton>
         </li>
       ))}

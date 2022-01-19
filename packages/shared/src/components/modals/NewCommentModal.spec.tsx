@@ -195,6 +195,40 @@ it('should send commentOnComment mutation', async () => {
   expect(onRequestClose).toBeCalledTimes(1);
 });
 
+it('should not send comment if the input is spaces only', async () => {
+  let mutationCalled = false;
+  const newComment = {
+    __typename: 'Comment',
+    id: 'new',
+    content: 'comment',
+    createdAt: new Date(2017, 1, 10, 0, 1).toISOString(),
+    permalink: 'https://daily.dev',
+  };
+  renderComponent({ commentId: 'c1' }, [
+    {
+      request: {
+        query: COMMENT_ON_COMMENT_MUTATION,
+        variables: { id: 'c1', content: 'comment' },
+      },
+      result: () => {
+        mutationCalled = true;
+        return {
+          data: {
+            comment: newComment,
+          },
+        };
+      },
+    },
+  ]);
+  const input = await screen.findByRole('textbox');
+  input.innerText = '   ';
+  input.dispatchEvent(new Event('input', { bubbles: true }));
+  const el = await screen.findByText('Comment');
+  el.click();
+  await waitFor(() => expect(onComment).not.toBeCalled());
+  expect(mutationCalled).toBeFalsy();
+});
+
 it('should show alert in case of an error', async () => {
   let mutationCalled = false;
   renderComponent({ commentId: 'c1' }, [
