@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path');
 const withPreact = require('next-plugin-preact');
-const withPrefresh = require('@prefresh/next');
 const withPWA = require('next-pwa');
 const withTM = require('next-transpile-modules')(['@dailydotdev/shared']);
 const sharedPackage = require('../shared/package.json');
@@ -16,7 +15,7 @@ module.exports = withTM(
       dest: 'public',
       disable: process.env.NODE_ENV === 'development',
     },
-    ...withPrefresh(
+    ...withPreact(
       withBundleAnalyzer({
         webpack5: true,
         experimental: {
@@ -24,26 +23,6 @@ module.exports = withTM(
           // polyfillsOptimization: true,
         },
         webpack: (config, { dev, isServer }) => {
-          const splitChunks =
-            config.optimization && config.optimization.splitChunks;
-          if (splitChunks) {
-            const cacheGroups = splitChunks.cacheGroups;
-            const preactModules =
-              /[\\/]node_modules[\\/](preact|preact-render-to-string|preact-context-provider)[\\/]/;
-            if (cacheGroups.framework) {
-              cacheGroups.preact = Object.assign({}, cacheGroups.framework, {
-                test: preactModules,
-              });
-              cacheGroups.commons.name = 'framework';
-            } else {
-              cacheGroups.preact = {
-                name: 'commons',
-                chunks: 'all',
-                test: preactModules,
-              };
-            }
-          }
-
           config.module.rules.push({
             test: /\.svg$/i,
             issuer: /\.[jt]sx?$/,
@@ -88,18 +67,6 @@ module.exports = withTM(
               {},
             ),
           };
-
-          // inject Preact DevTools
-          if (dev && !isServer) {
-            const entry = config.entry;
-            config.entry = () =>
-              entry().then((entries) => {
-                entries['main.js'] = ['preact/debug'].concat(
-                  entries['main.js'] || [],
-                );
-                return entries;
-              });
-          }
 
           return config;
         },
