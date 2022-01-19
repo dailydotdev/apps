@@ -182,6 +182,7 @@ export default function Feed<T>({
     row: number,
     column: number,
   ): void => {
+    console.log(numCards, index, row, column);
     trackEvent(
       postAnalyticsEvent('comments click', post, {
         columns: virtualizedNumCards,
@@ -209,38 +210,51 @@ export default function Feed<T>({
   };
 
   const style = {
-    height: `${virtualizer.totalSize}px`,
-    '--num-cards': numCards,
-    '--feed-gap': `${feedGapPx / 16}rem`,
-    '--card-height': `${cardHeightPx / 16}rem`,
     ...getStyle(useList, spaciness),
   };
+
+  const listGaps = {
+    cozy: 'gap-5',
+    roomy: 'gap-3',
+  };
+  const gridGaps = {
+    cozy: 'gap-14',
+    roomy: 'gap-12',
+  };
+  const gapClass = () =>
+    useList ? listGaps[spaciness] ?? 'gap-2' : gridGaps[spaciness] ?? 'gap-8';
+
+  const cardListClass = {
+    1: 'grid-cols-1',
+    2: 'grid-cols-2',
+    3: 'grid-cols-3',
+    4: 'grid-cols-4',
+    5: 'grid-cols-5',
+    6: 'grid-cols-6',
+    7: 'grid-cols-7',
+  };
+  const cardClass = (numCards) =>
+    useList ? 'grid-cols-1' : cardListClass[numCards];
+
+  const calculateRow = (index) => Math.floor(index / numCards);
+  const calculateColumn = (index) => index % numCards;
+  console.log(style);
   return emptyScreen && emptyFeed ? (
     <>{emptyScreen}</>
   ) : (
     <div
-      className={classNames(
-        className,
-        'relative mx-auto w-full',
-        styles.feed,
-        !useList && styles.cards,
-      )}
-      style={style}
-      ref={parentRef}
+      className="relative mx-auto w-full"
+      style={getStyle(useList, spaciness)}
     >
       {header}
       <ScrollToTopButton />
-      <VirtualizedFeedGrid
-        items={items}
-        hasHeader={!!header}
-        virtualizer={virtualizer}
-        virtualizedNumCards={virtualizedNumCards}
-        getNthChild={(index, column, row) => (
+      <div className={classNames('grid', gapClass(), cardClass(numCards))}>
+        {items.map((item, index) => (
           <FeedItemComponent
             items={items}
             index={index}
-            row={row}
-            column={column}
+            row={calculateRow(index)}
+            column={calculateColumn(index)}
             displayPublicationDate={displayPublicationDate}
             columns={virtualizedNumCards}
             key={getFeedItemKey(items, index)}
@@ -267,16 +281,69 @@ export default function Feed<T>({
             onAdRender={onAdImpression}
             onAdClick={onAdClick}
           />
-        )}
-      />
+        ))}
+      </div>
       <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
-      <PostOptionsMenu
-        postIndex={postMenuIndex}
-        post={(items[postMenuIndex] as PostItem)?.post}
-        onHidden={() => setPostMenuIndex(null)}
-        onMessage={onMessage}
-        onRemovePost={onRemovePost}
-      />
     </div>
+    // <div
+    //   className={classNames(
+    //     className,
+    //     'relative mx-auto w-full',
+    //     styles.feed,
+    //     !useList && styles.cards,
+    //   )}
+    //   style={style}
+    //   ref={parentRef}
+    // >
+    //   {header}
+    //   <ScrollToTopButton />
+    //   <VirtualizedFeedGrid
+    //     items={items}
+    //     hasHeader={!!header}
+    //     virtualizer={virtualizer}
+    //     virtualizedNumCards={virtualizedNumCards}
+    //     getNthChild={(index, column, row) => (
+    //       <FeedItemComponent
+    //         items={items}
+    //         index={index}
+    //         row={row}
+    //         column={column}
+    //         displayPublicationDate={displayPublicationDate}
+    //         columns={virtualizedNumCards}
+    //         key={getFeedItemKey(items, index)}
+    //         useList={useList}
+    //         openNewTab={openNewTab}
+    //         insaneMode={insaneMode}
+    //         nativeShareSupport={nativeShareSupport}
+    //         postMenuIndex={postMenuIndex}
+    //         postNotificationIndex={notificationIndex}
+    //         notification={notification}
+    //         showCommentPopupId={showCommentPopupId}
+    //         setShowCommentPopupId={setShowCommentPopupId}
+    //         isSendingComment={isSendingComment}
+    //         comment={comment}
+    //         user={user}
+    //         feedName={feedName}
+    //         ranking={ranking}
+    //         onUpvote={onUpvote}
+    //         onBookmark={onBookmark}
+    //         onPostClick={onPostClick}
+    //         onShare={onShare}
+    //         onMenuClick={onMenuClick}
+    //         onCommentClick={onCommentClick}
+    //         onAdRender={onAdImpression}
+    //         onAdClick={onAdClick}
+    //       />
+    //     )}
+    //   />
+    //   <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
+    //   <PostOptionsMenu
+    //     postIndex={postMenuIndex}
+    //     post={(items[postMenuIndex] as PostItem)?.post}
+    //     onHidden={() => setPostMenuIndex(null)}
+    //     onMessage={onMessage}
+    //     onRemovePost={onRemovePost}
+    //   />
+    // </div>
   );
 }
