@@ -31,7 +31,11 @@ import useVirtualFeedGrid, {
 } from '../hooks/feed/useVirtualFeedGrid';
 import VirtualizedFeedGrid from './VirtualizedFeedGrid';
 import AnalyticsContext from '../contexts/AnalyticsContext';
-import { adAnalyticsEvent, postAnalyticsEvent } from '../lib/feed';
+import {
+  adAnalyticsEvent,
+  feedAnalyticsExtra,
+  postAnalyticsEvent,
+} from '../lib/feed';
 import PostOptionsMenu from './PostOptionsMenu';
 import useNotification from '../hooks/useNotification';
 import FeaturesContext from '../contexts/FeaturesContext';
@@ -47,6 +51,10 @@ export type FeedProps<T> = {
   emptyScreen?: ReactNode;
   header?: ReactNode;
 };
+
+interface RankVariables {
+  ranking?: string;
+}
 
 const nativeShareSupport = false;
 
@@ -96,6 +104,7 @@ export default function Feed<T>({
       variables,
     );
   const { onAdImpression } = useAdImpressions();
+  const { ranking } = (variables as RankVariables) || {};
 
   useEffect(() => {
     if (emptyFeed) {
@@ -143,18 +152,21 @@ export default function Feed<T>({
     setShowCommentPopupId,
     virtualizedNumCards,
     feedName,
+    ranking,
   );
   const onBookmark = useFeedBookmarkPost(
     items,
     updatePost,
     virtualizedNumCards,
     feedName,
+    ranking,
   );
   const onPostClick = useFeedOnPostClick(
     items,
     updatePost,
     virtualizedNumCards,
     feedName,
+    ranking,
   );
   const { onMenuClick, postMenuIndex, setPostMenuIndex } = useFeedContextMenu();
   const { notification, notificationIndex, onMessage } = useNotification();
@@ -175,7 +187,7 @@ export default function Feed<T>({
         columns: virtualizedNumCards,
         column,
         row,
-        extra: { origin: 'feed', feed: feedName },
+        ...feedAnalyticsExtra(feedName, ranking),
       }),
     );
   };
@@ -191,7 +203,7 @@ export default function Feed<T>({
         columns: virtualizedNumCards,
         column,
         row,
-        extra: { origin: 'feed', feed: feedName },
+        ...feedAnalyticsExtra(feedName, ranking),
       }),
     );
   };
@@ -245,6 +257,7 @@ export default function Feed<T>({
             comment={comment}
             user={user}
             feedName={feedName}
+            ranking={ranking}
             onUpvote={onUpvote}
             onBookmark={onBookmark}
             onPostClick={onPostClick}

@@ -7,10 +7,13 @@ import {
 } from '../../graphql/comments';
 import { apiUrl } from '../../lib/config';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { postAnalyticsEvent } from '../../lib/feed';
+import { feedAnalyticsExtra, postAnalyticsEvent } from '../../lib/feed';
 import { Post } from '../../graphql/posts';
 
-export default function useCommentPopup(feedName: string): {
+export default function useCommentPopup(
+  feedName: string,
+  ranking?: string,
+): {
   setShowCommentPopupId: (value: string | undefined) => void;
   isSendingComment: boolean;
   comment: (variables: {
@@ -48,7 +51,7 @@ export default function useCommentPopup(feedName: string): {
             columns,
             column,
             row,
-            extra: { origin: 'feed', feed: feedName },
+            ...feedAnalyticsExtra(feedName, ranking),
           }),
         );
         const link = `${data.comment.permalink}?new=true`;

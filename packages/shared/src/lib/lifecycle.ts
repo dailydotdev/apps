@@ -77,6 +77,8 @@ const getLegalStateTransitionPath = (oldState, newState) => {
   // console.warn(`Invalid state change detected: ${oldState} > ${newState}`);
 };
 
+let wasActive = false;
+
 /**
  * Returns the current state based on the document's visibility and
  * in input focus states. Note this method is only used to determine
@@ -84,7 +86,7 @@ const getLegalStateTransitionPath = (oldState, newState) => {
  * for events.
  * @return {string}
  */
-export const getCurrentLifecycleState = (): string => {
+const getInternalLifecycleState = (): string => {
   if (document.visibilityState === HIDDEN) {
     return HIDDEN;
   }
@@ -92,6 +94,13 @@ export const getCurrentLifecycleState = (): string => {
     return ACTIVE;
   }
   return PASSIVE;
+};
+
+export const getCurrentLifecycleState = (): string => {
+  if (wasActive) {
+    return ACTIVE;
+  }
+  return getInternalLifecycleState();
 };
 
 export default function listenToLifecycleEvents(): void {
@@ -113,13 +122,20 @@ export default function listenToLifecycleEvents(): void {
     SUPPORTS_PAGE_TRANSITION_EVENTS ? 'pagehide' : 'unload',
   ];
 
-  let state = getCurrentLifecycleState();
+  let state = getInternalLifecycleState();
   let safariBeforeUnloadTimeout: number;
+  if (state === ACTIVE) {
+    wasActive = true;
+  }
 
   const dispatchChangesIfNeeded = (
     originalEvent: Event,
     newState: string,
   ): void => {
+    if (newState === PASSIVE && wasActive) {
+      // eslint-disable-next-line no-param-reassign
+      newState = ACTIVE;
+    }
     if (newState !== state) {
       const oldState = state;
       const path = getLegalStateTransitionPath(oldState, newState);
@@ -129,6 +145,10 @@ export default function listenToLifecycleEvents(): void {
         const newPathState = path[i + 1];
 
         state = newState;
+        if (state === ACTIVE) {
+          wasActive = true;
+        }
+
         window.dispatchEvent(
           new CustomEvent('statechange', {
             bubbles: true,
@@ -155,13 +175,20 @@ export default function listenToLifecycleEvents(): void {
         dispatchChangesIfNeeded(evt, getCurrentLifecycleState());
         break;
       case 'focus':
+        if (wasActive) {
+          dispatchChangesIfNeeded(evt, ACTIVE);
+        }
+        break;
+      case 'scroll':
+      case 'mousedown':
+      case 'touchstart':
         dispatchChangesIfNeeded(evt, ACTIVE);
         break;
       case 'blur':
         // The `blur` event can fire while the page is being unloaded, so we
         // only need to update the state if the current state is "active".
         if (state === ACTIVE) {
-          dispatchChangesIfNeeded(evt, getCurrentLifecycleState());
+          dispatchChangesIfNeeded(evt, getInternalLifecycleState());
         }
         break;
       case 'pagehide':
@@ -176,7 +203,7 @@ export default function listenToLifecycleEvents(): void {
         // is being unloaded, but in such cases the lifecycle state shouldn't
         // change.
         if (state !== FROZEN && state !== TERMINATED) {
-          dispatchChangesIfNeeded(evt, getCurrentLifecycleState());
+          dispatchChangesIfNeeded(evt, getInternalLifecycleState());
         }
         break;
       case 'freeze':
@@ -187,6 +214,13 @@ export default function listenToLifecycleEvents(): void {
 
   // Add capturing events on window so they run immediately.
   EVENTS.forEach((evt) => window.addEventListener(evt, handleEvents, true));
+  ['scroll', 'mousedown', 'touchstart'].forEach((evt) =>
+    window.addEventListener(evt, handleEvents, {
+      capture: true,
+      once: true,
+      passive: true,
+    }),
+  );
 
   // Safari does not reliably fire the `pagehide` or `visibilitychange`
   // events when closing a tab, so we have to use `beforeunload` with a
