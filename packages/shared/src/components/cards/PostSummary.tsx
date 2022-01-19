@@ -6,9 +6,7 @@ interface SummaryProps {
   summary: string;
 }
 
-export default function PostSummary({
-  summary,
-}: SummaryProps): ReactElement {
+export default function PostSummary({ summary }: SummaryProps): ReactElement {
   return (
     <SummaryContainer>
       <ShowMoreContent
