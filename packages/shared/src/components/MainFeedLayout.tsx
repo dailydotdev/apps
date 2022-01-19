@@ -34,13 +34,6 @@ const SearchEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "emptySearch" */ './SearchEmptyScreen'),
 );
 
-const feedTitles = {
-  'my-feed': 'My feed',
-  popular: 'Popular',
-  upvoted: 'Most upvoted',
-  discussed: 'Best discussions',
-};
-
 type FeedQueryProps = {
   query: string;
   queryIfLogged?: string;
@@ -149,6 +142,7 @@ export default function MainFeedLayout({
   const { flags } = useContext(FeaturesContext);
   const popularFeedCopy = getFeatureValue(Features.PopularFeedCopy, flags);
   const feedTitles = {
+    'my-feed': 'My feed',
     popular: popularFeedCopy,
     upvoted: 'Most upvoted',
     discussed: 'Best discussions',
