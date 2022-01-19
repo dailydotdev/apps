@@ -96,7 +96,7 @@
     "react-dom": "^16.0.0",
     "react-intersection-observer": "^8.32.2",
     "react-modal": "^3.14.3",
-    "react-query": "^3.31.0",
+    "react-query": "^3.34.7",
     "react-transition-group": "^4.4.2",
     "react-virtual": "^2.8.2",
     "stylelint": "^13.13.1",
