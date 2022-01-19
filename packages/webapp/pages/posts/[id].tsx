@@ -36,7 +36,7 @@ import { logReadArticle } from '@dailydotdev/shared/src/lib/analytics';
 import useSubscription from '@dailydotdev/shared/src/hooks/useSubscription';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import PostMetadata from '@dailydotdev/shared/src/components/cards/PostMetadata';
-import PostTLDRSummary from '@dailydotdev/shared/src/components/cards/PostTLDRSummary';
+import PostSummary from '@dailydotdev/shared/src/components/cards/PostSummary';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import { TagLinks } from '@dailydotdev/shared/src/components/TagLinks';
 import PostToc from '../../components/widgets/PostToc';
@@ -267,7 +267,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
               {postById?.post.title}
             </h1>
           </a>
-          <PostTLDRSummary post={postById.post} />
+          <PostSummary summary={postById.post.summary} />
           <PostMetadata
             post={postById.post}
             className="mt-2 mb-1"

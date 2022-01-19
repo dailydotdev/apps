@@ -1,19 +1,18 @@
 import React, { ReactElement } from 'react';
-import { Post } from '../../graphql/posts';
-import { TLDRSummary } from '../utilities';
+import { SummaryContainer } from '../utilities';
 import ShowMoreContent from './ShowMoreContent';
 
-interface PostTLDRSummaryProps {
-  post: Post;
+interface SummaryProps {
+  summary: string;
 }
 
-export default function PostTLDRSummary({
-  post,
-}: PostTLDRSummaryProps): ReactElement {
+export default function PostSummary({
+  summary,
+}: SummaryProps): ReactElement {
   return (
-    <TLDRSummary>
+    <SummaryContainer>
       <ShowMoreContent
-        content={post.summary}
+        content={summary}
         charactersLimit={300}
         contentPrefix={
           <span className="pr-1 typo-headline text-theme-status-cabbage">
@@ -21,6 +20,6 @@ export default function PostTLDRSummary({
           </span>
         }
       />
-    </TLDRSummary>
+    </SummaryContainer>
   );
 }

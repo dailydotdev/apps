@@ -22,29 +22,29 @@ export default function ShowMoreContent({
   };
 
   const displayShowMoreLink = () => {
-    if (content?.length > charactersLimit) {
-      return linkName;
+    if (content && content?.length > charactersLimit) {
+      return true;
     }
-    return '';
+    return false;
   };
 
-  const getSlicedContent = () => {
-    return content?.slice(0, charactersLimit);
+  const getContent = () => {
+    return isTextExpanded ? content : content?.slice(0, charactersLimit);
   };
   return (
     <div className={className}>
       <p className="typo-callout">
         {contentPrefix}
-        {isTextExpanded ? content : getSlicedContent()}
-        &nbsp;
-        <ClickableText
-          className="text-theme-label-link"
-          flexRowApplied={false}
-          underlined={false}
-          onClick={toggleTextExpanded}
-        >
-          {displayShowMoreLink()}
-        </ClickableText>
+        {getContent()}{' '}
+        {displayShowMoreLink() && (
+          <ClickableText
+            className="inline-flex text-theme-label-link"
+            onClick={toggleTextExpanded}
+            tag="a"
+          >
+            {linkName}
+          </ClickableText>
+        )}
       </p>
     </div>
   );
