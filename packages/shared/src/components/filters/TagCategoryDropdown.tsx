@@ -31,7 +31,7 @@ export default function TagCategoryDropdown({
     <TagCategoryDetails>
       <TagCategorySummary>
         <div className="flex items-center">
-          <ArrowIcon className="mr-2 text-xl transition-transform transform rotate-90 icon text-theme-label-tertiary" />{' '}
+          <ArrowIcon className="mr-2 text-xl transition-transform rotate-90 icon text-theme-label-tertiary" />{' '}
           <span className="mr-3 typo-title1">{tagCategory.emoji}</span>{' '}
           <h4 className="font-bold typo-callout">{tagCategory.title}</h4>{' '}
         </div>

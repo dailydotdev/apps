@@ -30,6 +30,7 @@ export default function BookmarkFeedLayout({
   const feedProps = useMemo<FeedProps<unknown>>(() => {
     if (searchQuery) {
       return {
+        feedName: 'search-bookmarks',
         feedQueryKey: ['bookmarks', user?.id ?? 'anonymous', searchQuery],
         query: SEARCH_BOOKMARKS_QUERY,
         variables: { query: searchQuery },
@@ -37,6 +38,7 @@ export default function BookmarkFeedLayout({
       };
     }
     return {
+      feedName: 'bookmarks',
       feedQueryKey: ['bookmarks', user?.id ?? 'anonymous'],
       query: BOOKMARKS_FEED_QUERY,
       onEmptyFeed: () => setShowEmptyScreen(true),

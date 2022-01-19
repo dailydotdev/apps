@@ -38,6 +38,7 @@ const defaultSettings: RemoteSettings = {
   insaneMode: false,
   showTopSites: true,
   sidebarExpanded: true,
+  sortingEnabled: false,
 };
 
 const updateSettings = jest.fn();
@@ -107,6 +108,15 @@ it('should fetch remote settings', async () => {
       checkbox.find((el) =>
         // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
         queryByText(el.parentElement, 'Open links in new tab'),
+      ),
+    ).not.toBeChecked(),
+  );
+
+  await waitFor(() =>
+    expect(
+      checkbox.find((el) =>
+        // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
+        queryByText(el.parentElement, 'Show feed sorting menu'),
       ),
     ).not.toBeChecked(),
   );
@@ -241,6 +251,16 @@ it('should mutate open links in new tab setting', () =>
     const checkbox = checkboxes.find((el) =>
       // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
       queryByText(el.parentElement, 'Open links in new tab'),
+    ) as HTMLInputElement;
+    fireEvent.click(checkbox);
+  }));
+
+it('should mutate feed sorting enabled setting', () =>
+  testSettingsMutation({ sortingEnabled: true }, async () => {
+    const checkboxes = await screen.findAllByRole('checkbox');
+    const checkbox = checkboxes.find((el) =>
+      // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
+      queryByText(el.parentElement, 'Show feed sorting menu'),
     ) as HTMLInputElement;
     fireEvent.click(checkbox);
   }));

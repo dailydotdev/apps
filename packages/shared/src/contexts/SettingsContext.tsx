@@ -31,6 +31,7 @@ export type SettingsContextData = {
   insaneMode: boolean;
   showTopSites: boolean;
   sidebarExpanded: boolean;
+  sortingEnabled: boolean;
   setTheme: (theme: ThemeMode) => Promise<void>;
   toggleShowOnlyUnreadPosts: () => Promise<void>;
   toggleOpenNewTab: () => Promise<void>;
@@ -38,6 +39,7 @@ export type SettingsContextData = {
   toggleInsaneMode: () => Promise<void>;
   toggleShowTopSites: () => Promise<void>;
   toggleSidebarExpanded: () => Promise<void>;
+  toggleSortingEnabled: () => Promise<void>;
   loadedSettings: boolean;
 };
 
@@ -46,13 +48,13 @@ export default SettingsContext;
 
 const deprecatedLightModeStorageKey = 'showmethelight';
 
-const themeModes: Record<RemoteTheme, ThemeMode> = {
+export const themeModes: Record<RemoteTheme, ThemeMode> = {
   bright: ThemeMode.Light,
   darcula: ThemeMode.Dark,
   auto: ThemeMode.Auto,
 };
 
-const remoteThemes: Record<ThemeMode, RemoteTheme> = {
+export const remoteThemes: Record<ThemeMode, RemoteTheme> = {
   [ThemeMode.Light]: 'bright',
   [ThemeMode.Dark]: 'darcula',
   [ThemeMode.Auto]: 'auto',
@@ -87,6 +89,7 @@ const defaultSettings: RemoteSettings = {
   insaneMode: false,
   showTopSites: true,
   sidebarExpanded: true,
+  sortingEnabled: false,
   theme: remoteThemes[ThemeMode.Dark],
 };
 
@@ -171,6 +174,8 @@ export const SettingsContextProvider = ({
           ...settings,
           sidebarExpanded: !settings.sidebarExpanded,
         }),
+      toggleSortingEnabled: () =>
+        setSettings({ ...settings, sortingEnabled: !settings.sortingEnabled }),
       loadedSettings,
     }),
     [settings, loadedSettings, userId],

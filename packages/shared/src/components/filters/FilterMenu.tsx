@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import MultiLevelMenu from '../multiLevelMenu/MultiLevelMenu';
 import { MenuItem } from './common';
@@ -10,24 +10,31 @@ import TagsFilter from './TagsFilter';
 import BlockedFilter from './BlockedFilter';
 import AdvancedSettingsFilter from './AdvancedSettings';
 import UnblockModal from '../modals/UnblockModal';
-import { Tag } from '../../graphql/feedSettings';
 import { Source } from '../../graphql/sources';
 
 const NewSourceModal = dynamic(() => import('../modals/NewSourceModal'));
 
-export default function FilterMenu(): ReactElement {
+interface UnblockItem {
+  tag?: string;
+  source?: Source;
+  action?: () => unknown;
+}
+
+interface FilterMenuProps {
+  directlyOpenedTab?: string;
+}
+
+export default function FilterMenu({
+  directlyOpenedTab,
+}: FilterMenuProps): ReactElement {
+  const [unblockItem, setUnblockItem] = useState<UnblockItem>();
   const [showNewSourceModal, setShowNewSourceModal] = useState(false);
-  const [unblockItem, setUnblockItem] = useState<{
-    tag?: Tag | string;
-    source?: Source;
-    action?: () => unknown;
-  }>();
 
   const menuItems: MenuItem[] = [
     {
       icon: <HashtagIcon className="mr-3 text-xl" />,
       title: 'Manage tags',
-      component: <TagsFilter setUnblockItem={setUnblockItem} />,
+      component: <TagsFilter onUnblockItem={setUnblockItem} />,
     },
     {
       icon: <FilterIcon className="mr-3 text-xl" />,
@@ -37,7 +44,7 @@ export default function FilterMenu(): ReactElement {
     {
       icon: <BlockIcon className="mr-3 text-xl" />,
       title: 'Blocked items',
-      component: <BlockedFilter setUnblockItem={setUnblockItem} />,
+      component: <BlockedFilter onUnblockItem={setUnblockItem} />,
     },
     {
       icon: <PlusIcon className="mr-3 text-xl" />,
@@ -46,9 +53,16 @@ export default function FilterMenu(): ReactElement {
     },
   ];
 
+  const initialTab = useMemo(
+    () =>
+      directlyOpenedTab &&
+      menuItems.find((item) => item.title === directlyOpenedTab),
+    [directlyOpenedTab],
+  );
+
   return (
     <>
-      <MultiLevelMenu menuItems={menuItems} />
+      <MultiLevelMenu menuItems={menuItems} directlyOpenedTab={initialTab} />
       {showNewSourceModal && (
         <NewSourceModal
           isOpen={showNewSourceModal}

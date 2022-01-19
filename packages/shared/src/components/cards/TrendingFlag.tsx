@@ -21,7 +21,7 @@ export default function TrendingFlag({
       <SimpleTooltip content={description}>
         <div
           className={classNames(
-            'flex items-center bg-theme-status-error transform',
+            'flex items-center bg-theme-status-error',
             styles.flag,
             listMode
               ? 'h-5 w-full justify-center mouse:translate-x-9 rounded-l'

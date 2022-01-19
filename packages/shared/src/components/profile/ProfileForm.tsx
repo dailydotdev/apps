@@ -126,6 +126,7 @@ export default function ProfileForm({
       const filledFields = Object.keys(data).filter(
         (key) => data[key] !== undefined && data[key] !== null,
       );
+
       onSuccessfulSubmit?.(filledFields.length > REQUIRED_FIELDS_COUNT);
     }
   };

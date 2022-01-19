@@ -167,9 +167,7 @@ body {
   --theme-highlight-blue: theme('colors.water.80');
   --theme-highlight-purple: theme('colors.onion.80');
   --theme-highlight-label: theme('colors.pepper.50');
-
 }
-
 
 @media (prefers-color-scheme: light) {
   html.auto,
@@ -182,7 +180,6 @@ body {
   }
 }
 
-
 @media (prefers-color-scheme: dark) {
   html.auto,
   html.auto .invert .invert {
@@ -193,7 +190,6 @@ body {
     @mixin light-mode;
   }
 }
-
 
 html,
 html.light .invert,
@@ -292,12 +288,6 @@ img.lazyload:not([src]) {
 
 ::-webkit-scrollbar-thumb:active {
   background: var(--theme-label-primary);
-}
-
-.non-responsive-header ~ .page {
-  @screen laptop {
-    min-height: calc(100vh - $navBarHeight);
-  }
 }
 
 summary {

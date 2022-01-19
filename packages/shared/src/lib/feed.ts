@@ -45,6 +45,31 @@ interface AdItemAnalyticsEvent extends FeedItemAnalyticsEvent {
   ad_provider_id: string;
 }
 
+interface FeedAnalyticsExtra {
+  extra: {
+    origin: string;
+    feed: string;
+    ranking?: string;
+  };
+}
+
+export function feedAnalyticsExtra(
+  feedName: string,
+  ranking?: string,
+  extra?: {
+    scroll_y?: number;
+  },
+): FeedAnalyticsExtra {
+  return {
+    extra: {
+      origin: 'feed',
+      feed: feedName,
+      ...(ranking && { ranking }),
+      ...(extra && extra),
+    },
+  };
+}
+
 export function postAnalyticsEvent(
   eventName: string,
   post: Post,
