@@ -108,7 +108,7 @@ export default function KeywordManagement({
         <span>Occurrences: {keyword.occurrences}</span>
         <span>{subtitle}</span>
       </div>
-      {/* <ActivitySection
+      <ActivitySection
         title="Keyword Posts"
         query={posts}
         emptyScreen={
@@ -147,7 +147,7 @@ export default function KeywordManagement({
             </a>
           </Link>
         )}
-      /> */}
+      />
       <div
         className={classNames(
           'fixed flex left-0 right-0 bottom-0 w-full items-center justify-between mx-auto py-6 px-4 bg-theme-bg-primary',
