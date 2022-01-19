@@ -38,7 +38,7 @@ export function ProfileTooltipContent({
         @{user.username}
       </ProfileLink>
       {user.bio && (
-        <p className="mb-3 line-clamp-3 text-theme-label-tertiary">
+        <p className="mb-3 break-words line-clamp-3 text-theme-label-tertiary">
           {user.bio}
         </p>
       )}
