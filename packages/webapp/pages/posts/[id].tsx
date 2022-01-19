@@ -267,7 +267,9 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
               {postById?.post.title}
             </h1>
           </a>
-          <PostSummary summary={postById.post.summary} />
+          {postById?.post.summary && (
+            <PostSummary summary={postById.post.summary} />
+          )}
           <PostMetadata
             post={postById.post}
             className="mt-2 mb-1"
