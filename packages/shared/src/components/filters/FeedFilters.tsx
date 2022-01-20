@@ -57,7 +57,7 @@ export default function FeedFilters({
   return (
     <aside
       className={classNames(
-        'fixed top-14 left-0 z-3 bottom-0 self-stretch bg-theme-bg-primary rounded-r-2xl border-t border-r border-theme-divider-primary overflow-y-auto',
+        'fixed top-0 laptop:top-14 left-0 z-3 bottom-0 self-stretch bg-theme-bg-primary rounded-r-2xl border-t border-r border-theme-divider-primary overflow-y-auto',
         'transition-transform duration-200 ease-linear delay-100',
         isOpen ? 'translate-x-0' : '-translate-x-96 pointer-events-none',
       )}

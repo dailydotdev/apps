@@ -18,7 +18,7 @@ export function CommentPublishDate({
 }
 
 export const commentBoxClassNames =
-  'py-3 px-4 bg-theme-bg-secondary rounded-lg break-words typo-callout';
+  'py-3 px-4 bg-theme-bg-secondary rounded-lg break-words-overflow typo-callout';
 
 const StyledCommentBox = classed('div', commentBoxClassNames);
 

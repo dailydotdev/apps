@@ -301,7 +301,7 @@ export default function NewCommentModal({
         <ProfilePicture user={user} size="small" />
         <div
           className={classNames(
-            'ml-3 flex-1 text-theme-label-primary bg-none border-none caret-theme-label-link whitespace-pre-line break-words typo-subhead',
+            'ml-3 flex-1 text-theme-label-primary bg-none border-none caret-theme-label-link whitespace-pre-line break-words break-words-overflow typo-subhead',
             styles.textarea,
           )}
           ref={commentRef}

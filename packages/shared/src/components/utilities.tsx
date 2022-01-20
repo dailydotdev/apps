@@ -89,3 +89,8 @@ export const customFeedIcon = 'text-2xl text-theme-label-tertiary mr-2';
 export const Summary = classed('summary', 'cursor-pointer focus-outline');
 
 export const SummaryArrow = classed(ArrowIcon, 'icon arrow ml-auto text-xl');
+
+export const SummaryContainer = classed(
+  'div',
+  'text-theme-label-secondary multi-truncate my-6 border-l border-theme-status-cabbage pl-4',
+);
