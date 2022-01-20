@@ -19,20 +19,14 @@ export default function ShowMoreContent({
   const [isTextExpanded, setIsTextExpanded] = useState(false);
   const linkName = isTextExpanded ? 'Show less' : 'Show more';
 
-  const toggleTextExpanded = () => {
-    setIsTextExpanded(!isTextExpanded);
-  };
+  const toggleTextExpanded = () => setIsTextExpanded(!isTextExpanded);
 
-  const displayShowMoreLink = () => {
-    if (content && content?.length > charactersLimit + threshold) {
-      return true;
-    }
-    return false;
-  };
+  const displayShowMoreLink = () =>
+    content && content?.length > charactersLimit + threshold;
 
-  const getContent = () => {
-    return isTextExpanded ? content : content?.slice(0, charactersLimit);
-  };
+  const getContent = () =>
+    isTextExpanded ? content : content?.slice(0, charactersLimit);
+
   return (
     <div className={className}>
       <p className="typo-body">
@@ -42,7 +36,6 @@ export default function ShowMoreContent({
           <ClickableText
             className="inline-flex text-theme-label-link"
             onClick={toggleTextExpanded}
-            tag="a"
           >
             {linkName}
           </ClickableText>

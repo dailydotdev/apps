@@ -152,6 +152,7 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
         image
       }
       description
+      summary
       toc {
         text
         id
