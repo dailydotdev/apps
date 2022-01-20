@@ -1,10 +1,4 @@
-import React, {
-  ReactElement,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { FormEvent, ReactElement, useContext, useState } from 'react';
 import PlusIcon from '@dailydotdev/shared/icons/plus.svg';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
@@ -14,7 +8,6 @@ import { CustomLinks } from './CustomLinks';
 import useShortcutLinks from './useShortcutLinks';
 
 export default function MostVisitedSites(): ReactElement {
-  const formRef = useRef<HTMLFormElement>();
   const { showTopSites } = useContext(SettingsContext);
   const [showModal, setShowModal] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
@@ -28,6 +21,7 @@ export default function MostVisitedSites(): ReactElement {
     hasTopSites,
     hasCheckedPermission,
     isManual,
+    formRef,
     onSaveChanges,
   } = useShortcutLinks();
 
@@ -43,20 +37,11 @@ export default function MostVisitedSites(): ReactElement {
     onIsManual(false);
   };
 
-  useEffect(() => {
-    if (!formRef?.current) {
-      return;
-    }
+  const onSubmit = async (e: FormEvent) => {
+    await onSaveChanges(e);
 
-    const elements = Array.from(formRef.current.elements).filter(
-      (el) => el.getAttribute('name') === 'shortcutLink',
-    );
-
-    elements.forEach((input: HTMLInputElement, i) => {
-      // eslint-disable-next-line no-param-reassign
-      input.value = formLinks[i] || '';
-    });
-  }, [isManual]);
+    setShowOptions(false);
+  };
 
   return (
     <>
@@ -92,7 +77,7 @@ export default function MostVisitedSites(): ReactElement {
       )}
       {showOptions && hasCheckedPermission && (
         <CustomLinksModal
-          onSubmit={onSaveChanges}
+          onSubmit={onSubmit}
           formRef={formRef}
           isOpen={showOptions}
           isManual={isManual}

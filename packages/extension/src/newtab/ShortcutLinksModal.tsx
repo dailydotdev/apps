@@ -1,4 +1,4 @@
-import React, { MutableRefObject, ReactElement } from 'react';
+import React, { FormEventHandler, MutableRefObject, ReactElement } from 'react';
 import classNames from 'classnames';
 import { ModalHeader } from '@dailydotdev/shared/src/components/modals/common';
 import { ModalProps } from '@dailydotdev/shared/src/components/modals/StyledModal';
@@ -14,7 +14,7 @@ const getIconClassName = (isActive?: boolean) =>
   classNames('w-8 h-8', !isActive && 'text-theme-label-tertiary');
 
 interface CustomLinksModalProps extends ModalProps {
-  onSubmit: () => unknown;
+  onSubmit: FormEventHandler<HTMLFormElement>;
   onShowPermission: () => unknown;
   onShowCustomLinks: () => unknown;
   onShowTopSitesClick: () => unknown;

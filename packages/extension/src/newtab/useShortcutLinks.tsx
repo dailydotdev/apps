@@ -1,13 +1,23 @@
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
-import { Dispatch, useContext, useEffect, useMemo, useState } from 'react';
+import { isValidHttpUrl } from '@dailydotdev/shared/src/lib/links';
+import {
+  Dispatch,
+  FormEvent,
+  MutableRefObject,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import useTopSites from './useTopSites';
 
 interface UseShortcutLinks {
-  onSaveChanges: () => Promise<unknown>;
+  formRef: MutableRefObject<HTMLFormElement>;
+  onSaveChanges: (e: FormEvent) => Promise<unknown>;
   askTopSitesPermission: () => Promise<boolean>;
   revokePermission: () => Promise<unknown>;
   onIsManual: Dispatch<boolean>;
-  onUpdateShortcutLinks: Dispatch<string[]>;
   resetSelected: () => unknown;
   hasCheckedPermission?: boolean;
   isTopSiteActive?: boolean;
@@ -18,9 +28,9 @@ interface UseShortcutLinks {
 }
 
 export default function useShortcutLinks(): UseShortcutLinks {
+  const formRef = useRef<HTMLFormElement>();
   const [isManual, setIsManual] = useState(true);
-  const { customLinks } = useContext(SettingsContext);
-  const [localLinks, setLocalLinks] = useState(customLinks || []);
+  const { customLinks, updateCustomLinks } = useContext(SettingsContext);
   const {
     topSites,
     hasCheckedPermission,
@@ -33,15 +43,20 @@ export default function useShortcutLinks(): UseShortcutLinks {
     hasCheckedPermission && !hasCustomLinks && hasTopSites;
   const sites = topSites?.map((site) => site.url);
   const shortcutLinks = isTopSiteActive ? sites : customLinks;
-  const formLinks = isManual ? localLinks : sites;
+  const formLinks = isManual ? customLinks : sites;
 
   const resetSelected = () => {
-    if (topSites !== undefined) {
+    if (topSites !== undefined && !hasCustomLinks) {
       setIsManual(false);
     } else {
       setIsManual(true);
     }
   };
+
+  const getFormInputs = () =>
+    Array.from(formRef.current.elements).filter(
+      (el) => el.getAttribute('name') === 'shortcutLink',
+    ) as HTMLInputElement[];
 
   useEffect(() => {
     if (hasCheckedPermission) {
@@ -55,24 +70,60 @@ export default function useShortcutLinks(): UseShortcutLinks {
     setIsManual(true);
   };
 
-  const onSaveChanges = async () => {};
+  const onSaveChanges = async (e: FormEvent) => {
+    e.preventDefault();
+
+    if (!isManual) {
+      return updateCustomLinks([]);
+    }
+
+    const links = getFormInputs()
+      .map((el) => el.value)
+      .filter((link) => link.trim().length);
+    const isValid = links.every(isValidHttpUrl);
+
+    if (!isValid) {
+      // error
+    }
+
+    return updateCustomLinks(links);
+  };
+
+  useEffect(() => {
+    if (!formRef?.current || !hasCustomLinks) {
+      return;
+    }
+
+    const elements = getFormInputs();
+
+    elements.forEach((input: HTMLInputElement, i) => {
+      if (!formLinks[i].trim()) {
+        return;
+      }
+
+      // eslint-disable-next-line no-param-reassign
+      input.value = formLinks[i] || '';
+    });
+  }, [isManual]);
 
   return useMemo(
     () => ({
+      formRef,
       isManual,
       formLinks,
       shortcutLinks,
       hasTopSites,
       isTopSiteActive,
       hasCheckedPermission,
+      customLinks,
       onSaveChanges,
       askTopSitesPermission,
       resetSelected,
       onIsManual: setIsManual,
       revokePermission: onRemokePermission,
-      onUpdateShortcutLinks: setLocalLinks,
     }),
     [
+      formRef,
       isManual,
       formLinks,
       shortcutLinks,
@@ -84,7 +135,6 @@ export default function useShortcutLinks(): UseShortcutLinks {
       resetSelected,
       setIsManual,
       onRemokePermission,
-      setLocalLinks,
     ],
   );
 }
