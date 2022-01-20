@@ -41,6 +41,7 @@ export type SettingsContextData = {
   toggleSidebarExpanded: () => Promise<void>;
   toggleSortingEnabled: () => Promise<void>;
   loadedSettings: boolean;
+  customLinks?: string[];
 };
 
 const SettingsContext = React.createContext<SettingsContextData>(null);
