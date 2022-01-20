@@ -12,6 +12,7 @@ export default function PostSummary({ summary }: SummaryProps): ReactElement {
       <ShowMoreContent
         content={summary}
         charactersLimit={300}
+        threshold={50}
         contentPrefix={
           <span className="pr-1 typo-headline text-theme-status-cabbage">
             TLDR

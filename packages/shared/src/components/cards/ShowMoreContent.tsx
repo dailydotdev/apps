@@ -4,6 +4,7 @@ import { ClickableText } from '../buttons/ClickableText';
 interface ShowMoreContentProps {
   content: string;
   charactersLimit?: number;
+  threshold?: number;
   contentPrefix?: ReactNode;
   className?: string;
 }
@@ -11,6 +12,7 @@ interface ShowMoreContentProps {
 export default function ShowMoreContent({
   content,
   charactersLimit = 150,
+  threshold = 50,
   contentPrefix,
   className,
 }: ShowMoreContentProps): ReactElement {
@@ -22,7 +24,11 @@ export default function ShowMoreContent({
   };
 
   const displayShowMoreLink = () => {
-    if (content && content?.length > charactersLimit) {
+    if (
+      content &&
+      content?.length > charactersLimit &&
+      (content?.length - charactersLimit) > threshold
+    ) {
       return true;
     }
     return false;
