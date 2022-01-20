@@ -84,6 +84,7 @@ export default function CustomLinksModal({
               onClick={onRevokePermission}
               buttonSize="small"
               className="self-start mt-6 btn-primary-ketchup text-theme-label-primary"
+              type="button"
             >
               Revoke access
             </Button>

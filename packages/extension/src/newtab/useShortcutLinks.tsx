@@ -64,7 +64,7 @@ export default function useShortcutLinks(): UseShortcutLinks {
     }
   }, [hasCheckedPermission]);
 
-  const onRemokePermission = async () => {
+  const onRevokePermission = async () => {
     await revokePermission();
 
     setIsManual(true);
@@ -120,7 +120,7 @@ export default function useShortcutLinks(): UseShortcutLinks {
       askTopSitesPermission,
       resetSelected,
       onIsManual: setIsManual,
-      revokePermission: onRemokePermission,
+      revokePermission: onRevokePermission,
     }),
     [
       formRef,
@@ -134,7 +134,7 @@ export default function useShortcutLinks(): UseShortcutLinks {
       askTopSitesPermission,
       resetSelected,
       setIsManual,
-      onRemokePermission,
+      onRevokePermission,
     ],
   );
 }
