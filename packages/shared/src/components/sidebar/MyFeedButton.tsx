@@ -136,7 +136,6 @@ const UnfilteredMyFeedButton = ({
 
 const FilteredMyFeedButton = ({
   item,
-  sidebarRendered,
   sidebarExpanded,
   action,
   isActive,
@@ -147,17 +146,15 @@ const FilteredMyFeedButton = ({
       <ButtonOrLink item={item} useNavButtonsNotLinks={useNavButtonsNotLinks}>
         <ItemInner item={item} sidebarExpanded={sidebarExpanded} />
       </ButtonOrLink>
-      {sidebarRendered && (
-        <SimpleTooltip placement="right" content="Feed filters">
-          <Button
-            iconOnly
-            className="mr-3 btn-tertiary"
-            buttonSize="xsmall"
-            icon={<FilterIcon />}
-            onClick={action}
-          />
-        </SimpleTooltip>
-      )}
+      <SimpleTooltip placement="right" content="Feed filters">
+        <Button
+          iconOnly
+          className="mr-3 btn-tertiary"
+          buttonSize="xsmall"
+          icon={<FilterIcon />}
+          onClick={action}
+        />
+      </SimpleTooltip>
     </NavItem>
   );
 };
@@ -176,7 +173,6 @@ export default function MyFeedButton({
     return (
       <FilteredMyFeedButton
         action={action}
-        sidebarRendered={sidebarRendered}
         sidebarExpanded={sidebarExpanded}
         item={item}
         isActive={isActive}
