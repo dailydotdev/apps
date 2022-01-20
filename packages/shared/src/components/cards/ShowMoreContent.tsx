@@ -24,11 +24,7 @@ export default function ShowMoreContent({
   };
 
   const displayShowMoreLink = () => {
-    if (
-      content &&
-      content?.length > charactersLimit &&
-      content?.length - charactersLimit > threshold
-    ) {
+    if (content && content?.length > charactersLimit + threshold) {
       return true;
     }
     return false;

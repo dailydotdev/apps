@@ -92,6 +92,5 @@ export const SummaryArrow = classed(ArrowIcon, 'icon arrow ml-auto text-xl');
 
 export const SummaryContainer = classed(
   'div',
-  'text-theme-label-secondary multi-truncate my-6',
-  'border-l border-theme-status-cabbage pl-4',
+  'text-theme-label-secondary multi-truncate my-6 border-l border-theme-status-cabbage pl-4',
 );
