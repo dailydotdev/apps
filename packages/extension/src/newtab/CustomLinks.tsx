@@ -13,10 +13,6 @@ export function CustomLinks({
   links,
   onOptions,
 }: CustomLinksProps): ReactElement {
-  if (!links.length) {
-    return null;
-  }
-
   return (
     <div className="flex flex-row gap-2 p-2 rounded-14 border border-theme-divider-secondary">
       {links.map((url, i) => (
