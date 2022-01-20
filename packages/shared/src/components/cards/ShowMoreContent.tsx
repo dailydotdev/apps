@@ -25,7 +25,9 @@ export default function ShowMoreContent({
     content && content?.length > charactersLimit + threshold;
 
   const getContent = () =>
-    isTextExpanded ? content : content?.slice(0, charactersLimit);
+    isTextExpanded || !displayShowMoreLink()
+      ? content
+      : content?.slice(0, charactersLimit);
 
   return (
     <div className={className}>

@@ -485,3 +485,17 @@ it('should not show Show more link when there is a summary without reaching thre
   const link = queryByText(el.parentElement, 'Show more');
   expect(link).not.toBeInTheDocument();
 });
+
+it('should not cut summary when there is a summary without reaching threshold', async () => {
+  const summaryText =
+    'In Node.js, errors and exceptions are different in JavaScript. There are two types of errors, programmer and operational. We use the phrase “error” to describe both, but they are quite different in reality because of their root causes. Let’s take a look at what we’ll cover to better understand how we can handle errors.';
+  renderPost({}, [
+    createPostMock({
+      summary: summaryText,
+    }),
+  ]);
+  const el = await screen.findByText('TLDR');
+  expect(el).toBeInTheDocument();
+  const fullSummary = await screen.findByText(summaryText);
+  expect(fullSummary).toBeInTheDocument();
+});
