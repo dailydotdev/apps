@@ -120,7 +120,7 @@ export function TextField({
     >
       {compact && (
         <label
-          className="px-2 mb-1 font-bold text-theme-label-primary"
+          className="px-2 mb-1 font-bold text-theme-label-primary typo-caption1"
           htmlFor={inputId}
         >
           {label}

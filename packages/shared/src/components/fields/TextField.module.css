@@ -10,7 +10,6 @@
 
   &:global(.invalid) {
     box-shadow: inset 0.125rem 0 0 0 var(--theme-status-error);
-    border-color: var(--theme-status-error);
   }
 }
 
