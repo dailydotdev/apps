@@ -27,7 +27,7 @@ export default function ShowMoreContent({
     if (
       content &&
       content?.length > charactersLimit &&
-      (content?.length - charactersLimit) > threshold
+      content?.length - charactersLimit > threshold
     ) {
       return true;
     }
