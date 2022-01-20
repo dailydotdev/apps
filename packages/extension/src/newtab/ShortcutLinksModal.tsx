@@ -78,6 +78,11 @@ export default function CustomLinksModal({
               onClick={onShowTopSitesClick}
             />
           </nav>
+          {!isManual && (
+            <p className="mb-6 text-theme-label-tertiary typo-callout">
+              To edit links, please switch to &quot;My shortcuts&quot; mode
+            </p>
+          )}
           <LinksForm links={links} isFormDisabled={isManual === false} />
           {!isManual && hasTopSites !== null && (
             <Button
