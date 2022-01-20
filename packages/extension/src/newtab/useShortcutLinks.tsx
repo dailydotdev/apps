@@ -3,6 +3,7 @@ import { Dispatch, useContext, useEffect, useMemo, useState } from 'react';
 import useTopSites from './useTopSites';
 
 interface UseShortcutLinks {
+  onSaveChanges: () => Promise<unknown>;
   askTopSitesPermission: () => Promise<boolean>;
   revokePermission: () => Promise<unknown>;
   onIsManual: Dispatch<boolean>;
@@ -54,6 +55,8 @@ export default function useShortcutLinks(): UseShortcutLinks {
     setIsManual(true);
   };
 
+  const onSaveChanges = async () => {};
+
   return useMemo(
     () => ({
       isManual,
@@ -62,6 +65,7 @@ export default function useShortcutLinks(): UseShortcutLinks {
       hasTopSites,
       isTopSiteActive,
       hasCheckedPermission,
+      onSaveChanges,
       askTopSitesPermission,
       resetSelected,
       onIsManual: setIsManual,
@@ -75,6 +79,7 @@ export default function useShortcutLinks(): UseShortcutLinks {
       hasTopSites,
       isTopSiteActive,
       hasCheckedPermission,
+      onSaveChanges,
       askTopSitesPermission,
       resetSelected,
       setIsManual,
