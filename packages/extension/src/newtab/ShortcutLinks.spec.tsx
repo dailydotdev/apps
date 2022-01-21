@@ -178,7 +178,7 @@ describe('shortcut links component', () => {
     const next = await screen.findByText('Next');
     fireEvent.click(next);
 
-    const saveChanges = await screen.findByText('save changes');
+    const saveChanges = await screen.findByText('Save changes');
     fireEvent.click(saveChanges);
 
     const shortcuts = await screen.findAllByRole('link');
@@ -256,7 +256,7 @@ describe('shortcut links component', () => {
       target: { value: additional },
     });
 
-    const saveChanges = await screen.findByText('save changes');
+    const saveChanges = await screen.findByText('Save changes');
     expect(saveChanges).toBeVisible();
 
     fireEvent.click(saveChanges);
