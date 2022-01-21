@@ -7,7 +7,7 @@ import MostVisitedSitesModal from './MostVisitedSitesModal';
 import { CustomLinks } from './CustomLinks';
 import useShortcutLinks from './useShortcutLinks';
 
-export default function MostVisitedSites(): ReactElement {
+export default function ShortcutLinks(): ReactElement {
   const { showTopSites } = useContext(SettingsContext);
   const [showModal, setShowModal] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
