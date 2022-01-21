@@ -33,6 +33,7 @@ export interface Post {
   featuredComments?: Comment[];
   trending?: number;
   description?: string;
+  summary: string;
   toc?: Toc;
   impressionStatus?: number;
 }
@@ -103,6 +104,7 @@ export const POST_BY_ID_QUERY = gql`
         username
       }
       description
+      summary
       toc {
         text
         id
@@ -150,6 +152,7 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
         image
       }
       description
+      summary
       toc {
         text
         id

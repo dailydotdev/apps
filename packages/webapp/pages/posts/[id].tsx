@@ -36,6 +36,7 @@ import { logReadArticle } from '@dailydotdev/shared/src/lib/analytics';
 import useSubscription from '@dailydotdev/shared/src/hooks/useSubscription';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import PostMetadata from '@dailydotdev/shared/src/components/cards/PostMetadata';
+import PostSummary from '@dailydotdev/shared/src/components/cards/PostSummary';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import { TagLinks } from '@dailydotdev/shared/src/components/TagLinks';
 import PostToc from '../../components/widgets/PostToc';
@@ -243,23 +244,32 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     <>
       <div className="flex relative flex-row flex-wrap justify-center pb-20 laptop:pb-0 w-full max-w-full">
         <PageContainer
-          className={classNames(
-            'pt-6 laptop:pb-6 laptop:self-stretch',
-            pageBorders,
-          )}
+          className={classNames('laptop:pb-6 laptop:self-stretch', pageBorders)}
         >
           <Head>
             <link rel="preload" as="image" href={postById?.post.image} />
           </Head>
           <NextSeo {...seo} />
+          <a
+            {...postLinkProps}
+            className="block overflow-hidden mb-10 rounded-b-2xl cursor-pointer"
+          >
+            <LazyImage
+              imgSrc={postById?.post.image}
+              imgAlt="Post cover image"
+              ratio="21%"
+              eager
+            />
+          </a>
           <PostHeader post={postById.post} />
-
           <a {...postLinkProps} className="cursor-pointer">
-            <h1 className="my-2 font-bold typo-title2">
+            <h1 className="my-2 font-bold typo-large-title">
               {postById?.post.title}
             </h1>
           </a>
-
+          {postById?.post.summary && (
+            <PostSummary summary={postById.post.summary} />
+          )}
           <PostMetadata
             post={postById.post}
             className="mt-2 mb-1"
@@ -273,17 +283,6 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
               className="flex laptop:hidden mt-2 mb-4"
             />
           )}
-          <a
-            {...postLinkProps}
-            className="block overflow-hidden mt-2 rounded-2xl cursor-pointer"
-          >
-            <LazyImage
-              imgSrc={postById?.post.image}
-              imgAlt="Post cover image"
-              ratio="49%"
-              eager
-            />
-          </a>
           <PostUpvotesCommentsCount
             post={postById.post}
             onUpvotesClick={handleShowUpvotedPost}
