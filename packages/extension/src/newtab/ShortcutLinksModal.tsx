@@ -54,7 +54,7 @@ export default function CustomLinksModal({
           <h3 className="font-bold typo-title3">Shortcuts</h3>
           <div className="flex-1" />
           <Button className="mr-3 btn-primary" buttonSize="small" type="submit">
-            save changes
+            Save changes
           </Button>
           <Button
             className="btn-tertiary"
