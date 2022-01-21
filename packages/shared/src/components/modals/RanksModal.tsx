@@ -214,29 +214,35 @@ export default function RanksModal({
           <RankProgress rank={rank} progress={progress} fillByDefault />
         </div>
       )}
-      <h1 className="mt-4 mobileL:mt-11 font-bold uppercase typo-title2">
-        Your weekly goal
-      </h1>
-      <h2 className="mt-1 font-normal text-theme-label-secondary typo-callout">
-        Read content you love to stay updated
-      </h2>
-      <TimezoneText onShowAccount={onShowAccount} />
+      <div className="flex overflow-y-auto flex-col items-center responsiveModalBreakpoint:max-h-[calc(100vh-5rem)]">
+        <h1 className="mt-4 mobileL:mt-11 font-bold uppercase typo-title2">
+          Your weekly goal
+        </h1>
+        <h2 className="mt-1 font-normal text-theme-label-secondary typo-callout">
+          Read content you love to stay updated
+        </h2>
+        <TimezoneText onShowAccount={onShowAccount} />
 
-      <ul className="flex flex-col self-stretch mt-4">
-        {ranksMetadata.map((meta) => (
-          <RankItem
-            key={meta.rank}
-            rank={meta.rank}
-            completed={meta.rank <= rank}
-            current={meta.rank === rank}
-            rankName={meta.name}
-            steps={meta.steps}
+        <ul className="flex flex-col self-stretch mt-4">
+          {ranksMetadata.map((meta) => (
+            <RankItem
+              key={meta.rank}
+              rank={meta.rank}
+              completed={meta.rank <= rank}
+              current={meta.rank === rank}
+              rankName={meta.name}
+              steps={meta.steps}
+            />
+          ))}
+        </ul>
+        {!hideProgress && (
+          <DevCardFooter
+            rank={rank}
+            reads={reads}
+            devCardLimit={devCardLimit}
           />
-        ))}
-      </ul>
-      {!hideProgress && (
-        <DevCardFooter rank={rank} reads={reads} devCardLimit={devCardLimit} />
-      )}
+        )}
+      </div>
     </ResponsiveModal>
   );
 }
