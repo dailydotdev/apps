@@ -14,7 +14,9 @@ import useTopSites from './useTopSites';
 
 interface UseShortcutLinks {
   formRef: MutableRefObject<HTMLFormElement>;
-  onSaveChanges: (e: FormEvent) => Promise<unknown>;
+  onSaveChanges: (
+    e: FormEvent,
+  ) => Promise<{ errors: Record<string | number, string> }>;
   askTopSitesPermission: () => Promise<boolean>;
   revokePermission: () => Promise<unknown>;
   onIsManual: Dispatch<boolean>;
@@ -74,19 +76,36 @@ export default function useShortcutLinks(): UseShortcutLinks {
     e.preventDefault();
 
     if (!isManual) {
-      return updateCustomLinks([]);
+      updateCustomLinks([]);
+      return { errors: null };
     }
 
-    const links = getFormInputs()
-      .map((el) => el.value)
-      .filter((link) => link.trim().length);
-    const isValid = links.every(isValidHttpUrl);
+    const links = getFormInputs();
+    const invalidLinks = {};
+    const isValid = links.every((el, i) => {
+      const link = el.value.trim();
+
+      if (!link) {
+        return true;
+      }
+
+      const valid = isValidHttpUrl(link);
+
+      if (!valid) {
+        invalidLinks[i] = el.value;
+      }
+
+      return valid;
+    });
 
     if (!isValid) {
-      // error
+      return { errors: invalidLinks };
     }
 
-    return updateCustomLinks(links);
+    updateCustomLinks(
+      links.map((el) => el.value.trim()).filter((link) => !!link),
+    );
+    return { errors: null };
   };
 
   useEffect(() => {
@@ -104,7 +123,7 @@ export default function useShortcutLinks(): UseShortcutLinks {
       // eslint-disable-next-line no-param-reassign
       input.value = formLinks[i] || '';
     });
-  }, [isManual]);
+  }, [isManual, formRef.current, hasCustomLinks]);
 
   return useMemo(
     () => ({
