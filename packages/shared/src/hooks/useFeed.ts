@@ -155,13 +155,14 @@ export default function useFeed<T>(
             page: pageIndex,
             index,
           }));
-          posts.splice(adSpot, 0, {
-            type: 'placeholder',
-          });
           if (adsQuery.data?.pages[pageIndex]) {
             posts.splice(adSpot, 0, {
               type: 'ad',
               ad: adsQuery.data?.pages[pageIndex],
+            });
+          } else {
+            posts.splice(adSpot, 0, {
+              type: 'placeholder',
             });
           }
           return posts;
