@@ -11,6 +11,7 @@ export default function MostVisitedSites(): ReactElement {
   const { showTopSites } = useContext(SettingsContext);
   const [showModal, setShowModal] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
+  const [errors, setErrors] = useState({});
   const {
     askTopSitesPermission,
     revokePermission,
@@ -38,9 +39,14 @@ export default function MostVisitedSites(): ReactElement {
   };
 
   const onSubmit = async (e: FormEvent) => {
-    await onSaveChanges(e);
+    const { errors: failed } = await onSaveChanges(e);
 
-    setShowOptions(false);
+    if (failed) {
+      return setErrors(failed);
+    }
+
+    setErrors({});
+    return setShowOptions(false);
   };
 
   return (
@@ -77,6 +83,7 @@ export default function MostVisitedSites(): ReactElement {
       )}
       {showOptions && hasCheckedPermission && (
         <CustomLinksModal
+          errors={errors}
           onSubmit={onSubmit}
           formRef={formRef}
           isOpen={showOptions}

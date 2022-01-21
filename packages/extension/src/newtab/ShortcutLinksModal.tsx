@@ -14,6 +14,7 @@ const getIconClassName = (isActive?: boolean) =>
   classNames('w-8 h-8', !isActive && 'text-theme-label-tertiary');
 
 interface CustomLinksModalProps extends ModalProps {
+  errors?: Record<string | number, string>;
   onSubmit: FormEventHandler<HTMLFormElement>;
   onShowPermission: () => unknown;
   onShowCustomLinks: () => unknown;
@@ -32,6 +33,7 @@ export default function CustomLinksModal({
   links,
   style,
   formRef,
+  errors,
   onRevokePermission,
   onShowPermission,
   onShowTopSitesClick,
@@ -83,7 +85,11 @@ export default function CustomLinksModal({
               To edit links, please switch to &quot;My shortcuts&quot; mode
             </p>
           )}
-          <LinksForm links={links} isFormDisabled={isManual === false} />
+          <LinksForm
+            errors={errors}
+            links={links}
+            isFormDisabled={isManual === false}
+          />
           {!isManual && hasTopSites !== null && (
             <Button
               onClick={onRevokePermission}
