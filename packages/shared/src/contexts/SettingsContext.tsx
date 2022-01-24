@@ -12,7 +12,6 @@ import {
   RemoteTheme,
   Spaciness,
   UPDATE_USER_SETTINGS_MUTATION,
-  UPDATE_USER_CUSTOM_LINKS_MUTATION,
 } from '../graphql/settings';
 import AuthContext from './AuthContext';
 import { apiUrl } from '../lib/config';
@@ -131,28 +130,6 @@ export const SettingsContextProvider = ({
     },
   );
 
-  const { mutateAsync: updateCustomLinks } = useMutation<
-    unknown,
-    unknown,
-    string[],
-    () => void
-  >(
-    (links) =>
-      request(`${apiUrl}/graphql`, UPDATE_USER_CUSTOM_LINKS_MUTATION, {
-        links,
-      }),
-    {
-      onMutate: (links) => {
-        const { customLinks } = settings;
-
-        updateSettings({ ...settings, customLinks: links });
-
-        return () => updateSettings({ ...settings, customLinks });
-      },
-      onError: (_, __, rollback) => rollback(),
-    },
-  );
-
   useEffect(() => {
     const lightMode = storageWrapper.getItem(deprecatedLightModeStorageKey);
     if (lightMode === 'true') {
@@ -202,13 +179,8 @@ export const SettingsContextProvider = ({
       toggleSortingEnabled: () =>
         setSettings({ ...settings, sortingEnabled: !settings.sortingEnabled }),
       loadedSettings,
-      updateCustomLinks: async (links: string[]) => {
-        if (!user?.id) {
-          return updateSettings({ ...settings, customLinks: links });
-        }
-
-        return updateCustomLinks(links);
-      },
+      updateCustomLinks: (links: string[]) =>
+        setSettings({ ...settings, customLinks: links }),
     }),
     [settings, loadedSettings, userId],
   );

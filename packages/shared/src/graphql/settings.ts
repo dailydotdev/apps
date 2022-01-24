@@ -40,11 +40,3 @@ export const UPDATE_USER_SETTINGS_MUTATION = gql`
     }
   }
 `;
-
-export const UPDATE_USER_CUSTOM_LINKS_MUTATION = gql`
-  mutation UpdateCustomLinks($links: [String]) {
-    updateCustomLinks(links: $links) {
-      updatedAt
-    }
-  }
-`;

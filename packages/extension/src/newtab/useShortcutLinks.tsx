@@ -116,7 +116,7 @@ export default function useShortcutLinks(): UseShortcutLinks {
     const elements = getFormInputs();
 
     elements.forEach((input: HTMLInputElement, i) => {
-      if (!formLinks[i].trim()) {
+      if (!formLinks[i]?.trim()) {
         return;
       }
 

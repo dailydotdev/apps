@@ -21,7 +21,7 @@ import {
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import {
   RemoteSettings,
-  UPDATE_USER_CUSTOM_LINKS_MUTATION,
+  UPDATE_USER_SETTINGS_MUTATION,
 } from '@dailydotdev/shared/src/graphql/settings';
 import { Alerts } from '@dailydotdev/shared/src/graphql/alerts';
 import { FeaturesData } from '@dailydotdev/shared/src/contexts/FeaturesContext';
@@ -222,8 +222,8 @@ describe('shortcut links component', () => {
     let mutationCalled = false;
     mockGraphQL({
       request: {
-        query: UPDATE_USER_CUSTOM_LINKS_MUTATION,
-        variables: { links: expected },
+        query: UPDATE_USER_SETTINGS_MUTATION,
+        variables: { data: { ...defaultSettings, customLinks: expected } },
       },
       result: () => {
         mutationCalled = true;
