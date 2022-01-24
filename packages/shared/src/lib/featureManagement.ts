@@ -36,8 +36,8 @@ export class Features {
   );
 
   static readonly MyFeedButtonColor = new Features(
-    'my_feed_button_color',
-    'success',
+    'my_feed_button_theme_color',
+    'avocado',
   );
 
   static readonly MyFeedExplainerCopy = new Features(
@@ -46,8 +46,8 @@ export class Features {
   );
 
   static readonly MyFeedExplainerColor = new Features(
-    'my_feed_explainer_color',
-    'success',
+    'my_feed_explainer_theme_color',
+    'avocado',
   );
 
   static readonly SignupTitleCopy = new Features(
