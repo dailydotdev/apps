@@ -93,6 +93,18 @@ body {
   --theme-highlight-blue: theme('colors.water.20');
   --theme-highlight-purple: theme('colors.onion.20');
   --theme-highlight-label: theme('colors.salt.50');
+
+  --theme-color-burger: theme('colors.burger.40');
+  --theme-color-blueCheese: theme('colors.blueCheese.40');
+  --theme-color-avocado: theme('colors.avocado.40');
+  --theme-color-lettuce: theme('colors.lettuce.40');
+  --theme-color-cheese: theme('colors.cheese.40');
+  --theme-color-bun: theme('colors.bun.40');
+  --theme-color-ketchup: theme('colors.ketchup.40');
+  --theme-color-bacon: theme('colors.bacon.40');
+  --theme-color-cabbage: theme('colors.cabbage.40');
+  --theme-color-onion: theme('colors.onion.40');
+  --theme-color-water: theme('colors.water.40');
 }
 
 @define-mixin light-mode {
@@ -167,6 +179,18 @@ body {
   --theme-highlight-blue: theme('colors.water.80');
   --theme-highlight-purple: theme('colors.onion.80');
   --theme-highlight-label: theme('colors.pepper.50');
+
+  --theme-color-burger: theme('colors.burger.60');
+  --theme-color-blueCheese: theme('colors.blueCheese.60');
+  --theme-color-avocado: theme('colors.avocado.60');
+  --theme-color-lettuce: theme('colors.lettuce.60');
+  --theme-color-cheese: theme('colors.cheese.60');
+  --theme-color-bun: theme('colors.bun.60');
+  --theme-color-ketchup: theme('colors.ketchup.60');
+  --theme-color-bacon: theme('colors.bacon.60');
+  --theme-color-cabbage: theme('colors.cabbage.60');
+  --theme-color-onion: theme('colors.onion.60');
+  --theme-color-water: theme('colors.water.60');
 }
 
 @media (prefers-color-scheme: light) {
