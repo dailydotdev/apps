@@ -9,7 +9,39 @@ import { ButtonOrLink, ItemInner, NavItem, SidebarMenuItem } from './common';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../../hooks/analytics/useAnalyticsQueue';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { getThemeColor } from '../utilities';
+
+const statusColor = {
+  success: {
+    border: 'border-theme-status-success',
+    shadow: 'shadow-2-avocado',
+    button: 'btn-primary-avocado',
+  },
+  error: {
+    border: 'border-theme-status-error',
+    shadow: 'shadow-2-ketchup',
+    button: 'btn-primary-ketchup',
+  },
+  help: {
+    border: 'border-theme-status-help',
+    shadow: 'shadow-2-cheese',
+    button: 'btn-primary-cheese',
+  },
+  warning: {
+    border: 'border-theme-status-warning',
+    shadow: 'shadow-2-bun',
+    button: 'btn-primary-bun',
+  },
+  cabbage: {
+    border: 'border-theme-status-cabbage',
+    shadow: 'shadow-2-cabbage',
+    button: 'btn-primary-cabbage',
+  },
+  fill: {
+    border: 'border-theme-status-fill',
+    shadow: 'shadow-2-water',
+    button: 'btn-primary-water',
+  },
+};
 
 interface MyFeedButtonSharedProps {
   sidebarRendered?: boolean;
@@ -48,15 +80,9 @@ const UnfilteredMyFeedButton = ({
   const { trackEvent } = useContext(AnalyticsContext);
 
   const buttonCopy = getFeatureValue(Features.MyFeedButtonCopy, flags);
-  const buttonColor = getThemeColor(
-    getFeatureValue(Features.MyFeedButtonColor, flags),
-    'primary',
-  );
+  const buttonColor = getFeatureValue(Features.MyFeedButtonColor, flags);
   const explainerCopy = getFeatureValue(Features.MyFeedExplainerCopy, flags);
-  const explainerColor = getThemeColor(
-    getFeatureValue(Features.MyFeedExplainerColor, flags),
-    'primary',
-  );
+  const explainerColor = getFeatureValue(Features.MyFeedExplainerColor, flags);
 
   useEffect(() => {
     trackEvent(getAnalyticsEvent('impression', buttonCopy));
@@ -77,8 +103,10 @@ const UnfilteredMyFeedButton = ({
       <div
         className={classNames(
           `flex flex-col items-center rounded-12`,
-          explainerColor.border,
-          sidebarExpanded ? `${explainerColor.shadow} border p-3 m-4` : 'mx-3 ',
+          statusColor[explainerColor].border,
+          sidebarExpanded
+            ? `${statusColor[explainerColor].shadow} border p-3 m-4`
+            : 'mx-3 ',
         )}
       >
         <p
@@ -93,7 +121,7 @@ const UnfilteredMyFeedButton = ({
         </p>
 
         <Button
-          className={classNames('w-full', buttonColor.button)}
+          className={classNames('w-full', statusColor[buttonColor].button)}
           buttonSize={sidebarExpanded ? 'small' : 'xsmall'}
           icon={<PlusIcon />}
           iconOnly={!sidebarExpanded}
