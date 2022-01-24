@@ -51,6 +51,19 @@ module.exports = {
           warning: 'var(--theme-status-warning)',
           cabbage: 'var(--theme-status-cabbage)',
         },
+        color: {
+          burger: 'var(--theme-color-burger)',
+          blueCheese: 'var(--theme-color-blueCheese)',
+          avocado: 'var(--theme-color-avocado)',
+          lettuce: 'var(--theme-color-lettuce)',
+          cheese: 'var(--theme-color-cheese)',
+          bun: 'var(--theme-color-bun)',
+          ketchup: 'var(--theme-color-ketchup)',
+          bacon: 'var(--theme-color-bacon)',
+          cabbage: 'var(--theme-color-cabbage)',
+          onion: 'var(--theme-color-onion)',
+          water: 'var(--theme-color-water)',
+        },
         'post-disabled': 'var(--theme-post-disabled)',
         highlight: {
           comment: 'var(--theme-highlight-comment)',
@@ -86,6 +99,7 @@ module.exports = {
     maxHeight: {
       'img-desktop': '400px',
       'img-mobile': '280px',
+      'rank-modal': 'calc(100vh - 5rem)',
     },
     fontFamily: {
       sans: [

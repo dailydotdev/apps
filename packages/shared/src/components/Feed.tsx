@@ -4,7 +4,6 @@ import React, {
   ReactNode,
   useContext,
   useEffect,
-  useRef,
 } from 'react';
 import classNames from 'classnames';
 import useFeed, { PostItem } from '../hooks/useFeed';
@@ -26,10 +25,6 @@ import useFeedInfiniteScroll, {
   InfiniteScrollScreenOffset,
 } from '../hooks/feed/useFeedInfiniteScroll';
 import FeedItemComponent, { getFeedItemKey } from './FeedItemComponent';
-import useVirtualFeedGrid, {
-  cardHeightPx,
-} from '../hooks/feed/useVirtualFeedGrid';
-import VirtualizedFeedGrid from './VirtualizedFeedGrid';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import {
   adAnalyticsEvent,
@@ -57,6 +52,42 @@ interface RankVariables {
 }
 
 const nativeShareSupport = false;
+
+const listGaps = {
+  cozy: 'gap-5',
+  roomy: 'gap-3',
+};
+const gridGaps = {
+  cozy: 'gap-14',
+  roomy: 'gap-12',
+};
+const getFeedGapPx = {
+  'gap-2': 8,
+  'gap-3': 12,
+  'gap-5': 20,
+  'gap-8': 32,
+  'gap-12': 48,
+  'gap-14': 56,
+};
+const gapClass = (useList: boolean, spaciness: Spaciness) =>
+  useList ? listGaps[spaciness] ?? 'gap-2' : gridGaps[spaciness] ?? 'gap-8';
+
+const cardListClass = {
+  1: 'grid-cols-1',
+  2: 'grid-cols-2',
+  3: 'grid-cols-3',
+  4: 'grid-cols-4',
+  5: 'grid-cols-5',
+  6: 'grid-cols-6',
+  7: 'grid-cols-7',
+};
+const cardClass = (useList: boolean, numCards: number): string =>
+  useList ? 'grid-cols-1' : cardListClass[numCards];
+
+const calculateRow = (index: number, numCards: number): number =>
+  Math.floor(index / numCards);
+const calculateColumn = (index: number, numCards: number): number =>
+  index % numCards;
 
 const getStyle = (useList: boolean, spaciness: Spaciness): CSSProperties => {
   if (useList && spaciness !== 'eco') {
@@ -132,19 +163,12 @@ export default function Feed<T>({
   };
 
   const useList = insaneMode && numCards > 1;
+  const virtualizedNumCards = useList ? 1 : numCards;
+  const feedGapPx = getFeedGapPx[gapClass(useList, spaciness)];
 
   if (!loadedSettings) {
     return <></>;
   }
-
-  const parentRef = useRef<HTMLDivElement>();
-  const { virtualizer, feedGapPx, virtualizedNumCards } = useVirtualFeedGrid(
-    items,
-    useList,
-    numCards,
-    parentRef,
-    spaciness,
-  );
 
   const onUpvote = useFeedUpvotePost(
     items,
@@ -209,38 +233,38 @@ export default function Feed<T>({
   };
 
   const style = {
-    height: `${virtualizer.totalSize}px`,
     '--num-cards': numCards,
     '--feed-gap': `${feedGapPx / 16}rem`,
-    '--card-height': `${cardHeightPx / 16}rem`,
     ...getStyle(useList, spaciness),
   };
+
   return emptyScreen && emptyFeed ? (
     <>{emptyScreen}</>
   ) : (
     <div
       className={classNames(
-        className,
         'relative mx-auto w-full',
+        className,
         styles.feed,
         !useList && styles.cards,
       )}
       style={style}
-      ref={parentRef}
     >
       {header}
       <ScrollToTopButton />
-      <VirtualizedFeedGrid
-        items={items}
-        hasHeader={!!header}
-        virtualizer={virtualizer}
-        virtualizedNumCards={virtualizedNumCards}
-        getNthChild={(index, column, row) => (
+      <div
+        className={classNames(
+          'grid',
+          gapClass(useList, spaciness),
+          cardClass(useList, numCards),
+        )}
+      >
+        {items.map((item, index) => (
           <FeedItemComponent
             items={items}
             index={index}
-            row={row}
-            column={column}
+            row={calculateRow(index, numCards)}
+            column={calculateColumn(index, numCards)}
             displayPublicationDate={displayPublicationDate}
             columns={virtualizedNumCards}
             key={getFeedItemKey(items, index)}
@@ -267,8 +291,8 @@ export default function Feed<T>({
             onAdRender={onAdImpression}
             onAdClick={onAdClick}
           />
-        )}
-      />
+        ))}
+      </div>
       <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
       <PostOptionsMenu
         postIndex={postMenuIndex}
