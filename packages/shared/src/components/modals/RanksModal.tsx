@@ -214,7 +214,7 @@ export default function RanksModal({
           <RankProgress rank={rank} progress={progress} fillByDefault />
         </div>
       )}
-      <div className="flex overflow-y-auto flex-col items-center responsiveModalBreakpoint:max-h-[calc(100vh-5rem)]">
+      <div className="flex overflow-y-auto flex-col items-center responsiveModalBreakpoint:max-h-rank-modal">
         <h1 className="mt-4 mobileL:mt-11 font-bold uppercase typo-title2">
           Your weekly goal
         </h1>
