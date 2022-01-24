@@ -33,7 +33,7 @@ export interface Post {
   featuredComments?: Comment[];
   trending?: number;
   description?: string;
-  summary: string;
+  summary?: string;
   toc?: Toc;
   impressionStatus?: number;
 }
@@ -51,9 +51,9 @@ export interface Ad {
   impressionStatus?: number;
 }
 
-type ReadHistoryPost = Pick<
+export type ReadHistoryPost = Pick<
   Post,
-  'id' | 'title' | 'commentsPermalink' | 'image'
+  'id' | 'title' | 'commentsPermalink' | 'image' | 'readTime' | 'numUpvotes'
 > & { source?: Pick<Source, 'image'> };
 
 export interface ReadHistory {
