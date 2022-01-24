@@ -160,10 +160,7 @@ export default function useFeed<T>(
               type: 'ad',
               ad: adsQuery.data?.pages[pageIndex],
             });
-          } else if (
-            adsQuery.isFetching &&
-            pageIndex === feedQuery.data.pages.length - 1
-          ) {
+          } else {
             posts.splice(adSpot, 0, {
               type: 'placeholder',
             });

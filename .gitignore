@@ -35,3 +35,8 @@ yarn-error.log*
 .vercel
 
 schema.graphql
+
+# Jest xml files
+extension.xml
+shared.xml
+webapp.xml
