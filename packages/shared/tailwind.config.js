@@ -99,6 +99,7 @@ module.exports = {
     maxHeight: {
       'img-desktop': '400px',
       'img-mobile': '280px',
+      'rank-modal': 'calc(100vh - 5rem)',
     },
     fontFamily: {
       sans: [
