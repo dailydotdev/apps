@@ -50,12 +50,12 @@ const UnfilteredMyFeedButton = ({
   const buttonCopy = getFeatureValue(Features.MyFeedButtonCopy, flags);
   const buttonColor = getThemeColor(
     getFeatureValue(Features.MyFeedButtonColor, flags),
-    'primary',
+    Features.MyFeedButtonColor.defaultValue,
   );
   const explainerCopy = getFeatureValue(Features.MyFeedExplainerCopy, flags);
   const explainerColor = getThemeColor(
     getFeatureValue(Features.MyFeedExplainerColor, flags),
-    'primary',
+    Features.MyFeedExplainerColor.defaultValue,
   );
 
   useEffect(() => {

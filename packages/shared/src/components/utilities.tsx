@@ -71,9 +71,7 @@ const themeColors = {
   },
 };
 export const getThemeColor = (color: string, fallback: string): ThemeColor => {
-  return themeColors[
-    !Object.prototype.hasOwnProperty.call(themeColors, color) ? fallback : color
-  ];
+  return themeColors[color] ?? themeColors[fallback];
 };
 
 export const RoundedImage = classed(LazyImage, 'w-10 h-10 rounded-full');
