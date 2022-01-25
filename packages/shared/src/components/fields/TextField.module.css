@@ -3,7 +3,7 @@
     box-shadow: inset 0.125rem 0 0 0 var(--theme-label-primary);
   }
 
-  &:read-only:global(.focused) {
+  &:global(.focused.readOnly) {
     box-shadow: inset 0.125rem 0 0 0 var(--theme-focus);
     border-color: var(--theme-focus);
   }

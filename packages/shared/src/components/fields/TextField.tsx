@@ -141,6 +141,7 @@ export function TextField({
         className={classNames(
           compact ? 'h-9 rounded-10' : 'h-12 rounded-14',
           {
+            readOnly,
             focused,
             invalid,
           },
