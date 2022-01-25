@@ -41,12 +41,14 @@ export function LinksForm({
           inputId={`shortcutLink-${i}`}
           // eslint-disable-next-line react/no-array-index-key
           key={i}
-          label=""
+          fieldType="tertiary"
+          label="Add shortcuts"
           value={links[i]}
           valid={!staleInput[i]}
           hint={staleInput[i] && 'Must be a valid HTTP/S link'}
           readOnly={isFormReadonly}
           onChange={() => onChange(i)}
+          placeholder="http://example.com"
         />
       ))}
     </div>

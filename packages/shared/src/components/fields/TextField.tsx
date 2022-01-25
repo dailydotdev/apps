@@ -10,6 +10,8 @@ import { useInputField } from '../../hooks/useInputField';
 import { BaseField, FieldInput } from './common';
 import styles from './TextField.module.css';
 
+type FieldType = 'primary' | 'secondary' | 'tertiary';
+
 export interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   inputId: string;
   label: string;
@@ -19,6 +21,7 @@ export interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   validityChanged?: (valid: boolean) => void;
   valueChanged?: (value: string) => void;
   compact?: boolean;
+  fieldType?: FieldType;
 }
 
 export function TextField({
@@ -36,6 +39,7 @@ export function TextField({
   placeholder,
   compact = false,
   style,
+  fieldType = 'primary',
   ...props
 }: TextFieldProps): ReactElement {
   const {
@@ -105,6 +109,10 @@ export function TextField({
   };
 
   const getPlaceholder = () => {
+    if (fieldType === 'tertiary') {
+      return focused ? placeholder : label;
+    }
+
     if (focused || compact) {
       return placeholder ?? '';
     }
@@ -139,7 +147,7 @@ export function TextField({
         )}
       >
         <div className="flex flex-col flex-1 items-start max-w-full">
-          {!compact && (
+          {!compact && fieldType !== 'tertiary' && (
             <label
               className={classNames('typo-caption1', !showLabel && 'hidden')}
               style={{
