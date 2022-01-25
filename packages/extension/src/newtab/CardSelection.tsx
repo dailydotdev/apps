@@ -1,4 +1,3 @@
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import classNames from 'classnames';
 import VIcon from '@dailydotdev/shared/icons/v.svg';
 import React, { ReactElement, ReactNode } from 'react';
@@ -30,12 +29,7 @@ export function CardSelection({
       type="button"
     >
       {isActive && (
-        <Button
-          icon={<VIcon />}
-          buttonSize="xsmall"
-          absolute
-          className="-top-3 -right-3 bg-theme-label-primary text-theme-bg-primary"
-        />
+        <VIcon className="absolute -top-3 -right-3 w-6 h-6 rounded-8 bg-theme-label-primary text-theme-bg-primary" />
       )}
       {icon}
       <span className="font-bold typo-callout">{title}</span>
