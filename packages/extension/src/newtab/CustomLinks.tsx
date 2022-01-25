@@ -34,7 +34,7 @@ export function CustomLinks({
           />
         </a>
       ))}
-      <SimpleTooltip placement="left" content="Options">
+      <SimpleTooltip placement="left" content="Edit shortcuts">
         <Button
           className="btn-tertiary"
           icon={<MenuIcon />}
