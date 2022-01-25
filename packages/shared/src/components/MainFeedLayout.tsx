@@ -33,6 +33,9 @@ import usePersistentContext from '../hooks/usePersistentContext';
 const SearchEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "emptySearch" */ './SearchEmptyScreen'),
 );
+const FeedEmptyScreen = dynamic(
+  () => import(/* webpackChunkName: "feedEmpty" */ './FeedEmptyScreen'),
+);
 
 type FeedQueryProps = {
   query: string;
@@ -250,7 +253,10 @@ export default function MainFeedLayout({
       }
 
       if (isSortableFeed) {
-        return { ...query.variables, ranking: algorithms[selectedAlgo].value };
+        return {
+          ...query.variables,
+          ranking: algorithms[selectedAlgo].value,
+        };
       }
 
       return query.variables;
@@ -267,6 +273,7 @@ export default function MainFeedLayout({
       ),
       query: query.query,
       variables,
+      emptyScreen: <FeedEmptyScreen />,
       header: !isSearchOn && header,
     };
   }, [

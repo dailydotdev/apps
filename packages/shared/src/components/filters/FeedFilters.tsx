@@ -19,11 +19,13 @@ import { useMyFeed } from '../../hooks/useMyFeed';
 
 const asideWidth = sizeN(89);
 interface FeedFiltersProps {
+  directlyOpenedTab?: string;
   isOpen?: boolean;
   onBack?: () => void;
 }
 
 export default function FeedFilters({
+  directlyOpenedTab,
   isOpen,
   onBack,
 }: FeedFiltersProps): ReactElement {
@@ -52,7 +54,8 @@ export default function FeedFilters({
     }
   }, [isOpen, alerts, user, hasAnyFilter]);
 
-  const directlyOpenedTab = shouldShowMyFeed && alerts?.filter && 'Manage tags';
+  const openedTab =
+    (shouldShowMyFeed && alerts?.filter && 'Manage tags') || directlyOpenedTab;
 
   return (
     <aside
@@ -83,7 +86,7 @@ export default function FeedFilters({
           </Button>
         )}
       </div>
-      <FilterMenu directlyOpenedTab={directlyOpenedTab} />
+      <FilterMenu directlyOpenedTab={openedTab} />
     </aside>
   );
 }
