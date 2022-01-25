@@ -178,7 +178,7 @@ export default function useFeed<T>(
   }, [
     feedQuery.data,
     feedQuery.isFetching,
-    adsQuery.data,
+    adsQuery.data?.pages?.length,
     adsQuery.isFetching,
   ]);
 
