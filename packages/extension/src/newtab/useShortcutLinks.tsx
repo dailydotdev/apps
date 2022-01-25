@@ -109,19 +109,15 @@ export default function useShortcutLinks(): UseShortcutLinks {
   };
 
   useEffect(() => {
-    if (!formRef?.current || !hasCustomLinks) {
+    if (!formRef?.current) {
       return;
     }
 
     const elements = getFormInputs();
 
     elements.forEach((input: HTMLInputElement, i) => {
-      if (!formLinks[i]?.trim()) {
-        return;
-      }
-
       // eslint-disable-next-line no-param-reassign
-      input.value = formLinks[i] || '';
+      input.value = formLinks?.[i]?.trim() || '';
     });
   }, [isManual, formRef.current, hasCustomLinks]);
 
