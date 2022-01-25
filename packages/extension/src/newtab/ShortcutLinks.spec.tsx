@@ -236,8 +236,8 @@ describe('shortcut links component', () => {
     const shortcuts = await screen.findAllByRole('link');
     expect(shortcuts.length).toEqual(5);
 
-    const options = await screen.findByLabelText('Options');
-    fireEvent.click(options);
+    const edit = await screen.findByLabelText('Edit shortcuts');
+    fireEvent.click(edit);
 
     const instruction = screen.queryByText(
       'To edit links, please switch to "My shortcuts" mode',
