@@ -40,6 +40,7 @@ export function TextField({
   compact = false,
   style,
   fieldType = 'primary',
+  readOnly,
   ...props
 }: TextFieldProps): ReactElement {
   const {
@@ -169,7 +170,11 @@ export function TextField({
             onBlur={onBlur}
             onInput={onInput}
             maxLength={maxLength}
-            className="self-stretch"
+            readOnly={readOnly}
+            className={classNames(
+              'self-stretch',
+              readOnly && 'text-theme-label-quaternary',
+            )}
             {...props}
           />
         </div>
