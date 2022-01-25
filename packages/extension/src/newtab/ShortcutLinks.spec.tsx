@@ -197,8 +197,8 @@ describe('shortcut links component', () => {
       },
     });
 
-    const options = await screen.findByLabelText('Options');
-    fireEvent.click(options);
+    const edit = await screen.findByLabelText('Edit shortcuts');
+    fireEvent.click(edit);
 
     const remove = await screen.findByText('Revoke access');
     expect(remove).toBeVisible();
