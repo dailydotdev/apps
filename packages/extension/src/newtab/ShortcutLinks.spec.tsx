@@ -172,7 +172,7 @@ describe('shortcut links component', () => {
     expect(inputs.length).toEqual(8);
 
     inputs.forEach((input) => {
-      expect(input).toHaveAttribute('disabled');
+      expect(input).toHaveAttribute('readonly');
     });
 
     const next = await screen.findByText('Next');
