@@ -24,10 +24,16 @@ export default function ShowMoreContent({
   const displayShowMoreLink = () =>
     content && content?.length > charactersLimit + threshold;
 
+  const getSlicedContent = () => {
+    const trimmedContent = content?.slice(0, charactersLimit);
+    return trimmedContent.slice(
+      0,
+      Math.min(trimmedContent.length, trimmedContent.lastIndexOf(' ')),
+    );
+  };
+
   const getContent = () =>
-    isTextExpanded || !displayShowMoreLink()
-      ? content
-      : content?.slice(0, charactersLimit);
+    isTextExpanded || !displayShowMoreLink() ? content : getSlicedContent();
 
   return (
     <div className={className}>
