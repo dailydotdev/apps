@@ -18,10 +18,6 @@ module.exports = withTM(
     ...withPreact(
       withBundleAnalyzer({
         webpack5: true,
-        experimental: {
-          modern: true,
-          // polyfillsOptimization: true,
-        },
         webpack: (config, { dev, isServer }) => {
           config.module.rules.push({
             test: /\.svg$/i,
