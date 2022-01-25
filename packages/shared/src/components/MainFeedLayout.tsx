@@ -213,7 +213,7 @@ export default function MainFeedLayout({
         {isUpvoted && (
           <Dropdown
             className="ml-4 w-44"
-            buttonSize="medium"
+            buttonSize="large"
             icon={<CalendarIcon />}
             selectedIndex={selectedPeriod}
             options={periodTexts}
@@ -223,7 +223,7 @@ export default function MainFeedLayout({
         {sortingEnabled && isSortableFeed && (
           <Dropdown
             className="ml-4 w-[10.25rem]"
-            buttonSize="medium"
+            buttonSize="large"
             selectedIndex={selectedAlgo}
             options={algorithmsList}
             onChange={(_, index) => setSelectedAlgo(index)}
