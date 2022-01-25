@@ -6,14 +6,14 @@ const list = Array(limit).fill(0);
 
 interface LinksFormProps {
   links: string[];
-  isFormDisabled?: boolean;
+  isFormReadonly?: boolean;
   errors?: Record<string | number, string>;
 }
 
 export function LinksForm({
   links,
   errors,
-  isFormDisabled,
+  isFormReadonly,
 }: LinksFormProps): ReactElement {
   const [staleInput, setStaleInput] = useState({});
 
@@ -45,7 +45,7 @@ export function LinksForm({
           value={links[i]}
           valid={!staleInput[i]}
           hint={staleInput[i] && 'Must be a valid HTTP/S link'}
-          disabled={isFormDisabled}
+          readOnly={isFormReadonly}
           onChange={() => onChange(i)}
         />
       ))}

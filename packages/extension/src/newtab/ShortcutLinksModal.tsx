@@ -88,7 +88,7 @@ export default function CustomLinksModal({
           <LinksForm
             errors={errors}
             links={links}
-            isFormDisabled={isManual === false}
+            isFormReadonly={isManual === false}
           />
           {!isManual && hasTopSites !== null && (
             <Button
