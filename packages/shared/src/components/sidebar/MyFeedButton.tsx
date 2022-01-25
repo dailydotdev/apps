@@ -145,7 +145,7 @@ export default function MyFeedButton({
     return (
       <FilteredMyFeedButton
         action={action}
-        sidebarExpanded={sidebarExpanded}
+        sidebarExpanded={sidebarExpanded || sidebarRendered === false}
         item={item}
         isActive={isActive}
         useNavButtonsNotLinks={useNavButtonsNotLinks}
