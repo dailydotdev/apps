@@ -45,7 +45,7 @@ export default function useShortcutLinks(): UseShortcutLinks {
     hasCheckedPermission && !hasCustomLinks && hasTopSites;
   const sites = topSites?.map((site) => site.url);
   const shortcutLinks = isTopSiteActive ? sites : customLinks;
-  const formLinks = isManual ? customLinks : sites;
+  const formLinks = (isManual ? customLinks : sites) || [];
 
   const resetSelected = () => {
     if (topSites !== undefined && !hasCustomLinks) {
