@@ -45,11 +45,16 @@ export default function CustomLinksModal({
       contentClassName="max-h-[40rem]"
       style={{ ...style, content: { maxHeight: '40rem' } }}
     >
-      <form ref={formRef} onSubmit={onSubmit}>
+      <form ref={formRef}>
         <ModalHeader>
           <h3 className="font-bold typo-title3">Shortcuts</h3>
           <div className="flex-1" />
-          <Button className="mr-3 btn-primary" buttonSize="small" type="submit">
+          <Button
+            className="mr-3 btn-primary"
+            buttonSize="small"
+            type="button"
+            onClick={(e) => onSubmit(e)}
+          >
             Save changes
           </Button>
           <Button

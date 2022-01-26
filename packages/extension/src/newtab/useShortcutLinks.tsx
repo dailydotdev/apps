@@ -1,5 +1,4 @@
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
-import { isValidHttpUrl } from '@dailydotdev/shared/src/lib/links';
 import {
   Dispatch,
   FormEvent,
@@ -81,25 +80,19 @@ export default function useShortcutLinks(): UseShortcutLinks {
     }
 
     const links = getFormInputs();
-    const invalidLinks = {};
+    const hint = {};
     const isValid = links.every((el, i) => {
-      const link = el.value.trim();
-
-      if (!link) {
-        return true;
-      }
-
-      const valid = isValidHttpUrl(link);
+      const valid = el.checkValidity();
 
       if (!valid) {
-        invalidLinks[i] = el.value;
+        hint[i] = el.checkValidity();
       }
 
       return valid;
     });
 
     if (!isValid) {
-      return { errors: invalidLinks };
+      return { errors: hint };
     }
 
     updateCustomLinks(
