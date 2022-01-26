@@ -128,6 +128,7 @@ export const READING_HISTORY_QUERY = gql`
             commentsPermalink
             readTime
             numUpvotes
+            bookmarked
             source {
               image
             }
