@@ -115,7 +115,11 @@ export const PageContainer = ({
   ...props
 }: PageContainerProps): ReactElement => {
   const { sidebarRendered } = useSidebarRendered();
-  const { sidebarExpanded } = useContext(SettingsContext);
+  const { sidebarExpanded, loadedSettings } = useContext(SettingsContext);
+
+  if (!loadedSettings) {
+    return <></>;
+  }
 
   return (
     <Container
