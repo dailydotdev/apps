@@ -1,5 +1,4 @@
 import React, { FormEventHandler, MutableRefObject, ReactElement } from 'react';
-import classNames from 'classnames';
 import { ModalHeader } from '@dailydotdev/shared/src/components/modals/common';
 import { ModalProps } from '@dailydotdev/shared/src/components/modals/StyledModal';
 import { ResponsiveModal } from '@dailydotdev/shared/src/components/modals/ResponsiveModal';
@@ -9,9 +8,6 @@ import UserIcon from '@dailydotdev/shared/icons/user.svg';
 import SitesIcon from '@dailydotdev/shared/icons/sites.svg';
 import { CardSelection } from './CardSelection';
 import { LinksForm } from './LinksForm';
-
-const getIconClassName = (isActive?: boolean) =>
-  classNames('w-8 h-8', !isActive && 'text-theme-label-tertiary');
 
 interface CustomLinksModalProps extends ModalProps {
   errors?: Record<string | number, string>;
@@ -68,14 +64,14 @@ export default function CustomLinksModal({
             <CardSelection
               title="My shortcuts"
               description="Curate your own shortcuts manually"
-              icon={<UserIcon className={getIconClassName(true)} />}
+              icon={<UserIcon className="w-8 h-8" />}
               isActive={isManual}
               onClick={onShowCustomLinks}
             />
             <CardSelection
               title="Most visited sites"
               description="Shortcuts are imported from your browser"
-              icon={<SitesIcon className={getIconClassName()} />}
+              icon={<SitesIcon className="w-8 h-8" />}
               isActive={isManual === false}
               onClick={onShowTopSitesClick}
             />
