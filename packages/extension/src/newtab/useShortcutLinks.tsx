@@ -85,7 +85,7 @@ export default function useShortcutLinks(): UseShortcutLinks {
       const valid = el.checkValidity();
 
       if (!valid) {
-        hint[i] = el.checkValidity();
+        hint[i] = el.value;
       }
 
       return valid;
