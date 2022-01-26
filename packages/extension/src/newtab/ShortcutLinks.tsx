@@ -92,6 +92,7 @@ export default function ShortcutLinks(): ReactElement {
           onRevokePermission={revokePermission}
           onShowPermission={() => setShowModal(true)}
           onRequestClose={() => {
+            setErrors({});
             setShowOptions(false);
             resetSelected();
           }}
