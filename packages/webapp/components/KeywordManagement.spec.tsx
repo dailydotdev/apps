@@ -2,6 +2,8 @@ import React from 'react';
 import nock from 'nock';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
+import { defaultSettings } from '@dailydotdev/shared/__tests__/fixture/defaultSettings';
 import {
   ALLOW_KEYWORD_MUTATION,
   DENY_KEYWORD_MUTATION,
@@ -13,6 +15,8 @@ import {
   Post,
 } from '@dailydotdev/shared/src/graphql/posts';
 import { Connection } from '@dailydotdev/shared/src/graphql/common';
+import { SettingsContextProvider } from '@dailydotdev/shared/src/contexts/SettingsContext';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   MockedGraphQLResponse,
   mockGraphQL,
@@ -75,11 +79,30 @@ const renderComponent = (
   mocks.forEach(mockGraphQL);
   return render(
     <QueryClientProvider client={client}>
-      <KeywordManagement
-        keyword={defaultKeyword}
-        subtitle="subtitle"
-        onOperationCompleted={onOperationCompleted}
-      />
+      <AuthContext.Provider
+        value={{
+          user: loggedUser,
+          shouldShowLogin: false,
+          showLogin: jest.fn(),
+          logout: jest.fn(),
+          updateUser: jest.fn(),
+          closeLogin: jest.fn(),
+          getRedirectUri: jest.fn(),
+          tokenRefreshed: true,
+        }}
+      >
+        <SettingsContextProvider
+          updateSettings={jest.fn()}
+          settings={defaultSettings}
+          loadedSettings
+        >
+          <KeywordManagement
+            keyword={defaultKeyword}
+            subtitle="subtitle"
+            onOperationCompleted={onOperationCompleted}
+          />
+        </SettingsContextProvider>
+      </AuthContext.Provider>
     </QueryClientProvider>,
   );
 };

@@ -24,6 +24,8 @@ import {
   POST_COMMENTS_QUERY,
   PostCommentsData,
 } from '@dailydotdev/shared/src/graphql/comments';
+import { SettingsContextProvider } from '@dailydotdev/shared/src/contexts/SettingsContext';
+import { defaultSettings } from '@dailydotdev/shared/__tests__/fixture/defaultSettings';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import nock from 'nock';
 import { QueryClient, QueryClientProvider } from 'react-query';
@@ -151,7 +153,13 @@ const renderPost = (
           getRedirectUri: jest.fn(),
         }}
       >
-        <PostPage {...defaultProps} {...props} />
+        <SettingsContextProvider
+          updateSettings={jest.fn()}
+          settings={defaultSettings}
+          loadedSettings
+        >
+          <PostPage {...defaultProps} {...props} />
+        </SettingsContextProvider>
       </AuthContext.Provider>
     </QueryClientProvider>,
   );

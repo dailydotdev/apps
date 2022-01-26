@@ -11,6 +11,8 @@ import {
   KeywordData,
   KEYWORD_QUERY,
 } from '@dailydotdev/shared/src/graphql/keywords';
+import { defaultSettings } from '@dailydotdev/shared/__tests__/fixture/defaultSettings';
+import { SettingsContextProvider } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
 import KeywordsPage from '../pages/backoffice/keywords/[value]';
 
@@ -83,7 +85,13 @@ const renderComponent = (
           getRedirectUri: jest.fn(),
         }}
       >
-        <KeywordsPage keyword={defaultKeyword.value} />
+        <SettingsContextProvider
+          updateSettings={jest.fn()}
+          settings={defaultSettings}
+          loadedSettings
+        >
+          <KeywordsPage keyword={defaultKeyword.value} />
+        </SettingsContextProvider>
       </AuthContext.Provider>
     </QueryClientProvider>,
   );
