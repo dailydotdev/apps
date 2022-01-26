@@ -112,7 +112,7 @@ export default function useShortcutLinks(): UseShortcutLinks {
       // eslint-disable-next-line no-param-reassign
       input.value = formLinks?.[i]?.trim() || '';
     });
-  }, [isManual, formRef.current, hasCustomLinks]);
+  }, [isManual, hasCustomLinks]);
 
   return useMemo(
     () => ({
