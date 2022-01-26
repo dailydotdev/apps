@@ -1,7 +1,11 @@
+import React, { ReactElement, ReactNode, useContext } from 'react';
+import classNames from 'classnames';
 import { LazyImage } from './LazyImage';
 import classed from '../lib/classed';
 import styles from './utilities.module.css';
 import ArrowIcon from '../../icons/arrow.svg';
+import SettingsContext from '../contexts/SettingsContext';
+import useSidebarRendered from '../hooks/useSidebarRendered';
 
 interface ThemeColor {
   border: string;
@@ -88,20 +92,43 @@ export const pageBorders =
   'laptop:border-r laptop:border-l laptop:border-theme-divider-tertiary';
 const pagePaddings = 'px-4 tablet:px-8';
 
-export const PageContainer = classed(
+const Container = classed(
   'main',
   styles.pageContainer,
   pagePaddings,
   'relative flex flex-col w-full items-stretch z-1 tablet:self-center',
 );
 
+interface PageContainerProps {
+  children: ReactNode;
+  className?: string;
+}
+
+export const PageContainer = ({
+  children,
+  className,
+}: PageContainerProps): ReactElement => {
+  const { sidebarRendered } = useSidebarRendered();
+  const { sidebarExpanded } = useContext(SettingsContext);
+
+  return (
+    <Container
+      className={classNames('self-center', className, {
+        sidebarRendered,
+        sidebarExpanded,
+      })}
+    >
+      {children}
+    </Container>
+  );
+};
+
 export const PageWidgets = classed(
   'aside',
   styles.pageWidgets,
-  pagePaddings,
   pageBorders,
   'laptopL:min-w-[22.5rem]',
-  'w-full laptopL:px-6 laptopL:w-auto laptopL:border-none',
+  'laptopL:px-6 laptopL:w-auto laptopL:border-none',
 );
 
 export const NewCommentContainer = classed(

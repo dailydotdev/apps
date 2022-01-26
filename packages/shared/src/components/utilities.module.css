@@ -11,13 +11,32 @@
 
 .pageContainer {
   max-width: $pageMaxWidth;
+
+  &:global(.sidebarRendered) {
+    margin-left: calc(50% - (6.375rem + ($pageMaxWidth / 2)));
+
+    &:global(.sidebarExpanded) {
+      margin-left: calc(50% - (13.75rem + ($pageMaxWidth / 2)));
+    }
+  }
+
   @screen laptopL {
     width: $pageMaxWidth;
+  }
+
+  @screen tablet {
+    margin: auto;
   }
 }
 
 .pageWidgets {
   max-width: $pageMaxWidth;
+  position: relative;
+
+  @screen laptop {
+    position: absolute;
+    left: 100%;
+  }
 }
 
 .feedPage {

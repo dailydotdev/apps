@@ -242,68 +242,69 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
 
   return (
     <>
-      <div className="flex relative flex-row flex-wrap justify-center pb-20 laptop:pb-0 w-full max-w-full">
-        <PageContainer
-          className={classNames('laptop:pb-6 laptop:self-stretch', pageBorders)}
+      <PageContainer
+        className={classNames(
+          'laptop:pb-6 laptop:self-stretch pb-20 laptop:pb-0',
+          pageBorders,
+        )}
+      >
+        <Head>
+          <link rel="preload" as="image" href={postById.post.image} />
+        </Head>
+        <NextSeo {...seo} />
+        <a
+          {...postLinkProps}
+          className="block overflow-hidden mb-10 rounded-b-2xl cursor-pointer"
         >
-          <Head>
-            <link rel="preload" as="image" href={postById?.post.image} />
-          </Head>
-          <NextSeo {...seo} />
-          <a
-            {...postLinkProps}
-            className="block overflow-hidden mb-10 rounded-b-2xl cursor-pointer"
-          >
-            <LazyImage
-              imgSrc={postById?.post.image}
-              imgAlt="Post cover image"
-              ratio="21%"
-              eager
-            />
-          </a>
-          <PostHeader post={postById.post} />
-          <a {...postLinkProps} className="cursor-pointer">
-            <h1 className="my-2 font-bold typo-large-title">
-              {postById?.post.title}
-            </h1>
-          </a>
-          {postById?.post.summary && (
-            <PostSummary summary={postById.post.summary} />
-          )}
-          <PostMetadata
-            post={postById.post}
-            className="mt-2 mb-1"
-            typoClassName="typo-callout"
+          <LazyImage
+            imgSrc={postById.post.image}
+            imgAlt="Post cover image"
+            ratio="21%"
+            eager
           />
-          <TagLinks tags={postById?.post.tags || []} />
-          {postById?.post?.toc?.length > 0 && (
-            <PostToc
-              post={postById.post}
-              collapsible
-              className="flex laptop:hidden mt-2 mb-4"
-            />
-          )}
-          <PostUpvotesCommentsCount
+        </a>
+        <PostHeader post={postById.post} />
+        <a {...postLinkProps} className="cursor-pointer">
+          <h1 className="my-2 font-bold typo-large-title">
+            {postById.post.title}
+          </h1>
+        </a>
+        {postById.post.summary && (
+          <PostSummary summary={postById.post.summary} />
+        )}
+        <PostMetadata
+          post={postById.post}
+          className="mt-2 mb-1"
+          typoClassName="typo-callout"
+        />
+        <TagLinks tags={postById.post.tags || []} />
+        {postById.post?.toc?.length > 0 && (
+          <PostToc
             post={postById.post}
-            onUpvotesClick={handleShowUpvotedPost}
+            collapsible
+            className="flex laptop:hidden mt-2 mb-4"
           />
-          <PostActions
-            post={postById.post}
-            postQueryKey={postQueryKey}
-            onComment={openNewComment}
-          />
-          <PostComments
-            post={postById.post}
-            onClick={onCommentClick}
-            onClickUpvote={handleShowUpvotedComment}
-          />
-          {authorOnboarding && (
-            <AuthorOnboarding onSignUp={!user && (() => showLogin('author'))} />
-          )}
-          <NewComment user={user} onNewComment={openNewComment} />
-        </PageContainer>
+        )}
+        <PostUpvotesCommentsCount
+          post={postById.post}
+          onUpvotesClick={handleShowUpvotedPost}
+        />
+        <PostActions
+          post={postById.post}
+          postQueryKey={postQueryKey}
+          onComment={openNewComment}
+        />
+        <PostComments
+          post={postById.post}
+          onClick={onCommentClick}
+          onClickUpvote={handleShowUpvotedComment}
+        />
+        {authorOnboarding && (
+          <AuthorOnboarding onSignUp={!user && (() => showLogin('author'))} />
+        )}
+        <NewComment user={user} onNewComment={openNewComment} />
         <PostWidgets post={postById.post} />
-      </div>
+      </PageContainer>
 
       {upvotedPopup.modal && (
         <UpvotedPopupModal
