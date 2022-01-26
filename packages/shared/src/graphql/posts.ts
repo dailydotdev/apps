@@ -53,7 +53,13 @@ export interface Ad {
 
 export type ReadHistoryPost = Pick<
   Post,
-  'id' | 'title' | 'commentsPermalink' | 'image' | 'readTime' | 'numUpvotes'
+  | 'id'
+  | 'title'
+  | 'commentsPermalink'
+  | 'image'
+  | 'readTime'
+  | 'numUpvotes'
+  | 'bookmarked'
 > & { source?: Pick<Source, 'image'> };
 
 export interface ReadHistory {

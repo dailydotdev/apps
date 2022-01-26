@@ -9,6 +9,10 @@ import classed from '../../lib/classed';
 import { Button } from '../buttons/Button';
 import { LazyImage } from '../LazyImage';
 import PostMetadataReadingHistory from '../cards/PostMetadataReadingHistory';
+import PostOptionsReadingHistoryMenu from '../PostOptionsReadingHistoryMenu';
+import useReportPostMenu from '../../hooks/useReportPostMenu';
+import useNotification from '../../hooks/useNotification';
+import { CardNotification } from '../cards/Card';
 
 interface ReadingHistoryItemProps {
   className?: string;
@@ -21,7 +25,10 @@ const SourceShadow = classed(
   'absolute left-5 -my-1 w-8 h-8 rounded-full bg-theme-bg-primary',
 );
 
-function ReadingHistoryItem({
+const Container = classed('div', 'flex items-center mb-2');
+
+
+export function ReadingHistoryItem({
   history: { timestamp, post },
   onHide,
   className,
@@ -30,6 +37,25 @@ function ReadingHistoryItem({
     e.stopPropagation();
     onHide({ postId: post.id, timestamp });
   };
+  const { showReportMenu } = useReportPostMenu();
+  const { notification, onMessage } = useNotification();
+
+  const showReadingHistoryPostOptionsContext = (e) => {
+    const { right, bottom } = e.currentTarget.getBoundingClientRect();
+    showReportMenu(e, {
+      position: { x: right, y: bottom + 4 },
+    });
+  };
+
+   if (notification) {
+     return (
+       <Container>
+         <CardNotification className="flex-1 py-2.5 text-center">
+           {notification}
+         </CardNotification>
+       </Container>
+     );
+   }
 
   return (
     <Link href={post.commentsPermalink}>
@@ -51,13 +77,14 @@ function ReadingHistoryItem({
           className="left-6 w-6 h-6 rounded-full"
           absolute
         />
-        <h3 className="flex flex-wrap mr-6 ml-4 flex-1 line-clamp-3 typo-callout">
+        <h3 className="flex flex-wrap flex-1 mr-6 ml-4 line-clamp-3 typo-callout">
           {post.title}
           <PostMetadataReadingHistory
             post={post}
             typoClassName="typo-callout"
           />
         </h3>
+
         {onHide && (
           <Button
             className="btn-tertiary"
@@ -68,8 +95,10 @@ function ReadingHistoryItem({
         <Button
           className="btn-tertiary"
           icon={<MenuIcon />}
-          onClick={onHideClick}
+          onClick={(event) => showReadingHistoryPostOptionsContext(event)}
+          buttonSize="small"
         />
+        <PostOptionsReadingHistoryMenu post={post} onMessage={onMessage} />
       </article>
     </Link>
   );
