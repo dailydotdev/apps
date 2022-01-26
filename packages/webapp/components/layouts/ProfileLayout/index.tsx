@@ -150,7 +150,7 @@ export default function ProfileLayout({
         <link rel="preload" as="image" href={profile.image} />
       </Head>
       <NextSeo {...Seo} />
-      <ResponsivePageContainer className="px-6 overflow-x-hidden max-w-full flex-1">
+      <ResponsivePageContainer className="overflow-x-hidden flex-1 px-6 max-w-full">
         <section
           className={classNames(
             'flex flex-col self-start tablet:flex-row tablet:-ml-4 tablet:-mr-4 tablet:self-stretch tablet:overflow-x-hidden',
