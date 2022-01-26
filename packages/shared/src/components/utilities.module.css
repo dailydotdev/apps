@@ -27,9 +27,12 @@
   @screen laptop {
     width: $pageMaxWidth;
 
-    &:global(.sidebarRendered),
-    &:global(.sidebarRendered.sidebarExpanded) {
-      margin-left: calc(50% - (6.375rem + ($pageMaxWidth / 2)));
+    &:global(.sidebarRendered) {
+      margin-left: calc(50% - (($pageMaxWidth / 2) - 1rem));
+
+      &:global(.sidebarExpanded) {
+        margin-left: calc(50% - (6.375rem + ($pageMaxWidth / 2)));
+      }
     }
   }
 
