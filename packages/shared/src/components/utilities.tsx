@@ -120,7 +120,7 @@ export const PageContainer = ({
   return (
     <Container
       {...props}
-      className={classNames('self-center', className, {
+      className={classNames(className, {
         sidebarRendered,
         sidebarExpanded,
       })}
