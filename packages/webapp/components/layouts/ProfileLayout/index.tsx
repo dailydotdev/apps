@@ -150,127 +150,125 @@ export default function ProfileLayout({
         <link rel="preload" as="image" href={profile.image} />
       </Head>
       <NextSeo {...Seo} />
-      <div className="flex overflow-x-hidden flex-col flex-1">
-        <ResponsivePageContainer className="px-6">
-          <section
-            className={classNames(
-              'flex flex-col self-start tablet:flex-row tablet:-ml-4 tablet:-mr-4 tablet:self-stretch tablet:overflow-x-hidden',
-              styles.header,
+      <ResponsivePageContainer className="px-6 overflow-x-hidden max-w-full flex-1">
+        <section
+          className={classNames(
+            'flex flex-col self-start tablet:flex-row tablet:-ml-4 tablet:-mr-4 tablet:self-stretch tablet:overflow-x-hidden',
+            styles.header,
+          )}
+        >
+          <div className="flex tablet:flex-col items-center self-start tablet:px-2 tablet:pt-2 tablet:pb-4 mb-6 tablet:mb-0 rounded-2xl bg-theme-bg-secondary">
+            <ProfilePicture user={profile} size="xxxlarge" />
+            <div className="flex flex-col tablet:items-center mx-6 tablet:mx-0 tablet:mt-4 typo-footnote">
+              <a
+                href={reputationGuide}
+                target="_blank"
+                rel="noopener"
+                className="my-0.5 no-underline text-theme-label-tertiary"
+              >
+                Reputation
+              </a>
+              <span className="my-0.5 font-bold text-theme-label-primary typo-title1">
+                {profile.reputation}
+              </span>
+            </div>
+          </div>
+          <div className="flex flex-col tablet:flex-1">
+            <div className="flex items-center mb-2">
+              <h1 className="m-0 font-bold text-theme-label-primary typo-title3">
+                {profile.name}
+              </h1>
+              {userRank?.userReadingRank?.currentRank > 0 && (
+                <Rank
+                  rank={userRank.userReadingRank.currentRank}
+                  colorByRank
+                  data-testid="rank"
+                  className="ml-2 w-6 h-6"
+                />
+              )}
+            </div>
+            {profile.username && (
+              <h2 className="m-0 font-normal text-theme-label-secondary typo-callout">
+                @{profile.username}
+              </h2>
             )}
-          >
-            <div className="flex tablet:flex-col items-center self-start tablet:px-2 tablet:pt-2 tablet:pb-4 mb-6 tablet:mb-0 rounded-2xl bg-theme-bg-secondary">
-              <ProfilePicture user={profile} size="xxxlarge" />
-              <div className="flex flex-col tablet:items-center mx-6 tablet:mx-0 tablet:mt-4 typo-footnote">
-                <a
-                  href={reputationGuide}
-                  target="_blank"
-                  rel="noopener"
-                  className="my-0.5 no-underline text-theme-label-tertiary"
-                >
-                  Reputation
-                </a>
-                <span className="my-0.5 font-bold text-theme-label-primary typo-title1">
-                  {profile.reputation}
-                </span>
-              </div>
-            </div>
-            <div className="flex flex-col tablet:flex-1">
-              <div className="flex items-center mb-2">
-                <h1 className="m-0 font-bold text-theme-label-primary typo-title3">
-                  {profile.name}
-                </h1>
-                {userRank?.userReadingRank?.currentRank > 0 && (
-                  <Rank
-                    rank={userRank.userReadingRank.currentRank}
-                    colorByRank
-                    data-testid="rank"
-                    className="ml-2 w-6 h-6"
+            {profile.bio && (
+              <p className="mt-3 break-words text-theme-label-tertiary typo-callout">
+                {profile.bio}
+              </p>
+            )}
+            <JoinedDate
+              className="mt-3 text-theme-label-quaternary typo-footnote"
+              date={new Date(profile.createdAt)}
+            />
+            <div className={classNames('flex mt-3 mx-0.5', styles.links)}>
+              {twitterHandle && (
+                <SimpleTooltip content="Twitter">
+                  <Button
+                    tag="a"
+                    href={`https://twitter.com/${twitterHandle}`}
+                    target="_blank"
+                    rel="noopener"
+                    icon={<TwitterIcon />}
+                    className="btn-tertiary"
                   />
-                )}
-              </div>
-              {profile.username && (
-                <h2 className="m-0 font-normal text-theme-label-secondary typo-callout">
-                  @{profile.username}
-                </h2>
+                </SimpleTooltip>
               )}
-              {profile.bio && (
-                <p className="mt-3 break-words text-theme-label-tertiary typo-callout">
-                  {profile.bio}
-                </p>
+              {githubHandle && (
+                <SimpleTooltip content="GitHub">
+                  <Button
+                    tag="a"
+                    href={`https://github.com/${githubHandle}`}
+                    target="_blank"
+                    rel="noopener"
+                    icon={<GitHubIcon />}
+                    className="btn-tertiary"
+                  />
+                </SimpleTooltip>
               )}
-              <JoinedDate
-                className="mt-3 text-theme-label-quaternary typo-footnote"
-                date={new Date(profile.createdAt)}
-              />
-              <div className={classNames('flex mt-3 mx-0.5', styles.links)}>
-                {twitterHandle && (
-                  <SimpleTooltip content="Twitter">
-                    <Button
-                      tag="a"
-                      href={`https://twitter.com/${twitterHandle}`}
-                      target="_blank"
-                      rel="noopener"
-                      icon={<TwitterIcon />}
-                      className="btn-tertiary"
-                    />
-                  </SimpleTooltip>
-                )}
-                {githubHandle && (
-                  <SimpleTooltip content="GitHub">
-                    <Button
-                      tag="a"
-                      href={`https://github.com/${githubHandle}`}
-                      target="_blank"
-                      rel="noopener"
-                      icon={<GitHubIcon />}
-                      className="btn-tertiary"
-                    />
-                  </SimpleTooltip>
-                )}
-                {hashnodeHandle && (
-                  <SimpleTooltip content="Hashnode">
-                    <Button
-                      tag="a"
-                      href={`https://hashnode.com/@${hashnodeHandle}`}
-                      target="_blank"
-                      rel="noopener"
-                      icon={<HashnodeIcon />}
-                      className="btn-tertiary"
-                    />
-                  </SimpleTooltip>
-                )}
-                {portfolioLink && (
-                  <SimpleTooltip content="Portfolio">
-                    <QuaternaryButton
-                      tag="a"
-                      href={portfolioLink}
-                      id="portfolio-link"
-                      target="_blank"
-                      rel="noopener"
-                      icon={<LinkIcon />}
-                      className="btn-tertiary"
-                    >
-                      {portfolioLink
-                        .replace(/(^\w+:|^)\/\//, '')
-                        .replace(/\/?(\?.*)?$/, '')}
-                    </QuaternaryButton>
-                  </SimpleTooltip>
-                )}
-              </div>
-              {profile.id === user?.id && (
-                <Button
-                  className="self-start mt-6 mb-0.5 btn-secondary"
-                  onClick={() => setShowAccountDetails(true)}
-                >
-                  Account details
-                </Button>
+              {hashnodeHandle && (
+                <SimpleTooltip content="Hashnode">
+                  <Button
+                    tag="a"
+                    href={`https://hashnode.com/@${hashnodeHandle}`}
+                    target="_blank"
+                    rel="noopener"
+                    icon={<HashnodeIcon />}
+                    className="btn-tertiary"
+                  />
+                </SimpleTooltip>
+              )}
+              {portfolioLink && (
+                <SimpleTooltip content="Portfolio">
+                  <QuaternaryButton
+                    tag="a"
+                    href={portfolioLink}
+                    id="portfolio-link"
+                    target="_blank"
+                    rel="noopener"
+                    icon={<LinkIcon />}
+                    className="btn-tertiary"
+                  >
+                    {portfolioLink
+                      .replace(/(^\w+:|^)\/\//, '')
+                      .replace(/\/?(\?.*)?$/, '')}
+                  </QuaternaryButton>
+                </SimpleTooltip>
               )}
             </div>
-          </section>
-          <NavBar selectedTab={selectedTab} profile={profile} />
-          {children}
-        </ResponsivePageContainer>
-      </div>
+            {profile.id === user?.id && (
+              <Button
+                className="self-start mt-6 mb-0.5 btn-secondary"
+                onClick={() => setShowAccountDetails(true)}
+              >
+                Account details
+              </Button>
+            )}
+          </div>
+        </section>
+        <NavBar selectedTab={selectedTab} profile={profile} />
+        {children}
+      </ResponsivePageContainer>
       {profile.id === user?.id && (windowLoaded || showAccountDetails) && (
         <AccountDetailsModal
           isOpen={showAccountDetails}

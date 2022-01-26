@@ -24,6 +24,15 @@
     width: $pageMaxWidth;
   }
 
+  @screen laptop {
+    width: $pageMaxWidth;
+
+    &:global(.sidebarRendered),
+    &:global(.sidebarRendered.sidebarExpanded) {
+      margin-left: calc(50% - (6.375rem + ($pageMaxWidth / 2)));
+    }
+  }
+
   @screen tablet {
     margin: auto;
   }
