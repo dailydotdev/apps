@@ -1,4 +1,9 @@
-import React, { ReactElement, ReactNode, useContext } from 'react';
+import React, {
+  HTMLAttributes,
+  ReactElement,
+  ReactNode,
+  useContext,
+} from 'react';
 import classNames from 'classnames';
 import { LazyImage } from './LazyImage';
 import classed from '../lib/classed';
@@ -99,7 +104,7 @@ const Container = classed(
   'relative flex flex-col w-full items-stretch z-1 tablet:self-center',
 );
 
-interface PageContainerProps {
+interface PageContainerProps extends HTMLAttributes<HTMLElement> {
   children: ReactNode;
   className?: string;
 }
@@ -107,12 +112,14 @@ interface PageContainerProps {
 export const PageContainer = ({
   children,
   className,
+  ...props
 }: PageContainerProps): ReactElement => {
   const { sidebarRendered } = useSidebarRendered();
   const { sidebarExpanded } = useContext(SettingsContext);
 
   return (
     <Container
+      {...props}
       className={classNames('self-center', className, {
         sidebarRendered,
         sidebarExpanded,
