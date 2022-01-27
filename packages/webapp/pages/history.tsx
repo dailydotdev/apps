@@ -1,7 +1,7 @@
 import React, { ReactElement, useContext, useEffect } from 'react';
 import classNames from 'classnames';
 import { NextSeo } from 'next-seo';
-import { ResponsiveNoPaddingPageContainer } from '@dailydotdev/shared/src/components/utilities';
+import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
 import useReadingHistory from '@dailydotdev/shared/src/hooks/useReadingHistory';
 import useInfiniteReadingHistory from '@dailydotdev/shared/src/hooks/useInfiniteReadingHistory';
 import ReadingHistoryList from '@dailydotdev/shared/src/components/history/ReadingHistoryList';
@@ -38,7 +38,7 @@ const History = (): ReactElement => {
   return (
     <>
       {seo}
-      <ResponsiveNoPaddingPageContainer
+      <ResponsivePageContainer
         className={classNames(
           'flex flex-col mx-auto',
           isInitialLoading && 'h-screen overflow-hidden',
@@ -55,7 +55,7 @@ const History = (): ReactElement => {
         {isLoading && (
           <ReadingHistoryPlaceholder amount={isInitialLoading ? 15 : 1} />
         )}
-      </ResponsiveNoPaddingPageContainer>
+      </ResponsivePageContainer>
     </>
   );
 };

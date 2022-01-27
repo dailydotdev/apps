@@ -17,24 +17,13 @@
     width: $pageMaxWidth;
 
     &:global(.sidebarRendered) {
-      margin-left: calc(50% - (($pageMaxWidth / 2) - 0.25rem));
-
-      &:global(.sidebarExpanded) {
-        margin-left: calc(50% - (5.625rem + ($pageMaxWidth / 2)));
-      }
+      margin-left: calc(50% - (($pageMaxWidth / 2) - 3rem));
     }
   }
 
   @screen laptopL {
     width: $pageMaxWidth;
-
-    &:global(.sidebarRendered) {
-      margin-left: calc(50% - (3.625rem + ($pageMaxWidth / 2)));
-
-      &:global(.sidebarExpanded) {
-        margin-left: calc(50% - (11rem + ($pageMaxWidth / 2)));
-      }
-    }
+    margin: auto;
   }
 }
 

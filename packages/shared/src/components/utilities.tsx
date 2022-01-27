@@ -146,19 +146,8 @@ export const NewCommentContainer = classed(
   'laptop:relative laptop:p-0 laptop:bg-none ',
 );
 
-export const NoPaddingPageContainer = classed(
-  'main',
-  styles.pageContainer,
-  'relative flex flex-col w-full items-stretch z-1 tablet:self-center mx-auto',
-);
-
 export const ResponsivePageContainer = classed(
   PageContainer,
-  'py-6 laptop:border-theme-divider-tertiary laptop:border-l laptop:border-r laptop:min-h-screen',
-);
-
-export const ResponsiveNoPaddingPageContainer = classed(
-  NoPaddingPageContainer,
   'py-6 laptop:border-theme-divider-tertiary laptop:border-l laptop:border-r laptop:min-h-screen',
 );
 

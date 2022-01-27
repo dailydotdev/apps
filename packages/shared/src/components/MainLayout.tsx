@@ -32,6 +32,7 @@ export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   useNavButtonsNotLinks?: boolean;
   mobileTitle?: string;
   showDnd?: boolean;
+  screenCentered?: boolean;
   onLogoClick?: (e: React.MouseEvent) => unknown;
   enableSearch?: () => void;
   onNavTabClick?: (tab: string) => void;
@@ -90,6 +91,7 @@ export default function MainLayout({
   useNavButtonsNotLinks,
   mobileTitle,
   showDnd,
+  screenCentered = true,
   onLogoClick,
   onNavTabClick,
   enableSearch,
@@ -161,7 +163,7 @@ export default function MainLayout({
       <main
         className={classNames(
           'flex flex-row',
-          !showOnlyLogo && mainLayoutClass(sidebarExpanded),
+          !showOnlyLogo && !screenCentered && mainLayoutClass(sidebarExpanded),
           bannerData?.banner ? 'laptop:pt-22' : 'laptop:pt-14',
         )}
       >
