@@ -27,8 +27,7 @@ const SourceShadow = classed(
 
 const Container = classed('div', 'flex items-center mb-2');
 
-
-export function ReadingHistoryItem({
+export default function ReadingHistoryItem({
   history: { timestamp, post },
   onHide,
   className,
@@ -47,15 +46,15 @@ export function ReadingHistoryItem({
     });
   };
 
-   if (notification) {
-     return (
-       <Container>
-         <CardNotification className="flex-1 py-2.5 text-center">
-           {notification}
-         </CardNotification>
-       </Container>
-     );
-   }
+  if (notification) {
+    return (
+      <Container>
+        <CardNotification className="flex-1 py-2.5 text-center">
+          {notification}
+        </CardNotification>
+      </Container>
+    );
+  }
 
   return (
     <Link href={post.commentsPermalink}>
@@ -103,5 +102,3 @@ export function ReadingHistoryItem({
     </Link>
   );
 }
-
-export default ReadingHistoryItem;

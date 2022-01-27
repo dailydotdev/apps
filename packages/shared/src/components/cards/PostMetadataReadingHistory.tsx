@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode, useMemo } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
 import { ReadHistoryPost } from '../../graphql/posts';
 import classed from '../../lib/classed';
@@ -29,10 +29,10 @@ export default function PostMetadata({
         className,
       )}
     >
-      {post.readTime >=0 && (
+      {post.readTime >= 0 && (
         <span data-testid="readTime">{post.readTime}m read time</span>
       )}
-      {post.readTime >=0 && post.numUpvotes >=0 && <Separator />}
+      {post.readTime >= 0 && post.numUpvotes >= 0 && <Separator />}
       {post.numUpvotes >= 0 && (
         <span data-testid="numUpvotes">
           {post.numUpvotes} upvote{post.numUpvotes > 1 ? 's' : ''}

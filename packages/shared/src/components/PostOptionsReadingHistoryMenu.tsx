@@ -1,18 +1,16 @@
-import React, { ReactElement, useContext, useState } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import { Item } from '@dailydotdev/react-contexify';
 import dynamic from 'next/dynamic';
-import { Post, PostData, ReadHistoryPost } from '../graphql/posts';
+import { QueryClient, QueryKey, useQueryClient } from 'react-query';
+import { ReadHistoryPost } from '../graphql/posts';
 import ShareIcon from '../../icons/share.svg';
 import BookmarkIcon from '../../icons/bookmark.svg';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
 import useBookmarkPost from '../hooks/useBookmarkPost';
-import { QueryClient, QueryKey, useQueryClient } from 'react-query';
 import AuthContext from '../contexts/AuthContext';
-import {
-  ReadHistoryData,
-  ReadHistoryInfiniteData,
-} from '../hooks/useInfiniteReadingHistory';
+import { ReadHistoryInfiniteData } from '../hooks/useInfiniteReadingHistory';
+
 const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
   ssr: false,
 });
@@ -31,7 +29,8 @@ const MenuIcon = ({ Icon }) => {
   return <Icon className="mr-2 text-2xl" />;
 };
 
-const updatePost =
+/* eslint-disable no-param-reassign */
+const updateReadingHistoryPost =
   (
     queryClient: QueryClient,
     historyQueryKey: QueryKey,
@@ -52,7 +51,7 @@ const updatePost =
       });
       readHistory.edges = modified;
       return {
-        readHistory: readHistory,
+        readHistory,
       };
     });
     queryClient.setQueryData<ReadHistoryInfiniteData>(historyQueryKey, {
@@ -66,6 +65,7 @@ const updatePost =
       );
     };
   };
+/* eslint-disable no-param-reassign */
 
 export default function PostOptionsReadingHistoryMenu({
   postIndex,
@@ -74,8 +74,43 @@ export default function PostOptionsReadingHistoryMenu({
 }: PostOptionsReadingHistoryMenuProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
   const { user } = useContext(AuthContext);
+  const queryClient = useQueryClient();
+  const historyQueryKey = ['readHistory', user?.id];
 
-  const onSharePost = async () => {
+  const { bookmark, removeBookmark } = useBookmarkPost({
+    onBookmarkMutate: updateReadingHistoryPost(
+      queryClient,
+      historyQueryKey,
+      () => ({
+        bookmarked: true,
+      }),
+    ),
+    onRemoveBookmarkMutate: updateReadingHistoryPost(
+      queryClient,
+      historyQueryKey,
+      () => ({
+        bookmarked: false,
+      }),
+    ),
+  });
+
+  const onBookmarkReadingHistoryPost = async (): Promise<void> => {
+    const { bookmarked } = post;
+    trackEvent(
+      postAnalyticsEvent(
+        bookmarked ? 'bookmark post' : 'remove post bookmark',
+        post,
+        { extra: { origin: 'recommendation' } },
+      ),
+    );
+    if (bookmarked) {
+      await removeBookmark({ id: post.id });
+    } else {
+      await bookmark({ id: post.id });
+    }
+  };
+
+  const onShareReadingHistoryPost = async () => {
     const shareLink = post.commentsPermalink;
     trackEvent(
       postAnalyticsEvent('share post', post, {
@@ -96,37 +131,6 @@ export default function PostOptionsReadingHistoryMenu({
       onMessage('✅ Copied link to clipboard', postIndex);
     }
   };
-  const queryClient = useQueryClient();
-  const historyQueryKey = ['readHistory', user?.id];
-
-  const { bookmark, removeBookmark } = useBookmarkPost({
-    onBookmarkMutate: updatePost(queryClient, historyQueryKey, () => ({
-      bookmarked: true,
-    })),
-    onRemoveBookmarkMutate: updatePost(queryClient, historyQueryKey, () => ({
-      bookmarked: false,
-    })),
-  });
-
-  const onBookmark = async (): Promise<void> => {
-    // if (!user) {
-    //   showLogin('bookmark');
-    //   return;
-    // }
-    const bookmarked = post.bookmarked;
-    trackEvent(
-      postAnalyticsEvent(
-        bookmarked ? 'bookmark post' : 'remove post bookmark',
-        post,
-        { extra: { origin: 'recommendation' } },
-      ),
-    );
-    if (bookmarked) {
-      await removeBookmark({ id: post.id });
-    } else {
-      await bookmark({ id: post.id });
-    }
-  };
 
   const postOptions: {
     icon: ReactElement;
@@ -136,12 +140,12 @@ export default function PostOptionsReadingHistoryMenu({
     {
       icon: <MenuIcon Icon={ShareIcon} />,
       text: 'Share article',
-      action: onSharePost,
+      action: onShareReadingHistoryPost,
     },
     {
-      icon: <BookmarkIcon Icon={BookmarkIcon} />,
+      icon: <MenuIcon Icon={BookmarkIcon} />,
       text: 'Save to Bookmarks',
-      action: onBookmark,
+      action: onBookmarkReadingHistoryPost,
     },
   ];
 

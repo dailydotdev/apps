@@ -28,7 +28,7 @@ export interface ReadHistoryListProps {
   infiniteScrollRef: (node?: Element | null) => void;
 }
 
-function ReadHistoryList({
+export default function ReadHistoryList({
   data,
   onHide,
   infiniteScrollRef,
@@ -68,5 +68,3 @@ function ReadHistoryList({
     </section>
   );
 }
-
-export default ReadHistoryList;
