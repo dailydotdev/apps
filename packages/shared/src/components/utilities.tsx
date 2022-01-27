@@ -97,42 +97,12 @@ export const pageBorders =
   'laptop:border-r laptop:border-l laptop:border-theme-divider-tertiary';
 const pagePaddings = 'px-4 tablet:px-8';
 
-const Container = classed(
+export const PageContainer = classed(
   'main',
   styles.pageContainer,
   pagePaddings,
   'relative flex flex-col w-full items-stretch z-1 tablet:self-center',
 );
-
-interface PageContainerProps extends HTMLAttributes<HTMLElement> {
-  children: ReactNode;
-  className?: string;
-}
-
-export const PageContainer = ({
-  children,
-  className,
-  ...props
-}: PageContainerProps): ReactElement => {
-  const { sidebarRendered } = useSidebarRendered();
-  const { sidebarExpanded, loadedSettings } = useContext(SettingsContext);
-
-  if (!loadedSettings) {
-    return <></>;
-  }
-
-  return (
-    <Container
-      {...props}
-      className={classNames(className, {
-        sidebarRendered,
-        sidebarExpanded,
-      })}
-    >
-      {children}
-    </Container>
-  );
-};
 
 export const PageWidgets = classed(
   'aside',

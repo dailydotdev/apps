@@ -16,7 +16,7 @@
   @screen laptop {
     width: $pageMaxWidth;
 
-    &:global(.sidebarRendered) {
+    &:global() {
       margin-left: calc(50% - (($pageMaxWidth / 2) - 3rem));
     }
   }
