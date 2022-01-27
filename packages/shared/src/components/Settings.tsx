@@ -135,7 +135,7 @@ export default function Settings({
               onToggle={toggleShowTopSites}
               compact={false}
             >
-              Show most visited sites
+              Show custom shortcuts
             </Switch>
           )}
           <Switch
