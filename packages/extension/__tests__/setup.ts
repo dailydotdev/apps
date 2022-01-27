@@ -1,6 +1,8 @@
 import '@testing-library/jest-dom';
 import 'fake-indexeddb/auto';
+import { clear } from 'idb-keyval';
 import nodeFetch from 'node-fetch';
+import { storageWrapper as storage } from '@dailydotdev/shared/src/lib/storageWrapper';
 
 process.env.NEXT_PUBLIC_API_URL = 'http://localhost:3000';
 process.env.NEXT_PUBLIC_WEBAPP_URL = 'https://app.daily.dev/';
@@ -18,6 +20,11 @@ jest.mock('next/dynamic', () => (func: () => Promise<any>) => {
   DynamicComponent.displayName = 'LoadableComponent';
   DynamicComponent.preload = jest.fn();
   return DynamicComponent;
+});
+
+beforeEach(() => {
+  clear();
+  storage.clear();
 });
 
 global.fetch = nodeFetch as any as typeof fetch;

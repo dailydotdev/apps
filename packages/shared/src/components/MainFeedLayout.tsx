@@ -74,7 +74,7 @@ const getPropsByFeed = ({
 
 const LayoutHeader = classed(
   'header',
-  'flex flex-wrap overflow-x-auto relative justify-between items-center self-stretch mb-6 h-11 no-scrollbar',
+  'flex flex-wrap overflow-x-auto relative justify-between items-center self-stretch mb-6 h-14 no-scrollbar',
 );
 
 export const getShouldRedirect = (
@@ -213,7 +213,7 @@ export default function MainFeedLayout({
         {isUpvoted && (
           <Dropdown
             className="ml-4 w-44"
-            buttonSize="medium"
+            buttonSize="large"
             icon={<CalendarIcon />}
             selectedIndex={selectedPeriod}
             options={periodTexts}
@@ -223,7 +223,7 @@ export default function MainFeedLayout({
         {sortingEnabled && isSortableFeed && (
           <Dropdown
             className="ml-4 w-[10.25rem]"
-            buttonSize="medium"
+            buttonSize="large"
             selectedIndex={selectedAlgo}
             options={algorithmsList}
             onChange={(_, index) => setSelectedAlgo(index)}

@@ -32,9 +32,8 @@ export function SimpleTooltip({
   );
 
   const onTooltipTrigger = (_, event) => {
-    if (event.type !== 'focus') {
-      shouldShow = true;
-    }
+    shouldShow = event.type !== 'focus';
+
     onTrigger?.(_, event);
   };
 
