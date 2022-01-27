@@ -137,7 +137,7 @@ export const PageContainer = ({
 export const PageWidgets = classed(
   'aside',
   styles.pageWidgets,
-  'laptopL:min-w-[22.5rem] pt-6 laptopL:pt-0 laptopL:px-6 laptopL:w-auto laptopL:border-none',
+  'laptopL:min-w-[22.5rem] py-6 laptopL:pt-0 laptopL:px-6 laptopL:w-auto laptopL:border-none',
 );
 
 export const NewCommentContainer = classed(
