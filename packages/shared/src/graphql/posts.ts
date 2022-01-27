@@ -58,7 +58,7 @@ type ReadHistoryPost = Pick<
 
 export interface ReadHistory {
   timestamp: Date;
-  timestamp_db: Date;
+  timestampDb: Date;
   post: ReadHistoryPost;
 }
 

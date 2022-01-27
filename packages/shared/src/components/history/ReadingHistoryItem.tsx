@@ -20,13 +20,13 @@ const SourceShadow = classed(
 );
 
 function ReadingHistoryItem({
-  history: { timestamp_db, post },
+  history: { timestampDb, post },
   onHide,
   className,
 }: ReadingHistoryItemProps): ReactElement {
   const onHideClick = (e: MouseEvent) => {
     e.stopPropagation();
-    onHide({ postId: post.id, timestamp: timestamp_db });
+    onHide({ postId: post.id, timestamp: timestampDb });
   };
 
   return (
