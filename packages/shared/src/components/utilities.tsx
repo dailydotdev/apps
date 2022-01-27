@@ -1,16 +1,7 @@
-import React, {
-  HTMLAttributes,
-  ReactElement,
-  ReactNode,
-  useContext,
-} from 'react';
-import classNames from 'classnames';
 import { LazyImage } from './LazyImage';
 import classed from '../lib/classed';
 import styles from './utilities.module.css';
 import ArrowIcon from '../../icons/arrow.svg';
-import SettingsContext from '../contexts/SettingsContext';
-import useSidebarRendered from '../hooks/useSidebarRendered';
 
 interface ThemeColor {
   border: string;
