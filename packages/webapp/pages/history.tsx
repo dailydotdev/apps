@@ -40,9 +40,10 @@ const History = (): ReactElement => {
       {seo}
       <ResponsivePageContainer
         className={classNames(
-          'flex flex-col mx-auto',
+          'flex flex-col',
           isInitialLoading && 'h-screen overflow-hidden',
         )}
+        style={{ paddingLeft: 0, paddingRight: 0 }}
         aria-busy={isLoading}
         role="main"
       >
