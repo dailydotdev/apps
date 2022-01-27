@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement, useState } from 'react';
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 
 const limit = 8;
@@ -12,25 +12,16 @@ interface LinksFormProps {
 
 export function LinksForm({
   links,
-  errors,
   isFormReadonly,
 }: LinksFormProps): ReactElement {
-  const [staleInput, setStaleInput] = useState({});
+  const [validInputs, setValidInputs] = useState({});
 
-  useEffect(() => {
-    const unchanged = {};
-    Object.keys(errors).forEach((key) => {
-      unchanged[key] = true;
-    });
-    setStaleInput(unchanged);
-  }, [errors]);
-
-  const onChange = (i: number) => {
-    if (!staleInput[i]) {
+  const onChange = (i: number, isValid: boolean) => {
+    if (validInputs[i] === isValid) {
       return;
     }
 
-    setStaleInput((state) => ({ ...state, [i]: false }));
+    setValidInputs((state) => ({ ...state, [i]: isValid }));
   };
 
   return (
@@ -45,9 +36,10 @@ export function LinksForm({
           fieldType="tertiary"
           label="Add shortcuts"
           value={links[i]}
-          hint={staleInput[i] && 'Must be a valid HTTP/S link'}
+          valid={validInputs[i] !== false}
+          hint={validInputs[i] === false && 'Must be a valid HTTP/S link'}
           readOnly={isFormReadonly}
-          validityChanged={() => onChange(i)}
+          validityChanged={(isValid) => onChange(i, isValid)}
           placeholder="http://example.com"
         />
       ))}

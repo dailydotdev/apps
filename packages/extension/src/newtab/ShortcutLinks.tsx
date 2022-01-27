@@ -11,7 +11,6 @@ export default function ShortcutLinks(): ReactElement {
   const { showTopSites } = useContext(SettingsContext);
   const [showModal, setShowModal] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
-  const [errors, setErrors] = useState({});
   const {
     askTopSitesPermission,
     revokePermission,
@@ -39,14 +38,13 @@ export default function ShortcutLinks(): ReactElement {
   };
 
   const onSubmit = async (e: FormEvent) => {
-    const { errors: failed } = await onSaveChanges(e);
+    const { errors } = await onSaveChanges(e);
 
-    if (failed) {
-      return setErrors(failed);
+    if (errors) {
+      return;
     }
 
-    setErrors({});
-    return setShowOptions(false);
+    setShowOptions(false);
   };
 
   return (
@@ -83,7 +81,6 @@ export default function ShortcutLinks(): ReactElement {
       )}
       {showOptions && hasCheckedPermission && (
         <CustomLinksModal
-          errors={errors}
           onSubmit={onSubmit}
           formRef={formRef}
           isOpen={showOptions}
@@ -92,7 +89,6 @@ export default function ShortcutLinks(): ReactElement {
           onRevokePermission={revokePermission}
           onShowPermission={() => setShowModal(true)}
           onRequestClose={() => {
-            setErrors({});
             setShowOptions(false);
             resetSelected();
           }}

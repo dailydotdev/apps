@@ -10,7 +10,6 @@ import { CardSelection } from './CardSelection';
 import { LinksForm } from './LinksForm';
 
 interface CustomLinksModalProps extends ModalProps {
-  errors?: Record<string | number, string>;
   onSubmit: FormEventHandler<HTMLFormElement>;
   onShowPermission: () => unknown;
   onShowCustomLinks: () => unknown;
@@ -29,7 +28,6 @@ export default function CustomLinksModal({
   links,
   style,
   formRef,
-  errors,
   onRevokePermission,
   onShowPermission,
   onShowTopSitesClick,
@@ -45,16 +43,11 @@ export default function CustomLinksModal({
       contentClassName="max-h-[40rem]"
       style={{ ...style, content: { maxHeight: '40rem' } }}
     >
-      <form ref={formRef}>
+      <form ref={formRef} onSubmit={onSubmit}>
         <ModalHeader>
           <h3 className="font-bold typo-title3">Shortcuts</h3>
           <div className="flex-1" />
-          <Button
-            className="mr-3 btn-primary"
-            buttonSize="small"
-            type="button"
-            onClick={(e) => onSubmit(e)}
-          >
+          <Button className="mr-3 btn-primary" buttonSize="small" type="submit">
             Save changes
           </Button>
           <Button
@@ -86,11 +79,7 @@ export default function CustomLinksModal({
               To edit links, please switch to &quot;My shortcuts&quot; mode
             </p>
           )}
-          <LinksForm
-            errors={errors}
-            links={links}
-            isFormReadonly={isManual === false}
-          />
+          <LinksForm links={links} isFormReadonly={isManual === false} />
           {!isManual && hasTopSites !== null && (
             <Button
               onClick={onRevokePermission}

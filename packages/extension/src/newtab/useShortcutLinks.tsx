@@ -79,25 +79,22 @@ export default function useShortcutLinks(): UseShortcutLinks {
       return { errors: null };
     }
 
-    const links = getFormInputs();
-    const hint = {};
-    const isValid = links.every((el, i) => {
-      const valid = el.checkValidity();
-
-      if (!valid) {
-        hint[i] = el.value;
-      }
-
-      return valid;
-    });
-
-    if (!isValid) {
-      return { errors: hint };
+    if (!formRef.current) {
+      return { errors: { message: 'Form not available' } };
     }
 
-    updateCustomLinks(
-      links.map((el) => el.value.trim()).filter((link) => !!link),
-    );
+    const isValid = formRef.current.checkValidity();
+
+    if (!isValid) {
+      return { errors: { message: 'Some of the links are not valid!' } };
+    }
+
+    const links = getFormInputs()
+      .map((el) => el.value.trim())
+      .filter((link) => !!link);
+
+    updateCustomLinks(links);
+
     return { errors: null };
   };
 
