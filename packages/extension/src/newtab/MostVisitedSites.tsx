@@ -24,7 +24,7 @@ export default function MostVisitedSites(): ReactElement {
               href={topSite.url}
               rel="noopener noreferrer"
               className={classNames(
-                'focus-outline w-8 h-8 rounded-lg overflow-hidden bg-[#0E1217] border-[#2D323B]',
+                'focus-outline w-8 h-8 rounded-lg overflow-hidden bg-white border border-theme-divider-secondary',
                 index > 0 && 'ml-2',
                 index >= 4 && 'hidden laptopL:block',
               )}
