@@ -160,7 +160,7 @@ export default function MainLayout({
       </header>
       <main
         className={classNames(
-          'flex flex-row',
+          'flex flex-row overflow-hidden',
           !showOnlyLogo && mainLayoutClass(sidebarExpanded),
           bannerData?.banner ? 'laptop:pt-22' : 'laptop:pt-14',
         )}
