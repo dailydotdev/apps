@@ -161,7 +161,7 @@ export function TextField({
       className={classNames(className, 'flex flex-col items-stretch')}
       style={style}
     >
-      {fieldType === 'secondary' && (
+      {isSecondary && (
         <label
           className="px-2 mb-1 font-bold text-theme-label-primary typo-caption1"
           htmlFor={inputId}
