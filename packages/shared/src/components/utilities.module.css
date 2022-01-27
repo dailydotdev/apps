@@ -13,26 +13,26 @@
   max-width: $pageMaxWidth;
   margin: auto;
 
-  @screen laptopL {
-    width: $pageMaxWidth;
-
-    &:global(.sidebarRendered) {
-      margin-left: calc(50% - (6.375rem + ($pageMaxWidth / 2)));
-
-      &:global(.sidebarExpanded) {
-        margin-left: calc(50% - (13.75rem + ($pageMaxWidth / 2)));
-      }
-    }
-  }
-
   @screen laptop {
     width: $pageMaxWidth;
 
     &:global(.sidebarRendered) {
-      margin-left: calc(50% - (($pageMaxWidth / 2) - 1rem));
+      margin-left: calc(50% - (($pageMaxWidth / 2) - 0.25rem));
 
       &:global(.sidebarExpanded) {
-        margin-left: calc(50% - (6.375rem + ($pageMaxWidth / 2)));
+        margin-left: calc(50% - (5.625rem + ($pageMaxWidth / 2)));
+      }
+    }
+  }
+
+  @screen laptopL {
+    width: $pageMaxWidth;
+
+    &:global(.sidebarRendered) {
+      margin-left: calc(50% - (3.625rem + ($pageMaxWidth / 2)));
+
+      &:global(.sidebarExpanded) {
+        margin-left: calc(50% - (11rem + ($pageMaxWidth / 2)));
       }
     }
   }
