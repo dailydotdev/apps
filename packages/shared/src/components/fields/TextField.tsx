@@ -21,7 +21,6 @@ export interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   valid?: boolean;
   validityChanged?: (valid: boolean) => void;
   valueChanged?: (value: string) => void;
-  compact?: boolean;
   fieldType?: FieldType;
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
