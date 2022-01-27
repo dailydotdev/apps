@@ -4,8 +4,6 @@ import { render, RenderResult, screen } from '@testing-library/preact';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { USER_READING_RANK_QUERY } from '@dailydotdev/shared/src/graphql/users';
-import { SettingsContextProvider } from '@dailydotdev/shared/src/contexts/SettingsContext';
-import { defaultSettings } from '@dailydotdev/shared/__tests__/fixture/defaultSettings';
 import { mockGraphQL } from './helpers/graphql';
 import ProfileLayout from '../components/layouts/ProfileLayout';
 import { waitForNock } from './helpers/utilities';
@@ -65,13 +63,7 @@ const renderComponent = (
           tokenRefreshed: true,
         }}
       >
-        <SettingsContextProvider
-          updateSettings={jest.fn()}
-          settings={defaultSettings}
-          loadedSettings
-        >
-          <ProfileLayout profile={{ ...defaultProfile, ...profile }} />
-        </SettingsContextProvider>
+        <ProfileLayout profile={{ ...defaultProfile, ...profile }} />
       </AuthContext.Provider>
     </QueryClientProvider>,
   );

@@ -6,8 +6,6 @@ import nock from 'nock';
 import { ReadHistoryData } from '@dailydotdev/shared/src/hooks/useInfiniteReadingHistory';
 import { READING_HISTORY_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { SettingsContextProvider } from '@dailydotdev/shared/src/contexts/SettingsContext';
-import { defaultSettings } from '@dailydotdev/shared/__tests__/fixture/defaultSettings';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
 import HistoryPage from '../pages/history';
 import { waitForNock } from './helpers/utilities';
@@ -86,13 +84,7 @@ const renderComponent = (
           closeLogin: jest.fn(),
         }}
       >
-        <SettingsContextProvider
-          updateSettings={jest.fn()}
-          settings={defaultSettings}
-          loadedSettings
-        >
-          <HistoryPage />
-        </SettingsContextProvider>
+        <HistoryPage />
       </AuthContext.Provider>
     </QueryClientProvider>,
   );
