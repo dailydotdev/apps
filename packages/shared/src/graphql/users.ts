@@ -121,6 +121,7 @@ export const READING_HISTORY_QUERY = gql`
       edges {
         node {
           timestamp
+          timestamp_db
           post {
             id
             title
