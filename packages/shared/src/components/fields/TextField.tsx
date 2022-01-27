@@ -1,6 +1,7 @@
 import React, {
   InputHTMLAttributes,
   ReactElement,
+  ReactNode,
   SyntheticEvent,
   useEffect,
   useState,
@@ -22,6 +23,8 @@ export interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   valueChanged?: (value: string) => void;
   compact?: boolean;
   fieldType?: FieldType;
+  leftIcon?: ReactNode;
+  rightIcon?: ReactNode;
 }
 
 export function TextField({
@@ -37,10 +40,12 @@ export function TextField({
   validityChanged,
   valueChanged,
   placeholder,
-  compact = false,
   style,
   fieldType = 'primary',
   readOnly,
+  leftIcon,
+  rightIcon,
+  disabled,
   ...props
 }: TextFieldProps): ReactElement {
   const {
@@ -52,6 +57,9 @@ export function TextField({
     onInput: baseOnInput,
     focusInput,
   } = useInputField(value, valueChanged);
+  const isPrimary = fieldType === 'primary';
+  const isSecondary = fieldType === 'secondary';
+  const isTertiary = fieldType === 'tertiary';
   const [inputLength, setInputLength] = useState<number>(0);
   const [validInput, setValidInput] = useState<boolean>(undefined);
   const [idleTimeout, setIdleTimeout] = useState<number>(undefined);
@@ -110,24 +118,51 @@ export function TextField({
   };
 
   const getPlaceholder = () => {
-    if (fieldType === 'tertiary') {
+    if (isTertiary) {
       return focused ? placeholder : label;
     }
 
-    if (focused || compact) {
+    if (focused || isSecondary) {
       return placeholder ?? '';
     }
+
     return label;
   };
 
-  const showLabel = focused || hasInput;
   const invalid = validInput === false;
+
+  const getFontColor = () => {
+    if (readOnly) {
+      return 'text-theme-label-quaternary';
+    }
+
+    if (disabled) {
+      return 'text-theme-label-disabled';
+    }
+
+    if (focused) {
+      return hasInput
+        ? 'text-theme-label-primary'
+        : 'text-theme-label-quaternary';
+    }
+
+    return 'text-theme-label-tertiary hover:text-theme-label-primary';
+  };
+
+  const getLabelColor = () => {
+    if (readOnly) {
+      return 'text-theme-label-tertiary';
+    }
+
+    return disabled ? 'text-theme-label-disabled' : 'text-theme-label-primary';
+  };
+
   return (
     <div
       className={classNames(className, 'flex flex-col items-stretch')}
       style={style}
     >
-      {compact && (
+      {fieldType === 'secondary' && (
         <label
           className="px-2 mb-1 font-bold text-theme-label-primary typo-caption1"
           htmlFor={inputId}
@@ -139,7 +174,10 @@ export function TextField({
         data-testid="field"
         onClick={focusInput}
         className={classNames(
-          compact ? 'h-9 rounded-10' : 'h-12 rounded-14',
+          'flex flex-row items-center',
+          isSecondary ? 'h-9 rounded-10' : 'h-12 rounded-14',
+          leftIcon && 'pl-3',
+          rightIcon && 'pr-3',
           {
             readOnly,
             focused,
@@ -148,15 +186,18 @@ export function TextField({
           styles.field,
         )}
       >
-        <div className="flex flex-col flex-1 items-start max-w-full">
-          {!compact && fieldType !== 'tertiary' && (
+        {leftIcon && (
+          <span className={classNames('mr-2', getFontColor())}>{leftIcon}</span>
+        )}
+        <div
+          className={classNames(
+            'flex flex-col flex-1 items-start max-w-full',
+            rightIcon && 'mr-2',
+          )}
+        >
+          {isPrimary && (focused || hasInput) && (
             <label
-              className={classNames('typo-caption1', !showLabel && 'hidden')}
-              style={{
-                color: focused
-                  ? 'var(--theme-label-primary)'
-                  : 'var(--field-placeholder-color)',
-              }}
+              className={classNames('typo-caption1', getLabelColor())}
               htmlFor={inputId}
             >
               {label}
@@ -172,10 +213,8 @@ export function TextField({
             onInput={onInput}
             maxLength={maxLength}
             readOnly={readOnly}
-            className={classNames(
-              'self-stretch',
-              readOnly && 'text-theme-label-quaternary',
-            )}
+            className={classNames('self-stretch', getFontColor())}
+            disabled={disabled}
             {...props}
           />
         </div>
@@ -194,7 +233,7 @@ export function TextField({
           className={classNames(
             'mt-1 px-2 typo-caption1',
             saveHintSpace && 'h-4',
-            invalid ? 'text-theme-status-error' : 'text-theme-label-tertiary',
+            invalid ? 'text-theme-status-error' : 'text-theme-label-quaternary',
           )}
         >
           {hint}
