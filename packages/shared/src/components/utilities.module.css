@@ -15,10 +15,7 @@
 
   @screen laptop {
     width: $pageMaxWidth;
-
-    &:global() {
-      margin-left: calc(50% - (($pageMaxWidth / 2) - 3rem));
-    }
+    margin-left: calc(50% - (($pageMaxWidth / 2) - 3rem));
   }
 
   @screen laptopL {
