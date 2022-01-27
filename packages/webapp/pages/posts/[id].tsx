@@ -244,7 +244,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     <>
       <PageContainer
         className={classNames(
-          'laptop:pb-6 laptop:self-stretch pb-20 laptop:pb-0',
+          'laptop:pb-6 laptop:self-stretch pb-20 laptopL:pb-0',
           pageBorders,
         )}
       >
