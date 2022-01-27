@@ -25,7 +25,7 @@ it('should set by default placeholder as label', () => {
 
 it('should show label when focused', async () => {
   renderComponent();
-  expect(getLabel()).toHaveClass('hidden');
+  expect(screen.queryByText('Name')).not.toBeInTheDocument();
   const input = getInput();
   input.focus();
   await waitFor(() => expect(input.placeholder).toEqual(''));
@@ -58,7 +58,7 @@ it('should set hint role as alert when invalid', async () => {
 });
 
 it('should show both label and placeholder in compact mode', async () => {
-  renderComponent({ compact: true, placeholder: 'Placeholder' });
+  renderComponent({ fieldType: 'secondary', placeholder: 'Placeholder' });
   const input = getInput();
   await waitFor(() => expect(input.placeholder).toEqual('Placeholder'));
   await waitFor(() => expect(getLabel()).toHaveTextContent('Name'));
