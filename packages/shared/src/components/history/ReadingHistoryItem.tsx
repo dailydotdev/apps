@@ -2,7 +2,7 @@ import React, { MouseEvent, ReactElement } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
 import { HideReadHistoryProps } from '../../graphql/users';
-import { ReadHistory } from '../../graphql/posts';
+import { ReadHistory, ReadHistoryPost } from '../../graphql/posts';
 import XIcon from '../../../icons/x.svg';
 import MenuIcon from '../../../icons/menu.svg';
 import classed from '../../lib/classed';
@@ -18,6 +18,10 @@ interface ReadingHistoryItemProps {
   className?: string;
   history: ReadHistory;
   onHide?: (params: HideReadHistoryProps) => Promise<unknown>;
+  onContextMenu?: (
+    event: React.MouseEvent,
+    readHistoryPost: ReadHistoryPost,
+  ) => void;
 }
 
 const SourceShadow = classed(
@@ -31,20 +35,13 @@ export default function ReadingHistoryItem({
   history: { timestamp, post },
   onHide,
   className,
+  onContextMenu,
 }: ReadingHistoryItemProps): ReactElement {
   const onHideClick = (e: MouseEvent) => {
     e.stopPropagation();
     onHide({ postId: post.id, timestamp });
   };
-  const { showReportMenu } = useReportPostMenu();
   const { notification, onMessage } = useNotification();
-
-  const showReadingHistoryPostOptionsContext = (e) => {
-    const { right, bottom } = e.currentTarget.getBoundingClientRect();
-    showReportMenu(e, {
-      position: { x: right, y: bottom + 4 },
-    });
-  };
 
   if (notification) {
     return (
@@ -94,10 +91,9 @@ export default function ReadingHistoryItem({
         <Button
           className="btn-tertiary"
           icon={<MenuIcon />}
-          onClick={(event) => showReadingHistoryPostOptionsContext(event)}
+          onClick={(event) => onContextMenu(event, post)}
           buttonSize="small"
         />
-        <PostOptionsReadingHistoryMenu post={post} onMessage={onMessage} />
       </article>
     </Link>
   );

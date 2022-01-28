@@ -23,6 +23,7 @@ export type PostOptionsReadingHistoryMenuProps = {
     postIndex: number,
     timeout?: number,
   ) => Promise<unknown>;
+  onHidden?: () => unknown;
 };
 
 const MenuIcon = ({ Icon }) => {
@@ -71,6 +72,7 @@ export default function PostOptionsReadingHistoryMenu({
   postIndex,
   post,
   onMessage,
+  onHidden,
 }: PostOptionsReadingHistoryMenuProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
   const { user } = useContext(AuthContext);
@@ -153,9 +155,10 @@ export default function PostOptionsReadingHistoryMenu({
     <>
       <PortalMenu
         disableBoundariesCheck
-        id="post-context"
+        id="reading-history-options-context"
         className="menu-primary"
         animation="fade"
+        onHidden={onHidden}
       >
         {postOptions.map(({ icon, text, action }) => (
           <Item key={text} className="typo-callout" onClick={action}>
