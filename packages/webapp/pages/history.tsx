@@ -1,5 +1,4 @@
 import React, { ReactElement, useContext, useEffect } from 'react';
-import classNames from 'classnames';
 import { NextSeo } from 'next-seo';
 import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
 import useReadingHistory from '@dailydotdev/shared/src/hooks/useReadingHistory';
