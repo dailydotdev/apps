@@ -98,10 +98,7 @@ export const PageContainer = classed(
 export const PageWidgets = classed(
   'aside',
   styles.pageWidgets,
-  pagePaddings,
-  pageBorders,
-  'laptopL:min-w-[22.5rem]',
-  'w-full laptopL:px-6 laptopL:w-auto laptopL:border-none',
+  'laptopL:min-w-[22.5rem] pt-6 laptopL:pt-0 laptopL:px-6 laptopL:w-auto laptopL:border-none',
 );
 
 export const NewCommentContainer = classed(
@@ -110,19 +107,8 @@ export const NewCommentContainer = classed(
   'laptop:relative laptop:p-0 laptop:bg-none ',
 );
 
-export const NoPaddingPageContainer = classed(
-  'main',
-  styles.pageContainer,
-  'relative flex flex-col w-full items-stretch z-1 tablet:self-center mx-auto',
-);
-
 export const ResponsivePageContainer = classed(
   PageContainer,
-  'py-6 laptop:border-theme-divider-tertiary laptop:border-l laptop:border-r laptop:min-h-screen',
-);
-
-export const ResponsiveNoPaddingPageContainer = classed(
-  NoPaddingPageContainer,
   'py-6 laptop:border-theme-divider-tertiary laptop:border-l laptop:border-r laptop:min-h-screen',
 );
 
