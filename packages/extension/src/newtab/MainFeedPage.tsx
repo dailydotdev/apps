@@ -102,6 +102,7 @@ export default function MainFeedPage({
       onShowDndClick={() => setShowDnd(true)}
       enableSearch={enableSearch}
       onNavTabClick={onNavTabClick}
+      screenCentered={false}
       additionalButtons={
         <>
           {user && (
