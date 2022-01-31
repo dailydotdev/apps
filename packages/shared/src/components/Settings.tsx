@@ -150,16 +150,18 @@ export default function Settings({
           >
             Show feed sorting menu
           </Switch>
-          <Switch
-            inputId="weekly-goal-widget-switch"
-            name="weekly-goal-widget"
-            className="my-3 big"
-            checked={showWeeklyGoals}
-            onToggle={toggleShowWeeklyGoals}
-            compact={false}
-          >
-            Show Weekly Goal widget
-          </Switch>
+          {user && (
+            <Switch
+              inputId="weekly-goal-widget-switch"
+              name="weekly-goal-widget"
+              className="my-3 big"
+              checked={showWeeklyGoals}
+              onToggle={toggleShowWeeklyGoals}
+              compact={false}
+            >
+              Show Weekly Goal widget
+            </Switch>
+          )}
         </div>
       </Section>
     </div>
