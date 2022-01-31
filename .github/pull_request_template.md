@@ -6,7 +6,7 @@
 
 ## Manual Testing
 
-- Both 
+- On those affected packages:
 - [ ] Have you done sanity checks in the webapp?
 - [ ] Have you done sanity checks in the extension?
 
