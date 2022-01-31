@@ -57,7 +57,7 @@ it('should set hint role as alert when invalid', async () => {
   await waitFor(() => expect(el).toHaveAttribute('role', 'alert'));
 });
 
-it('should show both label and placeholder in compact mode', async () => {
+it('should show both label and placeholder in secondary mode', async () => {
   renderComponent({ fieldType: 'secondary', placeholder: 'Placeholder' });
   const input = getInput();
   await waitFor(() => expect(input.placeholder).toEqual('Placeholder'));
