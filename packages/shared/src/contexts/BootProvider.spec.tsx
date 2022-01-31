@@ -56,6 +56,7 @@ const defaultSettings: RemoteSettings = {
   showTopSites: true,
   sidebarExpanded: true,
   sortingEnabled: false,
+  showWeeklyGoals: true,
 };
 
 const defaultBootData: BootCacheData = {
@@ -121,6 +122,8 @@ const SettingsMock = ({ toTheme, toSpaciness }: SettingsMockProps) => {
     showTopSites,
     toggleSortingEnabled,
     sortingEnabled,
+    showWeeklyGoals,
+    toggleShowWeeklyGoals,
   } = useContext(SettingsContext);
 
   return (
@@ -145,6 +148,13 @@ const SettingsMock = ({ toTheme, toSpaciness }: SettingsMockProps) => {
         data-test-value={showOnlyUnreadPosts}
       >
         Show Only Unread
+      </button>
+      <button
+        onClick={toggleShowWeeklyGoals}
+        type="button"
+        data-test-value={showWeeklyGoals}
+      >
+        Show Weekly Goal widget
       </button>
       <button
         onClick={() => setSpaciness(toSpaciness)}
