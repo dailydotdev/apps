@@ -1,75 +1,19 @@
-import React, {
-  CSSProperties,
-  ReactElement,
-  ReactNode,
-  useContext,
-} from 'react';
+import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
-import { RankProgress } from '../RankProgress';
-import { RANK_NAMES, STEPS_PER_RANK } from '../../lib/rank';
+import { RANKS, RANK_OFFSET } from '../../lib/rank';
 import Rank from '../Rank';
 import { ModalCloseButton } from './ModalCloseButton';
 import { ModalProps } from './StyledModal';
 import { ResponsiveModal } from './ResponsiveModal';
-import styles from './RanksModal.module.css';
 import DevCardPlaceholder from '../DevCardPlaceholder';
 import AuthContext from '../../contexts/AuthContext';
 import GoToDevCardButton from '../GoToDevCardButton';
-import { Button } from '../buttons/Button';
 import { ClickableText } from '../buttons/ClickableText';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { useTrackModal } from '../../hooks/useTrackModal';
 import RadialProgress from '../RadialProgress';
-import styles2 from '../RankProgress.module.css';
-
-const RankItem = ({
-  rank,
-  steps,
-  completed,
-  current,
-  rankName,
-}: {
-  rank: number;
-  steps: number;
-  completed: boolean;
-  current: boolean;
-  rankName: string;
-}): ReactElement => (
-  <li
-    className={classNames(
-      'grid h-16 auto-rows-max items-center content-center px-4 rounded-2xl border select-none',
-      current && 'shadow-2 bg-theme-bg-secondary',
-    )}
-    style={{
-      gridTemplateColumns: 'max-content 1fr',
-      gridColumnGap: '1rem',
-      gridRowGap: '0.125rem',
-      borderColor: current ? 'var(--theme-divider-tertiary)' : 'transparent',
-    }}
-  >
-    <Rank
-      rank={rank}
-      colorByRank={completed}
-      className="row-span-2"
-      style={
-        {
-          '--stop-color1': 'var(--theme-label-disabled)',
-          '--stop-color2': 'var(--theme-label-disabled)',
-        } as CSSProperties
-      }
-    />
-    <div className="font-bold capitalize typo-callout">{rankName} level</div>
-    <div className="text-theme-label-tertiary typo-footnote">
-      Read at least 1 article on {steps} different days
-    </div>
-  </li>
-);
-
-const ranksMetadata = STEPS_PER_RANK.map((steps, index) => ({
-  rank: index + 1,
-  name: RANK_NAMES[index],
-  steps,
-}));
+import styles from '../RankProgress.module.css';
+import { ModalSubTitle } from './common';
 
 export interface RanksModalProps extends ModalProps {
   rank: number;
@@ -81,24 +25,110 @@ export interface RanksModalProps extends ModalProps {
   onShowAccount?: () => void;
 }
 
-function DevCardFooter({
-  rank,
-  reads,
-  devCardLimit,
-}: Pick<RanksModalProps, 'rank' | 'reads' | 'devCardLimit'>): ReactElement {
+type RanksSectionProps = Pick<RanksModalProps, 'rank' | 'progress'>;
+const RanksSection = ({ rank, progress }: RanksSectionProps): ReactElement => {
+  return (
+    <section className="overflow-hidden">
+      <ul
+        className="flex flex-nowrap"
+        style={{
+          transform: `translate(${RANK_OFFSET[rank]})`,
+        }}
+      >
+        {RANKS.map((_rank) => (
+          <li
+            className="flex relative flex-col justify-center items-center w-1/4"
+            key={_rank.name}
+          >
+            {_rank.level !== RANKS.length && (
+              <div className="absolute w-3/4 h-px bg-white top-[35%] left-[60%]" />
+            )}
+            <div
+              className={classNames(
+                'flex justify-center items-center relative bg-theme-bg-tertiary',
+                rank === _rank.level
+                  ? 'w-16 h-16'
+                  : 'w-10 h-10 border rounded-12',
+              )}
+            >
+              {rank === _rank.level && (
+                <RadialProgress
+                  progress={progress}
+                  steps={_rank.steps}
+                  className={classNames(
+                    styles.radialProgress,
+                    'w-full h-full absolute inset-0',
+                  )}
+                />
+              )}
+              <Rank
+                rank={_rank.level}
+                className={classNames(
+                  rank === _rank.level ? 'w-10 h-10' : 'w-8 h-8',
+                )}
+              />
+            </div>
+            <strong
+              className={classNames(
+                'mt-2',
+                rank === _rank.level ? 'typo-callout' : 'typo-footnote',
+              )}
+            >
+              {_rank.name}
+            </strong>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-1 mb-3 text-center text-theme-label-tertiary typo-footnote">
+        Earn: 4/5 reading days
+      </p>
+    </section>
+  );
+};
+
+interface Tag {
+  title: string;
+  count: number;
+}
+interface TagRanksSectionProps {
+  tags: Tag[];
+}
+const TagRanksSection = ({ tags }: TagRanksSectionProps): ReactElement => {
+  return (
+    <section className="p-4 m-4 mb-0 rounded-16 border bg-theme-bg-secondary border-theme-divider-tertiary">
+      <ModalSubTitle>Reading status per tag</ModalSubTitle>
+      <ul className="grid grid-cols-2 grid-rows-4 grid-flow-col gap-4 mt-6">
+        {tags.map((tag) => (
+          <li className="flex flex-row items-center" key={tag.title}>
+            <RadialProgress
+              progress={tag.count}
+              steps={7}
+              className={classNames('w-5 h-5', styles.radialProgress)}
+            />
+            <strong className="flex flex-shrink items-center px-3 ml-2 w-auto h-6 truncate bg-theme-float rounded-8 typo-callout text-theme-label-tertiary">
+              #{tag.title}
+            </strong>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+};
+
+function DevCardFooter({ rank }: Pick<RanksModalProps, 'rank'>): ReactElement {
   const { user } = useContext(AuthContext);
 
   return (
     <>
       <section className="flex flex-col p-6 mb-4">
-        <strong className="typo-headline mb-2">Generate your DevCard</strong>
-        <div className="mt-2 flex">
+        <ModalSubTitle>Generate your DevCard</ModalSubTitle>
+        <div className="flex mt-2">
           <DevCardPlaceholder
             profileImage={user?.image}
             height={80}
             rank={rank}
           />
-          <div className="ml-6 flex flex-col flex-1 items-start">
+          <div className="flex flex-col flex-1 items-start ml-6">
             <p className="typo-footnote text-theme-label-tertiary">
               DevCard is your developer ID. It showcases your achievements to
               the world.
@@ -159,9 +189,10 @@ export default function RanksModal({
   ...props
 }: RanksModalProps): ReactElement {
   useTrackModal({ isOpen: props.isOpen, title: 'ranks modal' });
+  const currentRank = rank + 1;
 
   // Todo: Refactor these to load from API
-  const tags = [
+  const tags: Tag[] = [
     { title: 'general-programming', count: 0 },
     { title: 'carreer', count: 1 },
     { title: 'startup', count: 2 },
@@ -172,59 +203,6 @@ export default function RanksModal({
     { title: 'tailwind-css', count: 7 },
   ].reverse();
 
-  const ranks = [
-    {
-      name: 'Starter',
-      steps: 0,
-      level: 1,
-      color: 'red',
-    },
-    {
-      name: 'Bronze',
-      steps: 0,
-      level: 2,
-      color: 'red',
-    },
-    {
-      name: 'Silver',
-      level: 3,
-      color: 'red',
-    },
-    {
-      name: 'Gold',
-      level: 4,
-      color: 'red',
-    },
-    {
-      name: 'Platinum',
-      level: 5,
-      color: 'red',
-    },
-    {
-      name: 'Diamond',
-      level: 6,
-      color: 'red',
-    },
-    {
-      name: 'Legendary',
-      level: 7,
-      color: 'red',
-    },
-  ];
-
-  const currentRank = 1;
-
-  const getRankOffset = {
-    0: '37.5%',
-    1: '37.5%',
-    2: '12.5%',
-    3: '-12.5%',
-    4: '-37.5%',
-    5: '-62.5%',
-    6: '-87.5%',
-    7: '-112.5%',
-  };
-
   return (
     <ResponsiveModal {...props} onRequestClose={onRequestClose} padding={false}>
       <header className="py-4 px-6 w-full border-b border-theme-divider-tertiary">
@@ -232,7 +210,7 @@ export default function RanksModal({
         <ModalCloseButton onClick={onRequestClose} />
       </header>
       <section className="flex flex-col p-6 mb-4">
-        <strong className="typo-headline mb-2">Reading status</strong>
+        <ModalSubTitle>Reading status</ModalSubTitle>
         <p className="typo-callout text-theme-label-tertiary">
           Read content you love to stay updated.{' '}
           <ClickableText
@@ -247,135 +225,9 @@ export default function RanksModal({
         </p>
         <TimezoneText onShowAccount={onShowAccount} />
       </section>
-      <section className="overflow-hidden">
-        <ul
-          className="flex flex-nowrap"
-          style={{
-            transform: `translate(${getRankOffset[currentRank]})`,
-          }}
-        >
-          {ranks.map((rank, i) => (
-            <li className="flex flex-col items-center justify-center w-1/4 relative">
-              {rank.level !== ranks.length && (
-                <div
-                  className="absolute w-3/4 h-px bg-white"
-                  style={{ top: '35%', left: '60%' }}
-                />
-              )}
-              <div
-                className={classNames(
-                  'flex justify-center items-center relative bg-theme-bg-tertiary',
-                  currentRank === i + 1
-                    ? 'w-16 h-16'
-                    : 'w-10 h-10 border rounded-12',
-                )}
-              >
-                {currentRank === i + 1 && (
-                  <RadialProgress
-                    progress={1}
-                    steps={rank.level}
-                    className={classNames(
-                      styles2.radialProgress,
-                      'w-full h-full absolute inset-0',
-                    )}
-                  />
-                )}
-                <Rank
-                  rank={i + 1}
-                  className={classNames(
-                    currentRank === i + 1 ? 'w-10 h-10' : 'w-8 h-8',
-                  )}
-                  style={
-                    {
-                      '--stop-color1': 'var(--theme-label-disabled)',
-                      '--stop-color2': 'var(--theme-label-disabled)',
-                    } as CSSProperties
-                  }
-                />
-              </div>
-              <strong
-                className={classNames(
-                  'mt-2',
-                  currentRank === i + 1 ? 'typo-callout' : 'typo-footnote',
-                )}
-              >
-                {rank.name}
-              </strong>
-            </li>
-          ))}
-        </ul>
-        <p className="text-center text-theme-label-tertiary typo-footnote mt-1 mb-3">
-          Earn: 4/5 reading days
-        </p>
-      </section>
-      <section className="m-4 p-4 mb-0 rounded-16 border bg-theme-secondary border-theme-divider-tertiary">
-        <strong className="typo-headline block mb-6">
-          Reading status per tag
-        </strong>
-        <ul className="grid grid-cols-2 grid-rows-4 grid-flow-col gap-4">
-          {tags.map((tag) => (
-            <li className="flex flex-row items-center">
-              <RadialProgress
-                progress={tag.count}
-                steps={7}
-                className={classNames('w-5 h-5', styles2.radialProgress)}
-              />
-              <strong className="flex flex-shrink h-6 items-center ml-2 w-auto bg-theme-float rounded-8 px-3 typo-callout text-theme-label-tertiary truncate">
-                #{tag.title}
-              </strong>
-            </li>
-          ))}
-        </ul>
-      </section>
-      {!hideProgress && (
-        <DevCardFooter rank={rank} reads={reads} devCardLimit={devCardLimit} />
-      )}
-    </ResponsiveModal>
-  );
-
-  return (
-    <ResponsiveModal
-      {...props}
-      onRequestClose={onRequestClose}
-      className={classNames(styles.ranksModal, className)}
-    >
-      <ModalCloseButton onClick={onRequestClose} />
-      {!hideProgress && (
-        <div
-          className={`${styles.rankProgress} flex mt-2 items-center justify-center rounded-full responsiveModalBreakpoint:absolute responsiveModalBreakpoint:left-0 responsiveModalBreakpoint:right-0 responsiveModalBreakpoint:-top-px responsiveModalBreakpoint:bg-theme-bg-primary responsiveModalBreakpoint:my-0 responsiveModalBreakpoint:mx-auto responsiveModalBreakpoint:transform responsiveModalBreakpoint:-translate-y-1/2 responsiveModalBreakpoint:z-1`}
-        >
-          <RankProgress rank={rank} progress={progress} fillByDefault />
-        </div>
-      )}
-      <div className="flex overflow-y-auto flex-col items-center responsiveModalBreakpoint:max-h-rank-modal">
-        <h1 className="mt-4 mobileL:mt-11 font-bold uppercase typo-title2">
-          Your weekly goal
-        </h1>
-        <h2 className="mt-1 font-normal text-theme-label-secondary typo-callout">
-          Read content you love to stay updated
-        </h2>
-        <TimezoneText onShowAccount={onShowAccount} />
-
-        <ul className="flex flex-col self-stretch mt-4">
-          {ranksMetadata.map((meta) => (
-            <RankItem
-              key={meta.rank}
-              rank={meta.rank}
-              completed={meta.rank <= rank}
-              current={meta.rank === rank}
-              rankName={meta.name}
-              steps={meta.steps}
-            />
-          ))}
-        </ul>
-        {!hideProgress && (
-          <DevCardFooter
-            rank={rank}
-            reads={reads}
-            devCardLimit={devCardLimit}
-          />
-        )}
-      </div>
+      <RanksSection rank={currentRank} progress={progress} />
+      <TagRanksSection tags={tags} />
+      {!hideProgress && reads > devCardLimit && <DevCardFooter rank={rank} />}
     </ResponsiveModal>
   );
 }
