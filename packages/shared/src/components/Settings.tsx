@@ -47,6 +47,8 @@ export default function Settings({
     toggleShowTopSites,
     sortingEnabled,
     toggleSortingEnabled,
+    showWeeklyGoals,
+    toggleShowWeeklyGoals,
   } = useContext(SettingsContext);
   const [themes, setThemes] = useState([
     { label: 'Dark', value: 'dark' },
@@ -147,6 +149,16 @@ export default function Settings({
             compact={false}
           >
             Show feed sorting menu
+          </Switch>
+          <Switch
+            inputId="weekly-goal-widget-switch"
+            name="weekly-goal-widget"
+            className="my-3 big"
+            checked={showWeeklyGoals}
+            onToggle={toggleShowWeeklyGoals}
+            compact={false}
+          >
+            Show Weekly Goal widget
           </Switch>
         </div>
       </Section>
