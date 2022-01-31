@@ -4,7 +4,8 @@
   font-size: 3rem;
 
   &.enableColors {
-    &:hover, &.forceColor {
+    &:hover,
+    &.forceColor {
       & .radialProgress {
         --radial-progress-completed-step: var(--rank-color);
       }
