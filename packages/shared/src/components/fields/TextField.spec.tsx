@@ -63,3 +63,15 @@ it('should show both label and placeholder in secondary mode', async () => {
   await waitFor(() => expect(input.placeholder).toEqual('Placeholder'));
   await waitFor(() => expect(getLabel()).toHaveTextContent('Name'));
 });
+
+it('should show label and placeholder based in its state in tertiary mode', async () => {
+  renderComponent({
+    fieldType: 'tertiary',
+    placeholder: 'Placeholder',
+    label: 'Label',
+  });
+  const input = getInput();
+  await waitFor(() => expect(input.placeholder).toEqual('Label'));
+  input.focus();
+  await waitFor(() => expect(input.placeholder).toEqual('Placeholder'));
+});
