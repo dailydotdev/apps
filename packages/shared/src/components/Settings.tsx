@@ -56,13 +56,15 @@ export default function Settings({
     { label: 'Auto', value: 'auto' },
   ]);
 
-  const onShowOnlyUnreadPosts = (): Promise<void> | void => {
+  const onToggleForLoggedUnUsers = (
+    onToggleFunc: () => Promise<void> | void,
+  ): Promise<void> | void => {
     if (!user) {
       showLogin('settings');
       return undefined;
     }
 
-    return toggleShowOnlyUnreadPosts();
+    return onToggleFunc();
   };
 
   useEffect(() => {
@@ -113,7 +115,7 @@ export default function Settings({
             name="hide-read"
             className="my-3"
             checked={showOnlyUnreadPosts}
-            onToggle={onShowOnlyUnreadPosts}
+            onToggle={() => onToggleForLoggedUnUsers(toggleShowOnlyUnreadPosts)}
             compact={false}
           >
             Hide read posts
@@ -150,18 +152,16 @@ export default function Settings({
           >
             Show feed sorting menu
           </Switch>
-          {user && (
-            <Switch
-              inputId="weekly-goal-widget-switch"
-              name="weekly-goal-widget"
-              className="my-3 big"
-              checked={showWeeklyGoals}
-              onToggle={toggleShowWeeklyGoals}
-              compact={false}
-            >
-              Show Weekly Goal widget
-            </Switch>
-          )}
+          <Switch
+            inputId="weekly-goal-widget-switch"
+            name="weekly-goal-widget"
+            className="my-3 big"
+            checked={showWeeklyGoals}
+            onToggle={() => onToggleForLoggedUnUsers(toggleShowWeeklyGoals)}
+            compact={false}
+          >
+            Show Weekly Goal widget
+          </Switch>
         </div>
       </Section>
     </div>

@@ -94,6 +94,7 @@ const defaultSettings: RemoteSettings = {
   showTopSites: true,
   sidebarExpanded: true,
   sortingEnabled: false,
+  showWeeklyGoals: true,
   theme: remoteThemes[ThemeMode.Dark],
 };
 
