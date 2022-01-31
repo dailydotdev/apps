@@ -56,9 +56,9 @@ export function TextField({
     onInput: baseOnInput,
     focusInput,
   } = useInputField(value, valueChanged);
-  const isPrimary = fieldType === 'primary';
-  const isSecondary = fieldType === 'secondary';
-  const isTertiary = fieldType === 'tertiary';
+  const isPrimaryField = fieldType === 'primary';
+  const isSecondaryField = fieldType === 'secondary';
+  const isTertiaryField = fieldType === 'tertiary';
   const [inputLength, setInputLength] = useState<number>(0);
   const [validInput, setValidInput] = useState<boolean>(undefined);
   const [idleTimeout, setIdleTimeout] = useState<number>(undefined);
@@ -117,11 +117,11 @@ export function TextField({
   };
 
   const getPlaceholder = () => {
-    if (isTertiary) {
+    if (isTertiaryField) {
       return focused ? placeholder : label;
     }
 
-    if (focused || isSecondary) {
+    if (focused || isSecondaryField) {
       return placeholder ?? '';
     }
 
@@ -161,7 +161,7 @@ export function TextField({
       className={classNames(className, 'flex flex-col items-stretch')}
       style={style}
     >
-      {isSecondary && (
+      {isSecondaryField && (
         <label
           className="px-2 mb-1 font-bold text-theme-label-primary typo-caption1"
           htmlFor={inputId}
@@ -174,7 +174,7 @@ export function TextField({
         onClick={focusInput}
         className={classNames(
           'flex flex-row items-center',
-          isSecondary ? 'h-9 rounded-10' : 'h-12 rounded-14',
+          isSecondaryField ? 'h-9 rounded-10' : 'h-12 rounded-14',
           leftIcon && 'pl-3',
           rightIcon && 'pr-3',
           {
@@ -194,7 +194,7 @@ export function TextField({
             rightIcon && 'mr-2',
           )}
         >
-          {isPrimary && (focused || hasInput) && (
+          {isPrimaryField && (focused || hasInput) && (
             <label
               className={classNames('typo-caption1', getLabelColor())}
               htmlFor={inputId}
