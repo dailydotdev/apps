@@ -56,7 +56,7 @@ export default function Register(): ReactElement {
   return (
     <MainLayout showOnlyLogo>
       <NextSeo title="Registration" nofollow noindex />
-      <ResponsivePageContainer className="mx-auto">
+      <ResponsivePageContainer>
         {user && (
           <>
             <ProfileHeading>
