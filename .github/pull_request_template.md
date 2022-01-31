@@ -1,7 +1,7 @@
 ## Changes
 
 - Describe what this PR does
-- Short and conside, bullet points can help
+- Short and concise, bullet points can help
 - Screenshots if applicable can also help
 
 ## Manual Testing
