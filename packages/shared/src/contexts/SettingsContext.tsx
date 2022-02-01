@@ -32,6 +32,7 @@ export type SettingsContextData = {
   showTopSites: boolean;
   sidebarExpanded: boolean;
   sortingEnabled: boolean;
+  showWeeklyGoals: boolean;
   setTheme: (theme: ThemeMode) => Promise<void>;
   toggleShowOnlyUnreadPosts: () => Promise<void>;
   toggleOpenNewTab: () => Promise<void>;
@@ -40,6 +41,7 @@ export type SettingsContextData = {
   toggleShowTopSites: () => Promise<void>;
   toggleSidebarExpanded: () => Promise<void>;
   toggleSortingEnabled: () => Promise<void>;
+  toggleShowWeeklyGoals: () => Promise<void>;
   loadedSettings: boolean;
   customLinks?: string[];
   updateCustomLinks: (links: string[]) => Promise<unknown>;
@@ -92,6 +94,7 @@ const defaultSettings: RemoteSettings = {
   showTopSites: true,
   sidebarExpanded: true,
   sortingEnabled: false,
+  showWeeklyGoals: true,
   theme: remoteThemes[ThemeMode.Dark],
 };
 
@@ -178,6 +181,11 @@ export const SettingsContextProvider = ({
         }),
       toggleSortingEnabled: () =>
         setSettings({ ...settings, sortingEnabled: !settings.sortingEnabled }),
+      toggleShowWeeklyGoals: () =>
+        setSettings({
+          ...settings,
+          showWeeklyGoals: !settings.showWeeklyGoals,
+        }),
       loadedSettings,
       updateCustomLinks: (links: string[]) =>
         setSettings({ ...settings, customLinks: links }),
