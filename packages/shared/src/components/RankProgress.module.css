@@ -51,7 +51,7 @@
 .radialProgress {
   font-size: inherit;
   --radial-progress-step: var(--theme-label-disabled);
-  --radial-progress-completed-step: var(--theme-label-tertiary);
+  --radial-progress-completed-step: var(--theme-label-disabled);
   --radial-progress-transition-delay: 0.3s;
 }
 

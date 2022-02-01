@@ -17,43 +17,57 @@ export const RANKS = [
     name: 'Starter',
     steps: 0,
     level: 1,
-    color: 'red',
+    background: 'bg-theme-status-success',
+    border: 'border-theme-status-success',
+    color: 'text-theme-status-success',
   },
   {
     name: 'Bronze',
     steps: 2,
     level: 2,
-    color: 'red',
+    background: 'bg-theme-color-burger',
+    border: 'border-theme-color-burger',
+    color: 'text-theme-color-burger',
   },
   {
     name: 'Silver',
     steps: 3,
     level: 3,
-    color: 'red',
+    background: 'bg-theme-label-tertiary',
+    border: 'border-theme-border-tertiary',
+    color: 'text-theme-label-tertiary',
   },
   {
     name: 'Gold',
     steps: 4,
     level: 4,
-    color: 'red',
+    background: 'bg-theme-color-cheese',
+    border: 'border-theme-color-cheese',
+    color: 'text-theme-color-cheese',
   },
   {
     name: 'Platinum',
     steps: 5,
     level: 5,
-    color: 'red',
+    background: 'bg-theme-color-blueCheese',
+    border: 'border-theme-color-blueCheese',
+    color: 'text-theme-color-blueCheese',
   },
   {
     name: 'Diamond',
     steps: 6,
     level: 6,
-    color: 'red',
+    background: 'bg-theme-color-cabbage',
+    border: 'border-theme-color-cabbage',
+    color: 'text-theme-color-cabbage',
   },
   {
     name: 'Legendary',
     steps: 7,
     level: 7,
-    color: 'red',
+    background: 'bg-theme-color-ketchup',
+    border: 'border-theme-color-ketchup',
+    color: 'text-theme-color-ketchup',
   },
 ];
 
@@ -85,7 +99,7 @@ export const getNextRankText = ({
 }: GetNextRankTextProps): string => {
   if (finalRank && progress >= RANKS[nextRank - 1].steps) return FINAL_RANK;
   if (finalRank || (nextRank === rankLastWeek && progress < RANKS[rank].steps))
-    return `Re-earn: ${progress}/${STEPS_PER_RANK[rank - 1]} days`;
+    return `Re-earn: ${progress}/${RANKS[rank].steps} days`;
   if (nextRank === 0) return `Earn: ${progress ?? 0}/3 days`;
   if (showNextLevel) return `Next level: ${RANK_NAMES[rank]}`;
   return `Earn: ${progress ?? 0}/${RANKS[rank].steps} days`;

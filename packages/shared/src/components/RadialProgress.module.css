@@ -1,5 +1,6 @@
 .radialProgress {
   font-size: 3rem;
+  transform: rotate(180deg);
 }
 
 .circle {

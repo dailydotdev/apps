@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { CSSProperties, ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import { getNextRankText, RANKS, RANK_OFFSET } from '../../lib/rank';
 import Rank from '../Rank';
@@ -27,12 +27,28 @@ export interface RanksModalProps extends ModalProps {
 
 type RanksSectionProps = Pick<RanksModalProps, 'rank' | 'progress'>;
 const RanksSection = ({ rank, progress }: RanksSectionProps): ReactElement => {
+  const isFinalRank = rank === RANKS.length;
+  const finalRankCompleted = isFinalRank && progress === RANKS[rank - 1].steps;
+  const showRank = isFinalRank
+    ? rank
+    : progress >= RANKS[rank].steps
+    ? rank
+    : rank + 1;
+
+  const rankCompleted = (currentRank, checkRank, progress) => {
+    return (
+      currentRank > checkRank.level ||
+      (currentRank === RANKS.length &&
+        progress === RANKS[currentRank - 1].steps)
+    );
+  };
+
   return (
     <section className="overflow-hidden">
       <ul
         className="flex flex-nowrap"
         style={{
-          transform: `translate(${RANK_OFFSET[rank]})`,
+          transform: `translate(${RANK_OFFSET[showRank]})`,
         }}
       >
         {RANKS.map((_rank) => (
@@ -41,24 +57,39 @@ const RanksSection = ({ rank, progress }: RanksSectionProps): ReactElement => {
             key={_rank.name}
           >
             {_rank.level !== RANKS.length && (
-              <div className="absolute w-3/4 h-px bg-white top-[35%] left-[60%]" />
+              <div
+                className={classNames(
+                  rankCompleted(showRank, _rank, progress)
+                    ? _rank.background
+                    : 'bg-white',
+                  'absolute w-3/4 h-px  top-[35%] left-[60%]',
+                )}
+              />
             )}
             <div
               className={classNames(
                 'flex justify-center items-center relative bg-theme-bg-tertiary',
-                rank === _rank.level
+                rankCompleted(showRank, _rank, progress) ? _rank.border : '',
+                showRank === _rank.level
                   ? 'w-16 h-16'
                   : 'w-10 h-10 border rounded-12',
               )}
             >
-              {rank === _rank.level && (
+              {showRank === _rank.level && (
                 <RadialProgress
                   progress={progress}
-                  steps={_rank.steps}
+                  steps={finalRankCompleted ? 0 : _rank.steps}
                   className={classNames(
                     styles.radialProgress,
                     'w-full h-full absolute inset-0',
                   )}
+                  style={
+                    {
+                      '--radial-progress-completed-step': `var(--theme-rank-${
+                        finalRankCompleted ? showRank : showRank - 1
+                      }-color)`,
+                    } as CSSProperties
+                  }
                 />
               )}
               <Rank
@@ -66,12 +97,18 @@ const RanksSection = ({ rank, progress }: RanksSectionProps): ReactElement => {
                 className={classNames(
                   rank === _rank.level ? 'w-10 h-10' : 'w-8 h-8',
                 )}
+                colorByRank={finalRankCompleted ? true : showRank > _rank.level}
               />
             </div>
             <strong
               className={classNames(
                 'mt-2',
-                rank === _rank.level ? 'typo-callout' : 'typo-footnote',
+                rank === _rank.level
+                  ? 'typo-callout text-theme-status-success'
+                  : 'typo-footnote',
+                rankCompleted(showRank, _rank, progress)
+                  ? _rank.color
+                  : 'text-theme-label-tertiary',
               )}
             >
               {_rank.name}
@@ -81,9 +118,9 @@ const RanksSection = ({ rank, progress }: RanksSectionProps): ReactElement => {
       </ul>
       <p className="mt-1 mb-3 text-center text-theme-label-tertiary typo-footnote">
         {getNextRankText({
-          nextRank: rank,
-          rank: rank - 1,
-          finalRank: false,
+          nextRank: rank - 1,
+          rank: rank,
+          finalRank: rank === RANKS.length,
           progress,
           showNextLevel: false,
         })}
@@ -195,7 +232,7 @@ export default function RanksModal({
   ...props
 }: RanksModalProps): ReactElement {
   useTrackModal({ isOpen: props.isOpen, title: 'ranks modal' });
-  const currentRank = rank + 1;
+  const currentRank = rank;
 
   // Todo: Refactor these to load from API
   const tags: Tag[] = [
