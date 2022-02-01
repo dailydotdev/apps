@@ -56,7 +56,7 @@ export default function Settings({
     { label: 'Auto', value: 'auto' },
   ]);
 
-  const onToggleForLoggedUnUsers = (
+  const onToggleForLoggedInUsers = (
     onToggleFunc: () => Promise<void> | void,
   ): Promise<void> | void => {
     if (!user) {
@@ -115,7 +115,7 @@ export default function Settings({
             name="hide-read"
             className="my-3"
             checked={showOnlyUnreadPosts}
-            onToggle={() => onToggleForLoggedUnUsers(toggleShowOnlyUnreadPosts)}
+            onToggle={() => onToggleForLoggedInUsers(toggleShowOnlyUnreadPosts)}
             compact={false}
           >
             Hide read posts
@@ -157,7 +157,7 @@ export default function Settings({
             name="weekly-goal-widget"
             className="my-3 big"
             checked={showWeeklyGoals}
-            onToggle={() => onToggleForLoggedUnUsers(toggleShowWeeklyGoals)}
+            onToggle={() => onToggleForLoggedInUsers(toggleShowWeeklyGoals)}
             compact={false}
           >
             Show Weekly Goal widget
