@@ -15,6 +15,7 @@ import {
   rankToColor,
   rankToGradientStopBottom,
   rankToGradientStopTop,
+  getNextRankText,
   RANK_NAMES,
   STEPS_PER_RANK,
 } from '../lib/rank';
@@ -209,17 +210,6 @@ export function RankProgress({
     setPrevProgress(progress);
   }, [progress]);
 
-  const getNextRankText = (useRank: number): string => {
-    if (finalRank && progress >= STEPS_PER_RANK[useRank - 1]) return FINAL_RANK;
-    if (
-      finalRank ||
-      (useRank === rankLastWeek && progress < STEPS_PER_RANK[rank - 1])
-    )
-      return `Re-earn: ${progress}/${STEPS_PER_RANK[rank - 1]} days`;
-    if (useRank === 0) return `Earn: ${progress ?? 0}/3 days`;
-    return `Next level: ${RANK_NAMES[rank]}`;
-  };
-
   return (
     <>
       <div
@@ -299,7 +289,13 @@ export function RankProgress({
                 {animatingProgress ? getLevelText : getRankName(shownRank)}
               </span>
               <span className="typo-footnote text-theme-label-tertiary">
-                {getNextRankText(nextRank)}
+                {getNextRankText({
+                  nextRank,
+                  rank,
+                  finalRank,
+                  progress,
+                  rankLastWeek,
+                })}
               </span>
             </div>
           </CSSTransition>

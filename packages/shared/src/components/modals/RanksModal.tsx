@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
-import { RANKS, RANK_OFFSET } from '../../lib/rank';
+import { getNextRankText, RANKS, RANK_OFFSET } from '../../lib/rank';
 import Rank from '../Rank';
 import { ModalCloseButton } from './ModalCloseButton';
 import { ModalProps } from './StyledModal';
@@ -80,7 +80,13 @@ const RanksSection = ({ rank, progress }: RanksSectionProps): ReactElement => {
         ))}
       </ul>
       <p className="mt-1 mb-3 text-center text-theme-label-tertiary typo-footnote">
-        Earn: 4/5 reading days
+        {getNextRankText({
+          nextRank: rank,
+          rank: rank - 1,
+          finalRank: false,
+          progress,
+          showNextLevel: false,
+        })}
       </p>
     </section>
   );
@@ -95,7 +101,7 @@ interface TagRanksSectionProps {
 }
 const TagRanksSection = ({ tags }: TagRanksSectionProps): ReactElement => {
   return (
-    <section className="p-4 m-4 mb-0 rounded-16 border bg-theme-bg-secondary border-theme-divider-tertiary">
+    <section className="p-4 m-4 mb-4 rounded-16 border bg-theme-bg-secondary border-theme-divider-tertiary">
       <ModalSubTitle>Reading status per tag</ModalSubTitle>
       <ul className="grid grid-cols-2 grid-rows-4 grid-flow-col gap-4 mt-6">
         {tags.map((tag) => (
@@ -120,7 +126,7 @@ function DevCardFooter({ rank }: Pick<RanksModalProps, 'rank'>): ReactElement {
 
   return (
     <>
-      <section className="flex flex-col p-6 mb-4">
+      <section className="flex flex-col p-6 pt-2 mb-4">
         <ModalSubTitle>Generate your DevCard</ModalSubTitle>
         <div className="flex mt-2">
           <DevCardPlaceholder

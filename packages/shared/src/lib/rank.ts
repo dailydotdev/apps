@@ -66,3 +66,27 @@ export const rankToGradientStopBottom = (rank: number): string =>
   colorOrDefault(rank, `var(--theme-rank-${rank}-color-bottom)`);
 export const rankToGradientStopTop = (rank: number): string =>
   colorOrDefault(rank, `var(--theme-rank-${rank}-color-top)`);
+
+interface GetNextRankTextProps {
+  nextRank: number;
+  rank: number;
+  finalRank: boolean;
+  progress: number;
+  rankLastWeek?: number;
+  showNextLevel?: boolean;
+}
+export const getNextRankText = ({
+  nextRank,
+  rank = 0,
+  finalRank,
+  progress,
+  rankLastWeek,
+  showNextLevel = true,
+}: GetNextRankTextProps): string => {
+  if (finalRank && progress >= RANKS[nextRank - 1].steps) return FINAL_RANK;
+  if (finalRank || (nextRank === rankLastWeek && progress < RANKS[rank].steps))
+    return `Re-earn: ${progress}/${STEPS_PER_RANK[rank - 1]} days`;
+  if (nextRank === 0) return `Earn: ${progress ?? 0}/3 days`;
+  if (showNextLevel) return `Next level: ${RANK_NAMES[rank]}`;
+  return `Earn: ${progress ?? 0}/${RANKS[rank].steps} days`;
+};
