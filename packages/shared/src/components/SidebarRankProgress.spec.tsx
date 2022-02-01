@@ -105,3 +105,29 @@ it('should show rank for anonymous users', async () => {
     expect(screen.queryAllByTestId('remainingPath').length).toEqual(2);
   });
 });
+
+it('should show rank if opt out weekly goals widget is checked', async () => {
+  await setCache('rank', {
+    rank: { progressThisWeek: 1, currentRank: 0, readToday: false },
+    shouldShowRankModal: true,
+    userId: defaultUser.id,
+  });
+  renderComponent([], null);
+  await waitFor(() => {
+    expect(screen.queryAllByTestId('completedPath').length).toEqual(1);
+    expect(screen.queryAllByTestId('remainingPath').length).toEqual(2);
+  });
+});
+
+it('should not show rank if opt out weekly goals widget is not checked', async () => {
+  await setCache('rank', {
+    rank: { progressThisWeek: 1, currentRank: 0, readToday: false },
+    shouldShowRankModal: false,
+    userId: defaultUser.id,
+  });
+  renderComponent([], null);
+  await waitFor(() => {
+    expect(screen.queryAllByTestId('completedPath').length).toEqual(0);
+    expect(screen.queryAllByTestId('remainingPath').length).toEqual(0);
+  });
+});
