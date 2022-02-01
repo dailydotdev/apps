@@ -25,21 +25,28 @@ export interface RanksModalProps extends ModalProps {
   onShowAccount?: () => void;
 }
 
+const getShowRank = (finalRank, rank, progress) => {
+  if (
+    (finalRank && progress === RANKS[rank - 1].steps) ||
+    progress >= RANKS[rank].steps
+  ) {
+    return rank;
+  }
+
+  return rank + 1;
+};
+
 type RanksSectionProps = Pick<RanksModalProps, 'rank' | 'progress'>;
 const RanksSection = ({ rank, progress }: RanksSectionProps): ReactElement => {
   const isFinalRank = rank === RANKS.length;
   const finalRankCompleted = isFinalRank && progress === RANKS[rank - 1].steps;
-  const showRank = isFinalRank
-    ? rank
-    : progress >= RANKS[rank].steps
-    ? rank
-    : rank + 1;
+  const showRank = getShowRank(isFinalRank, rank, progress);
 
-  const rankCompleted = (currentRank, checkRank, progress) => {
+  const rankCompleted = (currentRank, checkRank, curProgress) => {
     return (
       currentRank > checkRank.level ||
       (currentRank === RANKS.length &&
-        progress === RANKS[currentRank - 1].steps)
+        curProgress === RANKS[currentRank - 1].steps)
     );
   };
 
@@ -119,7 +126,7 @@ const RanksSection = ({ rank, progress }: RanksSectionProps): ReactElement => {
       <p className="mt-1 mb-3 text-center text-theme-label-tertiary typo-footnote">
         {getNextRankText({
           nextRank: rank - 1,
-          rank: rank,
+          rank,
           finalRank: rank === RANKS.length,
           progress,
           showNextLevel: false,

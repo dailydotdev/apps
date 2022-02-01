@@ -10,7 +10,6 @@ import { CSSTransition, SwitchTransition } from 'react-transition-group';
 import classNames from 'classnames';
 import RadialProgress from './RadialProgress';
 import {
-  FINAL_RANK,
   NO_RANK,
   rankToColor,
   rankToGradientStopBottom,
