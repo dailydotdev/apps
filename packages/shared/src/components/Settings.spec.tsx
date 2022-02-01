@@ -39,7 +39,7 @@ const defaultSettings: RemoteSettings = {
   showTopSites: true,
   sidebarExpanded: true,
   sortingEnabled: false,
-  showWeeklyGoals: true,
+  optOutWeeklyGoal: true,
 };
 
 const updateSettings = jest.fn();
@@ -267,7 +267,7 @@ it('should mutate feed sorting enabled setting', () =>
   }));
 
 it('should mutate show weekly goals widget setting', () =>
-  testSettingsMutation({ showWeeklyGoals: false }, async () => {
+  testSettingsMutation({ optOutWeeklyGoal: false }, async () => {
     const checkboxes = await screen.findAllByRole('checkbox');
     const checkbox = checkboxes.find((el) =>
       // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries

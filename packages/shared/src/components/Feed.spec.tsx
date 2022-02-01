@@ -138,8 +138,8 @@ const renderComponent = (
     toggleShowTopSites: jest.fn(),
     toggleSortingEnabled: jest.fn(),
     sortingEnabled: false,
-    toggleShowWeeklyGoals: jest.fn(),
-    showWeeklyGoals: true,
+    toggleOptOutWeeklyGoal: jest.fn(),
+    optOutWeeklyGoal: true,
     sidebarExpanded: true,
     toggleSidebarExpanded: jest.fn(),
   };
