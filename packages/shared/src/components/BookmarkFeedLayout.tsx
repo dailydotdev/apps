@@ -11,6 +11,8 @@ import { CustomFeedHeader, FeedPage, FeedPageHeader } from './utilities';
 import SearchEmptyScreen from './SearchEmptyScreen';
 import Feed, { FeedProps } from './Feed';
 import BookmarkEmptyScreen from './BookmarkEmptyScreen';
+import { Button } from './buttons/Button';
+import dynamic from 'next/dynamic';
 
 export type BookmarkFeedLayoutProps = {
   searchQuery?: string;
@@ -19,6 +21,13 @@ export type BookmarkFeedLayoutProps = {
   onSearchButtonClick?: () => unknown;
 };
 
+const SharedBookmarksModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "accountDetailsModal" */ './modals/SharedBookmarksModal'
+    ),
+);
+
 export default function BookmarkFeedLayout({
   searchQuery,
   searchChildren,
@@ -26,6 +35,7 @@ export default function BookmarkFeedLayout({
 }: BookmarkFeedLayoutProps): ReactElement {
   const { user, tokenRefreshed } = useContext(AuthContext);
   const [showEmptyScreen, setShowEmptyScreen] = useState(false);
+  const [showSharedBookmarks, setShowSharedBookmarks] = useState(false);
 
   const feedProps = useMemo<FeedProps<unknown>>(() => {
     if (searchQuery) {
@@ -58,6 +68,19 @@ export default function BookmarkFeedLayout({
       <CustomFeedHeader className="relative mb-6">
         {searchChildren}
       </CustomFeedHeader>
+      <Button
+        className="btn-secondary"
+        buttonSize="medium"
+        onClick={() => setShowSharedBookmarks(true)}
+      >
+        Share bookmarks
+      </Button>
+      {showSharedBookmarks && (
+        <SharedBookmarksModal
+          isOpen={showSharedBookmarks}
+          onRequestClose={() => setShowSharedBookmarks(false)}
+        />
+      )}
       {tokenRefreshed && <Feed {...feedProps} />}
     </FeedPage>
   );
