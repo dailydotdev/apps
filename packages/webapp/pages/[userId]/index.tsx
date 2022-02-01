@@ -24,12 +24,14 @@ import {
   UserReadHistoryData,
   UserReadingRankHistoryData,
   UserStatsData,
+  UserReadingTopTagsData,
 } from '@dailydotdev/shared/src/graphql/users';
 import {
   ActivityContainer,
   ActivitySectionTitle,
   ActivitySectionTitleStat,
 } from '@dailydotdev/shared/src/components/profile/ActivitySection';
+import { ReadingTagProgress } from '@dailydotdev/shared/src/components/profile/ReadingTagProgress';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import dynamic from 'next/dynamic';
 import Rank from '@dailydotdev/shared/src/components/Rank';
@@ -41,7 +43,6 @@ import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/Prog
 import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
 import useMedia from '@dailydotdev/shared/src/hooks/useMedia';
 import { laptop } from '@dailydotdev/shared/src/styles/media';
-import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 import CalendarHeatmap from '../../components/CalendarHeatmap';
 import {
   getLayout as getProfileLayout,
@@ -103,6 +104,7 @@ const RankHistory = ({
   </div>
 );
 
+const CURRENT_YEAR = new Date().getFullYear().toString();
 const BASE_YEAR = 2018;
 const currentYear = new Date().getFullYear();
 const dropdownOptions = [
@@ -125,6 +127,10 @@ const getHistoryTitle = (
   return 'the last months';
 };
 
+type ProfileReadingData = UserReadingRankHistoryData &
+  UserReadHistoryData &
+  UserReadingTopTagsData;
+
 const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
@@ -144,13 +150,10 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
     startYear.setFullYear(parseInt(dropdownOptions[selectedHistoryYear], 10));
     return [addDays(endOfYear(startYear), 1), startYear];
   }, [selectedHistoryYear]);
-  const [readingHistory, setReadingHistory] = useState<
-    UserReadingRankHistoryData & UserReadHistoryData
-  >(null);
+  const [readingHistory, setReadingHistory] =
+    useState<ProfileReadingData>(null);
 
-  const { data: remoteReadingHistory } = useQuery<
-    UserReadingRankHistoryData & UserReadHistoryData
-  >(
+  const { data: remoteReadingHistory } = useQuery<ProfileReadingData>(
     ['reading_history', profile?.id, selectedHistoryYear],
     () =>
       request(`${apiUrl}/graphql`, USER_READING_HISTORY_QUERY, {
@@ -169,10 +172,6 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
   useEffect(() => {
     if (remoteReadingHistory) {
       setReadingHistory(remoteReadingHistory);
-      requestIdleCallback(async () => {
-        const mod = await import('react-tooltip');
-        mod.default.rebuild();
-      });
     }
   }, [remoteReadingHistory]);
 
@@ -251,6 +250,22 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
                 devCardLimit={0}
               />
             )}
+          </ActivityContainer>
+          <ActivityContainer>
+            <ActivitySectionTitle>
+              Top tags by reading days
+            </ActivitySectionTitle>
+            <div className="grid grid-cols-1 tablet:grid-cols-2 gap-3 tablet:gap-10">
+              {readingHistory.userReadingTopTags?.map((topTag) => (
+                <ReadingTagProgress
+                  key={topTag.tag}
+                  topTag={topTag}
+                  isFilterSameYear={
+                    dropdownOptions[selectedHistoryYear] === CURRENT_YEAR
+                  }
+                />
+              ))}
+            </div>
           </ActivityContainer>
           <ActivityContainer>
             <ActivitySectionTitle>
