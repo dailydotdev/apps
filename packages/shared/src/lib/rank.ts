@@ -1,7 +1,5 @@
 export const NO_RANK = 'No rank';
 export const FINAL_RANK = 'You made it 🎉';
-export const STEPS_PER_RANK = [3, 4, 5, 6, 7];
-export const RANK_NAMES = ['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'];
 export const RANK_OFFSET = [
   '37.5%',
   '37.5%',
@@ -15,7 +13,7 @@ export const RANK_OFFSET = [
 export const RANKS = [
   {
     name: 'Starter',
-    steps: 0,
+    steps: 1,
     level: 1,
     background: 'bg-theme-status-success',
     border: 'border-theme-status-success',
@@ -97,10 +95,12 @@ export const getNextRankText = ({
   rankLastWeek,
   showNextLevel = true,
 }: GetNextRankTextProps): string => {
-  if (finalRank && progress >= RANKS[nextRank - 1].steps) return FINAL_RANK;
+  if (finalRank && progress >= RANKS[rank - 1].steps) return FINAL_RANK;
   if (finalRank || (nextRank === rankLastWeek && progress < RANKS[rank].steps))
     return `Re-earn: ${progress}/${RANKS[rank].steps} days`;
-  if (nextRank === 0) return `Earn: ${progress ?? 0}/3 days`;
-  if (showNextLevel) return `Next level: ${RANK_NAMES[rank]}`;
+  if (nextRank === 0) return `Earn: ${progress ?? 0}/1 days`;
+  if (showNextLevel) return `Next level: ${RANKS[rank].name}`;
   return `Earn: ${progress ?? 0}/${RANKS[rank].steps} days`;
 };
+
+export const isFinalRank = (rank: number): boolean => rank === RANKS.length;

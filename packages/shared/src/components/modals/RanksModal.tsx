@@ -125,9 +125,9 @@ const RanksSection = ({ rank, progress }: RanksSectionProps): ReactElement => {
       </ul>
       <p className="mt-1 mb-3 text-center text-theme-label-tertiary typo-footnote">
         {getNextRankText({
-          nextRank: rank - 1,
+          nextRank: rank + 1,
           rank,
-          finalRank: rank === RANKS.length,
+          finalRank: isFinalRank,
           progress,
           showNextLevel: false,
         })}

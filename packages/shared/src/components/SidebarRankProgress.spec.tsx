@@ -28,7 +28,7 @@ beforeEach(() => {
 
 const createRankMock = (
   data: MyRankData = {
-    rank: { progressThisWeek: 2, currentRank: 0, readToday: false },
+    rank: { progressThisWeek: 1, currentRank: 3, readToday: false },
     reads: 0,
   },
   userId: string = defaultUser.id,
@@ -73,14 +73,14 @@ const renderComponent = (
 it('should create dynamically the progress bar according to the props', async () => {
   renderComponent();
   await waitFor(() => {
-    expect(screen.queryAllByTestId('completedPath').length).toEqual(2);
-    expect(screen.queryAllByTestId('remainingPath').length).toEqual(1);
+    expect(screen.queryAllByTestId('completedPath').length).toEqual(1);
+    expect(screen.queryAllByTestId('remainingPath').length).toEqual(3);
   });
 });
 
 it('should first show cached rank and animate to fetched rank', async () => {
   await setCache('rank', {
-    rank: { progressThisWeek: 1, currentRank: 0, readToday: false },
+    rank: { progressThisWeek: 1, currentRank: 2, readToday: false },
     userId: defaultUser.id,
   });
   renderComponent();
@@ -89,19 +89,19 @@ it('should first show cached rank and animate to fetched rank', async () => {
     expect(screen.queryAllByTestId('remainingPath').length).toEqual(2);
   });
   await waitFor(() => {
-    expect(screen.queryAllByTestId('completedPath').length).toEqual(2);
-    expect(screen.queryAllByTestId('remainingPath').length).toEqual(1);
+    expect(screen.queryAllByTestId('completedPath').length).toEqual(3);
+    expect(screen.queryAllByTestId('remainingPath').length).toEqual(0);
   });
 });
 
 it('should show rank for anonymous users', async () => {
   await setCache('rank', {
-    rank: { progressThisWeek: 1, currentRank: 0, readToday: false },
+    rank: { progressThisWeek: 1, currentRank: 1, readToday: false },
     userId: null,
   });
   renderComponent([], null);
   await waitFor(() => {
     expect(screen.queryAllByTestId('completedPath').length).toEqual(1);
-    expect(screen.queryAllByTestId('remainingPath').length).toEqual(2);
+    expect(screen.queryAllByTestId('remainingPath').length).toEqual(1);
   });
 });

@@ -15,8 +15,8 @@ import {
   rankToGradientStopBottom,
   rankToGradientStopTop,
   getNextRankText,
-  RANK_NAMES,
-  STEPS_PER_RANK,
+  isFinalRank,
+  RANKS,
 } from '../lib/rank';
 import Rank from './Rank';
 import styles from './RankProgress.module.css';
@@ -39,11 +39,11 @@ export type RankProgressProps = {
 };
 
 const getRankName = (rank: number): string =>
-  rank > 0 ? RANK_NAMES[rank - 1] : NO_RANK;
+  rank > 0 ? RANKS[rank - 1].name : NO_RANK;
 
 export function RankProgress({
   progress,
-  rank,
+  rank = 0,
   nextRank,
   showRankAnimation = false,
   showCurrentRankSteps = false,
@@ -65,27 +65,34 @@ export function RankProgress({
   const progressRef = useRef<HTMLDivElement>();
   const badgeRef = useRef<SVGSVGElement>();
 
-  const finalRank = shownRank === STEPS_PER_RANK.length;
+  const finalRank = isFinalRank(rank);
   const levelUp = () =>
     rank >= shownRank &&
     rank > 0 &&
-    (rank !== rankLastWeek || progress === STEPS_PER_RANK[rank - 1]);
-  const getLevelText = levelUp() ? 'Level up' : '+1 Reading day';
+    (rank !== rankLastWeek || progress === RANKS[rank - 1].steps);
+  const getLevelText = levelUp() ? 'You made it 🏆' : '+1 Reading day';
   const shouldForceColor = animatingProgress || forceColor || fillByDefault;
 
   const steps = useMemo(() => {
     if (
       showRankAnimation ||
       showCurrentRankSteps ||
-      (finalRank && progress < STEPS_PER_RANK[rank - 1])
+      (finalRank && progress < RANKS[rank - 1].steps)
     ) {
-      return STEPS_PER_RANK[rank - 1];
+      return RANKS[rank - 1].steps;
     }
     if (!finalRank) {
-      return STEPS_PER_RANK[rank];
+      return RANKS[rank].steps;
     }
     return 0;
-  }, [showRankAnimation, showCurrentRankSteps, shownRank, progress, rank]);
+  }, [
+    showRankAnimation,
+    showCurrentRankSteps,
+    shownRank,
+    progress,
+    rank,
+    finalRank,
+  ]);
 
   const animateRank = () => {
     setForceColor(true);
@@ -201,7 +208,7 @@ export function RankProgress({
       (!rank ||
         showRankAnimation ||
         levelUp() ||
-        STEPS_PER_RANK[rank - 1] !== progress)
+        RANKS[rank - 1].steps !== progress)
     ) {
       if (!showRadialProgress) animateRank();
       setAnimatingProgress(true);
@@ -294,6 +301,7 @@ export function RankProgress({
                   finalRank,
                   progress,
                   rankLastWeek,
+                  showNextLevel: !finalRank,
                 })}
               </span>
             </div>
