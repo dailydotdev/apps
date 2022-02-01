@@ -8,6 +8,7 @@ import { MY_READING_RANK_QUERY, MyRankData } from '../graphql/users';
 import { apiUrl } from '../lib/config';
 import usePersistentState from './usePersistentState';
 import AlertContext, { MAX_DATE } from '../contexts/AlertContext';
+import SettingsContext from '../contexts/SettingsContext';
 
 export const getRankQueryKey = (user?: LoggedUser): string[] => [
   user?.id ?? 'anonymous',
@@ -40,8 +41,13 @@ const checkShouldShowRankModal = (
   rankLastSeen: Date,
   lastReadTime: Date,
   loadedAlerts: boolean,
-  neverShowRankModal?: boolean,
+  neverShowRankModal: boolean,
+  optOutWeeklyGoal: boolean,
 ) => {
+  if (optOutWeeklyGoal) {
+    return false;
+  }
+
   if (neverShowRankModal !== null && neverShowRankModal !== undefined) {
     return !neverShowRankModal;
   }
@@ -62,6 +68,7 @@ export default function useReadingRank(): ReturnType {
   const { user, tokenRefreshed } = useContext(AuthContext);
   const [levelUp, setLevelUp] = useState(false);
   const queryClient = useQueryClient();
+  const { optOutWeeklyGoal } = useContext(SettingsContext);
 
   const [cachedRank, setCachedRank, loadedCache] = usePersistentState<
     MyRankData & { userId: string; neverShowRankModal?: boolean }
@@ -97,6 +104,7 @@ export default function useReadingRank(): ReturnType {
     cachedRank?.rank?.lastReadTime || remoteRank?.rank?.lastReadTime,
     loadedAlerts,
     neverShowRankModal,
+    optOutWeeklyGoal,
   );
 
   const updateShownProgress = async () => {
