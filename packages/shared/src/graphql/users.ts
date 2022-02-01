@@ -83,6 +83,16 @@ export interface UserReadHistoryData {
   userReadHistory: UserReadHistory[];
 }
 
+export interface ReadingTopTag {
+  tag: string;
+  readingDays: number;
+  percentage?: number;
+}
+
+export interface UserReadingTopTagsData {
+  userReadingTopTags: ReadingTopTag[];
+}
+
 export const USER_READING_HISTORY_QUERY = gql`
   query UserReadingHistory($id: ID!, $after: String!, $before: String!) {
     userReadingRankHistory(id: $id) {
@@ -92,6 +102,11 @@ export const USER_READING_HISTORY_QUERY = gql`
     userReadHistory(id: $id, after: $after, before: $before) {
       date
       reads
+    }
+    userReadingTopTags(id: $id, after: $after, before: $before) {
+      tag
+      readingDays
+      percentage
     }
   }
 `;
