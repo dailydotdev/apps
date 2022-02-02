@@ -147,7 +147,7 @@ it('should show rank if opt out weekly goals widget is checked', () =>
     });
   }));
 
-it('should not show rank if opt out weekly goals widget is checked', () =>
+it('should not show rank if opt out weekly goals widget is not checked', () =>
   testSettingsMutation({ optOutWeeklyGoal: false }, async () => {
     await setCache('rank', {
       rank: { progressThisWeek: 1, currentRank: 0, readToday: false },
@@ -155,7 +155,6 @@ it('should not show rank if opt out weekly goals widget is checked', () =>
     });
     renderComponent([], null);
     await waitFor(() => {
-      expect(screen.queryAllByTestId('completedPath').length).toEqual(0);
-      expect(screen.queryAllByTestId('remainingPath').length).toEqual(0);
+      expect(screen.queryAllByTestId('completedPath')).not.toBeInTheDocument();
     });
   }));
