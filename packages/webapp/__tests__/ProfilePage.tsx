@@ -176,7 +176,7 @@ const createReadingHistoryMock = (
     data: {
       userReadingRankHistory: rankHistory,
       userReadHistory: [{ date: '2021-02-01', reads: 2 }],
-      userReadingTopTags: defaultTopTags,
+      userMostReadTags: defaultTopTags,
     },
   },
 });
