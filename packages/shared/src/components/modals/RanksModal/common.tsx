@@ -1,4 +1,5 @@
 import classed from '../../../lib/classed';
+import { Rank } from '../../../lib/rank';
 import { LoggedUser } from '../../../lib/user';
 import { ModalProps } from '../StyledModal';
 
@@ -18,7 +19,7 @@ export interface Tag {
 }
 export interface RankBadgeItemProps {
   showRank: number;
-  itemRank: number;
+  itemRank: Rank;
   progress: number;
 }
 export interface RanksTagsProps {

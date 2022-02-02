@@ -10,7 +10,15 @@ export const RANK_OFFSET = [
   '-87.5%',
   '-112.5%',
 ];
-export const RANKS = [
+export interface Rank {
+  name: string;
+  steps: number;
+  level: number;
+  background: string;
+  border: string;
+  color: string;
+}
+export const RANKS: Rank[] = [
   {
     name: 'Starter',
     steps: 1,
