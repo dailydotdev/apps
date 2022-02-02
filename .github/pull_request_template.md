@@ -1,13 +1,13 @@
 ## Changes
 
 - Describe what this PR does
-- Short and conside, bullet points can help
+- Short and concise, bullet points can help
 - Screenshots if applicable can also help
 
-## Testing
+## Manual Testing
 
-- Did you introduce testing for this PR
-- ☑️ Did you test the webapp?
-- ☑️ Did you test the extension?
+- On those affected packages:
+- [ ] Have you done sanity checks in the webapp?
+- [ ] Have you done sanity checks in the extension?
 
 DD-{number} #done
