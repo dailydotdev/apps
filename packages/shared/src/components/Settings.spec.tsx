@@ -175,7 +175,7 @@ export const testSettingsMutation = async (
   settings: Partial<RemoteSettings>,
   updateFunc: () => Promise<void>,
   initialSettings = defaultSettings,
-) => {
+): Promise<void> => {
   renderComponent(defaultUser, initialSettings);
 
   let mutationCalled = false;
