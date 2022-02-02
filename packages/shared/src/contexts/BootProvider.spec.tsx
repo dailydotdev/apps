@@ -56,7 +56,7 @@ const defaultSettings: RemoteSettings = {
   showTopSites: true,
   sidebarExpanded: true,
   sortingEnabled: false,
-  showWeeklyGoals: true,
+  optOutWeeklyGoal: true,
 };
 
 const defaultBootData: BootCacheData = {
@@ -122,8 +122,8 @@ const SettingsMock = ({ toTheme, toSpaciness }: SettingsMockProps) => {
     showTopSites,
     toggleSortingEnabled,
     sortingEnabled,
-    showWeeklyGoals,
-    toggleShowWeeklyGoals,
+    optOutWeeklyGoal,
+    toggleOptOutWeeklyGoal,
   } = useContext(SettingsContext);
 
   return (
@@ -150,9 +150,9 @@ const SettingsMock = ({ toTheme, toSpaciness }: SettingsMockProps) => {
         Show Only Unread
       </button>
       <button
-        onClick={toggleShowWeeklyGoals}
+        onClick={toggleOptOutWeeklyGoal}
         type="button"
-        data-test-value={showWeeklyGoals}
+        data-test-value={optOutWeeklyGoal}
       >
         Show Weekly Goal widget
       </button>

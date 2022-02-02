@@ -47,8 +47,8 @@ export default function Settings({
     toggleShowTopSites,
     sortingEnabled,
     toggleSortingEnabled,
-    showWeeklyGoals,
-    toggleShowWeeklyGoals,
+    optOutWeeklyGoal,
+    toggleOptOutWeeklyGoal,
   } = useContext(SettingsContext);
   const [themes, setThemes] = useState([
     { label: 'Dark', value: 'dark' },
@@ -156,8 +156,8 @@ export default function Settings({
             inputId="weekly-goal-widget-switch"
             name="weekly-goal-widget"
             className="my-3 big"
-            checked={showWeeklyGoals}
-            onToggle={() => onToggleForLoggedInUsers(toggleShowWeeklyGoals)}
+            checked={!optOutWeeklyGoal}
+            onToggle={() => onToggleForLoggedInUsers(toggleOptOutWeeklyGoal)}
             compact={false}
           >
             Show Weekly Goal widget
