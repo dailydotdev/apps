@@ -244,6 +244,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
                 rank={0}
                 progress={0}
                 hideProgress
+                tags={[]}
                 isOpen={showRanksModal}
                 onRequestClose={() => setShowRanksModal(false)}
                 confirmationText="Ok, got it"
