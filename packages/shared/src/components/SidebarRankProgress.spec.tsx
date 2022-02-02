@@ -134,7 +134,7 @@ it('should show rank for anonymous users', async () => {
   });
 });
 
-it('should show rank if opt out weekly goals widget is checked', () =>
+it('should show rank if show weekly goals toggle is checked', () =>
   testSettingsMutation({ optOutWeeklyGoal: true }, async () => {
     await setCache('rank', {
       rank: { progressThisWeek: 1, currentRank: 0, readToday: false },
@@ -147,7 +147,7 @@ it('should show rank if opt out weekly goals widget is checked', () =>
     });
   }));
 
-it('should not show rank if opt out weekly goals widget is not checked', () =>
+it('should not show rank if show weekly goals toggle is not checked', () =>
   testSettingsMutation({ optOutWeeklyGoal: false }, async () => {
     await setCache('rank', {
       rank: { progressThisWeek: 1, currentRank: 0, readToday: false },
