@@ -171,7 +171,7 @@ it('should utilize local cache settings for anonymous users', async () => {
   );
 });
 
-const testSettingsMutation = async (
+export const testSettingsMutation = async (
   settings: Partial<RemoteSettings>,
   updateFunc: () => Promise<void>,
   initialSettings = defaultSettings,
