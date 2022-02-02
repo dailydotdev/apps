@@ -137,13 +137,13 @@ it('should show rank for anonymous users', async () => {
 
 it('should show rank if show weekly goals toggle is checked', async () => {
   await setCache('rank', {
-    rank: { progressThisWeek: 1, currentRank: 0, readToday: false },
+    rank: { progressThisWeek: 1, currentRank: 1, readToday: false },
     userId: defaultUser.id,
   });
   renderComponent([], null);
   await waitFor(() => {
     expect(screen.queryAllByTestId('completedPath').length).toEqual(1);
-    expect(screen.queryAllByTestId('remainingPath').length).toEqual(2);
+    expect(screen.queryAllByTestId('remainingPath').length).toEqual(1);
   });
 });
 
