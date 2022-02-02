@@ -9,7 +9,8 @@ import FeaturesContext from '../contexts/FeaturesContext';
 import { Features, getFeatureValue } from '../lib/featureManagement';
 
 const RanksModal = dynamic(
-  () => import(/* webpackChunkName: "ranksModal" */ './modals/RanksModal'),
+  () =>
+    import(/* webpackChunkName: "ranksModal" */ './modals/RanksModal/index'),
 );
 
 const NewRankModal = dynamic(

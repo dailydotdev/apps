@@ -58,7 +58,7 @@ export const getStaticPaths = getProfileStaticPaths;
 const RanksModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "ranksModal" */ '@dailydotdev/shared/src/components/modals/RanksModal'
+      /* webpackChunkName: "ranksModal" */ '@dailydotdev/shared/src/components/modals/RanksModal/index'
     ),
 );
 

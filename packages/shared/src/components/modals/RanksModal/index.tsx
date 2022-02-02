@@ -1,0 +1,55 @@
+import React, { ReactElement, useContext } from 'react';
+import { ModalCloseButton } from '../ModalCloseButton';
+import { ResponsiveModal } from '../ResponsiveModal';
+import { useTrackModal } from '../../../hooks/useTrackModal';
+import RanksBadges from './RanksBadges';
+import RanksTags from './RanksTags';
+import DevCardFooter from './DevCardFooter';
+import IntroSection from './IntroSection';
+import { RanksModalProps, Tag } from './common';
+import AuthContext from '../../../contexts/AuthContext';
+import { ModalHeader } from '../common';
+
+export default function RanksModal({
+  rank,
+  progress,
+  hideProgress,
+  confirmationText,
+  reads,
+  devCardLimit,
+  onRequestClose,
+  onShowAccount,
+  className,
+  ...props
+}: RanksModalProps): ReactElement {
+  const { user } = useContext(AuthContext);
+  useTrackModal({ isOpen: props.isOpen, title: 'ranks modal' });
+  const currentRank = rank;
+
+  // Todo: Refactor these to load from API
+  const tags: Tag[] = [
+    { title: 'general-programming', count: 0 },
+    { title: 'carreer', count: 1 },
+    { title: 'startup', count: 2 },
+    { title: 'productivity', count: 3 },
+    { title: 'webdev', count: 4 },
+    { title: 'javascript', count: 5 },
+    { title: 'css', count: 6 },
+    { title: 'tailwind-css', count: 7 },
+  ].reverse();
+
+  return (
+    <ResponsiveModal {...props} onRequestClose={onRequestClose} padding={false}>
+      <ModalHeader>
+        <h3 className="font-bold typo-title3">Weekly reading goal</h3>
+        <ModalCloseButton onClick={onRequestClose} />
+      </ModalHeader>
+      <IntroSection onShowAccount={onShowAccount} user={user} />
+      <RanksBadges rank={currentRank} progress={progress} />
+      <RanksTags tags={tags} />
+      {!hideProgress && reads > devCardLimit && (
+        <DevCardFooter rank={rank} user={user} />
+      )}
+    </ResponsiveModal>
+  );
+}

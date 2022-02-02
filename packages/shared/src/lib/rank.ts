@@ -104,3 +104,29 @@ export const getNextRankText = ({
 };
 
 export const isFinalRank = (rank: number): boolean => rank === RANKS.length;
+export const isFinalRankCompleted = (rank: number, progress: number): boolean =>
+  isFinalRank(rank) && progress === RANKS[rank - 1].steps;
+export const getShowRank = (
+  finalRank: boolean,
+  rank: number,
+  progress: number,
+): number => {
+  if (
+    (finalRank && progress === RANKS[rank - 1].steps) ||
+    progress >= RANKS[rank].steps
+  ) {
+    return rank;
+  }
+
+  return rank + 1;
+};
+export const isRankCompleted = (
+  currentRank: number,
+  checkRank: number,
+  progress: number,
+): boolean => {
+  return (
+    currentRank > checkRank ||
+    (currentRank === RANKS.length && progress === RANKS[currentRank - 1].steps)
+  );
+};
