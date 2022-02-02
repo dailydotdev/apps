@@ -28,6 +28,7 @@ import {
   ActivityContainer,
   ActivitySectionTitle,
   ActivitySectionTitleStat,
+  TitleWithLink,
 } from '@dailydotdev/shared/src/components/profile/ActivitySection';
 import { ReadingTagProgress } from '@dailydotdev/shared/src/components/profile/ReadingTagProgress';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -211,7 +212,12 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
         <>
           <ActivityContainer>
             <ActivitySectionTitle>
-              Weekly goal
+              <TitleWithLink
+                title="Weekly goal"
+                subtitle="Learn how we count"
+                clickableTitle="weekly goals"
+                link="https://docs.daily.dev/docs/your-profile/weekly-goal"
+              />
               <Dropdown
                 className="hidden laptop:block ml-auto"
                 selectedIndex={selectedHistoryYear}
@@ -235,13 +241,6 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
                 />
               ))}
             </div>
-            <button
-              type="button"
-              className="self-start mt-4 bg-none border-none typo-callout text-theme-label-link focus-outline"
-              onClick={() => setShowRanksModal(true)}
-            >
-              Learn how we count weekly goals
-            </button>
             {showRanksModal && (
               <RanksModal
                 rank={0}
@@ -257,7 +256,12 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
           </ActivityContainer>
           <ActivityContainer>
             <ActivitySectionTitle>
-              Top tags by reading days
+              <TitleWithLink
+                title="Top tags by reading days"
+                subtitle="Learn how we count"
+                clickableTitle="top tags"
+                link="https://docs.daily.dev/docs/your-profile/weekly-goal"
+              />
             </ActivitySectionTitle>
             <div className="grid grid-cols-1 tablet:grid-cols-2 gap-3 tablet:gap-10">
               {readingHistory.userMostReadTags?.map((tag) => (

@@ -2,6 +2,7 @@ import React, { Fragment, ReactElement, ReactNode } from 'react';
 import { InfiniteQueryObserverBaseResult } from 'react-query';
 import { Connection } from '../../graphql/common';
 import classed from '../../lib/classed';
+import { ClickableText } from '../buttons/ClickableText';
 
 export const ActivityContainer = classed('section', 'flex flex-col mt-10');
 
@@ -9,10 +10,42 @@ export const ActivitySectionTitle = classed(
   'h2',
   'flex items-center mb-4 text-theme-label-primary font-bold typo-body',
 );
+
+export const ActivitySectionSubTitle = classed(
+  'span',
+  'flex flex-row mt-1 text-theme-label-tertiary typo-callout font-normal',
+);
+
 export const ActivitySectionTitleStat = classed(
   'span',
   'ml-1 text-theme-label-secondary font-normal',
 );
+
+interface TitleWithLinkProps {
+  title: string;
+  subtitle: string;
+  clickableTitle: string;
+  link: string;
+}
+
+export const TitleWithLink = ({
+  title,
+  subtitle,
+  clickableTitle,
+  link,
+}: TitleWithLinkProps): ReactElement => {
+  return (
+    <span className="flex flex-col">
+      {title}
+      <ActivitySectionSubTitle>
+        {subtitle}
+        <ClickableText tag="a" className="ml-1" href={link}>
+          {clickableTitle}
+        </ClickableText>
+      </ActivitySectionSubTitle>
+    </span>
+  );
+};
 
 export const LoadMore = classed(
   'button',
