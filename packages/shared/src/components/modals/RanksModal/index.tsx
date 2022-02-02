@@ -13,6 +13,7 @@ import { ModalHeader } from '../common';
 export default function RanksModal({
   rank,
   progress,
+  tags,
   hideProgress,
   confirmationText,
   reads,
@@ -25,18 +26,6 @@ export default function RanksModal({
   const { user } = useContext(AuthContext);
   useTrackModal({ isOpen: props.isOpen, title: 'ranks modal' });
   const currentRank = rank;
-
-  // Todo: Refactor these to load from API
-  const tags: Tag[] = [
-    { title: 'general-programming', count: 0 },
-    { title: 'carreer', count: 1 },
-    { title: 'startup', count: 2 },
-    { title: 'productivity', count: 3 },
-    { title: 'webdev', count: 4 },
-    { title: 'javascript', count: 5 },
-    { title: 'css', count: 6 },
-    { title: 'tailwind-css', count: 7 },
-  ].reverse();
 
   return (
     <ResponsiveModal {...props} onRequestClose={onRequestClose} padding={false}>

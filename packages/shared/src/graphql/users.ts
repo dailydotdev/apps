@@ -1,4 +1,5 @@
 import { gql } from 'graphql-request';
+import { TopTags } from '../hooks/useReadingRank';
 
 type PostStats = {
   numPosts: number;
@@ -54,6 +55,7 @@ export interface MyRankData {
     rankLastWeek: number;
     currentRank: number;
     progressThisWeek: number;
+    tags: TopTags;
     readToday: boolean;
     lastReadTime?: Date;
   };
@@ -61,13 +63,18 @@ export interface MyRankData {
 }
 
 export const MY_READING_RANK_QUERY = gql`
-  query UserReadingRank($id: ID!) {
-    rank: userReadingRank(id: $id) {
+  query UserReadingRank($id: ID!, $version: Int) {
+    rank: userReadingRank(id: $id, version: $version) {
       rankLastWeek
       currentRank
       progressThisWeek
       readToday
       lastReadTime
+      tags {
+        tag
+        readingDays
+        percentage
+      }
     }
     reads: userReads
   }

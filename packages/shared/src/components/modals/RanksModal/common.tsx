@@ -1,3 +1,4 @@
+import { TopTags, Tag } from '../../../hooks/useReadingRank';
 import classed from '../../../lib/classed';
 import { Rank } from '../../../lib/rank';
 import { LoggedUser } from '../../../lib/user';
@@ -6,6 +7,7 @@ import { ModalProps } from '../StyledModal';
 export interface RanksModalProps extends ModalProps {
   rank: number;
   progress: number;
+  tags: TopTags;
   hideProgress?: boolean;
   confirmationText?: string;
   reads: number;
@@ -13,10 +15,7 @@ export interface RanksModalProps extends ModalProps {
   onShowAccount?: () => void;
 }
 export type RanksBadgesProps = Pick<RanksModalProps, 'rank' | 'progress'>;
-export interface Tag {
-  title: string;
-  count: number;
-}
+
 export interface RankBadgeItemProps {
   showRank: number;
   itemRank: Rank;

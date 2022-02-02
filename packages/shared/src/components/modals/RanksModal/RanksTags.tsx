@@ -9,7 +9,7 @@ const RanksTags = ({ tags }: RanksTagsProps): ReactElement => {
       <ModalSubTitle>Reading status per tag</ModalSubTitle>
       <RanksTagsList>
         {tags.map((tag) => (
-          <RankTagItem tag={tag} key={tag.title} />
+          <RankTagItem tag={tag} key={tag.tag} />
         ))}
       </RanksTagsList>
     </RanksTagsSection>
