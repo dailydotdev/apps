@@ -1,6 +1,4 @@
 .radialProgress {
-  width: 1em;
-  height: 1em;
   font-size: 3rem;
 }
 
@@ -16,6 +14,6 @@
     transform: rotate(90deg);
     transform-origin: center;
     transition: stroke-dashoffset 0.5s ease-out
-    var(--radial-progress-transition-delay);
+      var(--radial-progress-transition-delay);
   }
 }

@@ -15,12 +15,19 @@ export const getRankQueryKey = (user?: LoggedUser): string[] => [
   'rank',
 ];
 
+export type Tag = {
+  tag: string;
+  readingDays: number;
+  percentage?: number;
+};
+export type TopTags = Tag[];
 type ReturnType = {
   isLoading: boolean;
   rank: number;
   rankLastWeek: number;
   nextRank: number;
   progress: number;
+  tags: TopTags;
   levelUp: boolean;
   shouldShowRankModal: boolean;
   confirmLevelUp: (neverShowRankModal: boolean) => Promise<void>;
@@ -31,6 +38,7 @@ const defaultRank: MyRankData = {
   rank: {
     progressThisWeek: 0,
     currentRank: 0,
+    tags: [],
     readToday: false,
     rankLastWeek: 0,
   },
@@ -80,6 +88,7 @@ export default function useReadingRank(): ReturnType {
     () =>
       request(`${apiUrl}/graphql`, MY_READING_RANK_QUERY, {
         id: user.id,
+        version: 2,
         timezone: user.timezone,
       }),
     {
@@ -179,6 +188,7 @@ export default function useReadingRank(): ReturnType {
     rank: cachedRank?.rank.currentRank,
     nextRank: remoteRank?.rank.currentRank,
     progress: cachedRank?.rank.progressThisWeek,
+    tags: cachedRank?.rank.tags,
     reads: remoteRank?.reads,
     levelUp,
     shouldShowRankModal,

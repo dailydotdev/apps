@@ -16,6 +16,7 @@ interface WrapperProps extends HTMLAttributes<HTMLLIElement> {
 const Wrapper = ({ sidebarExpanded, children, ...props }: WrapperProps) => {
   return (
     <li
+      data-testid="sidebarRankProgressWrapper"
       className={classnames(
         'flex items-center mt-4',
         sidebarExpanded ? 'px-3 h-16' : 'px-1.5 h-8',
@@ -35,7 +36,11 @@ export default function SidebarRankProgress({
   const { isLoading, rank, nextRank } = useReadingRank();
 
   if (isLoading) {
-    return <Wrapper sidebarExpanded={sidebarExpanded}>&nbsp;</Wrapper>;
+    return (
+      <Wrapper aria-busy={isLoading} sidebarExpanded={sidebarExpanded}>
+        &nbsp;
+      </Wrapper>
+    );
   }
 
   return (

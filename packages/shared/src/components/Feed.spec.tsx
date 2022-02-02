@@ -401,9 +401,10 @@ it('should increase reading rank progress', async () => {
     expect(data).toEqual({
       rank: {
         readToday: true,
-        currentRank: 0,
+        currentRank: 1,
         progressThisWeek: 1,
         lastReadTime: expect.anything(),
+        rankLastWeek: undefined,
       },
       reads: 0,
     });
@@ -522,7 +523,7 @@ it('should increase reading rank progress for anonymous users', async () => {
     expect(data).toEqual({
       rank: {
         readToday: true,
-        currentRank: 0,
+        currentRank: 1,
         progressThisWeek: 1,
         lastReadTime: expect.anything(),
       },

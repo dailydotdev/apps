@@ -31,10 +31,11 @@ beforeEach(() => {
 const createRankMock = (
   data: MyRankData = {
     rank: {
-      progressThisWeek: 2,
-      currentRank: 0,
+      progressThisWeek: 1,
+      currentRank: 2,
       readToday: false,
       rankLastWeek: 0,
+      tags: [],
     },
     reads: 0,
   },
@@ -42,7 +43,7 @@ const createRankMock = (
 ): MockedGraphQLResponse<MyRankData> => ({
   request: {
     query: MY_READING_RANK_QUERY,
-    variables: { id: userId },
+    variables: { id: userId, version: 2 },
   },
   result: {
     data,
@@ -101,48 +102,48 @@ const renderComponent = (
 it('should create dynamically the progress bar according to the props', async () => {
   renderComponent();
   await waitFor(() => {
-    expect(screen.queryAllByTestId('completedPath').length).toEqual(2);
-    expect(screen.queryAllByTestId('remainingPath').length).toEqual(1);
+    expect(screen.queryAllByTestId('completedPath').length).toEqual(1);
+    expect(screen.queryAllByTestId('remainingPath').length).toEqual(2);
   });
 });
 
 it('should first show cached rank and animate to fetched rank', async () => {
   await setCache('rank', {
-    rank: { progressThisWeek: 1, currentRank: 0, readToday: false },
+    rank: { progressThisWeek: 0, currentRank: 1, readToday: false },
     userId: defaultUser.id,
   });
   renderComponent();
   await waitFor(() => {
-    expect(screen.queryAllByTestId('completedPath').length).toEqual(1);
-    expect(screen.queryAllByTestId('remainingPath').length).toEqual(2);
+    expect(screen.queryAllByTestId('completedPath').length).toEqual(0);
+    expect(screen.queryAllByTestId('remainingPath').length).toEqual(1);
   });
   await waitFor(() => {
-    expect(screen.queryAllByTestId('completedPath').length).toEqual(2);
-    expect(screen.queryAllByTestId('remainingPath').length).toEqual(1);
+    expect(screen.queryAllByTestId('completedPath').length).toEqual(1);
+    expect(screen.queryAllByTestId('remainingPath').length).toEqual(2);
   });
 });
 
 it('should show rank for anonymous users', async () => {
   await setCache('rank', {
-    rank: { progressThisWeek: 1, currentRank: 0, readToday: false },
+    rank: { progressThisWeek: 1, currentRank: 1, readToday: false },
     userId: null,
   });
   renderComponent([], null);
   await waitFor(() => {
     expect(screen.queryAllByTestId('completedPath').length).toEqual(1);
-    expect(screen.queryAllByTestId('remainingPath').length).toEqual(2);
+    expect(screen.queryAllByTestId('remainingPath').length).toEqual(1);
   });
 });
 
 it('should show rank if show weekly goals toggle is checked', async () => {
   await setCache('rank', {
-    rank: { progressThisWeek: 1, currentRank: 0, readToday: false },
+    rank: { progressThisWeek: 1, currentRank: 1, readToday: false },
     userId: defaultUser.id,
   });
   renderComponent([], null);
   await waitFor(() => {
     expect(screen.queryAllByTestId('completedPath').length).toEqual(1);
-    expect(screen.queryAllByTestId('remainingPath').length).toEqual(2);
+    expect(screen.queryAllByTestId('remainingPath').length).toEqual(1);
   });
 });
 

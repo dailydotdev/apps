@@ -33,7 +33,7 @@ import {
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import dynamic from 'next/dynamic';
 import Rank from '@dailydotdev/shared/src/components/Rank';
-import { RANK_NAMES } from '@dailydotdev/shared/src/lib/rank';
+import { RANKS } from '@dailydotdev/shared/src/lib/rank';
 import CommentsSection from '@dailydotdev/shared/src/components/profile/CommentsSection';
 import PostsSection from '@dailydotdev/shared/src/components/profile/PostsSection';
 import AuthorStats from '@dailydotdev/shared/src/components/profile/AuthorStats';
@@ -58,7 +58,7 @@ export const getStaticPaths = getProfileStaticPaths;
 const RanksModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "ranksModal" */ '@dailydotdev/shared/src/components/modals/RanksModal'
+      /* webpackChunkName: "ranksModal" */ '@dailydotdev/shared/src/components/modals/RanksModal/index'
     ),
 );
 
@@ -219,14 +219,14 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
           <ActivityContainer>
             <ActivitySectionTitle>Weekly goal</ActivitySectionTitle>
             <div className="flex flex-wrap">
-              {RANK_NAMES.map((rankName, rank) => (
+              {RANKS.map((rank) => (
                 <RankHistory
-                  key={rankName}
-                  rank={rank + 1}
-                  rankName={rankName}
+                  key={rank.level}
+                  rank={rank.level}
+                  rankName={rank.name}
                   count={
                     readingHistory.userReadingRankHistory.find(
-                      (history) => history.rank === rank + 1,
+                      (history) => history.rank === rank.level,
                     )?.count ?? 0
                   }
                 />
@@ -244,6 +244,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
                 rank={0}
                 progress={0}
                 hideProgress
+                tags={[]}
                 isOpen={showRanksModal}
                 onRequestClose={() => setShowRanksModal(false)}
                 confirmationText="Ok, got it"
