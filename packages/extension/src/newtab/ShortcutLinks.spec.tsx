@@ -84,7 +84,7 @@ const defaultSettings: RemoteSettings = {
   showTopSites: true,
   sidebarExpanded: true,
   sortingEnabled: false,
-  showWeeklyGoals: true,
+  optOutWeeklyGoal: true,
   customLinks: [
     'http://custom1.com',
     'http://custom2.com',

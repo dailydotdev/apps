@@ -12,6 +12,8 @@ import defaultUser from '../../__tests__/fixture/loggedUser';
 import AuthContext from '../contexts/AuthContext';
 import { MY_READING_RANK_QUERY, MyRankData } from '../graphql/users';
 import SidebarRankProgress from './SidebarRankProgress';
+import { SettingsContextProvider } from '../contexts/SettingsContext';
+import { RemoteSettings } from '../graphql/settings';
 
 jest.mock('../hooks/usePersistentState', () => {
   const originalModule = jest.requireActual('../hooks/usePersistentState');
@@ -50,9 +52,24 @@ const createRankMock = (
 
 let queryClient: QueryClient;
 
+const defaultSettings: RemoteSettings = {
+  theme: 'bright',
+  openNewTab: false,
+  showOnlyUnreadPosts: true,
+  spaciness: 'roomy',
+  insaneMode: false,
+  showTopSites: true,
+  sidebarExpanded: true,
+  sortingEnabled: false,
+  optOutWeeklyGoal: true,
+};
+
+const updateSettings = jest.fn();
+
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createRankMock()],
   user: LoggedUser = defaultUser,
+  settings: RemoteSettings = defaultSettings,
 ): RenderResult => {
   queryClient = new QueryClient();
   mocks.forEach(mockGraphQL);
@@ -70,7 +87,13 @@ const renderComponent = (
           closeLogin: jest.fn(),
         }}
       >
-        <SidebarRankProgress />
+        <SettingsContextProvider
+          settings={settings}
+          updateSettings={updateSettings}
+          loadedSettings
+        >
+          <SidebarRankProgress />
+        </SettingsContextProvider>
       </AuthContext.Provider>
     </QueryClientProvider>,
   );
@@ -109,5 +132,28 @@ it('should show rank for anonymous users', async () => {
   await waitFor(() => {
     expect(screen.queryAllByTestId('completedPath').length).toEqual(1);
     expect(screen.queryAllByTestId('remainingPath').length).toEqual(1);
+  });
+});
+
+it('should show rank if show weekly goals toggle is checked', async () => {
+  await setCache('rank', {
+    rank: { progressThisWeek: 1, currentRank: 0, readToday: false },
+    userId: defaultUser.id,
+  });
+  renderComponent([], null);
+  await waitFor(() => {
+    expect(screen.queryAllByTestId('completedPath').length).toEqual(1);
+    expect(screen.queryAllByTestId('remainingPath').length).toEqual(2);
+  });
+});
+
+it('should not show rank if show weekly goals toggle is not checked', async () => {
+  await setCache('rank', {
+    rank: { progressThisWeek: 1, currentRank: 0, readToday: false },
+    userId: defaultUser.id,
+  });
+  renderComponent([], null, { ...defaultSettings, optOutWeeklyGoal: false });
+  await waitFor(() => {
+    expect(screen.queryByTestId('completedPath')).not.toBeInTheDocument();
   });
 });
