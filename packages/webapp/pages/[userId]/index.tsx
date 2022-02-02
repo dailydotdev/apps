@@ -21,10 +21,8 @@ import {
   USER_READING_HISTORY_QUERY,
   USER_STATS_QUERY,
   UserReadHistory,
-  UserReadHistoryData,
-  UserReadingRankHistoryData,
   UserStatsData,
-  UserReadingTopTagsData,
+  ProfileReadingData,
 } from '@dailydotdev/shared/src/graphql/users';
 import {
   ActivityContainer,
@@ -126,10 +124,6 @@ const getHistoryTitle = (
   }
   return 'the last months';
 };
-
-type ProfileReadingData = UserReadingRankHistoryData &
-  UserReadHistoryData &
-  UserReadingTopTagsData;
 
 const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);

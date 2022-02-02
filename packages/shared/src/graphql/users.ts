@@ -73,6 +73,10 @@ export const MY_READING_RANK_QUERY = gql`
   }
 `;
 
+export type ProfileReadingData = UserReadingRankHistoryData &
+  UserReadHistoryData &
+  UserReadingTopTagsData;
+
 export type UserReadingRankHistory = { rank: number; count: number };
 export interface UserReadingRankHistoryData {
   userReadingRankHistory: UserReadingRankHistory[];
