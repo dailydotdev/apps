@@ -210,7 +210,17 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
       {readingHistory?.userReadingRankHistory && (
         <>
           <ActivityContainer>
-            <ActivitySectionTitle>Weekly goal</ActivitySectionTitle>
+            <ActivitySectionTitle>
+              Weekly goal
+              <Dropdown
+                className="hidden laptop:block ml-auto"
+                selectedIndex={selectedHistoryYear}
+                options={dropdownOptions}
+                onChange={(val, index) => setSelectedHistoryYear(index)}
+                buttonSize="small"
+                style={{ width: '8rem', minWidth: 'fit-content' }}
+              />
+            </ActivitySectionTitle>
             <div className="flex flex-wrap">
               {RANK_NAMES.map((rankName, rank) => (
                 <RankHistory
@@ -250,10 +260,10 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
               Top tags by reading days
             </ActivitySectionTitle>
             <div className="grid grid-cols-1 tablet:grid-cols-2 gap-3 tablet:gap-10">
-              {readingHistory.userReadingTopTags?.map((topTag) => (
+              {readingHistory.userMostReadTags?.map((tag) => (
                 <ReadingTagProgress
-                  key={topTag.tag}
-                  topTag={topTag}
+                  key={tag.value}
+                  tag={tag}
                   isFilterSameYear={
                     dropdownOptions[selectedHistoryYear] === CURRENT_YEAR
                   }
@@ -270,14 +280,6 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
                   ({totalReads})
                 </ActivitySectionTitleStat>
               )}
-              <Dropdown
-                className="hidden laptop:block ml-auto"
-                selectedIndex={selectedHistoryYear}
-                options={dropdownOptions}
-                onChange={(val, index) => setSelectedHistoryYear(index)}
-                buttonSize="small"
-                style={{ width: '8rem', minWidth: 'fit-content' }}
-              />
             </ActivitySectionTitle>
             <CalendarHeatmap
               startDate={after}

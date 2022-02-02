@@ -1,17 +1,17 @@
 import React, { ReactElement } from 'react';
 import { getDayOfYear, getDaysInYear } from 'date-fns';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { ReadingTopTag } from '../../graphql/users';
+import { MostReadTag } from '../../graphql/users';
 
 interface ReadingTagProgressProps {
-  topTag: ReadingTopTag;
+  tag: MostReadTag;
   isFilterSameYear?: boolean;
 }
 
 const now = new Date();
 
 export function ReadingTagProgress({
-  topTag: { tag, readingDays, percentage },
+  tag: { value: tag, count, percentage },
   isFilterSameYear = true,
 }: ReadingTagProgressProps): ReactElement {
   const value = `${(percentage * 100).toFixed(0)}%`;
@@ -19,7 +19,7 @@ export function ReadingTagProgress({
 
   return (
     <SimpleTooltip
-      content={`${readingDays}/${denominator} reading days`}
+      content={`${count}/${denominator} reading days`}
       placement="top"
     >
       <div

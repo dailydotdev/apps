@@ -24,7 +24,7 @@ export const USER_STATS_QUERY = gql`
 
 export type UserReadingRank = { currentRank: number };
 export type UserReadingRankData = { userReadingRank: UserReadingRank };
-export type MostReadTag = { value: string; count: number };
+export type MostReadTag = { value: string; count: number; percentage?: number };
 export type UserTooltipContentData = {
   rank: UserReadingRank;
   tags: MostReadTag[];
@@ -86,15 +86,8 @@ export type UserReadHistory = { date: string; reads: number };
 export interface UserReadHistoryData {
   userReadHistory: UserReadHistory[];
 }
-
-export interface ReadingTopTag {
-  tag: string;
-  readingDays: number;
-  percentage?: number;
-}
-
 export interface UserReadingTopTagsData {
-  userReadingTopTags: ReadingTopTag[];
+  userMostReadTags: MostReadTag[];
 }
 
 export const USER_READING_HISTORY_QUERY = gql`
@@ -107,9 +100,9 @@ export const USER_READING_HISTORY_QUERY = gql`
       date
       reads
     }
-    userReadingTopTags(id: $id, after: $after, before: $before) {
-      tag
-      readingDays
+    userMostReadTags(id: $id, after: $after, before: $before) {
+      value
+      count
       percentage
     }
   }
