@@ -55,13 +55,6 @@ const ReactTooltip = dynamic(() => import('react-tooltip'));
 export const getStaticProps = getProfileStaticProps;
 export const getStaticPaths = getProfileStaticPaths;
 
-const RanksModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "ranksModal" */ '@dailydotdev/shared/src/components/modals/RanksModal'
-    ),
-);
-
 const readHistoryToValue = (value: UserReadHistory): number => value.reads;
 const readHistoryToTooltip = (
   value: UserReadHistory,
@@ -130,7 +123,6 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
   const fullHistory = useMedia([laptop.replace('@media ', '')], [true], false);
-  const [showRanksModal, setShowRanksModal] = useState(false);
   const [selectedHistoryYear, setSelectedHistoryYear] = useState(0);
   const [before, after] = useMemo<[Date, Date]>(() => {
     if (!fullHistory) {
@@ -241,18 +233,6 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
                 />
               ))}
             </div>
-            {showRanksModal && (
-              <RanksModal
-                rank={0}
-                progress={0}
-                hideProgress
-                isOpen={showRanksModal}
-                onRequestClose={() => setShowRanksModal(false)}
-                confirmationText="Ok, got it"
-                reads={0}
-                devCardLimit={0}
-              />
-            )}
           </ActivityContainer>
           <ActivityContainer>
             <ActivitySectionTitle>
