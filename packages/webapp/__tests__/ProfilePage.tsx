@@ -384,7 +384,7 @@ it('should show the top reading tags of the user', async () => {
   renderComponent();
   await waitForNock();
   await Promise.all(
-    defaultTopTags.map(async ({ tag }) => {
+    defaultTopTags.map(async ({ value: tag }) => {
       const el = await screen.findByText(`#${tag}`);
       expect(el).toBeInTheDocument();
     }),
