@@ -20,7 +20,7 @@ import {
   UserReadingRankHistory,
   UserStats,
   UserStatsData,
-  ReadingTopTag,
+  MostReadTag,
   ProfileReadingData,
 } from '@dailydotdev/shared/src/graphql/users';
 import { QueryClient, QueryClientProvider } from 'react-query';
@@ -137,20 +137,20 @@ const createUserStatsMock = (
   },
 });
 
-const defaultTopTags: ReadingTopTag[] = [
+const defaultTopTags: MostReadTag[] = [
   {
-    tag: 'javascript',
-    readingDays: 4,
+    value: 'javascript',
+    count: 4,
     percentage: 0.4,
   },
   {
-    tag: 'golang',
-    readingDays: 3,
+    value: 'golang',
+    count: 3,
     percentage: 0.3,
   },
   {
-    tag: 'c#',
-    readingDays: 3,
+    value: 'c#',
+    count: 3,
     percentage: 0.3,
   },
 ];
