@@ -10,31 +10,32 @@ const TimezoneText = ({
   onShowAccount,
   user,
 }: IntroSectionProps): ReactElement => {
-  const signIn = (
-    <ModalText className={classes}>
-      To fit the weekly goal to your time zone, please sign up and add it in the
-      account details.
-    </ModalText>
-  );
+  if (!user) {
+    return (
+      <ModalText className={classes}>
+        To fit the weekly goal to your time zone, please sign up and add it in
+        the account details.
+      </ModalText>
+    );
+  }
 
-  const accountDetails = (
-    <ModalText className={classes}>
-      To fit the weekly goal to your time zone, please add it in your{' '}
-      <SimpleTooltip content="Open account details">
-        <ClickableText
-          tag="a"
-          className="inline-flex text-theme-label-link"
-          onClick={() => onShowAccount()}
-        >
-          account details.
-        </ClickableText>
-      </SimpleTooltip>
-    </ModalText>
-  );
+  if (!user?.timezone) {
+    return (
+      <ModalText className={classes}>
+        To fit the weekly goal to your time zone, please add it in your{' '}
+        <SimpleTooltip content="Open account details">
+          <ClickableText
+            tag="a"
+            className="inline-flex text-theme-label-link"
+            onClick={() => onShowAccount()}
+          >
+            account details.
+          </ClickableText>
+        </SimpleTooltip>
+      </ModalText>
+    );
+  }
 
-  const loggedTimezoneDescription = !user?.timezone ? accountDetails : null;
-  const timezoneDescription = !user ? signIn : loggedTimezoneDescription;
-
-  return timezoneDescription;
+  return null;
 };
 export default TimezoneText;
