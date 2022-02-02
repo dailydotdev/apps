@@ -1,5 +1,4 @@
 import { gql } from 'graphql-request';
-import { TopTags } from '../hooks/useReadingRank';
 
 type PostStats = {
   numPosts: number;
@@ -50,6 +49,12 @@ export const USER_TOOLTIP_CONTENT_QUERY = gql`
   }
 `;
 
+export type Tag = {
+  tag: string;
+  readingDays: number;
+  percentage?: number;
+};
+export type TopTags = Tag[];
 export interface MyRankData {
   rank: {
     rankLastWeek: number;

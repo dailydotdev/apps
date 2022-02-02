@@ -67,7 +67,7 @@ export function RankProgress({
 
   const finalRank = isFinalRank(rank);
   const levelUp = () =>
-    rank >= shownRank &&
+    rank > shownRank &&
     rank > 0 &&
     (rank !== rankLastWeek || progress === RANKS[rank - 1].steps);
   const getLevelText = levelUp() ? 'You made it 🏆' : '+1 Reading day';
@@ -85,14 +85,7 @@ export function RankProgress({
       return RANKS[rank].steps;
     }
     return 0;
-  }, [
-    showRankAnimation,
-    showCurrentRankSteps,
-    shownRank,
-    progress,
-    rank,
-    finalRank,
-  ]);
+  }, [showRankAnimation, showCurrentRankSteps, shownRank, progress, rank]);
 
   const animateRank = () => {
     setForceColor(true);
@@ -263,7 +256,7 @@ export function RankProgress({
             mountOnEnter
             unmountOnExit
           >
-            {levelUp() || !animatingProgress ? (
+            {!showRankAnimation || !animatingProgress ? (
               <Rank
                 rank={shownRank}
                 className={classNames(

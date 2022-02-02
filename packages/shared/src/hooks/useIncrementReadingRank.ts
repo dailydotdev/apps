@@ -35,6 +35,7 @@ export default function useIncrementReadingRank(): ReturnType {
               rankLastWeek: currentRank.rank.rankLastWeek,
               readToday: true,
               currentRank: progress >= RANKS[rank].steps ? rank + 1 : rank,
+              tags: currentRank.rank.tags,
               progressThisWeek: progress,
               lastReadTime: new Date(),
             },

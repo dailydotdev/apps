@@ -6,7 +6,7 @@ import RanksBadges from './RanksBadges';
 import RanksTags from './RanksTags';
 import DevCardFooter from './DevCardFooter';
 import IntroSection from './IntroSection';
-import { RanksModalProps, Tag } from './common';
+import { RanksModalProps } from './common';
 import AuthContext from '../../../contexts/AuthContext';
 import { ModalHeader } from '../common';
 
