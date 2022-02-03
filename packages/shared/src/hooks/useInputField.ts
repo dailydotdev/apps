@@ -31,9 +31,7 @@ export function useInputField(
   };
 
   useEffect(() => {
-    if (value) {
-      setInput(value.toString());
-    }
+    setInput(value?.toString() || '');
   }, [value]);
 
   const onFocus = () => setFocused(true);
