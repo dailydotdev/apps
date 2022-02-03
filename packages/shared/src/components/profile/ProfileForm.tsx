@@ -133,7 +133,7 @@ export default function ProfileForm({
 
   const twitterField = (
     <FormField
-      compact
+      fieldType="secondary"
       inputId="twitter"
       name="twitter"
       label="Twitter"
@@ -153,7 +153,7 @@ export default function ProfileForm({
     <>
       <SectionHeading>About</SectionHeading>
       <FormField
-        compact
+        fieldType="secondary"
         inputId="bio"
         name="bio"
         label="Bio"
@@ -162,7 +162,7 @@ export default function ProfileForm({
         validityChanged={updateDisableSubmit}
       />
       <FormField
-        compact
+        fieldType="secondary"
         inputId="company"
         name="company"
         label="Company"
@@ -171,7 +171,7 @@ export default function ProfileForm({
         validityChanged={updateDisableSubmit}
       />
       <FormField
-        compact
+        fieldType="secondary"
         inputId="title"
         name="title"
         label="Job title"
@@ -182,7 +182,7 @@ export default function ProfileForm({
       <SectionHeading>Social</SectionHeading>
       {mode !== 'author' && twitterField}
       <FormField
-        compact
+        fieldType="secondary"
         inputId="github"
         name="github"
         label="GitHub"
@@ -196,7 +196,7 @@ export default function ProfileForm({
         valueChanged={() => githubHint && setGithubHint(null)}
       />
       <FormField
-        compact
+        fieldType="secondary"
         inputId="hashnode"
         name="hashnode"
         label="Hashnode"
@@ -210,7 +210,7 @@ export default function ProfileForm({
         valueChanged={() => hashnodeHint && setHashnodeHint(null)}
       />
       <FormField
-        compact
+        fieldType="secondary"
         inputId="portfolio"
         name="portfolio"
         label="Website"
@@ -240,7 +240,7 @@ export default function ProfileForm({
     >
       <SectionHeading>Profile</SectionHeading>
       <FormField
-        compact
+        fieldType="secondary"
         inputId="name"
         name="name"
         label="Name"
@@ -251,7 +251,7 @@ export default function ProfileForm({
         validityChanged={updateDisableSubmit}
       />
       <FormField
-        compact
+        fieldType="secondary"
         inputId="username"
         name="username"
         label="Username"
@@ -265,7 +265,7 @@ export default function ProfileForm({
         valueChanged={() => usernameHint && setUsernameHint(null)}
       />
       <FormField
-        compact
+        fieldType="secondary"
         inputId="email"
         name="email"
         label="Email"
