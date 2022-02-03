@@ -125,6 +125,8 @@ export const FormErrorMessage = classed(
 
 export const ProfileHeading = classed('h1', 'm-0 self-start typo-title2');
 
+export const BookmarksModelHeading = classed('h1', 'm-0 self-start typo-title3');
+
 export const ActiveTabIndicator = classed(
   'div',
   'absolute inset-x-0 bottom-0 h-0.5 my-0 mx-auto bg-theme-label-primary',
