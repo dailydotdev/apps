@@ -18,8 +18,8 @@ import { TextField } from '../fields/TextField';
 import { ModalHeader } from './common';
 import TwitterIcon from '../../../icons/twitter_color.svg';
 import SlackIcon from '../../../icons/slack.svg';
-import WhatsappIcon from '../../../icons/whatsapp_color.svg';
-import TelegramIcon from '../../../icons/telegram_color.svg';
+import DiscordIcon from '../../../icons/discord_color.svg';
+import GithubIcon from '../../../icons/github.svg';
 import { ModalCloseButton } from './ModalCloseButton';
 import { useCopyLink } from '../../hooks/useCopyLink';
 
@@ -110,11 +110,11 @@ export default function SharedBookmarksModal({
             >
               Explore tutorials
             </Button>
-            <div className="flex items-center gap-1 h-8 text-2xl">
-              <SlackIcon />
+            <div className="flex items-center gap-2 h-8 text-2xl">
+              <DiscordIcon />
               <TwitterIcon />
-              <TelegramIcon />
-              <WhatsappIcon />
+              <SlackIcon />
+              <GithubIcon />
             </div>
           </div>
         </section>
