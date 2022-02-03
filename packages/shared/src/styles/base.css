@@ -64,17 +64,17 @@ body {
 
   --theme-overlay-quaternary: theme('colors.overlay.quaternary.white');
 
-  --theme-rank-1-color: theme('colors.avocado.40');
-  --theme-rank-1-color-top: theme('colors.avocado.40');
-  --theme-rank-1-color-bottom: theme('colors.cheese.40');
+  --theme-rank-1-color: theme('colors.salt.90');
+  --theme-rank-1-color-top: theme('colors.salt.90');
+  --theme-rank-1-color-bottom: theme('colors.pepper.10');
 
   --theme-rank-2-color: theme('colors.burger.40');
   --theme-rank-2-color-top: theme('colors.burger.40');
   --theme-rank-2-color-bottom: theme('colors.bun.40');
 
-  --theme-rank-3-color: theme('colors.salt.40');
-  --theme-rank-3-color-top: #ffffff;
-  --theme-rank-3-color-bottom: theme('colors.salt.40');
+  --theme-rank-3-color: theme('colors.salt.10');
+  --theme-rank-3-color-top: theme('colors.salt.10');
+  --theme-rank-3-color-bottom: theme('colors.salt.90');
 
   --theme-rank-4-color: theme('colors.cheese.40');
   --theme-rank-4-color-top: theme('colors.cheese.40');
@@ -88,9 +88,9 @@ body {
   --theme-rank-6-color-top: theme('colors.cabbage.40');
   --theme-rank-6-color-bottom: theme('colors.onion.40');
 
-  --theme-rank-7-color: theme('colors.ketchup.40');
-  --theme-rank-7-color-top: theme('colors.ketchup.40');
-  --theme-rank-7-color-bottom: theme('colors.cabbage.40');
+  --theme-rank-7-color: theme('colors.bacon.40');
+  --theme-rank-7-color-top: theme('colors.bacon.40');
+  --theme-rank-7-color-bottom: theme('colors.ketchup.40');
 
   --theme-highlight-comment: theme('colors.salt.10');
   --theme-highlight-red: theme('colors.ketchup.20');
@@ -113,6 +113,7 @@ body {
   --theme-color-cabbage: theme('colors.cabbage.40');
   --theme-color-onion: theme('colors.onion.40');
   --theme-color-water: theme('colors.water.40');
+  --theme-color-salt: theme('colors.salt.40');
 }
 
 @define-mixin light-mode {
@@ -158,17 +159,17 @@ body {
 
   --theme-overlay-quaternary: theme('colors.overlay.quaternary.pepper');
 
-  --theme-rank-1-color: theme('colors.avocado.60');
-  --theme-rank-1-color-top: theme('colors.avocado.60');
-  --theme-rank-1-color-bottom: theme('colors.cheese.60');
+  --theme-rank-1-color: theme('colors.pepper.10');
+  --theme-rank-1-color-top: theme('colors.pepper.10');
+  --theme-rank-1-color-bottom: theme('colors.pepper.90');
 
   --theme-rank-2-color: theme('colors.burger.60');
   --theme-rank-2-color-top: theme('colors.burger.60');
   --theme-rank-2-color-bottom: theme('colors.bun.60');
 
-  --theme-rank-3-color: theme('colors.pepper.60');
+  --theme-rank-3-color: theme('colors.salt.90');
   --theme-rank-3-color-top: theme('colors.salt.90');
-  --theme-rank-3-color-bottom: theme('colors.pepper.60');
+  --theme-rank-3-color-bottom: theme('colors.pepper.10');
 
   --theme-rank-4-color: theme('colors.cheese.60');
   --theme-rank-4-color-top: theme('colors.cheese.60');
@@ -182,9 +183,9 @@ body {
   --theme-rank-6-color-top: theme('colors.cabbage.60');
   --theme-rank-6-color-bottom: theme('colors.onion.60');
 
-  --theme-rank-7-color: theme('colors.ketchup.60');
-  --theme-rank-7-color-top: theme('colors.ketchup.60');
-  --theme-rank-7-color-bottom: theme('colors.cabbage.60');
+  --theme-rank-7-color: theme('colors.bacon.60');
+  --theme-rank-7-color-top: theme('colors.bacon.60');
+  --theme-rank-7-color-bottom: theme('colors.ketchup.60');
 
   --theme-highlight-comment: theme('colors.pepper.10');
   --theme-highlight-red: theme('colors.ketchup.80');
@@ -207,6 +208,7 @@ body {
   --theme-color-cabbage: theme('colors.cabbage.60');
   --theme-color-onion: theme('colors.onion.60');
   --theme-color-water: theme('colors.water.60');
+  --theme-color-salt: theme('colors.pepper.40');
 }
 
 @media (prefers-color-scheme: light) {

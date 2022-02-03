@@ -63,6 +63,7 @@ module.exports = {
           cabbage: 'var(--theme-color-cabbage)',
           onion: 'var(--theme-color-onion)',
           water: 'var(--theme-color-water)',
+          salt: 'var(--theme-color-salt)',
         },
         'post-disabled': 'var(--theme-post-disabled)',
         highlight: {
