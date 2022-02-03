@@ -1,14 +1,12 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import CopyIcon from '../../../icons/copy.svg';
-import AuthContext from '../../contexts/AuthContext';
 import { Button } from '../buttons/Button';
 import { ResponsiveModal } from './ResponsiveModal';
 import { ModalProps } from './StyledModal';
-import { BookmarksModelHeading } from '../utilities';
 import styles from './AccountDetailsModal.module.css';
 import { Switch } from '../fields/Switch';
-import { useMutation, useQuery } from 'react-query';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 import {
   BookmarksSharingData,
   BOOKMARK_SHARING_MUTATION,
@@ -16,7 +14,6 @@ import {
 } from '../../graphql/bookmarksSharing';
 import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
-import SettingsContext from '../../contexts/SettingsContext';
 import { TextField } from '../fields/TextField';
 import { ModalHeader } from './common';
 import TwitterIcon from '../../../icons/twitter_color.svg';
@@ -30,32 +27,27 @@ export default function SharedBookmarksModal({
   className,
   ...props
 }: ModalProps): ReactElement {
-  const [shareBookmarks, setShareBookmarks] = useState<boolean>(false);
-  const [shareBookmarksRssUrl, setShareBookmarksRssUrl] = useState<string>('');
-
   const { data: bookmarksSharingData } = useQuery<BookmarksSharingData>(
     'bookmarksSharing',
     () => request(`${apiUrl}/graphql`, BOOKMARK_SHARING_QUERY),
   );
-
-  useEffect(() => {
-    if (bookmarksSharingData?.bookmarksSharing?.enabled) {
-      setShareBookmarks(true);
-    }
-    setShareBookmarksRssUrl(bookmarksSharingData?.bookmarksSharing?.rssUrl);
-  }, [bookmarksSharingData]);
-
-
+  const queryClient = useQueryClient();
 
   const { mutateAsync: updateBookmarksSharing } = useMutation<{
     enabled: boolean;
-  }>(() => {
-    const updatedValue = !shareBookmarks;
-    setShareBookmarks(updatedValue);
-    return request(`${apiUrl}/graphql`, BOOKMARK_SHARING_MUTATION, {
-      enabled: updatedValue,
-    });
-  });
+  }>(
+    () => {
+      const updatedValue = !bookmarksSharingData?.bookmarksSharing?.enabled;
+      return request(`${apiUrl}/graphql`, BOOKMARK_SHARING_MUTATION, {
+        enabled: updatedValue,
+      });
+    },
+    {
+      onSuccess: (data) => {
+        queryClient.setQueryData('bookmarksSharing', data);
+      },
+    },
+  );
 
   const [isRssUrlCopied, copyRssUrl] = useCopyLink(
     () => bookmarksSharingData?.bookmarksSharing?.rssUrl,
@@ -76,7 +68,7 @@ export default function SharedBookmarksModal({
             inputId="share-bookmarks-switch"
             name="hide-read"
             className="mb-4"
-            checked={shareBookmarks}
+            checked={bookmarksSharingData?.bookmarksSharing?.enabled}
             onToggle={updateBookmarksSharing}
             compact={false}
           >
@@ -87,7 +79,7 @@ export default function SharedBookmarksModal({
             bookmarks. Use this link to integrate and automatically share your
             bookmarks with other developers.
           </p>
-          {shareBookmarks && (
+          {bookmarksSharingData?.bookmarksSharing?.enabled && (
             <TextField
               className="mt-6"
               name="rssUrl"
@@ -97,7 +89,7 @@ export default function SharedBookmarksModal({
               fieldType="tertiary"
               actionIcon={<CopyIcon />}
               onActionIconClick={copyRssUrl}
-              value={shareBookmarksRssUrl}
+              value={bookmarksSharingData?.bookmarksSharing?.rssUrl}
               readOnly
             />
           )}

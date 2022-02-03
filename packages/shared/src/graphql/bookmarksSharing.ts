@@ -21,7 +21,7 @@ export const BOOKMARK_SHARING_QUERY = gql`
 
 export const BOOKMARK_SHARING_MUTATION = gql`
   mutation SetBookmarksSharing($enabled: Boolean!) {
-    setBookmarksSharing(enabled: $enabled) {
+    bookmarksSharing: setBookmarksSharing(enabled: $enabled) {
       enabled
       slug
       rssUrl
