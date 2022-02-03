@@ -10,6 +10,7 @@ import classNames from 'classnames';
 import { useInputField } from '../../hooks/useInputField';
 import { BaseField, FieldInput } from './common';
 import styles from './TextField.module.css';
+import { Button } from '../buttons/Button';
 
 type FieldType = 'primary' | 'secondary' | 'tertiary';
 
@@ -23,7 +24,8 @@ export interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   valueChanged?: (value: string) => void;
   fieldType?: FieldType;
   leftIcon?: ReactNode;
-  rightIcon?: ReactNode;
+  actionIcon?: ReactNode;
+  onActionIconClick?: () => unknown;
 }
 
 export function TextField({
@@ -43,7 +45,8 @@ export function TextField({
   fieldType = 'primary',
   readOnly,
   leftIcon,
-  rightIcon,
+  actionIcon,
+  onActionIconClick,
   disabled,
   ...props
 }: TextFieldProps): ReactElement {
@@ -176,7 +179,7 @@ export function TextField({
           'flex flex-row items-center',
           isSecondaryField ? 'h-9 rounded-10' : 'h-12 rounded-14',
           leftIcon && 'pl-3',
-          rightIcon && 'pr-3',
+          actionIcon && 'pr-3',
           {
             readOnly,
             focused,
@@ -191,7 +194,7 @@ export function TextField({
         <div
           className={classNames(
             'flex flex-col flex-1 items-start max-w-full',
-            rightIcon && 'mr-2',
+            actionIcon && 'mr-2',
           )}
         >
           {isPrimaryField && (focused || hasInput) && (
@@ -224,6 +227,14 @@ export function TextField({
           >
             {maxLength - inputLength}
           </div>
+        )}
+        {actionIcon && (
+          <Button
+            buttonSize="small"
+            className="btn-tertiary"
+            onClick={onActionIconClick}
+            icon={actionIcon}
+          />
         )}
       </BaseField>
       {(hint?.length || saveHintSpace) && (
