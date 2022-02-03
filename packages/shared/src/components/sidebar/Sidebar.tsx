@@ -147,8 +147,12 @@ export default function Sidebar({
     setLoaded: openFeedFilters,
     setHidden,
   } = useDynamicLoadedAnimation();
-  const { sidebarExpanded, toggleSidebarExpanded, loadedSettings } =
-    useContext(SettingsContext);
+  const {
+    sidebarExpanded,
+    toggleSidebarExpanded,
+    loadedSettings,
+    optOutWeeklyGoal,
+  } = useContext(SettingsContext);
   const [showSettings, setShowSettings] = useState(false);
   const shouldShowDnD = !!process.env.TARGET_BROWSER;
   const { flags } = useContext(FeaturesContext);
@@ -327,7 +331,7 @@ export default function Sidebar({
             <InvitePeople
               sidebarExpanded={sidebarExpanded || sidebarRendered === false}
             />
-            {sidebarRendered && (
+            {sidebarRendered && !optOutWeeklyGoal && (
               <SidebarRankProgress sidebarExpanded={sidebarExpanded} />
             )}
           </Nav>

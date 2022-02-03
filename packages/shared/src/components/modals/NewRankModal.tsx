@@ -10,7 +10,7 @@ import { CSSTransition } from 'react-transition-group';
 import classNames from 'classnames';
 import { RankProgress } from '../RankProgress';
 import { RankConfetti } from '../../svg/RankConfetti';
-import { RANK_NAMES, rankToColor, STEPS_PER_RANK } from '../../lib/rank';
+import { rankToColor, RANKS } from '../../lib/rank';
 import { LoggedUser } from '../../lib/user';
 import { Checkbox } from '../fields/Checkbox';
 import LoginButtons from '../LoginButtons';
@@ -82,7 +82,7 @@ export default function NewRankModal({
       } else {
         setAnimatingRank(true);
         setShownRank(rank);
-        setShownProgress(STEPS_PER_RANK[rank - 1]);
+        setShownProgress(RANKS[rank - 1].steps);
       }
     };
 
@@ -123,8 +123,8 @@ export default function NewRankModal({
         ) : (
           <>
             <RadialProgress
-              progress={STEPS_PER_RANK[rank - 1]}
-              steps={STEPS_PER_RANK[rank - 1]}
+              progress={RANKS[rank - 1].steps}
+              steps={RANKS[rank - 1].steps}
               maxDegrees={270}
               className={styles.radialProgress}
             />
@@ -151,7 +151,7 @@ export default function NewRankModal({
             className={`${styles.rankConfetti} absolute inset-x-0 top-0 h-full mx-auto`}
             style={
               {
-                '--fill-color': rank < RANK_NAMES.length && 'var(--rank-color)',
+                '--fill-color': rank < RANKS.length && 'var(--rank-color)',
               } as CSSProperties
             }
           />
@@ -159,7 +159,7 @@ export default function NewRankModal({
       </div>
       <h1 className="mt-2 font-bold text-center typo-callout">{title}</h1>
       <p className="mt-1 mb-8 text-center text-theme-label-secondary typo-callout">
-        You earned the {RANK_NAMES[rank - 1]?.toLowerCase()} rank
+        You earned the {RANKS[rank - 1].name?.toLowerCase()} rank
         {!user && (
           <>
             <br />

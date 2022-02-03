@@ -24,7 +24,7 @@ import {
   ProfileReadingData,
 } from '@dailydotdev/shared/src/graphql/users';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { RANK_NAMES } from '@dailydotdev/shared/src/lib/rank';
+import { RANKS } from '@dailydotdev/shared/src/lib/rank';
 import { startOfTomorrow, subDays, subMonths } from 'date-fns';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
 import ProfilePage from '../pages/[userId]/index';
@@ -374,7 +374,7 @@ it('should show the reading rank history of the user', async () => {
   const counts = [0, 5, 0, 0, 3];
   await Promise.all(
     counts.map(async (count, index) => {
-      const el = await screen.findByLabelText(`${RANK_NAMES[index]}: ${count}`);
+      const el = await screen.findByLabelText(`${RANKS[index].name}: ${count}`);
       expect(el).toBeInTheDocument();
     }),
   );
