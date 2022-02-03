@@ -23,9 +23,9 @@ export const RANKS: Rank[] = [
     name: 'Starter',
     steps: 1,
     level: 1,
-    background: 'bg-theme-status-success',
-    border: 'border-theme-status-success',
-    color: 'text-theme-status-success',
+    background: 'bg-theme-divider-primary',
+    border: 'border-theme-divider-primary',
+    color: 'text-theme-label-tertiary',
   },
   {
     name: 'Bronze',
@@ -39,9 +39,9 @@ export const RANKS: Rank[] = [
     name: 'Silver',
     steps: 3,
     level: 3,
-    background: 'bg-theme-label-tertiary',
-    border: 'border-theme-border-tertiary',
-    color: 'text-theme-label-tertiary',
+    background: 'bg-theme-color-salt',
+    border: 'border-theme-color-salt',
+    color: 'text-theme-color-salt',
   },
   {
     name: 'Gold',
@@ -71,9 +71,9 @@ export const RANKS: Rank[] = [
     name: 'Legendary',
     steps: 7,
     level: 7,
-    background: 'bg-theme-color-ketchup',
-    border: 'border-theme-color-ketchup',
-    color: 'text-theme-color-ketchup',
+    background: 'bg-theme-color-bacon',
+    border: 'border-theme-color-bacon',
+    color: 'text-theme-color-bacon',
   },
 ];
 
