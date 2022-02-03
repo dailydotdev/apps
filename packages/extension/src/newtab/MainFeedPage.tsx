@@ -78,7 +78,7 @@ export default function MainFeedPage({
           {(onboardingStep > 2 || user) && (
             <HeaderButton
               icon={<TimerIcon />}
-              {...getTooltipProps('Do Not Disturb', { position: 'down' })}
+              {...getTooltipProps('Focus Mode', { position: 'down' })}
               className="btn-tertiary"
               onClick={() => setShowDnd(true)}
               pressed={showDnd}
