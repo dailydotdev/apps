@@ -216,12 +216,11 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
                 link="https://docs.daily.dev/docs/your-profile/weekly-goal"
               />
               <Dropdown
-                className="hidden laptop:block ml-auto"
+                className="hidden laptop:block ml-auto w-32 min-w-fit"
                 selectedIndex={selectedHistoryYear}
                 options={dropdownOptions}
                 onChange={(val, index) => setSelectedHistoryYear(index)}
                 buttonSize="small"
-                style={{ width: '8rem', minWidth: 'fit-content' }}
               />
             </ActivitySectionTitle>
             <div className="grid grid-cols-5 tablet:grid-cols-3 tablet:gap-2 gap-x-1 gap-y-3 tablet:max-w-full max-w-[17rem]">
