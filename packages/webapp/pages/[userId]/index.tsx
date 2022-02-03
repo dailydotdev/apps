@@ -238,7 +238,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
               clickableTitle="top tags"
               link="https://docs.daily.dev/docs/your-profile/weekly-goal"
             />
-            <div className="grid grid-cols-1 tablet:grid-cols-2 gap-3 tablet:gap-10 tablet:max-w-full max-w-[17rem]">
+            <div className="grid grid-cols-1 tablet:grid-cols-2 gap-3 tablet:gap-x-10 tablet:max-w-full max-w-[17rem]">
               {readingHistory.userMostReadTags?.map((tag) => (
                 <ReadingTagProgress key={tag.value} tag={tag} />
               ))}
