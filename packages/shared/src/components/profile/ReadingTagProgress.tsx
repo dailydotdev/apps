@@ -22,6 +22,7 @@ export function ReadingTagProgress({
         <div
           className="overflow-hidden absolute bottom-0 left-0 h-1 rounded-8 bg-theme-label-primary"
           style={{ width: value }}
+          data-testId="tagProgress"
         />
       </div>
     </SimpleTooltip>
