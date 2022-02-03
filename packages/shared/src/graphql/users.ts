@@ -108,8 +108,13 @@ export interface UserReadingTopTagsData {
 }
 
 export const USER_READING_HISTORY_QUERY = gql`
-  query UserReadingHistory($id: ID!, $after: String!, $before: String!) {
-    userReadingRankHistory(id: $id) {
+  query UserReadingHistory(
+    $id: ID!
+    $after: String!
+    $before: String!
+    $version: Int
+  ) {
+    userReadingRankHistory(id: $id, version: $version) {
       rank
       count
     }

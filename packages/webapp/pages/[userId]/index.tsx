@@ -145,6 +145,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
         id: profile?.id,
         before,
         after,
+        version: 2,
       }),
     {
       enabled: !!profile && tokenRefreshed && !!before && !!after,
