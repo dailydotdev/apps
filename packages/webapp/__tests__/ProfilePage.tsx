@@ -17,11 +17,11 @@ import {
 import {
   USER_READING_HISTORY_QUERY,
   USER_STATS_QUERY,
-  UserReadHistoryData,
   UserReadingRankHistory,
-  UserReadingRankHistoryData,
   UserStats,
   UserStatsData,
+  MostReadTag,
+  ProfileReadingData,
 } from '@dailydotdev/shared/src/graphql/users';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { RANKS } from '@dailydotdev/shared/src/lib/rank';
@@ -137,6 +137,24 @@ const createUserStatsMock = (
   },
 });
 
+const defaultTopTags: MostReadTag[] = [
+  {
+    value: 'javascript',
+    count: 4,
+    percentage: 0.4,
+  },
+  {
+    value: 'golang',
+    count: 3,
+    percentage: 0.3,
+  },
+  {
+    value: 'c#',
+    count: 3,
+    percentage: 0.3,
+  },
+];
+
 const before = startOfTomorrow();
 const after = subMonths(subDays(before, 2), 6);
 
@@ -145,7 +163,7 @@ const createReadingHistoryMock = (
     { rank: 2, count: 5 },
     { rank: 5, count: 3 },
   ],
-): MockedGraphQLResponse<UserReadingRankHistoryData & UserReadHistoryData> => ({
+): MockedGraphQLResponse<ProfileReadingData> => ({
   request: {
     query: USER_READING_HISTORY_QUERY,
     variables: {
@@ -158,6 +176,7 @@ const createReadingHistoryMock = (
     data: {
       userReadingRankHistory: rankHistory,
       userReadHistory: [{ date: '2021-02-01', reads: 2 }],
+      userMostReadTags: defaultTopTags,
     },
   },
 });
@@ -356,6 +375,17 @@ it('should show the reading rank history of the user', async () => {
   await Promise.all(
     counts.map(async (count, index) => {
       const el = await screen.findByLabelText(`${RANKS[index].name}: ${count}`);
+      expect(el).toBeInTheDocument();
+    }),
+  );
+});
+
+it('should show the top reading tags of the user', async () => {
+  renderComponent();
+  await waitForNock();
+  await Promise.all(
+    defaultTopTags.map(async ({ value: tag }) => {
+      const el = await screen.findByText(`#${tag}`);
       expect(el).toBeInTheDocument();
     }),
   );

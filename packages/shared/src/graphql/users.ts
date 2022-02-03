@@ -24,7 +24,12 @@ export const USER_STATS_QUERY = gql`
 
 export type UserReadingRank = { currentRank: number };
 export type UserReadingRankData = { userReadingRank: UserReadingRank };
-export type MostReadTag = { value: string; count: number };
+export type MostReadTag = {
+  value: string;
+  count: number;
+  percentage?: number;
+  total?: number;
+};
 export type UserTooltipContentData = {
   rank: UserReadingRank;
   tags: MostReadTag[];
@@ -85,6 +90,10 @@ export const MY_READING_RANK_QUERY = gql`
   }
 `;
 
+export type ProfileReadingData = UserReadingRankHistoryData &
+  UserReadHistoryData &
+  UserReadingTopTagsData;
+
 export type UserReadingRankHistory = { rank: number; count: number };
 export interface UserReadingRankHistoryData {
   userReadingRankHistory: UserReadingRankHistory[];
@@ -93,6 +102,9 @@ export interface UserReadingRankHistoryData {
 export type UserReadHistory = { date: string; reads: number };
 export interface UserReadHistoryData {
   userReadHistory: UserReadHistory[];
+}
+export interface UserReadingTopTagsData {
+  userMostReadTags: MostReadTag[];
 }
 
 export const USER_READING_HISTORY_QUERY = gql`
@@ -104,6 +116,12 @@ export const USER_READING_HISTORY_QUERY = gql`
     userReadHistory(id: $id, after: $after, before: $before) {
       date
       reads
+    }
+    userMostReadTags(id: $id, after: $after, before: $before) {
+      value
+      count
+      total
+      percentage
     }
   }
 `;
