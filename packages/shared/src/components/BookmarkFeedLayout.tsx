@@ -5,6 +5,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import dynamic from 'next/dynamic';
 import { BOOKMARKS_FEED_QUERY, SEARCH_BOOKMARKS_QUERY } from '../graphql/feed';
 import AuthContext from '../contexts/AuthContext';
 import { CustomFeedHeader, FeedPage, FeedPageHeader } from './utilities';
@@ -12,7 +13,6 @@ import SearchEmptyScreen from './SearchEmptyScreen';
 import Feed, { FeedProps } from './Feed';
 import BookmarkEmptyScreen from './BookmarkEmptyScreen';
 import { Button } from './buttons/Button';
-import dynamic from 'next/dynamic';
 
 export type BookmarkFeedLayoutProps = {
   searchQuery?: string;
@@ -65,10 +65,10 @@ export default function BookmarkFeedLayout({
       <FeedPageHeader className="mb-5">
         <h3 className="font-bold typo-callout">Bookmarks</h3>
       </FeedPageHeader>
-      <CustomFeedHeader className="relative flex  mb-6">
+      <CustomFeedHeader className="flex relative mb-6">
         {searchChildren}
         <Button
-          className="btn-secondary ml-4"
+          className="ml-4 btn-secondary"
           buttonSize="medium"
           onClick={() => setShowSharedBookmarks(true)}
         >

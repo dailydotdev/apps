@@ -8,7 +8,6 @@ export type BookmarksSharing = {
 
 export type BookmarksSharingData = { bookmarksSharing: BookmarksSharing };
 
-
 export const BOOKMARK_SHARING_QUERY = gql`
   query BookmarksSharing {
     bookmarksSharing {

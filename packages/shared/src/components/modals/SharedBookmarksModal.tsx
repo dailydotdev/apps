@@ -1,18 +1,18 @@
-import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
+import request from 'graphql-request';
 import CopyIcon from '../../../icons/copy.svg';
 import { Button } from '../buttons/Button';
 import { ResponsiveModal } from './ResponsiveModal';
 import { ModalProps } from './StyledModal';
 import styles from './AccountDetailsModal.module.css';
 import { Switch } from '../fields/Switch';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
 import {
   BookmarksSharingData,
   BOOKMARK_SHARING_MUTATION,
   BOOKMARK_SHARING_QUERY,
 } from '../../graphql/bookmarksSharing';
-import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import { TextField } from '../fields/TextField';
 import { ModalHeader } from './common';
@@ -27,10 +27,10 @@ export default function SharedBookmarksModal({
   className,
   ...props
 }: ModalProps): ReactElement {
-  const { data: bookmarksSharingData } = useQuery<BookmarksSharingData>(
-    'bookmarksSharing',
-    () => request(`${apiUrl}/graphql`, BOOKMARK_SHARING_QUERY),
-  );
+  const { data: bookmarksSharingData, isFetched } =
+    useQuery<BookmarksSharingData>('bookmarksSharing', () =>
+      request(`${apiUrl}/graphql`, BOOKMARK_SHARING_QUERY),
+    );
   const queryClient = useQueryClient();
 
   const { mutateAsync: updateBookmarksSharing } = useMutation<{
@@ -49,9 +49,13 @@ export default function SharedBookmarksModal({
     },
   );
 
-  const [isRssUrlCopied, copyRssUrl] = useCopyLink(
+  const [, copyRssUrl] = useCopyLink(
     () => bookmarksSharingData?.bookmarksSharing?.rssUrl,
   );
+
+  if (!isFetched || !bookmarksSharingData?.bookmarksSharing) {
+    return <></>;
+  }
 
   return (
     <>
@@ -94,7 +98,7 @@ export default function SharedBookmarksModal({
             />
           )}
         </section>
-        <section className="m-4 p-6 rounded-16 border border-theme-divider-tertiary">
+        <section className="p-6 m-4 rounded-16 border border-theme-divider-tertiary">
           <p className="typo-callout text-theme-label-tertiary">
             Need inspiration? we prepared some tutorials explaining some best
             practices of integrating your bookmarks with other platforms.
@@ -110,7 +114,7 @@ export default function SharedBookmarksModal({
             >
               Explore tutorials
             </Button>
-            <div className="flex items-center gap-2 h-8 text-2xl">
+            <div className="flex gap-2 items-center h-8 text-2xl">
               <DiscordIcon />
               <TwitterIcon />
               <SlackIcon />
