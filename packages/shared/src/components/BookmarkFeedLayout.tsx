@@ -13,6 +13,7 @@ import SearchEmptyScreen from './SearchEmptyScreen';
 import Feed, { FeedProps } from './Feed';
 import BookmarkEmptyScreen from './BookmarkEmptyScreen';
 import { Button } from './buttons/Button';
+import SourceIcon from '../../icons/source_outline.svg';
 
 export type BookmarkFeedLayoutProps = {
   searchQuery?: string;
@@ -70,6 +71,7 @@ export default function BookmarkFeedLayout({
         <Button
           className="ml-4 btn-secondary"
           buttonSize="medium"
+          icon={<SourceIcon />}
           onClick={() => setShowSharedBookmarks(true)}
         >
           Share bookmarks
