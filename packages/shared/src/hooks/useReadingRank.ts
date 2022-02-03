@@ -71,6 +71,8 @@ const checkShouldShowRankModal = (
   return new Date(rankLastSeen) < new Date(lastReadTime);
 };
 
+export const RANK_CACHE_KEY = 'rank_v2';
+
 export default function useReadingRank(): ReturnType {
   const { alerts, loadedAlerts, updateAlerts } = useContext(AlertContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
@@ -80,7 +82,7 @@ export default function useReadingRank(): ReturnType {
 
   const [cachedRank, setCachedRank, loadedCache] = usePersistentState<
     MyRankData & { userId: string; neverShowRankModal?: boolean }
-  >('rank', null);
+  >(RANK_CACHE_KEY, null);
   const neverShowRankModal = cachedRank?.neverShowRankModal;
   const queryKey = getRankQueryKey(user);
   const { data: remoteRank } = useQuery<MyRankData>(
