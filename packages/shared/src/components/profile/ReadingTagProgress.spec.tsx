@@ -1,6 +1,5 @@
 import React from 'react';
 import nock from 'nock';
-import { getDayOfYear, getDaysInYear } from 'date-fns';
 import { render, screen } from '@testing-library/react';
 import { MostReadTag } from '../../graphql/users';
 import { ReadingTagProgress } from './ReadingTagProgress';
@@ -14,15 +13,11 @@ const defaultTopTag: MostReadTag = {
   value: 'javascript',
   count: 4,
   percentage: 0.8,
+  total: 5,
 };
 
-const renderComponent = (
-  isFilterSameYear = false,
-  tag: MostReadTag = defaultTopTag,
-) => {
-  return render(
-    <ReadingTagProgress tag={tag} isFilterSameYear={isFilterSameYear} />,
-  );
+const renderComponent = (tag: MostReadTag = defaultTopTag) => {
+  return render(<ReadingTagProgress tag={tag} />);
 };
 
 describe('ProfileTooltipContent component', () => {
@@ -33,18 +28,16 @@ describe('ProfileTooltipContent component', () => {
 
   it('should show the percentage', async () => {
     renderComponent();
-    await screen.findByText(`${(defaultTopTag.percentage * 100).toFixed(0)}%`);
+    const percentage = (defaultTopTag.percentage * 100).toFixed(0);
+    const value = `${percentage}%`;
+    await screen.findByText(value);
+    const progress = await screen.findByTestId('tagProgress');
+    expect(progress.style.width).toEqual(value);
   });
 
   it('should show default tooltip', async () => {
     renderComponent();
-    const days = getDaysInYear(new Date());
-    await screen.findByLabelText(`${defaultTopTag.count}/${days} reading days`);
-  });
-
-  it('should show appropriate tooltip for format same year', async () => {
-    renderComponent(true);
-    const days = getDayOfYear(new Date());
-    await screen.findByLabelText(`${defaultTopTag.count}/${days} reading days`);
+    const { count, total } = defaultTopTag;
+    await screen.findByLabelText(`${count}/${total} reading days`);
   });
 });
