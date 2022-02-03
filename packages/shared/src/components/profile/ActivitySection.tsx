@@ -42,7 +42,7 @@ export const ActivitySectionHeader = ({
         {title}
         <ActivitySectionSubTitle>
           {subtitle}
-          <ClickableText tag="a" className="ml-1" href={link}>
+          <ClickableText tag="a" target="_blank" className="ml-1" href={link}>
             {clickableTitle}
           </ClickableText>
         </ActivitySectionSubTitle>
