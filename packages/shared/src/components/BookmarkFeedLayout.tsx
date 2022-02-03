@@ -13,6 +13,8 @@ import Feed, { FeedProps } from './Feed';
 import BookmarkEmptyScreen from './BookmarkEmptyScreen';
 import { Button } from './buttons/Button';
 import dynamic from 'next/dynamic';
+import SourceIcon from '../../icons/source_outline.svg';
+
 
 export type BookmarkFeedLayoutProps = {
   searchQuery?: string;
@@ -70,6 +72,7 @@ export default function BookmarkFeedLayout({
         <Button
           className="btn-secondary ml-4"
           buttonSize="medium"
+          icon={<SourceIcon />}
           onClick={() => setShowSharedBookmarks(true)}
         >
           Share bookmarks
