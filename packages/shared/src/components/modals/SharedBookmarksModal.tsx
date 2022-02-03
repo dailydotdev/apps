@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import classNames from 'classnames';
-import XIcon from '../../../icons/x.svg';
+import CopyIcon from '../../../icons/copy.svg';
 import AuthContext from '../../contexts/AuthContext';
 import { Button } from '../buttons/Button';
 import { ResponsiveModal } from './ResponsiveModal';
@@ -24,14 +24,14 @@ import SlackIcon from '../../../icons/slack.svg';
 import WhatsappIcon from '../../../icons/whatsapp_color.svg';
 import TelegramIcon from '../../../icons/telegram_color.svg';
 import { ModalCloseButton } from './ModalCloseButton';
+import { useCopyLink } from '../../hooks/useCopyLink';
 
 export default function SharedBookmarksModal({
   className,
   ...props
 }: ModalProps): ReactElement {
-  const { user } = useContext(AuthContext);
   const [shareBookmarks, setShareBookmarks] = useState<boolean>(false);
-  const { tokenRefreshed } = useContext(AuthContext);
+  const [shareBookmarksRssUrl, setShareBookmarksRssUrl] = useState<string>('');
 
   const { data: bookmarksSharingData } = useQuery<BookmarksSharingData>(
     'bookmarksSharing',
@@ -39,9 +39,13 @@ export default function SharedBookmarksModal({
   );
 
   useEffect(() => {
-    if (bookmarksSharingData?.bookmarksSharing?.enabled)
+    if (bookmarksSharingData?.bookmarksSharing?.enabled) {
       setShareBookmarks(true);
+    }
+    setShareBookmarksRssUrl(bookmarksSharingData?.bookmarksSharing?.rssUrl);
   }, [bookmarksSharingData]);
+
+
 
   const { mutateAsync: updateBookmarksSharing } = useMutation<{
     enabled: boolean;
@@ -52,6 +56,10 @@ export default function SharedBookmarksModal({
       enabled: updatedValue,
     });
   });
+
+  const [isRssUrlCopied, copyRssUrl] = useCopyLink(
+    () => bookmarksSharingData?.bookmarksSharing?.rssUrl,
+  );
 
   return (
     <>
@@ -87,7 +95,9 @@ export default function SharedBookmarksModal({
               label="Your unique RSS URL"
               type="url"
               fieldType="tertiary"
-              value={bookmarksSharingData?.bookmarksSharing?.rssUrl}
+              actionIcon={<CopyIcon />}
+              onActionIconClick={copyRssUrl}
+              value={shareBookmarksRssUrl}
               readOnly
             />
           )}
