@@ -78,21 +78,26 @@ const readHistoryToTooltip = (
   );
 };
 
+interface RankHistoryProps {
+  rank: number;
+  rankName: string;
+  count: number;
+}
+
 const RankHistory = ({
   rank,
   rankName,
   count,
-}: {
-  rank: number;
-  rankName: string;
-  count: number;
-}): ReactElement => (
+}: RankHistoryProps): ReactElement => (
   <div
-    className="flex flex-col items-center p-2 mr-2 rounded-xl bg-theme-bg-secondary"
+    className="flex flex-col tablet:flex-row items-center p-2 tablet:py-1 tablet:pr-4 tablet:pl-2 font-bold rounded-12 border typo-callout border-theme-bg-secondary"
     aria-label={`${rankName}: ${count}`}
   >
-    <Rank rank={rank} colorByRank />
-    <span className="font-bold typo-callout">{count}</span>
+    <Rank className="w-8 h-8" rank={rank} colorByRank />
+    <span className="hidden tablet:block text-theme-label-tertiary">
+      {rankName}
+    </span>
+    <span className="tablet:ml-auto">{count}</span>
   </div>
 );
 
@@ -219,7 +224,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
                 style={{ width: '8rem', minWidth: 'fit-content' }}
               />
             </ActivitySectionTitle>
-            <div className="flex flex-wrap">
+            <div className="grid grid-cols-5 tablet:grid-cols-3 tablet:gap-2 gap-x-1 gap-y-3 tablet:max-w-full max-w-[17rem]">
               {RANKS.map((rank) => (
                 <RankHistory
                   key={rank.level}
