@@ -21,29 +21,34 @@ export const ActivitySectionTitleStat = classed(
   'ml-1 text-theme-label-secondary font-normal',
 );
 
-interface TitleWithLinkProps {
+interface ActivitySectionHeaderProps {
   title: string;
   subtitle: string;
   clickableTitle: string;
   link: string;
+  children?: ReactNode;
 }
 
-export const TitleWithLink = ({
+export const ActivitySectionHeader = ({
   title,
   subtitle,
   clickableTitle,
   link,
-}: TitleWithLinkProps): ReactElement => {
+  children,
+}: ActivitySectionHeaderProps): ReactElement => {
   return (
-    <span className="flex flex-col">
-      {title}
-      <ActivitySectionSubTitle>
-        {subtitle}
-        <ClickableText tag="a" className="ml-1" href={link}>
-          {clickableTitle}
-        </ClickableText>
-      </ActivitySectionSubTitle>
-    </span>
+    <ActivitySectionTitle>
+      <span className="flex flex-col">
+        {title}
+        <ActivitySectionSubTitle>
+          {subtitle}
+          <ClickableText tag="a" className="ml-1" href={link}>
+            {clickableTitle}
+          </ClickableText>
+        </ActivitySectionSubTitle>
+      </span>
+      {children}
+    </ActivitySectionTitle>
   );
 };
 

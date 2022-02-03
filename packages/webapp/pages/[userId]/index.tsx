@@ -26,9 +26,9 @@ import {
 } from '@dailydotdev/shared/src/graphql/users';
 import {
   ActivityContainer,
+  ActivitySectionHeader,
   ActivitySectionTitle,
   ActivitySectionTitleStat,
-  TitleWithLink,
 } from '@dailydotdev/shared/src/components/profile/ActivitySection';
 import { ReadingTagProgress } from '@dailydotdev/shared/src/components/profile/ReadingTagProgress';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -202,13 +202,12 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
       {readingHistory?.userReadingRankHistory && (
         <>
           <ActivityContainer>
-            <ActivitySectionTitle>
-              <TitleWithLink
-                title="Weekly goal"
-                subtitle="Learn how we count"
-                clickableTitle="weekly goals"
-                link="https://docs.daily.dev/docs/your-profile/weekly-goal"
-              />
+            <ActivitySectionHeader
+              title="Weekly goal"
+              subtitle="Learn how we count"
+              clickableTitle="weekly goals"
+              link="https://docs.daily.dev/docs/your-profile/weekly-goal"
+            >
               <Dropdown
                 className="hidden laptop:block ml-auto w-32 min-w-fit"
                 selectedIndex={selectedHistoryYear}
@@ -216,7 +215,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
                 onChange={(val, index) => setSelectedHistoryYear(index)}
                 buttonSize="small"
               />
-            </ActivitySectionTitle>
+            </ActivitySectionHeader>
             <div className="grid grid-cols-5 tablet:grid-cols-3 tablet:gap-2 gap-x-1 gap-y-3 tablet:max-w-full max-w-[17rem]">
               {RANKS.map((rank) => (
                 <RankHistory
@@ -233,14 +232,12 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
             </div>
           </ActivityContainer>
           <ActivityContainer>
-            <ActivitySectionTitle>
-              <TitleWithLink
-                title="Top tags by reading days"
-                subtitle="Learn how we count"
-                clickableTitle="top tags"
-                link="https://docs.daily.dev/docs/your-profile/weekly-goal"
-              />
-            </ActivitySectionTitle>
+            <ActivitySectionHeader
+              title="Top tags by reading days"
+              subtitle="Learn how we count"
+              clickableTitle="top tags"
+              link="https://docs.daily.dev/docs/your-profile/weekly-goal"
+            />
             <div className="grid grid-cols-1 tablet:grid-cols-2 gap-3 tablet:gap-10 tablet:max-w-full max-w-[17rem]">
               {readingHistory.userMostReadTags?.map((tag) => (
                 <ReadingTagProgress
