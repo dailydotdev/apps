@@ -27,7 +27,7 @@ export interface Rank {
 }
 export const RANKS: Rank[] = [
   {
-    name: 'Starter',
+    name: 'Iron',
     steps: 1,
     level: 1,
     background: 'bg-theme-divider-primary',
