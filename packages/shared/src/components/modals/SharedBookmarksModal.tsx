@@ -16,38 +16,42 @@ import {
 } from '../../graphql/bookmarksSharing';
 import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
+import SettingsContext from '../../contexts/SettingsContext';
+import { TextField } from '../fields/TextField';
+import { ModalHeader } from './common';
+import TwitterIcon from '../../../icons/twitter_color.svg';
+import SlackIcon from '../../../icons/slack.svg';
+import WhatsappIcon from '../../../icons/whatsapp_color.svg';
+import TelegramIcon from '../../../icons/telegram_color.svg';
+import { ModalCloseButton } from './ModalCloseButton';
 
 export default function SharedBookmarksModal({
   className,
   ...props
 }: ModalProps): ReactElement {
   const { user } = useContext(AuthContext);
-  const [shareBookmarks, setShareBookmarks] = useState(false);
+  const [shareBookmarks, setShareBookmarks] = useState<boolean>(false);
   const { tokenRefreshed } = useContext(AuthContext);
 
-  const { data: bookmarksSharingResponse } = useQuery<BookmarksSharingData>(
+  const { data: bookmarksSharingData } = useQuery<BookmarksSharingData>(
     'bookmarksSharing',
-    () => request(`${apiUrl}/graphql`, BOOKMARK_SHARING_QUERY, {}),
-    {
-      enabled: true,
-    },
+    () => request(`${apiUrl}/graphql`, BOOKMARK_SHARING_QUERY),
   );
+
+  useEffect(() => {
+    if (bookmarksSharingData?.bookmarksSharing?.enabled)
+      setShareBookmarks(true);
+  }, [bookmarksSharingData]);
 
   const { mutateAsync: updateBookmarksSharing } = useMutation<{
-    enabled: false;
-  }>(
-    (params) =>
-      request(`${apiUrl}/graphql`, BOOKMARK_SHARING_MUTATION, {
-        enabled: shareBookmarks,
-      }),
-    {},
-  );
-
-  const onShareBookmarks = async () => {
-    setShareBookmarks(!shareBookmarks);
-    console.log(bookmarksSharingResponse.bookmarksSharing.rssUrl);
-    await updateBookmarksSharing();
-  };
+    enabled: boolean;
+  }>(() => {
+    const updatedValue = !shareBookmarks;
+    setShareBookmarks(updatedValue);
+    return request(`${apiUrl}/graphql`, BOOKMARK_SHARING_MUTATION, {
+      enabled: updatedValue,
+    });
+  });
 
   return (
     <>
@@ -55,49 +59,61 @@ export default function SharedBookmarksModal({
         className={classNames(className, styles.accountDetailsModal)}
         {...props}
       >
-        <header className="flex fixed responsiveModalBreakpoint:sticky top-0 left-0 z-3 justify-between items-center px-4 w-full h-12 border-b bg-theme-bg-secondary border-theme-divider-tertiary">
-          <BookmarksModelHeading className="mt-2">
-            Bookmarks sharing
-          </BookmarksModelHeading>
-          <Button
-            title="Close"
-            onClick={props.onRequestClose}
-            icon={<XIcon />}
-            className="btn-tertiary"
-          />
-        </header>
-        <div className="px-6 mobileL:px-10 pt-6 pb-4">
+        <ModalHeader>
+          <h3 className="font-bold typo-title3">Bookmarks sharing</h3>
+          <ModalCloseButton onClick={props.onRequestClose} />
+        </ModalHeader>
+        <section className="flex flex-col py-6 px-6 mobileL:px-10">
           <Switch
             inputId="share-bookmarks-switch"
             name="hide-read"
-            className="my-3"
+            className="mb-4"
             checked={shareBookmarks}
-            onToggle={onShareBookmarks}
+            onToggle={updateBookmarksSharing}
             compact={false}
           >
             Public mode
           </Switch>
-        </div>
-        <section className="flex flex-col px-6 mobileL:px-10 pb-10">
           <p className="typo-callout text-theme-label-tertiary">
             Switching to public mode will generate a public rss feed of your
             bookmarks. Use this link to integrate and automatically share your
             bookmarks with other developers.
           </p>
-          <br />
+          {shareBookmarks && (
+            <TextField
+              className="mt-6"
+              name="rssUrl"
+              inputId="rssUrl"
+              label="Your unique RSS URL"
+              type="url"
+              fieldType="tertiary"
+              value={bookmarksSharingData?.bookmarksSharing?.rssUrl}
+              readOnly
+            />
+          )}
+        </section>
+        <section className="m-4 p-6 rounded-16 border border-theme-divider-tertiary">
           <p className="typo-callout text-theme-label-tertiary">
             Need inspiration? we prepared some tutorials explaining some best
             practices of integrating your bookmarks with other platforms.
-            <br />
           </p>
-          <div className="flex">
+          <div className="flex justify-between mt-4">
             <Button
+              rel="noopener noreferrer"
               className="btn-secondary"
-              buttonSize="medium"
-              onClick={() => onShareBookmarks()}
+              buttonSize="small"
+              href=""
+              tag="a"
+              target="_blank"
             >
-              Share bookmarks
+              Explore tutorials
             </Button>
+            <div className="flex items-center gap-1 h-8 text-2xl">
+              <SlackIcon />
+              <TwitterIcon />
+              <TelegramIcon />
+              <WhatsappIcon />
+            </div>
           </div>
         </section>
       </ResponsiveModal>
