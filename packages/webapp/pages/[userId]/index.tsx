@@ -34,7 +34,7 @@ import { ReadingTagProgress } from '@dailydotdev/shared/src/components/profile/R
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import dynamic from 'next/dynamic';
 import Rank from '@dailydotdev/shared/src/components/Rank';
-import { RANKS } from '@dailydotdev/shared/src/lib/rank';
+import { RANKS, RankHistoryProps } from '@dailydotdev/shared/src/lib/rank';
 import CommentsSection from '@dailydotdev/shared/src/components/profile/CommentsSection';
 import PostsSection from '@dailydotdev/shared/src/components/profile/PostsSection';
 import AuthorStats from '@dailydotdev/shared/src/components/profile/AuthorStats';
@@ -77,12 +77,6 @@ const readHistoryToTooltip = (
     </>
   );
 };
-
-interface RankHistoryProps {
-  rank: number;
-  rankName: string;
-  count: number;
-}
 
 const RankHistory = ({
   rank,

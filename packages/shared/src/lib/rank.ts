@@ -10,6 +10,13 @@ export const RANK_OFFSET = [
   '-87.5%',
   '-112.5%',
 ];
+
+export interface RankHistoryProps {
+  rank: number;
+  rankName: string;
+  count: number;
+}
+
 export interface Rank {
   name: string;
   steps: number;
