@@ -18,8 +18,9 @@ export default function GoToDevCardButton({
 
   return (
     <Button
-      className={classNames('btn-secondary', className)}
+      className={classNames('btn-primary', className)}
       tag="a"
+      buttonSize="small"
       href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}devcard`}
       onClick={onGenerateDevCardClick}
     >

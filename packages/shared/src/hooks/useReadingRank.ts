@@ -8,18 +8,26 @@ import { MY_READING_RANK_QUERY, MyRankData } from '../graphql/users';
 import { apiUrl } from '../lib/config';
 import usePersistentState from './usePersistentState';
 import AlertContext, { MAX_DATE } from '../contexts/AlertContext';
+import SettingsContext from '../contexts/SettingsContext';
 
 export const getRankQueryKey = (user?: LoggedUser): string[] => [
   user?.id ?? 'anonymous',
   'rank',
 ];
 
+export type Tag = {
+  tag: string;
+  readingDays: number;
+  percentage?: number;
+};
+export type TopTags = Tag[];
 type ReturnType = {
   isLoading: boolean;
   rank: number;
   rankLastWeek: number;
   nextRank: number;
   progress: number;
+  tags: TopTags;
   levelUp: boolean;
   shouldShowRankModal: boolean;
   confirmLevelUp: (neverShowRankModal: boolean) => Promise<void>;
@@ -30,6 +38,7 @@ const defaultRank: MyRankData = {
   rank: {
     progressThisWeek: 0,
     currentRank: 0,
+    tags: [],
     readToday: false,
     rankLastWeek: 0,
   },
@@ -40,8 +49,13 @@ const checkShouldShowRankModal = (
   rankLastSeen: Date,
   lastReadTime: Date,
   loadedAlerts: boolean,
-  neverShowRankModal?: boolean,
+  neverShowRankModal: boolean,
+  optOutWeeklyGoal: boolean,
 ) => {
+  if (optOutWeeklyGoal) {
+    return false;
+  }
+
   if (neverShowRankModal !== null && neverShowRankModal !== undefined) {
     return !neverShowRankModal;
   }
@@ -62,6 +76,7 @@ export default function useReadingRank(): ReturnType {
   const { user, tokenRefreshed } = useContext(AuthContext);
   const [levelUp, setLevelUp] = useState(false);
   const queryClient = useQueryClient();
+  const { optOutWeeklyGoal } = useContext(SettingsContext);
 
   const [cachedRank, setCachedRank, loadedCache] = usePersistentState<
     MyRankData & { userId: string; neverShowRankModal?: boolean }
@@ -73,6 +88,7 @@ export default function useReadingRank(): ReturnType {
     () =>
       request(`${apiUrl}/graphql`, MY_READING_RANK_QUERY, {
         id: user.id,
+        version: 2,
         timezone: user.timezone,
       }),
     {
@@ -97,6 +113,7 @@ export default function useReadingRank(): ReturnType {
     cachedRank?.rank?.lastReadTime || remoteRank?.rank?.lastReadTime,
     loadedAlerts,
     neverShowRankModal,
+    optOutWeeklyGoal,
   );
 
   const updateShownProgress = async () => {
@@ -171,6 +188,7 @@ export default function useReadingRank(): ReturnType {
     rank: cachedRank?.rank.currentRank,
     nextRank: remoteRank?.rank.currentRank,
     progress: cachedRank?.rank.progressThisWeek,
+    tags: cachedRank?.rank.tags,
     reads: remoteRank?.reads,
     levelUp,
     shouldShowRankModal,

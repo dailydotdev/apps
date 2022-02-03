@@ -10,13 +10,13 @@ import { CSSTransition, SwitchTransition } from 'react-transition-group';
 import classNames from 'classnames';
 import RadialProgress from './RadialProgress';
 import {
-  FINAL_RANK,
   NO_RANK,
   rankToColor,
   rankToGradientStopBottom,
   rankToGradientStopTop,
-  RANK_NAMES,
-  STEPS_PER_RANK,
+  getNextRankText,
+  isFinalRank,
+  RANKS,
 } from '../lib/rank';
 import Rank from './Rank';
 import styles from './RankProgress.module.css';
@@ -39,11 +39,11 @@ export type RankProgressProps = {
 };
 
 const getRankName = (rank: number): string =>
-  rank > 0 ? RANK_NAMES[rank - 1] : NO_RANK;
+  rank > 0 ? RANKS[rank - 1].name : NO_RANK;
 
 export function RankProgress({
   progress,
-  rank,
+  rank = 0,
   nextRank,
   showRankAnimation = false,
   showCurrentRankSteps = false,
@@ -65,24 +65,24 @@ export function RankProgress({
   const progressRef = useRef<HTMLDivElement>();
   const badgeRef = useRef<SVGSVGElement>();
 
-  const finalRank = shownRank === STEPS_PER_RANK.length;
+  const finalRank = isFinalRank(rank);
   const levelUp = () =>
-    rank >= shownRank &&
+    rank > shownRank &&
     rank > 0 &&
-    (rank !== rankLastWeek || progress === STEPS_PER_RANK[rank - 1]);
-  const getLevelText = levelUp() ? 'Level up' : '+1 Reading day';
+    (rank !== rankLastWeek || progress === RANKS[rank - 1].steps);
+  const getLevelText = levelUp() ? 'You made it 🏆' : '+1 Reading day';
   const shouldForceColor = animatingProgress || forceColor || fillByDefault;
 
   const steps = useMemo(() => {
     if (
       showRankAnimation ||
       showCurrentRankSteps ||
-      (finalRank && progress < STEPS_PER_RANK[rank - 1])
+      (finalRank && progress < RANKS[rank - 1].steps)
     ) {
-      return STEPS_PER_RANK[rank - 1];
+      return RANKS[rank - 1].steps;
     }
     if (!finalRank) {
-      return STEPS_PER_RANK[rank];
+      return RANKS[rank].steps;
     }
     return 0;
   }, [showRankAnimation, showCurrentRankSteps, shownRank, progress, rank]);
@@ -201,24 +201,13 @@ export function RankProgress({
       (!rank ||
         showRankAnimation ||
         levelUp() ||
-        STEPS_PER_RANK[rank - 1] !== progress)
+        RANKS[rank - 1].steps !== progress)
     ) {
       if (!showRadialProgress) animateRank();
       setAnimatingProgress(true);
     }
     setPrevProgress(progress);
   }, [progress]);
-
-  const getNextRankText = (useRank: number): string => {
-    if (finalRank && progress >= STEPS_PER_RANK[useRank - 1]) return FINAL_RANK;
-    if (
-      finalRank ||
-      (useRank === rankLastWeek && progress < STEPS_PER_RANK[rank - 1])
-    )
-      return `Re-earn: ${progress}/${STEPS_PER_RANK[rank - 1]} days`;
-    if (useRank === 0) return `Earn: ${progress ?? 0}/3 days`;
-    return `Next level: ${RANK_NAMES[rank]}`;
-  };
 
   return (
     <>
@@ -267,7 +256,7 @@ export function RankProgress({
             mountOnEnter
             unmountOnExit
           >
-            {levelUp() || !animatingProgress ? (
+            {!showRankAnimation || !animatingProgress ? (
               <Rank
                 rank={shownRank}
                 className={classNames(
@@ -299,7 +288,14 @@ export function RankProgress({
                 {animatingProgress ? getLevelText : getRankName(shownRank)}
               </span>
               <span className="typo-footnote text-theme-label-tertiary">
-                {getNextRankText(nextRank)}
+                {getNextRankText({
+                  nextRank,
+                  rank,
+                  finalRank,
+                  progress,
+                  rankLastWeek,
+                  showNextLevel: !finalRank,
+                })}
               </span>
             </div>
           </CSSTransition>

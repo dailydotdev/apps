@@ -3,13 +3,13 @@ import { useContext } from 'react';
 import AuthContext from '../contexts/AuthContext';
 import { getRankQueryKey } from './useReadingRank';
 import { MyRankData } from '../graphql/users';
-import { STEPS_PER_RANK } from '../lib/rank';
+import { RANKS } from '../lib/rank';
 
 type ReturnType = {
   incrementReadingRank: () => MyRankData;
 };
 
-const MAX_PROGRESS = STEPS_PER_RANK[STEPS_PER_RANK.length - 1];
+const MAX_PROGRESS = RANKS[RANKS.length - 1].steps;
 
 export default function useIncrementReadingRank(): ReturnType {
   const { user } = useContext(AuthContext);
@@ -24,7 +24,7 @@ export default function useIncrementReadingRank(): ReturnType {
             !currentRank ||
             currentRank.rank.readToday ||
             currentRank.rank.progressThisWeek === MAX_PROGRESS ||
-            (!user && currentRank.rank.progressThisWeek === STEPS_PER_RANK[0])
+            (!user && currentRank.rank.progressThisWeek === RANKS[0].steps)
           ) {
             return currentRank;
           }
@@ -34,7 +34,8 @@ export default function useIncrementReadingRank(): ReturnType {
             rank: {
               rankLastWeek: currentRank.rank.rankLastWeek,
               readToday: true,
-              currentRank: progress >= STEPS_PER_RANK[rank] ? rank + 1 : rank,
+              currentRank: progress >= RANKS[rank].steps ? rank + 1 : rank,
+              tags: currentRank.rank.tags,
               progressThisWeek: progress,
               lastReadTime: new Date(),
             },
