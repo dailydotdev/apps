@@ -6,7 +6,7 @@ import { MyRankData } from '../graphql/users';
 import { RANKS } from '../lib/rank';
 
 type ReturnType = {
-  incrementReadingRank: () => MyRankData;
+  incrementReadingRank: () => Promise<MyRankData>;
 };
 
 const MAX_PROGRESS = RANKS[RANKS.length - 1].steps;
@@ -16,9 +16,10 @@ export default function useIncrementReadingRank(): ReturnType {
   const queryClient = useQueryClient();
 
   return {
-    incrementReadingRank: () =>
-      queryClient.setQueryData<MyRankData>(
-        getRankQueryKey(user),
+    incrementReadingRank: async () => {
+      const queryKey = getRankQueryKey(user);
+      const data = queryClient.setQueryData<MyRankData>(
+        queryKey,
         (currentRank) => {
           if (
             !currentRank ||
@@ -42,6 +43,9 @@ export default function useIncrementReadingRank(): ReturnType {
             reads: currentRank.reads,
           };
         },
-      ),
+      );
+      await queryClient.invalidateQueries(queryKey);
+      return data;
+    },
   };
 }

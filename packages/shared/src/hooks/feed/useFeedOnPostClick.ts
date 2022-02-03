@@ -27,7 +27,7 @@ export default function useFeedOnPostClick(
     );
     await logReadArticle('feed');
     if (!post.read) {
-      incrementReadingRank();
+      await incrementReadingRank();
     }
     const item = items[index] as PostItem;
     updatePost(item.page, item.index, { ...post, read: true });

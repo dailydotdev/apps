@@ -408,6 +408,8 @@ it('should increase reading rank progress', async () => {
       },
       reads: 0,
     });
+    const state = queryClient.getQueryState(queryKey);
+    expect(state.isInvalidated).toEqual(true);
   });
 });
 
