@@ -115,7 +115,12 @@ export const USER_READING_HISTORY_QUERY = gql`
     $version: Int
     $limit: Int
   ) {
-    userReadingRankHistory(id: $id, version: $version) {
+    userReadingRankHistory(
+      id: $id
+      version: $version
+      after: $after
+      before: $before
+    ) {
       rank
       count
     }
