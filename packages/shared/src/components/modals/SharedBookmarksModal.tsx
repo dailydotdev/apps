@@ -49,7 +49,7 @@ export default function SharedBookmarksModal({
     },
   );
 
-  const [, copyRssUrl] = useCopyLink(
+  const [isRssUrlCopied, copyRssUrl] = useCopyLink(
     () => bookmarksSharingData?.bookmarksSharing?.rssUrl,
   );
 
@@ -84,18 +84,30 @@ export default function SharedBookmarksModal({
             bookmarks with other developers.
           </p>
           {bookmarksSharingData?.bookmarksSharing?.enabled && (
-            <TextField
-              className="mt-6"
-              name="rssUrl"
-              inputId="rssUrl"
-              label="Your unique RSS URL"
-              type="url"
-              fieldType="tertiary"
-              actionIcon={<CopyIcon />}
-              onActionIconClick={copyRssUrl}
-              value={bookmarksSharingData?.bookmarksSharing?.rssUrl}
-              readOnly
-            />
+            <div className="relative">
+              <TextField
+                className="mt-6"
+                name="rssUrl"
+                inputId="rssUrl"
+                label="Your unique RSS URL"
+                type="url"
+                fieldType="tertiary"
+                actionIcon={<CopyIcon />}
+                onActionIconClick={copyRssUrl}
+                value={bookmarksSharingData?.bookmarksSharing?.rssUrl}
+                readOnly
+              />
+              {isRssUrlCopied && (
+                <div
+                  className={classNames(
+                    'absolute flex top-0 right-0 items-center text-theme-status-success font-bold typo-caption1',
+                    styles.copied,
+                  )}
+                >
+                  Copied!
+                </div>
+              )}
+            </div>
           )}
         </section>
         <section className="p-6 m-4 rounded-16 border border-theme-divider-tertiary">
