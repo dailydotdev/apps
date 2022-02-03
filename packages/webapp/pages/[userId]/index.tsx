@@ -95,7 +95,6 @@ const RankHistory = ({
   </div>
 );
 
-const CURRENT_YEAR = new Date().getFullYear().toString();
 const BASE_YEAR = 2018;
 const currentYear = new Date().getFullYear();
 const dropdownOptions = [
@@ -240,13 +239,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
             />
             <div className="grid grid-cols-1 tablet:grid-cols-2 gap-3 tablet:gap-10 tablet:max-w-full max-w-[17rem]">
               {readingHistory.userMostReadTags?.map((tag) => (
-                <ReadingTagProgress
-                  key={tag.value}
-                  tag={tag}
-                  isFilterSameYear={
-                    dropdownOptions[selectedHistoryYear] === CURRENT_YEAR
-                  }
-                />
+                <ReadingTagProgress key={tag.value} tag={tag} />
               ))}
             </div>
           </ActivityContainer>

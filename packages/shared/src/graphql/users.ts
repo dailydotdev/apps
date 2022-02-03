@@ -24,7 +24,12 @@ export const USER_STATS_QUERY = gql`
 
 export type UserReadingRank = { currentRank: number };
 export type UserReadingRankData = { userReadingRank: UserReadingRank };
-export type MostReadTag = { value: string; count: number; percentage?: number };
+export type MostReadTag = {
+  value: string;
+  count: number;
+  percentage?: number;
+  total?: number;
+};
 export type UserTooltipContentData = {
   rank: UserReadingRank;
   tags: MostReadTag[];
@@ -115,6 +120,7 @@ export const USER_READING_HISTORY_QUERY = gql`
     userMostReadTags(id: $id, after: $after, before: $before) {
       value
       count
+      total
       percentage
     }
   }
