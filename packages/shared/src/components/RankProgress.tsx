@@ -265,6 +265,7 @@ export function RankProgress({
                   shownRank && styles.hasRank,
                 )}
                 ref={badgeRef}
+                colorByRank={rank > 0}
               />
             ) : (
               <strong className="flex absolute inset-0 justify-center items-center text-theme-rank typo-callout">
