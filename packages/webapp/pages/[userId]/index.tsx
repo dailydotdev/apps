@@ -146,6 +146,7 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
         before,
         after,
         version: 2,
+        limit: 6,
       }),
     {
       enabled: !!profile && tokenRefreshed && !!before && !!after,
