@@ -170,6 +170,8 @@ const createReadingHistoryMock = (
       id: 'u2',
       before: before.toISOString(),
       after: after.toISOString(),
+      version: 2,
+      limit: 6,
     },
   },
   result: {
