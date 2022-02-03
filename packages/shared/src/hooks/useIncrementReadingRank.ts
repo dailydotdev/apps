@@ -44,7 +44,9 @@ export default function useIncrementReadingRank(): ReturnType {
           };
         },
       );
-      await queryClient.invalidateQueries(queryKey);
+      setTimeout(() => {
+        queryClient.invalidateQueries(queryKey);
+      }, 100);
       return data;
     },
   };

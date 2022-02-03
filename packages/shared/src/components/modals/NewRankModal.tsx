@@ -113,7 +113,7 @@ export default function NewRankModal({
       >
         {!user || !rankAnimationEnded ? (
           <RankProgress
-            rank={shownRank}
+            rank={rank}
             progress={shownProgress}
             fillByDefault
             showRankAnimation={animatingRank}
@@ -175,7 +175,11 @@ export default function NewRankModal({
               Generate Dev Card
             </GoToDevCardButton>
           )}
-          <Button className="btn-primary" onClick={closeModal}>
+          <Button
+            className="btn-primary"
+            buttonSize="small"
+            onClick={closeModal}
+          >
             Awesome!
           </Button>
         </div>
