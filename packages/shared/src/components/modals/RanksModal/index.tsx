@@ -28,7 +28,12 @@ export default function RanksModal({
   const currentRank = rank;
 
   return (
-    <ResponsiveModal {...props} onRequestClose={onRequestClose} padding={false}>
+    <ResponsiveModal
+      {...props}
+      onRequestClose={onRequestClose}
+      padding={false}
+      style={{ content: { maxWidth: '26.25rem' } }}
+    >
       <ModalHeader>
         <h3 className="font-bold typo-title3">Weekly reading goal</h3>
         <ModalCloseButton onClick={onRequestClose} />

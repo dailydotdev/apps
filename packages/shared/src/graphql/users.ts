@@ -108,8 +108,14 @@ export interface UserReadingTopTagsData {
 }
 
 export const USER_READING_HISTORY_QUERY = gql`
-  query UserReadingHistory($id: ID!, $after: String!, $before: String!) {
-    userReadingRankHistory(id: $id) {
+  query UserReadingHistory(
+    $id: ID!
+    $after: String!
+    $before: String!
+    $version: Int
+    $limit: Int
+  ) {
+    userReadingRankHistory(id: $id, version: $version) {
       rank
       count
     }
@@ -117,7 +123,7 @@ export const USER_READING_HISTORY_QUERY = gql`
       date
       reads
     }
-    userMostReadTags(id: $id, after: $after, before: $before) {
+    userMostReadTags(id: $id, after: $after, before: $before, limit: $limit) {
       value
       count
       total
