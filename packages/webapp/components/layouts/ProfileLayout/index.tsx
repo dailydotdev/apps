@@ -99,6 +99,7 @@ export default function ProfileLayout({
     () =>
       request(`${apiUrl}/graphql`, USER_READING_RANK_QUERY, {
         id: initialProfile?.id,
+        version: 2,
       }),
     {
       enabled: !!initialProfile,

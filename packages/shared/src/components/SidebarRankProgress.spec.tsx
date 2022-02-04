@@ -14,6 +14,7 @@ import { MY_READING_RANK_QUERY, MyRankData } from '../graphql/users';
 import SidebarRankProgress from './SidebarRankProgress';
 import { SettingsContextProvider } from '../contexts/SettingsContext';
 import { RemoteSettings } from '../graphql/settings';
+import { RANK_CACHE_KEY } from '../hooks/useReadingRank';
 
 jest.mock('../hooks/usePersistentState', () => {
   const originalModule = jest.requireActual('../hooks/usePersistentState');
@@ -108,7 +109,7 @@ it('should create dynamically the progress bar according to the props', async ()
 });
 
 it('should first show cached rank and animate to fetched rank', async () => {
-  await setCache('rank', {
+  await setCache(RANK_CACHE_KEY, {
     rank: { progressThisWeek: 0, currentRank: 1, readToday: false },
     userId: defaultUser.id,
   });
@@ -124,7 +125,7 @@ it('should first show cached rank and animate to fetched rank', async () => {
 });
 
 it('should show rank for anonymous users', async () => {
-  await setCache('rank', {
+  await setCache(RANK_CACHE_KEY, {
     rank: { progressThisWeek: 1, currentRank: 1, readToday: false },
     userId: null,
   });
@@ -136,7 +137,7 @@ it('should show rank for anonymous users', async () => {
 });
 
 it('should show rank if show weekly goals toggle is checked', async () => {
-  await setCache('rank', {
+  await setCache(RANK_CACHE_KEY, {
     rank: { progressThisWeek: 1, currentRank: 1, readToday: false },
     userId: defaultUser.id,
   });
@@ -148,7 +149,7 @@ it('should show rank if show weekly goals toggle is checked', async () => {
 });
 
 it('should not show rank if show weekly goals toggle is not checked', async () => {
-  await setCache('rank', {
+  await setCache(RANK_CACHE_KEY, {
     rank: { progressThisWeek: 1, currentRank: 0, readToday: false },
     userId: defaultUser.id,
   });
