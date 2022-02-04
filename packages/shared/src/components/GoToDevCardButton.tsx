@@ -19,7 +19,7 @@ export default function GoToDevCardButton({
   const [onGenerateDevCardClick] = useGoToDevCardButton(origin);
 
   return (
-    <SimpleTooltip content="Sign up to Unlock">
+    <SimpleTooltip content={isLocked && 'Sign up to Unlock'}>
       <div className={className}>
         <Button
           className="btn-primary"
