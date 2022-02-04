@@ -149,6 +149,7 @@ export function RankProgress({
 
   const animateRank = () => {
     setForceColor(true);
+    const animatedRef = badgeRef.current || plusRef.current;
     const firstAnimationDuration = 400;
     const maxScale = 1.666;
 
@@ -169,9 +170,7 @@ export function RankProgress({
         )
       : null;
 
-    const firstBadgeAnimation = (
-      badgeRef.current ? badgeRef.current : plusRef.current
-    ).animate(
+    const firstBadgeAnimation = animatedRef.animate(
       [
         {
           transform: 'scale(1)',
@@ -203,9 +202,7 @@ export function RankProgress({
             )
           : null;
 
-        const lastBadgeAnimation = (
-          badgeRef.current ? badgeRef.current : plusRef.current
-        ).animate(
+        const lastBadgeAnimation = animatedRef.animate(
           [
             {
               transform: `scale(${2 - maxScale})`,
