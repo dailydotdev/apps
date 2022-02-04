@@ -10,7 +10,7 @@
   stroke: var(--radial-progress-step);
 
   &:global(.completed) {
-    stroke: var(--radial-progress-completed-step);
+    stroke: var(--theme-label-primary);
     transform: rotate(90deg);
     transform-origin: center;
     transition: stroke-dashoffset 0.5s ease-out
