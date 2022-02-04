@@ -36,8 +36,8 @@ export type UserTooltipContentData = {
 };
 
 export const USER_READING_RANK_QUERY = gql`
-  query UserReadingRank($id: ID!) {
-    userReadingRank(id: $id) {
+  query UserReadingRank($id: ID!, $version: Int) {
+    userReadingRank(id: $id, version: $version) {
       currentRank
     }
   }
@@ -115,7 +115,12 @@ export const USER_READING_HISTORY_QUERY = gql`
     $version: Int
     $limit: Int
   ) {
-    userReadingRankHistory(id: $id, version: $version) {
+    userReadingRankHistory(
+      id: $id
+      version: $version
+      after: $after
+      before: $before
+    ) {
       rank
       count
     }
