@@ -63,11 +63,11 @@ export default function SharedBookmarksModal({
         className={classNames(className, styles.accountDetailsModal)}
         {...props}
       >
-        <header className="flex items-center justify-between w-full px-6 py-4 border-b border-theme-divider-tertiary">
+        <header className="flex justify-between items-center py-4 px-6 w-full border-b border-theme-divider-tertiary">
           <h3 className="pl-2 font-bold typo-title3">Bookmarks sharing</h3>
           <ModalCloseButton onClick={props.onRequestClose} />
         </header>
-        <section className="flex flex-col px-6 py-6 mobileL:px-10">
+        <section className="flex flex-col py-6 px-6 mobileL:px-10">
           <Switch
             inputId="share-bookmarks-switch"
             name="share-bookmarks"
@@ -110,7 +110,7 @@ export default function SharedBookmarksModal({
             </div>
           )}
         </section>
-        <section className="p-6 m-4 border rounded-16 border-theme-divider-tertiary">
+        <section className="p-6 m-4 rounded-16 border border-theme-divider-tertiary">
           <p className="typo-callout text-theme-label-tertiary">
             Need inspiration? we prepared some tutorials explaining some best
             practices of integrating your bookmarks with other platforms.
@@ -126,7 +126,7 @@ export default function SharedBookmarksModal({
             >
               Explore tutorials
             </Button>
-            <div className="flex items-center h-8 gap-2 text-2xl">
+            <div className="flex gap-2 items-center h-8 text-2xl">
               <DiscordIcon />
               <TwitterIcon />
               <SlackIcon />

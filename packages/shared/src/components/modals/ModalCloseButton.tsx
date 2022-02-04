@@ -15,7 +15,6 @@ function ModalCloseButtonComponent(
       buttonSize="small"
       title="Close"
       icon={<XIcon />}
-      style={{ ...style }}
     />
   );
 }

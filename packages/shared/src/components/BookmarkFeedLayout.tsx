@@ -70,14 +70,14 @@ export default function BookmarkFeedLayout({
         {searchChildren}
 
         <Button
-          className="ml-4 btn-secondary hidden laptop:flex"
+          className="hidden laptop:flex ml-4 btn-secondary"
           icon={<SourceIcon />}
           onClick={() => setShowSharedBookmarks(true)}
         >
           Share bookmarks
         </Button>
         <Button
-          className="ml-4 btn-secondary flex laptop:hidden"
+          className="flex laptop:hidden ml-4 btn-secondary"
           icon={<SourceIcon />}
           onClick={() => setShowSharedBookmarks(true)}
           iconOnly
