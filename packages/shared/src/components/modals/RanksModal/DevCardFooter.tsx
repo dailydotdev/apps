@@ -37,11 +37,11 @@ export default function DevCardFooter({
         <div className="flex flex-col flex-1 items-start ml-6">
           <ModalText>{devCardText({ user, isLocked, devCardLimit })}</ModalText>
           {user && isLocked ? (
-            <div className="relative mt-2 flex w-full items-center">
+            <div className="flex relative items-center mt-2 w-full">
               <strong className="typo-footnote">
                 {reads}/{devCardLimit}
               </strong>
-              <div className="ml-2 flex flex-1 relative h-2 rounded-full bg-theme-active">
+              <div className="flex relative flex-1 ml-2 h-2 bg-theme-active rounded-full">
                 <div
                   className="absolute bottom-0 left-0 h-full rounded-full bg-theme-label-primary"
                   style={{ width: (100 * reads) / devCardLimit }}
