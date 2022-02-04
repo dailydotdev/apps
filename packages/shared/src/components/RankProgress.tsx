@@ -1,5 +1,6 @@
 import React, {
   CSSProperties,
+  MutableRefObject,
   ReactElement,
   useEffect,
   useMemo,
@@ -22,6 +23,63 @@ import Rank from './Rank';
 import styles from './RankProgress.module.css';
 
 const notificationDuration = 300;
+
+interface GetRankElementProps {
+  shownRank: number;
+  rank: number;
+  badgeRef: MutableRefObject<SVGSVGElement>;
+  plusRef: MutableRefObject<HTMLElement>;
+  smallVersion: boolean;
+  showRankAnimation: boolean;
+  animatingProgress: boolean;
+}
+
+type RankElementProps = Pick<
+  GetRankElementProps,
+  'shownRank' | 'rank' | 'badgeRef'
+>;
+const RankElement = ({
+  shownRank,
+  rank,
+  badgeRef,
+}: RankElementProps): ReactElement => (
+  <Rank
+    rank={shownRank}
+    className={classNames(
+      'absolute inset-0 w-2/3 h-2/3 m-auto',
+      styles.rank,
+      shownRank && styles.hasRank,
+    )}
+    ref={badgeRef}
+    colorByRank={rank > 0}
+  />
+);
+
+const getRankElement = ({
+  shownRank,
+  rank,
+  badgeRef,
+  plusRef,
+  smallVersion,
+  showRankAnimation,
+  animatingProgress,
+}: GetRankElementProps): ReactElement => {
+  if (!smallVersion)
+    return (
+      <RankElement shownRank={shownRank} rank={rank} badgeRef={badgeRef} />
+    );
+
+  return !showRankAnimation || !animatingProgress ? (
+    <RankElement shownRank={shownRank} rank={rank} badgeRef={badgeRef} />
+  ) : (
+    <strong
+      ref={plusRef}
+      className="flex absolute inset-0 justify-center items-center text-theme-rank typo-callout"
+    >
+      +1
+    </strong>
+  );
+};
 
 export type RankProgressProps = {
   progress: number;
@@ -64,6 +122,7 @@ export function RankProgress({
   const attentionRef = useRef<HTMLDivElement>();
   const progressRef = useRef<HTMLDivElement>();
   const badgeRef = useRef<SVGSVGElement>();
+  const plusRef = useRef<HTMLElement>();
 
   const finalRank = isFinalRank(rank);
   const levelUp = () =>
@@ -81,6 +140,7 @@ export function RankProgress({
     ) {
       return RANKS[rank - 1].steps;
     }
+
     if (!finalRank) {
       return RANKS[rank].steps;
     }
@@ -109,7 +169,9 @@ export function RankProgress({
         )
       : null;
 
-    const firstBadgeAnimation = badgeRef.current.animate(
+    const firstBadgeAnimation = (
+      badgeRef.current ? badgeRef.current : plusRef.current
+    ).animate(
       [
         {
           transform: 'scale(1)',
@@ -141,26 +203,25 @@ export function RankProgress({
             )
           : null;
 
-        const lastBadgeAnimation = badgeRef.current
-          ? badgeRef.current.animate(
-              [
-                {
-                  transform: `scale(${2 - maxScale})`,
-                  opacity: 0,
-                  '--stop-color1': rankToGradientStopBottom(rank),
-                  '--stop-color2': rankToGradientStopTop(rank),
-                },
-                {
-                  transform: 'scale(1)',
-                  opacity: 1,
-                  '--stop-color1': rankToGradientStopBottom(rank),
-                  '--stop-color2': rankToGradientStopTop(rank),
-                },
-              ],
-              { duration: 100, fill: 'forwards' },
-            )
-          : null;
-
+        const lastBadgeAnimation = (
+          badgeRef.current ? badgeRef.current : plusRef.current
+        ).animate(
+          [
+            {
+              transform: `scale(${2 - maxScale})`,
+              opacity: 0,
+              '--stop-color1': rankToGradientStopBottom(rank),
+              '--stop-color2': rankToGradientStopTop(rank),
+            },
+            {
+              transform: 'scale(1)',
+              opacity: 1,
+              '--stop-color1': rankToGradientStopBottom(rank),
+              '--stop-color2': rankToGradientStopTop(rank),
+            },
+          ],
+          { duration: 100, fill: 'forwards' },
+        );
         const cancelAnimations = () => {
           progressAnimation?.cancel();
           firstBadgeAnimation.cancel();
@@ -248,6 +309,7 @@ export function RankProgress({
             className={styles.radialProgress}
           />
         )}
+
         <SwitchTransition mode="out-in">
           <CSSTransition
             timeout={notificationDuration}
@@ -256,22 +318,15 @@ export function RankProgress({
             mountOnEnter
             unmountOnExit
           >
-            {!showRankAnimation || !animatingProgress ? (
-              <Rank
-                rank={shownRank}
-                className={classNames(
-                  'absolute inset-0 w-2/3 h-2/3 m-auto',
-                  styles.rank,
-                  shownRank && styles.hasRank,
-                )}
-                ref={badgeRef}
-                colorByRank={rank > 0}
-              />
-            ) : (
-              <strong className="flex absolute inset-0 justify-center items-center text-theme-rank typo-callout">
-                +1
-              </strong>
-            )}
+            {getRankElement({
+              shownRank,
+              rank,
+              badgeRef,
+              plusRef,
+              smallVersion,
+              showRankAnimation,
+              animatingProgress,
+            })}
           </CSSTransition>
         </SwitchTransition>
       </div>
