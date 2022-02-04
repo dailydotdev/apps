@@ -120,6 +120,7 @@ it('should show rank when loaded', async () => {
       query: USER_READING_RANK_QUERY,
       variables: {
         id: defaultProfile.id,
+        version: 2,
       },
     },
     result: {
