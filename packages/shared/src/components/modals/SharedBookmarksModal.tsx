@@ -15,7 +15,6 @@ import {
 } from '../../graphql/bookmarksSharing';
 import { apiUrl } from '../../lib/config';
 import { TextField } from '../fields/TextField';
-import { ModalHeader } from './common';
 import TwitterIcon from '../../../icons/twitter_color.svg';
 import SlackIcon from '../../../icons/slack.svg';
 import DiscordIcon from '../../../icons/discord_color.svg';
@@ -63,10 +62,10 @@ export default function SharedBookmarksModal({
         className={classNames(className, styles.accountDetailsModal)}
         {...props}
       >
-        <ModalHeader>
-          <h3 className="font-bold typo-title3">Bookmarks sharing</h3>
+        <header className="flex items-center justify-between py-4 px-6 w-full border-b border-theme-divider-tertiary">
+          <h3 className="pl-2 font-bold typo-title3">Bookmarks sharing</h3>
           <ModalCloseButton onClick={props.onRequestClose} />
-        </ModalHeader>
+        </header>
         <section className="flex flex-col py-6 px-6 mobileL:px-10">
           <Switch
             inputId="share-bookmarks-switch"
