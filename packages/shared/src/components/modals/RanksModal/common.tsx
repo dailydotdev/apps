@@ -37,7 +37,10 @@ export interface DevCardFooterProps extends DevCardFooterType {
   reads?: number;
   devCardLimit?: number;
 }
-export type DevCardTextProps = Pick<DevCardFooterProps, 'user' | 'isLocked'>;
+export type DevCardTextProps = Pick<
+  DevCardFooterProps,
+  'user' | 'isLocked' | 'devCardLimit'
+>;
 
 type IntroSectionType = Pick<RanksModalProps, 'onShowAccount'>;
 export interface IntroSectionProps extends IntroSectionType {

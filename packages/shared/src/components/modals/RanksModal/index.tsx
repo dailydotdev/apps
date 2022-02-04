@@ -46,7 +46,7 @@ export default function RanksModal({
         user={user}
         reads={reads}
         devCardLimit={devCardLimit}
-        isLocked
+        isLocked={!user || reads < devCardLimit}
       />
     </ResponsiveModal>
   );

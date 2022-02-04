@@ -4,12 +4,16 @@ import { ModalSection, ModalSubTitle, ModalText } from '../common';
 import DevCardPlaceholder from '../../DevCardPlaceholder';
 import GoToDevCardButton from '../../GoToDevCardButton';
 
-const devCardText = ({ user, isLocked }: DevCardTextProps): string => {
+const devCardText = ({
+  user,
+  isLocked,
+  devCardLimit,
+}: DevCardTextProps): string => {
   if (!user) {
-    return 'DevCard is your developer ID. It showcases your achievements to the world. Sign up and read 50 articles to generate yours.';
+    return `DevCard is your developer ID. It showcases your achievements to the world. Sign up and read ${devCardLimit} articles to generate yours.`;
   }
   return isLocked
-    ? 'DevCard is your developer ID. It showcases your achievements to the world. Read 50 articles to generate yours.'
+    ? `DevCard is your developer ID. It showcases your achievements to the world. Read ${devCardLimit} articles to generate yours.`
     : 'DevCard is your developer ID. It showcases your achievements to the world.';
 };
 
@@ -31,7 +35,7 @@ export default function DevCardFooter({
           isLocked={isLocked}
         />
         <div className="flex flex-col flex-1 items-start ml-6">
-          <ModalText>{devCardText({ user, isLocked })}</ModalText>
+          <ModalText>{devCardText({ user, isLocked, devCardLimit })}</ModalText>
           {user && isLocked ? (
             <div className="relative mt-2 flex w-full items-center">
               <strong className="typo-footnote">
