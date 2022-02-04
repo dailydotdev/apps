@@ -10,10 +10,14 @@
   stroke: var(--radial-progress-step);
 
   &:global(.completed) {
-    stroke: var(--theme-label-primary);
+    stroke: var(--radial-progress-completed-step);
     transform: rotate(90deg);
     transform-origin: center;
     transition: stroke-dashoffset 0.5s ease-out
       var(--radial-progress-transition-delay);
+
+    &:global(.modal) {
+      stroke: var(--theme-label-primary);
+    }
   }
 }
