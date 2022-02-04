@@ -3,7 +3,11 @@ import { ModalSubTitle } from '../common';
 import { RanksTagsProps, RanksTagsSection, RanksTagsList } from './common';
 import RankTagItem from './RankTagItem';
 
-const RanksTags = ({ tags, limit = 6 }: RanksTagsProps): ReactElement => {
+const RanksTags = ({
+  tags,
+  isAtModal,
+  limit = 6,
+}: RanksTagsProps): ReactElement => {
   return (
     <RanksTagsSection>
       <ModalSubTitle>Reading status per tag</ModalSubTitle>
@@ -12,7 +16,7 @@ const RanksTags = ({ tags, limit = 6 }: RanksTagsProps): ReactElement => {
           .fill(0)
           .map((_, i) => (
             // eslint-disable-next-line react/no-array-index-key
-            <RankTagItem tag={tags[i]} key={i} />
+            <RankTagItem tag={tags[i]} key={i} isAtModal={isAtModal} />
           ))}
       </RanksTagsList>
     </RanksTagsSection>

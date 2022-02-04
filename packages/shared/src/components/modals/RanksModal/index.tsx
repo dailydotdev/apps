@@ -40,13 +40,13 @@ export default function RanksModal({
       </ModalHeader>
       <IntroSection onShowAccount={onShowAccount} user={user} />
       <RanksBadges rank={currentRank} progress={progress} />
-      <RanksTags tags={tags} />
+      <RanksTags tags={tags} isAtModal />
       <DevCardFooter
         rank={rank}
         user={user}
         reads={reads}
         devCardLimit={devCardLimit}
-        isLocked={!hideProgress && reads < devCardLimit}
+        isLocked
       />
     </ResponsiveModal>
   );

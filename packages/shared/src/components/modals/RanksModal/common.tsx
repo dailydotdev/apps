@@ -24,9 +24,11 @@ export interface RankBadgeItemProps {
 export interface RanksTagsProps {
   tags: Tag[];
   limit?: number;
+  isAtModal?: boolean;
 }
 export interface RankTagProps {
   tag?: Tag;
+  isAtModal?: boolean;
 }
 type DevCardFooterType = Pick<RanksModalProps, 'rank'>;
 export interface DevCardFooterProps extends DevCardFooterType {
