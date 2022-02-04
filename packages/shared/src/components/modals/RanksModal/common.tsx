@@ -32,7 +32,11 @@ type DevCardFooterType = Pick<RanksModalProps, 'rank'>;
 export interface DevCardFooterProps extends DevCardFooterType {
   user?: LoggedUser;
   isLocked?: boolean;
+  reads?: number;
+  devCardLimit?: number;
 }
+export type DevCardTextProps = Pick<DevCardFooterProps, 'user' | 'isLocked'>;
+
 type IntroSectionType = Pick<RanksModalProps, 'onShowAccount'>;
 export interface IntroSectionProps extends IntroSectionType {
   user?: LoggedUser;

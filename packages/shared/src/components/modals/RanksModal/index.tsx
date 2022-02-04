@@ -44,7 +44,9 @@ export default function RanksModal({
       <DevCardFooter
         rank={rank}
         user={user}
-        isLocked={!hideProgress && reads > devCardLimit}
+        reads={reads}
+        devCardLimit={devCardLimit}
+        isLocked={!hideProgress && reads < devCardLimit}
       />
     </ResponsiveModal>
   );
