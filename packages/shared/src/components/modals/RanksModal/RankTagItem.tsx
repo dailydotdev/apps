@@ -5,14 +5,21 @@ import styles from '../../RankProgress.module.css';
 import { RankTag, RankTagPill, RankTagProps } from './common';
 
 const RankTagItem = ({ tag }: RankTagProps): ReactElement => {
+  const isPlaceholder = tag === undefined || tag === null;
+  const className = isPlaceholder
+    ? 'w-24 rounded-8 border border-theme-divider-secondary'
+    : 'flex-shrink w-auto bg-theme-float';
+
   return (
     <RankTag>
       <RadialProgress
-        progress={tag.readingDays}
+        progress={isPlaceholder ? 0 : tag.readingDays}
         steps={7}
         className={classNames('w-5 h-5', styles.radialProgress)}
       />
-      <RankTagPill>#{tag.tag}</RankTagPill>
+      <RankTagPill className={className}>
+        {isPlaceholder ? '' : `#${tag.tag}`}
+      </RankTagPill>
     </RankTag>
   );
 };
