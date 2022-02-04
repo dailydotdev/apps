@@ -66,20 +66,18 @@ export default function BookmarkFeedLayout({
       <FeedPageHeader className="mb-5">
         <h3 className="font-bold typo-callout">Bookmarks</h3>
       </FeedPageHeader>
-      <CustomFeedHeader className="flex relative mb-6">
+      <CustomFeedHeader className="flex mb-6">
         {searchChildren}
 
         <Button
           className="ml-4 btn-secondary hidden laptop:flex"
-          buttonSize="medium"
           icon={<SourceIcon />}
           onClick={() => setShowSharedBookmarks(true)}
         >
           Share bookmarks
         </Button>
         <Button
-          className="ml-4 btn-secondary block laptop:hidden"
-          buttonSize="medium"
+          className="ml-4 btn-secondary flex laptop:hidden"
           icon={<SourceIcon />}
           onClick={() => setShowSharedBookmarks(true)}
           iconOnly
