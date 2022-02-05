@@ -23,6 +23,21 @@ const RankBadgeItem = ({
 }: RankBadgeItemProps): ReactElement => {
   const rankCompleted = isRankCompleted(showRank, itemRank.level, progress);
   const finalRankCompleted = isFinalRankCompleted(showRank, progress);
+
+  const getLabelColor = () => {
+    if (showRank > itemRank.level) {
+      return itemRank.color;
+    }
+
+    if (itemRank.level > showRank) {
+      return 'text-theme-label-quaternary';
+    }
+
+    return showRank === itemRank.level && rankCompleted
+      ? itemRank.color
+      : 'text-theme-label-tertiary';
+  };
+
   return (
     <RankBadge>
       {itemRank.level !== RANKS.length && (
@@ -65,10 +80,8 @@ const RankBadgeItem = ({
       </RankBadgeContainer>
       <RankBadgeName
         className={classNames(
-          showRank === itemRank.level
-            ? 'typo-callout text-theme-status-success'
-            : 'typo-footnote',
-          rankCompleted ? itemRank.color : 'text-theme-label-tertiary',
+          getLabelColor(),
+          showRank === itemRank.level ? 'typo-callout' : 'typo-footnote',
         )}
       >
         {itemRank.name}

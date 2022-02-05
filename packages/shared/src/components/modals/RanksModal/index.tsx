@@ -1,4 +1,5 @@
 import React, { ReactElement, useContext } from 'react';
+import classNames from 'classnames';
 import { ModalCloseButton } from '../ModalCloseButton';
 import { ResponsiveModal } from '../ResponsiveModal';
 import { useTrackModal } from '../../../hooks/useTrackModal';
@@ -10,6 +11,7 @@ import { RanksModalProps } from './common';
 import AuthContext from '../../../contexts/AuthContext';
 import { ModalHeader } from '../common';
 import { Button } from '../../buttons/Button';
+import { RANKS } from '../../../lib/rank';
 
 export default function RanksModal({
   rank,
@@ -24,7 +26,6 @@ export default function RanksModal({
   className,
   ...props
 }: RanksModalProps): ReactElement {
-  const color = `var(--theme-rank-${rank || 1}-color)`;
   const { user, showLogin } = useContext(AuthContext);
   useTrackModal({ isOpen: props.isOpen, title: 'ranks modal' });
 
@@ -47,9 +48,11 @@ export default function RanksModal({
             Sign up to add your weekly achievements to your profile.
           </span>
           <Button
-            className="mt-3 w-40 btn-primary"
+            className={classNames(
+              'mt-3 w-40 btn-primary',
+              rank && RANKS[rank].background,
+            )}
             onClick={() => showLogin('ranks modal')}
-            style={{ background: color }}
           >
             Sign up
           </Button>
