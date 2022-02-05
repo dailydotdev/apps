@@ -9,6 +9,7 @@ import IntroSection from './IntroSection';
 import { RanksModalProps } from './common';
 import AuthContext from '../../../contexts/AuthContext';
 import { ModalHeader } from '../common';
+import { Button } from '../../buttons/Button';
 
 export default function RanksModal({
   rank,
@@ -23,9 +24,8 @@ export default function RanksModal({
   className,
   ...props
 }: RanksModalProps): ReactElement {
-  const { user } = useContext(AuthContext);
+  const { user, showLogin } = useContext(AuthContext);
   useTrackModal({ isOpen: props.isOpen, title: 'ranks modal' });
-  const currentRank = rank;
 
   return (
     <ResponsiveModal
@@ -39,7 +39,21 @@ export default function RanksModal({
         <ModalCloseButton onClick={onRequestClose} />
       </ModalHeader>
       <IntroSection onShowAccount={onShowAccount} user={user} />
-      <RanksBadges rank={currentRank} progress={progress} />
+      <RanksBadges rank={rank} progress={progress} />
+      {!user && (
+        <div className="flex flex-col items-center mt-2">
+          <span className="typo-footnote">
+            Sign up to add your weekly achievements to your profile.
+          </span>
+          <Button
+            className="mt-3 w-40 btn-primary"
+            onClick={() => showLogin('ranks modal')}
+            style={{ background: `var(--theme-rank-${rank || 1}-color)` }}
+          >
+            Sign up
+          </Button>
+        </div>
+      )}
       <RanksTags tags={tags} isAtModal />
       <DevCardFooter
         rank={rank}
