@@ -24,6 +24,7 @@ export default function RanksModal({
   className,
   ...props
 }: RanksModalProps): ReactElement {
+  const color = `var(--theme-rank-${rank || 1}-color)`;
   const { user, showLogin } = useContext(AuthContext);
   useTrackModal({ isOpen: props.isOpen, title: 'ranks modal' });
 
@@ -48,7 +49,7 @@ export default function RanksModal({
           <Button
             className="mt-3 w-40 btn-primary"
             onClick={() => showLogin('ranks modal')}
-            style={{ background: `var(--theme-rank-${rank || 1}-color)` }}
+            style={{ background: color }}
           >
             Sign up
           </Button>
