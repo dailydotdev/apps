@@ -41,8 +41,8 @@ export default function NewRankModal({
   style,
   ...props
 }: NewRankModalProps): ReactElement {
-  const [shownRank, setShownRank] = useState(rank - 1);
-  const [shownProgress, setShownProgress] = useState(progress);
+  const [shownRank, setShownRank] = useState(rank > 0 ? rank - 1 : 0);
+  const [shownProgress, setShownProgress] = useState(progress - 1);
   const [animatingRank, setAnimatingRank] = useState(false);
   const [rankAnimationEnded, setRankAnimationEnded] = useState(false);
   const inputRef = useRef<HTMLInputElement>();
@@ -151,7 +151,7 @@ export default function NewRankModal({
             className={`${styles.rankConfetti} absolute inset-x-0 top-0 h-full mx-auto`}
             style={
               {
-                '--fill-color': rank < RANKS.length && 'var(--rank-color)',
+                '--fill-color': rank <= RANKS.length && 'var(--rank-color)',
               } as CSSProperties
             }
           />
@@ -175,7 +175,11 @@ export default function NewRankModal({
               Generate Dev Card
             </GoToDevCardButton>
           )}
-          <Button className="btn-primary" onClick={closeModal}>
+          <Button
+            className="btn-primary"
+            buttonSize="small"
+            onClick={closeModal}
+          >
             Awesome!
           </Button>
         </div>
