@@ -64,14 +64,14 @@ const getRankElement = ({
   showRankAnimation,
   animatingProgress,
 }: GetRankElementProps): ReactElement => {
-  if (!smallVersion)
+  const animating = showRankAnimation || animatingProgress;
+  if (!smallVersion || !animating) {
     return (
       <RankElement shownRank={shownRank} rank={rank} badgeRef={badgeRef} />
     );
+  }
 
-  return !showRankAnimation || !animatingProgress ? (
-    <RankElement shownRank={shownRank} rank={rank} badgeRef={badgeRef} />
-  ) : (
+  return (
     <strong
       ref={plusRef}
       className="flex absolute inset-0 justify-center items-center text-theme-rank typo-callout"
