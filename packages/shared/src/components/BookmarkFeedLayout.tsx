@@ -60,6 +60,16 @@ export default function BookmarkFeedLayout({
     return <BookmarkEmptyScreen />;
   }
 
+  const shareBookmarksButton = (style: string, text?: string) => (
+    <Button
+      className={style}
+      icon={<SourceIcon />}
+      onClick={() => setShowSharedBookmarks(true)}
+    >
+      {text}
+    </Button>
+  );
+
   return (
     <FeedPage>
       {children}
@@ -68,20 +78,11 @@ export default function BookmarkFeedLayout({
       </FeedPageHeader>
       <CustomFeedHeader className="flex mb-6">
         {searchChildren}
-
-        <Button
-          className="hidden laptop:flex ml-4 btn-secondary"
-          icon={<SourceIcon />}
-          onClick={() => setShowSharedBookmarks(true)}
-        >
-          Share bookmarks
-        </Button>
-        <Button
-          className="flex laptop:hidden ml-4 btn-secondary"
-          icon={<SourceIcon />}
-          onClick={() => setShowSharedBookmarks(true)}
-          iconOnly
-        />
+        {shareBookmarksButton(
+          'hidden laptop:flex ml-4 btn-secondary',
+          'Share bookmarks',
+        )}
+        {shareBookmarksButton('flex laptop:hidden ml-4 btn-secondary')}
       </CustomFeedHeader>
 
       {showSharedBookmarks && (
