@@ -55,7 +55,6 @@ export default function RankProgressWrapper({
   const closeRanksModal = () => {
     setShowRanksModal(false);
   };
-
   return (
     <>
       <button

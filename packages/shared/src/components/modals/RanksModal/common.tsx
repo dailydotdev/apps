@@ -23,14 +23,25 @@ export interface RankBadgeItemProps {
 }
 export interface RanksTagsProps {
   tags: Tag[];
+  limit?: number;
+  isColorPrimary?: boolean;
 }
 export interface RankTagProps {
-  tag: Tag;
+  tag?: Tag;
+  isColorPrimary?: boolean;
 }
 type DevCardFooterType = Pick<RanksModalProps, 'rank'>;
 export interface DevCardFooterProps extends DevCardFooterType {
   user?: LoggedUser;
+  isLocked?: boolean;
+  reads?: number;
+  devCardLimit?: number;
 }
+export type DevCardTextProps = Pick<
+  DevCardFooterProps,
+  'user' | 'isLocked' | 'devCardLimit'
+>;
+
 type IntroSectionType = Pick<RanksModalProps, 'onShowAccount'>;
 export interface IntroSectionProps extends IntroSectionType {
   user?: LoggedUser;
@@ -58,12 +69,9 @@ export const RanksTagsSection = classed(
   'section',
   'p-4 m-4 mb-4 rounded-16 border bg-theme-bg-secondary border-theme-divider-tertiary',
 );
-export const RanksTagsList = classed(
-  'ul',
-  'grid grid-cols-2 grid-rows-4 grid-flow-col gap-4 mt-6',
-);
+export const RanksTagsList = classed('ul', 'grid grid-flow-col gap-4 mt-6');
 export const RankTagPill = classed(
   'strong',
-  'flex flex-shrink items-center px-3 ml-2 w-auto h-6 truncate bg-theme-float rounded-8 typo-callout text-theme-label-tertiary',
+  'flex items-center px-3 ml-2 h-6 truncate rounded-8 typo-callout text-theme-label-tertiary',
 );
 export const RankTag = classed('li', 'flex flex-row items-center');
