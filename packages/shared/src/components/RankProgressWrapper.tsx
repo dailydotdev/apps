@@ -5,6 +5,8 @@ import { RankProgress } from './RankProgress';
 import useReadingRank from '../hooks/useReadingRank';
 import AuthContext from '../contexts/AuthContext';
 import { RANKS } from '../lib/rank';
+import FeaturesContext from '../contexts/FeaturesContext';
+import { Features, getFeatureValue } from '../lib/featureManagement';
 
 const RanksModal = dynamic(
   () =>
@@ -32,7 +34,11 @@ export default function RankProgressWrapper({
   const { user } = useContext(AuthContext);
   const [showAccountDetails, setShowAccountDetails] = useState(false);
   const [showRanksModal, setShowRanksModal] = useState(false);
-  const devCardLimit = 50;
+  const { flags } = useContext(FeaturesContext);
+  const devCardLimit = parseInt(
+    getFeatureValue(Features.DevcardLimit, flags),
+    10,
+  );
   const {
     rank,
     rankLastWeek,
