@@ -1,5 +1,13 @@
 import React, { ReactElement } from 'react';
 
+const getColorPrefix = (rank: number, isLocked?: boolean) => {
+  if (isLocked) {
+    return '--theme-rank-1-color';
+  }
+
+  return rank > 0 ? `--theme-rank-${rank}-color` : '--theme-rank-5-color';
+};
+
 export default function DevCardPlaceholder({
   profileImage,
   rank,
@@ -11,15 +19,7 @@ export default function DevCardPlaceholder({
   rank?: number;
   isLocked?: boolean;
 }): ReactElement {
-  const getColorPrefix = () => {
-    if (isLocked) {
-      return '--theme-rank-1-color';
-    }
-
-    return rank > 0 ? `--theme-rank-${rank}-color` : '--theme-rank-5-color';
-  };
-
-  const colorPrefix = getColorPrefix();
+  const colorPrefix = getColorPrefix(rank, isLocked);
 
   return (
     <svg
