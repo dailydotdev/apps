@@ -4,7 +4,11 @@ import AnalyticsContext from '../contexts/AnalyticsContext';
 import AuthContext from '../contexts/AuthContext';
 import { BOOT_QUERY_KEY } from '../contexts/BootProvider';
 import FeaturesContext from '../contexts/FeaturesContext';
-import { Features, isFeaturedEnabled } from '../lib/featureManagement';
+import {
+  Features,
+  isFeaturedEnabled,
+  getFeatureValue,
+} from '../lib/featureManagement';
 import { storageWrapper as storage } from '../lib/storageWrapper';
 import {
   getLocalFeedSettings,
@@ -15,6 +19,7 @@ import useMutateFilters from './useMutateFilters';
 interface UseMyFeed {
   registerLocalFilters: () => Promise<{ hasFilters: boolean }>;
   shouldShowMyFeed: boolean;
+  myFeedPosition: string;
   checkHasLocalFilters: () => boolean;
 }
 
@@ -25,6 +30,7 @@ export function useMyFeed(): UseMyFeed {
   const { user } = useContext(AuthContext);
   const { flags } = useContext(FeaturesContext);
   const shouldShowMyFeed = isFeaturedEnabled(Features.MyFeedOn, flags);
+  const myFeedPosition = getFeatureValue(Features.MyFeedPosition, flags);
 
   const registerLocalFilters = async () => {
     const feedSettings = getLocalFeedSettings(true);
@@ -55,8 +61,14 @@ export function useMyFeed(): UseMyFeed {
     () => ({
       registerLocalFilters,
       shouldShowMyFeed,
+      myFeedPosition,
       checkHasLocalFilters,
     }),
-    [registerLocalFilters, shouldShowMyFeed, checkHasLocalFilters],
+    [
+      registerLocalFilters,
+      shouldShowMyFeed,
+      myFeedPosition,
+      checkHasLocalFilters,
+    ],
   );
 }

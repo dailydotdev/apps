@@ -44,6 +44,7 @@ export type FeedProps<T> = {
   className?: string;
   onEmptyFeed?: () => unknown;
   emptyScreen?: ReactNode;
+  createMyFeedCard?: ReactNode;
   header?: ReactNode;
 };
 
@@ -107,6 +108,7 @@ export default function Feed<T>({
   header,
   onEmptyFeed,
   emptyScreen,
+  createMyFeedCard,
 }: FeedProps<T>): ReactElement {
   const { flags } = useContext(FeaturesContext);
   const displayPublicationDate = !parseInt(
@@ -259,6 +261,7 @@ export default function Feed<T>({
           cardClass(useList, numCards),
         )}
       >
+        {createMyFeedCard && createMyFeedCard}
         {items.map((item, index) => (
           <FeedItemComponent
             items={items}

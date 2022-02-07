@@ -29,6 +29,9 @@ import { useMyFeed } from '../hooks/useMyFeed';
 import useDefaultFeed from '../hooks/useDefaultFeed';
 import SettingsContext from '../contexts/SettingsContext';
 import usePersistentContext from '../hooks/usePersistentContext';
+import CreateMyFeedButton from './CreateMyFeedButton';
+import { useDynamicLoadedAnimation } from '../hooks/useDynamicLoadAnimated';
+import FeedFilters from './filters/FeedFilters';
 
 const SearchEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "emptySearch" */ './SearchEmptyScreen'),
@@ -138,12 +141,19 @@ export default function MainFeedLayout({
   searchChildren,
   navChildren,
 }: MainFeedLayoutProps): ReactElement {
-  const { shouldShowMyFeed } = useMyFeed();
+  const { shouldShowMyFeed, myFeedPosition } = useMyFeed();
   const [defaultFeed, updateDefaultFeed] = useDefaultFeed(shouldShowMyFeed);
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { flags } = useContext(FeaturesContext);
   const popularFeedCopy = getFeatureValue(Features.PopularFeedCopy, flags);
+  const {
+    isLoaded,
+    isAnimated,
+    setLoaded: openFeedFilters,
+    setHidden,
+  } = useDynamicLoadedAnimation();
+
   const feedTitles = {
     'my-feed': 'My feed',
     popular: popularFeedCopy,
@@ -205,9 +215,23 @@ export default function MainFeedLayout({
     </LayoutHeader>
   );
 
+  const getFeedTitle = () => {
+    if (shouldShowMyFeed && myFeedPosition === 'feed_title') {
+      return (
+        <CreateMyFeedButton
+          type={myFeedPosition}
+          action={openFeedFilters}
+          flags={flags}
+        />
+      );
+    }
+
+    return <h3 className="typo-headline">{feedTitles[feedName]}</h3>;
+  };
+
   const header = (
     <LayoutHeader>
-      {!isSearchOn && <h3 className="typo-headline">{feedTitles[feedName]}</h3>}
+      {!isSearchOn && getFeedTitle()}
       <div className="flex flex-row flex-wrap items-center mr-px">
         {navChildren}
         {isUpvoted && (
@@ -273,7 +297,14 @@ export default function MainFeedLayout({
       ),
       query: query.query,
       variables,
-      emptyScreen: <FeedEmptyScreen />,
+      createMyFeedCard: shouldShowMyFeed && myFeedPosition === 'feed_ad' && (
+        <CreateMyFeedButton
+          type="feed_ad"
+          action={openFeedFilters}
+          flags={flags}
+        />
+      ),
+      emptyScreen: <FeedEmptyScreen openFeedFilters={openFeedFilters} />,
       header: !isSearchOn && header,
     };
   }, [
@@ -290,10 +321,26 @@ export default function MainFeedLayout({
   }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
 
   return (
-    <FeedPage>
-      {isSearchOn && search}
-      {feedProps && <Feed {...feedProps} />}
-      {children}
-    </FeedPage>
+    <>
+      <FeedPage>
+        {shouldShowMyFeed && myFeedPosition === 'feed_top' && (
+          <CreateMyFeedButton
+            type={myFeedPosition}
+            action={openFeedFilters}
+            flags={flags}
+          />
+        )}
+        {isSearchOn && search}
+        {feedProps && <Feed {...feedProps} />}
+        {children}
+      </FeedPage>
+      {isLoaded && (
+        <FeedFilters
+          isOpen={isAnimated}
+          onBack={setHidden}
+          directlyOpenedTab="Manage tags"
+        />
+      )}
+    </>
   );
 }

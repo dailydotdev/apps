@@ -30,6 +30,8 @@ export class Features {
 
   static readonly MyFeedOn = new Features('my_feed_on');
 
+  static readonly MyFeedPosition = new Features('my_feed_position', 'sidebar');
+
   static readonly MyFeedButtonCopy = new Features(
     'my_feed_button_copy',
     'Create my feed',
@@ -37,7 +39,7 @@ export class Features {
 
   static readonly MyFeedButtonColor = new Features(
     'my_feed_button_theme_color',
-    'avocado',
+    'cabbage',
   );
 
   static readonly MyFeedExplainerCopy = new Features(
@@ -47,7 +49,7 @@ export class Features {
 
   static readonly MyFeedExplainerColor = new Features(
     'my_feed_explainer_theme_color',
-    'avocado',
+    'cabbage',
   );
 
   static readonly SignupTitleCopy = new Features(

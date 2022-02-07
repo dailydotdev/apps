@@ -8,17 +8,13 @@ import {
 } from './EmptyScreen';
 import FilterIcon from '../../icons/outline/filter.svg';
 import { PageContainer } from './utilities';
-import { useDynamicLoadedAnimation } from '../hooks/useDynamicLoadAnimated';
-import FeedFilters from './filters/FeedFilters';
 
-function FeedEmptyScreen(): ReactElement {
-  const {
-    isLoaded,
-    isAnimated,
-    setLoaded: openFeedFilters,
-    setHidden,
-  } = useDynamicLoadedAnimation();
-
+interface FeedEmptyScreenProps {
+  openFeedFilters: () => unknown;
+}
+function FeedEmptyScreen({
+  openFeedFilters,
+}: FeedEmptyScreenProps): ReactElement {
   return (
     <>
       <PageContainer className="mx-auto">
@@ -39,13 +35,6 @@ function FeedEmptyScreen(): ReactElement {
           </EmptyScreenButton>
         </EmptyScreenContainer>
       </PageContainer>
-      {isLoaded && (
-        <FeedFilters
-          isOpen={isAnimated}
-          onBack={setHidden}
-          directlyOpenedTab="Manage tags"
-        />
-      )}
     </>
   );
 }
