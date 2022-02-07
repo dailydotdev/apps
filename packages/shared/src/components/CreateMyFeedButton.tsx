@@ -19,10 +19,11 @@ interface CreateMyFeedButtonProps {
 const getAnalyticsEvent = (
   eventName: string,
   copy: string,
+  type: string,
 ): Partial<AnalyticsEvent> => ({
   event_name: eventName,
   target_type: 'my feed button',
-  target_id: 'sidebar',
+  target_id: type,
   feed_item_title: copy,
 });
 
@@ -81,13 +82,13 @@ export default function CreateMyFeedButton({
     Features.MyFeedExplainerColor.defaultValue,
   );
   const onClick = () => {
-    trackEvent(getAnalyticsEvent('click', buttonCopy));
+    trackEvent(getAnalyticsEvent('click', buttonCopy, type));
     action();
   };
   const isSidebar = type === 'sidebar';
 
   useEffect(() => {
-    trackEvent(getAnalyticsEvent('impression', buttonCopy));
+    trackEvent(getAnalyticsEvent('impression', buttonCopy, type));
   }, [buttonCopy]);
 
   return (

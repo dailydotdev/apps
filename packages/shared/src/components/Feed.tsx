@@ -261,7 +261,7 @@ export default function Feed<T>({
           cardClass(useList, numCards),
         )}
       >
-        {createMyFeedCard && createMyFeedCard}
+        {createMyFeedCard}
         {items.map((item, index) => (
           <FeedItemComponent
             items={items}
