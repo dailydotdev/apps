@@ -16,7 +16,7 @@
     transition: stroke-dashoffset 0.5s ease-out
       var(--radial-progress-transition-delay);
 
-    &:global(.modal) {
+    &:global(.primary) {
       stroke: var(--theme-label-primary);
     }
   }

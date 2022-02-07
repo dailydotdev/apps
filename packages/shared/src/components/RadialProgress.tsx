@@ -66,7 +66,7 @@ export type RadialProgressProps = {
   onTransitionEnd?: () => unknown;
   className?: string;
   style?: CSSProperties;
-  isAtModal?: boolean;
+  isColorPrimary?: boolean;
 };
 
 const Circle = classed('circle', styles.circle);
@@ -78,7 +78,7 @@ export default forwardRef(function RadialProgress(
     maxDegrees = 360,
     onTransitionEnd,
     className,
-    isAtModal,
+    isColorPrimary,
     ...props
   }: RadialProgressProps,
   ref: LegacyRef<HTMLDivElement>,
@@ -173,7 +173,7 @@ export default forwardRef(function RadialProgress(
             cy={center}
             strokeDasharray={circumference}
             strokeDashoffset={circumference * (1 - progressRatio)}
-            className={classNames('completed', isAtModal && 'modal')}
+            className={classNames('completed', isColorPrimary && 'primary')}
             onTransitionEnd={onTransitionEnd}
           />
         </g>

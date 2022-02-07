@@ -4,7 +4,7 @@ import RadialProgress from '../../RadialProgress';
 import styles from '../../RankProgress.module.css';
 import { RankTag, RankTagPill, RankTagProps } from './common';
 
-const RankTagItem = ({ tag, isAtModal }: RankTagProps): ReactElement => {
+const RankTagItem = ({ tag, isColorPrimary }: RankTagProps): ReactElement => {
   const isPlaceholder = tag === undefined || tag === null;
   const className = isPlaceholder
     ? 'w-24 rounded-8 border border-theme-divider-secondary'
@@ -16,7 +16,7 @@ const RankTagItem = ({ tag, isAtModal }: RankTagProps): ReactElement => {
         progress={isPlaceholder ? 0 : tag.readingDays}
         steps={7}
         className={classNames('w-5 h-5', styles.radialProgress)}
-        isAtModal={isAtModal}
+        isColorPrimary={isColorPrimary}
       />
       <RankTagPill className={className}>
         {isPlaceholder ? '' : `#${tag.tag}`}

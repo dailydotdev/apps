@@ -58,7 +58,7 @@ export default function RanksModal({
           </Button>
         </div>
       )}
-      <RanksTags tags={tags} isAtModal />
+      <RanksTags tags={tags} isColorPrimary />
       <DevCardFooter
         rank={rank}
         user={user}

@@ -5,7 +5,7 @@ import RankTagItem from './RankTagItem';
 
 const RanksTags = ({
   tags,
-  isAtModal,
+  isColorPrimary,
   limit = 6,
 }: RanksTagsProps): ReactElement => {
   return (
@@ -15,8 +15,12 @@ const RanksTags = ({
         {Array(limit)
           .fill(0)
           .map((_, i) => (
-            // eslint-disable-next-line react/no-array-index-key
-            <RankTagItem tag={tags[i]} key={i} isAtModal={isAtModal} />
+            <RankTagItem
+              // eslint-disable-next-line react/no-array-index-key
+              key={i}
+              tag={tags[i]}
+              isColorPrimary={isColorPrimary}
+            />
           ))}
       </RanksTagsList>
     </RanksTagsSection>
