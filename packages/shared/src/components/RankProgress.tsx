@@ -18,6 +18,7 @@ import {
   getNextRankText,
   isFinalRank,
   RANKS,
+  getRank,
 } from '../lib/rank';
 import Rank from './Rank';
 import styles from './RankProgress.module.css';
@@ -124,11 +125,12 @@ export function RankProgress({
   const badgeRef = useRef<SVGSVGElement>();
   const plusRef = useRef<HTMLElement>();
 
+  const rankIndex = getRank(rank);
   const finalRank = isFinalRank(rank);
   const levelUp = () =>
     rank > shownRank &&
     rank > 0 &&
-    (rank !== rankLastWeek || progress === RANKS[rank - 1].steps);
+    (rank !== rankLastWeek || progress === RANKS[rankIndex].steps);
   const getLevelText = levelUp() ? 'You made it 🏆' : '+1 Reading day';
   const shouldForceColor = animatingProgress || forceColor || fillByDefault;
 
@@ -136,13 +138,13 @@ export function RankProgress({
     if (
       showRankAnimation ||
       showCurrentRankSteps ||
-      (finalRank && progress < RANKS[rank - 1].steps)
+      (finalRank && progress < RANKS[rankIndex].steps)
     ) {
-      return RANKS[rank - 1].steps;
+      return RANKS[rankIndex].steps;
     }
 
     if (!finalRank) {
-      return RANKS[rank].steps;
+      return RANKS[rankIndex].steps;
     }
     return 0;
   }, [showRankAnimation, showCurrentRankSteps, shownRank, progress, rank]);
@@ -259,7 +261,7 @@ export function RankProgress({
       (!rank ||
         showRankAnimation ||
         levelUp() ||
-        RANKS[rank - 1].steps !== progress)
+        RANKS[rankIndex].steps !== progress)
     ) {
       if (!showRadialProgress) animateRank();
       setAnimatingProgress(true);
