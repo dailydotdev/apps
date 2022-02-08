@@ -11,13 +11,27 @@
 
 .pageContainer {
   max-width: $pageMaxWidth;
+  margin: auto;
+
+  @screen laptop {
+    width: $pageMaxWidth;
+    margin-left: calc(50% - (($pageMaxWidth / 2) - 3rem));
+  }
+
   @screen laptopL {
     width: $pageMaxWidth;
+    margin: auto;
   }
 }
 
 .pageWidgets {
   max-width: $pageMaxWidth;
+  position: relative;
+
+  @screen laptopL {
+    position: absolute;
+    left: 100%;
+  }
 }
 
 .feedPage {

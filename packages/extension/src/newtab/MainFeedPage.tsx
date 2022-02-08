@@ -17,7 +17,7 @@ import useDefaultFeed from '@dailydotdev/shared/src/hooks/useDefaultFeed';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import { HeaderButton } from '@dailydotdev/shared/src/components/buttons/common';
 import { useMyFeed } from '@dailydotdev/shared/src/hooks/useMyFeed';
-import MostVisitedSites from './MostVisitedSites';
+import ShortcutLinks from './ShortcutLinks';
 
 const PostsSearch = dynamic(
   () =>
@@ -102,6 +102,7 @@ export default function MainFeedPage({
       onShowDndClick={() => setShowDnd(true)}
       enableSearch={enableSearch}
       onNavTabClick={onNavTabClick}
+      screenCentered={false}
       additionalButtons={
         <>
           {user && (
@@ -127,7 +128,7 @@ export default function MainFeedPage({
               onSubmitQuery={async (query) => setSearchQuery(query)}
             />
           }
-          navChildren={!isSearchOn && <MostVisitedSites />}
+          navChildren={!isSearchOn && <ShortcutLinks />}
         />
       </FeedLayout>
       <DndModal isOpen={showDnd} onRequestClose={() => setShowDnd(false)} />

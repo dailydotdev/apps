@@ -29,17 +29,15 @@ const SourceShadow = classed(
   'absolute left-5 -my-1 w-8 h-8 rounded-full bg-theme-bg-primary',
 );
 
-const Container = classed('div', 'flex items-center mb-2');
-
-export default function ReadingHistoryItem({
-  history: { timestamp, post },
+function ReadingHistoryItem({
+  history: { timestampDb, post },
   onHide,
   className,
   onContextMenu,
 }: ReadingHistoryItemProps): ReactElement {
   const onHideClick = (e: MouseEvent) => {
     e.stopPropagation();
-    onHide({ postId: post.id, timestamp });
+    onHide({ postId: post.id, timestamp: timestampDb });
   };
   const { notification, onMessage } = useNotification();
 
@@ -65,6 +63,7 @@ export default function ReadingHistoryItem({
           imgSrc={post.image}
           imgAlt={post.title}
           className="w-16 laptop:w-24 h-16 rounded-16"
+          fallbackSrc="https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1"
         />
         <SourceShadow />
         <LazyImage

@@ -41,6 +41,8 @@ export type SettingsContextData = {
   toggleSidebarExpanded: () => Promise<void>;
   toggleSortingEnabled: () => Promise<void>;
   loadedSettings: boolean;
+  customLinks?: string[];
+  updateCustomLinks: (links: string[]) => Promise<unknown>;
 };
 
 const SettingsContext = React.createContext<SettingsContextData>(null);
@@ -177,6 +179,8 @@ export const SettingsContextProvider = ({
       toggleSortingEnabled: () =>
         setSettings({ ...settings, sortingEnabled: !settings.sortingEnabled }),
       loadedSettings,
+      updateCustomLinks: (links: string[]) =>
+        setSettings({ ...settings, customLinks: links }),
     }),
     [settings, loadedSettings, userId],
   );

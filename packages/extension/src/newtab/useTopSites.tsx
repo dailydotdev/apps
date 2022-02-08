@@ -1,14 +1,24 @@
 import { browser, TopSites } from 'webextension-polyfill-ts';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 type TopSite = TopSites.MostVisitedURL;
-type UseTopSitesRet = {
+export type UseTopSitesRet = {
   topSites: TopSite[] | undefined;
+  hasCheckedPermission: boolean;
+  revokePermission: () => Promise<unknown>;
   askTopSitesPermission: () => Promise<boolean>;
 };
 
 export default function useTopSites(): UseTopSitesRet {
-  const [topSites, setTopSites] = useState<TopSite[] | undefined>();
+  const [topSites, setTopSites] = useState<TopSite[] | undefined>([]);
+  const [hasCheckedPermission, setHasCheckedPermission] = useState(false);
+  const revokePermission = async () => {
+    await browser.permissions.remove({
+      permissions: ['topSites'],
+    });
+
+    setTopSites(undefined);
+  };
 
   const getTopSites = async (): Promise<void> => {
     try {
@@ -16,6 +26,7 @@ export default function useTopSites(): UseTopSitesRet {
     } catch (err) {
       setTopSites(undefined);
     }
+    setHasCheckedPermission(true);
   };
 
   const askTopSitesPermission = async (): Promise<boolean> => {
@@ -32,8 +43,13 @@ export default function useTopSites(): UseTopSitesRet {
     getTopSites();
   }, []);
 
-  return {
-    topSites,
-    askTopSitesPermission,
-  };
+  return useMemo(
+    () => ({
+      topSites,
+      hasCheckedPermission,
+      revokePermission,
+      askTopSitesPermission,
+    }),
+    [topSites, hasCheckedPermission, revokePermission, askTopSitesPermission],
+  );
 }

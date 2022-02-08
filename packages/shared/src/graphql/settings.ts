@@ -12,6 +12,7 @@ export type RemoteSettings = {
   showTopSites: boolean;
   sidebarExpanded: boolean;
   sortingEnabled: boolean;
+  customLinks?: string[];
 };
 
 export type UserSettingsData = { userSettings: RemoteSettings };
@@ -27,6 +28,7 @@ export const USER_SETTINGS_QUERY = gql`
       showTopSites
       sidebarExpanded
       sortingEnabled
+      customLinks
     }
   }
 `;
