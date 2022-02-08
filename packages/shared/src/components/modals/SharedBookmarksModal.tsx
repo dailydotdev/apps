@@ -119,7 +119,7 @@ export default function SharedBookmarksModal({
             rel="noopener noreferrer"
             className="btn-secondary"
             buttonSize="small"
-            href="https://docs.daily.dev/docs/key-features/bookmarks"
+            href="https://docs.daily.dev/docs/integrations/sharing-bookmarks"
             tag="a"
             target="_blank"
           >
