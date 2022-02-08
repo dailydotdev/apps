@@ -17,12 +17,13 @@ import { ModalText } from '../common';
 const RanksBadges = ({ rank, progress }: RanksBadgesProps): ReactElement => {
   const finalRank = isFinalRank(rank);
   const showRank = getShowRank(finalRank, rank, progress);
+  const offest = showRank === RANKS.length ? showRank : showRank - 1;
 
   return (
     <RanksBadgesSection>
       <RanksBadgesList
         style={{
-          transform: `translate(${RANK_OFFSET[showRank]})`,
+          transform: `translate(${RANK_OFFSET[offest]})`,
         }}
       >
         {RANKS.map((itemRank) => (

@@ -134,7 +134,8 @@ export const getShowRank = (
 ): number => {
   const currentRank = getRank(rank);
   if (
-    (finalRank && progress === RANKS[currentRank].steps) ||
+    finalRank ||
+    progress === RANKS.length ||
     progress >= RANKS[currentRank].steps
   ) {
     return rank;
