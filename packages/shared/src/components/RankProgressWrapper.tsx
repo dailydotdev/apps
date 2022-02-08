@@ -17,13 +17,6 @@ const NewRankModal = dynamic(
   () => import(/* webpackChunkName: "newRankModal" */ './modals/NewRankModal'),
 );
 
-const AccountDetailsModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "accountDetailsModal" */ './modals/AccountDetailsModal'
-    ),
-);
-
 export default function RankProgressWrapper({
   sidebarExpanded,
   className,
