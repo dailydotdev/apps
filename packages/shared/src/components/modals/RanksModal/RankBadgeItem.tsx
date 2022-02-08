@@ -20,6 +20,7 @@ const RankBadgeItem = ({
   showRank,
   itemRank,
   progress,
+  previousRank,
 }: RankBadgeItemProps): ReactElement => {
   const rankCompleted = isRankCompleted(showRank, itemRank.level, progress);
   const finalRankCompleted = isFinalRankCompleted(showRank, progress);
@@ -64,7 +65,9 @@ const RankBadgeItem = ({
             style={
               {
                 '--radial-progress-completed-step': `var(--theme-rank-${
-                  finalRankCompleted ? showRank : showRank - 1
+                  finalRankCompleted || previousRank === itemRank.level
+                    ? showRank
+                    : showRank - 1
                 }-color)`,
               } as CSSProperties
             }
