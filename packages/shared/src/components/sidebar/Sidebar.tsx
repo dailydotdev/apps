@@ -46,6 +46,7 @@ import { AlertColor, AlertDot } from '../AlertDot';
 import { useMyFeed } from '../../hooks/useMyFeed';
 import useDefaultFeed from '../../hooks/useDefaultFeed';
 import { Features, getFeatureValue } from '../../lib/featureManagement';
+import CreateMyFeedButton from '../CreateMyFeedButton';
 
 const bottomMenuItems: SidebarMenuItem[] = [
   {
@@ -135,7 +136,7 @@ export default function Sidebar({
   setOpenMobileSidebar,
   onShowDndClick,
 }: SidebarProps): ReactElement {
-  const { shouldShowMyFeed } = useMyFeed();
+  const { shouldShowMyFeed, myFeedPosition } = useMyFeed();
   const [defaultFeed] = useDefaultFeed(shouldShowMyFeed);
   const activePage =
     activePageProp === '/' ? `/${defaultFeed}` : activePageProp;
@@ -289,13 +290,22 @@ export default function Sidebar({
         <SidebarScrollWrapper>
           <Nav>
             <SidebarUserButton sidebarRendered={sidebarRendered} />
-            {shouldShowMyFeed && (
+            {shouldShowMyFeed &&
+              myFeedPosition === 'sidebar' &&
+              alerts?.filter &&
+              sidebarRendered && (
+                <CreateMyFeedButton
+                  type={myFeedPosition}
+                  action={openFeedFilters}
+                  sidebarExpanded={sidebarExpanded}
+                  flags={flags}
+                />
+              )}
+            {shouldShowMyFeed && !alerts?.filter && (
               <MyFeedButton
                 sidebarRendered={sidebarRendered}
                 sidebarExpanded={sidebarExpanded}
-                filtered={!alerts?.filter}
                 item={myFeedMenuItem}
-                flags={flags}
                 action={openFeedFilters}
                 isActive={activePage === myFeedMenuItem.path}
                 useNavButtonsNotLinks={useNavButtonsNotLinks}

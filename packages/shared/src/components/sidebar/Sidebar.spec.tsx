@@ -30,7 +30,7 @@ import { Alerts, UPDATE_ALERTS } from '../../graphql/alerts';
 import FeaturesContext, { FeaturesData } from '../../contexts/FeaturesContext';
 
 let features: FeaturesData;
-let client: QueryClient;
+let client: QueryClientfeat;
 const updateAlerts = jest.fn();
 const toggleSidebarExpanded = jest.fn();
 
@@ -38,6 +38,10 @@ const defaultFeatures: FeaturesData = {
   flags: {
     my_feed_on: {
       enabled: true,
+    },
+    my_feed_position: {
+      enabled: true,
+      value: 'sidebar',
     },
   },
 };

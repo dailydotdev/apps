@@ -3,7 +3,7 @@ import classed from '../lib/classed';
 import styles from './utilities.module.css';
 import ArrowIcon from '../../icons/arrow.svg';
 
-interface ThemeColor {
+export interface ThemeColor {
   border: string;
   shadow: string;
   button: string;
