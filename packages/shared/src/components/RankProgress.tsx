@@ -144,7 +144,7 @@ export function RankProgress({
     }
 
     if (!finalRank) {
-      return RANKS[rankIndex].steps;
+      return RANKS[rank].steps;
     }
     return 0;
   }, [showRankAnimation, showCurrentRankSteps, shownRank, progress, rank]);
