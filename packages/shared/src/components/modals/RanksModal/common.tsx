@@ -13,7 +13,6 @@ export interface RanksModalProps extends ModalProps {
   confirmationText?: string;
   reads: number;
   devCardLimit: number;
-  onShowAccount?: () => void;
 }
 export type RanksBadgesProps = Pick<
   RanksModalProps,
