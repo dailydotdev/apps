@@ -159,12 +159,12 @@ export function RankProgress({
       ? progressRef.current.animate(
           [
             {
-              transform: 'scale(1)',
+              transform: 'scale(1) rotate(180deg)',
               '--radial-progress-completed-step': rankToColor(shownRank),
             },
-            { transform: `scale(${maxScale})` },
+            { transform: `scale(${maxScale}) rotate(180deg)` },
             {
-              transform: 'scale(1)',
+              transform: 'scale(1) rotate(180deg)',
               '--radial-progress-completed-step': rankToColor(rank),
             },
           ],
