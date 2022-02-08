@@ -25,7 +25,7 @@ export type BookmarkFeedLayoutProps = {
 const SharedBookmarksModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "accountDetailsModal" */ './modals/SharedBookmarksModal'
+      /* webpackChunkName: "SharedBookmarksModal" */ './modals/SharedBookmarksModal'
     ),
 );
 

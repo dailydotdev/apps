@@ -58,83 +58,81 @@ export default function SharedBookmarksModal({
   }
 
   return (
-    <>
-      <ResponsiveModal
-        className={classNames(className, styles.accountDetailsModal)}
-        {...props}
-      >
-        <header className="flex justify-between items-center py-4 px-6 w-full border-b border-theme-divider-tertiary">
-          <h3 className="pl-2 font-bold typo-title3">Bookmarks sharing</h3>
-          <ModalCloseButton onClick={props.onRequestClose} />
-        </header>
-        <section className="flex flex-col py-6 px-6 mobileL:px-10">
-          <Switch
-            inputId="share-bookmarks-switch"
-            name="share-bookmarks"
-            className="mb-4"
-            checked={bookmarksSharingData?.bookmarksSharing?.enabled}
-            onToggle={updateBookmarksSharing}
-            compact={false}
-          >
-            Public mode
-          </Switch>
-          <p className="typo-callout text-theme-label-tertiary">
-            Switching to public mode will generate a public rss feed of your
-            bookmarks. Use this link to integrate and automatically share your
-            bookmarks with other developers.
-          </p>
-          {bookmarksSharingData?.bookmarksSharing?.enabled && (
-            <div className="relative">
-              <TextField
-                className="mt-6"
-                name="rssUrl"
-                inputId="rssUrl"
-                label="Your unique RSS URL"
-                type="url"
-                fieldType="tertiary"
-                actionIcon={<CopyIcon />}
-                onActionIconClick={copyRssUrl}
-                value={bookmarksSharingData?.bookmarksSharing?.rssUrl}
-                readOnly
-              />
-              {isRssUrlCopied && (
-                <div
-                  className={classNames(
-                    'absolute flex top-0 right-0 items-center text-theme-status-success font-bold typo-caption1',
-                    styles.copied,
-                  )}
-                >
-                  Copied!
-                </div>
-              )}
-            </div>
-          )}
-        </section>
-        <section className="p-6 m-4 rounded-16 border border-theme-divider-tertiary">
-          <p className="typo-callout text-theme-label-tertiary">
-            Need inspiration? we prepared some tutorials explaining some best
-            practices of integrating your bookmarks with other platforms.
-          </p>
-          <div className="flex justify-between mt-4">
-            <Button
-              rel="noopener noreferrer"
-              className="btn-secondary"
-              buttonSize="small"
-              href="https://docs.daily.dev/docs/key-features/bookmarks"
-              tag="a"
-              target="_blank"
-            >
-              Explore tutorials
-            </Button>
-            <div className="flex gap-2 items-center h-8 text-2xl">
-              <DiscordIcon />
-              <TwitterIcon />
-              <SlackIcon />
-              <GithubIcon />
-            </div>
+    <ResponsiveModal
+      className={classNames(className, styles.accountDetailsModal)}
+      {...props}
+    >
+      <header className="flex justify-between items-center py-4 px-6 w-full border-b border-theme-divider-tertiary">
+        <h3 className="pl-2 font-bold typo-title3">Bookmarks sharing</h3>
+        <ModalCloseButton onClick={props.onRequestClose} />
+      </header>
+      <section className="flex flex-col py-6 px-6 mobileL:px-10">
+        <Switch
+          inputId="share-bookmarks-switch"
+          name="share-bookmarks"
+          className="mb-4"
+          checked={bookmarksSharingData?.bookmarksSharing?.enabled}
+          onToggle={updateBookmarksSharing}
+          compact={false}
+        >
+          Public mode
+        </Switch>
+        <p className="typo-callout text-theme-label-tertiary">
+          Switching to public mode will generate a public rss feed of your
+          bookmarks. Use this link to integrate and automatically share your
+          bookmarks with other developers.
+        </p>
+        {bookmarksSharingData?.bookmarksSharing?.enabled && (
+          <div className="relative">
+            <TextField
+              className="mt-6"
+              name="rssUrl"
+              inputId="rssUrl"
+              label="Your unique RSS URL"
+              type="url"
+              fieldType="tertiary"
+              actionIcon={<CopyIcon />}
+              onActionIconClick={copyRssUrl}
+              value={bookmarksSharingData?.bookmarksSharing?.rssUrl}
+              readOnly
+            />
+            {isRssUrlCopied && (
+              <div
+                className={classNames(
+                  'absolute flex top-0 right-0 items-center text-theme-status-success font-bold typo-caption1',
+                  styles.copied,
+                )}
+              >
+                Copied!
+              </div>
+            )}
           </div>
-        </section>
-      </ResponsiveModal>
-    </>
+        )}
+      </section>
+      <section className="p-6 m-4 rounded-16 border border-theme-divider-tertiary">
+        <p className="typo-callout text-theme-label-tertiary">
+          Need inspiration? we prepared some tutorials explaining some best
+          practices of integrating your bookmarks with other platforms.
+        </p>
+        <div className="flex justify-between mt-4">
+          <Button
+            rel="noopener noreferrer"
+            className="btn-secondary"
+            buttonSize="small"
+            href="https://docs.daily.dev/docs/key-features/bookmarks"
+            tag="a"
+            target="_blank"
+          >
+            Explore tutorials
+          </Button>
+          <div className="flex gap-2 items-center h-8 text-2xl">
+            <DiscordIcon />
+            <TwitterIcon />
+            <SlackIcon />
+            <GithubIcon />
+          </div>
+        </div>
+      </section>
+    </ResponsiveModal>
   );
 }
