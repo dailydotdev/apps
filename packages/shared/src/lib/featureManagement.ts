@@ -30,7 +30,12 @@ export class Features {
 
   static readonly MyFeedOn = new Features('my_feed_on');
 
-  static readonly MyFeedPosition = new Features('my_feed_position', 'sidebar');
+  static readonly MyFeedPosition = new Features('my_feed_position', 'sidebar', [
+    'sidebar',
+    'feed_title',
+    'feed_ad',
+    'feed_top',
+  ]);
 
   static readonly MyFeedButtonCopy = new Features(
     'my_feed_button_copy',
@@ -79,11 +84,15 @@ export class Features {
   private constructor(
     public readonly id: string,
     public readonly defaultValue?: string,
+    public readonly validTypes?: string[],
   ) {}
 }
 
 export const isFeaturedEnabled = (key: Features, flags: IFlags): boolean =>
-  flags?.[key?.id]?.enabled;
+  key?.validTypes === undefined ||
+  key?.validTypes?.includes(flags?.[key?.id]?.value)
+    ? flags?.[key?.id]?.enabled
+    : false;
 
 export const getFeatureValue = (
   key: Features,
@@ -92,5 +101,6 @@ export const getFeatureValue = (
   if (isFeaturedEnabled(key, flags)) {
     return flags[key?.id].value;
   }
+
   return key?.defaultValue ?? undefined;
 };

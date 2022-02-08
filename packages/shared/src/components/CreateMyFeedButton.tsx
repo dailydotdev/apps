@@ -31,28 +31,32 @@ interface ClassProps {
   explainerColor?: ThemeColor;
   sidebarExpanded?: boolean;
 }
-const wrapperClasses = (sidebarExpanded: ClassProps) => {
+const wrapperClasses = ({ sidebarExpanded }: ClassProps) => {
   return {
-    sidebar: sidebarExpanded ? 'h-[8.125rem] justify-center' : 'h-[8.125rem] ',
+    sidebar: classNames('h-[8.125rem]', sidebarExpanded && 'justify-center'),
     feed_top: 'w-full items-center mb-8',
   };
 };
 
 const innerWrapClasses = ({ explainerColor, sidebarExpanded }: ClassProps) => {
   return {
-    sidebar: sidebarExpanded
-      ? `flex-col ${explainerColor.shadow} border p-3 m-4`
-      : 'flex-col mx-3',
+    sidebar: classNames(
+      'flex-col',
+      sidebarExpanded ? `${explainerColor.shadow} border p-3 m-4` : 'mx-3',
+    ),
     feed_title: `flex-row-reverse`,
     feed_top: `${explainerColor.shadow} p-2 border`,
     feed_ad: `${explainerColor.shadow} p-2 border flex-col flex-1 justify-center`,
   };
 };
-const textClass = (sidebarExpanded: ClassProps) => {
+const textClass = ({ sidebarExpanded }: ClassProps) => {
   return {
-    sidebar: sidebarExpanded
-      ? 'typo-footnote w-[11.25rem] mb-3 transform opacity-100 ease-linear duration-200  delay-200'
-      : 'typo-footnote w-[11.25rem] mb-3 transform duration-0 delay-0 opacity-0',
+    sidebar: classNames(
+      'typo-footnote w-[11.25rem] mb-3 transform',
+      sidebarExpanded
+        ? 'opacity-100 ease-linear duration-200 delay-200'
+        : 'duration-0 delay-0 opacity-0',
+    ),
     feed_top: 'typo-footnote ml-2',
     feed_title: 'typo-footnote',
     feed_ad: 'typo-body font-bold mx-6 text-center mb-6',
