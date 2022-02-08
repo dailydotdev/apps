@@ -78,7 +78,11 @@ const RankBadgeItem = ({
           className={classNames(
             showRank === itemRank.level ? 'w-10 h-10' : 'w-8 h-8',
           )}
-          colorByRank={finalRankCompleted ? true : showRank > itemRank.level}
+          colorByRank={
+            finalRankCompleted || previousRank === itemRank.level
+              ? true
+              : showRank > itemRank.level
+          }
         />
       </RankBadgeContainer>
       <RankBadgeName
