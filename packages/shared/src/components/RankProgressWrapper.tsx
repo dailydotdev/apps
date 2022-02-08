@@ -85,7 +85,7 @@ export default function RankProgressWrapper({
         <RanksModal
           rank={rank}
           progress={progress}
-          tags={tags || []}
+          tags={tags}
           isOpen={showRanksModal}
           onRequestClose={closeRanksModal}
           onShowAccount={() => setShowAccountDetails(true)}
