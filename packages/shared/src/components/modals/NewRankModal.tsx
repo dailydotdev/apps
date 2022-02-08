@@ -109,7 +109,7 @@ export default function NewRankModal({
     >
       <ModalCloseButton onClick={closeModal} />
       <div
-        className={`${styles.rankProgressContainer} relative flex items-center justify-center mt-6`}
+        className={`${styles.rankProgressContainer} relative flex items-center justify-center mt-6 z-0`}
       >
         {!user || !rankAnimationEnded ? (
           <RankProgress
