@@ -32,7 +32,6 @@ export default function RankProgressWrapper({
   className?: string;
 }): ReactElement {
   const { user } = useContext(AuthContext);
-  const [showAccountDetails, setShowAccountDetails] = useState(false);
   const [showRanksModal, setShowRanksModal] = useState(false);
   const { flags } = useContext(FeaturesContext);
   const devCardLimit = parseInt(
@@ -88,7 +87,6 @@ export default function RankProgressWrapper({
           tags={tags}
           isOpen={showRanksModal}
           onRequestClose={closeRanksModal}
-          onShowAccount={() => setShowAccountDetails(true)}
           reads={reads}
           previousRank={rankLastWeek}
           devCardLimit={devCardLimit}
@@ -102,12 +100,6 @@ export default function RankProgressWrapper({
           isOpen={levelUp && shouldShowRankModal}
           onRequestClose={confirmLevelUp}
           showDevCard={reads >= devCardLimit || !devCardLimit}
-        />
-      )}
-      {showAccountDetails && (
-        <AccountDetailsModal
-          isOpen={showAccountDetails}
-          onRequestClose={() => setShowAccountDetails(false)}
         />
       )}
     </>

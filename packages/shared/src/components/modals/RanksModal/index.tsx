@@ -22,7 +22,6 @@ export default function RanksModal({
   reads,
   devCardLimit,
   onRequestClose,
-  onShowAccount,
   className,
   previousRank,
   ...props
@@ -41,7 +40,7 @@ export default function RanksModal({
         <h3 className="font-bold typo-title3">Weekly reading goal</h3>
         <ModalCloseButton onClick={onRequestClose} />
       </ModalHeader>
-      <IntroSection onShowAccount={onShowAccount} user={user} />
+      <IntroSection />
       <RanksBadges
         rank={rank}
         progress={progress}
