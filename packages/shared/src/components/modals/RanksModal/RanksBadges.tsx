@@ -14,7 +14,11 @@ import {
 import RankBadgeItem from './RankBadgeItem';
 import { ModalText } from '../common';
 
-const RanksBadges = ({ rank, progress }: RanksBadgesProps): ReactElement => {
+const RanksBadges = ({
+  rank,
+  progress,
+  previousRank,
+}: RanksBadgesProps): ReactElement => {
   const finalRank = isFinalRank(rank);
   const showRank = getShowRank(finalRank, rank, progress);
   const offest = showRank === RANKS.length ? showRank : showRank - 1;
@@ -32,6 +36,7 @@ const RanksBadges = ({ rank, progress }: RanksBadgesProps): ReactElement => {
             showRank={showRank}
             itemRank={itemRank}
             progress={progress}
+            previousRank={previousRank}
           />
         ))}
       </RanksBadgesList>

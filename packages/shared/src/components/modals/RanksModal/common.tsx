@@ -5,6 +5,7 @@ import { LoggedUser } from '../../../lib/user';
 import { ModalProps } from '../StyledModal';
 
 export interface RanksModalProps extends ModalProps {
+  previousRank?: number;
   rank: number;
   progress: number;
   tags: TopTags;
@@ -14,12 +15,16 @@ export interface RanksModalProps extends ModalProps {
   devCardLimit: number;
   onShowAccount?: () => void;
 }
-export type RanksBadgesProps = Pick<RanksModalProps, 'rank' | 'progress'>;
+export type RanksBadgesProps = Pick<
+  RanksModalProps,
+  'rank' | 'progress' | 'previousRank'
+>;
 
 export interface RankBadgeItemProps {
   showRank: number;
   itemRank: Rank;
   progress: number;
+  previousRank?: number;
 }
 export interface RanksTagsProps {
   tags: Tag[];

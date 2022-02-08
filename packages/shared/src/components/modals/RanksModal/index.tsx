@@ -24,6 +24,7 @@ export default function RanksModal({
   onRequestClose,
   onShowAccount,
   className,
+  previousRank,
   ...props
 }: RanksModalProps): ReactElement {
   const { user, showLogin } = useContext(AuthContext);
@@ -41,7 +42,11 @@ export default function RanksModal({
         <ModalCloseButton onClick={onRequestClose} />
       </ModalHeader>
       <IntroSection onShowAccount={onShowAccount} user={user} />
-      <RanksBadges rank={rank} progress={progress} />
+      <RanksBadges
+        rank={rank}
+        progress={progress}
+        previousRank={previousRank}
+      />
       {!user && (
         <div className="flex flex-col items-center mt-2">
           <span className="typo-footnote">

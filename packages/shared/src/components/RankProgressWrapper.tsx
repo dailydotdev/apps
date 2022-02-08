@@ -90,6 +90,7 @@ export default function RankProgressWrapper({
           onRequestClose={closeRanksModal}
           onShowAccount={() => setShowAccountDetails(true)}
           reads={reads}
+          previousRank={rankLastWeek}
           devCardLimit={devCardLimit}
         />
       )}
