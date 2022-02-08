@@ -103,7 +103,7 @@ interface GetNextRankTextProps {
   showNextLevel?: boolean;
 }
 
-const getRank = (rank: number) => {
+export const getRank = (rank: number): number => {
   return rank === 0 ? rank : rank - 1;
 };
 
@@ -131,9 +131,10 @@ export const getShowRank = (
   rank: number,
   progress: number,
 ): number => {
+  const currentRank = getRank(rank);
   if (
-    (finalRank && progress === RANKS[rank - 1].steps) ||
-    progress >= RANKS[rank].steps
+    (finalRank && progress === RANKS[currentRank].steps) ||
+    progress >= RANKS[currentRank].steps
   ) {
     return rank;
   }

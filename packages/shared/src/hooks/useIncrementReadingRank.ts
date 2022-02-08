@@ -3,7 +3,7 @@ import { useContext } from 'react';
 import AuthContext from '../contexts/AuthContext';
 import { getRankQueryKey } from './useReadingRank';
 import { MyRankData } from '../graphql/users';
-import { RANKS } from '../lib/rank';
+import { getRank, RANKS } from '../lib/rank';
 
 type ReturnType = {
   incrementReadingRank: () => Promise<MyRankData>;
@@ -35,7 +35,8 @@ export default function useIncrementReadingRank(): ReturnType {
             rank: {
               rankLastWeek: currentRank.rank.rankLastWeek,
               readToday: true,
-              currentRank: progress >= RANKS[rank].steps ? rank + 1 : rank,
+              currentRank:
+                progress >= RANKS[getRank(rank)].steps ? rank + 1 : rank,
               tags: currentRank.rank.tags,
               progressThisWeek: progress,
               lastReadTime: new Date(),
