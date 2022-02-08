@@ -80,9 +80,9 @@ const RankBadgeItem = ({
                     ? showRank
                     : showRank - 1
                 }-color)`,
-                opacity: previousRank < itemRank.level ? 0.8 : 1,
               } as CSSProperties
             }
+            remainingPathOpacity={previousRank < itemRank.level ? 0.2 : 1}
           />
         )}
         <Rank

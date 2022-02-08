@@ -66,6 +66,7 @@ export type RadialProgressProps = {
   onTransitionEnd?: () => unknown;
   className?: string;
   style?: CSSProperties;
+  remainingPathOpacity?: number;
   isColorPrimary?: boolean;
 };
 
@@ -79,6 +80,7 @@ export default forwardRef(function RadialProgress(
     onTransitionEnd,
     className,
     isColorPrimary,
+    remainingPathOpacity = 1,
     ...props
   }: RadialProgressProps,
   ref: LegacyRef<HTMLDivElement>,
@@ -149,6 +151,7 @@ export default forwardRef(function RadialProgress(
                 d={d}
                 style={pathStyle}
                 data-testid="remainingPath"
+                opacity={remainingPathOpacity}
               />
             ))}
           </g>
