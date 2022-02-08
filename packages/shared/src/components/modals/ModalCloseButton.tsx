@@ -11,11 +11,10 @@ function ModalCloseButtonComponent(
     <Button
       {...props}
       ref={ref}
-      className={classNames('btn-tertiary right-4 top-4', className)}
+      className={classNames('btn-tertiary', className)}
       buttonSize="small"
       title="Close"
       icon={<XIcon />}
-      style={{ position: 'absolute', ...style }}
     />
   );
 }
