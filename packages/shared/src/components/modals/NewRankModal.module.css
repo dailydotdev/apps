@@ -54,6 +54,7 @@ $badgeOffset: 1.875rem;
 }
 
 .radialProgress {
+  transform: rotate(180deg);
   width: $largeRadialProgressSize;
   height: $largeRadialProgressSize;
   font-size: $radialProgressSize;

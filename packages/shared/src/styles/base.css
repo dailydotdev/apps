@@ -64,6 +64,8 @@ body {
 
   --theme-overlay-quaternary: theme('colors.overlay.quaternary.white');
 
+  --theme-rank-highlight: theme('colors.salt.10');
+
   --theme-rank-1-color: theme('colors.salt.90');
   --theme-rank-1-color-top: theme('colors.salt.90');
   --theme-rank-1-color-bottom: theme('colors.pepper.10');
@@ -158,6 +160,8 @@ body {
   --theme-post-disabled: #ffffff66;
 
   --theme-overlay-quaternary: theme('colors.overlay.quaternary.pepper');
+
+  --theme-rank-highlight: theme('colors.salt.10');
 
   --theme-rank-1-color: theme('colors.pepper.10');
   --theme-rank-1-color-top: theme('colors.pepper.10');

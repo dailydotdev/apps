@@ -125,7 +125,6 @@ export default function NewRankModal({
             <RadialProgress
               progress={RANKS[rank - 1].steps}
               steps={RANKS[rank - 1].steps}
-              maxDegrees={270}
               className={styles.radialProgress}
             />
             <img
