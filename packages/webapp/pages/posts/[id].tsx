@@ -261,6 +261,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
             imgAlt="Post cover image"
             ratio="21%"
             eager
+            fallbackSrc="https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1"
           />
         </a>
         <PostHeader post={postById.post} />
