@@ -13,7 +13,6 @@ export interface RanksModalProps extends ModalProps {
   confirmationText?: string;
   reads: number;
   devCardLimit: number;
-  onShowAccount?: () => void;
 }
 export type RanksBadgesProps = Pick<
   RanksModalProps,
@@ -46,11 +45,6 @@ export type DevCardTextProps = Pick<
   DevCardFooterProps,
   'user' | 'isLocked' | 'devCardLimit'
 >;
-
-type IntroSectionType = Pick<RanksModalProps, 'onShowAccount'>;
-export interface IntroSectionProps extends IntroSectionType {
-  user?: LoggedUser;
-}
 
 /** Rank badge */
 export const RanksBadgesList = classed('ul', 'flex flex-nowrap');

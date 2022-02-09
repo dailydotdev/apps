@@ -39,16 +39,27 @@ const RankBadgeItem = ({
       : 'text-theme-label-tertiary';
   };
 
+  const isColorByRank =
+    finalRankCompleted ||
+    previousRank >= itemRank.level ||
+    showRank > itemRank.level;
+
   return (
     <RankBadge>
       {itemRank.level !== RANKS.length && (
         <RankBadgeLine
-          className={rankCompleted ? itemRank.background : 'bg-white'}
+          className={
+            rankCompleted
+              ? itemRank.background
+              : 'bg-theme-divider-tertiary opacity-32'
+          }
         />
       )}
       <RankBadgeContainer
         className={classNames(
-          rankCompleted ? itemRank.border : '',
+          rankCompleted
+            ? itemRank.border
+            : 'border-theme-divider-tertiary border-opacity-32',
           showRank === itemRank.level
             ? 'w-16 h-16'
             : 'w-10 h-10 border rounded-12',
@@ -71,6 +82,7 @@ const RankBadgeItem = ({
                 }-color)`,
               } as CSSProperties
             }
+            remainingPathOpacity={previousRank < itemRank.level ? 0.2 : 1}
           />
         )}
         <Rank
@@ -78,11 +90,8 @@ const RankBadgeItem = ({
           className={classNames(
             showRank === itemRank.level ? 'w-10 h-10' : 'w-8 h-8',
           )}
-          colorByRank={
-            finalRankCompleted ||
-            previousRank >= itemRank.level ||
-            showRank > itemRank.level
-          }
+          colorByRank={isColorByRank}
+          style={{ opacity: isColorByRank ? 1 : 0.32 }}
         />
       </RankBadgeContainer>
       <RankBadgeName

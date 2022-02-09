@@ -1,13 +1,8 @@
 import React, { ReactElement } from 'react';
 import { ClickableText } from '../../buttons/ClickableText';
 import { ModalSection, ModalSubTitle, ModalText } from '../common';
-import { IntroSectionProps } from './common';
-import TimezoneText from './TimezoneText';
 
-const IntroSection = ({
-  onShowAccount,
-  user,
-}: IntroSectionProps): ReactElement => {
+const IntroSection = (): ReactElement => {
   return (
     <ModalSection className="mb-4">
       <ModalSubTitle>Reading status</ModalSubTitle>
@@ -23,7 +18,6 @@ const IntroSection = ({
           Learn more.
         </ClickableText>
       </ModalText>
-      <TimezoneText onShowAccount={onShowAccount} user={user} />
     </ModalSection>
   );
 };

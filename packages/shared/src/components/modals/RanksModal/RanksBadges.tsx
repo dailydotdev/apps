@@ -20,15 +20,15 @@ const RanksBadges = ({
   previousRank,
 }: RanksBadgesProps): ReactElement => {
   const finalRank = isFinalRank(rank);
-  const showRank = getShowRank(finalRank, rank, progress);
-  const offest = showRank === RANKS.length ? showRank : showRank - 1;
+  const showRank = getShowRank(rank, progress);
 
   return (
     <RanksBadgesSection>
       <RanksBadgesList
         style={{
-          transform: `translate(${RANK_OFFSET[offest]})`,
+          transform: `translate(${RANK_OFFSET[showRank]})`,
         }}
+        data-testId="badgesContainer"
       >
         {RANKS.map((itemRank) => (
           <RankBadgeItem
