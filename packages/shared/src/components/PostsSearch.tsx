@@ -7,6 +7,7 @@ import { useAutoComplete } from '../hooks/useAutoComplete';
 import { apiUrl } from '../lib/config';
 import { SEARCH_POST_SUGGESTIONS } from '../graphql/search';
 import { SEARCH_BOOKMARKS_SUGGESTIONS } from '../graphql/feed';
+import { SEARCH_READING_HISTORY_SUGGESTIONS } from '../graphql/users';
 
 const AutoCompleteMenu = dynamic(() => import('./fields/AutoCompleteMenu'), {
   ssr: false,
@@ -18,6 +19,12 @@ export type PostsSearchProps = {
   suggestionType?: string;
   autoFocus?: boolean;
   onSubmitQuery: (query: string) => Promise<unknown>;
+};
+
+const SEARCH_TYPES = {
+  searchPostSuggestions: SEARCH_POST_SUGGESTIONS,
+  searchBookmarksSuggestions: SEARCH_BOOKMARKS_SUGGESTIONS,
+  searchReadingHistorySuggestions: SEARCH_READING_HISTORY_SUGGESTIONS,
 };
 
 export default function PostsSearch({
@@ -37,11 +44,7 @@ export default function PostsSearch({
     width: number;
   }>(null);
   const [items, setItems] = useState<string[]>([]);
-
-  const SEARCH_URL =
-    suggestionType === 'searchPostSuggestions'
-      ? SEARCH_POST_SUGGESTIONS
-      : SEARCH_BOOKMARKS_SUGGESTIONS;
+  const SEARCH_URL = SEARCH_TYPES[suggestionType];
 
   const { data: searchResults, isLoading } = useQuery<{
     [suggestionType: string]: { hits: { title: string }[] };

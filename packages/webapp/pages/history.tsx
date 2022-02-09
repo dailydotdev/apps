@@ -1,4 +1,5 @@
-import React, { ReactElement, useContext, useEffect } from 'react';
+import React, { ReactElement, useContext, useEffect, useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import { NextSeo } from 'next-seo';
 import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
 import useReadingHistory from '@dailydotdev/shared/src/hooks/useReadingHistory';
@@ -9,15 +10,45 @@ import ReadingHistoryEmptyScreen from '@dailydotdev/shared/src/components/histor
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useRouter } from 'next/router';
 import { getLayout } from '../components/layouts/MainLayout';
+import {
+  READING_HISTORY_QUERY,
+  SEARCH_READING_HISTORY_QUERY,
+} from '../../shared/src/graphql/users';
+
+const PostsSearch = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "routerPostsSearch" */ '../components/RouterPostsSearch'
+    ),
+  {
+    ssr: false,
+  },
+);
 
 const History = (): ReactElement => {
   const seo = <NextSeo title="Reading History" nofollow noindex />;
   const router = useRouter();
   const { user, tokenRefreshed } = useContext(AuthContext);
+  const searchQuery = router.query?.q?.toString();
   const key = ['readHistory', user?.id];
+
+  const queryProps = useMemo(() => {
+    if (searchQuery) {
+      return {
+        key: [...key, searchQuery],
+        query: SEARCH_READING_HISTORY_QUERY,
+        variables: { query: searchQuery },
+      };
+    }
+    return {
+      key,
+      query: READING_HISTORY_QUERY,
+    };
+  }, [searchQuery]);
+
   const { hideReadHistory } = useReadingHistory(key);
   const { data, isInitialLoading, isLoading, hasData, infiniteScrollRef } =
-    useInfiniteReadingHistory(key);
+    useInfiniteReadingHistory({ ...queryProps });
 
   useEffect(() => {
     if (tokenRefreshed && !user) {
@@ -43,7 +74,14 @@ const History = (): ReactElement => {
         aria-busy={isLoading}
         role="main"
       >
-        <h1 className="px-6 mb-2 font-bold typo-headline">Reading History</h1>
+        <div className="px-6 mb-10">
+          <h1 className="mb-4 font-bold typo-headline">Reading History</h1>
+          <PostsSearch
+            autoFocus={false}
+            placeholder="Search reading history"
+            suggestionType="searchReadingHistorySuggestions"
+          />
+        </div>
         <ReadingHistoryList
           data={data}
           onHide={hideReadHistory}
