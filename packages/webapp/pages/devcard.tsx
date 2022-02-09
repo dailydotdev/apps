@@ -29,6 +29,7 @@ import {
   logDownloadDevCard,
   logGenerateDevCard,
 } from '@dailydotdev/shared/src/lib/analytics';
+import useReadingRank from '@dailydotdev/shared/src/hooks/useReadingRank';
 import { DevCardData, GENERATE_DEVCARD_MUTATION } from '../graphql/devcard';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
@@ -53,10 +54,11 @@ const Step1 = ({
   error,
 }: StepProps): ReactElement => {
   const { user, showLogin, loadingUser } = useContext(AuthContext);
+  const { rank } = useReadingRank();
 
   return (
     <>
-      <DevCardPlaceholder profileImage={user?.image} width={108} />
+      <DevCardPlaceholder profileImage={user?.image} rank={rank} width={108} />
       <h1 className="mt-10 font-bold typo-title1">Grab your Dev Card</h1>
       <p
         className="mt-4 text-center typo-body text-theme-label-secondary"
