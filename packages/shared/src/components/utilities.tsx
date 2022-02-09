@@ -114,7 +114,7 @@ export const ResponsivePageContainer = classed(
 
 export const FeedPage = classed(
   'main',
-  'withNavBar flex flex-col flex-1 items-start pb-3 px-6 laptop:px-16 pt-10',
+  'withNavBar flex flex-col flex-1 items-start pb-3 px-6 laptop:px-16 pt-10 max-w-full',
   styles.feedPage,
 );
 
