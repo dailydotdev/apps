@@ -58,7 +58,12 @@ const Step1 = ({
 
   return (
     <>
-      <DevCardPlaceholder profileImage={user?.image} rank={rank} width={108} />
+      <DevCardPlaceholder
+        profileImage={user?.image}
+        rank={rank}
+        isLocked={rank === 0}
+        width={108}
+      />
       <h1 className="mt-10 font-bold typo-title1">Grab your Dev Card</h1>
       <p
         className="mt-4 text-center typo-body text-theme-label-secondary"
