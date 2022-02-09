@@ -19,12 +19,22 @@ export interface UseInfiniteReadingHistory {
   infiniteScrollRef: (node?: Element | null) => void;
 }
 
-function useInfiniteReadingHistory(key: QueryKey): UseInfiniteReadingHistory {
+interface UseInifiniteReadingHistoryProps {
+  key: QueryKey;
+  query;
+  variables?;
+}
+function useInfiniteReadingHistory({
+  key,
+  query,
+  variables,
+}: UseInifiniteReadingHistoryProps): UseInfiniteReadingHistory {
   const { isLoading, isFetchingNextPage, hasNextPage, data, fetchNextPage } =
     useInfiniteQuery<ReadHistoryData>(
       key,
       ({ pageParam }) =>
-        request(`${apiUrl}/graphql`, READING_HISTORY_QUERY, {
+        request(`${apiUrl}/graphql`, query, {
+          ...variables,
           after: pageParam,
         }),
       {
