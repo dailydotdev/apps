@@ -2,7 +2,6 @@ import { useInfiniteQuery, InfiniteData, QueryKey } from 'react-query';
 import { useMemo } from 'react';
 import request from 'graphql-request';
 import { apiUrl } from '../lib/config';
-import { READING_HISTORY_QUERY } from '../graphql/users';
 import { ReadHistory } from '../graphql/posts';
 import { RequestDataConnection } from '../graphql/common';
 import useFeedInfiniteScroll from './feed/useFeedInfiniteScroll';
