@@ -13,6 +13,7 @@ import PostOptionsReadingHistoryMenu from '../PostOptionsReadingHistoryMenu';
 import useReportPostMenu from '../../hooks/useReportPostMenu';
 import useNotification from '../../hooks/useNotification';
 import { CardNotification } from '../cards/Card';
+import { PageContainer } from '../utilities';
 
 interface ReadingHistoryItemProps {
   className?: string;
@@ -29,7 +30,7 @@ const SourceShadow = classed(
   'absolute left-5 -my-1 w-8 h-8 rounded-full bg-theme-bg-primary',
 );
 
-function ReadingHistoryItem({
+export default function ReadingHistoryItem({
   history: { timestampDb, post },
   onHide,
   className,
@@ -43,11 +44,11 @@ function ReadingHistoryItem({
 
   if (notification) {
     return (
-      <Container>
+      <PageContainer>
         <CardNotification className="flex-1 py-2.5 text-center">
           {notification}
         </CardNotification>
-      </Container>
+      </PageContainer>
     );
   }
 

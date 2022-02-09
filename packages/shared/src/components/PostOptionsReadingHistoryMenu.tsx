@@ -2,28 +2,26 @@ import React, { ReactElement, useContext } from 'react';
 import { Item } from '@dailydotdev/react-contexify';
 import dynamic from 'next/dynamic';
 import { QueryClient, QueryKey, useQueryClient } from 'react-query';
+import classNames from 'classnames';
 import { ReadHistoryPost } from '../graphql/posts';
 import ShareIcon from '../../icons/share.svg';
 import BookmarkIcon from '../../icons/bookmark.svg';
+import BookmarkIconFilled from '../../icons/bookmark_filled.svg';
 import AnalyticsContext from '../contexts/AnalyticsContext';
-import { postAnalyticsEvent } from '../lib/feed';
 import useBookmarkPost from '../hooks/useBookmarkPost';
 import AuthContext from '../contexts/AuthContext';
 import { ReadHistoryInfiniteData } from '../hooks/useInfiniteReadingHistory';
+import { useCopyLink } from '../hooks/useCopyLink';
+import { Button } from './buttons/Button';
 
 const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
   ssr: false,
 });
 
 export type PostOptionsReadingHistoryMenuProps = {
-  postIndex?: number;
   post: ReadHistoryPost;
-  onMessage?: (
-    message: string,
-    postIndex: number,
-    timeout?: number,
-  ) => Promise<unknown>;
   onHidden?: () => unknown;
+  displayCopiedMEssageFunc?: () => void;
 };
 
 const MenuIcon = ({ Icon }) => {
@@ -69,15 +67,16 @@ const updateReadingHistoryPost =
 /* eslint-disable no-param-reassign */
 
 export default function PostOptionsReadingHistoryMenu({
-  postIndex,
   post,
-  onMessage,
   onHidden,
 }: PostOptionsReadingHistoryMenuProps): ReactElement {
-  const { trackEvent } = useContext(AnalyticsContext);
   const { user } = useContext(AuthContext);
   const queryClient = useQueryClient();
   const historyQueryKey = ['readHistory', user?.id];
+
+  const [isPostLinkCopied, copyPostLink] = useCopyLink(
+    () => post.commentsPermalink,
+  );
 
   const { bookmark, removeBookmark } = useBookmarkPost({
     onBookmarkMutate: updateReadingHistoryPost(
@@ -97,59 +96,25 @@ export default function PostOptionsReadingHistoryMenu({
   });
 
   const onBookmarkReadingHistoryPost = async (): Promise<void> => {
-    const { bookmarked } = post;
-    trackEvent(
-      postAnalyticsEvent(
-        bookmarked ? 'bookmark post' : 'remove post bookmark',
-        post,
-        { extra: { origin: 'recommendation' } },
-      ),
-    );
-    if (bookmarked) {
-      await removeBookmark({ id: post.id });
-    } else {
-      await bookmark({ id: post.id });
+    if (post?.bookmarked) {
+      removeBookmark(post);
     }
+    bookmark(post);
   };
 
-  const onShareReadingHistoryPost = async () => {
-    const shareLink = post.commentsPermalink;
-    trackEvent(
-      postAnalyticsEvent('share post', post, {
-        extra: { origin: 'post context menu' },
-      }),
-    );
-    if ('share' in navigator) {
-      try {
-        await navigator.share({
-          text: post?.title,
-          url: shareLink,
-        });
-      } catch (err) {
-        // Do nothing
-      }
-    } else {
-      await navigator.clipboard.writeText(shareLink);
-      onMessage('✅ Copied link to clipboard', postIndex);
+  const getBookmarkIcon = () => {
+    if (post?.bookmarked) {
+      return <MenuIcon Icon={BookmarkIconFilled} />;
     }
+    return <MenuIcon Icon={BookmarkIcon} />;
   };
 
-  const postOptions: {
-    icon: ReactElement;
-    text: string;
-    action: () => Promise<void>;
-  }[] = [
-    {
-      icon: <MenuIcon Icon={ShareIcon} />,
-      text: 'Share article',
-      action: onShareReadingHistoryPost,
-    },
-    {
-      icon: <MenuIcon Icon={BookmarkIcon} />,
-      text: 'Save to Bookmarks',
-      action: onBookmarkReadingHistoryPost,
-    },
-  ];
+  const getBookmarkMenuText = () => {
+    if (post?.bookmarked) {
+      return 'Remove from bookmarks';
+    }
+    return 'Save to bookmarks';
+  };
 
   return (
     <>
@@ -160,13 +125,30 @@ export default function PostOptionsReadingHistoryMenu({
         animation="fade"
         onHidden={onHidden}
       >
-        {postOptions.map(({ icon, text, action }) => (
-          <Item key={text} className="typo-callout" onClick={action}>
-            <a className="flex w-full typo-callout">
-              {icon} {text}
-            </a>
-          </Item>
-        ))}
+        <Item key="share" className="typo-callout" onClick={copyPostLink}>
+          <a className="flex w-full typo-callout">
+            <MenuIcon Icon={ShareIcon} /> Share article
+          </a>
+        </Item>
+        <Item
+          key="bookmarks"
+          className="typo-callout"
+          onClick={onBookmarkReadingHistoryPost}
+        >
+          <a className="flex w-full typo-callout">
+            {getBookmarkIcon()}
+            {getBookmarkMenuText()}
+          </a>
+        </Item>
+        {isPostLinkCopied && (
+          <div
+            className={classNames(
+              'absolute flex top-0 right-0 items-center text-theme-status-success font-bold typo-caption1',
+            )}
+          >
+            Copied!
+          </div>
+        )}
       </PortalMenu>
     </>
   );
