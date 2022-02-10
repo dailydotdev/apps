@@ -24,6 +24,7 @@ export default function RanksModal({
   onRequestClose,
   className,
   previousRank,
+  nextRank,
   ...props
 }: RanksModalProps): ReactElement {
   const { user, showLogin } = useContext(AuthContext);
@@ -44,6 +45,7 @@ export default function RanksModal({
       <RanksBadges
         rank={rank}
         progress={progress}
+        nextRank={nextRank}
         previousRank={previousRank}
       />
       {!user && (

@@ -6,6 +6,7 @@ import { ModalProps } from '../StyledModal';
 
 export interface RanksModalProps extends ModalProps {
   previousRank?: number;
+  nextRank?: number;
   rank: number;
   progress: number;
   tags: TopTags;
@@ -16,7 +17,7 @@ export interface RanksModalProps extends ModalProps {
 }
 export type RanksBadgesProps = Pick<
   RanksModalProps,
-  'rank' | 'progress' | 'previousRank'
+  'rank' | 'progress' | 'previousRank' | 'nextRank'
 >;
 
 export interface RankBadgeItemProps {

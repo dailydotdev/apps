@@ -83,6 +83,7 @@ export default function RankProgressWrapper({
           reads={reads}
           previousRank={rankLastWeek}
           devCardLimit={devCardLimit}
+          nextRank={nextRank}
         />
       )}
       {levelUp && shouldShowRankModal && (
