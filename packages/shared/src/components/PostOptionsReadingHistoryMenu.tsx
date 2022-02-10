@@ -5,7 +5,7 @@ import { QueryClient, QueryKey, useQueryClient } from 'react-query';
 import classNames from 'classnames';
 import { ReadHistoryPost } from '../graphql/posts';
 import ShareIcon from '../../icons/share.svg';
-import BookmarkIcon from '../../icons/bookmark.svg';
+import BookmarkIcon from '../../icons/bookmark_outlined.svg';
 import BookmarkIconFilled from '../../icons/bookmark_filled.svg';
 import useBookmarkPost from '../hooks/useBookmarkPost';
 import AuthContext from '../contexts/AuthContext';
