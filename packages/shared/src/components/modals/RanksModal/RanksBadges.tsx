@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import {
   getNextRankText,
-  getShowRank,
+  getRank,
   isFinalRank,
   RANKS,
   RANK_OFFSET,
@@ -17,10 +17,14 @@ import { ModalText } from '../common';
 const RanksBadges = ({
   rank,
   progress,
+  nextRank,
   previousRank,
 }: RanksBadgesProps): ReactElement => {
   const finalRank = isFinalRank(rank);
-  const showRank = getShowRank(rank, progress);
+  const showRank =
+    progress === RANKS[getRank(rank)].steps && rank !== RANKS.length
+      ? rank + 1
+      : rank;
 
   return (
     <RanksBadgesSection>
@@ -42,9 +46,10 @@ const RanksBadges = ({
       </RanksBadgesList>
       <ModalText className="mt-1 mb-3 text-center">
         {getNextRankText({
-          nextRank: rank + 1,
+          rankLastWeek: previousRank,
           rank,
           finalRank,
+          nextRank,
           progress,
           showNextLevel: false,
         })}
