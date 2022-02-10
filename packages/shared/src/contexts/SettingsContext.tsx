@@ -23,6 +23,12 @@ export enum ThemeMode {
   Auto = 'auto',
 }
 
+export type BookmarksSharing = {
+  enabled: boolean;
+  slug: string;
+  rssUrl: string;
+};
+
 export type SettingsContextData = {
   spaciness: Spaciness;
   themeMode: ThemeMode;
