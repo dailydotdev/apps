@@ -382,6 +382,6 @@ const DevCardPage = (): ReactElement => {
 };
 
 DevCardPage.getLayout = getMainLayout;
-// DevCardPage.layoutProps = { screenCentered: false };
+DevCardPage.layoutProps = { screenCentered: false };
 
 export default DevCardPage;
