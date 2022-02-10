@@ -179,10 +179,10 @@ const Step2 = ({
   return (
     <div className="flex flex-col self-stretch laptop:self-center mx-2 mt-5">
       <h1 className="mx-3 mb-8 font-bold typo-title1">Share your #DevCard</h1>
-      <main className="grid grid-cols-1 laptop:grid-cols-2 gap-10 laptopL:gap-20">
+      <main className="flex flex-col laptop:flex-row gap-10 laptopL:gap-20">
         <section className="flex flex-col">
           <Tilt
-            className="overflow-hidden relative self-stretch laptop:w-96"
+            className="overflow-hidden relative self-stretch w-fit"
             glareEnable
             perspective={1000}
             glareMaxOpacity={0.25}
@@ -194,7 +194,7 @@ const Step2 = ({
             <LazyImage
               imgSrc={devCardSrc}
               imgAlt="Your Dev Card"
-              ratio="136.5%"
+              className="w-72 h-[25rem]"
               eager
             />
             {isLoadingImage && <LoaderOverlay invertColor />}
@@ -279,7 +279,7 @@ const Step2 = ({
           <div className="flex flex-col items-start self-stretch mt-10">
             <h4 className="mt-1 font-bold typo-caption1">Embed</h4>
             <textarea
-              className="self-stretch py-2 px-4 mt-1 laptop:w-80 bg-theme-float rounded-10 resize-none typo-body"
+              className="self-stretch py-2 px-4 mt-1 w-80 bg-theme-float rounded-10 resize-none laptopL:w-[25rem] typo-body"
               readOnly
               wrap="hard"
               style={{ height: rem(124) }}
