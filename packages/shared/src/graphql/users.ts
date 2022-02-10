@@ -106,36 +106,73 @@ export const UPVOTER_FRAGMENT = gql`
   }
 `;
 
+const READING_HISTORY_FRAGMENT = gql`
+  fragment ReadingHistoryFrament on ReadingHistory {
+    timestamp
+    timestampDb
+    post {
+      id
+      title
+      image
+      commentsPermalink
+      readTime
+      numUpvotes
+      bookmarked
+      source {
+        image
+      }
+    }
+  }
+`;
+
+const READING_HISTORY_CONNECTION_FRAGMENT = gql`
+  ${READING_HISTORY_FRAGMENT}
+  fragment ReadingHistoryConnectionFragment on ReadingHistoryConnection {
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+    edges {
+      node {
+        ...ReadingHistoryFrament
+      }
+    }
+  }
+`;
+
 export interface HideReadHistoryProps {
   timestamp: Date;
   postId: string;
 }
 
+export const SEARCH_READING_HISTORY_SUGGESTIONS = gql`
+  query SearchReadingHistorySuggestions($query: String!) {
+    searchReadingHistorySuggestions(query: $query) {
+      hits {
+        title
+      }
+    }
+  }
+`;
+
+export const SEARCH_READING_HISTORY_QUERY = gql`
+  ${READING_HISTORY_CONNECTION_FRAGMENT}
+  query SearchReadingHistory($first: Int, $after: String, $query: String!) {
+    readHistory: searchReadingHistory(
+      first: $first
+      after: $after
+      query: $query
+    ) {
+      ...ReadingHistoryConnectionFragment
+    }
+  }
+`;
+
 export const READING_HISTORY_QUERY = gql`
+  ${READING_HISTORY_CONNECTION_FRAGMENT}
   query ReadHistory($after: String, $first: Int) {
     readHistory(after: $after, first: $first) {
-      pageInfo {
-        endCursor
-        hasNextPage
-      }
-      edges {
-        node {
-          timestamp
-          timestampDb
-          post {
-            id
-            title
-            image
-            commentsPermalink
-            readTime
-            numUpvotes
-            bookmarked
-            source {
-              image
-            }
-          }
-        }
-      }
+      ...ReadingHistoryConnectionFragment
     }
   }
 `;

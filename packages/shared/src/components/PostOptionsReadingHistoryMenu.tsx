@@ -53,6 +53,7 @@ const updateReadingHistoryPost =
         readHistory,
       };
     });
+    console.log(newItems);
     queryClient.setQueryData<ReadHistoryInfiniteData>(historyQueryKey, {
       ...oldReadingHistory,
       pages: newItems,
@@ -97,9 +98,12 @@ export default function PostOptionsReadingHistoryMenu({
 
   const onBookmarkReadingHistoryPost = async (): Promise<void> => {
     if (post?.bookmarked) {
-      removeBookmark(post);
+      console.log('bookmarks true');
+      return removeBookmark(post);
     }
-    bookmark(post);
+    console.log('bookmarks false');
+
+    return bookmark(post);
   };
 
   const getBookmarkIcon = () => {
