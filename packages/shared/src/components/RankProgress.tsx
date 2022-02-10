@@ -118,7 +118,7 @@ export function RankProgress({
   const [animatingProgress, setAnimatingProgress] = useState(false);
   const [forceColor, setForceColor] = useState(false);
   const [shownRank, setShownRank] = useState(
-    showRankAnimation ? rank - 1 : rank,
+    showRankAnimation ? getRank(rank) : rank,
   );
   const attentionRef = useRef<HTMLDivElement>();
   const progressRef = useRef<HTMLDivElement>();

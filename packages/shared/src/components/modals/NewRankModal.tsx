@@ -82,7 +82,7 @@ export default function NewRankModal({
       } else {
         setAnimatingRank(true);
         setShownRank(rank);
-        setShownProgress(RANKS[rank - 1].steps);
+        setShownProgress(RANKS[getRank(rank)].steps);
       }
     };
 
@@ -123,8 +123,8 @@ export default function NewRankModal({
         ) : (
           <>
             <RadialProgress
-              progress={RANKS[rank - 1].steps}
-              steps={RANKS[rank - 1].steps}
+              progress={RANKS[getRank(rank)].steps}
+              steps={RANKS[getRank(rank)].steps}
               className={styles.radialProgress}
             />
             <img
@@ -158,7 +158,7 @@ export default function NewRankModal({
       </div>
       <h1 className="mt-2 font-bold text-center typo-callout">{title}</h1>
       <p className="mt-1 mb-8 text-center text-theme-label-secondary typo-callout">
-        You earned the {RANKS[rank - 1].name?.toLowerCase()} rank
+        You earned the {RANKS[getRank(rank)].name?.toLowerCase()} rank
         {!user && (
           <>
             <br />
