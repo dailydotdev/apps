@@ -38,7 +38,7 @@ export default function RanksModal({
     >
       <ModalHeader>
         <h3 className="font-bold typo-title3">Weekly reading goal</h3>
-        <ModalCloseButton onClick={onRequestClose} style={{ top: '0.5rem' }} />
+        <ModalCloseButton onClick={onRequestClose} />
       </ModalHeader>
       <IntroSection />
       <RanksBadges

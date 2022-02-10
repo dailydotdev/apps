@@ -10,7 +10,7 @@ import { CSSTransition } from 'react-transition-group';
 import classNames from 'classnames';
 import { RankProgress } from '../RankProgress';
 import { RankConfetti } from '../../svg/RankConfetti';
-import { rankToColor, RANKS } from '../../lib/rank';
+import { rankToColor, RANKS, getRank } from '../../lib/rank';
 import { LoggedUser } from '../../lib/user';
 import { Checkbox } from '../fields/Checkbox';
 import LoginButtons from '../LoginButtons';
@@ -41,7 +41,7 @@ export default function NewRankModal({
   style,
   ...props
 }: NewRankModalProps): ReactElement {
-  const [shownRank, setShownRank] = useState(rank > 0 ? rank - 1 : 0);
+  const [shownRank, setShownRank] = useState(getRank(rank));
   const [shownProgress, setShownProgress] = useState(progress - 1);
   const [animatingRank, setAnimatingRank] = useState(false);
   const [rankAnimationEnded, setRankAnimationEnded] = useState(false);

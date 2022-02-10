@@ -68,7 +68,10 @@ export const RanksTagsSection = classed(
   'section',
   'p-4 m-4 mb-4 rounded-16 border bg-theme-bg-secondary border-theme-divider-tertiary',
 );
-export const RanksTagsList = classed('ul', 'grid grid-flow-col gap-4 mt-6');
+export const RanksTagsList = classed(
+  'ul',
+  'grid grid-flow-col grid-rows-3 gap-4 mt-6',
+);
 export const RankTagPill = classed(
   'strong',
   'flex items-center px-3 ml-2 h-6 truncate rounded-8 typo-callout text-theme-label-tertiary',

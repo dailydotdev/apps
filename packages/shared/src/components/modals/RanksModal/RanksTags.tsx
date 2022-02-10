@@ -11,7 +11,7 @@ const RanksTags = ({
   return (
     <RanksTagsSection>
       <ModalSubTitle>Reading status per tag</ModalSubTitle>
-      <RanksTagsList style={{ gridTemplateRows: '1fr 1fr 1fr' }}>
+      <RanksTagsList>
         {Array(limit)
           .fill(0)
           .map((_, i) => (
