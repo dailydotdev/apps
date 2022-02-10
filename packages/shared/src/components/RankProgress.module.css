@@ -4,7 +4,8 @@
   font-size: 3rem;
 
   &.enableColors {
-    &:hover, &.forceColor {
+    &:hover,
+    &.forceColor {
       & .radialProgress {
         --radial-progress-completed-step: var(--rank-color);
       }
@@ -48,9 +49,10 @@
 }
 
 .radialProgress {
+  transform: rotate(180deg);
   font-size: inherit;
   --radial-progress-step: var(--theme-label-disabled);
-  --radial-progress-completed-step: var(--theme-label-tertiary);
+  --radial-progress-completed-step: var(--theme-label-disabled);
   --radial-progress-transition-delay: 0.3s;
 }
 

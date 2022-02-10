@@ -21,19 +21,20 @@ import {
   USER_READING_HISTORY_QUERY,
   USER_STATS_QUERY,
   UserReadHistory,
-  UserReadHistoryData,
-  UserReadingRankHistoryData,
   UserStatsData,
+  ProfileReadingData,
 } from '@dailydotdev/shared/src/graphql/users';
 import {
   ActivityContainer,
+  ActivitySectionHeader,
   ActivitySectionTitle,
   ActivitySectionTitleStat,
 } from '@dailydotdev/shared/src/components/profile/ActivitySection';
+import { ReadingTagProgress } from '@dailydotdev/shared/src/components/profile/ReadingTagProgress';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import dynamic from 'next/dynamic';
 import Rank from '@dailydotdev/shared/src/components/Rank';
-import { RANK_NAMES } from '@dailydotdev/shared/src/lib/rank';
+import { RANKS, RankHistoryProps } from '@dailydotdev/shared/src/lib/rank';
 import CommentsSection from '@dailydotdev/shared/src/components/profile/CommentsSection';
 import PostsSection from '@dailydotdev/shared/src/components/profile/PostsSection';
 import AuthorStats from '@dailydotdev/shared/src/components/profile/AuthorStats';
@@ -41,7 +42,6 @@ import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/Prog
 import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
 import useMedia from '@dailydotdev/shared/src/hooks/useMedia';
 import { laptop } from '@dailydotdev/shared/src/styles/media';
-import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 import CalendarHeatmap from '../../components/CalendarHeatmap';
 import {
   getLayout as getProfileLayout,
@@ -54,13 +54,6 @@ const ReactTooltip = dynamic(() => import('react-tooltip'));
 
 export const getStaticProps = getProfileStaticProps;
 export const getStaticPaths = getProfileStaticPaths;
-
-const RanksModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "ranksModal" */ '@dailydotdev/shared/src/components/modals/RanksModal'
-    ),
-);
 
 const readHistoryToValue = (value: UserReadHistory): number => value.reads;
 const readHistoryToTooltip = (
@@ -89,17 +82,16 @@ const RankHistory = ({
   rank,
   rankName,
   count,
-}: {
-  rank: number;
-  rankName: string;
-  count: number;
-}): ReactElement => (
+}: RankHistoryProps): ReactElement => (
   <div
-    className="flex flex-col items-center p-2 mr-2 rounded-xl bg-theme-bg-secondary"
+    className="flex flex-col tablet:flex-row items-center p-2 tablet:py-1 tablet:pr-4 tablet:pl-2 font-bold rounded-12 border typo-callout border-theme-bg-secondary"
     aria-label={`${rankName}: ${count}`}
   >
-    <Rank rank={rank} colorByRank />
-    <span className="font-bold typo-callout">{count}</span>
+    <Rank className="w-8 h-8" rank={rank} colorByRank />
+    <span className="hidden tablet:block ml-1 text-theme-label-tertiary">
+      {rankName}
+    </span>
+    <span className="tablet:ml-auto">{count}</span>
   </div>
 );
 
@@ -129,7 +121,6 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
   const fullHistory = useMedia([laptop.replace('@media ', '')], [true], false);
-  const [showRanksModal, setShowRanksModal] = useState(false);
   const [selectedHistoryYear, setSelectedHistoryYear] = useState(0);
   const [before, after] = useMemo<[Date, Date]>(() => {
     if (!fullHistory) {
@@ -144,19 +135,18 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
     startYear.setFullYear(parseInt(dropdownOptions[selectedHistoryYear], 10));
     return [addDays(endOfYear(startYear), 1), startYear];
   }, [selectedHistoryYear]);
-  const [readingHistory, setReadingHistory] = useState<
-    UserReadingRankHistoryData & UserReadHistoryData
-  >(null);
+  const [readingHistory, setReadingHistory] =
+    useState<ProfileReadingData>(null);
 
-  const { data: remoteReadingHistory } = useQuery<
-    UserReadingRankHistoryData & UserReadHistoryData
-  >(
+  const { data: remoteReadingHistory } = useQuery<ProfileReadingData>(
     ['reading_history', profile?.id, selectedHistoryYear],
     () =>
       request(`${apiUrl}/graphql`, USER_READING_HISTORY_QUERY, {
         id: profile?.id,
         before,
         after,
+        version: 2,
+        limit: 6,
       }),
     {
       enabled: !!profile && tokenRefreshed && !!before && !!after,
@@ -169,10 +159,6 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
   useEffect(() => {
     if (remoteReadingHistory) {
       setReadingHistory(remoteReadingHistory);
-      requestIdleCallback(async () => {
-        const mod = await import('react-tooltip');
-        mod.default.rebuild();
-      });
     }
   }, [remoteReadingHistory]);
 
@@ -217,40 +203,47 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
       {readingHistory?.userReadingRankHistory && (
         <>
           <ActivityContainer>
-            <ActivitySectionTitle>Weekly goal</ActivitySectionTitle>
-            <div className="flex flex-wrap">
-              {RANK_NAMES.map((rankName, rank) => (
+            <ActivitySectionHeader
+              title="Weekly goal"
+              subtitle="Learn how we count"
+              clickableTitle="weekly goals"
+              link="https://docs.daily.dev/docs/your-profile/weekly-goal"
+            >
+              <Dropdown
+                className="hidden laptop:block ml-auto w-32 min-w-fit"
+                selectedIndex={selectedHistoryYear}
+                options={dropdownOptions}
+                onChange={(val, index) => setSelectedHistoryYear(index)}
+                buttonSize="small"
+              />
+            </ActivitySectionHeader>
+            <div className="grid grid-cols-5 tablet:grid-cols-3 tablet:gap-2 gap-x-1 gap-y-3 tablet:max-w-full max-w-[17rem]">
+              {RANKS.map((rank) => (
                 <RankHistory
-                  key={rankName}
-                  rank={rank + 1}
-                  rankName={rankName}
+                  key={rank.level}
+                  rank={rank.level}
+                  rankName={rank.name}
                   count={
                     readingHistory.userReadingRankHistory.find(
-                      (history) => history.rank === rank + 1,
+                      (history) => history.rank === rank.level,
                     )?.count ?? 0
                   }
                 />
               ))}
             </div>
-            <button
-              type="button"
-              className="self-start mt-4 bg-none border-none typo-callout text-theme-label-link focus-outline"
-              onClick={() => setShowRanksModal(true)}
-            >
-              Learn how we count weekly goals
-            </button>
-            {showRanksModal && (
-              <RanksModal
-                rank={0}
-                progress={0}
-                hideProgress
-                isOpen={showRanksModal}
-                onRequestClose={() => setShowRanksModal(false)}
-                confirmationText="Ok, got it"
-                reads={0}
-                devCardLimit={0}
-              />
-            )}
+          </ActivityContainer>
+          <ActivityContainer>
+            <ActivitySectionHeader
+              title="Top tags by reading days"
+              subtitle="Learn how we count"
+              clickableTitle="top tags"
+              link="https://docs.daily.dev/docs/your-profile/weekly-goal"
+            />
+            <div className="grid grid-cols-1 tablet:grid-cols-2 gap-3 tablet:gap-x-10 tablet:max-w-full max-w-[17rem]">
+              {readingHistory.userMostReadTags?.map((tag) => (
+                <ReadingTagProgress key={tag.value} tag={tag} />
+              ))}
+            </div>
           </ActivityContainer>
           <ActivityContainer>
             <ActivitySectionTitle>
@@ -261,14 +254,6 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
                   ({totalReads})
                 </ActivitySectionTitleStat>
               )}
-              <Dropdown
-                className="hidden laptop:block ml-auto"
-                selectedIndex={selectedHistoryYear}
-                options={dropdownOptions}
-                onChange={(val, index) => setSelectedHistoryYear(index)}
-                buttonSize="small"
-                style={{ width: '8rem', minWidth: 'fit-content' }}
-              />
             </ActivitySectionTitle>
             <CalendarHeatmap
               startDate={after}

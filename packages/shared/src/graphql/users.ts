@@ -24,15 +24,20 @@ export const USER_STATS_QUERY = gql`
 
 export type UserReadingRank = { currentRank: number };
 export type UserReadingRankData = { userReadingRank: UserReadingRank };
-export type MostReadTag = { value: string; count: number };
+export type MostReadTag = {
+  value: string;
+  count: number;
+  percentage?: number;
+  total?: number;
+};
 export type UserTooltipContentData = {
   rank: UserReadingRank;
   tags: MostReadTag[];
 };
 
 export const USER_READING_RANK_QUERY = gql`
-  query UserReadingRank($id: ID!) {
-    userReadingRank(id: $id) {
+  query UserReadingRank($id: ID!, $version: Int) {
+    userReadingRank(id: $id, version: $version) {
       currentRank
     }
   }
@@ -49,11 +54,18 @@ export const USER_TOOLTIP_CONTENT_QUERY = gql`
   }
 `;
 
+export type Tag = {
+  tag: string;
+  readingDays: number;
+  percentage?: number;
+};
+export type TopTags = Tag[];
 export interface MyRankData {
   rank: {
     rankLastWeek: number;
     currentRank: number;
     progressThisWeek: number;
+    tags: TopTags;
     readToday: boolean;
     lastReadTime?: Date;
   };
@@ -61,17 +73,26 @@ export interface MyRankData {
 }
 
 export const MY_READING_RANK_QUERY = gql`
-  query UserReadingRank($id: ID!) {
-    rank: userReadingRank(id: $id) {
+  query UserReadingRank($id: ID!, $version: Int) {
+    rank: userReadingRank(id: $id, version: $version) {
       rankLastWeek
       currentRank
       progressThisWeek
       readToday
       lastReadTime
+      tags {
+        tag
+        readingDays
+        percentage
+      }
     }
     reads: userReads
   }
 `;
+
+export type ProfileReadingData = UserReadingRankHistoryData &
+  UserReadHistoryData &
+  UserReadingTopTagsData;
 
 export type UserReadingRankHistory = { rank: number; count: number };
 export interface UserReadingRankHistoryData {
@@ -82,16 +103,36 @@ export type UserReadHistory = { date: string; reads: number };
 export interface UserReadHistoryData {
   userReadHistory: UserReadHistory[];
 }
+export interface UserReadingTopTagsData {
+  userMostReadTags: MostReadTag[];
+}
 
 export const USER_READING_HISTORY_QUERY = gql`
-  query UserReadingHistory($id: ID!, $after: String!, $before: String!) {
-    userReadingRankHistory(id: $id) {
+  query UserReadingHistory(
+    $id: ID!
+    $after: String!
+    $before: String!
+    $version: Int
+    $limit: Int
+  ) {
+    userReadingRankHistory(
+      id: $id
+      version: $version
+      after: $after
+      before: $before
+    ) {
       rank
       count
     }
     userReadHistory(id: $id, after: $after, before: $before) {
       date
       reads
+    }
+    userMostReadTags(id: $id, after: $after, before: $before, limit: $limit) {
+      value
+      count
+      total
+      percentage
     }
   }
 `;
