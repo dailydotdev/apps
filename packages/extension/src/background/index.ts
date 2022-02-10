@@ -15,18 +15,18 @@ const cacheAmplitudeDeviceId = async ({
   }
 };
 
-browser.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
-  tabs.forEach((tab) => {
-    console.log(tab);
-    browser.runtime.onMessage.addListener(async (request, sender) => {
-      console.log(request);
-      const boot = await getBootData('extension');
-      await browser.tabs.sendMessage(tab.id, {
-        boot,
-      });
-      return true;
-    });
+browser.runtime.onMessage.addListener(async (request, sender) => {
+  if (sender?.tab?.url === 'chrome://newtab/') {
+    return;
+  }
+  console.log(new Date().getMilliseconds());
+
+  console.log('add request?', sender);
+  const boot = await getBootData('extension');
+  await browser.tabs.sendMessage(sender?.tab?.id, {
+    boot,
   });
+  return '123';
 });
 
 browser.browserAction.onClicked.addListener(() => {

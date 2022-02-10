@@ -1,21 +1,10 @@
-import { browser, Runtime } from 'webextension-polyfill-ts';
-import { getBootData } from '@dailydotdev/shared/src/lib/boot';
-
-async function forwardRequest(type, data = null) {
-  const res = await browser.runtime.sendMessage({ type, data });
-  console.log(res);
-  return res;
-}
+import { browser } from 'webextension-polyfill-ts';
 
 browser.runtime.onMessage.addListener(async (request, sender) => {
-  console.log(request);
-
-  return true;
+  console.log('req: ', request);
 });
 
 const init = async () => {
-  //   await forwardRequest(window.location.href);
-
   const div = document.createElement('div');
   document.body.appendChild(div);
   div.style.background = 'red';
