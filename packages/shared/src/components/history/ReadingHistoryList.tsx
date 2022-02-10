@@ -11,7 +11,6 @@ import { ReadHistoryInfiniteData } from '../../hooks/useInfiniteReadingHistory';
 import { InfiniteScrollScreenOffset } from '../../hooks/feed/useFeedInfiniteScroll';
 import PostOptionsReadingHistoryMenu from '../PostOptionsReadingHistoryMenu';
 import useReadingHistoryContextMenu from '../../hooks/useReadingHistoryContextMenu';
-import { ReadHistoryPost } from '../../graphql/posts';
 
 const DateTitle = classed('h2', 'typo-body text-theme-label-tertiary');
 

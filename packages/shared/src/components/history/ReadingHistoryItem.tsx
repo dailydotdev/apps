@@ -9,8 +9,6 @@ import classed from '../../lib/classed';
 import { Button } from '../buttons/Button';
 import { LazyImage } from '../LazyImage';
 import PostMetadataReadingHistory from '../cards/PostMetadataReadingHistory';
-import PostOptionsReadingHistoryMenu from '../PostOptionsReadingHistoryMenu';
-import useReportPostMenu from '../../hooks/useReportPostMenu';
 import useNotification from '../../hooks/useNotification';
 import { CardNotification } from '../cards/Card';
 import { PageContainer } from '../utilities';
@@ -40,7 +38,7 @@ export default function ReadingHistoryItem({
     e.stopPropagation();
     onHide({ postId: post.id, timestamp: timestampDb });
   };
-  const { notification, onMessage } = useNotification();
+  const { notification } = useNotification();
 
   if (notification) {
     return (

@@ -7,12 +7,10 @@ import { ReadHistoryPost } from '../graphql/posts';
 import ShareIcon from '../../icons/share.svg';
 import BookmarkIcon from '../../icons/bookmark.svg';
 import BookmarkIconFilled from '../../icons/bookmark_filled.svg';
-import AnalyticsContext from '../contexts/AnalyticsContext';
 import useBookmarkPost from '../hooks/useBookmarkPost';
 import AuthContext from '../contexts/AuthContext';
 import { ReadHistoryInfiniteData } from '../hooks/useInfiniteReadingHistory';
 import { useCopyLink } from '../hooks/useCopyLink';
-import { Button } from './buttons/Button';
 
 const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
   ssr: false,
@@ -53,7 +51,6 @@ const updateReadingHistoryPost =
         readHistory,
       };
     });
-    console.log(newItems);
     queryClient.setQueryData<ReadHistoryInfiniteData>(historyQueryKey, {
       ...oldReadingHistory,
       pages: newItems,
@@ -98,11 +95,8 @@ export default function PostOptionsReadingHistoryMenu({
 
   const onBookmarkReadingHistoryPost = async (): Promise<void> => {
     if (post?.bookmarked) {
-      console.log('bookmarks true');
       return removeBookmark(post);
     }
-    console.log('bookmarks false');
-
     return bookmark(post);
   };
 
