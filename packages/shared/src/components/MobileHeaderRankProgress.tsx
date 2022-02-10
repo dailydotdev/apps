@@ -19,12 +19,19 @@ const Wrapper = ({ children, ...props }: WrapperProps) => {
   );
 };
 
-export default function MobileHeaderRankProgress(): ReactElement {
+interface MobileHeaderRankProgressProps {
+  sidebarRendered: boolean;
+}
+export default function MobileHeaderRankProgress({
+  sidebarRendered,
+}: MobileHeaderRankProgressProps): ReactElement {
   const { isLoading, rank, nextRank } = useReadingRank();
 
-  if (isLoading) {
+  if (isLoading || sidebarRendered) {
     return <Wrapper>&nbsp;</Wrapper>;
   }
+
+  console.log('did I make it?');
 
   return (
     <Wrapper
