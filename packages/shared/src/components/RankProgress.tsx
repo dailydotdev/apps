@@ -98,7 +98,7 @@ export type RankProgressProps = {
 };
 
 const getRankName = (rank: number): string =>
-  rank > 0 ? RANKS[getRank(rank)].name : NO_RANK;
+  rank > 0 ? RANKS[rank - 1].name : NO_RANK;
 
 export function RankProgress({
   progress,

@@ -221,10 +221,10 @@ const rankPaths: ((fill: string) => ReactNode)[] = [
 ];
 
 const getColorPath = (rank, id) => {
-  return rankPaths[rank > 0 ? getRank(rank) : 0](`url(#${id})`);
+  return rankPaths[getRank(rank)](`url(#${id})`);
 };
 const getOutlinePath = (rank) => {
-  return outlinePaths[rank > 0 ? getRank(rank) : 0];
+  return outlinePaths[getRank(rank)];
 };
 
 export default forwardRef(function Rank(
