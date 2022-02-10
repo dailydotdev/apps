@@ -2,7 +2,6 @@ import React, { ReactElement, useContext } from 'react';
 import { Item } from '@dailydotdev/react-contexify';
 import dynamic from 'next/dynamic';
 import { QueryClient, QueryKey, useQueryClient } from 'react-query';
-import classNames from 'classnames';
 import { ReadHistoryPost } from '../graphql/posts';
 import ShareIcon from '../../icons/share.svg';
 import BookmarkIcon from '../../icons/bookmark_outlined.svg';
@@ -72,6 +71,7 @@ export default function PostOptionsReadingHistoryMenu({
   const queryClient = useQueryClient();
   const historyQueryKey = ['readHistory', user?.id];
 
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   const [isPostLinkCopied, copyPostLink] = useCopyLink(
     () => post.commentsPermalink,
   );
@@ -138,15 +138,6 @@ export default function PostOptionsReadingHistoryMenu({
             {getBookmarkMenuText()}
           </a>
         </Item>
-        {isPostLinkCopied && (
-          <div
-            className={classNames(
-              'absolute flex top-0 right-0 items-center text-theme-status-success font-bold typo-caption1',
-            )}
-          >
-            Copied!
-          </div>
-        )}
       </PortalMenu>
     </>
   );
