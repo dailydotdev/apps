@@ -31,8 +31,6 @@ export default function MobileHeaderRankProgress({
     return <Wrapper>&nbsp;</Wrapper>;
   }
 
-  console.log('did I make it?');
-
   return (
     <Wrapper
       style={
