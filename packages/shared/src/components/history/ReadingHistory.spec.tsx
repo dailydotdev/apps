@@ -1,15 +1,35 @@
 import React from 'react';
 import { subDays } from 'date-fns';
-import { render, screen } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  RenderResult,
+  screen,
+} from '@testing-library/react';
 import nock from 'nock';
+import { QueryClient, QueryClientProvider } from 'react-query';
 import ReadingHistoryItem from './ReadingHistoryItem';
 import ReadHistoryList, { ReadHistoryListProps } from './ReadingHistoryList';
 import { ReadHistoryInfiniteData } from '../../hooks/useInfiniteReadingHistory';
+import AuthContext from '../../contexts/AuthContext';
+import user from '../../../__tests__/fixture/loggedUser';
 
 beforeEach(() => {
   nock.cleanAll();
   jest.clearAllMocks();
 });
+
+const defaultUser = {
+  id: 'u1',
+  username: 'idoshamun',
+  name: 'Ido Shamun',
+  providers: ['github'],
+  email: 'ido@acme.com',
+  image: 'https://daily.dev/ido.png',
+  infoConfirmed: true,
+  premium: false,
+  createdAt: '2020-07-26T13:04:35.000Z',
+};
 
 describe('ReadingHistoryList component', () => {
   const createdAtToday = new Date();
@@ -53,13 +73,33 @@ describe('ReadingHistoryList component', () => {
     onHide,
   };
 
+  const renderComponent = (): RenderResult => {
+    const client = new QueryClient();
+
+    return render(
+      <QueryClientProvider client={client}>
+        <AuthContext.Provider
+          value={{
+            user: { ...defaultUser, ...user },
+            shouldShowLogin: false,
+            showLogin: jest.fn(),
+            updateUser: jest.fn(),
+            tokenRefreshed: true,
+          }}
+        >
+          <ReadHistoryList {...props} />
+        </AuthContext.Provider>
+      </QueryClientProvider>,
+    );
+  };
+
   it('should show date section for reads today', async () => {
-    render(<ReadHistoryList {...props} />);
+    renderComponent();
     await screen.findByText('Today');
   });
 
   it('should show date section for reads yesterday', async () => {
-    render(<ReadHistoryList {...props} />);
+    renderComponent();
     await screen.findByText('Yesterday');
   });
 
@@ -69,12 +109,12 @@ describe('ReadingHistoryList component', () => {
     const weekday = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][
       date.getDay()
     ];
-    render(<ReadHistoryList {...props} />);
+    renderComponent();
     await screen.findByText(`${weekday}, 31 Mar`);
   });
 
   it('should show date section for reads of the different year', async () => {
-    render(<ReadHistoryList {...props} />);
+    renderComponent();
     await screen.findByText('Sat, 31 Mar 2018');
   });
 });
@@ -113,8 +153,8 @@ describe('ReadingHistoryItem component', () => {
 
   it('should call onHide on close button clicked', async () => {
     render(<ReadingHistoryItem history={defaultHistory} onHide={onHide} />);
-    const btn = await screen.findByRole('button');
-    btn.click();
+    const buttonn = (await screen.findAllByRole('button'))[0];
+    fireEvent.click(buttonn);
     expect(onHide).toHaveBeenCalledWith({
       postId: defaultHistory.post.id,
       timestamp: defaultHistory.timestamp,
