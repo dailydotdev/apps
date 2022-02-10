@@ -32,6 +32,7 @@ import usePersistentContext from '../hooks/usePersistentContext';
 import CreateMyFeedButton from './CreateMyFeedButton';
 import { useDynamicLoadedAnimation } from '../hooks/useDynamicLoadAnimated';
 import FeedFilters from './filters/FeedFilters';
+import AlertContext from '../contexts/AlertContext';
 
 const SearchEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "emptySearch" */ './SearchEmptyScreen'),
@@ -146,6 +147,7 @@ export default function MainFeedLayout({
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { flags } = useContext(FeaturesContext);
+  const { alerts } = useContext(AlertContext);
   const popularFeedCopy = getFeatureValue(Features.PopularFeedCopy, flags);
   const {
     isLoaded,
@@ -216,7 +218,7 @@ export default function MainFeedLayout({
   );
 
   const getFeedTitle = () => {
-    if (shouldShowMyFeed && myFeedPosition === 'feed_title') {
+    if (shouldShowMyFeed && alerts?.filter && myFeedPosition === 'feed_title') {
       return (
         <CreateMyFeedButton
           type={myFeedPosition}
@@ -297,13 +299,15 @@ export default function MainFeedLayout({
       ),
       query: query.query,
       variables,
-      createMyFeedCard: shouldShowMyFeed && myFeedPosition === 'feed_ad' && (
-        <CreateMyFeedButton
-          type="feed_ad"
-          action={openFeedFilters}
-          flags={flags}
-        />
-      ),
+      createMyFeedCard: shouldShowMyFeed &&
+        alerts?.filter &&
+        myFeedPosition === 'feed_ad' && (
+          <CreateMyFeedButton
+            type="feed_ad"
+            action={openFeedFilters}
+            flags={flags}
+          />
+        ),
       emptyScreen: <FeedEmptyScreen openFeedFilters={openFeedFilters} />,
       header: !isSearchOn && header,
     };
@@ -323,13 +327,15 @@ export default function MainFeedLayout({
   return (
     <>
       <FeedPage>
-        {shouldShowMyFeed && myFeedPosition === 'feed_top' && (
-          <CreateMyFeedButton
-            type={myFeedPosition}
-            action={openFeedFilters}
-            flags={flags}
-          />
-        )}
+        {shouldShowMyFeed &&
+          alerts?.filter &&
+          myFeedPosition === 'feed_top' && (
+            <CreateMyFeedButton
+              type={myFeedPosition}
+              action={openFeedFilters}
+              flags={flags}
+            />
+          )}
         {isSearchOn && search}
         {feedProps && <Feed {...feedProps} />}
         {children}
