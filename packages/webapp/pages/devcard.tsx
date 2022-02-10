@@ -179,7 +179,7 @@ const Step2 = ({
   return (
     <div className="flex flex-col self-stretch laptop:self-center mx-2 mt-5">
       <h1 className="mx-3 mb-8 font-bold typo-title1">Share your #DevCard</h1>
-      <main className="grid grid-cols-1 laptop:grid-cols-2 gap-10 laptop:gap-20">
+      <main className="grid grid-cols-1 laptopL:grid-cols-2 gap-10 laptop:gap-20">
         <section className="flex flex-col">
           <Tilt
             className="overflow-hidden relative self-stretch laptop:w-96"
