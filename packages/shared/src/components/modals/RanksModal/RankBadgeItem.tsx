@@ -1,6 +1,7 @@
 import React, { CSSProperties, ReactElement } from 'react';
 import classNames from 'classnames';
 import {
+  getRank,
   isFinalRankCompleted,
   isRankCompleted,
   RANKS,
@@ -78,7 +79,7 @@ const RankBadgeItem = ({
                 '--radial-progress-completed-step': `var(--theme-rank-${
                   finalRankCompleted || previousRank === itemRank.level
                     ? showRank
-                    : showRank - 1
+                    : getRank(showRank)
                 }-color)`,
               } as CSSProperties
             }

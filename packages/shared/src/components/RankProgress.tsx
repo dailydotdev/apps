@@ -98,7 +98,7 @@ export type RankProgressProps = {
 };
 
 const getRankName = (rank: number): string =>
-  rank > 0 ? RANKS[rank - 1].name : NO_RANK;
+  rank > 0 ? RANKS[getRank(rank)].name : NO_RANK;
 
 export function RankProgress({
   progress,
@@ -118,7 +118,7 @@ export function RankProgress({
   const [animatingProgress, setAnimatingProgress] = useState(false);
   const [forceColor, setForceColor] = useState(false);
   const [shownRank, setShownRank] = useState(
-    showRankAnimation ? rank - 1 : rank,
+    showRankAnimation ? getRank(rank) : rank,
   );
   const attentionRef = useRef<HTMLDivElement>();
   const progressRef = useRef<HTMLDivElement>();

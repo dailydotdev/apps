@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { RankProgress } from './RankProgress';
 import useReadingRank from '../hooks/useReadingRank';
 import AuthContext from '../contexts/AuthContext';
-import { RANKS } from '../lib/rank';
+import { getRank, RANKS } from '../lib/rank';
 import FeaturesContext from '../contexts/FeaturesContext';
 import { Features, getFeatureValue } from '../lib/featureManagement';
 
@@ -59,7 +59,9 @@ export default function RankProgressWrapper({
         onClick={() => setShowRanksModal(true)}
       >
         <RankProgress
-          progress={showRankAnimation ? RANKS[nextRank - 1].steps : progress}
+          progress={
+            showRankAnimation ? RANKS[getRank(nextRank)].steps : progress
+          }
           rank={showRankAnimation ? nextRank : rank}
           nextRank={nextRank}
           showRankAnimation={showRankAnimation}
