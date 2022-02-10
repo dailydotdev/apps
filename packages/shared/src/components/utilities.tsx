@@ -3,6 +3,77 @@ import classed from '../lib/classed';
 import styles from './utilities.module.css';
 import ArrowIcon from '../../icons/arrow.svg';
 
+export interface ThemeColor {
+  border: string;
+  shadow: string;
+  button: string;
+}
+const themeColors = {
+  avocado: {
+    border: 'border-theme-color-avocado',
+    shadow: 'shadow-2-avocado',
+    button: 'btn-primary-avocado',
+  },
+  burger: {
+    border: 'border-theme-color-burger',
+    shadow: 'shadow-2-burger',
+    button: 'btn-primary-burger',
+  },
+  blueCheese: {
+    border: 'border-theme-color-blueCheese',
+    shadow: 'shadow-2-blueCheese',
+    button: 'btn-primary-blueCheese',
+  },
+  lettuce: {
+    border: 'border-theme-color-lettuce',
+    shadow: 'shadow-2-lettuce',
+    button: 'btn-primary-lettuce',
+  },
+  cheese: {
+    border: 'border-theme-color-cheese',
+    shadow: 'shadow-2-cheese',
+    button: 'btn-primary-cheese',
+  },
+  bun: {
+    border: 'border-theme-color-bun',
+    shadow: 'shadow-2-bun',
+    button: 'btn-primary-bun',
+  },
+  ketchup: {
+    border: 'border-theme-color-ketchup',
+    shadow: 'shadow-2-ketchup',
+    button: 'btn-primary-ketchup',
+  },
+  bacon: {
+    border: 'border-theme-color-bacon',
+    shadow: 'shadow-2-bacon',
+    button: 'btn-primary-bacon',
+  },
+  cabbage: {
+    border: 'border-theme-color-cabbage',
+    shadow: 'shadow-2-cabbage',
+    button: 'btn-primary-cabbage',
+  },
+  onion: {
+    border: 'border-theme-color-onion',
+    shadow: 'shadow-2-onion',
+    button: 'btn-primary-onion',
+  },
+  water: {
+    border: 'border-theme-color-water',
+    shadow: 'shadow-2-water',
+    button: 'btn-primary-water',
+  },
+  primary: {
+    border: 'border-primary',
+    shadow: 'shadow-2',
+    button: 'btn-primary',
+  },
+};
+export const getThemeColor = (color: string, fallback: string): ThemeColor => {
+  return themeColors[color] ?? themeColors[fallback];
+};
+
 export const RoundedImage = classed(LazyImage, 'w-10 h-10 rounded-full');
 
 export const SmallRoundedImage = classed(LazyImage, 'w-6 h-6 rounded-full');
@@ -27,10 +98,7 @@ export const PageContainer = classed(
 export const PageWidgets = classed(
   'aside',
   styles.pageWidgets,
-  pagePaddings,
-  pageBorders,
-  'laptopL:min-w-[22.5rem]',
-  'w-full laptopL:px-6 laptopL:w-auto laptopL:border-none',
+  'laptopL:min-w-[22.5rem] pt-6 laptopL:pt-0 laptopL:px-6 laptopL:w-auto laptopL:border-none',
 );
 
 export const NewCommentContainer = classed(
@@ -39,25 +107,14 @@ export const NewCommentContainer = classed(
   'laptop:relative laptop:p-0 laptop:bg-none ',
 );
 
-export const NoPaddingPageContainer = classed(
-  'main',
-  styles.pageContainer,
-  'relative flex flex-col w-full items-stretch z-1 tablet:self-center mx-auto',
-);
-
 export const ResponsivePageContainer = classed(
   PageContainer,
   'py-6 laptop:border-theme-divider-tertiary laptop:border-l laptop:border-r laptop:min-h-screen',
 );
 
-export const ResponsiveNoPaddingPageContainer = classed(
-  NoPaddingPageContainer,
-  'py-6 laptop:border-theme-divider-tertiary laptop:border-l laptop:border-r laptop:min-h-screen',
-);
-
 export const FeedPage = classed(
   'main',
-  'withNavBar flex flex-col flex-1 items-start pb-3 px-6 laptop:px-16 pt-10',
+  'withNavBar flex flex-col flex-1 items-start pb-3 px-6 laptop:px-16 pt-10 max-w-full',
   styles.feedPage,
 );
 
@@ -89,3 +146,8 @@ export const customFeedIcon = 'text-2xl text-theme-label-tertiary mr-2';
 export const Summary = classed('summary', 'cursor-pointer focus-outline');
 
 export const SummaryArrow = classed(ArrowIcon, 'icon arrow ml-auto text-xl');
+
+export const SummaryContainer = classed(
+  'div',
+  'text-theme-label-secondary multi-truncate my-6 border-l border-theme-status-cabbage pl-4',
+);

@@ -238,7 +238,7 @@ export default function PostsSection({
               <LazyImage
                 imgSrc={post.source.image}
                 imgAlt={post.source.name}
-                className={`top-1/2 left-0 w-8 h-8 bg-theme-bg-primary rounded-full transform -translate-x-1/2 -translate-y-1/2 ${styles.sourceImage}`}
+                className={`top-1/2 left-0 w-8 h-8 bg-theme-bg-primary rounded-full -translate-x-1/2 -translate-y-1/2 ${styles.sourceImage}`}
                 absolute
               />
             </div>

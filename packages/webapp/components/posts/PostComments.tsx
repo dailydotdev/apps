@@ -104,7 +104,7 @@ export function PostComments({
   const commentsCount = comments?.postComments?.edges?.length || 0;
 
   if (isLoadingComments) {
-    return <PlaceholderCommentList />;
+    return <PlaceholderCommentList placeholderAmount={post.numComments} />;
   }
 
   if (commentsCount === 0) {

@@ -45,6 +45,10 @@ export default function Settings({
     toggleInsaneMode,
     showTopSites,
     toggleShowTopSites,
+    sortingEnabled,
+    toggleSortingEnabled,
+    optOutWeeklyGoal,
+    toggleOptOutWeeklyGoal,
   } = useContext(SettingsContext);
   const [themes, setThemes] = useState([
     { label: 'Dark', value: 'dark' },
@@ -52,13 +56,15 @@ export default function Settings({
     { label: 'Auto', value: 'auto' },
   ]);
 
-  const onShowOnlyUnreadPosts = (): Promise<void> | void => {
+  const onToggleForLoggedInUsers = (
+    onToggleFunc: () => Promise<void> | void,
+  ): Promise<void> | void => {
     if (!user) {
       showLogin('settings');
       return undefined;
     }
 
-    return toggleShowOnlyUnreadPosts();
+    return onToggleFunc();
   };
 
   useEffect(() => {
@@ -109,7 +115,7 @@ export default function Settings({
             name="hide-read"
             className="my-3"
             checked={showOnlyUnreadPosts}
-            onToggle={onShowOnlyUnreadPosts}
+            onToggle={() => onToggleForLoggedInUsers(toggleShowOnlyUnreadPosts)}
             compact={false}
           >
             Hide read posts
@@ -133,9 +139,29 @@ export default function Settings({
               onToggle={toggleShowTopSites}
               compact={false}
             >
-              Show most visited sites
+              Show custom shortcuts
             </Switch>
           )}
+          <Switch
+            inputId="feed-sorting-switch"
+            name="feed-sorting"
+            className="my-3 big"
+            checked={sortingEnabled}
+            onToggle={toggleSortingEnabled}
+            compact={false}
+          >
+            Show feed sorting menu
+          </Switch>
+          <Switch
+            inputId="weekly-goal-widget-switch"
+            name="weekly-goal-widget"
+            className="my-3 big"
+            checked={!optOutWeeklyGoal}
+            onToggle={() => onToggleForLoggedInUsers(toggleOptOutWeeklyGoal)}
+            compact={false}
+          >
+            Show Weekly Goal widget
+          </Switch>
         </div>
       </Section>
     </div>

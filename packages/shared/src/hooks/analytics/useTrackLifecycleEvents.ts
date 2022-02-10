@@ -3,6 +3,11 @@ import listenToLifecycleEvents from '../../lib/lifecycle';
 import { AnalyticsContextData } from './useAnalyticsContextData';
 import { AnalyticsEvent } from './useAnalyticsQueue';
 
+const ACTIVE_STATES = ['active', 'passive'];
+
+const isActiveState = (state: string): boolean =>
+  ACTIVE_STATES.indexOf(state) > -1;
+
 export default function useTrackLifecycleEvents(
   setEnabled: (enabled: boolean) => void,
   contextData: AnalyticsContextData,
@@ -27,7 +32,10 @@ export default function useTrackLifecycleEvents(
             });
           }
         });
-      } else if (event.detail.oldState === 'active') {
+      } else if (
+        isActiveState(event.detail.oldState) &&
+        !isActiveState(event.detail.newState)
+      ) {
         setEnabled(false);
         const now = new Date();
         durationEventsQueue.current.forEach((value, key) =>

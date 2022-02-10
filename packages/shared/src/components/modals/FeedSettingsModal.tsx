@@ -17,11 +17,11 @@ export function FeedSettingsModal({
       onRequestClose={onRequestClose}
       padding={false}
     >
-      <header className="py-4 px-6 w-full border-b border-theme-divider-tertiary">
+      <header className="flex justify-between items-center py-4 px-6 w-full border-b border-theme-divider-tertiary">
         <h3 className="font-bold typo-title3">Customize</h3>
         <ModalCloseButton onClick={onRequestClose} />
       </header>
-      <section className="overflow-auto relative flex-shrink w-full h-full max-h-full">
+      <section className="overflow-auto relative w-full h-full shrink max-h-full">
         <Settings />
       </section>
     </ResponsiveModal>

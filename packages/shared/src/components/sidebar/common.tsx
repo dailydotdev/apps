@@ -68,6 +68,7 @@ interface NavItemProps {
   color?: string;
   active?: boolean;
   children?: ReactNode;
+  className?: string;
 }
 
 export const btnClass =
@@ -78,7 +79,7 @@ export const SidebarBackdrop = classed(
 );
 export const SidebarAside = classed(
   'aside',
-  'flex flex-col w-70 laptop:-translate-x-0 left-0 bg-theme-bg-primary z-3 border-r border-theme-divider-tertiary transition-[width] transform duration-300 ease-in-out group fixed top-0  h-full ',
+  'flex flex-col w-70 laptop:-translate-x-0 left-0 bg-theme-bg-primary z-3 border-r border-theme-divider-tertiary transition-[width,transform] duration-300 ease-in-out group fixed top-0  h-full ',
 );
 export const SidebarScrollWrapper = classed(
   'div',
@@ -90,7 +91,15 @@ export const NavHeader = classed(
   'li',
   'typo-footnote text-theme-label-quaternary h-7 flex items-center font-bold  transition-opacity',
 );
-export const RawNavItem = classed(
+export const AlertContainer = classed(
+  'div',
+  'mx-4 my-3 px-1 py-1 border border-theme-status-success rounded-10 flex flex-row flex-wrap relative',
+);
+export const AlertCopy = classed(
+  'p',
+  'typo-subhead p-1 pl-2 pr-1.5 max-w-[calc(100%-1.5rem)]',
+);
+const RawNavItem = classed(
   'li',
   'flex items-center typo-callout hover:bg-theme-active',
 );
@@ -194,7 +203,7 @@ export const MenuIcon = ({
       absolute
       className={`btn btn-primary h-6 w-6 top-3 -right-3 z-3 ${
         sidebarExpanded &&
-        'transition-opacity  invisible group-hover:visible opacity-0 group-hover:opacity-100'
+        'transition-opacity invisible group-hover:visible opacity-0 group-hover:opacity-100'
       }`}
       buttonSize="xsmall"
     >
@@ -207,6 +216,7 @@ export const MenuIcon = ({
   </SimpleTooltip>
 );
 export const NavItem = ({
+  className,
   color,
   active,
   children,
@@ -217,7 +227,11 @@ export const NavItem = ({
 
   return (
     <RawNavItem
-      className={classNames(color || baseClasses, active && 'bg-theme-active')}
+      className={classNames(
+        className,
+        color || baseClasses,
+        active && 'bg-theme-active',
+      )}
     >
       {children}
     </RawNavItem>

@@ -11,6 +11,9 @@ export type RemoteSettings = {
   insaneMode: boolean;
   showTopSites: boolean;
   sidebarExpanded: boolean;
+  sortingEnabled: boolean;
+  optOutWeeklyGoal: boolean;
+  customLinks?: string[];
 };
 
 export type UserSettingsData = { userSettings: RemoteSettings };
@@ -25,6 +28,9 @@ export const USER_SETTINGS_QUERY = gql`
       insaneMode
       showTopSites
       sidebarExpanded
+      sortingEnabled
+      optOutWeeklyGoal
+      customLinks
     }
   }
 `;

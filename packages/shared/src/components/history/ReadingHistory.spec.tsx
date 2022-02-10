@@ -84,6 +84,7 @@ describe('ReadingHistoryItem component', () => {
   const createdAt = new Date('202-10-22T07:15:51.247Z');
   const defaultHistory = {
     timestamp: createdAt,
+    timestampDb: createdAt,
     post: {
       id: 'p1',
       title: 'Most Recent Post',

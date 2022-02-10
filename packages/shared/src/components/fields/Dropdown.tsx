@@ -30,7 +30,7 @@ export interface DropdownProps {
 
 const getButtonSizeClass = (buttonSize: string): string => {
   if (buttonSize === 'select') {
-    return 'h-9 rounded-10 text-theme-label-primary typo-callout';
+    return 'h-9 rounded-10 text-theme-label-primary typo-body';
   }
   if (buttonSize === 'medium') {
     return 'h-10 rounded-xl';
@@ -119,7 +119,7 @@ export function Dropdown({
         </span>
         <ArrowIcon
           className={classNames(
-            'text-xl ml-auto transform transition-transform group-hover:text-theme-label-tertiary',
+            'text-xl ml-auto transition-transform group-hover:text-theme-label-tertiary',
             isVisible ? 'rotate-0' : 'rotate-180',
             styles.chevron,
           )}

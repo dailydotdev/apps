@@ -2,6 +2,7 @@ $radialProgressSize: 6.75rem;
 $largeRadialProgressSize: 10.5rem;
 $badgeSize: 3rem;
 $largeBadgeSize: 4rem;
+$badgeOffset: 1.875rem;
 
 .newRankModal {
   & :global(.modal) {
@@ -53,6 +54,9 @@ $largeBadgeSize: 4rem;
 }
 
 .radialProgress {
+  transform: rotate(180deg);
+  width: $largeRadialProgressSize;
+  height: $largeRadialProgressSize;
   font-size: $radialProgressSize;
   --radial-progress-step: var(--rank-color);
   @screen responsiveModalBreakpoint {
@@ -79,7 +83,7 @@ $largeBadgeSize: 4rem;
 .newRankBadge {
   width: $badgeSize;
   height: $badgeSize;
-  transform: translateX(calc(($radialProgressSize - $badgeSize) / 2));
+  transform: translateX($badgeOffset);
 
   @screen responsiveModalBreakpoint {
     width: $largeBadgeSize;

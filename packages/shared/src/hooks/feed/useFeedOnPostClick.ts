@@ -4,12 +4,14 @@ import { logReadArticle } from '../../lib/analytics';
 import { FeedItem, PostItem } from '../useFeed';
 import useIncrementReadingRank from '../useIncrementReadingRank';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { postAnalyticsEvent } from '../../lib/feed';
+import { feedAnalyticsExtra, postAnalyticsEvent } from '../../lib/feed';
 
 export default function useFeedOnPostClick(
   items: FeedItem[],
   updatePost: (page: number, index: number, post: Post) => void,
   columns: number,
+  feedName: string,
+  ranking?: string,
 ): (post: Post, index: number, row: number, column: number) => Promise<void> {
   const { incrementReadingRank } = useIncrementReadingRank();
   const { trackEvent } = useContext(AnalyticsContext);
@@ -20,12 +22,12 @@ export default function useFeedOnPostClick(
         columns,
         column,
         row,
-        extra: { origin: 'feed' },
+        ...feedAnalyticsExtra(feedName, ranking),
       }),
     );
     await logReadArticle('feed');
     if (!post.read) {
-      incrementReadingRank();
+      await incrementReadingRank();
     }
     const item = items[index] as PostItem;
     updatePost(item.page, item.index, { ...post, read: true });

@@ -25,7 +25,7 @@ export function CommentContent({
       {...props}
       className={classNames(
         className,
-        'p-0 m-0 theme-label-primary multi-truncate whitespace-pre-wrap typo-callout tablet:flex-1 tablet:mr-6',
+        'p-0 m-0 theme-label-primary multi-truncate break-words whitespace-pre-wrap typo-callout tablet:flex-1 tablet:mr-6',
         styles.commentContent,
       )}
     />

@@ -1,14 +1,23 @@
-import React, { ReactElement, useContext, useMemo, useState } from 'react';
-import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
+import React, {
+  ReactElement,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import MainLayout from '@dailydotdev/shared/src/components/MainLayout';
-import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
+import MainFeedLayout, {
+  getShouldRedirect,
+} from '@dailydotdev/shared/src/components/MainFeedLayout';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import dynamic from 'next/dynamic';
 import TimerIcon from '@dailydotdev/shared/icons/timer.svg';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import useDefaultFeed from '@dailydotdev/shared/src/hooks/useDefaultFeed';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import { HeaderButton } from '@dailydotdev/shared/src/components/buttons/common';
-import MostVisitedSites from './MostVisitedSites';
+import { useMyFeed } from '@dailydotdev/shared/src/hooks/useMyFeed';
+import ShortcutLinks from './ShortcutLinks';
 
 const PostsSearch = dynamic(
   () =>
@@ -33,7 +42,8 @@ export default function MainFeedPage({
   const [isSearchOn, setIsSearchOn] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>();
   const [showDnd, setShowDnd] = useState(false);
-  const [defaultFeed] = usePersistentContext('defaultFeed', 'popular');
+  const { registerLocalFilters, shouldShowMyFeed } = useMyFeed();
+  const [defaultFeed] = useDefaultFeed(shouldShowMyFeed);
   const enableSearch = () => {
     setIsSearchOn(true);
     setSearchQuery(null);
@@ -45,7 +55,12 @@ export default function MainFeedPage({
       setIsSearchOn(false);
     }
     setFeedName(tab);
-    onPageChanged(`/${tab}`);
+    const isMyFeed = tab === '/my-feed';
+    if (getShouldRedirect(isMyFeed, !!user)) {
+      onPageChanged(`/`);
+    } else {
+      onPageChanged(`/${tab}`);
+    }
   };
 
   const activePage = useMemo(() => {
@@ -63,6 +78,19 @@ export default function MainFeedPage({
     setSearchQuery(undefined);
   };
 
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const createFilter = urlParams.get('create_filters');
+
+    if (createFilter) {
+      registerLocalFilters().then(({ hasFilters }) => {
+        if (hasFilters) {
+          setFeedName('my-feed');
+        }
+      });
+    }
+  }, []);
+
   return (
     <MainLayout
       greeting
@@ -74,6 +102,7 @@ export default function MainFeedPage({
       onShowDndClick={() => setShowDnd(true)}
       enableSearch={enableSearch}
       onNavTabClick={onNavTabClick}
+      screenCentered={false}
       additionalButtons={
         <>
           {user && (
@@ -99,7 +128,7 @@ export default function MainFeedPage({
               onSubmitQuery={async (query) => setSearchQuery(query)}
             />
           }
-          navChildren={!isSearchOn && <MostVisitedSites />}
+          navChildren={!isSearchOn && <ShortcutLinks />}
         />
       </FeedLayout>
       <DndModal isOpen={showDnd} onRequestClose={() => setShowDnd(false)} />

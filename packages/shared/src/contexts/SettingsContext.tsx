@@ -23,6 +23,12 @@ export enum ThemeMode {
   Auto = 'auto',
 }
 
+export type BookmarksSharing = {
+  enabled: boolean;
+  slug: string;
+  rssUrl: string;
+};
+
 export type SettingsContextData = {
   spaciness: Spaciness;
   themeMode: ThemeMode;
@@ -31,6 +37,8 @@ export type SettingsContextData = {
   insaneMode: boolean;
   showTopSites: boolean;
   sidebarExpanded: boolean;
+  sortingEnabled: boolean;
+  optOutWeeklyGoal: boolean;
   setTheme: (theme: ThemeMode) => Promise<void>;
   toggleShowOnlyUnreadPosts: () => Promise<void>;
   toggleOpenNewTab: () => Promise<void>;
@@ -38,7 +46,11 @@ export type SettingsContextData = {
   toggleInsaneMode: () => Promise<void>;
   toggleShowTopSites: () => Promise<void>;
   toggleSidebarExpanded: () => Promise<void>;
+  toggleSortingEnabled: () => Promise<void>;
+  toggleOptOutWeeklyGoal: () => Promise<void>;
   loadedSettings: boolean;
+  customLinks?: string[];
+  updateCustomLinks: (links: string[]) => Promise<unknown>;
 };
 
 const SettingsContext = React.createContext<SettingsContextData>(null);
@@ -46,13 +58,13 @@ export default SettingsContext;
 
 const deprecatedLightModeStorageKey = 'showmethelight';
 
-const themeModes: Record<RemoteTheme, ThemeMode> = {
+export const themeModes: Record<RemoteTheme, ThemeMode> = {
   bright: ThemeMode.Light,
   darcula: ThemeMode.Dark,
   auto: ThemeMode.Auto,
 };
 
-const remoteThemes: Record<ThemeMode, RemoteTheme> = {
+export const remoteThemes: Record<ThemeMode, RemoteTheme> = {
   [ThemeMode.Light]: 'bright',
   [ThemeMode.Dark]: 'darcula',
   [ThemeMode.Auto]: 'auto',
@@ -87,6 +99,8 @@ const defaultSettings: RemoteSettings = {
   insaneMode: false,
   showTopSites: true,
   sidebarExpanded: true,
+  sortingEnabled: false,
+  optOutWeeklyGoal: false,
   theme: remoteThemes[ThemeMode.Dark],
 };
 
@@ -171,7 +185,16 @@ export const SettingsContextProvider = ({
           ...settings,
           sidebarExpanded: !settings.sidebarExpanded,
         }),
+      toggleSortingEnabled: () =>
+        setSettings({ ...settings, sortingEnabled: !settings.sortingEnabled }),
+      toggleOptOutWeeklyGoal: () =>
+        setSettings({
+          ...settings,
+          optOutWeeklyGoal: !settings.optOutWeeklyGoal,
+        }),
       loadedSettings,
+      updateCustomLinks: (links: string[]) =>
+        setSettings({ ...settings, customLinks: links }),
     }),
     [settings, loadedSettings, userId],
   );

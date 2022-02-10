@@ -4,6 +4,7 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import AuthContext from '../../contexts/AuthContext';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import useMutateFilters from '../../hooks/useMutateFilters';
+import { useMyFeed } from '../../hooks/useMyFeed';
 import { FilterSwitch } from './FilterSwitch';
 
 const ADVANCED_SETTINGS_KEY = 'advancedSettings';
@@ -14,6 +15,7 @@ function AdvancedSettingsFilter(): ReactElement {
   const { user, showLogin } = useContext(AuthContext);
   const { updateAdvancedSettings } = useMutateFilters(user);
   const { alerts, updateAlerts } = useContext(AlertContext);
+  const { shouldShowMyFeed } = useMyFeed();
   const settings = useMemo(
     () =>
       feedSettings?.advancedSettings?.reduce((settingsMap, currentSettings) => {
@@ -25,12 +27,12 @@ function AdvancedSettingsFilter(): ReactElement {
   );
 
   const onToggle = (id: number, defaultEnabledState: boolean) => {
-    if (!user) {
+    if (!shouldShowMyFeed && !user) {
       showLogin('advanced settings');
       return;
     }
 
-    if (alerts?.filter) {
+    if (alerts?.filter && user) {
       updateAlerts({ filter: false });
     }
 

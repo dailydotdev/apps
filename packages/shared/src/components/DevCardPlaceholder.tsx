@@ -1,21 +1,33 @@
 import React, { ReactElement } from 'react';
 
+const getColorPrefix = (rank: number, isLocked?: boolean) => {
+  if (isLocked) {
+    return '--theme-rank-1-color';
+  }
+
+  return rank > 0 ? `--theme-rank-${rank}-color` : '--theme-rank-5-color';
+};
+
 export default function DevCardPlaceholder({
   profileImage,
   rank,
+  isLocked,
+  style,
   ...props
 }: React.SVGProps<SVGSVGElement> & {
   profileImage?: string;
   rank?: number;
+  isLocked?: boolean;
 }): ReactElement {
-  const colorPrefix =
-    rank > 0 ? `--theme-rank-${rank}-color` : '--theme-rank-5-color';
+  const colorPrefix = getColorPrefix(rank, isLocked);
+
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
       viewBox="0 0 108 148"
       {...props}
+      style={{ ...style, opacity: isLocked ? 0.2 : 1 }}
     >
       <defs>
         <linearGradient

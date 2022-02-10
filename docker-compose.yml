@@ -13,16 +13,6 @@ services:
     ports:
       - "6379:6379"
 
-  daily-postgres:
-    image: postgres:11.6-alpine
-    ports:
-      - "5432:5432"
-    volumes:
-      - db:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_DB=api
-      - POSTGRES_PASSWORD=12345
-
   daily-mysql:
     image: mariadb
     environment:
@@ -33,6 +23,21 @@ services:
       - db:/var/lib/mysql/data
     ports:
       - "3306:3306"
+
+  daily-postgres:
+    image: postgres:11.6-alpine
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./pg-init-scripts:/docker-entrypoint-initdb.d
+      - db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_MULTIPLE_DATABASES=api,api_test
+      - POSTGRES_PASSWORD=12345
+    command:
+      - "postgres"
+      - "-c"
+      - "wal_level=logical"
 
   daily-gateway:
     image: gcr.io/daily-ops/daily-gateway

@@ -34,7 +34,7 @@ function ClickableTextComponent<Tag extends AvailableTags>(
       aria-pressed={pressed}
       ref={ref}
       className={classNames(
-        'flex flex-row items-center text-theme-label-tertiary hover:underline focus:underline cursor-pointer',
+        'flex flex-row items-center text-theme-label-tertiary cursor-pointer hover:underline focus:underline',
         defaultTypo && 'typo-callout',
         pressed && 'text-theme-label-primary',
         isLink && 'text-theme-label-link',

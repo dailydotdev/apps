@@ -196,7 +196,7 @@ export default function NewCommentModal({
   const sendComment = async (
     event: MouseEvent | KeyboardEvent,
   ): Promise<void> => {
-    if (sendingComment) {
+    if (sendingComment || !input?.trim().length) {
       return;
     }
     setErrorMessage(null);
@@ -301,7 +301,7 @@ export default function NewCommentModal({
         <ProfilePicture user={user} size="small" />
         <div
           className={classNames(
-            'ml-3 flex-1 text-theme-label-primary bg-none border-none caret-theme-label-link whitespace-pre-line break-words typo-subhead',
+            'ml-3 flex-1 text-theme-label-primary bg-none border-none caret-theme-label-link whitespace-pre-line break-words break-words-overflow typo-subhead',
             styles.textarea,
           )}
           ref={commentRef}
@@ -333,7 +333,7 @@ export default function NewCommentModal({
           Markdown supported
         </ClickableText>
         <Button
-          disabled={!input?.length}
+          disabled={!input?.trim().length}
           loading={sendingComment}
           onClick={sendComment}
           className="btn-primary-avocado"

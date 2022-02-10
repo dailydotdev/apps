@@ -38,6 +38,8 @@ const defaultSettings: RemoteSettings = {
   insaneMode: false,
   showTopSites: true,
   sidebarExpanded: true,
+  sortingEnabled: false,
+  optOutWeeklyGoal: true,
 };
 
 const updateSettings = jest.fn();
@@ -110,6 +112,15 @@ it('should fetch remote settings', async () => {
       ),
     ).not.toBeChecked(),
   );
+
+  await waitFor(() =>
+    expect(
+      checkbox.find((el) =>
+        // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
+        queryByText(el.parentElement, 'Show feed sorting menu'),
+      ),
+    ).not.toBeChecked(),
+  );
 });
 
 const defaultBootData: Partial<BootCacheData> = {
@@ -164,7 +175,7 @@ const testSettingsMutation = async (
   settings: Partial<RemoteSettings>,
   updateFunc: () => Promise<void>,
   initialSettings = defaultSettings,
-) => {
+): Promise<void> => {
   renderComponent(defaultUser, initialSettings);
 
   let mutationCalled = false;
@@ -245,9 +256,29 @@ it('should mutate open links in new tab setting', () =>
     fireEvent.click(checkbox);
   }));
 
-it('should not have the show most visited sites switch in the webapp', async () => {
+it('should mutate feed sorting enabled setting', () =>
+  testSettingsMutation({ sortingEnabled: true }, async () => {
+    const checkboxes = await screen.findAllByRole('checkbox');
+    const checkbox = checkboxes.find((el) =>
+      // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
+      queryByText(el.parentElement, 'Show feed sorting menu'),
+    ) as HTMLInputElement;
+    fireEvent.click(checkbox);
+  }));
+
+it('should mutate show weekly goals widget setting', () =>
+  testSettingsMutation({ optOutWeeklyGoal: false }, async () => {
+    const checkboxes = await screen.findAllByRole('checkbox');
+    const checkbox = checkboxes.find((el) =>
+      // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
+      queryByText(el.parentElement, 'Show Weekly Goal widget'),
+    ) as HTMLInputElement;
+    fireEvent.click(checkbox);
+  }));
+
+it('should not have the Show custom shortcuts switch in the webapp', async () => {
   renderComponent(null);
-  const checkbox = screen.queryByText('Show most visited sites');
+  const checkbox = screen.queryByText('Show custom shortcuts');
   expect(checkbox).not.toBeInTheDocument();
 });
 
@@ -262,7 +293,7 @@ it('should open login when hide read posts is clicked and the user is logged out
   await waitFor(() => expect(showLogin).toBeCalledWith('settings'));
 });
 
-it('should mutate show most visited sites setting in extension', async () => {
+it('should mutate Show custom shortcuts setting in extension', async () => {
   process.env.TARGET_BROWSER = 'chrome';
   renderComponent();
 
@@ -281,7 +312,7 @@ it('should mutate show most visited sites setting in extension', async () => {
   const checkboxes = await screen.findAllByRole('checkbox');
   const checkbox = checkboxes.find((el) =>
     // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
-    queryByText(el.parentElement, 'Show most visited sites'),
+    queryByText(el.parentElement, 'Show custom shortcuts'),
   ) as HTMLInputElement;
 
   await waitFor(() => expect(checkbox).toBeInTheDocument());

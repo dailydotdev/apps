@@ -20,13 +20,13 @@ const SourceShadow = classed(
 );
 
 function ReadingHistoryItem({
-  history: { timestamp, post },
+  history: { timestampDb, post },
   onHide,
   className,
 }: ReadingHistoryItemProps): ReactElement {
   const onHideClick = (e: MouseEvent) => {
     e.stopPropagation();
-    onHide({ postId: post.id, timestamp });
+    onHide({ postId: post.id, timestamp: timestampDb });
   };
 
   return (
@@ -41,6 +41,7 @@ function ReadingHistoryItem({
           imgSrc={post.image}
           imgAlt={post.title}
           className="w-16 laptop:w-24 h-16 rounded-16"
+          fallbackSrc="https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1"
         />
         <SourceShadow />
         <LazyImage

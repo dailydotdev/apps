@@ -101,7 +101,7 @@ export default function CommentPopup({
           <Button
             icon={<CommentIcon />}
             onClick={() => onSubmit?.(comment)}
-            disabled={!comment?.length}
+            disabled={!comment?.trim().length}
             loading={loading}
             className={classNames('btn-primary', listMode && 'self-end')}
           >

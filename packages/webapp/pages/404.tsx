@@ -13,7 +13,7 @@ export default function Custom404(): ReactElement {
         style={{ width: '55%', maxWidth: '32.75rem' }}
         className="self-center mb-10"
       />
-      <h1 className="mx-9 font-bold text-center break-words typo-title1">
+      <h1 className="mx-9 font-bold text-center break-words-overflow typo-title1">
         Oops, this page couldn’t be found
       </h1>
     </div>
