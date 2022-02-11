@@ -20,10 +20,12 @@ export type BootCacheData = Pick<
   'user' | 'alerts' | 'settings' | 'flags'
 >;
 
-export async function getBootData(app: string): Promise<Boot> {
+export async function getBootData(app: string, url?: string): Promise<Boot> {
   const res = await fetch(`${apiUrl}/boot`, {
+    method: url ? 'POST' : 'GET',
+    ...(url && { body: JSON.stringify({ url }) }),
     credentials: 'include',
-    headers: { app },
+    headers: { app, 'Content-Type': 'application/json' },
   });
   return res.json();
 }

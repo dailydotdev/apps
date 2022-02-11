@@ -15,19 +15,28 @@ const cacheAmplitudeDeviceId = async ({
   }
 };
 
-browser.runtime.onMessage.addListener(async (request, sender) => {
-  if (sender?.tab?.url === 'chrome://newtab/') {
-    return;
-  }
-  console.log(new Date().getMilliseconds());
+const excludedCompanionOrigins = [
+  'https://twitter.com',
+  'https://www.google.com',
+  'chrome-extension://',
+];
 
-  console.log('add request?', sender);
-  const boot = await getBootData('extension');
-  await browser.tabs.sendMessage(sender?.tab?.id, {
-    boot,
-  });
-  return '123';
-});
+const isExcluded = (origin: string) =>
+  excludedCompanionOrigins.some((e) => origin.includes(e));
+
+browser.runtime.onMessage.addListener(
+  async (request, sender: Runtime.MessageSender & { origin?: string }) => {
+    if (isExcluded(sender?.origin)) {
+      return;
+    }
+
+    console.log('origin: ', sender?.origin);
+    const boot = await getBootData('extension', sender?.tab?.url);
+    await browser.tabs.sendMessage(sender?.tab?.id, {
+      boot,
+    });
+  },
+);
 
 browser.browserAction.onClicked.addListener(() => {
   const url = browser.extension.getURL('index.html?source=button');
