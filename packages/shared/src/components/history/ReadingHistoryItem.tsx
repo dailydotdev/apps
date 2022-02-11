@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import Link from 'next/link';
 import { HideReadHistoryProps } from '../../graphql/users';
 import { ReadHistory, ReadHistoryPost } from '../../graphql/posts';
-import XIcon from '../../../icons/x.svg';
+import XIcon from '../../../icons/outline/x.svg';
 import MenuIcon from '../../../icons/menu.svg';
 import classed from '../../lib/classed';
 import { Button } from '../buttons/Button';
@@ -81,7 +81,7 @@ export default function ReadingHistoryItem({
 
         {onHide && (
           <Button
-            className="btn-tertiary"
+            className="hidden laptop:flex btn-tertiary"
             icon={<XIcon />}
             onClick={onHideClick}
           />

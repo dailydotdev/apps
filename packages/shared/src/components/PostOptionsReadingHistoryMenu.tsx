@@ -1,11 +1,12 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement, useContext, useEffect } from 'react';
 import { Item } from '@dailydotdev/react-contexify';
 import dynamic from 'next/dynamic';
 import { QueryClient, QueryKey, useQueryClient } from 'react-query';
 import { ReadHistoryPost } from '../graphql/posts';
 import ShareIcon from '../../icons/share.svg';
-import BookmarkIcon from '../../icons/bookmark_outlined.svg';
-import BookmarkIconFilled from '../../icons/bookmark_filled.svg';
+import BookmarkIcon from '../../icons/outline/bookmark_outlined.svg';
+import BookmarkIconFilled from '../../icons/filled/bookmark_filled.svg';
+import XIcon from '../../icons/outline/x.svg';
 import useBookmarkPost from '../hooks/useBookmarkPost';
 import AuthContext from '../contexts/AuthContext';
 import { ReadHistoryInfiniteData } from '../hooks/useInfiniteReadingHistory';
@@ -136,6 +137,15 @@ export default function PostOptionsReadingHistoryMenu({
           <a className="flex w-full typo-callout">
             {getBookmarkIcon()}
             {getBookmarkMenuText()}
+          </a>
+        </Item>
+        <Item
+          key="close"
+          className="laptop:hidden typo-callout"
+          onClick={copyPostLink}
+        >
+          <a className="flex w-full typo-callout">
+            <MenuIcon Icon={XIcon} /> Remove article
           </a>
         </Item>
       </PortalMenu>
