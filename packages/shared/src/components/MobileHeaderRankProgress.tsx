@@ -27,7 +27,11 @@ export default function MobileHeaderRankProgress({
 }: MobileHeaderRankProgressProps): ReactElement {
   const { isLoading, rank, nextRank } = useReadingRank();
 
-  if (isLoading || sidebarRendered) {
+  if (sidebarRendered) {
+    return <></>;
+  }
+
+  if (isLoading) {
     return <Wrapper>&nbsp;</Wrapper>;
   }
 
