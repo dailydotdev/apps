@@ -4,7 +4,7 @@ import { UseInfiniteQueryResult } from 'react-query';
 import useFeedInfiniteScroll from '../../hooks/feed/useFeedInfiniteScroll';
 import { UpvotesData } from '../../graphql/common';
 import { UpvoterListPlaceholder } from './UpvoterListPlaceholder';
-import { ProfilePicture } from '../ProfilePicture';
+import { UserShortInfo } from './UserShortInfo';
 
 export interface UpvoterListProps {
   queryResult: UseInfiniteQueryResult<UpvotesData>;
@@ -27,20 +27,7 @@ export function UpvoterList({ queryResult }: UpvoterListProps): ReactElement {
       {queryResult.data.pages.map((page) =>
         page.upvotes.edges.map(({ node: { user } }) => (
           <Link key={user.username} href={user.permalink}>
-            <a className="flex flex-row py-3 px-6 hover:bg-theme-hover">
-              <ProfilePicture user={user} size="xlarge" />
-              <div className="flex flex-col flex-1 ml-4 typo-callout">
-                <span className="font-bold">{user.name}</span>
-                <span className="text-theme-label-secondary">
-                  @{user.username}
-                </span>
-                {user.bio && (
-                  <span className="mt-1 text-theme-label-tertiary">
-                    {user.bio}
-                  </span>
-                )}
-              </div>
-            </a>
+            <UserShortInfo {...user} />
           </Link>
         )),
       )}
