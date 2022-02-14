@@ -1,13 +1,14 @@
 import React, { HTMLAttributes, ReactElement } from 'react';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 
-interface UserShortInfoProps extends HTMLAttributes<React.ElementType> {
+interface UserShortInfoProps<T extends React.ElementType = 'a'>
+  extends HTMLAttributes<T> {
   image: string;
   name: string;
   username: string;
   bio?: string;
   imageSize?: ProfileImageSize;
-  Tag?: React.ElementType;
+  Tag?: T;
 }
 
 export function UserShortInfo({
