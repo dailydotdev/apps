@@ -20,6 +20,7 @@ export type PostOptionsReadingHistoryMenuProps = {
   post: ReadHistoryPost;
   onHidden?: () => unknown;
   displayCopiedMEssageFunc?: () => void;
+  onHide?: (postId: string) => unknown;
 };
 
 const MenuIcon = ({ Icon }) => {
@@ -67,6 +68,7 @@ const updateReadingHistoryPost =
 export default function PostOptionsReadingHistoryMenu({
   post,
   onHidden,
+  onHide,
 }: PostOptionsReadingHistoryMenuProps): ReactElement {
   const { user } = useContext(AuthContext);
   const queryClient = useQueryClient();
@@ -142,7 +144,7 @@ export default function PostOptionsReadingHistoryMenu({
         <Item
           key="close"
           className="laptop:hidden typo-callout"
-          onClick={copyPostLink}
+          onClick={() => onHide(post?.id)}
         >
           <a className="flex w-full typo-callout">
             <MenuIcon Icon={XIcon} /> Remove article

@@ -1,22 +1,30 @@
 import { useContextMenu } from '@dailydotdev/react-contexify';
 import React, { useState } from 'react';
-import { ReadHistoryPost } from '../graphql/posts';
+import { ReadHistory } from '../graphql/posts';
+import { QueryIndexes } from './useReadingHistory';
 
 export default function useReadingHistoryContextMenu(): {
   readingHistoryContextItem;
   setReadingHistoryContextItem;
   onReadingHistoryContextOptions;
+  queryIndexes;
 } {
   const [readingHistoryContextItem, setReadingHistoryContextItem] =
-    useState<ReadHistoryPost>();
+    useState<ReadHistory>();
+  const [queryIndexes, setQueryIndexes] = useState<QueryIndexes>({
+    page: -1,
+    edge: -1,
+  });
   const { show: showTagOptionsMenu } = useContextMenu({
     id: 'reading-history-options-context',
   });
   const onReadingHistoryContextOptions = (
     event: React.MouseEvent,
-    readingHistory: ReadHistoryPost,
+    readingHistory: ReadHistory,
+    indexes: QueryIndexes,
   ): void => {
     setReadingHistoryContextItem(readingHistory);
+    setQueryIndexes(indexes);
     const { right, bottom } = event.currentTarget.getBoundingClientRect();
     showTagOptionsMenu(event, {
       position: { x: right, y: bottom + 4 },
@@ -27,5 +35,6 @@ export default function useReadingHistoryContextMenu(): {
     readingHistoryContextItem,
     setReadingHistoryContextItem,
     onReadingHistoryContextOptions,
+    queryIndexes,
   };
 }

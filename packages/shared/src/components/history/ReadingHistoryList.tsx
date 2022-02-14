@@ -39,6 +39,7 @@ export default function ReadHistoryList({
     readingHistoryContextItem,
     setReadingHistoryContextItem,
     onReadingHistoryContextOptions,
+    queryIndexes,
   } = useReadingHistoryContextMenu();
 
   const renderList = useCallback(() => {
@@ -60,7 +61,9 @@ export default function ReadHistoryList({
           <ReadingHistoryItem
             key={`${history.post.id}-${timestamp}`}
             history={history}
-            onContextMenu={onReadingHistoryContextOptions}
+            onContextMenu={(event, readingHistory) =>
+              onReadingHistoryContextOptions(event, readingHistory, indexes)
+            }
             onHide={(params) => onHide({ ...params, ...indexes })}
           />,
         );
@@ -75,8 +78,15 @@ export default function ReadHistoryList({
       {renderList()}
       <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
       <PostOptionsReadingHistoryMenu
-        post={readingHistoryContextItem}
+        post={readingHistoryContextItem?.post}
         onHidden={() => setReadingHistoryContextItem(null)}
+        onHide={(postId) =>
+          onHide({
+            postId,
+            timestamp: readingHistoryContextItem.timestampDb,
+            ...queryIndexes,
+          })
+        }
       />
     </section>
   );

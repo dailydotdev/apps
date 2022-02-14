@@ -2,7 +2,7 @@ import React, { MouseEvent, ReactElement } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
 import { HideReadHistoryProps } from '../../graphql/users';
-import { ReadHistory, ReadHistoryPost } from '../../graphql/posts';
+import { ReadHistory } from '../../graphql/posts';
 import XIcon from '../../../icons/outline/x.svg';
 import MenuIcon from '../../../icons/menu.svg';
 import classed from '../../lib/classed';
@@ -19,7 +19,7 @@ interface ReadingHistoryItemProps {
   onHide?: (params: HideReadHistoryProps) => Promise<unknown>;
   onContextMenu?: (
     event: React.MouseEvent,
-    readHistoryPost: ReadHistoryPost,
+    readHistoryPost: ReadHistory,
   ) => void;
 }
 
@@ -29,11 +29,12 @@ const SourceShadow = classed(
 );
 
 export default function ReadingHistoryItem({
-  history: { timestampDb, post },
+  history,
   onHide,
   className,
   onContextMenu,
 }: ReadingHistoryItemProps): ReactElement {
+  const { timestampDb, post } = history;
   const onHideClick = (e: MouseEvent) => {
     e.stopPropagation();
     onHide({ postId: post.id, timestamp: timestampDb });
@@ -89,7 +90,7 @@ export default function ReadingHistoryItem({
         <Button
           className="btn-tertiary"
           icon={<MenuIcon />}
-          onClick={(event) => onContextMenu(event, post)}
+          onClick={(event) => onContextMenu(event, history)}
           buttonSize="small"
         />
       </article>
