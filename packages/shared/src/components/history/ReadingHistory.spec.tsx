@@ -135,7 +135,6 @@ describe('ReadingHistoryItem component', () => {
       },
     },
   };
-  const onContextMenu = jest.fn();
 
   it('should show view history post title', async () => {
     render(<ReadingHistoryItem history={defaultHistory} />);
@@ -160,18 +159,5 @@ describe('ReadingHistoryItem component', () => {
       postId: defaultHistory.post.id,
       timestamp: defaultHistory.timestamp,
     });
-  });
-
-  it('should show history menu on menu button click', async () => {
-    render(
-      <ReadingHistoryItem
-        history={defaultHistory}
-        onHide={onHide}
-        onContextMenu={onContextMenu}
-      />,
-    );
-    const button = (await screen.findAllByRole('button'))[1];
-    fireEvent.click(button);
-    expect(onContextMenu).toHaveBeenCalledTimes(1);
   });
 });
