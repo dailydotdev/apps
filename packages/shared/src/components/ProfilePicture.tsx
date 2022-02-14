@@ -4,17 +4,19 @@ import { LazyImage, LazyImageProps } from './LazyImage';
 import { PublicProfile } from '../lib/user';
 import { fallbackImages } from '../lib/config';
 
+export type ProfileImageSize =
+  | 'xsmall'
+  | 'small'
+  | 'medium'
+  | 'large'
+  | 'xlarge'
+  | 'xxlarge'
+  | 'xxxlarge';
+
 export interface ProfilePictureProps
   extends Omit<LazyImageProps, 'imgSrc' | 'imgAlt'> {
   user: Pick<PublicProfile, 'image' | 'username'>;
-  size?:
-    | 'xsmall'
-    | 'small'
-    | 'medium'
-    | 'large'
-    | 'xlarge'
-    | 'xxlarge'
-    | 'xxxlarge';
+  size?: ProfileImageSize;
   className?: string;
 }
 

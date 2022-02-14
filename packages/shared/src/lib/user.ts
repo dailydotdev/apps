@@ -43,7 +43,8 @@ export interface UserProfile {
 }
 
 export interface UpvoterProfile
-  extends Pick<PublicProfile, 'name' | 'username' | 'image' | 'bio'> {
+  extends Pick<PublicProfile, 'name' | 'image' | 'bio'> {
+  username: string;
   permalink: string;
 }
 
