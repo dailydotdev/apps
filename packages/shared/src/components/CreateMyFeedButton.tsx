@@ -66,7 +66,7 @@ const textClass = ({ sidebarExpanded }: ClassProps) => {
 const buttonClass = {
   sidebar: 'w-full',
   feed_title: 'w-auto my-4 tablet:my-0 tablet:mr-4',
-  feed_top: 'ml-8 mt-4 tablet:ml-8 tablet:mt-0',
+  feed_top: 'ml-0 mt-4 tablet:ml-8 tablet:mt-0',
 };
 
 export default function CreateMyFeedButton({
