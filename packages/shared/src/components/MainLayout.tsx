@@ -156,7 +156,7 @@ export default function MainLayout({
                 )}
               </>
             )}
-            <MobileHeaderRankProgress />
+            <MobileHeaderRankProgress sidebarRendered={sidebarRendered} />
           </>
         )}
       </header>
