@@ -1,26 +1,35 @@
+import classNames from 'classnames';
 import React, { HTMLAttributes, ReactElement } from 'react';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 
-interface UserShortInfoProps<T extends React.ElementType = 'a'>
+interface UserShortInfoProps<T extends JSX.IntrinsicElements>
   extends HTMLAttributes<T> {
   image: string;
   name: string;
   username: string;
   bio?: string;
   imageSize?: ProfileImageSize;
-  Tag?: T;
+  Tag?: React.ElementType;
 }
 
-export function UserShortInfo({
+export function UserShortInfo<T extends JSX.IntrinsicElements>({
   name,
   username,
   image,
   bio,
   Tag = 'a',
   imageSize = 'xlarge',
-}: UserShortInfoProps): ReactElement {
+  className,
+  ...props
+}: UserShortInfoProps<T>): ReactElement {
   return (
-    <Tag className="flex flex-row py-3 px-6 hover:bg-theme-hover">
+    <Tag
+      {...props}
+      className={classNames(
+        'flex flex-row py-3 px-6 hover:bg-theme-hover',
+        className,
+      )}
+    >
       <ProfilePicture user={{ username, image }} size={imageSize} />
       <div className="flex flex-col flex-1 ml-4 typo-callout">
         <span className="font-bold">{name}</span>
