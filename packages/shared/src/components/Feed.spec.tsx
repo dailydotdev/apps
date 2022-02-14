@@ -138,6 +138,8 @@ const renderComponent = (
     toggleShowTopSites: jest.fn(),
     toggleSortingEnabled: jest.fn(),
     sortingEnabled: false,
+    toggleOptOutWeeklyGoal: jest.fn(),
+    optOutWeeklyGoal: true,
     sidebarExpanded: true,
     toggleSidebarExpanded: jest.fn(),
   };
@@ -399,12 +401,15 @@ it('should increase reading rank progress', async () => {
     expect(data).toEqual({
       rank: {
         readToday: true,
-        currentRank: 0,
+        currentRank: 1,
         progressThisWeek: 1,
         lastReadTime: expect.anything(),
+        rankLastWeek: undefined,
       },
       reads: 0,
     });
+    const state = queryClient.getQueryState(queryKey);
+    expect(state.isInvalidated).toEqual(true);
   });
 });
 
@@ -520,7 +525,7 @@ it('should increase reading rank progress for anonymous users', async () => {
     expect(data).toEqual({
       rank: {
         readToday: true,
-        currentRank: 0,
+        currentRank: 1,
         progressThisWeek: 1,
         lastReadTime: expect.anything(),
       },

@@ -12,6 +12,7 @@ export type RemoteSettings = {
   showTopSites: boolean;
   sidebarExpanded: boolean;
   sortingEnabled: boolean;
+  optOutWeeklyGoal: boolean;
   customLinks?: string[];
 };
 
@@ -28,6 +29,7 @@ export const USER_SETTINGS_QUERY = gql`
       showTopSites
       sidebarExpanded
       sortingEnabled
+      optOutWeeklyGoal
       customLinks
     }
   }

@@ -4,23 +4,17 @@ import classNames from 'classnames';
 import { RankProgress } from './RankProgress';
 import useReadingRank from '../hooks/useReadingRank';
 import AuthContext from '../contexts/AuthContext';
-import { STEPS_PER_RANK } from '../lib/rank';
+import { getRank, RANKS } from '../lib/rank';
 import FeaturesContext from '../contexts/FeaturesContext';
 import { Features, getFeatureValue } from '../lib/featureManagement';
 
 const RanksModal = dynamic(
-  () => import(/* webpackChunkName: "ranksModal" */ './modals/RanksModal'),
+  () =>
+    import(/* webpackChunkName: "ranksModal" */ './modals/RanksModal/index'),
 );
 
 const NewRankModal = dynamic(
   () => import(/* webpackChunkName: "newRankModal" */ './modals/NewRankModal'),
-);
-
-const AccountDetailsModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "accountDetailsModal" */ './modals/AccountDetailsModal'
-    ),
 );
 
 export default function RankProgressWrapper({
@@ -31,7 +25,6 @@ export default function RankProgressWrapper({
   className?: string;
 }): ReactElement {
   const { user } = useContext(AuthContext);
-  const [showAccountDetails, setShowAccountDetails] = useState(false);
   const [showRanksModal, setShowRanksModal] = useState(false);
   const { flags } = useContext(FeaturesContext);
   const devCardLimit = parseInt(
@@ -43,6 +36,7 @@ export default function RankProgressWrapper({
     rankLastWeek,
     nextRank,
     progress,
+    tags,
     shouldShowRankModal,
     levelUp,
     confirmLevelUp,
@@ -53,7 +47,6 @@ export default function RankProgressWrapper({
   const closeRanksModal = () => {
     setShowRanksModal(false);
   };
-
   return (
     <>
       <button
@@ -66,7 +59,9 @@ export default function RankProgressWrapper({
         onClick={() => setShowRanksModal(true)}
       >
         <RankProgress
-          progress={showRankAnimation ? STEPS_PER_RANK[nextRank - 1] : progress}
+          progress={
+            showRankAnimation ? RANKS[getRank(nextRank)].steps : progress
+          }
           rank={showRankAnimation ? nextRank : rank}
           nextRank={nextRank}
           showRankAnimation={showRankAnimation}
@@ -84,11 +79,13 @@ export default function RankProgressWrapper({
         <RanksModal
           rank={rank}
           progress={progress}
+          tags={tags}
           isOpen={showRanksModal}
           onRequestClose={closeRanksModal}
-          onShowAccount={() => setShowAccountDetails(true)}
           reads={reads}
+          previousRank={rankLastWeek}
           devCardLimit={devCardLimit}
+          nextRank={nextRank}
         />
       )}
       {levelUp && shouldShowRankModal && (
@@ -99,12 +96,6 @@ export default function RankProgressWrapper({
           isOpen={levelUp && shouldShowRankModal}
           onRequestClose={confirmLevelUp}
           showDevCard={reads >= devCardLimit || !devCardLimit}
-        />
-      )}
-      {showAccountDetails && (
-        <AccountDetailsModal
-          isOpen={showAccountDetails}
-          onRequestClose={() => setShowAccountDetails(false)}
         />
       )}
     </>
