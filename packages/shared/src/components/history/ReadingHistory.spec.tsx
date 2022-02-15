@@ -1,7 +1,6 @@
 import React from 'react';
 import { subDays } from 'date-fns';
 import {
-  act,
   fireEvent,
   render,
   RenderResult,
@@ -14,7 +13,6 @@ import ReadHistoryList, { ReadHistoryListProps } from './ReadingHistoryList';
 import { ReadHistoryInfiniteData } from '../../hooks/useInfiniteReadingHistory';
 import AuthContext from '../../contexts/AuthContext';
 import user from '../../../__tests__/fixture/loggedUser';
-import PostOptionsReadingHistoryMenu from '../PostOptionsReadingHistoryMenu';
 
 beforeEach(() => {
   nock.cleanAll();
@@ -124,7 +122,6 @@ describe('ReadingHistoryList component', () => {
 describe('ReadingHistoryItem component', () => {
   const onHide = jest.fn();
   const onContextMenu = jest.fn();
-  const setReadingHistoryContextItem = jest.fn();
 
   const createdAt = new Date('202-10-22T07:15:51.247Z');
   const defaultHistory = {
