@@ -90,7 +90,10 @@ export default function ReadingHistoryItem({
         <Button
           className="btn-tertiary"
           icon={<MenuIcon />}
-          onClick={(event) => onContextMenu(event, history)}
+          onClick={(event) => {
+            event.stopPropagation();
+            onContextMenu(event, history);
+          }}
           buttonSize="small"
         />
       </article>
