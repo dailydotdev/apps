@@ -234,11 +234,11 @@ export default function MainFeedLayout({
   const header = (
     <LayoutHeader>
       {!isSearchOn && getFeedTitle()}
-      <div className="flex flex-row flex-wrap items-center mr-px">
+      <div className="flex flex-row flex-wrap gap-4 items-center mr-px">
         {navChildren}
         {isUpvoted && (
           <Dropdown
-            className="ml-4 w-44"
+            className="w-44"
             buttonSize="large"
             icon={<CalendarIcon />}
             selectedIndex={selectedPeriod}
@@ -248,7 +248,7 @@ export default function MainFeedLayout({
         )}
         {sortingEnabled && isSortableFeed && (
           <Dropdown
-            className="laptop:ml-4 w-[10.25rem]"
+            className="w-[10.25rem]"
             buttonSize="large"
             selectedIndex={selectedAlgo}
             options={algorithmsList}
