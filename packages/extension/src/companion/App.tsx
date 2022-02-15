@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 
 export default function App({ postData }): ReactElement {
   return (
@@ -14,6 +15,7 @@ export default function App({ postData }): ReactElement {
       <p>{postData?.numUpvotes}</p>
       <p>Comments:</p>
       <p>{postData?.numComments}</p>
+      <Button className="btn-tertiary">Add shortcuts</Button>
     </div>
   );
 }

@@ -62,6 +62,7 @@ module.exports = {
   entry: {
     manifest: path.join(sourcePath, 'manifest.json'),
     content: path.join(sourcePath, 'content'),
+    companion: path.join(sourcePath, 'companion', 'index.tsx'),
     background: path.join(sourcePath, 'background', 'index.ts'),
     newtab: path.join(sourcePath, 'newtab', 'index.tsx'),
   },
@@ -177,6 +178,13 @@ module.exports = {
       chunks: ['newtab'],
       hash: true,
       filename: 'index.html',
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(viewsPath, 'companion.html'),
+      inject: 'body',
+      chunks: ['companion'],
+      hash: true,
+      filename: 'companion.html',
     }),
     // write css file(s) to build folder
     new MiniCssExtractPlugin({ filename: 'css/[name].css' }),

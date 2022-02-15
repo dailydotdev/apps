@@ -36,10 +36,11 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
+      "css": ["css/content.css"],
       "js": ["js/content.bundle.js"]
     }
   ],
-  "web_accessible_resources": ["index.html"],
+  "web_accessible_resources": ["index.html", "companion.html"],
   "__firefox__browser_specific_settings": {
     "gecko": {
       "strict_min_version": "54.0"
