@@ -121,6 +121,8 @@ describe('ReadingHistoryList component', () => {
 
 describe('ReadingHistoryItem component', () => {
   const onHide = jest.fn();
+  const onContextMenu = jest.fn();
+
   const createdAt = new Date('202-10-22T07:15:51.247Z');
   const defaultHistory = {
     timestamp: createdAt,
@@ -159,5 +161,18 @@ describe('ReadingHistoryItem component', () => {
       postId: defaultHistory.post.id,
       timestamp: defaultHistory.timestamp,
     });
+  });
+
+  it('should show menu on menu button clicked', async () => {
+    render(
+      <ReadingHistoryItem
+        history={defaultHistory}
+        onHide={onHide}
+        onContextMenu={onContextMenu}
+      />,
+    );
+    const button = (await screen.findAllByRole('button'))[1];
+    fireEvent.click(button);
+    expect(onContextMenu).toBeTruthy();
   });
 });
