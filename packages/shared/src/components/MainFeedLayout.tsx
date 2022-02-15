@@ -78,7 +78,7 @@ const getPropsByFeed = ({
 
 const LayoutHeader = classed(
   'header',
-  'flex flex-wrap overflow-x-auto relative justify-between items-center self-stretch mb-6 min-h-14 no-scrollbar',
+  'flex flex-row justify-between items-center overflow-x-auto relative justify-between items-center self-stretch mb-6 min-h-14 no-scrollbar',
 );
 
 export const getShouldRedirect = (
@@ -234,7 +234,7 @@ export default function MainFeedLayout({
   const header = (
     <LayoutHeader>
       {!isSearchOn && getFeedTitle()}
-      <div className="flex flex-col tablet:flex-row flex-wrap items-center mr-px w-full tablet:w-auto">
+      <div className="flex flex-row flex-wrap items-center mr-px">
         {navChildren}
         {isUpvoted && (
           <Dropdown
@@ -248,7 +248,7 @@ export default function MainFeedLayout({
         )}
         {sortingEnabled && isSortableFeed && (
           <Dropdown
-            className="mt-4 tablet:mt-0 tablet:ml-4 w-[10.25rem]"
+            className="laptop:ml-4 w-[10.25rem]"
             buttonSize="large"
             selectedIndex={selectedAlgo}
             options={algorithmsList}
