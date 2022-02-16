@@ -19,7 +19,7 @@ const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
 export type PostOptionsReadingHistoryMenuProps = {
   post: ReadHistoryPost;
   onHidden?: () => unknown;
-  displayCopiedMEssageFunc?: () => void;
+  displayCopiedMessageFunc?: () => void;
   onHide?: (postId: string) => unknown;
 };
 
