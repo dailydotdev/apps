@@ -14,7 +14,7 @@ import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import {
   ProfileTooltipContent,
   ProfileTooltipContentProps,
-} from './ProfileTolltipContent';
+} from './ProfileTooltipContent';
 
 export interface ProfileTooltipProps extends ProfileTooltipContentProps {
   children: ReactElement;
