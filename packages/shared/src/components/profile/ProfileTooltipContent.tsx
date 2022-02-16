@@ -21,7 +21,7 @@ export function ProfileTooltipContent({
         <ProfileImageLink user={user} picture={{ size: 'xxlarge' }} />
         {rank && (
           <Rank
-            className="absolute -right-2 -bottom-2 rounded-8 bg-theme-bg-primary"
+            className="absolute -right-2 -bottom-2 w-6 h-6 rounded-8 bg-theme-bg-primary"
             rank={rank.currentRank}
             colorByRank
             data-testid={rank.currentRank}

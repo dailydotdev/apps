@@ -1,7 +1,7 @@
 import React from 'react';
 import nock from 'nock';
 import { render, screen } from '@testing-library/react';
-import { ProfileTooltipContent } from './ProfileTolltipContent';
+import { ProfileTooltipContent } from './ProfileTooltipContent';
 import { Author } from '../../graphql/comments';
 import { UserTooltipContentData } from '../../graphql/users';
 
