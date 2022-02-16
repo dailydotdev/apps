@@ -59,7 +59,8 @@ const textClass = ({ sidebarExpanded }: ClassProps) => {
         : 'duration-0 delay-0 opacity-0',
     ),
     feed_top: 'typo-footnote ml-2 text-center tablet:text-left',
-    feed_title: 'typo-footnote text-center tablet:text-left',
+    feed_title:
+      'typo-footnote w-70 laptopL:w-auto text-center tablet:text-left',
     feed_ad: 'typo-body font-bold mx-6 text-center mb-6',
   };
 };
