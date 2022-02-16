@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import Link from 'next/link';
 import { HideReadHistoryProps } from '../../graphql/users';
 import { ReadHistory } from '../../graphql/posts';
-import XIcon from '../../../icons/outline/x.svg';
+import XIcon from '../../../icons/filled/x.svg';
 import MenuIcon from '../../../icons/menu.svg';
 import classed from '../../lib/classed';
 import { Button } from '../buttons/Button';

@@ -6,7 +6,7 @@ import { ReadHistoryPost } from '../graphql/posts';
 import ShareIcon from '../../icons/share.svg';
 import BookmarkIcon from '../../icons/outline/bookmark_outlined.svg';
 import BookmarkIconFilled from '../../icons/filled/bookmark_filled.svg';
-import XIcon from '../../icons/outline/x.svg';
+import XIcon from '../../icons/filled/x.svg';
 import useBookmarkPost from '../hooks/useBookmarkPost';
 import AuthContext from '../contexts/AuthContext';
 import { ReadHistoryInfiniteData } from '../hooks/useInfiniteReadingHistory';

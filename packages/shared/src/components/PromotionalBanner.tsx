@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import XIcon from '../../icons/x.svg';
+import XIcon from '../../icons/outline/x.svg';
 import { Button } from './buttons/Button';
 import { isTesting } from '../lib/constants';
 import { BannerData } from '../graphql/banner';

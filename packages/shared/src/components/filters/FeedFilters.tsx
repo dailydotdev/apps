@@ -3,7 +3,7 @@ import { useQueryClient } from 'react-query';
 import classNames from 'classnames';
 import sizeN from '../../../macros/sizeN.macro';
 import FilterMenu from './FilterMenu';
-import XIcon from '../../../icons/x.svg';
+import XIcon from '../../../icons/outline/x.svg';
 import PlusIcon from '../../../icons/plus.svg';
 import { menuItemClassNames } from '../multiLevelMenu/MultiLevelMenuMaster';
 import useFeedSettings, {
