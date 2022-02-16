@@ -45,6 +45,7 @@ export function ProfileTooltip({
     () =>
       request(`${apiUrl}/graphql`, USER_TOOLTIP_CONTENT_QUERY, {
         id: user.id,
+        version: 2,
       }),
     {
       refetchOnWindowFocus: false,
