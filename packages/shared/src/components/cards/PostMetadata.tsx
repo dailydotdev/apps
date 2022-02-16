@@ -2,13 +2,7 @@ import React, { ReactElement, ReactNode, useMemo } from 'react';
 import classNames from 'classnames';
 import { Post } from '../../graphql/posts';
 import { postDateFormat } from '../../lib/dateFormat';
-import classed from '../../lib/classed';
-
-const Separator = classed(
-  'div',
-  'mx-1 w-0.5 h-0.5 rounded-full bg-theme-label-tertiary',
-);
-
+import { Separator } from './common';
 interface PostMetadataProps {
   post: Post;
   className?: string;

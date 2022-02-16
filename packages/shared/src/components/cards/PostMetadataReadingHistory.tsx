@@ -1,12 +1,7 @@
 import React, { ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
 import { ReadHistoryPost } from '../../graphql/posts';
-import classed from '../../lib/classed';
-
-const Separator = classed(
-  'div',
-  'mx-1 w-0.5 h-0.5 rounded-full bg-theme-label-tertiary',
-);
+import { Separator } from './common';
 
 interface PostMetadataReadingHistoryProps {
   post: ReadHistoryPost;
