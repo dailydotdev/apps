@@ -89,6 +89,7 @@ export default function ReadingHistoryItem({
         )}
         <Button
           className="btn-tertiary"
+          data-testId={`history-${post.id}`}
           icon={<MenuIcon />}
           onClick={(event) => {
             event.stopPropagation();

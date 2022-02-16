@@ -57,8 +57,8 @@ describe('ReadingHistoryList component', () => {
       {
         readHistory: {
           pageInfo: { hasNextPage: true, endCursor: '' },
-          edges: timestamps.map((timestamp) => ({
-            node: { timestamp, post },
+          edges: timestamps.map((timestamp, index) => ({
+            node: { timestamp, post: { ...post, id: `p${index}` } },
           })),
         },
       },
@@ -116,6 +116,20 @@ describe('ReadingHistoryList component', () => {
   it('should show date section for reads of the different year', async () => {
     renderComponent();
     await screen.findByText('Sat, 31 Mar 2018');
+  });
+
+  it('should show Share article when menu is open', async () => {
+    renderComponent();
+    const button = await screen.findByTestId('history-p1');
+    fireEvent.click(button);
+    await screen.findByText('Share article');
+  });
+
+  it('should show Save to bookmarks when menu is open', async () => {
+    renderComponent();
+    const button = await screen.findByTestId('history-p1');
+    fireEvent.click(button);
+    await screen.findByText('Save to bookmarks');
   });
 });
 
