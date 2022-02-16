@@ -78,7 +78,7 @@ const getPropsByFeed = ({
 
 const LayoutHeader = classed(
   'header',
-  'flex flex-row justify-between items-center overflow-x-auto relative justify-between items-center self-stretch mb-6 min-h-14 no-scrollbar',
+  'flex justify-between items-center overflow-x-auto relative justify-between mb-6 min-h-14 no-scrollbar',
 );
 
 export const getShouldRedirect = (
@@ -232,7 +232,13 @@ export default function MainFeedLayout({
   };
 
   const header = (
-    <LayoutHeader>
+    <LayoutHeader
+      className={
+        myFeedPosition !== 'feed_title'
+          ? 'flex-row'
+          : 'flex-col tablet:flex-row'
+      }
+    >
       {!isSearchOn && getFeedTitle()}
       <div className="flex flex-row flex-wrap gap-4 items-center mr-px">
         {navChildren}
