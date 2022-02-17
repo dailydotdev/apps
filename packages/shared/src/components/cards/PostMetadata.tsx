@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import { Post } from '../../graphql/posts';
 import { postDateFormat } from '../../lib/dateFormat';
 import { Separator } from './common';
+
 interface PostMetadataProps {
   post: Post;
   className?: string;
