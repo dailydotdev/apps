@@ -32,13 +32,11 @@ import {
 } from '@dailydotdev/shared/src/components/profile/ActivitySection';
 import { ReadingTagProgress } from '@dailydotdev/shared/src/components/profile/ReadingTagProgress';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import dynamic from 'next/dynamic';
 import Rank from '@dailydotdev/shared/src/components/Rank';
 import { RANKS, RankHistoryProps } from '@dailydotdev/shared/src/lib/rank';
 import CommentsSection from '@dailydotdev/shared/src/components/profile/CommentsSection';
 import PostsSection from '@dailydotdev/shared/src/components/profile/PostsSection';
 import AuthorStats from '@dailydotdev/shared/src/components/profile/AuthorStats';
-import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
 import useMedia from '@dailydotdev/shared/src/hooks/useMedia';
 import { laptop } from '@dailydotdev/shared/src/styles/media';
@@ -49,8 +47,6 @@ import {
   getStaticPaths as getProfileStaticPaths,
   ProfileLayoutProps,
 } from '../../components/layouts/ProfileLayout';
-
-const ReactTooltip = dynamic(() => import('react-tooltip'));
 
 export const getStaticProps = getProfileStaticProps;
 export const getStaticPaths = getProfileStaticPaths;
@@ -73,7 +69,7 @@ const readHistoryToTooltip = (
       <strong>
         {value.reads} article{value.reads > 1 ? 's' : ''} read
       </strong>
-      {' on'} {formattedDate}
+      &nbsp;on {formattedDate}
     </>
   );
 };
@@ -118,7 +114,6 @@ const getHistoryTitle = (
 };
 
 const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
-  const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
   const fullHistory = useMedia([laptop.replace('@media ', '')], [true], false);
   const [selectedHistoryYear, setSelectedHistoryYear] = useState(0);
@@ -287,13 +282,6 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
                 <div className="ml-2">More</div>
               </div>
             </div>
-            {windowLoaded && (
-              <ReactTooltip
-                backgroundColor="var(--balloon-color)"
-                delayHide={100}
-                html
-              />
-            )}
           </ActivityContainer>
         </>
       )}
