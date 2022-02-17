@@ -14,6 +14,7 @@ import classed from '@dailydotdev/shared/src/lib/classed';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
+import { HotLabel } from '@dailydotdev/shared/src/components/utilities';
 
 export type SimilarPostsProps = {
   posts: Post[] | null;
@@ -69,9 +70,7 @@ const ListItem = ({
       <div className="flex items-center typo-footnote text-theme-label-tertiary">
         {post.trending ? (
           <>
-            <div className="py-px px-2 font-bold uppercase rounded typo-caption2 bg-theme-status-error text-theme-label-primary">
-              Hot
-            </div>
+            <HotLabel />
             <div className="ml-2">{post.trending} devs read it last hour</div>
           </>
         ) : (

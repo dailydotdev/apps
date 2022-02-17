@@ -1,3 +1,4 @@
+import React, { ReactElement } from 'react';
 import { LazyImage } from './LazyImage';
 import classed from '../lib/classed';
 import styles from './utilities.module.css';
@@ -150,4 +151,15 @@ export const SummaryArrow = classed(ArrowIcon, 'icon arrow ml-auto text-xl');
 export const SummaryContainer = classed(
   'div',
   'text-theme-label-secondary multi-truncate my-6 border-l border-theme-status-cabbage pl-4',
+);
+
+export const TLDRText = classed(
+  'span',
+  'pr-1 typo-headline text-theme-status-cabbage',
+);
+
+export const HotLabel = (): ReactElement => (
+  <div className="py-px px-2 font-bold uppercase rounded typo-caption2 bg-theme-status-error text-theme-label-primary">
+    Hot
+  </div>
 );

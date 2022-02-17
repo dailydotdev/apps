@@ -2,6 +2,9 @@ html {
   background: var(--theme-background-primary);
   color: var(--theme-label-primary);
   height: -webkit-fill-available;
+  &.companion {
+  background: transparent;
+   }
 }
 
 :root {
@@ -21,6 +24,10 @@ body {
   &.ReactModal__Body--open .ReactModal__Content > * {
     overscroll-behavior-y: none;
   }
+   &.companion {
+  min-width: auto;
+  overflow: hidden;
+    }
 }
 
 @define-mixin dark-mode {
