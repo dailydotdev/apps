@@ -2,6 +2,7 @@ import { gql } from 'graphql-request';
 import { Connection, Upvote } from './common';
 import { UPVOTER_FRAGMENT } from './users';
 import { EmptyResponse } from './emptyResponse';
+import { UserShortProfile } from '../lib/user';
 
 export interface Author {
   __typename?: string;
@@ -35,6 +36,10 @@ export interface CommentUpvotesData {
   commentUpvotes: Connection<CommentUpvote>;
 }
 
+export interface RecommendedMentionsData {
+  recommendedMentions: UserShortProfile[];
+}
+
 export const COMMENT_FRAGMENT = gql`
   fragment CommentFragment on Comment {
     id
@@ -65,6 +70,16 @@ export const COMMENT_WITH_CHILDREN_FRAGMENT = gql`
           ...CommentFragment
         }
       }
+    }
+  }
+`;
+
+export const RECOMMEND_MENTIONS_QUERY = gql`
+  query RecommendedMentions($postId: String!, $name: String) {
+    recommendedMentions(postId: $postId, name: $name) {
+      username
+      name
+      image
     }
   }
 `;

@@ -38,6 +38,10 @@ import { postAnalyticsEvent } from '../../lib/feed';
 import { ProfilePicture } from '../ProfilePicture';
 import Markdown from '../Markdown';
 import { ClickableText } from '../buttons/ClickableText';
+import AtIcon from '../../../icons/at.svg';
+import { BaseTooltip } from '../tooltips/BaseTooltip';
+import { RecommendedMention } from '../RecommendedMention';
+import { useUserMention } from '../../hooks/useUserMention';
 
 const DiscardCommentModal = dynamic(() => import('./DiscardCommentModal'));
 
@@ -79,6 +83,18 @@ export default function NewCommentModal({
   const [showDiscardModal, setShowDiscardModal] = useState<boolean>(false);
   const commentRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
+  const {
+    onMention,
+    onMentionKeypress,
+    mentions,
+    mentionQuery,
+    mentionUsers,
+    selected,
+  } = useUserMention({
+    postId: props.post.id,
+    commentRef,
+  });
+
   const { mutateAsync: comment } = useMutation<
     CommentOnData,
     unknown,
@@ -90,7 +106,7 @@ export default function NewCommentModal({
         props.commentId
           ? COMMENT_ON_COMMENT_MUTATION
           : COMMENT_ON_POST_MUTATION,
-        variables,
+        { ...variables, mentions },
       ),
     {
       onSuccess: async (data) => {
@@ -138,7 +154,10 @@ export default function NewCommentModal({
     CommentVariables
   >(
     (variables) =>
-      request(`${apiUrl}/graphql`, EDIT_COMMENT_MUTATION, variables),
+      request(`${apiUrl}/graphql`, EDIT_COMMENT_MUTATION, {
+        ...variables,
+        mentions,
+      }),
     {
       onSuccess: async (data) => {
         const queryKey = ['post_comments', props.post.id];
@@ -236,6 +255,8 @@ export default function NewCommentModal({
     ) {
       await sendComment(event);
     }
+
+    onMentionKeypress(event);
   };
 
   const onPaste = (event: ClipboardEvent): void => {
@@ -265,7 +286,12 @@ export default function NewCommentModal({
 
   return (
     <ResponsiveModal
-      {...{ contentRef: modalRef, onRequestClose: confirmClose, ...props }}
+      {...{
+        contentRef: modalRef,
+        onRequestClose: confirmClose,
+        style: { content: { overflow: 'initial' } },
+        ...props,
+      }}
     >
       <article
         className={`flex flex-col items-stretch ${commentBoxClassNames}`}
@@ -316,13 +342,39 @@ export default function NewCommentModal({
           aria-label="New comment box"
         />
       </div>
+      <BaseTooltip
+        content={
+          <RecommendedMention
+            users={mentionQuery !== undefined && mentionUsers}
+            selected={selected}
+            onClick={onMention}
+          />
+        }
+        interactive
+        container={{
+          className: 'shadow',
+          paddingClassName: 'p-0',
+          roundedClassName: 'rounded-16',
+          bgClassName: 'bg-theme-bg-tertiary',
+        }}
+        reference={commentRef}
+        arrow={false}
+        placement="left"
+        visible={mentionQuery !== undefined}
+      />
       <div
         className="my-2 mx-3 text-theme-status-error typo-caption1"
         style={{ minHeight: '1rem' }}
       >
         {errorMessage && <span role="alert">{errorMessage}</span>}
       </div>
-      <footer className="flex justify-between items-center py-2 border-t border-theme-divider-tertiary">
+      <footer className="flex items-center py-3 px-3 border-theme-divider-tertiary">
+        <Button
+          className="mx-1 border border-theme-label-primary btn-tertiary"
+          buttonSize="small"
+          icon={<AtIcon />}
+        />
+        <div className="ml-2 w-px h-6 border border-opacity-24 border-theme-divider-tertiary" />
         <ClickableText
           tag="a"
           href="https://www.markdownguide.org/cheat-sheet/"
@@ -336,7 +388,7 @@ export default function NewCommentModal({
           disabled={!input?.trim().length}
           loading={sendingComment}
           onClick={sendComment}
-          className="btn-primary-avocado"
+          className="ml-auto btn-primary-avocado"
         >
           {editId ? 'Update' : 'Comment'}
         </Button>
