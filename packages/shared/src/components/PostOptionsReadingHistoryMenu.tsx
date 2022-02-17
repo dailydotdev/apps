@@ -74,10 +74,7 @@ export default function PostOptionsReadingHistoryMenu({
   const queryClient = useQueryClient();
   const historyQueryKey = ['readHistory', user?.id];
 
-  /* eslint-disable @typescript-eslint/no-unused-vars */
-  const [isPostLinkCopied, copyPostLink] = useCopyLink(
-    () => post.commentsPermalink,
-  );
+  const [, copyPostLink] = useCopyLink(() => post.commentsPermalink);
 
   const { bookmark, removeBookmark } = useBookmarkPost({
     onBookmarkMutate: updateReadingHistoryPost(
