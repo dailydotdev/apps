@@ -10,7 +10,7 @@ import classNames from 'classnames';
 import { useInputField } from '../../hooks/useInputField';
 import { BaseField, FieldInput } from './common';
 import MagnifyingIcon from '../../../icons/magnifying.svg';
-import XIcon from '../../../icons/outline/x.svg';
+import XIcon from '../../../icons/x.svg';
 
 export interface SearchFieldProps
   extends Pick<

@@ -3,7 +3,7 @@ import { useMutation, useQuery } from 'react-query';
 import request from 'graphql-request';
 import classNames from 'classnames';
 import { TextField } from '../fields/TextField';
-import XIcon from '../../../icons/outline/x.svg';
+import XIcon from '../../../icons/x.svg';
 import {
   SEARCH_KEYWORDS_QUERY,
   SearchKeywordData,
