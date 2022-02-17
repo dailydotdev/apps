@@ -40,19 +40,32 @@ const IGNORE_KEY = ['Shift', 'CapsLock'];
 const shouldIgnoreKey = (event: KeyboardEvent) =>
   IGNORE_KEY.indexOf(event.key) !== -1;
 
+const getNodeOffset = (
+  el: HTMLElement,
+  query: string,
+): [ChildNode, number, number] => {
+  const index = Array.from(el.childNodes).findIndex((child) => {
+    const element = child.nodeValue ? child : child.childNodes[0];
+
+    if (!element.nodeValue) {
+      return false;
+    }
+
+    const strings = element.nodeValue.split(' ');
+
+    return strings.some((string) => string === query);
+  });
+  const child = el.childNodes[index];
+  const node = child.nodeValue ? child : child.childNodes[0];
+  const start = node.nodeValue.indexOf(query);
+
+  return [node, start, index];
+};
+
 function setCaret(el: HTMLElement, replacement: string) {
   const range = document.createRange();
   const sel = window.getSelection();
-  const node = Array.from(el.childNodes).reduce((result, child) => {
-    const element = child.nodeValue ? child : child.childNodes[0];
-
-    if (element.nodeValue.indexOf(replacement) === -1) {
-      return result;
-    }
-
-    return element.nodeValue.indexOf(replacement) !== -1 ? element : result;
-  }, null);
-  const start = node.nodeValue.indexOf(replacement);
+  const [node, start] = getNodeOffset(el, replacement);
 
   range.setStart(node, start + replacement.length);
   range.collapse(true);
