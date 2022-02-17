@@ -22,6 +22,7 @@ interface UseUserMention {
   mentionUsers: UserShortProfile[];
   selected: number;
   mentions: string[];
+  offset: [number, number];
   onMention?: (username: string) => unknown;
 }
 
@@ -40,14 +41,16 @@ const IGNORE_KEY = ['Shift', 'CapsLock'];
 const shouldIgnoreKey = (event: KeyboardEvent) =>
   IGNORE_KEY.indexOf(event.key) !== -1;
 
-const getNodeOffset = (
+const isBreakLine = (node: ChildNode) => !node.nodeValue;
+
+const getNode = (
   el: HTMLElement,
   query: string,
-): [ChildNode, number, number] => {
+): [ChildNode, { x: number; y: number }] => {
   const index = Array.from(el.childNodes).findIndex((child) => {
     const element = child.nodeValue ? child : child.childNodes[0];
 
-    if (!element.nodeValue) {
+    if (isBreakLine(element)) {
       return false;
     }
 
@@ -59,19 +62,29 @@ const getNodeOffset = (
   const node = child.nodeValue ? child : child.childNodes[0];
   const start = node.nodeValue.indexOf(query);
 
-  return [node, start, index];
+  return [node, { x: start, y: index }];
 };
 
 function setCaret(el: HTMLElement, replacement: string) {
   const range = document.createRange();
   const sel = window.getSelection();
-  const [node, start] = getNodeOffset(el, replacement);
+  const [node, { x }] = getNode(el, replacement);
 
-  range.setStart(node, start + replacement.length);
+  range.setStart(node, x + replacement.length);
   range.collapse(true);
 
   sel.removeAllRanges();
   sel.addRange(range);
+}
+
+function getCaretPost(el: Element): [number, number] {
+  const sel = window.getSelection();
+  const row = Array.from(el.childNodes).findIndex((child) => {
+    const element = child.nodeValue ? child : child.childNodes[0];
+
+    return sel.anchorNode === element;
+  });
+  return [sel.anchorOffset, row];
 }
 
 export function useUserMention({
@@ -82,6 +95,7 @@ export function useUserMention({
   const { user } = useContext(AuthContext);
   const client = useQueryClient();
   const [selected, setSelected] = useState(0);
+  const [offset, setOffset] = useState<[number, number]>([0, 0]);
   const [mentions, setMentions] = useState<string[]>([]);
   const [mentionQuery, setMentionQuery] = useState<string>();
   const { data = { recommendedMentions: [] }, refetch } =
@@ -153,7 +167,11 @@ export function useUserMention({
         fetchUsers();
       }
     } else if (event.key === '@') {
-      setMentionQuery('');
+      setTimeout(() => {
+        const position = getCaretPost(commentRef.current);
+        setOffset(position);
+        setMentionQuery('');
+      });
     }
   };
 
@@ -162,6 +180,7 @@ export function useUserMention({
   }, [mentionQuery]);
 
   return {
+    offset,
     selected,
     mentions,
     mentionQuery,
