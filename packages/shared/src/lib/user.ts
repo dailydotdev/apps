@@ -42,7 +42,7 @@ export interface UserProfile {
   timezone?: string;
 }
 
-export interface UpvoterProfile
+export interface UserShortProfile
   extends Pick<PublicProfile, 'name' | 'image' | 'bio'> {
   username: string;
   permalink: string;
