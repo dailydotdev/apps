@@ -3,7 +3,7 @@ import { gql } from 'graphql-request';
 export interface Source {
   __typename?: string;
   id?: string;
-  name?: string;
+  name: string;
   image: string;
 }
 
