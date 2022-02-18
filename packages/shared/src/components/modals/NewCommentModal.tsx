@@ -92,7 +92,6 @@ export default function NewCommentModal({
     offset: [offsetX, offsetY],
     mentions,
     mentionQuery,
-    mentionUsers,
     selected,
   } = useUserMention({
     postId: props.post.id,
@@ -110,7 +109,7 @@ export default function NewCommentModal({
         props.commentId
           ? COMMENT_ON_COMMENT_MUTATION
           : COMMENT_ON_POST_MUTATION,
-        { ...variables, mentions },
+        variables,
       ),
     {
       onSuccess: async (data) => {
@@ -158,10 +157,7 @@ export default function NewCommentModal({
     CommentVariables
   >(
     (variables) =>
-      request(`${apiUrl}/graphql`, EDIT_COMMENT_MUTATION, {
-        ...variables,
-        mentions,
-      }),
+      request(`${apiUrl}/graphql`, EDIT_COMMENT_MUTATION, variables),
     {
       onSuccess: async (data) => {
         const queryKey = ['post_comments', props.post.id];
@@ -349,7 +345,7 @@ export default function NewCommentModal({
       <BaseTooltip
         content={
           <RecommendedMention
-            users={mentionQuery !== undefined && mentionUsers}
+            users={mentionQuery !== undefined && mentions}
             selected={selected}
             onClick={onMention}
           />

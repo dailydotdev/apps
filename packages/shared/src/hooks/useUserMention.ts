@@ -19,9 +19,8 @@ import useDebounce from './useDebounce';
 interface UseUserMention {
   mentionQuery?: string;
   onMentionKeypress: (event: KeyboardEvent) => unknown;
-  mentionUsers: UserShortProfile[];
   selected: number;
-  mentions: string[];
+  mentions: UserShortProfile[];
   offset: [number, number];
   onMention?: (username: string) => unknown;
 }
@@ -87,6 +86,13 @@ function getCaretPost(el: Element): [number, number] {
   return [sel.anchorOffset, row];
 }
 
+const getPossibleMentions = (el: HTMLElement) => {
+  const content = el.innerText.split(' ');
+  const mentions = content.filter((word) => word[0] === '@' && word.length > 1);
+
+  return mentions;
+};
+
 export function useUserMention({
   postId,
   commentRef,
@@ -114,12 +120,11 @@ export function useUserMention({
     );
   const { recommendedMentions: mentionUsers } = data;
   const fetchUsers = useDebounce(refetch, 300);
-  const filteredUsers = mentionUsers?.filter(
-    (mentionUser) => mentions.indexOf(mentionUser.username) === -1,
+  const filteredUsers = mentionUsers?.filter((recommendation) =>
+    mentions.every((mention) => `@${recommendation.username}` !== mention),
   );
 
   const onMention = (username: string) => {
-    setMentions((state) => [...state, username]);
     const query = `@${mentionQuery}`;
     const replacement = `@${username}`;
     const content = commentRef?.current?.innerHTML.replace(query, replacement);
@@ -164,13 +169,17 @@ export function useUserMention({
       setMentionQuery(value);
 
       if (value) {
-        fetchUsers();
+        setTimeout(() => {
+          fetchUsers();
+        });
       }
     } else if (event.key === '@') {
       setTimeout(() => {
         const position = getCaretPost(commentRef.current);
+        const mentioned = getPossibleMentions(commentRef.current);
         setOffset(position);
         setMentionQuery('');
+        setMentions(mentioned);
       });
     }
   };
@@ -182,9 +191,8 @@ export function useUserMention({
   return {
     offset,
     selected,
-    mentions,
+    mentions: filteredUsers,
     mentionQuery,
-    mentionUsers: filteredUsers,
     onMention,
     onMentionKeypress: onKeypress,
   };
