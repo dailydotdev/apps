@@ -108,7 +108,11 @@ export const PostCard = forwardRef(function PostCard(
         <CardTitle>{post.title}</CardTitle>
       </CardTextContainer>
       <CardSpace />
-      <PostMetadata createdAt={post.createdAt} readTime={post.readTime} className="mx-4" />
+      <PostMetadata
+        createdAt={post.createdAt}
+        readTime={post.readTime}
+        className="mx-4"
+      />
       {!showImage && (
         <PostAuthor
           post={post}
