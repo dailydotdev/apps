@@ -130,9 +130,9 @@ export function useUserMention({
     const content = commentRef?.current?.innerHTML.replace(query, replacement);
     // eslint-disable-next-line no-param-reassign
     commentRef.current.innerHTML = content;
-    setCaret(commentRef.current, replacement);
     setMentionQuery(undefined);
     client.setQueryData(key, []);
+    setTimeout(() => setCaret(commentRef.current, replacement));
   };
 
   const onKeypress = (event: KeyboardEvent) => {
