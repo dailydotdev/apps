@@ -59,6 +59,7 @@ export type ReadHistoryPost = Pick<
   | 'image'
   | 'readTime'
   | 'numUpvotes'
+  | 'createdAt'
   | 'bookmarked'
 > & { source?: Pick<Source, 'image'> };
 

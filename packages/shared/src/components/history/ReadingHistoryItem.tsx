@@ -8,7 +8,7 @@ import MenuIcon from '../../../icons/menu.svg';
 import classed from '../../lib/classed';
 import { Button } from '../buttons/Button';
 import { LazyImage } from '../LazyImage';
-import PostMetadataReadingHistory from '../cards/PostMetadataReadingHistory';
+import PostMetadata from '../cards/PostMetadata';
 import useNotification from '../../hooks/useNotification';
 import { CardNotification } from '../cards/Card';
 import { PageContainer } from '../utilities';
@@ -74,8 +74,9 @@ export default function ReadingHistoryItem({
         />
         <h3 className="flex flex-wrap flex-1 mr-6 ml-4 line-clamp-3 typo-callout">
           {post.title}
-          <PostMetadataReadingHistory
-            post={post}
+          <PostMetadata
+            readTime={post.readTime}
+            numUpvotes={post.numUpvotes}
             typoClassName="typo-callout"
           />
         </h3>
