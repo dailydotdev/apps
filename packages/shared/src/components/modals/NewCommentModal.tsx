@@ -96,6 +96,7 @@ export default function NewCommentModal({
   } = useUserMention({
     postId: props.post.id,
     commentRef,
+    onInput: setInput,
   });
 
   const { mutateAsync: comment } = useMutation<

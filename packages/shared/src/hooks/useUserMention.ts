@@ -27,6 +27,7 @@ interface UseUserMention {
 
 interface UseUserMentionProps {
   postId: string;
+  onInput: (content: string) => unknown;
   commentRef?: MutableRefObject<HTMLDivElement>;
 }
 
@@ -96,6 +97,7 @@ const getPossibleMentions = (el: HTMLElement) => {
 export function useUserMention({
   postId,
   commentRef,
+  onInput,
 }: UseUserMentionProps): UseUserMention {
   const key = ['user-mention', postId];
   const { user } = useContext(AuthContext);
@@ -127,12 +129,16 @@ export function useUserMention({
   const onMention = (username: string) => {
     const query = `@${mentionQuery}`;
     const replacement = `@${username}`;
-    const content = commentRef?.current?.innerHTML.replace(query, replacement);
+    const element = commentRef?.current;
+    const content = element.innerHTML.replace(query, replacement);
     // eslint-disable-next-line no-param-reassign
-    commentRef.current.innerHTML = content;
+    element.innerHTML = content;
     setMentionQuery(undefined);
     client.setQueryData(key, []);
-    setTimeout(() => setCaret(commentRef.current, replacement));
+    setTimeout(() => {
+      setCaret(element, replacement);
+      onInput(element.innerText);
+    });
   };
 
   const onKeypress = (event: KeyboardEvent) => {
