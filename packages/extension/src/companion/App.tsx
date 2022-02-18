@@ -1,4 +1,4 @@
-import React, { MutableRefObject, ReactElement, useState } from 'react';
+import React, { ReactElement, useState } from 'react';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import UpvoteIcon from '@dailydotdev/shared/icons/upvote.svg';
 import CommentIcon from '@dailydotdev/shared/icons/comment.svg';
@@ -14,14 +14,20 @@ import {
 import classNames from 'classnames';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import useBookmarkPost from '@dailydotdev/shared/src/hooks/useBookmarkPost';
-import { QueryClient, QueryClientProvider, useQueryClient } from 'react-query';
+import { QueryClient, QueryClientProvider } from 'react-query';
 import useUpvotePost from '@dailydotdev/shared/src/hooks/useUpvotePost';
+import { useContextMenu } from '@dailydotdev/react-contexify';
+import useNotification from '@dailydotdev/shared/src/hooks/useNotification';
+import { CardNotification } from '@dailydotdev/shared/src/components/cards/Card';
+import CompanionContextMenu from './CompanionContextMenu';
+import { BootData } from './common';
 
 const queryClient = new QueryClient();
 
-function InternalApp({ postData }) {
-  const [post, setPost] = useState(postData);
+function InternalApp({ postData }: { postData: BootData }) {
+  const [post, setPost] = useState<BootData>(postData);
   const [companionState, setCompanionState] = useState<boolean>(false);
+  const { notification, onMessage } = useNotification();
 
   const updatePost = async (update) => {
     const oldPost = post;
@@ -57,6 +63,17 @@ function InternalApp({ postData }) {
       await removeBookmark({ id: post.id });
     }
   };
+
+  const { show: showCompanionOptionsMenu } = useContextMenu({
+    id: 'companion-options-context',
+  });
+  const onContextOptions = (event: React.MouseEvent): void => {
+    const { right, bottom } = event.currentTarget.getBoundingClientRect();
+    showCompanionOptionsMenu(event, {
+      position: { x: right, y: bottom + 4 },
+    });
+  };
+
   return (
     <div
       className={classNames(
@@ -65,6 +82,11 @@ function InternalApp({ postData }) {
       )}
     >
       <div className="flex flex-col gap-2 p-2 my-6 w-14 rounded-l-16 border border-theme-label-tertiary bg-theme-bg-primary">
+        {notification && (
+          <CardNotification className="absolute right-full bottom-8 z-2 mr-2 text-center w-fit">
+            {notification}
+          </CardNotification>
+        )}
         <Button
           buttonSize="medium"
           className={classNames(
@@ -126,8 +148,10 @@ function InternalApp({ postData }) {
             buttonSize="medium"
             className="btn-tertiary"
             icon={<MenuIcon />}
+            onClick={onContextOptions}
           />
         </SimpleTooltip>
+        <CompanionContextMenu onMessage={onMessage} />
       </div>
       <div className="flex flex-col p-6 rounded-l-16 border w-[22.5rem] border-theme-label-tertiary bg-theme-bg-primary">
         <div className="flex flex-row gap-3 items-center">
@@ -161,7 +185,11 @@ function InternalApp({ postData }) {
   );
 }
 
-export default function App({ postData }): ReactElement {
+export default function App({
+  postData,
+}: {
+  postData: BootData;
+}): ReactElement {
   return (
     <QueryClientProvider client={queryClient}>
       <InternalApp postData={postData} />

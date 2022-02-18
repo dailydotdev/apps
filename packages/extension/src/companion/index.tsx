@@ -1,20 +1,20 @@
-import React, { ReactElement } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
 
 import '@dailydotdev/shared/src/styles/globals.css';
 import { browser } from 'webextension-polyfill-ts';
 import App from './App';
+import { CompanionBootData } from './common';
 
-browser.runtime.onMessage.addListener(async (request, sender) => {
-  const { boot } = request;
-  console.log('boot111: ', boot);
-  init(boot);
-});
-
-const init = async (boot) => {
+const init = async (boot: CompanionBootData) => {
   const { postCanonical } = boot;
   ReactDOM.render(
     <App postData={postCanonical} />,
     document.getElementById('__next'),
   );
 };
+
+browser.runtime.onMessage.addListener(async (request) => {
+  const { boot } = request;
+  init(boot);
+});

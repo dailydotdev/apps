@@ -30,7 +30,6 @@ browser.runtime.onMessage.addListener(
       return;
     }
 
-    console.log('origin: ', sender?.origin);
     const boot = await getBootData('extension', sender?.tab?.url);
     await browser.tabs.sendMessage(sender?.tab?.id, {
       boot,
