@@ -33,13 +33,13 @@ export default function PostMetadata({
         className,
       )}
     >
-      {!!createdAt && <time dateTime={createdAt}>{date}</time>}
+      {!!createdAt && <span>{date}</span>}
       {!!createdAt && !!readTime && <Separator />}
-      {readTime >= 0 && (
+      {!!readTime && readTime >= 0 && (
         <span data-testid="readTime">{readTime}m read time</span>
       )}
-      {readTime >= 0 && numUpvotes >= 0 && <Separator />}
-      {numUpvotes >= 0 && (
+      {!!readTime && readTime >= 0 && numUpvotes >= 0 && <Separator />}
+      {!!numUpvotes && numUpvotes >= 0 && (
         <span data-testid="numUpvotes">
           {numUpvotes} upvote{numUpvotes > 1 ? 's' : ''}
         </span>
