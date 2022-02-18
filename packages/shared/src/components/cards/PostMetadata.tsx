@@ -1,6 +1,5 @@
 import React, { ReactElement, ReactNode, useMemo } from 'react';
 import classNames from 'classnames';
-import { Post, ReadHistoryPost } from '../../graphql/posts';
 import { postDateFormat } from '../../lib/dateFormat';
 import { Separator } from './common';
 
