@@ -11,6 +11,7 @@ import useBookmarkPost from '../hooks/useBookmarkPost';
 import AuthContext from '../contexts/AuthContext';
 import { ReadHistoryInfiniteData } from '../hooks/useInfiniteReadingHistory';
 import { useCopyLink } from '../hooks/useCopyLink';
+import { MenuIcon } from './MenuIcon';
 
 const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
   ssr: false,
@@ -21,10 +22,6 @@ export type PostOptionsReadingHistoryMenuProps = {
   onHidden?: () => unknown;
   displayCopiedMessageFunc?: () => void;
   onHide?: (postId: string) => unknown;
-};
-
-const MenuIcon = ({ Icon }) => {
-  return <Icon className="mr-2 text-2xl" />;
 };
 
 /* eslint-disable no-param-reassign */

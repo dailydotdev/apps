@@ -14,6 +14,7 @@ import RepostPostModal from './modals/ReportPostModal';
 import useTagAndSource from '../hooks/useTagAndSource';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
+import { MenuIcon } from './MenuIcon';
 
 const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
   ssr: false,
@@ -31,10 +32,6 @@ export type PostOptionsMenuProps = {
   onRemovePost?: (postIndex: number) => Promise<unknown>;
   setShowDeletePost?: () => unknown;
   setShowBanPost?: () => unknown;
-};
-
-const MenuIcon = ({ Icon }) => {
-  return <Icon className="mr-2 text-2xl" />;
 };
 
 type ReportPostAsync = (
