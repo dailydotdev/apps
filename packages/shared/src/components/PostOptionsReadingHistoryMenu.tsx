@@ -29,7 +29,7 @@ const updateReadingHistoryPost =
   (
     queryClient: QueryClient,
     historyQueryKey: QueryKey,
-    update: (oldPost: ReadHistoryPost) => Partial<ReadHistoryPost>,
+    readHistoryPostUpdated: Partial<ReadHistoryPost>,
   ): ((args: { id: string }) => Promise<() => void>) =>
   async ({ id }) => {
     const oldReadingHistory =
@@ -39,7 +39,7 @@ const updateReadingHistoryPost =
         if (node.post.id === id) {
           node.post = {
             ...node.post,
-            ...update(node.post),
+            ...readHistoryPostUpdated,
           };
         }
         return { node };
@@ -60,7 +60,6 @@ const updateReadingHistoryPost =
       );
     };
   };
-/* eslint-disable no-param-reassign */
 
 export default function PostOptionsReadingHistoryMenu({
   post,
@@ -74,19 +73,15 @@ export default function PostOptionsReadingHistoryMenu({
   const [, copyPostLink] = useCopyLink(() => post.commentsPermalink);
 
   const { bookmark, removeBookmark } = useBookmarkPost({
-    onBookmarkMutate: updateReadingHistoryPost(
-      queryClient,
-      historyQueryKey,
-      () => ({
-        bookmarked: true,
-      }),
-    ),
+    onBookmarkMutate: updateReadingHistoryPost(queryClient, historyQueryKey, {
+      bookmarked: true,
+    }),
     onRemoveBookmarkMutate: updateReadingHistoryPost(
       queryClient,
       historyQueryKey,
-      () => ({
+      {
         bookmarked: false,
-      }),
+      },
     ),
   });
 
