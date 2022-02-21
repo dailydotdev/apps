@@ -34,7 +34,7 @@ const updateReadingHistoryPost =
     readHistoryPostUpdated: Partial<ReadHistoryPost>,
     { page, edge }: QueryIndexes,
   ): ((args: { id: string }) => Promise<() => void>) =>
-  async ({ id }) => {
+  async () => {
     const oldReadingHistory =
       queryClient.getQueryData<ReadHistoryInfiniteData>(historyQueryKey);
     const newItems = [...oldReadingHistory.pages];
