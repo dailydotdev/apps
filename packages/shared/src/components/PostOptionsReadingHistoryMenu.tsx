@@ -115,15 +115,15 @@ export default function PostOptionsReadingHistoryMenu({
         animation="fade"
         onHidden={onHidden}
       >
-        <Item className="typo-callout" onClick={copyPostLink}>
-          <a className="flex w-full typo-callout">
-            <MenuIcon Icon={ShareIcon} /> Share article
-          </a>
-        </Item>
         <Item className="typo-callout" onClick={onBookmarkReadingHistoryPost}>
           <a className="flex w-full typo-callout">
             {getBookmarkIcon()}
             {getBookmarkMenuText()}
+          </a>
+        </Item>
+        <Item className="typo-callout" onClick={copyPostLink}>
+          <a className="flex w-full typo-callout">
+            <MenuIcon Icon={ShareIcon} /> Share article
           </a>
         </Item>
         <Item
