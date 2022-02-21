@@ -12,6 +12,7 @@ import AuthContext from '../contexts/AuthContext';
 import { ReadHistoryInfiniteData } from '../hooks/useInfiniteReadingHistory';
 import { useCopyLink } from '../hooks/useCopyLink';
 import { MenuIcon } from './MenuIcon';
+import { QueryIndexes } from '../hooks/useReadingHistory';
 
 const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
   ssr: false,
@@ -22,6 +23,7 @@ export type PostOptionsReadingHistoryMenuProps = {
   onHidden?: () => unknown;
   displayCopiedMessageFunc?: () => void;
   onHide?: (postId: string) => unknown;
+  indexes: QueryIndexes;
 };
 
 /* eslint-disable no-param-reassign */
@@ -30,25 +32,17 @@ const updateReadingHistoryPost =
     queryClient: QueryClient,
     historyQueryKey: QueryKey,
     readHistoryPostUpdated: Partial<ReadHistoryPost>,
+    { page, edge }: QueryIndexes,
   ): ((args: { id: string }) => Promise<() => void>) =>
   async ({ id }) => {
     const oldReadingHistory =
       queryClient.getQueryData<ReadHistoryInfiniteData>(historyQueryKey);
-    const newItems = oldReadingHistory.pages.flatMap(({ readHistory }) => {
-      const modified = readHistory.edges.map(({ node }) => {
-        if (node.post.id === id) {
-          node.post = {
-            ...node.post,
-            ...readHistoryPostUpdated,
-          };
-        }
-        return { node };
-      });
-      readHistory.edges = modified;
-      return {
-        readHistory,
-      };
-    });
+    const newItems = [...oldReadingHistory.pages];
+    const history = newItems[page].readHistory.edges[edge].node.post;
+    newItems[page].readHistory.edges[edge].node.post = {
+      ...history,
+      ...readHistoryPostUpdated,
+    };
     queryClient.setQueryData<ReadHistoryInfiniteData>(historyQueryKey, {
       ...oldReadingHistory,
       pages: newItems,
@@ -65,6 +59,7 @@ export default function PostOptionsReadingHistoryMenu({
   post,
   onHidden,
   onHide,
+  indexes,
 }: PostOptionsReadingHistoryMenuProps): ReactElement {
   const { user } = useContext(AuthContext);
   const queryClient = useQueryClient();
@@ -73,15 +68,21 @@ export default function PostOptionsReadingHistoryMenu({
   const [, copyPostLink] = useCopyLink(() => post.commentsPermalink);
 
   const { bookmark, removeBookmark } = useBookmarkPost({
-    onBookmarkMutate: updateReadingHistoryPost(queryClient, historyQueryKey, {
-      bookmarked: true,
-    }),
+    onBookmarkMutate: updateReadingHistoryPost(
+      queryClient,
+      historyQueryKey,
+      {
+        bookmarked: true,
+      },
+      indexes,
+    ),
     onRemoveBookmarkMutate: updateReadingHistoryPost(
       queryClient,
       historyQueryKey,
       {
         bookmarked: false,
       },
+      indexes,
     ),
   });
 

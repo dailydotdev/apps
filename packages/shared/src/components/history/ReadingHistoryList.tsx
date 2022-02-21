@@ -87,6 +87,7 @@ export default function ReadHistoryList({
             ...queryIndexes,
           })
         }
+        indexes={queryIndexes}
       />
     </section>
   );
