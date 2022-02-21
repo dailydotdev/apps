@@ -14,7 +14,7 @@ import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import {
   ProfileTooltipContent,
   ProfileTooltipContentProps,
-} from './ProfileTolltipContent';
+} from './ProfileTooltipContent';
 
 export interface ProfileTooltipProps extends ProfileTooltipContentProps {
   children: ReactElement;
@@ -45,6 +45,7 @@ export function ProfileTooltip({
     () =>
       request(`${apiUrl}/graphql`, USER_TOOLTIP_CONTENT_QUERY, {
         id: user.id,
+        version: 2,
       }),
     {
       refetchOnWindowFocus: false,

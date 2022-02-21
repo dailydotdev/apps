@@ -34,6 +34,7 @@ interface ClassProps {
 const wrapperClasses = ({ sidebarExpanded }: ClassProps) => {
   return {
     sidebar: classNames('h-[8.125rem]', sidebarExpanded && 'justify-center'),
+    feed_title: 'w-full tablet:w-auto',
     feed_top: 'w-full items-center mb-8',
   };
 };
@@ -44,8 +45,8 @@ const innerWrapClasses = ({ explainerColor, sidebarExpanded }: ClassProps) => {
       'flex-col',
       sidebarExpanded ? `${explainerColor.shadow} border p-3 m-4` : 'mx-3',
     ),
-    feed_title: `flex-row-reverse`,
-    feed_top: `${explainerColor.shadow} p-2 border`,
+    feed_title: `flex-col tablet:flex-row-reverse`,
+    feed_top: `${explainerColor.shadow} p-2 border flex-col tablet:flex-row`,
     feed_ad: `${explainerColor.shadow} p-2 border flex-col flex-1 justify-center`,
   };
 };
@@ -57,15 +58,16 @@ const textClass = ({ sidebarExpanded }: ClassProps) => {
         ? 'opacity-100 ease-linear duration-200 delay-200'
         : 'duration-0 delay-0 opacity-0',
     ),
-    feed_top: 'typo-footnote ml-2',
-    feed_title: 'typo-footnote',
+    feed_top: 'typo-footnote ml-2 text-center tablet:text-left',
+    feed_title:
+      'typo-footnote w-70 laptopL:w-auto text-center tablet:text-left',
     feed_ad: 'typo-body font-bold mx-6 text-center mb-6',
   };
 };
 const buttonClass = {
   sidebar: 'w-full',
-  feed_title: 'w-auto mr-4',
-  feed_top: 'ml-8',
+  feed_title: 'w-auto my-4 tablet:my-0 tablet:mr-4',
+  feed_top: 'ml-0 mt-4 tablet:ml-8 tablet:mt-0',
 };
 
 export default function CreateMyFeedButton({

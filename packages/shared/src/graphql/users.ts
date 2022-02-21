@@ -44,8 +44,8 @@ export const USER_READING_RANK_QUERY = gql`
 `;
 
 export const USER_TOOLTIP_CONTENT_QUERY = gql`
-  query UserTooltipContent($id: ID!) {
-    rank: userReadingRank(id: $id) {
+  query UserTooltipContent($id: ID!, $version: Int) {
+    rank: userReadingRank(id: $id, version: $version) {
       currentRank
     }
     tags: userMostReadTags(id: $id) {
