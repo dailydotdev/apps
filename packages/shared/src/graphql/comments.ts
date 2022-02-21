@@ -75,8 +75,8 @@ export const COMMENT_WITH_CHILDREN_FRAGMENT = gql`
 `;
 
 export const RECOMMEND_MENTIONS_QUERY = gql`
-  query RecommendedMentions($postId: String!, $name: String) {
-    recommendedMentions(postId: $postId, name: $name) {
+  query RecommendedMentions($postId: String!, $query: String) {
+    recommendedMentions(postId: $postId, query: $query) {
       username
       name
       image

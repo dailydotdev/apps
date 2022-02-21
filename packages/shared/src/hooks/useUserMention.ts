@@ -112,7 +112,7 @@ export function useUserMention({
       () =>
         request(`${apiUrl}/graphql`, RECOMMEND_MENTIONS_QUERY, {
           postId,
-          name: mentionQuery,
+          query: mentionQuery,
         }),
       {
         enabled: !!user,
