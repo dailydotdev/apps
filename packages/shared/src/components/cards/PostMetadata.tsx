@@ -33,7 +33,7 @@ export default function PostMetadata({
         className,
       )}
     >
-      {!!createdAt && <span>{date}</span>}
+      {!!createdAt && <time dateTime={createdAt}>{date}</time>}
       {!!createdAt && !!readTime && <Separator />}
       {!!readTime && <span data-testid="readTime">{readTime}m read time</span>}
       {(!!createdAt || !!readTime) && !!numUpvotes && <Separator />}
