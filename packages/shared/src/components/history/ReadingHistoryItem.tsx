@@ -9,6 +9,7 @@ import classed from '../../lib/classed';
 import { Button } from '../buttons/Button';
 import { LazyImage } from '../LazyImage';
 import PostMetadata from '../cards/PostMetadata';
+
 interface ReadingHistoryItemProps {
   className?: string;
   history: ReadHistory;

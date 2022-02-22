@@ -20,9 +20,9 @@ const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
 
 export type PostOptionsReadingHistoryMenuProps = {
   post: ReadHistoryPost;
-  onHidden?: () => unknown;
+  onHiddenMenu?: () => unknown;
   displayCopiedMessageFunc?: () => void;
-  onHide?: (postId: string) => unknown;
+  onHideHistoryPost?: (postId: string) => unknown;
   indexes: QueryIndexes;
 };
 
@@ -57,8 +57,8 @@ const updateReadingHistoryPost =
 
 export default function PostOptionsReadingHistoryMenu({
   post,
-  onHidden,
-  onHide,
+  onHiddenMenu,
+  onHideHistoryPost,
   indexes,
 }: PostOptionsReadingHistoryMenuProps): ReactElement {
   const { user } = useContext(AuthContext);
@@ -114,7 +114,7 @@ export default function PostOptionsReadingHistoryMenu({
         id="reading-history-options-context"
         className="menu-primary"
         animation="fade"
-        onHidden={onHidden}
+        onHidden={onHiddenMenu}
       >
         <Item className="typo-callout" onClick={onBookmarkReadingHistoryPost}>
           <a className="flex w-full typo-callout">
@@ -129,7 +129,7 @@ export default function PostOptionsReadingHistoryMenu({
         </Item>
         <Item
           className="laptop:hidden typo-callout"
-          onClick={() => onHide(post?.id)}
+          onClick={() => onHideHistoryPost(post?.id)}
         >
           <a className="flex w-full typo-callout">
             <MenuIcon Icon={XIcon} /> Remove article

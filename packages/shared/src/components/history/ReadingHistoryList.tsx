@@ -79,8 +79,8 @@ export default function ReadHistoryList({
       <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
       <PostOptionsReadingHistoryMenu
         post={readingHistoryContextItem?.post}
-        onHidden={() => setReadingHistoryContextItem(null)}
-        onHide={(postId) =>
+        onHiddenMenu={() => setReadingHistoryContextItem(null)}
+        onHideHistoryPost={(postId) =>
           onHide({
             postId,
             timestamp: readingHistoryContextItem.timestampDb,
