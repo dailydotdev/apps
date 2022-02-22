@@ -55,6 +55,23 @@ const updateReadingHistoryPost =
     };
   };
 
+const getBookmarkIconAndMenuText = (bookmarked: boolean) => {
+  if (bookmarked) {
+    return (
+      <>
+        <MenuIcon Icon={BookmarkIconFilled} />
+        Remove from bookmarks
+      </>
+    );
+  }
+  return (
+    <>
+      <MenuIcon Icon={BookmarkIcon} />
+      Save to bookmarks
+    </>
+  );
+};
+
 export default function PostOptionsReadingHistoryMenu({
   post,
   onHiddenMenu,
@@ -93,20 +110,6 @@ export default function PostOptionsReadingHistoryMenu({
     return bookmark(post);
   };
 
-  const getBookmarkIcon = () => {
-    if (post?.bookmarked) {
-      return <MenuIcon Icon={BookmarkIconFilled} />;
-    }
-    return <MenuIcon Icon={BookmarkIcon} />;
-  };
-
-  const getBookmarkMenuText = () => {
-    if (post?.bookmarked) {
-      return 'Remove from bookmarks';
-    }
-    return 'Save to bookmarks';
-  };
-
   return (
     <>
       <PortalMenu
@@ -118,8 +121,7 @@ export default function PostOptionsReadingHistoryMenu({
       >
         <Item className="typo-callout" onClick={onBookmarkReadingHistoryPost}>
           <a className="flex w-full typo-callout">
-            {getBookmarkIcon()}
-            {getBookmarkMenuText()}
+            {getBookmarkIconAndMenuText(post?.bookmarked)}
           </a>
         </Item>
         <Item className="typo-callout" onClick={copyPostLink}>
