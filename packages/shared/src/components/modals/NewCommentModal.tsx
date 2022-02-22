@@ -63,7 +63,7 @@ interface CommentVariables {
   content: string;
 }
 
-const getOffsetPerLine = (row: number) => row * 20;
+const getOffsetPerLine = (row: number) => row * 18 * -1;
 const getOffsetPerChar = (col: number) => (col - 1) * 6;
 
 export default function NewCommentModal({
@@ -351,10 +351,7 @@ export default function NewCommentModal({
             onClick={onMention}
           />
         }
-        offset={[
-          getOffsetPerLine(offsetY) + 60,
-          (getOffsetPerChar(offsetX) + 240) * -1,
-        ]}
+        offset={[getOffsetPerChar(offsetX), getOffsetPerLine(offsetY) + -90]}
         interactive
         container={{
           className: 'shadow',
@@ -364,7 +361,7 @@ export default function NewCommentModal({
         }}
         reference={commentRef}
         arrow={false}
-        placement="left"
+        placement="top-start"
         visible={mentionQuery !== undefined}
       />
       <div
