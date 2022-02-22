@@ -9,10 +9,6 @@ import classed from '../../lib/classed';
 import { Button } from '../buttons/Button';
 import { LazyImage } from '../LazyImage';
 import PostMetadata from '../cards/PostMetadata';
-import useNotification from '../../hooks/useNotification';
-import { CardNotification } from '../cards/Card';
-import { PageContainer } from '../utilities';
-
 interface ReadingHistoryItemProps {
   className?: string;
   history: ReadHistory;
@@ -39,17 +35,6 @@ export default function ReadingHistoryItem({
     e.stopPropagation();
     onHide({ postId: post.id, timestamp: timestampDb });
   };
-  const { notification } = useNotification();
-
-  if (notification) {
-    return (
-      <PageContainer>
-        <CardNotification className="flex-1 py-2.5 text-center">
-          {notification}
-        </CardNotification>
-      </PageContainer>
-    );
-  }
 
   return (
     <Link href={post.commentsPermalink}>
