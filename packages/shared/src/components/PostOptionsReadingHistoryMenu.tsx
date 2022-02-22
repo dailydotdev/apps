@@ -120,22 +120,22 @@ export default function PostOptionsReadingHistoryMenu({
         onHidden={onHiddenMenu}
       >
         <Item className="typo-callout" onClick={onBookmarkReadingHistoryPost}>
-          <a className="flex w-full typo-callout">
+          <span className="flex w-full typo-callout">
             {getBookmarkIconAndMenuText(post?.bookmarked)}
-          </a>
+          </span>
         </Item>
         <Item className="typo-callout" onClick={copyPostLink}>
-          <a className="flex w-full typo-callout">
+          <span className="flex w-full typo-callout">
             <MenuIcon Icon={ShareIcon} /> Share article
-          </a>
+          </span>
         </Item>
         <Item
           className="laptop:hidden typo-callout"
           onClick={() => onHideHistoryPost(post?.id)}
         >
-          <a className="flex w-full typo-callout">
+          <span className="flex w-full typo-callout">
             <MenuIcon Icon={XIcon} /> Remove article
-          </a>
+          </span>
         </Item>
       </PortalMenu>
     </>

@@ -237,9 +237,9 @@ export default function PostOptionsMenu({
       >
         {postOptions.map(({ icon, text, action }) => (
           <Item key={text} className="typo-callout" onClick={action}>
-            <a className="flex w-full typo-callout">
+            <span className="flex w-full typo-callout">
               {icon} {text}
-            </a>
+            </span>
           </Item>
         ))}
       </PortalMenu>
