@@ -88,19 +88,20 @@ export default function PostOptionsReadingHistoryMenu({
 
   const [, copyLink] = useCopyLink(() => post.commentsPermalink);
 
-  const trackShareEvent = () => {
-    trackEvent(
-      postAnalyticsEvent('share post', post, {
-        extra: { origin: 'reading history post menu' },
-      }),
-    );
+  const trackEventFunc = (eventName: string) => {
+    return () =>
+      trackEvent(
+        postAnalyticsEvent(eventName, post, {
+          extra: { origin: 'reading history post menu' },
+        }),
+      );
   };
 
   const onShareOrCopyLink = useShareOrCopyLink({
     link: post?.commentsPermalink,
     text: post?.title,
     copyLink,
-    trackEvent: trackShareEvent,
+    trackEvent: trackEventFunc('share post'),
   });
 
   const { bookmark, removeBookmark } = useBookmarkPost({
@@ -124,13 +125,10 @@ export default function PostOptionsReadingHistoryMenu({
 
   const onBookmarkReadingHistoryPost = async (): Promise<void> => {
     const bookmarked = post?.bookmarked;
-    trackEvent(
-      postAnalyticsEvent(
-        bookmarked ? 'bookmark post' : 'remove post bookmark',
-        post,
-        { extra: { origin: 'reading history post menu' } },
-      ),
+    const trackEventFunction = trackEventFunc(
+      bookmarked ? 'bookmark post' : 'remove post bookmark',
     );
+    trackEventFunction();
     if (bookmarked) {
       return removeBookmark(post);
     }
