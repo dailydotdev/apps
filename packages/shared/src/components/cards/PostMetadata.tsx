@@ -2,15 +2,13 @@ import React, { ReactElement, ReactNode, useMemo } from 'react';
 import classNames from 'classnames';
 import { postDateFormat } from '../../lib/dateFormat';
 import { Separator } from './common';
+import { Post } from '../../graphql/posts';
 
-interface PostMetadataProps {
-  createdAt?: string;
-  readTime?: number;
-  numUpvotes?: number;
+type PostMetadataProps = Pick<Post, 'createdAt' | 'readTime' | 'numUpvotes'> & {
   className?: string;
   children?: ReactNode;
   typoClassName?: string;
-}
+};
 
 export default function PostMetadata({
   createdAt,
