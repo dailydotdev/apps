@@ -14,7 +14,7 @@ import {
 
 export interface Props extends ModalProps {
   postIndex: number;
-  post: Post;
+  post?: Post;
   onReport: (postIndex, postId, reason, comment, blockSource) => unknown;
 }
 

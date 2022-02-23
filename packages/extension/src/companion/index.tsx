@@ -1,16 +1,31 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-
-import '@dailydotdev/shared/src/styles/globals.css';
 import { browser } from 'webextension-polyfill-ts';
-import App from './App';
 import { CompanionBootData } from './common';
+import App from './App';
 
 const init = async (boot: CompanionBootData) => {
   const { postCanonical } = boot;
+
+  // Inject app div
+  const appContainer = document.createElement('daily-companion-app');
+  document.body.appendChild(appContainer);
+
+  // Create shadow dom
+  const shadow = document
+    .querySelector('daily-companion-app')
+    .attachShadow({ mode: 'open' });
+
+  const style = document.createElement('style');
+  style.type = 'text/css';
+  style.innerHTML =
+    '@import "chrome-extension://dhhaojmcngfjmoinjljlkdknbcildjlg/css/companion.css";';
+  shadow.appendChild(style);
+
+  // Set target of the React app to shadow dom
   ReactDOM.render(
-    <App postData={postCanonical} />,
-    document.getElementById('__next'),
+    <App postData={{ ...postCanonical }} />,
+    document.querySelector('daily-companion-app').shadowRoot,
   );
 };
 

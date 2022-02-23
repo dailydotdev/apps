@@ -15,7 +15,5 @@ export interface BootData {
   };
 }
 export interface CompanionBootData {
-  postCanonical: {
-    BootData;
-  };
+  postCanonical: BootData;
 }
