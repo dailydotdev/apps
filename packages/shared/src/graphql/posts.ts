@@ -61,7 +61,15 @@ export type ReadHistoryPost = Pick<
   | 'numUpvotes'
   | 'createdAt'
   | 'bookmarked'
-> & { source?: Pick<Source, 'image'> };
+  | 'permalink'
+  | 'numComments'
+  | 'trending'
+  | 'tags'
+  | 'bookmarked'
+  | 'bookmarked'
+> & { source?: Pick<Source, 'image' | 'id'> } & {
+  author?: Pick<Author, 'id'>;
+};
 
 export interface ReadHistory {
   timestamp: Date;

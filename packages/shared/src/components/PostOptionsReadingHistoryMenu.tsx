@@ -15,7 +15,7 @@ import { MenuIcon } from './MenuIcon';
 import { QueryIndexes } from '../hooks/useReadingHistory';
 import { useShareOrCopyLink } from '../hooks/useShareOrCopyLink';
 import AnalyticsContext from '../contexts/AnalyticsContext';
-import { feedAnalyticsExtra, postAnalyticsEvent } from '../lib/feed';
+import { postAnalyticsEvent } from '../lib/feed';
 
 const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
   ssr: false,
@@ -89,15 +89,11 @@ export default function PostOptionsReadingHistoryMenu({
   const [, copyLink] = useCopyLink(() => post.commentsPermalink);
 
   const trackShareEvent = () => {
-    // TODO: Don't forget to change this event
-    // trackEvent(
-    //   postAnalyticsEvent('share post', post, {
-    //     extra: { origin: 'post context menu' },
-    //   }),
-    // );
-    trackEvent({
-      event_name: `Track reading history event`,
-    });
+    trackEvent(
+      postAnalyticsEvent('share post', post, {
+        extra: { origin: 'reading history post menu' },
+      }),
+    );
   };
 
   const onShareOrCopyLink = useShareOrCopyLink({
@@ -128,13 +124,13 @@ export default function PostOptionsReadingHistoryMenu({
 
   const onBookmarkReadingHistoryPost = async (): Promise<void> => {
     const bookmarked = post?.bookmarked;
-    // TODO: Don't forget to change this event
-    // trackEvent(
-    //   postAnalyticsEvent(
-    //     bookmarked ? 'bookmark post' : 'remove post bookmark',
-    //     post,
-    //   ),
-    // );
+    trackEvent(
+      postAnalyticsEvent(
+        bookmarked ? 'bookmark post' : 'remove post bookmark',
+        post,
+        { extra: { origin: 'reading history post menu' } },
+      ),
+    );
     if (bookmarked) {
       return removeBookmark(post);
     }
