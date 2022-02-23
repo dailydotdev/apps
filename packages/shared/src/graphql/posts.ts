@@ -65,8 +65,6 @@ export type ReadHistoryPost = Pick<
   | 'numComments'
   | 'trending'
   | 'tags'
-  | 'bookmarked'
-  | 'bookmarked'
 > & { source?: Pick<Source, 'image' | 'id'> } & {
   author?: Pick<Author, 'id'>;
 };
