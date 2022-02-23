@@ -3,10 +3,12 @@ import React, {
   HTMLAttributes,
   ReactElement,
   ReactNode,
+  useContext,
 } from 'react';
 import useReadingRank from '../hooks/useReadingRank';
 import RankProgressWrapper from './RankProgressWrapper';
 import { rankToColor } from '../lib/rank';
+import SettingsContext from '../contexts/SettingsContext';
 
 interface WrapperProps extends HTMLAttributes<HTMLDivElement> {
   children?: ReactNode;
@@ -26,8 +28,9 @@ export default function MobileHeaderRankProgress({
   sidebarRendered,
 }: MobileHeaderRankProgressProps): ReactElement {
   const { isLoading, rank, nextRank } = useReadingRank();
+  const { optOutWeeklyGoal } = useContext(SettingsContext);
 
-  if (sidebarRendered) {
+  if (sidebarRendered || optOutWeeklyGoal) {
     return <></>;
   }
 
