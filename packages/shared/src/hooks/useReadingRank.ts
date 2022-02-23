@@ -88,7 +88,6 @@ export default function useReadingRank(
       request(`${apiUrl}/graphql`, MY_READING_RANK_QUERY, {
         id: user.id,
         version: 2,
-        timezone: user.timezone,
       }),
     {
       enabled: !!user && tokenRefreshed,
@@ -135,28 +134,26 @@ export default function useReadingRank(
   const displayProgress = () => setTimeout(updateShownProgress, 300);
 
   useEffect(() => {
-    if (optOutWeeklyGoal || !remoteRank || !loadedCache) {
-      return;
+    if (remoteRank && loadedCache) {
+      if (
+        !cachedRank ||
+        remoteRank.rank.progressThisWeek < cachedRank.rank.progressThisWeek
+      ) {
+        /* if there is no cache value or it is not the most updated let's set the cache */
+        cacheRank();
+      } else if (cachedRank && !cachedRank.rank.rankLastWeek) {
+        /*
+            else if the cache value has data but missing some properties rankLastWeek, let's re-set it
+            with that, this can mean the user is on their first week, which should see the progress animation
+          */
+        cacheRank();
+        displayProgress();
+      } else {
+        /* else - the cache has pre-existing value so we just need to check if we should display the progress */
+        displayProgress();
+      }
     }
-
-    if (
-      !cachedRank ||
-      remoteRank.rank.progressThisWeek < cachedRank.rank.progressThisWeek
-    ) {
-      /* if there is no cache value or it is not the most updated let's set the cache */
-      cacheRank();
-    } else if (cachedRank && !cachedRank.rank.rankLastWeek) {
-      /*
-          else if the cache value has data but missing some properties rankLastWeek, let's re-set it
-          with that, this can mean the user is on their first week, which should see the progress animation
-        */
-      cacheRank();
-      displayProgress();
-    } else {
-      /* else - the cache has pre-existing value so we just need to check if we should display the progress */
-      displayProgress();
-    }
-  }, [remoteRank, loadedCache, disableNewRankPopup, optOutWeeklyGoal]);
+  }, [remoteRank, loadedCache]);
 
   // For anonymous users
   useEffect(() => {
