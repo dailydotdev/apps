@@ -7,6 +7,7 @@ import AuthContext from '../contexts/AuthContext';
 import { getRank, RANKS } from '../lib/rank';
 import FeaturesContext from '../contexts/FeaturesContext';
 import { Features, getFeatureValue } from '../lib/featureManagement';
+import SettingsContext from '../contexts/SettingsContext';
 
 const RanksModal = dynamic(
   () =>
@@ -25,6 +26,7 @@ export default function RankProgressWrapper({
   className?: string;
 }): ReactElement {
   const { user } = useContext(AuthContext);
+  const { optOutWeeklyGoal } = useContext(SettingsContext);
   const [showRanksModal, setShowRanksModal] = useState(false);
   const { flags } = useContext(FeaturesContext);
   const devCardLimit = parseInt(
@@ -88,7 +90,7 @@ export default function RankProgressWrapper({
           nextRank={nextRank}
         />
       )}
-      {levelUp && shouldShowRankModal && (
+      {levelUp && shouldShowRankModal && !optOutWeeklyGoal && (
         <NewRankModal
           rank={nextRank}
           progress={progress}
