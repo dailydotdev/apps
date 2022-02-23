@@ -50,12 +50,7 @@ const checkShouldShowRankModal = (
   lastReadTime: Date,
   loadedAlerts: boolean,
   neverShowRankModal: boolean,
-  optOutWeeklyGoal: boolean,
 ) => {
-  if (optOutWeeklyGoal) {
-    return false;
-  }
-
   if (neverShowRankModal !== null && neverShowRankModal !== undefined) {
     return !neverShowRankModal;
   }
@@ -110,13 +105,15 @@ export default function useReadingRank(): ReturnType {
       neverShowRankModal: newNeverShowRankModal,
     });
 
-  const shouldShowRankModal = checkShouldShowRankModal(
-    alerts?.rankLastSeen,
-    cachedRank?.rank?.lastReadTime || remoteRank?.rank?.lastReadTime,
-    loadedAlerts,
-    neverShowRankModal,
-    optOutWeeklyGoal,
-  );
+  const shouldShowRankModal =
+    levelUp &&
+    !optOutWeeklyGoal &&
+    checkShouldShowRankModal(
+      alerts?.rankLastSeen,
+      cachedRank?.rank?.lastReadTime || remoteRank?.rank?.lastReadTime,
+      loadedAlerts,
+      neverShowRankModal,
+    );
 
   const updateShownProgress = async () => {
     if (document.visibilityState === 'hidden') {
@@ -127,7 +124,7 @@ export default function useReadingRank(): ReturnType {
       );
     } else if (cachedRank?.rank.currentRank === remoteRank?.rank.currentRank) {
       await cacheRank();
-    } else {
+    } else if (!optOutWeeklyGoal) {
       setLevelUp(true);
     }
   };
