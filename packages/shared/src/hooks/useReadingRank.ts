@@ -68,7 +68,9 @@ const checkShouldShowRankModal = (
 
 export const RANK_CACHE_KEY = 'rank_v2';
 
-export default function useReadingRank(): ReturnType {
+export default function useReadingRank(
+  disableNewRankPopup?: boolean,
+): ReturnType {
   const { alerts, loadedAlerts, updateAlerts } = useContext(AlertContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
   const [levelUp, setLevelUp] = useState(false);
@@ -124,7 +126,7 @@ export default function useReadingRank(): ReturnType {
       );
     } else if (cachedRank?.rank.currentRank === remoteRank?.rank.currentRank) {
       await cacheRank();
-    } else if (!optOutWeeklyGoal) {
+    } else if (!disableNewRankPopup) {
       setLevelUp(true);
     }
   };
@@ -133,26 +135,28 @@ export default function useReadingRank(): ReturnType {
   const displayProgress = () => setTimeout(updateShownProgress, 300);
 
   useEffect(() => {
-    if (remoteRank && loadedCache) {
-      if (
-        !cachedRank ||
-        remoteRank.rank.progressThisWeek < cachedRank.rank.progressThisWeek
-      ) {
-        /* if there is no cache value or it is not the most updated let's set the cache */
-        cacheRank();
-      } else if (cachedRank && !cachedRank.rank.rankLastWeek) {
-        /*
+    if (optOutWeeklyGoal || !remoteRank || !loadedCache) {
+      return;
+    }
+
+    if (
+      !cachedRank ||
+      remoteRank.rank.progressThisWeek < cachedRank.rank.progressThisWeek
+    ) {
+      /* if there is no cache value or it is not the most updated let's set the cache */
+      cacheRank();
+    } else if (cachedRank && !cachedRank.rank.rankLastWeek) {
+      /*
           else if the cache value has data but missing some properties rankLastWeek, let's re-set it
           with that, this can mean the user is on their first week, which should see the progress animation
         */
-        cacheRank();
-        displayProgress();
-      } else {
-        /* else - the cache has pre-existing value so we just need to check if we should display the progress */
-        displayProgress();
-      }
+      cacheRank();
+      displayProgress();
+    } else {
+      /* else - the cache has pre-existing value so we just need to check if we should display the progress */
+      displayProgress();
     }
-  }, [remoteRank, loadedCache]);
+  }, [remoteRank, loadedCache, disableNewRankPopup, optOutWeeklyGoal]);
 
   // For anonymous users
   useEffect(() => {

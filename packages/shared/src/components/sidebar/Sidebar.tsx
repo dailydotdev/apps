@@ -342,7 +342,10 @@ export default function Sidebar({
               sidebarExpanded={sidebarExpanded || sidebarRendered === false}
             />
             {sidebarRendered && !optOutWeeklyGoal && (
-              <SidebarRankProgress sidebarExpanded={sidebarExpanded} />
+              <SidebarRankProgress
+                disableNewRankPopup={showSettings}
+                sidebarExpanded={sidebarExpanded}
+              />
             )}
           </Nav>
         </SidebarScrollWrapper>

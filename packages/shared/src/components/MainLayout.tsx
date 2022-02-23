@@ -102,7 +102,7 @@ export default function MainLayout({
   const { sidebarRendered } = useSidebarRendered();
   const { bannerData, setLastSeen } = usePromotionalBanner();
   const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
-  const { sidebarExpanded } = useContext(SettingsContext);
+  const { sidebarExpanded, optOutWeeklyGoal } = useContext(SettingsContext);
   const handlers = useSwipeableSidebar({
     sidebarRendered,
     openMobileSidebar,
@@ -156,7 +156,9 @@ export default function MainLayout({
                 )}
               </>
             )}
-            <MobileHeaderRankProgress sidebarRendered={sidebarRendered} />
+            {!sidebarRendered && !optOutWeeklyGoal && (
+              <MobileHeaderRankProgress />
+            )}
           </>
         )}
       </header>
