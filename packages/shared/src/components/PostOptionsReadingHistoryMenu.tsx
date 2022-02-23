@@ -15,6 +15,7 @@ import { MenuIcon } from './MenuIcon';
 import { QueryIndexes } from '../hooks/useReadingHistory';
 import { useShareOrCopyLink } from '../hooks/useShareOrCopyLink';
 import AnalyticsContext from '../contexts/AnalyticsContext';
+import { feedAnalyticsExtra, postAnalyticsEvent } from '../lib/feed';
 
 const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
   ssr: false,
@@ -126,7 +127,15 @@ export default function PostOptionsReadingHistoryMenu({
   });
 
   const onBookmarkReadingHistoryPost = async (): Promise<void> => {
-    if (post?.bookmarked) {
+    const bookmarked = post?.bookmarked;
+    // TODO: Don't forget to change this event
+    // trackEvent(
+    //   postAnalyticsEvent(
+    //     bookmarked ? 'bookmark post' : 'remove post bookmark',
+    //     post,
+    //   ),
+    // );
+    if (bookmarked) {
       return removeBookmark(post);
     }
     return bookmark(post);
