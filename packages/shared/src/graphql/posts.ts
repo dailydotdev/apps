@@ -99,6 +99,7 @@ export const POST_BY_ID_QUERY = gql`
       readTime
       tags
       bookmarked
+      trending
       upvoted
       commented
       commentsPermalink
