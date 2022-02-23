@@ -15,6 +15,7 @@ import useTagAndSource from '../hooks/useTagAndSource';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
 import { MenuIcon } from './MenuIcon';
+import { useShareOrCopyLink } from '../hooks/useShareOrCopyLink';
 
 const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
   ssr: false,
@@ -153,27 +154,26 @@ export default function PostOptionsMenu({
     }
   };
 
-  const onSharePost = async () => {
-    const shareLink = post.commentsPermalink;
+  const shareLink = post?.commentsPermalink;
+  const copyLink = async () => {
+    await navigator.clipboard.writeText(shareLink);
+    onMessage('✅ Copied link to clipboard', postIndex);
+  };
+
+  const trackShareEvent = () => {
     trackEvent(
       postAnalyticsEvent('share post', post, {
         extra: { origin: 'post context menu' },
       }),
     );
-    if ('share' in navigator) {
-      try {
-        await navigator.share({
-          text: post?.title,
-          url: shareLink,
-        });
-      } catch (err) {
-        // Do nothing
-      }
-    } else {
-      await navigator.clipboard.writeText(shareLink);
-      onMessage('✅ Copied link to clipboard', postIndex);
-    }
   };
+
+  const onShareOrCopyLink = useShareOrCopyLink({
+    link: shareLink,
+    text: post?.title,
+    copyLink,
+    trackEvent: trackShareEvent,
+  });
 
   const postOptions: {
     icon: ReactElement;
@@ -188,7 +188,7 @@ export default function PostOptionsMenu({
     {
       icon: <MenuIcon Icon={ShareIcon} />,
       text: 'Share article',
-      action: onSharePost,
+      action: onShareOrCopyLink,
     },
     {
       icon: <MenuIcon Icon={BlockIcon} />,

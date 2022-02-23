@@ -13,6 +13,8 @@ import { ReadHistoryInfiniteData } from '../hooks/useInfiniteReadingHistory';
 import { useCopyLink } from '../hooks/useCopyLink';
 import { MenuIcon } from './MenuIcon';
 import { QueryIndexes } from '../hooks/useReadingHistory';
+import { useShareOrCopyLink } from '../hooks/useShareOrCopyLink';
+import AnalyticsContext from '../contexts/AnalyticsContext';
 
 const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
   ssr: false,
@@ -79,10 +81,30 @@ export default function PostOptionsReadingHistoryMenu({
   indexes,
 }: PostOptionsReadingHistoryMenuProps): ReactElement {
   const { user } = useContext(AuthContext);
+  const { trackEvent } = useContext(AnalyticsContext);
   const queryClient = useQueryClient();
   const historyQueryKey = ['readHistory', user?.id];
 
-  const [, copyPostLink] = useCopyLink(() => post.commentsPermalink);
+  const [, copyLink] = useCopyLink(() => post.commentsPermalink);
+
+  const trackShareEvent = () => {
+    // TODO: Don't forget to change this event
+    // trackEvent(
+    //   postAnalyticsEvent('share post', post, {
+    //     extra: { origin: 'post context menu' },
+    //   }),
+    // );
+    trackEvent({
+      event_name: `Track reading history event`,
+    });
+  };
+
+  const onShareOrCopyLink = useShareOrCopyLink({
+    link: post?.commentsPermalink,
+    text: post?.title,
+    copyLink,
+    trackEvent: trackShareEvent,
+  });
 
   const { bookmark, removeBookmark } = useBookmarkPost({
     onBookmarkMutate: updateReadingHistoryPost(
@@ -124,7 +146,7 @@ export default function PostOptionsReadingHistoryMenu({
             {getBookmarkIconAndMenuText(post?.bookmarked)}
           </span>
         </Item>
-        <Item className="typo-callout" onClick={copyPostLink}>
+        <Item className="typo-callout" onClick={onShareOrCopyLink}>
           <span className="flex w-full typo-callout">
             <MenuIcon Icon={ShareIcon} /> Share article
           </span>
