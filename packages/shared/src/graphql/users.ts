@@ -155,12 +155,20 @@ const READING_HISTORY_FRAGMENT = gql`
       id
       title
       image
+      permalink
       commentsPermalink
+      trending
+      tags
       readTime
       numUpvotes
       bookmarked
+      numComments
       source {
+        id
         image
+      }
+      author {
+        id
       }
     }
   }
