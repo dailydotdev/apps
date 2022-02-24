@@ -1,19 +1,18 @@
-export interface BootData {
-  id: string;
-  title: string;
-  commentsPermalink: string;
-  trending?: boolean;
-  summary?: string;
-  numUpvotes: number;
-  upvoted?: boolean;
-  numComments?: number;
-  bookmarked?: boolean;
-  source: {
-    id: string;
-    name: string;
-    image?: string;
-  };
-}
+import { Post } from '@dailydotdev/shared/src/graphql/posts';
+
+export type BootData = Pick<
+  Post,
+  | 'id'
+  | 'title'
+  | 'commentsPermalink'
+  | 'trending'
+  | 'summary'
+  | 'numUpvotes'
+  | 'upvoted'
+  | 'numComments'
+  | 'bookmarked'
+  | 'source'
+>;
 export interface CompanionBootData {
   postCanonical: BootData;
 }

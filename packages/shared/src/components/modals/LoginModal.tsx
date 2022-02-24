@@ -38,7 +38,6 @@ export default function LoginModal({
       className={classNames(styles.loginModal, className)}
     >
       <ModalCloseButton onClick={onRequestClose} />
-      <DailyDevLogo />
       <div className="mt-6 mb-8 text-center text-theme-label-secondary typo-callout">
         {loginModalDescriptionCopy}
       </div>

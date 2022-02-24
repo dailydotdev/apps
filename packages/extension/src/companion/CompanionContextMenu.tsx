@@ -6,7 +6,9 @@ import FeedbackIcon from '@dailydotdev/shared/icons/feedback.svg';
 import EyeIcon from '@dailydotdev/shared/icons/eye.svg';
 import { Item, Menu } from '@dailydotdev/react-contexify';
 import RepostPostModal from '@dailydotdev/shared/src/components/modals/ReportPostModal';
+import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import { BootData } from './common';
+import DisableCompanionModal from './DisableCompanionModal';
 
 export default function CompanionContextMenu({
   postData,
@@ -16,6 +18,7 @@ export default function CompanionContextMenu({
   onMessage?: (message: string, timeout?: number) => Promise<unknown>;
 }): ReactElement {
   const [reportModal, setReportModal] = useState<boolean>();
+  const [disableModal, setDisableModal] = useState<boolean>();
 
   const onSharePost = async () => {
     const shareLink = postData?.commentsPermalink;
@@ -32,6 +35,16 @@ export default function CompanionContextMenu({
       await navigator.clipboard.writeText(shareLink);
       onMessage('✅ Copied link to clipboard');
     }
+  };
+
+  const onReportPost = async (
+    reportPostIndex,
+    reportedPost,
+    reason,
+    comment,
+    blockSource,
+  ): Promise<void> => {
+    onMessage('🚨 Thanks for reporting!');
   };
 
   return (
@@ -62,16 +75,32 @@ export default function CompanionContextMenu({
             <FeedbackIcon className="mr-2 text-xl" /> Give us feedback
           </a>
         </Item>
-        <Item>
+        <Item onClick={() => setDisableModal(true)}>
           <EyeIcon className="mr-2 text-xl" /> Disable widget
         </Item>
       </Menu>
       {reportModal && (
         <RepostPostModal
+          post={postData}
+          parentSelector={() =>
+            document
+              .querySelector('daily-companion-app')
+              .shadowRoot.querySelector('#daily-companion-wrapper')
+          }
           isOpen={!!reportModal}
           postIndex={1}
-          onReport={() => {}}
+          onReport={onReportPost}
           onRequestClose={() => setReportModal(null)}
+        />
+      )}
+      {disableModal && (
+        <DisableCompanionModal
+          isOpen={!!disableModal}
+          parentSelector={() =>
+            document
+              .querySelector('daily-companion-app')
+              .shadowRoot.querySelector('#daily-companion-wrapper')
+          }
         />
       )}
     </>

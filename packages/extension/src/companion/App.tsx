@@ -25,9 +25,9 @@ import { BootData } from './common';
 import '@dailydotdev/shared/src/styles/globals.css';
 
 const queryClient = new QueryClient();
+Modal.setAppElement('daily-companion-app');
 
 function InternalApp({ postData, parent }: { postData: BootData; parent }) {
-  Modal.setAppElement(parent);
   const [post, setPost] = useState<BootData>(postData);
   const [companionState, setCompanionState] = useState<boolean>(false);
   const { notification, onMessage } = useNotification();
