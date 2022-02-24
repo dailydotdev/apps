@@ -27,7 +27,6 @@ export interface NewRankModalProps extends Omit<ModalProps, 'onRequestClose'> {
   rank: number;
   progress: number;
   user?: LoggedUser;
-  loginButtonCopyPrefix?: string;
   onRequestClose?: (neverShowAgain: boolean) => unknown;
   showDevCard: boolean;
 }
@@ -38,7 +37,6 @@ export default function NewRankModal({
   user,
   onRequestClose,
   showDevCard,
-  loginButtonCopyPrefix,
   className,
   style,
   ...props
@@ -185,7 +183,7 @@ export default function NewRankModal({
           </Button>
         </div>
       ) : (
-        <LoginButtons buttonCopyPrefix={loginButtonCopyPrefix} />
+        <LoginButtons />
       )}
       <Checkbox
         ref={inputRef}

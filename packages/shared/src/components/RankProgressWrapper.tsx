@@ -27,10 +27,6 @@ export default function RankProgressWrapper({
   const { user } = useContext(AuthContext);
   const [showRanksModal, setShowRanksModal] = useState(false);
   const { flags } = useContext(FeaturesContext);
-  const loginButtonCopyPrefix = getFeatureValue(
-    Features.LoginModalButtonCopyPrefix,
-    flags,
-  );
   const devCardLimit = parseInt(
     getFeatureValue(Features.DevcardLimit, flags),
     10,
@@ -94,7 +90,6 @@ export default function RankProgressWrapper({
       )}
       {levelUp && shouldShowRankModal && (
         <NewRankModal
-          loginButtonCopyPrefix={loginButtonCopyPrefix}
           rank={nextRank}
           progress={progress}
           user={user}
