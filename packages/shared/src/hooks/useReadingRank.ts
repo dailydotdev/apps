@@ -74,6 +74,7 @@ export default function useReadingRank(
   const { alerts, loadedAlerts, updateAlerts } = useContext(AlertContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
   const [levelUp, setLevelUp] = useState(false);
+  const [showRankPopup, setShowRankPopup] = useState(false);
   const queryClient = useQueryClient();
   const { optOutWeeklyGoal } = useContext(SettingsContext);
 
@@ -107,7 +108,7 @@ export default function useReadingRank(
     });
 
   const shouldShowRankModal =
-    levelUp &&
+    showRankPopup &&
     !optOutWeeklyGoal &&
     checkShouldShowRankModal(
       alerts?.rankLastSeen,
@@ -125,10 +126,16 @@ export default function useReadingRank(
       );
     } else if (cachedRank?.rank.currentRank === remoteRank?.rank.currentRank) {
       await cacheRank();
-    } else if (!disableNewRankPopup) {
+    } else {
       setLevelUp(true);
     }
   };
+
+  useEffect(() => {
+    if (!disableNewRankPopup) {
+      setShowRankPopup(levelUp);
+    }
+  }, [levelUp]);
 
   // Let the rank update and then show progress animation, slight delay so the user won't miss it
   const displayProgress = () => setTimeout(updateShownProgress, 300);
@@ -143,9 +150,9 @@ export default function useReadingRank(
         cacheRank();
       } else if (cachedRank && !cachedRank.rank.rankLastWeek) {
         /*
-            else if the cache value has data but missing some properties rankLastWeek, let's re-set it
-            with that, this can mean the user is on their first week, which should see the progress animation
-          */
+          else if the cache value has data but missing some properties rankLastWeek, let's re-set it
+          with that, this can mean the user is on their first week, which should see the progress animation
+        */
         cacheRank();
         displayProgress();
       } else {
