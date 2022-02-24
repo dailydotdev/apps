@@ -1,3 +1,4 @@
+import { useContext } from 'react';
 import { useMutation } from 'react-query';
 import request from 'graphql-request';
 import { apiUrl } from '../lib/config';
@@ -5,11 +6,14 @@ import {
   ADD_BOOKMARKS_MUTATION,
   REMOVE_BOOKMARK_MUTATION,
 } from '../graphql/posts';
+import AnalyticsContext from '../contexts/AnalyticsContext';
 
 type MutateFunc<T> = (variables: T) => Promise<(() => void) | undefined>;
 type UseBookmarkPostParams<T> = {
   onBookmarkMutate: MutateFunc<T>;
   onRemoveBookmarkMutate: MutateFunc<T>;
+  onBookmarkTrackObject?: Record<string, unknown>;
+  onRemoveBookmarkTrackObject?: Record<string, unknown>;
 };
 type UseBookmarkPostRet<T> = {
   bookmark: (variables: T) => Promise<void>;
@@ -21,7 +25,11 @@ export default function useBookmarkPost<
 >({
   onBookmarkMutate,
   onRemoveBookmarkMutate,
+  onBookmarkTrackObject,
+  onRemoveBookmarkTrackObject,
 }: UseBookmarkPostParams<T>): UseBookmarkPostRet<T> {
+  const { trackEvent } = useContext(AnalyticsContext);
+
   const { mutateAsync: bookmark } = useMutation<
     void,
     unknown,
@@ -35,6 +43,7 @@ export default function useBookmarkPost<
     {
       onMutate: onBookmarkMutate,
       onError: (err, _, rollback) => rollback?.(),
+      onSuccess: () => trackEvent(onBookmarkTrackObject),
     },
   );
 
@@ -51,6 +60,7 @@ export default function useBookmarkPost<
     {
       onMutate: onRemoveBookmarkMutate,
       onError: (err, _, rollback) => rollback?.(),
+      onSuccess: () => trackEvent(onRemoveBookmarkTrackObject),
     },
   );
 

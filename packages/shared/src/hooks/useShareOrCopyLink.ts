@@ -1,17 +1,22 @@
+import { useContext } from 'react';
+import AnalyticsContext from '../contexts/AnalyticsContext';
+
 interface UseShareOrCopyLinkProps {
   link: string;
   text: string;
-  trackEvent?: () => void;
   copyLink?: () => Promise<void>;
+  trackObject?: Record<string, unknown>;
 }
 export function useShareOrCopyLink({
   link,
   text,
-  trackEvent,
   copyLink,
+  trackObject,
 }: UseShareOrCopyLinkProps): () => Promise<void> {
+  const { trackEvent } = useContext(AnalyticsContext);
+
   const onShareOrCopy = async () => {
-    trackEvent?.();
+    trackEvent(trackObject);
     if ('share' in navigator) {
       try {
         await navigator.share({

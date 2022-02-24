@@ -14,7 +14,6 @@ import { useCopyLink } from '../hooks/useCopyLink';
 import { MenuIcon } from './MenuIcon';
 import { QueryIndexes } from '../hooks/useReadingHistory';
 import { useShareOrCopyLink } from '../hooks/useShareOrCopyLink';
-import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
 
 const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
@@ -82,24 +81,17 @@ export default function PostOptionsReadingHistoryMenu({
   indexes,
 }: PostOptionsReadingHistoryMenuProps): ReactElement {
   const { user } = useContext(AuthContext);
-  const { trackEvent } = useContext(AnalyticsContext);
   const queryClient = useQueryClient();
   const historyQueryKey = ['readHistory', user?.id];
 
   const [, copyLink] = useCopyLink(() => post?.commentsPermalink);
 
-  const trackEventFunc = (eventName: string) => {
-    trackEvent(
-      postAnalyticsEvent(eventName, post, {
-        extra: { origin: 'reading history context menu' },
-      }),
-    );
-  };
-
   const onShareOrCopyLink = useShareOrCopyLink({
     link: post?.commentsPermalink,
     text: post?.title,
-    trackEvent: trackEventFunc.bind(null, 'share post'),
+    trackObject: postAnalyticsEvent('share post', post, {
+      extra: { origin: 'reading history context menu' },
+    }),
     copyLink,
   });
 
@@ -120,12 +112,20 @@ export default function PostOptionsReadingHistoryMenu({
       },
       indexes,
     ),
+    onBookmarkTrackObject: postAnalyticsEvent('bookmark post', post, {
+      extra: { origin: 'reading history context menu' },
+    }),
+    onRemoveBookmarkTrackObject: postAnalyticsEvent(
+      'remove post bookmark',
+      post,
+      {
+        extra: { origin: 'reading history context menu' },
+      },
+    ),
   });
 
   const onBookmarkReadingHistoryPost = async (): Promise<void> => {
-    const bookmarked = post?.bookmarked;
-    trackEventFunc(bookmarked ? 'bookmark post' : 'remove post bookmark');
-    if (bookmarked) {
+    if (post?.bookmarked) {
       return removeBookmark(post);
     }
     return bookmark(post);
