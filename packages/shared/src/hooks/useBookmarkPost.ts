@@ -12,8 +12,8 @@ type MutateFunc<T> = (variables: T) => Promise<(() => void) | undefined>;
 type UseBookmarkPostParams<T> = {
   onBookmarkMutate: MutateFunc<T>;
   onRemoveBookmarkMutate: MutateFunc<T>;
-  onBookmarkTrackObject?: Record<string, unknown>;
-  onRemoveBookmarkTrackObject?: Record<string, unknown>;
+  onBookmarkTrackObject?: () => Record<string, unknown>;
+  onRemoveBookmarkTrackObject?: () => Record<string, unknown>;
 };
 type UseBookmarkPostRet<T> = {
   bookmark: (variables: T) => Promise<void>;
@@ -43,7 +43,7 @@ export default function useBookmarkPost<
     {
       onMutate: onBookmarkMutate,
       onError: (err, _, rollback) => rollback?.(),
-      onSuccess: () => trackEvent(onBookmarkTrackObject),
+      onSuccess: () => trackEvent(onBookmarkTrackObject()),
     },
   );
 
@@ -60,7 +60,7 @@ export default function useBookmarkPost<
     {
       onMutate: onRemoveBookmarkMutate,
       onError: (err, _, rollback) => rollback?.(),
-      onSuccess: () => trackEvent(onRemoveBookmarkTrackObject),
+      onSuccess: () => trackEvent(onRemoveBookmarkTrackObject()),
     },
   );
 

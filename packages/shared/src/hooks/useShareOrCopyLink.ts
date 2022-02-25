@@ -5,7 +5,7 @@ interface UseShareOrCopyLinkProps {
   link: string;
   text: string;
   copyLink?: () => Promise<void>;
-  trackObject?: Record<string, unknown>;
+  trackObject?: () => Record<string, unknown>;
 }
 export function useShareOrCopyLink({
   link,
@@ -16,7 +16,7 @@ export function useShareOrCopyLink({
   const { trackEvent } = useContext(AnalyticsContext);
 
   const onShareOrCopy = async () => {
-    trackEvent(trackObject);
+    trackEvent(trackObject());
     if ('share' in navigator) {
       try {
         await navigator.share({
