@@ -43,7 +43,7 @@ export default function useBookmarkPost<
     {
       onMutate: onBookmarkMutate,
       onError: (err, _, rollback) => rollback?.(),
-      onSuccess: () => trackEvent(onBookmarkTrackObject()),
+      onSuccess: () => trackEvent(onBookmarkTrackObject?.()),
     },
   );
 
@@ -60,7 +60,7 @@ export default function useBookmarkPost<
     {
       onMutate: onRemoveBookmarkMutate,
       onError: (err, _, rollback) => rollback?.(),
-      onSuccess: () => trackEvent(onRemoveBookmarkTrackObject()),
+      onSuccess: () => trackEvent(onRemoveBookmarkTrackObject?.()),
     },
   );
 
