@@ -160,19 +160,14 @@ export default function PostOptionsMenu({
     onMessage('✅ Copied link to clipboard', postIndex);
   };
 
-  const trackShareEvent = () => {
-    trackEvent(
-      postAnalyticsEvent('share post', post, {
-        extra: { origin: 'post context menu' },
-      }),
-    );
-  };
-
   const onShareOrCopyLink = useShareOrCopyLink({
     link: shareLink,
     text: post?.title,
     copyLink,
-    trackEvent: trackShareEvent,
+    trackObject: () =>
+      postAnalyticsEvent('share post', post, {
+        extra: { origin: 'post context menu' },
+      }),
   });
 
   const postOptions: {
