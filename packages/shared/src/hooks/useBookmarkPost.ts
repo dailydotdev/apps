@@ -12,7 +12,7 @@ type MutateFunc<T> = (variables: T) => Promise<(() => void) | undefined>;
 type UseBookmarkPostParams<T> = {
   onBookmarkMutate: MutateFunc<T>;
   onRemoveBookmarkMutate: MutateFunc<T>;
-  onBookmarkTrackObject?: () => Record<string, unknown>;
+  onBookmarkTrackObject?: () => Record<string, any>;
   onRemoveBookmarkTrackObject?: () => Record<string, unknown>;
 };
 type UseBookmarkPostRet<T> = {
