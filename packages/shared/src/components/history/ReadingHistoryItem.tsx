@@ -4,14 +4,20 @@ import Link from 'next/link';
 import { HideReadHistoryProps } from '../../graphql/users';
 import { ReadHistory } from '../../graphql/posts';
 import XIcon from '../../../icons/x.svg';
+import MenuIcon from '../../../icons/menu.svg';
 import classed from '../../lib/classed';
 import { Button } from '../buttons/Button';
 import { LazyImage } from '../LazyImage';
+import PostMetadata from '../cards/PostMetadata';
 
 interface ReadingHistoryItemProps {
   className?: string;
   history: ReadHistory;
   onHide?: (params: HideReadHistoryProps) => Promise<unknown>;
+  onContextMenu?: (
+    event: React.MouseEvent,
+    readHistoryPost: ReadHistory,
+  ) => void;
 }
 
 const SourceShadow = classed(
@@ -19,11 +25,13 @@ const SourceShadow = classed(
   'absolute left-5 -my-1 w-8 h-8 rounded-full bg-theme-bg-primary',
 );
 
-function ReadingHistoryItem({
-  history: { timestampDb, post },
+export default function ReadingHistoryItem({
+  history,
   onHide,
   className,
+  onContextMenu,
 }: ReadingHistoryItemProps): ReactElement {
+  const { timestampDb, post } = history;
   const onHideClick = (e: MouseEvent) => {
     e.stopPropagation();
     onHide({ postId: post.id, timestamp: timestampDb });
@@ -52,17 +60,31 @@ function ReadingHistoryItem({
         />
         <h3 className="flex flex-wrap flex-1 mr-6 ml-4 line-clamp-3 typo-callout">
           {post.title}
+          <PostMetadata
+            readTime={post.readTime}
+            numUpvotes={post.numUpvotes}
+            typoClassName="typo-callout"
+          />
         </h3>
+
         {onHide && (
           <Button
-            className="btn-tertiary"
+            className="hidden laptop:flex btn-tertiary"
             icon={<XIcon />}
             onClick={onHideClick}
           />
         )}
+        <Button
+          className="btn-tertiary"
+          data-testId={`history-${post.id}`}
+          icon={<MenuIcon />}
+          onClick={(event) => {
+            event.stopPropagation();
+            onContextMenu(event, history);
+          }}
+          buttonSize="small"
+        />
       </article>
     </Link>
   );
 }
-
-export default ReadingHistoryItem;
