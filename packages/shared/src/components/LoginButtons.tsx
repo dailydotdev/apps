@@ -8,18 +8,19 @@ import AuthContext from '../contexts/AuthContext';
 import { apiUrl } from '../lib/config';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { useMyFeed } from '../hooks/useMyFeed';
+import FeaturesContext from '../contexts/FeaturesContext';
+import { Features, getFeatureValue } from '../lib/featureManagement';
 
-interface LoginButtonsProps {
-  buttonCopyPrefix?: string;
-}
-
-export default function LoginButtons({
-  buttonCopyPrefix,
-}: LoginButtonsProps): ReactElement {
+export default function LoginButtons(): ReactElement {
   const router = useRouter();
+  const { flags } = useContext(FeaturesContext);
   const { getRedirectUri } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const { checkHasLocalFilters } = useMyFeed();
+  const buttonCopyPrefix = getFeatureValue(
+    Features.LoginModalButtonCopyPrefix,
+    flags,
+  );
 
   const authUrl = (provider: string, redirectUri: string) => {
     const uri = checkHasLocalFilters()
