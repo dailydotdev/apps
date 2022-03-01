@@ -11,7 +11,7 @@ export interface Author {
   image: string;
   permalink: string;
   username: string;
-  bio: string;
+  bio?: string;
 }
 
 export interface Comment {

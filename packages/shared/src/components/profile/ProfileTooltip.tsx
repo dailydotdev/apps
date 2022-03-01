@@ -1,11 +1,5 @@
-import request from 'graphql-request';
-import React, { ReactElement, useState } from 'react';
-import { useQuery } from 'react-query';
-import {
-  UserTooltipContentData,
-  USER_TOOLTIP_CONTENT_QUERY,
-} from '../../graphql/users';
-import { apiUrl } from '../../lib/config';
+import React, { ReactElement } from 'react';
+import { useProfileTooltip } from '../../hooks/useProfileTooltip';
 import {
   LinkWithTooltip,
   LinkWithTooltipProps,
@@ -33,7 +27,7 @@ export function ProfileTooltip({
   user,
   link,
 }: ProfileTooltipProps): ReactElement {
-  const [shouldFetch, setShouldFetch] = useState(false);
+  const { data, fetchInfo } = useProfileTooltip(user.id);
   const Tooltip = link ? LinkWithTooltip : SimpleTooltip;
   const props = {
     interactive: true,
@@ -45,27 +39,12 @@ export function ProfileTooltip({
     },
   };
 
-  const key = ['readingRank', user.id];
-  const { data } = useQuery<UserTooltipContentData>(
-    key,
-    () =>
-      request(`${apiUrl}/graphql`, USER_TOOLTIP_CONTENT_QUERY, {
-        id: user.id,
-        version: 2,
-      }),
-    {
-      refetchOnWindowFocus: false,
-      enabled: shouldFetch,
-      onSettled: () => setShouldFetch(false),
-    },
-  );
-
   return (
     <Tooltip
       content={data ? <ProfileTooltipContent user={user} data={data} /> : null}
       {...link}
       {...props}
-      onTrigger={() => setShouldFetch(true)}
+      onTrigger={fetchInfo}
       tooltip={props}
     >
       {children}

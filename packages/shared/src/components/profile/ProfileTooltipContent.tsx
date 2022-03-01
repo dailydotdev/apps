@@ -42,11 +42,11 @@ export function ProfileTooltipContent({
           {user.bio}
         </p>
       )}
-      {tags?.length && (
+      {tags?.length ? (
         <span className="typo-subhead text-theme-label-quaternary">
           Loves reading about
         </span>
-      )}
+      ) : null}
       <TagLinks className="mb-0" tags={tags?.map(({ value }) => value) || []} />
     </div>
   );
