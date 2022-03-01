@@ -1,3 +1,7 @@
+.mention-bg-theme {
+  @apply -z-1 absolute w-full h-full left-0 top-0 rounded-6;
+};
+
 .markdown {
   & :where(h1) {
     @apply font-bold typo-title2 mt-10 mb-7;
@@ -50,6 +54,20 @@
   }
   & :where(a) {
     @apply text-theme-label-link hover:underline;
+  }
+  & :where(a[data-mention-username]) {
+    @apply z-0 relative text-theme-label-primary hover:underline font-bold px-1 rounded-6;
+    &:before {
+      content: '';
+      @apply mention-bg-theme bg-theme-status-cabbage;
+    }
+    &:after {
+      content: '';
+      @apply mention-bg-theme bg-theme-overlay-water opacity-24;
+    }
+    &:hover::after {
+      @apply opacity-32;
+    }
   }
   & :where(hr) {
     @apply border-theme-divider-secondary my-10;
