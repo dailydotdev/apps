@@ -9,6 +9,7 @@ export class Features {
   static readonly SignupButtonColor = new Features(
     'signup_button_theme_color',
     'primary',
+    ['primary', 'avocado', 'water', 'cabbage', 'bacon'],
   );
 
   static readonly DevcardLimit = new Features('feat_limit_dev_card', '50');

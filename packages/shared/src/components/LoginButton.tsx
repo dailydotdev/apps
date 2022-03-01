@@ -48,7 +48,7 @@ export default function LoginButton({
     <Button
       onClick={onClick}
       icon={icon}
-      className={classNames('btn-primary', className, buttonColor.button)}
+      className={classNames(className, buttonColor.button)}
     >
       <span className="hidden laptop:inline">{buttonCopy}</span>
       <span className="laptop:hidden">Sign up</span>
