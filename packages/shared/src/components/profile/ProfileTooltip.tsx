@@ -21,6 +21,13 @@ export interface ProfileTooltipProps extends ProfileTooltipContentProps {
   link?: Omit<LinkWithTooltipProps, 'children' | 'tooltip'>;
 }
 
+export const profileTooltipClasses = {
+  padding: 'p-6',
+  roundness: 'rounded-16',
+  classNames:
+    'w-72 bg-theme-bg-primary shadow-2 border border-theme-divider-secondary',
+};
+
 export function ProfileTooltip({
   children,
   user,
@@ -32,10 +39,9 @@ export function ProfileTooltip({
     interactive: true,
     container: {
       arrow: false,
-      paddingClassName: 'p-6',
-      roundedClassName: 'rounded-16',
-      className:
-        'w-72 bg-theme-bg-primary shadow-2 border border-theme-divider-secondary',
+      paddingClassName: profileTooltipClasses.padding,
+      roundedClassName: profileTooltipClasses.roundness,
+      className: profileTooltipClasses.classNames,
     },
   };
 
