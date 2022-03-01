@@ -30,6 +30,7 @@ export function ProfileTooltip({
   const { data, fetchInfo } = useProfileTooltip(user.id);
   const Tooltip = link ? LinkWithTooltip : SimpleTooltip;
   const props = {
+    arrow: false,
     interactive: true,
     container: {
       arrow: false,
