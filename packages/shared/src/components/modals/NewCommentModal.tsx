@@ -63,8 +63,10 @@ interface CommentVariables {
   content: string;
 }
 
-const getOffsetPerLine = (row: number) => row * 18 * -1;
-const getOffsetPerChar = (col: number) => (col - 1) * 6;
+const CHAR_WIDTH = 6;
+const LINE_HEIGHT = 18;
+const getOffsetPerLine = (row: number) => row * LINE_HEIGHT * -1;
+const getOffsetPerChar = (col: number) => (col - 1) * CHAR_WIDTH;
 
 export default function NewCommentModal({
   authorImage,
