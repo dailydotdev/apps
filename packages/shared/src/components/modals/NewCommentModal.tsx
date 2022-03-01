@@ -87,7 +87,7 @@ export default function NewCommentModal({
   const commentRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
   const {
-    onMention,
+    onMentionClick,
     onMentionKeypress,
     offset: [offsetX, offsetY],
     mentions,
@@ -348,7 +348,7 @@ export default function NewCommentModal({
           <RecommendedMention
             users={mentionQuery !== undefined && mentions}
             selected={selected}
-            onClick={onMention}
+            onClick={onMentionClick}
           />
         }
         offset={[getOffsetPerChar(offsetX), getOffsetPerLine(offsetY) + -90]}

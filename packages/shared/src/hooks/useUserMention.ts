@@ -22,7 +22,7 @@ interface UseUserMention {
   selected: number;
   mentions: UserShortProfile[];
   offset: [number, number];
-  onMention?: (username: string) => unknown;
+  onMentionClick?: (username: string) => unknown;
 }
 
 interface UseUserMentionProps {
@@ -199,7 +199,7 @@ export function useUserMention({
     selected,
     mentions: filteredUsers,
     mentionQuery,
-    onMention,
+    onMentionClick: onMention,
     onMentionKeypress: onKeypress,
   };
 }
