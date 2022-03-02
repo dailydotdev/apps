@@ -49,7 +49,7 @@ export type PostCardProps = {
   menuOpened?: boolean;
   notification?: string;
   showImage?: boolean;
-  postHeadingFont: string;
+  postHeadingFont: string | undefined;
 } & HTMLAttributes<HTMLDivElement>;
 
 export const PostCard = forwardRef(function PostCard(
