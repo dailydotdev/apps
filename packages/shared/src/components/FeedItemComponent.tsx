@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement } from 'react';
 import dynamic from 'next/dynamic';
 import { FeedItem } from '../hooks/useFeed';
 import { PostList } from './cards/PostList';
@@ -11,7 +11,6 @@ import { Ad, Post } from '../graphql/posts';
 import { LoggedUser } from '../lib/user';
 import { CommentOnData } from '../graphql/comments';
 import useTrackImpression from '../hooks/feed/useTrackImpression';
-import FeaturesContext from '../contexts/FeaturesContext';
 
 const CommentPopup = dynamic(() => import('./cards/CommentPopup'));
 
@@ -30,6 +29,7 @@ export type FeedItemComponentProps = {
   postNotificationIndex: number | undefined;
   notification: string | undefined;
   showCommentPopupId: string | undefined;
+  postHeadingFont: string;
   setShowCommentPopupId: (value: string | undefined) => void;
   isSendingComment: boolean;
   comment: (variables: {
@@ -125,6 +125,7 @@ export default function FeedItemComponent({
   onCommentClick,
   onAdRender,
   onAdClick,
+  postHeadingFont,
 }: FeedItemComponentProps): ReactElement {
   const PostTag = useList ? PostList : PostCard;
   const AdTag = useList ? AdList : AdCard;
@@ -139,7 +140,6 @@ export default function FeedItemComponent({
     feedName,
     ranking,
   );
-  const { flags } = useContext(FeaturesContext);
 
   switch (item.type) {
     case 'post':
@@ -167,7 +167,7 @@ export default function FeedItemComponent({
           notification={postNotificationIndex === index && notification}
           showImage={!insaneMode}
           onCommentClick={(post) => onCommentClick(post, index, row, column)}
-          flags={flags}
+          postHeadingFont={postHeadingFont}
         >
           {showCommentPopupId === item.post.id && (
             <CommentPopup

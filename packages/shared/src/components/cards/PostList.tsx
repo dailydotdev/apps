@@ -21,8 +21,6 @@ import ListFeaturedComment from './ListFeaturedComment';
 import TrendingFlag from './TrendingFlag';
 import PostAuthor from './PostAuthor';
 import PostOptions from '../buttons/OptionsButton';
-import { getThemeFont } from '../utilities';
-import { Features, getFeatureValue } from '../../lib/featureManagement';
 
 export const PostList = forwardRef(function PostList(
   {
@@ -40,7 +38,7 @@ export const PostList = forwardRef(function PostList(
     notification,
     className,
     children,
-    flags,
+    postHeadingFont,
     ...props
   }: PostCardProps,
   ref: Ref<HTMLElement>,
@@ -48,10 +46,6 @@ export const PostList = forwardRef(function PostList(
   const [selectedComment, setSelectedComment] = useState<Comment>();
 
   const { trending } = post;
-  const postHeadingFont = getThemeFont(
-    getFeatureValue(Features.PostCardHeadingFont, flags),
-    Features.PostCardHeadingFont.defaultValue,
-  );
 
   const card = (
     <ListCard
@@ -72,9 +66,7 @@ export const PostList = forwardRef(function PostList(
       </ListCardAside>
       <ListCardDivider />
       <ListCardMain>
-        <ListCardTitle
-          className={classNames(className, postHeadingFont?.heading)}
-        >
+        <ListCardTitle className={classNames(className, postHeadingFont)}>
           {post.title}
         </ListCardTitle>
         <PostMetadata
