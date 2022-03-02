@@ -26,9 +26,7 @@ import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
 import getPageForAnalytics from '../lib/getPageForAnalytics';
-import DndContext from './DndContext';
-import useDndContext from './useDndContext';
-import DndBanner from './DndBanner';
+import { DndContextProvider } from './DndContext';
 import { BootDataProvider } from '../../../shared/src/contexts/BootProvider';
 
 const AnalyticsConsentModal = dynamic(() => import('./AnalyticsConsentModal'));
@@ -70,8 +68,6 @@ function InternalApp({
     false,
     shouldShowConsent ? null : true,
   );
-  const dndContext = useDndContext();
-
   const routeChangedCallbackRef = useTrackPageView();
   useThirdPartyAnalytics(
     trackingId,
@@ -107,8 +103,7 @@ function InternalApp({
   };
 
   return (
-    <DndContext.Provider value={dndContext}>
-      {dndContext.isActive && <DndBanner />}
+    <DndContextProvider>
       <MainFeedPage onPageChanged={onPageChanged} />
       {!user && !loadingUser && shouldShowLogin && (
         <LoginModal
@@ -125,7 +120,7 @@ function InternalApp({
           isOpen
         />
       )}
-    </DndContext.Provider>
+    </DndContextProvider>
   );
 }
 
