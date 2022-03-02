@@ -23,7 +23,7 @@ export default function DndModal({
   onRequestClose,
   ...modalProps
 }: ModalProps): ReactElement {
-  const { dndSettings, setDndSettings, isActive } = useContext(DndContext);
+  const { dndSettings, onDndSettings, isActive } = useContext(DndContext);
   const [link, setLink] = useState<string>(null);
   const [customNumber, setCustomNumber] = useState(0);
   const [customTimeIndex, setCustomTimeIndex] = useState(0);
@@ -35,8 +35,7 @@ export default function DndModal({
     const expiration = option.getExpiration(customTime, customNumber);
     const fallback = link || getDefaultLink();
 
-    await setDndSettings({ expiration, link: fallback });
-
+    await onDndSettings({ expiration, link: fallback });
     onRequestClose(e);
   };
 
@@ -52,7 +51,7 @@ export default function DndModal({
       <Button
         className="btn-primary-onion"
         buttonSize="large"
-        onClick={() => setDndSettings(null)}
+        onClick={() => onDndSettings(null)}
       >
         Turn Off
       </Button>

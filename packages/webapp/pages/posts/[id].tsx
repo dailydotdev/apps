@@ -274,7 +274,8 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
           <PostSummary summary={postById.post.summary} />
         )}
         <PostMetadata
-          post={postById.post}
+          createdAt={postById.post.createdAt}
+          readTime={postById.post.readTime}
           className="mt-2 mb-1"
           typoClassName="typo-callout"
         />

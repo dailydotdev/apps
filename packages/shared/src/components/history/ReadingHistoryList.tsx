@@ -9,6 +9,8 @@ import {
 import ReadingHistoryItem from './ReadingHistoryItem';
 import { ReadHistoryInfiniteData } from '../../hooks/useInfiniteReadingHistory';
 import { InfiniteScrollScreenOffset } from '../../hooks/feed/useFeedInfiniteScroll';
+import PostOptionsReadingHistoryMenu from '../PostOptionsReadingHistoryMenu';
+import useReadingHistoryContextMenu from '../../hooks/useReadingHistoryContextMenu';
 
 const DateTitle = classed('h2', 'typo-body text-theme-label-tertiary');
 
@@ -28,11 +30,18 @@ export interface ReadHistoryListProps {
   infiniteScrollRef: (node?: Element | null) => void;
 }
 
-function ReadHistoryList({
+export default function ReadHistoryList({
   data,
   onHide,
   infiniteScrollRef,
 }: ReadHistoryListProps): ReactElement {
+  const {
+    readingHistoryContextItem,
+    setReadingHistoryContextItem,
+    onReadingHistoryContextOptions,
+    queryIndexes,
+  } = useReadingHistoryContextMenu();
+
   const renderList = useCallback(() => {
     let currentDate: Date;
 
@@ -52,6 +61,9 @@ function ReadHistoryList({
           <ReadingHistoryItem
             key={`${history.post.id}-${timestamp}`}
             history={history}
+            onContextMenu={(event, readingHistory) =>
+              onReadingHistoryContextOptions(event, readingHistory, indexes)
+            }
             onHide={(params) => onHide({ ...params, ...indexes })}
           />,
         );
@@ -65,8 +77,18 @@ function ReadHistoryList({
     <section className="flex relative flex-col">
       {renderList()}
       <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
+      <PostOptionsReadingHistoryMenu
+        post={readingHistoryContextItem?.post}
+        onHiddenMenu={() => setReadingHistoryContextItem(null)}
+        onHideHistoryPost={(postId) =>
+          onHide({
+            postId,
+            timestamp: readingHistoryContextItem.timestampDb,
+            ...queryIndexes,
+          })
+        }
+        indexes={queryIndexes}
+      />
     </section>
   );
 }
-
-export default ReadHistoryList;
