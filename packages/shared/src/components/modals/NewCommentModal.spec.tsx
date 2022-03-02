@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import { act, Simulate } from 'react-dom/test-utils';
 import nock from 'nock';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import NewCommentModal, { NewCommentModalProps } from './NewCommentModal';
@@ -9,11 +10,13 @@ import {
   COMMENT_ON_COMMENT_MUTATION,
   COMMENT_ON_POST_MUTATION,
   EDIT_COMMENT_MUTATION,
+  RECOMMEND_MENTIONS_QUERY,
 } from '../../graphql/comments';
 import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '../../../__tests__/helpers/graphql';
+import { waitForNock } from '../../../__tests__/helpers/utilities';
 
 const defaultUser = {
   id: 'u1',
@@ -293,4 +296,87 @@ it('should send editComment mutation', async () => {
   await waitFor(() => mutationCalled);
   await waitFor(() => expect(onComment).toBeCalledTimes(0));
   await waitFor(() => expect(onRequestClose).toBeCalledTimes(1));
+});
+
+it('should recommend users previously mentioned', async () => {
+  let queryPreviouslyMentioned = false;
+  renderComponent({}, [
+    {
+      request: {
+        query: RECOMMEND_MENTIONS_QUERY,
+        variables: { postId: 'p1' },
+      },
+      result: () => {
+        queryPreviouslyMentioned = true;
+        return {
+          data: {
+            recommendedMentions: [
+              { name: 'Lee', username: 'sshanzel', image: 'sample.image.com' },
+            ],
+          },
+        };
+      },
+    },
+  ]);
+  const input = await screen.findByRole('textbox');
+  input.innerText = '@';
+  Simulate.keyDown(input, { key: '@' });
+  await waitForNock();
+  expect(queryPreviouslyMentioned).toBeTruthy();
+  await screen.findByText('@sshanzel');
+});
+
+it('should recommend users based on query', async () => {
+  let queryMatchingNameOrUsername = false;
+  renderComponent({}, [
+    {
+      request: {
+        query: RECOMMEND_MENTIONS_QUERY,
+        variables: { postId: 'p1' },
+      },
+      result: () => {
+        return {
+          data: {
+            recommendedMentions: [
+              { name: 'Ido', username: 'idoshamun', image: 'sample.image.com' },
+            ],
+          },
+        };
+      },
+    },
+    {
+      request: {
+        query: RECOMMEND_MENTIONS_QUERY,
+        variables: { postId: 'p1', query: 'l' },
+      },
+      result: () => {
+        queryMatchingNameOrUsername = true;
+        return {
+          data: {
+            recommendedMentions: [
+              { name: 'Lee', username: 'sshanzel', image: 'sample.image.com' },
+            ],
+          },
+        };
+      },
+    },
+  ]);
+  await act(async () => {
+    const input = await screen.findByRole('textbox');
+    input.innerText = '@';
+    Simulate.keyDown(input, { key: '@' });
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    const previous = screen.queryByText('@idoshamun');
+    expect(previous).toBeInTheDocument();
+    input.innerText = '@l';
+    Simulate.keyDown(input, { key: 'l' });
+  });
+  await waitForNock();
+  expect(queryMatchingNameOrUsername).toBeTruthy();
+  expect(queryMatchingNameOrUsername).toBeTruthy();
+  await screen.findByText('@sshanzel');
+  await screen.findByText('Lee');
+  await screen.findByAltText(`sshanzel's profile`);
+  const previous = screen.queryByText('@idoshamun');
+  expect(previous).not.toBeInTheDocument();
 });
