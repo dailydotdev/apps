@@ -33,6 +33,7 @@ export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   mobileTitle?: string;
   showDnd?: boolean;
   screenCentered?: boolean;
+  customBanner?: ReactNode;
   onLogoClick?: (e: React.MouseEvent) => unknown;
   enableSearch?: () => void;
   onNavTabClick?: (tab: string) => void;
@@ -91,6 +92,7 @@ export default function MainLayout({
   useNavButtonsNotLinks,
   mobileTitle,
   showDnd,
+  customBanner,
   screenCentered = true,
   onLogoClick,
   onNavTabClick,
@@ -116,13 +118,17 @@ export default function MainLayout({
     setOpenMobileSidebar(state);
   };
 
+  const hasBanner = !!bannerData?.banner || !!customBanner;
+
   return (
     <div {...handlers}>
-      <PromotionalBanner bannerData={bannerData} setLastSeen={setLastSeen} />
+      {customBanner || (
+        <PromotionalBanner bannerData={bannerData} setLastSeen={setLastSeen} />
+      )}
       <header
         className={classNames(
           'flex relative laptop:fixed laptop:left-0 z-3 flex-row laptop:flex-row justify-between items-center py-3 px-4 tablet:px-8 laptop:px-4 laptop:w-full h-14 border-b bg-theme-bg-primary border-theme-divider-tertiary',
-          bannerData?.banner ? 'laptop:top-8' : 'laptop:top-0',
+          hasBanner ? 'laptop:top-8' : 'laptop:top-0',
         )}
       >
         {sidebarRendered !== undefined && (
@@ -166,12 +172,12 @@ export default function MainLayout({
         className={classNames(
           'flex flex-row',
           !showOnlyLogo && !screenCentered && mainLayoutClass(sidebarExpanded),
-          bannerData?.banner ? 'laptop:pt-22' : 'laptop:pt-14',
+          hasBanner ? 'laptop:pt-22' : 'laptop:pt-14',
         )}
       >
         {!showOnlyLogo && sidebarRendered !== null && (
           <Sidebar
-            promotionalBannerActive={!!bannerData?.banner}
+            promotionalBannerActive={hasBanner}
             sidebarRendered={sidebarRendered}
             openMobileSidebar={openMobileSidebar}
             onNavTabClick={onNavTabClick}
