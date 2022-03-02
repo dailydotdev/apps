@@ -39,7 +39,7 @@ export function RecommendedMention({
             index === selected && 'bg-theme-active',
           )}
           imageSize="large"
-          Tag="li"
+          tag="li"
           onClick={() => onClick(username)}
         />
       ))}

@@ -27,7 +27,7 @@ export function UpvoterList({ queryResult }: UpvoterListProps): ReactElement {
       {queryResult.data.pages.map((page) =>
         page.upvotes.edges.map(({ node: { user } }) => (
           <Link key={user.username} href={user.permalink}>
-            <UserShortInfo {...user} />
+            <UserShortInfo {...user} tag="a" href={user.permalink} />
           </Link>
         )),
       )}
