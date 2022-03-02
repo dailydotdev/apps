@@ -1,5 +1,12 @@
 import { browser, Runtime } from 'webextension-polyfill-ts';
 import { getBootData } from '@dailydotdev/shared/src/lib/boot';
+import useUpvotePost from '@dailydotdev/shared/src/hooks/useUpvotePost';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
+import {
+  CANCEL_UPVOTE_MUTATION,
+  UPVOTE_MUTATION,
+} from '@dailydotdev/shared/src/graphql/posts';
+import request from 'graphql-request';
 
 const cacheAmplitudeDeviceId = async ({
   reason,
@@ -24,18 +31,40 @@ const excludedCompanionOrigins = [
 const isExcluded = (origin: string) =>
   excludedCompanionOrigins.some((e) => origin.includes(e));
 
-browser.runtime.onMessage.addListener(
-  async (request, sender: Runtime.MessageSender & { origin?: string }) => {
-    if (isExcluded(sender?.origin)) {
-      return;
-    }
+const sendBootData = async (request, sender) => {
+  if (isExcluded(sender?.origin)) {
+    return;
+  }
 
-    const boot = await getBootData('extension', sender?.tab?.url);
-    await browser.tabs.sendMessage(sender?.tab?.id, {
-      boot,
+  const boot = await getBootDnvmata('extension', sender?.tab?.url);
+  await browser.tabs.sendMessage(sender?.tab?.id, {
+    boot,
+  });
+};
+
+function handleMessages(message, sender, response) {
+  if (message.type === 'SIGN_CONNECT') {
+    console.log('return boot data');
+    sendBootData(message, sender);
+    return true;
+  }
+  console.log(message);
+
+  if (message.type === 'UPVOTE_POST') {
+    return request(`${apiUrl}/graphql`, UPVOTE_MUTATION, {
+      id: message.post_id,
     });
-  },
-);
+  }
+
+  if (message.type === 'CANCEL_UPVOTE_POST') {
+    return request(`${apiUrl}/graphql`, CANCEL_UPVOTE_MUTATION, {
+      id: message.post_id,
+    });
+  }
+}
+
+// @ts-ignore
+browser.runtime.onMessage.addListener(handleMessages);
 
 browser.browserAction.onClicked.addListener(() => {
   const url = browser.extension.getURL('index.html?source=button');

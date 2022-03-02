@@ -13,7 +13,7 @@ import {
 import classNames from 'classnames';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import useBookmarkPost from '@dailydotdev/shared/src/hooks/useBookmarkPost';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider, useMutation } from 'react-query';
 import useUpvotePost from '@dailydotdev/shared/src/hooks/useUpvotePost';
 import Modal from 'react-modal';
 
@@ -23,6 +23,7 @@ import { CardNotification } from '@dailydotdev/shared/src/components/cards/Card'
 import CompanionContextMenu from './CompanionContextMenu';
 import { BootData } from './common';
 import '@dailydotdev/shared/src/styles/globals.css';
+import { browser } from 'webextension-polyfill-ts';
 
 const queryClient = new QueryClient();
 Modal.setAppElement('daily-companion-app');
@@ -44,18 +45,39 @@ function InternalApp({ postData, parent }: { postData: BootData; parent }) {
     onBookmarkMutate: () => updatePost({ bookmarked: true }),
     onRemoveBookmarkMutate: () => updatePost({ bookmarked: false }),
   });
-  const { upvotePost, cancelPostUpvote } = useUpvotePost({
-    onUpvotePostMutate: () =>
-      updatePost({ upvoted: true, numUpvotes: post.numUpvotes + 1 }),
-    onCancelPostUpvoteMutate: () =>
-      updatePost({ upvoted: false, numUpvotes: post.numUpvotes - 1 }),
-  });
+
+  const { mutateAsync: upvotePost } = useMutation(
+    () =>
+      browser.runtime.sendMessage({ type: 'UPVOTE_POST', post_id: post.id }),
+    {
+      onMutate: () =>
+        updatePost({ upvoted: true, numUpvotes: post.numUpvotes + 1 }),
+      onError: (_, __, rollback) => {
+        rollback?.();
+      },
+    },
+  );
+
+  const { mutateAsync: cancelPostUpvote } = useMutation(
+    () =>
+      browser.runtime.sendMessage({
+        type: 'CANCEL_UPVOTE_POST',
+        post_id: post.id,
+      }),
+    {
+      onMutate: () =>
+        updatePost({ upvoted: false, numUpvotes: post.numUpvotes + -1 }),
+      onError: (_, __, rollback) => {
+        rollback?.();
+      },
+    },
+  );
 
   const toggleUpvote = async () => {
     if (!post.upvoted) {
-      await upvotePost({ id: post.id });
+      await upvotePost();
     } else {
-      await cancelPostUpvote({ id: post.id });
+      await cancelPostUpvote();
     }
   };
 
