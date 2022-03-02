@@ -30,6 +30,9 @@ import SourceButton from './SourceButton';
 import PostAuthor from './PostAuthor';
 import OptionsButton from '../buttons/OptionsButton';
 import { ProfilePicture } from '../ProfilePicture';
+import { Features, getFeatureValue } from '../../lib/featureManagement';
+import { IFlags } from 'flagsmith';
+import { getThemeFont } from '../utilities';
 
 const FeaturedComment = dynamic(() => import('./FeaturedComment'));
 
@@ -49,6 +52,7 @@ export type PostCardProps = {
   menuOpened?: boolean;
   notification?: string;
   showImage?: boolean;
+  flags: IFlags;
 } & HTMLAttributes<HTMLDivElement>;
 
 export const PostCard = forwardRef(function PostCard(
@@ -69,12 +73,17 @@ export const PostCard = forwardRef(function PostCard(
     children,
     showImage = true,
     style,
+    flags,
     ...props
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const [selectedComment, setSelectedComment] = useState<Comment>();
   const { trending } = post;
+  const postHeadingFont = getThemeFont(
+    getFeatureValue(Features.PostCardHeadingFont, flags),
+    Features.PostCardHeadingFont.defaultValue,
+  );
   const customStyle =
     selectedComment && !showImage ? { minHeight: '15.125rem' } : {};
   const card = (
@@ -105,7 +114,9 @@ export const PostCard = forwardRef(function PostCard(
             </>
           )}
         </CardHeader>
-        <CardTitle>{post.title}</CardTitle>
+        <CardTitle className={classNames(className, postHeadingFont?.heading)}>
+          {post.title}
+        </CardTitle>
       </CardTextContainer>
       <CardSpace />
       <PostMetadata
