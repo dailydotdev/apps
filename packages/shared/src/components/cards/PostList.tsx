@@ -65,7 +65,11 @@ export const PostList = forwardRef(function PostList(
       <ListCardDivider />
       <ListCardMain>
         <ListCardTitle>{post.title}</ListCardTitle>
-        <PostMetadata post={post} className="my-1">
+        <PostMetadata
+          createdAt={post.createdAt}
+          readTime={post.readTime}
+          className="my-1"
+        >
           <PostAuthor
             post={post}
             selectedComment={selectedComment}

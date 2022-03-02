@@ -51,10 +51,23 @@ export interface Ad {
   impressionStatus?: number;
 }
 
-type ReadHistoryPost = Pick<
+export type ReadHistoryPost = Pick<
   Post,
-  'id' | 'title' | 'commentsPermalink' | 'image'
-> & { source?: Pick<Source, 'image'> };
+  | 'id'
+  | 'title'
+  | 'commentsPermalink'
+  | 'image'
+  | 'readTime'
+  | 'numUpvotes'
+  | 'createdAt'
+  | 'bookmarked'
+  | 'permalink'
+  | 'numComments'
+  | 'trending'
+  | 'tags'
+> & { source?: Pick<Source, 'image' | 'id'> } & {
+  author?: Pick<Author, 'id'>;
+};
 
 export interface ReadHistory {
   timestamp: Date;
@@ -86,6 +99,7 @@ export const POST_BY_ID_QUERY = gql`
       readTime
       tags
       bookmarked
+      trending
       upvoted
       commented
       commentsPermalink

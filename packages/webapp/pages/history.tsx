@@ -44,7 +44,7 @@ const History = (): ReactElement => {
       key,
       query: READING_HISTORY_QUERY,
     };
-  }, [searchQuery]);
+  }, [searchQuery, key]);
 
   const { hideReadHistory } = useReadingHistory(key);
   const { data, isInitialLoading, isLoading, hasData, infiniteScrollRef } =
