@@ -1,6 +1,6 @@
 .mention-bg-theme {
   @apply -z-1 absolute w-full h-full left-0 top-0 rounded-6;
-};
+}
 
 .markdown {
   & :where(h1) {
@@ -21,7 +21,7 @@
   & :where(h6) {
     @apply text-theme-label-tertiary font-bold mt-4 mb-3;
   }
-  & :where(p) {
+  & :where(p):global(:not(.tooltip)) {
     @apply my-7;
   }
   & :where(blockquote) {
@@ -75,10 +75,10 @@
   & :where(img) {
     @apply rounded-16 max-h-img-mobile tablet:max-h-img-desktop;
   }
-  & > :where(:first-child) {
+  & > :where(:first-child):global(:not(.tooltip)) {
     @apply mt-0;
   }
-  & > :where(:last-child) {
+  & > :where(:last-child):global(:not(.tooltip)) {
     @apply mb-0;
   }
   & :where(pre) :global(:where(.hljs-comment, .hljs-title)) {
