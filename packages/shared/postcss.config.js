@@ -23,6 +23,12 @@ module.exports = {
     'postcss-focus-visible',
     'postcss-custom-media',
     'postcss-mixins',
+    process.env.TARGET_BROWSER
+      ? require('postcss-rem-to-responsive-pixel')({
+          rootValue: 16,
+          propList: ['*'],
+        })
+      : ['postcss-rem-to-responsive-pixel', { rootValue: 16, propList: ['*'] }],
     'autoprefixer',
   ],
 };

@@ -3,10 +3,19 @@ import { getBootData } from '@dailydotdev/shared/src/lib/boot';
 import useUpvotePost from '@dailydotdev/shared/src/hooks/useUpvotePost';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import {
+  ADD_BOOKMARKS_MUTATION,
   CANCEL_UPVOTE_MUTATION,
+  HIDE_POST_MUTATION,
+  REMOVE_BOOKMARK_MUTATION,
+  REPORT_POST_MUTATION,
   UPVOTE_MUTATION,
 } from '@dailydotdev/shared/src/graphql/posts';
 import request from 'graphql-request';
+import {
+  ADD_FILTERS_TO_FEED_MUTATION,
+  FEED_FILTERS_FROM_REGISTRATION,
+} from '@dailydotdev/shared/src/graphql/feedSettings';
+import { UPDATE_USER_SETTINGS_MUTATION } from '@dailydotdev/shared/src/graphql/settings';
 
 const cacheAmplitudeDeviceId = async ({
   reason,
@@ -36,19 +45,18 @@ const sendBootData = async (request, sender) => {
     return;
   }
 
-  const boot = await getBootDnvmata('extension', sender?.tab?.url);
+  const { data, settings } = await getBootData('extension', sender?.tab?.url);
   await browser.tabs.sendMessage(sender?.tab?.id, {
-    boot,
+    data,
+    settings,
   });
 };
 
 function handleMessages(message, sender, response) {
   if (message.type === 'SIGN_CONNECT') {
-    console.log('return boot data');
     sendBootData(message, sender);
     return true;
   }
-  console.log(message);
 
   if (message.type === 'UPVOTE_POST') {
     return request(`${apiUrl}/graphql`, UPVOTE_MUTATION, {
@@ -60,6 +68,43 @@ function handleMessages(message, sender, response) {
     return request(`${apiUrl}/graphql`, CANCEL_UPVOTE_MUTATION, {
       id: message.post_id,
     });
+  }
+
+  if (message.type === 'BOOKMARK') {
+    request(`${apiUrl}/graphql`, ADD_BOOKMARKS_MUTATION, {
+      data: { postIds: [message.post_id] },
+    });
+  }
+
+  if (message.type === 'REMOVE_BOOKMARK') {
+    return request(`${apiUrl}/graphql`, REMOVE_BOOKMARK_MUTATION, {
+      id: message.post_id,
+    });
+  }
+
+  if (message.type === 'REPORT') {
+    return request(`${apiUrl}/graphql`, REPORT_POST_MUTATION, {
+      id: message.post_id,
+      reason: message.reason,
+      comment: message.comment,
+    });
+  }
+
+  if (message.type === 'BLOCK_SOURCE') {
+    return request(`${apiUrl}/graphql`, ADD_FILTERS_TO_FEED_MUTATION, {
+      filters: {
+        excludeSources: [message.source_id],
+      },
+    });
+  }
+
+  if (message.type === 'DISABLE_COMPANION') {
+    return request(`${apiUrl}/graphql`, UPDATE_USER_SETTINGS_MUTATION, {
+      data: {
+        optOutCompanion: true,
+      },
+    });
+    sendBootData(message, sender);
   }
 }
 

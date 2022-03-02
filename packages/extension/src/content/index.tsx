@@ -12,8 +12,13 @@ const shadow = document
 
 const style = document.createElement('style');
 style.type = 'text/css';
-style.innerHTML =
-  '@import "chrome-extension://dhhaojmcngfjmoinjljlkdknbcildjlg/css/companion.css";';
+style.innerHTML = `
+:host {
+  all: initial;
+  font-size: initial;
+}
+@import "chrome-extension://dhhaojmcngfjmoinjljlkdknbcildjlg/css/companion.css";
+`;
 shadow.appendChild(style);
 
 const wrapper = document.createElement('div');

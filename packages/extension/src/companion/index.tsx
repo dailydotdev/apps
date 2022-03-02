@@ -4,8 +4,8 @@ import { browser } from 'webextension-polyfill-ts';
 import { CompanionBootData } from './common';
 import App from './App';
 
-const init = async (boot: CompanionBootData) => {
-  const { postCanonical } = boot;
+const init = async (data: CompanionBootData) => {
+  const { postCanonical } = data;
 
   // Set target of the React app to shadow dom
   ReactDOM.render(
@@ -17,6 +17,8 @@ const init = async (boot: CompanionBootData) => {
 };
 
 browser.runtime.onMessage.addListener(async (request) => {
-  const { boot } = request;
-  init(boot);
+  const { data, settings } = request;
+  if (settings.optOutCompanion !== true) {
+    init(data);
+  }
 });

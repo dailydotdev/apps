@@ -1,17 +1,39 @@
-import React, { ReactElement, MouseEvent, useState, useRef } from 'react';
-import { StyledModal } from '@dailydotdev/shared/src/components/modals/StyledModal';
-import { ModalCloseButton } from '@dailydotdev/shared/src/components/modals/ModalCloseButton';
+import React, { ReactElement, MouseEvent } from 'react';
+import {
+  ConfirmationButtons,
+  ConfirmationDescription,
+  ConfirmationHeading,
+  ConfirmationModal,
+} from '@dailydotdev/shared/src/components/modals/ConfirmationModal';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import { ModalProps } from '@dailydotdev/shared/src/components/modals/StyledModal';
 
-export default function DisableCompanionModal(props): ReactElement {
+export interface Props extends ModalProps {
+  onConfirm: () => unknown;
+}
+export default function DisableCompanionModal({
+  onConfirm,
+  ...props
+}: Props): ReactElement {
+  const onDisableClick = async (event: MouseEvent): Promise<void> => {
+    onConfirm();
+    props.onRequestClose(event);
+  };
+
   return (
-    <StyledModal {...props}>
-      <header className="flex justify-between items-center py-4 px-6 w-full border-b border-theme-divider-tertiary">
-        <h3 className="font-bold typo-title3">Disable the companion widget?</h3>
-        <ModalCloseButton />
-      </header>
-      <section className="overflow-auto relative w-full h-full shrink max-h-full">
-        You can always re-enable it
-      </section>
-    </StyledModal>
+    <ConfirmationModal {...props}>
+      <ConfirmationHeading>Disable the companion widget?</ConfirmationHeading>
+      <ConfirmationDescription>
+        You can always re-enable it through the customize menu.
+      </ConfirmationDescription>
+      <ConfirmationButtons>
+        <Button className="btn-secondary" onClick={props.onRequestClose}>
+          Cancel
+        </Button>
+        <Button className="btn-primary" onClick={onDisableClick}>
+          Disable
+        </Button>
+      </ConfirmationButtons>
+    </ConfirmationModal>
   );
 }

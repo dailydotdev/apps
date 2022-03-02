@@ -12,18 +12,15 @@ import {
 } from '@dailydotdev/shared/src/components/utilities';
 import classNames from 'classnames';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
-import useBookmarkPost from '@dailydotdev/shared/src/hooks/useBookmarkPost';
 import { QueryClient, QueryClientProvider, useMutation } from 'react-query';
-import useUpvotePost from '@dailydotdev/shared/src/hooks/useUpvotePost';
 import Modal from 'react-modal';
-
 import { useContextMenu } from '@dailydotdev/react-contexify';
 import useNotification from '@dailydotdev/shared/src/hooks/useNotification';
 import { CardNotification } from '@dailydotdev/shared/src/components/cards/Card';
 import CompanionContextMenu from './CompanionContextMenu';
 import { BootData } from './common';
 import '@dailydotdev/shared/src/styles/globals.css';
-import { browser } from 'webextension-polyfill-ts';
+import useCompanionActions from './useCompanionActions';
 
 const queryClient = new QueryClient();
 Modal.setAppElement('daily-companion-app');
@@ -41,43 +38,29 @@ function InternalApp({ postData, parent }: { postData: BootData; parent }) {
     });
     return () => setPost(oldPost);
   };
-  const { bookmark, removeBookmark } = useBookmarkPost({
+
+  const {
+    bookmark,
+    removeBookmark,
+    upvote,
+    removeUpvote,
+    report,
+    blockSource,
+    disableCompanion,
+  } = useCompanionActions({
     onBookmarkMutate: () => updatePost({ bookmarked: true }),
     onRemoveBookmarkMutate: () => updatePost({ bookmarked: false }),
+    onUpvoteMutate: () =>
+      updatePost({ upvoted: true, numUpvotes: post.numUpvotes + 1 }),
+    onRemoveUpvoteMutate: () =>
+      updatePost({ upvoted: false, numUpvotes: post.numUpvotes + -1 }),
   });
-
-  const { mutateAsync: upvotePost } = useMutation(
-    () =>
-      browser.runtime.sendMessage({ type: 'UPVOTE_POST', post_id: post.id }),
-    {
-      onMutate: () =>
-        updatePost({ upvoted: true, numUpvotes: post.numUpvotes + 1 }),
-      onError: (_, __, rollback) => {
-        rollback?.();
-      },
-    },
-  );
-
-  const { mutateAsync: cancelPostUpvote } = useMutation(
-    () =>
-      browser.runtime.sendMessage({
-        type: 'CANCEL_UPVOTE_POST',
-        post_id: post.id,
-      }),
-    {
-      onMutate: () =>
-        updatePost({ upvoted: false, numUpvotes: post.numUpvotes + -1 }),
-      onError: (_, __, rollback) => {
-        rollback?.();
-      },
-    },
-  );
 
   const toggleUpvote = async () => {
     if (!post.upvoted) {
-      await upvotePost();
+      await upvote({ id: post.id });
     } else {
-      await cancelPostUpvote();
+      await removeUpvote({ id: post.id });
     }
   };
 
@@ -174,7 +157,13 @@ function InternalApp({ postData, parent }: { postData: BootData; parent }) {
             onClick={onContextOptions}
           />
         </SimpleTooltip>
-        <CompanionContextMenu onMessage={onMessage} postData={postData} />
+        <CompanionContextMenu
+          onMessage={onMessage}
+          postData={postData}
+          onReport={report}
+          onBlockSource={blockSource}
+          onDisableCompanion={disableCompanion}
+        />
       </div>
       <div className="flex flex-col p-6 rounded-l-16 border w-[22.5rem] border-theme-label-tertiary bg-theme-bg-primary">
         <div className="flex flex-row gap-3 items-center">

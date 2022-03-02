@@ -90,6 +90,7 @@
     "postcss-import": "^14.0.2",
     "postcss-mixins": "^8.1.0",
     "postcss-nesting": "^7.0.1",
+    "postcss-rem-to-responsive-pixel": "^5.1.1",
     "postcss-simple-vars": "^6.0.3",
     "prettier": "^2.4.1",
     "react": "^17.0.2",

@@ -13,9 +13,15 @@ import DisableCompanionModal from './DisableCompanionModal';
 export default function CompanionContextMenu({
   postData,
   onMessage,
+  onReport,
+  onBlockSource,
+  onDisableCompanion,
 }: {
   postData: BootData;
   onMessage?: (message: string, timeout?: number) => Promise<unknown>;
+  onReport;
+  onBlockSource;
+  onDisableCompanion;
 }): ReactElement {
   const [reportModal, setReportModal] = useState<boolean>();
   const [disableModal, setDisableModal] = useState<boolean>();
@@ -44,6 +50,10 @@ export default function CompanionContextMenu({
     comment,
     blockSource,
   ): Promise<void> => {
+    onReport({ id: reportedPost.id, reason, comment });
+    if (blockSource) {
+      onBlockSource({ id: reportedPost?.source?.id });
+    }
     onMessage('🚨 Thanks for reporting!');
   };
 
@@ -95,7 +105,9 @@ export default function CompanionContextMenu({
       )}
       {disableModal && (
         <DisableCompanionModal
+          onConfirm={onDisableCompanion}
           isOpen={!!disableModal}
+          onRequestClose={() => setDisableModal(null)}
           parentSelector={() =>
             document
               .querySelector('daily-companion-app')
