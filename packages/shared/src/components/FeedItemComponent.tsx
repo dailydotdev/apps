@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import dynamic from 'next/dynamic';
 import { FeedItem } from '../hooks/useFeed';
 import { PostList } from './cards/PostList';
@@ -11,6 +11,7 @@ import { Ad, Post } from '../graphql/posts';
 import { LoggedUser } from '../lib/user';
 import { CommentOnData } from '../graphql/comments';
 import useTrackImpression from '../hooks/feed/useTrackImpression';
+import FeaturesContext from '../contexts/FeaturesContext';
 
 const CommentPopup = dynamic(() => import('./cards/CommentPopup'));
 
@@ -138,6 +139,7 @@ export default function FeedItemComponent({
     feedName,
     ranking,
   );
+  const { flags } = useContext(FeaturesContext);
 
   switch (item.type) {
     case 'post':
@@ -165,6 +167,7 @@ export default function FeedItemComponent({
           notification={postNotificationIndex === index && notification}
           showImage={!insaneMode}
           onCommentClick={(post) => onCommentClick(post, index, row, column)}
+          flags={flags}
         >
           {showCommentPopupId === item.post.id && (
             <CommentPopup
