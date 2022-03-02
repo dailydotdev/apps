@@ -9,10 +9,6 @@ export interface ThemeColor {
   button: string;
 }
 
-export interface ThemeFont {
-  heading: string;
-}
-
 const themeColors = {
   avocado: {
     border: 'border-theme-color-avocado',
@@ -87,7 +83,7 @@ const themeFonts = {
   titleBold: 'font-bold typo-title3',
 };
 
-export const getThemeFont = (font: string, fallback: string): ThemeFont => {
+export const getThemeFont = (font: string, fallback: string): string => {
   return themeFonts[font] ?? themeFonts[fallback];
 };
 
