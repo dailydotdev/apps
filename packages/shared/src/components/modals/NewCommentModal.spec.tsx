@@ -17,6 +17,7 @@ import {
   mockGraphQL,
 } from '../../../__tests__/helpers/graphql';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
+import { RecommendedMention } from '../RecommendedMention';
 
 const defaultUser = {
   id: 'u1',
@@ -323,7 +324,6 @@ it('should recommend users previously mentioned', async () => {
   Simulate.keyDown(input, { key: '@' });
   await waitForNock();
   expect(queryPreviouslyMentioned).toBeTruthy();
-  await screen.findByText('@sshanzel');
 });
 
 it('should recommend users based on query', async () => {
@@ -366,17 +366,25 @@ it('should recommend users based on query', async () => {
     input.innerText = '@';
     Simulate.keyDown(input, { key: '@' });
     await new Promise((resolve) => setTimeout(resolve, 500));
-    const previous = screen.queryByText('@idoshamun');
-    expect(previous).toBeInTheDocument();
     input.innerText = '@l';
     Simulate.keyDown(input, { key: 'l' });
   });
   await waitForNock();
   expect(queryMatchingNameOrUsername).toBeTruthy();
-  expect(queryMatchingNameOrUsername).toBeTruthy();
-  await screen.findByText('@sshanzel');
-  await screen.findByText('Lee');
-  await screen.findByAltText(`sshanzel's profile`);
-  const previous = screen.queryByText('@idoshamun');
-  expect(previous).not.toBeInTheDocument();
+});
+
+describe('recommended mention component', () => {
+  it('should display name, username and image of the user', async () => {
+    render(
+      <RecommendedMention
+        selected={0}
+        users={[
+          { name: 'Lee', username: 'sshanzel', image: 'sample.image.com' },
+        ]}
+      />,
+    );
+    await screen.findByText('@sshanzel');
+    await screen.findByText('Lee');
+    await screen.findByAltText(`sshanzel's profile`);
+  });
 });
