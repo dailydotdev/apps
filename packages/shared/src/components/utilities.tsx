@@ -79,8 +79,8 @@ export const getThemeColor = (color: string, fallback: string): ThemeColor => {
 const themeFonts = {
   bodyBold: 'font-bold typo-body',
   body: 'typo-body',
-  title: 'typo-title3',
-  titleBold: 'font-bold typo-title3',
+  title3: 'typo-title3',
+  title3Bold: 'font-bold typo-title3',
 };
 
 export const getThemeFont = (font: string, fallback: string): string => {

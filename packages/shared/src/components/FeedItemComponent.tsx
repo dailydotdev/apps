@@ -29,7 +29,7 @@ export type FeedItemComponentProps = {
   postNotificationIndex: number | undefined;
   notification: string | undefined;
   showCommentPopupId: string | undefined;
-  postHeadingFont: string | undefined;
+  postHeadingFont: string;
   setShowCommentPopupId: (value: string | undefined) => void;
   isSendingComment: boolean;
   comment: (variables: {
