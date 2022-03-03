@@ -6,7 +6,9 @@ import React, {
 } from 'react';
 import classnames from 'classnames';
 import useReadingRank from '../hooks/useReadingRank';
-import RankProgressWrapper from './RankProgressWrapper';
+import RankProgressWrapper, {
+  RankProgressWrapperProps,
+} from './RankProgressWrapper';
 import { rankToColor } from '../lib/rank';
 
 interface WrapperProps extends HTMLAttributes<HTMLLIElement> {
@@ -29,12 +31,10 @@ const Wrapper = ({ sidebarExpanded, children, ...props }: WrapperProps) => {
 };
 
 export default function SidebarRankProgress({
+  disableNewRankPopup,
   sidebarExpanded,
-}: {
-  sidebarExpanded?: boolean;
-}): ReactElement {
-  const { isLoading, rank, nextRank } = useReadingRank();
-
+}: RankProgressWrapperProps): ReactElement {
+  const { isLoading, rank, nextRank } = useReadingRank(disableNewRankPopup);
   if (isLoading) {
     return (
       <Wrapper aria-busy={isLoading} sidebarExpanded={sidebarExpanded}>
@@ -54,6 +54,7 @@ export default function SidebarRankProgress({
     >
       <RankProgressWrapper
         sidebarExpanded={sidebarExpanded}
+        disableNewRankPopup={disableNewRankPopup}
         className="border border-theme-rank bg-theme-bg-secondary"
       />
     </Wrapper>

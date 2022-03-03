@@ -50,12 +50,7 @@ const checkShouldShowRankModal = (
   lastReadTime: Date,
   loadedAlerts: boolean,
   neverShowRankModal: boolean,
-  optOutWeeklyGoal: boolean,
 ) => {
-  if (optOutWeeklyGoal) {
-    return false;
-  }
-
   if (neverShowRankModal !== null && neverShowRankModal !== undefined) {
     return !neverShowRankModal;
   }
@@ -73,10 +68,13 @@ const checkShouldShowRankModal = (
 
 export const RANK_CACHE_KEY = 'rank_v2';
 
-export default function useReadingRank(): ReturnType {
+export default function useReadingRank(
+  disableNewRankPopup?: boolean,
+): ReturnType {
   const { alerts, loadedAlerts, updateAlerts } = useContext(AlertContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
   const [levelUp, setLevelUp] = useState(false);
+  const [showRankPopup, setShowRankPopup] = useState(false);
   const queryClient = useQueryClient();
   const { optOutWeeklyGoal } = useContext(SettingsContext);
 
@@ -91,7 +89,6 @@ export default function useReadingRank(): ReturnType {
       request(`${apiUrl}/graphql`, MY_READING_RANK_QUERY, {
         id: user.id,
         version: 2,
-        timezone: user.timezone,
       }),
     {
       enabled: !!user && tokenRefreshed,
@@ -110,13 +107,15 @@ export default function useReadingRank(): ReturnType {
       neverShowRankModal: newNeverShowRankModal,
     });
 
-  const shouldShowRankModal = checkShouldShowRankModal(
-    alerts?.rankLastSeen,
-    cachedRank?.rank?.lastReadTime || remoteRank?.rank?.lastReadTime,
-    loadedAlerts,
-    neverShowRankModal,
-    optOutWeeklyGoal,
-  );
+  const shouldShowRankModal =
+    showRankPopup &&
+    !optOutWeeklyGoal &&
+    checkShouldShowRankModal(
+      alerts?.rankLastSeen,
+      cachedRank?.rank?.lastReadTime || remoteRank?.rank?.lastReadTime,
+      loadedAlerts,
+      neverShowRankModal,
+    );
 
   const updateShownProgress = async () => {
     if (document.visibilityState === 'hidden') {
@@ -131,6 +130,12 @@ export default function useReadingRank(): ReturnType {
       setLevelUp(true);
     }
   };
+
+  useEffect(() => {
+    if (!disableNewRankPopup) {
+      setShowRankPopup(levelUp);
+    }
+  }, [levelUp]);
 
   // Let the rank update and then show progress animation, slight delay so the user won't miss it
   const displayProgress = () => setTimeout(updateShownProgress, 300);
