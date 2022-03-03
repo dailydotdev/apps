@@ -19,17 +19,8 @@ const Wrapper = ({ children, ...props }: WrapperProps) => {
   );
 };
 
-interface MobileHeaderRankProgressProps {
-  sidebarRendered: boolean;
-}
-export default function MobileHeaderRankProgress({
-  sidebarRendered,
-}: MobileHeaderRankProgressProps): ReactElement {
-  const { isLoading, rank, nextRank } = useReadingRank();
-
-  if (sidebarRendered) {
-    return <></>;
-  }
+export default function MobileHeaderRankProgress(): ReactElement {
+  const { isLoading, rank, nextRank } = useReadingRank(false);
 
   if (isLoading) {
     return <Wrapper>&nbsp;</Wrapper>;

@@ -17,13 +17,17 @@ const NewRankModal = dynamic(
   () => import(/* webpackChunkName: "newRankModal" */ './modals/NewRankModal'),
 );
 
-export default function RankProgressWrapper({
-  sidebarExpanded,
-  className,
-}: {
+export interface RankProgressWrapperProps {
+  disableNewRankPopup?: boolean;
   sidebarExpanded?: boolean;
   className?: string;
-}): ReactElement {
+}
+
+export default function RankProgressWrapper({
+  disableNewRankPopup,
+  sidebarExpanded,
+  className,
+}: RankProgressWrapperProps): ReactElement {
   const { user } = useContext(AuthContext);
   const [showRanksModal, setShowRanksModal] = useState(false);
   const { flags } = useContext(FeaturesContext);
@@ -41,7 +45,7 @@ export default function RankProgressWrapper({
     levelUp,
     confirmLevelUp,
     reads,
-  } = useReadingRank();
+  } = useReadingRank(disableNewRankPopup);
 
   const showRankAnimation = levelUp && !shouldShowRankModal;
   const closeRanksModal = () => {
@@ -88,7 +92,7 @@ export default function RankProgressWrapper({
           nextRank={nextRank}
         />
       )}
-      {levelUp && shouldShowRankModal && (
+      {shouldShowRankModal && (
         <NewRankModal
           rank={nextRank}
           progress={progress}
