@@ -39,7 +39,7 @@ import { ProfilePicture } from '../ProfilePicture';
 import Markdown from '../Markdown';
 import { ClickableText } from '../buttons/ClickableText';
 import AtIcon from '../../../icons/at.svg';
-import { BaseTooltip } from '../tooltips/BaseTooltip';
+import { BaseTooltip, getShouldLoadTooltip } from '../tooltips/BaseTooltip';
 import { RecommendedMention } from '../RecommendedMention';
 import { useUserMention } from '../../hooks/useUserMention';
 
@@ -345,27 +345,29 @@ export default function NewCommentModal({
           aria-label="New comment box"
         />
       </div>
-      <BaseTooltip
-        content={
-          <RecommendedMention
-            users={mentionQuery !== undefined && mentions}
-            selected={selected}
-            onClick={onMentionClick}
-          />
-        }
-        offset={[getOffsetPerChar(offsetX), getOffsetPerLine(offsetY) + -90]}
-        interactive
-        container={{
-          className: 'shadow',
-          paddingClassName: 'p-0',
-          roundedClassName: 'rounded-16',
-          bgClassName: 'bg-theme-bg-tertiary',
-        }}
-        reference={commentRef}
-        arrow={false}
-        placement="top-start"
-        visible={mentionQuery !== undefined}
-      />
+      {getShouldLoadTooltip() && (
+        <BaseTooltip
+          content={
+            <RecommendedMention
+              users={mentionQuery !== undefined && mentions}
+              selected={selected}
+              onClick={onMentionClick}
+            />
+          }
+          offset={[getOffsetPerChar(offsetX), getOffsetPerLine(offsetY) + -90]}
+          interactive
+          container={{
+            className: 'shadow',
+            paddingClassName: 'p-0',
+            roundedClassName: 'rounded-16',
+            bgClassName: 'bg-theme-bg-tertiary',
+          }}
+          reference={commentRef}
+          arrow={false}
+          placement="top-start"
+          visible={mentionQuery !== undefined}
+        />
+      )}
       <div
         className="my-2 mx-3 text-theme-status-error typo-caption1"
         style={{ minHeight: '1rem' }}
