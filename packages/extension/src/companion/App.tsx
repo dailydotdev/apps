@@ -25,7 +25,15 @@ import useCompanionActions from './useCompanionActions';
 const queryClient = new QueryClient();
 Modal.setAppElement('daily-companion-app');
 
-function InternalApp({ postData, parent }: { postData: BootData; parent }) {
+function InternalApp({
+  postData,
+  parent,
+  onOptOut,
+}: {
+  postData: BootData;
+  parent;
+  onOptOut;
+}) {
   const [post, setPost] = useState<BootData>(postData);
   const [companionState, setCompanionState] = useState<boolean>(false);
   const { notification, onMessage } = useNotification();
@@ -55,6 +63,11 @@ function InternalApp({ postData, parent }: { postData: BootData; parent }) {
     onRemoveUpvoteMutate: () =>
       updatePost({ upvoted: false, numUpvotes: post.numUpvotes + -1 }),
   });
+
+  const optOut = () => {
+    disableCompanion({});
+    onOptOut();
+  };
 
   const toggleUpvote = async () => {
     if (!post.upvoted) {
@@ -162,7 +175,7 @@ function InternalApp({ postData, parent }: { postData: BootData; parent }) {
           postData={postData}
           onReport={report}
           onBlockSource={blockSource}
-          onDisableCompanion={disableCompanion}
+          onDisableCompanion={optOut}
         />
       </div>
       <div className="flex flex-col p-6 rounded-l-16 border w-[22.5rem] border-theme-label-tertiary bg-theme-bg-primary">
@@ -203,9 +216,18 @@ function InternalApp({ postData, parent }: { postData: BootData; parent }) {
 
 export default function App({
   postData,
+  optOutCompanion = false,
 }: {
   postData: BootData;
+  optOutCompanion?: boolean;
 }): ReactElement {
+  const [isOptOutCompanion, setIsOptOutCompanion] =
+    useState<boolean>(optOutCompanion);
+  console.log(isOptOutCompanion);
+  if (isOptOutCompanion) {
+    return <></>;
+  }
+
   const parent = useRef();
   return (
     <div ref={parent}>
@@ -214,7 +236,11 @@ export default function App({
         &quot;chrome-extension://dhhaojmcngfjmoinjljlkdknbcildjlg/css/companion.css&quot;;
       </style>
       <QueryClientProvider client={queryClient}>
-        <InternalApp postData={postData} parent={parent.current} />
+        <InternalApp
+          postData={postData}
+          parent={parent.current}
+          onOptOut={() => setIsOptOutCompanion(true)}
+        />
       </QueryClientProvider>
     </div>
   );

@@ -13,11 +13,12 @@ export type Boot = {
   visit: Visit;
   flags: IFlags;
   settings: RemoteSettings;
+  data?;
 };
 
 export type BootCacheData = Pick<
   Boot,
-  'user' | 'alerts' | 'settings' | 'flags'
+  'user' | 'alerts' | 'settings' | 'flags' | 'data'
 >;
 
 export async function getBootData(app: string, url?: string): Promise<Boot> {

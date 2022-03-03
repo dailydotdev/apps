@@ -19,8 +19,8 @@ type UseCompanionActionsRet<T> = {
 };
 
 export default function useCompanionActions<
-  T extends { id: string; reason?: string; comment?: string } = {
-    id: string;
+  T extends { id?: string; reason?: string; comment?: string } = {
+    id?: string;
     reason?: string;
     comment?: string;
   },
@@ -61,12 +61,7 @@ export default function useCompanionActions<
     unknown,
     T,
     (() => void) | undefined
-  >(() => browser.runtime.sendMessage({ type: 'DISABLE_COMPANION' }), {
-    onMutate: onBookmarkMutate,
-    onError: (_, __, rollback) => {
-      rollback?.();
-    },
-  });
+  >(() => browser.runtime.sendMessage({ type: 'DISABLE_COMPANION' }));
 
   const { mutateAsync: bookmark } = useMutation<
     void,

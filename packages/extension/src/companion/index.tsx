@@ -4,12 +4,12 @@ import { browser } from 'webextension-polyfill-ts';
 import { CompanionBootData } from './common';
 import App from './App';
 
-const init = async (data: CompanionBootData) => {
+const init = async (data: CompanionBootData, optOutCompanion: boolean) => {
   const { postCanonical } = data;
 
   // Set target of the React app to shadow dom
   ReactDOM.render(
-    <App postData={{ ...postCanonical }} />,
+    <App postData={{ ...postCanonical }} optOutCompanion={optOutCompanion} />,
     document
       .querySelector('daily-companion-app')
       .shadowRoot.querySelector('#daily-companion-wrapper'),
@@ -18,7 +18,5 @@ const init = async (data: CompanionBootData) => {
 
 browser.runtime.onMessage.addListener(async (request) => {
   const { data, settings } = request;
-  if (settings.optOutCompanion !== true) {
-    init(data);
-  }
+  init(data, settings.optOutCompanion);
 });
