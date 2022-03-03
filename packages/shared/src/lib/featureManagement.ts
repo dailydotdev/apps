@@ -6,6 +6,12 @@ export class Features {
     'Access all features',
   );
 
+  static readonly SignupButtonColor = new Features(
+    'signup_button_theme_color',
+    'primary',
+    ['primary', 'avocado', 'water', 'cabbage', 'bacon'],
+  );
+
   static readonly DevcardLimit = new Features('feat_limit_dev_card', '50');
 
   static readonly FeedVersion = new Features('feed_version', '1');
