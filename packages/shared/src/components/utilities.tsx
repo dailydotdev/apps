@@ -8,6 +8,7 @@ export interface ThemeColor {
   shadow: string;
   button: string;
 }
+
 const themeColors = {
   avocado: {
     border: 'border-theme-color-avocado',
@@ -70,8 +71,20 @@ const themeColors = {
     button: 'btn-primary',
   },
 };
+
 export const getThemeColor = (color: string, fallback: string): ThemeColor => {
   return themeColors[color] ?? themeColors[fallback];
+};
+
+const themeFonts = {
+  bodyBold: 'font-bold typo-body',
+  body: 'typo-body',
+  title3: 'typo-title3',
+  title3Bold: 'font-bold typo-title3',
+};
+
+export const getThemeFont = (font: string, fallback: string): string => {
+  return themeFonts[font] ?? themeFonts[fallback];
 };
 
 export const RoundedImage = classed(LazyImage, 'w-10 h-10 rounded-full');
