@@ -24,7 +24,7 @@ const init = async (data: CompanionBootData, settings) => {
 
 browser.runtime.onMessage.addListener(async (request) => {
   const { data, settings } = request;
-  if (data !== null) {
+  if (data !== null && data?.data !== null) {
     init(data, settings);
   }
 });

@@ -1,10 +1,7 @@
-html, daily-companion-app {
+html, #daily-companion-app {
   background: var(--theme-background-primary);
   color: var(--theme-label-primary);
   height: -webkit-fill-available;
-  &.companion {
-  background: transparent;
-   }
 }
 daily-companion-app {
   line-height: 1.5; /* 1 */
@@ -259,7 +256,8 @@ html .invert .invert {
 
 html.light,
 html .invert,
-html.light .invert .invert {
+html.light .invert .invert,
+#daily-companion-wrapper.light {
   @mixin light-mode;
 }
 
