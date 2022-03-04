@@ -191,6 +191,7 @@ export default function FeedItemComponent({
           onRender={(ad) => onAdRender(ad, index, row, column)}
           onLinkClick={(ad) => onAdClick(ad, index, row, column)}
           showImage={!insaneMode}
+          postHeadingFont={postHeadingFont}
         />
       );
     default:
