@@ -36,7 +36,7 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "css": ["css/content.css"],
+      "css": ["css/daily-companion-app.css"],
       "js": ["js/content.bundle.js", "js/companion.bundle.js"]
     }
   ],
