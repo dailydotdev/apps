@@ -104,8 +104,7 @@ export default function DndModal({
   );
 
   const getDescription = () => {
-    if (!isActive)
-      return "Choose your preferences while you're on Focus Mode";
+    if (!isActive) return "Choose your preferences while you're on Focus Mode";
 
     const date = format(dndSettings.expiration, 'MM/dd/yy');
     const time = format(dndSettings.expiration, 'hh:mm a');
