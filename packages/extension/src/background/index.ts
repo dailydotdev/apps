@@ -55,7 +55,7 @@ const sendBootData = async (req, sender) => {
 function handleMessages(message, sender) {
   if (message.type === 'SIGN_CONNECT') {
     sendBootData(message, sender);
-    return true;
+    return null;
   }
 
   if (message.type === 'UPVOTE_POST') {
