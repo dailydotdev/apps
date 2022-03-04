@@ -187,7 +187,7 @@ export default function useReadingRank(
         queryClient.setQueryData<MyRankData>(queryKey, rank);
       }
     }
-  }, [user, tokenRefreshed, loadedCache]);
+  }, [user, tokenRefreshed, loadedUserFromCache, loadedCache]);
 
   return {
     isLoading: !cachedRank,
