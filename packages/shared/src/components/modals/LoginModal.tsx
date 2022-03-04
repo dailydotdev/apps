@@ -1,6 +1,5 @@
 import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
-import DailyDevLogo from '../../svg/DailyDevLogo';
 import { StyledModal, ModalProps } from './StyledModal';
 import { ModalCloseButton } from './ModalCloseButton';
 import LoginButtons from '../LoginButtons';

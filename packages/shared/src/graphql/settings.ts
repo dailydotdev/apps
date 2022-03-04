@@ -13,6 +13,7 @@ export type RemoteSettings = {
   sidebarExpanded: boolean;
   sortingEnabled: boolean;
   optOutWeeklyGoal: boolean;
+  optOutCompanion: boolean;
   customLinks?: string[];
 };
 
@@ -30,6 +31,7 @@ export const USER_SETTINGS_QUERY = gql`
       sidebarExpanded
       sortingEnabled
       optOutWeeklyGoal
+      optOutCompanion
       customLinks
     }
   }

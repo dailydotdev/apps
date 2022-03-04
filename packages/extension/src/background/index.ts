@@ -1,21 +1,17 @@
 import { browser, Runtime } from 'webextension-polyfill-ts';
 import { getBootData } from '@dailydotdev/shared/src/lib/boot';
-import useUpvotePost from '@dailydotdev/shared/src/hooks/useUpvotePost';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import {
   ADD_BOOKMARKS_MUTATION,
   CANCEL_UPVOTE_MUTATION,
-  HIDE_POST_MUTATION,
   REMOVE_BOOKMARK_MUTATION,
   REPORT_POST_MUTATION,
   UPVOTE_MUTATION,
 } from '@dailydotdev/shared/src/graphql/posts';
 import request from 'graphql-request';
-import {
-  ADD_FILTERS_TO_FEED_MUTATION,
-  FEED_FILTERS_FROM_REGISTRATION,
-} from '@dailydotdev/shared/src/graphql/feedSettings';
+import { ADD_FILTERS_TO_FEED_MUTATION } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { UPDATE_USER_SETTINGS_MUTATION } from '@dailydotdev/shared/src/graphql/settings';
+import { BOOT_LOCAL_KEY } from '@dailydotdev/shared/src/contexts/BootProvider';
 
 const cacheAmplitudeDeviceId = async ({
   reason,
@@ -40,19 +36,23 @@ const excludedCompanionOrigins = [
 const isExcluded = (origin: string) =>
   excludedCompanionOrigins.some((e) => origin.includes(e));
 
-const sendBootData = async (request, sender) => {
+const sendBootData = async (req, sender) => {
   if (isExcluded(sender?.origin)) {
     return;
   }
-
+  const cacheData = JSON.parse(localStorage.getItem('boot:local'));
   const { data, settings } = await getBootData('extension', sender?.tab?.url);
+  let settingsOutput = settings;
+  if (!cacheData?.user || !('providers' in cacheData?.user)) {
+    settingsOutput = { ...settingsOutput, ...cacheData?.settings };
+  }
   await browser.tabs.sendMessage(sender?.tab?.id, {
     data,
-    settings,
+    settings: settingsOutput,
   });
 };
 
-function handleMessages(message, sender, response) {
+function handleMessages(message, sender) {
   if (message.type === 'SIGN_CONNECT') {
     sendBootData(message, sender);
     return true;
@@ -99,16 +99,21 @@ function handleMessages(message, sender, response) {
   }
 
   if (message.type === 'DISABLE_COMPANION') {
+    const cacheData = JSON.parse(localStorage.getItem('boot:local'));
+    const settings = { ...cacheData.settings, optOutCompanion: true };
+    localStorage.setItem(
+      BOOT_LOCAL_KEY,
+      JSON.stringify({ ...cacheData, settings, last_modifier: 'companion' }),
+    );
     return request(`${apiUrl}/graphql`, UPDATE_USER_SETTINGS_MUTATION, {
       data: {
         optOutCompanion: true,
       },
     });
-    sendBootData(message, sender);
   }
+  return null;
 }
 
-// @ts-ignore
 browser.runtime.onMessage.addListener(handleMessages);
 
 browser.browserAction.onClicked.addListener(() => {

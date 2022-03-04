@@ -1,10 +1,10 @@
-html, daily-companion-app {
+html, #daily-companion-app {
   background: var(--theme-background-primary);
   color: var(--theme-label-primary);
   height: -webkit-fill-available;
-  &.companion {
-  background: transparent;
-   }
+  & .companion {
+    background: transparent;
+  }
 }
 daily-companion-app {
   line-height: 1.5; /* 1 */
@@ -27,22 +27,28 @@ body {
   /* mobile viewport bug fix */
   min-height: -webkit-fill-available;
 
-  &.ReactModal__Body--open .ReactModal__Content,
-  &.ReactModal__Body--open .ReactModal__Content > * {
-    overscroll-behavior-y: none;
-  }
-   &.companion {
+&
+.ReactModal__Body--open .ReactModal__Content,
+
+&
+.ReactModal__Body--open .ReactModal__Content > * {
+  overscroll-behavior-y: none;
+}
+
+&
+.companion {
   min-width: auto;
   overflow: hidden;
-    }
+}
+
 }
 
 @define-mixin dark-mode {
-  --theme-active: theme('colors.salt.90')33;
+  --theme-active: theme('colors.salt.90') 33;
   --theme-focus: theme('colors.blueCheese.40');
-  --theme-float: theme('colors.salt.90')14;
+  --theme-float: theme('colors.salt.90') 14;
   /* stylelint-disable-next-line unit-no-unknown */
-  --theme-hover: theme('colors.salt.90')1F;
+  --theme-hover: theme('colors.salt.90') 1 F;
 
   --theme-background-primary: theme('colors.pepper.90');
   --theme-background-secondary: theme('colors.pepper.70');
@@ -53,16 +59,16 @@ body {
   --theme-label-primary: #ffffff;
   --theme-label-secondary: theme('colors.salt.50');
   --theme-label-tertiary: theme('colors.salt.90');
-  --theme-label-quaternary: theme('colors.salt.90')A3;
-  --theme-label-disabled: theme('colors.salt.90')52;
+  --theme-label-quaternary: theme('colors.salt.90') A3;
+  --theme-label-disabled: theme('colors.salt.90') 52;
   --theme-label-link: theme('colors.water.20');
   --theme-label-invert: theme('colors.pepper.90');
   --theme-label-bun: theme('colors.bun.20');
 
   --theme-divider-primary: theme('colors.salt.90');
-  --theme-divider-secondary: theme('colors.salt.90')66;
-  --theme-divider-tertiary: theme('colors.salt.90')33;
-  --theme-divider-quaternary: theme('colors.salt.90')14;
+  --theme-divider-secondary: theme('colors.salt.90') 66;
+  --theme-divider-tertiary: theme('colors.salt.90') 33;
+  --theme-divider-quaternary: theme('colors.salt.90') 14;
 
   --theme-status-error: theme('colors.ketchup.40');
   --theme-status-help: theme('colors.cheese.40');
@@ -74,7 +80,7 @@ body {
   --theme-shadow2: theme('boxShadow.2-black');
   --theme-shadow3: theme('boxShadow.3-black');
 
-  --theme-post-disabled: theme('colors.pepper.70')66;
+  --theme-post-disabled: theme('colors.pepper.70') 66;
 
   --theme-overlay-quaternary: theme('colors.overlay.quaternary.white');
 
@@ -134,11 +140,11 @@ body {
 
 @define-mixin light-mode {
 
-  --theme-active: theme('colors.pepper.10')33;
+  --theme-active: theme('colors.pepper.10') 33;
   --theme-focus: theme('colors.blueCheese.60');
-  --theme-float: theme('colors.pepper.10')14;
+  --theme-float: theme('colors.pepper.10') 14;
   /* stylelint-disable-next-line unit-no-unknown */
-  --theme-hover: theme('colors.pepper.10')1F;
+  --theme-hover: theme('colors.pepper.10') 1 F;
 
   --theme-background-primary: #ffffff;
   --theme-background-secondary: theme('colors.salt.10');
@@ -150,16 +156,16 @@ body {
   --theme-label-primary: theme('colors.pepper.90');
   --theme-label-secondary: theme('colors.pepper.50');
   --theme-label-tertiary: theme('colors.pepper.10');
-  --theme-label-quaternary: theme('colors.pepper.10')A3;
-  --theme-label-disabled: theme('colors.pepper.10')52;
+  --theme-label-quaternary: theme('colors.pepper.10') A3;
+  --theme-label-disabled: theme('colors.pepper.10') 52;
   --theme-label-link: theme('colors.water.80');
   --theme-label-invert: #ffffff;
   --theme-label-bun: theme('colors.bun.80');
 
   --theme-divider-primary: theme('colors.pepper.10');
-  --theme-divider-secondary: theme('colors.pepper.10')66;
-  --theme-divider-tertiary: theme('colors.pepper.10')33;
-  --theme-divider-quaternary: theme('colors.pepper.10')14;
+  --theme-divider-secondary: theme('colors.pepper.10') 66;
+  --theme-divider-tertiary: theme('colors.pepper.10') 33;
+  --theme-divider-quaternary: theme('colors.pepper.10') 14;
 
   --theme-status-error: theme('colors.ketchup.60');
   --theme-status-help: theme('colors.cheese.60');
@@ -259,7 +265,7 @@ html .invert .invert {
 
 html.light,
 html .invert,
-html.light .invert .invert {
+html.light .invert .invert, #daily-companion-wrapper.light {
   @mixin light-mode;
 }
 
@@ -270,9 +276,9 @@ html.light .invert .invert {
 .ReactModal__Body--open #__next.hide-on-modal {
   display: none;
 
-  @screen mobileL {
-    display: flex;
-  }
+@screen mobileL {
+  display: flex;
+}
 }
 
 #__next {
@@ -291,11 +297,11 @@ img.lazyload:not([src]) {
 }
 
 .withNavBar {
-  margin-bottom: $navBarHeight;
+  margin-bottom: $ navBarHeight;
 
-  @screen laptop {
-    margin-bottom: 0;
-  }
+@screen laptop {
+  margin-bottom: 0;
+}
 }
 
 .fade-enter-active,
@@ -353,31 +359,45 @@ img.lazyload:not([src]) {
 summary {
   list-style: none;
 
-  &::-webkit-details-marker {
-    display: none;
-  }
+&
+::-webkit-details-marker {
+  display: none;
+}
+
 }
 
 details {
-  & .arrow {
-    transform: rotate(180deg);
-    transition: transform 0.1s linear;
-  }
 
-  &[open] {
-    & .arrow {
-      transform: rotate(0deg);
-    }
-  }
+&
+.arrow {
+  transform: rotate(180deg);
+  transition: transform 0.1s linear;
+}
+
+&
+[open] {
+
+&
+.arrow {
+  transform: rotate(0deg);
+}
+
+}
 }
 details.right-icon {
-  & summary .icon {
-    --tw-rotate: 90deg;
-  }
 
-  &[open] {
-    & summary .icon {
-      --tw-rotate: 180deg;
-    }
-  }
+&
+summary .icon {
+  --tw-rotate: 90deg;
+}
+
+&
+[open] {
+
+&
+summary .icon {
+  --tw-rotate: 180deg;
+}
+
+}
 }

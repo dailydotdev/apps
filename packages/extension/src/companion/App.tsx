@@ -1,4 +1,4 @@
-import React, { ReactElement, useRef, useState } from 'react';
+import React, { ReactElement, useState } from 'react';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import UpvoteIcon from '@dailydotdev/shared/icons/upvote.svg';
 import CommentIcon from '@dailydotdev/shared/icons/comment.svg';
@@ -12,7 +12,7 @@ import {
 } from '@dailydotdev/shared/src/components/utilities';
 import classNames from 'classnames';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
-import { QueryClient, QueryClientProvider, useMutation } from 'react-query';
+import { QueryClient, QueryClientProvider } from 'react-query';
 import Modal from 'react-modal';
 import { useContextMenu } from '@dailydotdev/react-contexify';
 import useNotification from '@dailydotdev/shared/src/hooks/useNotification';
@@ -25,15 +25,7 @@ import useCompanionActions from './useCompanionActions';
 const queryClient = new QueryClient();
 Modal.setAppElement('daily-companion-app');
 
-function InternalApp({
-  postData,
-  parent,
-  onOptOut,
-}: {
-  postData: BootData;
-  parent;
-  onOptOut;
-}) {
+function InternalApp({ postData, onOptOut }: { postData: BootData; onOptOut }) {
   const [post, setPost] = useState<BootData>(postData);
   const [companionState, setCompanionState] = useState<boolean>(false);
   const { notification, onMessage } = useNotification();
@@ -216,21 +208,20 @@ function InternalApp({
 
 export default function App({
   postData,
-  optOutCompanion = false,
+  settings,
 }: {
   postData: BootData;
-  optOutCompanion?: boolean;
+  settings;
 }): ReactElement {
-  const [isOptOutCompanion, setIsOptOutCompanion] =
-    useState<boolean>(optOutCompanion);
-  console.log(isOptOutCompanion);
+  const [isOptOutCompanion, setIsOptOutCompanion] = useState<boolean>(
+    settings?.optOutCompanion,
+  );
   if (isOptOutCompanion) {
     return <></>;
   }
 
-  const parent = useRef();
   return (
-    <div ref={parent}>
+    <div>
       <style>
         @import
         &quot;chrome-extension://dhhaojmcngfjmoinjljlkdknbcildjlg/css/companion.css&quot;;
@@ -238,7 +229,6 @@ export default function App({
       <QueryClientProvider client={queryClient}>
         <InternalApp
           postData={postData}
-          parent={parent.current}
           onOptOut={() => setIsOptOutCompanion(true)}
         />
       </QueryClientProvider>

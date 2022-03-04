@@ -49,6 +49,8 @@ export default function Settings({
     toggleSortingEnabled,
     optOutWeeklyGoal,
     toggleOptOutWeeklyGoal,
+    optOutCompanion,
+    toggleOptOutCompanion,
   } = useContext(SettingsContext);
   const [themes, setThemes] = useState([
     { label: 'Dark', value: 'dark' },
@@ -161,6 +163,21 @@ export default function Settings({
             compact={false}
           >
             Show Weekly Goal widget
+          </Switch>
+        </div>
+      </Section>
+      <Section>
+        <SectionTitle>Companion Widget (beta)</SectionTitle>
+        <div className="flex flex-col items-start pl-1.5 -my-0.5">
+          <Switch
+            inputId="hide-companion-switch"
+            name="hide-companion"
+            className="my-3"
+            checked={!optOutCompanion}
+            onToggle={toggleOptOutCompanion}
+            compact={false}
+          >
+            Enable widget on articles
           </Switch>
         </div>
       </Section>

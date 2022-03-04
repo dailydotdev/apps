@@ -49,7 +49,7 @@ export default function useCompanionActions<
     unknown,
     T,
     (() => void) | undefined
-  >(({ id, reason, comment }) =>
+  >(({ id }) =>
     browser.runtime.sendMessage({
       type: 'BLOCK_SOURCE',
       source_id: id,

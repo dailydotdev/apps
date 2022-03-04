@@ -6,7 +6,6 @@ import FeedbackIcon from '@dailydotdev/shared/icons/feedback.svg';
 import EyeIcon from '@dailydotdev/shared/icons/eye.svg';
 import { Item, Menu } from '@dailydotdev/react-contexify';
 import RepostPostModal from '@dailydotdev/shared/src/components/modals/ReportPostModal';
-import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import { BootData } from './common';
 import DisableCompanionModal from './DisableCompanionModal';
 
