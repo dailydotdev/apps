@@ -72,7 +72,7 @@ export default function useReadingRank(
   disableNewRankPopup?: boolean,
 ): ReturnType {
   const { alerts, loadedAlerts, updateAlerts } = useContext(AlertContext);
-  const { user, tokenRefreshed } = useContext(AuthContext);
+  const { user, tokenRefreshed, loadedUserFromCache } = useContext(AuthContext);
   const [levelUp, setLevelUp] = useState(false);
   const [showRankPopup, setShowRankPopup] = useState(false);
   const queryClient = useQueryClient();
@@ -164,7 +164,7 @@ export default function useReadingRank(
 
   // For anonymous users
   useEffect(() => {
-    if (loadedCache && tokenRefreshed) {
+    if (loadedCache && loadedUserFromCache && tokenRefreshed) {
       if (cachedRank?.userId !== user?.id) {
         // Reset cache on user change
         if (remoteRank) {
@@ -187,7 +187,7 @@ export default function useReadingRank(
         queryClient.setQueryData<MyRankData>(queryKey, rank);
       }
     }
-  }, [user, tokenRefreshed, loadedCache]);
+  }, [user, tokenRefreshed, loadedUserFromCache, loadedCache]);
 
   return {
     isLoading: !cachedRank,

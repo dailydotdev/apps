@@ -35,6 +35,7 @@ import PostOptionsMenu from './PostOptionsMenu';
 import useNotification from '../hooks/useNotification';
 import FeaturesContext from '../contexts/FeaturesContext';
 import { Features, getFeatureValue } from '../lib/featureManagement';
+import { getThemeFont } from './utilities';
 
 export type FeedProps<T> = {
   feedName: string;
@@ -111,6 +112,10 @@ export default function Feed<T>({
   createMyFeedCard,
 }: FeedProps<T>): ReactElement {
   const { flags } = useContext(FeaturesContext);
+  const postHeadingFont = getThemeFont(
+    getFeatureValue(Features.PostCardHeadingFont, flags),
+    Features.PostCardHeadingFont.defaultValue,
+  );
   const displayPublicationDate = !parseInt(
     getFeatureValue(Features.HidePublicationDate, flags),
     10,
@@ -293,6 +298,7 @@ export default function Feed<T>({
             onCommentClick={onCommentClick}
             onAdRender={onAdImpression}
             onAdClick={onAdClick}
+            postHeadingFont={postHeadingFont}
           />
         ))}
       </div>
