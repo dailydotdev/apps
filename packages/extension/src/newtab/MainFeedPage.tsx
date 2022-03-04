@@ -1,19 +1,25 @@
-import React, { ReactElement, useContext, useState } from 'react';
-import MainLayout, {
-  HeaderButton,
-} from '@dailydotdev/shared/src/components/MainLayout';
-import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
-import Sidebar from '@dailydotdev/shared/src/components/Sidebar';
+import React, {
+  ReactElement,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import MainLayout from '@dailydotdev/shared/src/components/MainLayout';
 import MainFeedLayout, {
-  Tab,
+  getShouldRedirect,
 } from '@dailydotdev/shared/src/components/MainFeedLayout';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import dynamic from 'next/dynamic';
 import TimerIcon from '@dailydotdev/shared/icons/timer.svg';
-import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
-import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import MostVisitedSites from './MostVisitedSites';
+import useDefaultFeed from '@dailydotdev/shared/src/hooks/useDefaultFeed';
+import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
+import { HeaderButton } from '@dailydotdev/shared/src/components/buttons/common';
+import { useMyFeed } from '@dailydotdev/shared/src/hooks/useMyFeed';
+import ShortcutLinks from './ShortcutLinks';
+import DndBanner from './DndBanner';
+import DndContext from './DndContext';
 
 const PostsSearch = dynamic(
   () =>
@@ -33,76 +39,98 @@ export type MainFeedPageProps = {
 export default function MainFeedPage({
   onPageChanged,
 }: MainFeedPageProps): ReactElement {
-  const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user } = useContext(AuthContext);
-  const { onboardingStep } = useContext(OnboardingContext) || {};
   const [feedName, setFeedName] = useState<string>('default');
   const [isSearchOn, setIsSearchOn] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>();
   const [showDnd, setShowDnd] = useState(false);
-
+  const { registerLocalFilters, shouldShowMyFeed } = useMyFeed();
+  const [defaultFeed] = useDefaultFeed(shouldShowMyFeed);
+  const { isActive: isDndActive } = useContext(DndContext);
   const enableSearch = () => {
     setIsSearchOn(true);
     setSearchQuery(null);
     onPageChanged('/search');
   };
 
-  const closeSearch = () => {
-    setIsSearchOn(false);
-    onPageChanged(`/${feedName}`);
+  const onNavTabClick = (tab: string): void => {
+    if (tab !== 'search') {
+      setIsSearchOn(false);
+    }
+    setFeedName(tab);
+    const isMyFeed = tab === '/my-feed';
+    if (getShouldRedirect(isMyFeed, !!user)) {
+      onPageChanged(`/`);
+    } else {
+      onPageChanged(`/${tab}`);
+    }
   };
 
-  const onNavTabClick = (tab: Tab): void => {
-    setFeedName(tab.name);
-    onPageChanged(`/${tab.name}`);
-  };
+  const activePage = useMemo(() => {
+    if (isSearchOn) {
+      return '/search';
+    }
+    return `/${feedName === 'default' ? defaultFeed : feedName}`;
+  }, [isSearchOn, feedName, defaultFeed]);
 
   const onLogoClick = (e: React.MouseEvent): void => {
     e.preventDefault();
     e.stopPropagation();
-    setFeedName('default');
+    setFeedName('popular');
     setIsSearchOn(false);
     setSearchQuery(undefined);
   };
 
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const createFilter = urlParams.get('create_filters');
+
+    if (createFilter) {
+      registerLocalFilters().then(({ hasFilters }) => {
+        if (hasFilters) {
+          setFeedName('my-feed');
+        }
+      });
+    }
+  }, []);
+
   return (
     <MainLayout
-      responsive={false}
-      showRank
       greeting
       mainPage
+      useNavButtonsNotLinks
+      activePage={activePage}
       onLogoClick={onLogoClick}
+      showDnd={showDnd}
       onShowDndClick={() => setShowDnd(true)}
+      enableSearch={enableSearch}
+      onNavTabClick={onNavTabClick}
+      screenCentered={false}
+      customBanner={isDndActive && <DndBanner />}
       additionalButtons={
-        <>
-          {(onboardingStep > 2 || user) && (
+        user && (
+          <SimpleTooltip content="Do Not Disturb" placement="bottom">
             <HeaderButton
               icon={<TimerIcon />}
-              {...getTooltipProps('Focus Mode', { position: 'down' })}
               className="btn-tertiary"
               onClick={() => setShowDnd(true)}
               pressed={showDnd}
             />
-          )}
-        </>
+          </SimpleTooltip>
+        )
       }
     >
       <FeedLayout>
-        {windowLoaded && <Sidebar />}
         <MainFeedLayout
-          useNavButtonsNotLinks
           feedName={feedName}
           isSearchOn={isSearchOn}
           searchQuery={searchQuery}
-          onSearchButtonClick={enableSearch}
-          onNavTabClick={onNavTabClick}
           searchChildren={
             <PostsSearch
-              closeSearch={closeSearch}
               onSubmitQuery={async (query) => setSearchQuery(query)}
             />
           }
-          navChildren={!isSearchOn && <MostVisitedSites />}
+          navChildren={!isSearchOn && <ShortcutLinks />}
         />
       </FeedLayout>
       <DndModal isOpen={showDnd} onRequestClose={() => setShowDnd(false)} />

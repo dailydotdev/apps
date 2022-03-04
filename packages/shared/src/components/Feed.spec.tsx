@@ -33,16 +33,22 @@ import defaultFeedPage from '../../__tests__/fixture/feed';
 import defaultUser from '../../__tests__/fixture/loggedUser';
 import ad from '../../__tests__/fixture/ad';
 import { LoggedUser } from '../lib/user';
-import { LoginModalMode } from '../types/LoginModalMode';
 import { MyRankData } from '../graphql/users';
 import { getRankQueryKey } from '../hooks/useReadingRank';
 import { SubscriptionCallbacks } from '../hooks/useSubscription';
 import { COMMENT_ON_POST_MUTATION } from '../graphql/comments';
 import SettingsContext, {
   SettingsContextData,
+  ThemeMode,
 } from '../contexts/SettingsContext';
-import OnboardingContext from '../contexts/OnboardingContext';
 import { waitForNock } from '../../__tests__/helpers/utilities';
+import {
+  ADD_FILTERS_TO_FEED_MUTATION,
+  AllTagCategoriesData,
+  FeedSettings,
+  FEED_SETTINGS_QUERY,
+} from '../graphql/feedSettings';
+import { getFeedSettingsQueryKey } from '../hooks/useFeedSettings';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
@@ -61,23 +67,43 @@ jest.mock('../hooks/useSubscription', () => ({
     ),
 }));
 
+let variables: unknown;
+const defaultVariables = {
+  first: 7,
+  loggedIn: true,
+  unreadOnly: false,
+};
+
 beforeEach(() => {
   jest.clearAllMocks();
   nock.cleanAll();
+  variables = defaultVariables;
+});
+
+const createTagsSettingsMock = (
+  feedSettings: FeedSettings = {
+    includeTags: [],
+    blockedTags: [],
+    excludeSources: [],
+  },
+  loggedIn = true,
+): MockedGraphQLResponse<AllTagCategoriesData> => ({
+  request: { query: FEED_SETTINGS_QUERY, variables: { loggedIn } },
+  result: {
+    data: {
+      feedSettings,
+    },
+  },
 });
 
 const createFeedMock = (
   page = defaultFeedPage,
   query: string = ANONYMOUS_FEED_QUERY,
-  variables: unknown = {
-    first: 7,
-    loggedIn: true,
-    unreadOnly: false,
-  },
+  params: unknown = variables,
 ): MockedGraphQLResponse<FeedData> => ({
   request: {
     query,
-    variables,
+    variables: params,
   },
   result: {
     data: {
@@ -101,13 +127,21 @@ const renderComponent = (
     showOnlyUnreadPosts: false,
     openNewTab: true,
     setTheme: jest.fn(),
-    themeMode: 'dark',
+    themeMode: ThemeMode.Dark,
     setSpaciness: jest.fn(),
     toggleOpenNewTab: jest.fn(),
     toggleShowOnlyUnreadPosts: jest.fn(),
     insaneMode: false,
     loadedSettings: true,
     toggleInsaneMode: jest.fn(),
+    showTopSites: true,
+    toggleShowTopSites: jest.fn(),
+    toggleSortingEnabled: jest.fn(),
+    sortingEnabled: false,
+    toggleOptOutWeeklyGoal: jest.fn(),
+    optOutWeeklyGoal: true,
+    sidebarExpanded: true,
+    toggleSidebarExpanded: jest.fn(),
   };
   return render(
     <QueryClientProvider client={queryClient}>
@@ -125,20 +159,13 @@ const renderComponent = (
           loginState: null,
         }}
       >
-        <OnboardingContext.Provider
-          value={{
-            onboardingStep: 3,
-            onboardingReady: true,
-            incrementOnboardingStep: jest.fn(),
-            trackEngagement: jest.fn(),
-            closeReferral: jest.fn(),
-            showReferral: false,
-          }}
-        >
-          <SettingsContext.Provider value={settingsContext}>
-            <Feed feedQueryKey={['feed']} query={ANONYMOUS_FEED_QUERY} />
-          </SettingsContext.Provider>
-        </OnboardingContext.Provider>
+        <SettingsContext.Provider value={settingsContext}>
+          <Feed
+            feedQueryKey={['feed']}
+            query={ANONYMOUS_FEED_QUERY}
+            variables={variables}
+          />
+        </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
   );
@@ -165,6 +192,31 @@ it('should replace placeholders with posts and ad', async () => {
     // eslint-disable-next-line testing-library/prefer-screen-queries
     expect(await findByRole(el, 'link')).toHaveAttribute('href', ad.link);
   });
+});
+
+it('should render feed with sorting ranking by date', async () => {
+  variables = { ...defaultVariables, ranking: 'TIME' };
+  renderComponent(
+    [createFeedMock(defaultFeedPage, ANONYMOUS_FEED_QUERY)],
+    defaultUser,
+  );
+  await waitForNock();
+  const elements = await screen.findAllByTestId('postItem');
+  expect(elements.length).toBeGreaterThan(0);
+  const [latest, old] = elements;
+  // eslint-disable-next-line testing-library/no-node-access
+  const latestTitle = latest.querySelector('a').getAttribute('title');
+  const latestPost = defaultFeedPage.edges.find(
+    (edge) => edge.node.title === latestTitle,
+  ).node;
+  // eslint-disable-next-line testing-library/no-node-access
+  const oldTitle = old.querySelector('a').getAttribute('title');
+  const oldPost = defaultFeedPage.edges.find(
+    (edge) => edge.node.title === oldTitle,
+  ).node;
+  expect(new Date(latestPost.createdAt).getTime()).toBeGreaterThan(
+    new Date(oldPost.createdAt).getTime(),
+  );
 });
 
 it('should send upvote mutation', async () => {
@@ -238,7 +290,7 @@ it('should open login modal on anonymous upvote', async () => {
   );
   const [el] = await screen.findAllByLabelText('Upvote');
   el.click();
-  expect(showLogin).toBeCalledWith('upvote', LoginModalMode.ContentQuality);
+  expect(showLogin).toBeCalledWith('upvote');
 });
 
 it('should send add bookmark mutation', async () => {
@@ -349,12 +401,15 @@ it('should increase reading rank progress', async () => {
     expect(data).toEqual({
       rank: {
         readToday: true,
-        currentRank: 0,
+        currentRank: 1,
         progressThisWeek: 1,
         lastReadTime: expect.anything(),
+        rankLastWeek: undefined,
       },
       reads: 0,
     });
+    const state = queryClient.getQueryState(queryKey);
+    expect(state.isInvalidated).toEqual(true);
   });
 });
 
@@ -470,7 +525,7 @@ it('should increase reading rank progress for anonymous users', async () => {
     expect(data).toEqual({
       rank: {
         readToday: true,
-        currentRank: 0,
+        currentRank: 1,
         progressThisWeek: 1,
         lastReadTime: expect.anything(),
       },
@@ -633,10 +688,54 @@ it('should report broken link', async () => {
       },
     },
   ]);
-  const [menuBtn] = await screen.findAllByLabelText('Report post');
+  const [menuBtn] = await screen.findAllByLabelText('Options');
   menuBtn.click();
-  const contextBtn = await screen.findByText('Broken link');
+  const contextBtn = await screen.findByText('Report');
   contextBtn.click();
+  const brokenLinkBtn = await screen.findByText('Broken link');
+  brokenLinkBtn.click();
+  const submitBtn = await screen.findByText('Submit report');
+  submitBtn.click();
+  await waitFor(() => expect(mutationCalled).toBeTruthy());
+  await waitFor(() =>
+    expect(
+      screen.queryByTitle('Eminem Quotes Generator - Simple PHP RESTful API'),
+    ).not.toBeInTheDocument(),
+  );
+});
+
+it('should report broken link with comment', async () => {
+  let mutationCalled = false;
+  renderComponent([
+    createFeedMock({
+      pageInfo: defaultFeedPage.pageInfo,
+      edges: [defaultFeedPage.edges[0]],
+    }),
+    {
+      request: {
+        query: REPORT_POST_MUTATION,
+        variables: {
+          id: '4f354bb73009e4adfa5dbcbf9b3c4ebf',
+          reason: 'BROKEN',
+          comment: 'comment',
+        },
+      },
+      result: () => {
+        mutationCalled = true;
+        return { data: { _: true } };
+      },
+    },
+  ]);
+  const [menuBtn] = await screen.findAllByLabelText('Options');
+  menuBtn.click();
+  const contextBtn = await screen.findByText('Report');
+  contextBtn.click();
+  const brokenLinkBtn = await screen.findByText('Broken link');
+  brokenLinkBtn.click();
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  fireEvent.change(input, { target: { value: 'comment' } });
+  const submitBtn = await screen.findByText('Submit report');
+  submitBtn.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
   await waitFor(() =>
     expect(
@@ -663,10 +762,14 @@ it('should report nsfw', async () => {
       },
     },
   ]);
-  const [menuBtn] = await screen.findAllByLabelText('Report post');
+  const [menuBtn] = await screen.findAllByLabelText('Options');
   menuBtn.click();
-  const contextBtn = await screen.findByText('Report NSFW');
+  const contextBtn = await screen.findByText('Report');
   contextBtn.click();
+  const brokenLinkBtn = await screen.findByText('NSFW');
+  brokenLinkBtn.click();
+  const submitBtn = await screen.findByText('Submit report');
+  submitBtn.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
   await waitFor(() =>
     expect(
@@ -693,9 +796,9 @@ it('should hide post', async () => {
       },
     },
   ]);
-  const [menuBtn] = await screen.findAllByLabelText('Report post');
+  const [menuBtn] = await screen.findAllByLabelText('Options');
   menuBtn.click();
-  const contextBtn = await screen.findByText('Hide post');
+  const contextBtn = await screen.findByText('Hide');
   contextBtn.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
   await waitFor(() =>
@@ -703,4 +806,70 @@ it('should hide post', async () => {
       screen.queryByTitle('Eminem Quotes Generator - Simple PHP RESTful API'),
     ).not.toBeInTheDocument(),
   );
+});
+
+it('should block a source', async () => {
+  let mutationCalled = false;
+  renderComponent([
+    createFeedMock({
+      pageInfo: defaultFeedPage.pageInfo,
+      edges: [defaultFeedPage.edges[0]],
+    }),
+    createTagsSettingsMock(),
+    {
+      request: {
+        query: ADD_FILTERS_TO_FEED_MUTATION,
+        variables: { filters: { excludeSources: ['echojs'] } },
+      },
+      result: () => {
+        mutationCalled = true;
+        return { data: { _: true } };
+      },
+    },
+  ]);
+  await waitFor(async () => {
+    const data = await queryClient.getQueryData(
+      getFeedSettingsQueryKey(defaultUser),
+    );
+    expect(data).toBeTruthy();
+  });
+  const [menuBtn] = await screen.findAllByLabelText('Options');
+  menuBtn.click();
+  const contextBtn = await screen.findByText(
+    "Don't show articles from Echo JS",
+  );
+  contextBtn.click();
+  await waitFor(() => expect(mutationCalled).toBeTruthy());
+});
+
+it('should block a tag', async () => {
+  let mutationCalled = false;
+  renderComponent([
+    createFeedMock({
+      pageInfo: defaultFeedPage.pageInfo,
+      edges: [defaultFeedPage.edges[0]],
+    }),
+    createTagsSettingsMock(),
+    {
+      request: {
+        query: ADD_FILTERS_TO_FEED_MUTATION,
+        variables: { filters: { blockedTags: ['javascript'] } },
+      },
+      result: () => {
+        mutationCalled = true;
+        return { data: { _: true } };
+      },
+    },
+  ]);
+  await waitFor(async () => {
+    const data = await queryClient.getQueryData(
+      getFeedSettingsQueryKey(defaultUser),
+    );
+    expect(data).toBeTruthy();
+  });
+  const [menuBtn] = await screen.findAllByLabelText('Options');
+  menuBtn.click();
+  const contextBtn = await screen.findByText('Not interested in #javascript');
+  contextBtn.click();
+  await waitFor(() => expect(mutationCalled).toBeTruthy());
 });

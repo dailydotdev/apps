@@ -18,11 +18,9 @@ import ActionButtons from './ActionButtons';
 import SourceButton from './SourceButton';
 import styles from './Card.module.css';
 import ListFeaturedComment from './ListFeaturedComment';
-import { Button } from '../buttons/Button';
-import FlagIcon from '../../../icons/flag.svg';
-import { getTooltipProps } from '../../lib/tooltip';
 import TrendingFlag from './TrendingFlag';
 import PostAuthor from './PostAuthor';
+import PostOptions from '../buttons/OptionsButton';
 
 export const PostList = forwardRef(function PostList(
   {
@@ -40,6 +38,7 @@ export const PostList = forwardRef(function PostList(
     notification,
     className,
     children,
+    postHeadingFont,
     ...props
   }: PostCardProps,
   ref: Ref<HTMLElement>,
@@ -56,19 +55,25 @@ export const PostList = forwardRef(function PostList(
     >
       <PostLink post={post} openNewTab={openNewTab} onLinkClick={onLinkClick} />
       <ListCardAside>
-        <SourceButton post={post} className="pb-2" tooltipPosition="up" />
+        <SourceButton post={post} className="pb-2" tooltipPosition="top" />
         {featuredCommentsToButtons(
           post.featuredComments,
           setSelectedComment,
           null,
           'my-1',
-          'up',
+          'top',
         )}
       </ListCardAside>
       <ListCardDivider />
       <ListCardMain>
-        <ListCardTitle>{post.title}</ListCardTitle>
-        <PostMetadata post={post} className="my-1">
+        <ListCardTitle className={classNames(className, postHeadingFont)}>
+          {post.title}
+        </ListCardTitle>
+        <PostMetadata
+          createdAt={post.createdAt}
+          readTime={post.readTime}
+          className="my-1"
+        >
           <PostAuthor
             post={post}
             selectedComment={selectedComment}
@@ -84,22 +89,12 @@ export const PostList = forwardRef(function PostList(
           onShare={onShare}
           className="relative self-stretch mt-1"
         >
-          {enableMenu && !selectedComment && (
-            <Button
-              className={classNames(
-                'btn-tertiary',
-                !menuOpened && 'mouse:invisible mouse:group-hover:visible',
-              )}
-              style={{ marginLeft: 'auto' }}
-              buttonSize="small"
-              icon={<FlagIcon />}
-              onClick={(event) => onMenuClick?.(event, post)}
-              pressed={menuOpened}
-              {...getTooltipProps('Report post')}
-            />
-          )}
+          <PostOptions
+            onClick={(event) => onMenuClick?.(event, post)}
+            post={post}
+          />
           {notification && (
-            <CardNotification className="absolute right-0 bottom-0 z-2">
+            <CardNotification className="absolute right-0 bottom-0 z-2 text-center">
               {notification}
             </CardNotification>
           )}

@@ -9,12 +9,15 @@ export interface Author {
   name: string;
   image: string;
   permalink: string;
+  username: string;
+  bio: string;
 }
 
 export interface Comment {
   __typename?: string;
   id: string;
   content: string;
+  contentHtml: string;
   createdAt: string;
   lastUpdatedAt?: string;
   author?: Author;
@@ -36,6 +39,7 @@ export const COMMENT_FRAGMENT = gql`
   fragment CommentFragment on Comment {
     id
     content
+    contentHtml
     createdAt
     lastUpdatedAt
     permalink
@@ -46,6 +50,8 @@ export const COMMENT_FRAGMENT = gql`
       name
       image
       permalink
+      username
+      bio
     }
   }
 `;

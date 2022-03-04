@@ -2,6 +2,7 @@ import React from 'react';
 import {
   findAllByText,
   findByText,
+  queryByText,
   render,
   RenderResult,
   screen,
@@ -349,6 +350,7 @@ it('should show author link when author is defined', async () => {
         name: 'Ido Shamun',
         image: 'https://daily.dev/ido.jpg',
         permalink: 'https://daily.dev/idoshamun',
+        username: 'idoshamun',
       },
     }),
     createCommentsMock(),
@@ -436,4 +438,64 @@ it('should send cancel upvote mutation', async () => {
   const el = await screen.findByText('Bookmark');
   el.click();
   await waitFor(() => mutationCalled);
+});
+
+it('should not show TLDR when there is no summary', async () => {
+  renderPost();
+  const el = screen.queryByText('TLDR');
+  expect(el).not.toBeInTheDocument();
+});
+
+it('should show TLDR when there is a summary', async () => {
+  renderPost({}, [createPostMock({ summary: 'test summary' })]);
+  const el = await screen.findByText('TLDR');
+  expect(el).toBeInTheDocument();
+  // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
+  const link = queryByText(el.parentElement, 'Show more');
+  expect(link).not.toBeInTheDocument();
+});
+
+it('should toggle TLDR on click', async () => {
+  renderPost({}, [
+    createPostMock({
+      summary:
+        "Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book type specimen book type specimen book type specimen book type.Ipsum is simply dummy text of the printing and typesetting industry.",
+    }),
+  ]);
+  const el = await screen.findByText('TLDR');
+  expect(el).toBeInTheDocument();
+  // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
+  const showMoreLink = queryByText(el.parentElement, 'Show more');
+  expect(showMoreLink).toBeInTheDocument();
+  showMoreLink.click();
+  const showLessLink = await screen.findByText('Show less');
+  expect(showLessLink).toBeInTheDocument();
+});
+
+it('should not show Show more link when there is a summary without reaching threshold', async () => {
+  renderPost({}, [
+    createPostMock({
+      summary:
+        'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores',
+    }),
+  ]);
+  const el = await screen.findByText('TLDR');
+  expect(el).toBeInTheDocument();
+  // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
+  const link = queryByText(el.parentElement, 'Show more');
+  expect(link).not.toBeInTheDocument();
+});
+
+it('should not cut summary when there is a summary without reaching threshold', async () => {
+  const summaryText =
+    'In Node.js, errors and exceptions are different in JavaScript. There are two types of errors, programmer and operational. We use the phrase “error” to describe both, but they are quite different in reality because of their root causes. Let’s take a look at what we’ll cover to better understand how we can handle errors.';
+  renderPost({}, [
+    createPostMock({
+      summary: summaryText,
+    }),
+  ]);
+  const el = await screen.findByText('TLDR');
+  expect(el).toBeInTheDocument();
+  const fullSummary = await screen.findByText(summaryText);
+  expect(fullSummary).toBeInTheDocument();
 });

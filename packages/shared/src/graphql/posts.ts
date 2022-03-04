@@ -33,6 +33,7 @@ export interface Post {
   featuredComments?: Comment[];
   trending?: number;
   description?: string;
+  summary: string;
   toc?: Toc;
   impressionStatus?: number;
 }
@@ -48,6 +49,30 @@ export interface Ad {
   providerId?: string;
   renderTracked?: boolean;
   impressionStatus?: number;
+}
+
+export type ReadHistoryPost = Pick<
+  Post,
+  | 'id'
+  | 'title'
+  | 'commentsPermalink'
+  | 'image'
+  | 'readTime'
+  | 'numUpvotes'
+  | 'createdAt'
+  | 'bookmarked'
+  | 'permalink'
+  | 'numComments'
+  | 'trending'
+  | 'tags'
+> & { source?: Pick<Source, 'image' | 'id'> } & {
+  author?: Pick<Author, 'id'>;
+};
+
+export interface ReadHistory {
+  timestamp: Date;
+  timestampDb: Date;
+  post: ReadHistoryPost;
 }
 
 export interface PostData {
@@ -74,6 +99,7 @@ export const POST_BY_ID_QUERY = gql`
       readTime
       tags
       bookmarked
+      trending
       upvoted
       commented
       commentsPermalink
@@ -90,8 +116,10 @@ export const POST_BY_ID_QUERY = gql`
         image
         name
         permalink
+        username
       }
       description
+      summary
       toc {
         text
         id
@@ -134,10 +162,12 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
       numUpvotes
       numComments
       source {
+        id
         name
         image
       }
       description
+      summary
       toc {
         text
         id
@@ -225,6 +255,7 @@ export const AUTHOR_FEED_QUERY = gql`
           commentsPermalink
           image
           source {
+            id
             name
             image
           }
@@ -271,8 +302,8 @@ export const POSTS_ENGAGED_SUBSCRIPTION = gql`
 `;
 
 export const REPORT_POST_MUTATION = gql`
-  mutation ReportPost($id: ID!, $reason: ReportReason!) {
-    reportPost(id: $id, reason: $reason) {
+  mutation ReportPost($id: ID!, $reason: ReportReason!, $comment: String) {
+    reportPost(id: $id, reason: $reason, comment: $comment) {
       _
     }
   }

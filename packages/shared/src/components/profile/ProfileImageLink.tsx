@@ -1,23 +1,21 @@
-import React, { ReactElement } from 'react';
-import classNames from 'classnames';
-import { LazyImage } from '../LazyImage';
+import React, { forwardRef, ReactElement, Ref } from 'react';
 import { ProfileLink, ProfileLinkProps } from './ProfileLink';
+import { ProfilePicture, ProfilePictureProps } from '../ProfilePicture';
 
-export function ProfileImageLink({
-  className,
-  ...props
-}: ProfileLinkProps): ReactElement {
+interface ProfileImageLinkProps extends ProfileLinkProps {
+  picture?: Omit<ProfilePictureProps, 'user'>;
+  ref?: Ref<HTMLAnchorElement>;
+}
+
+function ProfileImageLinkComponent(
+  { picture = { size: 'large' }, ...props }: ProfileImageLinkProps,
+  ref?: Ref<HTMLAnchorElement>,
+): ReactElement {
   return (
-    <ProfileLink
-      className={classNames(className, 'block w-10 h-10')}
-      {...props}
-    >
-      <LazyImage
-        imgSrc={props.user.image}
-        imgAlt={`${props.user.name}'s profile image`}
-        background="var(--theme-background-secondary)"
-        className="w-full h-full rounded-full"
-      />
+    <ProfileLink {...props} ref={ref}>
+      <ProfilePicture {...picture} user={props.user} />
     </ProfileLink>
   );
 }
+
+export const ProfileImageLink = forwardRef(ProfileImageLinkComponent);

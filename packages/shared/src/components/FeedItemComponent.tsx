@@ -23,10 +23,13 @@ export type FeedItemComponentProps = {
   useList: boolean;
   openNewTab: boolean;
   insaneMode: boolean;
+  displayPublicationDate: boolean;
   nativeShareSupport: boolean;
   postMenuIndex: number | undefined;
   postNotificationIndex: number | undefined;
+  notification: string | undefined;
   showCommentPopupId: string | undefined;
+  postHeadingFont: string;
   setShowCommentPopupId: (value: string | undefined) => void;
   isSendingComment: boolean;
   comment: (variables: {
@@ -37,6 +40,8 @@ export type FeedItemComponentProps = {
     columns: number;
   }) => Promise<CommentOnData>;
   user: LoggedUser | undefined;
+  feedName: string;
+  ranking?: string;
   onUpvote: (
     post: Post,
     index: number,
@@ -103,11 +108,15 @@ export default function FeedItemComponent({
   nativeShareSupport,
   postMenuIndex,
   postNotificationIndex,
+  displayPublicationDate,
+  notification,
   showCommentPopupId,
   setShowCommentPopupId,
   isSendingComment,
   comment,
   user,
+  feedName,
+  ranking,
   onUpvote,
   onBookmark,
   onPostClick,
@@ -116,19 +125,31 @@ export default function FeedItemComponent({
   onCommentClick,
   onAdRender,
   onAdClick,
+  postHeadingFont,
 }: FeedItemComponentProps): ReactElement {
   const PostTag = useList ? PostList : PostCard;
   const AdTag = useList ? AdList : AdCard;
   const PlaceholderTag = useList ? PlaceholderList : PlaceholderCard;
   const item = items[index];
-  const inViewRef = useTrackImpression(item, index, columns, column, row);
+  const inViewRef = useTrackImpression(
+    item,
+    index,
+    columns,
+    column,
+    row,
+    feedName,
+    ranking,
+  );
 
   switch (item.type) {
     case 'post':
       return (
         <PostTag
           ref={inViewRef}
-          post={item.post}
+          post={{
+            ...item.post,
+            createdAt: displayPublicationDate && item.post.createdAt,
+          }}
           data-testid="postItem"
           onUpvoteClick={(post, upvoted) =>
             onUpvote(post, index, row, column, upvoted)
@@ -143,11 +164,10 @@ export default function FeedItemComponent({
           enableMenu={!!user}
           onMenuClick={(event) => onMenuClick(event, index, row, column)}
           menuOpened={postMenuIndex === index}
-          notification={
-            postNotificationIndex === index && 'Thanks for reporting! 🚨'
-          }
+          notification={postNotificationIndex === index && notification}
           showImage={!insaneMode}
           onCommentClick={(post) => onCommentClick(post, index, row, column)}
+          postHeadingFont={postHeadingFont}
         >
           {showCommentPopupId === item.post.id && (
             <CommentPopup

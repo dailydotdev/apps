@@ -1,48 +1,41 @@
-import React, { ReactElement } from 'react';
+import { ReactNode } from 'react';
+import { Source } from '../../graphql/sources';
 import classed from '../../lib/classed';
-import sizeN from '../../../macros/sizeN.macro';
-import { ElementPlaceholder } from '../ElementPlaceholder';
-import { SummaryArrow } from '../utilities';
-import styles from './common.module.css';
 
-export const FiltersContainer = classed('div', 'flex flex-col w-full pb-4');
+export type BooleanPromise = Promise<{ successful: boolean }>;
 
-const Placeholder = (
-  <div className="flex justify-between pr-4 pl-6">
-    <ElementPlaceholder className="rounded-md" style={{ width: sizeN(30) }} />
-    <ElementPlaceholder className="w-5 rounded-md" />
-  </div>
-);
+export interface MenuItem {
+  icon?: ReactNode;
+  title: string;
+  action?: () => unknown;
+  component?: ReactNode;
+}
 
-export const FiltersPlaceholder = (): ReactElement => (
-  <div
-    className="grid grid-flow-row gap-y-7 mt-9"
-    style={{ gridAutoRows: sizeN(5) }}
-  >
-    {Array(5).fill(Placeholder)}
-  </div>
-);
+export interface FilterMenuProps {
+  onUnblockItem?: ({ tag, source, action }: UnblockModalType) => void;
+}
 
-export const FiltersDetails = classed(
+export interface UnblockModalType {
+  tag?: string;
+  source?: Source;
+  action?: () => unknown;
+}
+
+export const TagCategoryDetails = classed(
   'details',
-  'flex flex-col items-stretch border-t border-theme-divider-tertiary overflow-hidden select-none pr-4 pl-6',
-  styles.details,
+  'border-t border-b border-theme-divider-tertiary right-icon cursor-pointer',
 );
 
-export const FiltersHeadline = classed(
-  'h3',
-  'h-12 flex items-center typo-callout text-theme-label-tertiary',
+export const TagCategorySummary = classed(
+  'summary',
+  'flex justify-between items-center p-6 pl-4 outline-none',
 );
 
-export const FiltersSummaryArrow = (): ReactElement => (
-  <SummaryArrow style={{ marginLeft: '0.5rem' }} />
+export const TagCategoryDetailsContent = classed(
+  'div',
+  'flex flex-wrap px-6 pb-6 pt-2',
 );
 
 export const FiltersList = classed('ul', 'flex flex-col p-0');
 
 export const FilterItem = classed('li', 'flex items-center p-0');
-
-export type FilterProps = {
-  enableQueries?: boolean;
-  query?: string;
-};

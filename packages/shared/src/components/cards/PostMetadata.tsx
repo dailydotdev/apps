@@ -1,32 +1,44 @@
 import React, { ReactElement, ReactNode, useMemo } from 'react';
 import classNames from 'classnames';
-import { Post } from '../../graphql/posts';
 import { postDateFormat } from '../../lib/dateFormat';
+import { Separator } from './common';
+import { Post } from '../../graphql/posts';
 
-export default function PostMetadata({
-  post,
-  className,
-  children,
-}: {
-  post: Post;
+type PostMetadataProps = Pick<Post, 'createdAt' | 'readTime' | 'numUpvotes'> & {
   className?: string;
   children?: ReactNode;
-}): ReactElement {
-  const date = useMemo(() => postDateFormat(post.createdAt), [post.createdAt]);
+  typoClassName?: string;
+};
+
+export default function PostMetadata({
+  createdAt,
+  readTime,
+  numUpvotes,
+  className,
+  children,
+  typoClassName = 'typo-footnote',
+}: PostMetadataProps): ReactElement {
+  const date = useMemo(
+    () => createdAt && postDateFormat(createdAt),
+    [createdAt],
+  );
 
   return (
     <div
       className={classNames(
-        'flex items-center text-theme-label-tertiary typo-footnote',
+        'flex items-center text-theme-label-tertiary',
+        typoClassName,
         className,
       )}
     >
-      <time dateTime={post.createdAt}>{date}</time>
-      {!!post.readTime && (
-        <>
-          <div className="mx-1 w-0.5 h-0.5 rounded-full bg-theme-label-tertiary" />
-          <span data-testid="readTime">{post.readTime}m read time</span>
-        </>
+      {!!createdAt && <time dateTime={createdAt}>{date}</time>}
+      {!!createdAt && !!readTime && <Separator />}
+      {!!readTime && <span data-testid="readTime">{readTime}m read time</span>}
+      {(!!createdAt || !!readTime) && !!numUpvotes && <Separator />}
+      {!!numUpvotes && (
+        <span data-testid="numUpvotes">
+          {numUpvotes} upvote{numUpvotes > 1 ? 's' : ''}
+        </span>
       )}
       {children}
     </div>

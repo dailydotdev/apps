@@ -7,7 +7,6 @@ const typography = require('./tailwind/typography');
 const buttons = require('./tailwind/buttons');
 
 module.exports = {
-  mode: 'jit',
   theme: {
     colors: {
       ...colors,
@@ -17,6 +16,7 @@ module.exports = {
         focus: 'var(--theme-focus)',
         float: 'var(--theme-float)',
         hover: 'var(--theme-hover)',
+        rank: 'var(--rank-color)',
         bg: {
           primary: 'var(--theme-background-primary)',
           secondary: 'var(--theme-background-secondary)',
@@ -46,9 +46,37 @@ module.exports = {
         status: {
           error: 'var(--theme-status-error)',
           help: 'var(--theme-status-help)',
+          fill: 'var(--theme-status-fill)',
           success: 'var(--theme-status-success)',
+          warning: 'var(--theme-status-warning)',
+          cabbage: 'var(--theme-status-cabbage)',
+        },
+        color: {
+          burger: 'var(--theme-color-burger)',
+          blueCheese: 'var(--theme-color-blueCheese)',
+          avocado: 'var(--theme-color-avocado)',
+          lettuce: 'var(--theme-color-lettuce)',
+          cheese: 'var(--theme-color-cheese)',
+          bun: 'var(--theme-color-bun)',
+          ketchup: 'var(--theme-color-ketchup)',
+          bacon: 'var(--theme-color-bacon)',
+          cabbage: 'var(--theme-color-cabbage)',
+          onion: 'var(--theme-color-onion)',
+          water: 'var(--theme-color-water)',
+          salt: 'var(--theme-color-salt)',
         },
         'post-disabled': 'var(--theme-post-disabled)',
+        highlight: {
+          comment: 'var(--theme-highlight-comment)',
+          red: 'var(--theme-highlight-red)',
+          orange: 'var(--theme-highlight-orange)',
+          yellow: 'var(--theme-highlight-yellow)',
+          green: 'var(--theme-highlight-green)',
+          aqua: 'var(--theme-highlight-aqua)',
+          blue: 'var(--theme-highlight-blue)',
+          purple: 'var(--theme-highlight-purple)',
+          label: 'var(--theme-highlight-label)',
+        },
       },
       white: '#ffffff',
       transparent: 'transparent',
@@ -68,6 +96,11 @@ module.exports = {
       3: '3',
       rank: '3',
       '-1': '-1',
+    },
+    maxHeight: {
+      'img-desktop': '400px',
+      'img-mobile': '280px',
+      'rank-modal': 'calc(100vh - 5rem)',
     },
     fontFamily: {
       sans: [
@@ -100,22 +133,39 @@ module.exports = {
       borderRadius: {
         2: '0.125rem',
         3: '0.1875rem',
+        6: '0.375rem',
+        8: '0.5rem',
         10: '0.625rem',
+        12: '0.75rem',
         14: '0.875rem',
+        16: '1rem',
+        26: '1.625rem',
       },
       opacity: {
         24: '0.24',
         32: '0.32',
       },
+      inset: {
+        'screen-20': '20vh',
+        'screen-40': '40vh',
+        'screen-60': '60vh',
+        'screen-80': '80vh',
+        screen: '100vh',
+      },
+      spacing: {
+        22: '5.5rem',
+        70: '17.5rem',
+      },
+      width: {
+        70: '17.5rem',
+      },
+      height: {
+        logo: '1.125rem',
+      },
     },
   },
-  variants: {
-    extend: {
-      borderWidth: ['group-hover'],
-      visibility: ['group-hover'],
-    },
-  },
-  plugins: [caret, typography, buttons],
+  // eslint-disable-next-line global-require
+  plugins: [caret, typography, buttons, require('@tailwindcss/line-clamp')],
   corePlugins: {
     invert: false,
   },

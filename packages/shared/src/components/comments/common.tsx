@@ -1,7 +1,5 @@
-import React, { HTMLAttributes, ReactElement } from 'react';
-import Linkify from 'linkifyjs/react';
+import React, { HTMLAttributes, ReactElement, ReactNode } from 'react';
 import classed from '../../lib/classed';
-import styles from './comments.module.css';
 import { Comment } from '../../graphql/comments';
 import { commentDateFormat } from '../../lib/dateFormat';
 
@@ -19,16 +17,17 @@ export function CommentPublishDate({
   );
 }
 
-export const commentBoxClassNames = `py-3 px-4 bg-theme-bg-secondary rounded-lg whitespace-pre-wrap break-words typo-callout ${styles.commentBox}`;
+export const commentBoxClassNames =
+  'py-3 px-4 bg-theme-bg-secondary rounded-lg break-words-overflow typo-callout';
 
-const StyledLinkfy = classed(Linkify, commentBoxClassNames);
+const StyledCommentBox = classed('div', commentBoxClassNames);
 
-export const CommentBox = (
-  props: HTMLAttributes<HTMLDivElement>,
-): ReactElement => (
-  <StyledLinkfy
-    tagName="div"
-    options={{ attributes: { rel: 'noopener nofollow' } }}
-    {...props}
-  />
-);
+export const CommentBox = ({
+  children,
+  ...props
+}: {
+  children?: ReactNode;
+  props?: HTMLAttributes<HTMLDivElement>;
+}): ReactElement => {
+  return <StyledCommentBox {...props}>{children}</StyledCommentBox>;
+};

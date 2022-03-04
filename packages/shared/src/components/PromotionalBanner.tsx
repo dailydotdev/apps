@@ -1,38 +1,32 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { useQuery } from 'react-query';
-import request from 'graphql-request';
 import XIcon from '../../icons/x.svg';
 import { Button } from './buttons/Button';
-import { apiUrl } from '../lib/config';
-import { BANNER_QUERY, BannerData } from '../graphql/banner';
-import ProgressiveEnhancementContext from '../contexts/ProgressiveEnhancementContext';
-import usePersistentState from '../hooks/usePersistentState';
+import { isTesting } from '../lib/constants';
+import { BannerData } from '../graphql/banner';
 
-export default function PromotionalBanner(): ReactElement {
-  const { windowLoaded } = useContext(ProgressiveEnhancementContext);
-  const [lastSeen, setLastSeen] = usePersistentState(
-    'lastSeenBanner',
-    null,
-    new Date(0),
-  );
-  const { data } = useQuery<BannerData>(
-    ['banner', lastSeen?.getTime()],
-    () => request(`${apiUrl}/graphql`, BANNER_QUERY, { lastSeen }),
-    {
-      enabled: windowLoaded && !!lastSeen,
-    },
-  );
-
-  if (!data?.banner) {
+interface PromotionalBannerProps {
+  bannerData: BannerData;
+  setLastSeen: (value: Date) => Promise<void>;
+}
+export default function PromotionalBanner({
+  bannerData,
+  setLastSeen,
+}: PromotionalBannerProps): ReactElement {
+  // Disable this component in Jest environment
+  if (isTesting) {
     return <></>;
   }
 
-  const { banner } = data;
+  if (!bannerData?.banner) {
+    return <></>;
+  }
+
+  const { banner } = bannerData;
   return (
     <div
       className={classNames(
-        'relative flex flex-col items-start py-3 pl-3 pr-12 typo-footnote laptop:h-8 laptop:flex-row laptop:items-center laptop:justify-center laptop:p-0',
+        'relative z-3 laptop:fixed flex flex-col items-start py-3 pl-3 pr-12 typo-footnote laptop:h-8 laptop:flex-row laptop:items-center laptop:justify-center laptop:p-0 w-full',
         banner.theme === 'title-bacon' && 'text-theme-label-bun',
         banner.theme === 'gradient-bacon-onion'
           ? 'bg-theme-bg-bun'

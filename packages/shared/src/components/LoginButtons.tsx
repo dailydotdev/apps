@@ -6,21 +6,40 @@ import { LegalNotice } from './utilities';
 import { Button } from './buttons/Button';
 import AuthContext from '../contexts/AuthContext';
 import { apiUrl } from '../lib/config';
-import { logSignupProviderClick } from '../lib/analytics';
+import AnalyticsContext from '../contexts/AnalyticsContext';
+import { useMyFeed } from '../hooks/useMyFeed';
+import FeaturesContext from '../contexts/FeaturesContext';
+import { Features, getFeatureValue } from '../lib/featureManagement';
 
 export default function LoginButtons(): ReactElement {
   const router = useRouter();
+  const { flags } = useContext(FeaturesContext);
   const { getRedirectUri } = useContext(AuthContext);
+  const { trackEvent } = useContext(AnalyticsContext);
+  const { checkHasLocalFilters } = useMyFeed();
+  const buttonCopyPrefix = getFeatureValue(
+    Features.LoginModalButtonCopyPrefix,
+    flags,
+  );
 
-  const authUrl = (provider: string, redirectUri: string) =>
-    `${apiUrl}/v1/auth/authorize?provider=${provider}&redirect_uri=${encodeURI(
-      redirectUri,
+  const authUrl = (provider: string, redirectUri: string) => {
+    const uri = checkHasLocalFilters()
+      ? `${redirectUri}?create_filters=true`
+      : redirectUri;
+
+    return `${apiUrl}/v1/auth/authorize?provider=${provider}&redirect_uri=${encodeURI(
+      uri,
     )}&skip_authenticate=true&register_mode=${
       router.query.author ? 'author' : 'default'
     }`;
+  };
 
-  const login = async (provider: string): Promise<void> => {
-    await logSignupProviderClick(provider);
+  const login = (provider: string): void => {
+    trackEvent({
+      event_name: 'click',
+      target_type: 'signup provider',
+      target_id: provider,
+    });
     const redirectUri = getRedirectUri();
     window.location.href = authUrl(provider, redirectUri);
   };
@@ -33,21 +52,21 @@ export default function LoginButtons(): ReactElement {
           onClick={() => login('github')}
           icon={<GitHubIcon />}
         >
-          Sign in with GitHub
+          {buttonCopyPrefix} GitHub
         </Button>
         <Button
           className="my-2 btn-primary"
           onClick={() => login('google')}
           icon={<img src="/google.svg" className="icon" alt="Google logo" />}
         >
-          Sign in with Google
+          {buttonCopyPrefix} Google
         </Button>
       </div>
       <LegalNotice
         className="self-center mt-8"
         style={{ maxWidth: '17.25rem' }}
       >
-        By signing up I accept the{' '}
+        By signing in I accept the{' '}
         <a href={termsOfService} target="_blank" rel="noopener">
           Terms of Service
         </a>{' '}

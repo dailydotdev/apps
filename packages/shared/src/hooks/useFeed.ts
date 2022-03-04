@@ -1,4 +1,4 @@
-import { useContext, useMemo } from 'react';
+import { useContext, useEffect, useMemo } from 'react';
 import request from 'graphql-request';
 import {
   InfiniteData,
@@ -107,6 +107,7 @@ export default function useFeed<T>(
 ): FeedReturnType {
   const { user, tokenRefreshed } = useContext(AuthContext);
   const queryClient = useQueryClient();
+
   const feedQuery = useInfiniteQuery<FeedData>(
     feedQueryKey,
     ({ pageParam }) =>
@@ -135,13 +136,22 @@ export default function useFeed<T>(
       return ads[0];
     },
     {
+      getNextPageParam: () => Date.now(),
       enabled: query && tokenRefreshed,
       refetchOnMount: false,
       refetchOnReconnect: false,
       refetchOnWindowFocus: false,
-      getNextPageParam: () => ({}),
     },
   );
+
+  useEffect(() => {
+    if (
+      !adsQuery.isFetching &&
+      adsQuery.data?.pages?.length < feedQuery.data?.pages?.length
+    ) {
+      adsQuery.fetchNextPage();
+    }
+  }, [adsQuery.data, feedQuery.data, adsQuery.isFetching]);
 
   const items = useMemo(() => {
     let newItems: FeedItem[] = [];
@@ -159,10 +169,7 @@ export default function useFeed<T>(
               type: 'ad',
               ad: adsQuery.data?.pages[pageIndex],
             });
-          } else if (
-            adsQuery.isFetching &&
-            pageIndex === feedQuery.data.pages.length - 1
-          ) {
+          } else {
             posts.splice(adSpot, 0, {
               type: 'placeholder',
             });

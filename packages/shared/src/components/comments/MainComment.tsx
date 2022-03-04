@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import classNames from 'classnames';
 import { Comment } from '../../graphql/comments';
 import { CommentBox, CommentPublishDate } from './common';
 import CommentActionButtons, {
@@ -8,10 +9,13 @@ import SubComment from './SubComment';
 import { ProfileImageLink } from '../profile/ProfileImageLink';
 import CommentAuthor from './CommentAuthor';
 import classed from '../../lib/classed';
+import Markdown from '../Markdown';
+import { ProfileTooltip } from '../profile/ProfileTooltip';
 
 export interface Props extends CommentActionProps {
   comment: Comment;
   postAuthorId: string | null;
+  className?: string;
 }
 
 const MainCommentBox = classed(CommentBox, 'my-2');
@@ -22,18 +26,26 @@ export default function MainComment({
   onDelete,
   onEdit,
   onShowUpvotes,
+  className,
   postAuthorId,
 }: Props): ReactElement {
   return (
-    <article className="flex flex-col items-stretch mt-4" data-testid="comment">
+    <article
+      className={classNames('flex flex-col items-stretch mt-4', className)}
+      data-testid="comment"
+    >
       <div className="flex items-center">
-        <ProfileImageLink user={comment.author} />
+        <ProfileTooltip user={comment.author}>
+          <ProfileImageLink user={comment.author} />
+        </ProfileTooltip>
         <div className="flex flex-col ml-2">
           <CommentAuthor postAuthorId={postAuthorId} author={comment.author} />
           <CommentPublishDate comment={comment} />
         </div>
       </div>
-      <MainCommentBox>{comment.content}</MainCommentBox>
+      <MainCommentBox>
+        <Markdown content={comment.contentHtml} />
+      </MainCommentBox>
       <CommentActionButtons
         comment={comment}
         parentId={comment.id}

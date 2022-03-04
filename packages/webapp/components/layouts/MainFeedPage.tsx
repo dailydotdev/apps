@@ -1,10 +1,17 @@
-import React, { ReactElement, ReactNode, useEffect, useState } from 'react';
+import React, {
+  ReactElement,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { useRouter } from 'next/router';
 import { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
 import MainFeedLayout, {
-  tabs,
+  getShouldRedirect,
 } from '@dailydotdev/shared/src/components/MainFeedLayout';
 import dynamic from 'next/dynamic';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getLayout } from './FeedLayout';
 
 const PostsSearch = dynamic(
@@ -20,18 +27,22 @@ const getFeedName = (path: string): string => {
   if (path === '/') {
     return 'default';
   }
-  return tabs.find((tab) => path === tab.path)?.name;
+  return path.replace(/^\/+/, '');
 };
 
 export default function MainFeedPage({
   children,
 }: MainFeedPageProps): ReactElement {
   const router = useRouter();
+  const { user } = useContext(AuthContext);
   const [feedName, setFeedName] = useState(getFeedName(router?.pathname));
   const [isSearchOn, setIsSearchOn] = useState(router?.pathname === '/search');
 
   useEffect(() => {
-    if (router?.pathname === '/search') {
+    const isMyFeed = router?.pathname === '/my-feed';
+    if (getShouldRedirect(isMyFeed, !!user)) {
+      router.replace('/');
+    } else if (router?.pathname === '/search') {
       setIsSearchOn(true);
       if (!feedName) {
         setFeedName('popular');
@@ -58,7 +69,7 @@ export default function MainFeedPage({
       feedName={feedName}
       isSearchOn={isSearchOn}
       searchQuery={router.query?.q?.toString()}
-      searchChildren={<PostsSearch />}
+      searchChildren={<PostsSearch placeholder="Search articles" />}
     >
       {children}
     </MainFeedLayout>
@@ -78,8 +89,7 @@ export function getMainFeedLayout(
 }
 
 export const mainFeedLayoutProps: MainLayoutProps = {
-  responsive: false,
-  showRank: true,
   greeting: true,
   mainPage: true,
+  screenCentered: false,
 };

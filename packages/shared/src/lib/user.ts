@@ -24,6 +24,7 @@ export interface PublicProfile {
   premium: boolean;
   image: string;
   reputation: number;
+  permalink: string;
 }
 
 export interface UserProfile {
@@ -38,6 +39,7 @@ export interface UserProfile {
   portfolio?: string;
   bio?: string;
   acceptedMarketing?: boolean;
+  timezone?: string;
 }
 
 export interface UpvoterProfile
@@ -54,6 +56,9 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
   createdAt: string;
   reputation?: number;
   permalink: string;
+  username: string;
+  timezone?: string;
+  referralLink?: string;
 }
 
 interface BaseError {
@@ -72,6 +77,13 @@ export type APIError = BaseError | BadRequestError;
 export async function logout(): Promise<void> {
   await fetch(`${apiUrl}/v1/users/logout`, {
     method: 'POST',
+    credentials: 'include',
+  });
+}
+
+export async function deleteAccount(): Promise<void> {
+  await fetch(`${apiUrl}/v1/users/me`, {
+    method: 'DELETE',
     credentials: 'include',
   });
 }

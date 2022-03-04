@@ -1,31 +1,31 @@
-import React, { ReactElement, useEffect } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import DailyDevLogo from '../../svg/DailyDevLogo';
 import { StyledModal, ModalProps } from './StyledModal';
 import { ModalCloseButton } from './ModalCloseButton';
 import LoginButtons from '../LoginButtons';
-import { LoginModalMode } from '../../types/LoginModalMode';
 import styles from './LoginModal.module.css';
-import { logSignupStart } from '../../lib/analytics';
+import { useTrackModal } from '../../hooks/useTrackModal';
+import FeaturesContext from '../../contexts/FeaturesContext';
+import { Features, getFeatureValue } from '../../lib/featureManagement';
 
 export type LoginModalProps = {
-  mode: LoginModalMode;
   trigger: string;
 } & ModalProps;
 
 export default function LoginModal({
   trigger,
-  mode = LoginModalMode.Default,
   className,
   onRequestClose,
   children,
   ...props
 }: LoginModalProps): ReactElement {
-  useEffect(() => {
-    if (props.isOpen) {
-      logSignupStart(trigger);
-    }
-  }, [props.isOpen]);
+  const { flags } = useContext(FeaturesContext);
+  const loginModalDescriptionCopy = getFeatureValue(
+    Features.LoginModalDescriptionCopy,
+    flags,
+  );
+  useTrackModal({ isOpen: props.isOpen, title: 'signup', trigger });
 
   return (
     <StyledModal
@@ -36,9 +36,7 @@ export default function LoginModal({
       <ModalCloseButton onClick={onRequestClose} />
       <DailyDevLogo />
       <div className="mt-6 mb-8 text-center text-theme-label-secondary typo-callout">
-        {mode === LoginModalMode.ContentQuality
-          ? `Our community cares about content quality. We require social authentication to prevent abuse.`
-          : `Unlock useful features by signing in. A bunch of cool stuff like content filters and bookmarks are waiting just for you.`}
+        {loginModalDescriptionCopy}
       </div>
       <LoginButtons />
       {children}

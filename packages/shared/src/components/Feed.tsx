@@ -4,15 +4,13 @@ import React, {
   ReactNode,
   useContext,
   useEffect,
-  useRef,
 } from 'react';
-import dynamic from 'next/dynamic';
 import classNames from 'classnames';
 import useFeed, { PostItem } from '../hooks/useFeed';
 import { Ad, Post } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
 import FeedContext from '../contexts/FeedContext';
-import { trackEvent as gaTrackEvent } from '../lib/analytics';
+import { gaTrackEvent } from '../lib/analytics';
 import styles from './Feed.module.css';
 import SettingsContext from '../contexts/SettingsContext';
 import { Spaciness } from '../graphql/settings';
@@ -22,30 +20,76 @@ import useFeedUpvotePost from '../hooks/feed/useFeedUpvotePost';
 import useFeedBookmarkPost from '../hooks/feed/useFeedBookmarkPost';
 import useCommentPopup from '../hooks/feed/useCommentPopup';
 import useFeedOnPostClick from '../hooks/feed/useFeedOnPostClick';
-import useFeedReportMenu from '../hooks/feed/useFeedReportMenu';
-import useFeedInfiniteScroll from '../hooks/feed/useFeedInfiniteScroll';
+import useFeedContextMenu from '../hooks/feed/useFeedContextMenu';
+import useFeedInfiniteScroll, {
+  InfiniteScrollScreenOffset,
+} from '../hooks/feed/useFeedInfiniteScroll';
 import FeedItemComponent, { getFeedItemKey } from './FeedItemComponent';
-import useVirtualFeedGrid, {
-  cardHeightPx,
-} from '../hooks/feed/useVirtualFeedGrid';
-import VirtualizedFeedGrid from './VirtualizedFeedGrid';
 import AnalyticsContext from '../contexts/AnalyticsContext';
-import { adAnalyticsEvent, postAnalyticsEvent } from '../lib/feed';
-
-const ReportPostMenu = dynamic(
-  () => import(/* webpackChunkName: "reportPostMenu" */ './ReportPostMenu'),
-);
+import {
+  adAnalyticsEvent,
+  feedAnalyticsExtra,
+  postAnalyticsEvent,
+} from '../lib/feed';
+import PostOptionsMenu from './PostOptionsMenu';
+import useNotification from '../hooks/useNotification';
+import FeaturesContext from '../contexts/FeaturesContext';
+import { Features, getFeatureValue } from '../lib/featureManagement';
+import { getThemeFont } from './utilities';
 
 export type FeedProps<T> = {
+  feedName: string;
   feedQueryKey: unknown[];
   query?: string;
   variables?: T;
   className?: string;
   onEmptyFeed?: () => unknown;
   emptyScreen?: ReactNode;
+  createMyFeedCard?: ReactNode;
+  header?: ReactNode;
 };
 
+interface RankVariables {
+  ranking?: string;
+}
+
 const nativeShareSupport = false;
+
+const listGaps = {
+  cozy: 'gap-5',
+  roomy: 'gap-3',
+};
+const gridGaps = {
+  cozy: 'gap-14',
+  roomy: 'gap-12',
+};
+const getFeedGapPx = {
+  'gap-2': 8,
+  'gap-3': 12,
+  'gap-5': 20,
+  'gap-8': 32,
+  'gap-12': 48,
+  'gap-14': 56,
+};
+const gapClass = (useList: boolean, spaciness: Spaciness) =>
+  useList ? listGaps[spaciness] ?? 'gap-2' : gridGaps[spaciness] ?? 'gap-8';
+
+const cardListClass = {
+  1: 'grid-cols-1',
+  2: 'grid-cols-2',
+  3: 'grid-cols-3',
+  4: 'grid-cols-4',
+  5: 'grid-cols-5',
+  6: 'grid-cols-6',
+  7: 'grid-cols-7',
+};
+const cardClass = (useList: boolean, numCards: number): string =>
+  useList ? 'grid-cols-1' : cardListClass[numCards];
+
+const calculateRow = (index: number, numCards: number): number =>
+  Math.floor(index / numCards);
+const calculateColumn = (index: number, numCards: number): number =>
+  index % numCards;
 
 const getStyle = (useList: boolean, spaciness: Spaciness): CSSProperties => {
   if (useList && spaciness !== 'eco') {
@@ -57,13 +101,25 @@ const getStyle = (useList: boolean, spaciness: Spaciness): CSSProperties => {
 };
 
 export default function Feed<T>({
+  feedName,
   feedQueryKey,
   query,
   variables,
   className,
+  header,
   onEmptyFeed,
   emptyScreen,
+  createMyFeedCard,
 }: FeedProps<T>): ReactElement {
+  const { flags } = useContext(FeaturesContext);
+  const postHeadingFont = getThemeFont(
+    getFeatureValue(Features.PostCardHeadingFont, flags),
+    Features.PostCardHeadingFont.defaultValue,
+  );
+  const displayPublicationDate = !parseInt(
+    getFeatureValue(Features.HidePublicationDate, flags),
+    10,
+  );
   const { trackEvent } = useContext(AnalyticsContext);
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
@@ -85,8 +141,8 @@ export default function Feed<T>({
       query,
       variables,
     );
-  // const { nativeShareSupport } = useContext(ProgressiveEnhancementContext);
   const { onAdImpression } = useAdImpressions();
+  const { ranking } = (variables as RankVariables) || {};
 
   useEffect(() => {
     if (emptyFeed) {
@@ -99,7 +155,7 @@ export default function Feed<T>({
     setShowCommentPopupId,
     comment,
     isSendingComment,
-  } = useCommentPopup();
+  } = useCommentPopup(feedName);
   const infiniteScrollRef = useFeedInfiniteScroll({ fetchPage, canFetchMore });
 
   const onShare = async (post: Post): Promise<void> => {
@@ -114,44 +170,42 @@ export default function Feed<T>({
   };
 
   const useList = insaneMode && numCards > 1;
+  const virtualizedNumCards = useList ? 1 : numCards;
+  const feedGapPx = getFeedGapPx[gapClass(useList, spaciness)];
 
   if (!loadedSettings) {
     return <></>;
   }
-
-  const parentRef = useRef<HTMLDivElement>();
-  const { virtualizer, feedGapPx, virtualizedNumCards } = useVirtualFeedGrid(
-    items,
-    useList,
-    numCards,
-    parentRef,
-    spaciness,
-  );
 
   const onUpvote = useFeedUpvotePost(
     items,
     updatePost,
     setShowCommentPopupId,
     virtualizedNumCards,
+    feedName,
+    ranking,
   );
   const onBookmark = useFeedBookmarkPost(
     items,
     updatePost,
     virtualizedNumCards,
+    feedName,
+    ranking,
   );
   const onPostClick = useFeedOnPostClick(
     items,
     updatePost,
     virtualizedNumCards,
+    feedName,
+    ranking,
   );
-  const {
-    onHidePost,
-    onReportPost,
-    postNotificationIndex,
-    onMenuClick,
-    postMenuIndex,
-    setPostMenuIndex,
-  } = useFeedReportMenu(items, removePost, virtualizedNumCards);
+  const { onMenuClick, postMenuIndex, setPostMenuIndex } = useFeedContextMenu();
+  const { notification, notificationIndex, onMessage } = useNotification();
+
+  const onRemovePost = async (removePostIndex) => {
+    const item = items[removePostIndex] as PostItem;
+    removePost(item.page, item.index);
+  };
 
   const onCommentClick = (
     post: Post,
@@ -164,7 +218,7 @@ export default function Feed<T>({
         columns: virtualizedNumCards,
         column,
         row,
-        extra: { origin: 'feed' },
+        ...feedAnalyticsExtra(feedName, ranking),
       }),
     );
   };
@@ -180,42 +234,46 @@ export default function Feed<T>({
         columns: virtualizedNumCards,
         column,
         row,
-        extra: { origin: 'feed' },
+        ...feedAnalyticsExtra(feedName, ranking),
       }),
     );
   };
 
   const style = {
-    height: `${virtualizer.totalSize}px`,
     '--num-cards': numCards,
     '--feed-gap': `${feedGapPx / 16}rem`,
-    '--card-height': `${cardHeightPx / 16}rem`,
     ...getStyle(useList, spaciness),
   };
+
   return emptyScreen && emptyFeed ? (
     <>{emptyScreen}</>
   ) : (
     <div
       className={classNames(
-        className,
         'relative mx-auto w-full',
+        className,
         styles.feed,
         !useList && styles.cards,
       )}
       style={style}
-      ref={parentRef}
     >
+      {header}
       <ScrollToTopButton />
-      <VirtualizedFeedGrid
-        items={items}
-        virtualizer={virtualizer}
-        virtualizedNumCards={virtualizedNumCards}
-        getNthChild={(index, column, row) => (
+      <div
+        className={classNames(
+          'grid',
+          gapClass(useList, spaciness),
+          cardClass(useList, numCards),
+        )}
+      >
+        {createMyFeedCard}
+        {items.map((item, index) => (
           <FeedItemComponent
             items={items}
             index={index}
-            row={row}
-            column={column}
+            row={calculateRow(index, numCards)}
+            column={calculateColumn(index, numCards)}
+            displayPublicationDate={displayPublicationDate}
             columns={virtualizedNumCards}
             key={getFeedItemKey(items, index)}
             useList={useList}
@@ -223,12 +281,15 @@ export default function Feed<T>({
             insaneMode={insaneMode}
             nativeShareSupport={nativeShareSupport}
             postMenuIndex={postMenuIndex}
-            postNotificationIndex={postNotificationIndex}
+            postNotificationIndex={notificationIndex}
+            notification={notification}
             showCommentPopupId={showCommentPopupId}
             setShowCommentPopupId={setShowCommentPopupId}
             isSendingComment={isSendingComment}
             comment={comment}
             user={user}
+            feedName={feedName}
+            ranking={ranking}
             onUpvote={onUpvote}
             onBookmark={onBookmark}
             onPostClick={onPostClick}
@@ -237,18 +298,17 @@ export default function Feed<T>({
             onCommentClick={onCommentClick}
             onAdRender={onAdImpression}
             onAdClick={onAdClick}
+            postHeadingFont={postHeadingFont}
           />
-        )}
-      />
-      <div
-        ref={infiniteScrollRef}
-        className={`absolute left-0 h-px w-px opacity-0 pointer-events-none ${styles.trigger}`}
-      />
-      <ReportPostMenu
-        postId={(items[postMenuIndex] as PostItem)?.post?.id}
+        ))}
+      </div>
+      <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
+      <PostOptionsMenu
+        postIndex={postMenuIndex}
+        post={(items[postMenuIndex] as PostItem)?.post}
         onHidden={() => setPostMenuIndex(null)}
-        onReportPost={onReportPost}
-        onHidePost={onHidePost}
+        onMessage={onMessage}
+        onRemovePost={onRemovePost}
       />
     </div>
   );

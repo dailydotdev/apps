@@ -13,7 +13,6 @@ import {
 import { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
 import { NextSeo } from 'next-seo';
-import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import JoinedDate from '@dailydotdev/shared/src/components/profile/JoinedDate';
 import GitHubIcon from '@dailydotdev/shared/icons/github.svg';
 import TwitterIcon from '@dailydotdev/shared/icons/twitter.svg';
@@ -40,11 +39,11 @@ import {
 import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { QuaternaryButton } from '@dailydotdev/shared/src/components/buttons/QuaternaryButton';
-import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
-import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 import classNames from 'classnames';
 import DOMPurify from 'dompurify';
+import { ProfilePicture } from '@dailydotdev/shared/src/components/ProfilePicture';
+import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import styles from './index.module.css';
 import NavBar, { tabs } from './NavBar';
 import { getLayout as getMainLayout } from '../MainLayout';
@@ -55,6 +54,7 @@ const AccountDetailsModal = dynamic(
       /* webpackChunkName: "accountDetailsModal" */ '@dailydotdev/shared/src/components/modals/AccountDetailsModal'
     ),
 );
+
 const Custom404 = dynamic(() => import('../../../pages/404'));
 
 export interface ProfileLayoutProps {
@@ -99,6 +99,7 @@ export default function ProfileLayout({
     () =>
       request(`${apiUrl}/graphql`, USER_READING_RANK_QUERY, {
         id: initialProfile?.id,
+        version: 2,
       }),
     {
       enabled: !!initialProfile,
@@ -150,7 +151,7 @@ export default function ProfileLayout({
         <link rel="preload" as="image" href={profile.image} />
       </Head>
       <NextSeo {...Seo} />
-      <ResponsivePageContainer className="px-6">
+      <ResponsivePageContainer className="overflow-x-hidden flex-1 px-6 max-w-full">
         <section
           className={classNames(
             'flex flex-col self-start tablet:flex-row tablet:-ml-4 tablet:-mr-4 tablet:self-stretch tablet:overflow-x-hidden',
@@ -158,14 +159,7 @@ export default function ProfileLayout({
           )}
         >
           <div className="flex tablet:flex-col items-center self-start tablet:px-2 tablet:pt-2 tablet:pb-4 mb-6 tablet:mb-0 rounded-2xl bg-theme-bg-secondary">
-            <LazyImage
-              imgSrc={profile.image}
-              imgAlt={`${profile.name}'s profile image`}
-              eager
-              ratio="100%"
-              className="rounded-2xl"
-              style={{ width: sizeN(25) }}
-            />
+            <ProfilePicture user={profile} size="xxxlarge" />
             <div className="flex flex-col tablet:items-center mx-6 tablet:mx-0 tablet:mt-4 typo-footnote">
               <a
                 href={reputationGuide}
@@ -210,53 +204,57 @@ export default function ProfileLayout({
             />
             <div className={classNames('flex mt-3 mx-0.5', styles.links)}>
               {twitterHandle && (
-                <Button
-                  tag="a"
-                  href={`https://twitter.com/${twitterHandle}`}
-                  {...getTooltipProps('Twitter')}
-                  target="_blank"
-                  rel="noopener"
-                  icon={<TwitterIcon />}
-                  className="btn-tertiary"
-                />
+                <SimpleTooltip content="Twitter">
+                  <Button
+                    tag="a"
+                    href={`https://twitter.com/${twitterHandle}`}
+                    target="_blank"
+                    rel="noopener"
+                    icon={<TwitterIcon />}
+                    className="btn-tertiary"
+                  />
+                </SimpleTooltip>
               )}
               {githubHandle && (
-                <Button
-                  tag="a"
-                  href={`https://github.com/${githubHandle}`}
-                  {...getTooltipProps('GitHub')}
-                  target="_blank"
-                  rel="noopener"
-                  icon={<GitHubIcon />}
-                  className="btn-tertiary"
-                />
+                <SimpleTooltip content="GitHub">
+                  <Button
+                    tag="a"
+                    href={`https://github.com/${githubHandle}`}
+                    target="_blank"
+                    rel="noopener"
+                    icon={<GitHubIcon />}
+                    className="btn-tertiary"
+                  />
+                </SimpleTooltip>
               )}
               {hashnodeHandle && (
-                <Button
-                  tag="a"
-                  href={`https://hashnode.com/@${hashnodeHandle}`}
-                  {...getTooltipProps('Hashnode')}
-                  target="_blank"
-                  rel="noopener"
-                  icon={<HashnodeIcon />}
-                  className="btn-tertiary"
-                />
+                <SimpleTooltip content="Hashnode">
+                  <Button
+                    tag="a"
+                    href={`https://hashnode.com/@${hashnodeHandle}`}
+                    target="_blank"
+                    rel="noopener"
+                    icon={<HashnodeIcon />}
+                    className="btn-tertiary"
+                  />
+                </SimpleTooltip>
               )}
               {portfolioLink && (
-                <QuaternaryButton
-                  tag="a"
-                  id="portfolio-link"
-                  href={portfolioLink}
-                  {...getTooltipProps('Portfolio')}
-                  target="_blank"
-                  rel="noopener"
-                  icon={<LinkIcon />}
-                  className="btn-tertiary"
-                >
-                  {portfolioLink
-                    .replace(/(^\w+:|^)\/\//, '')
-                    .replace(/\/?(\?.*)?$/, '')}
-                </QuaternaryButton>
+                <SimpleTooltip content="Portfolio">
+                  <QuaternaryButton
+                    tag="a"
+                    href={portfolioLink}
+                    id="portfolio-link"
+                    target="_blank"
+                    rel="noopener"
+                    icon={<LinkIcon />}
+                    className="btn-tertiary"
+                  >
+                    {portfolioLink
+                      .replace(/(^\w+:|^)\/\//, '')
+                      .replace(/\/?(\?.*)?$/, '')}
+                  </QuaternaryButton>
+                </SimpleTooltip>
               )}
             </div>
             {profile.id === user?.id && (
@@ -286,9 +284,7 @@ export const getLayout = (
   page: ReactNode,
   props: ProfileLayoutProps,
 ): ReactNode =>
-  getMainLayout(<ProfileLayout {...props}>{page}</ProfileLayout>, null, {
-    responsive: false,
-  });
+  getMainLayout(<ProfileLayout {...props}>{page}</ProfileLayout>, null);
 
 interface ProfileParams extends ParsedUrlQuery {
   userId: string;

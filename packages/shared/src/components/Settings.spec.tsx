@@ -9,24 +9,19 @@ import {
   waitFor,
 } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import {
-  MockedGraphQLResponse,
-  mockGraphQL,
-} from '../../__tests__/helpers/graphql';
+import { mockGraphQL } from '../../__tests__/helpers/graphql';
 import { SettingsContextProvider } from '../contexts/SettingsContext';
 import Settings from './Settings';
 import {
   RemoteSettings,
   UPDATE_USER_SETTINGS_MUTATION,
-  USER_SETTINGS_QUERY,
-  UserSettingsData,
 } from '../graphql/settings';
 import { LoggedUser } from '../lib/user';
 import defaultUser from '../../__tests__/fixture/loggedUser';
 import AuthContext from '../contexts/AuthContext';
-import { LoginModalMode } from '../types/LoginModalMode';
-import ProgressiveEnhancementContext from '../contexts/ProgressiveEnhancementContext';
-import { waitForNock } from '../../__tests__/helpers/utilities';
+import { BootDataProvider, BOOT_LOCAL_KEY } from '../contexts/BootProvider';
+import { apiUrl } from '../lib/config';
+import { BootCacheData } from '../lib/boot';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -41,26 +36,18 @@ const defaultSettings: RemoteSettings = {
   showOnlyUnreadPosts: true,
   spaciness: 'roomy',
   insaneMode: false,
+  showTopSites: true,
+  sidebarExpanded: true,
+  sortingEnabled: false,
+  optOutWeeklyGoal: true,
 };
 
-const createSettingsMock = (
-  settings: RemoteSettings = defaultSettings,
-): MockedGraphQLResponse<UserSettingsData> => ({
-  request: {
-    query: USER_SETTINGS_QUERY,
-  },
-  result: {
-    data: {
-      userSettings: settings,
-    },
-  },
-});
+const updateSettings = jest.fn();
 
 const renderComponent = (
-  mocks: MockedGraphQLResponse[] = [createSettingsMock()],
   user: LoggedUser = defaultUser,
+  settings: RemoteSettings = defaultSettings,
 ): RenderResult => {
-  mocks.forEach(mockGraphQL);
   const queryClient = new QueryClient();
   return render(
     <QueryClientProvider client={queryClient}>
@@ -80,17 +67,13 @@ const renderComponent = (
           trackingId: user?.id,
         }}
       >
-        <ProgressiveEnhancementContext.Provider
-          value={{
-            windowLoaded: true,
-            nativeShareSupport: true,
-            asyncImageSupport: true,
-          }}
+        <SettingsContextProvider
+          settings={settings}
+          updateSettings={updateSettings}
+          loadedSettings
         >
-          <SettingsContextProvider>
-            <Settings />
-          </SettingsContextProvider>
-        </ProgressiveEnhancementContext.Provider>
+          <Settings />
+        </SettingsContextProvider>
       </AuthContext.Provider>
     </QueryClientProvider>,
   );
@@ -98,7 +81,6 @@ const renderComponent = (
 
 it('should fetch remote settings', async () => {
   renderComponent();
-  await waitForNock();
 
   const radio = await screen.findAllByRole('radio');
   await waitFor(() =>
@@ -130,15 +112,71 @@ it('should fetch remote settings', async () => {
       ),
     ).not.toBeChecked(),
   );
+
+  await waitFor(() =>
+    expect(
+      checkbox.find((el) =>
+        // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
+        queryByText(el.parentElement, 'Show feed sorting menu'),
+      ),
+    ).not.toBeChecked(),
+  );
+});
+
+const defaultBootData: Partial<BootCacheData> = {
+  settings: { ...defaultSettings, spaciness: 'cozy' },
+};
+const renderBootProvider = (
+  bootData: Partial<BootCacheData> = defaultBootData,
+) => {
+  const queryClient = new QueryClient();
+  const app = 'extension';
+  nock(apiUrl).get('/boot', { headers: { app } }).reply(200, bootData);
+
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <BootDataProvider app={app} getRedirectUri={jest.fn()}>
+        <Settings />
+      </BootDataProvider>
+    </QueryClientProvider>,
+  );
+};
+
+it('should utilize front-end default settings for first time users', async () => {
+  renderBootProvider();
+
+  const radio = await screen.findAllByRole('radio');
+  await waitFor(() =>
+    expect(
+      // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
+      radio.find((el) => queryByText(el.parentElement, 'Eco')),
+    ).toBeChecked(),
+  );
+});
+
+it('should utilize local cache settings for anonymous users', async () => {
+  const localBootData = {
+    ...defaultBootData,
+    settings: { ...defaultBootData.settings, theme: 'cozy' },
+  };
+  localStorage.setItem(BOOT_LOCAL_KEY, JSON.stringify(localBootData));
+  renderBootProvider(defaultBootData);
+
+  const radio = await screen.findAllByRole('radio');
+  await waitFor(() =>
+    expect(
+      // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
+      radio.find((el) => queryByText(el.parentElement, 'Cozy')),
+    ).toBeChecked(),
+  );
 });
 
 const testSettingsMutation = async (
   settings: Partial<RemoteSettings>,
   updateFunc: () => Promise<void>,
   initialSettings = defaultSettings,
-) => {
-  renderComponent([createSettingsMock(initialSettings)]);
-  await waitForNock();
+): Promise<void> => {
+  renderComponent(defaultUser, initialSettings);
 
   let mutationCalled = false;
   mockGraphQL({
@@ -208,19 +246,6 @@ it('should mutate hide read posts setting', () =>
     fireEvent.click(checkbox);
   }));
 
-it('should open login when hide read posts is clicked and the user is logged out', async () => {
-  renderComponent([], null);
-  const checkboxes = await screen.findAllByRole('checkbox');
-  const checkbox = checkboxes.find((el) =>
-    // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
-    queryByText(el.parentElement, 'Hide read posts'),
-  ) as HTMLInputElement;
-  fireEvent.click(checkbox);
-  await waitFor(() =>
-    expect(showLogin).toBeCalledWith('settings', LoginModalMode.Default),
-  );
-});
-
 it('should mutate open links in new tab setting', () =>
   testSettingsMutation({ openNewTab: true }, async () => {
     const checkboxes = await screen.findAllByRole('checkbox');
@@ -230,3 +255,69 @@ it('should mutate open links in new tab setting', () =>
     ) as HTMLInputElement;
     fireEvent.click(checkbox);
   }));
+
+it('should mutate feed sorting enabled setting', () =>
+  testSettingsMutation({ sortingEnabled: true }, async () => {
+    const checkboxes = await screen.findAllByRole('checkbox');
+    const checkbox = checkboxes.find((el) =>
+      // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
+      queryByText(el.parentElement, 'Show feed sorting menu'),
+    ) as HTMLInputElement;
+    fireEvent.click(checkbox);
+  }));
+
+it('should mutate show weekly goals widget setting', () =>
+  testSettingsMutation({ optOutWeeklyGoal: false }, async () => {
+    const checkboxes = await screen.findAllByRole('checkbox');
+    const checkbox = checkboxes.find((el) =>
+      // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
+      queryByText(el.parentElement, 'Show Weekly Goal widget'),
+    ) as HTMLInputElement;
+    fireEvent.click(checkbox);
+  }));
+
+it('should not have the Show custom shortcuts switch in the webapp', async () => {
+  renderComponent(null);
+  const checkbox = screen.queryByText('Show custom shortcuts');
+  expect(checkbox).not.toBeInTheDocument();
+});
+
+it('should open login when hide read posts is clicked and the user is logged out', async () => {
+  renderComponent(null);
+
+  const [el] = await waitFor(() =>
+    screen.findAllByLabelText('Hide read posts'),
+  );
+  fireEvent.click(el);
+
+  await waitFor(() => expect(showLogin).toBeCalledWith('settings'));
+});
+
+it('should mutate Show custom shortcuts setting in extension', async () => {
+  process.env.TARGET_BROWSER = 'chrome';
+  renderComponent();
+
+  let mutationCalled = false;
+  mockGraphQL({
+    request: {
+      query: UPDATE_USER_SETTINGS_MUTATION,
+      variables: { data: { ...defaultSettings, showTopSites: false } },
+    },
+    result: () => {
+      mutationCalled = true;
+      return { data: { updateUserSettings: { updatedAt: new Date(0) } } };
+    },
+  });
+
+  const checkboxes = await screen.findAllByRole('checkbox');
+  const checkbox = checkboxes.find((el) =>
+    // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
+    queryByText(el.parentElement, 'Show custom shortcuts'),
+  ) as HTMLInputElement;
+
+  await waitFor(() => expect(checkbox).toBeInTheDocument());
+  await waitFor(() => expect(checkbox).toBeChecked());
+  fireEvent.click(checkbox);
+
+  await waitFor(() => expect(mutationCalled).toBeTruthy());
+});

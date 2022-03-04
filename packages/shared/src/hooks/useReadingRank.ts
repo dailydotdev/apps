@@ -7,36 +7,80 @@ import AuthContext from '../contexts/AuthContext';
 import { MY_READING_RANK_QUERY, MyRankData } from '../graphql/users';
 import { apiUrl } from '../lib/config';
 import usePersistentState from './usePersistentState';
+import AlertContext, { MAX_DATE } from '../contexts/AlertContext';
+import SettingsContext from '../contexts/SettingsContext';
 
 export const getRankQueryKey = (user?: LoggedUser): string[] => [
   user?.id ?? 'anonymous',
   'rank',
 ];
 
+export type Tag = {
+  tag: string;
+  readingDays: number;
+  percentage?: number;
+};
+export type TopTags = Tag[];
 type ReturnType = {
   isLoading: boolean;
   rank: number;
+  rankLastWeek: number;
   nextRank: number;
   progress: number;
+  tags: TopTags;
   levelUp: boolean;
-  neverShowRankModal: boolean;
+  shouldShowRankModal: boolean;
   confirmLevelUp: (neverShowRankModal: boolean) => Promise<void>;
   reads: number;
 };
 
 const defaultRank: MyRankData = {
-  rank: { progressThisWeek: 0, currentRank: 0, readToday: false },
+  rank: {
+    progressThisWeek: 0,
+    currentRank: 0,
+    tags: [],
+    readToday: false,
+    rankLastWeek: 0,
+  },
   reads: 0,
 };
 
-export default function useReadingRank(): ReturnType {
-  const { user, tokenRefreshed } = useContext(AuthContext);
+const checkShouldShowRankModal = (
+  rankLastSeen: Date,
+  lastReadTime: Date,
+  loadedAlerts: boolean,
+  neverShowRankModal: boolean,
+) => {
+  if (neverShowRankModal !== null && neverShowRankModal !== undefined) {
+    return !neverShowRankModal;
+  }
+
+  if (loadedAlerts && !rankLastSeen) {
+    return true;
+  }
+
+  if (!rankLastSeen) {
+    return false;
+  }
+
+  return new Date(rankLastSeen) < new Date(lastReadTime);
+};
+
+export const RANK_CACHE_KEY = 'rank_v2';
+
+export default function useReadingRank(
+  disableNewRankPopup?: boolean,
+): ReturnType {
+  const { alerts, loadedAlerts, updateAlerts } = useContext(AlertContext);
+  const { user, tokenRefreshed, loadedUserFromCache } = useContext(AuthContext);
   const [levelUp, setLevelUp] = useState(false);
+  const [showRankPopup, setShowRankPopup] = useState(false);
   const queryClient = useQueryClient();
+  const { optOutWeeklyGoal } = useContext(SettingsContext);
 
   const [cachedRank, setCachedRank, loadedCache] = usePersistentState<
-    MyRankData & { userId: string; neverShowRankModal: boolean }
-  >('rank', null);
+    MyRankData & { userId: string; neverShowRankModal?: boolean }
+  >(RANK_CACHE_KEY, null);
   const neverShowRankModal = cachedRank?.neverShowRankModal;
   const queryKey = getRankQueryKey(user);
   const { data: remoteRank } = useQuery<MyRankData>(
@@ -44,6 +88,7 @@ export default function useReadingRank(): ReturnType {
     () =>
       request(`${apiUrl}/graphql`, MY_READING_RANK_QUERY, {
         id: user.id,
+        version: 2,
       }),
     {
       enabled: !!user && tokenRefreshed,
@@ -53,7 +98,7 @@ export default function useReadingRank(): ReturnType {
 
   const cacheRank = (
     rank: MyRankData = remoteRank,
-    newNeverShowRankModal = cachedRank?.neverShowRankModal,
+    newNeverShowRankModal = neverShowRankModal,
   ) =>
     setCachedRank({
       rank: rank.rank,
@@ -61,6 +106,16 @@ export default function useReadingRank(): ReturnType {
       userId: user?.id,
       neverShowRankModal: newNeverShowRankModal,
     });
+
+  const shouldShowRankModal =
+    showRankPopup &&
+    !optOutWeeklyGoal &&
+    checkShouldShowRankModal(
+      alerts?.rankLastSeen,
+      cachedRank?.rank?.lastReadTime || remoteRank?.rank?.lastReadTime,
+      loadedAlerts,
+      neverShowRankModal,
+    );
 
   const updateShownProgress = async () => {
     if (document.visibilityState === 'hidden') {
@@ -77,23 +132,39 @@ export default function useReadingRank(): ReturnType {
   };
 
   useEffect(() => {
+    if (!disableNewRankPopup) {
+      setShowRankPopup(levelUp);
+    }
+  }, [levelUp]);
+
+  // Let the rank update and then show progress animation, slight delay so the user won't miss it
+  const displayProgress = () => setTimeout(updateShownProgress, 300);
+
+  useEffect(() => {
     if (remoteRank && loadedCache) {
       if (
         !cachedRank ||
         remoteRank.rank.progressThisWeek < cachedRank.rank.progressThisWeek
       ) {
+        /* if there is no cache value or it is not the most updated let's set the cache */
         cacheRank();
-        return;
+      } else if (cachedRank && !cachedRank.rank.rankLastWeek) {
+        /*
+          else if the cache value has data but missing some properties rankLastWeek, let's re-set it
+          with that, this can mean the user is on their first week, which should see the progress animation
+        */
+        cacheRank();
+        displayProgress();
+      } else {
+        /* else - the cache has pre-existing value so we just need to check if we should display the progress */
+        displayProgress();
       }
-
-      // Let the rank update and then show progress animation, slight delay so the user won't miss it
-      setTimeout(updateShownProgress, 300);
     }
   }, [remoteRank, loadedCache]);
 
   // For anonymous users
   useEffect(() => {
-    if (loadedCache && tokenRefreshed) {
+    if (loadedCache && loadedUserFromCache && tokenRefreshed) {
       if (cachedRank?.userId !== user?.id) {
         // Reset cache on user change
         if (remoteRank) {
@@ -116,20 +187,24 @@ export default function useReadingRank(): ReturnType {
         queryClient.setQueryData<MyRankData>(queryKey, rank);
       }
     }
-  }, [user, tokenRefreshed, loadedCache]);
+  }, [user, tokenRefreshed, loadedUserFromCache, loadedCache]);
 
   return {
     isLoading: !cachedRank,
+    rankLastWeek: cachedRank?.rank.rankLastWeek,
     rank: cachedRank?.rank.currentRank,
     nextRank: remoteRank?.rank.currentRank,
     progress: cachedRank?.rank.progressThisWeek,
+    tags: cachedRank?.rank.tags,
     reads: remoteRank?.reads,
     levelUp,
-    neverShowRankModal,
+    shouldShowRankModal,
     confirmLevelUp: (newNeverShowRankModal) => {
       setLevelUp(false);
       if (user) {
-        return cacheRank(remoteRank, newNeverShowRankModal);
+        const lastSeen = newNeverShowRankModal ? MAX_DATE : new Date();
+        updateAlerts({ rankLastSeen: lastSeen });
+        return cacheRank(remoteRank);
       }
       // Limit anonymous users to rank zero
       const rank = queryClient.setQueryData<MyRankData>(

@@ -1,6 +1,7 @@
 html {
   background: var(--theme-background-primary);
   color: var(--theme-label-primary);
+  height: -webkit-fill-available;
 }
 
 :root {
@@ -12,25 +13,13 @@ html {
 body {
   min-width: 20rem;
   overflow-y: scroll;
+  min-height: 100vh;
+  /* mobile viewport bug fix */
+  min-height: -webkit-fill-available;
 
-  & [aria-label][data-balloon-pos] {
-    &:hover {
-      &:after, &:before {
-        transition-delay: 0.6s;
-      }
-    }
-
-    &:after {
-      font-family: inherit;
-      padding: 0.25rem 0.75rem;
-      @apply typo-subhead
-    }
-
-    @media (pointer: coarse) {
-      &:after, &:before {
-        display: none;
-      }
-    }
+  &.ReactModal__Body--open .ReactModal__Content,
+  &.ReactModal__Body--open .ReactModal__Content > * {
+    overscroll-behavior-y: none;
   }
 }
 
@@ -64,6 +53,9 @@ body {
   --theme-status-error: theme('colors.ketchup.40');
   --theme-status-help: theme('colors.cheese.40');
   --theme-status-success: theme('colors.avocado.40');
+  --theme-status-warning: theme('colors.bun.40');
+  --theme-status-cabbage: theme('colors.cabbage.40'); /* temporary */
+  --theme-status-fill: theme('colors.water.40');
 
   --theme-shadow2: theme('boxShadow.2-black');
   --theme-shadow3: theme('boxShadow.3-black');
@@ -72,26 +64,58 @@ body {
 
   --theme-overlay-quaternary: theme('colors.overlay.quaternary.white');
 
-  --theme-rank-1-color: theme('colors.burger.40');
-  --theme-rank-1-color-top: theme('colors.burger.40');
-  --theme-rank-1-color-bottom: theme('colors.bun.40');
+  --theme-rank-highlight: theme('colors.salt.10');
 
-  --theme-rank-2-color: theme('colors.salt.40');
-  --theme-rank-2-color-top: #ffffff;
-  --theme-rank-2-color-bottom: theme('colors.salt.40');
+  --theme-rank-1-color: theme('colors.salt.90');
+  --theme-rank-1-color-top: theme('colors.salt.90');
+  --theme-rank-1-color-bottom: theme('colors.pepper.10');
 
-  --theme-rank-3-color: theme('colors.cheese.40');
-  --theme-rank-3-color-top: theme('colors.cheese.40');
-  --theme-rank-3-color-bottom: theme('colors.bun.40');
+  --theme-rank-2-color: theme('colors.burger.40');
+  --theme-rank-2-color-top: theme('colors.burger.40');
+  --theme-rank-2-color-bottom: theme('colors.bun.40');
 
-  --theme-rank-4-color: theme('colors.blueCheese.40');
-  --theme-rank-4-color-top: theme('colors.water.40');
-  --theme-rank-4-color-bottom: theme('colors.blueCheese.40');
+  --theme-rank-3-color: theme('colors.salt.10');
+  --theme-rank-3-color-top: theme('colors.salt.10');
+  --theme-rank-3-color-bottom: theme('colors.salt.90');
 
-  --theme-rank-5-color: theme('colors.cabbage.40');
-  --theme-rank-5-color-top: theme('colors.cabbage.40');
-  --theme-rank-5-color-bottom: theme('colors.onion.40');
+  --theme-rank-4-color: theme('colors.cheese.40');
+  --theme-rank-4-color-top: theme('colors.cheese.40');
+  --theme-rank-4-color-bottom: theme('colors.bun.40');
 
+  --theme-rank-5-color: theme('colors.blueCheese.40');
+  --theme-rank-5-color-top: theme('colors.water.40');
+  --theme-rank-5-color-bottom: theme('colors.blueCheese.40');
+
+  --theme-rank-6-color: theme('colors.cabbage.40');
+  --theme-rank-6-color-top: theme('colors.cabbage.40');
+  --theme-rank-6-color-bottom: theme('colors.onion.40');
+
+  --theme-rank-7-color: theme('colors.bacon.40');
+  --theme-rank-7-color-top: theme('colors.bacon.40');
+  --theme-rank-7-color-bottom: theme('colors.ketchup.40');
+
+  --theme-highlight-comment: theme('colors.salt.10');
+  --theme-highlight-red: theme('colors.ketchup.20');
+  --theme-highlight-orange: theme('colors.bun.20');
+  --theme-highlight-yellow: theme('colors.cheese.20');
+  --theme-highlight-green: theme('colors.avocado.20');
+  --theme-highlight-aqua: theme('colors.blueCheese.20');
+  --theme-highlight-blue: theme('colors.water.20');
+  --theme-highlight-purple: theme('colors.onion.20');
+  --theme-highlight-label: theme('colors.salt.50');
+
+  --theme-color-burger: theme('colors.burger.40');
+  --theme-color-blueCheese: theme('colors.blueCheese.40');
+  --theme-color-avocado: theme('colors.avocado.40');
+  --theme-color-lettuce: theme('colors.lettuce.40');
+  --theme-color-cheese: theme('colors.cheese.40');
+  --theme-color-bun: theme('colors.bun.40');
+  --theme-color-ketchup: theme('colors.ketchup.40');
+  --theme-color-bacon: theme('colors.bacon.40');
+  --theme-color-cabbage: theme('colors.cabbage.40');
+  --theme-color-onion: theme('colors.onion.40');
+  --theme-color-water: theme('colors.water.40');
+  --theme-color-salt: theme('colors.salt.40');
 }
 
 @define-mixin light-mode {
@@ -126,6 +150,9 @@ body {
   --theme-status-error: theme('colors.ketchup.60');
   --theme-status-help: theme('colors.cheese.60');
   --theme-status-success: theme('colors.avocado.60');
+  --theme-status-warning: theme('colors.bun.60');
+  --theme-status-cabbage: theme('colors.cabbage.60'); /* temporary */
+  --theme-status-fill: theme('colors.water.60');
 
   --theme-shadow2: theme('boxShadow.2-salt');
   --theme-shadow3: theme('boxShadow.3-salt');
@@ -134,28 +161,59 @@ body {
 
   --theme-overlay-quaternary: theme('colors.overlay.quaternary.pepper');
 
-  --theme-rank-1-color: theme('colors.burger.60');
-  --theme-rank-1-color-top: theme('colors.burger.60');
-  --theme-rank-1-color-bottom: theme('colors.bun.60');
+  --theme-rank-highlight: theme('colors.salt.10');
 
-  --theme-rank-2-color: theme('colors.pepper.60');
-  --theme-rank-2-color-top: theme('colors.salt.90');
-  --theme-rank-2-color-bottom: theme('colors.pepper.60');
+  --theme-rank-1-color: theme('colors.pepper.10');
+  --theme-rank-1-color-top: theme('colors.pepper.10');
+  --theme-rank-1-color-bottom: theme('colors.pepper.90');
 
-  --theme-rank-3-color: theme('colors.cheese.60');
-  --theme-rank-3-color-top: theme('colors.cheese.60');
-  --theme-rank-3-color-bottom: theme('colors.bun.60');
+  --theme-rank-2-color: theme('colors.burger.60');
+  --theme-rank-2-color-top: theme('colors.burger.60');
+  --theme-rank-2-color-bottom: theme('colors.bun.60');
 
-  --theme-rank-4-color: theme('colors.blueCheese.60');
-  --theme-rank-4-color-top: theme('colors.water.60');
-  --theme-rank-4-color-bottom: theme('colors.blueCheese.60');
+  --theme-rank-3-color: theme('colors.salt.90');
+  --theme-rank-3-color-top: theme('colors.salt.90');
+  --theme-rank-3-color-bottom: theme('colors.pepper.10');
 
-  --theme-rank-5-color: theme('colors.cabbage.60');
-  --theme-rank-5-color-top: theme('colors.cabbage.60');
-  --theme-rank-5-color-bottom: theme('colors.onion.60');
+  --theme-rank-4-color: theme('colors.cheese.60');
+  --theme-rank-4-color-top: theme('colors.cheese.60');
+  --theme-rank-4-color-bottom: theme('colors.bun.60');
 
+  --theme-rank-5-color: theme('colors.blueCheese.60');
+  --theme-rank-5-color-top: theme('colors.water.60');
+  --theme-rank-5-color-bottom: theme('colors.blueCheese.60');
+
+  --theme-rank-6-color: theme('colors.cabbage.60');
+  --theme-rank-6-color-top: theme('colors.cabbage.60');
+  --theme-rank-6-color-bottom: theme('colors.onion.60');
+
+  --theme-rank-7-color: theme('colors.bacon.60');
+  --theme-rank-7-color-top: theme('colors.bacon.60');
+  --theme-rank-7-color-bottom: theme('colors.ketchup.60');
+
+  --theme-highlight-comment: theme('colors.pepper.10');
+  --theme-highlight-red: theme('colors.ketchup.80');
+  --theme-highlight-orange: theme('colors.bun.80');
+  --theme-highlight-yellow: theme('colors.cheese.80');
+  --theme-highlight-green: theme('colors.avocado.80');
+  --theme-highlight-aqua: theme('colors.blueCheese.80');
+  --theme-highlight-blue: theme('colors.water.80');
+  --theme-highlight-purple: theme('colors.onion.80');
+  --theme-highlight-label: theme('colors.pepper.50');
+
+  --theme-color-burger: theme('colors.burger.60');
+  --theme-color-blueCheese: theme('colors.blueCheese.60');
+  --theme-color-avocado: theme('colors.avocado.60');
+  --theme-color-lettuce: theme('colors.lettuce.60');
+  --theme-color-cheese: theme('colors.cheese.60');
+  --theme-color-bun: theme('colors.bun.60');
+  --theme-color-ketchup: theme('colors.ketchup.60');
+  --theme-color-bacon: theme('colors.bacon.60');
+  --theme-color-cabbage: theme('colors.cabbage.60');
+  --theme-color-onion: theme('colors.onion.60');
+  --theme-color-water: theme('colors.water.60');
+  --theme-color-salt: theme('colors.pepper.40');
 }
-
 
 @media (prefers-color-scheme: light) {
   html.auto,
@@ -168,7 +226,6 @@ body {
   }
 }
 
-
 @media (prefers-color-scheme: dark) {
   html.auto,
   html.auto .invert .invert {
@@ -179,7 +236,6 @@ body {
     @mixin light-mode;
   }
 }
-
 
 html,
 html.light .invert,
@@ -247,17 +303,6 @@ img.lazyload:not([src]) {
   opacity: 0;
 }
 
-.__react_component_tooltip.__react_component_tooltip {
-  color: var(--balloon-text-color);
-  border-radius: var(--balloon-border-radius);
-  padding: 0.25rem 0.75rem;
-  @apply typo-subhead;
-
-  &.show {
-    opacity: 1;
-  }
-}
-
 @keyframes rank-attention {
   0% {
     transform: scale(0.5);
@@ -291,12 +336,6 @@ img.lazyload:not([src]) {
   background: var(--theme-label-primary);
 }
 
-.non-responsive-header ~ .page {
-  @screen laptop {
-    min-height: calc(100vh - $navBarHeight);
-  }
-}
-
 summary {
   list-style: none;
 
@@ -314,6 +353,17 @@ details {
   &[open] {
     & .arrow {
       transform: rotate(0deg);
+    }
+  }
+}
+details.right-icon {
+  & summary .icon {
+    --tw-rotate: 90deg;
+  }
+
+  &[open] {
+    & summary .icon {
+      --tw-rotate: 180deg;
     }
   }
 }

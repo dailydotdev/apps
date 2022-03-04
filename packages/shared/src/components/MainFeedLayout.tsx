@@ -6,69 +6,40 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import Link from 'next/link';
-import { useQuery, useQueryClient } from 'react-query';
-import classNames from 'classnames';
 import dynamic from 'next/dynamic';
-import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 import Feed, { FeedProps } from './Feed';
 import AuthContext from '../contexts/AuthContext';
-import {
-  getSourcesSettingsQueryKey,
-  getTagsSettingsQueryKey,
-} from '../hooks/useMutateFilters';
-import { FeedSettingsData } from '../graphql/feedSettings';
 import { LoggedUser } from '../lib/user';
-import OnboardingContext from '../contexts/OnboardingContext';
-import MagnifyingIcon from '../../icons/magnifying.svg';
-import { Dropdown, DropdownProps } from './fields/Dropdown';
-import { Button, ButtonProps } from './buttons/Button';
+import { Dropdown } from './fields/Dropdown';
 import { FeedPage } from './utilities';
-import utilitiesStyles from './utilities.module.css';
-import styles from './MainFeedLayout.module.css';
 import CalendarIcon from '../../icons/calendar.svg';
 import {
   ANONYMOUS_FEED_QUERY,
   FEED_QUERY,
   MOST_DISCUSSED_FEED_QUERY,
   MOST_UPVOTED_FEED_QUERY,
+  RankingAlgorithm,
   SEARCH_POSTS_QUERY,
 } from '../graphql/feed';
-import usePersistentState from '../hooks/usePersistentState';
+import FeaturesContext from '../contexts/FeaturesContext';
+import { generateQueryKey } from '../lib/query';
+import { Features, getFeatureValue } from '../lib/featureManagement';
+import classed from '../lib/classed';
+import { useMyFeed } from '../hooks/useMyFeed';
+import useDefaultFeed from '../hooks/useDefaultFeed';
+import SettingsContext from '../contexts/SettingsContext';
+import usePersistentContext from '../hooks/usePersistentContext';
+import CreateMyFeedButton from './CreateMyFeedButton';
+import { useDynamicLoadedAnimation } from '../hooks/useDynamicLoadAnimated';
+import FeedFilters from './filters/FeedFilters';
+import AlertContext from '../contexts/AlertContext';
 
 const SearchEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "emptySearch" */ './SearchEmptyScreen'),
 );
-
-export type Tab = {
-  name: string;
-  path: string;
-  title: string;
-  default?: boolean;
-};
-export const tabs: Tab[] = [
-  {
-    name: 'popular',
-    path: '/popular',
-    title: 'Popular',
-    default: true,
-  },
-  {
-    name: 'upvoted',
-    path: `/upvoted`,
-    title: 'Upvoted',
-  },
-  {
-    name: 'discussed',
-    path: `/discussed`,
-    title: 'Discussed',
-  },
-  {
-    name: 'recent',
-    path: `/recent`,
-    title: 'Recent',
-  },
-];
+const FeedEmptyScreen = dynamic(
+  () => import(/* webpackChunkName: "feedEmpty" */ './FeedEmptyScreen'),
+);
 
 type FeedQueryProps = {
   query: string;
@@ -76,22 +47,53 @@ type FeedQueryProps = {
   variables?: Record<string, unknown>;
 };
 
-const propsByFeed: Record<string, FeedQueryProps> = {
-  popular: {
-    query: ANONYMOUS_FEED_QUERY,
-    queryIfLogged: FEED_QUERY,
-  },
-  upvoted: {
-    query: MOST_UPVOTED_FEED_QUERY,
-  },
-  discussed: {
-    query: MOST_DISCUSSED_FEED_QUERY,
-  },
-  recent: {
-    query: ANONYMOUS_FEED_QUERY,
-    queryIfLogged: FEED_QUERY,
-    variables: { ranking: 'TIME' },
-  },
+interface FeedOptionalParams {
+  shouldShowMyFeed?: boolean;
+}
+
+const getPropsByFeed = ({
+  shouldShowMyFeed = false,
+}: FeedOptionalParams = {}): Record<string, FeedQueryProps> => {
+  return {
+    'my-feed': {
+      query: ANONYMOUS_FEED_QUERY,
+      queryIfLogged: FEED_QUERY,
+    },
+    popular: {
+      query: ANONYMOUS_FEED_QUERY,
+      queryIfLogged: shouldShowMyFeed ? ANONYMOUS_FEED_QUERY : FEED_QUERY,
+    },
+    search: {
+      query: ANONYMOUS_FEED_QUERY,
+      queryIfLogged: FEED_QUERY,
+    },
+    upvoted: {
+      query: MOST_UPVOTED_FEED_QUERY,
+    },
+    discussed: {
+      query: MOST_DISCUSSED_FEED_QUERY,
+    },
+  };
+};
+
+const LayoutHeader = classed(
+  'header',
+  'flex justify-between items-center overflow-x-auto relative justify-between mb-6 min-h-14 w-full no-scrollbar',
+);
+
+export const getShouldRedirect = (
+  isOnMyFeed: boolean,
+  isLoggedIn: boolean,
+): boolean => {
+  if (!isOnMyFeed) {
+    return false;
+  }
+
+  if (!isLoggedIn) {
+    return true;
+  }
+
+  return false;
 };
 
 export type MainFeedLayoutProps = {
@@ -99,9 +101,6 @@ export type MainFeedLayoutProps = {
   isSearchOn: boolean;
   searchQuery?: string;
   children?: ReactNode;
-  useNavButtonsNotLinks?: boolean;
-  onNavTabClick?: (tab: Tab) => unknown;
-  onSearchButtonClick?: () => unknown;
   searchChildren: ReactNode;
   navChildren?: ReactNode;
 };
@@ -121,6 +120,13 @@ const getQueryBasedOnLogin = (
   return null;
 };
 
+const algorithms = [
+  { value: RankingAlgorithm.Popularity, text: 'Recommended' },
+  { value: RankingAlgorithm.Time, text: 'By date' },
+];
+const algorithmsList = algorithms.map((algo) => algo.text);
+const DEFAULT_ALGORITHM_KEY = 'feed:algorithm';
+
 const periods = [
   { value: 7, text: 'Last week' },
   { value: 30, text: 'Last month' },
@@ -128,52 +134,56 @@ const periods = [
 ];
 const periodTexts = periods.map((period) => period.text);
 
-const generateFeedQueryKey = (
-  feedName: string,
-  user: LoggedUser | null,
-  ...additional: unknown[]
-): unknown[] => {
-  return [feedName, user?.id ?? 'anonymous', ...additional];
-};
-
-function ButtonOrLink({
-  asLink,
-  href,
-  ...props
-}: { asLink: boolean; href: string } & ButtonProps<'button'>) {
-  if (asLink) {
-    return (
-      <Link href={href} passHref prefetch={false}>
-        <Button {...props} tag="a" />
-      </Link>
-    );
-  }
-  return <Button {...props} />;
-}
-
 export default function MainFeedLayout({
   feedName: feedNameProp,
   searchQuery,
   isSearchOn,
   children,
-  useNavButtonsNotLinks,
-  onNavTabClick,
-  onSearchButtonClick,
   searchChildren,
   navChildren,
 }: MainFeedLayoutProps): ReactElement {
-  const queryClient = useQueryClient();
+  const { shouldShowMyFeed, myFeedPosition } = useMyFeed();
+  const [defaultFeed, updateDefaultFeed] = useDefaultFeed(shouldShowMyFeed);
+  const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
-  const { onboardingStep, onboardingReady } = useContext(OnboardingContext);
-  const [defaultFeed, setDefaultFeed] = usePersistentState(
-    'defaultFeed',
-    null,
-    'popular',
-  );
-  const showWelcome = onboardingStep === 1;
+  const { flags } = useContext(FeaturesContext);
+  const { alerts } = useContext(AlertContext);
+  const popularFeedCopy = getFeatureValue(Features.PopularFeedCopy, flags);
+  const {
+    isLoaded,
+    isAnimated,
+    setLoaded: openFeedFilters,
+    setHidden,
+  } = useDynamicLoadedAnimation();
 
+  const feedTitles = {
+    'my-feed': 'My feed',
+    popular: popularFeedCopy,
+    upvoted: 'Most upvoted',
+    discussed: 'Best discussions',
+  };
+  const feedVersion = parseInt(
+    getFeatureValue(Features.FeedVersion, flags),
+    10,
+  );
   const feedName = feedNameProp === 'default' ? defaultFeed : feedNameProp;
+  const isMyFeed = feedName === 'my-feed';
+  const propsByFeed = getPropsByFeed({ shouldShowMyFeed });
+
+  useEffect(() => {
+    if (
+      defaultFeed !== null &&
+      feedName !== null &&
+      feedName !== defaultFeed &&
+      !getShouldRedirect(isMyFeed, !!user)
+    ) {
+      updateDefaultFeed(feedName);
+    }
+  }, [defaultFeed, feedName, shouldShowMyFeed]);
+
   const isUpvoted = !isSearchOn && feedName === 'upvoted';
+  const isSortableFeed =
+    !isSearchOn && (feedName === 'popular' || feedName === 'my-feed');
 
   let query: { query: string; variables?: Record<string, unknown> };
   if (feedName) {
@@ -184,37 +194,82 @@ export default function MainFeedLayout({
         propsByFeed[feedName].query,
         propsByFeed[feedName].queryIfLogged,
       ),
-      variables: propsByFeed[feedName].variables,
+      variables: {
+        ...propsByFeed[feedName].variables,
+        version: feedVersion,
+      },
     };
   } else {
     query = { query: null };
   }
 
-  const [loadedTagsSettings, setLoadedTagsSettings] = useState(false);
-  const [loadedSourcesSettings, setLoadedSourcesSettings] = useState(false);
-  const [selectedPeriod, setSelectedPeriod] = useState(0);
-
-  const tagsQueryKey = getTagsSettingsQueryKey(user);
-  const { data: tagsSettings } = useQuery<FeedSettingsData>(
-    tagsQueryKey,
-    () => ({ feedSettings: { includeTags: [] } }),
-    {
-      enabled: false,
-    },
+  const [selectedAlgo, setSelectedAlgo, loadedAlgo] = usePersistentContext(
+    DEFAULT_ALGORITHM_KEY,
+    0,
+    [0, 1],
+    0,
   );
-  const sourcesQueryKey = getSourcesSettingsQueryKey(user);
-  const { data: sourcesSettings } = useQuery<FeedSettingsData>(
-    sourcesQueryKey,
-    () => ({ feedSettings: { excludeSources: [] } }),
-    {
-      enabled: false,
-    },
+  const [selectedPeriod, setSelectedPeriod] = useState(0);
+  const search = (
+    <LayoutHeader>
+      {navChildren}
+      {isSearchOn ? searchChildren : undefined}
+    </LayoutHeader>
+  );
+
+  const getFeedTitle = () => {
+    if (shouldShowMyFeed && alerts?.filter && myFeedPosition === 'feed_title') {
+      return (
+        <CreateMyFeedButton
+          type={myFeedPosition}
+          action={openFeedFilters}
+          flags={flags}
+        />
+      );
+    }
+
+    return <h3 className="typo-headline">{feedTitles[feedName]}</h3>;
+  };
+
+  const header = (
+    <LayoutHeader
+      className={
+        myFeedPosition !== 'feed_title'
+          ? 'flex-row'
+          : 'flex-col tablet:flex-row'
+      }
+    >
+      {!isSearchOn && getFeedTitle()}
+      <div className="flex flex-row flex-wrap gap-4 items-center mr-px">
+        {navChildren}
+        {isUpvoted && (
+          <Dropdown
+            className="w-44"
+            buttonSize="large"
+            icon={<CalendarIcon />}
+            selectedIndex={selectedPeriod}
+            options={periodTexts}
+            onChange={(_, index) => setSelectedPeriod(index)}
+          />
+        )}
+        {sortingEnabled && isSortableFeed && (
+          <Dropdown
+            className="w-[10.25rem]"
+            buttonSize="large"
+            selectedIndex={selectedAlgo}
+            options={algorithmsList}
+            onChange={(_, index) => setSelectedAlgo(index)}
+          />
+        )}
+      </div>
+    </LayoutHeader>
   );
 
   const feedProps = useMemo<FeedProps<unknown>>(() => {
     if (isSearchOn && searchQuery) {
       return {
-        feedQueryKey: generateFeedQueryKey('search', user, searchQuery),
+        feedName: 'search',
+        feedQueryKey: generateQueryKey('search', user, searchQuery),
         query: SEARCH_POSTS_QUERY,
         variables: { query: searchQuery },
         emptyScreen: <SearchEmptyScreen />,
@@ -223,17 +278,44 @@ export default function MainFeedLayout({
     if (!query.query) {
       return null;
     }
-    const variables = isUpvoted
-      ? { ...query.variables, period: periods[selectedPeriod].value }
-      : query.variables;
+
+    const getVariables = () => {
+      if (isUpvoted) {
+        return { ...query.variables, period: periods[selectedPeriod].value };
+      }
+
+      if (isSortableFeed) {
+        return {
+          ...query.variables,
+          ranking: algorithms[selectedAlgo].value,
+        };
+      }
+
+      return query.variables;
+    };
+
+    const variables = getVariables();
+
     return {
-      feedQueryKey: generateFeedQueryKey(
+      feedName,
+      feedQueryKey: generateQueryKey(
         feedName,
         user,
         ...Object.values(variables ?? {}),
       ),
       query: query.query,
       variables,
+      createMyFeedCard: shouldShowMyFeed &&
+        alerts?.filter &&
+        myFeedPosition === 'feed_ad' && (
+          <CreateMyFeedButton
+            type="feed_ad"
+            action={openFeedFilters}
+            flags={flags}
+          />
+        ),
+      emptyScreen: <FeedEmptyScreen openFeedFilters={openFeedFilters} />,
+      header: !isSearchOn && header,
     };
   }, [
     isSearchOn && searchQuery,
@@ -242,104 +324,35 @@ export default function MainFeedLayout({
     isUpvoted && selectedPeriod,
   ]);
 
-  const refreshFeed = () =>
-    requestIdleCallback(() =>
-      queryClient.invalidateQueries(feedProps?.feedQueryKey),
-    );
-
   useEffect(() => {
-    if (tagsSettings) {
-      if (loadedTagsSettings) {
-        refreshFeed();
-      } else {
-        setLoadedTagsSettings(true);
-      }
+    if (!sortingEnabled && selectedAlgo > 0 && loadedSettings && loadedAlgo) {
+      setSelectedAlgo(0);
     }
-  }, [tagsSettings]);
-
-  useEffect(() => {
-    if (sourcesSettings) {
-      if (loadedSourcesSettings) {
-        refreshFeed();
-      } else {
-        setLoadedSourcesSettings(true);
-      }
-    }
-  }, [sourcesSettings]);
-
-  const tabClassNames = isSearchOn ? 'btn-tertiary invisible' : 'btn-tertiary';
-  const periodDropdownProps: DropdownProps = {
-    style: { width: '11rem' },
-    buttonSize: 'medium',
-    icon: <CalendarIcon />,
-    selectedIndex: selectedPeriod,
-    options: periodTexts,
-    onChange: (value, index) => {
-      setSelectedPeriod(index);
-    },
-  };
-
-  const onTabClick = (tab: Tab) => {
-    setDefaultFeed(tab.name);
-    onNavTabClick?.(tab);
-  };
+  }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
 
   return (
-    <FeedPage
-      className={classNames({
-        [utilitiesStyles.notReady]: !onboardingReady,
-      })}
-    >
-      {showWelcome && (
-        <div
-          role="status"
-          className={`self-stretch -mt-1 mb-12 mx-auto py-3 px-6 text-theme-label-secondary rounded-2xl border border-theme-divider-secondary text-center typo-callout ${styles.welcome}`}
-        >
-          Dear developer, our mission is to serve all the best programming news
-          you’ll ever need. Ready?
-        </div>
-      )}
-      <nav className="flex overflow-x-auto relative items-center self-stretch mb-6 h-11 no-scrollbar">
-        <ButtonOrLink
-          asLink={!useNavButtonsNotLinks}
-          href="/search"
-          buttonSize="small"
-          icon={<MagnifyingIcon />}
-          className={tabClassNames}
-          title="Search"
-          onClick={onSearchButtonClick}
+    <>
+      <FeedPage>
+        {shouldShowMyFeed &&
+          alerts?.filter &&
+          myFeedPosition === 'feed_top' && (
+            <CreateMyFeedButton
+              type={myFeedPosition}
+              action={openFeedFilters}
+              flags={flags}
+            />
+          )}
+        {isSearchOn && search}
+        {feedProps && <Feed {...feedProps} />}
+        {children}
+      </FeedPage>
+      {isLoaded && (
+        <FeedFilters
+          isOpen={isAnimated}
+          onBack={setHidden}
+          directlyOpenedTab="Manage tags"
         />
-        {tabs.map((tab) => (
-          <ButtonOrLink
-            asLink={!useNavButtonsNotLinks}
-            href={tab.path}
-            key={tab.path}
-            buttonSize="small"
-            pressed={tab.name === feedName}
-            className={tabClassNames}
-            onClick={() => onTabClick(tab)}
-          >
-            {tab.title}
-          </ButtonOrLink>
-        ))}
-        <div className="flex-1" />
-        {navChildren}
-        {isUpvoted && (
-          <Dropdown
-            className={classNames(
-              'hidden laptop:block mr-px',
-              navChildren && 'ml-4',
-            )}
-            {...periodDropdownProps}
-          />
-        )}
-        {isSearchOn ? searchChildren : undefined}
-      </nav>
-      {isUpvoted && (
-        <Dropdown className="laptop:hidden mb-6" {...periodDropdownProps} />
       )}
-      {feedProps && <Feed {...feedProps} />}
-      {children}
-    </FeedPage>
+    </>
   );
 }

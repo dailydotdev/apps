@@ -4,16 +4,18 @@ import { LazyImage } from '../LazyImage';
 import { Comment } from '../../graphql/comments';
 import styles from './Card.module.css';
 import classed from '../../lib/classed';
-import { getTooltipProps } from '../../lib/tooltip';
 import { Post } from '../../graphql/posts';
+import { ProfilePicture } from '../ProfilePicture';
+import { TooltipPosition } from '../tooltips/BaseTooltipContainer';
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 const Title = classed(
   'h3',
   styles.title,
-  'font-bold typo-body text-theme-label-primary multi-truncate',
+  'text-theme-label-primary multi-truncate line-clamp-3',
 );
 
-export const CardTitle = classed(Title, 'my-2');
+export const CardTitle = classed(Title, 'my-2 break-words');
 
 export const ListCardTitle = classed(Title, 'mr-2');
 
@@ -32,7 +34,7 @@ export const CardLink = classed(
 export const Card = classed(
   'article',
   styles.card,
-  'relative flex flex-col p-2 rounded-2xl bg-theme-bg-secondary border border-theme-divider-tertiary hover:border-theme-divider-secondary shadow-2',
+  'relative h-full flex flex-col p-2 rounded-2xl bg-theme-bg-secondary border border-theme-divider-tertiary hover:border-theme-divider-secondary shadow-2',
 );
 
 export const CardHeader = classed(
@@ -85,29 +87,27 @@ export const featuredCommentsToButtons = (
   onClick: (comment: Comment) => unknown,
   selectedId?: string,
   className = 'mx-1',
-  tooltipPosition: 'up' | 'down' | 'left' | 'right' = 'down',
+  tooltipPosition: TooltipPosition = 'bottom',
 ): ReactNode[] =>
   comments?.map((comment) => (
-    <button
-      type="button"
-      {...getTooltipProps(`See ${comment.author.name}'s comment`, {
-        position: tooltipPosition,
-      })}
-      onClick={() => onClick(comment)}
+    <SimpleTooltip
       key={comment.id}
-      className={classNames(
-        'flex p-0 bg-none border-none rounded-full cursor-pointer focus-outline',
-        className,
-      )}
+      placement={tooltipPosition}
+      content={`See ${comment.author.name}'s comment`}
     >
-      <img
-        src={comment.author.image}
-        alt={`${comment.author.name}'s profile`}
+      <button
+        type="button"
+        onClick={() => onClick(comment)}
         className={classNames(
-          'w-6 h-6 rounded-full',
-          selectedId === comment.id ? 'opacity-100' : 'opacity-64',
+          'flex p-0 bg-none border-none rounded-full cursor-pointer focus-outline',
+          className,
         )}
-        style={{ background: 'var(--theme-background-tertiary)' }}
-      />
-    </button>
+      >
+        <ProfilePicture
+          size="small"
+          user={comment.author}
+          className="rounded-full"
+        />
+      </button>
+    </SimpleTooltip>
   ));

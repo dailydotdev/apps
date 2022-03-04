@@ -17,6 +17,7 @@ import {
 
 const defaultUser = {
   id: 'u1',
+  username: 'idoshamun',
   name: 'Ido Shamun',
   providers: ['github'],
   email: 'ido@acme.com',
@@ -40,10 +41,11 @@ const renderComponent = (
   user: Partial<LoggedUser> = {},
 ): RenderResult => {
   const defaultProps: NewCommentModalProps = {
-    authorName: 'Nimrod',
     authorImage: 'https://daily.dev/nimrod.png',
+    authorName: 'Nimrod',
     publishDate: new Date(2017, 1, 10, 0, 0),
     content: 'This is the main comment',
+    contentHtml: '<p>This is the main comment</p>',
     commentId: null,
     post: {
       id: 'p1',
@@ -92,26 +94,19 @@ it('should show formatted date of publication', async () => {
 
 it('should show author profile picture', async () => {
   renderComponent();
-  const el = await screen.findByAltText(`Nimrod's profile image`);
+  const el = await screen.findByAltText(`Nimrod's profile`);
   expect(el).toHaveAttribute('data-src', 'https://daily.dev/nimrod.png');
 });
 
 it('should show user profile picture', async () => {
   renderComponent();
-  const el = await screen.findByAltText('Your profile image');
+  const el = await screen.findByAltText(`idoshamun's profile`);
   expect(el).toHaveAttribute('data-src', 'https://daily.dev/ido.png');
 });
 
 it('should show content of parent', async () => {
   renderComponent();
   await screen.findByText('This is the main comment');
-});
-
-it('should close modal on cancel', async () => {
-  renderComponent();
-  const el = await screen.findByText('Cancel');
-  el.click();
-  expect(onRequestClose).toBeCalledTimes(1);
 });
 
 it('should disable submit button when no input', async () => {
@@ -198,6 +193,40 @@ it('should send commentOnComment mutation', async () => {
   await waitFor(() => mutationCalled);
   await waitFor(() => expect(onComment).toBeCalledWith(newComment, 'c1'));
   expect(onRequestClose).toBeCalledTimes(1);
+});
+
+it('should not send comment if the input is spaces only', async () => {
+  let mutationCalled = false;
+  const newComment = {
+    __typename: 'Comment',
+    id: 'new',
+    content: 'comment',
+    createdAt: new Date(2017, 1, 10, 0, 1).toISOString(),
+    permalink: 'https://daily.dev',
+  };
+  renderComponent({ commentId: 'c1' }, [
+    {
+      request: {
+        query: COMMENT_ON_COMMENT_MUTATION,
+        variables: { id: 'c1', content: 'comment' },
+      },
+      result: () => {
+        mutationCalled = true;
+        return {
+          data: {
+            comment: newComment,
+          },
+        };
+      },
+    },
+  ]);
+  const input = await screen.findByRole('textbox');
+  input.innerText = '   ';
+  input.dispatchEvent(new Event('input', { bubbles: true }));
+  const el = await screen.findByText('Comment');
+  el.click();
+  await waitFor(() => expect(onComment).not.toBeCalled());
+  expect(mutationCalled).toBeFalsy();
 });
 
 it('should show alert in case of an error', async () => {

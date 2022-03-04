@@ -5,12 +5,12 @@ import ArrowIcon from '@dailydotdev/shared/icons/arrow.svg';
 import Link from 'next/link';
 import { Post } from '@dailydotdev/shared/src/graphql/posts';
 import styles from '@dailydotdev/shared/src/components/cards/Card.module.css';
-import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import { CardLink } from '@dailydotdev/shared/src/components/cards/Card';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { ProfilePicture } from '@dailydotdev/shared/src/components/ProfilePicture';
 
 export type BestDiscussionsProps = {
   posts: Post[] | null;
@@ -54,13 +54,12 @@ const ListItem = ({ post, onLinkClick }: PostProps): ReactElement => (
           style={{ width: `${post.featuredComments.length + 0.5}rem` }}
         >
           {post.featuredComments.map((comment, index) => (
-            <LazyImage
-              key={comment.id}
-              imgSrc={comment.author.image}
-              imgAlt={`${comment.author.name}'s profile picture`}
-              className="top-0 w-6 h-6 rounded-full"
-              absolute
-              style={{ left: `${index}rem` }}
+            <ProfilePicture
+              key={comment.author.username}
+              user={comment.author}
+              size="small"
+              className="top-0"
+              style={{ left: `${index}rem`, position: 'absolute' }}
             />
           ))}
         </div>
@@ -137,7 +136,7 @@ export default function BestDiscussions({
           className="self-start my-2 ml-2 btn-tertiary"
           buttonSize="small"
           tag="a"
-          rightIcon={<ArrowIcon className="transform rotate-90 icon" />}
+          rightIcon={<ArrowIcon className="rotate-90 icon" />}
           onClick={onLucky}
           onMouseUp={(event) => event.button === 1 && onLucky()}
         >

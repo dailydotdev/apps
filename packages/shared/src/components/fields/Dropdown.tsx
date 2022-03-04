@@ -12,7 +12,7 @@ import {
   Menu,
   TriggerEvent,
   useContextMenu,
-} from 'react-contexify';
+} from '@dailydotdev/react-contexify';
 import ArrowIcon from '../../../icons/arrow.svg';
 import styles from './Dropdown.module.css';
 
@@ -23,10 +23,15 @@ export interface DropdownProps {
   selectedIndex: number;
   options: string[];
   onChange: (value: string, index: number) => unknown;
-  buttonSize?: 'small' | 'medium' | 'large';
+  buttonSize?: 'small' | 'medium' | 'large' | 'select';
+  scrollable?: boolean;
+  menuClassName?: string;
 }
 
 const getButtonSizeClass = (buttonSize: string): string => {
+  if (buttonSize === 'select') {
+    return 'h-9 rounded-10 text-theme-label-primary typo-body';
+  }
   if (buttonSize === 'medium') {
     return 'h-10 rounded-xl';
   }
@@ -43,6 +48,8 @@ export function Dropdown({
   options,
   onChange,
   buttonSize = 'large',
+  scrollable = false,
+  menuClassName = 'menu-primary',
   ...props
 }: DropdownProps): ReactElement {
   const [id] = useState(`dropdown-${Math.random().toString(36).substring(7)}`);
@@ -52,11 +59,11 @@ export function Dropdown({
   const { show, hideAll } = useContextMenu({ id });
 
   const showMenu = (event: TriggerEvent): void => {
-    const { left, bottom, width } = triggerRef.current.getBoundingClientRect();
+    const { right, bottom, width } = triggerRef.current.getBoundingClientRect();
     setMenuWidth(width);
     setVisibility(true);
     show(event, {
-      position: { x: left, y: bottom + 8 },
+      position: { x: right, y: bottom + 8 },
     });
   };
 
@@ -107,18 +114,21 @@ export function Dropdown({
         aria-expanded={isVisible}
       >
         {icon}
-        {options[selectedIndex]}
+        <span className="flex flex-1 mr-1 truncate">
+          {options[selectedIndex]}
+        </span>
         <ArrowIcon
           className={classNames(
-            'text-xl ml-auto transform transition-transform group-hover:text-theme-label-tertiary',
+            'text-xl ml-auto transition-transform group-hover:text-theme-label-tertiary',
             isVisible ? 'rotate-0' : 'rotate-180',
             styles.chevron,
           )}
         />
       </button>
       <Menu
+        disableBoundariesCheck
         id={id}
-        className="menu-primary"
+        className={`${scrollable && 'scrollable'} ${menuClassName}`}
         animation="fade"
         onHidden={() => setVisibility(false)}
         style={{ width: menuWidth }}

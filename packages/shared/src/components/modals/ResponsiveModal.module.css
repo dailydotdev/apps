@@ -15,7 +15,6 @@
     max-width: 30rem;
     min-height: 100%;
     align-items: stretch;
-    padding: 0.5rem;
     border: none;
     border-radius: 0;
 
@@ -25,5 +24,10 @@
       border: 1px solid var(--theme-divider-secondary);
       border-radius: 1rem;
     }
+  }
+}
+.addPadding {
+  & :global(.modal) {
+    padding: 0.5rem;
   }
 }

@@ -11,7 +11,6 @@ import { mocked } from 'ts-jest/utils';
 import SettingsContext, {
   SettingsContextData,
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
-import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import BookmarksPage from '../pages/bookmarks';
 import ad from './fixture/ad';
 import defaultUser from './fixture/loggedUser';
@@ -32,7 +31,10 @@ beforeEach(() => {
   mocked(useRouter).mockImplementation(
     () =>
       ({
+        pathname: '/bookmarks',
+        query: {},
         replace: routerReplace,
+        push: jest.fn(),
       } as unknown as NextRouter),
   );
 });
@@ -77,6 +79,8 @@ const renderComponent = (
     insaneMode: false,
     loadedSettings: true,
     toggleInsaneMode: jest.fn(),
+    showTopSites: true,
+    toggleShowTopSites: jest.fn(),
   };
   return render(
     <QueryClientProvider client={client}>
@@ -91,25 +95,17 @@ const renderComponent = (
           getRedirectUri: jest.fn(),
         }}
       >
-        <OnboardingContext.Provider
-          value={{
-            onboardingStep: 3,
-            onboardingReady: true,
-            incrementOnboardingStep: jest.fn(),
-            trackEngagement: jest.fn(),
-            closeReferral: jest.fn(),
-            showReferral: false,
-          }}
-        >
-          <SettingsContext.Provider value={settingsContext}>
-            <BookmarksPage />
-          </SettingsContext.Provider>
-        </OnboardingContext.Provider>
+        <SettingsContext.Provider value={settingsContext}>
+          {BookmarksPage.getLayout(
+            <BookmarksPage />,
+            {},
+            BookmarksPage.layoutProps,
+          )}
+        </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
   );
 };
-
 it('should request bookmarks feed', async () => {
   renderComponent();
   await waitForNock();
@@ -142,4 +138,30 @@ it('should show empty screen when feed is empty', async () => {
     const elements = screen.queryAllByTestId('postItem');
     expect(elements.length).toBeFalsy();
   });
+});
+
+it('should show the search bar', async () => {
+  renderComponent();
+  await waitForNock();
+  expect(await screen.findByTestId('searchField')).toBeInTheDocument();
+});
+
+it('should update query param on enter', async (done) => {
+  renderComponent();
+  await waitForNock();
+  const input = (await screen.findByRole('textbox')) as HTMLInputElement;
+  input.value = 'daily';
+  input.dispatchEvent(new Event('input', { bubbles: true }));
+  setTimeout(async () => {
+    input.dispatchEvent(
+      new KeyboardEvent('keydown', { bubbles: true, keyCode: 13 }),
+    );
+    await waitFor(() =>
+      expect(routerReplace).toBeCalledWith({
+        pathname: '/bookmarks',
+        query: { q: 'daily' },
+      }),
+    );
+    done();
+  }, 150);
 });

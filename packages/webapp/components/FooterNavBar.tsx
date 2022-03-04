@@ -4,20 +4,20 @@ import React, {
   ReactNode,
   useContext,
 } from 'react';
-import Link from 'next/link';
 import { Flipper, Flipped } from 'react-flip-toolkit';
 import HomeIcon from '@dailydotdev/shared/icons/home.svg';
 import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
-import FilterIcon from '@dailydotdev/shared/icons/filter.svg';
-import LayoutIcon from '@dailydotdev/shared/icons/layout.svg';
+import SearchIcon from '@dailydotdev/shared/icons/magnifying.svg';
+import FilterIcon from '@dailydotdev/shared/icons/outline/filter.svg';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useRouter } from 'next/router';
+import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
+import { LinkWithTooltip } from '@dailydotdev/shared/src/components/tooltips/LinkWithTooltip';
 import { ActiveTabIndicator } from '@dailydotdev/shared/src/components/utilities';
 import {
   Button,
   ButtonSize,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { getTooltipProps } from '@dailydotdev/shared/src/lib/tooltip';
 import classNames from 'classnames';
 import styles from './FooterNavBar.module.css';
 
@@ -27,6 +27,7 @@ type Tab = {
   icon: ReactNode;
   requiresLogin?: boolean;
 };
+
 export const tabs: Tab[] = [
   {
     path: '/',
@@ -40,14 +41,14 @@ export const tabs: Tab[] = [
     requiresLogin: true,
   },
   {
+    path: '/search',
+    title: 'Search',
+    icon: <SearchIcon />,
+  },
+  {
     path: '/filters',
     title: 'Filters',
     icon: <FilterIcon />,
-  },
-  {
-    path: '/settings',
-    title: 'Settings',
-    icon: <LayoutIcon />,
   },
 ];
 
@@ -77,22 +78,27 @@ export default function FooterNavBar(): ReactElement {
       {tabs.map((tab, index) => (
         <div key={tab.path} className="relative">
           {!tab.requiresLogin || user ? (
-            <Link href={tab.path} prefetch={false} passHref>
+            <LinkWithTooltip
+              href={tab.path}
+              prefetch={false}
+              passHref
+              tooltip={{ content: tab.title }}
+            >
               <Button
                 {...buttonProps}
                 tag="a"
                 icon={tab.icon}
                 pressed={index === selectedTab}
-                {...getTooltipProps(tab.title)}
               />
-            </Link>
+            </LinkWithTooltip>
           ) : (
-            <Button
-              {...buttonProps}
-              icon={tab.icon}
-              onClick={() => showLogin('bookmark')}
-              {...getTooltipProps(tab.title)}
-            />
+            <SimpleTooltip content={tab.title}>
+              <Button
+                {...buttonProps}
+                icon={tab.icon}
+                onClick={() => showLogin('bookmark')}
+              />
+            </SimpleTooltip>
           )}
           <Flipped flipId="activeTabIndicator">
             {selectedTab === index && (

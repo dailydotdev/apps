@@ -210,20 +210,6 @@ const logEvent = async (
 export const logReadArticle = async (origin: string): Promise<void> =>
   logEvent('read article', { origin });
 
-export const logSignupStart = async (trigger: string): Promise<void> =>
-  logEvent('signup start', { trigger });
-
-export const logSignupProviderClick = async (provider: string): Promise<void> =>
-  logEvent('signup provider click', { provider });
-
-export const logSignupFormStart = async (): Promise<void> =>
-  logEvent('signup form start');
-
-export const logSignupFormSubmit = async (
-  optionalFields: boolean,
-): Promise<void> =>
-  logEvent('signup form submit', { 'optional fields': optionalFields });
-
 export const logGoToDevCardImpression = async (origin: string): Promise<void> =>
   logEvent('go to devcard impression', { origin });
 
@@ -286,7 +272,7 @@ interface EventFields {
   nonInteraction?: boolean;
 }
 
-export const trackEvent = ({
+export const gaTrackEvent = ({
   category,
   action,
   label,

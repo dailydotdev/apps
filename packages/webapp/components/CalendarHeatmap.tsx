@@ -1,5 +1,6 @@
 import React, { CSSProperties, ReactElement, ReactNode, useMemo } from 'react';
 import { addDays, differenceInDays, endOfWeek } from 'date-fns';
+import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 
 const BINS = 3;
 const DAYS_IN_WEEK = 7;
@@ -74,7 +75,7 @@ export type CalendarHeatmapProps<T extends { date: string }> = {
   endDate: Date;
   values: T[];
   valueToCount: (value: T) => number;
-  valueToTooltip: (value: T, date: Date) => string;
+  valueToTooltip: (value: T, date: Date) => ReactNode;
 };
 
 export default function CalendarHeatmap<T extends { date: string }>({
@@ -183,31 +184,40 @@ export default function CalendarHeatmap<T extends { date: string }>({
     const bin = value?.bin || 0;
     const attrs = binsAttributes[bin];
     return (
-      <>
-        <rect
-          key={index}
-          width={SQUARE_SIZE}
-          height={SQUARE_SIZE}
-          x={x}
-          y={y}
-          rx="3"
-          data-tip={valueToTooltip(
-            value?.originalValue,
-            addDays(startDateWithEmptyDays, index),
-          )}
-          {...attrs}
-        />
-        {!bin && (
-          <rect
-            width={SQUARE_SIZE - 2}
-            height={SQUARE_SIZE - 2}
-            x={x + 1}
-            y={y + 1}
-            rx="2"
-            fill="var(--theme-background-primary)"
-          />
+      <SimpleTooltip
+        content={valueToTooltip(
+          value?.originalValue,
+          addDays(startDateWithEmptyDays, index),
         )}
-      </>
+        duration={0}
+        delay={[0, 70]}
+        container={{
+          paddingClassName: 'py-3 px-4',
+          roundedClassName: 'rounded-3',
+        }}
+      >
+        <g>
+          <rect
+            key={index}
+            width={SQUARE_SIZE}
+            height={SQUARE_SIZE}
+            x={x}
+            y={y}
+            rx="3"
+            {...attrs}
+          />
+          {!bin && (
+            <rect
+              width={SQUARE_SIZE - 2}
+              height={SQUARE_SIZE - 2}
+              x={x + 1}
+              y={y + 1}
+              rx="2"
+              fill="var(--theme-background-primary)"
+            />
+          )}
+        </g>
+      </SimpleTooltip>
     );
   };
 

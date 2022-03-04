@@ -3,6 +3,90 @@ import classed from '../lib/classed';
 import styles from './utilities.module.css';
 import ArrowIcon from '../../icons/arrow.svg';
 
+export interface ThemeColor {
+  border: string;
+  shadow: string;
+  button: string;
+}
+
+const themeColors = {
+  avocado: {
+    border: 'border-theme-color-avocado',
+    shadow: 'shadow-2-avocado',
+    button: 'btn-primary-avocado',
+  },
+  burger: {
+    border: 'border-theme-color-burger',
+    shadow: 'shadow-2-burger',
+    button: 'btn-primary-burger',
+  },
+  blueCheese: {
+    border: 'border-theme-color-blueCheese',
+    shadow: 'shadow-2-blueCheese',
+    button: 'btn-primary-blueCheese',
+  },
+  lettuce: {
+    border: 'border-theme-color-lettuce',
+    shadow: 'shadow-2-lettuce',
+    button: 'btn-primary-lettuce',
+  },
+  cheese: {
+    border: 'border-theme-color-cheese',
+    shadow: 'shadow-2-cheese',
+    button: 'btn-primary-cheese',
+  },
+  bun: {
+    border: 'border-theme-color-bun',
+    shadow: 'shadow-2-bun',
+    button: 'btn-primary-bun',
+  },
+  ketchup: {
+    border: 'border-theme-color-ketchup',
+    shadow: 'shadow-2-ketchup',
+    button: 'btn-primary-ketchup',
+  },
+  bacon: {
+    border: 'border-theme-color-bacon',
+    shadow: 'shadow-2-bacon',
+    button: 'btn-primary-bacon',
+  },
+  cabbage: {
+    border: 'border-theme-color-cabbage',
+    shadow: 'shadow-2-cabbage',
+    button: 'btn-primary-cabbage',
+  },
+  onion: {
+    border: 'border-theme-color-onion',
+    shadow: 'shadow-2-onion',
+    button: 'btn-primary-onion',
+  },
+  water: {
+    border: 'border-theme-color-water',
+    shadow: 'shadow-2-water',
+    button: 'btn-primary-water',
+  },
+  primary: {
+    border: 'border-primary',
+    shadow: 'shadow-2',
+    button: 'btn-primary',
+  },
+};
+
+export const getThemeColor = (color: string, fallback: string): ThemeColor => {
+  return themeColors[color] ?? themeColors[fallback];
+};
+
+const themeFonts = {
+  bodyBold: 'font-bold typo-body',
+  body: 'typo-body',
+  title3: 'typo-title3',
+  title3Bold: 'font-bold typo-title3',
+};
+
+export const getThemeFont = (font: string, fallback: string): string => {
+  return themeFonts[font] ?? themeFonts[fallback];
+};
+
 export const RoundedImage = classed(LazyImage, 'w-10 h-10 rounded-full');
 
 export const SmallRoundedImage = classed(LazyImage, 'w-6 h-6 rounded-full');
@@ -13,10 +97,27 @@ export const LegalNotice = classed(
   styles.legal,
 );
 
+export const pageBorders =
+  'laptop:border-r laptop:border-l laptop:border-theme-divider-tertiary';
+const pagePaddings = 'px-4 tablet:px-8';
+
 export const PageContainer = classed(
   'main',
   styles.pageContainer,
-  'relative flex flex-col w-full items-stretch px-4 z-1 tablet:px-8 tablet:self-center',
+  pagePaddings,
+  'relative flex flex-col w-full items-stretch z-1 tablet:self-center',
+);
+
+export const PageWidgets = classed(
+  'aside',
+  styles.pageWidgets,
+  'laptopL:min-w-[22.5rem] pt-6 laptopL:pt-0 laptopL:px-6 laptopL:w-auto laptopL:border-none',
+);
+
+export const NewCommentContainer = classed(
+  'div',
+  'flex fixed right-0 bottom-0 left-0 z-2 flex-col items-stretch py-3 px-4 w-full bg-theme-bg-primary',
+  'laptop:relative laptop:p-0 laptop:bg-none ',
 );
 
 export const ResponsivePageContainer = classed(
@@ -26,7 +127,7 @@ export const ResponsivePageContainer = classed(
 
 export const FeedPage = classed(
   'main',
-  'withNavBar flex flex-col items-start pb-3 px-6 laptop:px-16',
+  'withNavBar flex flex-col flex-1 items-start pb-3 px-6 laptop:px-16 pt-10 max-w-full',
   styles.feedPage,
 );
 
@@ -45,7 +146,12 @@ export const ActiveTabIndicator = classed(
 
 export const CustomFeedHeader = classed(
   'div',
-  'flex h-9 self-stretch items-center mb-3 text-theme-label-secondary typo-callout',
+  'flex h-11 self-stretch items-center mb-6 typo-callout',
+);
+
+export const FeedPageHeader = classed(
+  'header',
+  'overflow-x-auto self-stretch mb-6 no-scrollbar hidden laptop:flex',
 );
 
 export const customFeedIcon = 'text-2xl text-theme-label-tertiary mr-2';
@@ -53,3 +159,8 @@ export const customFeedIcon = 'text-2xl text-theme-label-tertiary mr-2';
 export const Summary = classed('summary', 'cursor-pointer focus-outline');
 
 export const SummaryArrow = classed(ArrowIcon, 'icon arrow ml-auto text-xl');
+
+export const SummaryContainer = classed(
+  'div',
+  'text-theme-label-secondary multi-truncate my-6 border-l border-theme-status-cabbage pl-4',
+);

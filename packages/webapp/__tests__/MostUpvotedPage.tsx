@@ -6,7 +6,6 @@ import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
-import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import SettingsContext, {
   SettingsContextData,
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
@@ -74,6 +73,8 @@ const renderComponent = (
     insaneMode: false,
     loadedSettings: true,
     toggleInsaneMode: jest.fn(),
+    showTopSites: true,
+    toggleShowTopSites: jest.fn(),
   };
   return render(
     <QueryClientProvider client={client}>
@@ -89,18 +90,7 @@ const renderComponent = (
         }}
       >
         <SettingsContext.Provider value={settingsContext}>
-          <OnboardingContext.Provider
-            value={{
-              onboardingStep: 3,
-              onboardingReady: true,
-              incrementOnboardingStep: jest.fn(),
-              trackEngagement: jest.fn(),
-              closeReferral: jest.fn(),
-              showReferral: false,
-            }}
-          >
-            {Upvoted.getLayout(<Upvoted />, {}, Upvoted.layoutProps)}
-          </OnboardingContext.Provider>
+          {Upvoted.getLayout(<Upvoted />, {}, Upvoted.layoutProps)}
         </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
@@ -114,6 +104,7 @@ it('should request most upvoted feed when logged-in', async () => {
       loggedIn: true,
       unreadOnly: false,
       period: 7,
+      version: 1,
     }),
   ]);
   await waitFor(async () => {
@@ -130,6 +121,7 @@ it('should request most upvoted feed when not', async () => {
         loggedIn: false,
         unreadOnly: false,
         period: 7,
+        version: 1,
       }),
     ],
     null,

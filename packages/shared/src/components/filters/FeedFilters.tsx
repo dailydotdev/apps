@@ -1,49 +1,92 @@
-import React, { ReactElement, useEffect, useRef, useState } from 'react';
-import HashtagIcon from '../../../icons/hashtag.svg';
-import SourceIcon from '../../../icons/source.svg';
-import { IconsSwitch } from '../fields/IconsSwitch';
-import { SearchField } from '../fields/SearchField';
-import TagsFilter from './TagsFilter';
-import SourcesFilter from './SourcesFilter';
+import React, { ReactElement, useContext, useEffect } from 'react';
+import { useQueryClient } from 'react-query';
+import classNames from 'classnames';
+import sizeN from '../../../macros/sizeN.macro';
+import FilterMenu from './FilterMenu';
+import XIcon from '../../../icons/x.svg';
+import PlusIcon from '../../../icons/plus.svg';
+import { menuItemClassNames } from '../multiLevelMenu/MultiLevelMenuMaster';
+import useFeedSettings, {
+  getFeedSettingsQueryKey,
+  updateLocalFeedSettings,
+} from '../../hooks/useFeedSettings';
+import AuthContext from '../../contexts/AuthContext';
+import { Button } from '../buttons/Button';
+import { AllTagCategoriesData } from '../../graphql/feedSettings';
+import AlertContext from '../../contexts/AlertContext';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { useMyFeed } from '../../hooks/useMyFeed';
+
+const asideWidth = sizeN(89);
+interface FeedFiltersProps {
+  directlyOpenedTab?: string;
+  isOpen?: boolean;
+  onBack?: () => void;
+}
 
 export default function FeedFilters({
-  enableQueries = true,
-}: {
-  enableQueries?: boolean;
-}): ReactElement {
-  const searchRef = useRef<HTMLDivElement>(null);
-  const [showSources, setShowSources] = useState(false);
-  const [query, setQuery] = useState<string>(null);
+  directlyOpenedTab,
+  isOpen,
+  onBack,
+}: FeedFiltersProps): ReactElement {
+  const client = useQueryClient();
+  const { trackEvent } = useContext(AnalyticsContext);
+  const { alerts, updateAlerts } = useContext(AlertContext);
+  const { user, showLogin } = useContext(AuthContext);
+  const { hasAnyFilter } = useFeedSettings();
+  const { shouldShowMyFeed } = useMyFeed();
+
+  const onCreate = () => {
+    trackEvent({
+      event_name: 'click',
+      target_type: 'create feed filters',
+      target_id: 'feed-filters',
+    });
+    const key = getFeedSettingsQueryKey(user);
+    const { feedSettings } = client.getQueryData(key) as AllTagCategoriesData;
+    updateLocalFeedSettings(feedSettings);
+    showLogin('create feed filters');
+  };
 
   useEffect(() => {
-    const input = searchRef.current?.querySelector('input') as HTMLInputElement;
-    input.value = '';
-    input.dispatchEvent(new Event('input'));
-  }, [showSources]);
+    if (isOpen && alerts?.filter && hasAnyFilter && user && !shouldShowMyFeed) {
+      updateAlerts({ filter: false });
+    }
+  }, [isOpen, alerts, user, hasAnyFilter]);
+
+  const openedTab =
+    (shouldShowMyFeed && alerts?.filter && 'Manage tags') || directlyOpenedTab;
 
   return (
-    <div className="flex flex-col">
-      <IconsSwitch
-        inputId="icons-switch"
-        name="icons-switch"
-        leftIcon={HashtagIcon}
-        rightIcon={SourceIcon}
-        checked={showSources}
-        className="self-center my-6"
-        onToggle={() => setShowSources(!showSources)}
-      />
-      <SearchField
-        inputId="search-filters"
-        placeholder="Search"
-        valueChanged={setQuery}
-        className="mx-6"
-        ref={searchRef}
-      />
-      {showSources ? (
-        <SourcesFilter query={query} enableQueries={enableQueries} />
-      ) : (
-        <TagsFilter query={query} enableQueries={enableQueries} />
+    <aside
+      className={classNames(
+        'fixed top-0 laptop:top-14 left-0 z-3 bottom-0 self-stretch bg-theme-bg-primary rounded-r-2xl border-t border-r border-theme-divider-primary overflow-y-auto',
+        'transition-transform duration-200 ease-linear delay-100',
+        isOpen ? 'translate-x-0' : '-translate-x-96 pointer-events-none',
       )}
-    </div>
+      style={{ width: asideWidth }}
+    >
+      <div
+        className={classNames(
+          menuItemClassNames,
+          'border-b border-theme-divider-tertiary flex-row justify-between',
+        )}
+      >
+        <button onClick={onBack} type="button">
+          <XIcon className="text-2xl -rotate-90 text-theme-label-tertiary" />
+        </button>
+        {shouldShowMyFeed && !user && (
+          <Button
+            className="btn-primary-avocado"
+            buttonSize="small"
+            icon={<PlusIcon className="mr-1" />}
+            onClick={onCreate}
+          >
+            Create
+          </Button>
+        )}
+      </div>
+      <FilterMenu directlyOpenedTab={openedTab} />
+    </aside>
   );
 }

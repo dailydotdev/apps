@@ -13,11 +13,11 @@ import {
   getWhatsappShareLink,
 } from '../lib/share';
 import { Button, ButtonProps } from './buttons/Button';
-import { getTooltipProps } from '../lib/tooltip';
 import styles from './ShareBar.module.css';
 import classed from '../lib/classed';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
+import { SimpleTooltip } from './tooltips/SimpleTooltip';
 
 const ShareButton = classed(Button, 'my-1');
 const ColorfulShareButton = classed(
@@ -38,28 +38,26 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
     );
 
   return (
-    <div
-      className={classNames('hidden absolute laptopL:block', styles.shareBar)}
-    >
-      <div className="flex sticky top-10 flex-col items-center -my-1 w-full">
-        {copying && (
-          <div
-            className={classNames(
-              'absolute flex top-2 right-full items-center mr-1 text-theme-status-success font-bold typo-caption1',
-              styles.copied,
-            )}
-          >
-            Copied!
-          </div>
-        )}
+    <div className="hidden laptopL:inline-flex relative flex-row items-center px-3 mt-20 mb-6 rounded-2xl border bg-theme-bg-primary border-theme-divider-quaternary">
+      {copying && (
+        <div
+          className={classNames(
+            'absolute flex top-2 right-full items-center mr-1 text-theme-status-success font-bold typo-caption1',
+            styles.copied,
+          )}
+        >
+          Copied!
+        </div>
+      )}
+      <SimpleTooltip content="Copy link">
         <ShareButton
           onClick={copyLink}
           pressed={copying}
           icon={<CopyIcon />}
-          buttonSize="small"
           className="btn-tertiary-avocado"
-          {...getTooltipProps('Copy link')}
         />
+      </SimpleTooltip>
+      <SimpleTooltip content="Share on WhatsApp">
         <ColorfulShareButton
           tag="a"
           href={getWhatsappShareLink(href)}
@@ -67,10 +65,10 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
           rel="noopener"
           onClick={() => onClick('whatsapp')}
           icon={<WhatsappIcon />}
-          buttonSize="small"
           className="btn-tertiary"
-          {...getTooltipProps('Share on WhatsApp')}
         />
+      </SimpleTooltip>
+      <SimpleTooltip content="Share on Twitter">
         <ColorfulShareButton
           tag="a"
           href={getTwitterShareLink(href, post.title)}
@@ -78,10 +76,10 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
           rel="noopener"
           onClick={() => onClick('twitter')}
           icon={<TwitterIcon />}
-          buttonSize="small"
           className="btn-tertiary"
-          {...getTooltipProps('Share on Twitter')}
         />
+      </SimpleTooltip>
+      <SimpleTooltip content="Share on Facebook">
         <ColorfulShareButton
           tag="a"
           href={getFacebookShareLink(href)}
@@ -89,11 +87,9 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
           rel="noopener"
           onClick={() => onClick('facebook')}
           icon={<FacebookIcon />}
-          buttonSize="small"
           className="btn-tertiary"
-          {...getTooltipProps('Share on Facebook')}
         />
-      </div>
+      </SimpleTooltip>
     </div>
   );
 }

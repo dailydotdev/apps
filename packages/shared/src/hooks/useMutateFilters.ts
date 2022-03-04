@@ -1,52 +1,58 @@
+import { useContext, useMemo } from 'react';
 import { QueryClient, useMutation, useQueryClient } from 'react-query';
 import request from 'graphql-request';
 import cloneDeep from 'lodash.clonedeep';
 import { LoggedUser } from '../lib/user';
 import { apiUrl } from '../lib/config';
 import {
+  FeedAdvancedSettings,
   ADD_FILTERS_TO_FEED_MUTATION,
   FeedSettings,
   FeedSettingsData,
   REMOVE_FILTERS_FROM_FEED_MUTATION,
+  UPDATE_ADVANCED_SETTINGS_FILTERS_MUTATION,
+  FEED_FILTERS_FROM_REGISTRATION,
 } from '../graphql/feedSettings';
 import { Source } from '../graphql/sources';
-
-export const getTagsFiltersQueryKey = (user?: LoggedUser): string[] => [
-  user?.id,
-  'tagsFilters',
-];
-
-export const getTagsSettingsQueryKey = (user?: LoggedUser): string[] => [
-  user?.id,
-  'tagsSettings',
-];
+import { getFeedSettingsQueryKey } from './useFeedSettings';
+import FeaturesContext from '../contexts/FeaturesContext';
+import { Features, isFeaturedEnabled } from '../lib/featureManagement';
 
 export const getSearchTagsQueryKey = (query: string): string[] => [
   'searchTags',
   query,
 ];
 
-export const getSourcesFiltersQueryKey = (user?: LoggedUser): string[] => [
-  user?.id,
-  'sourcesFilters',
-];
+interface TagsMutationProps {
+  tags: string[];
+}
 
-export const getSourcesSettingsQueryKey = (user?: LoggedUser): string[] => [
-  user?.id,
-  'sourcesSettings',
-];
+interface SourceMutationProps {
+  source: Source;
+}
 
-type FollowTag = ({ tag: string }) => Promise<unknown>;
-// eslint-disable-next-line @typescript-eslint/no-shadow
-type FollowSource = ({ source: Source }) => Promise<unknown>;
+interface AdvancedSettingsMutationProps {
+  advancedSettings: FeedAdvancedSettings[];
+}
+
+type FollowTagsFunc = (params: TagsMutationProps) => unknown;
+type FollowTagsPromise = (params: TagsMutationProps) => Promise<unknown>;
+type FollowTags = FollowTagsFunc | FollowTagsPromise;
+type FollowSource = (params: SourceMutationProps) => Promise<unknown>;
+
+type UpdateAdvancedSettings = (
+  params: AdvancedSettingsMutationProps,
+) => Promise<unknown>;
 
 type ReturnType = {
-  followTag: FollowTag;
-  unfollowTag: FollowTag;
-  blockTag: FollowTag;
-  unblockTag: FollowTag;
+  followTags: FollowTags;
+  unfollowTags: FollowTags;
+  blockTag: FollowTags;
+  unblockTag: FollowTags;
   followSource: FollowSource;
   unfollowSource: FollowSource;
+  updateAdvancedSettings: UpdateAdvancedSettings;
+  updateFeedFilters: (feedSettings: FeedSettings) => Promise<unknown>;
 };
 
 async function updateQueryData(
@@ -69,23 +75,42 @@ async function updateQueryData(
   );
 }
 
+type ManipulateAdvancedSettingsFunc = (
+  feedSettings: FeedSettings,
+  advancedSettings: FeedAdvancedSettings[],
+) => FeedSettings;
+
+const onMutateAdvancedSettings = async (
+  advancedSettings: FeedAdvancedSettings[],
+  queryClient: QueryClient,
+  manipulate: ManipulateAdvancedSettingsFunc,
+  user: LoggedUser,
+): Promise<() => Promise<void>> => {
+  const queryKey = getFeedSettingsQueryKey(user);
+  const feedSettings = queryClient.getQueryData<FeedSettingsData>(queryKey);
+  const newData = manipulate(feedSettings.feedSettings, advancedSettings);
+  const keys = [queryKey, queryKey];
+  await updateQueryData(queryClient, newData, keys);
+  return async () => {
+    await updateQueryData(queryClient, feedSettings.feedSettings, keys);
+  };
+};
+
 type ManipulateTagFunc = (
   feedSettings: FeedSettings,
-  tag: string,
+  tags: Array<string>,
 ) => FeedSettings;
 
 const onMutateTagsSettings = async (
-  tag: string,
+  tags: Array<string>,
   queryClient: QueryClient,
   manipulate: ManipulateTagFunc,
   user: LoggedUser,
 ): Promise<() => Promise<void>> => {
-  const queryKey = getTagsSettingsQueryKey(user);
-  const feedSettings = await queryClient.getQueryData<FeedSettingsData>(
-    queryKey,
-  );
-  const newData = manipulate(feedSettings.feedSettings, tag);
-  const keys = [queryKey, getTagsFiltersQueryKey(user)];
+  const queryKey = getFeedSettingsQueryKey(user);
+  const feedSettings = queryClient.getQueryData<FeedSettingsData>(queryKey);
+  const newData = manipulate(feedSettings.feedSettings, tags);
+  const keys = [queryKey, getFeedSettingsQueryKey(user)];
   await updateQueryData(queryClient, newData, keys);
   return async () => {
     await updateQueryData(queryClient, feedSettings.feedSettings, keys);
@@ -103,12 +128,10 @@ const onMutateSourcesSettings = async (
   manipulate: ManipulateSourceFunc,
   user: LoggedUser,
 ): Promise<() => Promise<void>> => {
-  const queryKey = getSourcesSettingsQueryKey(user);
-  const feedSettings = await queryClient.getQueryData<FeedSettingsData>(
-    queryKey,
-  );
+  const queryKey = getFeedSettingsQueryKey(user);
+  const feedSettings = queryClient.getQueryData<FeedSettingsData>(queryKey);
   const newData = manipulate(feedSettings.feedSettings, source);
-  const keys = [queryKey, getSourcesFiltersQueryKey(user)];
+  const keys = [queryKey, getFeedSettingsQueryKey(user)];
   await updateQueryData(queryClient, newData, keys);
   return async () => {
     await updateQueryData(queryClient, feedSettings.feedSettings, keys);
@@ -117,129 +140,204 @@ const onMutateSourcesSettings = async (
 
 export default function useMutateFilters(user?: LoggedUser): ReturnType {
   const queryClient = useQueryClient();
+  const { flags } = useContext(FeaturesContext);
+  const shouldShowMyFeed = isFeaturedEnabled(Features.MyFeedOn, flags);
+  const shouldFilterLocally = shouldShowMyFeed && !user;
 
-  const { mutateAsync: followTag } = useMutation<
+  const updateFeedFilters = ({ advancedSettings, ...filters }: FeedSettings) =>
+    request(`${apiUrl}/graphql`, FEED_FILTERS_FROM_REGISTRATION, {
+      filters,
+      settings: advancedSettings,
+    });
+
+  const onAdvancedSettingsUpdate = ({
+    advancedSettings,
+  }: AdvancedSettingsMutationProps) =>
+    onMutateAdvancedSettings(
+      advancedSettings,
+      queryClient,
+      (feedSettings, [feedAdvancedSettings]) => {
+        const newData = cloneDeep(feedSettings);
+        const index = newData.advancedSettings.findIndex(
+          (settings) => settings.id === feedAdvancedSettings.id,
+        );
+        if (index === -1) {
+          newData.advancedSettings.push(feedAdvancedSettings);
+        } else {
+          newData.advancedSettings[index] = feedAdvancedSettings;
+        }
+        return newData;
+      },
+      user,
+    );
+
+  const { mutateAsync: updateAdvancedSettingsRemote } = useMutation<
     unknown,
     unknown,
-    { tag: string },
+    AdvancedSettingsMutationProps,
     () => Promise<void>
   >(
-    ({ tag }) =>
-      request(`${apiUrl}/graphql`, ADD_FILTERS_TO_FEED_MUTATION, {
-        filters: {
-          includeTags: [tag],
-        },
+    ({ advancedSettings: settings }) =>
+      request(`${apiUrl}/graphql`, UPDATE_ADVANCED_SETTINGS_FILTERS_MUTATION, {
+        settings,
       }),
     {
-      onMutate: ({ tag }) =>
-        onMutateTagsSettings(
-          tag,
-          queryClient,
-          (feedSettings, manipulateTag) => {
-            const newData = cloneDeep(feedSettings);
-            newData.includeTags.push(manipulateTag);
-            return newData;
-          },
-          user,
-        ),
+      onMutate: onAdvancedSettingsUpdate,
       onError: (err, _, rollback) => rollback(),
     },
   );
 
-  const { mutateAsync: blockTag } = useMutation<
+  const onFollowTags = ({ tags }: TagsMutationProps) =>
+    onMutateTagsSettings(
+      tags,
+      queryClient,
+      (feedSettings, manipulateTags) => {
+        const newData = cloneDeep(feedSettings);
+        newData.includeTags = newData.includeTags.concat(manipulateTags);
+        return newData;
+      },
+      user,
+    );
+
+  const { mutateAsync: followTagsRemote } = useMutation<
     unknown,
     unknown,
-    { tag: string },
+    TagsMutationProps,
     () => Promise<void>
   >(
-    ({ tag }) =>
+    ({ tags }) =>
       request(`${apiUrl}/graphql`, ADD_FILTERS_TO_FEED_MUTATION, {
         filters: {
-          blockedTags: [tag],
+          includeTags: tags,
         },
       }),
     {
-      onMutate: ({ tag }) =>
-        onMutateTagsSettings(
-          tag,
-          queryClient,
-          (feedSettings, manipulateTag) => {
-            const newData = cloneDeep(feedSettings);
-            newData.blockedTags.push(manipulateTag);
-            return newData;
-          },
-          user,
-        ),
+      onMutate: onFollowTags,
       onError: (err, _, rollback) => rollback(),
     },
   );
 
-  const { mutateAsync: unfollowTag } = useMutation<
+  const onBlockTags = ({ tags }: TagsMutationProps) =>
+    onMutateTagsSettings(
+      tags,
+      queryClient,
+      (feedSettings, manipulateTags) => {
+        const newData = cloneDeep(feedSettings);
+        newData.blockedTags = [
+          ...Array.from(new Set(newData.blockedTags.concat(manipulateTags))),
+        ];
+
+        newData.includeTags = newData.includeTags.filter(
+          (value) => manipulateTags.indexOf(value) < 0,
+        );
+        return newData;
+      },
+      user,
+    );
+
+  const { mutateAsync: blockTagRemote } = useMutation<
     unknown,
     unknown,
-    { tag: string },
+    TagsMutationProps,
+    () => Promise<void>
+  >(
+    ({ tags }) =>
+      request(`${apiUrl}/graphql`, ADD_FILTERS_TO_FEED_MUTATION, {
+        filters: {
+          blockedTags: tags,
+        },
+      }),
+    {
+      onMutate: onBlockTags,
+      onError: (err, _, rollback) => rollback(),
+    },
+  );
+
+  const onUnfollowTags = ({ tags }: TagsMutationProps) =>
+    onMutateTagsSettings(
+      tags,
+      queryClient,
+      (feedSettings, manipulateTags) => {
+        const newData = cloneDeep(feedSettings);
+        newData.includeTags = newData.includeTags.filter(
+          (value) => manipulateTags.indexOf(value) < 0,
+        );
+        return newData;
+      },
+      user,
+    );
+
+  const { mutateAsync: unfollowTagsRemote } = useMutation<
+    unknown,
+    unknown,
+    TagsMutationProps,
     () => void
   >(
-    ({ tag }) =>
+    ({ tags }) =>
       request(`${apiUrl}/graphql`, REMOVE_FILTERS_FROM_FEED_MUTATION, {
         filters: {
-          includeTags: [tag],
+          includeTags: tags,
         },
       }),
     {
-      onMutate: ({ tag }) =>
-        onMutateTagsSettings(
-          tag,
-          queryClient,
-          (feedSettings, manipulateTag) => {
-            const newData = cloneDeep(feedSettings);
-            const index = newData.includeTags.indexOf(manipulateTag);
-            if (index > -1) {
-              newData.includeTags.splice(index, 1);
-            }
-            return newData;
-          },
-          user,
-        ),
+      onMutate: onUnfollowTags,
       onError: (err, _, rollback) => rollback(),
     },
   );
 
-  const { mutateAsync: unblockTag } = useMutation<
+  const onUnblockTags = ({ tags }: TagsMutationProps) =>
+    onMutateTagsSettings(
+      tags,
+      queryClient,
+      (feedSettings, manipulateTags) => {
+        const newData = cloneDeep(feedSettings);
+        newData.blockedTags = newData.blockedTags.filter(
+          (value) => manipulateTags.indexOf(value) < 0,
+        );
+        return newData;
+      },
+      user,
+    );
+
+  const { mutateAsync: unblockTagRemote } = useMutation<
     unknown,
     unknown,
-    { tag: string },
+    TagsMutationProps,
     () => void
   >(
-    ({ tag }) =>
+    ({ tags }) =>
       request(`${apiUrl}/graphql`, REMOVE_FILTERS_FROM_FEED_MUTATION, {
         filters: {
-          blockedTags: [tag],
+          blockedTags: tags,
         },
       }),
     {
-      onMutate: ({ tag }) =>
-        onMutateTagsSettings(
-          tag,
-          queryClient,
-          (feedSettings, manipulateTag) => {
-            const newData = cloneDeep(feedSettings);
-            const index = newData.blockedTags.indexOf(manipulateTag);
-            if (index > -1) {
-              newData.blockedTags.splice(index, 1);
-            }
-            return newData;
-          },
-          user,
-        ),
+      onMutate: onUnblockTags,
       onError: (err, _, rollback) => rollback(),
     },
   );
 
-  const { mutateAsync: followSource } = useMutation<
+  const onFollowSource = ({ source }: SourceMutationProps) =>
+    onMutateSourcesSettings(
+      source,
+      queryClient,
+      (feedSettings, manipulateSource) => {
+        const newData = cloneDeep(feedSettings);
+        const index = newData.excludeSources.findIndex(
+          (s) => s.id === manipulateSource.id,
+        );
+        if (index > -1) {
+          newData.excludeSources.splice(index, 1);
+        }
+        return newData;
+      },
+      user,
+    );
+
+  const { mutateAsync: followSourceRemote } = useMutation<
     unknown,
     unknown,
-    { source: Source },
+    SourceMutationProps,
     () => void
   >(
     ({ source }) =>
@@ -249,30 +347,27 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
         },
       }),
     {
-      onMutate: ({ source }) =>
-        onMutateSourcesSettings(
-          source,
-          queryClient,
-          (feedSettings, manipulateSource) => {
-            const newData = cloneDeep(feedSettings);
-            const index = newData.excludeSources.findIndex(
-              (s) => s.id === manipulateSource.id,
-            );
-            if (index > -1) {
-              newData.excludeSources.splice(index, 1);
-            }
-            return newData;
-          },
-          user,
-        ),
+      onMutate: onFollowSource,
       onError: (err, _, rollback) => rollback(),
     },
   );
 
-  const { mutateAsync: unfollowSource } = useMutation<
+  const onUnfollowSource = ({ source }: SourceMutationProps) =>
+    onMutateSourcesSettings(
+      source,
+      queryClient,
+      (feedSettings, manipulateSource) => {
+        const newData = cloneDeep(feedSettings);
+        newData.excludeSources.push(manipulateSource);
+        return newData;
+      },
+      user,
+    );
+
+  const { mutateAsync: unfollowSourceRemote } = useMutation<
     unknown,
     unknown,
-    { source: Source },
+    SourceMutationProps,
     () => Promise<void>
   >(
     ({ source }) =>
@@ -282,27 +377,43 @@ export default function useMutateFilters(user?: LoggedUser): ReturnType {
         },
       }),
     {
-      onMutate: ({ source }) =>
-        onMutateSourcesSettings(
-          source,
-          queryClient,
-          (feedSettings, manipulateSource) => {
-            const newData = cloneDeep(feedSettings);
-            newData.excludeSources.push(manipulateSource);
-            return newData;
-          },
-          user,
-        ),
+      onMutate: onUnfollowSource,
       onError: (err, _, rollback) => rollback(),
     },
   );
 
-  return {
-    followTag,
-    unfollowTag,
-    blockTag,
-    unblockTag,
-    followSource,
-    unfollowSource,
-  };
+  return useMemo(
+    () => ({
+      updateFeedFilters,
+      followTags: shouldFilterLocally ? onFollowTags : followTagsRemote,
+      unfollowTags: shouldFilterLocally ? onUnfollowTags : unfollowTagsRemote,
+      blockTag: shouldFilterLocally ? onBlockTags : blockTagRemote,
+      unblockTag: shouldFilterLocally ? onUnblockTags : unblockTagRemote,
+      followSource: shouldFilterLocally ? onFollowSource : followSourceRemote,
+      unfollowSource: shouldFilterLocally
+        ? onUnfollowSource
+        : unfollowSourceRemote,
+      updateAdvancedSettings: shouldFilterLocally
+        ? onAdvancedSettingsUpdate
+        : updateAdvancedSettingsRemote,
+    }),
+    [
+      shouldFilterLocally,
+      updateFeedFilters,
+      onFollowTags,
+      onUnfollowTags,
+      onBlockTags,
+      onUnblockTags,
+      onFollowSource,
+      onUnfollowSource,
+      onAdvancedSettingsUpdate,
+      followTagsRemote,
+      unfollowTagsRemote,
+      blockTagRemote,
+      unblockTagRemote,
+      followSourceRemote,
+      unfollowSourceRemote,
+      updateAdvancedSettingsRemote,
+    ],
+  );
 }

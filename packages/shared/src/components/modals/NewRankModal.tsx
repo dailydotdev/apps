@@ -10,7 +10,7 @@ import { CSSTransition } from 'react-transition-group';
 import classNames from 'classnames';
 import { RankProgress } from '../RankProgress';
 import { RankConfetti } from '../../svg/RankConfetti';
-import { RANK_NAMES, rankToColor, STEPS_PER_RANK } from '../../lib/rank';
+import { rankToColor, RANKS, getRank } from '../../lib/rank';
 import { LoggedUser } from '../../lib/user';
 import { Checkbox } from '../fields/Checkbox';
 import LoginButtons from '../LoginButtons';
@@ -41,8 +41,8 @@ export default function NewRankModal({
   style,
   ...props
 }: NewRankModalProps): ReactElement {
-  const [shownRank, setShownRank] = useState(rank - 1);
-  const [shownProgress, setShownProgress] = useState(progress);
+  const [shownRank, setShownRank] = useState(getRank(rank));
+  const [shownProgress, setShownProgress] = useState(progress - 1);
   const [animatingRank, setAnimatingRank] = useState(false);
   const [rankAnimationEnded, setRankAnimationEnded] = useState(false);
   const inputRef = useRef<HTMLInputElement>();
@@ -82,7 +82,7 @@ export default function NewRankModal({
       } else {
         setAnimatingRank(true);
         setShownRank(rank);
-        setShownProgress(STEPS_PER_RANK[rank - 1]);
+        setShownProgress(RANKS[getRank(rank)].steps);
       }
     };
 
@@ -109,7 +109,7 @@ export default function NewRankModal({
     >
       <ModalCloseButton onClick={closeModal} />
       <div
-        className={`${styles.rankProgressContainer} relative flex items-center justify-center mt-6`}
+        className={`${styles.rankProgressContainer} relative flex items-center justify-center mt-6 z-0`}
       >
         {!user || !rankAnimationEnded ? (
           <RankProgress
@@ -123,9 +123,8 @@ export default function NewRankModal({
         ) : (
           <>
             <RadialProgress
-              progress={STEPS_PER_RANK[rank - 1]}
-              steps={STEPS_PER_RANK[rank - 1]}
-              maxDegrees={270}
+              progress={RANKS[getRank(rank)].steps}
+              steps={RANKS[getRank(rank)].steps}
               className={styles.radialProgress}
             />
             <img
@@ -151,7 +150,7 @@ export default function NewRankModal({
             className={`${styles.rankConfetti} absolute inset-x-0 top-0 h-full mx-auto`}
             style={
               {
-                '--fill-color': rank < RANK_NAMES.length && 'var(--rank-color)',
+                '--fill-color': rank <= RANKS.length && 'var(--rank-color)',
               } as CSSProperties
             }
           />
@@ -159,7 +158,7 @@ export default function NewRankModal({
       </div>
       <h1 className="mt-2 font-bold text-center typo-callout">{title}</h1>
       <p className="mt-1 mb-8 text-center text-theme-label-secondary typo-callout">
-        You earned the {RANK_NAMES[rank - 1]?.toLowerCase()} rank
+        You earned the {RANKS[getRank(rank)].name?.toLowerCase()} rank
         {!user && (
           <>
             <br />
@@ -175,7 +174,11 @@ export default function NewRankModal({
               Generate Dev Card
             </GoToDevCardButton>
           )}
-          <Button className="btn-primary" onClick={closeModal}>
+          <Button
+            className="btn-primary"
+            buttonSize="small"
+            onClick={closeModal}
+          >
             Awesome!
           </Button>
         </div>
@@ -185,7 +188,7 @@ export default function NewRankModal({
       <Checkbox
         ref={inputRef}
         name="neverShow"
-        className="self-center mt-6 mb-7"
+        className="self-center mt-4 mb-7"
       >
         Never show this popup again
       </Checkbox>

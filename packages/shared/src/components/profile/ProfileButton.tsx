@@ -1,47 +1,35 @@
-import React, { ReactElement, useContext } from 'react';
-import dynamic from 'next/dynamic';
-import { LazyImage } from '../LazyImage';
+import React, { HTMLProps, ReactElement, useContext } from 'react';
+import classNames from 'classnames';
 import AuthContext from '../../contexts/AuthContext';
-import { getTooltipProps } from '../../lib/tooltip';
 import useProfileMenu from '../../hooks/useProfileMenu';
-
-const profileContextMenuWidth = 10;
-
-const ProfileMenu = dynamic(
-  () => import(/* webpackChunkName: "profileMenu" */ '../ProfileMenu'),
-);
-
-export interface ProfileButtonProps {
-  onShowDndClick?: () => unknown;
-}
+import ProfileMenu from '../ProfileMenu';
+import { ProfilePicture } from '../ProfilePicture';
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
 export default function ProfileButton({
-  onShowDndClick,
-}: ProfileButtonProps): ReactElement {
+  className,
+}: HTMLProps<HTMLButtonElement>): ReactElement {
   const { user } = useContext(AuthContext);
-  const { onMenuClick } = useProfileMenu(profileContextMenuWidth);
+  const { onMenuClick } = useProfileMenu();
 
   return (
     <>
-      <button
-        type="button"
-        className="flex items-center p-0 ml-0.5 font-bold no-underline rounded-lg border-none cursor-pointer text-theme-label-primary bg-theme-bg-secondary typo-callout focus-outline"
-        {...getTooltipProps('Profile settings', {
-          position: 'left',
-        })}
-        onClick={onMenuClick}
-      >
-        <span className="mr-2 ml-3">{user.reputation ?? 0}</span>
-        <LazyImage
-          className="w-8 h-8 rounded-lg"
-          imgSrc={user.image}
-          imgAlt="Your profile image"
-        />
-      </button>
-      <ProfileMenu
-        width={profileContextMenuWidth}
-        onShowDndClick={onShowDndClick}
-      />
+      <SimpleTooltip placement="left" content="Profile settings">
+        <button
+          type="button"
+          className={classNames(
+            'items-center p-0 ml-0.5 font-bold no-underline rounded-lg border-none cursor-pointer text-theme-label-primary bg-theme-bg-secondary typo-callout focus-outline',
+            className ?? 'flex',
+          )}
+          onClick={onMenuClick}
+        >
+          <span className="hidden laptop:block mr-2 ml-3">
+            {user.reputation ?? 0}
+          </span>
+          <ProfilePicture user={user} size="medium" />
+        </button>
+      </SimpleTooltip>
+      <ProfileMenu />
     </>
   );
 }

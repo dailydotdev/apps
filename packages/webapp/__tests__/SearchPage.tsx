@@ -12,7 +12,6 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { mocked } from 'ts-jest/utils';
 import { NextRouter, useRouter } from 'next/router';
-import OnboardingContext from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import SettingsContext, {
   SettingsContextData,
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
@@ -21,6 +20,7 @@ import ad from './fixture/ad';
 import defaultUser from './fixture/loggedUser';
 import defaultFeedPage from './fixture/feed';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
+import { waitForNock } from './helpers/utilities';
 
 const showLogin = jest.fn();
 const routerReplace = jest.fn();
@@ -83,6 +83,8 @@ const renderComponent = (
     insaneMode: false,
     loadedSettings: true,
     toggleInsaneMode: jest.fn(),
+    showTopSites: true,
+    toggleShowTopSites: jest.fn(),
   };
   return render(
     <QueryClientProvider client={client}>
@@ -98,18 +100,7 @@ const renderComponent = (
         }}
       >
         <SettingsContext.Provider value={settingsContext}>
-          <OnboardingContext.Provider
-            value={{
-              onboardingStep: 3,
-              onboardingReady: true,
-              incrementOnboardingStep: jest.fn(),
-              showReferral: false,
-              closeReferral: jest.fn(),
-              trackEngagement: jest.fn(),
-            }}
-          >
-            {SearchPage.getLayout(<SearchPage />, {}, SearchPage.layoutProps)}
-          </OnboardingContext.Provider>
+          {SearchPage.getLayout(<SearchPage />, {}, SearchPage.layoutProps)}
         </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
@@ -122,8 +113,10 @@ it('should request user feed when query is empty and logged in', async () => {
       first: 7,
       loggedIn: true,
       unreadOnly: false,
+      version: 1,
     }),
   ]);
+  await waitForNock();
   await waitFor(async () => {
     const elements = await screen.findAllByTestId('postItem');
     expect(elements.length).toBeTruthy();
@@ -137,10 +130,12 @@ it('should request anonymous feed when query is empty and not logged in', async 
         first: 7,
         loggedIn: false,
         unreadOnly: false,
+        version: 1,
       }),
     ],
     null,
   );
+  await waitForNock();
   await waitFor(async () => {
     const elements = await screen.findAllByTestId('postItem');
     expect(elements.length).toBeTruthy();

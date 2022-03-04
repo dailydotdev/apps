@@ -6,6 +6,8 @@ import { SearchField } from './fields/SearchField';
 import { useAutoComplete } from '../hooks/useAutoComplete';
 import { apiUrl } from '../lib/config';
 import { SEARCH_POST_SUGGESTIONS } from '../graphql/search';
+import { SEARCH_BOOKMARKS_SUGGESTIONS } from '../graphql/feed';
+import { SEARCH_READING_HISTORY_SUGGESTIONS } from '../graphql/users';
 
 const AutoCompleteMenu = dynamic(() => import('./fields/AutoCompleteMenu'), {
   ssr: false,
@@ -13,14 +15,24 @@ const AutoCompleteMenu = dynamic(() => import('./fields/AutoCompleteMenu'), {
 
 export type PostsSearchProps = {
   initialQuery?: string;
+  placeholder?: string;
+  suggestionType?: string;
+  autoFocus?: boolean;
   onSubmitQuery: (query: string) => Promise<unknown>;
-  closeSearch: () => unknown;
+};
+
+const SEARCH_TYPES = {
+  searchPostSuggestions: SEARCH_POST_SUGGESTIONS,
+  searchBookmarksSuggestions: SEARCH_BOOKMARKS_SUGGESTIONS,
+  searchReadingHistorySuggestions: SEARCH_READING_HISTORY_SUGGESTIONS,
 };
 
 export default function PostsSearch({
   initialQuery: initialQueryProp,
+  autoFocus = true,
+  placeholder,
   onSubmitQuery,
-  closeSearch,
+  suggestionType = 'searchPostSuggestions',
 }: PostsSearchProps): ReactElement {
   const searchBoxRef = useRef<HTMLDivElement>();
   const [initialQuery, setInitialQuery] = useState<string>();
@@ -32,12 +44,13 @@ export default function PostsSearch({
     width: number;
   }>(null);
   const [items, setItems] = useState<string[]>([]);
+  const SEARCH_URL = SEARCH_TYPES[suggestionType];
 
   const { data: searchResults, isLoading } = useQuery<{
-    searchPostSuggestions: { hits: { title: string }[] };
+    [suggestionType: string]: { hits: { title: string }[] };
   }>(
-    ['searchPostSuggestions', query],
-    () => request(`${apiUrl}/graphql`, SEARCH_POST_SUGGESTIONS, { query }),
+    [suggestionType, query],
+    () => request(`${apiUrl}/graphql`, SEARCH_URL, { query }),
     {
       enabled: !!query,
     },
@@ -62,12 +75,11 @@ export default function PostsSearch({
 
   useEffect(() => {
     if (!isLoading) {
-      if (!items?.length && searchResults?.searchPostSuggestions?.hits.length) {
+      if (!items?.length && searchResults?.[suggestionType]?.hits.length) {
         showSuggestions();
       }
       setItems(
-        searchResults?.searchPostSuggestions?.hits.map((hit) => hit.title) ??
-          [],
+        searchResults?.[suggestionType]?.hits.map((hit) => hit.title) ?? [],
       );
     }
   }, [searchResults, isLoading]);
@@ -99,23 +111,25 @@ export default function PostsSearch({
   };
 
   useEffect(() => {
-    searchBoxRef.current?.querySelector('input').focus();
-  }, [searchBoxRef]);
+    if (autoFocus) {
+      searchBoxRef.current?.querySelector('input').focus();
+    }
+  }, [searchBoxRef, autoFocus]);
 
   const isOpen = !!menuPosition && !!items.length;
   return (
     <>
       <SearchField
-        className="absolute top-0 right-0 left-0 w-full compact"
+        className="flex-1 compact"
         inputId="posts-search"
+        compact
+        placeholder={placeholder}
         ref={searchBoxRef}
         value={initialQuery}
         valueChanged={onValueChanged}
         onKeyDown={onKeyDown}
         onBlur={() => {
-          if (!query?.length) {
-            closeSearch();
-          } else {
+          if (query?.length) {
             hideMenu();
           }
         }}

@@ -1,7 +1,10 @@
 import React, { ReactElement } from 'react';
 import Settings from '@dailydotdev/shared/src/components/Settings';
 import { NextSeo } from 'next-seo';
-import { getLayout } from '../components/layouts/FooterNavBarLayout';
+import {
+  getLayout,
+  mainFooterLayoutProps,
+} from '../components/layouts/MainFooterLayout';
 
 const SettingsPage = (): ReactElement => (
   <main className="withNavBar">
@@ -11,5 +14,9 @@ const SettingsPage = (): ReactElement => (
 );
 
 SettingsPage.getLayout = getLayout;
+SettingsPage.layoutProps = {
+  ...mainFooterLayoutProps,
+  mobileTitle: 'Customize',
+};
 
 export default SettingsPage;

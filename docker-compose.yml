@@ -13,20 +13,31 @@ services:
     ports:
       - "6379:6379"
 
+  daily-mysql:
+    image: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: gateway
+      MYSQL_PASSWORD: root
+    volumes:
+      - db:/var/lib/mysql/data
+    ports:
+      - "3306:3306"
+
   daily-postgres:
     image: postgres:11.6-alpine
     ports:
       - "5432:5432"
     volumes:
+      - ./pg-init-scripts:/docker-entrypoint-initdb.d
       - db:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=api
+      - POSTGRES_MULTIPLE_DATABASES=api,api_test
       - POSTGRES_PASSWORD=12345
-
-  daily-mysql:
-    image: gcr.io/daily-ops/mysql
-    ports:
-      - "3306:3306"
+    command:
+      - "postgres"
+      - "-c"
+      - "wal_level=logical"
 
   daily-gateway:
     image: gcr.io/daily-ops/daily-gateway
@@ -39,7 +50,7 @@ services:
       - "4000:4000"
     environment:
       - MYSQL_USER=root
-      - MYSQL_PASSWORD=12345
+      - MYSQL_PASSWORD=root
       - MYSQL_DATABASE=gateway
       - MYSQL_HOST=daily-mysql
       - COOKIES_DOMAIN=localhost
@@ -52,10 +63,18 @@ services:
       - JWT_SECRET='|r+.2!!!.Qf_-|63*%.D'
       - JWT_AUDIENCE='Daily Staging'
       - JWT_ISSUER='Daily API Staging'
-      - CORS_ORIGIN='http://,chrome-extension://,moz-extension://'
+      - CORS_ORIGIN=http://,chrome-extension://,moz-extension://,safari-web-extension://
+      - GCLOUD_PROJECT=daily-staging
       - PORT=4000
       - API_URL=http://daily-api:5000
       - API_SECRET=topsecret
+      - SCRAPER_SECRET=topsecret
+      - REDIS_HOST=daily-redis
+      - PRIMARY_AUTH_ORIGIN=http://localhost:4000
+      - WEBAPP_ORIGIN=http://localhost:5002
+      - REFRESH_TOKEN_SECRET=topsecret
+      - REFRESH_TOKEN_SALT=salt
+      - FLAGSMITH_KEY=LZp89Rk56sytKH9AeHyCtF
 
   daily-api:
     image: gcr.io/daily-ops/daily-api
@@ -64,7 +83,8 @@ services:
       - "daily-redis"
     volumes:
       - ./wait-for.sh:/opt/app/wait-for.sh
-    command: ["./wait-for.sh", "daily-postgres:5432", "--", "npm", "run", "start"]
+    command:
+      ["./wait-for.sh", "daily-postgres:5432", "--", "npm", "run", "start"]
     ports:
       - "5000:5000"
     environment:
@@ -78,6 +98,11 @@ services:
       - DEFAULT_IMAGE_RATIO=1
       - DEFAULT_IMAGE_PLACEHOLDER=data:image/jpeg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAKAAoDASIAAhEBAxEB/8QAFwAAAwEAAAAAAAAAAAAAAAAABAUGB//EACYQAAIABAQGAwAAAAAAAAAAAAECAAMEBRESE0IGByExQVFScZH/xAAVAQEBAAAAAAAAAAAAAAAAAAABA//EABURAQEAAAAAAAAAAAAAAAAAAAAR/9oADAMBAAIRAxEAPwCgPMKtsdvWjpamiGsuCBVZzn3NmOAB+wYUni23kkz71OM09XObd5jBKufNagklprk4jux9QBqP82/YpQ//2Q==
       - URL_PREFIX=http://localhost:4000
+      - COMMENTS_PREFIX=http://localhost:5002
       - FLAGSMITH_KEY=secret
       - REDIS_HOST=daily-redis
       - REDIS_PORT=6379
+      - COOKIES_KEY=topsecret
+      - JWT_SECRET='|r+.2!!!.Qf_-|63*%.D'
+      - JWT_AUDIENCE='Daily Staging'
+      - JWT_ISSUER='Daily API Staging'

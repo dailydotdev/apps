@@ -22,6 +22,7 @@ const defaultPost: Post = {
   commentsPermalink: 'https://daily.dev',
   author: {
     id: '1',
+    username: 'idoshamun',
     name: 'Ido Shamun',
     image: 'https://avatars2.githubusercontent.com/u/1993245?v=4',
     permalink: 'https://app.daily.dev/idoshamun',
@@ -30,7 +31,9 @@ const defaultPost: Post = {
     {
       permalink: 'https://app.daily.dev/c1',
       content: 'My featured comment',
+      contentHtml: '<p>My featured comment</p>',
       author: {
+        username: 'nimrodkramer',
         name: 'Nimrod',
         image: 'https://daily.dev/nimrod.jpg',
         id: 'u2',
@@ -104,6 +107,15 @@ it('should call on bookmark click on bookmark button click', async () => {
   );
 });
 
+it('should not display publication date createdAt is empty', async () => {
+  renderComponent({
+    ...defaultProps,
+    post: { ...defaultPost, createdAt: null },
+  });
+  const el = screen.queryByText('Jun 13, 2018');
+  expect(el).not.toBeInTheDocument();
+});
+
 it('should format publication date', async () => {
   renderComponent();
   const el = await screen.findByText('Jun 13, 2018');
@@ -131,13 +143,13 @@ it('should show author name when available', async () => {
 
 it('should show featured comments authors profile image', async () => {
   renderComponent();
-  const el = await screen.findByAltText(`Nimrod's profile`);
+  const el = await screen.findByAltText(`nimrodkramer's profile`);
   expect(el).toBeInTheDocument();
 });
 
 it('should show featured comment when clicking on the profile image', async () => {
   renderComponent();
-  const btn = await screen.findByAltText(`Nimrod's profile`);
+  const btn = await screen.findByAltText(`nimrodkramer's profile`);
   btn.click();
   const el = await screen.findByText('My featured comment');
   expect(el).toBeInTheDocument();
@@ -145,7 +157,7 @@ it('should show featured comment when clicking on the profile image', async () =
 
 it('should return back to normal card form when clicking the back button', async () => {
   renderComponent();
-  const btn = await screen.findByAltText(`Nimrod's profile`);
+  const btn = await screen.findByAltText(`nimrodkramer's profile`);
   btn.click();
   await screen.findByText('My featured comment');
   const back = await screen.findByLabelText('Back');

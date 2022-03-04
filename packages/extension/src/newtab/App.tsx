@@ -14,10 +14,8 @@ import ProgressiveEnhancementContext, {
   ProgressiveEnhancementContextProvider,
 } from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import { OnboardingContextProvider } from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
 import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
-import { SettingsContextProvider } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { AnalyticsContextProvider } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { browser } from 'webextension-polyfill-ts';
 import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState';
@@ -28,9 +26,7 @@ import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
 import getPageForAnalytics from '../lib/getPageForAnalytics';
-import DndContext from './DndContext';
-import useDndContext from './useDndContext';
-import DndBanner from './DndBanner';
+import { DndContextProvider } from './DndContext';
 import { BootDataProvider } from '../../../shared/src/contexts/BootProvider';
 
 const AnalyticsConsentModal = dynamic(() => import('./AnalyticsConsentModal'));
@@ -72,8 +68,6 @@ function InternalApp({
     false,
     shouldShowConsent ? null : true,
   );
-  const dndContext = useDndContext();
-
   const routeChangedCallbackRef = useTrackPageView();
   useThirdPartyAnalytics(
     trackingId,
@@ -109,10 +103,9 @@ function InternalApp({
   };
 
   return (
-    <DndContext.Provider value={dndContext}>
-      {dndContext.isActive && <DndBanner />}
+    <DndContextProvider>
       <MainFeedPage onPageChanged={onPageChanged} />
-      {!user && !loadingUser && (windowLoaded || shouldShowLogin) && (
+      {!user && !loadingUser && shouldShowLogin && (
         <LoginModal
           isOpen={shouldShowLogin}
           onRequestClose={closeLogin}
@@ -127,7 +120,7 @@ function InternalApp({
           isOpen
         />
       )}
-    </DndContext.Provider>
+    </DndContextProvider>
   );
 }
 
@@ -140,17 +133,13 @@ export default function App(): ReactElement {
         <QueryClientProvider client={queryClient}>
           <BootDataProvider app="extension" getRedirectUri={getRedirectUri}>
             <SubscriptionContextProvider>
-              <SettingsContextProvider>
-                <OnboardingContextProvider>
-                  <AnalyticsContextProvider
-                    app="extension"
-                    version={version}
-                    getPage={() => pageRef.current}
-                  >
-                    <InternalApp pageRef={pageRef} />
-                  </AnalyticsContextProvider>
-                </OnboardingContextProvider>
-              </SettingsContextProvider>
+              <AnalyticsContextProvider
+                app="extension"
+                version={version}
+                getPage={() => pageRef.current}
+              >
+                <InternalApp pageRef={pageRef} />
+              </AnalyticsContextProvider>
             </SubscriptionContextProvider>
           </BootDataProvider>
         </QueryClientProvider>

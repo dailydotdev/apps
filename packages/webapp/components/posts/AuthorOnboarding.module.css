@@ -1,0 +1,44 @@
+.authorOnboarding {
+  & p {
+    margin: 1rem 0;
+  }
+
+  & ol {
+    margin: -0.25rem 0;
+    padding-inline-start: 1.5rem;
+  }
+
+  & li {
+    margin: 0.25rem 0;
+  }
+
+  & p,
+  & ol {
+    color: var(--theme-label-secondary);
+    @apply typo-callout;
+  }
+}
+
+.authorOnboardingHeader {
+  & :global(.icon) {
+    grid-row-end: span 2;
+    font-size: 2.5rem;
+    color: var(--theme-status-help);
+  }
+
+  & h2,
+  & h3 {
+    margin: 0;
+  }
+
+  & h3 {
+    color: var(--theme-status-help);
+    font-weight: bold;
+    @apply typo-footnote;
+  }
+
+  & h2 {
+    font-weight: bold;
+    @apply typo-body;
+  }
+}

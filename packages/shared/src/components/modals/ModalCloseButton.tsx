@@ -1,17 +1,17 @@
-import React, { ReactElement } from 'react';
+import React, { forwardRef, ReactElement, Ref } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonProps } from '../buttons/Button';
 import XIcon from '../../../icons/x.svg';
 
-export function ModalCloseButton({
-  className,
-  style,
-  ...props
-}: ButtonProps<'button'>): ReactElement {
+function ModalCloseButtonComponent(
+  { className, style, ...props }: ButtonProps<'button'>,
+  ref: Ref<HTMLButtonElement>,
+): ReactElement {
   return (
     <Button
       {...props}
-      className={classNames('btn-tertiary right-4 top-4', className)}
+      ref={ref}
+      className={classNames('btn-tertiary right-4 z-1', className)}
       buttonSize="small"
       title="Close"
       icon={<XIcon />}
@@ -19,3 +19,5 @@ export function ModalCloseButton({
     />
   );
 }
+
+export const ModalCloseButton = forwardRef(ModalCloseButtonComponent);

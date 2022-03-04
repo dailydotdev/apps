@@ -3,7 +3,12 @@
   opacity: 0;
   user-select: none;
   z-index: 100;
-  @apply py-1 px-0 m-0 bg-theme-bg-secondary rounded-xl border border-theme-divider-secondary shadow-2;
+  @apply py-1 px-0 m-0 bg-theme-bg-secondary rounded-xl border border-theme-divider-secondary shadow-2 -translate-x-full;
+
+  &.scrollable {
+    height: 15rem;
+    overflow-y: scroll;
+  }
 
   &.menu-primary {
     & .react-contexify__item__content {
@@ -40,15 +45,19 @@
       outline: none;
     }
 
-    &:not(.react-contexify__item--disabled):hover > .react-contexify__item__content {
+    &:not(.react-contexify__item--disabled):hover
+      > .react-contexify__item__content {
       @apply bg-theme-hover;
     }
 
-    &:not(.react-contexify__item--disabled):focus, &:not(.react-contexify__item--disabled).focus > .react-contexify__item__content {
+    &:not(.react-contexify__item--disabled):focus,
+    &:not(.react-contexify__item--disabled).focus
+      > .react-contexify__item__content {
       @apply bg-theme-float;
     }
 
-    &:not(.react-contexify__item--disabled):active > .react-contexify__item__content {
+    &:not(.react-contexify__item--disabled):active
+      > .react-contexify__item__content {
       @apply bg-theme-active;
     }
   }

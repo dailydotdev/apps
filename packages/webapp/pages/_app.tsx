@@ -13,23 +13,24 @@ import 'focus-visible';
 import Modal from 'react-modal';
 import { DefaultSeo } from 'next-seo';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import AuthContext, {
+  REGISTRATION_PATH,
+} from '@dailydotdev/shared/src/contexts/AuthContext';
 import { Router } from 'next/router';
 import { useCookieBanner } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import ProgressiveEnhancementContext, {
   ProgressiveEnhancementContextProvider,
 } from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { trackPageView } from '@dailydotdev/shared/src/lib/analytics';
-import { OnboardingContextProvider } from '@dailydotdev/shared/src/contexts/OnboardingContext';
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
 import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import { AnalyticsContextProvider } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { canonicalFromRouter } from '@dailydotdev/shared/src/lib/canonical';
-import { SettingsContextProvider } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import '@dailydotdev/shared/src/styles/globals.css';
 import useThirdPartyAnalytics from '@dailydotdev/shared/src/hooks/useThirdPartyAnalytics';
 import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPageView';
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
+import { useMyFeed } from '@dailydotdev/shared/src/hooks/useMyFeed';
 import Seo from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 
@@ -77,6 +78,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     shouldShowLogin,
     loginState,
   } = useContext(AuthContext);
+  const { registerLocalFilters } = useMyFeed();
   const { flags } = useContext(FeaturesContext);
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const [showCookie, acceptCookies, updateCookieBanner] = useCookieBanner();
@@ -97,14 +99,38 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       tokenRefreshed &&
       user &&
       !user.infoConfirmed &&
-      window.location.pathname.indexOf('/register') !== 0
+      window.location.pathname.indexOf(REGISTRATION_PATH) !== 0
     ) {
+      /*  this will check if the user came from our registration
+          if the user has clicked the logout button in the registration - it should go through here because the user will be redirected
+          and since the window.location.replace did not clear all the local state and data like window.location.reload - we will have to force a reload
+      */
+      const referrer = document.referrer && new URL(document.referrer);
+      if (referrer.pathname?.indexOf(REGISTRATION_PATH) !== -1) {
+        window.location.reload();
+        return;
+      }
+
       window.location.replace(
         `/register?redirect_uri=${encodeURI(window.location.pathname)}`,
       );
     }
     updateCookieBanner(user);
-  }, [user, loadingUser, tokenRefreshed]);
+  }, [user, loadingUser, tokenRefreshed, router.pathname]);
+
+  useEffect(() => {
+    if (!tokenRefreshed || !user) {
+      return;
+    }
+
+    if (router.query.create_filters === 'true') {
+      registerLocalFilters().then(({ hasFilters }) => {
+        if (hasFilters) {
+          router.replace('/my-feed');
+        }
+      });
+    }
+  }, [user, loadingUser, tokenRefreshed, router.query]);
 
   const getLayout =
     (Component as CompnentGetLayout).getLayout || ((page) => page);
@@ -161,7 +187,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
       </Head>
       <DefaultSeo {...Seo} canonical={canonicalFromRouter(router)} />
       {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
-      {!user && !loadingUser && (windowLoaded || shouldShowLogin) && (
+      {!user && !loadingUser && shouldShowLogin && (
         <LoginModal
           isOpen={shouldShowLogin}
           onRequestClose={closeLogin}
@@ -182,17 +208,13 @@ export default function App(props: AppProps): ReactElement {
       <QueryClientProvider client={queryClient}>
         <BootDataProvider app="web" getRedirectUri={getRedirectUri}>
           <SubscriptionContextProvider>
-            <SettingsContextProvider>
-              <OnboardingContextProvider>
-                <AnalyticsContextProvider
-                  app="webapp"
-                  version={version}
-                  getPage={getPage}
-                >
-                  <InternalApp {...props} />
-                </AnalyticsContextProvider>
-              </OnboardingContextProvider>
-            </SettingsContextProvider>
+            <AnalyticsContextProvider
+              app="webapp"
+              version={version}
+              getPage={getPage}
+            >
+              <InternalApp {...props} />
+            </AnalyticsContextProvider>
           </SubscriptionContextProvider>
         </BootDataProvider>
       </QueryClientProvider>

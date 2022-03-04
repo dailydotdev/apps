@@ -15,8 +15,17 @@ import { formToJson } from '../../lib/form';
 import classed from '../../lib/classed';
 import styles from './ProfileForm.module.css';
 import { Summary, SummaryArrow } from '../utilities';
+import { Dropdown } from '../fields/Dropdown';
+import {
+  getTimeZoneOptions,
+  getUserInitialTimezone,
+} from '../../lib/timezones';
+import { Features, isFeaturedEnabled } from '../../lib/featureManagement';
+import FeaturesContext from '../../contexts/FeaturesContext';
 
 const REQUIRED_FIELDS_COUNT = 4;
+const timeZoneOptions = getTimeZoneOptions();
+const timeZoneValues = timeZoneOptions.map((timeZone) => timeZone.label);
 
 export type RegistrationMode = 'default' | 'author' | 'update';
 
@@ -44,14 +53,20 @@ export default function ProfileForm({
   ...props
 }: ProfileFormProps): ReactElement {
   const { user, updateUser } = useContext(AuthContext);
-
   const formRef = useRef<HTMLFormElement>(null);
 
+  const [userTimeZone, setUserTimeZone] = useState<string>(
+    getUserInitialTimezone({
+      userTimezone: user?.timezone,
+      update: mode === 'update',
+    }),
+  );
   const [usernameHint, setUsernameHint] = useState<string>();
   const [twitterHint, setTwitterHint] = useState<string>();
   const [githubHint, setGithubHint] = useState<string>();
   const [hashnodeHint, setHashnodeHint] = useState<string>();
   const [emailHint, setEmailHint] = useState(defaultEmailHint);
+  const { flags } = useContext(FeaturesContext);
 
   const updateDisableSubmit = () => {
     if (formRef.current) {
@@ -73,6 +88,13 @@ export default function ProfileForm({
     updateDisableSubmit();
   };
 
+  const timezoneUpdated = (timezone: string) => {
+    const findTimeZoneRow = timeZoneOptions.find((_timeZone) => {
+      return _timeZone.label === timezone;
+    });
+    setUserTimeZone(findTimeZoneRow.value);
+  };
+
   const onSubmit = async (event: FormEvent): Promise<void> => {
     event.preventDefault();
     setDisableSubmit?.(true);
@@ -80,6 +102,7 @@ export default function ProfileForm({
       name: '',
       email: '',
       username: '',
+      timezone: userTimeZone,
     });
 
     const res = await updateProfile(data);
@@ -103,13 +126,14 @@ export default function ProfileForm({
       const filledFields = Object.keys(data).filter(
         (key) => data[key] !== undefined && data[key] !== null,
       );
+
       onSuccessfulSubmit?.(filledFields.length > REQUIRED_FIELDS_COUNT);
     }
   };
 
   const twitterField = (
     <FormField
-      compact
+      fieldType="secondary"
       inputId="twitter"
       name="twitter"
       label="Twitter"
@@ -129,7 +153,7 @@ export default function ProfileForm({
     <>
       <SectionHeading>About</SectionHeading>
       <FormField
-        compact
+        fieldType="secondary"
         inputId="bio"
         name="bio"
         label="Bio"
@@ -138,7 +162,7 @@ export default function ProfileForm({
         validityChanged={updateDisableSubmit}
       />
       <FormField
-        compact
+        fieldType="secondary"
         inputId="company"
         name="company"
         label="Company"
@@ -147,7 +171,7 @@ export default function ProfileForm({
         validityChanged={updateDisableSubmit}
       />
       <FormField
-        compact
+        fieldType="secondary"
         inputId="title"
         name="title"
         label="Job title"
@@ -158,7 +182,7 @@ export default function ProfileForm({
       <SectionHeading>Social</SectionHeading>
       {mode !== 'author' && twitterField}
       <FormField
-        compact
+        fieldType="secondary"
         inputId="github"
         name="github"
         label="GitHub"
@@ -172,7 +196,7 @@ export default function ProfileForm({
         valueChanged={() => githubHint && setGithubHint(null)}
       />
       <FormField
-        compact
+        fieldType="secondary"
         inputId="hashnode"
         name="hashnode"
         label="Hashnode"
@@ -186,7 +210,7 @@ export default function ProfileForm({
         valueChanged={() => hashnodeHint && setHashnodeHint(null)}
       />
       <FormField
-        compact
+        fieldType="secondary"
         inputId="portfolio"
         name="portfolio"
         label="Website"
@@ -197,9 +221,18 @@ export default function ProfileForm({
     </>
   );
 
+  const isImageHidden = isFeaturedEnabled(
+    Features.HideSignupProfileImage,
+    flags,
+  );
+
   return (
     <form
-      className={classNames(className, 'flex flex-col w-full mt-10 p-0')}
+      className={classNames(
+        className,
+        'flex flex-col w-full p-0',
+        isImageHidden ? 'mt-4' : 'mt-10',
+      )}
       ref={formRef}
       onSubmit={onSubmit}
       {...props}
@@ -207,7 +240,7 @@ export default function ProfileForm({
     >
       <SectionHeading>Profile</SectionHeading>
       <FormField
-        compact
+        fieldType="secondary"
         inputId="name"
         name="name"
         label="Name"
@@ -218,7 +251,7 @@ export default function ProfileForm({
         validityChanged={updateDisableSubmit}
       />
       <FormField
-        compact
+        fieldType="secondary"
         inputId="username"
         name="username"
         label="Username"
@@ -232,7 +265,7 @@ export default function ProfileForm({
         valueChanged={() => usernameHint && setUsernameHint(null)}
       />
       <FormField
-        compact
+        fieldType="secondary"
         inputId="email"
         name="email"
         label="Email"
@@ -246,6 +279,25 @@ export default function ProfileForm({
           emailHint !== defaultEmailHint && setEmailHint(defaultEmailHint)
         }
       />
+      <div className="flex flex-col items-stretch self-stretch mb-3">
+        <p className="px-2 mb-1 font-bold text-theme-label-primary typo-caption1">
+          Time zone
+        </p>
+        <Dropdown
+          buttonSize="select"
+          selectedIndex={timeZoneOptions.findIndex(
+            (timeZone) => timeZone.value === userTimeZone,
+          )}
+          onChange={timezoneUpdated}
+          options={timeZoneValues}
+          scrollable
+          menuClassName="menu-secondary"
+        />
+        <div className="px-2 mt-1 typo-caption1 text-theme-label-tertiary">
+          Your current time zone. Used to calculate your weekly goal&apos;s
+          cycle and other time-based activities.
+        </div>
+      </div>
       {mode === 'author' && twitterField}
       {mode === 'update' && (
         <>
@@ -258,7 +310,7 @@ export default function ProfileForm({
         inputId="acceptedMarketing"
         checked={user.acceptedMarketing}
       >
-        Subscribe to the Weekly Recap
+        Subscribe to the Community Newsletter
       </FormSwitch>
       {mode !== 'update' && (
         <details

@@ -1,6 +1,10 @@
 import { useInView } from 'react-intersection-observer';
 import { useContext, useEffect } from 'react';
-import { adAnalyticsEvent, postAnalyticsEvent } from '../../lib/feed';
+import {
+  adAnalyticsEvent,
+  feedAnalyticsExtra,
+  postAnalyticsEvent,
+} from '../../lib/feed';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { FeedItem } from '../useFeed';
 
@@ -13,6 +17,8 @@ export default function useTrackImpression(
   columns: number,
   column: number,
   row: number,
+  feedName: string,
+  ranking?: string,
 ): (node?: Element | null) => void {
   const { trackEventStart, trackEventEnd } = useContext(AnalyticsContext);
   const { ref: inViewRef, inView } = useInView({
@@ -29,7 +35,9 @@ export default function useTrackImpression(
             columns,
             column,
             row,
-            extra: { origin: 'feed', scroll_y: window.scrollY },
+            ...feedAnalyticsExtra(feedName, ranking, {
+              scroll_y: window.scrollY,
+            }),
           }),
         );
         // eslint-disable-next-line no-param-reassign
@@ -48,7 +56,7 @@ export default function useTrackImpression(
             columns,
             column,
             row,
-            extra: { origin: 'feed' },
+            ...feedAnalyticsExtra(feedName, ranking),
           }),
         );
         // eslint-disable-next-line no-param-reassign

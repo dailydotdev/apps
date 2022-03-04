@@ -26,15 +26,18 @@ import {
 } from '../../graphql/comments';
 import { Edge } from '../../graphql/common';
 import { apiUrl } from '../../lib/config';
-import { RoundedImage, SmallRoundedImage } from '../utilities';
 import { commentDateFormat } from '../../lib/dateFormat';
 import { Button } from '../buttons/Button';
 import { ResponsiveModal } from './ResponsiveModal';
+import { RoundedImage } from '../utilities';
 import { ModalProps } from './StyledModal';
 import styles from './NewCommentModal.module.css';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { Post } from '../../graphql/posts';
 import { postAnalyticsEvent } from '../../lib/feed';
+import { ProfilePicture } from '../ProfilePicture';
+import Markdown from '../Markdown';
+import { ClickableText } from '../buttons/ClickableText';
 
 const DiscardCommentModal = dynamic(() => import('./DiscardCommentModal'));
 
@@ -43,6 +46,7 @@ export interface NewCommentModalProps extends ModalProps {
   authorImage: string;
   publishDate: Date | string;
   content: string;
+  contentHtml: string;
   commentId: string | null;
   post: Post;
   onComment?: (newComment: Comment, parentId: string | null) => void;
@@ -60,6 +64,7 @@ export default function NewCommentModal({
   authorName,
   publishDate,
   content,
+  contentHtml,
   onRequestClose,
   onComment,
   editContent,
@@ -73,7 +78,6 @@ export default function NewCommentModal({
   const [sendingComment, setSendingComment] = useState<boolean>(false);
   const [showDiscardModal, setShowDiscardModal] = useState<boolean>(false);
   const commentRef = useRef<HTMLDivElement>(null);
-
   const queryClient = useQueryClient();
   const { mutateAsync: comment } = useMutation<
     CommentOnData,
@@ -192,7 +196,7 @@ export default function NewCommentModal({
   const sendComment = async (
     event: MouseEvent | KeyboardEvent,
   ): Promise<void> => {
-    if (sendingComment) {
+    if (sendingComment || !input?.trim().length) {
       return;
     }
     setErrorMessage(null);
@@ -269,7 +273,7 @@ export default function NewCommentModal({
         <header className="flex items-center mb-2">
           <RoundedImage
             imgSrc={authorImage}
-            imgAlt={`${authorName}'s profile image`}
+            imgAlt={`${authorName}'s profile`}
             background="var(--theme-background-secondary)"
           />
           <div className="flex flex-col ml-2">
@@ -282,7 +286,7 @@ export default function NewCommentModal({
             </time>
           </div>
         </header>
-        <div>{content}</div>
+        <Markdown content={contentHtml} />
       </article>
       <div className="flex items-center px-2 h-11">
         <div className="ml-3 w-px h-full bg-theme-divider-tertiary" />
@@ -294,10 +298,10 @@ export default function NewCommentModal({
         </div>
       </div>
       <div className="flex px-2">
-        <SmallRoundedImage imgSrc={user.image} imgAlt="Your profile image" />
+        <ProfilePicture user={user} size="small" />
         <div
           className={classNames(
-            'ml-3 flex-1 text-theme-label-primary bg-none border-none caret-theme-label-link break-words typo-subhead',
+            'ml-3 flex-1 text-theme-label-primary bg-none border-none caret-theme-label-link whitespace-pre-line break-words break-words-overflow typo-subhead',
             styles.textarea,
           )}
           ref={commentRef}
@@ -319,11 +323,17 @@ export default function NewCommentModal({
         {errorMessage && <span role="alert">{errorMessage}</span>}
       </div>
       <footer className="flex justify-between items-center py-2 border-t border-theme-divider-tertiary">
-        <Button className="btn-tertiary" onClick={confirmClose}>
-          Cancel
-        </Button>
+        <ClickableText
+          tag="a"
+          href="https://www.markdownguide.org/cheat-sheet/"
+          className="ml-4 typo-caption1"
+          defaultTypo={false}
+          target="_blank"
+        >
+          Markdown supported
+        </ClickableText>
         <Button
-          disabled={!input?.length}
+          disabled={!input?.trim().length}
           loading={sendingComment}
           onClick={sendComment}
           className="btn-primary-avocado"
