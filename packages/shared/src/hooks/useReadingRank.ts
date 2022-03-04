@@ -165,16 +165,7 @@ export default function useReadingRank(
   // For anonymous users
   useEffect(() => {
     if (loadedCache && tokenRefreshed) {
-      if (cachedRank?.userId !== user?.id) {
-        // Reset cache on user change
-        if (remoteRank) {
-          cacheRank();
-        } else if (user) {
-          setCachedRank(null);
-        } else {
-          cacheRank(defaultRank);
-        }
-      } else if (!user) {
+      if (!user) {
         // Check anonymous progress
         let rank = cachedRank ?? defaultRank;
         if (rank.rank.lastReadTime) {
@@ -182,6 +173,15 @@ export default function useReadingRank(
             rank = defaultRank;
           } else if (rank.rank.readToday && !isToday(rank.rank.lastReadTime)) {
             rank.rank.readToday = false;
+          }
+        } else if (cachedRank?.userId !== user?.id) {
+          // Reset cache on user change
+          if (remoteRank) {
+            cacheRank();
+          } else if (user) {
+            setCachedRank(null);
+          } else {
+            cacheRank(defaultRank);
           }
         }
         queryClient.setQueryData<MyRankData>(queryKey, rank);
