@@ -9,6 +9,8 @@ import {
   REQUEST_SOURCE_MUTATION,
   SOURCE_BY_FEED_QUERY,
 } from '../../graphql/newSource';
+import { AuthContextProvider } from '../../contexts/AuthContext';
+import { AnonymousUser, LoggedUser } from '../../lib/user';
 
 const onRequestClose = jest.fn();
 
@@ -17,12 +19,41 @@ beforeEach(async () => {
   jest.clearAllMocks();
 });
 
-const renderComponent = (): RenderResult => {
-  const client = new QueryClient();
+const defaultUser: LoggedUser = {
+  id: 'u1',
+  name: 'Ido Shamun',
+  providers: ['github'],
+  email: 'ido@acme.com',
+  image: 'https://daily.dev/ido.png',
+  infoConfirmed: true,
+  premium: false,
+  createdAt: '2020-07-26T13:04:35.000Z',
+  username: 'test',
+  permalink: 'sample',
+};
 
+const defaultAnonymousUser: AnonymousUser = {
+  id: 'anonymous user',
+  firstVisit: 'first visit',
+  referrer: 'string',
+};
+
+const renderComponent = (
+  user: LoggedUser | AnonymousUser = defaultUser,
+): RenderResult => {
+  const client = new QueryClient();
   return render(
     <QueryClientProvider client={client}>
-      <NewSourceModal isOpen onRequestClose={onRequestClose} />
+      <AuthContextProvider
+        user={user}
+        updateUser={jest.fn()}
+        tokenRefreshed
+        getRedirectUri={jest.fn()}
+        loadingUser={false}
+        loadedUserFromCache
+      >
+        <NewSourceModal isOpen onRequestClose={onRequestClose} />
+      </AuthContextProvider>
     </QueryClientProvider>,
   );
 };
@@ -53,6 +84,17 @@ it('should show a contact button on an unexpected error', async () => {
   const btn = await screen.findByLabelText('Search feeds');
   btn.click();
   expect(await screen.findByText('Contact')).toBeInTheDocument();
+});
+
+it('should show login modal for anonymous users', async () => {
+  renderComponent(defaultAnonymousUser);
+  const input = await screen.findByRole('textbox');
+  userEvent.type(input, 'https://daily.dev');
+  const btn = await screen.findByLabelText('Search feeds');
+  btn.click();
+  expect(
+    await screen.findByTestId('login state: submit new source'),
+  ).toBeInTheDocument();
 });
 
 it('should show if the source already exists in the system', async () => {
