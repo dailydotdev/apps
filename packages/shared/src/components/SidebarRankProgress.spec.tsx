@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import { act } from 'react-dom/test-utils';
 import nock from 'nock';
 import { set as setCache } from 'idb-keyval';
 import {
@@ -192,6 +193,7 @@ RANKS.forEach((rank) => {
       userId: null,
     });
     renderComponent([], null);
+    await act(() => new Promise((resolve) => setTimeout(resolve, 500)));
     await waitFor(() => {
       expect(screen.queryAllByTestId('completedPath').length).toEqual(
         rank.steps - 1,
