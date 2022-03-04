@@ -84,6 +84,12 @@ export class Features {
     'Popular',
   );
 
+  static readonly PostCardHeadingFont = new Features(
+    'post_card_heading_font',
+    'bodyBold',
+    ['bodyBold', 'body', 'title3', 'title3Bold'],
+  );
+
   private constructor(
     public readonly id: string,
     public readonly defaultValue?: string,

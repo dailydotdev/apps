@@ -1,4 +1,5 @@
 import React, { forwardRef, ReactElement, Ref, useState } from 'react';
+import classNames from 'classnames';
 import { Comment } from '../../graphql/comments';
 import { PostCardProps } from './PostCard';
 import {
@@ -37,6 +38,7 @@ export const PostList = forwardRef(function PostList(
     notification,
     className,
     children,
+    postHeadingFont,
     ...props
   }: PostCardProps,
   ref: Ref<HTMLElement>,
@@ -64,7 +66,9 @@ export const PostList = forwardRef(function PostList(
       </ListCardAside>
       <ListCardDivider />
       <ListCardMain>
-        <ListCardTitle>{post.title}</ListCardTitle>
+        <ListCardTitle className={classNames(className, postHeadingFont)}>
+          {post.title}
+        </ListCardTitle>
         <PostMetadata
           createdAt={post.createdAt}
           readTime={post.readTime}
