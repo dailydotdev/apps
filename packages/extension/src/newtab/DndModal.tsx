@@ -104,13 +104,12 @@ export default function DndModal({
   );
 
   const getDescription = () => {
-    if (!isActive)
-      return "Choose your preferences while you're on Do Not Disturb mode";
+    if (!isActive) return "Choose your preferences while you're on Focus Mode";
 
     const date = format(dndSettings.expiration, 'MM/dd/yy');
     const time = format(dndSettings.expiration, 'hh:mm a');
 
-    return `Do Not Disturb is active and will be turned off on ${date} at ${time}`;
+    return `Focus Mode is active and will be turned off on ${date} at ${time}`;
   };
 
   const titleSize = isActive ? 'typo-title3' : 'typo-title2';
@@ -135,7 +134,7 @@ export default function DndModal({
             titleSize,
           )}
         >
-          Do Not Disturb
+          Focus Mode
         </h3>
         <p className="mt-1 typo-callout text-theme-label-secondary">
           {getDescription()}
