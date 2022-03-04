@@ -1,4 +1,10 @@
-import React, { ReactElement, ReactNode, useRef, useState } from 'react';
+import React, {
+  ReactElement,
+  ReactNode,
+  useContext,
+  useRef,
+  useState,
+} from 'react';
 import { useMutation } from 'react-query';
 import classNames from 'classnames';
 import request from 'graphql-request';
@@ -18,6 +24,7 @@ import {
 } from '../../graphql/newSource';
 import { Source } from '../../graphql/sources';
 import { gaTrackEvent } from '../../lib/analytics';
+import AuthContext from '../../contexts/AuthContext';
 
 interface RSS {
   url: string;
@@ -55,6 +62,8 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
   const [feeds, setFeeds] = useState<{ label: string; value: string }[]>();
   const [selectedFeed, setSelectedFeed] = useState<string>();
   const [existingSource, setExistingSource] = useState<Source>();
+  const { user, loginState, showLogin } = useContext(AuthContext);
+  const loginTrigger = 'submit new source';
 
   const failedToScrape = () => {
     setShowContact(true);
@@ -132,6 +141,11 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
     e: React.FormEvent<HTMLFormElement>,
   ): Promise<void> => {
     e.preventDefault();
+    if (!user) {
+      showLogin(loginTrigger);
+      return;
+    }
+
     const data = formToJson<{ url: string }>(e.currentTarget);
     await scrapeSource(data.url);
   };
@@ -239,6 +253,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
         ref={scrapeFormRef}
         onSubmit={onScrapeSubmit}
         aria-busy={isScraping}
+        data-testid={`login state: ${loginState?.trigger}`}
       >
         <SearchField
           className="my-4"
