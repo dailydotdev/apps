@@ -1,5 +1,5 @@
 import { FeedItem, PostItem } from '../hooks/useFeed';
-import { Ad, Post } from '../graphql/posts';
+import { Ad, Post, ReadHistoryPost } from '../graphql/posts';
 import { AnalyticsEvent } from '../hooks/analytics/useAnalyticsQueue';
 
 export function optimisticPostUpdateInFeed(
@@ -72,7 +72,7 @@ export function feedAnalyticsExtra(
 
 export function postAnalyticsEvent(
   eventName: string,
-  post: Post,
+  post: Post | ReadHistoryPost,
   opts?: {
     columns?: number;
     column?: number;

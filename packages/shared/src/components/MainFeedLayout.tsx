@@ -78,7 +78,7 @@ const getPropsByFeed = ({
 
 const LayoutHeader = classed(
   'header',
-  'flex flex-wrap overflow-x-auto relative justify-between items-center self-stretch mb-6 h-14 no-scrollbar',
+  'flex justify-between items-center overflow-x-auto relative justify-between mb-6 min-h-14 w-full no-scrollbar',
 );
 
 export const getShouldRedirect = (
@@ -232,13 +232,19 @@ export default function MainFeedLayout({
   };
 
   const header = (
-    <LayoutHeader>
+    <LayoutHeader
+      className={
+        myFeedPosition !== 'feed_title'
+          ? 'flex-row'
+          : 'flex-col tablet:flex-row'
+      }
+    >
       {!isSearchOn && getFeedTitle()}
-      <div className="flex flex-row flex-wrap items-center mr-px">
+      <div className="flex flex-row flex-wrap gap-4 items-center mr-px">
         {navChildren}
         {isUpvoted && (
           <Dropdown
-            className="ml-4 w-44"
+            className="w-44"
             buttonSize="large"
             icon={<CalendarIcon />}
             selectedIndex={selectedPeriod}
@@ -248,7 +254,7 @@ export default function MainFeedLayout({
         )}
         {sortingEnabled && isSortableFeed && (
           <Dropdown
-            className="ml-4 w-[10.25rem]"
+            className="w-[10.25rem]"
             buttonSize="large"
             selectedIndex={selectedAlgo}
             options={algorithmsList}

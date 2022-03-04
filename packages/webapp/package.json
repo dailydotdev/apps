@@ -39,7 +39,6 @@
     "react-parallax-tilt": "^1.5.83",
     "react-query": "^3.34.8",
     "react-swipeable": "^6.2.0",
-    "react-tooltip": "^4.2.21",
     "react-transition-group": "^4.4.2",
     "react-virtual": "^2.10.0"
   },

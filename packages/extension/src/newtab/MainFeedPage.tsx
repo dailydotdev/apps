@@ -18,6 +18,8 @@ import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleToo
 import { HeaderButton } from '@dailydotdev/shared/src/components/buttons/common';
 import { useMyFeed } from '@dailydotdev/shared/src/hooks/useMyFeed';
 import ShortcutLinks from './ShortcutLinks';
+import DndBanner from './DndBanner';
+import DndContext from './DndContext';
 
 const PostsSearch = dynamic(
   () =>
@@ -44,6 +46,7 @@ export default function MainFeedPage({
   const [showDnd, setShowDnd] = useState(false);
   const { registerLocalFilters, shouldShowMyFeed } = useMyFeed();
   const [defaultFeed] = useDefaultFeed(shouldShowMyFeed);
+  const { isActive: isDndActive } = useContext(DndContext);
   const enableSearch = () => {
     setIsSearchOn(true);
     setSearchQuery(null);
@@ -103,19 +106,18 @@ export default function MainFeedPage({
       enableSearch={enableSearch}
       onNavTabClick={onNavTabClick}
       screenCentered={false}
+      customBanner={isDndActive && <DndBanner />}
       additionalButtons={
-        <>
-          {user && (
-            <SimpleTooltip content="Do Not Disturb" placement="bottom">
-              <HeaderButton
-                icon={<TimerIcon />}
-                className="btn-tertiary"
-                onClick={() => setShowDnd(true)}
-                pressed={showDnd}
-              />
-            </SimpleTooltip>
-          )}
-        </>
+        user && (
+          <SimpleTooltip content="Do Not Disturb" placement="bottom">
+            <HeaderButton
+              icon={<TimerIcon />}
+              className="btn-tertiary"
+              onClick={() => setShowDnd(true)}
+              pressed={showDnd}
+            />
+          </SimpleTooltip>
+        )
       }
     >
       <FeedLayout>

@@ -24,10 +24,6 @@ export default function LoginModal({
     Features.LoginModalDescriptionCopy,
     flags,
   );
-  const buttonCopyPrefix = getFeatureValue(
-    Features.LoginModalButtonCopyPrefix,
-    flags,
-  );
   useTrackModal({ isOpen: props.isOpen, title: 'signup', trigger });
 
   return (
@@ -40,7 +36,7 @@ export default function LoginModal({
       <div className="mt-6 mb-8 text-center text-theme-label-secondary typo-callout">
         {loginModalDescriptionCopy}
       </div>
-      <LoginButtons buttonCopyPrefix={buttonCopyPrefix} />
+      <LoginButtons />
       {children}
     </StyledModal>
   );

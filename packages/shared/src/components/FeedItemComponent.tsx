@@ -29,6 +29,7 @@ export type FeedItemComponentProps = {
   postNotificationIndex: number | undefined;
   notification: string | undefined;
   showCommentPopupId: string | undefined;
+  postHeadingFont: string;
   setShowCommentPopupId: (value: string | undefined) => void;
   isSendingComment: boolean;
   comment: (variables: {
@@ -124,6 +125,7 @@ export default function FeedItemComponent({
   onCommentClick,
   onAdRender,
   onAdClick,
+  postHeadingFont,
 }: FeedItemComponentProps): ReactElement {
   const PostTag = useList ? PostList : PostCard;
   const AdTag = useList ? AdList : AdCard;
@@ -165,6 +167,7 @@ export default function FeedItemComponent({
           notification={postNotificationIndex === index && notification}
           showImage={!insaneMode}
           onCommentClick={(post) => onCommentClick(post, index, row, column)}
+          postHeadingFont={postHeadingFont}
         >
           {showCommentPopupId === item.post.id && (
             <CommentPopup

@@ -20,7 +20,7 @@ const Wrapper = ({ children, ...props }: WrapperProps) => {
 };
 
 export default function MobileHeaderRankProgress(): ReactElement {
-  const { isLoading, rank, nextRank } = useReadingRank();
+  const { isLoading, rank, nextRank } = useReadingRank(false);
 
   if (isLoading) {
     return <Wrapper>&nbsp;</Wrapper>;

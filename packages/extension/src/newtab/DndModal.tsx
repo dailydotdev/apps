@@ -23,7 +23,7 @@ export default function DndModal({
   onRequestClose,
   ...modalProps
 }: ModalProps): ReactElement {
-  const { dndSettings, setDndSettings, isActive } = useContext(DndContext);
+  const { dndSettings, onDndSettings, isActive } = useContext(DndContext);
   const [link, setLink] = useState<string>(null);
   const [customNumber, setCustomNumber] = useState(0);
   const [customTimeIndex, setCustomTimeIndex] = useState(0);
@@ -35,8 +35,7 @@ export default function DndModal({
     const expiration = option.getExpiration(customTime, customNumber);
     const fallback = link || getDefaultLink();
 
-    await setDndSettings({ expiration, link: fallback });
-
+    await onDndSettings({ expiration, link: fallback });
     onRequestClose(e);
   };
 
@@ -52,7 +51,7 @@ export default function DndModal({
       <Button
         className="btn-primary-onion"
         buttonSize="large"
-        onClick={() => setDndSettings(null)}
+        onClick={() => onDndSettings(null)}
       >
         Turn Off
       </Button>
@@ -105,13 +104,12 @@ export default function DndModal({
   );
 
   const getDescription = () => {
-    if (!isActive)
-      return "Choose your preferences while you're on Do Not Disturb mode";
+    if (!isActive) return "Choose your preferences while you're on Focus Mode";
 
     const date = format(dndSettings.expiration, 'MM/dd/yy');
     const time = format(dndSettings.expiration, 'hh:mm a');
 
-    return `Do Not Disturb is active and will be turned off on ${date} at ${time}`;
+    return `Focus Mode is active and will be turned off on ${date} at ${time}`;
   };
 
   const titleSize = isActive ? 'typo-title3' : 'typo-title2';
@@ -136,7 +134,7 @@ export default function DndModal({
             titleSize,
           )}
         >
-          Do Not Disturb
+          Focus Mode
         </h3>
         <p className="mt-1 typo-callout text-theme-label-secondary">
           {getDescription()}
