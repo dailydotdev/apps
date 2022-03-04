@@ -170,10 +170,14 @@ RANKS.forEach((rank) => {
       userId: null,
     });
     renderComponent([], null);
-    const completed = await screen.findAllByTestId('completedPath');
-    const remaining = await screen.findAllByTestId('remainingPath');
-    expect(completed.length).toEqual(rank.level === 7 ? 1 : rank.steps);
-    expect(remaining.length).toEqual(rank.level === 7 ? 0 : 1);
+    await waitFor(() => {
+      expect(screen.queryAllByTestId('completedPath').length).toEqual(
+        rank.level === 7 ? 1 : rank.steps,
+      );
+      expect(screen.queryAllByTestId('remainingPath').length).toEqual(
+        rank.level === 7 ? 0 : 1,
+      );
+    });
   });
 });
 
