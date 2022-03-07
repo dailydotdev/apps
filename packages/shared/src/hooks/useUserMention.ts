@@ -87,13 +87,6 @@ function getCaretPost(el: Element): [number, number] {
   return [sel.anchorOffset, row];
 }
 
-const getPossibleMentions = (el: HTMLElement) => {
-  const content = el.innerText.split(' ');
-  const mentions = content.filter((word) => word[0] === '@' && word.length > 1);
-
-  return mentions;
-};
-
 export function useUserMention({
   postId,
   commentRef,
@@ -104,7 +97,6 @@ export function useUserMention({
   const client = useQueryClient();
   const [selected, setSelected] = useState(0);
   const [offset, setOffset] = useState<[number, number]>([0, 0]);
-  const [mentions, setMentions] = useState<string[]>([]);
   const [mentionQuery, setMentionQuery] = useState<string>();
   const { data = { recommendedMentions: [] }, refetch } =
     useQuery<RecommendedMentionsData>(
@@ -120,11 +112,8 @@ export function useUserMention({
         refetchOnMount: false,
       },
     );
-  const { recommendedMentions: mentionUsers } = data;
+  const { recommendedMentions: mentions } = data;
   const fetchUsers = useDebounce(refetch, 300);
-  const filteredUsers = mentionUsers?.filter((recommendation) =>
-    mentions.every((mention) => `@${recommendation.username}` !== mention),
-  );
 
   const onMention = (username: string) => {
     const query = `@${mentionQuery}`;
@@ -148,7 +137,7 @@ export function useUserMention({
         event.preventDefault();
         return;
       }
-      if (event.key === 'ArrowDown' && selected < filteredUsers.length - 1) {
+      if (event.key === 'ArrowDown' && selected < mentions.length - 1) {
         setSelected(selected + 1);
         event.preventDefault();
         return;
@@ -159,12 +148,12 @@ export function useUserMention({
       }
 
       if (event.key === 'Enter') {
-        if (filteredUsers.length === 0) {
+        if (mentions.length === 0) {
           return;
         }
 
         event.preventDefault();
-        onMention(filteredUsers[selected].username);
+        onMention(mentions[selected].username);
         return;
       }
 
@@ -182,10 +171,8 @@ export function useUserMention({
     } else if (event.key === '@') {
       setTimeout(() => {
         const position = getCaretPost(commentRef.current);
-        const mentioned = getPossibleMentions(commentRef.current);
         setOffset(position);
         setMentionQuery('');
-        setMentions(mentioned);
       });
     }
   };
@@ -197,7 +184,7 @@ export function useUserMention({
   return {
     offset,
     selected,
-    mentions: filteredUsers,
+    mentions,
     mentionQuery,
     onMentionClick: onMention,
     onMentionKeypress: onKeypress,
