@@ -15,6 +15,7 @@ import { apiUrl } from '../lib/config';
 import { UserShortProfile } from '../lib/user';
 import AuthContext from '../contexts/AuthContext';
 import useDebounce from './useDebounce';
+import { isKeyAlphaNumeric } from '../lib/strings';
 
 interface UseUserMention {
   mentionQuery?: string;
@@ -30,12 +31,6 @@ interface UseUserMentionProps {
   onInput: (content: string) => unknown;
   commentRef?: MutableRefObject<HTMLDivElement>;
 }
-
-const isAlphaNumeric = (event: KeyboardEvent) => {
-  const match = event.key.match(/^[a-z0-9]+$/i);
-
-  return match && match[0].length === 1;
-};
 
 const IGNORE_KEY = ['Shift', 'CapsLock'];
 const shouldIgnoreKey = (event: KeyboardEvent) =>
@@ -157,7 +152,7 @@ export function useUserMention({
         return;
       }
 
-      const value = isAlphaNumeric(event)
+      const value = isKeyAlphaNumeric(event.key)
         ? mentionQuery + event.key
         : undefined;
 
