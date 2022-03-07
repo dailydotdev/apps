@@ -39,9 +39,8 @@ import { ProfilePicture } from '../ProfilePicture';
 import Markdown from '../Markdown';
 import { ClickableText } from '../buttons/ClickableText';
 import AtIcon from '../../../icons/at.svg';
-import { BaseTooltip, getShouldLoadTooltip } from '../tooltips/BaseTooltip';
-import { RecommendedMention } from '../RecommendedMention';
 import { useUserMention } from '../../hooks/useUserMention';
+import { RecommendedMentionTooltip } from '../tooltips/RecommendedMentionTooltip';
 
 const DiscardCommentModal = dynamic(() => import('./DiscardCommentModal'));
 
@@ -62,11 +61,6 @@ interface CommentVariables {
   id: string;
   content: string;
 }
-
-const CHAR_WIDTH = 6;
-const LINE_HEIGHT = 18;
-const getOffsetPerLine = (row: number) => row * LINE_HEIGHT * -1;
-const getOffsetPerChar = (col: number) => (col - 1) * CHAR_WIDTH;
 
 export default function NewCommentModal({
   authorImage,
@@ -91,7 +85,7 @@ export default function NewCommentModal({
   const {
     onMentionClick,
     onMentionKeypress,
-    offset: [offsetX, offsetY],
+    offset,
     mentions,
     mentionQuery,
     selected,
@@ -345,29 +339,14 @@ export default function NewCommentModal({
           aria-label="New comment box"
         />
       </div>
-      {getShouldLoadTooltip() && (
-        <BaseTooltip
-          content={
-            <RecommendedMention
-              users={mentionQuery !== undefined && mentions}
-              selected={selected}
-              onClick={onMentionClick}
-            />
-          }
-          offset={[getOffsetPerChar(offsetX), getOffsetPerLine(offsetY) + -90]}
-          interactive
-          container={{
-            className: 'shadow',
-            paddingClassName: 'p-0',
-            roundedClassName: 'rounded-16',
-            bgClassName: 'bg-theme-bg-tertiary',
-          }}
-          reference={commentRef}
-          arrow={false}
-          placement="top-start"
-          visible={mentionQuery !== undefined}
-        />
-      )}
+      <RecommendedMentionTooltip
+        elementRef={commentRef}
+        offset={offset}
+        mentions={mentions}
+        selected={selected}
+        query={mentionQuery}
+        onMentionClick={onMentionClick}
+      />
       <div
         className="my-2 mx-3 text-theme-status-error typo-caption1"
         style={{ minHeight: '1rem' }}
