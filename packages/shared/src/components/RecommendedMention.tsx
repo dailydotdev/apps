@@ -26,7 +26,7 @@ export function RecommendedMention({
   return (
     <ul
       className="flex overflow-hidden flex-col rounded-16 border border-theme-divider-secondary text-theme-label-primary"
-      style={{ width: '15rem' }}
+      style={{ minWidth: '15rem' }}
     >
       {users.map(({ name, username, image }, index) => (
         <UserShortInfo
