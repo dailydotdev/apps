@@ -107,7 +107,7 @@ export function useUserMention({
           query: mentionQuery,
         }),
       {
-        enabled: !!user,
+        enabled: !!user && mentionQuery !== undefined,
         refetchOnWindowFocus: false,
         refetchOnMount: false,
       },
