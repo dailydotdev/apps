@@ -31,6 +31,7 @@ export function UserShortInfo<Tag extends AnyTag>({
   bio,
   imageSize = 'xlarge',
   tag,
+  className,
   ...props
 }: UserShortInfoProps<Tag> & PropsOf<Tag>): ReactElement {
   const Element = (tag || 'a') as React.ElementType;
@@ -38,7 +39,10 @@ export function UserShortInfo<Tag extends AnyTag>({
   return (
     <Element
       {...props}
-      className={classNames('flex flex-row py-3 px-6 hover:bg-theme-hover')}
+      className={classNames(
+        'flex flex-row py-3 px-6 hover:bg-theme-hover',
+        className,
+      )}
     >
       <ProfilePicture user={{ username, image }} size={imageSize} />
       <div className="flex flex-col flex-1 ml-4 typo-callout">
