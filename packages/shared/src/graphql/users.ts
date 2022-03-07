@@ -30,10 +30,6 @@ export type MostReadTag = {
   percentage?: number;
   total?: number;
 };
-export type UserTooltipContentData = {
-  rank: UserReadingRank;
-  tags: MostReadTag[];
-};
 
 export const USER_READING_RANK_QUERY = gql`
   query UserReadingRank($id: ID!, $version: Int) {
@@ -44,12 +40,21 @@ export const USER_READING_RANK_QUERY = gql`
 `;
 
 export const USER_TOOLTIP_CONTENT_QUERY = gql`
-  query UserTooltipContent($id: ID!, $version: Int) {
+  query UserTooltipContent(
+    $id: ID!
+    $version: Int
+    $requestUserInfo: Boolean!
+  ) {
     rank: userReadingRank(id: $id, version: $version) {
       currentRank
     }
     tags: userMostReadTags(id: $id) {
       value
+    }
+    user: userInfo(id: $id) @include(if: $requestUserInfo) {
+      name
+      username
+      image
     }
   }
 `;

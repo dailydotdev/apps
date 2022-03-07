@@ -27,7 +27,7 @@ export function ProfileTooltip({
   user,
   link,
 }: ProfileTooltipProps): ReactElement {
-  const { data, fetchInfo } = useProfileTooltip(user.id);
+  const { data, fetchInfo } = useProfileTooltip({ userId: user.id });
   const Tooltip = link ? LinkWithTooltip : SimpleTooltip;
   const props = {
     arrow: false,

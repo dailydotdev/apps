@@ -1,5 +1,4 @@
 import React, { ReactElement, useEffect, useState } from 'react';
-import { useQuery } from 'react-query';
 import ReactDOM from 'react-dom';
 import { tippy } from '@tippyjs/react';
 import { sanitize } from 'dompurify';
@@ -7,7 +6,6 @@ import styles from './markdown.module.css';
 import { ProfileTooltipContent } from './profile/ProfileTooltipContent';
 import { profileTooltipClasses } from './profile/ProfileTooltip';
 import { useProfileTooltip } from '../hooks/useProfileTooltip';
-import { getProfile, PublicProfile } from '../lib/user';
 
 const classes = Object.values(profileTooltipClasses).join(' ');
 
@@ -21,23 +19,20 @@ const getUserPermalink = (username: string) =>
   `${process.env.NEXT_PUBLIC_WEBAPP_URL}${username}`;
 
 export default function Markdown({ content }: MarkdownProps): ReactElement {
-  const [username, setUsername] = useState('');
+  const [userId, setUserId] = useState('');
   const [instance, setInstance] = useState<TippyInstance>();
-  const queryKey = ['profile', username];
-  const { data: fetchedProfile } = useQuery<PublicProfile>(
-    queryKey,
-    () => getProfile(username),
-    { enabled: !!username },
-  );
-  const { fetchInfo, data } = useProfileTooltip(fetchedProfile?.id);
+  const { fetchInfo, data } = useProfileTooltip({
+    userId,
+    requestUserInfo: true,
+  });
 
   const onShow = (tippyInstance: TippyInstance) => {
     if (!instance) {
       setInstance(tippyInstance);
     }
-    if (!username) {
-      const id = tippyInstance.reference.getAttribute('data-mention-username');
-      setUsername(id);
+    if (!userId) {
+      const id = tippyInstance.reference.getAttribute('data-mention-id');
+      setUserId(id);
     }
   };
 
@@ -46,16 +41,15 @@ export default function Markdown({ content }: MarkdownProps): ReactElement {
       return;
     }
 
-    tippy('[data-mention-username]', { onShow, interactive: true });
+    tippy('[data-mention-id]', { onShow, interactive: true });
   }, [content]);
 
   useEffect(() => {
-    if (!fetchedProfile || data) {
+    if (data || !userId) {
       return;
     }
-
     fetchInfo();
-  }, [fetchedProfile]);
+  }, [userId]);
 
   useEffect(() => {
     if (!data || !instance) {
@@ -67,9 +61,9 @@ export default function Markdown({ content }: MarkdownProps): ReactElement {
     ReactDOM.render(
       <ProfileTooltipContent
         user={{
-          ...fetchedProfile,
-          username,
-          permalink: getUserPermalink(username),
+          ...data.user,
+          id: userId,
+          permalink: getUserPermalink(userId),
         }}
         data={data}
       />,
