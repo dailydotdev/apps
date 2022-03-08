@@ -305,7 +305,7 @@ it('should recommend users previously mentioned', async () => {
     {
       request: {
         query: RECOMMEND_MENTIONS_QUERY,
-        variables: { postId: 'p1' },
+        variables: { postId: 'p1', query: '' },
       },
       result: () => {
         queryPreviouslyMentioned = true;
@@ -332,7 +332,7 @@ it('should recommend users based on query', async () => {
     {
       request: {
         query: RECOMMEND_MENTIONS_QUERY,
-        variables: { postId: 'p1' },
+        variables: { postId: 'p1', query: '' },
       },
       result: () => {
         return {
