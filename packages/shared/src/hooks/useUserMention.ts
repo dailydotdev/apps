@@ -19,6 +19,7 @@ import { isKeyAlphaNumeric } from '../lib/strings';
 import {
   CaretPosition,
   getCaretPostition,
+  hasSpaceBeforeWord,
   isBreakLine,
   setCaretPosition,
   setReplacementCaretPosition,
@@ -96,7 +97,7 @@ export function useUserMention({
     }
   };
 
-  const onKeypress = (event: ReactKeyboardEvent) => {
+  const onKeypress = (event: ReactKeyboardEvent<HTMLDivElement>) => {
     if (query !== undefined) {
       if (ARROW_KEYS.indexOf(event.key) !== -1) {
         onArrowKey(event.key);
@@ -130,9 +131,15 @@ export function useUserMention({
         });
       }
     } else if (event.key === '@') {
+      const [col, row] = getCaretPostition(event.currentTarget);
+      const isValidTrigger = hasSpaceBeforeWord(commentRef.current, [col, row]);
+
+      if (!isValidTrigger) {
+        return;
+      }
+
       setTimeout(() => {
-        const position = getCaretPostition(commentRef.current);
-        setOffset(position);
+        setOffset([col + 1, row]);
         setQuery('');
       });
     }

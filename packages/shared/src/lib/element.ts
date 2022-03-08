@@ -56,3 +56,26 @@ export function getCaretPostition(el: Element): CaretPosition {
   });
   return [sel.anchorOffset, row === -1 ? 0 : row];
 }
+
+export function hasSpaceBeforeWord(
+  node: Element,
+  [row, col]: CaretPosition,
+): boolean {
+  if (col === 0) {
+    return true;
+  }
+
+  return Array.from(node.childNodes).some((child, index) => {
+    if (index !== row) {
+      return false;
+    }
+
+    const element = child.nodeValue ? child : child.childNodes[0];
+
+    if (isBreakLine(element)) {
+      return false;
+    }
+
+    return element.nodeValue.charAt(col - 1).trim() === '';
+  });
+}
