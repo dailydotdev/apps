@@ -12,8 +12,10 @@ interface RecommendedMentionTooltipProps {
   elementRef: MutableRefObject<HTMLElement>;
 }
 
+const EXTRA_SPACES = 26;
 const CHAR_WIDTH = 7;
 const LINE_HEIGHT = 18;
+const PER_ITEM_HEIGHT = 64;
 const getOffsetPerLine = (row: number) => row * LINE_HEIGHT * -1;
 const getOffsetPerChar = (col: number) => (col - 1) * CHAR_WIDTH;
 
@@ -30,6 +32,7 @@ export function RecommendedMentionTooltip({
   }
 
   const [offsetX, offsetY] = offset;
+  const lines = PER_ITEM_HEIGHT * mentions.length * -1;
 
   return (
     <BaseTooltip
@@ -40,7 +43,10 @@ export function RecommendedMentionTooltip({
           onClick={onMentionClick}
         />
       }
-      offset={[getOffsetPerChar(offsetX), getOffsetPerLine(offsetY) + -90]}
+      offset={[
+        getOffsetPerChar(offsetX),
+        getOffsetPerLine(offsetY) + lines + -EXTRA_SPACES,
+      ]}
       interactive
       container={{
         className: 'shadow',
