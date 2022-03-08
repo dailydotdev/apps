@@ -252,8 +252,9 @@ export default function NewCommentModal({
     ) {
       await sendComment(event);
     }
-
+else {
     onMentionKeypress(event);
+}  
   };
 
   const onPaste = (event: ClipboardEvent): void => {
