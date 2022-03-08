@@ -1,10 +1,10 @@
 import React, { ReactElement } from 'react';
-import { UserTooltipContentData } from '../../graphql/users';
 import { Author } from '../../graphql/comments';
 import Rank from '../Rank';
 import { ProfileImageLink } from './ProfileImageLink';
 import { ProfileLink } from './ProfileLink';
 import { TagLinks } from '../TagLinks';
+import { UserTooltipContentData } from '../../hooks/useProfileTooltip';
 
 export interface ProfileTooltipContentProps {
   user: Author;
