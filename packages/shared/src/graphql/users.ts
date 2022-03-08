@@ -51,7 +51,7 @@ export const USER_TOOLTIP_CONTENT_QUERY = gql`
     tags: userMostReadTags(id: $id) {
       value
     }
-    user: userInfo(id: $id) @include(if: $requestUserInfo) {
+    user(id: $id) @include(if: $requestUserInfo) {
       name
       username
       image
