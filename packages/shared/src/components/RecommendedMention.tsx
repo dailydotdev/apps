@@ -38,6 +38,7 @@ export function RecommendedMention({
           imageSize="large"
           tag="li"
           onClick={() => onClick(username)}
+          aria-selected={index === selected}
         />
       ))}
     </ul>
