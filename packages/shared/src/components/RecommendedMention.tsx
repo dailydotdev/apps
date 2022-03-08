@@ -24,7 +24,11 @@ export function RecommendedMention({
   }
 
   return (
-    <ul className="flex overflow-hidden flex-col rounded-16 border min-w-[15rem] border-theme-divider-secondary text-theme-label-primary">
+    <ul
+      className="flex overflow-hidden flex-col rounded-16 border border-theme-divider-secondary text-theme-label-primary"
+      style={{ minWidth: '15rem' }}
+      role="listbox"
+    >
       {users.map(({ name, username, image }, index) => (
         <UserShortInfo
           key={username}
@@ -39,6 +43,7 @@ export function RecommendedMention({
           tag="li"
           onClick={() => onClick(username)}
           aria-selected={index === selected}
+          role="option"
         />
       ))}
     </ul>
