@@ -12,7 +12,7 @@ interface RecommendedMentionTooltipProps {
   elementRef: MutableRefObject<HTMLElement>;
 }
 
-const CHAR_WIDTH = 6;
+const CHAR_WIDTH = 7;
 const LINE_HEIGHT = 18;
 const getOffsetPerLine = (row: number) => row * LINE_HEIGHT * -1;
 const getOffsetPerChar = (col: number) => (col - 1) * CHAR_WIDTH;

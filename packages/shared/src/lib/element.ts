@@ -1,11 +1,8 @@
-export const isBreakLine = (node: ChildNode): boolean => !node.nodeValue;
+export const isBreakLine = (node: Node): boolean => !node.nodeValue;
 
 export type CaretPosition = [number, number];
 
-const getNode = (
-  el: HTMLElement,
-  query: string,
-): [ChildNode, CaretPosition] => {
+const getNode = (el: Node, query: string): [Node, CaretPosition] => {
   const index = Array.from(el.childNodes).findIndex((child) => {
     const element = child.nodeValue ? child : child.childNodes[0];
 
@@ -24,7 +21,21 @@ const getNode = (
   return [node, [start, index]];
 };
 
-export function setCaretPosition(el: HTMLElement, replacement: string): void {
+export function setCaretPosition(el: Node, col: number): void {
+  const range = document.createRange();
+  const sel = window.getSelection();
+
+  range.setStart(el, col);
+  range.collapse(true);
+
+  sel.removeAllRanges();
+  sel.addRange(range);
+}
+
+export function setReplacementCaretPosition(
+  el: Node,
+  replacement: string,
+): void {
   const range = document.createRange();
   const sel = window.getSelection();
   const [node, [x]] = getNode(el, replacement);
@@ -43,5 +54,5 @@ export function getCaretPostition(el: Element): CaretPosition {
 
     return sel.anchorNode === element;
   });
-  return [sel.anchorOffset, row];
+  return [sel.anchorOffset, row === -1 ? 0 : row];
 }

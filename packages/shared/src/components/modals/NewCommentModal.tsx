@@ -89,6 +89,7 @@ export default function NewCommentModal({
     mentions,
     mentionQuery,
     selected,
+    onInitializeMention,
   } = useUserMention({
     postId: props.post.id,
     commentRef,
@@ -358,6 +359,7 @@ export default function NewCommentModal({
           className="mx-1 border border-theme-label-primary btn-tertiary"
           buttonSize="small"
           icon={<AtIcon />}
+          onClick={onInitializeMention}
         />
         <div className="ml-2 w-px h-6 border border-opacity-24 border-theme-divider-tertiary" />
         <ClickableText

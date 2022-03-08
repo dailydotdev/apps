@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from 'react-query';
 import {
   useState,
   useContext,
-  KeyboardEvent,
+  KeyboardEvent as ReactKeyboardEvent,
   useEffect,
   MutableRefObject,
 } from 'react';
@@ -19,16 +19,19 @@ import { isKeyAlphaNumeric } from '../lib/strings';
 import {
   CaretPosition,
   getCaretPostition,
+  isBreakLine,
   setCaretPosition,
+  setReplacementCaretPosition,
 } from '../lib/element';
 
 interface UseUserMention {
   mentionQuery?: string;
-  onMentionKeypress: (event: KeyboardEvent) => unknown;
+  onMentionKeypress: (event: ReactKeyboardEvent) => unknown;
   selected: number;
   mentions: UserShortProfile[];
   offset: CaretPosition;
   onMentionClick?: (username: string) => unknown;
+  onInitializeMention: () => unknown;
 }
 
 interface UseUserMentionProps {
@@ -39,7 +42,7 @@ interface UseUserMentionProps {
 
 const ARROW_KEYS = ['ArrowUp', 'ArrowDown'];
 const IGNORE_KEYS = ['Shift', 'CapsLock', 'Alt', 'Tab'];
-const shouldIgnoreKey = (event: KeyboardEvent) =>
+const shouldIgnoreKey = (event: ReactKeyboardEvent) =>
   IGNORE_KEYS.indexOf(event.key) !== -1;
 
 export function useUserMention({
@@ -80,7 +83,7 @@ export function useUserMention({
     setQuery(undefined);
     client.setQueryData(key, []);
     setTimeout(() => {
-      setCaretPosition(element, replacement);
+      setReplacementCaretPosition(element, replacement);
       onInput(element.innerText);
     });
   };
@@ -93,7 +96,7 @@ export function useUserMention({
     }
   };
 
-  const onKeypress = (event: KeyboardEvent) => {
+  const onKeypress = (event: ReactKeyboardEvent) => {
     if (query !== undefined) {
       if (ARROW_KEYS.indexOf(event.key) !== -1) {
         onArrowKey(event.key);
@@ -135,6 +138,47 @@ export function useUserMention({
     }
   };
 
+  const setTextarea = (value: string) => {
+    const textarea = commentRef.current;
+    onInput(value);
+    textarea.innerHTML = value;
+    setCaretPosition(
+      value.length === 1 ? textarea : textarea.firstChild,
+      value.length,
+    );
+  };
+
+  const onInitializeMention = () => {
+    if (query !== undefined) {
+      return;
+    }
+
+    const textarea = commentRef.current;
+    const value = commentRef.current.innerText;
+    const trimmed = value.trim();
+    const lines = value.split('\n');
+
+    if (trimmed.length === 0) {
+      setTextarea('@');
+    } else if (lines.length === 1) {
+      const text = `${trimmed} @`;
+      setTextarea(text);
+    } else {
+      const [lastLine] = lines.reverse();
+      const text = `${lastLine.trim()} @`;
+      onInput(value + text);
+      const node = textarea.lastElementChild;
+      if (isBreakLine(node.firstChild)) {
+        node.innerHTML = text + node.innerHTML;
+        setCaretPosition(node.firstChild, text.length);
+      } else {
+        node.firstChild.nodeValue = text;
+        setCaretPosition(node.firstChild, text.length);
+      }
+    }
+    textarea.dispatchEvent(new KeyboardEvent('keydown', { key: '@' }));
+  };
+
   useEffect(() => {
     setSelected(0);
   }, [query]);
@@ -146,5 +190,6 @@ export function useUserMention({
     mentionQuery: query,
     onMentionClick: onMention,
     onMentionKeypress: onKeypress,
+    onInitializeMention,
   };
 }
