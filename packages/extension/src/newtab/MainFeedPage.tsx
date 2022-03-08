@@ -108,18 +108,16 @@ export default function MainFeedPage({
       screenCentered={false}
       customBanner={isDndActive && <DndBanner />}
       additionalButtons={
-        <>
-          {user && (
-            <SimpleTooltip content="Do Not Disturb" placement="bottom">
-              <HeaderButton
-                icon={<TimerIcon />}
-                className="btn-tertiary"
-                onClick={() => setShowDnd(true)}
-                pressed={showDnd}
-              />
-            </SimpleTooltip>
-          )}
-        </>
+        user && (
+          <SimpleTooltip content="Do Not Disturb" placement="bottom">
+            <HeaderButton
+              icon={<TimerIcon />}
+              className="btn-tertiary"
+              onClick={() => setShowDnd(true)}
+              pressed={showDnd}
+            />
+          </SimpleTooltip>
+        )
       }
     >
       <FeedLayout>

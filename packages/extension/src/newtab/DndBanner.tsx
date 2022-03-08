@@ -10,7 +10,7 @@ export default function DndBanner(): ReactElement {
 
   return (
     <div className="flex relative laptop:fixed z-3 flex-col laptop:flex-row laptop:justify-center items-start laptop:items-center laptop:p-0 py-3 pr-12 pl-3 w-full laptop:h-8 typo-footnote bg-theme-bg-onion">
-      <strong>Do not disturb mode is active</strong>
+      <strong>Focus Mode is active</strong>
       <Button
         buttonSize="xsmall"
         className="mt-2 laptop:mt-0 laptop:ml-4 btn-primary"
