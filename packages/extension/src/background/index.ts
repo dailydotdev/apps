@@ -41,7 +41,7 @@ const sendBootData = async (req, sender) => {
     return;
   }
   const cacheData = JSON.parse(localStorage.getItem('boot:local'));
-  const { data, settings } = await getBootData('extension', sender?.tab?.url);
+  const { data, settings } = await getBootData('companion', sender?.tab?.url);
   let settingsOutput = settings;
   if (!cacheData?.user || !('providers' in cacheData?.user)) {
     settingsOutput = { ...settingsOutput, ...cacheData?.settings };

@@ -22,11 +22,15 @@ export type BootCacheData = Pick<
 > & { last_modifier?: string };
 
 export async function getBootData(app: string, url?: string): Promise<Boot> {
-  const res = await fetch(`${apiUrl}/boot`, {
-    method: url ? 'POST' : 'GET',
-    ...(url && { body: JSON.stringify({ url }) }),
-    credentials: 'include',
-    headers: { app, 'Content-Type': 'application/json' },
-  });
+  const res = await fetch(
+    `${apiUrl}/boot${app === 'companion' ? '/companion' : ''}?${
+      url && new URLSearchParams({ url })
+    }`,
+    {
+      method: 'GET',
+      credentials: 'include',
+      headers: { app, 'Content-Type': 'application/json' },
+    },
+  );
   return res.json();
 }

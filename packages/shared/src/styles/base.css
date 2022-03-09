@@ -250,7 +250,8 @@ body {
 
 html,
 html.light .invert,
-html .invert .invert {
+html .invert .invert,
+#daily-companion-wrapper{
   @mixin dark-mode;
 }
 
