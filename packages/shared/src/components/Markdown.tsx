@@ -41,7 +41,11 @@ export default function Markdown({ content }: MarkdownProps): ReactElement {
       return;
     }
 
-    tippy('[data-mention-id]', { onShow, interactive: true });
+    tippy('[data-mention-id]', {
+      onShow,
+      interactive: true,
+      appendTo: document.body,
+    });
   }, [content]);
 
   useEffect(() => {

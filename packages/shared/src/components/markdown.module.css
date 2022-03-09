@@ -17,7 +17,7 @@
   & :where(h6) {
     @apply text-theme-label-tertiary font-bold mt-4 mb-3;
   }
-  & :where(p):global(:not(.tooltip)) {
+  & :where(p) {
     @apply my-7;
   }
   & :where(blockquote) {
@@ -76,10 +76,10 @@
   & :where(img) {
     @apply rounded-16 max-h-img-mobile tablet:max-h-img-desktop;
   }
-  & > :where(:first-child):global(:not(.tooltip)) {
+  & > :where(:first-child) {
     @apply mt-0;
   }
-  & > :where(:last-child):global(:not(.tooltip)) {
+  & > :where(:last-child) {
     @apply mb-0;
   }
   & :where(pre) :global(:where(.hljs-comment, .hljs-title)) {
