@@ -10,7 +10,6 @@ import useFeed, { PostItem } from '../hooks/useFeed';
 import { Ad, Post } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
 import FeedContext from '../contexts/FeedContext';
-import { gaTrackEvent } from '../lib/analytics';
 import styles from './Feed.module.css';
 import SettingsContext from '../contexts/SettingsContext';
 import { Spaciness } from '../graphql/settings';
@@ -224,11 +223,6 @@ export default function Feed<T>({
   };
 
   const onAdClick = (ad: Ad, index: number, row: number, column: number) => {
-    gaTrackEvent({
-      category: 'Ad',
-      action: 'Click',
-      label: ad.source,
-    });
     trackEvent(
       adAnalyticsEvent('click', ad, {
         columns: virtualizedNumCards,

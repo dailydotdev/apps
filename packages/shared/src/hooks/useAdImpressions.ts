@@ -1,7 +1,6 @@
 import { isSameDay } from 'date-fns';
 import usePersistentState from './usePersistentState';
 import { Ad } from '../graphql/posts';
-import { logRevenue, gaTrackEvent } from '../lib/analytics';
 
 type State = { lastSent: Date; count: number };
 type UseAdImpressionsRet = { onAdImpression: (ad: Ad) => Promise<void> };
@@ -20,19 +19,12 @@ export default function useAdImpressions(): UseAdImpressionsRet {
     }
     // eslint-disable-next-line no-param-reassign
     ad.renderTracked = true;
-    gaTrackEvent({
-      category: 'Ad',
-      action: 'Impression',
-      label: ad.source,
-      nonInteraction: true,
-    });
     if (ad.providerId?.length) {
       const now = new Date();
       if (state) {
         if (isSameDay(now, state.lastSent)) {
           await setState({ ...state, count: state.count + 1 });
         } else {
-          await logRevenue('grouped impressions', state.count + 1);
           await setState({ lastSent: now, count: 0 });
         }
       }
