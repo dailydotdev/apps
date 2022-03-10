@@ -1,3 +1,5 @@
+import { isTesting } from './constants';
+
 export const isBreakLine = (node: Node): boolean => !node.nodeValue;
 
 export type CaretPosition = [number, number];
@@ -13,10 +15,19 @@ export function setCaretPosition(el: Node, col: number): void {
   sel.addRange(range);
 }
 
+const getNodeText = (node: Node) => {
+  if (isTesting) {
+    const el = node as HTMLElement;
+
+    return el.innerText.substring(1);
+  }
+
+  return node.nodeValue || node.firstChild.nodeValue;
+};
+
 export function getWord(parent: Element, [col, row]: CaretPosition): string {
   const node = Array.from(parent.childNodes).find((_, index) => index === row);
-  const element = node.nodeValue ? node : node.firstChild;
-  const query = element.nodeValue.substring(col);
+  const query = getNodeText(node || parent).substring(col);
 
   return query.split(' ')[0];
 }
