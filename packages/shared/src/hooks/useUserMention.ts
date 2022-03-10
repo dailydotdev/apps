@@ -21,8 +21,8 @@ import {
   getCaretPostition,
   hasSpaceBeforeWord,
   isBreakLine,
+  replaceWord,
   setCaretPosition,
-  setReplacementCaretPosition,
 } from '../lib/element';
 
 interface UseUserMention {
@@ -75,18 +75,13 @@ export function useUserMention({
   const fetchUsers = useDebounce(refetch, 300);
 
   const onMention = (username: string) => {
+    const element = commentRef.current;
     const mention = `@${query}`;
     const replacement = `@${username}`;
-    const element = commentRef?.current;
-    const content = element.innerHTML.replace(mention, replacement);
-    // eslint-disable-next-line no-param-reassign
-    element.innerHTML = content;
+    replaceWord(element, offset, mention, replacement);
     setQuery(undefined);
-    client.setQueryData(key, []);
-    setTimeout(() => {
-      setReplacementCaretPosition(element, replacement);
-      onInput(element.innerText);
-    });
+    client.invalidateQueries(key);
+    onInput(element.innerText);
   };
 
   const onArrowKey = (arrowKey: string) => {

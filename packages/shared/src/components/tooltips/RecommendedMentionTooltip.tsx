@@ -17,7 +17,7 @@ const CHAR_WIDTH = 7;
 const LINE_HEIGHT = 18;
 const PER_ITEM_HEIGHT = 64;
 const getOffsetPerLine = (row: number) => row * LINE_HEIGHT * -1;
-const getOffsetPerChar = (col: number) => (col - 1) * CHAR_WIDTH;
+const getOffsetPerChar = (col: number) => col * CHAR_WIDTH;
 
 export function RecommendedMentionTooltip({
   query,

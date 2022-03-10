@@ -2,25 +2,6 @@ export const isBreakLine = (node: Node): boolean => !node.nodeValue;
 
 export type CaretPosition = [number, number];
 
-const getNode = (el: Node, query: string): [Node, CaretPosition] => {
-  const index = Array.from(el.childNodes).findIndex((child) => {
-    const element = child.nodeValue ? child : child.childNodes[0];
-
-    if (isBreakLine(element)) {
-      return false;
-    }
-
-    const strings = element.nodeValue.split(' ');
-
-    return strings.some((string) => string === query);
-  });
-  const child = el.childNodes[index];
-  const node = child.nodeValue ? child : child.childNodes[0];
-  const start = node.nodeValue.indexOf(query);
-
-  return [node, [start, index]];
-};
-
 export function setCaretPosition(el: Node, col: number): void {
   const range = document.createRange();
   const sel = window.getSelection();
@@ -32,19 +13,37 @@ export function setCaretPosition(el: Node, col: number): void {
   sel.addRange(range);
 }
 
-export function setReplacementCaretPosition(
-  el: Node,
+export function replaceWord(
+  parent: Element,
+  [col, row]: CaretPosition,
+  query: string,
   replacement: string,
 ): void {
-  const range = document.createRange();
-  const sel = window.getSelection();
-  const [node, [x]] = getNode(el, replacement);
+  const node = Array.from(parent.childNodes).find((_, index) => index === row);
+  const element = node.nodeValue ? node : node.firstChild;
+  const words = element.nodeValue.split(' ');
+  let currentCol = 0;
+  const updated = words.map((word, index) => {
+    const position = currentCol + index + word.length;
+    if (position < col || query !== word) {
+      currentCol = position;
+      return word;
+    }
 
-  range.setStart(node, x + replacement.length);
-  range.collapse(true);
+    currentCol = position;
 
-  sel.removeAllRanges();
-  sel.addRange(range);
+    return replacement;
+  });
+
+  const result = updated.join(' ');
+  if (node.nodeValue) {
+    node.nodeValue = result;
+    setCaretPosition(node, result.length);
+  } else {
+    const el = node as HTMLElement;
+    el.innerText = result;
+    setCaretPosition(el.firstChild, result.length);
+  }
 }
 
 export function getCaretPostition(el: Element): CaretPosition {
