@@ -116,6 +116,14 @@ export function useUserMention({
         return;
       }
 
+      if (event.key === 'Backspace') {
+        await nextTick();
+        const backspaced = getWord(commentRef.current, offset);
+        setQuery(query === '' && backspaced === '' ? undefined : backspaced);
+        fetchUsers();
+        return;
+      }
+
       await nextTick();
       const value = isKeyAlphaNumeric(event.key)
         ? getWord(commentRef.current, offset)
