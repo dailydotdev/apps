@@ -25,11 +25,15 @@ const getNodeText = (node: Node) => {
   return node.nodeValue || node.firstChild.nodeValue;
 };
 
-export function getWord(parent: Element, [col, row]: CaretPosition): string {
+export function getWord(
+  parent: Element,
+  [col, row]: CaretPosition,
+  query: string,
+): string {
   const node = Array.from(parent.childNodes).find((_, index) => index === row);
-  const query = getNodeText(node || parent).substring(col);
+  const text = getNodeText(node || parent);
 
-  return query.split(' ')[0];
+  return text.substring(col, col + query.length + 1);
 }
 
 export function replaceWord(
@@ -39,29 +43,18 @@ export function replaceWord(
   replacement: string,
 ): void {
   const node = Array.from(parent.childNodes).find((_, index) => index === row);
-  const element = node.nodeValue ? node : node.firstChild;
-  const words = element.nodeValue.split(' ');
-  let currentCol = 0;
-  const updated = words.map((word, index) => {
-    const position = currentCol + index + word.length;
-    if (position < col || query !== word) {
-      currentCol = position;
-      return word;
-    }
+  const text = getNodeText(node);
+  const left = text.substring(0, col - 1);
+  const right = text.substring(col + query.length - 1);
+  const result = `${left}${replacement}${right}`;
 
-    currentCol = position;
-
-    return replacement;
-  });
-
-  const result = updated.join(' ');
   if (node.nodeValue) {
     node.nodeValue = result;
-    setCaretPosition(node, result.length);
+    setCaretPosition(node, col + replacement.length - 1);
   } else {
     const el = node as HTMLElement;
     el.innerText = result;
-    setCaretPosition(el.firstChild, result.length);
+    setCaretPosition(el.firstChild, col + replacement.length - 1);
   }
 }
 

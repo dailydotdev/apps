@@ -65,7 +65,7 @@ export function useUserMention({
       () =>
         request(`${apiUrl}/graphql`, RECOMMEND_MENTIONS_QUERY, {
           postId,
-          query,
+          query: query.trim(),
         }),
       {
         enabled: !!user && query !== undefined,
@@ -118,7 +118,7 @@ export function useUserMention({
 
       if (event.key === 'Backspace') {
         await nextTick();
-        const backspaced = getWord(commentRef.current, offset);
+        const backspaced = getWord(commentRef.current, offset, query);
         const value =
           (query === '' && backspaced === '') || query === backspaced
             ? undefined
@@ -130,7 +130,7 @@ export function useUserMention({
 
       await nextTick();
       const value = isKeyAlphaNumeric(event.key)
-        ? getWord(commentRef.current, offset)
+        ? getWord(commentRef.current, offset, query)
         : undefined;
 
       setQuery(value);
