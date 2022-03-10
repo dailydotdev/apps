@@ -22,7 +22,7 @@ const getNodeText = (node: Node) => {
     return el.innerText.substring(1);
   }
 
-  return node.nodeValue || node.firstChild.nodeValue;
+  return node?.nodeValue || node?.firstChild?.nodeValue;
 };
 
 export function getWord(
@@ -32,6 +32,10 @@ export function getWord(
 ): string {
   const node = Array.from(parent.childNodes).find((_, index) => index === row);
   const text = getNodeText(node || parent);
+
+  if (!text) {
+    return '';
+  }
 
   return text.substring(col, col + query.length + 1);
 }
