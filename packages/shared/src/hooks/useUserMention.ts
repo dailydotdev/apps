@@ -131,16 +131,19 @@ export function useUserMention({
         });
       }
     } else if (event.key === '@') {
-      const [col, row] = getCaretPostition(event.currentTarget);
-      const isValidTrigger = hasSpaceBeforeWord(commentRef.current, [col, row]);
-
-      if (!isValidTrigger) {
-        return;
-      }
-
       setTimeout(() => {
-        setOffset([col + 1, row]);
+        const [col, row] = getCaretPostition(commentRef.current);
+        const isValidTrigger = hasSpaceBeforeWord(commentRef.current, [
+          col,
+          row,
+        ]);
+
+        if (!isValidTrigger) {
+          return;
+        }
+
         setQuery('');
+        setOffset([col, row]);
       });
     }
   };

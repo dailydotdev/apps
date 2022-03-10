@@ -59,23 +59,18 @@ export function getCaretPostition(el: Element): CaretPosition {
 
 export function hasSpaceBeforeWord(
   node: Element,
-  [row, col]: CaretPosition,
+  [col, row]: CaretPosition,
 ): boolean {
   if (col === 0) {
     return true;
   }
 
-  return Array.from(node.childNodes).some((child, index) => {
-    if (index !== row) {
-      return false;
-    }
+  const child = Array.from(node.childNodes).find((_, index) => index === row);
+  const element = child.nodeValue ? child : child.childNodes[0];
 
-    const element = child.nodeValue ? child : child.childNodes[0];
+  if (isBreakLine(element)) {
+    return false;
+  }
 
-    if (isBreakLine(element)) {
-      return false;
-    }
-
-    return element.nodeValue.charAt(col - 1).trim() === '';
-  });
+  return element.nodeValue.charAt(col - 2).trim() === '';
 }
