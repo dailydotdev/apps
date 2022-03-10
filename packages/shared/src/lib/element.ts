@@ -61,9 +61,9 @@ export function replaceWord(
 export function getCaretPostition(el: Element): CaretPosition {
   const sel = window.getSelection();
   const row = Array.from(el.childNodes).findIndex((child) => {
-    const element = child.nodeValue ? child : child.childNodes[0];
+    const node = child.nodeValue ? child : child.firstChild;
 
-    return sel.anchorNode === element;
+    return sel.anchorNode === node;
   });
   return [sel.anchorOffset, row === -1 ? 0 : row];
 }
@@ -77,7 +77,7 @@ export function hasSpaceBeforeWord(
   }
 
   const child = Array.from(node.childNodes).find((_, index) => index === row);
-  const element = child.nodeValue ? child : child.childNodes[0];
+  const element = child.nodeValue ? child : child.firstChild;
 
   if (isBreakLine(element)) {
     return false;
