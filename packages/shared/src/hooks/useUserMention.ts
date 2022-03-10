@@ -119,7 +119,11 @@ export function useUserMention({
       if (event.key === 'Backspace') {
         await nextTick();
         const backspaced = getWord(commentRef.current, offset);
-        setQuery(query === '' && backspaced === '' ? undefined : backspaced);
+        const value =
+          (query === '' && backspaced === '') || query === backspaced
+            ? undefined
+            : backspaced;
+        setQuery(value);
         fetchUsers();
         return;
       }
