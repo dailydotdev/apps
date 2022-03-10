@@ -177,11 +177,10 @@ export function useUserMention({
       const node = textarea.lastElementChild;
       if (isBreakLine(node.firstChild)) {
         node.innerHTML = text + node.innerHTML;
-        setCaretPosition(node.firstChild, text.length);
       } else {
         node.firstChild.nodeValue = text;
-        setCaretPosition(node.firstChild, text.length);
       }
+      setCaretPosition(node.firstChild, text.length);
     }
     textarea.dispatchEvent(new KeyboardEvent('keydown', { key: '@' }));
   };
