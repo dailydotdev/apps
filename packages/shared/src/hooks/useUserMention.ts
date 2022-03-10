@@ -19,11 +19,13 @@ import { isKeyAlphaNumeric } from '../lib/strings';
 import {
   CaretPosition,
   getCaretPostition,
+  getWord,
   hasSpaceBeforeWord,
   isBreakLine,
   replaceWord,
   setCaretPosition,
 } from '../lib/element';
+import { nextTick } from '../lib/func';
 
 interface UseUserMention {
   mentionQuery?: string;
@@ -92,7 +94,7 @@ export function useUserMention({
     }
   };
 
-  const onKeypress = (event: ReactKeyboardEvent<HTMLDivElement>) => {
+  const onKeypress = async (event: ReactKeyboardEvent<HTMLDivElement>) => {
     if (query !== undefined) {
       if (ARROW_KEYS.indexOf(event.key) !== -1) {
         onArrowKey(event.key);
@@ -114,32 +116,28 @@ export function useUserMention({
         return;
       }
 
+      await nextTick();
       const value = isKeyAlphaNumeric(event.key)
-        ? query + event.key
+        ? getWord(commentRef.current, offset)
         : undefined;
 
       setQuery(value);
 
       if (value) {
-        setTimeout(() => {
-          fetchUsers();
-        });
+        await nextTick();
+        fetchUsers();
       }
     } else if (event.key === '@') {
-      setTimeout(() => {
-        const [col, row] = getCaretPostition(commentRef.current);
-        const isValidTrigger = hasSpaceBeforeWord(commentRef.current, [
-          col,
-          row,
-        ]);
+      await nextTick();
+      const [col, row] = getCaretPostition(commentRef.current);
+      const isValidTrigger = hasSpaceBeforeWord(commentRef.current, [col, row]);
 
-        if (!isValidTrigger) {
-          return;
-        }
+      if (!isValidTrigger) {
+        return;
+      }
 
-        setQuery('');
-        setOffset([col, row]);
-      });
+      setQuery('');
+      setOffset([col, row]);
     }
   };
 

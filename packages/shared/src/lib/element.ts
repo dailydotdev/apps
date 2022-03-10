@@ -13,6 +13,14 @@ export function setCaretPosition(el: Node, col: number): void {
   sel.addRange(range);
 }
 
+export function getWord(parent: Element, [col, row]: CaretPosition): string {
+  const node = Array.from(parent.childNodes).find((_, index) => index === row);
+  const element = node.nodeValue ? node : node.firstChild;
+  const query = element.nodeValue.substring(col);
+
+  return query.split(' ')[0];
+}
+
 export function replaceWord(
   parent: Element,
   [col, row]: CaretPosition,
