@@ -16,6 +16,7 @@ import { AllTagCategoriesData } from '../../graphql/feedSettings';
 import AlertContext from '../../contexts/AlertContext';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { useMyFeed } from '../../hooks/useMyFeed';
+import CreateFeedFilterButton from '../CreateFeedFilterButton';
 
 const asideWidth = sizeN(89);
 interface FeedFiltersProps {
@@ -76,14 +77,7 @@ export default function FeedFilters({
           <XIcon className="text-2xl -rotate-90 text-theme-label-tertiary" />
         </button>
         {shouldShowMyFeed && !user && (
-          <Button
-            className="btn-primary-avocado"
-            buttonSize="small"
-            icon={<PlusIcon className="mr-1" />}
-            onClick={onCreate}
-          >
-            Create
-          </Button>
+          <CreateFeedFilterButton className="btn-primary-avocado"/>
         )}
       </div>
       <FilterMenu directlyOpenedTab={openedTab} />

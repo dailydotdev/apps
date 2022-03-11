@@ -90,11 +90,13 @@ export class Features {
     ['bodyBold', 'body', 'title3', 'title3Bold'],
   );
 
-  static readonly FeedFilterModal = new Features(
-    'feed_filter_modal',
+  static readonly FeedFilterModal = new Features('feed_filter_modal', 'v2', [
+    'v1',
     'v2',
-    ['v1','v2', 'v3', 'v4', 'v5'],
-  );
+    'v3',
+    'v4',
+    'v5',
+  ]);
 
   private constructor(
     public readonly id: string,
