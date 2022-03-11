@@ -33,6 +33,7 @@ interface UseUserMention {
   selected: number;
   mentions: UserShortProfile[];
   offset: CaretPosition;
+  onInputClick?: () => unknown;
   onMentionClick?: (username: string) => unknown;
   onInitializeMention: () => unknown;
 }
@@ -77,6 +78,22 @@ export function useUserMention({
     );
   const { recommendedMentions: mentions } = data;
   const fetchUsers = useDebounce(refetch, 100);
+
+  const initializeMention = (isInvalidCallback?: () => unknown) => {
+    const [col, row] = getCaretPostition(commentRef.current);
+    const [isValidTrigger, word, charAt] = hasSpaceBeforeWord(
+      commentRef.current,
+      [col, row],
+    );
+
+    if (!isValidTrigger) {
+      isInvalidCallback?.();
+      return;
+    }
+
+    setQuery(word);
+    setOffset([charAt, row]);
+  };
 
   const onMention = (username: string) => {
     const element = commentRef.current;
@@ -152,19 +169,14 @@ export function useUserMention({
       }
 
       await nextTick();
-      const [col, row] = getCaretPostition(commentRef.current);
-      const [isValidTrigger, word, charAt] = hasSpaceBeforeWord(
-        commentRef.current,
-        [col, row],
-      );
-
-      if (!isValidTrigger) {
-        return;
-      }
-
-      setQuery(word);
-      setOffset([charAt, row]);
+      initializeMention();
     }
+  };
+
+  const onInputClick = () => {
+    const isInvalidCallback = () => setQuery(undefined);
+
+    initializeMention(isInvalidCallback);
   };
 
   const setTextarea = (value: string) => {
@@ -177,7 +189,7 @@ export function useUserMention({
     );
   };
 
-  const onInitializeMention = () => {
+  const onInitializeMentionButtonClick = () => {
     if (query !== undefined) {
       return;
     }
@@ -216,8 +228,9 @@ export function useUserMention({
     selected,
     mentions,
     mentionQuery: query,
+    onInputClick,
     onMentionClick: onMention,
     onMentionKeypress: onKeypress,
-    onInitializeMention,
+    onInitializeMention: onInitializeMentionButtonClick,
   };
 }

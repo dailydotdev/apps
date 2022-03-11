@@ -90,6 +90,7 @@ export default function NewCommentModal({
     mentionQuery,
     selected,
     onInitializeMention,
+    onInputClick,
   } = useUserMention({
     postId: props.post.id,
     commentRef,
@@ -335,6 +336,7 @@ export default function NewCommentModal({
           aria-multiline
           onInput={onInput}
           onKeyDown={onKeyDown}
+          onClick={onInputClick}
           onPaste={onPaste}
           tabIndex={0}
           aria-label="New comment box"
