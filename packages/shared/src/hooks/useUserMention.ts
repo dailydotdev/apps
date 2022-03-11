@@ -44,9 +44,6 @@ interface UseUserMentionProps {
 }
 
 const ARROW_KEYS = ['ArrowUp', 'ArrowDown'];
-const IGNORE_KEYS = ['Shift', 'CapsLock', 'Alt', 'Tab'];
-const shouldIgnoreKey = (event: ReactKeyboardEvent) =>
-  IGNORE_KEYS.indexOf(event.key) !== -1;
 
 export function useUserMention({
   postId,
@@ -112,10 +109,6 @@ export function useUserMention({
         return;
       }
 
-      if (shouldIgnoreKey(event)) {
-        return;
-      }
-
       if (event.key === 'Enter') {
         if (mentions.length === 0) {
           return;
@@ -123,11 +116,6 @@ export function useUserMention({
 
         event.preventDefault();
         onMention(mentions[selected].username);
-        return;
-      }
-
-      if (event.key === ' ' && query.length === 0) {
-        setQuery(undefined);
         return;
       }
 
@@ -143,14 +131,8 @@ export function useUserMention({
         return;
       }
 
-      const isSpecialCharacterKey = isSpecialCharacter(event.key);
-
-      if (!isAlphaNumeric && !isSpecialCharacterKey) {
-        return;
-      }
-
       await nextTick();
-      const value = isSpecialCharacterKey
+      const value = isSpecialCharacter(event.key)
         ? undefined
         : getWord(commentRef.current, offset, query);
 
