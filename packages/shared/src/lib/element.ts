@@ -103,7 +103,8 @@ export function hasSpaceBeforeWord(
 
   let position = 0;
   const query = words.find((word, index) => {
-    position += word.length + index;
+    const offset = index > 0 ? 1 : 0;
+    position += word.length + offset;
 
     return position >= col;
   });
