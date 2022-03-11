@@ -15,7 +15,7 @@ import { apiUrl } from '../lib/config';
 import { UserShortProfile } from '../lib/user';
 import AuthContext from '../contexts/AuthContext';
 import useDebounce from './useDebounce';
-import { isKeyAlphaNumeric } from '../lib/strings';
+import { isAlphaNumeric, isSpecialCharacter } from '../lib/strings';
 import {
   CaretPosition,
   getCaretPostition,
@@ -65,12 +65,17 @@ export function useUserMention({
       () =>
         request(`${apiUrl}/graphql`, RECOMMEND_MENTIONS_QUERY, {
           postId,
-          query: query.trim(),
+          query,
         }),
       {
         enabled: !!user && query !== undefined,
         refetchOnWindowFocus: false,
         refetchOnMount: false,
+        onSuccess: ({ recommendedMentions }) => {
+          if (recommendedMentions.length === 0 && query.length > 0) {
+            setQuery(undefined);
+          }
+        },
       },
     );
   const { recommendedMentions: mentions } = data;
@@ -99,6 +104,11 @@ export function useUserMention({
       if (ARROW_KEYS.indexOf(event.key) !== -1) {
         onArrowKey(event.key);
         event.preventDefault();
+        return;
+      }
+
+      if (event.key === ' ') {
+        setQuery(undefined);
         return;
       }
 
@@ -133,10 +143,16 @@ export function useUserMention({
         return;
       }
 
+      const isSpecialCharacterKey = isSpecialCharacter(event.key);
+
+      if (!isAlphaNumeric && !isSpecialCharacterKey) {
+        return;
+      }
+
       await nextTick();
-      const value = isKeyAlphaNumeric(event.key)
-        ? getWord(commentRef.current, offset, query)
-        : undefined;
+      const value = isSpecialCharacterKey
+        ? undefined
+        : getWord(commentRef.current, offset, query);
 
       setQuery(value);
 
@@ -144,17 +160,28 @@ export function useUserMention({
         await nextTick();
         fetchUsers();
       }
-    } else if (event.key === '@') {
+    } else {
+      if (
+        !isAlphaNumeric(event.key) &&
+        event.key !== '@' &&
+        event.key !== 'Backspace'
+      ) {
+        return;
+      }
+
       await nextTick();
       const [col, row] = getCaretPostition(commentRef.current);
-      const isValidTrigger = hasSpaceBeforeWord(commentRef.current, [col, row]);
+      const [isValidTrigger, word, charAt] = hasSpaceBeforeWord(
+        commentRef.current,
+        [col, row],
+      );
 
       if (!isValidTrigger) {
         return;
       }
 
-      setQuery('');
-      setOffset([col, row]);
+      setQuery(word);
+      setOffset([charAt, row]);
     }
   };
 

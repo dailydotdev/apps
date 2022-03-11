@@ -75,17 +75,42 @@ export function getCaretPostition(el: Element): CaretPosition {
 export function hasSpaceBeforeWord(
   node: Element,
   [col, row]: CaretPosition,
-): boolean {
+): [boolean, string, number] {
   if (col === 0) {
-    return true;
+    return [false, '', -1];
   }
 
   const child = Array.from(node.childNodes).find((_, index) => index === row);
   const element = child.nodeValue ? child : child.firstChild;
 
   if (isBreakLine(element)) {
-    return false;
+    return [false, '', -1];
   }
 
-  return element.nodeValue.charAt(col - 2).trim() === '';
+  if (col === 1) {
+    return [element.nodeValue.charAt(0) === '@', '', 1];
+  }
+
+  const words = element.nodeValue.split(' ');
+
+  if (words.length === 1) {
+    return [
+      element.nodeValue.charAt(0) === '@',
+      element.nodeValue.substring(1),
+      1,
+    ];
+  }
+
+  let position = 0;
+  const query = words.find((word, index) => {
+    position += word.length + index;
+
+    return position >= col;
+  });
+
+  return [
+    query.charAt(0) === '@',
+    query.substring(1),
+    position - query.length + 1,
+  ];
 }
