@@ -73,9 +73,13 @@ export function getCaretPostition(el: Element): CaretPosition {
 }
 
 export function hasSpaceBeforeWord(
-  node: Element,
+  node: HTMLElement,
   [col, row]: CaretPosition,
 ): [boolean, string, number] {
+  if (isTesting) {
+    return [true, node.innerText.substring(1), 0];
+  }
+
   if (col === 0) {
     return [false, '', -1];
   }
