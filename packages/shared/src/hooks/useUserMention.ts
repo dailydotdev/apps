@@ -101,7 +101,7 @@ export function useUserMention({
     const replacement = `@${username}`;
     replaceWord(element, offset, mention, replacement);
     setQuery(undefined);
-    client.invalidateQueries(key);
+    client.setQueryData(key, []);
     onInput(element.innerText);
   };
 
