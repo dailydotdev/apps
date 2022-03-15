@@ -11,7 +11,7 @@ import React, {
 } from 'react';
 import dynamic from 'next/dynamic';
 import cloneDeep from 'lodash.clonedeep';
-import { useMutation, useQueryClient } from 'react-query';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 import request from 'graphql-request';
 import classNames from 'classnames';
 import AuthContext from '../../contexts/AuthContext';
@@ -23,6 +23,7 @@ import {
   CommentOnData,
   EDIT_COMMENT_MUTATION,
   PostCommentsData,
+  PREVIEW_COMMENT_MUTATION,
 } from '../../graphql/comments';
 import { Edge } from '../../graphql/common';
 import { apiUrl } from '../../lib/config';
@@ -38,6 +39,7 @@ import { postAnalyticsEvent } from '../../lib/feed';
 import { ProfilePicture } from '../ProfilePicture';
 import Markdown from '../Markdown';
 import { ClickableText } from '../buttons/ClickableText';
+import TabContainer, { TabProps } from '../tabs/TabContainer';
 
 const DiscardCommentModal = dynamic(() => import('./DiscardCommentModal'));
 
@@ -73,6 +75,7 @@ export default function NewCommentModal({
 }: NewCommentModalProps): ReactElement {
   const { user } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
+  const [activeTab, setActiveTab] = useState(0);
   const [input, setInput] = useState<string>(null);
   const [errorMessage, setErrorMessage] = useState<string>(null);
   const [sendingComment, setSendingComment] = useState<boolean>(false);
@@ -263,12 +266,13 @@ export default function NewCommentModal({
     }
   }, []);
 
-  return (
-    <ResponsiveModal
-      {...{ contentRef: modalRef, onRequestClose: confirmClose, ...props }}
-    >
+  const writeContent = (
+    <>
       <article
-        className={`flex flex-col items-stretch ${commentBoxClassNames}`}
+        className={classNames(
+          'flex flex-col items-stretch',
+          commentBoxClassNames,
+        )}
       >
         <header className="flex items-center mb-2">
           <RoundedImage
@@ -346,6 +350,48 @@ export default function NewCommentModal({
         onRequestClose={() => setShowDiscardModal(false)}
         onDeleteComment={onRequestClose}
         shouldCloseOnOverlayClick={false}
+      />
+    </>
+  );
+
+  const { data: previewContent } = useQuery<{ preview: string }>(
+    input,
+    () =>
+      request(`${apiUrl}/graphql`, PREVIEW_COMMENT_MUTATION, {
+        content: input,
+      }),
+    { enabled: activeTab === 1 && input?.length > 0 },
+  );
+
+  const tabs: TabProps[] = [
+    { label: 'Write', content: writeContent },
+    {
+      label: 'Preview',
+      content: previewContent?.preview && (
+        <Markdown content={previewContent.preview} />
+      ),
+    },
+  ];
+
+  useEffect(() => {
+    if (!input || activeTab === 1) {
+      return;
+    }
+
+    if (commentRef?.current?.innerText.trim().length === 0) {
+      commentRef.current.innerText = input;
+    }
+  }, [commentRef, activeTab, input]);
+
+  return (
+    <ResponsiveModal
+      {...{ contentRef: modalRef, onRequestClose: confirmClose, ...props }}
+      padding={false}
+      contentClassName="p-2"
+    >
+      <TabContainer
+        tabs={tabs}
+        onActiveChange={(index: number) => setActiveTab(index)}
       />
     </ResponsiveModal>
   );
