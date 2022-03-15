@@ -77,7 +77,7 @@ export default function FeedFilters({
           <XIcon className="text-2xl -rotate-90 text-theme-label-tertiary" />
         </button>
         {shouldShowMyFeed && !user && (
-          <CreateFeedFilterButton className="btn-primary-avocado"/>
+          <CreateFeedFilterButton className="btn-primary-avocado" icon={<PlusIcon />} buttonSize="small"/>
         )}
       </div>
       <FilterMenu directlyOpenedTab={openedTab} />
