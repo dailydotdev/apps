@@ -14,7 +14,7 @@ function TabList({ items, active, onClick }: TabListProps): ReactElement {
         <button
           key={tab}
           className={classNames(
-            'p-4 text-center typo-callout',
+            'relative p-4 text-center typo-callout',
             tab === active ? 'font-bold' : 'text-theme-label-tertiary',
           )}
           onClick={() => onClick(tab)}
@@ -22,6 +22,12 @@ function TabList({ items, active, onClick }: TabListProps): ReactElement {
           role="menuitem"
         >
           {tab}
+          {tab === active && (
+            <div
+              className="absolute bottom-0 mx-auto w-4 h-px bg-theme-label-primary"
+              style={{ left: 'calc(50% - 0.5rem)' }}
+            />
+          )}
         </button>
       ))}
     </ul>
