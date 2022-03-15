@@ -21,7 +21,7 @@ export const Tab = ({ children, className, style }: TabProps): ReactElement => (
   </div>
 );
 
-interface TabContainerProps {
+export interface TabContainerProps {
   children?: ReactElement<TabProps>[];
   shouldMountInactive?: boolean;
   onActiveChange?: (active: string) => unknown;
