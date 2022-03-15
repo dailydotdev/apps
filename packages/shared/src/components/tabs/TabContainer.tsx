@@ -1,40 +1,75 @@
-import React, { ReactElement, ReactNode, useState } from 'react';
+import React, {
+  createElement,
+  CSSProperties,
+  ReactElement,
+  ReactNode,
+  useState,
+} from 'react';
+import classNames from 'classnames';
 import TabList from './TabList';
 
 export interface TabProps {
+  children: ReactNode;
   label: string;
-  content: ReactNode;
+  className?: string;
+  style?: CSSProperties;
 }
 
+export const Tab = ({ children, className, style }: TabProps): ReactElement => (
+  <div className={classNames('p-3', className)} style={style}>
+    {children}
+  </div>
+);
+
 interface TabContainerProps {
-  tabs: TabProps[];
-  initiallyActive?: number;
-  onActiveChange?: (active: number) => unknown;
+  children?: ReactElement<TabProps>[];
+  shouldMountInactive?: boolean;
+  onActiveChange?: (active: string) => unknown;
 }
 
 function TabContainer({
-  initiallyActive = 0,
-  tabs,
+  children,
+  shouldMountInactive = false,
   onActiveChange,
 }: TabContainerProps): ReactElement {
-  const [active, setActive] = useState(initiallyActive);
-  const onClick = (index: number) => {
-    setActive(index);
-    onActiveChange(index);
+  const [active, setActive] = useState(children[0].props.label);
+  const onClick = (label: string) => {
+    setActive(label);
+    onActiveChange(label);
+  };
+
+  const isTabActive = (child: ReactElement<TabProps>) =>
+    child.props.label === active;
+
+  const renderSingleComponent = () => {
+    if (!shouldMountInactive) {
+      const child = children.find(isTabActive);
+
+      return createElement(child.type, child.props);
+    }
+
+    return null;
   };
 
   return (
     <div className="flex flex-col">
       <header className="flex flex-row border-b border-theme-divider-tertiary">
         <TabList
-          items={tabs.map((tab) => tab.label)}
+          items={children.map((child) => child.props.label)}
           onClick={onClick}
           active={active}
         />
       </header>
-      <main className="p-3" style={{ minHeight: '11rem' }}>
-        {tabs.find((_, index) => index === active)?.content}
-      </main>
+      {!shouldMountInactive
+        ? renderSingleComponent()
+        : children.map((child) =>
+            createElement(child.type, {
+              ...child.props,
+              style: isTabActive(child)
+                ? child.props.style
+                : { ...child.props.style, display: 'none' },
+            }),
+          )}
     </div>
   );
 }

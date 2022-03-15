@@ -3,21 +3,21 @@ import React, { ReactElement } from 'react';
 
 interface TabListProps {
   items: string[];
-  active: number;
-  onClick?: (index: number) => unknown;
+  active: string;
+  onClick?: (label: string) => unknown;
 }
 
 function TabList({ items, active, onClick }: TabListProps): ReactElement {
   return (
     <ul className="flex flex-row">
-      {items.map((tab, index) => (
+      {items.map((tab) => (
         <button
           key={tab}
           className={classNames(
             'p-4 text-center typo-callout',
-            active === index ? 'font-bold' : 'text-theme-label-tertiary',
+            tab === active ? 'font-bold' : 'text-theme-label-tertiary',
           )}
-          onClick={() => onClick(index)}
+          onClick={() => onClick(tab)}
           type="button"
           role="menuitem"
         >
