@@ -14,7 +14,6 @@ import { ModalCloseButton } from './ModalCloseButton';
 import { StyledModal, ModalProps } from './StyledModal';
 import { SearchField } from '../fields/SearchField';
 import { Radio } from '../fields/Radio';
-import ArrowIcon from '../../../icons/arrow.svg';
 import { formToJson } from '../../lib/form';
 import { apiUrl } from '../../lib/config';
 import fetchTimeout from '../../lib/fetchTimeout';
@@ -265,15 +264,9 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
           autoFocus
           aria-describedby={scrapeError && 'new-source-field-desc'}
           valueChanged={onUrlChanged}
-          rightChildren={
-            <Button
-              type="submit"
-              className="btn-primary small"
-              aria-label="Search feeds"
-              disabled={!enableSubmission}
-              icon={<ArrowIcon style={{ transform: 'rotate(90deg)' }} />}
-            />
-          }
+          fieldType="secondary"
+          rightButtonDisabled={!enableSubmission}
+          rightButtonType="submit"
         />
       </form>
       {children}
