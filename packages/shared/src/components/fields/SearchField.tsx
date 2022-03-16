@@ -12,7 +12,7 @@ import MagnifyingOutlineIcon from '../../../icons/outline/magnifying.svg';
 import MagnifyingFilledIcon from '../../../icons/filled/magnifying.svg';
 import XIcon from '../../../icons/x.svg';
 import ArrowIcon from '../../../icons/arrow.svg';
-import { Button } from '../buttons/Button';
+import { Button, ButtonProps } from '../buttons/Button';
 import { getInputFontColor } from './TextField';
 
 export interface SearchFieldProps
@@ -39,9 +39,7 @@ export interface SearchFieldProps
   compact?: boolean;
   showIcon?: boolean;
   fieldType?: 'primary' | 'secondary';
-  rightButtonDisabled?: boolean;
-  rightButtonType?: 'submit' | 'reset' | 'button';
-  onRightButtonClick?: (event: MouseEvent) => unknown;
+  rightButtonProps?: ButtonProps<'button'>;
 }
 
 export const SearchField = forwardRef(function SearchField(
@@ -59,12 +57,10 @@ export const SearchField = forwardRef(function SearchField(
     autoFocus,
     type,
     disabled,
-    rightButtonType = 'button',
-    rightButtonDisabled,
+    rightButtonProps = { type: 'button' },
     'aria-describedby': describedBy,
     onBlur: externalOnBlur,
     onFocus: externalOnFocus,
-    onRightButtonClick,
     ...props
   }: SearchFieldProps,
   ref: ForwardedRef<HTMLDivElement>,
@@ -105,7 +101,7 @@ export const SearchField = forwardRef(function SearchField(
     >
       {isSecondary && hasInput ? (
         <Button
-          type={rightButtonType}
+          type="button"
           className="mr-2 btn-tertiary"
           buttonSize="xsmall"
           title="Clear query"
@@ -152,15 +148,17 @@ export const SearchField = forwardRef(function SearchField(
       />
       {((hasInput && isPrimary) || isSecondary) && (
         <Button
-          type={rightButtonType}
+          {...rightButtonProps}
           className={isSecondary ? 'btn-primary' : 'btn-tertiary'}
           buttonSize="xsmall"
           title="Clear query"
           onClick={
-            rightButtonType !== 'submit' ? onRightButtonClick : onClearClick
+            rightButtonProps.type !== 'submit'
+              ? rightButtonProps.onClick
+              : onClearClick
           }
           icon={buttonIcon}
-          disabled={rightButtonDisabled || !hasInput}
+          disabled={rightButtonProps?.disabled || !hasInput}
         />
       )}
     </BaseField>

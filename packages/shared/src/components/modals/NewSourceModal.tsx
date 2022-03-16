@@ -265,8 +265,11 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
           aria-describedby={scrapeError && 'new-source-field-desc'}
           valueChanged={onUrlChanged}
           fieldType="secondary"
-          rightButtonDisabled={!enableSubmission}
-          rightButtonType="submit"
+          rightButtonProps={{
+            disabled: !enableSubmission,
+            type: 'submit',
+            'aria-label': 'Search feeds',
+          }}
         />
       </form>
       {children}
