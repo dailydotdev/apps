@@ -13,6 +13,7 @@ import MagnifyingFilledIcon from '../../../icons/filled/magnifying.svg';
 import XIcon from '../../../icons/x.svg';
 import ArrowIcon from '../../../icons/arrow.svg';
 import { Button } from '../buttons/Button';
+import { getInputFontColor } from './TextField';
 
 export interface SearchFieldProps
   extends Pick<
@@ -29,6 +30,8 @@ export interface SearchFieldProps
     | 'aria-expanded'
     | 'onKeyDown'
     | 'type'
+    | 'disabled'
+    | 'readOnly'
     | 'aria-describedby'
   > {
   inputId: string;
@@ -38,6 +41,7 @@ export interface SearchFieldProps
   fieldType?: 'primary' | 'secondary';
   rightButtonDisabled?: boolean;
   rightButtonType?: 'submit' | 'reset' | 'button';
+  onRightButtonClick?: (event: MouseEvent) => unknown;
 }
 
 export const SearchField = forwardRef(function SearchField(
@@ -48,17 +52,19 @@ export const SearchField = forwardRef(function SearchField(
     valueChanged,
     placeholder = 'Search',
     compact = false,
-    showIcon = true,
+    readOnly,
     fieldType = 'primary',
     className,
     style,
     autoFocus,
     type,
+    disabled,
     rightButtonType = 'button',
     rightButtonDisabled,
     'aria-describedby': describedBy,
     onBlur: externalOnBlur,
     onFocus: externalOnFocus,
+    onRightButtonClick,
     ...props
   }: SearchFieldProps,
   ref: ForwardedRef<HTMLDivElement>,
@@ -97,7 +103,19 @@ export const SearchField = forwardRef(function SearchField(
       data-testid="searchField"
       ref={ref}
     >
-      {showIcon && (
+      {isSecondary && hasInput ? (
+        <Button
+          type={rightButtonType}
+          className="mr-2 btn-tertiary"
+          buttonSize="xsmall"
+          title="Clear query"
+          onClick={onClearClick}
+          icon={
+            <XIcon className="text-lg icon group-hover:text-theme-label-primary" />
+          }
+          disabled={!hasInput}
+        />
+      ) : (
         <SearchIcon
           className="mr-2 text-2xl icon"
           style={{
@@ -128,7 +146,7 @@ export const SearchField = forwardRef(function SearchField(
         autoComplete="off"
         className={classNames(
           'flex-1',
-          !hasInput && 'text-theme-label-quaternary',
+          getInputFontColor({ readOnly, disabled, hasInput, focused }),
         )}
         required
       />
@@ -138,7 +156,9 @@ export const SearchField = forwardRef(function SearchField(
           className={isSecondary ? 'btn-primary' : 'btn-tertiary'}
           buttonSize="xsmall"
           title="Clear query"
-          onClick={rightButtonType !== 'submit' && onClearClick}
+          onClick={
+            rightButtonType !== 'submit' ? onRightButtonClick : onClearClick
+          }
           icon={buttonIcon}
           disabled={rightButtonDisabled || !hasInput}
         />
