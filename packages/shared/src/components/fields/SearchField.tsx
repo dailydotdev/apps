@@ -4,13 +4,15 @@ import React, {
   MouseEvent,
   forwardRef,
   ForwardedRef,
-  ReactNode,
 } from 'react';
 import classNames from 'classnames';
 import { useInputField } from '../../hooks/useInputField';
 import { BaseField, FieldInput } from './common';
-import MagnifyingIcon from '../../../icons/magnifying.svg';
+import MagnifyingOutlineIcon from '../../../icons/outline/magnifying.svg';
+import MagnifyingFilledIcon from '../../../icons/filled/magnifying.svg';
 import XIcon from '../../../icons/x.svg';
+import ArrowIcon from '../../../icons/arrow.svg';
+import { Button } from '../buttons/Button';
 
 export interface SearchFieldProps
   extends Pick<
@@ -33,7 +35,9 @@ export interface SearchFieldProps
   valueChanged?: (value: string) => void;
   compact?: boolean;
   showIcon?: boolean;
-  rightChildren?: ReactNode;
+  fieldType?: 'primary' | 'secondary';
+  rightButtonDisabled?: boolean;
+  rightButtonType?: 'submit' | 'reset' | 'button';
 }
 
 export const SearchField = forwardRef(function SearchField(
@@ -42,14 +46,16 @@ export const SearchField = forwardRef(function SearchField(
     name,
     value,
     valueChanged,
-    placeholder,
+    placeholder = 'Search',
     compact = false,
     showIcon = true,
-    rightChildren,
+    fieldType = 'primary',
     className,
     style,
     autoFocus,
     type,
+    rightButtonType = 'button',
+    rightButtonDisabled,
     'aria-describedby': describedBy,
     onBlur: externalOnBlur,
     onFocus: externalOnFocus,
@@ -73,6 +79,15 @@ export const SearchField = forwardRef(function SearchField(
     setInput(null);
   };
 
+  const isPrimary = fieldType === 'primary';
+  const isSecondary = fieldType === 'secondary';
+  const SearchIcon = focused ? MagnifyingFilledIcon : MagnifyingOutlineIcon;
+  const buttonIcon = isPrimary ? (
+    <XIcon className="text-lg icon group-hover:text-theme-label-primary" />
+  ) : (
+    <ArrowIcon style={{ transform: 'rotate(90deg)' }} />
+  );
+
   return (
     <BaseField
       {...props}
@@ -83,7 +98,7 @@ export const SearchField = forwardRef(function SearchField(
       ref={ref}
     >
       {showIcon && (
-        <MagnifyingIcon
+        <SearchIcon
           className="mr-2 text-2xl icon"
           style={{
             color:
@@ -111,21 +126,22 @@ export const SearchField = forwardRef(function SearchField(
         type={type}
         aria-describedby={describedBy}
         autoComplete="off"
-        className="flex-1"
+        className={classNames(
+          'flex-1',
+          !hasInput && 'text-theme-label-quaternary',
+        )}
         required
       />
-      {rightChildren || (
-        <button
-          type="button"
+      {((hasInput && isPrimary) || isSecondary) && (
+        <Button
+          type={rightButtonType}
+          className={isSecondary ? 'btn-primary' : 'btn-tertiary'}
+          buttonSize="xsmall"
           title="Clear query"
-          onClick={onClearClick}
-          className={classNames(
-            'group flex w-8 h-8 items-center justify-center ml-1 bg-transparent cursor-pointer focus-outline',
-            { invisible: !hasInput },
-          )}
-        >
-          <XIcon className="text-lg icon text-theme-label-tertiary group-hover:text-theme-label-primary" />
-        </button>
+          onClick={rightButtonType !== 'submit' && onClearClick}
+          icon={buttonIcon}
+          disabled={rightButtonDisabled || !hasInput}
+        />
       )}
     </BaseField>
   );
