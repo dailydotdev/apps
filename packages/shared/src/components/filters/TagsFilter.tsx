@@ -23,6 +23,8 @@ import { FilterMenuProps } from './common';
 import MenuIcon from '../../../icons/menu.svg';
 import AuthContext from '../../contexts/AuthContext';
 import { useMyFeed } from '../../hooks/useMyFeed';
+import { Features, getFeatureValue } from '../../lib/featureManagement';
+import FeaturesContext from '../../contexts/FeaturesContext';
 
 export default function TagsFilter({
   onUnblockItem,
@@ -42,7 +44,8 @@ export default function TagsFilter({
   const isTagBlocked = feedSettings?.blockedTags?.some(
     (tag) => tag === contextSelectedTag,
   );
-
+  const { flags } = useContext(FeaturesContext);
+  const feedFilterModalType = getFeatureValue(Features.FeedFilterModal, flags);
   const { data: searchResults } = useQuery<SearchTagsData>(
     searchKey,
     () => request(`${apiUrl}/graphql`, SEARCH_TAGS_QUERY, { query }),
@@ -68,20 +71,25 @@ export default function TagsFilter({
       action: () => onUnblockTags({ tags: [tag] }),
     });
   };
+  console.log(feedFilterModalType);
   return (
     <div
       className="flex flex-col"
       aria-busy={isLoading}
       data-testid="tagsFilter"
     >
-      <SearchField
-        inputId="search-filters"
-        placeholder="Search"
-        className="mx-6 mb-6"
-        ref={searchRef}
-        valueChanged={setQuery}
-      />
-      {query?.length > 0 ? (
+      {(feedFilterModalType === 'v1' ||
+        feedFilterModalType === 'v2' ||
+        feedFilterModalType === 'v4') && (
+        <SearchField
+          inputId="search-filters"
+          placeholder="Search"
+          className="mx-6 mb-6"
+          ref={searchRef}
+          valueChanged={setQuery}
+        />
+      )}
+      {query?.length > 0 && (
         <>
           <TagItemList
             tags={searchResults?.searchTags.tags}
@@ -108,7 +116,10 @@ export default function TagsFilter({
             onHidden={() => setContextSelectedTag(null)}
           />
         </>
-      ) : (
+      )}
+      {(feedFilterModalType === 'v1' ||
+        feedFilterModalType === 'v2' ||
+        feedFilterModalType === 'v4') && (
         <div className="px-6 pb-6">
           <h3 className="mb-3 typo-headline">Choose tags to follow</h3>
           <p className="typo-callout text-theme-label-tertiary">
@@ -116,6 +127,22 @@ export default function TagsFilter({
             choosing tags you want to follow, and we will curate your feed
             accordingly.
           </p>
+        </div>
+      )}
+      {(feedFilterModalType === 'v3' || feedFilterModalType === 'v5') && (
+        <div className="px-6 pb-6">
+          <p className="typo-callout text-theme-label-tertiary">
+            Let’s super-charge your feed with relevant content! Start by
+            choosing tags you want to follow, and we will curate your feed
+            accordingly.
+          </p>
+          <SearchField
+            inputId="search-filters"
+            placeholder="Search"
+            className="mt-6 mb-2"
+            ref={searchRef}
+            valueChanged={setQuery}
+          />
         </div>
       )}
       {(!query || query.length <= 0) &&
