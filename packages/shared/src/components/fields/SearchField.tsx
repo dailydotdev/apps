@@ -154,8 +154,8 @@ export const SearchField = forwardRef(function SearchField(
           title="Clear query"
           onClick={
             rightButtonProps.type !== 'submit'
-              ? rightButtonProps.onClick
-              : onClearClick
+              ? onClearClick
+              : rightButtonProps.onClick
           }
           icon={buttonIcon}
           disabled={rightButtonProps?.disabled || !hasInput}
