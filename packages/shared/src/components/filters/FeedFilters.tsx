@@ -11,7 +11,6 @@ import useFeedSettings, {
   updateLocalFeedSettings,
 } from '../../hooks/useFeedSettings';
 import AuthContext from '../../contexts/AuthContext';
-import { Button } from '../buttons/Button';
 import { AllTagCategoriesData } from '../../graphql/feedSettings';
 import AlertContext from '../../contexts/AlertContext';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
@@ -36,18 +35,6 @@ export default function FeedFilters({
   const { user, showLogin } = useContext(AuthContext);
   const { hasAnyFilter } = useFeedSettings();
   const { shouldShowMyFeed } = useMyFeed();
-
-  const onCreate = () => {
-    trackEvent({
-      event_name: 'click',
-      target_type: 'create feed filters',
-      target_id: 'feed-filters',
-    });
-    const key = getFeedSettingsQueryKey(user);
-    const { feedSettings } = client.getQueryData(key) as AllTagCategoriesData;
-    updateLocalFeedSettings(feedSettings);
-    showLogin('create feed filters');
-  };
 
   useEffect(() => {
     if (isOpen && alerts?.filter && hasAnyFilter && user && !shouldShowMyFeed) {
@@ -77,7 +64,11 @@ export default function FeedFilters({
           <XIcon className="text-2xl -rotate-90 text-theme-label-tertiary" />
         </button>
         {shouldShowMyFeed && !user && (
-          <CreateFeedFilterButton className="btn-primary-avocado" icon={<PlusIcon />} buttonSize="small"/>
+          <CreateFeedFilterButton
+            className="btn-primary-avocado"
+            icon={<PlusIcon />}
+            buttonSize="small"
+          />
         )}
       </div>
       <FilterMenu directlyOpenedTab={openedTab} />

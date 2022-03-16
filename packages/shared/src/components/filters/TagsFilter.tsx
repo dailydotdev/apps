@@ -71,7 +71,6 @@ export default function TagsFilter({
       action: () => onUnblockTags({ tags: [tag] }),
     });
   };
-  console.log(feedFilterModalType);
   return (
     <div
       className="flex flex-col"

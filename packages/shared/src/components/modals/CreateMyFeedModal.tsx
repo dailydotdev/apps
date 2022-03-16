@@ -27,63 +27,77 @@ export default function CreateMyFeedModal({
   ...modalProps
 }: CreateMyFeedModalProps): ReactElement {
   return (
-    <ResponsiveModal
-      className={classNames(className, styles.accountDetailsModal)}
-      {...modalProps}
-      onRequestClose={onRequestClose}
-    >
-      <header className="flex fixed responsiveModalBreakpoint:sticky top-0 left-0 z-3 justify-between items-center py-4 px-6 w-full border-b border-theme-divider-tertiary bg-theme-bg-primary">
-        {type === 'v2' && (
-          <Button
-            className={classNames('btn-tertiary', className)}
-            buttonSize="small"
-            title="Close"
-            icon={<XIcon />}
-            onClick={onRequestClose}
-          />
-        )}
-        {(type === 'v3' || type === 'v5') && (
-          <h3 className="pl-2 font-bold typo-title3">Choose tags to follow</h3>
-        )}
+    <>
+      <ResponsiveModal
+        className={classNames(className, styles.accountDetailsModal)}
+        {...modalProps}
+        onRequestClose={onRequestClose}
+      >
+        <header className="flex fixed responsiveModalBreakpoint:sticky top-0 left-0 z-3 justify-between items-center py-4 px-6 w-full border-b border-theme-divider-tertiary bg-theme-bg-tertiary">
+          {type === 'v2' && (
+            <Button
+              className={classNames('btn-tertiary', className)}
+              buttonSize="small"
+              title="Close"
+              icon={<XIcon />}
+              onClick={onRequestClose}
+            />
+          )}
+          {(type === 'v3' || type === 'v5') && (
+            <h3 className="pl-2 font-bold typo-title3">
+              Choose tags to follow
+            </h3>
+          )}
+          {type === 'v4' && (
+            <h3 className="pl-2 font-bold typo-title3">Feed filters</h3>
+          )}
+          {(type === 'v2' || type === 'v3') && (
+            <CreateFeedFilterButton
+              className={classNames(buttonClass[type], 'btn-primary-cabbage')}
+              icon={type === 'v2' && <PlusIcon />}
+            />
+          )}
+          {type === 'v3' && (
+            <Button
+              className={classNames(
+                className,
+                'btn-tertiary-float bg-theme-bg-tertiary fixed top-8 right-8',
+              )}
+              buttonSize="large"
+              title="Close"
+              icon={<XIcon />}
+              onClick={onRequestClose}
+              position="fixed"
+            />
+          )}
+        </header>
+        <section className="mt-6">
+          <TagsFilter />
+        </section>
         {type === 'v4' && (
-          <h3 className="pl-2 font-bold typo-title3">Feed filters</h3>
+          <footer className="flex fixed responsiveModalBreakpoint:sticky bottom-0 justify-center items-center py-3 border-t border-theme-divider-tertiary border-theme-divider-tertiary bg-theme-bg-primary">
+            <CreateFeedFilterButton
+              className={classNames(buttonClass[type], 'btn-primary-cabbage')}
+            />
+          </footer>
         )}
-        {(type === 'v2' || type === 'v3') && (
-          <CreateFeedFilterButton
-            className={classNames(buttonClass[type], 'btn-primary-cabbage')}
-            icon={type === 'v2' && <PlusIcon />}
-          />
+        {type === 'v5' && (
+          <footer className="flex fixed responsiveModalBreakpoint:sticky bottom-0 justify-center items-center py-3 border-t border-theme-divider-tertiary border-theme-divider-tertiary bg-theme-bg-tertiary">
+            <Button
+              className="btn-secondary w-40 mr-3"
+              onClick={onRequestClose}
+            >
+              Cancel
+            </Button>
+            <CreateFeedFilterButton
+              className={classNames(
+                buttonClass[type],
+                'btn-primary-cabbage ml-3',
+              )}
+            />
+          </footer>
         )}
-        {type === 'v4' && (
-          <Button
-            className={classNames('btn-tertiary', className)}
-            buttonSize="small"
-            title="Close"
-            icon={<XIcon />}
-            onClick={onRequestClose}
-          />
-        )}
-      </header>
-      <section className="mt-6">
-        <TagsFilter />
-      </section>
-      {type === 'v4' && (
-        <footer className="flex fixed responsiveModalBreakpoint:sticky bottom-0 justify-center items-center py-3 border-t border-theme-divider-tertiary border-theme-divider-tertiary bg-theme-bg-primary">
-          <CreateFeedFilterButton
-            className={classNames(buttonClass[type], 'btn-primary-cabbage')}
-          />
-        </footer>
-      )}
-      {type === 'v5' && (
-        <footer className="flex fixed responsiveModalBreakpoint:sticky bottom-0 justify-center items-center py-3 border-t border-theme-divider-tertiary border-theme-divider-tertiary bg-theme-bg-primary">
-          <Button className="btn-secondary w-40 mr-3" onClick={onRequestClose}>
-            Cancel
-          </Button>
-          <CreateFeedFilterButton
-            className={classNames(buttonClass[type], 'btn-primary-cabbage ml-3')}
-          />
-        </footer>
-      )}
-    </ResponsiveModal>
+      </ResponsiveModal>
+    </>
   );
 }
