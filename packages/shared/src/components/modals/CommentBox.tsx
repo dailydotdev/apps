@@ -37,7 +37,7 @@ import { ProfilePicture } from '../ProfilePicture';
 import { ClickableText } from '../buttons/ClickableText';
 import Markdown from '../Markdown';
 
-export interface CommentBoxProps extends ModalProps {
+export interface CommentBoxProps extends Pick<ModalProps, 'onRequestClose'> {
   authorName: string;
   authorImage: string;
   publishDate: Date | string;

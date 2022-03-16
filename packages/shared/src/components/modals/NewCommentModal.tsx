@@ -2,34 +2,23 @@ import React, { ReactElement, useState, MouseEvent } from 'react';
 import dynamic from 'next/dynamic';
 import { useQuery } from 'react-query';
 import request from 'graphql-request';
-import { Comment, PREVIEW_COMMENT_MUTATION } from '../../graphql/comments';
+import { PREVIEW_COMMENT_MUTATION } from '../../graphql/comments';
 import { apiUrl } from '../../lib/config';
 import { ResponsiveModal } from './ResponsiveModal';
 import { ModalProps } from './StyledModal';
-import { Post } from '../../graphql/posts';
 import Markdown from '../Markdown';
 import TabContainer, { Tab } from '../tabs/TabContainer';
 import CommentBox, { CommentBoxProps } from './CommentBox';
 
 const DiscardCommentModal = dynamic(() => import('./DiscardCommentModal'));
 
-export interface NewCommentModalProps extends ModalProps {
-  authorName: string;
-  authorImage: string;
-  publishDate: Date | string;
-  content: string;
-  contentHtml: string;
-  commentId: string | null;
-  post: Post;
-  onComment?: (newComment: Comment, parentId: string | null) => void;
-  editContent?: string;
-  editId?: string;
-}
+export type NewCommentModalProps = Omit<CommentBoxProps, 'input' | 'onInput'> &
+  ModalProps;
 
 export default function NewCommentModal({
   onRequestClose,
   ...props
-}: CommentBoxProps): ReactElement {
+}: NewCommentModalProps): ReactElement {
   const [input, setInput] = useState<string>(null);
   const [showDiscardModal, setShowDiscardModal] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState('Write');
