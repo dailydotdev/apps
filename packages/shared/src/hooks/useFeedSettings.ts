@@ -17,7 +17,6 @@ import { LoggedUser } from '../lib/user';
 import FeaturesContext from '../contexts/FeaturesContext';
 import { Features, isFeaturedEnabled } from '../lib/featureManagement';
 import usePersistentContext from './usePersistentContext';
-import useQueryData from './useQueryData';
 
 export const getFeedSettingsQueryKey = (user?: LoggedUser): string[] => [
   user?.id,
@@ -70,37 +69,7 @@ const isObjectEmpty = (obj: unknown) => {
 
 const AVOID_REFRESH_KEY = 'avoidRefresh';
 
-export const useFeedSettingsData = (): FeedSettingsReturnType => {
-  const { user } = useContext(AuthContext);
-  const key = getFeedSettingsQueryKey(user);
-  const { isFetching, data } = useQueryData<AllTagCategoriesData>(key, {});
-  const { tagsCategories, feedSettings, advancedSettings } = data;
-  const [, setAvoidRefresh] = usePersistentContext(
-    AVOID_REFRESH_KEY,
-    false,
-    [true, false],
-    false,
-  );
-
-  return useMemo(() => {
-    return {
-      tagsCategories,
-      feedSettings,
-      isLoading: isFetching,
-      advancedSettings,
-      hasAnyFilter: getHasAnyFilter(feedSettings),
-      setAvoidRefresh,
-    };
-  }, [
-    tagsCategories,
-    feedSettings,
-    isFetching,
-    advancedSettings,
-    setAvoidRefresh,
-  ]);
-};
-
-export default function useFeedSettings(): FeedSettingsReturnType {
+export function useFeedSettings(observerOnly = false): FeedSettingsReturnType {
   const { user } = useContext(AuthContext);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
   const filtersKey = getFeedSettingsQueryKey(user);
@@ -133,6 +102,7 @@ export default function useFeedSettings(): FeedSettingsReturnType {
 
       return { ...req, feedSettings };
     },
+    { enabled: !observerOnly },
   );
 
   const { tagsCategories, feedSettings, advancedSettings } = feedQuery;
@@ -170,3 +140,5 @@ export default function useFeedSettings(): FeedSettingsReturnType {
     setAvoidRefresh,
   ]);
 }
+
+export default useFeedSettings;

@@ -2,14 +2,14 @@ import React, { ReactElement } from 'react';
 import { FilterMenuProps } from './common';
 import SourceItemList from './SourceItemList';
 import TagItemList from './TagItemList';
-import { useFeedSettingsData } from '../../hooks/useFeedSettings';
+import { useFeedSettings } from '../../hooks/useFeedSettings';
 import useTagAndSource from '../../hooks/useTagAndSource';
 import BlockIcon from '../../../icons/block.svg';
 
 export default function BlockedFilter({
   onUnblockItem,
 }: FilterMenuProps): ReactElement {
-  const { feedSettings, isLoading } = useFeedSettingsData();
+  const { feedSettings, isLoading } = useFeedSettings(true);
   const { onUnblockTags, onFollowSource } = useTagAndSource({
     origin: 'blocked filter',
   });
