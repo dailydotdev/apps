@@ -36,7 +36,7 @@ export interface SearchFieldProps
   > {
   inputId: string;
   valueChanged?: (value: string) => void;
-  compact?: boolean;
+  fieldSize?: 'large' | 'medium';
   showIcon?: boolean;
   fieldType?: 'primary' | 'secondary';
   rightButtonProps?: ButtonProps<'button'>;
@@ -56,11 +56,10 @@ export const SearchField = forwardRef(function SearchField(
     value,
     valueChanged,
     placeholder = 'Search',
-    compact = false,
+    fieldSize = 'large',
     readOnly,
     fieldType = 'primary',
     className,
-    style,
     autoFocus,
     type,
     disabled,
@@ -95,8 +94,11 @@ export const SearchField = forwardRef(function SearchField(
   return (
     <BaseField
       {...props}
-      className={classNames(compact ? 'h-10' : 'h-12', className, { focused })}
-      style={{ ...style, borderRadius: compact ? '0.75rem' : '0.875rem' }}
+      className={classNames(
+        fieldSize === 'medium' ? 'h-10 rounded-12' : 'h-12 rounded-14',
+        className,
+        { focused },
+      )}
       onClick={focusInput}
       data-testid="searchField"
       ref={ref}
