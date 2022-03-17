@@ -361,14 +361,12 @@ it('should recommend users based on query', async () => {
       },
     },
   ]);
-  await act(async () => {
-    const input = await screen.findByRole('textbox');
-    input.innerText = '@';
-    Simulate.keyDown(input, { key: '@' });
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    input.innerText = '@l';
-    Simulate.keyDown(input, { key: 'l' });
-  });
+  const input = await screen.findByRole('textbox');
+  input.innerText = '@';
+  Simulate.keyDown(input, { key: '@' });
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  input.innerText = '@l';
+  Simulate.keyDown(input, { key: 'l' });
   await waitForNock();
   expect(queryMatchingNameOrUsername).toBeTruthy();
 });
