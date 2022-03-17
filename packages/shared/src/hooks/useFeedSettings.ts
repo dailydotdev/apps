@@ -17,6 +17,7 @@ import { LoggedUser } from '../lib/user';
 import FeaturesContext from '../contexts/FeaturesContext';
 import { Features, isFeaturedEnabled } from '../lib/featureManagement';
 import usePersistentContext from './usePersistentContext';
+import { isTesting } from '../lib/constants';
 
 export const getFeedSettingsQueryKey = (user?: LoggedUser): string[] => [
   user?.id,
@@ -104,7 +105,7 @@ export default function useFeedSettings(
 
       return { ...req, feedSettings };
     },
-    { enabled: !observerOnly },
+    { enabled: isTesting || !observerOnly },
   );
 
   const { tagsCategories, feedSettings, advancedSettings } = feedQuery;
