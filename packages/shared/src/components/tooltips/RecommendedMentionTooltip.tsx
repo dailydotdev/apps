@@ -36,6 +36,7 @@ export function RecommendedMentionTooltip({
 
   return (
     <BaseTooltip
+      appendTo={document?.body || 'parent'}
       content={
         <RecommendedMention
           users={query !== undefined && mentions}

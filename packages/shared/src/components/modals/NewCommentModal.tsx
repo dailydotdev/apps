@@ -285,12 +285,9 @@ export default function NewCommentModal({
 
   return (
     <ResponsiveModal
-      {...{
-        contentRef: modalRef,
-        onRequestClose: confirmClose,
-        style: { content: { overflow: 'initial' } },
-        ...props,
-      }}
+      contentRef={modalRef}
+      onRequestClose={confirmClose}
+      {...props}
     >
       <article
         className={`flex flex-col items-stretch ${commentBoxClassNames}`}
