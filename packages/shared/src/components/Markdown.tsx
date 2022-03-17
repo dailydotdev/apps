@@ -6,6 +6,7 @@ import styles from './markdown.module.css';
 import { ProfileTooltipContent } from './profile/ProfileTooltipContent';
 import { profileTooltipClasses } from './profile/ProfileTooltip';
 import { useProfileTooltip } from '../hooks/useProfileTooltip';
+import { getUserPermalink } from '../lib/user';
 
 const classes = Object.values(profileTooltipClasses).join(' ');
 
@@ -14,9 +15,6 @@ interface MarkdownProps {
 }
 
 type TippyInstance = ReturnType<typeof tippy>[0];
-
-const getUserPermalink = (username: string) =>
-  `${process.env.NEXT_PUBLIC_WEBAPP_URL}${username}`;
 
 export default function Markdown({ content }: MarkdownProps): ReactElement {
   const [userId, setUserId] = useState('');
