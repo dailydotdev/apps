@@ -42,6 +42,13 @@ export interface SearchFieldProps
   rightButtonProps?: ButtonProps<'button'>;
 }
 
+const ButtonIcon = ({ isPrimary }: { isPrimary: boolean }) =>
+  isPrimary ? (
+    <XIcon className="text-lg icon group-hover:text-theme-label-primary" />
+  ) : (
+    <ArrowIcon className="rotate-90" />
+  );
+
 export const SearchField = forwardRef(function SearchField(
   {
     inputId,
@@ -84,11 +91,6 @@ export const SearchField = forwardRef(function SearchField(
   const isPrimary = fieldType === 'primary';
   const isSecondary = fieldType === 'secondary';
   const SearchIcon = focused ? MagnifyingFilledIcon : MagnifyingOutlineIcon;
-  const buttonIcon = isPrimary ? (
-    <XIcon className="text-lg icon group-hover:text-theme-label-primary" />
-  ) : (
-    <ArrowIcon style={{ transform: 'rotate(90deg)' }} />
-  );
 
   return (
     <BaseField
@@ -157,7 +159,7 @@ export const SearchField = forwardRef(function SearchField(
               ? onClearClick
               : rightButtonProps.onClick
           }
-          icon={buttonIcon}
+          icon={<ButtonIcon isPrimary={isPrimary} />}
           disabled={rightButtonProps?.disabled || !hasInput}
         />
       )}
