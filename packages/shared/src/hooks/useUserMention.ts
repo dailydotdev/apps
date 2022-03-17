@@ -69,11 +69,6 @@ export function useUserMention({
         enabled: !!user && query !== undefined,
         refetchOnWindowFocus: false,
         refetchOnMount: false,
-        onSuccess: ({ recommendedMentions }) => {
-          if (recommendedMentions.length === 0 && query.length > 0) {
-            setQuery(undefined);
-          }
-        },
       },
     );
   const { recommendedMentions: mentions } = data;
