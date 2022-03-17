@@ -58,6 +58,7 @@ function filteredProps<T extends Record<string, unknown>>(
 export type BootDataProviderProps = {
   children?: ReactNode;
   app: string;
+  localBootData?: BootCacheData;
   getRedirectUri: () => string;
 };
 
@@ -96,11 +97,12 @@ const updateLocalBootData = (
 export const BootDataProvider = ({
   children,
   app,
+  localBootData,
   getRedirectUri,
 }: BootDataProviderProps): ReactElement => {
   const queryClient = useQueryClient();
   const [cachedBootData, setCachedBootData] = useState<Partial<BootCacheData>>(
-    () => getLocalBootData(true),
+    () => localBootData || getLocalBootData(true),
   );
   const [lastAppliedChange, setLastAppliedChange] =
     useState<Partial<BootCacheData>>();

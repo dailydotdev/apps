@@ -19,6 +19,7 @@ import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import { AnalyticsContextProvider } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { browser } from 'webextension-polyfill-ts';
 import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState';
+import { BootDataProviderProps } from '@dailydotdev/shared/src/contexts/BootProvider';
 import { RouterContext } from 'next/dist/shared/lib/router-context';
 import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPageView';
 import { trackPageView } from '@dailydotdev/shared/src/lib/analytics';
@@ -124,14 +125,20 @@ function InternalApp({
   );
 }
 
-export default function App(): ReactElement {
+export default function App({
+  localBootData,
+}: Pick<BootDataProviderProps, 'localBootData'>): ReactElement {
   const pageRef = useRef('/');
 
   return (
     <RouterContext.Provider value={router}>
       <ProgressiveEnhancementContextProvider>
         <QueryClientProvider client={queryClient}>
-          <BootDataProvider app="extension" getRedirectUri={getRedirectUri}>
+          <BootDataProvider
+            app="extension"
+            getRedirectUri={getRedirectUri}
+            localBootData={localBootData}
+          >
             <SubscriptionContextProvider>
               <AnalyticsContextProvider
                 app="extension"
