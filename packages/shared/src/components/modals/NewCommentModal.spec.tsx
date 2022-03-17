@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
-import { act, Simulate } from 'react-dom/test-utils';
+import { Simulate } from 'react-dom/test-utils';
 import nock from 'nock';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import NewCommentModal, { NewCommentModalProps } from './NewCommentModal';
