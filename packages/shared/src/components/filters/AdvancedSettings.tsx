@@ -2,7 +2,7 @@ import React, { ReactElement, useContext, useMemo } from 'react';
 import AlertContext from '../../contexts/AlertContext';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import AuthContext from '../../contexts/AuthContext';
-import useFeedSettings from '../../hooks/useFeedSettings';
+import { useFeedSettingsData } from '../../hooks/useFeedSettings';
 import useMutateFilters from '../../hooks/useMutateFilters';
 import { useMyFeed } from '../../hooks/useMyFeed';
 import { FilterSwitch } from './FilterSwitch';
@@ -11,7 +11,7 @@ const ADVANCED_SETTINGS_KEY = 'advancedSettings';
 
 function AdvancedSettingsFilter(): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
-  const { feedSettings, advancedSettings, isLoading } = useFeedSettings();
+  const { feedSettings, advancedSettings, isLoading } = useFeedSettingsData();
   const { user, showLogin } = useContext(AuthContext);
   const { updateAdvancedSettings } = useMutateFilters(user);
   const { alerts, updateAlerts } = useContext(AlertContext);

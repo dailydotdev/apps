@@ -12,7 +12,7 @@ import { apiUrl } from '../../lib/config';
 import { getSearchTagsQueryKey } from '../../hooks/useMutateFilters';
 import { SearchTagsData, SEARCH_TAGS_QUERY } from '../../graphql/feedSettings';
 import TagCategoryDropdown from './TagCategoryDropdown';
-import useFeedSettings from '../../hooks/useFeedSettings';
+import { useFeedSettingsData } from '../../hooks/useFeedSettings';
 import TagItemList from './TagItemList';
 import TagOptionsMenu from './TagOptionsMenu';
 import useTagContext from '../../hooks/useTagContext';
@@ -31,7 +31,7 @@ export default function TagsFilter({
   const [query, setQuery] = useState<string>(null);
   const searchKey = getSearchTagsQueryKey(query);
   const { user } = useContext(AuthContext);
-  const { tagsCategories, feedSettings, isLoading } = useFeedSettings();
+  const { tagsCategories, feedSettings, isLoading } = useFeedSettingsData();
   const { shouldShowMyFeed } = useMyFeed();
   const { contextSelectedTag, setContextSelectedTag, onTagContextOptions } =
     useTagContext();
