@@ -2,7 +2,7 @@ import React, { ReactElement, useContext, useMemo } from 'react';
 import AlertContext from '../../contexts/AlertContext';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import AuthContext from '../../contexts/AuthContext';
-import { useFeedSettings } from '../../hooks/useFeedSettings';
+import useFeedSettings from '../../hooks/useFeedSettings';
 import useMutateFilters from '../../hooks/useMutateFilters';
 import { useMyFeed } from '../../hooks/useMyFeed';
 import { FilterSwitch } from './FilterSwitch';

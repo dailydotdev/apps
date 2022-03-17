@@ -12,7 +12,7 @@ import { apiUrl } from '../../lib/config';
 import { getSearchTagsQueryKey } from '../../hooks/useMutateFilters';
 import { SearchTagsData, SEARCH_TAGS_QUERY } from '../../graphql/feedSettings';
 import TagCategoryDropdown from './TagCategoryDropdown';
-import { useFeedSettings } from '../../hooks/useFeedSettings';
+import useFeedSettings from '../../hooks/useFeedSettings';
 import TagItemList from './TagItemList';
 import TagOptionsMenu from './TagOptionsMenu';
 import useTagContext from '../../hooks/useTagContext';

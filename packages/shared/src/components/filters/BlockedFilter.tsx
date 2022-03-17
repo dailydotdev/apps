@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import { FilterMenuProps } from './common';
 import SourceItemList from './SourceItemList';
 import TagItemList from './TagItemList';
-import { useFeedSettings } from '../../hooks/useFeedSettings';
+import useFeedSettings from '../../hooks/useFeedSettings';
 import useTagAndSource from '../../hooks/useTagAndSource';
 import BlockIcon from '../../../icons/block.svg';
 

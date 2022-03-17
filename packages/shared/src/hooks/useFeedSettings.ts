@@ -69,7 +69,9 @@ const isObjectEmpty = (obj: unknown) => {
 
 const AVOID_REFRESH_KEY = 'avoidRefresh';
 
-export function useFeedSettings(observerOnly = false): FeedSettingsReturnType {
+export default function useFeedSettings(
+  observerOnly = false,
+): FeedSettingsReturnType {
   const { user } = useContext(AuthContext);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
   const filtersKey = getFeedSettingsQueryKey(user);
@@ -140,5 +142,3 @@ export function useFeedSettings(observerOnly = false): FeedSettingsReturnType {
     setAvoidRefresh,
   ]);
 }
-
-export default useFeedSettings;
