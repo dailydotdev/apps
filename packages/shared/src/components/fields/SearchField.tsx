@@ -95,7 +95,7 @@ export const SearchField = forwardRef(function SearchField(
   return (
     <BaseField
       {...props}
-      className={classNames(compact ? 'h-10' : 'h-12', className)}
+      className={classNames(compact ? 'h-10' : 'h-12', className, { focused })}
       style={{ ...style, borderRadius: compact ? '0.75rem' : '0.875rem' }}
       onClick={focusInput}
       data-testid="searchField"
