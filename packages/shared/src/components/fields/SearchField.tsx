@@ -154,8 +154,8 @@ export const SearchField = forwardRef(function SearchField(
         <Button
           {...rightButtonProps}
           className={isSecondary ? 'btn-primary' : 'btn-tertiary'}
-          buttonSize="xsmall"
-          title="Clear query"
+          buttonSize={rightButtonProps.buttonSize || 'xsmall'}
+          title={rightButtonProps.title || 'Clear query'}
           onClick={
             rightButtonProps.type !== 'submit'
               ? onClearClick

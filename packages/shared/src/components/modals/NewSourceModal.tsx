@@ -269,6 +269,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
             disabled: !enableSubmission,
             type: 'submit',
             'aria-label': 'Search feeds',
+            buttonSize: 'small',
           }}
         />
       </form>
