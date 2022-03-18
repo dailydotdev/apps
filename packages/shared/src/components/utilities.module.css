@@ -22,6 +22,10 @@
     width: $pageMaxWidth;
     margin: auto;
   }
+
+  &:global(.modal-post) {
+    margin: unset;
+  }
 }
 
 .pageWidgets {

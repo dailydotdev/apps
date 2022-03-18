@@ -45,6 +45,7 @@ interface PostContentProps {
   authorOnboarding?: boolean;
   seo?: ReactNode;
   isFallback?: boolean;
+  className?: string;
 }
 
 const DEFAULT_UPVOTES_PER_PAGE = 50;
@@ -59,6 +60,7 @@ export function PostContent({
   id,
   seo,
   postData,
+  className,
   isFallback,
   authorOnboarding = false,
 }: PostContentProps): ReactElement {
@@ -188,11 +190,28 @@ export function PostContent({
     <>
       <PageContainer
         className={classNames(
-          'laptop:pb-6 laptop:self-stretch pb-20 laptopL:pb-0',
+          'laptop:pb-6 laptop:self-stretch pt-6 pb-20 laptopL:pb-0',
           pageBorders,
+          className,
         )}
       >
         {seo}
+        <PostHeader post={postById.post} />
+        <a {...postLinkProps} className="cursor-pointer">
+          <h1 className="my-2 font-bold typo-large-title">
+            {postById.post.title}
+          </h1>
+        </a>
+        {postById.post.summary && (
+          <PostSummary summary={postById.post.summary} />
+        )}
+        <TagLinks tags={postById.post.tags || []} />
+        <PostMetadata
+          createdAt={postById.post.createdAt}
+          readTime={postById.post.readTime}
+          className="mt-4 mb-8"
+          typoClassName="typo-callout"
+        />
         <a
           {...postLinkProps}
           className="block overflow-hidden mb-10 rounded-b-2xl cursor-pointer"
@@ -205,22 +224,6 @@ export function PostContent({
             fallbackSrc="https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1"
           />
         </a>
-        <PostHeader post={postById.post} />
-        <a {...postLinkProps} className="cursor-pointer">
-          <h1 className="my-2 font-bold typo-large-title">
-            {postById.post.title}
-          </h1>
-        </a>
-        {postById.post.summary && (
-          <PostSummary summary={postById.post.summary} />
-        )}
-        <PostMetadata
-          createdAt={postById.post.createdAt}
-          readTime={postById.post.readTime}
-          className="mt-2 mb-1"
-          typoClassName="typo-callout"
-        />
-        <TagLinks tags={postById.post.tags || []} />
         {postById.post?.toc?.length > 0 && (
           <PostToc
             post={postById.post}
