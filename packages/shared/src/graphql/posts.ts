@@ -51,6 +51,18 @@ export interface Ad {
   impressionStatus?: number;
 }
 
+export interface ParentComment {
+  authorName: string;
+  authorImage: string;
+  publishDate: Date | string;
+  content: string;
+  contentHtml: string;
+  commentId: string | null;
+  post: Post;
+  editContent?: string;
+  editId?: string;
+}
+
 export type ReadHistoryPost = Pick<
   Post,
   | 'id'

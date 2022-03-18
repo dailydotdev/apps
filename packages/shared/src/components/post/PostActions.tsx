@@ -1,15 +1,15 @@
 import React, { ReactElement, useContext } from 'react';
-import { Post, PostData } from '@dailydotdev/shared/src/graphql/posts';
-import { QuaternaryButton } from '@dailydotdev/shared/src/components/buttons/QuaternaryButton';
-import useUpvotePost from '@dailydotdev/shared/src/hooks/useUpvotePost';
-import useBookmarkPost from '@dailydotdev/shared/src/hooks/useBookmarkPost';
-import UpvoteIcon from '@dailydotdev/shared/icons/upvote.svg';
-import CommentIcon from '@dailydotdev/shared/icons/comment.svg';
-import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
 import { QueryClient, useQueryClient, QueryKey } from 'react-query';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
-import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import UpvoteIcon from '../../../icons/upvote.svg';
+import CommentIcon from '../../../icons/comment.svg';
+import BookmarkIcon from '../../../icons/bookmark.svg';
+import { Post, PostData } from '../../graphql/posts';
+import { QuaternaryButton } from '../buttons/QuaternaryButton';
+import useUpvotePost from '../../hooks/useUpvotePost';
+import useBookmarkPost from '../../hooks/useBookmarkPost';
+import { postAnalyticsEvent } from '../../lib/feed';
+import AuthContext from '../../contexts/AuthContext';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
 
 interface PostActionsProps {
   post: Post;

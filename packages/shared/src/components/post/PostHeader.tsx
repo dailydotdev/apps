@@ -1,19 +1,19 @@
 import React, { ReactElement, useContext, useState } from 'react';
-import { Post } from '@dailydotdev/shared/src/graphql/posts';
-import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
-import { LinkWithTooltip } from '@dailydotdev/shared/src/components/tooltips/LinkWithTooltip';
-import useNotification from '@dailydotdev/shared/src/hooks/useNotification';
-import useReportPostMenu from '@dailydotdev/shared/src/hooks/useReportPostMenu';
-import { CardNotification } from '@dailydotdev/shared/src/components/cards/Card';
-import classed from '@dailydotdev/shared/src/lib/classed';
-import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
-import { ProfileLink } from '@dailydotdev/shared/src/components/profile/ProfileLink';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
-import MenuIcon from '@dailydotdev/shared/icons/menu.svg';
-import PostOptionsMenu from '@dailydotdev/shared/src/components/PostOptionsMenu';
-import { Roles } from '@dailydotdev/shared/src/lib/user';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import dynamic from 'next/dynamic';
+import MenuIcon from '../../../icons/menu.svg';
+import { Roles } from '../../lib/user';
+import AuthContext from '../../contexts/AuthContext';
+import { Post } from '../../graphql/posts';
+import useNotification from '../../hooks/useNotification';
+import useReportPostMenu from '../../hooks/useReportPostMenu';
+import classed from '../../lib/classed';
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
+import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
+import { CardNotification } from '../cards/Card';
+import { LazyImage } from '../LazyImage';
+import { ProfileLink } from '../profile/ProfileLink';
+import { Button } from '../buttons/Button';
+import PostOptionsMenu from '../PostOptionsMenu';
 
 interface PostHeaderProps {
   post: Post;
@@ -26,13 +26,9 @@ const SourceName = classed(
   'text-theme-label-primary font-bold typo-callout',
 );
 
-const BanPostModal = dynamic(
-  () => import('@dailydotdev/shared/src/components/modals/BanPostModal'),
-);
+const BanPostModal = dynamic(() => import('../modals/BanPostModal'));
 
-const DeletePostModal = dynamic(
-  () => import('@dailydotdev/shared/src/components/modals/DeletePostModal'),
-);
+const DeletePostModal = dynamic(() => import('../modals/DeletePostModal'));
 
 export function PostHeader({ post }: PostHeaderProps): ReactElement {
   const { id, author, source } = post;

@@ -1,14 +1,11 @@
 import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
-import { Post, TocItem } from '@dailydotdev/shared/src/graphql/posts';
-import { logReadArticle } from '@dailydotdev/shared/src/lib/analytics';
-import TocIcon from '@dailydotdev/shared/icons/toc.svg';
-import {
-  Summary,
-  SummaryArrow,
-} from '@dailydotdev/shared/src/components/utilities';
-import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
-import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
+import { Post, TocItem } from '../../graphql/posts';
+import { logReadArticle } from '../../lib/analytics';
+import TocIcon from '../../../icons/toc.svg';
+import { Summary, SummaryArrow } from '../utilities';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { postAnalyticsEvent } from '../../lib/feed';
 import styles from './PostToc.module.css';
 
 export type PostTocProps = {
