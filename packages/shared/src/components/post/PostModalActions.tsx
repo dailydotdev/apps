@@ -1,6 +1,8 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import dynamic from 'next/dynamic';
 import MenuIcon from '../../../icons/menu.svg';
+import CloseIcon from '../../../icons/x.svg';
+import OpenLinkIcon from '../../../icons/open_link.svg';
 import { Roles } from '../../lib/user';
 import AuthContext from '../../contexts/AuthContext';
 import { Post } from '../../graphql/posts';
@@ -8,30 +10,25 @@ import useNotification from '../../hooks/useNotification';
 import useReportPostMenu from '../../hooks/useReportPostMenu';
 import classed from '../../lib/classed';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 import { CardNotification } from '../cards/Card';
-import { LazyImage } from '../LazyImage';
-import { ProfileLink } from '../profile/ProfileLink';
 import { Button } from '../buttons/Button';
 import PostOptionsMenu from '../PostOptionsMenu';
 
-interface PostHeaderProps {
+interface PostModalActionsProps {
   post: Post;
+  onModalClose?: () => unknown;
 }
 
-const Container = classed('div', 'flex items-center mb-2');
-const SourceImage = classed(LazyImage, 'w-8 h-8 rounded-full');
-const SourceName = classed(
-  'div',
-  'text-theme-label-primary font-bold typo-callout',
-);
+const Container = classed('div', 'flex flex-row items-center');
 
 const BanPostModal = dynamic(() => import('../modals/BanPostModal'));
 
 const DeletePostModal = dynamic(() => import('../modals/DeletePostModal'));
 
-export function PostHeader({ post }: PostHeaderProps): ReactElement {
-  const { id, author, source } = post;
+export function PostModalActions({
+  post,
+  onModalClose,
+}: PostModalActionsProps): ReactElement {
   const { user } = useContext(AuthContext);
   const { notification, onMessage } = useNotification();
   const { showReportMenu } = useReportPostMenu();
@@ -58,50 +55,26 @@ export function PostHeader({ post }: PostHeaderProps): ReactElement {
   const isModerator = user?.roles?.indexOf(Roles.Moderator) > -1;
 
   return (
-    <Container className="flex items-center mb-2">
-      <LinkWithTooltip
-        href={`/sources/${source.id}`}
-        passHref
-        prefetch={false}
-        tooltip={{
-          placement: 'bottom',
-          content: source.name,
-        }}
-      >
-        <SourceImage
-          className="cursor-pointer"
-          imgSrc={source.image}
-          imgAlt={source.name}
-          background="var(--theme-background-secondary)"
-        />
-      </LinkWithTooltip>
-      {author ? (
-        <ProfileLink
-          user={author}
-          data-testid="authorLink"
-          className="flex-1 mr-auto ml-2"
-        >
-          <SourceImage
-            imgSrc={author.image}
-            imgAlt={author.name}
-            background="var(--theme-background-secondary)"
-          />
-          <SourceName className="flex-1 ml-2">{author.name}</SourceName>
-        </ProfileLink>
-      ) : (
-        <div className="flex flex-col flex-1 mx-2">
-          <SourceName>{source.name}</SourceName>
-        </div>
-      )}
+    <Container>
+      <Button className="btn-secondary" icon={<OpenLinkIcon />}>
+        Read article
+      </Button>
       <SimpleTooltip placement="left" content="Options">
         <Button
-          className="right-4 my-auto btn-tertiary"
-          style={{ position: 'absolute' }}
+          className="ml-auto btn-tertiary"
           icon={<MenuIcon />}
           onClick={(event) => showPostOptionsContext(event)}
           buttonSize="small"
         />
       </SimpleTooltip>
+      {onModalClose && (
+        <Button
+          className="btn-tertiary"
+          icon={<CloseIcon />}
+          onClick={onModalClose}
+          buttonSize="small"
+        />
+      )}
       <PostOptionsMenu
         post={post}
         onMessage={onMessage}
@@ -110,14 +83,14 @@ export function PostHeader({ post }: PostHeaderProps): ReactElement {
       />
       {showBanPost && (
         <BanPostModal
-          postId={id}
+          postId={post.id}
           isOpen={showBanPost}
           onRequestClose={() => setShowBanPost(false)}
         />
       )}
       {showDeletePost && (
         <DeletePostModal
-          postId={id}
+          postId={post.id}
           isOpen={showDeletePost}
           onRequestClose={() => setShowDeletePost(false)}
         />

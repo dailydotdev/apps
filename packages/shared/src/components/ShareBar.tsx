@@ -39,7 +39,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
     );
 
   return (
-    <WidgetContainer className="hidden laptopL:inline-flex relative flex-row items-center px-3 mt-20 mb-6 rounded-2xl">
+    <WidgetContainer className="hidden laptopL:inline-flex relative flex-row items-center px-3 rounded-2xl">
       {copying && (
         <div
           className={classNames(

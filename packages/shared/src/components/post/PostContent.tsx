@@ -25,7 +25,6 @@ import { AuthorOnboarding } from './AuthorOnboarding';
 import { NewComment } from './NewComment';
 import { PostActions } from './PostActions';
 import { PostComments } from './PostComments';
-import { PostHeader } from './PostHeader';
 import { PostUpvotesCommentsCount } from './PostUpvotesCommentsCount';
 import { PostWidgets } from './PostWidgets';
 import { TagLinks } from '../TagLinks';
@@ -196,7 +195,6 @@ export function PostContent({
         )}
       >
         {seo}
-        <PostHeader post={postById.post} />
         <a {...postLinkProps} className="cursor-pointer">
           <h1 className="my-2 font-bold typo-large-title">
             {postById.post.title}

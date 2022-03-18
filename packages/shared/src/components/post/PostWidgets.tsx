@@ -8,6 +8,7 @@ import { Post } from '../../graphql/posts';
 import ShareBar from '../ShareBar';
 import FurtherReading from '../widgets/FurtherReading';
 import { PostUsersHighlights } from '../widgets/PostUsersHighlights';
+import { PostModalActions } from './PostModalActions';
 
 interface PostWidgetsProps {
   post: Post;
@@ -37,6 +38,7 @@ export function PostWidgets({ post }: PostWidgetsProps): ReactElement {
 
   return (
     <PageWidgets>
+      <PostModalActions post={post} />
       <PostUsersHighlights post={post} />
       <ShareBar post={post} />
       <ShareMobile share={sharePost} />
