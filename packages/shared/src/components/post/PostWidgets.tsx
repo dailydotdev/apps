@@ -7,6 +7,7 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { Post } from '../../graphql/posts';
 import ShareBar from '../ShareBar';
 import FurtherReading from '../widgets/FurtherReading';
+import { PostUsersHighlights } from '../widgets/PostUsersHighlights';
 
 interface PostWidgetsProps {
   post: Post;
@@ -36,6 +37,7 @@ export function PostWidgets({ post }: PostWidgetsProps): ReactElement {
 
   return (
     <PageWidgets>
+      <PostUsersHighlights post={post} />
       <ShareBar post={post} />
       <ShareMobile share={sharePost} />
       {tokenRefreshed && (

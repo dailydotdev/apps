@@ -18,6 +18,7 @@ import classed from '../lib/classed';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
 import { SimpleTooltip } from './tooltips/SimpleTooltip';
+import { WidgetContainer } from './widgets/common';
 
 const ShareButton = classed(Button, 'my-1');
 const ColorfulShareButton = classed(
@@ -38,7 +39,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
     );
 
   return (
-    <div className="hidden laptopL:inline-flex relative flex-row items-center px-3 mt-20 mb-6 rounded-2xl border bg-theme-bg-primary border-theme-divider-quaternary">
+    <WidgetContainer className="hidden laptopL:inline-flex relative flex-row items-center px-3 mt-20 mb-6 rounded-2xl">
       {copying && (
         <div
           className={classNames(
@@ -90,6 +91,6 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
           className="btn-tertiary"
         />
       </SimpleTooltip>
-    </div>
+    </WidgetContainer>
   );
 }
