@@ -71,23 +71,65 @@ export default function TagsFilter({
       action: () => onUnblockTags({ tags: [tag] }),
     });
   };
+
+  const getSearchBarTitleAndParagraph = (feedFilterModalType: string) => {
+    return (
+      <div>
+        {(feedFilterModalType === 'v1' ||
+          feedFilterModalType === 'v2' ||
+          feedFilterModalType === 'v4') && (
+          <>
+            <SearchField
+              inputId="search-filters"
+              placeholder="Search"
+              className="mx-6 mb-6"
+              ref={searchRef}
+              valueChanged={setQuery}
+            />
+            <div className="flex flex-col px-6 pb-6">
+              {(feedFilterModalType === 'v1' ||
+                feedFilterModalType === 'v2') && (
+                <h3 className="mb-3 typo-headline">Choose tags to follow</h3>
+              )}
+              <p className="typo-callout text-theme-label-tertiary">
+                Let’s super-charge your feed with relevant content! Start by
+                choosing tags you want to follow, and we will curate your feed
+                accordingly.
+              </p>
+            </div>
+          </>
+        )}
+
+        {(feedFilterModalType === 'v3' || feedFilterModalType === 'v5') && (
+          <div className="flex flex-col px-6 pb-6">
+            <div>
+              <p className="typo-callout text-theme-label-tertiary">
+                Let’s super-charge your feed with relevant content! Start by
+                choosing tags you want to follow, and we will curate your feed
+                accordingly.
+              </p>
+            </div>
+            <div>
+              <SearchField
+                inputId="search-filters"
+                placeholder="Search"
+                className="mt-6 mb-2"
+                ref={searchRef}
+                valueChanged={setQuery}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
   return (
     <div
       className="flex flex-col"
       aria-busy={isLoading}
       data-testid="tagsFilter"
     >
-      {(feedFilterModalType === 'v1' ||
-        feedFilterModalType === 'v2' ||
-        feedFilterModalType === 'v4') && (
-        <SearchField
-          inputId="search-filters"
-          placeholder="Search"
-          className="mx-6 mb-6"
-          ref={searchRef}
-          valueChanged={setQuery}
-        />
-      )}
+      {getSearchBarTitleAndParagraph(feedFilterModalType)}
       {query?.length > 0 && (
         <>
           <TagItemList
@@ -115,34 +157,6 @@ export default function TagsFilter({
             onHidden={() => setContextSelectedTag(null)}
           />
         </>
-      )}
-      {(feedFilterModalType === 'v1' ||
-        feedFilterModalType === 'v2' ||
-        feedFilterModalType === 'v4') && (
-        <div className="px-6 pb-6">
-          <h3 className="mb-3 typo-headline">Choose tags to follow</h3>
-          <p className="typo-callout text-theme-label-tertiary">
-            Let’s super-charge your feed with relevant content! Start by
-            choosing tags you want to follow, and we will curate your feed
-            accordingly.
-          </p>
-        </div>
-      )}
-      {(feedFilterModalType === 'v3' || feedFilterModalType === 'v5') && (
-        <div className="px-6 pb-6">
-          <p className="typo-callout text-theme-label-tertiary">
-            Let’s super-charge your feed with relevant content! Start by
-            choosing tags you want to follow, and we will curate your feed
-            accordingly.
-          </p>
-          <SearchField
-            inputId="search-filters"
-            placeholder="Search"
-            className="mt-6 mb-2"
-            ref={searchRef}
-            valueChanged={setQuery}
-          />
-        </div>
       )}
       {(!query || query.length <= 0) &&
         tagsCategories?.map((tagCategory) => (

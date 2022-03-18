@@ -1,19 +1,13 @@
 import React, { ReactElement, useContext, useEffect } from 'react';
-import { useQueryClient } from 'react-query';
 import classNames from 'classnames';
 import sizeN from '../../../macros/sizeN.macro';
 import FilterMenu from './FilterMenu';
 import XIcon from '../../../icons/x.svg';
 import PlusIcon from '../../../icons/plus.svg';
 import { menuItemClassNames } from '../multiLevelMenu/MultiLevelMenuMaster';
-import useFeedSettings, {
-  getFeedSettingsQueryKey,
-  updateLocalFeedSettings,
-} from '../../hooks/useFeedSettings';
+import useFeedSettings from '../../hooks/useFeedSettings';
 import AuthContext from '../../contexts/AuthContext';
-import { AllTagCategoriesData } from '../../graphql/feedSettings';
 import AlertContext from '../../contexts/AlertContext';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { useMyFeed } from '../../hooks/useMyFeed';
 import CreateFeedFilterButton from '../CreateFeedFilterButton';
 
@@ -29,10 +23,8 @@ export default function FeedFilters({
   isOpen,
   onBack,
 }: FeedFiltersProps): ReactElement {
-  const client = useQueryClient();
-  const { trackEvent } = useContext(AnalyticsContext);
   const { alerts, updateAlerts } = useContext(AlertContext);
-  const { user, showLogin } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const { hasAnyFilter } = useFeedSettings();
   const { shouldShowMyFeed } = useMyFeed();
 
