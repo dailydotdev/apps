@@ -44,7 +44,7 @@ const UserHighlight = ({
         background="var(--theme-background-secondary)"
       />
       {Icon && <Icon className="absolute top-10 left-10" />}
-      <div className="flex flex-col">
+      <div className="flex flex-col ml-4">
         {name && <span className="font-bold typo-callout">{name}</span>}
         {username && (
           <span className="mt-0.5 typo-footnote text-theme-label-tertiary">
