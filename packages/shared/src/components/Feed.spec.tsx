@@ -534,39 +534,6 @@ it('should increase reading rank progress for anonymous users', async () => {
   });
 });
 
-it('should not increase reading rank progress for anonymous users after the first rank', async () => {
-  renderComponent(
-    [
-      createFeedMock(defaultFeedPage, ANONYMOUS_FEED_QUERY, {
-        first: 7,
-        loggedIn: false,
-        unreadOnly: false,
-      }),
-    ],
-    null,
-  );
-  const queryKey = getRankQueryKey(null);
-  queryClient.setQueryData<MyRankData>(queryKey, {
-    rank: { readToday: false, currentRank: 0, progressThisWeek: 3 },
-    reads: 0,
-  });
-  const el = await screen.findByTitle(
-    'One Word Domains — Database of all available one-word domains',
-  );
-  el.click();
-  await waitFor(async () => {
-    const data = await queryClient.getQueryData<MyRankData>(queryKey);
-    expect(data).toEqual({
-      rank: {
-        readToday: false,
-        currentRank: 0,
-        progressThisWeek: 3,
-      },
-      reads: 0,
-    });
-  });
-});
-
 it('should update feed item on subscription message', async () => {
   renderComponent([
     createFeedMock({
