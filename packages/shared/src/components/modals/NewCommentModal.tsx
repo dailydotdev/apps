@@ -65,7 +65,7 @@ export default function NewCommentModal({
             onRequestClose={onRequestClose}
           />
         </Tab>
-        <Tab label="Preview" style={{ minHeight: '20rem' }}>
+        <Tab label="Preview" style={{ minHeight: '28rem' }}>
           {isPreview && previewContent?.preview && (
             <Markdown content={previewContent.preview} />
           )}
