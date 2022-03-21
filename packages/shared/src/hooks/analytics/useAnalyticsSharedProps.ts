@@ -7,7 +7,7 @@ import {
 } from 'react';
 import { useRouter } from 'next/router';
 import { get as getCache, set as setCache } from 'idb-keyval';
-import { v4 as uuidv4 } from 'uuid/dist/esm-browser/v4';
+import { v4 as uuidv4 } from 'uuid';
 import { AnalyticsEvent } from './useAnalyticsQueue';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import SettingsContext from '../../contexts/SettingsContext';
