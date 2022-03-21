@@ -42,10 +42,8 @@
     "@testing-library/react": "^11.2.7",
     "@testing-library/react-hooks": "^7.0.2",
     "@testing-library/user-event": "^13.5.0",
-    "@types/amplitude-js": "^8.0.1",
     "@types/classnames": "^2.2.11",
     "@types/dompurify": "^2.3.1",
-    "@types/google.analytics": "0.0.41",
     "@types/jest": "^26.0.24",
     "@types/linkifyjs": "^2.1.4",
     "@types/lodash.clonedeep": "^4.5.6",
@@ -109,7 +107,6 @@
   "dependencies": {
     "@tailwindcss/line-clamp": "^0.3.0",
     "@tippyjs/react": "^4.2.5",
-    "amplitude-js": "^8.9.1",
     "balloon-css": "^1.2.0",
     "flagsmith": "^1.6.10",
     "graphql-ws": "^5.5.5",

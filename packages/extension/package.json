@@ -58,7 +58,6 @@
     "@testing-library/user-event": "^13.5.0",
     "@types/classnames": "^2.2.11",
     "@types/dompurify": "^2.3.1",
-    "@types/google.analytics": "0.0.41",
     "@types/jest": "^26.0.24",
     "@types/nock": "^11.1.0",
     "@types/node": "^14.17.32",

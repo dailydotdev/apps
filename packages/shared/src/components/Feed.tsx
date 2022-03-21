@@ -10,12 +10,10 @@ import useFeed, { PostItem } from '../hooks/useFeed';
 import { Ad, Post } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
 import FeedContext from '../contexts/FeedContext';
-import { gaTrackEvent } from '../lib/analytics';
 import styles from './Feed.module.css';
 import SettingsContext from '../contexts/SettingsContext';
 import { Spaciness } from '../graphql/settings';
 import ScrollToTopButton from './ScrollToTopButton';
-import useAdImpressions from '../hooks/useAdImpressions';
 import useFeedUpvotePost from '../hooks/feed/useFeedUpvotePost';
 import useFeedBookmarkPost from '../hooks/feed/useFeedBookmarkPost';
 import useCommentPopup from '../hooks/feed/useCommentPopup';
@@ -141,7 +139,6 @@ export default function Feed<T>({
       query,
       variables,
     );
-  const { onAdImpression } = useAdImpressions();
   const { ranking } = (variables as RankVariables) || {};
 
   useEffect(() => {
@@ -224,11 +221,6 @@ export default function Feed<T>({
   };
 
   const onAdClick = (ad: Ad, index: number, row: number, column: number) => {
-    gaTrackEvent({
-      category: 'Ad',
-      action: 'Click',
-      label: ad.source,
-    });
     trackEvent(
       adAnalyticsEvent('click', ad, {
         columns: virtualizedNumCards,
@@ -296,7 +288,6 @@ export default function Feed<T>({
             onShare={onShare}
             onMenuClick={onMenuClick}
             onCommentClick={onCommentClick}
-            onAdRender={onAdImpression}
             onAdClick={onAdClick}
             postHeadingFont={postHeadingFont}
           />
