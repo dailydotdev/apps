@@ -39,7 +39,7 @@ export function RecommendedMentionTooltip({
       appendTo={document?.body || 'parent'}
       content={
         <RecommendedMention
-          users={query !== undefined && mentions}
+          users={typeof query !== 'undefined' && mentions}
           selected={selected}
           onClick={onMentionClick}
         />
