@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 
 // reference: https://stackoverflow.com/a/54049872/5532217
@@ -35,6 +35,7 @@ export function UserShortInfo<Tag extends AnyTag>({
   ...props
 }: UserShortInfoProps<Tag> & PropsOf<Tag>): ReactElement {
   const Element = (tag || 'a') as React.ElementType;
+  const user = useMemo(() => ({ username, image }), [username, image]);
 
   return (
     <Element
@@ -44,7 +45,7 @@ export function UserShortInfo<Tag extends AnyTag>({
         className,
       )}
     >
-      <ProfilePicture user={{ username, image }} size={imageSize} />
+      <ProfilePicture user={user} size={imageSize} />
       <div className="flex flex-col flex-1 ml-4 typo-callout">
         <span className="font-bold">{name}</span>
         <span className="text-theme-label-secondary">@{username}</span>
