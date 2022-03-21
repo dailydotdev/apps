@@ -100,7 +100,7 @@ export default function CreateMyFeedModal({
         <header className="flex fixed responsiveModalBreakpoint:sticky top-0 left-0 z-3 justify-between items-center py-4 px-6 w-full border-b border-theme-divider-tertiary bg-theme-bg-tertiary">
           {type === 'v2' && getCloseButton({ onRequestClose })}
 
-          <h3 className="pl-2 font-bold typo-title3">{headerTitle[type]}</h3>
+          <h3 className="font-bold typo-title3">{headerTitle[type]}</h3>
           {(type === 'v2' || type === 'v3') && (
             <CreateFeedFilterButton
               className={classNames(buttonClass[type], 'btn-primary-cabbage')}
