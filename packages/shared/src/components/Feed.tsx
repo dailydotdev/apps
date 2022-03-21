@@ -14,7 +14,6 @@ import styles from './Feed.module.css';
 import SettingsContext from '../contexts/SettingsContext';
 import { Spaciness } from '../graphql/settings';
 import ScrollToTopButton from './ScrollToTopButton';
-import useAdImpressions from '../hooks/useAdImpressions';
 import useFeedUpvotePost from '../hooks/feed/useFeedUpvotePost';
 import useFeedBookmarkPost from '../hooks/feed/useFeedBookmarkPost';
 import useCommentPopup from '../hooks/feed/useCommentPopup';
@@ -140,7 +139,6 @@ export default function Feed<T>({
       query,
       variables,
     );
-  const { onAdImpression } = useAdImpressions();
   const { ranking } = (variables as RankVariables) || {};
 
   useEffect(() => {
@@ -290,7 +288,6 @@ export default function Feed<T>({
             onShare={onShare}
             onMenuClick={onMenuClick}
             onCommentClick={onCommentClick}
-            onAdRender={onAdImpression}
             onAdClick={onAdClick}
             postHeadingFont={postHeadingFont}
           />
