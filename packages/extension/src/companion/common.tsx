@@ -14,5 +14,7 @@ export type BootData = Pick<
   | 'source'
 >;
 export interface CompanionBootData {
-  postCanonical: BootData;
+  data: {
+    postByUrl: BootData;
+  };
 }

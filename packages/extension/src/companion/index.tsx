@@ -6,7 +6,7 @@ import { CompanionBootData } from './common';
 import App from './App';
 
 const init = async (data: CompanionBootData, settings) => {
-  const { postCanonical } = data;
+  const { postByUrl } = data.data;
 
   document
     .querySelector('daily-companion-app')
@@ -15,7 +15,7 @@ const init = async (data: CompanionBootData, settings) => {
 
   // Set target of the React app to shadow dom
   ReactDOM.render(
-    <App postData={{ ...postCanonical }} settings={settings} />,
+    <App postData={{ ...postByUrl }} settings={settings} />,
     document
       .querySelector('daily-companion-app')
       .shadowRoot.querySelector('#daily-companion-wrapper'),

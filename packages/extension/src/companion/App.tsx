@@ -17,13 +17,17 @@ import Modal from 'react-modal';
 import { useContextMenu } from '@dailydotdev/react-contexify';
 import useNotification from '@dailydotdev/shared/src/hooks/useNotification';
 import { CardNotification } from '@dailydotdev/shared/src/components/cards/Card';
+import { isTesting } from '@dailydotdev/shared/src/lib/constants';
 import CompanionContextMenu from './CompanionContextMenu';
 import { BootData } from './common';
 import '@dailydotdev/shared/src/styles/globals.css';
 import useCompanionActions from './useCompanionActions';
 
 const queryClient = new QueryClient();
-Modal.setAppElement('daily-companion-app');
+
+if (!isTesting) {
+  Modal.setAppElement('daily-companion-app');
+}
 
 function InternalApp({ postData, onOptOut }: { postData: BootData; onOptOut }) {
   const [post, setPost] = useState<BootData>(postData);
@@ -88,6 +92,7 @@ function InternalApp({ postData, onOptOut }: { postData: BootData; onOptOut }) {
 
   return (
     <div
+      data-testId="companion"
       className={classNames(
         'flex fixed flex-row top-[7.5rem] transition-transform items-start right-0 z-[999999]',
         companionState ? 'translate-x-0' : 'translate-x-[22.5rem]',
@@ -99,34 +104,36 @@ function InternalApp({ postData, onOptOut }: { postData: BootData; onOptOut }) {
             {notification}
           </CardNotification>
         )}
-        <Button
-          buttonSize="medium"
-          className={classNames(
-            'group',
-            companionState
-              ? 'btn-secondary'
-              : 'btn-tertiary hover:btn-secondary',
-          )}
-          icon={
-            <>
-              <LogoIcon
-                className={classNames(
-                  'w-6',
-                  companionState ? 'hidden' : 'group-hover:hidden',
-                )}
-              />
-              <ArrowIcon
-                className={classNames(
-                  'icon ',
-                  companionState
-                    ? 'block rotate-90'
-                    : 'hidden group-hover:block -rotate-90',
-                )}
-              />
-            </>
-          }
-          onClick={() => setCompanionState(!companionState)}
-        />
+        <SimpleTooltip placement="left" content="Toggle">
+          <Button
+            buttonSize="medium"
+            className={classNames(
+              'group',
+              companionState
+                ? 'btn-secondary'
+                : 'btn-tertiary hover:btn-secondary',
+            )}
+            icon={
+              <>
+                <LogoIcon
+                  className={classNames(
+                    'w-6',
+                    companionState ? 'hidden' : 'group-hover:hidden',
+                  )}
+                />
+                <ArrowIcon
+                  className={classNames(
+                    'icon ',
+                    companionState
+                      ? 'block rotate-90'
+                      : 'hidden group-hover:block -rotate-90',
+                  )}
+                />
+              </>
+            }
+            onClick={() => setCompanionState(!companionState)}
+          />
+        </SimpleTooltip>
         <SimpleTooltip placement="left" content="Upvote">
           <Button
             buttonSize="medium"

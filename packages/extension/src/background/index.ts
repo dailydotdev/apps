@@ -53,7 +53,7 @@ const sendBootData = async (req, sender) => {
 };
 
 function handleMessages(message, sender) {
-  if (message.type === 'SIGN_CONNECT') {
+  if (message.type === 'CONTENT_LOADED') {
     sendBootData(message, sender);
     return null;
   }

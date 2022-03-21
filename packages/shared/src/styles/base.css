@@ -1,4 +1,4 @@
-html, #daily-companion-app {
+html, #daily-companion-wrapper {
   background: var(--theme-background-primary);
   color: var(--theme-label-primary);
   height: -webkit-fill-available;
