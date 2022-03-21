@@ -74,7 +74,8 @@ export function useUserMention({
   const { recommendedMentions: mentions } = data;
   const fetchUsers = useDebounce(refetch, 100);
 
-  const initializeMention = (isInvalidCallback?: () => unknown) => {
+  const initializeMention = async (isInvalidCallback?: () => unknown) => {
+    await nextTick();
     const [col, row] = getCaretPostition(commentRef.current);
     const [isValidTrigger, word, charAt] = hasSpaceBeforeWord(
       commentRef.current,
@@ -91,6 +92,10 @@ export function useUserMention({
   };
 
   const onMention = (username: string) => {
+    if (mentions.length === 0) {
+      return;
+    }
+
     const element = commentRef.current;
     const mention = `@${query}`;
     const replacement = `@${username}`;
@@ -108,64 +113,58 @@ export function useUserMention({
     }
   };
 
-  const onKeypress = async (event: ReactKeyboardEvent<HTMLDivElement>) => {
-    if (query !== undefined) {
-      if (ARROW_KEYS.indexOf(event.key) !== -1) {
-        onArrowKey(event.key);
-        event.preventDefault();
-        return;
-      }
-
-      if (event.key === ' ') {
-        setQuery(undefined);
-        return;
-      }
-
-      if (event.key === 'Enter') {
-        if (mentions.length === 0) {
-          return;
-        }
-
-        event.preventDefault();
-        onMention(mentions[selected].username);
-        return;
-      }
-
-      if (event.key === 'Backspace') {
-        await nextTick();
-        const backspaced = getWord(commentRef.current, offset, query);
-        const value =
-          (query === '' && backspaced === '') || query === backspaced
-            ? undefined
-            : backspaced;
-        setQuery(value);
-        fetchUsers();
-        return;
-      }
-
-      await nextTick();
-      const value = isSpecialCharacter(event.key)
+  const onBackspace = (el: HTMLElement) => {
+    const backspaced = getWord(el, offset, query);
+    const value =
+      (query === '' && backspaced === '') || query === backspaced
         ? undefined
-        : getWord(commentRef.current, offset, query);
+        : backspaced;
+    setQuery(value);
+    fetchUsers();
+  };
 
-      setQuery(value);
-
-      if (value) {
-        await nextTick();
-        fetchUsers();
-      }
-    } else {
+  const onKeypress = (event: ReactKeyboardEvent<HTMLDivElement>): unknown => {
+    if (typeof query === 'undefined') {
       if (
         !isAlphaNumeric(event.key) &&
         event.key !== '@' &&
         event.key !== 'Backspace'
       ) {
-        return;
+        return null;
       }
 
-      await nextTick();
-      initializeMention();
+      return initializeMention();
     }
+
+    if (ARROW_KEYS.indexOf(event.key) !== -1) {
+      onArrowKey(event.key);
+      return event.preventDefault();
+    }
+
+    if (event.key === ' ') {
+      return setQuery(undefined);
+    }
+
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      return onMention(mentions[selected].username);
+    }
+
+    if (event.key === 'Backspace') {
+      return onBackspace(event.currentTarget);
+    }
+
+    const value = isSpecialCharacter(event.key)
+      ? undefined
+      : getWord(event.currentTarget, offset, query);
+
+    setQuery(value);
+
+    if (value) {
+      fetchUsers();
+    }
+
+    return null;
   };
 
   const onInputClick = () => {
