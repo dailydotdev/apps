@@ -75,12 +75,6 @@ export type FeedItemComponentProps = {
     row: number,
     column: number,
   ) => unknown;
-  onAdRender: (
-    ad: Ad,
-    index: number,
-    row: number,
-    column: number,
-  ) => Promise<void>;
   onAdClick: (ad: Ad, index: number, row: number, column: number) => void;
 };
 
@@ -123,7 +117,6 @@ export default function FeedItemComponent({
   onShare,
   onMenuClick,
   onCommentClick,
-  onAdRender,
   onAdClick,
   postHeadingFont,
 }: FeedItemComponentProps): ReactElement {
@@ -188,9 +181,9 @@ export default function FeedItemComponent({
           ref={inViewRef}
           ad={item.ad}
           data-testid="adItem"
-          onRender={(ad) => onAdRender(ad, index, row, column)}
           onLinkClick={(ad) => onAdClick(ad, index, row, column)}
           showImage={!insaneMode}
+          postHeadingFont={postHeadingFont}
         />
       );
     default:

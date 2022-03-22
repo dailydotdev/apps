@@ -9,6 +9,7 @@ export type AnalyticsEvent = Record<string, unknown> & {
   event_duration?: number;
   event_name?: string;
   extra?: string;
+  device_id?: string;
 };
 
 export type PushToQueueFunc = (events: AnalyticsEvent[]) => void;

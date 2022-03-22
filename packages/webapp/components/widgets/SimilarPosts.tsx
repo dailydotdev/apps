@@ -9,7 +9,6 @@ import styles from '@dailydotdev/shared/src/components/cards/Card.module.css';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import { CardLink } from '@dailydotdev/shared/src/components/cards/Card';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
-import { logReadArticle } from '@dailydotdev/shared/src/lib/analytics';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
@@ -124,7 +123,6 @@ export default function SimilarPosts({
         extra: { origin: 'recommendation' },
       }),
     );
-    await logReadArticle('recommendation');
   };
 
   return (

@@ -1,10 +1,5 @@
-import React, {
-  forwardRef,
-  HTMLAttributes,
-  ReactElement,
-  Ref,
-  useEffect,
-} from 'react';
+import React, { forwardRef, HTMLAttributes, ReactElement, Ref } from 'react';
+import classNames from 'classnames';
 import {
   Card,
   CardImage,
@@ -21,26 +16,24 @@ type Callback = (ad: Ad) => unknown;
 
 export type AdCardProps = {
   ad: Ad;
-  onRender?: Callback;
   onLinkClick?: Callback;
   showImage?: boolean;
+  postHeadingFont: string;
 } & HTMLAttributes<HTMLDivElement>;
 
 export const AdCard = forwardRef(function AdCard(
-  { ad, onRender, onLinkClick, showImage = true, ...props }: AdCardProps,
+  { ad, onLinkClick, showImage = true, postHeadingFont, ...props }: AdCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const showBlurredImage = ad.source === 'Carbon';
-
-  useEffect(() => {
-    onRender?.(ad);
-  }, []);
 
   return (
     <Card {...props} ref={ref}>
       <AdLink ad={ad} onLinkClick={onLinkClick} />
       <CardTextContainer>
-        <CardTitle className="my-4 line-clamp-4">{ad.description}</CardTitle>
+        <CardTitle className={classNames('my-4 line-clamp-4', postHeadingFont)}>
+          {ad.description}
+        </CardTitle>
       </CardTextContainer>
       <CardSpace />
       {showImage && (
