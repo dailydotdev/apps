@@ -123,7 +123,9 @@ export function useUserMention({
     fetchUsers();
   };
 
-  const onKeypress = (event: ReactKeyboardEvent<HTMLDivElement>): unknown => {
+  const onKeypress = async (
+    event: ReactKeyboardEvent<HTMLDivElement>,
+  ): Promise<unknown> => {
     if (typeof query === 'undefined') {
       if (
         !isAlphaNumeric(event.key) &&
@@ -154,9 +156,10 @@ export function useUserMention({
       return onBackspace(event.currentTarget);
     }
 
+    await nextTick();
     const value = isSpecialCharacter(event.key)
       ? undefined
-      : getWord(event.currentTarget, offset, query);
+      : getWord(commentRef.current, offset, query);
 
     setQuery(value);
 
