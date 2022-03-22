@@ -259,6 +259,7 @@ export default function NewCommentModal({
             {...props}
             onInput={(e) => setInput(e.currentTarget.innerText)}
             input={input}
+            editId={editId}
             errorMessage={errorMessage}
             sendingComment={sendingComment}
             sendComment={sendComment}
@@ -273,14 +274,16 @@ export default function NewCommentModal({
           {isPreview && previewContent?.preview && (
             <Markdown content={previewContent.preview} />
           )}
-          <Button
-            disabled={!input?.trim().length}
-            loading={sendingComment}
-            onClick={sendComment}
-            className="mt-auto ml-auto btn-primary-avocado"
-          >
-            {editId ? 'Update' : 'Comment'}
-          </Button>
+          {isPreview && (
+            <Button
+              disabled={!input?.trim().length}
+              loading={sendingComment}
+              onClick={sendComment}
+              className="mt-auto ml-auto btn-primary-avocado"
+            >
+              {editId ? 'Update' : 'Comment'}
+            </Button>
+          )}
         </Tab>
       </TabContainer>
       <DiscardCommentModal
