@@ -280,7 +280,7 @@ export default function NewCommentModal({
             disabled={!input?.trim().length}
             loading={sendingComment}
             onClick={sendComment}
-            className="mt-3 ml-auto btn-primary-avocado"
+            className="mt-auto ml-auto btn-primary-avocado"
           >
             {editId ? 'Update' : 'Comment'}
           </Button>
