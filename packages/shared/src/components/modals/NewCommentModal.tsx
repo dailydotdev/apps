@@ -271,10 +271,7 @@ export default function NewCommentModal({
           className="flex flex-col"
         >
           {isPreview && previewContent?.preview && (
-            <Markdown
-              className="flex flex-1"
-              content={previewContent.preview}
-            />
+            <Markdown content={previewContent.preview} />
           )}
           <Button
             disabled={!input?.trim().length}
