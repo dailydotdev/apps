@@ -1,20 +1,18 @@
 import React from 'react';
 import '@testing-library/jest-dom';
-import {
-  findByTestId,
-  getByTestId,
-  render,
-  RenderResult,
-  screen,
-} from '@testing-library/preact';
-import { TopSites } from 'webextension-polyfill-ts';
+import { render, RenderResult, screen } from '@testing-library/preact';
 import App from './App';
+
+const onReport = jest.fn();
 
 jest.mock('webextension-polyfill-ts', () => {
   let providedPermission = false;
 
   return {
     browser: {
+      runtime: {
+        id: 123,
+      },
       permissions: {
         remove: jest.fn(),
         request: () =>
@@ -27,8 +25,24 @@ jest.mock('webextension-polyfill-ts', () => {
   };
 });
 
+const defaultPostData = {
+  bookmarked: true,
+  commentsPermalink: 'https://app.daily.dev/posts/62S6GrSzK',
+  id: '62S6GrSzK',
+  numComments: 3,
+  numUpvotes: 6,
+  source: { id: 'gamedevacademy', name: 'GameDev Academy' },
+  summary:
+    'In this lesson, we’ll compare the differences between promises and Async/await. We also learn how to handle errors in JavaScript using try catch blocks. In the next video, we take a look at the differences in promises and Await and then decide which one to use for this course.',
+  title: 'Learn Asynchronus Programming – JavaScript Tutorial',
+  trending: true,
+  upvoted: true,
+};
+
 const renderComponent = (postdata, settings): RenderResult => {
-  return render(<App postData={postdata} settings={settings} />);
+  return render(
+    <App postData={{ ...defaultPostData, ...postdata }} settings={settings} />,
+  );
 };
 
 describe('companion app', function () {
@@ -52,5 +66,61 @@ describe('companion app', function () {
     await toggleButton.click();
     expect(wrapper).toHaveClass('translate-x-0');
     expect(await screen.findByText('TLDR -')).toBeInTheDocument();
+  });
+
+  it('should show amount of upvotes', async () => {
+    renderComponent({}, {});
+    const wrapper = await screen.findByTestId('companion');
+    expect(wrapper).toHaveClass('translate-x-[22.5rem]');
+    const toggleButton = await screen.findByLabelText('Toggle');
+    expect(toggleButton).toBeInTheDocument();
+    await toggleButton.click();
+    expect(await screen.findByText('3 Comments')).toBeInTheDocument();
+  });
+
+  it('should show upvoted icon unselected', async () => {
+    renderComponent({ upvoted: false }, {});
+    const wrapper = await screen.findByTestId('companion');
+    const button = await screen.findByLabelText('Upvote');
+    expect(button).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('should show upvoted icon selected', async () => {
+    renderComponent({}, {});
+    const wrapper = await screen.findByTestId('companion');
+    const button = await screen.findByLabelText('Upvote');
+    expect(button).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('should show amount of comments', async () => {
+    renderComponent({}, {});
+    const wrapper = await screen.findByTestId('companion');
+    expect(wrapper).toHaveClass('translate-x-[22.5rem]');
+    const toggleButton = await screen.findByLabelText('Toggle');
+    expect(toggleButton).toBeInTheDocument();
+    await toggleButton.click();
+    expect(await screen.findByText('6 Upvotes')).toBeInTheDocument();
+  });
+
+  it('should show bookmark icon selected', async () => {
+    renderComponent({}, {});
+    const wrapper = await screen.findByTestId('companion');
+    const button = await screen.findByLabelText('Bookmark');
+    expect(button).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('should show bookmark icon unselected', async () => {
+    renderComponent({ bookmarked: false }, {});
+    const wrapper = await screen.findByTestId('companion');
+    const button = await screen.findByLabelText('Bookmark');
+    expect(button).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('should show report menu', async () => {
+    renderComponent({}, {});
+    const wrapper = await screen.findByTestId('companion');
+    const button = await screen.findByLabelText('Options');
+    await button.click();
+    expect(await screen.findByText('Report')).toBeInTheDocument();
   });
 });
