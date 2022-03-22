@@ -57,10 +57,3 @@ Object.defineProperty(global, 'open', {
   writable: true,
   value: jest.fn(),
 });
-
-jest.mock('@dailydotdev/shared/src/lib/analytics', () => ({
-  ...jest.requireActual('@dailydotdev/shared/src/lib/analytics'),
-  getAmplitudeClient: jest.fn(),
-  logRevenue: jest.fn(),
-  logReadArticle: jest.fn(),
-}));

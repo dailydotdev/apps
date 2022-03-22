@@ -2,7 +2,6 @@ import React, {
   ChangeEvent,
   ReactElement,
   useContext,
-  useEffect,
   useRef,
   useState,
 } from 'react';
@@ -24,11 +23,6 @@ import Tilt from 'react-parallax-tilt';
 import { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
 import DevCardPlaceholder from '@dailydotdev/shared/src/components/DevCardPlaceholder';
-import {
-  logDevCardPageView,
-  logDownloadDevCard,
-  logGenerateDevCard,
-} from '@dailydotdev/shared/src/lib/analytics';
 import useReadingRank from '@dailydotdev/shared/src/hooks/useReadingRank';
 import { DevCardData, GENERATE_DEVCARD_MUTATION } from '../graphql/devcard';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
@@ -144,7 +138,6 @@ const Step2 = ({
     link.click();
     document.body.removeChild(link);
     setDownloading(false);
-    await logDownloadDevCard();
   };
 
   const onFileChange = (event: ChangeEvent) => {
@@ -328,10 +321,6 @@ const DevCardPage = (): ReactElement => {
   const [devCardSrc, setDevCardSrc] = useState<string>();
   const [imageError, setImageError] = useState<string>();
 
-  useEffect(() => {
-    logDevCardPageView();
-  }, []);
-
   const onError = () =>
     setImageError('Something went wrong, please try again...');
 
@@ -345,7 +334,6 @@ const DevCardPage = (): ReactElement => {
       onMutate() {
         setImageError(null);
         setIsLoadingImage(true);
-        logGenerateDevCard();
       },
       onSuccess(data: DevCardData) {
         const img = new Image();
