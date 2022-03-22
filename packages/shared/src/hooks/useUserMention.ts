@@ -92,7 +92,7 @@ export function useUserMention({
   };
 
   const onMention = (username: string) => {
-    if (mentions.length === 0) {
+    if (!mentions?.length) {
       return;
     }
 
