@@ -115,11 +115,17 @@ const mockEventsEndpoint = (takeSnapshot = true) => {
       if (takeSnapshot) {
         // Reset time based properties
         expect(
-          body.events.map((event) => ({
-            ...event,
-            event_id: '',
-            event_timestamp: '',
-          })),
+          body.events.map((event) => {
+            expect(event.event_id).toBeDefined();
+            expect(event.event_timestamp).toBeDefined();
+            expect(event.device_id).toBeDefined();
+            return {
+              ...event,
+              event_id: '',
+              event_timestamp: '',
+              device_id: '',
+            };
+          }),
         ).toMatchSnapshot();
       }
       return true;
