@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useEffect, useRef, useState } from 'react';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import UpvoteIcon from '@dailydotdev/shared/icons/upvote.svg';
 import CommentIcon from '@dailydotdev/shared/icons/comment.svg';
@@ -22,6 +22,7 @@ import CompanionContextMenu from './CompanionContextMenu';
 import { BootData } from './common';
 import '@dailydotdev/shared/src/styles/globals.css';
 import useCompanionActions from './useCompanionActions';
+import { browser } from 'webextension-polyfill-ts';
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,11 @@ function InternalApp({ postData, onOptOut }: { postData: BootData; onOptOut }) {
   const [post, setPost] = useState<BootData>(postData);
   const [companionState, setCompanionState] = useState<boolean>(false);
   const { notification, onMessage } = useNotification();
+
+  const firstLoad = useRef(false);
+  useEffect(() => {
+    firstLoad.current = true;
+  }, []);
 
   const updatePost = async (update) => {
     const oldPost = post;
@@ -94,7 +100,8 @@ function InternalApp({ postData, onOptOut }: { postData: BootData; onOptOut }) {
     <div
       data-testId="companion"
       className={classNames(
-        'flex fixed flex-row top-[7.5rem] transition-transform items-start right-0 z-[999999]',
+        'flex fixed flex-row top-[7.5rem] items-stretch right-0 z-[999999]',
+        firstLoad.current && 'transition-transform',
         companionState ? 'translate-x-0' : 'translate-x-[22.5rem]',
       )}
     >
@@ -177,7 +184,7 @@ function InternalApp({ postData, onOptOut }: { postData: BootData; onOptOut }) {
           onDisableCompanion={optOut}
         />
       </div>
-      <div className="flex flex-col p-6 rounded-l-16 border w-[22.5rem] border-theme-label-tertiary bg-theme-bg-primary">
+      <div className="flex flex-col p-6 h-auto rounded-l-16 border w-[22.5rem] border-theme-label-tertiary bg-theme-bg-primary">
         <div className="flex flex-row gap-3 items-center">
           <a href={post?.commentsPermalink} target="_parent">
             <LogoIcon className="w-8 rounded-8" />
@@ -230,8 +237,8 @@ export default function App({
   return (
     <div>
       <style>
-        @import
-        &quot;chrome-extension://dhhaojmcngfjmoinjljlkdknbcildjlg/css/companion.css&quot;;
+        @import &quot;chrome-extension://{browser.runtime.id}
+        /css/companion.css&quot;;
       </style>
       <QueryClientProvider client={queryClient}>
         <InternalApp
