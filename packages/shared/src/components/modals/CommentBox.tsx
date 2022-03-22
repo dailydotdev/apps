@@ -129,7 +129,7 @@ function CommentBox({
       >
         {errorMessage && <span role="alert">{errorMessage}</span>}
       </div>
-      <footer className="flex justify-between items-center py-2 border-t border-theme-divider-tertiary">
+      <footer className="flex justify-between items-center pt-2">
         <ClickableText
           tag="a"
           href="https://www.markdownguide.org/cheat-sheet/"
