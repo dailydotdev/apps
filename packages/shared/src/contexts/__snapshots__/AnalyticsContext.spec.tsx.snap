@@ -5,6 +5,7 @@ Array [
   Object {
     "app_platform": "test",
     "app_theme": "light",
+    "device_id": "",
     "event_id": "",
     "event_name": "e1",
     "event_timestamp": "",
@@ -32,6 +33,7 @@ Array [
   Object {
     "app_platform": "test",
     "app_theme": "light",
+    "device_id": "",
     "event_id": "",
     "event_name": "e1",
     "event_timestamp": "",
@@ -53,6 +55,7 @@ Array [
   Object {
     "app_platform": "test",
     "app_theme": "light",
+    "device_id": "",
     "event_id": "",
     "event_name": "e2",
     "event_timestamp": "",
@@ -79,6 +82,7 @@ Array [
   Object {
     "app_platform": "test",
     "app_theme": "light",
+    "device_id": "",
     "event_id": "",
     "event_name": "e1",
     "event_timestamp": "",
@@ -105,6 +109,7 @@ Array [
   Object {
     "app_platform": "test",
     "app_theme": "light",
+    "device_id": "",
     "event_id": "",
     "event_name": "e2",
     "event_timestamp": "",
@@ -131,6 +136,7 @@ Array [
   Object {
     "app_platform": "test",
     "app_theme": "light",
+    "device_id": "",
     "event_id": "",
     "event_name": "e1",
     "event_timestamp": "",

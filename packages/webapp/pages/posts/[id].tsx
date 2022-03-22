@@ -32,7 +32,6 @@ import { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
 import request, { ClientError } from 'graphql-request';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
-import { logReadArticle } from '@dailydotdev/shared/src/lib/analytics';
 import useSubscription from '@dailydotdev/shared/src/hooks/useSubscription';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import PostMetadata from '@dailydotdev/shared/src/components/cards/PostMetadata';
@@ -212,7 +211,6 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         extra: { origin: 'article page' },
       }),
     );
-    await logReadArticle('article page');
   };
 
   const postLinkProps = {

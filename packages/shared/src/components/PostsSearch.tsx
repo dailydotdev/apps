@@ -5,6 +5,7 @@ import request from 'graphql-request';
 import { SearchField } from './fields/SearchField';
 import { useAutoComplete } from '../hooks/useAutoComplete';
 import { apiUrl } from '../lib/config';
+import useDebounce from '../hooks/useDebounce';
 import { SEARCH_POST_SUGGESTIONS } from '../graphql/search';
 import { SEARCH_BOOKMARKS_SUGGESTIONS } from '../graphql/feed';
 import { SEARCH_READING_HISTORY_SUGGESTIONS } from '../graphql/users';
@@ -37,7 +38,6 @@ export default function PostsSearch({
   const searchBoxRef = useRef<HTMLDivElement>();
   const [initialQuery, setInitialQuery] = useState<string>();
   const [query, setQuery] = useState<string>();
-  const timeoutHandleRef = useRef<number>();
   const [menuPosition, setMenuPosition] = useState<{
     x: number;
     y: number;
@@ -94,7 +94,7 @@ export default function PostsSearch({
   };
 
   const { selectedItemIndex, onKeyDown } = useAutoComplete(items, submitQuery);
-
+  const debounceQuery = useDebounce<string>((value) => setQuery(value), 100);
   const onValueChanged = (value: string) => {
     if (!value.length) {
       hideMenu();
@@ -103,10 +103,7 @@ export default function PostsSearch({
     }
 
     if (value && value !== initialQueryProp) {
-      if (timeoutHandleRef.current) {
-        clearTimeout(timeoutHandleRef.current);
-      }
-      timeoutHandleRef.current = window.setTimeout(() => setQuery(value), 100);
+      debounceQuery(value);
     }
   };
 
