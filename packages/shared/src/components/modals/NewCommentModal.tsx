@@ -268,11 +268,15 @@ export default function NewCommentModal({
         </Tab>
         <Tab
           label="Preview"
-          style={{ minHeight: '27.175rem' }}
+          style={{ height: '27.175rem' }}
           className="flex flex-col"
         >
           {isPreview && previewContent?.preview && (
-            <Markdown content={previewContent.preview} />
+            <Markdown
+              style={{ height: '22.5rem' }}
+              className="overflow-y-auto"
+              content={previewContent.preview}
+            />
           )}
           {isPreview && (
             <Button
