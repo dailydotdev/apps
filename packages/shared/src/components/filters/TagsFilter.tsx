@@ -76,7 +76,6 @@ export default function TagsFilter({
     >
       <SearchField
         inputId="search-filters"
-        placeholder="Search"
         className="mx-6 mb-6"
         ref={searchRef}
         valueChanged={setQuery}
