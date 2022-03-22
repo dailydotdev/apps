@@ -1,10 +1,4 @@
-import React, {
-  forwardRef,
-  HTMLAttributes,
-  ReactElement,
-  Ref,
-  useEffect,
-} from 'react';
+import React, { forwardRef, HTMLAttributes, ReactElement, Ref } from 'react';
 import classNames from 'classnames';
 import {
   Card,
@@ -22,28 +16,16 @@ type Callback = (ad: Ad) => unknown;
 
 export type AdCardProps = {
   ad: Ad;
-  onRender?: Callback;
   onLinkClick?: Callback;
   showImage?: boolean;
   postHeadingFont: string;
 } & HTMLAttributes<HTMLDivElement>;
 
 export const AdCard = forwardRef(function AdCard(
-  {
-    ad,
-    onRender,
-    onLinkClick,
-    showImage = true,
-    postHeadingFont,
-    ...props
-  }: AdCardProps,
+  { ad, onLinkClick, showImage = true, postHeadingFont, ...props }: AdCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const showBlurredImage = ad.source === 'Carbon';
-
-  useEffect(() => {
-    onRender?.(ad);
-  }, []);
 
   return (
     <Card {...props} ref={ref}>
