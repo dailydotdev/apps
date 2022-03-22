@@ -16,6 +16,7 @@ import { generateQueryKey } from '../lib/query';
 import { LoggedUser } from '../lib/user';
 import FeaturesContext from '../contexts/FeaturesContext';
 import { Features, isFeaturedEnabled } from '../lib/featureManagement';
+import usePersistentContext from './usePersistentContext';
 
 export const getFeedSettingsQueryKey = (user?: LoggedUser): string[] => [
   user?.id,
@@ -30,8 +31,6 @@ export type FeedSettingsReturnType = {
   advancedSettings: AdvancedSettings[];
   setAvoidRefresh: (value: boolean) => void;
 };
-
-let avoidRefresh = false;
 
 export const getHasAnyFilter = (feedSettings: FeedSettings): boolean =>
   feedSettings?.includeTags?.length > 0 ||
@@ -68,6 +67,8 @@ const isObjectEmpty = (obj: unknown) => {
   return Object.keys(obj).length === 0;
 };
 
+const AVOID_REFRESH_KEY = 'avoidRefresh';
+
 export default function useFeedSettings(): FeedSettingsReturnType {
   const { user } = useContext(AuthContext);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
@@ -75,9 +76,12 @@ export default function useFeedSettings(): FeedSettingsReturnType {
   const queryClient = useQueryClient();
   const { flags } = useContext(FeaturesContext);
   const shouldShowMyFeed = isFeaturedEnabled(Features.MyFeedOn, flags);
-  const setAvoidRefresh = (value: boolean) => {
-    avoidRefresh = value;
-  };
+  const [avoidRefresh, setAvoidRefresh] = usePersistentContext(
+    AVOID_REFRESH_KEY,
+    false,
+    [true, false],
+    false,
+  );
 
   const { data: feedQuery = {}, isLoading } = useQuery<AllTagCategoriesData>(
     filtersKey,
