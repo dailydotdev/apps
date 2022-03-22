@@ -66,7 +66,7 @@ export function useUserMention({
           query,
         }),
       {
-        enabled: !!user && query !== undefined,
+        enabled: !!user && typeof query !== 'undefined',
         refetchOnWindowFocus: false,
         refetchOnMount: false,
       },
@@ -184,7 +184,7 @@ export function useUserMention({
   };
 
   const onInitializeMentionButtonClick = () => {
-    if (query !== undefined) {
+    if (typeof query !== 'undefined') {
       return;
     }
 

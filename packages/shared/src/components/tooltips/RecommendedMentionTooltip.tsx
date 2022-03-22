@@ -58,7 +58,7 @@ export function RecommendedMentionTooltip({
       reference={elementRef}
       arrow={false}
       placement="top-start"
-      visible={query !== undefined}
+      visible={typeof query !== 'undefined'}
     />
   );
 }
