@@ -29,6 +29,7 @@ import { Edge } from '../../graphql/common';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../../lib/feed';
 import { Post } from '../../graphql/posts';
+import { ModalCloseButton } from './ModalCloseButton';
 
 const DiscardCommentModal = dynamic(() => import('./DiscardCommentModal'));
 
@@ -248,6 +249,7 @@ export default function NewCommentModal({
       padding={false}
       contentClassName="p-2"
     >
+      <ModalCloseButton onClick={confirmClose} className="top-2" />
       <TabContainer
         onActiveChange={(active: string) => setActiveTab(active)}
         shouldMountInactive
@@ -263,15 +265,22 @@ export default function NewCommentModal({
             onKeyDown={onKeyDown}
           />
         </Tab>
-        <Tab label="Preview" style={{ minHeight: '28rem' }}>
+        <Tab
+          label="Preview"
+          style={{ minHeight: '28rem' }}
+          className="flex flex-col"
+        >
           {isPreview && previewContent?.preview && (
-            <Markdown content={previewContent.preview} />
+            <Markdown
+              className="flex flex-1"
+              content={previewContent.preview}
+            />
           )}
           <Button
             disabled={!input?.trim().length}
             loading={sendingComment}
             onClick={sendComment}
-            className="btn-primary-avocado"
+            className="mt-3 ml-auto btn-primary-avocado"
           >
             {editId ? 'Update' : 'Comment'}
           </Button>
