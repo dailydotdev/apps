@@ -268,7 +268,7 @@ export default function NewCommentModal({
         </Tab>
         <Tab
           label="Preview"
-          style={{ minHeight: '28rem' }}
+          style={{ minHeight: '27.175rem' }}
           className="flex flex-col"
         >
           {isPreview && previewContent?.preview && (
