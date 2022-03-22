@@ -11,7 +11,7 @@ const ADVANCED_SETTINGS_KEY = 'advancedSettings';
 
 function AdvancedSettingsFilter(): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
-  const { feedSettings, advancedSettings, isLoading } = useFeedSettings(true);
+  const { feedSettings, advancedSettings, isLoading } = useFeedSettings();
   const { user, showLogin } = useContext(AuthContext);
   const { updateAdvancedSettings } = useMutateFilters(user);
   const { alerts, updateAlerts } = useContext(AlertContext);

@@ -31,7 +31,7 @@ export default function TagsFilter({
   const [query, setQuery] = useState<string>(null);
   const searchKey = getSearchTagsQueryKey(query);
   const { user } = useContext(AuthContext);
-  const { tagsCategories, feedSettings, isLoading } = useFeedSettings(true);
+  const { tagsCategories, feedSettings, isLoading } = useFeedSettings();
   const { shouldShowMyFeed } = useMyFeed();
   const { contextSelectedTag, setContextSelectedTag, onTagContextOptions } =
     useTagContext();

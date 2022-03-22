@@ -17,7 +17,6 @@ import { LoggedUser } from '../lib/user';
 import FeaturesContext from '../contexts/FeaturesContext';
 import { Features, isFeaturedEnabled } from '../lib/featureManagement';
 import usePersistentContext from './usePersistentContext';
-import { isTesting } from '../lib/constants';
 
 export const getFeedSettingsQueryKey = (user?: LoggedUser): string[] => [
   user?.id,
@@ -70,9 +69,7 @@ const isObjectEmpty = (obj: unknown) => {
 
 const AVOID_REFRESH_KEY = 'avoidRefresh';
 
-export default function useFeedSettings(
-  observerOnly = false,
-): FeedSettingsReturnType {
+export default function useFeedSettings(): FeedSettingsReturnType {
   const { user } = useContext(AuthContext);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
   const filtersKey = getFeedSettingsQueryKey(user);
@@ -105,7 +102,6 @@ export default function useFeedSettings(
 
       return { ...req, feedSettings };
     },
-    { enabled: isTesting || !observerOnly },
   );
 
   const { tagsCategories, feedSettings, advancedSettings } = feedQuery;

@@ -9,7 +9,7 @@ import BlockIcon from '../../../icons/block.svg';
 export default function BlockedFilter({
   onUnblockItem,
 }: FilterMenuProps): ReactElement {
-  const { feedSettings, isLoading } = useFeedSettings(true);
+  const { feedSettings, isLoading } = useFeedSettings();
   const { onUnblockTags, onFollowSource } = useTagAndSource({
     origin: 'blocked filter',
   });
