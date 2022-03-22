@@ -50,11 +50,7 @@ export default function DevCardFooter({
               </div>
             </div>
           ) : (
-            <GoToDevCardButton
-              origin="ranks instructions"
-              className="mt-3"
-              isLocked={isLocked}
-            >
+            <GoToDevCardButton className="mt-3" isLocked={isLocked}>
               Generate
             </GoToDevCardButton>
           )}
