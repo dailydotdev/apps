@@ -104,7 +104,7 @@ export default function TagsFilter({
         feedFilterModalType === 'v2' ||
         feedFilterModalType === 'v4') && [
         getSearchBar('mx-6 mb-6'),
-        <div className="flex flex-col px-6 pb-6">
+        <div className="flex flex-col px-6 pb-6" key="description">
           <h3 className="mb-3 typo-headline">Choose tags to follow</h3>
           {getDescriptionParagraph()}
         </div>,

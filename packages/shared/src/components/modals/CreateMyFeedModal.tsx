@@ -38,7 +38,7 @@ const headerTitle = {
 
 const getFooter = ({ type, onRequestClose }: LayoutModalProps) => {
   return (
-    <footer className="flex fixed responsiveModalBreakpoint:sticky bottom-0 justify-center items-center py-3 border-t border-theme-divider-tertiary border-theme-divider-tertiary bg-theme-bg-tertiary">
+    <footer className="flex fixed responsiveModalBreakpoint:sticky bottom-0 justify-center items-center py-3 border-t border-theme-divider-tertiary bg-theme-bg-tertiary">
       {type === 'v4' && (
         <CreateFeedFilterButton
           className={classNames(buttonClass[type], 'btn-primary-cabbage')}
@@ -46,7 +46,7 @@ const getFooter = ({ type, onRequestClose }: LayoutModalProps) => {
       )}
       {type === 'v5' && (
         <>
-          <Button className="btn-secondary w-40 mr-3" onClick={onRequestClose}>
+          <Button className="mr-3 w-40 btn-secondary" onClick={onRequestClose}>
             Cancel
           </Button>
           <CreateFeedFilterButton
