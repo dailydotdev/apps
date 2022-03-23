@@ -80,7 +80,7 @@ export default function NewCommentModal({
   const [errorMessage, setErrorMessage] = useState<string>(null);
   const [sendingComment, setSendingComment] = useState<boolean>(false);
   const [showDiscardModal, setShowDiscardModal] = useState<boolean>(false);
-  const commentRef = useRef<HTMLDivElement>(null);
+  const commentRef = useRef<HTMLTextAreaElement>(null);
   const queryClient = useQueryClient();
   const {
     onMentionClick,
@@ -207,8 +207,8 @@ export default function NewCommentModal({
     }
   };
 
-  const onInput = (event: FormEvent<HTMLDivElement>): void => {
-    setInput(event.currentTarget.innerText);
+  const onInput = (event: FormEvent<HTMLTextAreaElement>): void => {
+    setInput(event.currentTarget.value);
   };
 
   const sendComment = async (
@@ -321,16 +321,13 @@ export default function NewCommentModal({
       </div>
       <div className="flex px-2">
         <ProfilePicture user={user} size="small" />
-        <div
+        <textarea
           className={classNames(
-            'ml-3 flex-1 text-theme-label-primary bg-none border-none caret-theme-label-link whitespace-pre-line break-words break-words-overflow typo-subhead',
+            'ml-3 flex-1 text-theme-label-primary bg-transparent border-none caret-theme-label-link whitespace-pre-line break-words break-words-overflow typo-subhead',
             styles.textarea,
           )}
           ref={commentRef}
-          contentEditable
-          role="textbox"
-          aria-placeholder="Write your comment..."
-          aria-multiline
+          placeholder="Write your comment..."
           onInput={onInput}
           onKeyDown={onKeyDown}
           onClick={onInputClick}
