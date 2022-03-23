@@ -95,6 +95,10 @@ export function useUserMention({
 
     const currentCoordinates = getCaretOffset(textarea);
 
+    if (word === query) {
+      return;
+    }
+
     setQuery(word);
     setPosition([charAt, row]);
     setOffset(currentCoordinates);
