@@ -64,7 +64,7 @@ export default function NewCommentModal({
   onComment,
   ...props
 }: NewCommentModalProps): ReactElement {
-  const [input, setInput] = useState<string>();
+  const [input, setInput] = useState<string>(props.editContent || '');
   const [showDiscardModal, setShowDiscardModal] = useState<boolean>(false);
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('Write');
