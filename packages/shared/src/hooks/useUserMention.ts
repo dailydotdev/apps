@@ -21,9 +21,7 @@ import {
   getCaretPostition,
   getWord,
   hasSpaceBeforeWord,
-  isBreakLine,
   replaceWord,
-  setCaretPosition,
 } from '../lib/element';
 import { nextTick } from '../lib/func';
 
@@ -41,7 +39,7 @@ interface UseUserMention {
 interface UseUserMentionProps {
   postId: string;
   onInput: (content: string) => unknown;
-  commentRef?: MutableRefObject<HTMLDivElement>;
+  commentRef?: MutableRefObject<HTMLTextAreaElement>;
 }
 
 const ARROW_KEYS = ['ArrowUp', 'ArrowDown'];
@@ -55,7 +53,7 @@ export function useUserMention({
   const { user } = useContext(AuthContext);
   const client = useQueryClient();
   const [selected, setSelected] = useState(0);
-  const [offset, setOffset] = useState<[number, number]>([0, 0]);
+  const [offset, setOffset] = useState<CaretPosition>([0, 0, 0]);
   const [query, setQuery] = useState<string>();
   const { data = { recommendedMentions: [] }, refetch } =
     useQuery<RecommendedMentionsData>(
@@ -76,7 +74,7 @@ export function useUserMention({
 
   const initializeMention = async (isInvalidCallback?: () => unknown) => {
     await nextTick();
-    const [col, row] = getCaretPostition(commentRef.current);
+    const [col, row, start] = getCaretPostition(commentRef.current);
     const [isValidTrigger, word, charAt] = hasSpaceBeforeWord(
       commentRef.current,
       [col, row],
@@ -88,7 +86,7 @@ export function useUserMention({
     }
 
     setQuery(word);
-    setOffset([charAt, row]);
+    setOffset([charAt, row, start]);
   };
 
   const onMention = (username: string) => {
@@ -96,10 +94,13 @@ export function useUserMention({
       return;
     }
 
+    const [, , start] = offset;
     const element = commentRef.current;
     const mention = `@${query}`;
     const replacement = `@${username}`;
     replaceWord(element, offset, mention, replacement);
+    element.focus();
+    element.selectionEnd = start + replacement.length;
     setQuery(undefined);
     client.setQueryData(key, []);
     onInput(element.innerText);
@@ -113,8 +114,8 @@ export function useUserMention({
     }
   };
 
-  const onBackspace = (el: HTMLElement) => {
-    const backspaced = getWord(el, offset, query);
+  const onBackspace = (el: HTMLTextAreaElement) => {
+    const backspaced = getWord(el, offset);
     const value =
       (query === '' && backspaced === '') || query === backspaced
         ? undefined
@@ -124,7 +125,7 @@ export function useUserMention({
   };
 
   const onKeypress = async (
-    event: ReactKeyboardEvent<HTMLDivElement>,
+    event: ReactKeyboardEvent<HTMLTextAreaElement>,
   ): Promise<unknown> => {
     if (typeof query === 'undefined') {
       if (
@@ -152,14 +153,15 @@ export function useUserMention({
       return onMention(mentions[selected].username);
     }
 
+    await nextTick();
+
     if (event.key === 'Backspace') {
-      return onBackspace(event.currentTarget);
+      return onBackspace(commentRef.current);
     }
 
-    await nextTick();
     const value = isSpecialCharacter(event.key)
       ? undefined
-      : getWord(commentRef.current, offset, query);
+      : getWord(commentRef.current, offset);
 
     setQuery(value);
 
@@ -176,43 +178,18 @@ export function useUserMention({
     initializeMention(isInvalidCallback);
   };
 
-  const setTextarea = (value: string) => {
-    const textarea = commentRef.current;
-    onInput(value);
-    textarea.innerHTML = value;
-    setCaretPosition(
-      value.length === 1 ? textarea : textarea.firstChild,
-      value.length,
-    );
-  };
-
   const onInitializeMentionButtonClick = () => {
     if (typeof query !== 'undefined') {
       return;
     }
-
     const textarea = commentRef.current;
-    const value = commentRef.current.innerText;
-    const trimmed = value.trim();
-    const lines = value.split('\n');
+    const start = textarea.selectionStart;
+    const left = textarea.value.substring(0, start);
+    const right = textarea.value.substring(start);
+    textarea.value = `${left} @ ${right}`;
+    textarea.focus();
+    textarea.selectionEnd = start + 2;
 
-    if (trimmed.length === 0) {
-      setTextarea('@');
-    } else if (lines.length === 1) {
-      const text = `${trimmed} @`;
-      setTextarea(text);
-    } else {
-      const [lastLine] = lines.reverse();
-      const text = `${lastLine.trim()} @`;
-      onInput(value + text);
-      const node = textarea.lastElementChild;
-      if (isBreakLine(node.firstChild)) {
-        node.innerHTML = text + node.innerHTML;
-      } else {
-        node.firstChild.nodeValue = text;
-      }
-      setCaretPosition(node.firstChild, text.length);
-    }
     textarea.dispatchEvent(new KeyboardEvent('keydown', { key: '@' }));
   };
 

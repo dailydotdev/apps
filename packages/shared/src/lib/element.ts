@@ -1,112 +1,64 @@
-import { isTesting } from './constants';
+export type CaretPosition = [number, number, number?];
 
-export const isBreakLine = (node: Node): boolean => !node.nodeValue;
+const getEndIndex = (value: string, start: number) => {
+  const end = value.indexOf(' ', start);
 
-export type CaretPosition = [number, number];
-
-export function setCaretPosition(el: Node, col: number): void {
-  const range = document.createRange();
-  const sel = window.getSelection();
-
-  range.setStart(el, col);
-  range.collapse(true);
-
-  sel.removeAllRanges();
-  sel.addRange(range);
-}
-
-const getNodeText = (node: Node) => {
-  if (isTesting) {
-    const el = node as HTMLElement;
-
-    return el.innerText.substring(1);
-  }
-
-  return node?.nodeValue || node?.firstChild?.nodeValue;
+  return end === -1 ? undefined : end;
 };
 
 export function getWord(
-  parent: Element,
+  textarea: HTMLTextAreaElement,
   [col, row]: CaretPosition,
-  query: string,
 ): string {
-  const node = Array.from(parent.childNodes).find((_, index) => index === row);
-  const text = getNodeText(node || parent);
+  const line = textarea.value.split('\n')[row - 1];
+  const end = getEndIndex(line, col);
 
-  if (!text) {
-    return '';
-  }
-
-  return text.substring(col, col + query.length + 1);
+  return line.substring(col, end);
 }
 
 export function replaceWord(
-  parent: Element,
+  textarea: HTMLTextAreaElement,
   [col, row]: CaretPosition,
   query: string,
   replacement: string,
 ): void {
-  const node = Array.from(parent.childNodes).find((_, index) => index === row);
-  const text = getNodeText(node);
-  const left = text.substring(0, col - 1);
-  const right = text.substring(col + query.length - 1);
-  const result = `${left}${replacement}${right}`;
+  const result = textarea.value.split('\n').map((line, index) => {
+    if (index !== row - 1) {
+      return line;
+    }
 
-  if (node.nodeValue) {
-    node.nodeValue = result;
-    setCaretPosition(node, col + replacement.length - 1);
-  } else {
-    const el = node as HTMLElement;
-    el.innerText = result;
-    setCaretPosition(el.firstChild, col + replacement.length - 1);
-  }
+    const left = line.substring(0, col - 1);
+    const right = line.substring(col + query.length - 1);
+
+    return `${left}${replacement} ${right}`;
+  });
+
+  // eslint-disable-next-line no-param-reassign
+  textarea.value = result.join('\n');
 }
 
-export function getCaretPostition(el: Element): CaretPosition {
-  const sel = window.getSelection();
-  const row = Array.from(el.childNodes).findIndex((child) => {
-    const node = child.nodeValue ? child : child.firstChild;
+export function getCaretPostition(
+  textarea: HTMLTextAreaElement,
+): CaretPosition {
+  const start = textarea.selectionStart;
+  const lines = textarea.value.substring(0, start).split('\n');
+  const row = lines.length;
+  const col = lines[lines.length - 1].length;
 
-    return sel.anchorNode === node;
-  });
-  return [sel.anchorOffset, row === -1 ? 0 : row];
+  return [col, row, start];
 }
 
 export function hasSpaceBeforeWord(
-  node: HTMLElement,
+  textarea: HTMLTextAreaElement,
   [col, row]: CaretPosition,
 ): [boolean, string, number] {
-  if (isTesting) {
-    return [true, node.innerText.substring(1), 0];
-  }
-
   if (col === 0) {
     return [false, '', -1];
   }
 
-  const child = Array.from(node.childNodes).find((_, index) => index === row);
-  const element = child.nodeValue ? child : child.firstChild;
-
-  if (isBreakLine(element)) {
-    return [false, '', -1];
-  }
-
-  if (col === 1) {
-    return [element.nodeValue.charAt(0) === '@', '', 1];
-  }
-
-  const words = element.nodeValue.split(' ');
-
-  if (words.length === 1) {
-    return [
-      element.nodeValue.charAt(0) === '@',
-      element.nodeValue.substring(1),
-      1,
-    ];
-  }
-
   let position = 0;
-  const query = words.find((word, index) => {
+  const line = textarea.value.split('\n')[row - 1];
+  const query = line.split(' ').find((word, index) => {
     const offset = index > 0 ? 1 : 0;
     position += word.length + offset;
 
