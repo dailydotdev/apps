@@ -122,8 +122,8 @@ it('should disable submit button when no input', async () => {
 
 it('should enable submit button when no input', async () => {
   renderComponent();
-  const input = await screen.findByRole('textbox');
-  input.innerText = 'My new comment';
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  input.value = 'My new comment';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const el = await screen.findByText('Comment');
   expect(el.getAttribute('disabled')).toBeFalsy();
@@ -154,8 +154,8 @@ it('should send commentOnPost mutation', async () => {
       },
     },
   ]);
-  const input = await screen.findByRole('textbox');
-  input.innerText = 'comment';
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  input.value = 'comment';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const el = await screen.findByText('Comment');
   el.click();
@@ -189,8 +189,8 @@ it('should send commentOnComment mutation', async () => {
       },
     },
   ]);
-  const input = await screen.findByRole('textbox');
-  input.innerText = 'comment';
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  input.value = 'comment';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const el = await screen.findByText('Comment');
   el.click();
@@ -224,8 +224,8 @@ it('should not send comment if the input is spaces only', async () => {
       },
     },
   ]);
-  const input = await screen.findByRole('textbox');
-  input.innerText = '   ';
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  input.value = '   ';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const el = await screen.findByText('Comment');
   el.click();
@@ -247,8 +247,8 @@ it('should show alert in case of an error', async () => {
       },
     },
   ]);
-  const input = await screen.findByRole('textbox');
-  input.innerText = 'comment';
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  input.value = 'comment';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const el = await screen.findByText('Comment');
   el.click();
@@ -289,8 +289,8 @@ it('should send editComment mutation', async () => {
       },
     },
   ]);
-  const input = await screen.findByRole('textbox');
-  input.innerText = 'comment';
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  input.value = 'comment';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const el = await screen.findByText('Update');
   el.click();
@@ -319,8 +319,8 @@ it('should recommend users previously mentioned', async () => {
       },
     },
   ]);
-  const input = await screen.findByRole('textbox');
-  input.innerText = '@';
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  input.value = '@';
   Simulate.keyDown(input, { key: '@' });
   await waitForNock();
   expect(queryPreviouslyMentioned).toBeTruthy();
@@ -361,11 +361,11 @@ it('should recommend users based on query', async () => {
       },
     },
   ]);
-  const input = await screen.findByRole('textbox');
-  input.innerText = '@';
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  input.value = '@';
   Simulate.keyDown(input, { key: '@' });
   await new Promise((resolve) => setTimeout(resolve, 500));
-  input.innerText = '@l';
+  input.value = '@l';
   Simulate.keyDown(input, { key: 'l' });
   await waitForNock();
   expect(queryMatchingNameOrUsername).toBeTruthy();

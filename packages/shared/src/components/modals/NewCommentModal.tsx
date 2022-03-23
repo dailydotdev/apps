@@ -334,6 +334,7 @@ export default function NewCommentModal({
           onPaste={onPaste}
           tabIndex={0}
           aria-label="New comment box"
+          aria-multiline
         />
       </div>
       <RecommendedMentionTooltip
