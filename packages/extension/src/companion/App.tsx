@@ -111,7 +111,7 @@ function InternalApp({ postData, onOptOut }: { postData: BootData; onOptOut }) {
             {notification}
           </CardNotification>
         )}
-        <SimpleTooltip placement="left" content="Toggle">
+        <SimpleTooltip placement="left" content="Toggle" appendTo="parent">
           <Button
             buttonSize="medium"
             className={classNames(
@@ -141,7 +141,7 @@ function InternalApp({ postData, onOptOut }: { postData: BootData; onOptOut }) {
             onClick={() => setCompanionState(!companionState)}
           />
         </SimpleTooltip>
-        <SimpleTooltip placement="left" content="Upvote">
+        <SimpleTooltip placement="left" content="Upvote" appendTo="parent">
           <Button
             buttonSize="medium"
             icon={<UpvoteIcon />}
@@ -150,7 +150,7 @@ function InternalApp({ postData, onOptOut }: { postData: BootData; onOptOut }) {
             className="btn-tertiary-avocado"
           />
         </SimpleTooltip>
-        <SimpleTooltip placement="left" content="Comments">
+        <SimpleTooltip placement="left" content="Comments" appendTo="parent">
           <Button
             href={post?.commentsPermalink}
             tag="a"
@@ -159,7 +159,7 @@ function InternalApp({ postData, onOptOut }: { postData: BootData; onOptOut }) {
             icon={<CommentIcon />}
           />
         </SimpleTooltip>
-        <SimpleTooltip placement="left" content="Bookmark">
+        <SimpleTooltip placement="left" content="Bookmark" appendTo="parent">
           <Button
             buttonSize="medium"
             pressed={post?.bookmarked}
@@ -168,7 +168,7 @@ function InternalApp({ postData, onOptOut }: { postData: BootData; onOptOut }) {
             icon={<BookmarkIcon />}
           />
         </SimpleTooltip>
-        <SimpleTooltip placement="left" content="Options">
+        <SimpleTooltip placement="left" content="Options" appendTo="parent">
           <Button
             buttonSize="medium"
             className="btn-tertiary"
