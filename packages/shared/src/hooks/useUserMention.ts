@@ -22,6 +22,8 @@ import {
   getWord,
   hasSpaceBeforeWord,
   replaceWord,
+  getCaretOffset,
+  CaretOffset,
 } from '../lib/element';
 import { nextTick } from '../lib/func';
 
@@ -30,7 +32,7 @@ interface UseUserMention {
   onMentionKeypress: (event: ReactKeyboardEvent) => unknown;
   selected: number;
   mentions: UserShortProfile[];
-  offset: CaretPosition;
+  offset: CaretOffset;
   onInputClick?: () => unknown;
   onMentionClick?: (username: string) => unknown;
   onInitializeMention: () => unknown;
@@ -53,7 +55,8 @@ export function useUserMention({
   const { user } = useContext(AuthContext);
   const client = useQueryClient();
   const [selected, setSelected] = useState(0);
-  const [offset, setOffset] = useState<CaretPosition>([0, 0, 0]);
+  const [offset, setOffset] = useState<[number, number]>([0, 0]);
+  const [position, setPosition] = useState<CaretPosition>([0, 0, 0]);
   const [query, setQuery] = useState<string>();
   const { data = { recommendedMentions: [] }, refetch } =
     useQuery<RecommendedMentionsData>(
@@ -74,19 +77,24 @@ export function useUserMention({
 
   const initializeMention = async (isInvalidCallback?: () => unknown) => {
     await nextTick();
-    const [col, row, start] = getCaretPostition(commentRef.current);
-    const [isValidTrigger, word, charAt] = hasSpaceBeforeWord(
-      commentRef.current,
-      [col, row],
-    );
+    const textarea = commentRef.current;
+    const [col, row, start] = getCaretPostition(textarea);
+    const [isValidTrigger, word, charAt] = hasSpaceBeforeWord(textarea, [
+      col,
+      row,
+      start,
+    ]);
 
     if (!isValidTrigger) {
       isInvalidCallback?.();
       return;
     }
 
+    const currentCoordinates = getCaretOffset(textarea);
+
     setQuery(word);
-    setOffset([charAt, row, start]);
+    setPosition([charAt, row, start]);
+    setOffset(currentCoordinates);
   };
 
   const onMention = (username: string) => {
@@ -94,16 +102,16 @@ export function useUserMention({
       return;
     }
 
-    const [, , start] = offset;
+    const [, , start] = position;
     const element = commentRef.current;
     const mention = `@${query}`;
     const replacement = `@${username}`;
-    replaceWord(element, offset, mention, replacement);
+    replaceWord(element, position, mention, replacement);
     element.focus();
     element.selectionEnd = start + replacement.length;
     setQuery(undefined);
     client.setQueryData(key, []);
-    onInput(element.innerText);
+    onInput(element.value);
   };
 
   const onArrowKey = (arrowKey: string) => {
@@ -115,7 +123,7 @@ export function useUserMention({
   };
 
   const onBackspace = (el: HTMLTextAreaElement) => {
-    const backspaced = getWord(el, offset);
+    const backspaced = getWord(el, position);
     const value =
       (query === '' && backspaced === '') || query === backspaced
         ? undefined
@@ -161,7 +169,7 @@ export function useUserMention({
 
     const value = isSpecialCharacter(event.key)
       ? undefined
-      : getWord(commentRef.current, offset);
+      : getWord(commentRef.current, position);
 
     setQuery(value);
 

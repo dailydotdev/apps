@@ -1,24 +1,21 @@
 import React, { MutableRefObject, ReactElement } from 'react';
-import { BaseTooltip, getShouldLoadTooltip } from './BaseTooltip';
+import { BaseTooltip } from './BaseTooltip';
 import { RecommendedMention } from '../RecommendedMention';
 import { UserShortProfile } from '../../lib/user';
-import { CaretPosition } from '../../lib/element';
+import { CaretOffset } from '../../lib/element';
+import { isTesting } from '../../lib/constants';
 
 interface RecommendedMentionTooltipProps {
   query?: string;
   selected?: number;
   mentions?: UserShortProfile[];
-  offset?: CaretPosition;
+  offset?: CaretOffset;
   onMentionClick?: (username: string) => unknown;
   elementRef: MutableRefObject<HTMLElement>;
 }
 
 const EXTRA_SPACES = 26;
-const CHAR_WIDTH = 7;
-const LINE_HEIGHT = 18;
 const PER_ITEM_HEIGHT = 64;
-const getOffsetPerLine = (row: number) => (row - 1) * LINE_HEIGHT * -1;
-const getOffsetPerChar = (col: number) => col * CHAR_WIDTH;
 
 export function RecommendedMentionTooltip({
   query,
@@ -28,12 +25,12 @@ export function RecommendedMentionTooltip({
   onMentionClick,
   elementRef,
 }: RecommendedMentionTooltipProps): ReactElement {
-  if (!getShouldLoadTooltip()) {
+  if (isTesting) {
     return null;
   }
 
   const [offsetX, offsetY] = offset;
-  const lines = PER_ITEM_HEIGHT * mentions.length * -1;
+  const lines = PER_ITEM_HEIGHT * mentions.length;
 
   return (
     <BaseTooltip
@@ -45,10 +42,7 @@ export function RecommendedMentionTooltip({
           onClick={onMentionClick}
         />
       }
-      offset={[
-        getOffsetPerChar(offsetX),
-        getOffsetPerLine(offsetY) + lines + -EXTRA_SPACES,
-      ]}
+      offset={[offsetX, (offsetY + lines + EXTRA_SPACES) * -1]}
       interactive
       container={{
         className: 'shadow',

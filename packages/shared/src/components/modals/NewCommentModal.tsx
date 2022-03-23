@@ -319,11 +319,11 @@ export default function NewCommentModal({
           </strong>
         </div>
       </div>
-      <div className="flex px-2">
+      <div className="flex relative px-2">
         <ProfilePicture user={user} size="small" />
         <textarea
           className={classNames(
-            'ml-3 flex-1 text-theme-label-primary bg-transparent border-none caret-theme-label-link whitespace-pre-line break-words break-words-overflow typo-subhead',
+            'ml-3 flex-1 text-theme-label-primary bg-transparent border-none caret-theme-label-link break-words typo-subhead resize-none',
             styles.textarea,
           )}
           ref={commentRef}
