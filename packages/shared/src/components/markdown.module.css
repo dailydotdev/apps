@@ -51,6 +51,25 @@
   & :where(a) {
     @apply text-theme-label-link hover:underline;
   }
+  & :where(a[data-mention-username]) {
+    @apply z-0 relative text-theme-label-primary hover:underline font-bold px-1 rounded-6;
+    &:before {
+      content: '';
+      @apply -z-1 absolute w-full h-full left-0 top-0 rounded-6 bg-theme-overlay-water opacity-24;
+    }
+    &:after {
+      content: '';
+      @apply -z-1 absolute w-full h-full left-0 top-0 rounded-6 bg-theme-status-cabbage opacity-24;
+    }
+    &:hover {
+      &::before {
+        @apply opacity-32;
+      }
+      &::after {
+        @apply opacity-32;
+      }
+    }
+  }
   & :where(hr) {
     @apply border-theme-divider-secondary my-10;
   }
@@ -72,25 +91,25 @@
         .hljs-constant, .xml .hljs-tag .hljs-title, .xml .hljs-pi, .xml
         .hljs-doctype, .html .hljs-doctype, .css .hljs-id, .css
         .hljs-class, .css .hljs-pseudo)) {
-          color: var(--theme-highlight-red);
+    color: var(--theme-highlight-red);
   }
   &
     :where(pre)
     :global(:where(.hljs-number, .hljs-preprocessor, .hljs-built_in, .hljs-literal, .hljs-params, .hljs-constant)) {
-      color: var(--theme-highlight-orange);
+    color: var(--theme-highlight-orange);
   }
   &
     :where(pre)
     :global(:where(.ruby .hljs-class .hljs-title, .css
         .hljs-rules
         .hljs-attribute)) {
-          color: var(--theme-highlight-yellow);
+    color: var(--theme-highlight-yellow);
   }
   &
     :where(pre)
     :global(:where(.hljs-string, .hljs-value, .hljs-inheritance, .hljs-header, .ruby
         .hljs-symbol, .xml .hljs-cdata)) {
-          color: var(--theme-highlight-green);
+    color: var(--theme-highlight-green);
   }
   & :where(pre) :global(:where(.css .hljs-hexcolor)) {
     color: var(--theme-highlight-aqua);
@@ -102,7 +121,7 @@
         .hljs-title
         .hljs-keyword, .perl .hljs-sub, .javascript .hljs-title, .coffeescript
         .hljs-title)) {
-          color: var(--theme-highlight-blue);
+    color: var(--theme-highlight-blue);
   }
 
   & :where(pre) :global(:where(.hljs-keyword, .javascript .hljs-function)) {

@@ -1,5 +1,5 @@
 import { QueryKey, UseInfiniteQueryOptions } from 'react-query';
-import { UpvoterProfile } from '../lib/user';
+import { UserShortProfile } from '../lib/user';
 // GraphQL Relay pagination types
 
 export type ConnectionCursor = string;
@@ -27,7 +27,7 @@ export interface Edge<T> {
 export const DEFAULT_UPVOTES_PER_PAGE = 50;
 
 export interface Upvote {
-  user: UpvoterProfile;
+  user: UserShortProfile;
   createdAt: Date;
 }
 

@@ -42,6 +42,7 @@ module.exports = {
         },
         overlay: {
           quaternary: 'var(--theme-overlay-quaternary)',
+          water: 'var(--theme-overlay-water)',
         },
         status: {
           error: 'var(--theme-status-error)',

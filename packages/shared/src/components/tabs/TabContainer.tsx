@@ -25,12 +25,16 @@ export interface TabContainerProps {
   children?: ReactElement<TabProps>[];
   shouldMountInactive?: boolean;
   onActiveChange?: (active: string) => unknown;
+  className?: string;
+  style?: CSSProperties;
 }
 
 function TabContainer({
   children,
   shouldMountInactive = false,
   onActiveChange,
+  className,
+  style,
 }: TabContainerProps): ReactElement {
   const [active, setActive] = useState(children[0].props.label);
   const onClick = (label: string) => {
@@ -52,7 +56,7 @@ function TabContainer({
   };
 
   return (
-    <div className="flex flex-col">
+    <div className={classNames('flex flex-col', className)} style={style}>
       <header className="flex flex-row border-b border-theme-divider-tertiary">
         <TabList
           items={children.map((child) => child.props.label)}
