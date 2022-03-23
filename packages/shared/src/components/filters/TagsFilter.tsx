@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import { useQuery } from 'react-query';
 import request from 'graphql-request';
+import classNames from 'classnames';
 import { SearchField } from '../fields/SearchField';
 import { apiUrl } from '../../lib/config';
 import { getSearchTagsQueryKey } from '../../hooks/useMutateFilters';
@@ -25,6 +26,21 @@ import AuthContext from '../../contexts/AuthContext';
 import { useMyFeed } from '../../hooks/useMyFeed';
 import { Features, getFeatureValue } from '../../lib/featureManagement';
 import FeaturesContext from '../../contexts/FeaturesContext';
+
+const containerClass = {
+  v3: 'flex-col-reverse',
+  v5: 'flex-col-reverse',
+};
+
+const searchFieldClass = {
+  v3: 'mt-6 mb-2',
+  v5: 'mb-2',
+};
+
+const paragraphClass = {
+  v4: 'mb-2',
+  v5: 'mb-6',
+};
 
 export default function TagsFilter({
   onUnblockItem,
@@ -72,48 +88,38 @@ export default function TagsFilter({
     });
   };
 
-  const getDescriptionParagraph = () => {
-    return (
-      <p className="typo-callout text-theme-label-tertiary">
-        Let’s super-charge your feed with relevant content! Start by choosing
-        tags you want to follow, and we will curate your feed accordingly.
-      </p>
-    );
-  };
-
-  const getSearchBar = (searchClassName: string) => {
-    return (
-      <SearchField
-        inputId="search-filters"
-        placeholder="Search"
-        className={searchClassName}
-        ref={searchRef}
-        valueChanged={setQuery}
-        key="search-bar"
-      />
-    );
-  };
-
   return (
     <div
       className="flex flex-col"
       aria-busy={isLoading}
       data-testid="tagsFilter"
     >
-      {(feedFilterModalType === 'v1' ||
-        feedFilterModalType === 'v2' ||
-        feedFilterModalType === 'v4') && [
-        getSearchBar('mx-6 mb-6'),
-        <div className="flex flex-col px-6 pb-6" key="description">
+      <div
+        className={classNames(
+          containerClass[feedFilterModalType] ?? 'flex-col',
+          'flex px-6 pb-6',
+        )}
+      >
+        <SearchField
+          inputId="search-filters"
+          placeholder="Search"
+          className={classNames(searchFieldClass[feedFilterModalType], 'mb-6')}
+          ref={searchRef}
+          valueChanged={setQuery}
+        />
+
+        {['v1', 'v2', 'v4'].includes(feedFilterModalType) && (
           <h3 className="mb-3 typo-headline">Choose tags to follow</h3>
-          {getDescriptionParagraph()}
-        </div>,
-      ]}
-      <div className="flex flex-col px-6 pb-6">
-        {(feedFilterModalType === 'v3' || feedFilterModalType === 'v5') && [
-          getDescriptionParagraph(),
-          getSearchBar('mt-6 mb-2'),
-        ]}
+        )}
+        <p
+          className={classNames(
+            paragraphClass[feedFilterModalType],
+            'typo-callout text-theme-label-tertiary',
+          )}
+        >
+          Let’s super-charge your feed with relevant content! Start by choosing
+          tags you want to follow, and we will curate your feed accordingly.
+        </p>
       </div>
 
       {query?.length > 0 && (

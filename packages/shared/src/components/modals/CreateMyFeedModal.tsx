@@ -36,7 +36,7 @@ const headerTitle = {
   v5: 'Choose tags to follow',
 };
 
-const getCreateButton = (type) => {
+const getCreateButton = (type: string) => {
   return (
     <CreateFeedFilterButton
       className={classNames(buttonClass[type], 'btn-primary-cabbage')}
@@ -114,7 +114,7 @@ export default function CreateMyFeedModal({
         <section className="mt-6">
           <TagsFilter />
         </section>
-        {['v2', 'v3'].includes(type) && getFooter({ type, onRequestClose })}
+        {['v4', 'v5'].includes(type) && getFooter({ type, onRequestClose })}
       </ResponsiveModal>
     </>
   );
