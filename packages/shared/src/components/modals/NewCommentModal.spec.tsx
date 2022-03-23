@@ -9,6 +9,7 @@ import {
   COMMENT_ON_COMMENT_MUTATION,
   COMMENT_ON_POST_MUTATION,
   EDIT_COMMENT_MUTATION,
+  PREVIEW_COMMENT_MUTATION,
 } from '../../graphql/comments';
 import {
   MockedGraphQLResponse,
@@ -293,4 +294,25 @@ it('should send editComment mutation', async () => {
   await waitFor(() => mutationCalled);
   await waitFor(() => expect(onComment).toBeCalledTimes(0));
   await waitFor(() => expect(onRequestClose).toBeCalledTimes(1));
+});
+
+it('should send previewComment query', async () => {
+  let queryCalled = false;
+  mockGraphQL({
+    request: {
+      query: PREVIEW_COMMENT_MUTATION,
+      variables: { content: '# Test' },
+    },
+    result: () => {
+      queryCalled = true;
+      return { data: { preview: '<h1>Test</>' } };
+    },
+  });
+  renderComponent();
+  const input = await screen.findByRole('textbox');
+  input.innerText = '# Test';
+  input.dispatchEvent(new Event('input', { bubbles: true }));
+  const preview = await screen.findByText('Preview');
+  preview.click();
+  await waitFor(() => queryCalled);
 });

@@ -1,6 +1,5 @@
 import { useContext } from 'react';
 import { Post } from '../../graphql/posts';
-import { logReadArticle } from '../../lib/analytics';
 import { FeedItem, PostItem } from '../useFeed';
 import useIncrementReadingRank from '../useIncrementReadingRank';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
@@ -25,7 +24,6 @@ export default function useFeedOnPostClick(
         ...feedAnalyticsExtra(feedName, ranking),
       }),
     );
-    await logReadArticle('feed');
     if (!post.read) {
       await incrementReadingRank();
     }
