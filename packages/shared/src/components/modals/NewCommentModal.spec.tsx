@@ -11,6 +11,7 @@ import {
   COMMENT_ON_POST_MUTATION,
   EDIT_COMMENT_MUTATION,
   RECOMMEND_MENTIONS_QUERY,
+  PREVIEW_COMMENT_MUTATION,
 } from '../../graphql/comments';
 import {
   MockedGraphQLResponse,
@@ -385,4 +386,25 @@ describe('recommended mention component', () => {
     await screen.findByText('Lee');
     await screen.findByAltText(`sshanzel's profile`);
   });
+});
+
+it('should send previewComment query', async () => {
+  let queryCalled = false;
+  mockGraphQL({
+    request: {
+      query: PREVIEW_COMMENT_MUTATION,
+      variables: { content: '# Test' },
+    },
+    result: () => {
+      queryCalled = true;
+      return { data: { preview: '<h1>Test</>' } };
+    },
+  });
+  renderComponent();
+  const input = await screen.findByRole('textbox');
+  input.innerText = '# Test';
+  input.dispatchEvent(new Event('input', { bubbles: true }));
+  const preview = await screen.findByText('Preview');
+  preview.click();
+  await waitFor(() => queryCalled);
 });

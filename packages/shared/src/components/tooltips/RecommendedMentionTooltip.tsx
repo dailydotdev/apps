@@ -11,7 +11,7 @@ interface RecommendedMentionTooltipProps {
   mentions?: UserShortProfile[];
   offset?: CaretOffset;
   onMentionClick?: (username: string) => unknown;
-  elementRef: MutableRefObject<HTMLElement>;
+  elementRef: MutableRefObject<HTMLTextAreaElement>;
 }
 
 const EXTRA_SPACES = 26;

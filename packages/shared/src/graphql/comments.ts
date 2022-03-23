@@ -207,3 +207,9 @@ export const EDIT_COMMENT_MUTATION = gql`
   }
   ${COMMENT_FRAGMENT}
 `;
+
+export const PREVIEW_COMMENT_MUTATION = gql`
+  query CommentPreview($content: String!) {
+    preview: commentPreview(content: $content)
+  }
+`;

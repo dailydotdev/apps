@@ -1,101 +1,93 @@
 import React, {
-  FormEvent,
   ReactElement,
-  useContext,
   useState,
   MouseEvent,
-  useEffect,
   KeyboardEvent,
-  ClipboardEvent,
-  useRef,
+  useContext,
+  KeyboardEventHandler,
 } from 'react';
 import dynamic from 'next/dynamic';
-import cloneDeep from 'lodash.clonedeep';
-import { useMutation, useQueryClient } from 'react-query';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 import request from 'graphql-request';
-import classNames from 'classnames';
-import AuthContext from '../../contexts/AuthContext';
-import { commentBoxClassNames } from '../comments/common';
+import cloneDeep from 'lodash.clonedeep';
 import {
   Comment,
+  CommentOnData,
   COMMENT_ON_COMMENT_MUTATION,
   COMMENT_ON_POST_MUTATION,
-  CommentOnData,
   EDIT_COMMENT_MUTATION,
   PostCommentsData,
+  PREVIEW_COMMENT_MUTATION,
 } from '../../graphql/comments';
-import { Edge } from '../../graphql/common';
 import { apiUrl } from '../../lib/config';
-import { commentDateFormat } from '../../lib/dateFormat';
-import { Button } from '../buttons/Button';
 import { ResponsiveModal } from './ResponsiveModal';
-import { RoundedImage } from '../utilities';
 import { ModalProps } from './StyledModal';
-import styles from './NewCommentModal.module.css';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { Post } from '../../graphql/posts';
-import { postAnalyticsEvent } from '../../lib/feed';
-import { ProfilePicture } from '../ProfilePicture';
 import Markdown from '../Markdown';
-import { ClickableText } from '../buttons/ClickableText';
-import AtIcon from '../../../icons/at.svg';
-import { useUserMention } from '../../hooks/useUserMention';
-import { RecommendedMentionTooltip } from '../tooltips/RecommendedMentionTooltip';
+import TabContainer, { Tab } from '../tabs/TabContainer';
+import CommentBox, { CommentBoxProps } from './CommentBox';
+import { Button } from '../buttons/Button';
+import { Edge } from '../../graphql/common';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { postAnalyticsEvent } from '../../lib/feed';
+import { Post } from '../../graphql/posts';
+import { ModalCloseButton } from './ModalCloseButton';
 
 const DiscardCommentModal = dynamic(() => import('./DiscardCommentModal'));
-
-export interface NewCommentModalProps extends ModalProps {
-  authorName: string;
-  authorImage: string;
-  publishDate: Date | string;
-  content: string;
-  contentHtml: string;
-  commentId: string | null;
-  post: Post;
-  onComment?: (newComment: Comment, parentId: string | null) => void;
-  editContent?: string;
-  editId?: string;
-}
 
 interface CommentVariables {
   id: string;
   content: string;
 }
 
+type CommentProps = Omit<
+  CommentBoxProps,
+  | 'onKeyDown'
+  | 'input'
+  | 'errorMessage'
+  | 'sendingComment'
+  | 'sendComment'
+  | 'onInput'
+  | 'onKeyDown'
+>;
+
+export interface NewCommentModalProps extends ModalProps, CommentProps {
+  post: Post;
+  commentId: string;
+  onComment?: (newComment: Comment, parentId: string | null) => void;
+  editContent?: string;
+  editId?: string;
+}
+
 export default function NewCommentModal({
-  authorImage,
-  authorName,
-  publishDate,
-  content,
-  contentHtml,
   onRequestClose,
-  onComment,
-  editContent,
   editId,
+  onComment,
   ...props
 }: NewCommentModalProps): ReactElement {
-  const { user } = useContext(AuthContext);
-  const { trackEvent } = useContext(AnalyticsContext);
   const [input, setInput] = useState<string>(null);
-  const [errorMessage, setErrorMessage] = useState<string>(null);
-  const [sendingComment, setSendingComment] = useState<boolean>(false);
   const [showDiscardModal, setShowDiscardModal] = useState<boolean>(false);
-  const commentRef = useRef<HTMLTextAreaElement>(null);
   const queryClient = useQueryClient();
-  const {
-    onMentionClick,
-    onMentionKeypress,
-    offset,
-    mentions,
-    mentionQuery,
-    selected,
-    onInitializeMention,
-    onInputClick,
-  } = useUserMention({
-    postId: props.post.id,
-    commentRef,
-    onInput: setInput,
-  });
+  const [activeTab, setActiveTab] = useState('Write');
+  const [sendingComment, setSendingComment] = useState<boolean>(false);
+  const { trackEvent } = useContext(AnalyticsContext);
+  const [errorMessage, setErrorMessage] = useState<string>(null);
+  const isPreview = activeTab === 'Preview';
+  const { data: previewContent } = useQuery<{ preview: string }>(
+    input,
+    () =>
+      request(`${apiUrl}/graphql`, PREVIEW_COMMENT_MUTATION, {
+        content: input,
+      }),
+    { enabled: isPreview && input?.length > 0 },
+  );
+
+  const confirmClose = (event: MouseEvent): void => {
+    if (input?.length) {
+      setShowDiscardModal(true);
+    } else {
+      onRequestClose(event);
+    }
+  };
 
   const { mutateAsync: comment } = useMutation<
     CommentOnData,
@@ -207,10 +199,6 @@ export default function NewCommentModal({
     }
   };
 
-  const onInput = (event: FormEvent<HTMLTextAreaElement>): void => {
-    setInput(event.currentTarget.value);
-  };
-
   const sendComment = async (
     event: MouseEvent | KeyboardEvent,
   ): Promise<void> => {
@@ -245,7 +233,10 @@ export default function NewCommentModal({
     }
   };
 
-  const onKeyDown = async (event: KeyboardEvent): Promise<void> => {
+  const onKeyDown = async (
+    event: KeyboardEvent<HTMLTextAreaElement>,
+    defaultCallback?: KeyboardEventHandler<HTMLTextAreaElement>,
+  ): Promise<void> => {
     // Ctrl / Command + Enter
     if (
       (event.ctrlKey || event.metaKey) &&
@@ -254,34 +245,9 @@ export default function NewCommentModal({
     ) {
       await sendComment(event);
     } else {
-      onMentionKeypress(event);
+      defaultCallback?.(event);
     }
   };
-
-  const onPaste = (event: ClipboardEvent): void => {
-    event.preventDefault();
-    const text = event.clipboardData.getData('text/plain');
-    if (document.queryCommandSupported('insertText')) {
-      document.execCommand('insertText', false, text);
-    } else {
-      document.execCommand('paste', false, text);
-    }
-  };
-
-  const confirmClose = (event: MouseEvent): void => {
-    if (input?.length) {
-      setShowDiscardModal(true);
-    } else {
-      onRequestClose(event);
-    }
-  };
-
-  useEffect(() => {
-    commentRef.current?.focus();
-    if (commentRef.current && editContent) {
-      commentRef.current.textContent = editContent;
-    }
-  }, []);
 
   return (
     <ResponsiveModal
@@ -289,94 +255,43 @@ export default function NewCommentModal({
       onRequestClose={confirmClose}
       {...props}
     >
-      <article
-        className={`flex flex-col items-stretch ${commentBoxClassNames}`}
+      <ModalCloseButton onClick={confirmClose} className="top-2" />
+      <TabContainer
+        onActiveChange={(active: string) => setActiveTab(active)}
+        shouldMountInactive
       >
-        <header className="flex items-center mb-2">
-          <RoundedImage
-            imgSrc={authorImage}
-            imgAlt={`${authorName}'s profile`}
-            background="var(--theme-background-secondary)"
+        <Tab label="Write">
+          <CommentBox
+            {...props}
+            onInput={setInput}
+            input={input}
+            editId={editId}
+            errorMessage={errorMessage}
+            sendingComment={sendingComment}
+            sendComment={sendComment}
+            onKeyDown={onKeyDown}
           />
-          <div className="flex flex-col ml-2">
-            <div className="truncate typo-callout">{authorName}</div>
-            <time
-              dateTime={publishDate.toString()}
-              className="text-theme-label-tertiary typo-callout"
-            >
-              {commentDateFormat(publishDate)}
-            </time>
-          </div>
-        </header>
-        <Markdown content={contentHtml} />
-      </article>
-      <div className="flex items-center px-2 h-11">
-        <div className="ml-3 w-px h-full bg-theme-divider-tertiary" />
-        <div className="ml-6 text-theme-label-secondary typo-caption1">
-          Reply to{' '}
-          <strong className="font-bold text-theme-label-primary">
-            {authorName}
-          </strong>
-        </div>
-      </div>
-      <div className="flex relative px-2">
-        <ProfilePicture user={user} size="small" />
-        <textarea
-          className={classNames(
-            'ml-3 flex-1 text-theme-label-primary bg-transparent border-none caret-theme-label-link break-words typo-subhead resize-none',
-            styles.textarea,
+        </Tab>
+        <Tab
+          label="Preview"
+          style={{ minHeight: '28rem' }}
+          className="flex flex-col"
+        >
+          {isPreview && previewContent?.preview && (
+            <Markdown content={previewContent.preview} />
           )}
-          ref={commentRef}
-          placeholder="Write your comment..."
-          onInput={onInput}
-          onKeyDown={onKeyDown}
-          onClick={onInputClick}
-          onPaste={onPaste}
-          tabIndex={0}
-          aria-label="New comment box"
-          aria-multiline
-        />
-      </div>
-      <RecommendedMentionTooltip
-        elementRef={commentRef}
-        offset={offset}
-        mentions={mentions}
-        selected={selected}
-        query={mentionQuery}
-        onMentionClick={onMentionClick}
-      />
-      <div
-        className="my-2 mx-3 text-theme-status-error typo-caption1"
-        style={{ minHeight: '1rem' }}
-      >
-        {errorMessage && <span role="alert">{errorMessage}</span>}
-      </div>
-      <footer className="flex items-center py-3 px-3 border-theme-divider-tertiary">
-        <Button
-          className="mx-1 border border-theme-label-primary btn-tertiary"
-          buttonSize="small"
-          icon={<AtIcon />}
-          onClick={onInitializeMention}
-        />
-        <div className="ml-2 w-px h-6 border border-opacity-24 border-theme-divider-tertiary" />
-        <ClickableText
-          tag="a"
-          href="https://www.markdownguide.org/cheat-sheet/"
-          className="ml-4 typo-caption1"
-          defaultTypo={false}
-          target="_blank"
-        >
-          Markdown supported
-        </ClickableText>
-        <Button
-          disabled={!input?.trim().length}
-          loading={sendingComment}
-          onClick={sendComment}
-          className="ml-auto btn-primary-avocado"
-        >
-          {editId ? 'Update' : 'Comment'}
-        </Button>
-      </footer>
+          {isPreview && (
+            <Button
+              disabled={!input?.trim().length}
+              loading={sendingComment}
+              onClick={sendComment}
+              className="mt-auto ml-auto btn-primary-avocado"
+            >
+              {editId ? 'Update' : 'Comment'}
+            </Button>
+          )}
+        </Tab>
+      </TabContainer>
       <DiscardCommentModal
         isOpen={showDiscardModal}
         onRequestClose={() => setShowDiscardModal(false)}

@@ -4,13 +4,16 @@ import React, {
   MouseEvent,
   forwardRef,
   ForwardedRef,
-  ReactNode,
 } from 'react';
 import classNames from 'classnames';
 import { useInputField } from '../../hooks/useInputField';
 import { BaseField, FieldInput } from './common';
-import MagnifyingIcon from '../../../icons/magnifying.svg';
+import MagnifyingOutlineIcon from '../../../icons/outline/magnifying.svg';
+import MagnifyingFilledIcon from '../../../icons/filled/magnifying.svg';
 import XIcon from '../../../icons/x.svg';
+import ArrowIcon from '../../../icons/arrow.svg';
+import { Button, ButtonProps } from '../buttons/Button';
+import { getInputFontColor } from './TextField';
 
 export interface SearchFieldProps
   extends Pick<
@@ -27,14 +30,24 @@ export interface SearchFieldProps
     | 'aria-expanded'
     | 'onKeyDown'
     | 'type'
+    | 'disabled'
+    | 'readOnly'
     | 'aria-describedby'
   > {
   inputId: string;
   valueChanged?: (value: string) => void;
-  compact?: boolean;
+  fieldSize?: 'large' | 'medium';
   showIcon?: boolean;
-  rightChildren?: ReactNode;
+  fieldType?: 'primary' | 'secondary';
+  rightButtonProps?: ButtonProps<'button'>;
 }
+
+const ButtonIcon = ({ isPrimary }: { isPrimary: boolean }) =>
+  isPrimary ? (
+    <XIcon className="text-lg icon group-hover:text-theme-label-primary" />
+  ) : (
+    <ArrowIcon className="rotate-90" />
+  );
 
 export const SearchField = forwardRef(function SearchField(
   {
@@ -42,14 +55,15 @@ export const SearchField = forwardRef(function SearchField(
     name,
     value,
     valueChanged,
-    placeholder,
-    compact = false,
-    showIcon = true,
-    rightChildren,
+    placeholder = 'Search',
+    fieldSize = 'large',
+    readOnly,
+    fieldType = 'primary',
     className,
-    style,
     autoFocus,
     type,
+    disabled,
+    rightButtonProps = { type: 'button' },
     'aria-describedby': describedBy,
     onBlur: externalOnBlur,
     onFocus: externalOnFocus,
@@ -73,17 +87,36 @@ export const SearchField = forwardRef(function SearchField(
     setInput(null);
   };
 
+  const isPrimary = fieldType === 'primary';
+  const isSecondary = fieldType === 'secondary';
+  const SearchIcon = focused ? MagnifyingFilledIcon : MagnifyingOutlineIcon;
+
   return (
     <BaseField
       {...props}
-      className={classNames(compact ? 'h-10' : 'h-12', className)}
-      style={{ ...style, borderRadius: compact ? '0.75rem' : '0.875rem' }}
+      className={classNames(
+        fieldSize === 'medium' ? 'h-10 rounded-12' : 'h-12 rounded-14',
+        className,
+        { focused },
+      )}
       onClick={focusInput}
       data-testid="searchField"
       ref={ref}
     >
-      {showIcon && (
-        <MagnifyingIcon
+      {isSecondary && hasInput ? (
+        <Button
+          type="button"
+          className="mr-2 btn-tertiary"
+          buttonSize="xsmall"
+          title="Clear query"
+          onClick={onClearClick}
+          icon={
+            <XIcon className="text-lg icon group-hover:text-theme-label-primary" />
+          }
+          disabled={!hasInput}
+        />
+      ) : (
+        <SearchIcon
           className="mr-2 text-2xl icon"
           style={{
             color:
@@ -111,21 +144,26 @@ export const SearchField = forwardRef(function SearchField(
         type={type}
         aria-describedby={describedBy}
         autoComplete="off"
-        className="flex-1"
+        className={classNames(
+          'flex-1',
+          getInputFontColor({ readOnly, disabled, hasInput, focused }),
+        )}
         required
       />
-      {rightChildren || (
-        <button
-          type="button"
-          title="Clear query"
-          onClick={onClearClick}
-          className={classNames(
-            'group flex w-8 h-8 items-center justify-center ml-1 bg-transparent cursor-pointer focus-outline',
-            { invisible: !hasInput },
-          )}
-        >
-          <XIcon className="text-lg icon text-theme-label-tertiary group-hover:text-theme-label-primary" />
-        </button>
+      {((hasInput && isPrimary) || isSecondary) && (
+        <Button
+          {...rightButtonProps}
+          className={isSecondary ? 'btn-primary' : 'btn-tertiary'}
+          buttonSize={rightButtonProps.buttonSize || 'xsmall'}
+          title={rightButtonProps.title || 'Clear query'}
+          onClick={
+            rightButtonProps.type !== 'submit'
+              ? onClearClick
+              : rightButtonProps.onClick
+          }
+          icon={<ButtonIcon isPrimary={isPrimary} />}
+          disabled={rightButtonProps?.disabled || !hasInput}
+        />
       )}
     </BaseField>
   );

@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef } from 'react';
 
-type StartFn = () => void;
+type StartFn<T> = (params?: T) => void;
 
-export default function useDebounce(
-  callback: () => unknown,
+export default function useDebounce<T = unknown>(
+  callback: StartFn<T>,
   delay: number,
-): StartFn {
+): StartFn<T> {
   const timeoutRef = useRef<number>();
   const callbackRef = useRef(callback);
 
@@ -17,13 +17,16 @@ export default function useDebounce(
     return () => window.clearTimeout(timeoutRef.current);
   }, []);
 
-  return useCallback(() => {
-    if (timeoutRef.current) {
-      window.clearTimeout(timeoutRef.current);
-    }
-    timeoutRef.current = window.setTimeout(() => {
-      timeoutRef.current = null;
-      callbackRef.current?.();
-    }, delay);
-  }, [delay, timeoutRef, callbackRef]);
+  return useCallback(
+    (args) => {
+      if (timeoutRef.current) {
+        window.clearTimeout(timeoutRef.current);
+      }
+      timeoutRef.current = window.setTimeout(() => {
+        timeoutRef.current = null;
+        callbackRef.current?.(args);
+      }, delay);
+    },
+    [delay, timeoutRef, callbackRef],
+  );
 }
