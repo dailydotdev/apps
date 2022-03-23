@@ -47,7 +47,8 @@ interface UseUserMentionProps {
   commentRef?: MutableRefObject<HTMLTextAreaElement>;
 }
 
-const ARROW_KEYS = ['ArrowUp', 'ArrowDown'];
+const UPDOWN_ARROW_KEYS = ['ArrowUp', 'ArrowDown'];
+const LEFTRIGHT_ARROW_KEYS = ['ArrowLeft', 'ArrowRight'];
 
 export function useUserMention({
   postId,
@@ -136,9 +137,19 @@ export function useUserMention({
     fetchUsers();
   };
 
+  const onInputClick = () => {
+    const isInvalidCallback = () => setQuery(undefined);
+
+    initializeMention(isInvalidCallback);
+  };
+
   const onKeypress = async (
     event: ReactKeyboardEvent<HTMLTextAreaElement>,
   ): Promise<unknown> => {
+    if (LEFTRIGHT_ARROW_KEYS.indexOf(event.key) !== -1) {
+      return onInputClick();
+    }
+
     if (typeof query === 'undefined') {
       if (
         !isAlphaNumeric(event.key) &&
@@ -151,7 +162,7 @@ export function useUserMention({
       return initializeMention();
     }
 
-    if (ARROW_KEYS.indexOf(event.key) !== -1) {
+    if (UPDOWN_ARROW_KEYS.indexOf(event.key) !== -1) {
       onArrowKey(event.key);
       return event.preventDefault();
     }
@@ -182,12 +193,6 @@ export function useUserMention({
     }
 
     return null;
-  };
-
-  const onInputClick = () => {
-    const isInvalidCallback = () => setQuery(undefined);
-
-    initializeMention(isInvalidCallback);
   };
 
   const onInitializeMentionButtonClick = () => {
