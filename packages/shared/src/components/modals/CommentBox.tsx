@@ -131,7 +131,7 @@ function CommentBox({
           </strong>
         </div>
       </div>
-      <div className="flex relative px-2">
+      <div className="flex relative flex-1 px-2">
         <ProfilePicture user={user} size="small" />
         <textarea
           className={classNames(

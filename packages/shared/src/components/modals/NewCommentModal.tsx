@@ -260,8 +260,9 @@ export default function NewCommentModal({
       <TabContainer
         onActiveChange={(active: string) => setActiveTab(active)}
         shouldMountInactive
+        style={{ height: '40rem' }}
       >
-        <Tab label="Write">
+        <Tab label="Write" className="flex flex-col flex-1">
           <CommentBox
             {...props}
             onInput={setInput}
@@ -273,11 +274,7 @@ export default function NewCommentModal({
             onKeyDown={onKeyDown}
           />
         </Tab>
-        <Tab
-          label="Preview"
-          style={{ minHeight: '28rem' }}
-          className="flex flex-col"
-        >
+        <Tab label="Preview" className="flex overflow-y-auto flex-col flex-1">
           {isPreview && previewContent?.preview && (
             <Markdown content={previewContent.preview} />
           )}
