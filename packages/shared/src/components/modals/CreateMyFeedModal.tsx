@@ -9,15 +9,15 @@ import PlusIcon from '../../../icons/plus.svg';
 import XIcon from '../../../icons/x.svg';
 import { Button, ButtonSize } from '../buttons/Button';
 
-export type TypeProps = {
+type TypeProps = {
   type: string;
 };
 
-export type CreateMyFeedModalProps = TypeProps & ModalProps;
+type CreateMyFeedModalProps = TypeProps & ModalProps;
 
-export type LayoutModalProps = TypeProps & Partial<ModalProps>;
+type LayoutModalProps = TypeProps & Partial<ModalProps>;
 
-export type CloseButtonProps = {
+type CloseButtonProps = {
   size?: ButtonSize;
   position?: string;
   closeButtonClassName?: string;
@@ -36,22 +36,24 @@ const headerTitle = {
   v5: 'Choose tags to follow',
 };
 
+const getCreateButton = (type) => {
+  return (
+    <CreateFeedFilterButton
+      className={classNames(buttonClass[type], 'btn-primary-cabbage')}
+    />
+  );
+};
+
 const getFooter = ({ type, onRequestClose }: LayoutModalProps) => {
   return (
     <footer className="flex fixed responsiveModalBreakpoint:sticky bottom-0 justify-center items-center py-3 border-t border-theme-divider-tertiary bg-theme-bg-tertiary">
-      {type === 'v4' && (
-        <CreateFeedFilterButton
-          className={classNames(buttonClass[type], 'btn-primary-cabbage')}
-        />
-      )}
+      {type === 'v4' && getCreateButton('v4')}
       {type === 'v5' && (
         <>
           <Button className="mr-3 w-40 btn-secondary" onClick={onRequestClose}>
             Cancel
           </Button>
-          <CreateFeedFilterButton
-            className={classNames(buttonClass[type], 'btn-primary-cabbage')}
-          />
+          {getCreateButton('v5')}
         </>
       )}
     </footer>
@@ -71,7 +73,7 @@ const getCloseButton = ({
       title="Close"
       icon={<XIcon />}
       onClick={onRequestClose}
-      position={position || ''}
+      position={position}
     />
   );
 };
@@ -101,7 +103,7 @@ export default function CreateMyFeedModal({
           {type === 'v2' && getCloseButton({ onRequestClose })}
 
           <h3 className="font-bold typo-title3">{headerTitle[type]}</h3>
-          {(type === 'v2' || type === 'v3') && (
+          {['v2', 'v3'].includes(type) && (
             <CreateFeedFilterButton
               className={classNames(buttonClass[type], 'btn-primary-cabbage')}
               icon={type === 'v2' && <PlusIcon />}
@@ -112,8 +114,7 @@ export default function CreateMyFeedModal({
         <section className="mt-6">
           <TagsFilter />
         </section>
-        {(type === 'v4' || type === 'v5') &&
-          getFooter({ type, onRequestClose })}
+        {['v2', 'v3'].includes(type) && getFooter({ type, onRequestClose })}
       </ResponsiveModal>
     </>
   );
