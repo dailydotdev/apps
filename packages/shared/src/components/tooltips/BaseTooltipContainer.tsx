@@ -1,7 +1,7 @@
 import React, { ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
 
-export type TooltipPosition = 'top' | 'right' | 'bottom' | 'left';
+export type TooltipPosition = 'top' | 'top-start' | 'right' | 'bottom' | 'left';
 
 export interface BaseTooltipContainerProps {
   arrow?: boolean;
