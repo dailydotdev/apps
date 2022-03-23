@@ -2,10 +2,9 @@ import classNames from 'classnames';
 
 type Column = number;
 type Row = number;
-type SelectionStart = number;
 
 export type CaretOffset = [number, number];
-export type CaretPosition = [Column, Row, SelectionStart];
+export type CaretPosition = [Column, Row];
 
 export const getCaretOffset = (textarea: HTMLTextAreaElement): CaretOffset => {
   const left = document.createElement('span');
@@ -72,8 +71,24 @@ export function getCaretPostition(
   const row = lines.length;
   const col = lines[lines.length - 1].length;
 
-  return [col, row, start];
+  return [col, row];
 }
+
+export const getSelectionStart = (
+  value: string,
+  [col, row]: CaretPosition,
+): number =>
+  value.split('\n').reduce((sum, line, index) => {
+    if (index < row - 1) {
+      return sum + line.length + 1;
+    }
+
+    if (index === row - 1) {
+      return sum + col;
+    }
+
+    return sum;
+  }, 0);
 
 export function hasSpaceBeforeWord(
   textarea: HTMLTextAreaElement,

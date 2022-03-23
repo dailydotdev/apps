@@ -24,6 +24,7 @@ import {
   replaceWord,
   getCaretOffset,
   CaretOffset,
+  getSelectionStart,
 } from '../lib/element';
 import { nextTick } from '../lib/func';
 
@@ -55,8 +56,8 @@ export function useUserMention({
   const { user } = useContext(AuthContext);
   const client = useQueryClient();
   const [selected, setSelected] = useState(0);
-  const [offset, setOffset] = useState<[number, number]>([0, 0]);
-  const [position, setPosition] = useState<CaretPosition>([0, 0, 0]);
+  const [offset, setOffset] = useState<CaretOffset>([0, 0]);
+  const [position, setPosition] = useState<CaretPosition>([0, 0]);
   const [query, setQuery] = useState<string>();
   const { data = { recommendedMentions: [] }, refetch } =
     useQuery<RecommendedMentionsData>(
@@ -78,11 +79,10 @@ export function useUserMention({
   const initializeMention = async (isInvalidCallback?: () => unknown) => {
     await nextTick();
     const textarea = commentRef.current;
-    const [col, row, start] = getCaretPostition(textarea);
+    const [col, row] = getCaretPostition(textarea);
     const [isValidTrigger, word, charAt] = hasSpaceBeforeWord(textarea, [
       col,
       row,
-      start,
     ]);
 
     if (!isValidTrigger) {
@@ -93,7 +93,7 @@ export function useUserMention({
     const currentCoordinates = getCaretOffset(textarea);
 
     setQuery(word);
-    setPosition([charAt, row, start]);
+    setPosition([charAt, row]);
     setOffset(currentCoordinates);
   };
 
@@ -102,11 +102,11 @@ export function useUserMention({
       return;
     }
 
-    const [, , start] = position;
     const element = commentRef.current;
     const mention = `@${query}`;
     const replacement = `@${username}`;
     replaceWord(element, position, mention, replacement);
+    const start = getSelectionStart(element.value, position);
     element.focus();
     element.selectionEnd = start + replacement.length;
     setQuery(undefined);
