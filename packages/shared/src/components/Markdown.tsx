@@ -54,7 +54,7 @@ export default function Markdown({ content }: MarkdownProps): ReactElement {
   }, [userId]);
 
   useEffect(() => {
-    if (!data || !instance) {
+    if (!data?.user || !instance) {
       return;
     }
 
