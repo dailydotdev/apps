@@ -64,7 +64,7 @@ export default function NewCommentModal({
   onComment,
   ...props
 }: NewCommentModalProps): ReactElement {
-  const [input, setInput] = useState<string>(null);
+  const [input, setInput] = useState<string>();
   const [showDiscardModal, setShowDiscardModal] = useState<boolean>(false);
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('Write');
@@ -283,7 +283,7 @@ export default function NewCommentModal({
           )}
           {isPreview && (
             <Button
-              disabled={!input?.trim().length}
+              disabled={!input?.trim().length || input === props.editContent}
               loading={sendingComment}
               onClick={sendComment}
               className="mt-auto ml-auto btn-primary-avocado"

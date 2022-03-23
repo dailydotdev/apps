@@ -77,7 +77,7 @@ function CommentBox({
   useEffect(() => {
     commentRef.current?.focus();
     if (commentRef.current && editContent) {
-      commentRef.current.textContent = editContent;
+      commentRef.current.value = editContent;
     }
   }, []);
 
@@ -181,7 +181,7 @@ function CommentBox({
           Markdown supported
         </ClickableText>
         <Button
-          disabled={!input?.trim().length}
+          disabled={!input?.trim().length || input === editContent}
           loading={sendingComment}
           onClick={sendComment}
           className="ml-auto btn-primary-avocado"
