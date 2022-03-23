@@ -1,4 +1,31 @@
-export type CaretPosition = [number, number, number?];
+import classNames from 'classnames';
+
+type Column = number;
+type Row = number;
+type SelectionStart = number;
+
+export type CaretOffset = [number, number];
+export type CaretPosition = [Column, Row, SelectionStart];
+
+export const getCaretOffset = (textarea: HTMLTextAreaElement): CaretOffset => {
+  const left = document.createElement('span');
+  const right = document.createElement('span');
+  const div = document.createElement('div');
+
+  left.innerText = textarea.value.substring(0, textarea.selectionStart);
+  right.innerText = textarea.value.substring(textarea.selectionStart);
+
+  div.className = classNames(textarea.className, 'absolute invisible');
+  div.setAttribute('style', 'left: 2rem');
+  div.appendChild(left);
+  div.appendChild(right);
+  textarea.parentElement.appendChild(div);
+
+  const coordinates: CaretOffset = [right.offsetLeft, right.offsetTop];
+  div.remove();
+
+  return coordinates;
+};
 
 const getEndIndex = (value: string, start: number) => {
   const end = value.indexOf(' ', start);
