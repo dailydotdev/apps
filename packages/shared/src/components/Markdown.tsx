@@ -1,12 +1,79 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
+import ReactDOM from 'react-dom';
+import { tippy } from '@tippyjs/react';
 import { sanitize } from 'dompurify';
 import styles from './markdown.module.css';
+import { ProfileTooltipContent } from './profile/ProfileTooltipContent';
+import { profileTooltipClasses } from './profile/ProfileTooltip';
+import { useProfileTooltip } from '../hooks/useProfileTooltip';
+import { getUserPermalink } from '../lib/user';
 
-export default function Markdown({
-  content,
-}: {
+const classes = Object.values(profileTooltipClasses).join(' ');
+
+interface MarkdownProps {
   content: string;
-}): ReactElement {
+}
+
+type TippyInstance = ReturnType<typeof tippy>[0];
+
+export default function Markdown({ content }: MarkdownProps): ReactElement {
+  const [userId, setUserId] = useState('');
+  const [instance, setInstance] = useState<TippyInstance>();
+  const { fetchInfo, data } = useProfileTooltip({
+    userId,
+    requestUserInfo: true,
+  });
+
+  const onShow = (tippyInstance: TippyInstance) => {
+    if (!instance) {
+      setInstance(tippyInstance);
+    }
+    if (!userId) {
+      const id = tippyInstance.reference.getAttribute('data-mention-id');
+      setUserId(id);
+    }
+  };
+
+  useEffect(() => {
+    if (!content) {
+      return;
+    }
+
+    tippy('[data-mention-id]', {
+      onShow,
+      interactive: true,
+      appendTo: document.body,
+    });
+  }, [content]);
+
+  useEffect(() => {
+    if (data || !userId) {
+      return;
+    }
+    fetchInfo();
+  }, [userId]);
+
+  useEffect(() => {
+    if (!data?.user || !instance) {
+      return;
+    }
+
+    const div = document.createElement('div');
+    div.className = classes;
+    ReactDOM.render(
+      <ProfileTooltipContent
+        user={{
+          ...data.user,
+          id: userId,
+          permalink: getUserPermalink(userId),
+        }}
+        data={data}
+      />,
+      div,
+    );
+    instance.setContent(div);
+  }, [data, instance]);
+
   return (
     <div
       className={styles.markdown}

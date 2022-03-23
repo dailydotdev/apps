@@ -3,7 +3,7 @@ import nock from 'nock';
 import { render, screen } from '@testing-library/react';
 import { ProfileTooltipContent } from './ProfileTooltipContent';
 import { Author } from '../../graphql/comments';
-import { UserTooltipContentData } from '../../graphql/users';
+import { UserTooltipContentData } from '../../hooks/useProfileTooltip';
 
 beforeEach(() => {
   nock.cleanAll();

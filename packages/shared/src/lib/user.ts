@@ -42,8 +42,9 @@ export interface UserProfile {
   timezone?: string;
 }
 
-export interface UpvoterProfile
-  extends Pick<PublicProfile, 'name' | 'username' | 'image' | 'bio'> {
+export interface UserShortProfile
+  extends Pick<PublicProfile, 'name' | 'image' | 'bio'> {
+  username: string;
   permalink: string;
 }
 
@@ -166,3 +167,6 @@ export async function getLoggedUser(
   });
   return res.json();
 }
+
+export const getUserPermalink = (username: string): string =>
+  `${process.env.NEXT_PUBLIC_WEBAPP_URL}${username}`;

@@ -40,7 +40,7 @@ export interface BaseTooltipProps extends TippyProps {
 export function BaseTooltip(
   {
     render,
-    arrow,
+    arrow = true,
     placement = 'top',
     delay = DEFAULT_DELAY_MS,
     duration = DEFAULT_DURATION,
@@ -76,6 +76,7 @@ export function BaseTooltip(
         ) : (
           <BaseTooltipContainer
             {...container}
+            arrow={!!arrow}
             placement={placement}
             arrowClassName={classNames(
               styles.tippyTooltipArrow,
