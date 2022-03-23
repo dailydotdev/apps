@@ -253,6 +253,7 @@ export default function NewCommentModal({
     <ResponsiveModal
       contentRef={modalRef}
       onRequestClose={confirmClose}
+      padding={false}
       {...props}
     >
       <ModalCloseButton onClick={confirmClose} className="top-2" />
