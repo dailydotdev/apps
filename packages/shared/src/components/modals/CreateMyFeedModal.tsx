@@ -36,6 +36,9 @@ const headerTitle = {
   v5: 'Choose tags to follow',
 };
 
+const headerClass = {
+  v4: 'flex-row-reverse',
+};
 
 const getFooter = ({ type, onRequestClose }: LayoutModalProps) => {
   return (
@@ -91,9 +94,13 @@ export default function CreateMyFeedModal({
             size: 'large',
             onRequestClose,
           })}
-        <header className="flex fixed responsiveModalBreakpoint:sticky top-0 left-0 z-3 justify-between items-center py-4 px-6 w-full border-b border-theme-divider-tertiary bg-theme-bg-tertiary">
-          {type === 'v2' && getCloseButton({ onRequestClose })}
-
+        <header
+          className={classNames(
+            headerClass[type],
+            'flex fixed responsiveModalBreakpoint:sticky top-0 left-0 z-3 justify-between items-center py-4 px-6 w-full border-b border-theme-divider-tertiary bg-theme-bg-tertiary',
+          )}
+        >
+          {getCloseButton({ onRequestClose })}
           <h3 className="font-bold typo-title3">{headerTitle[type]}</h3>
           {['v2', 'v3'].includes(type) && (
             <CreateFeedFilterButton
@@ -101,7 +108,6 @@ export default function CreateMyFeedModal({
               icon={type === 'v2' && <PlusIcon />}
             />
           )}
-          {type === 'v4' && getCloseButton({ onRequestClose })}
         </header>
         <section className="mt-6">
           <TagsFilter />
