@@ -125,7 +125,9 @@ export function useUserMention({
   const onBackspace = (el: HTMLTextAreaElement) => {
     const backspaced = getWord(el, position);
     const value =
-      (query === '' && backspaced === '') || query === backspaced
+      (query === '' && backspaced === '') ||
+      query === backspaced ||
+      el.value.length === 0
         ? undefined
         : backspaced;
     setQuery(value);
