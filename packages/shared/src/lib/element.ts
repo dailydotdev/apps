@@ -113,3 +113,15 @@ export function hasSpaceBeforeWord(
     position - query.length + 1,
   ];
 }
+
+export const anyElementClassContains = (
+  elements: HTMLElement[],
+  token: string,
+): boolean =>
+  Array.from(elements).some((element) => {
+    if (!element?.classList) {
+      return false;
+    }
+
+    return element.classList.contains(token);
+  });

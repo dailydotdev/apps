@@ -5,6 +5,7 @@ import {
   KeyboardEvent as ReactKeyboardEvent,
   useEffect,
   MutableRefObject,
+  useCallback,
 } from 'react';
 import request from 'graphql-request';
 import {
@@ -25,6 +26,7 @@ import {
   getCaretOffset,
   CaretOffset,
   getSelectionStart,
+  anyElementClassContains,
 } from '../lib/element';
 import { nextTick } from '../lib/func';
 
@@ -202,6 +204,34 @@ export function useUserMention({
 
     textarea.dispatchEvent(new KeyboardEvent('keydown', { key: '@' }));
   };
+
+  const userClicked = useCallback(
+    (event: MouseEvent & { path: HTMLElement[] }) => {
+      event.stopPropagation();
+      if (typeof query === 'undefined') {
+        return;
+      }
+
+      const el = event.target as HTMLElement;
+      const isTextarea = el.tagName.toLocaleLowerCase() === 'textarea';
+      const isTooltip = anyElementClassContains(event.path, 'tippy-content');
+
+      if (isTextarea || isTooltip) {
+        return;
+      }
+
+      setQuery(undefined);
+    },
+    [query],
+  );
+
+  useEffect(() => {
+    document.addEventListener('mousedown', userClicked);
+
+    return () => {
+      document.removeEventListener('mousedown', userClicked);
+    };
+  }, [userClicked]);
 
   useEffect(() => {
     setSelected(0);
