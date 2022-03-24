@@ -10,6 +10,7 @@ interface MarkdownProps {
 }
 
 const TOOLTIP_SPACING = 8;
+const TOOLTIP_HALF_WIDTH = 140;
 
 export default function Markdown({ content }: MarkdownProps): ReactElement {
   const ref = useRef<HTMLDivElement>();
@@ -42,8 +43,10 @@ export default function Markdown({ content }: MarkdownProps): ReactElement {
       }
 
       const topOffset = element.parentElement.offsetTop + element.offsetTop;
+      const leftSpacing =
+        TOOLTIP_HALF_WIDTH - element.getBoundingClientRect().width / 2;
       const result: CaretOffset = [
-        element.offsetLeft,
+        element.offsetLeft - leftSpacing,
         topOffset * -1 + TOOLTIP_SPACING,
       ];
 
