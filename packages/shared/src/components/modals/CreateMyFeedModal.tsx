@@ -15,13 +15,7 @@ type TypeProps = {
 
 type CreateMyFeedModalProps = TypeProps & ModalProps;
 
-type LayoutModalProps = TypeProps & Partial<ModalProps>;
-
-type CloseButtonProps = {
-  size?: ButtonSize;
-  position?: string;
-  closeButtonClassName?: string;
-} & Partial<ModalProps>;
+type LayoutModalProps = TypeProps & Pick<ModalProps, 'onRequestClose'>;
 
 const buttonClass = {
   v2: 'small',
@@ -40,7 +34,7 @@ const headerClass = {
   v4: 'flex-row-reverse',
 };
 
-const getFooter = ({ type, onRequestClose }: LayoutModalProps) => {
+const ModalFooter = ({ type, onRequestClose }: LayoutModalProps) => {
   return (
     <footer className="flex fixed responsiveModalBreakpoint:sticky bottom-0 justify-center items-center py-3 border-t border-theme-divider-tertiary bg-theme-bg-tertiary">
       {type === 'v5' && (
@@ -55,24 +49,6 @@ const getFooter = ({ type, onRequestClose }: LayoutModalProps) => {
   );
 };
 
-const getCloseButton = ({
-  closeButtonClassName,
-  position,
-  size,
-  onRequestClose,
-}: CloseButtonProps) => {
-  return (
-    <Button
-      className={classNames('btn-tertiary', closeButtonClassName)}
-      buttonSize={size || 'small'}
-      title="Close"
-      icon={<XIcon />}
-      onClick={onRequestClose}
-      position={position}
-    />
-  );
-};
-
 export default function CreateMyFeedModal({
   className,
   onRequestClose,
@@ -80,40 +56,50 @@ export default function CreateMyFeedModal({
   ...modalProps
 }: CreateMyFeedModalProps): ReactElement {
   return (
-    <>
-      <ResponsiveModal
-        className={classNames(className, styles.accountDetailsModal)}
-        {...modalProps}
-        onRequestClose={onRequestClose}
-      >
-        {type === 'v3' &&
-          getCloseButton({
-            closeButtonClassName:
-              'btn-tertiary-float bg-theme-bg-tertiary fixed top-8 right-8',
-            position: 'fixed',
-            size: 'large',
-            onRequestClose,
-          })}
-        <header
+    <ResponsiveModal
+      className={classNames(className, styles.accountDetailsModal)}
+      {...modalProps}
+      onRequestClose={onRequestClose}
+    >
+      {type === 'v3' && (
+        <Button
           className={classNames(
-            headerClass[type],
-            'flex fixed responsiveModalBreakpoint:sticky top-0 left-0 z-3 justify-between items-center py-4 px-6 w-full border-b border-theme-divider-tertiary bg-theme-bg-tertiary',
+            'btn-tertiary-float bg-theme-bg-tertiary fixed top-8 right-8',
           )}
-        >
-          {getCloseButton({ onRequestClose })}
-          <h3 className="font-bold typo-title3">{headerTitle[type]}</h3>
-          {['v2', 'v3'].includes(type) && (
-            <CreateFeedFilterButton
-              className={classNames(buttonClass[type], 'btn-primary-cabbage')}
-              icon={type === 'v2' && <PlusIcon />}
-            />
-          )}
-        </header>
-        <section className="mt-6">
-          <TagsFilter />
-        </section>
-        {['v4', 'v5'].includes(type) && getFooter({ type, onRequestClose })}
-      </ResponsiveModal>
-    </>
+          buttonSize="large"
+          title="Close"
+          icon={<XIcon />}
+          onClick={onRequestClose}
+          position="fixed"
+        />
+      )}
+      <header
+        className={classNames(
+          headerClass[type],
+          'flex fixed responsiveModalBreakpoint:sticky top-0 left-0 z-3 justify-between items-center py-4 px-6 w-full border-b border-theme-divider-tertiary bg-theme-bg-tertiary',
+        )}
+      >
+        {['v2', 'v4'].includes(type) && (
+          <Button
+            className={classNames('btn-tertiary')}
+            buttonSize="small"
+            title="Close"
+            icon={<XIcon />}
+            onClick={onRequestClose}
+          />
+        )}
+        <h3 className="font-bold typo-title3">{headerTitle[type]}</h3>
+        {['v2', 'v3'].includes(type) && (
+          <CreateFeedFilterButton
+            className={classNames(buttonClass[type], 'btn-primary-cabbage')}
+            icon={type === 'v2' && <PlusIcon />}
+          />
+        )}
+      </header>
+      <section className="mt-6">
+        <TagsFilter />
+      </section>
+      {['v4', 'v5'].includes(type) && ModalFooter({ type, onRequestClose })}
+    </ResponsiveModal>
   );
 }
