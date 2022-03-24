@@ -1,50 +1,71 @@
-import React, { ReactElement, useEffect, useState } from 'react';
-import ReactDOM from 'react-dom';
-import { tippy } from '@tippyjs/react';
+import React, { ReactElement, useEffect, useRef, useState } from 'react';
 import { sanitize } from 'dompurify';
 import styles from './markdown.module.css';
-import { ProfileTooltipContent } from './profile/ProfileTooltipContent';
-import { profileTooltipClasses } from './profile/ProfileTooltip';
+import { ProfileTooltip } from './profile/ProfileTooltip';
 import { useProfileTooltip } from '../hooks/useProfileTooltip';
-import { getUserPermalink } from '../lib/user';
-
-const classes = Object.values(profileTooltipClasses).join(' ');
+import { CaretOffset } from '../lib/element';
 
 interface MarkdownProps {
   content: string;
 }
 
-type TippyInstance = ReturnType<typeof tippy>[0];
+const TOOLTIP_SPACING = 8;
+
+const getAdditionalSpacing = (verticalOffset: number) =>
+  verticalOffset > 1 ? TOOLTIP_SPACING : 0;
 
 export default function Markdown({ content }: MarkdownProps): ReactElement {
+  const ref = useRef<HTMLDivElement>();
   const [userId, setUserId] = useState('');
-  const [instance, setInstance] = useState<TippyInstance>();
+  const [offset, setOffset] = useState<CaretOffset>([0, 0]);
   const { fetchInfo, data } = useProfileTooltip({
     userId,
     requestUserInfo: true,
   });
 
-  const onShow = (tippyInstance: TippyInstance) => {
-    if (!instance) {
-      setInstance(tippyInstance);
-    }
-    if (!userId) {
-      const id = tippyInstance.reference.getAttribute('data-mention-id');
-      setUserId(id);
-    }
-  };
-
   useEffect(() => {
-    if (!content) {
+    if (!content || !ref?.current) {
       return;
     }
 
-    tippy('[data-mention-id]', {
-      onShow,
-      interactive: true,
-      appendTo: document.body,
-    });
-  }, [content]);
+    const elements = Array.from(ref.current.getElementsByTagName('a')).filter(
+      (element) => !!element.getAttribute('data-mention-id'),
+    );
+
+    if (elements.length === 0) {
+      return;
+    }
+
+    const onHover = (e: MouseEvent & { target: HTMLElement }) => {
+      const element = e.target;
+      const id = element.getAttribute('data-mention-id');
+
+      if (!!id && id === userId) {
+        return;
+      }
+
+      const topOffset = element.parentElement.offsetTop + element.offsetTop;
+      const spacing = getAdditionalSpacing(topOffset);
+      const result: CaretOffset = [
+        element.offsetLeft,
+        topOffset * -1 + spacing,
+      ];
+
+      setOffset(result);
+      setUserId(id);
+    };
+
+    elements.forEach((element) =>
+      element.addEventListener('mouseover', onHover),
+    );
+
+    // eslint-disable-next-line consistent-return
+    return () => {
+      elements.forEach((element) =>
+        element.removeEventListener('mouseover', onHover),
+      );
+    };
+  }, [content, userId]);
 
   useEffect(() => {
     if (data || !userId) {
@@ -53,33 +74,18 @@ export default function Markdown({ content }: MarkdownProps): ReactElement {
     fetchInfo();
   }, [userId]);
 
-  useEffect(() => {
-    if (!data?.user || !instance) {
-      return;
-    }
-
-    const div = document.createElement('div');
-    div.className = classes;
-    ReactDOM.render(
-      <ProfileTooltipContent
-        user={{
-          ...data.user,
-          id: userId,
-          permalink: getUserPermalink(userId),
-        }}
-        data={data}
-      />,
-      div,
-    );
-    instance.setContent(div);
-  }, [data, instance]);
-
   return (
-    <div
-      className={styles.markdown}
-      dangerouslySetInnerHTML={{
-        __html: sanitize(content, { ADD_ATTR: ['target'] }),
-      }}
-    />
+    <ProfileTooltip
+      user={{ id: userId }}
+      tooltip={{ placement: 'top-start', offset }}
+    >
+      <div
+        ref={ref}
+        className={styles.markdown}
+        dangerouslySetInnerHTML={{
+          __html: sanitize(content, { ADD_ATTR: ['target'] }),
+        }}
+      />
+    </ProfileTooltip>
   );
 }
