@@ -4,7 +4,6 @@ import React, {
   useEffect,
   ClipboardEvent,
   useRef,
-  FormEventHandler,
   KeyboardEventHandler,
   MouseEvent,
   KeyboardEvent,
@@ -19,6 +18,10 @@ import styles from './CommentBox.module.css';
 import { ProfilePicture } from '../ProfilePicture';
 import { ClickableText } from '../buttons/ClickableText';
 import Markdown from '../Markdown';
+import { RecommendedMentionTooltip } from '../tooltips/RecommendedMentionTooltip';
+import { useUserMention } from '../../hooks/useUserMention';
+import { Post } from '../../graphql/posts';
+import AtIcon from '../../../icons/at.svg';
 
 export interface CommentBoxProps {
   authorName: string;
@@ -31,8 +34,12 @@ export interface CommentBoxProps {
   errorMessage?: string;
   sendingComment?: boolean;
   sendComment: (event: MouseEvent | KeyboardEvent) => Promise<void>;
-  onInput: FormEventHandler<HTMLDivElement>;
-  onKeyDown: KeyboardEventHandler<HTMLDivElement>;
+  onInput?: (value: string) => unknown;
+  onKeyDown: (
+    e: KeyboardEvent<HTMLTextAreaElement>,
+    defaultCallback?: KeyboardEventHandler<HTMLTextAreaElement>,
+  ) => unknown;
+  post: Post;
 }
 
 function CommentBox({
@@ -48,14 +55,29 @@ function CommentBox({
   onInput,
   onKeyDown,
   sendComment,
+  post,
 }: CommentBoxProps): ReactElement {
   const { user } = useContext(AuthContext);
-  const commentRef = useRef<HTMLDivElement>(null);
+  const commentRef = useRef<HTMLTextAreaElement>(null);
+  const {
+    onMentionClick,
+    onMentionKeypress,
+    offset,
+    mentions,
+    mentionQuery,
+    selected,
+    onInitializeMention,
+    onInputClick,
+  } = useUserMention({
+    postId: post.id,
+    commentRef,
+    onInput,
+  });
 
   useEffect(() => {
     commentRef.current?.focus();
     if (commentRef.current && editContent) {
-      commentRef.current.textContent = editContent;
+      commentRef.current.value = editContent;
     }
   }, []);
 
@@ -67,6 +89,11 @@ function CommentBox({
     } else {
       document.execCommand('paste', false, text);
     }
+  };
+
+  const handleKeydown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    const defaultCallback = () => onMentionKeypress(e);
+    onKeyDown(e, defaultCallback);
   };
 
   return (
@@ -104,32 +131,46 @@ function CommentBox({
           </strong>
         </div>
       </div>
-      <div className="flex px-2">
+      <div className="flex relative flex-1 px-2">
         <ProfilePicture user={user} size="small" />
-        <div
+        <textarea
           className={classNames(
-            'ml-3 flex-1 text-theme-label-primary bg-none border-none caret-theme-label-link whitespace-pre-line break-words break-words-overflow typo-subhead',
+            'ml-3 flex-1 text-theme-label-primary bg-transparent border-none caret-theme-label-link break-words typo-subhead resize-none',
             styles.textarea,
           )}
           ref={commentRef}
-          contentEditable
-          role="textbox"
-          aria-placeholder="Write your comment..."
-          aria-multiline
-          onInput={onInput}
-          onKeyDown={onKeyDown}
+          placeholder="Write your comment..."
+          onInput={(e) => onInput(e.currentTarget.value)}
+          onKeyDown={handleKeydown}
+          onClick={onInputClick}
           onPaste={onPaste}
           tabIndex={0}
           aria-label="New comment box"
+          aria-multiline
         />
       </div>
+      <RecommendedMentionTooltip
+        elementRef={commentRef}
+        offset={offset}
+        mentions={mentions}
+        selected={selected}
+        query={mentionQuery}
+        onMentionClick={onMentionClick}
+      />
       <div
         className="my-2 mx-3 text-theme-status-error typo-caption1"
         style={{ minHeight: '1rem' }}
       >
         {errorMessage && <span role="alert">{errorMessage}</span>}
       </div>
-      <footer className="flex justify-between items-center pt-2">
+      <footer className="flex items-center pt-3">
+        <Button
+          className="mx-1 border border-theme-label-primary btn-tertiary"
+          buttonSize="small"
+          icon={<AtIcon />}
+          onClick={onInitializeMention}
+        />
+        <div className="ml-2 w-px h-6 border border-opacity-24 border-theme-divider-tertiary" />
         <ClickableText
           tag="a"
           href="https://www.markdownguide.org/cheat-sheet/"
@@ -140,10 +181,10 @@ function CommentBox({
           Markdown supported
         </ClickableText>
         <Button
-          disabled={!input?.trim().length}
+          disabled={!input?.trim().length || input === editContent}
           loading={sendingComment}
           onClick={sendComment}
-          className="btn-primary-avocado"
+          className="ml-auto btn-primary-avocado"
         >
           {editId ? 'Update' : 'Comment'}
         </Button>

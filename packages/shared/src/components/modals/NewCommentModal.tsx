@@ -4,6 +4,7 @@ import React, {
   MouseEvent,
   KeyboardEvent,
   useContext,
+  KeyboardEventHandler,
 } from 'react';
 import dynamic from 'next/dynamic';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
@@ -63,13 +64,13 @@ export default function NewCommentModal({
   onComment,
   ...props
 }: NewCommentModalProps): ReactElement {
-  const [input, setInput] = useState<string>(null);
+  const [input, setInput] = useState<string>(props.editContent || '');
   const [showDiscardModal, setShowDiscardModal] = useState<boolean>(false);
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('Write');
   const [sendingComment, setSendingComment] = useState<boolean>(false);
   const { trackEvent } = useContext(AnalyticsContext);
   const [errorMessage, setErrorMessage] = useState<string>(null);
-  const queryClient = useQueryClient();
   const isPreview = activeTab === 'Preview';
   const { data: previewContent } = useQuery<{ preview: string }>(
     input,
@@ -85,13 +86,6 @@ export default function NewCommentModal({
       setShowDiscardModal(true);
     } else {
       onRequestClose(event);
-    }
-  };
-
-  const modalRef = (element: HTMLDivElement): void => {
-    if (element) {
-      // eslint-disable-next-line no-param-reassign
-      element.scrollTop = element.scrollHeight - element.clientHeight;
     }
   };
 
@@ -198,6 +192,13 @@ export default function NewCommentModal({
     },
   );
 
+  const modalRef = (element: HTMLDivElement): void => {
+    if (element) {
+      // eslint-disable-next-line no-param-reassign
+      element.scrollTop = element.scrollHeight - element.clientHeight;
+    }
+  };
+
   const sendComment = async (
     event: MouseEvent | KeyboardEvent,
   ): Promise<void> => {
@@ -232,7 +233,10 @@ export default function NewCommentModal({
     }
   };
 
-  const onKeyDown = async (event: KeyboardEvent): Promise<void> => {
+  const onKeyDown = async (
+    event: KeyboardEvent<HTMLTextAreaElement>,
+    defaultCallback?: KeyboardEventHandler<HTMLTextAreaElement>,
+  ): Promise<void> => {
     // Ctrl / Command + Enter
     if (
       (event.ctrlKey || event.metaKey) &&
@@ -240,24 +244,28 @@ export default function NewCommentModal({
       input?.length
     ) {
       await sendComment(event);
+    } else {
+      defaultCallback?.(event);
     }
   };
 
   return (
     <ResponsiveModal
-      {...{ contentRef: modalRef, onRequestClose: confirmClose, ...props }}
+      contentRef={modalRef}
+      onRequestClose={confirmClose}
       padding={false}
-      contentClassName="p-2"
+      {...props}
     >
       <ModalCloseButton onClick={confirmClose} className="top-2" />
       <TabContainer
         onActiveChange={(active: string) => setActiveTab(active)}
         shouldMountInactive
+        style={{ height: '40rem' }}
       >
-        <Tab label="Write">
+        <Tab label="Write" className="flex flex-col flex-1">
           <CommentBox
             {...props}
-            onInput={(e) => setInput(e.currentTarget.innerText)}
+            onInput={setInput}
             input={input}
             editId={editId}
             errorMessage={errorMessage}
@@ -266,17 +274,13 @@ export default function NewCommentModal({
             onKeyDown={onKeyDown}
           />
         </Tab>
-        <Tab
-          label="Preview"
-          style={{ minHeight: '28rem' }}
-          className="flex flex-col"
-        >
+        <Tab label="Preview" className="flex overflow-y-auto flex-col flex-1">
           {isPreview && previewContent?.preview && (
             <Markdown content={previewContent.preview} />
           )}
           {isPreview && (
             <Button
-              disabled={!input?.trim().length}
+              disabled={!input?.trim().length || input === props.editContent}
               loading={sendingComment}
               onClick={sendComment}
               className="mt-auto ml-auto btn-primary-avocado"

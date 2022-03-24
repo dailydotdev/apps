@@ -1,11 +1,5 @@
-import request from 'graphql-request';
-import React, { ReactElement, useState } from 'react';
-import { useQuery } from 'react-query';
-import {
-  UserTooltipContentData,
-  USER_TOOLTIP_CONTENT_QUERY,
-} from '../../graphql/users';
-import { apiUrl } from '../../lib/config';
+import React, { ReactElement } from 'react';
+import { useProfileTooltip } from '../../hooks/useProfileTooltip';
 import {
   LinkWithTooltip,
   LinkWithTooltipProps,
@@ -21,45 +15,37 @@ export interface ProfileTooltipProps extends ProfileTooltipContentProps {
   link?: Omit<LinkWithTooltipProps, 'children' | 'tooltip'>;
 }
 
+export const profileTooltipClasses = {
+  padding: 'p-6',
+  roundness: 'rounded-16',
+  classNames:
+    'w-72 bg-theme-bg-primary shadow-2 border border-theme-divider-secondary',
+};
+
 export function ProfileTooltip({
   children,
   user,
   link,
 }: ProfileTooltipProps): ReactElement {
-  const [shouldFetch, setShouldFetch] = useState(false);
+  const { data, fetchInfo } = useProfileTooltip({ userId: user.id });
   const Tooltip = link ? LinkWithTooltip : SimpleTooltip;
   const props = {
+    arrow: false,
     interactive: true,
     container: {
       arrow: false,
-      paddingClassName: 'p-6',
-      roundedClassName: 'rounded-16',
-      className:
-        'w-72 bg-theme-bg-primary shadow-2 border border-theme-divider-secondary',
+      paddingClassName: profileTooltipClasses.padding,
+      roundedClassName: profileTooltipClasses.roundness,
+      className: profileTooltipClasses.classNames,
     },
   };
-
-  const key = ['readingRank', user.id];
-  const { data } = useQuery<UserTooltipContentData>(
-    key,
-    () =>
-      request(`${apiUrl}/graphql`, USER_TOOLTIP_CONTENT_QUERY, {
-        id: user.id,
-        version: 2,
-      }),
-    {
-      refetchOnWindowFocus: false,
-      enabled: shouldFetch,
-      onSettled: () => setShouldFetch(false),
-    },
-  );
 
   return (
     <Tooltip
       content={data ? <ProfileTooltipContent user={user} data={data} /> : null}
       {...link}
       {...props}
-      onTrigger={() => setShouldFetch(true)}
+      onTrigger={fetchInfo}
       tooltip={props}
     >
       {children}
