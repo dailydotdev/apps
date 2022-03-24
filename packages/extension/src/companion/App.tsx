@@ -18,11 +18,11 @@ import { useContextMenu } from '@dailydotdev/react-contexify';
 import useNotification from '@dailydotdev/shared/src/hooks/useNotification';
 import { CardNotification } from '@dailydotdev/shared/src/components/cards/Card';
 import { isTesting } from '@dailydotdev/shared/src/lib/constants';
+import { browser } from 'webextension-polyfill-ts';
 import CompanionContextMenu from './CompanionContextMenu';
-import { BootData } from './common';
+import { PostBootData } from './common';
 import '@dailydotdev/shared/src/styles/globals.css';
 import useCompanionActions from './useCompanionActions';
-import { browser } from 'webextension-polyfill-ts';
 
 const queryClient = new QueryClient();
 
@@ -30,8 +30,14 @@ if (!isTesting) {
   Modal.setAppElement('daily-companion-app');
 }
 
-function InternalApp({ postData, onOptOut }: { postData: BootData; onOptOut }) {
-  const [post, setPost] = useState<BootData>(postData);
+function InternalApp({
+  postData,
+  onOptOut,
+}: {
+  postData: PostBootData;
+  onOptOut;
+}) {
+  const [post, setPost] = useState<PostBootData>(postData);
   const [companionState, setCompanionState] = useState<boolean>(false);
   const { notification, onMessage } = useNotification();
 
@@ -105,7 +111,7 @@ function InternalApp({ postData, onOptOut }: { postData: BootData; onOptOut }) {
         companionState ? 'translate-x-0' : 'translate-x-[22.5rem]',
       )}
     >
-      <div className="flex relative flex-col gap-2 p-2 my-6 w-14 rounded-l-16 border border-theme-label-tertiary bg-theme-bg-primary">
+      <div className="flex relative flex-col gap-2 self-center p-2 my-6 w-14 rounded-l-16 border border-theme-label-tertiary bg-theme-bg-primary">
         {notification && (
           <CardNotification className="absolute right-full bottom-3 z-2 mr-2 w-max text-center shadow-2">
             {notification}
@@ -224,7 +230,7 @@ export default function App({
   postData,
   settings,
 }: {
-  postData: BootData;
+  postData: PostBootData;
   settings;
 }): ReactElement {
   const [isOptOutCompanion, setIsOptOutCompanion] = useState<boolean>(

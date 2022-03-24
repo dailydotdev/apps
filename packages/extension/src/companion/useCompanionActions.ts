@@ -18,12 +18,13 @@ type UseCompanionActionsRet<T> = {
   disableCompanion: (variables: T) => Promise<void>;
 };
 
+interface UseCompanionActionsProps {
+  id?: string;
+  reason?: string;
+  comment?: string;
+}
 export default function useCompanionActions<
-  T extends { id?: string; reason?: string; comment?: string } = {
-    id?: string;
-    reason?: string;
-    comment?: string;
-  },
+  T extends UseCompanionActionsProps,
 >({
   onBookmarkMutate,
   onRemoveBookmarkMutate,

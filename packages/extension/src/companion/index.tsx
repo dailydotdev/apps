@@ -5,7 +5,7 @@ import { themeModes } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { CompanionBootData } from './common';
 import App from './App';
 
-const init = async (data: CompanionBootData, settings) => {
+const renderApp = async (data: CompanionBootData, settings) => {
   const { postByUrl } = data.data;
 
   document
@@ -25,6 +25,6 @@ const init = async (data: CompanionBootData, settings) => {
 browser.runtime.onMessage.addListener(async (request) => {
   const { data, settings } = request;
   if (data !== null && data?.data !== null) {
-    init(data, settings);
+    renderApp(data, settings);
   }
 });

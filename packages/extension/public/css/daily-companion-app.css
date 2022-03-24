@@ -1,8 +1,8 @@
 daily-companion-app {
-  line-height: 1.5; /* 1 */
-  -webkit-text-size-adjust: 100%; /* 2 */
-  -moz-tab-size: 4; /* 3 */
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+  -moz-tab-size: 4;
   -o-tab-size: 4;
-  tab-size: 4; /* 3 */
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Ubuntu, Segoe UI, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; /* 4 */
+  tab-size: 4;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Ubuntu, Segoe UI, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol;
 }

@@ -1,5 +1,6 @@
 import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
+import DailyDevLogo from '../../svg/DailyDevLogo';
 import { StyledModal, ModalProps } from './StyledModal';
 import { ModalCloseButton } from './ModalCloseButton';
 import LoginButtons from '../LoginButtons';
@@ -33,6 +34,7 @@ export default function LoginModal({
       className={classNames(styles.loginModal, className)}
     >
       <ModalCloseButton onClick={onRequestClose} />
+      <DailyDevLogo />
       <div className="mt-6 mb-8 text-center text-theme-label-secondary typo-callout">
         {loginModalDescriptionCopy}
       </div>

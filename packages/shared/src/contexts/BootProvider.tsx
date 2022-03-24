@@ -57,7 +57,7 @@ export type BootDataProviderProps = {
   getRedirectUri: () => string;
 };
 
-const getLocalBootData = () => {
+export const getLocalBootData = () => {
   const local = storage.getItem(BOOT_LOCAL_KEY);
   if (local) {
     return JSON.parse(storage.getItem(BOOT_LOCAL_KEY)) as BootCacheData;
@@ -70,13 +70,13 @@ const updateLocalBootData = (
   current: Partial<BootCacheData>,
   boot: Partial<BootCacheData>,
 ) => {
-  const localData = { ...current, ...boot, last_modifier: 'extension' };
+  const localData = { ...current, ...boot, lastModifier: 'extension' };
   const result = filteredProps(localData, [
     'alerts',
     'flags',
     'settings',
     'user',
-    'last_modifier',
+    'lastModifier',
   ]);
 
   storage.setItem(BOOT_LOCAL_KEY, JSON.stringify(result));
@@ -121,7 +121,7 @@ export const BootDataProvider = ({
       }
       setLastAppliedChange(updatedData);
     } else {
-      if (cachedData?.last_modifier !== 'companion' && lastAppliedChange) {
+      if (cachedData?.lastModifier !== 'companion' && lastAppliedChange) {
         updatedData = { ...updatedData, ...lastAppliedChange };
       }
       setLastAppliedChange(null);

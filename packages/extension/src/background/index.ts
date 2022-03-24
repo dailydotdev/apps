@@ -11,7 +11,10 @@ import {
 import request from 'graphql-request';
 import { ADD_FILTERS_TO_FEED_MUTATION } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { UPDATE_USER_SETTINGS_MUTATION } from '@dailydotdev/shared/src/graphql/settings';
-import { BOOT_LOCAL_KEY } from '@dailydotdev/shared/src/contexts/BootProvider';
+import {
+  BOOT_LOCAL_KEY,
+  getLocalBootData,
+} from '@dailydotdev/shared/src/contexts/BootProvider';
 
 const cacheAmplitudeDeviceId = async ({
   reason,
@@ -30,6 +33,10 @@ const cacheAmplitudeDeviceId = async ({
 const excludedCompanionOrigins = [
   'https://twitter.com',
   'https://www.google.com',
+  'https://stackoverflow.com',
+  'https://mail.google.com',
+  'https://meet.google.com',
+  'https://calendar.google.com',
   'chrome-extension://',
 ];
 
@@ -40,7 +47,7 @@ const sendBootData = async (req, sender) => {
   if (isExcluded(sender?.origin)) {
     return;
   }
-  const cacheData = JSON.parse(localStorage.getItem('boot:local'));
+  const cacheData = getLocalBootData();
   const { data, settings } = await getBootData('companion', sender?.tab?.url);
   let settingsOutput = settings;
   if (!cacheData?.user || !('providers' in cacheData?.user)) {
@@ -99,11 +106,11 @@ function handleMessages(message, sender) {
   }
 
   if (message.type === 'DISABLE_COMPANION') {
-    const cacheData = JSON.parse(localStorage.getItem('boot:local'));
+    const cacheData = getLocalBootData();
     const settings = { ...cacheData.settings, optOutCompanion: true };
     localStorage.setItem(
       BOOT_LOCAL_KEY,
-      JSON.stringify({ ...cacheData, settings, last_modifier: 'companion' }),
+      JSON.stringify({ ...cacheData, settings, lastModifier: 'companion' }),
     );
     return request(`${apiUrl}/graphql`, UPDATE_USER_SETTINGS_MUTATION, {
       data: {

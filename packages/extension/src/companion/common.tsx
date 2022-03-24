@@ -1,6 +1,6 @@
 import { Post } from '@dailydotdev/shared/src/graphql/posts';
 
-export type BootData = Pick<
+export type PostBootData = Pick<
   Post,
   | 'id'
   | 'title'
@@ -15,6 +15,6 @@ export type BootData = Pick<
 >;
 export interface CompanionBootData {
   data: {
-    postByUrl: BootData;
+    postByUrl: PostBootData;
   };
 }

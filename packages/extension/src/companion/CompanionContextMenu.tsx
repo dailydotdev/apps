@@ -6,8 +6,21 @@ import FeedbackIcon from '@dailydotdev/shared/icons/feedback.svg';
 import EyeIcon from '@dailydotdev/shared/icons/eye.svg';
 import { Item, Menu } from '@dailydotdev/react-contexify';
 import RepostPostModal from '@dailydotdev/shared/src/components/modals/ReportPostModal';
-import { BootData } from './common';
+import { PostBootData } from './common';
 import DisableCompanionModal from './DisableCompanionModal';
+
+interface CompanionContextMenuProps {
+  postData: PostBootData;
+  onMessage?: (message: string, timeout?: number) => Promise<unknown>;
+  onReport;
+  onBlockSource;
+  onDisableCompanion;
+}
+
+const getCompanionWrapper = (): HTMLElement =>
+  document
+    .querySelector('daily-companion-app')
+    .shadowRoot.querySelector('#daily-companion-wrapper');
 
 export default function CompanionContextMenu({
   postData,
@@ -15,13 +28,7 @@ export default function CompanionContextMenu({
   onReport,
   onBlockSource,
   onDisableCompanion,
-}: {
-  postData: BootData;
-  onMessage?: (message: string, timeout?: number) => Promise<unknown>;
-  onReport;
-  onBlockSource;
-  onDisableCompanion;
-}): ReactElement {
+}: CompanionContextMenuProps): ReactElement {
   const [reportModal, setReportModal] = useState<boolean>();
   const [disableModal, setDisableModal] = useState<boolean>();
 
@@ -91,11 +98,7 @@ export default function CompanionContextMenu({
       {reportModal && (
         <RepostPostModal
           post={postData}
-          parentSelector={() =>
-            document
-              .querySelector('daily-companion-app')
-              .shadowRoot.querySelector('#daily-companion-wrapper')
-          }
+          parentSelector={getCompanionWrapper}
           isOpen={!!reportModal}
           postIndex={1}
           onReport={onReportPost}
@@ -107,11 +110,7 @@ export default function CompanionContextMenu({
           onConfirm={onDisableCompanion}
           isOpen={!!disableModal}
           onRequestClose={() => setDisableModal(null)}
-          parentSelector={() =>
-            document
-              .querySelector('daily-companion-app')
-              .shadowRoot.querySelector('#daily-companion-wrapper')
-          }
+          parentSelector={getCompanionWrapper}
         />
       )}
     </>

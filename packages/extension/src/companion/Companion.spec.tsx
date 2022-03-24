@@ -3,11 +3,7 @@ import '@testing-library/jest-dom';
 import { render, RenderResult, screen } from '@testing-library/preact';
 import App from './App';
 
-const onReport = jest.fn();
-
 jest.mock('webextension-polyfill-ts', () => {
-  let providedPermission = false;
-
   return {
     browser: {
       runtime: {
@@ -17,7 +13,6 @@ jest.mock('webextension-polyfill-ts', () => {
         remove: jest.fn(),
         request: () =>
           new Promise((resolve) => {
-            providedPermission = true;
             resolve(true);
           }),
       },
@@ -45,7 +40,7 @@ const renderComponent = (postdata, settings): RenderResult => {
   );
 };
 
-describe('companion app', function () {
+describe('companion app', () => {
   it('should render the companion appp', async () => {
     renderComponent({}, {});
     const wrapper = await screen.findByTestId('companion');
@@ -80,14 +75,14 @@ describe('companion app', function () {
 
   it('should show upvoted icon unselected', async () => {
     renderComponent({ upvoted: false }, {});
-    const wrapper = await screen.findByTestId('companion');
+    await screen.findByTestId('companion');
     const button = await screen.findByLabelText('Upvote');
     expect(button).toHaveAttribute('aria-pressed', 'false');
   });
 
   it('should show upvoted icon selected', async () => {
     renderComponent({}, {});
-    const wrapper = await screen.findByTestId('companion');
+    await screen.findByTestId('companion');
     const button = await screen.findByLabelText('Upvote');
     expect(button).toHaveAttribute('aria-pressed', 'true');
   });
@@ -104,21 +99,21 @@ describe('companion app', function () {
 
   it('should show bookmark icon selected', async () => {
     renderComponent({}, {});
-    const wrapper = await screen.findByTestId('companion');
+    await screen.findByTestId('companion');
     const button = await screen.findByLabelText('Bookmark');
     expect(button).toHaveAttribute('aria-pressed', 'true');
   });
 
   it('should show bookmark icon unselected', async () => {
     renderComponent({ bookmarked: false }, {});
-    const wrapper = await screen.findByTestId('companion');
+    await screen.findByTestId('companion');
     const button = await screen.findByLabelText('Bookmark');
     expect(button).toHaveAttribute('aria-pressed', 'false');
   });
 
   it('should show report menu', async () => {
     renderComponent({}, {});
-    const wrapper = await screen.findByTestId('companion');
+    await screen.findByTestId('companion');
     const button = await screen.findByLabelText('Options');
     await button.click();
     expect(await screen.findByText('Report')).toBeInTheDocument();

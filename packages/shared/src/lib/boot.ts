@@ -19,7 +19,7 @@ export type Boot = {
 export type BootCacheData = Pick<
   Boot,
   'user' | 'alerts' | 'settings' | 'flags' | 'data'
-> & { last_modifier?: string };
+> & { lastModifier?: string };
 
 export async function getBootData(app: string, url?: string): Promise<Boot> {
   const res = await fetch(
