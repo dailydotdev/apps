@@ -23,6 +23,10 @@ module.exports = {
           tertiary: 'var(--theme-background-tertiary)',
           bun: 'var(--theme-background-bun)',
           onion: 'var(--theme-background-onion)',
+          mention: {
+            primary: 'var(--theme-mention)',
+            hover: 'var(--theme-mention-hover)',
+          },
         },
         label: {
           primary: 'var(--theme-label-primary)',
