@@ -112,6 +112,10 @@
       animation: fade-in-top ease-in-out;
     }
 
+    &[data-popper-placement^='top-start'] {
+      animation: fade-in-top ease-in-out;
+    }
+
     &[data-popper-placement^='bottom'] {
       animation: fade-in-bottom ease-in-out;
     }
@@ -128,6 +132,10 @@
   &[data-state='hidden'] {
     opacity: 0;
     &[data-placement^='top'] {
+      animation: fade-out-top ease-in-out;
+    }
+
+    &[data-placement^='top-start'] {
       animation: fade-out-top ease-in-out;
     }
 

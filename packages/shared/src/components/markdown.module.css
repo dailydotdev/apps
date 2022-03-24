@@ -1,4 +1,6 @@
 .markdown {
+  position: relative;
+
   & :where(h1) {
     @apply font-bold typo-title2 mt-10 mb-7;
   }
@@ -18,7 +20,7 @@
     @apply text-theme-label-tertiary font-bold mt-4 mb-3;
   }
   & :where(p) {
-    @apply my-7;
+    @apply my-7 relative;
   }
   & :where(blockquote) {
     @apply typo-body italic pl-7 my-7 border-l border-theme-divider-secondary;
@@ -53,7 +55,7 @@
   }
   & :where(a[data-mention-username]) {
     @apply relative text-theme-label-primary hover:underline bg-theme-bg-mention-primary font-bold px-1 rounded-6;
-    
+
     &:hover {
       @apply bg-theme-bg-mention-hover;
     }
