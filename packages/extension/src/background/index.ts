@@ -5,7 +5,7 @@ browser.browserAction.onClicked.addListener(() => {
   browser.tabs.create({ url, active: true });
 });
 
-browser.runtime.onInstalled.addListener(async (details) => {
+browser.runtime.onInstalled.addListener(async () => {
   await Promise.all([
     browser.runtime.setUninstallURL('https://daily.dev/uninstall'),
   ]);
