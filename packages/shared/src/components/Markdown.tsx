@@ -11,9 +11,6 @@ interface MarkdownProps {
 
 const TOOLTIP_SPACING = 8;
 
-const getAdditionalSpacing = (verticalOffset: number) =>
-  verticalOffset > 1 ? TOOLTIP_SPACING : 0;
-
 export default function Markdown({ content }: MarkdownProps): ReactElement {
   const ref = useRef<HTMLDivElement>();
   const [userId, setUserId] = useState('');
@@ -45,10 +42,9 @@ export default function Markdown({ content }: MarkdownProps): ReactElement {
       }
 
       const topOffset = element.parentElement.offsetTop + element.offsetTop;
-      const spacing = getAdditionalSpacing(topOffset);
       const result: CaretOffset = [
         element.offsetLeft,
-        topOffset * -1 + spacing,
+        topOffset * -1 + TOOLTIP_SPACING,
       ];
 
       setOffset(result);
