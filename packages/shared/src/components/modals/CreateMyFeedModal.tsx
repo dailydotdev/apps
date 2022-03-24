@@ -7,7 +7,7 @@ import TagsFilter from '../filters/TagsFilter';
 import CreateFeedFilterButton from '../CreateFeedFilterButton';
 import PlusIcon from '../../../icons/plus.svg';
 import XIcon from '../../../icons/x.svg';
-import { Button, ButtonSize } from '../buttons/Button';
+import { Button } from '../buttons/Button';
 
 type TypeProps = {
   type: string;
