@@ -55,6 +55,7 @@ export const USER_TOOLTIP_CONTENT_QUERY = gql`
       name
       username
       image
+      bio
     }
   }
 `;
