@@ -30,6 +30,7 @@ import { TagLinks } from '../TagLinks';
 import { pageBorders, PageContainer } from '../utilities';
 import PostToc from '../widgets/PostToc';
 import { PostNavigation, PostNavigationProps } from './PostNavigation';
+import { PostModalActionsProps } from './PostModalActions';
 
 const UpvotedPopupModal = dynamic(() => import('../modals/UpvotedPopupModal'));
 const NewCommentModal = dynamic(() => import('../modals/NewCommentModal'));
@@ -38,14 +39,13 @@ const ShareNewCommentPopup = dynamic(() => import('../ShareNewCommentPopup'), {
 });
 const Custom404 = dynamic(() => import('../Custom404'));
 
-interface PostContentProps {
+interface PostContentProps extends Pick<PostModalActionsProps, 'onClose'> {
   id: string;
   postData?: PostData;
   authorOnboarding?: boolean;
   seo?: ReactNode;
   isFallback?: boolean;
   className?: string;
-  onClose?: () => unknown;
   navigation?: PostNavigationProps;
 }
 

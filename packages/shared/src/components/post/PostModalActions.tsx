@@ -1,4 +1,10 @@
-import React, { ReactElement, useContext, useState } from 'react';
+import React, {
+  KeyboardEventHandler,
+  MouseEventHandler,
+  ReactElement,
+  useContext,
+  useState,
+} from 'react';
 import dynamic from 'next/dynamic';
 import MenuIcon from '../../../icons/menu.svg';
 import CloseIcon from '../../../icons/x.svg';
@@ -14,9 +20,9 @@ import { CardNotification } from '../cards/Card';
 import { Button } from '../buttons/Button';
 import PostOptionsMenu from '../PostOptionsMenu';
 
-interface PostModalActionsProps {
+export interface PostModalActionsProps {
   post: Post;
-  onModalClose?: () => unknown;
+  onClose?: MouseEventHandler | KeyboardEventHandler;
 }
 
 const Container = classed('div', 'flex flex-row items-center');
@@ -27,7 +33,7 @@ const DeletePostModal = dynamic(() => import('../modals/DeletePostModal'));
 
 export function PostModalActions({
   post,
-  onModalClose,
+  onClose,
 }: PostModalActionsProps): ReactElement {
   const { user } = useContext(AuthContext);
   const { notification, onMessage } = useNotification();
@@ -67,11 +73,11 @@ export function PostModalActions({
           buttonSize="small"
         />
       </SimpleTooltip>
-      {onModalClose && (
+      {onClose && (
         <Button
           className="btn-tertiary"
           icon={<CloseIcon />}
-          onClick={onModalClose}
+          onClick={(e) => onClose(e)}
           buttonSize="small"
         />
       )}

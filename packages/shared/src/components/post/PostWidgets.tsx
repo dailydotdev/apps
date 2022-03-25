@@ -4,18 +4,15 @@ import { ShareMobile } from '../ShareMobile';
 import AuthContext from '../../contexts/AuthContext';
 import { postAnalyticsEvent } from '../../lib/feed';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { Post } from '../../graphql/posts';
 import ShareBar from '../ShareBar';
 import FurtherReading from '../widgets/FurtherReading';
 import { PostUsersHighlights } from '../widgets/PostUsersHighlights';
-import { PostModalActions } from './PostModalActions';
+import { PostModalActions, PostModalActionsProps } from './PostModalActions';
 
-interface PostWidgetsProps {
-  post: Post;
-  onClose?: () => unknown;
-}
-
-export function PostWidgets({ onClose, post }: PostWidgetsProps): ReactElement {
+export function PostWidgets({
+  onClose,
+  post,
+}: PostModalActionsProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
 
@@ -39,7 +36,7 @@ export function PostWidgets({ onClose, post }: PostWidgetsProps): ReactElement {
 
   return (
     <PageWidgets>
-      <PostModalActions post={post} onModalClose={onClose} />
+      <PostModalActions post={post} onClose={onClose} />
       <PostUsersHighlights post={post} />
       <ShareBar post={post} />
       <ShareMobile share={sharePost} />
