@@ -6,21 +6,17 @@ import FeedbackIcon from '@dailydotdev/shared/icons/feedback.svg';
 import EyeIcon from '@dailydotdev/shared/icons/eye.svg';
 import { Item, Menu } from '@dailydotdev/react-contexify';
 import RepostPostModal from '@dailydotdev/shared/src/components/modals/ReportPostModal';
-import { PostBootData } from './common';
+import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
+import { getCompanionWrapper } from './common';
 import DisableCompanionModal from './DisableCompanionModal';
 
 interface CompanionContextMenuProps {
   postData: PostBootData;
   onMessage?: (message: string, timeout?: number) => Promise<unknown>;
-  onReport;
-  onBlockSource;
-  onDisableCompanion;
+  onReport: (T) => void;
+  onBlockSource: (T) => void;
+  onDisableCompanion: () => void;
 }
-
-const getCompanionWrapper = (): HTMLElement =>
-  document
-    .querySelector('daily-companion-app')
-    .shadowRoot.querySelector('#daily-companion-wrapper');
 
 export default function CompanionContextMenu({
   postData,

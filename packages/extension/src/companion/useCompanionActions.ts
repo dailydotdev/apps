@@ -1,5 +1,15 @@
 import { useMutation } from 'react-query';
 import { browser } from 'webextension-polyfill-ts';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
+import {
+  ADD_BOOKMARKS_MUTATION,
+  CANCEL_UPVOTE_MUTATION,
+  REMOVE_BOOKMARK_MUTATION,
+  REPORT_POST_MUTATION,
+  UPVOTE_MUTATION,
+} from '@dailydotdev/shared/src/graphql/posts';
+import { ADD_FILTERS_TO_FEED_MUTATION } from '@dailydotdev/shared/src/graphql/feedSettings';
+import { companionRequest } from './companionRequest';
 
 type MutateFunc<T> = (variables: T) => Promise<(() => void) | undefined>;
 type UseCompanionActionsParams<T> = {
@@ -37,9 +47,8 @@ export default function useCompanionActions<
     T,
     (() => void) | undefined
   >(({ id, reason, comment }) =>
-    browser.runtime.sendMessage({
-      type: 'REPORT',
-      post_id: id,
+    companionRequest(`${apiUrl}/graphql`, REPORT_POST_MUTATION, {
+      id,
       reason,
       comment,
     }),
@@ -51,9 +60,10 @@ export default function useCompanionActions<
     T,
     (() => void) | undefined
   >(({ id }) =>
-    browser.runtime.sendMessage({
-      type: 'BLOCK_SOURCE',
-      source_id: id,
+    companionRequest(`${apiUrl}/graphql`, ADD_FILTERS_TO_FEED_MUTATION, {
+      filters: {
+        excludeSources: [id],
+      },
     }),
   );
 
@@ -70,7 +80,10 @@ export default function useCompanionActions<
     T,
     (() => void) | undefined
   >(
-    ({ id }) => browser.runtime.sendMessage({ type: 'BOOKMARK', post_id: id }),
+    ({ id }) =>
+      companionRequest(`${apiUrl}/graphql`, ADD_BOOKMARKS_MUTATION, {
+        data: { postIds: [id] },
+      }),
     {
       onMutate: onBookmarkMutate,
       onError: (_, __, rollback) => {
@@ -86,9 +99,8 @@ export default function useCompanionActions<
     (() => void) | undefined
   >(
     ({ id }) =>
-      browser.runtime.sendMessage({
-        type: 'REMOVE_BOOKMARK',
-        post_id: id,
+      companionRequest(`${apiUrl}/graphql`, REMOVE_BOOKMARK_MUTATION, {
+        id,
       }),
     {
       onMutate: onRemoveBookmarkMutate,
@@ -105,7 +117,9 @@ export default function useCompanionActions<
     (() => void) | undefined
   >(
     ({ id }) =>
-      browser.runtime.sendMessage({ type: 'UPVOTE_POST', post_id: id }),
+      companionRequest(`${apiUrl}/graphql`, UPVOTE_MUTATION, {
+        id,
+      }),
     {
       onMutate: onUpvoteMutate,
       onError: (_, __, rollback) => {
@@ -121,9 +135,8 @@ export default function useCompanionActions<
     (() => void) | undefined
   >(
     ({ id }) =>
-      browser.runtime.sendMessage({
-        type: 'CANCEL_UPVOTE_POST',
-        post_id: id,
+      companionRequest(`${apiUrl}/graphql`, CANCEL_UPVOTE_MUTATION, {
+        id,
       }),
     {
       onMutate: onRemoveUpvoteMutate,

@@ -8,13 +8,13 @@ import {
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ModalProps } from '@dailydotdev/shared/src/components/modals/StyledModal';
 
-export interface Props extends ModalProps {
+export interface DisableCompanionModalProps extends ModalProps {
   onConfirm: () => unknown;
 }
 export default function DisableCompanionModal({
   onConfirm,
   ...props
-}: Props): ReactElement {
+}: DisableCompanionModalProps): ReactElement {
   const onDisableClick = async (event: MouseEvent): Promise<void> => {
     onConfirm();
     props.onRequestClose(event);

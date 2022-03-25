@@ -1,15 +1,7 @@
 import { browser, Runtime } from 'webextension-polyfill-ts';
 import { getBootData } from '@dailydotdev/shared/src/lib/boot';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
-import {
-  ADD_BOOKMARKS_MUTATION,
-  CANCEL_UPVOTE_MUTATION,
-  REMOVE_BOOKMARK_MUTATION,
-  REPORT_POST_MUTATION,
-  UPVOTE_MUTATION,
-} from '@dailydotdev/shared/src/graphql/posts';
 import request from 'graphql-request';
-import { ADD_FILTERS_TO_FEED_MUTATION } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { UPDATE_USER_SETTINGS_MUTATION } from '@dailydotdev/shared/src/graphql/settings';
 import {
   BOOT_LOCAL_KEY,
@@ -48,13 +40,20 @@ const sendBootData = async (req, sender) => {
     return;
   }
   const cacheData = getLocalBootData();
-  const { data, settings } = await getBootData('companion', sender?.tab?.url);
+  if (cacheData.settings?.optOutCompanion) {
+    return;
+  }
+
+  const { postData, settings } = await getBootData(
+    'companion',
+    sender?.tab?.url,
+  );
   let settingsOutput = settings;
   if (!cacheData?.user || !('providers' in cacheData?.user)) {
     settingsOutput = { ...settingsOutput, ...cacheData?.settings };
   }
   await browser.tabs.sendMessage(sender?.tab?.id, {
-    data,
+    postData,
     settings: settingsOutput,
   });
 };
@@ -65,44 +64,8 @@ function handleMessages(message, sender) {
     return null;
   }
 
-  if (message.type === 'UPVOTE_POST') {
-    return request(`${apiUrl}/graphql`, UPVOTE_MUTATION, {
-      id: message.post_id,
-    });
-  }
-
-  if (message.type === 'CANCEL_UPVOTE_POST') {
-    return request(`${apiUrl}/graphql`, CANCEL_UPVOTE_MUTATION, {
-      id: message.post_id,
-    });
-  }
-
-  if (message.type === 'BOOKMARK') {
-    request(`${apiUrl}/graphql`, ADD_BOOKMARKS_MUTATION, {
-      data: { postIds: [message.post_id] },
-    });
-  }
-
-  if (message.type === 'REMOVE_BOOKMARK') {
-    return request(`${apiUrl}/graphql`, REMOVE_BOOKMARK_MUTATION, {
-      id: message.post_id,
-    });
-  }
-
-  if (message.type === 'REPORT') {
-    return request(`${apiUrl}/graphql`, REPORT_POST_MUTATION, {
-      id: message.post_id,
-      reason: message.reason,
-      comment: message.comment,
-    });
-  }
-
-  if (message.type === 'BLOCK_SOURCE') {
-    return request(`${apiUrl}/graphql`, ADD_FILTERS_TO_FEED_MUTATION, {
-      filters: {
-        excludeSources: [message.source_id],
-      },
-    });
+  if (message.type === 'GRAPHQL_REQUEST') {
+    return request(message.url, message.document, message.variables);
   }
 
   if (message.type === 'DISABLE_COMPANION') {

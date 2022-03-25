@@ -3,7 +3,24 @@ import { AnonymousUser, LoggedUser } from './user';
 import { apiUrl } from './config';
 import { Alerts } from '../graphql/alerts';
 import { RemoteSettings } from '../graphql/settings';
+import { Post } from '../graphql/posts';
 
+export type PostBootData = Pick<
+  Post,
+  | 'id'
+  | 'title'
+  | 'commentsPermalink'
+  | 'trending'
+  | 'summary'
+  | 'numUpvotes'
+  | 'upvoted'
+  | 'numComments'
+  | 'bookmarked'
+  | 'source'
+>;
+export interface CompanionBootData {
+  postData: PostBootData;
+}
 export type AccessToken = { token: string; expiresIn: string };
 export type Visit = { ampStorage?: string; sessionId: string; visitId: string };
 export type Boot = {
@@ -13,12 +30,12 @@ export type Boot = {
   visit: Visit;
   flags: IFlags;
   settings: RemoteSettings;
-  data?;
+  postData?: PostBootData;
 };
 
 export type BootCacheData = Pick<
   Boot,
-  'user' | 'alerts' | 'settings' | 'flags' | 'data'
+  'user' | 'alerts' | 'settings' | 'flags' | 'postData'
 > & { lastModifier?: string };
 
 export async function getBootData(app: string, url?: string): Promise<Boot> {

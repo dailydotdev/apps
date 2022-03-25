@@ -11,10 +11,11 @@ import {
   ReportDescription,
   ReportButtonsCenter,
 } from './ReportModal';
+import { PostBootData } from '../../lib/boot';
 
 export interface Props extends ModalProps {
   postIndex: number;
-  post?: Partial<Post>;
+  post: Post | PostBootData;
   onReport: (postIndex, postId, reason, comment, blockSource) => unknown;
 }
 
