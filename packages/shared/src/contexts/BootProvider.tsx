@@ -108,9 +108,9 @@ export const BootDataProvider = ({
       if (data?.settings?.theme) {
         applyTheme(themeModes[data.settings.theme]);
       }
-      
+
       return data;
-    }
+    },
   );
   const [lastAppliedChange, setLastAppliedChange] =
     useState<Partial<BootCacheData>>();
