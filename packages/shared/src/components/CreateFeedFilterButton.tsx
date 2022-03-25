@@ -9,11 +9,9 @@ import {
 import { AllTagCategoriesData } from '../graphql/feedSettings';
 import { Button, ButtonProps } from './buttons/Button';
 
-export default function CreateFeedFilterButton({
-  icon,
-  buttonSize,
-  className,
-}: ButtonProps<'button'>): ReactElement {
+export default function CreateFeedFilterButton(
+  props: ButtonProps<'button'>,
+): ReactElement {
   const { user, showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const client = useQueryClient();
@@ -31,9 +29,7 @@ export default function CreateFeedFilterButton({
   };
   return (
     <Button
-      className={className}
-      icon={icon}
-      buttonSize={buttonSize}
+      {...props}
       type="submit"
       onClick={onCreate}
     >

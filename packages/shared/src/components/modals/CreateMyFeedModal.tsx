@@ -18,10 +18,13 @@ type CreateMyFeedModalProps = TypeProps & ModalProps;
 type LayoutModalProps = TypeProps & Pick<ModalProps, 'onRequestClose'>;
 
 const buttonClass = {
-  v2: 'small',
-  v3: 'medium',
   v4: 'w-40',
   v5: 'w-40 ml-3',
+};
+
+const buttonSize = {
+  v2: 'small',
+  v3: 'medium',
 };
 
 const headerTitle = {
@@ -90,6 +93,7 @@ export default function CreateMyFeedModal({
         {['v2', 'v3'].includes(type) && (
           <CreateFeedFilterButton
             className={classNames(buttonClass[type], 'btn-primary-cabbage')}
+            buttonSize={buttonSize[type]}
             icon={type === 'v2' && <PlusIcon />}
           />
         )}
