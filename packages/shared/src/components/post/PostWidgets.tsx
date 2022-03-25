@@ -12,9 +12,10 @@ import { PostModalActions } from './PostModalActions';
 
 interface PostWidgetsProps {
   post: Post;
+  onClose?: () => unknown;
 }
 
-export function PostWidgets({ post }: PostWidgetsProps): ReactElement {
+export function PostWidgets({ onClose, post }: PostWidgetsProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
 
@@ -38,7 +39,7 @@ export function PostWidgets({ post }: PostWidgetsProps): ReactElement {
 
   return (
     <PageWidgets>
-      <PostModalActions post={post} />
+      <PostModalActions post={post} onModalClose={onClose} />
       <PostUsersHighlights post={post} />
       <ShareBar post={post} />
       <ShareMobile share={sharePost} />

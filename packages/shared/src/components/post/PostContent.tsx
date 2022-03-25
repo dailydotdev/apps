@@ -29,6 +29,7 @@ import { PostWidgets } from './PostWidgets';
 import { TagLinks } from '../TagLinks';
 import { pageBorders, PageContainer } from '../utilities';
 import PostToc from '../widgets/PostToc';
+import { PostNavigation, PostNavigationProps } from './PostNavigation';
 
 const UpvotedPopupModal = dynamic(() => import('../modals/UpvotedPopupModal'));
 const NewCommentModal = dynamic(() => import('../modals/NewCommentModal'));
@@ -44,6 +45,8 @@ interface PostContentProps {
   seo?: ReactNode;
   isFallback?: boolean;
   className?: string;
+  onClose?: () => unknown;
+  navigation?: PostNavigationProps;
 }
 
 const DEFAULT_UPVOTES_PER_PAGE = 50;
@@ -61,6 +64,8 @@ export function PostContent({
   className,
   isFallback,
   authorOnboarding = false,
+  navigation,
+  onClose,
 }: PostContentProps): ReactElement {
   if (!id && !isFallback) {
     return <Custom404 />;
@@ -76,14 +81,8 @@ export function PostContent({
   const postQueryKey = ['post', id];
   const { data: postById } = useQuery<PostData>(
     postQueryKey,
-    () =>
-      request(`${apiUrl}/graphql`, POST_BY_ID_QUERY, {
-        id,
-      }),
-    {
-      initialData: postData,
-      enabled: !!id && tokenRefreshed,
-    },
+    () => request(`${apiUrl}/graphql`, POST_BY_ID_QUERY, { id }),
+    { initialData: postData, enabled: !!id && tokenRefreshed },
   );
 
   const handleShowUpvotedPost = (upvotes: number) => {
@@ -193,6 +192,7 @@ export function PostContent({
         )}
       >
         {seo}
+        {navigation && <PostNavigation {...navigation} />}
         <a {...postLinkProps} className="cursor-pointer">
           <h1 className="my-2 font-bold typo-large-title">
             {postById.post.title}
@@ -245,7 +245,7 @@ export function PostContent({
           <AuthorOnboarding onSignUp={!user && (() => showLogin('author'))} />
         )}
         <NewComment user={user} onNewComment={openNewComment} />
-        <PostWidgets post={postById.post} />
+        <PostWidgets post={postById.post} onClose={onClose} />
       </PageContainer>
 
       {upvotedPopup.modal && (
