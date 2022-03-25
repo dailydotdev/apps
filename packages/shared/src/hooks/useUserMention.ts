@@ -77,7 +77,7 @@ export function useUserMention({
       },
     );
   const { recommendedMentions: mentions } = data;
-  const fetchUsers = useDebounce(refetch, 100);
+  const [fetchUsers] = useDebounce(refetch, 100);
 
   const initializeMention = async (isInvalidCallback?: () => unknown) => {
     await nextTick();
