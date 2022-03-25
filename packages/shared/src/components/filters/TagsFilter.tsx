@@ -103,7 +103,9 @@ export default function TagsFilter({
         <SearchField
           inputId="search-filters"
           placeholder="Search"
-          className={classNames(searchFieldClass[feedFilterModalType], 'mb-6')}
+          className={classNames(
+            searchFieldClass[feedFilterModalType] ?? 'mb-6',
+          )}
           ref={searchRef}
           valueChanged={setQuery}
         />

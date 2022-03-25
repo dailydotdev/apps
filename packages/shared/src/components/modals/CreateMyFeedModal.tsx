@@ -63,9 +63,7 @@ export default function CreateMyFeedModal({
     >
       {type === 'v3' && (
         <Button
-          className={classNames(
-            'btn-tertiary-float bg-theme-bg-tertiary fixed top-8 right-8',
-          )}
+          className="btn-tertiary-float bg-theme-bg-tertiary fixed top-8 right-8"
           buttonSize="large"
           title="Close"
           icon={<XIcon />}
@@ -81,7 +79,7 @@ export default function CreateMyFeedModal({
       >
         {['v2', 'v4'].includes(type) && (
           <Button
-            className={classNames('btn-tertiary')}
+            className="btn-tertiary"
             buttonSize="small"
             title="Close"
             icon={<XIcon />}
@@ -99,7 +97,9 @@ export default function CreateMyFeedModal({
       <section className="mt-6">
         <TagsFilter />
       </section>
-      {['v4', 'v5'].includes(type) && ModalFooter({ type, onRequestClose })}
+      {['v4', 'v5'].includes(type) && (
+        <ModalFooter type={type} onRequestClose={onRequestClose} />
+      )}
     </ResponsiveModal>
   );
 }
