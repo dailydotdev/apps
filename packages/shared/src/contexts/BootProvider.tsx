@@ -57,7 +57,7 @@ export type BootDataProviderProps = {
   getRedirectUri: () => string;
 };
 
-export const getLocalBootData = () => {
+export const getLocalBootData = (): BootCacheData | null => {
   const local = storage.getItem(BOOT_LOCAL_KEY);
   if (local) {
     return JSON.parse(storage.getItem(BOOT_LOCAL_KEY)) as BootCacheData;
