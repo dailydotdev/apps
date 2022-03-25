@@ -85,6 +85,7 @@ export default function Markdown({ content }: MarkdownProps): ReactElement {
         placement: 'top-start',
         offset,
         visible: !!userId,
+        onShow: cancelUserClearing,
       }}
       onMouseEnter={cancelUserClearing}
       onMouseLeave={clearUser}
