@@ -28,6 +28,36 @@ export interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   onActionIconClick?: () => unknown;
 }
 
+interface InputFontColorProps {
+  readOnly?: boolean;
+  disabled?: boolean;
+  focused?: boolean;
+  hasInput?: boolean;
+}
+
+export const getInputFontColor = ({
+  readOnly,
+  disabled,
+  focused,
+  hasInput,
+}: InputFontColorProps): string => {
+  if (readOnly) {
+    return 'text-theme-label-quaternary';
+  }
+
+  if (disabled) {
+    return 'text-theme-label-disabled';
+  }
+
+  if (focused) {
+    return hasInput
+      ? 'text-theme-label-primary'
+      : 'text-theme-label-quaternary';
+  }
+
+  return 'text-theme-label-tertiary hover:text-theme-label-primary';
+};
+
 export function TextField({
   className,
   inputId,
@@ -132,25 +162,6 @@ export function TextField({
   };
 
   const invalid = validInput === false;
-
-  const getFontColor = () => {
-    if (readOnly) {
-      return 'text-theme-label-quaternary';
-    }
-
-    if (disabled) {
-      return 'text-theme-label-disabled';
-    }
-
-    if (focused) {
-      return hasInput
-        ? 'text-theme-label-primary'
-        : 'text-theme-label-quaternary';
-    }
-
-    return 'text-theme-label-tertiary hover:text-theme-label-primary';
-  };
-
   const getLabelColor = () => {
     if (readOnly) {
       return 'text-theme-label-tertiary';
@@ -189,7 +200,14 @@ export function TextField({
         )}
       >
         {leftIcon && (
-          <span className={classNames('mr-2', getFontColor())}>{leftIcon}</span>
+          <span
+            className={classNames(
+              'mr-2',
+              getInputFontColor({ readOnly, disabled, hasInput, focused }),
+            )}
+          >
+            {leftIcon}
+          </span>
         )}
         <div
           className={classNames(
@@ -215,7 +233,10 @@ export function TextField({
             onInput={onInput}
             maxLength={maxLength}
             readOnly={readOnly}
-            className={classNames('self-stretch', getFontColor())}
+            className={classNames(
+              'self-stretch',
+              getInputFontColor({ readOnly, disabled, hasInput, focused }),
+            )}
             disabled={disabled}
             {...props}
           />

@@ -23,6 +23,10 @@ module.exports = {
           tertiary: 'var(--theme-background-tertiary)',
           bun: 'var(--theme-background-bun)',
           onion: 'var(--theme-background-onion)',
+          mention: {
+            primary: 'var(--theme-mention)',
+            hover: 'var(--theme-mention-hover)',
+          },
         },
         label: {
           primary: 'var(--theme-label-primary)',
@@ -42,6 +46,7 @@ module.exports = {
         },
         overlay: {
           quaternary: 'var(--theme-overlay-quaternary)',
+          water: 'var(--theme-overlay-water)',
         },
         status: {
           error: 'var(--theme-status-error)',

@@ -119,7 +119,7 @@ export default function PostsSearch({
       <SearchField
         className="flex-1 compact"
         inputId="posts-search"
-        compact
+        fieldSize="medium"
         placeholder={placeholder}
         ref={searchBoxRef}
         value={initialQuery}

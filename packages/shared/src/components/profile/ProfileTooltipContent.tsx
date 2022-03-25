@@ -1,10 +1,10 @@
 import React, { ReactElement } from 'react';
-import { UserTooltipContentData } from '../../graphql/users';
 import { Author } from '../../graphql/comments';
 import Rank from '../Rank';
 import { ProfileImageLink } from './ProfileImageLink';
 import { ProfileLink } from './ProfileLink';
 import { TagLinks } from '../TagLinks';
+import { UserTooltipContentData } from '../../hooks/useProfileTooltip';
 
 export interface ProfileTooltipContentProps {
   user: Author;
@@ -42,11 +42,11 @@ export function ProfileTooltipContent({
           {user.bio}
         </p>
       )}
-      {tags?.length && (
+      {tags?.length ? (
         <span className="typo-subhead text-theme-label-quaternary">
           Loves reading about
         </span>
-      )}
+      ) : null}
       <TagLinks className="mb-0" tags={tags?.map(({ value }) => value) || []} />
     </div>
   );
