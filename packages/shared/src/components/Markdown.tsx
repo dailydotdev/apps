@@ -54,15 +54,19 @@ export default function Markdown({ content }: MarkdownProps): ReactElement {
       setUserId(id);
     };
 
-    elements.forEach((element) =>
-      element.addEventListener('mouseover', onHover),
-    );
+    const onMouseOut = () => setUserId('');
+
+    elements.forEach((element) => {
+      element.addEventListener('mouseenter', onHover);
+      element.addEventListener('mouseleave', onMouseOut);
+    });
 
     // eslint-disable-next-line consistent-return
     return () => {
-      elements.forEach((element) =>
-        element.removeEventListener('mouseover', onHover),
-      );
+      elements.forEach((element) => {
+        element.removeEventListener('mouseenter', onHover);
+        element.removeEventListener('mouseleave', onMouseOut);
+      });
     };
   }, [content, userId]);
 
@@ -76,7 +80,11 @@ export default function Markdown({ content }: MarkdownProps): ReactElement {
   return (
     <ProfileTooltip
       user={{ id: userId }}
-      tooltip={{ placement: 'top-start', offset }}
+      tooltip={{
+        placement: 'top-start',
+        offset,
+        visible: !!userId,
+      }}
     >
       <div
         ref={ref}
