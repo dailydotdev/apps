@@ -63,7 +63,7 @@ export default function CreateMyFeedModal({
     >
       {type === 'v3' && (
         <Button
-          className="btn-tertiary-float bg-theme-bg-tertiary fixed top-8 right-8"
+          className="fixed top-8 right-8 btn-tertiary-float bg-theme-bg-tertiary"
           buttonSize="large"
           title="Close"
           icon={<XIcon />}
