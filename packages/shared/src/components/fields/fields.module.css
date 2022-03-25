@@ -15,4 +15,8 @@
   & input::placeholder {
     color: var(--field-placeholder-color);
   }
+
+  & input:focus::placeholder {
+    color: var(--theme-label-quaternary);
+  }
 }

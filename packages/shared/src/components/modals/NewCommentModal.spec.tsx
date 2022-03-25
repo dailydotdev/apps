@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import { Simulate } from 'react-dom/test-utils';
 import nock from 'nock';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import NewCommentModal, { NewCommentModalProps } from './NewCommentModal';
@@ -9,11 +10,15 @@ import {
   COMMENT_ON_COMMENT_MUTATION,
   COMMENT_ON_POST_MUTATION,
   EDIT_COMMENT_MUTATION,
+  RECOMMEND_MENTIONS_QUERY,
+  PREVIEW_COMMENT_MUTATION,
 } from '../../graphql/comments';
 import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '../../../__tests__/helpers/graphql';
+import { waitForNock } from '../../../__tests__/helpers/utilities';
+import { RecommendedMention } from '../RecommendedMention';
 
 const defaultUser = {
   id: 'u1',
@@ -118,8 +123,8 @@ it('should disable submit button when no input', async () => {
 
 it('should enable submit button when no input', async () => {
   renderComponent();
-  const input = await screen.findByRole('textbox');
-  input.innerText = 'My new comment';
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  input.value = 'My new comment';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const el = await screen.findByText('Comment');
   expect(el.getAttribute('disabled')).toBeFalsy();
@@ -150,8 +155,8 @@ it('should send commentOnPost mutation', async () => {
       },
     },
   ]);
-  const input = await screen.findByRole('textbox');
-  input.innerText = 'comment';
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  input.value = 'comment';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const el = await screen.findByText('Comment');
   el.click();
@@ -185,8 +190,8 @@ it('should send commentOnComment mutation', async () => {
       },
     },
   ]);
-  const input = await screen.findByRole('textbox');
-  input.innerText = 'comment';
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  input.value = 'comment';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const el = await screen.findByText('Comment');
   el.click();
@@ -220,8 +225,8 @@ it('should not send comment if the input is spaces only', async () => {
       },
     },
   ]);
-  const input = await screen.findByRole('textbox');
-  input.innerText = '   ';
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  input.value = '   ';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const el = await screen.findByText('Comment');
   el.click();
@@ -243,8 +248,8 @@ it('should show alert in case of an error', async () => {
       },
     },
   ]);
-  const input = await screen.findByRole('textbox');
-  input.innerText = 'comment';
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  input.value = 'comment';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const el = await screen.findByText('Comment');
   el.click();
@@ -285,12 +290,121 @@ it('should send editComment mutation', async () => {
       },
     },
   ]);
-  const input = await screen.findByRole('textbox');
-  input.innerText = 'comment';
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  input.value = 'comment';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const el = await screen.findByText('Update');
   el.click();
   await waitFor(() => mutationCalled);
   await waitFor(() => expect(onComment).toBeCalledTimes(0));
   await waitFor(() => expect(onRequestClose).toBeCalledTimes(1));
+});
+
+it('should recommend users previously mentioned', async () => {
+  let queryPreviouslyMentioned = false;
+  renderComponent({}, [
+    {
+      request: {
+        query: RECOMMEND_MENTIONS_QUERY,
+        variables: { postId: 'p1', query: '' },
+      },
+      result: () => {
+        queryPreviouslyMentioned = true;
+        return {
+          data: {
+            recommendedMentions: [
+              { name: 'Lee', username: 'sshanzel', image: 'sample.image.com' },
+            ],
+          },
+        };
+      },
+    },
+  ]);
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  input.value = '@';
+  Simulate.keyDown(input, { key: '@' });
+  await waitForNock();
+  expect(queryPreviouslyMentioned).toBeTruthy();
+});
+
+it('should recommend users based on query', async () => {
+  let queryMatchingNameOrUsername = false;
+  renderComponent({}, [
+    {
+      request: {
+        query: RECOMMEND_MENTIONS_QUERY,
+        variables: { postId: 'p1', query: '' },
+      },
+      result: () => {
+        return {
+          data: {
+            recommendedMentions: [
+              { name: 'Ido', username: 'idoshamun', image: 'sample.image.com' },
+            ],
+          },
+        };
+      },
+    },
+    {
+      request: {
+        query: RECOMMEND_MENTIONS_QUERY,
+        variables: { postId: 'p1', query: 'l' },
+      },
+      result: () => {
+        queryMatchingNameOrUsername = true;
+        return {
+          data: {
+            recommendedMentions: [
+              { name: 'Lee', username: 'sshanzel', image: 'sample.image.com' },
+            ],
+          },
+        };
+      },
+    },
+  ]);
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  input.value = '@';
+  Simulate.keyDown(input, { key: '@' });
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  input.value = '@l';
+  Simulate.keyDown(input, { key: 'l' });
+  await waitForNock();
+  expect(queryMatchingNameOrUsername).toBeTruthy();
+});
+
+describe('recommended mention component', () => {
+  it('should display name, username and image of the user', async () => {
+    render(
+      <RecommendedMention
+        selected={0}
+        users={[
+          { name: 'Lee', username: 'sshanzel', image: 'sample.image.com' },
+        ]}
+      />,
+    );
+    await screen.findByText('@sshanzel');
+    await screen.findByText('Lee');
+    await screen.findByAltText(`sshanzel's profile`);
+  });
+});
+
+it('should send previewComment query', async () => {
+  let queryCalled = false;
+  mockGraphQL({
+    request: {
+      query: PREVIEW_COMMENT_MUTATION,
+      variables: { content: '# Test' },
+    },
+    result: () => {
+      queryCalled = true;
+      return { data: { preview: '<h1>Test</>' } };
+    },
+  });
+  renderComponent();
+  const input = await screen.findByRole('textbox');
+  input.innerText = '# Test';
+  input.dispatchEvent(new Event('input', { bubbles: true }));
+  const preview = await screen.findByText('Preview');
+  preview.click();
+  await waitFor(() => queryCalled);
 });

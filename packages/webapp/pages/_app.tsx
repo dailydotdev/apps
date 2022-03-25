@@ -16,18 +16,12 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import AuthContext, {
   REGISTRATION_PATH,
 } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { Router } from 'next/router';
 import { useCookieBanner } from '@dailydotdev/shared/src/hooks/useCookieBanner';
-import ProgressiveEnhancementContext, {
-  ProgressiveEnhancementContextProvider,
-} from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
-import { trackPageView } from '@dailydotdev/shared/src/lib/analytics';
+import { ProgressiveEnhancementContextProvider } from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
-import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import { AnalyticsContextProvider } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { canonicalFromRouter } from '@dailydotdev/shared/src/lib/canonical';
 import '@dailydotdev/shared/src/styles/globals.css';
-import useThirdPartyAnalytics from '@dailydotdev/shared/src/hooks/useThirdPartyAnalytics';
 import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPageView';
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
 import { useMyFeed } from '@dailydotdev/shared/src/hooks/useMyFeed';
@@ -61,8 +55,6 @@ interface CompnentGetLayout {
   layoutProps?: Record<string, unknown>;
 }
 
-Router.events.on('routeChangeComplete', (page) => trackPageView(`/web${page}`));
-
 const getRedirectUri = () =>
   `${window.location.origin}${window.location.pathname}`;
 
@@ -72,27 +64,15 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const {
     user,
     tokenRefreshed,
-    trackingId,
     closeLogin,
     loadingUser,
     shouldShowLogin,
     loginState,
   } = useContext(AuthContext);
   const { registerLocalFilters } = useMyFeed();
-  const { flags } = useContext(FeaturesContext);
-  const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const [showCookie, acceptCookies, updateCookieBanner] = useCookieBanner();
 
   useTrackPageView();
-  useThirdPartyAnalytics(
-    trackingId,
-    user,
-    showCookie,
-    windowLoaded,
-    'webapp',
-    () => `/web${window.location.pathname}${window.location.search}`,
-    flags,
-  );
 
   useEffect(() => {
     if (

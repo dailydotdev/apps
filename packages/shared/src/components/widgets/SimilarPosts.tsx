@@ -9,7 +9,6 @@ import styles from '../cards/Card.module.css';
 import { LazyImage } from '../LazyImage';
 import { CardLink } from '../cards/Card';
 import { ElementPlaceholder } from '../ElementPlaceholder';
-import { logReadArticle } from '../../lib/analytics';
 import classed from '../../lib/classed';
 import { postAnalyticsEvent } from '../../lib/feed';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
@@ -125,7 +124,6 @@ export default function SimilarPosts({
         extra: { origin: 'recommendation' },
       }),
     );
-    await logReadArticle('recommendation');
   };
 
   return (

@@ -170,9 +170,7 @@ export default function NewRankModal({
       {user ? (
         <div className="flex gap-4 self-center">
           {showDevCard && (
-            <GoToDevCardButton origin="new rank popup">
-              Generate Dev Card
-            </GoToDevCardButton>
+            <GoToDevCardButton>Generate Dev Card</GoToDevCardButton>
           )}
           <Button
             className="btn-primary"

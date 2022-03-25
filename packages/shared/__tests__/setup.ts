@@ -67,10 +67,3 @@ beforeEach(() => {
   clear();
   storage.clear();
 });
-
-jest.mock('../src/lib/analytics', () => ({
-  ...jest.requireActual('../src/lib/analytics'),
-  getAmplitudeClient: jest.fn(),
-  logRevenue: jest.fn(),
-  logReadArticle: jest.fn(),
-}));

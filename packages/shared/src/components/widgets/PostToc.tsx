@@ -1,7 +1,6 @@
 import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import { Post, TocItem } from '../../graphql/posts';
-import { logReadArticle } from '../../lib/analytics';
 import TocIcon from '../../../icons/toc.svg';
 import { Summary, SummaryArrow } from '../utilities';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
@@ -32,7 +31,6 @@ export default function PostToc({
 
   const onLinkClick = async (): Promise<void> => {
     trackEvent(postAnalyticsEvent('click', post, { extra: { origin: 'toc' } }));
-    await logReadArticle('toc');
   };
 
   const items = (
