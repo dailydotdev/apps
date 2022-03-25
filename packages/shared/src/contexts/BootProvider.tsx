@@ -62,14 +62,10 @@ export type BootDataProviderProps = {
   getRedirectUri: () => string;
 };
 
-export const getLocalBootData = (isInitialLoad = false): BootCacheData => {
+export const getLocalBootData = (): BootCacheData => {
   const local = storage.getItem(BOOT_LOCAL_KEY);
   if (local) {
     const data = JSON.parse(storage.getItem(BOOT_LOCAL_KEY)) as BootCacheData;
-
-    if (isInitialLoad && data?.settings?.theme) {
-      applyTheme(themeModes[data.settings.theme]);
-    }
 
     return data;
   }
@@ -102,7 +98,19 @@ export const BootDataProvider = ({
 }: BootDataProviderProps): ReactElement => {
   const queryClient = useQueryClient();
   const [cachedBootData, setCachedBootData] = useState<Partial<BootCacheData>>(
-    () => localBootData || getLocalBootData(true),
+    () => {
+      if (localBootData) {
+        return localBootData;
+      }
+
+      const data = getLocalBootData();
+
+      if (data?.settings?.theme) {
+        applyTheme(themeModes[data.settings.theme]);
+      }
+      
+      return data;
+    }
   );
   const [lastAppliedChange, setLastAppliedChange] =
     useState<Partial<BootCacheData>>();

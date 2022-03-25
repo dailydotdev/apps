@@ -3,6 +3,10 @@ import ReactDOM from 'react-dom';
 import '@dailydotdev/shared/src/styles/globals.css';
 import { getLocalBootData } from '@dailydotdev/shared/src/contexts/BootProvider';
 import { BootCacheData } from '@dailydotdev/shared/src/lib/boot';
+import {
+  applyTheme,
+  themeModes,
+} from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { get as getCache } from 'idb-keyval';
 import { browser } from 'webextension-polyfill-ts';
 import App from './App';
@@ -38,7 +42,10 @@ const redirectApp = async (url: string) => {
 };
 
 (async () => {
-  const data = getLocalBootData(true);
+  const data = getLocalBootData();
+
+  if (data?.settings?.theme) applyTheme(themeModes[data.settings.theme]);
+
   const source = window.location.href.split('source=')[1];
 
   if (source) return renderApp(data);
