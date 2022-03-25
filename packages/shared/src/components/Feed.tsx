@@ -4,9 +4,10 @@ import React, {
   ReactNode,
   useContext,
   useEffect,
+  useState,
 } from 'react';
 import classNames from 'classnames';
-import useFeed, { PostItem } from '../hooks/useFeed';
+import useFeed, { FeedItem, PostItem } from '../hooks/useFeed';
 import { Ad, Post } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
 import FeedContext from '../contexts/FeedContext';
@@ -17,7 +18,9 @@ import ScrollToTopButton from './ScrollToTopButton';
 import useFeedUpvotePost from '../hooks/feed/useFeedUpvotePost';
 import useFeedBookmarkPost from '../hooks/feed/useFeedBookmarkPost';
 import useCommentPopup from '../hooks/feed/useCommentPopup';
-import useFeedOnPostClick from '../hooks/feed/useFeedOnPostClick';
+import useFeedOnPostClick, {
+  FeedPostClick,
+} from '../hooks/feed/useFeedOnPostClick';
 import useFeedContextMenu from '../hooks/feed/useFeedContextMenu';
 import useFeedInfiniteScroll, {
   InfiniteScrollScreenOffset,
@@ -34,6 +37,7 @@ import useNotification from '../hooks/useNotification';
 import FeaturesContext from '../contexts/FeaturesContext';
 import { Features, getFeatureValue } from '../lib/featureManagement';
 import { getThemeFont } from './utilities';
+import { PostModal } from './modals/PostModal';
 
 export type FeedProps<T> = {
   feedName: string;
@@ -98,6 +102,29 @@ const getStyle = (useList: boolean, spaciness: Spaciness): CSSProperties => {
   return {};
 };
 
+const nextPost = (items: FeedItem[], postId: string) => {
+  const index = items.findIndex((item) => {
+    if (item.type !== 'post') {
+      return false;
+    }
+
+    return item.post.id === openedPost;
+  });
+
+  if (index === items.length) {
+    await fetchPage();
+  }
+
+  const offset = items[index + 1].type !== 'post' ? 2 : 1;
+  const item = items[index + offset];
+
+  if (item.type !== 'post') {
+    return;
+  }
+
+  setOpenedPost(item.post.id);
+};
+
 export default function Feed<T>({
   feedName,
   feedQueryKey,
@@ -109,6 +136,7 @@ export default function Feed<T>({
   emptyScreen,
   createMyFeedCard,
 }: FeedProps<T>): ReactElement {
+  const [openedPost, setOpenedPost] = useState('');
   const { flags } = useContext(FeaturesContext);
   const postHeadingFont = getThemeFont(
     getFeatureValue(Features.PostCardHeadingFont, flags),
@@ -189,13 +217,19 @@ export default function Feed<T>({
     feedName,
     ranking,
   );
-  const onPostClick = useFeedOnPostClick(
+  const onFeedPostClick = useFeedOnPostClick(
     items,
     updatePost,
     virtualizedNumCards,
     feedName,
     ranking,
   );
+
+  const onPostClick: FeedPostClick = (post, ...args): Promise<void> => {
+    setOpenedPost(post.id);
+
+    return onFeedPostClick(post, ...args);
+  };
   const { onMenuClick, postMenuIndex, setPostMenuIndex } = useFeedContextMenu();
   const { notification, notificationIndex, onMessage } = useNotification();
 
@@ -237,9 +271,57 @@ export default function Feed<T>({
     ...getStyle(useList, spaciness),
   };
 
-  return emptyScreen && emptyFeed ? (
-    <>{emptyScreen}</>
-  ) : (
+  if (emptyScreen && emptyFeed) {
+    return <>{emptyScreen}</>;
+  }
+
+  const onPrevious = async () => {
+    const index = items.findIndex((item) => {
+      if (item.type !== 'post') {
+        return false;
+      }
+
+      return item.post.id === openedPost;
+    });
+
+    if (index === 0 || index === 1) {
+      return;
+    }
+
+    const offset = items[index - 1].type !== 'post' ? 2 : 1;
+    const item = items[index - offset];
+
+    if (item.type !== 'post') {
+      return;
+    }
+
+    setOpenedPost(item.post.id);
+  };
+
+  const onNext = async () => {
+    const index = items.findIndex((item) => {
+      if (item.type !== 'post') {
+        return false;
+      }
+
+      return item.post.id === openedPost;
+    });
+
+    if (index === items.length) {
+      await fetchPage();
+    }
+
+    const offset = items[index + 1].type !== 'post' ? 2 : 1;
+    const item = items[index + offset];
+
+    if (item.type !== 'post') {
+      return;
+    }
+
+    setOpenedPost(item.post.id);
+  };
+
+  return (
     <div
       className={classNames(
         'relative mx-auto w-full',
@@ -249,6 +331,14 @@ export default function Feed<T>({
       )}
       style={style}
     >
+      {openedPost && (
+        <PostModal
+          id={openedPost}
+          isOpen={!!openedPost}
+          onRequestClose={() => setOpenedPost('')}
+          navigation={{ onPreviousPost: onPrevious, onNextPost: onNext }}
+        />
+      )}
       {header}
       <ScrollToTopButton />
       <div

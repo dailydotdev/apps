@@ -6,8 +6,8 @@ import { Button } from '../buttons/Button';
 const SimpleTooltip = dynamic(() => import('../tooltips/SimpleTooltip'));
 
 export interface PostNavigationProps {
-  onPreviousPost: () => unknown;
-  onNextPost: () => unknown;
+  onPreviousPost: () => Promise<unknown>;
+  onNextPost: () => Promise<unknown>;
 }
 
 export function PostNavigation({

@@ -86,8 +86,8 @@ export const PostCard = forwardRef(function PostCard(
       className={getPostClassNames(post, selectedComment, className)}
       style={{ ...style, ...customStyle }}
       ref={ref}
+      onClick={() => onLinkClick(post)}
     >
-      <PostLink post={post} openNewTab={openNewTab} onLinkClick={onLinkClick} />
       <CardTextContainer>
         <CardHeader>
           {notification ? (

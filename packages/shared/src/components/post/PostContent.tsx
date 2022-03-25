@@ -39,7 +39,7 @@ const ShareNewCommentPopup = dynamic(() => import('../ShareNewCommentPopup'), {
 });
 const Custom404 = dynamic(() => import('../Custom404'));
 
-interface PostContentProps extends Pick<PostModalActionsProps, 'onClose'> {
+export interface PostContentProps extends Pick<PostModalActionsProps, 'onClose'> {
   id: string;
   postData?: PostData;
   authorOnboarding?: boolean;

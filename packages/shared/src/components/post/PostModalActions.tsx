@@ -62,7 +62,13 @@ export function PostModalActions({
 
   return (
     <Container>
-      <Button className="btn-secondary" icon={<OpenLinkIcon />}>
+      <Button
+        className="btn-secondary"
+        tag="a"
+        href={post.permalink}
+        target="_blank"
+        icon={<OpenLinkIcon />}
+      >
         Read article
       </Button>
       <SimpleTooltip placement="left" content="Options">
