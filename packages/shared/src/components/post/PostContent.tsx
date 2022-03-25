@@ -15,7 +15,6 @@ import {
   POST_UPVOTES_BY_ID_QUERY,
 } from '../../graphql/posts';
 import useSubscription from '../../hooks/useSubscription';
-import { logReadArticle } from '../../lib/analytics';
 import { apiUrl } from '../../lib/config';
 import { postAnalyticsEvent } from '../../lib/feed';
 import PostMetadata from '../cards/PostMetadata';
@@ -173,7 +172,6 @@ export function PostContent({
         extra: { origin: 'article page' },
       }),
     );
-    await logReadArticle('article page');
   };
 
   const postLinkProps = {
