@@ -8,20 +8,6 @@ import {
   getLocalBootData,
 } from '@dailydotdev/shared/src/contexts/BootProvider';
 
-const cacheAmplitudeDeviceId = async ({
-  reason,
-}: Runtime.OnInstalledDetailsType): Promise<void> => {
-  if (reason === 'install') {
-    const boot = await getBootData('extension');
-    if (boot.visit.ampStorage) {
-      localStorage.setItem(
-        `amp_${process.env.NEXT_PUBLIC_AMPLITUDE.slice(0, 6)}`,
-        boot.visit.ampStorage,
-      );
-    }
-  }
-};
-
 const excludedCompanionOrigins = [
   'https://twitter.com',
   'https://www.google.com',
@@ -91,9 +77,8 @@ browser.browserAction.onClicked.addListener(() => {
   browser.tabs.create({ url, active: true });
 });
 
-browser.runtime.onInstalled.addListener(async (details) => {
+browser.runtime.onInstalled.addListener(async () => {
   await Promise.all([
-    cacheAmplitudeDeviceId(details),
     browser.runtime.setUninstallURL('https://daily.dev/uninstall'),
   ]);
 });

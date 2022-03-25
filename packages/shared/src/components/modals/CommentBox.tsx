@@ -165,7 +165,7 @@ function CommentBox({
       </div>
       <footer className="flex items-center pt-3">
         <Button
-          className="mx-1 border border-theme-label-primary btn-tertiary"
+          className="mx-1 btn-tertiary"
           buttonSize="small"
           icon={<AtIcon />}
           onClick={onInitializeMention}

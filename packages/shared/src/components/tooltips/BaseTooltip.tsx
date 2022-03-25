@@ -28,6 +28,7 @@ export interface TooltipProps
     | 'duration'
     | 'visible'
     | 'appendTo'
+    | 'offset'
   > {
   container?: Omit<BaseTooltipContainerProps, 'placement' | 'children'>;
 }

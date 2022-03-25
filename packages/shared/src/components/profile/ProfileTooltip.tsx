@@ -1,5 +1,7 @@
 import React, { ReactElement } from 'react';
+import { Author } from '../../graphql/comments';
 import { useProfileTooltip } from '../../hooks/useProfileTooltip';
+import { TooltipProps } from '../tooltips/BaseTooltip';
 import {
   LinkWithTooltip,
   LinkWithTooltipProps,
@@ -13,6 +15,7 @@ import {
 export interface ProfileTooltipProps extends ProfileTooltipContentProps {
   children: ReactElement;
   link?: Omit<LinkWithTooltipProps, 'children' | 'tooltip'>;
+  tooltip?: TooltipProps;
 }
 
 export const profileTooltipClasses = {
@@ -26,9 +29,14 @@ export function ProfileTooltip({
   children,
   user,
   link,
-}: ProfileTooltipProps): ReactElement {
-  const { data, fetchInfo } = useProfileTooltip({ userId: user.id });
-  const Tooltip = link ? LinkWithTooltip : SimpleTooltip;
+  tooltip = {},
+}: Omit<ProfileTooltipProps, 'user'> & {
+  user?: Partial<Author>;
+}): ReactElement {
+  const { data, fetchInfo, isLoading } = useProfileTooltip({
+    userId: user.id,
+    requestUserInfo: true,
+  });
   const props = {
     arrow: false,
     interactive: true,
@@ -38,17 +46,24 @@ export function ProfileTooltip({
       roundedClassName: profileTooltipClasses.roundness,
       className: profileTooltipClasses.classNames,
     },
+    content:
+      data?.user && !isLoading ? (
+        <ProfileTooltipContent user={data.user} data={data} />
+      ) : null,
+    ...tooltip,
   };
 
+  if (link) {
+    return (
+      <LinkWithTooltip {...link} tooltip={{ ...props, onTrigger: fetchInfo }}>
+        {children}
+      </LinkWithTooltip>
+    );
+  }
+
   return (
-    <Tooltip
-      content={data ? <ProfileTooltipContent user={user} data={data} /> : null}
-      {...link}
-      {...props}
-      onTrigger={fetchInfo}
-      tooltip={props}
-    >
+    <SimpleTooltip {...props} onTrigger={fetchInfo}>
       {children}
-    </Tooltip>
+    </SimpleTooltip>
   );
 }
