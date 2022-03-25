@@ -94,7 +94,7 @@ export default function PostsSearch({
   };
 
   const { selectedItemIndex, onKeyDown } = useAutoComplete(items, submitQuery);
-  const debounceQuery = useDebounce<string>((value) => setQuery(value), 100);
+  const [debounceQuery] = useDebounce<string>((value) => setQuery(value), 100);
   const onValueChanged = (value: string) => {
     if (!value.length) {
       hideMenu();
