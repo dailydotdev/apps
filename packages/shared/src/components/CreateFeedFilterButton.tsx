@@ -28,11 +28,7 @@ export default function CreateFeedFilterButton(
     showLogin('create feed filters');
   };
   return (
-    <Button
-      {...props}
-      type="submit"
-      onClick={onCreate}
-    >
+    <Button {...props} type="submit" onClick={onCreate}>
       Create
     </Button>
   );
