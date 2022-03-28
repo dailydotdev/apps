@@ -32,7 +32,7 @@ export function PostModal({
       <PostContent
         id={id}
         navigation={navigation}
-        className="modal-post"
+        className="h-full modal-post"
         onClose={onRequestClose}
       />
     </StyledModal>

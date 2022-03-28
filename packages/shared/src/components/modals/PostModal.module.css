@@ -11,6 +11,8 @@
   }
 
   & :global(.modal) {
+    @apply bg-theme-bg-primary;
+
     position: absolute;
     max-width: 63.75rem;
     height: 100%;
