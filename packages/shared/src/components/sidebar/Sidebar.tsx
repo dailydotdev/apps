@@ -364,7 +364,7 @@ export default function Sidebar({
         <CreateMyFeedModal
           isOpen={isAnimated}
           onRequestClose={() => setHidden()}
-          type={feedFilterModal}
+          feedFilterModalType={feedFilterModal}
         />
       )}
     </>

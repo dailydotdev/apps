@@ -60,6 +60,7 @@ export default function FeedFilters({
             className="btn-primary-avocado"
             icon={<PlusIcon />}
             buttonSize="small"
+            versionType="v1"
           />
         )}
       </div>

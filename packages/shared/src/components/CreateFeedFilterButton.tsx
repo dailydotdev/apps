@@ -9,9 +9,16 @@ import {
 import { AllTagCategoriesData } from '../graphql/feedSettings';
 import { Button, ButtonProps } from './buttons/Button';
 
-export default function CreateFeedFilterButton(
-  props: ButtonProps<'button'>,
-): ReactElement {
+type TypeProps = {
+  feedFilterModalType: string;
+};
+
+type CreateFeedFilterButtonProps = TypeProps & ButtonProps<'button'>;
+
+export default function CreateFeedFilterButton({
+  feedFilterModalType,
+  ...props
+}: CreateFeedFilterButtonProps): ReactElement {
   const { user, showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const client = useQueryClient();
@@ -20,7 +27,7 @@ export default function CreateFeedFilterButton(
     trackEvent({
       event_name: 'click',
       target_type: 'create feed filters',
-      target_id: 'feed-filters',
+      target_id: `feed-filters-${feedFilterModalType}`,
     });
     const key = getFeedSettingsQueryKey(user);
     const { feedSettings } = client.getQueryData(key) as AllTagCategoriesData;
