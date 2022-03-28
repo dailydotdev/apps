@@ -7,7 +7,7 @@ import React, {
   useState,
 } from 'react';
 import classNames from 'classnames';
-import useFeed, { FeedItem, PostItem } from '../hooks/useFeed';
+import useFeed, { PostItem } from '../hooks/useFeed';
 import { Ad, Post } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
 import FeedContext from '../contexts/FeedContext';
@@ -100,29 +100,6 @@ const getStyle = (useList: boolean, spaciness: Spaciness): CSSProperties => {
       : { maxWidth: '63.75rem' };
   }
   return {};
-};
-
-const nextPost = (items: FeedItem[], postId: string) => {
-  const index = items.findIndex((item) => {
-    if (item.type !== 'post') {
-      return false;
-    }
-
-    return item.post.id === openedPost;
-  });
-
-  if (index === items.length) {
-    await fetchPage();
-  }
-
-  const offset = items[index + 1].type !== 'post' ? 2 : 1;
-  const item = items[index + offset];
-
-  if (item.type !== 'post') {
-    return;
-  }
-
-  setOpenedPost(item.post.id);
 };
 
 export default function Feed<T>({
