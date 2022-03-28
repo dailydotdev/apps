@@ -11,6 +11,7 @@ import classed from '../../lib/classed';
 import { postAnalyticsEvent } from '../../lib/feed';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { ProfilePicture } from '../ProfilePicture';
+import { WidgetContainer } from './common';
 
 export type BestDiscussionsProps = {
   posts: Post[] | null;
@@ -79,6 +80,11 @@ const ListItemPlaceholder = (): ReactElement => (
   </article>
 );
 
+export const BestDiscussionsContainer = classed(
+  WidgetContainer,
+  'flex flex-col',
+);
+
 export default function BestDiscussions({
   posts,
   isLoading,
@@ -102,12 +108,7 @@ export default function BestDiscussions({
   };
 
   return (
-    <section
-      className={classNames(
-        'flex flex-col rounded-2xl bg-theme-bg-primary border-theme-divider-quaternary border',
-        className,
-      )}
-    >
+    <BestDiscussionsContainer className={className}>
       <h4 className="py-3 pr-4 pl-6 typo-body text-theme-label-tertiary">
         Best discussions
       </h4>
@@ -143,6 +144,6 @@ export default function BestDiscussions({
           I&apos;m feeling lucky
         </Button>
       </Link>
-    </section>
+    </BestDiscussionsContainer>
   );
 }
