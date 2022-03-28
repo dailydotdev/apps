@@ -27,6 +27,7 @@ export interface TooltipProps
     | 'onTrigger'
     | 'duration'
     | 'visible'
+    | 'offset'
   > {
   container?: Omit<BaseTooltipContainerProps, 'placement' | 'children'>;
 }

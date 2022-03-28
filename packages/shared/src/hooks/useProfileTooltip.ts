@@ -18,6 +18,7 @@ export type UserTooltipContentData = {
 interface UseProfileTooltip {
   fetchInfo: () => unknown;
   data?: UserTooltipContentData;
+  isLoading: boolean;
 }
 
 interface UseProfileTooltipProps {
@@ -31,7 +32,7 @@ export const useProfileTooltip = ({
 }: UseProfileTooltipProps): UseProfileTooltip => {
   const [shouldFetch, setShouldFetch] = useState(false);
   const key = ['readingRank', userId];
-  const { data } = useQuery<UserTooltipContentData>(
+  const { data, isLoading } = useQuery<UserTooltipContentData>(
     key,
     () =>
       request(`${apiUrl}/graphql`, USER_TOOLTIP_CONTENT_QUERY, {
@@ -49,8 +50,9 @@ export const useProfileTooltip = ({
   return useMemo(
     () => ({
       data,
+      isLoading,
       fetchInfo: () => setShouldFetch(true),
     }),
-    [data, setShouldFetch],
+    [data, isLoading, setShouldFetch],
   );
 };

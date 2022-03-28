@@ -52,9 +52,12 @@ export const USER_TOOLTIP_CONTENT_QUERY = gql`
       value
     }
     user(id: $id) @include(if: $requestUserInfo) {
+      id
       name
       username
       image
+      bio
+      permalink
     }
   }
 `;
