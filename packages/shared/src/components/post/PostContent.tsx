@@ -39,7 +39,8 @@ const ShareNewCommentPopup = dynamic(() => import('../ShareNewCommentPopup'), {
 });
 const Custom404 = dynamic(() => import('../Custom404'));
 
-export interface PostContentProps extends Pick<PostModalActionsProps, 'onClose'> {
+export interface PostContentProps
+  extends Pick<PostModalActionsProps, 'onClose'> {
   id: string;
   postData?: PostData;
   authorOnboarding?: boolean;
@@ -210,12 +211,13 @@ export function PostContent({
         />
         <a
           {...postLinkProps}
-          className="block overflow-hidden mb-10 rounded-b-2xl cursor-pointer"
+          className="block overflow-hidden mb-10 rounded-2xl cursor-pointer"
+          style={{ width: '25.625rem' }}
         >
           <LazyImage
             imgSrc={postById.post.image}
             imgAlt="Post cover image"
-            ratio="21%"
+            ratio="49%"
             eager
             fallbackSrc="https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1"
           />
