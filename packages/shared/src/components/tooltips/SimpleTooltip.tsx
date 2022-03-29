@@ -14,6 +14,7 @@ export function SimpleTooltip({
   children,
   content,
   onTrigger,
+  onShow,
   ...props
 }: TooltipProps): ReactElement {
   /**
@@ -47,6 +48,14 @@ export function SimpleTooltip({
     shouldShow = true;
   };
 
+  const onTooltipShow = (_) => {
+    if (shouldShow) {
+      return onShow?.(_);
+    }
+
+    return false;
+  };
+
   return (
     <TippyTooltip
       {...props}
@@ -54,7 +63,7 @@ export function SimpleTooltip({
       content={content}
       onTrigger={onTooltipTrigger}
       onUntrigger={onUntrigger}
-      onShow={() => shouldShow}
+      onShow={onTooltipShow}
     >
       {component}
     </TippyTooltip>

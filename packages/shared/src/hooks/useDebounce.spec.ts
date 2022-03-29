@@ -5,16 +5,18 @@ import useDebounce from './useDebounce';
 it('should call the callback only once', async () => {
   const mock = jest.fn();
   const { result } = renderHook(() => useDebounce(mock, 10));
-  result.current();
-  result.current();
+  const [callback] = result.current as ReturnType<typeof useDebounce>;
+  callback();
+  callback();
   await waitFor(() => expect(mock).toBeCalledTimes(1));
 });
 
 it('should call the callback again after the cooldown period', async () => {
   const mock = jest.fn();
   const { result } = renderHook(() => useDebounce(mock, 10));
-  result.current();
+  const [callback] = result.current as ReturnType<typeof useDebounce>;
+  callback();
   await waitFor(() => expect(mock).toBeCalledTimes(1));
-  result.current();
+  callback();
   await waitFor(() => expect(mock).toBeCalledTimes(2));
 });

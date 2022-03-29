@@ -25,6 +25,7 @@ export interface TooltipProps
     | 'delay'
     | 'interactive'
     | 'onTrigger'
+    | 'onShow'
     | 'duration'
     | 'visible'
     | 'appendTo'
