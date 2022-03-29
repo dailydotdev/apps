@@ -1,21 +1,15 @@
 import React, { ReactElement, useContext, useEffect } from 'react';
-import { useQueryClient } from 'react-query';
 import classNames from 'classnames';
 import sizeN from '../../../macros/sizeN.macro';
 import FilterMenu from './FilterMenu';
 import XIcon from '../../../icons/x.svg';
 import PlusIcon from '../../../icons/plus.svg';
 import { menuItemClassNames } from '../multiLevelMenu/MultiLevelMenuMaster';
-import useFeedSettings, {
-  getFeedSettingsQueryKey,
-  updateLocalFeedSettings,
-} from '../../hooks/useFeedSettings';
+import useFeedSettings from '../../hooks/useFeedSettings';
 import AuthContext from '../../contexts/AuthContext';
-import { Button } from '../buttons/Button';
-import { AllTagCategoriesData } from '../../graphql/feedSettings';
 import AlertContext from '../../contexts/AlertContext';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { useMyFeed } from '../../hooks/useMyFeed';
+import CreateFeedFilterButton from '../CreateFeedFilterButton';
 
 const asideWidth = sizeN(89);
 interface FeedFiltersProps {
@@ -29,24 +23,10 @@ export default function FeedFilters({
   isOpen,
   onBack,
 }: FeedFiltersProps): ReactElement {
-  const client = useQueryClient();
-  const { trackEvent } = useContext(AnalyticsContext);
   const { alerts, updateAlerts } = useContext(AlertContext);
-  const { user, showLogin } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const { hasAnyFilter } = useFeedSettings();
   const { shouldShowMyFeed } = useMyFeed();
-
-  const onCreate = () => {
-    trackEvent({
-      event_name: 'click',
-      target_type: 'create feed filters',
-      target_id: 'feed-filters',
-    });
-    const key = getFeedSettingsQueryKey(user);
-    const { feedSettings } = client.getQueryData(key) as AllTagCategoriesData;
-    updateLocalFeedSettings(feedSettings);
-    showLogin('create feed filters');
-  };
 
   useEffect(() => {
     if (isOpen && alerts?.filter && hasAnyFilter && user && !shouldShowMyFeed) {
@@ -76,14 +56,12 @@ export default function FeedFilters({
           <XIcon className="text-2xl -rotate-90 text-theme-label-tertiary" />
         </button>
         {shouldShowMyFeed && !user && (
-          <Button
+          <CreateFeedFilterButton
             className="btn-primary-avocado"
+            icon={<PlusIcon />}
             buttonSize="small"
-            icon={<PlusIcon className="mr-1" />}
-            onClick={onCreate}
-          >
-            Create
-          </Button>
+            feedFilterModalType="v1"
+          />
         )}
       </div>
       <FilterMenu directlyOpenedTab={openedTab} />
