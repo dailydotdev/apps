@@ -16,7 +16,7 @@
     position: absolute;
     max-width: 63.75rem;
     height: 100%;
-    max-height: calc(100% - 7rem);
+    max-height: 100%;
     align-items: stretch;
     border: none;
     border-radius: 0;
@@ -25,6 +25,10 @@
       position: relative;
       min-height: unset;
       border: 1px solid var(--theme-divider-secondary);
+    }
+
+    @screen laptop {
+      max-height: calc(100% - 7rem);
       border-radius: 1rem;
     }
   }
