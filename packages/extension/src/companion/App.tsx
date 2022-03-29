@@ -1,7 +1,6 @@
 import React, { ReactElement, useState } from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { browser } from 'webextension-polyfill-ts';
-import '@dailydotdev/shared/src/styles/globals.css';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import { RemoteSettings } from '@dailydotdev/shared/src/graphql/settings';
 import Companion from './Companion';

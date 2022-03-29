@@ -7,6 +7,8 @@ import EyeIcon from '@dailydotdev/shared/icons/eye.svg';
 import { Item, Menu } from '@dailydotdev/react-contexify';
 import RepostPostModal from '@dailydotdev/shared/src/components/modals/ReportPostModal';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
+import { useShareOrCopyLink } from '@dailydotdev/shared/src/hooks/useShareOrCopyLink';
+import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import { getCompanionWrapper } from './common';
 import DisableCompanionModal from './DisableCompanionModal';
 
@@ -28,22 +30,22 @@ export default function CompanionContextMenu({
   const [reportModal, setReportModal] = useState<boolean>();
   const [disableModal, setDisableModal] = useState<boolean>();
 
-  const onSharePost = async () => {
-    const shareLink = postData?.commentsPermalink;
-    if ('share' in navigator) {
-      try {
-        await navigator.share({
-          text: postData?.title,
-          url: shareLink,
-        });
-      } catch (err) {
-        // Do nothing
-      }
-    } else {
-      await navigator.clipboard.writeText(shareLink);
-      onMessage('✅ Copied link to clipboard');
-    }
+  const shareLink = postData?.commentsPermalink;
+
+  const copyLink = async () => {
+    await navigator.clipboard.writeText(shareLink);
+    onMessage('✅ Copied link to clipboard');
   };
+
+  const onShareOrCopyLink = useShareOrCopyLink({
+    link: shareLink,
+    text: postData?.title,
+    copyLink,
+    trackObject: () =>
+      postAnalyticsEvent('share post', postData, {
+        extra: { origin: 'companion context menu' },
+      }),
+  });
 
   const onReportPost = async (
     reportPostIndex,
@@ -72,7 +74,7 @@ export default function CompanionContextMenu({
             <CommentIcon className="mr-2 text-xl" /> View discussion
           </a>
         </Item>
-        <Item onClick={onSharePost}>
+        <Item onClick={onShareOrCopyLink}>
           <ShareIcon className="mr-2 text-xl" /> Share article
         </Item>
         <Item onClick={() => setReportModal(true)}>
