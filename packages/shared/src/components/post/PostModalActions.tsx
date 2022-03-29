@@ -6,6 +6,7 @@ import React, {
   useContext,
   useState,
 } from 'react';
+import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import MenuIcon from '../../../icons/menu.svg';
 import CloseIcon from '../../../icons/x.svg';
@@ -26,6 +27,7 @@ export interface PostModalActionsProps {
   onClose?: MouseEventHandler | KeyboardEventHandler;
   className?: string;
   style?: CSSProperties;
+  inlineActions?: boolean;
 }
 
 const Container = classed('div', 'flex flex-row items-center');
@@ -37,6 +39,8 @@ const DeletePostModal = dynamic(() => import('../modals/DeletePostModal'));
 export function PostModalActions({
   post,
   onClose,
+  inlineActions,
+  className,
   ...props
 }: PostModalActionsProps): ReactElement {
   const { user } = useContext(AuthContext);
@@ -65,19 +69,22 @@ export function PostModalActions({
   const isModerator = user?.roles?.indexOf(Roles.Moderator) > -1;
 
   return (
-    <Container {...props}>
+    <Container
+      {...props}
+      className={classNames(className, inlineActions && 'w-full justify-end')}
+    >
       <Button
-        className="btn-secondary"
+        className={inlineActions ? 'btn-tertiary' : 'btn-secondary'}
         tag="a"
         href={post.permalink}
         target="_blank"
         icon={<OpenLinkIcon />}
       >
-        Read article
+        {inlineActions ? '' : 'Read article'}
       </Button>
       <SimpleTooltip placement="left" content="Options">
         <Button
-          className="ml-auto btn-tertiary"
+          className={classNames(!inlineActions && 'ml-auto', 'btn-tertiary')}
           icon={<MenuIcon />}
           onClick={(event) => showPostOptionsContext(event)}
           buttonSize="small"

@@ -86,9 +86,10 @@ const Wrapper = ({
     return <>{children}</>;
   }
 
+  const isFixed = position === 'fixed';
+
   const classes =
-    position === 'fixed' &&
-    'bg-theme-bg-secondary border-b border-theme-divider-tertiary';
+    isFixed && 'bg-theme-bg-secondary border-b border-theme-divider-tertiary';
 
   return (
     <div
@@ -112,6 +113,7 @@ const Wrapper = ({
           {navigation && <PostNavigation {...navigation} />}
           <PageWidgets className={classNames('top-0')} style={{ padding: 0 }}>
             <PostModalActions
+              inlineActions={isFixed}
               post={post}
               onClose={onClose}
               style={{ height: 'calc(4.5rem + 1px)' }}
@@ -281,6 +283,7 @@ export function PostContent({
 
   return (
     <Wrapper
+      onClose={onClose}
       onScroll={onScroll}
       navigation={navigation}
       post={postById.post}
@@ -347,7 +350,7 @@ export function PostContent({
           <AuthorOnboarding onSignUp={!user && (() => showLogin('author'))} />
         )}
         <NewComment user={user} onNewComment={openNewComment} />
-        <PostWidgets post={postById.post} onClose={onClose} className="pb-20" />
+        <PostWidgets post={postById.post} className="pb-20" />
       </PageContainer>
 
       {upvotedPopup.modal && (
