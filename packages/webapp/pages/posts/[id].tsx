@@ -22,6 +22,7 @@ import {
   POSTS_ENGAGED_SUBSCRIPTION,
   PostsEngaged,
   POST_UPVOTES_BY_ID_QUERY,
+  Post,
 } from '@dailydotdev/shared/src/graphql/posts';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
@@ -65,6 +66,15 @@ const ShareNewCommentPopup = dynamic(
 );
 const Custom404 = dynamic(() => import('../404'));
 
+export const getSeoDescription = (post: Post): string => {
+  if (post?.summary?.length > 0) {
+    return post?.summary;
+  }
+  if (post?.description) {
+    return post?.description;
+  }
+  return `Join us to the discussion about "${post?.title}" on daily.dev ✌️`;
+};
 export interface Props {
   id: string;
   postData?: PostData;
@@ -225,10 +235,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   const seo: NextSeoProps = {
     title: postById?.post.title,
     titleTemplate: '%s | daily.dev',
-    description:
-      postById?.post.description?.length > 0
-        ? postById.post.description
-        : `Join us to the discussion about "${postById?.post.title}" on daily.dev ✌️`,
+    description: getSeoDescription(postById.post),
     openGraph: {
       images: [{ url: postById?.post.image }],
       article: {
@@ -249,7 +256,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         <Head>
           <link rel="preload" as="image" href={postById.post.image} />
         </Head>
-        <NextSeo {...seo} />
+        <NextSeo data-testId="post-page-seo-id" {...seo} />
         <a
           {...postLinkProps}
           className="block overflow-hidden mb-10 rounded-b-2xl cursor-pointer"

@@ -33,7 +33,7 @@ import { OperationOptions } from 'subscriptions-transport-ws';
 import { SubscriptionCallbacks } from '@dailydotdev/shared/src/hooks/useSubscription';
 import defaultUser from './fixture/loggedUser';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
-import PostPage, { Props } from '../pages/posts/[id]';
+import PostPage, { getSeoDescription, Props } from '../pages/posts/[id]';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
@@ -224,6 +224,34 @@ it('should show login on upvote click', async () => {
   const el = await screen.findByText('Upvote');
   el.click();
   expect(showLogin).toBeCalledTimes(1);
+});
+
+it('should check meta tag', async () => {
+  const seo = getSeoDescription(
+    createPostMock({
+      summary: 'Test summary',
+    }).result.data.post,
+  );
+
+  expect(seo).toEqual('Test summary');
+});
+
+it('should check meta tag', async () => {
+  const seo = getSeoDescription(
+    createPostMock({
+      description: 'Test description',
+    }).result.data.post,
+  );
+
+  expect(seo).toEqual('Test description');
+});
+
+it('should check meta tag', async () => {
+  const seo = getSeoDescription(createPostMock({}).result.data.post);
+
+  expect(seo).toEqual(
+    'Join us to the discussion about "Learn SQL" on daily.dev ✌️',
+  );
 });
 
 it('should send upvote mutation', async () => {
