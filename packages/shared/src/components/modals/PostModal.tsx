@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { StyledModal, ModalProps } from './StyledModal';
 import { useHideOnModal } from '../../hooks/useHideOnModal';
@@ -20,7 +20,6 @@ export function PostModal({
   navigation,
   ...props
 }: PostModalProps): ReactElement {
-  const [isLoading, setIsLoading] = useState(false);
   useResetScrollForResponsiveModal();
   useHideOnModal(props.isOpen);
 
@@ -28,7 +27,7 @@ export function PostModal({
     <StyledModal
       {...props}
       className={classNames(className, styles.postModal)}
-      style={{ content: { overflow: isLoading ? 'hidden' : 'auto' } }}
+      style={{ content: { overflow: 'hidden' } }}
       onRequestClose={onRequestClose}
     >
       <PostContent
@@ -36,7 +35,6 @@ export function PostModal({
         navigation={navigation}
         className="h-full modal-post"
         onClose={onRequestClose}
-        onLoading={setIsLoading}
       />
     </StyledModal>
   );

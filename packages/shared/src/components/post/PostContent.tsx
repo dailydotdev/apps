@@ -2,10 +2,11 @@ import classNames from 'classnames';
 import request from 'graphql-request';
 import dynamic from 'next/dynamic';
 import React, {
+  CSSProperties,
   ReactElement,
   ReactNode,
+  UIEventHandler,
   useContext,
-  useEffect,
   useState,
 } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
@@ -14,6 +15,7 @@ import AuthContext from '../../contexts/AuthContext';
 import { Comment, COMMENT_UPVOTES_BY_ID_QUERY } from '../../graphql/comments';
 import {
   ParentComment,
+  Post,
   PostData,
   PostsEngaged,
   POSTS_ENGAGED_SUBSCRIPTION,
@@ -46,16 +48,13 @@ const ShareNewCommentPopup = dynamic(() => import('../ShareNewCommentPopup'), {
 });
 const Custom404 = dynamic(() => import('../Custom404'));
 
-export interface PostContentProps
-  extends Pick<PostModalActionsProps, 'onClose'> {
+export interface PostContentProps extends Omit<WrapperProps, 'post'> {
   id: string;
   postData?: PostData;
   authorOnboarding?: boolean;
   seo?: ReactNode;
   isFallback?: boolean;
   className?: string;
-  navigation?: PostNavigationProps;
-  onLoading?: (state: boolean) => unknown;
 }
 
 const DEFAULT_UPVOTES_PER_PAGE = 50;
@@ -66,6 +65,66 @@ const getUpvotedPopupInitialState = () => ({
   requestQuery: null,
 });
 
+interface WrapperProps extends PostModalActionsProps {
+  children?: ReactNode;
+  navigation?: PostNavigationProps;
+  post: Post;
+  position?: CSSProperties['position'];
+  onScroll?: UIEventHandler<HTMLDivElement>;
+}
+
+const Wrapper = ({
+  children,
+  navigation,
+  post,
+  onClose,
+  onScroll,
+  className,
+  position = 'relative',
+}: WrapperProps) => {
+  if (!navigation) {
+    return <>{children}</>;
+  }
+
+  const classes =
+    position === 'fixed' &&
+    'bg-theme-bg-secondary border-b border-theme-divider-tertiary';
+
+  return (
+    <div
+      className="flex overflow-auto relative flex-col h-full"
+      onScroll={onScroll}
+    >
+      <header
+        className={classNames(
+          'flex z-3 flex-row bg-theme-bg-primary ease-linear',
+          position,
+          classes,
+        )}
+      >
+        <PageContainer
+          className={classNames(
+            'laptop:self-stretch py-4',
+            pageBorders,
+            className,
+          )}
+        >
+          {navigation && <PostNavigation {...navigation} />}
+          <PageWidgets className={classNames('top-0')} style={{ padding: 0 }}>
+            <PostModalActions
+              post={post}
+              onClose={onClose}
+              style={{ height: 'calc(4.5rem + 1px)' }}
+              className={classNames(classes, 'px-6')}
+            />
+          </PageWidgets>
+        </PageContainer>
+      </header>
+      {children}
+    </div>
+  );
+};
+
 export function PostContent({
   id,
   seo,
@@ -75,7 +134,6 @@ export function PostContent({
   authorOnboarding = false,
   navigation,
   onClose,
-  onLoading,
 }: PostContentProps): ReactElement {
   if (!id && !isFallback) {
     return <Custom404 />;
@@ -89,6 +147,8 @@ export function PostContent({
   const [upvotedPopup, setUpvotedPopup] = useState(getUpvotedPopupInitialState);
   const queryClient = useQueryClient();
   const postQueryKey = ['post', id];
+  const [position, setPosition] =
+    useState<CSSProperties['position']>('relative');
   const { data: postById, isLoading } = useQuery<PostData>(
     postQueryKey,
     () => request(`${apiUrl}/graphql`, POST_BY_ID_QUERY, { id }),
@@ -171,10 +231,6 @@ export function PostContent({
     setParentComment(parent);
   };
 
-  useEffect(() => {
-    onLoading?.(isLoading);
-  }, [isLoading]);
-
   if (isLoading) {
     return (
       <PageContainer
@@ -210,32 +266,34 @@ export function PostContent({
     onMouseUp: (event: React.MouseEvent) => event.button === 1 && onLinkClick(),
   };
 
+  const onScroll: UIEventHandler<HTMLDivElement> = (e) => {
+    if (e.currentTarget.scrollTop > 40) {
+      if (position !== 'fixed') {
+        setPosition('fixed');
+      }
+      return;
+    }
+
+    if (position !== 'relative') {
+      setPosition('relative');
+    }
+  };
+
   return (
-    <div className="flex relative flex-col">
-      <header className="flex flex-row">
-        <PageContainer
-          className={classNames(
-            'laptop:self-stretch pt-6 pb-6',
-            pageBorders,
-            className,
-          )}
-        >
-          {navigation && <PostNavigation {...navigation} />}
-          <PageWidgets className="p-0">
-            <PostModalActions
-              post={postById.post}
-              onClose={onClose}
-              className=""
-            />
-          </PageWidgets>
-        </PageContainer>
-      </header>
+    <Wrapper
+      onScroll={onScroll}
+      navigation={navigation}
+      post={postById.post}
+      className={className}
+      position={position}
+    >
       <PageContainer
         className={classNames(
           'laptop:pb-6 laptop:self-stretch pb-20 laptopL:pb-0',
           pageBorders,
           className,
         )}
+        style={{ paddingTop: position === 'fixed' ? '5rem' : 0 }}
       >
         {seo}
         <a {...postLinkProps} className="cursor-pointer">
@@ -315,6 +373,6 @@ export function PostContent({
           onRequestClose={() => setShowShareNewComment(false)}
         />
       )}
-    </div>
+    </Wrapper>
   );
 }

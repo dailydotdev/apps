@@ -1,4 +1,5 @@
 import React, {
+  CSSProperties,
   KeyboardEventHandler,
   MouseEventHandler,
   ReactElement,
@@ -24,6 +25,7 @@ export interface PostModalActionsProps {
   post: Post;
   onClose?: MouseEventHandler | KeyboardEventHandler;
   className?: string;
+  style?: CSSProperties;
 }
 
 const Container = classed('div', 'flex flex-row items-center');
@@ -35,7 +37,7 @@ const DeletePostModal = dynamic(() => import('../modals/DeletePostModal'));
 export function PostModalActions({
   post,
   onClose,
-  className,
+  ...props
 }: PostModalActionsProps): ReactElement {
   const { user } = useContext(AuthContext);
   const { notification, onMessage } = useNotification();
@@ -63,7 +65,7 @@ export function PostModalActions({
   const isModerator = user?.roles?.indexOf(Roles.Moderator) > -1;
 
   return (
-    <Container className={className}>
+    <Container {...props}>
       <Button
         className="btn-secondary"
         tag="a"
