@@ -1,7 +1,13 @@
 import classNames from 'classnames';
 import request from 'graphql-request';
 import dynamic from 'next/dynamic';
-import React, { ReactElement, ReactNode, useContext, useState } from 'react';
+import React, {
+  ReactElement,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { useQuery, useQueryClient } from 'react-query';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import AuthContext from '../../contexts/AuthContext';
@@ -27,10 +33,11 @@ import { PostComments } from './PostComments';
 import { PostUpvotesCommentsCount } from './PostUpvotesCommentsCount';
 import { PostWidgets } from './PostWidgets';
 import { TagLinks } from '../TagLinks';
-import { pageBorders, PageContainer } from '../utilities';
+import { pageBorders, PageContainer, PageWidgets } from '../utilities';
 import PostToc from '../widgets/PostToc';
 import { PostNavigation, PostNavigationProps } from './PostNavigation';
-import { PostModalActionsProps } from './PostModalActions';
+import { PostModalActions, PostModalActionsProps } from './PostModalActions';
+import { PostLoadingPlaceholder } from './PostLoadingPlaceholder';
 
 const UpvotedPopupModal = dynamic(() => import('../modals/UpvotedPopupModal'));
 const NewCommentModal = dynamic(() => import('../modals/NewCommentModal'));
@@ -48,6 +55,7 @@ export interface PostContentProps
   isFallback?: boolean;
   className?: string;
   navigation?: PostNavigationProps;
+  onLoading?: (state: boolean) => unknown;
 }
 
 const DEFAULT_UPVOTES_PER_PAGE = 50;
@@ -67,6 +75,7 @@ export function PostContent({
   authorOnboarding = false,
   navigation,
   onClose,
+  onLoading,
 }: PostContentProps): ReactElement {
   if (!id && !isFallback) {
     return <Custom404 />;
@@ -80,7 +89,7 @@ export function PostContent({
   const [upvotedPopup, setUpvotedPopup] = useState(getUpvotedPopupInitialState);
   const queryClient = useQueryClient();
   const postQueryKey = ['post', id];
-  const { data: postById } = useQuery<PostData>(
+  const { data: postById, isLoading } = useQuery<PostData>(
     postQueryKey,
     () => request(`${apiUrl}/graphql`, POST_BY_ID_QUERY, { id }),
     { initialData: postData, enabled: !!id && tokenRefreshed },
@@ -162,8 +171,26 @@ export function PostContent({
     setParentComment(parent);
   };
 
+  useEffect(() => {
+    onLoading?.(isLoading);
+  }, [isLoading]);
+
+  if (isLoading) {
+    return (
+      <PageContainer
+        className={classNames(
+          'laptop:pb-6 laptop:self-stretch pt-6 pb-20 laptopL:pb-0',
+          pageBorders,
+          className,
+        )}
+      >
+        <PostLoadingPlaceholder />
+      </PageContainer>
+    );
+  }
+
   if (!postById?.post) {
-    return <></>;
+    return <Custom404 />;
   }
 
   const onLinkClick = async () => {
@@ -184,20 +211,35 @@ export function PostContent({
   };
 
   return (
-    <>
+    <div className="flex relative flex-col">
+      <header className="flex flex-row">
+        <PageContainer
+          className={classNames(
+            'laptop:self-stretch pt-6 pb-6',
+            pageBorders,
+            className,
+          )}
+        >
+          {navigation && <PostNavigation {...navigation} />}
+          <PageWidgets className="p-0">
+            <PostModalActions
+              post={postById.post}
+              onClose={onClose}
+              className=""
+            />
+          </PageWidgets>
+        </PageContainer>
+      </header>
       <PageContainer
         className={classNames(
-          'laptop:pb-6 laptop:self-stretch pt-6 pb-20 laptopL:pb-0',
+          'laptop:pb-6 laptop:self-stretch pb-20 laptopL:pb-0',
           pageBorders,
           className,
         )}
       >
         {seo}
-        {navigation && <PostNavigation {...navigation} />}
         <a {...postLinkProps} className="cursor-pointer">
-          <h1 className="my-2 font-bold typo-large-title">
-            {postById.post.title}
-          </h1>
+          <h1 className="font-bold typo-large-title">{postById.post.title}</h1>
         </a>
         {postById.post.summary && (
           <PostSummary summary={postById.post.summary} />
@@ -247,7 +289,7 @@ export function PostContent({
           <AuthorOnboarding onSignUp={!user && (() => showLogin('author'))} />
         )}
         <NewComment user={user} onNewComment={openNewComment} />
-        <PostWidgets post={postById.post} onClose={onClose} />
+        <PostWidgets post={postById.post} onClose={onClose} className="pb-20" />
       </PageContainer>
 
       {upvotedPopup.modal && (
@@ -273,6 +315,6 @@ export function PostContent({
           onRequestClose={() => setShowShareNewComment(false)}
         />
       )}
-    </>
+    </div>
   );
 }

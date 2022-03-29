@@ -7,11 +7,11 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import ShareBar from '../ShareBar';
 import FurtherReading from '../widgets/FurtherReading';
 import { PostUsersHighlights } from '../widgets/PostUsersHighlights';
-import { PostModalActions, PostModalActionsProps } from './PostModalActions';
+import { PostModalActionsProps } from './PostModalActions';
 
 export function PostWidgets({
-  onClose,
   post,
+  className,
 }: PostModalActionsProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
@@ -35,8 +35,7 @@ export function PostWidgets({
   };
 
   return (
-    <PageWidgets>
-      <PostModalActions post={post} onClose={onClose} />
+    <PageWidgets className={className}>
       <PostUsersHighlights post={post} />
       <ShareBar post={post} />
       <ShareMobile share={sharePost} />

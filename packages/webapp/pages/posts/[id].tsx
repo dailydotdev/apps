@@ -88,6 +88,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
       postData={postData}
       seo={setContent}
       isFallback={isFallback}
+      className="laptop:pb-6 laptop:self-stretch pt-6 pb-20 laptopL:pb-0"
     />
   );
 };
