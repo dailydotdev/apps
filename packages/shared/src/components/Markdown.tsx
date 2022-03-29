@@ -4,6 +4,7 @@ import styles from './markdown.module.css';
 import { ProfileTooltip } from './profile/ProfileTooltip';
 import { useProfileTooltip } from '../hooks/useProfileTooltip';
 import { CaretOffset } from '../lib/element';
+import useDebounce from '../hooks/useDebounce';
 
 interface MarkdownProps {
   content: string;
@@ -20,6 +21,7 @@ export default function Markdown({ content }: MarkdownProps): ReactElement {
     userId,
     requestUserInfo: true,
   });
+  const [clearUser, cancelUserClearing] = useDebounce(() => setUserId(''), 200);
 
   useEffect(() => {
     if (!content || !ref?.current) {
@@ -50,22 +52,21 @@ export default function Markdown({ content }: MarkdownProps): ReactElement {
         topOffset * -1 + TOOLTIP_SPACING,
       ];
 
+      cancelUserClearing();
       setOffset(result);
       setUserId(id);
     };
 
-    const onMouseOut = () => setUserId('');
-
     elements.forEach((element) => {
       element.addEventListener('mouseenter', onHover);
-      element.addEventListener('mouseleave', onMouseOut);
+      element.addEventListener('mouseleave', clearUser);
     });
 
     // eslint-disable-next-line consistent-return
     return () => {
       elements.forEach((element) => {
         element.removeEventListener('mouseenter', onHover);
-        element.removeEventListener('mouseleave', onMouseOut);
+        element.removeEventListener('mouseleave', clearUser);
       });
     };
   }, [content, userId]);
@@ -84,7 +85,10 @@ export default function Markdown({ content }: MarkdownProps): ReactElement {
         placement: 'top-start',
         offset,
         visible: !!userId,
+        onShow: cancelUserClearing,
       }}
+      onMouseEnter={cancelUserClearing}
+      onMouseLeave={clearUser}
     >
       <div
         ref={ref}
