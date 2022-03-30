@@ -70,7 +70,7 @@ export const getSeoDescription = (post: Post): string => {
   if (post?.summary?.length > 0) {
     return post?.summary;
   }
-  if (post?.description) {
+  if (post?.description?.length > 0) {
     return post?.description;
   }
   return `Join us to the discussion about "${post?.title}" on daily.dev ✌️`;
@@ -256,7 +256,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         <Head>
           <link rel="preload" as="image" href={postById.post.image} />
         </Head>
-        <NextSeo data-testId="post-page-seo-id" {...seo} />
+        <NextSeo {...seo} />
         <a
           {...postLinkProps}
           className="block overflow-hidden mb-10 rounded-b-2xl cursor-pointer"
