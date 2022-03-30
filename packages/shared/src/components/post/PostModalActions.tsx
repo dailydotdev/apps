@@ -71,20 +71,30 @@ export function PostModalActions({
   return (
     <Container
       {...props}
-      className={classNames(className, inlineActions && 'w-full justify-end')}
+      className={classNames(
+        className,
+        inlineActions && 'w-full tablet:justify-end',
+      )}
     >
       <Button
-        className={inlineActions ? 'btn-tertiary' : 'btn-secondary'}
+        className="tablet:hidden btn-tertiary"
+        tag="a"
+        href={post.permalink}
+        target="_blank"
+        icon={<OpenLinkIcon />}
+      />
+      <Button
+        className="hidden tablet:flex btn-secondary"
         tag="a"
         href={post.permalink}
         target="_blank"
         icon={<OpenLinkIcon />}
       >
-        {inlineActions ? '' : 'Read article'}
+        Read article
       </Button>
       <SimpleTooltip placement="left" content="Options">
         <Button
-          className={classNames(!inlineActions && 'ml-auto', 'btn-tertiary')}
+          className="tablet:ml-auto btn-tertiary"
           icon={<MenuIcon />}
           onClick={(event) => showPostOptionsContext(event)}
           buttonSize="small"
