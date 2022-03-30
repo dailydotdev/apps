@@ -37,8 +37,6 @@
 }
 
 .fixedPostsNavigation {
-  max-width: calc(100vw - 15 s.25rem);
-
   @screen tablet {
     max-width: calc(100vw - 19.25rem);
   }
