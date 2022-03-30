@@ -24,12 +24,12 @@
     @screen responsiveModalBreakpoint {
       position: relative;
       min-height: unset;
-      border: 1px solid var(--theme-divider-secondary);
     }
 
     @screen laptop {
       max-height: calc(100% - 7rem);
       border-radius: 1rem;
+      border: 1px solid var(--theme-divider-secondary);
     }
   }
 }
