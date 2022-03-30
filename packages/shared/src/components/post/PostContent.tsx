@@ -37,9 +37,10 @@ import { PostWidgets } from './PostWidgets';
 import { TagLinks } from '../TagLinks';
 import PostToc from '../widgets/PostToc';
 import { PostNavigation, PostNavigationProps } from './PostNavigation';
-import { PostModalActions, PostModalActionsProps } from './PostModalActions';
+import { PostModalActionsProps } from './PostModalActions';
 import { PostLoadingPlaceholder } from './PostLoadingPlaceholder';
 import classed from '../../lib/classed';
+import styles from '../utilities.module.css';
 
 const UpvotedPopupModal = dynamic(() => import('../modals/UpvotedPopupModal'));
 const NewCommentModal = dynamic(() => import('../modals/NewCommentModal'));
@@ -76,68 +77,13 @@ interface WrapperProps extends Omit<PostModalActionsProps, 'post'> {
 
 const BodyContainer = classed(
   'div',
-  'flex flex-col tablet:flex-row max-w-[100vw]',
+  'flex flex-col tablet:flex-row max-w-[100vw] overflow-y-auto h-full pb-6',
 );
 
-const Wrapper = ({
-  children,
-  navigation,
-  post,
-  onClose,
-  onScroll,
-  isLoading,
-  position = 'relative',
-}: WrapperProps) => {
-  if (!navigation || isLoading) {
-    return (
-      <BodyContainer className="m-auto w-full max-w-[63.75rem]">
-        {children}
-      </BodyContainer>
-    );
-  }
-
-  const isFixed = position === 'fixed';
-  const padding = isFixed ? 'py-4' : 'py-6';
-
-  return (
-    <div
-      className="flex overflow-y-auto relative flex-col h-full"
-      onScroll={onScroll}
-    >
-      <header
-        className={classNames(
-          'flex z-3 w-full bg-theme-bg-primary ease-linear pl-8',
-          isFixed &&
-            'bg-theme-bg-secondary border-b border-theme-divider-tertiary laptop:max-w-[63.65rem]',
-          position,
-        )}
-      >
-        {navigation && (
-          <PostNavigation
-            {...navigation}
-            className={classNames(
-              'flex flex-1 pr-8 tablet:border-r tablet:border-theme-divider-tertiary',
-              padding,
-            )}
-          />
-        )}
-        <PostModalActions
-          inlineActions={isFixed}
-          post={post}
-          onClose={onClose}
-          className={classNames(
-            'px-6 w-full',
-            padding,
-            isFixed
-              ? 'laptop:max-w-[23.65rem] tablet:max-w-[19.25rem]'
-              : 'laptop:max-w-[23.1rem] tablet:max-w-[18.75rem]',
-          )}
-        />
-      </header>
-      <BodyContainer>{children}</BodyContainer>
-    </div>
-  );
-};
+const PageBodyContainer = classed(
+  BodyContainer,
+  'm-auto w-full max-w-[63.75rem]',
+);
 
 const PostContainer = classed(
   'main',
@@ -254,9 +200,9 @@ export function PostContent({
 
   if (isLoading) {
     return (
-      <Wrapper isLoading>
+      <PageBodyContainer>
         <PostLoadingPlaceholder />
-      </Wrapper>
+      </PageBodyContainer>
     );
   }
 
@@ -298,18 +244,35 @@ export function PostContent({
     }
   };
 
+  const isFixed = position === 'fixed';
+  const padding = isFixed ? 'py-4' : 'py-6';
+  const published = `Published on ${postById.post.source.name}`;
+  const subtitle = !postById.post.author
+    ? published
+    : `${published} by ${postById.post.author.name}`;
+
+  const Wrapper = hasNavigation ? BodyContainer : PageBodyContainer;
+
   return (
-    <Wrapper
-      onClose={onClose}
-      onScroll={onScroll}
-      navigation={navigation}
-      post={postById.post}
-      className={className}
-      position={position}
-    >
+    <Wrapper onScroll={onScroll} className={classNames(className, 'relative')}>
       <PostContainer
-        className={classNames(position === 'fixed' && 'pt-[5rem]', className)}
+        className={classNames('relative', isFixed && 'pt-[5.5rem]', className)}
       >
+        {navigation && (
+          <PostNavigation
+            {...navigation}
+            className={classNames(
+              'flex pr-8',
+              padding,
+              position,
+              isFixed &&
+                'z-3 w-full laptop:max-w-[40rem] bg-theme-bg-secondary border-b border-r border-theme-divider-tertiary -mt-[5.5rem] -ml-8 px-8',
+              isFixed && styles.fixedPostsNavigation,
+            )}
+            shouldDisplayTitle={isFixed}
+            content={{ title: postById.post.title, subtitle }}
+          />
+        )}
         {seo}
         <a {...postLinkProps} className="cursor-pointer">
           <h1 className="font-bold typo-large-title">{postById.post.title}</h1>
@@ -365,10 +328,10 @@ export function PostContent({
         <NewComment user={user} onNewComment={openNewComment} />
       </PostContainer>
       <PostWidgets
-        hasNavigation={hasNavigation}
         post={postById.post}
-        isNavigationFixed={position === 'fixed'}
+        isNavigationFixed={hasNavigation && isFixed}
         className="pb-20"
+        onClose={onClose}
       />
       {upvotedPopup.modal && (
         <UpvotedPopupModal

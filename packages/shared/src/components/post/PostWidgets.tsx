@@ -1,4 +1,5 @@
 import React, { ReactElement, useContext } from 'react';
+import classNames from 'classnames';
 import { PageWidgets } from '../utilities';
 import { ShareMobile } from '../ShareMobile';
 import AuthContext from '../../contexts/AuthContext';
@@ -10,14 +11,12 @@ import { PostUsersHighlights } from '../widgets/PostUsersHighlights';
 import { PostModalActions, PostModalActionsProps } from './PostModalActions';
 
 interface PostWidgetsProps extends PostModalActionsProps {
-  hasNavigation?: boolean;
   isNavigationFixed?: boolean;
 }
 
 export function PostWidgets({
   post,
   className,
-  hasNavigation,
   isNavigationFixed,
   onClose,
 }: PostWidgetsProps): ReactElement {
@@ -43,15 +42,19 @@ export function PostWidgets({
   };
 
   return (
-    <PageWidgets className={className}>
-      {!hasNavigation && (
-        <PostModalActions
-          inlineActions={isNavigationFixed}
-          post={post}
-          onClose={onClose}
-          className="pt-6"
-        />
-      )}
+    <PageWidgets
+      className={classNames(className, isNavigationFixed && 'pt-[5.5rem]')}
+    >
+      <PostModalActions
+        inlineActions={isNavigationFixed}
+        post={post}
+        onClose={onClose}
+        className={classNames(
+          isNavigationFixed
+            ? 'fixed top-[5.5rem] -right-36 tablet:top-[unset] tablet:right-[unset] bg-theme-bg-secondary border-b border-theme-divider-tertiary z-3 -mt-[5.525rem] h-[4.7rem] w-[19.5rem] laptop:w-[23.7rem] -ml-6 py-4 px-8'
+            : 'pt-6',
+        )}
+      />
       <PostUsersHighlights post={post} />
       <ShareBar post={post} />
       <ShareMobile share={sharePost} />
