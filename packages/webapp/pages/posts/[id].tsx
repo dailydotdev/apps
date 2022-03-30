@@ -67,10 +67,10 @@ const ShareNewCommentPopup = dynamic(
 const Custom404 = dynamic(() => import('../404'));
 
 export const getSeoDescription = (post: Post): string => {
-  if (post?.summary?.length > 0) {
+  if (post?.summary) {
     return post?.summary;
   }
-  if (post?.description?.length > 0) {
+  if (post?.description) {
     return post?.description;
   }
   return `Join us to the discussion about "${post?.title}" on daily.dev ✌️`;
