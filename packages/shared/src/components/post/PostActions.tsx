@@ -14,6 +14,7 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 interface PostActionsProps {
   post: Post;
   postQueryKey: QueryKey;
+  actionsClassName?: string;
   onComment?: () => unknown;
 }
 
@@ -59,6 +60,7 @@ const onBookmarkMutation = (
 export function PostActions({
   post,
   postQueryKey,
+  actionsClassName = 'hidden mobileL:flex',
   onComment,
 }: PostActionsProps): ReactElement {
   const queryClient = useQueryClient();
@@ -133,7 +135,7 @@ export function PostActions({
         onClick={toggleUpvote}
         icon={<UpvoteIcon />}
         aria-label="Upvote"
-        responsiveLabelClass="mobileL:flex"
+        responsiveLabelClass={actionsClassName}
         className="btn-tertiary-avocado"
       >
         Upvote
@@ -144,7 +146,7 @@ export function PostActions({
         onClick={onComment}
         icon={<CommentIcon />}
         aria-label="Comment"
-        responsiveLabelClass="mobileL:flex"
+        responsiveLabelClass={actionsClassName}
         className="btn-tertiary-avocado"
       >
         Comment
@@ -154,7 +156,7 @@ export function PostActions({
         pressed={post.bookmarked}
         onClick={toggleBookmark}
         icon={<BookmarkIcon />}
-        responsiveLabelClass="mobileL:flex"
+        responsiveLabelClass={actionsClassName}
         className="btn-tertiary-bun"
       >
         Bookmark
