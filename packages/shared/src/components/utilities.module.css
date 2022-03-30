@@ -28,16 +28,6 @@
   }
 }
 
-.pageWidgets {
-  max-width: $pageMaxWidth;
-  position: relative;
-
-  @screen laptopL {
-    position: absolute;
-    left: 100%;
-  }
-}
-
 .feedPage {
   &.notReady {
     & > * {
