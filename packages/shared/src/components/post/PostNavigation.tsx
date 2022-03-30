@@ -6,15 +6,24 @@ import { Button } from '../buttons/Button';
 
 const SimpleTooltip = dynamic(() => import('../tooltips/SimpleTooltip'));
 
+interface Content {
+  title: string;
+  subtitle: string;
+}
+
 export interface PostNavigationProps {
   onPreviousPost: () => Promise<unknown>;
   onNextPost: () => Promise<unknown>;
+  shouldDisplayTitle?: boolean;
+  content?: Content;
   className?: string;
 }
 
 export function PostNavigation({
   onPreviousPost,
   onNextPost,
+  shouldDisplayTitle,
+  content,
   className,
 }: PostNavigationProps): ReactElement {
   return (
@@ -33,6 +42,14 @@ export function PostNavigation({
           onClick={onNextPost}
         />
       </SimpleTooltip>
+      {shouldDisplayTitle && content && (
+        <div className="flex flex-col pr-8 ml-2">
+          <span className="typo-footnote text-theme-label-tertiary">
+            {content.subtitle}
+          </span>
+          <h3 className="font-bold typo-headline">{content.title}</h3>
+        </div>
+      )}
     </div>
   );
 }
