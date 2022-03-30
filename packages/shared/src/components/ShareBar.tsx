@@ -39,11 +39,11 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
     );
 
   return (
-    <WidgetContainer className="flex flex-col p-3">
-      <p className="mb-3 typo-callout text-theme-label-tertiary">
+    <WidgetContainer className="hidden laptop:flex flex-col p-3">
+      <p className="typo-callout text-theme-label-tertiary">
         Would you recommend this article?
       </p>
-      <div className="hidden laptopL:inline-flex relative flex-row items-center">
+      <div className="inline-flex relative flex-row items-center mt-3">
         {copying && (
           <div
             className={classNames(
