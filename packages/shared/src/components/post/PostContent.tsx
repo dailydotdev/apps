@@ -35,11 +35,11 @@ import { PostComments } from './PostComments';
 import { PostUpvotesCommentsCount } from './PostUpvotesCommentsCount';
 import { PostWidgets } from './PostWidgets';
 import { TagLinks } from '../TagLinks';
-import { pageBorders, PageContainer, PageWidgets } from '../utilities';
 import PostToc from '../widgets/PostToc';
 import { PostNavigation, PostNavigationProps } from './PostNavigation';
 import { PostModalActions, PostModalActionsProps } from './PostModalActions';
 import { PostLoadingPlaceholder } from './PostLoadingPlaceholder';
+import classed from '../../lib/classed';
 
 const UpvotedPopupModal = dynamic(() => import('../modals/UpvotedPopupModal'));
 const NewCommentModal = dynamic(() => import('../modals/NewCommentModal'));
@@ -73,59 +73,76 @@ interface WrapperProps extends PostModalActionsProps {
   onScroll?: UIEventHandler<HTMLDivElement>;
 }
 
+const BodyContainer = classed(
+  'div',
+  'flex flex-col tablet:flex-row max-w-[100vw]',
+);
+
 const Wrapper = ({
   children,
   navigation,
   post,
   onClose,
   onScroll,
-  className,
   position = 'relative',
 }: WrapperProps) => {
   if (!navigation) {
-    return <>{children}</>;
+    return (
+      <BodyContainer
+        style={{ maxWidth: '63.75rem', width: '100%', margin: 'auto' }}
+      >
+        {children}
+      </BodyContainer>
+    );
   }
 
   const isFixed = position === 'fixed';
-
-  const classes =
-    isFixed && 'bg-theme-bg-secondary border-b border-theme-divider-tertiary';
+  const padding = isFixed ? 'py-4' : 'py-6';
 
   return (
     <div
-      className="flex overflow-auto relative flex-col h-full"
+      className="flex overflow-y-auto relative flex-col h-full"
       onScroll={onScroll}
     >
       <header
         className={classNames(
-          'flex z-3 flex-row bg-theme-bg-primary ease-linear',
+          'flex z-3 w-full bg-theme-bg-primary ease-linear pl-8',
+          isFixed &&
+            'bg-theme-bg-secondary border-b border-theme-divider-tertiary laptop:max-w-[63.65rem]',
           position,
-          classes,
         )}
       >
-        <PageContainer
+        {navigation && (
+          <PostNavigation
+            {...navigation}
+            className={classNames(
+              'flex flex-1 pr-8 tablet:border-r tablet:border-theme-divider-tertiary',
+              padding,
+            )}
+          />
+        )}
+        <PostModalActions
+          inlineActions={isFixed}
+          post={post}
+          onClose={onClose}
           className={classNames(
-            'laptop:self-stretch py-4',
-            pageBorders,
-            className,
+            'px-6 w-full',
+            padding,
+            isFixed
+              ? 'laptop:max-w-[23.65rem] tablet:max-w-[19.25rem]'
+              : 'laptop:max-w-[23.1rem] tablet:max-w-[18.75rem]',
           )}
-        >
-          {navigation && <PostNavigation {...navigation} />}
-          <PageWidgets className={classNames('top-0')} style={{ padding: 0 }}>
-            <PostModalActions
-              inlineActions={isFixed}
-              post={post}
-              onClose={onClose}
-              style={{ height: 'calc(4.5rem + 1px)' }}
-              className={classNames(classes, 'px-6')}
-            />
-          </PageWidgets>
-        </PageContainer>
+        />
       </header>
-      {children}
+      <BodyContainer>{children}</BodyContainer>
     </div>
   );
 };
+
+const PostContainer = classed(
+  'main',
+  'flex flex-col flex-1 px-8 pb-20 laptop:max-w-[40rem] tablet:border-r tablet:border-theme-divider-tertiary',
+);
 
 export function PostContent({
   id,
@@ -233,17 +250,13 @@ export function PostContent({
     setParentComment(parent);
   };
 
+  const hasNavigation = !!navigation;
+
   if (isLoading) {
     return (
-      <PageContainer
-        className={classNames(
-          'laptop:pb-6 laptop:self-stretch pt-6 pb-20 laptopL:pb-0',
-          pageBorders,
-          className,
-        )}
-      >
+      <PostContainer>
         <PostLoadingPlaceholder />
-      </PageContainer>
+      </PostContainer>
     );
   }
 
@@ -269,6 +282,10 @@ export function PostContent({
   };
 
   const onScroll: UIEventHandler<HTMLDivElement> = (e) => {
+    if (!hasNavigation) {
+      return;
+    }
+
     if (e.currentTarget.scrollTop > 40) {
       if (position !== 'fixed') {
         setPosition('fixed');
@@ -290,13 +307,8 @@ export function PostContent({
       className={className}
       position={position}
     >
-      <PageContainer
-        className={classNames(
-          'laptop:pb-6 laptop:self-stretch pb-20 laptopL:pb-0',
-          pageBorders,
-          className,
-        )}
-        style={{ paddingTop: position === 'fixed' ? '5rem' : 0 }}
+      <PostContainer
+        className={classNames(position === 'fixed' && 'pt-[5rem]', className)}
       >
         {seo}
         <a {...postLinkProps} className="cursor-pointer">
@@ -315,7 +327,7 @@ export function PostContent({
         <a
           {...postLinkProps}
           className="block overflow-hidden mb-10 rounded-2xl cursor-pointer"
-          style={{ width: '25.625rem' }}
+          style={{ maxWidth: '25.625rem' }}
         >
           <LazyImage
             imgSrc={postById.post.image}
@@ -340,6 +352,7 @@ export function PostContent({
           post={postById.post}
           postQueryKey={postQueryKey}
           onComment={openNewComment}
+          actionsClassName="hidden laptop:flex"
         />
         <PostComments
           post={postById.post}
@@ -350,9 +363,13 @@ export function PostContent({
           <AuthorOnboarding onSignUp={!user && (() => showLogin('author'))} />
         )}
         <NewComment user={user} onNewComment={openNewComment} />
-        <PostWidgets post={postById.post} className="pb-20" />
-      </PageContainer>
-
+      </PostContainer>
+      <PostWidgets
+        hasNavigation={hasNavigation}
+        post={postById.post}
+        isNavigationFixed={position === 'fixed'}
+        className="pb-20"
+      />
       {upvotedPopup.modal && (
         <UpvotedPopupModal
           requestQuery={upvotedPopup.requestQuery}

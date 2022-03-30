@@ -7,12 +7,20 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import ShareBar from '../ShareBar';
 import FurtherReading from '../widgets/FurtherReading';
 import { PostUsersHighlights } from '../widgets/PostUsersHighlights';
-import { PostModalActionsProps } from './PostModalActions';
+import { PostModalActions, PostModalActionsProps } from './PostModalActions';
+
+interface PostWidgetsProps extends PostModalActionsProps {
+  hasNavigation?: boolean;
+  isNavigationFixed?: boolean;
+}
 
 export function PostWidgets({
   post,
   className,
-}: PostModalActionsProps): ReactElement {
+  hasNavigation,
+  isNavigationFixed,
+  onClose,
+}: PostWidgetsProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
 
@@ -36,6 +44,14 @@ export function PostWidgets({
 
   return (
     <PageWidgets className={className}>
+      {!hasNavigation && (
+        <PostModalActions
+          inlineActions={isNavigationFixed}
+          post={post}
+          onClose={onClose}
+          className="pt-6"
+        />
+      )}
       <PostUsersHighlights post={post} />
       <ShareBar post={post} />
       <ShareMobile share={sharePost} />
