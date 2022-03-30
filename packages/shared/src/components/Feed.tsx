@@ -18,9 +18,7 @@ import ScrollToTopButton from './ScrollToTopButton';
 import useFeedUpvotePost from '../hooks/feed/useFeedUpvotePost';
 import useFeedBookmarkPost from '../hooks/feed/useFeedBookmarkPost';
 import useCommentPopup from '../hooks/feed/useCommentPopup';
-import useFeedOnPostClick, {
-  FeedPostClick,
-} from '../hooks/feed/useFeedOnPostClick';
+import useFeedOnPostClick from '../hooks/feed/useFeedOnPostClick';
 import useFeedContextMenu from '../hooks/feed/useFeedContextMenu';
 import useFeedInfiniteScroll, {
   InfiniteScrollScreenOffset,
@@ -194,7 +192,7 @@ export default function Feed<T>({
     feedName,
     ranking,
   );
-  const onFeedPostClick = useFeedOnPostClick(
+  const onPostClick = useFeedOnPostClick(
     items,
     updatePost,
     virtualizedNumCards,
@@ -202,11 +200,6 @@ export default function Feed<T>({
     ranking,
   );
 
-  const onPostClick: FeedPostClick = (post, ...args): Promise<void> => {
-    setOpenedPost(post.id);
-
-    return onFeedPostClick(post, ...args);
-  };
   const { onMenuClick, postMenuIndex, setPostMenuIndex } = useFeedContextMenu();
   const { notification, notificationIndex, onMessage } = useNotification();
 
@@ -229,6 +222,7 @@ export default function Feed<T>({
         ...feedAnalyticsExtra(feedName, ranking),
       }),
     );
+    setOpenedPost(post.id);
   };
 
   const onAdClick = (ad: Ad, index: number, row: number, column: number) => {

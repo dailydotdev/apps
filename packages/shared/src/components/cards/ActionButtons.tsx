@@ -65,7 +65,6 @@ export default function ActionButtons({
       >
         <QuaternaryButton
           id={`post-${post.id}-comment-btn`}
-          tag="a"
           icon={<CommentIcon />}
           buttonSize="small"
           pressed={post.commented}
