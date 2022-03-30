@@ -88,9 +88,7 @@ const Wrapper = ({
 }: WrapperProps) => {
   if (!navigation) {
     return (
-      <BodyContainer
-        style={{ maxWidth: '63.75rem', width: '100%', margin: 'auto' }}
-      >
+      <BodyContainer className="m-auto w-full max-w-[63.75rem]">
         {children}
       </BodyContainer>
     );
