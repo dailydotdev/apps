@@ -88,12 +88,13 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
       postData={postData}
       seo={setContent}
       isFallback={isFallback}
-      className="laptop:pb-6 laptop:self-stretch pt-6 pb-20 laptopL:pb-0"
+      className="pt-6 pb-20 laptop:pb-6 laptopL:pb-0"
     />
   );
 };
 
 PostPage.getLayout = getMainLayout;
+PostPage.layoutProps = { screenCentered: false };
 
 export default PostPage;
 
