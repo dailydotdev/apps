@@ -1,6 +1,6 @@
 import React, { ReactElement, ReactNode } from 'react';
 import { UserItemPlaceholder } from '../widgets/UserItemPlaceholder';
-import { PageContainer, PageWidgets } from '../utilities';
+import { PageWidgets } from '../utilities';
 import {
   PlaceholderSeparator,
   TextPlaceholder,
@@ -29,18 +29,20 @@ const LoadingPlaceholderContainer = ({
 
 export const PostLoadingPlaceholder = (): ReactElement => {
   return (
-    <div className="flex flex-col">
-      <ElementPlaceholder className="my-2 mb-8 w-4/5 h-8 rounded-full" />
-      <ListItemPlaceholder padding="p-0 gap-2" textClassName="h-4" />
-      <div className="flex flex-row gap-2 my-8">
-        <ElementPlaceholder className="w-20 h-6 rounded-full" />
-        <ElementPlaceholder className="w-20 h-6 rounded-full" />
+    <>
+      <div className="flex flex-col flex-1 p-8 tablet:border-r tablet:border-theme-divider-tertiary">
+        <ElementPlaceholder className="my-2 mb-8 w-3/5 h-8 rounded-full" />
+        <ListItemPlaceholder padding="p-0 gap-2" textClassName="h-4" />
+        <div className="flex flex-row gap-2 my-8">
+          <ElementPlaceholder className="w-20 h-6 rounded-full" />
+          <ElementPlaceholder className="w-20 h-6 rounded-full" />
+        </div>
+        <ElementPlaceholder className="w-4/5 h-52 rounded-16" />
+        <ElementPlaceholder className="my-8 w-2/5 h-8 rounded-full" />
+        <PlaceholderSeparator />
+        <PlaceholderCommentList />
       </div>
-      <ElementPlaceholder className="w-4/5 h-52 rounded-16" />
-      <ElementPlaceholder className="my-8 w-2/5 h-8 rounded-full" />
-      <PlaceholderSeparator />
-      <PlaceholderCommentList />
-      <PageWidgets>
+      <PageWidgets className="flex-1 p-8">
         <LoadingPlaceholderContainer>
           <UserItemPlaceholder />
           <UserItemPlaceholder />
@@ -52,6 +54,6 @@ export const PostLoadingPlaceholder = (): ReactElement => {
           <ListItemPlaceholder />
         </LoadingPlaceholderContainer>
       </PageWidgets>
-    </div>
+    </>
   );
 };

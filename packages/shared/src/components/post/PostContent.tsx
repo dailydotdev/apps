@@ -65,11 +65,12 @@ const getUpvotedPopupInitialState = () => ({
   requestQuery: null,
 });
 
-interface WrapperProps extends PostModalActionsProps {
+interface WrapperProps extends Omit<PostModalActionsProps, 'post'> {
   children?: ReactNode;
   navigation?: PostNavigationProps;
-  post: Post;
+  post?: Post;
   position?: CSSProperties['position'];
+  isLoading?: boolean;
   onScroll?: UIEventHandler<HTMLDivElement>;
 }
 
@@ -84,9 +85,10 @@ const Wrapper = ({
   post,
   onClose,
   onScroll,
+  isLoading,
   position = 'relative',
 }: WrapperProps) => {
-  if (!navigation) {
+  if (!navigation || isLoading) {
     return (
       <BodyContainer className="m-auto w-full max-w-[63.75rem]">
         {children}
@@ -252,9 +254,9 @@ export function PostContent({
 
   if (isLoading) {
     return (
-      <PostContainer>
+      <Wrapper isLoading>
         <PostLoadingPlaceholder />
-      </PostContainer>
+      </Wrapper>
     );
   }
 
