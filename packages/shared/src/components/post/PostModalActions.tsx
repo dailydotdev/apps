@@ -92,21 +92,21 @@ export function PostModalActions({
       >
         Read article
       </Button>
-      <SimpleTooltip placement="left" content="Options">
+      <SimpleTooltip placement="bottom" content="Options">
         <Button
           className="tablet:ml-auto btn-tertiary"
           icon={<MenuIcon />}
           onClick={(event) => showPostOptionsContext(event)}
-          buttonSize="small"
         />
       </SimpleTooltip>
       {onClose && (
-        <Button
-          className="btn-tertiary"
-          icon={<CloseIcon />}
-          onClick={(e) => onClose(e)}
-          buttonSize="small"
-        />
+        <SimpleTooltip placement="bottom" content="Close">
+          <Button
+            className="btn-tertiary"
+            icon={<CloseIcon />}
+            onClick={(e) => onClose(e)}
+          />
+        </SimpleTooltip>
       )}
       <PostOptionsMenu
         post={post}
