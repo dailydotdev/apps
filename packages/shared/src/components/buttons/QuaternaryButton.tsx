@@ -43,9 +43,7 @@ function QuaternaryButtonComponent<TagName extends AllowedTags>(
           onClick: onLabelClick,
         }
       : {};
-  const labelDisplay = responsiveLabelClass
-    ? `hidden ${responsiveLabelClass}`
-    : 'flex';
+  const labelDisplay = responsiveLabelClass ?? 'flex';
 
   return (
     <div
@@ -72,7 +70,10 @@ function QuaternaryButtonComponent<TagName extends AllowedTags>(
         <label
           htmlFor={id}
           {...labelProps}
-          className={`${labelDisplay} items-center font-bold cursor-pointer typo-callout`}
+          className={classNames(
+            'items-center font-bold cursor-pointer typo-callout',
+            labelDisplay,
+          )}
         >
           {children}
         </label>
