@@ -5,19 +5,35 @@ import { themeModes } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { getCompanionWrapper } from './common';
 import App, { CompanionData } from './App';
 
-const renderApp = ({ postData, settings }: CompanionData) => {
+const renderApp = ({ ...props }: CompanionData) => {
+  const { settings } = props;
   getCompanionWrapper().classList.add(themeModes[settings.theme]);
 
   // Set target of the React app to shadow dom
-  ReactDOM.render(
-    <App postData={postData} settings={settings} />,
-    getCompanionWrapper(),
-  );
+  ReactDOM.render(<App {...props} />, getCompanionWrapper());
 };
 
 browser.runtime.onMessage.addListener(async (request) => {
-  const { postData, settings }: CompanionData = request;
+  const {
+    deviceId,
+    url,
+    postData,
+    settings,
+    flags,
+    user,
+    alerts,
+    visit,
+  }: CompanionData = request;
   if (postData && !settings.optOutCompanion) {
-    renderApp({ postData, settings });
+    renderApp({
+      deviceId,
+      url,
+      postData,
+      settings,
+      flags,
+      user,
+      alerts,
+      visit,
+    });
   }
 });

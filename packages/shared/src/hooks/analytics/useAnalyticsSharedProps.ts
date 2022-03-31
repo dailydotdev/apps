@@ -15,7 +15,7 @@ import AuthContext from '../../contexts/AuthContext';
 
 const DEVICE_ID_KEY = 'device_id';
 
-const getOrGenerateDeviceId = async (): Promise<string> => {
+export const getOrGenerateDeviceId = async (): Promise<string> => {
   const deviceId = await getCache<string | undefined>(DEVICE_ID_KEY);
   if (deviceId) {
     return deviceId;
@@ -28,6 +28,7 @@ const getOrGenerateDeviceId = async (): Promise<string> => {
 export default function useAnalyticsSharedProps(
   app: string,
   version: string,
+  deviceId?: string,
 ): [MutableRefObject<Partial<AnalyticsEvent>>, boolean] {
   // Use ref instead of state to reduce renders
   const sharedPropsRef = useRef<Partial<AnalyticsEvent>>();
@@ -49,11 +50,18 @@ export default function useAnalyticsSharedProps(
     if (!visitId) {
       return;
     }
+
+    if (deviceId) {
+      sharedPropsRef.current = {
+        device_id: deviceId,
+      };
+    }
+
     const queryStr = JSON.stringify(query);
     (sharedPropsRef.current?.device_id
       ? Promise.resolve(sharedPropsRef.current.device_id)
       : getOrGenerateDeviceId()
-    ).then((deviceId) => {
+    ).then((_deviceId) => {
       sharedPropsRef.current = {
         app_platform: app,
         app_theme: themeMode,
@@ -74,7 +82,7 @@ export default function useAnalyticsSharedProps(
         utm_term: query?.utm_term,
         visit_id: visitId,
         feature_flags: flags ? JSON.stringify(flags) : null,
-        device_id: deviceId,
+        device_id: _deviceId,
       };
       setSharedPropsSet(true);
     });

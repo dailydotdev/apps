@@ -1,6 +1,7 @@
 import React from 'react';
 import '@testing-library/jest-dom';
 import { render, RenderResult, screen } from '@testing-library/preact';
+import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import App from './App';
 
 jest.mock('webextension-polyfill-ts', () => {
@@ -36,7 +37,21 @@ const defaultPostData = {
 
 const renderComponent = (postdata, settings): RenderResult => {
   return render(
-    <App postData={{ ...defaultPostData, ...postdata }} settings={settings} />,
+    <App
+      postData={{ ...defaultPostData, ...postdata }}
+      settings={settings}
+      url="https://gamedevacademy.org/javascript-asynchronus-programming-tutorial/"
+      alerts={{
+        rankLastSeen: new Date(),
+      }}
+      visit={{
+        visitId: '123',
+        sessionId: '456',
+      }}
+      user={defaultUser}
+      flags={{}}
+      deviceId="123"
+    />,
   );
 };
 

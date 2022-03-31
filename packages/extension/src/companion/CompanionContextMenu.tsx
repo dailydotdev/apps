@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useContext, useState } from 'react';
 import CommentIcon from '@dailydotdev/shared/icons/comment.svg';
 import ShareIcon from '@dailydotdev/shared/icons/share.svg';
 import FlagIcon from '@dailydotdev/shared/icons/flag.svg';
@@ -9,6 +9,7 @@ import RepostPostModal from '@dailydotdev/shared/src/components/modals/ReportPos
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import { useShareOrCopyLink } from '@dailydotdev/shared/src/hooks/useShareOrCopyLink';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
+import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { getCompanionWrapper } from './common';
 import DisableCompanionModal from './DisableCompanionModal';
 
@@ -27,6 +28,7 @@ export default function CompanionContextMenu({
   onBlockSource,
   onDisableCompanion,
 }: CompanionContextMenuProps): ReactElement {
+  const { trackEvent } = useContext(AnalyticsContext);
   const [reportModal, setReportModal] = useState<boolean>();
   const [disableModal, setDisableModal] = useState<boolean>();
 
@@ -58,6 +60,13 @@ export default function CompanionContextMenu({
     if (blockSource) {
       onBlockSource({ id: reportedPost?.source?.id });
     }
+
+    trackEvent(
+      postAnalyticsEvent('report post', reportedPost, {
+        extra: { origin: 'companion context menu' },
+      }),
+    );
+
     onMessage('🚨 Thanks for reporting!');
   };
 

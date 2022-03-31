@@ -20,6 +20,8 @@ export type AnalyticsContextProviderProps = {
   app: string;
   getPage: () => string;
   version?: string;
+  method?: typeof fetch;
+  deviceId?: string;
   children?: ReactNode;
 };
 
@@ -27,12 +29,17 @@ export const AnalyticsContextProvider = ({
   app,
   version,
   children,
+  method = fetch,
+  deviceId,
   getPage,
 }: AnalyticsContextProviderProps): ReactElement => {
-  const { pushToQueue, setEnabled, queueRef, sendBeacon } = useAnalyticsQueue();
+  const { pushToQueue, setEnabled, queueRef, sendBeacon } = useAnalyticsQueue({
+    method,
+  });
   const [sharedPropsRef, sharedPropsSet] = useAnalyticsSharedProps(
     app,
     version,
+    deviceId,
   );
   const durationEventsQueue = useRef<Map<string, AnalyticsEvent>>(new Map());
   const contextData = useAnalyticsContextData(

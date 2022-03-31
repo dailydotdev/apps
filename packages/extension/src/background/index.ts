@@ -1,5 +1,5 @@
 import { browser } from 'webextension-polyfill-ts';
-import { getBootData } from '@dailydotdev/shared/src/lib/boot';
+import { getBootData, PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import request from 'graphql-request';
 import { UPDATE_USER_SETTINGS_MUTATION } from '@dailydotdev/shared/src/graphql/settings';
@@ -7,6 +7,7 @@ import {
   BOOT_LOCAL_KEY,
   getLocalBootData,
 } from '@dailydotdev/shared/src/contexts/BootProvider';
+import { getOrGenerateDeviceId } from '@dailydotdev/shared/src/hooks/analytics/useAnalyticsSharedProps';
 
 const excludedCompanionOrigins = [
   'https://twitter.com',
@@ -30,17 +31,24 @@ const sendBootData = async (req, sender) => {
     return;
   }
 
-  const { postData, settings } = await getBootData(
-    'companion',
-    sender?.tab?.url,
-  );
+  const url = sender?.tab?.url;
+
+  const [deviceId, { postData, settings, flags, user, alerts, visit }] =
+    await Promise.all([getOrGenerateDeviceId(), getBootData('companion', url)]);
+
   let settingsOutput = settings;
   if (!cacheData?.user || !('providers' in cacheData?.user)) {
     settingsOutput = { ...settingsOutput, ...cacheData?.settings };
   }
   await browser.tabs.sendMessage(sender?.tab?.id, {
+    deviceId,
+    url,
     postData,
     settings: settingsOutput,
+    flags,
+    user,
+    alerts,
+    visit,
   });
 };
 
@@ -52,6 +60,10 @@ function handleMessages(message, sender) {
 
   if (message.type === 'GRAPHQL_REQUEST') {
     return request(message.url, message.document, message.variables);
+  }
+
+  if (message.type === 'FETCH_REQUEST') {
+    return fetch(message.url, { ...message.args });
   }
 
   if (message.type === 'DISABLE_COMPANION') {

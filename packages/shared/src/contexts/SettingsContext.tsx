@@ -90,8 +90,8 @@ function applyTheme(themeMode: ThemeMode): void {
 export type SettingsContextProviderProps = {
   children?: ReactNode;
   settings?: RemoteSettings;
-  updateSettings: (settings: RemoteSettings) => unknown;
-  loadedSettings: boolean;
+  updateSettings?: (settings: RemoteSettings) => unknown;
+  loadedSettings?: boolean;
 };
 
 const defaultSettings: RemoteSettings = {

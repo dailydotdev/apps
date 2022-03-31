@@ -1,19 +1,33 @@
 import React, { ReactElement, useState } from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { browser } from 'webextension-polyfill-ts';
-import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
-import { RemoteSettings } from '@dailydotdev/shared/src/graphql/settings';
+import { Boot } from '@dailydotdev/shared/src/lib/boot';
+import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
+import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { SettingsContextProvider } from '@dailydotdev/shared/src/contexts/SettingsContext';
+import { AlertContextProvider } from '@dailydotdev/shared/src/contexts/AlertContext';
+import { AnalyticsContextProvider } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { RouterContext } from 'next/dist/shared/lib/router-context';
 import Companion from './Companion';
+import CustomRouter from '../lib/CustomRouter';
+import { companionFetch } from './companionFetch';
 
 const queryClient = new QueryClient();
+const router = new CustomRouter();
 
-export interface CompanionData {
-  postData: PostBootData;
-  settings: Pick<RemoteSettings, 'optOutCompanion' | 'theme'>;
-}
+export type CompanionData = { url: string; deviceId: string } & Pick<
+  Boot,
+  'postData' | 'settings' | 'flags' | 'alerts' | 'user' | 'visit'
+>;
 export default function App({
+  deviceId,
+  url,
   postData,
   settings,
+  flags,
+  user,
+  alerts,
+  visit,
 }: CompanionData): ReactElement {
   const [isOptOutCompanion, setIsOptOutCompanion] = useState<boolean>(
     settings?.optOutCompanion,
@@ -28,12 +42,36 @@ export default function App({
         @import &quot;chrome-extension://{browser.runtime.id}
         /css/companion.css&quot;;
       </style>
-      <QueryClientProvider client={queryClient}>
-        <Companion
-          postData={postData}
-          onOptOut={() => setIsOptOutCompanion(true)}
-        />
-      </QueryClientProvider>
+      <RouterContext.Provider value={router}>
+        <QueryClientProvider client={queryClient}>
+          <FeaturesContext.Provider value={{ flags }}>
+            <AuthContextProvider
+              user={user}
+              visit={visit}
+              tokenRefreshed
+              getRedirectUri={() => '/'}
+              updateUser={() => null}
+            >
+              <SettingsContextProvider settings={settings}>
+                <AlertContextProvider alerts={alerts}>
+                  <AnalyticsContextProvider
+                    app="companion"
+                    version="1"
+                    method={companionFetch}
+                    deviceId={deviceId}
+                    getPage={() => url}
+                  >
+                    <Companion
+                      postData={postData}
+                      onOptOut={() => setIsOptOutCompanion(true)}
+                    />
+                  </AnalyticsContextProvider>
+                </AlertContextProvider>
+              </SettingsContextProvider>
+            </AuthContextProvider>
+          </FeaturesContext.Provider>
+        </QueryClientProvider>
+      </RouterContext.Provider>
     </div>
   );
 }
