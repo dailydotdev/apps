@@ -1,11 +1,26 @@
-import { subDays } from 'date-fns';
+import { addDays, subDays } from 'date-fns';
 import {
   postDateFormat,
   commentDateFormat,
   getReadHistoryDateFormat,
+  isDateOnlyEqual,
 } from './dateFormat';
 
 const now = new Date(2020, 5, 1, 12, 0, 0);
+
+export const getLabel = (toCompare: Date): string => {
+  const today = new Date();
+
+  if (isDateOnlyEqual(today, toCompare)) {
+    return 'Today';
+  }
+
+  if (isDateOnlyEqual(today, addDays(toCompare, 1))) {
+    return 'Yesterday';
+  }
+
+  return '';
+};
 
 describe('postDateFormat', () => {
   it('should return "Now" when less than a minute', () => {
@@ -96,8 +111,7 @@ describe('getReadHistoryDateFormat', () => {
     const weekday = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][
       date.getDay()
     ];
-    const expected = `${weekday}, 31 Mar`;
-
+    const expected = getLabel(date) || `${weekday}, 31 Mar`;
     const actual = getReadHistoryDateFormat(date);
     expect(actual).toEqual(expected);
   });
