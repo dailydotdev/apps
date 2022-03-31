@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import ArrowIcon from '../../../icons/arrow.svg';
 import { Button } from '../buttons/Button';
+import styles from './PostNavigation.module.css';
 
 const SimpleTooltip = dynamic(() => import('../tooltips/SimpleTooltip'));
 
@@ -47,7 +48,15 @@ export function PostNavigation({
           <span className="typo-footnote text-theme-label-tertiary">
             {content.subtitle}
           </span>
-          <h3 className="font-bold typo-headline">{content.title}</h3>
+          <h3
+            // eslint-disable-next-line @dailydotdev/daily-dev-eslint-rules/no-custom-color
+            className={classNames(
+              'font-bold typo-headline text-ellipsis',
+              styles.fixedPostsTitle,
+            )}
+          >
+            {content.title}
+          </h3>
         </div>
       )}
     </div>

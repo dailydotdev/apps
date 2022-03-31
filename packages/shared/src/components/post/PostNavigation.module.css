@@ -1,0 +1,14 @@
+.fixedPostsTitle {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: calc(100vw - 18.75rem);
+
+  @screen tablet {
+    max-width: calc(100vw - 30rem);
+  }
+
+  @screen laptop {
+    max-width: 29.75rem;
+  }
+}
