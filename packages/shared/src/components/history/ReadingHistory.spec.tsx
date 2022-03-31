@@ -1,5 +1,5 @@
 import React from 'react';
-import { isSameDay, isSameMonth, isSameYear, subDays } from 'date-fns';
+import { subDays } from 'date-fns';
 import {
   fireEvent,
   render,
