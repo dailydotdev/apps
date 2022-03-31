@@ -255,7 +255,7 @@ export default function Feed<T>({
       return item.post.id === openedPost;
     });
 
-    if (index === 0 || index === 1) {
+    if (index === 0) {
       return;
     }
 

@@ -275,7 +275,12 @@ export function PostContent({
         )}
         {seo}
         <a {...postLinkProps} className="cursor-pointer">
-          <h1 className="font-bold typo-large-title">{postById.post.title}</h1>
+          <h1
+            className="font-bold typo-large-title"
+            data-testid="post-modal-title"
+          >
+            {postById.post.title}
+          </h1>
         </a>
         {postById.post.summary && (
           <PostSummary summary={postById.post.summary} />

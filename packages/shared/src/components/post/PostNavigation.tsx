@@ -28,7 +28,10 @@ export function PostNavigation({
   className,
 }: PostNavigationProps): ReactElement {
   return (
-    <div className={classNames('flex flex-row gap-2', className)}>
+    <div
+      className={classNames('flex flex-row gap-2', className)}
+      role="navigation"
+    >
       <SimpleTooltip content="Previous">
         <Button
           className="-rotate-90 btn-secondary"
