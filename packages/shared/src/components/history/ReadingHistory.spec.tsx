@@ -1,5 +1,5 @@
 import React from 'react';
-import { subDays } from 'date-fns';
+import { isSameDay, isSameMonth, isSameYear, subDays } from 'date-fns';
 import {
   fireEvent,
   render,
@@ -43,6 +43,7 @@ describe('ReadingHistoryList component', () => {
     createdThisYear,
     createdAtDifferentYear,
   ];
+  const sorted = timestamps.sort((a, b) => a.getTime() - b.getTime());
   const post = {
     id: 'p1',
     title: 'Most Recent Post',
@@ -57,7 +58,7 @@ describe('ReadingHistoryList component', () => {
       {
         readHistory: {
           pageInfo: { hasNextPage: true, endCursor: '' },
-          edges: timestamps.map((timestamp, index) => ({
+          edges: sorted.map((timestamp, index) => ({
             node: { timestamp, post: { ...post, id: `p${index}` } },
           })),
         },
@@ -103,14 +104,36 @@ describe('ReadingHistoryList component', () => {
     await screen.findByText('Yesterday');
   });
 
+  const getLabel = (toCompare: Date) => {
+    const today = new Date();
+
+    if (
+      isSameDay(today, toCompare) &&
+      isSameMonth(today, toCompare) &&
+      isSameYear(today, toCompare)
+    ) {
+      return 'Today';
+    }
+
+    if (
+      isSameDay(subDays(today, 1), toCompare) &&
+      isSameMonth(today, toCompare) &&
+      isSameYear(today, toCompare)
+    ) {
+      return 'Yesterday';
+    }
+
+    return '';
+  };
+
   it('should show date section for reads of the same year', async () => {
-    const year = new Date().getFullYear();
-    const date = new Date(`${year}-03-31 07:15:51.247`);
     const weekday = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][
-      date.getDay()
+      createdThisYear.getDay()
     ];
     renderComponent();
-    await screen.findByText(`${weekday}, 31 Mar`);
+    const label = getLabel(createdThisYear) || `${weekday}, 31 Mar`;
+    expect(label).toEqual('Today');
+    await screen.findByText(label);
   });
 
   it('should show date section for reads of the different year', async () => {
