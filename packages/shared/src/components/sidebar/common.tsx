@@ -200,7 +200,7 @@ export const MenuIcon = ({
   >
     <Button
       onClick={toggleSidebarExpanded}
-      absolute
+      position="absolute"
       className={`btn btn-primary h-6 w-6 top-3 -right-3 z-3 ${
         sidebarExpanded &&
         'transition-opacity invisible group-hover:visible opacity-0 group-hover:opacity-100'
