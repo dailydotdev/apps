@@ -41,7 +41,7 @@ export default function useAnalyticsQueue(): {
   );
 
   const queueRef = useRef<AnalyticsEvent[]>([]);
-  const debouncedSendEvents = useDebounce(() => {
+  const [debouncedSendEvents] = useDebounce(() => {
     if (enabledRef.current && queueRef.current.length) {
       const queue = queueRef.current;
       queueRef.current = [];

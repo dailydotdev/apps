@@ -30,6 +30,7 @@ export function ProfileTooltip({
   user,
   link,
   tooltip = {},
+  ...rest
 }: Omit<ProfileTooltipProps, 'user'> & {
   user?: Partial<Author>;
 }): ReactElement {
@@ -48,7 +49,7 @@ export function ProfileTooltip({
     },
     content:
       data?.user && !isLoading ? (
-        <ProfileTooltipContent user={data.user} data={data} />
+        <ProfileTooltipContent user={data.user} data={data} {...rest} />
       ) : null,
     ...tooltip,
   };

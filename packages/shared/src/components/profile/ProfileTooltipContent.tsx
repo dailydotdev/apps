@@ -9,14 +9,22 @@ import { UserTooltipContentData } from '../../hooks/useProfileTooltip';
 export interface ProfileTooltipContentProps {
   user: Author;
   data?: UserTooltipContentData;
+  onMouseEnter?: () => unknown;
+  onMouseLeave?: () => unknown;
 }
 
 export function ProfileTooltipContent({
   user,
   data: { rank, tags },
+  onMouseEnter,
+  onMouseLeave,
 }: ProfileTooltipContentProps): ReactElement {
   return (
-    <div className="flex flex-col font-normal shrink typo-callout">
+    <div
+      className="flex flex-col font-normal shrink typo-callout"
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
       <div className="relative w-fit">
         <ProfileImageLink user={user} picture={{ size: 'xxlarge' }} />
         {rank && (

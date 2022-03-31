@@ -2,6 +2,7 @@ version: "3"
 
 volumes:
   db:
+  pg:
   redis:
 
 services:
@@ -29,10 +30,9 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./pg-init-scripts:/docker-entrypoint-initdb.d
-      - db:/var/lib/postgresql/data
+      - pg:/var/lib/postgresql/data
     environment:
-      - POSTGRES_MULTIPLE_DATABASES=api,api_test
+      - POSTGRES_DB=api
       - POSTGRES_PASSWORD=12345
     command:
       - "postgres"

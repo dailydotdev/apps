@@ -24,7 +24,7 @@ export interface BaseButtonProps {
   rightIcon?: ReactNode;
   children?: ReactNode;
   displayClass?: string;
-  absolute?: boolean;
+  position?: string;
 }
 
 export type AllowedTags = keyof Pick<JSX.IntrinsicElements, 'a' | 'button'>;
@@ -50,7 +50,7 @@ function ButtonComponent<TagName extends AllowedTags>(
     tag: Tag = 'button',
     className,
     displayClass,
-    absolute,
+    position = 'relative',
     ...props
   }: StyledButtonProps & ButtonProps<TagName>,
   ref?: Ref<ButtonElementType<TagName>>,
@@ -67,7 +67,7 @@ function ButtonComponent<TagName extends AllowedTags>(
         buttonSize,
         'btn flex-row items-center justify-center border typo-callout font-bold no-underline shadow-none cursor-pointer select-none focus-outline',
         displayClass || 'flex',
-        absolute ? 'absolute' : 'relative',
+        position,
         className,
       )}
     >
