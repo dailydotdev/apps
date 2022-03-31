@@ -65,9 +65,7 @@ export type BootDataProviderProps = {
 export const getLocalBootData = (): BootCacheData => {
   const local = storage.getItem(BOOT_LOCAL_KEY);
   if (local) {
-    const data = JSON.parse(storage.getItem(BOOT_LOCAL_KEY)) as BootCacheData;
-
-    return data;
+    return JSON.parse(storage.getItem(BOOT_LOCAL_KEY)) as BootCacheData;
   }
 
   return null;
