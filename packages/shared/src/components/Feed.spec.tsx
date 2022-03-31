@@ -52,8 +52,6 @@ import {
   FEED_SETTINGS_QUERY,
 } from '../graphql/feedSettings';
 import { getFeedSettingsQueryKey } from '../hooks/useFeedSettings';
-import { act } from 'react-dom/test-utils';
-import { nextTick } from '../lib/func';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
