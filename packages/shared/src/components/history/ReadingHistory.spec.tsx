@@ -13,6 +13,7 @@ import ReadHistoryList, { ReadHistoryListProps } from './ReadingHistoryList';
 import { ReadHistoryInfiniteData } from '../../hooks/useInfiniteReadingHistory';
 import AuthContext from '../../contexts/AuthContext';
 import user from '../../../__tests__/fixture/loggedUser';
+import { getLabel } from '../../lib/dateFormat.spec';
 
 beforeEach(() => {
   nock.cleanAll();
@@ -103,28 +104,6 @@ describe('ReadingHistoryList component', () => {
     renderComponent();
     await screen.findByText('Yesterday');
   });
-
-  const getLabel = (toCompare: Date) => {
-    const today = new Date();
-
-    if (
-      isSameDay(today, toCompare) &&
-      isSameMonth(today, toCompare) &&
-      isSameYear(today, toCompare)
-    ) {
-      return 'Today';
-    }
-
-    if (
-      isSameDay(subDays(today, 1), toCompare) &&
-      isSameMonth(today, toCompare) &&
-      isSameYear(today, toCompare)
-    ) {
-      return 'Yesterday';
-    }
-
-    return '';
-  };
 
   it('should show date section for reads of the same year', async () => {
     const weekday = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][
