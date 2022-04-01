@@ -17,9 +17,11 @@ export type PushToQueueFunc = (events: AnalyticsEvent[]) => void;
 const ANALYTICS_ENDPOINT = `${apiUrl}/e`;
 
 type UseAnalyticsQueueProps = {
-  method: typeof fetch;
+  fetchMethod: typeof fetch;
 };
-export default function useAnalyticsQueue({ method }: UseAnalyticsQueueProps): {
+export default function useAnalyticsQueue({
+  fetchMethod,
+}: UseAnalyticsQueueProps): {
   pushToQueue: PushToQueueFunc;
   setEnabled: (enabled: boolean) => void;
   queueRef: MutableRefObject<AnalyticsEvent[]>;
@@ -28,7 +30,7 @@ export default function useAnalyticsQueue({ method }: UseAnalyticsQueueProps): {
   const enabledRef = useRef(false);
   const { mutateAsync: sendEvents } = useMutation(
     async (events: AnalyticsEvent[]) => {
-      const res = await method(ANALYTICS_ENDPOINT, {
+      const res = await fetchMethod(ANALYTICS_ENDPOINT, {
         method: 'POST',
         body: JSON.stringify({ events }),
         credentials: 'include',

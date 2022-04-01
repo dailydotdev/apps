@@ -1,5 +1,5 @@
 import { browser } from 'webextension-polyfill-ts';
-import { getBootData, PostBootData } from '@dailydotdev/shared/src/lib/boot';
+import { getBootData } from '@dailydotdev/shared/src/lib/boot';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import request from 'graphql-request';
 import { UPDATE_USER_SETTINGS_MUTATION } from '@dailydotdev/shared/src/graphql/settings';
@@ -7,7 +7,7 @@ import {
   BOOT_LOCAL_KEY,
   getLocalBootData,
 } from '@dailydotdev/shared/src/contexts/BootProvider';
-import { getOrGenerateDeviceId } from '@dailydotdev/shared/src/hooks/analytics/useAnalyticsSharedProps';
+import { getOrGenerateDeviceId } from '@dailydotdev/shared/src/hooks/analytics/useDeviceId';
 
 const excludedCompanionOrigins = [
   'https://twitter.com',

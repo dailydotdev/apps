@@ -11,6 +11,7 @@ import { RouterContext } from 'next/dist/shared/lib/router-context';
 import Companion from './Companion';
 import CustomRouter from '../lib/CustomRouter';
 import { companionFetch } from './companionFetch';
+import { version } from '../../package.json';
 
 const queryClient = new QueryClient();
 const router = new CustomRouter();
@@ -56,8 +57,8 @@ export default function App({
                 <AlertContextProvider alerts={alerts}>
                   <AnalyticsContextProvider
                     app="companion"
-                    version="1"
-                    method={companionFetch}
+                    version={version}
+                    fetchMethod={companionFetch}
                     deviceId={deviceId}
                     getPage={() => url}
                   >

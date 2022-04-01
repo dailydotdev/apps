@@ -13,27 +13,19 @@ const renderApp = ({ ...props }: CompanionData) => {
   ReactDOM.render(<App {...props} />, getCompanionWrapper());
 };
 
-browser.runtime.onMessage.addListener(async (request) => {
-  const {
-    deviceId,
-    url,
-    postData,
-    settings,
-    flags,
-    user,
-    alerts,
-    visit,
-  }: CompanionData = request;
-  if (postData && !settings.optOutCompanion) {
-    renderApp({
-      deviceId,
-      url,
-      postData,
-      settings,
-      flags,
-      user,
-      alerts,
-      visit,
-    });
-  }
-});
+browser.runtime.onMessage.addListener(
+  ({ deviceId, url, postData, settings, flags, user, alerts, visit }) => {
+    if (postData && !settings.optOutCompanion) {
+      renderApp({
+        deviceId,
+        url,
+        postData,
+        settings,
+        flags,
+        user,
+        alerts,
+        visit,
+      });
+    }
+  },
+);

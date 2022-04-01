@@ -17,6 +17,7 @@ import { browser } from 'webextension-polyfill-ts';
 import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState';
 import { RouterContext } from 'next/dist/shared/lib/router-context';
 import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPageView';
+import useDeviceId from '@dailydotdev/shared/src/hooks/analytics/useDeviceId';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
@@ -107,6 +108,7 @@ function InternalApp({
 
 export default function App(): ReactElement {
   const pageRef = useRef('/');
+  const deviceId = useDeviceId();
 
   return (
     <RouterContext.Provider value={router}>
@@ -118,6 +120,7 @@ export default function App(): ReactElement {
                 app="extension"
                 version={version}
                 getPage={() => pageRef.current}
+                deviceId={deviceId}
               >
                 <InternalApp pageRef={pageRef} />
               </AnalyticsContextProvider>

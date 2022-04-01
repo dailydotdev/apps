@@ -25,6 +25,7 @@ import '@dailydotdev/shared/src/styles/globals.css';
 import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPageView';
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
 import { useMyFeed } from '@dailydotdev/shared/src/hooks/useMyFeed';
+import useDeviceId from '@dailydotdev/shared/src/hooks/analytics/useDeviceId';
 import Seo from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 
@@ -182,6 +183,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
 export default function App(props: AppProps): ReactElement {
   const version = useWebappVersion();
+  const deviceId = useDeviceId();
 
   return (
     <ProgressiveEnhancementContextProvider>
@@ -192,6 +194,7 @@ export default function App(props: AppProps): ReactElement {
               app="webapp"
               version={version}
               getPage={getPage}
+              deviceId={deviceId}
             >
               <InternalApp {...props} />
             </AnalyticsContextProvider>

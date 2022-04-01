@@ -6,29 +6,15 @@ import {
   useState,
 } from 'react';
 import { useRouter } from 'next/router';
-import { get as getCache, set as setCache } from 'idb-keyval';
-import { v4 as uuidv4 } from 'uuid';
 import { AnalyticsEvent } from './useAnalyticsQueue';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import SettingsContext from '../../contexts/SettingsContext';
 import AuthContext from '../../contexts/AuthContext';
 
-const DEVICE_ID_KEY = 'device_id';
-
-export const getOrGenerateDeviceId = async (): Promise<string> => {
-  const deviceId = await getCache<string | undefined>(DEVICE_ID_KEY);
-  if (deviceId) {
-    return deviceId;
-  }
-  const newDeviceId = uuidv4();
-  await setCache(DEVICE_ID_KEY, newDeviceId);
-  return newDeviceId;
-};
-
 export default function useAnalyticsSharedProps(
   app: string,
   version: string,
-  deviceId?: string,
+  deviceId: string,
 ): [MutableRefObject<Partial<AnalyticsEvent>>, boolean] {
   // Use ref instead of state to reduce renders
   const sharedPropsRef = useRef<Partial<AnalyticsEvent>>();
@@ -47,20 +33,14 @@ export default function useAnalyticsSharedProps(
   }, [tokenRefreshed, visit?.visitId, setVisitId, visitId]);
 
   useEffect(() => {
-    if (!visitId) {
+    if (!visitId || !deviceId) {
       return;
-    }
-
-    if (deviceId) {
-      sharedPropsRef.current = {
-        device_id: deviceId,
-      };
     }
 
     const queryStr = JSON.stringify(query);
     (sharedPropsRef.current?.device_id
       ? Promise.resolve(sharedPropsRef.current.device_id)
-      : getOrGenerateDeviceId()
+      : Promise.resolve(deviceId)
     ).then((_deviceId) => {
       sharedPropsRef.current = {
         app_platform: app,
@@ -97,6 +77,7 @@ export default function useAnalyticsSharedProps(
     query,
     visit,
     visitId,
+    deviceId,
     flags,
   ]);
 
