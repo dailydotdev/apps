@@ -5,6 +5,9 @@ import { LazyImage } from '../LazyImage';
 import { WidgetContainer } from './common';
 import FeatherIcon from '../../../icons/feather.svg';
 import HunterIcon from '../../../icons/hunter.svg';
+import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
+import { ProfileLink } from '../profile/ProfileLink';
+import { Author } from '../../graphql/comments';
 
 interface PostAuthorProps {
   post: Post;
@@ -12,13 +15,14 @@ interface PostAuthorProps {
 
 type UserType = 'source' | 'author' | 'featured';
 
-const SourceImage = classed(LazyImage, 'w-8 h-8 rounded-full');
+const StyledImage = classed(LazyImage, 'w-8 h-8 rounded-full');
 
 interface SourceAuthorProps {
   image: string;
   name: string;
   username?: string;
   userType?: UserType;
+  permalink: string;
 }
 
 const getUserIcon = (userType: UserType) => {
@@ -27,22 +31,50 @@ const getUserIcon = (userType: UserType) => {
   return userType === 'author' ? FeatherIcon : HunterIcon;
 };
 
-const UserHighlight = ({
-  image,
-  name,
-  username,
-  userType = 'source',
-}: SourceAuthorProps) => {
-  const Icon = getUserIcon(userType);
+const Image = (props: SourceAuthorProps) => {
+  const { userType, name, permalink, image } = props;
+
+  if (userType === 'source') {
+    return (
+      <LinkWithTooltip
+        href={permalink}
+        passHref
+        prefetch={false}
+        tooltip={{
+          placement: 'bottom',
+          content: name,
+        }}
+      >
+        <StyledImage
+          className="cursor-pointer"
+          imgSrc={image}
+          imgAlt={name}
+          background="var(--theme-background-secondary)"
+        />
+      </LinkWithTooltip>
+    );
+  }
+
+  const user = props as Author;
 
   return (
-    <div className="flex relative flex-row p-3">
-      <SourceImage
-        className="cursor-pointer"
+    <ProfileLink user={user} data-testid="authorLink">
+      <StyledImage
         imgSrc={image}
         imgAlt={name}
         background="var(--theme-background-secondary)"
       />
+    </ProfileLink>
+  );
+};
+
+const UserHighlight = (props: SourceAuthorProps) => {
+  const { name, username, userType = 'source' } = props;
+  const Icon = getUserIcon(userType);
+
+  return (
+    <div className="flex relative flex-row p-3">
+      <Image {...props} />
       {Icon && <Icon className="absolute top-10 left-10" />}
       <div className="flex flex-col ml-4">
         {name && <span className="font-bold typo-callout">{name}</span>}
@@ -61,10 +93,18 @@ export function PostUsersHighlights({ post }: PostAuthorProps): ReactElement {
 
   return (
     <WidgetContainer className="flex flex-col">
-      <UserHighlight {...source} />
-      {author && <UserHighlight {...author} />}
+      <UserHighlight
+        {...source}
+        permalink={`/sources/${source.id}`}
+        userType="source"
+      />
+      {author && <UserHighlight {...author} userType="author" />}
       {featuredComments?.map((comment) => (
-        <UserHighlight key={comment.id} {...comment.author} />
+        <UserHighlight
+          key={comment.id}
+          {...comment.author}
+          userType="featured"
+        />
       ))}
     </WidgetContainer>
   );
