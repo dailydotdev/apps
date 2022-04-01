@@ -247,7 +247,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
         feed.
       </p>
       <a
-        className="mb-2 font-bold underline typo-callout text-theme-label-link"
+        className="font-bold underline text-theme-label-link"
         target="_blank"
         rel="noopener"
         href={contentGuidlines}
