@@ -17,6 +17,7 @@ import { Radio } from '../fields/Radio';
 import { formToJson } from '../../lib/form';
 import { apiUrl } from '../../lib/config';
 import fetchTimeout from '../../lib/fetchTimeout';
+import { contentGuidlines } from '../../lib/constants';
 import {
   REQUEST_SOURCE_MUTATION,
   SOURCE_BY_FEED_QUERY,
@@ -245,6 +246,14 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
         Have an idea for a new source? Insert its link below to add it to the
         feed.
       </p>
+      <a
+        className="font-bold underline text-theme-label-link"
+        target="_blank"
+        rel="noopener"
+        href={contentGuidlines}
+      >
+        Content guidelines
+      </a>
       <form
         className="flex flex-col px-10 w-full"
         ref={scrapeFormRef}
