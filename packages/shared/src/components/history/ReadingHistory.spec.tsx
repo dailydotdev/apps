@@ -109,9 +109,9 @@ describe('ReadingHistoryList component', () => {
     const weekday = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][
       createdThisYear.getDay()
     ];
+
     renderComponent();
     const label = getLabel(createdThisYear) || `${weekday}, 31 Mar`;
-    expect(label).toEqual('Today');
     await screen.findByText(label);
   });
 
