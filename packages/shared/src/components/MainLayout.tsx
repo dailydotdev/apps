@@ -122,7 +122,6 @@ export default function MainLayout({
 
   return (
     <div {...handlers}>
-      Test
       {customBanner || (
         <PromotionalBanner bannerData={bannerData} setLastSeen={setLastSeen} />
       )}
