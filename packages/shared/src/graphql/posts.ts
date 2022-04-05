@@ -292,8 +292,8 @@ export interface PostsEngaged {
 }
 
 export const POSTS_ENGAGED_SUBSCRIPTION = gql`
-  subscription PostsEngaged($ids: [ID]!) {
-    postsEngaged(ids: $ids) {
+  subscription PostsEngaged {
+    postsEngaged {
       id
       numComments
       numUpvotes
