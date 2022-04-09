@@ -191,26 +191,11 @@ export default function useFeed<T>(
     adsQuery.isFetching,
   ]);
 
-  const postIds = useMemo(() => {
-    const ids = [];
-    // Use for loop to reduce number of iterations over the array
-    for (let i = 0; i < items.length; i += 1) {
-      const item = items[i];
-      if (item.type === 'post') {
-        ids.push(item.post.id);
-      }
-    }
-    return ids;
-  }, [items]);
-
   const updatePost = updateCachedPost(feedQueryKey, queryClient);
 
   useSubscription(
     () => ({
       query: POSTS_ENGAGED_SUBSCRIPTION,
-      variables: {
-        ids: postIds,
-      },
     }),
     {
       next: (data: PostsEngaged) => {
@@ -226,7 +211,6 @@ export default function useFeed<T>(
         }
       },
     },
-    [postIds],
   );
 
   return {
