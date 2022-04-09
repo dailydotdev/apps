@@ -109,7 +109,6 @@ describe('ReadingHistoryList component', () => {
     const weekday = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][
       createdThisYear.getDay()
     ];
-
     renderComponent();
     const label = getLabel(createdThisYear) || `${weekday}, 31 Mar`;
     await screen.findByText(label);
