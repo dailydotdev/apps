@@ -111,7 +111,6 @@ describe('ReadingHistoryList component', () => {
     ];
     renderComponent();
     const label = getLabel(createdThisYear) || `${weekday}, 31 Mar`;
-    expect(label).toEqual('Today');
     await screen.findByText(label);
   });
 
