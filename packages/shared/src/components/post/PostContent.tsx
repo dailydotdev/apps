@@ -7,6 +7,7 @@ import React, {
   ReactNode,
   UIEventHandler,
   useContext,
+  useEffect,
   useState,
 } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
@@ -56,6 +57,7 @@ export interface PostContentProps extends Omit<WrapperProps, 'post'> {
   seo?: ReactNode;
   isFallback?: boolean;
   className?: string;
+  enableShowShareNewComment?: boolean;
 }
 
 const DEFAULT_UPVOTES_PER_PAGE = 50;
@@ -96,7 +98,7 @@ export function PostContent({
   postData,
   className,
   isFallback,
-  authorOnboarding = false,
+  enableShowShareNewComment,
   navigation,
   onClose,
 }: PostContentProps): ReactElement {
@@ -119,6 +121,12 @@ export function PostContent({
     () => request(`${apiUrl}/graphql`, POST_BY_ID_QUERY, { id }),
     { initialData: postData, enabled: !!id && tokenRefreshed },
   );
+
+  useEffect(() => {
+    if (enableShowShareNewComment) {
+      setTimeout(() => setShowShareNewComment(true), 700);
+    }
+  }, [enableShowShareNewComment]);
 
   const handleShowUpvotedPost = (upvotes: number) => {
     setUpvotedPopup({
