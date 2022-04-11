@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import { useQueryClient } from 'react-query';
