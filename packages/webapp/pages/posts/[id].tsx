@@ -43,7 +43,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   const client = useQueryClient();
   const postById = client.getQueryData(['post', id]) as Post;
   const [, setShowShareNewComment] = useState(false);
-  const [, setAuthorOnboarding] = useState(false);
+  const [authorOnboarding, setAuthorOnboarding] = useState(false);
 
   useEffect(() => {
     if (router?.query.author) {
@@ -88,6 +88,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
       postData={postData}
       seo={setContent}
       isFallback={isFallback}
+      authorOnboarding={authorOnboarding}
       className="pt-6 pb-20 laptop:pb-6 laptopL:pb-0"
     />
   );
