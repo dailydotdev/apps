@@ -42,20 +42,6 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
 
   const client = useQueryClient();
   const postById = client.getQueryData(['post', id]) as Post;
-  const [, setShowShareNewComment] = useState(false);
-  const [authorOnboarding, setAuthorOnboarding] = useState(false);
-
-  useEffect(() => {
-    if (router?.query.author) {
-      setAuthorOnboarding(true);
-    }
-  }, [router.query?.author]);
-
-  useEffect(() => {
-    if (router?.query.new) {
-      setTimeout(() => setShowShareNewComment(true), 700);
-    }
-  }, [router.query?.new]);
 
   const seo: NextSeoProps = {
     title: postById?.title,
@@ -88,7 +74,8 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
       postData={postData}
       seo={setContent}
       isFallback={isFallback}
-      authorOnboarding={authorOnboarding}
+      enableAuthorOnboarding={!!router.query?.author}
+      enableShowShareNewComment={!!router?.query.new}
       className="pt-6 pb-20 laptop:pb-6 laptopL:pb-0"
     />
   );

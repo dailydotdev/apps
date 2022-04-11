@@ -53,10 +53,10 @@ const Custom404 = dynamic(() => import('../Custom404'));
 export interface PostContentProps extends Omit<WrapperProps, 'post'> {
   id: string;
   postData?: PostData;
-  authorOnboarding?: boolean;
   seo?: ReactNode;
   isFallback?: boolean;
   className?: string;
+  enableAuthorOnboarding?: boolean;
   enableShowShareNewComment?: boolean;
 }
 
@@ -98,6 +98,7 @@ export function PostContent({
   postData,
   className,
   isFallback,
+  enableAuthorOnboarding,
   enableShowShareNewComment,
   navigation,
   onClose,
@@ -111,6 +112,7 @@ export function PostContent({
   const [parentComment, setParentComment] = useState<ParentComment>(null);
   const [showShareNewComment, setShowShareNewComment] = useState(false);
   const [lastScroll, setLastScroll] = useState(0);
+  const [authorOnboarding, setAuthorOnboarding] = useState(false);
   const [upvotedPopup, setUpvotedPopup] = useState(getUpvotedPopupInitialState);
   const queryClient = useQueryClient();
   const postQueryKey = ['post', id];
@@ -121,6 +123,12 @@ export function PostContent({
     () => request(`${apiUrl}/graphql`, POST_BY_ID_QUERY, { id }),
     { initialData: postData, enabled: !!id && tokenRefreshed },
   );
+
+  useEffect(() => {
+    if (enableAuthorOnboarding) {
+      setAuthorOnboarding(true);
+    }
+  }, [enableAuthorOnboarding]);
 
   useEffect(() => {
     if (enableShowShareNewComment) {
