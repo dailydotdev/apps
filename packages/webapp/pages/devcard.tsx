@@ -96,17 +96,8 @@ const Step1 = ({
 const CUSTOM_BG = 'CUSTOM_BG';
 const BY_RANK_BG = 'BY_RANK_BG';
 
-const bgUrlOption = [
-  {
-    label: 'Christmas',
-    value:
-      'https://daily-now-res.cloudinary.com/image/upload/v1634801812/devcard/bg/christmas.jpg',
-    caption: {
-      text: '(Limited edition) 🎄',
-      className: 'text-theme-status-success',
-    },
-  },
-];
+// This can be used for themed devCards
+const bgUrlOption = [];
 
 const Step2 = ({
   onGenerateImage,
