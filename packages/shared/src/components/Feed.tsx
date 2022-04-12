@@ -262,7 +262,7 @@ export default function Feed<T>({
     const offset = items[index - 1].type !== 'post' ? 2 : 1;
     const item = items[index - offset];
 
-    if (item.type !== 'post') {
+    if (item?.type !== 'post') {
       return;
     }
 
@@ -285,7 +285,7 @@ export default function Feed<T>({
     const offset = items[index + 1].type !== 'post' ? 2 : 1;
     const item = items[index + offset];
 
-    if (item.type !== 'post') {
+    if (item?.type !== 'post') {
       return;
     }
 
