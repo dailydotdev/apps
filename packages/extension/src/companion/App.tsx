@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useMemo, useState } from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { browser } from 'webextension-polyfill-ts';
 import { Boot } from '@dailydotdev/shared/src/lib/boot';
@@ -33,9 +33,14 @@ export default function App({
   const [isOptOutCompanion, setIsOptOutCompanion] = useState<boolean>(
     settings?.optOutCompanion,
   );
+
   if (isOptOutCompanion) {
     return <></>;
   }
+
+  const memoizedFlags = useMemo(() => {
+    return flags;
+  }, [flags]);
 
   return (
     <div>
@@ -45,7 +50,7 @@ export default function App({
       </style>
       <RouterContext.Provider value={router}>
         <QueryClientProvider client={queryClient}>
-          <FeaturesContext.Provider value={{ flags }}>
+          <FeaturesContext.Provider value={{ flags: memoizedFlags }}>
             <AuthContextProvider
               user={user}
               visit={visit}
