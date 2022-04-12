@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useEffect } from 'react';
 import classNames from 'classnames';
 import { StyledModal, ModalProps } from './StyledModal';
 import { useHideOnModal } from '../../hooks/useHideOnModal';
@@ -20,21 +20,35 @@ export function PostModal({
   navigation,
   ...props
 }: PostModalProps): ReactElement {
+  const isExtension = !!process.env.TARGET_BROWSER;
   useResetScrollForResponsiveModal();
   useHideOnModal(props.isOpen);
+
+  useEffect(() => {
+    if (isExtension) {
+      return;
+    }
+
+    window.history.replaceState({}, `Post: ${id}`, `/posts/${id}`);
+  }, [id]);
+
+  const onClose: typeof onRequestClose = (e) => {
+    window.history.replaceState({}, `Feed`, '/');
+    onRequestClose(e);
+  };
 
   return (
     <StyledModal
       {...props}
       className={classNames(className, styles.postModal)}
       style={{ content: { overflow: 'hidden' } }}
-      onRequestClose={onRequestClose}
+      onRequestClose={onClose}
     >
       <PostContent
         id={id}
         navigation={navigation}
         className="h-full modal-post"
-        onClose={onRequestClose}
+        onClose={onClose}
       />
     </StyledModal>
   );
