@@ -15,6 +15,7 @@ import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/Su
 import { AnalyticsContextProvider } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { browser } from 'webextension-polyfill-ts';
 import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState';
+import { BootDataProviderProps } from '@dailydotdev/shared/src/contexts/BootProvider';
 import { RouterContext } from 'next/dist/shared/lib/router-context';
 import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPageView';
 import useDeviceId from '@dailydotdev/shared/src/hooks/analytics/useDeviceId';
@@ -106,7 +107,9 @@ function InternalApp({
   );
 }
 
-export default function App(): ReactElement {
+export default function App({
+  localBootData,
+}: Pick<BootDataProviderProps, 'localBootData'>): ReactElement {
   const pageRef = useRef('/');
   const deviceId = useDeviceId();
 
@@ -114,7 +117,11 @@ export default function App(): ReactElement {
     <RouterContext.Provider value={router}>
       <ProgressiveEnhancementContextProvider>
         <QueryClientProvider client={queryClient}>
-          <BootDataProvider app="extension" getRedirectUri={getRedirectUri}>
+          <BootDataProvider
+            app="extension"
+            getRedirectUri={getRedirectUri}
+            localBootData={localBootData}
+          >
             <SubscriptionContextProvider>
               <AnalyticsContextProvider
                 app="extension"

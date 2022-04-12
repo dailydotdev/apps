@@ -72,19 +72,21 @@ export const remoteThemes: Record<ThemeMode, RemoteTheme> = {
   [ThemeMode.Auto]: 'auto',
 };
 
-function applyTheme(themeMode: ThemeMode): void {
+export function applyTheme(themeMode: ThemeMode): void {
   if (document.documentElement.classList.contains(themeMode)) {
     return;
   }
 
-  document.documentElement.classList.remove(ThemeMode.Light);
-  document.documentElement.classList.remove(ThemeMode.Auto);
-
   if (themeMode === ThemeMode.Dark) {
-    return;
+    document.documentElement.classList.remove(ThemeMode.Light);
+    document.documentElement.classList.remove(ThemeMode.Auto);
+  } else if (themeMode === ThemeMode.Light) {
+    document.documentElement.classList.add(ThemeMode.Light);
+    document.documentElement.classList.remove(ThemeMode.Auto);
+  } else {
+    document.documentElement.classList.remove(ThemeMode.Light);
+    document.documentElement.classList.add(ThemeMode.Auto);
   }
-
-  document.documentElement.classList.add(themeMode);
 }
 
 export type SettingsContextProviderProps = {
@@ -117,9 +119,12 @@ export const SettingsContextProvider = ({
   const userId = user?.id;
 
   useEffect(() => {
-    const theme = themeModes[settings.theme];
-    applyTheme(theme);
-  }, [settings.theme]);
+    if (!loadedSettings) {
+      return;
+    }
+
+    applyTheme(themeModes[settings.theme]);
+  }, [settings.theme, loadedSettings]);
 
   const { mutateAsync: updateRemoteSettings } = useMutation<
     unknown,
