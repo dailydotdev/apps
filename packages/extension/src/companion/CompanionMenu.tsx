@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import UpvoteIcon from '@dailydotdev/shared/icons/upvote.svg';
 import CommentIcon from '@dailydotdev/shared/icons/comment.svg';
@@ -17,10 +17,21 @@ import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import CompanionContextMenu from './CompanionContextMenu';
 import '@dailydotdev/shared/src/styles/globals.css';
 import useCompanionActions from './useCompanionActions';
+import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
+import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 
 if (!isTesting) {
   Modal.setAppElement('daily-companion-app');
 }
+
+const postEventName = (
+  update: Pick<PostBootData, 'upvoted' | 'bookmarked'>,
+): string => {
+  if ('upvoted' in update) {
+    return `${!update.upvoted ? 'remove ' : ''}upvote post`;
+  }
+  return `${!update.bookmarked ? 'remove ' : ''}post bookmark`;
+};
 
 interface CompanionMenuProps {
   post: PostBootData;
@@ -36,13 +47,24 @@ export default function CompanionMenu({
   onOptOut,
   setCompanionState,
 }: CompanionMenuProps): ReactElement {
+  const { trackEvent } = useContext(AnalyticsContext);
   const { notification, onMessage } = useNotification();
+
+  const toggleCompanion = () => {
+    trackEvent({
+      event_name: `${companionState ? 'close' : 'open'} companion`,
+    });
+    setCompanionState((state) => !state);
+  };
 
   const updatePost = async (update) => {
     const oldPost = post;
     setPost({
       ...post,
       ...update,
+    });
+    postAnalyticsEvent(postEventName(update), post, {
+      extra: { origin: 'companion context menu' },
     });
     return () => setPost(oldPost);
   };
@@ -128,7 +150,7 @@ export default function CompanionMenu({
               />
             </>
           }
-          onClick={() => setCompanionState(!companionState)}
+          onClick={toggleCompanion}
         />
       </SimpleTooltip>
       <SimpleTooltip placement="left" content="Upvote" appendTo="parent">
