@@ -13,7 +13,11 @@ import { AuthContextProvider } from './AuthContext';
 import { AnonymousUser, LoggedUser } from '../lib/user';
 import { AlertContextProvider } from './AlertContext';
 import { generateQueryKey } from '../lib/query';
-import { SettingsContextProvider } from './SettingsContext';
+import {
+  applyTheme,
+  SettingsContextProvider,
+  themeModes,
+} from './SettingsContext';
 import { storageWrapper as storage } from '../lib/storageWrapper';
 
 function useRefreshToken(
@@ -54,10 +58,11 @@ function filteredProps<T extends Record<string, unknown>>(
 export type BootDataProviderProps = {
   children?: ReactNode;
   app: string;
+  localBootData?: BootCacheData;
   getRedirectUri: () => string;
 };
 
-const getLocalBootData = () => {
+export const getLocalBootData = (): BootCacheData => {
   const local = storage.getItem(BOOT_LOCAL_KEY);
   if (local) {
     return JSON.parse(storage.getItem(BOOT_LOCAL_KEY)) as BootCacheData;
@@ -86,11 +91,12 @@ const updateLocalBootData = (
 export const BootDataProvider = ({
   children,
   app,
+  localBootData,
   getRedirectUri,
 }: BootDataProviderProps): ReactElement => {
   const queryClient = useQueryClient();
   const [cachedBootData, setCachedBootData] =
-    useState<Partial<BootCacheData>>();
+    useState<Partial<BootCacheData>>(localBootData);
   const [lastAppliedChange, setLastAppliedChange] =
     useState<Partial<BootCacheData>>();
   const loadedFromCache = cachedBootData !== undefined;
@@ -104,6 +110,10 @@ export const BootDataProvider = ({
   useEffect(() => {
     const boot = getLocalBootData();
     if (boot) {
+      if (boot?.settings?.theme) {
+        applyTheme(themeModes[boot.settings.theme]);
+      }
+
       setCachedBootData(boot);
     }
   }, []);
