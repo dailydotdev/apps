@@ -123,7 +123,11 @@ export default function CompanionMenu({
           {notification}
         </CardNotification>
       )}
-      <SimpleTooltip placement="left" content="Toggle" appendTo="parent">
+      <SimpleTooltip
+        placement="left"
+        content={companionState ? 'Close summary' : 'Open summary'}
+        appendTo="parent"
+      >
         <Button
           buttonSize="medium"
           className={classNames(
@@ -153,7 +157,11 @@ export default function CompanionMenu({
           onClick={toggleCompanion}
         />
       </SimpleTooltip>
-      <SimpleTooltip placement="left" content="Upvote" appendTo="parent">
+      <SimpleTooltip
+        placement="left"
+        content={post?.upvoted ? 'Remove upvote' : 'Upvote'}
+        appendTo="parent"
+      >
         <Button
           buttonSize="medium"
           icon={<UpvoteIcon />}
@@ -171,7 +179,11 @@ export default function CompanionMenu({
           icon={<CommentIcon />}
         />
       </SimpleTooltip>
-      <SimpleTooltip placement="left" content="Bookmark" appendTo="parent">
+      <SimpleTooltip
+        placement="left"
+        content={post?.bookmarked ? 'Remove bookmark' : 'Bookmark'}
+        appendTo="parent"
+      >
         <Button
           buttonSize="medium"
           pressed={post?.bookmarked}
@@ -180,7 +192,7 @@ export default function CompanionMenu({
           icon={<BookmarkIcon />}
         />
       </SimpleTooltip>
-      <SimpleTooltip placement="left" content="Options" appendTo="parent">
+      <SimpleTooltip placement="left" content="More options" appendTo="parent">
         <Button
           buttonSize="medium"
           className="btn-tertiary"
