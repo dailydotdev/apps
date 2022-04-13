@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement, useContext, useEffect } from 'react';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import UpvoteIcon from '@dailydotdev/shared/icons/upvote.svg';
 import CommentIcon from '@dailydotdev/shared/icons/comment.svg';
@@ -16,9 +16,12 @@ import { isTesting } from '@dailydotdev/shared/src/lib/constants';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import CompanionContextMenu from './CompanionContextMenu';
 import '@dailydotdev/shared/src/styles/globals.css';
-import useCompanionActions from './useCompanionActions';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { CompanionHelper } from './common';
+import useCompanionActions from './useCompanionActions';
 
 if (!isTesting) {
   Modal.setAppElement('daily-companion-app');
@@ -35,6 +38,7 @@ const postEventName = (
 
 interface CompanionMenuProps {
   post: PostBootData;
+  companionHelper: boolean;
   setPost: (T) => void;
   companionState: boolean;
   onOptOut: () => void;
@@ -42,6 +46,7 @@ interface CompanionMenuProps {
 }
 export default function CompanionMenu({
   post,
+  companionHelper,
   setPost,
   companionState,
   onOptOut,
@@ -49,14 +54,11 @@ export default function CompanionMenu({
 }: CompanionMenuProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
   const { notification, onMessage } = useNotification();
-
-  const toggleCompanion = () => {
-    trackEvent({
-      event_name: `${companionState ? 'close' : 'open'} companion`,
-    });
-    setCompanionState((state) => !state);
-  };
-
+  const { user, showLogin } = useContext(AuthContext);
+  const [showCompanionHelper, setShowCompanionHelper] = usePersistentContext(
+    'companion_helper',
+    companionHelper,
+  );
   const updatePost = async (update) => {
     const oldPost = post;
     setPost({
@@ -70,7 +72,6 @@ export default function CompanionMenu({
     );
     return () => setPost(oldPost);
   };
-
   const {
     bookmark,
     removeBookmark,
@@ -79,6 +80,7 @@ export default function CompanionMenu({
     report,
     blockSource,
     disableCompanion,
+    removeCompanionHelper,
   } = useCompanionActions({
     onBookmarkMutate: () => updatePost({ bookmarked: true }),
     onRemoveBookmarkMutate: () => updatePost({ bookmarked: false }),
@@ -88,25 +90,54 @@ export default function CompanionMenu({
       updatePost({ upvoted: false, numUpvotes: post.numUpvotes + -1 }),
   });
 
+  /**
+   * Use a cleanup effect to always set the local cache helper state to false on destroy
+   */
+  useEffect(() => {
+    if (user) {
+      removeCompanionHelper();
+    }
+    const cleanup = () => {
+      setShowCompanionHelper(false);
+    };
+    window.addEventListener('beforeunload', cleanup);
+    return () => cleanup();
+  }, []);
+
+  const toggleCompanion = () => {
+    setShowCompanionHelper(false);
+    trackEvent({
+      event_name: `${companionState ? 'close' : 'open'} companion`,
+    });
+    setCompanionState((state) => !state);
+  };
+
   const optOut = () => {
     disableCompanion({});
     onOptOut();
   };
 
   const toggleUpvote = async () => {
-    if (!post.upvoted) {
-      await upvote({ id: post.id });
-    } else {
-      await removeUpvote({ id: post.id });
+    if (user) {
+      if (!post.upvoted) {
+        await upvote({ id: post.id });
+      } else {
+        await removeUpvote({ id: post.id });
+      }
     }
+
+    showLogin('companion');
   };
 
   const toggleBookmark = async () => {
-    if (!post.bookmarked) {
-      await bookmark({ id: post.id });
-    } else {
-      await removeBookmark({ id: post.id });
+    if (user) {
+      if (!post.bookmarked) {
+        await bookmark({ id: post.id });
+      } else {
+        await removeBookmark({ id: post.id });
+      }
     }
+    showLogin('companion');
   };
 
   const { show: showCompanionOptionsMenu } = useContextMenu({
@@ -125,6 +156,7 @@ export default function CompanionMenu({
           {notification}
         </CardNotification>
       )}
+      {showCompanionHelper && <CompanionHelper />}
       <SimpleTooltip
         placement="left"
         content={companionState ? 'Close summary' : 'Open summary'}

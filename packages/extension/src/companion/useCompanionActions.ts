@@ -9,6 +9,7 @@ import {
   UPVOTE_MUTATION,
 } from '@dailydotdev/shared/src/graphql/posts';
 import { ADD_FILTERS_TO_FEED_MUTATION } from '@dailydotdev/shared/src/graphql/feedSettings';
+import { UPDATE_ALERTS } from '@dailydotdev/shared/src/graphql/alerts';
 import { companionRequest } from './companionRequest';
 
 type MutateFunc<T> = (variables: T) => Promise<(() => void) | undefined>;
@@ -26,6 +27,7 @@ type UseCompanionActionsRet<T> = {
   upvote: (variables: T) => Promise<void>;
   removeUpvote: (variables: T) => Promise<void>;
   disableCompanion: (variables: T) => Promise<void>;
+  removeCompanionHelper: () => Promise<void>;
 };
 
 interface UseCompanionActionsProps {
@@ -145,6 +147,27 @@ export default function useCompanionActions<
       },
     },
   );
+
+  const { mutateAsync: removeCompanionHelper } = useMutation<
+    void,
+    unknown,
+    T,
+    (() => void) | undefined
+  >(
+    () =>
+      companionRequest(`${apiUrl}/graphql`, UPDATE_ALERTS, {
+        data: {
+          companionHelper: false,
+        },
+      }),
+    {
+      onMutate: null,
+      onError: (_, __, rollback) => {
+        rollback?.();
+      },
+    },
+  );
+
   return {
     report,
     blockSource,
@@ -153,5 +176,6 @@ export default function useCompanionActions<
     upvote,
     removeUpvote,
     disableCompanion,
+    removeCompanionHelper,
   };
 }

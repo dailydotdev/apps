@@ -38,9 +38,7 @@ export default function App({
     return <></>;
   }
 
-  const memoizedFlags = useMemo(() => {
-    return flags;
-  }, [flags]);
+  const memoizedFlags = useMemo(() => ({ flags }), [flags]);
 
   return (
     <div>
@@ -50,7 +48,7 @@ export default function App({
       </style>
       <RouterContext.Provider value={router}>
         <QueryClientProvider client={queryClient}>
-          <FeaturesContext.Provider value={{ flags: memoizedFlags }}>
+          <FeaturesContext.Provider value={memoizedFlags}>
             <AuthContextProvider
               user={user}
               visit={visit}
@@ -69,6 +67,7 @@ export default function App({
                   >
                     <Companion
                       postData={postData}
+                      companionHelper={alerts?.companionHelper}
                       onOptOut={() => setIsOptOutCompanion(true)}
                     />
                   </AnalyticsContextProvider>

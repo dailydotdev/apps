@@ -10,6 +10,7 @@ const PointerLine = classed('i', 'w-px h-3.5  block');
 
 export enum PointerColor {
   Success = 'bg-theme-status-success',
+  Cabbage = 'bg-theme-status-cabbage',
 }
 
 interface PointerProps {
