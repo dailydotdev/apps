@@ -27,7 +27,7 @@ type UseCompanionActionsRet<T> = {
   upvote: (variables: T) => Promise<void>;
   removeUpvote: (variables: T) => Promise<void>;
   disableCompanion: (variables: T) => Promise<void>;
-  removeCompanionHelper: () => Promise<void>;
+  removeCompanionHelper: (variables: T) => Promise<void>;
 };
 
 interface UseCompanionActionsProps {
@@ -161,7 +161,7 @@ export default function useCompanionActions<
         },
       }),
     {
-      onMutate: null,
+      onMutate: () => undefined,
       onError: (_, __, rollback) => {
         rollback?.();
       },

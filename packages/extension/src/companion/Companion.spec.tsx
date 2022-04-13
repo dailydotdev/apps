@@ -9,6 +9,10 @@ jest.mock('webextension-polyfill-ts', () => {
     browser: {
       runtime: {
         id: 123,
+        sendMessage: () =>
+          new Promise((resolve) => {
+            resolve(true);
+          }),
       },
       permissions: {
         remove: jest.fn(),

@@ -95,7 +95,7 @@ export default function CompanionMenu({
    */
   useEffect(() => {
     if (user) {
-      removeCompanionHelper();
+      removeCompanionHelper({});
     }
     const cleanup = () => {
       setShowCompanionHelper(false);
