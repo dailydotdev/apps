@@ -30,6 +30,9 @@ export default function CompanionContent({
         className="flex gap-x-4 items-center text-theme-label-tertiary typo-callout"
         data-testid="statsBar"
       >
+        {post?.numUpvotes <= 0 && post?.numComments <= 0 && (
+          <span>Be the first to upvote</span>
+        )}
         {post?.numUpvotes > 0 && (
           <a
             href={post?.commentsPermalink}
