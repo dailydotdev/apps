@@ -14,12 +14,12 @@ import useNotification from '@dailydotdev/shared/src/hooks/useNotification';
 import { CardNotification } from '@dailydotdev/shared/src/components/cards/Card';
 import { isTesting } from '@dailydotdev/shared/src/lib/constants';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
+import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import CompanionContextMenu from './CompanionContextMenu';
 import '@dailydotdev/shared/src/styles/globals.css';
-import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
-import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
-import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { CompanionHelper } from './common';
 import useCompanionActions from './useCompanionActions';
 

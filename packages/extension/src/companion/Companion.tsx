@@ -32,14 +32,8 @@ export default function Companion({
 }: CompanionProps): ReactElement {
   const [post, setPost] = useState<PostBootData>(postData);
   const [companionState, setCompanionState] = useState<boolean>(false);
-  const {
-    user,
-    tokenRefreshed,
-    closeLogin,
-    loadingUser,
-    shouldShowLogin,
-    loginState,
-  } = useContext(AuthContext);
+  const { user, closeLogin, loadingUser, shouldShowLogin, loginState } =
+    useContext(AuthContext);
 
   const firstLoad = useRef(false);
   useEffect(() => {
