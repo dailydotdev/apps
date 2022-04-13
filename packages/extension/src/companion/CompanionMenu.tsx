@@ -63,9 +63,11 @@ export default function CompanionMenu({
       ...post,
       ...update,
     });
-    postAnalyticsEvent(postEventName(update), post, {
-      extra: { origin: 'companion context menu' },
-    });
+    trackEvent(
+      postAnalyticsEvent(postEventName(update), post, {
+        extra: { origin: 'companion context menu' },
+      }),
+    );
     return () => setPost(oldPost);
   };
 

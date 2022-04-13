@@ -31,7 +31,7 @@ const sendBootData = async (req, sender) => {
     return;
   }
 
-  const url = sender?.tab?.url;
+  const url = sender?.tab?.url?.split('?')[0];
 
   const [deviceId, { postData, settings, flags, user, alerts, visit }] =
     await Promise.all([getOrGenerateDeviceId(), getBootData('companion', url)]);
