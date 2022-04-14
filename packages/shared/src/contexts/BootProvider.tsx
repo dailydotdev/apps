@@ -95,21 +95,8 @@ export const BootDataProvider = ({
   getRedirectUri,
 }: BootDataProviderProps): ReactElement => {
   const queryClient = useQueryClient();
-  const [cachedBootData, setCachedBootData] = useState<Partial<BootCacheData>>(
-    () => {
-      if (localBootData) {
-        return localBootData;
-      }
-
-      const data = getLocalBootData();
-
-      if (data?.settings?.theme) {
-        applyTheme(themeModes[data.settings.theme]);
-      }
-
-      return data;
-    },
-  );
+  const [cachedBootData, setCachedBootData] =
+    useState<Partial<BootCacheData>>(localBootData);
   const [lastAppliedChange, setLastAppliedChange] =
     useState<Partial<BootCacheData>>();
   const loadedFromCache = cachedBootData !== undefined;
@@ -119,6 +106,17 @@ export const BootDataProvider = ({
     refetch,
     dataUpdatedAt,
   } = useQuery(BOOT_QUERY_KEY, () => getBootData(app));
+
+  useEffect(() => {
+    const boot = getLocalBootData();
+    if (boot) {
+      if (boot?.settings?.theme) {
+        applyTheme(themeModes[boot.settings.theme]);
+      }
+
+      setCachedBootData(boot);
+    }
+  }, []);
 
   const setBootData = (
     updatedBootData: Partial<BootCacheData>,
