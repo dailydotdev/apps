@@ -1,4 +1,10 @@
-import React, { ReactElement, useContext, useState, useMemo } from 'react';
+import React, {
+  ReactElement,
+  useContext,
+  useState,
+  useMemo,
+  useEffect,
+} from 'react';
 import classNames from 'classnames';
 import SettingsContext from '../../contexts/SettingsContext';
 import { FeedSettingsModal } from '../modals/FeedSettingsModal';
@@ -48,6 +54,9 @@ import useDefaultFeed from '../../hooks/useDefaultFeed';
 import { Features, getFeatureValue } from '../../lib/featureManagement';
 import CreateMyFeedButton from '../CreateMyFeedButton';
 import CreateMyFeedModal from '../modals/CreateMyFeedModal';
+import CreateMyFeedModalForNewUsers from '../modals/CreateMyFeedModalNewUsers';
+import { useCookieBanner } from '../../hooks/useCookieBanner';
+import usePersistentContext from '../../hooks/usePersistentContext';
 
 const bottomMenuItems: SidebarMenuItem[] = [
   {
@@ -156,10 +165,33 @@ export default function Sidebar({
     optOutWeeklyGoal,
   } = useContext(SettingsContext);
   const [showSettings, setShowSettings] = useState(false);
+  const [showIntroModal, setShowIntroModal] = useState(false);
+
   const shouldShowDnD = !!process.env.TARGET_BROWSER;
   const { flags } = useContext(FeaturesContext);
   const popularFeedCopy = getFeatureValue(Features.PopularFeedCopy, flags);
   const feedFilterModal = getFeatureValue(Features.FeedFilterModal, flags);
+  const feedFilterModalOnboarding = getFeatureValue(
+    Features.FeedFilterModalOnboarding,
+    flags,
+  );
+  const FIRST_TIME_SESSION = 'firstTimeSession';
+
+  const [isFirstSession, setIsFirstSession] = usePersistentContext(
+    FIRST_TIME_SESSION,
+    true,
+  );
+  useEffect(() => {
+    if (isFirstSession) {
+      console.log(isFirstSession);
+      setIsFirstSession(false);
+      if (feedFilterModalOnboarding === 'control') {
+        openFeedFilters();
+      } else {
+        setShowIntroModal(true);
+      }
+    }
+  }, [isFirstSession]);
 
   useHideMobileSidebar({
     state: openMobileSidebar,
@@ -358,12 +390,20 @@ export default function Sidebar({
           onRequestClose={() => setShowSettings(false)}
         />
       )}
-      {isLoaded && feedFilterModal === 'v1' ? (
+      {isLoaded && feedFilterModal === 'v1' && (
         <FeedFilters isOpen={isAnimated} onBack={setHidden} />
-      ) : (
+      )}
+      {isLoaded && feedFilterModal !== 'v1' && (
         <CreateMyFeedModal
           isOpen={isAnimated}
           onRequestClose={() => setHidden()}
+          feedFilterModalType={feedFilterModal}
+        />
+      )}
+      {showIntroModal && (
+        <CreateMyFeedModalForNewUsers
+          isOpen={showIntroModal}
+          onRequestClose={() => setShowIntroModal(false)}
           feedFilterModalType={feedFilterModal}
         />
       )}

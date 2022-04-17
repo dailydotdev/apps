@@ -61,6 +61,7 @@ export default function FeedFilters({
             icon={<PlusIcon />}
             buttonSize="small"
             feedFilterModalType="v1"
+            buttonText="Create"
           />
         )}
       </div>

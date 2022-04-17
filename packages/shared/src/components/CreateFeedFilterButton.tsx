@@ -11,12 +11,14 @@ import { Button, ButtonProps } from './buttons/Button';
 
 type TypeProps = {
   feedFilterModalType: string;
+  buttonText: string;
 };
 
 type CreateFeedFilterButtonProps = TypeProps & ButtonProps<'button'>;
 
 export default function CreateFeedFilterButton({
   feedFilterModalType,
+  buttonText,
   ...props
 }: CreateFeedFilterButtonProps): ReactElement {
   const { user, showLogin } = useContext(AuthContext);
@@ -36,7 +38,7 @@ export default function CreateFeedFilterButton({
   };
   return (
     <Button {...props} type="submit" onClick={onCreate}>
-      Create
+      {buttonText}
     </Button>
   );
 }

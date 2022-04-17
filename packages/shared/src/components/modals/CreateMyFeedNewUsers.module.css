@@ -1,0 +1,11 @@
+.createMyFeedNewUsersModal {
+  & :global(.modal) {
+    padding: 3rem 0 0;
+
+    @screen responsiveModalBreakpoint {
+      max-height: 45rem;
+      max-width: 26.25rem;
+      padding-top: 0;
+    }
+  }
+}

@@ -54,6 +54,7 @@ const ModalFooter = ({
           'btn-primary-cabbage',
         )}
         feedFilterModalType={feedFilterModalType}
+        buttonText="Create"
       />
     </footer>
   );
@@ -108,6 +109,7 @@ export default function CreateMyFeedModal({
             buttonSize={buttonSize[feedFilterModalType]}
             icon={feedFilterModalType === 'v2' && <PlusIcon />}
             feedFilterModalType={feedFilterModalType}
+            buttonText="Create"
           />
         )}
       </header>
