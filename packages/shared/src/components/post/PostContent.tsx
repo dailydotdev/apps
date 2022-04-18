@@ -266,9 +266,7 @@ export function PostContent({
 
   return (
     <Wrapper onScroll={onScroll} className={classNames(className, 'relative')}>
-      <PostContainer
-        className={classNames('relative', isFixed && 'pt-[5.5rem]')}
-      >
+      <PostContainer className={classNames('relative', isFixed && 'pt-16')}>
         {navigation && (
           <PostNavigation
             {...navigation}
