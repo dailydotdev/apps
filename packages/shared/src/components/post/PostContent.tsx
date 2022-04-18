@@ -262,11 +262,6 @@ export function PostContent({
 
   const isFixed = position === 'fixed';
   const padding = isFixed ? 'py-4' : 'py-6';
-  const published = `Published on ${postById.post.source.name}`;
-  const subtitle = !postById.post.author
-    ? published
-    : `${published} by ${postById.post.author.name}`;
-
   const Wrapper = hasNavigation ? BodyContainer : PageBodyContainer;
 
   return (
@@ -286,7 +281,6 @@ export function PostContent({
               isFixed && styles.fixedPostsNavigation,
             )}
             shouldDisplayTitle={isFixed}
-            content={{ title: postById.post.title, subtitle }}
             postActionsProps={{ post: postById.post, onClose }}
           />
         )}

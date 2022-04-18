@@ -7,16 +7,10 @@ import { PostModalActions, PostModalActionsProps } from './PostModalActions';
 
 const SimpleTooltip = dynamic(() => import('../tooltips/SimpleTooltip'));
 
-interface Content {
-  title: string;
-  subtitle: string;
-}
-
 export interface PostNavigationProps {
   onPreviousPost: () => Promise<unknown>;
   onNextPost: () => Promise<unknown>;
   shouldDisplayTitle?: boolean;
-  content?: Content;
   className?: string;
   postActionsProps: PostModalActionsProps;
 }
@@ -25,10 +19,16 @@ export function PostNavigation({
   onPreviousPost,
   onNextPost,
   shouldDisplayTitle,
-  content,
   className,
   postActionsProps,
 }: PostNavigationProps): ReactElement {
+  const { post } = postActionsProps;
+  const published = `Published on ${post?.source.name}`;
+  const subtitle = !post?.author
+    ? published
+    : `${published} by ${post?.author.name}`;
+  const content = { title: post?.title, subtitle };
+
   return (
     <div
       className={classNames('flex flex-row gap-2', className)}
