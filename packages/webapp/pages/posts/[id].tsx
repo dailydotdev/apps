@@ -76,7 +76,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
       isFallback={isFallback}
       enableAuthorOnboarding={!!router.query?.author}
       enableShowShareNewComment={!!router?.query.new}
-      className="pt-6 pb-20 laptop:pb-6 laptopL:pb-0"
+      className="pb-20 laptop:pb-6 laptopL:pb-0"
     />
   );
 };

@@ -89,7 +89,7 @@ const PageBodyContainer = classed(
 
 const PostContainer = classed(
   'main',
-  'flex flex-col flex-1 px-8 pb-20 laptop:max-w-[40rem] tablet:border-r tablet:border-theme-divider-tertiary',
+  'flex flex-col flex-1 px-8 tablet:pb-20 laptop:max-w-[40rem] tablet:border-r tablet:border-theme-divider-tertiary',
 );
 
 export function PostContent({
@@ -261,13 +261,13 @@ export function PostContent({
   };
 
   const isFixed = position === 'fixed';
-  const padding = isFixed ? 'py-4' : 'py-6';
+  const padding = isFixed ? 'py-4' : 'pt-6';
   const Wrapper = hasNavigation ? BodyContainer : PageBodyContainer;
 
   return (
     <Wrapper onScroll={onScroll} className={classNames(className, 'relative')}>
       <PostContainer
-        className={classNames('relative', isFixed && 'pt-[5.5rem]', className)}
+        className={classNames('relative', isFixed && 'pt-[5.5rem]')}
       >
         {navigation && (
           <PostNavigation
@@ -287,7 +287,7 @@ export function PostContent({
         {seo}
         <a {...postLinkProps} className="cursor-pointer">
           <h1
-            className="font-bold typo-large-title"
+            className="mt-6 font-bold typo-large-title"
             data-testid="post-modal-title"
           >
             {postById.post.title}

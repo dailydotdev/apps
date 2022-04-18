@@ -50,7 +50,7 @@ export function PostWidgets({
           inlineActions={isNavigationFixed}
           post={post}
           onClose={onClose}
-          className="pt-6"
+          className="hidden tablet:flex pt-6"
         />
       )}
       <PostUsersHighlights post={post} />
