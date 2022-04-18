@@ -69,32 +69,19 @@ export function PostModalActions({
   const isModerator = user?.roles?.indexOf(Roles.Moderator) > -1;
 
   return (
-    <Container
-      {...props}
-      className={classNames(
-        className,
-        inlineActions && 'w-full tablet:justify-end',
-      )}
-    >
+    <Container {...props} className={classNames('flex gap-2', className)}>
       <Button
-        className="tablet:hidden btn-tertiary"
-        tag="a"
-        href={post.permalink}
-        target="_blank"
-        icon={<OpenLinkIcon />}
-      />
-      <Button
-        className="hidden tablet:flex btn-secondary"
+        className={inlineActions ? 'btn-tertiary' : 'btn-secondary'}
         tag="a"
         href={post.permalink}
         target="_blank"
         icon={<OpenLinkIcon />}
       >
-        Read article
+        {!inlineActions && 'Read article'}
       </Button>
       <SimpleTooltip placement="bottom" content="Options">
         <Button
-          className="tablet:ml-auto btn-tertiary"
+          className={classNames('btn-tertiary', !inlineActions && 'ml-auto')}
           icon={<MenuIcon />}
           onClick={(event) => showPostOptionsContext(event)}
         />

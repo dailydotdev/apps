@@ -282,11 +282,12 @@ export function PostContent({
               padding,
               position,
               isFixed &&
-                'z-3 w-full laptop:max-w-[40rem] bg-theme-bg-secondary border-b border-r border-theme-divider-tertiary -mt-[5.5rem] -ml-8 px-8',
+                'z-3 w-full bg-theme-bg-secondary border-b border-theme-divider-tertiary -mt-[5.625rem] -ml-8 px-8',
               isFixed && styles.fixedPostsNavigation,
             )}
             shouldDisplayTitle={isFixed}
             content={{ title: postById.post.title, subtitle }}
+            postActionsProps={{ post: postById.post, onClose }}
           />
         )}
         {seo}

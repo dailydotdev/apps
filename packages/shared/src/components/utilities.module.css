@@ -37,12 +37,10 @@
 }
 
 .fixedPostsNavigation {
-  @screen tablet {
-    max-width: calc(100vw - 19.25rem);
-  }
+  max-width: 100vw;
 
   @screen laptop {
-    max-width: inherit;
+    max-width: 63.7rem;
   }
 }
 

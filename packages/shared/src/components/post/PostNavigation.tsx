@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import ArrowIcon from '../../../icons/arrow.svg';
 import { Button } from '../buttons/Button';
-import styles from './PostNavigation.module.css';
+import { PostModalActions, PostModalActionsProps } from './PostModalActions';
 
 const SimpleTooltip = dynamic(() => import('../tooltips/SimpleTooltip'));
 
@@ -18,6 +18,7 @@ export interface PostNavigationProps {
   shouldDisplayTitle?: boolean;
   content?: Content;
   className?: string;
+  postActionsProps: PostModalActionsProps;
 }
 
 export function PostNavigation({
@@ -26,6 +27,7 @@ export function PostNavigation({
   shouldDisplayTitle,
   content,
   className,
+  postActionsProps,
 }: PostNavigationProps): ReactElement {
   return (
     <div
@@ -47,20 +49,17 @@ export function PostNavigation({
         />
       </SimpleTooltip>
       {shouldDisplayTitle && content && (
-        <div className="flex flex-col pr-8 ml-2">
-          <span className="typo-footnote text-theme-label-tertiary">
-            {content.subtitle}
-          </span>
-          <h3
-            // eslint-disable-next-line @dailydotdev/daily-dev-eslint-rules/no-custom-color
-            className={classNames(
-              'font-bold typo-headline text-ellipsis',
-              styles.fixedPostsTitle,
-            )}
-          >
-            {content.title}
-          </h3>
-        </div>
+        <>
+          <div className="flex overflow-hidden flex-col flex-1 ml-2">
+            <span className="typo-footnote text-theme-label-tertiary">
+              {content.subtitle}
+            </span>
+            <h3 className="overflow-hidden font-bold whitespace-nowrap text-ellipsis typo-headline">
+              {content.title}
+            </h3>
+          </div>
+          <PostModalActions {...postActionsProps} inlineActions />
+        </>
       )}
     </div>
   );
