@@ -31,7 +31,7 @@ export function PostNavigation({
 
   return (
     <div
-      className={classNames('flex flex-row gap-2', className)}
+      className={classNames('flex flex-row gap-2 items-center', className)}
       role="navigation"
     >
       <SimpleTooltip content="Previous">
@@ -48,19 +48,26 @@ export function PostNavigation({
           onClick={onNextPost}
         />
       </SimpleTooltip>
-      {shouldDisplayTitle && content && (
-        <>
-          <div className="flex overflow-hidden flex-col flex-1 ml-2">
-            <span className="typo-footnote text-theme-label-tertiary">
-              {content.subtitle}
-            </span>
-            <h3 className="overflow-hidden font-bold whitespace-nowrap text-ellipsis typo-headline">
-              {content.title}
-            </h3>
-          </div>
-          <PostModalActions {...postActionsProps} inlineActions />
-        </>
-      )}
+      <>
+        <div
+          className={classNames(
+            shouldDisplayTitle ? 'flex' : 'flex tablet:hidden',
+            'overflow-hidden flex-col flex-1 ml-2',
+          )}
+        >
+          <span className="overflow-hidden whitespace-nowrap typo-footnote text-ellipsis text-theme-label-tertiary">
+            {content.subtitle}
+          </span>
+          <h3 className="overflow-hidden font-bold whitespace-nowrap text-ellipsis typo-headline">
+            {content.title}
+          </h3>
+        </div>
+        <PostModalActions
+          {...postActionsProps}
+          inlineActions
+          className={shouldDisplayTitle ? 'flex' : 'flex tablet:hidden'}
+        />
+      </>
     </div>
   );
 }

@@ -69,7 +69,7 @@ export function PostModalActions({
   const isModerator = user?.roles?.indexOf(Roles.Moderator) > -1;
 
   return (
-    <Container {...props} className={classNames('flex gap-2', className)}>
+    <Container {...props} className={classNames('gap-2', className)}>
       <Button
         className={inlineActions ? 'btn-tertiary' : 'btn-secondary'}
         tag="a"
