@@ -70,7 +70,7 @@ const getUpvotedPopupInitialState = () => ({
 
 interface WrapperProps extends Omit<PostModalActionsProps, 'post'> {
   children?: ReactNode;
-  navigation?: PostNavigationProps;
+  navigation?: Omit<PostNavigationProps, 'postActionsProps'>;
   post?: Post;
   position?: CSSProperties['position'];
   isLoading?: boolean;
