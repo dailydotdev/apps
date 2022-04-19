@@ -19,6 +19,7 @@ type UserType = 'source' | 'author' | 'featured';
 const StyledImage = classed(LazyImage, 'w-10 h-10');
 
 interface SourceAuthorProps {
+  id?: string;
   image: string;
   name: string;
   username?: string;
@@ -71,7 +72,7 @@ const Image = (props: SourceAuthorProps) => {
 };
 
 const UserHighlight = (props: SourceAuthorProps) => {
-  const { name, username, userType = 'source' } = props;
+  const { id, name, username, userType = 'source' } = props;
   const Icon = getUserIcon(userType);
 
   return (
@@ -93,12 +94,12 @@ const UserHighlight = (props: SourceAuthorProps) => {
         <ProfileLink className="font-bold typo-callout" user={props}>
           {name}
         </ProfileLink>
-        {username && (
+        {(username || id) && (
           <ProfileLink
             className="mt-0.5 typo-footnote text-theme-label-tertiary"
             user={props}
           >
-            @{username}
+            @{username || id}
           </ProfileLink>
         )}
       </div>
