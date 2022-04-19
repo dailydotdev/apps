@@ -118,7 +118,11 @@ export function PostContent({
   const postQueryKey = ['post', id];
   const [position, setPosition] =
     useState<CSSProperties['position']>('relative');
-  const { data: postById, isLoading } = useQuery<PostData>(
+  const {
+    data: postById,
+    isLoading,
+    isFetched,
+  } = useQuery<PostData>(
     postQueryKey,
     () => request(`${apiUrl}/graphql`, POST_BY_ID_QUERY, { id }),
     { initialData: postData, enabled: !!id && tokenRefreshed },
@@ -214,7 +218,7 @@ export function PostContent({
 
   const hasNavigation = !!navigation;
 
-  if (isLoading) {
+  if (isLoading || !isFetched) {
     return (
       <PageBodyContainer>
         <PostLoadingPlaceholder />
