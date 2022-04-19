@@ -117,6 +117,15 @@ export const POST_BY_ID_QUERY = gql`
       commentsPermalink
       numUpvotes
       numComments
+      featuredComments {
+        author {
+          id
+          image
+          name
+          permalink
+          username
+        }
+      }
       views
       source {
         id
