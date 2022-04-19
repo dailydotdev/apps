@@ -279,7 +279,7 @@ export function PostContent({
               padding,
               position,
               isFixed &&
-                'z-3 w-full bg-theme-bg-secondary border-b border-theme-divider-tertiary -mt-[5.625rem] -ml-8 px-6',
+                'z-3 w-full bg-theme-bg-secondary border-b border-theme-divider-tertiary -mt-[4.125rem] -ml-8 px-6',
               isFixed && styles.fixedPostsNavigation,
             )}
             shouldDisplayTitle={isFixed}
