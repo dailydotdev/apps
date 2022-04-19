@@ -14,6 +14,8 @@ const generateEventId = (now = new Date()): string => {
   return `${timePart}${randomStr}`;
 };
 
+export type PostOrigin = 'article page' | 'article modal';
+
 const getGlobalSharedProps = (): Partial<AnalyticsEvent> => ({
   screen_height: window.screen?.height,
   screen_width: window.screen?.width,

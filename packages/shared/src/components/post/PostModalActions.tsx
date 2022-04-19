@@ -21,6 +21,9 @@ import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { CardNotification } from '../cards/Card';
 import { Button } from '../buttons/Button';
 import PostOptionsMenu from '../PostOptionsMenu';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { postAnalyticsEvent } from '../../lib/feed';
+import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
 
 export interface PostModalActionsProps {
   post: Post;
@@ -28,6 +31,7 @@ export interface PostModalActionsProps {
   className?: string;
   style?: CSSProperties;
   inlineActions?: boolean;
+  origin?: PostOrigin;
 }
 
 const Container = classed('div', 'flex flex-row items-center');
@@ -41,8 +45,10 @@ export function PostModalActions({
   onClose,
   inlineActions,
   className,
+  origin = 'article page',
   ...props
 }: PostModalActionsProps): ReactElement {
+  const { trackEvent } = useContext(AnalyticsContext);
   const { user } = useContext(AuthContext);
   const { notification, onMessage } = useNotification();
   const { showReportMenu } = useReportPostMenu();
@@ -54,6 +60,14 @@ export function PostModalActions({
     showReportMenu(e, {
       position: { x: right, y: bottom + 4 },
     });
+  };
+
+  const onReadArticle = () => {
+    trackEvent(
+      postAnalyticsEvent('click', post, {
+        extra: { origin },
+      }),
+    );
   };
 
   if (notification) {
@@ -76,6 +90,7 @@ export function PostModalActions({
         href={post.permalink}
         target="_blank"
         icon={<OpenLinkIcon />}
+        onClick={onReadArticle}
       >
         {!inlineActions && 'Read article'}
       </Button>

@@ -16,6 +16,7 @@ interface PostActionsProps {
   postQueryKey: QueryKey;
   actionsClassName?: string;
   onComment?: () => unknown;
+  origin?: PostActionsOrigin;
 }
 
 const updatePost =
@@ -57,11 +58,14 @@ const onBookmarkMutation = (
     bookmarked,
   }));
 
+type PostActionsOrigin = 'article page' | 'article modal';
+
 export function PostActions({
   post,
   postQueryKey,
   actionsClassName = 'hidden mobileL:flex',
   onComment,
+  origin = 'article page',
 }: PostActionsProps): ReactElement {
   const queryClient = useQueryClient();
   const { trackEvent } = useContext(AnalyticsContext);
@@ -89,7 +93,7 @@ export function PostActions({
       if (post.upvoted) {
         trackEvent(
           postAnalyticsEvent('remove post upvote', post, {
-            extra: { origin: 'article page' },
+            extra: { origin },
           }),
         );
         return cancelPostUpvote({ id: post.id });
@@ -97,7 +101,7 @@ export function PostActions({
       if (post) {
         trackEvent(
           postAnalyticsEvent('upvote post', post, {
-            extra: { origin: 'article page' },
+            extra: { origin },
           }),
         );
         return upvotePost({ id: post.id });
@@ -117,7 +121,7 @@ export function PostActions({
       postAnalyticsEvent(
         !post.bookmarked ? 'bookmark post' : 'remove post bookmark',
         post,
-        { extra: { origin: 'article page' } },
+        { extra: { origin } },
       ),
     );
     if (!post.bookmarked) {

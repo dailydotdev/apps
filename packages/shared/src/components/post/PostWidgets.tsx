@@ -9,9 +9,11 @@ import ShareBar from '../ShareBar';
 import FurtherReading from '../widgets/FurtherReading';
 import { PostUsersHighlights } from '../widgets/PostUsersHighlights';
 import { PostModalActions, PostModalActionsProps } from './PostModalActions';
+import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
 
 interface PostWidgetsProps extends PostModalActionsProps {
   isNavigationFixed?: boolean;
+  origin?: PostOrigin;
 }
 
 export function PostWidgets({
@@ -19,6 +21,7 @@ export function PostWidgets({
   className,
   isNavigationFixed,
   onClose,
+  origin = 'article page',
 }: PostWidgetsProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
@@ -32,7 +35,7 @@ export function PostWidgets({
         });
         trackEvent(
           postAnalyticsEvent('share post', post, {
-            extra: { origin: 'article page' },
+            extra: { origin },
           }),
         );
       } catch (err) {
@@ -51,6 +54,7 @@ export function PostWidgets({
           post={post}
           onClose={onClose}
           className="hidden tablet:flex pt-6"
+          origin={origin}
         />
       )}
       <PostUsersHighlights post={post} />

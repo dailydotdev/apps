@@ -230,10 +230,11 @@ export function PostContent({
     return <Custom404 />;
   }
 
+  const analyticsOrigin = navigation ? 'article page' : 'article modal';
   const onLinkClick = async () => {
     trackEvent(
       postAnalyticsEvent('click', postById.post, {
-        extra: { origin: 'article page' },
+        extra: { origin: analyticsOrigin },
       }),
     );
   };
@@ -334,6 +335,7 @@ export function PostContent({
           postQueryKey={postQueryKey}
           onComment={openNewComment}
           actionsClassName="hidden laptop:flex"
+          origin={analyticsOrigin}
         />
         <PostComments
           post={postById.post}
@@ -350,6 +352,7 @@ export function PostContent({
         isNavigationFixed={hasNavigation && isFixed}
         className="pb-20"
         onClose={onClose}
+        origin={analyticsOrigin}
       />
       {upvotedPopup.modal && (
         <UpvotedPopupModal

@@ -266,6 +266,11 @@ export default function Feed<T>({
       return;
     }
 
+    trackEvent({
+      origin: 'article modal',
+      event_name: 'navigate previous',
+      target_id: item.post.id,
+    });
     setOpenedPost(item.post.id);
   };
 
@@ -289,6 +294,11 @@ export default function Feed<T>({
       return;
     }
 
+    trackEvent({
+      origin: 'article modal',
+      event_name: 'navigate next',
+      target_id: item.post.id,
+    });
     setOpenedPost(item.post.id);
   };
 

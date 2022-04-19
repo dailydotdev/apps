@@ -1,10 +1,11 @@
-import React, { ReactElement, useEffect } from 'react';
+import React, { ReactElement, useContext, useEffect } from 'react';
 import classNames from 'classnames';
 import { StyledModal, ModalProps } from './StyledModal';
 import { useHideOnModal } from '../../hooks/useHideOnModal';
 import { useResetScrollForResponsiveModal } from '../../hooks/useResetScrollForResponsiveModal';
 import { PostContent, PostContentProps } from '../post/PostContent';
 import styles from './PostModal.module.css';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
 
 interface PostModalProps
   extends ModalProps,
@@ -20,6 +21,7 @@ export function PostModal({
   navigation,
   ...props
 }: PostModalProps): ReactElement {
+  const { trackEvent } = useContext(AnalyticsContext);
   const isExtension = !!process.env.TARGET_BROWSER;
   useResetScrollForResponsiveModal();
   useHideOnModal(props.isOpen);
@@ -38,6 +40,13 @@ export function PostModal({
     }
     onRequestClose(e);
   };
+
+  useEffect(() => {
+    trackEvent({
+      event_name: 'article modal view',
+      target_id: id,
+    });
+  }, []);
 
   return (
     <StyledModal
