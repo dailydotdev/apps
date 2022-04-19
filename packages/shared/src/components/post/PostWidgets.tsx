@@ -46,7 +46,10 @@ export function PostWidgets({
 
   return (
     <PageWidgets
-      className={classNames(className, isNavigationFixed && 'pt-[5.5rem]')}
+      className={classNames(
+        className,
+        isNavigationFixed && 'tablet:pt-[5.5rem]',
+      )}
     >
       {!isNavigationFixed && (
         <PostModalActions
