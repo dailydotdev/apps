@@ -35,7 +35,7 @@ export function PostModal({
   }, [id]);
 
   const onClose: typeof onRequestClose = (e) => {
-    if (isExtension) {
+    if (!isExtension) {
       window.history.replaceState({}, `Feed`, '/');
     }
     onRequestClose(e);
