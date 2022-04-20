@@ -34,8 +34,9 @@ export const usePostModalNavigation = (
           return;
         }
 
+        const current = items[openedPostIndex] as PostItem;
         trackEvent(
-          postAnalyticsEvent('navigate previous', item.post, {
+          postAnalyticsEvent('navigate previous', current.post, {
             extra: { origin: 'article modal' },
           }),
         );
@@ -64,9 +65,10 @@ export const usePostModalNavigation = (
           return;
         }
 
+        const current = items[openedPostIndex] as PostItem;
         setIsFetchingNextPage(false);
         trackEvent(
-          postAnalyticsEvent('navigate next', item.post, {
+          postAnalyticsEvent('navigate next', current.post, {
             extra: { origin: 'article modal' },
           }),
         );

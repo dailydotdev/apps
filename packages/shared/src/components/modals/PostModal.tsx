@@ -56,7 +56,7 @@ export function PostModal({
       event_name: 'article modal view',
       target_id: id,
     });
-  }, []);
+  }, [id]);
 
   return (
     <StyledModal
