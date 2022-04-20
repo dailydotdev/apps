@@ -404,7 +404,8 @@ export default function Sidebar({
         <CreateMyFeedModalForNewUsers
           isOpen={showIntroModal}
           onRequestClose={() => setShowIntroModal(false)}
-          feedFilterModalType={feedFilterModal}
+          feedFilterOnboardingModalType={feedFilterModalOnboarding}
+          actionToOpenFeedFilters={openFeedFilters}
         />
       )}
     </>

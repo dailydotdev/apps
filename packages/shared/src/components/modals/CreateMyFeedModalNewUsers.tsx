@@ -3,44 +3,60 @@ import classNames from 'classnames';
 import { ModalProps } from './StyledModal';
 import { ResponsiveModal } from './ResponsiveModal';
 import styles from './CreateMyFeedNewUsers.module.css';
-import CreateFeedFilterButton from '../CreateFeedFilterButton';
 import UserIcon from '../../../icons/user.svg';
 import { Button } from '../buttons/Button';
 import CreateMyFeedModalIntroTags from './CreateMyFeedModalNewUsersTags';
 import { CreateMyFeedModalIntroTagsContainer } from '../utilities';
 
 type TypeProps = {
-  feedFilterModalType: string;
+  feedFilterOnboardingModalType: string;
+  actionToOpenFeedFilters: () => unknown;
 };
 
 type CreateMyFeedModalProps = TypeProps & ModalProps;
 
 type LayoutModalProps = TypeProps & Pick<ModalProps, 'onRequestClose'>;
 
-const buttonClass = {
-  v4: 'w-40',
-  v5: 'w-40 ml-3',
+const footerClass = {
+  test1: 'justify-center',
+  test2: 'justify-between',
 };
 
 const ModalFooter = ({
-  feedFilterModalType,
+  feedFilterOnboardingModalType,
   onRequestClose,
+  actionToOpenFeedFilters,
 }: LayoutModalProps) => {
+  const onCreateMyFeedButtonClick = (
+    event: React.MouseEvent<Element, MouseEvent>,
+  ): void => {
+    actionToOpenFeedFilters();
+    onRequestClose(event);
+  };
   return (
-    <footer className="flex fixed responsiveModalBreakpoint:sticky bottom-0 justify-center items-center py-3 border-t border-theme-divider-tertiary bg-theme-bg-tertiary">
-      {feedFilterModalType === 'v5' && (
-        <Button className="mr-3 w-40 btn-secondary" onClick={onRequestClose}>
-          Cancel
+    <footer
+      className={classNames(
+        footerClass[feedFilterOnboardingModalType],
+        'flex fixed responsiveModalBreakpoint:sticky bottom-0 py-3 border-t border-theme-divider-tertiary bg-theme-bg-tertiary',
+      )}
+    >
+      {feedFilterOnboardingModalType === 'test2' && (
+        <Button
+          className="w-20 text-theme-label-tertiary btn-default ml-4"
+          onClick={onRequestClose}
+        >
+          Skip
         </Button>
       )}
-      <CreateFeedFilterButton
-        className={classNames(
-          buttonClass[feedFilterModalType],
-          'btn-primary-cabbage',
-        )}
-        feedFilterModalType={feedFilterModalType}
-        buttonText="Create my feed"
-      />
+
+      <Button
+        className="w-40 btn-primary-cabbage mr-4"
+        onClick={onCreateMyFeedButtonClick}
+      >
+        {feedFilterOnboardingModalType === 'test1'
+          ? 'Create my feed'
+          : 'Continue'}
+      </Button>
     </footer>
   );
 };
@@ -48,7 +64,8 @@ const ModalFooter = ({
 export default function CreateMyFeedModalForNewUsers({
   className,
   onRequestClose,
-  feedFilterModalType,
+  feedFilterOnboardingModalType,
+  actionToOpenFeedFilters,
   ...modalProps
 }: CreateMyFeedModalProps): ReactElement {
   const tags = [
@@ -61,7 +78,6 @@ export default function CreateMyFeedModalForNewUsers({
     <ResponsiveModal
       className={classNames(className, styles.createMyFeedNewUsersModal)}
       {...modalProps}
-      onRequestClose={onRequestClose}
     >
       <section className="flex flex-col items-center py-6 px-6 mobileL:px-10 mt-24 overflow-hidden">
         <UserIcon className="w-12 h-12 m-2" />
@@ -84,8 +100,9 @@ export default function CreateMyFeedModalForNewUsers({
         </CreateMyFeedModalIntroTagsContainer>
       </section>
       <ModalFooter
-        feedFilterModalType={feedFilterModalType}
+        feedFilterOnboardingModalType={feedFilterOnboardingModalType}
         onRequestClose={onRequestClose}
+        actionToOpenFeedFilters={actionToOpenFeedFilters}
       />
     </ResponsiveModal>
   );
