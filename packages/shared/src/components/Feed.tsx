@@ -147,7 +147,7 @@ export default function Feed<T>({
     onCloseModal,
     onPrevious,
     onNext,
-    article,
+    selectedPost,
     isFetchingNextPage,
   } = usePostModalNavigation(items, fetchPage);
 
@@ -263,10 +263,10 @@ export default function Feed<T>({
       )}
       style={style}
     >
-      {article && (
+      {selectedPost && (
         <PostModal
           isOpen
-          id={article.id}
+          id={selectedPost.id}
           onRequestClose={onCloseModal}
           navigation={{ onPreviousPost: onPrevious, onNextPost: onNext }}
           isFetchingNextPage={isFetchingNextPage}

@@ -9,7 +9,7 @@ interface UsePostModalNavigation {
   onOpenModal: (index: number) => void;
   onCloseModal: () => void;
   isFetchingNextPage?: boolean;
-  article: Post | null;
+  selectedPost: Post | null;
 }
 
 export const usePostModalNavigation = (
@@ -71,7 +71,7 @@ export const usePostModalNavigation = (
         });
         setOpenedPostIndex(index);
       },
-      article:
+      selectedPost:
         openedPostIndex !== null && items[openedPostIndex].type === 'post'
           ? (items[openedPostIndex] as PostItem).post
           : null,
