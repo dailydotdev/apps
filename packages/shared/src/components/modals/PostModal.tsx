@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useEffect } from 'react';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { StyledModal, ModalProps } from './StyledModal';
 import { useHideOnModal } from '../../hooks/useHideOnModal';
@@ -22,6 +22,7 @@ export function PostModal({
   isFetchingNextPage,
   ...props
 }: PostModalProps): ReactElement {
+  const [currentPage, setCurrentPage] = useState('');
   const { trackEvent } = useContext(AnalyticsContext);
   const isExtension = !!process.env.TARGET_BROWSER;
   useResetScrollForResponsiveModal();
@@ -32,12 +33,17 @@ export function PostModal({
       return;
     }
 
+    if (!currentPage) {
+      setCurrentPage(window.location.pathname);
+    }
+
     window.history.replaceState({}, `Post: ${id}`, `/posts/${id}`);
   }, [id]);
 
   const onClose: typeof onRequestClose = (e) => {
     if (!isExtension) {
-      window.history.replaceState({}, `Feed`, '/');
+      window.history.replaceState({}, `Feed`, currentPage);
+      setCurrentPage('');
     }
     onRequestClose(e);
   };
