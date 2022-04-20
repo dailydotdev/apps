@@ -9,6 +9,7 @@ import HunterIcon from '../../../icons/hunter.svg';
 import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 import { ProfileLink } from '../profile/ProfileLink';
 import { Author } from '../../graphql/comments';
+import { ProfileTooltip } from '../profile/ProfileTooltip';
 
 interface PostAuthorProps {
   post: Post;
@@ -74,12 +75,15 @@ const Image = (props: SourceAuthorProps) => {
 const UserHighlight = (props: SourceAuthorProps) => {
   const { id, name, username, userType = 'source' } = props;
   const Icon = getUserIcon(userType);
+  const LinkWrapper = userType === 'source' ? React.Fragment : ProfileTooltip;
 
   return (
     <div className="flex relative flex-row p-3">
-      <ProfileLink user={props}>
-        <Image {...props} />
-      </ProfileLink>
+      <LinkWrapper user={{ id }}>
+        <ProfileLink user={props}>
+          <Image {...props} />
+        </ProfileLink>
+      </LinkWrapper>
       {Icon && (
         <Icon
           className={classNames(
@@ -90,19 +94,21 @@ const UserHighlight = (props: SourceAuthorProps) => {
           )}
         />
       )}
-      <div className="flex flex-col ml-4">
-        <ProfileLink className="font-bold typo-callout" user={props}>
-          {name}
-        </ProfileLink>
-        {(username || id) && (
-          <ProfileLink
-            className="mt-0.5 typo-footnote text-theme-label-tertiary"
-            user={props}
-          >
-            @{username || id}
+      <LinkWrapper user={{ id }}>
+        <div className="flex flex-col ml-4">
+          <ProfileLink className="font-bold typo-callout" user={props}>
+            {name}
           </ProfileLink>
-        )}
-      </div>
+          {(username || id) && (
+            <ProfileLink
+              className="mt-0.5 typo-footnote text-theme-label-tertiary"
+              user={props}
+            >
+              @{username || id}
+            </ProfileLink>
+          )}
+        </div>
+      </LinkWrapper>
     </div>
   );
 };
