@@ -70,9 +70,10 @@ const getUpvotedPopupInitialState = () => ({
   requestQuery: null,
 });
 
-interface WrapperProps extends Omit<PostModalActionsProps, 'post'> {
+interface WrapperProps
+  extends Omit<PostModalActionsProps, 'post'>,
+    Pick<PostNavigationProps, 'onPreviousPost' | 'onNextPost'> {
   children?: ReactNode;
-  navigation?: Omit<PostNavigationProps, 'postActionsProps'>;
   post?: Post;
   position?: CSSProperties['position'];
   isLoading?: boolean;
@@ -102,9 +103,10 @@ export function PostContent({
   isFallback,
   enableAuthorOnboarding,
   enableShowShareNewComment,
-  navigation,
   isFetchingNextPage,
   isModal,
+  onPreviousPost,
+  onNextPost,
   onClose,
 }: PostContentProps): ReactElement {
   if (!id && !isFallback) {
@@ -220,7 +222,7 @@ export function PostContent({
     setParentComment(parent);
   };
 
-  const hasNavigation = !!navigation;
+  const hasNavigation = !!onPreviousPost || !!onNextPost;
 
   if (isLoading || !isFetched || isFetchingNextPage) {
     return (
@@ -276,9 +278,10 @@ export function PostContent({
   return (
     <Wrapper onScroll={onScroll} className={classNames(className, 'relative')}>
       <PostContainer className={classNames('relative', isFixed && 'pt-16')}>
-        {navigation && (
+        {hasNavigation && (
           <PostNavigation
-            {...navigation}
+            onPreviousPost={onPreviousPost}
+            onNextPost={onNextPost}
             className={classNames(
               'flex',
               padding,

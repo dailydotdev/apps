@@ -268,7 +268,8 @@ export default function Feed<T>({
           isOpen
           id={selectedPost.id}
           onRequestClose={onCloseModal}
-          navigation={{ onPreviousPost: onPrevious, onNextPost: onNext }}
+          onPreviousPost={onPrevious}
+          onNextPost={onNext}
           isFetchingNextPage={isFetchingNextPage}
         />
       )}

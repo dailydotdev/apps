@@ -6,10 +6,12 @@ import { useResetScrollForResponsiveModal } from '../../hooks/useResetScrollForR
 import { PostContent, PostContentProps } from '../post/PostContent';
 import styles from './PostModal.module.css';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { PostNavigationProps } from '../post/PostNavigation';
 
 interface PostModalProps
   extends ModalProps,
-    Pick<PostContentProps, 'navigation' | 'isFetchingNextPage'> {
+    Pick<PostContentProps, 'isFetchingNextPage'>,
+    Pick<PostNavigationProps, 'onPreviousPost' | 'onNextPost'> {
   id: string;
 }
 
@@ -18,8 +20,9 @@ export function PostModal({
   children,
   onRequestClose,
   id,
-  navigation,
   isFetchingNextPage,
+  onPreviousPost,
+  onNextPost,
   ...props
 }: PostModalProps): ReactElement {
   const [currentPage, setCurrentPage] = useState<string>();
@@ -64,7 +67,8 @@ export function PostModal({
     >
       <PostContent
         id={id}
-        navigation={navigation}
+        onPreviousPost={onPreviousPost}
+        onNextPost={onNextPost}
         className="h-full modal-post"
         onClose={onClose}
         isFetchingNextPage={isFetchingNextPage}
