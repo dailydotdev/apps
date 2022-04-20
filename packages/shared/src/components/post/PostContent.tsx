@@ -58,6 +58,7 @@ export interface PostContentProps extends Omit<WrapperProps, 'post'> {
   className?: string;
   enableAuthorOnboarding?: boolean;
   enableShowShareNewComment?: boolean;
+  isFetchingNextPage?: boolean;
 }
 
 const DEFAULT_UPVOTES_PER_PAGE = 50;
@@ -101,6 +102,7 @@ export function PostContent({
   enableAuthorOnboarding,
   enableShowShareNewComment,
   navigation,
+  isFetchingNextPage,
   onClose,
 }: PostContentProps): ReactElement {
   if (!id && !isFallback) {
@@ -218,7 +220,7 @@ export function PostContent({
 
   const hasNavigation = !!navigation;
 
-  if (isLoading || !isFetched) {
+  if (isLoading || !isFetched || isFetchingNextPage) {
     return (
       <PageBodyContainer>
         <PostLoadingPlaceholder />

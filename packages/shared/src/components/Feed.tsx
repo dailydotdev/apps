@@ -131,6 +131,7 @@ export default function Feed<T>({
     insaneMode,
     loadedSettings,
   } = useContext(SettingsContext);
+  const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const { items, updatePost, removePost, fetchPage, canFetchMore, emptyFeed } =
     useFeed(
@@ -246,7 +247,7 @@ export default function Feed<T>({
     return <>{emptyScreen}</>;
   }
 
-  const onPrevious = async () => {
+  const onPrevious = () => {
     const index = items.findIndex((item) => {
       if (item.type !== 'post') {
         return false;
@@ -274,7 +275,7 @@ export default function Feed<T>({
     setOpenedPost(item.post.id);
   };
 
-  const onNext = async () => {
+  const onNext = () => {
     const index = items.findIndex((item) => {
       if (item.type !== 'post') {
         return false;
@@ -283,15 +284,25 @@ export default function Feed<T>({
       return item.post.id === openedPost;
     });
 
-    if (index === items.length) {
-      await fetchPage();
+    if (index === items.length - 1) {
+      if (isFetchingNextPage) {
+        return null;
+      }
+
+      setIsFetchingNextPage(true);
+      return fetchPage();
     }
 
+    if (items[index + 1].type === 'placeholder') {
+      return null;
+    }
+
+    setIsFetchingNextPage(false);
     const offset = items[index + 1].type !== 'post' ? 2 : 1;
     const item = items[index + offset];
 
     if (item?.type !== 'post') {
-      return;
+      return null;
     }
 
     trackEvent({
@@ -299,8 +310,15 @@ export default function Feed<T>({
       event_name: 'navigate next',
       target_id: item.post.id,
     });
-    setOpenedPost(item.post.id);
+
+    return setOpenedPost(item.post.id);
   };
+
+  useEffect(() => {
+    if (openedPost && isFetchingNextPage) {
+      onNext();
+    }
+  }, [items, openedPost, isFetchingNextPage]);
 
   return (
     <div
@@ -318,6 +336,7 @@ export default function Feed<T>({
           isOpen={!!openedPost}
           onRequestClose={() => setOpenedPost('')}
           navigation={{ onPreviousPost: onPrevious, onNextPost: onNext }}
+          isFetchingNextPage={isFetchingNextPage}
         />
       )}
       {header}

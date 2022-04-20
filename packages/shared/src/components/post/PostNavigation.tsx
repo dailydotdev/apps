@@ -8,8 +8,8 @@ import { PostModalActions, PostModalActionsProps } from './PostModalActions';
 const SimpleTooltip = dynamic(() => import('../tooltips/SimpleTooltip'));
 
 export interface PostNavigationProps {
-  onPreviousPost: () => Promise<unknown>;
-  onNextPost: () => Promise<unknown>;
+  onPreviousPost: () => unknown;
+  onNextPost: () => unknown;
   shouldDisplayTitle?: boolean;
   className?: string;
   postActionsProps: PostModalActionsProps;

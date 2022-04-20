@@ -9,7 +9,7 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 
 interface PostModalProps
   extends ModalProps,
-    Pick<PostContentProps, 'navigation'> {
+    Pick<PostContentProps, 'navigation' | 'isFetchingNextPage'> {
   id: string;
 }
 
@@ -19,6 +19,7 @@ export function PostModal({
   onRequestClose,
   id,
   navigation,
+  isFetchingNextPage,
   ...props
 }: PostModalProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
@@ -60,6 +61,7 @@ export function PostModal({
         navigation={navigation}
         className="h-full modal-post"
         onClose={onClose}
+        isFetchingNextPage={isFetchingNextPage}
       />
     </StyledModal>
   );
