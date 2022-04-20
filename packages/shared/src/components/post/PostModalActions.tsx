@@ -64,7 +64,7 @@ export function PostModalActions({
 
   const onReadArticle = () => {
     trackEvent(
-      postAnalyticsEvent('click', post, {
+      postAnalyticsEvent('go to link', post, {
         extra: { origin },
       }),
     );
