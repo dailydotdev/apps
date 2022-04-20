@@ -62,6 +62,7 @@ export function PostModal({
         className="h-full modal-post"
         onClose={onClose}
         isFetchingNextPage={isFetchingNextPage}
+        isModal
       />
     </StyledModal>
   );

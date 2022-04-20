@@ -59,6 +59,7 @@ export interface PostContentProps extends Omit<WrapperProps, 'post'> {
   enableAuthorOnboarding?: boolean;
   enableShowShareNewComment?: boolean;
   isFetchingNextPage?: boolean;
+  isModal?: boolean;
 }
 
 const DEFAULT_UPVOTES_PER_PAGE = 50;
@@ -103,6 +104,7 @@ export function PostContent({
   enableShowShareNewComment,
   navigation,
   isFetchingNextPage,
+  isModal,
   onClose,
 }: PostContentProps): ReactElement {
   if (!id && !isFallback) {
@@ -232,7 +234,7 @@ export function PostContent({
     return <Custom404 />;
   }
 
-  const analyticsOrigin = navigation ? 'article page' : 'article modal';
+  const analyticsOrigin = isModal ? 'article page' : 'article modal';
   const onLinkClick = async () => {
     trackEvent(
       postAnalyticsEvent('click', postById.post, {
