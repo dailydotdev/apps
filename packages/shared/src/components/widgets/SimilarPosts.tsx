@@ -59,7 +59,7 @@ const ListItem = ({
     <div className={textContainerClassName}>
       <h5
         className={classNames(
-          'typo-callout text-theme-label-primary mb-0.5 multi-truncate',
+          'typo-callout text-theme-label-primary mb-0.5 multi-truncate break-words text-ellipsis',
           styles.title,
         )}
       >
