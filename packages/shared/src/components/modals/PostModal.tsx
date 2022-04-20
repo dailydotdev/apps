@@ -41,7 +41,7 @@ export function PostModal({
   }, [id]);
 
   const onClose: typeof onRequestClose = (e) => {
-    if (!isExtension) {
+    if (!isExtension && currentPage) {
       window.history.replaceState({}, `Feed`, currentPage);
       setCurrentPage();
     }
