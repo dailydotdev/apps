@@ -1,6 +1,7 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { Post } from '../graphql/posts';
+import { postAnalyticsEvent } from '../lib/feed';
 import { FeedItem, PostItem } from './useFeed';
 
 interface UsePostModalNavigation {
@@ -33,11 +34,11 @@ export const usePostModalNavigation = (
           return;
         }
 
-        trackEvent({
-          origin: 'article modal',
-          event_name: 'navigate previous',
-          target_id: item.post.id,
-        });
+        trackEvent(
+          postAnalyticsEvent('navigate previous', item.post, {
+            extra: { origin: 'article modal' },
+          }),
+        );
         setOpenedPostIndex(index);
       },
       async onNext() {
@@ -64,11 +65,11 @@ export const usePostModalNavigation = (
         }
 
         setIsFetchingNextPage(false);
-        trackEvent({
-          origin: 'article modal',
-          event_name: 'navigate next',
-          target_id: item.post.id,
-        });
+        trackEvent(
+          postAnalyticsEvent('navigate next', item.post, {
+            extra: { origin: 'article modal' },
+          }),
+        );
         setOpenedPostIndex(index);
       },
       selectedPost:
