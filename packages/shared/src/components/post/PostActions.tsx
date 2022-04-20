@@ -10,13 +10,14 @@ import useBookmarkPost from '../../hooks/useBookmarkPost';
 import { postAnalyticsEvent } from '../../lib/feed';
 import AuthContext from '../../contexts/AuthContext';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
 
 interface PostActionsProps {
   post: Post;
   postQueryKey: QueryKey;
   actionsClassName?: string;
   onComment?: () => unknown;
-  origin?: PostActionsOrigin;
+  origin?: PostOrigin;
 }
 
 const updatePost =
@@ -57,8 +58,6 @@ const onBookmarkMutation = (
   updatePost(queryClient, postQueryKey, () => ({
     bookmarked,
   }));
-
-type PostActionsOrigin = 'article page' | 'article modal';
 
 export function PostActions({
   post,
