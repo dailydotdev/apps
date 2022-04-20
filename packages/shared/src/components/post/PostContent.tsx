@@ -8,7 +8,6 @@ import React, {
   UIEventHandler,
   useContext,
   useEffect,
-  useRef,
   useState,
 } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
@@ -123,7 +122,6 @@ export function PostContent({
   const [upvotedPopup, setUpvotedPopup] = useState(getUpvotedPopupInitialState);
   const queryClient = useQueryClient();
   const postQueryKey = ['post', id];
-  const wrapper = useRef();
   const [position, setPosition] =
     useState<CSSProperties['position']>('relative');
   const {
@@ -275,27 +273,17 @@ export function PostContent({
     }
   };
 
-  const onNext = async () => {
-    await onNextPost();
-    const el = wrapper.current as HTMLDivElement;
-    el.scrollTo(0, 0);
-  };
-
   const isFixed = position === 'fixed';
   const padding = isFixed ? 'py-4' : 'pt-6';
   const Wrapper = hasNavigation ? BodyContainer : PageBodyContainer;
 
   return (
-    <Wrapper
-      onScroll={onScroll}
-      className={classNames(className, 'relative')}
-      ref={wrapper}
-    >
+    <Wrapper onScroll={onScroll} className={classNames(className, 'relative')}>
       <PostContainer className={classNames('relative', isFixed && 'pt-16')}>
         {hasNavigation && (
           <PostNavigation
             onPreviousPost={onPreviousPost}
-            onNextPost={onNext}
+            onNextPost={onNextPost}
             className={classNames(
               'flex',
               padding,
