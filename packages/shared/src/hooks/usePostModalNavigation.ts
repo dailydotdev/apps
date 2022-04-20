@@ -72,7 +72,7 @@ export const usePostModalNavigation = (
         setOpenedPostIndex(index);
       },
       article:
-        openedPostIndex && items[openedPostIndex].type === 'post'
+        openedPostIndex !== null && items[openedPostIndex].type === 'post'
           ? (items[openedPostIndex] as PostItem).post
           : null,
     }),
