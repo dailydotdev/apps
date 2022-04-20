@@ -299,7 +299,7 @@ export function PostContent({
         {seo}
         <a {...postLinkProps} className="cursor-pointer">
           <h1
-            className="mt-6 font-bold typo-large-title"
+            className="mt-6 font-bold break-words typo-large-title"
             data-testid="post-modal-title"
           >
             {postById.post.title}
