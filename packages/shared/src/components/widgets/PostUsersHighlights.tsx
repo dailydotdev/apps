@@ -114,7 +114,7 @@ const UserHighlight = (props: SourceAuthorProps) => {
 };
 
 export function PostUsersHighlights({ post }: PostAuthorProps): ReactElement {
-  const { author, source, featuredComments } = post;
+  const { author, source } = post;
 
   return (
     <WidgetContainer className="flex flex-col">
@@ -124,13 +124,6 @@ export function PostUsersHighlights({ post }: PostAuthorProps): ReactElement {
         userType="source"
       />
       {author && <UserHighlight {...author} userType="author" />}
-      {featuredComments?.map((comment) => (
-        <UserHighlight
-          key={comment.id}
-          {...comment.author}
-          userType="featured"
-        />
-      ))}
     </WidgetContainer>
   );
 }
