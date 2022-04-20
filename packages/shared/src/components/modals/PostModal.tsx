@@ -22,7 +22,7 @@ export function PostModal({
   isFetchingNextPage,
   ...props
 }: PostModalProps): ReactElement {
-  const [currentPage, setCurrentPage] = useState('');
+  const [currentPage, setCurrentPage] = useState<string>();
   const { trackEvent } = useContext(AnalyticsContext);
   const isExtension = !!process.env.TARGET_BROWSER;
   useResetScrollForResponsiveModal();
