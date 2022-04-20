@@ -904,18 +904,16 @@ it('should be able to navigate through posts', async () => {
   const title = await screen.findByTestId('post-modal-title');
   expect(title).toHaveTextContent(firstPost.node.title);
 
-  const nav1 = await screen.findByRole('navigation');
-  // eslint-disable-next-line testing-library/no-node-access
-  const [, next] = Array.from(nav1.getElementsByTagName('button'));
+  await screen.findByRole('navigation');
+  const next = await screen.findByLabelText('Next');
   const params = { id: secondPost.node.id, title: secondPost.node.title };
   mockGraphQL(createPostMock(params));
   fireEvent.click(next);
   const secondTitle = await screen.findByTestId('post-modal-title');
   expect(secondTitle).toHaveTextContent(secondPost.node.title);
 
-  const nav2 = await screen.findByRole('navigation');
-  // eslint-disable-next-line testing-library/no-node-access
-  const [previous] = Array.from(nav2.getElementsByTagName('button'));
+  await screen.findByRole('navigation');
+  const previous = await screen.findByLabelText('Previous');
   mockGraphQL(createPostMock({ id: firstPost.node.id }));
   fireEvent.click(previous);
   const firstTitle = await screen.findByTestId('post-modal-title');
