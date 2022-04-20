@@ -4,7 +4,6 @@ import React, {
   ReactNode,
   useContext,
   useEffect,
-  useState,
 } from 'react';
 import classNames from 'classnames';
 import useFeed, { PostItem } from '../hooks/useFeed';
@@ -36,6 +35,7 @@ import FeaturesContext from '../contexts/FeaturesContext';
 import { Features, getFeatureValue } from '../lib/featureManagement';
 import { getThemeFont } from './utilities';
 import { PostModal } from './modals/PostModal';
+import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
 
 export type FeedProps<T> = {
   feedName: string;
@@ -111,7 +111,6 @@ export default function Feed<T>({
   emptyScreen,
   createMyFeedCard,
 }: FeedProps<T>): ReactElement {
-  const [openedPost, setOpenedPost] = useState('');
   const { flags } = useContext(FeaturesContext);
   const postHeadingFont = getThemeFont(
     getFeatureValue(Features.PostCardHeadingFont, flags),
@@ -131,7 +130,6 @@ export default function Feed<T>({
     insaneMode,
     loadedSettings,
   } = useContext(SettingsContext);
-  const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
   const { items, updatePost, removePost, fetchPage, canFetchMore, emptyFeed } =
     useFeed(
@@ -144,6 +142,14 @@ export default function Feed<T>({
       variables,
     );
   const { ranking } = (variables as RankVariables) || {};
+  const {
+    onOpenModal,
+    onCloseModal,
+    onPrevious,
+    onNext,
+    article,
+    isFetchingNextPage,
+  } = usePostModalNavigation(items, fetchPage);
 
   useEffect(() => {
     if (emptyFeed) {
@@ -223,7 +229,7 @@ export default function Feed<T>({
         ...feedAnalyticsExtra(feedName, ranking),
       }),
     );
-    setOpenedPost(post.id);
+    onOpenModal(index);
   };
 
   const onAdClick = (ad: Ad, index: number, row: number, column: number) => {
@@ -247,79 +253,6 @@ export default function Feed<T>({
     return <>{emptyScreen}</>;
   }
 
-  const onPrevious = () => {
-    const index = items.findIndex((item) => {
-      if (item.type !== 'post') {
-        return false;
-      }
-
-      return item.post.id === openedPost;
-    });
-
-    if (index === 0) {
-      return;
-    }
-
-    const offset = items[index - 1].type !== 'post' ? 2 : 1;
-    const item = items[index - offset];
-
-    if (item?.type !== 'post') {
-      return;
-    }
-
-    trackEvent({
-      origin: 'article modal',
-      event_name: 'navigate previous',
-      target_id: item.post.id,
-    });
-    setOpenedPost(item.post.id);
-  };
-
-  const onNext = () => {
-    const index = items.findIndex((item) => {
-      if (item.type !== 'post') {
-        return false;
-      }
-
-      return item.post.id === openedPost;
-    });
-
-    if (index === items.length - 1) {
-      if (isFetchingNextPage) {
-        return null;
-      }
-
-      setIsFetchingNextPage(true);
-      return fetchPage();
-    }
-
-    if (items[index + 1].type === 'placeholder') {
-      return null;
-    }
-
-    setIsFetchingNextPage(false);
-    const offset = items[index + 1].type !== 'post' ? 2 : 1;
-    const item = items[index + offset];
-
-    if (item?.type !== 'post') {
-      return null;
-    }
-
-    trackEvent({
-      origin: 'article modal',
-      event_name: 'navigate next',
-      target_id: item.post.id,
-    });
-
-    return setOpenedPost(item.post.id);
-  };
-
-  useEffect(() => {
-    if (openedPost && isFetchingNextPage) {
-      onNext();
-    }
-  }, [items, openedPost, isFetchingNextPage]);
-
   return (
     <div
       className={classNames(
@@ -330,11 +263,11 @@ export default function Feed<T>({
       )}
       style={style}
     >
-      {openedPost && (
+      {article && (
         <PostModal
-          id={openedPost}
-          isOpen={!!openedPost}
-          onRequestClose={() => setOpenedPost('')}
+          isOpen
+          id={article.id}
+          onRequestClose={onCloseModal}
           navigation={{ onPreviousPost: onPrevious, onNextPost: onNext }}
           isFetchingNextPage={isFetchingNextPage}
         />
