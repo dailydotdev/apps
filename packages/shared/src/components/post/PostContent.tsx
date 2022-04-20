@@ -179,12 +179,14 @@ export function PostContent({
     }),
     {
       next: (data: PostsEngaged) => {
-        queryClient.setQueryData<PostData>(postQueryKey, (oldPost) => ({
-          post: {
-            ...oldPost.post,
-            ...data.postsEngaged,
-          },
-        }));
+        if (data.postsEngaged.id === id) {
+          queryClient.setQueryData<PostData>(postQueryKey, (oldPost) => ({
+            post: {
+              ...oldPost.post,
+              ...data.postsEngaged,
+            },
+          }));
+        }
       },
     },
   );
