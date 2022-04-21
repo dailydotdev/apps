@@ -40,7 +40,7 @@ services:
       - "wal_level=logical"
 
   daily-gateway:
-    image: gcr.io/daily-ops/daily-gateway
+    image: us.gcr.io/daily-ops/daily-gateway
     depends_on:
       - "daily-mysql"
     volumes:
@@ -77,7 +77,7 @@ services:
       - FLAGSMITH_KEY=LZp89Rk56sytKH9AeHyCtF
 
   daily-api:
-    image: gcr.io/daily-ops/daily-api
+    image: us.gcr.io/daily-ops/daily-api
     depends_on:
       - "daily-postgres"
       - "daily-redis"

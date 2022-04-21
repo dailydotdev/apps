@@ -146,18 +146,17 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   useSubscription(
     () => ({
       query: POSTS_ENGAGED_SUBSCRIPTION,
-      variables: {
-        ids: [id],
-      },
     }),
     {
       next: (data: PostsEngaged) => {
-        queryClient.setQueryData<PostData>(postQueryKey, (oldPost) => ({
-          post: {
-            ...oldPost.post,
-            ...data.postsEngaged,
-          },
-        }));
+        if (data.postsEngaged.id === id) {
+          queryClient.setQueryData<PostData>(postQueryKey, (oldPost) => ({
+            post: {
+              ...oldPost.post,
+              ...data.postsEngaged,
+            },
+          }));
+        }
       },
     },
   );
