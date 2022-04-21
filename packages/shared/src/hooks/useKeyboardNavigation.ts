@@ -12,8 +12,8 @@ export const useKeyboardNavigation = (
   optional: OptionalParameters = {},
 ): void => {
   useEffect(() => {
-    const onPress = (e: KeyboardEvent) => {
-      const [base] = (e.composedPath?.() as HTMLElement[]) || [];
+    const onPress = (e: KeyboardEvent & { path: HTMLElement[] }) => {
+      const [base] = (e.composedPath?.() as HTMLElement[]) || e.path || [];
       const tagName =
         base?.tagName.toLowerCase() as keyof JSX.IntrinsicElements;
       if (optional?.disableOnTags?.indexOf(tagName) !== -1) {
