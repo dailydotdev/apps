@@ -280,22 +280,24 @@ export function PostContent({
   return (
     <Wrapper onScroll={onScroll} className={classNames(className, 'relative')}>
       <PostContainer className={classNames('relative', isFixed && 'pt-16')}>
-        {hasNavigation && (
-          <PostNavigation
-            onPreviousPost={onPreviousPost}
-            onNextPost={onNextPost}
-            className={classNames(
-              'flex',
-              padding,
-              position,
-              isFixed &&
-                'z-3 w-full bg-theme-bg-secondary border-b border-theme-divider-tertiary -mt-[4.125rem] -ml-8 px-6',
-              isFixed && styles.fixedPostsNavigation,
-            )}
-            shouldDisplayTitle={isFixed}
-            postActionsProps={{ post: postById.post, onClose }}
-          />
-        )}
+        <div className={isFixed && 'absolute left-0 top-0'}>
+          {hasNavigation && (
+            <PostNavigation
+              onPreviousPost={onPreviousPost}
+              onNextPost={onNextPost}
+              className={classNames(
+                'flex',
+                padding,
+                position,
+                isFixed &&
+                  'z-3 w-full bg-theme-bg-secondary border-b border-theme-divider-tertiary px-6',
+                isFixed && styles.fixedPostsNavigation,
+              )}
+              shouldDisplayTitle={isFixed}
+              postActionsProps={{ post: postById.post, onClose }}
+            />
+          )}
+        </div>
         {seo}
         <a {...postLinkProps} className="cursor-pointer">
           <h1
