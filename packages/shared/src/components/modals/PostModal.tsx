@@ -58,6 +58,33 @@ export function PostModal({
     });
   }, [id]);
 
+  useEffect(() => {
+    const arrowkeyNavigation = (e: KeyboardEvent & { path: HTMLElement[] }) => {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') {
+        return;
+      }
+
+      const [base] = e.path;
+      const inputs = ['select', 'input'];
+
+      if (inputs.indexOf(base.tagName.toLocaleLowerCase()) !== -1) {
+        return;
+      }
+
+      if (e.key === 'ArrowLeft') {
+        onPreviousPost();
+      } else {
+        onNextPost();
+      }
+    };
+
+    window.addEventListener('keydown', arrowkeyNavigation);
+
+    return () => {
+      window.removeEventListener('keydown', arrowkeyNavigation);
+    };
+  }, [onPreviousPost, onNextPost]);
+
   return (
     <StyledModal
       {...props}
