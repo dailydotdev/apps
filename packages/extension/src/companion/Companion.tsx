@@ -23,15 +23,18 @@ if (!isTesting) {
 interface CompanionProps {
   postData: PostBootData;
   companionHelper: boolean;
+  companionExpanded: boolean;
   onOptOut: () => void;
 }
 export default function Companion({
   postData,
   companionHelper,
+  companionExpanded,
   onOptOut,
 }: CompanionProps): ReactElement {
   const [post, setPost] = useState<PostBootData>(postData);
-  const [companionState, setCompanionState] = useState<boolean>(false);
+  const [companionState, setCompanionState] =
+    useState<boolean>(companionExpanded);
   const { user, closeLogin, loadingUser, shouldShowLogin, loginState } =
     useContext(AuthContext);
 

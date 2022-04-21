@@ -10,6 +10,7 @@ import {
 } from '@dailydotdev/shared/src/graphql/posts';
 import { ADD_FILTERS_TO_FEED_MUTATION } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { UPDATE_ALERTS } from '@dailydotdev/shared/src/graphql/alerts';
+import { UPDATE_USER_SETTINGS_MUTATION } from '@dailydotdev/shared/src/graphql/settings';
 import { companionRequest } from './companionRequest';
 
 type MutateFunc<T> = (variables: T) => Promise<(() => void) | undefined>;
@@ -28,12 +29,14 @@ type UseCompanionActionsRet<T> = {
   removeUpvote: (variables: T) => Promise<void>;
   disableCompanion: (variables: T) => Promise<void>;
   removeCompanionHelper: (variables: T) => Promise<void>;
+  toggleCompanionExpanded: (variables: T) => Promise<void>;
 };
 
 interface UseCompanionActionsProps {
   id?: string;
   reason?: string;
   comment?: string;
+  companionExpandedValue?: boolean;
 }
 export default function useCompanionActions<
   T extends UseCompanionActionsProps,
@@ -168,6 +171,26 @@ export default function useCompanionActions<
     },
   );
 
+  const { mutateAsync: toggleCompanionExpanded } = useMutation<
+    void,
+    unknown,
+    T,
+    (() => void) | undefined
+  >(
+    ({ companionExpandedValue }) =>
+      companionRequest(`${apiUrl}/graphql`, UPDATE_USER_SETTINGS_MUTATION, {
+        data: {
+          companionExpanded: companionExpandedValue,
+        },
+      }),
+    {
+      onMutate: () => undefined,
+      onError: (_, __, rollback) => {
+        rollback?.();
+      },
+    },
+  );
+
   return {
     report,
     blockSource,
@@ -177,5 +200,6 @@ export default function useCompanionActions<
     removeUpvote,
     disableCompanion,
     removeCompanionHelper,
+    toggleCompanionExpanded,
   };
 }

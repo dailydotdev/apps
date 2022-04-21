@@ -81,6 +81,7 @@ export default function CompanionMenu({
     blockSource,
     disableCompanion,
     removeCompanionHelper,
+    toggleCompanionExpanded,
   } = useCompanionActions({
     onBookmarkMutate: () => updatePost({ bookmarked: true }),
     onRemoveBookmarkMutate: () => updatePost({ bookmarked: false }),
@@ -109,6 +110,7 @@ export default function CompanionMenu({
     trackEvent({
       event_name: `${companionState ? 'close' : 'open'} companion`,
     });
+    toggleCompanionExpanded({ companionExpandedValue: !companionState });
     setCompanionState((state) => !state);
   };
 

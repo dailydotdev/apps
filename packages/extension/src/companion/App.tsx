@@ -68,6 +68,7 @@ export default function App({
                     <Companion
                       postData={postData}
                       companionHelper={alerts?.companionHelper}
+                      companionExpanded={settings?.companionExpanded}
                       onOptOut={() => setIsOptOutCompanion(true)}
                     />
                   </AnalyticsContextProvider>
