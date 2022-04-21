@@ -2,7 +2,6 @@ import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { ModalProps } from './StyledModal';
 import { ResponsiveModal } from './ResponsiveModal';
-import styles from './CreateMyFeedModal.module.css';
 import TagsFilter from '../filters/TagsFilter';
 import CreateFeedFilterButton from '../CreateFeedFilterButton';
 import PlusIcon from '../../../icons/plus.svg';
@@ -68,7 +67,7 @@ export default function CreateMyFeedModal({
 }: CreateMyFeedModalProps): ReactElement {
   return (
     <ResponsiveModal
-      className={classNames(className, styles.createMyFeedModal)}
+      className={classNames(className)}
       {...modalProps}
       onRequestClose={onRequestClose}
     >

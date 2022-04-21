@@ -2,23 +2,24 @@ import React, { ReactElement, useState } from 'react';
 import classNames from 'classnames';
 import { ModalProps } from './StyledModal';
 import { ResponsiveModal } from './ResponsiveModal';
-import styles from './CreateMyFeedNewUsers.module.css';
 import UserIcon from '../../../icons/user.svg';
 import { Button } from '../buttons/Button';
 import CreateMyFeedModalIntroTags from './CreateMyFeedModalNewUsersTags';
 import { CreateMyFeedModalIntroTagsContainer } from '../utilities';
-import CreateMyFeedModal from './CreateMyFeedModal';
 
 type TypeProps = {
-  feedFilterOnboardingModalType: string;
   actionToOpenFeedFilters: () => unknown;
   feedFilterModalType: string;
-  setIsFeedFilterModalOpen: (isModalOpen: boolean) => unknown;
 };
 
-type CreateMyFeedModalProps = TypeProps & ModalProps;
+type ModalFooterProps = {
+  feedFilterOnboardingModalType: string;
+  onOpenFeedFilterModal: (event: React.MouseEvent<Element, MouseEvent>) => void;
+};
 
-type LayoutModalProps = TypeProps & Pick<ModalProps, 'onRequestClose'>;
+type CreateMyFeedModalProps = TypeProps & ModalFooterProps & ModalProps;
+
+type LayoutModalProps = ModalFooterProps & Pick<ModalProps, 'onRequestClose'>;
 
 const footerClass = {
   test1: 'justify-center',
@@ -28,18 +29,8 @@ const footerClass = {
 const ModalFooter = ({
   feedFilterOnboardingModalType,
   onRequestClose,
-  actionToOpenFeedFilters,
-  feedFilterModalType,
-  setIsFeedFilterModalOpen,
+  onOpenFeedFilterModal,
 }: LayoutModalProps) => {
-  const onCreateMyFeedButtonClick = (
-    event: React.MouseEvent<Element, MouseEvent>,
-  ): void => {
-    if (feedFilterModalType === 'v1') {
-      actionToOpenFeedFilters();
-      onRequestClose(event);
-    } else setIsFeedFilterModalOpen(true);
-  };
   return (
     <footer
       className={classNames(
@@ -58,7 +49,7 @@ const ModalFooter = ({
 
       <Button
         className="w-40 btn-primary-cabbage mr-4"
-        onClick={onCreateMyFeedButtonClick}
+        onClick={onOpenFeedFilterModal}
       >
         {feedFilterOnboardingModalType === 'test1'
           ? 'Create my feed'
@@ -74,17 +65,16 @@ export default function CreateMyFeedModalForNewUsers({
   feedFilterOnboardingModalType,
   actionToOpenFeedFilters,
   feedFilterModalType,
+  onOpenFeedFilterModal,
   ...modalProps
 }: CreateMyFeedModalProps): ReactElement {
-  const [isFeedFilterModalOpen, setIsFeedFilterModalOpen] = useState(false);
-
   const tags = [
     ['', 'docker', '', 'kubernetes', ''],
     ['', '', 'architecture', '', ''],
     ['', '', '', 'devops', ''],
     ['', 'cloud', '', '', ''],
   ];
-  return !isFeedFilterModalOpen ? (
+  return (
     <ResponsiveModal className={classNames(className)} {...modalProps}>
       <section className="flex flex-col items-center py-6 px-6 mobileL:px-10 mt-24 overflow-hidden">
         <UserIcon className="w-12 h-12 m-2" />
@@ -109,16 +99,8 @@ export default function CreateMyFeedModalForNewUsers({
       <ModalFooter
         feedFilterOnboardingModalType={feedFilterOnboardingModalType}
         onRequestClose={onRequestClose}
-        actionToOpenFeedFilters={actionToOpenFeedFilters}
-        feedFilterModalType={feedFilterModalType}
-        setIsFeedFilterModalOpen={setIsFeedFilterModalOpen}
+        onOpenFeedFilterModal={onOpenFeedFilterModal}
       />
     </ResponsiveModal>
-  ) : (
-    <CreateMyFeedModal
-      isOpen={isFeedFilterModalOpen}
-      onRequestClose={onRequestClose}
-      feedFilterModalType={feedFilterModalType}
-    />
   );
 }

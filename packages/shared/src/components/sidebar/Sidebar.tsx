@@ -54,8 +54,7 @@ import useDefaultFeed from '../../hooks/useDefaultFeed';
 import { Features, getFeatureValue } from '../../lib/featureManagement';
 import CreateMyFeedButton from '../CreateMyFeedButton';
 import CreateMyFeedModal from '../modals/CreateMyFeedModal';
-import CreateMyFeedModalForNewUsers from '../modals/CreateMyFeedModalNewUsers';
-import { useCookieBanner } from '../../hooks/useCookieBanner';
+import FeedFiltersIntroModalWrapper from '../modals/FeedFiltersIntroModalWrapper';
 import usePersistentContext from '../../hooks/usePersistentContext';
 
 const bottomMenuItems: SidebarMenuItem[] = [
@@ -182,11 +181,12 @@ export default function Sidebar({
     true,
   );
   useEffect(() => {
-    if (isFirstSession) {
-      console.log(isFirstSession);
+    if (!isFirstSession) {
       setIsFirstSession(false);
       if (feedFilterModalOnboarding === 'control') {
-        openFeedFilters();
+        setTimeout(() => {
+          openFeedFilters();
+        }, 300);
       } else {
         setShowIntroModal(true);
       }
@@ -401,11 +401,12 @@ export default function Sidebar({
         />
       )}
       {showIntroModal && (
-        <CreateMyFeedModalForNewUsers
+        <FeedFiltersIntroModalWrapper
           isOpen={showIntroModal}
           onRequestClose={() => setShowIntroModal(false)}
           feedFilterOnboardingModalType={feedFilterModalOnboarding}
           actionToOpenFeedFilters={openFeedFilters}
+          feedFilterModalType={feedFilterModal}
         />
       )}
     </>

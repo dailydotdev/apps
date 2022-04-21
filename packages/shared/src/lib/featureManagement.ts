@@ -100,7 +100,7 @@ export class Features {
 
   static readonly FeedFilterModalOnboarding = new Features(
     'feed_filter_modal_onboarding',
-    'test2',
+    'control',
     ['control', 'test1', 'test2'],
   );
 
