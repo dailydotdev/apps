@@ -224,6 +224,16 @@ export function PostContent({
     setParentComment(parent);
   };
 
+  const analyticsOrigin = isModal ? 'article page' : 'article modal';
+
+  useEffect(() => {
+    if (!postById?.post) {
+      return;
+    }
+
+    trackEvent(postAnalyticsEvent(`${analyticsOrigin} view`, postById.post));
+  }, [postById]);
+
   const hasNavigation = !!onPreviousPost || !!onNextPost;
 
   if (isLoading || !isFetched || isFetchingNextPage) {
@@ -238,7 +248,6 @@ export function PostContent({
     return <Custom404 />;
   }
 
-  const analyticsOrigin = isModal ? 'article page' : 'article modal';
   const onLinkClick = async () => {
     trackEvent(
       postAnalyticsEvent('click', postById.post, {

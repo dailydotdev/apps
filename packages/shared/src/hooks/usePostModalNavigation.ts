@@ -3,6 +3,7 @@ import AnalyticsContext from '../contexts/AnalyticsContext';
 import { Post } from '../graphql/posts';
 import { postAnalyticsEvent } from '../lib/feed';
 import { FeedItem, PostItem } from './useFeed';
+import { useKeyboardNavigation } from './useKeyboardNavigation';
 
 interface UsePostModalNavigation {
   onPrevious: () => void;
@@ -80,6 +81,15 @@ export const usePostModalNavigation = (
           : null,
     }),
     [items, openedPostIndex, isFetchingNextPage],
+  );
+
+  useKeyboardNavigation(
+    window,
+    [
+      ['ArrowLeft', ret.onPrevious],
+      ['ArrowRight', ret.onNext],
+    ],
+    { disableOnTags: ['textarea', 'select', 'input'] },
   );
 
   useEffect(() => {

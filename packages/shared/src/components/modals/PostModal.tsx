@@ -1,11 +1,10 @@
-import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { StyledModal, ModalProps } from './StyledModal';
 import { useHideOnModal } from '../../hooks/useHideOnModal';
 import { useResetScrollForResponsiveModal } from '../../hooks/useResetScrollForResponsiveModal';
 import { PostContent, PostContentProps } from '../post/PostContent';
 import styles from './PostModal.module.css';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { PostNavigationProps } from '../post/PostNavigation';
 
 interface PostModalProps
@@ -26,7 +25,6 @@ export function PostModal({
   ...props
 }: PostModalProps): ReactElement {
   const [currentPage, setCurrentPage] = useState<string>();
-  const { trackEvent } = useContext(AnalyticsContext);
   const isExtension = !!process.env.TARGET_BROWSER;
   useResetScrollForResponsiveModal();
   useHideOnModal(props.isOpen);
@@ -50,40 +48,6 @@ export function PostModal({
     }
     onRequestClose(e);
   };
-
-  useEffect(() => {
-    trackEvent({
-      event_name: 'article modal view',
-      target_id: id,
-    });
-  }, [id]);
-
-  useEffect(() => {
-    const arrowkeyNavigation = (e: KeyboardEvent & { path: HTMLElement[] }) => {
-      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') {
-        return;
-      }
-
-      const [base] = e.path;
-      const inputs = ['select', 'input'];
-
-      if (inputs.indexOf(base.tagName.toLocaleLowerCase()) !== -1) {
-        return;
-      }
-
-      if (e.key === 'ArrowLeft') {
-        onPreviousPost();
-      } else {
-        onNextPost();
-      }
-    };
-
-    window.addEventListener('keydown', arrowkeyNavigation);
-
-    return () => {
-      window.removeEventListener('keydown', arrowkeyNavigation);
-    };
-  }, [onPreviousPost, onNextPost]);
 
   return (
     <StyledModal
