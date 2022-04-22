@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import { QueryKey } from 'react-query';
 import { LazyImage } from './LazyImage';
 import classed from '../lib/classed';
 import styles from './utilities.module.css';
@@ -177,8 +178,23 @@ export const HotLabel = (): ReactElement => (
   </div>
 );
 
-export const getUpvotedPopupInitialState = () => ({
-  upvotes: 0,
-  modal: false,
-  requestQuery: null,
-});
+interface RequestQueryProps {
+  queryKey: QueryKey;
+  query: string;
+  params: {
+    id: string;
+    first: number;
+  };
+}
+type UpvotedPopupInitialStateProps = {
+  upvotes: number;
+  modal: boolean;
+  requestQuery?: RequestQueryProps;
+};
+
+export const getUpvotedPopupInitialState =
+  (): UpvotedPopupInitialStateProps => ({
+    upvotes: 0,
+    modal: false,
+    requestQuery: null,
+  });
