@@ -10,6 +10,7 @@ import { QueryClient, useQueryClient, QueryKey } from 'react-query';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { postEventName } from '@dailydotdev/shared/src/components/utilities';
 
 interface PostActionsProps {
   post: Post;
@@ -86,7 +87,7 @@ export function PostActions({
     if (user) {
       if (post.upvoted) {
         trackEvent(
-          postAnalyticsEvent('remove post upvote', post, {
+          postAnalyticsEvent(postEventName({ upvoted: false }), post, {
             extra: { origin: 'article page' },
           }),
         );
@@ -94,7 +95,7 @@ export function PostActions({
       }
       if (post) {
         trackEvent(
-          postAnalyticsEvent('upvote post', post, {
+          postAnalyticsEvent(postEventName({ upvoted: true }), post, {
             extra: { origin: 'article page' },
           }),
         );
@@ -113,7 +114,7 @@ export function PostActions({
     }
     trackEvent(
       postAnalyticsEvent(
-        !post.bookmarked ? 'bookmark post' : 'remove post bookmark',
+        postEventName({ bookmarked: !post.bookmarked }),
         post,
         { extra: { origin: 'article page' } },
       ),

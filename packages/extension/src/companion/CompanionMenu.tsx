@@ -22,19 +22,11 @@ import CompanionContextMenu from './CompanionContextMenu';
 import '@dailydotdev/shared/src/styles/globals.css';
 import { CompanionHelper } from './common';
 import useCompanionActions from './useCompanionActions';
+import { postEventName } from '@dailydotdev/shared/src/components/utilities';
 
 if (!isTesting) {
   Modal.setAppElement('daily-companion-app');
 }
-
-const postEventName = (
-  update: Pick<PostBootData, 'upvoted' | 'bookmarked'>,
-): string => {
-  if ('upvoted' in update) {
-    return `${!update.upvoted ? 'remove ' : ''}upvote post`;
-  }
-  return `${!update.bookmarked ? 'remove ' : ''}post bookmark`;
-};
 
 interface CompanionMenuProps {
   post: PostBootData;

@@ -4,6 +4,7 @@ import { LazyImage } from './LazyImage';
 import classed from '../lib/classed';
 import styles from './utilities.module.css';
 import ArrowIcon from '../../icons/arrow.svg';
+import { PostBootData } from '../lib/boot';
 
 export interface ThemeColor {
   border: string;
@@ -87,6 +88,15 @@ const themeFonts = {
 
 export const getThemeFont = (font: string, fallback: string): string => {
   return themeFonts[font] ?? themeFonts[fallback];
+};
+
+export const postEventName = (
+  update: Pick<PostBootData, 'upvoted' | 'bookmarked'>,
+): string => {
+  if ('upvoted' in update) {
+    return `${!update.upvoted ? 'remove ' : ''}upvote post`;
+  }
+  return `${!update.bookmarked ? 'remove ' : ''}post bookmark`;
 };
 
 export const RoundedImage = classed(LazyImage, 'w-10 h-10 rounded-full');

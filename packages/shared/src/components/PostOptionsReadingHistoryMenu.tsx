@@ -15,6 +15,7 @@ import { MenuIcon } from './MenuIcon';
 import { QueryIndexes } from '../hooks/useReadingHistory';
 import { useShareOrCopyLink } from '../hooks/useShareOrCopyLink';
 import { postAnalyticsEvent } from '../lib/feed';
+import { postEventName } from './utilities';
 
 const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
   ssr: false,
@@ -114,11 +115,11 @@ export default function PostOptionsReadingHistoryMenu({
       indexes,
     ),
     onBookmarkTrackObject: () =>
-      postAnalyticsEvent('bookmark post', post, {
+      postAnalyticsEvent(postEventName({ bookmarked: true }), post, {
         extra: { origin: 'reading history context menu' },
       }),
     onRemoveBookmarkTrackObject: () =>
-      postAnalyticsEvent('remove post bookmark', post, {
+      postAnalyticsEvent(postEventName({ bookmarked: false }), post, {
         extra: { origin: 'reading history context menu' },
       }),
   });

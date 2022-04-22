@@ -12,6 +12,7 @@ import useBookmarkPost from '@dailydotdev/shared/src/hooks/useBookmarkPost';
 import { Post } from '@dailydotdev/shared/src/graphql/posts';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
+import { postEventName } from '@dailydotdev/shared/src/components/utilities';
 import SimilarPosts from './SimilarPosts';
 import BestDiscussions from './BestDiscussions';
 import PostToc from './PostToc';
@@ -114,11 +115,9 @@ export default function FurtherReading({
     }
     const bookmarked = !post.bookmarked;
     trackEvent(
-      postAnalyticsEvent(
-        bookmarked ? 'bookmark post' : 'remove post bookmark',
-        post,
-        { extra: { origin: 'recommendation' } },
-      ),
+      postAnalyticsEvent(postEventName({ bookmarked }), post, {
+        extra: { origin: 'recommendation' },
+      }),
     );
     if (bookmarked) {
       await bookmark({ id: post.id });
