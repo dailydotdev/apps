@@ -1,18 +1,27 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useState } from 'react';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import {
+  getUpvotedPopupInitialState,
   HotLabel,
   TLDRText,
 } from '@dailydotdev/shared/src/components/utilities';
 import '@dailydotdev/shared/src/styles/globals.css';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
+import UpvotedPopupModal from '@dailydotdev/shared/src/components/modals/UpvotedPopupModal';
+import { POST_UPVOTES_BY_ID_QUERY } from '@dailydotdev/shared/src/graphql/posts';
+import { DEFAULT_UPVOTES_PER_PAGE } from '@dailydotdev/shared/src/graphql/common';
+import { Button } from 'react-query/types/devtools/styledComponents';
+import { getCompanionWrapper } from './common';
 
 interface CompanionContentProps {
   post: PostBootData;
 }
+
 export default function CompanionContent({
   post,
 }: CompanionContentProps): ReactElement {
+  const [upvotedPopup, setUpvotedPopup] = useState(getUpvotedPopupInitialState);
+
   return (
     <div className="flex flex-col p-6 h-auto rounded-l-16 border w-[22.5rem] border-theme-label-tertiary bg-theme-bg-primary">
       <div className="flex flex-row gap-3 items-center">
@@ -34,12 +43,22 @@ export default function CompanionContent({
           <span>Be the first to upvote</span>
         )}
         {post?.numUpvotes > 0 && (
-          <a
-            href={post?.commentsPermalink}
+          <Button
+            onClick={() =>
+              setUpvotedPopup({
+                modal: true,
+                upvotes: post.numUpvotes,
+                requestQuery: {
+                  queryKey: ['postUpvotes', post.id],
+                  query: POST_UPVOTES_BY_ID_QUERY,
+                  params: { id: post.id, first: DEFAULT_UPVOTES_PER_PAGE },
+                },
+              })
+            }
             className="flex flex-row items-center hover:underline focus:underline cursor-pointer typo-callout"
           >
             {post?.numUpvotes} Upvote{post?.numUpvotes > 1 ? 's' : ''}
-          </a>
+          </Button>
         )}
         {post?.numComments > 0 && (
           <span>
@@ -48,6 +67,15 @@ export default function CompanionContent({
           </span>
         )}
       </div>
+      {upvotedPopup.modal && (
+        <UpvotedPopupModal
+          parentSelector={getCompanionWrapper}
+          requestQuery={upvotedPopup.requestQuery}
+          isOpen={upvotedPopup.modal}
+          listPlaceholderProps={{ placeholderAmount: post?.numUpvotes }}
+          onRequestClose={() => setUpvotedPopup(getUpvotedPopupInitialState())}
+        />
+      )}
     </div>
   );
 }

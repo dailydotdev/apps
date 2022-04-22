@@ -176,3 +176,9 @@ export const HotLabel = (): ReactElement => (
     Hot
   </div>
 );
+
+export const getUpvotedPopupInitialState = () => ({
+  upvotes: 0,
+  modal: false,
+  requestQuery: null,
+});

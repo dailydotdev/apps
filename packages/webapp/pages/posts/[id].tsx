@@ -12,6 +12,7 @@ import { ParsedUrlQuery } from 'querystring';
 import { NextSeo } from 'next-seo';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import {
+  getUpvotedPopupInitialState,
   pageBorders,
   PageContainer,
 } from '@dailydotdev/shared/src/components/utilities';
@@ -38,6 +39,7 @@ import PostMetadata from '@dailydotdev/shared/src/components/cards/PostMetadata'
 import PostSummary from '@dailydotdev/shared/src/components/cards/PostSummary';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import { TagLinks } from '@dailydotdev/shared/src/components/TagLinks';
+import { DEFAULT_UPVOTES_PER_PAGE } from '@dailydotdev/shared/src/graphql/common';
 import PostToc from '../../components/widgets/PostToc';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { NewComment } from '../../components/posts/NewComment';
@@ -73,14 +75,6 @@ export interface Props {
 interface PostParams extends ParsedUrlQuery {
   id: string;
 }
-
-const DEFAULT_UPVOTES_PER_PAGE = 50;
-
-const getUpvotedPopupInitialState = () => ({
-  upvotes: 0,
-  modal: false,
-  requestQuery: null,
-});
 
 const PostPage = ({ id, postData }: Props): ReactElement => {
   const router = useRouter();
