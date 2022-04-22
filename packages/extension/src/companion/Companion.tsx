@@ -47,7 +47,7 @@ export default function Companion({
     <div
       data-testId="companion"
       className={classNames(
-        'flex fixed flex-row top-[7.5rem] items-stretch right-0 z-[999999]',
+        'flex fixed flex-row top-[7.5rem] items-stretch right-0 z-10',
         firstLoad.current && 'transition-transform',
         companionState ? 'translate-x-0' : 'translate-x-[22.5rem]',
       )}

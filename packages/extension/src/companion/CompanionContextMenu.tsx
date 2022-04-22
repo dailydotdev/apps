@@ -104,6 +104,7 @@ export default function CompanionContextMenu({
       </Menu>
       {reportModal && (
         <RepostPostModal
+          className="z-rank"
           post={postData}
           parentSelector={getCompanionWrapper}
           isOpen={!!reportModal}
