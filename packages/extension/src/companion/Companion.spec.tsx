@@ -75,7 +75,7 @@ describe('companion app', () => {
     renderComponent({}, {});
     const wrapper = await screen.findByTestId('companion');
     expect(wrapper).toHaveClass('translate-x-[22.5rem]');
-    const toggleButton = await screen.findByLabelText('Toggle');
+    const toggleButton = await screen.findByLabelText('Open summary');
     expect(toggleButton).toBeInTheDocument();
     await toggleButton.click();
     expect(wrapper).toHaveClass('translate-x-0');
@@ -86,7 +86,7 @@ describe('companion app', () => {
     renderComponent({}, {});
     const wrapper = await screen.findByTestId('companion');
     expect(wrapper).toHaveClass('translate-x-[22.5rem]');
-    const toggleButton = await screen.findByLabelText('Toggle');
+    const toggleButton = await screen.findByLabelText('Open summary');
     expect(toggleButton).toBeInTheDocument();
     await toggleButton.click();
     expect(await screen.findByText('3 Comments')).toBeInTheDocument();
@@ -102,7 +102,7 @@ describe('companion app', () => {
   it('should show upvoted icon selected', async () => {
     renderComponent({}, {});
     await screen.findByTestId('companion');
-    const button = await screen.findByLabelText('Upvote');
+    const button = await screen.findByLabelText('Remove upvote');
     expect(button).toHaveAttribute('aria-pressed', 'true');
   });
 
@@ -110,7 +110,7 @@ describe('companion app', () => {
     renderComponent({}, {});
     const wrapper = await screen.findByTestId('companion');
     expect(wrapper).toHaveClass('translate-x-[22.5rem]');
-    const toggleButton = await screen.findByLabelText('Toggle');
+    const toggleButton = await screen.findByLabelText('Open summary');
     expect(toggleButton).toBeInTheDocument();
     await toggleButton.click();
     expect(await screen.findByText('6 Upvotes')).toBeInTheDocument();
@@ -119,7 +119,7 @@ describe('companion app', () => {
   it('should show bookmark icon selected', async () => {
     renderComponent({}, {});
     await screen.findByTestId('companion');
-    const button = await screen.findByLabelText('Bookmark');
+    const button = await screen.findByLabelText('Remove bookmark');
     expect(button).toHaveAttribute('aria-pressed', 'true');
   });
 
@@ -133,7 +133,7 @@ describe('companion app', () => {
   it('should show report menu', async () => {
     renderComponent({}, {});
     await screen.findByTestId('companion');
-    const button = await screen.findByLabelText('Options');
+    const button = await screen.findByLabelText('More options');
     await button.click();
     expect(await screen.findByText('Report')).toBeInTheDocument();
   });
