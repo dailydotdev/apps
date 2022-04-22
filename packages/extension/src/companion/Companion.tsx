@@ -13,6 +13,7 @@ import '@dailydotdev/shared/src/styles/globals.css';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import LoginModal from '@dailydotdev/shared/src/components/modals/LoginModal';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPageView';
 import CompanionMenu from './CompanionMenu';
 import CompanionContent from './CompanionContent';
 import { getCompanionWrapper } from './common';
@@ -41,6 +42,8 @@ export default function Companion({
     useState<boolean>(companionExpanded);
   const { user, closeLogin, loadingUser, shouldShowLogin, loginState } =
     useContext(AuthContext);
+
+  useTrackPageView();
 
   useEffect(() => {
     if (!assetsLoaded) {
