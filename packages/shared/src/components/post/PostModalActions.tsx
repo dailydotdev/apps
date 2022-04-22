@@ -32,6 +32,7 @@ export interface PostModalActionsProps {
   style?: CSSProperties;
   inlineActions?: boolean;
   origin?: PostOrigin;
+  notificactionClassName?: string;
 }
 
 const Container = classed('div', 'flex flex-row items-center');
@@ -46,6 +47,7 @@ export function PostModalActions({
   inlineActions,
   className,
   origin = 'article page',
+  notificactionClassName,
   ...props
 }: PostModalActionsProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
@@ -72,7 +74,7 @@ export function PostModalActions({
 
   if (notification) {
     return (
-      <Container>
+      <Container className={notificactionClassName}>
         <CardNotification className="flex-1 py-2.5 text-center">
           {notification}
         </CardNotification>
