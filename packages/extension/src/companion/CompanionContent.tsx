@@ -10,7 +10,7 @@ import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import UpvotedPopupModal from '@dailydotdev/shared/src/components/modals/UpvotedPopupModal';
 import { POST_UPVOTES_BY_ID_QUERY } from '@dailydotdev/shared/src/graphql/posts';
 import { DEFAULT_UPVOTES_PER_PAGE } from '@dailydotdev/shared/src/graphql/common';
-import { Button } from 'react-query/types/devtools/styledComponents';
+import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
 import { getCompanionWrapper } from './common';
 
 interface CompanionContentProps {
@@ -43,7 +43,7 @@ export default function CompanionContent({
           <span>Be the first to upvote</span>
         )}
         {post?.numUpvotes > 0 && (
-          <Button
+          <ClickableText
             onClick={() =>
               setUpvotedPopup({
                 modal: true,
@@ -58,7 +58,7 @@ export default function CompanionContent({
             className="flex flex-row items-center hover:underline focus:underline cursor-pointer typo-callout"
           >
             {post?.numUpvotes} Upvote{post?.numUpvotes > 1 ? 's' : ''}
-          </Button>
+          </ClickableText>
         )}
         {post?.numComments > 0 && (
           <span>
