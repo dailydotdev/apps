@@ -1,5 +1,6 @@
 import React, {
   ReactElement,
+  ReactNode,
   useContext,
   useEffect,
   useRef,
@@ -32,26 +33,56 @@ export default function Companion({
   companionExpanded,
   onOptOut,
 }: CompanionProps): ReactElement {
+  const firstLoad = useRef(false);
+  const containerRef = useRef<HTMLDivElement>();
+  const [assetsLoaded, setAssetsLoaded] = useState(false);
   const [post, setPost] = useState<PostBootData>(postData);
   const [companionState, setCompanionState] =
     useState<boolean>(companionExpanded);
   const { user, closeLogin, loadingUser, shouldShowLogin, loginState } =
     useContext(AuthContext);
 
-  const firstLoad = useRef(false);
   useEffect(() => {
-    firstLoad.current = true;
-  }, []);
+    if (!assetsLoaded) {
+      return;
+    }
 
-  return (
+    firstLoad.current = true;
+  }, [assetsLoaded]);
+
+  const Container = ({ children }: { children: ReactNode }) => (
     <div
+      ref={containerRef}
       data-testId="companion"
       className={classNames(
         'flex fixed flex-row top-[7.5rem] items-stretch right-0 z-10',
         firstLoad.current && 'transition-transform',
         companionState ? 'translate-x-0' : 'translate-x-[22.5rem]',
       )}
+      style={{ maxWidth: '26.5rem' }}
     >
+      {assetsLoaded ? children : null}
+    </div>
+  );
+
+  useEffect(() => {
+    if (!containerRef?.current) {
+      return;
+    }
+
+    const checkAssets = () => {
+      if (containerRef.current.offsetLeft === 0) {
+        setTimeout(checkAssets, 10);
+      }
+
+      setTimeout(() => setAssetsLoaded(true), 10);
+    };
+
+    checkAssets();
+  }, [containerRef]);
+
+  return (
+    <Container>
       {!user && !loadingUser && shouldShowLogin && (
         <LoginModal
           parentSelector={getCompanionWrapper}
@@ -71,6 +102,6 @@ export default function Companion({
         setCompanionState={setCompanionState}
       />
       <CompanionContent post={post} />
-    </div>
+    </Container>
   );
 }

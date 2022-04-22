@@ -143,6 +143,8 @@ export default function CompanionMenu({
     });
   };
 
+  const tooltipContainerProps = { className: 'shadow-2 whitespace-nowrap' };
+
   return (
     <div className="group flex relative flex-col gap-2 self-center p-2 my-6 w-14 rounded-l-16 border border-theme-label-tertiary bg-theme-bg-primary">
       {notification && (
@@ -155,6 +157,7 @@ export default function CompanionMenu({
         placement="left"
         content={companionState ? 'Close summary' : 'Open summary'}
         appendTo="parent"
+        container={tooltipContainerProps}
       >
         <Button
           buttonSize="medium"
@@ -188,6 +191,7 @@ export default function CompanionMenu({
         placement="left"
         content={post?.upvoted ? 'Remove upvote' : 'Upvote'}
         appendTo="parent"
+        container={tooltipContainerProps}
       >
         <Button
           buttonSize="medium"
@@ -197,7 +201,12 @@ export default function CompanionMenu({
           className="btn-tertiary-avocado"
         />
       </SimpleTooltip>
-      <SimpleTooltip placement="left" content="Comments" appendTo="parent">
+      <SimpleTooltip
+        placement="left"
+        content="Comments"
+        appendTo="parent"
+        container={tooltipContainerProps}
+      >
         <Button
           href={`${post?.commentsPermalink}?c=true`}
           tag="a"
@@ -210,6 +219,7 @@ export default function CompanionMenu({
         placement="left"
         content={post?.bookmarked ? 'Remove bookmark' : 'Bookmark'}
         appendTo="parent"
+        container={tooltipContainerProps}
       >
         <Button
           buttonSize="medium"
@@ -219,7 +229,12 @@ export default function CompanionMenu({
           icon={<BookmarkIcon />}
         />
       </SimpleTooltip>
-      <SimpleTooltip placement="left" content="More options" appendTo="parent">
+      <SimpleTooltip
+        placement="left"
+        content="More options"
+        appendTo="parent"
+        container={tooltipContainerProps}
+      >
         <Button
           buttonSize="medium"
           className="btn-tertiary"
