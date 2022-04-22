@@ -152,7 +152,7 @@ export default function CompanionMenu({
   };
 
   return (
-    <div className="flex relative flex-col gap-2 self-center p-2 my-6 w-14 rounded-l-16 border border-theme-label-tertiary bg-theme-bg-primary">
+    <div className="group flex relative flex-col gap-2 self-center p-2 my-6 w-14 rounded-l-16 border border-theme-label-tertiary bg-theme-bg-primary">
       {notification && (
         <CardNotification className="absolute right-full bottom-3 z-2 mr-2 w-max text-center shadow-2">
           {notification}
@@ -167,10 +167,9 @@ export default function CompanionMenu({
         <Button
           buttonSize="medium"
           className={classNames(
-            'group',
             companionState
               ? 'btn-secondary'
-              : 'btn-tertiary hover:btn-secondary',
+              : 'btn-tertiary group-hover:btn-secondary',
           )}
           icon={
             <>
