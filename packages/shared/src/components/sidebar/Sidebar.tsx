@@ -53,7 +53,7 @@ import { useMyFeed } from '../../hooks/useMyFeed';
 import useDefaultFeed from '../../hooks/useDefaultFeed';
 import { Features, getFeatureValue } from '../../lib/featureManagement';
 import CreateMyFeedButton from '../CreateMyFeedButton';
-import CreateMyFeedModal from '../modals/CreateMyFeedModal';
+import FeedFiltersModal from '../modals/FeedFiltersModal';
 import FeedFiltersIntroModalWrapper from '../modals/FeedFiltersIntroModalWrapper';
 import usePersistentContext from '../../hooks/usePersistentContext';
 
@@ -188,6 +188,7 @@ export default function Sidebar({
           openFeedFilters();
         }, 300);
       } else {
+        openFeedFilters();
         setShowIntroModal(true);
       }
     }
@@ -304,6 +305,17 @@ export default function Sidebar({
   const shouldHideMyFeedAlert =
     !shouldShowMyFeed || alerts?.filter || (!alerts?.filter && !alerts?.myFeed);
 
+  const closeFeedFilterModal = () => {
+    setHidden();
+    setShowIntroModal(false);
+  };
+
+  const shouldShowSidebarFeedFilter =
+    !showIntroModal && isLoaded && feedFilterModal === 'v1';
+
+  const shouldShowFeedFilterModal =
+    showIntroModal || (isLoaded && feedFilterModal !== 'v1');
+
   return (
     <>
       {openMobileSidebar && sidebarRendered === false && (
@@ -390,23 +402,18 @@ export default function Sidebar({
           onRequestClose={() => setShowSettings(false)}
         />
       )}
-      {isLoaded && feedFilterModal === 'v1' && (
+      {shouldShowSidebarFeedFilter && (
         <FeedFilters isOpen={isAnimated} onBack={setHidden} />
       )}
-      {isLoaded && feedFilterModal !== 'v1' && (
-        <CreateMyFeedModal
+      {shouldShowFeedFilterModal && (
+        <FeedFiltersModal
           isOpen={isAnimated}
-          onRequestClose={() => setHidden()}
+          onRequestClose={closeFeedFilterModal}
+          onIntroClose={() => setShowIntroModal(false)}
           feedFilterModalType={feedFilterModal}
-        />
-      )}
-      {showIntroModal && (
-        <FeedFiltersIntroModalWrapper
-          isOpen={showIntroModal}
-          onRequestClose={() => setShowIntroModal(false)}
           feedFilterOnboardingModalType={feedFilterModalOnboarding}
           actionToOpenFeedFilters={openFeedFilters}
-          feedFilterModalType={feedFilterModal}
+          showIntroModal={showIntroModal}
         />
       )}
     </>

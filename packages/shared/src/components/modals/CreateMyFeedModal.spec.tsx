@@ -1,7 +1,7 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
-import CreateMyFeedModal from './CreateMyFeedModal';
+import CreateMyFeedModal from './FeedFiltersModal';
 import AuthContext from '../../contexts/AuthContext';
 import { LoggedUser } from '../../lib/user';
 import {

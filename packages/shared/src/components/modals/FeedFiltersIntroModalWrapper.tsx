@@ -1,7 +1,7 @@
 import React, { ReactElement, useState } from 'react';
 import { ModalProps } from './StyledModal';
 import CreateMyFeedIntroModal from './CreateMyFeedIntroModal';
-import CreateMyFeedModal from './CreateMyFeedModal';
+import CreateMyFeedModal from './FeedFiltersModal';
 
 type TypeProps = {
   feedFilterOnboardingModalType: string;

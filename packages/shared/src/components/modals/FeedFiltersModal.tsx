@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useState } from 'react';
 import classNames from 'classnames';
 import { ModalProps } from './StyledModal';
 import { ResponsiveModal } from './ResponsiveModal';
@@ -7,12 +7,17 @@ import CreateFeedFilterButton from '../CreateFeedFilterButton';
 import PlusIcon from '../../../icons/plus.svg';
 import XIcon from '../../../icons/x.svg';
 import { Button } from '../buttons/Button';
+import CreateMyFeedIntroModal from './CreateMyFeedIntroModal';
 
 type TypeProps = {
   feedFilterModalType: string;
+  showIntroModal: boolean;
+  feedFilterOnboardingModalType: string;
+  actionToOpenFeedFilters: () => unknown;
+  onIntroClose: () => unknown;
 };
 
-type CreateMyFeedModalProps = TypeProps & ModalProps;
+type FeedFiltersModalProps = TypeProps & ModalProps;
 
 type LayoutModalProps = TypeProps & Pick<ModalProps, 'onRequestClose'>;
 
@@ -59,13 +64,38 @@ const ModalFooter = ({
   );
 };
 
-export default function CreateMyFeedModal({
+export default function FeedFiltersModal({
   className,
+  showIntroModal,
   onRequestClose,
   feedFilterModalType,
+  feedFilterOnboardingModalType,
+  actionToOpenFeedFilters,
+  onIntroClose,
   ...modalProps
-}: CreateMyFeedModalProps): ReactElement {
-  return (
+}: FeedFiltersModalProps): ReactElement {
+  const [isFeedFilterModalOpen, setIsFeedFilterModalOpen] = useState(false);
+
+  const onOpenFeedFilterModal = (
+    event: React.MouseEvent<Element, MouseEvent>,
+  ): void => {
+    if (feedFilterModalType === 'v1') {
+      onIntroClose();
+      actionToOpenFeedFilters();
+    } else {
+      setIsFeedFilterModalOpen(true);
+    }
+  };
+
+  return showIntroModal && !isFeedFilterModalOpen ? (
+    <CreateMyFeedIntroModal
+      isOpen={!isFeedFilterModalOpen}
+      feedFilterOnboardingModalType={feedFilterOnboardingModalType}
+      actionToOpenFeedFilters={actionToOpenFeedFilters}
+      feedFilterModalType={feedFilterModalType}
+      onOpenFeedFilterModal={onOpenFeedFilterModal}
+    />
+  ) : (
     <ResponsiveModal
       className={classNames(className)}
       {...modalProps}
@@ -117,9 +147,12 @@ export default function CreateMyFeedModal({
       </section>
       {['v4', 'v5'].includes(feedFilterModalType) && (
         <ModalFooter
-          feedFilterModalType={feedFilterModalType}
-          onRequestClose={onRequestClose}
-        />
+            feedFilterModalType={feedFilterModalType}
+            onRequestClose={onRequestClose}
+            showIntroModal={false}
+            feedFilterOnboardingModalType={feedFilterOnboardingModalType}
+            actionToOpenFeedFilters={actionToOpenFeedFilters} 
+            onIntroClose={onIntroClose}        />
       )}
     </ResponsiveModal>
   );

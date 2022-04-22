@@ -165,10 +165,7 @@ export const SummaryContainer = classed(
   'text-theme-label-secondary multi-truncate my-6 border-l border-theme-status-cabbage pl-4',
 );
 
-export const CreateMyFeedModalIntroTagsContainer = classed(
-  'div',
-  'w-[160%]',
-);
+export const CreateMyFeedModalIntroTagsContainer = classed('div', 'w-[160%]');
 
 export const CreateMyFeedModalTagPill = classed(
   'strong',

@@ -7,7 +7,7 @@ import UserIcon from '../../../icons/user.svg';
 import { Button } from '../buttons/Button';
 import CreateMyFeedModalIntroTags from './CreateMyFeedModalNewUsersTags';
 import { CreateMyFeedModalIntroTagsContainer } from '../utilities';
-import CreateMyFeedModal from './CreateMyFeedModal';
+import CreateMyFeedModal from './FeedFiltersModal';
 
 type TypeProps = {
   feedFilterOnboardingModalType: string;
@@ -49,7 +49,7 @@ const ModalFooter = ({
     >
       {feedFilterOnboardingModalType === 'test2' && (
         <Button
-          className="w-20 text-theme-label-tertiary btn-default ml-4"
+          className="ml-4 w-20 text-theme-label-tertiary btn-default"
           onClick={onRequestClose}
         >
           Skip
@@ -57,7 +57,7 @@ const ModalFooter = ({
       )}
 
       <Button
-        className="w-40 btn-primary-cabbage mr-4"
+        className="mr-4 w-40 btn-primary-cabbage"
         onClick={onCreateMyFeedButtonClick}
       >
         {feedFilterOnboardingModalType === 'test1'
@@ -86,10 +86,10 @@ export default function CreateMyFeedModalForNewUsers({
   ];
   return !isFeedFilterModalOpen ? (
     <ResponsiveModal className={classNames(className)} {...modalProps}>
-      <section className="flex flex-col items-center py-6 px-6 mobileL:px-10 mt-24 overflow-hidden">
-        <UserIcon className="w-12 h-12 m-2" />
-        <h3 className="font-bold typo-large-title mt-4">Create my feed</h3>
-        <p className="typo-title3 text-center text-theme-label-tertiary mt-3 mb-16">
+      <section className="flex overflow-hidden flex-col items-center py-6 px-6 mobileL:px-10 mt-24">
+        <UserIcon className="m-2 w-12 h-12" />
+        <h3 className="mt-4 font-bold typo-large-title">Create my feed</h3>
+        <p className="mt-3 mb-16 text-center typo-title3 text-theme-label-tertiary">
           Devs with a personal feed get 11.5x more relevant articles
         </p>
         <CreateMyFeedModalIntroTagsContainer className="mb-20">
