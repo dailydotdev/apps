@@ -7,12 +7,12 @@ import { PostModalActions, PostModalActionsProps } from './PostModalActions';
 
 const SimpleTooltip = dynamic(() => import('../tooltips/SimpleTooltip'));
 
-export interface PostNavigationProps {
+export interface PostNavigationProps
+  extends Pick<PostModalActionsProps, 'post' | 'onClose'> {
   onPreviousPost: () => unknown;
   onNextPost: () => unknown;
   shouldDisplayTitle?: boolean;
   className?: string;
-  postActionsProps: PostModalActionsProps;
 }
 
 export function PostNavigation({
@@ -20,9 +20,9 @@ export function PostNavigation({
   onNextPost,
   shouldDisplayTitle,
   className,
-  postActionsProps,
+  post,
+  onClose,
 }: PostNavigationProps): ReactElement {
-  const { post } = postActionsProps;
   const published = `Published on ${post?.source.name}`;
   const subtitle = !post?.author
     ? published
@@ -63,7 +63,8 @@ export function PostNavigation({
           </h3>
         </div>
         <PostModalActions
-          {...postActionsProps}
+          post={post}
+          onClose={onClose}
           inlineActions
           className={shouldDisplayTitle ? 'flex' : 'flex tablet:hidden'}
         />

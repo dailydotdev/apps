@@ -303,7 +303,8 @@ export function PostContent({
                 isFixed && styles.fixedPostsNavigation,
               )}
               shouldDisplayTitle={isFixed}
-              postActionsProps={{ post: postById.post, onClose }}
+              post={postById.post}
+              onClose={onClose}
             />
           )}
         </div>
