@@ -1,16 +1,21 @@
 import React, { ReactElement, useState } from 'react';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
+import CopyIcon from '@dailydotdev/shared/icons/copy.svg';
 import {
   getUpvotedPopupInitialState,
   HotLabel,
   TLDRText,
 } from '@dailydotdev/shared/src/components/utilities';
 import '@dailydotdev/shared/src/styles/globals.css';
+import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import UpvotedPopupModal from '@dailydotdev/shared/src/components/modals/UpvotedPopupModal';
 import { POST_UPVOTES_BY_ID_QUERY } from '@dailydotdev/shared/src/graphql/posts';
 import { DEFAULT_UPVOTES_PER_PAGE } from '@dailydotdev/shared/src/graphql/common';
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopyLink';
+import classNames from 'classnames';
 import { getCompanionWrapper } from './common';
 
 interface CompanionContentProps {
@@ -21,6 +26,7 @@ export default function CompanionContent({
   post,
 }: CompanionContentProps): ReactElement {
   const [upvotedPopup, setUpvotedPopup] = useState(getUpvotedPopupInitialState);
+  const [copying, copyLink] = useCopyLink(() => post.summary);
 
   return (
     <div className="flex flex-col p-6 h-auto rounded-l-16 border w-[22.5rem] border-theme-label-tertiary bg-theme-bg-primary">
@@ -29,6 +35,24 @@ export default function CompanionContent({
           <LogoIcon className="w-8 rounded-8" />
         </a>
         {post?.trending && <HotLabel />}
+
+        {post?.summary && (
+          <SimpleTooltip
+            placement="top"
+            content="Copy link with TLDR"
+            appendTo="parent"
+            container={{ className: 'shadow-2 whitespace-nowrap' }}
+          >
+            <Button
+              icon={<CopyIcon />}
+              className={classNames(
+                'ml-auto',
+                copying ? 'btn-tertiary-avocado' : ' btn-tertiary',
+              )}
+              onClick={copyLink}
+            />
+          </SimpleTooltip>
+        )}
       </div>
       <p className="flex-1 my-4 typo-body">
         <TLDRText>TLDR -</TLDRText>
