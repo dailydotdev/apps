@@ -74,7 +74,7 @@ export default function Companion({
     }
 
     const checkAssets = () => {
-      if (containerRef.current.offsetLeft === 0) {
+      if (containerRef?.current?.offsetLeft === 0) {
         setTimeout(checkAssets, 10);
       }
 
