@@ -192,7 +192,10 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     if (router?.query.new) {
       setTimeout(() => setShowShareNewComment(true), 700);
     }
-  }, [router.query?.new]);
+    if (router?.query.c) {
+      openNewComment();
+    }
+  }, [router.query]);
 
   if (!postById?.post || (isFallback && !id)) {
     return <></>;

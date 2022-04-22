@@ -208,7 +208,7 @@ export default function CompanionMenu({
       </SimpleTooltip>
       <SimpleTooltip placement="left" content="Comments" appendTo="parent">
         <Button
-          href={post?.commentsPermalink}
+          href={`${post?.commentsPermalink}?c=true`}
           tag="a"
           buttonSize="medium"
           className="btn-tertiary"
