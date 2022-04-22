@@ -12,6 +12,10 @@ export const useKeyboardNavigation = (
   optional: OptionalParameters = {},
 ): void => {
   useEffect(() => {
+    if (!element) {
+      return;
+    }
+
     const onPress = (e: KeyboardEvent & { path: HTMLElement[] }) => {
       const [base] = (e.composedPath?.() as HTMLElement[]) || e.path || [];
       const tagName =
@@ -31,6 +35,7 @@ export const useKeyboardNavigation = (
 
     element.addEventListener('keydown', onPress);
 
+    // eslint-disable-next-line consistent-return
     return () => {
       element.removeEventListener('keydown', onPress);
     };
