@@ -8,7 +8,6 @@ import { SettingsContextProvider } from '@dailydotdev/shared/src/contexts/Settin
 import { AlertContextProvider } from '@dailydotdev/shared/src/contexts/AlertContext';
 import { AnalyticsContextProvider } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { RouterContext } from 'next/dist/shared/lib/router-context';
-import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPageView';
 import Companion from './Companion';
 import CustomRouter from '../lib/CustomRouter';
 import { companionFetch } from './companionFetch';
