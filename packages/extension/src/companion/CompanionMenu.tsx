@@ -18,11 +18,11 @@ import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
+import { postEventName } from '@dailydotdev/shared/src/components/utilities';
 import CompanionContextMenu from './CompanionContextMenu';
 import '@dailydotdev/shared/src/styles/globals.css';
 import { CompanionHelper } from './common';
 import useCompanionActions from './useCompanionActions';
-import { postEventName } from '@dailydotdev/shared/src/components/utilities';
 
 if (!isTesting) {
   Modal.setAppElement('daily-companion-app');
