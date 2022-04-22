@@ -25,8 +25,14 @@ interface CompanionContentProps {
 export default function CompanionContent({
   post,
 }: CompanionContentProps): ReactElement {
+<<<<<<< HEAD
   const [upvotedPopup, setUpvotedPopup] = useState(getUpvotedPopupInitialState);
   const [copying, copyLink] = useCopyLink(() => post.summary);
+=======
+  const [copying, copyLink] = useCopyLink(
+    () => `${post.summary}\n\n${post.permalink}`,
+  );
+>>>>>>> 51eb9ee7 (fix: copy include link)
 
   return (
     <div className="flex flex-col p-6 h-auto rounded-l-16 border w-[22.5rem] border-theme-label-tertiary bg-theme-bg-primary">
