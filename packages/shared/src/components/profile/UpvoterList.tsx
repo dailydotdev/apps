@@ -29,7 +29,12 @@ export function UpvoterList({ queryResult }: UpvoterListProps): ReactElement {
         .map((page) =>
           page.upvotes.edges.map(({ node: { user } }) => (
             <Link key={user.username} href={user.permalink}>
-              <UserShortInfo {...user} tag="a" href={user.permalink} />
+              <UserShortInfo
+                {...user}
+                tag="a"
+                href={user.permalink}
+                nativeLazyLoading
+              />
             </Link>
           )),
         )}

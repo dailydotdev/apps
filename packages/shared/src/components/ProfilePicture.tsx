@@ -18,6 +18,7 @@ export interface ProfilePictureProps
   user: Pick<PublicProfile, 'image' | 'username'>;
   size?: ProfileImageSize;
   className?: string;
+  nativeLazyLoading?: boolean;
 }
 
 const sizeClasses = {
@@ -34,8 +35,21 @@ export function ProfilePicture({
   user,
   size = 'xlarge',
   className,
+  nativeLazyLoading,
   ...props
 }: ProfilePictureProps): ReactElement {
+  if (nativeLazyLoading) {
+    return (
+      <img
+        {...props}
+        src={user.image}
+        alt={`${user.username}'s profile`}
+        className={classNames(sizeClasses[size], className)}
+        loading="lazy"
+      />
+    );
+  }
+
   return (
     <LazyImage
       {...props}

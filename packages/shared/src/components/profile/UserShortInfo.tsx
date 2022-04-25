@@ -1,6 +1,10 @@
 import classNames from 'classnames';
 import React, { ReactElement, useMemo } from 'react';
-import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
+import {
+  ProfileImageSize,
+  ProfilePicture,
+  ProfilePictureProps,
+} from '../ProfilePicture';
 
 // reference: https://stackoverflow.com/a/54049872/5532217
 type AnyTag =
@@ -14,7 +18,8 @@ type PropsOf<Tag> = Tag extends keyof JSX.IntrinsicElements
   ? Props & JSX.IntrinsicAttributes
   : never;
 
-interface UserShortInfoProps<Tag extends AnyTag> {
+interface UserShortInfoProps<Tag extends AnyTag>
+  extends Pick<ProfilePictureProps, 'nativeLazyLoading'> {
   image: string;
   name: string;
   username: string;
@@ -32,6 +37,7 @@ export function UserShortInfo<Tag extends AnyTag>({
   imageSize = 'xlarge',
   tag,
   className,
+  nativeLazyLoading,
   ...props
 }: UserShortInfoProps<Tag> & PropsOf<Tag>): ReactElement {
   const Element = (tag || 'a') as React.ElementType;
@@ -45,7 +51,11 @@ export function UserShortInfo<Tag extends AnyTag>({
         className,
       )}
     >
-      <ProfilePicture user={user} size={imageSize} />
+      <ProfilePicture
+        user={user}
+        size={imageSize}
+        nativeLazyLoading={nativeLazyLoading}
+      />
       <div className="flex flex-col flex-1 ml-4 typo-callout">
         <span className="font-bold">{name}</span>
         <span className="text-theme-label-secondary">@{username}</span>
