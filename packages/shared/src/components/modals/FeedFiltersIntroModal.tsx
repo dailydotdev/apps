@@ -7,7 +7,7 @@ import { Button } from '../buttons/Button';
 import CreateMyFeedModalIntroTags from './FeedFiltersIntroModalTags';
 import { FeedFiltersIntroModalTagsContainer } from '../utilities';
 
-type TypeProps = {
+type FeedFiltersProps = {
   actionToOpenFeedFilters: () => unknown;
   feedFilterModalType: string;
 };
@@ -15,22 +15,20 @@ type TypeProps = {
 type ModalFooterProps = {
   feedFilterOnboardingModalType: string;
   onOpenFeedFilterModal: (event: React.MouseEvent<Element, MouseEvent>) => void;
-};
+} & Pick<ModalProps, 'onRequestClose'>;
 
-type CreateMyFeedModalProps = TypeProps & ModalFooterProps & ModalProps;
-
-type LayoutModalProps = ModalFooterProps & Pick<ModalProps, 'onRequestClose'>;
+type FeedFiltersIntroModalProps = FeedFiltersProps & ModalFooterProps & ModalProps;
 
 const footerClass = {
   test1: 'justify-center',
   test2: 'justify-between',
 };
 
-const ModalFooter = ({
+const IntroModalFooter = ({
   feedFilterOnboardingModalType,
   onRequestClose,
   onOpenFeedFilterModal,
-}: LayoutModalProps) => {
+}: ModalFooterProps) => {
   return (
     <footer
       className={classNames(
@@ -67,7 +65,7 @@ export default function FeedFiltersIntroModal({
   feedFilterModalType,
   onOpenFeedFilterModal,
   ...modalProps
-}: CreateMyFeedModalProps): ReactElement {
+}: FeedFiltersIntroModalProps): ReactElement {
   const tags = [
     ['', 'docker', '', 'kubernetes', ''],
     ['', '', 'architecture', '', ''],
@@ -96,7 +94,7 @@ export default function FeedFiltersIntroModal({
           ))}
         </FeedFiltersIntroModalTagsContainer>
       </section>
-      <ModalFooter
+      <IntroModalFooter
         feedFilterOnboardingModalType={feedFilterOnboardingModalType}
         onRequestClose={onRequestClose}
         onOpenFeedFilterModal={onOpenFeedFilterModal}

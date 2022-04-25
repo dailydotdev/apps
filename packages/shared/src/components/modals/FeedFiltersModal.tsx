@@ -42,7 +42,7 @@ const headerClass = {
   v4: 'flex-row-reverse',
 };
 
-const ModalFooter = ({
+const FeedFiltersModalFooter = ({
   feedFilterModalType,
   onCloseFeedFilterModal,
 }: LayoutModalProps) => {
@@ -98,6 +98,7 @@ export default function FeedFiltersModal({
       actionToOpenFeedFilters={actionToOpenFeedFilters}
       feedFilterModalType={feedFilterModalType}
       onOpenFeedFilterModal={onOpenFeedFilterModal}
+      onRequestClose={onCloseFeedFilterModal}
     />
   ) : (
     <ResponsiveModal
@@ -150,7 +151,7 @@ export default function FeedFiltersModal({
         <TagsFilter />
       </section>
       {['v4', 'v5'].includes(feedFilterModalType) && (
-        <ModalFooter
+        <FeedFiltersModalFooter
           feedFilterModalType={feedFilterModalType}
           onCloseFeedFilterModal={onCloseFeedFilterModal}
           showIntroModal={false}
