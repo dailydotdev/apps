@@ -51,3 +51,23 @@ export type RequestDataConnection<TEntity, TKey extends string> = Record<
   TKey,
   Connection<TEntity>
 >;
+
+export const isQueryKeySame = (left: QueryKey, right: QueryKey): boolean => {
+  if (typeof left !== typeof right) {
+    return false;
+  }
+
+  if (typeof left === 'string' && typeof right === 'string') {
+    return left === right;
+  }
+
+  if (Array.isArray(left) && Array.isArray(right)) {
+    if (left.length !== right.length) {
+      return false;
+    }
+
+    return left.every((key, i) => key === right[i]);
+  }
+
+  return false;
+};
