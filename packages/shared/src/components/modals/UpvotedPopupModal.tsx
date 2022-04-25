@@ -1,6 +1,5 @@
 import React, { ReactElement } from 'react';
-import request from 'graphql-request';
-import { useInfiniteQuery } from 'react-query';
+import { QueryKey, UseInfiniteQueryResult } from 'react-query';
 import { ResponsiveModal } from './ResponsiveModal';
 import { ModalProps } from './StyledModal';
 import { ModalCloseButton } from './ModalCloseButton';
@@ -9,33 +8,22 @@ import {
   UpvoterListPlaceholder,
   UpvoterListPlaceholderProps,
 } from '../profile/UpvoterListPlaceholder';
-import { apiUrl } from '../../lib/config';
-import { RequestQuery, UpvotesData } from '../../graphql/common';
+import { UpvotesData } from '../../graphql/common';
 
 export interface UpvotedPopupModalProps extends ModalProps {
   listPlaceholderProps: UpvoterListPlaceholderProps;
-  requestQuery: RequestQuery<UpvotesData>;
+  queryResult: UseInfiniteQueryResult<UpvotesData>;
+  queryKey: QueryKey;
 }
 
 export function UpvotedPopupModal({
   listPlaceholderProps,
   onRequestClose,
-  requestQuery: { queryKey, query, params, options = {} },
+  queryResult,
   children,
+  queryKey,
   ...modalProps
 }: UpvotedPopupModalProps): ReactElement {
-  const queryResult = useInfiniteQuery<UpvotesData>(
-    queryKey,
-    ({ pageParam }) =>
-      request(`${apiUrl}/graphql`, query, { ...params, after: pageParam }),
-    {
-      ...options,
-      getNextPageParam: (lastPage) =>
-        lastPage.upvotes.pageInfo.hasNextPage &&
-        lastPage.upvotes.pageInfo.endCursor,
-    },
-  );
-
   const [page] = queryResult?.data?.pages || [];
 
   return (

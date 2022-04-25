@@ -2,7 +2,7 @@ import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
-import { useQuery, useQueryClient } from 'react-query';
+import { useQuery, useQueryClient, useInfiniteQuery } from 'react-query';
 import {
   GetStaticPathsResult,
   GetStaticPropsContext,
@@ -39,7 +39,10 @@ import PostMetadata from '@dailydotdev/shared/src/components/cards/PostMetadata'
 import PostSummary from '@dailydotdev/shared/src/components/cards/PostSummary';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import { TagLinks } from '@dailydotdev/shared/src/components/TagLinks';
-import { DEFAULT_UPVOTES_PER_PAGE } from '@dailydotdev/shared/src/graphql/common';
+import {
+  DEFAULT_UPVOTES_PER_PAGE,
+  UpvotesData,
+} from '@dailydotdev/shared/src/graphql/common';
 import PostToc from '../../components/widgets/PostToc';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { NewComment } from '../../components/posts/NewComment';
@@ -234,6 +237,20 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     },
   };
 
+  const { requestQuery } = upvotedPopup;
+  const { queryKey, query, params = {} } = requestQuery || {};
+  const queryResult = useInfiniteQuery<UpvotesData>(
+    queryKey,
+    ({ pageParam }) =>
+      request(`${apiUrl}/graphql`, query, { ...params, after: pageParam }),
+    {
+      enabled: upvotedPopup.modal,
+      getNextPageParam: (lastPage) =>
+        lastPage.upvotes.pageInfo.hasNextPage &&
+        lastPage.upvotes.pageInfo.endCursor,
+    },
+  );
+
   return (
     <>
       <PageContainer
@@ -304,7 +321,8 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
 
       {upvotedPopup.modal && (
         <UpvotedPopupModal
-          requestQuery={upvotedPopup.requestQuery}
+          queryKey={queryKey}
+          queryResult={queryResult}
           isOpen={upvotedPopup.modal}
           listPlaceholderProps={{ placeholderAmount: upvotedPopup.upvotes }}
           onRequestClose={() => setUpvotedPopup(getUpvotedPopupInitialState())}
