@@ -26,14 +26,13 @@ export function UpvoterList({ queryResult }: UpvoterListProps): ReactElement {
     <div className="flex relative flex-col">
       {queryResult.data.pages
         .filter((page) => !!page)
-        .map((page) => {
-          console.log('PAGE: ', page);
-          return page.upvotes.edges.map(({ node: { user } }) => (
+        .map((page) =>
+          page.upvotes.edges.map(({ node: { user } }) => (
             <Link key={user.username} href={user.permalink}>
               <UserShortInfo {...user} tag="a" href={user.permalink} />
             </Link>
-          ));
-        })}
+          )),
+        )}
       {queryResult.isFetchingNextPage && (
         <UpvoterListPlaceholder placeholderAmount={1} />
       )}
