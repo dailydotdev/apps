@@ -4,8 +4,8 @@ import { ModalProps } from './StyledModal';
 import { ResponsiveModal } from './ResponsiveModal';
 import UserIcon from '../../../icons/user.svg';
 import { Button } from '../buttons/Button';
-import CreateMyFeedModalIntroTags from './CreateMyFeedModalNewUsersTags';
-import { CreateMyFeedModalIntroTagsContainer } from '../utilities';
+import CreateMyFeedModalIntroTags from './FeedFiltersIntroModalTags';
+import { FeedFiltersIntroModalTagsContainer } from '../utilities';
 
 type TypeProps = {
   actionToOpenFeedFilters: () => unknown;
@@ -59,7 +59,7 @@ const ModalFooter = ({
   );
 };
 
-export default function CreateMyFeedModalForNewUsers({
+export default function FeedFiltersIntroModal({
   className,
   onRequestClose,
   feedFilterOnboardingModalType,
@@ -82,7 +82,7 @@ export default function CreateMyFeedModalForNewUsers({
         <p className="mt-3 mb-16 text-center typo-title3 text-theme-label-tertiary">
           Devs with a personal feed get 11.5x more relevant articles
         </p>
-        <CreateMyFeedModalIntroTagsContainer className="mb-20">
+        <FeedFiltersIntroModalTagsContainer className="mb-20">
           {tags.map((row, i) => (
             <ul className="flex gap-3 mb-3">
               {row.map((tag) => (
@@ -94,7 +94,7 @@ export default function CreateMyFeedModalForNewUsers({
               ))}
             </ul>
           ))}
-        </CreateMyFeedModalIntroTagsContainer>
+        </FeedFiltersIntroModalTagsContainer>
       </section>
       <ModalFooter
         feedFilterOnboardingModalType={feedFilterOnboardingModalType}

@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { CreateMyFeedModalTagPill } from '../utilities';
+import { FeedFiltersIntroModalTagPill } from '../utilities';
 
 const RankTagItem = ({ tag }): ReactElement => {
   const isPlaceholder = !tag.length;
@@ -8,9 +8,9 @@ const RankTagItem = ({ tag }): ReactElement => {
     : 'flex-shrink w-auto bg-theme-label-disabled';
 
   return (
-    <CreateMyFeedModalTagPill className={className}>
+    <FeedFiltersIntroModalTagPill className={className}>
       {isPlaceholder ? '' : `#${tag}`}
-    </CreateMyFeedModalTagPill>
+    </FeedFiltersIntroModalTagPill>
   );
 };
 export default RankTagItem;

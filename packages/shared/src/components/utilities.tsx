@@ -165,9 +165,9 @@ export const SummaryContainer = classed(
   'text-theme-label-secondary multi-truncate my-6 border-l border-theme-status-cabbage pl-4',
 );
 
-export const CreateMyFeedModalIntroTagsContainer = classed('div', 'w-[160%]');
+export const FeedFiltersIntroModalTagsContainer = classed('div', 'w-[160%]');
 
-export const CreateMyFeedModalTagPill = classed(
+export const FeedFiltersIntroModalTagPill = classed(
   'strong',
   'flex items-center h-8 p-4 truncate rounded-10 typo-callout text-theme-label-primary',
 );

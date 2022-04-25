@@ -7,7 +7,7 @@ import CreateFeedFilterButton from '../CreateFeedFilterButton';
 import PlusIcon from '../../../icons/plus.svg';
 import XIcon from '../../../icons/x.svg';
 import { Button } from '../buttons/Button';
-import CreateMyFeedIntroModal from './CreateMyFeedIntroModal';
+import FeedFiltersIntroModal from './FeedFiltersIntroModal';
 
 type TypeProps = {
   feedFilterModalType: string;
@@ -15,6 +15,7 @@ type TypeProps = {
   feedFilterOnboardingModalType: string;
   actionToOpenFeedFilters: () => unknown;
   onIntroClose: () => unknown;
+  onCloseFeedFilterModal: () => unknown;
 };
 
 type FeedFiltersModalProps = TypeProps & ModalProps;
@@ -43,12 +44,15 @@ const headerClass = {
 
 const ModalFooter = ({
   feedFilterModalType,
-  onRequestClose,
+  onCloseFeedFilterModal,
 }: LayoutModalProps) => {
   return (
     <footer className="flex fixed responsiveModalBreakpoint:sticky bottom-0 justify-center items-center py-3 border-t border-theme-divider-tertiary bg-theme-bg-tertiary">
       {feedFilterModalType === 'v5' && (
-        <Button className="mr-3 w-40 btn-secondary" onClick={onRequestClose}>
+        <Button
+          className="mr-3 w-40 btn-secondary"
+          onClick={onCloseFeedFilterModal}
+        >
           Cancel
         </Button>
       )}
@@ -67,7 +71,7 @@ const ModalFooter = ({
 export default function FeedFiltersModal({
   className,
   showIntroModal,
-  onRequestClose,
+  onCloseFeedFilterModal,
   feedFilterModalType,
   feedFilterOnboardingModalType,
   actionToOpenFeedFilters,
@@ -88,7 +92,7 @@ export default function FeedFiltersModal({
   };
 
   return showIntroModal && !isFeedFilterModalOpen ? (
-    <CreateMyFeedIntroModal
+    <FeedFiltersIntroModal
       isOpen={!isFeedFilterModalOpen}
       feedFilterOnboardingModalType={feedFilterOnboardingModalType}
       actionToOpenFeedFilters={actionToOpenFeedFilters}
@@ -99,7 +103,7 @@ export default function FeedFiltersModal({
     <ResponsiveModal
       className={classNames(className)}
       {...modalProps}
-      onRequestClose={onRequestClose}
+      onRequestClose={onCloseFeedFilterModal}
     >
       {feedFilterModalType === 'v3' && (
         <Button
@@ -107,7 +111,7 @@ export default function FeedFiltersModal({
           buttonSize="large"
           title="Close"
           icon={<XIcon />}
-          onClick={onRequestClose}
+          onClick={onCloseFeedFilterModal}
           position="fixed"
         />
       )}
@@ -123,7 +127,7 @@ export default function FeedFiltersModal({
             buttonSize="small"
             title="Close"
             icon={<XIcon />}
-            onClick={onRequestClose}
+            onClick={onCloseFeedFilterModal}
           />
         )}
         <h3 className="font-bold typo-title3">
@@ -147,12 +151,13 @@ export default function FeedFiltersModal({
       </section>
       {['v4', 'v5'].includes(feedFilterModalType) && (
         <ModalFooter
-            feedFilterModalType={feedFilterModalType}
-            onRequestClose={onRequestClose}
-            showIntroModal={false}
-            feedFilterOnboardingModalType={feedFilterOnboardingModalType}
-            actionToOpenFeedFilters={actionToOpenFeedFilters} 
-            onIntroClose={onIntroClose}        />
+          feedFilterModalType={feedFilterModalType}
+          onCloseFeedFilterModal={onCloseFeedFilterModal}
+          showIntroModal={false}
+          feedFilterOnboardingModalType={feedFilterOnboardingModalType}
+          actionToOpenFeedFilters={actionToOpenFeedFilters}
+          onIntroClose={onIntroClose}
+        />
       )}
     </ResponsiveModal>
   );
