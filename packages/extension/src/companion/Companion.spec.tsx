@@ -78,7 +78,7 @@ describe('companion app', () => {
     const toggleButton = await screen.findByLabelText('Open summary');
     expect(toggleButton).toBeInTheDocument();
     await toggleButton.click();
-    expect(wrapper).toHaveClass('translate-x-0');
+    expect(await screen.findByTestId('companion')).toHaveClass('translate-x-0');
     expect(await screen.findByText('TLDR -')).toBeInTheDocument();
   });
 
