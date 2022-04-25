@@ -36,7 +36,7 @@ export default function Companion({
 }: CompanionProps): ReactElement {
   const firstLoad = useRef(false);
   const containerRef = useRef<HTMLDivElement>();
-  const [assetsLoaded, setAssetsLoaded] = useState(false);
+  const [assetsLoaded, setAssetsLoaded] = useState(isTesting);
   const [post, setPost] = useState<PostBootData>(postData);
   const [companionState, setCompanionState] =
     useState<boolean>(companionExpanded);
@@ -69,16 +69,16 @@ export default function Companion({
   );
 
   useEffect(() => {
-    if (!containerRef?.current) {
+    if (!containerRef?.current || assetsLoaded) {
       return;
     }
 
     const checkAssets = () => {
       if (containerRef?.current?.offsetLeft === 0) {
-        setTimeout(checkAssets, 10);
+        return setTimeout(checkAssets, 10);
       }
 
-      setTimeout(() => setAssetsLoaded(true), 10);
+      return setTimeout(() => setAssetsLoaded(true), 10);
     };
 
     checkAssets();
