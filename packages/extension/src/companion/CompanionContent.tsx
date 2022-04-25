@@ -1,8 +1,9 @@
 import React, { ReactElement, useState } from 'react';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import CopyIcon from '@dailydotdev/shared/icons/copy.svg';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
+import { useInfiniteQuery } from 'react-query';
 import {
-  getUpvotedPopupInitialState,
   HotLabel,
   TLDRText,
 } from '@dailydotdev/shared/src/components/utilities';
@@ -11,12 +12,17 @@ import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleToo
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import UpvotedPopupModal from '@dailydotdev/shared/src/components/modals/UpvotedPopupModal';
 import { POST_UPVOTES_BY_ID_QUERY } from '@dailydotdev/shared/src/graphql/posts';
-import { DEFAULT_UPVOTES_PER_PAGE } from '@dailydotdev/shared/src/graphql/common';
+import {
+  DEFAULT_UPVOTES_PER_PAGE,
+  UpvotesData,
+} from '@dailydotdev/shared/src/graphql/common';
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopyLink';
 import classNames from 'classnames';
 import { getCompanionWrapper } from './common';
+import { companionRequest } from './companionRequest';
+import { useBackgroundPaginatedRequest } from './useBackgroundPaginatedRequest';
 
 interface CompanionContentProps {
   post: PostBootData;
@@ -25,9 +31,32 @@ interface CompanionContentProps {
 export default function CompanionContent({
   post,
 }: CompanionContentProps): ReactElement {
-  const [upvotedPopup, setUpvotedPopup] = useState(getUpvotedPopupInitialState);
+  const queryKey = ['postUpvotes', post.id];
+  useBackgroundPaginatedRequest(queryKey);
+  const [isUpvotesOpen, setIsUpvotesOpen] = useState(false);
   const [copying, copyLink] = useCopyLink(
     () => `${post.summary}\n\n${post.permalink}`,
+  );
+
+  const queryResult = useInfiniteQuery<UpvotesData>(
+    queryKey,
+    ({ pageParam }) =>
+      companionRequest(
+        `${apiUrl}/graphql`,
+        POST_UPVOTES_BY_ID_QUERY,
+        {
+          id: post.id,
+          first: DEFAULT_UPVOTES_PER_PAGE,
+          after: pageParam,
+        },
+        queryKey,
+      ),
+    {
+      enabled: isUpvotesOpen,
+      getNextPageParam: (lastPage) =>
+        lastPage?.upvotes?.pageInfo?.hasNextPage &&
+        lastPage?.upvotes?.pageInfo?.endCursor,
+    },
   );
 
   return (
@@ -70,17 +99,7 @@ export default function CompanionContent({
         )}
         {post?.numUpvotes > 0 && (
           <ClickableText
-            onClick={() =>
-              setUpvotedPopup({
-                modal: true,
-                upvotes: post.numUpvotes,
-                requestQuery: {
-                  queryKey: ['postUpvotes', post.id],
-                  query: POST_UPVOTES_BY_ID_QUERY,
-                  params: { id: post.id, first: DEFAULT_UPVOTES_PER_PAGE },
-                },
-              })
-            }
+            onClick={() => setIsUpvotesOpen(true)}
             className="flex flex-row items-center hover:underline focus:underline cursor-pointer typo-callout"
           >
             {post?.numUpvotes} Upvote{post?.numUpvotes > 1 ? 's' : ''}
@@ -93,13 +112,14 @@ export default function CompanionContent({
           </span>
         )}
       </div>
-      {upvotedPopup.modal && (
+      {isUpvotesOpen && (
         <UpvotedPopupModal
+          isOpen
           parentSelector={getCompanionWrapper}
-          requestQuery={upvotedPopup.requestQuery}
-          isOpen={upvotedPopup.modal}
+          queryKey={queryKey}
+          queryResult={queryResult}
           listPlaceholderProps={{ placeholderAmount: post?.numUpvotes }}
-          onRequestClose={() => setUpvotedPopup(getUpvotedPopupInitialState())}
+          onRequestClose={() => setIsUpvotesOpen(false)}
         />
       )}
     </div>

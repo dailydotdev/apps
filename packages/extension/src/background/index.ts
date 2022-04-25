@@ -52,14 +52,29 @@ const sendBootData = async (req, sender) => {
   });
 };
 
-function handleMessages(message, sender) {
+async function handleMessages(message, sender) {
   if (message.type === 'CONTENT_LOADED') {
     sendBootData(message, sender);
     return null;
   }
 
   if (message.type === 'GRAPHQL_REQUEST') {
-    return request(message.url, message.document, message.variables);
+    const req = request(message.url, message.document, message.variables);
+
+    if (!message.queryKey) {
+      return req;
+    }
+
+    const url = sender?.tab?.url?.split('?')[0];
+    const [deviceId, res] = await Promise.all([getOrGenerateDeviceId(), req]);
+
+    return browser.tabs.sendMessage(sender?.tab?.id, {
+      deviceId,
+      url,
+      res,
+      req: { variables: message.variables },
+      queryKey: message.queryKey,
+    });
   }
 
   if (message.type === 'FETCH_REQUEST') {
