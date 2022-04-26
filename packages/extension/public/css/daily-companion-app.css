@@ -7,5 +7,5 @@ daily-companion-app {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Ubuntu, Segoe UI, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol;
   position: fixed;
   z-index: 100001;
-  font-feature-settings: initial;
+  font-feature-settings: normal!important;
 }

@@ -10,7 +10,7 @@ import classNames from 'classnames';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import Modal from 'react-modal';
 import { useContextMenu } from '@dailydotdev/react-contexify';
-import { NotificationProps } from '@dailydotdev/shared/src/hooks/useNotification';
+import useNotification from '@dailydotdev/shared/src/hooks/useNotification';
 import { CardNotification } from '@dailydotdev/shared/src/components/cards/Card';
 import { isTesting } from '@dailydotdev/shared/src/lib/constants';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
@@ -35,7 +35,7 @@ type CompanionMenuProps = {
   companionState: boolean;
   onOptOut: () => void;
   setCompanionState: (T) => void;
-} & Pick<NotificationProps, 'onMessage' | 'notification'>;
+};
 
 export default function CompanionMenu({
   post,
@@ -44,11 +44,10 @@ export default function CompanionMenu({
   companionState,
   onOptOut,
   setCompanionState,
-  notification,
-  onMessage,
 }: CompanionMenuProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
   const { user, showLogin } = useContext(AuthContext);
+  const { notification, onMessage } = useNotification();
   const [showCompanionHelper, setShowCompanionHelper] = usePersistentContext(
     'companion_helper',
     companionHelper,

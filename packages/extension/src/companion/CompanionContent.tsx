@@ -20,19 +20,20 @@ import { ClickableText } from '@dailydotdev/shared/src/components/buttons/Clicka
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopyLink';
 import classNames from 'classnames';
-import { NotificationProps } from '@dailydotdev/shared/src/hooks/useNotification';
+import useNotification from '@dailydotdev/shared/src/hooks/useNotification';
+import { CardNotification } from '@dailydotdev/shared/src/components/cards/Card';
 import { getCompanionWrapper } from './common';
 import { companionRequest } from './companionRequest';
 import { useBackgroundPaginatedRequest } from './useBackgroundPaginatedRequest';
 
 type CompanionContentProps = {
   post: PostBootData;
-} & Pick<NotificationProps, 'onMessage'>;
+};
 
 export default function CompanionContent({
   post,
-  onMessage,
 }: CompanionContentProps): ReactElement {
+  const { notification, onMessage } = useNotification();
   const queryKey = ['postUpvotes', post.id];
   useBackgroundPaginatedRequest(queryKey);
   const [isUpvotesOpen, setIsUpvotesOpen] = useState(false);
@@ -67,6 +68,11 @@ export default function CompanionContent({
 
   return (
     <div className="flex flex-col p-6 h-auto rounded-l-16 border w-[22.5rem] border-theme-label-tertiary bg-theme-bg-primary">
+      {notification && (
+        <CardNotification className="absolute -top-6 right-8 z-2 w-max text-center shadow-2">
+          {notification}
+        </CardNotification>
+      )}
       <div className="flex flex-row gap-3 items-center">
         <a href={post?.commentsPermalink} target="_parent">
           <LogoIcon className="w-8 rounded-8" />

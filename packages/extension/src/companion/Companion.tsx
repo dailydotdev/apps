@@ -14,7 +14,6 @@ import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import LoginModal from '@dailydotdev/shared/src/components/modals/LoginModal';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPageView';
-import useNotification from '@dailydotdev/shared/src/hooks/useNotification';
 import CompanionMenu from './CompanionMenu';
 import CompanionContent from './CompanionContent';
 import { getCompanionWrapper } from './common';
@@ -43,7 +42,6 @@ export default function Companion({
     useState<boolean>(companionExpanded);
   const { user, closeLogin, loadingUser, shouldShowLogin, loginState } =
     useContext(AuthContext);
-  const { notification, onMessage } = useNotification();
 
   const routeChangedCallbackRef = useTrackPageView();
 
@@ -108,13 +106,11 @@ export default function Companion({
         post={post}
         companionHelper={companionHelper}
         setPost={setPost}
-        notification={notification}
         onOptOut={onOptOut}
-        onMessage={onMessage}
         companionState={companionState}
         setCompanionState={setCompanionState}
       />
-      <CompanionContent post={post} onMessage={onMessage} />
+      <CompanionContent post={post} />
     </Container>
   );
 }
