@@ -104,18 +104,19 @@ export default function CompanionContent({
           <span>Be the first to upvote</span>
         )}
         {post?.numUpvotes > 0 && (
-          <ClickableText
-            onClick={() => setIsUpvotesOpen(true)}
-            className="flex flex-row items-center hover:underline focus:underline cursor-pointer typo-callout"
-          >
+          <ClickableText onClick={() => setIsUpvotesOpen(true)}>
             {post?.numUpvotes} Upvote{post?.numUpvotes > 1 ? 's' : ''}
           </ClickableText>
         )}
         {post?.numComments > 0 && (
-          <span>
+          <a
+            href={post?.commentsPermalink}
+            target="_parent"
+            className="hover:underline"
+          >
             {post?.numComments.toLocaleString()}
             {` Comment${post?.numComments === 1 ? '' : 's'}`}
-          </span>
+          </a>
         )}
       </div>
       {isUpvotesOpen && (
