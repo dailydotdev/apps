@@ -1,10 +1,12 @@
 import { useState } from 'react';
 
-export default function useNotification(): {
-  notification;
-  notificationIndex;
-  onMessage;
-} {
+export type NotificationProps = {
+  notification?: string;
+  notificationIndex?: number;
+  onMessage?: (message: string, timeout?: number) => Promise<unknown>;
+};
+
+export default function useNotification(): NotificationProps {
   const [notification, setNotification] = useState<string>();
   const [notificationIndex, setNotificationIndex] = useState<number>();
 

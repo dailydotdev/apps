@@ -10,7 +10,7 @@ import classNames from 'classnames';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import Modal from 'react-modal';
 import { useContextMenu } from '@dailydotdev/react-contexify';
-import useNotification from '@dailydotdev/shared/src/hooks/useNotification';
+import { NotificationProps } from '@dailydotdev/shared/src/hooks/useNotification';
 import { CardNotification } from '@dailydotdev/shared/src/components/cards/Card';
 import { isTesting } from '@dailydotdev/shared/src/lib/constants';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
@@ -28,14 +28,15 @@ if (!isTesting) {
   Modal.setAppElement('daily-companion-app');
 }
 
-interface CompanionMenuProps {
+type CompanionMenuProps = {
   post: PostBootData;
   companionHelper: boolean;
   setPost: (T) => void;
   companionState: boolean;
   onOptOut: () => void;
   setCompanionState: (T) => void;
-}
+} & Pick<NotificationProps, 'onMessage' | 'notification'>;
+
 export default function CompanionMenu({
   post,
   companionHelper,
@@ -43,9 +44,10 @@ export default function CompanionMenu({
   companionState,
   onOptOut,
   setCompanionState,
+  notification,
+  onMessage,
 }: CompanionMenuProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
-  const { notification, onMessage } = useNotification();
   const { user, showLogin } = useContext(AuthContext);
   const [showCompanionHelper, setShowCompanionHelper] = usePersistentContext(
     'companion_helper',

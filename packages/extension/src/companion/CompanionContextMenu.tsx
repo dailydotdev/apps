@@ -10,16 +10,16 @@ import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import { useShareOrCopyLink } from '@dailydotdev/shared/src/hooks/useShareOrCopyLink';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import { NotificationProps } from '@dailydotdev/shared/src/hooks/useNotification';
 import { getCompanionWrapper } from './common';
 import DisableCompanionModal from './DisableCompanionModal';
 
-interface CompanionContextMenuProps {
+type CompanionContextMenuProps = {
   postData: PostBootData;
-  onMessage?: (message: string, timeout?: number) => Promise<unknown>;
   onReport: (T) => void;
   onBlockSource: (T) => void;
   onDisableCompanion: () => void;
-}
+} & Pick<NotificationProps, 'onMessage'>;
 
 export default function CompanionContextMenu({
   postData,

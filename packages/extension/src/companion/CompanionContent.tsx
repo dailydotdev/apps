@@ -20,16 +20,18 @@ import { ClickableText } from '@dailydotdev/shared/src/components/buttons/Clicka
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopyLink';
 import classNames from 'classnames';
+import { NotificationProps } from '@dailydotdev/shared/src/hooks/useNotification';
 import { getCompanionWrapper } from './common';
 import { companionRequest } from './companionRequest';
 import { useBackgroundPaginatedRequest } from './useBackgroundPaginatedRequest';
 
-interface CompanionContentProps {
+type CompanionContentProps = {
   post: PostBootData;
-}
+} & Pick<NotificationProps, 'onMessage'>;
 
 export default function CompanionContent({
   post,
+  onMessage,
 }: CompanionContentProps): ReactElement {
   const queryKey = ['postUpvotes', post.id];
   useBackgroundPaginatedRequest(queryKey);
@@ -37,6 +39,10 @@ export default function CompanionContent({
   const [copying, copyLink] = useCopyLink(
     () => `${post.summary}\n\n${post.permalink}`,
   );
+  const copyLinkAndNotify = () => {
+    copyLink();
+    onMessage('✅ Copied TLDR to clipboard');
+  };
 
   const queryResult = useInfiniteQuery<UpvotesData>(
     queryKey,
@@ -80,7 +86,7 @@ export default function CompanionContent({
                 'ml-auto',
                 copying ? 'btn-tertiary-avocado' : ' btn-tertiary',
               )}
-              onClick={copyLink}
+              onClick={copyLinkAndNotify}
             />
           </SimpleTooltip>
         )}
