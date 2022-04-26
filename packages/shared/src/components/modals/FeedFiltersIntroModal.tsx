@@ -74,6 +74,7 @@ export default function FeedFiltersIntroModal({
     ['', '', '', 'devops', ''],
     ['', 'cloud', '', '', ''],
   ];
+
   return (
     <ResponsiveModal className={classNames(className)} {...modalProps}>
       <section className="flex overflow-hidden flex-col items-center py-6 px-6 mobileL:px-10 mt-24">
@@ -90,8 +91,8 @@ export default function FeedFiltersIntroModal({
                 <FeedFiltersIntroModalTags
                   key={`${i}_${j}`}
                   tag={tag}
-                  firstTagPill={j === 0 ? true : false}
-                  lastTagPill={j === row.length - 1 ? true : false}
+                  isFirstTagPill={j === 0}
+                  isLastTagPill={j === row.length - 1}
                 />
               ))}
             </ul>
