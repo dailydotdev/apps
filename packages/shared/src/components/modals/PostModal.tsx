@@ -112,7 +112,8 @@ export function PostModal({
       }
 
       const parent = modal.parentElement;
-      parent.scrollTo(0, 0);
+
+      parent?.scrollTo?.(0, 0);
       setPosition('relative');
     }
   }, [isLoading]);
