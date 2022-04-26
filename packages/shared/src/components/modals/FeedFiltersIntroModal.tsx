@@ -68,7 +68,7 @@ export default function FeedFiltersIntroModal({
   onOpenFeedFilterModal,
   ...modalProps
 }: FeedFiltersIntroModalProps): ReactElement {
-  const tags = [
+  const rows = [
     ['', 'docker', '', 'kubernetes', ''],
     ['', '', 'architecture', '', ''],
     ['', '', '', 'devops', ''],
@@ -84,10 +84,15 @@ export default function FeedFiltersIntroModal({
         </p>
         <FeedFiltersIntroModalTagsContainer className="mb-20">
           {/* eslint-disable react/no-array-index-key */}
-          {tags.map((row, i) => (
+          {rows.map((row, i) => (
             <ul className="flex gap-3 mb-3" key={i}>
               {row.map((tag, j) => (
-                <FeedFiltersIntroModalTags key={`${i}_${j}`} tag={tag} />
+                <FeedFiltersIntroModalTags
+                  key={`${i}_${j}`}
+                  tag={tag}
+                  firstTagPill={j === 0 ? true : false}
+                  lastTagPill={j === row.length - 1 ? true : false}
+                />
               ))}
             </ul>
           ))}
