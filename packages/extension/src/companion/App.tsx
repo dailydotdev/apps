@@ -62,6 +62,7 @@ export default function App({
                     app="companion"
                     version={version}
                     fetchMethod={companionFetch}
+                    backgroundMethod={(msg) => browser.runtime.sendMessage(msg)}
                     deviceId={deviceId}
                     getPage={() => url}
                   >

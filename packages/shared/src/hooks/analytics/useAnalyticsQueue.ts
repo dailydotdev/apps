@@ -18,9 +18,11 @@ const ANALYTICS_ENDPOINT = `${apiUrl}/e`;
 
 type UseAnalyticsQueueProps = {
   fetchMethod: typeof fetch;
+  backgroundMethod?: () => unknown;
 };
 export default function useAnalyticsQueue({
   fetchMethod,
+  backgroundMethod,
 }: UseAnalyticsQueueProps): {
   pushToQueue: PushToQueueFunc;
   setEnabled: (enabled: boolean) => void;
@@ -76,7 +78,22 @@ export default function useAnalyticsQueue({
           const blob = new Blob([JSON.stringify({ events })], {
             type: 'application/json',
           });
-          navigator.sendBeacon(ANALYTICS_ENDPOINT, blob);
+          if (backgroundMethod) {
+            backgroundMethod?.({
+              url: ANALYTICS_ENDPOINT,
+              type: 'FETCH_REQUEST',
+              args: {
+                body: JSON.stringify(events),
+                credentials: 'include',
+                method: 'POST',
+                headers: {
+                  'content-type': 'application/json',
+                },
+              },
+            });
+          } else {
+            navigator.sendBeacon(ANALYTICS_ENDPOINT, blob);
+          }
         }
       },
     }),

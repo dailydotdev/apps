@@ -43,7 +43,7 @@ export default function Companion({
   const { user, closeLogin, loadingUser, shouldShowLogin, loginState } =
     useContext(AuthContext);
 
-  useTrackPageView();
+  const routeChangedCallbackRef = useTrackPageView();
 
   useEffect(() => {
     if (!assetsLoaded) {
@@ -52,6 +52,12 @@ export default function Companion({
 
     firstLoad.current = true;
   }, [assetsLoaded]);
+
+  useEffect(() => {
+    if (routeChangedCallbackRef.current) {
+      routeChangedCallbackRef.current();
+    }
+  }, [routeChangedCallbackRef]);
 
   const Container = ({ children }: { children: ReactNode }) => (
     <div
@@ -82,6 +88,7 @@ export default function Companion({
     };
 
     checkAssets();
+    routeChangedCallbackRef.current();
   }, [containerRef]);
 
   return (
