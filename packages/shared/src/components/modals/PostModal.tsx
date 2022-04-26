@@ -105,6 +105,14 @@ export function PostModal({
 
   useEffect(() => {
     if (isLoading) {
+      const modal = document.getElementById('post-modal');
+
+      if (!modal) {
+        return;
+      }
+
+      const parent = modal.parentElement;
+      parent.scrollTo(0, 0);
       setPosition('relative');
     }
   }, [isLoading]);
