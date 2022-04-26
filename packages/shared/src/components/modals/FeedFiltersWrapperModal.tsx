@@ -68,7 +68,7 @@ const FeedFiltersModalFooter = ({
   );
 };
 
-export default function FeedFiltersModal({
+const FeedFiltersModal = ({
   className,
   showIntroModal,
   onCloseFeedFilterModal,
@@ -77,30 +77,8 @@ export default function FeedFiltersModal({
   actionToOpenFeedFilters,
   onIntroClose,
   ...modalProps
-}: FeedFiltersModalProps): ReactElement {
-  const [isFeedFilterModalOpen, setIsFeedFilterModalOpen] = useState(false);
-
-  const onOpenFeedFilterModal = (
-    event: React.MouseEvent<Element, MouseEvent>,
-  ): void => {
-    if (feedFilterModalType === 'v1') {
-      onIntroClose();
-      actionToOpenFeedFilters();
-    } else {
-      setIsFeedFilterModalOpen(true);
-    }
-  };
-
-  return showIntroModal && !isFeedFilterModalOpen ? (
-    <FeedFiltersIntroModal
-      isOpen={!isFeedFilterModalOpen}
-      feedFilterOnboardingModalType={feedFilterOnboardingModalType}
-      actionToOpenFeedFilters={actionToOpenFeedFilters}
-      feedFilterModalType={feedFilterModalType}
-      onOpenFeedFilterModal={onOpenFeedFilterModal}
-      onRequestClose={onCloseFeedFilterModal}
-    />
-  ) : (
+}: FeedFiltersModalProps) => {
+  return (
     <ResponsiveModal
       className={classNames(className)}
       {...modalProps}
@@ -161,5 +139,49 @@ export default function FeedFiltersModal({
         />
       )}
     </ResponsiveModal>
+  );
+};
+
+export default function FeedFiltersWrapperModal({
+  showIntroModal,
+  onCloseFeedFilterModal,
+  feedFilterModalType,
+  feedFilterOnboardingModalType,
+  actionToOpenFeedFilters,
+  onIntroClose,
+  isOpen,
+}: FeedFiltersModalProps): ReactElement {
+  const [isFeedFilterModalOpen, setIsFeedFilterModalOpen] = useState(false);
+
+  const onOpenFeedFilterModal = () => {
+    if (feedFilterModalType === 'v1') {
+      onIntroClose();
+      actionToOpenFeedFilters();
+    } else {
+      setIsFeedFilterModalOpen(true);
+    }
+  };
+
+  return showIntroModal && !isFeedFilterModalOpen ? (
+    <FeedFiltersIntroModal
+      isOpen={!isFeedFilterModalOpen}
+      feedFilterOnboardingModalType={feedFilterOnboardingModalType}
+      actionToOpenFeedFilters={actionToOpenFeedFilters}
+      feedFilterModalType={feedFilterModalType}
+      onOpenFeedFilterModal={onOpenFeedFilterModal}
+      onRequestClose={onCloseFeedFilterModal}
+      closeModal={onCloseFeedFilterModal}
+      padding={false}
+    />
+  ) : (
+    <FeedFiltersModal
+      feedFilterModalType={feedFilterModalType}
+      showIntroModal={showIntroModal}
+      feedFilterOnboardingModalType={feedFilterOnboardingModalType}
+      actionToOpenFeedFilters={actionToOpenFeedFilters}
+      onIntroClose={onIntroClose}
+      onCloseFeedFilterModal={onCloseFeedFilterModal}
+      isOpen={isOpen}
+    />
   );
 }

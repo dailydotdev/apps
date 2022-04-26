@@ -1,7 +1,7 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
-import FeedFiltersModal from './FeedFiltersModal';
+import FeedFiltersWrapperModal from './FeedFiltersWrapperModal';
 import AuthContext from '../../contexts/AuthContext';
 import { LoggedUser } from '../../lib/user';
 import {
@@ -82,13 +82,13 @@ const renderComponent = (
           tokenRefreshed: true,
         }}
       >
-        <FeedFiltersModal
+        <FeedFiltersWrapperModal
           isOpen
           onRequestClose={onRequestClose}
           ariaHideApp={false}
           feedFilterModalType="v2"
           showIntroModal={false}
-          feedFilterOnboardingModalType={''}
+          feedFilterOnboardingModalType=""
           actionToOpenFeedFilters={}
           onIntroClose={}
           onCloseFeedFilterModal={}

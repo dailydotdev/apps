@@ -4,7 +4,7 @@ import { ModalProps } from './StyledModal';
 import { ResponsiveModal } from './ResponsiveModal';
 import UserIcon from '../../../icons/user.svg';
 import { Button } from '../buttons/Button';
-import CreateMyFeedModalIntroTags from './FeedFiltersIntroModalTags';
+import FeedFiltersIntroModalTags from './FeedFiltersIntroModalTags';
 import { FeedFiltersIntroModalTagsContainer } from '../utilities';
 
 type FeedFiltersProps = {
@@ -17,7 +17,9 @@ type ModalFooterProps = {
   onOpenFeedFilterModal: (event: React.MouseEvent<Element, MouseEvent>) => void;
 } & Pick<ModalProps, 'onRequestClose'>;
 
-type FeedFiltersIntroModalProps = FeedFiltersProps & ModalFooterProps & ModalProps;
+type FeedFiltersIntroModalProps = FeedFiltersProps &
+  ModalFooterProps &
+  ModalProps;
 
 const footerClass = {
   test1: 'justify-center',
@@ -81,17 +83,15 @@ export default function FeedFiltersIntroModal({
           Devs with a personal feed get 11.5x more relevant articles
         </p>
         <FeedFiltersIntroModalTagsContainer className="mb-20">
+          {/* eslint-disable react/no-array-index-key */}
           {tags.map((row, i) => (
-            <ul className="flex gap-3 mb-3">
-              {row.map((tag) => (
-                <CreateMyFeedModalIntroTags
-                  // eslint-disable-next-line react/no-array-index-key
-                  key={i}
-                  tag={tag}
-                />
+            <ul className="flex gap-3 mb-3" key={i}>
+              {row.map((tag, j) => (
+                <FeedFiltersIntroModalTags key={`${i}_${j}`} tag={tag} />
               ))}
             </ul>
           ))}
+          {/* eslint-disable react/no-array-index-key */}
         </FeedFiltersIntroModalTagsContainer>
       </section>
       <IntroModalFooter

@@ -53,7 +53,7 @@ import { useMyFeed } from '../../hooks/useMyFeed';
 import useDefaultFeed from '../../hooks/useDefaultFeed';
 import { Features, getFeatureValue } from '../../lib/featureManagement';
 import CreateMyFeedButton from '../CreateMyFeedButton';
-import FeedFiltersModal from '../modals/FeedFiltersModal';
+import FeedFiltersWrapperModal from '../modals/FeedFiltersWrapperModal';
 import usePersistentContext from '../../hooks/usePersistentContext';
 
 const bottomMenuItems: SidebarMenuItem[] = [
@@ -405,7 +405,7 @@ export default function Sidebar({
         <FeedFilters isOpen={isAnimated} onBack={setHidden} />
       )}
       {shouldShowFeedFilterModal && (
-        <FeedFiltersModal
+        <FeedFiltersWrapperModal
           isOpen={isAnimated}
           onCloseFeedFilterModal={closeFeedFilterModal}
           onIntroClose={() => setShowIntroModal(false)}
