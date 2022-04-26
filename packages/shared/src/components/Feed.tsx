@@ -256,8 +256,10 @@ export default function Feed<T>({
   useEffect(() => {
     if (selectedPost) {
       document.body.classList.add('overflow-hidden');
+      document.body.classList.add('pr-2');
     } else {
       document.body.classList.remove('overflow-hidden');
+      document.body.classList.remove('pr-2');
     }
   }, [selectedPost]);
 
