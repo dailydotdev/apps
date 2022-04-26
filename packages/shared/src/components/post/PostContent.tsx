@@ -224,6 +224,12 @@ export function PostContent({
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
 
+  useEffect(() => {
+    if (isLoading) {
+      setPosition('relative');
+    }
+  }, [isLoading]);
+
   if (isLoading) {
     return (
       <PageBodyContainer>
