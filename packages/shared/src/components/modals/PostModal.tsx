@@ -1,17 +1,22 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import classNames from 'classnames';
+import { useQuery } from 'react-query';
+import request from 'graphql-request';
 import { StyledModal, ModalProps } from './StyledModal';
 import { useHideOnModal } from '../../hooks/useHideOnModal';
 import { useResetScrollForResponsiveModal } from '../../hooks/useResetScrollForResponsiveModal';
-import { PostContent, PostContentProps } from '../post/PostContent';
+import { PostContent } from '../post/PostContent';
 import styles from './PostModal.module.css';
 import { PostNavigationProps } from '../post/PostNavigation';
+import { PostData, POST_BY_ID_QUERY } from '../../graphql/posts';
+import { apiUrl } from '../../lib/config';
+import AuthContext from '../../contexts/AuthContext';
 
 interface PostModalProps
   extends ModalProps,
-    Pick<PostContentProps, 'isFetchingNextPage'>,
     Pick<PostNavigationProps, 'onPreviousPost' | 'onNextPost'> {
   id: string;
+  isFetchingNextPage?: boolean;
 }
 
 export function PostModal({
@@ -24,10 +29,21 @@ export function PostModal({
   onNextPost,
   ...props
 }: PostModalProps): ReactElement {
+  const { tokenRefreshed } = useContext(AuthContext);
   const [currentPage, setCurrentPage] = useState<string>();
   const isExtension = !!process.env.TARGET_BROWSER;
   useResetScrollForResponsiveModal();
   useHideOnModal(props.isOpen);
+
+  const {
+    data: postById,
+    isLoading,
+    isFetched,
+  } = useQuery<PostData>(
+    ['post', id],
+    () => request(`${apiUrl}/graphql`, POST_BY_ID_QUERY, { id }),
+    { enabled: !!id && tokenRefreshed },
+  );
 
   useEffect(() => {
     if (isExtension) {
@@ -57,12 +73,12 @@ export function PostModal({
       onRequestClose={onClose}
     >
       <PostContent
-        id={id}
+        postById={postById}
         onPreviousPost={onPreviousPost}
         onNextPost={onNextPost}
         className="h-full modal-post"
         onClose={onClose}
-        isFetchingNextPage={isFetchingNextPage}
+        isLoading={isLoading || !isFetched || isFetchingNextPage}
         isModal
       />
     </StyledModal>

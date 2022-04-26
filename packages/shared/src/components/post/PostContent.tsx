@@ -1,5 +1,4 @@
 import classNames from 'classnames';
-import request from 'graphql-request';
 import dynamic from 'next/dynamic';
 import React, {
   CSSProperties,
@@ -10,7 +9,7 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { useQuery, useQueryClient } from 'react-query';
+import { useQueryClient } from 'react-query';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import AuthContext from '../../contexts/AuthContext';
 import { Comment, COMMENT_UPVOTES_BY_ID_QUERY } from '../../graphql/comments';
@@ -20,11 +19,9 @@ import {
   PostData,
   PostsEngaged,
   POSTS_ENGAGED_SUBSCRIPTION,
-  POST_BY_ID_QUERY,
   POST_UPVOTES_BY_ID_QUERY,
 } from '../../graphql/posts';
 import useSubscription from '../../hooks/useSubscription';
-import { apiUrl } from '../../lib/config';
 import { postAnalyticsEvent } from '../../lib/feed';
 import PostMetadata from '../cards/PostMetadata';
 import PostSummary from '../cards/PostSummary';
@@ -51,14 +48,13 @@ const ShareNewCommentPopup = dynamic(() => import('../ShareNewCommentPopup'), {
 const Custom404 = dynamic(() => import('../Custom404'));
 
 export interface PostContentProps extends Omit<WrapperProps, 'post'> {
-  id: string;
-  postData?: PostData;
+  postById?: PostData;
   seo?: ReactNode;
   isFallback?: boolean;
   className?: string;
   enableAuthorOnboarding?: boolean;
   enableShowShareNewComment?: boolean;
-  isFetchingNextPage?: boolean;
+  isLoading?: boolean;
   isModal?: boolean;
 }
 
@@ -96,24 +92,25 @@ const PostContainer = classed(
 );
 
 export function PostContent({
-  id,
   seo,
-  postData,
+  postById,
   className,
   isFallback,
   enableAuthorOnboarding,
   enableShowShareNewComment,
-  isFetchingNextPage,
+  isLoading,
   isModal,
   onPreviousPost,
   onNextPost,
   onClose,
 }: PostContentProps): ReactElement {
-  if (!id && !isFallback) {
+  const { id } = postById?.post || {};
+
+  if (!id && !isFallback && !isLoading) {
     return <Custom404 />;
   }
 
-  const { user, showLogin, tokenRefreshed } = useContext(AuthContext);
+  const { user, showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const [parentComment, setParentComment] = useState<ParentComment>(null);
   const [showShareNewComment, setShowShareNewComment] = useState(false);
@@ -124,15 +121,6 @@ export function PostContent({
   const postQueryKey = ['post', id];
   const [position, setPosition] =
     useState<CSSProperties['position']>('relative');
-  const {
-    data: postById,
-    isLoading,
-    isFetched,
-  } = useQuery<PostData>(
-    postQueryKey,
-    () => request(`${apiUrl}/graphql`, POST_BY_ID_QUERY, { id }),
-    { initialData: postData, enabled: !!id && tokenRefreshed },
-  );
 
   useEffect(() => {
     if (enableAuthorOnboarding) {
@@ -236,7 +224,7 @@ export function PostContent({
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
 
-  if (isLoading || !isFetched || isFetchingNextPage) {
+  if (isLoading) {
     return (
       <PageBodyContainer>
         <PostLoadingPlaceholder />

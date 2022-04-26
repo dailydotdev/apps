@@ -1,7 +1,7 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
-import { useQueryClient } from 'react-query';
+import { useQuery } from 'react-query';
 import {
   GetStaticPathsResult,
   GetStaticPropsContext,
@@ -11,14 +11,15 @@ import { ParsedUrlQuery } from 'querystring';
 import { NextSeo } from 'next-seo';
 import {
   POST_BY_ID_STATIC_FIELDS_QUERY,
+  POST_BY_ID_QUERY,
   PostData,
-  Post,
 } from '@dailydotdev/shared/src/graphql/posts';
 import { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
 import request, { ClientError } from 'graphql-request';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import { PostContent } from '@dailydotdev/shared/src/components/post/PostContent';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 
 const Custom404 = dynamic(() => import('../404'));
@@ -33,6 +34,7 @@ interface PostParams extends ParsedUrlQuery {
 }
 
 const PostPage = ({ id, postData }: Props): ReactElement => {
+  const { tokenRefreshed } = useContext(AuthContext);
   const router = useRouter();
   const { isFallback } = router;
 
@@ -40,21 +42,28 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     return <Custom404 />;
   }
 
-  const client = useQueryClient();
-  const postById = client.getQueryData(['post', id]) as Post;
+  const {
+    data: postById,
+    isLoading,
+    isFetched,
+  } = useQuery<PostData>(
+    ['post', id],
+    () => request(`${apiUrl}/graphql`, POST_BY_ID_QUERY, { id }),
+    { initialData: postData, enabled: !!id && tokenRefreshed },
+  );
 
   const seo: NextSeoProps = {
-    title: postById?.title,
+    title: postById?.post.title,
     titleTemplate: '%s | daily.dev',
     description:
-      postById?.description?.length > 0
-        ? postById?.description
-        : `Join us to the discussion about "${postById?.title}" on daily.dev ✌️`,
+      postById?.post.description?.length > 0
+        ? postById?.post.description
+        : `Join us to the discussion about "${postById?.post.title}" on daily.dev ✌️`,
     openGraph: {
-      images: [{ url: postById?.image }],
+      images: [{ url: postById?.post.image }],
       article: {
-        publishedTime: postById?.createdAt,
-        tags: postById?.tags,
+        publishedTime: postById?.post.createdAt,
+        tags: postById?.post.tags,
       },
     },
   };
@@ -62,7 +71,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   const setContent = (
     <>
       <Head>
-        <link rel="preload" as="image" href={postById?.image} />
+        <link rel="preload" as="image" href={postById?.post.image} />
       </Head>
       <NextSeo {...seo} />
     </>
@@ -70,10 +79,10 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
 
   return (
     <PostContent
-      id={id}
-      postData={postData}
+      postById={postById}
       seo={setContent}
       isFallback={isFallback}
+      isLoading={isLoading || !isFetched}
       enableAuthorOnboarding={!!router.query?.author}
       enableShowShareNewComment={!!router?.query.new}
       className="pb-20 laptop:pb-6 laptopL:pb-0"
