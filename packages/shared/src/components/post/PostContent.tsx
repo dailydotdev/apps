@@ -303,14 +303,12 @@ export function PostContent({
           )}
         </div>
         {seo}
-        <a {...postLinkProps} className="cursor-pointer">
-          <h1
-            className="mt-6 font-bold break-words typo-large-title"
-            data-testid="post-modal-title"
-          >
-            {postById.post.title}
-          </h1>
-        </a>
+        <h1
+          className="mt-6 font-bold break-words typo-large-title"
+          data-testid="post-modal-title"
+        >
+          {postById.post.title}
+        </h1>
         {postById.post.summary && (
           <PostSummary summary={postById.post.summary} />
         )}
