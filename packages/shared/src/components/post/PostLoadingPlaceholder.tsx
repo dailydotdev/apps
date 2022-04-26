@@ -30,7 +30,7 @@ const LoadingPlaceholderContainer = ({
 export const PostLoadingPlaceholder = (): ReactElement => {
   return (
     <>
-      <div className="flex flex-col flex-1 p-8 tablet:border-r laptop:max-w-[40.75rem] tablet:border-theme-divider-tertiary">
+      <div className="flex flex-col flex-1 p-8 tablet:border-r laptop:w-[40.75rem] laptop:max-w-[40.75rem] tablet:border-theme-divider-tertiary">
         <ElementPlaceholder className="my-2 mb-8 w-3/5 h-8 rounded-full" />
         <ListItemPlaceholder padding="p-0 gap-2" textClassName="h-4" />
         <div className="flex flex-row gap-2 my-8">
