@@ -69,6 +69,7 @@ export function PostModal({
     <StyledModal
       {...props}
       className={classNames(className, styles.postModal)}
+      contentClassName="post-modal"
       style={{ content: { overflow: 'hidden' } }}
       onRequestClose={onClose}
     >

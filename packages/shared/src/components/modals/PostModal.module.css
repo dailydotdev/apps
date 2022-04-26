@@ -10,7 +10,7 @@
     }
   }
 
-  & :global(.modal) {
+  & :global(.modal.post-modal) {
     @apply bg-theme-bg-primary;
 
     position: absolute;
