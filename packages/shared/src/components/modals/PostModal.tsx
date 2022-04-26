@@ -1,4 +1,10 @@
-import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import React, {
+  CSSProperties,
+  ReactElement,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import { useQuery } from 'react-query';
 import request from 'graphql-request';
@@ -29,6 +35,8 @@ export function PostModal({
   onNextPost,
   ...props
 }: PostModalProps): ReactElement {
+  const [position, setPosition] =
+    useState<CSSProperties['position']>('relative');
   const { tokenRefreshed } = useContext(AuthContext);
   const [currentPage, setCurrentPage] = useState<string>();
   const isExtension = !!process.env.TARGET_BROWSER;
@@ -65,15 +73,47 @@ export function PostModal({
     onRequestClose(e);
   };
 
+  useEffect(() => {
+    const modal = document.getElementById('post-modal');
+    const parent = modal.parentElement;
+
+    const onScroll = (e) => {
+      if (e.currentTarget.scrollTop > 80) {
+        if (position !== 'fixed') {
+          setPosition('fixed');
+        }
+        return;
+      }
+
+      if (position !== 'relative') {
+        setPosition('relative');
+      }
+    };
+
+    parent.addEventListener('scroll', onScroll);
+
+    return () => {
+      parent.removeEventListener('scroll', onScroll);
+    };
+  }, [position]);
+
+  useEffect(() => {
+    if (isLoading) {
+      setPosition('relative');
+    }
+  }, [isLoading]);
+
   return (
     <StyledModal
       {...props}
       className={classNames(className, styles.postModal)}
       contentClassName="post-modal"
+      id="post-modal"
       style={{ content: { overflow: 'hidden' } }}
       onRequestClose={onClose}
     >
       <PostContent
+        position={position}
         postById={postById}
         onPreviousPost={onPreviousPost}
         onNextPost={onNextPost}

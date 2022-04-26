@@ -68,25 +68,21 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     },
   };
 
-  const setContent = (
+  return (
     <>
       <Head>
         <link rel="preload" as="image" href={postById?.post.image} />
       </Head>
       <NextSeo {...seo} />
+      <PostContent
+        postById={postById}
+        isFallback={isFallback}
+        isLoading={isLoading || !isFetched}
+        enableAuthorOnboarding={!!router.query?.author}
+        enableShowShareNewComment={!!router?.query.new}
+        className="pb-20 laptop:pb-6 laptopL:pb-0"
+      />
     </>
-  );
-
-  return (
-    <PostContent
-      postById={postById}
-      seo={setContent}
-      isFallback={isFallback}
-      isLoading={isLoading || !isFetched}
-      enableAuthorOnboarding={!!router.query?.author}
-      enableShowShareNewComment={!!router?.query.new}
-      className="pb-20 laptop:pb-6 laptopL:pb-0"
-    />
   );
 };
 

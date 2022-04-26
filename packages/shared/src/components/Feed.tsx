@@ -253,6 +253,14 @@ export default function Feed<T>({
     return <>{emptyScreen}</>;
   }
 
+  useEffect(() => {
+    if (selectedPost) {
+      document.body.classList.add('overflow-hidden');
+    } else {
+      document.body.classList.remove('overflow-hidden');
+    }
+  }, [selectedPost]);
+
   return (
     <div
       className={classNames(

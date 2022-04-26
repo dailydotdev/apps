@@ -3,8 +3,6 @@ import dynamic from 'next/dynamic';
 import React, {
   CSSProperties,
   ReactElement,
-  ReactNode,
-  UIEventHandler,
   useContext,
   useEffect,
   useState,
@@ -15,7 +13,6 @@ import AuthContext from '../../contexts/AuthContext';
 import { Comment, COMMENT_UPVOTES_BY_ID_QUERY } from '../../graphql/comments';
 import {
   ParentComment,
-  Post,
   PostData,
   PostsEngaged,
   POSTS_ENGAGED_SUBSCRIPTION,
@@ -47,15 +44,17 @@ const ShareNewCommentPopup = dynamic(() => import('../ShareNewCommentPopup'), {
 });
 const Custom404 = dynamic(() => import('../Custom404'));
 
-export interface PostContentProps extends Omit<WrapperProps, 'post'> {
+export interface PostContentProps
+  extends Omit<PostModalActionsProps, 'post'>,
+    Partial<Pick<PostNavigationProps, 'onPreviousPost' | 'onNextPost'>> {
   postById?: PostData;
-  seo?: ReactNode;
   isFallback?: boolean;
   className?: string;
   enableAuthorOnboarding?: boolean;
   enableShowShareNewComment?: boolean;
   isLoading?: boolean;
   isModal?: boolean;
+  position?: CSSProperties['position'];
 }
 
 const DEFAULT_UPVOTES_PER_PAGE = 50;
@@ -66,19 +65,9 @@ const getUpvotedPopupInitialState = () => ({
   requestQuery: null,
 });
 
-interface WrapperProps
-  extends Omit<PostModalActionsProps, 'post'>,
-    Partial<Pick<PostNavigationProps, 'onPreviousPost' | 'onNextPost'>> {
-  children?: ReactNode;
-  post?: Post;
-  position?: CSSProperties['position'];
-  isLoading?: boolean;
-  onScroll?: UIEventHandler<HTMLDivElement>;
-}
-
 const BodyContainer = classed(
   'div',
-  'flex flex-col tablet:flex-row max-w-[100vw] overflow-y-auto h-full pb-6',
+  'flex flex-col tablet:flex-row max-w-[100vw] pb-6',
 );
 
 const PageBodyContainer = classed(
@@ -92,7 +81,6 @@ const PostContainer = classed(
 );
 
 export function PostContent({
-  seo,
   postById,
   className,
   isFallback,
@@ -100,6 +88,7 @@ export function PostContent({
   enableShowShareNewComment,
   isLoading,
   isModal,
+  position,
   onPreviousPost,
   onNextPost,
   onClose,
@@ -119,8 +108,6 @@ export function PostContent({
   const [upvotedPopup, setUpvotedPopup] = useState(getUpvotedPopupInitialState);
   const queryClient = useQueryClient();
   const postQueryKey = ['post', id];
-  const [position, setPosition] =
-    useState<CSSProperties['position']>('relative');
 
   useEffect(() => {
     if (enableAuthorOnboarding) {
@@ -224,12 +211,6 @@ export function PostContent({
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
 
-  useEffect(() => {
-    if (isLoading) {
-      setPosition('relative');
-    }
-  }, [isLoading]);
-
   if (isLoading) {
     return (
       <PageBodyContainer>
@@ -259,50 +240,30 @@ export function PostContent({
     onMouseUp: (event: React.MouseEvent) => event.button === 1 && onLinkClick(),
   };
 
-  const onScroll: UIEventHandler<HTMLDivElement> = (e) => {
-    if (!hasNavigation) {
-      return;
-    }
-
-    if (e.currentTarget.scrollTop > 40) {
-      if (position !== 'fixed') {
-        setPosition('fixed');
-      }
-      return;
-    }
-
-    if (position !== 'relative') {
-      setPosition('relative');
-    }
-  };
-
   const isFixed = position === 'fixed';
   const padding = isFixed ? 'py-4' : 'pt-6';
   const Wrapper = hasNavigation ? BodyContainer : PageBodyContainer;
 
   return (
-    <Wrapper onScroll={onScroll} className={classNames(className, 'relative')}>
+    <Wrapper className={className}>
       <PostContainer className={classNames('relative', isFixed && 'pt-16')}>
-        <div className={isFixed && 'absolute left-0 top-0'}>
-          {hasNavigation && (
-            <PostNavigation
-              onPreviousPost={onPreviousPost}
-              onNextPost={onNextPost}
-              className={classNames(
-                'flex',
-                padding,
-                position,
-                isFixed &&
-                  'z-3 w-full bg-theme-bg-secondary border-b border-theme-divider-tertiary px-6',
-                isFixed && styles.fixedPostsNavigation,
-              )}
-              shouldDisplayTitle={isFixed}
-              post={postById.post}
-              onClose={onClose}
-            />
-          )}
-        </div>
-        {seo}
+        {hasNavigation && (
+          <PostNavigation
+            onPreviousPost={onPreviousPost}
+            onNextPost={onNextPost}
+            className={classNames(
+              'flex',
+              padding,
+              position,
+              isFixed &&
+                'z-3 w-full bg-theme-bg-secondary border-b border-theme-divider-tertiary px-6 top-0 -ml-8',
+              isFixed && styles.fixedPostsNavigation,
+            )}
+            shouldDisplayTitle={isFixed}
+            post={postById.post}
+            onClose={onClose}
+          />
+        )}
         <h1
           className="mt-6 font-bold break-words typo-large-title"
           data-testid="post-modal-title"
