@@ -50,6 +50,7 @@ export function UserShortInfo<Tag extends AnyTag>({
         'flex flex-row py-3 px-6 hover:bg-theme-hover',
         className,
       )}
+      data-testid={`linkTo-${username}`}
     >
       <ProfilePicture
         user={user}

@@ -2,6 +2,7 @@ import React from 'react';
 import {
   findAllByText,
   findByText,
+  fireEvent,
   queryByText,
   render,
   RenderResult,
@@ -18,11 +19,13 @@ import {
   PostsEngaged,
   REMOVE_BOOKMARK_MUTATION,
   UPVOTE_MUTATION,
+  POST_UPVOTES_BY_ID_QUERY,
 } from '@dailydotdev/shared/src/graphql/posts';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   POST_COMMENTS_QUERY,
   PostCommentsData,
+  COMMENT_UPVOTES_BY_ID_QUERY,
 } from '@dailydotdev/shared/src/graphql/comments';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import nock from 'nock';
@@ -31,12 +34,18 @@ import { mocked } from 'ts-jest/utils';
 import { NextRouter, useRouter } from 'next/router';
 import { OperationOptions } from 'subscriptions-transport-ws';
 import { SubscriptionCallbacks } from '@dailydotdev/shared/src/hooks/useSubscription';
-import defaultUser from './fixture/loggedUser';
+import {
+  DEFAULT_UPVOTES_PER_PAGE,
+  RequestQuery,
+  UpvotesData,
+} from '@dailydotdev/shared/src/graphql/common';
+import testUser from './fixture/loggedUser';
 import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
 import PostPage, { Props } from '../pages/posts/[id]';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
+const defaultUser = { ...testUser, username: 'idoshamun', bio: 'Sample bio' };
 
 jest.mock('@dailydotdev/shared/src/hooks/useSubscription', () => ({
   __esModule: true,
@@ -99,9 +108,42 @@ const createPostMock = (
         commented: false,
         bookmarked: false,
         commentsPermalink: 'https://localhost:5002/posts/9CuRpr5NiEY5',
-        numUpvotes: 0,
+        numUpvotes: 5,
         numComments: 0,
         ...data,
+      },
+    },
+  },
+});
+
+const defaultUpvotesParam = {
+  query: POST_UPVOTES_BY_ID_QUERY,
+  params: {
+    id: '0e4005b2d3cf191f8c44c2718a457a1e',
+    first: DEFAULT_UPVOTES_PER_PAGE,
+  },
+};
+
+const createUpvotesMock = ({
+  query,
+  params,
+}: Partial<RequestQuery<UpvotesData>>): MockedGraphQLResponse<UpvotesData> => ({
+  request: {
+    query,
+    variables: params,
+  },
+  result: {
+    data: {
+      upvotes: {
+        pageInfo: {},
+        edges: [
+          {
+            node: {
+              createdAt: new Date(),
+              user: defaultUser,
+            },
+          },
+        ],
       },
     },
   },
@@ -118,7 +160,20 @@ const createCommentsMock = (): MockedGraphQLResponse<PostCommentsData> => ({
     data: {
       postComments: {
         pageInfo: {},
-        edges: [],
+        edges: [
+          {
+            node: {
+              id: 'c1',
+              content: 'Comment',
+              contentHtml: 'Comment',
+              numUpvotes: 1,
+              upvoted: true,
+              createdAt: new Date().toString(),
+              permalink: 'Test link',
+              author: defaultUser,
+            },
+          },
+        ],
       },
     },
   },
@@ -306,7 +361,7 @@ it('should open new comment modal and set the correct props', async () => {
 it('should not show stats when they are zero', async () => {
   renderPost();
   const el = await screen.findByTestId('statsBar');
-  expect(el).toHaveTextContent('');
+  expect(el).toHaveTextContent('5 Upvotes');
 });
 
 it('should show num upvotes when it is greater than zero', async () => {
@@ -518,4 +573,68 @@ it('should not cut summary when there is a summary without reaching threshold', 
   expect(el).toBeInTheDocument();
   const fullSummary = await screen.findByText(summaryText);
   expect(fullSummary).toBeInTheDocument();
+});
+
+describe('upvote popup modal', () => {
+  const renderPostMockUpvotes = async () => {
+    renderPost({}, [
+      createPostMock({ numComments: 1 }),
+      createCommentsMock(),
+      createUpvotesMock(defaultUpvotesParam),
+    ]);
+
+    const upvotes = await screen.findByText('5 Upvotes');
+    fireEvent.click(upvotes);
+    await screen.findByRole('dialog');
+  };
+
+  it('should show upvoter list for post', async () => {
+    renderPostMockUpvotes();
+    await screen.findByText('Upvoted by');
+    await screen.findByText(`@${defaultUser.username}`);
+  });
+
+  it('should show upvoter list for comment', async () => {
+    renderPost({}, [
+      createPostMock({ numComments: 1 }),
+      createCommentsMock(),
+      createUpvotesMock({
+        query: COMMENT_UPVOTES_BY_ID_QUERY,
+        params: { id: 'c1', first: DEFAULT_UPVOTES_PER_PAGE },
+      }),
+    ]);
+
+    const upvotes = await screen.findByText('1 upvote');
+    fireEvent.click(upvotes);
+    await screen.findByRole('dialog');
+    await screen.findByText('Upvoted by');
+    await screen.findByText(`@${defaultUser.username}`);
+  });
+
+  it("should show user's handle", async () => {
+    renderPostMockUpvotes();
+    await screen.findByText(`@${defaultUser.username}`);
+  });
+
+  it('should show name', async () => {
+    renderPostMockUpvotes();
+    await screen.findByText(defaultUser.name);
+  });
+
+  it('should show bio', async () => {
+    renderPostMockUpvotes();
+    await screen.findByText(defaultUser.bio);
+  });
+
+  it('should show permalink', async () => {
+    renderPostMockUpvotes();
+    expect(
+      await screen.findByTestId(`linkTo-${defaultUser.username}`),
+    ).toHaveAttribute('href', defaultUser.permalink);
+  });
+
+  it('should show avatar', async () => {
+    renderPostMockUpvotes();
+    await screen.findByAltText(`${defaultUser.username}'s profile`);
+  });
 });
