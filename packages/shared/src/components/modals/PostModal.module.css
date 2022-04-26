@@ -22,7 +22,6 @@
   & :global(.modal.post-modal) {
     @apply bg-theme-bg-primary;
 
-    position: absolute;
     max-width: 100vw;
     align-items: stretch;
     border: none;
