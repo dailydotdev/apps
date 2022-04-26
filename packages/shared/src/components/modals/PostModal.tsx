@@ -75,6 +75,11 @@ export function PostModal({
 
   useEffect(() => {
     const modal = document.getElementById('post-modal');
+
+    if (!modal) {
+      return;
+    }
+
     const parent = modal.parentElement;
 
     const onScroll = (e) => {
@@ -92,6 +97,7 @@ export function PostModal({
 
     parent.addEventListener('scroll', onScroll);
 
+    // eslint-disable-next-line consistent-return
     return () => {
       parent.removeEventListener('scroll', onScroll);
     };
