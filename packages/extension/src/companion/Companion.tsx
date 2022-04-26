@@ -66,11 +66,10 @@ export default function Companion({
       ref={containerRef}
       data-testId="companion"
       className={classNames(
-        'flex fixed flex-row top-[7.5rem] items-stretch right-0 z-10',
+        'flex fixed flex-row top-[7.5rem] items-stretch right-0 z-10 max-w-[26.5rem]',
         firstLoad.current && 'transition-transform',
         companionState ? 'translate-x-0' : 'translate-x-[22.5rem]',
       )}
-      style={{ maxWidth: '26.5rem' }}
     >
       {assetsLoaded ? children : null}
     </div>
