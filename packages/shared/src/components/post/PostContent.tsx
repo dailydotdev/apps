@@ -67,12 +67,12 @@ const getUpvotedPopupInitialState = () => ({
 
 const BodyContainer = classed(
   'div',
-  'flex flex-col tablet:flex-row max-w-[100vw] pb-6',
+  'flex flex-col tablet:flex-row max-w-[100vw] pb-6 tablet:pb-0',
 );
 
 const PageBodyContainer = classed(
   BodyContainer,
-  'm-auto w-full max-w-[63.75rem]',
+  'm-auto w-full max-w-[63.75rem] laptop:border-l laptop:border-theme-divider-tertiary',
 );
 
 const PostContainer = classed(
