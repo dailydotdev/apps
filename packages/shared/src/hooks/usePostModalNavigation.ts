@@ -88,6 +88,8 @@ export const usePostModalNavigation = (
     [
       ['ArrowLeft', ret.onPrevious],
       ['ArrowRight', ret.onNext],
+      ['j', ret.onPrevious],
+      ['k', ret.onNext],
     ],
     { disableOnTags: ['textarea', 'select', 'input'] },
   );
