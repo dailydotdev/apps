@@ -122,6 +122,7 @@ export function PostModal({
     <StyledModal
       {...props}
       className={classNames(className, styles.postModal)}
+      overlayClassName="post-modal"
       contentClassName="post-modal"
       id="post-modal"
       style={{ content: { overflow: 'hidden' } }}

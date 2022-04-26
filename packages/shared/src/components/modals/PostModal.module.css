@@ -1,5 +1,5 @@
 .postModal {
-  & :global(.overlay) {
+  & :global(.overlay.post-modal) {
     position: relative;
     min-height: 100vh;
     padding: 0;

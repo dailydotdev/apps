@@ -13,12 +13,13 @@ export interface ModalProps extends Modal.Props {
 export function ReactModalAdapter({
   className,
   contentClassName,
+  overlayClassName,
   ...props
 }: ModalProps): ReactElement {
   return (
     <Modal
       portalClassName={className.toString()}
-      overlayClassName="overlay"
+      overlayClassName={classNames('overlay', overlayClassName)}
       className={classNames('focus:outline-none modal', contentClassName)}
       {...props}
     />
