@@ -21,7 +21,7 @@ export type AnalyticsContextProviderProps = {
   getPage: () => string;
   version?: string;
   fetchMethod?: typeof fetch;
-  backgroundMethod?: () => unknown;
+  backgroundMethod?: (msg: any) => Promise<any>;
   deviceId?: string;
   children?: ReactNode;
 };
