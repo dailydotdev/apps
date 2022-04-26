@@ -18,7 +18,7 @@ const ANALYTICS_ENDPOINT = `${apiUrl}/e`;
 
 type UseAnalyticsQueueProps = {
   fetchMethod: typeof fetch;
-  backgroundMethod?: (msg: any) => Promise<any>;
+  backgroundMethod?: (msg: unknown) => Promise<unknown>;
 };
 export default function useAnalyticsQueue({
   fetchMethod,
