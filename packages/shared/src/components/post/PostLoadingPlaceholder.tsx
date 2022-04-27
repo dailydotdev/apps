@@ -9,6 +9,14 @@ import {
 import { ListItemPlaceholder } from '../widgets/ListItemPlaceholder';
 import PlaceholderCommentList from '../comments/PlaceholderCommentList';
 import { ElementPlaceholder } from '../ElementPlaceholder';
+import classed from '../../lib/classed';
+import styles from '../utilities.module.css';
+
+const Container = classed(
+  'div',
+  styles.postContent,
+  'flex flex-col flex-1 p-8 tablet:border-r tablet:border-theme-divider-tertiary',
+);
 
 const LoadingPlaceholderContainer = ({
   children,
@@ -30,7 +38,7 @@ const LoadingPlaceholderContainer = ({
 export const PostLoadingPlaceholder = (): ReactElement => {
   return (
     <>
-      <div className="flex flex-col flex-1 p-8 tablet:border-r laptop:w-[40.75rem] laptop:max-w-[40.75rem] tablet:border-theme-divider-tertiary">
+      <Container>
         <ElementPlaceholder className="my-2 mb-8 w-3/5 h-8 rounded-full" />
         <ListItemPlaceholder padding="p-0 gap-2" textClassName="h-4" />
         <div className="flex flex-row gap-2 my-8">
@@ -41,7 +49,7 @@ export const PostLoadingPlaceholder = (): ReactElement => {
         <ElementPlaceholder className="my-8 w-2/5 h-8 rounded-full" />
         <PlaceholderSeparator />
         <PlaceholderCommentList />
-      </div>
+      </Container>
       <PageWidgets className="flex-1 p-8">
         <LoadingPlaceholderContainer>
           <UserItemPlaceholder />
