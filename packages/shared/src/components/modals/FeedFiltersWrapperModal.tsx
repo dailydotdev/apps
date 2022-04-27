@@ -170,7 +170,6 @@ export default function FeedFiltersWrapperModal({
       feedFilterModalType={feedFilterModalType}
       onOpenFeedFilterModal={onOpenFeedFilterModal}
       onRequestClose={onCloseFeedFilterModal}
-      closeModal={onCloseFeedFilterModal}
       padding={false}
     />
   ) : (

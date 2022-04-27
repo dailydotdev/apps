@@ -21,7 +21,6 @@ jest.mock('../../lib/user', () => ({
 }));
 
 const logout = jest.fn();
-const onRequestClose = jest.fn();
 
 const defaultUser = {
   id: 'u1',
@@ -84,14 +83,14 @@ const renderComponent = (
       >
         <FeedFiltersWrapperModal
           isOpen
-          onRequestClose={onRequestClose}
+          onRequestClose={jest.fn()}
           ariaHideApp={false}
           feedFilterModalType="v2"
           showIntroModal={false}
           feedFilterOnboardingModalType=""
-          actionToOpenFeedFilters={}
-          onIntroClose={}
-          onCloseFeedFilterModal={}
+          actionToOpenFeedFilters={jest.fn()}
+          onIntroClose={jest.fn()}
+          onCloseFeedFilterModal={jest.fn()}
         />
       </AuthContext.Provider>
     </QueryClientProvider>,
