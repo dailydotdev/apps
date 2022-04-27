@@ -22,6 +22,7 @@ interface UserShortInfoProps<Tag extends AnyTag> {
   imageSize?: ProfileImageSize;
   className?: string;
   tag?: Tag;
+  disableTooltip?: boolean;
 }
 
 export function UserShortInfo<Tag extends AnyTag>({
@@ -29,11 +30,15 @@ export function UserShortInfo<Tag extends AnyTag>({
   tag,
   user,
   className,
+  disableTooltip,
   ...props
 }: UserShortInfoProps<Tag> & PropsOf<Tag>): ReactElement {
   const Element = (tag || 'a') as React.ElementType;
   const { name, username, bio } = user;
-  const tooltipProps: TooltipProps = { appendTo: document?.body || 'parent' };
+  const tooltipProps: TooltipProps = {
+    appendTo: document?.body || 'parent',
+    visible: disableTooltip ? false : undefined,
+  };
 
   return (
     <Element
