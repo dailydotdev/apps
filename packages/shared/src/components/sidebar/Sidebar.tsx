@@ -180,7 +180,7 @@ export default function Sidebar({
     true,
   );
   useEffect(() => {
-    if (!isFirstSession) {
+    if (isFirstSession) {
       setIsFirstSession(false);
       if (feedFilterModalOnboarding === 'control') {
         setTimeout(() => {
