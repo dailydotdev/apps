@@ -1,6 +1,9 @@
 import classNames from 'classnames';
-import React, { ReactElement, useMemo } from 'react';
+import React, { ReactElement } from 'react';
+import { Author } from '../../graphql/comments';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
+import { TooltipProps } from '../tooltips/BaseTooltip';
+import { ProfileTooltip } from './ProfileTooltip';
 
 // reference: https://stackoverflow.com/a/54049872/5532217
 type AnyTag =
@@ -15,27 +18,22 @@ type PropsOf<Tag> = Tag extends keyof JSX.IntrinsicElements
   : never;
 
 interface UserShortInfoProps<Tag extends AnyTag> {
-  image: string;
-  name: string;
-  username: string;
-  bio?: string;
+  user: Author;
   imageSize?: ProfileImageSize;
   className?: string;
   tag?: Tag;
 }
 
 export function UserShortInfo<Tag extends AnyTag>({
-  name,
-  username,
-  image,
-  bio,
   imageSize = 'xlarge',
   tag,
+  user,
   className,
   ...props
 }: UserShortInfoProps<Tag> & PropsOf<Tag>): ReactElement {
   const Element = (tag || 'a') as React.ElementType;
-  const user = useMemo(() => ({ username, image }), [username, image]);
+  const { name, username, bio } = user;
+  const tooltipProps: TooltipProps = { appendTo: document?.body || 'parent' };
 
   return (
     <Element
@@ -45,12 +43,16 @@ export function UserShortInfo<Tag extends AnyTag>({
         className,
       )}
     >
-      <ProfilePicture user={user} size={imageSize} />
-      <div className="flex flex-col flex-1 ml-4 typo-callout">
-        <span className="font-bold">{name}</span>
-        <span className="text-theme-label-secondary">@{username}</span>
-        {bio && <span className="mt-1 text-theme-label-tertiary">{bio}</span>}
-      </div>
+      <ProfileTooltip user={user} tooltip={tooltipProps}>
+        <ProfilePicture user={user} size={imageSize} />
+      </ProfileTooltip>
+      <ProfileTooltip user={user} tooltip={tooltipProps}>
+        <div className="flex flex-col flex-1 ml-4 typo-callout">
+          <span className="font-bold">{name}</span>
+          <span className="text-theme-label-secondary">@{username}</span>
+          {bio && <span className="mt-1 text-theme-label-tertiary">{bio}</span>}
+        </div>
+      </ProfileTooltip>
     </Element>
   );
 }
