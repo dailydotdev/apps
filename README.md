@@ -15,6 +15,8 @@
   </a>
 </p>
 
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/dailydotdev/apps/)
+
 This monorepo contains daily.dev's application suite. The repo includes the web app and the extension, along with shared components for the two.
 The decision was made to allow faster iterations and to keep features parity in both platforms.
 
