@@ -1,11 +1,10 @@
 import React, { forwardRef, HTMLAttributes, ReactElement, Ref } from 'react';
 import Link from 'next/link';
 import classNames from 'classnames';
-import { LoggedUser } from '../../lib/user';
 import { Author } from '../../graphql/comments';
 
 export interface ProfileLinkProps extends HTMLAttributes<HTMLAnchorElement> {
-  user: Author | LoggedUser;
+  user: Pick<Author, 'permalink'>;
   ref?: Ref<HTMLAnchorElement>;
 }
 

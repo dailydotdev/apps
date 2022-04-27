@@ -1,19 +1,19 @@
 import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
-import ArrowIcon from '@dailydotdev/shared/icons/arrow.svg';
-import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
 import Link from 'next/link';
-import { Post } from '@dailydotdev/shared/src/graphql/posts';
-import styles from '@dailydotdev/shared/src/components/cards/Card.module.css';
-import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
-import { CardLink } from '@dailydotdev/shared/src/components/cards/Card';
-import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
-import classed from '@dailydotdev/shared/src/lib/classed';
-import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
-import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
-import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
-import { HotLabel } from '@dailydotdev/shared/src/components/utilities';
+import { Button } from '../buttons/Button';
+import ArrowIcon from '../../../icons/arrow.svg';
+import BookmarkIcon from '../../../icons/bookmark.svg';
+import { Post } from '../../graphql/posts';
+import styles from '../cards/Card.module.css';
+import { LazyImage } from '../LazyImage';
+import { CardLink } from '../cards/Card';
+import { ElementPlaceholder } from '../ElementPlaceholder';
+import classed from '../../lib/classed';
+import { postAnalyticsEvent } from '../../lib/feed';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { SimpleTooltip } from '../tooltips/SimpleTooltip';
+import { HotLabel } from '../utilities';
 
 export type SimilarPostsProps = {
   posts: Post[] | null;
@@ -60,7 +60,7 @@ const ListItem = ({
     <div className={textContainerClassName}>
       <h5
         className={classNames(
-          'typo-callout text-theme-label-primary mb-0.5 multi-truncate',
+          'typo-callout text-theme-label-primary mb-0.5 multi-truncate break-words text-ellipsis',
           styles.title,
         )}
       >

@@ -34,6 +34,8 @@ import useNotification from '../hooks/useNotification';
 import FeaturesContext from '../contexts/FeaturesContext';
 import { Features, getFeatureValue } from '../lib/featureManagement';
 import { getThemeFont } from './utilities';
+import { PostModal } from './modals/PostModal';
+import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
 
 export type FeedProps<T> = {
   feedName: string;
@@ -140,6 +142,14 @@ export default function Feed<T>({
       variables,
     );
   const { ranking } = (variables as RankVariables) || {};
+  const {
+    onOpenModal,
+    onCloseModal,
+    onPrevious,
+    onNext,
+    selectedPost,
+    isFetchingNextPage,
+  } = usePostModalNavigation(items, fetchPage);
 
   useEffect(() => {
     if (emptyFeed) {
@@ -196,6 +206,7 @@ export default function Feed<T>({
     feedName,
     ranking,
   );
+
   const { onMenuClick, postMenuIndex, setPostMenuIndex } = useFeedContextMenu();
   const { notification, notificationIndex, onMessage } = useNotification();
 
@@ -210,6 +221,7 @@ export default function Feed<T>({
     row: number,
     column: number,
   ): void => {
+    document.body.classList.add('hidden-scrollbar');
     trackEvent(
       postAnalyticsEvent('comments click', post, {
         columns: virtualizedNumCards,
@@ -218,6 +230,7 @@ export default function Feed<T>({
         ...feedAnalyticsExtra(feedName, ranking),
       }),
     );
+    onOpenModal(index);
   };
 
   const onAdClick = (ad: Ad, index: number, row: number, column: number) => {
@@ -237,9 +250,17 @@ export default function Feed<T>({
     ...getStyle(useList, spaciness),
   };
 
-  return emptyScreen && emptyFeed ? (
-    <>{emptyScreen}</>
-  ) : (
+  if (emptyScreen && emptyFeed) {
+    return <>{emptyScreen}</>;
+  }
+
+  useEffect(() => {
+    if (!selectedPost) {
+      document.body.classList.remove('hidden-scrollbar');
+    }
+  }, [selectedPost]);
+
+  return (
     <div
       className={classNames(
         'relative mx-auto w-full',
@@ -249,6 +270,16 @@ export default function Feed<T>({
       )}
       style={style}
     >
+      {selectedPost && (
+        <PostModal
+          isOpen
+          id={selectedPost.id}
+          onRequestClose={onCloseModal}
+          onPreviousPost={onPrevious}
+          onNextPost={onNext}
+          isFetchingNextPage={isFetchingNextPage}
+        />
+      )}
       {header}
       <ScrollToTopButton />
       <div

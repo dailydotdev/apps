@@ -1,21 +1,24 @@
 import React, { ReactElement, useContext } from 'react';
-import { Post, PostData } from '@dailydotdev/shared/src/graphql/posts';
-import { QuaternaryButton } from '@dailydotdev/shared/src/components/buttons/QuaternaryButton';
-import useUpvotePost from '@dailydotdev/shared/src/hooks/useUpvotePost';
-import useBookmarkPost from '@dailydotdev/shared/src/hooks/useBookmarkPost';
-import UpvoteIcon from '@dailydotdev/shared/icons/upvote.svg';
-import CommentIcon from '@dailydotdev/shared/icons/comment.svg';
-import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
 import { QueryClient, useQueryClient, QueryKey } from 'react-query';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
-import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
-import { postEventName } from '@dailydotdev/shared/src/components/utilities';
+import UpvoteIcon from '../../../icons/upvote.svg';
+import CommentIcon from '../../../icons/comment.svg';
+import BookmarkIcon from '../../../icons/bookmark.svg';
+import { Post, PostData } from '../../graphql/posts';
+import { QuaternaryButton } from '../buttons/QuaternaryButton';
+import useUpvotePost from '../../hooks/useUpvotePost';
+import useBookmarkPost from '../../hooks/useBookmarkPost';
+import { postAnalyticsEvent } from '../../lib/feed';
+import AuthContext from '../../contexts/AuthContext';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
+import { postEventName } from '../utilities';
 
 interface PostActionsProps {
   post: Post;
   postQueryKey: QueryKey;
+  actionsClassName?: string;
   onComment?: () => unknown;
+  origin?: PostOrigin;
 }
 
 const updatePost =
@@ -60,7 +63,9 @@ const onBookmarkMutation = (
 export function PostActions({
   post,
   postQueryKey,
+  actionsClassName = 'hidden mobileL:flex',
   onComment,
+  origin = 'article page',
 }: PostActionsProps): ReactElement {
   const queryClient = useQueryClient();
   const { trackEvent } = useContext(AnalyticsContext);
@@ -88,7 +93,7 @@ export function PostActions({
       if (post.upvoted) {
         trackEvent(
           postAnalyticsEvent(postEventName({ upvoted: false }), post, {
-            extra: { origin: 'article page' },
+            extra: { origin },
           }),
         );
         return cancelPostUpvote({ id: post.id });
@@ -96,7 +101,7 @@ export function PostActions({
       if (post) {
         trackEvent(
           postAnalyticsEvent(postEventName({ upvoted: true }), post, {
-            extra: { origin: 'article page' },
+            extra: { origin },
           }),
         );
         return upvotePost({ id: post.id });
@@ -116,7 +121,7 @@ export function PostActions({
       postAnalyticsEvent(
         postEventName({ bookmarked: !post.bookmarked }),
         post,
-        { extra: { origin: 'article page' } },
+        { extra: { origin } },
       ),
     );
     if (!post.bookmarked) {
@@ -134,7 +139,7 @@ export function PostActions({
         onClick={toggleUpvote}
         icon={<UpvoteIcon />}
         aria-label="Upvote"
-        responsiveLabelClass="mobileL:flex"
+        responsiveLabelClass={actionsClassName}
         className="btn-tertiary-avocado"
       >
         Upvote
@@ -145,7 +150,7 @@ export function PostActions({
         onClick={onComment}
         icon={<CommentIcon />}
         aria-label="Comment"
-        responsiveLabelClass="mobileL:flex"
+        responsiveLabelClass={actionsClassName}
         className="btn-tertiary-avocado"
       >
         Comment
@@ -155,7 +160,7 @@ export function PostActions({
         pressed={post.bookmarked}
         onClick={toggleBookmark}
         icon={<BookmarkIcon />}
-        responsiveLabelClass="mobileL:flex"
+        responsiveLabelClass={actionsClassName}
         className="btn-tertiary-bun"
       >
         Bookmark

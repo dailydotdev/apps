@@ -19,10 +19,19 @@ body {
   &.ReactModal__Body--open .ReactModal__Content > * {
     overscroll-behavior-y: none;
   }
-   &.companion {
-  min-width: auto;
-  overflow: hidden;
+
+  &.companion {
+    min-width: auto;
+    overflow: hidden;
+  }
+
+  &.hidden-scrollbar {
+    overflow: hidden;
+
+    @screen laptop {
+      padding-right: 0.5rem;
     }
+  }
 }
 
 @define-mixin dark-mode {

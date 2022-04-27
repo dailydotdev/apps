@@ -7,6 +7,7 @@ const alwaysValidClasses = [
   'text-left',
   'text-lg',
   'text-xl',
+  'text-ellipsis',
   'bg-none',
 ];
 const findTargetClassNames = (classNames) => {

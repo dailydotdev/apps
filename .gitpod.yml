@@ -1,0 +1,42 @@
+# List the ports you want to expose and what to do when they are served. See https://www.gitpod.io/docs/config-ports/
+ports:
+  - port: 5002
+    onOpen: open-browser
+  - port: 4000
+    onOpen: ignore
+  - port: 5000
+    onOpen: ignore
+  - port: 6379
+    onOpen: ignore
+  - port: 3306
+    onOpen: ignore
+  - port: 5432
+    onOpen: ignore
+
+# List the start up tasks. You can start them in parallel in multiple terminals. See https://www.gitpod.io/docs/config-start-tasks/
+tasks:
+  - name: docker-compose
+    init: docker-compose pull
+    command: docker-compose up
+  - name: seed
+    before: |
+      sudo apt-get update
+      sudo apt-get install -y netcat
+    init: |
+      sleep 30
+      ./wait-for.sh localhost:5432
+      ./wait-for.sh localhost:3306
+    command: |
+      docker exec apps-daily-api-1 node ./node_modules/typeorm/cli.js migration:run
+      docker exec apps-daily-gateway-1 yarn run db:migrate:latest
+      docker exec apps-daily-api-1 node bin/import.js
+  - name: webapp
+    before: |
+      nvm install
+      nvm use
+    init: |
+      npm i -g lerna
+      lerna bootstrap
+    command: |
+      cd packages/webapp
+      npm run dev

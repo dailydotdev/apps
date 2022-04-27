@@ -1,9 +1,9 @@
 import React, { ReactElement } from 'react';
-import FeatherIcon from '@dailydotdev/shared/icons/feather.svg';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
-import { ownershipGuide } from '@dailydotdev/shared/src/lib/constants';
-import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import classNames from 'classnames';
+import { ownershipGuide } from '../../lib/constants';
+import sizeN from '../../../macros/sizeN.macro';
+import { Button } from '../buttons/Button';
+import FeatherIcon from '../../../icons/feather.svg';
 import styles from './AuthorOnboarding.module.css';
 
 interface AuthorOnboardingProps {
