@@ -100,7 +100,7 @@ function CommentBox({
     <>
       <article
         className={classNames(
-          'flex flex-col items-stretch max-h-60 overflow-y-auto',
+          'flex flex-col items-stretch max-h-[15rem] overflow-y-auto',
           commentBoxClassNames,
         )}
       >
