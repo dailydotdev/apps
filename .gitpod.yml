@@ -21,6 +21,9 @@ tasks:
     init: docker-compose pull
     command: docker-compose up
   - name: seed
+    before: |
+      sudo apt-get update
+      sudo apt-get install -y netcat
     init: |
       ./wait-for.sh localhost:5432
       ./wait-for.sh localhost:3306
@@ -37,4 +40,4 @@ tasks:
       lerna bootstrap
     command: |
       cd packages/webapp
-      npm run start
+      npm run dev
