@@ -83,8 +83,10 @@ export const usePostModalNavigation = (
     [items, openedPostIndex, isFetchingNextPage],
   );
 
+  const parent = typeof window !== 'undefined' ? window : null;
+
   useKeyboardNavigation(
-    window,
+    parent,
     [
       ['ArrowLeft', ret.onPrevious],
       ['ArrowRight', ret.onNext],
