@@ -8,10 +8,6 @@
     align-items: unset;
 
     @screen tablet {
-      margin-top: 3.5rem;
-    }
-
-    @screen laptop {
       margin-top: 0;
     }
 
