@@ -5,13 +5,20 @@ import useIncrementReadingRank from '../useIncrementReadingRank';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { feedAnalyticsExtra, postAnalyticsEvent } from '../../lib/feed';
 
+export type FeedPostClick = (
+  post: Post,
+  index: number,
+  row: number,
+  column: number,
+) => Promise<void>;
+
 export default function useFeedOnPostClick(
   items: FeedItem[],
   updatePost: (page: number, index: number, post: Post) => void,
   columns: number,
   feedName: string,
   ranking?: string,
-): (post: Post, index: number, row: number, column: number) => Promise<void> {
+): FeedPostClick {
   const { incrementReadingRank } = useIncrementReadingRank();
   const { trackEvent } = useContext(AnalyticsContext);
 
