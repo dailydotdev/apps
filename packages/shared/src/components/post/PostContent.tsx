@@ -77,7 +77,8 @@ const PageBodyContainer = classed(
 
 const PostContainer = classed(
   'main',
-  'flex flex-col flex-1 px-8 tablet:pb-20 laptop:w-[40.75rem] laptop:max-w-[40.75rem] tablet:border-r tablet:border-theme-divider-tertiary',
+  styles.postContent,
+  'flex flex-col flex-1 px-8 tablet:pb-20 tablet:border-r tablet:border-theme-divider-tertiary',
 );
 
 export function PostContent({
