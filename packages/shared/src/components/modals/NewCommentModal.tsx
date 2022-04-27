@@ -255,12 +255,13 @@ export default function NewCommentModal({
       onRequestClose={confirmClose}
       padding={false}
       {...props}
+      style={{ overlay: { position: 'fixed' } }}
     >
       <ModalCloseButton onClick={confirmClose} className="top-2" />
       <TabContainer
         onActiveChange={(active: string) => setActiveTab(active)}
         shouldMountInactive
-        style={{ height: '40rem' }}
+        className="tablet:max-h-[40rem] grow tablet:grow-0"
       >
         <Tab label="Write" className="flex flex-col flex-1">
           <CommentBox
