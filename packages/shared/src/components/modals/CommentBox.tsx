@@ -100,7 +100,7 @@ function CommentBox({
     <>
       <article
         className={classNames(
-          'flex flex-col items-stretch',
+          'flex flex-col items-stretch max-h-60 overflow-y-auto',
           commentBoxClassNames,
         )}
       >
@@ -131,11 +131,11 @@ function CommentBox({
           </strong>
         </div>
       </div>
-      <div className="flex relative flex-1 px-2">
+      <div className="flex relative flex-1 pl-2">
         <ProfilePicture user={user} size="small" />
         <textarea
           className={classNames(
-            'ml-3 flex-1 text-theme-label-primary bg-transparent border-none caret-theme-label-link break-words typo-subhead resize-none',
+            'ml-3 pr-2 flex-1 text-theme-label-primary bg-transparent border-none caret-theme-label-link break-words typo-subhead resize-none',
             styles.textarea,
           )}
           ref={commentRef}
