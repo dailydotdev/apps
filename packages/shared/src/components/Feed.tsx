@@ -221,7 +221,7 @@ export default function Feed<T>({
     row: number,
     column: number,
   ): void => {
-    document.body.classList.add('overflow-hidden', 'pr-0', 'laptop:pr-2');
+    document.body.classList.add('hidden-scrollbar');
     trackEvent(
       postAnalyticsEvent('comments click', post, {
         columns: virtualizedNumCards,
@@ -256,7 +256,7 @@ export default function Feed<T>({
 
   useEffect(() => {
     if (!selectedPost) {
-      document.body.classList.remove('overflow-hidden', 'pr-0', 'laptop:pr-2');
+      document.body.classList.remove('hidden-scrollbar');
     }
   }, [selectedPost]);
 
