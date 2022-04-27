@@ -1,8 +1,8 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { NewCommentContainer } from '@dailydotdev/shared/src/components/utilities';
-import { ProfilePicture } from '@dailydotdev/shared/src/components/ProfilePicture';
-import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import { NewCommentContainer } from '../utilities';
+import { ProfilePicture } from '../ProfilePicture';
+import { LoggedUser } from '../../lib/user';
 import styles from './NewComment.module.css';
 
 interface NewCommentProps {

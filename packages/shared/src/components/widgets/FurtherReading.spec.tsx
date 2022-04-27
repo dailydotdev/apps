@@ -1,23 +1,26 @@
+import nock from 'nock';
+import React from 'react';
+import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from 'react-query';
+import AuthContext from '../../contexts/AuthContext';
+import { LoggedUser } from '../../lib/user';
 import {
   ADD_BOOKMARKS_MUTATION,
   Post,
   REMOVE_BOOKMARK_MUTATION,
-} from '@dailydotdev/shared/src/graphql/posts';
-import nock from 'nock';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import React from 'react';
-import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
-import { QueryClient, QueryClientProvider } from 'react-query';
-import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+} from '../../graphql/posts';
 import {
   FURTHER_READING_QUERY,
   FurtherReadingData,
-} from '@dailydotdev/shared/src/graphql/furtherReading';
-import defaultFeedPage from '../fixture/feed';
-import defaultUser from '../fixture/loggedUser';
-import FurtherReading from '../../components/widgets/FurtherReading';
-import { MockedGraphQLResponse, mockGraphQL } from '../helpers/graphql';
-import { waitForNock } from '../helpers/utilities';
+} from '../../graphql/furtherReading';
+import defaultFeedPage from '../../../__tests__/fixture/feed';
+import defaultUser from '../../../__tests__/fixture/loggedUser';
+import FurtherReading from './FurtherReading';
+import {
+  MockedGraphQLResponse,
+  mockGraphQL,
+} from '../../../__tests__/helpers/graphql';
+import { waitForNock } from '../../../__tests__/helpers/utilities';
 
 const showLogin = jest.fn();
 

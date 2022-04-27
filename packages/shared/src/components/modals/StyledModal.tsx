@@ -1,4 +1,5 @@
 import Modal from 'react-modal';
+import classNames from 'classnames';
 import React, { ReactElement, ReactNode } from 'react';
 import classed from '../../lib/classed';
 import styles from './StyledModal.module.css';
@@ -12,13 +13,14 @@ export interface ModalProps extends Modal.Props {
 export function ReactModalAdapter({
   className,
   contentClassName,
+  overlayClassName,
   ...props
 }: ModalProps): ReactElement {
   return (
     <Modal
       portalClassName={className.toString()}
-      overlayClassName="overlay"
-      className="focus:outline-none modal"
+      overlayClassName={classNames('overlay', overlayClassName)}
+      className={classNames('focus:outline-none modal', contentClassName)}
       {...props}
     />
   );

@@ -1,8 +1,8 @@
-import { Post } from '@dailydotdev/shared/src/graphql/posts';
 import React from 'react';
-import { render, RenderResult, screen, waitFor } from '@testing-library/preact';
-import defaultFeedPage from '../fixture/feed';
-import BestDiscussions from '../../components/widgets/BestDiscussions';
+import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import { Post } from '../../graphql/posts';
+import defaultFeedPage from '../../../__tests__/fixture/feed';
+import BestDiscussions from './BestDiscussions';
 
 beforeEach(() => {
   jest.clearAllMocks();

@@ -1,0 +1,54 @@
+.postModal {
+  & :global(.overlay.post-modal) {
+    position: relative;
+    min-height: 100vh;
+    padding: 0;
+    overflow-y: scroll;
+    flex-direction: unset;
+    align-items: unset;
+
+    @screen tablet {
+      margin-top: 3.5rem;
+    }
+
+    @screen laptop {
+      margin-top: 0;
+    }
+
+    @screen responsiveModalBreakpoint {
+      position: fixed;
+      min-height: unset;
+    }
+  }
+
+  & :global(.modal.post-modal) {
+    @apply bg-theme-bg-primary;
+
+    max-width: 100vw;
+    align-items: stretch;
+    border: none;
+    border-radius: 0;
+    max-height: unset;
+    height: fit-content;
+    position: absolute;
+    top: 0;
+
+    @screen responsiveModalBreakpoint {
+      min-height: unset;
+    }
+
+    @screen laptop {
+      max-width: 63.75rem;
+      border-radius: 1rem;
+      border: 1px solid var(--theme-divider-secondary);
+      margin-top: 3.5rem;
+      margin-bottom: 3.5rem;
+      position: relative;
+    }
+  }
+}
+.addPadding {
+  & :global(.modal) {
+    padding: 0.5rem;
+  }
+}

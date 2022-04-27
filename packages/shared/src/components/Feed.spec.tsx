@@ -17,7 +17,10 @@ import {
   CANCEL_UPVOTE_MUTATION,
   FeedData,
   HIDE_POST_MUTATION,
+  Post,
+  PostData,
   PostsEngaged,
+  POST_BY_ID_QUERY,
   REMOVE_BOOKMARK_MUTATION,
   REPORT_POST_MUTATION,
   UPVOTE_MUTATION,
@@ -839,4 +842,80 @@ it('should block a tag', async () => {
   const contextBtn = await screen.findByText('Not interested in #javascript');
   contextBtn.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
+});
+
+it('should open a modal to view post details', async () => {
+  renderComponent();
+  await waitForNock();
+  const [first] = await screen.findAllByLabelText('Comments');
+  fireEvent.click(first);
+  await screen.findByRole('dialog');
+});
+
+const createPostMock = (
+  data: Partial<Post> = {},
+): MockedGraphQLResponse<PostData> => ({
+  request: {
+    query: POST_BY_ID_QUERY,
+    variables: {
+      id: data.id ?? '0e4005b2d3cf191f8c44c2718a457a1e',
+    },
+  },
+  result: {
+    data: {
+      post: {
+        id: '0e4005b2d3cf191f8c44c2718a457a1e',
+        __typename: 'PostPage',
+        title: 'Eminem Quotes Generator - Simple PHP RESTful API',
+        permalink: 'http://localhost:4000/r/9CuRpr5NiEY5',
+        image:
+          'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/22fc3ac5cc3fedf281b6e4b46e8c0ba2',
+        createdAt: '2019-05-16T15:16:05.000Z',
+        readTime: 8,
+        tags: ['development', 'data-science', 'sql'],
+        source: {
+          __typename: 'Source',
+          name: 'Towards Data Science',
+          image:
+            'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos/tds',
+        },
+        upvoted: false,
+        commented: false,
+        bookmarked: false,
+        commentsPermalink: 'https://localhost:5002/posts/9CuRpr5NiEY5',
+        numUpvotes: 0,
+        numComments: 0,
+        ...data,
+      },
+    },
+  },
+});
+
+it('should be able to navigate through posts', async () => {
+  const [firstPost, secondPost] = defaultFeedPage.edges;
+  renderComponent();
+  await waitForNock();
+
+  mockGraphQL(createPostMock({ id: firstPost.node.id }));
+  const [first] = await screen.findAllByLabelText('Comments');
+  fireEvent.click(first);
+
+  await screen.findByRole('dialog');
+  const title = await screen.findByTestId('post-modal-title');
+  expect(title).toHaveTextContent(firstPost.node.title);
+
+  await screen.findByRole('navigation');
+  const next = await screen.findByLabelText('Next');
+  const params = { id: secondPost.node.id, title: secondPost.node.title };
+  mockGraphQL(createPostMock(params));
+  fireEvent.click(next);
+  const secondTitle = await screen.findByTestId('post-modal-title');
+  expect(secondTitle).toHaveTextContent(secondPost.node.title);
+
+  await screen.findByRole('navigation');
+  const previous = await screen.findByLabelText('Previous');
+  mockGraphQL(createPostMock({ id: firstPost.node.id }));
+  fireEvent.click(previous);
+  const firstTitle = await screen.findByTestId('post-modal-title');
+  expect(firstTitle).toHaveTextContent(firstPost.node.title);
 });

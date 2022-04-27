@@ -1,10 +1,12 @@
 import React, { forwardRef, ReactElement, Ref } from 'react';
 import { ProfileLink, ProfileLinkProps } from './ProfileLink';
 import { ProfilePicture, ProfilePictureProps } from '../ProfilePicture';
+import { Author } from '../../graphql/comments';
 
 interface ProfileImageLinkProps extends ProfileLinkProps {
   picture?: Omit<ProfilePictureProps, 'user'>;
   ref?: Ref<HTMLAnchorElement>;
+  user: Author;
 }
 
 function ProfileImageLinkComponent(

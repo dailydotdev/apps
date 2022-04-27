@@ -37,7 +37,7 @@ export function TagLinks({
   }
 
   return (
-    <div className={classNames('flex flex-wrap gap-2 mt-3 mb-4', className)}>
+    <div className={classNames('flex flex-wrap gap-2', className)}>
       {tags.map((tag) => (
         <TagLink key={tag} tag={tag} className={tagClassName} />
       ))}

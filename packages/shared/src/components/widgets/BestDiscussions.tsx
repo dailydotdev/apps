@@ -1,16 +1,17 @@
 import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
-import ArrowIcon from '@dailydotdev/shared/icons/arrow.svg';
 import Link from 'next/link';
-import { Post } from '@dailydotdev/shared/src/graphql/posts';
-import styles from '@dailydotdev/shared/src/components/cards/Card.module.css';
-import { CardLink } from '@dailydotdev/shared/src/components/cards/Card';
-import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
-import classed from '@dailydotdev/shared/src/lib/classed';
-import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
-import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
-import { ProfilePicture } from '@dailydotdev/shared/src/components/ProfilePicture';
+import { Button } from '../buttons/Button';
+import ArrowIcon from '../../../icons/arrow.svg';
+import { Post } from '../../graphql/posts';
+import styles from '../cards/Card.module.css';
+import { CardLink } from '../cards/Card';
+import { ElementPlaceholder } from '../ElementPlaceholder';
+import classed from '../../lib/classed';
+import { postAnalyticsEvent } from '../../lib/feed';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { ProfilePicture } from '../ProfilePicture';
+import { WidgetContainer } from './common';
 
 export type BestDiscussionsProps = {
   posts: Post[] | null;
@@ -79,6 +80,11 @@ const ListItemPlaceholder = (): ReactElement => (
   </article>
 );
 
+export const BestDiscussionsContainer = classed(
+  WidgetContainer,
+  'flex flex-col',
+);
+
 export default function BestDiscussions({
   posts,
   isLoading,
@@ -102,12 +108,7 @@ export default function BestDiscussions({
   };
 
   return (
-    <section
-      className={classNames(
-        'flex flex-col rounded-2xl bg-theme-bg-primary border-theme-divider-quaternary border',
-        className,
-      )}
-    >
+    <BestDiscussionsContainer className={className}>
       <h4 className="py-3 pr-4 pl-6 typo-body text-theme-label-tertiary">
         Best discussions
       </h4>
@@ -143,6 +144,6 @@ export default function BestDiscussions({
           I&apos;m feeling lucky
         </Button>
       </Link>
-    </section>
+    </BestDiscussionsContainer>
   );
 }

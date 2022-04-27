@@ -1,17 +1,17 @@
 import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import request from 'graphql-request';
 import { QueryClient, useQuery, useQueryClient } from 'react-query';
+import AuthContext from '../../contexts/AuthContext';
 import {
   FURTHER_READING_QUERY,
   FurtherReadingData,
-} from '@dailydotdev/shared/src/graphql/furtherReading';
-import request from 'graphql-request';
-import { apiUrl } from '@dailydotdev/shared/src/lib/config';
-import useBookmarkPost from '@dailydotdev/shared/src/hooks/useBookmarkPost';
-import { Post } from '@dailydotdev/shared/src/graphql/posts';
-import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
-import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
+} from '../../graphql/furtherReading';
+import { apiUrl } from '../../lib/config';
+import useBookmarkPost from '../../hooks/useBookmarkPost';
+import { Post } from '../../graphql/posts';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { postAnalyticsEvent } from '../../lib/feed';
 import SimilarPosts from './SimilarPosts';
 import BestDiscussions from './BestDiscussions';
 import PostToc from './PostToc';
