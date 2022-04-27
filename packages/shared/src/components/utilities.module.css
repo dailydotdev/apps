@@ -49,6 +49,11 @@
 }
 
 .pageWidgets {
+  @screen tablet {
+    width: 18.75rem;
+    max-width: 18.75rem;
+  }
+
   @screen laptop {
     width: 23rem;
     max-width: 23rem;
