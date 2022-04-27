@@ -3,7 +3,7 @@
     position: relative;
     min-height: 100vh;
     padding: 0;
-    overflow-y: auto;
+    overflow-y: scroll;
     flex-direction: unset;
     align-items: unset;
 
