@@ -4,10 +4,8 @@ ports:
     onOpen: open-browser
   - port: 4000
     onOpen: ignore
-    visibility: public
   - port: 5000
     onOpen: ignore
-    visibility: public
   - port: 6379
     onOpen: ignore
   - port: 3306
