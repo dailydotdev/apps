@@ -1,6 +1,6 @@
 #!/bin/sh
 
-WAIT_TIMEOUT=15
+WAIT_TIMEOUT=60
 WAIT_QUIET=0
 
 echoerr() {
