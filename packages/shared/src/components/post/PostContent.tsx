@@ -215,6 +215,20 @@ export function PostContent({
     }
   }, [initializeNewComment]);
 
+  const { requestQuery } = upvotedPopup;
+  const { queryKey, query, params = {} } = requestQuery || {};
+  const queryResult = useInfiniteQuery<UpvotesData>(
+    queryKey,
+    ({ pageParam }) =>
+      request(`${apiUrl}/graphql`, query, { ...params, after: pageParam }),
+    {
+      enabled: upvotedPopup.modal,
+      getNextPageParam: (lastPage) =>
+        lastPage.upvotes.pageInfo.hasNextPage &&
+        lastPage.upvotes.pageInfo.endCursor,
+    },
+  );
+
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const Wrapper = hasNavigation ? BodyContainer : PageBodyContainer;
 
@@ -249,20 +263,6 @@ export function PostContent({
 
   const isFixed = position === 'fixed';
   const padding = isFixed ? 'py-4' : 'pt-6';
-
-  const { requestQuery } = upvotedPopup;
-  const { queryKey, query, params = {} } = requestQuery || {};
-  const queryResult = useInfiniteQuery<UpvotesData>(
-    queryKey,
-    ({ pageParam }) =>
-      request(`${apiUrl}/graphql`, query, { ...params, after: pageParam }),
-    {
-      enabled: upvotedPopup.modal,
-      getNextPageParam: (lastPage) =>
-        lastPage.upvotes.pageInfo.hasNextPage &&
-        lastPage.upvotes.pageInfo.endCursor,
-    },
-  );
 
   return (
     <Wrapper className={className}>
