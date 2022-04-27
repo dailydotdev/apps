@@ -29,7 +29,7 @@ const FeedTagItem = ({
 }: FeedTagItemProps): ReactElement => {
   const pillWidth = useMemo(
     () => getPillWidth(isFirstTagPill, isLastTagPill),
-    [],
+    [isFirstTagPill, isLastTagPill],
   );
   const isPlaceholder = !tag.length;
   const className = isPlaceholder

@@ -68,7 +68,7 @@ export default function FeedFiltersIntroModal({
   onOpenFeedFilterModal,
   ...modalProps
 }: FeedFiltersIntroModalProps): ReactElement {
-  const rows = [
+  const tagsRows = [
     ['', 'docker', '', 'kubernetes', ''],
     ['', '', 'architecture', '', ''],
     ['', '', '', 'devops', ''],
@@ -78,14 +78,14 @@ export default function FeedFiltersIntroModal({
   return (
     <ResponsiveModal className={classNames(className)} {...modalProps}>
       <section className="flex overflow-hidden flex-col items-center py-6 px-6 mobileL:px-10 mt-24">
-        <UserIcon className="m-2 w-12 h-12" />
-        <h3 className="mt-4 font-bold typo-large-title">Create my feed</h3>
+        <UserIcon className="my-3 mx-2 w-12 h-12" />
+        <h3 className="mt-1 font-bold typo-large-title">Create my feed</h3>
         <p className="mt-3 mb-16 text-center typo-title3 text-theme-label-tertiary">
           Devs with a personal feed get 11.5x more relevant articles
         </p>
-        <FeedFiltersIntroModalTagsContainer className="mb-20">
+        <FeedFiltersIntroModalTagsContainer className="mb-24">
           {/* eslint-disable react/no-array-index-key */}
-          {rows.map((row, i) => (
+          {tagsRows.map((row, i) => (
             <ul className="flex gap-3 mb-3" key={i}>
               {row.map((tag, j) => (
                 <FeedFiltersIntroModalTags
