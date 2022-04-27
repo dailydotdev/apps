@@ -222,7 +222,8 @@ export default function Feed<T>({
     column: number,
   ): void => {
     document.body.classList.add('overflow-hidden');
-    document.body.classList.add('pr-2');
+    document.body.classList.add('pr-0');
+    document.body.classList.add('laptop:pr-2');
     trackEvent(
       postAnalyticsEvent('comments click', post, {
         columns: virtualizedNumCards,
@@ -258,7 +259,8 @@ export default function Feed<T>({
   useEffect(() => {
     if (!selectedPost) {
       document.body.classList.remove('overflow-hidden');
-      document.body.classList.remove('pr-2');
+      document.body.classList.remove('pr-0');
+      document.body.classList.remove('laptop:pr-2');
     }
   }, [selectedPost]);
 
