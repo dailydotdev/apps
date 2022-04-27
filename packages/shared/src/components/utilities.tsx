@@ -110,7 +110,8 @@ export const PageContainer = classed(
 
 export const PageWidgets = classed(
   'aside',
-  'flex flex-col gap-6 px-6 laptop:w-[23rem] laptop:max-w-[23rem] tablet:max-w-[18.75rem]',
+  styles.pageWidgets,
+  'flex flex-col gap-6 px-6 tablet:max-w-[18.75rem]',
 );
 
 export const NewCommentContainer = classed(

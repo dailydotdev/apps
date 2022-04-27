@@ -47,3 +47,10 @@
 .activeTabIndicator {
   border-radius: 0.063rem;
 }
+
+.pageWidgets {
+  @screen laptop {
+    width: 23rem;
+    max-width: 23rem;
+  }
+}
