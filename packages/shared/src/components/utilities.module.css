@@ -47,10 +47,3 @@
 .activeTabIndicator {
   border-radius: 0.063rem;
 }
-
-.postContent {
-  @screen laptop {
-    width: 40.75rem;
-    max-width: 40.75rem;
-  }
-}

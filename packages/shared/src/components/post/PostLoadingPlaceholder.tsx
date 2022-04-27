@@ -10,11 +10,9 @@ import { ListItemPlaceholder } from '../widgets/ListItemPlaceholder';
 import PlaceholderCommentList from '../comments/PlaceholderCommentList';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import classed from '../../lib/classed';
-import styles from '../utilities.module.css';
 
 const Container = classed(
   'div',
-  styles.postContent,
   'flex flex-col flex-1 p-8 tablet:border-r tablet:border-theme-divider-tertiary',
 );
 

@@ -77,7 +77,6 @@ const PageBodyContainer = classed(
 
 const PostContainer = classed(
   'main',
-  styles.postContent,
   'flex flex-col flex-1 px-8 tablet:pb-20 tablet:border-r tablet:border-theme-divider-tertiary',
 );
 
@@ -211,12 +210,13 @@ export function PostContent({
   }, [postById]);
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
+  const Wrapper = hasNavigation ? BodyContainer : PageBodyContainer;
 
   if (isLoading) {
     return (
-      <PageBodyContainer>
+      <Wrapper>
         <PostLoadingPlaceholder />
-      </PageBodyContainer>
+      </Wrapper>
     );
   }
 
@@ -243,7 +243,6 @@ export function PostContent({
 
   const isFixed = position === 'fixed';
   const padding = isFixed ? 'py-4' : 'pt-6';
-  const Wrapper = hasNavigation ? BodyContainer : PageBodyContainer;
 
   return (
     <Wrapper className={className}>
