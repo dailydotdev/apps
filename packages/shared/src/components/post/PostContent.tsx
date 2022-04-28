@@ -214,7 +214,7 @@ export function PostContent({
 
   if (isLoading) {
     return (
-      <Wrapper>
+      <Wrapper className={className}>
         <PostLoadingPlaceholder />
       </Wrapper>
     );
