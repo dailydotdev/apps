@@ -30,6 +30,7 @@
     }
   }
 }
+
 .addPadding {
   & :global(.modal) {
     padding: 0.5rem;
