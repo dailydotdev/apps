@@ -1,26 +1,23 @@
 import React, { ReactElement, useContext, useState } from 'react';
-import { Post } from '@dailydotdev/shared/src/graphql/posts';
-import MainComment from '@dailydotdev/shared/src/components/comments/MainComment';
+import dynamic from 'next/dynamic';
+import { useQuery } from 'react-query';
+import request from 'graphql-request';
+import { apiUrl } from '../../lib/config';
+import AuthContext from '../../contexts/AuthContext';
 import {
   Comment,
   POST_COMMENTS_QUERY,
   PostCommentsData,
-} from '@dailydotdev/shared/src/graphql/comments';
-import { useQuery } from 'react-query';
-import { apiUrl } from '@dailydotdev/shared/src/lib/config';
-import request from 'graphql-request';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import dynamic from 'next/dynamic';
+} from '../../graphql/comments';
+import { Post } from '../../graphql/posts';
+import MainComment from '../comments/MainComment';
 
 const PlaceholderCommentList = dynamic(
-  () =>
-    import(
-      '@dailydotdev/shared/src/components/comments/PlaceholderCommentList'
-    ),
+  () => import('../comments/PlaceholderCommentList'),
 );
 
 const DeleteCommentModal = dynamic(
-  () => import('@dailydotdev/shared/src/components/modals/DeleteCommentModal'),
+  () => import('../modals/DeleteCommentModal'),
 );
 
 export interface ParentComment {

@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
-import { Post } from '@dailydotdev/shared/src/graphql/posts';
-import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
+import { Post } from '../../graphql/posts';
+import { ClickableText } from '../buttons/ClickableText';
 
 interface PostUpvotesCommentsCountProps {
   post: Post;

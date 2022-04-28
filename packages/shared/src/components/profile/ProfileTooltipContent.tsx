@@ -51,7 +51,7 @@ export function ProfileTooltipContent({
         </p>
       )}
       {tags?.length ? (
-        <span className="typo-subhead text-theme-label-quaternary">
+        <span className="mb-2 typo-subhead text-theme-label-quaternary">
           Loves reading about
         </span>
       ) : null}
