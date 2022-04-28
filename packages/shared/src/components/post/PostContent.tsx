@@ -341,7 +341,6 @@ export function PostContent({
           isOpen={!!parentComment}
           onRequestClose={closeNewComment}
           {...parentComment}
-          ariaHideApp={!(process?.env?.NODE_ENV === 'test')}
           onComment={onNewComment}
         />
       )}
