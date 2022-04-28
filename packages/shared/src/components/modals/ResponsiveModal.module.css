@@ -4,10 +4,6 @@
     min-height: 100vh;
     padding: 0;
 
-    &:global(.fixed-position) {
-      position: fixed;
-    }
-
     @screen responsiveModalBreakpoint {
       position: fixed;
       min-height: unset;

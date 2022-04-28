@@ -254,7 +254,6 @@ export default function NewCommentModal({
       contentRef={modalRef}
       onRequestClose={confirmClose}
       padding={false}
-      overlayClassName="fixed-position"
       {...props}
     >
       <ModalCloseButton onClick={confirmClose} className="top-2" />

@@ -5,11 +5,10 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import Modal from 'react-modal';
 import classNames from 'classnames';
 import { useQuery } from 'react-query';
 import request from 'graphql-request';
-import { ModalProps } from './StyledModal';
+import { StyledModal, ModalProps } from './StyledModal';
 import { useHideOnModal } from '../../hooks/useHideOnModal';
 import { useResetScrollForResponsiveModal } from '../../hooks/useResetScrollForResponsiveModal';
 import { PostContent } from '../post/PostContent';
@@ -120,12 +119,13 @@ export function PostModal({
   }, [isLoading]);
 
   return (
-    <Modal
+    <StyledModal
       {...props}
-      portalClassName={styles.postModal}
-      className={classNames(className, 'post-modal focus:outline-none')}
-      overlayClassName="post-modal-overlay"
+      className={classNames(className, styles.postModal)}
+      overlayClassName="post-modal"
+      contentClassName="post-modal"
       id="post-modal"
+      style={{ content: { overflow: 'hidden' } }}
       onRequestClose={onClose}
     >
       <PostContent
@@ -133,11 +133,11 @@ export function PostModal({
         postById={postById}
         onPreviousPost={onPreviousPost}
         onNextPost={onNextPost}
-        className="post-content"
+        className="h-full modal-post"
         onClose={onClose}
         isLoading={isLoading || !isFetched || isFetchingNextPage}
         isModal
       />
-    </Modal>
+    </StyledModal>
   );
 }

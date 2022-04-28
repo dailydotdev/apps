@@ -214,7 +214,7 @@ export function PostContent({
 
   if (isLoading) {
     return (
-      <Wrapper className={className}>
+      <Wrapper>
         <PostLoadingPlaceholder />
       </Wrapper>
     );
@@ -232,8 +232,6 @@ export function PostContent({
     );
   };
 
-  const isFixed = position === 'fixed';
-  const padding = isFixed ? 'py-4' : 'pt-6';
   const postLinkProps = {
     href: postById?.post.permalink,
     title: 'Go to article',
@@ -242,6 +240,9 @@ export function PostContent({
     onClick: onLinkClick,
     onMouseUp: (event: React.MouseEvent) => event.button === 1 && onLinkClick(),
   };
+
+  const isFixed = position === 'fixed';
+  const padding = isFixed ? 'py-4' : 'pt-6';
 
   return (
     <Wrapper className={className}>
