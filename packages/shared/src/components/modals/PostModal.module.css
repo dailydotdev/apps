@@ -32,9 +32,11 @@
 
     @screen tablet {
       flex-direction: row;
+      height: calc(100vh - 4rem);
     }
 
     @screen laptop {
+      height: unset;
       width: 63.75rem;
       max-width: 63.75rem;
       border-radius: 1rem;
