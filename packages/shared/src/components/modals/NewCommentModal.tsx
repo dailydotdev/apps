@@ -253,6 +253,7 @@ export default function NewCommentModal({
     <ResponsiveModal
       contentRef={modalRef}
       onRequestClose={confirmClose}
+      overlayClassName="fixed-position"
       padding={false}
       {...props}
     >

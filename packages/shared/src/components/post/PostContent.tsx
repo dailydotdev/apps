@@ -234,7 +234,7 @@ export function PostContent({
 
   if (isLoading) {
     return (
-      <Wrapper>
+      <Wrapper className={className}>
         <PostLoadingPlaceholder />
       </Wrapper>
     );
@@ -362,7 +362,6 @@ export function PostContent({
           isOpen={!!parentComment}
           onRequestClose={closeNewComment}
           {...parentComment}
-          ariaHideApp={!(process?.env?.NODE_ENV === 'test')}
           onComment={onNewComment}
         />
       )}
