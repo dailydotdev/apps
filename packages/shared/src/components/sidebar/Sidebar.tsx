@@ -53,7 +53,7 @@ import { useMyFeed } from '../../hooks/useMyFeed';
 import useDefaultFeed from '../../hooks/useDefaultFeed';
 import { Features, getFeatureValue } from '../../lib/featureManagement';
 import CreateMyFeedButton from '../CreateMyFeedButton';
-import FeedFiltersWrapperModal from '../modals/FeedFiltersWrapperModal';
+import FeedFiltersWrapperModal from '../modals/FeedFiltersModal/FeedFiltersWrapperModal';
 import usePersistentContext from '../../hooks/usePersistentContext';
 
 const FIRST_TIME_SESSION = 'firstTimeSession';

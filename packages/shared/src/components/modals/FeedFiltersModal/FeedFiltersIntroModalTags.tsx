@@ -1,5 +1,5 @@
 import React, { ReactElement, useState } from 'react';
-import { FeedFiltersIntroModalTagPill } from '../utilities';
+import { FeedFiltersIntroModalTagPill } from '../../utilities';
 
 type FeedFiltersIntroModalTagsProps = {
   tag: string;

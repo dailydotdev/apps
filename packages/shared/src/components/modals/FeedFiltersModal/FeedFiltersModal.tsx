@@ -1,13 +1,12 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { ModalProps } from './StyledModal';
-import { ResponsiveModal } from './ResponsiveModal';
-import TagsFilter from '../filters/TagsFilter';
-import CreateFeedFilterButton from '../CreateFeedFilterButton';
-import PlusIcon from '../../../icons/plus.svg';
-import XIcon from '../../../icons/x.svg';
-import { Button } from '../buttons/Button';
-import FeedFiltersIntroModal from './FeedFiltersIntroModal';
+import { ModalProps } from '../StyledModal';
+import { ResponsiveModal } from '../ResponsiveModal';
+import TagsFilter from '../../filters/TagsFilter';
+import CreateFeedFilterButton from '../../CreateFeedFilterButton';
+import PlusIcon from '../../../../icons/plus.svg';
+import XIcon from '../../../../icons/x.svg';
+import { Button } from '../../buttons/Button';
 
 type TypeProps = {
   feedFilterModalType: string;
@@ -18,7 +17,7 @@ type TypeProps = {
   onCloseFeedFilterModal: () => unknown;
 };
 
-type FeedFiltersModalProps = TypeProps & ModalProps;
+export type FeedFiltersModalProps = TypeProps & ModalProps;
 
 type LayoutModalProps = TypeProps & Pick<ModalProps, 'onRequestClose'>;
 
@@ -67,7 +66,7 @@ const FeedFiltersModalFooter = ({
   );
 };
 
-const FeedFiltersModal = ({
+export default function FeedFiltersModal({
   className,
   showIntroModal,
   onCloseFeedFilterModal,
@@ -76,7 +75,7 @@ const FeedFiltersModal = ({
   actionToOpenFeedFilters,
   onIntroClose,
   ...modalProps
-}: FeedFiltersModalProps) => {
+}: FeedFiltersModalProps): ReactElement {
   return (
     <ResponsiveModal
       className={classNames(className)}
@@ -137,48 +136,5 @@ const FeedFiltersModal = ({
         />
       )}
     </ResponsiveModal>
-  );
-};
-
-export default function FeedFiltersWrapperModal({
-  showIntroModal,
-  onCloseFeedFilterModal,
-  feedFilterModalType,
-  feedFilterOnboardingModalType,
-  actionToOpenFeedFilters,
-  onIntroClose,
-  isOpen,
-}: FeedFiltersModalProps): ReactElement {
-  const [isFeedFilterModalOpen, setIsFeedFilterModalOpen] = useState(false);
-
-  const onOpenFeedFilterModal = () => {
-    if (feedFilterModalType === 'v1') {
-      onIntroClose();
-      actionToOpenFeedFilters();
-    } else {
-      setIsFeedFilterModalOpen(true);
-    }
-  };
-
-  return showIntroModal && !isFeedFilterModalOpen ? (
-    <FeedFiltersIntroModal
-      isOpen={!isFeedFilterModalOpen}
-      feedFilterOnboardingModalType={feedFilterOnboardingModalType}
-      actionToOpenFeedFilters={actionToOpenFeedFilters}
-      feedFilterModalType={feedFilterModalType}
-      onOpenFeedFilterModal={onOpenFeedFilterModal}
-      onRequestClose={onCloseFeedFilterModal}
-      padding={false}
-    />
-  ) : (
-    <FeedFiltersModal
-      feedFilterModalType={feedFilterModalType}
-      showIntroModal={showIntroModal}
-      feedFilterOnboardingModalType={feedFilterOnboardingModalType}
-      actionToOpenFeedFilters={actionToOpenFeedFilters}
-      onIntroClose={onIntroClose}
-      onCloseFeedFilterModal={onCloseFeedFilterModal}
-      isOpen={isOpen}
-    />
   );
 }

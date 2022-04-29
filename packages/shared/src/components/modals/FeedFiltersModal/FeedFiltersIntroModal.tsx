@@ -1,13 +1,13 @@
 import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
-import { ModalProps } from './StyledModal';
-import { ResponsiveModal } from './ResponsiveModal';
-import UserIcon from '../../../icons/user.svg';
-import { Button } from '../buttons/Button';
+import { ModalProps } from '../StyledModal';
+import { ResponsiveModal } from '../ResponsiveModal';
+import UserIcon from '../../../../icons/user.svg';
+import { Button } from '../../buttons/Button';
 import FeedFiltersIntroModalTags from './FeedFiltersIntroModalTags';
-import { FeedFiltersIntroModalTagsContainer } from '../utilities';
-import { Features, getFeatureValue } from '../../lib/featureManagement';
-import FeaturesContext from '../../contexts/FeaturesContext';
+import { FeedFiltersIntroModalTagsContainer } from '../../utilities';
+import { Features, getFeatureValue } from '../../../lib/featureManagement';
+import FeaturesContext from '../../../contexts/FeaturesContext';
 
 type FeedFiltersProps = {
   actionToOpenFeedFilters: () => unknown;
@@ -81,13 +81,12 @@ export default function FeedFiltersIntroModal({
     Features.MyFeedExplainerCopy,
     flags,
   );
-  const myFeedbuttonCopy = getFeatureValue(Features.MyFeedButtonCopy, flags);
 
   return (
     <ResponsiveModal className={className} {...modalProps}>
       <section className="flex overflow-hidden flex-col items-center py-6 px-6 mobileL:px-10 mt-24">
         <UserIcon className="typo-giga2" />
-        <h3 className="mt-4 font-bold typo-large-title">{myFeedbuttonCopy}</h3>
+        <h3 className="mt-4 font-bold typo-large-title">Create my feed</h3>
         <p className="mt-3 mb-16 text-center typo-title3 text-theme-label-tertiary">
           {introExplainerCopy}
         </p>
