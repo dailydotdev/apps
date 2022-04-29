@@ -1,0 +1,12 @@
+.toastContainer {
+  z-index: 100;
+  transform: translate(-50%, 0);
+
+  /* speces */
+  @screen tablet {
+    min-width: 12.5rem;
+    max-width: 25rem;
+    min-height: 2.75rem;
+    max-height: 4.125rem;
+  }
+}
