@@ -53,7 +53,7 @@
     "@dailydotdev/prettier-config": "*",
     "@svgr/cli": "^5.5.0",
     "@svgr/webpack": "^5.5.0",
-    "@testing-library/jest-dom": "^5.16.4",
+    "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/preact": "^2.0.1",
     "@testing-library/user-event": "^13.5.0",
     "@types/classnames": "^2.2.11",
