@@ -75,6 +75,6 @@ export const RanksTagsList = classed(
 );
 export const RankTagPill = classed(
   'strong',
-  'flex items-center h-6 truncate rounded-8 typo-callout text-theme-label-tertiary',
+  'flex items-center px-3 ml-2 h-6 truncate rounded-8 typo-callout text-theme-label-tertiary',
 );
 export const RankTag = classed('li', 'flex flex-row items-center');

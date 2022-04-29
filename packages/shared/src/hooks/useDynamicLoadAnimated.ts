@@ -16,6 +16,7 @@ export const useDynamicLoadedAnimation = ({
 }: UseDynamicLoadedAnimationProps = {}): UseDynamicLoadedAnimation => {
   const [isAnimated, setIsAnimated] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isInitialised, setIsInitialised] = useState(false);
   const animationRef = useRef<number>();
 
   useEffect(() => {
@@ -23,11 +24,13 @@ export const useDynamicLoadedAnimation = ({
       return;
     }
 
-    setIsAnimated(true);
+    setTimeout(() => {
+      setIsAnimated(true);
+    });
   }, [isLoaded]);
 
   useEffect(() => {
-    if (isAnimated) {
+    if (isAnimated || !isInitialised) {
       return;
     }
 
@@ -45,7 +48,10 @@ export const useDynamicLoadedAnimation = ({
     () => ({
       isLoaded,
       isAnimated,
-      setLoaded: () => setIsLoaded(true),
+      setLoaded: () => {
+        setIsLoaded(true);
+        setIsInitialised(true);
+      },
       setHidden: () => setIsAnimated(false),
     }),
     [isLoaded, isAnimated, setIsLoaded, setIsAnimated],

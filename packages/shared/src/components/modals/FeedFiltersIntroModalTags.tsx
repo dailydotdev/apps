@@ -1,36 +1,34 @@
-import React, { ReactElement, useMemo } from 'react';
+import React, { ReactElement, useState } from 'react';
 import { FeedFiltersIntroModalTagPill } from '../utilities';
 
-type FeedTagItemProps = {
+type FeedFiltersIntroModalTagsProps = {
   tag: string;
-  isLastTagPill: boolean;
-  isFirstTagPill: boolean;
+  isLast: boolean;
+  isFirst: boolean;
 };
 
-const tagPillWidths = ['w-[4.5rem]', 'w-24', 'w-[7.5rem]'];
+const widths = ['w-[4.5rem]', 'w-24', 'w-[7.5rem]'];
 
-const getRandomTagWidth = () => {
-  const randomIndex = Math.floor(Math.random() * tagPillWidths.length);
-  const randomWidthValue = tagPillWidths[randomIndex];
+const getRandomWidth = () => {
+  const randomIndex = Math.floor(Math.random() * widths.length);
+  const randomWidthValue = widths[randomIndex];
   return randomWidthValue;
 };
 
-const getPillWidth = (isFirstTagPill: boolean, isLastTagPill: boolean) => {
-  if (isFirstTagPill || isLastTagPill) {
+const getWidth = (isFirst: boolean, isLast: boolean) => {
+  if (isFirst || isLast) {
     return 'flex-1';
   }
-  return getRandomTagWidth();
+  return getRandomWidth();
 };
 
-const FeedTagItem = ({
+const FeedFiltersIntroModalTags = ({
   tag,
-  isLastTagPill,
-  isFirstTagPill,
-}: FeedTagItemProps): ReactElement => {
-  const pillWidth = useMemo(
-    () => getPillWidth(isFirstTagPill, isLastTagPill),
-    [isFirstTagPill, isLastTagPill],
-  );
+  isLast,
+  isFirst,
+}: FeedFiltersIntroModalTagsProps): ReactElement => {
+  const [pillWidth] = useState(() => getWidth(isFirst, isLast));
+
   const isPlaceholder = !tag.length;
   const className = isPlaceholder
     ? `${pillWidth} rounded-10 bg-theme-float`
@@ -42,4 +40,4 @@ const FeedTagItem = ({
     </FeedFiltersIntroModalTagPill>
   );
 };
-export default FeedTagItem;
+export default FeedFiltersIntroModalTags;

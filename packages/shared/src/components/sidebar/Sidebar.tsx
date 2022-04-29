@@ -56,6 +56,8 @@ import CreateMyFeedButton from '../CreateMyFeedButton';
 import FeedFiltersWrapperModal from '../modals/FeedFiltersWrapperModal';
 import usePersistentContext from '../../hooks/usePersistentContext';
 
+const FIRST_TIME_SESSION = 'firstTimeSession';
+
 const bottomMenuItems: SidebarMenuItem[] = [
   {
     icon: <ListIcon Icon={DocsIcon} />,
@@ -173,25 +175,22 @@ export default function Sidebar({
     Features.FeedFilterModalOnboarding,
     flags,
   );
-  const FIRST_TIME_SESSION = 'firstTimeSession';
-
   const [isFirstSession, setIsFirstSession] = usePersistentContext(
     FIRST_TIME_SESSION,
     true,
   );
+
   useEffect(() => {
     if (isFirstSession) {
       setIsFirstSession(false);
       if (feedFilterModalOnboarding === 'control') {
-        setTimeout(() => {
-          openFeedFilters();
-        }, 300);
+        openFeedFilters();
       } else {
         openFeedFilters();
         setShowIntroModal(true);
       }
     }
-  }, [isFirstSession]);
+  }, []);
 
   useHideMobileSidebar({
     state: openMobileSidebar,
