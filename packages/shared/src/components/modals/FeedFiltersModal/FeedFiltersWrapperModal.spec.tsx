@@ -15,7 +15,7 @@ import {
   mockGraphQL,
 } from '../../../../__tests__/helpers/graphql';
 
-jest.mock('../../lib/user', () => ({
+jest.mock('../../../lib/user', () => ({
   ...jest.requireActual('../../../lib/user'),
   updateProfile: jest.fn(),
 }));
