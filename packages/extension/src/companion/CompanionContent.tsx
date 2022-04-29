@@ -37,12 +37,10 @@ export default function CompanionContent({
   const queryKey = ['postUpvotes', post.id];
   useBackgroundPaginatedRequest(queryKey);
   const [isUpvotesOpen, setIsUpvotesOpen] = useState(false);
-  const [copying, copyLink] = useCopyLink(
-    () => `${post.summary}\n\n${post.permalink}`,
-  );
+  const [copying, copyLink] = useCopyLink(() => post.commentsPermalink);
   const copyLinkAndNotify = () => {
     copyLink();
-    onMessage('✅ Copied TLDR to clipboard');
+    onMessage('✅ Copied link to clipboard');
   };
 
   const queryResult = useInfiniteQuery<UpvotesData>(
@@ -82,7 +80,7 @@ export default function CompanionContent({
         {post?.summary && (
           <SimpleTooltip
             placement="top"
-            content="Copy link with TLDR"
+            content="Copy link"
             appendTo="parent"
             container={{ className: 'shadow-2 whitespace-nowrap' }}
           >
