@@ -63,6 +63,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
   const [existingSource, setExistingSource] = useState<Source>();
   const { user, loginState, showLogin } = useContext(AuthContext);
   const loginTrigger = 'submit new source';
+  const { onRequestClose } = props;
 
   const failedToScrape = () => {
     setShowContact(true);
@@ -124,7 +125,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
         }),
       {
         onSuccess: () => {
-          props.onRequestClose?.(null);
+          onRequestClose?.(null);
         },
       },
     );
@@ -231,7 +232,6 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
     );
   }
 
-  const { onRequestClose } = props;
   return (
     <StyledModal
       {...props}
