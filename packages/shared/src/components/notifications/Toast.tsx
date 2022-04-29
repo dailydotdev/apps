@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect, useRef, useState } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import {
   ToastNotification,
@@ -11,7 +11,7 @@ import XIcon from '../../../icons/x.svg';
 
 const Container = classed(
   'div',
-  'fixed top-8 left-1/2 flex flex-col justify-center bg-theme-label-primary p-2 rounded-14 border-theme-divider-primary shadow-2',
+  'fixed bottom-8 left-1/2 flex flex-col justify-center bg-theme-label-primary p-2 rounded-14 border-theme-divider-primary shadow-2',
   styles.toastContainer,
 );
 const Content = classed('div', 'relative flex flex-row items-center ml-2');
@@ -24,35 +24,42 @@ const Progress = classed(
   'absolute -bottom-2 left-0 right-0 h-1 ease-in-out bg-theme-status-cabbage rounded-full',
 );
 const INTERVAL_COUNT = 10;
+const IN_OUT_ANIMATION = 140;
 
 const Toast = (): ReactElement => {
-  const intervalRef = useRef<number>();
+  const [intervalId, setIntervalId] = useState<number>(null);
   const [timer, setTimer] = useState(0);
   const [toast, setToast] =
     usePersistentContext<ToastNotification>(TOAST_NOTIF_KEY);
 
   useEffect(() => {
-    if (!toast || timer > 0 || !intervalRef?.current) {
+    if (toast && timer === 0 && intervalId) {
+      setIntervalId(null);
+      setTimeout(() => setToast(null), IN_OUT_ANIMATION);
       return;
     }
 
-    window.clearInterval(intervalRef.current);
-    setToast(null);
-    intervalRef.current = null;
-  }, [timer, toast, intervalRef?.current]);
+    if (!toast || timer > 0 || !intervalId) {
+      return;
+    }
+
+    window.clearInterval(intervalId);
+  }, [timer, toast, intervalId]);
 
   useEffect(() => {
     if (toast) {
-      window.clearInterval(intervalRef.current);
+      window.clearInterval(intervalId);
       setTimer(toast.timer);
 
       if (toast.timer > 0) {
-        intervalRef.current = window.setInterval(
-          () =>
-            setTimer((current) =>
-              INTERVAL_COUNT >= current ? 0 : current - INTERVAL_COUNT,
-            ),
-          INTERVAL_COUNT,
+        setIntervalId(
+          window.setInterval(
+            () =>
+              setTimer((current) =>
+                INTERVAL_COUNT >= current ? 0 : current - INTERVAL_COUNT,
+              ),
+            INTERVAL_COUNT,
+          ),
         );
       }
     }
@@ -69,7 +76,7 @@ const Toast = (): ReactElement => {
       return;
     }
 
-    window.clearInterval(intervalRef.current);
+    window.clearInterval(intervalId);
     setToast({ message: toast.message, timer: 0 });
   };
 
@@ -83,7 +90,7 @@ const Toast = (): ReactElement => {
   };
 
   return (
-    <Container>
+    <Container className={intervalId && 'slide-in'}>
       <Content>
         <Message>{toast.message}</Message>
         {toast?.onUndo && (
