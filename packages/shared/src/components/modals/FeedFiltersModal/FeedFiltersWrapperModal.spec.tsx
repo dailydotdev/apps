@@ -2,21 +2,21 @@ import React from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import FeedFiltersWrapperModal from './FeedFiltersWrapperModal';
-import AuthContext from '../../contexts/AuthContext';
-import { LoggedUser } from '../../lib/user';
+import AuthContext from '../../../contexts/AuthContext';
+import { LoggedUser } from '../../../lib/user';
 import {
   AllTagCategoriesData,
   FeedSettings,
   FEED_SETTINGS_QUERY,
   TagCategory,
-} from '../../graphql/feedSettings';
+} from '../../../graphql/feedSettings';
 import {
   MockedGraphQLResponse,
   mockGraphQL,
-} from '../../../__tests__/helpers/graphql';
+} from '../../../../__tests__/helpers/graphql';
 
 jest.mock('../../lib/user', () => ({
-  ...jest.requireActual('../../lib/user'),
+  ...jest.requireActual('../../../lib/user'),
   updateProfile: jest.fn(),
 }));
 
