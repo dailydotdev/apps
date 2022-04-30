@@ -16,6 +16,7 @@ import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
 import { MenuIcon } from './MenuIcon';
 import { useShareOrCopyLink } from '../hooks/useShareOrCopyLink';
+import { useToastNotification } from '../hooks/useToastNotification';
 
 const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
   ssr: false,
@@ -25,11 +26,6 @@ export type PostOptionsMenuProps = {
   postIndex?: number;
   post: Post;
   onHidden?: () => unknown;
-  onMessage?: (
-    message: string,
-    postIndex: number,
-    timeout?: number,
-  ) => Promise<unknown>;
   onRemovePost?: (postIndex: number) => Promise<unknown>;
   setShowDeletePost?: () => unknown;
   setShowBanPost?: () => unknown;
@@ -47,11 +43,11 @@ export default function PostOptionsMenu({
   postIndex,
   post,
   onHidden,
-  onMessage,
   onRemovePost,
   setShowDeletePost,
   setShowBanPost,
 }: PostOptionsMenuProps): ReactElement {
+  const { displayToast } = useToastNotification();
   const { setAvoidRefresh } = useFeedSettings();
   const { trackEvent } = useContext(AnalyticsContext);
   const { reportPost, hidePost } = useReportPost();
@@ -66,7 +62,7 @@ export default function PostOptionsMenu({
     message: string,
     _postIndex: number,
   ) => {
-    await onMessage(message, _postIndex);
+    displayToast(message);
     onRemovePost?.(_postIndex);
   };
 
@@ -93,7 +89,7 @@ export default function PostOptionsMenu({
       }),
     );
 
-    await showMessageAndRemovePost('🚨 Thanks for reporting!', reportPostIndex);
+    displayToast('🚨 Thanks for reporting!');
 
     if (blockSource) {
       await onUnfollowSource({ source: reportedPost?.source });
@@ -146,18 +142,14 @@ export default function PostOptionsMenu({
     await onRemovePost?.(postIndex);
 
     if (!postIndex) {
-      onMessage(
-        '🙈 This article won’t show up on your feed anymore',
-        postIndex,
-        0,
-      );
+      displayToast('🙈 This article won’t show up on your feed anymore');
     }
   };
 
   const shareLink = post?.commentsPermalink;
   const copyLink = async () => {
     await navigator.clipboard.writeText(shareLink);
-    onMessage('✅ Copied link to clipboard', postIndex);
+    displayToast('✅ Copied link to clipboard');
   };
 
   const onShareOrCopyLink = useShareOrCopyLink({

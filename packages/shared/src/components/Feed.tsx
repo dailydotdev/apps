@@ -30,7 +30,6 @@ import {
   postAnalyticsEvent,
 } from '../lib/feed';
 import PostOptionsMenu from './PostOptionsMenu';
-import useNotification from '../hooks/useNotification';
 import FeaturesContext from '../contexts/FeaturesContext';
 import { Features, getFeatureValue } from '../lib/featureManagement';
 import { getThemeFont } from './utilities';
@@ -208,7 +207,6 @@ export default function Feed<T>({
   );
 
   const { onMenuClick, postMenuIndex, setPostMenuIndex } = useFeedContextMenu();
-  const { notification, notificationIndex, onMessage } = useNotification();
 
   const onRemovePost = async (removePostIndex) => {
     const item = items[removePostIndex] as PostItem;
@@ -304,8 +302,6 @@ export default function Feed<T>({
             insaneMode={insaneMode}
             nativeShareSupport={nativeShareSupport}
             postMenuIndex={postMenuIndex}
-            postNotificationIndex={notificationIndex}
-            notification={notification}
             showCommentPopupId={showCommentPopupId}
             setShowCommentPopupId={setShowCommentPopupId}
             isSendingComment={isSendingComment}
@@ -329,7 +325,6 @@ export default function Feed<T>({
         postIndex={postMenuIndex}
         post={(items[postMenuIndex] as PostItem)?.post}
         onHidden={() => setPostMenuIndex(null)}
-        onMessage={onMessage}
         onRemovePost={onRemovePost}
       />
     </div>
