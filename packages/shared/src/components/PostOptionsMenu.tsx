@@ -16,7 +16,10 @@ import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
 import { MenuIcon } from './MenuIcon';
 import { useShareOrCopyLink } from '../hooks/useShareOrCopyLink';
-import { useToastNotification } from '../hooks/useToastNotification';
+import {
+  ToastSubject,
+  useToastNotification,
+} from '../hooks/useToastNotification';
 
 const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
   ssr: false,
@@ -64,7 +67,7 @@ export default function PostOptionsMenu({
     message: string,
     _postIndex: number,
   ) => {
-    displayToast(message);
+    displayToast(message, { subject: ToastSubject.Feed });
     onRemovePost?.(_postIndex);
   };
 
@@ -91,7 +94,7 @@ export default function PostOptionsMenu({
       }),
     );
 
-    displayToast('🚨 Thanks for reporting!');
+    displayToast('🚨 Thanks for reporting!', { subject: ToastSubject.Feed });
 
     if (blockSource) {
       await onUnfollowSource({ source: reportedPost?.source });
@@ -144,14 +147,17 @@ export default function PostOptionsMenu({
     await onRemovePost?.(postIndex);
 
     if (!postIndex) {
-      displayToast('🙈 This article won’t show up on your feed anymore');
+      displayToast('🙈 This article won’t show up on your feed anymore', {
+        subject: ToastSubject.PostContent,
+      });
     }
   };
 
   const shareLink = post?.commentsPermalink;
   const copyLink = async () => {
+    const subject = postIndex ? ToastSubject.Feed : ToastSubject.PostContent;
     await navigator.clipboard.writeText(shareLink);
-    displayToast('✅ Copied link to clipboard');
+    displayToast('✅ Copied link to clipboard', { subject });
   };
 
   const onShareOrCopyLink = useShareOrCopyLink({

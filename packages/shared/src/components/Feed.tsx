@@ -35,6 +35,10 @@ import { Features, getFeatureValue } from '../lib/featureManagement';
 import { getThemeFont } from './utilities';
 import { PostModal } from './modals/PostModal';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
+import {
+  ToastSubject,
+  useToastNotification,
+} from '../hooks/useToastNotification';
 
 export type FeedProps<T> = {
   feedName: string;
@@ -122,6 +126,7 @@ export default function Feed<T>({
   const { trackEvent } = useContext(AnalyticsContext);
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
+  const { subject } = useToastNotification();
   const {
     openNewTab,
     showOnlyUnreadPosts,
@@ -267,6 +272,7 @@ export default function Feed<T>({
         !useList && styles.cards,
       )}
       style={style}
+      aria-live={subject === ToastSubject.Feed ? 'assertive' : 'off'}
     >
       {selectedPost && (
         <PostModal

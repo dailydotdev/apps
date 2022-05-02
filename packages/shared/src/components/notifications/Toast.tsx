@@ -103,7 +103,7 @@ const Toast = ({
   };
 
   return (
-    <Container className={intervalId && 'slide-in'}>
+    <Container className={intervalId && 'slide-in'} role="alert">
       <Content>
         <Message>{toast.message}</Message>
         {toast?.onUndo && (
