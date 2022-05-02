@@ -55,8 +55,10 @@ export default function PostOptionsMenu({
     origin: 'post context menu',
     postId: post?.id,
   });
-  const [reportModal, setReportModal] =
-    useState<{ index?: number; post?: Post }>();
+  const [reportModal, setReportModal] = useState<{
+    index?: number;
+    post?: Post;
+  }>();
 
   const showMessageAndRemovePost = async (
     message: string,

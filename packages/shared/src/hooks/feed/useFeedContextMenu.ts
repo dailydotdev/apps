@@ -13,8 +13,11 @@ export default function useFeedContextMenu(): {
     value: { index: number; row: number; column: number } | undefined,
   ) => void;
 } {
-  const [postMenuLocation, setPostMenuLocation] =
-    useState<{ index: number; row: number; column: number }>();
+  const [postMenuLocation, setPostMenuLocation] = useState<{
+    index: number;
+    row: number;
+    column: number;
+  }>();
   const postMenuIndex = postMenuLocation?.index;
   const { showReportMenu } = useReportPostMenu();
 
