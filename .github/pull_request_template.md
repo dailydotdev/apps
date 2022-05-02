@@ -17,4 +17,8 @@
 - [ ] Tablet (656px)
 - [ ] Laptop (1020px)
 
+#### Did you test on actual mobile devices?
+- [ ] iOS (Chrome and Safari)
+- [ ] Android
+
 DD-{number} #done
