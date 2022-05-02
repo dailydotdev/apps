@@ -25,6 +25,10 @@ const SectionTitle = classed(
   'h3',
   'text-theme-label-tertiary mb-4 font-bold typo-footnote',
 );
+const SectionContent = classed(
+  'div',
+  'flex flex-col items-start pl-1.5 -my-0.5',
+);
 
 export default function Settings({
   className,
@@ -49,6 +53,8 @@ export default function Settings({
     toggleSortingEnabled,
     optOutWeeklyGoal,
     toggleOptOutWeeklyGoal,
+    autoDismissNotifications,
+    toggleAutoDismissNotifications,
   } = useContext(SettingsContext);
   const [themes, setThemes] = useState([
     { label: 'Dark', value: 'dark' },
@@ -109,11 +115,11 @@ export default function Settings({
       </Section>
       <Section>
         <SectionTitle>Preferences</SectionTitle>
-        <div className="flex flex-col items-start pl-1.5 -my-0.5">
+        <SectionContent>
           <Switch
             inputId="hide-read-switch"
             name="hide-read"
-            className="my-3"
+            className="my-3 big"
             checked={showOnlyUnreadPosts}
             onToggle={() => onToggleForLoggedInUsers(toggleShowOnlyUnreadPosts)}
             compact={false}
@@ -162,7 +168,22 @@ export default function Settings({
           >
             Show Weekly Goal widget
           </Switch>
-        </div>
+        </SectionContent>
+      </Section>
+      <Section>
+        <SectionTitle>Accessibility</SectionTitle>
+        <SectionContent>
+          <Switch
+            inputId="auto-dismiss-notifications-switch"
+            name="auto-dismiss-notifications"
+            className="my-3 big"
+            checked={autoDismissNotifications}
+            onToggle={toggleAutoDismissNotifications}
+            compact={false}
+          >
+            Automatically dismiss notifications
+          </Switch>
+        </SectionContent>
       </Section>
     </div>
   );

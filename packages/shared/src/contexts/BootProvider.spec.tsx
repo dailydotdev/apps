@@ -124,6 +124,8 @@ const SettingsMock = ({ toTheme, toSpaciness }: SettingsMockProps) => {
     sortingEnabled,
     optOutWeeklyGoal,
     toggleOptOutWeeklyGoal,
+    autoDismissNotifications,
+    toggleAutoDismissNotifications,
   } = useContext(SettingsContext);
 
   return (
@@ -190,6 +192,13 @@ const SettingsMock = ({ toTheme, toSpaciness }: SettingsMockProps) => {
         data-test-value={sortingEnabled}
       >
         Sorting Feed
+      </button>
+      <button
+        onClick={toggleAutoDismissNotifications}
+        type="button"
+        data-test-value={autoDismissNotifications}
+      >
+        Auto dismiss notifications
       </button>
     </>
   );
@@ -294,6 +303,19 @@ it('should toggle sorting enabled callback', async () => {
   expect(sorting).toHaveAttribute(
     'data-test-value',
     defaultSettings.sortingEnabled.toString(),
+  );
+  fireEvent.click(sorting);
+  expect(sorting).toHaveAttribute('data-test-value', expected.toString());
+});
+
+it('should toggle sorting enabled callback', async () => {
+  const expected = true;
+  mockSettingsMutation({ autoDismissNotifications: expected });
+  renderComponent(<SettingsMock />);
+  const sorting = await screen.findByText('Sorting Feed');
+  expect(sorting).toHaveAttribute(
+    'data-test-value',
+    defaultSettings.autoDismissNotifications.toString(),
   );
   fireEvent.click(sorting);
   expect(sorting).toHaveAttribute('data-test-value', expected.toString());

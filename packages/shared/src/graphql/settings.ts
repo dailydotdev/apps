@@ -13,6 +13,7 @@ export type RemoteSettings = {
   sidebarExpanded: boolean;
   sortingEnabled: boolean;
   optOutWeeklyGoal: boolean;
+  autoDismissNotifications: boolean;
   customLinks?: string[];
 };
 
