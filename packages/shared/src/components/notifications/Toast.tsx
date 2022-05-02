@@ -34,16 +34,10 @@ const Toast = (): ReactElement => {
 
   useEffect(() => {
     if (toast && timer === 0 && intervalId) {
+      window.clearInterval(intervalId);
       setIntervalId(null);
       setTimeout(() => setToast(null), IN_OUT_ANIMATION);
-      return;
     }
-
-    if (!toast || timer > 0 || !intervalId) {
-      return;
-    }
-
-    window.clearInterval(intervalId);
   }, [timer, toast, intervalId]);
 
   useEffect(() => {
