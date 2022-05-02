@@ -9,6 +9,10 @@ import { Button } from '../buttons/Button';
 import styles from './Toast.module.css';
 import XIcon from '../../../icons/x.svg';
 
+interface ToastProps {
+  autoDismissNotifications?: boolean;
+}
+
 const Container = classed(
   'div',
   'fixed bottom-8 left-1/2 flex flex-col justify-center bg-theme-label-primary p-2 rounded-14 border-theme-divider-primary shadow-2',
@@ -26,7 +30,9 @@ const Progress = classed(
 const INTERVAL_COUNT = 10;
 const IN_OUT_ANIMATION = 140;
 
-const Toast = (): ReactElement => {
+const Toast = ({
+  autoDismissNotifications = false,
+}: ToastProps): ReactElement => {
   const [intervalId, setIntervalId] = useState<number>(null);
   const [timer, setTimer] = useState(0);
   const [toast, setToast] =
@@ -45,7 +51,7 @@ const Toast = (): ReactElement => {
       window.clearInterval(intervalId);
       setTimer(toast.timer);
 
-      if (toast.timer > 0) {
+      if (toast.timer > 0 && autoDismissNotifications) {
         setIntervalId(
           window.setInterval(
             () =>
