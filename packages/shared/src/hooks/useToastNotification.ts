@@ -1,4 +1,4 @@
-import usePersistentContext from './usePersistentContext';
+import { useQueryClient } from 'react-query';
 
 type AnyFunction = (() => Promise<unknown>) | (() => unknown);
 
@@ -20,8 +20,9 @@ interface NotifyOptionalProps {
 }
 
 export const useToastNotification = (): UseToastNotification => {
-  const [, setToastNotification] =
-    usePersistentContext<ToastNotification>(TOAST_NOTIF_KEY);
+  const client = useQueryClient();
+  const setToastNotification = (data: ToastNotification) =>
+    client.setQueryData(TOAST_NOTIF_KEY, data);
 
   const displayToast = (
     message: string,

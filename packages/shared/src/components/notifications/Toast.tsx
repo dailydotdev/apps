@@ -1,5 +1,5 @@
 import React, { ReactElement, useEffect, useState } from 'react';
-import usePersistentContext from '../../hooks/usePersistentContext';
+import { useQuery, useQueryClient } from 'react-query';
 import {
   ToastNotification,
   TOAST_NOTIF_KEY,
@@ -30,14 +30,17 @@ const Progress = classed(
 );
 const INTERVAL_COUNT = 10;
 const IN_OUT_ANIMATION = 140;
+const TEMPORARY_ID = 1;
 
 const Toast = ({
   autoDismissNotifications = false,
 }: ToastProps): ReactElement => {
+  const client = useQueryClient();
   const [intervalId, setIntervalId] = useState<number>(null);
   const [timer, setTimer] = useState(0);
-  const [toast, setToast] =
-    usePersistentContext<ToastNotification>(TOAST_NOTIF_KEY);
+  const { data: toast } = useQuery<ToastNotification>(TOAST_NOTIF_KEY);
+  const setToast = (data: ToastNotification) =>
+    client.setQueryData(TOAST_NOTIF_KEY, data);
 
   useEffect(() => {
     if (toast && timer === 0 && intervalId) {
@@ -48,22 +51,31 @@ const Toast = ({
   }, [timer, toast, intervalId]);
 
   useEffect(() => {
-    if (toast) {
-      window.clearInterval(intervalId);
-      setTimer(toast.timer);
-
-      if (toast.timer > 0 && autoDismissNotifications) {
-        setIntervalId(
-          window.setInterval(
-            () =>
-              setTimer((current) =>
-                INTERVAL_COUNT >= current ? 0 : current - INTERVAL_COUNT,
-              ),
-            INTERVAL_COUNT,
-          ),
-        );
-      }
+    if (!toast) {
+      return;
     }
+
+    window.clearInterval(intervalId);
+    setTimer(toast.timer);
+
+    if (!autoDismissNotifications && !intervalId) {
+      setIntervalId(TEMPORARY_ID);
+      return;
+    }
+
+    if (toast.timer <= 0) {
+      return;
+    }
+
+    setIntervalId(
+      window.setInterval(
+        () =>
+          setTimer((current) =>
+            INTERVAL_COUNT >= current ? 0 : current - INTERVAL_COUNT,
+          ),
+        INTERVAL_COUNT,
+      ),
+    );
   }, [toast]);
 
   if (!toast) {
@@ -108,7 +120,9 @@ const Toast = ({
           icon={<XIcon />}
           onClick={dismissToast}
         />
-        <Progress style={{ width: `${progress}%` }} />
+        {autoDismissNotifications && (
+          <Progress style={{ width: `${progress}%` }} />
+        )}
       </Content>
     </Container>
   );
