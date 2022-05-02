@@ -9,6 +9,13 @@ import { FeedFiltersIntroModalTagsContainer } from '../../utilities';
 import { Features, getFeatureValue } from '../../../lib/featureManagement';
 import FeaturesContext from '../../../contexts/FeaturesContext';
 
+const tagsRows = [
+  ['', 'docker', '', 'kubernetes', ''],
+  ['', '', 'architecture', '', ''],
+  ['', '', '', 'devops', ''],
+  ['', 'cloud', '', '', ''],
+];
+
 type FeedFiltersProps = {
   actionToOpenFeedFilters: () => unknown;
   feedFilterModalType: string;
@@ -70,12 +77,6 @@ export default function FeedFiltersIntroModal({
   onOpenFeedFilterModal,
   ...modalProps
 }: FeedFiltersIntroModalProps): ReactElement {
-  const tagsRows = [
-    ['', 'docker', '', 'kubernetes', ''],
-    ['', '', 'architecture', '', ''],
-    ['', '', '', 'devops', ''],
-    ['', 'cloud', '', '', ''],
-  ];
   const { flags } = useContext(FeaturesContext);
   const introExplainerCopy = getFeatureValue(
     Features.MyFeedExplainerCopy,
