@@ -17,3 +17,8 @@
     transform: translate(-50%, 0);
   }
 }
+
+.toastProgress {
+  left: 50%;
+  transform: translate(-50%, 0);
+}

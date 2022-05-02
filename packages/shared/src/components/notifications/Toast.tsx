@@ -25,7 +25,8 @@ const Message = classed(
 );
 const Progress = classed(
   'span',
-  'absolute -bottom-2 left-0 right-0 h-1 ease-in-out bg-theme-status-cabbage rounded-full',
+  styles.toastProgress,
+  'absolute -bottom-2 h-1 ease-in-out bg-theme-status-cabbage rounded-full',
 );
 const INTERVAL_COUNT = 10;
 const IN_OUT_ANIMATION = 140;
