@@ -113,16 +113,13 @@ export class Features {
 
 export const isFeaturedEnabled = (key: Features, flags: IFlags): boolean =>
   key?.validTypes === undefined ||
-  key?.validTypes?.includes(flags?.[key?.id]?.value)
+  key?.validTypes?.includes(<string>flags?.[key?.id]?.value)
     ? flags?.[key?.id]?.enabled
     : false;
 
-export const getFeatureValue = (
-  key: Features,
-  flags: IFlags,
-): string | undefined => {
+export const getFeatureValue = (key: Features, flags: IFlags): string => {
   if (isFeaturedEnabled(key, flags)) {
-    return flags[key?.id].value;
+    return <string>flags[key?.id].value;
   }
 
   return key?.defaultValue ?? undefined;

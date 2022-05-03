@@ -151,7 +151,6 @@ export function PostComments({
           commentId={pendingComment.comment.id}
           parentId={pendingComment.parentId}
           postId={post.id}
-          ariaHideApp={!(process?.env?.NODE_ENV === 'test')}
         />
       )}
     </>
