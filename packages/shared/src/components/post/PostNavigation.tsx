@@ -48,24 +48,21 @@ export function PostNavigation({
           onClick={onNextPost}
         />
       </SimpleTooltip>
-      <div
-        className={classNames(
-          shouldDisplayTitle ? 'flex' : 'flex tablet:hidden',
-          'overflow-hidden flex-col flex-1 ml-2',
-        )}
-      >
-        <span className="overflow-hidden whitespace-nowrap typo-footnote text-ellipsis text-theme-label-tertiary">
-          {content.subtitle}
-        </span>
-        <h3 className="overflow-hidden font-bold whitespace-nowrap text-ellipsis typo-headline">
-          {content.title}
-        </h3>
-      </div>
+      {shouldDisplayTitle && (
+        <div className="overflow-hidden flex-col flex-1 ml-2">
+          <span className="overflow-hidden whitespace-nowrap typo-footnote text-ellipsis text-theme-label-tertiary">
+            {content.subtitle}
+          </span>
+          <h3 className="overflow-hidden font-bold whitespace-nowrap text-ellipsis typo-headline">
+            {content.title}
+          </h3>
+        </div>
+      )}
       <PostModalActions
         post={post}
         onClose={onClose}
         inlineActions
-        className={shouldDisplayTitle ? 'flex' : 'flex tablet:hidden'}
+        className={shouldDisplayTitle ? 'flex' : 'flex tablet:hidden ml-auto'}
         notificactionClassName="ml-4"
       />
     </div>
