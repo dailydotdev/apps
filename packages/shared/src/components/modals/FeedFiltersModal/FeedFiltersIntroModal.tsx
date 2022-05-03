@@ -16,6 +16,11 @@ const tagsRows = [
   ['', 'cloud', '', '', ''],
 ];
 
+const footerClass = {
+  introTest1: 'justify-center',
+  introTest2: 'justify-between',
+};
+
 type FeedFiltersProps = {
   actionToOpenFeedFilters: () => unknown;
   feedFilterModalType: string;
@@ -29,11 +34,6 @@ type ModalFooterProps = {
 type FeedFiltersIntroModalProps = FeedFiltersProps &
   ModalFooterProps &
   ModalProps;
-
-const footerClass = {
-  introTest1: 'justify-center',
-  introTest2: 'justify-between',
-};
 
 const IntroModalFooter = ({
   feedFilterOnboardingModalType,

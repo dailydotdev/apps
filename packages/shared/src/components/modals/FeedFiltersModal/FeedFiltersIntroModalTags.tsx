@@ -8,16 +8,13 @@ type FeedFiltersIntroModalTagsProps = {
 
 const widths = ['w-[4.5rem]', 'w-24', 'w-[7.5rem]'];
 
-const getRandomWidth = () => {
-  const randomIndex = Math.floor(Math.random() * widths.length);
-  return widths[randomIndex];
-};
-
 const getWidth = (shouldBeCut: boolean) => {
   if (shouldBeCut) {
     return 'flex-1';
   }
-  return getRandomWidth();
+
+  const randomIndex = Math.floor(Math.random() * widths.length);
+  return widths[randomIndex];
 };
 
 const FeedFiltersIntroModalTags = ({
