@@ -175,13 +175,13 @@ export default function Sidebar({
     Features.FeedFilterModalOnboarding,
     flags,
   );
-  const [isFirstSession, setIsFirstSession] = usePersistentContext(
+  const [isFirstSession, setIsFirstSession, isSessionLoaded] = usePersistentContext(
     FIRST_TIME_SESSION,
     true,
   );
 
   useEffect(() => {
-    if (isFirstSession) {
+    if (isFirstSession && isSessionLoaded) {
       setIsFirstSession(false);
       if (feedFilterModalOnboarding === 'control') {
         openFeedFilters();
@@ -190,7 +190,7 @@ export default function Sidebar({
         setShowIntroModal(true);
       }
     }
-  }, []);
+  }, [isSessionLoaded]);
 
   useHideMobileSidebar({
     state: openMobileSidebar,
