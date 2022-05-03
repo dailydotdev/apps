@@ -7,6 +7,7 @@ import React, {
   KeyboardEventHandler,
   MouseEvent,
   KeyboardEvent,
+  useState,
 } from 'react';
 import classNames from 'classnames';
 import AuthContext from '../../contexts/AuthContext';
@@ -57,6 +58,7 @@ function CommentBox({
   sendComment,
   post,
 }: CommentBoxProps): ReactElement {
+  const [height, setHeight] = useState('auto');
   const { user } = useContext(AuthContext);
   const commentRef = useRef<HTMLTextAreaElement>(null);
   const {
@@ -76,8 +78,14 @@ function CommentBox({
 
   useEffect(() => {
     commentRef.current?.focus();
-    if (commentRef.current && editContent) {
-      commentRef.current.value = editContent;
+    if (commentRef.current) {
+      if (editContent) {
+        commentRef.current.value = editContent;
+      }
+      commentRef.current.setAttribute(
+        'data-min-height',
+        commentRef.current.offsetHeight.toString(),
+      );
     }
   }, []);
 
@@ -96,72 +104,81 @@ function CommentBox({
     onKeyDown(e, defaultCallback);
   };
 
+  const onTextareaInput = (e) => {
+    const minHeight = e.currentTarget.getAttribute('data-min-height');
+    setHeight(`${Math.max(e.currentTarget.scrollHeight, minHeight)}px`);
+    onInput(e.currentTarget.value);
+  };
+
   return (
     <>
-      <article
-        className={classNames(
-          'flex flex-col items-stretch max-h-[15rem] overflow-y-auto',
-          commentBoxClassNames,
-        )}
-      >
-        <header className="flex items-center mb-2">
-          <RoundedImage
-            imgSrc={authorImage}
-            imgAlt={`${authorName}'s profile`}
-            background="var(--theme-background-secondary)"
-          />
-          <div className="flex flex-col ml-2">
-            <div className="truncate typo-callout">{authorName}</div>
-            <time
-              dateTime={publishDate.toString()}
-              className="text-theme-label-tertiary typo-callout"
-            >
-              {commentDateFormat(publishDate)}
-            </time>
-          </div>
-        </header>
-        <Markdown content={contentHtml} />
-      </article>
-      <div className="flex items-center px-2 h-11">
-        <div className="ml-3 w-px h-full bg-theme-divider-tertiary" />
-        <div className="ml-6 text-theme-label-secondary typo-caption1">
-          Reply to{' '}
-          <strong className="font-bold text-theme-label-primary">
-            {authorName}
-          </strong>
-        </div>
-      </div>
-      <div className="flex relative flex-1 pl-2">
-        <ProfilePicture user={user} size="small" />
-        <textarea
+      <div className="overflow-auto max-h-[31rem]">
+        <article
           className={classNames(
-            'ml-3 pr-2 flex-1 text-theme-label-primary bg-transparent border-none caret-theme-label-link break-words typo-subhead resize-none',
-            styles.textarea,
+            'flex flex-col items-stretch',
+            commentBoxClassNames,
           )}
-          ref={commentRef}
-          placeholder="Write your comment..."
-          onInput={(e) => onInput(e.currentTarget.value)}
-          onKeyDown={handleKeydown}
-          onClick={onInputClick}
-          onPaste={onPaste}
-          tabIndex={0}
-          aria-label="New comment box"
-          aria-multiline
+        >
+          <header className="flex items-center mb-2">
+            <RoundedImage
+              imgSrc={authorImage}
+              imgAlt={`${authorName}'s profile`}
+              background="var(--theme-background-secondary)"
+            />
+            <div className="flex flex-col ml-2">
+              <div className="truncate typo-callout">{authorName}</div>
+              <time
+                dateTime={publishDate.toString()}
+                className="text-theme-label-tertiary typo-callout"
+              >
+                {commentDateFormat(publishDate)}
+              </time>
+            </div>
+          </header>
+          <Markdown content={contentHtml} />
+        </article>
+        <div className="flex items-center px-2 h-11">
+          <div className="ml-3 w-px h-full bg-theme-divider-tertiary" />
+          <div className="ml-6 text-theme-label-secondary typo-caption1">
+            Reply to{' '}
+            <strong className="font-bold text-theme-label-primary">
+              {authorName}
+            </strong>
+          </div>
+        </div>
+        <div className="flex relative flex-1 pl-2">
+          <ProfilePicture user={user} size="small" />
+          <textarea
+            className={classNames(
+              'ml-3 pr-2 flex-1 text-theme-label-primary bg-transparent border-none caret-theme-label-link break-words typo-subhead resize-none',
+              styles.textarea,
+            )}
+            ref={commentRef}
+            placeholder="Write your comment..."
+            onInput={onTextareaInput}
+            onKeyDown={handleKeydown}
+            onClick={onInputClick}
+            onPaste={onPaste}
+            tabIndex={0}
+            aria-label="New comment box"
+            aria-multiline
+            style={{ height }}
+          />
+        </div>
+        <RecommendedMentionTooltip
+          elementRef={commentRef}
+          offset={offset}
+          mentions={mentions}
+          selected={selected}
+          query={mentionQuery}
+          onMentionClick={onMentionClick}
         />
-      </div>
-      <RecommendedMentionTooltip
-        elementRef={commentRef}
-        offset={offset}
-        mentions={mentions}
-        selected={selected}
-        query={mentionQuery}
-        onMentionClick={onMentionClick}
-      />
-      <div
-        className="my-2 mx-3 text-theme-status-error typo-caption1"
-        style={{ minHeight: '1rem' }}
-      >
-        {errorMessage && <span role="alert">{errorMessage}</span>}
+        <div
+          className="my-2 mx-3 text-theme-status-error typo-caption1"
+          style={{ minHeight: '1rem' }}
+        >
+          {errorMessage && <span role="alert">{errorMessage}</span>}
+        </div>
       </div>
       <footer className="flex items-center pt-3">
         <Button
