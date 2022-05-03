@@ -175,10 +175,8 @@ export default function Sidebar({
     Features.FeedFilterModalOnboarding,
     flags,
   );
-  const [isFirstSession, setIsFirstSession, isSessionLoaded] = usePersistentContext(
-    FIRST_TIME_SESSION,
-    true,
-  );
+  const [isFirstSession, setIsFirstSession, isSessionLoaded] =
+    usePersistentContext(FIRST_TIME_SESSION, true);
 
   useEffect(() => {
     if (isFirstSession && isSessionLoaded) {
