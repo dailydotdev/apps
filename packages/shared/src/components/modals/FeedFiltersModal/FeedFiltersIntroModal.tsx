@@ -49,7 +49,7 @@ const IntroModalFooter = ({
     >
       {feedFilterOnboardingModalType === 'introTest2' && (
         <Button
-          className="ml-4 w-20 text-theme-label-tertiary btn-default"
+          className="ml-4 w-20 text-theme-label-tertiary"
           onClick={onRequestClose}
         >
           Skip
@@ -84,9 +84,9 @@ export default function FeedFiltersIntroModal({
   );
 
   return (
-    <ResponsiveModal className={className} {...modalProps}>
-      <section className="flex overflow-hidden flex-col items-center py-6 px-6 mobileL:px-10 mt-24">
-        <UserIcon className="typo-giga2" />
+    <ResponsiveModal {...modalProps}>
+      <section className="flex overflow-hidden flex-col items-center p-6 mobileL:px-10 mt-24">
+        <UserIcon className="w-16 h-16" />
         <h3 className="mt-4 font-bold typo-large-title">Create my feed</h3>
         <p className="mt-3 mb-16 text-center typo-title3 text-theme-label-tertiary">
           {introExplainerCopy}
@@ -99,8 +99,7 @@ export default function FeedFiltersIntroModal({
                 <FeedFiltersIntroModalTags
                   key={`${i}_${j}`}
                   tag={tag}
-                  isFirst={j === 0}
-                  isLast={j === row.length - 1}
+                  shouldBeCut={j === 0 || j === row.length - 1}
                 />
               ))}
             </ul>

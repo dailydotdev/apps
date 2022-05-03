@@ -3,20 +3,18 @@ import { FeedFiltersIntroModalTagPill } from '../../utilities';
 
 type FeedFiltersIntroModalTagsProps = {
   tag: string;
-  isLast: boolean;
-  isFirst: boolean;
+  shouldBeCut: boolean;
 };
 
 const widths = ['w-[4.5rem]', 'w-24', 'w-[7.5rem]'];
 
 const getRandomWidth = () => {
   const randomIndex = Math.floor(Math.random() * widths.length);
-  const randomWidthValue = widths[randomIndex];
-  return randomWidthValue;
+  return widths[randomIndex];
 };
 
-const getWidth = (isFirst: boolean, isLast: boolean) => {
-  if (isFirst || isLast) {
+const getWidth = (shouldBeCut: boolean) => {
+  if (shouldBeCut) {
     return 'flex-1';
   }
   return getRandomWidth();
@@ -24,10 +22,9 @@ const getWidth = (isFirst: boolean, isLast: boolean) => {
 
 const FeedFiltersIntroModalTags = ({
   tag,
-  isLast,
-  isFirst,
+  shouldBeCut,
 }: FeedFiltersIntroModalTagsProps): ReactElement => {
-  const [pillWidth] = useState(() => getWidth(isFirst, isLast));
+  const [pillWidth] = useState(() => getWidth(shouldBeCut));
 
   const isPlaceholder = !tag.length;
   const className = isPlaceholder

@@ -42,7 +42,7 @@ export const useDynamicLoadedAnimation = ({
       () => setIsLoaded(false),
       outDuration,
     );
-  }, [isAnimated]);
+  }, [isAnimated, isInitialised]);
 
   return useMemo(
     () => ({

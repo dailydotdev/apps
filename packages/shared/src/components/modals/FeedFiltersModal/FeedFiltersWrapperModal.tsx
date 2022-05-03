@@ -41,6 +41,7 @@ export default function FeedFiltersWrapperModal({
       onIntroClose={onIntroClose}
       onCloseFeedFilterModal={onCloseFeedFilterModal}
       isOpen={isOpen}
+      padding={false}
     />
   );
 }
