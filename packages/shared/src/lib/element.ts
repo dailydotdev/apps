@@ -7,15 +7,39 @@ type Row = number;
 export type CaretOffset = [number, number];
 export type CaretPosition = [Column, Row];
 
+export function getCaretPostition(el: Element): CaretPosition {
+  const sel = window.getSelection();
+  const row = Array.from(el.childNodes).findIndex((child) => {
+    const node = child.nodeValue ? child : child.firstChild;
+
+    return sel.anchorNode === node;
+  });
+
+  return [sel.anchorOffset, row === -1 ? 0 : row];
+}
+
 export const getCaretOffset = (textarea: HTMLDivElement): CaretOffset => {
   const left = document.createElement('span');
   const right = document.createElement('span');
   const div = document.createElement('div');
+  const [, row] = getCaretPostition(textarea);
+  const leftSum = Array.from(textarea.childNodes).reduce((sum, line, i) => {
+    if (i > row) {
+      return sum;
+    }
 
-  const sel = window.getSelection();
+    if (i === 0) {
+      return sum + (line.nodeValue?.length || 0);
+    }
 
-  left.innerText = textarea.innerText.substring(0, sel.focusOffset);
-  right.innerText = textarea.innerText.substring(sel.focusOffset);
+    const el = line as HTMLElement;
+
+    return sum + el.innerText.length;
+  }, 0);
+
+  const content = textarea.innerText.replaceAll('\n\n', '\n');
+  left.innerText = content.substring(0, leftSum);
+  right.innerText = content.substring(leftSum);
 
   div.className = classNames(textarea.className, 'absolute invisible');
   div.setAttribute('style', 'left: 2rem');
@@ -124,17 +148,6 @@ export function replaceWord(
     el.innerHTML = result;
     setCaretPosition(el.firstChild, col + replacement.length - offset);
   }
-}
-
-export function getCaretPostition(el: Element): CaretPosition {
-  const sel = window.getSelection();
-  const row = Array.from(el.childNodes).findIndex((child) => {
-    const node = child.nodeValue ? child : child.firstChild;
-
-    return sel.anchorNode === node;
-  });
-
-  return [sel.anchorOffset, row === -1 ? 0 : row];
 }
 
 export const getSelectionStart = (
