@@ -42,6 +42,8 @@ export interface CommentBoxProps {
   post: Post;
 }
 
+const cleanupText = (text: string) => text.replaceAll?.('\xa0', ' ') || text;
+
 function CommentBox({
   authorImage,
   authorName,
@@ -57,6 +59,7 @@ function CommentBox({
   sendComment,
   post,
 }: CommentBoxProps): ReactElement {
+  const onTextareaInput = (content: string) => onInput(cleanupText(content));
   const { user } = useContext(AuthContext);
   const commentRef = useRef<HTMLDivElement>(null);
   const {
@@ -71,7 +74,7 @@ function CommentBox({
   } = useUserMention({
     postId: post.id,
     commentRef,
-    onInput,
+    onInput: onTextareaInput,
   });
 
   useEffect(() => {
@@ -100,12 +103,6 @@ function CommentBox({
   const handleKeydown = (e: KeyboardEvent<HTMLDivElement>) => {
     const defaultCallback = () => onMentionKeypress(e);
     onKeyDown(e, defaultCallback);
-  };
-
-  const onTextareaInput = (e: KeyboardEvent<HTMLDivElement>) => {
-    const content = e.currentTarget.innerText;
-    const result = content.replaceAll?.('\xa0', ' ') || content;
-    onInput(result);
   };
 
   return (
@@ -156,7 +153,7 @@ function CommentBox({
             role="textbox"
             aria-multiline
             placeholder="Write your comment..."
-            onInput={onTextareaInput}
+            onInput={(e) => onTextareaInput(e.currentTarget.innerText)}
             onKeyDown={handleKeydown}
             onClick={onInputClick}
             onPaste={onPaste}
