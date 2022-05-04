@@ -79,14 +79,8 @@ function CommentBox({
 
   useEffect(() => {
     commentRef.current?.focus();
-    if (commentRef.current) {
-      if (editContent) {
-        commentRef.current.innerText = editContent;
-      }
-      commentRef.current.setAttribute(
-        'data-min-height',
-        commentRef.current.offsetHeight.toString(),
-      );
+    if (commentRef.current && editContent) {
+      commentRef.current.innerText = editContent;
     }
   }, []);
 
@@ -152,7 +146,7 @@ function CommentBox({
             contentEditable
             role="textbox"
             aria-multiline
-            placeholder="Write your comment..."
+            aria-placeholder="Write your comment..."
             onInput={(e) => onTextareaInput(e.currentTarget.innerText)}
             onKeyDown={handleKeydown}
             onClick={onInputClick}
