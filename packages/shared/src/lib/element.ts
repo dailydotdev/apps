@@ -123,11 +123,7 @@ const getOffset = (left: string, col: number) => {
     return '';
   }
 
-  if (lastChar !== '') {
-    return '&nbsp;';
-  }
-
-  return '';
+  return lastChar !== '' ? '&nbsp;' : '';
 };
 
 export function replaceWord(
