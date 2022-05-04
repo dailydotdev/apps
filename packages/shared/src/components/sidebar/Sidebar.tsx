@@ -181,10 +181,8 @@ export default function Sidebar({
   useEffect(() => {
     if (isFirstSession && isSessionLoaded) {
       setIsFirstSession(false);
-      if (feedFilterModalOnboarding === 'control') {
-        openFeedFilters();
-      } else {
-        openFeedFilters();
+      openFeedFilters();
+      if (feedFilterModalOnboarding !== 'control') {
         setShowIntroModal(true);
       }
     }
