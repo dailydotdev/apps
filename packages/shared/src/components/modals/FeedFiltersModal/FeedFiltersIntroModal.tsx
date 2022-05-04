@@ -37,24 +37,13 @@ type FeedFiltersIntroModalProps = FeedFiltersProps &
   ModalFooterProps &
   ModalProps;
 
-const getAnalyticsEvent = (
-  eventName: string,
-  copy: string,
-  type: string,
-): Partial<AnalyticsEvent> => ({
-  event_name: eventName,
-  target_type: 'my feed button',
-  target_id: type,
-  feed_item_title: copy,
-});
-
 const IntroModalFooter = ({
   feedFilterOnboardingModalType,
   onRequestClose,
   onOpenFeedFilterModal,
 }: ModalFooterProps) => {
   const { trackEvent } = useContext(AnalyticsContext);
-  const closeModal = (event: React.MouseEvent<HTMLLabelElement>) => {
+  const closeModal = (event: React.MouseEvent) => {
     trackEvent({
       event_name: 'click',
       target_type: 'skip button',
@@ -63,7 +52,7 @@ const IntroModalFooter = ({
     });
     onRequestClose(event);
   };
-  const openFeedFilter = (event: React.MouseEvent<HTMLLabelElement>) => {
+  const openFeedFilter = (event: React.MouseEvent) => {
     trackEvent({
       event_name: 'click',
       target_type: 'open feed filter button',
