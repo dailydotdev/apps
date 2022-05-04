@@ -91,10 +91,6 @@ export function getWord(
   textarea: HTMLDivElement,
   [col, row]: CaretPosition,
 ): string {
-  if (col === 0) {
-    return '';
-  }
-
   const node = Array.from(textarea.childNodes).find(
     (_, index) => index === row,
   );
