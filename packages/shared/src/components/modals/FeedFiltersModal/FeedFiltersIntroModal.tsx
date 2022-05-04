@@ -8,6 +8,8 @@ import FeedFiltersIntroModalTags from './FeedFiltersIntroModalTags';
 import { FeedFiltersIntroModalTagsContainer } from '../../utilities';
 import { Features, getFeatureValue } from '../../../lib/featureManagement';
 import FeaturesContext from '../../../contexts/FeaturesContext';
+import AnalyticsContext from '../../../contexts/AnalyticsContext';
+import { AnalyticsEvent } from '../../../hooks/analytics/useAnalyticsQueue';
 
 const tagsRows = [
   ['', 'docker', '', 'kubernetes', ''],
@@ -35,11 +37,44 @@ type FeedFiltersIntroModalProps = FeedFiltersProps &
   ModalFooterProps &
   ModalProps;
 
+const getAnalyticsEvent = (
+  eventName: string,
+  copy: string,
+  type: string,
+): Partial<AnalyticsEvent> => ({
+  event_name: eventName,
+  target_type: 'my feed button',
+  target_id: type,
+  feed_item_title: copy,
+});
+
 const IntroModalFooter = ({
   feedFilterOnboardingModalType,
   onRequestClose,
   onOpenFeedFilterModal,
 }: ModalFooterProps) => {
+  const { trackEvent } = useContext(AnalyticsContext);
+  const closeModal = (event: React.MouseEvent<HTMLLabelElement>) => {
+    trackEvent({
+      event_name: 'click',
+      target_type: 'skip button',
+      target_id: `intro modal ${feedFilterOnboardingModalType}`,
+      feed_item_title: 'skip',
+    });
+    onRequestClose(event);
+  };
+  const openFeedFilter = (event: React.MouseEvent<HTMLLabelElement>) => {
+    trackEvent({
+      event_name: 'click',
+      target_type: 'open feed filter button',
+      target_id: `intro modal ${feedFilterOnboardingModalType}`,
+      feed_item_title:
+        feedFilterOnboardingModalType === 'introTest1'
+          ? 'Create my feed'
+          : 'Continue',
+    });
+    onOpenFeedFilterModal(event);
+  };
   return (
     <footer
       className={classNames(
@@ -50,7 +85,7 @@ const IntroModalFooter = ({
       {feedFilterOnboardingModalType === 'introTest2' && (
         <Button
           className="ml-4 w-20 text-theme-label-tertiary"
-          onClick={onRequestClose}
+          onClick={closeModal}
         >
           Skip
         </Button>
@@ -58,7 +93,7 @@ const IntroModalFooter = ({
 
       <Button
         className="mr-4 w-40 btn-primary-cabbage"
-        onClick={onOpenFeedFilterModal}
+        onClick={openFeedFilter}
       >
         {feedFilterOnboardingModalType === 'introTest1'
           ? 'Create my feed'
