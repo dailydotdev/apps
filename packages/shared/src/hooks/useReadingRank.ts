@@ -131,6 +131,7 @@ export default function useReadingRank(
     };
 
     if (document.visibilityState === 'hidden') {
+      document.removeEventListener('visibilitychange', visibilityRef.current);
       document.addEventListener('visibilitychange', visibilityRef.current, {
         once: true,
       });
