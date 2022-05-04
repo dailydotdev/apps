@@ -22,7 +22,7 @@ export const getCaretOffset = (textarea: HTMLDivElement): CaretOffset => {
   const left = document.createElement('span');
   const right = document.createElement('span');
   const div = document.createElement('div');
-  const [, row] = getCaretPostition(textarea);
+  const [col, row] = getCaretPostition(textarea);
   const leftSum = Array.from(textarea.childNodes).reduce((sum, line, i) => {
     if (i > row) {
       return sum;
@@ -32,9 +32,13 @@ export const getCaretOffset = (textarea: HTMLDivElement): CaretOffset => {
       return sum + (line.nodeValue?.length || 0);
     }
 
+    if (i === row) {
+      return sum + col;
+    }
+
     const el = line as HTMLElement;
 
-    return sum + el.innerText.length;
+    return sum + el.innerText.length + 1;
   }, 0);
 
   const content = textarea.innerText.replaceAll('\n\n', '\n');
