@@ -9,11 +9,14 @@ export type CaretPosition = [Column, Row];
 
 export function getCaretPostition(el: Element): CaretPosition {
   const sel = window.getSelection();
-  const row = Array.from(el.childNodes).findIndex((child) => {
+  let row = 0;
+  for (; row < el.childNodes.length; row += 1) {
+    const child = el.childNodes[row];
     const node = child.nodeValue ? child : child.firstChild;
-
-    return sel.anchorNode === node;
-  });
+    if (child === sel.anchorNode || sel.anchorNode === node) {
+      break;
+    }
+  }
 
   return [sel.anchorOffset, row === -1 ? 0 : row];
 }
