@@ -28,12 +28,12 @@ export const getCaretOffset = (textarea: HTMLDivElement): CaretOffset => {
       return sum;
     }
 
-    if (i === 0) {
-      return sum + (line.nodeValue?.length || 0);
-    }
-
     if (i === row) {
       return sum + col;
+    }
+
+    if (i === 0) {
+      return sum + (line.nodeValue?.length || 0);
     }
 
     const el = line as HTMLElement;
