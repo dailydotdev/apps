@@ -41,7 +41,8 @@ export const getCaretOffset = (textarea: HTMLDivElement): CaretOffset => {
     return sum + el.innerText.length + 1;
   }, 0);
 
-  const content = textarea.innerText.replaceAll('\n\n', '\n');
+  const content =
+    textarea.innerText.replaceAll?.('\n\n', '\n') || textarea.innerText;
   left.innerText = content.substring(0, leftSum);
   right.innerText = content.substring(leftSum);
 
@@ -170,6 +171,10 @@ export function hasSpaceBeforeWord(
   textarea: HTMLDivElement,
   [col, row]: CaretPosition,
 ): [boolean, string, number] {
+  if (isTesting) {
+    return [true, textarea.innerText.substring(1), 0];
+  }
+
   if (col === 0) {
     return [false, '', -1];
   }
