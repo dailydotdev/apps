@@ -103,7 +103,9 @@ function CommentBox({
   };
 
   const onTextareaInput = (e: KeyboardEvent<HTMLDivElement>) => {
-    onInput(e.currentTarget.innerText.replaceAll('\xa0', ' '));
+    const content = e.currentTarget.innerText;
+    const result = content.replaceAll?.('\xa0', ' ') || content;
+    onInput(result);
   };
 
   return (
@@ -145,12 +147,14 @@ function CommentBox({
         <div className="flex relative flex-1 pl-2">
           <ProfilePicture user={user} size="small" />
           <div
-            role="textbox"
             className={classNames(
               'ml-3 pr-2 flex-1 text-theme-label-primary bg-transparent whitespace-pre-line border-none caret-theme-label-link break-words typo-subhead resize-none',
               styles.textarea,
             )}
             ref={commentRef}
+            contentEditable
+            role="textbox"
+            aria-multiline
             placeholder="Write your comment..."
             onInput={onTextareaInput}
             onKeyDown={handleKeydown}
@@ -158,8 +162,6 @@ function CommentBox({
             onPaste={onPaste}
             tabIndex={0}
             aria-label="New comment box"
-            aria-multiline
-            contentEditable
           />
         </div>
         <RecommendedMentionTooltip
