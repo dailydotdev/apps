@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
 import request from 'graphql-request';
 import { isThisISOWeek, isToday } from 'date-fns';
@@ -117,19 +117,29 @@ export default function useReadingRank(
       neverShowRankModal,
     );
 
-  const updateShownProgress = async () => {
+  const unmountRef = useRef(false);
+  const timeoutRef = useRef<number>();
+  const visibilityRef = useRef(null);
+
+  const updateShownProgress = useCallback(() => {
+    if (unmountRef) {
+      return;
+    }
+
+    visibilityRef.current = () => {
+      timeoutRef.current = window.setTimeout(updateShownProgress, 1000);
+    };
+
     if (document.visibilityState === 'hidden') {
-      document.addEventListener(
-        'visibilitychange',
-        () => setTimeout(updateShownProgress, 1000),
-        { once: true },
-      );
+      document.addEventListener('visibilitychange', visibilityRef.current, {
+        once: true,
+      });
     } else if (cachedRank?.rank.currentRank === remoteRank?.rank.currentRank) {
-      await cacheRank();
+      cacheRank();
     } else {
       setLevelUp(true);
     }
-  };
+  }, [cachedRank]);
 
   useEffect(() => {
     if (!disableNewRankPopup) {
@@ -137,10 +147,27 @@ export default function useReadingRank(
     }
   }, [levelUp]);
 
+  useEffect(
+    () => () => {
+      unmountRef.current = true;
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      if (visibilityRef.current) {
+        document.removeEventListener('visibilitychange', visibilityRef.current);
+      }
+    },
+    [],
+  );
+
   // Let the rank update and then show progress animation, slight delay so the user won't miss it
   const displayProgress = () => setTimeout(updateShownProgress, 300);
 
   useEffect(() => {
+    if (unmountRef.current) {
+      return;
+    }
+
     if (remoteRank && loadedCache) {
       if (
         !cachedRank ||
@@ -164,6 +191,10 @@ export default function useReadingRank(
 
   // For anonymous users
   useEffect(() => {
+    if (unmountRef.current) {
+      return;
+    }
+
     if (loadedCache && loadedUserFromCache && tokenRefreshed) {
       if (cachedRank?.userId !== user?.id) {
         // Reset cache on user change
