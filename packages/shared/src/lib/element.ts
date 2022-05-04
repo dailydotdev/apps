@@ -1,4 +1,5 @@
 import classNames from 'classnames';
+import { isTesting } from './constants';
 
 type Column = number;
 type Row = number;
@@ -6,13 +7,15 @@ type Row = number;
 export type CaretOffset = [number, number];
 export type CaretPosition = [Column, Row];
 
-export const getCaretOffset = (textarea: HTMLTextAreaElement): CaretOffset => {
+export const getCaretOffset = (textarea: HTMLDivElement): CaretOffset => {
   const left = document.createElement('span');
   const right = document.createElement('span');
   const div = document.createElement('div');
 
-  left.innerText = textarea.value.substring(0, textarea.selectionStart);
-  right.innerText = textarea.value.substring(textarea.selectionStart);
+  const sel = window.getSelection();
+
+  left.innerText = textarea.innerText.substring(0, sel.focusOffset);
+  right.innerText = textarea.innerText.substring(sel.focusOffset);
 
   div.className = classNames(textarea.className, 'absolute invisible');
   div.setAttribute('style', 'left: 2rem');
@@ -32,46 +35,106 @@ const getEndIndex = (value: string, start: number) => {
   return end === -1 ? undefined : end;
 };
 
-export function getWord(
-  textarea: HTMLTextAreaElement,
-  [col, row]: CaretPosition,
-): string {
-  const line = textarea.value.split('\n')[row - 1];
-  const end = getEndIndex(line, col);
+const getNodeText = (node: Node) => {
+  if (isTesting) {
+    const el = node as HTMLElement;
 
-  return line.substring(col, end);
+    return el.innerText.substring(1);
+  }
+
+  const string = node?.nodeValue || node?.firstChild?.nodeValue || '';
+
+  return string.replaceAll('\xa0', ' ');
+};
+
+export function setCaretPosition(el: Node, col: number): void {
+  const range = document.createRange();
+  const sel = window.getSelection();
+
+  range.setStart(el, col);
+  range.collapse(true);
+
+  sel.removeAllRanges();
+  sel.addRange(range);
 }
 
+export function getWord(
+  textarea: HTMLDivElement,
+  [col, row]: CaretPosition,
+): string {
+  if (col === 0) {
+    return '';
+  }
+
+  const node = Array.from(textarea.childNodes).find(
+    (_, index) => index === row,
+  );
+  const text = getNodeText(node || textarea);
+  const end = getEndIndex(text, col);
+
+  return text.substring(col, end) || '';
+}
+
+export const getSplittedText = (
+  textarea: HTMLDivElement,
+  [col, row]: CaretPosition,
+  query: string,
+): [Node, string, string] => {
+  const node = Array.from(textarea.childNodes).find((_, i) => i === row);
+  const text = getNodeText(node);
+  const left = text?.substring(0, col - 1) || '';
+  const right = text?.substring(col + query.length - 1) || '';
+
+  return [node, left, right];
+};
+
+const getOffset = (left: string, col: number) => {
+  const lastChar = left.charAt(left.length - 1);
+
+  if (col === 0 || lastChar === ' ') {
+    return '';
+  }
+
+  if (lastChar !== '') {
+    return '&nbsp;';
+  }
+
+  return '';
+};
+
 export function replaceWord(
-  textarea: HTMLTextAreaElement,
+  textarea: HTMLDivElement,
   [col, row]: CaretPosition,
   query: string,
   replacement: string,
+  forInitialization?: boolean,
 ): void {
-  const result = textarea.value.split('\n').map((line, index) => {
-    if (index !== row - 1) {
-      return line;
-    }
+  const [node, left, right] = getSplittedText(textarea, [col, row], query);
+  const additionalSpace = forInitialization ? getOffset(left, col) : '';
+  const offset = additionalSpace.length || !forInitialization ? 0 : 1;
+  const result = `${left}${additionalSpace}${replacement}&nbsp;${right}`;
 
-    const left = line.substring(0, col - 1);
-    const right = line.substring(col + query.length - 1);
-
-    return `${left}${replacement} ${right}`;
-  });
-
-  // eslint-disable-next-line no-param-reassign
-  textarea.value = result.join('\n');
+  if (row === 0) {
+    // eslint-disable-next-line no-param-reassign
+    textarea.innerHTML = result;
+    Array.from(textarea.children).forEach((child) => textarea.append(child));
+    setCaretPosition(textarea.firstChild, col + replacement.length - offset);
+  } else {
+    const el = node as HTMLElement;
+    el.innerHTML = result;
+    setCaretPosition(el.firstChild, col + replacement.length - offset);
+  }
 }
 
-export function getCaretPostition(
-  textarea: HTMLTextAreaElement,
-): CaretPosition {
-  const start = textarea.selectionStart;
-  const lines = textarea.value.substring(0, start).split('\n');
-  const row = lines.length;
-  const col = lines[lines.length - 1].length;
+export function getCaretPostition(el: Element): CaretPosition {
+  const sel = window.getSelection();
+  const row = Array.from(el.childNodes).findIndex((child) => {
+    const node = child.nodeValue ? child : child.firstChild;
 
-  return [col, row];
+    return sel.anchorNode === node;
+  });
+
+  return [sel.anchorOffset, row === -1 ? 0 : row];
 }
 
 export const getSelectionStart = (
@@ -91,7 +154,7 @@ export const getSelectionStart = (
   }, 0);
 
 export function hasSpaceBeforeWord(
-  textarea: HTMLTextAreaElement,
+  textarea: HTMLDivElement,
   [col, row]: CaretPosition,
 ): [boolean, string, number] {
   if (col === 0) {
@@ -99,7 +162,13 @@ export function hasSpaceBeforeWord(
   }
 
   let position = 0;
-  const line = textarea.value.split('\n')[row - 1];
+  const node = Array.from(textarea.childNodes).find((_, i) => i === row);
+  const line = getNodeText(node);
+
+  if (!line.charAt(col - 1).trim().length) {
+    return [false, '', -1];
+  }
+
   const query = line.split(' ').find((word, index) => {
     const offset = index > 0 ? 1 : 0;
     position += word.length + offset;

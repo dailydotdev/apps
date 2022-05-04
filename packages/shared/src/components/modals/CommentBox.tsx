@@ -7,7 +7,6 @@ import React, {
   KeyboardEventHandler,
   MouseEvent,
   KeyboardEvent,
-  useState,
 } from 'react';
 import classNames from 'classnames';
 import AuthContext from '../../contexts/AuthContext';
@@ -37,8 +36,8 @@ export interface CommentBoxProps {
   sendComment: (event: MouseEvent | KeyboardEvent) => Promise<void>;
   onInput?: (value: string) => unknown;
   onKeyDown: (
-    e: KeyboardEvent<HTMLTextAreaElement>,
-    defaultCallback?: KeyboardEventHandler<HTMLTextAreaElement>,
+    e: KeyboardEvent<HTMLDivElement>,
+    defaultCallback?: KeyboardEventHandler<HTMLDivElement>,
   ) => unknown;
   post: Post;
 }
@@ -58,9 +57,8 @@ function CommentBox({
   sendComment,
   post,
 }: CommentBoxProps): ReactElement {
-  const [height, setHeight] = useState('auto');
   const { user } = useContext(AuthContext);
-  const commentRef = useRef<HTMLTextAreaElement>(null);
+  const commentRef = useRef<HTMLDivElement>(null);
   const {
     onMentionClick,
     onMentionKeypress,
@@ -80,7 +78,7 @@ function CommentBox({
     commentRef.current?.focus();
     if (commentRef.current) {
       if (editContent) {
-        commentRef.current.value = editContent;
+        commentRef.current.innerText = editContent;
       }
       commentRef.current.setAttribute(
         'data-min-height',
@@ -99,15 +97,13 @@ function CommentBox({
     }
   };
 
-  const handleKeydown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeydown = (e: KeyboardEvent<HTMLDivElement>) => {
     const defaultCallback = () => onMentionKeypress(e);
     onKeyDown(e, defaultCallback);
   };
 
-  const onTextareaInput = (e) => {
-    const minHeight = e.currentTarget.getAttribute('data-min-height');
-    setHeight(`${Math.max(e.currentTarget.scrollHeight, minHeight)}px`);
-    onInput(e.currentTarget.value);
+  const onTextareaInput = (e: KeyboardEvent<HTMLDivElement>) => {
+    onInput(e.currentTarget.innerText.replaceAll('\xa0', ' '));
   };
 
   return (
@@ -148,9 +144,10 @@ function CommentBox({
         </div>
         <div className="flex relative flex-1 pl-2">
           <ProfilePicture user={user} size="small" />
-          <textarea
+          <div
+            role="textbox"
             className={classNames(
-              'ml-3 pr-2 flex-1 text-theme-label-primary bg-transparent border-none caret-theme-label-link break-words typo-subhead resize-none',
+              'ml-3 pr-2 flex-1 text-theme-label-primary bg-transparent whitespace-pre-line border-none caret-theme-label-link break-words typo-subhead resize-none',
               styles.textarea,
             )}
             ref={commentRef}
@@ -162,7 +159,7 @@ function CommentBox({
             tabIndex={0}
             aria-label="New comment box"
             aria-multiline
-            style={{ height }}
+            contentEditable
           />
         </div>
         <RecommendedMentionTooltip

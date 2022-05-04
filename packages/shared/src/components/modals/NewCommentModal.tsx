@@ -234,8 +234,8 @@ export default function NewCommentModal({
   };
 
   const onKeyDown = async (
-    event: KeyboardEvent<HTMLTextAreaElement>,
-    defaultCallback?: KeyboardEventHandler<HTMLTextAreaElement>,
+    event: KeyboardEvent<HTMLDivElement>,
+    defaultCallback?: KeyboardEventHandler<HTMLDivElement>,
   ): Promise<void> => {
     // Ctrl / Command + Enter
     if (
