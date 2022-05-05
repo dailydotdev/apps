@@ -101,6 +101,10 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
 
     // eslint-disable-next-line consistent-return
     return () => {
+      if (typeof window === 'undefined') {
+        return;
+      }
+
       window.removeEventListener('scroll', onScroll);
     };
   }, [position]);
