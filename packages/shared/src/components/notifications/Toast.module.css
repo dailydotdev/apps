@@ -4,6 +4,7 @@
   transition: transform 0.14s ease-in-out;
   max-width: calc(100vw - 2rem);
   max-height: unset;
+  min-height: unset;
   width: 100%;
   bottom: 4rem;
 
