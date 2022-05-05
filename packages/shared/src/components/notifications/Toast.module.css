@@ -1,10 +1,10 @@
-/* .toastContainer {
+.toastContainer {
   z-index: 100;
   transform: translate(-50%, 5rem);
   transition: transform 0.14s ease-in-out;
 
   @screen tablet {
-    @apply top-8;
+    top: 2rem;
     bottom: unset;
     min-width: 12.5rem;
     max-width: 25rem;
@@ -21,4 +21,4 @@
 .toastProgress {
   left: 50%;
   transform: translate(-50%, 0);
-} */
+}
