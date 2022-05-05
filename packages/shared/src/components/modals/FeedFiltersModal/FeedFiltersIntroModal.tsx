@@ -9,7 +9,6 @@ import { FeedFiltersIntroModalTagsContainer } from '../../utilities';
 import { Features, getFeatureValue } from '../../../lib/featureManagement';
 import FeaturesContext from '../../../contexts/FeaturesContext';
 import AnalyticsContext from '../../../contexts/AnalyticsContext';
-import { AnalyticsEvent } from '../../../hooks/analytics/useAnalyticsQueue';
 
 const tagsRows = [
   ['', 'docker', '', 'kubernetes', ''],
