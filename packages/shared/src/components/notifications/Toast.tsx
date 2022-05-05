@@ -1,4 +1,5 @@
 import React, { ReactElement, useCallback, useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import { useQuery, useQueryClient } from 'react-query';
 import {
   ToastNotification,
@@ -36,6 +37,7 @@ const TEMPORARY_ID = 1;
 const Toast = ({
   autoDismissNotifications = false,
 }: ToastProps): ReactElement => {
+  const router = useRouter();
   const client = useQueryClient();
   const [intervalId, setIntervalId] = useState<number>(null);
   const [timer, setTimer] = useState(0);
@@ -104,10 +106,12 @@ const Toast = ({
 
     const handler = () => dismissToast();
     window.addEventListener('scroll', handler);
+    router.events.on('routeChangeStart', handler);
 
     // eslint-disable-next-line consistent-return
     return () => {
       window.removeEventListener('scroll', handler);
+      router.events.off('routeChangeStart', handler);
     };
   }, [dismissToast]);
 
