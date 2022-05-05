@@ -57,6 +57,7 @@ const defaultSettings: RemoteSettings = {
   sidebarExpanded: true,
   sortingEnabled: false,
   optOutWeeklyGoal: true,
+  autoDismissNotifications: true,
 };
 
 const defaultBootData: BootCacheData = {
@@ -308,8 +309,8 @@ it('should toggle sorting enabled callback', async () => {
   expect(sorting).toHaveAttribute('data-test-value', expected.toString());
 });
 
-it('should toggle sorting enabled callback', async () => {
-  const expected = true;
+it('should toggle auto dismiss notifications', async () => {
+  const expected = false;
   mockSettingsMutation({ autoDismissNotifications: expected });
   renderComponent(<SettingsMock />);
   const sorting = await screen.findByText('Sorting Feed');
