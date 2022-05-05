@@ -4,6 +4,7 @@ type AnyFunction = (() => Promise<unknown>) | (() => unknown);
 
 interface UseToastNotification {
   displayToast: (message: string, params?: NotifyOptionalProps) => void;
+  dismissToast: () => void;
   subject?: ToastSubject;
 }
 
@@ -38,5 +39,9 @@ export const useToastNotification = (): UseToastNotification => {
     { timer = 5000, ...props }: NotifyOptionalProps = {},
   ) => setToastNotification({ message, timer, ...props });
 
-  return { displayToast, subject: toast?.subject };
+  return {
+    displayToast,
+    subject: toast?.subject,
+    dismissToast: () => toast && setToastNotification({ ...toast, timer: 0 }),
+  };
 };
