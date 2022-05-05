@@ -94,7 +94,7 @@ export default function PostOptionsMenu({
       }),
     );
 
-    displayToast('🚨 Thanks for reporting!', { subject: ToastSubject.Feed });
+    showMessageAndRemovePost('🚨 Thanks for reporting!', reportPostIndex);
 
     if (blockSource) {
       await onUnfollowSource({ source: reportedPost?.source });
