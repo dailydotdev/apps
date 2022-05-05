@@ -110,10 +110,11 @@ const Toast = ({
           <Button
             className="ml-2 btn-primary"
             buttonSize="small"
-            icon={<XIcon />}
             onClick={undoAction}
             aria-label="Undo action"
-          />
+          >
+            Undo
+          </Button>
         )}
         <Button
           className="ml-2 btn-tertiary"
