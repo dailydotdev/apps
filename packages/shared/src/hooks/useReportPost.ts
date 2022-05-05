@@ -3,7 +3,9 @@ import { useMutation } from 'react-query';
 import request from 'graphql-request';
 import {
   HIDE_POST_MUTATION,
+  UNHIDE_POST_MUTATION,
   REPORT_POST_MUTATION,
+  REMOVE_POST_REPORT_MUTATION,
   ReportReason,
 } from '../graphql/posts';
 import { apiUrl } from '../lib/config';
@@ -17,6 +19,8 @@ type UseReportPostRet = {
     comment?: string;
   }) => BooleanPromise;
   hidePost: (id: string) => BooleanPromise;
+  unhidePost: (id: string) => BooleanPromise;
+  removeReport: (id: string) => BooleanPromise;
 };
 
 interface ReportPostProps {
@@ -37,6 +41,14 @@ export default function useReportPost(): UseReportPostRet {
 
   const { mutateAsync: hidePostAsync } = useMutation<void, unknown, string>(
     (id) => request(`${apiUrl}/graphql`, HIDE_POST_MUTATION, { id }),
+  );
+
+  const { mutateAsync: unhidePostAsync } = useMutation<void, unknown, string>(
+    (id) => request(`${apiUrl}/graphql`, UNHIDE_POST_MUTATION, { id }),
+  );
+
+  const { mutateAsync: removeReportAsync } = useMutation<void, unknown, string>(
+    (id) => request(`${apiUrl}/graphql`, REMOVE_POST_REPORT_MUTATION, { id }),
   );
 
   const reportPost = async (params: ReportPostProps) => {
@@ -61,5 +73,27 @@ export default function useReportPost(): UseReportPostRet {
     return { successful: true };
   };
 
-  return { reportPost, hidePost };
+  const unhidePost = async (id: string) => {
+    if (!user) {
+      showLogin('hide post');
+      return { successful: false };
+    }
+
+    await unhidePostAsync(id);
+
+    return { successful: true };
+  };
+
+  const removeReport = async (id: string) => {
+    if (!user) {
+      showLogin('hide post');
+      return { successful: false };
+    }
+
+    await removeReportAsync(id);
+
+    return { successful: true };
+  };
+
+  return { reportPost, hidePost, unhidePost, removeReport };
 }

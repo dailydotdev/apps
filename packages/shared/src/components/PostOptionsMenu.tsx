@@ -53,7 +53,7 @@ export default function PostOptionsMenu({
   const { displayToast } = useToastNotification();
   useFeedSettings();
   const { trackEvent } = useContext(AnalyticsContext);
-  const { reportPost, hidePost } = useReportPost();
+  const { reportPost, hidePost, removeReport, unhidePost } = useReportPost();
   const { onFollowSource, onUnfollowSource, onBlockTags, onUnblockTags } =
     useTagAndSource({
       origin: 'post context menu',
@@ -96,7 +96,9 @@ export default function PostOptionsMenu({
       }),
     );
 
-    showMessageAndRemovePost('🚨 Thanks for reporting!', reportPostIndex);
+    showMessageAndRemovePost('🚨 Thanks for reporting!', reportPostIndex, () =>
+      removeReport(reportedPost?.id),
+    );
 
     if (blockSource) {
       await onUnfollowSource({ source: reportedPost?.source });
@@ -150,11 +152,10 @@ export default function PostOptionsMenu({
 
     await onRemovePost?.(postIndex);
 
-    if (!postIndex) {
-      displayToast('🙈 This article won’t show up on your feed anymore', {
-        subject: ToastSubject.PostContent,
-      });
-    }
+    displayToast('🙈 This article won’t show up on your feed anymore', {
+      subject: ToastSubject.PostContent,
+      onUndo: () => unhidePost(post.id),
+    });
   };
 
   const shareLink = post?.commentsPermalink;
