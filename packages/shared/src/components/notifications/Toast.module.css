@@ -2,10 +2,14 @@
   z-index: 100;
   transform: translate(-50%, 5rem);
   transition: transform 0.14s ease-in-out;
+  max-width: calc(100vw - 2rem);
+  width: 100%;
+  bottom: 4rem;
 
   @screen tablet {
     top: 2rem;
     bottom: unset;
+    width: unset;
     min-width: 12.5rem;
     max-width: 25rem;
     min-height: 2.75rem;

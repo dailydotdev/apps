@@ -15,7 +15,7 @@ interface ToastProps {
 
 const Container = classed(
   'div',
-  'fixed bottom-8 left-1/2 flex flex-col justify-center bg-theme-label-primary p-2 rounded-14 border-theme-divider-primary shadow-2',
+  'fixed left-1/2 flex flex-col justify-center bg-theme-label-primary p-2 rounded-14 border-theme-divider-primary shadow-2',
   styles.toastContainer,
 );
 const Content = classed('div', 'relative flex flex-row items-center ml-2');
