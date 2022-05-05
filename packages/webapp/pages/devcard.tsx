@@ -97,7 +97,35 @@ const CUSTOM_BG = 'CUSTOM_BG';
 const BY_RANK_BG = 'BY_RANK_BG';
 
 // This can be used for themed devCards
-const bgUrlOption = [];
+const bgUrlOption = [
+  {
+    label: 'May 4th - Hyperdrive',
+    value:
+      'https://daily-now-res.cloudinary.com/image/upload/v1651591210/devcard/bg/may4_hyperdrive.jpg',
+    caption: {
+      text: '(Limited edition)',
+      className: 'text-theme-color-cheese',
+    },
+  },
+  {
+    label: 'May 4th - Dark',
+    value:
+      'https://daily-now-res.cloudinary.com/image/upload/v1651591209/devcard/bg/may4_dark.jpg',
+    caption: {
+      text: '(Limited edition)',
+      className: 'text-theme-color-cheese',
+    },
+  },
+  {
+    label: 'May 4th - Saber',
+    value:
+      'https://daily-now-res.cloudinary.com/image/upload/v1651591210/devcard/bg/may4_saber.jpg',
+    caption: {
+      text: '(Limited edition)',
+      className: 'text-theme-color-cheese',
+    },
+  },
+];
 
 const Step2 = ({
   onGenerateImage,
