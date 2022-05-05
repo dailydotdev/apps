@@ -101,7 +101,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
 
     // eslint-disable-next-line consistent-return
     return () => {
-      parent.removeEventListener('scroll', onScroll);
+      window.removeEventListener('scroll', onScroll);
     };
   }, [position]);
 
