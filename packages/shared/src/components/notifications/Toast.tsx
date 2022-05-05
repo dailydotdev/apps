@@ -90,7 +90,7 @@ const Toast = ({
     }
 
     window.clearInterval(intervalId);
-    setToast({ message: toast.message, timer: 0 });
+    setToast({ ...toast, timer: 0 });
   };
 
   const undoAction = async () => {
@@ -99,7 +99,7 @@ const Toast = ({
     }
 
     await toast.onUndo();
-    setToast({ message: toast.message, timer: 0 });
+    setToast({ ...toast, timer: 0 });
   };
 
   return (

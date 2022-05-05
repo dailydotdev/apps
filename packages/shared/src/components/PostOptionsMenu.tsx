@@ -51,13 +51,14 @@ export default function PostOptionsMenu({
   setShowBanPost,
 }: PostOptionsMenuProps): ReactElement {
   const { displayToast } = useToastNotification();
-  const { setAvoidRefresh } = useFeedSettings();
+  useFeedSettings();
   const { trackEvent } = useContext(AnalyticsContext);
   const { reportPost, hidePost } = useReportPost();
-  const { onUnfollowSource, onBlockTags } = useTagAndSource({
-    origin: 'post context menu',
-    postId: post?.id,
-  });
+  const { onFollowSource, onUnfollowSource, onBlockTags, onUnblockTags } =
+    useTagAndSource({
+      origin: 'post context menu',
+      postId: post?.id,
+    });
   const [reportModal, setReportModal] = useState<{
     index?: number;
     post?: Post;
@@ -66,8 +67,9 @@ export default function PostOptionsMenu({
   const showMessageAndRemovePost = async (
     message: string,
     _postIndex: number,
+    undo?: () => unknown,
   ) => {
-    displayToast(message, { subject: ToastSubject.Feed });
+    displayToast(message, { subject: ToastSubject.Feed, onUndo: undo });
     onRemovePost?.(_postIndex);
   };
 
@@ -102,33 +104,35 @@ export default function PostOptionsMenu({
   };
 
   const onBlockSource = async (): Promise<void> => {
-    setAvoidRefresh(true);
     const { successful } = await onUnfollowSource({
       source: post?.source,
       requireLogin: true,
     });
+
     if (!successful) {
-      setAvoidRefresh(false);
       return;
     }
-    showMessageAndRemovePost(`🚫 ${post?.source?.name} blocked`, postIndex);
-    setAvoidRefresh(false);
+
+    showMessageAndRemovePost(
+      `🚫 ${post?.source?.name} blocked`,
+      postIndex,
+      () => onFollowSource({ source: post?.source }),
+    );
   };
 
   const onBlockTag = async (tag: string): Promise<void> => {
-    setAvoidRefresh(true);
     const { successful } = await onBlockTags({
       tags: [tag],
       requireLogin: true,
     });
 
     if (!successful) {
-      setAvoidRefresh(false);
       return;
     }
 
-    await showMessageAndRemovePost(`⛔️ #${tag} blocked`, postIndex);
-    setAvoidRefresh(false);
+    await showMessageAndRemovePost(`⛔️ #${tag} blocked`, postIndex, () =>
+      onUnblockTags({ tags: [tag], requireLogin: true }),
+    );
   };
 
   const onHidePost = async (): Promise<void> => {
