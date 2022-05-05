@@ -313,13 +313,13 @@ it('should toggle auto dismiss notifications', async () => {
   const expected = false;
   mockSettingsMutation({ autoDismissNotifications: expected });
   renderComponent(<SettingsMock />);
-  const sorting = await screen.findByText('Sorting Feed');
-  expect(sorting).toHaveAttribute(
+  const autoDismiss = await screen.findByText('Auto dismiss notifications');
+  expect(autoDismiss).toHaveAttribute(
     'data-test-value',
     defaultSettings.autoDismissNotifications.toString(),
   );
-  fireEvent.click(sorting);
-  expect(sorting).toHaveAttribute('data-test-value', expected.toString());
+  fireEvent.click(autoDismiss);
+  expect(autoDismiss).toHaveAttribute('data-test-value', expected.toString());
 });
 
 const AlertsMock = (params: Partial<Alerts>) => {
