@@ -273,6 +273,7 @@ export default function Feed<T>({
       )}
       style={style}
       aria-live={subject === ToastSubject.Feed ? 'assertive' : 'off'}
+      data-testid="posts-feed"
     >
       {selectedPost && (
         <PostModal
