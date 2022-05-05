@@ -112,6 +112,7 @@ const Toast = ({
             buttonSize="small"
             icon={<XIcon />}
             onClick={undoAction}
+            aria-label="Undo action"
           />
         )}
         <Button
@@ -119,6 +120,7 @@ const Toast = ({
           buttonSize="small"
           icon={<XIcon />}
           onClick={dismissToast}
+          aria-label="Dissmiss toast notification"
         />
         {autoDismissNotifications && (
           <Progress style={{ width: `${progress}%` }} />
