@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement, useCallback, useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
 import {
   ToastNotification,
@@ -8,6 +8,7 @@ import classed from '../../lib/classed';
 import { Button } from '../buttons/Button';
 import styles from './Toast.module.css';
 import XIcon from '../../../icons/x.svg';
+import { isTouchDevice } from '../../lib/tooltip';
 
 interface ToastProps {
   autoDismissNotifications?: boolean;
@@ -78,20 +79,14 @@ const Toast = ({
     );
   }, [toast]);
 
-  if (!toast) {
-    return null;
-  }
-
-  const progress = (timer / toast.timer) * 100;
-
-  const dismissToast = () => {
+  const dismissToast = useCallback(() => {
     if (!toast) {
       return;
     }
 
     window.clearInterval(intervalId);
     setToast({ ...toast, timer: 0 });
-  };
+  }, [toast, intervalId]);
 
   const undoAction = async () => {
     if (!toast?.onUndo) {
@@ -101,6 +96,26 @@ const Toast = ({
     await toast.onUndo();
     setToast({ ...toast, timer: 0 });
   };
+
+  useEffect(() => {
+    if (!isTouchDevice()) {
+      return;
+    }
+
+    const handler = () => dismissToast();
+    window.addEventListener('scroll', handler);
+
+    // eslint-disable-next-line consistent-return
+    return () => {
+      window.removeEventListener('scroll', handler);
+    };
+  }, [dismissToast]);
+
+  if (!toast) {
+    return null;
+  }
+
+  const progress = (timer / toast.timer) * 100;
 
   return (
     <Container className={intervalId && 'slide-in'} role="alert">
