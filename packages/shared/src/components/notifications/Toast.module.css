@@ -1,4 +1,4 @@
-.toastContainer {
+/* .toastContainer {
   z-index: 100;
   transform: translate(-50%, 5rem);
   transition: transform 0.14s ease-in-out;
@@ -21,4 +21,4 @@
 .toastProgress {
   left: 50%;
   transform: translate(-50%, 0);
-}
+} */
