@@ -1,4 +1,10 @@
-import React, { ReactElement, useContext } from 'react';
+import React, {
+  CSSProperties,
+  ReactElement,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import { useQuery } from 'react-query';
@@ -18,7 +24,10 @@ import { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
 import request, { ClientError } from 'graphql-request';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
-import { PostContent } from '@dailydotdev/shared/src/components/post/PostContent';
+import {
+  PostContent,
+  SCROLL_OFFSET,
+} from '@dailydotdev/shared/src/components/post/PostContent';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 
@@ -34,6 +43,8 @@ interface PostParams extends ParsedUrlQuery {
 }
 
 const PostPage = ({ id, postData }: Props): ReactElement => {
+  const [position, setPosition] =
+    useState<CSSProperties['position']>('relative');
   const { tokenRefreshed } = useContext(AuthContext);
   const router = useRouter();
   const { isFallback } = router;
@@ -68,6 +79,32 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     },
   };
 
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const onScroll = (e) => {
+      if (e.currentTarget.scrollY > SCROLL_OFFSET) {
+        if (position !== 'fixed') {
+          setPosition('fixed');
+        }
+        return;
+      }
+
+      if (position !== 'relative') {
+        setPosition('relative');
+      }
+    };
+
+    window.addEventListener('scroll', onScroll);
+
+    // eslint-disable-next-line consistent-return
+    return () => {
+      parent.removeEventListener('scroll', onScroll);
+    };
+  }, [position]);
+
   return (
     <>
       <Head>
@@ -75,6 +112,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
       </Head>
       <NextSeo {...seo} />
       <PostContent
+        position={position}
         postById={postById}
         isFallback={isFallback}
         isLoading={isLoading || !isFetched}
