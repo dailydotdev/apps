@@ -23,7 +23,7 @@ const Container = classed(
 const Content = classed('div', 'relative flex flex-row items-center ml-2');
 const Message = classed(
   'div',
-  'flex-1 mr-2 typo-subhead text-theme-bg-secondary',
+  'flex-1 mr-2 typo-subhead text-theme-label-invert',
 );
 const Progress = classed(
   'span',
@@ -128,7 +128,7 @@ const Toast = ({
         {toast?.onUndo && (
           <Button
             className="ml-2 btn-primary"
-            buttonSize="small"
+            buttonSize="xsmall"
             onClick={undoAction}
             aria-label="Undo action"
           >
@@ -136,7 +136,7 @@ const Toast = ({
           </Button>
         )}
         <Button
-          className="ml-2 btn-tertiary"
+          className="ml-2 btn-primary"
           buttonSize="small"
           icon={<XIcon />}
           onClick={dismissToast}
