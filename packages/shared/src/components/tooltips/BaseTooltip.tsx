@@ -27,6 +27,7 @@ export interface TooltipProps
     | 'interactive'
     | 'onTrigger'
     | 'onShow'
+    | 'onHide'
     | 'duration'
     | 'visible'
     | 'offset'
