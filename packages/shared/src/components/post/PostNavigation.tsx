@@ -83,6 +83,7 @@ export function PostNavigation({
         inlineActions={shouldDisplayTitle || isModal}
         className={getClasses()}
         notificactionClassName="ml-4"
+        origin={isModal ? 'article modal' : 'article page'}
       />
     </div>
   );
