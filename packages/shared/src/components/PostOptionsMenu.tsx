@@ -53,7 +53,7 @@ export default function PostOptionsMenu({
   const { displayToast } = useToastNotification();
   useFeedSettings();
   const { trackEvent } = useContext(AnalyticsContext);
-  const { reportPost, hidePost, removeReport, unhidePost } = useReportPost();
+  const { reportPost, hidePost, unhidePost } = useReportPost();
   const { onFollowSource, onUnfollowSource, onBlockTags, onUnblockTags } =
     useTagAndSource({
       origin: 'post context menu',
@@ -96,9 +96,7 @@ export default function PostOptionsMenu({
       }),
     );
 
-    showMessageAndRemovePost('🚨 Thanks for reporting!', reportPostIndex, () =>
-      removeReport(reportedPost?.id),
-    );
+    showMessageAndRemovePost('🚨 Thanks for reporting!', reportPostIndex);
 
     if (blockSource) {
       await onUnfollowSource({ source: reportedPost?.source });
