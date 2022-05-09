@@ -56,16 +56,20 @@ const Toast = ({
     if (toast && timer === 0 && intervalId) {
       window.clearInterval(intervalId);
       setIntervalId(null);
+      window.clearTimeout(timeout.current);
       timeout.current = window.setTimeout(
         () => setToast(null),
         IN_OUT_ANIMATION,
       );
     }
-
-    return () => {
-      window.clearTimeout(timeout.current);
-    };
   }, [timer, toast, intervalId]);
+
+  useEffect(
+    () => () => {
+      window.clearTimeout(timeout.current);
+    },
+    [],
+  );
 
   useEffect(() => {
     if (!toast) {
