@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement, useContext, useEffect } from 'react';
 import classNames from 'classnames';
 import { ModalProps } from '../StyledModal';
 import { ResponsiveModal } from '../ResponsiveModal';
@@ -9,6 +9,7 @@ import { FeedFiltersIntroModalTagsContainer } from '../../utilities';
 import { Features, getFeatureValue } from '../../../lib/featureManagement';
 import FeaturesContext from '../../../contexts/FeaturesContext';
 import AnalyticsContext from '../../../contexts/AnalyticsContext';
+import { AnalyticsEvent } from '../../../hooks/analytics/useAnalyticsQueue';
 
 const tagsRows = [
   ['', 'docker', '', 'kubernetes', ''],
@@ -36,31 +37,56 @@ type FeedFiltersIntroModalProps = FeedFiltersProps &
   ModalFooterProps &
   ModalProps;
 
+const getAnalyticsEvent = (
+  eventName: string,
+  copy: string,
+  type: string,
+  targetType: string,
+): Partial<AnalyticsEvent> => ({
+  event_name: eventName,
+  target_type: targetType,
+  target_id: type,
+  feed_item_title: copy,
+});
+
 const IntroModalFooter = ({
   feedFilterOnboardingModalType,
   onRequestClose,
   onOpenFeedFilterModal,
 }: ModalFooterProps) => {
   const { trackEvent } = useContext(AnalyticsContext);
-  const closeModal = (event: React.MouseEvent) => {
-    trackEvent({
-      event_name: 'click',
-      target_type: 'skip button',
-      target_id: `intro modal ${feedFilterOnboardingModalType}`,
-      feed_item_title: 'skip',
-    });
-    onRequestClose(event);
-  };
-  const openFeedFilter = (event: React.MouseEvent) => {
-    trackEvent({
-      event_name: 'click',
-      target_type: 'open feed filter button',
-      target_id: `intro modal ${feedFilterOnboardingModalType}`,
-      feed_item_title:
+
+  useEffect(() => {
+    trackEvent(
+      getAnalyticsEvent(
+        'impression',
+        'skip button',
+        `intro modal ${feedFilterOnboardingModalType}`,
         feedFilterOnboardingModalType === 'introTest1'
           ? 'Create my feed'
           : 'Continue',
-    });
+      ),
+    );
+  }, []);
+
+  const closeModal = (event: React.MouseEvent) => {
+    getAnalyticsEvent(
+      'click',
+      'skip button',
+      `intro modal ${feedFilterOnboardingModalType}`,
+      'skip',
+    );
+    onRequestClose(event);
+  };
+  const openFeedFilter = (event: React.MouseEvent) => {
+    getAnalyticsEvent(
+      'click',
+      'open feed filter button',
+      `intro modal ${feedFilterOnboardingModalType}`,
+      feedFilterOnboardingModalType === 'introTest1'
+        ? 'Create my feed'
+        : 'Continue',
+    );
     onOpenFeedFilterModal(event);
   };
   return (
@@ -71,10 +97,7 @@ const IntroModalFooter = ({
       )}
     >
       {feedFilterOnboardingModalType === 'introTest2' && (
-        <Button
-          className="ml-4 w-20 text-theme-label-tertiary"
-          onClick={closeModal}
-        >
+        <Button className="ml-4 w-20 btn-tertiary" onClick={closeModal}>
           Skip
         </Button>
       )}

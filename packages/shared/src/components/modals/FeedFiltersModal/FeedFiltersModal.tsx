@@ -74,10 +74,11 @@ export default function FeedFiltersModal({
   feedFilterOnboardingModalType,
   actionToOpenFeedFilters,
   onIntroClose,
+  onRequestClose,
   ...modalProps
 }: FeedFiltersModalProps): ReactElement {
   return (
-    <ResponsiveModal {...modalProps} onRequestClose={onCloseFeedFilterModal}>
+    <ResponsiveModal {...modalProps}>
       {feedFilterModalType === 'v3' && (
         <Button
           className="fixed top-8 right-8 btn-tertiary-float bg-theme-bg-tertiary"
