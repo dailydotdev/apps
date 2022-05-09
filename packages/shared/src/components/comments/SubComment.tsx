@@ -10,6 +10,7 @@ import CommentAuthor from './CommentAuthor';
 import classed from '../../lib/classed';
 import Markdown from '../Markdown';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
+import CommentBadge from './CommentBadge';
 
 export interface Props extends CommentActionProps {
   comment: Comment;
@@ -52,7 +53,13 @@ export default function SubComment({
       </div>
       <div className="flex flex-col flex-1 items-stretch ml-2">
         <SubCommentBox>
-          <CommentAuthor postAuthorId={postAuthorId} author={comment.author} />
+          <div className="flex">
+            <CommentAuthor
+              postAuthorId={postAuthorId}
+              author={comment.author}
+            />
+            <CommentBadge />
+          </div>
           <CommentPublishDate comment={comment} />
           <div className="mt-2">
             <Markdown content={comment.contentHtml} />
