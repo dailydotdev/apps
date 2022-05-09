@@ -40,7 +40,7 @@ export default function RecommendAnArticle({
     string
   >((articleUrl: string) =>
     request(`${apiUrl}/graphql`, RECOMMEND_ARTICLE_MUTATION, {
-      data: { url: articleUrl },
+      url: articleUrl,
     }),
   );
 
@@ -70,14 +70,18 @@ export default function RecommendAnArticle({
       return;
     }
 
-    const res = await recommendArticle(data.articleUrl);
-
-    setIsValidating(false);
-    if ('error' in res) {
-      setUrlHint(res?.message);
-      setEnableSubmission(false);
-    } else {
+    try {
+      await recommendArticle(data.articleUrl);
       setIsSubmitted(true);
+    } catch (err) {
+      const error = JSON.parse(JSON.stringify(err));
+      setUrlHint(
+        error?.response?.errors[0]?.message ??
+          'Something went wrong, try again',
+      );
+      setEnableSubmission(false);
+    } finally {
+      setIsValidating(false);
     }
   };
 
@@ -94,7 +98,8 @@ export default function RecommendAnArticle({
       <section className="overflow-auto relative px-10 pt-6 pb-10 w-full h-full shrink max-h-full">
         <p className="mb-2 typo-callout text-theme-label-tertiary">
           Found an interesting article? Do you want to share it with the
-          community? Enter the article's URL / link below to add it to the feed.
+          community? Enter the article&apos;s URL / link below to add it to the
+          feed.
         </p>
         <a
           className="font-bold underline typo-callout text-theme-label-link"

@@ -1,14 +1,8 @@
-import { render, RenderResult, screen, waitFor } from '@testing-library/react';
+import { render, RenderResult, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import React from 'react';
 import nock from 'nock';
-import NewSourceModal from './NewSourceModal';
-import { mockGraphQL } from '../../../__tests__/helpers/graphql';
-import {
-  REQUEST_SOURCE_MUTATION,
-  SOURCE_BY_FEED_QUERY,
-} from '../../graphql/newSource';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import { AnonymousUser, LoggedUser } from '../../lib/user';
 import RecommendAnArticle from './RecommendAnArticle';
