@@ -1,4 +1,10 @@
-import React, { ReactElement, useCallback, useEffect, useState } from 'react';
+import React, {
+  ReactElement,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useRouter } from 'next/router';
 import { useQuery, useQueryClient } from 'react-query';
 import {
@@ -41,6 +47,7 @@ const Toast = ({
   const client = useQueryClient();
   const [intervalId, setIntervalId] = useState<number>(null);
   const [timer, setTimer] = useState(0);
+  const timeout = useRef<number>();
   const { data: toast } = useQuery<ToastNotification>(TOAST_NOTIF_KEY);
   const setToast = (data: ToastNotification) =>
     client.setQueryData(TOAST_NOTIF_KEY, data);
@@ -49,8 +56,15 @@ const Toast = ({
     if (toast && timer === 0 && intervalId) {
       window.clearInterval(intervalId);
       setIntervalId(null);
-      setTimeout(() => setToast(null), IN_OUT_ANIMATION);
+      timeout.current = window.setTimeout(
+        () => setToast(null),
+        IN_OUT_ANIMATION,
+      );
     }
+
+    return () => {
+      window.clearTimeout(timeout.current);
+    };
   }, [timer, toast, intervalId]);
 
   useEffect(() => {
