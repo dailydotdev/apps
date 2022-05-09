@@ -8,7 +8,7 @@ import {
 } from '@testing-library/react';
 import nock from 'nock';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import ReadingHistoryItem from './ReadingHistoryItem';
+import PostItemCard from '../post/PostItemCard';
 import ReadHistoryList, { ReadHistoryListProps } from './ReadingHistoryList';
 import { ReadHistoryInfiniteData } from '../../hooks/useInfiniteReadingHistory';
 import AuthContext from '../../contexts/AuthContext';
@@ -121,20 +121,20 @@ describe('ReadingHistoryList component', () => {
 
   it('should show Share article when menu is open', async () => {
     renderComponent();
-    const button = await screen.findByTestId('history-p1');
+    const button = await screen.findByTestId('post-item-p1');
     fireEvent.click(button);
     await screen.findByText('Share article');
   });
 
   it('should show Save to bookmarks when menu is open', async () => {
     renderComponent();
-    const button = await screen.findByTestId('history-p1');
+    const button = await screen.findByTestId('post-item-p1');
     fireEvent.click(button);
     await screen.findByText('Save to bookmarks');
   });
 });
 
-describe('ReadingHistoryItem component', () => {
+describe('PostItemCard component', () => {
   const onHide = jest.fn();
   const onContextMenu = jest.fn();
 
@@ -154,22 +154,22 @@ describe('ReadingHistoryItem component', () => {
   };
 
   it('should show view history post title', async () => {
-    render(<ReadingHistoryItem history={defaultHistory} />);
+    render(<PostItemCard history={defaultHistory} />);
     await screen.findByText(defaultHistory.post.title);
   });
 
   it('should show view history post image', async () => {
-    render(<ReadingHistoryItem history={defaultHistory} />);
+    render(<PostItemCard history={defaultHistory} />);
     await screen.findByAltText(defaultHistory.post.title);
   });
 
   it('should show view history post source image', async () => {
-    render(<ReadingHistoryItem history={defaultHistory} />);
+    render(<PostItemCard history={defaultHistory} />);
     await screen.findByAltText(`source of ${defaultHistory.post.title}`);
   });
 
   it('should call onHide on close button clicked', async () => {
-    render(<ReadingHistoryItem history={defaultHistory} onHide={onHide} />);
+    render(<PostItemCard history={defaultHistory} onHide={onHide} />);
     const button = (await screen.findAllByRole('button'))[0];
     fireEvent.click(button);
     expect(onHide).toHaveBeenCalledWith({
@@ -180,7 +180,7 @@ describe('ReadingHistoryItem component', () => {
 
   it('should call onContextMenu on menu button clicked', async () => {
     render(
-      <ReadingHistoryItem
+      <PostItemCard
         history={defaultHistory}
         onHide={onHide}
         onContextMenu={onContextMenu}

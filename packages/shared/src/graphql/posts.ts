@@ -81,7 +81,7 @@ export type ReadHistoryPost = Pick<
   author?: Pick<Author, 'id'>;
 };
 
-export interface ReadHistory {
+export interface PostItem {
   timestamp: Date;
   timestampDb: Date;
   post: ReadHistoryPost;

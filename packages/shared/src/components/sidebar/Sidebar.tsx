@@ -9,6 +9,7 @@ import DiscussIcon from '../../../icons/comment.svg';
 import BookmarkIcon from '../../../icons/bookmark.svg';
 import EyeIcon from '../../../icons/eye.svg';
 import SettingsIcon from '../../../icons/settings.svg';
+import LinkIcon from '../../../icons/link.svg';
 import FeedbackIcon from '../../../icons/feedback.svg';
 import DocsIcon from '../../../icons/docs.svg';
 import TerminalIcon from '../../../icons/terminal.svg';
@@ -45,9 +46,14 @@ import FeaturesContext from '../../contexts/FeaturesContext';
 import { AlertColor, AlertDot } from '../AlertDot';
 import { useMyFeed } from '../../hooks/useMyFeed';
 import useDefaultFeed from '../../hooks/useDefaultFeed';
-import { Features, getFeatureValue } from '../../lib/featureManagement';
+import {
+  Features,
+  getFeatureValue,
+  isFeaturedEnabled,
+} from '../../lib/featureManagement';
 import CreateMyFeedButton from '../CreateMyFeedButton';
 import CreateMyFeedModal from '../modals/CreateMyFeedModal';
+import RecommendAnArticle from '../modals/RecommendAnArticle';
 
 const bottomMenuItems: SidebarMenuItem[] = [
   {
@@ -156,10 +162,15 @@ export default function Sidebar({
     optOutWeeklyGoal,
   } = useContext(SettingsContext);
   const [showSettings, setShowSettings] = useState(false);
+  const [showRecommendAnArticle, setShowRecommendAnArticle] = useState(false);
   const shouldShowDnD = !!process.env.TARGET_BROWSER;
   const { flags } = useContext(FeaturesContext);
   const popularFeedCopy = getFeatureValue(Features.PopularFeedCopy, flags);
   const feedFilterModal = getFeatureValue(Features.FeedFilterModal, flags);
+  const canRecommendArticle = isFeaturedEnabled(
+    Features.RecommendArticle,
+    flags,
+  );
 
   useHideMobileSidebar({
     state: openMobileSidebar,
@@ -227,6 +238,12 @@ export default function Sidebar({
   };
 
   const manageMenuItems: SidebarMenuItem[] = [
+    {
+      icon: <ListIcon Icon={LinkIcon} />,
+      title: 'Recommend an article',
+      action: () => setShowRecommendAnArticle(!showRecommendAnArticle),
+      active: showRecommendAnArticle,
+    },
     {
       icon: <ListIcon Icon={BookmarkIcon} />,
       title: 'Bookmarks',
@@ -352,6 +369,13 @@ export default function Sidebar({
           </Nav>
         </SidebarScrollWrapper>
       </SidebarAside>
+      {showRecommendAnArticle && (
+        <RecommendAnArticle
+          isEnabled={canRecommendArticle}
+          isOpen={showRecommendAnArticle}
+          onRequestClose={() => setShowRecommendAnArticle(false)}
+        />
+      )}
       {showSettings && (
         <FeedSettingsModal
           isOpen={showSettings}
