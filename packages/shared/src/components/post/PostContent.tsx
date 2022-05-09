@@ -84,6 +84,8 @@ const PostContainer = classed(
   'flex flex-col flex-1 px-8 tablet:pb-20 tablet:border-r tablet:border-theme-divider-tertiary',
 );
 
+export const SCROLL_OFFSET = 80;
+
 export function PostContent({
   postById,
   className,
@@ -254,24 +256,30 @@ export function PostContent({
       className={className}
       aria-live={subject === ToastSubject.PostContent ? 'polite' : 'off'}
     >
-      <PostContainer className={classNames('relative', isFixed && 'pt-16')}>
-        {hasNavigation && (
-          <PostNavigation
-            onPreviousPost={onPreviousPost}
-            onNextPost={onNextPost}
-            className={classNames(
-              'flex',
-              padding,
-              position,
-              isFixed &&
-                'z-3 w-full bg-theme-bg-secondary border-b border-theme-divider-tertiary px-6 top-0 -ml-8',
-              isFixed && styles.fixedPostsNavigation,
-            )}
-            shouldDisplayTitle={isFixed}
-            post={postById.post}
-            onClose={onClose}
-          />
+      <PostContainer
+        className={classNames(
+          'relative',
+          isFixed && 'pt-16',
+          isFixed && !hasNavigation && 'tablet:pt-0',
         )}
+      >
+        <PostNavigation
+          onPreviousPost={onPreviousPost}
+          onNextPost={onNextPost}
+          className={classNames(
+            !hasNavigation && !isFixed && 'tablet:pt-0',
+            !hasNavigation ? 'flex laptop:hidden' : 'flex',
+            padding,
+            position,
+            isFixed &&
+              'z-3 w-full bg-theme-bg-secondary border-b border-theme-divider-tertiary px-6 top-0 -ml-8',
+            isFixed && styles.fixedPostsNavigation,
+          )}
+          shouldDisplayTitle={isFixed}
+          post={postById.post}
+          onClose={onClose}
+          isModal={isModal}
+        />
         <h1
           className="mt-6 font-bold break-words typo-large-title"
           data-testid="post-modal-title"
