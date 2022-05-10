@@ -12,7 +12,7 @@ import request from 'graphql-request';
 import { ModalProps } from './StyledModal';
 import { useHideOnModal } from '../../hooks/useHideOnModal';
 import { useResetScrollForResponsiveModal } from '../../hooks/useResetScrollForResponsiveModal';
-import { PostContent } from '../post/PostContent';
+import { PostContent, SCROLL_OFFSET } from '../post/PostContent';
 import styles from './PostModal.module.css';
 import { PostNavigationProps } from '../post/PostNavigation';
 import { PostData, POST_BY_ID_QUERY } from '../../graphql/posts';
@@ -84,7 +84,7 @@ export function PostModal({
     const parent = modal.parentElement;
 
     const onScroll = (e) => {
-      if (e.currentTarget.scrollTop > 80) {
+      if (e.currentTarget.scrollTop > SCROLL_OFFSET) {
         if (position !== 'fixed') {
           setPosition('fixed');
         }
