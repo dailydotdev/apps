@@ -11,7 +11,7 @@ import CommentAuthor from './CommentAuthor';
 import classed from '../../lib/classed';
 import Markdown from '../Markdown';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
-import CommentBadge from './CommentBadge';
+import ScoutBadge from './ScoutBadge';
 
 export interface Props extends CommentActionProps {
   comment: Comment;
@@ -45,7 +45,7 @@ export default function MainComment({
               postAuthorId={postAuthorId}
               author={comment.author}
             />
-            <CommentBadge />
+            <ScoutBadge />
           </div>
 
           <CommentPublishDate comment={comment} />
