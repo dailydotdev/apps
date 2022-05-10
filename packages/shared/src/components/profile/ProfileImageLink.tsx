@@ -15,7 +15,12 @@ function ProfileImageLinkComponent(
 ): ReactElement {
   return (
     <ProfileLink {...props} ref={ref}>
-      <ProfilePicture {...picture} user={props.user} />
+      <ProfilePicture
+        {...picture}
+        ref={null}
+        user={props.user}
+        nativeLazyLoading
+      />
     </ProfileLink>
   );
 }

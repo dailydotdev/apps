@@ -19,6 +19,7 @@ export const getShouldLoadTooltip = (): boolean =>
 export interface TooltipProps
   extends Pick<
     BaseTooltipProps,
+    | 'appendTo'
     | 'content'
     | 'children'
     | 'placement'
@@ -26,6 +27,7 @@ export interface TooltipProps
     | 'interactive'
     | 'onTrigger'
     | 'onShow'
+    | 'onHide'
     | 'duration'
     | 'visible'
     | 'appendTo'

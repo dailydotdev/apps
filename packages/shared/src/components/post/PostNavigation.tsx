@@ -12,6 +12,7 @@ export interface PostNavigationProps
   onPreviousPost: () => unknown;
   onNextPost: () => unknown;
   shouldDisplayTitle?: boolean;
+  isModal?: boolean;
   className?: string;
 }
 
@@ -20,6 +21,7 @@ export function PostNavigation({
   onNextPost,
   shouldDisplayTitle,
   className,
+  isModal,
   post,
   onClose,
 }: PostNavigationProps): ReactElement {
@@ -28,26 +30,43 @@ export function PostNavigation({
     ? published
     : `${published} by ${post?.author.name}`;
   const content = { title: post?.title, subtitle };
+  const isEmptyNavigation = !onPreviousPost && !onNextPost;
+
+  const getClasses = () => {
+    if (shouldDisplayTitle) {
+      return classNames('flex');
+    }
+
+    if (isEmptyNavigation) {
+      return 'flex grow tablet:hidden';
+    }
+
+    return 'flex tablet:hidden ml-auto';
+  };
 
   return (
     <div
       className={classNames('flex flex-row gap-2 items-center', className)}
       role="navigation"
     >
-      <SimpleTooltip content="Previous">
-        <Button
-          className="-rotate-90 btn-secondary"
-          icon={<ArrowIcon />}
-          onClick={onPreviousPost}
-        />
-      </SimpleTooltip>
-      <SimpleTooltip content="Next">
-        <Button
-          className="rotate-90 btn-secondary"
-          icon={<ArrowIcon />}
-          onClick={onNextPost}
-        />
-      </SimpleTooltip>
+      {onPreviousPost && (
+        <SimpleTooltip content="Previous">
+          <Button
+            className="-rotate-90 btn-secondary"
+            icon={<ArrowIcon />}
+            onClick={onPreviousPost}
+          />
+        </SimpleTooltip>
+      )}
+      {onNextPost && (
+        <SimpleTooltip content="Next">
+          <Button
+            className="rotate-90 btn-secondary"
+            icon={<ArrowIcon />}
+            onClick={onNextPost}
+          />
+        </SimpleTooltip>
+      )}
       {shouldDisplayTitle && (
         <div className="overflow-hidden flex-col flex-1 ml-2">
           <span className="overflow-hidden whitespace-nowrap typo-footnote text-ellipsis text-theme-label-tertiary">
@@ -61,9 +80,10 @@ export function PostNavigation({
       <PostModalActions
         post={post}
         onClose={onClose}
-        inlineActions
-        className={shouldDisplayTitle ? 'flex' : 'flex tablet:hidden ml-auto'}
+        inlineActions={shouldDisplayTitle || isModal}
+        className={getClasses()}
         notificactionClassName="ml-4"
+        origin={isModal ? 'article modal' : 'article page'}
       />
     </div>
   );

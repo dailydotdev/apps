@@ -1,10 +1,9 @@
 import classNames from 'classnames';
-import React, { ReactElement, useMemo } from 'react';
-import {
-  ProfileImageSize,
-  ProfilePicture,
-  ProfilePictureProps,
-} from '../ProfilePicture';
+import React, { ReactElement } from 'react';
+import { Author } from '../../graphql/comments';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
+import { TooltipProps } from '../tooltips/BaseTooltip';
+import { ProfileTooltip } from './ProfileTooltip';
 
 // reference: https://stackoverflow.com/a/54049872/5532217
 type AnyTag =
@@ -18,30 +17,30 @@ type PropsOf<Tag> = Tag extends keyof JSX.IntrinsicElements
   ? Props & JSX.IntrinsicAttributes
   : never;
 
-interface UserShortInfoProps<Tag extends AnyTag>
-  extends Pick<ProfilePictureProps, 'nativeLazyLoading'> {
-  image: string;
-  name: string;
-  username: string;
-  bio?: string;
+interface UserShortInfoProps<Tag extends AnyTag> {
+  user: Author;
   imageSize?: ProfileImageSize;
   className?: string;
   tag?: Tag;
+  disableTooltip?: boolean;
+  scrollingContainer?: HTMLElement;
 }
 
 export function UserShortInfo<Tag extends AnyTag>({
-  name,
-  username,
-  image,
-  bio,
   imageSize = 'xlarge',
   tag,
+  user,
   className,
-  nativeLazyLoading,
+  disableTooltip,
+  scrollingContainer,
   ...props
 }: UserShortInfoProps<Tag> & PropsOf<Tag>): ReactElement {
   const Element = (tag || 'a') as React.ElementType;
-  const user = useMemo(() => ({ username, image }), [username, image]);
+  const { name, username, bio } = user;
+  const tooltipProps: TooltipProps = {
+    appendTo: document?.body || 'parent',
+    visible: disableTooltip ? false : undefined,
+  };
 
   return (
     <Element
@@ -52,16 +51,24 @@ export function UserShortInfo<Tag extends AnyTag>({
       )}
       data-testid={`linkTo-${username}`}
     >
-      <ProfilePicture
+      <ProfileTooltip
         user={user}
-        size={imageSize}
-        nativeLazyLoading={nativeLazyLoading}
-      />
-      <div className="flex flex-col flex-1 ml-4 typo-callout">
-        <span className="font-bold">{name}</span>
-        <span className="text-theme-label-secondary">@{username}</span>
-        {bio && <span className="mt-1 text-theme-label-tertiary">{bio}</span>}
-      </div>
+        tooltip={tooltipProps}
+        scrollingContainer={scrollingContainer}
+      >
+        <ProfilePicture user={user} size={imageSize} nativeLazyLoading />
+      </ProfileTooltip>
+      <ProfileTooltip
+        user={user}
+        tooltip={tooltipProps}
+        scrollingContainer={scrollingContainer}
+      >
+        <div className="flex flex-col flex-1 ml-4 typo-callout">
+          <span className="font-bold">{name}</span>
+          <span className="text-theme-label-secondary">@{username}</span>
+          {bio && <span className="mt-1 text-theme-label-tertiary">{bio}</span>}
+        </div>
+      </ProfileTooltip>
     </Element>
   );
 }
