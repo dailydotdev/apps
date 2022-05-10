@@ -154,22 +154,22 @@ describe('PostItemCard component', () => {
   };
 
   it('should show view history post title', async () => {
-    render(<PostItemCard history={defaultHistory} />);
+    render(<PostItemCard postItem={defaultHistory} />);
     await screen.findByText(defaultHistory.post.title);
   });
 
   it('should show view history post image', async () => {
-    render(<PostItemCard history={defaultHistory} />);
+    render(<PostItemCard postItem={defaultHistory} />);
     await screen.findByAltText(defaultHistory.post.title);
   });
 
   it('should show view history post source image', async () => {
-    render(<PostItemCard history={defaultHistory} />);
+    render(<PostItemCard postItem={defaultHistory} />);
     await screen.findByAltText(`source of ${defaultHistory.post.title}`);
   });
 
   it('should call onHide on close button clicked', async () => {
-    render(<PostItemCard history={defaultHistory} onHide={onHide} />);
+    render(<PostItemCard postItem={defaultHistory} onHide={onHide} />);
     const button = (await screen.findAllByRole('button'))[0];
     fireEvent.click(button);
     expect(onHide).toHaveBeenCalledWith({
@@ -181,7 +181,7 @@ describe('PostItemCard component', () => {
   it('should call onContextMenu on menu button clicked', async () => {
     render(
       <PostItemCard
-        history={defaultHistory}
+        postItem={defaultHistory}
         onHide={onHide}
         onContextMenu={onContextMenu}
       />,

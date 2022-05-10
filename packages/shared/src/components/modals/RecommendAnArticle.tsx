@@ -146,14 +146,12 @@ export default function RecommendAnArticle({
               buttonSize="small"
               type="submit"
               aria-label="Submit article"
-              disabled={!isEnabled || !enableSubmission}
+              disabled={!enableSubmission}
+              loading={isValidating}
             >
               <span className={isValidating && 'invisible'}>
                 Submit article
               </span>
-              {isValidating && (
-                <Loader className="absolute inset-x-0 top-1 mx-auto" />
-              )}
             </Button>
           ) : (
             <Button
@@ -171,9 +169,9 @@ export default function RecommendAnArticle({
       </section>
       {existingArticle && (
         <div>
-          <div className="px-10 pb-3.5 border-b border-theme-divider-tertiary">
-            <p className="font-bold typo-callout">Article exists</p>
-          </div>
+          <h4 className="px-10 pb-3.5 font-bold border-b border-theme-divider-tertiary typo-callout">
+            Article exists
+          </h4>
           <PostItemCard postItem={existingArticle} showButtons={false} />
         </div>
       )}
