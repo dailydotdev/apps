@@ -2,7 +2,6 @@ import React, { ReactElement, useRef, useState } from 'react';
 import { useMutation } from 'react-query';
 import request from 'graphql-request';
 import { Button } from '../buttons/Button';
-import { Loader } from '../Loader';
 import { ModalCloseButton } from './ModalCloseButton';
 import { ModalProps } from './StyledModal';
 import { formToJson } from '../../lib/form';
