@@ -53,7 +53,7 @@ import {
 } from '../../lib/featureManagement';
 import CreateMyFeedButton from '../CreateMyFeedButton';
 import CreateMyFeedModal from '../modals/CreateMyFeedModal';
-import RecommendAnArticle from '../modals/RecommendAnArticle';
+import SubmitArticle from '../modals/SubmitArticle';
 
 const bottomMenuItems: SidebarMenuItem[] = [
   {
@@ -162,15 +162,12 @@ export default function Sidebar({
     optOutWeeklyGoal,
   } = useContext(SettingsContext);
   const [showSettings, setShowSettings] = useState(false);
-  const [showRecommendAnArticle, setShowRecommendAnArticle] = useState(false);
+  const [showSubmitArticle, setShowSubmitArticle] = useState(false);
   const shouldShowDnD = !!process.env.TARGET_BROWSER;
   const { flags } = useContext(FeaturesContext);
   const popularFeedCopy = getFeatureValue(Features.PopularFeedCopy, flags);
   const feedFilterModal = getFeatureValue(Features.FeedFilterModal, flags);
-  const canRecommendArticle = isFeaturedEnabled(
-    Features.RecommendArticle,
-    flags,
-  );
+  const canSubmitArticle = isFeaturedEnabled(Features.SubmitArticle, flags);
 
   useHideMobileSidebar({
     state: openMobileSidebar,
@@ -240,9 +237,9 @@ export default function Sidebar({
   const manageMenuItems: SidebarMenuItem[] = [
     {
       icon: <ListIcon Icon={LinkIcon} />,
-      title: 'Recommend an article',
-      action: () => setShowRecommendAnArticle(!showRecommendAnArticle),
-      active: showRecommendAnArticle,
+      title: 'Submit an article',
+      action: () => setShowSubmitArticle(!showSubmitArticle),
+      active: showSubmitArticle,
     },
     {
       icon: <ListIcon Icon={BookmarkIcon} />,
@@ -369,11 +366,11 @@ export default function Sidebar({
           </Nav>
         </SidebarScrollWrapper>
       </SidebarAside>
-      {showRecommendAnArticle && (
-        <RecommendAnArticle
-          isEnabled={canRecommendArticle}
-          isOpen={showRecommendAnArticle}
-          onRequestClose={() => setShowRecommendAnArticle(false)}
+      {showSubmitArticle && (
+        <SubmitArticle
+          isEnabled={canSubmitArticle}
+          isOpen={showSubmitArticle}
+          onRequestClose={() => setShowSubmitArticle(false)}
         />
       )}
       {showSettings && (

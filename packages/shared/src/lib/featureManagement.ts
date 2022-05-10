@@ -33,7 +33,7 @@ export class Features {
 
   static readonly MyFeedOn = new Features('my_feed_on');
 
-  static readonly RecommendArticle = new Features('recommend_article');
+  static readonly SubmitArticle = new Features('submit_article');
 
   static readonly MyFeedPosition = new Features('my_feed_position', 'sidebar', [
     'sidebar',

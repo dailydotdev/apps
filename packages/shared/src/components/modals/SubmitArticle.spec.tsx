@@ -5,7 +5,7 @@ import React from 'react';
 import nock from 'nock';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import { AnonymousUser, LoggedUser } from '../../lib/user';
-import RecommendAnArticle from './RecommendAnArticle';
+import SubmitArticle from './SubmitArticle';
 
 const onRequestClose = jest.fn();
 
@@ -42,7 +42,7 @@ const renderComponent = (
         loadingUser={false}
         loadedUserFromCache
       >
-        <RecommendAnArticle
+        <SubmitArticle
           isEnabled={isEnabled}
           isOpen
           onRequestClose={onRequestClose}

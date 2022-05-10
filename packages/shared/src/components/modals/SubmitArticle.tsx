@@ -8,50 +8,47 @@ import { formToJson } from '../../lib/form';
 import { apiUrl } from '../../lib/config';
 import {
   contentGuidlines,
-  requestAccessRecommendAnArticle,
+  requestAccessSubmitArticle,
 } from '../../lib/constants';
 import { ResponsiveModal } from './ResponsiveModal';
 import { TextField } from '../fields/TextField';
 import LinkIcon from '../../../icons/link.svg';
-import { RECOMMEND_ARTICLE_MUTATION } from '../../graphql/recommendArticle';
+import { SUBMIT_ARTICLE_MUTATION } from '../../graphql/submitArticle';
 import PostItemCard from '../post/PostItemCard';
 import { PostItem } from '../../graphql/posts';
 
-type RecommendAnArticleProps = {
+type SubmitArticleProps = {
   isEnabled: boolean;
 } & ModalProps;
 
-export default function RecommendAnArticle({
+export default function SubmitArticle({
   isEnabled,
   onRequestClose,
   ...modalProps
-}: RecommendAnArticleProps): ReactElement {
-  const recommendFormRef = useRef<HTMLFormElement>();
+}: SubmitArticleProps): ReactElement {
+  const submitFormRef = useRef<HTMLFormElement>();
   const [enableSubmission, setEnableSubmission] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [existingArticle, setExistingArticle] = useState<PostItem>(null);
   const [urlHint, setUrlHint] = useState<string>();
 
-  const { mutateAsync: recommendArticle } = useMutation<
-    unknown,
-    unknown,
-    string
-  >((articleUrl: string) =>
-    request(`${apiUrl}/graphql`, RECOMMEND_ARTICLE_MUTATION, {
-      url: articleUrl,
-    }),
+  const { mutateAsync: submitArticle } = useMutation<unknown, unknown, string>(
+    (articleUrl: string) =>
+      request(`${apiUrl}/graphql`, SUBMIT_ARTICLE_MUTATION, {
+        url: articleUrl,
+      }),
   );
 
   const onUrlChanged = () => {
-    if (recommendFormRef.current) {
-      if (recommendArticle) {
+    if (submitFormRef.current) {
+      if (existingArticle) {
         setExistingArticle(null);
       }
       if (urlHint) {
         setUrlHint(null);
       }
-      setEnableSubmission(recommendFormRef.current.checkValidity());
+      setEnableSubmission(submitFormRef.current.checkValidity());
     }
   };
 
@@ -70,7 +67,7 @@ export default function RecommendAnArticle({
     }
 
     try {
-      await recommendArticle(data.articleUrl);
+      await submitArticle(data.articleUrl);
       setIsSubmitted(true);
     } catch (err) {
       const error = JSON.parse(JSON.stringify(err));
@@ -91,7 +88,7 @@ export default function RecommendAnArticle({
       padding={false}
     >
       <header className="flex justify-between items-center py-4 px-6 w-full border-b border-theme-divider-tertiary">
-        <h3 className="font-bold typo-title3">Recommend an article</h3>
+        <h3 className="font-bold typo-title3">Submit an article</h3>
         <ModalCloseButton onClick={onRequestClose} />
       </header>
       <section className="overflow-auto relative px-10 pt-6 pb-10 w-full h-full shrink max-h-full">
@@ -111,7 +108,7 @@ export default function RecommendAnArticle({
         <p className="mt-6 mb-4 typo-callout">Daily suggestions used 0/3</p>
         <form
           className="w-full"
-          ref={recommendFormRef}
+          ref={submitFormRef}
           aria-busy={isValidating}
           onSubmit={onSubmit}
         >
@@ -155,7 +152,7 @@ export default function RecommendAnArticle({
           ) : (
             <Button
               tag="a"
-              href={requestAccessRecommendAnArticle}
+              href={requestAccessSubmitArticle}
               target="_blank"
               rel="noopener"
               aria-label="Request access"
