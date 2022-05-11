@@ -71,11 +71,16 @@ export default function SubmitArticle({
       setIsSubmitted(true);
     } catch (err) {
       const error = JSON.parse(JSON.stringify(err));
-      setUrlHint(
-        error?.response?.errors[0]?.message ??
-          'Something went wrong, try again',
-      );
-      setEnableSubmission(false);
+      try {
+        const errorMessage = JSON.parse(error?.response?.errors[0]?.message);
+        setExistingArticle(errorMessage);
+      } catch (e) {
+        setUrlHint(
+          error?.response?.errors[0]?.message ??
+            'Something went wrong, try again',
+        );
+        setEnableSubmission(false);
+      }
     } finally {
       setIsValidating(false);
     }
