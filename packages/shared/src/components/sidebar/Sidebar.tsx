@@ -185,6 +185,14 @@ export default function Sidebar({
     toggleSidebarExpanded();
   };
 
+  const trackAndShowSubmitArticle = () => {
+    trackEvent({
+      target_id: 'sidebar',
+      feed_item_title: 'Submit an article',
+    });
+    setShowSubmitArticle(!showSubmitArticle);
+  };
+
   const discoverMenuItems: SidebarMenuItem[] = [
     {
       icon: <ListIcon Icon={HotIcon} />,
@@ -238,7 +246,7 @@ export default function Sidebar({
     {
       icon: <ListIcon Icon={LinkIcon} />,
       title: 'Submit an article',
-      action: () => setShowSubmitArticle(!showSubmitArticle),
+      action: () => trackAndShowSubmitArticle(),
       active: showSubmitArticle,
     },
     {
