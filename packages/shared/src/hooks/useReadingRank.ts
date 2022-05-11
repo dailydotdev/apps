@@ -121,8 +121,8 @@ export default function useReadingRank(
   const timeoutRef = useRef<number>();
   const visibilityRef = useRef(null);
 
-  const updateShownProgress = useCallback(() => {
-    if (unmountRef) {
+  const updateShownProgress = useCallback(async () => {
+    if (unmountRef.current) {
       return;
     }
 
@@ -136,11 +136,11 @@ export default function useReadingRank(
         once: true,
       });
     } else if (cachedRank?.rank.currentRank === remoteRank?.rank.currentRank) {
-      cacheRank();
+      await cacheRank();
     } else {
       setLevelUp(true);
     }
-  }, [cachedRank]);
+  }, [cachedRank, remoteRank]);
 
   useEffect(() => {
     if (!disableNewRankPopup) {
@@ -148,6 +148,7 @@ export default function useReadingRank(
     }
   }, [levelUp]);
 
+  // Cleanup effect to set the unmounting and remove active listeners.
   useEffect(
     () => () => {
       unmountRef.current = true;
