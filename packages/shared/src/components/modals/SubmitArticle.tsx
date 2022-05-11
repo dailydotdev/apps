@@ -86,6 +86,48 @@ export default function SubmitArticle({
     }
   };
 
+  const getButton = (): ReactElement => {
+    if (isSubmitted) {
+      return (
+        <>
+          <div className="flex items-center mt-4 mb-6 h-8 font-bold rounded-10 w-fit bg-theme-status-success text-theme-label-invert padding px-[0.9375rem]">
+            Request sent
+          </div>
+          <p className="mb-2 typo-callout text-theme-label-tertiary">
+            You will be notified via email about the article request status.
+          </p>
+        </>
+      );
+    }
+
+    if (isEnabled) {
+      return (
+        <Button
+          className="mt-4 btn-primary "
+          buttonSize="small"
+          type="submit"
+          aria-label="Submit article"
+          disabled={!enableSubmission}
+          loading={isValidating}
+        >
+          <span className={isValidating && 'invisible'}>Submit article</span>
+        </Button>
+      );
+    }
+    return (
+      <Button
+        tag="a"
+        href={requestAccessSubmitArticle}
+        target="_blank"
+        rel="noopener"
+        aria-label="Request access"
+        className="mt-4 w-fit btn-secondary"
+      >
+        Request access
+      </Button>
+    );
+  };
+
   return (
     <ResponsiveModal
       {...modalProps}
@@ -130,42 +172,7 @@ export default function SubmitArticle({
             valid={!urlHint}
             valueChanged={onUrlChanged}
           />
-          {isSubmitted && (
-            <>
-              <div className="flex items-center mt-4 mb-6 h-8 font-bold rounded-10 w-fit bg-theme-status-success text-theme-label-invert padding px-[0.9375rem]">
-                Request sent
-              </div>
-              <p className="mb-2 typo-callout text-theme-label-tertiary">
-                You will be notified via email about the article request status.
-              </p>
-            </>
-          )}
-
-          {isEnabled ? (
-            <Button
-              className="mt-4 btn-primary "
-              buttonSize="small"
-              type="submit"
-              aria-label="Submit article"
-              disabled={!enableSubmission}
-              loading={isValidating}
-            >
-              <span className={isValidating && 'invisible'}>
-                Submit article
-              </span>
-            </Button>
-          ) : (
-            <Button
-              tag="a"
-              href={requestAccessSubmitArticle}
-              target="_blank"
-              rel="noopener"
-              aria-label="Request access"
-              className="mt-4 w-fit btn-secondary"
-            >
-              Request access
-            </Button>
-          )}
+          {getButton()}
         </form>
       </section>
       {existingArticle && (
