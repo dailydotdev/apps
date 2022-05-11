@@ -374,13 +374,22 @@ it('should recommend users based on query', async () => {
 
 describe('recommended mention component', () => {
   it('should display name, username and image of the user', async () => {
+    const client = new QueryClient();
     render(
-      <RecommendedMention
-        selected={0}
-        users={[
-          { name: 'Lee', username: 'sshanzel', image: 'sample.image.com' },
-        ]}
-      />,
+      <QueryClientProvider client={client}>
+        <RecommendedMention
+          selected={0}
+          users={[
+            {
+              id: 'u1',
+              name: 'Lee',
+              username: 'sshanzel',
+              image: 'sample.image.com',
+              permalink: 'www.test.com/sshanzel',
+            },
+          ]}
+        />
+      </QueryClientProvider>,
     );
     await screen.findByText('@sshanzel');
     await screen.findByText('Lee');
