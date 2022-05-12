@@ -65,7 +65,7 @@ const iconImage = (post: Post) => {
       <div
         className={classNames(
           iconImageClass,
-          'flex items-center justify-center',
+          'absolute flex items-center justify-center',
         )}
       >
         {post.isAuthor ? (
