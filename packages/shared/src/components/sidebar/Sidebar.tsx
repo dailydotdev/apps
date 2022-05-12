@@ -195,7 +195,7 @@ export default function Sidebar({
 
   const trackAndShowSubmitArticle = () => {
     trackEvent({
-      target_id: 'sidebar',
+      event_name: 'start submit article',
       feed_item_title: submitArticleSidebarButton,
     });
     setShowSubmitArticle(!showSubmitArticle);

@@ -46,6 +46,15 @@ export default function SubmitArticle({
       }),
   );
 
+  const submitArticleFailEvent = (reason: string): void => {
+    trackEvent({
+      event_name: 'submit article failed',
+      extra: JSON.stringify({
+        reason,
+      }),
+    });
+  };
+
   const onUrlChanged = () => {
     if (submitFormRef.current) {
       if (existingArticle) {
@@ -64,6 +73,7 @@ export default function SubmitArticle({
     event.preventDefault();
 
     trackEvent({
+      event_name: 'submit article',
       feed_item_title: submitArticleModalButton,
     });
 
@@ -73,36 +83,24 @@ export default function SubmitArticle({
     if (!data.articleUrl) {
       setUrlHint('Please submit a valid URL');
       setIsValidating(false);
-
       return;
     }
 
     try {
       await submitArticle(data.articleUrl);
       setIsSubmitted(true);
-      // TODO: Success tracking!
-      trackEvent({});
+      trackEvent({ event_name: 'submit article succeed' });
     } catch (err) {
       const error = JSON.parse(JSON.stringify(err));
       try {
         const errorMessage = JSON.parse(error?.response?.errors[0]?.message);
         setExistingArticle(errorMessage);
-        // TODO: Error tracking!
-        trackEvent({
-          extra: JSON.stringify({
-            reason: 'Article exist already',
-          }),
-        });
+        submitArticleFailEvent('Article exist already');
       } catch (e) {
         const errorMessage = error?.response?.errors[0]?.message;
         setUrlHint(errorMessage ?? 'Something went wrong, try again');
         setEnableSubmission(false);
-        // TODO: Error tracking!
-        trackEvent({
-          extra: JSON.stringify({
-            reason: errorMessage,
-          }),
-        });
+        submitArticleFailEvent(errorMessage);
       }
     } finally {
       setIsValidating(false);
