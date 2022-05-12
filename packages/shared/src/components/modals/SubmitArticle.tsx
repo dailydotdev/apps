@@ -19,10 +19,14 @@ import { PostItem } from '../../graphql/posts';
 
 type SubmitArticleProps = {
   isEnabled: boolean;
+  headerCopy: string;
+  submitArticleModalButton: string;
 } & ModalProps;
 
 export default function SubmitArticle({
   isEnabled,
+  headerCopy,
+  submitArticleModalButton,
   onRequestClose,
   ...modalProps
 }: SubmitArticleProps): ReactElement {
@@ -106,11 +110,13 @@ export default function SubmitArticle({
           className="mt-4 btn-primary "
           buttonSize="small"
           type="submit"
-          aria-label="Submit article"
+          aria-label={submitArticleModalButton}
           disabled={!enableSubmission}
           loading={isValidating}
         >
-          <span className={isValidating && 'invisible'}>Submit article</span>
+          <span className={isValidating && 'invisible'}>
+            {submitArticleModalButton}
+          </span>
         </Button>
       );
     }
@@ -135,7 +141,7 @@ export default function SubmitArticle({
       padding={false}
     >
       <header className="flex justify-between items-center py-4 px-6 w-full border-b border-theme-divider-tertiary">
-        <h3 className="font-bold typo-title3">Submit an article</h3>
+        <h3 className="font-bold typo-title3">{headerCopy}</h3>
         <ModalCloseButton onClick={onRequestClose} />
       </header>
       <section className="overflow-auto relative px-10 pt-6 pb-10 w-full h-full shrink max-h-full">

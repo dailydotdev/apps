@@ -167,6 +167,14 @@ export default function Sidebar({
   const { flags } = useContext(FeaturesContext);
   const popularFeedCopy = getFeatureValue(Features.PopularFeedCopy, flags);
   const feedFilterModal = getFeatureValue(Features.FeedFilterModal, flags);
+  const submitArticleSidebarButton = getFeatureValue(
+    Features.SubmitArticleSidebarButton,
+    flags,
+  );
+  const submitArticleModalButton = getFeatureValue(
+    Features.SubmitArticleModalButton,
+    flags,
+  );
   const canSubmitArticle = isFeaturedEnabled(Features.SubmitArticle, flags);
 
   useHideMobileSidebar({
@@ -188,7 +196,7 @@ export default function Sidebar({
   const trackAndShowSubmitArticle = () => {
     trackEvent({
       target_id: 'sidebar',
-      feed_item_title: 'Submit an article',
+      feed_item_title: submitArticleSidebarButton,
     });
     setShowSubmitArticle(!showSubmitArticle);
   };
@@ -245,7 +253,7 @@ export default function Sidebar({
   const manageMenuItems: SidebarMenuItem[] = [
     {
       icon: <ListIcon Icon={LinkIcon} />,
-      title: 'Submit an article',
+      title: submitArticleSidebarButton,
       action: () => trackAndShowSubmitArticle(),
       active: showSubmitArticle,
     },
@@ -376,6 +384,8 @@ export default function Sidebar({
       </SidebarAside>
       {showSubmitArticle && (
         <SubmitArticle
+          headerCopy={submitArticleSidebarButton}
+          submitArticleModalButton={submitArticleModalButton}
           isEnabled={canSubmitArticle}
           isOpen={showSubmitArticle}
           onRequestClose={() => setShowSubmitArticle(false)}
