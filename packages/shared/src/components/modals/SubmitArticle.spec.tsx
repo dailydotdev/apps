@@ -7,7 +7,6 @@ import { AuthContextProvider } from '../../contexts/AuthContext';
 import { AnonymousUser, LoggedUser } from '../../lib/user';
 import SubmitArticle from './SubmitArticle';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
-import { SOURCE_BY_FEED_QUERY } from '../../graphql/newSource';
 import { SUBMIT_ARTICLE_MUTATION } from '../../graphql/submitArticle';
 
 const onRequestClose = jest.fn();
@@ -46,6 +45,8 @@ const renderComponent = (
         loadedUserFromCache
       >
         <SubmitArticle
+          headerCopy="Submit article"
+          submitArticleModalButton="Submit article"
           isEnabled={isEnabled}
           isOpen
           onRequestClose={onRequestClose}

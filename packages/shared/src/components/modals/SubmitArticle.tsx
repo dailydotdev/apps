@@ -1,4 +1,4 @@
-import React, { ReactElement, useRef, useState } from 'react';
+import React, { ReactElement, useContext, useRef, useState } from 'react';
 import { useMutation } from 'react-query';
 import request from 'graphql-request';
 import { Button } from '../buttons/Button';
@@ -16,6 +16,7 @@ import LinkIcon from '../../../icons/link.svg';
 import { SUBMIT_ARTICLE_MUTATION } from '../../graphql/submitArticle';
 import PostItemCard from '../post/PostItemCard';
 import { PostItem } from '../../graphql/posts';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
 
 type SubmitArticleProps = {
   isEnabled: boolean;
@@ -31,6 +32,7 @@ export default function SubmitArticle({
   ...modalProps
 }: SubmitArticleProps): ReactElement {
   const submitFormRef = useRef<HTMLFormElement>();
+  const { trackEvent } = useContext(AnalyticsContext);
   const [enableSubmission, setEnableSubmission] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -60,6 +62,11 @@ export default function SubmitArticle({
     event: React.FormEvent<HTMLFormElement>,
   ): Promise<void> => {
     event.preventDefault();
+
+    trackEvent({
+      feed_item_title: submitArticleModalButton,
+    });
+
     const data = formToJson<{ articleUrl: string }>(event.currentTarget);
     setIsValidating(true);
 
@@ -73,17 +80,29 @@ export default function SubmitArticle({
     try {
       await submitArticle(data.articleUrl);
       setIsSubmitted(true);
+      // TODO: Success tracking!
+      trackEvent({});
     } catch (err) {
       const error = JSON.parse(JSON.stringify(err));
       try {
         const errorMessage = JSON.parse(error?.response?.errors[0]?.message);
         setExistingArticle(errorMessage);
+        // TODO: Error tracking!
+        trackEvent({
+          extra: JSON.stringify({
+            reason: 'Article exist already',
+          }),
+        });
       } catch (e) {
-        setUrlHint(
-          error?.response?.errors[0]?.message ??
-            'Something went wrong, try again',
-        );
+        const errorMessage = error?.response?.errors[0]?.message;
+        setUrlHint(errorMessage ?? 'Something went wrong, try again');
         setEnableSubmission(false);
+        // TODO: Error tracking!
+        trackEvent({
+          extra: JSON.stringify({
+            reason: errorMessage,
+          }),
+        });
       }
     } finally {
       setIsValidating(false);
