@@ -91,6 +91,29 @@ const defaultFeedPage: Connection<Post> = {
         numUpvotes: 60,
         numComments: 17,
         views: 1234,
+        isAuthor: 1,
+        isScout: 0,
+      },
+    },
+    {
+      node: {
+        commentsPermalink: 'http://localhost:5002/posts/rzJopfZvN',
+        id: 'rzJopfZvN',
+        image:
+          'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/78a6671153b16eae87634459cefe5927',
+        numComments: 0,
+        numUpvotes: 0,
+        source: {
+          id: 'newstack',
+          name: 'The New Stack',
+          image:
+            'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos/tds',
+        },
+        title:
+          'Krustlet Brings WebAssembly to Kubernetes with a Rust-Based Kubelet – The New Stack',
+        views: null,
+        isAuthor: 0,
+        isScout: 1,
       },
     },
   ],
@@ -330,6 +353,20 @@ it('should add link to the post', async () => {
     'href',
     'https://localhost:5002/posts/9CuRpr5NiEY5',
   );
+});
+
+it('should show author badge', async () => {
+  renderComponent();
+  await waitForNock();
+  const el = await screen.findByTestId('post-author-badge');
+  expect(el).toBeInTheDocument();
+});
+
+it('should show scout badge', async () => {
+  renderComponent();
+  await waitForNock();
+  const el = await screen.findByTestId('post-scout-badge');
+  expect(el).toBeInTheDocument();
 });
 
 it('should show empty screen when no posts', async () => {
