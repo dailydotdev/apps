@@ -59,9 +59,11 @@ async function handleMessages(message, sender) {
   }
 
   if (message.type === 'GRAPHQL_REQUEST') {
-    const req = request(message.url, message.document, message.variables);
+    const { queryKey, ...variables } = message.variables || {};
+    const req = request(message.url, message.document, variables);
+    const key = queryKey || message.queryKey;
 
-    if (!message.queryKey) {
+    if (!key) {
       return req;
     }
 
@@ -72,8 +74,8 @@ async function handleMessages(message, sender) {
       deviceId,
       url,
       res,
-      req: { variables: message.variables },
-      queryKey: message.queryKey,
+      req: { variables },
+      queryKey: key,
     });
   }
 

@@ -1,6 +1,11 @@
 import classNames from 'classnames';
 import React, { ReactElement } from 'react';
+import { useQueryClient } from 'react-query';
 import { Author } from '../../graphql/comments';
+import {
+  CompanionProtocol,
+  COMPANION_PROTOCOL_KEY,
+} from '../../graphql/common';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { TooltipProps } from '../tooltips/BaseTooltip';
 import { ProfileTooltip } from './ProfileTooltip';
@@ -24,6 +29,7 @@ interface UserShortInfoProps<Tag extends AnyTag> {
   tag?: Tag;
   disableTooltip?: boolean;
   scrollingContainer?: HTMLElement;
+  appendTooltipTo?: HTMLElement;
 }
 
 export function UserShortInfo<Tag extends AnyTag>({
@@ -33,12 +39,13 @@ export function UserShortInfo<Tag extends AnyTag>({
   className,
   disableTooltip,
   scrollingContainer,
+  appendTooltipTo,
   ...props
 }: UserShortInfoProps<Tag> & PropsOf<Tag>): ReactElement {
   const Element = (tag || 'a') as React.ElementType;
   const { name, username, bio } = user;
   const tooltipProps: TooltipProps = {
-    appendTo: document?.body || 'parent',
+    appendTo: appendTooltipTo || document?.body || 'parent',
     visible: disableTooltip ? false : undefined,
   };
 

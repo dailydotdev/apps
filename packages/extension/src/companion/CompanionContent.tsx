@@ -2,7 +2,7 @@ import React, { ReactElement, useState } from 'react';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import CopyIcon from '@dailydotdev/shared/icons/copy.svg';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
-import { useInfiniteQuery } from 'react-query';
+import { useInfiniteQuery, useQueryClient } from 'react-query';
 import {
   HotLabel,
   TLDRText,
@@ -24,6 +24,7 @@ import useNotification from '@dailydotdev/shared/src/hooks/useNotification';
 import { CardNotification } from '@dailydotdev/shared/src/components/cards/Card';
 import { getCompanionWrapper } from './common';
 import { companionRequest } from './companionRequest';
+import { useRawBackgroundRequest } from './useRawBackgroundRequest';
 import { useBackgroundPaginatedRequest } from './useBackgroundPaginatedRequest';
 
 type CompanionContentProps = {
@@ -33,6 +34,7 @@ type CompanionContentProps = {
 export default function CompanionContent({
   post,
 }: CompanionContentProps): ReactElement {
+  const client = useQueryClient();
   const { notification, onMessage } = useNotification();
   const queryKey = ['postUpvotes', post.id];
   useBackgroundPaginatedRequest(queryKey);
@@ -46,16 +48,12 @@ export default function CompanionContent({
   const queryResult = useInfiniteQuery<UpvotesData>(
     queryKey,
     ({ pageParam }) =>
-      companionRequest(
-        `${apiUrl}/graphql`,
-        POST_UPVOTES_BY_ID_QUERY,
-        {
-          id: post.id,
-          first: DEFAULT_UPVOTES_PER_PAGE,
-          after: pageParam,
-        },
+      companionRequest(`${apiUrl}/graphql`, POST_UPVOTES_BY_ID_QUERY, {
+        id: post.id,
+        first: DEFAULT_UPVOTES_PER_PAGE,
+        after: pageParam,
         queryKey,
-      ),
+      }),
     {
       enabled: isUpvotesOpen,
       getNextPageParam: (lastPage) =>
@@ -63,6 +61,18 @@ export default function CompanionContent({
         lastPage?.upvotes?.pageInfo?.endCursor,
     },
   );
+
+  useRawBackgroundRequest(({ res, queryKey: key }) => {
+    if (!Array.isArray(key)) {
+      return;
+    }
+
+    if (key[0] !== 'readingRank') {
+      return;
+    }
+
+    client.setQueryData(key, res);
+  });
 
   return (
     <div className="flex flex-col p-6 h-auto rounded-l-16 border w-[22.5rem] border-theme-label-tertiary bg-theme-bg-primary">

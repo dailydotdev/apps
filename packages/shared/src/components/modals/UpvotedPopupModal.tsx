@@ -1,4 +1,4 @@
-import React, { ReactElement, useRef } from 'react';
+import React, { ReactElement, useRef, useState } from 'react';
 import { QueryKey, UseInfiniteQueryResult } from 'react-query';
 import { ResponsiveModal } from './ResponsiveModal';
 import { ModalProps } from './StyledModal';
@@ -26,16 +26,18 @@ export function UpvotedPopupModal({
 }: UpvotedPopupModalProps): ReactElement {
   const [page] = queryResult?.data?.pages || [];
   const container = useRef<HTMLElement>();
+  const [modalRef, setModalRef] = useState<HTMLElement>();
 
   return (
     <ResponsiveModal
       {...modalProps}
+      contentRef={(e) => setModalRef(e)}
       onRequestClose={onRequestClose}
       padding={false}
       style={{
         content: {
           maxHeight: '40rem',
-          overflow: 'hidden',
+          overflow: 'initial',
         },
       }}
     >
@@ -52,6 +54,7 @@ export function UpvotedPopupModal({
           <UpvoterList
             queryResult={queryResult}
             scrollingContainer={container.current}
+            appendTooltipTo={modalRef}
           />
         ) : (
           <UpvoterListPlaceholder {...listPlaceholderProps} />

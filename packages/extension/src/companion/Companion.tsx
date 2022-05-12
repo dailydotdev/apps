@@ -6,9 +6,11 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { useQuery } from 'react-query';
 import classNames from 'classnames';
 import Modal from 'react-modal';
 import { isTesting } from '@dailydotdev/shared/src/lib/constants';
+import { COMPANION_PROTOCOL_KEY } from '@dailydotdev/shared/src/graphql/common';
 import '@dailydotdev/shared/src/styles/globals.css';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import LoginModal from '@dailydotdev/shared/src/components/modals/LoginModal';
@@ -17,6 +19,8 @@ import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPa
 import CompanionMenu from './CompanionMenu';
 import CompanionContent from './CompanionContent';
 import { getCompanionWrapper } from './common';
+import { companionRequest } from './companionRequest';
+import { companionFetch } from './companionFetch';
 
 if (!isTesting) {
   Modal.setAppElement('daily-companion-app');
@@ -42,6 +46,10 @@ export default function Companion({
     useState<boolean>(companionExpanded);
   const { user, closeLogin, loadingUser, shouldShowLogin, loginState } =
     useContext(AuthContext);
+  useQuery(COMPANION_PROTOCOL_KEY, () => ({
+    companionRequest,
+    companionFetch,
+  }));
 
   const routeChangedCallbackRef = useTrackPageView();
 
