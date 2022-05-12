@@ -1,4 +1,11 @@
-import { useContext, useEffect, useState, useCallback, useRef } from 'react';
+import {
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+  useRef,
+  useMemo,
+} from 'react';
 import { useQuery, useQueryClient } from 'react-query';
 import request from 'graphql-request';
 import { isThisISOWeek, isToday } from 'date-fns';
@@ -117,21 +124,18 @@ export default function useReadingRank(
       neverShowRankModal,
     );
 
-  const unmountRef = useRef(false);
   const timeoutRef = useRef<number>();
   const visibilityRef = useRef(null);
 
   const updateShownProgress = useCallback(async () => {
-    if (unmountRef.current) {
-      return;
+    if (visibilityRef.current) {
+      document.removeEventListener('visibilitychange', visibilityRef.current);
     }
-
     visibilityRef.current = () => {
       timeoutRef.current = window.setTimeout(updateShownProgress, 1000);
     };
 
     if (document.visibilityState === 'hidden') {
-      document.removeEventListener('visibilitychange', visibilityRef.current);
       document.addEventListener('visibilitychange', visibilityRef.current, {
         once: true,
       });
@@ -151,7 +155,6 @@ export default function useReadingRank(
   // Cleanup effect to set the unmounting and remove active listeners.
   useEffect(
     () => () => {
-      unmountRef.current = true;
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
@@ -163,13 +166,11 @@ export default function useReadingRank(
   );
 
   // Let the rank update and then show progress animation, slight delay so the user won't miss it
-  const displayProgress = () => setTimeout(updateShownProgress, 300);
+  const displayProgress = () => {
+    timeoutRef.current = window.setTimeout(updateShownProgress, 300);
+  };
 
   useEffect(() => {
-    if (unmountRef.current) {
-      return;
-    }
-
     if (remoteRank && loadedCache) {
       if (
         !cachedRank ||
@@ -193,10 +194,6 @@ export default function useReadingRank(
 
   // For anonymous users
   useEffect(() => {
-    if (unmountRef.current) {
-      return;
-    }
-
     if (loadedCache && loadedUserFromCache && tokenRefreshed) {
       if (cachedRank?.userId !== user?.id) {
         // Reset cache on user change
@@ -222,32 +219,35 @@ export default function useReadingRank(
     }
   }, [user, tokenRefreshed, loadedUserFromCache, loadedCache]);
 
-  return {
-    isLoading: !cachedRank,
-    rankLastWeek: cachedRank?.rank.rankLastWeek,
-    rank: cachedRank?.rank.currentRank,
-    nextRank: remoteRank?.rank.currentRank,
-    progress: cachedRank?.rank.progressThisWeek,
-    tags: cachedRank?.rank.tags,
-    reads: remoteRank?.reads,
-    levelUp,
-    shouldShowRankModal,
-    confirmLevelUp: (newNeverShowRankModal) => {
-      setLevelUp(false);
-      if (user) {
-        const lastSeen = newNeverShowRankModal ? MAX_DATE : new Date();
-        updateAlerts({ rankLastSeen: lastSeen });
-        return cacheRank(remoteRank);
-      }
-      // Limit anonymous users to rank zero
-      const rank = queryClient.setQueryData<MyRankData>(
-        queryKey,
-        (currentRank) => ({
-          rank: { ...currentRank.rank, currentRank: 0 },
-          reads: currentRank?.reads,
-        }),
-      );
-      return cacheRank(rank, newNeverShowRankModal);
-    },
-  };
+  return useMemo(
+    () => ({
+      isLoading: !cachedRank,
+      rankLastWeek: cachedRank?.rank.rankLastWeek,
+      rank: cachedRank?.rank.currentRank,
+      nextRank: remoteRank?.rank.currentRank,
+      progress: cachedRank?.rank.progressThisWeek,
+      tags: cachedRank?.rank.tags,
+      reads: remoteRank?.reads,
+      levelUp,
+      shouldShowRankModal,
+      confirmLevelUp: (newNeverShowRankModal) => {
+        setLevelUp(false);
+        if (user) {
+          const lastSeen = newNeverShowRankModal ? MAX_DATE : new Date();
+          updateAlerts({ rankLastSeen: lastSeen });
+          return cacheRank(remoteRank);
+        }
+        // Limit anonymous users to rank zero
+        const rank = queryClient.setQueryData<MyRankData>(
+          queryKey,
+          (currentRank) => ({
+            rank: { ...currentRank.rank, currentRank: 0 },
+            reads: currentRank?.reads,
+          }),
+        );
+        return cacheRank(rank, newNeverShowRankModal);
+      },
+    }),
+    [cachedRank, remoteRank, levelUp, shouldShowRankModal, user, queryKey],
+  );
 }
