@@ -1,11 +1,6 @@
 import classNames from 'classnames';
 import React, { ReactElement } from 'react';
-import { useQueryClient } from 'react-query';
 import { Author } from '../../graphql/comments';
-import {
-  CompanionProtocol,
-  COMPANION_PROTOCOL_KEY,
-} from '../../graphql/common';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { TooltipProps } from '../tooltips/BaseTooltip';
 import { ProfileTooltip } from './ProfileTooltip';
