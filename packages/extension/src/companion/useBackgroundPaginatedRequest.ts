@@ -14,6 +14,7 @@ export const useBackgroundPaginatedRequest = <T extends InfiniteData<unknown>>(
     const updated = { ...current } as T;
     const index = updated.pages.length - 1;
     updated.pageParams[index] = req.variables.after;
+    updated.pages[index] = res;
     client.setQueryData(queryKey, updated);
   });
 };
