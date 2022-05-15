@@ -106,9 +106,10 @@ function CommentBox({
       >
         <header className="flex items-center mb-2">
           <RoundedImage
-            imgSrc={authorImage}
-            imgAlt={`${authorName}'s profile`}
-            background="var(--theme-background-secondary)"
+            src={authorImage}
+            alt={`${authorName}'s profile`}
+            className="bg-theme-bg-secondary"
+            loading="lazy"
           />
           <div className="flex flex-col ml-2">
             <div className="truncate typo-callout">{authorName}</div>
@@ -132,7 +133,7 @@ function CommentBox({
         </div>
       </div>
       <div className="flex relative flex-1 px-2">
-        <ProfilePicture user={user} size="small" />
+        <ProfilePicture user={user} size="small" nativeLazyLoading />
         <textarea
           className={classNames(
             'ml-3 flex-1 text-theme-label-primary bg-transparent border-none caret-theme-label-link break-words typo-subhead resize-none',

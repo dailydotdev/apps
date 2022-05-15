@@ -1,6 +1,5 @@
 import React, { ReactElement } from 'react';
 import { QueryKey } from 'react-query';
-import { LazyImage } from './LazyImage';
 import classed from '../lib/classed';
 import styles from './utilities.module.css';
 import ArrowIcon from '../../icons/arrow.svg';
@@ -99,9 +98,9 @@ export const postEventName = (
   return `${!update.bookmarked ? 'remove ' : ''}post bookmark`;
 };
 
-export const RoundedImage = classed(LazyImage, 'w-10 h-10 rounded-full');
+export const RoundedImage = classed('img', 'w-10 h-10 rounded-full');
 
-export const SmallRoundedImage = classed(LazyImage, 'w-6 h-6 rounded-full');
+export const SmallRoundedImage = classed('img', 'w-6 h-6 rounded-full');
 
 export const LegalNotice = classed(
   'div',
