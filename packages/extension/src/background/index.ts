@@ -1,3 +1,4 @@
+import 'content-scripts-register-polyfill';
 import { browser } from 'webextension-polyfill-ts';
 import { getBootData } from '@dailydotdev/shared/src/lib/boot';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
@@ -53,6 +54,20 @@ const sendBootData = async (req, sender) => {
 };
 
 async function handleMessages(message, sender) {
+  const permissions = await browser.permissions.contains({
+    origins: ['*://*/*'],
+  });
+  if (permissions) {
+    await browser.contentScripts.register({
+      matches: ['<all_urls>'],
+      css: [{ file: 'css/daily-companion-app.css' }],
+      js: [
+        { file: 'js/content.bundle.js' },
+        { file: 'js/companion.bundle.js' },
+      ],
+    });
+  }
+
   if (message.type === 'CONTENT_LOADED') {
     sendBootData(message, sender);
     return null;

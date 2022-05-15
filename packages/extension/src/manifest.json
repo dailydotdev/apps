@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "version": "0.0.0",
-  "name": "daily.dev | The Homepage Developers Deserve",
+  "name": "daily.dev | BETA (optional)",
   "short_name": "daily.dev",
   "description": "Get a feed of the hottest developer news personalized to you.",
   "homepage_url": "https://daily.dev",
@@ -17,7 +17,7 @@
     "https://*.dailynow.co/"
   ],
   "__dev__permissions": ["storage", "http://localhost/"],
-  "optional_permissions": ["topSites"],
+  "optional_permissions": ["topSites", "*://*/*"],
   "content_security_policy": "script-src 'self' https://www.google-analytics.com; object-src 'self'",
   "__firefox__content_security_policy": "object-src 'self'",
   "browser_action": {
@@ -33,13 +33,6 @@
   "chrome_url_overrides": {
     "newtab": "index.html"
   },
-  "content_scripts": [
-    {
-      "matches": ["<all_urls>"],
-      "css": ["css/daily-companion-app.css"],
-      "js": ["js/content.bundle.js", "js/companion.bundle.js"]
-    }
-  ],
   "web_accessible_resources": ["index.html", "companion.html", "js/companion.bundle.js", "css/companion.css"],
   "__firefox__browser_specific_settings": {
     "gecko": {

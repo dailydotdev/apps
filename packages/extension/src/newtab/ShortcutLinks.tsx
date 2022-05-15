@@ -1,7 +1,15 @@
-import React, { FormEvent, ReactElement, useContext, useState } from 'react';
+import 'content-scripts-register-polyfill';
+import React, {
+  FormEvent,
+  ReactElement,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import PlusIcon from '@dailydotdev/shared/icons/plus.svg';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import { browser } from 'webextension-polyfill-ts';
 import CustomLinksModal from './ShortcutLinksModal';
 import MostVisitedSitesModal from './MostVisitedSitesModal';
 import { CustomLinks } from './CustomLinks';
@@ -11,6 +19,8 @@ export default function ShortcutLinks(): ReactElement {
   const { showTopSites } = useContext(SettingsContext);
   const [showModal, setShowModal] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
+  const [contentScriptsPermission, setContentScriptsPermission] =
+    useState(false);
   const {
     askTopSitesPermission,
     revokePermission,
@@ -37,6 +47,37 @@ export default function ShortcutLinks(): ReactElement {
     onIsManual(false);
   };
 
+  useEffect(() => {
+    const permissionCall = async () => {
+      const permissions = await browser.permissions.contains({
+        origins: ['*://*/*'],
+      });
+      if (permissions) {
+        setContentScriptsPermission(true);
+      }
+    };
+    permissionCall();
+  }, [browser.permissions]);
+
+  const registerContentScripts = async () => {
+    const granted = await browser.permissions.request({
+      origins: ['*://*/*'],
+    });
+    if (granted) {
+      setContentScriptsPermission(true);
+      await browser.contentScripts.register({
+        matches: ['<all_urls>'],
+        css: [{ file: 'css/daily-companion-app.css' }],
+        js: [
+          { file: 'js/content.bundle.js' },
+          { file: 'js/companion.bundle.js' },
+        ],
+      });
+    }
+
+    return granted;
+  };
+
   const onSubmit = async (e: FormEvent) => {
     const { errors } = await onSaveChanges(e);
 
@@ -49,6 +90,11 @@ export default function ShortcutLinks(): ReactElement {
 
   return (
     <>
+      {!contentScriptsPermission && (
+        <Button onClick={registerContentScripts} className="ml-2 btn-primary">
+          Add companion
+        </Button>
+      )}
       {shortcutLinks?.length ? (
         <CustomLinks
           links={shortcutLinks}
