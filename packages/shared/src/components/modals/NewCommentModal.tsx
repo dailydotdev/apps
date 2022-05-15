@@ -6,7 +6,6 @@ import React, {
   useContext,
   KeyboardEventHandler,
 } from 'react';
-import dynamic from 'next/dynamic';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import request from 'graphql-request';
 import cloneDeep from 'lodash.clonedeep';
@@ -31,8 +30,7 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../../lib/feed';
 import { Post } from '../../graphql/posts';
 import { ModalCloseButton } from './ModalCloseButton';
-
-const DiscardCommentModal = dynamic(() => import('./DiscardCommentModal'));
+import DiscardCommentModal from './DiscardCommentModal';
 
 interface CommentVariables {
   id: string;

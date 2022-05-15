@@ -1,8 +1,6 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useContext, useState } from 'react';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import CopyIcon from '@dailydotdev/shared/icons/copy.svg';
-import { apiUrl } from '@dailydotdev/shared/src/lib/config';
-import { useInfiniteQuery, useQueryClient } from 'react-query';
 import {
   HotLabel,
   TLDRText,
@@ -10,22 +8,19 @@ import {
 import '@dailydotdev/shared/src/styles/globals.css';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
-import UpvotedPopupModal from '@dailydotdev/shared/src/components/modals/UpvotedPopupModal';
-import { POST_UPVOTES_BY_ID_QUERY } from '@dailydotdev/shared/src/graphql/posts';
-import {
-  DEFAULT_UPVOTES_PER_PAGE,
-  UpvotesData,
-} from '@dailydotdev/shared/src/graphql/common';
-import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopyLink';
+import { usePostComment } from '@dailydotdev/shared/src/hooks/usePostComment';
 import classNames from 'classnames';
 import useNotification from '@dailydotdev/shared/src/hooks/useNotification';
 import { CardNotification } from '@dailydotdev/shared/src/components/cards/Card';
+import { PostComments } from '@dailydotdev/shared/src/components/post/PostComments';
+import { NewComment } from '@dailydotdev/shared/src/components/post/NewComment';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import NewCommentModal from '@dailydotdev/shared/src/components/modals/NewCommentModal';
+import { CompanionDiscussion } from './CompanionDiscussion';
+import { useBackgroundRequest } from './useBackgroundRequest';
 import { getCompanionWrapper } from './common';
-import { companionRequest } from './companionRequest';
-import { useRawBackgroundRequest } from './useRawBackgroundRequest';
-import { useBackgroundPaginatedRequest } from './useBackgroundPaginatedRequest';
 
 type CompanionContentProps = {
   post: PostBootData;
@@ -34,48 +29,31 @@ type CompanionContentProps = {
 export default function CompanionContent({
   post,
 }: CompanionContentProps): ReactElement {
-  const client = useQueryClient();
+  const queryKey = ['post_comments', post?.id];
+  useBackgroundRequest(queryKey);
+  const { user } = useContext(AuthContext);
   const { notification, onMessage } = useNotification();
-  const queryKey = ['postUpvotes', post.id];
-  useBackgroundPaginatedRequest(queryKey);
-  const [isUpvotesOpen, setIsUpvotesOpen] = useState(false);
+  const [isCommentsOpen, setIsCommentsOpen] = useState(false);
   const [copying, copyLink] = useCopyLink(() => post.commentsPermalink);
   const copyLinkAndNotify = () => {
     copyLink();
     onMessage('✅ Copied link to clipboard');
   };
-
-  const queryResult = useInfiniteQuery<UpvotesData>(
-    queryKey,
-    ({ pageParam }) =>
-      companionRequest(`${apiUrl}/graphql`, POST_UPVOTES_BY_ID_QUERY, {
-        id: post.id,
-        first: DEFAULT_UPVOTES_PER_PAGE,
-        after: pageParam,
-        queryKey,
-      }),
-    {
-      enabled: isUpvotesOpen,
-      getNextPageParam: (lastPage) =>
-        lastPage?.upvotes?.pageInfo?.hasNextPage &&
-        lastPage?.upvotes?.pageInfo?.endCursor,
-    },
-  );
-
-  useRawBackgroundRequest(({ res, queryKey: key }) => {
-    if (!Array.isArray(key)) {
-      return;
-    }
-
-    if (key[0] !== 'readingRank') {
-      return;
-    }
-
-    client.setQueryData(key, res);
-  });
+  const {
+    onNewComment,
+    closeNewComment,
+    openNewComment,
+    onCommentClick,
+    parentComment,
+  } = usePostComment(post);
 
   return (
-    <div className="flex flex-col p-6 h-auto rounded-l-16 border w-[22.5rem] border-theme-label-tertiary bg-theme-bg-primary">
+    <div
+      className={classNames(
+        'flex relative flex-col p-6 h-auto rounded-tl-16 border w-[22.5rem] border-theme-label-tertiary bg-theme-bg-primary',
+        !isCommentsOpen && 'rounded-bl-16',
+      )}
+    >
       {notification && (
         <CardNotification className="absolute -top-6 right-8 z-2 w-max text-center shadow-2">
           {notification}
@@ -86,7 +64,6 @@ export default function CompanionContent({
           <LogoIcon className="w-8 rounded-8" />
         </a>
         {post?.trending && <HotLabel />}
-
         {post?.summary && (
           <SimpleTooltip
             placement="top"
@@ -110,37 +87,27 @@ export default function CompanionContent({
         {post?.summary ??
           `Oops, edge case alert! Our AI-powered TLDR engine couldn't generate a summary for this article. Anyway, we thought it would be an excellent reminder for us all to strive for progress over perfection! Be relentless about learning, growing, and improving. Sometimes shipping an imperfect feature is better than not shipping at all. Enjoy the article!`}
       </p>
-      <div
-        className="flex gap-x-4 items-center text-theme-label-tertiary typo-callout"
-        data-testid="statsBar"
-      >
-        {post?.numUpvotes <= 0 && post?.numComments <= 0 && (
-          <span>Be the first to upvote</span>
-        )}
-        {post?.numUpvotes > 0 && (
-          <ClickableText onClick={() => setIsUpvotesOpen(true)}>
-            {post?.numUpvotes} Upvote{post?.numUpvotes > 1 ? 's' : ''}
-          </ClickableText>
-        )}
-        {post?.numComments > 0 && (
-          <a
-            href={post?.commentsPermalink}
-            target="_parent"
-            className="hover:underline"
-          >
-            {post?.numComments.toLocaleString()}
-            {` Comment${post?.numComments === 1 ? '' : 's'}`}
-          </a>
-        )}
-      </div>
-      {isUpvotesOpen && (
-        <UpvotedPopupModal
-          isOpen
+      <CompanionDiscussion
+        post={post}
+        isCommentsOpen={isCommentsOpen}
+        onCommentsClick={() => setIsCommentsOpen(!isCommentsOpen)}
+      />
+      {isCommentsOpen && (
+        <div
+          className="absolute top-full right-0 -left-px p-6 border border-r-0 bg-theme-bg-primary border-theme-label-primary border-t-theme-divider-tertiary"
+          style={{ maxHeight: '55rem' }}
+        >
+          <NewComment user={user} onNewComment={openNewComment} />
+          <PostComments post={post} onClick={onCommentClick} />
+        </div>
+      )}
+      {parentComment && (
+        <NewCommentModal
+          isOpen={!!parentComment}
           parentSelector={getCompanionWrapper}
-          queryKey={queryKey}
-          queryResult={queryResult}
-          listPlaceholderProps={{ placeholderAmount: post?.numUpvotes }}
-          onRequestClose={() => setIsUpvotesOpen(false)}
+          onRequestClose={closeNewComment}
+          {...parentComment}
+          onComment={onNewComment}
         />
       )}
     </div>

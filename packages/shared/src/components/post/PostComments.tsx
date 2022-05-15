@@ -1,6 +1,5 @@
 import React, { ReactElement, useContext, useState } from 'react';
-import dynamic from 'next/dynamic';
-import { useQuery } from 'react-query';
+import { useQuery, useQueryClient } from 'react-query';
 import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import AuthContext from '../../contexts/AuthContext';
@@ -11,14 +10,12 @@ import {
 } from '../../graphql/comments';
 import { Post } from '../../graphql/posts';
 import MainComment from '../comments/MainComment';
-
-const PlaceholderCommentList = dynamic(
-  () => import('../comments/PlaceholderCommentList'),
-);
-
-const DeleteCommentModal = dynamic(
-  () => import('../modals/DeleteCommentModal'),
-);
+import {
+  CompanionProtocol,
+  COMPANION_PROTOCOL_KEY,
+} from '../../graphql/common';
+import PlaceholderCommentList from '../comments/PlaceholderCommentList';
+import DeleteCommentModal from '../modals/DeleteCommentModal';
 
 export interface ParentComment {
   authorName: string;
@@ -86,12 +83,18 @@ export function PostComments({
   const { id } = post;
   const { user, showLogin, tokenRefreshed } = useContext(AuthContext);
   const [pendingComment, setPendingComment] = useState<PendingComment>(null);
+  const client = useQueryClient();
+  const { companionRequest } =
+    client.getQueryData<CompanionProtocol>(COMPANION_PROTOCOL_KEY) || {};
+  const requestMethod = companionRequest || request;
+  const queryKey = ['post_comments', id];
   const { data: comments, isLoading: isLoadingComments } =
     useQuery<PostCommentsData>(
-      ['post_comments', id],
+      queryKey,
       () =>
-        request(`${apiUrl}/graphql`, POST_COMMENTS_QUERY, {
+        requestMethod(`${apiUrl}/graphql`, POST_COMMENTS_QUERY, {
           postId: id,
+          queryKey,
         }),
       {
         enabled: !!id && tokenRefreshed,
@@ -100,7 +103,7 @@ export function PostComments({
     );
   const commentsCount = comments?.postComments?.edges?.length || 0;
 
-  if (isLoadingComments) {
+  if (isLoadingComments || comments === null) {
     return <PlaceholderCommentList placeholderAmount={post.numComments} />;
   }
 
