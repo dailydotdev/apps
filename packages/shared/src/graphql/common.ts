@@ -55,8 +55,8 @@ export type RequestDataConnection<TEntity, TKey extends string> = Record<
 
 export const COMPANION_PROTOCOL_KEY = 'companion-protocol';
 export interface CompanionProtocol {
-  companionRequest: typeof request;
-  companionFetch: typeof fetch;
+  companionRequest?: typeof request;
+  companionFetch?: typeof fetch;
 }
 
 export const isQueryKeySame = (left: QueryKey, right: QueryKey): boolean => {

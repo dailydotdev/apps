@@ -7,7 +7,6 @@ import React, {
   KeyboardEventHandler,
 } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
-import request from 'graphql-request';
 import cloneDeep from 'lodash.clonedeep';
 import {
   Comment,
@@ -31,6 +30,7 @@ import { postAnalyticsEvent } from '../../lib/feed';
 import { Post } from '../../graphql/posts';
 import { ModalCloseButton } from './ModalCloseButton';
 import DiscardCommentModal from './DiscardCommentModal';
+import { useCompanionProtocol } from '../../hooks/useCompanionProtocol';
 
 interface CommentVariables {
   id: string;
@@ -70,11 +70,13 @@ export default function NewCommentModal({
   const { trackEvent } = useContext(AnalyticsContext);
   const [errorMessage, setErrorMessage] = useState<string>(null);
   const isPreview = activeTab === 'Preview';
+  const { companionRequest } = useCompanionProtocol();
   const { data: previewContent } = useQuery<{ preview: string }>(
     input,
     () =>
-      request(`${apiUrl}/graphql`, PREVIEW_COMMENT_MUTATION, {
+      companionRequest(`${apiUrl}/graphql`, PREVIEW_COMMENT_MUTATION, {
         content: input,
+        queryKey: input,
       }),
     { enabled: isPreview && input?.length > 0 },
   );
@@ -93,7 +95,7 @@ export default function NewCommentModal({
     CommentVariables
   >(
     (variables) =>
-      request(
+      companionRequest(
         `${apiUrl}/graphql`,
         props.commentId
           ? COMMENT_ON_COMMENT_MUTATION
@@ -146,7 +148,7 @@ export default function NewCommentModal({
     CommentVariables
   >(
     (variables) =>
-      request(`${apiUrl}/graphql`, EDIT_COMMENT_MUTATION, variables),
+      companionRequest(`${apiUrl}/graphql`, EDIT_COMMENT_MUTATION, variables),
     {
       onSuccess: async (data) => {
         const queryKey = ['post_comments', props.post.id];
