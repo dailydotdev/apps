@@ -10,12 +10,10 @@ import React, {
 import { useQueryClient } from 'react-query';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import AuthContext from '../../contexts/AuthContext';
-import { COMMENT_UPVOTES_BY_ID_QUERY } from '../../graphql/comments';
 import {
   PostData,
   PostsEngaged,
   POSTS_ENGAGED_SUBSCRIPTION,
-  POST_UPVOTES_BY_ID_QUERY,
 } from '../../graphql/posts';
 import useSubscription from '../../hooks/useSubscription';
 import { postAnalyticsEvent } from '../../lib/feed';
@@ -35,11 +33,11 @@ import { PostModalActionsProps } from './PostModalActions';
 import { PostLoadingPlaceholder } from './PostLoadingPlaceholder';
 import classed from '../../lib/classed';
 import styles from '../utilities.module.css';
-import { getUpvotedPopupInitialState } from '../utilities';
 import {
   usePostComment,
   UsePostCommentOptionalProps,
 } from '../../hooks/usePostComment';
+import { useUpvoteQuery } from '../../hooks/useUpvoteQuery';
 
 const UpvotedPopupModal = dynamic(() => import('../modals/UpvotedPopupModal'));
 const NewCommentModal = dynamic(() => import('../modals/NewCommentModal'));
@@ -60,8 +58,6 @@ export interface PostContentProps
   isModal?: boolean;
   position?: CSSProperties['position'];
 }
-
-const DEFAULT_UPVOTES_PER_PAGE = 50;
 
 const BodyContainer = classed(
   'div',
@@ -112,36 +108,17 @@ export function PostContent({
     enableShowShareNewComment,
     initializeNewComment,
   });
+  const {
+    requestQuery: upvotedPopup,
+    resetUpvoteQuery,
+    onShowUpvotedPost,
+    onShowUpvotedComment,
+  } = useUpvoteQuery();
   const { user, showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
-  const [upvotedPopup, setUpvotedPopup] = useState(getUpvotedPopupInitialState);
   const queryClient = useQueryClient();
   const postQueryKey = ['post', id];
-
-  const handleShowUpvotedPost = (upvotes: number) => {
-    setUpvotedPopup({
-      modal: true,
-      upvotes,
-      requestQuery: {
-        queryKey: ['postUpvotes', id],
-        query: POST_UPVOTES_BY_ID_QUERY,
-        params: { id, first: DEFAULT_UPVOTES_PER_PAGE },
-      },
-    });
-  };
-
-  const handleShowUpvotedComment = (commentId: string, upvotes: number) => {
-    setUpvotedPopup({
-      modal: true,
-      upvotes,
-      requestQuery: {
-        queryKey: ['commentUpvotes', commentId],
-        query: COMMENT_UPVOTES_BY_ID_QUERY,
-        params: { id: commentId, first: DEFAULT_UPVOTES_PER_PAGE },
-      },
-    });
-  };
 
   useSubscription(
     () => ({
@@ -279,7 +256,9 @@ export function PostContent({
         )}
         <PostUpvotesCommentsCount
           post={postById.post}
-          onUpvotesClick={handleShowUpvotedPost}
+          onUpvotesClick={(upvotes) =>
+            onShowUpvotedPost(postById.post.id, upvotes)
+          }
         />
         <PostActions
           post={postById.post}
@@ -291,7 +270,7 @@ export function PostContent({
         <PostComments
           post={postById.post}
           onClick={onCommentClick}
-          onClickUpvote={handleShowUpvotedComment}
+          onClickUpvote={onShowUpvotedComment}
         />
         {authorOnboarding && (
           <AuthorOnboarding onSignUp={!user && (() => showLogin('author'))} />
@@ -310,7 +289,7 @@ export function PostContent({
           requestQuery={upvotedPopup.requestQuery}
           isOpen={upvotedPopup.modal}
           listPlaceholderProps={{ placeholderAmount: upvotedPopup.upvotes }}
-          onRequestClose={() => setUpvotedPopup(getUpvotedPopupInitialState())}
+          onRequestClose={resetUpvoteQuery}
         />
       )}
       {parentComment && (

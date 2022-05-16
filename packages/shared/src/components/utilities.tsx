@@ -1,5 +1,4 @@
 import React, { ReactElement } from 'react';
-import { QueryKey } from 'react-query';
 import classed from '../lib/classed';
 import styles from './utilities.module.css';
 import ArrowIcon from '../../icons/arrow.svg';
@@ -186,24 +185,3 @@ export const HotLabel = (): ReactElement => (
     Hot
   </div>
 );
-
-interface RequestQueryProps {
-  queryKey: QueryKey;
-  query: string;
-  params: {
-    id: string;
-    first: number;
-  };
-}
-type UpvotedPopupInitialStateProps = {
-  upvotes: number;
-  modal: boolean;
-  requestQuery?: RequestQueryProps;
-};
-
-export const getUpvotedPopupInitialState =
-  (): UpvotedPopupInitialStateProps => ({
-    upvotes: 0,
-    modal: false,
-    requestQuery: null,
-  });
