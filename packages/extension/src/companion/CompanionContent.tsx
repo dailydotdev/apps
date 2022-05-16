@@ -131,8 +131,8 @@ export default function CompanionContent({
           isOpen={!!parentComment}
           parentSelector={getCompanionWrapper}
           onRequestClose={closeNewComment}
-          {...parentComment}
           onComment={onNewComment}
+          {...parentComment}
         />
       )}
       {upvotedPopup.modal && (

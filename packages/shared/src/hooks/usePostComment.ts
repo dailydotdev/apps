@@ -14,7 +14,7 @@ export interface UsePostCommentOptionalProps {
 }
 
 interface UsePostComment {
-  comments: PostCommentsData;
+  commentsNum: number;
   onNewComment: (newComment: Comment, parentId: string | null) => void;
   closeNewComment: () => void;
   openNewComment: () => void;
@@ -50,6 +50,7 @@ export const usePostComment = (
   const { trackEvent } = useContext(AnalyticsContext);
   const { user, showLogin } = useContext(AuthContext);
   const key = ['post_comments', post?.id];
+  const [commentsNum, setCommentsNum] = useState(post.numComments);
   const comments = client.getQueryData<PostCommentsData>(key);
   const [lastScroll, setLastScroll] = useState(0);
   const [parentComment, setParentComment] = useState<ParentComment>(null);
@@ -119,6 +120,8 @@ export const usePostComment = (
       return null;
     }
 
+    setCommentsNum(commentsNum - 1);
+
     if (parentId === commentId) {
       const index = cached.postComments.edges.findIndex(
         (e) => e.node.id === commentId,
@@ -186,6 +189,7 @@ export const usePostComment = (
           extra: { commentId: comment.id, origin: 'comment modal' },
         }),
       );
+      setCommentsNum(commentsNum + 1);
       onNewComment(comment, parentComment.commentId);
     }
   };
@@ -202,8 +206,16 @@ export const usePostComment = (
     }
   }, [initializeNewComment]);
 
+  useEffect(() => {
+    if (!post) {
+      return;
+    }
+
+    setCommentsNum(post.numComments);
+  }, [post]);
+
   return {
-    comments,
+    commentsNum,
     onNewComment,
     closeNewComment,
     openNewComment,
