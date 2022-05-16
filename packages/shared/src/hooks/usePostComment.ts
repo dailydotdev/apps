@@ -148,19 +148,20 @@ export const usePostComment = (
 
     const comment = getCommentEdge(result, isNew);
     const { edges } = comments.postComments;
+    const parentId = parentComment.commentId;
 
     if (isNew) {
-      if (!parentComment.commentId) {
+      if (!parentId) {
         cached.postComments.edges.push(comment);
         return client.setQueryData(key, cached);
       }
 
-      const parentIndex = edges.findIndex((e) => e.node.id === comment.node.id);
+      const parentIndex = edges.findIndex((e) => e.node.id === parentId);
       cached.postComments.edges[parentIndex].node.children.edges.push(comment);
       return client.setQueryData(key, cached);
     }
 
-    if (!parentComment.commentId) {
+    if (!parentId) {
       const index = edges.findIndex((e) => e.node.id === comment.node.id);
       cached.postComments.edges[index] = comment;
       return client.setQueryData(key, cached);
@@ -168,7 +169,7 @@ export const usePostComment = (
 
     const [parent, current] = getParentAndCurrentIndex(
       edges,
-      parentComment.commentId,
+      parentId,
       comment.node.id,
     );
     cached.postComments.edges[parent].node.children.edges[current] = comment;
