@@ -53,7 +53,7 @@ export default function CompanionContent({
     onCommentClick,
     updatePostComments,
     parentComment,
-    comments,
+    commentsNum,
   } = usePostComment(post);
   const mutationKey = ['post_comments_mutations', post?.id];
   const postCommentsQueryKey = ['post_comments', post?.id];
@@ -107,7 +107,7 @@ export default function CompanionContent({
       </p>
       <CompanionDiscussion
         post={post}
-        commentsNum={comments?.postComments?.edges.length || post.numComments}
+        commentsNum={commentsNum}
         isCommentsOpen={isCommentsOpen}
         onCommentsClick={() => setIsCommentsOpen(!isCommentsOpen)}
         onUpvotesClick={() => onShowUpvotedPost(post.id, post.numUpvotes)}
