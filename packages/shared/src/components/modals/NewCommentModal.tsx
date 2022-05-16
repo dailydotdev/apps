@@ -96,7 +96,7 @@ export default function NewCommentModal({
     closeEventRef.current = null;
   };
 
-  const queryKey = ['post_comments', props.post.id];
+  const key = ['post_comments_mutations', props.post.id];
   const { mutateAsync: comment } = useMutation<
     CommentOnData,
     unknown,
@@ -108,7 +108,8 @@ export default function NewCommentModal({
         props.commentId
           ? COMMENT_ON_COMMENT_MUTATION
           : COMMENT_ON_POST_MUTATION,
-        { ...variables, queryKey },
+        variables,
+        { requestKey: JSON.stringify(key) },
       ),
     { onSuccess: (data) => updateComments(data) },
   );
@@ -119,7 +120,9 @@ export default function NewCommentModal({
     CommentVariables
   >(
     (variables) =>
-      companionRequest(`${apiUrl}/graphql`, EDIT_COMMENT_MUTATION, variables),
+      companionRequest(`${apiUrl}/graphql`, EDIT_COMMENT_MUTATION, variables, {
+        requestKey: JSON.stringify(key),
+      }),
     { onSuccess: (data) => updateComments(data, false) },
   );
 

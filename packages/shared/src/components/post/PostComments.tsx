@@ -87,10 +87,14 @@ export function PostComments({
     useQuery<PostCommentsData>(
       queryKey,
       () =>
-        requestMethod(`${apiUrl}/graphql`, POST_COMMENTS_QUERY, {
-          postId: id,
-          queryKey,
-        }),
+        requestMethod(
+          `${apiUrl}/graphql`,
+          POST_COMMENTS_QUERY,
+          {
+            postId: id,
+          },
+          { requestKey: JSON.stringify(queryKey) },
+        ),
       {
         enabled: !!id && tokenRefreshed,
         refetchInterval: 60 * 1000,

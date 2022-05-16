@@ -59,14 +59,14 @@ async function handleMessages(message, sender) {
   }
 
   if (message.type === 'GRAPHQL_REQUEST') {
-    const { queryKey, ...variables } = message.variables || {};
-    const req = request(message.url, message.document, variables);
-    const key = queryKey || message.queryKey;
+    const { requestKey } = message.headers || {};
+    const req = request(message.url, message.document, message.variables);
 
-    if (!key) {
+    if (!requestKey) {
       return req;
     }
 
+    const key = JSON.parse(requestKey);
     const url = sender?.tab?.url?.split('?')[0];
     const [deviceId, res] = await Promise.all([getOrGenerateDeviceId(), req]);
 
@@ -74,8 +74,8 @@ async function handleMessages(message, sender) {
       deviceId,
       url,
       res,
-      req: { variables },
-      queryKey: key,
+      req: { variables: message.variables },
+      key,
     });
   }
 

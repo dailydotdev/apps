@@ -7,13 +7,13 @@ export const useBackgroundRequest = (
   command?: (params: unknown) => void,
 ): void => {
   const client = useQueryClient();
-  useRawBackgroundRequest(({ queryKey: key, ...args }) => {
+  useRawBackgroundRequest(({ key, ...args }) => {
     if (!isQueryKeySame(key, queryKey)) {
       return;
     }
 
     if (command) {
-      command({ queryKey: key, ...args });
+      command({ key, ...args });
     } else {
       client.setQueryData(queryKey, args.res);
     }

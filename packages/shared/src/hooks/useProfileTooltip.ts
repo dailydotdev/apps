@@ -40,12 +40,16 @@ export const useProfileTooltip = ({
   const { data, isLoading } = useQuery<UserTooltipContentData>(
     key,
     () =>
-      requestMethod(`${apiUrl}/graphql`, USER_TOOLTIP_CONTENT_QUERY, {
-        id: userId,
-        version: 2,
-        requestUserInfo,
-        queryKey: key,
-      }),
+      requestMethod(
+        `${apiUrl}/graphql`,
+        USER_TOOLTIP_CONTENT_QUERY,
+        {
+          id: userId,
+          version: 2,
+          requestUserInfo,
+        },
+        { requestKey: JSON.stringify(key) },
+      ),
     {
       refetchOnWindowFocus: false,
       enabled: shouldFetch && !!userId,

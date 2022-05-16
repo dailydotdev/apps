@@ -8,7 +8,7 @@ const proxyRequest = {
       url: args?.[0],
       document: args?.[1],
       variables: args?.[2],
-      queryKey: args?.[3],
+      headers: args?.[3],
     });
     return null;
   },
