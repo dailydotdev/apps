@@ -1,5 +1,5 @@
 import { useEffect, useState, useContext } from 'react';
-import { useQueryClient } from 'react-query';
+import { useQuery, useQueryClient } from 'react-query';
 import cloneDeep from 'lodash.clonedeep';
 import AuthContext from '../contexts/AuthContext';
 import { ParentComment, Post } from '../graphql/posts';
@@ -50,7 +50,11 @@ export const usePostComment = (
   const { trackEvent } = useContext(AnalyticsContext);
   const { user, showLogin } = useContext(AuthContext);
   const key = ['post_comments', post?.id];
-  const [commentsNum, setCommentsNum] = useState(post.numComments);
+  const postCommentNumKey = ['post_comments_num', post?.id];
+  const { data: commentsNum = 0 } = useQuery(
+    postCommentNumKey,
+    () => post.numComments,
+  );
   const comments = client.getQueryData<PostCommentsData>(key);
   const [lastScroll, setLastScroll] = useState(0);
   const [parentComment, setParentComment] = useState<ParentComment>(null);
@@ -120,7 +124,7 @@ export const usePostComment = (
       return null;
     }
 
-    setCommentsNum(commentsNum - 1);
+    client.setQueryData(postCommentNumKey, commentsNum - 1);
 
     if (parentId === commentId) {
       const index = cached.postComments.edges.findIndex(
@@ -190,7 +194,7 @@ export const usePostComment = (
           extra: { commentId: comment.id, origin: 'comment modal' },
         }),
       );
-      setCommentsNum(commentsNum + 1);
+      client.setQueryData(postCommentNumKey, commentsNum + 1);
       onNewComment(comment, parentComment.commentId);
     }
   };
@@ -212,7 +216,7 @@ export const usePostComment = (
       return;
     }
 
-    setCommentsNum(post.numComments);
+    client.setQueryData(postCommentNumKey, post.numComments);
   }, [post]);
 
   return {
