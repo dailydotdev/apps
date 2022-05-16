@@ -36,7 +36,7 @@ export default function DeleteCommentModal({
       requestMethod(`${apiUrl}/graphql`, DELETE_COMMENT_MUTATION, {
         id: commentId,
       }),
-    { onSuccess: () => deleteCommentCache(parentId, commentId) },
+    { onSuccess: () => deleteCommentCache(commentId, parentId) },
   );
 
   const onDeleteComment = async (event: MouseEvent): Promise<void> => {
