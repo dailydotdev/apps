@@ -1,11 +1,7 @@
 import React, { ReactElement, MouseEvent, useState } from 'react';
-import { useMutation, useQueryClient } from 'react-query';
-import cloneDeep from 'lodash.clonedeep';
+import { useMutation } from 'react-query';
 import request from 'graphql-request';
-import {
-  DELETE_COMMENT_MUTATION,
-  PostCommentsData,
-} from '../../graphql/comments';
+import { DELETE_COMMENT_MUTATION } from '../../graphql/comments';
 import { apiUrl } from '../../lib/config';
 import { Button } from '../buttons/Button';
 import { ModalProps } from './StyledModal';
@@ -15,60 +11,32 @@ import {
   ConfirmationDescription,
   ConfirmationButtons,
 } from './ConfirmationModal';
+import { useCompanionProtocol } from '../../hooks/useCompanionProtocol';
+import { usePostComment } from '../../hooks/usePostComment';
+import { Post } from '../../graphql/posts';
 
 export interface Props extends ModalProps {
   commentId: string;
   parentId: string | null;
-  postId: string;
+  post: Post;
 }
 
 export default function DeleteCommentModal({
   commentId,
   parentId,
-  postId,
+  post,
   ...props
 }: Props): ReactElement {
   const [deleting, setDeleting] = useState<boolean>(false);
-  const queryClient = useQueryClient();
+  const { deleteCommentCache } = usePostComment(post);
+  const { companionRequest } = useCompanionProtocol();
+  const requestMethod = companionRequest || request;
   const { mutateAsync: deleteComment } = useMutation(
     () =>
-      request(`${apiUrl}/graphql`, DELETE_COMMENT_MUTATION, {
+      requestMethod(`${apiUrl}/graphql`, DELETE_COMMENT_MUTATION, {
         id: commentId,
       }),
-    {
-      onSuccess: async () => {
-        const queryKey = ['post_comments', postId];
-        await queryClient.cancelQueries(queryKey);
-        const cached = cloneDeep(
-          queryClient.getQueryData<PostCommentsData>(queryKey),
-        );
-        if (cached) {
-          // Delete the sub-comment
-          if (parentId !== commentId) {
-            const parentIndex = cached.postComments.edges.findIndex(
-              (e) => e.node.id === parentId,
-            );
-            if (parentIndex > -1) {
-              const childIndex = cached.postComments.edges[
-                parentIndex
-              ].node.children.edges.findIndex((e) => e.node.id === commentId);
-              if (childIndex > -1) {
-                cached.postComments.edges[
-                  parentIndex
-                ].node.children.edges.splice(childIndex, 1);
-              }
-            }
-          } else {
-            // Delete the main comment
-            const index = cached.postComments.edges.findIndex(
-              (e) => e.node.id === commentId,
-            );
-            cached.postComments.edges.splice(index, 1);
-          }
-          queryClient.setQueryData(queryKey, cached);
-        }
-      },
-    },
+    { onSuccess: () => deleteCommentCache(parentId, commentId) },
   );
 
   const onDeleteComment = async (event: MouseEvent): Promise<void> => {
