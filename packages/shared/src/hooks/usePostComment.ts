@@ -124,12 +124,12 @@ export const usePostComment = (
       return null;
     }
 
-    client.setQueryData(postCommentNumKey, commentsNum - 1);
-
     if (parentId === commentId) {
       const index = cached.postComments.edges.findIndex(
         (e) => e.node.id === commentId,
       );
+      const count = cached.postComments.edges[index].node.children.edges.length;
+      client.setQueryData(postCommentNumKey, commentsNum - (count + 1));
       cached.postComments.edges.splice(index, 1);
       return client.setQueryData(key, cached);
     }
@@ -140,6 +140,7 @@ export const usePostComment = (
       commentId,
     );
     cached.postComments.edges[parent].node.children.edges.splice(current, 1);
+    client.setQueryData(postCommentNumKey, commentsNum - 1);
     return client.setQueryData(key, cached);
   };
 
