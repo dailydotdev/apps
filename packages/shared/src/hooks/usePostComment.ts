@@ -21,9 +21,23 @@ interface UsePostComment {
   onCommentClick: (parent: ParentComment) => void;
   onShowShareNewComment: (value: boolean) => void;
   updatePostComments: (comment: Comment, isNew?: boolean) => void;
+  deleteCommentCache: (commentId: string, parentId?: string) => void;
   parentComment: ParentComment;
   showShareNewComment: boolean;
 }
+
+const getParentAndCurrentIndex = (
+  edges: Edge<Comment>[],
+  parentId: string,
+  commentId: string,
+): [number, number] => {
+  const parent = edges.findIndex((e) => e.node.id === parentId);
+  const current = edges[parent].node.children.edges.findIndex(
+    (edge) => edge.node.id === commentId,
+  );
+
+  return [parent, current];
+};
 
 export const usePostComment = (
   post: Post,
@@ -97,6 +111,31 @@ export const usePostComment = (
     return { ...current, node: { ...comment } };
   };
 
+  const deleteCommentCache = async (commentId: string, parentId?: string) => {
+    const queryKey = ['post_comments', post.id];
+    await client.cancelQueries(queryKey);
+    const cached = cloneDeep(comments);
+    if (!cached) {
+      return null;
+    }
+
+    if (parentId === commentId) {
+      const index = cached.postComments.edges.findIndex(
+        (e) => e.node.id === commentId,
+      );
+      cached.postComments.edges.splice(index, 1);
+      return client.setQueryData(key, cached);
+    }
+
+    const [parent, current] = getParentAndCurrentIndex(
+      cached.postComments.edges,
+      parentId,
+      commentId,
+    );
+    cached.postComments.edges[parent].node.children.edges.splice(current, 1);
+    return client.setQueryData(key, cached);
+  };
+
   const updateCache = (result: Comment, isNew = true) => {
     const cached = cloneDeep(comments);
 
@@ -124,9 +163,10 @@ export const usePostComment = (
       return client.setQueryData(key, cached);
     }
 
-    const parent = edges.findIndex((e) => e.node.id === comment.node.id);
-    const current = edges[parent].node.children.edges.findIndex(
-      (edge) => edge.node.id === comment.node.id,
+    const [parent, current] = getParentAndCurrentIndex(
+      edges,
+      parentComment.commentId,
+      comment.node.id,
     );
     cached.postComments.edges[parent].node.children.edges[current] = comment;
 
@@ -170,6 +210,7 @@ export const usePostComment = (
     onCommentClick,
     onShowShareNewComment: setShowShareNewComment,
     updatePostComments,
+    deleteCommentCache,
     parentComment,
     showShareNewComment,
   };
