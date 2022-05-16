@@ -7,8 +7,7 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import request from 'graphql-request';
-import { useInfiniteQuery, useQueryClient } from 'react-query';
+import { useQueryClient } from 'react-query';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import AuthContext from '../../contexts/AuthContext';
 import { COMMENT_UPVOTES_BY_ID_QUERY } from '../../graphql/comments';
@@ -36,8 +35,6 @@ import { PostModalActionsProps } from './PostModalActions';
 import { PostLoadingPlaceholder } from './PostLoadingPlaceholder';
 import classed from '../../lib/classed';
 import styles from '../utilities.module.css';
-import { apiUrl } from '../../lib/config';
-import { UpvotesData } from '../../graphql/common';
 import { getUpvotedPopupInitialState } from '../utilities';
 import {
   usePostComment,
@@ -183,20 +180,6 @@ export function PostContent({
     }
   }, [enableAuthorOnboarding]);
 
-  const { requestQuery } = upvotedPopup;
-  const { queryKey, query, params = {} } = requestQuery || {};
-  const queryResult = useInfiniteQuery<UpvotesData>(
-    queryKey,
-    ({ pageParam }) =>
-      request(`${apiUrl}/graphql`, query, { ...params, after: pageParam }),
-    {
-      enabled: upvotedPopup.modal,
-      getNextPageParam: (lastPage) =>
-        lastPage.upvotes.pageInfo.hasNextPage &&
-        lastPage.upvotes.pageInfo.endCursor,
-    },
-  );
-
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const Wrapper = hasNavigation ? BodyContainer : PageBodyContainer;
 
@@ -324,8 +307,7 @@ export function PostContent({
       />
       {upvotedPopup.modal && (
         <UpvotedPopupModal
-          queryKey={queryKey}
-          queryResult={queryResult}
+          requestQuery={upvotedPopup.requestQuery}
           isOpen={upvotedPopup.modal}
           listPlaceholderProps={{ placeholderAmount: upvotedPopup.upvotes }}
           onRequestClose={() => setUpvotedPopup(getUpvotedPopupInitialState())}
