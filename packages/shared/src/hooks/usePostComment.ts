@@ -1,7 +1,12 @@
 import { useEffect, useState, useContext } from 'react';
+import { useQueryClient } from 'react-query';
+import cloneDeep from 'lodash.clonedeep';
 import AuthContext from '../contexts/AuthContext';
 import { ParentComment, Post } from '../graphql/posts';
-import { Comment } from '../graphql/comments';
+import { Comment, PostCommentsData } from '../graphql/comments';
+import { Edge } from '../graphql/common';
+import AnalyticsContext from '../contexts/AnalyticsContext';
+import { postAnalyticsEvent } from '../lib/feed';
 
 export interface UsePostCommentOptionalProps {
   enableShowShareNewComment?: boolean;
@@ -9,11 +14,13 @@ export interface UsePostCommentOptionalProps {
 }
 
 interface UsePostComment {
+  comments: PostCommentsData;
   onNewComment: (newComment: Comment, parentId: string | null) => void;
   closeNewComment: () => void;
   openNewComment: () => void;
   onCommentClick: (parent: ParentComment) => void;
   onShowShareNewComment: (value: boolean) => void;
+  updatePostComments: (comment: Comment, isNew?: boolean) => void;
   parentComment: ParentComment;
   showShareNewComment: boolean;
 }
@@ -25,7 +32,11 @@ export const usePostComment = (
     initializeNewComment,
   }: UsePostCommentOptionalProps = {},
 ): UsePostComment => {
+  const client = useQueryClient();
+  const { trackEvent } = useContext(AnalyticsContext);
   const { user, showLogin } = useContext(AuthContext);
+  const key = ['post_comments', post?.id];
+  const comments = client.getQueryData<PostCommentsData>(key);
   const [lastScroll, setLastScroll] = useState(0);
   const [parentComment, setParentComment] = useState<ParentComment>(null);
   const [showShareNewComment, setShowShareNewComment] = useState(false);
@@ -63,6 +74,82 @@ export const usePostComment = (
     }
   };
 
+  const getCommentEdge = (comment: Comment, isNew = true): Edge<Comment> => {
+    if (isNew) {
+      return { node: { ...comment } };
+    }
+
+    if (!parentComment.commentId) {
+      const current = comments.postComments.edges.find(
+        (e) => e.node.id === comment.id,
+      );
+
+      return { ...current, node: { ...comment } };
+    }
+
+    const parent = comments.postComments.edges.find(
+      (e) => e.node.id === parentComment.commentId,
+    );
+    const current = parent.node.children.edges.find(
+      (child) => child.node.id === comment.id,
+    );
+
+    return { ...current, node: { ...comment } };
+  };
+
+  const updateCache = (result: Comment, isNew = true) => {
+    const cached = cloneDeep(comments);
+
+    if (!cached) {
+      return null;
+    }
+
+    const comment = getCommentEdge(result, isNew);
+    const { edges } = comments.postComments;
+
+    if (isNew) {
+      if (!parentComment.commentId) {
+        cached.postComments.edges.push(comment);
+        return client.setQueryData(key, cached);
+      }
+
+      const parentIndex = edges.findIndex((e) => e.node.id === comment.node.id);
+      cached.postComments.edges[parentIndex].node.children.edges.push(comment);
+      return client.setQueryData(key, cached);
+    }
+
+    if (!parentComment.commentId) {
+      const index = edges.findIndex((e) => e.node.id === comment.node.id);
+      cached.postComments.edges[index] = comment;
+      return client.setQueryData(key, cached);
+    }
+
+    const parent = edges.findIndex((e) => e.node.id === comment.node.id);
+    const current = edges[parent].node.children.edges.findIndex(
+      (edge) => edge.node.id === comment.node.id,
+    );
+    cached.postComments.edges[parent].node.children.edges[current] = comment;
+
+    return client.setQueryData(key, cached);
+  };
+
+  const updatePostComments = (comment: Comment, isNew = true) => {
+    if (!comment) {
+      return;
+    }
+
+    updateCache(comment, isNew);
+
+    if (isNew) {
+      trackEvent(
+        postAnalyticsEvent('comment post', post, {
+          extra: { commentId: comment.id, origin: 'comment modal' },
+        }),
+      );
+      onNewComment(comment, parentComment.commentId);
+    }
+  };
+
   useEffect(() => {
     if (enableShowShareNewComment) {
       setTimeout(() => setShowShareNewComment(true), 700);
@@ -76,11 +163,13 @@ export const usePostComment = (
   }, [initializeNewComment]);
 
   return {
+    comments,
     onNewComment,
     closeNewComment,
     openNewComment,
     onCommentClick,
     onShowShareNewComment: setShowShareNewComment,
+    updatePostComments,
     parentComment,
     showShareNewComment,
   };
