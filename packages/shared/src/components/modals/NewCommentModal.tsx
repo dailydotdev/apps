@@ -3,18 +3,16 @@ import React, {
   useState,
   MouseEvent,
   KeyboardEvent,
-  useContext,
   KeyboardEventHandler,
+  useRef,
 } from 'react';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
-import cloneDeep from 'lodash.clonedeep';
+import { useMutation, useQuery } from 'react-query';
 import {
   Comment,
   CommentOnData,
   COMMENT_ON_COMMENT_MUTATION,
   COMMENT_ON_POST_MUTATION,
   EDIT_COMMENT_MUTATION,
-  PostCommentsData,
   PREVIEW_COMMENT_MUTATION,
 } from '../../graphql/comments';
 import { apiUrl } from '../../lib/config';
@@ -24,13 +22,11 @@ import Markdown from '../Markdown';
 import TabContainer, { Tab } from '../tabs/TabContainer';
 import CommentBox, { CommentBoxProps } from './CommentBox';
 import { Button } from '../buttons/Button';
-import { Edge } from '../../graphql/common';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { postAnalyticsEvent } from '../../lib/feed';
 import { Post } from '../../graphql/posts';
 import { ModalCloseButton } from './ModalCloseButton';
 import DiscardCommentModal from './DiscardCommentModal';
 import { useCompanionProtocol } from '../../hooks/useCompanionProtocol';
+import { usePostComment } from '../../hooks/usePostComment';
 
 interface CommentVariables {
   id: string;
@@ -64,13 +60,13 @@ export default function NewCommentModal({
 }: NewCommentModalProps): ReactElement {
   const [input, setInput] = useState<string>(props.editContent || '');
   const [showDiscardModal, setShowDiscardModal] = useState<boolean>(false);
-  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('Write');
   const [sendingComment, setSendingComment] = useState<boolean>(false);
-  const { trackEvent } = useContext(AnalyticsContext);
   const [errorMessage, setErrorMessage] = useState<string>(null);
   const isPreview = activeTab === 'Preview';
   const { companionRequest } = useCompanionProtocol();
+  const { updatePostComments } = usePostComment(props.post);
+  const closeEventRef = useRef<MouseEvent | KeyboardEvent>();
   const { data: previewContent } = useQuery<{ preview: string }>(
     input,
     () =>
@@ -89,6 +85,18 @@ export default function NewCommentModal({
     }
   };
 
+  const updateComments = async (data: CommentOnData, isNew = true) => {
+    if (!data) {
+      closeEventRef.current = null;
+      return;
+    }
+
+    updatePostComments(data.comment, isNew);
+    onRequestClose(closeEventRef.current);
+    closeEventRef.current = null;
+  };
+
+  const queryKey = ['post_comments', props.post.id];
   const { mutateAsync: comment } = useMutation<
     CommentOnData,
     unknown,
@@ -100,46 +108,9 @@ export default function NewCommentModal({
         props.commentId
           ? COMMENT_ON_COMMENT_MUTATION
           : COMMENT_ON_POST_MUTATION,
-        variables,
+        { ...variables, queryKey },
       ),
-    {
-      onSuccess: async (data) => {
-        const queryKey = ['post_comments', props.post.id];
-        const cached = cloneDeep(
-          queryClient.getQueryData<PostCommentsData>(queryKey),
-        );
-        if (cached) {
-          const newEdge: Edge<Comment> = {
-            __typename: 'CommentEdge',
-            node: {
-              ...data.comment,
-            },
-            cursor: '',
-          };
-          // Update the sub tree of the parent comment
-          if (props.commentId) {
-            const edgeIndex = cached.postComments.edges.findIndex(
-              (e) => e.node.id === props.commentId,
-            );
-            if (edgeIndex > -1) {
-              if (cached.postComments.edges[edgeIndex].node.children) {
-                cached.postComments.edges[edgeIndex].node.children.edges.push(
-                  newEdge,
-                );
-              } else {
-                cached.postComments.edges[edgeIndex].node.children = {
-                  edges: [newEdge],
-                  pageInfo: {},
-                };
-              }
-            }
-          } else {
-            cached.postComments.edges.push(newEdge);
-          }
-          queryClient.setQueryData(queryKey, cached);
-        }
-      },
-    },
+    { onSuccess: (data) => updateComments(data) },
   );
 
   const { mutateAsync: editComment } = useMutation<
@@ -149,47 +120,7 @@ export default function NewCommentModal({
   >(
     (variables) =>
       companionRequest(`${apiUrl}/graphql`, EDIT_COMMENT_MUTATION, variables),
-    {
-      onSuccess: async (data) => {
-        const queryKey = ['post_comments', props.post.id];
-        const cached = cloneDeep(
-          queryClient.getQueryData<PostCommentsData>(queryKey),
-        );
-        if (cached) {
-          // Update the sub tree of the parent comment
-          if (props.commentId) {
-            const parentEdgeIndex = cached.postComments.edges.findIndex(
-              (e) => e.node.id === props.commentId,
-            );
-            if (parentEdgeIndex > -1) {
-              const edgeIndex = cached.postComments.edges[
-                parentEdgeIndex
-              ].node.children.edges.findIndex((e) => e.node.id === editId);
-              if (edgeIndex > -1) {
-                cached.postComments.edges[parentEdgeIndex].node.children.edges[
-                  edgeIndex
-                ].node = {
-                  ...cached.postComments.edges[parentEdgeIndex].node.children
-                    .edges[edgeIndex].node,
-                  ...data.comment,
-                };
-              }
-            }
-          } else {
-            const edgeIndex = cached.postComments.edges.findIndex(
-              (e) => e.node.id === editId,
-            );
-            if (edgeIndex > -1) {
-              cached.postComments.edges[edgeIndex].node = {
-                ...cached.postComments.edges[edgeIndex].node,
-                ...data.comment,
-              };
-            }
-          }
-          queryClient.setQueryData(queryKey, cached);
-        }
-      },
-    },
+    { onSuccess: (data) => updateComments(data, false) },
   );
 
   const modalRef = (element: HTMLDivElement): void => {
@@ -207,27 +138,21 @@ export default function NewCommentModal({
     }
     setErrorMessage(null);
     setSendingComment(true);
+    closeEventRef.current = event;
     try {
       if (editId) {
         await editComment({
           id: editId,
           content: input,
         });
-        onRequestClose(event);
       } else {
-        const data = await comment({
+        await comment({
           id: props.commentId || props.post.id,
           content: input,
         });
-        trackEvent(
-          postAnalyticsEvent('comment post', props.post, {
-            extra: { commentId: props.commentId, origin: 'comment modal' },
-          }),
-        );
-        onComment?.(data.comment, props.commentId);
-        onRequestClose(event);
       }
     } catch (err) {
+      closeEventRef.current = null;
       setErrorMessage('Something went wrong, try again');
       setSendingComment(false);
     }
