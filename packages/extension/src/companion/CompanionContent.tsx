@@ -6,6 +6,7 @@ import {
   TLDRText,
 } from '@dailydotdev/shared/src/components/utilities';
 import '@dailydotdev/shared/src/styles/globals.css';
+import UpvotedPopupModal from '@dailydotdev/shared/src/components/modals/UpvotedPopupModal';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
@@ -18,9 +19,11 @@ import { PostComments } from '@dailydotdev/shared/src/components/post/PostCommen
 import { NewComment } from '@dailydotdev/shared/src/components/post/NewComment';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import NewCommentModal from '@dailydotdev/shared/src/components/modals/NewCommentModal';
+import { useUpvoteQuery } from '@dailydotdev/shared/src/hooks/useUpvoteQuery';
 import { CompanionDiscussion } from './CompanionDiscussion';
 import { useBackgroundRequest } from './useBackgroundRequest';
 import { getCompanionWrapper } from './common';
+import { useBackgroundPaginatedRequest } from './useBackgroundPaginatedRequest';
 
 type CompanionContentProps = {
   post: PostBootData;
@@ -29,8 +32,6 @@ type CompanionContentProps = {
 export default function CompanionContent({
   post,
 }: CompanionContentProps): ReactElement {
-  const queryKey = ['post_comments', post?.id];
-  useBackgroundRequest(queryKey);
   const { user } = useContext(AuthContext);
   const { notification, onMessage } = useNotification();
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
@@ -39,6 +40,12 @@ export default function CompanionContent({
     copyLink();
     onMessage('✅ Copied link to clipboard');
   };
+  const {
+    requestQuery: upvotedPopup,
+    resetUpvoteQuery,
+    onShowUpvotedPost,
+    onShowUpvotedComment,
+  } = useUpvoteQuery();
   const {
     onNewComment,
     closeNewComment,
@@ -49,6 +56,9 @@ export default function CompanionContent({
     comments,
   } = usePostComment(post);
   const mutationKey = ['post_comments_mutations', post?.id];
+  const postCommentsQueryKey = ['post_comments', post?.id];
+  useBackgroundRequest(postCommentsQueryKey);
+  useBackgroundPaginatedRequest(upvotedPopup.requestQuery?.queryKey);
   useBackgroundRequest(mutationKey, ({ req, res }) => {
     const isNew = req.variables.id !== res.comment.id;
     updatePostComments(res.comment, isNew);
@@ -100,6 +110,7 @@ export default function CompanionContent({
         commentsNum={comments?.postComments?.edges.length || post.numComments}
         isCommentsOpen={isCommentsOpen}
         onCommentsClick={() => setIsCommentsOpen(!isCommentsOpen)}
+        onUpvotesClick={() => onShowUpvotedPost(post.id, post.numUpvotes)}
       />
       {isCommentsOpen && (
         <div
@@ -107,7 +118,11 @@ export default function CompanionContent({
           style={{ maxHeight: '55rem' }}
         >
           <NewComment user={user} onNewComment={openNewComment} />
-          <PostComments post={post} onClick={onCommentClick} />
+          <PostComments
+            post={post}
+            onClick={onCommentClick}
+            onClickUpvote={onShowUpvotedComment}
+          />
         </div>
       )}
       {parentComment && (
@@ -117,6 +132,15 @@ export default function CompanionContent({
           onRequestClose={closeNewComment}
           {...parentComment}
           onComment={onNewComment}
+        />
+      )}
+      {upvotedPopup.modal && (
+        <UpvotedPopupModal
+          isOpen
+          parentSelector={getCompanionWrapper}
+          requestQuery={upvotedPopup.requestQuery}
+          listPlaceholderProps={{ placeholderAmount: post?.numUpvotes }}
+          onRequestClose={resetUpvoteQuery}
         />
       )}
     </div>

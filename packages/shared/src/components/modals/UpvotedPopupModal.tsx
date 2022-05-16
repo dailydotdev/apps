@@ -39,8 +39,8 @@ export function UpvotedPopupModal({
     {
       ...options,
       getNextPageParam: (lastPage) =>
-        lastPage.upvotes.pageInfo.hasNextPage &&
-        lastPage.upvotes.pageInfo.endCursor,
+        lastPage?.upvotes?.pageInfo?.hasNextPage &&
+        lastPage?.upvotes?.pageInfo?.endCursor,
     },
   );
 
