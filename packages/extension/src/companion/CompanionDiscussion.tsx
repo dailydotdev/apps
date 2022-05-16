@@ -19,12 +19,14 @@ import { useRawBackgroundRequest } from './useRawBackgroundRequest';
 
 interface CompanionDiscussionProps {
   post: PostBootData;
+  commentsNum: number;
   isCommentsOpen: boolean;
   onCommentsClick?: () => void;
 }
 
 export function CompanionDiscussion({
   post,
+  commentsNum,
   isCommentsOpen,
   onCommentsClick,
 }: CompanionDiscussionProps): ReactElement {
@@ -39,12 +41,16 @@ export function CompanionDiscussion({
   const queryResult = useInfiniteQuery<UpvotesData>(
     queryKey,
     ({ pageParam }) =>
-      companionRequest(`${apiUrl}/graphql`, POST_UPVOTES_BY_ID_QUERY, {
-        id: post.id,
-        first: DEFAULT_UPVOTES_PER_PAGE,
-        after: pageParam,
-        queryKey,
-      }),
+      companionRequest(
+        `${apiUrl}/graphql`,
+        POST_UPVOTES_BY_ID_QUERY,
+        {
+          id: post.id,
+          first: DEFAULT_UPVOTES_PER_PAGE,
+          after: pageParam,
+        },
+        { requestKey: JSON.stringify(queryKey) },
+      ),
     {
       enabled: isUpvotesOpen,
       getNextPageParam: (lastPage) =>
@@ -53,7 +59,7 @@ export function CompanionDiscussion({
     },
   );
 
-  useRawBackgroundRequest(({ res, queryKey: key }) => {
+  useRawBackgroundRequest(({ res, key }) => {
     if (!Array.isArray(key)) {
       return;
     }
@@ -91,8 +97,8 @@ export function CompanionDiscussion({
         }
         onClick={onCommentsClick}
       >
-        {post.numComments.toLocaleString()}
-        {` Comment${post.numComments === 1 ? '' : 's'}`}
+        {commentsNum.toLocaleString()}
+        {` Comment${commentsNum === 1 ? '' : 's'}`}
       </Button>
       {isUpvotesOpen && (
         <UpvotedPopupModal

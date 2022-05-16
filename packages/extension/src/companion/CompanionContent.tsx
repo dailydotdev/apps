@@ -44,8 +44,16 @@ export default function CompanionContent({
     closeNewComment,
     openNewComment,
     onCommentClick,
+    updatePostComments,
     parentComment,
+    comments,
   } = usePostComment(post);
+  const mutationKey = ['post_comments_mutations', post?.id];
+  useBackgroundRequest(mutationKey, ({ req, res }) => {
+    const isNew = req.variables.id !== res.comment.id;
+    updatePostComments(res.comment, isNew);
+    closeNewComment();
+  });
 
   return (
     <div
@@ -89,6 +97,7 @@ export default function CompanionContent({
       </p>
       <CompanionDiscussion
         post={post}
+        commentsNum={comments?.postComments?.edges.length || post.numComments}
         isCommentsOpen={isCommentsOpen}
         onCommentsClick={() => setIsCommentsOpen(!isCommentsOpen)}
       />
