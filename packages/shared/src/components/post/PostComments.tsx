@@ -28,6 +28,7 @@ export interface ParentComment {
 
 interface PostCommentsProps {
   post: Post;
+  modalParentSelector?: () => HTMLElement;
   onClick?: (parent: ParentComment) => unknown;
   onClickUpvote?: (commentId: string, upvotes: number) => unknown;
 }
@@ -76,6 +77,7 @@ export function PostComments({
   post,
   onClick,
   onClickUpvote,
+  modalParentSelector,
 }: PostCommentsProps): ReactElement {
   const { id } = post;
   const { user, showLogin, tokenRefreshed } = useContext(AuthContext);
@@ -152,7 +154,8 @@ export function PostComments({
           onRequestClose={() => setPendingComment(null)}
           commentId={pendingComment.comment.id}
           parentId={pendingComment.parentId}
-          postId={post.id}
+          parentSelector={modalParentSelector}
+          post={post}
         />
       )}
     </>

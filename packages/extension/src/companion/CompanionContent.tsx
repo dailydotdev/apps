@@ -122,6 +122,7 @@ export default function CompanionContent({
             post={post}
             onClick={onCommentClick}
             onClickUpvote={onShowUpvotedComment}
+            modalParentSelector={getCompanionWrapper}
           />
         </div>
       )}
