@@ -78,7 +78,10 @@ export default function NewCommentModal({
   );
 
   const confirmClose = (event: MouseEvent): void => {
-    if (input?.length) {
+    if (
+      (!props.editContent && input?.length) ||
+      (props.editContent && props.editContent !== input)
+    ) {
       setShowDiscardModal(true);
     } else {
       onRequestClose(event);
@@ -224,6 +227,7 @@ export default function NewCommentModal({
         onRequestClose={() => setShowDiscardModal(false)}
         onDeleteComment={onRequestClose}
         shouldCloseOnOverlayClick={false}
+        parentSelector={props.parentSelector}
       />
     </ResponsiveModal>
   );
