@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { forwardRef, ReactElement, Ref } from 'react';
 import classNames from 'classnames';
 import { LazyImage, LazyImageProps } from './LazyImage';
 import { PublicProfile } from '../lib/user';
@@ -30,15 +30,14 @@ const sizeClasses = {
   xxxlarge: 'w-24 h-24 rounded-26',
 };
 
-export function ProfilePicture({
-  user,
-  size = 'xlarge',
-  className,
-  ...props
-}: ProfilePictureProps): ReactElement {
+function ProfilePictureComponent(
+  { user, size = 'xlarge', className, ...props }: ProfilePictureProps,
+  ref?: Ref<HTMLImageElement>,
+): ReactElement {
   return (
     <LazyImage
       {...props}
+      ref={ref}
       imgSrc={user.image}
       imgAlt={`${user.username}'s profile`}
       className={classNames(sizeClasses[size], className)}
@@ -46,3 +45,5 @@ export function ProfilePicture({
     />
   );
 }
+
+export const ProfilePicture = forwardRef(ProfilePictureComponent);
