@@ -35,6 +35,7 @@ export default function CompanionContent({
 }: CompanionContentProps): ReactElement {
   const { user } = useContext(AuthContext);
   const { notification, onMessage } = useNotification();
+  const [input, setInput] = useState<string>('');
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
   const [copying, copyLink] = useCopyLink(() => post.commentsPermalink);
   const [heightRem, setHeightRem] = useState('0');
@@ -57,6 +58,8 @@ export default function CompanionContent({
   } = usePostComment(post);
   const mutationKey = ['post_comments_mutations', post?.id];
   const postCommentsQueryKey = ['post_comments', post?.id];
+  const previewQueryKey = ['comment_preview', input];
+  useBackgroundRequest(previewQueryKey);
   useBackgroundRequest(postCommentsQueryKey);
   useBackgroundPaginatedRequest(upvotedPopup.requestQuery?.queryKey);
   useBackgroundRequest(mutationKey, ({ req, res }) => {
@@ -151,6 +154,7 @@ export default function CompanionContent({
           isOpen={!!parentComment}
           parentSelector={getCompanionWrapper}
           onRequestClose={closeNewComment}
+          onInputChange={setInput}
           {...parentComment}
         />
       )}

@@ -4,6 +4,7 @@ import React, {
   MouseEvent,
   KeyboardEvent,
   KeyboardEventHandler,
+  useEffect,
 } from 'react';
 import request from 'graphql-request';
 import { useMutation, useQuery } from 'react-query';
@@ -49,12 +50,14 @@ export interface NewCommentModalProps extends ModalProps, CommentProps {
   onComment?: (comment: Comment, isNew?: boolean) => void;
   editContent?: string;
   editId?: string;
+  onInputChange?: (value: string) => void;
 }
 
 export default function NewCommentModal({
   onRequestClose,
   editId,
   onComment,
+  onInputChange,
   ...props
 }: NewCommentModalProps): ReactElement {
   const [input, setInput] = useState<string>(props.editContent || '');
@@ -65,13 +68,19 @@ export default function NewCommentModal({
   const isPreview = activeTab === 'Preview';
   const { companionRequest } = useCompanionProtocol();
   const requestMethod = companionRequest || request;
+  const previewQueryKey = ['comment_preview', input];
   const { data: previewContent } = useQuery<{ preview: string }>(
-    input,
+    previewQueryKey,
     () =>
-      requestMethod(`${apiUrl}/graphql`, PREVIEW_COMMENT_MUTATION, {
-        content: input,
-        queryKey: input,
-      }),
+      requestMethod(
+        `${apiUrl}/graphql`,
+        PREVIEW_COMMENT_MUTATION,
+        {
+          content: input,
+          queryKey: input,
+        },
+        { requestKey: JSON.stringify(previewQueryKey) },
+      ),
     { enabled: isPreview && input?.length > 0 },
   );
 
@@ -162,6 +171,10 @@ export default function NewCommentModal({
       defaultCallback?.(event);
     }
   };
+
+  useEffect(() => {
+    onInputChange(input);
+  }, [input]);
 
   return (
     <ResponsiveModal
