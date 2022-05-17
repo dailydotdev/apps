@@ -37,6 +37,7 @@ export default function CompanionContent({
   const { notification, onMessage } = useNotification();
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
   const [copying, copyLink] = useCopyLink(() => post.commentsPermalink);
+  const [heightRem, setHeightRem] = useState('0');
   const copyLinkAndNotify = () => {
     copyLink();
     onMessage('✅ Copied link to clipboard');
@@ -69,8 +70,21 @@ export default function CompanionContent({
     () => post.numComments,
   );
 
+  const onContainerChange = async (el: HTMLElement) => {
+    if (!el) {
+      return;
+    }
+
+    const { height } = el.getBoundingClientRect();
+    const topOffset = 7.5;
+    const remValue = height / 16;
+    const rem = `${remValue + topOffset}rem`;
+    setHeightRem(rem);
+  };
+
   return (
     <div
+      ref={onContainerChange}
       className={classNames(
         'flex relative flex-col p-6 h-auto rounded-tl-16 border w-[22.5rem] border-theme-label-tertiary bg-theme-bg-primary',
         !isCommentsOpen && 'rounded-bl-16',
@@ -117,7 +131,10 @@ export default function CompanionContent({
         onUpvotesClick={() => onShowUpvotedPost(post.id, post.numUpvotes)}
       />
       {isCommentsOpen && (
-        <div className="overflow-auto absolute top-full right-0 -left-px p-6 rounded-bl-16 border border-r-0 max-h-[calc(100vh-30rem)] bg-theme-bg-primary border-theme-label-primary border-t-theme-divider-tertiary">
+        <div
+          className="overflow-auto absolute top-full right-0 -left-px p-6 rounded-bl-16 border border-r-0 bg-theme-bg-primary border-theme-label-primary border-t-theme-divider-tertiary"
+          style={{ maxHeight: `calc(100vh - ${heightRem}` }}
+        >
           <NewComment user={user} onNewComment={openNewComment} />
           <h3 className="my-8 font-bold typo-callout">Discussion</h3>
           <PostComments
