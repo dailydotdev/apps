@@ -74,14 +74,14 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   );
 
   const seo: NextSeoProps = {
-    title: postById?.post.title,
+    title: postData?.post.title,
     titleTemplate: '%s | daily.dev',
-    description: getSeoDescription(postById.post),
+    description: getSeoDescription(postData.post),
     openGraph: {
-      images: [{ url: postById?.post.image }],
+      images: [{ url: postData?.post.image }],
       article: {
-        publishedTime: postById?.post.createdAt,
-        tags: postById?.post.tags,
+        publishedTime: postData?.post.createdAt,
+        tags: postData?.post.tags,
       },
     },
   };
