@@ -100,7 +100,7 @@ export const usePostComment = (
         (e) => e.node.id === comment.id,
       );
 
-      return { ...current, node: { ...comment } };
+      return { ...current, node: { ...current.node, ...comment } };
     }
 
     const parent = comments.postComments.edges.find(
@@ -110,7 +110,7 @@ export const usePostComment = (
       (child) => child.node.id === comment.id,
     );
 
-    return { ...current, node: { ...comment } };
+    return { ...current, node: { ...current.node, ...comment } };
   };
 
   const deleteCommentCache = async (commentId: string, parentId?: string) => {
