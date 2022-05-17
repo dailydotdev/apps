@@ -76,7 +76,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   const seo: NextSeoProps = {
     title: postData?.post.title,
     titleTemplate: '%s | daily.dev',
-    description: getSeoDescription(postData.post),
+    description: getSeoDescription(postData?.post),
     openGraph: {
       images: [{ url: postData?.post.image }],
       article: {
