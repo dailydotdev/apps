@@ -66,6 +66,11 @@ function getBin(value: number, bins: number[]): number {
   if (!value) {
     return 0;
   }
+
+  if (value > Math.max.apply(null, bins)) {
+    return bins.length;
+  }
+
   return bins.findIndex((binMaxValue) => value <= binMaxValue) + 1;
 }
 
