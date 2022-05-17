@@ -19,6 +19,7 @@ import {
   POST_BY_ID_STATIC_FIELDS_QUERY,
   POST_BY_ID_QUERY,
   PostData,
+  Post,
 } from '@dailydotdev/shared/src/graphql/posts';
 import { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
