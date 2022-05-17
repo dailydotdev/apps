@@ -3,9 +3,11 @@ import React, { ReactElement } from 'react';
 import { UserShortInfo } from './profile/UserShortInfo';
 
 interface RecommendedUser {
+  id: string;
   image: string;
   name: string;
   username: string;
+  permalink: string;
 }
 
 interface RecommendedMentionProps {
@@ -29,21 +31,20 @@ export function RecommendedMention({
       style={{ minWidth: '15rem' }}
       role="listbox"
     >
-      {users.map(({ name, username, image }, index) => (
+      {users.map((user, index) => (
         <UserShortInfo
-          key={username}
-          name={name}
-          username={username}
-          image={image}
+          key={user.username}
+          user={user}
           className={classNames(
             'px-3 cursor-pointer',
             index === selected && 'bg-theme-active',
           )}
           imageSize="large"
           tag="li"
-          onClick={() => onClick(username)}
+          onClick={() => onClick(user.username)}
           aria-selected={index === selected}
           role="option"
+          disableTooltip
         />
       ))}
     </ul>

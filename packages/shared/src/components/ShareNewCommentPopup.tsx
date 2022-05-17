@@ -13,11 +13,11 @@ import {
   getWhatsappShareLink,
 } from '../lib/share';
 import { Post } from '../graphql/posts';
-import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import { Button } from './buttons/Button';
 import { ModalCloseButton } from './modals/ModalCloseButton';
 import classed from '../lib/classed';
 import { SimpleTooltip } from './tooltips/SimpleTooltip';
+import { useCopyLink } from '../hooks/useCopyLink';
 
 const ShareButton = classed(Button, 'text-white');
 interface ShareNewCommentPopupProps {
@@ -31,7 +31,7 @@ export default function ShareNewCommentPopup({
 }: ShareNewCommentPopupProps): ReactElement {
   const href = getShareableLink();
   const { user } = useContext(AuthContext);
-  const [copying, copyLink] = useCopyPostLink();
+  const [copying, copyLink] = useCopyLink(() => post.commentsPermalink);
 
   return (
     <div

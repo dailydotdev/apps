@@ -455,6 +455,26 @@ it('should update post on subscription message', async () => {
   expect(el).toHaveTextContent('15 Upvotes');
 });
 
+it('should not update post on subscription message when id is not the same', async () => {
+  renderPost();
+  await waitFor(async () => {
+    const data = await client.getQueryData([
+      'post',
+      '0e4005b2d3cf191f8c44c2718a457a1e',
+    ]);
+    expect(data).toBeTruthy();
+  });
+  nextCallback({
+    postsEngaged: {
+      id: 'asd',
+      numUpvotes: 15,
+      numComments: 0,
+    },
+  });
+  const el = await screen.findByTestId('statsBar');
+  expect(el).not.toHaveTextContent('15 Upvotes');
+});
+
 it('should send bookmark mutation', async () => {
   let mutationCalled = false;
   renderPost({}, [

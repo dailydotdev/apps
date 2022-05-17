@@ -1,10 +1,12 @@
 import React, { forwardRef, ReactElement, Ref } from 'react';
 import { ProfileLink, ProfileLinkProps } from './ProfileLink';
 import { ProfilePicture, ProfilePictureProps } from '../ProfilePicture';
+import { Author } from '../../graphql/comments';
 
 interface ProfileImageLinkProps extends ProfileLinkProps {
   picture?: Omit<ProfilePictureProps, 'user'>;
   ref?: Ref<HTMLAnchorElement>;
+  user: Author;
 }
 
 function ProfileImageLinkComponent(
@@ -13,7 +15,7 @@ function ProfileImageLinkComponent(
 ): ReactElement {
   return (
     <ProfileLink {...props} ref={ref}>
-      <ProfilePicture {...picture} user={props.user} />
+      <ProfilePicture {...picture} ref={null} user={props.user} />
     </ProfileLink>
   );
 }

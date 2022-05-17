@@ -11,7 +11,6 @@ import CommentIcon from '../../../icons/comment.svg';
 import BookmarkIcon from '../../../icons/bookmark.svg';
 import { Button } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 
 const ShareIcon = dynamic(() => import('../../../icons/share.svg'));
 
@@ -57,15 +56,9 @@ export default function ActionButtons({
           <InteractionCounter value={post.numUpvotes > 0 && post.numUpvotes} />
         </QuaternaryButton>
       </SimpleTooltip>
-      <LinkWithTooltip
-        href={post.commentsPermalink}
-        passHref
-        prefetch={false}
-        tooltip={{ content: 'Comments' }}
-      >
+      <SimpleTooltip content="Comments">
         <QuaternaryButton
           id={`post-${post.id}-comment-btn`}
-          tag="a"
           icon={<CommentIcon />}
           buttonSize="small"
           pressed={post.commented}
@@ -77,7 +70,7 @@ export default function ActionButtons({
             value={post.numComments > 0 && post.numComments}
           />
         </QuaternaryButton>
-      </LinkWithTooltip>
+      </SimpleTooltip>
       <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
         <Button
           icon={<BookmarkIcon />}

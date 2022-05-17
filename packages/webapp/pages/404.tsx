@@ -1,21 +1,11 @@
 import React, { ReactElement } from 'react';
-import HelloWorldSvg from '@dailydotdev/shared/src/svg/HelloWorldSvg';
+import Custom404 from '@dailydotdev/shared/src/components/Custom404';
 import { NextSeo } from 'next-seo';
 
-export default function Custom404(): ReactElement {
+export default function Custom404Seo(): ReactElement {
   return (
-    <div
-      className="flex flex-col justify-center items-center mx-auto min-h-screen"
-      data-testid="notFound"
-    >
+    <Custom404>
       <NextSeo title="Page not found" nofollow noindex />
-      <HelloWorldSvg
-        style={{ width: '55%', maxWidth: '32.75rem' }}
-        className="self-center mb-10"
-      />
-      <h1 className="mx-9 font-bold text-center break-words-overflow typo-title1">
-        Oops, this page couldn’t be found
-      </h1>
-    </div>
+    </Custom404>
   );
 }
