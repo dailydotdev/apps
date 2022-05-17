@@ -64,7 +64,7 @@ const renderComponent = (postdata, settings): RenderResult => {
 };
 
 describe('companion app', () => {
-  it('should render the companion appp', async () => {
+  it('should render the companion app', async () => {
     renderComponent({}, {});
     const wrapper = await screen.findByTestId('companion');
     expect(wrapper).toBeInTheDocument();

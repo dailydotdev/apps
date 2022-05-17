@@ -6,7 +6,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { useQuery } from 'react-query';
+import { useQueryClient } from 'react-query';
 import classNames from 'classnames';
 import Modal from 'react-modal';
 import { isTesting } from '@dailydotdev/shared/src/lib/constants';
@@ -39,6 +39,7 @@ export default function Companion({
   onOptOut,
 }: CompanionProps): ReactElement {
   const firstLoad = useRef(false);
+  const client = useQueryClient();
   const containerRef = useRef<HTMLDivElement>();
   const [assetsLoaded, setAssetsLoaded] = useState(isTesting);
   const [post, setPost] = useState<PostBootData>(postData);
@@ -46,10 +47,6 @@ export default function Companion({
     useState<boolean>(companionExpanded);
   const { user, closeLogin, loadingUser, shouldShowLogin, loginState } =
     useContext(AuthContext);
-  useQuery(COMPANION_PROTOCOL_KEY, () => ({
-    companionRequest,
-    companionFetch,
-  }));
 
   const routeChangedCallbackRef = useTrackPageView();
 
@@ -58,6 +55,10 @@ export default function Companion({
       return;
     }
 
+    client.setQueryData(COMPANION_PROTOCOL_KEY, {
+      companionRequest,
+      companionFetch,
+    });
     firstLoad.current = true;
   }, [assetsLoaded]);
 
