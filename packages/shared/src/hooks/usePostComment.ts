@@ -1,5 +1,5 @@
 import { useEffect, useState, useContext } from 'react';
-import { useQuery, useQueryClient } from 'react-query';
+import { useQueryClient } from 'react-query';
 import cloneDeep from 'lodash.clonedeep';
 import AuthContext from '../contexts/AuthContext';
 import { ParentComment, Post } from '../graphql/posts';
@@ -51,10 +51,7 @@ export const usePostComment = (
   const { user, showLogin } = useContext(AuthContext);
   const key = ['post_comments', post?.id];
   const postCommentNumKey = ['post_comments_num', post?.id];
-  const { data: commentsNum = 0 } = useQuery(
-    postCommentNumKey,
-    () => post.numComments,
-  );
+  const commentsNum = client.getQueryData<number>(postCommentNumKey);
   const comments = client.getQueryData<PostCommentsData>(key);
   const [lastScroll, setLastScroll] = useState(0);
   const [parentComment, setParentComment] = useState<ParentComment>(null);
@@ -211,14 +208,6 @@ export const usePostComment = (
       openNewComment();
     }
   }, [initializeNewComment]);
-
-  useEffect(() => {
-    if (!post) {
-      return;
-    }
-
-    client.setQueryData(postCommentNumKey, post.numComments);
-  }, [post]);
 
   return {
     commentsNum,

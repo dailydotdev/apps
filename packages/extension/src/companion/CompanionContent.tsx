@@ -1,4 +1,5 @@
 import React, { ReactElement, useContext, useState } from 'react';
+import { useQuery } from 'react-query';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import CopyIcon from '@dailydotdev/shared/icons/copy.svg';
 import {
@@ -53,7 +54,6 @@ export default function CompanionContent({
     onCommentClick,
     updatePostComments,
     parentComment,
-    commentsNum,
   } = usePostComment(post);
   const mutationKey = ['post_comments_mutations', post?.id];
   const postCommentsQueryKey = ['post_comments', post?.id];
@@ -64,6 +64,11 @@ export default function CompanionContent({
     updatePostComments(res.comment, isNew);
     closeNewComment();
   });
+  const postCommentNumKey = ['post_comments_num', post?.id];
+  const { data: commentsNum = 0 } = useQuery(
+    postCommentNumKey,
+    () => post.numComments,
+  );
 
   return (
     <div
