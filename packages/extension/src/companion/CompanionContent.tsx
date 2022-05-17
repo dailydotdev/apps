@@ -118,13 +118,11 @@ export default function CompanionContent({
         onUpvotesClick={() => onShowUpvotedPost(post.id, post.numUpvotes)}
       />
       {isCommentsOpen && (
-        <div
-          className="absolute top-full right-0 -left-px p-6 border border-r-0 bg-theme-bg-primary border-theme-label-primary border-t-theme-divider-tertiary"
-          style={{ maxHeight: '55rem' }}
-        >
+        <div className="overflow-auto absolute top-full right-0 -left-px p-6 rounded-bl-16 border border-r-0 max-h-[calc(100vh-30rem)] bg-theme-bg-primary border-theme-label-primary border-t-theme-divider-tertiary">
           <NewComment user={user} onNewComment={openNewComment} />
           <PostComments
             post={post}
+            applyBottomMargin={false}
             onClick={onCommentClick}
             onClickUpvote={onShowUpvotedComment}
             modalParentSelector={getCompanionWrapper}

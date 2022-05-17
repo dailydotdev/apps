@@ -28,6 +28,7 @@ export interface ParentComment {
 
 interface PostCommentsProps {
   post: Post;
+  applyBottomMargin?: boolean;
   modalParentSelector?: () => HTMLElement;
   onClick?: (parent: ParentComment) => unknown;
   onClickUpvote?: (commentId: string, upvotes: number) => unknown;
@@ -78,6 +79,7 @@ export function PostComments({
   onClick,
   onClickUpvote,
   modalParentSelector,
+  applyBottomMargin = true,
 }: PostCommentsProps): ReactElement {
   const { id } = post;
   const { user, showLogin, tokenRefreshed } = useContext(AuthContext);
@@ -136,7 +138,7 @@ export function PostComments({
     <>
       {comments.postComments.edges.map((e, i) => (
         <MainComment
-          className={i === commentsCount - 1 && 'mb-12'}
+          className={i === commentsCount - 1 && applyBottomMargin && 'mb-12'}
           comment={e.node}
           key={e.node.id}
           onComment={onCommentClick}
