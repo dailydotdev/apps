@@ -120,6 +120,7 @@ export default function CompanionContent({
       {isCommentsOpen && (
         <div className="overflow-auto absolute top-full right-0 -left-px p-6 rounded-bl-16 border border-r-0 max-h-[calc(100vh-30rem)] bg-theme-bg-primary border-theme-label-primary border-t-theme-divider-tertiary">
           <NewComment user={user} onNewComment={openNewComment} />
+          <h3 className="my-8 font-bold typo-callout">Discussion</h3>
           <PostComments
             post={post}
             applyBottomMargin={false}
