@@ -100,13 +100,13 @@ it('should show formatted date of publication', async () => {
 it('should show author profile picture', async () => {
   renderComponent();
   const el = await screen.findByAltText(`Nimrod's profile`);
-  expect(el).toHaveAttribute('data-src', 'https://daily.dev/nimrod.png');
+  expect(el).toHaveAttribute('src', 'https://daily.dev/nimrod.png');
 });
 
 it('should show user profile picture', async () => {
   renderComponent();
   const el = await screen.findByAltText(`idoshamun's profile`);
-  expect(el).toHaveAttribute('data-src', 'https://daily.dev/ido.png');
+  expect(el).toHaveAttribute('src', 'https://daily.dev/ido.png');
 });
 
 it('should show content of parent', async () => {
@@ -161,8 +161,7 @@ it('should send commentOnPost mutation', async () => {
   const el = await screen.findByText('Comment');
   el.click();
   await waitFor(() => mutationCalled);
-  await waitFor(() => expect(onComment).toBeCalledWith(newComment, null));
-  expect(onRequestClose).toBeCalledTimes(1);
+  await waitFor(() => expect(onComment).toBeCalledWith(newComment, true));
 });
 
 it('should send commentOnComment mutation', async () => {
@@ -196,8 +195,7 @@ it('should send commentOnComment mutation', async () => {
   const el = await screen.findByText('Comment');
   el.click();
   await waitFor(() => mutationCalled);
-  await waitFor(() => expect(onComment).toBeCalledWith(newComment, 'c1'));
-  expect(onRequestClose).toBeCalledTimes(1);
+  await waitFor(() => expect(onComment).toBeCalledWith(newComment, true));
 });
 
 it('should not send comment if the input is spaces only', async () => {
@@ -267,9 +265,9 @@ it('should show alert in case of an error', async () => {
 
 it('should send editComment mutation', async () => {
   let mutationCalled = false;
-  const newComment = {
+  const comment = {
     __typename: 'Comment',
-    id: 'new',
+    id: 'edit',
     content: 'comment',
     createdAt: new Date(2017, 1, 10, 0, 1).toISOString(),
     permalink: 'https://daily.dev',
@@ -284,7 +282,7 @@ it('should send editComment mutation', async () => {
         mutationCalled = true;
         return {
           data: {
-            comment: newComment,
+            comment,
           },
         };
       },
@@ -296,8 +294,7 @@ it('should send editComment mutation', async () => {
   const el = await screen.findByText('Update');
   el.click();
   await waitFor(() => mutationCalled);
-  await waitFor(() => expect(onComment).toBeCalledTimes(0));
-  await waitFor(() => expect(onRequestClose).toBeCalledTimes(1));
+  await waitFor(() => expect(onComment).toBeCalledWith(comment, false));
 });
 
 it('should recommend users previously mentioned', async () => {

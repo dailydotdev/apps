@@ -13,9 +13,8 @@ export interface UsePostCommentOptionalProps {
   initializeNewComment?: boolean;
 }
 
-interface UsePostComment {
+export interface UsePostComment {
   commentsNum: number;
-  onNewComment: (newComment: Comment, parentId: string | null) => void;
   closeNewComment: () => void;
   openNewComment: () => void;
   onCommentClick: (parent: ParentComment) => void;
@@ -195,6 +194,8 @@ export const usePostComment = (
       client.setQueryData(postCommentNumKey, commentsNum + 1);
       onNewComment(comment, parentComment.commentId);
     }
+
+    closeNewComment();
   };
 
   useEffect(() => {
@@ -211,7 +212,6 @@ export const usePostComment = (
 
   return {
     commentsNum,
-    onNewComment,
     closeNewComment,
     openNewComment,
     onCommentClick,

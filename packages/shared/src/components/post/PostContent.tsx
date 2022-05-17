@@ -97,10 +97,10 @@ export function PostContent({
   }
 
   const {
-    onNewComment,
     closeNewComment,
     openNewComment,
     onCommentClick,
+    updatePostComments,
     onShowShareNewComment,
     parentComment,
     showShareNewComment,
@@ -297,7 +297,7 @@ export function PostContent({
           isOpen={!!parentComment}
           onRequestClose={closeNewComment}
           {...parentComment}
-          onComment={onNewComment}
+          onComment={updatePostComments}
         />
       )}
       {postById && showShareNewComment && (

@@ -4,8 +4,8 @@ import React, {
   MouseEvent,
   KeyboardEvent,
   KeyboardEventHandler,
-  useRef,
 } from 'react';
+import request from 'graphql-request';
 import { useMutation, useQuery } from 'react-query';
 import {
   Comment,
@@ -26,7 +26,6 @@ import { Post } from '../../graphql/posts';
 import { ModalCloseButton } from './ModalCloseButton';
 import DiscardCommentModal from './DiscardCommentModal';
 import { useCompanionProtocol } from '../../hooks/useCompanionProtocol';
-import { usePostComment } from '../../hooks/usePostComment';
 
 interface CommentVariables {
   id: string;
@@ -47,7 +46,7 @@ type CommentProps = Omit<
 export interface NewCommentModalProps extends ModalProps, CommentProps {
   post: Post;
   commentId: string;
-  onComment?: (newComment: Comment, parentId: string | null) => void;
+  onComment?: (comment: Comment, isNew?: boolean) => void;
   editContent?: string;
   editId?: string;
 }
@@ -65,12 +64,11 @@ export default function NewCommentModal({
   const [errorMessage, setErrorMessage] = useState<string>(null);
   const isPreview = activeTab === 'Preview';
   const { companionRequest } = useCompanionProtocol();
-  const { updatePostComments } = usePostComment(props.post);
-  const closeEventRef = useRef<MouseEvent | KeyboardEvent>();
+  const requestMethod = companionRequest || request;
   const { data: previewContent } = useQuery<{ preview: string }>(
     input,
     () =>
-      companionRequest(`${apiUrl}/graphql`, PREVIEW_COMMENT_MUTATION, {
+      requestMethod(`${apiUrl}/graphql`, PREVIEW_COMMENT_MUTATION, {
         content: input,
         queryKey: input,
       }),
@@ -88,17 +86,6 @@ export default function NewCommentModal({
     }
   };
 
-  const updateComments = async (data: CommentOnData, isNew = true) => {
-    if (!data) {
-      closeEventRef.current = null;
-      return;
-    }
-
-    updatePostComments(data.comment, isNew);
-    onRequestClose(closeEventRef.current);
-    closeEventRef.current = null;
-  };
-
   const key = ['post_comments_mutations', props.post.id];
   const { mutateAsync: comment } = useMutation<
     CommentOnData,
@@ -106,7 +93,7 @@ export default function NewCommentModal({
     CommentVariables
   >(
     (variables) =>
-      companionRequest(
+      requestMethod(
         `${apiUrl}/graphql`,
         props.commentId
           ? COMMENT_ON_COMMENT_MUTATION
@@ -114,7 +101,7 @@ export default function NewCommentModal({
         variables,
         { requestKey: JSON.stringify(key) },
       ),
-    { onSuccess: (data) => updateComments(data) },
+    { onSuccess: (data) => data && onComment(data.comment, true) },
   );
 
   const { mutateAsync: editComment } = useMutation<
@@ -123,10 +110,10 @@ export default function NewCommentModal({
     CommentVariables
   >(
     (variables) =>
-      companionRequest(`${apiUrl}/graphql`, EDIT_COMMENT_MUTATION, variables, {
+      requestMethod(`${apiUrl}/graphql`, EDIT_COMMENT_MUTATION, variables, {
         requestKey: JSON.stringify(key),
       }),
-    { onSuccess: (data) => updateComments(data, false) },
+    { onSuccess: (data) => data && onComment(data.comment, false) },
   );
 
   const modalRef = (element: HTMLDivElement): void => {
@@ -136,15 +123,12 @@ export default function NewCommentModal({
     }
   };
 
-  const sendComment = async (
-    event: MouseEvent | KeyboardEvent,
-  ): Promise<void> => {
+  const sendComment = async (): Promise<void> => {
     if (sendingComment || !input?.trim().length) {
       return;
     }
     setErrorMessage(null);
     setSendingComment(true);
-    closeEventRef.current = event;
     try {
       if (editId) {
         await editComment({
@@ -158,7 +142,6 @@ export default function NewCommentModal({
         });
       }
     } catch (err) {
-      closeEventRef.current = null;
       setErrorMessage('Something went wrong, try again');
       setSendingComment(false);
     }
@@ -174,7 +157,7 @@ export default function NewCommentModal({
       event.keyCode === 13 &&
       input?.length
     ) {
-      await sendComment(event);
+      await sendComment();
     } else {
       defaultCallback?.(event);
     }

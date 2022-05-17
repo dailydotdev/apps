@@ -48,7 +48,6 @@ export default function CompanionContent({
     onShowUpvotedComment,
   } = useUpvoteQuery();
   const {
-    onNewComment,
     closeNewComment,
     openNewComment,
     onCommentClick,
@@ -135,7 +134,6 @@ export default function CompanionContent({
           isOpen={!!parentComment}
           parentSelector={getCompanionWrapper}
           onRequestClose={closeNewComment}
-          onComment={onNewComment}
           {...parentComment}
         />
       )}
