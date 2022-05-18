@@ -168,7 +168,7 @@ export default function NewCommentModal({
   };
 
   useEffect(() => {
-    onInputChange(input);
+    onInputChange?.(input);
   }, [input]);
 
   return (
