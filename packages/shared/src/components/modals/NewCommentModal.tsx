@@ -202,7 +202,10 @@ export default function NewCommentModal({
         </Tab>
         <Tab label="Preview" className="flex overflow-y-auto flex-col flex-1">
           {isPreview && previewContent?.preview && (
-            <Markdown content={previewContent.preview} />
+            <Markdown
+              content={previewContent.preview}
+              appendTooltipTo={props.parentSelector}
+            />
           )}
           {isPreview && (
             <Button
