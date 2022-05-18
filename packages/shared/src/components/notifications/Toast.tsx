@@ -79,7 +79,7 @@ const Toast = ({
     window.clearInterval(intervalId);
     setTimer(toast.timer);
 
-    if (!autoDismissNotifications && !intervalId) {
+    if (!autoDismissNotifications && toast.onUndo && !intervalId) {
       setIntervalId(TEMPORARY_ID);
       return;
     }
@@ -160,7 +160,7 @@ const Toast = ({
           onClick={dismissToast}
           aria-label="Dissmiss toast notification"
         />
-        {autoDismissNotifications && (
+        {(autoDismissNotifications || !toast.onUndo) && (
           <Progress style={{ width: `${progress}%` }} />
         )}
       </Content>
