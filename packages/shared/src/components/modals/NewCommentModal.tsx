@@ -73,10 +73,7 @@ export default function NewCommentModal({
       requestMethod(
         `${apiUrl}/graphql`,
         PREVIEW_COMMENT_MUTATION,
-        {
-          content: input,
-          queryKey: input,
-        },
+        { content: input },
         { requestKey: JSON.stringify(previewQueryKey) },
       ),
     { enabled: isPreview && input?.length > 0 },
