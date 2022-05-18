@@ -109,7 +109,7 @@ export default function CompanionContent({
       />
       {isCommentsOpen && (
         <CompanionDiscussion
-          className="overflow-auto absolute top-full right-0 -left-px"
+          className="overflow-auto absolute top-full right-0 -left-px min-h-[14rem]"
           style={{ maxHeight: `calc(100vh - ${heightRem}` }}
           post={post}
           upvotedPopup={upvotedPopup}
