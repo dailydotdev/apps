@@ -1,5 +1,4 @@
 import React, { ReactElement, useRef, useState } from 'react';
-import request from 'graphql-request';
 import { useInfiniteQuery } from 'react-query';
 import { ResponsiveModal } from './ResponsiveModal';
 import { ModalProps } from './StyledModal';
@@ -25,8 +24,7 @@ export function UpvotedPopupModal({
   children,
   ...modalProps
 }: UpvotedPopupModalProps): ReactElement {
-  const { companionRequest } = useCompanionProtocol();
-  const requestMethod = companionRequest || request;
+  const { requestMethod } = useCompanionProtocol();
   const queryResult = useInfiniteQuery<UpvotesData>(
     queryKey,
     ({ pageParam }) =>

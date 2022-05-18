@@ -1,6 +1,5 @@
 import React, { ReactElement, MouseEvent, useState } from 'react';
 import { useMutation } from 'react-query';
-import request from 'graphql-request';
 import { DELETE_COMMENT_MUTATION } from '../../graphql/comments';
 import { apiUrl } from '../../lib/config';
 import { Button } from '../buttons/Button';
@@ -29,8 +28,7 @@ export default function DeleteCommentModal({
 }: Props): ReactElement {
   const [deleting, setDeleting] = useState<boolean>(false);
   const { deleteCommentCache } = usePostComment(post);
-  const { companionRequest } = useCompanionProtocol();
-  const requestMethod = companionRequest || request;
+  const { requestMethod } = useCompanionProtocol();
   const { mutateAsync: deleteComment } = useMutation(
     () =>
       requestMethod(`${apiUrl}/graphql`, DELETE_COMMENT_MUTATION, {

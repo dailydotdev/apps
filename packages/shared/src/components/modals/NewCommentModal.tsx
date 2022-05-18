@@ -6,7 +6,6 @@ import React, {
   KeyboardEventHandler,
   useEffect,
 } from 'react';
-import request from 'graphql-request';
 import { useMutation, useQuery } from 'react-query';
 import {
   Comment,
@@ -66,8 +65,7 @@ export default function NewCommentModal({
   const [sendingComment, setSendingComment] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>(null);
   const isPreview = activeTab === 'Preview';
-  const { companionRequest } = useCompanionProtocol();
-  const requestMethod = companionRequest || request;
+  const { requestMethod } = useCompanionProtocol();
   const previewQueryKey = ['comment_preview', input];
   const { data: previewContent } = useQuery<{ preview: string }>(
     previewQueryKey,

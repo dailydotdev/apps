@@ -1,6 +1,5 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import { useQuery } from 'react-query';
-import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import AuthContext from '../../contexts/AuthContext';
 import {
@@ -84,8 +83,7 @@ export function PostComments({
   const { id } = post;
   const { user, showLogin, tokenRefreshed } = useContext(AuthContext);
   const [pendingComment, setPendingComment] = useState<PendingComment>(null);
-  const { companionRequest } = useCompanionProtocol();
-  const requestMethod = companionRequest || request;
+  const { requestMethod } = useCompanionProtocol();
   const queryKey = ['post_comments', id];
   const { data: comments, isLoading: isLoadingComments } =
     useQuery<PostCommentsData>(

@@ -1,6 +1,5 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
-import request from 'graphql-request';
 import AuthContext from '../../contexts/AuthContext';
 import UpvoteIcon from '../../../icons/upvote.svg';
 import CommentIcon from '../../../icons/comment.svg';
@@ -50,8 +49,7 @@ export default function CommentActionButtons({
     setNumUpvotes(comment.numUpvotes);
   }, [comment]);
 
-  const { companionRequest } = useCompanionProtocol();
-  const requestMethod = companionRequest || request;
+  const { requestMethod } = useCompanionProtocol();
   const { mutateAsync: upvoteComment } = useMutation(
     () =>
       requestMethod(`${apiUrl}/graphql`, UPVOTE_COMMENT_MUTATION, {

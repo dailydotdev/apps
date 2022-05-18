@@ -1,11 +1,17 @@
+import request from 'graphql-request';
 import { useQueryClient } from 'react-query';
 import { CompanionProtocol, COMPANION_PROTOCOL_KEY } from '../graphql/common';
 
-export const useCompanionProtocol = (): CompanionProtocol => {
+export const useCompanionProtocol = (): {
+  requestMethod?: typeof request;
+  fetchMethod?: typeof fetch;
+} => {
   const client = useQueryClient();
-  const protocol = client.getQueryData<CompanionProtocol>(
-    COMPANION_PROTOCOL_KEY,
-  );
+  const { companionRequest, companionFetch } =
+    client.getQueryData<CompanionProtocol>(COMPANION_PROTOCOL_KEY) || {};
 
-  return protocol || {};
+  const requestMethod = companionRequest || request;
+  const fetchMethod = companionFetch || fetch;
+
+  return { requestMethod, fetchMethod };
 };
