@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useRef } from 'react';
 import request from 'graphql-request';
 import { useInfiniteQuery } from 'react-query';
 import { ResponsiveModal } from './ResponsiveModal';
@@ -37,6 +37,7 @@ export function UpvotedPopupModal({
   );
 
   const [page] = queryResult?.data?.pages || [];
+  const container = useRef<HTMLElement>();
 
   return (
     <ResponsiveModal
@@ -57,9 +58,13 @@ export function UpvotedPopupModal({
       <section
         className="overflow-auto relative w-full h-full shrink max-h-full"
         data-testid={`List of ${queryKey[0]} with ID ${queryKey[1]}`}
+        ref={container}
       >
         {page && page.upvotes.edges.length > 0 ? (
-          <UpvoterList queryResult={queryResult} />
+          <UpvoterList
+            queryResult={queryResult}
+            scrollingContainer={container.current}
+          />
         ) : (
           <UpvoterListPlaceholder {...listPlaceholderProps} />
         )}
