@@ -33,6 +33,7 @@ export interface CommentBoxProps {
   input?: string;
   errorMessage?: string;
   sendingComment?: boolean;
+  parentSelector?: () => HTMLElement;
   sendComment: (event: MouseEvent | KeyboardEvent) => Promise<void>;
   onInput?: (value: string) => unknown;
   onKeyDown: (
@@ -55,6 +56,7 @@ function CommentBox({
   onInput,
   onKeyDown,
   sendComment,
+  parentSelector,
   post,
 }: CommentBoxProps): ReactElement {
   const { user } = useContext(AuthContext);
@@ -156,6 +158,7 @@ function CommentBox({
         mentions={mentions}
         selected={selected}
         query={mentionQuery}
+        appendTo={parentSelector}
         onMentionClick={onMentionClick}
       />
       <div

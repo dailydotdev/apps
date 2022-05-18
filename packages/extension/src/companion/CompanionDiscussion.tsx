@@ -48,6 +48,8 @@ export function CompanionDiscussion({
   const mutationKey = ['post_comments_mutations', post?.id];
   const postCommentsQueryKey = ['post_comments', post?.id];
   const previewQueryKey = ['comment_preview', input];
+  const mentionQueryKey = ['user-mention', post?.id];
+  useBackgroundRequest(mentionQueryKey);
   useBackgroundRequest(previewQueryKey);
   useBackgroundRequest(postCommentsQueryKey);
   useBackgroundRequest(mutationKey, ({ req, res }) => {

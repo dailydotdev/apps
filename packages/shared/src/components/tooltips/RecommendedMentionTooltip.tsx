@@ -12,6 +12,7 @@ interface RecommendedMentionTooltipProps {
   offset?: CaretOffset;
   onMentionClick?: (username: string) => unknown;
   elementRef: MutableRefObject<HTMLTextAreaElement>;
+  appendTo?: () => HTMLElement;
 }
 
 const EXTRA_SPACES = 26;
@@ -23,6 +24,7 @@ export function RecommendedMentionTooltip({
   selected = -1,
   offset = [0, 0],
   onMentionClick,
+  appendTo,
   elementRef,
 }: RecommendedMentionTooltipProps): ReactElement {
   if (isTesting) {
@@ -34,7 +36,7 @@ export function RecommendedMentionTooltip({
 
   return (
     <BaseTooltip
-      appendTo={document?.body || 'parent'}
+      appendTo={appendTo || document?.body || 'parent'}
       content={
         <RecommendedMention
           users={typeof query !== 'undefined' && mentions}

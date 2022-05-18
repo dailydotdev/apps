@@ -7,7 +7,6 @@ import {
   MutableRefObject,
   useCallback,
 } from 'react';
-import request from 'graphql-request';
 import {
   RecommendedMentionsData,
   RECOMMEND_MENTIONS_QUERY,
@@ -29,6 +28,7 @@ import {
   anyElementClassContains,
 } from '../lib/element';
 import { nextTick } from '../lib/func';
+import { useCompanionProtocol } from './useCompanionProtocol';
 
 interface UseUserMention {
   mentionQuery?: string;
@@ -62,21 +62,24 @@ export function useUserMention({
   const [offset, setOffset] = useState<CaretOffset>([0, 0]);
   const [position, setPosition] = useState<CaretPosition>([0, 0]);
   const [query, setQuery] = useState<string>();
+  const { requestMethod } = useCompanionProtocol();
   const { data = { recommendedMentions: [] }, refetch } =
     useQuery<RecommendedMentionsData>(
       key,
       () =>
-        request(`${apiUrl}/graphql`, RECOMMEND_MENTIONS_QUERY, {
-          postId,
-          query,
-        }),
+        requestMethod(
+          `${apiUrl}/graphql`,
+          RECOMMEND_MENTIONS_QUERY,
+          { postId, query },
+          { requestKey: JSON.stringify(key) },
+        ),
       {
         enabled: !!user && typeof query !== 'undefined',
         refetchOnWindowFocus: false,
         refetchOnMount: false,
       },
     );
-  const { recommendedMentions: mentions } = data;
+  const { recommendedMentions: mentions } = data || {};
   const [fetchUsers] = useDebounce(refetch, 100);
 
   const initializeMention = async (isInvalidCallback?: () => unknown) => {
