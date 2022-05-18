@@ -22,6 +22,7 @@ import { RecommendedMentionTooltip } from '../tooltips/RecommendedMentionTooltip
 import { useUserMention } from '../../hooks/useUserMention';
 import { Post } from '../../graphql/posts';
 import AtIcon from '../../../icons/at.svg';
+import { cleanupEmptySpaces } from '../../lib/strings';
 
 export interface CommentBoxProps {
   authorName: string;
@@ -42,8 +43,6 @@ export interface CommentBoxProps {
   post: Post;
 }
 
-const cleanupText = (text: string) => text.replaceAll?.('\xa0', ' ') || text;
-
 function CommentBox({
   authorImage,
   authorName,
@@ -59,7 +58,8 @@ function CommentBox({
   sendComment,
   post,
 }: CommentBoxProps): ReactElement {
-  const onTextareaInput = (content: string) => onInput(cleanupText(content));
+  const onTextareaInput = (content: string) =>
+    onInput(cleanupEmptySpaces(content));
   const { user } = useContext(AuthContext);
   const commentRef = useRef<HTMLDivElement>(null);
   const {
