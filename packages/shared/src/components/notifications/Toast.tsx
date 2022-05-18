@@ -16,26 +16,19 @@ import { Button } from '../buttons/Button';
 import styles from './Toast.module.css';
 import XIcon from '../../../icons/x.svg';
 import { isTouchDevice } from '../../lib/tooltip';
+import {
+  NotifContainer,
+  NotifContent,
+  NotifMessage,
+  NotifProgress,
+} from './utils';
 
 interface ToastProps {
   autoDismissNotifications?: boolean;
 }
 
-const Container = classed(
-  'div',
-  'fixed left-1/2 flex flex-col justify-center bg-theme-label-primary p-2 rounded-14 border-theme-divider-primary shadow-2',
-  styles.toastContainer,
-);
-const Content = classed('div', 'relative flex flex-row items-center ml-2');
-const Message = classed(
-  'div',
-  'flex-1 mr-2 typo-subhead text-theme-label-invert',
-);
-const Progress = classed(
-  'span',
-  styles.toastProgress,
-  'absolute -bottom-2 h-1 ease-in-out bg-theme-status-cabbage rounded-full',
-);
+const Container = classed(NotifContainer, styles.toastContainer);
+const Progress = classed(NotifProgress, styles.toastProgress);
 const INTERVAL_COUNT = 10;
 const IN_OUT_ANIMATION = 140;
 const TEMPORARY_ID = 1;
@@ -141,8 +134,8 @@ const Toast = ({
 
   return (
     <Container className={intervalId && 'slide-in'} role="alert">
-      <Content>
-        <Message>{toast.message}</Message>
+      <NotifContent>
+        <NotifMessage>{toast.message}</NotifMessage>
         {toast?.onUndo && (
           <Button
             className="ml-2 btn-primary"
@@ -163,7 +156,7 @@ const Toast = ({
         {(autoDismissNotifications || !toast.onUndo) && (
           <Progress style={{ width: `${progress}%` }} />
         )}
-      </Content>
+      </NotifContent>
     </Container>
   );
 };
