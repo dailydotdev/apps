@@ -144,6 +144,7 @@ export function PostComments({
           onEdit={onEditClick}
           onShowUpvotes={onClickUpvote}
           postAuthorId={post.author?.id}
+          appendTooltipTo={modalParentSelector}
         />
       ))}
       {pendingComment && (
