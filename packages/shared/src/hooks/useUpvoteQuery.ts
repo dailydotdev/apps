@@ -12,7 +12,7 @@ export interface RequestQueryProps {
   };
 }
 
-type UpvotedPopupInitialStateProps = {
+export type UpvotedPopupInitialStateProps = {
   upvotes: number;
   modal: boolean;
   requestQuery?: RequestQueryProps;

@@ -1,73 +1,97 @@
-import React, { ReactElement } from 'react';
+import React, {
+  ReactElement,
+  useState,
+  CSSProperties,
+  useContext,
+} from 'react';
 import classNames from 'classnames';
-import ArrowIcon from '@dailydotdev/shared/icons/arrow.svg';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
-import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
-import { useQueryClient } from 'react-query';
-import { useRawBackgroundRequest } from './useRawBackgroundRequest';
+import { usePostComment } from '@dailydotdev/shared/src/hooks/usePostComment';
+import { UpvotedPopupInitialStateProps } from '@dailydotdev/shared/src/hooks/useUpvoteQuery';
+import { NewComment } from '@dailydotdev/shared/src/components/post/NewComment';
+import { PostComments } from '@dailydotdev/shared/src/components/post/PostComments';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import NewCommentModal from '@dailydotdev/shared/src/components/modals/NewCommentModal';
+import UpvotedPopupModal from '@dailydotdev/shared/src/components/modals/UpvotedPopupModal';
+import { useBackgroundRequest } from './useBackgroundRequest';
+import { getCompanionWrapper } from './common';
 
 interface CompanionDiscussionProps {
   post: PostBootData;
-  commentsNum: number;
-  isCommentsOpen: boolean;
-  onCommentsClick?: () => void;
-  onUpvotesClick?: () => unknown;
+  className?: string;
+  style?: CSSProperties;
+  upvotedPopup: UpvotedPopupInitialStateProps;
+  onCloseUpvoted: () => void;
+  onShowUpvoted: (commentId: string, upvotes: number) => unknown;
 }
 
 export function CompanionDiscussion({
   post,
-  commentsNum,
-  isCommentsOpen,
-  onCommentsClick,
-  onUpvotesClick,
+  className,
+  upvotedPopup,
+  onCloseUpvoted,
+  onShowUpvoted,
 }: CompanionDiscussionProps): ReactElement {
   if (!post) {
     return null;
   }
 
-  const client = useQueryClient();
-  useRawBackgroundRequest(({ res, key }) => {
-    if (!Array.isArray(key)) {
-      return;
-    }
-
-    if (key[0] !== 'readingRank') {
-      return;
-    }
-
-    client.setQueryData(key, res);
+  const [input, setInput] = useState<string>('');
+  const { user } = useContext(AuthContext);
+  const {
+    closeNewComment,
+    openNewComment,
+    onCommentClick,
+    updatePostComments,
+    parentComment,
+  } = usePostComment(post);
+  const mutationKey = ['post_comments_mutations', post?.id];
+  const postCommentsQueryKey = ['post_comments', post?.id];
+  const previewQueryKey = ['comment_preview', input];
+  useBackgroundRequest(previewQueryKey);
+  useBackgroundRequest(postCommentsQueryKey);
+  useBackgroundRequest(mutationKey, ({ req, res }) => {
+    const isNew = req.variables.id !== res.comment.id;
+    updatePostComments(res.comment, isNew);
+    closeNewComment();
   });
 
   return (
-    <div
-      className="flex gap-x-4 justify-between items-center text-theme-label-tertiary typo-callout"
-      data-testid="statsBar"
-    >
-      {post.numUpvotes <= 0 && post.numComments <= 0 && (
-        <span>Be the first to upvote</span>
-      )}
-      {post.numUpvotes > 0 && (
-        <ClickableText onClick={onUpvotesClick}>
-          {post.numUpvotes} Upvote{post.numUpvotes > 1 ? 's' : ''}
-        </ClickableText>
-      )}
-      <Button
-        buttonSize="small"
-        className={isCommentsOpen ? 'btn-secondary' : 'btn-primary'}
-        rightIcon={
-          <ArrowIcon
-            className={classNames(
-              'ml-2 w-6 h-6 transition-transform',
-              !isCommentsOpen && 'rotate-180',
-            )}
-          />
-        }
-        onClick={onCommentsClick}
+    <>
+      <div
+        className={classNames(
+          className,
+          'p-6 rounded-bl-16 border border-r-0 bg-theme-bg-primary border-theme-label-primary border-t-theme-divider-tertiary',
+        )}
       >
-        {commentsNum.toLocaleString()}
-        {` Comment${commentsNum === 1 ? '' : 's'}`}
-      </Button>
-    </div>
+        <NewComment user={user} onNewComment={openNewComment} />
+        <h3 className="my-8 font-bold typo-callout">Discussion</h3>
+        <PostComments
+          post={post}
+          applyBottomMargin={false}
+          onClick={onCommentClick}
+          onClickUpvote={onShowUpvoted}
+          modalParentSelector={getCompanionWrapper}
+        />
+      </div>
+      {parentComment && (
+        <NewCommentModal
+          isOpen={!!parentComment}
+          parentSelector={getCompanionWrapper}
+          onRequestClose={closeNewComment}
+          onInputChange={setInput}
+          {...parentComment}
+        />
+      )}
+      {upvotedPopup.modal && (
+        <UpvotedPopupModal
+          isOpen
+          parentSelector={getCompanionWrapper}
+          requestQuery={upvotedPopup.requestQuery}
+          listPlaceholderProps={{ placeholderAmount: post?.numUpvotes }}
+          onRequestClose={onCloseUpvoted}
+        />
+      )}
+    </>
   );
 }
