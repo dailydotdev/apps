@@ -51,14 +51,19 @@ export default function PostOptionsMenu({
   setShowBanPost,
 }: PostOptionsMenuProps): ReactElement {
   const { displayToast } = useToastNotification();
-  useFeedSettings();
+  const { feedSettings } = useFeedSettings();
   const { trackEvent } = useContext(AnalyticsContext);
   const { reportPost, hidePost, unhidePost } = useReportPost();
-  const { onFollowSource, onUnfollowSource, onBlockTags, onUnblockTags } =
-    useTagAndSource({
-      origin: 'post context menu',
-      postId: post?.id,
-    });
+  const {
+    onFollowSource,
+    onUnfollowSource,
+    onFollowTags,
+    onBlockTags,
+    onUnblockTags,
+  } = useTagAndSource({
+    origin: 'post context menu',
+    postId: post?.id,
+  });
   const [reportModal, setReportModal] = useState<{
     index?: number;
     post?: Post;
@@ -113,6 +118,9 @@ export default function PostOptionsMenu({
       return;
     }
 
+    const isSourceFollowed =
+      feedSettings?.includeTags?.indexOf(post?.source) !== -1;
+    const undoAction = isSourceFollowed ? onFollowTags : onUnblockTags;
     showMessageAndRemovePost(
       `🚫 ${post?.source?.name} blocked`,
       postIndex,
@@ -130,8 +138,10 @@ export default function PostOptionsMenu({
       return;
     }
 
+    const isTagFollowed = feedSettings?.includeTags?.indexOf(tag) !== -1;
+    const undoAction = isTagFollowed ? onFollowTags : onUnblockTags;
     await showMessageAndRemovePost(`⛔️ #${tag} blocked`, postIndex, () =>
-      onUnblockTags({ tags: [tag], requireLogin: true }),
+      undoAction({ tags: [tag], requireLogin: true }),
     );
   };
 
