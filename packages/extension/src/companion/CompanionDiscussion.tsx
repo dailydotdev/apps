@@ -23,6 +23,7 @@ interface CompanionDiscussionProps {
 
 export function CompanionDiscussion({
   post,
+  style,
   className,
   onShowUpvoted,
 }: CompanionDiscussionProps): ReactElement {
@@ -53,23 +54,22 @@ export function CompanionDiscussion({
   });
 
   return (
-    <>
-      <div
-        className={classNames(
-          className,
-          'p-6 rounded-bl-16 border border-r-0 bg-theme-bg-primary border-theme-label-primary border-t-theme-divider-tertiary',
-        )}
-      >
-        <NewComment user={user} onNewComment={openNewComment} />
-        <h3 className="my-8 font-bold typo-callout">Discussion</h3>
-        <PostComments
-          post={post}
-          applyBottomMargin={false}
-          onClick={onCommentClick}
-          onClickUpvote={onShowUpvoted}
-          modalParentSelector={getCompanionWrapper}
-        />
-      </div>
+    <div
+      style={style}
+      className={classNames(
+        className,
+        'p-6 rounded-bl-16 border border-r-0 bg-theme-bg-primary border-theme-label-primary border-t-theme-divider-tertiary',
+      )}
+    >
+      <NewComment user={user} onNewComment={openNewComment} />
+      <h3 className="my-8 font-bold typo-callout">Discussion</h3>
+      <PostComments
+        post={post}
+        applyBottomMargin={false}
+        onClick={onCommentClick}
+        onClickUpvote={onShowUpvoted}
+        modalParentSelector={getCompanionWrapper}
+      />
       {parentComment && (
         <NewCommentModal
           isOpen={!!parentComment}
@@ -79,6 +79,6 @@ export function CompanionDiscussion({
           {...parentComment}
         />
       )}
-    </>
+    </div>
   );
 }
