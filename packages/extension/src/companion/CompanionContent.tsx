@@ -15,9 +15,11 @@ import classNames from 'classnames';
 import useNotification from '@dailydotdev/shared/src/hooks/useNotification';
 import { CardNotification } from '@dailydotdev/shared/src/components/cards/Card';
 import { useUpvoteQuery } from '@dailydotdev/shared/src/hooks/useUpvoteQuery';
+import UpvotedPopupModal from '@dailydotdev/shared/src/components/modals/UpvotedPopupModal';
 import { CompanionEngagements } from './CompanionEngagements';
 import { CompanionDiscussion } from './CompanionDiscussion';
 import { useBackgroundPaginatedRequest } from './useBackgroundPaginatedRequest';
+import { getCompanionWrapper } from './common';
 
 type CompanionContentProps = {
   post: PostBootData;
@@ -112,9 +114,16 @@ export default function CompanionContent({
           className="overflow-auto absolute top-full right-0 -left-px min-h-[14rem]"
           style={{ maxHeight: `calc(100vh - ${heightRem}` }}
           post={post}
-          upvotedPopup={upvotedPopup}
-          onCloseUpvoted={resetUpvoteQuery}
           onShowUpvoted={onShowUpvotedComment}
+        />
+      )}
+      {upvotedPopup.modal && (
+        <UpvotedPopupModal
+          isOpen
+          parentSelector={getCompanionWrapper}
+          requestQuery={upvotedPopup.requestQuery}
+          listPlaceholderProps={{ placeholderAmount: post?.numUpvotes }}
+          onRequestClose={resetUpvoteQuery}
         />
       )}
     </div>

@@ -7,12 +7,10 @@ import React, {
 import classNames from 'classnames';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import { usePostComment } from '@dailydotdev/shared/src/hooks/usePostComment';
-import { UpvotedPopupInitialStateProps } from '@dailydotdev/shared/src/hooks/useUpvoteQuery';
 import { NewComment } from '@dailydotdev/shared/src/components/post/NewComment';
 import { PostComments } from '@dailydotdev/shared/src/components/post/PostComments';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import NewCommentModal from '@dailydotdev/shared/src/components/modals/NewCommentModal';
-import UpvotedPopupModal from '@dailydotdev/shared/src/components/modals/UpvotedPopupModal';
 import { useBackgroundRequest } from './useBackgroundRequest';
 import { getCompanionWrapper } from './common';
 
@@ -20,16 +18,12 @@ interface CompanionDiscussionProps {
   post: PostBootData;
   className?: string;
   style?: CSSProperties;
-  upvotedPopup: UpvotedPopupInitialStateProps;
-  onCloseUpvoted: () => void;
   onShowUpvoted: (commentId: string, upvotes: number) => unknown;
 }
 
 export function CompanionDiscussion({
   post,
   className,
-  upvotedPopup,
-  onCloseUpvoted,
   onShowUpvoted,
 }: CompanionDiscussionProps): ReactElement {
   if (!post) {
@@ -83,15 +77,6 @@ export function CompanionDiscussion({
           onRequestClose={closeNewComment}
           onInputChange={setInput}
           {...parentComment}
-        />
-      )}
-      {upvotedPopup.modal && (
-        <UpvotedPopupModal
-          isOpen
-          parentSelector={getCompanionWrapper}
-          requestQuery={upvotedPopup.requestQuery}
-          listPlaceholderProps={{ placeholderAmount: post?.numUpvotes }}
-          onRequestClose={onCloseUpvoted}
         />
       )}
     </>
