@@ -44,9 +44,7 @@ export function CompanionEngagements({
       className="flex gap-x-4 justify-between items-center text-theme-label-tertiary typo-callout"
       data-testid="statsBar"
     >
-      {post.numUpvotes <= 0 && post.numComments <= 0 && (
-        <span>Be the first to upvote</span>
-      )}
+      {post.numUpvotes <= 0 && <span>Be the first to upvote</span>}
       {post.numUpvotes > 0 && (
         <ClickableText onClick={onUpvotesClick}>
           {post.numUpvotes} Upvote{post.numUpvotes > 1 ? 's' : ''}

@@ -5,6 +5,7 @@ import React, {
   useEffect,
   useRef,
   useState,
+  LegacyRef,
 } from 'react';
 import { useQueryClient } from 'react-query';
 import classNames from 'classnames';
@@ -32,13 +33,40 @@ interface CompanionProps {
   companionExpanded: boolean;
   onOptOut: () => void;
 }
+
+interface ContainerProps {
+  containerRef?: LegacyRef<HTMLDivElement>;
+  companionExpanded: boolean;
+  shouldLoad: boolean;
+  children: ReactNode;
+}
+
+const Container = ({
+  containerRef,
+  companionExpanded,
+  shouldLoad,
+  children,
+}: ContainerProps) => {
+  return (
+    <div
+      ref={containerRef}
+      data-testId="companion"
+      className={classNames(
+        'flex fixed flex-row top-[7.5rem] items-stretch right-0 z-10 max-w-[26.5rem] transition-transform',
+        companionExpanded ? 'translate-x-0' : 'translate-x-[22.5rem]',
+      )}
+    >
+      {shouldLoad ? children : null}
+    </div>
+  );
+};
+
 export default function Companion({
   postData,
   companionHelper,
   companionExpanded,
   onOptOut,
 }: CompanionProps): ReactElement {
-  const firstLoad = useRef(false);
   const client = useQueryClient();
   const containerRef = useRef<HTMLDivElement>();
   const [assetsLoaded, setAssetsLoaded] = useState(isTesting);
@@ -59,7 +87,6 @@ export default function Companion({
       companionRequest,
       companionFetch,
     });
-    firstLoad.current = true;
   }, [assetsLoaded]);
 
   useEffect(() => {
@@ -67,20 +94,6 @@ export default function Companion({
       routeChangedCallbackRef.current();
     }
   }, [routeChangedCallbackRef]);
-
-  const Container = ({ children }: { children: ReactNode }) => (
-    <div
-      ref={containerRef}
-      data-testId="companion"
-      className={classNames(
-        'flex fixed flex-row top-[7.5rem] items-stretch right-0 z-10 max-w-[26.5rem]',
-        firstLoad.current && 'transition-transform',
-        companionState ? 'translate-x-0' : 'translate-x-[22.5rem]',
-      )}
-    >
-      {assetsLoaded ? children : null}
-    </div>
-  );
 
   useEffect(() => {
     if (!containerRef?.current || assetsLoaded) {
@@ -100,7 +113,11 @@ export default function Companion({
   }, [containerRef]);
 
   return (
-    <Container>
+    <Container
+      containerRef={containerRef}
+      companionExpanded={companionState}
+      shouldLoad={assetsLoaded}
+    >
       {!user && !loadingUser && shouldShowLogin && (
         <LoginModal
           parentSelector={getCompanionWrapper}
