@@ -30,6 +30,7 @@ export type PostOptionsMenuProps = {
   post: Post;
   onHidden?: () => unknown;
   onRemovePost?: (postIndex: number) => Promise<unknown>;
+  undoRemovedPost?: (postIndex: number, post: Post) => Promise<unknown>;
   setShowDeletePost?: () => unknown;
   setShowBanPost?: () => unknown;
 };
@@ -49,6 +50,7 @@ export default function PostOptionsMenu({
   onRemovePost,
   setShowDeletePost,
   setShowBanPost,
+  undoRemovedPost,
 }: PostOptionsMenuProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { feedSettings } = useFeedSettings();
@@ -72,10 +74,19 @@ export default function PostOptionsMenu({
   const showMessageAndRemovePost = async (
     message: string,
     _postIndex: number,
-    undo?: () => unknown,
+    onUndo?: () => unknown,
   ) => {
-    displayToast(message, { subject: ToastSubject.Feed, onUndo: undo });
+    displayToast(message, { subject: ToastSubject.Feed, onUndo });
     onRemovePost?.(_postIndex);
+  };
+
+  const undoRemovePost = async (
+    _postIndex: number,
+    removedPost: Post,
+    onUndo: () => unknown,
+  ) => {
+    onUndo();
+    undoRemovedPost?.(_postIndex, removedPost);
   };
 
   const onReportPost: ReportPostAsync = async (
@@ -138,7 +149,9 @@ export default function PostOptionsMenu({
     const isTagFollowed = feedSettings?.includeTags?.indexOf(tag) !== -1;
     const undoAction = isTagFollowed ? onFollowTags : onUnblockTags;
     await showMessageAndRemovePost(`⛔️ #${tag} blocked`, postIndex, () =>
-      undoAction({ tags: [tag], requireLogin: true }),
+      undoRemovePost(postIndex, { ...post }, () =>
+        undoAction({ tags: [tag], requireLogin: true }),
+      ),
     );
   };
 

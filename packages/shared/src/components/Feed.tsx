@@ -135,16 +135,23 @@ export default function Feed<T>({
     loadedSettings,
   } = useContext(SettingsContext);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
-  const { items, updatePost, removePost, fetchPage, canFetchMore, emptyFeed } =
-    useFeed(
-      feedQueryKey,
-      currentSettings.pageSize,
-      currentSettings.adSpot,
-      numCards,
-      showOnlyUnreadPosts,
-      query,
-      variables,
-    );
+  const {
+    items,
+    updatePost,
+    removePost,
+    undoRemovedPost,
+    fetchPage,
+    canFetchMore,
+    emptyFeed,
+  } = useFeed(
+    feedQueryKey,
+    currentSettings.pageSize,
+    currentSettings.adSpot,
+    numCards,
+    showOnlyUnreadPosts,
+    query,
+    variables,
+  );
   const { ranking } = (variables as RankVariables) || {};
   const {
     onOpenModal,
@@ -216,6 +223,11 @@ export default function Feed<T>({
   const onRemovePost = async (removePostIndex) => {
     const item = items[removePostIndex] as PostItem;
     removePost(item.page, item.index);
+  };
+
+  const onUndoRemovePost = async (removePostIndex, post) => {
+    const item = items[removePostIndex] as PostItem;
+    undoRemovedPost(item.page, item.index, post);
   };
 
   const onCommentClick = (
@@ -333,6 +345,7 @@ export default function Feed<T>({
         post={(items[postMenuIndex] as PostItem)?.post}
         onHidden={() => setPostMenuIndex(null)}
         onRemovePost={onRemovePost}
+        undoRemovedPost={onUndoRemovePost}
       />
     </div>
   );
