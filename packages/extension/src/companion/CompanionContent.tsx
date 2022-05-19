@@ -76,7 +76,7 @@ export default function CompanionContent({
         </CardNotification>
       )}
       <div className="flex flex-row gap-3 items-center">
-        <a href={post?.commentsPermalink} target="_parent">
+        <a href={process.env.NEXT_PUBLIC_WEBAPP_URL} target="_parent">
           <LogoIcon className="w-8 rounded-8" />
         </a>
         {post?.trending && <HotLabel />}
