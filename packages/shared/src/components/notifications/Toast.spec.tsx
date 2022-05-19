@@ -58,7 +58,7 @@ it('should display a toast notification and be dismissable', async () => {
   const button = await screen.findByText('Regular Toast');
   fireEvent.click(button);
   await screen.findByRole('alert');
-  const dismiss = await screen.findByLabelText('Dissmiss toast notification');
+  const dismiss = await screen.findByLabelText('Dismiss toast notification');
   fireEvent.click(dismiss);
   await act(() => new Promise((resolve) => setTimeout(resolve, 500))); // let the animation to finish
   expect(screen.queryByRole('alert')).not.toBeInTheDocument();
@@ -71,7 +71,7 @@ it('should display a toast notification and do not automatically close', async (
   await screen.findByRole('alert');
   await act(() => new Promise((resolve) => setTimeout(resolve, 1500))); // wait for the toast to expire
   await screen.findByRole('alert');
-  const dismiss = await screen.findByLabelText('Dissmiss toast notification');
+  const dismiss = await screen.findByLabelText('Dismiss toast notification');
   fireEvent.click(dismiss);
   await act(() => new Promise((resolve) => setTimeout(resolve, 500))); // let the animation to finish
   expect(screen.queryByRole('alert')).not.toBeInTheDocument();
