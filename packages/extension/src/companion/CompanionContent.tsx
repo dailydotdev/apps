@@ -47,6 +47,7 @@ export default function CompanionContent({
   const { data: commentsNum = 0 } = useQuery(
     postCommentNumKey,
     () => post.numComments,
+    { refetchOnWindowFocus: false },
   );
 
   const onContainerChange = async (el: HTMLElement) => {
