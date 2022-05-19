@@ -157,16 +157,9 @@ export default function PostOptionsMenu({
   };
 
   const shareLink = post?.commentsPermalink;
-  const copyLink = async () => {
-    const subject = postIndex ? ToastSubject.Feed : ToastSubject.PostContent;
-    await navigator.clipboard.writeText(shareLink);
-    displayToast('✅ Copied link to clipboard', { subject });
-  };
-
-  const onShareOrCopyLink = useShareOrCopyLink({
+  const [, onShareOrCopyLink] = useShareOrCopyLink({
     link: shareLink,
     text: post?.title,
-    copyLink,
     trackObject: () =>
       postAnalyticsEvent('share post', post, {
         extra: { origin: 'post context menu' },
@@ -186,7 +179,10 @@ export default function PostOptionsMenu({
     {
       icon: <MenuIcon Icon={ShareIcon} />,
       text: 'Share article',
-      action: onShareOrCopyLink,
+      action: () =>
+        onShareOrCopyLink({
+          subject: postIndex ? ToastSubject.Feed : ToastSubject.PostContent,
+        }),
     },
     {
       icon: <MenuIcon Icon={BlockIcon} />,

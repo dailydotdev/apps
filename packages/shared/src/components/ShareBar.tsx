@@ -1,5 +1,4 @@
 import React, { FunctionComponent, ReactElement, useContext } from 'react';
-import classNames from 'classnames';
 import CopyIcon from '../../icons/copy.svg';
 import WhatsappIcon from '../../icons/whatsapp_color.svg';
 import TwitterIcon from '../../icons/twitter_color.svg';
@@ -13,7 +12,6 @@ import {
   getWhatsappShareLink,
 } from '../lib/share';
 import { Button, ButtonProps } from './buttons/Button';
-import styles from './ShareBar.module.css';
 import classed from '../lib/classed';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
@@ -44,19 +42,9 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
         Would you recommend this article?
       </p>
       <div className="inline-flex relative flex-row items-center mt-3">
-        {copying && (
-          <div
-            className={classNames(
-              'absolute flex top-2 right-full items-center mr-1 text-theme-status-success font-bold typo-caption1',
-              styles.copied,
-            )}
-          >
-            Copied!
-          </div>
-        )}
         <SimpleTooltip content="Copy link">
           <ShareButton
-            onClick={copyLink}
+            onClick={() => copyLink()}
             pressed={copying}
             icon={<CopyIcon />}
             className="btn-tertiary-avocado"

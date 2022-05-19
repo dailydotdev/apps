@@ -22,7 +22,7 @@ export interface ToastNotification {
 
 export const TOAST_NOTIF_KEY = 'toast_notif';
 
-interface NotifyOptionalProps {
+export interface NotifyOptionalProps {
   timer?: number;
   subject?: ToastSubject;
   onUndo?: AnyFunction;
