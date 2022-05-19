@@ -91,7 +91,7 @@ export const usePostComment = (
 
   const getCommentEdge = (comment: Comment, isNew = true): Edge<Comment> => {
     if (isNew) {
-      return { node: { ...comment } };
+      return { node: { ...comment, children: { edges: [], pageInfo: null } } };
     }
 
     if (!parentComment.commentId) {
@@ -116,17 +116,16 @@ export const usePostComment = (
     const queryKey = ['post_comments', post.id];
     await client.cancelQueries(queryKey);
     const cached = cloneDeep(comments);
+    const { edges } = cached.postComments;
     if (!cached) {
       return null;
     }
 
     if (parentId === commentId) {
-      const index = cached.postComments.edges.findIndex(
-        (e) => e.node.id === commentId,
-      );
-      const count = cached.postComments.edges[index].node.children.edges.length;
+      const index = edges.findIndex((e) => e.node.id === commentId);
+      const count = edges[index].node.children?.edges?.length || 0;
       client.setQueryData(postCommentNumKey, commentsNum - (count + 1));
-      cached.postComments.edges.splice(index, 1);
+      edges.splice(index, 1);
       return client.setQueryData(key, cached);
     }
 
