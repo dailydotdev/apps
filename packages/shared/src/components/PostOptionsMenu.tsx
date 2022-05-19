@@ -118,9 +118,6 @@ export default function PostOptionsMenu({
       return;
     }
 
-    const isSourceFollowed =
-      feedSettings?.includeTags?.indexOf(post?.source) !== -1;
-    const undoAction = isSourceFollowed ? onFollowTags : onUnblockTags;
     showMessageAndRemovePost(
       `🚫 ${post?.source?.name} blocked`,
       postIndex,
