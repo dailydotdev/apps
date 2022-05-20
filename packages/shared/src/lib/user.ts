@@ -9,6 +9,7 @@ export interface AnonymousUser {
   id: string;
   firstVisit?: string;
   referrer?: string;
+  isFirstVisit?: boolean;
 }
 
 export interface PublicProfile {

@@ -130,7 +130,7 @@ export default function FeedFiltersIntroModal({
   );
 
   return (
-    <ResponsiveModal {...modalProps}>
+    <ResponsiveModal {...modalProps} onRequestClose={onRequestClose}>
       <section className="flex overflow-hidden flex-col items-center p-6 mobileL:px-10 mt-24">
         <UserIcon className="w-16 h-16" />
         <h3 className="mt-4 font-bold typo-large-title">Create my feed</h3>

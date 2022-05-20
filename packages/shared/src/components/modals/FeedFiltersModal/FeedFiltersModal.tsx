@@ -14,7 +14,6 @@ type TypeProps = {
   feedFilterOnboardingModalType: string;
   actionToOpenFeedFilters: () => unknown;
   onIntroClose: () => unknown;
-  onCloseFeedFilterModal: () => unknown;
 };
 
 export type FeedFiltersModalProps = TypeProps & ModalProps;
@@ -43,15 +42,12 @@ const headerClass = {
 
 const FeedFiltersModalFooter = ({
   feedFilterModalType,
-  onCloseFeedFilterModal,
+  onRequestClose,
 }: LayoutModalProps) => {
   return (
     <footer className="flex fixed responsiveModalBreakpoint:sticky bottom-0 justify-center items-center py-3 border-t border-theme-divider-tertiary bg-theme-bg-tertiary">
       {feedFilterModalType === 'v5' && (
-        <Button
-          className="mr-3 w-40 btn-secondary"
-          onClick={onCloseFeedFilterModal}
-        >
+        <Button className="mr-3 w-40 btn-secondary" onClick={onRequestClose}>
           Cancel
         </Button>
       )}
@@ -69,7 +65,6 @@ const FeedFiltersModalFooter = ({
 export default function FeedFiltersModal({
   className,
   showIntroModal,
-  onCloseFeedFilterModal,
   feedFilterModalType,
   feedFilterOnboardingModalType,
   actionToOpenFeedFilters,
@@ -78,14 +73,14 @@ export default function FeedFiltersModal({
   ...modalProps
 }: FeedFiltersModalProps): ReactElement {
   return (
-    <ResponsiveModal {...modalProps}>
+    <ResponsiveModal {...modalProps} onRequestClose={onRequestClose}>
       {feedFilterModalType === 'v3' && (
         <Button
           className="fixed top-8 right-8 btn-tertiary-float bg-theme-bg-tertiary"
           buttonSize="large"
           title="Close"
           icon={<XIcon />}
-          onClick={onCloseFeedFilterModal}
+          onClick={onRequestClose}
           position="fixed"
         />
       )}
@@ -101,7 +96,7 @@ export default function FeedFiltersModal({
             buttonSize="small"
             title="Close"
             icon={<XIcon />}
-            onClick={onCloseFeedFilterModal}
+            onClick={onRequestClose}
           />
         )}
         <h3 className="font-bold typo-title3">
@@ -125,7 +120,7 @@ export default function FeedFiltersModal({
       {['v4', 'v5'].includes(feedFilterModalType) && (
         <FeedFiltersModalFooter
           feedFilterModalType={feedFilterModalType}
-          onCloseFeedFilterModal={onCloseFeedFilterModal}
+          onRequestClose={onRequestClose}
           showIntroModal={false}
           feedFilterOnboardingModalType={feedFilterOnboardingModalType}
           actionToOpenFeedFilters={actionToOpenFeedFilters}

@@ -39,7 +39,7 @@ export default function FeedFiltersWrapperModal({
       feedFilterOnboardingModalType={feedFilterOnboardingModalType}
       actionToOpenFeedFilters={actionToOpenFeedFilters}
       onIntroClose={onIntroClose}
-      onCloseFeedFilterModal={onCloseFeedFilterModal}
+      onRequestClose={onCloseFeedFilterModal}
       isOpen={isOpen}
       padding={false}
     />

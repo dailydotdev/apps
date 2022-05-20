@@ -146,6 +146,7 @@ export default function Sidebar({
   setOpenMobileSidebar,
   onShowDndClick,
 }: SidebarProps): ReactElement {
+  const { isFirstVisit } = useContext(AuthContext);
   const { shouldShowMyFeed, myFeedPosition } = useMyFeed();
   const [defaultFeed] = useDefaultFeed(shouldShowMyFeed);
   const activePage =
@@ -175,8 +176,9 @@ export default function Sidebar({
     Features.FeedFilterModalOnboarding,
     flags,
   );
+
   const [isFirstSession, setIsFirstSession, isSessionLoaded] =
-    usePersistentContext(FIRST_TIME_SESSION, true);
+    usePersistentContext(FIRST_TIME_SESSION, isFirstVisit);
 
   useEffect(() => {
     if (isFirstSession && isSessionLoaded) {
