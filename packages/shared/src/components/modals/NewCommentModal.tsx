@@ -234,8 +234,8 @@ export default function NewCommentModal({
   };
 
   const onKeyDown = async (
-    event: KeyboardEvent<HTMLTextAreaElement>,
-    defaultCallback?: KeyboardEventHandler<HTMLTextAreaElement>,
+    event: KeyboardEvent<HTMLDivElement>,
+    defaultCallback?: KeyboardEventHandler<HTMLDivElement>,
   ): Promise<void> => {
     // Ctrl / Command + Enter
     if (
@@ -261,7 +261,7 @@ export default function NewCommentModal({
       <TabContainer
         onActiveChange={(active: string) => setActiveTab(active)}
         shouldMountInactive
-        style={{ height: '40rem' }}
+        className="tablet:max-h-[40rem] grow tablet:grow-0"
       >
         <Tab label="Write" className="flex flex-col flex-1">
           <CommentBox
