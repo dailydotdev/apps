@@ -1,4 +1,10 @@
-import React, { ReactElement, useContext } from 'react';
+import React, {
+  CSSProperties,
+  ReactElement,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import { useQuery } from 'react-query';
@@ -13,17 +19,30 @@ import {
   POST_BY_ID_STATIC_FIELDS_QUERY,
   POST_BY_ID_QUERY,
   PostData,
+  Post,
 } from '@dailydotdev/shared/src/graphql/posts';
 import { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
 import request, { ClientError } from 'graphql-request';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
-import { PostContent } from '@dailydotdev/shared/src/components/post/PostContent';
+import {
+  PostContent,
+  SCROLL_OFFSET,
+} from '@dailydotdev/shared/src/components/post/PostContent';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 
 const Custom404 = dynamic(() => import('../404'));
 
+export const getSeoDescription = (post: Post): string => {
+  if (post?.summary) {
+    return post?.summary;
+  }
+  if (post?.description) {
+    return post?.description;
+  }
+  return `Join us to the discussion about "${post?.title}" on daily.dev ✌️`;
+};
 export interface Props {
   id: string;
   postData?: PostData;
@@ -34,6 +53,8 @@ interface PostParams extends ParsedUrlQuery {
 }
 
 const PostPage = ({ id, postData }: Props): ReactElement => {
+  const [position, setPosition] =
+    useState<CSSProperties['position']>('relative');
   const { tokenRefreshed } = useContext(AuthContext);
   const router = useRouter();
   const { isFallback } = router;
@@ -53,20 +74,47 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   );
 
   const seo: NextSeoProps = {
-    title: postById?.post.title,
+    title: postData?.post.title,
     titleTemplate: '%s | daily.dev',
-    description:
-      postById?.post.description?.length > 0
-        ? postById?.post.description
-        : `Join us to the discussion about "${postById?.post.title}" on daily.dev ✌️`,
+    description: getSeoDescription(postData?.post),
     openGraph: {
-      images: [{ url: postById?.post.image }],
+      images: [{ url: postData?.post.image }],
       article: {
-        publishedTime: postById?.post.createdAt,
-        tags: postById?.post.tags,
+        publishedTime: postData?.post.createdAt,
+        tags: postData?.post.tags,
       },
     },
   };
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const onScroll = (e) => {
+      if (e.currentTarget.scrollY > SCROLL_OFFSET) {
+        if (position !== 'fixed') {
+          setPosition('fixed');
+        }
+        return;
+      }
+
+      if (position !== 'relative') {
+        setPosition('relative');
+      }
+    };
+
+    window.addEventListener('scroll', onScroll);
+
+    // eslint-disable-next-line consistent-return
+    return () => {
+      if (typeof window === 'undefined') {
+        return;
+      }
+
+      window.removeEventListener('scroll', onScroll);
+    };
+  }, [position]);
 
   return (
     <>
@@ -75,6 +123,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
       </Head>
       <NextSeo {...seo} />
       <PostContent
+        position={position}
         postById={postById}
         isFallback={isFallback}
         isLoading={isLoading || !isFetched}

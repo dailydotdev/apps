@@ -123,8 +123,8 @@ it('should disable submit button when no input', async () => {
 
 it('should enable submit button when no input', async () => {
   renderComponent();
-  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
-  input.value = 'My new comment';
+  const input = await screen.findByRole('textbox');
+  input.innerText = 'My new comment';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const el = await screen.findByText('Comment');
   expect(el.getAttribute('disabled')).toBeFalsy();
@@ -155,8 +155,8 @@ it('should send commentOnPost mutation', async () => {
       },
     },
   ]);
-  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
-  input.value = 'comment';
+  const input = await screen.findByRole('textbox');
+  input.innerText = 'comment';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const el = await screen.findByText('Comment');
   el.click();
@@ -190,8 +190,8 @@ it('should send commentOnComment mutation', async () => {
       },
     },
   ]);
-  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
-  input.value = 'comment';
+  const input = await screen.findByRole('textbox');
+  input.innerText = 'comment';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const el = await screen.findByText('Comment');
   el.click();
@@ -225,8 +225,8 @@ it('should not send comment if the input is spaces only', async () => {
       },
     },
   ]);
-  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
-  input.value = '   ';
+  const input = await screen.findByRole('textbox');
+  input.innerText = '   ';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const el = await screen.findByText('Comment');
   el.click();
@@ -248,8 +248,8 @@ it('should show alert in case of an error', async () => {
       },
     },
   ]);
-  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
-  input.value = 'comment';
+  const input = await screen.findByRole('textbox');
+  input.innerText = 'comment';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const el = await screen.findByText('Comment');
   el.click();
@@ -290,8 +290,8 @@ it('should send editComment mutation', async () => {
       },
     },
   ]);
-  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
-  input.value = 'comment';
+  const input = await screen.findByRole('textbox');
+  input.innerText = 'comment';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const el = await screen.findByText('Update');
   el.click();
@@ -320,8 +320,8 @@ it('should recommend users previously mentioned', async () => {
       },
     },
   ]);
-  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
-  input.value = '@';
+  const input = await screen.findByRole('textbox');
+  input.innerText = '@';
   Simulate.keyDown(input, { key: '@' });
   await waitForNock();
   expect(queryPreviouslyMentioned).toBeTruthy();
@@ -362,11 +362,11 @@ it('should recommend users based on query', async () => {
       },
     },
   ]);
-  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
-  input.value = '@';
+  const input = await screen.findByRole('textbox');
+  input.innerText = '@';
   Simulate.keyDown(input, { key: '@' });
   await new Promise((resolve) => setTimeout(resolve, 500));
-  input.value = '@l';
+  input.innerText = '@l';
   Simulate.keyDown(input, { key: 'l' });
   await waitForNock();
   expect(queryMatchingNameOrUsername).toBeTruthy();
@@ -374,13 +374,22 @@ it('should recommend users based on query', async () => {
 
 describe('recommended mention component', () => {
   it('should display name, username and image of the user', async () => {
+    const client = new QueryClient();
     render(
-      <RecommendedMention
-        selected={0}
-        users={[
-          { name: 'Lee', username: 'sshanzel', image: 'sample.image.com' },
-        ]}
-      />,
+      <QueryClientProvider client={client}>
+        <RecommendedMention
+          selected={0}
+          users={[
+            {
+              id: 'u1',
+              name: 'Lee',
+              username: 'sshanzel',
+              image: 'sample.image.com',
+              permalink: 'www.test.com/sshanzel',
+            },
+          ]}
+        />
+      </QueryClientProvider>,
     );
     await screen.findByText('@sshanzel');
     await screen.findByText('Lee');
