@@ -1,6 +1,7 @@
 import React, {
   HTMLAttributes,
   ReactElement,
+  ReactNode,
   useContext,
   useEffect,
   useState,
@@ -29,6 +30,27 @@ const SectionContent = classed(
   'div',
   'flex flex-col items-start pl-1.5 -my-0.5',
 );
+
+interface SettingsSwitchProps {
+  name?: string;
+  children: ReactNode;
+  checked: boolean;
+  onToggle: () => void;
+}
+
+const SettingsSwitch = ({ name, children, ...props }: SettingsSwitchProps) => {
+  return (
+    <Switch
+      inputId={`${name}-switch`}
+      name={name}
+      className="my-3"
+      compact={false}
+      {...props}
+    >
+      {children}
+    </Switch>
+  );
+};
 
 export default function Settings({
   className,
@@ -116,73 +138,55 @@ export default function Settings({
       <Section>
         <SectionTitle>Preferences</SectionTitle>
         <SectionContent>
-          <Switch
-            inputId="hide-read-switch"
+          <SettingsSwitch
             name="hide-read"
-            className="my-3 big"
             checked={showOnlyUnreadPosts}
             onToggle={() => onToggleForLoggedInUsers(toggleShowOnlyUnreadPosts)}
-            compact={false}
           >
             Hide read posts
-          </Switch>
-          <Switch
-            inputId="new-tab-switch"
+          </SettingsSwitch>
+          <SettingsSwitch
             name="new-tab"
-            className="my-3 big"
             checked={openNewTab}
             onToggle={toggleOpenNewTab}
-            compact={false}
           >
             Open links in new tab
-          </Switch>
+          </SettingsSwitch>
           {isExtension && (
-            <Switch
-              inputId="top-sites-switch"
+            <SettingsSwitch
               name="top-sites"
-              className="my-3 big"
               checked={showTopSites}
               onToggle={toggleShowTopSites}
-              compact={false}
             >
               Show custom shortcuts
-            </Switch>
+            </SettingsSwitch>
           )}
-          <Switch
-            inputId="feed-sorting-switch"
+          <SettingsSwitch
             name="feed-sorting"
-            className="my-3 big"
             checked={sortingEnabled}
             onToggle={toggleSortingEnabled}
-            compact={false}
           >
             Show feed sorting menu
-          </Switch>
-          <Switch
-            inputId="weekly-goal-widget-switch"
+          </SettingsSwitch>
+          <SettingsSwitch
             name="weekly-goal-widget"
-            className="my-3 big"
             checked={!optOutWeeklyGoal}
             onToggle={() => onToggleForLoggedInUsers(toggleOptOutWeeklyGoal)}
-            compact={false}
           >
             Show Weekly Goal widget
-          </Switch>
+          </SettingsSwitch>
         </SectionContent>
       </Section>
       <Section>
         <SectionTitle>Accessibility</SectionTitle>
         <SectionContent>
-          <Switch
-            inputId="auto-dismiss-notifications-switch"
+          <SettingsSwitch
             name="auto-dismiss-notifications"
-            className="my-3 big"
             checked={autoDismissNotifications}
             onToggle={toggleAutoDismissNotifications}
-            compact={false}
           >
             Automatically dismiss notifications
-          </Switch>
+          </SettingsSwitch>
         </SectionContent>
       </Section>
     </div>
