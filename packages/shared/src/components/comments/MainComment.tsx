@@ -11,6 +11,7 @@ import CommentAuthor from './CommentAuthor';
 import classed from '../../lib/classed';
 import Markdown from '../Markdown';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
+import ScoutBadge from './ScoutBadge';
 
 export interface Props extends CommentActionProps {
   comment: Comment;
@@ -39,7 +40,14 @@ export default function MainComment({
           <ProfileImageLink user={comment.author} />
         </ProfileTooltip>
         <div className="flex flex-col ml-2">
-          <CommentAuthor postAuthorId={postAuthorId} author={comment.author} />
+          <div className="flex">
+            <CommentAuthor
+              postAuthorId={postAuthorId}
+              author={comment.author}
+            />
+            <ScoutBadge />
+          </div>
+
           <CommentPublishDate comment={comment} />
         </div>
       </div>
