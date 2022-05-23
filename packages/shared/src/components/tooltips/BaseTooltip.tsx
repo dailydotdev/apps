@@ -79,8 +79,8 @@ export function BaseTooltip(
           <></>
         ) : (
           <BaseTooltipContainer
-            {...container}
             arrow={!!arrow}
+            {...container}
             placement={placement}
             arrowClassName={classNames(
               styles.tippyTooltipArrow,
