@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState, useContext, useMemo } from 'react';
 import { useQueryClient } from 'react-query';
 import cloneDeep from 'lodash.clonedeep';
 import AuthContext from '../contexts/AuthContext';
@@ -209,15 +209,28 @@ export const usePostComment = (
     }
   }, [initializeNewComment]);
 
-  return {
-    commentsNum,
-    closeNewComment,
-    openNewComment,
-    onCommentClick,
-    onShowShareNewComment: setShowShareNewComment,
-    updatePostComments,
-    deleteCommentCache,
-    parentComment,
-    showShareNewComment,
-  };
+  return useMemo(
+    () => ({
+      commentsNum,
+      closeNewComment,
+      openNewComment,
+      onCommentClick,
+      onShowShareNewComment: setShowShareNewComment,
+      updatePostComments,
+      deleteCommentCache,
+      parentComment,
+      showShareNewComment,
+    }),
+    [
+      commentsNum,
+      closeNewComment,
+      openNewComment,
+      onCommentClick,
+      setShowShareNewComment,
+      updatePostComments,
+      deleteCommentCache,
+      parentComment,
+      showShareNewComment,
+    ],
+  );
 };

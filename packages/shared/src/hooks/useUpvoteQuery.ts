@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { QueryKey } from 'react-query';
 import { COMMENT_UPVOTES_BY_ID_QUERY } from '../graphql/comments';
 import { POST_UPVOTES_BY_ID_QUERY } from '../graphql/posts';
@@ -60,10 +60,13 @@ export const useUpvoteQuery = (): UseUpvoteQuery => {
     });
   };
 
-  return {
-    requestQuery: upvotedPopup,
-    onShowUpvotedPost,
-    onShowUpvotedComment,
-    resetUpvoteQuery: () => setUpvotedPopup(getUpvotedPopupInitialState()),
-  };
+  return useMemo(
+    () => ({
+      requestQuery: upvotedPopup,
+      onShowUpvotedPost,
+      onShowUpvotedComment,
+      resetUpvoteQuery: () => setUpvotedPopup(getUpvotedPopupInitialState()),
+    }),
+    [upvotedPopup, onShowUpvotedPost, onShowUpvotedComment],
+  );
 };
