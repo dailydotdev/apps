@@ -11,7 +11,7 @@ import { useQueryClient } from 'react-query';
 import classNames from 'classnames';
 import Modal from 'react-modal';
 import { isTesting } from '@dailydotdev/shared/src/lib/constants';
-import { COMPANION_PROTOCOL_KEY } from '@dailydotdev/shared/src/graphql/common';
+import { REQUEST_PROTOCOL_KEY } from '@dailydotdev/shared/src/graphql/common';
 import '@dailydotdev/shared/src/styles/globals.css';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import LoginModal from '@dailydotdev/shared/src/components/modals/LoginModal';
@@ -83,9 +83,9 @@ export default function Companion({
       return;
     }
 
-    client.setQueryData(COMPANION_PROTOCOL_KEY, {
-      companionRequest,
-      companionFetch,
+    client.setQueryData(REQUEST_PROTOCOL_KEY, {
+      requestMethod: companionRequest,
+      fetchMethod: companionFetch,
     });
   }, [assetsLoaded]);
 
