@@ -10,7 +10,7 @@ import {
   ConfirmationDescription,
   ConfirmationButtons,
 } from './ConfirmationModal';
-import { useCompanionProtocol } from '../../hooks/useCompanionProtocol';
+import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { usePostComment } from '../../hooks/usePostComment';
 import { Post } from '../../graphql/posts';
 
@@ -28,7 +28,7 @@ export default function DeleteCommentModal({
 }: Props): ReactElement {
   const [deleting, setDeleting] = useState<boolean>(false);
   const { deleteCommentCache } = usePostComment(post);
-  const { requestMethod } = useCompanionProtocol();
+  const { requestMethod } = useRequestProtocol();
   const { mutateAsync: deleteComment } = useMutation(
     () =>
       requestMethod(`${apiUrl}/graphql`, DELETE_COMMENT_MUTATION, {

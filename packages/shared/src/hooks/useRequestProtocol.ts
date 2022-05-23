@@ -1,8 +1,9 @@
+import { useMemo } from 'react';
 import request from 'graphql-request';
 import { useQueryClient } from 'react-query';
 import { CompanionProtocol, COMPANION_PROTOCOL_KEY } from '../graphql/common';
 
-export const useCompanionProtocol = (): {
+export const useRequestProtocol = (): {
   requestMethod?: typeof request;
   fetchMethod?: typeof fetch;
 } => {
@@ -13,5 +14,8 @@ export const useCompanionProtocol = (): {
   const requestMethod = companionRequest || request;
   const fetchMethod = companionFetch || fetch;
 
-  return { requestMethod, fetchMethod };
+  return useMemo(
+    () => ({ requestMethod, fetchMethod }),
+    [companionRequest, companionFetch],
+  );
 };

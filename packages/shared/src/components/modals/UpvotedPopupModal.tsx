@@ -10,7 +10,7 @@ import {
 } from '../profile/UpvoterListPlaceholder';
 import { apiUrl } from '../../lib/config';
 import { RequestQuery, UpvotesData } from '../../graphql/common';
-import { useCompanionProtocol } from '../../hooks/useCompanionProtocol';
+import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 
 export interface UpvotedPopupModalProps extends ModalProps {
   listPlaceholderProps: UpvoterListPlaceholderProps;
@@ -24,7 +24,7 @@ export function UpvotedPopupModal({
   children,
   ...modalProps
 }: UpvotedPopupModalProps): ReactElement {
-  const { requestMethod } = useCompanionProtocol();
+  const { requestMethod } = useRequestProtocol();
   const queryResult = useInfiniteQuery<UpvotesData>(
     queryKey,
     ({ pageParam }) =>

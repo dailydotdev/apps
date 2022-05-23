@@ -15,7 +15,7 @@ import { apiUrl } from '../../lib/config';
 import { Button } from '../buttons/Button';
 import { ClickableText } from '../buttons/ClickableText';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { useCompanionProtocol } from '../../hooks/useCompanionProtocol';
+import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
@@ -49,7 +49,7 @@ export default function CommentActionButtons({
     setNumUpvotes(comment.numUpvotes);
   }, [comment]);
 
-  const { requestMethod } = useCompanionProtocol();
+  const { requestMethod } = useRequestProtocol();
   const { mutateAsync: upvoteComment } = useMutation(
     () =>
       requestMethod(`${apiUrl}/graphql`, UPVOTE_COMMENT_MUTATION, {

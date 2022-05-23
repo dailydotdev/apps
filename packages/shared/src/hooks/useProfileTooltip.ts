@@ -7,7 +7,7 @@ import {
   MostReadTag,
 } from '../graphql/users';
 import { apiUrl } from '../lib/config';
-import { useCompanionProtocol } from './useCompanionProtocol';
+import { useRequestProtocol } from './useRequestProtocol';
 
 export type UserTooltipContentData = {
   rank: UserReadingRank;
@@ -30,7 +30,7 @@ export const useProfileTooltip = ({
   userId,
   requestUserInfo = false,
 }: UseProfileTooltipProps): UseProfileTooltip => {
-  const { requestMethod } = useCompanionProtocol();
+  const { requestMethod } = useRequestProtocol();
   const [shouldFetch, setShouldFetch] = useState(false);
   const key = ['readingRank', userId];
   const { data, isLoading } = useQuery<UserTooltipContentData>(

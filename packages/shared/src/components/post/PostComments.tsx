@@ -11,7 +11,7 @@ import { Post } from '../../graphql/posts';
 import MainComment from '../comments/MainComment';
 import PlaceholderCommentList from '../comments/PlaceholderCommentList';
 import DeleteCommentModal from '../modals/DeleteCommentModal';
-import { useCompanionProtocol } from '../../hooks/useCompanionProtocol';
+import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 
 export interface ParentComment {
   authorName: string;
@@ -83,7 +83,7 @@ export function PostComments({
   const { id } = post;
   const { user, showLogin, tokenRefreshed } = useContext(AuthContext);
   const [pendingComment, setPendingComment] = useState<PendingComment>(null);
-  const { requestMethod } = useCompanionProtocol();
+  const { requestMethod } = useRequestProtocol();
   const queryKey = ['post_comments', id];
   const { data: comments, isLoading: isLoadingComments } =
     useQuery<PostCommentsData>(

@@ -28,7 +28,7 @@ import {
   anyElementClassContains,
 } from '../lib/element';
 import { nextTick } from '../lib/func';
-import { useCompanionProtocol } from './useCompanionProtocol';
+import { useRequestProtocol } from './useRequestProtocol';
 
 interface UseUserMention {
   mentionQuery?: string;
@@ -62,7 +62,7 @@ export function useUserMention({
   const [offset, setOffset] = useState<CaretOffset>([0, 0]);
   const [position, setPosition] = useState<CaretPosition>([0, 0]);
   const [query, setQuery] = useState<string>();
-  const { requestMethod } = useCompanionProtocol();
+  const { requestMethod } = useRequestProtocol();
   const { data = { recommendedMentions: [] }, refetch } =
     useQuery<RecommendedMentionsData>(
       key,

@@ -25,7 +25,7 @@ import { Button } from '../buttons/Button';
 import { Post } from '../../graphql/posts';
 import { ModalCloseButton } from './ModalCloseButton';
 import DiscardCommentModal from './DiscardCommentModal';
-import { useCompanionProtocol } from '../../hooks/useCompanionProtocol';
+import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 
 interface CommentVariables {
   id: string;
@@ -65,7 +65,7 @@ export default function NewCommentModal({
   const [sendingComment, setSendingComment] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>(null);
   const isPreview = activeTab === 'Preview';
-  const { requestMethod } = useCompanionProtocol();
+  const { requestMethod } = useRequestProtocol();
   const previewQueryKey = ['comment_preview', input];
   const { data: previewContent } = useQuery<{ preview: string }>(
     previewQueryKey,
