@@ -93,6 +93,7 @@ export default function MainLayout({
   mobileTitle,
   showDnd,
   customBanner,
+  additionalButtons,
   screenCentered = true,
   onLogoClick,
   onNavTabClick,
@@ -153,6 +154,7 @@ export default function MainLayout({
                 />
               )}
             </div>
+            {additionalButtons}
             {!showOnlyLogo && !loadingUser && (
               <>
                 {user ? (
