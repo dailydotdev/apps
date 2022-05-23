@@ -104,6 +104,12 @@ export class Features {
     ['off', 'header', 'sidebar'],
   );
 
+  static readonly CompanionPermissionContent = new Features(
+    'companion_permission_content',
+    'v1',
+    ['v1', 'v2', 'v3'],
+  );
+
   private constructor(
     public readonly id: string,
     public readonly defaultValue?: string,

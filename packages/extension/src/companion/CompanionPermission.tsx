@@ -1,8 +1,37 @@
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import classed from '@dailydotdev/shared/src/lib/classed';
-import React, { ReactElement, Ref, forwardRef } from 'react';
+import React, { ReactElement, Ref, forwardRef, useContext } from 'react';
 import PlayIcon from '@dailydotdev/shared/icons/filled/play.svg';
+import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
+import {
+  Features,
+  getFeatureValue,
+} from '@dailydotdev/shared/src/lib/featureManagement';
 import { useExtensionPermission } from './useExtensionPermission';
+
+interface Content {
+  title: string;
+  description: string;
+}
+
+const contentVariation: Record<string, Content> = {
+  v1: {
+    title:
+      'The companion lets you comment and upvote directly on an article! 🤯',
+    description:
+      'Heads up! We need to ask for some extra permissions so you can enjoy the power of the companion.',
+  },
+  v2: {
+    title: 'Add TLDR and more information on the article',
+    description:
+      'By adding the widget to an article, it asks permission to track website visits.',
+  },
+  v3: {
+    title: 'Stay updated with our community inside articles',
+    description:
+      'By adding the widget to an article, it asks permission to track website visits.',
+  },
+};
 
 const CompanionSection = classed('div', 'flex flex-col max-w-full');
 
@@ -11,17 +40,18 @@ const CompanionPermissionComponent = (
   ref: Ref<HTMLDivElement>,
 ): ReactElement => {
   const { registerContentScripts } = useExtensionPermission();
+  const { flags } = useContext(FeaturesContext);
+  const contentVersion = getFeatureValue(
+    Features.CompanionPermissionContent,
+    flags,
+  );
+  const content = contentVariation[contentVersion];
 
   return (
     <div ref={ref} className="flex flex-row gap-4 max-w-full typo-callout">
       <CompanionSection className="shrink">
-        <p className="font-bold">
-          The companion lets you comment and upvote directly on an article! 🤯
-        </p>
-        <p className="my-2 text-theme-label-tertiary">
-          Heads up! We need to ask for some extra permissions so you can enjoy
-          the power of the companion.
-        </p>
+        <p className="font-bold">{content?.title}</p>
+        <p className="my-2 text-theme-label-tertiary">{content?.description}</p>
         <Button
           className="mt-1 w-[12.5rem] btn btn-primary"
           onClick={registerContentScripts}
