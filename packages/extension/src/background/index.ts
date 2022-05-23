@@ -1,7 +1,7 @@
 import { browser } from 'webextension-polyfill-ts';
 import { getBootData } from '@dailydotdev/shared/src/lib/boot';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
-import { safeJsonParse } from '@dailydotdev/shared/src/lib/func';
+import { parseOrDefault } from '@dailydotdev/shared/src/lib/func';
 import request from 'graphql-request';
 import { UPDATE_USER_SETTINGS_MUTATION } from '@dailydotdev/shared/src/graphql/settings';
 import {
@@ -67,7 +67,7 @@ async function handleMessages(message, sender) {
       return req;
     }
 
-    const key = safeJsonParse(requestKey);
+    const key = parseOrDefault(requestKey);
     const url = sender?.tab?.url?.split('?')[0];
     const [deviceId, res] = await Promise.all([getOrGenerateDeviceId(), req]);
 
