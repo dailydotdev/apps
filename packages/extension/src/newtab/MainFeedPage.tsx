@@ -157,7 +157,7 @@ export default function MainFeedPage({
                 setShowCompanionPermission(!showCompanionPermission)
               }
               className={classNames(
-                'mr-4 border-theme-status-cabbage',
+                'mr-4 border-theme-status-cabbage hidden laptop:flex',
                 showCompanionPermission
                   ? 'btn-primary-cabbage'
                   : 'btn-secondary-cabbage',
