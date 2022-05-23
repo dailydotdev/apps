@@ -32,6 +32,7 @@ export interface TooltipProps
     | 'visible'
     | 'appendTo'
     | 'offset'
+    | 'trigger'
   > {
   container?: Omit<BaseTooltipContainerProps, 'placement' | 'children'>;
 }
