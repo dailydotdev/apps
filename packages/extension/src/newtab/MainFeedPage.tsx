@@ -5,21 +5,25 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import classNames from 'classnames';
 import MainLayout from '@dailydotdev/shared/src/components/MainLayout';
 import MainFeedLayout, {
   getShouldRedirect,
 } from '@dailydotdev/shared/src/components/MainFeedLayout';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import dynamic from 'next/dynamic';
-import TimerIcon from '@dailydotdev/shared/icons/timer.svg';
+import CompanionFilledIcon from '@dailydotdev/shared/icons/filled/companion.svg';
+import CompanionOutlineIcon from '@dailydotdev/shared/icons/outline/companion.svg';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import useDefaultFeed from '@dailydotdev/shared/src/hooks/useDefaultFeed';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
-import { HeaderButton } from '@dailydotdev/shared/src/components/buttons/common';
 import { useMyFeed } from '@dailydotdev/shared/src/hooks/useMyFeed';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import ShortcutLinks from './ShortcutLinks';
 import DndBanner from './DndBanner';
 import DndContext from './DndContext';
+import { useExtensionPermission } from '../companion/useExtensionPermission';
+import { CompanionPermission } from '../companion/CompanionPermission';
 
 const PostsSearch = dynamic(
   () =>
@@ -43,8 +47,15 @@ export default function MainFeedPage({
   const [feedName, setFeedName] = useState<string>('default');
   const [isSearchOn, setIsSearchOn] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>();
+  const [showCompanionPermission, setShowCompanionPermission] = useState(
+    !!user,
+  );
   const [showDnd, setShowDnd] = useState(false);
+  const CompanionIcon = showCompanionPermission
+    ? CompanionFilledIcon
+    : CompanionOutlineIcon;
   const { registerLocalFilters, shouldShowMyFeed } = useMyFeed();
+  const { contentScriptGranted } = useExtensionPermission();
   const [defaultFeed] = useDefaultFeed(shouldShowMyFeed);
   const { isActive: isDndActive } = useContext(DndContext);
   const enableSearch = () => {
@@ -108,13 +119,41 @@ export default function MainFeedPage({
       screenCentered={false}
       customBanner={isDndActive && <DndBanner />}
       additionalButtons={
-        user && (
-          <SimpleTooltip content="Do Not Disturb" placement="bottom">
-            <HeaderButton
-              icon={<TimerIcon />}
-              className="btn-tertiary"
-              onClick={() => setShowDnd(true)}
-              pressed={showDnd}
+        !contentScriptGranted && (
+          <SimpleTooltip
+            content={<CompanionPermission />}
+            placement="bottom-start"
+            offset={[-140, 12]}
+            container={{
+              paddingClassName: 'px-6 py-4',
+              bgClassName: 'bg-theme-bg-primary',
+              textClassName: 'text-theme-label-primary typo-callout',
+              className:
+                'border border-theme-status-cabbage w-[30.75rem] whitespace-pre-wrap shadow-2',
+              arrow: false,
+            }}
+            interactive
+            visible={showCompanionPermission}
+          >
+            <Button
+              onClick={() =>
+                setShowCompanionPermission(!showCompanionPermission)
+              }
+              className={classNames(
+                'mr-4 border-theme-status-cabbage',
+                showCompanionPermission
+                  ? 'btn-primary-cabbage'
+                  : 'btn-secondary-cabbage',
+              )}
+              icon={
+                <CompanionIcon
+                  className={classNames(
+                    showCompanionPermission
+                      ? 'w-7 h-7 text-theme-label-primary'
+                      : 'w-6 h-6 text-theme-status-cabbage',
+                  )}
+                />
+              }
             />
           </SimpleTooltip>
         )
