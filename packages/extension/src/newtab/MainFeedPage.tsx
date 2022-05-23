@@ -19,6 +19,11 @@ import useDefaultFeed from '@dailydotdev/shared/src/hooks/useDefaultFeed';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import { useMyFeed } from '@dailydotdev/shared/src/hooks/useMyFeed';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
+import {
+  Features,
+  getFeatureValue,
+} from '@dailydotdev/shared/src/lib/featureManagement';
 import ShortcutLinks from './ShortcutLinks';
 import DndBanner from './DndBanner';
 import DndContext from './DndContext';
@@ -43,13 +48,11 @@ export type MainFeedPageProps = {
 export default function MainFeedPage({
   onPageChanged,
 }: MainFeedPageProps): ReactElement {
-  const { user } = useContext(AuthContext);
+  const { user, loadedUserFromCache } = useContext(AuthContext);
   const [feedName, setFeedName] = useState<string>('default');
   const [isSearchOn, setIsSearchOn] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>();
-  const [showCompanionPermission, setShowCompanionPermission] = useState(
-    !!user,
-  );
+  const [showCompanionPermission, setShowCompanionPermission] = useState(false);
   const [showDnd, setShowDnd] = useState(false);
   const CompanionIcon = showCompanionPermission
     ? CompanionFilledIcon
@@ -63,6 +66,11 @@ export default function MainFeedPage({
     setSearchQuery(null);
     onPageChanged('/search');
   };
+  const { flags } = useContext(FeaturesContext);
+  const placement = getFeatureValue(
+    Features.CompanionPermissionPlacement,
+    flags,
+  );
 
   const onNavTabClick = (tab: string): void => {
     if (tab !== 'search') {
@@ -105,6 +113,14 @@ export default function MainFeedPage({
     }
   }, []);
 
+  useEffect(() => {
+    if (!loadedUserFromCache) {
+      return;
+    }
+
+    setShowCompanionPermission(!!user);
+  }, [user, loadedUserFromCache]);
+
   return (
     <MainLayout
       greeting
@@ -119,6 +135,7 @@ export default function MainFeedPage({
       screenCentered={false}
       customBanner={isDndActive && <DndBanner />}
       additionalButtons={
+        placement === 'header' &&
         !contentScriptGranted && (
           <SimpleTooltip
             content={<CompanionPermission />}
@@ -147,11 +164,11 @@ export default function MainFeedPage({
               )}
               icon={
                 <CompanionIcon
-                  className={classNames(
+                  className={
                     showCompanionPermission
                       ? 'w-7 h-7 text-theme-label-primary'
-                      : 'w-6 h-6 text-theme-status-cabbage',
-                  )}
+                      : 'w-6 h-6 text-theme-status-cabbage'
+                  }
                 />
               }
             />

@@ -98,6 +98,12 @@ export class Features {
     'v5',
   ]);
 
+  static readonly CompanionPermissionPlacement = new Features(
+    'companion_permission_placement',
+    'off',
+    ['off', 'header', 'sidebar'],
+  );
+
   private constructor(
     public readonly id: string,
     public readonly defaultValue?: string,
