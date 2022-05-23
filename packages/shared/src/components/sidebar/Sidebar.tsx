@@ -55,6 +55,7 @@ import { Features, getFeatureValue } from '../../lib/featureManagement';
 import CreateMyFeedButton from '../CreateMyFeedButton';
 import FeedFiltersWrapperModal from '../modals/FeedFiltersModal/FeedFiltersWrapperModal';
 import usePersistentContext from '../../hooks/usePersistentContext';
+import useFeedSettings from '../../hooks/useFeedSettings';
 
 const FIRST_TIME_SESSION = 'firstTimeSession';
 
@@ -146,7 +147,6 @@ export default function Sidebar({
   setOpenMobileSidebar,
   onShowDndClick,
 }: SidebarProps): ReactElement {
-  const { isFirstVisit } = useContext(AuthContext);
   const { shouldShowMyFeed, myFeedPosition } = useMyFeed();
   const [defaultFeed] = useDefaultFeed(shouldShowMyFeed);
   const activePage =
@@ -176,14 +176,19 @@ export default function Sidebar({
     Features.FeedFilterModalOnboarding,
     flags,
   );
-
+  const { setFeedFilterOrigin } = useFeedSettings();
   const [isFirstSession, setIsFirstSession, isSessionLoaded] =
-    usePersistentContext(FIRST_TIME_SESSION, isFirstVisit);
+    usePersistentContext(FIRST_TIME_SESSION, true);
+
+  const openFeedFiltersWithOrigin = (origin = 'manual') => {
+    setFeedFilterOrigin(origin);
+    openFeedFilters();
+  };
 
   useEffect(() => {
     if (isFirstSession && isSessionLoaded) {
       setIsFirstSession(false);
-      openFeedFilters();
+      openFeedFiltersWithOrigin('auto');
       if (feedFilterModalOnboarding !== 'control') {
         setShowIntroModal(true);
       }
@@ -240,7 +245,7 @@ export default function Sidebar({
         <AlertDot className="-top-0.5 right-2.5" color={AlertColor.Fill} />
       ),
       title: 'Feed filters',
-      action: openFeedFilters,
+      action: () => openFeedFiltersWithOrigin('manual'),
       hideOnMobile: true,
     });
   }
@@ -342,7 +347,9 @@ export default function Sidebar({
               sidebarRendered && (
                 <CreateMyFeedButton
                   type={myFeedPosition}
-                  action={openFeedFilters}
+                  action={() =>
+                    openFeedFiltersWithOrigin('create my feed button')
+                  }
                   sidebarExpanded={sidebarExpanded}
                   flags={flags}
                 />
@@ -352,7 +359,9 @@ export default function Sidebar({
                 sidebarRendered={sidebarRendered}
                 sidebarExpanded={sidebarExpanded}
                 item={myFeedMenuItem}
-                action={openFeedFilters}
+                action={() =>
+                  openFeedFiltersWithOrigin('create my feed button')
+                }
                 isActive={activePage === myFeedMenuItem.path}
                 useNavButtonsNotLinks={useNavButtonsNotLinks}
               />
@@ -404,11 +413,13 @@ export default function Sidebar({
       {shouldShowFeedFilterModal && (
         <FeedFiltersWrapperModal
           isOpen={isAnimated}
-          onCloseFeedFilterModal={closeFeedFilterModal}
+          onRequestClose={closeFeedFilterModal}
           onIntroClose={() => setShowIntroModal(false)}
           feedFilterModalType={feedFilterModal}
           feedFilterOnboardingModalType={feedFilterModalOnboarding}
-          actionToOpenFeedFilters={openFeedFilters}
+          actionToOpenFeedFilters={() =>
+            openFeedFiltersWithOrigin('my feed onboarding')
+          }
           showIntroModal={showIntroModal}
         />
       )}

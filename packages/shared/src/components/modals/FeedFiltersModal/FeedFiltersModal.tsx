@@ -115,7 +115,7 @@ export default function FeedFiltersModal({
         )}
       </header>
       <section className="mt-6">
-        <TagsFilter />
+        <TagsFilter targetId="modal" />
       </section>
       {['v4', 'v5'].includes(feedFilterModalType) && (
         <FeedFiltersModalFooter

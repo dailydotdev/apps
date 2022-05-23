@@ -12,6 +12,7 @@ export interface MenuItem {
 }
 
 export interface FilterMenuProps {
+  targetId?: string;
   onUnblockItem?: ({ tag, source, action }: UnblockModalType) => void;
 }
 

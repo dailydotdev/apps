@@ -4,12 +4,12 @@ import FeedFiltersModal, { FeedFiltersModalProps } from './FeedFiltersModal';
 
 export default function FeedFiltersWrapperModal({
   showIntroModal,
-  onCloseFeedFilterModal,
   feedFilterModalType,
   feedFilterOnboardingModalType,
   actionToOpenFeedFilters,
   onIntroClose,
   isOpen,
+  onRequestClose,
 }: FeedFiltersModalProps): ReactElement {
   const [isFeedFilterModalOpen, setIsFeedFilterModalOpen] = useState(false);
 
@@ -29,7 +29,7 @@ export default function FeedFiltersWrapperModal({
       actionToOpenFeedFilters={actionToOpenFeedFilters}
       feedFilterModalType={feedFilterModalType}
       onOpenFeedFilterModal={onOpenFeedFilterModal}
-      onRequestClose={onCloseFeedFilterModal}
+      onRequestClose={onRequestClose}
       padding={false}
     />
   ) : (
@@ -39,7 +39,7 @@ export default function FeedFiltersWrapperModal({
       feedFilterOnboardingModalType={feedFilterOnboardingModalType}
       actionToOpenFeedFilters={actionToOpenFeedFilters}
       onIntroClose={onIntroClose}
-      onRequestClose={onCloseFeedFilterModal}
+      onRequestClose={onRequestClose}
       isOpen={isOpen}
       padding={false}
     />

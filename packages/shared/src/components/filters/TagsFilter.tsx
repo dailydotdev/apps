@@ -1,6 +1,7 @@
 import React, {
   ReactElement,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -26,6 +27,7 @@ import AuthContext from '../../contexts/AuthContext';
 import { useMyFeed } from '../../hooks/useMyFeed';
 import { Features, getFeatureValue } from '../../lib/featureManagement';
 import FeaturesContext from '../../contexts/FeaturesContext';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
 
 const containerClass = {
   v3: 'flex-col-reverse',
@@ -43,13 +45,21 @@ const paragraphClass = {
 };
 
 export default function TagsFilter({
+  targetId,
   onUnblockItem,
 }: FilterMenuProps): ReactElement {
   const searchRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState<string>(null);
   const searchKey = getSearchTagsQueryKey(query);
   const { user } = useContext(AuthContext);
-  const { tagsCategories, feedSettings, isLoading } = useFeedSettings();
+  const { trackEvent } = useContext(AnalyticsContext);
+  const {
+    tagsCategories,
+    feedSettings,
+    isLoading,
+    feedFilterOrigin,
+    setFeedFilterOrigin,
+  } = useFeedSettings();
   const { shouldShowMyFeed } = useMyFeed();
   const { contextSelectedTag, setContextSelectedTag, onTagContextOptions } =
     useTagContext();
@@ -87,6 +97,19 @@ export default function TagsFilter({
       action: () => onUnblockTags({ tags: [tag] }),
     });
   };
+
+  useEffect(() => {
+    trackEvent({
+      event_name: 'impression',
+      target_type: 'feed filters',
+      target_id: targetId,
+      extra: JSON.stringify({
+        feed_filter_type: feedFilterModalType,
+        origin: feedFilterOrigin,
+      }),
+    });
+    setFeedFilterOrigin('manual');
+  }, []);
 
   return (
     <div

@@ -33,6 +33,7 @@ import CreateMyFeedButton from './CreateMyFeedButton';
 import { useDynamicLoadedAnimation } from '../hooks/useDynamicLoadAnimated';
 import FeedFilters from './filters/FeedFilters';
 import AlertContext from '../contexts/AlertContext';
+import useFeedSettings from '../hooks/useFeedSettings';
 
 const SearchEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "emptySearch" */ './SearchEmptyScreen'),
@@ -155,6 +156,12 @@ export default function MainFeedLayout({
     setLoaded: openFeedFilters,
     setHidden,
   } = useDynamicLoadedAnimation();
+  const { setFeedFilterOrigin } = useFeedSettings();
+
+  const openFeedFiltersWithOrigin = (origin = 'manual') => {
+    setFeedFilterOrigin(origin);
+    openFeedFilters();
+  };
 
   const feedTitles = {
     'my-feed': 'My feed',
@@ -222,7 +229,7 @@ export default function MainFeedLayout({
       return (
         <CreateMyFeedButton
           type={myFeedPosition}
-          action={openFeedFilters}
+          action={() => ''}
           flags={flags}
         />
       );
@@ -310,11 +317,15 @@ export default function MainFeedLayout({
         myFeedPosition === 'feed_ad' && (
           <CreateMyFeedButton
             type="feed_ad"
-            action={openFeedFilters}
+            action={() => openFeedFiltersWithOrigin('create my feed - ad')}
             flags={flags}
           />
         ),
-      emptyScreen: <FeedEmptyScreen openFeedFilters={openFeedFilters} />,
+      emptyScreen: (
+        <FeedEmptyScreen
+          openFeedFilters={() => openFeedFiltersWithOrigin('empty feed')}
+        />
+      ),
       header: !isSearchOn && header,
     };
   }, [
@@ -338,7 +349,7 @@ export default function MainFeedLayout({
           myFeedPosition === 'feed_top' && (
             <CreateMyFeedButton
               type={myFeedPosition}
-              action={openFeedFilters}
+              action={() => openFeedFiltersWithOrigin('create my feed - top')}
               flags={flags}
             />
           )}

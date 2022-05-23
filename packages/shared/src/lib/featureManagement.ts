@@ -90,7 +90,7 @@ export class Features {
     ['bodyBold', 'body', 'title3', 'title3Bold'],
   );
 
-  static readonly FeedFilterModal = new Features('feed_filter_modal', 'v2', [
+  static readonly FeedFilterModal = new Features('feed_filter_modal', 'v1', [
     'v1',
     'v2',
     'v3',
@@ -100,7 +100,7 @@ export class Features {
 
   static readonly FeedFilterModalOnboarding = new Features(
     'feed_filter_modal_onboarding',
-    'introTest2',
+    'control',
     ['control', 'introTest1', 'introTest2'],
   );
 

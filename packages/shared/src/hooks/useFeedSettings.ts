@@ -30,6 +30,8 @@ export type FeedSettingsReturnType = {
   hasAnyFilter?: boolean;
   advancedSettings: AdvancedSettings[];
   setAvoidRefresh: (value: boolean) => void;
+  feedFilterOrigin?: string;
+  setFeedFilterOrigin: (value: string) => void;
 };
 
 export const getHasAnyFilter = (feedSettings: FeedSettings): boolean =>
@@ -83,6 +85,16 @@ export default function useFeedSettings(): FeedSettingsReturnType {
     false,
   );
 
+  const setFeedFilterOrigin = (value: string) => {
+    queryClient.setQueryData('FEED_FILTER_ORIGIN', {
+      value,
+    });
+  };
+
+  const feedFilterOrigin = queryClient.getQueryData<{ value: string }>(
+    'FEED_FILTER_ORIGIN',
+  )?.value;
+
   const { data: feedQuery = {}, isLoading } = useQuery<AllTagCategoriesData>(
     filtersKey,
     async () => {
@@ -130,6 +142,8 @@ export default function useFeedSettings(): FeedSettingsReturnType {
       advancedSettings,
       hasAnyFilter: getHasAnyFilter(feedSettings),
       setAvoidRefresh,
+      feedFilterOrigin,
+      setFeedFilterOrigin,
     };
   }, [
     tagsCategories,
@@ -137,5 +151,7 @@ export default function useFeedSettings(): FeedSettingsReturnType {
     isLoading,
     advancedSettings,
     setAvoidRefresh,
+    feedFilterOrigin,
+    setFeedFilterOrigin,
   ]);
 }

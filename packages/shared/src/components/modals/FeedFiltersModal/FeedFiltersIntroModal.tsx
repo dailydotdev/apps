@@ -41,10 +41,9 @@ const getAnalyticsEvent = (
   eventName: string,
   copy: string,
   type: string,
-  targetType: string,
 ): Partial<AnalyticsEvent> => ({
   event_name: eventName,
-  target_type: targetType,
+  target_type: 'my feed onboarding',
   target_id: type,
   feed_item_title: copy,
 });
@@ -60,32 +59,29 @@ const IntroModalFooter = ({
     trackEvent(
       getAnalyticsEvent(
         'impression',
-        'skip button',
-        `intro modal ${feedFilterOnboardingModalType}`,
         feedFilterOnboardingModalType === 'introTest1'
           ? 'Create my feed'
           : 'Continue',
+        feedFilterOnboardingModalType,
       ),
     );
   }, []);
 
   const closeModal = (event: React.MouseEvent) => {
-    getAnalyticsEvent(
-      'click',
-      'skip button',
-      `intro modal ${feedFilterOnboardingModalType}`,
-      'skip',
+    trackEvent(
+      getAnalyticsEvent('click', 'skip', feedFilterOnboardingModalType),
     );
     onRequestClose(event);
   };
   const openFeedFilter = (event: React.MouseEvent) => {
-    getAnalyticsEvent(
-      'click',
-      'open feed filter button',
-      `intro modal ${feedFilterOnboardingModalType}`,
-      feedFilterOnboardingModalType === 'introTest1'
-        ? 'Create my feed'
-        : 'Continue',
+    trackEvent(
+      getAnalyticsEvent(
+        'click',
+        feedFilterOnboardingModalType === 'introTest1'
+          ? 'Create my feed'
+          : 'Continue',
+        feedFilterOnboardingModalType,
+      ),
     );
     onOpenFeedFilterModal(event);
   };
@@ -130,8 +126,12 @@ export default function FeedFiltersIntroModal({
   );
 
   return (
-    <ResponsiveModal {...modalProps} onRequestClose={onRequestClose}>
-      <section className="flex overflow-hidden flex-col items-center p-6 mobileL:px-10 mt-24">
+    <ResponsiveModal
+      {...modalProps}
+      onRequestClose={onRequestClose}
+      style={{ content: { flex: '1 0 auto' } }}
+    >
+      <section className="flex overflow-hidden flex-col flex-1 justify-center items-center p-6 mobileL:px-10">
         <UserIcon className="w-16 h-16" />
         <h3 className="mt-4 font-bold typo-large-title">Create my feed</h3>
         <p className="mt-3 mb-16 text-center typo-title3 text-theme-label-tertiary">
