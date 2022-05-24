@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
 
 type AnyFunction = (() => Promise<unknown>) | (() => unknown);
@@ -39,9 +40,12 @@ export const useToastNotification = (): UseToastNotification => {
     { timer = 5000, ...props }: NotifyOptionalProps = {},
   ) => setToastNotification({ message, timer, ...props });
 
-  return {
-    displayToast,
-    subject: toast?.subject,
-    dismissToast: () => toast && setToastNotification({ ...toast, timer: 0 }),
-  };
+  return useMemo(
+    () => ({
+      displayToast,
+      subject: toast?.subject,
+      dismissToast: () => toast && setToastNotification({ ...toast, timer: 0 }),
+    }),
+    [toast],
+  );
 };
