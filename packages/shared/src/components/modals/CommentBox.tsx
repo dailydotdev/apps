@@ -34,6 +34,7 @@ export interface CommentBoxProps {
   input?: string;
   errorMessage?: string;
   sendingComment?: boolean;
+  parentSelector?: () => HTMLElement;
   sendComment: (event: MouseEvent | KeyboardEvent) => Promise<void>;
   onInput?: (value: string) => unknown;
   onKeyDown: (
@@ -56,6 +57,7 @@ function CommentBox({
   onInput,
   onKeyDown,
   sendComment,
+  parentSelector,
   post,
 }: CommentBoxProps): ReactElement {
   const onTextareaInput = (content: string) =>
@@ -101,7 +103,7 @@ function CommentBox({
 
   return (
     <>
-      <div className="overflow-auto max-h-[31rem]">
+      <div className="overflow-auto" style={{ maxHeight: '31rem' }}>
         <article
           className={classNames(
             'flex flex-col items-stretch',
@@ -110,9 +112,10 @@ function CommentBox({
         >
           <header className="flex items-center mb-2">
             <RoundedImage
-              imgSrc={authorImage}
-              imgAlt={`${authorName}'s profile`}
-              background="var(--theme-background-secondary)"
+              src={authorImage}
+              alt={`${authorName}'s profile`}
+              className="bg-theme-bg-secondary"
+              loading="lazy"
             />
             <div className="flex flex-col ml-2">
               <div className="truncate typo-callout">{authorName}</div>
@@ -136,7 +139,7 @@ function CommentBox({
           </div>
         </div>
         <div className="flex relative flex-1 pl-2">
-          <ProfilePicture user={user} size="small" />
+          <ProfilePicture user={user} size="small" nativeLazyLoading />
           <div
             className={classNames(
               'ml-3 pr-2 flex-1 text-theme-label-primary bg-transparent whitespace-pre-line border-none caret-theme-label-link break-words typo-subhead resize-none',
@@ -161,6 +164,7 @@ function CommentBox({
           mentions={mentions}
           selected={selected}
           query={mentionQuery}
+          appendTo={parentSelector}
           onMentionClick={onMentionClick}
         />
         <div

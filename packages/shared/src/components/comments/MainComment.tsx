@@ -16,6 +16,7 @@ export interface Props extends CommentActionProps {
   comment: Comment;
   postAuthorId: string | null;
   className?: string;
+  appendTooltipTo?: () => HTMLElement;
 }
 
 const MainCommentBox = classed(CommentBox, 'my-2');
@@ -26,6 +27,7 @@ export default function MainComment({
   onDelete,
   onEdit,
   onShowUpvotes,
+  appendTooltipTo,
   className,
   postAuthorId,
 }: Props): ReactElement {
@@ -35,11 +37,18 @@ export default function MainComment({
       data-testid="comment"
     >
       <div className="flex items-center">
-        <ProfileTooltip user={comment.author}>
+        <ProfileTooltip
+          user={comment.author}
+          tooltip={{ appendTo: appendTooltipTo }}
+        >
           <ProfileImageLink user={comment.author} />
         </ProfileTooltip>
         <div className="flex flex-col ml-2">
-          <CommentAuthor postAuthorId={postAuthorId} author={comment.author} />
+          <CommentAuthor
+            postAuthorId={postAuthorId}
+            author={comment.author}
+            appendTooltipTo={appendTooltipTo}
+          />
           <CommentPublishDate comment={comment} />
         </div>
       </div>
@@ -66,6 +75,7 @@ export default function MainComment({
           onEdit={(childComment) => onEdit(childComment, comment)}
           onShowUpvotes={onShowUpvotes}
           postAuthorId={postAuthorId}
+          appendTooltipTo={appendTooltipTo}
         />
       ))}
     </article>

@@ -5,12 +5,12 @@ export const useRawBackgroundRequest = (
   command: (params: unknown) => void,
 ): void => {
   useEffect(() => {
-    const handler = ({ queryKey, ...args }) => {
-      if (!queryKey) {
+    const handler = ({ key, ...args }) => {
+      if (!key) {
         return;
       }
 
-      command({ queryKey, ...args });
+      command({ key, ...args });
     };
 
     browser.runtime.onMessage.addListener(handler);

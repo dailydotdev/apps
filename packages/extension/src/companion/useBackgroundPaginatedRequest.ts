@@ -3,8 +3,9 @@ import { useBackgroundRequest } from './useBackgroundRequest';
 
 export const useBackgroundPaginatedRequest = <T extends InfiniteData<unknown>>(
   queryKey: QueryKey,
-): void => {
+): T => {
   const client = useQueryClient();
+  const data = client.getQueryData<T>(queryKey);
   useBackgroundRequest(queryKey, ({ res, req }) => {
     if (!res) {
       return;
@@ -17,4 +18,6 @@ export const useBackgroundPaginatedRequest = <T extends InfiniteData<unknown>>(
     updated.pages[index] = res;
     client.setQueryData(queryKey, updated);
   });
+
+  return data;
 };
