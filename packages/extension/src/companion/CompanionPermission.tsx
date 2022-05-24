@@ -26,8 +26,15 @@ const CompanionPermissionComponent = (
   return (
     <div ref={ref} className="flex flex-row gap-4 max-w-full typo-callout">
       <CompanionSection className="shrink">
-        <p className="font-bold">{title}</p>
-        <p className="my-2 text-theme-label-tertiary">{description}</p>
+        <p className="font-bold" data-testid="companion_permission_title">
+          {title}
+        </p>
+        <p
+          className="my-2 text-theme-label-tertiary"
+          data-testid="companion_permission_description"
+        >
+          {description}
+        </p>
         <Button
           className="mt-1 w-[12.5rem] btn btn-primary"
           onClick={registerContentScripts}
