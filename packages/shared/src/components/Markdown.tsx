@@ -8,12 +8,16 @@ import useDebounce from '../hooks/useDebounce';
 
 interface MarkdownProps {
   content: string;
+  appendTooltipTo?: () => HTMLElement;
 }
 
 const TOOLTIP_SPACING = 8;
 const TOOLTIP_HALF_WIDTH = 140;
 
-export default function Markdown({ content }: MarkdownProps): ReactElement {
+export default function Markdown({
+  content,
+  appendTooltipTo,
+}: MarkdownProps): ReactElement {
   const ref = useRef<HTMLDivElement>();
   const [userId, setUserId] = useState('');
   const [offset, setOffset] = useState<CaretOffset>([0, 0]);
@@ -86,6 +90,7 @@ export default function Markdown({ content }: MarkdownProps): ReactElement {
         offset,
         visible: !!userId,
         onShow: cancelUserClearing,
+        appendTo: appendTooltipTo,
       }}
       onMouseEnter={cancelUserClearing}
       onMouseLeave={clearUser}

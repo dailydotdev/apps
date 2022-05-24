@@ -2,6 +2,7 @@ import 'content-scripts-register-polyfill';
 import { browser } from 'webextension-polyfill-ts';
 import { getBootData } from '@dailydotdev/shared/src/lib/boot';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
+import { parseOrDefault } from '@dailydotdev/shared/src/lib/func';
 import request from 'graphql-request';
 import { UPDATE_USER_SETTINGS_MUTATION } from '@dailydotdev/shared/src/graphql/settings';
 import {
@@ -68,14 +69,14 @@ async function handleMessages(message, sender) {
   }
 
   if (message.type === 'GRAPHQL_REQUEST') {
-    const { queryKey, ...variables } = message.variables || {};
-    const req = request(message.url, message.document, variables);
-    const key = queryKey || message.queryKey;
+    const { requestKey } = message.headers || {};
+    const req = request(message.url, message.document, message.variables);
 
-    if (!key) {
+    if (!requestKey) {
       return req;
     }
 
+    const key = parseOrDefault(requestKey);
     const url = sender?.tab?.url?.split('?')[0];
     const [deviceId, res] = await Promise.all([getOrGenerateDeviceId(), req]);
 
@@ -83,8 +84,8 @@ async function handleMessages(message, sender) {
       deviceId,
       url,
       res,
-      req: { variables },
-      queryKey: key,
+      req: { variables: message.variables },
+      key,
     });
   }
 

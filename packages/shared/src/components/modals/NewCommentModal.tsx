@@ -3,20 +3,16 @@ import React, {
   useState,
   MouseEvent,
   KeyboardEvent,
-  useContext,
   KeyboardEventHandler,
+  useEffect,
 } from 'react';
-import dynamic from 'next/dynamic';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
-import request from 'graphql-request';
-import cloneDeep from 'lodash.clonedeep';
+import { useMutation, useQuery } from 'react-query';
 import {
   Comment,
   CommentOnData,
   COMMENT_ON_COMMENT_MUTATION,
   COMMENT_ON_POST_MUTATION,
   EDIT_COMMENT_MUTATION,
-  PostCommentsData,
   PREVIEW_COMMENT_MUTATION,
 } from '../../graphql/comments';
 import { apiUrl } from '../../lib/config';
@@ -26,13 +22,10 @@ import Markdown from '../Markdown';
 import TabContainer, { Tab } from '../tabs/TabContainer';
 import CommentBox, { CommentBoxProps } from './CommentBox';
 import { Button } from '../buttons/Button';
-import { Edge } from '../../graphql/common';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { postAnalyticsEvent } from '../../lib/feed';
 import { Post } from '../../graphql/posts';
 import { ModalCloseButton } from './ModalCloseButton';
-
-const DiscardCommentModal = dynamic(() => import('./DiscardCommentModal'));
+import DiscardCommentModal from './DiscardCommentModal';
+import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 
 interface CommentVariables {
   id: string;
@@ -53,93 +46,66 @@ type CommentProps = Omit<
 export interface NewCommentModalProps extends ModalProps, CommentProps {
   post: Post;
   commentId: string;
-  onComment?: (newComment: Comment, parentId: string | null) => void;
+  onComment?: (comment: Comment, isNew?: boolean) => void;
   editContent?: string;
   editId?: string;
+  onInputChange?: (value: string) => void;
 }
 
 export default function NewCommentModal({
   onRequestClose,
   editId,
   onComment,
+  onInputChange,
   ...props
 }: NewCommentModalProps): ReactElement {
   const [input, setInput] = useState<string>(props.editContent || '');
   const [showDiscardModal, setShowDiscardModal] = useState<boolean>(false);
-  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('Write');
   const [sendingComment, setSendingComment] = useState<boolean>(false);
-  const { trackEvent } = useContext(AnalyticsContext);
   const [errorMessage, setErrorMessage] = useState<string>(null);
   const isPreview = activeTab === 'Preview';
+  const { requestMethod } = useRequestProtocol();
+  const previewQueryKey = ['comment_preview', input];
   const { data: previewContent } = useQuery<{ preview: string }>(
-    input,
+    previewQueryKey,
     () =>
-      request(`${apiUrl}/graphql`, PREVIEW_COMMENT_MUTATION, {
-        content: input,
-      }),
+      requestMethod(
+        `${apiUrl}/graphql`,
+        PREVIEW_COMMENT_MUTATION,
+        { content: input },
+        { requestKey: JSON.stringify(previewQueryKey) },
+      ),
     { enabled: isPreview && input?.length > 0 },
   );
 
   const confirmClose = (event: MouseEvent): void => {
-    if (input?.length) {
+    if (
+      (!props.editContent && input?.length) ||
+      (props.editContent && props.editContent !== input)
+    ) {
       setShowDiscardModal(true);
     } else {
       onRequestClose(event);
     }
   };
 
+  const key = ['post_comments_mutations', props.post.id];
   const { mutateAsync: comment } = useMutation<
     CommentOnData,
     unknown,
     CommentVariables
   >(
     (variables) =>
-      request(
+      requestMethod(
         `${apiUrl}/graphql`,
         props.commentId
           ? COMMENT_ON_COMMENT_MUTATION
           : COMMENT_ON_POST_MUTATION,
         variables,
+        { requestKey: JSON.stringify(key) },
       ),
-    {
-      onSuccess: async (data) => {
-        const queryKey = ['post_comments', props.post.id];
-        const cached = cloneDeep(
-          queryClient.getQueryData<PostCommentsData>(queryKey),
-        );
-        if (cached) {
-          const newEdge: Edge<Comment> = {
-            __typename: 'CommentEdge',
-            node: {
-              ...data.comment,
-            },
-            cursor: '',
-          };
-          // Update the sub tree of the parent comment
-          if (props.commentId) {
-            const edgeIndex = cached.postComments.edges.findIndex(
-              (e) => e.node.id === props.commentId,
-            );
-            if (edgeIndex > -1) {
-              if (cached.postComments.edges[edgeIndex].node.children) {
-                cached.postComments.edges[edgeIndex].node.children.edges.push(
-                  newEdge,
-                );
-              } else {
-                cached.postComments.edges[edgeIndex].node.children = {
-                  edges: [newEdge],
-                  pageInfo: {},
-                };
-              }
-            }
-          } else {
-            cached.postComments.edges.push(newEdge);
-          }
-          queryClient.setQueryData(queryKey, cached);
-        }
-      },
-    },
+    { onSuccess: (data) => data && onComment(data.comment, true) },
   );
 
   const { mutateAsync: editComment } = useMutation<
@@ -148,48 +114,10 @@ export default function NewCommentModal({
     CommentVariables
   >(
     (variables) =>
-      request(`${apiUrl}/graphql`, EDIT_COMMENT_MUTATION, variables),
-    {
-      onSuccess: async (data) => {
-        const queryKey = ['post_comments', props.post.id];
-        const cached = cloneDeep(
-          queryClient.getQueryData<PostCommentsData>(queryKey),
-        );
-        if (cached) {
-          // Update the sub tree of the parent comment
-          if (props.commentId) {
-            const parentEdgeIndex = cached.postComments.edges.findIndex(
-              (e) => e.node.id === props.commentId,
-            );
-            if (parentEdgeIndex > -1) {
-              const edgeIndex = cached.postComments.edges[
-                parentEdgeIndex
-              ].node.children.edges.findIndex((e) => e.node.id === editId);
-              if (edgeIndex > -1) {
-                cached.postComments.edges[parentEdgeIndex].node.children.edges[
-                  edgeIndex
-                ].node = {
-                  ...cached.postComments.edges[parentEdgeIndex].node.children
-                    .edges[edgeIndex].node,
-                  ...data.comment,
-                };
-              }
-            }
-          } else {
-            const edgeIndex = cached.postComments.edges.findIndex(
-              (e) => e.node.id === editId,
-            );
-            if (edgeIndex > -1) {
-              cached.postComments.edges[edgeIndex].node = {
-                ...cached.postComments.edges[edgeIndex].node,
-                ...data.comment,
-              };
-            }
-          }
-          queryClient.setQueryData(queryKey, cached);
-        }
-      },
-    },
+      requestMethod(`${apiUrl}/graphql`, EDIT_COMMENT_MUTATION, variables, {
+        requestKey: JSON.stringify(key),
+      }),
+    { onSuccess: (data) => data && onComment(data.comment, false) },
   );
 
   const modalRef = (element: HTMLDivElement): void => {
@@ -199,9 +127,7 @@ export default function NewCommentModal({
     }
   };
 
-  const sendComment = async (
-    event: MouseEvent | KeyboardEvent,
-  ): Promise<void> => {
+  const sendComment = async (): Promise<void> => {
     if (sendingComment || !input?.trim().length) {
       return;
     }
@@ -213,19 +139,11 @@ export default function NewCommentModal({
           id: editId,
           content: input,
         });
-        onRequestClose(event);
       } else {
-        const data = await comment({
+        await comment({
           id: props.commentId || props.post.id,
           content: input,
         });
-        trackEvent(
-          postAnalyticsEvent('comment post', props.post, {
-            extra: { commentId: props.commentId, origin: 'comment modal' },
-          }),
-        );
-        onComment?.(data.comment, props.commentId);
-        onRequestClose(event);
       }
     } catch (err) {
       setErrorMessage('Something went wrong, try again');
@@ -243,11 +161,15 @@ export default function NewCommentModal({
       event.keyCode === 13 &&
       input?.length
     ) {
-      await sendComment(event);
+      await sendComment();
     } else {
       defaultCallback?.(event);
     }
   };
+
+  useEffect(() => {
+    onInputChange?.(input);
+  }, [input]);
 
   return (
     <ResponsiveModal
@@ -277,7 +199,10 @@ export default function NewCommentModal({
         </Tab>
         <Tab label="Preview" className="flex overflow-y-auto flex-col flex-1">
           {isPreview && previewContent?.preview && (
-            <Markdown content={previewContent.preview} />
+            <Markdown
+              content={previewContent.preview}
+              appendTooltipTo={props.parentSelector}
+            />
           )}
           {isPreview && (
             <Button
@@ -296,6 +221,7 @@ export default function NewCommentModal({
         onRequestClose={() => setShowDiscardModal(false)}
         onDeleteComment={onRequestClose}
         shouldCloseOnOverlayClick={false}
+        parentSelector={props.parentSelector}
       />
     </ResponsiveModal>
   );

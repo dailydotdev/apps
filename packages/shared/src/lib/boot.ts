@@ -23,6 +23,7 @@ export type PostBootData = Pick<
   | 'readTime'
   | 'tags'
   | 'permalink'
+  | 'author'
 > & {
   author?: Pick<Author, 'id'>;
 };

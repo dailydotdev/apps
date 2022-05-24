@@ -1,6 +1,11 @@
 import React from 'react';
 import '@testing-library/jest-dom';
-import { render, RenderResult, screen } from '@testing-library/preact';
+import {
+  fireEvent,
+  render,
+  RenderResult,
+  screen,
+} from '@testing-library/preact';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import App from './App';
 
@@ -33,7 +38,7 @@ const defaultPostData = {
   bookmarked: true,
   commentsPermalink: 'https://app.daily.dev/posts/62S6GrSzK',
   id: '62S6GrSzK',
-  numComments: 3,
+  numComments: 1,
   numUpvotes: 6,
   source: { id: 'gamedevacademy', name: 'GameDev Academy' },
   summary:
@@ -64,7 +69,7 @@ const renderComponent = (postdata, settings): RenderResult => {
 };
 
 describe('companion app', () => {
-  it('should render the companion appp', async () => {
+  it('should render the companion app', async () => {
     renderComponent({}, {});
     const wrapper = await screen.findByTestId('companion');
     expect(wrapper).toBeInTheDocument();
@@ -93,7 +98,7 @@ describe('companion app', () => {
     const toggleButton = await screen.findByLabelText('Open summary');
     expect(toggleButton).toBeInTheDocument();
     await toggleButton.click();
-    expect(await screen.findByText('3 Comments')).toBeInTheDocument();
+    expect(await screen.findByText('6 Upvotes')).toBeInTheDocument();
   });
 
   it('should show upvoted icon unselected', async () => {
@@ -117,7 +122,7 @@ describe('companion app', () => {
     const toggleButton = await screen.findByLabelText('Open summary');
     expect(toggleButton).toBeInTheDocument();
     await toggleButton.click();
-    expect(await screen.findByText('6 Upvotes')).toBeInTheDocument();
+    expect(await screen.findByText('1 Comment')).toBeInTheDocument();
   });
 
   it('should show bookmark icon selected', async () => {
@@ -140,5 +145,13 @@ describe('companion app', () => {
     const button = await screen.findByLabelText('More options');
     await button.click();
     expect(await screen.findByText('Report')).toBeInTheDocument();
+  });
+
+  it('should show report menu', async () => {
+    renderComponent({}, {});
+    await screen.findByTestId('companion');
+    const button = await screen.findByText('1 Comment');
+    fireEvent.click(button);
+    expect(await screen.findByText('Discussion')).toBeInTheDocument();
   });
 });
