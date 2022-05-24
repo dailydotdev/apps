@@ -104,10 +104,14 @@ export class Features {
     ['off', 'header', 'sidebar'],
   );
 
-  static readonly CompanionPermissionContent = new Features(
-    'companion_permission_content',
-    'v1',
-    ['v1', 'v2', 'v3'],
+  static readonly CompanionPermissionTitle = new Features(
+    'companion_permission_title',
+    'The companion lets you comment and upvote directly on an article! 🤯',
+  );
+
+  static readonly CompanionPermissionDescription = new Features(
+    'companion_permission_description',
+    'Heads up! We need to ask for some extra permissions so you can enjoy the power of the companion.',
   );
 
   private constructor(

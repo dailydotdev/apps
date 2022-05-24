@@ -9,30 +9,6 @@ import {
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import { useExtensionPermission } from './useExtensionPermission';
 
-interface Content {
-  title: string;
-  description: string;
-}
-
-const contentVariation: Record<string, Content> = {
-  v1: {
-    title:
-      'The companion lets you comment and upvote directly on an article! 🤯',
-    description:
-      'Heads up! We need to ask for some extra permissions so you can enjoy the power of the companion.',
-  },
-  v2: {
-    title: 'Add TLDR and more information on the article',
-    description:
-      'By adding the widget to an article, it asks permission to track website visits.',
-  },
-  v3: {
-    title: 'Stay updated with our community inside articles',
-    description:
-      'By adding the widget to an article, it asks permission to track website visits.',
-  },
-};
-
 const CompanionSection = classed('div', 'flex flex-col max-w-full');
 
 const CompanionPermissionComponent = (
@@ -41,17 +17,17 @@ const CompanionPermissionComponent = (
 ): ReactElement => {
   const { registerContentScripts } = useExtensionPermission();
   const { flags } = useContext(FeaturesContext);
-  const contentVersion = getFeatureValue(
-    Features.CompanionPermissionContent,
+  const title = getFeatureValue(Features.CompanionPermissionTitle, flags);
+  const description = getFeatureValue(
+    Features.CompanionPermissionDescription,
     flags,
   );
-  const content = contentVariation[contentVersion];
 
   return (
     <div ref={ref} className="flex flex-row gap-4 max-w-full typo-callout">
       <CompanionSection className="shrink">
-        <p className="font-bold">{content?.title}</p>
-        <p className="my-2 text-theme-label-tertiary">{content?.description}</p>
+        <p className="font-bold">{title}</p>
+        <p className="my-2 text-theme-label-tertiary">{description}</p>
         <Button
           className="mt-1 w-[12.5rem] btn btn-primary"
           onClick={registerContentScripts}
