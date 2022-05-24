@@ -24,6 +24,10 @@ export const useKeyboardNavigation = (
         return;
       }
 
+      if (base.getAttribute('contenteditable') === 'true') {
+        return;
+      }
+
       const event = events.find(([key]) => key === e.key);
 
       if (!event) {

@@ -7,6 +7,7 @@ $badgeOffset: 1.875rem;
 .newRankModal {
   & :global(.modal) {
     max-width: 26.25rem;
+    overflow: hidden;
 
     @screen responsiveModalBreakpoint {
       box-sizing: content-box;
