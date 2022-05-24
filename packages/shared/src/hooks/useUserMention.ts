@@ -25,7 +25,6 @@ import {
   replaceWord,
   getCaretOffset,
   CaretOffset,
-  getSelectionStart,
   anyElementClassContains,
 } from '../lib/element';
 import { nextTick } from '../lib/func';
@@ -44,7 +43,7 @@ interface UseUserMention {
 interface UseUserMentionProps {
   postId: string;
   onInput: (content: string) => unknown;
-  commentRef?: MutableRefObject<HTMLTextAreaElement>;
+  commentRef?: MutableRefObject<HTMLDivElement>;
 }
 
 const UPDOWN_ARROW_KEYS = ['ArrowUp', 'ArrowDown'];
@@ -113,12 +112,9 @@ export function useUserMention({
     const mention = `@${query}`;
     const replacement = `@${username}`;
     replaceWord(element, position, mention, replacement);
-    const start = getSelectionStart(element.value, position);
-    element.focus();
-    element.selectionEnd = start + replacement.length;
     setQuery(undefined);
     client.setQueryData(key, []);
-    onInput(element.value);
+    onInput(element.innerText);
   };
 
   const onArrowKey = (arrowKey: string) => {
@@ -129,12 +125,12 @@ export function useUserMention({
     }
   };
 
-  const onBackspace = (el: HTMLTextAreaElement) => {
+  const onBackspace = (el: HTMLDivElement) => {
     const backspaced = getWord(el, position);
     const value =
       (query === '' && backspaced === '') ||
       query === backspaced ||
-      el.value.length === 0
+      el.textContent.length === 0
         ? undefined
         : backspaced;
     setQuery(value);
@@ -203,15 +199,13 @@ export function useUserMention({
     if (typeof query !== 'undefined') {
       return;
     }
-    const textarea = commentRef.current;
-    const start = textarea.selectionStart;
-    const left = textarea.value.substring(0, start);
-    const right = textarea.value.substring(start);
-    textarea.value = `${left} @ ${right}`;
-    textarea.focus();
-    textarea.selectionEnd = start + 2;
 
-    textarea.dispatchEvent(new KeyboardEvent('keydown', { key: '@' }));
+    const [col, row] = getCaretPostition(commentRef.current);
+    replaceWord(commentRef.current, [col + 1, row], '', '@', true);
+
+    commentRef.current.dispatchEvent(
+      new KeyboardEvent('keydown', { key: '@' }),
+    );
   };
 
   const userClicked = useCallback(

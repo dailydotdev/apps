@@ -9,6 +9,7 @@ import classNames from 'classnames';
 import TabList from './TabList';
 
 export interface TabProps {
+  key?: number;
   children: ReactNode;
   label: string;
   className?: string;
@@ -66,9 +67,10 @@ function TabContainer({
       </header>
       {!shouldMountInactive
         ? renderSingleComponent()
-        : children.map((child) =>
+        : children.map((child, i) =>
             createElement(child.type, {
               ...child.props,
+              key: child.props.key || i,
               style: isTabActive(child)
                 ? child.props.style
                 : { ...child.props.style, display: 'none' },
