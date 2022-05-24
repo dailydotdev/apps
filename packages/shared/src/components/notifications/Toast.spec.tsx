@@ -64,22 +64,12 @@ it('should display a toast notification and be dismissable', async () => {
   expect(screen.queryByRole('alert')).not.toBeInTheDocument();
 });
 
-it('should display a toast notification and automatically close if not actionable even with auto dismiss settings to false', async () => {
+it('should display a toast notification and do not automatically close', async () => {
   renderComponent(false);
   const button = await screen.findByText('Regular Toast');
   fireEvent.click(button);
   await screen.findByRole('alert');
-  await screen.findByText('Sample Notification');
   await act(() => new Promise((resolve) => setTimeout(resolve, 1500))); // wait for the toast to expire
-  expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-});
-
-it('should display a toast notification and do not automatically if actionable', async () => {
-  renderComponent(false);
-  const button = await screen.findByText('Undoable Toast');
-  fireEvent.click(button);
-  await screen.findByRole('alert');
-  await act(() => new Promise((resolve) => setTimeout(resolve, 1500)));
   await screen.findByRole('alert');
   const dismiss = await screen.findByLabelText('Dismiss toast notification');
   fireEvent.click(dismiss);
