@@ -9,6 +9,7 @@ import {
   getLocalBootData,
 } from '@dailydotdev/shared/src/contexts/BootProvider';
 import { getOrGenerateDeviceId } from '@dailydotdev/shared/src/hooks/analytics/useDeviceId';
+import { registerBrowserContentScripts } from '../companion/useExtensionPermission';
 
 const excludedCompanionOrigins = [
   'https://twitter.com',
@@ -58,14 +59,7 @@ async function handleMessages(message, sender) {
     origins: ['*://*/*'],
   });
   if (permissions) {
-    await browser.contentScripts.register({
-      matches: ['<all_urls>'],
-      css: [{ file: 'css/daily-companion-app.css' }],
-      js: [
-        { file: 'js/content.bundle.js' },
-        { file: 'js/companion.bundle.js' },
-      ],
-    });
+    await registerBrowserContentScripts();
   }
 
   if (message.type === 'CONTENT_LOADED') {

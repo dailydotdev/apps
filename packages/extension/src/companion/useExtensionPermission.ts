@@ -1,12 +1,23 @@
 import { useQuery, useQueryClient } from 'react-query';
 import { useEffect } from 'react';
-import { browser } from 'webextension-polyfill-ts';
+import { browser, ContentScripts } from 'webextension-polyfill-ts';
 import { companionPermissionGrantedLink } from '@dailydotdev/shared/src/lib/constants';
 
 interface UseExtensionPermission {
   contentScriptGranted: boolean;
   registerContentScripts: () => void;
 }
+
+export const registerBrowserContentScripts =
+  (): Promise<ContentScripts.RegisteredContentScript> =>
+    browser.contentScripts.register({
+      matches: ['<all_urls>'],
+      css: [{ file: 'css/daily-companion-app.css' }],
+      js: [
+        { file: 'js/content.bundle.js' },
+        { file: 'js/companion.bundle.js' },
+      ],
+    });
 
 const contentScriptKey = 'permission_key';
 export const useExtensionPermission = (): UseExtensionPermission => {
@@ -35,14 +46,7 @@ export const useExtensionPermission = (): UseExtensionPermission => {
 
     if (granted) {
       client.setQueryData(contentScriptKey, true);
-      await browser.contentScripts.register({
-        matches: ['<all_urls>'],
-        css: [{ file: 'css/daily-companion-app.css' }],
-        js: [
-          { file: 'js/content.bundle.js' },
-          { file: 'js/companion.bundle.js' },
-        ],
-      });
+      await registerBrowserContentScripts();
       window.open(companionPermissionGrantedLink, '_blank');
     }
 
