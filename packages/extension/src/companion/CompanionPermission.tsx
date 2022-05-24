@@ -1,5 +1,6 @@
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import classed from '@dailydotdev/shared/src/lib/classed';
+import { companionExplainerVideo } from '@dailydotdev/shared/src/lib/constants';
 import React, { ReactElement, Ref, forwardRef, useContext } from 'react';
 import PlayIcon from '@dailydotdev/shared/icons/filled/play.svg';
 import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
@@ -44,7 +45,10 @@ const CompanionPermissionComponent = (
         </Button>
       </CompanionSection>
       <CompanionSection>
-        <a className="flex relative justify-center items-center" href="#">
+        <a
+          href={companionExplainerVideo}
+          className="flex relative justify-center items-center"
+        >
           <img
             src="./companion_preview.png"
             alt="Companion video preview"
@@ -53,7 +57,7 @@ const CompanionPermissionComponent = (
           <PlayIcon className="absolute w-10 h-10" />
         </a>
         <a
-          href="#"
+          href={companionExplainerVideo}
           className="mt-2 text-center underline typo-footnote text-theme-status-cabbage"
         >
           Watch the Companion

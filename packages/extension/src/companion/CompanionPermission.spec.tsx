@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import '@testing-library/jest-dom';
 import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import { render, RenderResult, screen } from '@testing-library/preact';
+import { companionExplainerVideo } from '@dailydotdev/shared/src/lib/constants';
 import { CompanionPermission } from './CompanionPermission';
 
 let client: QueryClient;
@@ -66,7 +67,7 @@ describe('companion permission component', () => {
     const links = await screen.findAllByRole('link');
     expect(links.length).toEqual(2);
     links.forEach((link) => {
-      expect(link).toHaveAttribute('href', '#'); // subject to change when the link is provided
+      expect(link).toHaveAttribute('href', companionExplainerVideo);
     });
   });
 
