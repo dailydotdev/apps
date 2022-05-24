@@ -18,6 +18,8 @@ const CompanionPermissionComponent = (
 ): ReactElement => {
   const { registerContentScripts } = useExtensionPermission();
   const { flags } = useContext(FeaturesContext);
+  const link = getFeatureValue(Features.CompanionPermissionLink, flags);
+  const button = getFeatureValue(Features.CompanionPermissionButton, flags);
   const title = getFeatureValue(Features.CompanionPermissionTitle, flags);
   const description = getFeatureValue(
     Features.CompanionPermissionDescription,
@@ -41,7 +43,7 @@ const CompanionPermissionComponent = (
           onClick={registerContentScripts}
           buttonSize="small"
         >
-          Add the companion now!
+          {button}
         </Button>
       </CompanionSection>
       <CompanionSection>
@@ -60,9 +62,7 @@ const CompanionPermissionComponent = (
           href={companionExplainerVideo}
           className="mt-2 text-center underline typo-footnote text-theme-status-cabbage"
         >
-          Watch the Companion
-          <br />
-          Overview
+          {link}
         </a>
       </CompanionSection>
     </div>

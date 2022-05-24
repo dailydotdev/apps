@@ -114,6 +114,16 @@ export class Features {
     'Heads up! We need to ask for some extra permissions so you can enjoy the power of the companion.',
   );
 
+  static readonly CompanionPermissionLink = new Features(
+    'companion_permission_link',
+    'Watch the Companion\nOverview',
+  );
+
+  static readonly CompanionPermissionButton = new Features(
+    'companion_permission_button',
+    'Add the companion now!',
+  );
+
   private constructor(
     public readonly id: string,
     public readonly defaultValue?: string,
