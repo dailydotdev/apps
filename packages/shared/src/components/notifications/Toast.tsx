@@ -1,10 +1,4 @@
-import React, {
-  ReactElement,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { ReactElement, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery, useQueryClient } from 'react-query';
 import {
@@ -22,6 +16,7 @@ import {
   NotifMessage,
   NotifProgress,
 } from './utils';
+import { useTimedAnimation } from '../../hooks/useTimedAnimation';
 
 interface ToastProps {
   autoDismissNotifications?: boolean;
@@ -29,77 +24,31 @@ interface ToastProps {
 
 const Container = classed(NotifContainer, styles.toastContainer);
 const Progress = classed(NotifProgress, styles.toastProgress);
-const INTERVAL_COUNT = 10;
-const IN_OUT_ANIMATION = 140;
-const TEMPORARY_ID = 1;
 
 const Toast = ({
   autoDismissNotifications = false,
 }: ToastProps): ReactElement => {
   const router = useRouter();
   const client = useQueryClient();
-  const [intervalId, setIntervalId] = useState<number>(null);
-  const [timer, setTimer] = useState(0);
-  const timeout = useRef<number>();
   const { data: toast } = useQuery<ToastNotification>(TOAST_NOTIF_KEY);
   const setToast = (data: ToastNotification) =>
     client.setQueryData(TOAST_NOTIF_KEY, data);
+  const onAnimationEnd = () => setToast(null);
+  const onCloseNotification = () => toast && setToast({ ...toast, timer: 0 });
+  const { timer, isAnimating, endAnimation } = useTimedAnimation({
+    onAnimationEnd,
+    animationDuration: toast?.timer,
+    autoEndAnimation: autoDismissNotifications,
+  });
 
-  useEffect(() => {
-    if (toast && timer === 0 && intervalId) {
-      window.clearInterval(intervalId);
-      setIntervalId(null);
-      window.clearTimeout(timeout.current);
-      timeout.current = window.setTimeout(
-        () => setToast(null),
-        IN_OUT_ANIMATION,
-      );
-    }
-  }, [timer, toast, intervalId]);
-
-  useEffect(
-    () => () => {
-      window.clearTimeout(timeout.current);
-    },
-    [],
-  );
-
-  useEffect(() => {
+  const dismissToast = () => {
     if (!toast) {
       return;
     }
 
-    window.clearInterval(intervalId);
-    setTimer(toast.timer);
-
-    if (!autoDismissNotifications && !intervalId) {
-      setIntervalId(TEMPORARY_ID);
-      return;
-    }
-
-    if (toast.timer <= 0) {
-      return;
-    }
-
-    setIntervalId(
-      window.setInterval(
-        () =>
-          setTimer((current) =>
-            INTERVAL_COUNT >= current ? 0 : current - INTERVAL_COUNT,
-          ),
-        INTERVAL_COUNT,
-      ),
-    );
-  }, [toast]);
-
-  const dismissToast = useCallback(() => {
-    if (!toast) {
-      return;
-    }
-
-    window.clearInterval(intervalId);
-    setToast({ ...toast, timer: 0 });
-  }, [toast, intervalId]);
+    endAnimation();
+    onCloseNotification();
+  };
 
   const undoAction = async () => {
     if (!toast?.onUndo) {
@@ -107,7 +56,8 @@ const Toast = ({
     }
 
     await toast.onUndo();
-    setToast({ ...toast, timer: 0 });
+    endAnimation();
+    onCloseNotification();
   };
 
   useEffect(() => {
@@ -124,7 +74,7 @@ const Toast = ({
       window.removeEventListener('scroll', handler);
       router.events.off('routeChangeStart', handler);
     };
-  }, [dismissToast]);
+  }, [toast]);
 
   if (!toast) {
     return null;
@@ -133,7 +83,7 @@ const Toast = ({
   const progress = (timer / toast.timer) * 100;
 
   return (
-    <Container className={intervalId && 'slide-in'} role="alert">
+    <Container className={isAnimating && 'slide-in'} role="alert">
       <NotifContent>
         <NotifMessage>{toast.message}</NotifMessage>
         {toast?.onUndo && (
