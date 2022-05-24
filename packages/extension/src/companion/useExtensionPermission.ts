@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useQuery, useQueryClient } from 'react-query';
+import { useEffect } from 'react';
 import { browser } from 'webextension-polyfill-ts';
 
 interface UseExtensionPermission {
@@ -6,8 +7,13 @@ interface UseExtensionPermission {
   registerContentScripts: () => void;
 }
 
+const contentScriptKey = 'permission_key';
 export const useExtensionPermission = (): UseExtensionPermission => {
-  const [contentScriptGranted, setContentScriptGranted] = useState(false);
+  const client = useQueryClient();
+  const { data: contentScriptGranted } = useQuery(
+    contentScriptKey,
+    () => false,
+  );
 
   useEffect(() => {
     const permissionCall = async () => {
@@ -15,7 +21,7 @@ export const useExtensionPermission = (): UseExtensionPermission => {
         origins: ['*://*/*'],
       });
       if (permissions) {
-        setContentScriptGranted(true);
+        client.setQueryData(contentScriptKey, true);
       }
     };
     permissionCall();
@@ -27,7 +33,7 @@ export const useExtensionPermission = (): UseExtensionPermission => {
     });
 
     if (granted) {
-      setContentScriptGranted(true);
+      client.setQueryData(contentScriptKey, true);
       await browser.contentScripts.register({
         matches: ['<all_urls>'],
         css: [{ file: 'css/daily-companion-app.css' }],
