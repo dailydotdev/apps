@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from 'react-query';
 import { useEffect } from 'react';
 import { browser } from 'webextension-polyfill-ts';
+import { companionPermissionGrantedLink } from '@dailydotdev/shared/src/lib/constants';
 
 interface UseExtensionPermission {
   contentScriptGranted: boolean;
@@ -42,6 +43,7 @@ export const useExtensionPermission = (): UseExtensionPermission => {
           { file: 'js/companion.bundle.js' },
         ],
       });
+      window.open(companionPermissionGrantedLink, '_blank');
     }
 
     return granted;
