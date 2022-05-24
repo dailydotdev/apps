@@ -23,14 +23,17 @@ export function SimpleTooltip({
    * Read more on the PR: https://github.com/dailydotdev/apps/pull/713
    */
   let shouldShow = true;
-  const component = useMemo(
-    () =>
-      React.cloneElement(children, {
-        ...children.props,
-        'aria-label': typeof content === 'string' && content,
-      }),
-    [children],
-  );
+  const component = useMemo(() => {
+    const tooltipProps = {};
+    if (typeof content === 'string') {
+      tooltipProps['aria-label'] = content;
+    }
+
+    return React.cloneElement(children, {
+      ...tooltipProps,
+      ...children.props,
+    });
+  }, [children]);
 
   const onTooltipTrigger = (_, event) => {
     shouldShow = event.type !== 'focus';
