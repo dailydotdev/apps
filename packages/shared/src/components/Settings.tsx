@@ -171,12 +171,7 @@ export default function Settings({
           >
             Show Weekly Goal widget
           </Switch>
-        </div>
-      </Section>
-      {companionPlacement !== 'off' && (
-        <Section>
-          <SectionTitle>Companion Widget (beta)</SectionTitle>
-          <div className="flex flex-col items-start pl-1.5 -my-0.5">
+          {companionPlacement !== 'off' && (
             <Switch
               inputId="hide-companion-switch"
               name="hide-companion"
@@ -185,11 +180,11 @@ export default function Settings({
               onToggle={toggleOptOutCompanion}
               compact={false}
             >
-              Enable widget on articles
+              Enable companion
             </Switch>
-          </div>
-        </Section>
-      )}
+          )}
+        </div>
+      </Section>
     </div>
   );
 }
