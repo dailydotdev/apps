@@ -1,4 +1,4 @@
-import React, { useState, ReactElement, useContext, useRef } from 'react';
+import React, { useState, ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';

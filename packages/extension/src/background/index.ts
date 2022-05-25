@@ -11,7 +11,10 @@ import {
 } from '@dailydotdev/shared/src/contexts/BootProvider';
 import { getOrGenerateDeviceId } from '@dailydotdev/shared/src/hooks/analytics/useDeviceId';
 import { registerBrowserContentScripts } from '../companion/useExtensionPermission';
-import useExtensionAlerts from '../lib/useExtensionAlerts';
+import {
+  getExtensionAlerts,
+  updateExtensionAlerts,
+} from '../lib/extensionAlerts';
 
 const excludedCompanionOrigins = [
   'https://twitter.com',
@@ -119,15 +122,15 @@ browser.browserAction.onClicked.addListener(() => {
 });
 
 browser.runtime.onInstalled.addListener(async (details) => {
-  const { alerts, updateAlerts } = useExtensionAlerts();
+  const alerts = getExtensionAlerts();
 
   if (typeof alerts.displayCompanionPopup === 'undefined') {
     if (details.reason === 'update') {
-      updateAlerts({ displayCompanionPopup: true });
+      updateExtensionAlerts(alerts, { displayCompanionPopup: true });
     }
 
     if (details.reason === 'install') {
-      updateAlerts({ displayCompanionPopup: false });
+      updateExtensionAlerts(alerts, { displayCompanionPopup: false });
     }
   }
 

@@ -59,7 +59,7 @@ export const useExtensionPermission = ({
 
     if (granted) {
       trackEvent({
-        event_name: 'granted content scripts',
+        event_name: 'approve content scripts',
         extra: JSON.stringify({ origin }),
       });
       client.setQueryData(contentScriptKey, true);
