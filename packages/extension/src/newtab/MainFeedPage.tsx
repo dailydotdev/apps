@@ -53,7 +53,7 @@ export default function MainFeedPage({
   const [showDnd, setShowDnd] = useState(false);
   const isOnLoad = useRef(true);
   const { contentScriptGranted, registerContentScripts } =
-    useExtensionPermission();
+    useExtensionPermission({ origin: 'main feed page' });
   const { registerLocalFilters, shouldShowMyFeed } = useMyFeed();
   const [defaultFeed] = useDefaultFeed(shouldShowMyFeed);
   const { optOutCompanion, toggleOptOutCompanion, loadedSettings } =

@@ -40,7 +40,9 @@ export const updateCompanionAlerts = (
 export const CompanionPopupButton = (): ReactElement => {
   const alerts = useRef(getCompanionAlerts());
   const { trackEvent } = useContext(AnalyticsContext);
-  const { contentScriptGranted } = useExtensionPermission();
+  const { contentScriptGranted } = useExtensionPermission({
+    origin: 'companion permission button',
+  });
   const [showCompanionPermission, setShowCompanionPermission] = useState(
     alerts.current.displayCompanionPopup,
   );

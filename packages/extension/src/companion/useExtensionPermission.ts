@@ -23,12 +23,12 @@ export const registerBrowserContentScripts =
 const contentScriptKey = 'permission_key';
 
 interface UseExtensionPermissionProps {
-  origin?: string;
+  origin: string;
 }
 
 export const useExtensionPermission = ({
   origin,
-}: UseExtensionPermissionProps = {}): UseExtensionPermission => {
+}: UseExtensionPermissionProps): UseExtensionPermission => {
   const client = useQueryClient();
   const { trackEvent } = useContext(AnalyticsContext);
   const { data: contentScriptGranted } = useQuery(
@@ -50,7 +50,7 @@ export const useExtensionPermission = ({
 
   const registerContentScripts = async () => {
     trackEvent({
-      event_name: 'content scripts request',
+      event_name: 'request content scripts',
       extra: JSON.stringify({ origin }),
     });
     const granted = await browser.permissions.request({
@@ -58,7 +58,10 @@ export const useExtensionPermission = ({
     });
 
     if (granted) {
-      trackEvent({ event_name: 'content scripts granted' });
+      trackEvent({
+        event_name: 'granted content scripts',
+        extra: JSON.stringify({ origin }),
+      });
       client.setQueryData(contentScriptKey, true);
       await registerBrowserContentScripts();
       window.open(companionPermissionGrantedLink, '_blank');
