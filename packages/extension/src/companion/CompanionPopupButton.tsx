@@ -19,8 +19,8 @@ export const CompanionPopupButton = (): ReactElement => {
     alerts.displayCompanionPopup,
   );
 
-  const companionNotificationTracking = (extra: string) => {
-    const state = showCompanionPermission ? 'open' : 'close';
+  const companionNotificationTracking = (extra: string, value: boolean) => {
+    const state = value ? 'open' : 'close';
     trackEvent({
       event_name: `${state} companion permission popup`,
       extra: JSON.stringify({ origin: extra }),
@@ -29,7 +29,7 @@ export const CompanionPopupButton = (): ReactElement => {
 
   useEffect(() => {
     if (alerts.displayCompanionPopup) {
-      companionNotificationTracking('auto');
+      companionNotificationTracking('auto', true);
     }
   }, [alerts]);
 
@@ -44,7 +44,7 @@ export const CompanionPopupButton = (): ReactElement => {
       });
     }
 
-    companionNotificationTracking('manual');
+    companionNotificationTracking('manual', !showCompanionPermission);
     setShowCompanionPermission(!showCompanionPermission);
   };
 
