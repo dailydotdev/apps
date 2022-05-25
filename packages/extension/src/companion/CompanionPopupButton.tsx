@@ -5,10 +5,12 @@ import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import CompanionFilledIcon from '@dailydotdev/shared/icons/filled/companion.svg';
 import CompanionOutlineIcon from '@dailydotdev/shared/icons/outline/companion.svg';
+import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { CompanionPermission } from './CompanionPermission';
 import { useExtensionPermission } from './useExtensionPermission';
 
 export const CompanionPopupButton = (): ReactElement => {
+  const { trackEvent } = useContext(AnalyticsContext);
   const { user, loadedUserFromCache } = useContext(AuthContext);
   const { contentScriptGranted } = useExtensionPermission();
   const [showCompanionPermission, setShowCompanionPermission] = useState(false);
@@ -23,6 +25,12 @@ export const CompanionPopupButton = (): ReactElement => {
 
     setShowCompanionPermission(!!user);
   }, [user, loadedUserFromCache]);
+
+  const onButtonClick = () => {
+    const state = showCompanionPermission ? 'open' : 'close';
+    trackEvent({ event_name: `companion popup ${state}` });
+    setShowCompanionPermission(!showCompanionPermission);
+  };
 
   if (contentScriptGranted) {
     return null;
@@ -45,7 +53,7 @@ export const CompanionPopupButton = (): ReactElement => {
       visible={showCompanionPermission}
     >
       <Button
-        onClick={() => setShowCompanionPermission(!showCompanionPermission)}
+        onClick={onButtonClick}
         className={classNames(
           'mr-4 border-theme-status-cabbage hidden laptop:flex',
           showCompanionPermission

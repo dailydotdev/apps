@@ -16,7 +16,9 @@ const CompanionPermissionComponent = (
   _,
   ref: Ref<HTMLDivElement>,
 ): ReactElement => {
-  const { registerContentScripts } = useExtensionPermission();
+  const { registerContentScripts } = useExtensionPermission({
+    origin: 'companion permission popup',
+  });
   const { flags } = useContext(FeaturesContext);
   const link = getFeatureValue(Features.CompanionPermissionLink, flags);
   const button = getFeatureValue(Features.CompanionPermissionButton, flags);
