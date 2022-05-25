@@ -4,6 +4,7 @@ import React, {
   useEffect,
   useMemo,
   useState,
+  useRef,
 } from 'react';
 import MainLayout from '@dailydotdev/shared/src/components/MainLayout';
 import MainFeedLayout, {
@@ -50,6 +51,7 @@ export default function MainFeedPage({
   const [isSearchOn, setIsSearchOn] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>();
   const [showDnd, setShowDnd] = useState(false);
+  const isOnLoad = useRef(true);
   const { contentScriptGranted, registerContentScripts } =
     useExtensionPermission();
   const { registerLocalFilters, shouldShowMyFeed } = useMyFeed();
@@ -116,6 +118,11 @@ export default function MainFeedPage({
       contentScriptGranted ||
       !loadedSettings
     ) {
+      return;
+    }
+
+    if (isOnLoad.current) {
+      isOnLoad.current = false;
       return;
     }
 
