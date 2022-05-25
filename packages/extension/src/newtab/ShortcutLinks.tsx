@@ -1,4 +1,3 @@
-import 'content-scripts-register-polyfill';
 import React, { FormEvent, ReactElement, useContext, useState } from 'react';
 import PlusIcon from '@dailydotdev/shared/icons/plus.svg';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
