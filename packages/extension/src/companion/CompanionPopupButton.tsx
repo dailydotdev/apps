@@ -29,9 +29,9 @@ export const getCompanionAlerts = (): CompanionAlerts => {
 };
 
 export const updateCompanionAlerts = (
+  current: CompanionAlerts,
   updated: CompanionAlerts,
 ): CompanionAlerts => {
-  const current = getCompanionAlerts();
   const data = { ...current, ...updated };
   window.localStorage.setItem(COMPANION_ALERTS_LOCAL_KEY, JSON.stringify(data));
   return data;
@@ -50,7 +50,9 @@ export const CompanionPopupButton = (): ReactElement => {
 
   const onButtonClick = () => {
     if (alerts.current.displayCompanionPopup) {
-      const data = updateCompanionAlerts({ displayCompanionPopup: false });
+      const data = updateCompanionAlerts(alerts.current, {
+        displayCompanionPopup: false,
+      });
       alerts.current = data;
     }
 

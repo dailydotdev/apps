@@ -11,7 +11,10 @@ import {
 } from '@dailydotdev/shared/src/contexts/BootProvider';
 import { getOrGenerateDeviceId } from '@dailydotdev/shared/src/hooks/analytics/useDeviceId';
 import { registerBrowserContentScripts } from '../companion/useExtensionPermission';
-import { updateCompanionAlerts } from '../companion/CompanionPopupButton';
+import {
+  getCompanionAlerts,
+  updateCompanionAlerts,
+} from '../companion/CompanionPopupButton';
 
 const excludedCompanionOrigins = [
   'https://twitter.com',
@@ -119,12 +122,16 @@ browser.browserAction.onClicked.addListener(() => {
 });
 
 browser.runtime.onInstalled.addListener(async (details) => {
-  if (details.reason === 'update') {
-    updateCompanionAlerts({ displayCompanionPopup: true });
-  }
+  const data = getCompanionAlerts();
 
-  if (details.reason === 'install') {
-    updateCompanionAlerts({ displayCompanionPopup: false });
+  if (typeof data.displayCompanionPopup === 'undefined') {
+    if (details.reason === 'update') {
+      updateCompanionAlerts(data, { displayCompanionPopup: true });
+    }
+
+    if (details.reason === 'install') {
+      updateCompanionAlerts(data, { displayCompanionPopup: false });
+    }
   }
 
   await Promise.all([
