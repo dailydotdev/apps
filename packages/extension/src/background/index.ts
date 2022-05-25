@@ -1,3 +1,4 @@
+import 'content-scripts-register-polyfill';
 import { browser } from 'webextension-polyfill-ts';
 import { getBootData } from '@dailydotdev/shared/src/lib/boot';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
@@ -9,6 +10,11 @@ import {
   getLocalBootData,
 } from '@dailydotdev/shared/src/contexts/BootProvider';
 import { getOrGenerateDeviceId } from '@dailydotdev/shared/src/hooks/analytics/useDeviceId';
+import { registerBrowserContentScripts } from '../companion/useExtensionPermission';
+import {
+  getExtensionAlerts,
+  updateExtensionAlerts,
+} from '../lib/extensionAlerts';
 
 const excludedCompanionOrigins = [
   'https://twitter.com',
@@ -27,12 +33,13 @@ const sendBootData = async (req, sender) => {
   if (isExcluded(sender?.origin)) {
     return;
   }
+
   const cacheData = getLocalBootData();
   if (cacheData.settings?.optOutCompanion) {
     return;
   }
 
-  const url = sender?.tab?.url?.split('?')[0];
+  const url = sender?.tab?.url;
 
   const [deviceId, { postData, settings, flags, user, alerts, visit }] =
     await Promise.all([getOrGenerateDeviceId(), getBootData('companion', url)]);
@@ -54,6 +61,13 @@ const sendBootData = async (req, sender) => {
 };
 
 async function handleMessages(message, sender) {
+  const permissions = await browser.permissions.contains({
+    origins: ['*://*/*'],
+  });
+  if (permissions) {
+    await registerBrowserContentScripts();
+  }
+
   if (message.type === 'CONTENT_LOADED') {
     sendBootData(message, sender);
     return null;
@@ -107,7 +121,19 @@ browser.browserAction.onClicked.addListener(() => {
   browser.tabs.create({ url, active: true });
 });
 
-browser.runtime.onInstalled.addListener(async () => {
+browser.runtime.onInstalled.addListener(async (details) => {
+  const alerts = getExtensionAlerts();
+
+  if (typeof alerts.displayCompanionPopup === 'undefined') {
+    if (details.reason === 'update') {
+      updateExtensionAlerts(alerts, { displayCompanionPopup: true });
+    }
+
+    if (details.reason === 'install') {
+      updateExtensionAlerts(alerts, { displayCompanionPopup: false });
+    }
+  }
+
   await Promise.all([
     browser.runtime.setUninstallURL('https://daily.dev/uninstall'),
   ]);

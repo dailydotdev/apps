@@ -14,6 +14,8 @@ import CardIcon from '../../icons/card.svg';
 import LineIcon from '../../icons/line.svg';
 import { IconsSwitch } from './fields/IconsSwitch';
 import AuthContext from '../contexts/AuthContext';
+import { Features, getFeatureValue } from '../lib/featureManagement';
+import FeaturesContext from '../contexts/FeaturesContext';
 
 const densities = [
   { label: 'Eco', value: 'eco' },
@@ -32,6 +34,11 @@ export default function Settings({
 }: HTMLAttributes<HTMLDivElement>): ReactElement {
   const isExtension = process.env.TARGET_BROWSER;
   const { user, showLogin } = useContext(AuthContext);
+  const { flags } = useContext(FeaturesContext);
+  const companionPlacement = getFeatureValue(
+    Features.CompanionPermissionPlacement,
+    flags,
+  );
   const {
     spaciness,
     setSpaciness,
@@ -164,21 +171,18 @@ export default function Settings({
           >
             Show Weekly Goal widget
           </Switch>
-        </div>
-      </Section>
-      <Section>
-        <SectionTitle>Companion Widget (beta)</SectionTitle>
-        <div className="flex flex-col items-start pl-1.5 -my-0.5">
-          <Switch
-            inputId="hide-companion-switch"
-            name="hide-companion"
-            className="my-3"
-            checked={!optOutCompanion}
-            onToggle={toggleOptOutCompanion}
-            compact={false}
-          >
-            Enable widget on articles
-          </Switch>
+          {companionPlacement !== 'off' && (
+            <Switch
+              inputId="hide-companion-switch"
+              name="hide-companion"
+              className="my-3"
+              checked={!optOutCompanion}
+              onToggle={toggleOptOutCompanion}
+              compact={false}
+            >
+              Enable companion
+            </Switch>
+          )}
         </div>
       </Section>
     </div>

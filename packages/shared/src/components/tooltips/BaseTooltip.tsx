@@ -32,6 +32,7 @@ export interface TooltipProps
     | 'visible'
     | 'appendTo'
     | 'offset'
+    | 'trigger'
   > {
   container?: Omit<BaseTooltipContainerProps, 'placement' | 'children'>;
 }
@@ -79,8 +80,8 @@ export function BaseTooltip(
           <></>
         ) : (
           <BaseTooltipContainer
-            {...container}
             arrow={!!arrow}
+            {...container}
             placement={placement}
             arrowClassName={classNames(
               styles.tippyTooltipArrow,

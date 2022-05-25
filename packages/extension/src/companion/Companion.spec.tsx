@@ -9,6 +9,8 @@ import {
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import App from './App';
 
+jest.mock('content-scripts-register-polyfill', () => ({}));
+
 jest.mock('webextension-polyfill-ts', () => {
   return {
     browser: {

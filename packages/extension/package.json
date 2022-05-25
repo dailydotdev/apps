@@ -40,7 +40,8 @@
     "react-tooltip": "^4.2.21",
     "react-transition-group": "^4.4.2",
     "react-virtual": "^2.10.4",
-    "webextension-polyfill-ts": "^0.22.0"
+    "webextension-polyfill-ts": "^0.22.0",
+    "content-scripts-register-polyfill": "^3.2.1"
   },
   "devDependencies": {
     "@babel/core": "^7.17.9",
