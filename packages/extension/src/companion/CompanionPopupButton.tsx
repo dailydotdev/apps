@@ -1,5 +1,6 @@
 import React, { useState, ReactElement, useContext, useEffect } from 'react';
 import classNames from 'classnames';
+import AlertContext from '@dailydotdev/shared/src/contexts/AlertContext';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
@@ -12,6 +13,7 @@ import { useExtensionPermission } from './useExtensionPermission';
 export const CompanionPopupButton = (): ReactElement => {
   const { trackEvent } = useContext(AnalyticsContext);
   const { user, loadedUserFromCache } = useContext(AuthContext);
+  const { alerts, updateAlerts, loadedAlerts } = useContext(AlertContext);
   const { contentScriptGranted } = useExtensionPermission();
   const [showCompanionPermission, setShowCompanionPermission] = useState(false);
   const CompanionIcon = showCompanionPermission
@@ -19,14 +21,20 @@ export const CompanionPopupButton = (): ReactElement => {
     : CompanionOutlineIcon;
 
   useEffect(() => {
-    if (!loadedUserFromCache) {
+    if (!loadedUserFromCache || !loadedAlerts || !user) {
       return;
     }
 
-    setShowCompanionPermission(!!user);
-  }, [user, loadedUserFromCache]);
+    if (alerts.displayCompanionPopup) {
+      setShowCompanionPermission(true);
+    }
+  }, [user, alerts, loadedUserFromCache, loadedAlerts]);
 
   const onButtonClick = () => {
+    if (alerts.displayCompanionPopup) {
+      updateAlerts({ displayCompanionPopup: false });
+    }
+
     const state = showCompanionPermission ? 'open' : 'close';
     trackEvent({ event_name: `companion popup ${state}` });
     setShowCompanionPermission(!showCompanionPermission);

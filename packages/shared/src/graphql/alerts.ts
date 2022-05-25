@@ -5,6 +5,7 @@ export type Alerts = {
   rankLastSeen?: Date;
   myFeed?: string;
   companionHelper?: boolean;
+  displayCompanionPopup?: boolean;
 };
 
 export const UPDATE_ALERTS = gql`
@@ -14,6 +15,7 @@ export const UPDATE_ALERTS = gql`
       rankLastSeen
       myFeed
       companionHelper
+      displayCompanionPopup
     }
   }
 `;
