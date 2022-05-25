@@ -10,6 +10,7 @@ import {
   getLocalBootData,
 } from '@dailydotdev/shared/src/contexts/BootProvider';
 import { getOrGenerateDeviceId } from '@dailydotdev/shared/src/hooks/analytics/useDeviceId';
+import { standardizeURL } from '@dailydotdev/shared/src/lib/standardizeUrl';
 import { registerBrowserContentScripts } from '../companion/useExtensionPermission';
 
 const excludedCompanionOrigins = [
@@ -29,12 +30,13 @@ const sendBootData = async (req, sender) => {
   if (isExcluded(sender?.origin)) {
     return;
   }
+
   const cacheData = getLocalBootData();
   if (cacheData.settings?.optOutCompanion) {
     return;
   }
 
-  const url = sender?.tab?.url?.split('?')[0];
+  const url = standardizeURL(sender?.tab?.url);
 
   const [deviceId, { postData, settings, flags, user, alerts, visit }] =
     await Promise.all([getOrGenerateDeviceId(), getBootData('companion', url)]);
