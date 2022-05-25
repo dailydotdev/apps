@@ -11,6 +11,7 @@ import {
 } from '@dailydotdev/shared/src/contexts/BootProvider';
 import { getOrGenerateDeviceId } from '@dailydotdev/shared/src/hooks/analytics/useDeviceId';
 import { registerBrowserContentScripts } from '../companion/useExtensionPermission';
+import { updateCompanionAlerts } from '../companion/CompanionPopupButton';
 
 const excludedCompanionOrigins = [
   'https://twitter.com',
@@ -117,7 +118,15 @@ browser.browserAction.onClicked.addListener(() => {
   browser.tabs.create({ url, active: true });
 });
 
-browser.runtime.onInstalled.addListener(async () => {
+browser.runtime.onInstalled.addListener(async (details) => {
+  if (details.reason === 'update') {
+    updateCompanionAlerts({ displayCompanionPopup: true });
+  }
+
+  if (details.reason === 'install') {
+    updateCompanionAlerts({ displayCompanionPopup: false });
+  }
+
   await Promise.all([
     browser.runtime.setUninstallURL('https://daily.dev/uninstall'),
   ]);
