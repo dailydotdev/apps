@@ -22,7 +22,7 @@ export const CompanionPopupButton = (): ReactElement => {
   const companionNotificationTracking = (extra: string) => {
     const state = showCompanionPermission ? 'open' : 'close';
     trackEvent({
-      event_name: `${state} companion popup`,
+      event_name: `${state} companion permission popup`,
       extra: JSON.stringify({ origin: extra }),
     });
   };
