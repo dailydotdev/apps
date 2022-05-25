@@ -8,17 +8,7 @@ import CompanionOutlineIcon from '@dailydotdev/shared/icons/outline/companion.sv
 import { CompanionPermission } from './CompanionPermission';
 import { useExtensionPermission } from './useExtensionPermission';
 
-interface CompanionPopupButtonProps {
-  placement: string;
-}
-
-export const CompanionPopupButton = ({
-  placement,
-}: CompanionPopupButtonProps): ReactElement => {
-  if (placement === 'off') {
-    return null;
-  }
-
+export const CompanionPopupButton = (): ReactElement => {
   const { user, loadedUserFromCache } = useContext(AuthContext);
   const { contentScriptGranted } = useExtensionPermission();
   const [showCompanionPermission, setShowCompanionPermission] = useState(false);

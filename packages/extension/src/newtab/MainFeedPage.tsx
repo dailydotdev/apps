@@ -117,9 +117,7 @@ export default function MainFeedPage({
       onNavTabClick={onNavTabClick}
       screenCentered={false}
       customBanner={isDndActive && <DndBanner />}
-      additionalButtons={
-        placement === 'header' && <CompanionPopupButton placement={placement} />
-      }
+      additionalButtons={placement === 'header' && <CompanionPopupButton />}
     >
       <FeedLayout>
         <MainFeedLayout
