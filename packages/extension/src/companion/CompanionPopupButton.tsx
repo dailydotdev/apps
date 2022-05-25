@@ -1,4 +1,4 @@
-import React, { useState, ReactElement, useContext } from 'react';
+import React, { useState, ReactElement, useContext, useEffect } from 'react';
 import classNames from 'classnames';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
@@ -18,6 +18,21 @@ export const CompanionPopupButton = (): ReactElement => {
   const [showCompanionPermission, setShowCompanionPermission] = useState(
     alerts.displayCompanionPopup,
   );
+
+  const companionNotificationTracking = (extra: string) => {
+    const state = showCompanionPermission ? 'open' : 'close';
+    trackEvent({
+      event_name: `${state} companion popup`,
+      extra: JSON.stringify({ origin: extra }),
+    });
+  };
+
+  useEffect(() => {
+    if (alerts.displayCompanionPopup) {
+      companionNotificationTracking('auto');
+    }
+  }, [alerts]);
+
   const CompanionIcon = showCompanionPermission
     ? CompanionFilledIcon
     : CompanionOutlineIcon;
@@ -29,8 +44,7 @@ export const CompanionPopupButton = (): ReactElement => {
       });
     }
 
-    const state = showCompanionPermission ? 'open' : 'close';
-    trackEvent({ event_name: `companion popup ${state}` });
+    companionNotificationTracking('manual');
     setShowCompanionPermission(!showCompanionPermission);
   };
 
