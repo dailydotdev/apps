@@ -1,3 +1,4 @@
+import 'content-scripts-register-polyfill';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import {
   Dispatch,
