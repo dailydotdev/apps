@@ -34,8 +34,6 @@ jest.mock('@dailydotdev/shared/src/lib/boot', () => ({
   getBootData: jest.fn(),
 }));
 
-jest.mock('content-scripts-register-polyfill', () => ({}));
-
 jest.mock('webextension-polyfill-ts', () => {
   let providedPermission = false;
 

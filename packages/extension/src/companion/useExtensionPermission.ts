@@ -1,3 +1,4 @@
+import 'content-scripts-register-polyfill';
 import { useContext, useMemo } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
 import { browser, ContentScripts } from 'webextension-polyfill-ts';
