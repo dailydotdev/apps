@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
 import { browser, ContentScripts } from 'webextension-polyfill-ts';
 import { companionPermissionGrantedLink } from '@dailydotdev/shared/src/lib/constants';
@@ -20,6 +20,14 @@ export const registerBrowserContentScripts =
       ],
     });
 
+const getContentScriptPermission = async () => {
+  const permissions = await browser.permissions.contains({
+    origins: ['*://*/*'],
+  });
+
+  return !!permissions;
+};
+
 const contentScriptKey = 'permission_key';
 
 interface UseExtensionPermissionProps {
@@ -33,20 +41,14 @@ export const useExtensionPermission = ({
   const { trackEvent } = useContext(AnalyticsContext);
   const { data: contentScriptGranted } = useQuery(
     contentScriptKey,
-    () => false,
+    getContentScriptPermission,
+    {
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
+      refetchIntervalInBackground: false,
+    },
   );
-
-  useEffect(() => {
-    const permissionCall = async () => {
-      const permissions = await browser.permissions.contains({
-        origins: ['*://*/*'],
-      });
-      if (permissions) {
-        client.setQueryData(contentScriptKey, true);
-      }
-    };
-    permissionCall();
-  }, []);
 
   const registerContentScripts = async () => {
     trackEvent({
