@@ -4,7 +4,6 @@ import React, {
   useEffect,
   useMemo,
   useState,
-  useRef,
 } from 'react';
 import MainLayout from '@dailydotdev/shared/src/components/MainLayout';
 import MainFeedLayout, {
@@ -16,17 +15,11 @@ import dynamic from 'next/dynamic';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import useDefaultFeed from '@dailydotdev/shared/src/hooks/useDefaultFeed';
 import { useMyFeed } from '@dailydotdev/shared/src/hooks/useMyFeed';
-import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
-import {
-  Features,
-  getFeatureValue,
-} from '@dailydotdev/shared/src/lib/featureManagement';
-import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import ShortcutLinks from './ShortcutLinks';
 import DndBanner from './DndBanner';
 import DndContext from './DndContext';
 import { CompanionPopupButton } from '../companion/CompanionPopupButton';
-import { useExtensionPermission } from '../companion/useExtensionPermission';
+import { useCompanionSettings } from '../companion/useCompanionSettings';
 
 const PostsSearch = dynamic(
   () =>
@@ -51,24 +44,15 @@ export default function MainFeedPage({
   const [isSearchOn, setIsSearchOn] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>();
   const [showDnd, setShowDnd] = useState(false);
-  const isOnLoad = useRef(true);
-  const { contentScriptGranted, registerContentScripts } =
-    useExtensionPermission({ origin: 'main feed page' });
+  const { placement } = useCompanionSettings('main feed page');
   const { registerLocalFilters, shouldShowMyFeed } = useMyFeed();
   const [defaultFeed] = useDefaultFeed(shouldShowMyFeed);
-  const { optOutCompanion, toggleOptOutCompanion, loadedSettings } =
-    useContext(SettingsContext);
   const { isActive: isDndActive } = useContext(DndContext);
   const enableSearch = () => {
     setIsSearchOn(true);
     setSearchQuery(null);
     onPageChanged('/search');
   };
-  const { flags } = useContext(FeaturesContext);
-  const placement = getFeatureValue(
-    Features.CompanionPermissionPlacement,
-    flags,
-  );
 
   const onNavTabClick = (tab: string): void => {
     if (tab !== 'search') {
@@ -110,28 +94,6 @@ export default function MainFeedPage({
       });
     }
   }, []);
-
-  useEffect(() => {
-    if (
-      placement === 'off' ||
-      optOutCompanion ||
-      contentScriptGranted ||
-      !loadedSettings
-    ) {
-      return;
-    }
-
-    if (isOnLoad.current) {
-      isOnLoad.current = false;
-      return;
-    }
-
-    registerContentScripts().then((granted) => {
-      if (!granted) {
-        toggleOptOutCompanion();
-      }
-    });
-  }, [placement, optOutCompanion, loadedSettings]);
 
   return (
     <MainLayout
