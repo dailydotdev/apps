@@ -50,8 +50,8 @@ export const useExtensionPermission = ({
 
   const registerContentScripts = async () => {
     trackEvent({
-      origin,
       event_name: 'content scripts request',
+      extra: JSON.stringify({ origin }),
     });
     const granted = await browser.permissions.request({
       origins: ['*://*/*'],
