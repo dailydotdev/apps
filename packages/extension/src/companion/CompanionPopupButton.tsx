@@ -7,55 +7,26 @@ import CompanionOutlineIcon from '@dailydotdev/shared/icons/outline/companion.sv
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { CompanionPermission } from './CompanionPermission';
 import { useExtensionPermission } from './useExtensionPermission';
-
-export const COMPANION_ALERTS_LOCAL_KEY = 'companion:alerts';
-
-interface CompanionAlerts {
-  displayCompanionPopup?: boolean;
-}
-
-export const getCompanionAlerts = (): CompanionAlerts => {
-  const data = window.localStorage.getItem(COMPANION_ALERTS_LOCAL_KEY);
-
-  if (!data) {
-    return {};
-  }
-
-  try {
-    return JSON.parse(data);
-  } catch (ex) {
-    return {};
-  }
-};
-
-export const updateCompanionAlerts = (
-  current: CompanionAlerts,
-  updated: CompanionAlerts,
-): CompanionAlerts => {
-  const data = { ...current, ...updated };
-  window.localStorage.setItem(COMPANION_ALERTS_LOCAL_KEY, JSON.stringify(data));
-  return data;
-};
+import useExtensionAlerts from '../lib/useExtensionAlerts';
 
 export const CompanionPopupButton = (): ReactElement => {
-  const alerts = useRef(getCompanionAlerts());
+  const { alerts, updateAlerts } = useExtensionAlerts();
   const { trackEvent } = useContext(AnalyticsContext);
   const { contentScriptGranted } = useExtensionPermission({
     origin: 'companion permission button',
   });
   const [showCompanionPermission, setShowCompanionPermission] = useState(
-    alerts.current.displayCompanionPopup,
+    alerts.displayCompanionPopup,
   );
   const CompanionIcon = showCompanionPermission
     ? CompanionFilledIcon
     : CompanionOutlineIcon;
 
   const onButtonClick = () => {
-    if (alerts.current.displayCompanionPopup) {
-      const data = updateCompanionAlerts(alerts.current, {
+    if (alerts.displayCompanionPopup) {
+      updateAlerts({
         displayCompanionPopup: false,
       });
-      alerts.current = data;
     }
 
     const state = showCompanionPermission ? 'open' : 'close';
