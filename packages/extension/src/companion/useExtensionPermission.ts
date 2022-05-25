@@ -1,5 +1,5 @@
+import { useContext, useEffect, useMemo } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
-import { useContext, useEffect } from 'react';
 import { browser, ContentScripts } from 'webextension-polyfill-ts';
 import { companionPermissionGrantedLink } from '@dailydotdev/shared/src/lib/constants';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
@@ -70,5 +70,8 @@ export const useExtensionPermission = ({
     return granted;
   };
 
-  return { contentScriptGranted, registerContentScripts };
+  return useMemo(
+    () => ({ contentScriptGranted, registerContentScripts }),
+    [contentScriptGranted],
+  );
 };

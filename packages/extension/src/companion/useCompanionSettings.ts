@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef } from 'react';
+import { useContext, useEffect, useRef, useMemo } from 'react';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import {
@@ -45,5 +45,5 @@ export const useCompanionSettings = (origin: string): UseCompanionSettings => {
     });
   }, [placement, optOutCompanion, loadedSettings]);
 
-  return { placement };
+  return useMemo(() => ({ placement }), [placement]);
 };
