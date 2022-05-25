@@ -8,6 +8,8 @@ import { CompanionPermission } from './CompanionPermission';
 
 let client: QueryClient;
 
+jest.mock('content-scripts-register-polyfill', () => ({}));
+
 jest.mock('webextension-polyfill-ts', () => {
   return {
     browser: {
