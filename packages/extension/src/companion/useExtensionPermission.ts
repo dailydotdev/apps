@@ -6,7 +6,7 @@ import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext'
 
 interface UseExtensionPermission {
   contentScriptGranted: boolean;
-  registerContentScripts: () => void;
+  registerContentScripts: () => Promise<boolean>;
 }
 
 export const registerBrowserContentScripts =

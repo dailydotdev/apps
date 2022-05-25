@@ -20,10 +20,12 @@ import {
   Features,
   getFeatureValue,
 } from '@dailydotdev/shared/src/lib/featureManagement';
+import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import ShortcutLinks from './ShortcutLinks';
 import DndBanner from './DndBanner';
 import DndContext from './DndContext';
 import { CompanionPopupButton } from '../companion/CompanionPopupButton';
+import { useExtensionPermission } from '../companion/useExtensionPermission';
 
 const PostsSearch = dynamic(
   () =>
@@ -48,9 +50,12 @@ export default function MainFeedPage({
   const [isSearchOn, setIsSearchOn] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>();
   const [showDnd, setShowDnd] = useState(false);
-
+  const { contentScriptGranted, registerContentScripts } =
+    useExtensionPermission();
   const { registerLocalFilters, shouldShowMyFeed } = useMyFeed();
   const [defaultFeed] = useDefaultFeed(shouldShowMyFeed);
+  const { optOutCompanion, toggleOptOutCompanion, loadedSettings } =
+    useContext(SettingsContext);
   const { isActive: isDndActive } = useContext(DndContext);
   const enableSearch = () => {
     setIsSearchOn(true);
@@ -103,6 +108,23 @@ export default function MainFeedPage({
       });
     }
   }, []);
+
+  useEffect(() => {
+    if (
+      placement === 'off' ||
+      optOutCompanion ||
+      contentScriptGranted ||
+      !loadedSettings
+    ) {
+      return;
+    }
+
+    registerContentScripts().then((granted) => {
+      if (!granted) {
+        toggleOptOutCompanion();
+      }
+    });
+  }, [placement, optOutCompanion, loadedSettings]);
 
   return (
     <MainLayout
