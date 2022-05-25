@@ -1,7 +1,5 @@
-import React, { useState, ReactElement, useContext, useEffect } from 'react';
+import React, { useState, ReactElement, useContext, useRef } from 'react';
 import classNames from 'classnames';
-import AlertContext from '@dailydotdev/shared/src/contexts/AlertContext';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import CompanionFilledIcon from '@dailydotdev/shared/icons/filled/companion.svg';
@@ -10,29 +8,50 @@ import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext'
 import { CompanionPermission } from './CompanionPermission';
 import { useExtensionPermission } from './useExtensionPermission';
 
+export const COMPANION_ALERTS_LOCAL_KEY = 'companion:alerts';
+
+interface CompanionAlerts {
+  displayCompanionPopup?: boolean;
+}
+
+export const getCompanionAlerts = (): CompanionAlerts => {
+  const data = window.localStorage.getItem(COMPANION_ALERTS_LOCAL_KEY);
+
+  if (!data) {
+    return {};
+  }
+
+  try {
+    return JSON.parse(data);
+  } catch (ex) {
+    return {};
+  }
+};
+
+export const updateCompanionAlerts = (
+  updated: CompanionAlerts,
+): CompanionAlerts => {
+  const current = getCompanionAlerts();
+  const data = { ...current, ...updated };
+  window.localStorage.setItem(COMPANION_ALERTS_LOCAL_KEY, JSON.stringify(data));
+  return data;
+};
+
 export const CompanionPopupButton = (): ReactElement => {
+  const alerts = useRef(getCompanionAlerts());
   const { trackEvent } = useContext(AnalyticsContext);
-  const { user, loadedUserFromCache } = useContext(AuthContext);
-  const { alerts, updateAlerts, loadedAlerts } = useContext(AlertContext);
   const { contentScriptGranted } = useExtensionPermission();
-  const [showCompanionPermission, setShowCompanionPermission] = useState(false);
+  const [showCompanionPermission, setShowCompanionPermission] = useState(
+    alerts.current.displayCompanionPopup,
+  );
   const CompanionIcon = showCompanionPermission
     ? CompanionFilledIcon
     : CompanionOutlineIcon;
 
-  useEffect(() => {
-    if (!loadedUserFromCache || !loadedAlerts || !user) {
-      return;
-    }
-
-    if (alerts.displayCompanionPopup) {
-      setShowCompanionPermission(true);
-    }
-  }, [user, alerts, loadedUserFromCache, loadedAlerts]);
-
   const onButtonClick = () => {
-    if (alerts.displayCompanionPopup) {
-      updateAlerts({ displayCompanionPopup: false });
+    if (alerts.current.displayCompanionPopup) {
+      const data = updateCompanionAlerts({ displayCompanionPopup: false });
+      alerts.current = data;
     }
 
     const state = showCompanionPermission ? 'open' : 'close';
