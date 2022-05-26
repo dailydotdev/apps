@@ -98,10 +98,12 @@ export default function CompanionContent({
           </SimpleTooltip>
         )}
       </div>
-      <p className="flex-1 my-4 typo-body">
+      <p className="flex-1 my-4 typo-callout">
         <TLDRText>TLDR -</TLDRText>
-        {post?.summary ??
-          `Oops, edge case alert! Our AI-powered TLDR engine couldn't generate a summary for this article. Anyway, we thought it would be an excellent reminder for us all to strive for progress over perfection! Be relentless about learning, growing, and improving. Sometimes shipping an imperfect feature is better than not shipping at all. Enjoy the article!`}
+        <span>
+          {post?.summary ||
+            `Oops, edge case alert! Our AI-powered TLDR engine couldn't generate a summary for this article. Anyway, we thought it would be an excellent reminder for us all to strive for progress over perfection! Be relentless about learning, growing, and improving. Sometimes shipping an imperfect feature is better than not shipping at all. Enjoy the article!`}
+        </span>
       </p>
       <CompanionEngagements
         post={post}
