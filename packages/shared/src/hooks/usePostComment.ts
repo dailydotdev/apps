@@ -51,7 +51,7 @@ export const usePostComment = (
   const key = ['post_comments', post?.id];
   const postCommentNumKey = ['post_comments_num', post?.id];
   const commentsNum =
-    client.getQueryData<number>(postCommentNumKey) || post.numComments;
+    client.getQueryData<number>(postCommentNumKey) || post?.numComments;
   const comments = client.getQueryData<PostCommentsData>(key);
   const [lastScroll, setLastScroll] = useState(0);
   const [parentComment, setParentComment] = useState<ParentComment>(null);
