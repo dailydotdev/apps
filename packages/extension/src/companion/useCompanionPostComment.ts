@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Post } from '@dailydotdev/shared/src/graphql/posts';
 import {
   usePostComment,
@@ -19,8 +19,8 @@ export const useCompanionPostComment = (
   post: Post,
   params: UseCompanionPostCommentOptionalProps = {},
 ): UseCompanionPostComment => {
-  const { closeNewComment, updatePostComments, parentComment, ...props } =
-    usePostComment(post, params);
+  const postComment = usePostComment(post, params);
+  const { closeNewComment, updatePostComments, parentComment } = postComment;
   const [input, setInput] = useState<string>('');
   const previewQueryKey = ['comment_preview', input];
   const mentionQueryKey = ['user-mention', post?.id];
@@ -37,11 +37,5 @@ export const useCompanionPostComment = (
     },
   });
 
-  return {
-    ...props,
-    onInput: setInput,
-    closeNewComment,
-    updatePostComments,
-    parentComment,
-  };
+  return useMemo(() => ({ ...postComment, onInput: setInput }), [postComment]);
 };
