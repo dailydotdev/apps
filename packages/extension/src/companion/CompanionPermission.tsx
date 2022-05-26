@@ -65,8 +65,10 @@ const CompanionPermissionComponent = (
         <ClickableText
           tag="a"
           target="_blank"
+          defaultTypo={false}
           href={companionExplainerVideo}
-          className="mx-auto mt-2 text-center text-theme-status-cabbage typo-footnote"
+          className="mx-auto mt-2 text-center"
+          textClassName="text-theme-status-cabbage typo-footnote"
         >
           {link}
         </ClickableText>
