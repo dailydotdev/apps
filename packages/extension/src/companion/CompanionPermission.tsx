@@ -50,6 +50,7 @@ const CompanionPermissionComponent = (
       </CompanionSection>
       <CompanionSection>
         <a
+          target="_blank"
           href={companionExplainerVideo}
           className="flex relative justify-center items-center"
         >
@@ -61,6 +62,7 @@ const CompanionPermissionComponent = (
           <PlayIcon className="absolute w-10 h-10" />
         </a>
         <a
+          target="_blank"
           href={companionExplainerVideo}
           className="mt-2 text-center underline typo-footnote text-theme-status-cabbage"
         >
