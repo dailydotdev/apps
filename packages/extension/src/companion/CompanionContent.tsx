@@ -66,7 +66,7 @@ export default function CompanionContent({
     <div
       ref={onContainerChange}
       className={classNames(
-        'flex relative flex-col p-6 h-auto rounded-tl-16 border w-[22.5rem] border-theme-label-tertiary bg-theme-bg-primary',
+        'flex relative flex-col p-6 h-auto rounded-tl-16 border border-r-0 w-[22.5rem] border-theme-divider-quaternary bg-theme-bg-primary',
         !isCommentsOpen && 'rounded-bl-16',
       )}
     >

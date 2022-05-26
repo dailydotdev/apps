@@ -58,7 +58,7 @@ export function CompanionDiscussion({
       style={style}
       className={classNames(
         className,
-        'p-6 rounded-bl-16 border border-r-0 bg-theme-bg-primary border-theme-label-primary border-t-theme-divider-tertiary',
+        'p-6 rounded-bl-16 border border-t-2 border-r-0 bg-theme-bg-primary border-theme-divider-quaternary',
       )}
     >
       <NewComment user={user} onNewComment={openNewComment} />
