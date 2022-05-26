@@ -121,7 +121,7 @@ export default function CompanionContent({
       {viewComments && (
         <CompanionDiscussion
           className="overflow-auto absolute top-full right-0 -left-px min-h-[14rem]"
-          style={{ maxHeight: `calc(100vh - ${heightPx}` }}
+          style={{ maxHeight: `calc(100vh - ${heightPx})` }}
           post={post}
           onShowUpvoted={onShowUpvotedComment}
         />
