@@ -27,9 +27,7 @@ type CompanionContentProps = {
   onViewComments?: (state: boolean) => void;
 };
 
-const PX_PER_REM = 16;
-const COMPANION_TOP_OFFSET_REM = 7.5;
-const COMPANION_TOP_OFFSET_PX = PX_PER_REM * COMPANION_TOP_OFFSET_REM;
+const COMPANION_TOP_OFFSET_PX = 120;
 
 export default function CompanionContent({
   post,
