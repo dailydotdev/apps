@@ -27,9 +27,9 @@ type CompanionContentProps = {
   onViewComments?: (state: boolean) => void;
 };
 
-const COMPANION_TOP_OFFSET_REM = 7.5;
 const PX_PER_REM = 16;
-const remToPx = (rem: number) => rem * PX_PER_REM;
+const COMPANION_TOP_OFFSET_REM = 7.5;
+const COMPANION_TOP_OFFSET_PX = PX_PER_REM * COMPANION_TOP_OFFSET_REM;
 
 export default function CompanionContent({
   post,
@@ -63,8 +63,7 @@ export default function CompanionContent({
     }
 
     const { height } = el.getBoundingClientRect();
-    const topOffset = remToPx(COMPANION_TOP_OFFSET_REM);
-    const px = `${height + topOffset}px`;
+    const px = `${height + COMPANION_TOP_OFFSET_PX}px`;
     setHeightPx(px);
   };
 
