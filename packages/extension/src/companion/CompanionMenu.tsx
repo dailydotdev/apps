@@ -19,10 +19,12 @@ import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentCon
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import { postEventName } from '@dailydotdev/shared/src/components/utilities';
+import NewCommentModal from '@dailydotdev/shared/src/components/modals/NewCommentModal';
 import CompanionContextMenu from './CompanionContextMenu';
 import '@dailydotdev/shared/src/styles/globals.css';
-import { CompanionHelper } from './common';
+import { CompanionHelper, getCompanionWrapper } from './common';
 import useCompanionActions from './useCompanionActions';
+import { useCompanionPostComment } from './useCompanionPostComment';
 
 if (!isTesting) {
   Modal.setAppElement('daily-companion-app');
@@ -83,6 +85,8 @@ export default function CompanionMenu({
     onRemoveUpvoteMutate: () =>
       updatePost({ upvoted: false, numUpvotes: post.numUpvotes + -1 }),
   });
+  const { parentComment, closeNewComment, openNewComment, onInput } =
+    useCompanionPostComment(post);
 
   /**
    * Use a cleanup effect to always set the local cache helper state to false on destroy
@@ -209,11 +213,10 @@ export default function CompanionMenu({
         container={tooltipContainerProps}
       >
         <Button
-          href={`${post?.commentsPermalink}?c=true`}
-          tag="a"
           buttonSize="medium"
           className="btn-tertiary"
           icon={<CommentIcon />}
+          onClick={openNewComment}
         />
       </SimpleTooltip>
       <SimpleTooltip
@@ -250,6 +253,15 @@ export default function CompanionMenu({
         onBlockSource={blockSource}
         onDisableCompanion={optOut}
       />
+      {parentComment && (
+        <NewCommentModal
+          isOpen={!!parentComment}
+          parentSelector={getCompanionWrapper}
+          onRequestClose={closeNewComment}
+          onInputChange={onInput}
+          {...parentComment}
+        />
+      )}
     </div>
   );
 }

@@ -1,18 +1,13 @@
-import React, {
-  ReactElement,
-  useState,
-  CSSProperties,
-  useContext,
-} from 'react';
+import React, { ReactElement, CSSProperties, useContext } from 'react';
 import classNames from 'classnames';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
-import { usePostComment } from '@dailydotdev/shared/src/hooks/usePostComment';
 import { NewComment } from '@dailydotdev/shared/src/components/post/NewComment';
 import { PostComments } from '@dailydotdev/shared/src/components/post/PostComments';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import NewCommentModal from '@dailydotdev/shared/src/components/modals/NewCommentModal';
-import { useBackgroundRequest } from './useBackgroundRequest';
 import { getCompanionWrapper } from './common';
+import { useCompanionPostComment } from './useCompanionPostComment';
+import { useBackgroundRequest } from './useBackgroundRequest';
 
 interface CompanionDiscussionProps {
   post: PostBootData;
@@ -31,27 +26,16 @@ export function CompanionDiscussion({
     return null;
   }
 
-  const [input, setInput] = useState<string>('');
   const { user } = useContext(AuthContext);
   const {
     closeNewComment,
     openNewComment,
     onCommentClick,
-    updatePostComments,
+    onInput,
     parentComment,
-  } = usePostComment(post);
-  const mutationKey = ['post_comments_mutations', post?.id];
+  } = useCompanionPostComment(post);
   const postCommentsQueryKey = ['post_comments', post?.id];
-  const previewQueryKey = ['comment_preview', input];
-  const mentionQueryKey = ['user-mention', post?.id];
-  useBackgroundRequest(mentionQueryKey);
-  useBackgroundRequest(previewQueryKey);
   useBackgroundRequest(postCommentsQueryKey);
-  useBackgroundRequest(mutationKey, ({ req, res }) => {
-    const isNew = req.variables.id !== res.comment.id;
-    updatePostComments(res.comment, isNew);
-    closeNewComment();
-  });
 
   return (
     <div
@@ -75,7 +59,7 @@ export function CompanionDiscussion({
           isOpen={!!parentComment}
           parentSelector={getCompanionWrapper}
           onRequestClose={closeNewComment}
-          onInputChange={setInput}
+          onInputChange={onInput}
           {...parentComment}
         />
       )}
