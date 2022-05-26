@@ -8,6 +8,7 @@ import {
   Features,
   getFeatureValue,
 } from '@dailydotdev/shared/src/lib/featureManagement';
+import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
 import { useExtensionPermission } from './useExtensionPermission';
 
 const CompanionSection = classed('div', 'flex flex-col max-w-full');
@@ -61,13 +62,14 @@ const CompanionPermissionComponent = (
           />
           <PlayIcon className="absolute w-10 h-10" />
         </a>
-        <a
+        <ClickableText
+          tag="a"
           target="_blank"
           href={companionExplainerVideo}
-          className="mt-2 text-center underline typo-footnote text-theme-status-cabbage"
+          className="mx-auto mt-2 text-center text-theme-status-cabbage typo-footnote"
         >
           {link}
-        </a>
+        </ClickableText>
       </CompanionSection>
     </div>
   );
