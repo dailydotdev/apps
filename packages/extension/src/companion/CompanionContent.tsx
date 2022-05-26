@@ -23,13 +23,16 @@ import { getCompanionWrapper } from './common';
 
 type CompanionContentProps = {
   post: PostBootData;
+  viewComments?: boolean;
+  onViewComments?: (state: boolean) => void;
 };
 
 export default function CompanionContent({
   post,
+  viewComments,
+  onViewComments,
 }: CompanionContentProps): ReactElement {
   const { notification, onMessage } = useNotification();
-  const [isCommentsOpen, setIsCommentsOpen] = useState(false);
   const [copying, copyLink] = useCopyLink(() => post.commentsPermalink);
   const [heightRem, setHeightRem] = useState('0');
   const copyLinkAndNotify = () => {
@@ -67,7 +70,7 @@ export default function CompanionContent({
       ref={onContainerChange}
       className={classNames(
         'flex relative flex-col p-6 h-auto rounded-tl-16 border border-r-0 w-[22.5rem] border-theme-divider-quaternary bg-theme-bg-primary',
-        !isCommentsOpen && 'rounded-bl-16',
+        !viewComments && 'rounded-bl-16',
       )}
     >
       {notification && (
@@ -108,11 +111,11 @@ export default function CompanionContent({
       <CompanionEngagements
         post={post}
         commentsNum={commentsNum}
-        isCommentsOpen={isCommentsOpen}
-        onCommentsClick={() => setIsCommentsOpen(!isCommentsOpen)}
+        isCommentsOpen={viewComments}
+        onCommentsClick={() => onViewComments(!viewComments)}
         onUpvotesClick={() => onShowUpvotedPost(post.id, post.numUpvotes)}
       />
-      {isCommentsOpen && (
+      {viewComments && (
         <CompanionDiscussion
           className="overflow-auto absolute top-full right-0 -left-px min-h-[14rem]"
           style={{ maxHeight: `calc(100vh - ${heightRem}` }}

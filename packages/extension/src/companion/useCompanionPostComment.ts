@@ -6,13 +6,18 @@ import {
 } from '@dailydotdev/shared/src/hooks/usePostComment';
 import { useBackgroundRequest } from './useBackgroundRequest';
 
+interface UseCompanionPostCommentOptionalProps
+  extends UsePostCommentOptionalProps {
+  onCommentSuccess?: () => void;
+}
+
 interface UseCompanionPostComment extends ReturnType<typeof usePostComment> {
   onInput: (value: string) => void;
 }
 
 export const useCompanionPostComment = (
   post: Post,
-  params: UsePostCommentOptionalProps = {},
+  params: UseCompanionPostCommentOptionalProps = {},
 ): UseCompanionPostComment => {
   const { closeNewComment, updatePostComments, parentComment, ...props } =
     usePostComment(post, params);
@@ -28,6 +33,7 @@ export const useCompanionPostComment = (
       const isNew = req.variables.id !== res.comment.id;
       updatePostComments(res.comment, isNew);
       closeNewComment();
+      params?.onCommentSuccess();
     },
   });
 

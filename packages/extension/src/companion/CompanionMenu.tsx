@@ -37,6 +37,7 @@ type CompanionMenuProps = {
   companionState: boolean;
   onOptOut: () => void;
   setCompanionState: (T) => void;
+  onOpenComments?: () => void;
 };
 
 export default function CompanionMenu({
@@ -46,6 +47,7 @@ export default function CompanionMenu({
   companionState,
   onOptOut,
   setCompanionState,
+  onOpenComments,
 }: CompanionMenuProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
   const { user, showLogin } = useContext(AuthContext);
@@ -86,7 +88,7 @@ export default function CompanionMenu({
       updatePost({ upvoted: false, numUpvotes: post.numUpvotes + -1 }),
   });
   const { parentComment, closeNewComment, openNewComment, onInput } =
-    useCompanionPostComment(post);
+    useCompanionPostComment(post, { onCommentSuccess: onOpenComments });
 
   /**
    * Use a cleanup effect to always set the local cache helper state to false on destroy
@@ -252,6 +254,7 @@ export default function CompanionMenu({
         onReport={report}
         onBlockSource={blockSource}
         onDisableCompanion={optOut}
+        onViewDiscussion={onOpenComments}
       />
       {parentComment && (
         <NewCommentModal
