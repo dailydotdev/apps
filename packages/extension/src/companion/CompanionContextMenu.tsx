@@ -18,6 +18,7 @@ type CompanionContextMenuProps = {
   postData: PostBootData;
   onReport: (T) => void;
   onBlockSource: (T) => void;
+  onViewDiscussion: () => void;
   onDisableCompanion: () => void;
 } & Pick<NotificationProps, 'onMessage'>;
 
@@ -26,6 +27,7 @@ export default function CompanionContextMenu({
   onMessage,
   onReport,
   onBlockSource,
+  onViewDiscussion,
   onDisableCompanion,
 }: CompanionContextMenuProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
@@ -78,10 +80,8 @@ export default function CompanionContextMenu({
         className="menu-primary"
         animation="fade"
       >
-        <Item>
-          <a className="flex w-full" href={postData?.commentsPermalink}>
-            <CommentIcon className="mr-2 text-xl" /> View discussion
-          </a>
+        <Item onClick={onViewDiscussion}>
+          <CommentIcon className="mr-2 text-xl" /> View discussion
         </Item>
         <Item onClick={onShareOrCopyLink}>
           <ShareIcon className="mr-2 text-xl" /> Share article

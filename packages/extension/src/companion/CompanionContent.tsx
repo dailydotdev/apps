@@ -23,15 +23,20 @@ import { getCompanionWrapper } from './common';
 
 type CompanionContentProps = {
   post: PostBootData;
+  viewComments?: boolean;
+  onViewComments?: (state: boolean) => void;
 };
+
+const COMPANION_TOP_OFFSET_PX = 120;
 
 export default function CompanionContent({
   post,
+  viewComments,
+  onViewComments,
 }: CompanionContentProps): ReactElement {
   const { notification, onMessage } = useNotification();
-  const [isCommentsOpen, setIsCommentsOpen] = useState(false);
   const [copying, copyLink] = useCopyLink(() => post.commentsPermalink);
-  const [heightRem, setHeightRem] = useState('0');
+  const [heightPx, setHeightPx] = useState('0');
   const copyLinkAndNotify = () => {
     copyLink();
     onMessage('✅ Copied link to clipboard');
@@ -56,18 +61,16 @@ export default function CompanionContent({
     }
 
     const { height } = el.getBoundingClientRect();
-    const topOffset = 7.5;
-    const remValue = height / 16;
-    const rem = `${remValue + topOffset}rem`;
-    setHeightRem(rem);
+    const px = `${height + COMPANION_TOP_OFFSET_PX}px`;
+    setHeightPx(px);
   };
 
   return (
     <div
       ref={onContainerChange}
       className={classNames(
-        'flex relative flex-col p-6 h-auto rounded-tl-16 border w-[22.5rem] border-theme-label-tertiary bg-theme-bg-primary',
-        !isCommentsOpen && 'rounded-bl-16',
+        'flex relative flex-col p-6 h-auto rounded-tl-16 border border-r-0 w-[22.5rem] border-theme-divider-quaternary bg-theme-bg-primary',
+        !viewComments && 'rounded-bl-16',
       )}
     >
       {notification && (
@@ -98,22 +101,24 @@ export default function CompanionContent({
           </SimpleTooltip>
         )}
       </div>
-      <p className="flex-1 my-4 typo-body">
+      <p className="flex-1 my-4 typo-callout">
         <TLDRText>TLDR -</TLDRText>
-        {post?.summary ??
-          `Oops, edge case alert! Our AI-powered TLDR engine couldn't generate a summary for this article. Anyway, we thought it would be an excellent reminder for us all to strive for progress over perfection! Be relentless about learning, growing, and improving. Sometimes shipping an imperfect feature is better than not shipping at all. Enjoy the article!`}
+        <span>
+          {post?.summary ||
+            `Oops, edge case alert! Our AI-powered TLDR engine couldn't generate a summary for this article. Anyway, we thought it would be an excellent reminder for us all to strive for progress over perfection! Be relentless about learning, growing, and improving. Sometimes shipping an imperfect feature is better than not shipping at all. Enjoy the article!`}
+        </span>
       </p>
       <CompanionEngagements
         post={post}
         commentsNum={commentsNum}
-        isCommentsOpen={isCommentsOpen}
-        onCommentsClick={() => setIsCommentsOpen(!isCommentsOpen)}
+        isCommentsOpen={viewComments}
+        onCommentsClick={() => onViewComments(!viewComments)}
         onUpvotesClick={() => onShowUpvotedPost(post.id, post.numUpvotes)}
       />
-      {isCommentsOpen && (
+      {viewComments && (
         <CompanionDiscussion
           className="overflow-auto absolute top-full right-0 -left-px min-h-[14rem]"
-          style={{ maxHeight: `calc(100vh - ${heightRem}` }}
+          style={{ maxHeight: `calc(100vh - ${heightPx})` }}
           post={post}
           onShowUpvoted={onShowUpvotedComment}
         />

@@ -236,7 +236,10 @@ export function PostContent({
         />
         <a
           {...postLinkProps}
-          className="block overflow-hidden mb-10 rounded-2xl cursor-pointer"
+          className={classNames(
+            'block overflow-hidden mb-10 rounded-2xl cursor-pointer',
+            styles.clickableImg,
+          )}
           style={{ maxWidth: '25.625rem' }}
         >
           <LazyImage

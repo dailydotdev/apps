@@ -12,10 +12,12 @@ export const getCompanionWrapper = (): HTMLElement =>
 export const CompanionHelper = (): ReactElement => {
   return (
     <div className="absolute top-0 right-full py-2.5 px-4 mr-2 whitespace-nowrap rounded-10 border border-theme-status-cabbage bg-theme-bg-primary typo-subhead">
-      <Pointer
-        className="top-4 rotate-90 -right-[0.8125rem]"
-        color={PointerColor.Cabbage}
-      />
+      <div className="relative">
+        <Pointer
+          className="top-1 -right-7 rotate-90"
+          color={PointerColor.Cabbage}
+        />
+      </div>
       <p>
         Meet your new superpower! 🦸
         <br />

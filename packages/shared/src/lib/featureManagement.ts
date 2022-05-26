@@ -116,7 +116,7 @@ export class Features {
 
   static readonly CompanionPermissionLink = new Features(
     'companion_permission_link',
-    'Watch the Companion\nOverview',
+    'Watch the Companion overview',
   );
 
   static readonly CompanionPermissionButton = new Features(

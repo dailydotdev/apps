@@ -177,7 +177,7 @@ export const SummaryContainer = classed(
 
 export const TLDRText = classed(
   'span',
-  'pr-1 typo-headline text-theme-status-cabbage',
+  'pr-1 font-bold text-theme-status-cabbage',
 );
 
 export const HotLabel = (): ReactElement => (
