@@ -69,6 +69,7 @@ export default function Companion({
 }: CompanionProps): ReactElement {
   const client = useQueryClient();
   const containerRef = useRef<HTMLDivElement>();
+  const [isCommentsOpen, setIsCommentsOpen] = useState(false);
   const [assetsLoaded, setAssetsLoaded] = useState(isTesting);
   const [post, setPost] = useState<PostBootData>(postData);
   const [companionState, setCompanionState] =
@@ -135,8 +136,13 @@ export default function Companion({
         onOptOut={onOptOut}
         companionState={companionState}
         setCompanionState={setCompanionState}
+        onOpenComments={() => setIsCommentsOpen(true)}
       />
-      <CompanionContent post={post} />
+      <CompanionContent
+        post={post}
+        viewComments={isCommentsOpen}
+        onViewComments={setIsCommentsOpen}
+      />
     </Container>
   );
 }
