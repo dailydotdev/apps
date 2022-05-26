@@ -27,6 +27,10 @@ type CompanionContentProps = {
   onViewComments?: (state: boolean) => void;
 };
 
+const COMPANION_TOP_OFFSET_REM = 7.5;
+const PX_PER_REM = 16;
+const remToPx = (rem: number) => rem * PX_PER_REM;
+
 export default function CompanionContent({
   post,
   viewComments,
@@ -34,7 +38,7 @@ export default function CompanionContent({
 }: CompanionContentProps): ReactElement {
   const { notification, onMessage } = useNotification();
   const [copying, copyLink] = useCopyLink(() => post.commentsPermalink);
-  const [heightRem, setHeightRem] = useState('0');
+  const [heightPx, setHeightPx] = useState('0');
   const copyLinkAndNotify = () => {
     copyLink();
     onMessage('✅ Copied link to clipboard');
@@ -59,10 +63,9 @@ export default function CompanionContent({
     }
 
     const { height } = el.getBoundingClientRect();
-    const topOffset = 7.5;
-    const remValue = height / 16;
-    const rem = `${remValue + topOffset}rem`;
-    setHeightRem(rem);
+    const topOffset = remToPx(COMPANION_TOP_OFFSET_REM);
+    const px = `${height + topOffset}px`;
+    setHeightPx(px);
   };
 
   return (
@@ -118,7 +121,7 @@ export default function CompanionContent({
       {viewComments && (
         <CompanionDiscussion
           className="overflow-auto absolute top-full right-0 -left-px min-h-[14rem]"
-          style={{ maxHeight: `calc(100vh - ${heightRem}` }}
+          style={{ maxHeight: `calc(100vh - ${heightPx}` }}
           post={post}
           onShowUpvoted={onShowUpvotedComment}
         />
