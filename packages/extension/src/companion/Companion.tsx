@@ -113,6 +113,14 @@ export default function Companion({
     routeChangedCallbackRef.current();
   }, [containerRef]);
 
+  useEffect(() => {
+    if (!isCommentsOpen) {
+      return;
+    }
+
+    setCompanionState(true);
+  }, [isCommentsOpen]);
+
   return (
     <Container
       containerRef={containerRef}
