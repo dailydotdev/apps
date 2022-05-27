@@ -113,13 +113,13 @@ export default function Companion({
     routeChangedCallbackRef.current();
   }, [containerRef]);
 
-  useEffect(() => {
-    if (!isCommentsOpen) {
-      return;
+  const onOpenComments = (value: boolean) => {
+    if (value && !companionState) {
+      setCompanionState(true);
     }
 
-    setCompanionState(true);
-  }, [isCommentsOpen]);
+    setIsCommentsOpen(value);
+  };
 
   return (
     <Container
@@ -144,12 +144,12 @@ export default function Companion({
         onOptOut={onOptOut}
         companionState={companionState}
         setCompanionState={setCompanionState}
-        onOpenComments={() => setIsCommentsOpen(true)}
+        onOpenComments={() => onOpenComments(true)}
       />
       <CompanionContent
         post={post}
         viewComments={isCommentsOpen}
-        onViewComments={setIsCommentsOpen}
+        onViewComments={onOpenComments}
       />
     </Container>
   );
