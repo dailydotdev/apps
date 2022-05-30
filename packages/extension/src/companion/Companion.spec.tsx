@@ -16,6 +16,7 @@ jest.mock('webextension-polyfill-ts', () => {
     browser: {
       runtime: {
         id: 123,
+        getURL: () => '',
         onMessage: {
           addListener: jest.fn(),
           removeListener: jest.fn(),
