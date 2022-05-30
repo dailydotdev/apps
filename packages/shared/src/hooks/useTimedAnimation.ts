@@ -1,18 +1,17 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { isNullOrUndefined } from '../lib/func';
 
 interface UseTimedAnimation {
   timer: number;
   isAnimating: boolean;
   endAnimation: () => void;
+  startAnimation: (duration: number) => void;
 }
 
 interface UseTimedAnimationProps {
   autoEndAnimation: boolean;
-  animationDuration: number;
   outAnimationDuration?: number;
   onAnimationEnd?: () => void;
-  onAnimationStop?: () => void;
 }
 
 const PROGRESS_INTERVAL = 10;
@@ -21,10 +20,8 @@ const MANUAL_DISMISS_ANIMATION_ID = 1;
 
 export const useTimedAnimation = ({
   autoEndAnimation = true,
-  animationDuration,
   outAnimationDuration = OUT_ANIMATION_DURATION,
   onAnimationEnd,
-  onAnimationStop,
 }: UseTimedAnimationProps): UseTimedAnimation => {
   const timeout = useRef<number>();
   const [timer, setTimer] = useState(0);
@@ -38,43 +35,25 @@ export const useTimedAnimation = ({
     window.clearInterval(interval.current);
     interval.current = null;
   };
-  const endAnimation = useCallback(() => {
-    if (!isNullOrUndefined(animationDuration)) {
+
+  const endAnimation = () => {
+    if (!interval.current) {
       return;
     }
 
     setTimer(0);
-    onAnimationStop();
-  }, [animationDuration]);
+  };
 
-  useEffect(() => {
-    // when the timer ends we need to do cleanups
-    // we delay the callback execution so we can let the slide out animation finish
-    if (
-      !isNullOrUndefined(animationDuration) &&
-      timer === 0 &&
-      interval?.current
-    ) {
-      clearInterval();
-      window.clearTimeout(timeout.current);
-      timeout.current = window.setTimeout(onAnimationEnd, outAnimationDuration);
-    }
-  }, [timer, animationDuration]);
-
-  useEffect(() => {
-    if (isNullOrUndefined(animationDuration)) {
+  const startAnimation = (duration: number) => {
+    if (isNullOrUndefined(duration) || duration <= 0) {
       return;
     }
 
-    setTimer(animationDuration);
+    setTimer(duration);
 
     if (!autoEndAnimation) {
       clearInterval();
       interval.current = MANUAL_DISMISS_ANIMATION_ID;
-      return;
-    }
-
-    if (animationDuration <= 0) {
       return;
     }
 
@@ -86,7 +65,17 @@ export const useTimedAnimation = ({
         ),
       PROGRESS_INTERVAL,
     );
-  }, [animationDuration]);
+  };
+
+  useEffect(() => {
+    // when the timer ends we need to do cleanups
+    // we delay the callback execution so we can let the slide out animation finish
+    if (timer === 0 && interval?.current) {
+      clearInterval();
+      window.clearTimeout(timeout.current);
+      timeout.current = window.setTimeout(onAnimationEnd, outAnimationDuration);
+    }
+  }, [timer]);
 
   useEffect(
     () => () => {
@@ -95,5 +84,5 @@ export const useTimedAnimation = ({
     [],
   );
 
-  return { timer, isAnimating: timer > 0, endAnimation };
+  return { timer, isAnimating: timer > 0, endAnimation, startAnimation };
 };

@@ -17,6 +17,7 @@ import {
   NotifProgress,
 } from './utils';
 import { useTimedAnimation } from '../../hooks/useTimedAnimation';
+import { nextTick } from '../../lib/func';
 
 interface ToastProps {
   autoDismissNotifications?: boolean;
@@ -30,16 +31,25 @@ const Toast = ({
 }: ToastProps): ReactElement => {
   const router = useRouter();
   const client = useQueryClient();
-  const { data: toast } = useQuery<ToastNotification>(TOAST_NOTIF_KEY);
-  const setToast = (data: ToastNotification) =>
-    client.setQueryData(TOAST_NOTIF_KEY, data);
-  const onAnimationEnd = () => setToast(null);
-  const onCloseNotification = () => toast && setToast({ ...toast, timer: 0 });
-  const { timer, isAnimating, endAnimation } = useTimedAnimation({
-    onAnimationEnd,
-    animationDuration: toast?.timer,
-    autoEndAnimation: autoDismissNotifications,
-  });
+  const { timer, isAnimating, endAnimation, startAnimation } =
+    useTimedAnimation({
+      autoEndAnimation: autoDismissNotifications,
+      onAnimationEnd: () => client.setQueryData(TOAST_NOTIF_KEY, null),
+    });
+  const { data: toast } = useQuery<ToastNotification>(
+    TOAST_NOTIF_KEY,
+    () => null,
+    {
+      onSuccess: async (data) => {
+        if (!data) {
+          return;
+        }
+
+        await nextTick(); // wait (1ms) for the component to render so animation can be seen
+        startAnimation(data.timer);
+      },
+    },
+  );
 
   const dismissToast = () => {
     if (!toast) {
@@ -47,7 +57,6 @@ const Toast = ({
     }
 
     endAnimation();
-    onCloseNotification();
   };
 
   const undoAction = async () => {
@@ -57,11 +66,10 @@ const Toast = ({
 
     await toast.onUndo();
     endAnimation();
-    onCloseNotification();
   };
 
   useEffect(() => {
-    if (!isTouchDevice()) {
+    if (!isTouchDevice() || !toast) {
       return;
     }
 
