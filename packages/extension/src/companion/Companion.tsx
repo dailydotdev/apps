@@ -52,7 +52,8 @@ const Container = ({
       ref={containerRef}
       data-testId="companion"
       className={classNames(
-        'flex fixed flex-row top-[7.5rem] items-stretch right-0 z-10 max-w-[26.5rem] transition-transform',
+        'flex fixed flex-row top-[7.5rem] items-stretch right-0 z-10 max-w-[26.5rem]',
+        shouldLoad && 'transition-transform',
         companionExpanded ? 'translate-x-0' : 'translate-x-[22.5rem]',
       )}
     >
