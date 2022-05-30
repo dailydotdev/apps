@@ -24,6 +24,7 @@ const excludedCompanionOrigins = [
   'https://meet.google.com',
   'https://calendar.google.com',
   'chrome-extension://',
+  'https://api.daily.dev',
 ];
 
 const isExcluded = (origin: string) => {
