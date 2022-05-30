@@ -15,7 +15,6 @@ interface UseTimedAnimationProps {
   onAnimationStop?: () => void;
 }
 
-const UNENDING_ANIMATION_ID = 1;
 const PROGRESS_INTERVAL = 10;
 const OUT_ANIMATION_DURATION = 140;
 
@@ -28,38 +27,48 @@ export const useTimedAnimation = ({
 }: UseTimedAnimationProps): UseTimedAnimation => {
   const timeout = useRef<number>();
   const [timer, setTimer] = useState(0);
-  const [intervalId, setIntervalId] = useState<number>(null);
+  const interval = useRef<number>();
 
+  const clearInterval = () => {
+    if (!interval?.current) {
+      return;
+    }
+
+    window.clearInterval(interval.current);
+    interval.current = null;
+  };
   const endAnimation = useCallback(() => {
     if (!isNullOrUndefined(animationDuration)) {
       return;
     }
 
-    window.clearInterval(intervalId);
+    setTimer(0);
     onAnimationStop();
-  }, [animationDuration, intervalId]);
+  }, [animationDuration]);
 
   useEffect(() => {
     // when the timer ends we need to do cleanups
     // we delay the callback execution so we can let the slide out animation finish
-    if (!isNullOrUndefined(animationDuration) && timer === 0 && intervalId) {
-      window.clearInterval(intervalId);
-      setIntervalId(null);
+    if (
+      !isNullOrUndefined(animationDuration) &&
+      timer === 0 &&
+      interval?.current
+    ) {
+      clearInterval();
       window.clearTimeout(timeout.current);
       timeout.current = window.setTimeout(onAnimationEnd, outAnimationDuration);
     }
-  }, [timer, animationDuration, intervalId]);
+  }, [timer, animationDuration]);
 
   useEffect(() => {
     if (isNullOrUndefined(animationDuration)) {
       return;
     }
 
-    window.clearInterval(intervalId);
+    clearInterval();
     setTimer(animationDuration);
 
-    if (!autoEndAnimation && !intervalId) {
-      setIntervalId(UNENDING_ANIMATION_ID);
+    if (!autoEndAnimation) {
       return;
     }
 
@@ -67,14 +76,12 @@ export const useTimedAnimation = ({
       return;
     }
 
-    setIntervalId(
-      window.setInterval(
-        () =>
-          setTimer((current) =>
-            PROGRESS_INTERVAL >= current ? 0 : current - PROGRESS_INTERVAL,
-          ),
-        PROGRESS_INTERVAL,
-      ),
+    interval.current = window.setInterval(
+      () =>
+        setTimer((current) =>
+          PROGRESS_INTERVAL >= current ? 0 : current - PROGRESS_INTERVAL,
+        ),
+      PROGRESS_INTERVAL,
     );
   }, [animationDuration]);
 
@@ -85,5 +92,5 @@ export const useTimedAnimation = ({
     [],
   );
 
-  return { timer, isAnimating: !!intervalId, endAnimation };
+  return { timer, isAnimating: timer > 0, endAnimation };
 };
