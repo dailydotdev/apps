@@ -39,7 +39,7 @@ export type MainFeedPageProps = {
 export default function MainFeedPage({
   onPageChanged,
 }: MainFeedPageProps): ReactElement {
-  const { user } = useContext(AuthContext);
+  const { user, loadingUser } = useContext(AuthContext);
   const [feedName, setFeedName] = useState<string>('default');
   const [isSearchOn, setIsSearchOn] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>();
@@ -108,7 +108,9 @@ export default function MainFeedPage({
       onNavTabClick={onNavTabClick}
       screenCentered={false}
       customBanner={isDndActive && <DndBanner />}
-      additionalButtons={placement === 'header' && <CompanionPopupButton />}
+      additionalButtons={
+        !loadingUser && placement === 'header' && <CompanionPopupButton />
+      }
     >
       <FeedLayout>
         <MainFeedLayout
