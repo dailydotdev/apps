@@ -17,6 +17,7 @@ interface UseTimedAnimationProps {
 
 const PROGRESS_INTERVAL = 10;
 const OUT_ANIMATION_DURATION = 140;
+const MANUAL_DISMISS_ANIMATION_ID = 1;
 
 export const useTimedAnimation = ({
   autoEndAnimation = true,
@@ -65,10 +66,11 @@ export const useTimedAnimation = ({
       return;
     }
 
-    clearInterval();
     setTimer(animationDuration);
 
     if (!autoEndAnimation) {
+      clearInterval();
+      interval.current = MANUAL_DISMISS_ANIMATION_ID;
       return;
     }
 
@@ -76,6 +78,7 @@ export const useTimedAnimation = ({
       return;
     }
 
+    clearInterval();
     interval.current = window.setInterval(
       () =>
         setTimer((current) =>
