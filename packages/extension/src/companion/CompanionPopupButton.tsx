@@ -12,7 +12,7 @@ import useExtensionAlerts from '../lib/useExtensionAlerts';
 export const CompanionPopupButton = (): ReactElement => {
   const { alerts, updateAlerts } = useExtensionAlerts();
   const { trackEvent } = useContext(AnalyticsContext);
-  const { contentScriptGranted } = useExtensionPermission({
+  const { contentScriptGranted, isFetched } = useExtensionPermission({
     origin: 'companion permission button',
   });
   const [showCompanionPermission, setShowCompanionPermission] = useState(
@@ -48,7 +48,7 @@ export const CompanionPopupButton = (): ReactElement => {
     setShowCompanionPermission(!showCompanionPermission);
   };
 
-  if (contentScriptGranted) {
+  if (contentScriptGranted || !isFetched) {
     return null;
   }
 
