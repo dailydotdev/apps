@@ -10,17 +10,19 @@ interface UseTimedAnimation {
 interface UseTimedAnimationProps {
   autoEndAnimation: boolean;
   animationDuration: number;
+  outAnimationDuration?: number;
   onAnimationEnd?: () => void;
   onAnimationStop?: () => void;
 }
 
-const TEMPORARY_ID = 1;
-const INTERVAL_COUNT = 10;
-const IN_OUT_ANIMATION = 140;
+const UNENDING_ANIMATION_ID = 1;
+const PROGRESS_INTERVAL = 10;
+const OUT_ANIMATION_DURATION = 140;
 
 export const useTimedAnimation = ({
   autoEndAnimation = true,
   animationDuration,
+  outAnimationDuration = OUT_ANIMATION_DURATION,
   onAnimationEnd,
   onAnimationStop,
 }: UseTimedAnimationProps): UseTimedAnimation => {
@@ -44,7 +46,7 @@ export const useTimedAnimation = ({
       window.clearInterval(intervalId);
       setIntervalId(null);
       window.clearTimeout(timeout.current);
-      timeout.current = window.setTimeout(onAnimationEnd, IN_OUT_ANIMATION);
+      timeout.current = window.setTimeout(onAnimationEnd, outAnimationDuration);
     }
   }, [timer, animationDuration, intervalId]);
 
@@ -57,7 +59,7 @@ export const useTimedAnimation = ({
     setTimer(animationDuration);
 
     if (!autoEndAnimation && !intervalId) {
-      setIntervalId(TEMPORARY_ID);
+      setIntervalId(UNENDING_ANIMATION_ID);
       return;
     }
 
@@ -69,9 +71,9 @@ export const useTimedAnimation = ({
       window.setInterval(
         () =>
           setTimer((current) =>
-            INTERVAL_COUNT >= current ? 0 : current - INTERVAL_COUNT,
+            PROGRESS_INTERVAL >= current ? 0 : current - PROGRESS_INTERVAL,
           ),
-        INTERVAL_COUNT,
+        PROGRESS_INTERVAL,
       ),
     );
   }, [animationDuration]);
