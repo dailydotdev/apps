@@ -43,8 +43,11 @@ export default function App({
   return (
     <div>
       <style>
-        @import &quot;chrome-extension://{browser.runtime.id}
-        /css/companion.css&quot;;
+        @import &quot;
+        {`${
+          process.env.TARGET_BROWSER === 'chrome' ? 'chrome' : 'moz'
+        }-extension://${browser.runtime.id}/css/companion.css`}
+        &quot;;
       </style>
       <RouterContext.Provider value={router}>
         <QueryClientProvider client={queryClient}>

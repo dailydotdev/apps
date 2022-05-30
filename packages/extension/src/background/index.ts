@@ -26,8 +26,10 @@ const excludedCompanionOrigins = [
   'chrome-extension://',
 ];
 
-const isExcluded = (origin: string) =>
-  excludedCompanionOrigins.some((e) => origin.includes(e));
+const isExcluded = (origin: string) => {
+  if (!origin) return false;
+  return excludedCompanionOrigins.some((e) => origin.includes(e));
+};
 
 const sendBootData = async (req, sender) => {
   if (isExcluded(sender?.origin)) {

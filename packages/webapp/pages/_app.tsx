@@ -5,6 +5,7 @@
 //   require('preact/debug');
 // }
 
+import '@dailydotdev/shared/src/lib/lazysizesImport';
 import React, { ReactElement, ReactNode, useContext, useEffect } from 'react';
 import { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';

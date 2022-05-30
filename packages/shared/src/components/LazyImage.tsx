@@ -1,4 +1,3 @@
-import 'lazysizes';
 import React, {
   forwardRef,
   HTMLAttributes,

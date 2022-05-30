@@ -14,7 +14,7 @@ interface UseExtensionPermission {
 export const registerBrowserContentScripts =
   (): Promise<ContentScripts.RegisteredContentScript> =>
     browser.contentScripts.register({
-      matches: ['<all_urls>'],
+      matches: ['*://*/*'],
       css: [{ file: 'css/daily-companion-app.css' }],
       js: [
         { file: 'js/content.bundle.js' },
