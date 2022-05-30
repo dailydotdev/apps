@@ -6,6 +6,7 @@ import { companionPermissionGrantedLink } from '@dailydotdev/shared/src/lib/cons
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 
 interface UseExtensionPermission {
+  isFetched?: boolean;
   contentScriptGranted: boolean;
   registerContentScripts: () => Promise<boolean>;
 }
@@ -40,7 +41,7 @@ export const useExtensionPermission = ({
 }: UseExtensionPermissionProps): UseExtensionPermission => {
   const client = useQueryClient();
   const { trackEvent } = useContext(AnalyticsContext);
-  const { data: contentScriptGranted } = useQuery(
+  const { data: contentScriptGranted, isFetched } = useQuery(
     contentScriptKey,
     getContentScriptPermission,
     {
@@ -74,7 +75,7 @@ export const useExtensionPermission = ({
   };
 
   return useMemo(
-    () => ({ contentScriptGranted, registerContentScripts }),
-    [contentScriptGranted],
+    () => ({ contentScriptGranted, registerContentScripts, isFetched }),
+    [contentScriptGranted, isFetched],
   );
 };
