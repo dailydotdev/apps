@@ -70,7 +70,7 @@ export const useTimedAnimation = ({
   useEffect(() => {
     // when the timer ends we need to do cleanups
     // we delay the callback execution so we can let the slide out animation finish
-    if (timer === 0 && interval?.current) {
+    if (timer <= 0 && interval?.current) {
       clearInterval();
       window.clearTimeout(timeout.current);
       timeout.current = window.setTimeout(onAnimationEnd, outAnimationDuration);
