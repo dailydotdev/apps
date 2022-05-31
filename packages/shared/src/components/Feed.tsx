@@ -135,16 +135,23 @@ export default function Feed<T>({
     loadedSettings,
   } = useContext(SettingsContext);
   const numCards = currentSettings.numCards[spaciness ?? 'eco'];
-  const { items, updatePost, removePost, fetchPage, canFetchMore, emptyFeed } =
-    useFeed(
-      feedQueryKey,
-      currentSettings.pageSize,
-      currentSettings.adSpot,
-      numCards,
-      showOnlyUnreadPosts,
-      query,
-      variables,
-    );
+  const {
+    items,
+    updatePost,
+    removePost,
+    revertRemovedPost,
+    fetchPage,
+    canFetchMore,
+    emptyFeed,
+  } = useFeed(
+    feedQueryKey,
+    currentSettings.pageSize,
+    currentSettings.adSpot,
+    numCards,
+    showOnlyUnreadPosts,
+    query,
+    variables,
+  );
   const { ranking } = (variables as RankVariables) || {};
   const {
     onOpenModal,
@@ -217,6 +224,9 @@ export default function Feed<T>({
     const item = items[removePostIndex] as PostItem;
     removePost(item.page, item.index);
   };
+
+  const onRevertRemovedPost = async (item: PostItem) =>
+    revertRemovedPost(item.page, item.index, item.post);
 
   const onCommentClick = (
     post: Post,
@@ -330,9 +340,10 @@ export default function Feed<T>({
       <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
       <PostOptionsMenu
         postIndex={postMenuIndex}
-        post={(items[postMenuIndex] as PostItem)?.post}
+        postItem={items[postMenuIndex] as PostItem}
         onHidden={() => setPostMenuIndex(null)}
         onRemovePost={onRemovePost}
+        onRevertRemovedPost={onRevertRemovedPost}
       />
     </div>
   );

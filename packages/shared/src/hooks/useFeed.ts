@@ -34,6 +34,7 @@ export type FeedReturnType = {
   fetchPage: () => Promise<void>;
   updatePost: (page: number, index: number, post: Post) => void;
   removePost: (page: number, index: number) => void;
+  revertRemovedPost: (page: number, index: number, post: Post) => void;
   canFetchMore: boolean;
   emptyFeed: boolean;
 };
@@ -76,6 +77,29 @@ const removeCachedPost =
     updateCachedPage(feedQueryKey, queryClient, pageIndex, (page) => {
       // eslint-disable-next-line no-param-reassign
       page.edges.splice(index, 1);
+      return page;
+    });
+  };
+
+const revertRemovedCachedPost =
+  (feedQueryKey: unknown[], queryClient: QueryClient) =>
+  (pageIndex: number, index: number, post: Post) => {
+    updateCachedPage(feedQueryKey, queryClient, pageIndex, (page) => {
+      const edge = { node: post };
+      if (index === 0) {
+        page.edges.unshift(edge);
+        return page;
+      }
+
+      if (page.edges.length === index) {
+        page.edges.push(edge);
+        return page;
+      }
+
+      const left = page.edges.slice(0, index);
+      const right = page.edges.slice(index);
+      // eslint-disable-next-line no-param-reassign
+      page.edges = left.concat(edge, right);
       return page;
     });
   };
@@ -222,6 +246,7 @@ export default function useFeed<T>(
     },
     updatePost,
     removePost: removeCachedPost(feedQueryKey, queryClient),
+    revertRemovedPost: revertRemovedCachedPost(feedQueryKey, queryClient),
     canFetchMore: feedQuery.hasNextPage,
     emptyFeed:
       !feedQuery?.data?.pages[0]?.page.edges.length && !feedQuery.isFetching,

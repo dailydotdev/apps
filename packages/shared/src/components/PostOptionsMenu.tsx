@@ -20,6 +20,7 @@ import {
   ToastSubject,
   useToastNotification,
 } from '../hooks/useToastNotification';
+import { PostItem } from '../hooks/useFeed';
 
 const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
   ssr: false,
@@ -27,9 +28,10 @@ const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
 
 export type PostOptionsMenuProps = {
   postIndex?: number;
-  post: Post;
+  postItem: PostItem;
   onHidden?: () => unknown;
   onRemovePost?: (postIndex: number) => Promise<unknown>;
+  onRevertRemovedPost?: (postItem: PostItem) => Promise<unknown>;
   setShowDeletePost?: () => unknown;
   setShowBanPost?: () => unknown;
 };
@@ -44,12 +46,14 @@ type ReportPostAsync = (
 
 export default function PostOptionsMenu({
   postIndex,
-  post,
+  postItem,
   onHidden,
   onRemovePost,
+  onRevertRemovedPost,
   setShowDeletePost,
   setShowBanPost,
 }: PostOptionsMenuProps): ReactElement {
+  const { post } = postItem || {};
   const { displayToast } = useToastNotification();
   const { feedSettings } = useFeedSettings();
   const { trackEvent } = useContext(AnalyticsContext);
@@ -74,8 +78,12 @@ export default function PostOptionsMenu({
     _postIndex: number,
     undo?: () => unknown,
   ) => {
-    displayToast(message, { subject: ToastSubject.Feed, onUndo: undo });
-    onRemovePost?.(_postIndex);
+    const onUndo = async () => {
+      await undo();
+      await onRevertRemovedPost?.(postItem);
+    };
+    displayToast(message, { subject: ToastSubject.Feed, onUndo });
+    await onRemovePost?.(_postIndex);
   };
 
   const onReportPost: ReportPostAsync = async (
@@ -155,12 +163,11 @@ export default function PostOptionsMenu({
       }),
     );
 
-    await onRemovePost?.(postIndex);
-
-    displayToast('🙈 This article won’t show up on your feed anymore', {
-      subject: ToastSubject.PostContent,
-      onUndo: () => unhidePost(post.id),
-    });
+    await showMessageAndRemovePost(
+      '🙈 This article won’t show up on your feed anymore',
+      postIndex,
+      () => unhidePost(post.id),
+    );
   };
 
   const shareLink = post?.commentsPermalink;
