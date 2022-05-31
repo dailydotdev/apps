@@ -49,7 +49,7 @@ export default function SharedBookmarksModal({
     },
   );
 
-  const [isRssUrlCopied, copyRssUrl] = useCopyLink(
+  const [, copyRssUrl] = useCopyLink(
     () => bookmarksSharingData?.bookmarksSharing?.rssUrl,
   );
 
@@ -96,16 +96,6 @@ export default function SharedBookmarksModal({
               value={bookmarksSharingData?.bookmarksSharing?.rssUrl}
               readOnly
             />
-            {isRssUrlCopied && (
-              <div
-                className={classNames(
-                  'absolute flex top-0 right-0 items-center text-theme-status-success font-bold typo-caption1',
-                  styles.copied,
-                )}
-              >
-                Copied!
-              </div>
-            )}
           </div>
         )}
       </section>

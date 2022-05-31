@@ -36,6 +36,10 @@ import { PostModalActionsProps } from './PostModalActions';
 import { PostLoadingPlaceholder } from './PostLoadingPlaceholder';
 import classed from '../../lib/classed';
 import styles from '../utilities.module.css';
+import {
+  ToastSubject,
+  useToastNotification,
+} from '../../hooks/useToastNotification';
 
 const UpvotedPopupModal = dynamic(() => import('../modals/UpvotedPopupModal'));
 const NewCommentModal = dynamic(() => import('../modals/NewCommentModal'));
@@ -108,6 +112,7 @@ export function PostContent({
   const [lastScroll, setLastScroll] = useState(0);
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
   const [upvotedPopup, setUpvotedPopup] = useState(getUpvotedPopupInitialState);
+  const { subject } = useToastNotification();
   const queryClient = useQueryClient();
   const postQueryKey = ['post', id];
 
@@ -247,7 +252,10 @@ export function PostContent({
   const padding = isFixed ? 'py-4' : 'pt-6';
 
   return (
-    <Wrapper className={className}>
+    <Wrapper
+      className={className}
+      aria-live={subject === ToastSubject.PostContent ? 'polite' : 'off'}
+    >
       <PostContainer
         className={classNames(
           'relative',

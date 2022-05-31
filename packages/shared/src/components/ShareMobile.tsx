@@ -16,7 +16,7 @@ export function ShareMobile({ share }: Props): ReactElement {
     <WidgetContainer className="flex laptop:hidden flex-col gap-2 items-start py-3 px-1">
       <Button
         buttonSize="small"
-        onClick={copyLink}
+        onClick={() => copyLink()}
         pressed={copying}
         icon={<CopyIcon />}
         className="btn-tertiary-avocado"

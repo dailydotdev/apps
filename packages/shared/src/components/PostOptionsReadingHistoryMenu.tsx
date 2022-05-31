@@ -10,7 +10,6 @@ import XIcon from '../../icons/x.svg';
 import useBookmarkPost from '../hooks/useBookmarkPost';
 import AuthContext from '../contexts/AuthContext';
 import { ReadHistoryInfiniteData } from '../hooks/useInfiniteReadingHistory';
-import { useCopyLink } from '../hooks/useCopyLink';
 import { MenuIcon } from './MenuIcon';
 import { QueryIndexes } from '../hooks/useReadingHistory';
 import { useShareOrCopyLink } from '../hooks/useShareOrCopyLink';
@@ -83,17 +82,13 @@ export default function PostOptionsReadingHistoryMenu({
   const { user } = useContext(AuthContext);
   const queryClient = useQueryClient();
   const historyQueryKey = ['readHistory', user?.id];
-
-  const [, copyLink] = useCopyLink(() => post?.commentsPermalink);
-
-  const onShareOrCopyLink = useShareOrCopyLink({
+  const [, onShareOrCopyLink] = useShareOrCopyLink({
     link: post?.commentsPermalink,
     text: post?.title,
     trackObject: () =>
       postAnalyticsEvent('share post', post, {
         extra: { origin: 'reading history context menu' },
       }),
-    copyLink,
   });
 
   const { bookmark, removeBookmark } = useBookmarkPost({
@@ -144,7 +139,7 @@ export default function PostOptionsReadingHistoryMenu({
             {getBookmarkIconAndMenuText(post?.bookmarked)}
           </span>
         </Item>
-        <Item className="typo-callout" onClick={onShareOrCopyLink}>
+        <Item className="typo-callout" onClick={() => onShareOrCopyLink()}>
           <span className="flex w-full typo-callout">
             <MenuIcon Icon={ShareIcon} /> Share article
           </span>
