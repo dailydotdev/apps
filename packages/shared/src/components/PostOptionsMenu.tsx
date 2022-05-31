@@ -1,6 +1,7 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import { Item } from '@dailydotdev/react-contexify';
 import dynamic from 'next/dynamic';
+import { useQueryClient } from 'react-query';
 import useFeedSettings from '../hooks/useFeedSettings';
 import useReportPost from '../hooks/useReportPost';
 import { Post, ReportReason } from '../graphql/posts';
@@ -20,6 +21,8 @@ import {
   ToastSubject,
   useToastNotification,
 } from '../hooks/useToastNotification';
+import { generateQueryKey } from '../lib/query';
+import AuthContext from '../contexts/AuthContext';
 
 const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
   ssr: false,
@@ -28,6 +31,7 @@ const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
 export type PostOptionsMenuProps = {
   postIndex?: number;
   post: Post;
+  feedName?: string;
   onHidden?: () => unknown;
   onRemovePost?: (postIndex: number) => Promise<unknown>;
   setShowDeletePost?: () => unknown;
@@ -45,11 +49,14 @@ type ReportPostAsync = (
 export default function PostOptionsMenu({
   postIndex,
   post,
+  feedName,
   onHidden,
   onRemovePost,
   setShowDeletePost,
   setShowBanPost,
 }: PostOptionsMenuProps): ReactElement {
+  const client = useQueryClient();
+  const { user } = useContext(AuthContext);
   const { displayToast } = useToastNotification();
   const { feedSettings } = useFeedSettings();
   const { trackEvent } = useContext(AnalyticsContext);
@@ -74,7 +81,11 @@ export default function PostOptionsMenu({
     _postIndex: number,
     undo?: () => unknown,
   ) => {
-    displayToast(message, { subject: ToastSubject.Feed, onUndo: undo });
+    const onUndo = async () => {
+      await undo?.();
+      client.invalidateQueries(generateQueryKey(feedName, user));
+    };
+    displayToast(message, { subject: ToastSubject.Feed, onUndo });
     onRemovePost?.(_postIndex);
   };
 
@@ -155,12 +166,11 @@ export default function PostOptionsMenu({
       }),
     );
 
-    await onRemovePost?.(postIndex);
-
-    displayToast('🙈 This article won’t show up on your feed anymore', {
-      subject: ToastSubject.PostContent,
-      onUndo: () => unhidePost(post.id),
-    });
+    showMessageAndRemovePost(
+      '🙈 This article won’t show up on your feed anymore',
+      postIndex,
+      () => unhidePost(post.id),
+    );
   };
 
   const shareLink = post?.commentsPermalink;

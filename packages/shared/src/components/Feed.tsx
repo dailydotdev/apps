@@ -329,6 +329,7 @@ export default function Feed<T>({
       </div>
       <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
       <PostOptionsMenu
+        feedName={feedName}
         postIndex={postMenuIndex}
         post={(items[postMenuIndex] as PostItem)?.post}
         onHidden={() => setPostMenuIndex(null)}
