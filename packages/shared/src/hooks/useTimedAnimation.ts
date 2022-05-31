@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { isNullOrUndefined } from '../lib/func';
 
 interface UseTimedAnimation {
@@ -83,5 +83,13 @@ export const useTimedAnimation = ({
     [],
   );
 
-  return { timer, isAnimating: timer > 0, endAnimation, startAnimation };
+  return useMemo(
+    () => ({
+      timer,
+      isAnimating: timer > 0,
+      endAnimation,
+      startAnimation,
+    }),
+    [timer],
+  );
 };
