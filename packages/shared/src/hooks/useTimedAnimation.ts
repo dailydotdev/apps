@@ -50,14 +50,13 @@ export const useTimedAnimation = ({
     }
 
     setTimer(duration);
+    clearInterval();
 
     if (!autoEndAnimation) {
-      clearInterval();
       interval.current = MANUAL_DISMISS_ANIMATION_ID;
       return;
     }
 
-    clearInterval();
     interval.current = window.setInterval(
       () =>
         setTimer((current) =>
