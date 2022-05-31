@@ -38,7 +38,7 @@ export default function ShareNewCommentPopup({
       className="hidden laptop:flex fixed right-6 bottom-6 z-3 flex-col px-6 pt-10 pb-6 rounded-2xl border shadow-2 bg-theme-bg-tertiary border-theme-divider-secondary"
       style={{ width: '20.625rem' }}
     >
-      <ModalCloseButton onClick={onRequestClose} />
+      <ModalCloseButton onClick={onRequestClose} className="top-2" />
       <Confetti
         className="absolute left-2 h-16"
         style={{ top: '-4.375rem', width: '6.25rem' }}
