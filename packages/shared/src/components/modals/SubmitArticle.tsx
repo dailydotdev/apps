@@ -43,7 +43,7 @@ export default function SubmitArticle({
   const [urlHint, setUrlHint] = useState<string>();
 
   const { mutateAsync: submitArticle } = useMutation<
-    SubmitArticleResposne,
+    { submitArticle: SubmitArticleResposne },
     unknown,
     string
   >((articleUrl: string) =>
@@ -94,13 +94,14 @@ export default function SubmitArticle({
 
     const defaultErrorMessage = 'Something went wrong, try again';
     try {
+      const res = await submitArticle(data.articleUrl);
       const {
         reason = defaultErrorMessage,
         post,
         submission,
-      } = await submitArticle(data.articleUrl);
-      setIsSubmitted(true);
+      } = res.submitArticle;
       if (submission) {
+        setIsSubmitted(true);
         trackEvent({ event_name: 'submit article succeed' });
       } else if (post) {
         setExistingArticle({ post });
