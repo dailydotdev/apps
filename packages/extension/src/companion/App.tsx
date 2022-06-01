@@ -72,7 +72,11 @@ export default function App({
                       companionExpanded={settings?.companionExpanded}
                       onOptOut={() => setIsOptOutCompanion(true)}
                     />
-                    <Toast />
+                    <Toast
+                      autoDismissNotifications={
+                        settings?.autoDismissNotifications
+                      }
+                    />
                   </AnalyticsContextProvider>
                 </AlertContextProvider>
               </SettingsContextProvider>
