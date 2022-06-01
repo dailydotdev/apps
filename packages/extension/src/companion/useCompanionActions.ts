@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useMutation } from 'react-query';
 import { browser } from 'webextension-polyfill-ts';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
@@ -191,15 +192,28 @@ export default function useCompanionActions<
     },
   );
 
-  return {
-    report,
-    blockSource,
-    bookmark,
-    removeBookmark,
-    upvote,
-    removeUpvote,
-    disableCompanion,
-    removeCompanionHelper,
-    toggleCompanionExpanded,
-  };
+  return useMemo(
+    () => ({
+      report,
+      blockSource,
+      bookmark,
+      removeBookmark,
+      upvote,
+      removeUpvote,
+      disableCompanion,
+      removeCompanionHelper,
+      toggleCompanionExpanded,
+    }),
+    [
+      report,
+      blockSource,
+      bookmark,
+      removeBookmark,
+      upvote,
+      removeUpvote,
+      disableCompanion,
+      removeCompanionHelper,
+      toggleCompanionExpanded,
+    ],
+  );
 }
