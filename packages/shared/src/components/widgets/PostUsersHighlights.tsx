@@ -120,7 +120,7 @@ export function PostUsersHighlights({ post }: PostAuthorProps): ReactElement {
     <WidgetContainer className="flex flex-col">
       <UserHighlight
         {...source}
-        permalink={`/sources/${source.id}`}
+        permalink={`${process.env.NEXT_PUBLIC_WEBAPP_URL}sources/${source.id}`}
         userType="source"
       />
       {author && <UserHighlight {...author} userType="author" />}
