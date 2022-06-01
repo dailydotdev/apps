@@ -13,7 +13,10 @@ import {
 import { ResponsiveModal } from './ResponsiveModal';
 import { TextField } from '../fields/TextField';
 import LinkIcon from '../../../icons/link.svg';
-import { SUBMIT_ARTICLE_MUTATION } from '../../graphql/submitArticle';
+import {
+  SubmitArticleResposne,
+  SUBMIT_ARTICLE_MUTATION,
+} from '../../graphql/submitArticle';
 import PostItemCard from '../post/PostItemCard';
 import { PostItem } from '../../graphql/posts';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
@@ -39,11 +42,14 @@ export default function SubmitArticle({
   const [existingArticle, setExistingArticle] = useState<PostItem>(null);
   const [urlHint, setUrlHint] = useState<string>();
 
-  const { mutateAsync: submitArticle } = useMutation<unknown, unknown, string>(
-    (articleUrl: string) =>
-      request(`${apiUrl}/graphql`, SUBMIT_ARTICLE_MUTATION, {
-        url: articleUrl,
-      }),
+  const { mutateAsync: submitArticle } = useMutation<
+    SubmitArticleResposne,
+    unknown,
+    string
+  >((articleUrl: string) =>
+    request(`${apiUrl}/graphql`, SUBMIT_ARTICLE_MUTATION, {
+      url: articleUrl,
+    }),
   );
 
   const submitArticleFailEvent = (reason: string): void => {
@@ -86,22 +92,27 @@ export default function SubmitArticle({
       return;
     }
 
+    const defaultErrorMessage = 'Something went wrong, try again';
     try {
-      await submitArticle(data.articleUrl);
+      const {
+        reason = defaultErrorMessage,
+        post,
+        submission,
+      } = await submitArticle(data.articleUrl);
       setIsSubmitted(true);
-      trackEvent({ event_name: 'submit article succeed' });
-    } catch (err) {
-      const error = JSON.parse(JSON.stringify(err));
-      try {
-        const errorMessage = JSON.parse(error?.response?.errors[0]?.message);
-        setExistingArticle(errorMessage);
-        submitArticleFailEvent('Article exist already');
-      } catch (e) {
-        const errorMessage = error?.response?.errors[0]?.message;
-        setUrlHint(errorMessage ?? 'Something went wrong, try again');
-        setEnableSubmission(false);
-        submitArticleFailEvent(errorMessage);
+      if (submission) {
+        trackEvent({ event_name: 'submit article succeed' });
+      } else if (post) {
+        setExistingArticle({ post });
+        submitArticleFailEvent(reason);
+      } else if (reason) {
+        setUrlHint(reason ?? defaultErrorMessage);
+        submitArticleFailEvent(reason);
       }
+    } catch (err) {
+      setUrlHint(defaultErrorMessage);
+      setEnableSubmission(false);
+      submitArticleFailEvent(defaultErrorMessage);
     } finally {
       setIsValidating(false);
     }
