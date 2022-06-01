@@ -38,6 +38,10 @@ import {
   UsePostCommentOptionalProps,
 } from '../../hooks/usePostComment';
 import { useUpvoteQuery } from '../../hooks/useUpvoteQuery';
+import {
+  ToastSubject,
+  useToastNotification,
+} from '../../hooks/useToastNotification';
 
 const UpvotedPopupModal = dynamic(() => import('../modals/UpvotedPopupModal'));
 const NewCommentModal = dynamic(() => import('../modals/NewCommentModal'));
@@ -119,6 +123,7 @@ export function PostContent({
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
   const queryClient = useQueryClient();
   const postQueryKey = ['post', id];
+  const { subject } = useToastNotification();
 
   useSubscription(
     () => ({
@@ -193,7 +198,10 @@ export function PostContent({
   const padding = isFixed ? 'py-4' : 'pt-6';
 
   return (
-    <Wrapper className={className}>
+    <Wrapper
+      className={className}
+      aria-live={subject === ToastSubject.PostContent ? 'polite' : 'off'}
+    >
       <PostContainer
         className={classNames(
           'relative',

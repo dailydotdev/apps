@@ -40,6 +40,7 @@ export type SettingsContextData = {
   sortingEnabled: boolean;
   optOutWeeklyGoal: boolean;
   optOutCompanion: boolean;
+  autoDismissNotifications: boolean;
   setTheme: (theme: ThemeMode) => Promise<void>;
   toggleShowOnlyUnreadPosts: () => Promise<void>;
   toggleOpenNewTab: () => Promise<void>;
@@ -50,6 +51,7 @@ export type SettingsContextData = {
   toggleSortingEnabled: () => Promise<void>;
   toggleOptOutWeeklyGoal: () => Promise<void>;
   toggleOptOutCompanion: () => Promise<void>;
+  toggleAutoDismissNotifications: () => Promise<void>;
   loadedSettings: boolean;
   customLinks?: string[];
   updateCustomLinks: (links: string[]) => Promise<unknown>;
@@ -107,6 +109,7 @@ const defaultSettings: RemoteSettings = {
   sortingEnabled: false,
   optOutWeeklyGoal: false,
   optOutCompanion: false,
+  autoDismissNotifications: true,
   theme: remoteThemes[ThemeMode.Dark],
 };
 
@@ -205,6 +208,11 @@ export const SettingsContextProvider = ({
         setSettings({
           ...settings,
           optOutCompanion: !settings.optOutCompanion,
+        }),
+      toggleAutoDismissNotifications: () =>
+        setSettings({
+          ...settings,
+          autoDismissNotifications: !settings.autoDismissNotifications,
         }),
       loadedSettings,
       updateCustomLinks: (links: string[]) =>

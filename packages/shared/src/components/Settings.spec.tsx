@@ -41,6 +41,7 @@ const defaultSettings: RemoteSettings = {
   companionExpanded: false,
   sortingEnabled: false,
   optOutWeeklyGoal: true,
+  autoDismissNotifications: true,
 };
 
 const updateSettings = jest.fn();
@@ -264,6 +265,14 @@ it('should mutate feed sorting enabled setting', () =>
       // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
       queryByText(el.parentElement, 'Show feed sorting menu'),
     ) as HTMLInputElement;
+    fireEvent.click(checkbox);
+  }));
+
+it('should mutate automatic dismissal of notifications setting', () =>
+  testSettingsMutation({ autoDismissNotifications: false }, async () => {
+    const checkbox = await screen.findByText(
+      'Automatically dismiss notifications',
+    );
     fireEvent.click(checkbox);
   }));
 

@@ -87,6 +87,7 @@ const defaultSettings: RemoteSettings = {
   sortingEnabled: false,
   optOutWeeklyGoal: true,
   optOutCompanion: true,
+  autoDismissNotifications: true,
   customLinks: [
     'http://custom1.com',
     'http://custom2.com',

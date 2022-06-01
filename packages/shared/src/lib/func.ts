@@ -8,3 +8,6 @@ export const parseOrDefault = <T = unknown>(data: string): T | string => {
     return data;
   }
 };
+
+export const isNullOrUndefined = (param: unknown): boolean =>
+  typeof param === 'undefined' || param === null;

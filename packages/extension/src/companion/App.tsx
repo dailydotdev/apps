@@ -7,6 +7,7 @@ import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContex
 import { SettingsContextProvider } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { AlertContextProvider } from '@dailydotdev/shared/src/contexts/AlertContext';
 import { AnalyticsContextProvider } from '@dailydotdev/shared/src/contexts/AnalyticsContext';
+import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import { RouterContext } from 'next/dist/shared/lib/router-context';
 import Companion from './Companion';
 import CustomRouter from '../lib/CustomRouter';
@@ -71,6 +72,7 @@ export default function App({
                       companionExpanded={settings?.companionExpanded}
                       onOptOut={() => setIsOptOutCompanion(true)}
                     />
+                    <Toast />
                   </AnalyticsContextProvider>
                 </AlertContextProvider>
               </SettingsContextProvider>

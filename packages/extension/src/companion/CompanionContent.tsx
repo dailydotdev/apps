@@ -12,8 +12,6 @@ import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopyLink';
 import classNames from 'classnames';
-import useNotification from '@dailydotdev/shared/src/hooks/useNotification';
-import { CardNotification } from '@dailydotdev/shared/src/components/cards/Card';
 import { useUpvoteQuery } from '@dailydotdev/shared/src/hooks/useUpvoteQuery';
 import UpvotedPopupModal from '@dailydotdev/shared/src/components/modals/UpvotedPopupModal';
 import { CompanionEngagements } from './CompanionEngagements';
@@ -34,13 +32,8 @@ export default function CompanionContent({
   viewComments,
   onViewComments,
 }: CompanionContentProps): ReactElement {
-  const { notification, onMessage } = useNotification();
   const [copying, copyLink] = useCopyLink(() => post.commentsPermalink);
   const [heightPx, setHeightPx] = useState('0');
-  const copyLinkAndNotify = () => {
-    copyLink();
-    onMessage('✅ Copied link to clipboard');
-  };
   const {
     requestQuery: upvotedPopup,
     resetUpvoteQuery,
@@ -73,11 +66,6 @@ export default function CompanionContent({
         !viewComments && 'rounded-bl-16',
       )}
     >
-      {notification && (
-        <CardNotification className="absolute -top-6 right-8 z-2 w-max text-center shadow-2">
-          {notification}
-        </CardNotification>
-      )}
       <div className="flex flex-row gap-3 items-center">
         <a href={process.env.NEXT_PUBLIC_WEBAPP_URL} target="_parent">
           <LogoIcon className="w-8 rounded-8" />
@@ -96,7 +84,7 @@ export default function CompanionContent({
                 'ml-auto',
                 copying ? 'btn-tertiary-avocado' : ' btn-tertiary',
               )}
-              onClick={copyLinkAndNotify}
+              onClick={() => copyLink()}
             />
           </SimpleTooltip>
         )}

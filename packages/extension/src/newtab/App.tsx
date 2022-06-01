@@ -19,6 +19,7 @@ import { BootDataProviderProps } from '@dailydotdev/shared/src/contexts/BootProv
 import { RouterContext } from 'next/dist/shared/lib/router-context';
 import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPageView';
 import useDeviceId from '@dailydotdev/shared/src/hooks/analytics/useDeviceId';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
@@ -79,10 +80,13 @@ function InternalApp({
     }
   }, [routeChangedCallbackRef]);
 
+  const { dismissToast } = useToastNotification();
+
   const onPageChanged = (page: string): void => {
     // eslint-disable-next-line no-param-reassign
     pageRef.current = page;
     routeChangedCallbackRef.current();
+    dismissToast();
   };
 
   return (

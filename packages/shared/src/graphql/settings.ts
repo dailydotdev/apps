@@ -15,6 +15,7 @@ export type RemoteSettings = {
   sortingEnabled: boolean;
   optOutWeeklyGoal: boolean;
   optOutCompanion: boolean;
+  autoDismissNotifications: boolean;
   customLinks?: string[];
 };
 

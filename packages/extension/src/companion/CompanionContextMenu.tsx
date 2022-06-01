@@ -10,7 +10,7 @@ import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import { useShareOrCopyLink } from '@dailydotdev/shared/src/hooks/useShareOrCopyLink';
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
-import { NotificationProps } from '@dailydotdev/shared/src/hooks/useNotification';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { getCompanionWrapper } from './common';
 import DisableCompanionModal from './DisableCompanionModal';
 
@@ -20,31 +20,23 @@ type CompanionContextMenuProps = {
   onBlockSource: (T) => void;
   onViewDiscussion: () => void;
   onDisableCompanion: () => void;
-} & Pick<NotificationProps, 'onMessage'>;
+};
 
 export default function CompanionContextMenu({
   postData,
-  onMessage,
   onReport,
   onBlockSource,
   onViewDiscussion,
   onDisableCompanion,
 }: CompanionContextMenuProps): ReactElement {
+  const { displayToast } = useToastNotification();
   const { trackEvent } = useContext(AnalyticsContext);
   const [reportModal, setReportModal] = useState<boolean>();
   const [disableModal, setDisableModal] = useState<boolean>();
-
   const shareLink = postData?.commentsPermalink;
-
-  const copyLink = async () => {
-    await navigator.clipboard.writeText(shareLink);
-    onMessage('✅ Copied link to clipboard');
-  };
-
-  const onShareOrCopyLink = useShareOrCopyLink({
+  const [, onShareOrCopyLink] = useShareOrCopyLink({
     link: shareLink,
     text: postData?.title,
-    copyLink,
     trackObject: () =>
       postAnalyticsEvent('share post', postData, {
         extra: { origin: 'companion context menu' },
@@ -69,7 +61,7 @@ export default function CompanionContextMenu({
       }),
     );
 
-    onMessage('🚨 Thanks for reporting!');
+    displayToast('🚨 Thanks for reporting!');
   };
 
   return (
@@ -83,7 +75,7 @@ export default function CompanionContextMenu({
         <Item onClick={onViewDiscussion}>
           <CommentIcon className="mr-2 text-xl" /> View discussion
         </Item>
-        <Item onClick={onShareOrCopyLink}>
+        <Item onClick={() => onShareOrCopyLink()}>
           <ShareIcon className="mr-2 text-xl" /> Share article
         </Item>
         <Item onClick={() => setReportModal(true)}>

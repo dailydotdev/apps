@@ -97,7 +97,7 @@ export default function ShareNewCommentPopup({
         <Button
           className="btn-primary"
           buttonSize="small"
-          onClick={copyLink}
+          onClick={() => copyLink()}
           icon={<CopyIcon />}
         >
           {copying ? 'Copied!' : 'Copy link'}

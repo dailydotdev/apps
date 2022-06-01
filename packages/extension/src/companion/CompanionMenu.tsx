@@ -10,8 +10,6 @@ import classNames from 'classnames';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import Modal from 'react-modal';
 import { useContextMenu } from '@dailydotdev/react-contexify';
-import useNotification from '@dailydotdev/shared/src/hooks/useNotification';
-import { CardNotification } from '@dailydotdev/shared/src/components/cards/Card';
 import { isTesting } from '@dailydotdev/shared/src/lib/constants';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -51,7 +49,6 @@ export default function CompanionMenu({
 }: CompanionMenuProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
   const { user, showLogin } = useContext(AuthContext);
-  const { notification, onMessage } = useNotification();
   const [showCompanionHelper, setShowCompanionHelper] = usePersistentContext(
     'companion_helper',
     companionHelper,
@@ -154,11 +151,6 @@ export default function CompanionMenu({
 
   return (
     <div className="group flex relative flex-col gap-2 self-center p-2 my-6 w-14 rounded-l-16 border border-theme-divider-quaternary bg-theme-bg-primary">
-      {notification && (
-        <CardNotification className="absolute right-full bottom-3 z-2 mr-2 w-max text-center shadow-2">
-          {notification}
-        </CardNotification>
-      )}
       {showCompanionHelper && <CompanionHelper />}
       <SimpleTooltip
         placement="left"
@@ -249,7 +241,6 @@ export default function CompanionMenu({
         />
       </SimpleTooltip>
       <CompanionContextMenu
-        onMessage={onMessage}
         postData={post}
         onReport={report}
         onBlockSource={blockSource}

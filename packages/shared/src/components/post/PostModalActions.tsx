@@ -14,11 +14,9 @@ import OpenLinkIcon from '../../../icons/open_link.svg';
 import { Roles } from '../../lib/user';
 import AuthContext from '../../contexts/AuthContext';
 import { Post } from '../../graphql/posts';
-import useNotification from '../../hooks/useNotification';
 import useReportPostMenu from '../../hooks/useReportPostMenu';
 import classed from '../../lib/classed';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { CardNotification } from '../cards/Card';
 import { Button } from '../buttons/Button';
 import PostOptionsMenu from '../PostOptionsMenu';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
@@ -52,7 +50,6 @@ export function PostModalActions({
 }: PostModalActionsProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
   const { user } = useContext(AuthContext);
-  const { notification, onMessage } = useNotification();
   const { showReportMenu } = useReportPostMenu();
   const [showBanPost, setShowBanPost] = useState(false);
   const [showDeletePost, setShowDeletePost] = useState(false);
@@ -71,16 +68,6 @@ export function PostModalActions({
       }),
     );
   };
-
-  if (notification) {
-    return (
-      <Container className={notificactionClassName}>
-        <CardNotification className="flex-1 py-2.5 text-center">
-          {notification}
-        </CardNotification>
-      </Container>
-    );
-  }
 
   const isModerator = user?.roles?.indexOf(Roles.Moderator) > -1;
 
@@ -114,7 +101,6 @@ export function PostModalActions({
       )}
       <PostOptionsMenu
         post={post}
-        onMessage={onMessage}
         setShowBanPost={isModerator ? () => setShowBanPost(true) : null}
         setShowDeletePost={isModerator ? () => setShowDeletePost(true) : null}
       />
