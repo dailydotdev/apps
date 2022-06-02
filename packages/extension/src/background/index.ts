@@ -10,7 +10,7 @@ import {
   getLocalBootData,
 } from '@dailydotdev/shared/src/contexts/BootProvider';
 import { getOrGenerateDeviceId } from '@dailydotdev/shared/src/hooks/analytics/useDeviceId';
-import { registerBrowserContentScripts } from '../companion/useExtensionPermission';
+import { getContentScriptPermissionAndRegister } from '../companion/useExtensionPermission';
 import {
   getExtensionAlerts,
   updateExtensionAlerts,
@@ -64,12 +64,7 @@ const sendBootData = async (req, sender) => {
 };
 
 async function handleMessages(message, sender) {
-  const permissions = await browser.permissions.contains({
-    origins: ['*://*/*'],
-  });
-  if (permissions) {
-    await registerBrowserContentScripts();
-  }
+  await getContentScriptPermissionAndRegister();
 
   if (message.type === 'CONTENT_LOADED') {
     sendBootData(message, sender);
@@ -140,4 +135,8 @@ browser.runtime.onInstalled.addListener(async (details) => {
   await Promise.all([
     browser.runtime.setUninstallURL('https://daily.dev/uninstall'),
   ]);
+});
+
+browser.runtime.onStartup.addListener(async () => {
+  await getContentScriptPermissionAndRegister();
 });

@@ -8,7 +8,7 @@ import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext'
 interface UseExtensionPermission {
   isFetched?: boolean;
   contentScriptGranted: boolean;
-  registerContentScripts: () => Promise<boolean>;
+  requestContentScripts: () => Promise<boolean>;
 }
 
 export const registerBrowserContentScripts =
@@ -22,13 +22,19 @@ export const registerBrowserContentScripts =
       ],
     });
 
-const getContentScriptPermission = async () => {
-  const permissions = await browser.permissions.contains({
+export const getContentScriptPermission = (): Promise<boolean> =>
+  browser.permissions.contains({
     origins: ['*://*/*'],
   });
 
-  return !!permissions;
-};
+export const getContentScriptPermissionAndRegister =
+  async (): Promise<void> => {
+    const permission = await getContentScriptPermission();
+
+    if (permission) {
+      await registerBrowserContentScripts();
+    }
+  };
 
 const contentScriptKey = 'permission_key';
 
@@ -52,7 +58,7 @@ export const useExtensionPermission = ({
     },
   );
 
-  const registerContentScripts = async () => {
+  const requestContentScripts = async () => {
     trackEvent({
       event_name: 'request content scripts',
       extra: JSON.stringify({ origin }),
@@ -75,7 +81,7 @@ export const useExtensionPermission = ({
   };
 
   return useMemo(
-    () => ({ contentScriptGranted, registerContentScripts, isFetched }),
+    () => ({ contentScriptGranted, requestContentScripts, isFetched }),
     [contentScriptGranted, isFetched],
   );
 };
