@@ -17,7 +17,7 @@ const CompanionPermissionComponent = (
   _,
   ref: Ref<HTMLDivElement>,
 ): ReactElement => {
-  const { registerContentScripts } = useExtensionPermission({
+  const { requestContentScripts } = useExtensionPermission({
     origin: 'companion permission popup',
   });
   const { flags } = useContext(FeaturesContext);
@@ -43,7 +43,7 @@ const CompanionPermissionComponent = (
         </p>
         <Button
           className="mt-1 w-[12.5rem] btn btn-primary"
-          onClick={registerContentScripts}
+          onClick={requestContentScripts}
           buttonSize="small"
         >
           {button}

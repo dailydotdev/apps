@@ -20,7 +20,7 @@ export const useCompanionSettings = (origin: string): UseCompanionSettings => {
   );
   const { optOutCompanion, toggleOptOutCompanion, loadedSettings } =
     useContext(SettingsContext);
-  const { contentScriptGranted, registerContentScripts } =
+  const { contentScriptGranted, requestContentScripts } =
     useExtensionPermission({ origin });
 
   useEffect(() => {
@@ -38,7 +38,7 @@ export const useCompanionSettings = (origin: string): UseCompanionSettings => {
       return;
     }
 
-    registerContentScripts().then((granted) => {
+    requestContentScripts().then((granted) => {
       if (!granted) {
         toggleOptOutCompanion();
       }
