@@ -22,13 +22,19 @@ export const registerBrowserContentScripts =
       ],
     });
 
-const getContentScriptPermission = async () => {
-  const permissions = await browser.permissions.contains({
+export const getContentScriptPermission = (): Promise<boolean> =>
+  browser.permissions.contains({
     origins: ['*://*/*'],
   });
 
-  return !!permissions;
-};
+export const getContentScriptPermissionAndRegister =
+  async (): Promise<void> => {
+    const permission = await getContentScriptPermission();
+
+    if (permission) {
+      await registerBrowserContentScripts();
+    }
+  };
 
 const contentScriptKey = 'permission_key';
 
