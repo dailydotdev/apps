@@ -25,6 +25,10 @@ import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
 import { DndContextProvider } from './DndContext';
 import { BootDataProvider } from '../../../shared/src/contexts/BootProvider';
+import {
+  registerBrowserContentScripts,
+  useExtensionPermission,
+} from '../companion/useExtensionPermission';
 
 const AnalyticsConsentModal = dynamic(() => import('./AnalyticsConsentModal'));
 
@@ -57,6 +61,9 @@ function InternalApp({
     shouldShowLogin,
     loginState,
   } = useContext(AuthContext);
+  const { contentScriptGranted } = useExtensionPermission({
+    origin: 'on extension load',
+  });
   const [analyticsConsent, setAnalyticsConsent] = usePersistentState(
     'consent',
     false,
@@ -88,6 +95,12 @@ function InternalApp({
     routeChangedCallbackRef.current();
     dismissToast();
   };
+
+  useEffect(() => {
+    if (contentScriptGranted) {
+      registerBrowserContentScripts();
+    }
+  }, [contentScriptGranted]);
 
   return (
     <DndContextProvider>
