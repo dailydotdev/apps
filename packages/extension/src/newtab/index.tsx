@@ -1,3 +1,4 @@
+import '@dailydotdev/shared/src/lib/lazysizesImport';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import '@dailydotdev/shared/src/styles/globals.css';

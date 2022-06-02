@@ -15,6 +15,8 @@ import CardIcon from '../../icons/card.svg';
 import LineIcon from '../../icons/line.svg';
 import { IconsSwitch } from './fields/IconsSwitch';
 import AuthContext from '../contexts/AuthContext';
+import { Features, getFeatureValue } from '../lib/featureManagement';
+import FeaturesContext from '../contexts/FeaturesContext';
 
 const densities = [
   { label: 'Eco', value: 'eco' },
@@ -58,6 +60,11 @@ export default function Settings({
 }: HTMLAttributes<HTMLDivElement>): ReactElement {
   const isExtension = process.env.TARGET_BROWSER;
   const { user, showLogin } = useContext(AuthContext);
+  const { flags } = useContext(FeaturesContext);
+  const companionPlacement = getFeatureValue(
+    Features.CompanionPermissionPlacement,
+    flags,
+  );
   const {
     spaciness,
     setSpaciness,
@@ -75,6 +82,8 @@ export default function Settings({
     toggleSortingEnabled,
     optOutWeeklyGoal,
     toggleOptOutWeeklyGoal,
+    optOutCompanion,
+    toggleOptOutCompanion,
     autoDismissNotifications,
     toggleAutoDismissNotifications,
   } = useContext(SettingsContext);
@@ -175,6 +184,15 @@ export default function Settings({
           >
             Show Weekly Goal widget
           </SettingsSwitch>
+          {companionPlacement !== 'off' && (
+            <SettingsSwitch
+              name="hide-companion"
+              checked={!optOutCompanion}
+              onToggle={toggleOptOutCompanion}
+            >
+              Enable companion
+            </SettingsSwitch>
+          )}
         </SectionContent>
       </Section>
       <Section>

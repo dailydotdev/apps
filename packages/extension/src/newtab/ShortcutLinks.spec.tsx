@@ -83,8 +83,10 @@ const defaultSettings: RemoteSettings = {
   insaneMode: false,
   showTopSites: true,
   sidebarExpanded: true,
+  companionExpanded: false,
   sortingEnabled: false,
   optOutWeeklyGoal: true,
+  optOutCompanion: true,
   autoDismissNotifications: true,
   customLinks: [
     'http://custom1.com',

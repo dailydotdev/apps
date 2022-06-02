@@ -38,6 +38,7 @@ const defaultSettings: RemoteSettings = {
   insaneMode: false,
   showTopSites: true,
   sidebarExpanded: true,
+  companionExpanded: false,
   sortingEnabled: false,
   optOutWeeklyGoal: true,
   autoDismissNotifications: true,

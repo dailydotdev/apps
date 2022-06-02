@@ -97,6 +97,7 @@
     "postcss-import": "^14.1.0",
     "postcss-mixins": "^9.0.2",
     "postcss-nesting": "^10.1.4",
+    "postcss-rem-to-responsive-pixel": "^5.1.1",
     "postcss-simple-vars": "^6.0.3",
     "prettier": "^2.6.2",
     "stylelint": "^13.13.1",
