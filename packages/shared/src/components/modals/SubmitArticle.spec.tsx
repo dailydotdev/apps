@@ -226,3 +226,27 @@ it('should feedback already submitted article', async () => {
     ),
   ).toBeInTheDocument();
 });
+
+it('should feedback submitted article is deleted', async () => {
+  mockGraphQL({
+    request: {
+      query: SUBMIT_ARTICLE_MUTATION,
+      variables: { url: 'http://blog.daily.dev/blog/article-1' },
+    },
+    result: {
+      data: {
+        submitArticle: {
+          result: 'reject',
+          reason: 'post is deleted',
+        },
+      },
+    },
+  });
+  renderComponent(true);
+  const input = await screen.findByRole('textbox');
+  userEvent.type(input, 'http://blog.daily.dev/blog/article-1');
+  const btn = await screen.findByLabelText('Submit article');
+  btn.click();
+
+  expect(await screen.findByText('post is deleted')).toBeInTheDocument();
+});

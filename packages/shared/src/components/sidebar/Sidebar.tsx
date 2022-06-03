@@ -197,6 +197,7 @@ export default function Sidebar({
     trackEvent({
       event_name: 'start submit article',
       feed_item_title: submitArticleSidebarButton,
+      extra: JSON.stringify({ has_access: canSubmitArticle }),
     });
     setShowSubmitArticle(!showSubmitArticle);
   };

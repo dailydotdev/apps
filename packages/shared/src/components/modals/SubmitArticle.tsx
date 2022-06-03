@@ -54,7 +54,7 @@ export default function SubmitArticle({
 
   const submitArticleFailEvent = (reason: string): void => {
     trackEvent({
-      event_name: 'submit article failed',
+      event_name: 'submit article fail',
       extra: JSON.stringify({
         reason,
       }),
@@ -77,13 +77,14 @@ export default function SubmitArticle({
     event: React.FormEvent<HTMLFormElement>,
   ): Promise<void> => {
     event.preventDefault();
+    const data = formToJson<{ articleUrl: string }>(event.currentTarget);
 
     trackEvent({
       event_name: 'submit article',
       feed_item_title: submitArticleModalButton,
+      extra: JSON.stringify({ url: data?.articleUrl }),
     });
 
-    const data = formToJson<{ articleUrl: string }>(event.currentTarget);
     setIsValidating(true);
 
     if (!data.articleUrl) {
@@ -105,7 +106,7 @@ export default function SubmitArticle({
         trackEvent({ event_name: 'submit article succeed' });
       } else if (post) {
         setExistingArticle({ post });
-        submitArticleFailEvent(reason);
+        submitArticleFailEvent('Article exists already');
       } else if (reason) {
         setUrlHint(reason ?? defaultErrorMessage);
         submitArticleFailEvent(reason);

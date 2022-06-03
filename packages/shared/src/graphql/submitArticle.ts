@@ -30,6 +30,7 @@ export const SUBMIT_ARTICLE_MUTATION = gql`
         readTime
         numUpvotes
         permalink
+        deleted
         source {
           id
           image
