@@ -1,5 +1,5 @@
 import 'content-scripts-register-polyfill';
-import { browser } from 'webextension-polyfill-ts';
+import { browser, Runtime } from 'webextension-polyfill-ts';
 import { getBootData } from '@dailydotdev/shared/src/lib/boot';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import { parseOrDefault } from '@dailydotdev/shared/src/lib/func';
@@ -69,7 +69,26 @@ const sendBootData = async (req, sender) => {
   });
 };
 
-async function handleMessages(message, sender) {
+const sendRequestResponse = async (
+  requestKey: string,
+  req: Promise<unknown>,
+  sender: Runtime.MessageSender,
+  variables,
+) => {
+  const key = parseOrDefault(requestKey);
+  const url = sender?.tab?.url?.split('?')[0];
+  const [deviceId, res] = await Promise.all([getOrGenerateDeviceId(), req]);
+
+  return browser.tabs.sendMessage(sender?.tab?.id, {
+    deviceId,
+    url,
+    res,
+    req: { variables },
+    key,
+  });
+};
+
+async function handleMessages(message, sender: Runtime.MessageSender) {
   await getContentScriptPermissionAndRegister();
 
   if (message.type === 'CONTENT_LOADED') {
@@ -85,21 +104,18 @@ async function handleMessages(message, sender) {
       return req;
     }
 
-    const key = parseOrDefault(requestKey);
-    const url = sender?.tab?.url?.split('?')[0];
-    const [deviceId, res] = await Promise.all([getOrGenerateDeviceId(), req]);
-
-    return browser.tabs.sendMessage(sender?.tab?.id, {
-      deviceId,
-      url,
-      res,
-      req: { variables: message.variables },
-      key,
-    });
+    return sendRequestResponse(requestKey, req, sender, message.variables);
   }
 
   if (message.type === 'FETCH_REQUEST') {
-    return fetch(message.url, { ...message.args });
+    const { requestKey } = message.args.headers || {};
+    const req = await fetch(message.url, { ...message.args });
+
+    if (!requestKey) {
+      return req;
+    }
+
+    return sendRequestResponse(requestKey, req.json(), sender, message.body);
   }
 
   if (message.type === 'DISABLE_COMPANION') {
