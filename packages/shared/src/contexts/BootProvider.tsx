@@ -3,6 +3,7 @@ import React, {
   ReactNode,
   useCallback,
   useEffect,
+  useRef,
   useState,
 } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
@@ -20,24 +21,25 @@ import {
 } from './SettingsContext';
 import { storageWrapper as storage } from '../lib/storageWrapper';
 
-function useRefreshToken(
+export function useRefreshToken(
   accessToken: AccessToken,
   refresh: () => Promise<unknown>,
-) {
-  const [refreshTokenTimeout, setRefreshTokenTimeout] = useState<number>();
+): void {
+  const timeout = useRef<number>();
 
   useEffect(() => {
     if (accessToken) {
-      if (refreshTokenTimeout) {
-        clearTimeout(refreshTokenTimeout);
+      if (timeout.current) {
+        window.clearTimeout(timeout.current);
       }
       const expiresInMillis = differenceInMilliseconds(
         new Date(accessToken.expiresIn),
         new Date(),
       );
       // Refresh token before it expires
-      setRefreshTokenTimeout(
-        window.setTimeout(refresh, expiresInMillis - 1000 * 60 * 2),
+      timeout.current = window.setTimeout(
+        refresh,
+        expiresInMillis - 1000 * 60 * 2,
       );
     }
   }, [accessToken, refresh]);
