@@ -1,16 +1,20 @@
 import { browser } from 'webextension-polyfill-ts';
 
-// Inject app div
-const appContainer = document.createElement('daily-companion-app');
-document.body.appendChild(appContainer);
+const hasRendered = !!document.querySelector('daily-companion-app');
 
-// Create shadow dom
-const shadow = document
-  .querySelector('daily-companion-app')
-  .attachShadow({ mode: 'open' });
+if (!hasRendered) {
+  // Inject app div
+  const appContainer = document.createElement('daily-companion-app');
+  document.body.appendChild(appContainer);
 
-const wrapper = document.createElement('div');
-wrapper.id = 'daily-companion-wrapper';
-shadow.appendChild(wrapper);
+  // Create shadow dom
+  const shadow = document
+    .querySelector('daily-companion-app')
+    .attachShadow({ mode: 'open' });
 
-browser.runtime.sendMessage({ type: 'CONTENT_LOADED' });
+  const wrapper = document.createElement('div');
+  wrapper.id = 'daily-companion-wrapper';
+  shadow.appendChild(wrapper);
+
+  browser.runtime.sendMessage({ type: 'CONTENT_LOADED' });
+}
