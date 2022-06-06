@@ -29,9 +29,10 @@ export const getContentScriptPermission = (): Promise<boolean> =>
 
 export const getContentScriptPermissionAndRegister =
   async (): Promise<void> => {
+    const isFirefox = process.env.TARGET_BROWSER === 'firefox';
     const permission = await getContentScriptPermission();
 
-    if (permission) {
+    if (permission && !isFirefox) {
       await registerBrowserContentScripts();
     }
   };
