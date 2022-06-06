@@ -44,8 +44,13 @@ const sendBootData = async (req, sender) => {
 
   const url = sender?.tab?.url;
 
-  const [deviceId, { postData, settings, flags, user, alerts, visit }] =
-    await Promise.all([getOrGenerateDeviceId(), getBootData('companion', url)]);
+  const [
+    deviceId,
+    { postData, settings, flags, user, alerts, visit, accessToken },
+  ] = await Promise.all([
+    getOrGenerateDeviceId(),
+    getBootData('companion', url),
+  ]);
 
   let settingsOutput = settings;
   if (!cacheData?.user || !('providers' in cacheData?.user)) {
@@ -60,6 +65,7 @@ const sendBootData = async (req, sender) => {
     user,
     alerts,
     visit,
+    accessToken,
   });
 };
 
