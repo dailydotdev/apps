@@ -245,7 +245,6 @@ export default function CompanionMenu({
         onReport={report}
         onBlockSource={blockSource}
         onDisableCompanion={optOut}
-        onViewDiscussion={onOpenComments}
       />
       {parentComment && (
         <NewCommentModal

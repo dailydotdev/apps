@@ -18,7 +18,6 @@ type CompanionContextMenuProps = {
   postData: PostBootData;
   onReport: (T) => void;
   onBlockSource: (T) => void;
-  onViewDiscussion: () => void;
   onDisableCompanion: () => void;
 };
 
@@ -26,7 +25,6 @@ export default function CompanionContextMenu({
   postData,
   onReport,
   onBlockSource,
-  onViewDiscussion,
   onDisableCompanion,
 }: CompanionContextMenuProps): ReactElement {
   const { displayToast } = useToastNotification();
@@ -72,8 +70,10 @@ export default function CompanionContextMenu({
         className="menu-primary"
         animation="fade"
       >
-        <Item onClick={onViewDiscussion}>
-          <CommentIcon className="mr-2 text-xl" /> View discussion
+        <Item>
+          <a className="flex w-full" href={postData?.commentsPermalink}>
+            <CommentIcon className="mr-2 text-xl" /> View discussion
+          </a>
         </Item>
         <Item onClick={() => onShareOrCopyLink()}>
           <ShareIcon className="mr-2 text-xl" /> Share article
