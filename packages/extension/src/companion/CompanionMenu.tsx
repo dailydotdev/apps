@@ -202,7 +202,7 @@ export default function CompanionMenu({
       </SimpleTooltip>
       <SimpleTooltip
         placement="left"
-        content="Comments"
+        content="Add comment"
         appendTo="parent"
         container={tooltipContainerProps}
       >
