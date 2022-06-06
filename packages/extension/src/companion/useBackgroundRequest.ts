@@ -1,17 +1,22 @@
-import { QueryKey, useQueryClient } from 'react-query';
+import { QueryKey, QueryClient, useQueryClient } from 'react-query';
 import { isQueryKeySame } from '@dailydotdev/shared/src/graphql/common';
 import { useRawBackgroundRequest } from './useRawBackgroundRequest';
 
 interface UseBackgroundRequestOptionalProps {
+  queryClient?: QueryClient;
   callback?: (params: unknown) => void;
   enabled?: boolean;
 }
 
 export const useBackgroundRequest = (
   queryKey: QueryKey,
-  { callback, enabled = true }: UseBackgroundRequestOptionalProps = {},
+  {
+    callback,
+    queryClient,
+    enabled = true,
+  }: UseBackgroundRequestOptionalProps = {},
 ): void => {
-  const client = useQueryClient();
+  const client = queryClient || useQueryClient();
   useRawBackgroundRequest(({ key, ...args }) => {
     if (!enabled || !isQueryKeySame(key, queryKey)) {
       return;
