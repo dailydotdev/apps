@@ -92,7 +92,7 @@ export function PostComments({
         requestMethod(
           `${apiUrl}/graphql`,
           POST_COMMENTS_QUERY,
-          { postId: id },
+          { postId: id, initial: comments },
           { requestKey: JSON.stringify(queryKey) },
         ),
       {
