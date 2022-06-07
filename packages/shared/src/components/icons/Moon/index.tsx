@@ -1,13 +1,9 @@
 import React from 'react';
-import Icon from '../../Icon';
+import Icon, { IconProps } from '../../Icon';
 import OutlinedIcon from './outlined.svg';
 import FilledIcon from './filled.svg';
 
-type Props = {
-  filled?: boolean;
-};
-
-const MoonIcon: React.VFC<Props> = ({ filled = false }) => (
+const MoonIcon: React.VFC<IconProps> = ({ filled = false }) => (
   <Icon filled={filled} IconOutlined={OutlinedIcon} IconFilled={FilledIcon} />
 );
 

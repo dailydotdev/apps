@@ -1,12 +1,19 @@
 import React from 'react';
+import classNames from 'classnames';
 
 export type Size = 'small' | 'medium' | 'large';
 
 const IconSize = {
-  small: 5,
-  medium: 6,
-  large: 8,
+  small: 'w-5 h-5',
+  medium: 'w-6 h-6',
+  large: 'w-8 h-8',
 };
+
+export interface IconProps {
+  filled?: boolean;
+  size?: Size;
+  className?: string;
+}
 
 type Props = {
   filled?: boolean;
@@ -23,17 +30,12 @@ const Icon: React.VFC<Props> = ({
   IconOutlined,
   IconFilled,
 }) => {
-  const iconSize = IconSize[size];
-  const classes = `w-${iconSize} h-${iconSize} pointer-events-none ${className}`;
+  const IconComponent = filled ? IconFilled : IconOutlined;
 
   return (
-    <>
-      {filled ? (
-        <IconFilled className={classes} />
-      ) : (
-        <IconOutlined className={classes} />
-      )}
-    </>
+    <IconComponent
+      className={classNames(IconSize[size], 'pointer-events-none', className)}
+    />
   );
 };
 

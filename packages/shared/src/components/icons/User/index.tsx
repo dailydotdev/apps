@@ -1,15 +1,13 @@
 import React from 'react';
-import Icon, { Size } from '../../Icon';
+import Icon, { IconProps } from '../../Icon';
 import OutlinedIcon from './outlined.svg';
 import FilledIcon from './filled.svg';
 
-type Props = {
-  filled?: boolean;
-  size?: Size;
-  className: string;
-};
-
-const UserIcon: React.VFC<Props> = ({ filled = false, size, className }) => (
+const UserIcon: React.VFC<IconProps> = ({
+  filled = false,
+  size,
+  className,
+}) => (
   <Icon
     filled={filled}
     size={size}

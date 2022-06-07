@@ -230,7 +230,7 @@ export default function Sidebar({
 
   const myFeedMenuItem: SidebarMenuItem = {
     icon: (active: boolean) => (
-      <ListIcon Icon={() => <HomeIcon filled={active} />} />
+      <ListIcon Icon={() => <HomeIcon filled={active} size="small" />} />
     ),
     title: 'My feed',
     path: '/my-feed',

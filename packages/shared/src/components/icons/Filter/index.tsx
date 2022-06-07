@@ -1,14 +1,9 @@
 import React from 'react';
-import Icon, { Size } from '../../Icon';
+import Icon, { IconProps } from '../../Icon';
 import OutlinedIcon from './outlined.svg';
 import FilledIcon from './filled.svg';
 
-type Props = {
-  filled?: boolean;
-  size?: Size;
-};
-
-const FilterIcon: React.VFC<Props> = ({ filled = false, size }) => (
+const FilterIcon: React.VFC<IconProps> = ({ filled = false, size }) => (
   <Icon
     filled={filled}
     size={size}
