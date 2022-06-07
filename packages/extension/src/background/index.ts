@@ -89,8 +89,6 @@ const sendRequestResponse = async (
 };
 
 async function handleMessages(message, sender: Runtime.MessageSender) {
-  await getContentScriptPermissionAndRegister();
-
   if (message.type === 'CONTENT_LOADED') {
     sendBootData(message, sender);
     return null;
