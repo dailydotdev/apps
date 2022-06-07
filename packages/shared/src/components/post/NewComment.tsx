@@ -7,15 +7,17 @@ import styles from './NewComment.module.css';
 
 interface NewCommentProps {
   user?: LoggedUser;
+  className?: string;
   onNewComment: () => unknown;
 }
 
 export function NewComment({
   user,
+  className,
   onNewComment,
 }: NewCommentProps): ReactElement {
   return (
-    <NewCommentContainer>
+    <NewCommentContainer className={className}>
       <button
         type="button"
         className={classNames(
