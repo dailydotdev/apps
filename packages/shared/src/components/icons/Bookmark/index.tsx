@@ -8,10 +8,7 @@ type Props = {
   size?: Size;
 };
 
-const BookmarkIcon: React.VFC<Props> = ({
-  filled = false,
-  size = 'medium',
-}) => (
+const BookmarkIcon: React.VFC<Props> = ({ filled = false, size }) => (
   <Icon
     filled={filled}
     size={size}

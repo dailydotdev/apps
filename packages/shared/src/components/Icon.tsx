@@ -1,9 +1,10 @@
 import React from 'react';
 
-export type Size = 'medium' | 'large';
+export type Size = 'small' | 'medium' | 'large';
 
 const IconSize = {
-  medium: 5,
+  small: 5,
+  medium: 6,
   large: 8,
 };
 
@@ -16,7 +17,7 @@ type Props = {
 
 const Icon: React.VFC<Props> = ({
   filled = false,
-  size = 'medium',
+  size = 'small',
   IconOutlined,
   IconFilled,
 }) => {
