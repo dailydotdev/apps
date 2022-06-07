@@ -1,5 +1,5 @@
 import React, { FunctionComponent, ReactElement, useContext } from 'react';
-import CopyIcon from '../../icons/copy.svg';
+import CopyIcon from './icons/Copy';
 import WhatsappIcon from '../../icons/whatsapp_color.svg';
 import TwitterIcon from '../../icons/twitter_color.svg';
 import FacebookIcon from '../../icons/facebook_color.svg';
@@ -46,7 +46,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
           <ShareButton
             onClick={() => copyLink()}
             pressed={copying}
-            icon={<CopyIcon />}
+            icon={<CopyIcon size="medium" />}
             className="btn-tertiary-avocado"
           />
         </SimpleTooltip>
