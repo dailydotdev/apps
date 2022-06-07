@@ -1,6 +1,6 @@
 import request from 'graphql-request';
 import { browser } from 'webextension-polyfill-ts';
-import { initialDataKey } from './common';
+import { initialDataKey } from '@dailydotdev/shared/src/lib/constants';
 
 const proxyRequest = {
   apply(_, __, args) {

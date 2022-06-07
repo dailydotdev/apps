@@ -4,8 +4,6 @@ import {
   PointerColor,
 } from '@dailydotdev/shared/src/components/Pointer';
 
-export const initialDataKey = 'initial';
-
 export const getCompanionWrapper = (): HTMLElement =>
   document
     .querySelector('daily-companion-app')

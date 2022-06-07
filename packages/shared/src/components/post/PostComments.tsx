@@ -12,6 +12,7 @@ import MainComment from '../comments/MainComment';
 import PlaceholderCommentList from '../comments/PlaceholderCommentList';
 import DeleteCommentModal from '../modals/DeleteCommentModal';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
+import { initialDataKey } from '../../lib/constants';
 
 export interface ParentComment {
   authorName: string;
@@ -92,7 +93,7 @@ export function PostComments({
         requestMethod(
           `${apiUrl}/graphql`,
           POST_COMMENTS_QUERY,
-          { postId: id, initial: comments },
+          { postId: id, [initialDataKey]: comments },
           { requestKey: JSON.stringify(queryKey) },
         ),
       {
