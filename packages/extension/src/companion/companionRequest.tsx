@@ -1,10 +1,10 @@
 import request from 'graphql-request';
 import { browser } from 'webextension-polyfill-ts';
+import { initialDataKey } from './common';
 
 const proxyRequest = {
   apply(_, __, args) {
-    const initialCol = 'initial';
-    const { [initialCol]: initial, ...variables } = args?.[2];
+    const { [initialDataKey]: initial, ...variables } = args?.[2];
 
     browser.runtime.sendMessage({
       type: 'GRAPHQL_REQUEST',
