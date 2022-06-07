@@ -30,7 +30,7 @@ export interface SidebarUserButtonProps {
 }
 
 export interface SidebarMenuItem {
-  icon: ReactElement;
+  icon: (active: boolean) => ReactElement;
   title: string;
   path?: string;
   target?: HTMLAttributeAnchorTarget | undefined;
@@ -51,12 +51,15 @@ interface ButtonOrLinkProps
 }
 
 interface ListIconProps {
-  Icon: React.ComponentType<{ className }>;
+  Icon:
+    | React.ComponentType<{ className }>
+    | ((active: boolean) => ReactElement);
 }
 
 interface ItemInnerProps {
   item: SidebarMenuItem;
   sidebarExpanded: boolean;
+  active: boolean;
 }
 
 interface MenuIconProps {
@@ -108,11 +111,11 @@ export const ListIcon = ({ Icon }: ListIconProps): ReactElement => (
   <Icon className="w-5 h-5 pointer-events-none" />
 );
 
-const ItemInnerIcon = ({ alert, icon }: SidebarMenuItem) => {
+const ItemInnerIcon = ({ alert, icon, active }: SidebarMenuItem) => {
   return (
     <span className="relative px-3">
       {alert}
-      {icon}
+      {icon instanceof Function ? icon(active) : icon}
     </span>
   );
 };
@@ -122,6 +125,7 @@ const ItemInnerIconTooltip = ({
   icon,
   title,
   tooltip = {},
+  active,
 }: SidebarMenuItem) => (
   <SimpleTooltip {...tooltip} content={title} placement="right">
     <span
@@ -131,7 +135,7 @@ const ItemInnerIconTooltip = ({
       )}
     >
       {alert}
-      {icon}
+      {icon instanceof Function ? icon(active) : icon}
     </span>
   </SimpleTooltip>
 );
@@ -139,12 +143,13 @@ const ItemInnerIconTooltip = ({
 export const ItemInner = ({
   item,
   sidebarExpanded,
+  active,
 }: ItemInnerProps): ReactElement => {
   const Icon = sidebarExpanded ? ItemInnerIcon : ItemInnerIconTooltip;
 
   return (
     <>
-      <Icon {...item} />
+      <Icon {...item} active={active} />
       <span
         className={classNames(
           'flex-1 text-left transition-opacity',

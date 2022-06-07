@@ -2,19 +2,9 @@ import React, { ReactElement, useContext, useState, useMemo } from 'react';
 import classNames from 'classnames';
 import SettingsContext from '../../contexts/SettingsContext';
 import { FeedSettingsModal } from '../modals/FeedSettingsModal';
-import HotIcon from '../../../icons/hot.svg';
-import UpvoteIcon from '../../../icons/upvote.svg';
-import SearchIcon from '../../../icons/magnifying.svg';
-import DiscussIcon from '../../../icons/comment.svg';
-import BookmarkIcon from '../../../icons/bookmark.svg';
-import EyeIcon from '../../../icons/eye.svg';
-import SettingsIcon from '../../../icons/settings.svg';
 import FeedbackIcon from '../../../icons/feedback.svg';
 import DocsIcon from '../../../icons/docs.svg';
 import TerminalIcon from '../../../icons/terminal.svg';
-import HomeIcon from '../../../icons/home.svg';
-import FilterIcon from '../../../icons/outline/filter.svg';
-import MoonIcon from '../../../icons/filled/moon.svg';
 import {
   ButtonOrLink,
   ItemInner,
@@ -30,6 +20,16 @@ import {
   SidebarBackdrop,
   SidebarScrollWrapper,
 } from './common';
+import HotIcon from '../icons/Hot';
+import UpvoteIcon from '../icons/Upvote';
+import DiscussIcon from '../icons/Discuss';
+import SearchIcon from '../icons/Search';
+import FilterIcon from '../icons/Filter';
+import MoonIcon from '../icons/Moon';
+import HomeIcon from '../icons/Home';
+import SettingsIcon from '../icons/Settings';
+import BookmarkIconComponent from '../icons/Bookmark';
+import EyeIconComponent from '../icons/Eye';
 import InvitePeople from './InvitePeople';
 import SidebarRankProgress from '../SidebarRankProgress';
 import AlertContext from '../../contexts/AlertContext';
@@ -51,18 +51,18 @@ import CreateMyFeedModal from '../modals/CreateMyFeedModal';
 
 const bottomMenuItems: SidebarMenuItem[] = [
   {
-    icon: <ListIcon Icon={DocsIcon} />,
+    icon: (active: boolean) => <ListIcon Icon={DocsIcon} />,
     title: 'Docs',
     path: 'https://docs.daily.dev/',
     target: '_blank',
   },
   {
-    icon: <ListIcon Icon={TerminalIcon} />,
+    icon: (active: boolean) => <ListIcon Icon={TerminalIcon} />,
     title: 'Changelog',
     path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}sources/daily_updates`,
   },
   {
-    icon: <ListIcon Icon={FeedbackIcon} />,
+    icon: (active: boolean) => <ListIcon Icon={FeedbackIcon} />,
     title: 'Feedback',
     path: 'https://daily.dev/feedback',
     target: '_blank',
@@ -90,6 +90,11 @@ const RenderSection = ({
   const mobileItemsFilter = (item) =>
     (sidebarRendered === false && !item.hideOnMobile) || sidebarRendered;
 
+  const isActive = (item) => {
+    console.log(item, activePage);
+    return item.active || item.path === activePage;
+  };
+
   return (
     <NavSection>
       {title && (
@@ -103,10 +108,7 @@ const RenderSection = ({
         </NavHeader>
       )}
       {items.filter(mobileItemsFilter).map((item) => (
-        <NavItem
-          key={item.title}
-          active={item.active || item.path === activePage}
-        >
+        <NavItem key={item.title} active={isActive(item)}>
           <ButtonOrLink
             item={item}
             showLogin={
@@ -117,6 +119,7 @@ const RenderSection = ({
             <ItemInner
               item={item}
               sidebarExpanded={sidebarExpanded || sidebarRendered === false}
+              active={isActive(item)}
             />
           </ButtonOrLink>
         </NavItem>
@@ -179,25 +182,33 @@ export default function Sidebar({
 
   const discoverMenuItems: SidebarMenuItem[] = [
     {
-      icon: <ListIcon Icon={HotIcon} />,
+      icon: (active: boolean) => (
+        <ListIcon Icon={() => <HotIcon filled={active} />} />
+      ),
       title: popularFeedCopy,
       path: '/popular',
       action: () => onNavTabClick?.('popular'),
     },
     {
-      icon: <ListIcon Icon={UpvoteIcon} />,
+      icon: (active: boolean) => (
+        <ListIcon Icon={() => <UpvoteIcon filled={active} />} />
+      ),
       title: 'Most upvoted',
       path: '/upvoted',
       action: () => onNavTabClick?.('upvoted'),
     },
     {
-      icon: <ListIcon Icon={DiscussIcon} />,
+      icon: (active: boolean) => (
+        <ListIcon Icon={() => <DiscussIcon filled={active} />} />
+      ),
       title: 'Best discussions',
       path: '/discussed',
       action: () => onNavTabClick?.('discussed'),
     },
     {
-      icon: <ListIcon Icon={SearchIcon} />,
+      icon: (active: boolean) => (
+        <ListIcon Icon={() => <SearchIcon filled={active} />} />
+      ),
       title: 'Search',
       path: '/search',
       action: enableSearch ? () => enableSearch() : null,
@@ -206,7 +217,9 @@ export default function Sidebar({
   ];
   if (!shouldShowMyFeed) {
     discoverMenuItems.unshift({
-      icon: <ListIcon Icon={FilterIcon} />,
+      icon: (active: boolean) => (
+        <ListIcon Icon={() => <FilterIcon filled={active} />} />
+      ),
       alert: alerts.filter && (
         <AlertDot className="-top-0.5 right-2.5" color={AlertColor.Fill} />
       ),
@@ -217,7 +230,9 @@ export default function Sidebar({
   }
 
   const myFeedMenuItem: SidebarMenuItem = {
-    icon: <ListIcon Icon={HomeIcon} />,
+    icon: (active: boolean) => (
+      <ListIcon Icon={() => <HomeIcon filled={active} />} />
+    ),
     title: 'My feed',
     path: '/my-feed',
     alert: (alerts.filter || alerts.myFeed) && !sidebarExpanded && (
@@ -228,20 +243,26 @@ export default function Sidebar({
 
   const manageMenuItems: SidebarMenuItem[] = [
     {
-      icon: <ListIcon Icon={BookmarkIcon} />,
+      icon: (active: boolean) => (
+        <ListIcon Icon={() => <BookmarkIconComponent filled={active} />} />
+      ),
       title: 'Bookmarks',
       path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}bookmarks`,
       hideOnMobile: true,
       requiresLogin: true,
     },
     {
-      icon: <ListIcon Icon={EyeIcon} />,
+      icon: (active: boolean) => (
+        <ListIcon Icon={() => <EyeIconComponent filled={active} />} />
+      ),
       title: 'Reading history',
       path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}history`,
       requiresLogin: true,
     },
     {
-      icon: <ListIcon Icon={SettingsIcon} />,
+      icon: (active: boolean) => (
+        <ListIcon Icon={() => <SettingsIcon filled={active} />} />
+      ),
       title: 'Customize',
       action: () => setShowSettings(!showSettings),
       active: showSettings,
@@ -249,7 +270,9 @@ export default function Sidebar({
   ];
   if (shouldShowDnD) {
     const dndMenuItem = {
-      icon: <ListIcon Icon={MoonIcon} />,
+      icon: (active: boolean) => (
+        <ListIcon Icon={() => <MoonIcon filled={active} />} />
+      ),
       title: 'Focus mode',
       action: onShowDndClick,
       active: showDnd,
