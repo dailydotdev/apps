@@ -91,7 +91,6 @@ const RenderSection = ({
     (sidebarRendered === false && !item.hideOnMobile) || sidebarRendered;
 
   const isActive = (item) => {
-    console.log(item, activePage);
     return item.active || item.path === activePage;
   };
 
