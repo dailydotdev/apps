@@ -16,7 +16,14 @@ export type PushToQueueFunc = (events: AnalyticsEvent[]) => void;
 
 const ANALYTICS_ENDPOINT = `${apiUrl}/e`;
 
-export default function useAnalyticsQueue(): {
+type UseAnalyticsQueueProps = {
+  fetchMethod: typeof fetch;
+  backgroundMethod?: (msg: unknown) => Promise<unknown>;
+};
+export default function useAnalyticsQueue({
+  fetchMethod,
+  backgroundMethod,
+}: UseAnalyticsQueueProps): {
   pushToQueue: PushToQueueFunc;
   setEnabled: (enabled: boolean) => void;
   queueRef: MutableRefObject<AnalyticsEvent[]>;
@@ -25,7 +32,7 @@ export default function useAnalyticsQueue(): {
   const enabledRef = useRef(false);
   const { mutateAsync: sendEvents } = useMutation(
     async (events: AnalyticsEvent[]) => {
-      const res = await fetch(ANALYTICS_ENDPOINT, {
+      const res = await fetchMethod(ANALYTICS_ENDPOINT, {
         method: 'POST',
         body: JSON.stringify({ events }),
         credentials: 'include',
@@ -33,7 +40,7 @@ export default function useAnalyticsQueue(): {
           'content-type': 'application/json',
         },
       });
-      await res.text();
+      await res?.text();
     },
     {
       retry: 3,
@@ -71,7 +78,22 @@ export default function useAnalyticsQueue(): {
           const blob = new Blob([JSON.stringify({ events })], {
             type: 'application/json',
           });
-          navigator.sendBeacon(ANALYTICS_ENDPOINT, blob);
+          if (backgroundMethod) {
+            backgroundMethod?.({
+              url: ANALYTICS_ENDPOINT,
+              type: 'FETCH_REQUEST',
+              args: {
+                body: JSON.stringify(events),
+                credentials: 'include',
+                method: 'POST',
+                headers: {
+                  'content-type': 'application/json',
+                },
+              },
+            });
+          } else {
+            navigator.sendBeacon(ANALYTICS_ENDPOINT, blob);
+          }
         }
       },
     }),

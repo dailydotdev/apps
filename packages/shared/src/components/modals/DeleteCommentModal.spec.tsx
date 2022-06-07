@@ -7,12 +7,26 @@ import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '../../../__tests__/helpers/graphql';
+import AuthContext from '../../contexts/AuthContext';
 
 const onRequestClose = jest.fn();
 
 beforeEach(() => {
   jest.clearAllMocks();
 });
+
+const defaultUser = {
+  id: 'u1',
+  username: 'sshanzel',
+  name: 'Lee Hansel',
+  providers: ['github'],
+  email: 'lee@acme.com',
+  image: 'https://daily.dev/lee.png',
+  infoConfirmed: true,
+  premium: false,
+  createdAt: '',
+  permalink: 'https://daily.dev/lee',
+};
 
 const renderComponent = (
   props: Partial<Props> = {},
@@ -32,7 +46,20 @@ const renderComponent = (
   mocks.forEach(mockGraphQL);
   return render(
     <QueryClientProvider client={client}>
-      <DeleteCommentModal {...defaultProps} {...props} />
+      <AuthContext.Provider
+        value={{
+          user: defaultUser,
+          shouldShowLogin: false,
+          showLogin: jest.fn(),
+          logout: jest.fn(),
+          updateUser: jest.fn(),
+          tokenRefreshed: true,
+          closeLogin: jest.fn(),
+          getRedirectUri: jest.fn(),
+        }}
+      >
+        <DeleteCommentModal {...defaultProps} {...props} />
+      </AuthContext.Provider>
     </QueryClientProvider>,
   );
 };

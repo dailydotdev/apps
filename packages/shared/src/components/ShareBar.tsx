@@ -7,7 +7,6 @@ import { Post } from '../graphql/posts';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import {
   getFacebookShareLink,
-  getShareableLink,
   getTwitterShareLink,
   getWhatsappShareLink,
 } from '../lib/share';
@@ -25,8 +24,8 @@ const ColorfulShareButton = classed(
 ) as unknown as FunctionComponent<ButtonProps<'a'>>;
 
 export default function ShareBar({ post }: { post: Post }): ReactElement {
-  const href = getShareableLink();
-  const [copying, copyLink] = useCopyPostLink();
+  const href = post.commentsPermalink;
+  const [copying, copyLink] = useCopyPostLink(href);
   const { trackEvent } = useContext(AnalyticsContext);
 
   const onClick = (media: string) =>

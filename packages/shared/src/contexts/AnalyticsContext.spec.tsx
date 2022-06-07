@@ -89,7 +89,7 @@ const TestComponent = ({
         }}
       >
         <SettingsContext.Provider value={settings}>
-          <AnalyticsContextProvider app="test" getPage={getPage}>
+          <AnalyticsContextProvider app="test" getPage={getPage} deviceId="123">
             {children}
           </AnalyticsContextProvider>
         </SettingsContext.Provider>

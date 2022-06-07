@@ -127,7 +127,8 @@ const ProfilePage = ({ profile }: ProfileLayoutProps): ReactElement => {
       return [start, subYears(subDays(start, 2), 1)];
     }
     const selected = parseInt(dropdownOptions[selectedHistoryYear], 10);
-    const startYear = new Date(`01-01-${selected}`);
+    const startYear = new Date(selected, 0, 1);
+
     return [addDays(endOfYear(startYear), 1), startYear];
   }, [selectedHistoryYear]);
   const [readingHistory, setReadingHistory] =

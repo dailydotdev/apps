@@ -1,4 +1,3 @@
-import request from 'graphql-request';
 import { useMemo, useState } from 'react';
 import { useQuery } from 'react-query';
 import { Author } from '../graphql/comments';
@@ -8,6 +7,7 @@ import {
   MostReadTag,
 } from '../graphql/users';
 import { apiUrl } from '../lib/config';
+import { useRequestProtocol } from './useRequestProtocol';
 
 export type UserTooltipContentData = {
   rank: UserReadingRank;
@@ -30,16 +30,22 @@ export const useProfileTooltip = ({
   userId,
   requestUserInfo = false,
 }: UseProfileTooltipProps): UseProfileTooltip => {
+  const { requestMethod } = useRequestProtocol();
   const [shouldFetch, setShouldFetch] = useState(false);
   const key = ['readingRank', userId];
   const { data, isLoading } = useQuery<UserTooltipContentData>(
     key,
     () =>
-      request(`${apiUrl}/graphql`, USER_TOOLTIP_CONTENT_QUERY, {
-        id: userId,
-        version: 2,
-        requestUserInfo,
-      }),
+      requestMethod(
+        `${apiUrl}/graphql`,
+        USER_TOOLTIP_CONTENT_QUERY,
+        {
+          id: userId,
+          version: 2,
+          requestUserInfo,
+        },
+        { requestKey: JSON.stringify(key) },
+      ),
     {
       refetchOnWindowFocus: false,
       enabled: shouldFetch && !!userId,

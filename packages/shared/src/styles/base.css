@@ -1,15 +1,13 @@
-html {
+html, #daily-companion-wrapper {
   background: var(--theme-background-primary);
   color: var(--theme-label-primary);
   height: -webkit-fill-available;
 }
-
 :root {
   --balloon-border-radius: 0.625rem;
   --balloon-color: var(--theme-label-primary);
   --balloon-text-color: var(--theme-label-invert);
 }
-
 body {
   min-width: 20rem;
   overflow-y: scroll;
@@ -20,6 +18,11 @@ body {
   &.ReactModal__Body--open .ReactModal__Content,
   &.ReactModal__Body--open .ReactModal__Content > * {
     overscroll-behavior-y: none;
+  }
+
+  &.companion {
+    min-width: auto;
+    overflow: hidden;
   }
 
   &.hidden-scrollbar {
@@ -253,13 +256,15 @@ body {
 
 html,
 html.light .invert,
-html .invert .invert {
+html .invert .invert,
+#daily-companion-wrapper{
   @mixin dark-mode;
 }
 
 html.light,
 html .invert,
-html.light .invert .invert {
+html.light .invert .invert,
+#daily-companion-wrapper.light {
   @mixin light-mode;
 }
 

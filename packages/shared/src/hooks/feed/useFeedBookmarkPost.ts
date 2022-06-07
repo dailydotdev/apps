@@ -9,6 +9,7 @@ import {
 import { Post } from '../../graphql/posts';
 import AuthContext from '../../contexts/AuthContext';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { postEventName } from '../../components/utilities';
 
 export default function useFeedBookmarkPost(
   items: FeedItem[],
@@ -46,16 +47,12 @@ export default function useFeedBookmarkPost(
       return;
     }
     trackEvent(
-      postAnalyticsEvent(
-        bookmarked ? 'bookmark post' : 'remove post bookmark',
-        post,
-        {
-          columns,
-          column,
-          row,
-          ...feedAnalyticsExtra(feedName, ranking),
-        },
-      ),
+      postAnalyticsEvent(postEventName({ bookmarked }), post, {
+        columns,
+        column,
+        row,
+        ...feedAnalyticsExtra(feedName, ranking),
+      }),
     );
     if (bookmarked) {
       await bookmark({ id: post.id, index });

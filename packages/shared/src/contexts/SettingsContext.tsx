@@ -39,6 +39,7 @@ export type SettingsContextData = {
   sidebarExpanded: boolean;
   sortingEnabled: boolean;
   optOutWeeklyGoal: boolean;
+  optOutCompanion: boolean;
   autoDismissNotifications: boolean;
   setTheme: (theme: ThemeMode) => Promise<void>;
   toggleShowOnlyUnreadPosts: () => Promise<void>;
@@ -49,6 +50,7 @@ export type SettingsContextData = {
   toggleSidebarExpanded: () => Promise<void>;
   toggleSortingEnabled: () => Promise<void>;
   toggleOptOutWeeklyGoal: () => Promise<void>;
+  toggleOptOutCompanion: () => Promise<void>;
   toggleAutoDismissNotifications: () => Promise<void>;
   loadedSettings: boolean;
   customLinks?: string[];
@@ -92,8 +94,8 @@ export function applyTheme(themeMode: ThemeMode): void {
 export type SettingsContextProviderProps = {
   children?: ReactNode;
   settings?: RemoteSettings;
-  updateSettings: (settings: RemoteSettings) => unknown;
-  loadedSettings: boolean;
+  updateSettings?: (settings: RemoteSettings) => unknown;
+  loadedSettings?: boolean;
 };
 
 const defaultSettings: RemoteSettings = {
@@ -103,8 +105,10 @@ const defaultSettings: RemoteSettings = {
   insaneMode: false,
   showTopSites: true,
   sidebarExpanded: true,
+  companionExpanded: false,
   sortingEnabled: false,
   optOutWeeklyGoal: false,
+  optOutCompanion: false,
   autoDismissNotifications: true,
   theme: remoteThemes[ThemeMode.Dark],
 };
@@ -199,6 +203,11 @@ export const SettingsContextProvider = ({
         setSettings({
           ...settings,
           optOutWeeklyGoal: !settings.optOutWeeklyGoal,
+        }),
+      toggleOptOutCompanion: () =>
+        setSettings({
+          ...settings,
+          optOutCompanion: !settings.optOutCompanion,
         }),
       toggleAutoDismissNotifications: () =>
         setSettings({
