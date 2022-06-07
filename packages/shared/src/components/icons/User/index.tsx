@@ -1,20 +1,22 @@
 import React from 'react';
-import Icon from '../../Icon';
+import Icon, { Size } from '../../Icon';
 import OutlinedIcon from './outlined.svg';
 import FilledIcon from './filled.svg';
 
 type Props = {
   filled?: boolean;
-  className?: string;
+  size?: Size;
+  className: string;
 };
 
-const SettingsIcon: React.VFC<Props> = ({ filled = false, className }) => (
+const UserIcon: React.VFC<Props> = ({ filled = false, size, className }) => (
   <Icon
     filled={filled}
+    size={size}
+    className={className}
     IconOutlined={OutlinedIcon}
     IconFilled={FilledIcon}
-    className={className}
   />
 );
 
-export default SettingsIcon;
+export default UserIcon;

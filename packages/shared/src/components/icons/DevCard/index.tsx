@@ -8,13 +8,13 @@ type Props = {
   className?: string;
 };
 
-const SettingsIcon: React.VFC<Props> = ({ filled = false, className }) => (
+const DevCardIcon: React.VFC<Props> = ({ filled = false, className }) => (
   <Icon
     filled={filled}
+    className={className}
     IconOutlined={OutlinedIcon}
     IconFilled={FilledIcon}
-    className={className}
   />
 );
 
-export default SettingsIcon;
+export default DevCardIcon;

@@ -11,6 +11,7 @@ const IconSize = {
 type Props = {
   filled?: boolean;
   size?: Size;
+  className?: string;
   IconOutlined: React.ComponentType<{ className }>;
   IconFilled: React.ComponentType<{ className }>;
 };
@@ -18,18 +19,19 @@ type Props = {
 const Icon: React.VFC<Props> = ({
   filled = false,
   size = 'small',
+  className = '',
   IconOutlined,
   IconFilled,
 }) => {
   const iconSize = IconSize[size];
-  const className = `w-${iconSize} h-${iconSize} pointer-events-none`;
+  const classes = `w-${iconSize} h-${iconSize} pointer-events-none ${className}`;
 
   return (
     <>
       {filled ? (
-        <IconFilled className={className} />
+        <IconFilled className={classes} />
       ) : (
-        <IconOutlined className={className} />
+        <IconOutlined className={classes} />
       )}
     </>
   );
