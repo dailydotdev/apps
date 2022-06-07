@@ -33,7 +33,7 @@ export const useCompanionPostComment = (
       const isNew = req.variables.id !== res.comment.id;
       updatePostComments(res.comment, isNew);
       closeNewComment();
-      params?.onCommentSuccess();
+      params?.onCommentSuccess?.();
     },
   });
 

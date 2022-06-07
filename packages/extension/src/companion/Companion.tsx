@@ -7,7 +7,7 @@ import React, {
   useState,
   LegacyRef,
 } from 'react';
-import { useQueryClient } from 'react-query';
+import { useQuery } from 'react-query';
 import classNames from 'classnames';
 import Modal from 'react-modal';
 import { isTesting } from '@dailydotdev/shared/src/lib/constants';
@@ -68,7 +68,6 @@ export default function Companion({
   companionExpanded,
   onOptOut,
 }: CompanionProps): ReactElement {
-  const client = useQueryClient();
   const containerRef = useRef<HTMLDivElement>();
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
   const [assetsLoaded, setAssetsLoaded] = useState(isTesting);
@@ -77,19 +76,12 @@ export default function Companion({
     useState<boolean>(companionExpanded);
   const { user, closeLogin, loadingUser, shouldShowLogin, loginState } =
     useContext(AuthContext);
+  useQuery(REQUEST_PROTOCOL_KEY, () => ({
+    requestMethod: companionRequest,
+    fetchMethod: companionFetch,
+  }));
 
   const routeChangedCallbackRef = useTrackPageView();
-
-  useEffect(() => {
-    if (!assetsLoaded) {
-      return;
-    }
-
-    client.setQueryData(REQUEST_PROTOCOL_KEY, {
-      requestMethod: companionRequest,
-      fetchMethod: companionFetch,
-    });
-  }, [assetsLoaded]);
 
   useEffect(() => {
     if (routeChangedCallbackRef.current) {
