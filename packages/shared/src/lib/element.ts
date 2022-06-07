@@ -7,8 +7,13 @@ type Row = number;
 export type CaretOffset = [number, number];
 export type CaretPosition = [Column, Row];
 
+const getShadowDom = (): Document =>
+  document.querySelector('daily-companion-app')
+    ?.shadowRoot as unknown as Document;
+
 export function getCaretPostition(el: Element): CaretPosition {
-  const sel = window.getSelection();
+  const dom = getShadowDom() || window;
+  const sel = dom.getSelection();
   let row = 0;
   for (; row < el.childNodes.length; row += 1) {
     const child = el.childNodes[row];

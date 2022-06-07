@@ -1,7 +1,5 @@
 import React, { ReactElement, useContext, useState } from 'react';
-import dynamic from 'next/dynamic';
 import { useQuery } from 'react-query';
-import request from 'graphql-request';
 import { apiUrl } from '../../lib/config';
 import AuthContext from '../../contexts/AuthContext';
 import {
@@ -11,14 +9,9 @@ import {
 } from '../../graphql/comments';
 import { Post } from '../../graphql/posts';
 import MainComment from '../comments/MainComment';
-
-const PlaceholderCommentList = dynamic(
-  () => import('../comments/PlaceholderCommentList'),
-);
-
-const DeleteCommentModal = dynamic(
-  () => import('../modals/DeleteCommentModal'),
-);
+import PlaceholderCommentList from '../comments/PlaceholderCommentList';
+import DeleteCommentModal from '../modals/DeleteCommentModal';
+import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 
 export interface ParentComment {
   authorName: string;
@@ -34,6 +27,8 @@ export interface ParentComment {
 
 interface PostCommentsProps {
   post: Post;
+  applyBottomMargin?: boolean;
+  modalParentSelector?: () => HTMLElement;
   onClick?: (parent: ParentComment) => unknown;
   onClickUpvote?: (commentId: string, upvotes: number) => unknown;
 }
@@ -82,17 +77,24 @@ export function PostComments({
   post,
   onClick,
   onClickUpvote,
+  modalParentSelector,
+  applyBottomMargin = true,
 }: PostCommentsProps): ReactElement {
   const { id } = post;
   const { user, showLogin, tokenRefreshed } = useContext(AuthContext);
   const [pendingComment, setPendingComment] = useState<PendingComment>(null);
+  const { requestMethod } = useRequestProtocol();
+  const queryKey = ['post_comments', id];
   const { data: comments, isLoading: isLoadingComments } =
     useQuery<PostCommentsData>(
-      ['post_comments', id],
+      queryKey,
       () =>
-        request(`${apiUrl}/graphql`, POST_COMMENTS_QUERY, {
-          postId: id,
-        }),
+        requestMethod(
+          `${apiUrl}/graphql`,
+          POST_COMMENTS_QUERY,
+          { postId: id },
+          { requestKey: JSON.stringify(queryKey) },
+        ),
       {
         enabled: !!id && tokenRefreshed,
         refetchInterval: 60 * 1000,
@@ -100,7 +102,7 @@ export function PostComments({
     );
   const commentsCount = comments?.postComments?.edges?.length || 0;
 
-  if (isLoadingComments) {
+  if (isLoadingComments || comments === null) {
     return <PlaceholderCommentList placeholderAmount={post.numComments} />;
   }
 
@@ -132,7 +134,7 @@ export function PostComments({
     <>
       {comments.postComments.edges.map((e, i) => (
         <MainComment
-          className={i === commentsCount - 1 && 'mb-12'}
+          className={i === commentsCount - 1 && applyBottomMargin && 'mb-12'}
           comment={e.node}
           key={e.node.id}
           onComment={onCommentClick}
@@ -142,6 +144,7 @@ export function PostComments({
           onEdit={onEditClick}
           onShowUpvotes={onClickUpvote}
           postAuthorId={post.author?.id}
+          appendTooltipTo={modalParentSelector}
         />
       ))}
       {pendingComment && (
@@ -150,7 +153,8 @@ export function PostComments({
           onRequestClose={() => setPendingComment(null)}
           commentId={pendingComment.comment.id}
           parentId={pendingComment.parentId}
-          postId={post.id}
+          parentSelector={modalParentSelector}
+          post={post}
         />
       )}
     </>

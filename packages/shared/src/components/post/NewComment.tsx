@@ -25,7 +25,12 @@ export function NewComment({
         onClick={onNewComment}
       >
         {user && (
-          <ProfilePicture user={user} size="small" className="mr-3 -ml-2" />
+          <ProfilePicture
+            user={user}
+            size="small"
+            className="mr-3 -ml-2"
+            nativeLazyLoading
+          />
         )}
         Start the discussion...
       </button>

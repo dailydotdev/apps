@@ -79,7 +79,7 @@ const renderLayout = (
 it('should show author profile image', async () => {
   renderLayout();
   const el = await screen.findByAltText(`idoshamun's profile`);
-  expect(el).toHaveAttribute('data-src', 'https://daily.dev/ido.png');
+  expect(el).toHaveAttribute('src', 'https://daily.dev/ido.png');
 });
 
 it('should show author name', async () => {

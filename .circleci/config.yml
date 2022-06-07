@@ -24,14 +24,14 @@ jobs:
           filename: combined-package-lock.txt
       - restore_cache:
           keys:
-            - deps-v3-{{ .Branch }}-{{ checksum "combined-package-lock.txt" }}
-            - deps-v3-{{ .Branch }}
-            - deps-v3-
+            - deps-v4-{{ .Branch }}-{{ checksum "combined-package-lock.txt" }}
+            - deps-v4-{{ .Branch }}
+            - deps-v4-
       - run:
           name: Install dependencies
           command: lerna bootstrap
       - save_cache:
-          key: deps-v3-{{ .Branch }}-{{ checksum "combined-package-lock.txt" }}
+          key: deps-v4-{{ .Branch }}-{{ checksum "combined-package-lock.txt" }}
           paths:
             - ./node_modules
             - ./packages/eslint-config/node_modules
@@ -55,14 +55,14 @@ jobs:
           filename: combined-package-lock.txt
       - restore_cache:
           keys:
-            - deps-v3-{{ .Branch }}-{{ checksum "combined-package-lock.txt" }}
-            - deps-v3-{{ .Branch }}
-            - deps-v3-
+            - deps-v4-{{ .Branch }}-{{ checksum "combined-package-lock.txt" }}
+            - deps-v4-{{ .Branch }}
+            - deps-v4-
       - run:
           name: Install dependencies
           command: lerna bootstrap
       - save_cache:
-          key: deps-v3-{{ .Branch }}-{{ checksum "combined-package-lock.txt" }}
+          key: deps-v4-{{ .Branch }}-{{ checksum "combined-package-lock.txt" }}
           paths:
             - ./node_modules
             - ./packages/eslint-config/node_modules

@@ -18,12 +18,17 @@ import usePersistentState from '@dailydotdev/shared/src/hooks/usePersistentState
 import { BootDataProviderProps } from '@dailydotdev/shared/src/contexts/BootProvider';
 import { RouterContext } from 'next/dist/shared/lib/router-context';
 import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPageView';
+import useDeviceId from '@dailydotdev/shared/src/hooks/analytics/useDeviceId';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
 import { DndContextProvider } from './DndContext';
 import { BootDataProvider } from '../../../shared/src/contexts/BootProvider';
+import {
+  registerBrowserContentScripts,
+  useExtensionPermission,
+} from '../companion/useExtensionPermission';
 
 const AnalyticsConsentModal = dynamic(() => import('./AnalyticsConsentModal'));
 
@@ -56,6 +61,9 @@ function InternalApp({
     shouldShowLogin,
     loginState,
   } = useContext(AuthContext);
+  const { contentScriptGranted } = useExtensionPermission({
+    origin: 'on extension load',
+  });
   const [analyticsConsent, setAnalyticsConsent] = usePersistentState(
     'consent',
     false,
@@ -88,6 +96,12 @@ function InternalApp({
     dismissToast();
   };
 
+  useEffect(() => {
+    if (contentScriptGranted) {
+      registerBrowserContentScripts();
+    }
+  }, [contentScriptGranted]);
+
   return (
     <DndContextProvider>
       <MainFeedPage onPageChanged={onPageChanged} />
@@ -114,6 +128,7 @@ export default function App({
   localBootData,
 }: Pick<BootDataProviderProps, 'localBootData'>): ReactElement {
   const pageRef = useRef('/');
+  const deviceId = useDeviceId();
 
   return (
     <RouterContext.Provider value={router}>
@@ -129,6 +144,7 @@ export default function App({
                 app="extension"
                 version={version}
                 getPage={() => pageRef.current}
+                deviceId={deviceId}
               >
                 <InternalApp pageRef={pageRef} />
               </AnalyticsContextProvider>

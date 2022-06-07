@@ -11,6 +11,7 @@ import { postAnalyticsEvent } from '../../lib/feed';
 import AuthContext from '../../contexts/AuthContext';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
+import { postEventName } from '../utilities';
 
 interface PostActionsProps {
   post: Post;
@@ -91,7 +92,7 @@ export function PostActions({
     if (user) {
       if (post.upvoted) {
         trackEvent(
-          postAnalyticsEvent('remove post upvote', post, {
+          postAnalyticsEvent(postEventName({ upvoted: false }), post, {
             extra: { origin },
           }),
         );
@@ -99,7 +100,7 @@ export function PostActions({
       }
       if (post) {
         trackEvent(
-          postAnalyticsEvent('upvote post', post, {
+          postAnalyticsEvent(postEventName({ upvoted: true }), post, {
             extra: { origin },
           }),
         );
@@ -118,7 +119,7 @@ export function PostActions({
     }
     trackEvent(
       postAnalyticsEvent(
-        !post.bookmarked ? 'bookmark post' : 'remove post bookmark',
+        postEventName({ bookmarked: !post.bookmarked }),
         post,
         { extra: { origin } },
       ),
