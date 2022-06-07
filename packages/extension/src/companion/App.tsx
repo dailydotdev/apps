@@ -55,14 +55,14 @@ export default function App({
 
   const memoizedFlags = useMemo(() => ({ flags }), [flags]);
   const refetchData = () =>
-    companionFetch(`${apiUrl}/v1/auth/refreshToken`, {
+    companionFetch(`${apiUrl}/boot`, {
       headers: { requestKey: refreshTokenKey },
     });
 
   useRefreshToken(token, refetchData);
   useBackgroundRequest(refreshTokenKey, {
     queryClient,
-    callback: ({ res }) => setToken(res),
+    callback: ({ res }) => setToken(res.accessToken),
   });
 
   return (
