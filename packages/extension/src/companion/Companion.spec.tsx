@@ -67,6 +67,7 @@ const renderComponent = (postdata, settings): RenderResult => {
       user={defaultUser}
       flags={{}}
       deviceId="123"
+      accessToken={{ token: '', expiresIn: '' }}
     />,
   );
 };

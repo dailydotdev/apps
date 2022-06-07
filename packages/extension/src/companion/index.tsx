@@ -14,7 +14,17 @@ const renderApp = ({ ...props }: CompanionData) => {
 };
 
 browser.runtime.onMessage.addListener(
-  ({ deviceId, url, postData, settings, flags, user, alerts, visit }) => {
+  ({
+    deviceId,
+    url,
+    postData,
+    settings,
+    flags,
+    user,
+    alerts,
+    visit,
+    accessToken,
+  }) => {
     if (postData && !settings.optOutCompanion) {
       renderApp({
         deviceId,
@@ -25,6 +35,7 @@ browser.runtime.onMessage.addListener(
         user,
         alerts,
         visit,
+        accessToken,
       });
     }
   },
