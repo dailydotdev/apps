@@ -51,15 +51,13 @@ interface ButtonOrLinkProps
 }
 
 interface ListIconProps {
-  Icon:
-    | React.ComponentType<{ className }>
-    | ((active: boolean) => ReactElement);
+  Icon: React.ComponentType<{ className }>;
 }
 
 interface ItemInnerProps {
   item: SidebarMenuItem;
   sidebarExpanded: boolean;
-  active: boolean;
+  active?: boolean;
 }
 
 interface MenuIconProps {

@@ -32,7 +32,9 @@ export default function InvitePeople({
   });
   const tooltipBg = copyingLink ? 'bg-theme-status-success' : undefined;
   const item: SidebarMenuItem = {
-    icon: <ListIcon Icon={copyingLink ? UserShareFilledIcon : UserShareIcon} />,
+    icon: () => (
+      <ListIcon Icon={copyingLink ? UserShareFilledIcon : UserShareIcon} />
+    ),
     title: copyingLink ? 'Link copied to clipboard' : 'Invite people',
     action: onShareOrCopyLink,
     tooltip: { visible, container: { bgClassName: tooltipBg } },

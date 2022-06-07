@@ -5,10 +5,10 @@ import FilledIcon from './filled.svg';
 
 type Props = {
   filled?: boolean;
-  size: Size;
+  size?: Size;
 };
 
-const FilterIcon: React.VFC<Props> = ({ filled = false, size = 'medium' }) => (
+const FilterIcon: React.VFC<Props> = ({ filled = false, size }) => (
   <Icon
     filled={filled}
     size={size}

@@ -51,18 +51,18 @@ import CreateMyFeedModal from '../modals/CreateMyFeedModal';
 
 const bottomMenuItems: SidebarMenuItem[] = [
   {
-    icon: (active: boolean) => <ListIcon Icon={DocsIcon} />,
+    icon: () => <ListIcon Icon={DocsIcon} />,
     title: 'Docs',
     path: 'https://docs.daily.dev/',
     target: '_blank',
   },
   {
-    icon: (active: boolean) => <ListIcon Icon={TerminalIcon} />,
+    icon: () => <ListIcon Icon={TerminalIcon} />,
     title: 'Changelog',
     path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}sources/daily_updates`,
   },
   {
-    icon: (active: boolean) => <ListIcon Icon={FeedbackIcon} />,
+    icon: () => <ListIcon Icon={FeedbackIcon} />,
     title: 'Feedback',
     path: 'https://daily.dev/feedback',
     target: '_blank',
