@@ -150,7 +150,7 @@ export default function CompanionMenu({
 
   const tooltipContainerProps = { className: 'shadow-2 whitespace-nowrap' };
 
-  const onsEscape = () => {
+  const onEscape = () => {
     if (!companionState) {
       return;
     }
