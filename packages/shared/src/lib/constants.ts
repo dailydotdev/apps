@@ -12,7 +12,6 @@ export const reputationGuide =
 export const ownershipGuide =
   'https://daily.dev/posts/claiming-ownership-on-an-article-you-wrote';
 export const contentGuidlines = 'https://daily.dev/support/content-guidelines';
-export const requestAccessSubmitArticle = '';
 
 export const isDevelopment = process.env.NODE_ENV === 'development';
 export const isProduction = process.env.NODE_ENV === 'production';

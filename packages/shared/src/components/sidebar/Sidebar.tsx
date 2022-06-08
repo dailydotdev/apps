@@ -387,7 +387,7 @@ export default function Sidebar({
         <SubmitArticle
           headerCopy={submitArticleSidebarButton}
           submitArticleModalButton={submitArticleModalButton}
-          isEnabled={canSubmitArticle}
+          isEnabled={false}
           isOpen={showSubmitArticle}
           onRequestClose={() => setShowSubmitArticle(false)}
         />

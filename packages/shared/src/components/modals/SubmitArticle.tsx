@@ -6,10 +6,7 @@ import { ModalCloseButton } from './ModalCloseButton';
 import { ModalProps } from './StyledModal';
 import { formToJson } from '../../lib/form';
 import { apiUrl } from '../../lib/config';
-import {
-  contentGuidlines,
-  requestAccessSubmitArticle,
-} from '../../lib/constants';
+import { contentGuidlines } from '../../lib/constants';
 import { ResponsiveModal } from './ResponsiveModal';
 import { TextField } from '../fields/TextField';
 import LinkIcon from '../../../icons/link.svg';
@@ -134,32 +131,18 @@ export default function SubmitArticle({
       );
     }
 
-    if (isEnabled) {
-      return (
-        <Button
-          className="mt-4 btn-primary "
-          buttonSize="small"
-          type="submit"
-          aria-label={submitArticleModalButton}
-          disabled={!enableSubmission}
-          loading={isValidating}
-        >
-          <span className={isValidating && 'invisible'}>
-            {submitArticleModalButton}
-          </span>
-        </Button>
-      );
-    }
     return (
       <Button
-        tag="a"
-        href={requestAccessSubmitArticle}
-        target="_blank"
-        rel="noopener"
-        aria-label="Request access"
-        className="mt-4 w-fit btn-secondary"
+        className="mt-4 btn-primary "
+        buttonSize="small"
+        type="submit"
+        aria-label={submitArticleModalButton}
+        disabled={!enableSubmission || !isEnabled}
+        loading={isValidating}
       >
-        Request access
+        <span className={isValidating && 'invisible'}>
+          {submitArticleModalButton}
+        </span>
       </Button>
     );
   };
@@ -180,13 +163,18 @@ export default function SubmitArticle({
           community? Enter the article&apos;s URL / link below to add it to the
           feed.
         </p>
+        {!isEnabled && (
+          <p className="mt-6 mb-2 typo-callout text-theme-label-tertiary">
+            You need more reputation to enable this feature
+          </p>
+        )}
         <a
           className="font-bold underline typo-callout text-theme-label-link"
           target="_blank"
           rel="noopener"
           href={contentGuidlines}
         >
-          Content guidelines
+          Learn more
         </a>
         <p className="mt-6 mb-4 typo-callout">Daily suggestions used 0/3</p>
         <form
