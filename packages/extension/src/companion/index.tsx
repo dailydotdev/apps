@@ -28,7 +28,7 @@ browser.runtime.onMessage.addListener(
     visit,
     accessToken,
   }) => {
-    if (settings.optOutCompanion) {
+    if (!settings || settings?.optOutCompanion) {
       return;
     }
 
