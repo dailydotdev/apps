@@ -99,6 +99,7 @@ function CommentBox({
   const handleKeydown = (e: KeyboardEvent<HTMLDivElement>) => {
     const defaultCallback = () => onMentionKeypress(e);
     onKeyDown(e, defaultCallback);
+    e.stopPropagation();
   };
 
   return (
