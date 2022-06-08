@@ -74,20 +74,23 @@ export const remoteThemes: Record<ThemeMode, RemoteTheme> = {
   [ThemeMode.Auto]: 'auto',
 };
 
-export function applyTheme(themeMode: ThemeMode): void {
-  if (document.documentElement.classList.contains(themeMode)) {
+export function applyTheme(
+  themeMode: ThemeMode,
+  el: HTMLElement = document.documentElement,
+): void {
+  if (!el || el.classList.contains(themeMode)) {
     return;
   }
 
   if (themeMode === ThemeMode.Dark) {
-    document.documentElement.classList.remove(ThemeMode.Light);
-    document.documentElement.classList.remove(ThemeMode.Auto);
+    el.classList.remove(ThemeMode.Light);
+    el.classList.remove(ThemeMode.Auto);
   } else if (themeMode === ThemeMode.Light) {
-    document.documentElement.classList.add(ThemeMode.Light);
-    document.documentElement.classList.remove(ThemeMode.Auto);
+    el.classList.add(ThemeMode.Light);
+    el.classList.remove(ThemeMode.Auto);
   } else {
-    document.documentElement.classList.remove(ThemeMode.Light);
-    document.documentElement.classList.add(ThemeMode.Auto);
+    el.classList.remove(ThemeMode.Light);
+    el.classList.add(ThemeMode.Auto);
   }
 }
 
