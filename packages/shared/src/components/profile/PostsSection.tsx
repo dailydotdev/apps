@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { useInfiniteQuery } from 'react-query';
 import request from 'graphql-request';
 import dynamic from 'next/dynamic';
+import classNames from 'classnames';
 import {
   commentContainerClass,
   CommentContent,
@@ -24,7 +25,7 @@ import EyeIcon from '../../../icons/eye.svg';
 import { largeNumberFormat } from '../../lib/numberFormat';
 import UpvoteIcon from '../../../icons/upvote.svg';
 import CommentIcon from '../../../icons/comment.svg';
-import { AUTHOR_FEED_QUERY, FeedData } from '../../graphql/posts';
+import { AUTHOR_FEED_QUERY, FeedData, Post } from '../../graphql/posts';
 import { apiUrl } from '../../lib/config';
 import { LazyImage } from '../LazyImage';
 import { TextField } from '../fields/TextField';
@@ -39,6 +40,8 @@ import { formToJson } from '../../lib/form';
 import styles from './PostsSection.module.css';
 import classed from '../../lib/classed';
 import sizeN from '../../../macros/sizeN.macro';
+import FeatherIcon from '../../../icons/feather.svg';
+import ScoutIcon from '../../../icons/filled/scout.svg';
 
 const AccountDetailsModal = dynamic(
   () =>
@@ -52,6 +55,43 @@ const PostStat = classed(
   'flex items-center text-theme-label-tertiary font-bold typo-callout',
 );
 const postStatIconClass = 'icon mr-1 text-xl';
+
+const iconImageClass =
+  'top-1/2 left-0 w-8 h-8 bg-theme-bg-primary rounded-full -translate-x-1/2 -translate-y-1/2';
+
+const iconImage = (post: Post) => {
+  if (post.isAuthor || post.isScout) {
+    return (
+      <div
+        className={classNames(
+          iconImageClass,
+          'absolute flex items-center justify-center',
+        )}
+      >
+        {post.isAuthor ? (
+          <FeatherIcon
+            data-testid="post-author-badge"
+            className="text-xl text-theme-color-cheese"
+          />
+        ) : (
+          <ScoutIcon
+            data-testid="post-scout-badge"
+            className="text-xl text-theme-color-bun"
+          />
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <LazyImage
+      imgSrc={post.source.image}
+      imgAlt={post.source.name}
+      className={classNames(iconImageClass, styles.sourceImage)}
+      absolute
+    />
+  );
+};
 
 export type PostsSectionProps = {
   userId: string;
@@ -235,12 +275,7 @@ export default function PostsSection({
                 imgAlt="Post cover image"
                 className={`rounded-2xl ${styles.postImage}`}
               />
-              <LazyImage
-                imgSrc={post.source.image}
-                imgAlt={post.source.name}
-                className={`top-1/2 left-0 w-8 h-8 bg-theme-bg-primary rounded-full -translate-x-1/2 -translate-y-1/2 ${styles.sourceImage}`}
-                absolute
-              />
+              {iconImage(post)}
             </div>
             <div className={commentInfoClass}>
               <CommentContent className={styles.postContent}>

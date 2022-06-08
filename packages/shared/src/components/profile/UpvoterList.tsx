@@ -8,9 +8,13 @@ import { UserShortInfo } from './UserShortInfo';
 
 export interface UpvoterListProps {
   queryResult: UseInfiniteQueryResult<UpvotesData>;
+  scrollingContainer?: HTMLElement;
 }
 
-export function UpvoterList({ queryResult }: UpvoterListProps): ReactElement {
+export function UpvoterList({
+  queryResult,
+  scrollingContainer,
+}: UpvoterListProps): ReactElement {
   const canFetchMore =
     !queryResult.isLoading &&
     !queryResult.isFetchingNextPage &&
@@ -27,7 +31,12 @@ export function UpvoterList({ queryResult }: UpvoterListProps): ReactElement {
       {queryResult.data.pages.map((page) =>
         page.upvotes.edges.map(({ node: { user } }) => (
           <Link key={user.username} href={user.permalink}>
-            <UserShortInfo {...user} tag="a" href={user.permalink} />
+            <UserShortInfo
+              tag="a"
+              href={user.permalink}
+              user={user}
+              scrollingContainer={scrollingContainer}
+            />
           </Link>
         )),
       )}
