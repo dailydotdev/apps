@@ -9,7 +9,13 @@ import { CompanionPermission } from './CompanionPermission';
 import { useExtensionPermission } from './useExtensionPermission';
 import useExtensionAlerts from '../lib/useExtensionAlerts';
 
-export const CompanionPopupButton = (): ReactElement => {
+interface CompanionPopupButtonProps {
+  placement?: string;
+}
+
+export const CompanionPopupButton = ({
+  placement,
+}: CompanionPopupButtonProps): ReactElement => {
   const { alerts, updateAlerts } = useExtensionAlerts();
   const { trackEvent } = useContext(AnalyticsContext);
   const { contentScriptGranted, isFetched } = useExtensionPermission({
@@ -47,6 +53,17 @@ export const CompanionPopupButton = (): ReactElement => {
     companionNotificationTracking('manual', !showCompanionPermission);
     setShowCompanionPermission(!showCompanionPermission);
   };
+
+  useEffect(() => {
+    if (contentScriptGranted || !isFetched) {
+      return;
+    }
+
+    trackEvent({
+      event_name: `companion button displayed`,
+      extra: JSON.stringify({ origin: placement }),
+    });
+  }, [contentScriptGranted, isFetched]);
 
   if (contentScriptGranted || !isFetched) {
     return null;
