@@ -11,7 +11,7 @@ interface UseExtensionPermission {
   requestContentScripts: () => Promise<boolean>;
 }
 
-export const registerBrowserContentScripts =
+const registerBrowserContentScripts =
   (): Promise<ContentScripts.RegisteredContentScript> =>
     browser.contentScripts.register({
       matches: ['*://*/*'],
@@ -27,12 +27,14 @@ export const getContentScriptPermission = (): Promise<boolean> =>
     origins: ['*://*/*'],
   });
 
+let hasInjectedScripts = false;
 export const getContentScriptPermissionAndRegister =
   async (): Promise<void> => {
     const permission = await getContentScriptPermission();
 
-    if (permission) {
+    if (permission && !hasInjectedScripts) {
       await registerBrowserContentScripts();
+      hasInjectedScripts = true;
     }
   };
 
