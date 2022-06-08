@@ -210,7 +210,7 @@ export default function CompanionMenu({
           buttonSize="medium"
           className="btn-tertiary"
           icon={<CommentIcon />}
-          onClick={openNewComment}
+          onClick={() => openNewComment('comment button')}
         />
       </SimpleTooltip>
       <SimpleTooltip

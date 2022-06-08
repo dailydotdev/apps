@@ -89,7 +89,6 @@ export function PostContent({
   isLoading,
   isModal,
   position,
-  initializeNewComment,
   onPreviousPost,
   onNextPost,
   onClose,
@@ -110,7 +109,6 @@ export function PostContent({
     showShareNewComment,
   } = usePostComment(postById?.post, {
     enableShowShareNewComment,
-    initializeNewComment,
   });
   const {
     requestQuery: upvotedPopup,
@@ -274,7 +272,7 @@ export function PostContent({
         <PostActions
           post={postById.post}
           postQueryKey={postQueryKey}
-          onComment={openNewComment}
+          onComment={() => openNewComment('comment button')}
           actionsClassName="hidden laptop:flex"
           origin={analyticsOrigin}
         />
@@ -286,7 +284,10 @@ export function PostContent({
         {authorOnboarding && (
           <AuthorOnboarding onSignUp={!user && (() => showLogin('author'))} />
         )}
-        <NewComment user={user} onNewComment={openNewComment} />
+        <NewComment
+          user={user}
+          onNewComment={() => openNewComment('start discussion button')}
+        />
       </PostContainer>
       <PostWidgets
         post={postById.post}
