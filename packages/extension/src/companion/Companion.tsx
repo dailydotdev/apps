@@ -69,7 +69,6 @@ export default function Companion({
   onOptOut,
 }: CompanionProps): ReactElement {
   const containerRef = useRef<HTMLDivElement>();
-  const [isCommentsOpen, setIsCommentsOpen] = useState(false);
   const [assetsLoaded, setAssetsLoaded] = useState(isTesting);
   const [post, setPost] = useState<PostBootData>(postData);
   const [companionState, setCompanionState] =
@@ -106,14 +105,6 @@ export default function Companion({
     routeChangedCallbackRef.current();
   }, [containerRef]);
 
-  const onOpenComments = (value: boolean) => {
-    if (value && !companionState) {
-      setCompanionState(true);
-    }
-
-    setIsCommentsOpen(value);
-  };
-
   return (
     <Container
       containerRef={containerRef}
@@ -137,13 +128,8 @@ export default function Companion({
         onOptOut={onOptOut}
         companionState={companionState}
         setCompanionState={setCompanionState}
-        onOpenComments={() => onOpenComments(true)}
       />
-      <CompanionContent
-        post={post}
-        viewComments={isCommentsOpen}
-        onViewComments={onOpenComments}
-      />
+      <CompanionContent post={post} />
     </Container>
   );
 }

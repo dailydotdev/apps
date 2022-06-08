@@ -1,25 +1,16 @@
 import React, { ReactElement } from 'react';
-import classNames from 'classnames';
-import ArrowIcon from '@dailydotdev/shared/icons/arrow.svg';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { useQueryClient } from 'react-query';
 import { useRawBackgroundRequest } from './useRawBackgroundRequest';
 
 interface CompanionEngagementsProps {
   post: PostBootData;
-  commentsNum: number;
-  isCommentsOpen: boolean;
-  onCommentsClick?: () => void;
   onUpvotesClick?: () => unknown;
 }
 
 export function CompanionEngagements({
   post,
-  commentsNum,
-  isCommentsOpen,
-  onCommentsClick,
   onUpvotesClick,
 }: CompanionEngagementsProps): ReactElement {
   if (!post) {
@@ -41,7 +32,7 @@ export function CompanionEngagements({
 
   return (
     <div
-      className="flex gap-x-4 justify-between items-center text-theme-label-tertiary typo-callout"
+      className="flex gap-x-4 items-center py-1.5 text-theme-label-tertiary typo-callout"
       data-testid="statsBar"
     >
       {post.numUpvotes <= 0 && <span>Be the first to upvote</span>}
@@ -50,22 +41,12 @@ export function CompanionEngagements({
           {post.numUpvotes} Upvote{post.numUpvotes > 1 ? 's' : ''}
         </ClickableText>
       )}
-      <Button
-        buttonSize="small"
-        className={isCommentsOpen ? 'btn-secondary' : 'btn-primary'}
-        rightIcon={
-          <ArrowIcon
-            className={classNames(
-              'ml-2 w-6 h-6 transition-transform',
-              !isCommentsOpen && 'rotate-180',
-            )}
-          />
-        }
-        onClick={onCommentsClick}
-      >
-        {commentsNum.toLocaleString()}
-        {` Comment${commentsNum === 1 ? '' : 's'}`}
-      </Button>
+      {post.numComments > 0 && (
+        <span>
+          {post.numComments.toLocaleString()}
+          {` Comment${post.numComments === 1 ? '' : 's'}`}
+        </span>
+      )}
     </div>
   );
 }
