@@ -1,5 +1,4 @@
 import React, { ReactElement, useState } from 'react';
-import { useQuery } from 'react-query';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import CopyIcon from '@dailydotdev/shared/icons/copy.svg';
 import {
@@ -21,16 +20,12 @@ import { getCompanionWrapper } from './common';
 
 type CompanionContentProps = {
   post: PostBootData;
-  viewComments?: boolean;
-  onViewComments?: (state: boolean) => void;
 };
 
 const COMPANION_TOP_OFFSET_PX = 120;
 
 export default function CompanionContent({
   post,
-  viewComments,
-  onViewComments,
 }: CompanionContentProps): ReactElement {
   const [copying, copyLink] = useCopyLink(() => post.commentsPermalink);
   const [heightPx, setHeightPx] = useState('0');
@@ -41,12 +36,6 @@ export default function CompanionContent({
     onShowUpvotedComment,
   } = useUpvoteQuery();
   useBackgroundPaginatedRequest(upvotedPopup.requestQuery?.queryKey);
-  const postCommentNumKey = ['post_comments_num', post?.id];
-  const { data: commentsNum = 0 } = useQuery(
-    postCommentNumKey,
-    () => post.numComments,
-    { refetchOnWindowFocus: false },
-  );
 
   const onContainerChange = async (el: HTMLElement) => {
     if (!el) {
@@ -63,7 +52,6 @@ export default function CompanionContent({
       ref={onContainerChange}
       className={classNames(
         'flex relative flex-col p-6 h-auto rounded-tl-16 border border-r-0 w-[22.5rem] border-theme-divider-quaternary bg-theme-bg-primary',
-        !viewComments && 'rounded-bl-16',
       )}
     >
       <div className="flex flex-row gap-3 items-center">
@@ -98,18 +86,13 @@ export default function CompanionContent({
       </p>
       <CompanionEngagements
         post={post}
-        commentsNum={commentsNum}
-        isCommentsOpen={viewComments}
-        onCommentsClick={() => onViewComments(!viewComments)}
         onUpvotesClick={() => onShowUpvotedPost(post.id, post.numUpvotes)}
       />
-      {viewComments && (
-        <CompanionDiscussion
-          style={{ maxHeight: `calc(100vh - ${heightPx})` }}
-          post={post}
-          onShowUpvoted={onShowUpvotedComment}
-        />
-      )}
+      <CompanionDiscussion
+        style={{ maxHeight: `calc(100vh - ${heightPx})` }}
+        post={post}
+        onShowUpvoted={onShowUpvotedComment}
+      />
       {upvotedPopup.modal && (
         <UpvotedPopupModal
           isOpen
