@@ -6,17 +6,18 @@ import { Button } from './buttons/Button';
 import { WidgetContainer } from './widgets/common';
 
 export interface Props {
+  link: string;
   share: () => Promise<void>;
 }
 
-export function ShareMobile({ share }: Props): ReactElement {
-  const [copying, copyLink] = useCopyPostLink();
+export function ShareMobile({ share, link }: Props): ReactElement {
+  const [copying, copyLink] = useCopyPostLink(link);
 
   return (
     <WidgetContainer className="flex laptop:hidden flex-col gap-2 items-start py-3 px-1">
       <Button
         buttonSize="small"
-        onClick={copyLink}
+        onClick={() => copyLink()}
         pressed={copying}
         icon={<CopyIcon />}
         className="btn-tertiary-avocado"

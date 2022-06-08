@@ -1,3 +1,4 @@
+import request from 'graphql-request';
 import { QueryKey, UseInfiniteQueryOptions } from 'react-query';
 import { UserShortProfile } from '../lib/user';
 // GraphQL Relay pagination types
@@ -51,3 +52,29 @@ export type RequestDataConnection<TEntity, TKey extends string> = Record<
   TKey,
   Connection<TEntity>
 >;
+
+export const REQUEST_PROTOCOL_KEY = 'request-protocol';
+export interface RequestProtocol {
+  requestMethod?: typeof request;
+  fetchMethod?: typeof fetch;
+}
+
+export const isQueryKeySame = (left: QueryKey, right: QueryKey): boolean => {
+  if (typeof left !== typeof right) {
+    return false;
+  }
+
+  if (typeof left === 'string' && typeof right === 'string') {
+    return left === right;
+  }
+
+  if (Array.isArray(left) && Array.isArray(right)) {
+    if (left.length !== right.length) {
+      return false;
+    }
+
+    return left.every((key, i) => key === right[i]);
+  }
+
+  return false;
+};

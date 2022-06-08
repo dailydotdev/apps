@@ -1,6 +1,4 @@
 .textarea {
-  min-height: 11rem;
-
   &:focus {
     outline: 0;
   }

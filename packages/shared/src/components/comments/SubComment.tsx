@@ -18,6 +18,7 @@ export interface Props extends CommentActionProps {
   lastComment: boolean;
   parentId: string;
   postAuthorId: string | null;
+  appendTooltipTo?: () => HTMLElement;
 }
 
 const SubCommentBox = classed(CommentBox, 'mb-1');
@@ -31,6 +32,7 @@ export default function SubComment({
   onDelete,
   onEdit,
   onShowUpvotes,
+  appendTooltipTo,
   postAuthorId,
 }: Props): ReactElement {
   return (
@@ -44,7 +46,10 @@ export default function SubComment({
             lastComment ? 'h-4' : 'bottom-0',
           )}
         />
-        <ProfileTooltip user={comment.author}>
+        <ProfileTooltip
+          user={comment.author}
+          tooltip={{ appendTo: appendTooltipTo }}
+        >
           <ProfileImageLink
             user={comment.author}
             picture={{ size: 'medium' }}
@@ -55,9 +60,10 @@ export default function SubComment({
         <SubCommentBox>
           <div className="flex">
             <CommentAuthor
-              postAuthorId={postAuthorId}
-              author={comment.author}
-            />
+            postAuthorId={postAuthorId}
+            author={comment.author}
+            appendTooltipTo={appendTooltipTo}
+          />
             <ScoutBadge />
           </div>
           <CommentPublishDate comment={comment} />

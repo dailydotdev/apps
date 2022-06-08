@@ -17,6 +17,10 @@ module.exports = withTM(
     },
     ...withPreact(
       withBundleAnalyzer({
+        i18n: {
+          locales: ["en"],
+          defaultLocale: "en",
+        },
         webpack5: true,
         webpack: (config, { dev, isServer }) => {
           config.module.rules.push({

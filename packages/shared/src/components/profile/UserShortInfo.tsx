@@ -24,6 +24,7 @@ interface UserShortInfoProps<Tag extends AnyTag> {
   tag?: Tag;
   disableTooltip?: boolean;
   scrollingContainer?: HTMLElement;
+  appendTooltipTo?: HTMLElement;
 }
 
 export function UserShortInfo<Tag extends AnyTag>({
@@ -33,12 +34,13 @@ export function UserShortInfo<Tag extends AnyTag>({
   className,
   disableTooltip,
   scrollingContainer,
+  appendTooltipTo,
   ...props
 }: UserShortInfoProps<Tag> & PropsOf<Tag>): ReactElement {
   const Element = (tag || 'a') as React.ElementType;
   const { name, username, bio } = user;
   const tooltipProps: TooltipProps = {
-    appendTo: document?.body || 'parent',
+    appendTo: appendTooltipTo || document?.body || 'parent',
     visible: disableTooltip ? false : undefined,
   };
 
@@ -55,7 +57,7 @@ export function UserShortInfo<Tag extends AnyTag>({
         tooltip={tooltipProps}
         scrollingContainer={scrollingContainer}
       >
-        <ProfilePicture user={user} size={imageSize} />
+        <ProfilePicture user={user} size={imageSize} nativeLazyLoading />
       </ProfileTooltip>
       <ProfileTooltip
         user={user}

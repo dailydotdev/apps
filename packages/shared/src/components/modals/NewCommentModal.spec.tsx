@@ -100,13 +100,13 @@ it('should show formatted date of publication', async () => {
 it('should show author profile picture', async () => {
   renderComponent();
   const el = await screen.findByAltText(`Nimrod's profile`);
-  expect(el).toHaveAttribute('data-src', 'https://daily.dev/nimrod.png');
+  expect(el).toHaveAttribute('src', 'https://daily.dev/nimrod.png');
 });
 
 it('should show user profile picture', async () => {
   renderComponent();
   const el = await screen.findByAltText(`idoshamun's profile`);
-  expect(el).toHaveAttribute('data-src', 'https://daily.dev/ido.png');
+  expect(el).toHaveAttribute('src', 'https://daily.dev/ido.png');
 });
 
 it('should show content of parent', async () => {
@@ -123,8 +123,8 @@ it('should disable submit button when no input', async () => {
 
 it('should enable submit button when no input', async () => {
   renderComponent();
-  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
-  input.value = 'My new comment';
+  const input = await screen.findByRole('textbox');
+  input.innerText = 'My new comment';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const el = await screen.findByText('Comment');
   expect(el.getAttribute('disabled')).toBeFalsy();
@@ -155,14 +155,13 @@ it('should send commentOnPost mutation', async () => {
       },
     },
   ]);
-  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
-  input.value = 'comment';
+  const input = await screen.findByRole('textbox');
+  input.innerText = 'comment';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const el = await screen.findByText('Comment');
   el.click();
   await waitFor(() => mutationCalled);
-  await waitFor(() => expect(onComment).toBeCalledWith(newComment, null));
-  expect(onRequestClose).toBeCalledTimes(1);
+  await waitFor(() => expect(onComment).toBeCalledWith(newComment, true));
 });
 
 it('should send commentOnComment mutation', async () => {
@@ -190,14 +189,13 @@ it('should send commentOnComment mutation', async () => {
       },
     },
   ]);
-  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
-  input.value = 'comment';
+  const input = await screen.findByRole('textbox');
+  input.innerText = 'comment';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const el = await screen.findByText('Comment');
   el.click();
   await waitFor(() => mutationCalled);
-  await waitFor(() => expect(onComment).toBeCalledWith(newComment, 'c1'));
-  expect(onRequestClose).toBeCalledTimes(1);
+  await waitFor(() => expect(onComment).toBeCalledWith(newComment, true));
 });
 
 it('should not send comment if the input is spaces only', async () => {
@@ -225,8 +223,8 @@ it('should not send comment if the input is spaces only', async () => {
       },
     },
   ]);
-  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
-  input.value = '   ';
+  const input = await screen.findByRole('textbox');
+  input.innerText = '   ';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const el = await screen.findByText('Comment');
   el.click();
@@ -248,8 +246,8 @@ it('should show alert in case of an error', async () => {
       },
     },
   ]);
-  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
-  input.value = 'comment';
+  const input = await screen.findByRole('textbox');
+  input.innerText = 'comment';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const el = await screen.findByText('Comment');
   el.click();
@@ -267,9 +265,9 @@ it('should show alert in case of an error', async () => {
 
 it('should send editComment mutation', async () => {
   let mutationCalled = false;
-  const newComment = {
+  const comment = {
     __typename: 'Comment',
-    id: 'new',
+    id: 'edit',
     content: 'comment',
     createdAt: new Date(2017, 1, 10, 0, 1).toISOString(),
     permalink: 'https://daily.dev',
@@ -284,20 +282,19 @@ it('should send editComment mutation', async () => {
         mutationCalled = true;
         return {
           data: {
-            comment: newComment,
+            comment,
           },
         };
       },
     },
   ]);
-  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
-  input.value = 'comment';
+  const input = await screen.findByRole('textbox');
+  input.innerText = 'comment';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const el = await screen.findByText('Update');
   el.click();
   await waitFor(() => mutationCalled);
-  await waitFor(() => expect(onComment).toBeCalledTimes(0));
-  await waitFor(() => expect(onRequestClose).toBeCalledTimes(1));
+  await waitFor(() => expect(onComment).toBeCalledWith(comment, false));
 });
 
 it('should recommend users previously mentioned', async () => {
@@ -320,8 +317,8 @@ it('should recommend users previously mentioned', async () => {
       },
     },
   ]);
-  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
-  input.value = '@';
+  const input = await screen.findByRole('textbox');
+  input.innerText = '@';
   Simulate.keyDown(input, { key: '@' });
   await waitForNock();
   expect(queryPreviouslyMentioned).toBeTruthy();
@@ -362,11 +359,11 @@ it('should recommend users based on query', async () => {
       },
     },
   ]);
-  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
-  input.value = '@';
+  const input = await screen.findByRole('textbox');
+  input.innerText = '@';
   Simulate.keyDown(input, { key: '@' });
   await new Promise((resolve) => setTimeout(resolve, 500));
-  input.value = '@l';
+  input.innerText = '@l';
   Simulate.keyDown(input, { key: 'l' });
   await waitForNock();
   expect(queryMatchingNameOrUsername).toBeTruthy();

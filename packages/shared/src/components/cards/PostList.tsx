@@ -10,7 +10,6 @@ import {
   ListCardAside,
   ListCardMain,
   featuredCommentsToButtons,
-  CardNotification,
 } from './Card';
 import PostLink from './PostLink';
 import PostMetadata from './PostMetadata';
@@ -35,7 +34,6 @@ export const PostList = forwardRef(function PostList(
     openNewTab,
     enableMenu,
     menuOpened,
-    notification,
     className,
     children,
     postHeadingFont,
@@ -93,11 +91,6 @@ export const PostList = forwardRef(function PostList(
             onClick={(event) => onMenuClick?.(event, post)}
             post={post}
           />
-          {notification && (
-            <CardNotification className="absolute right-0 bottom-0 z-2 text-center">
-              {notification}
-            </CardNotification>
-          )}
         </ActionButtons>
       </ListCardMain>
       {selectedComment && (

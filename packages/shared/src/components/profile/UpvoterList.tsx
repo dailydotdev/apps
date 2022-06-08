@@ -9,11 +9,12 @@ import { UserShortInfo } from './UserShortInfo';
 export interface UpvoterListProps {
   queryResult: UseInfiniteQueryResult<UpvotesData>;
   scrollingContainer?: HTMLElement;
+  appendTooltipTo?: HTMLElement;
 }
 
 export function UpvoterList({
   queryResult,
-  scrollingContainer,
+  ...props
 }: UpvoterListProps): ReactElement {
   const canFetchMore =
     !queryResult.isLoading &&
@@ -28,17 +29,19 @@ export function UpvoterList({
 
   return (
     <div className="flex relative flex-col">
-      {queryResult.data.pages.map((page) =>
-        page.upvotes.edges.map(({ node: { user } }) => (
-          <Link key={user.username} href={user.permalink}>
-            <UserShortInfo
-              tag="a"
-              href={user.permalink}
-              user={user}
-              scrollingContainer={scrollingContainer}
-            />
-          </Link>
-        )),
+      {queryResult.data.pages.map(
+        (page) =>
+          page &&
+          page.upvotes.edges.map(({ node: { user } }) => (
+            <Link key={user.username} href={user.permalink}>
+              <UserShortInfo
+                {...props}
+                tag="a"
+                href={user.permalink}
+                user={user}
+              />
+            </Link>
+          )),
       )}
       {queryResult.isFetchingNextPage && (
         <UpvoterListPlaceholder placeholderAmount={1} />

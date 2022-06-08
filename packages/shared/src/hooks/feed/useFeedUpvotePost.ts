@@ -10,6 +10,7 @@ import {
   feedAnalyticsExtra,
 } from '../../lib/feed';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { postEventName } from '../../components/utilities';
 
 export default function useFeedUpvotePost(
   items: FeedItem[],
@@ -50,7 +51,7 @@ export default function useFeedUpvotePost(
       return;
     }
     trackEvent(
-      postAnalyticsEvent(upvoted ? 'upvote post' : 'remove post upvote', post, {
+      postAnalyticsEvent(postEventName({ upvoted }), post, {
         columns,
         column,
         row,

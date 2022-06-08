@@ -110,6 +110,32 @@ export class Features {
     'v5',
   ]);
 
+  static readonly CompanionPermissionPlacement = new Features(
+    'companion_permission_placement',
+    'off',
+    ['off', 'header', 'sidebar'],
+  );
+
+  static readonly CompanionPermissionTitle = new Features(
+    'companion_permission_title',
+    'The companion lets you comment and upvote directly on an article! 🤯',
+  );
+
+  static readonly CompanionPermissionDescription = new Features(
+    'companion_permission_description',
+    'Heads up! We need to ask for some extra permissions so you can enjoy the power of the companion.',
+  );
+
+  static readonly CompanionPermissionLink = new Features(
+    'companion_permission_link',
+    'Watch the Companion overview',
+  );
+
+  static readonly CompanionPermissionButton = new Features(
+    'companion_permission_button',
+    'Add the companion now!',
+  );
+
   private constructor(
     public readonly id: string,
     public readonly defaultValue?: string,

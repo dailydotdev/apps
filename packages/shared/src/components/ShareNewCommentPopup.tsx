@@ -8,7 +8,6 @@ import ShareIcon from '../../icons/share.svg';
 import Confetti from '../svg/ConfettiSvg';
 import {
   getFacebookShareLink,
-  getShareableLink,
   getTwitterShareLink,
   getWhatsappShareLink,
 } from '../lib/share';
@@ -29,16 +28,16 @@ export default function ShareNewCommentPopup({
   post,
   onRequestClose,
 }: ShareNewCommentPopupProps): ReactElement {
-  const href = getShareableLink();
+  const href = post.commentsPermalink;
   const { user } = useContext(AuthContext);
-  const [copying, copyLink] = useCopyLink(() => post.commentsPermalink);
+  const [copying, copyLink] = useCopyLink(() => href);
 
   return (
     <div
       className="hidden laptop:flex fixed right-6 bottom-6 z-3 flex-col px-6 pt-10 pb-6 rounded-2xl border shadow-2 bg-theme-bg-tertiary border-theme-divider-secondary"
       style={{ width: '20.625rem' }}
     >
-      <ModalCloseButton onClick={onRequestClose} />
+      <ModalCloseButton onClick={onRequestClose} className="top-2" />
       <Confetti
         className="absolute left-2 h-16"
         style={{ top: '-4.375rem', width: '6.25rem' }}
@@ -97,7 +96,7 @@ export default function ShareNewCommentPopup({
         <Button
           className="btn-primary"
           buttonSize="small"
-          onClick={copyLink}
+          onClick={() => copyLink()}
           icon={<CopyIcon />}
         >
           {copying ? 'Copied!' : 'Copy link'}

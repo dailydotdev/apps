@@ -332,3 +332,11 @@ export const HIDE_POST_MUTATION = gql`
     }
   }
 `;
+
+export const UNHIDE_POST_MUTATION = gql`
+  mutation UnhidePost($id: ID!) {
+    unhidePost(id: $id) {
+      _
+    }
+  }
+`;

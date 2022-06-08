@@ -8,6 +8,11 @@ volumes:
 services:
   daily-redis:
     image: redis:5.0.10
+    healthcheck:
+      test: redis-cli ping
+      interval: 1s
+      timeout: 3s
+      retries: 60
     command: redis-server --appendonly yes
     volumes:
       - redis:/data
@@ -16,6 +21,11 @@ services:
 
   daily-mysql:
     image: mariadb
+    healthcheck:
+      test: mysql --user=root --password=$$MYSQL_ROOT_PASSWORD -e 'SHOW DATABASES;'
+      interval: 1s
+      timeout: 3s
+      retries: 60
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: gateway
@@ -27,6 +37,11 @@ services:
 
   daily-postgres:
     image: postgres:11.6-alpine
+    healthcheck:
+      test: pg_isready -U postgres -d $$POSTGRES_DB
+      interval: 1s
+      timeout: 3s
+      retries: 60
     ports:
       - "5432:5432"
     volumes:
@@ -42,10 +57,9 @@ services:
   daily-gateway:
     image: us.gcr.io/daily-ops/daily-gateway
     depends_on:
-      - "daily-mysql"
-    volumes:
-      - ./wait-for.sh:/opt/app/wait-for.sh
-    command: ["./wait-for.sh", "daily-mysql:3306", "--", "yarn", "start"]
+      daily-mysql:
+        condition: service_healthy
+    command: ["yarn", "start"]
     ports:
       - "4000:4000"
     environment:
@@ -79,12 +93,12 @@ services:
   daily-api:
     image: us.gcr.io/daily-ops/daily-api
     depends_on:
-      - "daily-postgres"
-      - "daily-redis"
-    volumes:
-      - ./wait-for.sh:/opt/app/wait-for.sh
+      daily-postgres:
+        condition: service_healthy
+      daily-redis:
+        condition: service_healthy
     command:
-      ["./wait-for.sh", "daily-postgres:5432", "--", "npm", "run", "start"]
+      ["npm", "run", "start"]
     ports:
       - "5000:5000"
     environment:

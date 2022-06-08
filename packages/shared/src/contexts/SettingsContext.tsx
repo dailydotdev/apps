@@ -39,6 +39,8 @@ export type SettingsContextData = {
   sidebarExpanded: boolean;
   sortingEnabled: boolean;
   optOutWeeklyGoal: boolean;
+  optOutCompanion: boolean;
+  autoDismissNotifications: boolean;
   setTheme: (theme: ThemeMode) => Promise<void>;
   toggleShowOnlyUnreadPosts: () => Promise<void>;
   toggleOpenNewTab: () => Promise<void>;
@@ -48,6 +50,8 @@ export type SettingsContextData = {
   toggleSidebarExpanded: () => Promise<void>;
   toggleSortingEnabled: () => Promise<void>;
   toggleOptOutWeeklyGoal: () => Promise<void>;
+  toggleOptOutCompanion: () => Promise<void>;
+  toggleAutoDismissNotifications: () => Promise<void>;
   loadedSettings: boolean;
   customLinks?: string[];
   updateCustomLinks: (links: string[]) => Promise<unknown>;
@@ -70,28 +74,31 @@ export const remoteThemes: Record<ThemeMode, RemoteTheme> = {
   [ThemeMode.Auto]: 'auto',
 };
 
-export function applyTheme(themeMode: ThemeMode): void {
-  if (document.documentElement.classList.contains(themeMode)) {
+export function applyTheme(
+  themeMode: ThemeMode,
+  el: HTMLElement = document.documentElement,
+): void {
+  if (!el || el.classList.contains(themeMode)) {
     return;
   }
 
   if (themeMode === ThemeMode.Dark) {
-    document.documentElement.classList.remove(ThemeMode.Light);
-    document.documentElement.classList.remove(ThemeMode.Auto);
+    el.classList.remove(ThemeMode.Light);
+    el.classList.remove(ThemeMode.Auto);
   } else if (themeMode === ThemeMode.Light) {
-    document.documentElement.classList.add(ThemeMode.Light);
-    document.documentElement.classList.remove(ThemeMode.Auto);
+    el.classList.add(ThemeMode.Light);
+    el.classList.remove(ThemeMode.Auto);
   } else {
-    document.documentElement.classList.remove(ThemeMode.Light);
-    document.documentElement.classList.add(ThemeMode.Auto);
+    el.classList.remove(ThemeMode.Light);
+    el.classList.add(ThemeMode.Auto);
   }
 }
 
 export type SettingsContextProviderProps = {
   children?: ReactNode;
   settings?: RemoteSettings;
-  updateSettings: (settings: RemoteSettings) => unknown;
-  loadedSettings: boolean;
+  updateSettings?: (settings: RemoteSettings) => unknown;
+  loadedSettings?: boolean;
 };
 
 const defaultSettings: RemoteSettings = {
@@ -101,8 +108,11 @@ const defaultSettings: RemoteSettings = {
   insaneMode: false,
   showTopSites: true,
   sidebarExpanded: true,
+  companionExpanded: false,
   sortingEnabled: false,
   optOutWeeklyGoal: false,
+  optOutCompanion: false,
+  autoDismissNotifications: true,
   theme: remoteThemes[ThemeMode.Dark],
 };
 
@@ -196,6 +206,16 @@ export const SettingsContextProvider = ({
         setSettings({
           ...settings,
           optOutWeeklyGoal: !settings.optOutWeeklyGoal,
+        }),
+      toggleOptOutCompanion: () =>
+        setSettings({
+          ...settings,
+          optOutCompanion: !settings.optOutCompanion,
+        }),
+      toggleAutoDismissNotifications: () =>
+        setSettings({
+          ...settings,
+          autoDismissNotifications: !settings.autoDismissNotifications,
         }),
       loadedSettings,
       updateCustomLinks: (links: string[]) =>
