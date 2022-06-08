@@ -20,7 +20,7 @@ export const useKeyboardNavigation = (
       const [base] = (e.composedPath?.() as HTMLElement[]) || e.path || [];
       const tagName =
         base?.tagName.toLowerCase() as keyof JSX.IntrinsicElements;
-      if (optional?.disableOnTags?.indexOf(tagName) !== -1) {
+      if (optional?.disableOnTags?.includes(tagName)) {
         return;
       }
 
