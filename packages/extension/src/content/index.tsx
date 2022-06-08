@@ -1,8 +1,8 @@
 import { browser } from 'webextension-polyfill-ts';
 
-const hasRendered = !!document.querySelector('daily-companion-app');
+const isRendered = !!document.querySelector('daily-companion-app');
 
-if (!hasRendered) {
+if (!isRendered) {
   // Inject app div
   const appContainer = document.createElement('daily-companion-app');
   document.body.appendChild(appContainer);
