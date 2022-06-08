@@ -1,7 +1,13 @@
 import React, { ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
 
-export type TooltipPosition = 'top' | 'top-start' | 'right' | 'bottom' | 'left';
+export type TooltipPosition =
+  | 'top'
+  | 'top-start'
+  | 'right'
+  | 'bottom'
+  | 'bottom-start'
+  | 'left';
 
 export interface BaseTooltipContainerProps {
   arrow?: boolean;
@@ -11,6 +17,7 @@ export interface BaseTooltipContainerProps {
   placement?: TooltipPosition;
   paddingClassName?: string;
   roundedClassName?: string;
+  textClassName?: string;
   bgClassName?: string;
 }
 
@@ -22,13 +29,15 @@ export function BaseTooltipContainer({
   paddingClassName = 'py-1 px-3',
   roundedClassName = 'rounded-10',
   bgClassName = 'bg-theme-label-primary',
+  textClassName = 'text-theme-label-invert typo-subhead',
   children,
 }: BaseTooltipContainerProps): ReactElement {
   return (
     <div
       data-popper-placement={placement}
       className={classNames(
-        'relative flex flex-row items-center text-theme-label-invert typo-subhead',
+        'relative flex flex-row items-center',
+        textClassName,
         bgClassName,
         paddingClassName,
         roundedClassName,

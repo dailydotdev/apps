@@ -13,7 +13,10 @@ export const ConfirmationButtonsCenter = classed(
   'flex items-center justify-between self-center',
   styles.buttons,
 );
-export const ConfirmationHeading = classed('h1', 'font-bold typo-title3');
+export const ConfirmationHeading = classed(
+  'h1',
+  'font-bold typo-title3 text-center',
+);
 export const ConfirmationDescription = classed(
   'div',
   'mt-2 mb-6 text-theme-label-secondary text-center typo-callout',

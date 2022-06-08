@@ -52,6 +52,7 @@ import {
   FEED_SETTINGS_QUERY,
 } from '../graphql/feedSettings';
 import { getFeedSettingsQueryKey } from '../hooks/useFeedSettings';
+import Toast from './notifications/Toast';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
@@ -144,6 +145,9 @@ const renderComponent = (
     toggleOptOutWeeklyGoal: jest.fn(),
     optOutWeeklyGoal: true,
     sidebarExpanded: true,
+    autoDismissNotifications: true,
+    toggleAutoDismissNotifications: jest.fn(),
+    updateCustomLinks: jest.fn(),
     toggleSidebarExpanded: jest.fn(),
   };
   return render(
@@ -163,6 +167,7 @@ const renderComponent = (
         }}
       >
         <SettingsContext.Provider value={settingsContext}>
+          <Toast autoDismissNotifications={false} />
           <Feed
             feedQueryKey={['feed']}
             query={ANONYMOUS_FEED_QUERY}
@@ -672,6 +677,9 @@ it('should report broken link', async () => {
       screen.queryByTitle('Eminem Quotes Generator - Simple PHP RESTful API'),
     ).not.toBeInTheDocument(),
   );
+  await screen.findByRole('alert');
+  const feed = await screen.findByTestId('posts-feed');
+  expect(feed).toHaveAttribute('aria-live', 'assertive');
 });
 
 it('should report broken link with comment', async () => {
@@ -712,6 +720,9 @@ it('should report broken link with comment', async () => {
       screen.queryByTitle('Eminem Quotes Generator - Simple PHP RESTful API'),
     ).not.toBeInTheDocument(),
   );
+  await screen.findByRole('alert');
+  const feed = await screen.findByTestId('posts-feed');
+  expect(feed).toHaveAttribute('aria-live', 'assertive');
 });
 
 it('should report nsfw', async () => {
@@ -746,6 +757,9 @@ it('should report nsfw', async () => {
       screen.queryByTitle('Eminem Quotes Generator - Simple PHP RESTful API'),
     ).not.toBeInTheDocument(),
   );
+  await screen.findByRole('alert');
+  const feed = await screen.findByTestId('posts-feed');
+  expect(feed).toHaveAttribute('aria-live', 'assertive');
 });
 
 it('should hide post', async () => {
@@ -810,6 +824,9 @@ it('should block a source', async () => {
   );
   contextBtn.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
+  await screen.findByRole('alert');
+  const feed = await screen.findByTestId('posts-feed');
+  expect(feed).toHaveAttribute('aria-live', 'assertive');
 });
 
 it('should block a tag', async () => {
@@ -842,6 +859,9 @@ it('should block a tag', async () => {
   const contextBtn = await screen.findByText('Not interested in #javascript');
   contextBtn.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
+  await screen.findByRole('alert');
+  const feed = await screen.findByTestId('posts-feed');
+  expect(feed).toHaveAttribute('aria-live', 'assertive');
 });
 
 it('should open a modal to view post details', async () => {

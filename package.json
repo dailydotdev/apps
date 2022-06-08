@@ -1,4 +1,7 @@
 {
   "name": "daily-apps",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "postcss-rem-to-responsive-pixel": "^5.1.1"
+  }
 }

@@ -19,6 +19,7 @@ import {
   POST_BY_ID_STATIC_FIELDS_QUERY,
   POST_BY_ID_QUERY,
   PostData,
+  Post,
 } from '@dailydotdev/shared/src/graphql/posts';
 import { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
@@ -33,6 +34,15 @@ import { getLayout as getMainLayout } from '../../components/layouts/MainLayout'
 
 const Custom404 = dynamic(() => import('../404'));
 
+export const getSeoDescription = (post: Post): string => {
+  if (post?.summary) {
+    return post?.summary;
+  }
+  if (post?.description) {
+    return post?.description;
+  }
+  return `Join us to the discussion about "${post?.title}" on daily.dev ✌️`;
+};
 export interface Props {
   id: string;
   postData?: PostData;
@@ -64,17 +74,14 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
   );
 
   const seo: NextSeoProps = {
-    title: postById?.post.title,
+    title: postData?.post.title,
     titleTemplate: '%s | daily.dev',
-    description:
-      postById?.post.description?.length > 0
-        ? postById?.post.description
-        : `Join us to the discussion about "${postById?.post.title}" on daily.dev ✌️`,
+    description: getSeoDescription(postData?.post),
     openGraph: {
-      images: [{ url: postById?.post.image }],
+      images: [{ url: postData?.post.image }],
       article: {
-        publishedTime: postById?.post.createdAt,
-        tags: postById?.post.tags,
+        publishedTime: postData?.post.createdAt,
+        tags: postData?.post.tags,
       },
     },
   };
@@ -122,6 +129,7 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
         isLoading={isLoading || !isFetched}
         enableAuthorOnboarding={!!router.query?.author}
         enableShowShareNewComment={!!router?.query.new}
+        initializeNewComment={!!router?.query.c}
         className="pb-20 laptop:pb-6 laptopL:pb-0"
       />
     </>

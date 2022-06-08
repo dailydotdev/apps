@@ -1,21 +1,21 @@
 import { useContext } from 'react';
 import AnalyticsContext from '../contexts/AnalyticsContext';
+import { CopyNotifyFunction, useCopyLink } from './useCopyLink';
 
 interface UseShareOrCopyLinkProps {
   link: string;
   text: string;
-  copyLink?: () => Promise<void>;
   trackObject?: () => Record<string, unknown>;
 }
 export function useShareOrCopyLink({
   link,
   text,
-  copyLink,
   trackObject,
-}: UseShareOrCopyLinkProps): () => Promise<void> {
+}: UseShareOrCopyLinkProps): ReturnType<typeof useCopyLink> {
   const { trackEvent } = useContext(AnalyticsContext);
+  const [copying, copyLink] = useCopyLink(() => link);
 
-  const onShareOrCopy = async () => {
+  const onShareOrCopy: CopyNotifyFunction = async (...args) => {
     trackEvent(trackObject());
     if ('share' in navigator) {
       try {
@@ -27,9 +27,9 @@ export function useShareOrCopyLink({
         // Do nothing
       }
     } else {
-      copyLink?.();
+      copyLink(...args);
     }
   };
 
-  return onShareOrCopy;
+  return [copying, onShareOrCopy];
 }

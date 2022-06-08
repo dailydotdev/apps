@@ -12,7 +12,6 @@ import {
   Card,
   CardHeader,
   CardImage,
-  CardNotification,
   CardSpace,
   CardTextContainer,
   CardTitle,
@@ -47,7 +46,6 @@ export type PostCardProps = {
   openNewTab?: boolean;
   enableMenu?: boolean;
   menuOpened?: boolean;
-  notification?: string;
   showImage?: boolean;
   postHeadingFont: string;
 } & HTMLAttributes<HTMLDivElement>;
@@ -65,7 +63,6 @@ export const PostCard = forwardRef(function PostCard(
     openNewTab,
     enableMenu,
     menuOpened,
-    notification,
     className,
     children,
     showImage = true,
@@ -90,23 +87,12 @@ export const PostCard = forwardRef(function PostCard(
       <PostLink post={post} openNewTab={openNewTab} onLinkClick={onLinkClick} />
       <CardTextContainer>
         <CardHeader>
-          {notification ? (
-            <CardNotification className="flex-1 text-center">
-              {notification}
-            </CardNotification>
-          ) : (
-            <>
-              <SourceButton post={post} style={{ marginRight: '0.875rem' }} />
-              {featuredCommentsToButtons(
-                post.featuredComments,
-                setSelectedComment,
-              )}
-              <OptionsButton
-                onClick={(event) => onMenuClick?.(event, post)}
-                post={post}
-              />
-            </>
-          )}
+          <SourceButton post={post} style={{ marginRight: '0.875rem' }} />
+          {featuredCommentsToButtons(post.featuredComments, setSelectedComment)}
+          <OptionsButton
+            onClick={(event) => onMenuClick?.(event, post)}
+            post={post}
+          />
         </CardHeader>
         <CardTitle className={classNames(className, postHeadingFont)}>
           {post.title}
