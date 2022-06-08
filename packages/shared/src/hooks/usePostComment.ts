@@ -10,13 +10,12 @@ import { postAnalyticsEvent } from '../lib/feed';
 
 export interface UsePostCommentOptionalProps {
   enableShowShareNewComment?: boolean;
-  initializeNewComment?: boolean;
 }
 
 export interface UsePostComment {
   commentsNum: number;
   closeNewComment: () => void;
-  openNewComment: () => void;
+  openNewComment: (origin: string) => void;
   onCommentClick: (parent: ParentComment) => void;
   onShowShareNewComment: (value: boolean) => void;
   updatePostComments: (comment: Comment, isNew?: boolean) => void;
@@ -40,10 +39,7 @@ const getParentAndCurrentIndex = (
 
 export const usePostComment = (
   post: Post,
-  {
-    enableShowShareNewComment,
-    initializeNewComment,
-  }: UsePostCommentOptionalProps = {},
+  { enableShowShareNewComment }: UsePostCommentOptionalProps = {},
 ): UsePostComment => {
   const client = useQueryClient();
   const { trackEvent } = useContext(AnalyticsContext);
@@ -73,8 +69,12 @@ export const usePostComment = (
     setParentComment(parent);
   };
 
-  const openNewComment = () => {
+  const openNewComment = (origin: string) => {
     if (user) {
+      trackEvent({
+        event_name: 'open comment modal',
+        extra: JSON.stringify({ origin }),
+      });
       setLastScroll(window.scrollY);
       setParentComment({
         authorName: post.source.name,
@@ -203,12 +203,6 @@ export const usePostComment = (
       setTimeout(() => setShowShareNewComment(true), 700);
     }
   }, [enableShowShareNewComment]);
-
-  useEffect(() => {
-    if (initializeNewComment) {
-      openNewComment();
-    }
-  }, [initializeNewComment]);
 
   return useMemo(
     () => ({
