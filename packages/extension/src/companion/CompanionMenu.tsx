@@ -18,6 +18,7 @@ import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext'
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import { postEventName } from '@dailydotdev/shared/src/components/utilities';
 import NewCommentModal from '@dailydotdev/shared/src/components/modals/NewCommentModal';
+import { useKeyboardNavigation } from '@dailydotdev/shared/src/hooks/useKeyboardNavigation';
 import CompanionContextMenu from './CompanionContextMenu';
 import '@dailydotdev/shared/src/styles/globals.css';
 import { CompanionHelper, getCompanionWrapper } from './common';
@@ -148,6 +149,20 @@ export default function CompanionMenu({
   };
 
   const tooltipContainerProps = { className: 'shadow-2 whitespace-nowrap' };
+
+  const onsEscape = () => {
+    if (!companionState) {
+      return;
+    }
+
+    trackEvent({ event_name: 'close companion' });
+    toggleCompanionExpanded({ companionExpandedValue: false });
+    setCompanionState(false);
+  };
+
+  useKeyboardNavigation(window, [['Escape', onsEscape]], {
+    disabledModalOpened: true,
+  });
 
   return (
     <div className="group flex relative flex-col gap-2 self-center p-2 my-6 w-14 rounded-l-16 border border-theme-divider-quaternary bg-theme-bg-primary">
