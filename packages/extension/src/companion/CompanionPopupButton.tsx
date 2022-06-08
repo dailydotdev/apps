@@ -60,7 +60,8 @@ export const CompanionPopupButton = ({
     }
 
     trackEvent({
-      event_name: `companion button displayed`,
+      event_name: 'impression',
+      target_type: 'companion permission',
       extra: JSON.stringify({ origin: placement }),
     });
   }, [contentScriptGranted, isFetched]);
