@@ -26,7 +26,7 @@ import MainFeedPage from './MainFeedPage';
 import { DndContextProvider } from './DndContext';
 import { BootDataProvider } from '../../../shared/src/contexts/BootProvider';
 import {
-  registerBrowserContentScripts,
+  getContentScriptPermissionAndRegister,
   useExtensionPermission,
 } from '../companion/useExtensionPermission';
 
@@ -98,7 +98,7 @@ function InternalApp({
 
   useEffect(() => {
     if (contentScriptGranted) {
-      registerBrowserContentScripts();
+      getContentScriptPermissionAndRegister();
     }
   }, [contentScriptGranted]);
 
