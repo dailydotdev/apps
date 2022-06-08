@@ -32,7 +32,7 @@ export function CompanionEngagements({
 
   return (
     <div
-      className="flex gap-x-4 items-center py-1.5 text-theme-label-tertiary typo-callout"
+      className="flex gap-x-4 items-center py-1 text-theme-label-tertiary typo-callout"
       data-testid="statsBar"
     >
       {post.numUpvotes <= 0 && <span>Be the first to upvote</span>}

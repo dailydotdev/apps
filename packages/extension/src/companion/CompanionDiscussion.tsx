@@ -46,7 +46,7 @@ export function CompanionDiscussion({
       )}
     >
       <NewComment
-        className="laptop:py-1 laptop:px-6"
+        className="laptop:px-6 laptop:pb-2"
         user={user}
         onNewComment={openNewComment}
       />
