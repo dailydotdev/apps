@@ -1,5 +1,5 @@
 import 'content-scripts-register-polyfill';
-import { browser, Runtime } from 'webextension-polyfill-ts';
+import { browser, Runtime, Tabs } from 'webextension-polyfill-ts';
 import { getBootData } from '@dailydotdev/shared/src/lib/boot';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import { parseOrDefault } from '@dailydotdev/shared/src/lib/func';
@@ -32,8 +32,9 @@ const isExcluded = (origin: string) => {
   return excludedCompanionOrigins.some((e) => origin.includes(e));
 };
 
-const sendBootData = async (req, sender) => {
-  if (isExcluded(sender?.origin)) {
+const sendBootData = async (_, tab: Tabs.Tab) => {
+  const { origin, pathname } = new URL(tab.url);
+  if (isExcluded(origin)) {
     return;
   }
 
@@ -42,23 +43,23 @@ const sendBootData = async (req, sender) => {
     return;
   }
 
-  const url = sender?.tab?.url;
+  const href = origin + pathname;
 
   const [
     deviceId,
     { postData, settings, flags, user, alerts, visit, accessToken },
   ] = await Promise.all([
     getOrGenerateDeviceId(),
-    getBootData('companion', url),
+    getBootData('companion', href),
   ]);
 
   let settingsOutput = settings;
   if (!cacheData?.user || !('providers' in cacheData?.user)) {
     settingsOutput = { ...settingsOutput, ...cacheData?.settings };
   }
-  await browser.tabs.sendMessage(sender?.tab?.id, {
+  await browser.tabs.sendMessage(tab?.id, {
     deviceId,
-    url,
+    url: href,
     postData,
     settings: settingsOutput,
     flags,
@@ -92,7 +93,7 @@ async function handleMessages(message, sender: Runtime.MessageSender) {
   await getContentScriptPermissionAndRegister();
 
   if (message.type === 'CONTENT_LOADED') {
-    sendBootData(message, sender);
+    sendBootData(message, sender.tab);
     return null;
   }
 
