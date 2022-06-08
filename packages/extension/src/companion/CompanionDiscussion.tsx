@@ -42,18 +42,24 @@ export function CompanionDiscussion({
       style={style}
       className={classNames(
         className,
-        'p-6 rounded-bl-16 border border-t-2 border-r-0 bg-theme-bg-primary border-theme-divider-quaternary',
+        'py-6 flex absolute top-full right-0 -left-px flex-col min-h-[14rem] rounded-bl-16 border border-t-2 border-r-0 bg-theme-bg-primary border-theme-divider-quaternary',
       )}
     >
-      <NewComment user={user} onNewComment={openNewComment} />
-      <h3 className="my-8 font-bold typo-callout">Discussion</h3>
-      <PostComments
-        post={post}
-        applyBottomMargin={false}
-        onClick={onCommentClick}
-        onClickUpvote={onShowUpvoted}
-        modalParentSelector={getCompanionWrapper}
+      <NewComment
+        className="laptop:px-6"
+        user={user}
+        onNewComment={openNewComment}
       />
+      <div className="overflow-auto flex-1 px-6 mt-8">
+        <h3 className="mb-8 font-bold typo-callout">Discussion</h3>
+        <PostComments
+          post={post}
+          applyBottomMargin={false}
+          onClick={onCommentClick}
+          onClickUpvote={onShowUpvoted}
+          modalParentSelector={getCompanionWrapper}
+        />
+      </div>
       {parentComment && (
         <NewCommentModal
           isOpen={!!parentComment}
