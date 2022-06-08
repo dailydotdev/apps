@@ -16,7 +16,7 @@ if (!isRendered) {
   const wrapper = document.createElement('div');
   wrapper.id = 'daily-companion-wrapper';
   shadow.appendChild(wrapper);
-  
+
   browser.runtime.sendMessage({ type: 'CONTENT_LOADED' });
 
   let lastUrl = removeLinkTargetElement(window.location.href);
