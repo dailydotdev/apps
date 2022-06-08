@@ -17,13 +17,13 @@ if (!hasRendered) {
   shadow.appendChild(wrapper);
 
   browser.runtime.sendMessage({ type: 'CONTENT_LOADED' });
-}
 
-let lastUrl = window.location.href;
-new MutationObserver(() => {
-  const current = window.location.href;
-  if (current !== lastUrl) {
-    lastUrl = current;
-    browser.runtime.sendMessage({ type: 'CONTENT_LOADED' });
-  }
-}).observe(document, { subtree: true, childList: true });
+  let lastUrl = window.location.href;
+  new MutationObserver(() => {
+    const current = window.location.href;
+    if (current !== lastUrl) {
+      lastUrl = current;
+      browser.runtime.sendMessage({ type: 'CONTENT_LOADED' });
+    }
+  }).observe(document, { subtree: true, childList: true });
+}
