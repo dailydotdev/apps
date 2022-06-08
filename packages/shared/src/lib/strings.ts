@@ -10,3 +10,9 @@ export const isSpecialCharacter = (key: string): boolean =>
 
 export const cleanupEmptySpaces = (text: string): string =>
   text.replaceAll?.('\xa0', ' ') || text;
+
+export const removeLinkTargetElement = (link: string): string => {
+  const { origin, pathname } = new URL(link);
+
+  return origin + pathname;
+};

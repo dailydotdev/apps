@@ -1,4 +1,5 @@
 import { browser } from 'webextension-polyfill-ts';
+import { removeLinkTargetElement } from '@dailydotdev/shared/src/lib/strings';
 
 const isRendered = !!document.querySelector('daily-companion-app');
 
@@ -18,9 +19,9 @@ if (!isRendered) {
 
   browser.runtime.sendMessage({ type: 'CONTENT_LOADED' });
 
-  let lastUrl = window.location.href;
+  let lastUrl = removeLinkTargetElement(window.location.href);
   new MutationObserver(() => {
-    const current = window.location.href;
+    const current = removeLinkTargetElement(window.location.href);
     if (current !== lastUrl) {
       lastUrl = current;
       browser.runtime.sendMessage({ type: 'CONTENT_LOADED' });
