@@ -160,7 +160,7 @@ export default function CompanionMenu({
     setCompanionState(false);
   };
 
-  useKeyboardNavigation(window, [['Escape', onsEscape]], {
+  useKeyboardNavigation(window, [['Escape', onEscape]], {
     disabledModalOpened: true,
   });
 
