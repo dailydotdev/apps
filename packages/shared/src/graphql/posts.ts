@@ -36,6 +36,8 @@ export interface Post {
   summary: string;
   toc?: Toc;
   impressionStatus?: number;
+  isAuthor?: number;
+  isScout?: number;
 }
 
 export interface Ad {
@@ -274,6 +276,8 @@ export const AUTHOR_FEED_QUERY = gql`
           numUpvotes
           numComments
           views
+          isAuthor
+          isScout
         }
       }
     }
