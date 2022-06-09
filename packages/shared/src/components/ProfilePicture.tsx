@@ -48,7 +48,7 @@ function ProfilePictureComponent(
   {
     user,
     size = 'xlarge',
-    rounded,
+    rounded = size,
     className,
     nativeLazyLoading,
     ...props
@@ -83,7 +83,11 @@ function ProfilePictureComponent(
       ref={ref}
       imgSrc={user.image}
       imgAlt={`${user.username}'s profile`}
-      className={classNames(sizeClasses[size], className)}
+      className={classNames(
+        sizeClasses[size],
+        roundClasses[rounded ?? size],
+        className,
+      )}
       fallbackSrc={fallbackImages.avatar}
     />
   );
