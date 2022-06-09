@@ -36,8 +36,8 @@ const Icon: React.VFC<Props> = ({
 
   return (
     <IconComponent
-      {...rest}
       className={classNames(IconSize[size], 'pointer-events-none', className)}
+      {...rest}
     />
   );
 };
