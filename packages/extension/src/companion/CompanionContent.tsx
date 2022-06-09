@@ -59,23 +59,21 @@ export default function CompanionContent({
           <LogoIcon className="w-8 rounded-8" />
         </a>
         {post?.trending && <HotLabel />}
-        {post?.summary && (
-          <SimpleTooltip
-            placement="top"
-            content="Copy link"
-            appendTo="parent"
-            container={{ className: 'shadow-2 whitespace-nowrap' }}
-          >
-            <Button
-              icon={<CopyIcon />}
-              className={classNames(
-                'ml-auto',
-                copying ? 'btn-tertiary-avocado' : ' btn-tertiary',
-              )}
-              onClick={() => copyLink()}
-            />
-          </SimpleTooltip>
-        )}
+        <SimpleTooltip
+          placement="top"
+          content="Copy link"
+          appendTo="parent"
+          container={{ className: 'shadow-2 whitespace-nowrap' }}
+        >
+          <Button
+            icon={<CopyIcon />}
+            className={classNames(
+              'ml-auto',
+              copying ? 'btn-tertiary-avocado' : ' btn-tertiary',
+            )}
+            onClick={() => copyLink()}
+          />
+        </SimpleTooltip>
       </div>
       <p className="flex-1 my-4 typo-callout">
         <TLDRText>TLDR -</TLDRText>

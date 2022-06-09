@@ -13,7 +13,6 @@ import AuthContext from '../../contexts/AuthContext';
 import { commentBoxClassNames } from '../comments/common';
 import { commentDateFormat } from '../../lib/dateFormat';
 import { Button } from '../buttons/Button';
-import { RoundedImage } from '../utilities';
 import styles from './CommentBox.module.css';
 import { ProfilePicture } from '../ProfilePicture';
 import { ClickableText } from '../buttons/ClickableText';
@@ -112,11 +111,11 @@ function CommentBox({
           )}
         >
           <header className="flex items-center mb-2">
-            <RoundedImage
-              src={authorImage}
-              alt={`${authorName}'s profile`}
-              className="bg-theme-bg-secondary"
-              loading="lazy"
+            <ProfilePicture
+              size="large"
+              rounded="full"
+              user={{ image: authorImage, username: authorName }}
+              nativeLazyLoading
             />
             <div className="flex flex-col ml-2">
               <div className="truncate typo-callout">{authorName}</div>
