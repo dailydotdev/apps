@@ -25,6 +25,8 @@ type SubmitArticleProps = {
   submitArticleModalButton: string;
 } & ModalProps;
 
+const defaultErrorMessage = 'Something went wrong, try again';
+
 export default function SubmitArticle({
   isEnabled,
   headerCopy,
@@ -91,7 +93,6 @@ export default function SubmitArticle({
       return;
     }
 
-    const defaultErrorMessage = 'Something went wrong, try again';
     try {
       const res = await submitArticle(data.articleUrl);
       const {
@@ -106,7 +107,7 @@ export default function SubmitArticle({
         setExistingArticle({ post });
         submitArticleFailEvent('Article exists already');
       } else if (reason) {
-        setUrlHint(reason ?? defaultErrorMessage);
+        setUrlHint(reason);
         submitArticleFailEvent(reason);
       }
     } catch (err) {
