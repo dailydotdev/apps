@@ -31,11 +31,13 @@ const Icon: React.VFC<Props> = ({
   style,
   IconOutlined,
   IconFilled,
+  ...rest
 }) => {
   const IconComponent = filled ? IconFilled : IconOutlined;
 
   return (
     <IconComponent
+      {...rest}
       style={style}
       className={classNames(IconSize[size], 'pointer-events-none', className)}
     />
