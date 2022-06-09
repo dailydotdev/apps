@@ -17,6 +17,7 @@ import {
 import PostItemCard from '../post/PostItemCard';
 import { PostItem } from '../../graphql/posts';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { BetaBadge } from '../BetaBadge';
 
 type SubmitArticleProps = {
   isEnabled: boolean;
@@ -153,8 +154,11 @@ export default function SubmitArticle({
       onRequestClose={onRequestClose}
       padding={false}
     >
-      <header className="flex justify-between items-center py-4 px-6 w-full border-b border-theme-divider-tertiary">
-        <h3 className="font-bold typo-title3">{headerCopy}</h3>
+      <header className="flex justify-between items-center px-6 w-full h-14 border-b border-theme-divider-tertiary">
+        <div className="flex flex-row items-center">
+          <h3 className="font-bold typo-title3">{headerCopy}</h3>
+          <BetaBadge />
+        </div>
         <ModalCloseButton onClick={onRequestClose} />
       </header>
       <section className="overflow-auto relative px-10 pt-6 pb-10 w-full h-full shrink max-h-full">
