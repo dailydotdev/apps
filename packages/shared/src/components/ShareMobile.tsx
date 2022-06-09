@@ -19,7 +19,7 @@ export function ShareMobile({ share, link }: Props): ReactElement {
         buttonSize="small"
         onClick={() => copyLink()}
         pressed={copying}
-        icon={<CopyIcon />}
+        icon={<CopyIcon className="icon" />}
         className="btn-tertiary-avocado"
       >
         {copying ? 'Copied!' : 'Copy link'}
@@ -27,7 +27,7 @@ export function ShareMobile({ share, link }: Props): ReactElement {
       <Button
         buttonSize="small"
         onClick={share}
-        icon={<ShareIcon />}
+        icon={<ShareIcon className="icon" />}
         className="btn-tertiary"
       >
         Share with your friends

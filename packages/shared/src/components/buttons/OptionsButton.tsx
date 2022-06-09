@@ -16,7 +16,7 @@ export default function OptionsButton({
       <Button
         className="mouse:invisible mouse:group-hover:visible my-auto btn-tertiary"
         style={{ marginLeft: 'auto', marginRight: '-0.125rem' }}
-        icon={<MenuIcon />}
+        icon={<MenuIcon size="medium" />}
         onClick={(event) => onClick?.(event, post)}
         buttonSize="small"
       />
