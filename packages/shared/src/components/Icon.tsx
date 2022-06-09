@@ -16,6 +16,7 @@ export interface IconProps {
   filled?: boolean;
   size?: Size;
   className?: string;
+  style?: Record<string, unknown>;
 }
 
 type Props = IconProps & {
