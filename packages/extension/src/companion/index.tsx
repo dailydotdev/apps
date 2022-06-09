@@ -14,7 +14,7 @@ const renderApp = (props: CompanionData) => {
   setOnError((e) => {
     const target = e.target as HTMLImageElement;
     target.onerror = null;
-    target.src = fallbackImages.avatar_base;
+    target.src = browser.runtime.getURL(fallbackImages.avatar_base);
   });
   const container = getCompanionWrapper();
   applyTheme(themeModes[props.settings.theme]);
