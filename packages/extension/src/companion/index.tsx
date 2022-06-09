@@ -5,10 +5,17 @@ import {
   applyTheme,
   themeModes,
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
+import { setOnError } from '@dailydotdev/shared/src/components/ProfilePicture';
+import { fallbackImages } from '@dailydotdev/shared/src/lib/config';
 import { getCompanionWrapper } from './common';
 import App, { CompanionData } from './App';
 
 const renderApp = (props: CompanionData) => {
+  setOnError((e) => {
+    const target = e.target as HTMLImageElement;
+    target.onerror = null;
+    target.src = fallbackImages.avatar_base;
+  });
   const container = getCompanionWrapper();
   applyTheme(themeModes[props.settings.theme]);
 

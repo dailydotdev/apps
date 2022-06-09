@@ -1,4 +1,4 @@
-import React, { forwardRef, ReactElement, Ref } from 'react';
+import React, { forwardRef, ReactElement, ReactEventHandler, Ref } from 'react';
 import classNames from 'classnames';
 import { LazyImage, LazyImageProps } from './LazyImage';
 import { PublicProfile } from '../lib/user';
@@ -44,6 +44,18 @@ const roundClasses = {
   full: 'rounded-full',
 };
 
+let onError: ReactEventHandler<HTMLImageElement> = (e) => {
+  const target = e.target as HTMLImageElement;
+  target.onerror = null;
+  target.src = fallbackImages.avatar;
+};
+
+export function setOnError(
+  newOnError: ReactEventHandler<HTMLImageElement>,
+): void {
+  onError = newOnError;
+}
+
 function ProfilePictureComponent(
   {
     user,
@@ -62,11 +74,7 @@ function ProfilePictureComponent(
         ref={ref}
         src={user.image}
         alt={`${user.username}'s profile`}
-        onError={(e) => {
-          const target = e.target as HTMLImageElement;
-          target.onerror = null;
-          target.src = fallbackImages.avatar_base;
-        }}
+        onError={onError}
         className={classNames(
           sizeClasses[size],
           roundClasses[rounded ?? size],
