@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
-import ArrowIcon from '../../../icons/arrow.svg';
+import ArrowIcon from '../icons/Arrow';
 import { Button } from '../buttons/Button';
 import { PostModalActions, PostModalActionsProps } from './PostModalActions';
 

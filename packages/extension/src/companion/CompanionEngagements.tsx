@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import ArrowIcon from '@dailydotdev/shared/icons/arrow.svg';
+import ArrowIcon from '@dailydotdev/shared/src/components/icons/Arrow';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';

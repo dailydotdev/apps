@@ -2,8 +2,8 @@ import React, { ReactElement, useContext, useEffect } from 'react';
 import classNames from 'classnames';
 import sizeN from '../../../macros/sizeN.macro';
 import FilterMenu from './FilterMenu';
-import XIcon from '../../../icons/x.svg';
-import PlusIcon from '../../../icons/plus.svg';
+import CloseIcon from '../icons/Close';
+import PlusIcon from '../icons/Plus';
 import { menuItemClassNames } from '../multiLevelMenu/MultiLevelMenuMaster';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import AuthContext from '../../contexts/AuthContext';
@@ -53,7 +53,7 @@ export default function FeedFilters({
         )}
       >
         <button onClick={onBack} type="button">
-          <XIcon className="text-2xl -rotate-90 text-theme-label-tertiary" />
+          <CloseIcon className="text-2xl -rotate-90 text-theme-label-tertiary" />
         </button>
         {shouldShowMyFeed && !user && (
           <CreateFeedFilterButton

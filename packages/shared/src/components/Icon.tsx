@@ -1,32 +1,34 @@
 import React from 'react';
 import classNames from 'classnames';
 
-export type Size = 'small' | 'medium' | 'large';
+type Size = 'small' | 'medium' | 'large' | 'extralarge';
 
-const IconSize = {
+const IconSize: Record<Size, string> = {
   small: 'w-5 h-5',
   medium: 'w-6 h-6',
   large: 'w-8 h-8',
+  extralarge: 'w-10 h-10',
 };
+
+type ItemType = React.ComponentType<{ className; style }>;
 
 export interface IconProps {
   filled?: boolean;
   size?: Size;
   className?: string;
+  style?: Record<string, unknown>;
 }
 
-type Props = {
-  filled?: boolean;
-  size?: Size;
-  className?: string;
-  IconOutlined: React.ComponentType<{ className }>;
-  IconFilled: React.ComponentType<{ className }>;
+type Props = IconProps & {
+  IconOutlined: ItemType;
+  IconFilled: ItemType;
 };
 
 const Icon: React.VFC<Props> = ({
   filled = false,
   size = 'small',
   className = '',
+  style,
   IconOutlined,
   IconFilled,
 }) => {
@@ -34,6 +36,7 @@ const Icon: React.VFC<Props> = ({
 
   return (
     <IconComponent
+      style={style}
       className={classNames(IconSize[size], 'pointer-events-none', className)}
     />
   );

@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { Button } from './Button';
-import MenuIcon from '../../../icons/menu.svg';
+import MenuIcon from '../icons/Menu';
 import { Post } from '../../graphql/posts';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 

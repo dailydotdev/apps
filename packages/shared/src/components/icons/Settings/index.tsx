@@ -1,15 +1,10 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import Icon, { IconProps } from '../../Icon';
 import OutlinedIcon from './outlined.svg';
 import FilledIcon from './filled.svg';
 
-const SettingsIcon: React.VFC<IconProps> = ({ filled = false, className }) => (
-  <Icon
-    filled={filled}
-    IconOutlined={OutlinedIcon}
-    IconFilled={FilledIcon}
-    className={className}
-  />
+const SettingsIcon = (props: IconProps): ReactElement => (
+  <Icon {...props} IconOutlined={OutlinedIcon} IconFilled={FilledIcon} />
 );
 
 export default SettingsIcon;

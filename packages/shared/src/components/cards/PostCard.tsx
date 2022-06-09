@@ -18,7 +18,7 @@ import {
   featuredCommentsToButtons,
   getPostClassNames,
 } from './Card';
-import FeatherIcon from '../../../icons/feather.svg';
+import FeatherIcon from '../icons/Feather';
 import { Comment } from '../../graphql/comments';
 import styles from './Card.module.css';
 import TrendingFlag from './TrendingFlag';

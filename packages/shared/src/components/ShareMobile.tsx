@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
-import CopyIcon from '../../icons/copy.svg';
-import ShareIcon from '../../icons/share.svg';
+import CopyIcon from './icons/Copy';
+import ShareIcon from './icons/Forward';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import { Button } from './buttons/Button';
 import { WidgetContainer } from './widgets/common';

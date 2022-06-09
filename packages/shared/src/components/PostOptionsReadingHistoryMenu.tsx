@@ -3,10 +3,9 @@ import { Item } from '@dailydotdev/react-contexify';
 import dynamic from 'next/dynamic';
 import { QueryClient, QueryKey, useQueryClient } from 'react-query';
 import { ReadHistoryPost } from '../graphql/posts';
-import ShareIcon from '../../icons/share.svg';
-import BookmarkIcon from '../../icons/bookmark.svg';
-import BookmarkIconFilled from '../../icons/filled/bookmark_filled.svg';
-import XIcon from '../../icons/x.svg';
+import ShareIcon from './icons/Forward';
+import BookmarkIcon from './icons/Bookmark';
+import XIcon from './icons/Close';
 import useBookmarkPost from '../hooks/useBookmarkPost';
 import AuthContext from '../contexts/AuthContext';
 import { ReadHistoryInfiniteData } from '../hooks/useInfiniteReadingHistory';
@@ -57,22 +56,12 @@ const updateReadingHistoryPost =
     };
   };
 
-const getBookmarkIconAndMenuText = (bookmarked: boolean) => {
-  if (bookmarked) {
-    return (
-      <>
-        <MenuIcon Icon={BookmarkIconFilled} />
-        Remove from bookmarks
-      </>
-    );
-  }
-  return (
-    <>
-      <MenuIcon Icon={BookmarkIcon} />
-      Save to bookmarks
-    </>
-  );
-};
+const getBookmarkIconAndMenuText = (bookmarked: boolean) => (
+  <>
+    <MenuIcon Icon={() => <BookmarkIcon filled={bookmarked} />} />
+    {bookmarked ? 'Remove from bookmarks' : 'Save to bookmarks'}
+  </>
+);
 
 export default function PostOptionsReadingHistoryMenu({
   post,

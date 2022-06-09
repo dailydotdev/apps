@@ -9,7 +9,7 @@ import classNames from 'classnames';
 import classed from '../../lib/classed';
 import { Button } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import ArrowIcon from '../../../icons/arrow.svg';
+import ArrowIcon from '../icons/Arrow';
 import { TooltipProps } from '../tooltips/BaseTooltip';
 
 export interface SidebarProps {

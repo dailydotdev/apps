@@ -7,7 +7,7 @@ import {
   ConfirmationModal,
 } from '@dailydotdev/shared/src/components/modals/ConfirmationModal';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
-import Icon from '@dailydotdev/shared/icons/v.svg';
+import Icon from '@dailydotdev/shared/src/components/icons/V';
 import { Styles } from 'react-modal';
 
 const style: Styles = {

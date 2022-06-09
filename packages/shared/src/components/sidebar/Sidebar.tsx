@@ -2,9 +2,6 @@ import React, { ReactElement, useContext, useState, useMemo } from 'react';
 import classNames from 'classnames';
 import SettingsContext from '../../contexts/SettingsContext';
 import { FeedSettingsModal } from '../modals/FeedSettingsModal';
-import FeedbackIcon from '../../../icons/feedback.svg';
-import DocsIcon from '../../../icons/docs.svg';
-import TerminalIcon from '../../../icons/terminal.svg';
 import {
   ButtonOrLink,
   ItemInner,
@@ -20,6 +17,9 @@ import {
   SidebarBackdrop,
   SidebarScrollWrapper,
 } from './common';
+import DocsIcon from '../icons/Docs';
+import TerminalIcon from '../icons/Terminal';
+import FeedbackIcon from '../icons/Feedback';
 import HotIcon from '../icons/Hot';
 import UpvoteIcon from '../icons/Upvote';
 import DiscussIcon from '../icons/Discuss';
@@ -28,8 +28,8 @@ import FilterIcon from '../icons/Filter';
 import MoonIcon from '../icons/Moon';
 import HomeIcon from '../icons/Home';
 import SettingsIcon from '../icons/Settings';
-import BookmarkIconComponent from '../icons/Bookmark';
-import EyeIconComponent from '../icons/Eye';
+import BookmarkIcon from '../icons/Bookmark';
+import EyeIcon from '../icons/Eye';
 import InvitePeople from './InvitePeople';
 import SidebarRankProgress from '../SidebarRankProgress';
 import AlertContext from '../../contexts/AlertContext';
@@ -51,18 +51,18 @@ import CreateMyFeedModal from '../modals/CreateMyFeedModal';
 
 const bottomMenuItems: SidebarMenuItem[] = [
   {
-    icon: () => <ListIcon Icon={DocsIcon} />,
+    icon: () => <ListIcon Icon={() => <DocsIcon />} />,
     title: 'Docs',
     path: 'https://docs.daily.dev/',
     target: '_blank',
   },
   {
-    icon: () => <ListIcon Icon={TerminalIcon} />,
+    icon: () => <ListIcon Icon={() => <TerminalIcon />} />,
     title: 'Changelog',
     path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}sources/daily_updates`,
   },
   {
-    icon: () => <ListIcon Icon={FeedbackIcon} />,
+    icon: () => <ListIcon Icon={() => <FeedbackIcon />} />,
     title: 'Feedback',
     path: 'https://daily.dev/feedback',
     target: '_blank',
@@ -230,7 +230,7 @@ export default function Sidebar({
 
   const myFeedMenuItem: SidebarMenuItem = {
     icon: (active: boolean) => (
-      <ListIcon Icon={() => <HomeIcon filled={active} size="small" />} />
+      <ListIcon Icon={() => <HomeIcon filled={active} />} />
     ),
     title: 'My feed',
     path: '/my-feed',
@@ -243,7 +243,7 @@ export default function Sidebar({
   const manageMenuItems: SidebarMenuItem[] = [
     {
       icon: (active: boolean) => (
-        <ListIcon Icon={() => <BookmarkIconComponent filled={active} />} />
+        <ListIcon Icon={() => <BookmarkIcon filled={active} />} />
       ),
       title: 'Bookmarks',
       path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}bookmarks`,
@@ -252,7 +252,7 @@ export default function Sidebar({
     },
     {
       icon: (active: boolean) => (
-        <ListIcon Icon={() => <EyeIconComponent filled={active} />} />
+        <ListIcon Icon={() => <EyeIcon filled={active} />} />
       ),
       title: 'Reading history',
       path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}history`,

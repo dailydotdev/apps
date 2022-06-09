@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { Author } from '../../graphql/comments';
 import { ProfileLink } from '../profile/ProfileLink';
-import FeatherIcon from '../../../icons/feather.svg';
+import FeatherIcon from '../icons/Feather';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 
 export interface CommentAuthorProps {

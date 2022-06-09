@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import classed from '../lib/classed';
 import styles from './utilities.module.css';
-import ArrowIcon from '../../icons/arrow.svg';
+import ArrowIcon from './icons/Arrow';
 import { PostBootData } from '../lib/boot';
 
 export interface ThemeColor {

@@ -80,7 +80,7 @@ services:
       - CORS_ORIGIN=http://,chrome-extension://,moz-extension://,safari-web-extension://
       - GCLOUD_PROJECT=daily-staging
       - PORT=4000
-      - API_URL=http://daily-api:5000
+      - API_URL=http://daily-api:8008
       - API_SECRET=topsecret
       - SCRAPER_SECRET=topsecret
       - REDIS_HOST=daily-redis
@@ -100,10 +100,10 @@ services:
     command:
       ["npm", "run", "start"]
     ports:
-      - "5000:5000"
+      - "8008:8008"
     environment:
       - TYPEORM_HOST=daily-postgres
-      - PORT=5000
+      - PORT=8008
       - TZ=UTC
       - ACCESS_SECRET='topsecret'
       - GATEWAY_URL=http://daily-gateway:4000

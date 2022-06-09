@@ -8,7 +8,7 @@ import React, {
   useState,
 } from 'react';
 import classNames from 'classnames';
-import VIcon from '../../../icons/v.svg';
+import VIcon from '../icons/V';
 import styles from './Checkbox.module.css';
 
 export interface CheckboxProps {

@@ -2,8 +2,7 @@ import React, { useState, ReactElement, useContext, useEffect } from 'react';
 import classNames from 'classnames';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
-import CompanionFilledIcon from '@dailydotdev/shared/icons/filled/companion.svg';
-import CompanionOutlineIcon from '@dailydotdev/shared/icons/outline/companion.svg';
+import CompanionIcon from '@dailydotdev/shared/src/components/icons/App';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { CompanionPermission } from './CompanionPermission';
 import { useExtensionPermission } from './useExtensionPermission';
@@ -32,10 +31,6 @@ export const CompanionPopupButton = (): ReactElement => {
       companionNotificationTracking('auto', true);
     }
   }, [alerts]);
-
-  const CompanionIcon = showCompanionPermission
-    ? CompanionFilledIcon
-    : CompanionOutlineIcon;
 
   const onButtonClick = () => {
     if (alerts.displayCompanionPopup) {
@@ -78,6 +73,7 @@ export const CompanionPopupButton = (): ReactElement => {
         )}
         icon={
           <CompanionIcon
+            filled={showCompanionPermission}
             className={
               showCompanionPermission
                 ? 'w-7 h-7 text-theme-label-primary'

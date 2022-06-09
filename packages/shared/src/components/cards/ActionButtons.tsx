@@ -12,7 +12,7 @@ import BookmarkIcon from '../icons/Bookmark';
 import { Button } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
-const ShareIcon = dynamic(() => import('../../../icons/share.svg'));
+const ShareIcon = dynamic(() => import('../icons/Forward'));
 
 export type ActionButtonsProps = {
   post: Post;

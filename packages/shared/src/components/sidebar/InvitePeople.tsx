@@ -6,8 +6,7 @@ import {
   NavItem,
   SidebarMenuItem,
 } from './common';
-import UserShareIcon from '../../../icons/user_share.svg';
-import UserShareFilledIcon from '../../../icons/filled/user_share.svg';
+import UserShareIcon from '../icons/UserShare';
 import AuthContext from '../../contexts/AuthContext';
 import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
 
@@ -33,7 +32,7 @@ export default function InvitePeople({
   const tooltipBg = copyingLink ? 'bg-theme-status-success' : undefined;
   const item: SidebarMenuItem = {
     icon: () => (
-      <ListIcon Icon={copyingLink ? UserShareFilledIcon : UserShareIcon} />
+      <ListIcon Icon={() => <UserShareIcon filled={copyingLink} />} />
     ),
     title: copyingLink ? 'Link copied to clipboard' : 'Invite people',
     action: onShareOrCopyLink,

@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import Icon, { IconProps } from '../../Icon';
 import OutlinedIcon from './outlined.svg';
 import FilledIcon from './filled.svg';
 
-const MoonIcon: React.VFC<IconProps> = ({ filled = false }) => (
-  <Icon filled={filled} IconOutlined={OutlinedIcon} IconFilled={FilledIcon} />
+const MoonIcon = (props: IconProps): ReactElement => (
+  <Icon {...props} IconOutlined={OutlinedIcon} IconFilled={FilledIcon} />
 );
 
 export default MoonIcon;

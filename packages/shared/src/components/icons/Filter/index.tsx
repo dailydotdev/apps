@@ -1,15 +1,10 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import Icon, { IconProps } from '../../Icon';
 import OutlinedIcon from './outlined.svg';
 import FilledIcon from './filled.svg';
 
-const FilterIcon: React.VFC<IconProps> = ({ filled = false, size }) => (
-  <Icon
-    filled={filled}
-    size={size}
-    IconOutlined={OutlinedIcon}
-    IconFilled={FilledIcon}
-  />
+const FilterIcon = (props: IconProps): ReactElement => (
+  <Icon {...props} IconOutlined={OutlinedIcon} IconFilled={FilledIcon} />
 );
 
 export default FilterIcon;
