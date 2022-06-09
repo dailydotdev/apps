@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 
 type Size = 'small' | 'medium' | 'large' | 'xlarge';
@@ -24,14 +24,14 @@ type Props = IconProps & {
   IconFilled: ItemType;
 };
 
-const Icon: React.VFC<Props> = ({
+const Icon = ({
   filled = false,
   size = 'small',
   className = '',
   IconOutlined,
   IconFilled,
   ...rest
-}) => {
+}: Props): ReactElement => {
   const IconComponent = filled ? IconFilled : IconOutlined;
 
   return (
