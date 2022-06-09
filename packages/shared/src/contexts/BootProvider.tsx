@@ -6,8 +6,7 @@ import React, {
   useState,
 } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
-import { differenceInMilliseconds } from 'date-fns';
-import { AccessToken, BootCacheData, getBootData } from '../lib/boot';
+import { BootCacheData, getBootData } from '../lib/boot';
 import FeaturesContext from './FeaturesContext';
 import { AuthContextProvider } from './AuthContext';
 import { AnonymousUser, LoggedUser } from '../lib/user';
@@ -19,29 +18,7 @@ import {
   themeModes,
 } from './SettingsContext';
 import { storageWrapper as storage } from '../lib/storageWrapper';
-
-function useRefreshToken(
-  accessToken: AccessToken,
-  refresh: () => Promise<unknown>,
-) {
-  const [refreshTokenTimeout, setRefreshTokenTimeout] = useState<number>();
-
-  useEffect(() => {
-    if (accessToken) {
-      if (refreshTokenTimeout) {
-        clearTimeout(refreshTokenTimeout);
-      }
-      const expiresInMillis = differenceInMilliseconds(
-        new Date(accessToken.expiresIn),
-        new Date(),
-      );
-      // Refresh token before it expires
-      setRefreshTokenTimeout(
-        window.setTimeout(refresh, expiresInMillis - 1000 * 60 * 2),
-      );
-    }
-  }, [accessToken, refresh]);
-}
+import { useRefreshToken } from '../hooks/useRefreshToken';
 
 export const BOOT_LOCAL_KEY = 'boot:local';
 export const BOOT_QUERY_KEY = 'boot';
