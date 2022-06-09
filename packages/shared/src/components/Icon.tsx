@@ -1,22 +1,21 @@
 import React from 'react';
 import classNames from 'classnames';
 
-type Size = 'small' | 'medium' | 'large' | 'extralarge';
+type Size = 'small' | 'medium' | 'large' | 'xlarge';
 
 const IconSize: Record<Size, string> = {
   small: 'w-5 h-5',
   medium: 'w-6 h-6',
   large: 'w-8 h-8',
-  extralarge: 'w-10 h-10',
+  xlarge: 'w-10 h-10',
 };
 
-type ItemType = React.ComponentType<{ className; style }>;
+type ItemType = React.ComponentType<{ className }>;
 
 export interface IconProps {
   filled?: boolean;
   size?: Size;
   className?: string;
-  style?: Record<string, unknown>;
 }
 
 type Props = IconProps & {
@@ -28,7 +27,6 @@ const Icon: React.VFC<Props> = ({
   filled = false,
   size = 'small',
   className = '',
-  style,
   IconOutlined,
   IconFilled,
   ...rest
@@ -38,7 +36,6 @@ const Icon: React.VFC<Props> = ({
   return (
     <IconComponent
       {...rest}
-      style={style}
       className={classNames(IconSize[size], 'pointer-events-none', className)}
     />
   );
