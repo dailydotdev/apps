@@ -125,11 +125,7 @@ export const PostCard = forwardRef(function PostCard(
                 selectedComment ? 'invisible' : styles.authorBox,
               )}
             >
-              <ProfilePicture
-                className="rounded-full"
-                size="small"
-                user={post.author}
-              />
+              <ProfilePicture size="small" user={post.author} />
               <span className="flex-1 mx-3 truncate">{post.author.name}</span>
               <FeatherIcon className="text-2xl text-theme-status-help" />
             </div>

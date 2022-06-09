@@ -97,10 +97,6 @@ export const postEventName = (
   return `${!update.bookmarked ? 'remove ' : ''}post bookmark`;
 };
 
-export const RoundedImage = classed('img', 'w-10 h-10 rounded-full');
-
-export const SmallRoundedImage = classed('img', 'w-6 h-6 rounded-full');
-
 export const LegalNotice = classed(
   'div',
   'text-theme-label-quaternary text-center typo-caption1',

@@ -103,11 +103,7 @@ export const featuredCommentsToButtons = (
           className,
         )}
       >
-        <ProfilePicture
-          size="small"
-          user={comment.author}
-          className="rounded-full"
-        />
+        <ProfilePicture size="small" user={comment.author} />
       </button>
     </SimpleTooltip>
   ));
