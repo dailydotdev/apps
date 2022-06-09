@@ -78,7 +78,7 @@ export function PostModalActions({
         tag="a"
         href={post.permalink}
         target="_blank"
-        icon={<OpenLinkIcon />}
+        icon={<OpenLinkIcon size="medium" className="icon" />}
         onClick={onReadArticle}
       >
         {!inlineActions && 'Read article'}
