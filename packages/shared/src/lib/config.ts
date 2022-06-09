@@ -6,7 +6,6 @@ export const apiUrl =
     : '/api';
 
 export const fallbackImages = {
-  avatar_base: 'no-profile-picture.svg',
   avatar:
     'https://daily-now-res.cloudinary.com/image/upload/t_logo,f_auto/v1635938111/logos/placeholder2',
 };
