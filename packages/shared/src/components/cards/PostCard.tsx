@@ -21,7 +21,7 @@ import PostAuthor from './PostAuthor';
 import OptionsButton from '../buttons/OptionsButton';
 import { ProfilePicture } from '../ProfilePicture';
 
-type Callback = (post: Post) => unknown;
+type Callback = (post: Post, e?: React.MouseEvent) => unknown;
 
 export type PostCardProps = {
   post: Post;

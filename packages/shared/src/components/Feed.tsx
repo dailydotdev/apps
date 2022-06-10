@@ -17,7 +17,9 @@ import ScrollToTopButton from './ScrollToTopButton';
 import useFeedUpvotePost from '../hooks/feed/useFeedUpvotePost';
 import useFeedBookmarkPost from '../hooks/feed/useFeedBookmarkPost';
 import useCommentPopup from '../hooks/feed/useCommentPopup';
-import useFeedOnPostClick from '../hooks/feed/useFeedOnPostClick';
+import useFeedOnPostClick, {
+  FeedPostClick,
+} from '../hooks/feed/useFeedOnPostClick';
 import useFeedContextMenu from '../hooks/feed/useFeedContextMenu';
 import useFeedInfiniteScroll, {
   InfiniteScrollScreenOffset,
@@ -31,7 +33,11 @@ import {
 } from '../lib/feed';
 import PostOptionsMenu from './PostOptionsMenu';
 import FeaturesContext from '../contexts/FeaturesContext';
-import { Features, getFeatureValue } from '../lib/featureManagement';
+import {
+  Features,
+  getFeatureValue,
+  isFeaturedEnabled,
+} from '../lib/featureManagement';
 import { getThemeFont } from './utilities';
 import { PostModal } from './modals/PostModal';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
@@ -123,6 +129,10 @@ export default function Feed<T>({
     getFeatureValue(Features.HidePublicationDate, flags),
     10,
   );
+  const postModalByDefault = isFeaturedEnabled(
+    Features.PostModalByDefault,
+    flags,
+  );
   const { trackEvent } = useContext(AnalyticsContext);
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
@@ -210,6 +220,23 @@ export default function Feed<T>({
     feedName,
     ranking,
   );
+
+  const onPostLinkClick: FeedPostClick = async (
+    post,
+    index,
+    row,
+    column,
+    event,
+  ) => {
+    await onPostClick(post, index, row, column);
+
+    if (!postModalByDefault) {
+      return;
+    }
+
+    event.preventDefault();
+    onOpenModal(index);
+  };
 
   const { onMenuClick, postMenuIndex, setPostMenuIndex } = useFeedContextMenu();
 
@@ -318,7 +345,7 @@ export default function Feed<T>({
             ranking={ranking}
             onUpvote={onUpvote}
             onBookmark={onBookmark}
-            onPostClick={onPostClick}
+            onPostClick={onPostLinkClick}
             onShare={onShare}
             onMenuClick={onMenuClick}
             onCommentClick={onCommentClick}

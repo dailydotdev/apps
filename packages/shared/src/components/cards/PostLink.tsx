@@ -5,7 +5,7 @@ import { CardLink } from './Card';
 export type PostLinkProps = {
   post: Post;
   openNewTab: boolean;
-  onLinkClick?: (post: Post) => unknown;
+  onLinkClick?: (post: Post, e?: React.MouseEvent) => unknown;
 };
 
 export default function PostLink({
@@ -20,7 +20,7 @@ export default function PostLink({
         ? { target: '_blank', rel: 'noopener' }
         : { target: '_self' })}
       title={post.title}
-      onClick={() => onLinkClick?.(post)}
+      onClick={(e) => onLinkClick?.(post, e)}
       onMouseUp={(event) => event.button === 1 && onLinkClick?.(post)}
     />
   );

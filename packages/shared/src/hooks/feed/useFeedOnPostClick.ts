@@ -10,6 +10,7 @@ export type FeedPostClick = (
   index: number,
   row: number,
   column: number,
+  e?: React.MouseEvent,
 ) => Promise<void>;
 
 export default function useFeedOnPostClick(

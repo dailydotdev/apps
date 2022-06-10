@@ -11,6 +11,7 @@ import { Ad, Post } from '../graphql/posts';
 import { LoggedUser } from '../lib/user';
 import { CommentOnData } from '../graphql/comments';
 import useTrackImpression from '../hooks/feed/useTrackImpression';
+import { FeedPostClick } from '../hooks/feed/useFeedOnPostClick';
 
 const CommentPopup = dynamic(() => import('./cards/CommentPopup'));
 
@@ -54,12 +55,7 @@ export type FeedItemComponentProps = {
     column: number,
     bookmarked: boolean,
   ) => Promise<void>;
-  onPostClick: (
-    post: Post,
-    index: number,
-    row: number,
-    column: number,
-  ) => Promise<void>;
+  onPostClick: FeedPostClick;
   onShare: (post: Post) => Promise<void>;
   onMenuClick: (
     e: React.MouseEvent,
@@ -143,7 +139,7 @@ export default function FeedItemComponent({
           onUpvoteClick={(post, upvoted) =>
             onUpvote(post, index, row, column, upvoted)
           }
-          onLinkClick={(post) => onPostClick(post, index, row, column)}
+          onLinkClick={(post, e) => onPostClick(post, index, row, column, e)}
           onBookmarkClick={(post, bookmarked) =>
             onBookmark(post, index, row, column, bookmarked)
           }
