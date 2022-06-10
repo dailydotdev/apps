@@ -149,6 +149,7 @@ export default function Sidebar({
   setOpenMobileSidebar,
   onShowDndClick,
 }: SidebarProps): ReactElement {
+  const { isFirstVisit } = useContext(AuthContext);
   const { shouldShowMyFeed, myFeedPosition } = useMyFeed();
   const [defaultFeed] = useDefaultFeed(shouldShowMyFeed);
   const activePage =
@@ -180,7 +181,7 @@ export default function Sidebar({
   );
   const { setFeedFilterOrigin } = useFeedSettings();
   const [isFirstSession, setIsFirstSession, isSessionLoaded] =
-    usePersistentContext(FIRST_TIME_SESSION, true);
+    usePersistentContext(FIRST_TIME_SESSION, isFirstVisit);
 
   const openFeedFiltersWithOrigin = (origin = 'manual') => {
     setFeedFilterOrigin(origin);
@@ -189,7 +190,7 @@ export default function Sidebar({
 
   useEffect(() => {
     if (isFirstSession && isSessionLoaded) {
-      setIsFirstSession(false);
+      setIsFirstSession(isFirstSession);
       openFeedFiltersWithOrigin('auto');
       if (feedFilterModalOnboarding !== 'control') {
         setShowIntroModal(true);
@@ -328,9 +329,16 @@ export default function Sidebar({
   const shouldHideMyFeedAlert =
     !shouldShowMyFeed || alerts?.filter || (!alerts?.filter && !alerts?.myFeed);
 
+  const unsetFirstSessionAndCloseIntroModal = () => {
+    if (isFirstSession) {
+      setIsFirstSession(false);
+    }
+    setShowIntroModal(false);
+  };
+
   const closeFeedFilterModal = () => {
     setHidden();
-    setShowIntroModal(false);
+    unsetFirstSessionAndCloseIntroModal();
   };
 
   const shouldShowSidebarFeedFilter =
@@ -436,7 +444,7 @@ export default function Sidebar({
         <FeedFiltersWrapperModal
           isOpen={isAnimated}
           onRequestClose={closeFeedFilterModal}
-          onIntroClose={() => setShowIntroModal(false)}
+          onIntroClose={unsetFirstSessionAndCloseIntroModal}
           feedFilterModalType={feedFilterModal}
           feedFilterOnboardingModalType={feedFilterModalOnboarding}
           actionToOpenFeedFilters={() =>

@@ -2,7 +2,6 @@ import React, { ReactElement, useContext, useEffect } from 'react';
 import classNames from 'classnames';
 import { ModalProps } from '../StyledModal';
 import { ResponsiveModal } from '../ResponsiveModal';
-import UserIcon from '../../../../icons/user.svg';
 import { Button } from '../../buttons/Button';
 import FeedFiltersIntroModalTags from './FeedFiltersIntroModalTags';
 import { FeedFiltersIntroModalTagsContainer } from '../../utilities';
@@ -10,6 +9,7 @@ import { Features, getFeatureValue } from '../../../lib/featureManagement';
 import FeaturesContext from '../../../contexts/FeaturesContext';
 import AnalyticsContext from '../../../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../../../hooks/analytics/useAnalyticsQueue';
+import UserIcon from '../../icons/User';
 
 const tagsRows = [
   ['', 'docker', '', 'kubernetes', ''],
@@ -132,7 +132,7 @@ export default function FeedFiltersIntroModal({
       style={{ content: { flex: '1 0 auto' } }}
     >
       <section className="flex overflow-hidden flex-col flex-1 justify-center items-center p-6 mobileL:px-10">
-        <UserIcon className="w-16 h-16" />
+        <UserIcon size="xxlarge" />
         <h3 className="mt-4 font-bold typo-large-title">Create my feed</h3>
         <p className="mt-3 mb-16 text-center typo-title3 text-theme-label-tertiary">
           {introExplainerCopy}
