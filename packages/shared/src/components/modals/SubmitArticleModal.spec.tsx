@@ -57,11 +57,6 @@ const renderComponent = (
   );
 };
 
-it('should show request access for certain users', async () => {
-  renderComponent();
-  expect(await screen.findByLabelText('Request access')).toBeInTheDocument();
-});
-
 it('should show a message no URL was set', async () => {
   renderComponent(true);
   const btn = await screen.findByLabelText('Submit article');
