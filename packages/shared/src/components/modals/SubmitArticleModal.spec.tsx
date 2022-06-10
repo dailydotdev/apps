@@ -6,9 +6,9 @@ import React from 'react';
 import nock from 'nock';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import { AnonymousUser, LoggedUser } from '../../lib/user';
-import SubmitArticle from './SubmitArticle';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { SUBMIT_ARTICLE_MUTATION } from '../../graphql/submitArticle';
+import SubmitArticleModal from './SubmitArticleModal';
 
 const onRequestClose = jest.fn();
 
@@ -45,7 +45,7 @@ const renderComponent = (
         loadingUser={false}
         loadedUserFromCache
       >
-        <SubmitArticle
+        <SubmitArticleModal
           headerCopy="Submit article"
           submitArticleModalButton="Submit article"
           isEnabled={isEnabled}

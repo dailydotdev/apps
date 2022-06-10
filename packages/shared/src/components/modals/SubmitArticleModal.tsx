@@ -9,7 +9,6 @@ import { apiUrl } from '../../lib/config';
 import { contentGuidlines } from '../../lib/constants';
 import { ResponsiveModal } from './ResponsiveModal';
 import { TextField } from '../fields/TextField';
-import LinkIcon from '../../../icons/link.svg';
 import {
   SubmitArticleResposne,
   SUBMIT_ARTICLE_MUTATION,
@@ -18,8 +17,9 @@ import PostItemCard from '../post/PostItemCard';
 import { PostItem } from '../../graphql/posts';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { BetaBadge } from '../BetaBadge';
+import LinkIcon from '../icons/Link';
 
-type SubmitArticleProps = {
+type SubmitArticleModalProps = {
   isEnabled: boolean;
   headerCopy: string;
   submitArticleModalButton: string;
@@ -27,13 +27,13 @@ type SubmitArticleProps = {
 
 const defaultErrorMessage = 'Something went wrong, try again';
 
-export default function SubmitArticle({
+export default function SubmitArticleModal({
   isEnabled,
   headerCopy,
   submitArticleModalButton,
   onRequestClose,
   ...modalProps
-}: SubmitArticleProps): ReactElement {
+}: SubmitArticleModalProps): ReactElement {
   const submitFormRef = useRef<HTMLFormElement>();
   const { trackEvent } = useContext(AnalyticsContext);
   const [enableSubmission, setEnableSubmission] = useState(false);

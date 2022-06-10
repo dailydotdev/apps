@@ -1,5 +1,6 @@
 import React, { ReactElement, useContext, useState, useMemo } from 'react';
 import classNames from 'classnames';
+import dynamic from 'next/dynamic';
 import SettingsContext from '../../contexts/SettingsContext';
 import { FeedSettingsModal } from '../modals/FeedSettingsModal';
 import {
@@ -27,6 +28,7 @@ import SearchIcon from '../icons/Search';
 import FilterIcon from '../icons/Filter';
 import MoonIcon from '../icons/Moon';
 import HomeIcon from '../icons/Home';
+import LinkIcon from '../icons/Link';
 import SettingsIcon from '../icons/Settings';
 import BookmarkIcon from '../icons/Bookmark';
 import EyeIcon from '../icons/Eye';
@@ -52,7 +54,10 @@ import {
 } from '../../lib/featureManagement';
 import CreateMyFeedButton from '../CreateMyFeedButton';
 import CreateMyFeedModal from '../modals/CreateMyFeedModal';
-import SubmitArticle from '../modals/SubmitArticle';
+
+const SubmitArticleModal = dynamic(
+  () => import('../modals/SubmitArticleModal'),
+);
 
 const bottomMenuItems: SidebarMenuItem[] = [
   {
@@ -177,6 +182,7 @@ export default function Sidebar({
     flags,
   );
   const canSubmitArticle = isFeaturedEnabled(Features.SubmitArticle, flags);
+  const submitArticleOnOn = isFeaturedEnabled(Features.SubmitArticleOn, flags);
 
   useHideMobileSidebar({
     state: openMobileSidebar,
@@ -266,12 +272,6 @@ export default function Sidebar({
 
   const manageMenuItems: SidebarMenuItem[] = [
     {
-      icon: (active: boolean) => <ListIcon Icon={LinkIcon} filled={active} />,
-      title: submitArticleSidebarButton,
-      action: () => trackAndShowSubmitArticle(),
-      active: showSubmitArticle,
-    },
-    {
       icon: (active: boolean) => (
         <ListIcon Icon={() => <BookmarkIcon filled={active} />} />
       ),
@@ -297,6 +297,17 @@ export default function Sidebar({
       active: showSettings,
     },
   ];
+  if (submitArticleOnOn) {
+    const submitArticleMenuItem = {
+      icon: (active: boolean) => (
+        <ListIcon Icon={() => <LinkIcon filled={active} />} />
+      ),
+      title: submitArticleSidebarButton,
+      action: () => trackAndShowSubmitArticle(),
+      active: showSubmitArticle,
+    };
+    manageMenuItems.unshift(submitArticleMenuItem);
+  }
   if (shouldShowDnD) {
     const dndMenuItem = {
       icon: (active: boolean) => (
@@ -405,10 +416,10 @@ export default function Sidebar({
         </SidebarScrollWrapper>
       </SidebarAside>
       {showSubmitArticle && (
-        <SubmitArticle
+        <SubmitArticleModal
           headerCopy={submitArticleSidebarButton}
           submitArticleModalButton={submitArticleModalButton}
-          isEnabled={false}
+          isEnabled={canSubmitArticle}
           isOpen={showSubmitArticle}
           onRequestClose={() => setShowSubmitArticle(false)}
         />

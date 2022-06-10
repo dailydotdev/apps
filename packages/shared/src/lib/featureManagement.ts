@@ -33,8 +33,6 @@ export class Features {
 
   static readonly MyFeedOn = new Features('my_feed_on');
 
-  static readonly SubmitArticle = new Features('submit_article');
-
   static readonly MyFeedPosition = new Features('my_feed_position', 'sidebar', [
     'sidebar',
     'feed_title',
@@ -46,6 +44,10 @@ export class Features {
     'my_feed_button_copy',
     'Create my feed',
   );
+
+  static readonly SubmitArticleOn = new Features('submit_article_on');
+
+  static readonly SubmitArticle = new Features('submit_article');
 
   static readonly SubmitArticleSidebarButton = new Features(
     'submit_article_sidebar_button',
