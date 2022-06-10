@@ -1,11 +1,10 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
-import request from 'graphql-request';
 import AuthContext from '../../contexts/AuthContext';
-import UpvoteIcon from '../../../icons/upvote.svg';
-import CommentIcon from '../../../icons/comment.svg';
-import TrashIcon from '../../../icons/trash.svg';
-import EditIcon from '../../../icons/edit.svg';
+import UpvoteIcon from '../icons/Upvote';
+import CommentIcon from '../icons/Discuss';
+import TrashIcon from '../icons/Trash';
+import EditIcon from '../icons/Edit';
 import {
   CANCEL_COMMENT_UPVOTE_MUTATION,
   Comment,
@@ -16,6 +15,7 @@ import { apiUrl } from '../../lib/config';
 import { Button } from '../buttons/Button';
 import { ClickableText } from '../buttons/ClickableText';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
+import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
@@ -49,9 +49,10 @@ export default function CommentActionButtons({
     setNumUpvotes(comment.numUpvotes);
   }, [comment]);
 
+  const { requestMethod } = useRequestProtocol();
   const { mutateAsync: upvoteComment } = useMutation(
     () =>
-      request(`${apiUrl}/graphql`, UPVOTE_COMMENT_MUTATION, {
+      requestMethod(`${apiUrl}/graphql`, UPVOTE_COMMENT_MUTATION, {
         id: comment.id,
       }),
     {
@@ -70,7 +71,7 @@ export default function CommentActionButtons({
 
   const { mutateAsync: cancelCommentUpvote } = useMutation(
     () =>
-      request(`${apiUrl}/graphql`, CANCEL_COMMENT_UPVOTE_MUTATION, {
+      requestMethod(`${apiUrl}/graphql`, CANCEL_COMMENT_UPVOTE_MUTATION, {
         id: comment.id,
       }),
     {

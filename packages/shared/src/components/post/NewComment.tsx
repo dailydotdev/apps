@@ -7,15 +7,17 @@ import styles from './NewComment.module.css';
 
 interface NewCommentProps {
   user?: LoggedUser;
+  className?: string;
   onNewComment: () => unknown;
 }
 
 export function NewComment({
   user,
+  className,
   onNewComment,
 }: NewCommentProps): ReactElement {
   return (
-    <NewCommentContainer>
+    <NewCommentContainer className={className}>
       <button
         type="button"
         className={classNames(
@@ -25,7 +27,12 @@ export function NewComment({
         onClick={onNewComment}
       >
         {user && (
-          <ProfilePicture user={user} size="small" className="mr-3 -ml-2" />
+          <ProfilePicture
+            user={user}
+            size="small"
+            className="mr-3 -ml-2"
+            nativeLazyLoading
+          />
         )}
         Start the discussion...
       </button>

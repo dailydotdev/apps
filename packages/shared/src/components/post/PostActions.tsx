@@ -1,8 +1,8 @@
 import React, { ReactElement, useContext } from 'react';
 import { QueryClient, useQueryClient, QueryKey } from 'react-query';
-import UpvoteIcon from '../../../icons/upvote.svg';
-import CommentIcon from '../../../icons/comment.svg';
-import BookmarkIcon from '../../../icons/bookmark.svg';
+import UpvoteIcon from '../icons/Upvote';
+import CommentIcon from '../icons/Discuss';
+import BookmarkIcon from '../icons/Bookmark';
 import { Post, PostData } from '../../graphql/posts';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import useUpvotePost from '../../hooks/useUpvotePost';
@@ -11,6 +11,7 @@ import { postAnalyticsEvent } from '../../lib/feed';
 import AuthContext from '../../contexts/AuthContext';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
+import { postEventName } from '../utilities';
 
 interface PostActionsProps {
   post: Post;
@@ -91,7 +92,7 @@ export function PostActions({
     if (user) {
       if (post.upvoted) {
         trackEvent(
-          postAnalyticsEvent('remove post upvote', post, {
+          postAnalyticsEvent(postEventName({ upvoted: false }), post, {
             extra: { origin },
           }),
         );
@@ -99,7 +100,7 @@ export function PostActions({
       }
       if (post) {
         trackEvent(
-          postAnalyticsEvent('upvote post', post, {
+          postAnalyticsEvent(postEventName({ upvoted: true }), post, {
             extra: { origin },
           }),
         );
@@ -118,7 +119,7 @@ export function PostActions({
     }
     trackEvent(
       postAnalyticsEvent(
-        !post.bookmarked ? 'bookmark post' : 'remove post bookmark',
+        postEventName({ bookmarked: !post.bookmarked }),
         post,
         { extra: { origin } },
       ),
@@ -136,7 +137,7 @@ export function PostActions({
         id="upvote-post-btn"
         pressed={post.upvoted}
         onClick={toggleUpvote}
-        icon={<UpvoteIcon />}
+        icon={<UpvoteIcon filled={post.upvoted} size="medium" />}
         aria-label="Upvote"
         responsiveLabelClass={actionsClassName}
         className="btn-tertiary-avocado"
@@ -147,7 +148,7 @@ export function PostActions({
         id="comment-post-btn"
         pressed={post.commented}
         onClick={onComment}
-        icon={<CommentIcon />}
+        icon={<CommentIcon filled={post.commented} size="medium" />}
         aria-label="Comment"
         responsiveLabelClass={actionsClassName}
         className="btn-tertiary-avocado"
@@ -158,7 +159,7 @@ export function PostActions({
         id="bookmark-post-btn"
         pressed={post.bookmarked}
         onClick={toggleBookmark}
-        icon={<BookmarkIcon />}
+        icon={<BookmarkIcon filled={post.bookmarked} size="medium" />}
         responsiveLabelClass={actionsClassName}
         className="btn-tertiary-bun"
       >

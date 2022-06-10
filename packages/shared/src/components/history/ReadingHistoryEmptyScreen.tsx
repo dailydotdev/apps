@@ -7,7 +7,7 @@ import {
   EmptyScreenIcon,
   EmptyScreenTitle,
 } from '../EmptyScreen';
-import EyeIcon from '../../../icons/eye.svg';
+import EyeIcon from '../icons/Eye';
 import { PageContainer } from '../utilities';
 
 function ReadingHistoryEmptyScreen(): ReactElement {

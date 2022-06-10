@@ -30,12 +30,15 @@ import {
   postAnalyticsEvent,
 } from '../lib/feed';
 import PostOptionsMenu from './PostOptionsMenu';
-import useNotification from '../hooks/useNotification';
 import FeaturesContext from '../contexts/FeaturesContext';
 import { Features, getFeatureValue } from '../lib/featureManagement';
 import { getThemeFont } from './utilities';
 import { PostModal } from './modals/PostModal';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
+import {
+  ToastSubject,
+  useToastNotification,
+} from '../hooks/useToastNotification';
 
 export type FeedProps<T> = {
   feedName: string;
@@ -123,6 +126,7 @@ export default function Feed<T>({
   const { trackEvent } = useContext(AnalyticsContext);
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
+  const { subject } = useToastNotification();
   const {
     openNewTab,
     showOnlyUnreadPosts,
@@ -208,7 +212,6 @@ export default function Feed<T>({
   );
 
   const { onMenuClick, postMenuIndex, setPostMenuIndex } = useFeedContextMenu();
-  const { notification, notificationIndex, onMessage } = useNotification();
 
   const onRemovePost = async (removePostIndex) => {
     const item = items[removePostIndex] as PostItem;
@@ -269,6 +272,8 @@ export default function Feed<T>({
         !useList && styles.cards,
       )}
       style={style}
+      aria-live={subject === ToastSubject.Feed ? 'assertive' : 'off'}
+      data-testid="posts-feed"
     >
       {selectedPost && (
         <PostModal
@@ -304,8 +309,6 @@ export default function Feed<T>({
             insaneMode={insaneMode}
             nativeShareSupport={nativeShareSupport}
             postMenuIndex={postMenuIndex}
-            postNotificationIndex={notificationIndex}
-            notification={notification}
             showCommentPopupId={showCommentPopupId}
             setShowCommentPopupId={setShowCommentPopupId}
             isSendingComment={isSendingComment}
@@ -326,10 +329,10 @@ export default function Feed<T>({
       </div>
       <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
       <PostOptionsMenu
+        feedName={feedName}
         postIndex={postMenuIndex}
         post={(items[postMenuIndex] as PostItem)?.post}
         onHidden={() => setPostMenuIndex(null)}
-        onMessage={onMessage}
         onRemovePost={onRemovePost}
       />
     </div>

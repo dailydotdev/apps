@@ -1,8 +1,7 @@
-import { getShareableLink } from '../lib/share';
-import { useCopyLink } from './useCopyLink';
+import { CopyNotifyFunction, useCopyLink } from './useCopyLink';
 
-export function useCopyPostLink(): [boolean, () => Promise<void>] {
-  const [copying, copy] = useCopyLink(getShareableLink);
+export function useCopyPostLink(link: string): [boolean, CopyNotifyFunction] {
+  const [copying, copy] = useCopyLink(() => link);
 
   return [copying, copy];
 }

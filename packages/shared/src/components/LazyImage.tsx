@@ -1,4 +1,3 @@
-import 'lazysizes';
 import React, {
   forwardRef,
   HTMLAttributes,
@@ -10,7 +9,7 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 
-export interface LazyImageProps extends HTMLAttributes<HTMLDivElement> {
+export interface LazyImageProps extends HTMLAttributes<HTMLImageElement> {
   imgSrc: string;
   imgAlt: string;
   background?: string;
@@ -20,7 +19,7 @@ export interface LazyImageProps extends HTMLAttributes<HTMLDivElement> {
   children?: ReactNode;
   absolute?: boolean;
   fit?: 'cover' | 'contain';
-  ref?: Ref<HTMLDivElement>;
+  ref?: Ref<HTMLImageElement>;
 }
 
 const asyncImageSupport = false;
@@ -39,7 +38,7 @@ function LazyImageComponent(
     fit = 'cover',
     ...props
   }: LazyImageProps,
-  ref?: Ref<HTMLDivElement>,
+  ref?: Ref<HTMLImageElement>,
 ): ReactElement {
   // const { asyncImageSupport } = useContext(ProgressiveEnhancementContext);
   const baseImageClass = `absolute block inset-0 w-full h-full m-auto ${

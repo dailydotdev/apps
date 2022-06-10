@@ -5,10 +5,10 @@ import {
 } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 import React, { ReactElement, useContext, useMemo } from 'react';
-import HashtagIcon from '@dailydotdev/shared/icons/hashtag.svg';
-import PlusIcon from '@dailydotdev/shared/icons/plus.svg';
-import BlockIcon from '@dailydotdev/shared/icons/block.svg';
-import XIcon from '@dailydotdev/shared/icons/x.svg';
+import HashtagIcon from '@dailydotdev/shared/src/components/icons/Hashtag';
+import PlusIcon from '@dailydotdev/shared/src/components/icons/Plus';
+import BlockIcon from '@dailydotdev/shared/src/components/icons/Block';
+import XIcon from '@dailydotdev/shared/src/components/icons/Close';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import { useRouter } from 'next/router';
 import { NextSeoProps } from 'next-seo/lib/types';

@@ -17,6 +17,7 @@
       true,
       {
         "ignoreTypes": [
+          "daily-companion-app",
           "/-styled-mixin/",
           "$dummyValue"
         ]

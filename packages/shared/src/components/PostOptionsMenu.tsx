@@ -1,21 +1,28 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import { Item } from '@dailydotdev/react-contexify';
 import dynamic from 'next/dynamic';
+import { useQueryClient } from 'react-query';
 import useFeedSettings from '../hooks/useFeedSettings';
 import useReportPost from '../hooks/useReportPost';
 import { Post, ReportReason } from '../graphql/posts';
-import TrashIcon from '../../icons/trash.svg';
-import HammerIcon from '../../icons/hammer.svg';
-import EyeIcon from '../../icons/eye.svg';
-import ShareIcon from '../../icons/share.svg';
-import BlockIcon from '../../icons/block.svg';
-import FlagIcon from '../../icons/flag.svg';
+import TrashIcon from './icons/Trash';
+import HammerIcon from './icons/Hammer';
+import EyeIcon from './icons/Eye';
+import ForwardIcon from './icons/Forward';
+import BlockIcon from './icons/Block';
+import FlagIcon from './icons/Flag';
 import RepostPostModal from './modals/ReportPostModal';
 import useTagAndSource from '../hooks/useTagAndSource';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
 import { MenuIcon } from './MenuIcon';
 import { useShareOrCopyLink } from '../hooks/useShareOrCopyLink';
+import {
+  ToastSubject,
+  useToastNotification,
+} from '../hooks/useToastNotification';
+import { generateQueryKey } from '../lib/query';
+import AuthContext from '../contexts/AuthContext';
 
 const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
   ssr: false,
@@ -24,12 +31,8 @@ const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
 export type PostOptionsMenuProps = {
   postIndex?: number;
   post: Post;
+  feedName?: string;
   onHidden?: () => unknown;
-  onMessage?: (
-    message: string,
-    postIndex: number,
-    timeout?: number,
-  ) => Promise<unknown>;
   onRemovePost?: (postIndex: number) => Promise<unknown>;
   setShowDeletePost?: () => unknown;
   setShowBanPost?: () => unknown;
@@ -46,16 +49,25 @@ type ReportPostAsync = (
 export default function PostOptionsMenu({
   postIndex,
   post,
+  feedName,
   onHidden,
-  onMessage,
   onRemovePost,
   setShowDeletePost,
   setShowBanPost,
 }: PostOptionsMenuProps): ReactElement {
-  const { setAvoidRefresh } = useFeedSettings();
+  const client = useQueryClient();
+  const { user } = useContext(AuthContext);
+  const { displayToast } = useToastNotification();
+  const { feedSettings } = useFeedSettings();
   const { trackEvent } = useContext(AnalyticsContext);
-  const { reportPost, hidePost } = useReportPost();
-  const { onUnfollowSource, onBlockTags } = useTagAndSource({
+  const { reportPost, hidePost, unhidePost } = useReportPost();
+  const {
+    onFollowSource,
+    onUnfollowSource,
+    onFollowTags,
+    onBlockTags,
+    onUnblockTags,
+  } = useTagAndSource({
     origin: 'post context menu',
     postId: post?.id,
   });
@@ -67,8 +79,13 @@ export default function PostOptionsMenu({
   const showMessageAndRemovePost = async (
     message: string,
     _postIndex: number,
+    undo?: () => unknown,
   ) => {
-    await onMessage(message, _postIndex);
+    const onUndo = async () => {
+      await undo?.();
+      client.invalidateQueries(generateQueryKey(feedName, user));
+    };
+    displayToast(message, { subject: ToastSubject.Feed, onUndo });
     onRemovePost?.(_postIndex);
   };
 
@@ -95,7 +112,7 @@ export default function PostOptionsMenu({
       }),
     );
 
-    await showMessageAndRemovePost('🚨 Thanks for reporting!', reportPostIndex);
+    showMessageAndRemovePost('🚨 Thanks for reporting!', reportPostIndex);
 
     if (blockSource) {
       await onUnfollowSource({ source: reportedPost?.source });
@@ -103,33 +120,37 @@ export default function PostOptionsMenu({
   };
 
   const onBlockSource = async (): Promise<void> => {
-    setAvoidRefresh(true);
     const { successful } = await onUnfollowSource({
       source: post?.source,
       requireLogin: true,
     });
+
     if (!successful) {
-      setAvoidRefresh(false);
       return;
     }
-    showMessageAndRemovePost(`🚫 ${post?.source?.name} blocked`, postIndex);
-    setAvoidRefresh(false);
+
+    showMessageAndRemovePost(
+      `🚫 ${post?.source?.name} blocked`,
+      postIndex,
+      () => onFollowSource({ source: post?.source }),
+    );
   };
 
   const onBlockTag = async (tag: string): Promise<void> => {
-    setAvoidRefresh(true);
     const { successful } = await onBlockTags({
       tags: [tag],
       requireLogin: true,
     });
 
     if (!successful) {
-      setAvoidRefresh(false);
       return;
     }
 
-    await showMessageAndRemovePost(`⛔️ #${tag} blocked`, postIndex);
-    setAvoidRefresh(false);
+    const isTagFollowed = feedSettings?.includeTags?.indexOf(tag) !== -1;
+    const undoAction = isTagFollowed ? onFollowTags : onUnblockTags;
+    await showMessageAndRemovePost(`⛔️ #${tag} blocked`, postIndex, () =>
+      undoAction({ tags: [tag], requireLogin: true }),
+    );
   };
 
   const onHidePost = async (): Promise<void> => {
@@ -145,27 +166,17 @@ export default function PostOptionsMenu({
       }),
     );
 
-    await onRemovePost?.(postIndex);
-
-    if (!postIndex) {
-      onMessage(
-        '🙈 This article won’t show up on your feed anymore',
-        postIndex,
-        0,
-      );
-    }
+    showMessageAndRemovePost(
+      '🙈 This article won’t show up on your feed anymore',
+      postIndex,
+      () => unhidePost(post.id),
+    );
   };
 
   const shareLink = post?.commentsPermalink;
-  const copyLink = async () => {
-    await navigator.clipboard.writeText(shareLink);
-    onMessage('✅ Copied link to clipboard', postIndex);
-  };
-
-  const onShareOrCopyLink = useShareOrCopyLink({
+  const [, onShareOrCopyLink] = useShareOrCopyLink({
     link: shareLink,
     text: post?.title,
-    copyLink,
     trackObject: () =>
       postAnalyticsEvent('share post', post, {
         extra: { origin: 'post context menu' },
@@ -183,9 +194,12 @@ export default function PostOptionsMenu({
       action: onHidePost,
     },
     {
-      icon: <MenuIcon Icon={ShareIcon} />,
+      icon: <MenuIcon Icon={ForwardIcon} />,
       text: 'Share article',
-      action: onShareOrCopyLink,
+      action: () =>
+        onShareOrCopyLink({
+          subject: postIndex ? ToastSubject.Feed : ToastSubject.PostContent,
+        }),
     },
     {
       icon: <MenuIcon Icon={BlockIcon} />,

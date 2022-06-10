@@ -17,14 +17,15 @@ export interface ProfileTooltipProps extends ProfileTooltipContentProps {
   children: ReactElement;
   link?: Omit<LinkWithTooltipProps, 'children' | 'tooltip'>;
   tooltip?: TooltipProps;
+  nativeLazyLoading?: boolean;
   scrollingContainer?: HTMLElement;
 }
 
 export const profileTooltipClasses = {
   padding: 'p-6',
   roundness: 'rounded-16',
-  classNames:
-    'w-72 bg-theme-bg-primary shadow-2 border border-theme-divider-secondary',
+  classNames: 'w-72 shadow-2 border border-theme-divider-secondary',
+  background: 'bg-theme-bg-primary',
 };
 
 export function ProfileTooltip({
@@ -68,6 +69,7 @@ export function ProfileTooltip({
       arrow: false,
       paddingClassName: profileTooltipClasses.padding,
       roundedClassName: profileTooltipClasses.roundness,
+      bgClassName: profileTooltipClasses.background,
       className: profileTooltipClasses.classNames,
     },
     content:

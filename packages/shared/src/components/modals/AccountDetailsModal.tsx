@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import classNames from 'classnames';
-import XIcon from '../../../icons/x.svg';
+import XIcon from '../icons/Close';
 import EditImageWithJoinedDate from '../profile/EditImageWithJoinedDate';
 import AuthContext from '../../contexts/AuthContext';
 import ProfileForm from '../profile/ProfileForm';

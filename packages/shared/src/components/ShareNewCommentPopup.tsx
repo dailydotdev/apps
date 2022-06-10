@@ -3,12 +3,11 @@ import AuthContext from '../contexts/AuthContext';
 import TwitterIcon from '../../icons/twitter.svg';
 import WhatsappIcon from '../../icons/whatsapp.svg';
 import FacebookIcon from '../../icons/facebook.svg';
-import CopyIcon from '../../icons/copy.svg';
-import ShareIcon from '../../icons/share.svg';
+import CopyIcon from './icons/Copy';
+import ShareIcon from './icons/Forward';
 import Confetti from '../svg/ConfettiSvg';
 import {
   getFacebookShareLink,
-  getShareableLink,
   getTwitterShareLink,
   getWhatsappShareLink,
 } from '../lib/share';
@@ -29,9 +28,9 @@ export default function ShareNewCommentPopup({
   post,
   onRequestClose,
 }: ShareNewCommentPopupProps): ReactElement {
-  const href = getShareableLink();
+  const href = post.commentsPermalink;
   const { user } = useContext(AuthContext);
-  const [copying, copyLink] = useCopyLink(() => post.commentsPermalink);
+  const [copying, copyLink] = useCopyLink(() => href);
 
   return (
     <div
@@ -97,7 +96,7 @@ export default function ShareNewCommentPopup({
         <Button
           className="btn-primary"
           buttonSize="small"
-          onClick={copyLink}
+          onClick={() => copyLink()}
           icon={<CopyIcon />}
         >
           {copying ? 'Copied!' : 'Copy link'}

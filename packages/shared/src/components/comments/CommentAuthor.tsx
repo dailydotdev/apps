@@ -1,20 +1,22 @@
 import React, { ReactElement } from 'react';
 import { Author } from '../../graphql/comments';
 import { ProfileLink } from '../profile/ProfileLink';
-import FeatherIcon from '../../../icons/feather.svg';
+import FeatherIcon from '../icons/Feather';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 
 export interface CommentAuthorProps {
   postAuthorId: string | null;
   author: Author;
+  appendTooltipTo?: () => HTMLElement;
 }
 
 export default function CommentAuthor({
   postAuthorId,
   author,
+  appendTooltipTo,
 }: CommentAuthorProps): ReactElement {
   return (
-    <ProfileTooltip user={author}>
+    <ProfileTooltip user={author} tooltip={{ appendTo: appendTooltipTo }}>
       <ProfileLink
         user={author}
         className="overflow-hidden font-bold whitespace-nowrap w-fit commentAuthor text-theme-label-primary typo-callout"

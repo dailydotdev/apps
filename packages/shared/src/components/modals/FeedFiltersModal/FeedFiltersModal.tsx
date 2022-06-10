@@ -1,12 +1,13 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { ModalProps } from '../StyledModal';
-import { ResponsiveModal } from '../ResponsiveModal';
-import TagsFilter from '../../filters/TagsFilter';
-import CreateFeedFilterButton from '../../CreateFeedFilterButton';
-import PlusIcon from '../../../../icons/plus.svg';
-import XIcon from '../../../../icons/x.svg';
-import { Button } from '../../buttons/Button';
+import { ModalProps } from './StyledModal';
+import { ResponsiveModal } from './ResponsiveModal';
+import styles from './AccountDetailsModal.module.css';
+import TagsFilter from '../filters/TagsFilter';
+import CreateFeedFilterButton from '../CreateFeedFilterButton';
+import PlusIcon from '../icons/Plus';
+import XIcon from '../icons/Close';
+import { Button } from '../buttons/Button';
 
 type TypeProps = {
   feedFilterModalType: string;

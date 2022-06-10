@@ -4,8 +4,8 @@ import { Post } from '../../graphql/posts';
 import classed from '../../lib/classed';
 import { LazyImage } from '../LazyImage';
 import { WidgetContainer } from './common';
-import FeatherIcon from '../../../icons/feather.svg';
-import HunterIcon from '../../../icons/hunter.svg';
+import FeatherIcon from '../icons/Feather';
+import HunterIcon from '../icons/Hunter';
 import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 import { ProfileLink } from '../profile/ProfileLink';
 import { Author } from '../../graphql/comments';
@@ -120,7 +120,7 @@ export function PostUsersHighlights({ post }: PostAuthorProps): ReactElement {
     <WidgetContainer className="flex flex-col">
       <UserHighlight
         {...source}
-        permalink={`/sources/${source.id}`}
+        permalink={`${process.env.NEXT_PUBLIC_WEBAPP_URL}sources/${source.id}`}
         userType="source"
       />
       {author && <UserHighlight {...author} userType="author" />}

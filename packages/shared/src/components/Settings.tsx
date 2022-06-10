@@ -1,6 +1,7 @@
 import React, {
   HTMLAttributes,
   ReactElement,
+  ReactNode,
   useContext,
   useEffect,
   useState,
@@ -10,10 +11,12 @@ import classed from '../lib/classed';
 import { Radio } from './fields/Radio';
 import { Switch } from './fields/Switch';
 import SettingsContext from '../contexts/SettingsContext';
-import CardIcon from '../../icons/card.svg';
-import LineIcon from '../../icons/line.svg';
+import CardIcon from './icons/Card';
+import LineIcon from './icons/Line';
 import { IconsSwitch } from './fields/IconsSwitch';
 import AuthContext from '../contexts/AuthContext';
+import { Features, getFeatureValue } from '../lib/featureManagement';
+import FeaturesContext from '../contexts/FeaturesContext';
 
 const densities = [
   { label: 'Eco', value: 'eco' },
@@ -25,6 +28,31 @@ const SectionTitle = classed(
   'h3',
   'text-theme-label-tertiary mb-4 font-bold typo-footnote',
 );
+const SectionContent = classed(
+  'div',
+  'flex flex-col items-start pl-1.5 -my-0.5',
+);
+
+interface SettingsSwitchProps {
+  name?: string;
+  children: ReactNode;
+  checked: boolean;
+  onToggle: () => void;
+}
+
+const SettingsSwitch = ({ name, children, ...props }: SettingsSwitchProps) => {
+  return (
+    <Switch
+      inputId={`${name}-switch`}
+      name={name}
+      className="my-3"
+      compact={false}
+      {...props}
+    >
+      {children}
+    </Switch>
+  );
+};
 
 export default function Settings({
   className,
@@ -32,6 +60,11 @@ export default function Settings({
 }: HTMLAttributes<HTMLDivElement>): ReactElement {
   const isExtension = process.env.TARGET_BROWSER;
   const { user, showLogin } = useContext(AuthContext);
+  const { flags } = useContext(FeaturesContext);
+  const companionPlacement = getFeatureValue(
+    Features.CompanionPermissionPlacement,
+    flags,
+  );
   const {
     spaciness,
     setSpaciness,
@@ -49,6 +82,10 @@ export default function Settings({
     toggleSortingEnabled,
     optOutWeeklyGoal,
     toggleOptOutWeeklyGoal,
+    optOutCompanion,
+    toggleOptOutCompanion,
+    autoDismissNotifications,
+    toggleAutoDismissNotifications,
   } = useContext(SettingsContext);
   const [themes, setThemes] = useState([
     { label: 'Dark', value: 'dark' },
@@ -109,60 +146,66 @@ export default function Settings({
       </Section>
       <Section>
         <SectionTitle>Preferences</SectionTitle>
-        <div className="flex flex-col items-start pl-1.5 -my-0.5">
-          <Switch
-            inputId="hide-read-switch"
+        <SectionContent>
+          <SettingsSwitch
             name="hide-read"
-            className="my-3"
             checked={showOnlyUnreadPosts}
             onToggle={() => onToggleForLoggedInUsers(toggleShowOnlyUnreadPosts)}
-            compact={false}
           >
             Hide read posts
-          </Switch>
-          <Switch
-            inputId="new-tab-switch"
+          </SettingsSwitch>
+          <SettingsSwitch
             name="new-tab"
-            className="my-3 big"
             checked={openNewTab}
             onToggle={toggleOpenNewTab}
-            compact={false}
           >
             Open links in new tab
-          </Switch>
+          </SettingsSwitch>
           {isExtension && (
-            <Switch
-              inputId="top-sites-switch"
+            <SettingsSwitch
               name="top-sites"
-              className="my-3 big"
               checked={showTopSites}
               onToggle={toggleShowTopSites}
-              compact={false}
             >
               Show custom shortcuts
-            </Switch>
+            </SettingsSwitch>
           )}
-          <Switch
-            inputId="feed-sorting-switch"
+          <SettingsSwitch
             name="feed-sorting"
-            className="my-3 big"
             checked={sortingEnabled}
             onToggle={toggleSortingEnabled}
-            compact={false}
           >
             Show feed sorting menu
-          </Switch>
-          <Switch
-            inputId="weekly-goal-widget-switch"
+          </SettingsSwitch>
+          <SettingsSwitch
             name="weekly-goal-widget"
-            className="my-3 big"
             checked={!optOutWeeklyGoal}
             onToggle={() => onToggleForLoggedInUsers(toggleOptOutWeeklyGoal)}
-            compact={false}
           >
             Show Weekly Goal widget
-          </Switch>
-        </div>
+          </SettingsSwitch>
+          {companionPlacement !== 'off' && (
+            <SettingsSwitch
+              name="hide-companion"
+              checked={!optOutCompanion}
+              onToggle={toggleOptOutCompanion}
+            >
+              Enable companion
+            </SettingsSwitch>
+          )}
+        </SectionContent>
+      </Section>
+      <Section>
+        <SectionTitle>Accessibility</SectionTitle>
+        <SectionContent>
+          <SettingsSwitch
+            name="auto-dismiss-notifications"
+            checked={autoDismissNotifications}
+            onToggle={toggleAutoDismissNotifications}
+          >
+            Automatically dismiss notifications
+          </SettingsSwitch>
+        </SectionContent>
       </Section>
     </div>
   );

@@ -2,7 +2,7 @@ import React, { KeyboardEvent, ReactElement, useState } from 'react';
 import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 import classNames from 'classnames';
 import commentPopupText from '../../commentPopupText';
-import CommentIcon from '../../../icons/comment.svg';
+import CommentIcon from '../icons/Discuss';
 import { Button } from '../buttons/Button';
 import { ModalCloseButton } from '../modals/ModalCloseButton';
 

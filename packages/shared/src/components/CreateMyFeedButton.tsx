@@ -1,8 +1,8 @@
 import React, { ReactElement, useContext, useEffect } from 'react';
 import classNames from 'classnames';
 import { IFlags } from 'flagsmith';
-import PlusIcon from '../../icons/plus.svg';
-import UserIcon from '../../icons/user.svg';
+import PlusIcon from './icons/Plus';
+import UserIcon from './icons/User';
 import { Button } from './buttons/Button';
 import { Features, getFeatureValue } from '../lib/featureManagement';
 import AnalyticsContext from '../contexts/AnalyticsContext';

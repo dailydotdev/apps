@@ -13,7 +13,7 @@ import PromotionalBanner from './PromotionalBanner';
 import Logo from './Logo';
 import ProfileButton from './profile/ProfileButton';
 import Sidebar from './sidebar/Sidebar';
-import MenuIcon from '../../icons/filled/hamburger.svg';
+import MenuIcon from './icons/Hamburger';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import MobileHeaderRankProgress from './MobileHeaderRankProgress';
@@ -22,6 +22,7 @@ import usePromotionalBanner from '../hooks/usePromotionalBanner';
 import { useSwipeableSidebar } from '../hooks/useSwipeableSidebar';
 import SettingsContext from '../contexts/SettingsContext';
 import LoginButton from './LoginButton';
+import Toast from './notifications/Toast';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -93,6 +94,7 @@ export default function MainLayout({
   mobileTitle,
   showDnd,
   customBanner,
+  additionalButtons,
   screenCentered = true,
   onLogoClick,
   onNavTabClick,
@@ -104,7 +106,8 @@ export default function MainLayout({
   const { sidebarRendered } = useSidebarRendered();
   const { bannerData, setLastSeen } = usePromotionalBanner();
   const [openMobileSidebar, setOpenMobileSidebar] = useState(false);
-  const { sidebarExpanded, optOutWeeklyGoal } = useContext(SettingsContext);
+  const { sidebarExpanded, optOutWeeklyGoal, autoDismissNotifications } =
+    useContext(SettingsContext);
   const handlers = useSwipeableSidebar({
     sidebarRendered,
     openMobileSidebar,
@@ -125,6 +128,7 @@ export default function MainLayout({
       {customBanner || (
         <PromotionalBanner bannerData={bannerData} setLastSeen={setLastSeen} />
       )}
+      <Toast autoDismissNotifications={autoDismissNotifications} />
       <header
         className={classNames(
           'flex relative laptop:fixed laptop:left-0 z-3 flex-row laptop:flex-row justify-between items-center py-3 px-4 tablet:px-8 laptop:px-4 laptop:w-full h-14 border-b bg-theme-bg-primary border-theme-divider-tertiary',
@@ -137,7 +141,7 @@ export default function MainLayout({
               className="block laptop:hidden btn-tertiary"
               iconOnly
               onClick={() => trackAndToggleMobileSidebar(true)}
-              icon={<MenuIcon />}
+              icon={<MenuIcon filled />}
             />
             <div className="flex flex-row flex-1 justify-center laptop:justify-start">
               {mobileTitle && (
@@ -153,6 +157,7 @@ export default function MainLayout({
                 />
               )}
             </div>
+            {additionalButtons}
             {!showOnlyLogo && !loadingUser && (
               <>
                 {user ? (

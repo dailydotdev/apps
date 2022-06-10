@@ -59,3 +59,7 @@
     max-width: 23rem;
   }
 }
+
+.clickableImg:hover img {
+  opacity: 0.64;
+}

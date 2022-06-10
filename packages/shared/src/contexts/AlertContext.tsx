@@ -32,7 +32,7 @@ interface AlertContextProviderProps {
   children: ReactNode;
   alerts?: Alerts;
   loadedAlerts?: boolean;
-  updateAlerts: (alerts: Alerts) => unknown;
+  updateAlerts?: (alerts: Alerts) => unknown;
 }
 
 export const AlertContextProvider = ({

@@ -12,14 +12,13 @@ import {
   Card,
   CardHeader,
   CardImage,
-  CardNotification,
   CardSpace,
   CardTextContainer,
   CardTitle,
   featuredCommentsToButtons,
   getPostClassNames,
 } from './Card';
-import FeatherIcon from '../../../icons/feather.svg';
+import FeatherIcon from '../icons/Feather';
 import { Comment } from '../../graphql/comments';
 import styles from './Card.module.css';
 import TrendingFlag from './TrendingFlag';
@@ -47,7 +46,6 @@ export type PostCardProps = {
   openNewTab?: boolean;
   enableMenu?: boolean;
   menuOpened?: boolean;
-  notification?: string;
   showImage?: boolean;
   postHeadingFont: string;
 } & HTMLAttributes<HTMLDivElement>;
@@ -65,7 +63,6 @@ export const PostCard = forwardRef(function PostCard(
     openNewTab,
     enableMenu,
     menuOpened,
-    notification,
     className,
     children,
     showImage = true,
@@ -90,23 +87,12 @@ export const PostCard = forwardRef(function PostCard(
       <PostLink post={post} openNewTab={openNewTab} onLinkClick={onLinkClick} />
       <CardTextContainer>
         <CardHeader>
-          {notification ? (
-            <CardNotification className="flex-1 text-center">
-              {notification}
-            </CardNotification>
-          ) : (
-            <>
-              <SourceButton post={post} style={{ marginRight: '0.875rem' }} />
-              {featuredCommentsToButtons(
-                post.featuredComments,
-                setSelectedComment,
-              )}
-              <OptionsButton
-                onClick={(event) => onMenuClick?.(event, post)}
-                post={post}
-              />
-            </>
-          )}
+          <SourceButton post={post} style={{ marginRight: '0.875rem' }} />
+          {featuredCommentsToButtons(post.featuredComments, setSelectedComment)}
+          <OptionsButton
+            onClick={(event) => onMenuClick?.(event, post)}
+            post={post}
+          />
         </CardHeader>
         <CardTitle className={classNames(className, postHeadingFont)}>
           {post.title}
@@ -139,11 +125,7 @@ export const PostCard = forwardRef(function PostCard(
                 selectedComment ? 'invisible' : styles.authorBox,
               )}
             >
-              <ProfilePicture
-                className="rounded-full"
-                size="small"
-                user={post.author}
-              />
+              <ProfilePicture size="small" user={post.author} />
               <span className="flex-1 mx-3 truncate">{post.author.name}</span>
               <FeatherIcon className="text-2xl text-theme-status-help" />
             </div>

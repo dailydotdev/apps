@@ -13,7 +13,6 @@ import AuthContext from '../../contexts/AuthContext';
 import { commentBoxClassNames } from '../comments/common';
 import { commentDateFormat } from '../../lib/dateFormat';
 import { Button } from '../buttons/Button';
-import { RoundedImage } from '../utilities';
 import styles from './CommentBox.module.css';
 import { ProfilePicture } from '../ProfilePicture';
 import { ClickableText } from '../buttons/ClickableText';
@@ -21,7 +20,7 @@ import Markdown from '../Markdown';
 import { RecommendedMentionTooltip } from '../tooltips/RecommendedMentionTooltip';
 import { useUserMention } from '../../hooks/useUserMention';
 import { Post } from '../../graphql/posts';
-import AtIcon from '../../../icons/at.svg';
+import AtIcon from '../icons/At';
 import { cleanupEmptySpaces } from '../../lib/strings';
 
 export interface CommentBoxProps {
@@ -34,6 +33,7 @@ export interface CommentBoxProps {
   input?: string;
   errorMessage?: string;
   sendingComment?: boolean;
+  parentSelector?: () => HTMLElement;
   sendComment: (event: MouseEvent | KeyboardEvent) => Promise<void>;
   onInput?: (value: string) => unknown;
   onKeyDown: (
@@ -56,6 +56,7 @@ function CommentBox({
   onInput,
   onKeyDown,
   sendComment,
+  parentSelector,
   post,
 }: CommentBoxProps): ReactElement {
   const onTextareaInput = (content: string) =>
@@ -97,11 +98,12 @@ function CommentBox({
   const handleKeydown = (e: KeyboardEvent<HTMLDivElement>) => {
     const defaultCallback = () => onMentionKeypress(e);
     onKeyDown(e, defaultCallback);
+    e.stopPropagation();
   };
 
   return (
     <>
-      <div className="overflow-auto max-h-[31rem]">
+      <div className="overflow-auto" style={{ maxHeight: '31rem' }}>
         <article
           className={classNames(
             'flex flex-col items-stretch',
@@ -109,10 +111,11 @@ function CommentBox({
           )}
         >
           <header className="flex items-center mb-2">
-            <RoundedImage
-              imgSrc={authorImage}
-              imgAlt={`${authorName}'s profile`}
-              background="var(--theme-background-secondary)"
+            <ProfilePicture
+              size="large"
+              rounded="full"
+              user={{ image: authorImage, username: authorName }}
+              nativeLazyLoading
             />
             <div className="flex flex-col ml-2">
               <div className="truncate typo-callout">{authorName}</div>
@@ -136,7 +139,7 @@ function CommentBox({
           </div>
         </div>
         <div className="flex relative flex-1 pl-2">
-          <ProfilePicture user={user} size="small" />
+          <ProfilePicture user={user} size="small" nativeLazyLoading />
           <div
             className={classNames(
               'ml-3 pr-2 flex-1 text-theme-label-primary bg-transparent whitespace-pre-line border-none caret-theme-label-link break-words typo-subhead resize-none',
@@ -161,6 +164,7 @@ function CommentBox({
           mentions={mentions}
           selected={selected}
           query={mentionQuery}
+          appendTo={parentSelector}
           onMentionClick={onMentionClick}
         />
         <div

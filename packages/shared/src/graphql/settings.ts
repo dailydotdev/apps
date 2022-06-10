@@ -11,8 +11,11 @@ export type RemoteSettings = {
   insaneMode: boolean;
   showTopSites: boolean;
   sidebarExpanded: boolean;
+  companionExpanded: boolean;
   sortingEnabled: boolean;
   optOutWeeklyGoal: boolean;
+  optOutCompanion: boolean;
+  autoDismissNotifications: boolean;
   customLinks?: string[];
 };
 

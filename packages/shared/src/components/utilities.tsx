@@ -1,7 +1,8 @@
-import { LazyImage } from './LazyImage';
+import React, { ReactElement } from 'react';
 import classed from '../lib/classed';
 import styles from './utilities.module.css';
-import ArrowIcon from '../../icons/arrow.svg';
+import ArrowIcon from './icons/Arrow';
+import { PostBootData } from '../lib/boot';
 
 export interface ThemeColor {
   border: string;
@@ -87,9 +88,14 @@ export const getThemeFont = (font: string, fallback: string): string => {
   return themeFonts[font] ?? themeFonts[fallback];
 };
 
-export const RoundedImage = classed(LazyImage, 'w-10 h-10 rounded-full');
-
-export const SmallRoundedImage = classed(LazyImage, 'w-6 h-6 rounded-full');
+export const postEventName = (
+  update: Pick<PostBootData, 'upvoted' | 'bookmarked'>,
+): string => {
+  if ('upvoted' in update) {
+    return `${!update.upvoted ? 'remove ' : ''}upvote post`;
+  }
+  return `${!update.bookmarked ? 'remove ' : ''}post bookmark`;
+};
 
 export const LegalNotice = classed(
   'div',
@@ -163,6 +169,17 @@ export const SummaryArrow = classed(ArrowIcon, 'icon arrow ml-auto text-xl');
 export const SummaryContainer = classed(
   'div',
   'text-theme-label-secondary multi-truncate my-6 border-l border-theme-status-cabbage pl-4',
+);
+
+export const TLDRText = classed(
+  'span',
+  'pr-1 font-bold text-theme-status-cabbage',
+);
+
+export const HotLabel = (): ReactElement => (
+  <div className="py-px px-2 font-bold uppercase rounded typo-caption2 bg-theme-status-error text-theme-label-primary">
+    Hot
+  </div>
 );
 
 export const FeedFiltersIntroModalTagsContainer = classed('div', 'w-[160%]');

@@ -1,6 +1,6 @@
 {
   "name": "extension",
-  "version": "3.15.6",
+  "version": "3.16.3",
   "scripts": {
     "dev:chrome": "cross-env NODE_ENV=development cross-env TARGET_BROWSER=chrome webpack --watch",
     "dev:firefox": "cross-env NODE_ENV=development cross-env TARGET_BROWSER=firefox webpack --watch",
@@ -40,7 +40,8 @@
     "react-tooltip": "^4.2.21",
     "react-transition-group": "^4.4.2",
     "react-virtual": "^2.10.4",
-    "webextension-polyfill-ts": "^0.22.0"
+    "webextension-polyfill-ts": "^0.22.0",
+    "content-scripts-register-polyfill": "^3.2.1"
   },
   "devDependencies": {
     "@babel/core": "^7.17.9",
@@ -110,6 +111,7 @@
     "postcss-loader": "^6.2.1",
     "postcss-mixins": "^9.0.2",
     "postcss-nesting": "^10.1.4",
+    "postcss-rem-to-responsive-pixel": "^5.1.1",
     "postcss-simple-vars": "^6.0.3",
     "prettier": "^2.6.2",
     "resolve-url-loader": "^3.1.4",

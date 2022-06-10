@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext } from 'react';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
-import XIcon from '@dailydotdev/shared/icons/x.svg';
+import XIcon from '@dailydotdev/shared/src/components/icons/Close';
 import DndContext from './DndContext';
 
 export default function DndBanner(): ReactElement {

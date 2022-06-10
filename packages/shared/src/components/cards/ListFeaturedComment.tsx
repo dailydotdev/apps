@@ -7,8 +7,8 @@ import {
   ListCardDivider,
   ListCardMain,
 } from './Card';
-import ArrowIcon from '../../../icons/arrow.svg';
-import CommentIcon from '../../../icons/comment.svg';
+import ArrowIcon from '../icons/Arrow';
+import CommentIcon from '../icons/Discuss';
 import { Button } from '../buttons/Button';
 import { FeaturedCommentProps } from './FeaturedComment';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
@@ -27,7 +27,7 @@ export default function ListFeaturedComment({
       <ListCardAside>
         <SimpleTooltip placement="bottom" content="Back">
           <Button
-            icon={<ArrowIcon style={{ transform: 'rotate(-90deg)' }} />}
+            icon={<ArrowIcon className="-rotate-90" />}
             buttonSize="small"
             onClick={onBack}
             className="btn-tertiary"

@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import ArrowIcon from '../../../icons/arrow.svg';
+import ArrowIcon from '../icons/Arrow';
 import classed from '../../lib/classed';
 import { MenuItem } from '../filters/common';
 

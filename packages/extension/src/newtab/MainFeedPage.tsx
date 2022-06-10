@@ -11,15 +11,15 @@ import MainFeedLayout, {
 } from '@dailydotdev/shared/src/components/MainFeedLayout';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import dynamic from 'next/dynamic';
-import TimerIcon from '@dailydotdev/shared/icons/timer.svg';
+
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import useDefaultFeed from '@dailydotdev/shared/src/hooks/useDefaultFeed';
-import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
-import { HeaderButton } from '@dailydotdev/shared/src/components/buttons/common';
 import { useMyFeed } from '@dailydotdev/shared/src/hooks/useMyFeed';
 import ShortcutLinks from './ShortcutLinks';
 import DndBanner from './DndBanner';
 import DndContext from './DndContext';
+import { CompanionPopupButton } from '../companion/CompanionPopupButton';
+import { useCompanionSettings } from '../companion/useCompanionSettings';
 
 const PostsSearch = dynamic(
   () =>
@@ -39,11 +39,12 @@ export type MainFeedPageProps = {
 export default function MainFeedPage({
   onPageChanged,
 }: MainFeedPageProps): ReactElement {
-  const { user } = useContext(AuthContext);
+  const { user, loadingUser } = useContext(AuthContext);
   const [feedName, setFeedName] = useState<string>('default');
   const [isSearchOn, setIsSearchOn] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>();
   const [showDnd, setShowDnd] = useState(false);
+  const { placement } = useCompanionSettings('main feed page');
   const { registerLocalFilters, shouldShowMyFeed } = useMyFeed();
   const [defaultFeed] = useDefaultFeed(shouldShowMyFeed);
   const { isActive: isDndActive } = useContext(DndContext);
@@ -108,16 +109,8 @@ export default function MainFeedPage({
       screenCentered={false}
       customBanner={isDndActive && <DndBanner />}
       additionalButtons={
-        user && (
-          <SimpleTooltip content="Do Not Disturb" placement="bottom">
-            <HeaderButton
-              icon={<TimerIcon />}
-              className="btn-tertiary"
-              onClick={() => setShowDnd(true)}
-              pressed={showDnd}
-            />
-          </SimpleTooltip>
-        )
+        !loadingUser &&
+        placement === 'header' && <CompanionPopupButton placement={placement} />
       }
     >
       <FeedLayout>

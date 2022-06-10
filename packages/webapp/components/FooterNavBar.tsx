@@ -1,14 +1,9 @@
-import React, {
-  HTMLAttributes,
-  ReactElement,
-  ReactNode,
-  useContext,
-} from 'react';
+import React, { HTMLAttributes, ReactElement, useContext } from 'react';
 import { Flipper, Flipped } from 'react-flip-toolkit';
-import HomeIcon from '@dailydotdev/shared/icons/home.svg';
-import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
-import SearchIcon from '@dailydotdev/shared/icons/magnifying.svg';
-import FilterIcon from '@dailydotdev/shared/icons/outline/filter.svg';
+import HomeIcon from '@dailydotdev/shared/src/components/icons/Home';
+import BookmarkIcon from '@dailydotdev/shared/src/components/icons/Bookmark';
+import SearchIcon from '@dailydotdev/shared/src/components/icons/Search';
+import FilterIcon from '@dailydotdev/shared/src/components/icons/Filter';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useRouter } from 'next/router';
 import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
@@ -24,7 +19,7 @@ import styles from './FooterNavBar.module.css';
 type Tab = {
   path: string;
   title: string;
-  icon: ReactNode;
+  icon: (active: boolean) => ReactElement;
   requiresLogin?: boolean;
 };
 
@@ -32,23 +27,23 @@ export const tabs: Tab[] = [
   {
     path: '/',
     title: 'Home',
-    icon: <HomeIcon />,
+    icon: (active: boolean) => <HomeIcon filled={active} size="large" />,
   },
   {
     path: '/bookmarks',
     title: 'Bookmarks',
-    icon: <BookmarkIcon />,
+    icon: (active: boolean) => <BookmarkIcon filled={active} size="large" />,
     requiresLogin: true,
   },
   {
     path: '/search',
     title: 'Search',
-    icon: <SearchIcon />,
+    icon: (active: boolean) => <SearchIcon filled={active} size="large" />,
   },
   {
     path: '/filters',
     title: 'Filters',
-    icon: <FilterIcon />,
+    icon: (active: boolean) => <FilterIcon filled={active} size="large" />,
   },
 ];
 
@@ -87,7 +82,7 @@ export default function FooterNavBar(): ReactElement {
               <Button
                 {...buttonProps}
                 tag="a"
-                icon={tab.icon}
+                icon={tab.icon(index === selectedTab)}
                 pressed={index === selectedTab}
               />
             </LinkWithTooltip>
@@ -95,7 +90,7 @@ export default function FooterNavBar(): ReactElement {
             <SimpleTooltip content={tab.title}>
               <Button
                 {...buttonProps}
-                icon={tab.icon}
+                icon={tab.icon(index === selectedTab)}
                 onClick={() => showLogin('bookmark')}
               />
             </SimpleTooltip>

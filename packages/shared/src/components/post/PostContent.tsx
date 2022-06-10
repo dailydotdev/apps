@@ -10,13 +10,10 @@ import React, {
 import { useQueryClient } from 'react-query';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import AuthContext from '../../contexts/AuthContext';
-import { Comment, COMMENT_UPVOTES_BY_ID_QUERY } from '../../graphql/comments';
 import {
-  ParentComment,
   PostData,
   PostsEngaged,
   POSTS_ENGAGED_SUBSCRIPTION,
-  POST_UPVOTES_BY_ID_QUERY,
 } from '../../graphql/posts';
 import useSubscription from '../../hooks/useSubscription';
 import { postAnalyticsEvent } from '../../lib/feed';
@@ -36,6 +33,15 @@ import { PostModalActionsProps } from './PostModalActions';
 import { PostLoadingPlaceholder } from './PostLoadingPlaceholder';
 import classed from '../../lib/classed';
 import styles from '../utilities.module.css';
+import {
+  usePostComment,
+  UsePostCommentOptionalProps,
+} from '../../hooks/usePostComment';
+import { useUpvoteQuery } from '../../hooks/useUpvoteQuery';
+import {
+  ToastSubject,
+  useToastNotification,
+} from '../../hooks/useToastNotification';
 
 const UpvotedPopupModal = dynamic(() => import('../modals/UpvotedPopupModal'));
 const NewCommentModal = dynamic(() => import('../modals/NewCommentModal'));
@@ -46,24 +52,16 @@ const Custom404 = dynamic(() => import('../Custom404'));
 
 export interface PostContentProps
   extends Omit<PostModalActionsProps, 'post'>,
-    Partial<Pick<PostNavigationProps, 'onPreviousPost' | 'onNextPost'>> {
+    Partial<Pick<PostNavigationProps, 'onPreviousPost' | 'onNextPost'>>,
+    UsePostCommentOptionalProps {
   postById?: PostData;
   isFallback?: boolean;
   className?: string;
   enableAuthorOnboarding?: boolean;
-  enableShowShareNewComment?: boolean;
   isLoading?: boolean;
   isModal?: boolean;
   position?: CSSProperties['position'];
 }
-
-const DEFAULT_UPVOTES_PER_PAGE = 50;
-
-const getUpvotedPopupInitialState = () => ({
-  upvotes: 0,
-  modal: false,
-  requestQuery: null,
-});
 
 const BodyContainer = classed(
   'div',
@@ -101,51 +99,29 @@ export function PostContent({
     return <Custom404 />;
   }
 
+  const {
+    closeNewComment,
+    openNewComment,
+    onCommentClick,
+    updatePostComments,
+    onShowShareNewComment,
+    parentComment,
+    showShareNewComment,
+  } = usePostComment(postById?.post, {
+    enableShowShareNewComment,
+  });
+  const {
+    requestQuery: upvotedPopup,
+    resetUpvoteQuery,
+    onShowUpvotedPost,
+    onShowUpvotedComment,
+  } = useUpvoteQuery();
   const { user, showLogin } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
-  const [parentComment, setParentComment] = useState<ParentComment>(null);
-  const [showShareNewComment, setShowShareNewComment] = useState(false);
-  const [lastScroll, setLastScroll] = useState(0);
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
-  const [upvotedPopup, setUpvotedPopup] = useState(getUpvotedPopupInitialState);
   const queryClient = useQueryClient();
   const postQueryKey = ['post', id];
-
-  useEffect(() => {
-    if (enableAuthorOnboarding) {
-      setAuthorOnboarding(true);
-    }
-  }, [enableAuthorOnboarding]);
-
-  useEffect(() => {
-    if (enableShowShareNewComment) {
-      setTimeout(() => setShowShareNewComment(true), 700);
-    }
-  }, [enableShowShareNewComment]);
-
-  const handleShowUpvotedPost = (upvotes: number) => {
-    setUpvotedPopup({
-      modal: true,
-      upvotes,
-      requestQuery: {
-        queryKey: ['postUpvotes', id],
-        query: POST_UPVOTES_BY_ID_QUERY,
-        params: { id, first: DEFAULT_UPVOTES_PER_PAGE },
-      },
-    });
-  };
-
-  const handleShowUpvotedComment = (commentId: string, upvotes: number) => {
-    setUpvotedPopup({
-      modal: true,
-      upvotes,
-      requestQuery: {
-        queryKey: ['commentUpvotes', commentId],
-        query: COMMENT_UPVOTES_BY_ID_QUERY,
-        params: { id: commentId, first: DEFAULT_UPVOTES_PER_PAGE },
-      },
-    });
-  };
+  const { subject } = useToastNotification();
 
   useSubscription(
     () => ({
@@ -168,39 +144,6 @@ export function PostContent({
     },
   );
 
-  const closeNewComment = () => {
-    setParentComment(null);
-    document.documentElement.scrollTop = lastScroll;
-  };
-
-  const onNewComment = (_: Comment, parentId: string | null): void => {
-    if (!parentId) {
-      setTimeout(() => setShowShareNewComment(true), 700);
-    }
-  };
-
-  const openNewComment = () => {
-    if (user) {
-      setLastScroll(window.scrollY);
-      setParentComment({
-        authorName: postById.post.source.name,
-        authorImage: postById.post.source.image,
-        content: postById.post.title,
-        contentHtml: postById.post.title,
-        publishDate: postById.post.createdAt,
-        commentId: null,
-        post: postById.post,
-      });
-    } else {
-      showLogin('comment');
-    }
-  };
-
-  const onCommentClick = (parent: ParentComment) => {
-    setLastScroll(window.scrollY);
-    setParentComment(parent);
-  };
-
   const analyticsOrigin = isModal ? 'article page' : 'article modal';
 
   useEffect(() => {
@@ -210,6 +153,12 @@ export function PostContent({
 
     trackEvent(postAnalyticsEvent(`${analyticsOrigin} view`, postById.post));
   }, [postById]);
+
+  useEffect(() => {
+    if (enableAuthorOnboarding) {
+      setAuthorOnboarding(true);
+    }
+  }, [enableAuthorOnboarding]);
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const Wrapper = hasNavigation ? BodyContainer : PageBodyContainer;
@@ -247,7 +196,10 @@ export function PostContent({
   const padding = isFixed ? 'py-4' : 'pt-6';
 
   return (
-    <Wrapper className={className}>
+    <Wrapper
+      className={className}
+      aria-live={subject === ToastSubject.PostContent ? 'polite' : 'off'}
+    >
       <PostContainer
         className={classNames(
           'relative',
@@ -290,7 +242,10 @@ export function PostContent({
         />
         <a
           {...postLinkProps}
-          className="block overflow-hidden mb-10 rounded-2xl cursor-pointer"
+          className={classNames(
+            'block overflow-hidden mb-10 rounded-2xl cursor-pointer',
+            styles.clickableImg,
+          )}
           style={{ maxWidth: '25.625rem' }}
         >
           <LazyImage
@@ -310,24 +265,29 @@ export function PostContent({
         )}
         <PostUpvotesCommentsCount
           post={postById.post}
-          onUpvotesClick={handleShowUpvotedPost}
+          onUpvotesClick={(upvotes) =>
+            onShowUpvotedPost(postById.post.id, upvotes)
+          }
         />
         <PostActions
           post={postById.post}
           postQueryKey={postQueryKey}
-          onComment={openNewComment}
+          onComment={() => openNewComment('comment button')}
           actionsClassName="hidden laptop:flex"
           origin={analyticsOrigin}
         />
         <PostComments
           post={postById.post}
           onClick={onCommentClick}
-          onClickUpvote={handleShowUpvotedComment}
+          onClickUpvote={onShowUpvotedComment}
         />
         {authorOnboarding && (
           <AuthorOnboarding onSignUp={!user && (() => showLogin('author'))} />
         )}
-        <NewComment user={user} onNewComment={openNewComment} />
+        <NewComment
+          user={user}
+          onNewComment={() => openNewComment('start discussion button')}
+        />
       </PostContainer>
       <PostWidgets
         post={postById.post}
@@ -341,7 +301,7 @@ export function PostContent({
           requestQuery={upvotedPopup.requestQuery}
           isOpen={upvotedPopup.modal}
           listPlaceholderProps={{ placeholderAmount: upvotedPopup.upvotes }}
-          onRequestClose={() => setUpvotedPopup(getUpvotedPopupInitialState())}
+          onRequestClose={resetUpvoteQuery}
         />
       )}
       {parentComment && (
@@ -349,13 +309,13 @@ export function PostContent({
           isOpen={!!parentComment}
           onRequestClose={closeNewComment}
           {...parentComment}
-          onComment={onNewComment}
+          onComment={updatePostComments}
         />
       )}
       {postById && showShareNewComment && (
         <ShareNewCommentPopup
           post={postById.post}
-          onRequestClose={() => setShowShareNewComment(false)}
+          onRequestClose={() => onShowShareNewComment(false)}
         />
       )}
     </Wrapper>

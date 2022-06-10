@@ -108,8 +108,6 @@ const Step2 = ({
   const { user } = useContext(AuthContext);
   const inputRef = useRef<HTMLInputElement>();
   const [backgroundImageError, setBackgroundImageError] = useState<string>();
-  // const [copyingImage, copyImageLink] = useCopyLink(() => devCardSrc);
-
   const embedCode = `<a href="https://app.daily.dev/${user?.username}"><img src="${devCardSrc}" width="400" alt="${user?.name}'s Dev Card"/></a>`;
   const [copyingEmbed, copyEmbed] = useCopyLink(() => embedCode);
   const [copyingLink, copyLink] = useCopyLink(() => devCardSrc);
@@ -195,7 +193,7 @@ const Step2 = ({
             <Button
               className="btn-secondary"
               buttonSize="large"
-              onClick={copyLink}
+              onClick={() => copyLink()}
             >
               {!copyingLink ? 'Copy link' : 'Copied!'}
             </Button>
@@ -273,7 +271,7 @@ const Step2 = ({
             <Button
               className="mt-4 btn-secondary"
               buttonSize="small"
-              onClick={copyEmbed}
+              onClick={() => copyEmbed}
             >
               {!copyingEmbed ? 'Copy code' : 'Copied!'}
             </Button>
@@ -295,10 +293,10 @@ const Step2 = ({
 };
 
 const seo: NextSeoProps = {
-  title: 'Grab your Dev Card',
+  title: 'Grab your DevCard',
   titleTemplate: '%s | daily.dev',
   description:
-    'Dev Card will show you stats about the publications and topics you love to read. Generate yours now.',
+    'DevCard will show you stats about the publications and topics you love to read. Generate yours now.',
   openGraph: {
     ...defaultOpenGraph,
     type: 'website',
