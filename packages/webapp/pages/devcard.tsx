@@ -293,10 +293,10 @@ const Step2 = ({
 };
 
 const seo: NextSeoProps = {
-  title: 'Grab your Dev Card',
+  title: 'Grab your DevCard',
   titleTemplate: '%s | daily.dev',
   description:
-    'Dev Card will show you stats about the publications and topics you love to read. Generate yours now.',
+    'DevCard will show you stats about the publications and topics you love to read. Generate yours now.',
   openGraph: {
     ...defaultOpenGraph,
     type: 'website',

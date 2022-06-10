@@ -109,7 +109,8 @@ export default function MainFeedPage({
       screenCentered={false}
       customBanner={isDndActive && <DndBanner />}
       additionalButtons={
-        !loadingUser && placement === 'header' && <CompanionPopupButton />
+        !loadingUser &&
+        placement === 'header' && <CompanionPopupButton placement={placement} />
       }
     >
       <FeedLayout>

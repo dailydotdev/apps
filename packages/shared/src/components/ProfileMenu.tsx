@@ -3,10 +3,10 @@ import dynamic from 'next/dynamic';
 import { Item } from '@dailydotdev/react-contexify';
 import Link from 'next/link';
 import AuthContext from '../contexts/AuthContext';
-import PowerIcon from '../../icons/power.svg';
-import UserIcon from '../../icons/user.svg';
-import SettingsIcon from '../../icons/settings.svg';
-import DevCardIcon from '../../icons/dev_card.svg';
+import PowerIcon from './icons/Power';
+import UserIcon from './icons/User';
+import SettingsIcon from './icons/Settings';
+import DevCardIcon from './icons/DevCard';
 
 const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
   ssr: false,
@@ -44,12 +44,12 @@ export default function ProfileMenu(): ReactElement {
         <Item>
           <Link href={user.permalink} passHref prefetch={false}>
             <a className="flex w-full">
-              <UserIcon className="mr-2 text-xl" /> Profile
+              <UserIcon filled={false} className="mr-2" /> Profile
             </a>
           </Link>
         </Item>
         <Item onClick={() => setShowAccountDetails(true)}>
-          <SettingsIcon className="mr-2 text-xl" /> Account details
+          <SettingsIcon filled={false} className="mr-2" /> Account details
         </Item>
         <Item>
           <Link
@@ -58,12 +58,12 @@ export default function ProfileMenu(): ReactElement {
             prefetch={false}
           >
             <a className="flex w-full">
-              <DevCardIcon className="mr-2 text-xl" /> Dev card
+              <DevCardIcon className="mr-2" /> Dev card
             </a>
           </Link>
         </Item>
         <Item onClick={logout}>
-          <PowerIcon className="mr-2 text-xl" /> Logout
+          <PowerIcon className="mr-2" /> Logout
         </Item>
       </PortalMenu>
     </>

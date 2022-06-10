@@ -1,8 +1,8 @@
 import React, { ReactElement, useContext } from 'react';
 import { QueryClient, useQueryClient, QueryKey } from 'react-query';
-import UpvoteIcon from '../../../icons/upvote.svg';
-import CommentIcon from '../../../icons/comment.svg';
-import BookmarkIcon from '../../../icons/bookmark.svg';
+import UpvoteIcon from '../icons/Upvote';
+import CommentIcon from '../icons/Discuss';
+import BookmarkIcon from '../icons/Bookmark';
 import { Post, PostData } from '../../graphql/posts';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import useUpvotePost from '../../hooks/useUpvotePost';
@@ -137,7 +137,7 @@ export function PostActions({
         id="upvote-post-btn"
         pressed={post.upvoted}
         onClick={toggleUpvote}
-        icon={<UpvoteIcon />}
+        icon={<UpvoteIcon filled={post.upvoted} size="medium" />}
         aria-label="Upvote"
         responsiveLabelClass={actionsClassName}
         className="btn-tertiary-avocado"
@@ -148,7 +148,7 @@ export function PostActions({
         id="comment-post-btn"
         pressed={post.commented}
         onClick={onComment}
-        icon={<CommentIcon />}
+        icon={<CommentIcon filled={post.commented} size="medium" />}
         aria-label="Comment"
         responsiveLabelClass={actionsClassName}
         className="btn-tertiary-avocado"
@@ -159,7 +159,7 @@ export function PostActions({
         id="bookmark-post-btn"
         pressed={post.bookmarked}
         onClick={toggleBookmark}
-        icon={<BookmarkIcon />}
+        icon={<BookmarkIcon filled={post.bookmarked} size="medium" />}
         responsiveLabelClass={actionsClassName}
         className="btn-tertiary-bun"
       >

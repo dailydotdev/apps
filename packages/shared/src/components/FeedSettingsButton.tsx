@@ -1,6 +1,6 @@
 import React, { ReactElement, useState } from 'react';
 import dynamic from 'next/dynamic';
-import LayoutIcon from '../../icons/layout.svg';
+import LayoutIcon from './icons/Layout';
 import { HeaderButton } from './buttons/common';
 import { SimpleTooltip } from './tooltips/SimpleTooltip';
 

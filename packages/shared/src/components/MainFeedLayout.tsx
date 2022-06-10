@@ -12,7 +12,7 @@ import AuthContext from '../contexts/AuthContext';
 import { LoggedUser } from '../lib/user';
 import { Dropdown } from './fields/Dropdown';
 import { FeedPage } from './utilities';
-import CalendarIcon from '../../icons/calendar.svg';
+import CalendarIcon from './icons/Calendar';
 import {
   ANONYMOUS_FEED_QUERY,
   FEED_QUERY,

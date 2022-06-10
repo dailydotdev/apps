@@ -2,14 +2,19 @@ import React, { useState, ReactElement, useContext, useEffect } from 'react';
 import classNames from 'classnames';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
-import CompanionFilledIcon from '@dailydotdev/shared/icons/filled/companion.svg';
-import CompanionOutlineIcon from '@dailydotdev/shared/icons/outline/companion.svg';
+import CompanionIcon from '@dailydotdev/shared/src/components/icons/App';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { CompanionPermission } from './CompanionPermission';
 import { useExtensionPermission } from './useExtensionPermission';
 import useExtensionAlerts from '../lib/useExtensionAlerts';
 
-export const CompanionPopupButton = (): ReactElement => {
+interface CompanionPopupButtonProps {
+  placement?: string;
+}
+
+export const CompanionPopupButton = ({
+  placement,
+}: CompanionPopupButtonProps): ReactElement => {
   const { alerts, updateAlerts } = useExtensionAlerts();
   const { trackEvent } = useContext(AnalyticsContext);
   const { contentScriptGranted, isFetched } = useExtensionPermission({
@@ -33,10 +38,6 @@ export const CompanionPopupButton = (): ReactElement => {
     }
   }, [alerts]);
 
-  const CompanionIcon = showCompanionPermission
-    ? CompanionFilledIcon
-    : CompanionOutlineIcon;
-
   const onButtonClick = () => {
     if (alerts.displayCompanionPopup) {
       updateAlerts({
@@ -47,6 +48,18 @@ export const CompanionPopupButton = (): ReactElement => {
     companionNotificationTracking('manual', !showCompanionPermission);
     setShowCompanionPermission(!showCompanionPermission);
   };
+
+  useEffect(() => {
+    if (contentScriptGranted || !isFetched) {
+      return;
+    }
+
+    trackEvent({
+      event_name: 'impression',
+      target_type: 'companion permission',
+      target_id: placement,
+    });
+  }, [contentScriptGranted, isFetched]);
 
   if (contentScriptGranted || !isFetched) {
     return null;
@@ -78,6 +91,7 @@ export const CompanionPopupButton = (): ReactElement => {
         )}
         icon={
           <CompanionIcon
+            filled={showCompanionPermission}
             className={
               showCompanionPermission
                 ? 'w-7 h-7 text-theme-label-primary'

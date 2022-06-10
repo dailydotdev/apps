@@ -3,8 +3,8 @@ import AuthContext from '../contexts/AuthContext';
 import TwitterIcon from '../../icons/twitter.svg';
 import WhatsappIcon from '../../icons/whatsapp.svg';
 import FacebookIcon from '../../icons/facebook.svg';
-import CopyIcon from '../../icons/copy.svg';
-import ShareIcon from '../../icons/share.svg';
+import CopyIcon from './icons/Copy';
+import ShareIcon from './icons/Forward';
 import Confetti from '../svg/ConfettiSvg';
 import {
   getFacebookShareLink,

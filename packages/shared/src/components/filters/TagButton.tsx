@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import PlusIcon from '../../../icons/plus.svg';
-import BlockIcon from '../../../icons/block.svg';
+import PlusIcon from '../icons/Plus';
+import BlockIcon from '../icons/Block';
 import { AllowedTags, Button, ButtonProps } from '../buttons/Button';
 import { TagActionArguments } from '../../hooks/useTagAndSource';
 

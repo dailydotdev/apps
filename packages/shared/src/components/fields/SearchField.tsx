@@ -8,10 +8,9 @@ import React, {
 import classNames from 'classnames';
 import { useInputField } from '../../hooks/useInputField';
 import { BaseField, FieldInput } from './common';
-import MagnifyingOutlineIcon from '../../../icons/outline/magnifying.svg';
-import MagnifyingFilledIcon from '../../../icons/filled/magnifying.svg';
-import XIcon from '../../../icons/x.svg';
-import ArrowIcon from '../../../icons/arrow.svg';
+import SearchIcon from '../icons/Search';
+import CloseIcon from '../icons/Close';
+import ArrowIcon from '../icons/Arrow';
 import { Button, ButtonProps } from '../buttons/Button';
 import { getInputFontColor } from './TextField';
 
@@ -44,7 +43,7 @@ export interface SearchFieldProps
 
 const ButtonIcon = ({ isPrimary }: { isPrimary: boolean }) =>
   isPrimary ? (
-    <XIcon className="text-lg icon group-hover:text-theme-label-primary" />
+    <CloseIcon className="text-lg icon group-hover:text-theme-label-primary" />
   ) : (
     <ArrowIcon className="rotate-90" />
   );
@@ -89,7 +88,6 @@ export const SearchField = forwardRef(function SearchField(
 
   const isPrimary = fieldType === 'primary';
   const isSecondary = fieldType === 'secondary';
-  const SearchIcon = focused ? MagnifyingFilledIcon : MagnifyingOutlineIcon;
 
   return (
     <BaseField
@@ -111,12 +109,13 @@ export const SearchField = forwardRef(function SearchField(
           title="Clear query"
           onClick={onClearClick}
           icon={
-            <XIcon className="text-lg icon group-hover:text-theme-label-primary" />
+            <CloseIcon className="text-lg icon group-hover:text-theme-label-primary" />
           }
           disabled={!hasInput}
         />
       ) : (
         <SearchIcon
+          filled={focused}
           className="mr-2 text-2xl icon"
           style={{
             color:

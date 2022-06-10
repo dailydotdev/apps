@@ -2,7 +2,7 @@ import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { companionExplainerVideo } from '@dailydotdev/shared/src/lib/constants';
 import React, { ReactElement, Ref, forwardRef, useContext } from 'react';
-import PlayIcon from '@dailydotdev/shared/icons/filled/play.svg';
+import PlayIcon from '@dailydotdev/shared/src/components/icons/Play';
 import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import {
   Features,
@@ -60,7 +60,7 @@ const CompanionPermissionComponent = (
             alt="Companion video preview"
             className="rounded-10 w-[11.25rem] h-[6.875]"
           />
-          <PlayIcon className="absolute w-10 h-10" />
+          <PlayIcon filled className="absolute w-10 h-10" />
         </a>
         <ClickableText
           tag="a"

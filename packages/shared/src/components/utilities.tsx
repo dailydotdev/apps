@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import classed from '../lib/classed';
 import styles from './utilities.module.css';
-import ArrowIcon from '../../icons/arrow.svg';
+import ArrowIcon from './icons/Arrow';
 import { PostBootData } from '../lib/boot';
 
 export interface ThemeColor {
@@ -96,10 +96,6 @@ export const postEventName = (
   }
   return `${!update.bookmarked ? 'remove ' : ''}post bookmark`;
 };
-
-export const RoundedImage = classed('img', 'w-10 h-10 rounded-full');
-
-export const SmallRoundedImage = classed('img', 'w-6 h-6 rounded-full');
 
 export const LegalNotice = classed(
   'div',

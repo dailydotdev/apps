@@ -13,7 +13,7 @@ import PromotionalBanner from './PromotionalBanner';
 import Logo from './Logo';
 import ProfileButton from './profile/ProfileButton';
 import Sidebar from './sidebar/Sidebar';
-import MenuIcon from '../../icons/filled/hamburger.svg';
+import MenuIcon from './icons/Hamburger';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import MobileHeaderRankProgress from './MobileHeaderRankProgress';
@@ -141,7 +141,7 @@ export default function MainLayout({
               className="block laptop:hidden btn-tertiary"
               iconOnly
               onClick={() => trackAndToggleMobileSidebar(true)}
-              icon={<MenuIcon />}
+              icon={<MenuIcon filled />}
             />
             <div className="flex flex-row flex-1 justify-center laptop:justify-start">
               {mobileTitle && (

@@ -6,7 +6,7 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 import { changeProfileImage, LoggedUser } from '../../lib/user';
-import CameraIcon from '../../../icons/camera.svg';
+import CameraIcon from '../icons/Camera';
 import GoogleIcon from '../../../icons/google.svg';
 import GitHubIcon from '../../../icons/github.svg';
 import JoinedDate from './JoinedDate';

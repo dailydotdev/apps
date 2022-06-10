@@ -13,7 +13,7 @@ import {
   TriggerEvent,
   useContextMenu,
 } from '@dailydotdev/react-contexify';
-import ArrowIcon from '../../../icons/arrow.svg';
+import ArrowIcon from '../icons/Arrow';
 import styles from './Dropdown.module.css';
 
 export interface DropdownProps {

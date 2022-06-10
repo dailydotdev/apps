@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { Post } from '../../graphql/posts';
 import styles from './Card.module.css';
-import FeatherIcon from '../../../icons/feather.svg';
+import FeatherIcon from '../icons/Feather';
 import { Comment } from '../../graphql/comments';
 
 export default function PostAuthor({

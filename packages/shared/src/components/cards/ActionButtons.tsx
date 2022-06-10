@@ -3,16 +3,16 @@ import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import styles from './Card.module.css';
 import { Post } from '../../graphql/posts';
-import UpvoteIcon from '../../../icons/upvote.svg';
 import rem from '../../../macros/rem.macro';
 import InteractionCounter from '../InteractionCounter';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
-import CommentIcon from '../../../icons/comment.svg';
-import BookmarkIcon from '../../../icons/bookmark.svg';
+import UpvoteIcon from '../icons/Upvote';
+import CommentIcon from '../icons/Discuss';
+import BookmarkIcon from '../icons/Bookmark';
 import { Button } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
-const ShareIcon = dynamic(() => import('../../../icons/share.svg'));
+const ShareIcon = dynamic(() => import('../icons/Forward'));
 
 export type ActionButtonsProps = {
   post: Post;
@@ -46,7 +46,7 @@ export default function ActionButtons({
       <SimpleTooltip content={post.upvoted ? 'Remove upvote' : 'Upvote'}>
         <QuaternaryButton
           id={`post-${post.id}-upvote-btn`}
-          icon={<UpvoteIcon />}
+          icon={<UpvoteIcon filled={post.upvoted} size="medium" />}
           buttonSize="small"
           pressed={post.upvoted}
           onClick={() => onUpvoteClick?.(post, !post.upvoted)}
@@ -59,7 +59,7 @@ export default function ActionButtons({
       <SimpleTooltip content="Comments">
         <QuaternaryButton
           id={`post-${post.id}-comment-btn`}
-          icon={<CommentIcon />}
+          icon={<CommentIcon filled={post.commented} size="medium" />}
           buttonSize="small"
           pressed={post.commented}
           onClick={() => onCommentClick?.(post)}
@@ -73,7 +73,7 @@ export default function ActionButtons({
       </SimpleTooltip>
       <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
         <Button
-          icon={<BookmarkIcon />}
+          icon={<BookmarkIcon filled={post.bookmarked} size="medium" />}
           buttonSize="small"
           pressed={post.bookmarked}
           onClick={() => onBookmarkClick?.(post, !post.bookmarked)}

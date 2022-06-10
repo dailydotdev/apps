@@ -2,7 +2,7 @@ import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
 import { Button } from '../buttons/Button';
-import ArrowIcon from '../../../icons/arrow.svg';
+import ArrowIcon from '../icons/Arrow';
 import { Post } from '../../graphql/posts';
 import styles from '../cards/Card.module.css';
 import { CardLink } from '../cards/Card';
