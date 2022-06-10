@@ -1,7 +1,7 @@
 import React, { forwardRef, ReactElement, Ref } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonProps } from '../buttons/Button';
-import XIcon from '../../../icons/x.svg';
+import XIcon from '../icons/Close';
 
 function ModalCloseButtonComponent(
   { className, style, ...props }: ButtonProps<'button'>,

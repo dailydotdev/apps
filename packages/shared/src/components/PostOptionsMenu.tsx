@@ -5,12 +5,12 @@ import { useQueryClient } from 'react-query';
 import useFeedSettings from '../hooks/useFeedSettings';
 import useReportPost from '../hooks/useReportPost';
 import { Post, ReportReason } from '../graphql/posts';
-import TrashIcon from '../../icons/trash.svg';
-import HammerIcon from '../../icons/hammer.svg';
-import EyeIcon from '../../icons/eye.svg';
-import ShareIcon from '../../icons/share.svg';
-import BlockIcon from '../../icons/block.svg';
-import FlagIcon from '../../icons/flag.svg';
+import TrashIcon from './icons/Trash';
+import HammerIcon from './icons/Hammer';
+import EyeIcon from './icons/Eye';
+import ForwardIcon from './icons/Forward';
+import BlockIcon from './icons/Block';
+import FlagIcon from './icons/Flag';
 import RepostPostModal from './modals/ReportPostModal';
 import useTagAndSource from '../hooks/useTagAndSource';
 import AnalyticsContext from '../contexts/AnalyticsContext';
@@ -194,7 +194,7 @@ export default function PostOptionsMenu({
       action: onHidePost,
     },
     {
-      icon: <MenuIcon Icon={ShareIcon} />,
+      icon: <MenuIcon Icon={ForwardIcon} />,
       text: 'Share article',
       action: () =>
         onShareOrCopyLink({

@@ -1,6 +1,6 @@
 import React, { ReactElement, useState } from 'react';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
-import CopyIcon from '@dailydotdev/shared/icons/copy.svg';
+import CopyIcon from '@dailydotdev/shared/src/components/icons/Copy';
 import {
   HotLabel,
   TLDRText,

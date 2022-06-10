@@ -1,7 +1,7 @@
 import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import { Post, TocItem } from '../../graphql/posts';
-import TocIcon from '../../../icons/toc.svg';
+import TocIcon from '../icons/Unread';
 import { Summary, SummaryArrow } from '../utilities';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../../lib/feed';

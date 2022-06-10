@@ -1,5 +1,5 @@
 import React, { ReactElement, useContext } from 'react';
-import SettingsIcon from '../../../icons/settings.svg';
+import SettingsIcon from '../icons/Settings';
 import { AlertColor, AlertDot } from '../AlertDot';
 import AlertContext from '../../contexts/AlertContext';
 

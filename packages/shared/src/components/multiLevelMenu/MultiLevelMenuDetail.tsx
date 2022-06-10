@@ -1,6 +1,6 @@
 import React, { ReactElement, ReactNode } from 'react';
 import { Button } from '../buttons/Button';
-import ArrowIcon from '../../../icons/arrow.svg';
+import ArrowIcon from '../icons/Arrow';
 import { MenuItem } from '../filters/common';
 
 export default function MultiLevelMenuDetail({

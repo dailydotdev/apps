@@ -1,7 +1,7 @@
 import { render, RenderResult, screen } from '@testing-library/react';
 import React, { HTMLAttributes } from 'react';
 import { Button, BaseButtonProps } from './Button';
-import UpvoteIcon from '../../../icons/upvote.svg';
+import UpvoteIcon from '../icons/Upvote';
 
 const renderComponent = <
   C extends HTMLElement = HTMLButtonElement,

@@ -8,9 +8,9 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
-import MenuIcon from '../../../icons/menu.svg';
-import CloseIcon from '../../../icons/x.svg';
-import OpenLinkIcon from '../../../icons/open_link.svg';
+import MenuIcon from '../icons/Menu';
+import CloseIcon from '../icons/Close';
+import OpenLinkIcon from '../icons/OpenLink';
 import { Roles } from '../../lib/user';
 import AuthContext from '../../contexts/AuthContext';
 import { Post } from '../../graphql/posts';
@@ -78,7 +78,7 @@ export function PostModalActions({
         tag="a"
         href={post.permalink}
         target="_blank"
-        icon={<OpenLinkIcon />}
+        icon={<OpenLinkIcon className="icon" />}
         onClick={onReadArticle}
       >
         {!inlineActions && 'Read article'}
@@ -86,7 +86,7 @@ export function PostModalActions({
       <SimpleTooltip placement="bottom" content="Options">
         <Button
           className={classNames('btn-tertiary', !inlineActions && 'ml-auto')}
-          icon={<MenuIcon />}
+          icon={<MenuIcon size="medium" />}
           onClick={(event) => showPostOptionsContext(event)}
         />
       </SimpleTooltip>

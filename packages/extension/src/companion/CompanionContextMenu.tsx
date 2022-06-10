@@ -1,9 +1,9 @@
 import React, { ReactElement, useContext, useState } from 'react';
-import CommentIcon from '@dailydotdev/shared/icons/comment.svg';
-import ShareIcon from '@dailydotdev/shared/icons/share.svg';
-import FlagIcon from '@dailydotdev/shared/icons/flag.svg';
-import FeedbackIcon from '@dailydotdev/shared/icons/feedback.svg';
-import EyeIcon from '@dailydotdev/shared/icons/eye.svg';
+import CommentIcon from '@dailydotdev/shared/src/components/icons/Discuss';
+import ShareIcon from '@dailydotdev/shared/src/components/icons/Forward';
+import FlagIcon from '@dailydotdev/shared/src/components/icons/Flag';
+import FeedbackIcon from '@dailydotdev/shared/src/components/icons/Feedback';
+import EyeIcon from '@dailydotdev/shared/src/components/icons/Eye';
 import { Item, Menu } from '@dailydotdev/react-contexify';
 import RepostPostModal from '@dailydotdev/shared/src/components/modals/ReportPostModal';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
@@ -72,14 +72,14 @@ export default function CompanionContextMenu({
       >
         <Item>
           <a className="flex w-full" href={postData?.commentsPermalink}>
-            <CommentIcon className="mr-2 text-xl" /> View discussion
+            <CommentIcon className="mr-2" /> View discussion
           </a>
         </Item>
         <Item onClick={() => onShareOrCopyLink()}>
-          <ShareIcon className="mr-2 text-xl" /> Share article
+          <ShareIcon className="mr-2" /> Share article
         </Item>
         <Item onClick={() => setReportModal(true)}>
-          <FlagIcon className="mr-2 text-xl" /> Report
+          <FlagIcon className="mr-2" /> Report
         </Item>
         <Item>
           <a
@@ -87,11 +87,11 @@ export default function CompanionContextMenu({
             href="https://daily.dev/feedback"
             target="_blank"
           >
-            <FeedbackIcon className="mr-2 text-xl" /> Give us feedback
+            <FeedbackIcon className="mr-2" /> Give us feedback
           </a>
         </Item>
         <Item onClick={() => setDisableModal(true)}>
-          <EyeIcon className="mr-2 text-xl" /> Disable widget
+          <EyeIcon className="mr-2" /> Disable widget
         </Item>
       </Menu>
       {reportModal && (

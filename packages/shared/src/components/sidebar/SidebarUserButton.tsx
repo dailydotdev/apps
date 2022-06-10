@@ -5,8 +5,8 @@ import { ProfilePicture } from '../ProfilePicture';
 import { Button } from '../buttons/Button';
 import useProfileMenu from '../../hooks/useProfileMenu';
 import AuthContext from '../../contexts/AuthContext';
-import SettingsIcon from '../../../icons/settings.svg';
-import UserIcon from '../../../icons/user.svg';
+import SettingsIcon from '../icons/Settings';
+import UserIcon from '../icons/User';
 import { SidebarUserButtonProps } from './common';
 import LoginButton from '../LoginButton';
 

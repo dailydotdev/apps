@@ -20,7 +20,7 @@ import Markdown from '../Markdown';
 import { RecommendedMentionTooltip } from '../tooltips/RecommendedMentionTooltip';
 import { useUserMention } from '../../hooks/useUserMention';
 import { Post } from '../../graphql/posts';
-import AtIcon from '../../../icons/at.svg';
+import AtIcon from '../icons/At';
 import { cleanupEmptySpaces } from '../../lib/strings';
 
 export interface CommentBoxProps {

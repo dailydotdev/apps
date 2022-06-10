@@ -21,7 +21,7 @@ import useTagAndSource, {
   TagActionArguments,
 } from '../../hooks/useTagAndSource';
 import { FilterMenuProps } from './common';
-import MenuIcon from '../../../icons/menu.svg';
+import MenuIcon from '../icons/Menu';
 import AuthContext from '../../contexts/AuthContext';
 import { useMyFeed } from '../../hooks/useMyFeed';
 import { Features, getFeatureValue } from '../../lib/featureManagement';

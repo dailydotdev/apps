@@ -1,10 +1,10 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 import AuthContext from '../../contexts/AuthContext';
-import UpvoteIcon from '../../../icons/upvote.svg';
-import CommentIcon from '../../../icons/comment.svg';
-import TrashIcon from '../../../icons/trash.svg';
-import EditIcon from '../../../icons/edit.svg';
+import UpvoteIcon from '../icons/Upvote';
+import CommentIcon from '../icons/Discuss';
+import TrashIcon from '../icons/Trash';
+import EditIcon from '../icons/Edit';
 import {
   CANCEL_COMMENT_UPVOTE_MUTATION,
   Comment,
