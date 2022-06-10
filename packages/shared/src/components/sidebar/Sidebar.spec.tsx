@@ -159,8 +159,10 @@ it('should remove filter alert if the user has filters and opened feed filters',
     expect(getHasAnyFilter(data.feedSettings)).toBeTruthy();
   });
 
-  expect(updateAlerts).toBeCalledWith({ filter: false });
-  expect(mutationCalled).toBeTruthy();
+  await waitFor(() => {
+    expect(updateAlerts).toBeCalledWith({ filter: false });
+    expect(mutationCalled).toBeTruthy();
+  });
 });
 
 it('should remove the my feed alert if the user clicks the cross', async () => {
