@@ -6,7 +6,7 @@ import {
   EmptyScreenIcon,
   EmptyScreenTitle,
 } from './EmptyScreen';
-import FilterIcon from '../../icons/outline/filter.svg';
+import FilterIcon from './icons/Filter';
 import { PageContainer } from './utilities';
 
 interface FeedEmptyScreenProps {

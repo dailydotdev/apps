@@ -2,7 +2,7 @@ import React, { ReactElement, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import classNames from 'classnames';
 import createDOMPurify from 'dompurify';
-import MagnifyingIcon from '../../../icons/magnifying.svg';
+import MagnifyingIcon from '../icons/Search';
 
 const preventDefault = (e: React.MouseEvent) => e.preventDefault();
 

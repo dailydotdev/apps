@@ -17,5 +17,5 @@ export const EmptyScreenButton = classed(Button, 'mt-10 btn-primary');
 
 export const EmptyScreenIcon = {
   className: 'text-theme-label-disabled',
-  style: { fontSize: '5rem' },
+  style: { fontSize: '5rem', width: 'auto', height: 'auto' },
 };

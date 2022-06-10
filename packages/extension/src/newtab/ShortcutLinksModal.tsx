@@ -3,9 +3,9 @@ import { ModalHeader } from '@dailydotdev/shared/src/components/modals/common';
 import { ModalProps } from '@dailydotdev/shared/src/components/modals/StyledModal';
 import { ResponsiveModal } from '@dailydotdev/shared/src/components/modals/ResponsiveModal';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
-import XIcon from '@dailydotdev/shared/icons/x.svg';
-import UserIcon from '@dailydotdev/shared/icons/user.svg';
-import SitesIcon from '@dailydotdev/shared/icons/sites.svg';
+import XIcon from '@dailydotdev/shared/src/components/icons/Close';
+import UserIcon from '@dailydotdev/shared/src/components/icons/User';
+import SitesIcon from '@dailydotdev/shared/src/components/icons/Sites';
 import { CardSelection } from './CardSelection';
 import { LinksForm } from './LinksForm';
 

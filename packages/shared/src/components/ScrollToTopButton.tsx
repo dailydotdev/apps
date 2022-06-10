@@ -1,6 +1,6 @@
 import React, { CSSProperties, ReactElement, useEffect, useState } from 'react';
 import { Button, ButtonProps } from './buttons/Button';
-import ArrowIcon from '../../icons/arrow.svg';
+import ArrowIcon from './icons/Arrow';
 
 const baseStyle: CSSProperties = {
   position: 'fixed',
@@ -20,7 +20,7 @@ export default function ScrollToTopButton(): ReactElement {
   }, []);
 
   const props: ButtonProps<'button'> = {
-    icon: <ArrowIcon />,
+    icon: <ArrowIcon size="xlarge" />,
     onClick: () => window.scrollTo({ top: 0, behavior: 'smooth' }),
   };
 

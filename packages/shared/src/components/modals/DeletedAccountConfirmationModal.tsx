@@ -7,7 +7,7 @@ import {
   ConfirmationModal,
 } from './ConfirmationModal';
 import { Button } from '../buttons/Button';
-import Icon from '../../../icons/v.svg';
+import Icon from '../icons/V';
 
 export default function DeletedAccountConfirmationModal({
   ...props

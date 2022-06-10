@@ -1,5 +1,5 @@
 import React, { FormEvent, ReactElement, useContext, useState } from 'react';
-import PlusIcon from '@dailydotdev/shared/icons/plus.svg';
+import PlusIcon from '@dailydotdev/shared/src/components/icons/Plus';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import CustomLinksModal from './ShortcutLinksModal';

@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import Link from 'next/link';
-import BookmarkIcon from '../../icons/bookmark.svg';
+import BookmarkIcon from './icons/Bookmark';
 import { headerHeight } from '../styles/sizes';
 import sizeN from '../../macros/sizeN.macro';
 import { Button } from './buttons/Button';

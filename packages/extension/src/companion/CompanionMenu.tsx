@@ -1,10 +1,10 @@
 import React, { ReactElement, useContext, useEffect } from 'react';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
-import UpvoteIcon from '@dailydotdev/shared/icons/upvote.svg';
-import CommentIcon from '@dailydotdev/shared/icons/comment.svg';
-import BookmarkIcon from '@dailydotdev/shared/icons/bookmark.svg';
-import MenuIcon from '@dailydotdev/shared/icons/menu.svg';
-import ArrowIcon from '@dailydotdev/shared/icons/arrow.svg';
+import UpvoteIcon from '@dailydotdev/shared/src/components/icons/Upvote';
+import CommentIcon from '@dailydotdev/shared/src/components/icons/Discuss';
+import BookmarkIcon from '@dailydotdev/shared/src/components/icons/Bookmark';
+import MenuIcon from '@dailydotdev/shared/src/components/icons/Menu';
+import ArrowIcon from '@dailydotdev/shared/src/components/icons/Arrow';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import classNames from 'classnames';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
@@ -225,7 +225,7 @@ export default function CompanionMenu({
           buttonSize="medium"
           className="btn-tertiary"
           icon={<CommentIcon />}
-          onClick={openNewComment}
+          onClick={() => openNewComment('comment button')}
         />
       </SimpleTooltip>
       <SimpleTooltip

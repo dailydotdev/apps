@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { ownershipGuide } from '../../lib/constants';
 import sizeN from '../../../macros/sizeN.macro';
 import { Button } from '../buttons/Button';
-import FeatherIcon from '../../../icons/feather.svg';
+import FeatherIcon from '../icons/Feather';
 import styles from './AuthorOnboarding.module.css';
 
 interface AuthorOnboardingProps {

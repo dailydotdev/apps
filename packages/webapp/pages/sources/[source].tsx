@@ -26,8 +26,8 @@ import {
   CustomFeedHeader,
   FeedPage,
 } from '@dailydotdev/shared/src/components/utilities';
-import PlusIcon from '@dailydotdev/shared/icons/plus.svg';
-import BlockIcon from '@dailydotdev/shared/icons/block.svg';
+import PlusIcon from '@dailydotdev/shared/src/components/icons/Plus';
+import BlockIcon from '@dailydotdev/shared/src/components/icons/Block';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
 import Custom404 from '../404';

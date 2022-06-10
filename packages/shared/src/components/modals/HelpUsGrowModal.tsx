@@ -5,7 +5,7 @@ import { Button } from '../buttons/Button';
 import { StyledModal, ModalProps } from './StyledModal';
 import { ModalCloseButton } from './ModalCloseButton';
 import { TextField } from '../fields/TextField';
-import CopyIcon from '../../../icons/copy.svg';
+import CopyIcon from '../icons/Copy';
 import TwitterIcon from '../../../icons/twitter.svg';
 import AuthContext from '../../contexts/AuthContext';
 import fetchTimeout from '../../lib/fetchTimeout';

@@ -1,6 +1,6 @@
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
-import MenuIcon from '@dailydotdev/shared/icons/menu.svg';
+import MenuIcon from '@dailydotdev/shared/src/components/icons/Menu';
 import classNames from 'classnames';
 import React, { ReactElement } from 'react';
 

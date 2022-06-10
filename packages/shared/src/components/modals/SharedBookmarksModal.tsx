@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import request from 'graphql-request';
-import CopyIcon from '../../../icons/copy.svg';
+import CopyIcon from '../icons/Copy';
 import { Button } from '../buttons/Button';
 import { ResponsiveModal } from './ResponsiveModal';
 import { ModalProps } from './StyledModal';

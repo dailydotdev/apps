@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import FilterIcon from '../../../icons/outline/filter.svg';
+import FilterIcon from '../icons/Filter';
 import { Button } from '../buttons/Button';
 import { ButtonOrLink, ItemInner, NavItem, SidebarMenuItem } from './common';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
@@ -28,7 +28,11 @@ const FilteredMyFeedButton = ({
   return (
     <NavItem className="mt-6" active={isActive}>
       <ButtonOrLink item={item} useNavButtonsNotLinks={useNavButtonsNotLinks}>
-        <ItemInner item={item} sidebarExpanded={sidebarExpanded} />
+        <ItemInner
+          item={item}
+          sidebarExpanded={sidebarExpanded}
+          active={isActive}
+        />
       </ButtonOrLink>
       <SimpleTooltip placement="right" content="Feed filters">
         <Button
