@@ -164,7 +164,7 @@ export const customFeedIcon = 'text-2xl text-theme-label-tertiary mr-2';
 
 export const Summary = classed('summary', 'cursor-pointer focus-outline');
 
-export const SummaryArrow = classed(ArrowIcon, 'icon arrow ml-auto text-xl');
+export const SummaryArrow = classed(ArrowIcon, 'icon arrow ml-auto');
 
 export const SummaryContainer = classed(
   'div',

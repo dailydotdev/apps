@@ -119,7 +119,7 @@ export function Dropdown({
         </span>
         <ArrowIcon
           className={classNames(
-            'text-xl ml-auto transition-transform group-hover:text-theme-label-tertiary',
+            'ml-auto transition-transform group-hover:text-theme-label-tertiary',
             isVisible ? 'rotate-0' : 'rotate-180',
             styles.chevron,
           )}

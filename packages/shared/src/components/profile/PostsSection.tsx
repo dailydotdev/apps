@@ -51,7 +51,7 @@ const PostStat = classed(
   'div',
   'flex items-center text-theme-label-tertiary font-bold typo-callout',
 );
-const postStatIconClass = 'icon mr-1 text-xl';
+const postStatIconClass = 'icon mr-1';
 
 export type PostsSectionProps = {
   userId: string;

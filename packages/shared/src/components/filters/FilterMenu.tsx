@@ -32,24 +32,24 @@ export default function FilterMenu({
 
   const menuItems: MenuItem[] = [
     {
-      icon: <HashtagIcon className="mr-3 text-xl" />,
+      icon: <HashtagIcon className="mr-3" />,
       title: 'Manage tags',
       component: (
         <TagsFilter targetId="sidebar" onUnblockItem={setUnblockItem} />
       ),
     },
     {
-      icon: <FilterIcon className="mr-3 text-xl" />,
+      icon: <FilterIcon className="mr-3" />,
       title: 'Advanced',
       component: <AdvancedSettingsFilter />,
     },
     {
-      icon: <BlockIcon className="mr-3 text-xl" />,
+      icon: <BlockIcon className="mr-3" />,
       title: 'Blocked items',
       component: <BlockedFilter onUnblockItem={setUnblockItem} />,
     },
     {
-      icon: <PlusIcon className="mr-3 text-xl" />,
+      icon: <PlusIcon className="mr-3" />,
       title: 'Suggest new source',
       action: () => setShowNewSourceModal(true),
     },

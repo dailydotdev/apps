@@ -229,7 +229,7 @@ export default function MainFeedLayout({
       return (
         <CreateMyFeedButton
           type={myFeedPosition}
-          action={() => ''}
+          action={() => openFeedFiltersWithOrigin('create my feed - title')}
           flags={flags}
         />
       );
