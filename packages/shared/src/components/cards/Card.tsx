@@ -66,17 +66,9 @@ export const CardNotification = classed(
   'px-4 py-1.5 -mx-1.5 rounded-10 bg-theme-label-primary text-theme-label-invert typo-callout font-bold',
 );
 
-export const getPostClassNames = (
-  post: Post,
-  selectedComment: Comment,
-  className: string,
-): string =>
+export const getPostClassNames = (post: Post, className: string): string =>
   classNames(
-    {
-      [styles.read]: post.read,
-      [styles.hideContent]: selectedComment,
-      [styles.trending]: post.trending > 0,
-    },
+    { [styles.read]: post.read, [styles.trending]: post.trending > 0 },
     styles.post,
     'group',
     className,

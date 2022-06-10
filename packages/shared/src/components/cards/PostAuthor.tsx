@@ -3,15 +3,12 @@ import classNames from 'classnames';
 import { Post } from '../../graphql/posts';
 import styles from './Card.module.css';
 import FeatherIcon from '../icons/Feather';
-import { Comment } from '../../graphql/comments';
 
 export default function PostAuthor({
   post,
-  selectedComment,
   className,
 }: {
   post: Post;
-  selectedComment: Comment;
   className?: string;
 }): ReactElement {
   if (!post.author) {
@@ -22,7 +19,7 @@ export default function PostAuthor({
     <div
       className={classNames(
         'flex items-center font-bold typo-footnote text-theme-status-help',
-        selectedComment ? 'invisible' : styles.authorBox,
+        styles.authorBox,
         className,
       )}
     >

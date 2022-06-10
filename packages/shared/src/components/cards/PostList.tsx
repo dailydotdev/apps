@@ -1,6 +1,5 @@
-import React, { forwardRef, ReactElement, Ref, useState } from 'react';
+import React, { forwardRef, ReactElement, Ref } from 'react';
 import classNames from 'classnames';
-import { Comment } from '../../graphql/comments';
 import { PostCardProps } from './PostCard';
 import {
   getPostClassNames,
@@ -9,14 +8,12 @@ import {
   ListCardDivider,
   ListCardAside,
   ListCardMain,
-  featuredCommentsToButtons,
 } from './Card';
 import PostLink from './PostLink';
 import PostMetadata from './PostMetadata';
 import ActionButtons from './ActionButtons';
 import SourceButton from './SourceButton';
 import styles from './Card.module.css';
-import ListFeaturedComment from './ListFeaturedComment';
 import TrendingFlag from './TrendingFlag';
 import PostAuthor from './PostAuthor';
 import PostOptions from '../buttons/OptionsButton';
@@ -41,26 +38,17 @@ export const PostList = forwardRef(function PostList(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
-  const [selectedComment, setSelectedComment] = useState<Comment>();
-
   const { trending } = post;
 
   const card = (
     <ListCard
       {...props}
-      className={getPostClassNames(post, selectedComment, className)}
+      className={getPostClassNames(post, className)}
       ref={ref}
     >
       <PostLink post={post} openNewTab={openNewTab} onLinkClick={onLinkClick} />
       <ListCardAside>
         <SourceButton post={post} className="pb-2" tooltipPosition="top" />
-        {featuredCommentsToButtons(
-          post.featuredComments,
-          setSelectedComment,
-          null,
-          'my-1',
-          'top',
-        )}
       </ListCardAside>
       <ListCardDivider />
       <ListCardMain>
@@ -72,11 +60,7 @@ export const PostList = forwardRef(function PostList(
           readTime={post.readTime}
           className="my-1"
         >
-          <PostAuthor
-            post={post}
-            selectedComment={selectedComment}
-            className="ml-2"
-          />
+          <PostAuthor post={post} className="ml-2" />
         </PostMetadata>
         <ActionButtons
           post={post}
@@ -93,15 +77,6 @@ export const PostList = forwardRef(function PostList(
           />
         </ActionButtons>
       </ListCardMain>
-      {selectedComment && (
-        <ListFeaturedComment
-          comment={selectedComment}
-          featuredComments={post.featuredComments}
-          onCommentClick={setSelectedComment}
-          onBack={() => setSelectedComment(null)}
-          className={styles.show}
-        />
-      )}
       {children}
     </ListCard>
   );

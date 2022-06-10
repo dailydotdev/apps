@@ -1,12 +1,5 @@
-import React, {
-  forwardRef,
-  HTMLAttributes,
-  ReactElement,
-  Ref,
-  useState,
-} from 'react';
+import React, { forwardRef, HTMLAttributes, ReactElement, Ref } from 'react';
 import classNames from 'classnames';
-import dynamic from 'next/dynamic';
 import { Post } from '../../graphql/posts';
 import {
   Card,
@@ -15,11 +8,9 @@ import {
   CardSpace,
   CardTextContainer,
   CardTitle,
-  featuredCommentsToButtons,
   getPostClassNames,
 } from './Card';
 import FeatherIcon from '../icons/Feather';
-import { Comment } from '../../graphql/comments';
 import styles from './Card.module.css';
 import TrendingFlag from './TrendingFlag';
 import PostLink from './PostLink';
@@ -29,8 +20,6 @@ import SourceButton from './SourceButton';
 import PostAuthor from './PostAuthor';
 import OptionsButton from '../buttons/OptionsButton';
 import { ProfilePicture } from '../ProfilePicture';
-
-const FeaturedComment = dynamic(() => import('./FeaturedComment'));
 
 type Callback = (post: Post) => unknown;
 
@@ -72,15 +61,12 @@ export const PostCard = forwardRef(function PostCard(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
-  const [selectedComment, setSelectedComment] = useState<Comment>();
   const { trending } = post;
-
-  const customStyle =
-    selectedComment && !showImage ? { minHeight: '15.125rem' } : {};
+  const customStyle = !showImage ? { minHeight: '15.125rem' } : {};
   const card = (
     <Card
       {...props}
-      className={getPostClassNames(post, selectedComment, className)}
+      className={getPostClassNames(post, className)}
       style={{ ...style, ...customStyle }}
       ref={ref}
     >
@@ -88,7 +74,6 @@ export const PostCard = forwardRef(function PostCard(
       <CardTextContainer>
         <CardHeader>
           <SourceButton post={post} style={{ marginRight: '0.875rem' }} />
-          {featuredCommentsToButtons(post.featuredComments, setSelectedComment)}
           <OptionsButton
             onClick={(event) => onMenuClick?.(event, post)}
             post={post}
@@ -104,13 +89,7 @@ export const PostCard = forwardRef(function PostCard(
         readTime={post.readTime}
         className="mx-4"
       />
-      {!showImage && (
-        <PostAuthor
-          post={post}
-          selectedComment={selectedComment}
-          className="mx-4 mt-2"
-        />
-      )}
+      {!showImage && <PostAuthor post={post} className="mx-4 mt-2" />}
       {showImage && (
         <CardImage
           imgAlt="Post Cover image"
@@ -122,7 +101,7 @@ export const PostCard = forwardRef(function PostCard(
             <div
               className={classNames(
                 'absolute flex items-center py-2 px-3 text-theme-label-secondary bg-theme-bg-primary z-1 font-bold typo-callout w-full',
-                selectedComment ? 'invisible' : styles.authorBox,
+                styles.authorBox,
               )}
             >
               <ProfilePicture size="small" user={post.author} />
@@ -141,15 +120,6 @@ export const PostCard = forwardRef(function PostCard(
         onShare={onShare}
         className={classNames('justify-between mx-4', !showImage && 'mt-4')}
       />
-      {selectedComment && (
-        <FeaturedComment
-          comment={selectedComment}
-          featuredComments={post.featuredComments}
-          onCommentClick={setSelectedComment}
-          onBack={() => setSelectedComment(null)}
-          className={styles.show}
-        />
-      )}
       {children}
     </Card>
   );
