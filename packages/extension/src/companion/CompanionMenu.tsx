@@ -209,7 +209,7 @@ export default function CompanionMenu({
       >
         <Button
           buttonSize="medium"
-          icon={<UpvoteIcon />}
+          icon={<UpvoteIcon filled={post?.upvoted} />}
           pressed={post?.upvoted}
           onClick={toggleUpvote}
           className="btn-tertiary-avocado"
