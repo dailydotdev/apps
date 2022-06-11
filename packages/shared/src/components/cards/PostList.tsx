@@ -48,7 +48,11 @@ export const PostList = forwardRef(function PostList(
     >
       <PostLink post={post} openNewTab={openNewTab} onLinkClick={onLinkClick} />
       <ListCardAside>
-        <SourceButton post={post} className="pb-2" tooltipPosition="top" />
+        <SourceButton
+          source={post?.source}
+          className="pb-2"
+          tooltipPosition="top"
+        />
       </ListCardAside>
       <ListCardDivider />
       <ListCardMain>
@@ -71,10 +75,7 @@ export const PostList = forwardRef(function PostList(
           onShare={onShare}
           className="relative self-stretch mt-1"
         >
-          <PostOptions
-            onClick={(event) => onMenuClick?.(event, post)}
-            post={post}
-          />
+          <PostOptions onClick={(event) => onMenuClick?.(event, post)} />
         </ActionButtons>
       </ListCardMain>
       {children}

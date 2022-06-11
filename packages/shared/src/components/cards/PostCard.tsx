@@ -3,7 +3,6 @@ import classNames from 'classnames';
 import { Post } from '../../graphql/posts';
 import {
   Card,
-  CardHeader,
   CardImage,
   CardSpace,
   CardTextContainer,
@@ -16,10 +15,9 @@ import TrendingFlag from './TrendingFlag';
 import PostLink from './PostLink';
 import PostMetadata from './PostMetadata';
 import ActionButtons from './ActionButtons';
-import SourceButton from './SourceButton';
 import PostAuthor from './PostAuthor';
-import OptionsButton from '../buttons/OptionsButton';
 import { ProfilePicture } from '../ProfilePicture';
+import { PostCardHeader } from './PostCardHeader';
 
 type Callback = (post: Post, e?: React.MouseEvent) => unknown;
 
@@ -72,13 +70,10 @@ export const PostCard = forwardRef(function PostCard(
     >
       <PostLink post={post} openNewTab={openNewTab} onLinkClick={onLinkClick} />
       <CardTextContainer>
-        <CardHeader>
-          <SourceButton post={post} style={{ marginRight: '0.875rem' }} />
-          <OptionsButton
-            onClick={(event) => onMenuClick?.(event, post)}
-            post={post}
-          />
-        </CardHeader>
+        <PostCardHeader
+          source={post.source}
+          onMenuClick={(event) => onMenuClick?.(event, post)}
+        />
         <CardTitle className={classNames(className, postHeadingFont)}>
           {post.title}
         </CardTitle>
