@@ -118,18 +118,29 @@
     --button-box-shadow: var(--button-pressed-box-shadow);
   }
 
-  &:hover, &.hover, &:focus:focus-visible {
-    --button-background: var(--button-hover-background);
-    --button-border-color: var(--button-hover-border-color);
-    --button-color: var(--button-hover-color);
-    --button-box-shadow: var(--button-hover-box-shadow);
+  &:not(.readOnly) {
+    &:hover, &.hover, &:focus:focus-visible {
+      --button-background: var(--button-hover-background);
+      --button-border-color: var(--button-hover-border-color);
+      --button-color: var(--button-hover-color);
+      --button-box-shadow: var(--button-hover-box-shadow);
+    }
   }
+
 
   &:active {
     --button-background: var(--button-active-background);
     --button-border-color: var(--button-active-border-color);
     --button-color: var(--button-active-color);
     --button-box-shadow: var(--button-active-box-shadow);
+  }
+
+  &.readOnly {
+    --button-border-color: var(--button-disabled-border-color);
+    --button-box-shadow: var(--button-disabled-box-shadow);
+
+    pointer-events: none;
+    cursor: default;
   }
 
   &[disabled] {
