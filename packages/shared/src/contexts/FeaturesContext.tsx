@@ -5,12 +5,15 @@ import {
   getFeatureValue,
   isFeaturedEnabled,
 } from '../lib/featureManagement';
+import { getThemeFont } from '../components/utilities';
 
 export interface FeaturesData {
   flags: IFlags;
   postEngagementNonClickable?: boolean;
   postModalByDefault?: boolean;
   postCardVersion?: string;
+  postHeadingFont?: string;
+  displayPublicationDate?: boolean;
 }
 
 const FeaturesContext = React.createContext<FeaturesData>({ flags: {} });
@@ -37,6 +40,14 @@ export const FeaturesContextProvider = ({
         remoteFlags,
       ),
       postCardVersion: getFeatureValue(Features.PostCardVersion, remoteFlags),
+      postHeadingFont: getThemeFont(
+        getFeatureValue(Features.PostCardHeadingFont, remoteFlags),
+        Features.PostCardHeadingFont.defaultValue,
+      ),
+      displayPublicationDate: !parseInt(
+        getFeatureValue(Features.HidePublicationDate, remoteFlags),
+        10,
+      ),
     }),
     [remoteFlags],
   );

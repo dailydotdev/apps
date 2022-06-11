@@ -32,12 +32,6 @@ import {
 } from '../lib/feed';
 import PostOptionsMenu from './PostOptionsMenu';
 import FeaturesContext from '../contexts/FeaturesContext';
-import {
-  Features,
-  getFeatureValue,
-  isFeaturedEnabled,
-} from '../lib/featureManagement';
-import { getThemeFont } from './utilities';
 import { PostModal } from './modals/PostModal';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
 import {
@@ -119,19 +113,8 @@ export default function Feed<T>({
   emptyScreen,
   createMyFeedCard,
 }: FeedProps<T>): ReactElement {
-  const { flags } = useContext(FeaturesContext);
-  const postHeadingFont = getThemeFont(
-    getFeatureValue(Features.PostCardHeadingFont, flags),
-    Features.PostCardHeadingFont.defaultValue,
-  );
-  const displayPublicationDate = !parseInt(
-    getFeatureValue(Features.HidePublicationDate, flags),
-    10,
-  );
-  const postModalByDefault = isFeaturedEnabled(
-    Features.PostModalByDefault,
-    flags,
-  );
+  const { postModalByDefault, postHeadingFont, displayPublicationDate } =
+    useContext(FeaturesContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
