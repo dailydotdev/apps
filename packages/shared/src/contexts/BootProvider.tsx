@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
 import { BootCacheData, getBootData } from '../lib/boot';
-import FeaturesContext from './FeaturesContext';
+import { FeaturesContextProvider } from './FeaturesContext';
 import { AuthContextProvider } from './AuthContext';
 import { AnonymousUser, LoggedUser } from '../lib/user';
 import { AlertContextProvider } from './AlertContext';
@@ -150,7 +150,7 @@ export const BootDataProvider = ({
   );
 
   return (
-    <FeaturesContext.Provider value={{ flags }}>
+    <FeaturesContextProvider remoteFlags={flags}>
       <AuthContextProvider
         user={user}
         updateUser={updateUser}
@@ -174,6 +174,6 @@ export const BootDataProvider = ({
           </AlertContextProvider>
         </SettingsContextProvider>
       </AuthContextProvider>
-    </FeaturesContext.Provider>
+    </FeaturesContextProvider>
   );
 };
