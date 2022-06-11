@@ -18,23 +18,21 @@ export const PostCardHeader = ({
   children,
   source,
 }: CardHeaderProps): ReactElement => {
-  const { postModalByDefault, postEngagementNonClickable, postCardVersion } =
+  const { postModalByDefault, postEngagementNonClickable } =
     useContext(FeaturesContext);
-  const isV1 = postCardVersion === 'v1';
 
   return (
     <CardHeader>
-      <SourceButton source={source} style={{ marginRight: '0.875rem' }} />
+      <SourceButton source={source} />
       {children}
       <span
         className={classNames(
           'flex flex-row ml-auto',
-          isV1 &&
-            !postModalByDefault &&
+          !postModalByDefault &&
             'laptop:mouse:invisible laptop:mouse:group-hover:visible',
         )}
       >
-        {isV1 && (postModalByDefault || postEngagementNonClickable) && (
+        {(postModalByDefault || postEngagementNonClickable) && (
           <Button className="btn-primary" buttonSize="small">
             Read article
           </Button>
