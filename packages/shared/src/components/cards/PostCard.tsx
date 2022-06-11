@@ -1,4 +1,10 @@
-import React, { forwardRef, HTMLAttributes, ReactElement, Ref } from 'react';
+import React, {
+  forwardRef,
+  HTMLAttributes,
+  ReactElement,
+  Ref,
+  useContext,
+} from 'react';
 import classNames from 'classnames';
 import { Post } from '../../graphql/posts';
 import {
@@ -18,6 +24,7 @@ import ActionButtons from './ActionButtons';
 import PostAuthor from './PostAuthor';
 import { ProfilePicture } from '../ProfilePicture';
 import { PostCardHeader } from './PostCardHeader';
+import FeaturesContext from '../../contexts/FeaturesContext';
 
 type Callback = (post: Post, e?: React.MouseEvent) => unknown;
 
@@ -59,6 +66,8 @@ export const PostCard = forwardRef(function PostCard(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
+  const { postCardVersion } = useContext(FeaturesContext);
+  const isV1 = postCardVersion === 'v1';
   const { trending } = post;
   const customStyle = !showImage ? { minHeight: '15.125rem' } : {};
   const card = (
@@ -70,10 +79,12 @@ export const PostCard = forwardRef(function PostCard(
     >
       <PostLink post={post} openNewTab={openNewTab} onLinkClick={onLinkClick} />
       <CardTextContainer>
-        <PostCardHeader
-          source={post.source}
-          onMenuClick={(event) => onMenuClick?.(event, post)}
-        />
+        {isV1 && (
+          <PostCardHeader
+            source={post.source}
+            onMenuClick={(event) => onMenuClick?.(event, post)}
+          />
+        )}
         <CardTitle className={classNames(className, postHeadingFont)}>
           {post.title}
         </CardTitle>
