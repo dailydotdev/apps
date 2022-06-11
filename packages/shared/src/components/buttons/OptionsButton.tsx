@@ -1,13 +1,17 @@
 import React, { ReactElement } from 'react';
+import classNames from 'classnames';
 import { AllowedTags, Button, ButtonProps } from './Button';
 import MenuIcon from '../icons/Menu';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 
-const OptionsButton = (props: ButtonProps<AllowedTags>): ReactElement => (
+const OptionsButton = ({
+  className,
+  ...props
+}: ButtonProps<AllowedTags>): ReactElement => (
   <SimpleTooltip placement="left" content="Options">
     <Button
       {...props}
-      className="my-auto btn-tertiary"
+      className={classNames('my-auto btn-tertiary', className)}
       icon={<MenuIcon size="medium" />}
       buttonSize="small"
     />
