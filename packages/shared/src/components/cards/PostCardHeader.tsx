@@ -28,7 +28,7 @@ export const PostCardHeader = ({
       <span
         className={classNames(
           'flex flex-row ml-auto',
-          !postModalByDefault &&
+          (!postModalByDefault || postEngagementNonClickable) &&
             'laptop:mouse:invisible laptop:mouse:group-hover:visible',
         )}
       >
