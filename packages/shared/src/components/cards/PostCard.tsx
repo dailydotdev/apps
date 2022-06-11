@@ -66,7 +66,8 @@ export const PostCard = forwardRef(function PostCard(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
-  const { postCardVersion } = useContext(FeaturesContext);
+  const { postCardVersion, postEngagementNonClickable } =
+    useContext(FeaturesContext);
   const isV1 = postCardVersion === 'v1';
   const { trending } = post;
   const customStyle = !showImage ? { minHeight: '15.125rem' } : {};
@@ -95,37 +96,48 @@ export const PostCard = forwardRef(function PostCard(
         readTime={post.readTime}
         className="mx-4"
       />
-      {!showImage && <PostAuthor post={post} className="mx-4 mt-2" />}
-      {showImage && (
-        <CardImage
-          imgAlt="Post Cover image"
-          imgSrc={post.image}
-          fallbackSrc="https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1"
-          className="my-2"
-        >
-          {post.author && (
-            <div
-              className={classNames(
-                'absolute flex items-center py-2 px-3 text-theme-label-secondary bg-theme-bg-primary z-1 font-bold typo-callout w-full',
-                styles.authorBox,
-              )}
-            >
-              <ProfilePicture size="small" user={post.author} />
-              <span className="flex-1 mx-3 truncate">{post.author.name}</span>
-              <FeatherIcon className="text-2xl text-theme-status-help" />
-            </div>
+      <div
+        className={classNames(
+          'flex',
+          postCardVersion === 'v1' ? 'flex-col' : 'flex-col-reverse',
+        )}
+      >
+        {!showImage && <PostAuthor post={post} className="mx-4 mt-2" />}
+        {showImage && (
+          <CardImage
+            imgAlt="Post Cover image"
+            imgSrc={post.image}
+            fallbackSrc="https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1"
+            className="my-2"
+          >
+            {post.author && (
+              <div
+                className={classNames(
+                  'absolute flex items-center py-2 px-3 text-theme-label-secondary bg-theme-bg-primary z-1 font-bold typo-callout w-full',
+                  styles.authorBox,
+                )}
+              >
+                <ProfilePicture size="small" user={post.author} />
+                <span className="flex-1 mx-3 truncate">{post.author.name}</span>
+                <FeatherIcon className="text-2xl text-theme-status-help" />
+              </div>
+            )}
+          </CardImage>
+        )}
+        <ActionButtons
+          post={post}
+          onUpvoteClick={onUpvoteClick}
+          onCommentClick={onCommentClick}
+          onBookmarkClick={onBookmarkClick}
+          showShare={showShare}
+          onShare={onShare}
+          className={classNames(
+            'mx-4',
+            !postEngagementNonClickable && 'justify-between',
+            !showImage && 'mt-4',
           )}
-        </CardImage>
-      )}
-      <ActionButtons
-        post={post}
-        onUpvoteClick={onUpvoteClick}
-        onCommentClick={onCommentClick}
-        onBookmarkClick={onBookmarkClick}
-        showShare={showShare}
-        onShare={onShare}
-        className={classNames('justify-between mx-4', !showImage && 'mt-4')}
-      />
+        />
+      </div>
       {children}
     </Card>
   );
