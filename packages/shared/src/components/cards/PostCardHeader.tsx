@@ -33,11 +33,11 @@ export const PostCardHeader = ({
         )}
       >
         {(postModalByDefault || postEngagementNonClickable) && (
-          <Button className="btn-primary" buttonSize="small">
+          <Button className="mr-2 btn-primary" buttonSize="small">
             Read article
           </Button>
         )}
-        <OptionsButton onClick={onMenuClick} />
+        <OptionsButton onClick={onMenuClick} tooltipPlacement="top" />
       </span>
     </CardHeader>
   );
