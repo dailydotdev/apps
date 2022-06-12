@@ -27,7 +27,7 @@ export default function SourceButton({
         <img
           src={source.image}
           alt={source.name}
-          className="w-6 h-6 rounded-full bg-theme-bg-tertiary"
+          className="w-8 h-8 rounded-full bg-theme-bg-tertiary"
         />
       </a>
     </LinkWithTooltip>
