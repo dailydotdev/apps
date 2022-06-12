@@ -1,4 +1,3 @@
-import classNames from 'classnames';
 import React, { ReactElement, ReactNode, useContext } from 'react';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import OptionsButton from '../buttons/OptionsButton';
@@ -27,13 +26,7 @@ export const PostCardHeader = ({
     <CardHeader>
       <SourceButton source={source} />
       {children}
-      <span
-        className={classNames(
-          'flex flex-row ml-auto',
-          (!postModalByDefault || postEngagementNonClickable) &&
-            'laptop:mouse:invisible laptop:mouse:group-hover:visible',
-        )}
-      >
+      <span className="flex laptop:mouse:invisible laptop:mouse:group-hover:visible flex-row ml-auto">
         {(postModalByDefault || postEngagementNonClickable) && (
           <ReadArticleButton className="mr-2" href={postLink} />
         )}
