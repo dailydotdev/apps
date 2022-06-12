@@ -25,6 +25,8 @@ export const FEED_POST_FRAGMENT = gql`
       name
       image
       username
+      permalink
+      id
     }
     featuredComments {
       id
