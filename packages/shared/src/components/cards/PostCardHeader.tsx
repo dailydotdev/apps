@@ -1,22 +1,24 @@
 import classNames from 'classnames';
 import React, { ReactElement, ReactNode, useContext } from 'react';
 import FeaturesContext from '../../contexts/FeaturesContext';
-import { Button } from '../buttons/Button';
 import OptionsButton from '../buttons/OptionsButton';
 import { CardHeader } from './Card';
 import SourceButton from './SourceButton';
 import { Source } from '../../graphql/sources';
+import { ReadArticleButton } from './ReadArticleButton';
 
 interface CardHeaderProps {
   children?: ReactNode;
   source: Source;
   onMenuClick?: (e: React.MouseEvent) => void;
+  postLink: string;
 }
 
 export const PostCardHeader = ({
   onMenuClick,
   children,
   source,
+  postLink,
 }: CardHeaderProps): ReactElement => {
   const { postModalByDefault, postEngagementNonClickable } =
     useContext(FeaturesContext);
@@ -33,9 +35,7 @@ export const PostCardHeader = ({
         )}
       >
         {(postModalByDefault || postEngagementNonClickable) && (
-          <Button className="mr-2 btn-primary" buttonSize="small">
-            Read article
-          </Button>
+          <ReadArticleButton className="mr-2" href={postLink} />
         )}
         <OptionsButton onClick={onMenuClick} tooltipPlacement="top" />
       </span>
