@@ -150,7 +150,7 @@ export const BootDataProvider = ({
   );
 
   return (
-    <FeaturesContextProvider remoteFlags={flags}>
+    <FeaturesContextProvider flags={flags}>
       <AuthContextProvider
         user={user}
         updateUser={updateUser}

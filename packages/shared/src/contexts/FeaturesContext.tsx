@@ -21,12 +21,12 @@ export default FeaturesContext;
 
 export type FeaturesContextProviderProps = {
   children?: ReactNode;
-  remoteFlags: IFlags | undefined;
+  flags: IFlags | undefined;
 };
 
 export const FeaturesContextProvider = ({
   children,
-  remoteFlags,
+  flags: remoteFlags,
 }: FeaturesContextProviderProps): ReactElement => {
   const features = useMemo(
     () => ({
