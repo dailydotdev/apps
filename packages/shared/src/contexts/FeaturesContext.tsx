@@ -26,30 +26,27 @@ export type FeaturesContextProviderProps = {
 
 export const FeaturesContextProvider = ({
   children,
-  flags: remoteFlags,
+  flags,
 }: FeaturesContextProviderProps): ReactElement => {
   const features = useMemo(
     () => ({
-      flags: remoteFlags,
+      flags,
       postEngagementNonClickable: isFeaturedEnabled(
         Features.PostEngagementNonClickable,
-        remoteFlags,
+        flags,
       ),
-      postModalByDefault: isFeaturedEnabled(
-        Features.PostModalByDefault,
-        remoteFlags,
-      ),
-      postCardVersion: getFeatureValue(Features.PostCardVersion, remoteFlags),
+      postModalByDefault: isFeaturedEnabled(Features.PostModalByDefault, flags),
+      postCardVersion: getFeatureValue(Features.PostCardVersion, flags),
       postHeadingFont: getThemeFont(
-        getFeatureValue(Features.PostCardHeadingFont, remoteFlags),
+        getFeatureValue(Features.PostCardHeadingFont, flags),
         Features.PostCardHeadingFont.defaultValue,
       ),
       displayPublicationDate: !parseInt(
-        getFeatureValue(Features.HidePublicationDate, remoteFlags),
+        getFeatureValue(Features.HidePublicationDate, flags),
         10,
       ),
     }),
-    [remoteFlags],
+    [flags],
   );
 
   return (
