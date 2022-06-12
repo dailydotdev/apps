@@ -25,6 +25,8 @@ import PostAuthor from './PostAuthor';
 import { ProfilePicture } from '../ProfilePicture';
 import { PostCardHeader } from './PostCardHeader';
 import FeaturesContext from '../../contexts/FeaturesContext';
+import classed from '../../lib/classed';
+import { PostFooterOverlay } from './PostFooterOverlay';
 
 type Callback = (post: Post, e?: React.MouseEvent) => unknown;
 
@@ -69,6 +71,11 @@ export const PostCard = forwardRef(function PostCard(
   const { postCardVersion, postEngagementNonClickable } =
     useContext(FeaturesContext);
   const isV1 = postCardVersion === 'v1';
+  const Containter = classed(
+    'div',
+    'relative flex',
+    postCardVersion === 'v1' ? 'flex-col' : 'flex-col-reverse',
+  );
   const { trending } = post;
   const customStyle = !showImage ? { minHeight: '15.125rem' } : {};
   const card = (
@@ -83,6 +90,7 @@ export const PostCard = forwardRef(function PostCard(
         {isV1 && (
           <PostCardHeader
             source={post.source}
+            postLink={post.permalink}
             onMenuClick={(event) => onMenuClick?.(event, post)}
           />
         )}
@@ -90,27 +98,24 @@ export const PostCard = forwardRef(function PostCard(
           {post.title}
         </CardTitle>
       </CardTextContainer>
-      <CardSpace />
-      <PostMetadata
-        createdAt={post.createdAt}
-        readTime={post.readTime}
-        className="mx-4"
-      />
-      <div
-        className={classNames(
-          'flex',
-          postCardVersion === 'v1' ? 'flex-col' : 'flex-col-reverse',
-        )}
-      >
+      <Containter className="flex-1">
+        <CardSpace />
+        <PostMetadata
+          createdAt={post.createdAt}
+          readTime={post.readTime}
+          className="mx-4"
+        />
+      </Containter>
+      <Containter>
         {!showImage && <PostAuthor post={post} className="mx-4 mt-2" />}
         {showImage && (
           <CardImage
             imgAlt="Post Cover image"
             imgSrc={post.image}
             fallbackSrc="https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1"
-            className="my-2"
+            className={isV1 ? 'my-2' : 'mt-2'}
           >
-            {post.author && (
+            {post.author && isV1 && (
               <div
                 className={classNames(
                   'absolute flex items-center py-2 px-3 text-theme-label-secondary bg-theme-bg-primary z-1 font-bold typo-callout w-full',
@@ -137,7 +142,15 @@ export const PostCard = forwardRef(function PostCard(
             !showImage && 'mt-4',
           )}
         />
-      </div>
+        {postCardVersion === 'v2' && (
+          <PostFooterOverlay
+            className="absolute right-0 bottom-0 left-0 rounded-b-12"
+            postLink={post.permalink}
+            source={post.source}
+            author={post.author}
+          />
+        )}
+      </Containter>
       {children}
     </Card>
   );
