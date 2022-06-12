@@ -4,6 +4,7 @@ import React, {
   ReactElement,
   Ref,
   useContext,
+  useMemo,
 } from 'react';
 import classNames from 'classnames';
 import { Post } from '../../graphql/posts';
@@ -71,10 +72,14 @@ export const PostCard = forwardRef(function PostCard(
   const { postCardVersion, postEngagementNonClickable } =
     useContext(FeaturesContext);
   const isV1 = postCardVersion === 'v1';
-  const Containter = classed(
-    'div',
-    'relative flex',
-    postCardVersion === 'v1' ? 'flex-col' : 'flex-col-reverse',
+  const Containter = useMemo(
+    () =>
+      classed(
+        'div',
+        'relative flex',
+        postCardVersion === 'v1' ? 'flex-col' : 'flex-col-reverse',
+      ),
+    [postCardVersion],
   );
   const { trending } = post;
   const customStyle = !showImage ? { minHeight: '15.125rem' } : {};
