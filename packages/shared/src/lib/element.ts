@@ -126,7 +126,7 @@ export const getSplittedText = (
   query: string,
 ): [Node, string, string] => {
   const companion = getShadowDom();
-  const offset = companion ? 0 : 1;
+  const offset = companion && isFirefox ? 0 : 1;
   const node = Array.from(textarea.childNodes).find((_, i) => i === row);
   const text = getNodeText(node);
   const left = text?.substring(0, col - 1) || '';
