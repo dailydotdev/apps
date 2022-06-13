@@ -7,9 +7,21 @@ type Row = number;
 export type CaretOffset = [number, number];
 export type CaretPosition = [Column, Row];
 
-const getShadowDom = (): Document =>
-  document.querySelector('daily-companion-app')
-    ?.shadowRoot as unknown as Document;
+const isFirefox = process.env.TARGET_BROWSER === 'firefox';
+
+const getShadowDom = (): Document => {
+  const companion = document.querySelector('daily-companion-app');
+
+  if (!companion) {
+    return null;
+  }
+
+  if (!isFirefox) {
+    return companion.shadowRoot as unknown as Document;
+  }
+
+  return companion.shadowRoot.ownerDocument;
+};
 
 export function getCaretPostition(el: Element): CaretPosition {
   const dom = getShadowDom() || window;
