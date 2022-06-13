@@ -54,11 +54,11 @@ export const ListCardMain = classed(
   'flex-1 flex flex-col items-start ml-4',
 );
 
-export const ListCardAside = classed('div', 'flex flex-col w-14 items-center');
+export const ListCardAside = classed('div', 'flex flex-col items-center');
 
 export const ListCardDivider = classed(
   'div',
-  'w-px bg-theme-divider-tertiary mb-1',
+  'w-px h-full bg-theme-divider-tertiary',
 );
 
 export const CardNotification = classed(
