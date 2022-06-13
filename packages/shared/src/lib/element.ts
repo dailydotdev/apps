@@ -9,14 +9,14 @@ export type CaretPosition = [Column, Row];
 
 const isFirefox = process.env.TARGET_BROWSER === 'firefox';
 
-const getShadowDom = (): Document => {
+const getShadowDom = (ownerDocument = false): Document => {
   const companion = document.querySelector('daily-companion-app');
 
   if (!companion) {
     return null;
   }
 
-  if (!isFirefox) {
+  if (!isFirefox && !ownerDocument) {
     return companion.shadowRoot as unknown as Document;
   }
 
@@ -97,9 +97,8 @@ const getNodeText = (node: Node) => {
 };
 
 export function setCaretPosition(el: Node, col: number): void {
-  const shadowDom = getShadowDom();
-  const range = (shadowDom || document).createRange();
-  const sel = (shadowDom || window).getSelection();
+  const range = (getShadowDom(true) || document).createRange();
+  const sel = (getShadowDom() || window).getSelection();
 
   range.setStart(el, col);
   range.collapse(true);
