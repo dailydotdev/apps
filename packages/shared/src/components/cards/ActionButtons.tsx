@@ -14,6 +14,7 @@ import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import OptionsButton from '../buttons/OptionsButton';
 import classed from '../../lib/classed';
+import { ReadArticleButton } from './ReadArticleButton';
 
 const ShareIcon = dynamic(() => import('../icons/Forward'));
 
@@ -27,14 +28,19 @@ export type ActionButtonsProps = {
   onShare?: (post: Post) => unknown;
   className?: string;
   children?: ReactNode;
+  insanseMode?: boolean;
 };
 
 const visibleOnHover =
   'laptop:mouse:invisible laptop:mouse:group-hover:visible';
-const getContainer = (displayWhenHovered = false) =>
+const getContainer = (displayWhenHovered = false, className?: string) =>
   classed(
     'div',
-    classNames('flex justify-between', displayWhenHovered && visibleOnHover),
+    classNames(
+      'flex justify-between',
+      displayWhenHovered && visibleOnHover,
+      className,
+    ),
   );
 
 export default function ActionButtons({
@@ -47,24 +53,41 @@ export default function ActionButtons({
   onShare,
   className,
   children,
+  insanseMode,
 }: ActionButtonsProps): ReactElement {
-  const { postCardVersion, postEngagementNonClickable } =
+  const { postCardVersion, postEngagementNonClickable, postModalByDefault } =
     useContext(FeaturesContext);
   const isV2 = postCardVersion === 'v2';
   const buttonStyles = postEngagementNonClickable ? {} : { width: rem(78) };
-  const LeftContainer = postEngagementNonClickable
-    ? getContainer()
+  const isABTested = postEngagementNonClickable || postModalByDefault;
+  const insaneModeTest = insanseMode && isABTested;
+  const separatedActions = postEngagementNonClickable || insaneModeTest;
+  const LeftContainer = separatedActions ? getContainer() : React.Fragment;
+  const RightContainer = separatedActions
+    ? getContainer(
+        isV2,
+        insaneModeTest && classNames(visibleOnHover, 'ml-auto'),
+      )
     : React.Fragment;
-  const RightContainer = postEngagementNonClickable
-    ? getContainer(isV2)
-    : React.Fragment;
+
+  const bookmarkButton = (
+    <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
+      <Button
+        icon={<BookmarkIcon filled={post.bookmarked} size="medium" />}
+        buttonSize="small"
+        pressed={post.bookmarked}
+        onClick={() => onBookmarkClick?.(post, !post.bookmarked)}
+        className="btn-tertiary-bun"
+      />
+    </SimpleTooltip>
+  );
 
   return (
     <div
       className={classNames(
         styles.actionButtons,
         'flex flex-row items-center',
-        postEngagementNonClickable && 'justify-between',
+        separatedActions && 'justify-between',
         className,
       )}
     >
@@ -114,20 +137,18 @@ export default function ActionButtons({
             />
           </QuaternaryButton>
         </SimpleTooltip>
+        {insanseMode &&
+          postModalByDefault &&
+          !postEngagementNonClickable &&
+          bookmarkButton}
       </LeftContainer>
       <RightContainer>
-        <SimpleTooltip
-          content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}
-        >
-          <Button
-            icon={<BookmarkIcon filled={post.bookmarked} size="medium" />}
-            buttonSize="small"
-            pressed={post.bookmarked}
-            onClick={() => onBookmarkClick?.(post, !post.bookmarked)}
-            className="btn-tertiary-bun"
-          />
-        </SimpleTooltip>
-        {isV2 && (
+        {insanseMode && separatedActions && (
+          <ReadArticleButton href={post.permalink} className="btn-tertiary" />
+        )}
+        {(!insanseMode || !postModalByDefault || postEngagementNonClickable) &&
+          bookmarkButton}
+        {(isV2 || insanseMode) && (
           <OptionsButton className={visibleOnHover} onClick={onMenuClick} />
         )}
         {showShare && (

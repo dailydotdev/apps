@@ -16,7 +16,6 @@ import SourceButton from './SourceButton';
 import styles from './Card.module.css';
 import TrendingFlag from './TrendingFlag';
 import PostAuthor from './PostAuthor';
-import PostOptions from '../buttons/OptionsButton';
 
 export const PostList = forwardRef(function PostList(
   {
@@ -74,9 +73,9 @@ export const PostList = forwardRef(function PostList(
           showShare={showShare}
           onShare={onShare}
           className="relative self-stretch mt-1"
-        >
-          <PostOptions onClick={(event) => onMenuClick?.(event, post)} />
-        </ActionButtons>
+          onMenuClick={(event) => onMenuClick?.(event, post)}
+          insanseMode
+        />
       </ListCardMain>
       {children}
     </ListCard>
