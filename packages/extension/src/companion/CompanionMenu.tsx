@@ -239,7 +239,7 @@ export default function CompanionMenu({
           pressed={post?.bookmarked}
           className="btn-tertiary-bun"
           onClick={toggleBookmark}
-          icon={<BookmarkIcon />}
+          icon={<BookmarkIcon filled={post?.bookmarked} />}
         />
       </SimpleTooltip>
       <SimpleTooltip
