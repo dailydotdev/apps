@@ -126,10 +126,12 @@ export const getSplittedText = (
   [col, row]: CaretPosition,
   query: string,
 ): [Node, string, string] => {
+  const companion = getShadowDom();
+  const offset = companion ? 0 : 1;
   const node = Array.from(textarea.childNodes).find((_, i) => i === row);
   const text = getNodeText(node);
   const left = text?.substring(0, col - 1) || '';
-  const right = text?.substring(col + query.length - 1) || '';
+  const right = text?.substring(col + query.length - offset) || '';
 
   return [node, left, right];
 };
