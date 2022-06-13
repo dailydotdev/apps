@@ -97,8 +97,9 @@ const getNodeText = (node: Node) => {
 };
 
 export function setCaretPosition(el: Node, col: number): void {
-  const range = document.createRange();
-  const sel = window.getSelection();
+  const shadowDom = getShadowDom();
+  const range = (shadowDom || document).createRange();
+  const sel = (shadowDom || window).getSelection();
 
   range.setStart(el, col);
   range.collapse(true);
