@@ -28,7 +28,7 @@ export function RecommendedMention({
   return (
     <ul
       className="flex overflow-hidden flex-col rounded-16 border border-theme-divider-secondary text-theme-label-primary"
-      style={{ minWidth: '15rem' }}
+      style={{ width: '15rem' }}
       role="listbox"
     >
       {users.map((user, index) => (
