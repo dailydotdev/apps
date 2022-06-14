@@ -1,5 +1,6 @@
 import React, { ReactElement, useContext, useState, useMemo } from 'react';
 import classNames from 'classnames';
+import dynamic from 'next/dynamic';
 import SettingsContext from '../../contexts/SettingsContext';
 import { FeedSettingsModal } from '../modals/FeedSettingsModal';
 import {
@@ -27,6 +28,7 @@ import SearchIcon from '../icons/Search';
 import FilterIcon from '../icons/Filter';
 import MoonIcon from '../icons/Moon';
 import HomeIcon from '../icons/Home';
+import LinkIcon from '../icons/Link';
 import SettingsIcon from '../icons/Settings';
 import BookmarkIcon from '../icons/Bookmark';
 import EyeIcon from '../icons/Eye';
@@ -45,9 +47,17 @@ import FeaturesContext from '../../contexts/FeaturesContext';
 import { AlertColor, AlertDot } from '../AlertDot';
 import { useMyFeed } from '../../hooks/useMyFeed';
 import useDefaultFeed from '../../hooks/useDefaultFeed';
-import { Features, getFeatureValue } from '../../lib/featureManagement';
+import {
+  Features,
+  getFeatureValue,
+  isFeaturedEnabled,
+} from '../../lib/featureManagement';
 import CreateMyFeedButton from '../CreateMyFeedButton';
 import CreateMyFeedModal from '../modals/CreateMyFeedModal';
+
+const SubmitArticleModal = dynamic(
+  () => import('../modals/SubmitArticleModal'),
+);
 
 const bottomMenuItems: SidebarMenuItem[] = [
   {
@@ -158,10 +168,21 @@ export default function Sidebar({
     optOutWeeklyGoal,
   } = useContext(SettingsContext);
   const [showSettings, setShowSettings] = useState(false);
+  const [showSubmitArticle, setShowSubmitArticle] = useState(false);
   const shouldShowDnD = !!process.env.TARGET_BROWSER;
   const { flags } = useContext(FeaturesContext);
   const popularFeedCopy = getFeatureValue(Features.PopularFeedCopy, flags);
   const feedFilterModal = getFeatureValue(Features.FeedFilterModal, flags);
+  const submitArticleSidebarButton = getFeatureValue(
+    Features.SubmitArticleSidebarButton,
+    flags,
+  );
+  const submitArticleModalButton = getFeatureValue(
+    Features.SubmitArticleModalButton,
+    flags,
+  );
+  const canSubmitArticle = isFeaturedEnabled(Features.SubmitArticle, flags);
+  const submitArticleOn = isFeaturedEnabled(Features.SubmitArticleOn, flags);
 
   useHideMobileSidebar({
     state: openMobileSidebar,
@@ -177,6 +198,15 @@ export default function Sidebar({
       event_name: `${sidebarExpanded ? 'open' : 'close'} sidebar`,
     });
     toggleSidebarExpanded();
+  };
+
+  const trackAndShowSubmitArticle = () => {
+    trackEvent({
+      event_name: 'start submit article',
+      feed_item_title: submitArticleSidebarButton,
+      extra: JSON.stringify({ has_access: canSubmitArticle }),
+    });
+    setShowSubmitArticle(!showSubmitArticle);
   };
 
   const discoverMenuItems: SidebarMenuItem[] = [
@@ -267,6 +297,17 @@ export default function Sidebar({
       active: showSettings,
     },
   ];
+  if (submitArticleOn) {
+    const submitArticleMenuItem = {
+      icon: (active: boolean) => (
+        <ListIcon Icon={() => <LinkIcon filled={active} />} />
+      ),
+      title: submitArticleSidebarButton,
+      action: () => trackAndShowSubmitArticle(),
+      active: showSubmitArticle,
+    };
+    manageMenuItems.unshift(submitArticleMenuItem);
+  }
   if (shouldShowDnD) {
     const dndMenuItem = {
       icon: (active: boolean) => (
@@ -374,6 +415,15 @@ export default function Sidebar({
           </Nav>
         </SidebarScrollWrapper>
       </SidebarAside>
+      {showSubmitArticle && (
+        <SubmitArticleModal
+          headerCopy={submitArticleSidebarButton}
+          submitArticleModalButton={submitArticleModalButton}
+          isEnabled={canSubmitArticle}
+          isOpen={showSubmitArticle}
+          onRequestClose={() => setShowSubmitArticle(false)}
+        />
+      )}
       {showSettings && (
         <FeedSettingsModal
           isOpen={showSettings}

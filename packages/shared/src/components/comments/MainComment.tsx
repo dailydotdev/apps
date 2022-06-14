@@ -47,10 +47,10 @@ export default function MainComment({
         <div className="flex flex-col ml-2">
           <div className="flex">
             <CommentAuthor
-            postAuthorId={postAuthorId}
-            author={comment.author}
-            appendTooltipTo={appendTooltipTo}
-          />
+              postAuthorId={postAuthorId}
+              author={comment.author}
+              appendTooltipTo={appendTooltipTo}
+            />
             <ScoutBadge />
           </div>
           <CommentPublishDate comment={comment} />

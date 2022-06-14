@@ -198,7 +198,7 @@ const READING_HISTORY_CONNECTION_FRAGMENT = gql`
   }
 `;
 
-export interface HideReadHistoryProps {
+export interface HidePostItemCardProps {
   timestamp: Date;
   postId: string;
 }

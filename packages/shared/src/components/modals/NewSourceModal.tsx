@@ -252,7 +252,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
         rel="noopener"
         href={contentGuidlines}
       >
-        Content guidelines
+        Learn more
       </a>
       <form
         className="flex flex-col px-10 w-full"

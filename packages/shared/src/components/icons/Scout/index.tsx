@@ -3,8 +3,8 @@ import Icon, { IconProps } from '../../Icon';
 import OutlinedIcon from './outlined.svg';
 import FilledIcon from './filled.svg';
 
-const HunterIcon = (props: IconProps): ReactElement => (
+const ScoutIcon = (props: IconProps): ReactElement => (
   <Icon {...props} IconOutlined={OutlinedIcon} IconFilled={FilledIcon} />
 );
 
-export default HunterIcon;
+export default ScoutIcon;

@@ -76,7 +76,8 @@ body {
   --theme-post-disabled: theme('colors.pepper.70')66;
 
   --theme-overlay-quaternary: theme('colors.overlay.quaternary.white');
-  --theme-overlay-water: theme('colors.water.50');
+  --theme-overlay-water: theme('colors.overlay.quaternary.water');
+  --theme-overlay-cabbage: theme('colors.overlay.quaternary.cabbage');
 
   --theme-rank-highlight: theme('colors.salt.10');
 
@@ -176,7 +177,8 @@ body {
   --theme-post-disabled: #ffffff66;
 
   --theme-overlay-quaternary: theme('colors.overlay.quaternary.pepper');
-  --theme-overlay-water: theme('colors.water.60');
+  --theme-overlay-water: theme('colors.overlay.quaternary.water');
+  --theme-overlay-cabbage: theme('colors.overlay.quaternary.cabbage');
 
   --theme-rank-highlight: theme('colors.salt.10');
 

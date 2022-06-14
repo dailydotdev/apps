@@ -40,8 +40,8 @@ import { formToJson } from '../../lib/form';
 import styles from './PostsSection.module.css';
 import classed from '../../lib/classed';
 import sizeN from '../../../macros/sizeN.macro';
-import FeatherIcon from '../../../icons/feather.svg';
-import ScoutIcon from '../../../icons/filled/scout.svg';
+import FeatherIcon from '../icons/Feather';
+import ScoutIcon from '../icons/Scout';
 
 const AccountDetailsModal = dynamic(
   () =>
@@ -70,11 +70,13 @@ const iconImage = (post: Post) => {
       >
         {post.isAuthor ? (
           <FeatherIcon
+            filled
             data-testid="post-author-badge"
             className="text-xl text-theme-color-cheese"
           />
         ) : (
           <ScoutIcon
+            filled
             data-testid="post-scout-badge"
             className="text-xl text-theme-color-bun"
           />

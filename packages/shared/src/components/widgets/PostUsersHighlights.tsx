@@ -5,7 +5,7 @@ import classed from '../../lib/classed';
 import { LazyImage } from '../LazyImage';
 import { WidgetContainer } from './common';
 import FeatherIcon from '../icons/Feather';
-import HunterIcon from '../icons/Hunter';
+import ScoutIcon from '../icons/Scout';
 import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 import { ProfileLink } from '../profile/ProfileLink';
 import { Author } from '../../graphql/comments';
@@ -31,7 +31,7 @@ interface SourceAuthorProps {
 const getUserIcon = (userType: UserType) => {
   if (userType === 'source') return null;
 
-  return userType === 'author' ? FeatherIcon : HunterIcon;
+  return userType === 'author' ? FeatherIcon : ScoutIcon;
 };
 
 const Image = (props: SourceAuthorProps) => {
