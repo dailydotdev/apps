@@ -108,7 +108,7 @@ export default function CommentActionButtons({
           buttonSize="small"
           pressed={upvoted}
           onClick={toggleUpvote}
-          icon={<UpvoteIcon />}
+          icon={<UpvoteIcon filled={upvoted} />}
           className="mr-3 btn-tertiary-avocado"
         />
       </SimpleTooltip>

@@ -7,9 +7,21 @@ type Row = number;
 export type CaretOffset = [number, number];
 export type CaretPosition = [Column, Row];
 
-const getShadowDom = (): Document =>
-  document.querySelector('daily-companion-app')
-    ?.shadowRoot as unknown as Document;
+const isFirefox = process.env.TARGET_BROWSER === 'firefox';
+
+const getShadowDom = (ownerDocument = false): Document => {
+  const companion = document.querySelector('daily-companion-app');
+
+  if (!companion) {
+    return null;
+  }
+
+  if (!isFirefox && !ownerDocument) {
+    return companion.shadowRoot as unknown as Document;
+  }
+
+  return companion.shadowRoot.ownerDocument;
+};
 
 export function getCaretPostition(el: Element): CaretPosition {
   const dom = getShadowDom() || window;
@@ -85,8 +97,8 @@ const getNodeText = (node: Node) => {
 };
 
 export function setCaretPosition(el: Node, col: number): void {
-  const range = document.createRange();
-  const sel = window.getSelection();
+  const range = (getShadowDom(true) || document).createRange();
+  const sel = (getShadowDom() || window).getSelection();
 
   range.setStart(el, col);
   range.collapse(true);
@@ -113,10 +125,12 @@ export const getSplittedText = (
   [col, row]: CaretPosition,
   query: string,
 ): [Node, string, string] => {
+  const companion = getShadowDom();
+  const offset = companion && isFirefox ? 0 : 1;
   const node = Array.from(textarea.childNodes).find((_, i) => i === row);
   const text = getNodeText(node);
   const left = text?.substring(0, col - 1) || '';
-  const right = text?.substring(col + query.length - 1) || '';
+  const right = text?.substring(col + query.length - offset) || '';
 
   return [node, left, right];
 };
