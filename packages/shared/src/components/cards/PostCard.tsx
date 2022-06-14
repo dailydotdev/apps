@@ -76,7 +76,7 @@ export const PostCard = forwardRef(function PostCard(
     () =>
       classed(
         'div',
-        'relative flex',
+        'relative flex flex-1',
         postCardVersion === 'v1' ? 'flex-col' : 'flex-col-reverse',
       ),
     [postCardVersion],
@@ -103,7 +103,7 @@ export const PostCard = forwardRef(function PostCard(
           {post.title}
         </CardTitle>
       </CardTextContainer>
-      <Containter className="flex-1 mb-8 tablet:mb-0">
+      <Containter className="mb-8 tablet:mb-0">
         <CardSpace />
         <PostMetadata
           createdAt={post.createdAt}
