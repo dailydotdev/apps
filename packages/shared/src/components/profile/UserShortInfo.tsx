@@ -1,9 +1,9 @@
 import classNames from 'classnames';
 import React, { ReactElement } from 'react';
 import { Author } from '../../graphql/comments';
-import classed from '../../lib/classed';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { TooltipProps } from '../tooltips/BaseTooltip';
+import { getTextEllipsis } from '../utilities';
 import { ProfileTooltip } from './ProfileTooltip';
 
 // reference: https://stackoverflow.com/a/54049872/5532217
@@ -28,10 +28,7 @@ interface UserShortInfoProps<Tag extends AnyTag> {
   appendTooltipTo?: HTMLElement;
 }
 
-const TextEllipsis = classed(
-  'span',
-  'overflow-hidden whitespace-nowrap text-ellipsis',
-);
+const TextEllipsis = getTextEllipsis();
 
 export function UserShortInfo<Tag extends AnyTag>({
   imageSize = 'xlarge',
@@ -71,7 +68,7 @@ export function UserShortInfo<Tag extends AnyTag>({
         scrollingContainer={scrollingContainer}
       >
         <div className="flex overflow-hidden flex-col flex-1 ml-4 typo-callout">
-          <TextEllipsis className="font-bold">{name}</TextEllipsis>
+          <TextEllipsis className="font-bold">{name} AAaa</TextEllipsis>
           <TextEllipsis className="text-theme-label-secondary">
             @{username}
           </TextEllipsis>

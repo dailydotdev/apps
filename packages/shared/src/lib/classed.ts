@@ -20,6 +20,11 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 
+export type ClassedHTML<
+  P extends HTMLAttributes<T>,
+  T extends HTMLElement,
+> = ForwardRefExoticComponent<PropsWithoutRef<P> & RefAttributes<T>>;
+
 function classed(
   type: 'input',
   ...className: string[]
@@ -74,7 +79,7 @@ function classed(
 function classed<P extends HTMLAttributes<T>, T extends HTMLElement>(
   type: keyof ReactHTML,
   ...className: string[]
-): ForwardRefExoticComponent<PropsWithoutRef<P> & RefAttributes<T>>;
+): ClassedHTML<P, T>;
 
 function classed<P extends SVGAttributes<T>, T extends SVGElement>(
   type: keyof ReactSVG,
