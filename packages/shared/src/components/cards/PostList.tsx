@@ -52,7 +52,7 @@ export const PostList = forwardRef(function PostList(
   const isV1 = postCardVersion === 'v1';
   const isV2 = postCardVersion === 'v2';
   const ActionsContainer = isV2
-    ? useMemo(() => classed('div', 'flex flex-row items-center'), [isV2])
+    ? useMemo(() => classed('div', 'flex flex-row items-center w-full'), [isV2])
     : React.Fragment;
 
   const card = (
@@ -113,7 +113,7 @@ export const PostList = forwardRef(function PostList(
             onShare={onShare}
             className="relative self-stretch mt-1"
             onMenuClick={(event) => onMenuClick?.(event, post)}
-            insanseMode
+            insaneMode
           />
         </ActionsContainer>
       </ListCardMain>

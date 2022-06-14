@@ -28,7 +28,7 @@ export type ActionButtonsProps = {
   onShare?: (post: Post) => unknown;
   className?: string;
   children?: ReactNode;
-  insanseMode?: boolean;
+  insaneMode?: boolean;
 };
 
 const visibleOnHover =
@@ -53,20 +53,22 @@ export default function ActionButtons({
   onShare,
   className,
   children,
-  insanseMode,
+  insaneMode,
 }: ActionButtonsProps): ReactElement {
   const { postCardVersion, postEngagementNonClickable, postModalByDefault } =
     useContext(FeaturesContext);
   const isV2 = postCardVersion === 'v2';
   const buttonStyles = postEngagementNonClickable ? {} : { width: rem(78) };
-  const isABTested = postEngagementNonClickable || postModalByDefault;
-  const insaneModeTest = insanseMode && isABTested;
-  const separatedActions = postEngagementNonClickable || insaneModeTest;
+  const separatedActions =
+    (insaneMode && postModalByDefault) ||
+    (postModalByDefault && postEngagementNonClickable);
   const LeftContainer = separatedActions ? getContainer() : React.Fragment;
   const RightContainer = separatedActions
     ? getContainer(
         isV2,
-        insaneModeTest && classNames(visibleOnHover, 'ml-auto'),
+        insaneMode &&
+          postModalByDefault &&
+          classNames(visibleOnHover, 'ml-auto'),
       )
     : React.Fragment;
 
@@ -88,6 +90,7 @@ export default function ActionButtons({
         styles.actionButtons,
         'flex flex-row items-center',
         separatedActions && 'justify-between',
+        insaneMode && isV2 && 'flex-1',
         className,
       )}
     >
@@ -137,19 +140,23 @@ export default function ActionButtons({
             />
           </QuaternaryButton>
         </SimpleTooltip>
-        {insanseMode &&
+        {insaneMode &&
           postModalByDefault &&
           !postEngagementNonClickable &&
           bookmarkButton}
       </LeftContainer>
       <RightContainer>
-        {insanseMode && separatedActions && (
+        {insaneMode && postModalByDefault && (
           <ReadArticleButton href={post.permalink} className="btn-tertiary" />
         )}
-        {(!insanseMode || !postModalByDefault || postEngagementNonClickable) &&
+        {(!insaneMode || !postModalByDefault || postEngagementNonClickable) &&
           bookmarkButton}
-        {(isV2 || insanseMode) && (
-          <OptionsButton className={visibleOnHover} onClick={onMenuClick} />
+        {(isV2 || insaneMode) && (
+          <OptionsButton
+            className={visibleOnHover}
+            onClick={onMenuClick}
+            tooltipPlacement="top"
+          />
         )}
         {showShare && (
           <SimpleTooltip content="Share post">
