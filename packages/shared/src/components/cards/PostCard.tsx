@@ -76,7 +76,7 @@ export const PostCard = forwardRef(function PostCard(
     () =>
       classed(
         'div',
-        'relative flex',
+        'relative flex flex-1',
         postCardVersion === 'v1' ? 'flex-col' : 'flex-col-reverse',
       ),
     [postCardVersion],
@@ -103,7 +103,7 @@ export const PostCard = forwardRef(function PostCard(
           {post.title}
         </CardTitle>
       </CardTextContainer>
-      <Containter className="flex-1">
+      <Containter className="mb-8 tablet:mb-0">
         <CardSpace />
         <PostMetadata
           createdAt={post.createdAt}
@@ -114,14 +114,14 @@ export const PostCard = forwardRef(function PostCard(
       <Containter>
         {postCardVersion === 'v2' && (
           <PostFooterOverlay
-            className="laptop:absolute laptop:right-0 laptop:bottom-0 laptop:left-0 rounded-b-12 laptop:border-0 border-t border-theme-divider-tertiary"
+            className="relative tablet:absolute tablet:right-0 tablet:bottom-0 tablet:left-0 mt-2 tablet:mt-0 rounded-b-12 tablet:border-0 border-t border-theme-divider-tertiary"
             postLink={post.permalink}
             source={post.source}
             author={post.author}
           />
         )}
         {!showImage && (
-          <PostAuthor post={post} className="hidden laptop:flex mx-4 mt-2" />
+          <PostAuthor post={post} className="hidden tablet:flex mx-4 mt-2" />
         )}
         {showImage && (
           <CardImage
