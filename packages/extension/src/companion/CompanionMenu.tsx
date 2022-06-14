@@ -209,7 +209,7 @@ export default function CompanionMenu({
       >
         <Button
           buttonSize="medium"
-          icon={<UpvoteIcon filled={post?.upvoted} />}
+          icon={<UpvoteIcon className="icon" filled={post?.upvoted} />}
           pressed={post?.upvoted}
           onClick={toggleUpvote}
           className="btn-tertiary-avocado"
@@ -224,7 +224,7 @@ export default function CompanionMenu({
         <Button
           buttonSize="medium"
           className="btn-tertiary"
-          icon={<CommentIcon />}
+          icon={<CommentIcon className="icon" />}
           onClick={() => openNewComment('comment button')}
         />
       </SimpleTooltip>
@@ -239,7 +239,7 @@ export default function CompanionMenu({
           pressed={post?.bookmarked}
           className="btn-tertiary-bun"
           onClick={toggleBookmark}
-          icon={<BookmarkIcon filled={post?.bookmarked} />}
+          icon={<BookmarkIcon className="icon" filled={post?.bookmarked} />}
         />
       </SimpleTooltip>
       <SimpleTooltip
@@ -251,7 +251,7 @@ export default function CompanionMenu({
         <Button
           buttonSize="medium"
           className="btn-tertiary"
-          icon={<MenuIcon />}
+          icon={<MenuIcon className="icon" />}
           onClick={onContextOptions}
         />
       </SimpleTooltip>
