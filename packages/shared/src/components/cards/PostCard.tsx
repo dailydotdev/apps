@@ -141,6 +141,7 @@ export const PostCard = forwardRef(function PostCard(
           onBookmarkClick={onBookmarkClick}
           showShare={showShare}
           onShare={onShare}
+          onMenuClick={(event) => onMenuClick?.(event, post)}
           className={classNames(
             'mx-4',
             !postEngagementNonClickable && 'justify-between',
