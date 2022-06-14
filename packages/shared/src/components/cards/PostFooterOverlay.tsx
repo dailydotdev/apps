@@ -45,7 +45,7 @@ export const PostFooterOverlay = ({
       )}
       {(postModalByDefault || postEngagementNonClickable) && (
         <ReadArticleButton
-          className="laptop:mouse:invisible laptop:mouse:group-hover:visible ml-auto"
+          className="laptop:mouse:invisible laptop:mouse:group-hover:visible ml-auto btn-primary"
           href={postLink}
         />
       )}
