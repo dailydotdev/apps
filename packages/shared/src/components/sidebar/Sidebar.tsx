@@ -182,7 +182,7 @@ export default function Sidebar({
     flags,
   );
   const canSubmitArticle = isFeaturedEnabled(Features.SubmitArticle, flags);
-  const submitArticleOnOn = isFeaturedEnabled(Features.SubmitArticleOn, flags);
+  const submitArticleOn = isFeaturedEnabled(Features.SubmitArticleOn, flags);
 
   useHideMobileSidebar({
     state: openMobileSidebar,
@@ -297,7 +297,7 @@ export default function Sidebar({
       active: showSettings,
     },
   ];
-  if (submitArticleOnOn) {
+  if (submitArticleOn) {
     const submitArticleMenuItem = {
       icon: (active: boolean) => (
         <ListIcon Icon={() => <LinkIcon filled={active} />} />
