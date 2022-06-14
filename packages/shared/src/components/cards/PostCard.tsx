@@ -112,7 +112,17 @@ export const PostCard = forwardRef(function PostCard(
         />
       </Containter>
       <Containter>
-        {!showImage && <PostAuthor post={post} className="mx-4 mt-2" />}
+        {postCardVersion === 'v2' && (
+          <PostFooterOverlay
+            className="laptop:absolute laptop:right-0 laptop:bottom-0 laptop:left-0 rounded-b-12 laptop:border-0 border-t border-theme-divider-tertiary"
+            postLink={post.permalink}
+            source={post.source}
+            author={post.author}
+          />
+        )}
+        {!showImage && (
+          <PostAuthor post={post} className="hidden laptop:flex mx-4 mt-2" />
+        )}
         {showImage && (
           <CardImage
             imgAlt="Post Cover image"
@@ -145,17 +155,9 @@ export const PostCard = forwardRef(function PostCard(
           className={classNames(
             'mx-4',
             !postEngagementNonClickable && 'justify-between',
-            !showImage && 'mt-4',
+            !showImage && 'my-4 laptop:mb-0',
           )}
         />
-        {postCardVersion === 'v2' && (
-          <PostFooterOverlay
-            className="absolute right-0 bottom-0 left-0 rounded-b-12"
-            postLink={post.permalink}
-            source={post.source}
-            author={post.author}
-          />
-        )}
       </Containter>
       {children}
     </Card>

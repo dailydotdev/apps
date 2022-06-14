@@ -32,7 +32,7 @@ export const PostFooterOverlay = ({
 
   return (
     <div className={classNames('flex flex-row p-2', className)}>
-      <Overlay />
+      <Overlay className="z-1" />
       <SourceButton source={source} />
       {author && (
         <ProfileTooltip link={{ href: author.permalink }} user={author}>
@@ -45,7 +45,7 @@ export const PostFooterOverlay = ({
       )}
       {(postModalByDefault || postEngagementNonClickable) && (
         <ReadArticleButton
-          className="laptop:mouse:invisible laptop:mouse:group-hover:visible ml-auto btn-primary"
+          className="laptop:mouse:invisible laptop:mouse:group-hover:visible ml-auto btn-tertiary laptop:btn-primary"
           href={postLink}
         />
       )}
