@@ -8,4 +8,7 @@ daily-companion-app {
   position: fixed;
   z-index: 2147483647;
   font-feature-settings: normal!important;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
