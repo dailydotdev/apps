@@ -114,9 +114,11 @@ export default function ActionButtons({
             style={buttonStyles}
             className="btn-tertiary-avocado"
           >
-            <InteractionCounter
-              value={post.numUpvotes > 0 && post.numUpvotes}
-            />
+            {postEngagementNonClickable && !post.numUpvotes ? null : (
+              <InteractionCounter
+                value={post.numUpvotes > 0 && post.numUpvotes}
+              />
+            )}
           </QuaternaryButton>
         </SimpleTooltip>
         <SimpleTooltip content="Comments" disabled={postEngagementNonClickable}>
