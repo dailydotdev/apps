@@ -1,4 +1,10 @@
-import React, { forwardRef, HTMLAttributes, ReactElement, Ref } from 'react';
+import React, {
+  forwardRef,
+  HTMLAttributes,
+  ReactElement,
+  Ref,
+  useContext,
+} from 'react';
 import classNames from 'classnames';
 import {
   Card,
@@ -11,6 +17,7 @@ import { Ad } from '../../graphql/posts';
 import styles from './Card.module.css';
 import AdLink from './AdLink';
 import AdAttribution from './AdAttribution';
+import FeaturesContext from '../../contexts/FeaturesContext';
 
 type Callback = (ad: Ad) => unknown;
 
@@ -25,6 +32,7 @@ export const AdCard = forwardRef(function AdCard(
   { ad, onLinkClick, showImage = true, postHeadingFont, ...props }: AdCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
+  const { postEngagementNonClickable } = useContext(FeaturesContext);
   const showBlurredImage = ad.source === 'Carbon';
 
   return (
@@ -36,6 +44,11 @@ export const AdCard = forwardRef(function AdCard(
         </CardTitle>
       </CardTextContainer>
       <CardSpace />
+      {postEngagementNonClickable && (
+        <CardTextContainer>
+          <AdAttribution ad={ad} className="mt-4 mb-2" />
+        </CardTextContainer>
+      )}
       {showImage && (
         <div className="overflow-hidden relative z-1 rounded-xl">
           <CardImage
@@ -54,9 +67,11 @@ export const AdCard = forwardRef(function AdCard(
           )}
         </div>
       )}
-      <CardTextContainer>
-        <AdAttribution ad={ad} className="mt-4 mb-2" />
-      </CardTextContainer>
+      {!postEngagementNonClickable && (
+        <CardTextContainer>
+          <AdAttribution ad={ad} className="mt-4 mb-2" />
+        </CardTextContainer>
+      )}
       {ad.pixel?.map((pixel) => (
         <img
           src={pixel}
