@@ -63,7 +63,7 @@ export default function BookmarkFeedLayout({
   const shareBookmarksButton = (style: string, text?: string) => (
     <Button
       className={style}
-      icon={<SourceIcon />}
+      icon={<SourceIcon className="icon" />}
       onClick={() => setShowSharedBookmarks(true)}
     >
       {text}

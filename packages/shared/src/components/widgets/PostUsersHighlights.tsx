@@ -87,10 +87,10 @@ const UserHighlight = (props: SourceAuthorProps) => {
       {Icon && (
         <Icon
           className={classNames(
-            'absolute w-5 h-5 top-11 left-11',
+            'absolute w-5 h-5 top-10 left-10',
             userType === 'author'
-              ? 'top-11 left-11 text-theme-color-cheese'
-              : 'top-10 left-10 text-theme-color-bun',
+              ? 'text-theme-color-cheese'
+              : 'text-theme-color-bun',
           )}
         />
       )}
