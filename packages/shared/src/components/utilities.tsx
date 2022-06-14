@@ -1,5 +1,5 @@
-import React, { ReactElement } from 'react';
-import classed from '../lib/classed';
+import React, { HTMLAttributes, ReactElement, ReactHTML } from 'react';
+import classed, { ClassedHTML } from '../lib/classed';
 import styles from './utilities.module.css';
 import ArrowIcon from './icons/Arrow';
 import { PostBootData } from '../lib/boot';
@@ -181,3 +181,11 @@ export const HotLabel = (): ReactElement => (
     Hot
   </div>
 );
+
+export const getTextEllipsis = <
+  P extends HTMLAttributes<T>,
+  T extends HTMLElement,
+>(
+  type: keyof ReactHTML = 'span',
+): ClassedHTML<P, T> =>
+  classed<P, T>(type, 'overflow-hidden whitespace-nowrap text-ellipsis');
