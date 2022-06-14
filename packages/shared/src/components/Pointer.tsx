@@ -3,7 +3,7 @@ import classed from '../lib/classed';
 
 const PointerContainer = classed(
   'div',
-  'h-5 -top-5 right-1 flex flex-col items-center absolute',
+  'h-5 z-3 flex flex-col items-center absolute',
 );
 const PointerPoint = classed('i', 'w-1.5 h-1.5 rounded-full block');
 const PointerLine = classed('i', 'w-px h-3.5  block');
