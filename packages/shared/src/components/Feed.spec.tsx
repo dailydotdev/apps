@@ -52,6 +52,7 @@ import {
 } from '../graphql/feedSettings';
 import { getFeedSettingsQueryKey } from '../hooks/useFeedSettings';
 import Toast from './notifications/Toast';
+import { FeaturesContextProvider } from '../contexts/FeaturesContext';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
@@ -150,31 +151,34 @@ const renderComponent = (
     toggleSidebarExpanded: jest.fn(),
   };
   return render(
-    <QueryClientProvider client={queryClient}>
-      <AuthContext.Provider
-        value={{
-          user,
-          shouldShowLogin: false,
-          showLogin,
-          logout: jest.fn(),
-          updateUser: jest.fn(),
-          tokenRefreshed: true,
-          getRedirectUri: jest.fn(),
-          closeLogin: jest.fn(),
-          trackingId: user?.id,
-          loginState: null,
-        }}
-      >
-        <SettingsContext.Provider value={settingsContext}>
-          <Toast autoDismissNotifications={false} />
-          <Feed
-            feedQueryKey={['feed']}
-            query={ANONYMOUS_FEED_QUERY}
-            variables={variables}
-          />
-        </SettingsContext.Provider>
-      </AuthContext.Provider>
-    </QueryClientProvider>,
+    <FeaturesContextProvider flags={{}}>
+      <QueryClientProvider client={queryClient}>
+        <AuthContext.Provider
+          value={{
+            user,
+            shouldShowLogin: false,
+            showLogin,
+            logout: jest.fn(),
+            updateUser: jest.fn(),
+            tokenRefreshed: true,
+            getRedirectUri: jest.fn(),
+            closeLogin: jest.fn(),
+            trackingId: user?.id,
+            loginState: null,
+          }}
+        >
+          <SettingsContext.Provider value={settingsContext}>
+            <Toast autoDismissNotifications={false} />
+            <Feed
+              feedQueryKey={['feed']}
+              query={ANONYMOUS_FEED_QUERY}
+              variables={variables}
+            />
+          </SettingsContext.Provider>
+        </AuthContext.Provider>
+      </QueryClientProvider>
+      ,
+    </FeaturesContextProvider>,
   );
 };
 
