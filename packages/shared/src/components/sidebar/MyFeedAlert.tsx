@@ -20,7 +20,7 @@ export default function MyFeedAlert({
 }: MyFeedAlertProps): ReactElement {
   return (
     <AlertContainer>
-      <Pointer color={PointerColor.Success} />
+      <Pointer className="top-1 -right-7" color={PointerColor.Success} />
       <AlertCopy>
         {alertCopy[alerts.myFeed]}
         {alerts.myFeed === 'migrated' && (
