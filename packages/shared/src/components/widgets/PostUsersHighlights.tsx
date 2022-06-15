@@ -115,8 +115,6 @@ const UserHighlight = (props: SourceAuthorProps) => {
 };
 
 export function PostUsersHighlights({ post }: PostAuthorProps): ReactElement {
-  console.log(post);
-
   const { author, scout, source } = post;
 
   return (
