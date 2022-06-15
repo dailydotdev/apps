@@ -6,7 +6,10 @@ import { ModalCloseButton } from './ModalCloseButton';
 import { ModalProps } from './StyledModal';
 import { formToJson } from '../../lib/form';
 import { apiUrl } from '../../lib/config';
-import { contentGuidlines } from '../../lib/constants';
+import {
+  communityLinksGuidelines,
+  contentGuidelines,
+} from '../../lib/constants';
 import { ResponsiveModal } from './ResponsiveModal';
 import { TextField } from '../fields/TextField';
 import {
@@ -177,7 +180,7 @@ export default function SubmitArticleModal({
           className="font-bold underline typo-callout text-theme-label-link"
           target="_blank"
           rel="noopener"
-          href={contentGuidlines}
+          href={communityLinksGuidelines}
         >
           Learn more
         </a>

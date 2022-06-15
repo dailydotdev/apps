@@ -17,7 +17,7 @@ import { Radio } from '../fields/Radio';
 import { formToJson } from '../../lib/form';
 import { apiUrl } from '../../lib/config';
 import fetchTimeout from '../../lib/fetchTimeout';
-import { contentGuidlines } from '../../lib/constants';
+import { contentGuidelines } from '../../lib/constants';
 import {
   REQUEST_SOURCE_MUTATION,
   SOURCE_BY_FEED_QUERY,
@@ -250,7 +250,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
         className="mb-2 font-bold underline typo-callout text-theme-label-link"
         target="_blank"
         rel="noopener"
-        href={contentGuidlines}
+        href={contentGuidelines}
       >
         Content guidelines
       </a>
