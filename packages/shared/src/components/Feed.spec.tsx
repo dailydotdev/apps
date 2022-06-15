@@ -39,7 +39,6 @@ import { LoggedUser } from '../lib/user';
 import { MyRankData } from '../graphql/users';
 import { getRankQueryKey } from '../hooks/useReadingRank';
 import { SubscriptionCallbacks } from '../hooks/useSubscription';
-import { COMMENT_ON_POST_MUTATION } from '../graphql/comments';
 import SettingsContext, {
   SettingsContextData,
   ThemeMode,
