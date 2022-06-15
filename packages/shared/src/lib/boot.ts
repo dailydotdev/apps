@@ -4,7 +4,6 @@ import { apiUrl } from './config';
 import { Alerts } from '../graphql/alerts';
 import { RemoteSettings } from '../graphql/settings';
 import { Post } from '../graphql/posts';
-import { Author, Scout } from '../graphql/comments';
 
 export type PostBootData = Pick<
   Post,
