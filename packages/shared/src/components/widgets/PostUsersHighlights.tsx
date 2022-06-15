@@ -15,7 +15,7 @@ interface PostAuthorProps {
   post: Post;
 }
 
-type UserType = 'source' | 'author' | 'featured';
+type UserType = 'source' | 'author' | 'featured' | 'scout';
 
 const StyledImage = classed(LazyImage, 'w-10 h-10');
 
@@ -86,6 +86,7 @@ const UserHighlight = (props: SourceAuthorProps) => {
       </LinkWrapper>
       {Icon && (
         <Icon
+          filled
           className={classNames(
             'absolute w-5 h-5 top-10 left-10',
             userType === 'author'
@@ -114,7 +115,9 @@ const UserHighlight = (props: SourceAuthorProps) => {
 };
 
 export function PostUsersHighlights({ post }: PostAuthorProps): ReactElement {
-  const { author, source } = post;
+  console.log(post);
+
+  const { author, scout, source } = post;
 
   return (
     <WidgetContainer className="flex flex-col">
@@ -124,6 +127,7 @@ export function PostUsersHighlights({ post }: PostAuthorProps): ReactElement {
         userType="source"
       />
       {author && <UserHighlight {...author} userType="author" />}
+      {scout && <UserHighlight {...scout} userType="scout" />}
     </WidgetContainer>
   );
 }
