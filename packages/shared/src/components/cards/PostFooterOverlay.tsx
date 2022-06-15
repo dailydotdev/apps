@@ -8,6 +8,7 @@ import { ProfileImageLink } from '../profile/ProfileImageLink';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 import { ReadArticleButton } from './ReadArticleButton';
 import FeaturesContext from '../../contexts/FeaturesContext';
+import { visibleOnGroupHover } from './common';
 
 interface PostFooterOverlayProps {
   className?: string;
@@ -32,7 +33,12 @@ export const PostFooterOverlay = ({
 
   return (
     <div className={classNames('flex flex-row p-2', className)}>
-      <Overlay className="hidden tablet:flex z-1" />
+      <Overlay
+        className={classNames(
+          'hidden tablet:flex z-1',
+          postEngagementNonClickable && visibleOnGroupHover,
+        )}
+      />
       <SourceButton source={source} />
       {author && (
         <ProfileTooltip link={{ href: author.permalink }} user={author}>
@@ -45,7 +51,10 @@ export const PostFooterOverlay = ({
       )}
       {(postModalByDefault || postEngagementNonClickable) && (
         <ReadArticleButton
-          className="laptop:mouse:invisible laptop:mouse:group-hover:visible ml-auto btn-tertiary tablet:btn-primary"
+          className={classNames(
+            'ml-auto btn-tertiary tablet:btn-primary',
+            visibleOnGroupHover,
+          )}
           href={postLink}
         />
       )}

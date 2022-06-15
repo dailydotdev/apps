@@ -5,6 +5,7 @@ import { CardHeader } from './Card';
 import SourceButton from './SourceButton';
 import { Source } from '../../graphql/sources';
 import { ReadArticleButton } from './ReadArticleButton';
+import { getGroupedHoverContainer } from './common';
 
 interface CardHeaderProps {
   children?: ReactNode;
@@ -12,6 +13,8 @@ interface CardHeaderProps {
   onMenuClick?: (e: React.MouseEvent) => void;
   postLink: string;
 }
+
+const Container = getGroupedHoverContainer('span');
 
 export const PostCardHeader = ({
   onMenuClick,
@@ -26,12 +29,12 @@ export const PostCardHeader = ({
     <CardHeader>
       <SourceButton source={source} />
       {children}
-      <span className="flex laptop:mouse:invisible laptop:mouse:group-hover:visible flex-row ml-auto">
+      <Container className="flex flex-row ml-auto">
         {(postModalByDefault || postEngagementNonClickable) && (
           <ReadArticleButton className="mr-2 btn-primary" href={postLink} />
         )}
         <OptionsButton onClick={onMenuClick} tooltipPlacement="top" />
-      </span>
+      </Container>
     </CardHeader>
   );
 };

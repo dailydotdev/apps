@@ -15,6 +15,7 @@ import FeaturesContext from '../../contexts/FeaturesContext';
 import OptionsButton from '../buttons/OptionsButton';
 import classed from '../../lib/classed';
 import { ReadArticleButton } from './ReadArticleButton';
+import { visibleOnGroupHover } from './common';
 
 const ShareIcon = dynamic(() => import('../icons/Forward'));
 
@@ -31,14 +32,12 @@ export type ActionButtonsProps = {
   insaneMode?: boolean;
 };
 
-const visibleOnHover =
-  'laptop:mouse:invisible laptop:mouse:group-hover:visible';
 const getContainer = (displayWhenHovered = false, className?: string) =>
   classed(
     'div',
     classNames(
       'flex justify-between',
-      displayWhenHovered && visibleOnHover,
+      displayWhenHovered && visibleOnGroupHover,
       className,
     ),
   );
@@ -64,12 +63,7 @@ export default function ActionButtons({
     (postModalByDefault && postEngagementNonClickable);
   const LeftContainer = separatedActions ? getContainer() : React.Fragment;
   const RightContainer = separatedActions
-    ? getContainer(
-        isV2,
-        insaneMode &&
-          postModalByDefault &&
-          classNames(visibleOnHover, 'ml-auto'),
-      )
+    ? getContainer(isV2 || (insaneMode && postModalByDefault), 'ml-auto')
     : React.Fragment;
 
   const bookmarkButton = (
@@ -155,7 +149,7 @@ export default function ActionButtons({
           bookmarkButton}
         {(isV2 || insaneMode) && (
           <OptionsButton
-            className={visibleOnHover}
+            className={visibleOnGroupHover}
             onClick={onMenuClick}
             tooltipPlacement="top"
           />
