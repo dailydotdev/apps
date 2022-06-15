@@ -6,10 +6,7 @@ import { ModalCloseButton } from './ModalCloseButton';
 import { ModalProps } from './StyledModal';
 import { formToJson } from '../../lib/form';
 import { apiUrl } from '../../lib/config';
-import {
-  communityLinksGuidelines,
-  contentGuidelines,
-} from '../../lib/constants';
+import { communityLinksGuidelines } from '../../lib/constants';
 import { ResponsiveModal } from './ResponsiveModal';
 import { TextField } from '../fields/TextField';
 import {
