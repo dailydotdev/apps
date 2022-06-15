@@ -15,6 +15,7 @@ interface PostFooterOverlayProps {
   author?: Author;
   source: Source;
   postLink: string;
+  insaneMode?: boolean;
 }
 
 const Overlay = classed(
@@ -27,6 +28,7 @@ export const PostFooterOverlay = ({
   source,
   author,
   postLink,
+  insaneMode,
 }: PostFooterOverlayProps): ReactElement => {
   const { postModalByDefault, postEngagementNonClickable } =
     useContext(FeaturesContext);
@@ -35,7 +37,8 @@ export const PostFooterOverlay = ({
     <div className={classNames('flex flex-row p-2', className)}>
       <Overlay
         className={classNames(
-          'hidden tablet:flex z-1',
+          'z-1',
+          insaneMode ? 'hidden tablet:flex' : 'flex',
           postEngagementNonClickable && visibleOnGroupHover,
         )}
       />
@@ -52,7 +55,8 @@ export const PostFooterOverlay = ({
       {(postModalByDefault || postEngagementNonClickable) && (
         <ReadArticleButton
           className={classNames(
-            'ml-auto btn-tertiary tablet:btn-primary',
+            'ml-auto',
+            insaneMode ? 'btn-tertiary tablet:btn-primary' : 'btn-primary',
             visibleOnGroupHover,
           )}
           href={postLink}

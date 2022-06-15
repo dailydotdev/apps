@@ -45,6 +45,7 @@ export type PostCardProps = {
   menuOpened?: boolean;
   showImage?: boolean;
   postHeadingFont: string;
+  insaneMode?: boolean;
 } & HTMLAttributes<HTMLDivElement>;
 
 export const PostCard = forwardRef(function PostCard(
@@ -64,6 +65,7 @@ export const PostCard = forwardRef(function PostCard(
     children,
     showImage = true,
     style,
+    insaneMode,
     postHeadingFont,
     ...props
   }: PostCardProps,
@@ -114,10 +116,16 @@ export const PostCard = forwardRef(function PostCard(
       <Containter>
         {postCardVersion === 'v2' && (
           <PostFooterOverlay
-            className="relative tablet:absolute tablet:right-0 tablet:bottom-0 tablet:left-0 mt-2 tablet:mt-0 rounded-b-12 tablet:border-0 border-t border-theme-divider-tertiary"
+            className={classNames(
+              'rounded-b-12',
+              insaneMode
+                ? 'relative tablet:absolute tablet:right-0 tablet:bottom-0 tablet:left-0 mt-2 tablet:mt-0 tablet:border-0 border-t border-theme-divider-tertiary'
+                : 'absolute right-0 bottom-0 left-0',
+            )}
             postLink={post.permalink}
             source={post.source}
             author={post.author}
+            insaneMode={insaneMode}
           />
         )}
         {!showImage && (

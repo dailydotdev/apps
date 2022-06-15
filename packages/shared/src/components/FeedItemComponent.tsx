@@ -134,6 +134,7 @@ export default function FeedItemComponent({
           showImage={!insaneMode}
           onCommentClick={(post) => onCommentClick(post, index, row, column)}
           postHeadingFont={postHeadingFont}
+          insaneMode={insaneMode}
         />
       );
     case 'ad':
