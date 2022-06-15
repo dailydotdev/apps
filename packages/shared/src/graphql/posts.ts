@@ -1,5 +1,5 @@
 import { gql } from 'graphql-request';
-import { Author, Comment } from './comments';
+import { Author, Comment, Scout } from './comments';
 import { Connection, Upvote } from './common';
 import { UPVOTER_FRAGMENT } from './users';
 import { Source } from './sources';
@@ -26,6 +26,7 @@ export interface Post {
   numUpvotes?: number;
   numComments?: number;
   author?: Author;
+  scout?: Scout;
   views?: number;
   placeholder?: string;
   read?: boolean;
@@ -81,6 +82,8 @@ export type ReadHistoryPost = Pick<
   | 'tags'
 > & { source?: Pick<Source, 'image' | 'id'> } & {
   author?: Pick<Author, 'id'>;
+} & {
+  scout?: Pick<Scout, 'id'>;
 };
 
 export interface PostItem {
@@ -124,6 +127,13 @@ export const POST_BY_ID_QUERY = gql`
         id
         name
         image
+      }
+      scout {
+        id
+        image
+        name
+        permalink
+        username
       }
       author {
         id
