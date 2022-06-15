@@ -81,6 +81,7 @@ export default function MainComment({
           onEdit={(childComment) => onEdit(childComment, comment)}
           onShowUpvotes={onShowUpvotes}
           postAuthorId={postAuthorId}
+          postScoutId={postScoutId}
           appendTooltipTo={appendTooltipTo}
         />
       ))}
