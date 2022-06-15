@@ -59,8 +59,7 @@ export default function ActionButtons({
   const isV2 = postCardVersion === 'v2';
   const buttonStyles = postEngagementNonClickable ? {} : { width: rem(78) };
   const separatedActions =
-    (insaneMode && postModalByDefault) ||
-    (postModalByDefault && postEngagementNonClickable);
+    (insaneMode && postModalByDefault) || postEngagementNonClickable;
   const LeftContainer = separatedActions ? getContainer() : React.Fragment;
   const RightContainer = separatedActions
     ? getContainer(isV2 || (insaneMode && postModalByDefault), 'ml-auto')
