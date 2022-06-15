@@ -28,16 +28,6 @@ export const FEED_POST_FRAGMENT = gql`
       permalink
       id
     }
-    featuredComments {
-      id
-      content
-      permalink
-      author {
-        name
-        image
-        username
-      }
-    }
     trending
     tags
   }
