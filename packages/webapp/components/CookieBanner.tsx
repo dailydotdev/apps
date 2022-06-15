@@ -40,7 +40,7 @@ export default function CookieBanner({
       <ModalCloseButton onClick={close} />
       <CookieIcon
         className="hidden laptop:block mb-4 text-theme-label-primary"
-        style={{ fontSize: '3.5rem' }}
+        style={{ fontSize: '3.5rem', width: 'auto', height: 'auto' }}
       />
       <div>
         Our lawyers advised us to tell you that we use{' '}
