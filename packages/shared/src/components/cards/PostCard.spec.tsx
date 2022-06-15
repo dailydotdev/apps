@@ -2,6 +2,7 @@ import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { Post } from '../../graphql/posts';
 import { PostCard, PostCardProps } from './PostCard';
+import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
 
 const defaultPost: Post = {
   id: 'e3fd75b62cadd02073a31ee3444975cc',
@@ -59,7 +60,11 @@ beforeEach(() => {
 });
 
 const renderComponent = (props: Partial<PostCardProps> = {}): RenderResult => {
-  return render(<PostCard {...defaultProps} {...props} />);
+  return render(
+    <FeaturesContextProvider flags={{}}>
+      <PostCard {...defaultProps} {...props} />
+    </FeaturesContextProvider>,
+  );
 };
 
 it('should call on link click on component left click', async () => {
@@ -67,7 +72,10 @@ it('should call on link click on component left click', async () => {
   const el = await screen.findAllByRole('link');
   el[0].click();
   await waitFor(() =>
-    expect(defaultProps.onLinkClick).toBeCalledWith(defaultPost),
+    expect(defaultProps.onLinkClick).toBeCalledWith(
+      defaultPost,
+      expect.any(Object),
+    ),
   );
 });
 
