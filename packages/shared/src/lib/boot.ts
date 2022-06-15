@@ -24,11 +24,9 @@ export type PostBootData = Pick<
   | 'tags'
   | 'permalink'
   | 'author'
-> & {
-  author?: Pick<Author, 'id'>;
-} & {
-  scout?: Pick<Scout, 'id'>;
-};
+  | 'scout'
+>;
+
 export interface CompanionBootData {
   postData: PostBootData;
 }
