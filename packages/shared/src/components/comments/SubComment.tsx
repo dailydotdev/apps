@@ -18,6 +18,7 @@ export interface Props extends CommentActionProps {
   lastComment: boolean;
   parentId: string;
   postAuthorId: string | null;
+  postScoutId: string | null;
   appendTooltipTo?: () => HTMLElement;
 }
 
@@ -34,6 +35,7 @@ export default function SubComment({
   onShowUpvotes,
   appendTooltipTo,
   postAuthorId,
+  postScoutId,
 }: Props): ReactElement {
   return (
     <article className="flex items-stretch mt-4" data-testid="subcomment">
@@ -64,7 +66,7 @@ export default function SubComment({
               author={comment.author}
               appendTooltipTo={appendTooltipTo}
             />
-            <ScoutBadge />
+            {comment.author?.id === postScoutId && <ScoutBadge />}
           </div>
           <CommentPublishDate comment={comment} />
           <div className="mt-2">

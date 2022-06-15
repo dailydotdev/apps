@@ -176,6 +176,9 @@ const READING_HISTORY_FRAGMENT = gql`
         id
         image
       }
+      scout {
+        id
+      }
       author {
         id
       }

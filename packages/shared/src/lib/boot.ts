@@ -4,7 +4,6 @@ import { apiUrl } from './config';
 import { Alerts } from '../graphql/alerts';
 import { RemoteSettings } from '../graphql/settings';
 import { Post } from '../graphql/posts';
-import { Author } from '../graphql/comments';
 
 export type PostBootData = Pick<
   Post,
@@ -24,9 +23,9 @@ export type PostBootData = Pick<
   | 'tags'
   | 'permalink'
   | 'author'
-> & {
-  author?: Pick<Author, 'id'>;
-};
+  | 'scout'
+>;
+
 export interface CompanionBootData {
   postData: PostBootData;
 }

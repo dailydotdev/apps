@@ -16,6 +16,7 @@ import ScoutBadge from './ScoutBadge';
 export interface Props extends CommentActionProps {
   comment: Comment;
   postAuthorId: string | null;
+  postScoutId: string | null;
   className?: string;
   appendTooltipTo?: () => HTMLElement;
 }
@@ -31,6 +32,7 @@ export default function MainComment({
   appendTooltipTo,
   className,
   postAuthorId,
+  postScoutId,
 }: Props): ReactElement {
   return (
     <article
@@ -51,7 +53,7 @@ export default function MainComment({
               author={comment.author}
               appendTooltipTo={appendTooltipTo}
             />
-            <ScoutBadge />
+            {comment.author?.id === postScoutId && <ScoutBadge />}
           </div>
           <CommentPublishDate comment={comment} />
         </div>
@@ -79,6 +81,7 @@ export default function MainComment({
           onEdit={(childComment) => onEdit(childComment, comment)}
           onShowUpvotes={onShowUpvotes}
           postAuthorId={postAuthorId}
+          postScoutId={postScoutId}
           appendTooltipTo={appendTooltipTo}
         />
       ))}

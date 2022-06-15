@@ -82,6 +82,8 @@ export type ReadHistoryPost = Pick<
   | 'tags'
 > & { source?: Pick<Source, 'image' | 'id'> } & {
   author?: Pick<Author, 'id'>;
+} & {
+  scout?: Pick<Scout, 'id'>;
 };
 
 export interface PostItem {
