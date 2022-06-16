@@ -11,7 +11,7 @@ interface Submission {
 }
 
 export interface SubmitArticleResposne {
-  result: 'succeed' | 'exists' | 'reject';
+  result: 'succeed' | 'exists' | 'rejected';
   reason?: string;
   post?: Post;
   submission?: Submission;
@@ -30,7 +30,6 @@ export const SUBMIT_ARTICLE_MUTATION = gql`
         readTime
         numUpvotes
         permalink
-        deleted
         source {
           id
           image
