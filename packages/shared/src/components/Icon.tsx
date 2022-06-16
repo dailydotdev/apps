@@ -38,7 +38,7 @@ const Icon = ({
   return (
     <IconComponent
       className={classNames(IconSize[size], 'pointer-events-none', className)}
-      style={size === 'large' && { fontSize: '1.75rem' }}
+      style={size === 'large' ? { fontSize: '1.75rem' } : null}
       {...rest}
     />
   );
