@@ -47,7 +47,11 @@ import FeaturesContext from '../../contexts/FeaturesContext';
 import { AlertColor, AlertDot } from '../AlertDot';
 import { useMyFeed } from '../../hooks/useMyFeed';
 import useDefaultFeed from '../../hooks/useDefaultFeed';
-import { Features, getFeatureValue } from '../../lib/featureManagement';
+import {
+  Features,
+  getFeatureValue,
+  isFeaturedEnabled,
+} from '../../lib/featureManagement';
 import CreateMyFeedModal from '../modals/CreateMyFeedModal';
 
 const SubmitArticleModal = dynamic(
