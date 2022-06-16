@@ -5,5 +5,5 @@ export const MenuIcon = ({
 }: {
   Icon: React.ElementType;
 }): ReactElement => {
-  return <Icon className="mr-2 text-2xl" />;
+  return <Icon size="medium" className="mr-2 text-2xl" />;
 };
