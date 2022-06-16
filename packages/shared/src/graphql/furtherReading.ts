@@ -26,6 +26,10 @@ export const FURTHER_READING_QUERY = gql`
         name
         image
       }
+      scout {
+        id
+        username
+      }
       author {
         id
         username
@@ -47,6 +51,10 @@ export const FURTHER_READING_QUERY = gql`
         name
         image
       }
+      scout {
+        id
+        username
+      }
       author {
         id
         username
@@ -65,12 +73,17 @@ export const FURTHER_READING_QUERY = gql`
         id
       }
       tags
+      scout {
+        id
+        username
+      }
       author {
         id
         username
       }
       featuredComments {
         author {
+          id
           image
           name
           username

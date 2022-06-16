@@ -11,10 +11,12 @@ import CommentAuthor from './CommentAuthor';
 import classed from '../../lib/classed';
 import Markdown from '../Markdown';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
+import ScoutBadge from './ScoutBadge';
 
 export interface Props extends CommentActionProps {
   comment: Comment;
   postAuthorId: string | null;
+  postScoutId: string | null;
   className?: string;
   appendTooltipTo?: () => HTMLElement;
 }
@@ -30,6 +32,7 @@ export default function MainComment({
   appendTooltipTo,
   className,
   postAuthorId,
+  postScoutId,
 }: Props): ReactElement {
   return (
     <article
@@ -44,11 +47,14 @@ export default function MainComment({
           <ProfileImageLink user={comment.author} />
         </ProfileTooltip>
         <div className="flex flex-col ml-2">
-          <CommentAuthor
-            postAuthorId={postAuthorId}
-            author={comment.author}
-            appendTooltipTo={appendTooltipTo}
-          />
+          <div className="flex">
+            <CommentAuthor
+              postAuthorId={postAuthorId}
+              author={comment.author}
+              appendTooltipTo={appendTooltipTo}
+            />
+            {comment.author?.id === postScoutId && <ScoutBadge />}
+          </div>
           <CommentPublishDate comment={comment} />
         </div>
       </div>
@@ -75,6 +81,7 @@ export default function MainComment({
           onEdit={(childComment) => onEdit(childComment, comment)}
           onShowUpvotes={onShowUpvotes}
           postAuthorId={postAuthorId}
+          postScoutId={postScoutId}
           appendTooltipTo={appendTooltipTo}
         />
       ))}

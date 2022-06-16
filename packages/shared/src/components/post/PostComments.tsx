@@ -145,6 +145,7 @@ export function PostComments({
           onEdit={onEditClick}
           onShowUpvotes={onClickUpvote}
           postAuthorId={post.author?.id}
+          postScoutId={post.scout?.id}
           appendTooltipTo={modalParentSelector}
         />
       ))}

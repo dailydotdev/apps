@@ -6,7 +6,7 @@ import {
   isDateOnlyEqual,
   getReadHistoryDateFormat,
 } from '../../lib/dateFormat';
-import ReadingHistoryItem from './ReadingHistoryItem';
+import PostItemCard from '../post/PostItemCard';
 import { ReadHistoryInfiniteData } from '../../hooks/useInfiniteReadingHistory';
 import { InfiniteScrollScreenOffset } from '../../hooks/feed/useFeedInfiniteScroll';
 import PostOptionsReadingHistoryMenu from '../PostOptionsReadingHistoryMenu';
@@ -58,9 +58,9 @@ export default function ReadHistoryList({
         const indexes = { page: pageIndex, edge: edgeIndex };
 
         dom.push(
-          <ReadingHistoryItem
+          <PostItemCard
             key={`${history.post.id}-${timestamp}`}
-            history={history}
+            postItem={history}
             onContextMenu={(event, readingHistory) =>
               onReadingHistoryContextOptions(event, readingHistory, indexes)
             }

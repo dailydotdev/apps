@@ -38,6 +38,20 @@ export class Features {
     'Choose tags',
   );
 
+  static readonly SubmitArticleOn = new Features('submit_article_on');
+
+  static readonly SubmitArticle = new Features('submit_article');
+
+  static readonly SubmitArticleSidebarButton = new Features(
+    'submit_article_sidebar_button',
+    'Submit article',
+  );
+
+  static readonly SubmitArticleModalButton = new Features(
+    'submit_article_modal_button',
+    'Submit article',
+  );
+
   static readonly MyFeedButtonColor = new Features(
     'my_feed_button_theme_color',
     'cabbage',

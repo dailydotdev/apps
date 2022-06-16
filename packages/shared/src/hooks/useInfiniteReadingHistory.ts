@@ -2,11 +2,11 @@ import { useInfiniteQuery, InfiniteData, QueryKey } from 'react-query';
 import { useMemo } from 'react';
 import request from 'graphql-request';
 import { apiUrl } from '../lib/config';
-import { ReadHistory } from '../graphql/posts';
 import { RequestDataConnection } from '../graphql/common';
 import useFeedInfiniteScroll from './feed/useFeedInfiniteScroll';
+import { PostItem } from '../graphql/posts';
 
-export type ReadHistoryData = RequestDataConnection<ReadHistory, 'readHistory'>;
+export type ReadHistoryData = RequestDataConnection<PostItem, 'readHistory'>;
 
 export type ReadHistoryInfiniteData = InfiniteData<ReadHistoryData>;
 
