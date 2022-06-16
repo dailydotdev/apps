@@ -92,9 +92,10 @@ export const postEventName = (
   update: Pick<PostBootData, 'upvoted' | 'bookmarked'>,
 ): string => {
   if ('upvoted' in update) {
-    return `${!update.upvoted ? 'remove ' : ''}upvote post`;
+    return !update.upvoted ? 'remove post upvote' : 'upvote post';
   }
-  return `${!update.bookmarked ? 'remove ' : ''}post bookmark`;
+
+  return !update.bookmarked ? 'remove post bookmark' : 'bookmark post';
 };
 
 export const LegalNotice = classed(
