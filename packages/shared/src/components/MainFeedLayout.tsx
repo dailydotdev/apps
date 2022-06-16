@@ -33,6 +33,7 @@ import CreateMyFeedButton from './CreateMyFeedButton';
 import { useDynamicLoadedAnimation } from '../hooks/useDynamicLoadAnimated';
 import FeedFilters from './filters/FeedFilters';
 import AlertContext from '../contexts/AlertContext';
+import CreateMyFeedModal from './modals/CreateMyFeedModal';
 
 const SearchEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "emptySearch" */ './SearchEmptyScreen'),
@@ -155,6 +156,7 @@ export default function MainFeedLayout({
     setLoaded: openFeedFilters,
     setHidden,
   } = useDynamicLoadedAnimation();
+  const [createMyFeed, setCreateMyFeed] = useState(false);
 
   const feedTitles = {
     'my-feed': 'My feed',
@@ -219,7 +221,12 @@ export default function MainFeedLayout({
 
   const getFeedTitle = () => {
     if (shouldShowMyFeed && alerts?.filter) {
-      return <CreateMyFeedButton action={openFeedFilters} flags={flags} />;
+      return (
+        <CreateMyFeedButton
+          action={() => setCreateMyFeed(true)}
+          flags={flags}
+        />
+      );
     }
 
     return <h3 className="typo-headline">{feedTitles[feedName]}</h3>;
@@ -321,6 +328,12 @@ export default function MainFeedLayout({
           isOpen={isAnimated}
           onBack={setHidden}
           directlyOpenedTab="Manage tags"
+        />
+      )}
+      {createMyFeed && (
+        <CreateMyFeedModal
+          isOpen={createMyFeed}
+          onRequestClose={() => setCreateMyFeed(false)}
         />
       )}
     </>
