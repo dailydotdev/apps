@@ -33,16 +33,9 @@ export class Features {
 
   static readonly MyFeedOn = new Features('my_feed_on');
 
-  static readonly MyFeedPosition = new Features('my_feed_position', 'sidebar', [
-    'sidebar',
-    'feed_title',
-    'feed_ad',
-    'feed_top',
-  ]);
-
   static readonly MyFeedButtonCopy = new Features(
     'my_feed_button_copy',
-    'Create my feed',
+    'Choose tags',
   );
 
   static readonly SubmitArticleOn = new Features('submit_article_on');
@@ -66,7 +59,7 @@ export class Features {
 
   static readonly MyFeedExplainerCopy = new Features(
     'my_feed_explainer_copy',
-    'Devs with a personal feed get 11.5x more relevant articles',
+    'Get the content you need by creating a personal feed',
   );
 
   static readonly MyFeedExplainerColor = new Features(

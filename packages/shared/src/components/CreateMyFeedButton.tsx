@@ -2,16 +2,13 @@ import React, { ReactElement, useContext, useEffect } from 'react';
 import classNames from 'classnames';
 import { IFlags } from 'flagsmith';
 import PlusIcon from './icons/Plus';
-import UserIcon from './icons/User';
 import { Button } from './buttons/Button';
 import { Features, getFeatureValue } from '../lib/featureManagement';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../hooks/analytics/useAnalyticsQueue';
-import { getThemeColor, ThemeColor } from './utilities';
+import { getThemeColor } from './utilities';
 
 interface CreateMyFeedButtonProps {
-  type: string;
-  sidebarExpanded?: boolean;
   flags: IFlags;
   action: () => unknown;
 }
@@ -19,61 +16,15 @@ interface CreateMyFeedButtonProps {
 const getAnalyticsEvent = (
   eventName: string,
   copy: string,
-  type: string,
 ): Partial<AnalyticsEvent> => ({
   event_name: eventName,
   target_type: 'my feed button',
-  target_id: type,
+  target_id: 'feed_top',
   feed_item_title: copy,
 });
 
-interface ClassProps {
-  explainerColor?: ThemeColor;
-  sidebarExpanded?: boolean;
-}
-const wrapperClasses = ({ sidebarExpanded }: ClassProps) => {
-  return {
-    sidebar: classNames('h-[8.125rem]', sidebarExpanded && 'justify-center'),
-    feed_title: 'w-full tablet:w-auto',
-    feed_top: 'w-full items-center mb-8',
-  };
-};
-
-const innerWrapClasses = ({ explainerColor, sidebarExpanded }: ClassProps) => {
-  return {
-    sidebar: classNames(
-      'flex-col',
-      sidebarExpanded ? `${explainerColor.shadow} border p-3 m-4` : 'mx-3',
-    ),
-    feed_title: `flex-col tablet:flex-row-reverse`,
-    feed_top: `${explainerColor.shadow} p-2 border flex-col tablet:flex-row`,
-    feed_ad: `${explainerColor.shadow} p-2 border flex-col flex-1 justify-center`,
-  };
-};
-const textClass = ({ sidebarExpanded }: ClassProps) => {
-  return {
-    sidebar: classNames(
-      'typo-footnote w-[11.25rem] mb-3 transform',
-      sidebarExpanded
-        ? 'opacity-100 ease-linear duration-200 delay-200'
-        : 'duration-0 delay-0 opacity-0',
-    ),
-    feed_top: 'typo-footnote ml-2 text-center tablet:text-left',
-    feed_title:
-      'typo-footnote w-70 laptopL:w-auto text-center tablet:text-left',
-    feed_ad: 'typo-body font-bold mx-6 text-center mb-6',
-  };
-};
-const buttonClass = {
-  sidebar: 'w-full',
-  feed_title: 'w-auto my-4 tablet:my-0 tablet:mr-4',
-  feed_top: 'ml-0 mt-4 tablet:ml-8 tablet:mt-0',
-};
-
 export default function CreateMyFeedButton({
-  sidebarExpanded,
   flags,
-  type,
   action,
 }: CreateMyFeedButtonProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
@@ -88,46 +39,36 @@ export default function CreateMyFeedButton({
     Features.MyFeedExplainerColor.defaultValue,
   );
   const onClick = () => {
-    trackEvent(getAnalyticsEvent('click', buttonCopy, type));
+    trackEvent(getAnalyticsEvent('click', buttonCopy));
     action();
   };
-  const isSidebar = type === 'sidebar';
 
   useEffect(() => {
-    trackEvent(getAnalyticsEvent('impression', buttonCopy, type));
+    trackEvent(getAnalyticsEvent('impression', buttonCopy));
   }, [buttonCopy]);
 
   return (
-    <div
-      className={classNames(
-        wrapperClasses({ sidebarExpanded })[type],
-        'flex flex-col',
-      )}
-    >
+    <div className="flex flex-col items-center mb-8 w-full">
       <div
         className={classNames(
-          innerWrapClasses({ explainerColor, sidebarExpanded })[type],
-          `flex items-center rounded-12`,
+          'p-2 border flex-col tablet:flex-row flex items-center rounded-12',
           explainerColor.border,
+          explainerColor.shadow,
         )}
       >
-        {type === 'feed_ad' && <UserIcon className="mb-4 typo-giga1" />}
-        <p
-          className={classNames(
-            textClass({ sidebarExpanded })[type],
-            ' transition-all',
-          )}
-        >
+        <p className="ml-2 text-center tablet:text-left transition-all typo-footnote">
           {explainerCopy}
         </p>
         <Button
-          className={classNames(buttonClass[type], buttonColor.button)}
-          buttonSize={isSidebar && !sidebarExpanded ? 'xsmall' : 'small'}
+          className={classNames(
+            'ml-0 mt-4 tablet:ml-8 tablet:mt-0',
+            buttonColor.button,
+          )}
+          buttonSize="small"
           icon={<PlusIcon />}
-          iconOnly={isSidebar && sidebarExpanded}
           onClick={onClick}
         >
-          {((isSidebar && sidebarExpanded) || !isSidebar) && buttonCopy}
+          {buttonCopy}
         </Button>
       </div>
     </div>

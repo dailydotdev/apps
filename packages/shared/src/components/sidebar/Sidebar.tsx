@@ -47,12 +47,7 @@ import FeaturesContext from '../../contexts/FeaturesContext';
 import { AlertColor, AlertDot } from '../AlertDot';
 import { useMyFeed } from '../../hooks/useMyFeed';
 import useDefaultFeed from '../../hooks/useDefaultFeed';
-import {
-  Features,
-  getFeatureValue,
-  isFeaturedEnabled,
-} from '../../lib/featureManagement';
-import CreateMyFeedButton from '../CreateMyFeedButton';
+import { Features, getFeatureValue } from '../../lib/featureManagement';
 import CreateMyFeedModal from '../modals/CreateMyFeedModal';
 
 const SubmitArticleModal = dynamic(
@@ -149,7 +144,7 @@ export default function Sidebar({
   setOpenMobileSidebar,
   onShowDndClick,
 }: SidebarProps): ReactElement {
-  const { shouldShowMyFeed, myFeedPosition } = useMyFeed();
+  const { shouldShowMyFeed } = useMyFeed();
   const [defaultFeed] = useDefaultFeed(shouldShowMyFeed);
   const activePage =
     activePageProp === '/' ? `/${defaultFeed}` : activePageProp;
@@ -359,17 +354,6 @@ export default function Sidebar({
         <SidebarScrollWrapper>
           <Nav>
             <SidebarUserButton sidebarRendered={sidebarRendered} />
-            {shouldShowMyFeed &&
-              myFeedPosition === 'sidebar' &&
-              alerts?.filter &&
-              sidebarRendered && (
-                <CreateMyFeedButton
-                  type={myFeedPosition}
-                  action={openFeedFilters}
-                  sidebarExpanded={sidebarExpanded}
-                  flags={flags}
-                />
-              )}
             {shouldShowMyFeed && !alerts?.filter && (
               <MyFeedButton
                 sidebarRendered={sidebarRendered}
