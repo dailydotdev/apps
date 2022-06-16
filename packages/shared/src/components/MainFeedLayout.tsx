@@ -226,7 +226,7 @@ export default function MainFeedLayout({
   };
 
   const header = (
-    <LayoutHeader className="flex-col tablet:flex-row">
+    <LayoutHeader className="flex-row">
       {!isSearchOn && getFeedTitle()}
       <div className="flex flex-row flex-wrap gap-4 items-center mr-px">
         {navChildren}
