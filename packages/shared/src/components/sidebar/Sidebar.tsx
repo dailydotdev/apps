@@ -52,7 +52,6 @@ import {
   getFeatureValue,
   isFeaturedEnabled,
 } from '../../lib/featureManagement';
-import CreateMyFeedModal from '../modals/CreateMyFeedModal';
 
 const SubmitArticleModal = dynamic(
   () => import('../modals/SubmitArticleModal'),
@@ -171,7 +170,6 @@ export default function Sidebar({
   const shouldShowDnD = !!process.env.TARGET_BROWSER;
   const { flags } = useContext(FeaturesContext);
   const popularFeedCopy = getFeatureValue(Features.PopularFeedCopy, flags);
-  const feedFilterModal = getFeatureValue(Features.FeedFilterModal, flags);
   const submitArticleSidebarButton = getFeatureValue(
     Features.SubmitArticleSidebarButton,
     flags,
@@ -418,15 +416,7 @@ export default function Sidebar({
           onRequestClose={() => setShowSettings(false)}
         />
       )}
-      {isLoaded && feedFilterModal === 'v1' ? (
-        <FeedFilters isOpen={isAnimated} onBack={setHidden} />
-      ) : (
-        <CreateMyFeedModal
-          isOpen={isAnimated}
-          onRequestClose={() => setHidden()}
-          feedFilterModalType={feedFilterModal}
-        />
-      )}
+      {isLoaded && <FeedFilters isOpen={isAnimated} onBack={setHidden} />}
     </>
   );
 }
