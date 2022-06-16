@@ -205,16 +205,6 @@ export default function MainFeedLayout({
     query = { query: null };
   }
 
-  const openCreateMyFeed = () => {
-    setCreateMyFeed(true);
-    openFeedFilters();
-  };
-
-  const closeCreateMyFeed = () => {
-    setCreateMyFeed(false);
-    setHidden();
-  };
-
   const [selectedAlgo, setSelectedAlgo, loadedAlgo] = usePersistentContext(
     DEFAULT_ALGORITHM_KEY,
     0,
@@ -231,7 +221,12 @@ export default function MainFeedLayout({
 
   const getFeedTitle = () => {
     if (shouldShowMyFeed && alerts?.filter) {
-      return <CreateMyFeedButton action={openCreateMyFeed} flags={flags} />;
+      return (
+        <CreateMyFeedButton
+          action={() => setCreateMyFeed(true)}
+          flags={flags}
+        />
+      );
     }
 
     return <h3 className="typo-headline">{feedTitles[feedName]}</h3>;
@@ -328,16 +323,17 @@ export default function MainFeedLayout({
         {feedProps && <Feed {...feedProps} />}
         {children}
       </FeedPage>
-      {isLoaded && createMyFeed ? (
-        <CreateMyFeedModal
-          isOpen={isAnimated}
-          onRequestClose={closeCreateMyFeed}
-        />
-      ) : (
+      {isLoaded && (
         <FeedFilters
           isOpen={isAnimated}
           onBack={setHidden}
           directlyOpenedTab="Manage tags"
+        />
+      )}
+      {createMyFeed && (
+        <CreateMyFeedModal
+          isOpen={createMyFeed}
+          onRequestClose={() => setCreateMyFeed(false)}
         />
       )}
     </>
