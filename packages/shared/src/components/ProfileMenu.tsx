@@ -43,13 +43,14 @@ export default function ProfileMenu(): ReactElement {
       >
         <Item>
           <Link href={user.permalink} passHref prefetch={false}>
-            <a className="flex w-full">
-              <UserIcon filled={false} className="mr-2" /> Profile
+            <a className="flex items-center w-full">
+              <UserIcon size="medium" filled={false} className="mr-2" /> Profile
             </a>
           </Link>
         </Item>
         <Item onClick={() => setShowAccountDetails(true)}>
-          <SettingsIcon filled={false} className="mr-2" /> Account details
+          <SettingsIcon size="medium" filled={false} className="mr-2" /> Account
+          details
         </Item>
         <Item>
           <Link
@@ -57,13 +58,13 @@ export default function ProfileMenu(): ReactElement {
             passHref
             prefetch={false}
           >
-            <a className="flex w-full">
-              <DevCardIcon className="mr-2" /> Dev card
+            <a className="flex items-center w-full">
+              <DevCardIcon size="medium" className="mr-2" /> Dev card
             </a>
           </Link>
         </Item>
         <Item onClick={logout}>
-          <PowerIcon className="mr-2" /> Logout
+          <PowerIcon size="medium" className="mr-2" /> Logout
         </Item>
       </PortalMenu>
     </>
