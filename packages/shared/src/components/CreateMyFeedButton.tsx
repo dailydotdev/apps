@@ -123,7 +123,7 @@ export default function CreateMyFeedButton({
         <Button
           className={classNames(buttonClass[type], buttonColor.button)}
           buttonSize={isSidebar && !sidebarExpanded ? 'xsmall' : 'small'}
-          icon={<PlusIcon />}
+          icon={<PlusIcon size="medium" className="icon" />}
           iconOnly={isSidebar && sidebarExpanded}
           onClick={onClick}
         >

@@ -39,7 +39,7 @@ export default function SidebarUserButton({
                   iconOnly
                   className="btn btn-tertiary"
                   onClick={onMenuClick}
-                  icon={<SettingsIcon />}
+                  icon={<SettingsIcon size="large" />}
                 />
               </div>
               <strong className="mb-0.5 typo-callout">{user.name}</strong>

@@ -108,7 +108,7 @@ export default function CommentActionButtons({
           buttonSize="small"
           pressed={upvoted}
           onClick={toggleUpvote}
-          icon={<UpvoteIcon filled={upvoted} />}
+          icon={<UpvoteIcon size="medium" filled={upvoted} />}
           className="mr-3 btn-tertiary-avocado"
         />
       </SimpleTooltip>
@@ -116,7 +116,7 @@ export default function CommentActionButtons({
         <Button
           buttonSize="small"
           onClick={() => onComment(comment, parentId)}
-          icon={<CommentIcon />}
+          icon={<CommentIcon size="medium" />}
           className="mr-3 btn-tertiary-avocado"
         />
       </SimpleTooltip>
@@ -125,7 +125,7 @@ export default function CommentActionButtons({
           <Button
             buttonSize="small"
             onClick={() => onEdit(comment)}
-            icon={<EditIcon />}
+            icon={<EditIcon size="medium" />}
             className="mr-3 btn-tertiary"
           />
         </SimpleTooltip>
@@ -136,7 +136,7 @@ export default function CommentActionButtons({
           <Button
             buttonSize="small"
             onClick={() => onDelete(comment, parentId)}
-            icon={<TrashIcon />}
+            icon={<TrashIcon size="medium" />}
             className="btn-tertiary"
           />
         </SimpleTooltip>

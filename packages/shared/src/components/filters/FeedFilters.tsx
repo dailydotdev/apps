@@ -53,7 +53,10 @@ export default function FeedFilters({
         )}
       >
         <button onClick={onBack} type="button">
-          <CloseIcon className="text-2xl -rotate-90 text-theme-label-tertiary" />
+          <CloseIcon
+            size="medium"
+            className="text-2xl -rotate-90 text-theme-label-tertiary"
+          />
         </button>
         {shouldShowMyFeed && !user && (
           <CreateFeedFilterButton

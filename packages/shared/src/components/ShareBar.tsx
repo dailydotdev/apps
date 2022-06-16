@@ -45,7 +45,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
           <ShareButton
             onClick={() => copyLink()}
             pressed={copying}
-            icon={<CopyIcon size="medium" />}
+            icon={<CopyIcon size="large" />}
             className="btn-tertiary-avocado"
           />
         </SimpleTooltip>
@@ -56,7 +56,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
             target="_blank"
             rel="noopener"
             onClick={() => onClick('whatsapp')}
-            icon={<WhatsappIcon />}
+            icon={<WhatsappIcon style={{ fontSize: '1.75rem' }} />}
             className="btn-tertiary"
           />
         </SimpleTooltip>
@@ -67,7 +67,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
             target="_blank"
             rel="noopener"
             onClick={() => onClick('twitter')}
-            icon={<TwitterIcon />}
+            icon={<TwitterIcon style={{ fontSize: '1.75rem' }} />}
             className="btn-tertiary"
           />
         </SimpleTooltip>
@@ -78,7 +78,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
             target="_blank"
             rel="noopener"
             onClick={() => onClick('facebook')}
-            icon={<FacebookIcon />}
+            icon={<FacebookIcon style={{ fontSize: '1.75rem' }} />}
             className="btn-tertiary"
           />
         </SimpleTooltip>
