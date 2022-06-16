@@ -71,10 +71,11 @@ export const usePostComment = (
 
   const openNewComment = (origin: string) => {
     if (user) {
-      trackEvent({
-        event_name: 'open comment modal',
-        extra: JSON.stringify({ origin }),
-      });
+      trackEvent(
+        postAnalyticsEvent('open comment modal', post, {
+          extra: { origin },
+        }),
+      );
       setLastScroll(window.scrollY);
       setParentComment({
         authorName: post.source.name,
