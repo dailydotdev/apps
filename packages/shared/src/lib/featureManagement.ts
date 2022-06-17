@@ -125,7 +125,7 @@ export class Features {
 
   static readonly MyFeedOnboardingVersion = new Features(
     'my_feed_onboarding_version',
-    'v3',
+    'control',
     ['control', 'v1', 'v2', 'v3'],
   );
 
