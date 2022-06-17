@@ -1,5 +1,5 @@
 import React, { ReactElement, useContext, useRef, useState } from 'react';
-import { useMutation, useQuery } from 'react-query';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 import request from 'graphql-request';
 import { Button } from '../buttons/Button';
 import { ModalCloseButton } from './ModalCloseButton';
@@ -37,15 +37,17 @@ export default function SubmitArticleModal({
 }: SubmitArticleModalProps): ReactElement {
   const submitFormRef = useRef<HTMLFormElement>();
   const { user } = useContext(AuthContext);
+  const client = useQueryClient();
   const { trackEvent } = useContext(AnalyticsContext);
   const [enableSubmission, setEnableSubmission] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [existingArticle, setExistingArticle] = useState<PostItem>(null);
   const [urlHint, setUrlHint] = useState<string>();
+  const availabilityKey = ['submission_availability', user?.id];
   const { data: access } = useQuery<{
     submissionAvailability: SubmissionAvailability;
-  }>(['submission_availability', user?.id], () =>
+  }>(availabilityKey, () =>
     request(`${apiUrl}/graphql`, SUBMISSION_AVAILABILITY_QUERY),
   );
   const { submissionAvailability } = access || {};
@@ -110,6 +112,9 @@ export default function SubmitArticleModal({
       } = res.submitArticle;
       if (submission) {
         setIsSubmitted(true);
+        const updated = { submissionAvailability };
+        updated.submissionAvailability.todaySubmissionsCount += 1;
+        client.setQueryData(availabilityKey, updated);
         trackEvent({ event_name: 'submit article succeed' });
       } else if (post) {
         setExistingArticle({ post });
