@@ -133,7 +133,6 @@ export default function FeedItemComponent({
           ref={inViewRef}
           post={{
             ...item.post,
-            createdAt: item.post.createdAt,
           }}
           data-testid="postItem"
           onUpvoteClick={(post, upvoted) =>
