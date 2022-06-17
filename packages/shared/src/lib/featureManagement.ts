@@ -6,24 +6,13 @@ export class Features {
     'Access all features',
   );
 
-  static readonly SignupButtonColor = new Features(
-    'signup_button_theme_color',
-    'primary',
-    ['primary', 'avocado', 'water', 'cabbage', 'bacon'],
-  );
-
   static readonly DevcardLimit = new Features('feat_limit_dev_card', '50');
 
   static readonly FeedVersion = new Features('feed_version', '1');
 
-  static readonly HidePublicationDate = new Features(
-    'hide_publication_date',
-    '0',
-  );
-
   static readonly LoginModalButtonCopyPrefix = new Features(
     'login_modal_button_copy_prefix',
-    'Sign in with',
+    'Connect with',
   );
 
   static readonly LoginModalDescriptionCopy = new Features(

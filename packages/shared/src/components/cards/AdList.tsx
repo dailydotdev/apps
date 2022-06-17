@@ -12,7 +12,7 @@ import AdLink from './AdLink';
 import AdAttribution from './AdAttribution';
 
 export const AdList = forwardRef(function AdList(
-  { ad, onLinkClick, postHeadingFont, ...props }: AdCardProps,
+  { ad, onLinkClick, ...props }: AdCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
   return (
@@ -21,7 +21,9 @@ export const AdList = forwardRef(function AdList(
       <ListCardAside />
       <ListCardDivider />
       <ListCardMain>
-        <ListCardTitle className={classNames('line-clamp-4', postHeadingFont)}>
+        <ListCardTitle
+          className={classNames('line-clamp-4 font-bold typo-title3')}
+        >
           {ad.description}
         </ListCardTitle>
         <AdAttribution ad={ad} className="mt-2" />

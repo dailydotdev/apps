@@ -12,7 +12,7 @@ import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 const Title = classed(
   'h3',
   styles.title,
-  'text-theme-label-primary multi-truncate line-clamp-3',
+  'text-theme-label-primary multi-truncate line-clamp-3 font-bold typo-title3',
 );
 
 export const CardTitle = classed(Title, 'my-2 break-words');
