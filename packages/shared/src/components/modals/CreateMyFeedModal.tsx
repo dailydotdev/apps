@@ -1,4 +1,4 @@
-import React, { CSSProperties, ReactElement, useState } from 'react';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { ModalProps } from './StyledModal';
 import { ResponsiveModal } from './ResponsiveModal';
@@ -8,16 +8,17 @@ import CreateFeedFilterButton from '../CreateFeedFilterButton';
 import XIcon from '../icons/Close';
 import { Button } from '../buttons/Button';
 import { MyFeedIntro } from '../MyFeedIntro';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
 
 interface GetFooterButtonProps {
   showIntro: boolean;
-  myFeedOnboardingVersion: string;
+  version: string;
   onSkip?: React.MouseEventHandler;
   onContinue: () => void;
 }
 const getFooterButton = ({
   showIntro,
-  myFeedOnboardingVersion,
+  version,
   onSkip,
   onContinue,
 }: GetFooterButtonProps): ReactElement => {
@@ -30,7 +31,7 @@ const getFooterButton = ({
     );
   }
 
-  if (myFeedOnboardingVersion === 'v2') {
+  if (version === 'v2') {
     return (
       <Button className="btn-primary-cabbage" onClick={onContinue}>
         Create my feed
@@ -53,16 +54,33 @@ const getFooterButton = ({
 const introVariants = ['v2', 'v3'];
 const closableVariants = ['control', 'v3'];
 
+interface CreateMyFeedModalProps extends ModalProps {
+  version?: string;
+  mode?: string;
+}
 export default function CreateMyFeedModal({
+  mode = 'manual',
+  version = 'control',
   className,
   onRequestClose,
   ...modalProps
-}: ModalProps): ReactElement {
-  // Get flag for this user
-  const myFeedOnboardingVersion = 'v3';
+}: CreateMyFeedModalProps): ReactElement {
+  const { trackEvent } = useContext(AnalyticsContext);
   const [showIntro, setShowIntro] = useState<boolean>(
-    introVariants.includes(myFeedOnboardingVersion),
+    introVariants.includes(version),
   );
+
+  useEffect(() => {
+    trackEvent({
+      event_name: 'impression',
+      target_type: 'create my feed',
+      target_id: 'modal',
+      extra: JSON.stringify({
+        origin: mode,
+        version,
+      }),
+    });
+  }, []);
 
   return (
     <ResponsiveModal
@@ -73,14 +91,12 @@ export default function CreateMyFeedModal({
           height: '180rem',
         },
       }}
-      onRequestClose={
-        closableVariants.includes(myFeedOnboardingVersion) && onRequestClose
-      }
+      onRequestClose={closableVariants.includes(version) && onRequestClose}
     >
       {!showIntro && (
         <header className="flex fixed responsiveModalBreakpoint:sticky top-0 left-0 z-3 flex-row justify-between items-center py-4 px-6 w-full border-b border-theme-divider-tertiary bg-theme-bg-tertiary">
           <h3 className="font-bold typo-title3">Feed filters</h3>
-          {closableVariants.includes(myFeedOnboardingVersion) && (
+          {closableVariants.includes(version) && (
             <Button
               className="btn-tertiary"
               buttonSize="small"
@@ -97,14 +113,12 @@ export default function CreateMyFeedModal({
       <footer
         className={classNames(
           'flex fixed responsiveModalBreakpoint:sticky bottom-0 items-center border-t border-theme-divider-tertiary bg-theme-bg-tertiary py-3',
-          myFeedOnboardingVersion === 'v3'
-            ? 'justify-between px-4'
-            : 'justify-center',
+          version === 'v3' ? 'justify-between px-4' : 'justify-center',
         )}
       >
         {getFooterButton({
           showIntro,
-          myFeedOnboardingVersion,
+          version,
           onSkip: onRequestClose,
           onContinue: () => setShowIntro(false),
         })}

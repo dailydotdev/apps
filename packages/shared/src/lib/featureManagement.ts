@@ -123,6 +123,12 @@ export class Features {
     'Add the companion now!',
   );
 
+  static readonly MyFeedOnboardingVersion = new Features(
+    'my_feed_onboarding_version',
+    'v3',
+    ['control', 'v1', 'v2', 'v3'],
+  );
+
   private constructor(
     public readonly id: string,
     public readonly defaultValue?: string,

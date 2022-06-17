@@ -34,6 +34,7 @@ import { useDynamicLoadedAnimation } from '../hooks/useDynamicLoadAnimated';
 import FeedFilters from './filters/FeedFilters';
 import AlertContext from '../contexts/AlertContext';
 import CreateMyFeedModal from './modals/CreateMyFeedModal';
+import AnalyticsContext from '../contexts/AnalyticsContext';
 
 const SearchEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "emptySearch" */ './SearchEmptyScreen'),
@@ -127,6 +128,7 @@ const algorithms = [
 ];
 const algorithmsList = algorithms.map((algo) => algo.text);
 const DEFAULT_ALGORITHM_KEY = 'feed:algorithm';
+const FIRST_TIME_SESSION = 'firstTimeSession';
 
 const periods = [
   { value: 7, text: 'Last week' },
@@ -146,7 +148,8 @@ export default function MainFeedLayout({
   const { shouldShowMyFeed } = useMyFeed();
   const [defaultFeed, updateDefaultFeed] = useDefaultFeed(shouldShowMyFeed);
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
-  const { user, tokenRefreshed } = useContext(AuthContext);
+  const { user, tokenRefreshed, isFirstVisit } = useContext(AuthContext);
+  const { trackEvent } = useContext(AnalyticsContext);
   const { flags } = useContext(FeaturesContext);
   const { alerts } = useContext(AlertContext);
   const popularFeedCopy = getFeatureValue(Features.PopularFeedCopy, flags);
@@ -157,6 +160,7 @@ export default function MainFeedLayout({
     setHidden,
   } = useDynamicLoadedAnimation();
   const [createMyFeed, setCreateMyFeed] = useState(false);
+  const [myFeedMode, setMyFeedMode] = useState('manual');
 
   const feedTitles = {
     'my-feed': 'My feed',
@@ -168,14 +172,31 @@ export default function MainFeedLayout({
     getFeatureValue(Features.FeedVersion, flags),
     10,
   );
+  const myFeedOnboardingVersion = getFeatureValue(
+    Features.MyFeedOnboardingVersion,
+    flags,
+  );
   const feedName = feedNameProp === 'default' ? defaultFeed : feedNameProp;
   const isMyFeed = feedName === 'my-feed';
   const propsByFeed = getPropsByFeed({ shouldShowMyFeed });
 
-  // Listen to first time user
+  const [isFirstSession, setIsFirstSession, isSessionLoaded] =
+    usePersistentContext(FIRST_TIME_SESSION, isFirstVisit);
+
   useEffect(() => {
-    setCreateMyFeed(true);
-  }, []);
+    if (user) {
+      setCreateMyFeed(false);
+      setIsFirstSession(false);
+      setMyFeedMode('manual');
+    } else if (
+      isFirstSession &&
+      isSessionLoaded &&
+      myFeedOnboardingVersion !== 'control'
+    ) {
+      setMyFeedMode('auto');
+      setCreateMyFeed(true);
+    }
+  }, [isSessionLoaded, user]);
 
   useEffect(() => {
     if (
@@ -187,6 +208,16 @@ export default function MainFeedLayout({
       updateDefaultFeed(feedName);
     }
   }, [defaultFeed, feedName, shouldShowMyFeed]);
+
+  const closeCreateMyFeedModal = () => {
+    if (myFeedMode === 'auto') {
+      trackEvent({
+        event_name: 'my feed onboarding skip',
+      });
+    }
+    setIsFirstSession(false);
+    setCreateMyFeed(false);
+  };
 
   const isUpvoted = !isSearchOn && feedName === 'upvoted';
   const isSortableFeed =
@@ -337,8 +368,10 @@ export default function MainFeedLayout({
       )}
       {createMyFeed && (
         <CreateMyFeedModal
+          version={myFeedOnboardingVersion}
+          mode={myFeedMode}
           isOpen={createMyFeed}
-          onRequestClose={() => setCreateMyFeed(false)}
+          onRequestClose={closeCreateMyFeedModal}
         />
       )}
     </>

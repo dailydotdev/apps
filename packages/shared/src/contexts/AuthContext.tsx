@@ -24,6 +24,7 @@ export interface AuthContextData {
   getRedirectUri: () => string;
   anonymous?: AnonymousUser;
   visit?: Visit;
+  isFirstVisit?: boolean;
   deleteAccount?: () => Promise<void>;
 }
 
@@ -79,6 +80,7 @@ export const AuthContextProvider = ({
   const authContext: AuthContextData = useMemo(
     () => ({
       user: user && 'providers' in user ? user : null,
+      isFirstVisit: true,
       trackingId: user?.id,
       shouldShowLogin: loginState !== null,
       showLogin: (trigger) => setLoginState({ trigger }),
