@@ -1,0 +1,60 @@
+import React, { HTMLAttributes, ReactElement, useState } from 'react';
+import classNames from 'classnames';
+import UserIcon from './icons/User';
+import classed from '../lib/classed';
+
+const tagsRows = [
+  ['', 'docker', '', 'kubernetes', ''],
+  ['', '', 'architecture', '', ''],
+  ['', '', '', 'devops', ''],
+  ['', 'cloud', '', '', ''],
+];
+const Pill = classed(
+  'span',
+  'flex items-center h-8 p-4 truncate rounded-10 typo-callout text-theme-label-primary',
+);
+const FeedFiltersIntroModalTagsContainer = classed('div', 'w-[160%]');
+const EmptyWidths = ['w-[4.5rem]', 'w-24', 'w-[7.5rem]'];
+
+type TagPillProps = HTMLAttributes<HTMLSpanElement>;
+
+const TagPill = ({ className, children }: TagPillProps): ReactElement => {
+  const [pillWidth] = useState(
+    () => EmptyWidths[Math.floor(Math.random() * EmptyWidths.length)],
+  );
+  console.log('pill render');
+  return <Pill className={classNames(className, pillWidth)}>{children}</Pill>;
+};
+
+export const MyFeedIntro = (): ReactElement => {
+  return (
+    <>
+      <UserIcon size="xxxlarge" />
+      <h3 className="mt-4 font-bold typo-large-title">Create my feed</h3>
+      <p className="mt-3 mb-16 text-center typo-title3 text-theme-label-tertiary">
+        Devs with a personal feed get 11.5x more relevant articles
+      </p>
+      <FeedFiltersIntroModalTagsContainer>
+        {/* eslint-disable react/no-array-index-key */}
+        {tagsRows.map((row, i) => (
+          <ul className="flex gap-3 mb-3" key={i}>
+            {row.map((tag, j) => (
+              <TagPill
+                className={classNames(
+                  (j === 0 || j === row.length - 1) && 'flex-1',
+                  !tag.length
+                    ? 'rounded-10 bg-theme-float'
+                    : 'flex-shrink w-auto bg-theme-label-disabled',
+                )}
+                key={`${i}_${j}`}
+              >
+                {tag}
+              </TagPill>
+            ))}
+          </ul>
+        ))}
+        {/* eslint-disable react/no-array-index-key */}
+      </FeedFiltersIntroModalTagsContainer>
+    </>
+  );
+};

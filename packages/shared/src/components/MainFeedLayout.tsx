@@ -172,6 +172,11 @@ export default function MainFeedLayout({
   const isMyFeed = feedName === 'my-feed';
   const propsByFeed = getPropsByFeed({ shouldShowMyFeed });
 
+  // Listen to first time user
+  useEffect(() => {
+    setCreateMyFeed(true);
+  }, []);
+
   useEffect(() => {
     if (
       defaultFeed !== null &&
