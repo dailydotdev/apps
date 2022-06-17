@@ -48,7 +48,7 @@ export default function SubmitArticleModal({
   }>(['submission_availability', user?.id], () =>
     request(`${apiUrl}/graphql`, SUBMISSION_AVAILABILITY_QUERY),
   );
-  const { submissionAvailability } = access;
+  const { submissionAvailability } = access || {};
   const isEnabled = submissionAvailability?.hasAccess;
   const { mutateAsync: submitArticle } = useMutation<
     { submitArticle: SubmitArticleResposne },

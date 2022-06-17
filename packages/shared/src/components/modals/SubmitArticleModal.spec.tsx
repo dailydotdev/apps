@@ -1,4 +1,4 @@
-import { render, RenderResult, screen } from '@testing-library/react';
+import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from 'react-query';
@@ -6,8 +6,14 @@ import React from 'react';
 import nock from 'nock';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import { AnonymousUser, LoggedUser } from '../../lib/user';
-import { mockGraphQL } from '../../../__tests__/helpers/graphql';
-import { SUBMIT_ARTICLE_MUTATION } from '../../graphql/submitArticle';
+import {
+  MockedGraphQLResponse,
+  mockGraphQL,
+} from '../../../__tests__/helpers/graphql';
+import {
+  SUBMISSION_AVAILABILITY_QUERY,
+  SUBMIT_ARTICLE_MUTATION,
+} from '../../graphql/submitArticle';
 import SubmitArticleModal from './SubmitArticleModal';
 
 const onRequestClose = jest.fn();
@@ -30,11 +36,23 @@ const defaultUser: LoggedUser = {
   permalink: 'sample',
 };
 
+const createSubmissionAvailabilityMock = (
+  submissionAvailability = {
+    hasAccess: true,
+    limit: 3,
+    todaySubmissionsCount: 0,
+  },
+) => ({
+  request: { query: SUBMISSION_AVAILABILITY_QUERY },
+  result: { data: { submissionAvailability } },
+});
+
 const renderComponent = (
-  isEnabled = false,
+  mocks: MockedGraphQLResponse[] = [createSubmissionAvailabilityMock()],
   user: LoggedUser | AnonymousUser = defaultUser,
 ): RenderResult => {
   const client = new QueryClient();
+  mocks.forEach(mockGraphQL);
   return render(
     <QueryClientProvider client={client}>
       <AuthContextProvider
@@ -48,7 +66,6 @@ const renderComponent = (
         <SubmitArticleModal
           headerCopy="Submit article"
           submitArticleModalButton="Submit article"
-          isEnabled={isEnabled}
           isOpen
           onRequestClose={onRequestClose}
         />
@@ -58,8 +75,9 @@ const renderComponent = (
 };
 
 it('should show a message no URL was set', async () => {
-  renderComponent(true);
+  renderComponent();
   const btn = await screen.findByLabelText('Submit article');
+  await waitFor(() => expect(btn).toBeEnabled());
   btn.click();
   expect(
     await screen.findByText('Please submit a valid URL'),
@@ -67,7 +85,7 @@ it('should show a message no URL was set', async () => {
 });
 
 it('should disable the button on invalid URL', async () => {
-  renderComponent(true);
+  renderComponent();
   const input = await screen.findByRole('textbox');
   userEvent.type(input, 'fakeURL');
   const btn = await screen.findByLabelText('Submit article');
@@ -75,10 +93,13 @@ it('should disable the button on invalid URL', async () => {
 });
 
 it('should submit a valid URL', async () => {
-  renderComponent(true);
-  const input = await screen.findByRole('textbox');
-  userEvent.type(input, 'http://blog.daily.dev/blog/article-1');
+  renderComponent();
+  const link = 'http://blog.daily.dev/blog/article-1';
+  const input = (await screen.findByRole('textbox')) as HTMLInputElement;
+  userEvent.type(input, link);
+  input.value = link;
   const btn = await screen.findByLabelText('Submit article');
+  await waitFor(() => expect(btn).toBeEnabled());
   btn.click();
 
   mockGraphQL({
@@ -181,11 +202,14 @@ it('should feedback existing article', async () => {
       };
     },
   });
-  renderComponent(true);
+  renderComponent();
   await act(async () => {
-    const input = await screen.findByRole('textbox');
-    userEvent.type(input, 'http://blog.daily.dev/blog/article-1');
+    const link = 'http://blog.daily.dev/blog/article-1';
+    const input = (await screen.findByRole('textbox')) as HTMLInputElement;
+    userEvent.type(input, link);
+    input.value = link;
     const btn = await screen.findByLabelText('Submit article');
+    await waitFor(() => expect(btn).toBeEnabled());
     btn.click();
   });
   await screen.findAllByRole('button');
@@ -209,10 +233,13 @@ it('should feedback already submitted article', async () => {
       },
     },
   });
-  renderComponent(true);
-  const input = await screen.findByRole('textbox');
-  userEvent.type(input, 'http://blog.daily.dev/blog/article-1');
+  renderComponent();
+  const link = 'http://blog.daily.dev/blog/article-1';
+  const input = (await screen.findByRole('textbox')) as HTMLInputElement;
+  userEvent.type(input, link);
+  input.value = link;
   const btn = await screen.findByLabelText('Submit article');
+  await waitFor(() => expect(btn).toBeEnabled());
   btn.click();
 
   expect(
@@ -237,10 +264,13 @@ it('should feedback submitted article is deleted', async () => {
       },
     },
   });
-  renderComponent(true);
-  const input = await screen.findByRole('textbox');
-  userEvent.type(input, 'http://blog.daily.dev/blog/article-1');
+  renderComponent();
+  const link = 'http://blog.daily.dev/blog/article-1';
+  const input = (await screen.findByRole('textbox')) as HTMLInputElement;
+  userEvent.type(input, link);
+  input.value = link;
   const btn = await screen.findByLabelText('Submit article');
+  await waitFor(() => expect(btn).toBeEnabled());
   btn.click();
 
   expect(await screen.findByText('post is deleted')).toBeInTheDocument();
