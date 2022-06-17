@@ -6,7 +6,6 @@ import FeaturesContext from '../contexts/FeaturesContext';
 import { Features, getFeatureValue } from '../lib/featureManagement';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../hooks/analytics/useAnalyticsQueue';
-import { getThemeColor } from './utilities';
 
 const getAnalyticsEvent = (
   eventName: string,
@@ -30,10 +29,6 @@ export default function LoginButton({
   const { flags } = useContext(FeaturesContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const buttonCopy = getFeatureValue(Features.SignupButtonCopy, flags);
-  const buttonColor = getThemeColor(
-    getFeatureValue(Features.SignupButtonColor, flags),
-    Features.MyFeedButtonColor.defaultValue,
-  );
 
   useEffect(() => {
     trackEvent(getAnalyticsEvent('impression', buttonCopy));
@@ -48,7 +43,7 @@ export default function LoginButton({
     <Button
       onClick={onClick}
       icon={icon}
-      className={classNames(className, buttonColor.button)}
+      className={classNames(className, 'btn-primary')}
     >
       <span className="hidden laptop:inline">{buttonCopy}</span>
       <span className="laptop:hidden">Sign up</span>

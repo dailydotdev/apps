@@ -18,11 +18,10 @@ export type AdCardProps = {
   ad: Ad;
   onLinkClick?: Callback;
   showImage?: boolean;
-  postHeadingFont: string;
 } & HTMLAttributes<HTMLDivElement>;
 
 export const AdCard = forwardRef(function AdCard(
-  { ad, onLinkClick, showImage = true, postHeadingFont, ...props }: AdCardProps,
+  { ad, onLinkClick, showImage = true, ...props }: AdCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const showBlurredImage = ad.source === 'Carbon';
@@ -31,7 +30,9 @@ export const AdCard = forwardRef(function AdCard(
     <Card {...props} ref={ref}>
       <AdLink ad={ad} onLinkClick={onLinkClick} />
       <CardTextContainer>
-        <CardTitle className={classNames('my-4 line-clamp-4', postHeadingFont)}>
+        <CardTitle
+          className={classNames('my-4 line-clamp-4 font-bold typo-title3')}
+        >
           {ad.description}
         </CardTitle>
       </CardTextContainer>
