@@ -1,5 +1,5 @@
 import React, { ReactElement, useContext, useRef, useState } from 'react';
-import { useMutation } from 'react-query';
+import { useMutation, useQuery } from 'react-query';
 import request from 'graphql-request';
 import { Button } from '../buttons/Button';
 import { ModalCloseButton } from './ModalCloseButton';
@@ -9,7 +9,10 @@ import { apiUrl } from '../../lib/config';
 import { communityLinksGuidelines } from '../../lib/constants';
 import { ResponsiveModal } from './ResponsiveModal';
 import { TextField } from '../fields/TextField';
+import AuthContext from '../../contexts/AuthContext';
 import {
+  SubmissionAvailability,
+  SUBMISSION_AVAILABILITY_QUERY,
   SubmitArticleResposne,
   SUBMIT_ARTICLE_MUTATION,
 } from '../../graphql/submitArticle';
@@ -20,7 +23,6 @@ import { BetaBadge } from '../BetaBadge';
 import LinkIcon from '../icons/Link';
 
 type SubmitArticleModalProps = {
-  isEnabled: boolean;
   headerCopy: string;
   submitArticleModalButton: string;
 } & ModalProps;
@@ -28,20 +30,26 @@ type SubmitArticleModalProps = {
 const defaultErrorMessage = 'Something went wrong, try again';
 
 export default function SubmitArticleModal({
-  isEnabled,
   headerCopy,
   submitArticleModalButton,
   onRequestClose,
   ...modalProps
 }: SubmitArticleModalProps): ReactElement {
   const submitFormRef = useRef<HTMLFormElement>();
+  const { user } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const [enableSubmission, setEnableSubmission] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [existingArticle, setExistingArticle] = useState<PostItem>(null);
   const [urlHint, setUrlHint] = useState<string>();
-
+  const { data: access } = useQuery<{
+    submissionAvailability: SubmissionAvailability;
+  }>(['submission_availability', user?.id], () =>
+    request(`${apiUrl}/graphql`, SUBMISSION_AVAILABILITY_QUERY),
+  );
+  const { submissionAvailability } = access;
+  const isEnabled = submissionAvailability?.hasAccess;
   const { mutateAsync: submitArticle } = useMutation<
     { submitArticle: SubmitArticleResposne },
     unknown,
@@ -181,7 +189,11 @@ export default function SubmitArticleModal({
         >
           Learn more
         </a>
-        <p className="mt-6 mb-4 typo-callout">Daily suggestions used 0/3</p>
+        <p className="mt-6 mb-4 typo-callout">
+          Daily suggestions used{' '}
+          {submissionAvailability?.todaySubmissionsCount ?? 0}/
+          {submissionAvailability?.limit ?? 3}
+        </p>
         <form
           className="w-full"
           ref={submitFormRef}
