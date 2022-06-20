@@ -24,13 +24,15 @@ export interface StyledButtonProps {
   iconOnly?: boolean;
 }
 
+type IconType = React.ReactElement<IconProps>;
+
 export interface BaseButtonProps {
   buttonSize?: ButtonSize;
   loading?: boolean;
   pressed?: boolean;
   tag?: React.ElementType;
-  icon?: React.ReactElement<IconProps>;
-  rightIcon?: React.ReactElement<IconProps>;
+  icon?: IconType;
+  rightIcon?: IconType;
   children?: ReactNode;
   displayClass?: string;
   position?: string;
