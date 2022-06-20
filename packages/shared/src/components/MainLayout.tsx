@@ -141,7 +141,7 @@ export default function MainLayout({
               className="block laptop:hidden btn-tertiary"
               iconOnly
               onClick={() => trackAndToggleMobileSidebar(true)}
-              icon={<MenuIcon size="large" filled />}
+              icon={<MenuIcon filled />}
             />
             <div className="flex flex-row flex-1 justify-center laptop:justify-start">
               {mobileTitle && (

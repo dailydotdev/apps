@@ -45,7 +45,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
           <ShareButton
             onClick={() => copyLink()}
             pressed={copying}
-            icon={<CopyIcon size="large" />}
+            icon={<CopyIcon />}
             className="btn-tertiary-avocado"
           />
         </SimpleTooltip>
