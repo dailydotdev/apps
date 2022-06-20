@@ -3,13 +3,12 @@ import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import styles from './Card.module.css';
 import { Post } from '../../graphql/posts';
-import rem from '../../../macros/rem.macro';
 import InteractionCounter from '../InteractionCounter';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import UpvoteIcon from '../icons/Upvote';
 import CommentIcon from '../icons/Discuss';
 import BookmarkIcon from '../icons/Bookmark';
-import { Button } from '../buttons/Button';
+import { Button, ButtonProps } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import OptionsButton from '../buttons/OptionsButton';
@@ -57,13 +56,20 @@ export default function ActionButtons({
   const { postCardVersion, postEngagementNonClickable, postModalByDefault } =
     useContext(FeaturesContext);
   const isV2 = postCardVersion === 'v2';
-  const buttonStyles = postEngagementNonClickable ? {} : { width: rem(78) };
   const separatedActions =
     (insaneMode && postModalByDefault) || postEngagementNonClickable;
   const LeftContainer = separatedActions ? getContainer() : React.Fragment;
   const RightContainer = separatedActions
     ? getContainer(isV2 || (insaneMode && postModalByDefault), 'ml-auto')
     : React.Fragment;
+  const upvoteCommentProps: ButtonProps<'button'> = {
+    readOnly: postEngagementNonClickable,
+    buttonSize: 'small',
+    className: classNames(
+      'btn-tertiary-avocado',
+      !postEngagementNonClickable && 'w-[4.875rem]',
+    ),
+  };
 
   const bookmarkButton = (
     <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
@@ -93,7 +99,6 @@ export default function ActionButtons({
           content={post.upvoted ? 'Remove upvote' : 'Upvote'}
         >
           <QuaternaryButton
-            readOnly={postEngagementNonClickable}
             id={`post-${post.id}-upvote-btn`}
             icon={
               <UpvoteIcon
@@ -101,11 +106,9 @@ export default function ActionButtons({
                 size={postEngagementNonClickable ? 'small' : 'medium'}
               />
             }
-            buttonSize="small"
             pressed={post.upvoted}
             onClick={() => onUpvoteClick?.(post, !post.upvoted)}
-            style={buttonStyles}
-            className="btn-tertiary-avocado"
+            {...upvoteCommentProps}
           >
             {postEngagementNonClickable && !post.numUpvotes ? null : (
               <InteractionCounter
@@ -116,7 +119,6 @@ export default function ActionButtons({
         </SimpleTooltip>
         <SimpleTooltip content="Comments" disabled={postEngagementNonClickable}>
           <QuaternaryButton
-            readOnly={postEngagementNonClickable}
             id={`post-${post.id}-comment-btn`}
             icon={
               <CommentIcon
@@ -124,11 +126,9 @@ export default function ActionButtons({
                 size={postEngagementNonClickable ? 'small' : 'medium'}
               />
             }
-            buttonSize="small"
             pressed={post.commented}
             onClick={() => onCommentClick?.(post)}
-            style={buttonStyles}
-            className="btn-tertiary-avocado"
+            {...upvoteCommentProps}
           >
             <InteractionCounter
               value={post.numComments > 0 && post.numComments}
