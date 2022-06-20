@@ -2,6 +2,7 @@ import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 
 export type Size =
+  | 'auto'
   | 'xsmall'
   | 'small'
   | 'medium'
@@ -10,6 +11,7 @@ export type Size =
   | 'xxlarge';
 
 const IconSize: Record<Size, string> = {
+  auto: 'w-auto h-auto',
   xsmall: 'w-3 h-3',
   small: 'w-5 h-5',
   medium: 'w-6 h-6',

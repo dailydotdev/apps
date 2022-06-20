@@ -53,7 +53,7 @@ export function PostNavigation({
         <SimpleTooltip content="Previous">
           <Button
             className="-rotate-90 btn-secondary"
-            icon={<ArrowIcon size="large" />}
+            icon={<ArrowIcon />}
             onClick={onPreviousPost}
           />
         </SimpleTooltip>
@@ -62,7 +62,7 @@ export function PostNavigation({
         <SimpleTooltip content="Next">
           <Button
             className="rotate-90 btn-secondary"
-            icon={<ArrowIcon size="large" />}
+            icon={<ArrowIcon />}
             onClick={onNextPost}
           />
         </SimpleTooltip>
