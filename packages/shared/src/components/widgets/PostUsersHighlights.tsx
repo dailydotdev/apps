@@ -5,7 +5,7 @@ import classed from '../../lib/classed';
 import { LazyImage } from '../LazyImage';
 import { WidgetContainer } from './common';
 import FeatherIcon from '../icons/Feather';
-import HunterIcon from '../icons/Hunter';
+import ScoutIcon from '../icons/Scout';
 import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
 import { ProfileLink } from '../profile/ProfileLink';
 import { Author } from '../../graphql/comments';
@@ -15,7 +15,7 @@ interface PostAuthorProps {
   post: Post;
 }
 
-type UserType = 'source' | 'author' | 'featured';
+type UserType = 'source' | 'author' | 'featured' | 'scout';
 
 const StyledImage = classed(LazyImage, 'w-10 h-10');
 
@@ -31,7 +31,7 @@ interface SourceAuthorProps {
 const getUserIcon = (userType: UserType) => {
   if (userType === 'source') return null;
 
-  return userType === 'author' ? FeatherIcon : HunterIcon;
+  return userType === 'author' ? FeatherIcon : ScoutIcon;
 };
 
 const Image = (props: SourceAuthorProps) => {
@@ -86,6 +86,7 @@ const UserHighlight = (props: SourceAuthorProps) => {
       </LinkWrapper>
       {Icon && (
         <Icon
+          filled
           className={classNames(
             'absolute w-5 h-5 top-10 left-10',
             userType === 'author'
@@ -114,7 +115,7 @@ const UserHighlight = (props: SourceAuthorProps) => {
 };
 
 export function PostUsersHighlights({ post }: PostAuthorProps): ReactElement {
-  const { author, source } = post;
+  const { author, scout, source } = post;
 
   return (
     <WidgetContainer className="flex flex-col">
@@ -124,6 +125,7 @@ export function PostUsersHighlights({ post }: PostAuthorProps): ReactElement {
         userType="source"
       />
       {author && <UserHighlight {...author} userType="author" />}
+      {scout && <UserHighlight {...scout} userType="scout" />}
     </WidgetContainer>
   );
 }

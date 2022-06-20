@@ -1,6 +1,6 @@
 import { useContextMenu } from '@dailydotdev/react-contexify';
 import React, { useState } from 'react';
-import { ReadHistory } from '../graphql/posts';
+import { PostItem } from '../graphql/posts';
 import { QueryIndexes } from './useReadingHistory';
 
 export default function useReadingHistoryContextMenu(): {
@@ -10,7 +10,7 @@ export default function useReadingHistoryContextMenu(): {
   queryIndexes;
 } {
   const [readingHistoryContextItem, setReadingHistoryContextItem] =
-    useState<ReadHistory>();
+    useState<PostItem>();
   const [queryIndexes, setQueryIndexes] = useState<QueryIndexes>({
     page: -1,
     edge: -1,
@@ -20,7 +20,7 @@ export default function useReadingHistoryContextMenu(): {
   });
   const onReadingHistoryContextOptions = (
     event: React.MouseEvent,
-    readingHistory: ReadHistory,
+    readingHistory: PostItem,
     indexes: QueryIndexes,
   ): void => {
     setReadingHistoryContextItem(readingHistory);

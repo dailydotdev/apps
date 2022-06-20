@@ -86,7 +86,6 @@ const renderComponent = (
           isOpen
           onRequestClose={onRequestClose}
           ariaHideApp={false}
-          feedFilterModalType="v2"
         />
       </AuthContext.Provider>
     </QueryClientProvider>,

@@ -2,7 +2,7 @@ import { useQueryClient, useMutation, QueryKey } from 'react-query';
 import request from 'graphql-request';
 import { apiUrl } from '../lib/config';
 import {
-  HideReadHistoryProps,
+  HidePostItemCardProps,
   HIDE_READING_HISTORY_MUTATION,
 } from '../graphql/users';
 import { ReadHistoryInfiniteData } from './useInfiniteReadingHistory';
@@ -10,7 +10,7 @@ import { ReadHistoryInfiniteData } from './useInfiniteReadingHistory';
 export type QueryIndexes = { page: number; edge: number };
 
 export type HideReadHistory = (
-  params: HideReadHistoryProps & QueryIndexes,
+  params: HidePostItemCardProps & QueryIndexes,
 ) => Promise<unknown>;
 
 export interface UseReadingHistoryReturn {
@@ -22,16 +22,16 @@ function useReadingHistory(key: QueryKey): UseReadingHistoryReturn {
   const { mutateAsync: hideReadHistory } = useMutation<
     unknown,
     unknown,
-    HideReadHistoryProps,
+    HidePostItemCardProps,
     () => void
   >(
-    ({ postId, timestamp }: HideReadHistoryProps) =>
+    ({ postId, timestamp }: HidePostItemCardProps) =>
       request(`${apiUrl}/graphql`, HIDE_READING_HISTORY_MUTATION, {
         postId,
         timestamp,
       }),
     {
-      onMutate: ({ page, edge }: HideReadHistoryProps & QueryIndexes) => {
+      onMutate: ({ page, edge }: HidePostItemCardProps & QueryIndexes) => {
         const current = client.getQueryData<ReadHistoryInfiniteData>(key);
         const [history] = current.pages[page].readHistory.edges.splice(edge, 1);
         client.setQueryData(key, (result: ReadHistoryInfiniteData) => ({

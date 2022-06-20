@@ -10,6 +10,7 @@ import CommentAuthor from './CommentAuthor';
 import classed from '../../lib/classed';
 import Markdown from '../Markdown';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
+import ScoutBadge from './ScoutBadge';
 
 export interface Props extends CommentActionProps {
   comment: Comment;
@@ -17,6 +18,7 @@ export interface Props extends CommentActionProps {
   lastComment: boolean;
   parentId: string;
   postAuthorId: string | null;
+  postScoutId: string | null;
   appendTooltipTo?: () => HTMLElement;
 }
 
@@ -33,6 +35,7 @@ export default function SubComment({
   onShowUpvotes,
   appendTooltipTo,
   postAuthorId,
+  postScoutId,
 }: Props): ReactElement {
   return (
     <article className="flex items-stretch mt-4" data-testid="subcomment">
@@ -57,11 +60,14 @@ export default function SubComment({
       </div>
       <div className="flex flex-col flex-1 items-stretch ml-2">
         <SubCommentBox>
-          <CommentAuthor
-            postAuthorId={postAuthorId}
-            author={comment.author}
-            appendTooltipTo={appendTooltipTo}
-          />
+          <div className="flex">
+            <CommentAuthor
+              postAuthorId={postAuthorId}
+              author={comment.author}
+              appendTooltipTo={appendTooltipTo}
+            />
+            {comment.author?.id === postScoutId && <ScoutBadge />}
+          </div>
           <CommentPublishDate comment={comment} />
           <div className="mt-2">
             <Markdown content={comment.contentHtml} />

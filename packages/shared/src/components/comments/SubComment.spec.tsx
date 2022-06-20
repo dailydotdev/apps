@@ -55,6 +55,7 @@ const renderLayout = (
     onDelete,
     onEdit,
     postAuthorId: null,
+    postScoutId: null,
   };
 
   const client = new QueryClient();

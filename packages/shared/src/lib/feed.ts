@@ -33,6 +33,7 @@ interface FeedItemAnalyticsEvent extends AnalyticsEvent {
 
 interface PostItemAnalyticsEvent extends FeedItemAnalyticsEvent {
   post_author_id: string;
+  post_scout_id: string;
   post_comments_count: number;
   post_created_at: string;
   post_read_time: number;
@@ -90,6 +91,7 @@ export function postAnalyticsEvent(
     feed_item_target_url: post.permalink,
     feed_item_title: post.title,
     post_author_id: post.author?.id,
+    post_scout_id: post.scout?.id,
     post_created_at: post.createdAt,
     post_comments_count: post.numComments,
     post_read_time: post.readTime,

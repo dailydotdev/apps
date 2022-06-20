@@ -77,24 +77,14 @@ export const getThemeColor = (color: string, fallback: string): ThemeColor => {
   return themeColors[color] ?? themeColors[fallback];
 };
 
-const themeFonts = {
-  bodyBold: 'font-bold typo-body',
-  body: 'typo-body',
-  title3: 'typo-title3',
-  title3Bold: 'font-bold typo-title3',
-};
-
-export const getThemeFont = (font: string, fallback: string): string => {
-  return themeFonts[font] ?? themeFonts[fallback];
-};
-
 export const postEventName = (
   update: Pick<PostBootData, 'upvoted' | 'bookmarked'>,
 ): string => {
   if ('upvoted' in update) {
-    return `${!update.upvoted ? 'remove ' : ''}upvote post`;
+    return !update.upvoted ? 'remove post upvote' : 'upvote post';
   }
-  return `${!update.bookmarked ? 'remove ' : ''}post bookmark`;
+
+  return !update.bookmarked ? 'remove post bookmark' : 'bookmark post';
 };
 
 export const LegalNotice = classed(
