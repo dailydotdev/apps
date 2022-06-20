@@ -5,6 +5,11 @@ export enum RankingAlgorithm {
   Time = 'TIME',
 }
 
+export enum MyFeedMode {
+  Manual = 'manual',
+  Auto = 'auto',
+}
+
 export const FEED_POST_FRAGMENT = gql`
   fragment FeedPost on Post {
     id

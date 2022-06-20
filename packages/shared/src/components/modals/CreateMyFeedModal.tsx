@@ -9,6 +9,7 @@ import XIcon from '../icons/Close';
 import { Button } from '../buttons/Button';
 import { MyFeedIntro } from '../MyFeedIntro';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { MyFeedMode } from '../../graphql/feed';
 
 interface GetFooterButtonProps {
   showIntro: boolean;
@@ -59,7 +60,7 @@ interface CreateMyFeedModalProps extends ModalProps {
   mode?: string;
 }
 export default function CreateMyFeedModal({
-  mode = 'manual',
+  mode = MyFeedMode.Manual,
   version = 'control',
   className,
   onRequestClose,

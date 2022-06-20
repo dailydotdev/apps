@@ -80,7 +80,7 @@ export const AuthContextProvider = ({
   const authContext: AuthContextData = useMemo(
     () => ({
       user: user && 'providers' in user ? user : null,
-      isFirstVisit: true,
+      isFirstVisit: user?.isFirstVisit ?? false,
       trackingId: user?.id,
       shouldShowLogin: loginState !== null,
       showLogin: (trigger) => setLoginState({ trigger }),

@@ -18,6 +18,7 @@ import {
   FEED_QUERY,
   MOST_DISCUSSED_FEED_QUERY,
   MOST_UPVOTED_FEED_QUERY,
+  MyFeedMode,
   RankingAlgorithm,
   SEARCH_POSTS_QUERY,
 } from '../graphql/feed';
@@ -160,7 +161,7 @@ export default function MainFeedLayout({
     setHidden,
   } = useDynamicLoadedAnimation();
   const [createMyFeed, setCreateMyFeed] = useState(false);
-  const [myFeedMode, setMyFeedMode] = useState('manual');
+  const [myFeedMode, setMyFeedMode] = useState<MyFeedMode>(MyFeedMode.Manual);
 
   const feedTitles = {
     'my-feed': 'My feed',
@@ -187,13 +188,13 @@ export default function MainFeedLayout({
     if (user) {
       setCreateMyFeed(false);
       setIsFirstSession(false);
-      setMyFeedMode('manual');
+      setMyFeedMode(MyFeedMode.Manual);
     } else if (
       isFirstSession &&
       isSessionLoaded &&
       myFeedOnboardingVersion !== 'control'
     ) {
-      setMyFeedMode('auto');
+      setMyFeedMode(MyFeedMode.Auto);
       setCreateMyFeed(true);
     }
   }, [isSessionLoaded, user]);
@@ -210,7 +211,7 @@ export default function MainFeedLayout({
   }, [defaultFeed, feedName, shouldShowMyFeed]);
 
   const closeCreateMyFeedModal = () => {
-    if (myFeedMode === 'auto') {
+    if (myFeedMode === MyFeedMode.Auto) {
       trackEvent({
         event_name: 'my feed onboarding skip',
       });
