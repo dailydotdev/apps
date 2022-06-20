@@ -134,20 +134,19 @@ export const PostCard = forwardRef(function PostCard(
             fallbackSrc="https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1"
             className={isV1 ? 'my-2' : 'mt-2'}
             loading="lazy"
-          >
-            {post.author && isV1 && (
-              <div
-                className={classNames(
-                  'absolute flex items-center py-2 px-3 text-theme-label-secondary bg-theme-bg-primary z-1 font-bold typo-callout w-full',
-                  styles.authorBox,
-                )}
-              >
-                <ProfilePicture size="small" user={post.author} />
-                <span className="flex-1 mx-3 truncate">{post.author.name}</span>
-                <FeatherIcon className="text-2xl text-theme-status-help" />
-              </div>
+          />
+        )}
+        {showImage && post.author && isV1 && (
+          <div
+            className={classNames(
+              'absolute flex items-center py-2 px-3 text-theme-label-secondary bg-theme-bg-primary z-1 font-bold typo-callout w-full',
+              styles.authorBox,
             )}
-          </CardImage>
+          >
+            <ProfilePicture size="small" user={post.author} />
+            <span className="flex-1 mx-3 truncate">{post.author.name}</span>
+            <FeatherIcon className="text-2xl text-theme-status-help" />
+          </div>
         )}
         <ActionButtons
           post={post}
