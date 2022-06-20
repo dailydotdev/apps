@@ -8,7 +8,8 @@ export type Size =
   | 'large'
   | 'xlarge'
   | 'xxlarge'
-  | 'xxxlarge';
+  | 'xxxlarge'
+  | 'xxxxlarge';
 
 const IconSize: Record<Size, string> = {
   xsmall: 'w-3 h-3',
@@ -18,6 +19,7 @@ const IconSize: Record<Size, string> = {
   xlarge: 'w-8 h-8',
   xxlarge: 'w-10 h-10',
   xxxlarge: 'w-14 h-14',
+  xxxxlarge: 'w-16 h-16',
 };
 
 type ItemType = React.ComponentType<{ className }>;
