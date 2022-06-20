@@ -36,13 +36,13 @@ export interface BaseButtonProps {
   position?: string;
 }
 
-const getIconWithSize = (
-  icon: React.ReactElement<IconProps>,
-  size: ButtonSize,
-) =>
-  React.cloneElement(icon, {
-    size: IconSize[size],
-  });
+const useGetIconWithSize = (size: ButtonSize, iconOnly: boolean) => {
+  return (icon: React.ReactElement<IconProps>) =>
+    React.cloneElement(icon, {
+      size: IconSize[size],
+      ...(!iconOnly && { className: 'icon' }),
+    });
+};
 
 export type AllowedTags = keyof Pick<JSX.IntrinsicElements, 'a' | 'button'>;
 export type AllowedElements = HTMLButtonElement | HTMLAnchorElement;
@@ -74,6 +74,8 @@ function ButtonComponent<TagName extends AllowedTags>(
 ): ReactElement {
   const iconOnly = icon && !children && !rightIcon;
 
+  const getIconWithSize = useGetIconWithSize(buttonSize, iconOnly);
+
   return (
     <Tag
       {...(props as StyledButtonProps)}
@@ -89,9 +91,9 @@ function ButtonComponent<TagName extends AllowedTags>(
         className,
       )}
     >
-      {icon && getIconWithSize(icon, buttonSize)}
+      {icon && getIconWithSize(icon)}
       {children && <span>{children}</span>}
-      {rightIcon && getIconWithSize(rightIcon, buttonSize)}
+      {rightIcon && getIconWithSize(rightIcon)}
       {loading && (
         <Loader
           data-testid="buttonLoader"

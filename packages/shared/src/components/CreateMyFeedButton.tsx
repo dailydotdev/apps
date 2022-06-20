@@ -65,7 +65,7 @@ export default function CreateMyFeedButton({
             buttonColor.button,
           )}
           buttonSize="small"
-          icon={<PlusIcon className="icon" />}
+          icon={<PlusIcon />}
           onClick={onClick}
         >
           {buttonCopy}

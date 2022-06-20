@@ -161,7 +161,7 @@ export default function SimilarPosts({
           className="self-start my-2 ml-2 btn-tertiary"
           buttonSize="small"
           tag="a"
-          rightIcon={<ArrowIcon className="rotate-90 icon" />}
+          rightIcon={<ArrowIcon className="rotate-90" />}
         >
           Show more
         </Button>
