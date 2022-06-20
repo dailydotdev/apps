@@ -5,7 +5,6 @@ import React, {
   useContext,
   useMemo,
 } from 'react';
-import classNames from 'classnames';
 import { PostCardProps } from './PostCard';
 import {
   getPostClassNames,
@@ -74,7 +73,7 @@ export const PostList = forwardRef(function PostList(
         </>
       )}
       <ListCardMain>
-        <ListCardTitle className={className}>{post.title}</ListCardTitle>
+        <ListCardTitle>{post.title}</ListCardTitle>
         <PostMetadata
           createdAt={post.createdAt}
           readTime={post.readTime}
