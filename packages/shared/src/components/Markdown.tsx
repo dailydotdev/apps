@@ -90,7 +90,7 @@ export default function Markdown({
         offset,
         visible: !!userId,
         onShow: cancelUserClearing,
-        appendTo: appendTooltipTo,
+        appendTo: appendTooltipTo || document?.body || 'parent',
       }}
       onMouseEnter={cancelUserClearing}
       onMouseLeave={clearUser}

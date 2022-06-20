@@ -14,6 +14,8 @@ export interface Author {
   bio?: string;
 }
 
+export type Scout = Author;
+
 export interface Comment {
   __typename?: string;
   id: string;

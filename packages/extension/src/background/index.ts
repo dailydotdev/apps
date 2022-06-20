@@ -17,6 +17,8 @@ import {
 } from '../lib/extensionAlerts';
 
 const excludedCompanionOrigins = [
+  'http://localhost',
+  'http://app.daily.dev',
   'https://twitter.com',
   'https://www.google.com',
   'https://stackoverflow.com',
@@ -24,6 +26,7 @@ const excludedCompanionOrigins = [
   'https://meet.google.com',
   'https://calendar.google.com',
   'chrome-extension://',
+  'moz-extension://',
   'https://api.daily.dev',
 ];
 

@@ -44,7 +44,6 @@ export type PostCardProps = {
   enableMenu?: boolean;
   menuOpened?: boolean;
   showImage?: boolean;
-  postHeadingFont: string;
   insaneMode?: boolean;
 } & HTMLAttributes<HTMLDivElement>;
 
@@ -66,7 +65,6 @@ export const PostCard = forwardRef(function PostCard(
     showImage = true,
     style,
     insaneMode,
-    postHeadingFont,
     ...props
   }: PostCardProps,
   ref: Ref<HTMLElement>,
@@ -101,9 +99,7 @@ export const PostCard = forwardRef(function PostCard(
             onMenuClick={(event) => onMenuClick?.(event, post)}
           />
         )}
-        <CardTitle className={classNames(className, postHeadingFont)}>
-          {post.title}
-        </CardTitle>
+        <CardTitle>{post.title}</CardTitle>
       </CardTextContainer>
       <Containter className="mb-8 tablet:mb-0">
         <CardSpace />

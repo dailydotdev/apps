@@ -11,6 +11,7 @@
 ### On those affected packages:
 - [ ] Have you done sanity checks in the webapp?
 - [ ] Have you done sanity checks in the extension?
+- [ ] Does this not break anything in companion?
 
 ### Did you test the modified components media queries?
 - [ ] MobileL (420px)

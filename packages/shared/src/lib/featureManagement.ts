@@ -6,24 +6,13 @@ export class Features {
     'Access all features',
   );
 
-  static readonly SignupButtonColor = new Features(
-    'signup_button_theme_color',
-    'primary',
-    ['primary', 'avocado', 'water', 'cabbage', 'bacon'],
-  );
-
   static readonly DevcardLimit = new Features('feat_limit_dev_card', '50');
 
   static readonly FeedVersion = new Features('feed_version', '1');
 
-  static readonly HidePublicationDate = new Features(
-    'hide_publication_date',
-    '0',
-  );
-
   static readonly LoginModalButtonCopyPrefix = new Features(
     'login_modal_button_copy_prefix',
-    'Sign in with',
+    'Connect with',
   );
 
   static readonly LoginModalDescriptionCopy = new Features(
@@ -33,16 +22,23 @@ export class Features {
 
   static readonly MyFeedOn = new Features('my_feed_on');
 
-  static readonly MyFeedPosition = new Features('my_feed_position', 'sidebar', [
-    'sidebar',
-    'feed_title',
-    'feed_ad',
-    'feed_top',
-  ]);
-
   static readonly MyFeedButtonCopy = new Features(
     'my_feed_button_copy',
-    'Create my feed',
+    'Choose tags',
+  );
+
+  static readonly SubmitArticleOn = new Features('submit_article_on');
+
+  static readonly SubmitArticle = new Features('submit_article');
+
+  static readonly SubmitArticleSidebarButton = new Features(
+    'submit_article_sidebar_button',
+    'Submit article',
+  );
+
+  static readonly SubmitArticleModalButton = new Features(
+    'submit_article_modal_button',
+    'Submit article',
   );
 
   static readonly MyFeedButtonColor = new Features(
@@ -52,7 +48,7 @@ export class Features {
 
   static readonly MyFeedExplainerCopy = new Features(
     'my_feed_explainer_copy',
-    'Devs with a personal feed get 11.5x more relevant articles',
+    'Get the content you need by creating a personal feed',
   );
 
   static readonly MyFeedExplainerColor = new Features(
@@ -89,14 +85,6 @@ export class Features {
     'bodyBold',
     ['bodyBold', 'body', 'title3', 'title3Bold'],
   );
-
-  static readonly FeedFilterModal = new Features('feed_filter_modal', 'v1', [
-    'v1',
-    'v2',
-    'v3',
-    'v4',
-    'v5',
-  ]);
 
   static readonly CompanionPermissionPlacement = new Features(
     'companion_permission_placement',

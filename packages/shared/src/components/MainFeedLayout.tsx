@@ -33,6 +33,7 @@ import CreateMyFeedButton from './CreateMyFeedButton';
 import { useDynamicLoadedAnimation } from '../hooks/useDynamicLoadAnimated';
 import FeedFilters from './filters/FeedFilters';
 import AlertContext from '../contexts/AlertContext';
+import CreateMyFeedModal from './modals/CreateMyFeedModal';
 
 const SearchEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "emptySearch" */ './SearchEmptyScreen'),
@@ -142,7 +143,7 @@ export default function MainFeedLayout({
   searchChildren,
   navChildren,
 }: MainFeedLayoutProps): ReactElement {
-  const { shouldShowMyFeed, myFeedPosition } = useMyFeed();
+  const { shouldShowMyFeed } = useMyFeed();
   const [defaultFeed, updateDefaultFeed] = useDefaultFeed(shouldShowMyFeed);
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
@@ -155,6 +156,7 @@ export default function MainFeedLayout({
     setLoaded: openFeedFilters,
     setHidden,
   } = useDynamicLoadedAnimation();
+  const [createMyFeed, setCreateMyFeed] = useState(false);
 
   const feedTitles = {
     'my-feed': 'My feed',
@@ -218,11 +220,10 @@ export default function MainFeedLayout({
   );
 
   const getFeedTitle = () => {
-    if (shouldShowMyFeed && alerts?.filter && myFeedPosition === 'feed_title') {
+    if (shouldShowMyFeed && alerts?.filter) {
       return (
         <CreateMyFeedButton
-          type={myFeedPosition}
-          action={openFeedFilters}
+          action={() => setCreateMyFeed(true)}
           flags={flags}
         />
       );
@@ -232,13 +233,7 @@ export default function MainFeedLayout({
   };
 
   const header = (
-    <LayoutHeader
-      className={
-        myFeedPosition !== 'feed_title'
-          ? 'flex-row'
-          : 'flex-col tablet:flex-row'
-      }
-    >
+    <LayoutHeader className="flex-row">
       {!isSearchOn && getFeedTitle()}
       <div className="flex flex-row flex-wrap gap-4 items-center mr-px">
         {navChildren}
@@ -305,15 +300,6 @@ export default function MainFeedLayout({
       ),
       query: query.query,
       variables,
-      createMyFeedCard: shouldShowMyFeed &&
-        alerts?.filter &&
-        myFeedPosition === 'feed_ad' && (
-          <CreateMyFeedButton
-            type="feed_ad"
-            action={openFeedFilters}
-            flags={flags}
-          />
-        ),
       emptyScreen: <FeedEmptyScreen openFeedFilters={openFeedFilters} />,
       header: !isSearchOn && header,
     };
@@ -333,15 +319,6 @@ export default function MainFeedLayout({
   return (
     <>
       <FeedPage>
-        {shouldShowMyFeed &&
-          alerts?.filter &&
-          myFeedPosition === 'feed_top' && (
-            <CreateMyFeedButton
-              type={myFeedPosition}
-              action={openFeedFilters}
-              flags={flags}
-            />
-          )}
         {isSearchOn && search}
         {feedProps && <Feed {...feedProps} />}
         {children}
@@ -351,6 +328,12 @@ export default function MainFeedLayout({
           isOpen={isAnimated}
           onBack={setHidden}
           directlyOpenedTab="Manage tags"
+        />
+      )}
+      {createMyFeed && (
+        <CreateMyFeedModal
+          isOpen={createMyFeed}
+          onRequestClose={() => setCreateMyFeed(false)}
         />
       )}
     </>

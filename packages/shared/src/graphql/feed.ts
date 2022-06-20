@@ -21,12 +21,18 @@ export const FEED_POST_FRAGMENT = gql`
     numComments
     numUpvotes
     commentsPermalink
+    scout {
+      id
+      name
+      image
+      username
+    }
     author {
+      id
       name
       image
       username
       permalink
-      id
     }
     trending
     tags

@@ -42,7 +42,6 @@ export const PostList = forwardRef(function PostList(
     menuOpened,
     className,
     children,
-    postHeadingFont,
     ...props
   }: PostCardProps,
   ref: Ref<HTMLElement>,
@@ -75,9 +74,7 @@ export const PostList = forwardRef(function PostList(
         </>
       )}
       <ListCardMain>
-        <ListCardTitle className={classNames(className, postHeadingFont)}>
-          {post.title}
-        </ListCardTitle>
+        <ListCardTitle className={className}>{post.title}</ListCardTitle>
         <PostMetadata
           createdAt={post.createdAt}
           readTime={post.readTime}

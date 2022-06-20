@@ -11,7 +11,8 @@ export const reputationGuide =
   'https://daily.dev/posts/what-is-reputation-how-do-i-earn-it';
 export const ownershipGuide =
   'https://daily.dev/posts/claiming-ownership-on-an-article-you-wrote';
-export const contentGuidlines = 'https://daily.dev/support/content-guidelines';
+export const contentGuidelines = 'https://daily.dev/support/content-guidelines';
+export const communityLinksGuidelines = 'https://r.daily.dev/community-links';
 export const companionExplainerVideo = 'https://r.daily.dev/companion-overview';
 export const companionPermissionGrantedLink =
   'https://r.daily.dev/try-the-companion';

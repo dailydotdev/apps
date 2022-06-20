@@ -47,7 +47,6 @@ export type FeedProps<T> = {
   className?: string;
   onEmptyFeed?: () => unknown;
   emptyScreen?: ReactNode;
-  createMyFeedCard?: ReactNode;
   header?: ReactNode;
 };
 
@@ -111,7 +110,6 @@ export default function Feed<T>({
   header,
   onEmptyFeed,
   emptyScreen,
-  createMyFeedCard,
 }: FeedProps<T>): ReactElement {
   const { postModalByDefault, postHeadingFont, displayPublicationDate } =
     useContext(FeaturesContext);
@@ -296,14 +294,12 @@ export default function Feed<T>({
           cardClass(useList, numCards),
         )}
       >
-        {createMyFeedCard}
         {items.map((item, index) => (
           <FeedItemComponent
             items={items}
             index={index}
             row={calculateRow(index, numCards)}
             column={calculateColumn(index, numCards)}
-            displayPublicationDate={displayPublicationDate}
             columns={virtualizedNumCards}
             key={getFeedItemKey(items, index)}
             useList={useList}
@@ -321,7 +317,6 @@ export default function Feed<T>({
             onMenuClick={onMenuClick}
             onCommentClick={onCommentClick}
             onAdClick={onAdClick}
-            postHeadingFont={postHeadingFont}
           />
         ))}
       </div>

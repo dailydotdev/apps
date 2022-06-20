@@ -1,8 +1,8 @@
 import React, { MouseEvent, ReactElement } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
-import { HideReadHistoryProps } from '../../graphql/users';
-import { ReadHistory } from '../../graphql/posts';
+import { HidePostItemCardProps } from '../../graphql/users';
+import { PostItem } from '../../graphql/posts';
 import XIcon from '../icons/Close';
 import MenuIcon from '../icons/Menu';
 import classed from '../../lib/classed';
@@ -10,14 +10,12 @@ import { Button } from '../buttons/Button';
 import { LazyImage } from '../LazyImage';
 import PostMetadata from '../cards/PostMetadata';
 
-interface ReadingHistoryItemProps {
+interface PostItemCardProps {
   className?: string;
-  history: ReadHistory;
-  onHide?: (params: HideReadHistoryProps) => Promise<unknown>;
-  onContextMenu?: (
-    event: React.MouseEvent,
-    readHistoryPost: ReadHistory,
-  ) => void;
+  postItem: PostItem;
+  showButtons?: boolean;
+  onHide?: (params: HidePostItemCardProps) => Promise<unknown>;
+  onContextMenu?: (event: React.MouseEvent, post: PostItem) => void;
 }
 
 const SourceShadow = classed(
@@ -25,13 +23,14 @@ const SourceShadow = classed(
   'absolute left-5 -my-1 w-8 h-8 rounded-full bg-theme-bg-primary',
 );
 
-export default function ReadingHistoryItem({
-  history,
+export default function PostItemCard({
+  postItem,
+  showButtons = true,
   onHide,
   className,
   onContextMenu,
-}: ReadingHistoryItemProps): ReactElement {
-  const { timestampDb, post } = history;
+}: PostItemCardProps): ReactElement {
+  const { timestampDb, post } = postItem;
   const onHideClick = (e: MouseEvent) => {
     e.stopPropagation();
     onHide({ postId: post.id, timestamp: timestampDb });
@@ -66,24 +65,25 @@ export default function ReadingHistoryItem({
             typoClassName="typo-callout"
           />
         </h3>
-
-        {onHide && (
+        {showButtons && onHide && (
           <Button
             className="hidden laptop:flex btn-tertiary"
             icon={<XIcon />}
             onClick={onHideClick}
           />
         )}
-        <Button
-          className="btn-tertiary"
-          data-testId={`history-${post.id}`}
-          icon={<MenuIcon />}
-          onClick={(event) => {
-            event.stopPropagation();
-            onContextMenu(event, history);
-          }}
-          buttonSize="small"
-        />
+        {showButtons && (
+          <Button
+            className="btn-tertiary"
+            data-testId={`post-item-${post.id}`}
+            icon={<MenuIcon />}
+            onClick={(event) => {
+              event.stopPropagation();
+              onContextMenu(event, postItem);
+            }}
+            buttonSize="small"
+          />
+        )}
       </article>
     </Link>
   );

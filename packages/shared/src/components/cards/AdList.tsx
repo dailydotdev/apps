@@ -13,7 +13,7 @@ import AdAttribution from './AdAttribution';
 import FeaturesContext from '../../contexts/FeaturesContext';
 
 export const AdList = forwardRef(function AdList(
-  { ad, onLinkClick, postHeadingFont, ...props }: AdCardProps,
+  { ad, onLinkClick, ...props }: AdCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const { postEngagementNonClickable } = useContext(FeaturesContext);
@@ -28,7 +28,9 @@ export const AdList = forwardRef(function AdList(
         </>
       )}
       <ListCardMain>
-        <ListCardTitle className={classNames('line-clamp-4', postHeadingFont)}>
+        <ListCardTitle
+          className={classNames('line-clamp-4 font-bold typo-title3')}
+        >
           {ad.description}
         </ListCardTitle>
         <AdAttribution ad={ad} className="mt-2" />

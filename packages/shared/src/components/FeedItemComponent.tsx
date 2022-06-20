@@ -20,10 +20,18 @@ export type FeedItemComponentProps = {
   useList: boolean;
   openNewTab: boolean;
   insaneMode: boolean;
-  displayPublicationDate: boolean;
   nativeShareSupport: boolean;
   postMenuIndex: number | undefined;
-  postHeadingFont: string;
+  showCommentPopupId: string | undefined;
+  setShowCommentPopupId: (value: string | undefined) => void;
+  isSendingComment: boolean;
+  comment: (variables: {
+    post: Post;
+    content: string;
+    row: number;
+    column: number;
+    columns: number;
+  }) => Promise<CommentOnData>;
   user: LoggedUser | undefined;
   feedName: string;
   ranking?: string;
@@ -81,7 +89,6 @@ export default function FeedItemComponent({
   openNewTab,
   nativeShareSupport,
   postMenuIndex,
-  displayPublicationDate,
   user,
   feedName,
   ranking,
@@ -92,7 +99,6 @@ export default function FeedItemComponent({
   onMenuClick,
   onCommentClick,
   onAdClick,
-  postHeadingFont,
 }: FeedItemComponentProps): ReactElement {
   const PostTag = useList ? PostList : PostCard;
   const AdTag = useList ? AdList : AdCard;
@@ -115,7 +121,6 @@ export default function FeedItemComponent({
           ref={inViewRef}
           post={{
             ...item.post,
-            createdAt: displayPublicationDate && item.post.createdAt,
           }}
           data-testid="postItem"
           onUpvoteClick={(post, upvoted) =>
@@ -133,7 +138,6 @@ export default function FeedItemComponent({
           menuOpened={postMenuIndex === index}
           showImage={!insaneMode}
           onCommentClick={(post) => onCommentClick(post, index, row, column)}
-          postHeadingFont={postHeadingFont}
           insaneMode={insaneMode}
         />
       );
@@ -145,7 +149,6 @@ export default function FeedItemComponent({
           data-testid="adItem"
           onLinkClick={(ad) => onAdClick(ad, index, row, column)}
           showImage={!insaneMode}
-          postHeadingFont={postHeadingFont}
         />
       );
     default:
