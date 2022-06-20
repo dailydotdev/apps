@@ -1,6 +1,5 @@
 import React, { ReactNode } from 'react';
 import classNames from 'classnames';
-import { LazyImage } from '../LazyImage';
 import { Comment } from '../../graphql/comments';
 import styles from './Card.module.css';
 import classed from '../../lib/classed';
@@ -8,6 +7,7 @@ import { Post } from '../../graphql/posts';
 import { ProfilePicture } from '../ProfilePicture';
 import { TooltipPosition } from '../tooltips/BaseTooltipContainer';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
+import { Image } from '../image/Image';
 
 const Title = classed(
   'h3',
@@ -21,7 +21,7 @@ export const ListCardTitle = classed(Title, 'mr-2');
 
 export const CardTextContainer = classed('div', 'flex flex-col mx-4');
 
-export const CardImage = classed(LazyImage, 'rounded-xl h-40');
+export const CardImage = classed(Image, 'rounded-xl h-40');
 
 export const CardSpace = classed('div', 'flex-1');
 
