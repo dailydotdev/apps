@@ -22,16 +22,6 @@ export type FeedItemComponentProps = {
   insaneMode: boolean;
   nativeShareSupport: boolean;
   postMenuIndex: number | undefined;
-  showCommentPopupId: string | undefined;
-  setShowCommentPopupId: (value: string | undefined) => void;
-  isSendingComment: boolean;
-  comment: (variables: {
-    post: Post;
-    content: string;
-    row: number;
-    column: number;
-    columns: number;
-  }) => Promise<CommentOnData>;
   user: LoggedUser | undefined;
   feedName: string;
   ranking?: string;
