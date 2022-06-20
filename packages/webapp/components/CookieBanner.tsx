@@ -20,7 +20,7 @@ export default function CookieBanner({
   return (
     <div
       className={classNames(
-        'fixed left-0 bottom-0 w-full flex flex-col py-4 pr-14 pl-4 text-theme-label-secondary bg-theme-bg-tertiary border-t border-theme-divider-secondary z-2 typo-footnote laptop:w-48 laptop:right-6 laptop:bottom-6 laptop:p-6 laptop:items-center laptop:text-center laptop:border laptop:rounded-2xl',
+        'fixed left-0 bottom-0 w-full flex flex-col py-4 pr-14 pl-4 text-theme-label-secondary bg-theme-bg-tertiary border-t border-theme-divider-secondary typo-footnote laptop:w-48 laptop:right-6 laptop:bottom-6 laptop:p-6 laptop:items-center laptop:text-center laptop:border laptop:rounded-2xl',
         styles.cookieBanner,
       )}
     >
