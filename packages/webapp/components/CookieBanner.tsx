@@ -13,22 +13,9 @@ export interface CookieBannerProps {
 export default function CookieBanner({
   onAccepted,
 }: CookieBannerProps): ReactElement {
-  // const scrollThreshold = 10;
-
   const close = () => {
-    // window.removeEventListener('scroll', onScroll, false);
     onAccepted();
   };
-
-  // const onScroll = () => {
-  //   if (window.pageYOffset > scrollThreshold) {
-  //     close();
-  //   }
-  // };
-  //
-  // useEffect(() => {
-  //   window.addEventListener('scroll', onScroll, false);
-  // }, []);
 
   return (
     <div
