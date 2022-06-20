@@ -57,7 +57,7 @@ export default function LoginButtons(): ReactElement {
         <Button
           className="my-2 btn-primary"
           onClick={() => login('google')}
-          icon={<img src="/google.svg" className="icon" alt="Google logo" />}
+          icon={<img src="/google.svg" alt="Google logo" />}
         >
           {buttonCopyPrefix} Google
         </Button>

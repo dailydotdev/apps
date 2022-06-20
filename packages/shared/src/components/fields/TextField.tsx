@@ -11,6 +11,7 @@ import { useInputField } from '../../hooks/useInputField';
 import { BaseField, FieldInput } from './common';
 import styles from './TextField.module.css';
 import { Button } from '../buttons/Button';
+import { IconProps } from '../Icon';
 
 type FieldType = 'primary' | 'secondary' | 'tertiary';
 
@@ -24,7 +25,7 @@ export interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   valueChanged?: (value: string) => void;
   fieldType?: FieldType;
   leftIcon?: ReactNode;
-  actionIcon?: ReactNode;
+  actionIcon?: React.ReactElement<IconProps>;
   onActionIconClick?: () => unknown;
 }
 
