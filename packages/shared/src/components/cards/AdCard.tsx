@@ -53,17 +53,16 @@ export const AdCard = forwardRef(function AdCard(
       {showImage && (
         <div className="overflow-hidden relative z-1 rounded-xl">
           <CardImage
-            imgAlt="Ad image"
-            imgSrc={ad.image}
-            absolute={showBlurredImage}
-            className={showBlurredImage && `inset-0 m-auto`}
-            fit={showBlurredImage ? 'contain' : 'cover'}
+            alt="Ad image"
+            src={ad.image}
+            className={showBlurredImage && 'inset-0 m-auto absolute'}
+            style={{ objectFit: showBlurredImage ? 'contain' : 'cover' }}
           />
           {showBlurredImage && (
             <CardImage
-              imgAlt="Ad image background"
-              imgSrc={ad.image}
-              className={`-z-1 ${styles.blur}`}
+              alt="Ad image background"
+              src={ad.image}
+              className={classNames('-z-1', styles.blur)}
             />
           )}
         </div>
