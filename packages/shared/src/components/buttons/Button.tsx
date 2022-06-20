@@ -36,7 +36,10 @@ export interface BaseButtonProps {
   position?: string;
 }
 
-const getIcon = (icon: React.ReactElement<IconProps>, size: ButtonSize) =>
+const getIconWithSize = (
+  icon: React.ReactElement<IconProps>,
+  size: ButtonSize,
+) =>
   React.cloneElement(icon, {
     size: IconSize[size],
   });
@@ -86,9 +89,9 @@ function ButtonComponent<TagName extends AllowedTags>(
         className,
       )}
     >
-      {getIcon(icon, buttonSize)}
+      {icon && getIconWithSize(icon, buttonSize)}
       {children && <span>{children}</span>}
-      {getIcon(rightIcon, buttonSize)}
+      {rightIcon && getIconWithSize(rightIcon, buttonSize)}
       {loading && (
         <Loader
           data-testid="buttonLoader"
