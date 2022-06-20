@@ -2,7 +2,6 @@ import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 
 export type Size =
-  | 'auto'
   | 'xsmall'
   | 'small'
   | 'medium'
