@@ -6,9 +6,18 @@ import React, {
   forwardRef,
 } from 'react';
 import classNames from 'classnames';
+import { Size, IconProps } from '../Icon';
 import { Loader } from '../Loader';
 
 export type ButtonSize = 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge';
+
+const IconSize: Record<ButtonSize, Size> = {
+  xsmall: 'small',
+  small: 'medium',
+  medium: 'large',
+  large: 'xlarge',
+  xlarge: 'xxlarge',
+};
 
 export interface StyledButtonProps {
   buttonSize?: ButtonSize;
@@ -20,12 +29,17 @@ export interface BaseButtonProps {
   loading?: boolean;
   pressed?: boolean;
   tag?: React.ElementType;
-  icon?: ReactNode;
-  rightIcon?: ReactNode;
+  icon?: React.ReactElement<IconProps>;
+  rightIcon?: React.ReactElement<IconProps>;
   children?: ReactNode;
   displayClass?: string;
   position?: string;
 }
+
+const getIcon = (icon: React.ReactElement<IconProps>, size: ButtonSize) =>
+  React.cloneElement(icon, {
+    size: IconSize[size],
+  });
 
 export type AllowedTags = keyof Pick<JSX.IntrinsicElements, 'a' | 'button'>;
 export type AllowedElements = HTMLButtonElement | HTMLAnchorElement;
@@ -45,7 +59,7 @@ function ButtonComponent<TagName extends AllowedTags>(
     pressed,
     icon,
     rightIcon,
-    buttonSize,
+    buttonSize = 'medium',
     children,
     tag: Tag = 'button',
     className,
@@ -56,6 +70,7 @@ function ButtonComponent<TagName extends AllowedTags>(
   ref?: Ref<ButtonElementType<TagName>>,
 ): ReactElement {
   const iconOnly = icon && !children && !rightIcon;
+
   return (
     <Tag
       {...(props as StyledButtonProps)}
@@ -71,9 +86,9 @@ function ButtonComponent<TagName extends AllowedTags>(
         className,
       )}
     >
-      {icon}
+      {getIcon(icon, buttonSize)}
       {children && <span>{children}</span>}
-      {rightIcon}
+      {getIcon(rightIcon, buttonSize)}
       {loading && (
         <Loader
           data-testid="buttonLoader"

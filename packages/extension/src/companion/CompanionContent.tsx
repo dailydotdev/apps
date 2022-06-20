@@ -66,7 +66,7 @@ export default function CompanionContent({
           container={{ className: 'shadow-2 whitespace-nowrap' }}
         >
           <Button
-            icon={<CopyIcon size="large" />}
+            icon={<CopyIcon />}
             className={classNames(
               'ml-auto',
               copying ? 'btn-tertiary-avocado' : ' btn-tertiary',

@@ -57,7 +57,7 @@ export default function ShortcutLinks(): ReactElement {
       ) : (
         <Button
           className="btn-tertiary"
-          rightIcon={<PlusIcon size="large" className="icon" />}
+          rightIcon={<PlusIcon />}
           onClick={() => setShowOptions(true)}
         >
           Add shortcuts

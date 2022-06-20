@@ -20,7 +20,7 @@ export default function ScrollToTopButton(): ReactElement {
   }, []);
 
   const props: ButtonProps<'button'> = {
-    icon: <ArrowIcon size="xxlarge" />,
+    icon: <ArrowIcon />,
     onClick: () => window.scrollTo({ top: 0, behavior: 'smooth' }),
   };
 
