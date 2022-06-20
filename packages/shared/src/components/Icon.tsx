@@ -12,7 +12,6 @@ export type Size =
   | 'xxxlarge';
 
 const IconSize: Record<Size, string> = {
-  auto: 'w-auto h-auto',
   xsmall: 'w-3 h-3',
   small: 'w-5 h-5',
   medium: 'w-6 h-6',
