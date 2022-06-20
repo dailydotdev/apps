@@ -111,8 +111,7 @@ export default function Feed<T>({
   onEmptyFeed,
   emptyScreen,
 }: FeedProps<T>): ReactElement {
-  const { postModalByDefault, postHeadingFont, displayPublicationDate } =
-    useContext(FeaturesContext);
+  const { postModalByDefault } = useContext(FeaturesContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
