@@ -17,6 +17,12 @@ export interface SubmitArticleResposne {
   submission?: Submission;
 }
 
+export interface SubmissionAvailability {
+  hasAccess: boolean;
+  limit: number;
+  todaySubmissionsCount: number;
+}
+
 export const SUBMIT_ARTICLE_MUTATION = gql`
   mutation SubmitArticle($url: String!) {
     submitArticle(url: $url) {
@@ -43,6 +49,16 @@ export const SUBMIT_ARTICLE_MUTATION = gql`
         status
         reason
       }
+    }
+  }
+`;
+
+export const SUBMISSION_AVAILABILITY_QUERY = gql`
+  query SubmissionAvailability {
+    submissionAvailability {
+      hasAccess
+      limit
+      todaySubmissionsCount
     }
   }
 `;

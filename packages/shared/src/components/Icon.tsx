@@ -1,15 +1,23 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 
-type Size = 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge' | 'xxxlarge';
+export type Size =
+  | 'xsmall'
+  | 'small'
+  | 'medium'
+  | 'large'
+  | 'xlarge'
+  | 'xxlarge'
+  | 'xxxlarge';
 
 const IconSize: Record<Size, string> = {
   xsmall: 'w-3 h-3',
   small: 'w-5 h-5',
   medium: 'w-6 h-6',
-  large: 'w-8 h-8',
-  xlarge: 'w-10 h-10',
-  xxxlarge: 'w-16 h-16',
+  large: 'w-7 h-7',
+  xlarge: 'w-8 h-8',
+  xxlarge: 'w-10 h-10',
+  xxxlarge: 'w-14 h-14',
 };
 
 type ItemType = React.ComponentType<{ className }>;

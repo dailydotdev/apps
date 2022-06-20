@@ -71,27 +71,30 @@ export default function CompanionContextMenu({
         animation="fade"
       >
         <Item>
-          <a className="flex w-full" href={postData?.commentsPermalink}>
-            <CommentIcon className="mr-2" /> View discussion
+          <a
+            className="flex items-center w-full"
+            href={postData?.commentsPermalink}
+          >
+            <CommentIcon size="medium" className="mr-2" /> View discussion
           </a>
         </Item>
         <Item onClick={() => onShareOrCopyLink()}>
-          <ShareIcon className="mr-2" /> Share article
+          <ShareIcon size="medium" className="mr-2" /> Share article
         </Item>
         <Item onClick={() => setReportModal(true)}>
-          <FlagIcon className="mr-2" /> Report
+          <FlagIcon size="medium" className="mr-2" /> Report
         </Item>
         <Item>
           <a
-            className="flex w-full"
+            className="flex items-center w-full"
             href="https://daily.dev/feedback"
             target="_blank"
           >
-            <FeedbackIcon className="mr-2" /> Give us feedback
+            <FeedbackIcon size="medium" className="mr-2" /> Give us feedback
           </a>
         </Item>
         <Item onClick={() => setDisableModal(true)}>
-          <EyeIcon className="mr-2" /> Disable widget
+          <EyeIcon size="medium" className="mr-2" /> Disable widget
         </Item>
       </Menu>
       {reportModal && (
