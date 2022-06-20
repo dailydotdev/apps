@@ -1,8 +1,8 @@
 import React, { CSSProperties, ReactElement } from 'react';
-import classNames from 'classnames';
 import { TooltipPosition } from '../tooltips/BaseTooltipContainer';
 import { LinkWithTooltip } from '../tooltips/LinkWithTooltip';
-import { Source } from '../../graphql/sources';
+import { getSourcePermalink, Source } from '../../graphql/sources';
+import { ProfileImageLink } from '../profile/ProfileImageLink';
 
 interface SourceButtonProps {
   source: Source;
@@ -13,23 +13,26 @@ interface SourceButtonProps {
 
 export default function SourceButton({
   source,
-  className,
-  style,
   tooltipPosition = 'bottom',
+  ...props
 }: SourceButtonProps): ReactElement {
   return source ? (
     <LinkWithTooltip
-      href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}sources/${source.id}`}
+      href={getSourcePermalink(source.id)}
       prefetch={false}
       tooltip={{ content: source.name, placement: tooltipPosition }}
     >
-      <a className={classNames('flex cursor-pointer', className)} style={style}>
-        <img
-          src={source.image}
-          alt={source.name}
-          className="w-8 h-8 rounded-full bg-theme-bg-tertiary"
-        />
-      </a>
+      <ProfileImageLink
+        {...props}
+        picture={{ size: 'medium', rounded: 'full' }}
+        user={{
+          id: source.id,
+          name: source.name,
+          image: source.image,
+          permalink: getSourcePermalink(source.id),
+          username: source.id,
+        }}
+      />
     </LinkWithTooltip>
   ) : null;
 }
