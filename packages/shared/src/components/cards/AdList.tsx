@@ -16,12 +16,12 @@ export const AdList = forwardRef(function AdList(
   { ad, onLinkClick, ...props }: AdCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
-  const { postEngagementNonClickable } = useContext(FeaturesContext);
+  const { postCardVersion } = useContext(FeaturesContext);
 
   return (
     <ListCard {...props} ref={ref}>
       <AdLink ad={ad} onLinkClick={onLinkClick} />
-      {!postEngagementNonClickable && (
+      {postCardVersion === 'v1' && (
         <>
           <ListCardAside />
           <ListCardDivider />
