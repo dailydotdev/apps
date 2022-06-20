@@ -13,22 +13,9 @@ export interface CookieBannerProps {
 export default function CookieBanner({
   onAccepted,
 }: CookieBannerProps): ReactElement {
-  // const scrollThreshold = 10;
-
   const close = () => {
-    // window.removeEventListener('scroll', onScroll, false);
     onAccepted();
   };
-
-  // const onScroll = () => {
-  //   if (window.pageYOffset > scrollThreshold) {
-  //     close();
-  //   }
-  // };
-  //
-  // useEffect(() => {
-  //   window.addEventListener('scroll', onScroll, false);
-  // }, []);
 
   return (
     <div
@@ -39,8 +26,8 @@ export default function CookieBanner({
     >
       <ModalCloseButton onClick={close} />
       <CookieIcon
+        size="xxxlarge"
         className="hidden laptop:block mb-4 text-theme-label-primary"
-        style={{ fontSize: '3.5rem' }}
       />
       <div>
         Our lawyers advised us to tell you that we use{' '}

@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode, useContext, useEffect } from 'react';
+import React, { ReactElement, useContext, useEffect } from 'react';
 import classNames from 'classnames';
 import { Button } from './buttons/Button';
 import AuthContext from '../contexts/AuthContext';
@@ -6,6 +6,7 @@ import FeaturesContext from '../contexts/FeaturesContext';
 import { Features, getFeatureValue } from '../lib/featureManagement';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { AnalyticsEvent } from '../hooks/analytics/useAnalyticsQueue';
+import { IconProps } from './Icon';
 
 const getAnalyticsEvent = (
   eventName: string,
@@ -18,7 +19,7 @@ const getAnalyticsEvent = (
 });
 
 interface LoginButtonProps {
-  icon?: ReactNode;
+  icon?: React.ReactElement<IconProps>;
   className?: string;
 }
 export default function LoginButton({
