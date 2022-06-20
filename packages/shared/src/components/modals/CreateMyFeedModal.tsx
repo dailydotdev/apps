@@ -74,11 +74,10 @@ export default function CreateMyFeedModal({
   useEffect(() => {
     trackEvent({
       event_name: 'impression',
-      target_type: 'create my feed',
-      target_id: 'modal',
+      target_type: 'my feed modal',
+      target_id: version,
       extra: JSON.stringify({
         origin: mode,
-        version,
       }),
     });
   }, []);
