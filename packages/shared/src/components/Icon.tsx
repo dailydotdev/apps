@@ -8,7 +8,8 @@ export type Size =
   | 'medium'
   | 'large'
   | 'xlarge'
-  | 'xxlarge';
+  | 'xxlarge'
+  | 'xxxlarge';
 
 const IconSize: Record<Size, string> = {
   auto: 'w-auto h-auto',
@@ -18,6 +19,7 @@ const IconSize: Record<Size, string> = {
   large: 'w-7 h-7',
   xlarge: 'w-8 h-8',
   xxlarge: 'w-10 h-10',
+  xxxlarge: 'w-14 h-14',
 };
 
 type ItemType = React.ComponentType<{ className }>;

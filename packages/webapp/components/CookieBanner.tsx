@@ -39,9 +39,8 @@ export default function CookieBanner({
     >
       <ModalCloseButton onClick={close} />
       <CookieIcon
-        size="auto"
+        size="xxxlarge"
         className="hidden laptop:block mb-4 text-theme-label-primary"
-        style={{ fontSize: '3.5rem' }}
       />
       <div>
         Our lawyers advised us to tell you that we use{' '}
