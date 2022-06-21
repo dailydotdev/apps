@@ -235,7 +235,7 @@ export default function MainFeedLayout({
   const header = (
     <LayoutHeader className="flex-row">
       {!isSearchOn && getFeedTitle()}
-      <div className="flex flex-row flex-wrap gap-4 items-center mr-px">
+      <div className="flex flex-row flex-wrap gap-4 items-center py-2 mr-px">
         {navChildren}
         {isUpvoted && (
           <Dropdown

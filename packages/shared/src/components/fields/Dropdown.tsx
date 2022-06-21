@@ -114,9 +114,7 @@ export function Dropdown({
         aria-expanded={isVisible}
       >
         {icon}
-        <span className="flex flex-1 mr-1 truncate">
-          {options[selectedIndex]}
-        </span>
+        <span className="flex flex-1 truncate">{options[selectedIndex]}</span>
         <ArrowIcon
           className={classNames(
             'text-xl ml-auto transition-transform group-hover:text-theme-label-tertiary',
