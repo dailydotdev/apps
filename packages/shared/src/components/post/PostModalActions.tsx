@@ -78,7 +78,7 @@ export function PostModalActions({
         tag="a"
         href={post.permalink}
         target="_blank"
-        icon={<OpenLinkIcon className="icon" />}
+        icon={<OpenLinkIcon />}
         onClick={onReadArticle}
       >
         {!inlineActions && 'Read article'}
@@ -86,7 +86,7 @@ export function PostModalActions({
       <SimpleTooltip placement="bottom" content="Options">
         <Button
           className={classNames('btn-tertiary', !inlineActions && 'ml-auto')}
-          icon={<MenuIcon size="medium" />}
+          icon={<MenuIcon />}
           onClick={(event) => showPostOptionsContext(event)}
         />
       </SimpleTooltip>

@@ -40,7 +40,7 @@ const UnblockTagButton = ({
   <GenericTagButton
     {...props}
     className={classNames('btn-tagBlocked', className)}
-    icon={<BlockIcon className="ml-2 text-xl transition-transform icon" />}
+    icon={<BlockIcon className="ml-2 text-xl transition-transform" />}
     action={action}
     tag={tag}
   />
@@ -59,9 +59,7 @@ const UnfollowTagButton = ({
   <GenericTagButton
     {...props}
     className={classNames('btn-primary', className)}
-    icon={
-      <PlusIcon className="ml-2 text-xl transition-transform rotate-45 icon" />
-    }
+    icon={<PlusIcon className="ml-2 text-xl transition-transform rotate-45" />}
     action={action}
     tag={tag}
   />
@@ -80,9 +78,7 @@ const FollowTagButton = ({
   <GenericTagButton
     {...props}
     className={classNames('btn-tag', className)}
-    icon={
-      <PlusIcon className="ml-2 text-xl transition-transform rotate-0 icon" />
-    }
+    icon={<PlusIcon className="ml-2 text-xl transition-transform rotate-0" />}
     action={action}
     tag={tag}
   />

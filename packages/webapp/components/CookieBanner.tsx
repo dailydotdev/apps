@@ -13,34 +13,21 @@ export interface CookieBannerProps {
 export default function CookieBanner({
   onAccepted,
 }: CookieBannerProps): ReactElement {
-  // const scrollThreshold = 10;
-
   const close = () => {
-    // window.removeEventListener('scroll', onScroll, false);
     onAccepted();
   };
-
-  // const onScroll = () => {
-  //   if (window.pageYOffset > scrollThreshold) {
-  //     close();
-  //   }
-  // };
-  //
-  // useEffect(() => {
-  //   window.addEventListener('scroll', onScroll, false);
-  // }, []);
 
   return (
     <div
       className={classNames(
-        'fixed left-0 bottom-0 w-full flex flex-col py-4 pr-14 pl-4 text-theme-label-secondary bg-theme-bg-tertiary border-t border-theme-divider-secondary z-2 typo-footnote laptop:w-48 laptop:right-6 laptop:bottom-6 laptop:p-6 laptop:items-center laptop:text-center laptop:border laptop:rounded-2xl',
+        'fixed left-0 bottom-0 w-full flex flex-col py-4 pr-14 pl-4 text-theme-label-secondary bg-theme-bg-tertiary border-t border-theme-divider-secondary typo-footnote laptop:w-48 laptop:right-6 laptop:bottom-6 laptop:p-6 laptop:items-center laptop:text-center laptop:border laptop:rounded-2xl',
         styles.cookieBanner,
       )}
     >
       <ModalCloseButton onClick={close} />
       <CookieIcon
+        size="xxxlarge"
         className="hidden laptop:block mb-4 text-theme-label-primary"
-        style={{ fontSize: '3.5rem' }}
       />
       <div>
         Our lawyers advised us to tell you that we use{' '}
