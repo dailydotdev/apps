@@ -42,10 +42,7 @@ export default function ShareNewCommentPopup({
         className="absolute left-2 h-16"
         style={{ top: '-4.375rem', width: '6.25rem' }}
       />
-      <ShareIcon
-        className="absolute -top-8 left-6"
-        style={{ fontSize: '4rem' }}
-      />
+      <ShareIcon className="absolute -top-8 left-6" size="xxxxlarge" />
       <h2 className="mt-2 typo-title3">
         That&apos;s a great comment, {user.name?.split(' ')[0]}!
       </h2>
