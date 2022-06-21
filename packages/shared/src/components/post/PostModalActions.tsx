@@ -22,8 +22,9 @@ import PostOptionsMenu from '../PostOptionsMenu';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../../lib/feed';
 import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
+import { OnShareProps } from './PostActions';
 
-export interface PostModalActionsProps {
+export interface PostModalActionsProps extends OnShareProps {
   post: Post;
   onClose?: MouseEventHandler | KeyboardEventHandler;
   className?: string;
@@ -40,6 +41,7 @@ const BanPostModal = dynamic(() => import('../modals/BanPostModal'));
 const DeletePostModal = dynamic(() => import('../modals/DeletePostModal'));
 
 export function PostModalActions({
+  onShare,
   post,
   onClose,
   inlineActions,
@@ -100,6 +102,7 @@ export function PostModalActions({
         </SimpleTooltip>
       )}
       <PostOptionsMenu
+        onShare={onShare}
         post={post}
         setShowBanPost={isModerator ? () => setShowBanPost(true) : null}
         setShowDeletePost={isModerator ? () => setShowDeletePost(true) : null}

@@ -23,7 +23,6 @@ export type FeedItemComponentProps = {
   useList: boolean;
   openNewTab: boolean;
   insaneMode: boolean;
-  nativeShareSupport: boolean;
   postMenuIndex: number | undefined;
   showCommentPopupId: string | undefined;
   setShowCommentPopupId: (value: string | undefined) => void;
@@ -58,7 +57,7 @@ export type FeedItemComponentProps = {
     row: number,
     column: number,
   ) => Promise<void>;
-  onShare: (post: Post) => Promise<void>;
+  onShare: (post: Post) => void;
   onMenuClick: (
     e: React.MouseEvent,
     index: number,
@@ -95,7 +94,6 @@ export default function FeedItemComponent({
   useList,
   insaneMode,
   openNewTab,
-  nativeShareSupport,
   postMenuIndex,
   showCommentPopupId,
   setShowCommentPopupId,
@@ -142,7 +140,7 @@ export default function FeedItemComponent({
           onBookmarkClick={(post, bookmarked) =>
             onBookmark(post, index, row, column, bookmarked)
           }
-          showShare={nativeShareSupport}
+          showShare
           onShare={onShare}
           openNewTab={openNewTab}
           enableMenu={!!user}

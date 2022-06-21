@@ -16,19 +16,19 @@ import useTagAndSource from '../hooks/useTagAndSource';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
 import { MenuIcon } from './MenuIcon';
-import { useShareOrCopyLink } from '../hooks/useShareOrCopyLink';
 import {
   ToastSubject,
   useToastNotification,
 } from '../hooks/useToastNotification';
 import { generateQueryKey } from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
+import { OnShareProps } from './post/PostActions';
 
 const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
   ssr: false,
 });
 
-export type PostOptionsMenuProps = {
+interface PostOptionsMenuProps extends OnShareProps {
   postIndex?: number;
   post: Post;
   feedName?: string;
@@ -36,7 +36,7 @@ export type PostOptionsMenuProps = {
   onRemovePost?: (postIndex: number) => Promise<unknown>;
   setShowDeletePost?: () => unknown;
   setShowBanPost?: () => unknown;
-};
+}
 
 type ReportPostAsync = (
   postIndex: number,
@@ -47,6 +47,7 @@ type ReportPostAsync = (
 ) => Promise<unknown>;
 
 export default function PostOptionsMenu({
+  onShare,
   postIndex,
   post,
   feedName,
@@ -173,16 +174,6 @@ export default function PostOptionsMenu({
     );
   };
 
-  const shareLink = post?.commentsPermalink;
-  const [, onShareOrCopyLink] = useShareOrCopyLink({
-    link: shareLink,
-    text: post?.title,
-    trackObject: () =>
-      postAnalyticsEvent('share post', post, {
-        extra: { origin: 'post context menu' },
-      }),
-  });
-
   const postOptions: {
     icon: ReactElement;
     text: string;
@@ -196,10 +187,7 @@ export default function PostOptionsMenu({
     {
       icon: <MenuIcon Icon={ForwardIcon} />,
       text: 'Share article',
-      action: () =>
-        onShareOrCopyLink({
-          subject: postIndex ? ToastSubject.Feed : ToastSubject.PostContent,
-        }),
+      action: onShare,
     },
     {
       icon: <MenuIcon Icon={BlockIcon} />,

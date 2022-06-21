@@ -14,6 +14,7 @@ import {
   PostData,
   PostsEngaged,
   POSTS_ENGAGED_SUBSCRIPTION,
+  Post,
 } from '../../graphql/posts';
 import useSubscription from '../../hooks/useSubscription';
 import { postAnalyticsEvent } from '../../lib/feed';
@@ -42,6 +43,7 @@ import {
   ToastSubject,
   useToastNotification,
 } from '../../hooks/useToastNotification';
+import SharePostModal from '../modals/SharePostModal';
 
 const UpvotedPopupModal = dynamic(() => import('../modals/UpvotedPopupModal'));
 const NewCommentModal = dynamic(() => import('../modals/NewCommentModal'));
@@ -192,6 +194,10 @@ export function PostContent({
     onMouseUp: (event: React.MouseEvent) => event.button === 1 && onLinkClick(),
   };
 
+  const [shareModal, setShareModal] = useState<{
+    post?: Post;
+  }>();
+
   const isFixed = position === 'fixed';
   const padding = isFixed ? 'py-4' : 'pt-6';
 
@@ -270,6 +276,7 @@ export function PostContent({
           }
         />
         <PostActions
+          onShare={() => setShareModal({ post: postById.post })}
           post={postById.post}
           postQueryKey={postQueryKey}
           onComment={() => openNewComment('comment button')}
@@ -290,6 +297,7 @@ export function PostContent({
         />
       </PostContainer>
       <PostWidgets
+        onShare={() => setShareModal({ post: postById.post })}
         post={postById.post}
         isNavigationFixed={hasNavigation && isFixed}
         className="pb-20"
@@ -316,6 +324,13 @@ export function PostContent({
         <ShareNewCommentPopup
           post={postById.post}
           onRequestClose={() => onShowShareNewComment(false)}
+        />
+      )}
+      {shareModal && (
+        <SharePostModal
+          isOpen={!!shareModal}
+          post={postById.post}
+          onRequestClose={() => setShareModal(null)}
         />
       )}
     </Wrapper>

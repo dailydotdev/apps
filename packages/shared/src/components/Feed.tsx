@@ -4,6 +4,7 @@ import React, {
   ReactNode,
   useContext,
   useEffect,
+  useState,
 } from 'react';
 import classNames from 'classnames';
 import useFeed, { PostItem } from '../hooks/useFeed';
@@ -36,6 +37,7 @@ import {
   ToastSubject,
   useToastNotification,
 } from '../hooks/useToastNotification';
+import SharePostModal from './modals/SharePostModal';
 
 export type FeedProps<T> = {
   feedName: string;
@@ -51,8 +53,6 @@ export type FeedProps<T> = {
 interface RankVariables {
   ranking?: string;
 }
-
-const nativeShareSupport = false;
 
 const listGaps = {
   cozy: 'gap-5',
@@ -155,16 +155,16 @@ export default function Feed<T>({
   } = useCommentPopup(feedName);
   const infiniteScrollRef = useFeedInfiniteScroll({ fetchPage, canFetchMore });
 
-  const onShare = async (post: Post): Promise<void> => {
-    trackEvent({
-      category: 'Post',
-      action: 'Share',
-    });
-    await navigator.share({
-      text: post.title,
-      url: post.commentsPermalink,
-    });
-  };
+  // const onShare = async (post: Post): Promise<void> => {
+  //   trackEvent({
+  //     category: 'Post',
+  //     action: 'Share',
+  //   });
+  //   await navigator.share({
+  //     text: post.title,
+  //     url: post.commentsPermalink,
+  //   });
+  // };
 
   const useList = insaneMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
@@ -243,6 +243,14 @@ export default function Feed<T>({
     return <>{emptyScreen}</>;
   }
 
+  const [shareModal, setShareModal] = useState<{
+    post?: Post;
+  }>();
+
+  const onShareClick = (post: Post) => {
+    setShareModal({ post });
+  };
+
   useEffect(() => {
     if (!selectedPost) {
       document.body.classList.remove('hidden-scrollbar');
@@ -261,6 +269,13 @@ export default function Feed<T>({
       aria-live={subject === ToastSubject.Feed ? 'assertive' : 'off'}
       data-testid="posts-feed"
     >
+      {shareModal && (
+        <SharePostModal
+          isOpen={!!shareModal}
+          post={shareModal.post}
+          onRequestClose={() => setShareModal(null)}
+        />
+      )}
       {selectedPost && (
         <PostModal
           isOpen
@@ -291,7 +306,6 @@ export default function Feed<T>({
             useList={useList}
             openNewTab={openNewTab}
             insaneMode={insaneMode}
-            nativeShareSupport={nativeShareSupport}
             postMenuIndex={postMenuIndex}
             showCommentPopupId={showCommentPopupId}
             setShowCommentPopupId={setShowCommentPopupId}
@@ -303,7 +317,7 @@ export default function Feed<T>({
             onUpvote={onUpvote}
             onBookmark={onBookmark}
             onPostClick={onPostClick}
-            onShare={onShare}
+            onShare={onShareClick}
             onMenuClick={onMenuClick}
             onCommentClick={onCommentClick}
             onAdClick={onAdClick}
@@ -312,6 +326,9 @@ export default function Feed<T>({
       </div>
       <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
       <PostOptionsMenu
+        onShare={() =>
+          setShareModal({ post: (items[postMenuIndex] as PostItem)?.post })
+        }
         feedName={feedName}
         postIndex={postMenuIndex}
         post={(items[postMenuIndex] as PostItem)?.post}

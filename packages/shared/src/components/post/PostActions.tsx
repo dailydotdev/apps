@@ -13,7 +13,11 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
 import { postEventName } from '../utilities';
 
-interface PostActionsProps {
+export type OnShareProps = {
+  onShare: () => void;
+};
+
+interface PostActionsProps extends OnShareProps {
   post: Post;
   postQueryKey: QueryKey;
   actionsClassName?: string;
@@ -61,6 +65,7 @@ const onBookmarkMutation = (
   }));
 
 export function PostActions({
+  onShare,
   post,
   postQueryKey,
   actionsClassName = 'hidden mobileL:flex',
@@ -164,6 +169,15 @@ export function PostActions({
         className="btn-tertiary-bun"
       >
         Bookmark
+      </QuaternaryButton>
+      <QuaternaryButton
+        id="share-post-btn"
+        onClick={onShare}
+        icon={<BookmarkIcon />}
+        responsiveLabelClass={actionsClassName}
+        className="btn-tertiary-bun"
+      >
+        Share
       </QuaternaryButton>
     </div>
   );

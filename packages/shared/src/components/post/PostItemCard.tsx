@@ -14,6 +14,7 @@ interface PostItemCardProps {
   className?: string;
   postItem: PostItem;
   showButtons?: boolean;
+  clickable?: boolean;
   onHide?: (params: HidePostItemCardProps) => Promise<unknown>;
   onContextMenu?: (event: React.MouseEvent, post: PostItem) => void;
 }
@@ -23,9 +24,13 @@ const SourceShadow = classed(
   'absolute left-5 -my-1 w-8 h-8 rounded-full bg-theme-bg-primary',
 );
 
+const LinkWrapper = ({ condition, wrapper, children }) =>
+  condition ? wrapper(children) : children;
+
 export default function PostItemCard({
   postItem,
   showButtons = true,
+  clickable = true,
   onHide,
   className,
   onContextMenu,
@@ -37,10 +42,16 @@ export default function PostItemCard({
   };
 
   return (
-    <Link href={post.commentsPermalink}>
+    <LinkWrapper
+      condition={clickable}
+      wrapper={(children) => (
+        <Link href={post.commentsPermalink}>{children}</Link>
+      )}
+    >
       <article
         className={classNames(
-          'flex relative flex-row items-center py-3 pr-5 pl-9 hover:bg-theme-hover hover:cursor-pointer',
+          'flex relative flex-row items-center py-3 pr-5 pl-9',
+          clickable && 'hover:bg-theme-hover hover:cursor-pointer',
           className,
         )}
       >
@@ -85,6 +96,6 @@ export default function PostItemCard({
           />
         )}
       </article>
-    </Link>
+    </LinkWrapper>
   );
 }
