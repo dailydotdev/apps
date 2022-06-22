@@ -18,6 +18,7 @@ interface PostWidgetsProps extends PostModalActionsProps {
 
 export function PostWidgets({
   onShare,
+  onBookmark,
   post,
   className,
   isNavigationFixed,
@@ -54,6 +55,7 @@ export function PostWidgets({
     >
       {!isNavigationFixed && (
         <PostModalActions
+          onBookmark={onBookmark}
           onShare={onShare}
           inlineActions={isNavigationFixed}
           post={post}

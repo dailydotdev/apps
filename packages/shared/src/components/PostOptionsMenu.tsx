@@ -23,12 +23,14 @@ import {
 import { generateQueryKey } from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
 import { OnShareProps } from './post/PostActions';
+import BookmarkIcon from './icons/Bookmark';
 
 const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
   ssr: false,
 });
 
 interface PostOptionsMenuProps extends OnShareProps {
+  onBookmark?: any;
   postIndex?: number;
   post: Post;
   feedName?: string;
@@ -48,6 +50,7 @@ type ReportPostAsync = (
 
 export default function PostOptionsMenu({
   onShare,
+  onBookmark,
   postIndex,
   post,
   feedName,
@@ -185,8 +188,13 @@ export default function PostOptionsMenu({
       action: onHidePost,
     },
     {
+      icon: <MenuIcon filled={post?.bookmarked} Icon={BookmarkIcon} />,
+      text: `${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`,
+      action: onBookmark,
+    },
+    {
       icon: <MenuIcon Icon={ForwardIcon} />,
-      text: 'Share article',
+      text: 'Share article via...',
       action: onShare,
     },
     {

@@ -7,7 +7,7 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { useQueryClient } from 'react-query';
+import { QueryClient, QueryKey, useQueryClient } from 'react-query';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import AuthContext from '../../contexts/AuthContext';
 import {
@@ -44,6 +44,8 @@ import {
   useToastNotification,
 } from '../../hooks/useToastNotification';
 import SharePostModal from '../modals/SharePostModal';
+import { postEventName } from '../utilities';
+import useBookmarkPost from '../../hooks/useBookmarkPost';
 
 const UpvotedPopupModal = dynamic(() => import('../modals/UpvotedPopupModal'));
 const NewCommentModal = dynamic(() => import('../modals/NewCommentModal'));
@@ -81,6 +83,35 @@ const PostContainer = classed(
 );
 
 export const SCROLL_OFFSET = 80;
+
+const onBookmarkMutation = (
+  queryClient: QueryClient,
+  postQueryKey: QueryKey,
+  bookmarked: boolean,
+): (() => Promise<() => void>) =>
+  updatePost(queryClient, postQueryKey, () => ({
+    bookmarked,
+  }));
+
+const updatePost =
+  (
+    queryClient: QueryClient,
+    postQueryKey: QueryKey,
+    update: (oldPost: PostData) => Partial<Post>,
+  ): (() => Promise<() => void>) =>
+  async () => {
+    await queryClient.cancelQueries(postQueryKey);
+    const oldPost = queryClient.getQueryData<PostData>(postQueryKey);
+    queryClient.setQueryData<PostData>(postQueryKey, {
+      post: {
+        ...oldPost.post,
+        ...update(oldPost),
+      },
+    });
+    return () => {
+      queryClient.setQueryData<PostData>(postQueryKey, oldPost);
+    };
+  };
 
 export function PostContent({
   postById,
@@ -201,6 +232,34 @@ export function PostContent({
   const isFixed = position === 'fixed';
   const padding = isFixed ? 'py-4' : 'pt-6';
 
+  const { bookmark, removeBookmark } = useBookmarkPost({
+    onBookmarkMutate: onBookmarkMutation(queryClient, postQueryKey, true),
+    onRemoveBookmarkMutate: onBookmarkMutation(
+      queryClient,
+      postQueryKey,
+      false,
+    ),
+  });
+
+  const toggleBookmark = async (): Promise<void> => {
+    if (!user) {
+      showLogin('bookmark');
+      return;
+    }
+    trackEvent(
+      postAnalyticsEvent(
+        postEventName({ bookmarked: !postById?.post.bookmarked }),
+        postById?.post,
+        { extra: { origin } },
+      ),
+    );
+    if (!postById?.post.bookmarked) {
+      await bookmark({ id: postById?.post.id });
+    } else {
+      await removeBookmark({ id: postById?.post.id });
+    }
+  };
+
   return (
     <Wrapper
       className={className}
@@ -276,6 +335,7 @@ export function PostContent({
           }
         />
         <PostActions
+          onBookmark={toggleBookmark}
           onShare={() => setShareModal({ post: postById.post })}
           post={postById.post}
           postQueryKey={postQueryKey}
@@ -297,6 +357,7 @@ export function PostContent({
         />
       </PostContainer>
       <PostWidgets
+        onBookmark={toggleBookmark}
         onShare={() => setShareModal({ post: postById.post })}
         post={postById.post}
         isNavigationFixed={hasNavigation && isFixed}

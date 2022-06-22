@@ -12,9 +12,11 @@ import AuthContext from '../../contexts/AuthContext';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
 import { postEventName } from '../utilities';
+import ForwardIcon from '../icons/Forward';
 
 export type OnShareProps = {
   onShare: () => void;
+  onBookmark: () => void;
 };
 
 interface PostActionsProps extends OnShareProps {
@@ -55,17 +57,9 @@ const onUpvoteMutation = (
     numUpvotes: oldPost.post.numUpvotes + (upvoted ? 1 : -1),
   }));
 
-const onBookmarkMutation = (
-  queryClient: QueryClient,
-  postQueryKey: QueryKey,
-  bookmarked: boolean,
-): (() => Promise<() => void>) =>
-  updatePost(queryClient, postQueryKey, () => ({
-    bookmarked,
-  }));
-
 export function PostActions({
   onShare,
+  onBookmark,
   post,
   postQueryKey,
   actionsClassName = 'hidden mobileL:flex',
@@ -78,15 +72,6 @@ export function PostActions({
   const { upvotePost, cancelPostUpvote } = useUpvotePost({
     onUpvotePostMutate: onUpvoteMutation(queryClient, postQueryKey, true),
     onCancelPostUpvoteMutate: onUpvoteMutation(
-      queryClient,
-      postQueryKey,
-      false,
-    ),
-  });
-
-  const { bookmark, removeBookmark } = useBookmarkPost({
-    onBookmarkMutate: onBookmarkMutation(queryClient, postQueryKey, true),
-    onRemoveBookmarkMutate: onBookmarkMutation(
       queryClient,
       postQueryKey,
       false,
@@ -117,25 +102,6 @@ export function PostActions({
     return undefined;
   };
 
-  const toggleBookmark = async (): Promise<void> => {
-    if (!user) {
-      showLogin('bookmark');
-      return;
-    }
-    trackEvent(
-      postAnalyticsEvent(
-        postEventName({ bookmarked: !post.bookmarked }),
-        post,
-        { extra: { origin } },
-      ),
-    );
-    if (!post.bookmarked) {
-      await bookmark({ id: post.id });
-    } else {
-      await removeBookmark({ id: post.id });
-    }
-  };
-
   return (
     <div className="flex justify-between py-2 border-t border-b border-theme-divider-tertiary">
       <QuaternaryButton
@@ -163,7 +129,7 @@ export function PostActions({
       <QuaternaryButton
         id="bookmark-post-btn"
         pressed={post.bookmarked}
-        onClick={toggleBookmark}
+        onClick={onBookmark}
         icon={<BookmarkIcon filled={post.bookmarked} />}
         responsiveLabelClass={actionsClassName}
         className="btn-tertiary-bun"
@@ -173,7 +139,7 @@ export function PostActions({
       <QuaternaryButton
         id="share-post-btn"
         onClick={onShare}
-        icon={<BookmarkIcon />}
+        icon={<ForwardIcon />}
         responsiveLabelClass={actionsClassName}
         className="btn-tertiary-bun"
       >

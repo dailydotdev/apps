@@ -329,6 +329,15 @@ export default function Feed<T>({
         onShare={() =>
           setShareModal({ post: (items[postMenuIndex] as PostItem)?.post })
         }
+        onBookmark={() =>
+          onBookmark(
+            (items[postMenuIndex] as PostItem)?.post,
+            postMenuIndex,
+            calculateRow(postMenuIndex, numCards),
+            calculateColumn(postMenuIndex, numCards),
+            !(items[postMenuIndex] as PostItem)?.post?.bookmarked,
+          )
+        }
         feedName={feedName}
         postIndex={postMenuIndex}
         post={(items[postMenuIndex] as PostItem)?.post}

@@ -42,6 +42,7 @@ const DeletePostModal = dynamic(() => import('../modals/DeletePostModal'));
 
 export function PostModalActions({
   onShare,
+  onBookmark,
   post,
   onClose,
   inlineActions,
@@ -102,6 +103,7 @@ export function PostModalActions({
         </SimpleTooltip>
       )}
       <PostOptionsMenu
+        onBookmark={onBookmark}
         onShare={onShare}
         post={post}
         setShowBanPost={isModerator ? () => setShowBanPost(true) : null}
