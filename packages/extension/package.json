@@ -102,7 +102,7 @@
     "mini-css-extract-plugin": "^1.6.2",
     "nock": "^13.2.4",
     "node-fetch": "^2.6.6",
-    "node-sass": "^4.14.1",
+    "sass": "^1.53.0",
     "optimize-css-assets-webpack-plugin": "^5.0.8",
     "postcss": "^8.4.12",
     "postcss-custom-media": "^8.0.0",
