@@ -144,7 +144,10 @@ export default function ActionButtons({
           bookmarkButton}
         {(isV2 || insaneMode) && (
           <OptionsButton
-            className={visibleOnGroupHover}
+            className={classNames(
+              visibleOnGroupHover,
+              insaneMode && !postModalByDefault && 'ml-auto',
+            )}
             onClick={onMenuClick}
             tooltipPlacement="top"
           />
