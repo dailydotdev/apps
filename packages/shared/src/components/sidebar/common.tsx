@@ -76,7 +76,7 @@ export const btnClass =
   'flex flex-1 items-center pl-2 laptop:pl-0 pr-5 laptop:pr-3 h-10 laptop:h-7';
 export const SidebarBackdrop = classed(
   'div',
-  'fixed w-full h-full bg-theme-overlay-quaternary cursor-pointer inset-0',
+  'fixed w-full h-full bg-theme-overlay-quaternary z-3 cursor-pointer inset-0',
 );
 export const SidebarAside = classed(
   'aside',
