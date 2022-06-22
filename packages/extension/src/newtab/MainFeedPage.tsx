@@ -11,7 +11,6 @@ import MainFeedLayout, {
 } from '@dailydotdev/shared/src/components/MainFeedLayout';
 import FeedLayout from '@dailydotdev/shared/src/components/FeedLayout';
 import dynamic from 'next/dynamic';
-
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import useDefaultFeed from '@dailydotdev/shared/src/hooks/useDefaultFeed';
 import { useMyFeed } from '@dailydotdev/shared/src/hooks/useMyFeed';

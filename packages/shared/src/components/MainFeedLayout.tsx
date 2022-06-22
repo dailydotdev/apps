@@ -194,6 +194,7 @@ export default function MainFeedLayout({
       isSessionLoaded &&
       myFeedOnboardingVersion !== 'control'
     ) {
+      setIsFirstSession(true);
       setMyFeedMode(MyFeedMode.Auto);
       setCreateMyFeed(true);
     }

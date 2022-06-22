@@ -278,7 +278,7 @@ export default function Feed<T>({
         <PostModal
           isOpen
           id={selectedPost.id}
-          onRequestClose={onCloseModal}
+          onRequestClose={() => onCloseModal(false)}
           onPreviousPost={onPrevious}
           onNextPost={onNext}
           isFetchingNextPage={isFetchingNextPage}
