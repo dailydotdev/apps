@@ -14,7 +14,7 @@ commands:
 jobs:
   build:
     docker:
-      - image: cimg/node:14.16.0
+      - image: cimg/node:16.15
     steps:
       - checkout
       - run:
@@ -45,7 +45,7 @@ jobs:
           working_directory: packages/extension
   test:
     docker:
-      - image: cimg/node:14.16.0
+      - image: cimg/node:16.15
     steps:
       - checkout
       - run:
