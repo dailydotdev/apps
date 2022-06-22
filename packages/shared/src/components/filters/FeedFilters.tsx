@@ -44,7 +44,7 @@ export default function FeedFilters({
         'transition-transform duration-200 ease-linear delay-100',
         isOpen ? 'translate-x-0' : '-translate-x-96 pointer-events-none',
       )}
-      style={{ width: asideWidth }}
+      style={{ width: asideWidth, zIndex: 10 }}
     >
       <div
         className={classNames(
