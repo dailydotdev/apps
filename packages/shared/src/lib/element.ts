@@ -8,8 +8,13 @@ export type CaretOffset = [number, number];
 export type CaretPosition = [Column, Row];
 
 const isFirefox = process.env.TARGET_BROWSER === 'firefox';
+const isExtension = !!process.env.TARGET_BROWSER;
 
 const getShadowDom = (ownerDocument = false): Document => {
+  if (!isExtension) {
+    return null;
+  }
+
   const companion = document.querySelector('daily-companion-app');
 
   if (!companion) {
