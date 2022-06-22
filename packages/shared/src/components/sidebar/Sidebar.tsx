@@ -338,7 +338,7 @@ export default function Sidebar({
   return (
     <>
       {openMobileSidebar && sidebarRendered === false && (
-        <SidebarBackdrop onClick={setOpenMobileSidebar} />
+        <SidebarBackdrop onClick={setOpenMobileSidebar} style={{ zIndex: 4 }} />
       )}
       <SidebarAside
         data-testid="sidebar-aside"
@@ -349,6 +349,7 @@ export default function Sidebar({
             ? 'laptop:top-22 laptop:h-[calc(100vh-theme(space.22))]'
             : 'laptop:top-14 laptop:h-[calc(100vh-theme(space.14))]',
         )}
+        style={{ zIndex: 5 }}
       >
         {sidebarRendered && (
           <MenuIcon
