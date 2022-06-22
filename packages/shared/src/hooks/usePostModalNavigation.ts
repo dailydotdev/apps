@@ -44,10 +44,10 @@ export const usePostModalNavigation = (
   };
 
   const onOpenModal = (index, fromPopState = false) => {
-    onChangeSelected(index, fromPopState);
     if (!currentPage) {
       setCurrentPage(window.location.pathname);
     }
+    onChangeSelected(index, fromPopState);
   };
 
   const onCloseModal = (fromPopState = false) => {
