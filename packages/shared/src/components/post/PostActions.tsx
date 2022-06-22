@@ -6,7 +6,6 @@ import BookmarkIcon from '../icons/Bookmark';
 import { Post, PostData } from '../../graphql/posts';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import useUpvotePost from '../../hooks/useUpvotePost';
-import useBookmarkPost from '../../hooks/useBookmarkPost';
 import { postAnalyticsEvent } from '../../lib/feed';
 import AuthContext from '../../contexts/AuthContext';
 import AnalyticsContext from '../../contexts/AnalyticsContext';

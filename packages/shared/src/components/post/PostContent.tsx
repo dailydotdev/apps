@@ -7,7 +7,7 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { QueryClient, QueryKey, useQueryClient } from 'react-query';
+import { useQueryClient } from 'react-query';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import AuthContext from '../../contexts/AuthContext';
 import {
@@ -46,6 +46,7 @@ import {
 import SharePostModal from '../modals/SharePostModal';
 import { postEventName } from '../utilities';
 import useBookmarkPost from '../../hooks/useBookmarkPost';
+import useUpdatePost from '../../hooks/useUpdatePost';
 
 const UpvotedPopupModal = dynamic(() => import('../modals/UpvotedPopupModal'));
 const NewCommentModal = dynamic(() => import('../modals/NewCommentModal'));
@@ -83,35 +84,6 @@ const PostContainer = classed(
 );
 
 export const SCROLL_OFFSET = 80;
-
-const onBookmarkMutation = (
-  queryClient: QueryClient,
-  postQueryKey: QueryKey,
-  bookmarked: boolean,
-): (() => Promise<() => void>) =>
-  updatePost(queryClient, postQueryKey, () => ({
-    bookmarked,
-  }));
-
-const updatePost =
-  (
-    queryClient: QueryClient,
-    postQueryKey: QueryKey,
-    update: (oldPost: PostData) => Partial<Post>,
-  ): (() => Promise<() => void>) =>
-  async () => {
-    await queryClient.cancelQueries(postQueryKey);
-    const oldPost = queryClient.getQueryData<PostData>(postQueryKey);
-    queryClient.setQueryData<PostData>(postQueryKey, {
-      post: {
-        ...oldPost.post,
-        ...update(oldPost),
-      },
-    });
-    return () => {
-      queryClient.setQueryData<PostData>(postQueryKey, oldPost);
-    };
-  };
 
 export function PostContent({
   postById,
@@ -232,13 +204,10 @@ export function PostContent({
   const isFixed = position === 'fixed';
   const padding = isFixed ? 'py-4' : 'pt-6';
 
+  const { updatePost } = useUpdatePost();
   const { bookmark, removeBookmark } = useBookmarkPost({
-    onBookmarkMutate: onBookmarkMutation(queryClient, postQueryKey, true),
-    onRemoveBookmarkMutate: onBookmarkMutation(
-      queryClient,
-      postQueryKey,
-      false,
-    ),
+    onBookmarkMutate: updatePost({ id, update: { bookmarked: true } }),
+    onRemoveBookmarkMutate: updatePost({ id, update: { bookmarked: false } }),
   });
 
   const toggleBookmark = async (): Promise<void> => {
