@@ -116,12 +116,6 @@ const PostPage = ({ id, postData }: Props): ReactElement => {
     };
   }, [position]);
 
-  useEffect(() => {
-    window.addEventListener('popstate', () => {
-      router.reload();
-    });
-  }, []);
-
   return (
     <>
       <Head>
