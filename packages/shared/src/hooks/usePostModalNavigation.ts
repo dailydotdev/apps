@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { Post } from '../graphql/posts';
@@ -23,6 +24,7 @@ export const usePostModalNavigation = (
   const [openedPostIndex, setOpenedPostIndex] = useState<number>(null);
   const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
   const { trackEvent } = useContext(AnalyticsContext);
+  const router = useRouter();
 
   const changeHistory = (data: unknown, title: string, url: string) => {
     if (!isExtension) {
@@ -43,11 +45,11 @@ export const usePostModalNavigation = (
     }
   };
 
-  const onOpenModal = (index, fromPopState = false) => {
-    onChangeSelected(index, fromPopState);
+  const onOpenModal = (index: number, fromPopState = false) => {
     if (!currentPage) {
       setCurrentPage(window.location.pathname);
     }
+    onChangeSelected(index, fromPopState);
   };
 
   const onCloseModal = (fromPopState = false) => {
@@ -59,6 +61,10 @@ export const usePostModalNavigation = (
   };
 
   useEffect(() => {
+    if (isExtension) {
+      return null;
+    }
+
     const onPopState = () => {
       const url = new URL(window.location.href);
       if (url.pathname.indexOf('/posts/') !== 0) {
@@ -76,7 +82,7 @@ export const usePostModalNavigation = (
       });
 
       if (index === -1) {
-        onCloseModal();
+        router.reload();
         return;
       }
 
