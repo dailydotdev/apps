@@ -179,7 +179,7 @@ export default function Sidebar({
     flags,
   );
   const canSubmitArticle = isFeaturedEnabled(Features.SubmitArticle, flags);
-  const submitArticleOn = true;
+  const submitArticleOn = isFeaturedEnabled(Features.SubmitArticleOn, flags);
 
   useHideMobileSidebar({
     state: openMobileSidebar,
