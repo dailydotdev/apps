@@ -335,17 +335,18 @@ export default function Sidebar({
   return (
     <>
       {openMobileSidebar && sidebarRendered === false && (
-        <SidebarBackdrop onClick={setOpenMobileSidebar} className="z-[4]" />
+        <SidebarBackdrop onClick={setOpenMobileSidebar} style={{ zIndex: 4 }} />
       )}
       <SidebarAside
         data-testid="sidebar-aside"
         className={classNames(
           sidebarExpanded ? 'laptop:w-60' : 'laptop:w-11',
-          openMobileSidebar ? '-translate-x-0 z-[5]' : '-translate-x-70',
+          openMobileSidebar ? '-translate-x-0' : '-translate-x-70',
           promotionalBannerActive
             ? 'laptop:top-22 laptop:h-[calc(100vh-theme(space.22))]'
             : 'laptop:top-14 laptop:h-[calc(100vh-theme(space.14))]',
         )}
+        style={{ zIndex: 5 }}
       >
         {sidebarRendered && (
           <MenuIcon
