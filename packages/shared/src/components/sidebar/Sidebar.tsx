@@ -294,6 +294,8 @@ export default function Sidebar({
       active: showSettings,
     },
   ];
+
+  const contirbuteMenuItems: SidebarMenuItem[] = [];
   if (submitArticleOn) {
     const submitArticleMenuItem = {
       icon: (active: boolean) => (
@@ -303,8 +305,9 @@ export default function Sidebar({
       action: () => trackAndShowSubmitArticle(),
       active: showSubmitArticle,
     };
-    manageMenuItems.unshift(submitArticleMenuItem);
+    contirbuteMenuItems.push(submitArticleMenuItem);
   }
+
   if (shouldShowDnD) {
     const dndMenuItem = {
       icon: (active: boolean) => (
@@ -376,6 +379,14 @@ export default function Sidebar({
               items={discoverMenuItems}
               useNavButtonsNotLinks={useNavButtonsNotLinks}
             />
+            {!!contirbuteMenuItems.length && (
+              <RenderSection
+                title="Contribute"
+                items={contirbuteMenuItems}
+                {...defaultRenderSectionProps}
+                useNavButtonsNotLinks={false}
+              />
+            )}
             <RenderSection
               {...defaultRenderSectionProps}
               title="Manage"
