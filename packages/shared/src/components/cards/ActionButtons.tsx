@@ -64,7 +64,7 @@ export default function ActionButtons({
     : React.Fragment;
   const upvoteCommentProps: ButtonProps<'button'> = {
     readOnly: postEngagementNonClickable,
-    buttonSize: 'small',
+    buttonSize: postEngagementNonClickable ? 'small' : 'medium',
     className: classNames(
       'btn-tertiary-avocado',
       !postEngagementNonClickable && 'w-[4.875rem]',
@@ -74,7 +74,7 @@ export default function ActionButtons({
   const bookmarkButton = (
     <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
       <Button
-        icon={<BookmarkIcon filled={post.bookmarked} size="medium" />}
+        icon={<BookmarkIcon filled={post.bookmarked} />}
         buttonSize="small"
         pressed={post.bookmarked}
         onClick={() => onBookmarkClick?.(post, !post.bookmarked)}
@@ -101,10 +101,7 @@ export default function ActionButtons({
           <QuaternaryButton
             id={`post-${post.id}-upvote-btn`}
             icon={
-              <UpvoteIcon
-                filled={post.upvoted || postEngagementNonClickable}
-                size={postEngagementNonClickable ? 'small' : 'medium'}
-              />
+              <UpvoteIcon filled={post.upvoted || postEngagementNonClickable} />
             }
             pressed={post.upvoted}
             onClick={() => onUpvoteClick?.(post, !post.upvoted)}
@@ -123,7 +120,6 @@ export default function ActionButtons({
             icon={
               <CommentIcon
                 filled={post.commented || postEngagementNonClickable}
-                size={postEngagementNonClickable ? 'small' : 'medium'}
               />
             }
             pressed={post.commented}
