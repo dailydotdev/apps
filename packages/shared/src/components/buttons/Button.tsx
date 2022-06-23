@@ -24,7 +24,7 @@ export interface StyledButtonProps {
   iconOnly?: boolean;
 }
 
-type IconType = React.ReactElement<IconProps>;
+export type IconType = React.ReactElement<IconProps>;
 
 export interface BaseButtonProps {
   buttonSize?: ButtonSize;
