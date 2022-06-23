@@ -277,6 +277,7 @@ export default function MainFeedLayout({
         {navChildren}
         {isUpvoted && (
           <Dropdown
+            className="w-44"
             buttonSize="large"
             icon={<CalendarIcon />}
             selectedIndex={selectedPeriod}
@@ -286,6 +287,7 @@ export default function MainFeedLayout({
         )}
         {sortingEnabled && isSortableFeed && (
           <Dropdown
+            className="w-44"
             buttonSize="large"
             selectedIndex={selectedAlgo}
             options={algorithmsList}
