@@ -12,7 +12,7 @@
   },
   "prettier": "@dailydotdev/prettier-config",
   "peerDependencies": {
-    "@dailydotdev/react-contexify": "^5.0.0",
+    "@dailydotdev/react-contexify": "^5.0.2",
     "classnames": "^2.3.1",
     "date-fns": "^2.22.1",
     "date-fns-tz": "1.0.0",

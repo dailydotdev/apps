@@ -14,7 +14,7 @@
   },
   "prettier": "@dailydotdev/prettier-config",
   "dependencies": {
-    "@dailydotdev/react-contexify": "^5.0.0",
+    "@dailydotdev/react-contexify": "^5.0.2",
     "@dailydotdev/shared": "*",
     "@prefresh/next": "^1.5.2",
     "classnames": "^2.3.1",
