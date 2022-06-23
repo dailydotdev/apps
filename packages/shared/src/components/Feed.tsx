@@ -199,10 +199,10 @@ export default function Feed<T>({
     row,
     column,
     event,
+    fromReadArticle,
   ) => {
-    await onPostClick(post, index, row, column);
-
-    if (!postModalByDefault) {
+    if (!postModalByDefault || fromReadArticle) {
+      await onPostClick(post, index, row, column);
       return;
     }
 

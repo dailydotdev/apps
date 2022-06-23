@@ -120,6 +120,9 @@ export default function FeedItemComponent({
           onBookmarkClick={(post, bookmarked) =>
             onBookmark(post, index, row, column, bookmarked)
           }
+          onReadArticleClick={(e) =>
+            onPostClick(item.post, index, row, column, e, true)
+          }
           showShare={nativeShareSupport}
           onShare={onShare}
           openNewTab={openNewTab}

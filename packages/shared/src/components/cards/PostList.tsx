@@ -33,6 +33,7 @@ export const PostList = forwardRef(function PostList(
     onUpvoteClick,
     onCommentClick,
     onBookmarkClick,
+    onReadArticleClick,
     onMenuClick,
     showShare,
     onShare,
@@ -105,6 +106,7 @@ export const PostList = forwardRef(function PostList(
             onUpvoteClick={onUpvoteClick}
             onCommentClick={onCommentClick}
             onBookmarkClick={onBookmarkClick}
+            onReadArticleClick={onReadArticleClick}
             showShare={showShare}
             onShare={onShare}
             className="relative self-stretch mt-1"

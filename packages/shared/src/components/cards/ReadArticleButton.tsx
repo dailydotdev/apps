@@ -5,6 +5,7 @@ import OpenLinkIcon from '../icons/OpenLink';
 interface ReadArticleButtonProps {
   href: string;
   className?: string;
+  onClick?: (e: React.MouseEvent) => unknown;
 }
 
 export const ReadArticleButton = (

@@ -11,6 +11,7 @@ export type FeedPostClick = (
   row: number,
   column: number,
   e?: React.MouseEvent,
+  fromReadArticle?: boolean,
 ) => Promise<void>;
 
 export default function useFeedOnPostClick(

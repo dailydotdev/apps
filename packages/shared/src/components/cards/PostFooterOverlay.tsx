@@ -16,6 +16,7 @@ interface PostFooterOverlayProps {
   source: Source;
   postLink: string;
   insaneMode?: boolean;
+  onReadArticleClick?: (e: React.MouseEvent) => unknown;
 }
 
 const Overlay = classed(
@@ -29,6 +30,7 @@ export const PostFooterOverlay = ({
   author,
   postLink,
   insaneMode,
+  onReadArticleClick,
 }: PostFooterOverlayProps): ReactElement => {
   const { postModalByDefault, postEngagementNonClickable } =
     useContext(FeaturesContext);
@@ -60,6 +62,7 @@ export const PostFooterOverlay = ({
             visibleOnGroupHover,
           )}
           href={postLink}
+          onClick={onReadArticleClick}
         />
       )}
     </div>

@@ -11,6 +11,7 @@ interface CardHeaderProps {
   children?: ReactNode;
   source: Source;
   onMenuClick?: (e: React.MouseEvent) => void;
+  onReadArticleClick?: (e: React.MouseEvent) => unknown;
   postLink: string;
 }
 
@@ -18,6 +19,7 @@ const Container = getGroupedHoverContainer('span');
 
 export const PostCardHeader = ({
   onMenuClick,
+  onReadArticleClick,
   children,
   source,
   postLink,
@@ -31,7 +33,11 @@ export const PostCardHeader = ({
       {children}
       <Container className="flex flex-row ml-auto">
         {(postModalByDefault || postEngagementNonClickable) && (
-          <ReadArticleButton className="mr-2 btn-primary" href={postLink} />
+          <ReadArticleButton
+            className="mr-2 btn-primary"
+            href={postLink}
+            onClick={onReadArticleClick}
+          />
         )}
         <OptionsButton onClick={onMenuClick} tooltipPlacement="top" />
       </Container>

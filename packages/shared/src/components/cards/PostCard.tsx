@@ -38,6 +38,7 @@ export type PostCardProps = {
   onCommentClick?: Callback;
   onBookmarkClick?: (post: Post, bookmarked: boolean) => unknown;
   onMenuClick?: (event: React.MouseEvent, post: Post) => unknown;
+  onReadArticleClick?: (e: React.MouseEvent) => unknown;
   showShare?: boolean;
   onShare?: Callback;
   openNewTab?: boolean;
@@ -65,6 +66,7 @@ export const PostCard = forwardRef(function PostCard(
     showImage = true,
     style,
     insaneMode,
+    onReadArticleClick,
     ...props
   }: PostCardProps,
   ref: Ref<HTMLElement>,
@@ -97,6 +99,7 @@ export const PostCard = forwardRef(function PostCard(
             source={post.source}
             postLink={post.permalink}
             onMenuClick={(event) => onMenuClick?.(event, post)}
+            onReadArticleClick={onReadArticleClick}
           />
         )}
         <CardTitle>{post.title}</CardTitle>
@@ -122,6 +125,7 @@ export const PostCard = forwardRef(function PostCard(
             source={post.source}
             author={post.author}
             insaneMode={insaneMode}
+            onReadArticleClick={onReadArticleClick}
           />
         )}
         {!showImage && (
@@ -156,6 +160,7 @@ export const PostCard = forwardRef(function PostCard(
           showShare={showShare}
           onShare={onShare}
           onMenuClick={(event) => onMenuClick?.(event, post)}
+          onReadArticleClick={onReadArticleClick}
           className={classNames(
             'mx-4',
             !postEngagementNonClickable && 'justify-between',

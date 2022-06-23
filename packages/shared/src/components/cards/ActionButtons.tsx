@@ -26,6 +26,7 @@ export type ActionButtonsProps = {
   onCommentClick?: (post: Post) => unknown;
   onBookmarkClick?: (post: Post, bookmarked: boolean) => unknown;
   onShare?: (post: Post) => unknown;
+  onReadArticleClick?: (e: React.MouseEvent) => unknown;
   className?: string;
   children?: ReactNode;
   insaneMode?: boolean;
@@ -48,6 +49,7 @@ export default function ActionButtons({
   onCommentClick,
   onBookmarkClick,
   onMenuClick,
+  onReadArticleClick,
   onShare,
   className,
   children,
@@ -138,7 +140,11 @@ export default function ActionButtons({
       </LeftContainer>
       <RightContainer>
         {insaneMode && postModalByDefault && (
-          <ReadArticleButton href={post.permalink} className="btn-tertiary" />
+          <ReadArticleButton
+            href={post.permalink}
+            className="btn-tertiary"
+            onClick={onReadArticleClick}
+          />
         )}
         {(!insaneMode || !postModalByDefault || postEngagementNonClickable) &&
           bookmarkButton}
