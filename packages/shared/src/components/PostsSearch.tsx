@@ -105,6 +105,10 @@ export default function PostsSearch({
     if (value && value !== initialQueryProp) {
       debounceQuery(value);
     }
+
+    if (menuPosition === null) {
+      showSuggestions();
+    }
   };
 
   useEffect(() => {

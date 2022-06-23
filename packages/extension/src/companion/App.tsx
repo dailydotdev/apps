@@ -77,7 +77,7 @@ export default function App({
               user={user}
               visit={visit}
               tokenRefreshed
-              getRedirectUri={() => '/'}
+              getRedirectUri={() => browser.runtime.getURL('index.html')}
               updateUser={() => null}
             >
               <SettingsContextProvider settings={settings}>

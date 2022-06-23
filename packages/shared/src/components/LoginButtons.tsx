@@ -1,6 +1,7 @@
 import React, { ReactElement, useContext } from 'react';
 import { useRouter } from 'next/router';
 import GitHubIcon from '../../icons/github.svg';
+import GoogleIcon from '../../icons/google_color.svg';
 import { privacyPolicy, termsOfService } from '../lib/constants';
 import { LegalNotice } from './utilities';
 import { Button } from './buttons/Button';
@@ -57,7 +58,7 @@ export default function LoginButtons(): ReactElement {
         <Button
           className="my-2 btn-primary"
           onClick={() => login('google')}
-          icon={<img src="/google.svg" alt="Google logo" />}
+          icon={<GoogleIcon />}
         >
           {buttonCopyPrefix} Google
         </Button>

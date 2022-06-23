@@ -44,7 +44,7 @@ export default function AutoCompleteMenu({
         top: placement?.y,
         left: placement?.x,
         opacity: isOpen ? 1 : 0,
-        width: placement?.width,
+        width: placement?.width ?? 0,
         transform: 'none',
       }}
     >
