@@ -39,8 +39,6 @@ export function PostModal({
   const [position, setPosition] =
     useState<CSSProperties['position']>('relative');
   const { tokenRefreshed } = useContext(AuthContext);
-  const [currentPage, setCurrentPage] = useState<string>();
-  const isExtension = !!process.env.TARGET_BROWSER;
   useResetScrollForResponsiveModal();
   useHideOnModal(props.isOpen);
 
@@ -53,26 +51,6 @@ export function PostModal({
     () => request(`${apiUrl}/graphql`, POST_BY_ID_QUERY, { id }),
     { enabled: !!id && tokenRefreshed },
   );
-
-  useEffect(() => {
-    if (isExtension) {
-      return;
-    }
-
-    if (!currentPage) {
-      setCurrentPage(window.location.pathname);
-    }
-
-    window.history.replaceState({}, `Post: ${id}`, `/posts/${id}`);
-  }, [id]);
-
-  const onClose: typeof onRequestClose = (e) => {
-    if (!isExtension && currentPage) {
-      window.history.replaceState({}, `Feed`, currentPage);
-      setCurrentPage(undefined);
-    }
-    onRequestClose(e);
-  };
 
   useEffect(() => {
     const modal = document.getElementById('post-modal');
@@ -126,7 +104,7 @@ export function PostModal({
       className={classNames(className, 'post-modal focus:outline-none')}
       overlayClassName="post-modal-overlay"
       id="post-modal"
-      onRequestClose={onClose}
+      onRequestClose={onRequestClose}
     >
       <PostContent
         position={position}
@@ -134,7 +112,7 @@ export function PostModal({
         onPreviousPost={onPreviousPost}
         onNextPost={onNextPost}
         className="post-content"
-        onClose={onClose}
+        onClose={onRequestClose}
         isLoading={isLoading || !isFetched || isFetchingNextPage}
         isModal
       />
