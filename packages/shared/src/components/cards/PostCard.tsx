@@ -47,6 +47,7 @@ export type PostCardProps = {
   enableMenu?: boolean;
   menuOpened?: boolean;
   showImage?: boolean;
+  additionalInteractionButton?: string;
 } & HTMLAttributes<HTMLDivElement>;
 
 export const PostCard = forwardRef(function PostCard(
@@ -66,6 +67,7 @@ export const PostCard = forwardRef(function PostCard(
     children,
     showImage = true,
     style,
+    additionalInteractionButton,
     ...props
   }: PostCardProps,
   ref: Ref<HTMLElement>,
@@ -129,6 +131,7 @@ export const PostCard = forwardRef(function PostCard(
         </CardImage>
       )}
       <ActionButtons
+        additionalInteractionButton={additionalInteractionButton}
         post={post}
         onUpvoteClick={onUpvoteClick}
         onCommentClick={onCommentClick}

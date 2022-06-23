@@ -22,15 +22,15 @@ import {
 } from '../hooks/useToastNotification';
 import { generateQueryKey } from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
-import { OnShareProps } from './post/PostActions';
+import { OnShareOrBookmarkProps } from './post/PostActions';
 import BookmarkIcon from './icons/Bookmark';
+import { AdditionalInteractionButtons } from '../lib/featureManagement';
 
 const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
   ssr: false,
 });
 
-interface PostOptionsMenuProps extends OnShareProps {
-  onBookmark?: any;
+interface PostOptionsMenuProps extends OnShareOrBookmarkProps {
   postIndex?: number;
   post: Post;
   feedName?: string;
@@ -49,6 +49,7 @@ type ReportPostAsync = (
 ) => Promise<unknown>;
 
 export default function PostOptionsMenu({
+  additionalInteractionButton,
   onShare,
   onBookmark,
   postIndex,
@@ -188,21 +189,26 @@ export default function PostOptionsMenu({
       action: onHidePost,
     },
     {
-      icon: <MenuIcon filled={post?.bookmarked} Icon={BookmarkIcon} />,
-      text: `${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`,
-      action: onBookmark,
-    },
-    {
-      icon: <MenuIcon Icon={ForwardIcon} />,
-      text: 'Share article via...',
-      action: onShare,
-    },
-    {
       icon: <MenuIcon Icon={BlockIcon} />,
       text: `Don't show articles from ${post?.source?.name}`,
       action: onBlockSource,
     },
   ];
+
+  if (additionalInteractionButton === AdditionalInteractionButtons.Bookmark) {
+    postOptions.splice(1, 0, {
+      icon: <MenuIcon Icon={ForwardIcon} />,
+      text: 'Share article via...',
+      action: onShare,
+    });
+  } else {
+    postOptions.splice(1, 0, {
+      icon: <MenuIcon filled={post?.bookmarked} Icon={BookmarkIcon} />,
+      text: `${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`,
+      action: onBookmark,
+    });
+  }
+
   post?.tags?.forEach((tag) => {
     if (tag.length) {
       postOptions.push({

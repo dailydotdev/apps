@@ -1,5 +1,10 @@
 import { IFlags } from 'flagsmith';
 
+export enum AdditionalInteractionButtons {
+  Bookmark = 'bookmark',
+  Share = 'share',
+}
+
 export class Features {
   static readonly SignupButtonCopy = new Features(
     'signup_button_copy',
@@ -116,6 +121,12 @@ export class Features {
     'my_feed_onboarding_version',
     'control',
     ['control', 'v1', 'v2', 'v3'],
+  );
+
+  static readonly AdditionalInteractionButton = new Features(
+    'additional_interaction_button',
+    AdditionalInteractionButtons.Share,
+    [AdditionalInteractionButtons.Bookmark, AdditionalInteractionButtons.Share],
   );
 
   private constructor(

@@ -47,6 +47,9 @@ import SharePostModal from '../modals/SharePostModal';
 import { postEventName } from '../utilities';
 import useBookmarkPost from '../../hooks/useBookmarkPost';
 import useUpdatePost from '../../hooks/useUpdatePost';
+import { useSharePost } from '../../hooks/useSharePost';
+import { Features, getFeatureValue } from '../../lib/featureManagement';
+import FeaturesContext from '../../contexts/FeaturesContext';
 
 const UpvotedPopupModal = dynamic(() => import('../modals/UpvotedPopupModal'));
 const NewCommentModal = dynamic(() => import('../modals/NewCommentModal'));
@@ -150,6 +153,8 @@ export function PostContent({
   );
 
   const analyticsOrigin = isModal ? 'article page' : 'article modal';
+  const { sharePost, openSharePost, closeSharePost } =
+    useSharePost(analyticsOrigin);
 
   useEffect(() => {
     if (!postById?.post) {
@@ -180,6 +185,12 @@ export function PostContent({
     return <Custom404 />;
   }
 
+  const { flags } = useContext(FeaturesContext);
+  const additionalInteractionButton = getFeatureValue(
+    Features.AdditionalInteractionButton,
+    flags,
+  );
+
   const onLinkClick = async () => {
     trackEvent(
       postAnalyticsEvent('click', postById.post, {
@@ -196,10 +207,6 @@ export function PostContent({
     onClick: onLinkClick,
     onMouseUp: (event: React.MouseEvent) => event.button === 1 && onLinkClick(),
   };
-
-  const [shareModal, setShareModal] = useState<{
-    post?: Post;
-  }>();
 
   const isFixed = position === 'fixed';
   const padding = isFixed ? 'py-4' : 'pt-6';
@@ -304,8 +311,9 @@ export function PostContent({
           }
         />
         <PostActions
+          additionalInteractionButton={additionalInteractionButton}
           onBookmark={toggleBookmark}
-          onShare={() => setShareModal({ post: postById.post })}
+          onShare={() => openSharePost(postById.post)}
           post={postById.post}
           postQueryKey={postQueryKey}
           onComment={() => openNewComment('comment button')}
@@ -326,8 +334,9 @@ export function PostContent({
         />
       </PostContainer>
       <PostWidgets
+        additionalInteractionButton={additionalInteractionButton}
         onBookmark={toggleBookmark}
-        onShare={() => setShareModal({ post: postById.post })}
+        onShare={() => openSharePost(postById.post)}
         post={postById.post}
         isNavigationFixed={hasNavigation && isFixed}
         className="pb-20"
@@ -356,11 +365,11 @@ export function PostContent({
           onRequestClose={() => onShowShareNewComment(false)}
         />
       )}
-      {shareModal && (
+      {sharePost && (
         <SharePostModal
-          isOpen={!!shareModal}
+          isOpen={!!sharePost}
           post={postById.post}
-          onRequestClose={() => setShareModal(null)}
+          onRequestClose={closeSharePost}
         />
       )}
     </Wrapper>

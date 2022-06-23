@@ -33,6 +33,7 @@ export const PostList = forwardRef(function PostList(
     openNewTab,
     enableMenu,
     menuOpened,
+    additionalInteractionButton,
     className,
     children,
     ...props
@@ -75,6 +76,7 @@ export const PostList = forwardRef(function PostList(
           />
         </PostMetadata>
         <ActionButtons
+          additionalInteractionButton={additionalInteractionButton}
           post={post}
           onUpvoteClick={onUpvoteClick}
           onCommentClick={onCommentClick}

@@ -11,6 +11,7 @@ import CommentIcon from '../icons/Discuss';
 import BookmarkIcon from '../icons/Bookmark';
 import { Button } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
+import { AdditionalInteractionButtons } from '../../lib/featureManagement';
 
 const ShareIcon = dynamic(() => import('../icons/Forward'));
 
@@ -23,6 +24,7 @@ export type ActionButtonsProps = {
   onShare?: (post: Post) => unknown;
   className?: string;
   children?: ReactNode;
+  additionalInteractionButton?: string;
 };
 
 export default function ActionButtons({
@@ -32,6 +34,7 @@ export default function ActionButtons({
   onCommentClick,
   onBookmarkClick,
   onShare,
+  additionalInteractionButton,
   className,
   children,
 }: ActionButtonsProps): ReactElement {
@@ -71,22 +74,25 @@ export default function ActionButtons({
           />
         </QuaternaryButton>
       </SimpleTooltip>
-      <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
-        <Button
-          icon={<BookmarkIcon filled={post.bookmarked} size="medium" />}
-          buttonSize="small"
-          pressed={post.bookmarked}
-          onClick={() => onBookmarkClick?.(post, !post.bookmarked)}
-          className="btn-tertiary-bun"
-        />
-      </SimpleTooltip>
-      {showShare && (
+      {additionalInteractionButton === AdditionalInteractionButtons.Bookmark ? (
+        <SimpleTooltip
+          content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}
+        >
+          <Button
+            icon={<BookmarkIcon filled={post.bookmarked} size="medium" />}
+            buttonSize="small"
+            pressed={post.bookmarked}
+            onClick={() => onBookmarkClick?.(post, !post.bookmarked)}
+            className="btn-tertiary-bun"
+          />
+        </SimpleTooltip>
+      ) : (
         <SimpleTooltip content="Share post">
           <Button
             icon={<ShareIcon />}
             buttonSize="small"
             onClick={() => onShare?.(post)}
-            className="btn-tertiary"
+            className="btn-tertiary-cabbage"
           />
         </SimpleTooltip>
       )}

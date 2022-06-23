@@ -22,9 +22,9 @@ import PostOptionsMenu from '../PostOptionsMenu';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../../lib/feed';
 import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
-import { OnShareProps } from './PostActions';
+import { OnShareOrBookmarkProps } from './PostActions';
 
-export interface PostModalActionsProps extends OnShareProps {
+export interface PostModalActionsProps extends OnShareOrBookmarkProps {
   post: Post;
   onClose?: MouseEventHandler | KeyboardEventHandler;
   className?: string;
@@ -41,6 +41,7 @@ const BanPostModal = dynamic(() => import('../modals/BanPostModal'));
 const DeletePostModal = dynamic(() => import('../modals/DeletePostModal'));
 
 export function PostModalActions({
+  additionalInteractionButton,
   onShare,
   onBookmark,
   post,
@@ -103,6 +104,7 @@ export function PostModalActions({
         </SimpleTooltip>
       )}
       <PostOptionsMenu
+        additionalInteractionButton={additionalInteractionButton}
         onBookmark={onBookmark}
         onShare={onShare}
         post={post}

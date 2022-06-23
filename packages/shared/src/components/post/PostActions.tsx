@@ -1,9 +1,9 @@
 import React, { ReactElement, useContext } from 'react';
-import { QueryClient, useQueryClient, QueryKey } from 'react-query';
+import { QueryKey } from 'react-query';
 import UpvoteIcon from '../icons/Upvote';
 import CommentIcon from '../icons/Discuss';
 import BookmarkIcon from '../icons/Bookmark';
-import { Post, PostData } from '../../graphql/posts';
+import { Post } from '../../graphql/posts';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import useUpvotePost from '../../hooks/useUpvotePost';
 import { postAnalyticsEvent } from '../../lib/feed';
@@ -12,13 +12,16 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
 import { postEventName } from '../utilities';
 import ForwardIcon from '../icons/Forward';
+import useUpdatePost from '../../hooks/useUpdatePost';
+import { AdditionalInteractionButtons } from '../../lib/featureManagement';
 
-export type OnShareProps = {
+export type OnShareOrBookmarkProps = {
+  additionalInteractionButton: string;
   onShare: () => void;
   onBookmark: () => void;
 };
 
-interface PostActionsProps extends OnShareProps {
+interface PostActionsProps extends OnShareOrBookmarkProps {
   post: Post;
   postQueryKey: QueryKey;
   actionsClassName?: string;
@@ -26,55 +29,27 @@ interface PostActionsProps extends OnShareProps {
   origin?: PostOrigin;
 }
 
-const updatePost =
-  (
-    queryClient: QueryClient,
-    postQueryKey: QueryKey,
-    update: (oldPost: PostData) => Partial<Post>,
-  ): (() => Promise<() => void>) =>
-  async () => {
-    await queryClient.cancelQueries(postQueryKey);
-    const oldPost = queryClient.getQueryData<PostData>(postQueryKey);
-    queryClient.setQueryData<PostData>(postQueryKey, {
-      post: {
-        ...oldPost.post,
-        ...update(oldPost),
-      },
-    });
-    return () => {
-      queryClient.setQueryData<PostData>(postQueryKey, oldPost);
-    };
-  };
-
-const onUpvoteMutation = (
-  queryClient: QueryClient,
-  postQueryKey: QueryKey,
-  upvoted: boolean,
-): (() => Promise<() => void>) =>
-  updatePost(queryClient, postQueryKey, (oldPost) => ({
-    upvoted,
-    numUpvotes: oldPost.post.numUpvotes + (upvoted ? 1 : -1),
-  }));
-
 export function PostActions({
+  additionalInteractionButton,
   onShare,
   onBookmark,
   post,
-  postQueryKey,
   actionsClassName = 'hidden mobileL:flex',
   onComment,
   origin = 'article page',
 }: PostActionsProps): ReactElement {
-  const queryClient = useQueryClient();
   const { trackEvent } = useContext(AnalyticsContext);
   const { user, showLogin } = useContext(AuthContext);
+  const { updatePost } = useUpdatePost();
   const { upvotePost, cancelPostUpvote } = useUpvotePost({
-    onUpvotePostMutate: onUpvoteMutation(queryClient, postQueryKey, true),
-    onCancelPostUpvoteMutate: onUpvoteMutation(
-      queryClient,
-      postQueryKey,
-      false,
-    ),
+    onUpvotePostMutate: updatePost({
+      id: post.id,
+      update: { upvoted: true, numUpvotes: post.numUpvotes + 1 },
+    }),
+    onCancelPostUpvoteMutate: updatePost({
+      id: post.id,
+      update: { upvoted: false, numUpvotes: post.numUpvotes + -1 },
+    }),
   });
 
   const toggleUpvote = () => {
@@ -125,25 +100,28 @@ export function PostActions({
       >
         Comment
       </QuaternaryButton>
-      <QuaternaryButton
-        id="bookmark-post-btn"
-        pressed={post.bookmarked}
-        onClick={onBookmark}
-        icon={<BookmarkIcon filled={post.bookmarked} />}
-        responsiveLabelClass={actionsClassName}
-        className="btn-tertiary-bun"
-      >
-        Bookmark
-      </QuaternaryButton>
-      <QuaternaryButton
-        id="share-post-btn"
-        onClick={onShare}
-        icon={<ForwardIcon />}
-        responsiveLabelClass={actionsClassName}
-        className="btn-tertiary-bun"
-      >
-        Share
-      </QuaternaryButton>
+      {additionalInteractionButton === AdditionalInteractionButtons.Bookmark ? (
+        <QuaternaryButton
+          id="bookmark-post-btn"
+          pressed={post.bookmarked}
+          onClick={onBookmark}
+          icon={<BookmarkIcon filled={post.bookmarked} />}
+          responsiveLabelClass={actionsClassName}
+          className="btn-tertiary-bun"
+        >
+          Bookmark
+        </QuaternaryButton>
+      ) : (
+        <QuaternaryButton
+          id="share-post-btn"
+          onClick={onShare}
+          icon={<ForwardIcon />}
+          responsiveLabelClass={actionsClassName}
+          className="btn-tertiary-cabbage"
+        >
+          Share
+        </QuaternaryButton>
+      )}
     </div>
   );
 }
