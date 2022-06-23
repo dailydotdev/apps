@@ -41,7 +41,6 @@ export type PostCardProps = {
   onCommentClick?: Callback;
   onBookmarkClick?: (post: Post, bookmarked: boolean) => unknown;
   onMenuClick?: (event: React.MouseEvent, post: Post) => unknown;
-  showShare?: boolean;
   onShare?: Callback;
   openNewTab?: boolean;
   enableMenu?: boolean;
@@ -58,7 +57,6 @@ export const PostCard = forwardRef(function PostCard(
     onCommentClick,
     onBookmarkClick,
     onMenuClick,
-    showShare,
     onShare,
     openNewTab,
     enableMenu,
@@ -136,7 +134,6 @@ export const PostCard = forwardRef(function PostCard(
         onUpvoteClick={onUpvoteClick}
         onCommentClick={onCommentClick}
         onBookmarkClick={onBookmarkClick}
-        showShare={showShare}
         onShare={onShare}
         className={classNames('justify-between mx-4', !showImage && 'mt-4')}
       />

@@ -8,3 +8,13 @@ export const getFacebookShareLink = (link: string): string =>
   `https://www.facebook.com/sharer/sharer.php?display=page&u=${encodeURIComponent(
     link,
   )}`;
+export const getRedditShareLink = (link: string, text: string): string =>
+  `https://reddit.com/submit?url=${encodeURIComponent(link)}&title=${text}`;
+export const getLinkedInShareLink = (link: string): string =>
+  `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+    link,
+  )}`;
+export const getTelegramShareLink = (link: string, text: string): string =>
+  `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${text}`;
+export const getEmailShareLink = (link: string, subject: string): string =>
+  `mailto:?subject=${subject}&body=${encodeURIComponent(link)}`;

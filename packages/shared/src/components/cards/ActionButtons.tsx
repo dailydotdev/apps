@@ -17,7 +17,6 @@ const ShareIcon = dynamic(() => import('../icons/Forward'));
 
 export type ActionButtonsProps = {
   post: Post;
-  showShare: boolean;
   onUpvoteClick?: (post: Post, upvoted: boolean) => unknown;
   onCommentClick?: (post: Post) => unknown;
   onBookmarkClick?: (post: Post, bookmarked: boolean) => unknown;
@@ -29,7 +28,6 @@ export type ActionButtonsProps = {
 
 export default function ActionButtons({
   post,
-  showShare,
   onUpvoteClick,
   onCommentClick,
   onBookmarkClick,

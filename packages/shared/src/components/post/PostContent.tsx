@@ -14,7 +14,6 @@ import {
   PostData,
   PostsEngaged,
   POSTS_ENGAGED_SUBSCRIPTION,
-  Post,
 } from '../../graphql/posts';
 import useSubscription from '../../hooks/useSubscription';
 import { postAnalyticsEvent } from '../../lib/feed';
@@ -59,7 +58,10 @@ const ShareNewCommentPopup = dynamic(() => import('../ShareNewCommentPopup'), {
 const Custom404 = dynamic(() => import('../Custom404'));
 
 export interface PostContentProps
-  extends Omit<PostModalActionsProps, 'post'>,
+  extends Omit<
+      PostModalActionsProps,
+      'post' | 'onShare' | 'onBookmark' | 'additionalInteractionButton'
+    >,
     Partial<Pick<PostNavigationProps, 'onPreviousPost' | 'onNextPost'>>,
     UsePostCommentOptionalProps {
   postById?: PostData;
@@ -264,6 +266,9 @@ export function PostContent({
           post={postById.post}
           onClose={onClose}
           isModal={isModal}
+          additionalInteractionButton={additionalInteractionButton}
+          onBookmark={toggleBookmark}
+          onShare={() => openSharePost(postById.post)}
         />
         <h1
           className="mt-6 font-bold break-words typo-large-title"

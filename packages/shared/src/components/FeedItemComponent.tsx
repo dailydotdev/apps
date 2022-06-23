@@ -143,7 +143,6 @@ export default function FeedItemComponent({
           onBookmarkClick={(post, bookmarked) =>
             onBookmark(post, index, row, column, bookmarked)
           }
-          showShare
           onShare={onShare}
           openNewTab={openNewTab}
           enableMenu={!!user}

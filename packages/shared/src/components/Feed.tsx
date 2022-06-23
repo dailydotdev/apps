@@ -4,7 +4,6 @@ import React, {
   ReactNode,
   useContext,
   useEffect,
-  useState,
 } from 'react';
 import classNames from 'classnames';
 import useFeed, { PostItem } from '../hooks/useFeed';
