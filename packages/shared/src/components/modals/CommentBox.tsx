@@ -103,7 +103,7 @@ function CommentBox({
 
   return (
     <>
-      <div className="overflow-auto" style={{ maxHeight: '31rem' }}>
+      <div className="overflow-auto max-h-[31rem]">
         <article
           className={classNames(
             'flex flex-col items-stretch',
