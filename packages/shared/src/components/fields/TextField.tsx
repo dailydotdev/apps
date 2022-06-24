@@ -10,7 +10,7 @@ import classNames from 'classnames';
 import { useInputField } from '../../hooks/useInputField';
 import { BaseField, FieldInput } from './common';
 import styles from './TextField.module.css';
-import { Button } from '../buttons/Button';
+import { Button, ButtonProps } from '../buttons/Button';
 import { IconProps } from '../Icon';
 
 type FieldType = 'primary' | 'secondary' | 'tertiary';
@@ -25,6 +25,7 @@ export interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   valueChanged?: (value: string) => void;
   fieldType?: FieldType;
   leftIcon?: ReactNode;
+  actionButtonProps?: ButtonProps<'button'>;
   actionIcon?: React.ReactElement<IconProps>;
   onActionIconClick?: () => unknown;
 }
@@ -77,6 +78,7 @@ export function TextField({
   readOnly,
   leftIcon,
   actionIcon,
+  actionButtonProps = {},
   onActionIconClick,
   disabled,
   ...props
@@ -256,6 +258,7 @@ export function TextField({
             className="btn-tertiary"
             onClick={onActionIconClick}
             icon={actionIcon}
+            {...actionButtonProps}
           />
         )}
       </BaseField>
