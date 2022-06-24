@@ -61,20 +61,6 @@ it('should show profile image', () => {
   expect(el).toHaveAttribute('data-src', defaultUser.image);
 });
 
-it('should disable submit when form is invalid', async () => {
-  renderComponent({ username: null });
-  // eslint-disable-next-line testing-library/no-node-access
-  const el = screen.getByText('Save changes').parentElement;
-  expect(el).toBeDisabled();
-});
-
-it('should enable submit when form is valid', () => {
-  renderComponent({ username: 'idoshamun' });
-  // eslint-disable-next-line testing-library/no-node-access
-  const el = screen.getByText('Save changes').parentElement;
-  expect(el).toBeEnabled();
-});
-
 it('should submit information on button click', async () => {
   renderComponent({ username: 'idoshamun' });
   mocked(updateProfile).mockResolvedValue(defaultUser);
