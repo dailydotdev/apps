@@ -11,8 +11,8 @@ import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import BookmarkIcon from '@dailydotdev/shared/src/components/icons/Bookmark';
-import { AdditionalInteractionButtons } from '@dailydotdev/shared/src/lib/featureManagement';
 import { OnShareOrBookmarkProps } from '@dailydotdev/shared/src/components/post/PostActions';
+import { AdditionalInteractionButtons } from '@dailydotdev/shared/src/lib/featureValues';
 import { getCompanionWrapper } from './common';
 import DisableCompanionModal from './DisableCompanionModal';
 

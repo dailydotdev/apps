@@ -13,7 +13,7 @@ import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
 import { postEventName } from '../utilities';
 import ForwardIcon from '../icons/Forward';
 import useUpdatePost from '../../hooks/useUpdatePost';
-import { AdditionalInteractionButtons } from '../../lib/featureManagement';
+import { AdditionalInteractionButtons } from '../../lib/featureValues';
 
 export type OnShareOrBookmarkProps = {
   additionalInteractionButton: string;

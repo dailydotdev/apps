@@ -1,9 +1,5 @@
 import { IFlags } from 'flagsmith';
-
-export enum AdditionalInteractionButtons {
-  Bookmark = 'bookmark',
-  Share = 'share',
-}
+import { AdditionalInteractionButtons } from './featureValues';
 
 export class Features {
   static readonly SignupButtonCopy = new Features(

@@ -24,7 +24,7 @@ import { generateQueryKey } from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
 import { OnShareOrBookmarkProps } from './post/PostActions';
 import BookmarkIcon from './icons/Bookmark';
-import { AdditionalInteractionButtons } from '../lib/featureManagement';
+import { AdditionalInteractionButtons } from '../lib/featureValues';
 
 const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
   ssr: false,

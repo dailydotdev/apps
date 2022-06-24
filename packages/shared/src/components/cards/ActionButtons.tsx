@@ -11,7 +11,7 @@ import CommentIcon from '../icons/Discuss';
 import BookmarkIcon from '../icons/Bookmark';
 import { Button } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import { AdditionalInteractionButtons } from '../../lib/featureManagement';
+import { AdditionalInteractionButtons } from '../../lib/featureValues';
 
 const ShareIcon = dynamic(() => import('../icons/Forward'));
 
@@ -77,7 +77,7 @@ export default function ActionButtons({
           content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}
         >
           <Button
-            icon={<BookmarkIcon filled={post.bookmarked} size="medium" />}
+            icon={<BookmarkIcon filled={post.bookmarked} />}
             buttonSize="small"
             pressed={post.bookmarked}
             onClick={() => onBookmarkClick?.(post, !post.bookmarked)}

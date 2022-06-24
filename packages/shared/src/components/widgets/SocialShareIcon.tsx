@@ -4,7 +4,7 @@ import { Button } from '../buttons/Button';
 
 interface SocialShareIconProps {
   href: string;
-  icon: React.ReactElement;
+  icon: ReactElement;
   className: string;
   label: string;
 }
