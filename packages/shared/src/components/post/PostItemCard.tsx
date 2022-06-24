@@ -7,8 +7,8 @@ import XIcon from '../icons/Close';
 import MenuIcon from '../icons/Menu';
 import classed from '../../lib/classed';
 import { Button } from '../buttons/Button';
-import { LazyImage } from '../LazyImage';
 import PostMetadata from '../cards/PostMetadata';
+import { ProfilePicture } from '../ProfilePicture';
 
 interface PostItemCardProps {
   className?: string;
@@ -55,18 +55,22 @@ export default function PostItemCard({
           className,
         )}
       >
-        <LazyImage
-          imgSrc={post.image}
-          imgAlt={post.title}
+        <img
+          src={post.image}
+          alt={post.title}
           className="w-16 laptop:w-24 h-16 rounded-16"
-          fallbackSrc="https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1"
+          loading="lazy"
         />
         <SourceShadow />
-        <LazyImage
-          imgSrc={post.source?.image}
-          imgAlt={`source of ${post.title}`}
-          className="left-6 w-6 h-6 rounded-full"
-          absolute
+        <ProfilePicture
+          size="small"
+          rounded="full"
+          className="absolute left-6"
+          user={{
+            image: post.source?.image,
+            username: `source of ${post.title}`,
+          }}
+          nativeLazyLoading
         />
         <h3 className="flex flex-wrap flex-1 mr-6 ml-4 line-clamp-3 typo-callout">
           {post.title}

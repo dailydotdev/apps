@@ -42,7 +42,6 @@ import {
   ToastSubject,
   useToastNotification,
 } from '../../hooks/useToastNotification';
-import SharePostModal from '../modals/SharePostModal';
 import { postEventName } from '../utilities';
 import useBookmarkPost from '../../hooks/useBookmarkPost';
 import useUpdatePost from '../../hooks/useUpdatePost';
@@ -55,6 +54,7 @@ const NewCommentModal = dynamic(() => import('../modals/NewCommentModal'));
 const ShareNewCommentPopup = dynamic(() => import('../ShareNewCommentPopup'), {
   ssr: false,
 });
+const SharePostModal = dynamic(() => import('../modals/SharePostModal'));
 const Custom404 = dynamic(() => import('../Custom404'));
 
 export interface PostContentProps

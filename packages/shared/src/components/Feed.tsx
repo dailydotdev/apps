@@ -6,6 +6,7 @@ import React, {
   useEffect,
 } from 'react';
 import classNames from 'classnames';
+import dynamic from 'next/dynamic';
 import useFeed, { PostItem } from '../hooks/useFeed';
 import { Ad, Post } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
@@ -30,13 +31,11 @@ import {
   postAnalyticsEvent,
 } from '../lib/feed';
 import PostOptionsMenu from './PostOptionsMenu';
-import { PostModal } from './modals/PostModal';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
 import {
   ToastSubject,
   useToastNotification,
 } from '../hooks/useToastNotification';
-import SharePostModal from './modals/SharePostModal';
 import { useSharePost } from '../hooks/useSharePost';
 import FeaturesContext from '../contexts/FeaturesContext';
 import { Features, getFeatureValue } from '../lib/featureManagement';
@@ -55,6 +54,9 @@ export type FeedProps<T> = {
 interface RankVariables {
   ranking?: string;
 }
+
+const SharePostModal = dynamic(() => import('./modals/SharePostModal'));
+const PostModal = dynamic(() => import('./modals/PostModal'));
 
 const listGaps = {
   cozy: 'gap-5',
