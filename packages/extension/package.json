@@ -63,7 +63,7 @@
     "@types/nock": "^11.1.0",
     "@types/node": "^16.11.41",
     "@types/node-fetch": "^2.6.1",
-    "@types/react": "^17.0.44",
+    "@types/react": "^17.0.47",
     "@types/react-modal": "^3.13.1",
     "@types/react-transition-group": "^4.4.4",
     "@types/webpack": "^4.41.31",
