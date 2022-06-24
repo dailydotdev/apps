@@ -1,4 +1,4 @@
-import React, { CSSProperties, ReactElement } from 'react';
+import React, { CSSProperties, ReactElement, useState } from 'react';
 import classNames from 'classnames';
 import { Button, IconType } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
@@ -10,6 +10,8 @@ import GoogleIcon from '../../../icons/google_color.svg';
 import GitHubIcon from '../../../icons/github.svg';
 import AppleIcon from '../../../icons/apple.svg';
 import { ClickableText } from '../buttons/ClickableText';
+import ArrowIcon from '../icons/Arrow';
+import { ColumnContainer } from './common';
 
 interface AuthProvidersProps {
   className?: string;
@@ -54,13 +56,30 @@ const providers: Provider[] = [
 export const AuthProviders = ({
   className,
 }: AuthProvidersProps): ReactElement => {
+  const [shouldLogin, setShouldLogin] = useState(false);
+
+  const onLogin = () => {};
+
+  const onEmailCheck = () => {
+    setShouldLogin(true);
+  };
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!shouldLogin) {
+      return onEmailCheck();
+    }
+
+    return onLogin();
+  };
+
   return (
     <div className={classNames(className, 'flex flex-col w-full')}>
       <header className="flex flex-row justify-between items-center py-4 px-6 border-b border-theme-divider-tertiary">
         <h3>Sign up to daily.dev</h3>
         <Button icon={<CloseIcon />} buttonSize="small" />
       </header>
-      <div className="grid grid-cols-1 gap-4 self-center px-12 mx-3 mt-6 w-full">
+      <ColumnContainer>
         {providers.map(({ icon, title, style }) => (
           <Button
             key={title}
@@ -81,20 +100,47 @@ export const AuthProviders = ({
           <span className="absolute top-1/2 z-0 w-full h-px bg-theme-divider-tertiary" />
           <div className="z-1 px-3 bg-theme-bg-tertiary">or</div>
         </div>
-        <TextField
-          leftIcon={<MailIcon />}
-          inputId="email"
-          label="Email"
-          type="email"
-        />
+        <form onSubmit={onSubmit} className="grid grid-cols-1 gap-2">
+          <TextField
+            leftIcon={<MailIcon />}
+            inputId="email"
+            label="Email"
+            type="email"
+            actionButtonProps={{ type: 'submit' }}
+            actionIcon={!shouldLogin && <ArrowIcon className="rotate-90" />}
+          />
+          <p className="ml-2 text-theme-label-quaternary typo-caption1">
+            Enter your password to login
+          </p>
+          <TextField
+            leftIcon={<MailIcon />}
+            inputId="password"
+            label="Password"
+            type="password"
+          />
+          <span className="flex flex-row mt-5 w-full">
+            <ClickableText className="flex-1 btn-primary">
+              Forgot password?
+            </ClickableText>
+            <Button
+              className="flex-1 btn-primary bg-theme-color-cabbage text-theme-label-primary"
+              type="submit"
+            >
+              Login
+            </Button>
+          </span>
+        </form>
         <p className="text-center text-theme-label-quaternary typo-caption1">
           By signing in I accept the Terms of Service and the Privacy Policy.
         </p>
-      </div>
-      <div className="flex justify-center py-3 mt-auto border-t border-theme-divider-tertiary typo-callout text-theme-label-tertiary">
-        Already a member?
-        <ClickableText className="ml-1 text-theme-label-primary">
-          Login
+      </ColumnContainer>
+      <div className="flex justify-center py-3 mt-6 border-t border-theme-divider-tertiary typo-callout text-theme-label-tertiary">
+        {shouldLogin ? 'Not yet a member?' : 'Already a member?'}
+        <ClickableText
+          className="ml-1 text-theme-label-primary"
+          onClick={() => setShouldLogin(!shouldLogin)}
+        >
+          {shouldLogin ? 'Register' : 'Login'}
         </ClickableText>
       </div>
     </div>
