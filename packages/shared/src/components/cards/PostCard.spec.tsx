@@ -49,7 +49,7 @@ const defaultPost: Post = {
 
 const defaultProps: PostCardProps = {
   post: defaultPost,
-  additionalInteractionButton: AdditionalInteractionButtons.Bookmark,
+  additionalInteractionButtonFeature: AdditionalInteractionButtons.Bookmark,
   onLinkClick: jest.fn(),
   onUpvoteClick: jest.fn(),
   onCommentClick: jest.fn(),
@@ -112,7 +112,7 @@ it('should call on bookmark click on bookmark button click', async () => {
 
 it('should call on share click on share button click', async () => {
   renderComponent({
-    additionalInteractionButton: AdditionalInteractionButtons.Share,
+    additionalInteractionButtonFeature: AdditionalInteractionButtons.Share,
   });
   const el = await screen.findByLabelText('Share post');
   el.click();
