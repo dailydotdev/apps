@@ -34,7 +34,6 @@ export default function AccountDetailsModal({
 
   const [showDeleteAccount, setShowDeleteAccount] = useState(false);
   const [deletedAccount, setDeletedAccount] = useState(false);
-  const [disableSubmit, setDisableSubmit] = useState<boolean>(false);
 
   return (
     <>
@@ -52,7 +51,6 @@ export default function AccountDetailsModal({
           <Button
             buttonSize="small"
             type="submit"
-            disabled={disableSubmit}
             form="profileForm"
             className="btn-primary"
           >
@@ -64,7 +62,6 @@ export default function AccountDetailsModal({
           <EditImageWithJoinedDate user={user} />
           <ProfileForm
             id="profileForm"
-            setDisableSubmit={setDisableSubmit}
             onSuccessfulSubmit={() => props.onRequestClose(null)}
             mode="update"
           />

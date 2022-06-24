@@ -25,7 +25,6 @@ import MainLayout from '../components/layouts/MainLayout';
 export default function Register(): ReactElement {
   const { user, logout } = useContext(AuthContext);
   const router = useRouter();
-  const [disableSubmit, setDisableSubmit] = useState<boolean>(true);
   const { trackEvent } = useContext(AnalyticsContext);
   const { flags } = useContext(FeaturesContext);
 
@@ -70,7 +69,6 @@ export default function Register(): ReactElement {
             )}
             <ProfileForm
               id="profileForm"
-              setDisableSubmit={setDisableSubmit}
               onSuccessfulSubmit={onSuccessfulSubmit}
               mode={(router?.query.mode as RegistrationMode) || 'default'}
             />
@@ -78,7 +76,6 @@ export default function Register(): ReactElement {
               <Button
                 className="flex-1 btn-primary"
                 type="submit"
-                disabled={disableSubmit}
                 form="profileForm"
               >
                 {getSignupModalFeatureValue(Features.SignupSubmitButtonCopy)}

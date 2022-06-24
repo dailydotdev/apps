@@ -30,7 +30,6 @@ const timeZoneValues = timeZoneOptions.map((timeZone) => timeZone.label);
 export type RegistrationMode = 'default' | 'author' | 'update';
 
 export interface ProfileFormProps extends HTMLAttributes<HTMLFormElement> {
-  setDisableSubmit?: (disable: boolean) => void;
   onSuccessfulSubmit?: (optionalFields: boolean) => void | Promise<void>;
   mode?: RegistrationMode;
 }
@@ -46,7 +45,6 @@ const FormSwitch = classed(Switch, 'my-3', styles.formSwitch);
 const defaultEmailHint = 'Not publicly shared';
 
 export default function ProfileForm({
-  setDisableSubmit,
   onSuccessfulSubmit,
   mode,
   className,
@@ -68,24 +66,16 @@ export default function ProfileForm({
   const [emailHint, setEmailHint] = useState(defaultEmailHint);
   const { flags } = useContext(FeaturesContext);
 
-  const updateDisableSubmit = () => {
-    if (formRef.current) {
-      setDisableSubmit?.(!formRef.current.checkValidity());
-    }
-  };
-
   const usernameValidityUpdated = (valid: boolean) => {
     if (!valid && !usernameHint) {
       setUsernameHint('Username can only contain letters, numbers and _');
     }
-    updateDisableSubmit();
   };
 
   const emailValidityUpdated = (valid: boolean) => {
     if (!valid && emailHint === defaultEmailHint) {
       setEmailHint('Must be a valid email');
     }
-    updateDisableSubmit();
   };
 
   const timezoneUpdated = (timezone: string) => {
@@ -97,37 +87,38 @@ export default function ProfileForm({
 
   const onSubmit = async (event: FormEvent): Promise<void> => {
     event.preventDefault();
-    setDisableSubmit?.(true);
-    const data = formToJson<UserProfile>(formRef.current, {
-      name: '',
-      email: '',
-      username: '',
-      timezone: userTimeZone,
-    });
 
-    const res = await updateProfile(data);
-    if ('error' in res) {
-      if ('code' in res && res.code === 1) {
-        if (res.field === 'email') {
-          setEmailHint('This email is already used');
-        } else if (res.field === 'username') {
-          setUsernameHint('This username is already taken');
-        } else if (res.field === 'twitter') {
-          setTwitterHint('This Twitter handle is already used');
-        } else if (res.field === 'github') {
-          setGithubHint('This GitHub handle is already used');
-        } else if (res.field === 'hashnode') {
-          setGithubHint('This Hashnode handle is already used');
+    if (formRef.current.checkValidity()) {
+      const data = formToJson<UserProfile>(formRef.current, {
+        name: '',
+        email: '',
+        username: '',
+        timezone: userTimeZone,
+      });
+
+      const res = await updateProfile(data);
+      if ('error' in res) {
+        if ('code' in res && res.code === 1) {
+          if (res.field === 'email') {
+            setEmailHint('This email is already used');
+          } else if (res.field === 'username') {
+            setUsernameHint('This username is already taken');
+          } else if (res.field === 'twitter') {
+            setTwitterHint('This Twitter handle is already used');
+          } else if (res.field === 'github') {
+            setGithubHint('This GitHub handle is already used');
+          } else if (res.field === 'hashnode') {
+            setGithubHint('This Hashnode handle is already used');
+          }
         }
-      }
-    } else {
-      await updateUser({ ...user, ...res });
-      setDisableSubmit?.(false);
-      const filledFields = Object.keys(data).filter(
-        (key) => data[key] !== undefined && data[key] !== null,
-      );
+      } else {
+        await updateUser({ ...user, ...res });
+        const filledFields = Object.keys(data).filter(
+          (key) => data[key] !== undefined && data[key] !== null,
+        );
 
-      onSuccessfulSubmit?.(filledFields.length > REQUIRED_FIELDS_COUNT);
+        onSuccessfulSubmit?.(filledFields.length > REQUIRED_FIELDS_COUNT);
+      }
     }
   };
 
@@ -143,7 +134,6 @@ export default function ProfileForm({
       placeholder="handle"
       pattern="^@?(\w){1,15}$"
       maxLength={15}
-      validityChanged={updateDisableSubmit}
       valueChanged={() => twitterHint && setTwitterHint(null)}
       required={mode === 'author'}
     />
@@ -159,7 +149,6 @@ export default function ProfileForm({
         label="Bio"
         value={user.bio}
         maxLength={160}
-        validityChanged={updateDisableSubmit}
       />
       <FormField
         fieldType="secondary"
@@ -168,7 +157,6 @@ export default function ProfileForm({
         label="Company"
         value={user.company}
         maxLength={50}
-        validityChanged={updateDisableSubmit}
       />
       <FormField
         fieldType="secondary"
@@ -177,7 +165,6 @@ export default function ProfileForm({
         label="Job title"
         value={user.title}
         maxLength={50}
-        validityChanged={updateDisableSubmit}
       />
       <SectionHeading>Social</SectionHeading>
       {mode !== 'author' && twitterField}
@@ -192,7 +179,6 @@ export default function ProfileForm({
         placeholder="handle"
         pattern="^@?([\w-]){1,39}$"
         maxLength={39}
-        validityChanged={updateDisableSubmit}
         valueChanged={() => githubHint && setGithubHint(null)}
       />
       <FormField
@@ -206,7 +192,6 @@ export default function ProfileForm({
         placeholder="handle"
         pattern="^@?([\w-]){1,39}$"
         maxLength={39}
-        validityChanged={updateDisableSubmit}
         valueChanged={() => hashnodeHint && setHashnodeHint(null)}
       />
       <FormField
@@ -216,7 +201,6 @@ export default function ProfileForm({
         label="Website"
         type="url"
         value={user.portfolio}
-        validityChanged={updateDisableSubmit}
       />
     </>
   );
@@ -248,7 +232,6 @@ export default function ProfileForm({
         required
         maxLength={50}
         pattern="^\w(.*)?"
-        validityChanged={updateDisableSubmit}
       />
       <FormField
         fieldType="secondary"
