@@ -28,6 +28,7 @@ export interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   actionButtonProps?: ButtonProps<'button'>;
   actionIcon?: React.ReactElement<IconProps>;
   onActionIconClick?: () => unknown;
+  rightIcon?: ReactNode;
 }
 
 interface InputFontColorProps {
@@ -81,6 +82,7 @@ export function TextField({
   actionButtonProps = {},
   onActionIconClick,
   disabled,
+  rightIcon,
   ...props
 }: TextFieldProps): ReactElement {
   const {
@@ -252,6 +254,7 @@ export function TextField({
             {maxLength - inputLength}
           </div>
         )}
+        {rightIcon}
         {actionIcon && (
           <Button
             buttonSize="small"
