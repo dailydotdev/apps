@@ -46,7 +46,7 @@ export type PostCardProps = {
   enableMenu?: boolean;
   menuOpened?: boolean;
   showImage?: boolean;
-  additionalInteractionButton?: string;
+  additionalInteractionButtonFeature?: string;
 } & HTMLAttributes<HTMLDivElement>;
 
 export const PostCard = forwardRef(function PostCard(

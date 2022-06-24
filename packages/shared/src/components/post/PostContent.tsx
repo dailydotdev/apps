@@ -60,7 +60,7 @@ const Custom404 = dynamic(() => import('../Custom404'));
 export interface PostContentProps
   extends Omit<
       PostModalActionsProps,
-      'post' | 'onShare' | 'onBookmark' | 'additionalInteractionButton'
+      'post' | 'onShare' | 'onBookmark' | 'additionalInteractionButtonFeature'
     >,
     Partial<Pick<PostNavigationProps, 'onPreviousPost' | 'onNextPost'>>,
     UsePostCommentOptionalProps {
