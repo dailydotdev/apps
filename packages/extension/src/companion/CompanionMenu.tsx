@@ -25,6 +25,7 @@ import {
   Features,
   getFeatureValue,
 } from '@dailydotdev/shared/src/lib/featureManagement';
+import { AdditionalInteractionButtons } from '@dailydotdev/shared/src/lib/featureValues';
 import NewCommentModal from '@dailydotdev/shared/src/components/modals/NewCommentModal';
 import SharePostModal from '@dailydotdev/shared/src/components/modals/SharePostModal';
 import CompanionContextMenu from './CompanionContextMenu';
@@ -32,7 +33,6 @@ import '@dailydotdev/shared/src/styles/globals.css';
 import { CompanionHelper, getCompanionWrapper } from './common';
 import useCompanionActions from './useCompanionActions';
 import { useCompanionPostComment } from './useCompanionPostComment';
-import { AdditionalInteractionButtons } from '@dailydotdev/shared/src/lib/featureValues';
 
 if (!isTesting) {
   Modal.setAppElement('daily-companion-app');
