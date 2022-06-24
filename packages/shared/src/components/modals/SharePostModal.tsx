@@ -39,6 +39,7 @@ const SocialShareIcon = ({
     <div className="flex flex-col items-center mr-4 mb-4">
       <Button
         tag="a"
+        data-testid={`social-share-${label}`}
         buttonSize="large"
         href={href}
         target="_blank"
@@ -80,9 +81,9 @@ export default function SharePostModal({
         <p className="py-2.5 font-bold typo-callout">Copy article link</p>
         <TextField
           className="mt-2 mb-6"
-          name="rssUrl"
-          inputId="rssUrl"
-          label="Your unique RSS URL"
+          name="postUrl"
+          inputId="postUrl"
+          label="Copy post URL"
           type="url"
           fieldType="tertiary"
           actionIcon={<CopyIcon />}

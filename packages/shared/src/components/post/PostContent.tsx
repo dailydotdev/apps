@@ -127,11 +127,24 @@ export function PostContent({
     onShowUpvotedComment,
   } = useUpvoteQuery();
   const { user, showLogin } = useContext(AuthContext);
+  const { flags } = useContext(FeaturesContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
   const queryClient = useQueryClient();
   const postQueryKey = ['post', id];
+  const analyticsOrigin = isModal ? 'article page' : 'article modal';
+  const additionalInteractionButton = getFeatureValue(
+    Features.AdditionalInteractionButton,
+    flags,
+  );
   const { subject } = useToastNotification();
+  const { sharePost, openSharePost, closeSharePost } =
+    useSharePost(analyticsOrigin);
+  const { updatePost } = useUpdatePost();
+  const { bookmark, removeBookmark } = useBookmarkPost({
+    onBookmarkMutate: updatePost({ id, update: { bookmarked: true } }),
+    onRemoveBookmarkMutate: updatePost({ id, update: { bookmarked: false } }),
+  });
 
   useSubscription(
     () => ({
@@ -153,10 +166,6 @@ export function PostContent({
       },
     },
   );
-
-  const analyticsOrigin = isModal ? 'article page' : 'article modal';
-  const { sharePost, openSharePost, closeSharePost } =
-    useSharePost(analyticsOrigin);
 
   useEffect(() => {
     if (!postById?.post) {
@@ -187,12 +196,6 @@ export function PostContent({
     return <Custom404 />;
   }
 
-  const { flags } = useContext(FeaturesContext);
-  const additionalInteractionButton = getFeatureValue(
-    Features.AdditionalInteractionButton,
-    flags,
-  );
-
   const onLinkClick = async () => {
     trackEvent(
       postAnalyticsEvent('click', postById.post, {
@@ -212,12 +215,6 @@ export function PostContent({
 
   const isFixed = position === 'fixed';
   const padding = isFixed ? 'py-4' : 'pt-6';
-
-  const { updatePost } = useUpdatePost();
-  const { bookmark, removeBookmark } = useBookmarkPost({
-    onBookmarkMutate: updatePost({ id, update: { bookmarked: true } }),
-    onRemoveBookmarkMutate: updatePost({ id, update: { bookmarked: false } }),
-  });
 
   const toggleBookmark = async (): Promise<void> => {
     if (!user) {
