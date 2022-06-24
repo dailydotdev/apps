@@ -71,7 +71,7 @@ export type FeedItemComponentProps = {
     column: number,
   ) => unknown;
   onAdClick: (ad: Ad, index: number, row: number, column: number) => void;
-  additionalInteractionButton: string;
+  additionalInteractionButtonFeature: string;
 };
 
 export function getFeedItemKey(items: FeedItem[], index: number): string {
@@ -110,7 +110,7 @@ export default function FeedItemComponent({
   onMenuClick,
   onCommentClick,
   onAdClick,
-  additionalInteractionButton,
+  additionalInteractionButtonFeature,
 }: FeedItemComponentProps): ReactElement {
   const PostTag = useList ? PostList : PostCard;
   const AdTag = useList ? AdList : AdCard;
@@ -130,7 +130,9 @@ export default function FeedItemComponent({
     case 'post':
       return (
         <PostTag
-          additionalInteractionButton={additionalInteractionButton}
+          additionalInteractionButtonFeature={
+            additionalInteractionButtonFeature
+          }
           ref={inViewRef}
           post={{
             ...item.post,

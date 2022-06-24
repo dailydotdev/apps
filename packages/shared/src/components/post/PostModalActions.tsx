@@ -41,7 +41,7 @@ const BanPostModal = dynamic(() => import('../modals/BanPostModal'));
 const DeletePostModal = dynamic(() => import('../modals/DeletePostModal'));
 
 export function PostModalActions({
-  additionalInteractionButton,
+  additionalInteractionButtonFeature,
   onShare,
   onBookmark,
   post,
@@ -104,7 +104,7 @@ export function PostModalActions({
         </SimpleTooltip>
       )}
       <PostOptionsMenu
-        additionalInteractionButton={additionalInteractionButton}
+        additionalInteractionButtonFeature={additionalInteractionButtonFeature}
         onBookmark={onBookmark}
         onShare={onShare}
         post={post}

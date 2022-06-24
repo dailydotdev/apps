@@ -16,7 +16,7 @@ import useUpdatePost from '../../hooks/useUpdatePost';
 import { AdditionalInteractionButtons } from '../../lib/featureValues';
 
 export type OnShareOrBookmarkProps = {
-  additionalInteractionButton: string;
+  additionalInteractionButtonFeature: string;
   onShare: () => void;
   onBookmark: () => void;
 };
@@ -30,7 +30,7 @@ interface PostActionsProps extends OnShareOrBookmarkProps {
 }
 
 export function PostActions({
-  additionalInteractionButton,
+  additionalInteractionButtonFeature,
   onShare,
   onBookmark,
   post,
@@ -100,7 +100,8 @@ export function PostActions({
       >
         Comment
       </QuaternaryButton>
-      {additionalInteractionButton === AdditionalInteractionButtons.Bookmark ? (
+      {additionalInteractionButtonFeature ===
+      AdditionalInteractionButtons.Bookmark ? (
         <QuaternaryButton
           id="bookmark-post-btn"
           pressed={post.bookmarked}

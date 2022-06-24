@@ -23,7 +23,7 @@ export type ActionButtonsProps = {
   onShare?: (post: Post) => unknown;
   className?: string;
   children?: ReactNode;
-  additionalInteractionButton?: string;
+  additionalInteractionButtonFeature?: string;
 };
 
 export default function ActionButtons({
@@ -32,7 +32,7 @@ export default function ActionButtons({
   onCommentClick,
   onBookmarkClick,
   onShare,
-  additionalInteractionButton,
+  additionalInteractionButtonFeature,
   className,
   children,
 }: ActionButtonsProps): ReactElement {
@@ -72,7 +72,8 @@ export default function ActionButtons({
           />
         </QuaternaryButton>
       </SimpleTooltip>
-      {additionalInteractionButton === AdditionalInteractionButtons.Bookmark ? (
+      {additionalInteractionButtonFeature ===
+      AdditionalInteractionButtons.Bookmark ? (
         <SimpleTooltip
           content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}
         >

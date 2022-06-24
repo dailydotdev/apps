@@ -18,7 +18,7 @@ import DisableCompanionModal from './DisableCompanionModal';
 
 interface CompanionContextMenuProps extends OnShareOrBookmarkProps {
   postData: PostBootData;
-  additionalInteractionButton: string;
+  additionalInteractionButtonFeature: string;
   onReport: (T) => void;
   onBlockSource: (T) => void;
   onDisableCompanion: () => void;
@@ -26,7 +26,7 @@ interface CompanionContextMenuProps extends OnShareOrBookmarkProps {
 
 export default function CompanionContextMenu({
   postData,
-  additionalInteractionButton,
+  additionalInteractionButtonFeature,
   onReport,
   onBlockSource,
   onDisableCompanion,
@@ -75,7 +75,7 @@ export default function CompanionContextMenu({
             <CommentIcon size="medium" className="mr-2" /> View discussion
           </a>
         </Item>
-        {additionalInteractionButton ===
+        {additionalInteractionButtonFeature ===
         AdditionalInteractionButtons.Bookmark ? (
           <Item onClick={onShare}>
             <ShareIcon size="medium" className="mr-2" /> Share article via...

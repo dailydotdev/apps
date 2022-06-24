@@ -22,7 +22,6 @@ import { useKeyboardNavigation } from '@dailydotdev/shared/src/hooks/useKeyboard
 import { useSharePost } from '@dailydotdev/shared/src/hooks/useSharePost';
 import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import {
-  AdditionalInteractionButtons,
   Features,
   getFeatureValue,
 } from '@dailydotdev/shared/src/lib/featureManagement';
@@ -33,6 +32,7 @@ import '@dailydotdev/shared/src/styles/globals.css';
 import { CompanionHelper, getCompanionWrapper } from './common';
 import useCompanionActions from './useCompanionActions';
 import { useCompanionPostComment } from './useCompanionPostComment';
+import { AdditionalInteractionButtons } from '@dailydotdev/shared/src/lib/featureValues';
 
 if (!isTesting) {
   Modal.setAppElement('daily-companion-app');
@@ -60,7 +60,7 @@ export default function CompanionMenu({
   const { trackEvent } = useContext(AnalyticsContext);
   const { user, showLogin } = useContext(AuthContext);
   const { flags } = useContext(FeaturesContext);
-  const additionalInteractionButton = getFeatureValue(
+  const additionalInteractionButtonFeature = getFeatureValue(
     Features.AdditionalInteractionButton,
     flags,
   );
@@ -246,7 +246,8 @@ export default function CompanionMenu({
           onClick={() => openNewComment('comment button')}
         />
       </SimpleTooltip>
-      {additionalInteractionButton === AdditionalInteractionButtons.Bookmark ? (
+      {additionalInteractionButtonFeature ===
+      AdditionalInteractionButtons.Bookmark ? (
         <SimpleTooltip
           placement="left"
           content={post?.bookmarked ? 'Remove bookmark' : 'Bookmark'}
@@ -290,7 +291,7 @@ export default function CompanionMenu({
         />
       </SimpleTooltip>
       <CompanionContextMenu
-        additionalInteractionButton={additionalInteractionButton}
+        additionalInteractionButtonFeature={additionalInteractionButtonFeature}
         onBookmark={toggleBookmark}
         onShare={onShare}
         postData={post}

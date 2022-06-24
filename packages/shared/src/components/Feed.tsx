@@ -146,7 +146,7 @@ export default function Feed<T>({
   } = usePostModalNavigation(items, fetchPage);
 
   const { flags } = useContext(FeaturesContext);
-  const additionalInteractionButton = getFeatureValue(
+  const additionalInteractionButtonFeature = getFeatureValue(
     Features.AdditionalInteractionButton,
     flags,
   );
@@ -284,7 +284,9 @@ export default function Feed<T>({
       >
         {items.map((item, index) => (
           <FeedItemComponent
-            additionalInteractionButton={additionalInteractionButton}
+            additionalInteractionButtonFeature={
+              additionalInteractionButtonFeature
+            }
             items={items}
             index={index}
             row={calculateRow(index, numCards)}
@@ -314,7 +316,7 @@ export default function Feed<T>({
       </div>
       <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
       <PostOptionsMenu
-        additionalInteractionButton={additionalInteractionButton}
+        additionalInteractionButtonFeature={additionalInteractionButtonFeature}
         onShare={() => openSharePost((items[postMenuIndex] as PostItem)?.post)}
         onBookmark={() =>
           onBookmark(

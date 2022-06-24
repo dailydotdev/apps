@@ -17,7 +17,7 @@ interface PostWidgetsProps extends PostModalActionsProps {
 }
 
 export function PostWidgets({
-  additionalInteractionButton,
+  additionalInteractionButtonFeature,
   onShare,
   onBookmark,
   post,
@@ -56,7 +56,9 @@ export function PostWidgets({
     >
       {!isNavigationFixed && (
         <PostModalActions
-          additionalInteractionButton={additionalInteractionButton}
+          additionalInteractionButtonFeature={
+            additionalInteractionButtonFeature
+          }
           onBookmark={onBookmark}
           onShare={onShare}
           inlineActions={isNavigationFixed}

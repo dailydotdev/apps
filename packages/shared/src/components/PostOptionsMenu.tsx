@@ -49,7 +49,7 @@ type ReportPostAsync = (
 ) => Promise<unknown>;
 
 export default function PostOptionsMenu({
-  additionalInteractionButton,
+  additionalInteractionButtonFeature,
   onShare,
   onBookmark,
   postIndex,
@@ -195,7 +195,9 @@ export default function PostOptionsMenu({
     },
   ];
 
-  if (additionalInteractionButton === AdditionalInteractionButtons.Bookmark) {
+  if (
+    additionalInteractionButtonFeature === AdditionalInteractionButtons.Bookmark
+  ) {
     postOptions.splice(1, 0, {
       icon: <MenuIcon Icon={ForwardIcon} />,
       text: 'Share article via...',

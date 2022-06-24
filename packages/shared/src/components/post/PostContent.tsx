@@ -133,7 +133,7 @@ export function PostContent({
   const queryClient = useQueryClient();
   const postQueryKey = ['post', id];
   const analyticsOrigin = isModal ? 'article page' : 'article modal';
-  const additionalInteractionButton = getFeatureValue(
+  const additionalInteractionButtonFeature = getFeatureValue(
     Features.AdditionalInteractionButton,
     flags,
   );
@@ -264,7 +264,9 @@ export function PostContent({
           post={postById.post}
           onClose={onClose}
           isModal={isModal}
-          additionalInteractionButton={additionalInteractionButton}
+          additionalInteractionButtonFeature={
+            additionalInteractionButtonFeature
+          }
           onBookmark={toggleBookmark}
           onShare={onShare}
         />
@@ -314,7 +316,9 @@ export function PostContent({
           }
         />
         <PostActions
-          additionalInteractionButton={additionalInteractionButton}
+          additionalInteractionButtonFeature={
+            additionalInteractionButtonFeature
+          }
           onBookmark={toggleBookmark}
           onShare={onShare}
           post={postById.post}
@@ -337,7 +341,7 @@ export function PostContent({
         />
       </PostContainer>
       <PostWidgets
-        additionalInteractionButton={additionalInteractionButton}
+        additionalInteractionButtonFeature={additionalInteractionButtonFeature}
         onBookmark={toggleBookmark}
         onShare={onShare}
         post={postById.post}
