@@ -243,10 +243,7 @@ export default function Feed<T>({
   }
 
   const { sharePost, openSharePost, closeSharePost } = useSharePost('feed');
-
-  const onShareClick = (post: Post) => {
-    openSharePost(post);
-  };
+  const onShareClick = (post: Post) => openSharePost(post);
 
   useEffect(() => {
     if (!selectedPost) {

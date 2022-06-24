@@ -216,6 +216,7 @@ export function PostContent({
   const isFixed = position === 'fixed';
   const padding = isFixed ? 'py-4' : 'pt-6';
 
+  const onShare = () => openSharePost(postById.post);
   const toggleBookmark = async (): Promise<void> => {
     if (!user) {
       showLogin('bookmark');
@@ -265,7 +266,7 @@ export function PostContent({
           isModal={isModal}
           additionalInteractionButton={additionalInteractionButton}
           onBookmark={toggleBookmark}
-          onShare={() => openSharePost(postById.post)}
+          onShare={onShare}
         />
         <h1
           className="mt-6 font-bold break-words typo-large-title"
@@ -315,7 +316,7 @@ export function PostContent({
         <PostActions
           additionalInteractionButton={additionalInteractionButton}
           onBookmark={toggleBookmark}
-          onShare={() => openSharePost(postById.post)}
+          onShare={onShare}
           post={postById.post}
           postQueryKey={postQueryKey}
           onComment={() => openNewComment('comment button')}
@@ -338,7 +339,7 @@ export function PostContent({
       <PostWidgets
         additionalInteractionButton={additionalInteractionButton}
         onBookmark={toggleBookmark}
-        onShare={() => openSharePost(postById.post)}
+        onShare={onShare}
         post={postById.post}
         isNavigationFixed={hasNavigation && isFixed}
         className="pb-20"

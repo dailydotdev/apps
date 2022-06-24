@@ -12,18 +12,17 @@ import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext'
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import BookmarkIcon from '@dailydotdev/shared/src/components/icons/Bookmark';
 import { AdditionalInteractionButtons } from '@dailydotdev/shared/src/lib/featureManagement';
+import { OnShareOrBookmarkProps } from '@dailydotdev/shared/src/components/post/PostActions';
 import { getCompanionWrapper } from './common';
 import DisableCompanionModal from './DisableCompanionModal';
 
-type CompanionContextMenuProps = {
+interface CompanionContextMenuProps extends OnShareOrBookmarkProps {
   postData: PostBootData;
   additionalInteractionButton: string;
   onReport: (T) => void;
   onBlockSource: (T) => void;
   onDisableCompanion: () => void;
-  onBookmark: () => void;
-  onShare: () => void;
-};
+}
 
 export default function CompanionContextMenu({
   postData,
