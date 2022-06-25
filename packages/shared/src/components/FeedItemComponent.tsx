@@ -10,6 +10,7 @@ import { Ad, Post } from '../graphql/posts';
 import { LoggedUser } from '../lib/user';
 import useTrackImpression from '../hooks/feed/useTrackImpression';
 import { FeedPostClick } from '../hooks/feed/useFeedOnPostClick';
+import { PostCardTests } from './post/common';
 
 export type FeedItemComponentProps = {
   items: FeedItem[];
@@ -54,7 +55,7 @@ export type FeedItemComponentProps = {
     column: number,
   ) => unknown;
   onAdClick: (ad: Ad, index: number, row: number, column: number) => void;
-};
+} & PostCardTests;
 
 export function getFeedItemKey(items: FeedItem[], index: number): string {
   const item = items[index];
@@ -89,6 +90,9 @@ export default function FeedItemComponent({
   onMenuClick,
   onCommentClick,
   onAdClick,
+  postCardVersion,
+  postModalByDefault,
+  postEngagementNonClickable,
 }: FeedItemComponentProps): ReactElement {
   const PostTag = useList ? PostList : PostCard;
   const AdTag = useList ? AdList : AdCard;
@@ -132,6 +136,9 @@ export default function FeedItemComponent({
           showImage={!insaneMode}
           onCommentClick={(post) => onCommentClick(post, index, row, column)}
           insaneMode={insaneMode}
+          postCardVersion={postCardVersion}
+          postModalByDefault={postModalByDefault}
+          postEngagementNonClickable={postEngagementNonClickable}
         />
       );
     case 'ad':

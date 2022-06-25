@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode, useContext } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import styles from './Card.module.css';
@@ -10,7 +10,6 @@ import CommentIcon from '../icons/Discuss';
 import BookmarkIcon from '../icons/Bookmark';
 import { Button, ButtonProps } from '../buttons/Button';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
-import FeaturesContext from '../../contexts/FeaturesContext';
 import OptionsButton from '../buttons/OptionsButton';
 import classed from '../../lib/classed';
 import { ReadArticleButton } from './ReadArticleButton';
@@ -18,7 +17,7 @@ import { visibleOnGroupHover } from './common';
 
 const ShareIcon = dynamic(() => import('../icons/Forward'));
 
-export type ActionButtonsProps = {
+export interface ActionButtonsProps {
   post: Post;
   showShare: boolean;
   onMenuClick?: (e: React.MouseEvent) => unknown;
@@ -30,7 +29,10 @@ export type ActionButtonsProps = {
   className?: string;
   children?: ReactNode;
   insaneMode?: boolean;
-};
+  postCardVersion?: string;
+  postModalByDefault?: boolean;
+  postEngagementNonClickable?: boolean;
+}
 
 const getContainer = (displayWhenHovered = false, className?: string) =>
   classed(
@@ -54,9 +56,10 @@ export default function ActionButtons({
   className,
   children,
   insaneMode,
+  postCardVersion,
+  postModalByDefault,
+  postEngagementNonClickable,
 }: ActionButtonsProps): ReactElement {
-  const { postCardVersion, postEngagementNonClickable, postModalByDefault } =
-    useContext(FeaturesContext);
   const isV2 = postCardVersion === 'v2';
   const separatedActions =
     (insaneMode && postModalByDefault) || postEngagementNonClickable;

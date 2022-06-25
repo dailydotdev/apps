@@ -3,7 +3,6 @@ import React, {
   HTMLAttributes,
   ReactElement,
   Ref,
-  useContext,
   useMemo,
 } from 'react';
 import classNames from 'classnames';
@@ -25,9 +24,9 @@ import ActionButtons from './ActionButtons';
 import PostAuthor from './PostAuthor';
 import { ProfilePicture } from '../ProfilePicture';
 import { PostCardHeader } from './PostCardHeader';
-import FeaturesContext from '../../contexts/FeaturesContext';
 import classed from '../../lib/classed';
 import { PostFooterOverlay } from './PostFooterOverlay';
+import { PostCardTests } from '../post/common';
 
 type Callback = (post: Post, e?: React.MouseEvent) => unknown;
 
@@ -46,7 +45,8 @@ export type PostCardProps = {
   menuOpened?: boolean;
   showImage?: boolean;
   insaneMode?: boolean;
-} & HTMLAttributes<HTMLDivElement>;
+} & HTMLAttributes<HTMLDivElement> &
+  PostCardTests;
 
 export const PostCard = forwardRef(function PostCard(
   {
@@ -67,12 +67,13 @@ export const PostCard = forwardRef(function PostCard(
     style,
     insaneMode,
     onReadArticleClick,
+    postCardVersion,
+    postModalByDefault,
+    postEngagementNonClickable,
     ...props
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
-  const { postCardVersion, postEngagementNonClickable } =
-    useContext(FeaturesContext);
   const isV1 = postCardVersion === 'v1';
   const Containter = useMemo(
     () =>
@@ -100,6 +101,8 @@ export const PostCard = forwardRef(function PostCard(
             postLink={post.permalink}
             onMenuClick={(event) => onMenuClick?.(event, post)}
             onReadArticleClick={onReadArticleClick}
+            postModalByDefault={postModalByDefault}
+            postEngagementNonClickable={postEngagementNonClickable}
           />
         )}
         <CardTitle>{post.title}</CardTitle>
@@ -126,6 +129,8 @@ export const PostCard = forwardRef(function PostCard(
             author={post.author}
             insaneMode={insaneMode}
             onReadArticleClick={onReadArticleClick}
+            postModalByDefault={postModalByDefault}
+            postEngagementNonClickable={postEngagementNonClickable}
           />
         )}
         {!showImage && (
@@ -161,6 +166,9 @@ export const PostCard = forwardRef(function PostCard(
           onShare={onShare}
           onMenuClick={(event) => onMenuClick?.(event, post)}
           onReadArticleClick={onReadArticleClick}
+          postCardVersion={postCardVersion}
+          postModalByDefault={postModalByDefault}
+          postEngagementNonClickable={postEngagementNonClickable}
           className={classNames(
             'mx-4',
             !postEngagementNonClickable && 'justify-between',

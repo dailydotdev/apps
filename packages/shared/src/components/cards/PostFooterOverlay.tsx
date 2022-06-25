@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { Author } from '../../graphql/comments';
 import { Source } from '../../graphql/sources';
@@ -7,10 +7,10 @@ import classed from '../../lib/classed';
 import { ProfileImageLink } from '../profile/ProfileImageLink';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 import { ReadArticleButton } from './ReadArticleButton';
-import FeaturesContext from '../../contexts/FeaturesContext';
 import { visibleOnGroupHover } from './common';
+import { PostCardTests } from '../post/common';
 
-interface PostFooterOverlayProps {
+interface PostFooterOverlayProps extends PostCardTests {
   className?: string;
   author?: Author;
   source: Source;
@@ -31,10 +31,9 @@ export const PostFooterOverlay = ({
   postLink,
   insaneMode,
   onReadArticleClick,
+  postModalByDefault,
+  postEngagementNonClickable,
 }: PostFooterOverlayProps): ReactElement => {
-  const { postModalByDefault, postEngagementNonClickable } =
-    useContext(FeaturesContext);
-
   return (
     <div className={classNames('flex flex-row p-2', className)}>
       <Overlay

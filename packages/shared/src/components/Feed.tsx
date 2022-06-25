@@ -111,7 +111,8 @@ export default function Feed<T>({
   onEmptyFeed,
   emptyScreen,
 }: FeedProps<T>): ReactElement {
-  const { postModalByDefault } = useContext(FeaturesContext);
+  const { postCardVersion, postModalByDefault, postEngagementNonClickable } =
+    useContext(FeaturesContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
@@ -316,6 +317,9 @@ export default function Feed<T>({
             onMenuClick={onMenuClick}
             onCommentClick={onCommentClick}
             onAdClick={onAdClick}
+            postCardVersion={postCardVersion}
+            postModalByDefault={postModalByDefault}
+            postEngagementNonClickable={postEngagementNonClickable}
           />
         ))}
       </div>

@@ -1,10 +1,4 @@
-import React, {
-  forwardRef,
-  ReactElement,
-  Ref,
-  useContext,
-  useMemo,
-} from 'react';
+import React, { forwardRef, ReactElement, Ref, useMemo } from 'react';
 import { PostCardProps } from './PostCard';
 import {
   getPostClassNames,
@@ -21,7 +15,6 @@ import SourceButton from './SourceButton';
 import styles from './Card.module.css';
 import TrendingFlag from './TrendingFlag';
 import PostAuthor from './PostAuthor';
-import FeaturesContext from '../../contexts/FeaturesContext';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 import { ProfileImageLink } from '../profile/ProfileImageLink';
 import classed from '../../lib/classed';
@@ -42,12 +35,14 @@ export const PostList = forwardRef(function PostList(
     menuOpened,
     className,
     children,
+    postCardVersion,
+    postModalByDefault,
+    postEngagementNonClickable,
     ...props
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const { trending } = post;
-  const { postCardVersion } = useContext(FeaturesContext);
   const isV1 = postCardVersion === 'v1';
   const isV2 = postCardVersion === 'v2';
   const ActionsContainer = isV2
@@ -112,6 +107,9 @@ export const PostList = forwardRef(function PostList(
             className="relative self-stretch mt-1"
             onMenuClick={(event) => onMenuClick?.(event, post)}
             insaneMode
+            postCardVersion={postCardVersion}
+            postModalByDefault={postModalByDefault}
+            postEngagementNonClickable={postEngagementNonClickable}
           />
         </ActionsContainer>
       </ListCardMain>

@@ -1,13 +1,13 @@
-import React, { ReactElement, ReactNode, useContext } from 'react';
-import FeaturesContext from '../../contexts/FeaturesContext';
+import React, { ReactElement, ReactNode } from 'react';
 import OptionsButton from '../buttons/OptionsButton';
 import { CardHeader } from './Card';
 import SourceButton from './SourceButton';
 import { Source } from '../../graphql/sources';
 import { ReadArticleButton } from './ReadArticleButton';
 import { getGroupedHoverContainer } from './common';
+import { PostCardTests } from '../post/common';
 
-interface CardHeaderProps {
+interface CardHeaderProps extends PostCardTests {
   children?: ReactNode;
   source: Source;
   onMenuClick?: (e: React.MouseEvent) => void;
@@ -23,10 +23,9 @@ export const PostCardHeader = ({
   children,
   source,
   postLink,
+  postModalByDefault,
+  postEngagementNonClickable,
 }: CardHeaderProps): ReactElement => {
-  const { postModalByDefault, postEngagementNonClickable } =
-    useContext(FeaturesContext);
-
   return (
     <CardHeader>
       <SourceButton source={source} />
