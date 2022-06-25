@@ -1,4 +1,3 @@
-import 'content-scripts-register-polyfill';
 import React from 'react';
 import '@testing-library/jest-dom';
 import {
