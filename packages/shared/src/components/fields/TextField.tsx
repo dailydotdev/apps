@@ -10,8 +10,7 @@ import classNames from 'classnames';
 import { useInputField } from '../../hooks/useInputField';
 import { BaseField, FieldInput } from './common';
 import styles from './TextField.module.css';
-import { Button, ButtonProps } from '../buttons/Button';
-import { IconProps } from '../Icon';
+import { ButtonProps } from '../buttons/Button';
 
 type FieldType = 'primary' | 'secondary' | 'tertiary';
 
@@ -25,9 +24,7 @@ export interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   valueChanged?: (value: string) => void;
   fieldType?: FieldType;
   leftIcon?: ReactNode;
-  actionButtonProps?: ButtonProps<'button'>;
-  actionIcon?: React.ReactElement<IconProps>;
-  onActionIconClick?: () => unknown;
+  actionButton?: React.ReactElement<ButtonProps<'button'>>;
   rightIcon?: ReactNode;
 }
 
@@ -78,9 +75,7 @@ export function TextField({
   fieldType = 'primary',
   readOnly,
   leftIcon,
-  actionIcon,
-  actionButtonProps = {},
-  onActionIconClick,
+  actionButton,
   disabled,
   rightIcon,
   ...props
@@ -195,7 +190,7 @@ export function TextField({
           'flex flex-row items-center',
           isSecondaryField ? 'h-9 rounded-10' : 'h-12 rounded-14',
           leftIcon && 'pl-3',
-          actionIcon && 'pr-3',
+          actionButton && 'pr-3',
           {
             readOnly,
             focused,
@@ -217,7 +212,7 @@ export function TextField({
         <div
           className={classNames(
             'flex flex-col flex-1 items-start max-w-full',
-            actionIcon && 'mr-2',
+            actionButton && 'mr-2',
           )}
         >
           {isPrimaryField && (focused || hasInput) && (
@@ -255,15 +250,7 @@ export function TextField({
           </div>
         )}
         {rightIcon}
-        {actionIcon && (
-          <Button
-            buttonSize="small"
-            className="btn-tertiary"
-            onClick={onActionIconClick}
-            icon={actionIcon}
-            {...actionButtonProps}
-          />
-        )}
+        {actionButton}
       </BaseField>
       {(hint?.length || saveHintSpace) && (
         <div
