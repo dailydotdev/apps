@@ -10,8 +10,17 @@ import { ClickableText } from '../buttons/ClickableText';
 import LoginForm from '../auth/LoginForm';
 import EmailSignupForm from '../auth/EmailSignupForm';
 import OrDivider from '../auth/OrDivider';
+import { getQueryParams } from '../../contexts/AuthContext';
+import { AuthSignBack } from './AuthSignBack';
 
 export type AuthModalProps = ModalProps;
+
+const hasLoggedOut = () => {
+  const params = getQueryParams();
+  console.log(params);
+
+  return params?.logged_out !== undefined;
+};
 
 export default function AuthModal({
   className,
@@ -33,6 +42,30 @@ export default function AuthModal({
     e.preventDefault();
     return onEmailCheck();
   };
+
+  const getContent = () => {
+    const loggedOut = hasLoggedOut();
+
+    if (loggedOut) {
+      return (
+        <AuthSignBack>
+          <LoginForm onSubmit={onLogin} />
+        </AuthSignBack>
+      );
+    }
+
+    return (
+      <AuthDefault>
+        <OrDivider className="mt-3" />
+        {shouldLogin ? (
+          <LoginForm onSubmit={onLogin} />
+        ) : (
+          <EmailSignupForm onSubmit={onEmailSignup} />
+        )}
+      </AuthDefault>
+    );
+  };
+
   return (
     <StyledModal
       {...props}
@@ -60,16 +93,9 @@ export default function AuthModal({
         {showRegistrationForm ? (
           <RegistrationForm email={email} />
         ) : (
-          <AuthDefault>
-            <OrDivider />
-            {shouldLogin ? (
-              <LoginForm onSubmit={onLogin} />
-            ) : (
-              <EmailSignupForm onSubmit={onEmailSignup} />
-            )}
-          </AuthDefault>
+          getContent()
         )}
-        <div className="flex justify-center py-3 mt-6 border-t border-theme-divider-tertiary typo-callout text-theme-label-tertiary">
+        <div className="flex justify-center py-3 mt-auto border-t border-theme-divider-tertiary typo-callout text-theme-label-tertiary">
           {shouldLogin ? 'Not yet a member?' : 'Already a member?'}
           <ClickableText
             className="ml-1 text-theme-label-primary"
