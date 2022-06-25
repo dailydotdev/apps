@@ -163,7 +163,7 @@ export default function SimilarPosts({
           tag="a"
           rightIcon={<ArrowIcon className="rotate-90" />}
         >
-          Show more
+          View all
         </Button>
       </Link>
     </section>
