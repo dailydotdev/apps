@@ -78,7 +78,7 @@ const FollowTagButton = ({
   <GenericTagButton
     {...props}
     className={classNames('btn-tag', className)}
-    icon={<PlusIcon className="ml-2" />}
+    icon={<PlusIcon className="ml-2 transition-transform rotate-0" />}
     action={action}
     tag={tag}
   />
