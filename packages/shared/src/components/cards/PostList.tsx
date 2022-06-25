@@ -35,7 +35,7 @@ export const PostList = forwardRef(function PostList(
     menuOpened,
     className,
     children,
-    postCardVersion,
+    postCardVersion = 'v1',
     postModalByDefault,
     postEngagementNonClickable,
     ...props

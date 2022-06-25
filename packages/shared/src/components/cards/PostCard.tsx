@@ -67,7 +67,7 @@ export const PostCard = forwardRef(function PostCard(
     style,
     insaneMode,
     onReadArticleClick,
-    postCardVersion,
+    postCardVersion = 'v1',
     postModalByDefault,
     postEngagementNonClickable,
     ...props
