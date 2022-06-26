@@ -49,7 +49,7 @@ const defaultPost: Post = {
 
 const defaultProps: PostCardProps = {
   post: defaultPost,
-  onLinkClick: jest.fn(),
+  onPostClick: jest.fn(),
   onUpvoteClick: jest.fn(),
   onCommentClick: jest.fn(),
   onBookmarkClick: jest.fn(),
@@ -72,7 +72,7 @@ it('should call on link click on component left click', async () => {
   const el = await screen.findAllByRole('link');
   el[0].click();
   await waitFor(() =>
-    expect(defaultProps.onLinkClick).toBeCalledWith(
+    expect(defaultProps.onPostClick).toBeCalledWith(
       defaultPost,
       expect.any(Object),
     ),
@@ -84,7 +84,7 @@ it('should call on link click on component middle mouse up', async () => {
   const el = await screen.findAllByRole('link');
   el[0].dispatchEvent(new MouseEvent('mouseup', { bubbles: true, button: 1 }));
   await waitFor(() =>
-    expect(defaultProps.onLinkClick).toBeCalledWith(defaultPost),
+    expect(defaultProps.onPostClick).toBeCalledWith(defaultPost),
   );
 });
 

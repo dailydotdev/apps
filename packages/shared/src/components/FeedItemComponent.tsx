@@ -41,6 +41,7 @@ export type FeedItemComponentProps = {
     bookmarked: boolean,
   ) => Promise<void>;
   onPostClick: FeedPostClick;
+  onReadArticleClick: FeedPostClick;
   onShare: (post: Post) => Promise<void>;
   onMenuClick: (
     e: React.MouseEvent,
@@ -90,6 +91,7 @@ export default function FeedItemComponent({
   onMenuClick,
   onCommentClick,
   onAdClick,
+  onReadArticleClick,
   postCardVersion,
   postModalByDefault,
   postEngagementNonClickable,
@@ -120,12 +122,12 @@ export default function FeedItemComponent({
           onUpvoteClick={(post, upvoted) =>
             onUpvote(post, index, row, column, upvoted)
           }
-          onLinkClick={(post, e) => onPostClick(post, index, row, column, e)}
+          onPostClick={(post) => onPostClick(post, index, row, column)}
           onBookmarkClick={(post, bookmarked) =>
             onBookmark(post, index, row, column, bookmarked)
           }
-          onReadArticleClick={(e) =>
-            onPostClick(item.post, index, row, column, e, true)
+          onReadArticleClick={() =>
+            onReadArticleClick(item.post, index, row, column)
           }
           showShare={nativeShareSupport}
           onShare={onShare}

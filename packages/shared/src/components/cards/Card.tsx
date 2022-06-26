@@ -25,11 +25,14 @@ export const CardImage = classed(Image, 'rounded-xl h-40');
 
 export const CardSpace = classed('div', 'flex-1');
 
-export const CardLink = classed(
-  'a',
+const clickableCardClasses = classNames(
   styles.link,
   'absolute inset-0 w-full h-full focus-outline',
 );
+
+export const CardButton = classed('button', clickableCardClasses);
+
+export const CardLink = classed('a', clickableCardClasses);
 
 export const Card = classed(
   'article',

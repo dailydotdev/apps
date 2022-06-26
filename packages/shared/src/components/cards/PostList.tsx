@@ -18,11 +18,12 @@ import PostAuthor from './PostAuthor';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 import { ProfileImageLink } from '../profile/ProfileImageLink';
 import classed from '../../lib/classed';
+import PostButton from './PostButton';
 
 export const PostList = forwardRef(function PostList(
   {
     post,
-    onLinkClick,
+    onPostClick,
     onUpvoteClick,
     onCommentClick,
     onBookmarkClick,
@@ -49,13 +50,29 @@ export const PostList = forwardRef(function PostList(
     ? useMemo(() => classed('div', 'flex flex-row items-center w-full'), [isV2])
     : React.Fragment;
 
+  const getClickablePost = () => {
+    const onPostCardClick = () => onPostClick(post);
+    if (postModalByDefault) {
+      return <PostButton title={post.title} onClick={onPostCardClick} />;
+    }
+
+    return (
+      <PostLink
+        title={post.title}
+        href={post.permalink}
+        openNewTab={openNewTab}
+        onLinkClick={onPostCardClick}
+      />
+    );
+  };
+
   const card = (
     <ListCard
       {...props}
       className={getPostClassNames(post, className)}
       ref={ref}
     >
-      <PostLink post={post} openNewTab={openNewTab} onLinkClick={onLinkClick} />
+      {getClickablePost()}
       {isV1 && (
         <>
           <ListCardAside className="w-14">

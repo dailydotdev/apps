@@ -194,20 +194,24 @@ export default function Feed<T>({
     ranking,
   );
 
-  const onPostLinkClick: FeedPostClick = async (
-    post,
-    index,
-    row,
-    column,
-    event,
-    fromReadArticle,
-  ) => {
-    if (!postModalByDefault || fromReadArticle) {
-      await onPostClick(post, index, row, column);
+  const onReadArticleClick = useFeedOnPostClick(
+    items,
+    updatePost,
+    virtualizedNumCards,
+    feedName,
+    ranking,
+    'go to link',
+  );
+
+  const onPostCardClick: FeedPostClick = async (post, index, row, column) => {
+    await onPostClick(post, index, row, column, {
+      shouldUpdateRead: !postModalByDefault,
+    });
+
+    if (!postModalByDefault) {
       return;
     }
 
-    event.preventDefault();
     onOpenModal(index);
   };
 
@@ -312,11 +316,12 @@ export default function Feed<T>({
             ranking={ranking}
             onUpvote={onUpvote}
             onBookmark={onBookmark}
-            onPostClick={onPostLinkClick}
+            onPostClick={onPostCardClick}
             onShare={onShare}
             onMenuClick={onMenuClick}
             onCommentClick={onCommentClick}
             onAdClick={onAdClick}
+            onReadArticleClick={onReadArticleClick}
             postCardVersion={postCardVersion}
             postModalByDefault={postModalByDefault}
             postEngagementNonClickable={postEngagementNonClickable}

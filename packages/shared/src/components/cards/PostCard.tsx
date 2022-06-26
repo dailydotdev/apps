@@ -27,12 +27,13 @@ import { PostCardHeader } from './PostCardHeader';
 import classed from '../../lib/classed';
 import { PostFooterOverlay } from './PostFooterOverlay';
 import { PostCardTests } from '../post/common';
+import PostButton from './PostButton';
 
-type Callback = (post: Post, e?: React.MouseEvent) => unknown;
+type Callback = (post: Post) => unknown;
 
 export type PostCardProps = {
   post: Post;
-  onLinkClick?: Callback;
+  onPostClick?: Callback;
   onUpvoteClick?: (post: Post, upvoted: boolean) => unknown;
   onCommentClick?: Callback;
   onBookmarkClick?: (post: Post, bookmarked: boolean) => unknown;
@@ -51,7 +52,7 @@ export type PostCardProps = {
 export const PostCard = forwardRef(function PostCard(
   {
     post,
-    onLinkClick,
+    onPostClick,
     onUpvoteClick,
     onCommentClick,
     onBookmarkClick,
@@ -84,6 +85,23 @@ export const PostCard = forwardRef(function PostCard(
       ),
     [postCardVersion],
   );
+
+  const getClickablePost = () => {
+    const onPostCardClick = () => onPostClick(post);
+    if (postModalByDefault) {
+      return <PostButton title={post.title} onClick={onPostCardClick} />;
+    }
+
+    return (
+      <PostLink
+        title={post.title}
+        href={post.permalink}
+        openNewTab={openNewTab}
+        onLinkClick={onPostCardClick}
+      />
+    );
+  };
+
   const { trending } = post;
   const customStyle = !showImage ? { minHeight: '15.125rem' } : {};
   const card = (
@@ -93,7 +111,7 @@ export const PostCard = forwardRef(function PostCard(
       style={{ ...style, ...customStyle }}
       ref={ref}
     >
-      <PostLink post={post} openNewTab={openNewTab} onLinkClick={onLinkClick} />
+      {getClickablePost()}
       <CardTextContainer>
         {isV1 && (
           <PostCardHeader
