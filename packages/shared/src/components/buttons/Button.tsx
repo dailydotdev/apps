@@ -42,7 +42,7 @@ const useGetIconWithSize = (size: ButtonSize, iconOnly: boolean) => {
   return (icon: React.ReactElement<IconProps>) =>
     React.cloneElement(icon, {
       size: IconSize[size],
-      ...(!iconOnly && { className: 'icon' }),
+      className: classNames(icon.props.className, !iconOnly && 'icon'),
     });
 };
 
