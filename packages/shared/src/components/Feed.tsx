@@ -214,7 +214,7 @@ export default function Feed<T>({
 
   const onPostCardClick: FeedPostClick = async (post, index, row, column) => {
     await onPostClick(post, index, row, column, {
-      shouldUpdateRead: !postModalByDefault,
+      skipPostUpdate: postModalByDefault,
     });
 
     if (!postModalByDefault) {

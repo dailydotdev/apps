@@ -7,7 +7,7 @@ import { feedAnalyticsExtra, postAnalyticsEvent } from '../../lib/feed';
 import FeaturesContext from '../../contexts/FeaturesContext';
 
 interface PostClickOptionalProps {
-  shouldUpdateRead?: boolean;
+  skipPostUpdate?: boolean;
 }
 
 export type FeedPostClick = (
@@ -30,13 +30,7 @@ export default function useFeedOnPostClick(
   const { incrementReadingRank } = useIncrementReadingRank();
   const { trackEvent } = useContext(AnalyticsContext);
 
-  return async (
-    post,
-    index,
-    row,
-    column,
-    { shouldUpdateRead = true } = {},
-  ): Promise<void> => {
+  return async (post, index, row, column, optional): Promise<void> => {
     trackEvent(
       postAnalyticsEvent(event, post, {
         columns,
@@ -46,12 +40,14 @@ export default function useFeedOnPostClick(
       }),
     );
 
-    if (shouldUpdateRead) {
-      if (!post.read) {
-        await incrementReadingRank();
-      }
-      const item = items[index] as PostItem;
-      updatePost(item.page, item.index, { ...post, read: true });
+    if (optional?.skipPostUpdate) {
+      return;
     }
+
+    if (!post.read) {
+      await incrementReadingRank();
+    }
+    const item = items[index] as PostItem;
+    updatePost(item.page, item.index, { ...post, read: true });
   };
 }

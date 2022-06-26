@@ -32,7 +32,7 @@ export const FeaturesContextProvider = ({
         Features.PostEngagementNonClickable,
         flags,
       ),
-      postModalByDefault: true,
+      postModalByDefault: isFeaturedEnabled(Features.PostModalByDefault, flags),
       postCardVersion: getFeatureValue(Features.PostCardVersion, flags),
     }),
     [flags],
