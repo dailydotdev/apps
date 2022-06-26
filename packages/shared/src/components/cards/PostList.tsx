@@ -7,6 +7,7 @@ import {
   ListCardDivider,
   ListCardAside,
   ListCardMain,
+  CardButton,
 } from './Card';
 import PostLink from './PostLink';
 import PostMetadata from './PostMetadata';
@@ -18,7 +19,6 @@ import PostAuthor from './PostAuthor';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 import { ProfileImageLink } from '../profile/ProfileImageLink';
 import classed from '../../lib/classed';
-import PostButton from './PostButton';
 
 export const PostList = forwardRef(function PostList(
   {
@@ -43,6 +43,7 @@ export const PostList = forwardRef(function PostList(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
+  const onPostCardClick = () => onPostClick(post);
   const { trending } = post;
   const isV1 = postCardVersion === 'v1';
   const isV2 = postCardVersion === 'v2';
@@ -50,29 +51,22 @@ export const PostList = forwardRef(function PostList(
     ? useMemo(() => classed('div', 'flex flex-row items-center w-full'), [isV2])
     : React.Fragment;
 
-  const getClickablePost = () => {
-    const onPostCardClick = () => onPostClick(post);
-    if (postModalByDefault) {
-      return <PostButton title={post.title} onClick={onPostCardClick} />;
-    }
-
-    return (
-      <PostLink
-        title={post.title}
-        href={post.permalink}
-        openNewTab={openNewTab}
-        onLinkClick={onPostCardClick}
-      />
-    );
-  };
-
   const card = (
     <ListCard
       {...props}
       className={getPostClassNames(post, className)}
       ref={ref}
     >
-      {getClickablePost()}
+      {postModalByDefault ? (
+        <CardButton title={post.title} onClick={onPostCardClick} />
+      ) : (
+        <PostLink
+          title={post.title}
+          href={post.permalink}
+          openNewTab={openNewTab}
+          onLinkClick={onPostCardClick}
+        />
+      )}
       {isV1 && (
         <>
           <ListCardAside className="w-14">

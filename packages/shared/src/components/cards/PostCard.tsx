@@ -9,6 +9,7 @@ import classNames from 'classnames';
 import { Post } from '../../graphql/posts';
 import {
   Card,
+  CardButton,
   CardImage,
   CardSpace,
   CardTextContainer,
@@ -27,7 +28,6 @@ import { PostCardHeader } from './PostCardHeader';
 import classed from '../../lib/classed';
 import { PostFooterOverlay } from './PostFooterOverlay';
 import { PostCardTests } from '../post/common';
-import PostButton from './PostButton';
 
 type Callback = (post: Post) => unknown;
 
@@ -75,6 +75,7 @@ export const PostCard = forwardRef(function PostCard(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
+  const onPostCardClick = () => onPostClick(post);
   const isV1 = postCardVersion === 'v1';
   const Containter = useMemo(
     () =>
@@ -86,22 +87,6 @@ export const PostCard = forwardRef(function PostCard(
     [postCardVersion],
   );
 
-  const getClickablePost = () => {
-    const onPostCardClick = () => onPostClick(post);
-    if (postModalByDefault) {
-      return <PostButton title={post.title} onClick={onPostCardClick} />;
-    }
-
-    return (
-      <PostLink
-        title={post.title}
-        href={post.permalink}
-        openNewTab={openNewTab}
-        onLinkClick={onPostCardClick}
-      />
-    );
-  };
-
   const { trending } = post;
   const customStyle = !showImage ? { minHeight: '15.125rem' } : {};
   const card = (
@@ -111,7 +96,16 @@ export const PostCard = forwardRef(function PostCard(
       style={{ ...style, ...customStyle }}
       ref={ref}
     >
-      {getClickablePost()}
+      {postModalByDefault ? (
+        <CardButton title={post.title} onClick={onPostCardClick} />
+      ) : (
+        <PostLink
+          title={post.title}
+          href={post.permalink}
+          openNewTab={openNewTab}
+          onLinkClick={onPostCardClick}
+        />
+      )}
       <CardTextContainer>
         {isV1 && (
           <PostCardHeader
