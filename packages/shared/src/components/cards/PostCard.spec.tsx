@@ -71,12 +71,7 @@ it('should call on link click on component left click', async () => {
   renderComponent();
   const el = await screen.findAllByRole('link');
   el[0].click();
-  await waitFor(() =>
-    expect(defaultProps.onPostClick).toBeCalledWith(
-      defaultPost,
-      expect.any(Object),
-    ),
-  );
+  await waitFor(() => expect(defaultProps.onPostClick).toBeCalled());
 });
 
 it('should call on link click on component middle mouse up', async () => {
