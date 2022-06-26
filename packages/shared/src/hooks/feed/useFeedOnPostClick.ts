@@ -4,7 +4,6 @@ import { FeedItem, PostItem } from '../useFeed';
 import useIncrementReadingRank from '../useIncrementReadingRank';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { feedAnalyticsExtra, postAnalyticsEvent } from '../../lib/feed';
-import FeaturesContext from '../../contexts/FeaturesContext';
 
 interface PostClickOptionalProps {
   skipPostUpdate?: boolean;
@@ -26,7 +25,6 @@ export default function useFeedOnPostClick(
   ranking?: string,
   event = 'click',
 ): FeedPostClick {
-  const { postModalByDefault } = useContext(FeaturesContext);
   const { incrementReadingRank } = useIncrementReadingRank();
   const { trackEvent } = useContext(AnalyticsContext);
 
@@ -36,7 +34,7 @@ export default function useFeedOnPostClick(
         columns,
         column,
         row,
-        ...feedAnalyticsExtra(feedName, ranking, { modal: postModalByDefault }),
+        ...feedAnalyticsExtra(feedName, ranking),
       }),
     );
 

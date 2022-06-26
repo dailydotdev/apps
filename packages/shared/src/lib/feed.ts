@@ -60,7 +60,6 @@ export function feedAnalyticsExtra(
   ranking?: string,
   extra?: {
     scroll_y?: number;
-    modal?: boolean;
   },
 ): FeedAnalyticsExtra {
   return {
