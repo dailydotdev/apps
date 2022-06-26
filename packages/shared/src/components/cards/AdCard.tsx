@@ -1,10 +1,4 @@
-import React, {
-  forwardRef,
-  HTMLAttributes,
-  ReactElement,
-  Ref,
-  useContext,
-} from 'react';
+import React, { forwardRef, HTMLAttributes, ReactElement, Ref } from 'react';
 import classNames from 'classnames';
 import {
   Card,
@@ -17,7 +11,7 @@ import { Ad } from '../../graphql/posts';
 import styles from './Card.module.css';
 import AdLink from './AdLink';
 import AdAttribution from './AdAttribution';
-import FeaturesContext from '../../contexts/FeaturesContext';
+import { PostCardTests } from '../post/common';
 
 type Callback = (ad: Ad) => unknown;
 
@@ -25,13 +19,19 @@ export type AdCardProps = {
   ad: Ad;
   onLinkClick?: Callback;
   showImage?: boolean;
-} & HTMLAttributes<HTMLDivElement>;
+} & HTMLAttributes<HTMLDivElement> &
+  PostCardTests;
 
 export const AdCard = forwardRef(function AdCard(
-  { ad, onLinkClick, showImage = true, ...props }: AdCardProps,
+  {
+    ad,
+    onLinkClick,
+    showImage = true,
+    postEngagementNonClickable,
+    ...props
+  }: AdCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
-  const { postEngagementNonClickable } = useContext(FeaturesContext);
   const showBlurredImage = ad.source === 'Carbon';
 
   return (

@@ -1,4 +1,4 @@
-import React, { forwardRef, ReactElement, Ref, useContext } from 'react';
+import React, { forwardRef, ReactElement, Ref } from 'react';
 import classNames from 'classnames';
 import { AdCardProps } from './AdCard';
 import {
@@ -10,14 +10,11 @@ import {
 } from './Card';
 import AdLink from './AdLink';
 import AdAttribution from './AdAttribution';
-import FeaturesContext from '../../contexts/FeaturesContext';
 
 export const AdList = forwardRef(function AdList(
-  { ad, onLinkClick, ...props }: AdCardProps,
+  { ad, onLinkClick, postCardVersion, ...props }: AdCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
-  const { postCardVersion } = useContext(FeaturesContext);
-
   return (
     <ListCard {...props} ref={ref}>
       <AdLink ad={ad} onLinkClick={onLinkClick} />
