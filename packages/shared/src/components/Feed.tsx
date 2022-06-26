@@ -16,6 +16,7 @@ import { Spaciness } from '../graphql/settings';
 import ScrollToTopButton from './ScrollToTopButton';
 import useFeedUpvotePost from '../hooks/feed/useFeedUpvotePost';
 import useFeedBookmarkPost from '../hooks/feed/useFeedBookmarkPost';
+// import useCommentPopup from '../hooks/feed/useCommentPopup';
 import useFeedOnPostClick, {
   FeedPostClick,
 } from '../hooks/feed/useFeedOnPostClick';
@@ -172,9 +173,17 @@ export default function Feed<T>({
     return <></>;
   }
 
+  // const {
+  //   showCommentPopupId,
+  //   setShowCommentPopupId,
+  //   comment,
+  //   isSendingComment,
+  // } = useCommentPopup(feedName);
+
   const onUpvote = useFeedUpvotePost(
     items,
     updatePost,
+    // setShowCommentPopupId,
     virtualizedNumCards,
     feedName,
     ranking,
@@ -311,6 +320,10 @@ export default function Feed<T>({
             insaneMode={insaneMode}
             nativeShareSupport={nativeShareSupport}
             postMenuIndex={postMenuIndex}
+            // showCommentPopupId={showCommentPopupId}
+            // setShowCommentPopupId={setShowCommentPopupId}
+            // isSendingComment={isSendingComment}
+            // comment={comment}
             user={user}
             feedName={feedName}
             ranking={ranking}

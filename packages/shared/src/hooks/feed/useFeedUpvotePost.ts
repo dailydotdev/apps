@@ -1,3 +1,4 @@
+// import { requestIdleCallback } from 'next/dist/client/request-idle-callback';
 import { useContext } from 'react';
 import useUpvotePost from '../useUpvotePost';
 import { FeedItem } from '../useFeed';
@@ -14,6 +15,7 @@ import { postEventName } from '../../components/utilities';
 export default function useFeedUpvotePost(
   items: FeedItem[],
   updatePost: (page: number, index: number, post: Post) => void,
+  // setShowCommentPopupId: (postId: string) => void,
   columns: number,
   feedName: string,
   ranking?: string,
@@ -58,6 +60,9 @@ export default function useFeedUpvotePost(
     );
     if (upvoted) {
       await upvotePost({ id: post.id, index });
+      // requestIdleCallback(() => {
+      //   setShowCommentPopupId(post.id);
+      // });
     } else {
       await cancelPostUpvote({ id: post.id, index });
     }

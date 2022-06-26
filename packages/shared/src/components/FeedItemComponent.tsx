@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+// import dynamic from 'next/dynamic';
 import { FeedItem } from '../hooks/useFeed';
 import { PostList } from './cards/PostList';
 import { PostCard } from './cards/PostCard';
@@ -8,9 +9,12 @@ import { PlaceholderList } from './cards/PlaceholderList';
 import { PlaceholderCard } from './cards/PlaceholderCard';
 import { Ad, Post } from '../graphql/posts';
 import { LoggedUser } from '../lib/user';
+// import { CommentOnData } from '../graphql/comments';
 import useTrackImpression from '../hooks/feed/useTrackImpression';
 import { FeedPostClick } from '../hooks/feed/useFeedOnPostClick';
 import { PostCardTests } from './post/common';
+
+// const CommentPopup = dynamic(() => import('./cards/CommentPopup'));
 
 export type FeedItemComponentProps = {
   items: FeedItem[];
@@ -23,6 +27,16 @@ export type FeedItemComponentProps = {
   insaneMode: boolean;
   nativeShareSupport: boolean;
   postMenuIndex: number | undefined;
+  // showCommentPopupId: string | undefined;
+  // setShowCommentPopupId: (value: string | undefined) => void;
+  // isSendingComment: boolean;
+  // comment: (variables: {
+  //   post: Post;
+  //   content: string;
+  //   row: number;
+  //   column: number;
+  //   columns: number;
+  // }) => Promise<CommentOnData>;
   user: LoggedUser | undefined;
   feedName: string;
   ranking?: string;
@@ -81,6 +95,10 @@ export default function FeedItemComponent({
   openNewTab,
   nativeShareSupport,
   postMenuIndex,
+  // showCommentPopupId,
+  // setShowCommentPopupId,
+  // isSendingComment,
+  // comment,
   user,
   feedName,
   ranking,
@@ -141,6 +159,19 @@ export default function FeedItemComponent({
           postCardVersion={postCardVersion}
           postModalByDefault={postModalByDefault}
           postEngagementNonClickable={postEngagementNonClickable}
+          // >
+          //   {showCommentPopupId === item.post.id && (
+          //     <CommentPopup
+          //       onClose={() => setShowCommentPopupId(null)}
+          //       onSubmit={(content) =>
+          //         comment({ post: item.post, content, row, column, columns })
+          //       }
+          //       loading={isSendingComment}
+          //       compactCard={!useList && insaneMode}
+          //       listMode={useList}
+          //     />
+          //   )}
+          // </PostTag>
         />
       );
     case 'ad':
