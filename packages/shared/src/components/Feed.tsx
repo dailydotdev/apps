@@ -212,6 +212,12 @@ export default function Feed<T>({
     'go to link',
   );
 
+  const onPostModalOpen = (index: number, callback?: () => unknown) => {
+    document.body.classList.add('hidden-scrollbar');
+    callback?.();
+    onOpenModal(index);
+  };
+
   const onPostCardClick: FeedPostClick = async (post, index, row, column) => {
     await onPostClick(post, index, row, column, {
       skipPostUpdate: postModalByDefault,
@@ -221,7 +227,7 @@ export default function Feed<T>({
       return;
     }
 
-    onOpenModal(index);
+    onPostModalOpen(index);
   };
 
   const { onMenuClick, postMenuIndex, setPostMenuIndex } = useFeedContextMenu();
@@ -237,16 +243,16 @@ export default function Feed<T>({
     row: number,
     column: number,
   ): void => {
-    document.body.classList.add('hidden-scrollbar');
-    trackEvent(
-      postAnalyticsEvent('comments click', post, {
-        columns: virtualizedNumCards,
-        column,
-        row,
-        ...feedAnalyticsExtra(feedName, ranking),
-      }),
+    onPostModalOpen(index, () =>
+      trackEvent(
+        postAnalyticsEvent('comments click', post, {
+          columns: virtualizedNumCards,
+          column,
+          row,
+          ...feedAnalyticsExtra(feedName, ranking),
+        }),
+      ),
     );
-    onOpenModal(index);
   };
 
   const onAdClick = (ad: Ad, index: number, row: number, column: number) => {
