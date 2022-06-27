@@ -30,6 +30,7 @@ const timeZoneValues = timeZoneOptions.map((timeZone) => timeZone.label);
 export type RegistrationMode = 'default' | 'author' | 'update';
 
 export interface ProfileFormProps extends HTMLAttributes<HTMLFormElement> {
+  setDisableSubmit?: (disable: boolean) => void;
   onSuccessfulSubmit?: (optionalFields: boolean) => void | Promise<void>;
   mode?: RegistrationMode;
 }
@@ -45,6 +46,7 @@ const FormSwitch = classed(Switch, 'my-3', styles.formSwitch);
 const defaultEmailHint = 'Not publicly shared';
 
 export default function ProfileForm({
+  setDisableSubmit,
   onSuccessfulSubmit,
   mode,
   className,
@@ -87,6 +89,7 @@ export default function ProfileForm({
 
   const onSubmit = async (event: FormEvent): Promise<void> => {
     event.preventDefault();
+    setDisableSubmit?.(true);
 
     if (formRef.current.checkValidity()) {
       const data = formToJson<UserProfile>(formRef.current, {
@@ -98,6 +101,8 @@ export default function ProfileForm({
 
       const res = await updateProfile(data);
       if ('error' in res) {
+        console.log('error');
+        setDisableSubmit?.(false);
         if ('code' in res && res.code === 1) {
           if (res.field === 'email') {
             setEmailHint('This email is already used');
@@ -113,12 +118,15 @@ export default function ProfileForm({
         }
       } else {
         await updateUser({ ...user, ...res });
+        setDisableSubmit?.(false);
         const filledFields = Object.keys(data).filter(
           (key) => data[key] !== undefined && data[key] !== null,
         );
 
         onSuccessfulSubmit?.(filledFields.length > REQUIRED_FIELDS_COUNT);
       }
+    } else {
+      setDisableSubmit?.(false);
     }
   };
 

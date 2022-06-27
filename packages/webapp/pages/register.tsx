@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useEffect } from 'react';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { NextSeo } from 'next-seo';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useRouter } from 'next/router';
@@ -27,6 +27,7 @@ export default function Register(): ReactElement {
   const router = useRouter();
   const { trackEvent } = useContext(AnalyticsContext);
   const { flags } = useContext(FeaturesContext);
+  const [disableSubmit, setDisableSubmit] = useState<boolean>(false);
 
   const getSignupModalFeatureValue = (featureFlag: Features) => {
     return getFeatureValue(featureFlag, flags);
@@ -69,6 +70,7 @@ export default function Register(): ReactElement {
             )}
             <ProfileForm
               id="profileForm"
+              setDisableSubmit={setDisableSubmit}
               onSuccessfulSubmit={onSuccessfulSubmit}
               mode={(router?.query.mode as RegistrationMode) || 'default'}
             />
@@ -76,6 +78,7 @@ export default function Register(): ReactElement {
               <Button
                 className="flex-1 btn-primary"
                 type="submit"
+                disabled={disableSubmit}
                 form="profileForm"
               >
                 {getSignupModalFeatureValue(Features.SignupSubmitButtonCopy)}
