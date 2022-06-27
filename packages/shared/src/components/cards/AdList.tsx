@@ -12,14 +12,18 @@ import AdLink from './AdLink';
 import AdAttribution from './AdAttribution';
 
 export const AdList = forwardRef(function AdList(
-  { ad, onLinkClick, ...props }: AdCardProps,
+  { ad, onLinkClick, postCardVersion, ...props }: AdCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
   return (
     <ListCard {...props} ref={ref}>
       <AdLink ad={ad} onLinkClick={onLinkClick} />
-      <ListCardAside />
-      <ListCardDivider />
+      {postCardVersion === 'v1' && (
+        <>
+          <ListCardAside />
+          <ListCardDivider />
+        </>
+      )}
       <ListCardMain>
         <ListCardTitle
           className={classNames('line-clamp-4 font-bold typo-title3')}

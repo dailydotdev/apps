@@ -2,6 +2,7 @@ import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { Post } from '../../graphql/posts';
 import { PostCard, PostCardProps } from './PostCard';
+import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
 
 const defaultPost: Post = {
   id: 'e3fd75b62cadd02073a31ee3444975cc',
@@ -48,7 +49,7 @@ const defaultPost: Post = {
 
 const defaultProps: PostCardProps = {
   post: defaultPost,
-  onLinkClick: jest.fn(),
+  onPostClick: jest.fn(),
   onUpvoteClick: jest.fn(),
   onCommentClick: jest.fn(),
   onBookmarkClick: jest.fn(),
@@ -59,16 +60,18 @@ beforeEach(() => {
 });
 
 const renderComponent = (props: Partial<PostCardProps> = {}): RenderResult => {
-  return render(<PostCard {...defaultProps} {...props} />);
+  return render(
+    <FeaturesContextProvider flags={{}}>
+      <PostCard {...defaultProps} {...props} />
+    </FeaturesContextProvider>,
+  );
 };
 
 it('should call on link click on component left click', async () => {
   renderComponent();
   const el = await screen.findAllByRole('link');
   el[0].click();
-  await waitFor(() =>
-    expect(defaultProps.onLinkClick).toBeCalledWith(defaultPost),
-  );
+  await waitFor(() => expect(defaultProps.onPostClick).toBeCalled());
 });
 
 it('should call on link click on component middle mouse up', async () => {
@@ -76,7 +79,7 @@ it('should call on link click on component middle mouse up', async () => {
   const el = await screen.findAllByRole('link');
   el[0].dispatchEvent(new MouseEvent('mouseup', { bubbles: true, button: 1 }));
   await waitFor(() =>
-    expect(defaultProps.onLinkClick).toBeCalledWith(defaultPost),
+    expect(defaultProps.onPostClick).toBeCalledWith(defaultPost),
   );
 });
 
@@ -138,31 +141,6 @@ it('should hide read time when not available', async () => {
 it('should show author name when available', async () => {
   renderComponent();
   const el = await screen.findByText('Ido Shamun');
-  expect(el).toBeInTheDocument();
-});
-
-it('should show featured comments authors profile image', async () => {
-  renderComponent();
-  const el = await screen.findByAltText(`nimrodkramer's profile`);
-  expect(el).toBeInTheDocument();
-});
-
-it('should show featured comment when clicking on the profile image', async () => {
-  renderComponent();
-  const btn = await screen.findByAltText(`nimrodkramer's profile`);
-  btn.click();
-  const el = await screen.findByText('My featured comment');
-  expect(el).toBeInTheDocument();
-});
-
-it('should return back to normal card form when clicking the back button', async () => {
-  renderComponent();
-  const btn = await screen.findByAltText(`nimrodkramer's profile`);
-  btn.click();
-  await screen.findByText('My featured comment');
-  const back = await screen.findByLabelText('Back');
-  back.click();
-  const el = await screen.findByText('The Prosecutor’s Fallacy');
   expect(el).toBeInTheDocument();
 });
 

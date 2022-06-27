@@ -56,6 +56,7 @@ export type ButtonProps<Tag extends AllowedTags> = BaseButtonProps &
   HTMLAttributes<AllowedElements> &
   JSX.IntrinsicElements[Tag] & {
     ref?: Ref<ButtonElementType<Tag>>;
+    readOnly?: boolean;
   };
 
 function ButtonComponent<TagName extends AllowedTags>(
@@ -70,6 +71,7 @@ function ButtonComponent<TagName extends AllowedTags>(
     className,
     displayClass,
     position = 'relative',
+    readOnly,
     ...props
   }: StyledButtonProps & ButtonProps<TagName>,
   ref?: Ref<ButtonElementType<TagName>>,
@@ -85,7 +87,7 @@ function ButtonComponent<TagName extends AllowedTags>(
       aria-pressed={pressed}
       ref={ref}
       className={classNames(
-        { iconOnly },
+        { iconOnly, readOnly },
         buttonSize,
         'btn flex-row items-center justify-center border typo-callout font-bold no-underline shadow-none cursor-pointer select-none focus-outline',
         displayClass || 'flex',
