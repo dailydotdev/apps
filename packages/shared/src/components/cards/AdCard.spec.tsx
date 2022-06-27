@@ -53,9 +53,7 @@ it('should show blurred image for carbon', async () => {
   renderComponent({ ad: { ...defaultAd, source: 'Carbon' } });
   const img = await screen.findByAltText('Ad image');
   const background = screen.queryByAltText('Ad image background');
-  expect(img).toBeInTheDocument();
-  // eslint-disable-next-line testing-library/no-node-access
-  expect(img.parentElement).toHaveClass('absolute');
+  expect(img).toHaveClass('absolute');
   expect(background).toBeInTheDocument();
 });
 

@@ -1,5 +1,4 @@
-import React, { forwardRef, ReactElement, Ref, useState } from 'react';
-import { Comment } from '../../graphql/comments';
+import React, { forwardRef, ReactElement, Ref, useMemo } from 'react';
 import { PostCardProps } from './PostCard';
 import {
   getPostClassNames,
@@ -8,25 +7,27 @@ import {
   ListCardDivider,
   ListCardAside,
   ListCardMain,
-  featuredCommentsToButtons,
+  CardButton,
 } from './Card';
 import PostLink from './PostLink';
 import PostMetadata from './PostMetadata';
 import ActionButtons from './ActionButtons';
 import SourceButton from './SourceButton';
 import styles from './Card.module.css';
-import ListFeaturedComment from './ListFeaturedComment';
 import TrendingFlag from './TrendingFlag';
 import PostAuthor from './PostAuthor';
-import PostOptions from '../buttons/OptionsButton';
+import { ProfileTooltip } from '../profile/ProfileTooltip';
+import { ProfileImageLink } from '../profile/ProfileImageLink';
+import classed from '../../lib/classed';
 
 export const PostList = forwardRef(function PostList(
   {
     post,
-    onLinkClick,
+    onPostClick,
     onUpvoteClick,
     onCommentClick,
     onBookmarkClick,
+    onReadArticleClick,
     onMenuClick,
     showShare,
     onShare,
@@ -35,69 +36,94 @@ export const PostList = forwardRef(function PostList(
     menuOpened,
     className,
     children,
+    postCardVersion = 'v1',
+    postModalByDefault,
+    postEngagementNonClickable,
     ...props
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
-  const [selectedComment, setSelectedComment] = useState<Comment>();
-
+  const onPostCardClick = () => onPostClick(post);
   const { trending } = post;
+  const isV1 = postCardVersion === 'v1';
+  const isV2 = postCardVersion === 'v2';
+  const ActionsContainer = isV2
+    ? useMemo(() => classed('div', 'flex flex-row items-center w-full'), [isV2])
+    : React.Fragment;
 
   const card = (
     <ListCard
       {...props}
-      className={getPostClassNames(post, selectedComment, className)}
+      className={getPostClassNames(post, className)}
       ref={ref}
     >
-      <PostLink post={post} openNewTab={openNewTab} onLinkClick={onLinkClick} />
-      <ListCardAside>
-        <SourceButton post={post} className="pb-2" tooltipPosition="top" />
-        {featuredCommentsToButtons(
-          post.featuredComments,
-          setSelectedComment,
-          null,
-          'my-1',
-          'top',
-        )}
-      </ListCardAside>
-      <ListCardDivider />
+      {postModalByDefault ? (
+        <CardButton title={post.title} onClick={onPostCardClick} />
+      ) : (
+        <PostLink
+          title={post.title}
+          href={post.permalink}
+          openNewTab={openNewTab}
+          onLinkClick={onPostCardClick}
+        />
+      )}
+      {isV1 && (
+        <>
+          <ListCardAside className="w-14">
+            <SourceButton
+              source={post?.source}
+              className="pb-2"
+              tooltipPosition="top"
+            />
+          </ListCardAside>
+          <ListCardDivider className="mb-1" />
+        </>
+      )}
       <ListCardMain>
-        <ListCardTitle className={className}>{post.title}</ListCardTitle>
+        <ListCardTitle>{post.title}</ListCardTitle>
         <PostMetadata
           createdAt={post.createdAt}
           readTime={post.readTime}
           className="my-1"
         >
-          <PostAuthor
-            post={post}
-            selectedComment={selectedComment}
-            className="ml-2"
-          />
+          {isV1 && <PostAuthor post={post} className="ml-2" />}
         </PostMetadata>
-        <ActionButtons
-          post={post}
-          onUpvoteClick={onUpvoteClick}
-          onCommentClick={onCommentClick}
-          onBookmarkClick={onBookmarkClick}
-          showShare={showShare}
-          onShare={onShare}
-          className="relative self-stretch mt-1"
-        >
-          <PostOptions
-            onClick={(event) => onMenuClick?.(event, post)}
+        <ActionsContainer>
+          {isV2 && (
+            <>
+              <SourceButton source={post?.source} tooltipPosition="top" />
+              {post.author && (
+                <ProfileTooltip
+                  link={{ href: post.author.permalink }}
+                  user={post.author}
+                >
+                  <ProfileImageLink
+                    className="ml-2"
+                    user={post.author}
+                    picture={{ size: 'medium' }}
+                  />
+                </ProfileTooltip>
+              )}
+              <ListCardDivider className="mx-3" />
+            </>
+          )}
+          <ActionButtons
             post={post}
+            onUpvoteClick={onUpvoteClick}
+            onCommentClick={onCommentClick}
+            onBookmarkClick={onBookmarkClick}
+            onReadArticleClick={onReadArticleClick}
+            showShare={showShare}
+            onShare={onShare}
+            className="relative self-stretch mt-1"
+            onMenuClick={(event) => onMenuClick?.(event, post)}
+            insaneMode
+            postCardVersion={postCardVersion}
+            postModalByDefault={postModalByDefault}
+            postEngagementNonClickable={postEngagementNonClickable}
           />
-        </ActionButtons>
+        </ActionsContainer>
       </ListCardMain>
-      {selectedComment && (
-        <ListFeaturedComment
-          comment={selectedComment}
-          featuredComments={post.featuredComments}
-          onCommentClick={setSelectedComment}
-          onBack={() => setSelectedComment(null)}
-          className={styles.show}
-        />
-      )}
       {children}
     </ListCard>
   );

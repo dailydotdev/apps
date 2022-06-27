@@ -3,56 +3,56 @@ import React, {
   HTMLAttributes,
   ReactElement,
   Ref,
-  useState,
+  useMemo,
 } from 'react';
 import classNames from 'classnames';
-import dynamic from 'next/dynamic';
 import { Post } from '../../graphql/posts';
 import {
   Card,
-  CardHeader,
+  CardButton,
   CardImage,
   CardSpace,
   CardTextContainer,
   CardTitle,
-  featuredCommentsToButtons,
   getPostClassNames,
 } from './Card';
 import FeatherIcon from '../icons/Feather';
-import { Comment } from '../../graphql/comments';
 import styles from './Card.module.css';
 import TrendingFlag from './TrendingFlag';
 import PostLink from './PostLink';
 import PostMetadata from './PostMetadata';
 import ActionButtons from './ActionButtons';
-import SourceButton from './SourceButton';
 import PostAuthor from './PostAuthor';
-import OptionsButton from '../buttons/OptionsButton';
 import { ProfilePicture } from '../ProfilePicture';
-
-const FeaturedComment = dynamic(() => import('./FeaturedComment'));
+import { PostCardHeader } from './PostCardHeader';
+import classed from '../../lib/classed';
+import { PostFooterOverlay } from './PostFooterOverlay';
+import { PostCardTests } from '../post/common';
 
 type Callback = (post: Post) => unknown;
 
 export type PostCardProps = {
   post: Post;
-  onLinkClick?: Callback;
+  onPostClick?: Callback;
   onUpvoteClick?: (post: Post, upvoted: boolean) => unknown;
   onCommentClick?: Callback;
   onBookmarkClick?: (post: Post, bookmarked: boolean) => unknown;
   onMenuClick?: (event: React.MouseEvent, post: Post) => unknown;
+  onReadArticleClick?: (e: React.MouseEvent) => unknown;
   showShare?: boolean;
   onShare?: Callback;
   openNewTab?: boolean;
   enableMenu?: boolean;
   menuOpened?: boolean;
   showImage?: boolean;
-} & HTMLAttributes<HTMLDivElement>;
+  insaneMode?: boolean;
+} & HTMLAttributes<HTMLDivElement> &
+  PostCardTests;
 
 export const PostCard = forwardRef(function PostCard(
   {
     post,
-    onLinkClick,
+    onPostClick,
     onUpvoteClick,
     onCommentClick,
     onBookmarkClick,
@@ -66,86 +66,128 @@ export const PostCard = forwardRef(function PostCard(
     children,
     showImage = true,
     style,
+    insaneMode,
+    onReadArticleClick,
+    postCardVersion = 'v1',
+    postModalByDefault,
+    postEngagementNonClickable,
     ...props
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
-  const [selectedComment, setSelectedComment] = useState<Comment>();
-  const { trending } = post;
+  const onPostCardClick = () => onPostClick(post);
+  const isV1 = postCardVersion === 'v1';
+  const Containter = useMemo(
+    () =>
+      classed(
+        'div',
+        'relative flex flex-1',
+        postCardVersion === 'v1' ? 'flex-col' : 'flex-col-reverse',
+      ),
+    [postCardVersion],
+  );
 
-  const customStyle =
-    selectedComment && !showImage ? { minHeight: '15.125rem' } : {};
+  const { trending } = post;
+  const customStyle = !showImage ? { minHeight: '15.125rem' } : {};
   const card = (
     <Card
       {...props}
-      className={getPostClassNames(post, selectedComment, className)}
+      className={getPostClassNames(post, className)}
       style={{ ...style, ...customStyle }}
       ref={ref}
     >
-      <PostLink post={post} openNewTab={openNewTab} onLinkClick={onLinkClick} />
+      {postModalByDefault ? (
+        <CardButton title={post.title} onClick={onPostCardClick} />
+      ) : (
+        <PostLink
+          title={post.title}
+          href={post.permalink}
+          openNewTab={openNewTab}
+          onLinkClick={onPostCardClick}
+        />
+      )}
       <CardTextContainer>
-        <CardHeader>
-          <SourceButton post={post} style={{ marginRight: '0.875rem' }} />
-          {featuredCommentsToButtons(post.featuredComments, setSelectedComment)}
-          <OptionsButton
-            onClick={(event) => onMenuClick?.(event, post)}
-            post={post}
+        {isV1 && (
+          <PostCardHeader
+            source={post.source}
+            postLink={post.permalink}
+            onMenuClick={(event) => onMenuClick?.(event, post)}
+            onReadArticleClick={onReadArticleClick}
+            postModalByDefault={postModalByDefault}
+            postEngagementNonClickable={postEngagementNonClickable}
           />
-        </CardHeader>
-        <CardTitle className={className}>{post.title}</CardTitle>
+        )}
+        <CardTitle>{post.title}</CardTitle>
       </CardTextContainer>
-      <CardSpace />
-      <PostMetadata
-        createdAt={post.createdAt}
-        readTime={post.readTime}
-        className="mx-4"
-      />
-      {!showImage && (
-        <PostAuthor
+      <Containter className="mb-8 tablet:mb-0">
+        <CardSpace />
+        <PostMetadata
+          createdAt={post.createdAt}
+          readTime={post.readTime}
+          className="mx-4"
+        />
+      </Containter>
+      <Containter>
+        {postCardVersion === 'v2' && (
+          <PostFooterOverlay
+            className={classNames(
+              'rounded-b-12',
+              insaneMode
+                ? 'relative tablet:absolute tablet:right-0 tablet:bottom-0 tablet:left-0 mt-2 tablet:mt-0 tablet:border-0 border-t border-theme-divider-tertiary'
+                : 'absolute right-0 bottom-0 left-0',
+            )}
+            postLink={post.permalink}
+            source={post.source}
+            author={post.author}
+            insaneMode={insaneMode}
+            onReadArticleClick={onReadArticleClick}
+            postModalByDefault={postModalByDefault}
+            postEngagementNonClickable={postEngagementNonClickable}
+          />
+        )}
+        {!showImage && (
+          <PostAuthor post={post} className="hidden tablet:flex mx-4 mt-2" />
+        )}
+        {showImage && (
+          <CardImage
+            alt="Post Cover image"
+            src={post.image}
+            fallbackSrc="https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1"
+            className={isV1 ? 'my-2' : 'mt-2'}
+            loading="lazy"
+          />
+        )}
+        {showImage && post.author && isV1 && (
+          <div
+            className={classNames(
+              'absolute flex items-center py-2 px-3 text-theme-label-secondary bg-theme-bg-primary z-1 font-bold typo-callout w-full',
+              styles.authorBox,
+            )}
+          >
+            <ProfilePicture size="small" user={post.author} />
+            <span className="flex-1 mx-3 truncate">{post.author.name}</span>
+            <FeatherIcon className="text-2xl text-theme-status-help" />
+          </div>
+        )}
+        <ActionButtons
           post={post}
-          selectedComment={selectedComment}
-          className="mx-4 mt-2"
-        />
-      )}
-      {showImage && (
-        <CardImage
-          imgAlt="Post Cover image"
-          imgSrc={post.image}
-          fallbackSrc="https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1"
-          className="my-2"
-        >
-          {post.author && (
-            <div
-              className={classNames(
-                'absolute flex items-center py-2 px-3 text-theme-label-secondary bg-theme-bg-primary z-1 font-bold typo-callout w-full',
-                selectedComment ? 'invisible' : styles.authorBox,
-              )}
-            >
-              <ProfilePicture size="small" user={post.author} />
-              <span className="flex-1 mx-3 truncate">{post.author.name}</span>
-              <FeatherIcon className="text-2xl text-theme-status-help" />
-            </div>
+          onUpvoteClick={onUpvoteClick}
+          onCommentClick={onCommentClick}
+          onBookmarkClick={onBookmarkClick}
+          showShare={showShare}
+          onShare={onShare}
+          onMenuClick={(event) => onMenuClick?.(event, post)}
+          onReadArticleClick={onReadArticleClick}
+          postCardVersion={postCardVersion}
+          postModalByDefault={postModalByDefault}
+          postEngagementNonClickable={postEngagementNonClickable}
+          className={classNames(
+            'mx-4',
+            !postEngagementNonClickable && 'justify-between',
+            !showImage && 'my-4 laptop:mb-0',
           )}
-        </CardImage>
-      )}
-      <ActionButtons
-        post={post}
-        onUpvoteClick={onUpvoteClick}
-        onCommentClick={onCommentClick}
-        onBookmarkClick={onBookmarkClick}
-        showShare={showShare}
-        onShare={onShare}
-        className={classNames('justify-between mx-4', !showImage && 'mt-4')}
-      />
-      {selectedComment && (
-        <FeaturedComment
-          comment={selectedComment}
-          featuredComments={post.featuredComments}
-          onCommentClick={setSelectedComment}
-          onBack={() => setSelectedComment(null)}
-          className={styles.show}
         />
-      )}
+      </Containter>
       {children}
     </Card>
   );

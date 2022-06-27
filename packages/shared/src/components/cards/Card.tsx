@@ -1,6 +1,5 @@
 import React, { ReactNode } from 'react';
 import classNames from 'classnames';
-import { LazyImage } from '../LazyImage';
 import { Comment } from '../../graphql/comments';
 import styles from './Card.module.css';
 import classed from '../../lib/classed';
@@ -8,6 +7,7 @@ import { Post } from '../../graphql/posts';
 import { ProfilePicture } from '../ProfilePicture';
 import { TooltipPosition } from '../tooltips/BaseTooltipContainer';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
+import { Image } from '../image/Image';
 
 const Title = classed(
   'h3',
@@ -21,15 +21,18 @@ export const ListCardTitle = classed(Title, 'mr-2');
 
 export const CardTextContainer = classed('div', 'flex flex-col mx-4');
 
-export const CardImage = classed(LazyImage, 'rounded-xl h-40');
+export const CardImage = classed(Image, 'rounded-xl h-40');
 
 export const CardSpace = classed('div', 'flex-1');
 
-export const CardLink = classed(
-  'a',
+const clickableCardClasses = classNames(
   styles.link,
   'absolute inset-0 w-full h-full focus-outline',
 );
+
+export const CardButton = classed('button', clickableCardClasses);
+
+export const CardLink = classed('a', clickableCardClasses);
 
 export const Card = classed(
   'article',
@@ -40,7 +43,7 @@ export const Card = classed(
 export const CardHeader = classed(
   'div',
   styles.header,
-  'flex h-8 items-center my-1 -mx-1.5',
+  'flex items-center h-8 items-center my-1 -mx-1.5',
 );
 
 export const ListCard = classed(
@@ -54,11 +57,11 @@ export const ListCardMain = classed(
   'flex-1 flex flex-col items-start ml-4',
 );
 
-export const ListCardAside = classed('div', 'flex flex-col w-14 items-center');
+export const ListCardAside = classed('div', 'flex flex-col items-center');
 
 export const ListCardDivider = classed(
   'div',
-  'w-px bg-theme-divider-tertiary mb-1',
+  'w-px h-full bg-theme-divider-tertiary',
 );
 
 export const CardNotification = classed(
@@ -66,17 +69,9 @@ export const CardNotification = classed(
   'px-4 py-1.5 -mx-1.5 rounded-10 bg-theme-label-primary text-theme-label-invert typo-callout font-bold',
 );
 
-export const getPostClassNames = (
-  post: Post,
-  selectedComment: Comment,
-  className: string,
-): string =>
+export const getPostClassNames = (post: Post, className: string): string =>
   classNames(
-    {
-      [styles.read]: post.read,
-      [styles.hideContent]: selectedComment,
-      [styles.trending]: post.trending > 0,
-    },
+    { [styles.read]: post.read, [styles.trending]: post.trending > 0 },
     styles.post,
     'group',
     className,
