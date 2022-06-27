@@ -101,7 +101,6 @@ export default function ProfileForm({
 
       const res = await updateProfile(data);
       if ('error' in res) {
-        console.log('error');
         setDisableSubmit?.(false);
         if ('code' in res && res.code === 1) {
           if (res.field === 'email') {
