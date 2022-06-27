@@ -80,7 +80,7 @@ export default function ActionButtons({
     <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
       <Button
         icon={<BookmarkIcon filled={post.bookmarked} />}
-        buttonSize="small"
+        buttonSize={postEngagementNonClickable ? 'small' : 'medium'}
         pressed={post.bookmarked}
         onClick={() => onBookmarkClick?.(post, !post.bookmarked)}
         className="btn-tertiary-bun"
