@@ -21,7 +21,7 @@ export default function PostLink({
       {...(openNewTab
         ? { target: '_blank', rel: 'noopener' }
         : { target: '_self' })}
-      onClick={(e) => onLinkClick?.(e)}
+      onClick={onLinkClick}
       onMouseUp={(event) => event.button === 1 && onLinkClick?.(event)}
     />
   );
