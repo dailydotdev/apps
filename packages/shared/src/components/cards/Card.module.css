@@ -27,7 +27,7 @@
 
   & a,
   & button,
-  & label {
+  & label:not(:global(.readOnly)) {
     pointer-events: all;
     z-index: 1;
   }

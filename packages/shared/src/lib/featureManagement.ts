@@ -113,6 +113,17 @@ export class Features {
     'Add the companion now!',
   );
 
+  static readonly PostCardVersion = new Features('post_card_version', 'v1', [
+    'v1',
+    'v2',
+  ]);
+
+  static readonly PostModalByDefault = new Features('post_modal_by_default');
+
+  static readonly PostEngagementNonClickable = new Features(
+    'post_engagement_non_clickable',
+  );
+
   static readonly MyFeedOnboardingVersion = new Features(
     'my_feed_onboarding_version',
     'control',

@@ -1,8 +1,15 @@
-import React, { forwardRef, HTMLAttributes, ReactElement, Ref } from 'react';
+import React, {
+  forwardRef,
+  HTMLAttributes,
+  ReactElement,
+  Ref,
+  useContext,
+} from 'react';
 import classNames from 'classnames';
 import { CardSpace, CardTextContainer } from './Card';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import classed from '../../lib/classed';
+import FeaturesContext from '../../contexts/FeaturesContext';
 
 const Text = classed(ElementPlaceholder, 'h-3 rounded-xl my-2');
 
@@ -14,6 +21,8 @@ export const PlaceholderCard = forwardRef(function PlaceholderCard(
   { className, showImage, ...props }: PlaceholderCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
+  const { postEngagementNonClickable } = useContext(FeaturesContext);
+
   return (
     <article
       aria-busy
@@ -31,10 +40,17 @@ export const PlaceholderCard = forwardRef(function PlaceholderCard(
         <Text style={{ width: '80%' }} />
       </CardTextContainer>
       <CardSpace className={showImage ? 'my-2' : 'my-6'} />
+      {postEngagementNonClickable && (
+        <CardTextContainer>
+          <Text style={{ width: '32%' }} />
+        </CardTextContainer>
+      )}
       {showImage && <ElementPlaceholder className="my-2 h-40 rounded-xl" />}
-      <CardTextContainer>
-        <Text style={{ width: '32%' }} />
-      </CardTextContainer>
+      {!postEngagementNonClickable && (
+        <CardTextContainer>
+          <Text style={{ width: '32%' }} />
+        </CardTextContainer>
+      )}
     </article>
   );
 });

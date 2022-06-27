@@ -167,6 +167,8 @@ export function PostContent({
     },
   );
 
+  const analyticsOrigin = isModal ? 'article modal' : 'article page';
+
   useEffect(() => {
     if (!postById?.post) {
       return;

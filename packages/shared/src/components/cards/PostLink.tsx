@@ -1,27 +1,28 @@
 import React, { ReactElement } from 'react';
-import { Post } from '../../graphql/posts';
 import { CardLink } from './Card';
 
 export type PostLinkProps = {
-  post: Post;
+  href: string;
+  title: string;
   openNewTab: boolean;
-  onLinkClick?: (post: Post) => unknown;
+  onLinkClick?: (e?: React.MouseEvent) => unknown;
 };
 
 export default function PostLink({
-  post,
+  href,
+  title,
   openNewTab,
   onLinkClick,
 }: PostLinkProps): ReactElement {
   return (
     <CardLink
-      href={post.permalink}
+      href={href}
+      title={title}
       {...(openNewTab
         ? { target: '_blank', rel: 'noopener' }
         : { target: '_self' })}
-      title={post.title}
-      onClick={() => onLinkClick?.(post)}
-      onMouseUp={(event) => event.button === 1 && onLinkClick?.(post)}
+      onClick={onLinkClick}
+      onMouseUp={(event) => event.button === 1 && onLinkClick?.(event)}
     />
   );
 }

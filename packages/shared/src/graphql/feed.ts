@@ -37,17 +37,7 @@ export const FEED_POST_FRAGMENT = gql`
       name
       image
       username
-    }
-    featuredComments {
-      id
-      content
       permalink
-      author {
-        id
-        name
-        image
-        username
-      }
     }
     trending
     tags

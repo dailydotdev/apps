@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import dynamic from 'next/dynamic';
+// import dynamic from 'next/dynamic';
 import { FeedItem } from '../hooks/useFeed';
 import { PostList } from './cards/PostList';
 import { PostCard } from './cards/PostCard';
@@ -9,10 +9,12 @@ import { PlaceholderList } from './cards/PlaceholderList';
 import { PlaceholderCard } from './cards/PlaceholderCard';
 import { Ad, Post } from '../graphql/posts';
 import { LoggedUser } from '../lib/user';
-import { CommentOnData } from '../graphql/comments';
+// import { CommentOnData } from '../graphql/comments';
 import useTrackImpression from '../hooks/feed/useTrackImpression';
+import { FeedPostClick } from '../hooks/feed/useFeedOnPostClick';
+import { PostCardTests } from './post/common';
 
-const CommentPopup = dynamic(() => import('./cards/CommentPopup'));
+// const CommentPopup = dynamic(() => import('./cards/CommentPopup'));
 
 export type FeedItemComponentProps = {
   items: FeedItem[];
@@ -24,16 +26,16 @@ export type FeedItemComponentProps = {
   openNewTab: boolean;
   insaneMode: boolean;
   postMenuIndex: number | undefined;
-  showCommentPopupId: string | undefined;
-  setShowCommentPopupId: (value: string | undefined) => void;
-  isSendingComment: boolean;
-  comment: (variables: {
-    post: Post;
-    content: string;
-    row: number;
-    column: number;
-    columns: number;
-  }) => Promise<CommentOnData>;
+  // showCommentPopupId: string | undefined;
+  // setShowCommentPopupId: (value: string | undefined) => void;
+  // isSendingComment: boolean;
+  // comment: (variables: {
+  //   post: Post;
+  //   content: string;
+  //   row: number;
+  //   column: number;
+  //   columns: number;
+  // }) => Promise<CommentOnData>;
   user: LoggedUser | undefined;
   feedName: string;
   ranking?: string;
@@ -51,12 +53,8 @@ export type FeedItemComponentProps = {
     column: number,
     bookmarked: boolean,
   ) => Promise<void>;
-  onPostClick: (
-    post: Post,
-    index: number,
-    row: number,
-    column: number,
-  ) => Promise<void>;
+  onPostClick: FeedPostClick;
+  onReadArticleClick: FeedPostClick;
   onShare: (post: Post) => void;
   onMenuClick: (
     e: React.MouseEvent,
@@ -73,6 +71,7 @@ export type FeedItemComponentProps = {
   onAdClick: (ad: Ad, index: number, row: number, column: number) => void;
   additionalInteractionButtonFeature: string;
 };
+} & PostCardTests;
 
 export function getFeedItemKey(items: FeedItem[], index: number): string {
   const item = items[index];
@@ -96,10 +95,10 @@ export default function FeedItemComponent({
   insaneMode,
   openNewTab,
   postMenuIndex,
-  showCommentPopupId,
-  setShowCommentPopupId,
-  isSendingComment,
-  comment,
+  // showCommentPopupId,
+  // setShowCommentPopupId,
+  // isSendingComment,
+  // comment,
   user,
   feedName,
   ranking,
@@ -111,6 +110,10 @@ export default function FeedItemComponent({
   onCommentClick,
   onAdClick,
   additionalInteractionButtonFeature,
+  onReadArticleClick,
+  postCardVersion,
+  postModalByDefault,
+  postEngagementNonClickable,
 }: FeedItemComponentProps): ReactElement {
   const PostTag = useList ? PostList : PostCard;
   const AdTag = useList ? AdList : AdCard;
@@ -141,9 +144,12 @@ export default function FeedItemComponent({
           onUpvoteClick={(post, upvoted) =>
             onUpvote(post, index, row, column, upvoted)
           }
-          onLinkClick={(post) => onPostClick(post, index, row, column)}
+          onPostClick={(post) => onPostClick(post, index, row, column)}
           onBookmarkClick={(post, bookmarked) =>
             onBookmark(post, index, row, column, bookmarked)
+          }
+          onReadArticleClick={() =>
+            onReadArticleClick(item.post, index, row, column)
           }
           onShare={onShare}
           openNewTab={openNewTab}
@@ -152,19 +158,24 @@ export default function FeedItemComponent({
           menuOpened={postMenuIndex === index}
           showImage={!insaneMode}
           onCommentClick={(post) => onCommentClick(post, index, row, column)}
-        >
-          {showCommentPopupId === item.post.id && (
-            <CommentPopup
-              onClose={() => setShowCommentPopupId(null)}
-              onSubmit={(content) =>
-                comment({ post: item.post, content, row, column, columns })
-              }
-              loading={isSendingComment}
-              compactCard={!useList && insaneMode}
-              listMode={useList}
-            />
-          )}
-        </PostTag>
+          insaneMode={insaneMode}
+          postCardVersion={postCardVersion}
+          postModalByDefault={postModalByDefault}
+          postEngagementNonClickable={postEngagementNonClickable}
+          // >
+          //   {showCommentPopupId === item.post.id && (
+          //     <CommentPopup
+          //       onClose={() => setShowCommentPopupId(null)}
+          //       onSubmit={(content) =>
+          //         comment({ post: item.post, content, row, column, columns })
+          //       }
+          //       loading={isSendingComment}
+          //       compactCard={!useList && insaneMode}
+          //       listMode={useList}
+          //     />
+          //   )}
+          // </PostTag>
+        />
       );
     case 'ad':
       return (
