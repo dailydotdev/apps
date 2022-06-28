@@ -19,7 +19,6 @@ jest.mock('../../lib/user', () => ({
   updateProfile: jest.fn(),
 }));
 
-const setDisableSubmit = jest.fn();
 const onSuccessfulSubmit = jest.fn();
 const updateUser = jest.fn();
 const userTimezone = getUserDefaultTimezone();
@@ -56,24 +55,11 @@ const renderComponent = (user: Partial<LoggedUser> = {}): RenderResult => {
           getRedirectUri: jest.fn(),
         }}
       >
-        <ProfileForm
-          setDisableSubmit={setDisableSubmit}
-          onSuccessfulSubmit={onSuccessfulSubmit}
-        />
+        <ProfileForm onSuccessfulSubmit={onSuccessfulSubmit} />
       </AuthContext.Provider>
     </QueryClientProvider>,
   );
 };
-
-it('should disable submit when form is invalid', () => {
-  renderComponent();
-  expect(setDisableSubmit).toBeCalledWith(true);
-});
-
-it('should enable submit when form is valid', () => {
-  renderComponent({ username: 'idoshamun' });
-  expect(setDisableSubmit).toBeCalledWith(false);
-});
 
 it('should submit information', async () => {
   renderComponent({ username: 'idoshamun' });
