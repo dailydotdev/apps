@@ -17,6 +17,7 @@ function EmailSignupForm({ onSubmit }: EmailSignupFormProps): ReactElement {
         inputId="email"
         label="Email"
         type="email"
+        name="email"
         actionButton={
           <Button
             buttonSize="small"

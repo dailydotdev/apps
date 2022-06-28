@@ -2,14 +2,14 @@ import React, { ReactElement, useState } from 'react';
 import classNames from 'classnames';
 import { StyledModal, ModalProps } from '../modals/StyledModal';
 import styles from '../modals/LoginModal.module.css';
-import { AuthDefault } from '../auth/AuthDefault';
+import { AuthDefault } from './AuthDefault';
 import { Button } from '../buttons/Button';
 import CloseIcon from '../icons/Close';
-import { RegistrationForm } from '../auth/RegistrationForm';
+import { RegistrationForm } from './RegistrationForm';
 import { ClickableText } from '../buttons/ClickableText';
-import LoginForm from '../auth/LoginForm';
-import EmailSignupForm from '../auth/EmailSignupForm';
-import OrDivider from '../auth/OrDivider';
+import LoginForm from './LoginForm';
+import EmailSignupForm from './EmailSignupForm';
+import OrDivider from './OrDivider';
 import { getQueryParams } from '../../contexts/AuthContext';
 import { AuthSignBack } from './AuthSignBack';
 
@@ -17,7 +17,6 @@ export type AuthModalProps = ModalProps;
 
 const hasLoggedOut = () => {
   const params = getQueryParams();
-  console.log(params);
 
   return params?.logged_out !== undefined;
 };
@@ -40,6 +39,16 @@ export default function AuthModal({
 
   const onEmailSignup = (e: React.FormEvent) => {
     e.preventDefault();
+    const form = e.currentTarget as HTMLFormElement;
+    const input = Array.from(form.elements).find(
+      (el) => el.getAttribute('name') === 'email',
+    ) as HTMLInputElement;
+
+    if (!input?.value?.trim()) {
+      return null;
+    }
+
+    setEmail(input.value.trim());
     return onEmailCheck();
   };
 
@@ -85,7 +94,7 @@ export default function AuthModal({
         },
       }}
     >
-      <div className="flex flex-col w-full overflow-y-auto h-full rounded-16 max-w-[25.75rem] bg-theme-bg-tertiary">
+      <div className="flex overflow-y-auto flex-col w-full h-full rounded-16 max-w-[25.75rem] bg-theme-bg-tertiary">
         <header className="flex flex-row justify-between items-center py-4 px-6 border-b border-theme-divider-tertiary">
           <h3>Sign up to daily.dev</h3>
           <Button icon={<CloseIcon />} buttonSize="small" />
@@ -95,15 +104,17 @@ export default function AuthModal({
         ) : (
           getContent()
         )}
-        <div className="flex justify-center py-3 mt-auto border-t border-theme-divider-tertiary typo-callout text-theme-label-tertiary">
-          {shouldLogin ? 'Not yet a member?' : 'Already a member?'}
-          <ClickableText
-            className="ml-1 text-theme-label-primary"
-            onClick={() => setShouldLogin(!shouldLogin)}
-          >
-            {shouldLogin ? 'Register' : 'Login'}
-          </ClickableText>
-        </div>
+        {!showRegistrationForm && (
+          <div className="flex justify-center py-3 mt-auto border-t border-theme-divider-tertiary typo-callout text-theme-label-tertiary">
+            {shouldLogin ? 'Not yet a member?' : 'Already a member?'}
+            <ClickableText
+              className="ml-1 text-theme-label-primary"
+              onClick={() => setShouldLogin(!shouldLogin)}
+            >
+              {shouldLogin ? 'Register' : 'Login'}
+            </ClickableText>
+          </div>
+        )}
       </div>
     </StyledModal>
   );
