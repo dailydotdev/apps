@@ -45,7 +45,6 @@ export type PostCardProps = {
   menuOpened?: boolean;
   showImage?: boolean;
   additionalInteractionButtonFeature?: string;
-} & HTMLAttributes<HTMLDivElement>;
   insaneMode?: boolean;
 } & HTMLAttributes<HTMLDivElement> &
   PostCardTests;
@@ -175,13 +174,15 @@ export const PostCard = forwardRef(function PostCard(
           onUpvoteClick={onUpvoteClick}
           onCommentClick={onCommentClick}
           onBookmarkClick={onBookmarkClick}
-          showShare={showShare}
           onShare={onShare}
           onMenuClick={(event) => onMenuClick?.(event, post)}
           onReadArticleClick={onReadArticleClick}
           postCardVersion={postCardVersion}
           postModalByDefault={postModalByDefault}
           postEngagementNonClickable={postEngagementNonClickable}
+          additionalInteractionButtonFeature={
+            additionalInteractionButtonFeature
+          }
           className={classNames(
             'mx-4',
             !postEngagementNonClickable && 'justify-between',

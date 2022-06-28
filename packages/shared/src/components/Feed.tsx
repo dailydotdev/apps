@@ -34,15 +34,12 @@ import {
 } from '../lib/feed';
 import PostOptionsMenu from './PostOptionsMenu';
 import FeaturesContext from '../contexts/FeaturesContext';
-import { PostModal } from './modals/PostModal';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
 import {
   ToastSubject,
   useToastNotification,
 } from '../hooks/useToastNotification';
 import { useSharePost } from '../hooks/useSharePost';
-import FeaturesContext from '../contexts/FeaturesContext';
-import { Features, getFeatureValue } from '../lib/featureManagement';
 
 export type FeedProps<T> = {
   feedName: string;
@@ -150,12 +147,7 @@ export default function Feed<T>({
     selectedPost,
     isFetchingNextPage,
   } = usePostModalNavigation(items, fetchPage);
-
-  const { flags } = useContext(FeaturesContext);
-  const additionalInteractionButtonFeature = getFeatureValue(
-    Features.AdditionalInteractionButton,
-    flags,
-  );
+  const { additionalInteractionButtonFeature } = useContext(FeaturesContext);
 
   useEffect(() => {
     if (emptyFeed) {
@@ -374,7 +366,7 @@ export default function Feed<T>({
       {sharePost && (
         <SharePostModal
           isOpen={!!sharePost}
-          post={sharePost.post}
+          post={sharePost}
           onRequestClose={closeSharePost}
         />
       )}

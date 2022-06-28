@@ -115,7 +115,7 @@ export const SearchField = forwardRef(function SearchField(
         />
       ) : (
         <SearchIcon
-          filled={focused}
+          showSecondary={focused}
           className="mr-2 text-2xl icon"
           style={{
             color:

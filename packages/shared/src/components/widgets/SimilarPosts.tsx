@@ -89,7 +89,7 @@ const ListItem = ({
         className="group-hover:visible mouse:invisible mt-1 btn-tertiary-bun"
         pressed={post.bookmarked}
         buttonSize="small"
-        icon={<BookmarkIcon filled={post.bookmarked} />}
+        icon={<BookmarkIcon showSecondary={post.bookmarked} />}
         onClick={() => onBookmark(post)}
       />
     </SimpleTooltip>

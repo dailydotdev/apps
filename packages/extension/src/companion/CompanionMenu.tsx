@@ -21,10 +21,6 @@ import { postEventName } from '@dailydotdev/shared/src/components/utilities';
 import { useKeyboardNavigation } from '@dailydotdev/shared/src/hooks/useKeyboardNavigation';
 import { useSharePost } from '@dailydotdev/shared/src/hooks/useSharePost';
 import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
-import {
-  Features,
-  getFeatureValue,
-} from '@dailydotdev/shared/src/lib/featureManagement';
 import { AdditionalInteractionButtons } from '@dailydotdev/shared/src/lib/featureValues';
 import NewCommentModal from '@dailydotdev/shared/src/components/modals/NewCommentModal';
 import SharePostModal from '@dailydotdev/shared/src/components/modals/SharePostModal';
@@ -59,11 +55,7 @@ export default function CompanionMenu({
 }: CompanionMenuProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
   const { user, showLogin } = useContext(AuthContext);
-  const { flags } = useContext(FeaturesContext);
-  const additionalInteractionButtonFeature = getFeatureValue(
-    Features.AdditionalInteractionButton,
-    flags,
-  );
+  const { additionalInteractionButtonFeature } = useContext(FeaturesContext);
   const [showCompanionHelper, setShowCompanionHelper] = usePersistentContext(
     'companion_helper',
     companionHelper,
@@ -227,7 +219,7 @@ export default function CompanionMenu({
       >
         <Button
           buttonSize="medium"
-          icon={<UpvoteIcon filled={post?.upvoted} />}
+          icon={<UpvoteIcon showSecondary={post?.upvoted} />}
           pressed={post?.upvoted}
           onClick={toggleUpvote}
           className="btn-tertiary-avocado"
@@ -259,7 +251,7 @@ export default function CompanionMenu({
             pressed={post?.bookmarked}
             className="btn-tertiary-bun"
             onClick={toggleBookmark}
-            icon={<BookmarkIcon filled={post?.bookmarked} />}
+            icon={<BookmarkIcon showSecondary={post?.bookmarked} />}
           />
         </SimpleTooltip>
       ) : (
@@ -312,7 +304,7 @@ export default function CompanionMenu({
         <SharePostModal
           isOpen={!!sharePost}
           parentSelector={getCompanionWrapper}
-          post={sharePost.post}
+          post={sharePost}
           onRequestClose={closeSharePost}
         />
       )}

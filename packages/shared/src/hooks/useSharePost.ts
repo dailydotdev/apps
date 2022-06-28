@@ -4,14 +4,12 @@ import { postAnalyticsEvent } from '../lib/feed';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 
 export function useSharePost(origin: string): {
-  sharePost: { post?: Post };
-  openSharePost: (post?: Post) => void;
+  sharePost: Post;
+  openSharePost: (Post) => void;
   closeSharePost: () => void;
 } {
   const { trackEvent } = useContext(AnalyticsContext);
-  const [shareModal, setShareModal] = useState<{
-    post?: Post;
-  }>();
+  const [shareModal, setShareModal] = useState<Post>();
 
   const openSharePost = async (post: Post) => {
     trackEvent(
@@ -29,7 +27,7 @@ export function useSharePost(origin: string): {
         // Do nothing
       }
     } else {
-      setShareModal({ post });
+      setShareModal(post);
     }
   };
 

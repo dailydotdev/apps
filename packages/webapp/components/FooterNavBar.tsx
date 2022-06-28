@@ -27,23 +27,31 @@ export const tabs: Tab[] = [
   {
     path: '/',
     title: 'Home',
-    icon: (active: boolean) => <HomeIcon filled={active} size="xxlarge" />,
+    icon: (active: boolean) => (
+      <HomeIcon showSecondary={active} size="xxlarge" />
+    ),
   },
   {
     path: '/bookmarks',
     title: 'Bookmarks',
-    icon: (active: boolean) => <BookmarkIcon filled={active} size="xxlarge" />,
+    icon: (active: boolean) => (
+      <BookmarkIcon showSecondary={active} size="xxlarge" />
+    ),
     requiresLogin: true,
   },
   {
     path: '/search',
     title: 'Search',
-    icon: (active: boolean) => <SearchIcon filled={active} size="xxlarge" />,
+    icon: (active: boolean) => (
+      <SearchIcon showSecondary={active} size="xxlarge" />
+    ),
   },
   {
     path: '/filters',
     title: 'Filters',
-    icon: (active: boolean) => <FilterIcon filled={active} size="xxlarge" />,
+    icon: (active: boolean) => (
+      <FilterIcon showSecondary={active} size="xxlarge" />
+    ),
   },
 ];
 

@@ -1,11 +1,18 @@
 import React, { ReactElement } from 'react';
+import { IconProps } from './Icon';
 
+interface MenuIconProps extends IconProps {
+  Icon: React.ElementType;
+}
 export const MenuIcon = ({
   Icon,
-  filled = false,
-}: {
-  Icon: React.ElementType;
-  filled?: boolean;
-}): ReactElement => {
-  return <Icon size="medium" filled={filled} className="mr-2 text-2xl" />;
+  showSecondary = false,
+}: MenuIconProps): ReactElement => {
+  return (
+    <Icon
+      size="medium"
+      showSecondary={showSecondary}
+      className="mr-2 text-2xl"
+    />
+  );
 };

@@ -46,7 +46,6 @@ import { postEventName } from '../utilities';
 import useBookmarkPost from '../../hooks/useBookmarkPost';
 import useUpdatePost from '../../hooks/useUpdatePost';
 import { useSharePost } from '../../hooks/useSharePost';
-import { Features, getFeatureValue } from '../../lib/featureManagement';
 import FeaturesContext from '../../contexts/FeaturesContext';
 
 const UpvotedPopupModal = dynamic(() => import('../modals/UpvotedPopupModal'));
@@ -127,16 +126,12 @@ export function PostContent({
     onShowUpvotedComment,
   } = useUpvoteQuery();
   const { user, showLogin } = useContext(AuthContext);
-  const { flags } = useContext(FeaturesContext);
+  const { additionalInteractionButtonFeature } = useContext(FeaturesContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
   const queryClient = useQueryClient();
   const postQueryKey = ['post', id];
-  const analyticsOrigin = isModal ? 'article page' : 'article modal';
-  const additionalInteractionButtonFeature = getFeatureValue(
-    Features.AdditionalInteractionButton,
-    flags,
-  );
+  const analyticsOrigin = isModal ? 'article modal' : 'article page';
   const { subject } = useToastNotification();
   const { sharePost, openSharePost, closeSharePost } =
     useSharePost(analyticsOrigin);
@@ -166,8 +161,6 @@ export function PostContent({
       },
     },
   );
-
-  const analyticsOrigin = isModal ? 'article modal' : 'article page';
 
   useEffect(() => {
     if (!postById?.post) {

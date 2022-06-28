@@ -15,7 +15,7 @@ export const ReadArticleButton = (
     tag="a"
     {...props}
     buttonSize="small"
-    rightIcon={<OpenLinkIcon className="ml-2" filled />}
+    rightIcon={<OpenLinkIcon className="ml-2" showSecondary />}
     target="_blank"
   >
     Read article

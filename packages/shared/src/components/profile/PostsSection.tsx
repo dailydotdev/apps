@@ -70,13 +70,13 @@ const iconImage = (post: Post) => {
       >
         {post.isAuthor ? (
           <FeatherIcon
-            filled
+            showSecondary
             data-testid="post-author-badge"
             className="text-xl text-theme-color-cheese"
           />
         ) : (
           <ScoutIcon
-            filled
+            showSecondary
             data-testid="post-scout-badge"
             className="text-xl text-theme-color-bun"
           />

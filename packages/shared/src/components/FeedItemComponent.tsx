@@ -70,7 +70,6 @@ export type FeedItemComponentProps = {
   ) => unknown;
   onAdClick: (ad: Ad, index: number, row: number, column: number) => void;
   additionalInteractionButtonFeature: string;
-};
 } & PostCardTests;
 
 export function getFeedItemKey(items: FeedItem[], index: number): string {

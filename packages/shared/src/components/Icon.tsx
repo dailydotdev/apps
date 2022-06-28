@@ -25,26 +25,26 @@ const IconSize: Record<Size, string> = {
 type ItemType = React.ComponentType<{ className }>;
 
 export interface IconProps {
-  filled?: boolean;
+  showSecondary?: boolean;
   size?: Size;
   className?: string;
   style?: Record<string, unknown>;
 }
 
 type Props = IconProps & {
-  IconOutlined: ItemType;
-  IconFilled: ItemType;
+  IconPrimary: ItemType;
+  IconSecondary: ItemType;
 };
 
 const Icon = ({
-  filled = false,
+  showSecondary = false,
   size = 'small',
   className = '',
-  IconOutlined,
-  IconFilled,
+  IconPrimary,
+  IconSecondary,
   ...rest
 }: Props): ReactElement => {
-  const IconComponent = filled ? IconFilled : IconOutlined;
+  const IconComponent = showSecondary ? IconSecondary : IconPrimary;
 
   return (
     <IconComponent
