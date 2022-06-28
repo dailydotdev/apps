@@ -9,6 +9,7 @@ import classed from '../../lib/classed';
 import { Button } from '../buttons/Button';
 import PostMetadata from '../cards/PostMetadata';
 import { ProfilePicture } from '../ProfilePicture';
+import { Image } from '../image/Image';
 
 interface PostItemCardProps {
   className?: string;
@@ -55,7 +56,7 @@ export default function PostItemCard({
           className,
         )}
       >
-        <img
+        <Image
           src={post.image}
           alt={post.title}
           className="w-16 laptop:w-24 h-16 rounded-16"
