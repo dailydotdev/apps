@@ -12,6 +12,8 @@ export interface DiscardActionModalProps extends ModalProps {
   onDiscard: (event: MouseEvent) => void;
   title?: string;
   description?: string;
+  leftButtonText?: string;
+  rightButtonText?: string;
 }
 
 export default function DiscardActionModal({
@@ -19,6 +21,8 @@ export default function DiscardActionModal({
   onRequestClose,
   title = 'Discard comment',
   description = 'Are you sure you want to close and discard your comment?',
+  leftButtonText = 'Stay',
+  rightButtonText = 'Discard',
   ...props
 }: DiscardActionModalProps): ReactElement {
   return (
@@ -27,10 +31,10 @@ export default function DiscardActionModal({
       <ConfirmationDescription>{description}</ConfirmationDescription>
       <ConfirmationButtons>
         <Button className="btn-secondary" onClick={onRequestClose}>
-          Stay
+          {leftButtonText}
         </Button>
         <Button className="btn-primary-ketchup" onClick={onDiscard}>
-          Discard
+          {rightButtonText}
         </Button>
       </ConfirmationButtons>
     </ConfirmationModal>
