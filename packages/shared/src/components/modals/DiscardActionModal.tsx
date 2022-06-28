@@ -8,26 +8,28 @@ import {
   ConfirmationButtons,
 } from './ConfirmationModal';
 
-export interface Props extends ModalProps {
-  onDeleteComment: (event: MouseEvent) => void;
+export interface DiscardActionModalProps extends ModalProps {
+  onDiscard: (event: MouseEvent) => void;
+  title?: string;
+  description?: string;
 }
 
-export default function DiscardCommentModal({
-  onDeleteComment,
+export default function DiscardActionModal({
+  onDiscard,
   onRequestClose,
+  title = 'Discard comment',
+  description = 'Are you sure you want to close and discard your comment?',
   ...props
-}: Props): ReactElement {
+}: DiscardActionModalProps): ReactElement {
   return (
     <ConfirmationModal {...props}>
-      <ConfirmationHeading>Discard comment</ConfirmationHeading>
-      <ConfirmationDescription>
-        Are you sure you want to close and discard your comment?
-      </ConfirmationDescription>
+      <ConfirmationHeading>{title}</ConfirmationHeading>
+      <ConfirmationDescription>{description}</ConfirmationDescription>
       <ConfirmationButtons>
         <Button className="btn-secondary" onClick={onRequestClose}>
           Stay
         </Button>
-        <Button className="btn-primary-ketchup" onClick={onDeleteComment}>
+        <Button className="btn-primary-ketchup" onClick={onDiscard}>
           Discard
         </Button>
       </ConfirmationButtons>
