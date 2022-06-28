@@ -16,8 +16,10 @@ import { Spaciness } from '../graphql/settings';
 import ScrollToTopButton from './ScrollToTopButton';
 import useFeedUpvotePost from '../hooks/feed/useFeedUpvotePost';
 import useFeedBookmarkPost from '../hooks/feed/useFeedBookmarkPost';
-import useCommentPopup from '../hooks/feed/useCommentPopup';
-import useFeedOnPostClick from '../hooks/feed/useFeedOnPostClick';
+// import useCommentPopup from '../hooks/feed/useCommentPopup';
+import useFeedOnPostClick, {
+  FeedPostClick,
+} from '../hooks/feed/useFeedOnPostClick';
 import useFeedContextMenu from '../hooks/feed/useFeedContextMenu';
 import useFeedInfiniteScroll, {
   InfiniteScrollScreenOffset,
@@ -30,6 +32,7 @@ import {
   postAnalyticsEvent,
 } from '../lib/feed';
 import PostOptionsMenu from './PostOptionsMenu';
+import FeaturesContext from '../contexts/FeaturesContext';
 import { PostModal } from './modals/PostModal';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
 import {
@@ -109,6 +112,8 @@ export default function Feed<T>({
   onEmptyFeed,
   emptyScreen,
 }: FeedProps<T>): ReactElement {
+  const { postCardVersion, postModalByDefault, postEngagementNonClickable } =
+    useContext(FeaturesContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
@@ -147,12 +152,6 @@ export default function Feed<T>({
     }
   }, [emptyFeed]);
 
-  const {
-    showCommentPopupId,
-    setShowCommentPopupId,
-    comment,
-    isSendingComment,
-  } = useCommentPopup(feedName);
   const infiniteScrollRef = useFeedInfiniteScroll({ fetchPage, canFetchMore });
 
   const onShare = async (post: Post): Promise<void> => {
@@ -174,10 +173,17 @@ export default function Feed<T>({
     return <></>;
   }
 
+  // const {
+  //   showCommentPopupId,
+  //   setShowCommentPopupId,
+  //   comment,
+  //   isSendingComment,
+  // } = useCommentPopup(feedName);
+
   const onUpvote = useFeedUpvotePost(
     items,
     updatePost,
-    setShowCommentPopupId,
+    // setShowCommentPopupId,
     virtualizedNumCards,
     feedName,
     ranking,
@@ -197,6 +203,33 @@ export default function Feed<T>({
     ranking,
   );
 
+  const onReadArticleClick = useFeedOnPostClick(
+    items,
+    updatePost,
+    virtualizedNumCards,
+    feedName,
+    ranking,
+    'go to link',
+  );
+
+  const onPostModalOpen = (index: number, callback?: () => unknown) => {
+    document.body.classList.add('hidden-scrollbar');
+    callback?.();
+    onOpenModal(index);
+  };
+
+  const onPostCardClick: FeedPostClick = async (post, index, row, column) => {
+    await onPostClick(post, index, row, column, {
+      skipPostUpdate: postModalByDefault,
+    });
+
+    if (!postModalByDefault) {
+      return;
+    }
+
+    onPostModalOpen(index);
+  };
+
   const { onMenuClick, postMenuIndex, setPostMenuIndex } = useFeedContextMenu();
 
   const onRemovePost = async (removePostIndex) => {
@@ -210,16 +243,16 @@ export default function Feed<T>({
     row: number,
     column: number,
   ): void => {
-    document.body.classList.add('hidden-scrollbar');
-    trackEvent(
-      postAnalyticsEvent('comments click', post, {
-        columns: virtualizedNumCards,
-        column,
-        row,
-        ...feedAnalyticsExtra(feedName, ranking),
-      }),
+    onPostModalOpen(index, () =>
+      trackEvent(
+        postAnalyticsEvent('comments click', post, {
+          columns: virtualizedNumCards,
+          column,
+          row,
+          ...feedAnalyticsExtra(feedName, ranking),
+        }),
+      ),
     );
-    onOpenModal(index);
   };
 
   const onAdClick = (ad: Ad, index: number, row: number, column: number) => {
@@ -293,20 +326,24 @@ export default function Feed<T>({
             insaneMode={insaneMode}
             nativeShareSupport={nativeShareSupport}
             postMenuIndex={postMenuIndex}
-            showCommentPopupId={showCommentPopupId}
-            setShowCommentPopupId={setShowCommentPopupId}
-            isSendingComment={isSendingComment}
-            comment={comment}
+            // showCommentPopupId={showCommentPopupId}
+            // setShowCommentPopupId={setShowCommentPopupId}
+            // isSendingComment={isSendingComment}
+            // comment={comment}
             user={user}
             feedName={feedName}
             ranking={ranking}
             onUpvote={onUpvote}
             onBookmark={onBookmark}
-            onPostClick={onPostClick}
+            onPostClick={onPostCardClick}
             onShare={onShare}
             onMenuClick={onMenuClick}
             onCommentClick={onCommentClick}
             onAdClick={onAdClick}
+            onReadArticleClick={onReadArticleClick}
+            postCardVersion={postCardVersion}
+            postModalByDefault={postModalByDefault}
+            postEngagementNonClickable={postEngagementNonClickable}
           />
         ))}
       </div>
