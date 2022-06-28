@@ -153,7 +153,7 @@ export default function ActionButtons({
         {insaneMode &&
           postModalByDefault &&
           !postEngagementNonClickable &&
-          bookmarkButton}
+          bookmarkOrShareButton}
       </LeftContainer>
       <RightContainer>
         {insaneMode && postModalByDefault && (
