@@ -9,6 +9,10 @@
     &:first-child {
       margin-left: 0;
     }
+
+    &:global(.ml-auto) {
+      margin-left: auto;
+    }
   }
 }
 
