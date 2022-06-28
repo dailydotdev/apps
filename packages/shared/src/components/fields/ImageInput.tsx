@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React, { ChangeEvent, ReactElement, useRef, useState } from 'react';
-import { blobToBase64 } from '../../lib/file';
+import { blobToBase64 } from '../../lib/blob';
 import EditIcon from '../icons/Edit';
 
 interface ImageInputProps {
