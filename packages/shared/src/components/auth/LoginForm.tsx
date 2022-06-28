@@ -11,7 +11,7 @@ interface LoginFormProps {
 
 function LoginForm({ onSubmit }: LoginFormProps): ReactElement {
   return (
-    <AuthForm onSubmit={onSubmit} action="#">
+    <AuthForm className="gap-2" onSubmit={onSubmit} action="#">
       <TextField
         leftIcon={<MailIcon />}
         inputId="email"

@@ -53,4 +53,4 @@ export const ColumnContainer = classed(
 export const AuthForm = classed<
   React.FormHTMLAttributes<HTMLFormElement>,
   HTMLFormElement
->('form', 'grid grid-cols-1 gap-2');
+>('form', 'grid grid-cols-1');
