@@ -48,7 +48,7 @@ export default function CreateMyFeedButton({
   }, [buttonCopy]);
 
   return (
-    <div className="flex flex-col items-center mb-8 w-full">
+    <div className="flex flex-col items-center mb-4 w-full">
       <div
         className={classNames(
           'p-2 border flex-col tablet:flex-row flex items-center rounded-12',
