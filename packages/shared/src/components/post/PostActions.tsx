@@ -14,6 +14,7 @@ import { postEventName } from '../utilities';
 import ForwardIcon from '../icons/Forward';
 import useUpdatePost from '../../hooks/useUpdatePost';
 import { AdditionalInteractionButtons } from '../../lib/featureValues';
+import { Origin } from '../../lib/analytics';
 
 export type OnShareOrBookmarkProps = {
   additionalInteractionButtonFeature: string;
@@ -36,7 +37,7 @@ export function PostActions({
   post,
   actionsClassName = 'hidden mobileL:flex',
   onComment,
-  origin = 'article page',
+  origin = Origin.ArticlePage,
 }: PostActionsProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
   const { user, showLogin } = useContext(AuthContext);

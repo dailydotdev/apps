@@ -13,6 +13,7 @@ import Modal from 'react-modal';
 import { useContextMenu } from '@dailydotdev/react-contexify';
 import { isTesting } from '@dailydotdev/shared/src/lib/constants';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
+import { Origin } from '@dailydotdev/shared/src/lib/analytics';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
@@ -24,6 +25,7 @@ import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import { AdditionalInteractionButtons } from '@dailydotdev/shared/src/lib/featureValues';
 import NewCommentModal from '@dailydotdev/shared/src/components/modals/NewCommentModal';
 import SharePostModal from '@dailydotdev/shared/src/components/modals/SharePostModal';
+
 import CompanionContextMenu from './CompanionContextMenu';
 import '@dailydotdev/shared/src/styles/globals.css';
 import { CompanionHelper, getCompanionWrapper } from './common';
@@ -73,8 +75,9 @@ export default function CompanionMenu({
     );
     return () => setPost(oldPost);
   };
-  const { sharePost, openSharePost, closeSharePost } =
-    useSharePost('companion');
+  const { sharePost, openSharePost, closeSharePost } = useSharePost(
+    Origin.Companion,
+  );
   const {
     bookmark,
     removeBookmark,
@@ -305,6 +308,7 @@ export default function CompanionMenu({
           isOpen={!!sharePost}
           parentSelector={getCompanionWrapper}
           post={sharePost}
+          origin={Origin.Companion}
           onRequestClose={closeSharePost}
         />
       )}

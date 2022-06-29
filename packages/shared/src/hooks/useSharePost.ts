@@ -1,24 +1,42 @@
 import { useContext, useState } from 'react';
 import { Post } from '../graphql/posts';
-import { postAnalyticsEvent } from '../lib/feed';
+import { FeedItemPosition, postAnalyticsEvent } from '../lib/feed';
 import AnalyticsContext from '../contexts/AnalyticsContext';
+import { ShareProvider } from '../lib/share';
+import { Origin } from '../lib/analytics';
 
-export function useSharePost(origin: string): {
+export function useSharePost(origin: Origin): {
   sharePost: Post;
-  openSharePost: (Post) => void;
+  sharePostFeedLocation?: FeedItemPosition;
+  openSharePost: (Post, columns?, column?, row?) => void;
   closeSharePost: () => void;
 } {
   const { trackEvent } = useContext(AnalyticsContext);
   const [shareModal, setShareModal] = useState<Post>();
+  const [sharePostFeedLocation, setSharePostFeedLocation] =
+    useState<FeedItemPosition>({});
 
-  const openSharePost = async (post: Post) => {
-    trackEvent(
-      postAnalyticsEvent('share post', post, {
-        extra: { origin },
-      }),
-    );
+  const openSharePost = async (
+    post: Post,
+    columns?: number,
+    column?: number,
+    row?: number,
+  ) => {
+    setSharePostFeedLocation({
+      columns,
+      column,
+      row,
+    });
     if ('share' in navigator) {
       try {
+        trackEvent(
+          postAnalyticsEvent('share post', post, {
+            columns,
+            column,
+            row,
+            extra: { origin, provider: ShareProvider.Native },
+          }),
+        );
         await navigator.share({
           text: post.title,
           url: post.commentsPermalink,
@@ -35,5 +53,10 @@ export function useSharePost(origin: string): {
     setShareModal(null);
   };
 
-  return { sharePost: shareModal, openSharePost, closeSharePost };
+  return {
+    sharePost: shareModal,
+    sharePostFeedLocation,
+    openSharePost,
+    closeSharePost,
+  };
 }

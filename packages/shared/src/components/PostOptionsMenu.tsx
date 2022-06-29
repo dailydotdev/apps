@@ -25,6 +25,7 @@ import AuthContext from '../contexts/AuthContext';
 import { OnShareOrBookmarkProps } from './post/PostActions';
 import BookmarkIcon from './icons/Bookmark';
 import { AdditionalInteractionButtons } from '../lib/featureValues';
+import { Origin } from '../lib/analytics';
 
 const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
   ssr: false,
@@ -73,7 +74,7 @@ export default function PostOptionsMenu({
     onBlockTags,
     onUnblockTags,
   } = useTagAndSource({
-    origin: 'post context menu',
+    origin: Origin.PostContextMenu,
     postId: post?.id,
   });
   const [reportModal, setReportModal] = useState<{
@@ -113,7 +114,7 @@ export default function PostOptionsMenu({
 
     trackEvent(
       postAnalyticsEvent('report post', reportedPost, {
-        extra: { origin: 'post context menu' },
+        extra: { origin: Origin.PostContextMenu },
       }),
     );
 
@@ -167,7 +168,7 @@ export default function PostOptionsMenu({
 
     trackEvent(
       postAnalyticsEvent('hide post', post, {
-        extra: { origin: 'post context menu' },
+        extra: { origin: Origin.PostContextMenu },
       }),
     );
 

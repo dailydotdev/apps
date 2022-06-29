@@ -1,17 +1,18 @@
-import React, { ReactElement } from 'react';
+import React, { HTMLAttributes, ReactElement } from 'react';
 import classNames from 'classnames';
 import { Button } from '../buttons/Button';
 
-interface SocialShareIconProps {
+interface SocialShareIconProps extends HTMLAttributes<HTMLButtonElement> {
   href: string;
   icon: ReactElement;
-  className: string;
   label: string;
 }
+
 export const SocialShareIcon = ({
   href,
   icon,
   className,
+  onClick,
   label,
 }: SocialShareIconProps): ReactElement => {
   return (
@@ -21,6 +22,7 @@ export const SocialShareIcon = ({
         data-testid={`social-share-${label}`}
         buttonSize="large"
         href={href}
+        onClick={onClick}
         target="_blank"
         rel="noopener"
         className={classNames(className, 'mb-2')}

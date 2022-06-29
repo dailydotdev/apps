@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic';
 import ArrowIcon from '../icons/Arrow';
 import { Button } from '../buttons/Button';
 import { PostModalActions, PostModalActionsProps } from './PostModalActions';
+import { Origin } from '../../lib/analytics';
 
 const SimpleTooltip = dynamic(() => import('../tooltips/SimpleTooltip'));
 
@@ -93,7 +94,7 @@ export function PostNavigation({
         inlineActions={shouldDisplayTitle || isModal}
         className={getClasses()}
         notificactionClassName="ml-4"
-        origin={isModal ? 'article modal' : 'article page'}
+        origin={isModal ? Origin.ArticleModal : Origin.ArticleModal}
       />
     </div>
   );

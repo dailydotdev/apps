@@ -40,6 +40,7 @@ import {
   useToastNotification,
 } from '../hooks/useToastNotification';
 import { useSharePost } from '../hooks/useSharePost';
+import { Origin } from '../lib/analytics';
 
 export type FeedProps<T> = {
   feedName: string;
@@ -222,7 +223,8 @@ export default function Feed<T>({
     onPostModalOpen(index);
   };
 
-  const { onMenuClick, postMenuIndex, setPostMenuIndex } = useFeedContextMenu();
+  const { onMenuClick, postMenuIndex, postMenuLocation, setPostMenuIndex } =
+    useFeedContextMenu();
 
   const onRemovePost = async (removePostIndex) => {
     const item = items[removePostIndex] as PostItem;
@@ -268,8 +270,11 @@ export default function Feed<T>({
     return <>{emptyScreen}</>;
   }
 
-  const { sharePost, openSharePost, closeSharePost } = useSharePost('feed');
-  const onShareClick = (post: Post) => openSharePost(post);
+  const { sharePost, sharePostFeedLocation, openSharePost, closeSharePost } =
+    useSharePost(Origin.Feed);
+  const onShareClick = (post: Post, row?: number, column?: number) => {
+    return openSharePost(post, virtualizedNumCards, column, row);
+  };
 
   useEffect(() => {
     if (!selectedPost) {
@@ -347,13 +352,20 @@ export default function Feed<T>({
       <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
       <PostOptionsMenu
         additionalInteractionButtonFeature={additionalInteractionButtonFeature}
-        onShare={() => openSharePost((items[postMenuIndex] as PostItem)?.post)}
+        onShare={() =>
+          openSharePost(
+            (items[postMenuIndex] as PostItem)?.post,
+            virtualizedNumCards,
+            postMenuLocation.row,
+            postMenuLocation.column,
+          )
+        }
         onBookmark={() =>
           onBookmark(
             (items[postMenuIndex] as PostItem)?.post,
             postMenuIndex,
-            calculateRow(postMenuIndex, numCards),
-            calculateColumn(postMenuIndex, numCards),
+            postMenuLocation.row,
+            postMenuLocation.column,
             !(items[postMenuIndex] as PostItem)?.post?.bookmarked,
           )
         }
@@ -367,6 +379,8 @@ export default function Feed<T>({
         <SharePostModal
           isOpen={!!sharePost}
           post={sharePost}
+          origin={Origin.Feed}
+          {...sharePostFeedLocation}
           onRequestClose={closeSharePost}
         />
       )}

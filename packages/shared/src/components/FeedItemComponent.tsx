@@ -55,7 +55,7 @@ export type FeedItemComponentProps = {
   ) => Promise<void>;
   onPostClick: FeedPostClick;
   onReadArticleClick: FeedPostClick;
-  onShare: (post: Post) => void;
+  onShare: (post: Post, row?: number, column?: number) => void;
   onMenuClick: (
     e: React.MouseEvent,
     index: number,
@@ -150,7 +150,7 @@ export default function FeedItemComponent({
           onReadArticleClick={() =>
             onReadArticleClick(item.post, index, row, column)
           }
-          onShare={onShare}
+          onShare={(post: Post) => onShare(post, row, column)}
           openNewTab={openNewTab}
           enableMenu={!!user}
           onMenuClick={(event) => onMenuClick(event, index, row, column)}

@@ -1,3 +1,15 @@
+export enum ShareProvider {
+  Native = 'native',
+  CopyLink = 'copy link',
+  WhatsApp = 'whatsapp',
+  Twitter = 'twitter',
+  Facebook = 'facebook',
+  Reddit = 'reddit',
+  LinkedIn = 'linkedin',
+  Telegram = 'telegram',
+  Email = 'email',
+}
+
 export const getWhatsappShareLink = (link: string): string =>
   `https://wa.me/?text=${encodeURIComponent(link)}`;
 export const getTwitterShareLink = (link: string, text: string): string =>

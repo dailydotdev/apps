@@ -10,6 +10,8 @@ import FurtherReading from '../widgets/FurtherReading';
 import { PostUsersHighlights } from '../widgets/PostUsersHighlights';
 import { PostModalActions, PostModalActionsProps } from './PostModalActions';
 import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
+import { ShareProvider } from '../../lib/share';
+import { Origin } from '../../lib/analytics';
 
 interface PostWidgetsProps extends PostModalActionsProps {
   isNavigationFixed?: boolean;
@@ -24,7 +26,7 @@ export function PostWidgets({
   className,
   isNavigationFixed,
   onClose,
-  origin = 'article page',
+  origin = Origin.ArticlePage,
 }: PostWidgetsProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
@@ -32,15 +34,15 @@ export function PostWidgets({
   const sharePost = async () => {
     if ('share' in navigator) {
       try {
+        trackEvent(
+          postAnalyticsEvent('share post', post, {
+            extra: { origin, provider: ShareProvider.Native },
+          }),
+        );
         await navigator.share({
           text: post.title,
           url: post.commentsPermalink,
         });
-        trackEvent(
-          postAnalyticsEvent('share post', post, {
-            extra: { origin },
-          }),
-        );
       } catch (err) {
         // Do nothing
       }

@@ -12,8 +12,8 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import AuthContext from '../../contexts/AuthContext';
 import {
   PostData,
-  PostsEngaged,
   POSTS_ENGAGED_SUBSCRIPTION,
+  PostsEngaged,
 } from '../../graphql/posts';
 import useSubscription from '../../hooks/useSubscription';
 import { postAnalyticsEvent } from '../../lib/feed';
@@ -47,6 +47,7 @@ import useBookmarkPost from '../../hooks/useBookmarkPost';
 import useUpdatePost from '../../hooks/useUpdatePost';
 import { useSharePost } from '../../hooks/useSharePost';
 import FeaturesContext from '../../contexts/FeaturesContext';
+import { Origin } from '../../lib/analytics';
 
 const UpvotedPopupModal = dynamic(() => import('../modals/UpvotedPopupModal'));
 const NewCommentModal = dynamic(() => import('../modals/NewCommentModal'));
@@ -131,7 +132,7 @@ export function PostContent({
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
   const queryClient = useQueryClient();
   const postQueryKey = ['post', id];
-  const analyticsOrigin = isModal ? 'article modal' : 'article page';
+  const analyticsOrigin = isModal ? Origin.ArticleModal : Origin.ArticlePage;
   const { subject } = useToastNotification();
   const { sharePost, openSharePost, closeSharePost } =
     useSharePost(analyticsOrigin);
@@ -371,6 +372,7 @@ export function PostContent({
         <SharePostModal
           isOpen={!!sharePost}
           post={postById.post}
+          origin={analyticsOrigin}
           onRequestClose={closeSharePost}
         />
       )}

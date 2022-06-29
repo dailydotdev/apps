@@ -9,6 +9,7 @@ import {
   getFacebookShareLink,
   getTwitterShareLink,
   getWhatsappShareLink,
+  ShareProvider,
 } from '../lib/share';
 import { Button, ButtonProps } from './buttons/Button';
 import classed from '../lib/classed';
@@ -16,6 +17,7 @@ import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
 import { SimpleTooltip } from './tooltips/SimpleTooltip';
 import { WidgetContainer } from './widgets/common';
+import { Origin } from '../lib/analytics';
 
 const ShareButton = classed(Button, 'my-1');
 const ColorfulShareButton = classed(
@@ -28,10 +30,10 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
   const [copying, copyLink] = useCopyPostLink(href);
   const { trackEvent } = useContext(AnalyticsContext);
 
-  const onClick = (media: string) =>
+  const onClick = (provider: ShareProvider) =>
     trackEvent(
       postAnalyticsEvent('share post', post, {
-        extra: { media, origin: 'share bar' },
+        extra: { provider, origin: Origin.ShareBar },
       }),
     );
 
@@ -55,7 +57,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
             href={getWhatsappShareLink(href)}
             target="_blank"
             rel="noopener"
-            onClick={() => onClick('whatsapp')}
+            onClick={() => onClick(ShareProvider.WhatsApp)}
             icon={<WhatsappIcon style={{ fontSize: '1.75rem' }} />}
             className="btn-tertiary"
           />
@@ -66,7 +68,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
             href={getTwitterShareLink(href, post.title)}
             target="_blank"
             rel="noopener"
-            onClick={() => onClick('twitter')}
+            onClick={() => onClick(ShareProvider.Twitter)}
             icon={<TwitterIcon style={{ fontSize: '1.75rem' }} />}
             className="btn-tertiary"
           />
@@ -77,7 +79,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
             href={getFacebookShareLink(href)}
             target="_blank"
             rel="noopener"
-            onClick={() => onClick('facebook')}
+            onClick={() => onClick(ShareProvider.Facebook)}
             icon={<FacebookIcon style={{ fontSize: '1.75rem' }} />}
             className="btn-tertiary"
           />

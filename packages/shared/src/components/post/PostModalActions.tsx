@@ -23,6 +23,7 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../../lib/feed';
 import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
 import { OnShareOrBookmarkProps } from './PostActions';
+import { Origin } from '../../lib/analytics';
 
 export interface PostModalActionsProps extends OnShareOrBookmarkProps {
   post: Post;
@@ -48,7 +49,7 @@ export function PostModalActions({
   onClose,
   inlineActions,
   className,
-  origin = 'article page',
+  origin = Origin.ArticlePage,
   notificactionClassName,
   ...props
 }: PostModalActionsProps): ReactElement {
