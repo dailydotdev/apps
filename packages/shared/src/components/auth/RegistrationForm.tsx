@@ -1,6 +1,12 @@
-import React, { ReactElement, useEffect, useRef, useState } from 'react';
+import React, {
+  MutableRefObject,
+  ReactElement,
+  useEffect,
+  useState,
+} from 'react';
 import { formInputs } from '../../lib/form';
 import { Button } from '../buttons/Button';
+import ImageInput from '../fields/ImageInput';
 import { TextField } from '../fields/TextField';
 import MailIcon from '../icons/Mail';
 import UserIcon from '../icons/User';
@@ -8,43 +14,53 @@ import VIcon from '../icons/V';
 import { AuthForm } from './common';
 import EmailVerificationSent from './EmailVerificationSent';
 
-interface SocialProviderUser {
-  name?: string;
+export interface SocialProviderAccount {
+  provider: string;
+  name: string;
   image?: string;
 }
 
 interface RegistrationFormProps {
   email: string;
-  user?: SocialProviderUser;
+  socialAccount?: SocialProviderAccount;
+  formRef?: MutableRefObject<HTMLFormElement>;
+}
+
+export interface RegistrationFormValues {
+  image?: string;
+  email?: string;
+  fullname?: string;
+  password?: string;
+  username?: string;
 }
 
 export const RegistrationForm = ({
   email,
-  user,
+  socialAccount,
+  formRef,
 }: RegistrationFormProps): ReactElement => {
-  const formRef = useRef<HTMLFormElement>();
   const [isNameValid, setIsNameValid] = useState<boolean>();
   const [isPasswordValid, setIsPasswordValid] = useState<boolean>();
   const [isUsernameValid, setIsUsernameValid] = useState<boolean>();
   const [emailSent, setEmailSent] = useState(false);
 
   useEffect(() => {
-    if (!user) {
+    if (!socialAccount) {
       return;
     }
 
     const data = formInputs(formRef.current);
     Object.keys(data).forEach((key) => {
-      if (!user?.[key]) {
+      if (!socialAccount?.[key]) {
         return;
       }
 
-      const value = user?.[key];
+      const value = socialAccount?.[key];
       const el = data[key];
       el.value = value;
       el.dispatchEvent(new Event('input'));
     });
-  }, [user]);
+  }, [socialAccount]);
 
   if (emailSent) {
     return <EmailVerificationSent email={email} />;
@@ -57,11 +73,13 @@ export const RegistrationForm = ({
 
   return (
     <AuthForm
-      className="gap-4 self-center mt-6 w-full px-[3.75rem]"
+      className="gap-4 self-center place-items-center mt-6 w-full px-[3.75rem]"
       ref={formRef}
       onSubmit={onSubmit}
     >
+      {socialAccount && <ImageInput initialValue={socialAccount.image} />}
       <TextField
+        className="w-full"
         leftIcon={<MailIcon />}
         name="email"
         inputId="email"
@@ -72,6 +90,7 @@ export const RegistrationForm = ({
         rightIcon={<VIcon className="text-theme-color-avocado" />}
       />
       <TextField
+        className="w-full"
         validityChanged={setIsNameValid}
         valid={isNameValid}
         leftIcon={<UserIcon />}
@@ -84,8 +103,9 @@ export const RegistrationForm = ({
         minLength={3}
         required
       />
-      {isNameValid !== undefined && (
+      {!socialAccount && isNameValid !== undefined && (
         <TextField
+          className="w-full"
           validityChanged={setIsPasswordValid}
           valid={isPasswordValid}
           leftIcon={<MailIcon />}
@@ -99,8 +119,10 @@ export const RegistrationForm = ({
           required
         />
       )}
-      {isPasswordValid !== undefined && (
+      {(isPasswordValid !== undefined ||
+        (isNameValid !== undefined && socialAccount)) && (
         <TextField
+          className="w-full"
           validityChanged={setIsUsernameValid}
           valid={isUsernameValid}
           leftIcon={<UserIcon />}

@@ -4,9 +4,13 @@ import ProviderButton from './ProviderButton';
 
 interface AuthDefaultProps {
   children?: ReactNode;
+  onProviderClick?: (provider: string) => unknown;
 }
 
-export const AuthDefault = ({ children }: AuthDefaultProps): ReactElement => {
+export const AuthDefault = ({
+  children,
+  onProviderClick,
+}: AuthDefaultProps): ReactElement => {
   return (
     <ColumnContainer>
       {providers.map(({ provider, ...props }) => (
@@ -14,6 +18,7 @@ export const AuthDefault = ({ children }: AuthDefaultProps): ReactElement => {
           key={provider}
           provider={provider}
           label="Connect with"
+          onClick={() => onProviderClick(provider)}
           {...props}
         />
       ))}
