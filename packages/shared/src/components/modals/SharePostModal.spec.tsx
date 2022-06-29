@@ -62,7 +62,7 @@ it('should render the copy link section', async () => {
 it('should share with a specific share link', async () => {
   renderComponent();
 
-  expect(screen.getByTestId('social-share-Whatsapp')).toHaveAttribute(
+  expect(screen.getByTestId('social-share-WhatsApp')).toHaveAttribute(
     'href',
     getWhatsappShareLink(defaultPost.commentsPermalink),
   );
