@@ -8,7 +8,7 @@ import classNames from 'classnames';
 import { changeProfileImage, LoggedUser } from '../../lib/user';
 import CameraIcon from '../icons/Camera';
 import GoogleIcon from '../../../icons/google.svg';
-import GitHubIcon from '../../../icons/github.svg';
+import GitHubIcon from '../icons/GitHub';
 import JoinedDate from './JoinedDate';
 import { FormErrorMessage } from '../utilities';
 import sizeN from '../../../macros/sizeN.macro';
@@ -21,7 +21,7 @@ export interface EditImageWithJoinedDateProps
 }
 
 const Provider = classed('div', 'flex items-center my-0.5');
-const providerIconClass = 'icon text-base mr-3';
+const providerIconClass = 'icon text-base mr-3 w-auto h-auto';
 
 const TWO_MEGABYTES = 2 * 1024 * 1024;
 
@@ -93,7 +93,7 @@ export default function EditImageWithJoinedDate({
             </Provider>
           ) : (
             <Provider>
-              <GitHubIcon className={providerIconClass} />
+              <GitHubIcon filled className={providerIconClass} />
               <span>via GitHub</span>
             </Provider>
           )}

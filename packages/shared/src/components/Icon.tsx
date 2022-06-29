@@ -46,6 +46,10 @@ const Icon = ({
 }: Props): ReactElement => {
   const IconComponent = filled ? IconFilled : IconOutlined;
 
+  if (!filled && !IconOutlined) {
+    return null;
+  }
+
   return (
     <IconComponent
       className={classNames(IconSize[size], 'pointer-events-none', className)}

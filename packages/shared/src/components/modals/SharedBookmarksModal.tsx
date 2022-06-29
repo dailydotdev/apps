@@ -18,7 +18,7 @@ import { TextField } from '../fields/TextField';
 import TwitterIcon from '../../../icons/twitter_color.svg';
 import SlackIcon from '../../../icons/slack.svg';
 import DiscordIcon from '../../../icons/discord_color.svg';
-import GithubIcon from '../../../icons/github.svg';
+import GithubIcon from '../icons/GitHub';
 import { ModalCloseButton } from './ModalCloseButton';
 import { useCopyLink } from '../../hooks/useCopyLink';
 
@@ -119,7 +119,7 @@ export default function SharedBookmarksModal({
             <DiscordIcon />
             <TwitterIcon />
             <SlackIcon />
-            <GithubIcon />
+            <GithubIcon size="medium" />
           </div>
         </div>
       </section>
