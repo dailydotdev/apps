@@ -7,9 +7,13 @@ import { AuthForm } from './common';
 
 interface LoginFormProps {
   onSubmit: (e: React.FormEvent) => unknown;
+  onForgotPassword?: () => unknown;
 }
 
-function LoginForm({ onSubmit }: LoginFormProps): ReactElement {
+function LoginForm({
+  onSubmit,
+  onForgotPassword,
+}: LoginFormProps): ReactElement {
   return (
     <AuthForm className="gap-2" onSubmit={onSubmit} action="#">
       <TextField
@@ -28,7 +32,10 @@ function LoginForm({ onSubmit }: LoginFormProps): ReactElement {
         type="password"
       />
       <span className="flex flex-row mt-5 w-full">
-        <ClickableText className="flex-1 btn-primary">
+        <ClickableText
+          className="flex-1 btn-primary"
+          onClick={onForgotPassword}
+        >
           Forgot password?
         </ClickableText>
         <Button
