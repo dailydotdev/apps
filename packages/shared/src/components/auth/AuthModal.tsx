@@ -2,7 +2,8 @@ import React, { ReactElement, useRef, useState } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import { StyledModal, ModalProps } from '../modals/StyledModal';
-import styles from '../modals/LoginModal.module.css';
+import Circles from '../../../icons/circles_bg.svg';
+import styles from './AuthModal.module.css';
 import { AuthDefault } from './AuthDefault';
 import { Button } from '../buttons/Button';
 import CloseIcon from '../icons/Close';
@@ -148,22 +149,10 @@ export default function AuthModal({
       {...props}
       overlayRef={setContainer}
       onRequestClose={onClose}
-      className={classNames(styles.loginModal, className)}
-      style={{
-        content: {
-          padding: 0,
-          maxHeight: '40rem',
-          height: '100%',
-          width: '100%',
-          maxWidth: '1020px',
-          alignItems: 'flex-end',
-          backgroundImage: `url('./auth_bg.png')`,
-          objectFit: 'cover',
-          overflow: 'hidden',
-        },
-      }}
+      className={classNames(styles.authModal, className)}
     >
-      <div className="flex overflow-y-auto flex-col w-full h-full rounded-16 max-w-[25.75rem] bg-theme-bg-tertiary">
+      <Circles className="absolute z-0 w-3/5 h-3/5" />
+      <div className="flex overflow-y-auto z-1 flex-col ml-auto w-full h-full rounded-16 max-w-[25.75rem] bg-theme-bg-tertiary">
         <header className="flex flex-row justify-between items-center py-4 px-6 border-b border-theme-divider-tertiary">
           <h3>Sign up to daily.dev</h3>
           <Button icon={<CloseIcon />} buttonSize="small" onClick={onClose} />

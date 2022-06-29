@@ -1,0 +1,18 @@
+.authModal {
+  & :global(.modal) {
+    position: relative;
+    display: flex;
+    padding: 0;
+    max-height: 40rem;
+    height: 100%;
+    width: 100%;
+    justify-content: flex-end;
+    align-items: center;
+    overflow: hidden;
+    background: var(--theme-background-primary);
+
+    @screen laptop {
+      max-width: 1020px;
+    }
+  }
+}
