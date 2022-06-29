@@ -32,7 +32,9 @@ function ForgotPassword({ email }: ForgotPasswordProps): ReactElement {
           label="Email"
           defaultValue={email}
           leftIcon={<MailIcon />}
-          rightIcon={emailSent && <VIcon />}
+          rightIcon={
+            emailSent && <VIcon className="text-theme-color-avocado" />
+          }
         />
         <Button className="mt-6" onClick={onSendEmail}>
           Send email

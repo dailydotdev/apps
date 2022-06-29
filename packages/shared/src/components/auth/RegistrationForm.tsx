@@ -87,7 +87,7 @@ export const RegistrationForm = ({
         type="email"
         value={email}
         readOnly
-        rightIcon={<VIcon />}
+        rightIcon={<VIcon className="text-theme-color-avocado" />}
       />
       <TextField
         className="w-full"
@@ -97,7 +97,9 @@ export const RegistrationForm = ({
         name="fullname"
         inputId="fullname"
         label="Full name"
-        rightIcon={isNameValid && <VIcon />}
+        rightIcon={
+          isNameValid && <VIcon className="text-theme-color-avocado" />
+        }
         minLength={3}
         required
       />
@@ -111,7 +113,9 @@ export const RegistrationForm = ({
           name="password"
           inputId="password"
           label="Create a password"
-          rightIcon={isPasswordValid && <VIcon />}
+          rightIcon={
+            isPasswordValid && <VIcon className="text-theme-color-avocado" />
+          }
           required
         />
       )}
@@ -125,7 +129,9 @@ export const RegistrationForm = ({
           name="username"
           inputId="username"
           label="Enter a username"
-          rightIcon={isUsernameValid && <VIcon />}
+          rightIcon={
+            isUsernameValid && <VIcon className="text-theme-color-avocado" />
+          }
         />
       )}
       {isNameValid && isPasswordValid && (
