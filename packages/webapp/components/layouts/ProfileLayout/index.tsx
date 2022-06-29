@@ -14,9 +14,9 @@ import { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
 import { NextSeo } from 'next-seo';
 import JoinedDate from '@dailydotdev/shared/src/components/profile/JoinedDate';
-import GitHubIcon from '@dailydotdev/shared/icons/github.svg';
-import TwitterIcon from '@dailydotdev/shared/icons/twitter.svg';
-import HashnodeIcon from '@dailydotdev/shared/icons/hashnode.svg';
+import GitHubIcon from '@dailydotdev/shared/src/components/icons/GitHub';
+import TwitterIcon from '@dailydotdev/shared/src/components/icons/Twitter';
+import HashnodeIcon from '@dailydotdev/shared/src/components/icons/Hashnode';
 import LinkIcon from '@dailydotdev/shared/src/components/icons/Link';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import dynamic from 'next/dynamic';
@@ -210,7 +210,7 @@ export default function ProfileLayout({
                     href={`https://twitter.com/${twitterHandle}`}
                     target="_blank"
                     rel="noopener"
-                    icon={<TwitterIcon />}
+                    icon={<TwitterIcon filled />}
                     className="btn-tertiary"
                   />
                 </SimpleTooltip>
@@ -222,7 +222,7 @@ export default function ProfileLayout({
                     href={`https://github.com/${githubHandle}`}
                     target="_blank"
                     rel="noopener"
-                    icon={<GitHubIcon />}
+                    icon={<GitHubIcon filled />}
                     className="btn-tertiary"
                   />
                 </SimpleTooltip>
@@ -234,7 +234,7 @@ export default function ProfileLayout({
                     href={`https://hashnode.com/@${hashnodeHandle}`}
                     target="_blank"
                     rel="noopener"
-                    icon={<HashnodeIcon />}
+                    icon={<HashnodeIcon filled />}
                     className="btn-tertiary"
                   />
                 </SimpleTooltip>

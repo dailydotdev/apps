@@ -32,7 +32,7 @@ export interface IconProps {
 }
 
 type Props = IconProps & {
-  IconOutlined: ItemType;
+  IconOutlined?: ItemType;
   IconFilled: ItemType;
 };
 
