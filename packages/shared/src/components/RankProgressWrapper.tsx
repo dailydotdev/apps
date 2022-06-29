@@ -92,7 +92,7 @@ export default function RankProgressWrapper({
           nextRank={nextRank}
         />
       )}
-      {shouldShowRankModal && (
+      {true && (
         <NewRankModal
           rank={nextRank}
           progress={progress}
