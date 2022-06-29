@@ -277,6 +277,12 @@ export default function Feed<T>({
   };
 
   useEffect(() => {
+    return () => {
+      document.body.classList.remove('hidden-scrollbar');
+    };
+  }, []);
+
+  useEffect(() => {
     if (!selectedPost) {
       document.body.classList.remove('hidden-scrollbar');
     }

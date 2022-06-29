@@ -18,8 +18,6 @@
 }
 
 .label {
-  &:hover,
-  &:focus-within,
   &:global(.checked) {
     color: var(--theme-label-primary);
 
