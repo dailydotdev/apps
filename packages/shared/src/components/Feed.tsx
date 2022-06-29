@@ -272,6 +272,12 @@ export default function Feed<T>({
   const onShareClick = (post: Post) => openSharePost(post);
 
   useEffect(() => {
+    return () => {
+      document.body.classList.remove('hidden-scrollbar');
+    };
+  }, []);
+
+  useEffect(() => {
     if (!selectedPost) {
       document.body.classList.remove('hidden-scrollbar');
     }
