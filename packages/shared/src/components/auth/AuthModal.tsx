@@ -19,6 +19,7 @@ import { getQueryParams } from '../../contexts/AuthContext';
 import { AuthSignBack } from './AuthSignBack';
 import { fallbackImages } from '../../lib/config';
 import { formToJson } from '../../lib/form';
+import ForgotPassword from './ForgotPassword';
 
 export type AuthModalProps = ModalProps;
 
@@ -39,6 +40,7 @@ export default function AuthModal({
 }: AuthModalProps): ReactElement {
   const [container, setContainer] = useState<HTMLDivElement>();
   const registrationFormRef = useRef<HTMLFormElement>();
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [showRegistrationForm, setShowRegistrationForm] = useState(false);
   const [isDiscardOpen, setIsDiscardOpen] = useState(false);
   const [socialAccount, setSocialAccount] = useState<SocialProviderAccount>();
@@ -81,7 +83,10 @@ export default function AuthModal({
     if (loggedOut) {
       return (
         <AuthSignBack>
-          <LoginForm onSubmit={onLogin} />
+          <LoginForm
+            onSubmit={onLogin}
+            onForgotPassword={() => setShowForgotPassword(true)}
+          />
         </AuthSignBack>
       );
     }
@@ -120,6 +125,24 @@ export default function AuthModal({
     return onRequestClose(e);
   };
 
+  const getPage = () => {
+    if (showForgotPassword) {
+      return <ForgotPassword />;
+    }
+
+    if (showRegistrationForm) {
+      return (
+        <RegistrationForm
+          formRef={registrationFormRef}
+          email={email}
+          socialAccount={socialAccount}
+        />
+      );
+    }
+
+    return getContent();
+  };
+
   return (
     <StyledModal
       {...props}
@@ -145,15 +168,7 @@ export default function AuthModal({
           <h3>Sign up to daily.dev</h3>
           <Button icon={<CloseIcon />} buttonSize="small" onClick={onClose} />
         </header>
-        {showRegistrationForm ? (
-          <RegistrationForm
-            formRef={registrationFormRef}
-            email={email}
-            socialAccount={socialAccount}
-          />
-        ) : (
-          getContent()
-        )}
+        {getPage()}
         {!showRegistrationForm && (
           <div className="flex justify-center py-3 mt-auto border-t border-theme-divider-tertiary typo-callout text-theme-label-tertiary">
             {shouldLogin ? 'Not yet a member?' : 'Already a member?'}
