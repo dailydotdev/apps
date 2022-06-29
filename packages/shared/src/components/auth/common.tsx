@@ -50,6 +50,11 @@ export const ColumnContainer = classed(
   'grid grid-cols-1 gap-4 self-center px-[3.75rem] mt-6 w-full',
 );
 
+export const AuthModalText = classed(
+  'p',
+  'typo-body text-theme-label-secondary',
+);
+
 export const AuthForm = classed<
   React.FormHTMLAttributes<HTMLFormElement>,
   HTMLFormElement
