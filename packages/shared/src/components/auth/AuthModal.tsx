@@ -5,8 +5,6 @@ import { StyledModal, ModalProps } from '../modals/StyledModal';
 import Circles from '../../../icons/circles_bg.svg';
 import styles from './AuthModal.module.css';
 import { AuthDefault } from './AuthDefault';
-import { Button } from '../buttons/Button';
-import CloseIcon from '../icons/Close';
 import {
   RegistrationForm,
   RegistrationFormValues,
@@ -21,6 +19,7 @@ import { AuthSignBack } from './AuthSignBack';
 import { fallbackImages } from '../../lib/config';
 import { formToJson } from '../../lib/form';
 import ForgotPassword from './ForgotPassword';
+import AuthModalHeader from './AuthModalHeader';
 
 export type AuthModalProps = ModalProps;
 
@@ -153,10 +152,11 @@ export default function AuthModal({
     >
       <Circles className="absolute z-0 w-3/5 h-3/5" />
       <div className="flex overflow-y-auto z-1 flex-col ml-auto w-full h-full rounded-16 max-w-[25.75rem] bg-theme-bg-tertiary">
-        <header className="flex flex-row justify-between items-center py-4 px-6 border-b border-theme-divider-tertiary">
-          <h3>Sign up to daily.dev</h3>
-          <Button icon={<CloseIcon />} buttonSize="small" onClick={onClose} />
-        </header>
+        <AuthModalHeader
+          className="py-4 px-6"
+          title="Sign up to daily.dev"
+          onClose={onClose}
+        />
         {getPage()}
         {!showRegistrationForm && (
           <div className="flex justify-center py-3 mt-auto border-t border-theme-divider-tertiary typo-callout text-theme-label-tertiary">
