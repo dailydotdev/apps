@@ -2,13 +2,14 @@ import classNames from 'classnames';
 import React, { ReactElement } from 'react';
 import { Button } from '../buttons/Button';
 import ArrowIcon from '../icons/Arrow';
+import { CloseModalFunc } from '../modals/common';
 import { ModalCloseButton } from '../modals/ModalCloseButton';
 
-interface AuthModalHeaderProps {
+export interface AuthModalHeaderProps {
   title: string;
   className?: string;
-  onBack?: () => unknown;
-  onClose?: (e: React.MouseEvent | React.KeyboardEvent) => unknown;
+  onBack?: CloseModalFunc;
+  onClose?: CloseModalFunc;
 }
 
 function AuthModalHeader({

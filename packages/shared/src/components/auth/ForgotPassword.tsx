@@ -3,22 +3,24 @@ import { Button } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
 import MailIcon from '../icons/Mail';
 import VIcon from '../icons/V';
+import { CloseModalFunc } from '../modals/common';
 import AuthModalHeader from './AuthModalHeader';
 import { AuthModalText } from './common';
 
 interface ForgotPasswordProps {
   email?: string;
+  onClose?: CloseModalFunc;
 }
 
-function ForgotPassword({ email }: ForgotPasswordProps): ReactElement {
+function ForgotPassword({ email, onClose }: ForgotPasswordProps): ReactElement {
   const [emailSent, setEmailSent] = useState(false);
   const onSendEmail = () => {
     setEmailSent(true);
   };
 
   return (
-    <div className="flex flex-col">
-      <AuthModalHeader title="Forgot password" />
+    <>
+      <AuthModalHeader title="Forgot password" onClose={onClose} />
       <div className="flex flex-col items-end py-8 px-14">
         <AuthModalText className="text-center">
           Enter the email address you registered with and we will send you a
@@ -40,7 +42,7 @@ function ForgotPassword({ email }: ForgotPasswordProps): ReactElement {
           Send email
         </Button>
       </div>
-    </div>
+    </>
   );
 }
 

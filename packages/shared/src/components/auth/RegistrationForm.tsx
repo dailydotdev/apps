@@ -11,6 +11,8 @@ import { TextField } from '../fields/TextField';
 import MailIcon from '../icons/Mail';
 import UserIcon from '../icons/User';
 import VIcon from '../icons/V';
+import { CloseModalFunc } from '../modals/common';
+import AuthModalHeader from './AuthModalHeader';
 import { AuthForm } from './common';
 import EmailVerificationSent from './EmailVerificationSent';
 
@@ -24,6 +26,7 @@ interface RegistrationFormProps {
   email: string;
   socialAccount?: SocialProviderAccount;
   formRef?: MutableRefObject<HTMLFormElement>;
+  onClose?: CloseModalFunc;
 }
 
 export interface RegistrationFormValues {
@@ -38,6 +41,7 @@ export const RegistrationForm = ({
   email,
   socialAccount,
   formRef,
+  onClose,
 }: RegistrationFormProps): ReactElement => {
   const [isNameValid, setIsNameValid] = useState<boolean>();
   const [isPasswordValid, setIsPasswordValid] = useState<boolean>();
@@ -72,76 +76,84 @@ export const RegistrationForm = ({
   };
 
   return (
-    <AuthForm
-      className="gap-4 self-center place-items-center mt-6 w-full px-[3.75rem]"
-      ref={formRef}
-      onSubmit={onSubmit}
-    >
-      {socialAccount && <ImageInput initialValue={socialAccount.image} />}
-      <TextField
-        className="w-full"
-        leftIcon={<MailIcon />}
-        name="email"
-        inputId="email"
-        label="Email"
-        type="email"
-        value={email}
-        readOnly
-        rightIcon={<VIcon className="text-theme-color-avocado" />}
+    <>
+      <AuthModalHeader
+        className="py-4 px-6"
+        title={emailSent ? 'Verify your email address' : 'Sign up to daily.dev'}
+        onClose={onClose}
+        onBack={!emailSent && onClose}
       />
-      <TextField
-        className="w-full"
-        validityChanged={setIsNameValid}
-        valid={isNameValid}
-        leftIcon={<UserIcon />}
-        name="fullname"
-        inputId="fullname"
-        label="Full name"
-        rightIcon={
-          isNameValid && <VIcon className="text-theme-color-avocado" />
-        }
-        minLength={3}
-        required
-      />
-      {!socialAccount && isNameValid !== undefined && (
+      <AuthForm
+        className="gap-4 self-center place-items-center mt-6 w-full px-[3.75rem]"
+        ref={formRef}
+        onSubmit={onSubmit}
+      >
+        {socialAccount && <ImageInput initialValue={socialAccount.image} />}
         <TextField
           className="w-full"
-          validityChanged={setIsPasswordValid}
-          valid={isPasswordValid}
           leftIcon={<MailIcon />}
-          type="password"
-          name="password"
-          inputId="password"
-          label="Create a password"
+          name="email"
+          inputId="email"
+          label="Email"
+          type="email"
+          value={email}
+          readOnly
+          rightIcon={<VIcon className="text-theme-color-avocado" />}
+        />
+        <TextField
+          className="w-full"
+          validityChanged={setIsNameValid}
+          valid={isNameValid}
+          leftIcon={<UserIcon />}
+          name="fullname"
+          inputId="fullname"
+          label="Full name"
           rightIcon={
-            isPasswordValid && <VIcon className="text-theme-color-avocado" />
+            isNameValid && <VIcon className="text-theme-color-avocado" />
           }
+          minLength={3}
           required
         />
-      )}
-      {(isPasswordValid !== undefined ||
-        (isNameValid !== undefined && socialAccount)) && (
-        <TextField
-          className="w-full"
-          validityChanged={setIsUsernameValid}
-          valid={isUsernameValid}
-          leftIcon={<UserIcon />}
-          name="username"
-          inputId="username"
-          label="Enter a username"
-          rightIcon={
-            isUsernameValid && <VIcon className="text-theme-color-avocado" />
-          }
-        />
-      )}
-      {isNameValid && isPasswordValid && (
-        <div className="flex flex-row gap-4 mt-6 ml-auto">
-          {isPasswordValid && !isUsernameValid && (
-            <Button className="btn-tertiary">Skip</Button>
-          )}
-          <Button className="btn-primary">Signup</Button>
-        </div>
-      )}
-    </AuthForm>
+        {!socialAccount && isNameValid !== undefined && (
+          <TextField
+            className="w-full"
+            validityChanged={setIsPasswordValid}
+            valid={isPasswordValid}
+            leftIcon={<MailIcon />}
+            type="password"
+            name="password"
+            inputId="password"
+            label="Create a password"
+            rightIcon={
+              isPasswordValid && <VIcon className="text-theme-color-avocado" />
+            }
+            required
+          />
+        )}
+        {(isPasswordValid !== undefined ||
+          (isNameValid !== undefined && socialAccount)) && (
+          <TextField
+            className="w-full"
+            validityChanged={setIsUsernameValid}
+            valid={isUsernameValid}
+            leftIcon={<UserIcon />}
+            name="username"
+            inputId="username"
+            label="Enter a username"
+            rightIcon={
+              isUsernameValid && <VIcon className="text-theme-color-avocado" />
+            }
+          />
+        )}
+        {isNameValid && isPasswordValid && (
+          <div className="flex flex-row gap-4 mt-6 ml-auto">
+            {isPasswordValid && !isUsernameValid && (
+              <Button className="btn-tertiary">Skip</Button>
+            )}
+            <Button className="btn-primary">Signup</Button>
+          </div>
+        )}
+      </AuthForm>
+    </>
   );
 };

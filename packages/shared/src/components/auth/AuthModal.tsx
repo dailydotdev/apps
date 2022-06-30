@@ -10,16 +10,13 @@ import {
   RegistrationFormValues,
   SocialProviderAccount,
 } from './RegistrationForm';
-import { ClickableText } from '../buttons/ClickableText';
 import LoginForm from './LoginForm';
-import EmailSignupForm from './EmailSignupForm';
-import OrDivider from './OrDivider';
 import { getQueryParams } from '../../contexts/AuthContext';
 import { AuthSignBack } from './AuthSignBack';
 import { fallbackImages } from '../../lib/config';
 import { formToJson } from '../../lib/form';
-import ForgotPassword from './ForgotPassword';
-import AuthModalHeader from './AuthModalHeader';
+import ForgotPasswordForm from './ForgotPassword';
+import TabContainer, { Tab } from '../tabs/TabContainer';
 
 export type AuthModalProps = ModalProps;
 
@@ -32,6 +29,13 @@ const hasLoggedOut = () => {
   return params?.logged_out !== undefined;
 };
 
+enum Display {
+  Default = 'default',
+  Registration = 'registration',
+  SignBack = 'sign_back',
+  ForgotPassword = 'forgot_password',
+}
+
 export default function AuthModal({
   className,
   onRequestClose,
@@ -40,12 +44,12 @@ export default function AuthModal({
 }: AuthModalProps): ReactElement {
   const [container, setContainer] = useState<HTMLDivElement>();
   const registrationFormRef = useRef<HTMLFormElement>();
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const [showRegistrationForm, setShowRegistrationForm] = useState(false);
   const [isDiscardOpen, setIsDiscardOpen] = useState(false);
   const [socialAccount, setSocialAccount] = useState<SocialProviderAccount>();
   const [email, setEmail] = useState('');
-  const [shouldLogin, setShouldLogin] = useState(false);
+  const [activeDisplay, setActiveDisplay] = useState(
+    hasLoggedOut() ? Display.SignBack : Display.Default,
+  );
 
   const onLogin = () => {};
 
@@ -55,52 +59,12 @@ export default function AuthModal({
       name: 'Test account',
       image: fallbackImages.avatar,
     });
-    setShowRegistrationForm(true);
+    setActiveDisplay(Display.Registration);
   };
 
-  const onEmailCheck = () => {
-    setShowRegistrationForm(true);
-  };
-
-  const onEmailSignup = (e: React.FormEvent) => {
-    e.preventDefault();
-    const form = e.currentTarget as HTMLFormElement;
-    const input = Array.from(form.elements).find(
-      (el) => el.getAttribute('name') === 'email',
-    ) as HTMLInputElement;
-
-    if (!input?.value?.trim()) {
-      return null;
-    }
-
-    setEmail(input.value.trim());
-    return onEmailCheck();
-  };
-
-  const getContent = () => {
-    const loggedOut = hasLoggedOut();
-
-    if (loggedOut) {
-      return (
-        <AuthSignBack>
-          <LoginForm
-            onSubmit={onLogin}
-            onForgotPassword={() => setShowForgotPassword(true)}
-          />
-        </AuthSignBack>
-      );
-    }
-
-    return (
-      <AuthDefault onProviderClick={onProviderClick}>
-        <OrDivider className="mt-3" />
-        {shouldLogin ? (
-          <LoginForm onSubmit={onLogin} />
-        ) : (
-          <EmailSignupForm onSubmit={onEmailSignup} />
-        )}
-      </AuthDefault>
-    );
+  const onSignup = (emailAd: string) => {
+    setActiveDisplay(Display.Registration);
+    setEmail(emailAd);
   };
 
   const onClose: typeof onRequestClose = (e) => {
@@ -125,24 +89,6 @@ export default function AuthModal({
     return onRequestClose(e);
   };
 
-  const getPage = () => {
-    if (showForgotPassword) {
-      return <ForgotPassword />;
-    }
-
-    if (showRegistrationForm) {
-      return (
-        <RegistrationForm
-          formRef={registrationFormRef}
-          email={email}
-          socialAccount={socialAccount}
-        />
-      );
-    }
-
-    return getContent();
-  };
-
   return (
     <StyledModal
       {...props}
@@ -151,25 +97,38 @@ export default function AuthModal({
       className={classNames(styles.authModal, className)}
     >
       <Circles className="absolute z-0 w-3/5 h-3/5" />
-      <div className="flex overflow-y-auto z-1 flex-col ml-auto w-full h-full rounded-16 max-w-[25.75rem] bg-theme-bg-tertiary">
-        <AuthModalHeader
-          className="py-4 px-6"
-          title="Sign up to daily.dev"
-          onClose={onClose}
-        />
-        {getPage()}
-        {!showRegistrationForm && (
-          <div className="flex justify-center py-3 mt-auto border-t border-theme-divider-tertiary typo-callout text-theme-label-tertiary">
-            {shouldLogin ? 'Not yet a member?' : 'Already a member?'}
-            <ClickableText
-              className="ml-1 text-theme-label-primary"
-              onClick={() => setShouldLogin(!shouldLogin)}
-            >
-              {shouldLogin ? 'Register' : 'Login'}
-            </ClickableText>
-          </div>
-        )}
-      </div>
+      <TabContainer<Display>
+        className="flex overflow-y-auto z-1 flex-col ml-auto w-full h-full rounded-16 max-w-[25.75rem] bg-theme-bg-tertiary"
+        onActiveChange={(active) => setActiveDisplay(active)}
+        controlledActive={activeDisplay}
+        showHeader={false}
+      >
+        <Tab label={Display.Default}>
+          <AuthDefault
+            onClose={onClose}
+            onSignup={onSignup}
+            onProviderClick={onProviderClick}
+          />
+        </Tab>
+        <Tab label={Display.Registration}>
+          <RegistrationForm
+            formRef={registrationFormRef}
+            email={email}
+            socialAccount={socialAccount}
+          />
+        </Tab>
+        <Tab label={Display.SignBack}>
+          <AuthSignBack>
+            <LoginForm
+              onSubmit={onLogin}
+              onForgotPassword={() => setActiveDisplay(Display.ForgotPassword)}
+            />
+          </AuthSignBack>
+        </Tab>
+        <Tab label={Display.ForgotPassword}>
+          <ForgotPasswordForm />
+        </Tab>
+      </TabContainer>
       {isDiscardOpen && (
         <DiscardActionModal
           isOpen={isDiscardOpen}
