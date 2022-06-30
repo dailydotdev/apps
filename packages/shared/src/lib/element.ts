@@ -12,7 +12,6 @@ interface ShadowCompanion extends ShadowRoot {
 }
 
 const isFirefox = process.env.TARGET_BROWSER === 'firefox';
-const isExtension = !!process.env.TARGET_BROWSER;
 
 const getRoot = (node: Node) => {
   const root = node.getRootNode();
@@ -34,24 +33,6 @@ const getRootDom = (node: Node): Document => {
   }
 
   return root.ownerDocument;
-};
-
-const getShadowDom = (ownerDocument = false): Document => {
-  if (!isExtension) {
-    return null;
-  }
-
-  const companion = document.querySelector('daily-companion-app');
-
-  if (!companion) {
-    return null;
-  }
-
-  if (!isFirefox && !ownerDocument) {
-    return companion.shadowRoot as unknown as Document;
-  }
-
-  return companion.shadowRoot.ownerDocument;
 };
 
 export function getCaretPostition(el: Element): CaretPosition {
