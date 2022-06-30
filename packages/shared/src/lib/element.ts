@@ -16,17 +16,23 @@ const isFirefox = process.env.TARGET_BROWSER === 'firefox';
 const getRoot = (node: Node) => {
   const root = node.getRootNode();
 
-  // ownderDocument only exists on shadow dom
-  // since we start fetching the root from the element itself, we can be sure it is accurate
-  if (root.ownerDocument) {
-    return root as ShadowCompanion;
+  if (root instanceof ShadowRoot) {
+    return isFirefox ? root.ownerDocument : (root as ShadowCompanion);
   }
 
-  return window;
+  if (root instanceof Window) {
+    return isFirefox ? window.document : window;
+  }
+
+  return root as Document;
 };
 
 const getRootDom = (node: Node): Document => {
   const root = getRoot(node);
+
+  if (root instanceof Document) {
+    return root;
+  }
 
   if (root instanceof Window) {
     return root.document;
