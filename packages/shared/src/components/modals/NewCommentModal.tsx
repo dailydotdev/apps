@@ -185,7 +185,7 @@ export default function NewCommentModal({
         shouldMountInactive
         className="tablet:max-h-[40rem] grow tablet:grow-0"
       >
-        <Tab label="Write" className="flex flex-col flex-1">
+        <Tab label="Write" className="flex flex-col flex-1 p-3">
           <CommentBox
             {...props}
             onInput={setInput}
@@ -197,7 +197,10 @@ export default function NewCommentModal({
             onKeyDown={onKeyDown}
           />
         </Tab>
-        <Tab label="Preview" className="flex overflow-y-auto flex-col flex-1">
+        <Tab
+          label="Preview"
+          className="flex overflow-y-auto flex-col flex-1 p-3"
+        >
           {isPreview && previewContent?.preview && (
             <Markdown
               content={previewContent.preview}
