@@ -279,7 +279,7 @@ export default function MainFeedLayout({
           <Dropdown
             className="w-44"
             buttonSize="large"
-            icon={<CalendarIcon />}
+            icon={<CalendarIcon className="mr-2" />}
             selectedIndex={selectedPeriod}
             options={periodTexts}
             onChange={(_, index) => setSelectedPeriod(index)}
