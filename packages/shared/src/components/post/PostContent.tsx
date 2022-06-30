@@ -312,7 +312,7 @@ export function PostContent({
           onComment={updatePostComments}
         />
       )}
-      {postById && showShareNewComment && (
+      {true && (
         <ShareNewCommentPopup
           post={postById.post}
           onRequestClose={() => onShowShareNewComment(false)}

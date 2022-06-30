@@ -15,9 +15,9 @@ import {
 } from '../../graphql/bookmarksSharing';
 import { apiUrl } from '../../lib/config';
 import { TextField } from '../fields/TextField';
-import TwitterIcon from '../../../icons/twitter_color.svg';
-import SlackIcon from '../../../icons/slack.svg';
-import DiscordIcon from '../../../icons/discord_color.svg';
+import TwitterIcon from '../icons/Twitter';
+import SlackIcon from '../icons/Slack';
+import DiscordIcon from '../icons/Discord';
 import GithubIcon from '../icons/GitHub';
 import { ModalCloseButton } from './ModalCloseButton';
 import { useCopyLink } from '../../hooks/useCopyLink';
@@ -116,9 +116,9 @@ export default function SharedBookmarksModal({
             Explore tutorials
           </Button>
           <div className="flex gap-2 items-center h-8 text-2xl">
-            <DiscordIcon />
-            <TwitterIcon />
-            <SlackIcon />
+            <DiscordIcon size="medium" filled />
+            <TwitterIcon size="medium" filled />
+            <SlackIcon size="medium" filled />
             <GithubIcon size="medium" />
           </div>
         </div>
