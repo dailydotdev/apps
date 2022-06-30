@@ -32,7 +32,7 @@ export interface IconProps {
 }
 
 type Props = IconProps & {
-  IconOutlined?: ItemType;
+  IconOutlined: ItemType;
   IconFilled: ItemType;
 };
 
@@ -45,10 +45,6 @@ const Icon = ({
   ...rest
 }: Props): ReactElement => {
   const IconComponent = filled ? IconFilled : IconOutlined;
-
-  if (!filled && !IconOutlined) {
-    return null;
-  }
 
   return (
     <IconComponent
