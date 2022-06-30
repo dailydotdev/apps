@@ -7,8 +7,34 @@ type Row = number;
 export type CaretOffset = [number, number];
 export type CaretPosition = [Column, Row];
 
+interface ShadowCompanion extends ShadowRoot {
+  getSelection: typeof window.getSelection;
+}
+
 const isFirefox = process.env.TARGET_BROWSER === 'firefox';
 const isExtension = !!process.env.TARGET_BROWSER;
+
+const getRoot = (node: Node) => {
+  const root = node.getRootNode();
+
+  // ownderDocument only exists on shadow dom
+  // since we start fetching the root from the element itself, we can be sure it is accurate
+  if (root.ownerDocument) {
+    return root as ShadowCompanion;
+  }
+
+  return window;
+};
+
+const getRootDom = (node: Node): Document => {
+  const root = getRoot(node);
+
+  if (root instanceof Window) {
+    return root.document;
+  }
+
+  return root.ownerDocument;
+};
 
 const getShadowDom = (ownerDocument = false): Document => {
   if (!isExtension) {
@@ -29,8 +55,8 @@ const getShadowDom = (ownerDocument = false): Document => {
 };
 
 export function getCaretPostition(el: Element): CaretPosition {
-  const dom = getShadowDom() || window;
-  const sel = dom.getSelection();
+  const root = getRoot(el);
+  const sel = root.getSelection();
   let row = 0;
   for (; row < el.childNodes.length; row += 1) {
     const child = el.childNodes[row];
@@ -101,11 +127,13 @@ const getNodeText = (node: Node) => {
   return string.replaceAll('\xa0', ' ');
 };
 
-export function setCaretPosition(el: Node, col: number): void {
-  const range = (getShadowDom(true) || document).createRange();
-  const sel = (getShadowDom() || window).getSelection();
+export function setCaretPosition(node: Node, col: number): void {
+  const root = getRoot(node);
+  const dom = getRootDom(node);
+  const range = dom.createRange();
+  const sel = root.getSelection();
 
-  range.setStart(el, col);
+  range.setStart(node, col);
   range.collapse(true);
 
   sel.removeAllRanges();
@@ -130,8 +158,8 @@ export const getSplittedText = (
   [col, row]: CaretPosition,
   query: string,
 ): [Node, string, string] => {
-  const companion = getShadowDom();
-  const offset = companion && isFirefox ? 0 : 1;
+  const isCompanion = !(getRoot(textarea) instanceof Window);
+  const offset = isCompanion && isFirefox ? 0 : 1;
   const node = Array.from(textarea.childNodes).find((_, i) => i === row);
   const text = getNodeText(node);
   const left = text?.substring(0, col - 1) || '';
