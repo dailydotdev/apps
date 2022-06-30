@@ -88,7 +88,7 @@ export class Features {
 
   static readonly CompanionPermissionPlacement = new Features(
     'companion_permission_placement',
-    'off',
+    'header',
     ['off', 'header', 'sidebar'],
   );
 
