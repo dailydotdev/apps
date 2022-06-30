@@ -145,7 +145,7 @@ export const getSplittedText = (
   [col, row]: CaretPosition,
   query: string,
 ): [Node, string, string] => {
-  const isCompanion = !(getRoot(textarea) instanceof Window);
+  const isCompanion = getRoot(textarea) instanceof ShadowRoot;
   const offset = isCompanion && isFirefox ? 0 : 1;
   const node = Array.from(textarea.childNodes).find((_, i) => i === row);
   const text = getNodeText(node);
