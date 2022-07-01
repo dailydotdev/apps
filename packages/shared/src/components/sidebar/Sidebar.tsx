@@ -26,7 +26,6 @@ import UpvoteIcon from '../icons/Upvote';
 import DiscussIcon from '../icons/Discuss';
 import SearchIcon from '../icons/Search';
 import FilterIcon from '../icons/Filter';
-import MoonIcon from '../icons/Moon';
 import HomeIcon from '../icons/Home';
 import LinkIcon from '../icons/Link';
 import SettingsIcon from '../icons/Settings';
