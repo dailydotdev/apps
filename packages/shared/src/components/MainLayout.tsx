@@ -33,6 +33,7 @@ export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   useNavButtonsNotLinks?: boolean;
   mobileTitle?: string;
   showDnd?: boolean;
+  dndActive?: boolean;
   screenCentered?: boolean;
   customBanner?: ReactNode;
   onLogoClick?: (e: React.MouseEvent) => unknown;
@@ -93,6 +94,7 @@ export default function MainLayout({
   useNavButtonsNotLinks,
   mobileTitle,
   showDnd,
+  dndActive,
   customBanner,
   additionalButtons,
   screenCentered = true,
@@ -189,6 +191,7 @@ export default function MainLayout({
             enableSearch={enableSearch}
             activePage={activePage}
             showDnd={showDnd}
+            dndActive={dndActive}
             useNavButtonsNotLinks={useNavButtonsNotLinks}
             onShowDndClick={onShowDndClick}
             setOpenMobileSidebar={() => trackAndToggleMobileSidebar(false)}

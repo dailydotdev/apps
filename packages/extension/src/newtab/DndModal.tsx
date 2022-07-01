@@ -134,7 +134,7 @@ export default function DndModal({
             titleSize,
           )}
         >
-          Focus Mode
+          Pause new tab
         </h3>
         <p className="mt-1 typo-callout text-theme-label-secondary">
           {getDescription()}

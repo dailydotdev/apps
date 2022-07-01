@@ -52,6 +52,8 @@ import {
   getFeatureValue,
   isFeaturedEnabled,
 } from '../../lib/featureManagement';
+import PauseIcon from '../icons/Pause';
+import PlayIcon from '../icons/Play';
 
 const SubmitArticleModal = dynamic(
   () => import('../modals/SubmitArticleModal'),
@@ -142,6 +144,7 @@ export default function Sidebar({
   sidebarRendered = false,
   openMobileSidebar = false,
   showDnd = false,
+  dndActive = false,
   onNavTabClick,
   enableSearch,
   setOpenMobileSidebar,
@@ -311,9 +314,17 @@ export default function Sidebar({
   if (shouldShowDnD) {
     const dndMenuItem = {
       icon: (active: boolean) => (
-        <ListIcon Icon={() => <MoonIcon filled={active} />} />
+        <ListIcon
+          Icon={() =>
+            dndActive ? (
+              <PlayIcon filled={active} />
+            ) : (
+              <PauseIcon filled={active} />
+            )
+          }
+        />
       ),
-      title: 'Focus mode',
+      title: 'Pause new tab',
       action: onShowDndClick,
       active: showDnd,
     };
