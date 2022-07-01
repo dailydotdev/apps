@@ -74,14 +74,9 @@ export const useTimedAnimation = ({
       window.clearTimeout(timeout.current);
       timeout.current = window.setTimeout(onAnimationEnd, outAnimationDuration);
     }
-  }, [timer]);
 
-  useEffect(
-    () => () => {
-      window.clearTimeout(timeout.current);
-    },
-    [],
-  );
+    return () => clearTimeout(timeout.current);
+  }, [timer]);
 
   return useMemo(
     () => ({

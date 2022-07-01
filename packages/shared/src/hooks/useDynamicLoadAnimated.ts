@@ -26,6 +26,9 @@ export const useDynamicLoadedAnimation = ({
     setIsAnimated(true);
   }, [isLoaded]);
 
+  // Clear any existing timeouts
+  useEffect(() => () => clearTimeout(animationRef.current), []);
+
   useEffect(() => {
     if (isAnimated) {
       return;

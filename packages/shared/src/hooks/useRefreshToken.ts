@@ -23,5 +23,6 @@ export function useRefreshToken(
         expiresInMillis - 1000 * 60 * 2,
       );
     }
+    return () => clearTimeout(timeout.current);
   }, [accessToken, refresh]);
 }

@@ -120,6 +120,7 @@ export function RankProgress({
   const [shownRank, setShownRank] = useState(
     showRankAnimation ? getRank(rank) : rank,
   );
+  const timeoutRef = useRef<number>();
   const attentionRef = useRef<HTMLDivElement>();
   const progressRef = useRef<HTMLDivElement>();
   const badgeRef = useRef<SVGSVGElement>();
@@ -187,7 +188,7 @@ export function RankProgress({
     firstBadgeAnimation.onfinish = () => {
       setShownRank(rank);
       // Let the new rank update
-      setTimeout(() => {
+      timeoutRef.current = window.setTimeout(() => {
         const attentionAnimation = showRankAnimation
           ? attentionRef.current.animate(
               [
@@ -234,7 +235,10 @@ export function RankProgress({
           attentionAnimation.onfinish = cancelAnimations;
         } else {
           cancelAnimations();
-          setTimeout(() => setAnimatingProgress(false), 2000);
+          timeoutRef.current = window.setTimeout(
+            () => setAnimatingProgress(false),
+            2000,
+          );
         }
       });
     };
@@ -245,9 +249,15 @@ export function RankProgress({
       setAnimatingProgress(false);
       animateRank();
     } else {
-      setTimeout(() => setAnimatingProgress(false), 2000);
+      timeoutRef.current = window.setTimeout(
+        () => setAnimatingProgress(false),
+        2000,
+      );
     }
   };
+
+  // Clear any existing timeouts
+  useEffect(() => () => clearTimeout(timeoutRef.current), []);
 
   useEffect(() => {
     if (!showRankAnimation) {

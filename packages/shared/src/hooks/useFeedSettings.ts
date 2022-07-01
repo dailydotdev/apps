@@ -1,4 +1,4 @@
-import { useContext, useMemo, useEffect, useState } from 'react';
+import { useContext, useMemo, useEffect, useState, useRef } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
 import { request } from 'graphql-request';
 import {
@@ -72,6 +72,7 @@ const AVOID_REFRESH_KEY = 'avoidRefresh';
 export default function useFeedSettings(): FeedSettingsReturnType {
   const { user } = useContext(AuthContext);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
+  const timeoutRef = useRef<number>();
   const filtersKey = getFeedSettingsQueryKey(user);
   const queryClient = useQueryClient();
   const { flags } = useContext(FeaturesContext);
@@ -106,6 +107,8 @@ export default function useFeedSettings(): FeedSettingsReturnType {
 
   const { tagsCategories, feedSettings, advancedSettings } = feedQuery;
 
+  useEffect(() => () => clearTimeout(timeoutRef.current), []);
+
   useEffect(() => {
     if (!user?.id || avoidRefresh) {
       return;
@@ -116,7 +119,10 @@ export default function useFeedSettings(): FeedSettingsReturnType {
       return;
     }
 
-    setTimeout(() => {
+    if (timeoutRef.current) {
+      window.clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = window.setTimeout(() => {
       queryClient.invalidateQueries(generateQueryKey('popular', user));
       queryClient.invalidateQueries(generateQueryKey('my-feed', user));
     }, 100);

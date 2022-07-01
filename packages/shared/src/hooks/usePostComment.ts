@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext, useMemo } from 'react';
+import { useEffect, useState, useContext, useMemo, useRef } from 'react';
 import { useQueryClient } from 'react-query';
 import cloneDeep from 'lodash.clonedeep';
 import AuthContext from '../contexts/AuthContext';
@@ -52,6 +52,7 @@ export const usePostComment = (
   const [lastScroll, setLastScroll] = useState(0);
   const [parentComment, setParentComment] = useState<ParentComment>(null);
   const [showShareNewComment, setShowShareNewComment] = useState(false);
+  const timeoutRef = useRef<number>();
 
   const closeNewComment = () => {
     setParentComment(null);
@@ -60,7 +61,13 @@ export const usePostComment = (
 
   const onNewComment = (_: Comment, parentId: string | null): void => {
     if (!parentId) {
-      setTimeout(() => setShowShareNewComment(true), 700);
+      if (timeoutRef.current) {
+        window.clearTimeout(timeoutRef.current);
+      }
+      timeoutRef.current = window.setTimeout(
+        () => setShowShareNewComment(true),
+        700,
+      );
     }
   };
 
@@ -201,8 +208,15 @@ export const usePostComment = (
 
   useEffect(() => {
     if (enableShowShareNewComment) {
-      setTimeout(() => setShowShareNewComment(true), 700);
+      if (timeoutRef.current) {
+        window.clearTimeout(timeoutRef.current);
+      }
+      timeoutRef.current = window.setTimeout(
+        () => setShowShareNewComment(true),
+        700,
+      );
     }
+    return () => clearTimeout(timeoutRef.current);
   }, [enableShowShareNewComment]);
 
   return useMemo(

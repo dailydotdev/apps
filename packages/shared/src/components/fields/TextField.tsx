@@ -104,8 +104,8 @@ export function TextField({
     }
   };
 
-  // Return the clearIdleTimeout to call it on cleanup
-  useEffect(() => clearIdleTimeout, []);
+  // Clear any existing timeouts
+  useEffect(() => () => clearIdleTimeout(), []);
 
   useEffect(() => {
     if (validityChanged && validInput !== undefined) {

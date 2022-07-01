@@ -1,4 +1,10 @@
-import React, { ReactElement, useEffect, useMemo, useState } from 'react';
+import React, {
+  ReactElement,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { CSSTransition } from 'react-transition-group';
 import { get as getCache, set as setCache } from 'idb-keyval';
 import { isSameDay } from 'date-fns';
@@ -46,6 +52,7 @@ export default function Greeting({
   onExit: () => unknown;
 }): ReactElement {
   const [show, setShow] = useState(false);
+  const timeoutRef = useRef<number>();
 
   const greetingElement = useMemo(() => {
     const firstName = user?.name?.split?.(' ')?.[0];
@@ -77,15 +84,19 @@ export default function Greeting({
           getGreetingSlot(now.getHours());
       if (showGreeting) {
         await setCache('greeting', now);
-        setTimeout(() => {
+        timeoutRef.current = window.setTimeout(() => {
           onEnter();
-          setTimeout(() => {
+          timeoutRef.current = window.setTimeout(() => {
             setShow(true);
-            setTimeout(() => setShow(false), 7000);
+            timeoutRef.current = window.setTimeout(() => setShow(false), 7000);
           }, 500);
         }, 1500);
       }
     })();
+
+    return () => {
+      window.clearTimeout(timeoutRef.current);
+    };
   }, []);
 
   return (

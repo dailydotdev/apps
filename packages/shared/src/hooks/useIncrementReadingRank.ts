@@ -1,5 +1,5 @@
 import { useQueryClient } from 'react-query';
-import { useContext } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import AuthContext from '../contexts/AuthContext';
 import { getRankQueryKey } from './useReadingRank';
 import { MyRankData } from '../graphql/users';
@@ -13,7 +13,10 @@ const MAX_PROGRESS = RANKS[RANKS.length - 1].steps;
 
 export default function useIncrementReadingRank(): ReturnType {
   const { user } = useContext(AuthContext);
+  const timeoutRef = useRef<number>();
   const queryClient = useQueryClient();
+
+  useEffect(() => () => clearTimeout(timeoutRef.current), []);
 
   return {
     incrementReadingRank: async () => {
@@ -45,7 +48,7 @@ export default function useIncrementReadingRank(): ReturnType {
           };
         },
       );
-      setTimeout(() => {
+      timeoutRef.current = window.setTimeout(() => {
         queryClient.invalidateQueries(queryKey);
       }, 100);
       return data;

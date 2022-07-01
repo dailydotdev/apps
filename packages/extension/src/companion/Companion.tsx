@@ -71,6 +71,8 @@ export default function Companion({
   const containerRef = useRef<HTMLDivElement>();
   const [assetsLoaded, setAssetsLoaded] = useState(isTesting);
   const [post, setPost] = useState<PostBootData>(postData);
+  const timeoutRef = useRef<number>();
+  const timeoutLoadedRef = useRef<number>();
   const [companionState, setCompanionState] =
     useState<boolean>(companionExpanded);
   const { user, closeLogin, loadingUser, shouldShowLogin, loginState } =
@@ -89,16 +91,27 @@ export default function Companion({
   }, [routeChangedCallbackRef]);
 
   useEffect(() => {
+    return () => {
+      window.clearTimeout(timeoutRef.current);
+      window.clearTimeout(timeoutLoadedRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
     if (!containerRef?.current || assetsLoaded) {
       return;
     }
 
     const checkAssets = () => {
       if (containerRef?.current?.offsetLeft === 0) {
-        return setTimeout(checkAssets, 10);
+        timeoutRef.current = window.setTimeout(checkAssets, 10);
       }
 
-      return setTimeout(() => setAssetsLoaded(true), 10);
+      timeoutLoadedRef.current = window.setTimeout(
+        () => setAssetsLoaded(true),
+        10,
+      );
+      return timeoutLoadedRef.current;
     };
 
     checkAssets();

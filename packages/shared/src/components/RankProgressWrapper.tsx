@@ -1,4 +1,10 @@
-import React, { ReactElement, useContext, useState } from 'react';
+import React, {
+  ReactElement,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import dynamic from 'next/dynamic';
 import classNames from 'classnames';
 import { RankProgress } from './RankProgress';
@@ -51,6 +57,11 @@ export default function RankProgressWrapper({
   const closeRanksModal = () => {
     setShowRanksModal(false);
   };
+  const timeoutRef = useRef<number>();
+
+  // Clear any existing timeouts
+  useEffect(() => () => clearTimeout(timeoutRef.current), []);
+
   return (
     <>
       <button
@@ -71,9 +82,13 @@ export default function RankProgressWrapper({
           showRankAnimation={showRankAnimation}
           showRadialProgress={sidebarExpanded}
           fillByDefault
-          onRankAnimationFinish={() =>
-            setTimeout(() => confirmLevelUp(true), 1000)
-          }
+          onRankAnimationFinish={() => {
+            timeoutRef.current = window.setTimeout(
+              () => confirmLevelUp(true),
+              1000,
+            );
+            return timeoutRef.current;
+          }}
           showTextProgress={sidebarExpanded}
           smallVersion
           rankLastWeek={rankLastWeek}

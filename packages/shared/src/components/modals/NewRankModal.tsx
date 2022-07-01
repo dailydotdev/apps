@@ -46,6 +46,8 @@ export default function NewRankModal({
   const [animatingRank, setAnimatingRank] = useState(false);
   const [rankAnimationEnded, setRankAnimationEnded] = useState(false);
   const inputRef = useRef<HTMLInputElement>();
+  const timeoutRef = useRef<number>();
+  const visibilityRef = useRef(null);
 
   const title = useMemo(() => {
     if (user) {
@@ -73,12 +75,17 @@ export default function NewRankModal({
 
   useEffect(() => {
     const animateRank = () => {
+      if (visibilityRef.current) {
+        document.removeEventListener('visibilitychange', visibilityRef.current);
+      }
+      visibilityRef.current = () => {
+        timeoutRef.current = window.setTimeout(animateRank, 1000);
+      };
+
       if (document.visibilityState === 'hidden') {
-        document.addEventListener(
-          'visibilitychange',
-          () => setTimeout(animateRank, 1000),
-          { once: true },
-        );
+        document.addEventListener('visibilitychange', visibilityRef.current, {
+          once: true,
+        });
       } else {
         setAnimatingRank(true);
         setShownRank(rank);
@@ -86,11 +93,22 @@ export default function NewRankModal({
       }
     };
 
-    setTimeout(() => animateRank(), 1500);
+    timeoutRef.current = window.setTimeout(() => animateRank(), 1500);
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      if (visibilityRef.current) {
+        document.removeEventListener('visibilitychange', visibilityRef.current);
+      }
+    };
   }, []);
 
   const onRankAnimationFinish = () => {
-    setTimeout(() => setRankAnimationEnded(true), 700);
+    timeoutRef.current = window.setTimeout(
+      () => setRankAnimationEnded(true),
+      700,
+    );
   };
 
   return (
