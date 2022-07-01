@@ -11,6 +11,7 @@ import {
 } from '../../graphql/newSource';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import { AnonymousUser, LoggedUser } from '../../lib/user';
+import user from '../../../__tests__/fixture/loggedUser';
 
 const onRequestClose = jest.fn();
 
@@ -19,19 +20,6 @@ beforeEach(async () => {
   jest.clearAllMocks();
 });
 
-const defaultUser: LoggedUser = {
-  id: 'u1',
-  name: 'Ido Shamun',
-  providers: ['github'],
-  email: 'ido@acme.com',
-  image: 'https://daily.dev/ido.png',
-  infoConfirmed: true,
-  premium: false,
-  createdAt: '2020-07-26T13:04:35.000Z',
-  username: 'test',
-  permalink: 'sample',
-};
-
 const defaultAnonymousUser: AnonymousUser = {
   id: 'anonymous user',
   firstVisit: 'first visit',
@@ -39,13 +27,13 @@ const defaultAnonymousUser: AnonymousUser = {
 };
 
 const renderComponent = (
-  user: LoggedUser | AnonymousUser = defaultUser,
+  userUpdate: LoggedUser | AnonymousUser = user,
 ): RenderResult => {
   const client = new QueryClient();
   return render(
     <QueryClientProvider client={client}>
       <AuthContextProvider
-        user={user}
+        user={userUpdate}
         updateUser={jest.fn()}
         tokenRefreshed
         getRedirectUri={jest.fn()}

@@ -21,6 +21,7 @@ import {
   mockGraphQL,
 } from '../../../__tests__/helpers/graphql';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
+import post from '../../../__tests__/fixture/post';
 
 const showLogin = jest.fn();
 
@@ -28,29 +29,6 @@ beforeEach(() => {
   jest.clearAllMocks();
   nock.cleanAll();
 });
-
-const defaultPost: Post = {
-  id: 'p1',
-  title: 'My post',
-  createdAt: '2020-05-16T15:40:15.000Z',
-  image:
-    'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/870995e312adb17439eee1f9c353c7e0',
-  placeholder:
-    'data:image/jpeg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAKAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAABAUH/8QAIRAAAgICAgEFAAAAAAAAAAAAAQMCEQASBAUxEyFRUpH/xAAVAQEBAAAAAAAAAAAAAAAAAAADBP/EABoRAQACAwEAAAAAAAAAAAAAAAEAAgMR8CH/2gAMAwEAAhEDEQA/ANgZ2TUuetnJbGcWt0uEiFgk1f2vwPjLfXTcev425Zv6Ub2u7oecbyUrm1xmuEjLSyYg3R9vzHYFKIvsjxYks7e4n//Z',
-  readTime: 0,
-  source: {
-    id: 'echojs',
-    name: 'Echo JS',
-    image:
-      'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos/echojs',
-  },
-  permalink: 'http://localhost:4000/r/p1',
-  numComments: 1,
-  numUpvotes: 5,
-  commentsPermalink:
-    'http://localhost:5002/posts/4f354bb73009e4adfa5dbcbf9b3c4ebf',
-  tags: ['webdev', 'javascript'],
-};
 
 const createFeedMock = (
   trendingPosts: Post[] = [{ ...defaultFeedPage.edges[0].node, trending: 50 }],
@@ -65,12 +43,12 @@ const createFeedMock = (
     defaultFeedPage.edges[6].node,
   ],
   variables: unknown = {
-    post: 'p1',
+    post: post.id,
     loggedIn: true,
     trendingFirst: 1,
     similarFirst: 3,
     discussedFirst: 4,
-    tags: ['webdev', 'javascript'],
+    tags: post.tags,
   },
 ): MockedGraphQLResponse<FurtherReadingData> => ({
   request: {
@@ -91,7 +69,7 @@ let queryClient: QueryClient;
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createFeedMock()],
   user: LoggedUser = defaultUser,
-  post: Post = defaultPost,
+  postUpdate?: Post,
 ): RenderResult => {
   queryClient = new QueryClient();
   mocks.forEach(mockGraphQL);
@@ -108,7 +86,7 @@ const renderComponent = (
           getRedirectUri: jest.fn(),
         }}
       >
-        <FurtherReading currentPost={post} />
+        <FurtherReading currentPost={{ ...post, ...postUpdate }} />
       </AuthContext.Provider>
     </QueryClientProvider>,
   );
@@ -212,12 +190,12 @@ it('should open login modal on anonymous bookmark', async () => {
           defaultFeedPage.edges[6].node,
         ],
         {
-          post: 'p1',
+          post: post.id,
           loggedIn: false,
           trendingFirst: 1,
           similarFirst: 3,
           discussedFirst: 4,
-          tags: ['webdev', 'javascript'],
+          tags: post.tags,
         },
       ),
     ],
@@ -235,7 +213,7 @@ it('should not show table of contents when it does not exist', async () => {
 
 it('should show table of contents when it exists', async () => {
   renderComponent([createFeedMock()], defaultUser, {
-    ...defaultPost,
+    ...post,
     toc: [{ text: 'Toc Item' }],
   });
   expect(screen.queryByText('Table of contents')).toBeInTheDocument();

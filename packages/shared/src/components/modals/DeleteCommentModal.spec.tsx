@@ -8,25 +8,13 @@ import {
   mockGraphQL,
 } from '../../../__tests__/helpers/graphql';
 import AuthContext from '../../contexts/AuthContext';
+import user from '../../../__tests__/fixture/loggedUser';
 
 const onRequestClose = jest.fn();
 
 beforeEach(() => {
   jest.clearAllMocks();
 });
-
-const defaultUser = {
-  id: 'u1',
-  username: 'sshanzel',
-  name: 'Lee Hansel',
-  providers: ['github'],
-  email: 'lee@acme.com',
-  image: 'https://daily.dev/lee.png',
-  infoConfirmed: true,
-  premium: false,
-  createdAt: '',
-  permalink: 'https://daily.dev/lee',
-};
 
 const renderComponent = (
   props: Partial<Props> = {},
@@ -48,7 +36,7 @@ const renderComponent = (
     <QueryClientProvider client={client}>
       <AuthContext.Provider
         value={{
-          user: defaultUser,
+          user,
           shouldShowLogin: false,
           showLogin: jest.fn(),
           logout: jest.fn(),

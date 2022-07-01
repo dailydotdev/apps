@@ -8,9 +8,13 @@ import { READING_HISTORY_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { mocked } from 'ts-jest/utils';
 import { NextRouter, useRouter } from 'next/router';
-import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
+import {
+  MockedGraphQLResponse,
+  mockGraphQL,
+} from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
+import user from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import HistoryPage from '../pages/history';
-import { waitForNock } from './helpers/utilities';
 
 const routerReplace = jest.fn();
 
@@ -60,23 +64,6 @@ const createReadingHistoryMock = (
   result: { data: history },
 });
 
-const defaultUser: LoggedUser = {
-  id: 'u1',
-  name: 'Daily Dev',
-  username: 'dailydotdev',
-  premium: false,
-  reputation: 20,
-  image: 'https://daily.dev/daily.png',
-  bio: 'The best company!',
-  createdAt: '2020-08-26T13:04:35.000Z',
-  twitter: 'dailydotdev',
-  github: 'dailydotdev',
-  portfolio: 'https://daily.dev',
-  permalink: '',
-  email: 'me@daily.dev',
-  providers: ['github'],
-};
-
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createReadingHistoryMock()],
 ): RenderResult => {
@@ -87,7 +74,7 @@ const renderComponent = (
     <QueryClientProvider client={client}>
       <AuthContext.Provider
         value={{
-          user: defaultUser,
+          user,
           shouldShowLogin: false,
           showLogin: jest.fn(),
           logout: jest.fn(),
