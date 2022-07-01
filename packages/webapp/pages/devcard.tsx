@@ -6,7 +6,7 @@ import React, {
   useState,
 } from 'react';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import GitHubIcon from '@dailydotdev/shared/icons/github.svg';
+import GitHubIcon from '@dailydotdev/shared/src/components/icons/GitHub';
 import { RadioItem } from '@dailydotdev/shared/src/components/fields/RadioItem';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { LoaderOverlay } from '@dailydotdev/shared/src/components/LoaderOverlay';
@@ -282,7 +282,7 @@ const Step2 = ({
               defaultTypo={false}
               target="_blank"
             >
-              <GitHubIcon className="mr-2" />
+              <GitHubIcon className="mr-2 w-auto h-auto" />
               Add DevCard to your GitHub profile
             </ClickableText>
           </div>
