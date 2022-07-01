@@ -2,8 +2,8 @@ import React, { ReactElement } from 'react';
 import Link from 'next/link';
 import BookmarkIcon from './icons/Bookmark';
 import { headerHeight } from '../styles/sizes';
-import sizeN from '../../macros/sizeN.macro';
 import { Button } from './buttons/Button';
+import { EmptyScreenIcon } from './EmptyScreen';
 
 export default function BookmarkEmptyScreen(): ReactElement {
   return (
@@ -13,7 +13,7 @@ export default function BookmarkEmptyScreen(): ReactElement {
     >
       <BookmarkIcon
         className="m-0 icon text-theme-label-tertiary"
-        style={{ fontSize: sizeN(20) }}
+        style={EmptyScreenIcon.style}
       />
       <h1
         className="my-4 text-center text-theme-label-primary typo-title1"
