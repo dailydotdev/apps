@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext } from 'react';
 import { useRouter } from 'next/router';
-import GitHubIcon from '../../icons/github.svg';
+import GitHubIcon from './icons/GitHub';
 import GoogleIcon from '../../icons/google_color.svg';
 import { privacyPolicy, termsOfService } from '../lib/constants';
 import { LegalNotice } from './utilities';
@@ -51,7 +51,7 @@ export default function LoginButtons(): ReactElement {
         <Button
           className="my-2 btn-primary"
           onClick={() => login('github')}
-          icon={<GitHubIcon />}
+          icon={<GitHubIcon filled />}
         >
           {buttonCopyPrefix} GitHub
         </Button>
