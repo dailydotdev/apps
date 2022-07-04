@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext, useMemo, useRef } from 'react';
+import { useEffect, useState, useContext, useMemo } from 'react';
 import { useQueryClient } from 'react-query';
 import cloneDeep from 'lodash.clonedeep';
 import AuthContext from '../contexts/AuthContext';
@@ -7,6 +7,7 @@ import { Comment, PostCommentsData } from '../graphql/comments';
 import { Edge } from '../graphql/common';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
+import useDebounce from './useDebounce';
 
 export interface UsePostCommentOptionalProps {
   enableShowShareNewComment?: boolean;
@@ -52,7 +53,7 @@ export const usePostComment = (
   const [lastScroll, setLastScroll] = useState(0);
   const [parentComment, setParentComment] = useState<ParentComment>(null);
   const [showShareNewComment, setShowShareNewComment] = useState(false);
-  const timeoutRef = useRef<number>();
+  const [showNewComment] = useDebounce(() => setShowShareNewComment(true), 700);
 
   const closeNewComment = () => {
     setParentComment(null);
@@ -61,13 +62,7 @@ export const usePostComment = (
 
   const onNewComment = (_: Comment, parentId: string | null): void => {
     if (!parentId) {
-      if (timeoutRef.current) {
-        window.clearTimeout(timeoutRef.current);
-      }
-      timeoutRef.current = window.setTimeout(
-        () => setShowShareNewComment(true),
-        700,
-      );
+      showNewComment();
     }
   };
 
@@ -208,15 +203,8 @@ export const usePostComment = (
 
   useEffect(() => {
     if (enableShowShareNewComment) {
-      if (timeoutRef.current) {
-        window.clearTimeout(timeoutRef.current);
-      }
-      timeoutRef.current = window.setTimeout(
-        () => setShowShareNewComment(true),
-        700,
-      );
+      showNewComment();
     }
-    return () => clearTimeout(timeoutRef.current);
   }, [enableShowShareNewComment]);
 
   return useMemo(

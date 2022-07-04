@@ -22,6 +22,7 @@ import {
 } from '../lib/rank';
 import Rank from './Rank';
 import styles from './RankProgress.module.css';
+import useDebounce from '../hooks/useDebounce';
 
 const notificationDuration = 300;
 
@@ -120,7 +121,6 @@ export function RankProgress({
   const [shownRank, setShownRank] = useState(
     showRankAnimation ? getRank(rank) : rank,
   );
-  const timeoutRef = useRef<number>();
   const attentionRef = useRef<HTMLDivElement>();
   const progressRef = useRef<HTMLDivElement>();
   const badgeRef = useRef<SVGSVGElement>();
@@ -134,6 +134,10 @@ export function RankProgress({
     (rank !== rankLastWeek || progress === RANKS[rankIndex].steps);
   const getLevelText = levelUp() ? 'You made it 🏆' : '+1 Reading day';
   const shouldForceColor = animatingProgress || forceColor || fillByDefault;
+
+  const [endAnimation] = useDebounce(() => {
+    setAnimatingProgress(false);
+  }, 2000);
 
   const steps = useMemo(() => {
     if (
@@ -185,62 +189,58 @@ export function RankProgress({
       ],
       { duration: firstAnimationDuration, fill: 'forwards' },
     );
+
     firstBadgeAnimation.onfinish = () => {
       setShownRank(rank);
       // Let the new rank update
-      timeoutRef.current = window.setTimeout(() => {
-        const attentionAnimation = showRankAnimation
-          ? attentionRef.current.animate(
-              [
-                {
-                  transform: 'scale(0.5)',
-                  opacity: 1,
-                },
-                {
-                  transform: 'scale(1.5)',
-                  opacity: 0,
-                },
-              ],
-              { duration: 600, fill: 'forwards' },
-            )
-          : null;
+      const attentionAnimation = showRankAnimation
+        ? attentionRef.current.animate(
+            [
+              {
+                transform: 'scale(0.5)',
+                opacity: 1,
+              },
+              {
+                transform: 'scale(1.5)',
+                opacity: 0,
+              },
+            ],
+            { duration: 600, fill: 'forwards' },
+          )
+        : null;
 
-        const lastBadgeAnimation = animatedRef.animate(
-          [
-            {
-              transform: `scale(${2 - maxScale})`,
-              opacity: 0,
-              '--stop-color1': rankToGradientStopBottom(rank),
-              '--stop-color2': rankToGradientStopTop(rank),
-            },
-            {
-              transform: 'scale(1)',
-              opacity: 1,
-              '--stop-color1': rankToGradientStopBottom(rank),
-              '--stop-color2': rankToGradientStopTop(rank),
-            },
-          ],
-          { duration: 100, fill: 'forwards' },
-        );
-        const cancelAnimations = () => {
-          progressAnimation?.cancel();
-          firstBadgeAnimation.cancel();
-          lastBadgeAnimation?.cancel();
-          attentionAnimation?.cancel();
-          setForceColor(false);
-          onRankAnimationFinish?.();
-        };
+      const lastBadgeAnimation = animatedRef.animate(
+        [
+          {
+            transform: `scale(${2 - maxScale})`,
+            opacity: 0,
+            '--stop-color1': rankToGradientStopBottom(rank),
+            '--stop-color2': rankToGradientStopTop(rank),
+          },
+          {
+            transform: 'scale(1)',
+            opacity: 1,
+            '--stop-color1': rankToGradientStopBottom(rank),
+            '--stop-color2': rankToGradientStopTop(rank),
+          },
+        ],
+        { duration: 100, fill: 'forwards' },
+      );
+      const cancelAnimations = () => {
+        progressAnimation?.cancel();
+        firstBadgeAnimation.cancel();
+        lastBadgeAnimation?.cancel();
+        attentionAnimation?.cancel();
+        setForceColor(false);
+        onRankAnimationFinish?.();
+      };
 
-        if (attentionAnimation) {
-          attentionAnimation.onfinish = cancelAnimations;
-        } else {
-          cancelAnimations();
-          timeoutRef.current = window.setTimeout(
-            () => setAnimatingProgress(false),
-            2000,
-          );
-        }
-      });
+      if (attentionAnimation) {
+        attentionAnimation.onfinish = cancelAnimations;
+      } else {
+        cancelAnimations();
+        endAnimation();
+      }
     };
   };
 
@@ -249,15 +249,9 @@ export function RankProgress({
       setAnimatingProgress(false);
       animateRank();
     } else {
-      timeoutRef.current = window.setTimeout(
-        () => setAnimatingProgress(false),
-        2000,
-      );
+      endAnimation();
     }
   };
-
-  // Clear any existing timeouts
-  useEffect(() => () => clearTimeout(timeoutRef.current), []);
 
   useEffect(() => {
     if (!showRankAnimation) {

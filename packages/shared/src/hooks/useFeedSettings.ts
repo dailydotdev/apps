@@ -1,4 +1,4 @@
-import { useContext, useMemo, useEffect, useState, useRef } from 'react';
+import { useContext, useMemo, useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
 import { request } from 'graphql-request';
 import {
@@ -17,6 +17,7 @@ import { LoggedUser } from '../lib/user';
 import FeaturesContext from '../contexts/FeaturesContext';
 import { Features, isFeaturedEnabled } from '../lib/featureManagement';
 import usePersistentContext from './usePersistentContext';
+import useDebounce from './useDebounce';
 
 export const getFeedSettingsQueryKey = (user?: LoggedUser): string[] => [
   user?.id,
@@ -72,7 +73,6 @@ const AVOID_REFRESH_KEY = 'avoidRefresh';
 export default function useFeedSettings(): FeedSettingsReturnType {
   const { user } = useContext(AuthContext);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
-  const timeoutRef = useRef<number>();
   const filtersKey = getFeedSettingsQueryKey(user);
   const queryClient = useQueryClient();
   const { flags } = useContext(FeaturesContext);
@@ -83,6 +83,10 @@ export default function useFeedSettings(): FeedSettingsReturnType {
     [true, false],
     false,
   );
+  const [invaliateQueries] = useDebounce(() => {
+    queryClient.invalidateQueries(generateQueryKey('popular', user));
+    queryClient.invalidateQueries(generateQueryKey('my-feed', user));
+  }, 100);
 
   const { data: feedQuery = {}, isLoading } = useQuery<AllTagCategoriesData>(
     filtersKey,
@@ -107,8 +111,6 @@ export default function useFeedSettings(): FeedSettingsReturnType {
 
   const { tagsCategories, feedSettings, advancedSettings } = feedQuery;
 
-  useEffect(() => () => clearTimeout(timeoutRef.current), []);
-
   useEffect(() => {
     if (!user?.id || avoidRefresh) {
       return;
@@ -119,13 +121,7 @@ export default function useFeedSettings(): FeedSettingsReturnType {
       return;
     }
 
-    if (timeoutRef.current) {
-      window.clearTimeout(timeoutRef.current);
-    }
-    timeoutRef.current = window.setTimeout(() => {
-      queryClient.invalidateQueries(generateQueryKey('popular', user));
-      queryClient.invalidateQueries(generateQueryKey('my-feed', user));
-    }, 100);
+    invaliateQueries();
   }, [tagsCategories, feedSettings, avoidRefresh]);
 
   return useMemo(() => {

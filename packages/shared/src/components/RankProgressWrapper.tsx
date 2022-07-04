@@ -1,10 +1,4 @@
-import React, {
-  ReactElement,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { ReactElement, useContext, useState } from 'react';
 import dynamic from 'next/dynamic';
 import classNames from 'classnames';
 import { RankProgress } from './RankProgress';
@@ -13,6 +7,7 @@ import AuthContext from '../contexts/AuthContext';
 import { getRank, RANKS } from '../lib/rank';
 import FeaturesContext from '../contexts/FeaturesContext';
 import { Features, getFeatureValue } from '../lib/featureManagement';
+import useDebounce from '../hooks/useDebounce';
 
 const RanksModal = dynamic(
   () =>
@@ -53,14 +48,14 @@ export default function RankProgressWrapper({
     reads,
   } = useReadingRank(disableNewRankPopup);
 
+  const [levelUpAnimation] = useDebounce(() => {
+    confirmLevelUp(true);
+  }, 1000);
+
   const showRankAnimation = levelUp && !shouldShowRankModal;
   const closeRanksModal = () => {
     setShowRanksModal(false);
   };
-  const timeoutRef = useRef<number>();
-
-  // Clear any existing timeouts
-  useEffect(() => () => clearTimeout(timeoutRef.current), []);
 
   return (
     <>
@@ -82,13 +77,7 @@ export default function RankProgressWrapper({
           showRankAnimation={showRankAnimation}
           showRadialProgress={sidebarExpanded}
           fillByDefault
-          onRankAnimationFinish={() => {
-            timeoutRef.current = window.setTimeout(
-              () => confirmLevelUp(true),
-              1000,
-            );
-            return timeoutRef.current;
-          }}
+          onRankAnimationFinish={levelUpAnimation}
           showTextProgress={sidebarExpanded}
           smallVersion
           rankLastWeek={rankLastWeek}

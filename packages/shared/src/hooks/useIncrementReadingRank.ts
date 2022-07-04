@@ -4,6 +4,7 @@ import AuthContext from '../contexts/AuthContext';
 import { getRankQueryKey } from './useReadingRank';
 import { MyRankData } from '../graphql/users';
 import { getRank, RANKS } from '../lib/rank';
+import useDebounce from './useDebounce';
 
 type ReturnType = {
   incrementReadingRank: () => Promise<MyRankData>;
@@ -13,14 +14,16 @@ const MAX_PROGRESS = RANKS[RANKS.length - 1].steps;
 
 export default function useIncrementReadingRank(): ReturnType {
   const { user } = useContext(AuthContext);
-  const timeoutRef = useRef<number>();
+  const queryKeyRef = useRef<string[]>();
   const queryClient = useQueryClient();
-
-  useEffect(() => () => clearTimeout(timeoutRef.current), []);
+  const [clearQueries] = useDebounce(() => {
+    queryClient.invalidateQueries(queryKeyRef.current);
+  }, 100);
 
   return {
     incrementReadingRank: async () => {
       const queryKey = getRankQueryKey(user);
+      queryKeyRef.current = queryKey;
       const data = queryClient.setQueryData<MyRankData>(
         queryKey,
         (currentRank) => {
@@ -48,9 +51,7 @@ export default function useIncrementReadingRank(): ReturnType {
           };
         },
       );
-      timeoutRef.current = window.setTimeout(() => {
-        queryClient.invalidateQueries(queryKey);
-      }, 100);
+      clearQueries();
       return data;
     },
   };

@@ -1,15 +1,10 @@
-import React, {
-  ReactElement,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { ReactElement, useEffect, useMemo, useState } from 'react';
 import { CSSTransition } from 'react-transition-group';
 import { get as getCache, set as setCache } from 'idb-keyval';
 import { isSameDay } from 'date-fns';
 import { LoggedUser } from '../lib/user';
 import { tablet } from '../styles/media';
+import useDebounce from '../hooks/useDebounce';
 
 type GreetingData = { text: string; emoji: string };
 
@@ -52,7 +47,15 @@ export default function Greeting({
   onExit: () => unknown;
 }): ReactElement {
   const [show, setShow] = useState(false);
-  const timeoutRef = useRef<number>();
+  const [removeShow] = useDebounce(() => setShow(false), 7000);
+  const [addShow] = useDebounce(() => {
+    setShow(true);
+    removeShow();
+  }, 500);
+  const [showGreetingAnimation] = useDebounce(() => {
+    onEnter();
+    addShow();
+  }, 1500);
 
   const greetingElement = useMemo(() => {
     const firstName = user?.name?.split?.(' ')?.[0];
@@ -76,7 +79,7 @@ export default function Greeting({
       }
 
       const now = new Date();
-      const lastGreeting = await getCache<Date>('greeting');
+      const lastGreeting = await getCache<Date>('greeting+');
       const showGreeting =
         !lastGreeting ||
         !isSameDay(now, lastGreeting) ||
@@ -84,19 +87,9 @@ export default function Greeting({
           getGreetingSlot(now.getHours());
       if (showGreeting) {
         await setCache('greeting', now);
-        timeoutRef.current = window.setTimeout(() => {
-          onEnter();
-          timeoutRef.current = window.setTimeout(() => {
-            setShow(true);
-            timeoutRef.current = window.setTimeout(() => setShow(false), 7000);
-          }, 500);
-        }, 1500);
+        showGreetingAnimation();
       }
     })();
-
-    return () => {
-      window.clearTimeout(timeoutRef.current);
-    };
   }, []);
 
   return (
