@@ -1,5 +1,5 @@
 import { useQueryClient } from 'react-query';
-import { useContext, useEffect, useRef } from 'react';
+import { useContext, useRef } from 'react';
 import AuthContext from '../contexts/AuthContext';
 import { getRankQueryKey } from './useReadingRank';
 import { MyRankData } from '../graphql/users';

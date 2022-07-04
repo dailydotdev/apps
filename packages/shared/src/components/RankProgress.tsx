@@ -193,54 +193,57 @@ export function RankProgress({
     firstBadgeAnimation.onfinish = () => {
       setShownRank(rank);
       // Let the new rank update
-      const attentionAnimation = showRankAnimation
-        ? attentionRef.current.animate(
-            [
-              {
-                transform: 'scale(0.5)',
-                opacity: 1,
-              },
-              {
-                transform: 'scale(1.5)',
-                opacity: 0,
-              },
-            ],
-            { duration: 600, fill: 'forwards' },
-          )
-        : null;
 
-      const lastBadgeAnimation = animatedRef.animate(
-        [
-          {
-            transform: `scale(${2 - maxScale})`,
-            opacity: 0,
-            '--stop-color1': rankToGradientStopBottom(rank),
-            '--stop-color2': rankToGradientStopTop(rank),
-          },
-          {
-            transform: 'scale(1)',
-            opacity: 1,
-            '--stop-color1': rankToGradientStopBottom(rank),
-            '--stop-color2': rankToGradientStopTop(rank),
-          },
-        ],
-        { duration: 100, fill: 'forwards' },
-      );
-      const cancelAnimations = () => {
-        progressAnimation?.cancel();
-        firstBadgeAnimation.cancel();
-        lastBadgeAnimation?.cancel();
-        attentionAnimation?.cancel();
-        setForceColor(false);
-        onRankAnimationFinish?.();
-      };
+      setTimeout(() => {
+        const attentionAnimation = showRankAnimation
+          ? attentionRef.current.animate(
+              [
+                {
+                  transform: 'scale(0.5)',
+                  opacity: 1,
+                },
+                {
+                  transform: 'scale(1.5)',
+                  opacity: 0,
+                },
+              ],
+              { duration: 600, fill: 'forwards' },
+            )
+          : null;
 
-      if (attentionAnimation) {
-        attentionAnimation.onfinish = cancelAnimations;
-      } else {
-        cancelAnimations();
-        endAnimation();
-      }
+        const lastBadgeAnimation = animatedRef.animate(
+          [
+            {
+              transform: `scale(${2 - maxScale})`,
+              opacity: 0,
+              '--stop-color1': rankToGradientStopBottom(rank),
+              '--stop-color2': rankToGradientStopTop(rank),
+            },
+            {
+              transform: 'scale(1)',
+              opacity: 1,
+              '--stop-color1': rankToGradientStopBottom(rank),
+              '--stop-color2': rankToGradientStopTop(rank),
+            },
+          ],
+          { duration: 100, fill: 'forwards' },
+        );
+        const cancelAnimations = () => {
+          progressAnimation?.cancel();
+          firstBadgeAnimation.cancel();
+          lastBadgeAnimation?.cancel();
+          attentionAnimation?.cancel();
+          setForceColor(false);
+          onRankAnimationFinish?.();
+        };
+
+        if (attentionAnimation) {
+          attentionAnimation.onfinish = cancelAnimations;
+        } else {
+          cancelAnimations();
+          endAnimation();
+        }
+      });
     };
   };
 
