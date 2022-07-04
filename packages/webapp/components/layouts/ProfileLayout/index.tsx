@@ -210,7 +210,7 @@ export default function ProfileLayout({
                     href={`https://twitter.com/${twitterHandle}`}
                     target="_blank"
                     rel="noopener"
-                    icon={<TwitterIcon filled />}
+                    icon={<TwitterIcon />}
                     className="btn-tertiary"
                   />
                 </SimpleTooltip>
