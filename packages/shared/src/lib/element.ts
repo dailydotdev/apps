@@ -145,8 +145,8 @@ export const getSplittedText = (
   [col, row]: CaretPosition,
   query: string,
 ): [Node, string, string] => {
-  const isCompanion = getRoot(textarea) instanceof ShadowRoot;
-  const offset = isCompanion && isFirefox ? 0 : 1;
+  const isCompanion = textarea.getRootNode() instanceof ShadowRoot;
+  const offset = isCompanion && isFirefox ? 0 : 1; // the reason for this offset is due to firefox bug of delayed dispatching of events
   const node = Array.from(textarea.childNodes).find((_, i) => i === row);
   const text = getNodeText(node);
   const left = text?.substring(0, col - 1) || '';
