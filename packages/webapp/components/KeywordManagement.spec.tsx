@@ -16,7 +16,7 @@ import { Connection } from '@dailydotdev/shared/src/graphql/common';
 import {
   MockedGraphQLResponse,
   mockGraphQL,
-} from '../__tests__/helpers/graphql';
+} from '@dailydotdev/shared/__tests__/helpers/graphql';
 import KeywordManagement from './KeywordManagement';
 
 const onOperationCompleted = jest.fn();

@@ -8,10 +8,14 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   Keyword,
-  KeywordData,
   KEYWORD_QUERY,
+  KeywordData,
 } from '@dailydotdev/shared/src/graphql/keywords';
-import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
+import {
+  MockedGraphQLResponse,
+  mockGraphQL,
+} from '@dailydotdev/shared/__tests__/helpers/graphql';
+import user from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import KeywordsPage from '../pages/backoffice/keywords/[value]';
 
 jest.mock('next/router', () => ({
@@ -30,18 +34,6 @@ beforeEach(() => {
       } as unknown as NextRouter),
   );
 });
-
-const defaultUser: LoggedUser = {
-  id: 'u1',
-  name: 'Ido Shamun',
-  providers: ['github'],
-  email: 'ido@acme.com',
-  image: 'https://daily.dev/ido.png',
-  infoConfirmed: true,
-  premium: false,
-  createdAt: '',
-  roles: [Roles.Moderator],
-};
 
 const defaultKeyword: Keyword = {
   value: 'reactjs',
@@ -65,7 +57,7 @@ const createKeywordMock = (
 
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createKeywordMock()],
-  user: LoggedUser = defaultUser,
+  userUpdate: LoggedUser = { ...user, roles: [Roles.Moderator] },
 ): RenderResult => {
   const client = new QueryClient();
 
@@ -74,7 +66,7 @@ const renderComponent = (
     <QueryClientProvider client={client}>
       <AuthContext.Provider
         value={{
-          user,
+          user: userUpdate,
           shouldShowLogin: false,
           showLogin: jest.fn(),
           logout: jest.fn(),
@@ -90,7 +82,7 @@ const renderComponent = (
 };
 
 it('should redirect to home page if not moderator', async () => {
-  renderComponent([], { ...defaultUser, roles: [] });
+  renderComponent([], { ...user, roles: [] });
   await waitFor(() => expect(routerReplace).toBeCalledWith('/'));
 });
 

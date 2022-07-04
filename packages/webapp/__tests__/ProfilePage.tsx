@@ -26,9 +26,12 @@ import {
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { RANKS } from '@dailydotdev/shared/src/lib/rank';
 import { startOfTomorrow, subDays, subMonths } from 'date-fns';
-import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
+import {
+  MockedGraphQLResponse,
+  mockGraphQL,
+} from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import ProfilePage from '../pages/[userId]/index';
-import { waitForNock } from './helpers/utilities';
 
 beforeEach(() => {
   nock.cleanAll();
