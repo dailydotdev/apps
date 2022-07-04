@@ -11,4 +11,5 @@ const comment: Comment = {
   permalink: 'https://daily.dev',
   numUpvotes: 0,
 };
+
 export default comment;
