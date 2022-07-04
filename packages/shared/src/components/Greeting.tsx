@@ -79,7 +79,7 @@ export default function Greeting({
       }
 
       const now = new Date();
-      const lastGreeting = await getCache<Date>('greeting+');
+      const lastGreeting = await getCache<Date>('greeting');
       const showGreeting =
         !lastGreeting ||
         !isSameDay(now, lastGreeting) ||
