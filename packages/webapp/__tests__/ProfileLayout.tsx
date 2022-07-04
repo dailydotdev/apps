@@ -4,9 +4,9 @@ import { render, RenderResult, screen } from '@testing-library/preact';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { USER_READING_RANK_QUERY } from '@dailydotdev/shared/src/graphql/users';
-import { mockGraphQL } from './helpers/graphql';
+import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import ProfileLayout from '../components/layouts/ProfileLayout';
-import { waitForNock } from './helpers/utilities';
 
 jest.mock('next/router', () => ({
   useRouter() {

@@ -17,12 +17,15 @@ import { getFeedSettingsQueryKey } from '@dailydotdev/shared/src/hooks/useFeedSe
 import SettingsContext, {
   SettingsContextData,
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
+import ad from '@dailydotdev/shared/__tests__/fixture/ad';
+import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
+import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
+import {
+  MockedGraphQLResponse,
+  mockGraphQL,
+} from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import TagPage from '../pages/tags/[tag]';
-import ad from './fixture/ad';
-import defaultUser from './fixture/loggedUser';
-import defaultFeedPage from './fixture/feed';
-import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
-import { waitForNock } from './helpers/utilities';
 import { FEED_SETTINGS_QUERY } from '../../shared/src/graphql/feedSettings';
 
 const showLogin = jest.fn();

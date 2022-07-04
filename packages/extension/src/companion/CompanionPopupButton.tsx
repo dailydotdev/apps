@@ -6,7 +6,6 @@ import CompanionIcon from '@dailydotdev/shared/src/components/icons/App';
 import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { CompanionPermission } from './CompanionPermission';
 import { useExtensionPermission } from './useExtensionPermission';
-import useExtensionAlerts from '../lib/useExtensionAlerts';
 
 interface CompanionPopupButtonProps {
   placement?: string;
@@ -15,14 +14,11 @@ interface CompanionPopupButtonProps {
 export const CompanionPopupButton = ({
   placement,
 }: CompanionPopupButtonProps): ReactElement => {
-  const { alerts, updateAlerts } = useExtensionAlerts();
   const { trackEvent } = useContext(AnalyticsContext);
   const { contentScriptGranted, isFetched } = useExtensionPermission({
     origin: 'companion permission button',
   });
-  const [showCompanionPermission, setShowCompanionPermission] = useState(
-    alerts.displayCompanionPopup,
-  );
+  const [showCompanionPermission, setShowCompanionPermission] = useState(false);
 
   const companionNotificationTracking = (extra: string, value: boolean) => {
     const state = value ? 'open' : 'close';
@@ -32,19 +28,7 @@ export const CompanionPopupButton = ({
     });
   };
 
-  useEffect(() => {
-    if (alerts.displayCompanionPopup) {
-      companionNotificationTracking('auto', true);
-    }
-  }, [alerts]);
-
   const onButtonClick = () => {
-    if (alerts.displayCompanionPopup) {
-      updateAlerts({
-        displayCompanionPopup: false,
-      });
-    }
-
     companionNotificationTracking('manual', !showCompanionPermission);
     setShowCompanionPermission(!showCompanionPermission);
   };

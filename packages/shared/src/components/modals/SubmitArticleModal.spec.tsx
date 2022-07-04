@@ -15,6 +15,7 @@ import {
   SUBMIT_ARTICLE_MUTATION,
 } from '../../graphql/submitArticle';
 import SubmitArticleModal from './SubmitArticleModal';
+import user from '../../../__tests__/fixture/loggedUser';
 
 const onRequestClose = jest.fn();
 
@@ -22,19 +23,6 @@ beforeEach(async () => {
   nock.cleanAll();
   jest.clearAllMocks();
 });
-
-const defaultUser: LoggedUser = {
-  id: 'u1',
-  name: 'Ido Shamun',
-  providers: ['github'],
-  email: 'ido@acme.com',
-  image: 'https://daily.dev/ido.png',
-  infoConfirmed: true,
-  premium: false,
-  createdAt: '2020-07-26T13:04:35.000Z',
-  username: 'test',
-  permalink: 'sample',
-};
 
 const createSubmissionAvailabilityMock = (
   submissionAvailability = {
@@ -49,14 +37,14 @@ const createSubmissionAvailabilityMock = (
 
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createSubmissionAvailabilityMock()],
-  user: LoggedUser | AnonymousUser = defaultUser,
+  userUpdate: LoggedUser | AnonymousUser = user,
 ): RenderResult => {
   const client = new QueryClient();
   mocks.forEach(mockGraphQL);
   return render(
     <QueryClientProvider client={client}>
       <AuthContextProvider
-        user={user}
+        user={userUpdate}
         updateUser={jest.fn()}
         tokenRefreshed
         getRedirectUri={jest.fn()}
