@@ -72,6 +72,7 @@ export function BaseTooltip(
     <Tippy
       ref={ref}
       {...props}
+      maxWidth=""
       plugins={[lazyPlugin]}
       placement={placement}
       delay={delay}

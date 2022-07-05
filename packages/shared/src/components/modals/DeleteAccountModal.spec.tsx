@@ -1,8 +1,8 @@
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import React from 'react';
-import { LoggedUser } from '../../lib/user';
 import AuthContext from '../../contexts/AuthContext';
 import DeleteAccountModal from './DeleteAccountModal';
+import user from '../../../__tests__/fixture/loggedUser';
 
 const deleteAccount = jest.fn();
 
@@ -12,23 +12,11 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-const defaultUser = {
-  id: 'u1',
-  username: 'idoshamun',
-  name: 'Ido Shamun',
-  providers: ['github'],
-  email: 'ido@acme.com',
-  image: 'https://daily.dev/ido.png',
-  infoConfirmed: true,
-  premium: false,
-  createdAt: '2020-07-26T13:04:35.000Z',
-};
-
-const renderComponent = (user: Partial<LoggedUser> = {}): RenderResult => {
+const renderComponent = (): RenderResult => {
   return render(
     <AuthContext.Provider
       value={{
-        user: { ...defaultUser, ...user },
+        user,
         shouldShowLogin: false,
         showLogin: jest.fn(),
         updateUser: jest.fn(),

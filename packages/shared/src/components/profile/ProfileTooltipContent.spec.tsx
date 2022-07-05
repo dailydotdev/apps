@@ -2,22 +2,13 @@ import React from 'react';
 import nock from 'nock';
 import { render, screen } from '@testing-library/react';
 import { ProfileTooltipContent } from './ProfileTooltipContent';
-import { Author } from '../../graphql/comments';
 import { UserTooltipContentData } from '../../hooks/useProfileTooltip';
+import user from '../../../__tests__/fixture/loggedUser';
 
 beforeEach(() => {
   nock.cleanAll();
   jest.clearAllMocks();
 });
-
-const defaultUser = {
-  id: '1',
-  image: 'test.sample.com',
-  username: 'sshanzel',
-  name: 'Lee Hansel Solevilla',
-  permalink: 'https://app.daily.dev/sshanzel',
-  bio: 'Sample bio',
-};
 
 const defaultRankData = { currentRank: 5 };
 const defaultTagsData = [
@@ -30,32 +21,29 @@ const defaultTagsData = [
 
 const mockRank = { rank: defaultRankData, tags: defaultTagsData };
 
-const renderComponent = (
-  user: Author = defaultUser,
-  rank: UserTooltipContentData = mockRank,
-) => {
+const renderComponent = (rank: UserTooltipContentData = mockRank) => {
   return render(<ProfileTooltipContent user={user} data={rank} />);
 };
 
 describe('ProfileTooltipContent component', () => {
   it('should show username', async () => {
     renderComponent();
-    await screen.findByText('@sshanzel');
+    await screen.findByText(`@${user.username}`);
   });
 
   it('should show full name', async () => {
     renderComponent();
-    await screen.findByText('Lee Hansel Solevilla');
+    await screen.findByText(user.name);
   });
 
   it('should show bio', async () => {
     renderComponent();
-    await screen.findByText('Sample bio');
+    await screen.findByText(user.bio);
   });
 
   it('should show user image', async () => {
     renderComponent();
-    await screen.findByAltText(`sshanzel's profile`);
+    await screen.findByAltText(`${user.username}'s profile`);
   });
 
   it('should show user rank', async () => {

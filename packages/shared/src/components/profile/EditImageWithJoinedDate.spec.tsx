@@ -9,6 +9,7 @@ import {
 import { mocked } from 'ts-jest/utils';
 import { changeProfileImage, LoggedUser } from '../../lib/user';
 import EditImageWithJoinedDate from './EditImageWithJoinedDate';
+import user from '../../../__tests__/fixture/loggedUser';
 
 jest.mock('../../lib/user', () => ({
   ...jest.requireActual('../../lib/user'),
@@ -19,26 +20,16 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-const defaultUser: LoggedUser = {
-  id: 'u1',
-  name: 'Ido Shamun',
-  username: 'idoshamun',
-  providers: ['github'],
-  email: 'ido@acme.com',
-  image: 'https://daily.dev/ido.png',
-  infoConfirmed: true,
-  premium: false,
-  createdAt: '2020-07-26T13:04:35.000Z',
-};
-
-const renderComponent = (user: Partial<LoggedUser> = {}): RenderResult => {
-  return render(<EditImageWithJoinedDate user={{ ...defaultUser, ...user }} />);
+const renderComponent = (
+  userUpdate: Partial<LoggedUser> = {},
+): RenderResult => {
+  return render(<EditImageWithJoinedDate user={{ ...user, ...userUpdate }} />);
 };
 
 it('should show profile image', () => {
   renderComponent();
-  const el = screen.getByAltText(`idoshamun's profile`);
-  expect(el).toHaveAttribute('data-src', defaultUser.image);
+  const el = screen.getByAltText(`${user.username}'s profile`);
+  expect(el).toHaveAttribute('data-src', user.image);
 });
 
 it('should show github provider information', () => {
@@ -56,7 +47,7 @@ it('should show google provider information', () => {
 it('should upload the new image profile image', async () => {
   renderComponent();
   mocked(changeProfileImage).mockResolvedValue({
-    ...defaultUser,
+    ...user,
     image: 'https://daily.dev/new.png',
   });
   const input = screen.getByTestId('profileImage');
@@ -74,7 +65,7 @@ it('should upload the new image profile image', async () => {
   fireEvent.change(input);
   await waitFor(() => expect(readAsDataURL).toBeCalledTimes(1));
   expect(changeProfileImage).toBeCalledWith(file);
-  const el = screen.getByAltText(`idoshamun's profile`);
+  const el = screen.getByAltText(`${user.username}'s profile`);
   await waitFor(() =>
     expect(el).toHaveAttribute('data-src', 'https://daily.dev/new.png'),
   );
