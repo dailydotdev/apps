@@ -7,6 +7,7 @@ import { Comment, PostCommentsData } from '../graphql/comments';
 import { Edge } from '../graphql/common';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
+import useDebounce from './useDebounce';
 
 export interface UsePostCommentOptionalProps {
   enableShowShareNewComment?: boolean;
@@ -52,6 +53,7 @@ export const usePostComment = (
   const [lastScroll, setLastScroll] = useState(0);
   const [parentComment, setParentComment] = useState<ParentComment>(null);
   const [showShareNewComment, setShowShareNewComment] = useState(false);
+  const [showNewComment] = useDebounce(() => setShowShareNewComment(true), 700);
 
   const closeNewComment = () => {
     setParentComment(null);
@@ -60,7 +62,7 @@ export const usePostComment = (
 
   const onNewComment = (_: Comment, parentId: string | null): void => {
     if (!parentId) {
-      setTimeout(() => setShowShareNewComment(true), 700);
+      showNewComment();
     }
   };
 
@@ -201,7 +203,7 @@ export const usePostComment = (
 
   useEffect(() => {
     if (enableShowShareNewComment) {
-      setTimeout(() => setShowShareNewComment(true), 700);
+      showNewComment();
     }
   }, [enableShowShareNewComment]);
 

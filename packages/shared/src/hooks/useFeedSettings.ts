@@ -17,6 +17,7 @@ import { LoggedUser } from '../lib/user';
 import FeaturesContext from '../contexts/FeaturesContext';
 import { Features, isFeaturedEnabled } from '../lib/featureManagement';
 import usePersistentContext from './usePersistentContext';
+import useDebounce from './useDebounce';
 
 export const getFeedSettingsQueryKey = (user?: LoggedUser): string[] => [
   user?.id,
@@ -82,6 +83,10 @@ export default function useFeedSettings(): FeedSettingsReturnType {
     [true, false],
     false,
   );
+  const [invaliateQueries] = useDebounce(() => {
+    queryClient.invalidateQueries(generateQueryKey('popular', user));
+    queryClient.invalidateQueries(generateQueryKey('my-feed', user));
+  }, 100);
 
   const { data: feedQuery = {}, isLoading } = useQuery<AllTagCategoriesData>(
     filtersKey,
@@ -116,10 +121,7 @@ export default function useFeedSettings(): FeedSettingsReturnType {
       return;
     }
 
-    setTimeout(() => {
-      queryClient.invalidateQueries(generateQueryKey('popular', user));
-      queryClient.invalidateQueries(generateQueryKey('my-feed', user));
-    }, 100);
+    invaliateQueries();
   }, [tagsCategories, feedSettings, avoidRefresh]);
 
   return useMemo(() => {
