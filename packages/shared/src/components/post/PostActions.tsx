@@ -83,7 +83,7 @@ export function PostActions({
         id="upvote-post-btn"
         pressed={post.upvoted}
         onClick={toggleUpvote}
-        icon={<UpvoteIcon showSecondary={post.upvoted} />}
+        icon={<UpvoteIcon secondary={post.upvoted} />}
         aria-label="Upvote"
         responsiveLabelClass={actionsClassName}
         className="btn-tertiary-avocado"
@@ -94,7 +94,7 @@ export function PostActions({
         id="comment-post-btn"
         pressed={post.commented}
         onClick={onComment}
-        icon={<CommentIcon showSecondary={post.commented} />}
+        icon={<CommentIcon secondary={post.commented} />}
         aria-label="Comment"
         responsiveLabelClass={actionsClassName}
         className="btn-tertiary-avocado"
@@ -107,7 +107,7 @@ export function PostActions({
           id="bookmark-post-btn"
           pressed={post.bookmarked}
           onClick={onBookmark}
-          icon={<BookmarkIcon showSecondary={post.bookmarked} />}
+          icon={<BookmarkIcon secondary={post.bookmarked} />}
           responsiveLabelClass={actionsClassName}
           className="btn-tertiary-bun"
         >

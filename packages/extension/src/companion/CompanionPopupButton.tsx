@@ -74,7 +74,7 @@ export const CompanionPopupButton = ({
         )}
         icon={
           <CompanionIcon
-            showSecondary={showCompanionPermission}
+            secondary={showCompanionPermission}
             className={
               showCompanionPermission
                 ? 'w-7 h-7 text-theme-label-primary'

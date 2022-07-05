@@ -222,7 +222,7 @@ export default function CompanionMenu({
       >
         <Button
           buttonSize="medium"
-          icon={<UpvoteIcon showSecondary={post?.upvoted} />}
+          icon={<UpvoteIcon secondary={post?.upvoted} />}
           pressed={post?.upvoted}
           onClick={toggleUpvote}
           className="btn-tertiary-avocado"
@@ -254,7 +254,7 @@ export default function CompanionMenu({
             pressed={post?.bookmarked}
             className="btn-tertiary-bun"
             onClick={toggleBookmark}
-            icon={<BookmarkIcon showSecondary={post?.bookmarked} />}
+            icon={<BookmarkIcon secondary={post?.bookmarked} />}
           />
         </SimpleTooltip>
       ) : (

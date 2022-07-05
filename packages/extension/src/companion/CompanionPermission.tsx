@@ -60,7 +60,7 @@ const CompanionPermissionComponent = (
             alt="Companion video preview"
             className="rounded-10 w-[11.25rem] h-[6.875]"
           />
-          <PlayIcon showSecondary className="absolute w-10 h-10" />
+          <PlayIcon secondary className="absolute w-10 h-10" />
         </a>
         <ClickableText
           tag="a"

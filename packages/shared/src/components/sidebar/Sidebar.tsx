@@ -209,7 +209,7 @@ export default function Sidebar({
   const discoverMenuItems: SidebarMenuItem[] = [
     {
       icon: (active: boolean) => (
-        <ListIcon Icon={() => <HotIcon showSecondary={active} />} />
+        <ListIcon Icon={() => <HotIcon secondary={active} />} />
       ),
       title: popularFeedCopy,
       path: '/popular',
@@ -217,7 +217,7 @@ export default function Sidebar({
     },
     {
       icon: (active: boolean) => (
-        <ListIcon Icon={() => <UpvoteIcon showSecondary={active} />} />
+        <ListIcon Icon={() => <UpvoteIcon secondary={active} />} />
       ),
       title: 'Most upvoted',
       path: '/upvoted',
@@ -225,7 +225,7 @@ export default function Sidebar({
     },
     {
       icon: (active: boolean) => (
-        <ListIcon Icon={() => <DiscussIcon showSecondary={active} />} />
+        <ListIcon Icon={() => <DiscussIcon secondary={active} />} />
       ),
       title: 'Best discussions',
       path: '/discussed',
@@ -233,7 +233,7 @@ export default function Sidebar({
     },
     {
       icon: (active: boolean) => (
-        <ListIcon Icon={() => <SearchIcon showSecondary={active} />} />
+        <ListIcon Icon={() => <SearchIcon secondary={active} />} />
       ),
       title: 'Search',
       path: '/search',
@@ -244,7 +244,7 @@ export default function Sidebar({
   if (!shouldShowMyFeed) {
     discoverMenuItems.unshift({
       icon: (active: boolean) => (
-        <ListIcon Icon={() => <FilterIcon showSecondary={active} />} />
+        <ListIcon Icon={() => <FilterIcon secondary={active} />} />
       ),
       alert: alerts.filter && (
         <AlertDot className="-top-0.5 right-2.5" color={AlertColor.Fill} />
@@ -257,7 +257,7 @@ export default function Sidebar({
 
   const myFeedMenuItem: SidebarMenuItem = {
     icon: (active: boolean) => (
-      <ListIcon Icon={() => <HomeIcon showSecondary={active} />} />
+      <ListIcon Icon={() => <HomeIcon secondary={active} />} />
     ),
     title: 'My feed',
     path: '/my-feed',
@@ -270,7 +270,7 @@ export default function Sidebar({
   const manageMenuItems: SidebarMenuItem[] = [
     {
       icon: (active: boolean) => (
-        <ListIcon Icon={() => <BookmarkIcon showSecondary={active} />} />
+        <ListIcon Icon={() => <BookmarkIcon secondary={active} />} />
       ),
       title: 'Bookmarks',
       path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}bookmarks`,
@@ -279,7 +279,7 @@ export default function Sidebar({
     },
     {
       icon: (active: boolean) => (
-        <ListIcon Icon={() => <EyeIcon showSecondary={active} />} />
+        <ListIcon Icon={() => <EyeIcon secondary={active} />} />
       ),
       title: 'Reading history',
       path: `${process.env.NEXT_PUBLIC_WEBAPP_URL}history`,
@@ -287,7 +287,7 @@ export default function Sidebar({
     },
     {
       icon: (active: boolean) => (
-        <ListIcon Icon={() => <SettingsIcon showSecondary={active} />} />
+        <ListIcon Icon={() => <SettingsIcon secondary={active} />} />
       ),
       title: 'Customize',
       action: () => setShowSettings(!showSettings),
@@ -299,7 +299,7 @@ export default function Sidebar({
   if (submitArticleOn) {
     const submitArticleMenuItem = {
       icon: (active: boolean) => (
-        <ListIcon Icon={() => <LinkIcon showSecondary={active} />} />
+        <ListIcon Icon={() => <LinkIcon secondary={active} />} />
       ),
       title: submitArticleSidebarButton,
       action: () => trackAndShowSubmitArticle(),
@@ -311,7 +311,7 @@ export default function Sidebar({
   if (shouldShowDnD) {
     const dndMenuItem = {
       icon: (active: boolean) => (
-        <ListIcon Icon={() => <MoonIcon showSecondary={active} />} />
+        <ListIcon Icon={() => <MoonIcon secondary={active} />} />
       ),
       title: 'Focus mode',
       action: onShowDndClick,

@@ -58,7 +58,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
             target="_blank"
             rel="noopener"
             onClick={() => onClick(ShareProvider.WhatsApp)}
-            icon={<WhatsappIcon filled />}
+            icon={<WhatsappIcon secondary />}
             className="btn-tertiary"
           />
         </SimpleTooltip>
@@ -69,7 +69,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
             target="_blank"
             rel="noopener"
             onClick={() => onClick(ShareProvider.Twitter)}
-            icon={<TwitterIcon filled />}
+            icon={<TwitterIcon secondary />}
             className="btn-tertiary"
           />
         </SimpleTooltip>
@@ -80,7 +80,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
             target="_blank"
             rel="noopener"
             onClick={() => onClick(ShareProvider.Facebook)}
-            icon={<FacebookIcon filled />}
+            icon={<FacebookIcon secondary />}
             className="btn-tertiary"
           />
         </SimpleTooltip>

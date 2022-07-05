@@ -206,7 +206,7 @@ export default function PostOptionsMenu({
     });
   } else {
     postOptions.splice(1, 0, {
-      icon: <MenuIcon showSecondary={post?.bookmarked} Icon={BookmarkIcon} />,
+      icon: <MenuIcon secondary={post?.bookmarked} Icon={BookmarkIcon} />,
       text: `${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`,
       action: onBookmark,
     });

@@ -25,7 +25,7 @@ const IconSize: Record<Size, string> = {
 type ItemType = React.ComponentType<{ className }>;
 
 export interface IconProps {
-  showSecondary?: boolean;
+  secondary?: boolean;
   size?: Size;
   className?: string;
   style?: Record<string, unknown>;
@@ -37,14 +37,14 @@ type Props = IconProps & {
 };
 
 const Icon = ({
-  showSecondary = false,
+  secondary = false,
   size = 'small',
   className = '',
   IconPrimary,
   IconSecondary,
   ...rest
 }: Props): ReactElement => {
-  const IconComponent = showSecondary ? IconSecondary : IconPrimary;
+  const IconComponent = secondary ? IconSecondary : IconPrimary;
 
   return (
     <IconComponent

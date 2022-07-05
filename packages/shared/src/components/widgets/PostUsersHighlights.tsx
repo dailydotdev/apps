@@ -87,7 +87,7 @@ const UserHighlight = (props: SourceAuthorProps) => {
       </LinkWrapper>
       {Icon && (
         <Icon
-          showSecondary
+          secondary
           className={classNames(
             'absolute w-5 h-5 top-10 left-10',
             userType === 'author'

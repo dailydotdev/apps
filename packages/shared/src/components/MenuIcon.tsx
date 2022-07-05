@@ -6,13 +6,7 @@ interface MenuIconProps extends IconProps {
 }
 export const MenuIcon = ({
   Icon,
-  showSecondary = false,
+  secondary = false,
 }: MenuIconProps): ReactElement => {
-  return (
-    <Icon
-      size="medium"
-      showSecondary={showSecondary}
-      className="mr-2 text-2xl"
-    />
-  );
+  return <Icon size="medium" secondary={secondary} className="mr-2 text-2xl" />;
 };

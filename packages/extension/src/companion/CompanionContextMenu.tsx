@@ -85,7 +85,7 @@ export default function CompanionContextMenu({
             <BookmarkIcon
               size="medium"
               className="mr-2"
-              showSecondary={postData?.bookmarked}
+              secondary={postData?.bookmarked}
             />
             {postData?.bookmarked ? 'Remove from' : 'Save to'} bookmarks
           </Item>

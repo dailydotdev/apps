@@ -82,7 +82,7 @@ export default function ActionButtons({
     AdditionalInteractionButtons.Bookmark ? (
       <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
         <Button
-          icon={<BookmarkIcon showSecondary={post.bookmarked} />}
+          icon={<BookmarkIcon secondary={post.bookmarked} />}
           buttonSize={postEngagementNonClickable ? 'small' : 'medium'}
           pressed={post.bookmarked}
           onClick={() => onBookmarkClick?.(post, !post.bookmarked)}
@@ -119,7 +119,7 @@ export default function ActionButtons({
             id={`post-${post.id}-upvote-btn`}
             icon={
               <UpvoteIcon
-                showSecondary={post.upvoted || postEngagementNonClickable}
+                secondary={post.upvoted || postEngagementNonClickable}
               />
             }
             pressed={post.upvoted}
@@ -138,7 +138,7 @@ export default function ActionButtons({
             id={`post-${post.id}-comment-btn`}
             icon={
               <CommentIcon
-                showSecondary={post.commented || postEngagementNonClickable}
+                secondary={post.commented || postEngagementNonClickable}
               />
             }
             pressed={post.commented}
