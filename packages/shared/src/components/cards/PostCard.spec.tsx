@@ -73,7 +73,7 @@ it('should call on share click on share button click', async () => {
   });
   const el = await screen.findByLabelText('Share post');
   el.click();
-  await waitFor(() => expect(defaultProps.onShare).toBeCalledWith(defaultPost));
+  await waitFor(() => expect(defaultProps.onShare).toBeCalledWith(post));
 });
 
 it('should not display publication date createdAt is empty', async () => {
