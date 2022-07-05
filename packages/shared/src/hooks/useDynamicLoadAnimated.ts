@@ -1,4 +1,5 @@
-import { useEffect, useState, useRef, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
+import useDebounce from './useDebounce';
 
 interface UseDynamicLoadedAnimation {
   isAnimated: boolean;
@@ -16,7 +17,7 @@ export const useDynamicLoadedAnimation = ({
 }: UseDynamicLoadedAnimationProps = {}): UseDynamicLoadedAnimation => {
   const [isAnimated, setIsAnimated] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
-  const animationRef = useRef<number>();
+  const [removeLoaded] = useDebounce(() => setIsLoaded(false), outDuration);
 
   useEffect(() => {
     if (!isLoaded) {
@@ -31,14 +32,7 @@ export const useDynamicLoadedAnimation = ({
       return;
     }
 
-    if (animationRef.current) {
-      clearTimeout(animationRef.current);
-    }
-
-    animationRef.current = window.setTimeout(
-      () => setIsLoaded(false),
-      outDuration,
-    );
+    removeLoaded();
   }, [isAnimated]);
 
   return useMemo(

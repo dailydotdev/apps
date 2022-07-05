@@ -7,6 +7,7 @@ import AuthContext from '../contexts/AuthContext';
 import { getRank, RANKS } from '../lib/rank';
 import FeaturesContext from '../contexts/FeaturesContext';
 import { Features, getFeatureValue } from '../lib/featureManagement';
+import useDebounce from '../hooks/useDebounce';
 
 const RanksModal = dynamic(
   () =>
@@ -47,10 +48,15 @@ export default function RankProgressWrapper({
     reads,
   } = useReadingRank(disableNewRankPopup);
 
+  const [levelUpAnimation] = useDebounce(() => {
+    confirmLevelUp(true);
+  }, 1000);
+
   const showRankAnimation = levelUp && !shouldShowRankModal;
   const closeRanksModal = () => {
     setShowRanksModal(false);
   };
+
   return (
     <>
       <button
@@ -71,9 +77,7 @@ export default function RankProgressWrapper({
           showRankAnimation={showRankAnimation}
           showRadialProgress={sidebarExpanded}
           fillByDefault
-          onRankAnimationFinish={() =>
-            setTimeout(() => confirmLevelUp(true), 1000)
-          }
+          onRankAnimationFinish={levelUpAnimation}
           showTextProgress={sidebarExpanded}
           smallVersion
           rankLastWeek={rankLastWeek}
