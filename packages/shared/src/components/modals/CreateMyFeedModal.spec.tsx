@@ -3,7 +3,6 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import CreateMyFeedModal from './CreateMyFeedModal';
 import AuthContext from '../../contexts/AuthContext';
-import { LoggedUser } from '../../lib/user';
 import {
   AllTagCategoriesData,
   FeedSettings,
@@ -14,33 +13,16 @@ import {
   MockedGraphQLResponse,
   mockGraphQL,
 } from '../../../__tests__/helpers/graphql';
-
-jest.mock('../../lib/user', () => ({
-  ...jest.requireActual('../../lib/user'),
-  updateProfile: jest.fn(),
-}));
+import user from '../../../__tests__/fixture/loggedUser';
 
 const logout = jest.fn();
 const onRequestClose = jest.fn();
-
-const defaultUser = {
-  id: 'u1',
-  username: 'idoshamun',
-  name: 'Ido Shamun',
-  providers: ['github'],
-  email: 'ido@acme.com',
-  image: 'https://daily.dev/ido.png',
-  infoConfirmed: true,
-  premium: false,
-  createdAt: '2020-07-26T13:04:35.000Z',
-};
-let loggedUser = defaultUser;
 
 const createAllTagCategoriesMock = (
   feedSettings: FeedSettings = {
     includeTags: ['react', 'golang'],
   },
-  loggedIn = !!loggedUser,
+  loggedIn = true,
   tagsCategories: TagCategory[] = [
     {
       id: 'BE',
@@ -61,12 +43,10 @@ const createAllTagCategoriesMock = (
 
 beforeEach(() => {
   jest.clearAllMocks();
-  loggedUser = defaultUser;
 });
 
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createAllTagCategoriesMock()],
-  user: Partial<LoggedUser> = {},
 ): RenderResult => {
   const client = new QueryClient();
   mocks.forEach(mockGraphQL);
@@ -74,7 +54,7 @@ const renderComponent = (
     <QueryClientProvider client={client}>
       <AuthContext.Provider
         value={{
-          user: { ...defaultUser, ...user },
+          user,
           shouldShowLogin: false,
           showLogin: jest.fn(),
           updateUser: jest.fn(),

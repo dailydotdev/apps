@@ -9,6 +9,7 @@ import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { mocked } from 'ts-jest/utils';
 import { NextRouter, useRouter } from 'next/router';
 import { getUserDefaultTimezone } from '@dailydotdev/shared/src/lib/timezones';
+import user from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import Page from '../pages/register';
 
 jest.mock('next/router', () => ({
@@ -35,20 +36,9 @@ beforeEach(() => {
   );
 });
 
-const defaultUser = {
-  id: 'u1',
-  username: 'idoshamun',
-  name: 'Ido Shamun',
-  providers: ['github'],
-  email: 'ido@acme.com',
-  image: 'https://daily.dev/ido.png',
-  infoConfirmed: true,
-  premium: false,
-  createdAt: '2020-07-26T13:04:35.000Z',
-  permalink: 'https://app.daily.dev/ido',
-};
-
-const renderComponent = (user: Partial<LoggedUser> = {}): RenderResult => {
+const renderComponent = (
+  userUpdate: Partial<LoggedUser> = {},
+): RenderResult => {
   const client = new QueryClient();
   const settingsContext: SettingsContextData = {
     spaciness: 'eco',
@@ -70,7 +60,7 @@ const renderComponent = (user: Partial<LoggedUser> = {}): RenderResult => {
     <QueryClientProvider client={client}>
       <AuthContext.Provider
         value={{
-          user: { ...defaultUser, ...user },
+          user: { ...user, ...userUpdate },
           shouldShowLogin: false,
           showLogin: jest.fn(),
           updateUser: jest.fn(),
@@ -88,13 +78,13 @@ const renderComponent = (user: Partial<LoggedUser> = {}): RenderResult => {
 
 it('should show profile image', () => {
   renderComponent();
-  const el = screen.getByAltText(`idoshamun's profile`);
-  expect(el).toHaveAttribute('data-src', defaultUser.image);
+  const el = screen.getByAltText(`${user.username}'s profile`);
+  expect(el).toHaveAttribute('data-src', user.image);
 });
 
 it('should submit information on button click', async () => {
   renderComponent({ username: 'idoshamun' });
-  mocked(updateProfile).mockResolvedValue(defaultUser);
+  mocked(updateProfile).mockResolvedValue(user);
   screen.getByText('Finish').click();
   await waitFor(() => expect(updateProfile).toBeCalledTimes(1));
   expect(updateProfile).toBeCalledWith({
@@ -104,7 +94,7 @@ it('should submit information on button click', async () => {
     company: null,
     title: null,
     acceptedMarketing: false,
-    bio: null,
+    bio: 'Software Engineer in the most amazing company in the globe',
     github: null,
     portfolio: null,
     timezone: userTimezone,

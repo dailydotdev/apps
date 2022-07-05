@@ -17,6 +17,7 @@ import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import LoginModal from '@dailydotdev/shared/src/components/modals/LoginModal';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import useTrackPageView from '@dailydotdev/shared/src/hooks/analytics/useTrackPageView';
+import useDebounce from '@dailydotdev/shared/src/hooks/useDebounce';
 import CompanionMenu from './CompanionMenu';
 import CompanionContent from './CompanionContent';
 import { getCompanionWrapper } from './common';
@@ -79,7 +80,7 @@ export default function Companion({
     requestMethod: companionRequest,
     fetchMethod: companionFetch,
   }));
-
+  const [assetsLoadedDebounce] = useDebounce(() => setAssetsLoaded(true), 10);
   const routeChangedCallbackRef = useTrackPageView();
 
   useEffect(() => {
@@ -88,18 +89,19 @@ export default function Companion({
     }
   }, [routeChangedCallbackRef]);
 
+  const [checkAssets, clearCheckAssets] = useDebounce(() => {
+    if (containerRef?.current?.offsetLeft === 0) {
+      checkAssets();
+    }
+
+    clearCheckAssets();
+    assetsLoadedDebounce();
+  }, 10);
+
   useEffect(() => {
     if (!containerRef?.current || assetsLoaded) {
       return;
     }
-
-    const checkAssets = () => {
-      if (containerRef?.current?.offsetLeft === 0) {
-        return setTimeout(checkAssets, 10);
-      }
-
-      return setTimeout(() => setAssetsLoaded(true), 10);
-    };
 
     checkAssets();
     routeChangedCallbackRef.current();
