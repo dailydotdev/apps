@@ -53,7 +53,6 @@ export const CompanionPopupButton = ({
     <SimpleTooltip
       content={<CompanionPermission />}
       placement="bottom-start"
-      offset={[-140, 12]}
       container={{
         paddingClassName: 'px-6 py-4',
         bgClassName: 'bg-theme-bg-primary',
