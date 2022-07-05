@@ -11,10 +11,6 @@ import {
 } from '@dailydotdev/shared/src/contexts/BootProvider';
 import { getOrGenerateDeviceId } from '@dailydotdev/shared/src/hooks/analytics/useDeviceId';
 import { getContentScriptPermissionAndRegister } from '../companion/useExtensionPermission';
-import {
-  getExtensionAlerts,
-  updateExtensionAlerts,
-} from '../lib/extensionAlerts';
 
 const excludedCompanionOrigins = [
   'http://localhost',
@@ -145,19 +141,7 @@ browser.browserAction.onClicked.addListener(() => {
   browser.tabs.create({ url, active: true });
 });
 
-browser.runtime.onInstalled.addListener(async (details) => {
-  const alerts = getExtensionAlerts();
-
-  if (typeof alerts.displayCompanionPopup === 'undefined') {
-    if (details.reason === 'update') {
-      updateExtensionAlerts(alerts, { displayCompanionPopup: true });
-    }
-
-    if (details.reason === 'install') {
-      updateExtensionAlerts(alerts, { displayCompanionPopup: false });
-    }
-  }
-
+browser.runtime.onInstalled.addListener(async () => {
   await Promise.all([
     browser.runtime.setUninstallURL('https://daily.dev/uninstall'),
   ]);

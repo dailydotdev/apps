@@ -59,7 +59,7 @@ const updateReadingHistoryPost =
 
 const getBookmarkIconAndMenuText = (bookmarked: boolean) => (
   <>
-    <MenuIcon Icon={() => <BookmarkIcon showSecondary={bookmarked} />} />
+    <MenuIcon Icon={() => <BookmarkIcon showSecondary={bookmarked} {...props} />} />
     {bookmarked ? 'Remove from bookmarks' : 'Save to bookmarks'}
   </>
 );

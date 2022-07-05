@@ -1,8 +1,8 @@
 import React, { FunctionComponent, ReactElement, useContext } from 'react';
 import CopyIcon from './icons/Copy';
-import WhatsappIcon from '../../icons/whatsapp_color.svg';
-import TwitterIcon from '../../icons/twitter_color.svg';
-import FacebookIcon from '../../icons/facebook_color.svg';
+import WhatsappIcon from './icons/Whatsapp';
+import TwitterIcon from './icons/Twitter';
+import FacebookIcon from './icons/Facebook';
 import { Post } from '../graphql/posts';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import {
@@ -58,7 +58,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
             target="_blank"
             rel="noopener"
             onClick={() => onClick(ShareProvider.WhatsApp)}
-            icon={<WhatsappIcon style={{ fontSize: '1.75rem' }} />}
+            icon={<WhatsappIcon filled />}
             className="btn-tertiary"
           />
         </SimpleTooltip>
@@ -69,7 +69,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
             target="_blank"
             rel="noopener"
             onClick={() => onClick(ShareProvider.Twitter)}
-            icon={<TwitterIcon style={{ fontSize: '1.75rem' }} />}
+            icon={<TwitterIcon filled />}
             className="btn-tertiary"
           />
         </SimpleTooltip>
@@ -80,7 +80,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
             target="_blank"
             rel="noopener"
             onClick={() => onClick(ShareProvider.Facebook)}
-            icon={<FacebookIcon style={{ fontSize: '1.75rem' }} />}
+            icon={<FacebookIcon filled />}
             className="btn-tertiary"
           />
         </SimpleTooltip>

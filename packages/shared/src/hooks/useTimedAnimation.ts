@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { isNullOrUndefined } from '../lib/func';
+import useDebounce from './useDebounce';
 
 interface UseTimedAnimation {
   timer: number;
@@ -23,9 +24,9 @@ export const useTimedAnimation = ({
   outAnimationDuration = OUT_ANIMATION_DURATION,
   onAnimationEnd,
 }: UseTimedAnimationProps): UseTimedAnimation => {
-  const timeout = useRef<number>();
   const [timer, setTimer] = useState(0);
   const interval = useRef<number>();
+  const [animationEnd] = useDebounce(onAnimationEnd, outAnimationDuration);
 
   const clearInterval = () => {
     if (!interval?.current) {
@@ -71,17 +72,9 @@ export const useTimedAnimation = ({
     // we delay the callback execution so we can let the slide out animation finish
     if (timer <= 0 && interval?.current) {
       clearInterval();
-      window.clearTimeout(timeout.current);
-      timeout.current = window.setTimeout(onAnimationEnd, outAnimationDuration);
+      animationEnd();
     }
   }, [timer]);
-
-  useEffect(
-    () => () => {
-      window.clearTimeout(timeout.current);
-    },
-    [],
-  );
 
   return useMemo(
     () => ({

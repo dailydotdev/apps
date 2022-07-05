@@ -22,6 +22,7 @@ import {
 } from '../lib/rank';
 import Rank from './Rank';
 import styles from './RankProgress.module.css';
+import useDebounce from '../hooks/useDebounce';
 
 const notificationDuration = 300;
 
@@ -134,6 +135,10 @@ export function RankProgress({
   const getLevelText = levelUp() ? 'You made it 🏆' : '+1 Reading day';
   const shouldForceColor = animatingProgress || forceColor || fillByDefault;
 
+  const [endAnimation] = useDebounce(() => {
+    setAnimatingProgress(false);
+  }, 2000);
+
   const steps = useMemo(() => {
     if (
       showRankAnimation ||
@@ -184,9 +189,11 @@ export function RankProgress({
       ],
       { duration: firstAnimationDuration, fill: 'forwards' },
     );
+
     firstBadgeAnimation.onfinish = () => {
       setShownRank(rank);
       // Let the new rank update
+
       setTimeout(() => {
         const attentionAnimation = showRankAnimation
           ? attentionRef.current.animate(
@@ -234,7 +241,7 @@ export function RankProgress({
           attentionAnimation.onfinish = cancelAnimations;
         } else {
           cancelAnimations();
-          setTimeout(() => setAnimatingProgress(false), 2000);
+          endAnimation();
         }
       });
     };
@@ -245,7 +252,7 @@ export function RankProgress({
       setAnimatingProgress(false);
       animateRank();
     } else {
-      setTimeout(() => setAnimatingProgress(false), 2000);
+      endAnimation();
     }
   };
 

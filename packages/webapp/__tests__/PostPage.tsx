@@ -32,8 +32,11 @@ import { NextRouter, useRouter } from 'next/router';
 import { OperationOptions } from 'subscriptions-transport-ws';
 import { SubscriptionCallbacks } from '@dailydotdev/shared/src/hooks/useSubscription';
 import { FeaturesContextProvider } from '@dailydotdev/shared/src/contexts/FeaturesContext';
-import defaultUser from './fixture/loggedUser';
-import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
+import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
+import {
+  MockedGraphQLResponse,
+  mockGraphQL,
+} from '@dailydotdev/shared/__tests__/helpers/graphql';
 import PostPage, { getSeoDescription, Props } from '../pages/posts/[id]';
 
 const showLogin = jest.fn();
