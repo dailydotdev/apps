@@ -42,28 +42,18 @@ export default function AuthModal({
       contentClassName="auth"
     >
       <div className="flex flex-col flex-1 gap-5 p-10 h-full">
-        <AuthModalHeading
-          className="typo-giga1"
-          title="Unlock the full power of daily.dev"
-        />
-        <AuthModalHeading
-          emoji="🧙‍♀️"
-          className="mt-4 typo-title2"
-          title="400+ Sources, one feed"
-          tag="h2"
-        />
-        <AuthModalHeading
-          emoji="👩‍💻"
-          className="typo-title2"
-          title="Used by 150k+ Developers"
-          tag="h2"
-        />
-        <AuthModalHeading
-          emoji="🔮"
-          className="typo-title2"
-          title="Customize your feed!"
-          tag="h2"
-        />
+        <AuthModalHeading className="typo-giga1">
+          Unlock the full power of daily.dev
+        </AuthModalHeading>
+        <AuthModalHeading emoji="🧙‍♀️" className="mt-4 typo-title2" tag="h2">
+          400+ Sources, one feed
+        </AuthModalHeading>
+        <AuthModalHeading emoji="👩‍💻" className="typo-title2" tag="h2">
+          Used by 150k+ Developers
+        </AuthModalHeading>
+        <AuthModalHeading emoji="🔮" className="typo-title2" tag="h2">
+          Customize your feed!
+        </AuthModalHeading>
       </div>
       <Circles
         className={classNames('absolute z-0 h-96 w-[32.5rem]', styles.circles)}

@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
 
 interface AuthModalHeadingProps {
@@ -6,14 +6,14 @@ interface AuthModalHeadingProps {
     JSX.IntrinsicElements,
     'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
   >;
-  title: string;
+  children?: ReactNode;
   className?: string;
   emoji?: string;
 }
 
 function AuthModalHeading({
   tag: Tag = 'h1',
-  title,
+  children,
   className,
   emoji,
 }: AuthModalHeadingProps): ReactElement {
@@ -26,7 +26,7 @@ function AuthModalHeading({
       )}
     >
       {emoji && <span className="mr-4 typo-giga3">{emoji}</span>}
-      {title}
+      {children}
     </Tag>
   );
 }
