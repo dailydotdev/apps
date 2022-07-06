@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useContext, useState } from 'react';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import CopyIcon from '@dailydotdev/shared/src/components/icons/Copy';
 import {
@@ -16,6 +16,7 @@ import UpvotedPopupModal from '@dailydotdev/shared/src/components/modals/Upvoted
 import { postAnalyticsEvent } from '@dailydotdev/shared/src/lib/feed';
 import { ShareProvider } from '@dailydotdev/shared/src/lib/share';
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
+import AnalyticsContext from '@dailydotdev/shared/src/contexts/AnalyticsContext';
 import { CompanionEngagements } from './CompanionEngagements';
 import { CompanionDiscussion } from './CompanionDiscussion';
 import { useBackgroundPaginatedRequest } from './useBackgroundPaginatedRequest';
@@ -30,6 +31,7 @@ const COMPANION_TOP_OFFSET_PX = 120;
 export default function CompanionContent({
   post,
 }: CompanionContentProps): ReactElement {
+  const { trackEvent } = useContext(AnalyticsContext);
   const [copying, copyLink] = useCopyLink(() => post.commentsPermalink);
   const [heightPx, setHeightPx] = useState('0');
   const {
@@ -39,6 +41,15 @@ export default function CompanionContent({
     onShowUpvotedComment,
   } = useUpvoteQuery();
   useBackgroundPaginatedRequest(upvotedPopup.requestQuery?.queryKey);
+
+  const trackAndCopyLink = () => {
+    trackEvent(
+      postAnalyticsEvent('share post', post, {
+        extra: { provider: ShareProvider.CopyLink, origin: Origin.Companion },
+      }),
+    );
+    copyLink();
+  };
 
   const onContainerChange = async (el: HTMLElement) => {
     if (!el) {
@@ -74,7 +85,7 @@ export default function CompanionContent({
               'ml-auto',
               copying ? 'btn-tertiary-avocado' : ' btn-tertiary',
             )}
-            onClick={() => copyLink()}
+            onClick={trackAndCopyLink}
           />
         </SimpleTooltip>
       </div>
