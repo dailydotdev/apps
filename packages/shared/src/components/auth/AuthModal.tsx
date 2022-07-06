@@ -17,6 +17,7 @@ import { fallbackImages } from '../../lib/config';
 import { formToJson } from '../../lib/form';
 import ForgotPasswordForm from './ForgotPassword';
 import TabContainer, { Tab } from '../tabs/TabContainer';
+import AuthModalHeading from './AuthModalHeading';
 
 export type AuthModalProps = ModalProps;
 
@@ -96,7 +97,33 @@ export default function AuthModal({
       onRequestClose={onClose}
       className={classNames(styles.authModal, className)}
     >
-      <Circles className="absolute z-0 w-3/5 h-3/5" />
+      <div className="flex z-1 flex-col flex-1 gap-5 p-10 h-full">
+        <AuthModalHeading
+          className="typo-giga1"
+          title="Unlock the full power of daily.dev"
+        />
+        <AuthModalHeading
+          emoji="🧙‍♀️"
+          className="mt-4 typo-title2"
+          title="400+ Sources, one feed"
+          tag="h2"
+        />
+        <AuthModalHeading
+          emoji="👩‍💻"
+          className="typo-title2"
+          title="Used by 150k+ Developers"
+          tag="h2"
+        />
+        <AuthModalHeading
+          emoji="🔮"
+          className="typo-title2"
+          title="Customize your feed!"
+          tag="h2"
+        />
+      </div>
+      <Circles
+        className={classNames('absolute z-0 h-96 w-[32.5rem]', styles.circles)}
+      />
       <TabContainer<Display>
         className="flex overflow-y-auto z-1 flex-col ml-auto w-full h-full rounded-16 max-w-[25.75rem] bg-theme-bg-tertiary"
         onActiveChange={(active) => setActiveDisplay(active)}

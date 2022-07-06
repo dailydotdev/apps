@@ -6,6 +6,7 @@
     max-height: 40rem;
     height: 100%;
     width: 100%;
+    flex-direction: row;
     justify-content: flex-end;
     align-items: center;
     overflow: hidden;
@@ -15,4 +16,11 @@
       max-width: 1020px;
     }
   }
+}
+
+.circles {
+  position: absolute;
+  bottom: 0;
+  transform: translate(-50%, 0);
+  left: 50%;
 }
