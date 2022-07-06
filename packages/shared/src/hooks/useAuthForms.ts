@@ -18,10 +18,10 @@ interface UseAuthForms {
 }
 
 interface UseAuthFormsProps {
-  onDiscard: CloseModalFunc;
+  onDiscard?: CloseModalFunc;
 }
 
-const useAuthForms = ({ onDiscard }: UseAuthFormsProps): UseAuthForms => {
+const useAuthForms = ({ onDiscard }: UseAuthFormsProps = {}): UseAuthForms => {
   const [container, setContainer] = useState<HTMLDivElement>();
   const [isDiscardOpen, setIsDiscardOpen] = useState(false);
   const [socialAccount, setSocialAccount] = useState<SocialProviderAccount>();
