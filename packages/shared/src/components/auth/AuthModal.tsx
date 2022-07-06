@@ -58,6 +58,7 @@ export default function AuthModal({
       overlayRef={setContainer}
       onRequestClose={onClose}
       className={classNames(styles.authModal, className)}
+      contentClassName="auth"
     >
       <div className="flex flex-col flex-1 gap-5 p-10 h-full">
         <AuthModalHeading
@@ -97,11 +98,14 @@ export default function AuthModal({
           isOpen={isDiscardOpen}
           onDiscard={onRequestClose}
           parentSelector={() => container}
-          onRequestClose={() => setIsDiscardOpen(false)}
+          onRequestClose={(e) => {
+            e.stopPropagation();
+            setIsDiscardOpen(false);
+          }}
           title="Discard changes?"
           description="If you leave your changes will not be saved"
-          leftButtonText="Leave"
-          rightButtonText="Stay"
+          leftButtonText="Stay"
+          rightButtonText="Leave"
         />
       )}
     </StyledModal>

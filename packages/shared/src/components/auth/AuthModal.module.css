@@ -1,5 +1,5 @@
 .authModal {
-  & :global(.modal) {
+  & :global(.auth) {
     position: relative;
     display: flex;
     padding: 0;
