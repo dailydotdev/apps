@@ -272,9 +272,8 @@ export default function Feed<T>({
 
   const { sharePost, sharePostFeedLocation, openSharePost, closeSharePost } =
     useSharePost(Origin.Feed);
-  const onShareClick = (post: Post, row?: number, column?: number) => {
-    return openSharePost(post, virtualizedNumCards, column, row);
-  };
+  const onShareClick = (post: Post, row?: number, column?: number) =>
+    openSharePost(post, virtualizedNumCards, column, row);
 
   useEffect(() => {
     return () => {

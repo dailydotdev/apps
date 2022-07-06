@@ -34,15 +34,15 @@ export function PostWidgets({
   const sharePost = async () => {
     if ('share' in navigator) {
       try {
+        await navigator.share({
+          text: post.title,
+          url: post.commentsPermalink,
+        });
         trackEvent(
           postAnalyticsEvent('share post', post, {
             extra: { origin, provider: ShareProvider.Native },
           }),
         );
-        await navigator.share({
-          text: post.title,
-          url: post.commentsPermalink,
-        });
       } catch (err) {
         // Do nothing
       }

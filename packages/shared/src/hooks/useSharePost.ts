@@ -29,6 +29,10 @@ export function useSharePost(origin: Origin): {
     });
     if ('share' in navigator) {
       try {
+        await navigator.share({
+          text: post.title,
+          url: post.commentsPermalink,
+        });
         trackEvent(
           postAnalyticsEvent('share post', post, {
             columns,
@@ -37,10 +41,6 @@ export function useSharePost(origin: Origin): {
             extra: { origin, provider: ShareProvider.Native },
           }),
         );
-        await navigator.share({
-          text: post.title,
-          url: post.commentsPermalink,
-        });
       } catch (err) {
         // Do nothing
       }

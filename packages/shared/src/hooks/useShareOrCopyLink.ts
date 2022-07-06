@@ -19,11 +19,11 @@ export function useShareOrCopyLink({
   const onShareOrCopy: CopyNotifyFunction = async (...args) => {
     if ('share' in navigator) {
       try {
-        trackEvent(trackObject(ShareProvider.Native));
         await navigator.share({
           text,
           url: link,
         });
+        trackEvent(trackObject(ShareProvider.Native));
       } catch (err) {
         // Do nothing
       }

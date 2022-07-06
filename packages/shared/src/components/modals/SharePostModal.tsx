@@ -12,6 +12,7 @@ import { SocialShare } from '../widgets/SocialShare';
 import { Origin } from '../../lib/analytics';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { FeedItemPosition, postAnalyticsEvent } from '../../lib/feed';
+import { ShareProvider } from '../../lib/share';
 
 type SharePostModalProps = {
   post: Post;
@@ -29,6 +30,15 @@ export default function SharePostModal({
 }: SharePostModalProps): ReactElement {
   const { trackEvent } = useContext(AnalyticsContext);
   const [, copyUrl] = useCopyLink(() => post?.commentsPermalink);
+
+  const trackAndCopyLink = () => {
+    trackEvent(
+      postAnalyticsEvent('share post', post, {
+        extra: { provider: ShareProvider.CopyLink, origin },
+      }),
+    );
+    copyUrl();
+  };
 
   useEffect(() => {
     trackEvent(
@@ -84,7 +94,7 @@ export default function SharePostModal({
           type="url"
           fieldType="tertiary"
           actionIcon={<CopyIcon />}
-          onActionIconClick={copyUrl}
+          onActionIconClick={trackAndCopyLink}
           value={post?.commentsPermalink}
           readOnly
         />

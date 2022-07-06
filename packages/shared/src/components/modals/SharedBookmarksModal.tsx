@@ -116,9 +116,9 @@ export default function SharedBookmarksModal({
             Explore tutorials
           </Button>
           <div className="flex gap-2 items-center h-8 text-2xl">
-            <DiscordIcon size="medium" secondary />
-            <TwitterIcon size="medium" secondary />
-            <SlackIcon size="medium" secondary />
+            <DiscordIcon size="medium" />
+            <TwitterIcon size="medium" />
+            <SlackIcon size="medium" />
             <GithubIcon size="medium" />
           </div>
         </div>

@@ -37,6 +37,11 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
       }),
     );
 
+  const trackAndCopyLink = () => {
+    copyLink();
+    onClick(ShareProvider.CopyLink);
+  };
+
   return (
     <WidgetContainer className="hidden laptop:flex flex-col p-3">
       <p className="typo-callout text-theme-label-tertiary">
@@ -45,7 +50,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
       <div className="inline-flex relative flex-row items-center mt-3">
         <SimpleTooltip content="Copy link">
           <ShareButton
-            onClick={() => copyLink()}
+            onClick={trackAndCopyLink}
             pressed={copying}
             icon={<CopyIcon />}
             className="btn-tertiary-avocado"
