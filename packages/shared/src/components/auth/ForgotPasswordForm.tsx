@@ -7,12 +7,15 @@ import { CloseModalFunc } from '../modals/common';
 import AuthModalHeader from './AuthModalHeader';
 import { AuthModalText } from './common';
 
-interface ForgotPasswordProps {
+interface ForgotPasswordFormProps {
   email?: string;
   onClose?: CloseModalFunc;
 }
 
-function ForgotPassword({ email, onClose }: ForgotPasswordProps): ReactElement {
+function ForgotPasswordForm({
+  email,
+  onClose,
+}: ForgotPasswordFormProps): ReactElement {
   const [emailSent, setEmailSent] = useState(false);
   const onSendEmail = () => {
     setEmailSent(true);
@@ -46,4 +49,4 @@ function ForgotPassword({ email, onClose }: ForgotPasswordProps): ReactElement {
   );
 }
 
-export default ForgotPassword;
+export default ForgotPasswordForm;

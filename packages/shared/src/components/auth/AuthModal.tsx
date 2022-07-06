@@ -4,38 +4,20 @@ import dynamic from 'next/dynamic';
 import { StyledModal, ModalProps } from '../modals/StyledModal';
 import Circles from '../../../icons/circles_bg.svg';
 import styles from './AuthModal.module.css';
-import { AuthDefault } from './AuthDefault';
 import {
-  RegistrationForm,
   RegistrationFormValues,
   SocialProviderAccount,
 } from './RegistrationForm';
-import LoginForm from './LoginForm';
-import { getQueryParams } from '../../contexts/AuthContext';
-import { AuthSignBack } from './AuthSignBack';
-import { fallbackImages } from '../../lib/config';
 import { formToJson } from '../../lib/form';
-import ForgotPasswordForm from './ForgotPassword';
-import TabContainer, { Tab } from '../tabs/TabContainer';
 import AuthModalHeading from './AuthModalHeading';
+import AuthOptions from './AuthOptions';
+import { CloseModalFunc } from '../modals/common';
 
 export type AuthModalProps = ModalProps;
 
 const DiscardActionModal = dynamic(
   () => import('../modals/DiscardActionModal'),
 );
-const hasLoggedOut = () => {
-  const params = getQueryParams();
-
-  return params?.logged_out !== undefined;
-};
-
-enum Display {
-  Default = 'default',
-  Registration = 'registration',
-  SignBack = 'sign_back',
-  ForgotPassword = 'forgot_password',
-}
 
 export default function AuthModal({
   className,
@@ -44,32 +26,12 @@ export default function AuthModal({
   ...props
 }: AuthModalProps): ReactElement {
   const [container, setContainer] = useState<HTMLDivElement>();
-  const registrationFormRef = useRef<HTMLFormElement>();
   const [isDiscardOpen, setIsDiscardOpen] = useState(false);
   const [socialAccount, setSocialAccount] = useState<SocialProviderAccount>();
-  const [email, setEmail] = useState('');
-  const [activeDisplay, setActiveDisplay] = useState(
-    hasLoggedOut() ? Display.SignBack : Display.Default,
-  );
+  const formRef = useRef<HTMLFormElement>();
 
-  const onLogin = () => {};
-
-  const onProviderClick = (provider: string) => {
-    setSocialAccount({
-      provider,
-      name: 'Test account',
-      image: fallbackImages.avatar,
-    });
-    setActiveDisplay(Display.Registration);
-  };
-
-  const onSignup = (emailAd: string) => {
-    setActiveDisplay(Display.Registration);
-    setEmail(emailAd);
-  };
-
-  const onClose: typeof onRequestClose = (e) => {
-    if (!registrationFormRef?.current) {
+  const onClose: CloseModalFunc = (e) => {
+    if (!formRef?.current) {
       return onRequestClose(e);
     }
 
@@ -78,7 +40,7 @@ export default function AuthModal({
     }
 
     const { email: emailAd, ...rest } = formToJson<RegistrationFormValues>(
-      registrationFormRef.current,
+      formRef.current,
       {},
     );
     const values = Object.values(rest);
@@ -97,7 +59,7 @@ export default function AuthModal({
       onRequestClose={onClose}
       className={classNames(styles.authModal, className)}
     >
-      <div className="flex z-1 flex-col flex-1 gap-5 p-10 h-full">
+      <div className="flex flex-col flex-1 gap-5 p-10 h-full">
         <AuthModalHeading
           className="typo-giga1"
           title="Unlock the full power of daily.dev"
@@ -124,38 +86,12 @@ export default function AuthModal({
       <Circles
         className={classNames('absolute z-0 h-96 w-[32.5rem]', styles.circles)}
       />
-      <TabContainer<Display>
-        className="flex overflow-y-auto z-1 flex-col ml-auto w-full h-full rounded-16 max-w-[25.75rem] bg-theme-bg-tertiary"
-        onActiveChange={(active) => setActiveDisplay(active)}
-        controlledActive={activeDisplay}
-        showHeader={false}
-      >
-        <Tab label={Display.Default}>
-          <AuthDefault
-            onClose={onClose}
-            onSignup={onSignup}
-            onProviderClick={onProviderClick}
-          />
-        </Tab>
-        <Tab label={Display.Registration}>
-          <RegistrationForm
-            formRef={registrationFormRef}
-            email={email}
-            socialAccount={socialAccount}
-          />
-        </Tab>
-        <Tab label={Display.SignBack}>
-          <AuthSignBack>
-            <LoginForm
-              onSubmit={onLogin}
-              onForgotPassword={() => setActiveDisplay(Display.ForgotPassword)}
-            />
-          </AuthSignBack>
-        </Tab>
-        <Tab label={Display.ForgotPassword}>
-          <ForgotPasswordForm />
-        </Tab>
-      </TabContainer>
+      <AuthOptions
+        onClose={onClose}
+        onSelectedProvider={setSocialAccount}
+        formRef={formRef}
+        socialAccount={socialAccount}
+      />
       {isDiscardOpen && (
         <DiscardActionModal
           isOpen={isDiscardOpen}
