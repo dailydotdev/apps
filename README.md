@@ -27,7 +27,7 @@ The decision was made to allow faster iterations and to keep features parity in 
 ## Technology
 
 * NPM for managing dependencies.
-* Node v14.16.1 (a `.nvmrc` is presented for [nvm](https://github.com/nvm-sh/nvm) users).
+* Node v16.15.0 (a `.nvmrc` is presented for [nvm](https://github.com/nvm-sh/nvm) users).
 * [lerna](https://github.com/lerna/lerna) for managing the monorepo.
 
 ## Projects
@@ -72,7 +72,7 @@ lerna bootstrap
 
 ## Firefox Review
 
-* Install node v14.16.1 and npm v6.14.13
+* Install node v16.15.0 and npm v8.5.5
 * Install `lerna` as a global package `npm i -g lerna` 
 * Bootstrap project `lerna bootstrap`
 * Change working directory to extension project `cd packages/extension`
