@@ -51,18 +51,21 @@ export const AdCard = forwardRef(function AdCard(
         </CardTextContainer>
       )}
       {showImage && (
-        <div className="overflow-hidden relative z-1 rounded-xl">
+        <div className="overflow-hidden relative rounded-xl">
           <CardImage
             alt="Ad image"
             src={ad.image}
-            className={showBlurredImage && 'inset-0 m-auto absolute'}
+            className={classNames(
+              'w-full z-1',
+              showBlurredImage && 'inset-0 m-auto absolute',
+            )}
             style={{ objectFit: showBlurredImage ? 'contain' : 'cover' }}
           />
           {showBlurredImage && (
             <CardImage
               alt="Ad image background"
               src={ad.image}
-              className={classNames('-z-1', styles.blur)}
+              className={classNames('-z-1 w-full', styles.blur)}
             />
           )}
         </div>

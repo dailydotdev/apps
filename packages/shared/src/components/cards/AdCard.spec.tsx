@@ -1,17 +1,10 @@
 import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { AdCard, AdCardProps } from './AdCard';
-import { Ad } from '../../graphql/posts';
-
-const defaultAd: Ad = {
-  description: 'I am an ad!',
-  image: 'https://daily.dev/daily.png',
-  link: 'https://daily.dev',
-  source: 'Daily',
-};
+import ad from '../../../__tests__/fixture/ad';
 
 const defaultProps: AdCardProps = {
-  ad: defaultAd,
+  ad,
   onLinkClick: jest.fn(),
 };
 
@@ -27,18 +20,14 @@ it('should call on click on component left click', async () => {
   renderComponent();
   const el = await screen.findByRole('link');
   el.click();
-  await waitFor(() =>
-    expect(defaultProps.onLinkClick).toBeCalledWith(defaultAd),
-  );
+  await waitFor(() => expect(defaultProps.onLinkClick).toBeCalledWith(ad));
 });
 
 it('should call on click on component middle mouse up', async () => {
   renderComponent();
   const el = await screen.findByRole('link');
   el.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, button: 1 }));
-  await waitFor(() =>
-    expect(defaultProps.onLinkClick).toBeCalledWith(defaultAd),
-  );
+  await waitFor(() => expect(defaultProps.onLinkClick).toBeCalledWith(ad));
 });
 
 it('should show a single image by default', async () => {
@@ -50,7 +39,7 @@ it('should show a single image by default', async () => {
 });
 
 it('should show blurred image for carbon', async () => {
-  renderComponent({ ad: { ...defaultAd, source: 'Carbon' } });
+  renderComponent({ ad: { ...ad, source: 'Carbon' } });
   const img = await screen.findByAltText('Ad image');
   const background = screen.queryByAltText('Ad image background');
   expect(img).toHaveClass('absolute');
@@ -65,7 +54,7 @@ it('should show promoted text by default', async () => {
 
 it('should show referral text when available', async () => {
   renderComponent({
-    ad: { ...defaultAd, referralLink: 'https://daily.dev/referral' },
+    ad: { ...ad, referralLink: 'https://daily.dev/referral' },
   });
   const el = await screen.findByText('Promoted by Daily');
   expect(el).toHaveAttribute('href', 'https://daily.dev/referral');
@@ -73,7 +62,7 @@ it('should show referral text when available', async () => {
 
 it('should show pixel images', async () => {
   renderComponent({
-    ad: { ...defaultAd, pixel: ['https://daily.dev/pixel'] },
+    ad: { ...ad, pixel: ['https://daily.dev/pixel'] },
   });
   const el = await screen.findByTestId('pixel');
   expect(el).toHaveAttribute('src', 'https://daily.dev/pixel');

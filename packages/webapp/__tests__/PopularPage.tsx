@@ -15,11 +15,14 @@ import SettingsContext, {
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { mocked } from 'ts-jest/utils';
 import { NextRouter, useRouter } from 'next/router';
+import ad from '@dailydotdev/shared/__tests__/fixture/ad';
+import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
+import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
+import {
+  MockedGraphQLResponse,
+  mockGraphQL,
+} from '@dailydotdev/shared/__tests__/helpers/graphql';
 import Popular from '../pages/popular';
-import ad from './fixture/ad';
-import defaultUser from './fixture/loggedUser';
-import defaultFeedPage from './fixture/feed';
-import { MockedGraphQLResponse, mockGraphQL } from './helpers/graphql';
 
 const showLogin = jest.fn();
 

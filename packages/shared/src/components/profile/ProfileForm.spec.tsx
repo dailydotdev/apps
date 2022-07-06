@@ -13,13 +13,13 @@ import ProfileForm from './ProfileForm';
 import AuthContext from '../../contexts/AuthContext';
 import { getUserDefaultTimezone } from '../../lib/timezones';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
+import user from '../../../__tests__/fixture/loggedUser';
 
 jest.mock('../../lib/user', () => ({
   ...jest.requireActual('../../lib/user'),
   updateProfile: jest.fn(),
 }));
 
-const setDisableSubmit = jest.fn();
 const onSuccessfulSubmit = jest.fn();
 const updateUser = jest.fn();
 const userTimezone = getUserDefaultTimezone();
@@ -28,25 +28,16 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-const defaultUser = {
-  id: 'u1',
-  name: 'Ido Shamun',
-  providers: ['github'],
-  email: 'ido@acme.com',
-  image: 'https://daily.dev/ido.png',
-  infoConfirmed: true,
-  premium: false,
-  createdAt: '2020-07-26T13:04:35.000Z',
-};
-
-const renderComponent = (user: Partial<LoggedUser> = {}): RenderResult => {
+const renderComponent = (
+  userUpdate: Partial<LoggedUser> = {},
+): RenderResult => {
   const client = new QueryClient();
 
   return render(
     <QueryClientProvider client={client}>
       <AuthContext.Provider
         value={{
-          user: { ...defaultUser, ...user },
+          user: { ...user, ...userUpdate },
           shouldShowLogin: false,
           showLogin: jest.fn(),
           logout: jest.fn(),
@@ -56,39 +47,26 @@ const renderComponent = (user: Partial<LoggedUser> = {}): RenderResult => {
           getRedirectUri: jest.fn(),
         }}
       >
-        <ProfileForm
-          setDisableSubmit={setDisableSubmit}
-          onSuccessfulSubmit={onSuccessfulSubmit}
-        />
+        <ProfileForm onSuccessfulSubmit={onSuccessfulSubmit} />
       </AuthContext.Provider>
     </QueryClientProvider>,
   );
 };
 
-it('should disable submit when form is invalid', () => {
-  renderComponent();
-  expect(setDisableSubmit).toBeCalledWith(true);
-});
-
-it('should enable submit when form is valid', () => {
-  renderComponent({ username: 'idoshamun' });
-  expect(setDisableSubmit).toBeCalledWith(false);
-});
-
 it('should submit information', async () => {
-  renderComponent({ username: 'idoshamun' });
-  mocked(updateProfile).mockResolvedValue(defaultUser);
+  renderComponent();
+  mocked(updateProfile).mockResolvedValue(user);
   fireEvent.submit(screen.getByTestId('form'));
   await waitForNock();
   await waitFor(() => expect(updateProfile).toBeCalledTimes(1));
   expect(updateProfile).toBeCalledWith({
     name: 'Ido Shamun',
     email: 'ido@acme.com',
-    username: 'idoshamun',
+    username: 'ido',
     company: null,
     title: null,
     acceptedMarketing: false,
-    bio: null,
+    bio: 'Software Engineer in the most amazing company in the globe',
     github: null,
     portfolio: null,
     timezone: userTimezone,
@@ -96,13 +74,13 @@ it('should submit information', async () => {
     hashnode: null,
   });
   expect(onSuccessfulSubmit).toBeCalledWith(true);
-  expect(updateUser).toBeCalledWith({ ...defaultUser, username: 'idoshamun' });
+  expect(updateUser).toBeCalledWith({ ...user });
 });
 
 it('should set optional fields on callback', async () => {
-  renderComponent({ username: 'idoshamun' });
+  renderComponent();
   mocked(updateProfile).mockResolvedValue({
-    ...defaultUser,
+    ...user,
     github: 'idoshamun',
   });
   fireEvent.input(screen.getByLabelText('GitHub'), {
@@ -113,11 +91,11 @@ it('should set optional fields on callback', async () => {
   expect(updateProfile).toBeCalledWith({
     name: 'Ido Shamun',
     email: 'ido@acme.com',
-    username: 'idoshamun',
+    username: 'ido',
     company: null,
     title: null,
     acceptedMarketing: false,
-    bio: null,
+    bio: 'Software Engineer in the most amazing company in the globe',
     github: 'idoshamun',
     portfolio: null,
     timezone: userTimezone,
@@ -126,8 +104,7 @@ it('should set optional fields on callback', async () => {
   });
   expect(onSuccessfulSubmit).toBeCalledWith(true);
   expect(updateUser).toBeCalledWith({
-    ...defaultUser,
-    username: 'idoshamun',
+    ...user,
     github: 'idoshamun',
   });
 });
