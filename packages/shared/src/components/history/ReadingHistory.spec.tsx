@@ -14,23 +14,12 @@ import { ReadHistoryInfiniteData } from '../../hooks/useInfiniteReadingHistory';
 import AuthContext from '../../contexts/AuthContext';
 import user from '../../../__tests__/fixture/loggedUser';
 import { getLabel } from '../../lib/dateFormat.spec';
+import post from '../../../__tests__/fixture/post';
 
 beforeEach(() => {
   nock.cleanAll();
   jest.clearAllMocks();
 });
-
-const defaultUser = {
-  id: 'u1',
-  username: 'idoshamun',
-  name: 'Ido Shamun',
-  providers: ['github'],
-  email: 'ido@acme.com',
-  image: 'https://daily.dev/ido.png',
-  infoConfirmed: true,
-  premium: false,
-  createdAt: '2020-07-26T13:04:35.000Z',
-};
 
 describe('ReadingHistoryList component', () => {
   const createdAtToday = new Date();
@@ -45,15 +34,6 @@ describe('ReadingHistoryList component', () => {
     createdAtDifferentYear,
   ];
   const sorted = timestamps.sort((a, b) => a.getTime() - b.getTime());
-  const post = {
-    id: 'p1',
-    title: 'Most Recent Post',
-    commentsPermalink: 'most.recent.post.url',
-    image: 'most.recent.post.image',
-    source: {
-      image: 'most.recent.post.source.image',
-    },
-  };
   const defaultReadingHistory: ReadHistoryInfiniteData = {
     pages: [
       {
@@ -82,7 +62,7 @@ describe('ReadingHistoryList component', () => {
       <QueryClientProvider client={client}>
         <AuthContext.Provider
           value={{
-            user: { ...defaultUser, ...user },
+            user,
             shouldShowLogin: false,
             showLogin: jest.fn(),
             updateUser: jest.fn(),
@@ -142,15 +122,7 @@ describe('PostItemCard component', () => {
   const defaultHistory = {
     timestamp: createdAt,
     timestampDb: createdAt,
-    post: {
-      id: 'p1',
-      title: 'Most Recent Post',
-      commentsPermalink: 'most.recent.post.url',
-      image: 'most.recent.post.image',
-      source: {
-        image: 'most.recent.post.source.image',
-      },
-    },
+    post,
   };
 
   it('should show view history post title', async () => {

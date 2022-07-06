@@ -4,25 +4,8 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import AuthContext from '../../contexts/AuthContext';
 import { LoggedUser } from '../../lib/user';
 import MainComment, { Props } from './MainComment';
-
-const author = {
-  image: 'https://daily.dev/ido.png',
-  id: 'u1',
-  username: 'idoshamun',
-  name: 'Ido',
-  permalink: 'https://daily.dev/ido',
-};
-
-const baseComment = {
-  id: 'c1',
-  content: 'my comment',
-  contentHtml: '<p>my comment</p>',
-  author,
-  createdAt: new Date(2017, 1, 10, 0, 0).toISOString(),
-  upvoted: false,
-  permalink: 'https://daily.dev',
-  numUpvotes: 0,
-};
+import loggedUser from '../../../__tests__/fixture/loggedUser';
+import comment from '../../../__tests__/fixture/comment';
 
 const onComment = jest.fn();
 const onDelete = jest.fn();
@@ -32,24 +15,12 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-const loggedUser = {
-  id: 'u1',
-  username: 'idoshamun',
-  name: 'Ido Shamun',
-  providers: ['github'],
-  email: 'ido@acme.com',
-  image: 'https://daily.dev/ido.png',
-  infoConfirmed: true,
-  premium: false,
-  createdAt: '',
-};
-
 const renderLayout = (
   props: Partial<Props> = {},
   user: LoggedUser = null,
 ): RenderResult => {
   const defaultProps: Props = {
-    comment: baseComment,
+    comment,
     onComment,
     onDelete,
     onEdit,
@@ -79,13 +50,13 @@ const renderLayout = (
 
 it('should show author profile image', async () => {
   renderLayout();
-  const el = await screen.findByAltText(`idoshamun's profile`);
-  expect(el).toHaveAttribute('src', 'https://daily.dev/ido.png');
+  const el = await screen.findByAltText(`${comment.author.username}'s profile`);
+  expect(el).toHaveAttribute('src', comment.author.image);
 });
 
 it('should show author name', async () => {
   renderLayout();
-  await screen.findByText('Ido');
+  await screen.findByText(comment.author.name);
 });
 
 it('should show formatted comment date', async () => {
@@ -96,7 +67,7 @@ it('should show formatted comment date', async () => {
 it('should show last updated comment date', async () => {
   renderLayout({
     comment: {
-      ...baseComment,
+      ...comment,
       lastUpdatedAt: new Date(2017, 2, 10, 0, 0).toISOString(),
     },
   });
@@ -116,13 +87,13 @@ it('should have no subcomments', async () => {
 it('should have subcomments', async () => {
   renderLayout({
     comment: {
-      ...baseComment,
+      ...comment,
       children: {
         pageInfo: {},
         edges: [
           {
             node: {
-              ...baseComment,
+              ...comment,
               id: 'c2',
             },
             cursor: '',
@@ -138,14 +109,14 @@ it('should call onComment callback', async () => {
   renderLayout();
   const el = await screen.findByLabelText('Comment');
   el.click();
-  expect(onComment).toBeCalledWith(baseComment, 'c1');
+  expect(onComment).toBeCalledWith(comment, 'c1');
 });
 
 it('should call onDelete callback', async () => {
   renderLayout({}, loggedUser);
   const el = await screen.findByLabelText('Delete');
   el.click();
-  expect(onDelete).toBeCalledWith(baseComment, 'c1');
+  expect(onDelete).toBeCalledWith(comment, 'c1');
 });
 
 it('should show author badge', async () => {

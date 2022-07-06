@@ -12,6 +12,7 @@ import { BaseField, FieldInput } from './common';
 import styles from './TextField.module.css';
 import { Button } from '../buttons/Button';
 import { IconProps } from '../Icon';
+import useDebounce from '../../hooks/useDebounce';
 
 type FieldType = 'primary' | 'secondary' | 'tertiary';
 
@@ -95,17 +96,9 @@ export function TextField({
   const isTertiaryField = fieldType === 'tertiary';
   const [inputLength, setInputLength] = useState<number>(0);
   const [validInput, setValidInput] = useState<boolean>(undefined);
-  const [idleTimeout, setIdleTimeout] = useState<number>(undefined);
-
-  const clearIdleTimeout = () => {
-    if (idleTimeout) {
-      clearTimeout(idleTimeout);
-      setIdleTimeout(null);
-    }
-  };
-
-  // Return the clearIdleTimeout to call it on cleanup
-  useEffect(() => clearIdleTimeout, []);
+  const [idleTimeout, clearIdleTimeout] = useDebounce(() => {
+    setValidInput(inputRef.current.checkValidity());
+  }, 1500);
 
   useEffect(() => {
     if (validityChanged && validInput !== undefined) {
@@ -141,12 +134,7 @@ export function TextField({
     if (inputValidity) {
       setValidInput(true);
     } else {
-      setIdleTimeout(
-        window.setTimeout(() => {
-          setIdleTimeout(null);
-          setValidInput(inputRef.current.checkValidity());
-        }, 1500),
-      );
+      idleTimeout();
     }
   };
 

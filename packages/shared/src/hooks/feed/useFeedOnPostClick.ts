@@ -5,11 +5,16 @@ import useIncrementReadingRank from '../useIncrementReadingRank';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { feedAnalyticsExtra, postAnalyticsEvent } from '../../lib/feed';
 
+interface PostClickOptionalProps {
+  skipPostUpdate?: boolean;
+}
+
 export type FeedPostClick = (
   post: Post,
   index: number,
   row: number,
   column: number,
+  optional?: PostClickOptionalProps,
 ) => Promise<void>;
 
 export default function useFeedOnPostClick(
@@ -18,19 +23,25 @@ export default function useFeedOnPostClick(
   columns: number,
   feedName: string,
   ranking?: string,
+  event = 'click',
 ): FeedPostClick {
   const { incrementReadingRank } = useIncrementReadingRank();
   const { trackEvent } = useContext(AnalyticsContext);
 
-  return async (post, index, row, column): Promise<void> => {
+  return async (post, index, row, column, optional): Promise<void> => {
     trackEvent(
-      postAnalyticsEvent('click', post, {
+      postAnalyticsEvent(event, post, {
         columns,
         column,
         row,
         ...feedAnalyticsExtra(feedName, ranking),
       }),
     );
+
+    if (optional?.skipPostUpdate) {
+      return;
+    }
+
     if (!post.read) {
       await incrementReadingRank();
     }

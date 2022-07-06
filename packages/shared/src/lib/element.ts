@@ -7,30 +7,43 @@ type Row = number;
 export type CaretOffset = [number, number];
 export type CaretPosition = [Column, Row];
 
+interface ShadowCompanion extends ShadowRoot {
+  getSelection: typeof window.getSelection;
+}
+
 const isFirefox = process.env.TARGET_BROWSER === 'firefox';
-const isExtension = !!process.env.TARGET_BROWSER;
 
-const getShadowDom = (ownerDocument = false): Document => {
-  if (!isExtension) {
-    return null;
+const getRoot = (node: Node) => {
+  const root = node.getRootNode();
+
+  if (root instanceof ShadowRoot) {
+    return isFirefox ? root.ownerDocument : (root as ShadowCompanion);
   }
 
-  const companion = document.querySelector('daily-companion-app');
-
-  if (!companion) {
-    return null;
+  if (root instanceof Window) {
+    return isFirefox ? window.document : window;
   }
 
-  if (!isFirefox && !ownerDocument) {
-    return companion.shadowRoot as unknown as Document;
+  return root as Document;
+};
+
+const getRootDom = (node: Node): Document => {
+  const root = getRoot(node);
+
+  if (root instanceof Document) {
+    return root;
   }
 
-  return companion.shadowRoot.ownerDocument;
+  if (root instanceof Window) {
+    return root.document;
+  }
+
+  return root.ownerDocument;
 };
 
 export function getCaretPostition(el: Element): CaretPosition {
-  const dom = getShadowDom() || window;
-  const sel = dom.getSelection();
+  const root = getRoot(el);
+  const sel = root.getSelection();
   let row = 0;
   for (; row < el.childNodes.length; row += 1) {
     const child = el.childNodes[row];
@@ -101,11 +114,13 @@ const getNodeText = (node: Node) => {
   return string.replaceAll('\xa0', ' ');
 };
 
-export function setCaretPosition(el: Node, col: number): void {
-  const range = (getShadowDom(true) || document).createRange();
-  const sel = (getShadowDom() || window).getSelection();
+export function setCaretPosition(node: Node, col: number): void {
+  const root = getRoot(node);
+  const dom = getRootDom(node);
+  const range = dom.createRange();
+  const sel = root.getSelection();
 
-  range.setStart(el, col);
+  range.setStart(node, col);
   range.collapse(true);
 
   sel.removeAllRanges();
@@ -130,8 +145,8 @@ export const getSplittedText = (
   [col, row]: CaretPosition,
   query: string,
 ): [Node, string, string] => {
-  const companion = getShadowDom();
-  const offset = companion && isFirefox ? 0 : 1;
+  const isCompanion = textarea.getRootNode() instanceof ShadowRoot;
+  const offset = isCompanion && isFirefox ? 0 : 1; // the reason for this offset is due to firefox bug of delayed dispatching of events
   const node = Array.from(textarea.childNodes).find((_, i) => i === row);
   const text = getNodeText(node);
   const left = text?.substring(0, col - 1) || '';

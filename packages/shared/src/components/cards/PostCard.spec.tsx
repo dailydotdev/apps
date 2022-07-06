@@ -1,54 +1,12 @@
 import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
-import { Post } from '../../graphql/posts';
 import { PostCard, PostCardProps } from './PostCard';
-
-const defaultPost: Post = {
-  id: 'e3fd75b62cadd02073a31ee3444975cc',
-  title: 'The Prosecutor’s Fallacy',
-  permalink: 'https://api.daily.dev/r/e3fd75b62cadd02073a31ee3444975cc',
-  createdAt: '2018-06-13T01:20:42.000Z',
-  source: {
-    id: 'tds',
-    name: 'Towards Data Science',
-    image:
-      'https://res.cloudinary.com/daily-now/image/upload/t_logo,f_auto/v1/logos/tds',
-  },
-  readTime: 8,
-  image:
-    'https://res.cloudinary.com/daily-now/image/upload/f_auto,q_auto/v1/posts/1f76bef532ec04b262c93b31de84abaa',
-  placeholder:
-    'data:image/jpeg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAOAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAABwQF/8QAJRAAAQMCBQQDAAAAAAAAAAAAAQIDBBEhAAUSIjEGFEGBExZR/8QAFQEBAQAAAAAAAAAAAAAAAAAAAwb/xAAeEQABAwQDAAAAAAAAAAAAAAACAQMRAAQFYSHw8f/aAAwDAQACEQMRAD8AvyKMIOdTJzSURmESVBsPrUXAAq6iQQNHu9L/ALhSiZpIdiMuFDJK0JUSkilx43cYCvt8eT2rMxD6GVDelltPsC4qK+OMaLHUoDDfasuiPpHxha06gmlq7eaYn8hhyuyQphe7pQvH3VUnY1x7X//Z',
-  commentsPermalink: 'https://daily.dev',
-  author: {
-    id: '1',
-    username: 'idoshamun',
-    name: 'Ido Shamun',
-    image: 'https://avatars2.githubusercontent.com/u/1993245?v=4',
-    permalink: 'https://app.daily.dev/idoshamun',
-  },
-  featuredComments: [
-    {
-      permalink: 'https://app.daily.dev/c1',
-      content: 'My featured comment',
-      contentHtml: '<p>My featured comment</p>',
-      author: {
-        username: 'nimrodkramer',
-        name: 'Nimrod',
-        image: 'https://daily.dev/nimrod.jpg',
-        id: 'u2',
-        permalink: 'https://app.daily.dev/nimrod',
-      },
-      id: 'c1',
-      createdAt: new Date().toISOString(),
-      numUpvotes: 0,
-    },
-  ],
-};
+import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
+import post from '../../../__tests__/fixture/post';
 
 const defaultProps: PostCardProps = {
-  post: defaultPost,
-  onLinkClick: jest.fn(),
+  post,
+  onPostClick: jest.fn(),
   onUpvoteClick: jest.fn(),
   onCommentClick: jest.fn(),
   onBookmarkClick: jest.fn(),
@@ -59,25 +17,25 @@ beforeEach(() => {
 });
 
 const renderComponent = (props: Partial<PostCardProps> = {}): RenderResult => {
-  return render(<PostCard {...defaultProps} {...props} />);
+  return render(
+    <FeaturesContextProvider flags={{}}>
+      <PostCard {...defaultProps} {...props} />
+    </FeaturesContextProvider>,
+  );
 };
 
 it('should call on link click on component left click', async () => {
   renderComponent();
   const el = await screen.findAllByRole('link');
   el[0].click();
-  await waitFor(() =>
-    expect(defaultProps.onLinkClick).toBeCalledWith(defaultPost),
-  );
+  await waitFor(() => expect(defaultProps.onPostClick).toBeCalled());
 });
 
 it('should call on link click on component middle mouse up', async () => {
   renderComponent();
   const el = await screen.findAllByRole('link');
   el[0].dispatchEvent(new MouseEvent('mouseup', { bubbles: true, button: 1 }));
-  await waitFor(() =>
-    expect(defaultProps.onLinkClick).toBeCalledWith(defaultPost),
-  );
+  await waitFor(() => expect(defaultProps.onPostClick).toBeCalledWith(post));
 });
 
 it('should call on upvote click on upvote button click', async () => {
@@ -85,7 +43,7 @@ it('should call on upvote click on upvote button click', async () => {
   const el = await screen.findByLabelText('Upvote');
   el.click();
   await waitFor(() =>
-    expect(defaultProps.onUpvoteClick).toBeCalledWith(defaultPost, true),
+    expect(defaultProps.onUpvoteClick).toBeCalledWith(post, true),
   );
 });
 
@@ -93,9 +51,7 @@ it('should call on comment click on comment button click', async () => {
   renderComponent();
   const el = await screen.findByLabelText('Comments');
   el.click();
-  await waitFor(() =>
-    expect(defaultProps.onCommentClick).toBeCalledWith(defaultPost),
-  );
+  await waitFor(() => expect(defaultProps.onCommentClick).toBeCalledWith(post));
 });
 
 it('should call on bookmark click on bookmark button click', async () => {
@@ -103,14 +59,14 @@ it('should call on bookmark click on bookmark button click', async () => {
   const el = await screen.findByLabelText('Bookmark');
   el.click();
   await waitFor(() =>
-    expect(defaultProps.onBookmarkClick).toBeCalledWith(defaultPost, true),
+    expect(defaultProps.onBookmarkClick).toBeCalledWith(post, true),
   );
 });
 
 it('should not display publication date createdAt is empty', async () => {
   renderComponent({
     ...defaultProps,
-    post: { ...defaultPost, createdAt: null },
+    post: { ...post, createdAt: null },
   });
   const el = screen.queryByText('Jun 13, 2018');
   expect(el).not.toBeInTheDocument();
@@ -129,9 +85,9 @@ it('should format read time when available', async () => {
 });
 
 it('should hide read time when not available', async () => {
-  const post = { ...defaultPost };
-  delete post.readTime;
-  renderComponent({ post });
+  const usePost = { ...post };
+  delete usePost.readTime;
+  renderComponent({ post: usePost });
   expect(screen.queryByTestId('readTime')).not.toBeInTheDocument();
 });
 
@@ -141,34 +97,9 @@ it('should show author name when available', async () => {
   expect(el).toBeInTheDocument();
 });
 
-it('should show featured comments authors profile image', async () => {
-  renderComponent();
-  const el = await screen.findByAltText(`nimrodkramer's profile`);
-  expect(el).toBeInTheDocument();
-});
-
-it('should show featured comment when clicking on the profile image', async () => {
-  renderComponent();
-  const btn = await screen.findByAltText(`nimrodkramer's profile`);
-  btn.click();
-  const el = await screen.findByText('My featured comment');
-  expect(el).toBeInTheDocument();
-});
-
-it('should return back to normal card form when clicking the back button', async () => {
-  renderComponent();
-  const btn = await screen.findByAltText(`nimrodkramer's profile`);
-  btn.click();
-  await screen.findByText('My featured comment');
-  const back = await screen.findByLabelText('Back');
-  back.click();
-  const el = await screen.findByText('The Prosecutor’s Fallacy');
-  expect(el).toBeInTheDocument();
-});
-
 it('should show trending flag', async () => {
-  const post = { ...defaultPost, trending: 20 };
-  renderComponent({ post });
+  const usePost = { ...post, trending: 20 };
+  renderComponent({ post: usePost });
   expect(
     await screen.findByText('20 devs read it last hour'),
   ).toBeInTheDocument();

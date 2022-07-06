@@ -33,6 +33,7 @@ export interface TooltipProps
     | 'appendTo'
     | 'offset'
     | 'trigger'
+    | 'disabled'
   > {
   container?: Omit<BaseTooltipContainerProps, 'placement' | 'children'>;
 }
@@ -40,6 +41,7 @@ export interface TooltipProps
 export interface BaseTooltipProps extends TippyProps {
   container?: Omit<BaseTooltipContainerProps, 'children'>;
   placement?: TooltipPosition;
+  disabled?: boolean;
 }
 
 export function BaseTooltip(
@@ -50,6 +52,7 @@ export function BaseTooltip(
     delay = DEFAULT_DELAY_MS,
     duration = DEFAULT_DURATION,
     container = {},
+    disabled,
     children,
     content,
     ...props
@@ -60,7 +63,7 @@ export function BaseTooltip(
 
   const lazyPlugin = {
     fn: () => ({
-      onMount: () => setMounted(true),
+      onMount: () => !disabled && setMounted(true),
       onHidden: () => setMounted(false),
     }),
   };
@@ -69,6 +72,7 @@ export function BaseTooltip(
     <Tippy
       ref={ref}
       {...props}
+      maxWidth=""
       plugins={[lazyPlugin]}
       placement={placement}
       delay={delay}
@@ -76,7 +80,7 @@ export function BaseTooltip(
       className={styles.tippyTooltip}
       allowHTML
       content={
-        !content ? (
+        !content || disabled ? (
           <></>
         ) : (
           <BaseTooltipContainer
