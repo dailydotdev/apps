@@ -46,14 +46,14 @@ export default function DndModal({
         buttonSize="large"
         onClick={onRequestClose}
       >
-        Cancel
+        Keep paused
       </Button>
       <Button
         className="btn-primary-onion"
         buttonSize="large"
         onClick={() => onDndSettings(null)}
       >
-        Turn Off
+        Unpause now
       </Button>
     </div>
   );
@@ -104,12 +104,13 @@ export default function DndModal({
   );
 
   const getDescription = () => {
-    if (!isActive) return "Choose your preferences while you're on Focus Mode";
+    if (!isActive)
+      return 'Choose the URL to temporarily show instead of daily.dev and the pause duration.';
 
     const date = format(dndSettings.expiration, 'MM/dd/yy');
     const time = format(dndSettings.expiration, 'hh:mm a');
 
-    return `Focus Mode is active and will be turned off on ${date} at ${time}`;
+    return `daily.dev in a new tab is paused, it will resume on ${date} at ${time}`;
   };
 
   const titleSize = isActive ? 'typo-title3' : 'typo-title2';
@@ -126,7 +127,7 @@ export default function DndModal({
         },
       }}
     >
-      <ModalCloseButton onClick={onRequestClose} />
+      {!isActive && <ModalCloseButton onClick={onRequestClose} />}
       <div className="px-16 text-center">
         <h3
           className={classnames(
@@ -134,7 +135,7 @@ export default function DndModal({
             titleSize,
           )}
         >
-          Focus Mode
+          Pause new tab
         </h3>
         <p className="mt-1 typo-callout text-theme-label-secondary">
           {getDescription()}
