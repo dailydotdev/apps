@@ -62,7 +62,8 @@ export const AuthDefault = ({
           <EmailSignupForm onSubmit={onEmailSignup} />
         )}
       </ColumnContainer>
-      <div className="flex justify-center py-3 mt-auto border-t border-theme-divider-tertiary typo-callout text-theme-label-tertiary">
+      <div className="flex flex-1" />
+      <div className="flex justify-center py-3 mt-4 border-t border-theme-divider-tertiary typo-callout text-theme-label-tertiary">
         {shouldLogin ? 'Not yet a member?' : 'Already a member?'}
         <ClickableText
           className="ml-1 text-theme-label-primary"

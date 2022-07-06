@@ -69,6 +69,7 @@ export default function AuthModal({
         className={classNames('absolute z-0 h-96 w-[32.5rem]', styles.circles)}
       />
       <AuthOptions
+        className="ml-auto h-full"
         onClose={onDiscardAttempt}
         onSelectedProvider={onSocialProviderChange}
         formRef={formRef}
