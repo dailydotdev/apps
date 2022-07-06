@@ -32,6 +32,10 @@ const AuthContext = React.createContext<AuthContextData>(null);
 export default AuthContext;
 
 export const getQueryParams = (): Record<string, string> => {
+  if (typeof window === 'undefined') {
+    return {};
+  }
+
   const urlSearchParams = new URLSearchParams(window.location.search);
   const params = Object.fromEntries(urlSearchParams.entries());
 
