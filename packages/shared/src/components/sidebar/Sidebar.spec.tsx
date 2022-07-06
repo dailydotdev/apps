@@ -2,6 +2,7 @@ import React from 'react';
 import nock from 'nock';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import { act } from '@testing-library/react-hooks';
 import AuthContext from '../../contexts/AuthContext';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import { LoggedUser } from '../../lib/user';
@@ -14,12 +15,19 @@ import {
   mockGraphQL,
   MockedGraphQLResponse,
 } from '../../../__tests__/helpers/graphql';
-import { FEED_SETTINGS_QUERY } from '../../graphql/feedSettings';
+import {
+  AllTagCategoriesData,
+  FEED_SETTINGS_QUERY,
+} from '../../graphql/feedSettings';
 import { AlertContextProvider } from '../../contexts/AlertContext';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
 import { Alerts, UPDATE_ALERTS } from '../../graphql/alerts';
 import FeaturesContext, { FeaturesData } from '../../contexts/FeaturesContext';
+import {
+  getFeedSettingsQueryKey,
+  getHasAnyFilter,
+} from '../../hooks/useFeedSettings';
 
 let features: FeaturesData;
 let client: QueryClientfeat;
@@ -127,30 +135,32 @@ it('should not render create my feed button if user has alerts.filter as false',
 });
 
 it('should remove filter alert if the user has filters and opened feed filters', async () => {
+  let mutationCalled = false;
   mockGraphQL({
     request: {
       query: UPDATE_ALERTS,
       variables: { data: { filter: false } },
     },
     result: () => {
+      mutationCalled = true;
       return { data: { _: true } };
     },
   });
   renderComponent({ filter: true });
 
-  // await act(async () => {
-  //   const feedFilters = await screen.findByText('Feed filters');
-  //   feedFilters.click();
-  // });
-  //
-  // await waitFor(() => {
-  //   const key = getFeedSettingsQueryKey(defaultUser);
-  //   const data = client.getQueryData(key) as AllTagCategoriesData;
-  //   expect(getHasAnyFilter(data.feedSettings)).toBeTruthy();
-  // });
-  //
-  // expect(updateAlerts).toBeCalledWith({ filter: false });
-  // expect(mutationCalled).toBeTruthy();
+  await act(async () => {
+    const feedFilters = await screen.findByText('Feed filters');
+    feedFilters.click();
+  });
+
+  await waitFor(() => {
+    const key = getFeedSettingsQueryKey(defaultUser);
+    const data = client.getQueryData(key) as AllTagCategoriesData;
+    expect(getHasAnyFilter(data.feedSettings)).toBeTruthy();
+  });
+
+  expect(updateAlerts).toBeCalledWith({ filter: false });
+  expect(mutationCalled).toBeTruthy();
 });
 
 it('should remove the my feed alert if the user clicks the cross', async () => {
