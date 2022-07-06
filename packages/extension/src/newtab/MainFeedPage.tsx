@@ -102,6 +102,7 @@ export default function MainFeedPage({
       activePage={activePage}
       onLogoClick={onLogoClick}
       showDnd={showDnd}
+      dndActive={isDndActive}
       onShowDndClick={() => setShowDnd(true)}
       enableSearch={enableSearch}
       onNavTabClick={onNavTabClick}
