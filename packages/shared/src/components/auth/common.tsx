@@ -1,9 +1,9 @@
 import React, { CSSProperties } from 'react';
-import TwitterIcon from '../../../icons/twitter.svg';
-import FacebookIcon from '../../../icons/facebook.svg';
-import GoogleIcon from '../../../icons/google_color.svg';
-import GitHubIcon from '../../../icons/github.svg';
-import AppleIcon from '../../../icons/apple.svg';
+import TwitterIcon from '../icons/Twitter';
+import FacebookIcon from '../icons/Facebook';
+import GoogleIcon from '../icons/Google';
+import GitHubIcon from '../icons/GitHub';
+import AppleIcon from '../icons/Apple';
 import classed from '../../lib/classed';
 import { IconType } from '../buttons/Button';
 
@@ -27,7 +27,7 @@ export const providerMap: Record<string, Provider> = {
     style: { backgroundColor: '#4363B6' },
   },
   google: {
-    icon: <GoogleIcon />,
+    icon: <GoogleIcon filled />,
     provider: 'Google',
     style: { backgroundColor: '#FFFFFF', color: '#0E1217' },
   },

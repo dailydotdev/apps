@@ -7,13 +7,13 @@ import React, {
 import classNames from 'classnames';
 import { changeProfileImage, LoggedUser } from '../../lib/user';
 import CameraIcon from '../icons/Camera';
-import GoogleIcon from '../../../icons/google.svg';
 import GitHubIcon from '../icons/GitHub';
 import JoinedDate from './JoinedDate';
 import { FormErrorMessage } from '../utilities';
 import sizeN from '../../../macros/sizeN.macro';
 import classed from '../../lib/classed';
 import { ProfilePicture } from '../ProfilePicture';
+import GoogleIcon from '../icons/Google';
 
 export interface EditImageWithJoinedDateProps
   extends HTMLAttributes<HTMLDivElement> {
