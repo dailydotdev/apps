@@ -55,7 +55,7 @@ export const AuthDefault = ({
             {...props}
           />
         ))}
-        <OrDivider className="mt-3" />
+        <OrDivider />
         {shouldLogin ? (
           <LoginForm onSubmit={onLogin} />
         ) : (

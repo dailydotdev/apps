@@ -31,7 +31,7 @@ function LoginForm({
         label="Password"
         type="password"
       />
-      <span className="flex flex-row mt-5 w-full">
+      <span className="flex flex-row mt-4 w-full">
         <ClickableText
           className="flex-1 btn-primary"
           onClick={onForgotPassword}

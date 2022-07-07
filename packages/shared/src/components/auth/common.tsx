@@ -47,7 +47,7 @@ export const providers: Provider[] = Object.values(providerMap);
 
 export const ColumnContainer = classed(
   'div',
-  'grid grid-cols-1 gap-4 self-center px-[3.75rem] mt-6 w-full',
+  'grid grid-cols-1 gap-3 self-center px-[3.75rem] mt-6 w-full',
 );
 
 export const AuthModalText = classed(
