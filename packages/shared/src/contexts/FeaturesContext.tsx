@@ -11,6 +11,7 @@ export interface FeaturesData {
   postEngagementNonClickable?: boolean;
   postModalByDefault?: boolean;
   postCardVersion?: string;
+  authVersion?: string;
 }
 
 const FeaturesContext = React.createContext<FeaturesData>({ flags: {} });
@@ -34,6 +35,7 @@ export const FeaturesContextProvider = ({
       ),
       postModalByDefault: isFeaturedEnabled(Features.PostModalByDefault, flags),
       postCardVersion: getFeatureValue(Features.PostCardVersion, flags),
+      authVersion: 'v2',
     }),
     [flags],
   );

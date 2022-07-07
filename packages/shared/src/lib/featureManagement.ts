@@ -129,6 +129,12 @@ export class Features {
     ['control', 'v1', 'v2', 'v3'],
   );
 
+  static readonly AuthVersion = new Features('auth_version', 'v1', [
+    'v1',
+    'v2',
+    'v3',
+  ]);
+
   private constructor(
     public readonly id: string,
     public readonly defaultValue?: string,
