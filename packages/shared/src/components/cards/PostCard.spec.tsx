@@ -1,15 +1,19 @@
 import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { PostCard, PostCardProps } from './PostCard';
+import { AdditionalInteractionButtons } from '../../lib/featureValues';
 import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
 import post from '../../../__tests__/fixture/post';
 
 const defaultProps: PostCardProps = {
   post,
+  additionalInteractionButtonFeature: AdditionalInteractionButtons.Bookmark,
+  onLinkClick: jest.fn(),
   onPostClick: jest.fn(),
   onUpvoteClick: jest.fn(),
   onCommentClick: jest.fn(),
   onBookmarkClick: jest.fn(),
+  onShare: jest.fn(),
 };
 
 beforeEach(() => {
@@ -61,6 +65,15 @@ it('should call on bookmark click on bookmark button click', async () => {
   await waitFor(() =>
     expect(defaultProps.onBookmarkClick).toBeCalledWith(post, true),
   );
+});
+
+it('should call on share click on share button click', async () => {
+  renderComponent({
+    additionalInteractionButtonFeature: AdditionalInteractionButtons.Share,
+  });
+  const el = await screen.findByLabelText('Share post');
+  el.click();
+  await waitFor(() => expect(defaultProps.onShare).toBeCalledWith(post));
 });
 
 it('should not display publication date createdAt is empty', async () => {

@@ -14,6 +14,7 @@ import { QueryIndexes } from '../hooks/useReadingHistory';
 import { useShareOrCopyLink } from '../hooks/useShareOrCopyLink';
 import { postAnalyticsEvent } from '../lib/feed';
 import { postEventName } from './utilities';
+import { Origin } from '../lib/analytics';
 
 const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
   ssr: false,
@@ -59,7 +60,7 @@ const updateReadingHistoryPost =
 const getBookmarkIconAndMenuText = (bookmarked: boolean) => (
   <>
     <MenuIcon
-      Icon={(props) => <BookmarkIcon filled={bookmarked} {...props} />}
+      Icon={(props) => <BookmarkIcon secondary={bookmarked} {...props} />}
     />
     {bookmarked ? 'Remove from bookmarks' : 'Save to bookmarks'}
   </>
@@ -77,9 +78,9 @@ export default function PostOptionsReadingHistoryMenu({
   const [, onShareOrCopyLink] = useShareOrCopyLink({
     link: post?.commentsPermalink,
     text: post?.title,
-    trackObject: () =>
+    trackObject: (provider) =>
       postAnalyticsEvent('share post', post, {
-        extra: { origin: 'reading history context menu' },
+        extra: { origin: Origin.ReadingHistoryContextMenu, provider },
       }),
   });
 

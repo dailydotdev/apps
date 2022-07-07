@@ -51,7 +51,7 @@ export default function LoginButtons(): ReactElement {
         <Button
           className="my-2 btn-primary"
           onClick={() => login('github')}
-          icon={<GitHubIcon filled />}
+          icon={<GitHubIcon secondary />}
         >
           {buttonCopyPrefix} GitHub
         </Button>

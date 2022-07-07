@@ -39,12 +39,12 @@ export type PostCardProps = {
   onBookmarkClick?: (post: Post, bookmarked: boolean) => unknown;
   onMenuClick?: (event: React.MouseEvent, post: Post) => unknown;
   onReadArticleClick?: (e: React.MouseEvent) => unknown;
-  showShare?: boolean;
   onShare?: Callback;
   openNewTab?: boolean;
   enableMenu?: boolean;
   menuOpened?: boolean;
   showImage?: boolean;
+  additionalInteractionButtonFeature?: string;
   insaneMode?: boolean;
 } & HTMLAttributes<HTMLDivElement> &
   PostCardTests;
@@ -57,7 +57,6 @@ export const PostCard = forwardRef(function PostCard(
     onCommentClick,
     onBookmarkClick,
     onMenuClick,
-    showShare,
     onShare,
     openNewTab,
     enableMenu,
@@ -66,6 +65,7 @@ export const PostCard = forwardRef(function PostCard(
     children,
     showImage = true,
     style,
+    additionalInteractionButtonFeature,
     insaneMode,
     onReadArticleClick,
     postCardVersion = 'v1',
@@ -153,7 +153,7 @@ export const PostCard = forwardRef(function PostCard(
             alt="Post Cover image"
             src={post.image}
             fallbackSrc="https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1"
-            className={isV1 ? 'my-2' : 'mt-2'}
+            className={classNames('object-cover', isV1 ? 'my-2' : 'mt-2')}
             loading="lazy"
           />
         )}
@@ -174,13 +174,15 @@ export const PostCard = forwardRef(function PostCard(
           onUpvoteClick={onUpvoteClick}
           onCommentClick={onCommentClick}
           onBookmarkClick={onBookmarkClick}
-          showShare={showShare}
           onShare={onShare}
           onMenuClick={(event) => onMenuClick?.(event, post)}
           onReadArticleClick={onReadArticleClick}
           postCardVersion={postCardVersion}
           postModalByDefault={postModalByDefault}
           postEngagementNonClickable={postEngagementNonClickable}
+          additionalInteractionButtonFeature={
+            additionalInteractionButtonFeature
+          }
           className={classNames(
             'mx-4',
             !postEngagementNonClickable && 'justify-between',

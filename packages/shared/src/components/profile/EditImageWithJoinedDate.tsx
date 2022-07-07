@@ -98,7 +98,7 @@ export default function EditImageWithJoinedDate({
           ) : (
             <Provider>
               <GitHubIcon
-                filled
+                secondary
                 style={providerIconStyles}
                 className={providerIconClass}
               />

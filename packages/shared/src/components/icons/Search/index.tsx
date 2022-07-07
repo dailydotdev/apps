@@ -7,8 +7,8 @@ const SearchIcon = ({ size, ...rest }: IconProps): ReactElement => (
   <Icon
     {...rest}
     size={size}
-    IconOutlined={OutlinedIcon}
-    IconFilled={FilledIcon}
+    IconPrimary={OutlinedIcon}
+    IconSecondary={FilledIcon}
   />
 );
 

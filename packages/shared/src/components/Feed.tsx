@@ -6,6 +6,7 @@ import React, {
   useEffect,
 } from 'react';
 import classNames from 'classnames';
+import dynamic from 'next/dynamic';
 import useFeed, { PostItem } from '../hooks/useFeed';
 import { Ad, Post } from '../graphql/posts';
 import AuthContext from '../contexts/AuthContext';
@@ -33,12 +34,13 @@ import {
 } from '../lib/feed';
 import PostOptionsMenu from './PostOptionsMenu';
 import FeaturesContext from '../contexts/FeaturesContext';
-import { PostModal } from './modals/PostModal';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
 import {
   ToastSubject,
   useToastNotification,
 } from '../hooks/useToastNotification';
+import { useSharePost } from '../hooks/useSharePost';
+import { Origin } from '../lib/analytics';
 
 export type FeedProps<T> = {
   feedName: string;
@@ -55,7 +57,8 @@ interface RankVariables {
   ranking?: string;
 }
 
-const nativeShareSupport = false;
+const SharePostModal = dynamic(() => import('./modals/SharePostModal'));
+const PostModal = dynamic(() => import('./modals/PostModal'));
 
 const listGaps = {
   cozy: 'gap-5',
@@ -145,6 +148,7 @@ export default function Feed<T>({
     selectedPost,
     isFetchingNextPage,
   } = usePostModalNavigation(items, fetchPage);
+  const { additionalInteractionButtonFeature } = useContext(FeaturesContext);
 
   useEffect(() => {
     if (emptyFeed) {
@@ -153,17 +157,6 @@ export default function Feed<T>({
   }, [emptyFeed]);
 
   const infiniteScrollRef = useFeedInfiniteScroll({ fetchPage, canFetchMore });
-
-  const onShare = async (post: Post): Promise<void> => {
-    trackEvent({
-      category: 'Post',
-      action: 'Share',
-    });
-    await navigator.share({
-      text: post.title,
-      url: post.commentsPermalink,
-    });
-  };
 
   const useList = insaneMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
@@ -230,7 +223,8 @@ export default function Feed<T>({
     onPostModalOpen(index);
   };
 
-  const { onMenuClick, postMenuIndex, setPostMenuIndex } = useFeedContextMenu();
+  const { onMenuClick, postMenuIndex, postMenuLocation, setPostMenuIndex } =
+    useFeedContextMenu();
 
   const onRemovePost = async (removePostIndex) => {
     const item = items[removePostIndex] as PostItem;
@@ -275,6 +269,11 @@ export default function Feed<T>({
   if (emptyScreen && emptyFeed) {
     return <>{emptyScreen}</>;
   }
+
+  const { sharePost, sharePostFeedLocation, openSharePost, closeSharePost } =
+    useSharePost(Origin.Feed);
+  const onShareClick = (post: Post, row?: number, column?: number) =>
+    openSharePost(post, virtualizedNumCards, column, row);
 
   useEffect(() => {
     return () => {
@@ -321,6 +320,9 @@ export default function Feed<T>({
       >
         {items.map((item, index) => (
           <FeedItemComponent
+            additionalInteractionButtonFeature={
+              additionalInteractionButtonFeature
+            }
             items={items}
             index={index}
             row={calculateRow(index, numCards)}
@@ -330,7 +332,6 @@ export default function Feed<T>({
             useList={useList}
             openNewTab={openNewTab}
             insaneMode={insaneMode}
-            nativeShareSupport={nativeShareSupport}
             postMenuIndex={postMenuIndex}
             // showCommentPopupId={showCommentPopupId}
             // setShowCommentPopupId={setShowCommentPopupId}
@@ -342,7 +343,7 @@ export default function Feed<T>({
             onUpvote={onUpvote}
             onBookmark={onBookmark}
             onPostClick={onPostCardClick}
-            onShare={onShare}
+            onShare={onShareClick}
             onMenuClick={onMenuClick}
             onCommentClick={onCommentClick}
             onAdClick={onAdClick}
@@ -355,12 +356,39 @@ export default function Feed<T>({
       </div>
       <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
       <PostOptionsMenu
+        additionalInteractionButtonFeature={additionalInteractionButtonFeature}
+        onShare={() =>
+          openSharePost(
+            (items[postMenuIndex] as PostItem)?.post,
+            virtualizedNumCards,
+            postMenuLocation.row,
+            postMenuLocation.column,
+          )
+        }
+        onBookmark={() =>
+          onBookmark(
+            (items[postMenuIndex] as PostItem)?.post,
+            postMenuIndex,
+            postMenuLocation.row,
+            postMenuLocation.column,
+            !(items[postMenuIndex] as PostItem)?.post?.bookmarked,
+          )
+        }
         feedName={feedName}
         postIndex={postMenuIndex}
         post={(items[postMenuIndex] as PostItem)?.post}
         onHidden={() => setPostMenuIndex(null)}
         onRemovePost={onRemovePost}
       />
+      {sharePost && (
+        <SharePostModal
+          isOpen={!!sharePost}
+          post={sharePost}
+          origin={Origin.Feed}
+          {...sharePostFeedLocation}
+          onRequestClose={closeSharePost}
+        />
+      )}
     </div>
   );
 }

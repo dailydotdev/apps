@@ -1,4 +1,5 @@
 import { IFlags } from 'flagsmith';
+import { AdditionalInteractionButtons } from './featureValues';
 
 export class Features {
   static readonly SignupButtonCopy = new Features(
@@ -88,28 +89,28 @@ export class Features {
 
   static readonly CompanionPermissionPlacement = new Features(
     'companion_permission_placement',
-    'off',
+    'header',
     ['off', 'header', 'sidebar'],
   );
 
   static readonly CompanionPermissionTitle = new Features(
     'companion_permission_title',
-    'The companion lets you comment and upvote directly on an article! 🤯',
+    'Try the new companion feature!',
   );
 
   static readonly CompanionPermissionDescription = new Features(
     'companion_permission_description',
-    'Heads up! We need to ask for some extra permissions so you can enjoy the power of the companion.',
+    "We'll ask for extra permissions so we can show the companion directly on an article!",
   );
 
   static readonly CompanionPermissionLink = new Features(
     'companion_permission_link',
-    'Watch the Companion overview',
+    'Overview Video',
   );
 
   static readonly CompanionPermissionButton = new Features(
     'companion_permission_button',
-    'Add the companion now!',
+    'Activate companion',
   );
 
   static readonly PostCardVersion = new Features('post_card_version', 'v1', [
@@ -135,6 +136,12 @@ export class Features {
     'v3',
     'v4',
   ]);
+
+  static readonly AdditionalInteractionButton = new Features(
+    'additional_interaction_button',
+    AdditionalInteractionButtons.Bookmark,
+    [AdditionalInteractionButtons.Bookmark, AdditionalInteractionButtons.Share],
+  );
 
   private constructor(
     public readonly id: string,

@@ -26,7 +26,7 @@ interface PostModalProps
   isFetchingNextPage?: boolean;
 }
 
-export function PostModal({
+export default function PostModal({
   className,
   children,
   onRequestClose,

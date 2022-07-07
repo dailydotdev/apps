@@ -19,15 +19,15 @@ import {
   AllTagCategoriesData,
   FEED_SETTINGS_QUERY,
 } from '../../graphql/feedSettings';
-import {
-  getFeedSettingsQueryKey,
-  getHasAnyFilter,
-} from '../../hooks/useFeedSettings';
 import { AlertContextProvider } from '../../contexts/AlertContext';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
 import { Alerts, UPDATE_ALERTS } from '../../graphql/alerts';
 import FeaturesContext, { FeaturesData } from '../../contexts/FeaturesContext';
+import {
+  getFeedSettingsQueryKey,
+  getHasAnyFilter,
+} from '../../hooks/useFeedSettings';
 
 let features: FeaturesData;
 let client: QueryClientfeat;
@@ -272,23 +272,23 @@ it('should not show the my feed alert if the user removed it', async () => {
   );
 });
 
-it('should set all navigation urls', async () => {
-  renderComponent();
-  waitForNock();
+const sidebarItems = [
+  ['Popular', '/popular'],
+  ['Most upvoted', '/upvoted'],
+  ['Best discussions', '/discussed'],
+  ['Search', '/search'],
+  ['Bookmarks', '/bookmarks'],
+  ['Reading history', '/history'],
+];
 
-  const linkableElements = [
-    { text: 'Popular', path: '/popular' },
-    { text: 'Most upvoted', path: '/upvoted' },
-    { text: 'Best discussions', path: '/discussed' },
-    { text: 'Search', path: '/search' },
-    { text: 'Bookmarks', path: '/bookmarks' },
-    { text: 'Reading history', path: '/history' },
-  ];
-
-  linkableElements.forEach(async (element) => {
-    expect(await screen.findByText(element.text)).toHaveAttribute(
-      'href',
-      element.path,
-    );
-  });
-});
+it.each(sidebarItems.map((item) => [item[0], item[1]]))(
+  'it should expect %s to exist',
+  async (name, href) => {
+    renderComponent();
+    waitForNock();
+    const el = await screen.findByText(name);
+    expect(el).toBeInTheDocument();
+    // eslint-disable-next-line testing-library/no-node-access
+    expect(el.closest('a')).toHaveAttribute('href', href);
+  },
+);

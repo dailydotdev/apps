@@ -13,6 +13,9 @@ jest.mock('content-scripts-register-polyfill', () => ({}));
 jest.mock('webextension-polyfill-ts', () => {
   return {
     browser: {
+      contentScripts: {
+        register: jest.fn(),
+      },
       runtime: {
         id: 123,
         onMessage: {

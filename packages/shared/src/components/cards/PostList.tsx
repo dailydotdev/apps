@@ -29,11 +29,11 @@ export const PostList = forwardRef(function PostList(
     onBookmarkClick,
     onReadArticleClick,
     onMenuClick,
-    showShare,
     onShare,
     openNewTab,
     enableMenu,
     menuOpened,
+    additionalInteractionButtonFeature,
     className,
     children,
     postCardVersion = 'v1',
@@ -113,7 +113,6 @@ export const PostList = forwardRef(function PostList(
             onCommentClick={onCommentClick}
             onBookmarkClick={onBookmarkClick}
             onReadArticleClick={onReadArticleClick}
-            showShare={showShare}
             onShare={onShare}
             className="relative self-stretch mt-1"
             onMenuClick={(event) => onMenuClick?.(event, post)}
@@ -121,6 +120,9 @@ export const PostList = forwardRef(function PostList(
             postCardVersion={postCardVersion}
             postModalByDefault={postModalByDefault}
             postEngagementNonClickable={postEngagementNonClickable}
+            additionalInteractionButtonFeature={
+              additionalInteractionButtonFeature
+            }
           />
         </ActionsContainer>
       </ListCardMain>

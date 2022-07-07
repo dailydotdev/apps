@@ -4,16 +4,21 @@ import dynamic from 'next/dynamic';
 import ArrowIcon from '../icons/Arrow';
 import { Button } from '../buttons/Button';
 import { PostModalActions, PostModalActionsProps } from './PostModalActions';
+import { Origin } from '../../lib/analytics';
 
 const SimpleTooltip = dynamic(() => import('../tooltips/SimpleTooltip'));
 
 export interface PostNavigationProps
-  extends Pick<PostModalActionsProps, 'post' | 'onClose'> {
+  extends Pick<
+    PostModalActionsProps,
+    'post' | 'onClose' | 'onShare' | 'onBookmark'
+  > {
   onPreviousPost: () => unknown;
   onNextPost: () => unknown;
   shouldDisplayTitle?: boolean;
   isModal?: boolean;
   className?: string;
+  additionalInteractionButtonFeature: string;
 }
 
 export function PostNavigation({
@@ -24,6 +29,9 @@ export function PostNavigation({
   isModal,
   post,
   onClose,
+  onShare,
+  onBookmark,
+  additionalInteractionButtonFeature,
 }: PostNavigationProps): ReactElement {
   const published = `Published on ${post?.source.name}`;
   const subtitle = !post?.author
@@ -78,12 +86,15 @@ export function PostNavigation({
         </div>
       )}
       <PostModalActions
+        onShare={onShare}
+        onBookmark={onBookmark}
+        additionalInteractionButtonFeature={additionalInteractionButtonFeature}
         post={post}
         onClose={onClose}
         inlineActions={shouldDisplayTitle || isModal}
         className={getClasses()}
         notificactionClassName="ml-4"
-        origin={isModal ? 'article modal' : 'article page'}
+        origin={isModal ? Origin.ArticleModal : Origin.ArticleModal}
       />
     </div>
   );

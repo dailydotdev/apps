@@ -25,7 +25,6 @@ export type FeedItemComponentProps = {
   useList: boolean;
   openNewTab: boolean;
   insaneMode: boolean;
-  nativeShareSupport: boolean;
   postMenuIndex: number | undefined;
   // showCommentPopupId: string | undefined;
   // setShowCommentPopupId: (value: string | undefined) => void;
@@ -56,7 +55,7 @@ export type FeedItemComponentProps = {
   ) => Promise<void>;
   onPostClick: FeedPostClick;
   onReadArticleClick: FeedPostClick;
-  onShare: (post: Post) => Promise<void>;
+  onShare: (post: Post, row?: number, column?: number) => void;
   onMenuClick: (
     e: React.MouseEvent,
     index: number,
@@ -70,6 +69,7 @@ export type FeedItemComponentProps = {
     column: number,
   ) => unknown;
   onAdClick: (ad: Ad, index: number, row: number, column: number) => void;
+  additionalInteractionButtonFeature: string;
 } & PostCardTests;
 
 export function getFeedItemKey(items: FeedItem[], index: number): string {
@@ -93,7 +93,6 @@ export default function FeedItemComponent({
   useList,
   insaneMode,
   openNewTab,
-  nativeShareSupport,
   postMenuIndex,
   // showCommentPopupId,
   // setShowCommentPopupId,
@@ -109,6 +108,7 @@ export default function FeedItemComponent({
   onMenuClick,
   onCommentClick,
   onAdClick,
+  additionalInteractionButtonFeature,
   onReadArticleClick,
   postCardVersion,
   postModalByDefault,
@@ -132,6 +132,9 @@ export default function FeedItemComponent({
     case 'post':
       return (
         <PostTag
+          additionalInteractionButtonFeature={
+            additionalInteractionButtonFeature
+          }
           ref={inViewRef}
           post={{
             ...item.post,
@@ -147,8 +150,7 @@ export default function FeedItemComponent({
           onReadArticleClick={() =>
             onReadArticleClick(item.post, index, row, column)
           }
-          showShare={nativeShareSupport}
-          onShare={onShare}
+          onShare={(post: Post) => onShare(post, row, column)}
           openNewTab={openNewTab}
           enableMenu={!!user}
           onMenuClick={(event) => onMenuClick(event, index, row, column)}
