@@ -14,7 +14,7 @@ commands:
 jobs:
   build:
     docker:
-      - image: cimg/node:14.16.0
+      - image: cimg/node:16.15.0
     steps:
       - checkout
       - run:
@@ -24,17 +24,18 @@ jobs:
           filename: combined-package-lock.txt
       - restore_cache:
           keys:
-            - deps-v4-{{ .Branch }}-{{ checksum "combined-package-lock.txt" }}
-            - deps-v4-{{ .Branch }}
-            - deps-v4-
+            - deps-v5-{{ .Branch }}-{{ checksum "combined-package-lock.txt" }}
+            - deps-v5-{{ .Branch }}
+            - deps-v5-
       - run:
           name: Install dependencies
           command: lerna bootstrap
       - save_cache:
-          key: deps-v4-{{ .Branch }}-{{ checksum "combined-package-lock.txt" }}
+          key: deps-v5-{{ .Branch }}-{{ checksum "combined-package-lock.txt" }}
           paths:
             - ./node_modules
             - ./packages/eslint-config/node_modules
+            - ./packages/eslint-rules/node_modules
             - ./packages/prettier-config/node_modules
             - ./packages/shared/node_modules
             - ./packages/webapp/node_modules
@@ -45,7 +46,7 @@ jobs:
           working_directory: packages/extension
   test:
     docker:
-      - image: cimg/node:14.16.0
+      - image: cimg/node:16.15.0
     steps:
       - checkout
       - run:
@@ -55,17 +56,18 @@ jobs:
           filename: combined-package-lock.txt
       - restore_cache:
           keys:
-            - deps-v4-{{ .Branch }}-{{ checksum "combined-package-lock.txt" }}
-            - deps-v4-{{ .Branch }}
-            - deps-v4-
+            - deps-v5-{{ .Branch }}-{{ checksum "combined-package-lock.txt" }}
+            - deps-v5-{{ .Branch }}
+            - deps-v5-
       - run:
           name: Install dependencies
           command: lerna bootstrap
       - save_cache:
-          key: deps-v4-{{ .Branch }}-{{ checksum "combined-package-lock.txt" }}
+          key: deps-v5-{{ .Branch }}-{{ checksum "combined-package-lock.txt" }}
           paths:
             - ./node_modules
             - ./packages/eslint-config/node_modules
+            - ./packages/eslint-rules/node_modules
             - ./packages/prettier-config/node_modules
             - ./packages/shared/node_modules
             - ./packages/webapp/node_modules
