@@ -79,9 +79,11 @@ function AuthOptions({
       </Tab>
       <Tab label={Display.Registration}>
         <RegistrationForm
+          onBack={() => setActiveDisplay(Display.Default)}
           formRef={formRef}
           email={email}
           socialAccount={socialAccount}
+          onClose={onClose}
         />
       </Tab>
       <Tab label={Display.SignBack}>
@@ -93,7 +95,11 @@ function AuthOptions({
         </AuthSignBack>
       </Tab>
       <Tab label={Display.ForgotPassword}>
-        <ForgotPasswordForm />
+        <ForgotPasswordForm
+          email={email}
+          onClose={onClose}
+          onBack={() => setActiveDisplay(Display.Default)}
+        />
       </Tab>
     </TabContainer>
   );

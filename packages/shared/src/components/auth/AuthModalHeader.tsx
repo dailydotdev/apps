@@ -21,14 +21,15 @@ function AuthModalHeader({
   return (
     <header
       className={classNames(
-        'flex flex-row items-center p-2 w-full border-b border-theme-divider-tertiary',
+        'flex relative flex-row items-center w-full border-b border-theme-divider-tertiary',
+        onBack ? 'p-2' : 'py-4 px-6',
         className,
       )}
     >
       {onBack && (
         <Button
           icon={<ArrowIcon className="-rotate-90" />}
-          className="mr-2"
+          className="mr-2 btn-tertiary"
           onClick={onBack}
         />
       )}

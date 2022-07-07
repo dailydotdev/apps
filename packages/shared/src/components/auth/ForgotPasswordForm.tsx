@@ -25,7 +25,6 @@ function ForgotPasswordForm({
   return (
     <>
       <AuthModalHeader
-        className="py-4 px-6"
         title="Forgot password"
         onBack={onBack}
         onClose={onClose}

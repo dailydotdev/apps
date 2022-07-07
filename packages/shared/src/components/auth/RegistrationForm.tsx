@@ -27,6 +27,7 @@ interface RegistrationFormProps {
   socialAccount?: SocialProviderAccount;
   formRef?: MutableRefObject<HTMLFormElement>;
   onClose?: CloseModalFunc;
+  onBack?: CloseModalFunc;
 }
 
 export interface RegistrationFormValues {
@@ -42,6 +43,7 @@ export const RegistrationForm = ({
   socialAccount,
   formRef,
   onClose,
+  onBack,
 }: RegistrationFormProps): ReactElement => {
   const [isNameValid, setIsNameValid] = useState<boolean>();
   const [isPasswordValid, setIsPasswordValid] = useState<boolean>();
@@ -78,10 +80,9 @@ export const RegistrationForm = ({
   return (
     <>
       <AuthModalHeader
-        className="py-4 px-6"
         title={emailSent ? 'Verify your email address' : 'Sign up to daily.dev'}
+        onBack={!socialAccount && onBack}
         onClose={onClose}
-        onBack={!emailSent && onClose}
       />
       <AuthForm
         className="gap-4 self-center place-items-center mt-6 w-full px-[3.75rem]"

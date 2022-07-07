@@ -42,11 +42,7 @@ export const AuthDefault = ({
 
   return (
     <>
-      <AuthModalHeader
-        className="py-4 px-6"
-        title="Sign up to daily.dev"
-        onClose={onClose}
-      />
+      <AuthModalHeader title="Sign up to daily.dev" onClose={onClose} />
       <ColumnContainer>
         {providers.map(({ provider, ...props }) => (
           <ProviderButton

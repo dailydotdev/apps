@@ -19,11 +19,7 @@ export const AuthSignBack = ({
 
   return (
     <>
-      <AuthModalHeader
-        className="py-4 px-6"
-        title="Login to daily.dev"
-        onClose={onClose}
-      />
+      <AuthModalHeader title="Login to daily.dev" onClose={onClose} />
       <ColumnContainer>
         <ProviderButton
           provider={twitter.provider}
