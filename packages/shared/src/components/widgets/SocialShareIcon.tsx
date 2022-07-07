@@ -25,7 +25,7 @@ export const SocialShareIcon = ({
         onClick={onClick}
         target="_blank"
         rel="noopener"
-        className={classNames(className, 'mb-2')}
+        className={classNames(className, 'mb-2 text-white')}
         iconOnly
         icon={icon}
       />
