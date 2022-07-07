@@ -6,7 +6,6 @@ import React, {
   KeyboardEventHandler,
   MouseEvent,
   KeyboardEvent,
-  useState,
 } from 'react';
 import classNames from 'classnames';
 import AuthContext from '../../contexts/AuthContext';
@@ -59,7 +58,6 @@ function CommentBox({
   parentSelector,
   post,
 }: CommentBoxProps): ReactElement {
-  const [height, setHeight] = useState('auto');
   const { user } = useContext(AuthContext);
   const {
     onMentionClick,
@@ -106,11 +104,13 @@ function CommentBox({
   };
 
   const onTextareaInput = (e: React.FormEvent<HTMLTextAreaElement>) => {
-    const minHeight = parseInt(
-      e.currentTarget.getAttribute('data-min-height'),
-      10,
-    );
-    setHeight(`${Math.max(e.currentTarget.scrollHeight, minHeight)}px`);
+    const attr = e.currentTarget.getAttribute('data-min-height');
+    const minHeight = parseInt(attr, 10);
+    commentRef.current.style.height = 'auto';
+    commentRef.current.style.height = `${Math.max(
+      e.currentTarget.scrollHeight,
+      minHeight,
+    )}px`;
     onInput(cleanupEmptySpaces(e.currentTarget.value));
   };
 
@@ -167,7 +167,6 @@ function CommentBox({
             tabIndex={0}
             aria-label="New comment box"
             aria-multiline
-            style={{ height }}
           />
         </div>
         <RecommendedMentionTooltip
