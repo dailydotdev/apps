@@ -18,31 +18,33 @@ function Login(): ReactElement {
       </header>
       <main
         className={classNames(
-          'flex flex-row flex-1 mx-0 h-full',
+          'flex flex-row flex-1 items-center mx-0 h-full',
           isV4 ? 'justify-center' : 'tablet:mx-8 laptopL:mx-32',
         )}
       >
-        <AuthOptions
-          className="my-auto h-full max-h-[40rem]"
-          onSelectedProvider={onSocialProviderChange}
-          formRef={formRef}
-          socialAccount={socialAccount}
-        />
+        <div className="flex flex-row">
+          <AuthOptions
+            className="h-full max-h-[40rem] min-h-[40rem]"
+            onSelectedProvider={onSocialProviderChange}
+            formRef={formRef}
+            socialAccount={socialAccount}
+          />
+          {!isV4 && (
+            <AuthModalHeading className="z-1 ml-32 typo-mega1">
+              Where developer
+              <br />
+              grow together.
+            </AuthModalHeading>
+          )}
+        </div>
         {!isV4 && (
-          <AuthModalHeading className="z-1 mt-24 ml-24 typo-mega1">
-            Where developer
-            <br />
-            grow together.
-          </AuthModalHeading>
+          <img
+            src="/login.png"
+            alt=""
+            className="absolute right-0 z-0 max-h-[52.875rem]"
+          />
         )}
       </main>
-      {!isV4 && (
-        <img
-          src="/login.png"
-          alt=""
-          className="absolute right-0 z-0 max-h-[52.875rem]"
-        />
-      )}
     </div>
   );
 }
