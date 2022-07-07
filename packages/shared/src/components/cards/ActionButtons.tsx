@@ -14,12 +14,12 @@ import OptionsButton from '../buttons/OptionsButton';
 import classed from '../../lib/classed';
 import { ReadArticleButton } from './ReadArticleButton';
 import { visibleOnGroupHover } from './common';
+import { AdditionalInteractionButtons } from '../../lib/featureValues';
 
 const ShareIcon = dynamic(() => import('../icons/Forward'));
 
 export interface ActionButtonsProps {
   post: Post;
-  showShare: boolean;
   onMenuClick?: (e: React.MouseEvent) => unknown;
   onUpvoteClick?: (post: Post, upvoted: boolean) => unknown;
   onCommentClick?: (post: Post) => unknown;
@@ -28,6 +28,7 @@ export interface ActionButtonsProps {
   onReadArticleClick?: (e: React.MouseEvent) => unknown;
   className?: string;
   children?: ReactNode;
+  additionalInteractionButtonFeature?: string;
   insaneMode?: boolean;
   postCardVersion?: string;
   postModalByDefault?: boolean;
@@ -46,7 +47,6 @@ const getContainer = (displayWhenHovered = false, className?: string) =>
 
 export default function ActionButtons({
   post,
-  showShare,
   onUpvoteClick,
   onCommentClick,
   onBookmarkClick,
@@ -59,6 +59,7 @@ export default function ActionButtons({
   postCardVersion,
   postModalByDefault,
   postEngagementNonClickable,
+  additionalInteractionButtonFeature,
 }: ActionButtonsProps): ReactElement {
   const isV2 = postCardVersion === 'v2';
   const separatedActions =
@@ -76,17 +77,28 @@ export default function ActionButtons({
     ),
   };
 
-  const bookmarkButton = (
-    <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
-      <Button
-        icon={<BookmarkIcon filled={post.bookmarked} />}
-        buttonSize={postEngagementNonClickable ? 'small' : 'medium'}
-        pressed={post.bookmarked}
-        onClick={() => onBookmarkClick?.(post, !post.bookmarked)}
-        className="btn-tertiary-bun"
-      />
-    </SimpleTooltip>
-  );
+  const bookmarkOrShareButton =
+    additionalInteractionButtonFeature ===
+    AdditionalInteractionButtons.Bookmark ? (
+      <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
+        <Button
+          icon={<BookmarkIcon secondary={post.bookmarked} />}
+          buttonSize={postEngagementNonClickable ? 'small' : 'medium'}
+          pressed={post.bookmarked}
+          onClick={() => onBookmarkClick?.(post, !post.bookmarked)}
+          className="btn-tertiary-bun"
+        />
+      </SimpleTooltip>
+    ) : (
+      <SimpleTooltip content="Share post">
+        <Button
+          icon={<ShareIcon />}
+          buttonSize={postEngagementNonClickable ? 'small' : 'medium'}
+          onClick={() => onShare?.(post)}
+          className="btn-tertiary-cabbage"
+        />
+      </SimpleTooltip>
+    );
 
   return (
     <div
@@ -106,7 +118,9 @@ export default function ActionButtons({
           <QuaternaryButton
             id={`post-${post.id}-upvote-btn`}
             icon={
-              <UpvoteIcon filled={post.upvoted || postEngagementNonClickable} />
+              <UpvoteIcon
+                secondary={post.upvoted || postEngagementNonClickable}
+              />
             }
             pressed={post.upvoted}
             onClick={() => onUpvoteClick?.(post, !post.upvoted)}
@@ -124,7 +138,7 @@ export default function ActionButtons({
             id={`post-${post.id}-comment-btn`}
             icon={
               <CommentIcon
-                filled={post.commented || postEngagementNonClickable}
+                secondary={post.commented || postEngagementNonClickable}
               />
             }
             pressed={post.commented}
@@ -139,7 +153,7 @@ export default function ActionButtons({
         {insaneMode &&
           postModalByDefault &&
           !postEngagementNonClickable &&
-          bookmarkButton}
+          bookmarkOrShareButton}
       </LeftContainer>
       <RightContainer>
         {insaneMode && postModalByDefault && (
@@ -150,7 +164,8 @@ export default function ActionButtons({
           />
         )}
         {(!insaneMode || !postModalByDefault || postEngagementNonClickable) &&
-          bookmarkButton}
+          bookmarkOrShareButton}
+
         {(isV2 || insaneMode) && (
           <OptionsButton
             className={classNames(
@@ -160,16 +175,6 @@ export default function ActionButtons({
             onClick={onMenuClick}
             tooltipPlacement="top"
           />
-        )}
-        {showShare && (
-          <SimpleTooltip content="Share post">
-            <Button
-              icon={<ShareIcon />}
-              buttonSize="small"
-              onClick={() => onShare?.(post)}
-              className="btn-tertiary"
-            />
-          </SimpleTooltip>
         )}
         {children}
       </RightContainer>

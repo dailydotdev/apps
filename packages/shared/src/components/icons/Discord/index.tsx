@@ -3,7 +3,7 @@ import Icon, { IconProps } from '../../Icon';
 import ColorIcon from './color.svg';
 
 const DiscordIcon = (props: IconProps): ReactElement => (
-  <Icon {...props} IconFilled={ColorIcon} IconOutlined={ColorIcon} />
+  <Icon {...props} IconPrimary={ColorIcon} IconSecondary={ColorIcon} />
 );
 
 export default DiscordIcon;

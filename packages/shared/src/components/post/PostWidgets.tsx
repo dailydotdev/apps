@@ -10,6 +10,8 @@ import FurtherReading from '../widgets/FurtherReading';
 import { PostUsersHighlights } from '../widgets/PostUsersHighlights';
 import { PostModalActions, PostModalActionsProps } from './PostModalActions';
 import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
+import { ShareProvider } from '../../lib/share';
+import { Origin } from '../../lib/analytics';
 
 interface PostWidgetsProps extends PostModalActionsProps {
   isNavigationFixed?: boolean;
@@ -17,11 +19,14 @@ interface PostWidgetsProps extends PostModalActionsProps {
 }
 
 export function PostWidgets({
+  additionalInteractionButtonFeature,
+  onShare,
+  onBookmark,
   post,
   className,
   isNavigationFixed,
   onClose,
-  origin = 'article page',
+  origin = Origin.ArticlePage,
 }: PostWidgetsProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
@@ -35,7 +40,7 @@ export function PostWidgets({
         });
         trackEvent(
           postAnalyticsEvent('share post', post, {
-            extra: { origin },
+            extra: { origin, provider: ShareProvider.Native },
           }),
         );
       } catch (err) {
@@ -53,6 +58,11 @@ export function PostWidgets({
     >
       {!isNavigationFixed && (
         <PostModalActions
+          additionalInteractionButtonFeature={
+            additionalInteractionButtonFeature
+          }
+          onBookmark={onBookmark}
+          onShare={onShare}
           inlineActions={isNavigationFixed}
           post={post}
           onClose={onClose}

@@ -240,6 +240,7 @@ export function TextField({
         )}
         {actionIcon && (
           <Button
+            data-testid="textfield-action-icon"
             buttonSize="small"
             className="btn-tertiary"
             onClick={onActionIconClick}

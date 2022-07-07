@@ -18,6 +18,13 @@ module.exports = {
         hover: 'var(--theme-hover)',
         rank: 'var(--rank-color)',
         bg: {
+          whatsapp: '#30B944',
+          twitter: '#1D9BF0',
+          facebook: '#4363B6',
+          reddit: '#FF4500',
+          linkedin: '#0077B5',
+          telegram: '#24A2E0',
+          email: 'var(--theme-rank-1-color-bottom)',
           primary: 'var(--theme-background-primary)',
           secondary: 'var(--theme-background-secondary)',
           tertiary: 'var(--theme-background-tertiary)',

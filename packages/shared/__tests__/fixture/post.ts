@@ -1,4 +1,5 @@
 import { Post } from '../../src/graphql/posts';
+
 import comment from './comment';
 import { author } from './loggedUser';
 

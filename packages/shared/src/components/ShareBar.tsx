@@ -9,6 +9,7 @@ import {
   getFacebookShareLink,
   getTwitterShareLink,
   getWhatsappShareLink,
+  ShareProvider,
 } from '../lib/share';
 import { Button, ButtonProps } from './buttons/Button';
 import classed from '../lib/classed';
@@ -16,6 +17,7 @@ import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
 import { SimpleTooltip } from './tooltips/SimpleTooltip';
 import { WidgetContainer } from './widgets/common';
+import { Origin } from '../lib/analytics';
 
 const ShareButton = classed(Button, 'my-1');
 const ColorfulShareButton = classed(
@@ -28,12 +30,17 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
   const [copying, copyLink] = useCopyPostLink(href);
   const { trackEvent } = useContext(AnalyticsContext);
 
-  const onClick = (media: string) =>
+  const onClick = (provider: ShareProvider) =>
     trackEvent(
       postAnalyticsEvent('share post', post, {
-        extra: { media, origin: 'share bar' },
+        extra: { provider, origin: Origin.ShareBar },
       }),
     );
+
+  const trackAndCopyLink = () => {
+    copyLink();
+    onClick(ShareProvider.CopyLink);
+  };
 
   return (
     <WidgetContainer className="hidden laptop:flex flex-col p-3">
@@ -43,7 +50,7 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
       <div className="inline-flex relative flex-row items-center mt-3">
         <SimpleTooltip content="Copy link">
           <ShareButton
-            onClick={() => copyLink()}
+            onClick={trackAndCopyLink}
             pressed={copying}
             icon={<CopyIcon />}
             className="btn-tertiary-avocado"
@@ -55,8 +62,8 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
             href={getWhatsappShareLink(href)}
             target="_blank"
             rel="noopener"
-            onClick={() => onClick('whatsapp')}
-            icon={<WhatsappIcon filled />}
+            onClick={() => onClick(ShareProvider.WhatsApp)}
+            icon={<WhatsappIcon secondary />}
             className="btn-tertiary"
           />
         </SimpleTooltip>
@@ -66,8 +73,8 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
             href={getTwitterShareLink(href, post.title)}
             target="_blank"
             rel="noopener"
-            onClick={() => onClick('twitter')}
-            icon={<TwitterIcon filled />}
+            onClick={() => onClick(ShareProvider.Twitter)}
+            icon={<TwitterIcon secondary />}
             className="btn-tertiary"
           />
         </SimpleTooltip>
@@ -77,8 +84,8 @@ export default function ShareBar({ post }: { post: Post }): ReactElement {
             href={getFacebookShareLink(href)}
             target="_blank"
             rel="noopener"
-            onClick={() => onClick('facebook')}
-            icon={<FacebookIcon filled />}
+            onClick={() => onClick(ShareProvider.Facebook)}
+            icon={<FacebookIcon secondary />}
             className="btn-tertiary"
           />
         </SimpleTooltip>

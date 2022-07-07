@@ -137,7 +137,9 @@ describe('PostItemCard component', () => {
 
   it('should show view history post source image', async () => {
     render(<PostItemCard postItem={defaultHistory} />);
-    await screen.findByAltText(`source of ${defaultHistory.post.title}`);
+    await screen.findByAltText(
+      `source of ${defaultHistory.post.title}'s profile`,
+    );
   });
 
   it('should call onHide on close button clicked', async () => {

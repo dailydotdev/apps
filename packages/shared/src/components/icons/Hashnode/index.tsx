@@ -3,7 +3,7 @@ import Icon, { IconProps } from '../../Icon';
 import WhiteIcon from './white.svg';
 
 const HashnodeIcon = (props: IconProps): ReactElement => (
-  <Icon {...props} IconFilled={WhiteIcon} IconOutlined={WhiteIcon} />
+  <Icon {...props} IconPrimary={WhiteIcon} IconSecondary={WhiteIcon} />
 );
 
 export default HashnodeIcon;

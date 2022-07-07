@@ -2,7 +2,7 @@ import React, { ReactElement, useMemo, useState } from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { browser } from 'webextension-polyfill-ts';
 import { Boot } from '@dailydotdev/shared/src/lib/boot';
-import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
+import { FeaturesContextProvider } from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SettingsContextProvider } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { useRefreshToken } from '@dailydotdev/shared/src/hooks/useRefreshToken';
@@ -53,7 +53,7 @@ export default function App({
     return <></>;
   }
 
-  const memoizedFlags = useMemo(() => ({ flags }), [flags]);
+  const memoizedFlags = useMemo(() => flags, [flags]);
   const refetchData = () =>
     companionFetch(`${apiUrl}/boot`, {
       headers: { requestKey: refreshTokenKey },
@@ -72,7 +72,7 @@ export default function App({
       </style>
       <RouterContext.Provider value={router}>
         <QueryClientProvider client={queryClient}>
-          <FeaturesContext.Provider value={memoizedFlags}>
+          <FeaturesContextProvider flags={memoizedFlags}>
             <AuthContextProvider
               user={user}
               visit={visit}
@@ -105,7 +105,7 @@ export default function App({
                 </AlertContextProvider>
               </SettingsContextProvider>
             </AuthContextProvider>
-          </FeaturesContext.Provider>
+          </FeaturesContextProvider>
         </QueryClientProvider>
       </RouterContext.Provider>
     </div>

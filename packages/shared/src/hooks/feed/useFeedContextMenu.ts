@@ -9,6 +9,11 @@ export default function useFeedContextMenu(): {
     column: number,
   ) => void;
   postMenuIndex: number;
+  postMenuLocation: {
+    index: number;
+    row: number;
+    column: number;
+  };
   setPostMenuIndex: (
     value: { index: number; row: number; column: number } | undefined,
   ) => void;
@@ -41,6 +46,7 @@ export default function useFeedContextMenu(): {
   return {
     onMenuClick,
     postMenuIndex,
+    postMenuLocation,
     setPostMenuIndex: setPostMenuLocation,
   };
 }

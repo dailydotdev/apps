@@ -22,8 +22,10 @@ import PostOptionsMenu from '../PostOptionsMenu';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../../lib/feed';
 import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
+import { OnShareOrBookmarkProps } from './PostActions';
+import { Origin } from '../../lib/analytics';
 
-export interface PostModalActionsProps {
+export interface PostModalActionsProps extends OnShareOrBookmarkProps {
   post: Post;
   onClose?: MouseEventHandler | KeyboardEventHandler;
   className?: string;
@@ -40,11 +42,14 @@ const BanPostModal = dynamic(() => import('../modals/BanPostModal'));
 const DeletePostModal = dynamic(() => import('../modals/DeletePostModal'));
 
 export function PostModalActions({
+  additionalInteractionButtonFeature,
+  onShare,
+  onBookmark,
   post,
   onClose,
   inlineActions,
   className,
-  origin = 'article page',
+  origin = Origin.ArticlePage,
   notificactionClassName,
   ...props
 }: PostModalActionsProps): ReactElement {
@@ -106,6 +111,9 @@ export function PostModalActions({
         </SimpleTooltip>
       )}
       <PostOptionsMenu
+        additionalInteractionButtonFeature={additionalInteractionButtonFeature}
+        onBookmark={onBookmark}
+        onShare={onShare}
         post={post}
         setShowBanPost={isModerator ? () => setShowBanPost(true) : null}
         setShowDeletePost={isModerator ? () => setShowDeletePost(true) : null}
