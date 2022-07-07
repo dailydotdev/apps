@@ -26,7 +26,11 @@ function AuthModalHeader({
       )}
     >
       {onBack && (
-        <Button icon={<ArrowIcon />} className="mr-2" onClick={onBack} />
+        <Button
+          icon={<ArrowIcon className="-rotate-90" />}
+          className="mr-2"
+          onClick={onBack}
+        />
       )}
       <h3 className="font-bold typo-body">{title}</h3>
       {onClose && <ModalCloseButton onClick={onClose} />}

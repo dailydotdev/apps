@@ -13,12 +13,14 @@ interface AuthDefaultProps {
   onClose?: CloseModalFunc;
   onSignup?: (email: string) => unknown;
   onProviderClick?: (provider: string) => unknown;
+  onForgotPassword?: () => unknown;
 }
 
 export const AuthDefault = ({
   onClose,
   onSignup,
   onProviderClick,
+  onForgotPassword,
 }: AuthDefaultProps): ReactElement => {
   const [shouldLogin, setShouldLogin] = useState(false);
 
@@ -57,7 +59,7 @@ export const AuthDefault = ({
         ))}
         <OrDivider />
         {shouldLogin ? (
-          <LoginForm onSubmit={onLogin} />
+          <LoginForm onSubmit={onLogin} onForgotPassword={onForgotPassword} />
         ) : (
           <EmailSignupForm onSubmit={onEmailSignup} />
         )}

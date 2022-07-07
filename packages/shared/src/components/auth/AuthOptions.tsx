@@ -74,6 +74,7 @@ function AuthOptions({
           onClose={onClose}
           onSignup={onSignup}
           onProviderClick={onProviderClick}
+          onForgotPassword={() => setActiveDisplay(Display.ForgotPassword)}
         />
       </Tab>
       <Tab label={Display.Registration}>
