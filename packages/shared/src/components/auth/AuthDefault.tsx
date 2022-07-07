@@ -1,6 +1,6 @@
 import React, { ReactElement, ReactNode, useState } from 'react';
-import { ClickableText } from '../buttons/ClickableText';
 import { CloseModalFunc } from '../modals/common';
+import AuthModalFooter from './AuthModalFooter';
 import AuthModalHeader from './AuthModalHeader';
 import { ColumnContainer, providers } from './common';
 import EmailSignupForm from './EmailSignupForm';
@@ -61,15 +61,11 @@ export const AuthDefault = ({
         )}
       </ColumnContainer>
       <div className="flex flex-1" />
-      <div className="flex justify-center py-3 mt-4 border-t border-theme-divider-tertiary typo-callout text-theme-label-tertiary">
-        {shouldLogin ? 'Not yet a member?' : 'Already a member?'}
-        <ClickableText
-          className="ml-1 text-theme-label-primary"
-          onClick={() => setShouldLogin(!shouldLogin)}
-        >
-          {shouldLogin ? 'Register' : 'Login'}
-        </ClickableText>
-      </div>
+      <AuthModalFooter
+        className="mt-4"
+        shouldLogin={shouldLogin}
+        onShouldLogin={setShouldLogin}
+      />
     </>
   );
 };
