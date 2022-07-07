@@ -57,7 +57,7 @@ export default function ShareNewCommentPopup({
             href={getTwitterShareLink(href, post.title)}
             target="_blank"
             rel="noopener"
-            icon={<TwitterIcon />}
+            icon={<TwitterIcon secondary />}
             className="btn-primary-twitter"
             buttonSize="small"
           >
@@ -70,7 +70,7 @@ export default function ShareNewCommentPopup({
             href={getWhatsappShareLink(href)}
             target="_blank"
             rel="noopener"
-            icon={<WhatsappIcon />}
+            icon={<WhatsappIcon secondary />}
             className="btn-primary-whatsapp"
             buttonSize="small"
           >

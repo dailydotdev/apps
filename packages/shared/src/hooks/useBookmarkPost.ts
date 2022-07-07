@@ -7,8 +7,8 @@ import {
   REMOVE_BOOKMARK_MUTATION,
 } from '../graphql/posts';
 import AnalyticsContext from '../contexts/AnalyticsContext';
+import { MutateFunc } from '../lib/query';
 
-type MutateFunc<T> = (variables: T) => Promise<(() => void) | undefined>;
 type UseBookmarkPostParams<T> = {
   onBookmarkMutate: MutateFunc<T>;
   onRemoveBookmarkMutate: MutateFunc<T>;

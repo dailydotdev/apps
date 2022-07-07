@@ -35,6 +35,7 @@ interface InputFontColorProps {
   disabled?: boolean;
   focused?: boolean;
   hasInput?: boolean;
+  actionIcon?: React.ReactElement<IconProps>;
 }
 
 export const getInputFontColor = ({
@@ -42,7 +43,12 @@ export const getInputFontColor = ({
   disabled,
   focused,
   hasInput,
+  actionIcon,
 }: InputFontColorProps): string => {
+  if (readOnly && actionIcon) {
+    return 'text-theme-label-primary';
+  }
+
   if (readOnly) {
     return 'text-theme-label-quaternary';
   }
@@ -192,7 +198,13 @@ export function TextField({
           <span
             className={classNames(
               'mr-2',
-              getInputFontColor({ readOnly, disabled, hasInput, focused }),
+              getInputFontColor({
+                readOnly,
+                disabled,
+                hasInput,
+                focused,
+                actionIcon,
+              }),
             )}
           >
             {leftIcon}
@@ -224,7 +236,13 @@ export function TextField({
             readOnly={readOnly}
             className={classNames(
               'self-stretch',
-              getInputFontColor({ readOnly, disabled, hasInput, focused }),
+              getInputFontColor({
+                readOnly,
+                disabled,
+                hasInput,
+                focused,
+                actionIcon,
+              }),
             )}
             disabled={disabled}
             {...props}
@@ -240,6 +258,7 @@ export function TextField({
         )}
         {actionIcon && (
           <Button
+            data-testid="textfield-action-icon"
             buttonSize="small"
             className="btn-tertiary"
             onClick={onActionIconClick}

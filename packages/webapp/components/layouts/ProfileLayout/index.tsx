@@ -222,7 +222,7 @@ export default function ProfileLayout({
                     href={`https://github.com/${githubHandle}`}
                     target="_blank"
                     rel="noopener"
-                    icon={<GitHubIcon filled />}
+                    icon={<GitHubIcon secondary />}
                     className="btn-tertiary"
                   />
                 </SimpleTooltip>
@@ -234,7 +234,7 @@ export default function ProfileLayout({
                     href={`https://hashnode.com/@${hashnodeHandle}`}
                     target="_blank"
                     rel="noopener"
-                    icon={<HashnodeIcon filled />}
+                    icon={<HashnodeIcon secondary />}
                     className="btn-tertiary"
                   />
                 </SimpleTooltip>

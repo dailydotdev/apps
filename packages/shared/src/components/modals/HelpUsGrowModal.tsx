@@ -109,7 +109,7 @@ export default function HelpUsGrowModal({
           href={getTweet(referralLink)}
           rel="noopener"
           target="_blank"
-          icon={<TwitterIcon />}
+          icon={<TwitterIcon secondary />}
         >
           Twitter
         </Button>

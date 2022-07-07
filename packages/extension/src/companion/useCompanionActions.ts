@@ -12,9 +12,9 @@ import {
 import { ADD_FILTERS_TO_FEED_MUTATION } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { UPDATE_ALERTS } from '@dailydotdev/shared/src/graphql/alerts';
 import { UPDATE_USER_SETTINGS_MUTATION } from '@dailydotdev/shared/src/graphql/settings';
+import { MutateFunc } from '@dailydotdev/shared/src/lib/query';
 import { companionRequest } from './companionRequest';
 
-type MutateFunc<T> = (variables: T) => Promise<(() => void) | undefined>;
 type UseCompanionActionsParams<T> = {
   onBookmarkMutate: MutateFunc<T>;
   onRemoveBookmarkMutate: MutateFunc<T>;

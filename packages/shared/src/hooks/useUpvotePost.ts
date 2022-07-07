@@ -2,8 +2,8 @@ import { useMutation } from 'react-query';
 import request from 'graphql-request';
 import { apiUrl } from '../lib/config';
 import { CANCEL_UPVOTE_MUTATION, UPVOTE_MUTATION } from '../graphql/posts';
+import { MutateFunc } from '../lib/query';
 
-type MutateFunc<T> = (variables: T) => Promise<(() => void) | undefined>;
 type UseUpvotePostParams<T> = {
   onUpvotePostMutate: MutateFunc<T>;
   onCancelPostUpvoteMutate: MutateFunc<T>;

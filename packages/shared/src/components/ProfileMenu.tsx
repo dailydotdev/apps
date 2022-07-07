@@ -44,13 +44,14 @@ export default function ProfileMenu(): ReactElement {
         <Item>
           <Link href={user.permalink} passHref prefetch={false}>
             <a className="flex items-center w-full">
-              <UserIcon size="medium" filled={false} className="mr-2" /> Profile
+              <UserIcon size="medium" secondary={false} className="mr-2" />{' '}
+              Profile
             </a>
           </Link>
         </Item>
         <Item onClick={() => setShowAccountDetails(true)}>
-          <SettingsIcon size="medium" filled={false} className="mr-2" /> Account
-          details
+          <SettingsIcon size="medium" secondary={false} className="mr-2" />{' '}
+          Account details
         </Item>
         <Item>
           <Link

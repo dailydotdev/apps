@@ -11,6 +11,7 @@ export interface FeaturesData {
   postEngagementNonClickable?: boolean;
   postModalByDefault?: boolean;
   postCardVersion?: string;
+  additionalInteractionButtonFeature?: string;
 }
 
 const FeaturesContext = React.createContext<FeaturesData>({ flags: {} });
@@ -34,6 +35,10 @@ export const FeaturesContextProvider = ({
       ),
       postModalByDefault: isFeaturedEnabled(Features.PostModalByDefault, flags),
       postCardVersion: getFeatureValue(Features.PostCardVersion, flags),
+      additionalInteractionButtonFeature: getFeatureValue(
+        Features.AdditionalInteractionButton,
+        flags,
+      ),
     }),
     [flags],
   );

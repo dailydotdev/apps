@@ -16,19 +16,22 @@ import useTagAndSource from '../hooks/useTagAndSource';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { postAnalyticsEvent } from '../lib/feed';
 import { MenuIcon } from './MenuIcon';
-import { useShareOrCopyLink } from '../hooks/useShareOrCopyLink';
 import {
   ToastSubject,
   useToastNotification,
 } from '../hooks/useToastNotification';
 import { generateQueryKey } from '../lib/query';
 import AuthContext from '../contexts/AuthContext';
+import { OnShareOrBookmarkProps } from './post/PostActions';
+import BookmarkIcon from './icons/Bookmark';
+import { AdditionalInteractionButtons } from '../lib/featureValues';
+import { Origin } from '../lib/analytics';
 
 const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
   ssr: false,
 });
 
-export type PostOptionsMenuProps = {
+interface PostOptionsMenuProps extends OnShareOrBookmarkProps {
   postIndex?: number;
   post: Post;
   feedName?: string;
@@ -36,7 +39,7 @@ export type PostOptionsMenuProps = {
   onRemovePost?: (postIndex: number) => Promise<unknown>;
   setShowDeletePost?: () => unknown;
   setShowBanPost?: () => unknown;
-};
+}
 
 type ReportPostAsync = (
   postIndex: number,
@@ -47,6 +50,9 @@ type ReportPostAsync = (
 ) => Promise<unknown>;
 
 export default function PostOptionsMenu({
+  additionalInteractionButtonFeature,
+  onShare,
+  onBookmark,
   postIndex,
   post,
   feedName,
@@ -68,7 +74,7 @@ export default function PostOptionsMenu({
     onBlockTags,
     onUnblockTags,
   } = useTagAndSource({
-    origin: 'post context menu',
+    origin: Origin.PostContextMenu,
     postId: post?.id,
   });
   const [reportModal, setReportModal] = useState<{
@@ -108,7 +114,7 @@ export default function PostOptionsMenu({
 
     trackEvent(
       postAnalyticsEvent('report post', reportedPost, {
-        extra: { origin: 'post context menu' },
+        extra: { origin: Origin.PostContextMenu },
       }),
     );
 
@@ -162,7 +168,7 @@ export default function PostOptionsMenu({
 
     trackEvent(
       postAnalyticsEvent('hide post', post, {
-        extra: { origin: 'post context menu' },
+        extra: { origin: Origin.PostContextMenu },
       }),
     );
 
@@ -172,16 +178,6 @@ export default function PostOptionsMenu({
       () => unhidePost(post.id),
     );
   };
-
-  const shareLink = post?.commentsPermalink;
-  const [, onShareOrCopyLink] = useShareOrCopyLink({
-    link: shareLink,
-    text: post?.title,
-    trackObject: () =>
-      postAnalyticsEvent('share post', post, {
-        extra: { origin: 'post context menu' },
-      }),
-  });
 
   const postOptions: {
     icon: ReactElement;
@@ -194,19 +190,28 @@ export default function PostOptionsMenu({
       action: onHidePost,
     },
     {
-      icon: <MenuIcon Icon={ForwardIcon} />,
-      text: 'Share article',
-      action: () =>
-        onShareOrCopyLink({
-          subject: postIndex ? ToastSubject.Feed : ToastSubject.PostContent,
-        }),
-    },
-    {
       icon: <MenuIcon Icon={BlockIcon} />,
       text: `Don't show articles from ${post?.source?.name}`,
       action: onBlockSource,
     },
   ];
+
+  if (
+    additionalInteractionButtonFeature === AdditionalInteractionButtons.Bookmark
+  ) {
+    postOptions.splice(1, 0, {
+      icon: <MenuIcon Icon={ForwardIcon} />,
+      text: 'Share article via...',
+      action: onShare,
+    });
+  } else {
+    postOptions.splice(1, 0, {
+      icon: <MenuIcon secondary={post?.bookmarked} Icon={BookmarkIcon} />,
+      text: `${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`,
+      action: onBookmark,
+    });
+  }
+
   post?.tags?.forEach((tag) => {
     if (tag.length) {
       postOptions.push({

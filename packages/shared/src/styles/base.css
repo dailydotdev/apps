@@ -131,6 +131,7 @@ body {
   --theme-color-onion: theme('colors.onion.40');
   --theme-color-water: theme('colors.water.40');
   --theme-color-salt: theme('colors.salt.40');
+  --theme-color-email: theme('colors.pepper.10');
 }
 
 @define-mixin light-mode {
@@ -232,6 +233,7 @@ body {
   --theme-color-onion: theme('colors.onion.60');
   --theme-color-water: theme('colors.water.60');
   --theme-color-salt: theme('colors.pepper.40');
+  --theme-color-email: theme('colors.pepper.10');
 }
 
 @media (prefers-color-scheme: light) {
