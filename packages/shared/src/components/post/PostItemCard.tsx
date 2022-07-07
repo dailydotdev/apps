@@ -59,7 +59,7 @@ export default function PostItemCard({
         <Image
           src={post.image}
           alt={post.title}
-          className="w-16 laptop:w-24 h-16 rounded-16"
+          className="object-cover w-16 laptop:w-24 h-16 rounded-16"
           loading="lazy"
           fallbackSrc="https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1"
         />
