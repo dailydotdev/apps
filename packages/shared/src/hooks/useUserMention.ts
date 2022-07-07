@@ -6,6 +6,8 @@ import {
   useEffect,
   MutableRefObject,
   useCallback,
+  useRef,
+  useMemo,
 } from 'react';
 import {
   RecommendedMentionsData,
@@ -25,6 +27,7 @@ import {
   getCaretOffset,
   CaretOffset,
   anyElementClassContains,
+  getSelectionStart,
 } from '../lib/element';
 import { nextTick } from '../lib/func';
 import { useRequestProtocol } from './useRequestProtocol';
@@ -38,12 +41,12 @@ interface UseUserMention {
   onInputClick?: () => unknown;
   onMentionClick?: (username: string) => unknown;
   onInitializeMention: () => unknown;
+  commentRef?: MutableRefObject<HTMLTextAreaElement>;
 }
 
 interface UseUserMentionProps {
   postId: string;
   onInput: (content: string) => unknown;
-  commentRef?: MutableRefObject<HTMLDivElement>;
 }
 
 const UPDOWN_ARROW_KEYS = ['ArrowUp', 'ArrowDown'];
@@ -51,10 +54,10 @@ const LEFTRIGHT_ARROW_KEYS = ['ArrowLeft', 'ArrowRight'];
 
 export function useUserMention({
   postId,
-  commentRef,
   onInput,
 }: UseUserMentionProps): UseUserMention {
   const key = ['user-mention', postId];
+  const commentRef = useRef<HTMLTextAreaElement>(null);
   const { user } = useContext(AuthContext);
   const client = useQueryClient();
   const [selected, setSelected] = useState(0);
@@ -115,9 +118,12 @@ export function useUserMention({
     const mention = `@${query}`;
     const replacement = `@${username}`;
     replaceWord(element, position, mention, replacement);
+    const start = getSelectionStart(element.value, position);
+    element.focus();
+    element.selectionEnd = start + replacement.length;
     setQuery(undefined);
     client.setQueryData(key, []);
-    onInput(element.innerText);
+    onInput(element.value);
   };
 
   const onArrowKey = (arrowKey: string) => {
@@ -128,12 +134,12 @@ export function useUserMention({
     }
   };
 
-  const onBackspace = (el: HTMLDivElement) => {
+  const onBackspace = (el: HTMLTextAreaElement) => {
     const backspaced = getWord(el, position);
     const value =
       (query === '' && backspaced === '') ||
       query === backspaced ||
-      el.textContent.length === 0
+      el.value.length === 0
         ? undefined
         : backspaced;
     setQuery(value);
@@ -203,12 +209,15 @@ export function useUserMention({
       return;
     }
 
-    const [col, row] = getCaretPostition(commentRef.current);
-    replaceWord(commentRef.current, [col + 1, row], '', '@', true);
+    const textarea = commentRef.current;
+    const start = textarea.selectionStart;
+    const left = textarea.value.substring(0, start);
+    const right = textarea.value.substring(start);
+    textarea.value = `${left} @ ${right}`;
+    textarea.focus();
+    textarea.selectionEnd = start + 2;
 
-    commentRef.current.dispatchEvent(
-      new KeyboardEvent('keydown', { key: '@' }),
-    );
+    textarea.dispatchEvent(new KeyboardEvent('keydown', { key: '@' }));
   };
 
   const userClicked = useCallback(
@@ -243,14 +252,18 @@ export function useUserMention({
     setSelected(0);
   }, [query]);
 
-  return {
-    offset,
-    selected,
-    mentions,
-    mentionQuery: query,
-    onInputClick,
-    onMentionClick: onMention,
-    onMentionKeypress: onKeypress,
-    onInitializeMention: onInitializeMentionButtonClick,
-  };
+  return useMemo(
+    () => ({
+      commentRef,
+      offset,
+      selected,
+      mentions,
+      mentionQuery: query,
+      onInputClick,
+      onMentionClick: onMention,
+      onMentionKeypress: onKeypress,
+      onInitializeMention: onInitializeMentionButtonClick,
+    }),
+    [commentRef, offset, selected, mentions, query],
+  );
 }

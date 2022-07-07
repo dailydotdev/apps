@@ -3,10 +3,10 @@ import React, {
   useContext,
   useEffect,
   ClipboardEvent,
-  useRef,
   KeyboardEventHandler,
   MouseEvent,
   KeyboardEvent,
+  useState,
 } from 'react';
 import classNames from 'classnames';
 import AuthContext from '../../contexts/AuthContext';
@@ -37,8 +37,8 @@ export interface CommentBoxProps {
   sendComment: (event: MouseEvent | KeyboardEvent) => Promise<void>;
   onInput?: (value: string) => unknown;
   onKeyDown: (
-    e: KeyboardEvent<HTMLDivElement>,
-    defaultCallback?: KeyboardEventHandler<HTMLDivElement>,
+    e: KeyboardEvent<HTMLTextAreaElement>,
+    defaultCallback?: KeyboardEventHandler<HTMLTextAreaElement>,
   ) => unknown;
   post: Post;
 }
@@ -59,10 +59,8 @@ function CommentBox({
   parentSelector,
   post,
 }: CommentBoxProps): ReactElement {
-  const onTextareaInput = (content: string) =>
-    onInput(cleanupEmptySpaces(content));
+  const [height, setHeight] = useState('auto');
   const { user } = useContext(AuthContext);
-  const commentRef = useRef<HTMLDivElement>(null);
   const {
     onMentionClick,
     onMentionKeypress,
@@ -70,18 +68,24 @@ function CommentBox({
     mentions,
     mentionQuery,
     selected,
+    commentRef,
     onInitializeMention,
     onInputClick,
   } = useUserMention({
     postId: post.id,
-    commentRef,
-    onInput: onTextareaInput,
+    onInput,
   });
 
   useEffect(() => {
     commentRef.current?.focus();
-    if (commentRef.current && editContent) {
-      commentRef.current.innerText = editContent;
+    if (commentRef.current) {
+      if (editContent) {
+        commentRef.current.value = editContent;
+      }
+      commentRef.current.setAttribute(
+        'data-min-height',
+        commentRef.current.offsetHeight.toString(),
+      );
     }
   }, []);
 
@@ -95,10 +99,19 @@ function CommentBox({
     }
   };
 
-  const handleKeydown = (e: KeyboardEvent<HTMLDivElement>) => {
+  const handleKeydown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     const defaultCallback = () => onMentionKeypress(e);
     onKeyDown(e, defaultCallback);
     e.stopPropagation();
+  };
+
+  const onTextareaInput = (e: React.FormEvent<HTMLTextAreaElement>) => {
+    const minHeight = parseInt(
+      e.currentTarget.getAttribute('data-min-height'),
+      10,
+    );
+    setHeight(`${Math.max(e.currentTarget.scrollHeight, minHeight)}px`);
+    onInput(cleanupEmptySpaces(e.currentTarget.value));
   };
 
   return (
@@ -140,22 +153,21 @@ function CommentBox({
         </div>
         <div className="flex relative flex-1 pl-2">
           <ProfilePicture user={user} size="small" nativeLazyLoading />
-          <div
+          <textarea
             className={classNames(
-              'ml-3 pr-2 flex-1 text-theme-label-primary bg-transparent whitespace-pre-line border-none caret-theme-label-link break-words typo-subhead resize-none',
+              'ml-3 flex-1 text-theme-label-primary bg-transparent border-none caret-theme-label-link break-words typo-subhead resize-none',
               styles.textarea,
             )}
             ref={commentRef}
-            contentEditable
-            role="textbox"
-            aria-multiline
-            aria-placeholder="Write your comment..."
-            onInput={(e) => onTextareaInput(e.currentTarget.innerText)}
+            placeholder="Write your comment..."
+            onInput={onTextareaInput}
             onKeyDown={handleKeydown}
             onClick={onInputClick}
             onPaste={onPaste}
             tabIndex={0}
             aria-label="New comment box"
+            aria-multiline
+            style={{ height }}
           />
         </div>
         <RecommendedMentionTooltip
