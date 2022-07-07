@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React, { CSSProperties, ReactElement } from 'react';
-import { Button, IconType } from '../buttons/Button';
+import { Button, ButtonSize, IconType } from '../buttons/Button';
 
 interface ProviderButtonProps {
   icon: IconType;
@@ -9,6 +9,7 @@ interface ProviderButtonProps {
   onClick?: () => unknown;
   className?: string;
   style?: CSSProperties;
+  buttonSize?: ButtonSize;
 }
 
 function ProviderButton({

@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import React, {
   MutableRefObject,
   ReactElement,
@@ -28,6 +29,7 @@ interface RegistrationFormProps {
   formRef?: MutableRefObject<HTMLFormElement>;
   onClose?: CloseModalFunc;
   onBack?: CloseModalFunc;
+  isV2?: boolean;
 }
 
 export interface RegistrationFormValues {
@@ -44,6 +46,7 @@ export const RegistrationForm = ({
   formRef,
   onClose,
   onBack,
+  isV2,
 }: RegistrationFormProps): ReactElement => {
   const [isNameValid, setIsNameValid] = useState<boolean>();
   const [isPasswordValid, setIsPasswordValid] = useState<boolean>();
@@ -55,6 +58,7 @@ export const RegistrationForm = ({
       return;
     }
 
+    setIsPasswordValid(true);
     const data = formInputs(formRef.current);
     Object.keys(data).forEach((key) => {
       if (!socialAccount?.[key]) {
@@ -85,7 +89,10 @@ export const RegistrationForm = ({
         onClose={onClose}
       />
       <AuthForm
-        className="gap-4 self-center place-items-center mt-6 w-full px-[3.75rem]"
+        className={classNames(
+          'gap-4 self-center place-items-center mt-6 w-full',
+          isV2 ? 'max-w-[20rem]' : 'px-[3.75rem]',
+        )}
         ref={formRef}
         onSubmit={onSubmit}
       >
@@ -148,7 +155,7 @@ export const RegistrationForm = ({
             {isPasswordValid && !isUsernameValid && (
               <Button className="btn-tertiary">Skip</Button>
             )}
-            <Button className="btn-primary">Signup</Button>
+            <Button className="bg-theme-color-cabbage">Signup</Button>
           </div>
         )}
       </AuthForm>
