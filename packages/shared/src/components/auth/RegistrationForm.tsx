@@ -115,7 +115,7 @@ export const RegistrationForm = ({
           minLength={3}
           required
         />
-        {!socialAccount && isNameValid !== undefined && (
+        {!socialAccount && (
           <TextField
             className="w-full"
             validityChanged={setIsPasswordValid}
@@ -128,24 +128,21 @@ export const RegistrationForm = ({
             rightIcon={
               isPasswordValid && <VIcon className="text-theme-color-avocado" />
             }
-            required
           />
         )}
-        {(isPasswordValid !== undefined ||
-          (isNameValid !== undefined && socialAccount)) && (
-          <TextField
-            className="w-full"
-            validityChanged={setIsUsernameValid}
-            valid={isUsernameValid}
-            leftIcon={<UserIcon />}
-            name="username"
-            inputId="username"
-            label="Enter a username"
-            rightIcon={
-              isUsernameValid && <VIcon className="text-theme-color-avocado" />
-            }
-          />
-        )}
+        <TextField
+          className="w-full"
+          validityChanged={setIsUsernameValid}
+          valid={isUsernameValid}
+          leftIcon={<UserIcon />}
+          name="username"
+          inputId="username"
+          label="Enter a username"
+          minLength={1}
+          rightIcon={
+            isUsernameValid && <VIcon className="text-theme-color-avocado" />
+          }
+        />
         {isNameValid && isPasswordValid && (
           <div className="flex flex-row gap-4 mt-6 ml-auto">
             {isPasswordValid && !isUsernameValid && (
