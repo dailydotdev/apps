@@ -24,7 +24,7 @@ module.exports = {
           reddit: '#FF4500',
           linkedin: '#0077B5',
           telegram: '#24A2E0',
-          email: 'var(--theme-rank-1-color-bottom)',
+          email: 'var(--theme-color-email)',
           primary: 'var(--theme-background-primary)',
           secondary: 'var(--theme-background-secondary)',
           tertiary: 'var(--theme-background-tertiary)',
