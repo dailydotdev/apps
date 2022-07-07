@@ -3,7 +3,7 @@ import Icon, { IconProps } from '../../Icon';
 import WhiteIcon from './white.svg';
 
 const AppleIcon = (props: IconProps): ReactElement => (
-  <Icon {...props} IconOutlined={WhiteIcon} IconFilled={WhiteIcon} />
+  <Icon {...props} IconPrimary={WhiteIcon} IconSecondary={WhiteIcon} />
 );
 
 export default AppleIcon;

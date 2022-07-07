@@ -12,6 +12,7 @@ import { BaseField, FieldInput } from './common';
 import styles from './TextField.module.css';
 import { ButtonProps } from '../buttons/Button';
 import useDebounce from '../../hooks/useDebounce';
+import { IconProps } from '../Icon';
 
 type FieldType = 'primary' | 'secondary' | 'tertiary';
 
@@ -26,7 +27,7 @@ export interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   fieldType?: FieldType;
   leftIcon?: ReactNode;
   actionButton?: React.ReactElement<ButtonProps<'button'>>;
-  rightIcon?: ReactNode;
+  rightIcon?: React.ReactElement<IconProps>;
 }
 
 interface InputFontColorProps {
@@ -202,7 +203,7 @@ export function TextField({
                 disabled,
                 hasInput,
                 focused,
-                actionIcon,
+                actionIcon: rightIcon,
               }),
             )}
           >
@@ -240,7 +241,7 @@ export function TextField({
                 disabled,
                 hasInput,
                 focused,
-                actionIcon,
+                actionIcon: rightIcon,
               }),
             )}
             disabled={disabled}
