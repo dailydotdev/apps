@@ -153,7 +153,7 @@ export const PostCard = forwardRef(function PostCard(
             alt="Post Cover image"
             src={post.image}
             fallbackSrc="https://res.cloudinary.com/daily-now/image/upload/f_auto/v1/placeholders/1"
-            className={isV1 ? 'my-2' : 'mt-2'}
+            className={classNames('object-cover', isV1 ? 'my-2' : 'mt-2')}
             loading="lazy"
           />
         )}
