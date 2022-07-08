@@ -5,6 +5,7 @@ import React, {
   ClipboardEvent,
   MouseEvent,
   KeyboardEvent,
+  useRef,
 } from 'react';
 import classNames from 'classnames';
 import AuthContext from '../../contexts/AuthContext';
@@ -53,6 +54,7 @@ function CommentBox({
   parentSelector,
   post,
 }: CommentBoxProps): ReactElement {
+  const eventRef = useRef<KeyboardEvent>();
   const { user } = useContext(AuthContext);
   const {
     onMentionClick,
@@ -93,6 +95,7 @@ function CommentBox({
   };
 
   const handleKeydown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    eventRef.current = e;
     if ((e.ctrlKey || e.metaKey) && e.keyCode === 13 && input?.length) {
       return sendComment(e);
     }
@@ -113,6 +116,7 @@ function CommentBox({
       minHeight,
     )}px`;
     onInput(cleanupEmptySpaces(e.currentTarget.value));
+    onMentionKeypress(eventRef.current);
   };
 
   return (
@@ -165,7 +169,6 @@ function CommentBox({
             onKeyDown={handleKeydown}
             onKeyUp={!isTouchDevice() && onMentionKeypress}
             onClick={onInputClick}
-            onTouchEnd={isTouchDevice() && onMentionKeypress}
             onPaste={onPaste}
             tabIndex={0}
             aria-label="New comment box"
