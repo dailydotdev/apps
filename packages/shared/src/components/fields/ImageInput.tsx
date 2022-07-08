@@ -70,7 +70,7 @@ function ImageInput({
       <EditIcon
         className="hidden mouse:group-hover:block absolute"
         size="large"
-        filled
+        secondary
       />
       <span
         className={classNames('typo-footnote', error ? 'visible' : 'invisible')}
