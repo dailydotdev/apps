@@ -5,7 +5,8 @@ import {
   KeyboardEvent as ReactKeyboardEvent,
   useEffect,
   MutableRefObject,
-  useCallback,
+  useRef,
+  useMemo,
 } from 'react';
 import {
   RecommendedMentionsData,
@@ -24,7 +25,8 @@ import {
   replaceWord,
   getCaretOffset,
   CaretOffset,
-  anyElementClassContains,
+  parentClassContains,
+  getSelectionStart,
 } from '../lib/element';
 import { nextTick } from '../lib/func';
 import { useRequestProtocol } from './useRequestProtocol';
@@ -38,23 +40,31 @@ interface UseUserMention {
   onInputClick?: () => unknown;
   onMentionClick?: (username: string) => unknown;
   onInitializeMention: () => unknown;
+  commentRef?: MutableRefObject<HTMLTextAreaElement>;
 }
 
 interface UseUserMentionProps {
   postId: string;
   onInput: (content: string) => unknown;
-  commentRef?: MutableRefObject<HTMLDivElement>;
 }
 
-const UPDOWN_ARROW_KEYS = ['ArrowUp', 'ArrowDown'];
+export const UPDOWN_ARROW_KEYS = ['ArrowUp', 'ArrowDown'];
 const LEFTRIGHT_ARROW_KEYS = ['ArrowLeft', 'ArrowRight'];
+
+/* eslint-disable no-param-reassign */
+export const fixHeight = (el: HTMLElement): void => {
+  const attr = el.getAttribute('data-min-height');
+  const minHeight = parseInt(attr, 10);
+  el.style.height = 'auto';
+  el.style.height = `${Math.max(el.scrollHeight, minHeight)}px`;
+};
 
 export function useUserMention({
   postId,
-  commentRef,
   onInput,
 }: UseUserMentionProps): UseUserMention {
   const key = ['user-mention', postId];
+  const commentRef = useRef<HTMLTextAreaElement>(null);
   const { user } = useContext(AuthContext);
   const client = useQueryClient();
   const [selected, setSelected] = useState(0);
@@ -115,9 +125,13 @@ export function useUserMention({
     const mention = `@${query}`;
     const replacement = `@${username}`;
     replaceWord(element, position, mention, replacement);
+    const start = getSelectionStart(element.value, position);
+    element.focus();
+    element.selectionEnd = start + replacement.length;
     setQuery(undefined);
     client.setQueryData(key, []);
-    onInput(element.innerText);
+    onInput(element.value);
+    fixHeight(element);
   };
 
   const onArrowKey = (arrowKey: string) => {
@@ -128,12 +142,12 @@ export function useUserMention({
     }
   };
 
-  const onBackspace = (el: HTMLDivElement) => {
+  const onBackspace = (el: HTMLTextAreaElement) => {
     const backspaced = getWord(el, position);
     const value =
       (query === '' && backspaced === '') ||
       query === backspaced ||
-      el.textContent.length === 0
+      el.value.length === 0
         ? undefined
         : backspaced;
     setQuery(value);
@@ -203,16 +217,19 @@ export function useUserMention({
       return;
     }
 
-    const [col, row] = getCaretPostition(commentRef.current);
-    replaceWord(commentRef.current, [col + 1, row], '', '@', true);
+    const textarea = commentRef.current;
+    const start = textarea.selectionStart;
+    const left = textarea.value.substring(0, start);
+    const right = textarea.value.substring(start);
+    textarea.value = `${left} @ ${right}`;
+    textarea.focus();
+    textarea.selectionEnd = start + 2;
 
-    commentRef.current.dispatchEvent(
-      new KeyboardEvent('keydown', { key: '@' }),
-    );
+    textarea.dispatchEvent(new KeyboardEvent('keydown', { key: '@' }));
   };
 
-  const userClicked = useCallback(
-    (event: MouseEvent & { path: HTMLElement[] }) => {
+  useEffect(() => {
+    const userClicked = (event: MouseEvent) => {
       event.stopPropagation();
       if (typeof query === 'undefined') {
         return;
@@ -220,37 +237,38 @@ export function useUserMention({
 
       const el = event.target as HTMLElement;
       const isTextarea = el.tagName.toLocaleLowerCase() === 'textarea';
-      const isTooltip = anyElementClassContains(event.path, 'tippy-content');
-
+      const isTooltip = parentClassContains(el, 'tippy-content');
       if (isTextarea || isTooltip) {
         return;
       }
 
       setQuery(undefined);
-    },
-    [query],
-  );
+    };
 
-  useEffect(() => {
-    document.addEventListener('mousedown', userClicked);
+    const dom = commentRef.current?.getRootNode();
+    dom.addEventListener('mousedown', userClicked);
 
     return () => {
-      document.removeEventListener('mousedown', userClicked);
+      dom.removeEventListener('mousedown', userClicked);
     };
-  }, [userClicked]);
+  }, [query]);
 
   useEffect(() => {
     setSelected(0);
   }, [query]);
 
-  return {
-    offset,
-    selected,
-    mentions,
-    mentionQuery: query,
-    onInputClick,
-    onMentionClick: onMention,
-    onMentionKeypress: onKeypress,
-    onInitializeMention: onInitializeMentionButtonClick,
-  };
+  return useMemo(
+    () => ({
+      commentRef,
+      offset,
+      selected,
+      mentions,
+      mentionQuery: query,
+      onInputClick,
+      onMentionClick: onMention,
+      onMentionKeypress: onKeypress,
+      onInitializeMention: onInitializeMentionButtonClick,
+    }),
+    [commentRef, offset, selected, mentions, query],
+  );
 }
