@@ -20,6 +20,7 @@ import { useUserMention } from '../../hooks/useUserMention';
 import { Post } from '../../graphql/posts';
 import AtIcon from '../icons/At';
 import { cleanupEmptySpaces } from '../../lib/strings';
+import { isTouchDevice } from '../../lib/tooltip';
 
 export interface CommentBoxProps {
   authorName: string;
@@ -162,9 +163,9 @@ function CommentBox({
             placeholder="Write your comment..."
             onInput={onTextareaInput}
             onKeyDown={handleKeydown}
-            onKeyUp={onMentionKeypress}
+            onKeyUp={!isTouchDevice() && onMentionKeypress}
             onClick={onInputClick}
-            onTouchEnd={onMentionKeypress}
+            onTouchEnd={isTouchDevice() && onMentionKeypress}
             onPaste={onPaste}
             tabIndex={0}
             aria-label="New comment box"
