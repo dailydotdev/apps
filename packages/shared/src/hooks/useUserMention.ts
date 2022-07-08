@@ -33,7 +33,7 @@ import { useRequestProtocol } from './useRequestProtocol';
 
 interface UseUserMention {
   mentionQuery?: string;
-  onMentionKeypress: (event: ReactKeyboardEvent) => unknown;
+  onMentionKeypress: (event: ReactKeyboardEvent | React.TouchEvent) => unknown;
   selected: number;
   mentions: UserShortProfile[];
   offset: CaretOffset;

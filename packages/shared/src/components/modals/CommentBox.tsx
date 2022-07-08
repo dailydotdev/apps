@@ -164,6 +164,7 @@ function CommentBox({
             onKeyDown={handleKeydown}
             onKeyUp={onMentionKeypress}
             onClick={onInputClick}
+            onTouchEnd={onMentionKeypress}
             onPaste={onPaste}
             tabIndex={0}
             aria-label="New comment box"
