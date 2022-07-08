@@ -16,7 +16,11 @@ import { ProfilePicture } from '../ProfilePicture';
 import { ClickableText } from '../buttons/ClickableText';
 import Markdown from '../Markdown';
 import { RecommendedMentionTooltip } from '../tooltips/RecommendedMentionTooltip';
-import { useUserMention } from '../../hooks/useUserMention';
+import {
+  fixHeight,
+  UPDOWN_ARROW_KEYS,
+  useUserMention,
+} from '../../hooks/useUserMention';
 import { Post } from '../../graphql/posts';
 import AtIcon from '../icons/At';
 import { cleanupEmptySpaces } from '../../lib/strings';
@@ -96,7 +100,10 @@ function CommentBox({
       return sendComment(e);
     }
 
-    if (e.key === 'Enter' && mentions?.length) {
+    if (
+      (e.key === 'Enter' || UPDOWN_ARROW_KEYS.indexOf(e.key) !== -1) &&
+      mentions?.length
+    ) {
       return e.preventDefault();
     }
 
@@ -104,13 +111,7 @@ function CommentBox({
   };
 
   const onTextareaInput = (e: React.FormEvent<HTMLTextAreaElement>) => {
-    const attr = e.currentTarget.getAttribute('data-min-height');
-    const minHeight = parseInt(attr, 10);
-    commentRef.current.style.height = 'auto';
-    commentRef.current.style.height = `${Math.max(
-      e.currentTarget.scrollHeight,
-      minHeight,
-    )}px`;
+    fixHeight(e.currentTarget);
     onInput(cleanupEmptySpaces(e.currentTarget.value));
   };
 

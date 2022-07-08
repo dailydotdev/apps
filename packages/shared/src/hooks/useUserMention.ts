@@ -48,8 +48,16 @@ interface UseUserMentionProps {
   onInput: (content: string) => unknown;
 }
 
-const UPDOWN_ARROW_KEYS = ['ArrowUp', 'ArrowDown'];
+export const UPDOWN_ARROW_KEYS = ['ArrowUp', 'ArrowDown'];
 const LEFTRIGHT_ARROW_KEYS = ['ArrowLeft', 'ArrowRight'];
+
+/* eslint-disable no-param-reassign */
+export const fixHeight = (el: HTMLElement): void => {
+  const attr = el.getAttribute('data-min-height');
+  const minHeight = parseInt(attr, 10);
+  el.style.height = 'auto';
+  el.style.height = `${Math.max(el.scrollHeight, minHeight)}px`;
+};
 
 export function useUserMention({
   postId,
@@ -123,6 +131,7 @@ export function useUserMention({
     setQuery(undefined);
     client.setQueryData(key, []);
     onInput(element.value);
+    fixHeight(element);
   };
 
   const onArrowKey = (arrowKey: string) => {
