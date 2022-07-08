@@ -24,11 +24,6 @@ export const formInputs = (
       return acc;
     }
 
-    return el.name === ''
-      ? acc
-      : {
-          ...acc,
-          [el.name]: el,
-        };
+    return { ...acc, [el.name]: el };
   }, {});
 };
