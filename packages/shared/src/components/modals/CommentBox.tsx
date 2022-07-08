@@ -92,7 +92,7 @@ function CommentBox({
   };
 
   const handleKeydown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if ((e.ctrlKey || e.metaKey) && e.keyCode === 13 && input?.length) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && input?.length) {
       return sendComment(e);
     }
 
