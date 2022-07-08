@@ -3,7 +3,6 @@ import React, {
   useContext,
   useEffect,
   ClipboardEvent,
-  KeyboardEventHandler,
   MouseEvent,
   KeyboardEvent,
 } from 'react';
@@ -35,10 +34,6 @@ export interface CommentBoxProps {
   parentSelector?: () => HTMLElement;
   sendComment: (event: MouseEvent | KeyboardEvent) => Promise<void>;
   onInput?: (value: string) => unknown;
-  onKeyDown: (
-    e: KeyboardEvent<HTMLTextAreaElement>,
-    defaultCallback?: KeyboardEventHandler<HTMLTextAreaElement>,
-  ) => unknown;
   post: Post;
 }
 
@@ -53,7 +48,6 @@ function CommentBox({
   errorMessage,
   sendingComment,
   onInput,
-  onKeyDown,
   sendComment,
   parentSelector,
   post,
@@ -98,8 +92,15 @@ function CommentBox({
   };
 
   const handleKeydown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    onKeyDown(e);
-    e.stopPropagation();
+    if ((e.ctrlKey || e.metaKey) && e.keyCode === 13 && input?.length) {
+      return sendComment(e);
+    }
+
+    if (e.key === 'Enter' && mentions?.length) {
+      return e.preventDefault();
+    }
+
+    return e.stopPropagation();
   };
 
   const onTextareaInput = (e: React.FormEvent<HTMLTextAreaElement>) => {
