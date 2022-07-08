@@ -5,7 +5,6 @@ import React, {
   ClipboardEvent,
   MouseEvent,
   KeyboardEvent,
-  useRef,
 } from 'react';
 import classNames from 'classnames';
 import AuthContext from '../../contexts/AuthContext';
@@ -21,7 +20,6 @@ import { useUserMention } from '../../hooks/useUserMention';
 import { Post } from '../../graphql/posts';
 import AtIcon from '../icons/At';
 import { cleanupEmptySpaces } from '../../lib/strings';
-import { isTouchDevice } from '../../lib/tooltip';
 
 export interface CommentBoxProps {
   authorName: string;
@@ -54,7 +52,6 @@ function CommentBox({
   parentSelector,
   post,
 }: CommentBoxProps): ReactElement {
-  const eventRef = useRef<KeyboardEvent>();
   const { user } = useContext(AuthContext);
   const {
     onMentionClick,
@@ -95,7 +92,6 @@ function CommentBox({
   };
 
   const handleKeydown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    eventRef.current = e;
     if ((e.ctrlKey || e.metaKey) && e.keyCode === 13 && input?.length) {
       return sendComment(e);
     }
@@ -116,7 +112,6 @@ function CommentBox({
       minHeight,
     )}px`;
     onInput(cleanupEmptySpaces(e.currentTarget.value));
-    onMentionKeypress(eventRef.current);
   };
 
   return (
@@ -167,7 +162,7 @@ function CommentBox({
             placeholder="Write your comment..."
             onInput={onTextareaInput}
             onKeyDown={handleKeydown}
-            onKeyUp={!isTouchDevice() && onMentionKeypress}
+            onKeyUp={onMentionKeypress}
             onClick={onInputClick}
             onPaste={onPaste}
             tabIndex={0}
