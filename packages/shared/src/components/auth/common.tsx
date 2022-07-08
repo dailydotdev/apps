@@ -29,7 +29,7 @@ export const providerMap: Record<string, Provider> = {
     style: { backgroundColor: '#4363B6' },
   },
   google: {
-    icon: <GoogleIcon filled />,
+    icon: <GoogleIcon secondary />,
     provider: 'Google',
     style: { backgroundColor: '#FFFFFF', color: '#0E1217' },
   },
