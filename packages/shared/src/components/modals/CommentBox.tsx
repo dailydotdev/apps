@@ -98,8 +98,7 @@ function CommentBox({
   };
 
   const handleKeydown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    const defaultCallback = () => onMentionKeypress(e);
-    onKeyDown(e, defaultCallback);
+    onKeyDown(e);
     e.stopPropagation();
   };
 
@@ -162,6 +161,7 @@ function CommentBox({
             placeholder="Write your comment..."
             onInput={onTextareaInput}
             onKeyDown={handleKeydown}
+            onKeyUp={onMentionKeypress}
             onClick={onInputClick}
             onPaste={onPaste}
             tabIndex={0}

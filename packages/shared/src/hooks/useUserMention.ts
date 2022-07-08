@@ -5,7 +5,6 @@ import {
   KeyboardEvent as ReactKeyboardEvent,
   useEffect,
   MutableRefObject,
-  useCallback,
   useRef,
   useMemo,
 } from 'react';
@@ -26,7 +25,7 @@ import {
   replaceWord,
   getCaretOffset,
   CaretOffset,
-  anyElementClassContains,
+  parentClassContains,
   getSelectionStart,
 } from '../lib/element';
 import { nextTick } from '../lib/func';
@@ -220,8 +219,8 @@ export function useUserMention({
     textarea.dispatchEvent(new KeyboardEvent('keydown', { key: '@' }));
   };
 
-  const userClicked = useCallback(
-    (event: MouseEvent & { path: HTMLElement[] }) => {
+  useEffect(() => {
+    const userClicked = (event: MouseEvent) => {
       event.stopPropagation();
       if (typeof query === 'undefined') {
         return;
@@ -229,24 +228,21 @@ export function useUserMention({
 
       const el = event.target as HTMLElement;
       const isTextarea = el.tagName.toLocaleLowerCase() === 'textarea';
-      const isTooltip = anyElementClassContains(event.path, 'tippy-content');
-
+      const isTooltip = parentClassContains(el, 'tippy-content');
       if (isTextarea || isTooltip) {
         return;
       }
 
       setQuery(undefined);
-    },
-    [query],
-  );
+    };
 
-  useEffect(() => {
-    document.addEventListener('mousedown', userClicked);
+    const dom = commentRef.current?.getRootNode();
+    dom.addEventListener('mousedown', userClicked);
 
     return () => {
-      document.removeEventListener('mousedown', userClicked);
+      dom.removeEventListener('mousedown', userClicked);
     };
-  }, [userClicked]);
+  }, [query]);
 
   useEffect(() => {
     setSelected(0);

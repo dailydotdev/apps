@@ -1,5 +1,4 @@
 import classNames from 'classnames';
-import { isTesting } from './constants';
 
 type Column = number;
 type Row = number;
@@ -7,11 +6,13 @@ type Row = number;
 export type CaretOffset = [number, number];
 export type CaretPosition = [Column, Row];
 
-const isFirefox = process.env.TARGET_BROWSER === 'firefox';
-
 export function getCaretPostition(
   textarea: HTMLTextAreaElement,
 ): CaretPosition {
+  if (textarea.selectionStart !== textarea.selectionEnd) {
+    return [0, 0];
+  }
+
   const start = textarea.selectionStart;
   const lines = textarea.value.substring(0, start).split('\n');
   const row = lines.length;
@@ -46,18 +47,6 @@ const getEndIndex = (value: string, start: number) => {
   return end === -1 ? undefined : end;
 };
 
-const getNodeText = (node: Node) => {
-  if (isTesting) {
-    const el = node as HTMLElement;
-
-    return el.innerText.substring(1);
-  }
-
-  const string = node?.nodeValue || node?.firstChild?.nodeValue || '';
-
-  return string.replaceAll('\xa0', ' ');
-};
-
 export function getWord(
   textarea: HTMLTextAreaElement,
   [col, row]: CaretPosition,
@@ -67,21 +56,6 @@ export function getWord(
 
   return line.substring(col, end);
 }
-
-export const getSplittedText = (
-  textarea: HTMLTextAreaElement,
-  [col, row]: CaretPosition,
-  query: string,
-): [Node, string, string] => {
-  const isCompanion = textarea.getRootNode() instanceof ShadowRoot;
-  const offset = isCompanion && isFirefox ? 0 : 1; // the reason for this offset is due to firefox bug of delayed dispatching of events
-  const node = Array.from(textarea.childNodes).find((_, i) => i === row);
-  const text = getNodeText(node);
-  const left = text?.substring(0, col - 1) || '';
-  const right = text?.substring(col + query.length - offset) || '';
-
-  return [node, left, right];
-};
 
 export function replaceWord(
   textarea: HTMLTextAreaElement,
@@ -123,10 +97,6 @@ export function hasSpaceBeforeWord(
   textarea: HTMLTextAreaElement,
   [col, row]: CaretPosition,
 ): [boolean, string, number] {
-  if (col === 0) {
-    return [false, '', -1];
-  }
-
   let position = 0;
   const line = textarea.value.split('\n')[row - 1];
   const query = line.split(' ').find((word, index) => {
@@ -143,14 +113,19 @@ export function hasSpaceBeforeWord(
   ];
 }
 
-export const anyElementClassContains = (
-  elements: HTMLElement[],
+export const parentClassContains = (
+  el: HTMLElement,
   token: string,
-): boolean =>
-  Array.from(elements).some((element) => {
-    if (!element?.classList) {
-      return false;
-    }
+): boolean => {
+  if (!el.parentElement) {
+    return false;
+  }
 
-    return element.classList.contains(token);
-  });
+  const parent = el.parentElement;
+
+  if (parent.classList.contains(token)) {
+    return true;
+  }
+
+  return parentClassContains(parent, token);
+};
