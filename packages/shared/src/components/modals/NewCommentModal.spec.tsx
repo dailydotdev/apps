@@ -300,7 +300,7 @@ it('should recommend users previously mentioned', async () => {
   ]);
   const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
   input.value = '@';
-  Simulate.keyDown(input, { key: '@' });
+  Simulate.keyUp(input, { key: '@' });
   await waitForNock();
   expect(queryPreviouslyMentioned).toBeTruthy();
 });
@@ -342,10 +342,10 @@ it('should recommend users based on query', async () => {
   ]);
   const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
   input.value = '@';
-  Simulate.keyDown(input, { key: '@' });
+  Simulate.keyUp(input, { key: '@' });
   await new Promise((resolve) => setTimeout(resolve, 500));
   input.value = '@l';
-  Simulate.keyDown(input, { key: 'l' });
+  Simulate.keyUp(input, { key: 'l' });
   await waitForNock();
   expect(queryMatchingNameOrUsername).toBeTruthy();
 });
