@@ -22,6 +22,7 @@ module.exports = withTM(
           defaultLocale: "en",
         },
         webpack5: true,
+        reactRemoveProperties: { properties: ['^data-testid$'] },
         webpack: (config, { dev, isServer }) => {
           config.module.rules.push({
             test: /\.svg$/i,
@@ -50,7 +51,6 @@ module.exports = withTM(
               fullySpecified: false,
             },
           });
-
           config.resolve.alias = {
             ...config.resolve.alias,
             // Required to remove duplicate dependencies from the build
