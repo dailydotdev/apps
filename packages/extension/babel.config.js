@@ -22,7 +22,6 @@ module.exports = {
     '@babel/react',
   ],
   plugins: [
-    'macros',
     [
       // Polyfills the runtime needed for async/await and generators
       '@babel/plugin-transform-runtime',
