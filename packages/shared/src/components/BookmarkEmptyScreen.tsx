@@ -1,16 +1,12 @@
 import React, { ReactElement } from 'react';
 import Link from 'next/link';
 import BookmarkIcon from './icons/Bookmark';
-import { headerHeight } from '../styles/sizes';
 import { Button } from './buttons/Button';
 import { EmptyScreenIcon } from './EmptyScreen';
 
 export default function BookmarkEmptyScreen(): ReactElement {
   return (
-    <main
-      className="flex inset-0 flex-col justify-center items-center px-6 mx-auto max-w-full withNavBar text-theme-label-secondary"
-      style={{ marginTop: headerHeight }}
-    >
+    <main className="flex inset-0 flex-col justify-center items-center px-6 mx-auto mt-12 max-w-full withNavBar text-theme-label-secondary">
       <BookmarkIcon
         className="m-0 icon text-theme-label-tertiary"
         style={EmptyScreenIcon.style}

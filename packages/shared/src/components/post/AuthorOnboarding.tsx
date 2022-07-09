@@ -1,7 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
 import { ownershipGuide } from '../../lib/constants';
-import sizeN from '../../../macros/sizeN.macro';
 import { Button } from '../buttons/Button';
 import FeatherIcon from '../icons/Feather';
 import styles from './AuthorOnboarding.module.css';
@@ -39,10 +38,9 @@ export function AuthorOnboarding({
         <li>Gain reputation points by earning upvotes on articles you wrote</li>
       </ol>
       <div
-        className="grid grid-flow-col gap-x-4 mt-6"
+        className="grid grid-flow-col gap-x-4 mt-6 max-w-[4.625rem]"
         data-testid="authorOnboarding"
         style={{
-          maxWidth: sizeN(74),
           gridTemplateColumns: '1fr max-content',
         }}
       >
