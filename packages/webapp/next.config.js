@@ -21,8 +21,10 @@ module.exports = withTM(
           locales: ["en"],
           defaultLocale: "en",
         },
+        compiler: {
+          reactRemoveProperties: { properties: ['^data-testid$'] },
+        },
         webpack5: true,
-        reactRemoveProperties: { properties: ['^data-testid$'] },
         webpack: (config, { dev, isServer }) => {
           config.module.rules.push({
             test: /\.svg$/i,
