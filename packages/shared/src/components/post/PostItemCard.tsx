@@ -84,6 +84,7 @@ export default function PostItemCard({
         </h3>
         {showButtons && onHide && (
           <Button
+            buttonSize="small"
             className="hidden laptop:flex btn-tertiary"
             icon={<XIcon />}
             onClick={onHideClick}

@@ -111,8 +111,8 @@ it('should disable submit button when no input', async () => {
 
 it('should enable submit button when no input', async () => {
   renderComponent();
-  const input = await screen.findByRole('textbox');
-  input.innerText = 'My new comment';
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  input.value = 'My new comment';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const el = await screen.findByText('Comment');
   expect(el.getAttribute('disabled')).toBeFalsy();
@@ -143,8 +143,8 @@ it('should send commentOnPost mutation', async () => {
       },
     },
   ]);
-  const input = await screen.findByRole('textbox');
-  input.innerText = 'comment';
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  input.value = 'comment';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const el = await screen.findByText('Comment');
   el.click();
@@ -177,8 +177,8 @@ it('should send commentOnComment mutation', async () => {
       },
     },
   ]);
-  const input = await screen.findByRole('textbox');
-  input.innerText = 'comment';
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  input.value = 'comment';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const el = await screen.findByText('Comment');
   el.click();
@@ -211,8 +211,8 @@ it('should not send comment if the input is spaces only', async () => {
       },
     },
   ]);
-  const input = await screen.findByRole('textbox');
-  input.innerText = '   ';
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  input.value = '   ';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const el = await screen.findByText('Comment');
   el.click();
@@ -234,8 +234,8 @@ it('should show alert in case of an error', async () => {
       },
     },
   ]);
-  const input = await screen.findByRole('textbox');
-  input.innerText = 'comment';
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  input.value = 'comment';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const el = await screen.findByText('Comment');
   el.click();
@@ -269,8 +269,8 @@ it('should send editComment mutation', async () => {
       },
     },
   ]);
-  const input = await screen.findByRole('textbox');
-  input.innerText = comment.content;
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  input.value = comment.content;
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const el = await screen.findByText('Update');
   el.click();
@@ -298,9 +298,9 @@ it('should recommend users previously mentioned', async () => {
       },
     },
   ]);
-  const input = await screen.findByRole('textbox');
-  input.innerText = '@';
-  Simulate.keyDown(input, { key: '@' });
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  input.value = '@';
+  Simulate.keyUp(input, { key: '@' });
   await waitForNock();
   expect(queryPreviouslyMentioned).toBeTruthy();
 });
@@ -340,12 +340,12 @@ it('should recommend users based on query', async () => {
       },
     },
   ]);
-  const input = await screen.findByRole('textbox');
-  input.innerText = '@';
-  Simulate.keyDown(input, { key: '@' });
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  input.value = '@';
+  Simulate.keyUp(input, { key: '@' });
   await new Promise((resolve) => setTimeout(resolve, 500));
-  input.innerText = '@l';
-  Simulate.keyDown(input, { key: 'l' });
+  input.value = '@l';
+  Simulate.keyUp(input, { key: 'l' });
   await waitForNock();
   expect(queryMatchingNameOrUsername).toBeTruthy();
 });
@@ -388,8 +388,8 @@ it('should send previewComment query', async () => {
     },
   });
   renderComponent();
-  const input = await screen.findByRole('textbox');
-  input.innerText = '# Test';
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  input.value = '# Test';
   input.dispatchEvent(new Event('input', { bubbles: true }));
   const preview = await screen.findByText('Preview');
   preview.click();

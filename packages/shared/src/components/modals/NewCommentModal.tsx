@@ -1,11 +1,4 @@
-import React, {
-  ReactElement,
-  useState,
-  MouseEvent,
-  KeyboardEvent,
-  KeyboardEventHandler,
-  useEffect,
-} from 'react';
+import React, { ReactElement, useState, MouseEvent, useEffect } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import {
   Comment,
@@ -151,22 +144,6 @@ export default function NewCommentModal({
     }
   };
 
-  const onKeyDown = async (
-    event: KeyboardEvent<HTMLDivElement>,
-    defaultCallback?: KeyboardEventHandler<HTMLDivElement>,
-  ): Promise<void> => {
-    // Ctrl / Command + Enter
-    if (
-      (event.ctrlKey || event.metaKey) &&
-      event.keyCode === 13 &&
-      input?.length
-    ) {
-      await sendComment();
-    } else {
-      defaultCallback?.(event);
-    }
-  };
-
   useEffect(() => {
     onInputChange?.(input);
   }, [input]);
@@ -194,7 +171,6 @@ export default function NewCommentModal({
             errorMessage={errorMessage}
             sendingComment={sendingComment}
             sendComment={sendComment}
-            onKeyDown={onKeyDown}
           />
         </Tab>
         <Tab

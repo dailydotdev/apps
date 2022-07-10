@@ -17,11 +17,20 @@ const Pill = classed(
 );
 const FeedFiltersIntroModalTagsContainer = classed('div', 'w-[160%]');
 
-type TagPillProps = HTMLAttributes<HTMLSpanElement>;
-const TagPill = ({ className, children }: TagPillProps): ReactElement => {
+type TagPillProps = { autoWidth: boolean } & HTMLAttributes<HTMLSpanElement>;
+const TagPill = ({
+  className,
+  children,
+  autoWidth,
+}: TagPillProps): ReactElement => {
+  if (autoWidth) {
+    return <Pill className={className}>{children}</Pill>;
+  }
+
   const [pillWidth] = useState(
     () => emptyWidths[Math.floor(Math.random() * emptyWidths.length)],
   );
+
   return <Pill className={classNames(className, pillWidth)}>{children}</Pill>;
 };
 
@@ -39,6 +48,7 @@ export const MyFeedIntro = (): ReactElement => {
           <ul className="flex gap-3 mb-3" key={i}>
             {row.map((tag, j) => (
               <TagPill
+                autoWidth={!!tag.length}
                 className={classNames(
                   (j === 0 || j === row.length - 1) && 'flex-1',
                   !tag.length
