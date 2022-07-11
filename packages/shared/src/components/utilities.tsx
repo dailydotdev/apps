@@ -94,7 +94,7 @@ export const LegalNotice = classed(
 );
 
 export const pageBorders =
-  'laptop:border-r laptop:border-l laptop:border-theme-divider-tertiary';
+  'laptop:border-r laptop:border-l border-theme-divider-tertiary';
 const pagePaddings = 'px-4 tablet:px-8';
 
 export const PageContainer = classed(
@@ -118,7 +118,8 @@ export const NewCommentContainer = classed(
 
 export const ResponsivePageContainer = classed(
   PageContainer,
-  'py-6 laptop:border-theme-divider-tertiary laptop:border-l laptop:border-r laptop:min-h-screen',
+  pageBorders,
+  'py-6 laptop:min-h-screen',
 );
 
 export const FeedPage = classed(
