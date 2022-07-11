@@ -46,7 +46,8 @@ export function CompanionDiscussion({
       )}
     >
       <NewComment
-        className="laptop:px-6 laptop:pb-2"
+        responsive={false}
+        className="px-6 pt-0 pb-2"
         user={user}
         onNewComment={() => openNewComment('start discussion button')}
       />
