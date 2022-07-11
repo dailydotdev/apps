@@ -1,4 +1,7 @@
 import { utcToZonedTime } from 'date-fns-tz';
+import { SVGAttributes } from 'react';
+import DaytimeIcon from '../../icons/timezone_daytime.svg';
+import NighttimeIcon from '../../icons/timezone_nighttime.svg';
 
 const TIME_ZONES = [
   {
@@ -565,4 +568,13 @@ export const getHourTimezone = (timeZone: string): number => {
     }),
     10,
   );
+};
+
+export const getTimeZoneIcon = (
+  timezone: string,
+): React.ComponentType<SVGAttributes<SVGElement>> => {
+  const hour = getHourTimezone(timezone);
+  const Background = hour >= 6 && hour < 18 ? DaytimeIcon : NighttimeIcon;
+
+  return Background;
 };
