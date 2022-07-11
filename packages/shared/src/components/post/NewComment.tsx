@@ -6,18 +6,26 @@ import { LoggedUser } from '../../lib/user';
 import styles from './NewComment.module.css';
 
 interface NewCommentProps {
+  responsive?: boolean;
   user?: LoggedUser;
   className?: string;
   onNewComment: () => unknown;
 }
 
 export function NewComment({
+  responsive = true,
   user,
   className,
   onNewComment,
 }: NewCommentProps): ReactElement {
   return (
-    <NewCommentContainer className={className}>
+    <NewCommentContainer
+      className={classNames(
+        className,
+        responsive &&
+          'fixed right-0 py-3 px-4 bottom-0 left-0 z-2 laptop:relative laptop:p-0 laptop:bg-none',
+      )}
+    >
       <button
         type="button"
         className={classNames(
