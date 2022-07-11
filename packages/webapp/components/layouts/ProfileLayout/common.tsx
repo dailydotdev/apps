@@ -1,3 +1,4 @@
+import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import LockIcon from '@dailydotdev/shared/src/components/icons/Lock';
 import SettingsIcon from '@dailydotdev/shared/src/components/icons/Settings';
 import { ProfilePicture } from '@dailydotdev/shared/src/components/ProfilePicture';
@@ -58,6 +59,9 @@ export const ContentText = classed(
   'p',
   'typo-callout text-theme-label-tertiary',
 );
+export const AccountContentHeading = classed(ContentHeading, 'mt-10');
+export const CommonTextField = classed(TextField, 'max-w-sm');
+export const AccountTextField = classed(CommonTextField, 'mt-6');
 
 interface AccountPageContainerProps {
   title: string;

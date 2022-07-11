@@ -1,11 +1,9 @@
-import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import AtIcon from '@dailydotdev/shared/src/components/icons/At';
 import GitHubIcon from '@dailydotdev/shared/src/components/icons/GitHub';
 import HashnodeIcon from '@dailydotdev/shared/src/components/icons/Hashnode';
 import LinkIcon from '@dailydotdev/shared/src/components/icons/Link';
 import TwitterIcon from '@dailydotdev/shared/src/components/icons/Twitter';
 import UserIcon from '@dailydotdev/shared/src/components/icons/User';
-import classed from '@dailydotdev/shared/src/lib/classed';
 import React, { ReactElement } from 'react';
 import {
   getStaticPaths as getProfileStaticPaths,
@@ -13,17 +11,16 @@ import {
 } from '../../components/layouts/ProfileLayout';
 import { getAccountDetailsLayout } from '../../components/layouts/ProfileLayout/AccountDetailsLayout';
 import {
+  AccountContentHeading,
   AccountPageContainer,
+  AccountTextField,
+  CommonTextField,
   ContentHeading,
   ContentText,
 } from '../../components/layouts/ProfileLayout/common';
 
 export const getStaticProps = getProfileStaticProps;
 export const getStaticPaths = getProfileStaticPaths;
-
-const BaseTextField = classed(TextField, 'max-w-sm');
-const CommonTextField = classed(BaseTextField, 'mt-6');
-const CommonContentHeading = classed(ContentHeading, 'mt-10');
 
 const AccountProfilePage = (): ReactElement => {
   return (
@@ -34,42 +31,42 @@ const AccountProfilePage = (): ReactElement => {
         your comments and contributions easily!
       </ContentText>
       {/* ImageInput component from auth ui PR */}
-      <CommonContentHeading>Account information</CommonContentHeading>
-      <BaseTextField
+      <AccountContentHeading>Account information</AccountContentHeading>
+      <CommonTextField
         label="Full Name"
         inputId="fullname"
         leftIcon={<UserIcon />}
       />
-      <CommonTextField
+      <AccountTextField
         label="Username"
         inputId="username"
         leftIcon={<AtIcon />}
       />
-      <CommonContentHeading>About</CommonContentHeading>
-      <CommonTextField aria-multiline label="Bio" inputId="bio" />
-      <CommonTextField label="Company" inputId="company" />
-      <CommonTextField label="Job Title" inputId="job" />
-      <CommonContentHeading>Profile Social Links</CommonContentHeading>
+      <AccountContentHeading>About</AccountContentHeading>
+      <AccountTextField aria-multiline label="Bio" inputId="bio" />
+      <AccountTextField label="Company" inputId="company" />
+      <AccountTextField label="Job Title" inputId="job" />
+      <AccountContentHeading>Profile Social Links</AccountContentHeading>
       <ContentText>
         Add your social media profiles so others can connect with you and you
         can grow your network!
       </ContentText>
-      <CommonTextField
+      <AccountTextField
         leftIcon={<TwitterIcon />}
         label="Twitter"
         inputId="twitter"
       />
-      <CommonTextField
+      <AccountTextField
         leftIcon={<GitHubIcon />}
         label="GitHub"
         inputId="github"
       />
-      <CommonTextField
+      <AccountTextField
         leftIcon={<HashnodeIcon />}
         label="Hashnode"
         inputId="hashnode"
       />
-      <CommonTextField
+      <AccountTextField
         leftIcon={<LinkIcon />}
         label="Your Website"
         inputId="website"
