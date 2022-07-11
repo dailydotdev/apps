@@ -57,7 +57,7 @@ export const AccountPageHeading = classed(
 export const ContentHeading = classed('h2', 'font-bold typo-headline');
 export const ContentText = classed(
   'p',
-  'typo-callout text-theme-label-tertiary',
+  'mt-1 typo-callout text-theme-label-tertiary',
 );
 export const AccountContentHeading = classed(ContentHeading, 'mt-10');
 export const CommonTextField = classed(TextField, 'max-w-sm');

@@ -4,14 +4,24 @@ import {
   getStaticProps as getProfileStaticProps,
 } from '../../components/layouts/ProfileLayout';
 import { getAccountDetailsLayout } from '../../components/layouts/ProfileLayout/AccountDetailsLayout';
-import { AccountPageContainer } from '../../components/layouts/ProfileLayout/common';
+import {
+  AccountPageContainer,
+  ContentHeading,
+  ContentText,
+} from '../../components/layouts/ProfileLayout/common';
 
 export const getStaticProps = getProfileStaticProps;
 export const getStaticPaths = getProfileStaticPaths;
 
 const AccountOthersPage = (): ReactElement => {
   return (
-    <AccountPageContainer title="Other Settings">Sample</AccountPageContainer>
+    <AccountPageContainer title="Other Settings">
+      <ContentHeading>Timezone</ContentHeading>
+      <ContentText className="mt-1">
+        Used to calculate your weekly goal cycle and other time-based
+        activities.
+      </ContentText>
+    </AccountPageContainer>
   );
 };
 

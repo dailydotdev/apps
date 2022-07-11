@@ -39,7 +39,7 @@ const AccountSecurityPage = (): ReactElement => {
   return (
     <AccountPageContainer title="Security">
       <ContentHeading>Account email</ContentHeading>
-      <ContentText className="mt-1">
+      <ContentText>
         The email address associated with your daily.dev account
       </ContentText>
       <AccountTextField

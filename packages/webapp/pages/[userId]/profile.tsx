@@ -26,7 +26,7 @@ const AccountProfilePage = (): ReactElement => {
   return (
     <AccountPageContainer title="Profile">
       <ContentHeading>Profile Picture</ContentHeading>
-      <ContentText className="mt-1">
+      <ContentText>
         Upload a picture to make your profile stand out and let people recognise
         your comments and contributions easily!
       </ContentText>
