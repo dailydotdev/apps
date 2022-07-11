@@ -8,10 +8,10 @@ import UserIcon from '@dailydotdev/shared/src/components/icons/User';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import React, { ReactElement } from 'react';
 import {
-  getLayout as getProfileLayout,
   getStaticPaths as getProfileStaticPaths,
   getStaticProps as getProfileStaticProps,
 } from '../../components/layouts/ProfileLayout';
+import { getAccountDetailsLayout } from '../../components/layouts/ProfileLayout/AccountDetailsLayout';
 import {
   AccountPageContainer,
   ContentHeading,
@@ -78,6 +78,6 @@ const AccountProfilePage = (): ReactElement => {
   );
 };
 
-AccountProfilePage.getLayout = getProfileLayout;
+AccountProfilePage.getLayout = getAccountDetailsLayout;
 
 export default AccountProfilePage;
