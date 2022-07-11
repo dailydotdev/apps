@@ -31,7 +31,11 @@ export interface AuthContextData {
 const AuthContext = React.createContext<AuthContextData>(null);
 export default AuthContext;
 
-const getQueryParams = () => {
+export const getQueryParams = (): Record<string, string> => {
+  if (typeof window === 'undefined') {
+    return {};
+  }
+
   const urlSearchParams = new URLSearchParams(window.location.search);
   const params = Object.fromEntries(urlSearchParams.entries());
 
@@ -40,15 +44,24 @@ const getQueryParams = () => {
 
 export const REGISTRATION_PATH = '/register';
 
+const appendLogoutParam = (link: string): URL => {
+  const url = new URL(link);
+  url.searchParams.append('logged_out', 'true');
+
+  return url;
+};
+
 const logout = async (): Promise<void> => {
   await dispatchLogout();
   const params = getQueryParams();
   if (params.redirect_uri) {
-    window.location.replace(params.redirect_uri);
+    window.location.replace(appendLogoutParam(params.redirect_uri));
   } else if (window.location.pathname === REGISTRATION_PATH) {
-    window.location.replace(process.env.NEXT_PUBLIC_WEBAPP_URL);
+    window.location.replace(
+      appendLogoutParam(process.env.NEXT_PUBLIC_WEBAPP_URL),
+    );
   } else {
-    window.location.reload();
+    window.location.replace(appendLogoutParam(window.location.href));
   }
 };
 

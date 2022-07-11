@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="412px" height="300px" viewBox="0 0 412 300" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>moon</title>
+    <defs>
+        <rect id="path-1" x="0" y="0" width="412" height="300"></rect>
+        <filter x="-61.8%" y="-61.8%" width="223.7%" height="223.7%" filterUnits="objectBoundingBox" id="filter-3">
+            <feOffset dx="0" dy="0" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="30" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0.610153273   0 0 0 0 0.772953174   0 0 0 0 1  0 0 0 1 0" type="matrix" in="shadowBlurOuter1" result="shadowMatrixOuter1"></feColorMatrix>
+            <feMerge>
+                <feMergeNode in="shadowMatrixOuter1"></feMergeNode>
+                <feMergeNode in="SourceGraphic"></feMergeNode>
+            </feMerge>
+        </filter>
+        <radialGradient cx="120.027282%" cy="110.866195%" fx="120.027282%" fy="110.866195%" r="100%" id="radialGradient-4">
+            <stop stop-color="#4F40FF" stop-opacity="0.453071221" offset="0%"></stop>
+            <stop stop-color="#3B29FF" stop-opacity="0" offset="100%"></stop>
+        </radialGradient>
+        <circle id="path-5" cx="93" cy="93" r="93"></circle>
+        <linearGradient x1="100%" y1="91.4750296%" x2="0%" y2="26.0991258%" id="linearGradient-6">
+            <stop stop-color="#FFFFFF" offset="0%"></stop>
+            <stop stop-color="#FFFFFF" stop-opacity="0" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="100%" y1="100%" x2="0%" y2="21.186429%" id="linearGradient-7">
+            <stop stop-color="#FFFFFF" offset="0%"></stop>
+            <stop stop-color="#FFFFFF" stop-opacity="0" offset="100%"></stop>
+        </linearGradient>
+        <filter x="-11.1%" y="-11.4%" width="122.4%" height="122.7%" filterUnits="objectBoundingBox" id="filter-8">
+            <feGaussianBlur stdDeviation="2 0" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <filter x="-11.1%" y="-11.4%" width="122.4%" height="122.7%" filterUnits="objectBoundingBox" id="filter-9">
+            <feGaussianBlur stdDeviation="2 0" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <filter x="-11.1%" y="-11.4%" width="122.4%" height="122.7%" filterUnits="objectBoundingBox" id="filter-10">
+            <feGaussianBlur stdDeviation="2 0" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+    </defs>
+    <g id="Improve-Authentication" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="8---Register/Time-Zone-(night)" transform="translate(-734.000000, -409.000000)">
+            <g id="Modal---Medium" transform="translate(734.000000, 157.000000)">
+                <g id="moon" transform="translate(0.000000, 252.000000)">
+                    <mask id="mask-2" fill="white">
+                        <use xlink:href="#path-1"></use>
+                    </mask>
+                    <g id="Rectangle"></g>
+                    <g id="Group-4" mask="url(#mask-2)">
+                        <g transform="translate(22.000000, -30.000000)">
+                            <g id="Group-2" transform="translate(195.379890, 34.865883)">
+                                <ellipse id="Oval" fill="#FCFCFF" cx="1.40697674" cy="9.8597561" rx="1.40697674" ry="1.40853659"></ellipse>
+                                <ellipse id="Oval" fill="#FCFCFF" cx="76.4457364" cy="20.1890244" rx="1.40697674" ry="1.40853659"></ellipse>
+                                <ellipse id="Oval" fill="#FCFCFF" cx="76.4457364" cy="56.8109756" rx="1.40697674" ry="1.40853659"></ellipse>
+                                <ellipse id="Oval" fill="#FCFCFF" opacity="0.699999988" cx="119.593023" cy="75.5914634" rx="1.40697674" ry="1.40853659"></ellipse>
+                                <ellipse id="Oval" fill="#FCFCFF" opacity="0.699999988" cx="119.593023" cy="29.5792683" rx="1.40697674" ry="1.40853659"></ellipse>
+                                <ellipse id="Oval" fill="#FCFCFF" opacity="0.300000012" cx="27.6705426" cy="26.7621951" rx="1.40697674" ry="1.40853659"></ellipse>
+                                <ellipse id="Oval" fill="#FCFCFF" opacity="0.300000012" cx="51.120155" cy="1.40853659" rx="1.40697674" ry="1.40853659"></ellipse>
+                                <ellipse id="Oval" fill="#FCFCFF" opacity="0.300000012" cx="103.647287" cy="50.2378049" rx="1.40697674" ry="1.40853659"></ellipse>
+                            </g>
+                            <g id="Group-2" transform="translate(109.879890, 276.365883) rotate(-180.000000) translate(-109.879890, -276.365883) translate(49.379890, 237.865883)">
+                                <ellipse id="Oval" fill="#FCFCFF" cx="1.40697674" cy="9.8597561" rx="1.40697674" ry="1.40853659"></ellipse>
+                                <ellipse id="Oval" fill="#FCFCFF" cx="76.4457364" cy="20.1890244" rx="1.40697674" ry="1.40853659"></ellipse>
+                                <ellipse id="Oval" fill="#FCFCFF" cx="76.4457364" cy="56.8109756" rx="1.40697674" ry="1.40853659"></ellipse>
+                                <ellipse id="Oval" fill="#FCFCFF" opacity="0.699999988" cx="119.593023" cy="75.5914634" rx="1.40697674" ry="1.40853659"></ellipse>
+                                <ellipse id="Oval" fill="#FCFCFF" opacity="0.699999988" cx="119.593023" cy="29.5792683" rx="1.40697674" ry="1.40853659"></ellipse>
+                                <ellipse id="Oval" fill="#FCFCFF" opacity="0.300000012" cx="27.6705426" cy="26.7621951" rx="1.40697674" ry="1.40853659"></ellipse>
+                                <ellipse id="Oval" fill="#FCFCFF" opacity="0.300000012" cx="51.120155" cy="1.40853659" rx="1.40697674" ry="1.40853659"></ellipse>
+                                <ellipse id="Oval" fill="#FCFCFF" opacity="0.300000012" cx="103.647287" cy="50.2378049" rx="1.40697674" ry="1.40853659"></ellipse>
+                            </g>
+                            <g id="Group-2" transform="translate(90.879890, 110.365883) rotate(-90.000000) translate(-90.879890, -110.365883) translate(30.379890, 71.865883)">
+                                <ellipse id="Oval" fill="#FCFCFF" cx="1.40697674" cy="9.8597561" rx="1.40697674" ry="1.40853659"></ellipse>
+                                <ellipse id="Oval" fill="#FCFCFF" cx="76.4457364" cy="20.1890244" rx="1.40697674" ry="1.40853659"></ellipse>
+                                <ellipse id="Oval" fill="#FCFCFF" cx="76.4457364" cy="56.8109756" rx="1.40697674" ry="1.40853659"></ellipse>
+                                <ellipse id="Oval" fill="#FCFCFF" opacity="0.699999988" cx="119.593023" cy="75.5914634" rx="1.40697674" ry="1.40853659"></ellipse>
+                                <ellipse id="Oval" fill="#FCFCFF" opacity="0.699999988" cx="119.593023" cy="29.5792683" rx="1.40697674" ry="1.40853659"></ellipse>
+                                <ellipse id="Oval" fill="#FCFCFF" opacity="0.300000012" cx="27.6705426" cy="26.7621951" rx="1.40697674" ry="1.40853659"></ellipse>
+                                <ellipse id="Oval" fill="#FCFCFF" opacity="0.300000012" cx="51.120155" cy="1.40853659" rx="1.40697674" ry="1.40853659"></ellipse>
+                                <ellipse id="Oval" fill="#FCFCFF" opacity="0.300000012" cx="103.647287" cy="50.2378049" rx="1.40697674" ry="1.40853659"></ellipse>
+                            </g>
+                            <g id="Group-2" transform="translate(293.879890, 251.365883) rotate(-270.000000) translate(-293.879890, -251.365883) translate(233.379890, 212.865883)">
+                                <ellipse id="Oval" fill="#FCFCFF" cx="1.40697674" cy="9.8597561" rx="1.40697674" ry="1.40853659"></ellipse>
+                                <ellipse id="Oval" fill="#FCFCFF" cx="76.4457364" cy="20.1890244" rx="1.40697674" ry="1.40853659"></ellipse>
+                                <ellipse id="Oval" fill="#FCFCFF" cx="76.4457364" cy="56.8109756" rx="1.40697674" ry="1.40853659"></ellipse>
+                                <ellipse id="Oval" fill="#FCFCFF" opacity="0.699999988" cx="119.593023" cy="75.5914634" rx="1.40697674" ry="1.40853659"></ellipse>
+                                <ellipse id="Oval" fill="#FCFCFF" opacity="0.699999988" cx="119.593023" cy="29.5792683" rx="1.40697674" ry="1.40853659"></ellipse>
+                                <ellipse id="Oval" fill="#FCFCFF" opacity="0.300000012" cx="27.6705426" cy="26.7621951" rx="1.40697674" ry="1.40853659"></ellipse>
+                                <ellipse id="Oval" fill="#FCFCFF" opacity="0.300000012" cx="51.120155" cy="1.40853659" rx="1.40697674" ry="1.40853659"></ellipse>
+                                <ellipse id="Oval" fill="#FCFCFF" opacity="0.300000012" cx="103.647287" cy="50.2378049" rx="1.40697674" ry="1.40853659"></ellipse>
+                            </g>
+                            <g id="Group-2" opacity="0.336225237" transform="translate(296.212601, 116.440060) rotate(28.000000) translate(-296.212601, -116.440060) translate(235.597503, 77.909532)">
+                                <circle id="Oval" fill="#FCFCFF" cx="1.40965345" cy="9.86757416" r="1.40965345"></circle>
+                                <circle id="Oval" fill="#FCFCFF" cx="76.5911709" cy="20.2050328" r="1.40965345"></circle>
+                                <circle id="Oval" fill="#FCFCFF" cx="76.5911709" cy="56.8560225" r="1.40965345"></circle>
+                                <circle id="Oval" fill="#FCFCFF" opacity="0.699999988" cx="119.820543" cy="75.6514019" r="1.40965345"></circle>
+                                <circle id="Oval" fill="#FCFCFF" opacity="0.699999988" cx="119.820543" cy="29.6027225" r="1.40965345"></circle>
+                                <circle id="Oval" fill="#FCFCFF" opacity="0.300000012" cx="27.7231845" cy="26.7834156" r="1.40965345"></circle>
+                                <circle id="Oval" fill="#FCFCFF" opacity="0.300000012" cx="51.2174087" cy="1.40965345" r="1.40965345"></circle>
+                                <circle id="Oval" fill="#FCFCFF" opacity="0.300000012" cx="103.844471" cy="50.2776398" r="1.40965345"></circle>
+                            </g>
+                            <g id="Group-2" opacity="0.336225237" transform="translate(71.608942, 226.933814) rotate(-152.000000) translate(-71.608942, -226.933814) translate(10.993844, 188.403286)">
+                                <circle id="Oval" fill="#FCFCFF" cx="1.40965345" cy="9.86757416" r="1.40965345"></circle>
+                                <circle id="Oval" fill="#FCFCFF" cx="76.5911709" cy="20.2050328" r="1.40965345"></circle>
+                                <circle id="Oval" fill="#FCFCFF" cx="76.5911709" cy="56.8560225" r="1.40965345"></circle>
+                                <circle id="Oval" fill="#FCFCFF" opacity="0.699999988" cx="119.820543" cy="75.6514019" r="1.40965345"></circle>
+                                <circle id="Oval" fill="#FCFCFF" opacity="0.699999988" cx="119.820543" cy="29.6027225" r="1.40965345"></circle>
+                                <circle id="Oval" fill="#FCFCFF" opacity="0.300000012" cx="27.7231845" cy="26.7834156" r="1.40965345"></circle>
+                                <circle id="Oval" fill="#FCFCFF" opacity="0.300000012" cx="51.2174087" cy="1.40965345" r="1.40965345"></circle>
+                                <circle id="Oval" fill="#FCFCFF" opacity="0.300000012" cx="103.844471" cy="50.2776398" r="1.40965345"></circle>
+                            </g>
+                            <g id="Group-2" opacity="0.336225237" transform="translate(132.981845, 71.608942) rotate(-62.000000) translate(-132.981845, -71.608942) translate(72.366747, 33.078415)">
+                                <circle id="Oval" fill="#FCFCFF" cx="1.40965345" cy="9.86757416" r="1.40965345"></circle>
+                                <circle id="Oval" fill="#FCFCFF" cx="76.5911709" cy="20.2050328" r="1.40965345"></circle>
+                                <circle id="Oval" fill="#FCFCFF" cx="76.5911709" cy="56.8560225" r="1.40965345"></circle>
+                                <circle id="Oval" fill="#FCFCFF" opacity="0.699999988" cx="119.820543" cy="75.6514019" r="1.40965345"></circle>
+                                <circle id="Oval" fill="#FCFCFF" opacity="0.300000012" cx="27.7231845" cy="26.7834156" r="1.40965345"></circle>
+                                <circle id="Oval" fill="#FCFCFF" opacity="0.300000012" cx="51.2174087" cy="1.40965345" r="1.40965345"></circle>
+                                <circle id="Oval" fill="#FCFCFF" opacity="0.300000012" cx="103.844471" cy="50.2776398" r="1.40965345"></circle>
+                            </g>
+                            <g id="Group-2" opacity="0.336225237" transform="translate(245.890658, 290.391058) rotate(-242.000000) translate(-245.890658, -290.391058) translate(185.275560, 251.860530)">
+                                <circle id="Oval" fill="#FCFCFF" cx="1.40965345" cy="9.86757416" r="1.40965345"></circle>
+                                <circle id="Oval" fill="#FCFCFF" cx="76.5911709" cy="20.2050328" r="1.40965345"></circle>
+                                <circle id="Oval" fill="#FCFCFF" cx="76.5911709" cy="56.8560225" r="1.40965345"></circle>
+                                <circle id="Oval" fill="#FCFCFF" opacity="0.699999988" cx="119.820543" cy="75.6514019" r="1.40965345"></circle>
+                                <circle id="Oval" fill="#FCFCFF" opacity="0.300000012" cx="27.7231845" cy="26.7834156" r="1.40965345"></circle>
+                                <circle id="Oval" fill="#FCFCFF" opacity="0.300000012" cx="51.2174087" cy="1.40965345" r="1.40965345"></circle>
+                                <circle id="Oval" fill="#FCFCFF" opacity="0.300000012" cx="103.844471" cy="50.2776398" r="1.40965345"></circle>
+                            </g>
+                            <g id="Group" filter="url(#filter-3)" transform="translate(98.379890, 84.865883)">
+                                <g id="Oval">
+                                    <use fill="#FFFFFF" xlink:href="#path-5"></use>
+                                    <use fill="url(#radialGradient-4)" xlink:href="#path-5"></use>
+                                </g>
+                            </g>
+                            <g id="Group-3" transform="translate(215.379890, 29.865883)" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="58.4409165" y1="59.3383756" x2="69.3977283" y2="69.4057586" id="Path-7" stroke="url(#linearGradient-6)" stroke-width="5"></line>
+                                <line x1="0.73821382" y1="0.538375614" x2="69.3977283" y2="69.4057586" id="Path-7" stroke="url(#linearGradient-7)" stroke-width="5" filter="url(#filter-8)"></line>
+                            </g>
+                            <g id="Group-3" opacity="0.300000012" transform="translate(218.379890, 236.865883)" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="58.4409165" y1="59.3383756" x2="69.3977283" y2="69.4057586" id="Path-7" stroke="url(#linearGradient-6)" stroke-width="5"></line>
+                                <line x1="0.73821382" y1="0.538375614" x2="69.3977283" y2="69.4057586" id="Path-7" stroke="url(#linearGradient-7)" stroke-width="5" filter="url(#filter-9)"></line>
+                            </g>
+                            <g id="Group-3" opacity="0.200000003" transform="translate(29.379890, 210.865883)" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="58.4409165" y1="59.3383756" x2="69.3977283" y2="69.4057586" id="Path-7" stroke="url(#linearGradient-6)" stroke-width="5"></line>
+                                <line x1="0.73821382" y1="0.538375614" x2="69.3977283" y2="69.4057586" id="Path-7" stroke="url(#linearGradient-7)" stroke-width="5" filter="url(#filter-10)"></line>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

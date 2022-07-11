@@ -1,0 +1,44 @@
+.authModal {
+  & :global(.auth) {
+    position: relative;
+    display: flex;
+    padding: 0;
+    max-height: 40rem;
+    height: 100%;
+    width: 100%;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    overflow: hidden;
+    background: var(--theme-background-primary);
+
+    @screen laptop {
+      max-width: 1020px;
+    }
+  }
+
+  & :global(.auth.v2) {
+    position: relative;
+    display: flex;
+    padding: 0;
+    max-height: 40rem;
+    height: 100%;
+    width: 100%;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    overflow: hidden;
+    background: var(--theme-background-primary);
+
+    @screen laptop {
+      max-width: 35rem;
+    }
+  }
+}
+
+.circles {
+  position: absolute;
+  bottom: 0;
+  transform: translate(-50%, 0);
+  left: 50%;
+}

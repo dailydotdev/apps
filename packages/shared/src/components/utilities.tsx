@@ -168,7 +168,7 @@ export const TLDRText = classed(
 );
 
 export const HotLabel = (): ReactElement => (
-  <div className="py-px px-2 font-bold uppercase rounded typo-caption2 bg-theme-status-error text-theme-label-primary">
+  <div className="py-px px-2 font-bold text-white uppercase rounded typo-caption2 bg-theme-status-error">
     Hot
   </div>
 );

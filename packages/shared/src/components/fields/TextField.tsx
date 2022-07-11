@@ -10,9 +10,9 @@ import classNames from 'classnames';
 import { useInputField } from '../../hooks/useInputField';
 import { BaseField, FieldInput } from './common';
 import styles from './TextField.module.css';
-import { Button } from '../buttons/Button';
-import { IconProps } from '../Icon';
+import { ButtonProps } from '../buttons/Button';
 import useDebounce from '../../hooks/useDebounce';
+import { IconProps } from '../Icon';
 
 type FieldType = 'primary' | 'secondary' | 'tertiary';
 
@@ -26,8 +26,8 @@ export interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   valueChanged?: (value: string) => void;
   fieldType?: FieldType;
   leftIcon?: ReactNode;
-  actionIcon?: React.ReactElement<IconProps>;
-  onActionIconClick?: () => unknown;
+  actionButton?: React.ReactElement<ButtonProps<'button'>>;
+  rightIcon?: React.ReactElement<IconProps>;
 }
 
 interface InputFontColorProps {
@@ -83,9 +83,9 @@ export function TextField({
   fieldType = 'primary',
   readOnly,
   leftIcon,
-  actionIcon,
-  onActionIconClick,
+  actionButton,
   disabled,
+  rightIcon,
   ...props
 }: TextFieldProps): ReactElement {
   const {
@@ -185,7 +185,7 @@ export function TextField({
           'flex flex-row items-center',
           isSecondaryField ? 'h-9 rounded-10' : 'h-12 rounded-14',
           leftIcon && 'pl-3',
-          actionIcon && 'pr-3',
+          actionButton && 'pr-3',
           {
             readOnly,
             focused,
@@ -203,7 +203,7 @@ export function TextField({
                 disabled,
                 hasInput,
                 focused,
-                actionIcon,
+                actionIcon: rightIcon,
               }),
             )}
           >
@@ -213,7 +213,7 @@ export function TextField({
         <div
           className={classNames(
             'flex flex-col flex-1 items-start max-w-full',
-            actionIcon && 'mr-2',
+            actionButton && 'mr-2',
           )}
         >
           {isPrimaryField && (focused || hasInput) && (
@@ -241,7 +241,7 @@ export function TextField({
                 disabled,
                 hasInput,
                 focused,
-                actionIcon,
+                actionIcon: rightIcon,
               }),
             )}
             disabled={disabled}
@@ -256,15 +256,8 @@ export function TextField({
             {maxLength - inputLength}
           </div>
         )}
-        {actionIcon && (
-          <Button
-            data-testid="textfield-action-icon"
-            buttonSize="small"
-            className="btn-tertiary"
-            onClick={onActionIconClick}
-            icon={actionIcon}
-          />
-        )}
+        {rightIcon}
+        {actionButton}
       </BaseField>
       {(hint?.length || saveHintSpace) && (
         <div

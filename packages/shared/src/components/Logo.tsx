@@ -6,7 +6,7 @@ import LogoIcon from '../svg/LogoIcon';
 
 interface LogoProps {
   showGreeting: boolean;
-  onLogoClick: (e: React.MouseEvent) => unknown;
+  onLogoClick?: (e: React.MouseEvent) => unknown;
 }
 
 export default function Logo({

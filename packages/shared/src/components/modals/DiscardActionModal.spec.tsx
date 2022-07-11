@@ -1,28 +1,32 @@
 import React from 'react';
 import { render, RenderResult, screen } from '@testing-library/react';
-import DiscardCommentModal, { Props } from './DiscardCommentModal';
+import DiscardActionModal, {
+  DiscardActionModalProps,
+} from './DiscardActionModal';
 
 const onRequestClose = jest.fn();
-const onDeleteComment = jest.fn();
+const onDiscard = jest.fn();
 
 beforeEach(() => {
   jest.clearAllMocks();
 });
 
-const renderComponent = (props: Partial<Props> = {}): RenderResult => {
-  const defaultProps: Props = {
+const renderComponent = (
+  props: Partial<DiscardActionModalProps> = {},
+): RenderResult => {
+  const defaultProps: DiscardActionModalProps = {
     isOpen: true,
     ariaHideApp: false,
     onRequestClose,
-    onDeleteComment,
+    onDiscard,
   };
 
-  return render(<DiscardCommentModal {...defaultProps} {...props} />);
+  return render(<DiscardActionModal {...defaultProps} {...props} />);
 };
 
 it('should confirm comment delete', async () => {
   renderComponent();
   const el = await screen.findByText('Discard');
   el.click();
-  expect(onDeleteComment).toBeCalledTimes(1);
+  expect(onDiscard).toBeCalledTimes(1);
 });

@@ -76,6 +76,7 @@ function ProfilePictureComponent(
         alt={`${user.username}'s profile`}
         onError={onError}
         className={classNames(
+          'object-cover',
           sizeClasses[size],
           roundClasses[rounded ?? size],
           className,

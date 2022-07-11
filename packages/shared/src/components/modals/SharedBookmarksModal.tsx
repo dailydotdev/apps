@@ -91,8 +91,14 @@ export default function SharedBookmarksModal({
               label="Your unique RSS URL"
               type="url"
               fieldType="tertiary"
-              actionIcon={<CopyIcon />}
-              onActionIconClick={copyRssUrl}
+              actionButton={
+                <Button
+                  buttonSize="small"
+                  className="btn-tertiary"
+                  icon={<CopyIcon />}
+                  onClick={() => copyRssUrl()}
+                />
+              }
               value={bookmarksSharingData?.bookmarksSharing?.rssUrl}
               readOnly
             />

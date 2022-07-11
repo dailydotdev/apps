@@ -93,8 +93,13 @@ export default function SharePostModal({
           label="Copy post URL"
           type="url"
           fieldType="tertiary"
-          actionIcon={<CopyIcon />}
-          onActionIconClick={trackAndCopyLink}
+          actionButton={
+            <Button
+              icon={<CopyIcon />}
+              onClick={trackAndCopyLink}
+              className="btn-tertiary"
+            />
+          }
           value={post?.commentsPermalink}
           readOnly
         />

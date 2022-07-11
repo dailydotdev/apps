@@ -541,7 +541,7 @@ export const getUserInitialTimezone = ({
   update = false,
 }: {
   userTimezone: string;
-  update: boolean;
+  update?: boolean;
 }): string => {
   if (userTimezone) {
     return userTimezone;
@@ -552,4 +552,17 @@ export const getUserInitialTimezone = ({
   }
 
   return getUserDefaultTimezone();
+};
+
+export const getHourTimezone = (timeZone: string): number => {
+  const now = new Date();
+
+  return parseInt(
+    now.toLocaleString('en-US', {
+      hour: '2-digit',
+      hour12: false,
+      timeZone,
+    }),
+    10,
+  );
 };

@@ -3,8 +3,6 @@ import React, {
   useContext,
   useEffect,
   ClipboardEvent,
-  useRef,
-  KeyboardEventHandler,
   MouseEvent,
   KeyboardEvent,
 } from 'react';
@@ -18,7 +16,11 @@ import { ProfilePicture } from '../ProfilePicture';
 import { ClickableText } from '../buttons/ClickableText';
 import Markdown from '../Markdown';
 import { RecommendedMentionTooltip } from '../tooltips/RecommendedMentionTooltip';
-import { useUserMention } from '../../hooks/useUserMention';
+import {
+  fixHeight,
+  UPDOWN_ARROW_KEYS,
+  useUserMention,
+} from '../../hooks/useUserMention';
 import { Post } from '../../graphql/posts';
 import AtIcon from '../icons/At';
 import { cleanupEmptySpaces } from '../../lib/strings';
@@ -36,10 +38,6 @@ export interface CommentBoxProps {
   parentSelector?: () => HTMLElement;
   sendComment: (event: MouseEvent | KeyboardEvent) => Promise<void>;
   onInput?: (value: string) => unknown;
-  onKeyDown: (
-    e: KeyboardEvent<HTMLDivElement>,
-    defaultCallback?: KeyboardEventHandler<HTMLDivElement>,
-  ) => unknown;
   post: Post;
 }
 
@@ -54,15 +52,11 @@ function CommentBox({
   errorMessage,
   sendingComment,
   onInput,
-  onKeyDown,
   sendComment,
   parentSelector,
   post,
 }: CommentBoxProps): ReactElement {
-  const onTextareaInput = (content: string) =>
-    onInput(cleanupEmptySpaces(content));
   const { user } = useContext(AuthContext);
-  const commentRef = useRef<HTMLDivElement>(null);
   const {
     onMentionClick,
     onMentionKeypress,
@@ -70,18 +64,24 @@ function CommentBox({
     mentions,
     mentionQuery,
     selected,
+    commentRef,
     onInitializeMention,
     onInputClick,
   } = useUserMention({
     postId: post.id,
-    commentRef,
-    onInput: onTextareaInput,
+    onInput,
   });
 
   useEffect(() => {
     commentRef.current?.focus();
-    if (commentRef.current && editContent) {
-      commentRef.current.innerText = editContent;
+    if (commentRef.current) {
+      if (editContent) {
+        commentRef.current.value = editContent;
+      }
+      commentRef.current.setAttribute(
+        'data-min-height',
+        commentRef.current.offsetHeight.toString(),
+      );
     }
   }, []);
 
@@ -95,10 +95,24 @@ function CommentBox({
     }
   };
 
-  const handleKeydown = (e: KeyboardEvent<HTMLDivElement>) => {
-    const defaultCallback = () => onMentionKeypress(e);
-    onKeyDown(e, defaultCallback);
-    e.stopPropagation();
+  const handleKeydown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && input?.length) {
+      return sendComment(e);
+    }
+
+    if (
+      (e.key === 'Enter' || UPDOWN_ARROW_KEYS.indexOf(e.key) !== -1) &&
+      mentions?.length
+    ) {
+      return e.preventDefault();
+    }
+
+    return e.stopPropagation();
+  };
+
+  const onTextareaInput = (e: React.FormEvent<HTMLTextAreaElement>) => {
+    fixHeight(e.currentTarget);
+    onInput(cleanupEmptySpaces(e.currentTarget.value));
   };
 
   return (
@@ -140,22 +154,21 @@ function CommentBox({
         </div>
         <div className="flex relative flex-1 pl-2">
           <ProfilePicture user={user} size="small" nativeLazyLoading />
-          <div
+          <textarea
             className={classNames(
-              'ml-3 pr-2 flex-1 text-theme-label-primary bg-transparent whitespace-pre-line border-none caret-theme-label-link break-words typo-subhead resize-none',
+              'ml-3 flex-1 text-theme-label-primary bg-transparent border-none caret-theme-label-link break-words typo-subhead resize-none',
               styles.textarea,
             )}
             ref={commentRef}
-            contentEditable
-            role="textbox"
-            aria-multiline
-            aria-placeholder="Write your comment..."
-            onInput={(e) => onTextareaInput(e.currentTarget.innerText)}
+            placeholder="Write your comment..."
+            onInput={onTextareaInput}
             onKeyDown={handleKeydown}
+            onKeyUp={onMentionKeypress}
             onClick={onInputClick}
             onPaste={onPaste}
             tabIndex={0}
             aria-label="New comment box"
+            aria-multiline
           />
         </div>
         <RecommendedMentionTooltip
