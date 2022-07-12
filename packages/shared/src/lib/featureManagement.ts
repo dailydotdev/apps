@@ -7,8 +7,6 @@ export class Features {
     'Access all features',
   );
 
-  static readonly DevcardLimit = new Features('feat_limit_dev_card', '50');
-
   static readonly FeedVersion = new Features('feed_version', '1');
 
   static readonly LoginModalButtonCopyPrefix = new Features(

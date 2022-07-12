@@ -5,8 +5,6 @@ import { RankProgress } from './RankProgress';
 import useReadingRank from '../hooks/useReadingRank';
 import AuthContext from '../contexts/AuthContext';
 import { getRank, RANKS } from '../lib/rank';
-import FeaturesContext from '../contexts/FeaturesContext';
-import { Features, getFeatureValue } from '../lib/featureManagement';
 import useDebounce from '../hooks/useDebounce';
 
 const RanksModal = dynamic(
@@ -31,11 +29,6 @@ export default function RankProgressWrapper({
 }: RankProgressWrapperProps): ReactElement {
   const { user } = useContext(AuthContext);
   const [showRanksModal, setShowRanksModal] = useState(false);
-  const { flags } = useContext(FeaturesContext);
-  const devCardLimit = parseInt(
-    getFeatureValue(Features.DevcardLimit, flags),
-    10,
-  );
   const {
     rank,
     rankLastWeek,
@@ -45,7 +38,6 @@ export default function RankProgressWrapper({
     shouldShowRankModal,
     levelUp,
     confirmLevelUp,
-    reads,
   } = useReadingRank(disableNewRankPopup);
 
   const [levelUpAnimation] = useDebounce(() => {
@@ -90,9 +82,7 @@ export default function RankProgressWrapper({
           tags={tags}
           isOpen={showRanksModal}
           onRequestClose={closeRanksModal}
-          reads={reads}
           previousRank={rankLastWeek}
-          devCardLimit={devCardLimit}
           nextRank={nextRank}
         />
       )}
@@ -103,7 +93,6 @@ export default function RankProgressWrapper({
           user={user}
           isOpen={levelUp && shouldShowRankModal}
           onRequestClose={confirmLevelUp}
-          showDevCard={reads >= devCardLimit || !devCardLimit}
         />
       )}
     </>
