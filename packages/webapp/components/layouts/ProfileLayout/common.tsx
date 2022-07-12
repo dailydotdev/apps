@@ -61,6 +61,13 @@ export const ContentText = classed(
   'p',
   'mt-1 typo-callout text-theme-label-tertiary',
 );
+export const OverlayContainer = classed(
+  'div',
+  'relative p-4 max-w-md border rounded-8',
+);
+
+export const OverlayText = classed('p', 'typo-callout');
+
 export const AccountContentHeading = classed(ContentHeading, 'mt-10');
 export const CommonTextField = classed(TextField, 'max-w-sm');
 export const AccountTextField = classed(CommonTextField, 'mt-6');

@@ -8,6 +8,7 @@ import AccountDangerZone from '@dailydotdev/shared/src/components/profile/Accoun
 import MailIcon from '@dailydotdev/shared/src/components/icons/Mail';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import LockIcon from '@dailydotdev/shared/src/components/icons/Lock';
+import { Overlay } from '@dailydotdev/shared/src/components/utilities';
 import React, { ReactElement, useContext, useState } from 'react';
 import {
   getStaticPaths as getProfileStaticPaths,
@@ -20,6 +21,8 @@ import {
   AccountTextField,
   ContentHeading,
   ContentText,
+  OverlayContainer,
+  OverlayText,
 } from '../../components/layouts/ProfileLayout/common';
 import EmailForm from '../../components/layouts/ProfileLayout/EmailForm';
 
@@ -41,6 +44,7 @@ const AccountSecurityPage = (): ReactElement => {
   const { user } = useContext(AuthContext);
   const [email, setEmail] = useState<string>();
   const [emailSent, setEmailSent] = useState(false);
+  const [resetPasswordSent, setResetPasswordSent] = useState(false);
   const [activeDisplay, setActiveDisplay] = useState(Display.Default);
 
   if (!user) {
@@ -61,9 +65,9 @@ const AccountSecurityPage = (): ReactElement => {
   const renderEmailAction = () => {
     if (emailSent) {
       return (
-        <div className="relative p-4 mt-6 max-w-md rounded-8 border border-theme-status-warning">
-          <div className="absolute inset-0 -z-1 w-full h-full opacity-24 bg-overlay-quaternary-bun" />
-          <p className="typo-callout">
+        <OverlayContainer className="border-theme-status-warning">
+          <Overlay className="bg-overlay-quaternary-bun" />
+          <p>
             We sent an email to verify your account. Please check your spam
             folder if you {`don't`} see the email.
           </p>
@@ -75,7 +79,7 @@ const AccountSecurityPage = (): ReactElement => {
               Cancel Request
             </Button>
           </span>
-        </div>
+        </OverlayContainer>
       );
     }
 
@@ -130,22 +134,40 @@ const AccountSecurityPage = (): ReactElement => {
             {!user.password && (
               <ProviderButton
                 label="Connect with"
-                provider="email"
+                provider="Email"
                 icon={<MailIcon secondary />}
                 onClick={() => setActiveDisplay(Display.ConnectEmail)}
                 style={socialProvider.gitHub.style}
               />
             )}
           </div>
-          <AccountContentHeading>Account Password</AccountContentHeading>
-          <ContentText>Change your account password</ContentText>
-          <Button className="mt-6 w-fit btn-secondary">Reset password</Button>
+          {user.password && (
+            <>
+              <AccountContentHeading>Account Password</AccountContentHeading>
+              <ContentText>Change your account password</ContentText>
+              <Button
+                className="mt-6 w-fit btn-secondary"
+                onClick={() => setResetPasswordSent(true)}
+              >
+                Reset password
+              </Button>
+            </>
+          )}
+          {resetPasswordSent && (
+            <OverlayContainer className="mt-6">
+              <Overlay className="bg-overlay-primary-white opacity-[0.12]" />
+              <OverlayText>
+                We sent a link to the account email address, please check your
+                spam folder if you {`don't`} see the email.
+              </OverlayText>
+            </OverlayContainer>
+          )}
           <AccountContentHeading>🚨 Danger Zone</AccountContentHeading>
           <AccountDangerZone
             onDelete={onDelete}
             className="overflow-hidden relative py-4 px-6 mt-6 rounded-26 border border-theme-status-error"
           >
-            <div className="absolute inset-0 -z-1 w-full h-full opacity-24 bg-overlay-quaternary-ketchup" />
+            <Overlay className="bg-overlay-quaternary-ketchup" />
           </AccountDangerZone>
         </AccountPageContainer>
       </Tab>
