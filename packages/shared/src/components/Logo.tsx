@@ -3,13 +3,16 @@ import { CSSTransition } from 'react-transition-group';
 import { LinkWithTooltip } from './tooltips/LinkWithTooltip';
 import LogoText from '../svg/LogoText';
 import LogoIcon from '../svg/LogoIcon';
+import classNames from 'classnames';
 
 interface LogoProps {
-  showGreeting: boolean;
+  className?: string;
+  showGreeting?: boolean;
   onLogoClick?: (e: React.MouseEvent) => unknown;
 }
 
 export default function Logo({
+  className,
   showGreeting,
   onLogoClick,
 }: LogoProps): ReactElement {
@@ -21,7 +24,10 @@ export default function Logo({
       tooltip={{ placement: 'right', content: 'Home' }}
     >
       {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
-      <a className="flex items-center" onClick={onLogoClick}>
+      <a
+        className={classNames('flex items-center', className)}
+        onClick={onLogoClick}
+      >
         <LogoIcon className="h-logo" />
         <CSSTransition
           in={!showGreeting}
