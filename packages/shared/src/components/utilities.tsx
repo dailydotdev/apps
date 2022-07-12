@@ -117,7 +117,7 @@ export const NewCommentContainer = classed(
 
 export const ResponsivePageContainer = classed(
   PageContainer,
-  'py-6 laptop:border-theme-divider-tertiary laptop:border-l laptop:border-r laptop:min-h-screen',
+  'py-6 laptop:border-theme-divider-tertiary laptop:border-l laptop:border-r laptop:min-h-screen pb-24',
 );
 
 export const FeedPage = classed(

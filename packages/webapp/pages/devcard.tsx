@@ -16,7 +16,6 @@ import request from 'graphql-request';
 import { useMutation } from 'react-query';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import classNames from 'classnames';
-import rem from '@dailydotdev/shared/macros/rem.macro';
 import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopyLink';
 import { FormErrorMessage } from '@dailydotdev/shared/src/components/utilities';
 import Tilt from 'react-parallax-tilt';
@@ -59,10 +58,7 @@ const Step1 = ({
         width={108}
       />
       <h1 className="mt-10 font-bold typo-title1">Grab your Dev Card</h1>
-      <p
-        className="mt-4 text-center typo-body text-theme-label-secondary"
-        style={{ maxWidth: rem(520) }}
-      >
+      <p className="mt-4 text-center typo-body text-theme-label-secondary max-w-[32.5rem]">
         Your Dev Card will show you stats about the publications and topics you
         love to read. Click on “Generate now” to get your card and share it with
         your friends
@@ -261,10 +257,9 @@ const Step2 = ({
           <div className="flex flex-col items-start self-stretch mt-10">
             <h4 className="mt-1 font-bold typo-caption1">Embed</h4>
             <textarea
-              className="self-stretch py-2 px-4 mt-1 w-80 bg-theme-float rounded-10 resize-none laptopL:w-[25rem] typo-body"
+              className="self-stretch py-2 px-4 mt-1 w-80 bg-theme-float rounded-10 resize-none laptopL:w-[25rem] typo-body h-[7.75rem]"
               readOnly
               wrap="hard"
-              style={{ height: rem(124) }}
             >
               {embedCode}
             </textarea>
