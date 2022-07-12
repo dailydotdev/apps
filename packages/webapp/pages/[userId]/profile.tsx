@@ -14,7 +14,6 @@ import {
   AccountContentHeading,
   AccountPageContainer,
   AccountTextField,
-  CommonTextField,
   ContentHeading,
   ContentText,
 } from '../../components/layouts/ProfileLayout/common';
@@ -32,7 +31,7 @@ const AccountProfilePage = (): ReactElement => {
       </ContentText>
       {/* ImageInput component from auth ui PR */}
       <AccountContentHeading>Account information</AccountContentHeading>
-      <CommonTextField
+      <AccountTextField
         label="Full Name"
         inputId="fullname"
         leftIcon={<UserIcon />}

@@ -53,7 +53,7 @@ export const AccountPageContent = classed(
 export const AccountPageSection = classed('section', 'flex flex-col p-6');
 export const AccountPageHeading = classed(
   'h1',
-  'typo-title3 py-4 px-6 border-b border-theme-divider-tertiary w-full flex flex-row items-center',
+  'font-bold typo-title3 py-4 px-6 border-b border-theme-divider-tertiary w-full flex flex-row items-center',
 );
 
 export const ContentHeading = classed('h2', 'font-bold typo-headline');
