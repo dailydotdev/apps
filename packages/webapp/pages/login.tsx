@@ -41,7 +41,7 @@ function Login(): ReactElement {
           <img
             src="/login.png"
             alt=""
-            className="absolute right-0 z-0 max-h-[52.875rem]"
+            className="absolute right-0 z-0 h-full max-h-[calc(100vh-1.5rem)] laptopXL:max-h-[52.875rem]"
           />
         )}
       </main>
