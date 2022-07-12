@@ -32,7 +32,7 @@ const isExcluded = (origin: string) => {
 };
 
 const sendBootData = async (_, tab: Tabs.Tab) => {
-  const { origin, pathname } = new URL(tab.url);
+  const { origin, pathname, search } = new URL(tab.url);
   if (isExcluded(origin)) {
     return;
   }
@@ -42,7 +42,7 @@ const sendBootData = async (_, tab: Tabs.Tab) => {
     return;
   }
 
-  const href = origin + pathname;
+  const href = origin + pathname + search;
 
   const [
     deviceId,
