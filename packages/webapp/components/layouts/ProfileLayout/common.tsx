@@ -1,4 +1,6 @@
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
+import ArrowIcon from '@dailydotdev/shared/src/components/icons/Arrow';
 import LockIcon from '@dailydotdev/shared/src/components/icons/Lock';
 import SettingsIcon from '@dailydotdev/shared/src/components/icons/Settings';
 import { ProfilePicture } from '@dailydotdev/shared/src/components/ProfilePicture';
@@ -63,24 +65,43 @@ export const AccountContentHeading = classed(ContentHeading, 'mt-10');
 export const CommonTextField = classed(TextField, 'max-w-sm');
 export const AccountTextField = classed(CommonTextField, 'mt-6');
 
+interface ClassName {
+  container?: string;
+  heading?: string;
+  section?: string;
+}
+
 interface AccountPageContainerProps {
   title: string;
   actions?: ReactNode;
   children?: ReactNode;
+  className?: ClassName;
+  onBack?: () => void;
 }
 
 export const AccountPageContainer = ({
   title,
   actions,
   children,
+  className = {},
+  onBack,
 }: AccountPageContainerProps): ReactElement => {
   return (
-    <AccountPageContent>
-      <AccountPageHeading>
+    <AccountPageContent className={className.container}>
+      <AccountPageHeading className={className.heading}>
+        {onBack && (
+          <Button
+            className="mr-2 btn-tertiary"
+            icon={<ArrowIcon className="-rotate-90" />}
+            onClick={onBack}
+          />
+        )}
         {title}
         {actions && <span className="flex flex-row ml-auto">{actions}</span>}
       </AccountPageHeading>
-      <AccountPageSection>{children}</AccountPageSection>
+      <AccountPageSection className={className.section}>
+        {children}
+      </AccountPageSection>
     </AccountPageContent>
   );
 };
