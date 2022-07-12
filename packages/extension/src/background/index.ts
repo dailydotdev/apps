@@ -141,10 +141,14 @@ browser.browserAction.onClicked.addListener(() => {
   browser.tabs.create({ url, active: true });
 });
 
-browser.runtime.onInstalled.addListener(async () => {
+browser.runtime.onInstalled.addListener(async (details) => {
   await Promise.all([
     browser.runtime.setUninstallURL('https://daily.dev/uninstall'),
   ]);
+
+  if (details.reason === 'update') {
+    await getContentScriptPermissionAndRegister();
+  }
 });
 
 browser.runtime.onStartup.addListener(async () => {

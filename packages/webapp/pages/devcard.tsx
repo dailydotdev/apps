@@ -54,7 +54,7 @@ const Step1 = ({
       <DevCardPlaceholder
         profileImage={user?.image}
         rank={rank}
-        isLocked={rank === 0}
+        isLocked={!user}
         width={108}
       />
       <h1 className="mt-10 font-bold typo-title1">Grab your Dev Card</h1>
