@@ -1,5 +1,6 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement, ReactNode, useContext, useEffect } from 'react';
 import { getProfile, PublicProfile } from '@dailydotdev/shared/src/lib/user';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
 import { NextSeo } from 'next-seo';
@@ -24,6 +25,7 @@ export default function AccountDetailsLayout({
   children,
 }: AccountDetailsLayoutProps): ReactElement {
   const router = useRouter();
+  const { user, loadedUserFromCache } = useContext(AuthContext);
 
   if (!router.isFallback && !initialProfile) {
     return <Custom404 />;
@@ -57,6 +59,16 @@ export default function AccountDetailsLayout({
   if (!initialProfile) {
     return <></>;
   }
+
+  useEffect(() => {
+    if (!fetchedProfile?.id || loadedUserFromCache) {
+      return;
+    }
+
+    if (!user || user.id !== profile.id) {
+      router.replace(process.env.NEXT_PUBLIC_WEBAPP_URL);
+    }
+  }, [user, loadedUserFromCache, fetchedProfile]);
 
   return (
     <>
