@@ -38,7 +38,7 @@ export function AuthorOnboarding({
         <li>Gain reputation points by earning upvotes on articles you wrote</li>
       </ol>
       <div
-        className="grid grid-flow-col gap-x-4 mt-6 max-w-[4.625rem]"
+        className="grid grid-flow-col gap-x-4 mt-6 max-w-[18.5rem]"
         data-testid="authorOnboarding"
         style={{
           gridTemplateColumns: '1fr max-content',
