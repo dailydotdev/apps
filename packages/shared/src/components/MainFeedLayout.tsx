@@ -265,7 +265,7 @@ export default function MainFeedLayout({
           flags={flags}
         />
       )}
-      <div className="flex flex-row flex-wrap gap-4 items-center mr-px w-full h-12">
+      <div className="flex flex-row flex-wrap gap-4 items-center mr-px w-full h-[3.125rem]">
         <h3 className="flex flex-1 typo-headline">{feedTitles[feedName]}</h3>
         {navChildren}
         {isUpvoted && (
