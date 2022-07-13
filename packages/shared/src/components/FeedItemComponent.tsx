@@ -94,10 +94,6 @@ export default function FeedItemComponent({
   insaneMode,
   openNewTab,
   postMenuIndex,
-  // showCommentPopupId,
-  // setShowCommentPopupId,
-  // isSendingComment,
-  // comment,
   user,
   feedName,
   ranking,
@@ -161,19 +157,6 @@ export default function FeedItemComponent({
           postCardVersion={postCardVersion}
           postModalByDefault={postModalByDefault}
           postEngagementNonClickable={postEngagementNonClickable}
-          // >
-          //   {showCommentPopupId === item.post.id && (
-          //     <CommentPopup
-          //       onClose={() => setShowCommentPopupId(null)}
-          //       onSubmit={(content) =>
-          //         comment({ post: item.post, content, row, column, columns })
-          //       }
-          //       loading={isSendingComment}
-          //       compactCard={!useList && insaneMode}
-          //       listMode={useList}
-          //     />
-          //   )}
-          // </PostTag>
         />
       );
     case 'ad':
