@@ -66,7 +66,7 @@ export default function SharePostModal({
     <ResponsiveModal
       padding={false}
       {...props}
-      style={{ content: { maxWidth: '26.25rem' } }}
+      contentClassName="!max-w-[26.25rem]"
     >
       <header className="flex fixed responsiveModalBreakpoint:sticky top-0 left-0 z-3 flex-row justify-between items-center px-6 w-full h-14 border-b border-theme-divider-tertiary bg-theme-bg-tertiary">
         <h3 className="font-bold typo-title3">Share article</h3>
