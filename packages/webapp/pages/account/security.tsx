@@ -58,7 +58,7 @@ const AccountSecurityPage = (): ReactElement => {
   const renderEmailAction = () => {
     if (emailSent) {
       return (
-        <OverlayContainer className="border-theme-status-warning">
+        <OverlayContainer className="mt-6 border-theme-status-warning">
           <Overlay className="bg-overlay-quaternary-bun" />
           <p>
             We sent an email to verify your account. Please check your spam
@@ -76,14 +76,15 @@ const AccountSecurityPage = (): ReactElement => {
       );
     }
 
-    return user.password ? (
+    return (
+      // return user.password ? ( // temporary enabling
       <Button
         className="mt-6 w-fit btn-secondary"
         onClick={() => setActiveDisplay(Display.ChangeEmail)}
       >
         Change email
       </Button>
-    ) : null;
+    );
   };
 
   return (
@@ -164,18 +165,18 @@ const AccountSecurityPage = (): ReactElement => {
               />
             )}
           </div>
-          {user.password && (
-            <>
-              <AccountContentHeading>Account Password</AccountContentHeading>
-              <ContentText>Change your account password</ContentText>
-              <Button
-                className="mt-6 w-fit btn-secondary"
-                onClick={() => setResetPasswordSent(true)}
-              >
-                Reset password
-              </Button>
-            </>
-          )}
+          {/* {user.password && ( // temporary enabling */}
+          <>
+            <AccountContentHeading>Account Password</AccountContentHeading>
+            <ContentText>Change your account password</ContentText>
+            <Button
+              className="mt-6 w-fit btn-secondary"
+              onClick={() => setResetPasswordSent(true)}
+            >
+              Reset password
+            </Button>
+          </>
+          {/* )} */}
           {resetPasswordSent && (
             <OverlayContainer className="mt-6">
               <Overlay className="bg-overlay-primary-white opacity-[0.12]" />
