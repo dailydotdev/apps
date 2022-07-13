@@ -51,7 +51,7 @@ export function CompanionDiscussion({
         user={user}
         onNewComment={() => openNewComment('start discussion button')}
       />
-      <div className="overflow-auto flex-1 px-6 mt-7 border-t border-theme-divider-tertiary">
+      <div className="overflow-x-hidden overflow-y-auto flex-1 px-6 mt-7 border-t border-theme-divider-tertiary">
         <h3 className="my-3.5 font-bold typo-callout">Discussion</h3>
         <PostComments
           post={post}

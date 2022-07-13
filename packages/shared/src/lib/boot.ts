@@ -30,7 +30,7 @@ export interface CompanionBootData {
   postData: PostBootData;
 }
 export type AccessToken = { token: string; expiresIn: string };
-export type Visit = { ampStorage?: string; sessionId: string; visitId: string };
+export type Visit = { sessionId: string; visitId: string };
 export type Boot = {
   user: LoggedUser | AnonymousUser;
   accessToken: AccessToken;
