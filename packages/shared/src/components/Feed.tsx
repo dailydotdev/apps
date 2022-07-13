@@ -325,6 +325,10 @@ export default function Feed<T>({
             openNewTab={openNewTab}
             insaneMode={insaneMode}
             postMenuIndex={postMenuIndex}
+            // showCommentPopupId={showCommentPopupId}
+            // setShowCommentPopupId={setShowCommentPopupId}
+            // isSendingComment={isSendingComment}
+            // comment={comment}
             user={user}
             feedName={feedName}
             ranking={ranking}
