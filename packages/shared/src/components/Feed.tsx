@@ -166,9 +166,17 @@ export default function Feed<T>({
     return <></>;
   }
 
+  // const {
+  //   showCommentPopupId,
+  //   setShowCommentPopupId,
+  //   comment,
+  //   isSendingComment,
+  // } = useCommentPopup(feedName);
+
   const onUpvote = useFeedUpvotePost(
     items,
     updatePost,
+    // setShowCommentPopupId,
     virtualizedNumCards,
     feedName,
     ranking,
