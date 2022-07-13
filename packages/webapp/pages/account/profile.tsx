@@ -5,21 +5,14 @@ import LinkIcon from '@dailydotdev/shared/src/components/icons/Link';
 import TwitterIcon from '@dailydotdev/shared/src/components/icons/Twitter';
 import UserIcon from '@dailydotdev/shared/src/components/icons/User';
 import React, { ReactElement } from 'react';
-import {
-  getStaticPaths as getProfileStaticPaths,
-  getStaticProps as getProfileStaticProps,
-} from '../../components/layouts/ProfileLayout';
-import { getAccountDetailsLayout } from '../../components/layouts/ProfileLayout/AccountDetailsLayout';
+import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import {
   AccountContentHeading,
   AccountPageContainer,
   AccountTextField,
   ContentHeading,
   ContentText,
-} from '../../components/layouts/ProfileLayout/common';
-
-export const getStaticProps = getProfileStaticProps;
-export const getStaticPaths = getProfileStaticPaths;
+} from '../../components/layouts/AccountLayout/common';
 
 const AccountProfilePage = (): ReactElement => {
   return (
@@ -74,6 +67,6 @@ const AccountProfilePage = (): ReactElement => {
   );
 };
 
-AccountProfilePage.getLayout = getAccountDetailsLayout;
+AccountProfilePage.getLayout = getAccountLayout;
 
 export default AccountProfilePage;

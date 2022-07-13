@@ -7,20 +7,13 @@ import {
   getTimeZoneIcon,
 } from '@dailydotdev/shared/src/lib/timezones';
 import React, { ReactElement, useContext, useState } from 'react';
-import {
-  getStaticPaths as getProfileStaticPaths,
-  getStaticProps as getProfileStaticProps,
-} from '../../components/layouts/ProfileLayout';
-import { getAccountDetailsLayout } from '../../components/layouts/ProfileLayout/AccountDetailsLayout';
+import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import {
   AccountContentHeading,
   AccountPageContainer,
   ContentHeading,
   ContentText,
-} from '../../components/layouts/ProfileLayout/common';
-
-export const getStaticProps = getProfileStaticProps;
-export const getStaticPaths = getProfileStaticPaths;
+} from '../../components/layouts/AccountLayout/common';
 
 const timeZoneOptions = getTimeZoneOptions();
 const timeZoneValues = timeZoneOptions.map((timeZone) => timeZone.label);
@@ -75,6 +68,6 @@ const AccountOthersPage = (): ReactElement => {
   );
 };
 
-AccountOthersPage.getLayout = getAccountDetailsLayout;
+AccountOthersPage.getLayout = getAccountLayout;
 
 export default AccountOthersPage;

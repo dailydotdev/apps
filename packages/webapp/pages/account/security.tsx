@@ -11,11 +11,6 @@ import LockIcon from '@dailydotdev/shared/src/components/icons/Lock';
 import { Overlay } from '@dailydotdev/shared/src/components/utilities';
 import React, { ReactElement, useContext, useState } from 'react';
 import {
-  getStaticPaths as getProfileStaticPaths,
-  getStaticProps as getProfileStaticProps,
-} from '../../components/layouts/ProfileLayout';
-import { getAccountDetailsLayout } from '../../components/layouts/ProfileLayout/AccountDetailsLayout';
-import {
   AccountContentHeading,
   AccountPageContainer,
   AccountTextField,
@@ -23,11 +18,9 @@ import {
   ContentText,
   OverlayContainer,
   OverlayText,
-} from '../../components/layouts/ProfileLayout/common';
-import EmailForm from '../../components/layouts/ProfileLayout/EmailForm';
-
-export const getStaticProps = getProfileStaticProps;
-export const getStaticPaths = getProfileStaticPaths;
+} from '../../components/layouts/AccountLayout/common';
+import EmailForm from '../../components/layouts/AccountLayout/EmailForm';
+import { getAccountLayout } from '../../components/layouts/AccountLayout';
 
 const socialProvider = getProviderMapClone();
 socialProvider.gitHub.style = { backgroundColor: '#383C47' };
@@ -223,6 +216,6 @@ const AccountSecurityPage = (): ReactElement => {
   );
 };
 
-AccountSecurityPage.getLayout = getAccountDetailsLayout;
+AccountSecurityPage.getLayout = getAccountLayout;
 
 export default AccountSecurityPage;

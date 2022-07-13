@@ -1,11 +1,10 @@
-import React, { ReactElement, ReactNode, useContext, useEffect } from 'react';
+import React, { ReactElement, ReactNode, useContext } from 'react';
 import { getProfile, PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
 import { NextSeo } from 'next-seo';
 import dynamic from 'next/dynamic';
-import { useRouter } from 'next/router';
 import { useQuery } from 'react-query';
 import { getLayout as getMainLayout } from '../MainLayout';
 import SidebarNav from './SidebarNav';
@@ -13,32 +12,30 @@ import { AccountPage } from './common';
 
 const Custom404 = dynamic(() => import('../../../pages/404'));
 
-export interface AccountDetailsLayoutProps {
+export interface AccountLayoutProps {
   profile: PublicProfile;
   children?: ReactNode;
   activePage?: AccountPage;
 }
 
-export default function AccountDetailsLayout({
-  profile: initialProfile,
+export default function AccountLayout({
   activePage,
   children,
-}: AccountDetailsLayoutProps): ReactElement {
-  const router = useRouter();
-  const { user, loadedUserFromCache } = useContext(AuthContext);
+}: AccountLayoutProps): ReactElement {
+  const { user } = useContext(AuthContext);
 
-  if (!router.isFallback && !initialProfile) {
+  if (!user) {
     return <Custom404 />;
   }
 
-  const queryKey = ['profile', initialProfile?.id];
-  const { data: fetchedProfile } = useQuery<PublicProfile>(
-    queryKey,
-    () => getProfile(initialProfile.id),
-    { initialData: initialProfile, enabled: !!initialProfile },
+  const queryKey = ['profile', user.id];
+  const { data: profile } = useQuery<PublicProfile>(queryKey, () =>
+    getProfile(user.id),
   );
 
-  const profile = fetchedProfile ?? initialProfile;
+  if (!profile || !Object.keys(profile).length) {
+    return <></>; // should be a loading screen
+  }
 
   const Seo: NextSeoProps = profile
     ? {
@@ -56,20 +53,6 @@ export default function AccountDetailsLayout({
       }
     : {};
 
-  if (!initialProfile) {
-    return <></>;
-  }
-
-  useEffect(() => {
-    if (!fetchedProfile?.id || loadedUserFromCache) {
-      return;
-    }
-
-    if (!user || user.id !== profile.id) {
-      router.replace(process.env.NEXT_PUBLIC_WEBAPP_URL);
-    }
-  }, [user, loadedUserFromCache, fetchedProfile]);
-
   return (
     <>
       <Head>
@@ -80,6 +63,7 @@ export default function AccountDetailsLayout({
         <SidebarNav
           className="px-6 pt-6 ml-auto border-l border-theme-divider-tertiary"
           activePage={activePage}
+          basePath="account"
         />
         {children}
       </main>
@@ -87,12 +71,10 @@ export default function AccountDetailsLayout({
   );
 }
 
-export const getAccountDetailsLayout = (
+export const getAccountLayout = (
   page: ReactNode,
-  props: AccountDetailsLayoutProps,
+  props: AccountLayoutProps,
 ): ReactNode =>
-  getMainLayout(
-    <AccountDetailsLayout {...props}>{page}</AccountDetailsLayout>,
-    null,
-    { screenCentered: false },
-  );
+  getMainLayout(<AccountLayout {...props}>{page}</AccountLayout>, null, {
+    screenCentered: false,
+  });

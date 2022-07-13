@@ -7,12 +7,14 @@ import { AccountPage, accountPage } from './common';
 interface SidebarNavProps {
   className?: string;
   activePage?: AccountPage;
+  basePath?: string;
 }
 
 const pageKeys = Object.keys(accountPage) as AccountPage[];
 
 function SidebarNav({
   className,
+  basePath = '',
   activePage = AccountPage.Profile,
 }: SidebarNavProps): ReactElement {
   const { user } = useContext(AuthContext);
@@ -27,7 +29,7 @@ function SidebarNav({
         <SidebarNavItem
           key={key}
           title={accountPage[key].title}
-          href={`/${user.username}${accountPage[key].href}`}
+          href={`/${basePath}${accountPage[key].href}`}
           icon={accountPage[key].getIcon({
             user,
             isActive: key === activePage,
