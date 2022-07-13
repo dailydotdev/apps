@@ -160,7 +160,7 @@ export const PostCard = forwardRef(function PostCard(
         {showImage && post.author && isV1 && (
           <div
             className={classNames(
-              'absolute flex items-center py-2 px-3 text-theme-label-secondary bg-theme-bg-primary z-1 font-bold typo-callout w-full',
+              'absolute rounded-t-xl mt-2 flex items-center py-2 px-3 text-theme-label-secondary bg-theme-bg-primary z-1 font-bold typo-callout w-full',
               styles.authorBox,
             )}
           >
