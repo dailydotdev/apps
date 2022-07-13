@@ -141,6 +141,36 @@ const AccountSecurityPage = (): ReactElement => {
               />
             )}
           </div>
+          <AccountContentHeading>Connected accounts</AccountContentHeading>
+          <ContentText>
+            Remove the connection between daily.dev and authorized login
+            providers.
+          </ContentText>
+          <div className="grid grid-cols-1 gap-4 mt-6 w-64">
+            {providers
+              .filter(({ provider }) =>
+                user.providers.includes(provider.toLowerCase()),
+              )
+              .map(({ provider, ...rest }) => (
+                <ProviderButton
+                  key={provider}
+                  label="Remove"
+                  provider={provider}
+                  {...rest}
+                  style={{ background: 'var(--theme-background-tertiary)' }}
+                  className="hover:bg-theme-status-error"
+                />
+              ))}
+            {user.password && (
+              <ProviderButton
+                label="Remove"
+                provider="Email"
+                icon={<MailIcon secondary />}
+                onClick={() => setActiveDisplay(Display.ConnectEmail)}
+                className="bg-theme-bg-tertiary hover:bg-theme-status-error"
+              />
+            )}
+          </div>
           {user.password && (
             <>
               <AccountContentHeading>Account Password</AccountContentHeading>
