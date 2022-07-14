@@ -17,6 +17,8 @@ export interface Props extends CommentActionProps {
   comment: Comment;
   postAuthorId: string | null;
   postScoutId: string | null;
+  commentHash?: string;
+  commentRef?: React.MutableRefObject<HTMLElement>;
   className?: string;
   appendTooltipTo?: () => HTMLElement;
 }
@@ -25,6 +27,8 @@ const MainCommentBox = classed(CommentBox, 'my-2');
 
 export default function MainComment({
   comment,
+  commentHash,
+  commentRef,
   onComment,
   onDelete,
   onEdit,
@@ -36,7 +40,11 @@ export default function MainComment({
 }: Props): ReactElement {
   return (
     <article
-      className={classNames('flex flex-col items-stretch mt-4', className)}
+      className={classNames(
+        'flex flex-col items-stretch mt-4 scroll-mt-16',
+        className,
+      )}
+      ref={commentHash === `#c-${comment.id}` && commentRef}
       data-testid="comment"
     >
       <div className="flex items-center">
@@ -71,6 +79,8 @@ export default function MainComment({
       />
       {comment.children?.edges.map((e, i) => (
         <SubComment
+          commentHash={commentHash}
+          commentRef={commentRef}
           comment={e.node}
           key={e.node.id}
           firstComment={i === 0}
