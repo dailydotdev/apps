@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { differenceInMilliseconds } from 'date-fns';
 import { AccessToken } from '../lib/boot';
 import useDebounce from './useDebounce';
-import { nextTick } from '../lib/func';
 
 export function useRefreshToken(
   accessToken: AccessToken,
@@ -16,9 +15,7 @@ export function useRefreshToken(
 
   useEffect(() => {
     if (accessToken) {
-      nextTick().then(() => {
-        useRefresh();
-      });
+      useRefresh();
     }
   }, [accessToken, refresh]);
 }
