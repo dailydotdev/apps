@@ -103,7 +103,7 @@ describe('ReadingHistoryList component', () => {
     renderComponent();
     const button = await screen.findByTestId('post-item-p1');
     fireEvent.click(button);
-    await screen.findByText('Share article');
+    await screen.findByText('Share article via...');
   });
 
   it('should show Save to bookmarks when menu is open', async () => {

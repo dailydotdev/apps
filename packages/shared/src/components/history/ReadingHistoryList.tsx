@@ -1,5 +1,6 @@
 import React, { ReactElement, useCallback } from 'react';
 import classNames from 'classnames';
+import dynamic from 'next/dynamic';
 import { HideReadHistory } from '../../hooks/useReadingHistory';
 import classed from '../../lib/classed';
 import {
@@ -11,6 +12,8 @@ import { ReadHistoryInfiniteData } from '../../hooks/useInfiniteReadingHistory';
 import { InfiniteScrollScreenOffset } from '../../hooks/feed/useFeedInfiniteScroll';
 import PostOptionsReadingHistoryMenu from '../PostOptionsReadingHistoryMenu';
 import useReadingHistoryContextMenu from '../../hooks/useReadingHistoryContextMenu';
+import { useSharePost } from '../../hooks/useSharePost';
+import { Origin } from '../../lib/analytics';
 
 const DateTitle = classed('h2', 'typo-body text-theme-label-tertiary');
 
@@ -23,6 +26,8 @@ const getDateGroup = (date: Date) => {
     </DateTitle>
   );
 };
+
+const SharePostModal = dynamic(() => import('../modals/SharePostModal'));
 
 export interface ReadHistoryListProps {
   data: ReadHistoryInfiniteData;
@@ -41,6 +46,9 @@ export default function ReadHistoryList({
     onReadingHistoryContextOptions,
     queryIndexes,
   } = useReadingHistoryContextMenu();
+  const analyticsOrigin = Origin.ReadingHistoryContextMenu;
+  const { sharePost, openSharePost, closeSharePost } =
+    useSharePost(analyticsOrigin);
 
   const renderList = useCallback(() => {
     let currentDate: Date;
@@ -79,6 +87,7 @@ export default function ReadHistoryList({
       <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
       <PostOptionsReadingHistoryMenu
         post={readingHistoryContextItem?.post}
+        onShare={() => openSharePost(readingHistoryContextItem.post)}
         onHiddenMenu={() => setReadingHistoryContextItem(null)}
         onHideHistoryPost={(postId) =>
           onHide({
@@ -89,6 +98,14 @@ export default function ReadHistoryList({
         }
         indexes={queryIndexes}
       />
+      {sharePost && (
+        <SharePostModal
+          isOpen={!!sharePost}
+          post={sharePost}
+          origin={analyticsOrigin}
+          onRequestClose={closeSharePost}
+        />
+      )}
     </section>
   );
 }
