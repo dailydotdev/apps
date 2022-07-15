@@ -1,6 +1,6 @@
 import React, { ReactElement, useContext, useState } from 'react';
 import CommentIcon from '@dailydotdev/shared/src/components/icons/Discuss';
-import ShareIcon from '@dailydotdev/shared/src/components/icons/Forward';
+import ShareIcon from '@dailydotdev/shared/src/components/icons/Share';
 import FlagIcon from '@dailydotdev/shared/src/components/icons/Flag';
 import FeedbackIcon from '@dailydotdev/shared/src/components/icons/Feedback';
 import EyeIcon from '@dailydotdev/shared/src/components/icons/Eye';

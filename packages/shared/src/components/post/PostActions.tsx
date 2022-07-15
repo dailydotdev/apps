@@ -11,7 +11,7 @@ import AuthContext from '../../contexts/AuthContext';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
 import { postEventName } from '../utilities';
-import ForwardIcon from '../icons/Forward';
+import ShareIcon from '../icons/Share';
 import useUpdatePost from '../../hooks/useUpdatePost';
 import { AdditionalInteractionButtons } from '../../lib/featureValues';
 import { Origin } from '../../lib/analytics';
@@ -117,7 +117,7 @@ export function PostActions({
         <QuaternaryButton
           id="share-post-btn"
           onClick={onShare}
-          icon={<ForwardIcon />}
+          icon={<ShareIcon />}
           responsiveLabelClass={actionsClassName}
           className="btn-tertiary-cabbage"
         >
