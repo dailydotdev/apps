@@ -1,6 +1,7 @@
 import AuthModalHeading from '@dailydotdev/shared/src/components/auth/AuthModalHeading';
 import AuthOptions from '@dailydotdev/shared/src/components/auth/AuthOptions';
 import Logo from '@dailydotdev/shared/src/components/Logo';
+import { AuthVersion } from '@dailydotdev/shared/src/lib/featureValues';
 import useAuthForms from '@dailydotdev/shared/src/hooks/useAuthForms';
 import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
@@ -9,7 +10,7 @@ import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
 function Login(): ReactElement {
   const { onSocialProviderChange, formRef, socialAccount } = useAuthForms();
   const { authVersion } = useContext(FeaturesContext);
-  const isV4 = authVersion === 'v4';
+  const isV4 = authVersion === AuthVersion.V4;
 
   return (
     <div className="flex relative flex-col py-7 px-10 h-screen">
