@@ -36,7 +36,7 @@ export const FeaturesContextProvider = ({
       ),
       postModalByDefault: isFeaturedEnabled(Features.PostModalByDefault, flags),
       postCardVersion: getFeatureValue(Features.PostCardVersion, flags),
-      authVersion: getFeatureValue(Features.AuthVersion, flags),
+      authVersion: getFeatureValue(Features.AuthenticationVersion, flags),
       additionalInteractionButtonFeature: getFeatureValue(
         Features.AdditionalInteractionButton,
         flags,

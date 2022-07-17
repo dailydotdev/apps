@@ -8,6 +8,7 @@ import AuthModalHeading from './AuthModalHeading';
 import AuthOptions from './AuthOptions';
 import useAuthForms from '../../hooks/useAuthForms';
 import FeaturesContext from '../../contexts/FeaturesContext';
+import { AuthVersion } from '../../lib/featureValues';
 
 export type AuthModalProps = ModalProps;
 
@@ -39,7 +40,7 @@ export default function AuthModal({
   } = useAuthForms({
     onDiscard: onRequestClose,
   });
-  const isV1 = authVersion === 'v1';
+  const isV1 = authVersion === AuthVersion.V1;
 
   return (
     <StyledModal

@@ -8,6 +8,7 @@ import React, {
 import { getQueryParams } from '../../contexts/AuthContext';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { fallbackImages } from '../../lib/config';
+import { AuthVersion } from '../../lib/featureValues';
 import { CloseModalFunc } from '../modals/common';
 import TabContainer, { Tab } from '../tabs/TabContainer';
 import { AuthDefault } from './AuthDefault';
@@ -47,7 +48,7 @@ function AuthOptions({
   defaultDisplay = Display.Default,
 }: AuthOptionsProps): ReactElement {
   const { authVersion } = useContext(FeaturesContext);
-  const isV2 = authVersion === 'v2';
+  const isV2 = authVersion === AuthVersion.V2;
   const [email, setEmail] = useState('');
   const [activeDisplay, setActiveDisplay] = useState(
     hasLoggedOut() ? Display.SignBack : defaultDisplay,

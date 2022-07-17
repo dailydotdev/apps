@@ -1,5 +1,5 @@
 import { IFlags } from 'flagsmith';
-import { AdditionalInteractionButtons } from './featureValues';
+import { AdditionalInteractionButtons, AuthVersion } from './featureValues';
 
 export class Features {
   static readonly SignupButtonCopy = new Features(
@@ -130,12 +130,11 @@ export class Features {
     ['control', 'v1', 'v2', 'v3'],
   );
 
-  static readonly AuthVersion = new Features('auth_version', 'v1', [
-    'v1',
-    'v2',
-    'v3',
-    'v4',
-  ]);
+  static readonly AuthenticationVersion = new Features(
+    'auth_version',
+    AuthVersion.V1,
+    [AuthVersion.V1, AuthVersion.V2, AuthVersion.V3, AuthVersion.V4],
+  );
 
   static readonly AdditionalInteractionButton = new Features(
     'additional_interaction_button',
