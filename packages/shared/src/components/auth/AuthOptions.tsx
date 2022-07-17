@@ -11,7 +11,7 @@ import { fallbackImages } from '../../lib/config';
 import { AuthVersion } from '../../lib/featureValues';
 import { CloseModalFunc } from '../modals/common';
 import TabContainer, { Tab } from '../tabs/TabContainer';
-import { AuthDefault } from './AuthDefault';
+import AuthDefault from './AuthDefault';
 import { AuthSignBack } from './AuthSignBack';
 import ForgotPasswordForm from './ForgotPasswordForm';
 import LoginForm from './LoginForm';

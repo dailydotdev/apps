@@ -18,7 +18,7 @@ interface AuthDefaultProps {
   isV2?: boolean;
 }
 
-export const AuthDefault = ({
+const AuthDefault = ({
   onClose,
   onSignup,
   onProviderClick,
@@ -96,3 +96,5 @@ export const AuthDefault = ({
     </>
   );
 };
+
+export default AuthDefault;
