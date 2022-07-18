@@ -46,7 +46,7 @@ export default function SubComment({
     <article
       className="flex items-stretch mt-4 scroll-mt-16"
       data-testid="subcomment"
-      ref={commentHash === `#c-${comment.id}` && commentRef}
+      ref={commentHash === `#c-${comment.id}` ? commentRef : null}
     >
       <div className="relative">
         <div

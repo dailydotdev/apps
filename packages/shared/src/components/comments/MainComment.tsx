@@ -45,7 +45,7 @@ export default function MainComment({
         'flex flex-col items-stretch mt-4 scroll-mt-16',
         className,
       )}
-      ref={commentHash === `#c-${comment.id}` && commentRef}
+      ref={commentHash === `#c-${comment.id}` ? commentRef : null}
       data-testid="comment"
     >
       <div className="flex items-center">
