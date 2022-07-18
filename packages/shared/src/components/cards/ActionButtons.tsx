@@ -16,7 +16,7 @@ import { ReadArticleButton } from './ReadArticleButton';
 import { visibleOnGroupHover } from './common';
 import { AdditionalInteractionButtons } from '../../lib/featureValues';
 
-const ShareIcon = dynamic(() => import('../icons/Forward'));
+const ShareIcon = dynamic(() => import('../icons/Share'));
 
 export interface ActionButtonsProps {
   post: Post;
