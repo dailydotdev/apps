@@ -21,18 +21,25 @@ import TelegramIcon from '../icons/Telegram';
 import { FeedItemPosition, postAnalyticsEvent } from '../../lib/feed';
 import { Origin } from '../../lib/analytics';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { Comment } from '../../graphql/comments';
 
 interface SocialShareProps {
   origin: Origin;
   post: Post;
+  comment?: Comment;
 }
 export const SocialShare = ({
   post,
+  comment,
   origin,
   columns,
   column,
   row,
 }: SocialShareProps & FeedItemPosition): ReactElement => {
+  const isComment = !!comment;
+  const link = isComment
+    ? `${post?.commentsPermalink}#c-${comment.id}`
+    : post?.commentsPermalink;
   const { trackEvent } = useContext(AnalyticsContext);
   const trackClick = (provider: ShareProvider) =>
     trackEvent(
@@ -40,59 +47,56 @@ export const SocialShare = ({
         columns,
         column,
         row,
-        extra: { provider, origin },
+        extra: { provider, origin, ...(comment && { commentId: comment.id }) },
       }),
     );
 
   return (
     <section className="flex flex-wrap py-2 mb-2">
       <SocialShareIcon
-        href={getTwitterShareLink(post?.commentsPermalink, post?.title)}
+        href={getTwitterShareLink(link, post?.title)}
         icon={<TwitterIcon />}
         className="bg-theme-bg-twitter"
         onClick={() => trackClick(ShareProvider.Twitter)}
         label="Twitter"
       />
       <SocialShareIcon
-        href={getWhatsappShareLink(post?.commentsPermalink)}
+        href={getWhatsappShareLink(link)}
         icon={<WhatsappIcon />}
         onClick={() => trackClick(ShareProvider.WhatsApp)}
         className="bg-theme-bg-whatsapp"
         label="WhatsApp"
       />
       <SocialShareIcon
-        href={getFacebookShareLink(post?.commentsPermalink)}
+        href={getFacebookShareLink(link)}
         icon={<FacebookIcon />}
         className="bg-theme-bg-facebook"
         onClick={() => trackClick(ShareProvider.Facebook)}
         label="Facebook"
       />
       <SocialShareIcon
-        href={getRedditShareLink(post?.commentsPermalink, post?.title)}
+        href={getRedditShareLink(link, post?.title)}
         icon={<RedditIcon />}
         className="bg-theme-bg-reddit"
         onClick={() => trackClick(ShareProvider.Reddit)}
         label="Reddit"
       />
       <SocialShareIcon
-        href={getLinkedInShareLink(post?.commentsPermalink)}
+        href={getLinkedInShareLink(link)}
         icon={<LinkedInIcon />}
         className="bg-theme-bg-linkedin"
         onClick={() => trackClick(ShareProvider.LinkedIn)}
         label="LinkedIn"
       />
       <SocialShareIcon
-        href={getTelegramShareLink(post?.commentsPermalink, post?.title)}
+        href={getTelegramShareLink(link, post?.title)}
         icon={<TelegramIcon />}
         className="bg-theme-bg-telegram"
         onClick={() => trackClick(ShareProvider.Telegram)}
         label="Telegram"
       />
       <SocialShareIcon
-        href={getEmailShareLink(
-          post?.commentsPermalink,
-          'I found this amazing article',
-        )}
+        href={getEmailShareLink(link, 'I found this amazing article')}
         icon={<MailIcon />}
         className="bg-theme-bg-email"
         onClick={() => trackClick(ShareProvider.Email)}

@@ -30,6 +30,7 @@ export default function MainComment({
   commentHash,
   commentRef,
   onComment,
+  onShare,
   onDelete,
   onEdit,
   onShowUpvotes,
@@ -72,6 +73,7 @@ export default function MainComment({
       <CommentActionButtons
         comment={comment}
         parentId={comment.id}
+        onShare={onShare}
         onComment={onComment}
         onDelete={onDelete}
         onEdit={onEdit}
@@ -87,6 +89,7 @@ export default function MainComment({
           lastComment={i === comment.children.edges.length - 1}
           parentId={comment.id}
           onComment={onComment}
+          onShare={onShare}
           onDelete={onDelete}
           onEdit={(childComment) => onEdit(childComment, comment)}
           onShowUpvotes={onShowUpvotes}

@@ -37,6 +37,7 @@ interface PostCommentsProps {
   applyBottomMargin?: boolean;
   modalParentSelector?: () => HTMLElement;
   onClick?: (parent: ParentComment) => unknown;
+  onShare?: (comment: Comment) => void;
   onClickUpvote?: (commentId: string, upvotes: number) => unknown;
 }
 
@@ -83,6 +84,7 @@ const getParentComment = (
 export function PostComments({
   post,
   onClick,
+  onShare,
   onClickUpvote,
   modalParentSelector,
   applyBottomMargin = true,
@@ -157,6 +159,7 @@ export function PostComments({
           comment={e.node}
           key={e.node.id}
           onComment={onCommentClick}
+          onShare={onShare}
           onDelete={(comment, parentId) =>
             setPendingComment({ comment, parentId })
           }

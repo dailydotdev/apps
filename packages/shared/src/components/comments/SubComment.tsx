@@ -34,6 +34,7 @@ export default function SubComment({
   commentHash,
   commentRef,
   onComment,
+  onShare,
   onDelete,
   onEdit,
   onShowUpvotes,
@@ -85,6 +86,7 @@ export default function SubComment({
           comment={comment}
           parentId={parentId}
           onComment={onComment}
+          onShare={onShare}
           onDelete={onDelete}
           onEdit={onEdit}
           onShowUpvotes={onShowUpvotes}

@@ -13,53 +13,55 @@ import { Origin } from '../../lib/analytics';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { FeedItemPosition, postAnalyticsEvent } from '../../lib/feed';
 import { ShareProvider } from '../../lib/share';
+import { Comment } from '../../graphql/comments';
+import CommentItemCard from '../comments/CommentItemCard';
 
-type SharePostModalProps = {
+type ShareModalProps = {
   post: Post;
+  comment?: Comment;
   origin: Origin;
 } & FeedItemPosition &
   ModalProps;
 
-export default function SharePostModal({
+export default function ShareModal({
   post,
+  comment,
   origin,
   columns,
   column,
   row,
   ...props
-}: SharePostModalProps): ReactElement {
+}: ShareModalProps): ReactElement {
+  const isComment = !!comment;
+  const link = isComment
+    ? `${post?.commentsPermalink}#c-${comment.id}`
+    : post?.commentsPermalink;
   const { trackEvent } = useContext(AnalyticsContext);
-  const [, copyUrl] = useCopyLink(() => post?.commentsPermalink);
+  const [, copyUrl] = useCopyLink(() => link);
 
-  const trackAndCopyLink = () => {
+  const baseTrackingEvent = (
+    eventName: string,
+    extra?: Record<string, unknown>,
+  ) =>
     trackEvent(
-      postAnalyticsEvent('share post', post, {
-        extra: { provider: ShareProvider.CopyLink, origin },
+      postAnalyticsEvent(eventName, post, {
+        extra: {
+          ...extra,
+          origin,
+          ...(comment && { commentId: comment.id }),
+        },
       }),
     );
+
+  const trackAndCopyLink = () => {
+    baseTrackingEvent('share post', { provider: ShareProvider.CopyLink });
     copyUrl();
   };
 
   useEffect(() => {
-    trackEvent(
-      postAnalyticsEvent('open share', post, {
-        columns,
-        column,
-        row,
-        extra: { origin },
-      }),
-    );
+    baseTrackingEvent('open share');
 
-    return () => {
-      trackEvent(
-        postAnalyticsEvent('close share', post, {
-          columns,
-          column,
-          row,
-          extra: { origin },
-        }),
-      );
-    };
+    return () => baseTrackingEvent('close share');
   }, []);
 
   return (
@@ -69,7 +71,9 @@ export default function SharePostModal({
       contentClassName="!max-w-[26.25rem]"
     >
       <header className="flex fixed responsiveModalBreakpoint:sticky top-0 left-0 z-3 flex-row justify-between items-center px-6 w-full h-14 border-b border-theme-divider-tertiary bg-theme-bg-tertiary">
-        <h3 className="font-bold typo-title3">Share article</h3>
+        <h3 className="font-bold typo-title3">
+          {isComment ? 'Share comment' : 'Share article'}
+        </h3>
         <Button
           className="btn-tertiary"
           buttonSize="small"
@@ -78,29 +82,34 @@ export default function SharePostModal({
           onClick={props.onRequestClose}
         />
       </header>
-      <PostItemCard
-        className="mt-4 mb-2"
-        postItem={{ post }}
-        showButtons={false}
-        clickable={false}
-      />
+      {isComment ? (
+        <CommentItemCard comment={comment} />
+      ) : (
+        <PostItemCard
+          className="mt-4 mb-2"
+          postItem={{ post }}
+          showButtons={false}
+          clickable={false}
+        />
+      )}
       <section className="px-6">
-        <p className="py-2.5 font-bold typo-callout">Copy article link</p>
+        <p className="py-2.5 font-bold typo-callout">Copy link</p>
         <TextField
           className="mt-2 mb-6"
           name="postUrl"
           inputId="postUrl"
-          label="Copy post URL"
+          label="Copy URL"
           type="url"
           fieldType="tertiary"
           actionIcon={<CopyIcon />}
           onActionIconClick={trackAndCopyLink}
-          value={post?.commentsPermalink}
+          value={link}
           readOnly
         />
-        <p className="py-2.5 font-bold typo-callout">Share article via</p>
+        <p className="py-2.5 font-bold typo-callout">Share via</p>
         <SocialShare
           post={post}
+          comment={comment}
           origin={origin}
           columns={columns}
           column={column}
