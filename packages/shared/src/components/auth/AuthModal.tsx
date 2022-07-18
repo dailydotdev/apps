@@ -44,7 +44,9 @@ export default function AuthModal({
   const isV1 = authVersion === AuthVersion.V1;
 
   useEffect(() => {
-    getAuthInitializationToken().then((response) => console.log(response));
+    getAuthInitializationToken()
+      .then((response) => console.log(response))
+      .catch((response) => console.log(response));
   }, []);
 
   return (

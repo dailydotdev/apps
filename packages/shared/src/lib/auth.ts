@@ -1,10 +1,14 @@
-export const getAuthInitializationToken = (): Promise<string> =>
-  new Promise((resolve) => {
+export const getAuthInitializationToken = (
+  flow?: string,
+): Promise<XMLHttpRequest> =>
+  new Promise((resolve, reject) => {
     const xhttp = new XMLHttpRequest();
-    xhttp.onload = () => resolve(xhttp.responseText);
+    const params = flow ? new URLSearchParams({ flow }) : '';
+    xhttp.onload = () => resolve(xhttp);
+    xhttp.onerror = () => reject(xhttp);
     xhttp.open(
       'GET',
-      `${process.env.NEXT_PUBLIC_AUTH_URL}/self-service/registration/browser`,
+      `${process.env.NEXT_PUBLIC_AUTH_URL}/self-service/registration/browser${params}`,
       true,
     );
     xhttp.setRequestHeader('Accept', 'application/json; charset=utf-8');
