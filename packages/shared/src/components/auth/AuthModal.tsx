@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement, useContext, useEffect } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import { StyledModal, ModalProps } from '../modals/StyledModal';
@@ -9,6 +9,7 @@ import AuthOptions from './AuthOptions';
 import useAuthForms from '../../hooks/useAuthForms';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { AuthVersion } from '../../lib/featureValues';
+import { getAuthInitializationToken } from '../../lib/auth';
 
 export type AuthModalProps = ModalProps;
 
@@ -41,6 +42,10 @@ export default function AuthModal({
     onDiscard: onRequestClose,
   });
   const isV1 = authVersion === AuthVersion.V1;
+
+  useEffect(() => {
+    getAuthInitializationToken().then((response) => console.log(response));
+  }, []);
 
   return (
     <StyledModal
