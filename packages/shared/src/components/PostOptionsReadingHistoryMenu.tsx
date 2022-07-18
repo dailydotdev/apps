@@ -3,7 +3,7 @@ import { Item } from '@dailydotdev/react-contexify';
 import dynamic from 'next/dynamic';
 import { QueryClient, QueryKey, useQueryClient } from 'react-query';
 import { ReadHistoryPost } from '../graphql/posts';
-import ShareIcon from './icons/Forward';
+import ShareIcon from './icons/Share';
 import BookmarkIcon from './icons/Bookmark';
 import XIcon from './icons/Close';
 import useBookmarkPost from '../hooks/useBookmarkPost';
@@ -11,10 +11,8 @@ import AuthContext from '../contexts/AuthContext';
 import { ReadHistoryInfiniteData } from '../hooks/useInfiniteReadingHistory';
 import { MenuIcon } from './MenuIcon';
 import { QueryIndexes } from '../hooks/useReadingHistory';
-import { useShareOrCopyLink } from '../hooks/useShareOrCopyLink';
 import { postAnalyticsEvent } from '../lib/feed';
 import { postEventName } from './utilities';
-import { Origin } from '../lib/analytics';
 
 const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
   ssr: false,
@@ -22,6 +20,7 @@ const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
 
 export type PostOptionsReadingHistoryMenuProps = {
   post: ReadHistoryPost;
+  onShare?: () => void;
   onHiddenMenu?: () => unknown;
   displayCopiedMessageFunc?: () => void;
   onHideHistoryPost?: (postId: string) => unknown;
@@ -68,6 +67,7 @@ const getBookmarkIconAndMenuText = (bookmarked: boolean) => (
 
 export default function PostOptionsReadingHistoryMenu({
   post,
+  onShare,
   onHiddenMenu,
   onHideHistoryPost,
   indexes,
@@ -75,14 +75,6 @@ export default function PostOptionsReadingHistoryMenu({
   const { user } = useContext(AuthContext);
   const queryClient = useQueryClient();
   const historyQueryKey = ['readHistory', user?.id];
-  const [, onShareOrCopyLink] = useShareOrCopyLink({
-    link: post?.commentsPermalink,
-    text: post?.title,
-    trackObject: (provider) =>
-      postAnalyticsEvent('share post', post, {
-        extra: { origin: Origin.ReadingHistoryContextMenu, provider },
-      }),
-  });
 
   const { bookmark, removeBookmark } = useBookmarkPost({
     onBookmarkMutate: updateReadingHistoryPost(
@@ -127,14 +119,14 @@ export default function PostOptionsReadingHistoryMenu({
         animation="fade"
         onHidden={onHiddenMenu}
       >
+        <Item className="typo-callout" onClick={onShare}>
+          <span className="flex w-full typo-callout">
+            <MenuIcon Icon={ShareIcon} /> Share article via...
+          </span>
+        </Item>
         <Item className="typo-callout" onClick={onBookmarkReadingHistoryPost}>
           <span className="flex w-full typo-callout">
             {getBookmarkIconAndMenuText(post?.bookmarked)}
-          </span>
-        </Item>
-        <Item className="typo-callout" onClick={() => onShareOrCopyLink()}>
-          <span className="flex w-full typo-callout">
-            <MenuIcon Icon={ShareIcon} /> Share article
           </span>
         </Item>
         <Item

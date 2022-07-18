@@ -4,7 +4,7 @@ import TwitterIcon from './icons/Twitter';
 import WhatsappIcon from './icons/Whatsapp';
 import FacebookIcon from './icons/Facebook';
 import CopyIcon from './icons/Copy';
-import ShareIcon from './icons/Forward';
+import ShareIcon from './icons/Share';
 import Confetti from '../svg/ConfettiSvg';
 import {
   getFacebookShareLink,

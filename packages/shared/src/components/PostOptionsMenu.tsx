@@ -8,9 +8,9 @@ import { Post, ReportReason } from '../graphql/posts';
 import TrashIcon from './icons/Trash';
 import HammerIcon from './icons/Hammer';
 import EyeIcon from './icons/Eye';
-import ForwardIcon from './icons/Forward';
 import BlockIcon from './icons/Block';
 import FlagIcon from './icons/Flag';
+import ShareIcon from './icons/Share';
 import RepostPostModal from './modals/ReportPostModal';
 import useTagAndSource from '../hooks/useTagAndSource';
 import AnalyticsContext from '../contexts/AnalyticsContext';
@@ -200,7 +200,7 @@ export default function PostOptionsMenu({
     additionalInteractionButtonFeature === AdditionalInteractionButtons.Bookmark
   ) {
     postOptions.splice(1, 0, {
-      icon: <MenuIcon Icon={ForwardIcon} />,
+      icon: <MenuIcon Icon={ShareIcon} />,
       text: 'Share article via...',
       action: onShare,
     });
