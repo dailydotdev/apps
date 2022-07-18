@@ -4,7 +4,7 @@ export const getAuthInitializationToken = (): Promise<string> =>
     xhttp.onload = () => resolve(xhttp.responseText);
     xhttp.open(
       'GET',
-      `${process.env.NEXT_PUBLIC_AUTH_URL}/self-service/login/browser`,
+      `${process.env.NEXT_PUBLIC_AUTH_URL}/self-service/registration/browser`,
       true,
     );
     xhttp.setRequestHeader('Accept', 'application/json; charset=utf-8');
