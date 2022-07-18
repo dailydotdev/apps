@@ -328,10 +328,7 @@ export function PostContent({
         <PostComments
           post={postById.post}
           onClick={onCommentClick}
-          onShare={(comment) => {
-            console.log(comment);
-            setShareComment(comment);
-          }}
+          onShare={(comment) => setShareComment(comment)}
           onClickUpvote={onShowUpvotedComment}
         />
         {authorOnboarding && (
