@@ -4,7 +4,6 @@ import AnalyticsContext from '../contexts/AnalyticsContext';
 import AuthContext from '../contexts/AuthContext';
 import { BOOT_QUERY_KEY } from '../contexts/BootProvider';
 import FeaturesContext from '../contexts/FeaturesContext';
-import { Features, isFeaturedEnabled } from '../lib/featureManagement';
 import { storageWrapper as storage } from '../lib/storageWrapper';
 import {
   getLocalFeedSettings,
