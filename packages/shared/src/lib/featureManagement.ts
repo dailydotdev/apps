@@ -81,7 +81,7 @@ export class Features {
 
   static readonly PostCardHeadingFont = new Features(
     'post_card_heading_font',
-    'bodyBold',
+    'title3Bold',
     ['bodyBold', 'body', 'title3', 'title3Bold'],
   );
 
