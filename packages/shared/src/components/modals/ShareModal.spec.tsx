@@ -49,14 +49,6 @@ it('should render the article card', async () => {
   expect(screen.getByText(defaultPost.title)).toBeInTheDocument();
 });
 
-it('should render the comment card', async () => {
-  renderComponent(defaultComment);
-  expect(
-    screen.getByAltText(`${defaultComment.author.username}'s profile`),
-  ).toBeInTheDocument();
-  expect(screen.getByText('my comment')).toBeInTheDocument();
-});
-
 it('should render the copy link section', async () => {
   renderComponent();
   expect(

@@ -1,4 +1,5 @@
 import React, { ReactElement, useContext, useEffect } from 'react';
+import classNames from 'classnames';
 import { ModalProps } from './StyledModal';
 import { Button } from '../buttons/Button';
 import XIcon from '../icons/Close';
@@ -14,7 +15,6 @@ import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { FeedItemPosition, postAnalyticsEvent } from '../../lib/feed';
 import { ShareProvider } from '../../lib/share';
 import { Comment } from '../../graphql/comments';
-import CommentItemCard from '../comments/CommentItemCard';
 
 type ShareModalProps = {
   post: Post;
@@ -82,9 +82,7 @@ export default function ShareModal({
           onClick={props.onRequestClose}
         />
       </header>
-      {isComment ? (
-        <CommentItemCard comment={comment} />
-      ) : (
+      {!isComment && (
         <PostItemCard
           className="mt-4 mb-2"
           postItem={{ post }}
@@ -92,7 +90,7 @@ export default function ShareModal({
           clickable={false}
         />
       )}
-      <section className="px-6">
+      <section className={classNames('px-6', isComment && 'mt-2')}>
         <p className="py-2.5 font-bold typo-callout">Copy link</p>
         <TextField
           className="mt-2 mb-6"
