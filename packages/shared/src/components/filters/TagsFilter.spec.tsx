@@ -30,10 +30,7 @@ import { waitForNock } from '../../../__tests__/helpers/utilities';
 import { getFeedSettingsQueryKey } from '../../hooks/useFeedSettings';
 import { AlertContextProvider } from '../../contexts/AlertContext';
 import { Alerts, UPDATE_ALERTS } from '../../graphql/alerts';
-import FeaturesContext, {
-  FeaturesContextProvider,
-} from '../../contexts/FeaturesContext';
-import feed from '../../../__tests__/fixture/feed';
+import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
 
 const showLogin = jest.fn();
 const updateAlerts = jest.fn();

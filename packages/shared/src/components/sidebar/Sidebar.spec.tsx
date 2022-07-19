@@ -24,10 +24,7 @@ import { AlertContextProvider } from '../../contexts/AlertContext';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
 import { Alerts, UPDATE_ALERTS } from '../../graphql/alerts';
-import FeaturesContext, {
-  FeaturesContextProvider,
-  FeaturesData,
-} from '../../contexts/FeaturesContext';
+import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
 import {
   getFeedSettingsQueryKey,
   getHasAnyFilter,
