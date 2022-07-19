@@ -137,7 +137,7 @@ export function PostContent({
   const { subject } = useToastNotification();
   const { sharePost, openSharePost, closeSharePost } =
     useSharePost(analyticsOrigin);
-  const [shareComment, setShareComment] = useState<Comment>();
+  const [shareComment, setShareComment] = useState<Comment>(null);
   const { updatePost } = useUpdatePost();
   const { bookmark, removeBookmark } = useBookmarkPost({
     onBookmarkMutate: updatePost({ id, update: { bookmarked: true } }),

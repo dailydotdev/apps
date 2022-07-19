@@ -42,7 +42,7 @@ export function CompanionDiscussion({
     onInput,
     parentComment,
   } = useCompanionPostComment(post);
-  const [shareComment, setShareComment] = useState<Comment>();
+  const [shareComment, setShareComment] = useState<Comment>(null);
   const postCommentsQueryKey = ['post_comments', post?.id];
   useBackgroundRequest(postCommentsQueryKey);
 
