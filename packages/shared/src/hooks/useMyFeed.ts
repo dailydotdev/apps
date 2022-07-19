@@ -23,8 +23,7 @@ export function useMyFeed(): UseMyFeed {
   const { updateFeedFilters } = useMutateFilters();
   const { trackEvent } = useContext(AnalyticsContext);
   const { user } = useContext(AuthContext);
-  const { flags } = useContext(FeaturesContext);
-  const shouldShowMyFeed = isFeaturedEnabled(Features.MyFeedOn, flags);
+  const { shouldShowMyFeed } = useContext(FeaturesContext);
 
   const registerLocalFilters = async () => {
     const feedSettings = getLocalFeedSettings(true);
