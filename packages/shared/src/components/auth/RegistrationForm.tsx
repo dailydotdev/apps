@@ -51,8 +51,6 @@ export const RegistrationForm = ({
   isV2,
 }: RegistrationFormProps): ReactElement => {
   const client = useQueryClient();
-  const session =
-    client.getQueryData<RegistrationInitializationData>('registration');
   const [isNameValid, setIsNameValid] = useState<boolean>();
   const [isPasswordValid, setIsPasswordValid] = useState<boolean>();
   const [isUsernameValid, setIsUsernameValid] = useState<boolean>();
@@ -82,25 +80,29 @@ export const RegistrationForm = ({
   }
 
   const onSubmit = async (e: React.FormEvent) => {
+    const session =
+      client.getQueryData<RegistrationInitializationData>('registration');
     e.preventDefault();
     try {
       const res = await fetch(session.ui.action, {
         method: session.ui.method,
-        credentials: 'same-origin',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           csrf_token: session.ui.nodes[0].attributes.value,
           method: 'password',
-          'traits.email': 'sample@email.com',
-          'traits.name.first': 'lee',
-          'traits.name.last': 'solevilla',
           password: '1q2w3e',
+          traits: {
+            email: 'sample@email.com',
+            name: {
+              first: 'lee',
+              last: 'solevilla',
+            },
+          },
         }),
       });
       const json = await res.json();
-      setEmailSent(true);
+      // setEmailSent(true);
       console.log(json);
     } catch (err) {
       console.log(err);
