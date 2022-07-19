@@ -5,6 +5,8 @@ import React, {
   useEffect,
   useState,
 } from 'react';
+import { useQueryClient } from 'react-query';
+import { RegistrationInitializationData } from '../../lib/auth';
 import { formInputs } from '../../lib/form';
 import { Button } from '../buttons/Button';
 import ImageInput from '../fields/ImageInput';
@@ -48,6 +50,9 @@ export const RegistrationForm = ({
   onBack,
   isV2,
 }: RegistrationFormProps): ReactElement => {
+  const client = useQueryClient();
+  const session =
+    client.getQueryData<RegistrationInitializationData>('registration');
   const [isNameValid, setIsNameValid] = useState<boolean>();
   const [isPasswordValid, setIsPasswordValid] = useState<boolean>();
   const [isUsernameValid, setIsUsernameValid] = useState<boolean>();
@@ -76,9 +81,30 @@ export const RegistrationForm = ({
     return <EmailVerificationSent email={email} />;
   }
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setEmailSent(true);
+    try {
+      const res = await fetch(session.ui.action, {
+        method: session.ui.method,
+        credentials: 'same-origin',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          csrf_token: session.ui.nodes[0].attributes.value,
+          method: 'password',
+          'traits.email': 'sample@email.com',
+          'traits.name.first': 'lee',
+          'traits.name.last': 'solevilla',
+          password: '1q2w3e',
+        }),
+      });
+      const json = await res.json();
+      setEmailSent(true);
+      console.log(json);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
