@@ -15,7 +15,6 @@ import { apiUrl } from '../lib/config';
 import { generateQueryKey } from '../lib/query';
 import { LoggedUser } from '../lib/user';
 import FeaturesContext from '../contexts/FeaturesContext';
-import { Features, isFeaturedEnabled } from '../lib/featureManagement';
 import usePersistentContext from './usePersistentContext';
 import useDebounce from './useDebounce';
 
@@ -75,8 +74,7 @@ export default function useFeedSettings(): FeedSettingsReturnType {
   const [isFirstLoad, setIsFirstLoad] = useState(true);
   const filtersKey = getFeedSettingsQueryKey(user);
   const queryClient = useQueryClient();
-  const { flags } = useContext(FeaturesContext);
-  const shouldShowMyFeed = isFeaturedEnabled(Features.MyFeedOn, flags);
+  const { shouldShowMyFeed } = useContext(FeaturesContext);
   const [avoidRefresh, setAvoidRefresh] = usePersistentContext(
     AVOID_REFRESH_KEY,
     false,

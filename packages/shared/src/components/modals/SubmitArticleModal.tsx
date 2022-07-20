@@ -45,7 +45,7 @@ export default function SubmitArticleModal({
   const [existingArticle, setExistingArticle] = useState<PostItem>(null);
   const [urlHint, setUrlHint] = useState<string>();
   const availabilityKey = ['submission_availability', user?.id];
-  const { data: access } = useQuery<{
+  const { data: access, isFetched } = useQuery<{
     submissionAvailability: SubmissionAvailability;
   }>(availabilityKey, () =>
     request(`${apiUrl}/graphql`, SUBMISSION_AVAILABILITY_QUERY),
@@ -161,6 +161,10 @@ export default function SubmitArticleModal({
       </Button>
     );
   };
+
+  if (!isFetched) {
+    return <></>;
+  }
 
   return (
     <ResponsiveModal
