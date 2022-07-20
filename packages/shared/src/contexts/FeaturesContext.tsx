@@ -8,6 +8,7 @@ import {
 
 export interface FeaturesData {
   flags: IFlags;
+  showCommentPopover?: boolean;
   shouldShowMyFeed?: boolean;
   postEngagementNonClickable?: boolean;
   postModalByDefault?: boolean;
