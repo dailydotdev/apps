@@ -3,6 +3,7 @@ import nock from 'nock';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { act } from '@testing-library/react-hooks';
+import { IFlags } from 'flagsmith';
 import AuthContext from '../../contexts/AuthContext';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import { LoggedUser } from '../../lib/user';
@@ -23,32 +24,26 @@ import { AlertContextProvider } from '../../contexts/AlertContext';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
 import { Alerts, UPDATE_ALERTS } from '../../graphql/alerts';
-import FeaturesContext, { FeaturesData } from '../../contexts/FeaturesContext';
+import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
 import {
   getFeedSettingsQueryKey,
   getHasAnyFilter,
 } from '../../hooks/useFeedSettings';
 
-let features: FeaturesData;
-let client: QueryClientfeat;
+let features: IFlags;
+let client: QueryClient;
 const updateAlerts = jest.fn();
 const toggleSidebarExpanded = jest.fn();
 
-const defaultFeatures: FeaturesData = {
-  flags: {
-    my_feed_on: {
-      enabled: true,
-    },
-    my_feed_position: {
-      enabled: true,
-      value: 'sidebar',
-    },
+const defaultFeatures: IFlags = {
+  my_feed_on: {
+    enabled: true,
   },
 };
 
 beforeEach(() => {
   nock.cleanAll();
-  features = { flags: {} };
+  features = {};
 });
 
 const createMockFeedSettings = () => ({
@@ -91,7 +86,7 @@ const renderComponent = (
 
   return render(
     <QueryClientProvider client={client}>
-      <FeaturesContext.Provider value={features}>
+      <FeaturesContextProvider flags={features}>
         <AlertContextProvider
           alerts={alertsData}
           updateAlerts={updateAlerts}
@@ -122,7 +117,7 @@ const renderComponent = (
             </ProgressiveEnhancementContext.Provider>
           </AuthContext.Provider>
         </AlertContextProvider>
-      </FeaturesContext.Provider>
+      </FeaturesContextProvider>
     </QueryClientProvider>,
   );
 };
@@ -135,6 +130,11 @@ it('should not render create my feed button if user has alerts.filter as false',
 });
 
 it('should remove filter alert if the user has filters and opened feed filters', async () => {
+  features = {
+    my_feed_on: {
+      enabled: false,
+    },
+  };
   let mutationCalled = false;
   mockGraphQL({
     request: {
