@@ -111,7 +111,7 @@ export class Features {
     'Activate companion',
   );
 
-  static readonly PostCardVersion = new Features('post_card_version', 'v1', [
+  static readonly PostCardVersion = new Features('post_card_version', 'v2', [
     'v1',
     'v2',
   ]);
@@ -133,6 +133,8 @@ export class Features {
     AdditionalInteractionButtons.Bookmark,
     [AdditionalInteractionButtons.Bookmark, AdditionalInteractionButtons.Share],
   );
+
+  static readonly ShowCommentPopover = new Features('show_comment_popover');
 
   private constructor(
     public readonly id: string,
