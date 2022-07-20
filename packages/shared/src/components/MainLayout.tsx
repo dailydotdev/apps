@@ -84,7 +84,7 @@ const LogoAndGreeting = ({
 };
 
 const mainLayoutClass = (sidebarExpanded: boolean) =>
-  sidebarExpanded ? 'laptop:pl-70' : 'laptop:pl-11';
+  sidebarExpanded ? 'laptop:pl-60' : 'laptop:pl-11';
 
 export default function MainLayout({
   children,
