@@ -30,7 +30,7 @@ import { waitForNock } from '../../../__tests__/helpers/utilities';
 import { getFeedSettingsQueryKey } from '../../hooks/useFeedSettings';
 import { AlertContextProvider } from '../../contexts/AlertContext';
 import { Alerts, UPDATE_ALERTS } from '../../graphql/alerts';
-import FeaturesContext from '../../contexts/FeaturesContext';
+import { FeaturesContextProvider } from '../../contexts/FeaturesContext';
 
 const showLogin = jest.fn();
 const updateAlerts = jest.fn();
@@ -80,7 +80,7 @@ const renderComponent = (
   mocks.forEach(mockGraphQL);
   return render(
     <QueryClientProvider client={client}>
-      <FeaturesContext.Provider value={{ flags }}>
+      <FeaturesContextProvider flags={flags}>
         <AlertContextProvider
           alerts={alertsData}
           updateAlerts={updateAlerts}
@@ -104,7 +104,7 @@ const renderComponent = (
             <TagsFilter />
           </AuthContext.Provider>
         </AlertContextProvider>
-      </FeaturesContext.Provider>
+      </FeaturesContextProvider>
     </QueryClientProvider>,
   );
 };
