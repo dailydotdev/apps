@@ -14,7 +14,7 @@ import { Origin } from '../../lib/analytics';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { FeedItemPosition, postAnalyticsEvent } from '../../lib/feed';
 import { ShareProvider } from '../../lib/share';
-import { Comment } from '../../graphql/comments';
+import { Comment, getCommentHash } from '../../graphql/comments';
 
 type ShareModalProps = {
   post: Post;
@@ -34,7 +34,7 @@ export default function ShareModal({
 }: ShareModalProps): ReactElement {
   const isComment = !!comment;
   const link = isComment
-    ? `${post?.commentsPermalink}#c-${comment.id}`
+    ? `${post?.commentsPermalink}${getCommentHash(comment.id)}`
     : post?.commentsPermalink;
   const { trackEvent } = useContext(AnalyticsContext);
   const [, copyUrl] = useCopyLink(() => link);

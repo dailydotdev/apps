@@ -66,7 +66,7 @@ export function CompanionDiscussion({
           post={post}
           applyBottomMargin={false}
           onClick={onCommentClick}
-          onShare={(comment) => setShareComment(comment)}
+          onShare={setShareComment}
           onClickUpvote={onShowUpvoted}
           modalParentSelector={getCompanionWrapper}
         />

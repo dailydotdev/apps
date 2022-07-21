@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Comment } from '../../graphql/comments';
+import { Comment, getCommentHash } from '../../graphql/comments';
 import { CommentBox, CommentPublishDate } from './common';
 import CommentActionButtons, {
   CommentActionProps,
@@ -46,7 +46,7 @@ export default function SubComment({
     <article
       className="flex items-stretch mt-4 scroll-mt-16"
       data-testid="subcomment"
-      ref={commentHash === `#c-${comment.id}` ? commentRef : null}
+      ref={commentHash === getCommentHash(comment.id) ? commentRef : null}
     >
       <div className="relative">
         <div

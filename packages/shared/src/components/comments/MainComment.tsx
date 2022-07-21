@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Comment } from '../../graphql/comments';
+import { Comment, getCommentHash } from '../../graphql/comments';
 import { CommentBox, CommentPublishDate } from './common';
 import CommentActionButtons, {
   CommentActionProps,
@@ -45,7 +45,7 @@ export default function MainComment({
         'flex flex-col items-stretch mt-4 scroll-mt-16',
         className,
       )}
-      ref={commentHash === `#c-${comment.id}` ? commentRef : null}
+      ref={commentHash === getCommentHash(comment.id) ? commentRef : null}
       data-testid="comment"
     >
       <div className="flex items-center">

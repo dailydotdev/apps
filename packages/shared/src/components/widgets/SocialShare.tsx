@@ -21,7 +21,7 @@ import TelegramIcon from '../icons/Telegram';
 import { FeedItemPosition, postAnalyticsEvent } from '../../lib/feed';
 import { Origin } from '../../lib/analytics';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { Comment } from '../../graphql/comments';
+import { Comment, getCommentHash } from '../../graphql/comments';
 
 interface SocialShareProps {
   origin: Origin;
@@ -38,7 +38,7 @@ export const SocialShare = ({
 }: SocialShareProps & FeedItemPosition): ReactElement => {
   const isComment = !!comment;
   const link = isComment
-    ? `${post?.commentsPermalink}#c-${comment.id}`
+    ? `${post?.commentsPermalink}${getCommentHash(comment.id)})}`
     : post?.commentsPermalink;
   const { trackEvent } = useContext(AnalyticsContext);
   const trackClick = (provider: ShareProvider) =>

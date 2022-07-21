@@ -7,6 +7,7 @@ import Post from '../../../__tests__/fixture/post';
 import { getWhatsappShareLink } from '../../lib/share';
 import { Origin } from '../../lib/analytics';
 import Comment from '../../../__tests__/fixture/comment';
+import { getCommentHash } from '../../graphql/comments';
 
 const defaultPost = Post;
 const defaultComment = Comment;
@@ -68,7 +69,7 @@ it('should render the copy link section for comments', async () => {
   renderComponent(defaultComment);
   expect(
     screen.getByDisplayValue(
-      `${defaultPost.commentsPermalink}#c-${defaultComment.id}`,
+      `${defaultPost.commentsPermalink}${getCommentHash(defaultComment.id)}`,
     ),
   ).toBeInTheDocument();
 
@@ -76,7 +77,7 @@ it('should render the copy link section for comments', async () => {
   btn.click();
   await waitFor(() =>
     expect(window.navigator.clipboard.writeText).toBeCalledWith(
-      `${defaultPost.commentsPermalink}#c-${defaultComment.id}`,
+      `${defaultPost.commentsPermalink}${getCommentHash(defaultComment.id)}`,
     ),
   );
 });
@@ -96,7 +97,7 @@ it('should share with a specific share link for a comment', async () => {
   expect(screen.getByTestId('social-share-WhatsApp')).toHaveAttribute(
     'href',
     getWhatsappShareLink(
-      `${defaultPost.commentsPermalink}#c-${defaultComment.id}`,
+      `${defaultPost.commentsPermalink}${getCommentHash(defaultComment.id)}`,
     ),
   );
 });
