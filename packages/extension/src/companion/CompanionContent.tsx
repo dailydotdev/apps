@@ -89,7 +89,7 @@ export default function CompanionContent({
           />
         </SimpleTooltip>
       </div>
-      <p className="flex-1 my-4 typo-callout">
+      <p className="flex-1 my-4 break-words typo-callout">
         <TLDRText>TLDR -</TLDRText>
         <span>
           {post?.summary ||
