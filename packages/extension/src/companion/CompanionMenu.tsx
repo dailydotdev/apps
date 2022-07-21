@@ -24,7 +24,7 @@ import { useSharePost } from '@dailydotdev/shared/src/hooks/useSharePost';
 import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import { AdditionalInteractionButtons } from '@dailydotdev/shared/src/lib/featureValues';
 import NewCommentModal from '@dailydotdev/shared/src/components/modals/NewCommentModal';
-import SharePostModal from '@dailydotdev/shared/src/components/modals/SharePostModal';
+import ShareModal from '@dailydotdev/shared/src/components/modals/ShareModal';
 
 import CompanionContextMenu from './CompanionContextMenu';
 import '@dailydotdev/shared/src/styles/globals.css';
@@ -304,7 +304,7 @@ export default function CompanionMenu({
         />
       )}
       {sharePost && (
-        <SharePostModal
+        <ShareModal
           isOpen={!!sharePost}
           parentSelector={getCompanionWrapper}
           post={sharePost}

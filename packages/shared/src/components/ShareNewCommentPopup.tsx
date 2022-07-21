@@ -17,18 +17,21 @@ import { ModalCloseButton } from './modals/ModalCloseButton';
 import classed from '../lib/classed';
 import { SimpleTooltip } from './tooltips/SimpleTooltip';
 import { useCopyLink } from '../hooks/useCopyLink';
+import { getCommentHash } from '../graphql/comments';
 
 const ShareButton = classed(Button, 'text-white');
 interface ShareNewCommentPopupProps {
   onRequestClose: () => void;
+  commentId: string;
   post: Post;
 }
 
 export default function ShareNewCommentPopup({
   post,
+  commentId,
   onRequestClose,
 }: ShareNewCommentPopupProps): ReactElement {
-  const href = post.commentsPermalink;
+  const href = `${post?.commentsPermalink}${getCommentHash(commentId)}`;
   const { user } = useContext(AuthContext);
   const [copying, copyLink] = useCopyLink(() => href);
 

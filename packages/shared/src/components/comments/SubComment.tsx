@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Comment } from '../../graphql/comments';
+import { Comment, getCommentHash } from '../../graphql/comments';
 import { CommentBox, CommentPublishDate } from './common';
 import CommentActionButtons, {
   CommentActionProps,
@@ -19,6 +19,8 @@ export interface Props extends CommentActionProps {
   parentId: string;
   postAuthorId: string | null;
   postScoutId: string | null;
+  commentHash?: string;
+  commentRef?: React.MutableRefObject<HTMLElement>;
   appendTooltipTo?: () => HTMLElement;
 }
 
@@ -29,7 +31,10 @@ export default function SubComment({
   firstComment,
   lastComment,
   parentId,
+  commentHash,
+  commentRef,
   onComment,
+  onShare,
   onDelete,
   onEdit,
   onShowUpvotes,
@@ -38,7 +43,11 @@ export default function SubComment({
   postScoutId,
 }: Props): ReactElement {
   return (
-    <article className="flex items-stretch mt-4" data-testid="subcomment">
+    <article
+      className="flex items-stretch mt-4 scroll-mt-16"
+      data-testid="subcomment"
+      ref={commentHash === getCommentHash(comment.id) ? commentRef : null}
+    >
       <div className="relative">
         <div
           data-testid="timeline"
@@ -77,6 +86,7 @@ export default function SubComment({
           comment={comment}
           parentId={parentId}
           onComment={onComment}
+          onShare={onShare}
           onDelete={onDelete}
           onEdit={onEdit}
           onShowUpvotes={onShowUpvotes}
