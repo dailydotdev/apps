@@ -130,8 +130,8 @@ export default function useFeed<T>(
 
   const adsQuery = useInfiniteQuery<Ad>(
     ['ads', ...feedQueryKey],
-    async () => {
-      const res = await fetch(`${apiUrl}/v1/a`);
+    async ({ pageParam }) => {
+      const res = await fetch(`${apiUrl}/v1/a?active=${!!pageParam}`);
       const ads: Ad[] = await res.json();
       return ads[0];
     },
