@@ -38,7 +38,7 @@ export const SocialShare = ({
 }: SocialShareProps & FeedItemPosition): ReactElement => {
   const isComment = !!comment;
   const link = isComment
-    ? `${post?.commentsPermalink}${getCommentHash(comment.id)})}`
+    ? `${post?.commentsPermalink}${getCommentHash(comment.id)}`
     : post?.commentsPermalink;
   const { trackEvent } = useContext(AnalyticsContext);
   const trackClick = (provider: ShareProvider) =>
