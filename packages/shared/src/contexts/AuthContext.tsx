@@ -1,4 +1,10 @@
-import React, { ReactElement, ReactNode, useMemo, useState } from 'react';
+import React, {
+  ReactElement,
+  ReactNode,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import {
   AnonymousUser,
   LoggedUser,
@@ -6,11 +12,20 @@ import {
   deleteAccount,
 } from '../lib/user';
 import { Visit } from '../lib/boot';
+import {
+  AuthSession,
+  checkCurrentSession,
+  getLogoutSession,
+  logoutSession,
+  validatePasswordLogin,
+  validateRegistration,
+} from '../lib/auth';
 
 export type LoginState = { trigger: string };
 
 export interface AuthContextData {
   user?: LoggedUser;
+  session?: AuthSession;
   trackingId?: string;
   shouldShowLogin: boolean;
   showLogin: (trigger: string) => void;
@@ -26,6 +41,8 @@ export interface AuthContextData {
   visit?: Visit;
   isFirstVisit?: boolean;
   deleteAccount?: () => Promise<void>;
+  onPasswordRegistration: typeof validateRegistration;
+  onPasswordLogin: typeof validatePasswordLogin;
 }
 
 const AuthContext = React.createContext<AuthContextData>(null);
@@ -51,8 +68,8 @@ const appendLogoutParam = (link: string): URL => {
   return url;
 };
 
-const logout = async (): Promise<void> => {
-  await dispatchLogout();
+const logout = async (logoutUrl: string, token: string): Promise<void> => {
+  await Promise.all([dispatchLogout(), logoutSession(logoutUrl, token)]); // temporary
   const params = getQueryParams();
   if (params.redirect_uri) {
     window.location.replace(appendLogoutParam(params.redirect_uri));
@@ -88,10 +105,36 @@ export const AuthContextProvider = ({
   getRedirectUri,
   visit,
 }: AuthContextProviderProps): ReactElement => {
+  const [session, setSession] = useState<AuthSession>();
   const [loginState, setLoginState] = useState<LoginState | null>(null);
+
+  const onPasswordLogin: typeof validatePasswordLogin = async (...params) => {
+    const loginSession = await validatePasswordLogin(...params);
+
+    if (loginSession) {
+      setSession(loginSession);
+    }
+
+    return null;
+  };
+
+  const onPasswordRegistration: typeof validateRegistration = async (
+    ...params
+  ) => {
+    const response = await validateRegistration(...params);
+
+    if (response.success) {
+      setSession(response.success);
+    }
+
+    return response;
+  };
 
   const authContext: AuthContextData = useMemo(
     () => ({
+      session,
+      onPasswordLogin,
+      onPasswordRegistration,
       user: user && 'providers' in user ? user : null,
       isFirstVisit: user?.isFirstVisit ?? false,
       trackingId: user?.id,
@@ -100,7 +143,7 @@ export const AuthContextProvider = ({
       closeLogin: () => setLoginState(null),
       loginState,
       updateUser,
-      logout,
+      logout: () => logout(session.logout_url, session.logout_token),
       loadingUser,
       tokenRefreshed,
       loadedUserFromCache,
@@ -109,8 +152,25 @@ export const AuthContextProvider = ({
       visit,
       deleteAccount,
     }),
-    [user, loginState, loadingUser, tokenRefreshed, loadedUserFromCache, visit],
+    [
+      user,
+      session,
+      loginState,
+      loadingUser,
+      tokenRefreshed,
+      loadedUserFromCache,
+      visit,
+    ],
   );
+
+  useEffect(() => {
+    checkCurrentSession()
+      .then(async (userSession) => {
+        const logoutData = await getLogoutSession();
+        setSession({ ...userSession, ...logoutData });
+      })
+      .catch(() => setSession(null));
+  }, []);
 
   return (
     <AuthContext.Provider value={authContext}>{children}</AuthContext.Provider>
