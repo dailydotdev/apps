@@ -163,6 +163,8 @@ export const AuthContextProvider = ({
     ],
   );
 
+  // temporary - this can be coming from which service we will pull the boot information
+  // in the case today, it will be from the gateway. once done, we can remove this side effect
   useEffect(() => {
     checkCurrentSession()
       .then(async (userSession) => {
