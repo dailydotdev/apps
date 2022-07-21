@@ -176,7 +176,7 @@ export const validateRegistration = async (
     body: JSON.stringify(params),
   });
 
-  if (res.statusText === 'ok') {
+  if (res.status === 200) {
     const json = await res.json();
     return { success: json };
   }

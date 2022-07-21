@@ -5,10 +5,8 @@ import React, {
   useContext,
   useState,
 } from 'react';
-import { useQueryClient } from 'react-query';
 import { getQueryParams } from '../../contexts/AuthContext';
 import FeaturesContext from '../../contexts/FeaturesContext';
-import { initializeRegistration } from '../../lib/auth';
 import { fallbackImages } from '../../lib/config';
 import { AuthVersion } from '../../lib/featureValues';
 import { CloseModalFunc } from '../modals/common';
@@ -49,7 +47,6 @@ function AuthOptions({
   className,
   defaultDisplay = Display.Default,
 }: AuthOptionsProps): ReactElement {
-  const client = useQueryClient();
   const { authVersion } = useContext(FeaturesContext);
   const isV2 = authVersion === AuthVersion.V2;
   const [email, setEmail] = useState('');
@@ -71,10 +68,9 @@ function AuthOptions({
   };
 
   const onSignup = async (emailAd: string) => {
+    // before displaying registration, ensure the email doesn't exists
     setActiveDisplay(Display.Registration);
     setEmail(emailAd);
-    const data = await initializeRegistration();
-    client.setQueryData('registration', data);
   };
 
   return (

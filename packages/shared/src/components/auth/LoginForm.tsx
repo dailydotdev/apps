@@ -1,4 +1,9 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useContext, useRef } from 'react';
+import { useQuery } from 'react-query';
+import AuthContext from '../../contexts/AuthContext';
+import { initializeLogin, LoginPasswordParameters } from '../../lib/auth';
+import { formToJson } from '../../lib/form';
+import { disabledRefetch } from '../../lib/func';
 import { Button } from '../buttons/Button';
 import { ClickableText } from '../buttons/ClickableText';
 import { TextField } from '../fields/TextField';
@@ -10,15 +15,29 @@ interface LoginFormProps {
   onForgotPassword?: () => unknown;
 }
 
+type LoginFormParams = Pick<LoginPasswordParameters, 'identifier' | 'password'>;
+
 function LoginForm({
   onSubmit,
   onForgotPassword,
 }: LoginFormProps): ReactElement {
+  const { onPasswordLogin } = useContext(AuthContext);
+  const formRef = useRef<HTMLFormElement>();
+  const { data } = useQuery('login', initializeLogin, { ...disabledRefetch });
+  const onLogin: typeof onSubmit = async (e) => {
+    e.preventDefault();
+    const form = formToJson<LoginFormParams>(formRef.current);
+    const csrfToken = data.ui.nodes[0].attributes.value;
+    const params: LoginPasswordParameters = { ...form, csrf_token: csrfToken };
+    onPasswordLogin(data.ui.action, params);
+  };
+
   return (
-    <AuthForm className="gap-2" onSubmit={onSubmit} action="#">
+    <AuthForm className="gap-2" onSubmit={onLogin} action="#" ref={formRef}>
       <TextField
         leftIcon={<MailIcon />}
-        inputId="email"
+        inputId="identifier"
+        name="identifier"
         label="Email"
         type="email"
       />
@@ -28,6 +47,7 @@ function LoginForm({
       <TextField
         leftIcon={<MailIcon />}
         inputId="password"
+        name="password"
         label="Password"
         type="password"
       />
