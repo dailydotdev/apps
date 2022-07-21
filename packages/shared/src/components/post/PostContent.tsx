@@ -48,13 +48,14 @@ import useUpdatePost from '../../hooks/useUpdatePost';
 import { useSharePost } from '../../hooks/useSharePost';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { Origin } from '../../lib/analytics';
+import { Comment } from '../../graphql/comments';
 
 const UpvotedPopupModal = dynamic(() => import('../modals/UpvotedPopupModal'));
 const NewCommentModal = dynamic(() => import('../modals/NewCommentModal'));
 const ShareNewCommentPopup = dynamic(() => import('../ShareNewCommentPopup'), {
   ssr: false,
 });
-const SharePostModal = dynamic(() => import('../modals/SharePostModal'));
+const SharePostModal = dynamic(() => import('../modals/ShareModal'));
 const Custom404 = dynamic(() => import('../Custom404'));
 
 export interface PostContentProps
@@ -136,6 +137,7 @@ export function PostContent({
   const { subject } = useToastNotification();
   const { sharePost, openSharePost, closeSharePost } =
     useSharePost(analyticsOrigin);
+  const [shareComment, setShareComment] = useState<Comment>(null);
   const { updatePost } = useUpdatePost();
   const { bookmark, removeBookmark } = useBookmarkPost({
     onBookmarkMutate: updatePost({ id, update: { bookmarked: true } }),
@@ -326,6 +328,7 @@ export function PostContent({
         <PostComments
           post={postById.post}
           onClick={onCommentClick}
+          onShare={(comment) => setShareComment(comment)}
           onClickUpvote={onShowUpvotedComment}
         />
         {authorOnboarding && (
@@ -365,7 +368,8 @@ export function PostContent({
       {postById && showShareNewComment && (
         <ShareNewCommentPopup
           post={postById.post}
-          onRequestClose={() => onShowShareNewComment(false)}
+          commentId={showShareNewComment}
+          onRequestClose={() => onShowShareNewComment(null)}
         />
       )}
       {sharePost && (
@@ -374,6 +378,15 @@ export function PostContent({
           post={postById.post}
           origin={analyticsOrigin}
           onRequestClose={closeSharePost}
+        />
+      )}
+      {shareComment && (
+        <SharePostModal
+          isOpen={!!shareComment}
+          post={postById.post}
+          comment={shareComment}
+          origin={analyticsOrigin}
+          onRequestClose={() => setShareComment(null)}
         />
       )}
     </Wrapper>
