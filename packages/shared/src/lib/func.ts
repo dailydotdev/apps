@@ -11,3 +11,12 @@ export const parseOrDefault = <T = unknown>(data: string): T | string => {
 
 export const isNullOrUndefined = (param: unknown): boolean =>
   typeof param === 'undefined' || param === null;
+
+export const disabledRefetch = {
+  refetchIntervalInBackground: false,
+  refetchOnMount: false,
+  refetchOnReconnect: false,
+  refetchOnWindowFocus: false,
+};
+
+Object.freeze(disabledRefetch);
