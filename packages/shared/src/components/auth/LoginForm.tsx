@@ -11,25 +11,28 @@ import MailIcon from '../icons/Mail';
 import { AuthForm } from './common';
 
 interface LoginFormProps {
-  onSubmit: (e: React.FormEvent) => unknown;
+  onSuccessfulLogin: (e: React.FormEvent) => unknown;
   onForgotPassword?: () => unknown;
 }
 
 type LoginFormParams = Pick<LoginPasswordParameters, 'identifier' | 'password'>;
 
 function LoginForm({
-  onSubmit,
+  onSuccessfulLogin,
   onForgotPassword,
 }: LoginFormProps): ReactElement {
   const { onPasswordLogin } = useContext(AuthContext);
   const formRef = useRef<HTMLFormElement>();
   const { data } = useQuery('login', initializeLogin, { ...disabledRefetch });
-  const onLogin: typeof onSubmit = async (e) => {
+  const onLogin: typeof onSuccessfulLogin = async (e) => {
     e.preventDefault();
     const form = formToJson<LoginFormParams>(formRef.current);
     const csrfToken = data.ui.nodes[0].attributes.value;
     const params: LoginPasswordParameters = { ...form, csrf_token: csrfToken };
-    onPasswordLogin(data.ui.action, params);
+    const session = await onPasswordLogin(data.ui.action, params);
+    if (session) {
+      onSuccessfulLogin(e);
+    }
   };
 
   return (

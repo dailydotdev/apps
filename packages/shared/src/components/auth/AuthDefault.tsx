@@ -27,10 +27,6 @@ const AuthDefault = ({
 }: AuthDefaultProps): ReactElement => {
   const [shouldLogin, setShouldLogin] = useState(isV2);
 
-  const onLogin = (e: React.MouseEvent | React.KeyboardEvent) => {
-    e.preventDefault();
-  };
-
   const onEmailSignup = (e: React.FormEvent) => {
     e.preventDefault();
     const form = e.currentTarget as HTMLFormElement;
@@ -69,7 +65,10 @@ const AuthDefault = ({
           ))}
         {!isV2 && <OrDivider />}
         {shouldLogin ? (
-          <LoginForm onSubmit={onLogin} onForgotPassword={onForgotPassword} />
+          <LoginForm
+            onSuccessfulLogin={(e) => onClose(e)}
+            onForgotPassword={onForgotPassword}
+          />
         ) : (
           <EmailSignupForm onSubmit={onEmailSignup} isV2={isV2} />
         )}

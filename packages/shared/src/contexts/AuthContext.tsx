@@ -113,6 +113,7 @@ export const AuthContextProvider = ({
 
     if (loginSession) {
       setSession(loginSession);
+      return loginSession;
     }
 
     return null;

@@ -54,10 +54,6 @@ function AuthOptions({
     hasLoggedOut() ? Display.SignBack : defaultDisplay,
   );
 
-  const onLogin = (e: React.MouseEvent | React.KeyboardEvent) => {
-    e.preventDefault();
-  };
-
   const onProviderClick = (provider: string) => {
     onSelectedProvider({
       provider,
@@ -106,7 +102,7 @@ function AuthOptions({
       <Tab label={Display.SignBack}>
         <AuthSignBack>
           <LoginForm
-            onSubmit={onLogin}
+            onSuccessfulLogin={(e) => onClose(e)}
             onForgotPassword={() => setActiveDisplay(Display.ForgotPassword)}
           />
         </AuthSignBack>
