@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import classNames from 'classnames';
-import { Comment } from '../../graphql/comments';
+import { Comment, getCommentHash } from '../../graphql/comments';
 import { CommentBox, CommentPublishDate } from './common';
 import CommentActionButtons, {
   CommentActionProps,
@@ -17,6 +17,8 @@ export interface Props extends CommentActionProps {
   comment: Comment;
   postAuthorId: string | null;
   postScoutId: string | null;
+  commentHash?: string;
+  commentRef?: React.MutableRefObject<HTMLElement>;
   className?: string;
   appendTooltipTo?: () => HTMLElement;
 }
@@ -25,7 +27,10 @@ const MainCommentBox = classed(CommentBox, 'my-2');
 
 export default function MainComment({
   comment,
+  commentHash,
+  commentRef,
   onComment,
+  onShare,
   onDelete,
   onEdit,
   onShowUpvotes,
@@ -36,7 +41,11 @@ export default function MainComment({
 }: Props): ReactElement {
   return (
     <article
-      className={classNames('flex flex-col items-stretch mt-4', className)}
+      className={classNames(
+        'flex flex-col items-stretch mt-4 scroll-mt-16',
+        className,
+      )}
+      ref={commentHash === getCommentHash(comment.id) ? commentRef : null}
       data-testid="comment"
     >
       <div className="flex items-center">
@@ -64,6 +73,7 @@ export default function MainComment({
       <CommentActionButtons
         comment={comment}
         parentId={comment.id}
+        onShare={onShare}
         onComment={onComment}
         onDelete={onDelete}
         onEdit={onEdit}
@@ -71,12 +81,15 @@ export default function MainComment({
       />
       {comment.children?.edges.map((e, i) => (
         <SubComment
+          commentHash={commentHash}
+          commentRef={commentRef}
           comment={e.node}
           key={e.node.id}
           firstComment={i === 0}
           lastComment={i === comment.children.edges.length - 1}
           parentId={comment.id}
           onComment={onComment}
+          onShare={onShare}
           onDelete={onDelete}
           onEdit={(childComment) => onEdit(childComment, comment)}
           onShowUpvotes={onShowUpvotes}

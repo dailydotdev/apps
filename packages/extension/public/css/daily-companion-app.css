@@ -12,3 +12,7 @@ daily-companion-app {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+daily-companion-app[aria-hidden=true] {
+  display: block;
+}

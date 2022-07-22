@@ -1,12 +1,11 @@
 import React, { ReactElement } from 'react';
 import { UserStats } from '../../graphql/users';
 import { ActivityContainer, ActivitySectionTitle } from './ActivitySection';
-import sizeN from '../../../macros/sizeN.macro';
 import classed from '../../lib/classed';
 
 const OverallStatContainer = classed(
   'div',
-  'flex flex-col p-3 bg-theme-bg-secondary rounded-xl',
+  'flex flex-col p-3 bg-theme-bg-secondary rounded-xl w-36',
 );
 const OverallStatData = classed(
   'div',
@@ -28,10 +27,7 @@ export default function AuthorStats({
   return (
     <ActivityContainer>
       <ActivitySectionTitle>Stats</ActivitySectionTitle>
-      <div
-        className="grid gap-x-6"
-        style={{ gridTemplateColumns: `repeat(2, ${sizeN(36)})` }}
-      >
+      <div className="flex gap-x-6">
         <OverallStatContainer>
           <OverallStatData>
             {userStats.numPostViews.toLocaleString()}

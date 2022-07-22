@@ -29,7 +29,6 @@ export interface NewRankModalProps extends Omit<ModalProps, 'onRequestClose'> {
   progress: number;
   user?: LoggedUser;
   onRequestClose?: (neverShowAgain: boolean) => unknown;
-  showDevCard: boolean;
 }
 
 export default function NewRankModal({
@@ -37,7 +36,6 @@ export default function NewRankModal({
   progress,
   user,
   onRequestClose,
-  showDevCard,
   className,
   style,
   ...props
@@ -184,9 +182,7 @@ export default function NewRankModal({
       </p>
       {user ? (
         <div className="flex gap-4 self-center">
-          {showDevCard && (
-            <GoToDevCardButton>Generate Dev Card</GoToDevCardButton>
-          )}
+          <GoToDevCardButton>Generate Dev Card</GoToDevCardButton>
           <Button
             className="btn-primary"
             buttonSize="small"

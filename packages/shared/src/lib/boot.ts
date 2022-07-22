@@ -30,7 +30,7 @@ export interface CompanionBootData {
   postData: PostBootData;
 }
 export type AccessToken = { token: string; expiresIn: string };
-export type Visit = { ampStorage?: string; sessionId: string; visitId: string };
+export type Visit = { sessionId: string; visitId: string };
 export type Boot = {
   user: LoggedUser | AnonymousUser;
   accessToken: AccessToken;
@@ -47,15 +47,12 @@ export type BootCacheData = Pick<
 > & { lastModifier?: string };
 
 export async function getBootData(app: string, url?: string): Promise<Boot> {
-  const res = await fetch(
-    `${apiUrl}/boot${app === 'companion' ? '/companion' : ''}?${
-      url && new URLSearchParams({ url })
-    }`,
-    {
-      method: 'GET',
-      credentials: 'include',
-      headers: { app, 'Content-Type': 'application/json' },
-    },
-  );
+  const appRoute = app === 'companion' ? '/companion' : '';
+  const params = url ? new URLSearchParams({ url }) : '';
+  const res = await fetch(`${apiUrl}/boot${appRoute}?${params}`, {
+    method: 'GET',
+    credentials: 'include',
+    headers: { app, 'Content-Type': 'application/json' },
+  });
   return res.json();
 }

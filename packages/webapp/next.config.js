@@ -21,6 +21,9 @@ module.exports = withTM(
           locales: ["en"],
           defaultLocale: "en",
         },
+        compiler: {
+          reactRemoveProperties: { properties: ['^data-testid$'] },
+        },
         webpack5: true,
         webpack: (config, { dev, isServer }) => {
           config.module.rules.push({
@@ -50,7 +53,6 @@ module.exports = withTM(
               fullySpecified: false,
             },
           });
-
           config.resolve.alias = {
             ...config.resolve.alias,
             // Required to remove duplicate dependencies from the build

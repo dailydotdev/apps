@@ -11,7 +11,6 @@ import {
   FeedData,
   KEYWORD_FEED_QUERY,
 } from '@dailydotdev/shared/src/graphql/posts';
-import sizeN from '@dailydotdev/shared/macros/sizeN.macro';
 import { NextSeo } from 'next-seo';
 import ActivitySection from '@dailydotdev/shared/src/components/profile/ActivitySection';
 import Link from 'next/link';
@@ -101,7 +100,7 @@ export default function KeywordManagement({
   const disableActions = !!currentAction;
 
   return (
-    <ResponsivePageContainer style={{ paddingBottom: sizeN(23) }}>
+    <ResponsivePageContainer>
       <NextSeo title="Pending Keywords" nofollow noindex />
       <h1 className="m-0 font-bold typo-title2">{keyword.value}</h1>
       <div className="flex justify-between items-center my-1 text-theme-label-tertiary typo-callout">

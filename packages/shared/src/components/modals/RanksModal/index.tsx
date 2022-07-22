@@ -19,8 +19,6 @@ export default function RanksModal({
   tags,
   hideProgress,
   confirmationText,
-  reads,
-  devCardLimit,
   onRequestClose,
   className,
   previousRank,
@@ -65,13 +63,7 @@ export default function RanksModal({
         </div>
       )}
       <RanksTags tags={tags} isColorPrimary />
-      <DevCardFooter
-        rank={rank}
-        user={user}
-        reads={reads}
-        devCardLimit={devCardLimit}
-        isLocked={!user || reads < devCardLimit}
-      />
+      <DevCardFooter rank={rank} user={user} isLocked={!user} />
     </ResponsiveModal>
   );
 }

@@ -7,8 +7,6 @@ export class Features {
     'Access all features',
   );
 
-  static readonly DevcardLimit = new Features('feat_limit_dev_card', '50');
-
   static readonly FeedVersion = new Features('feed_version', '1');
 
   static readonly LoginModalButtonCopyPrefix = new Features(
@@ -83,7 +81,7 @@ export class Features {
 
   static readonly PostCardHeadingFont = new Features(
     'post_card_heading_font',
-    'bodyBold',
+    'title3Bold',
     ['bodyBold', 'body', 'title3', 'title3Bold'],
   );
 
@@ -141,6 +139,8 @@ export class Features {
     AdditionalInteractionButtons.Bookmark,
     [AdditionalInteractionButtons.Bookmark, AdditionalInteractionButtons.Share],
   );
+
+  static readonly ShowCommentPopover = new Features('show_comment_popover');
 
   private constructor(
     public readonly id: string,

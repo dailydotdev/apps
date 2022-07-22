@@ -1,10 +1,18 @@
-import React, { ReactElement, CSSProperties, useContext } from 'react';
+import React, {
+  CSSProperties,
+  ReactElement,
+  useContext,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import { NewComment } from '@dailydotdev/shared/src/components/post/NewComment';
 import { PostComments } from '@dailydotdev/shared/src/components/post/PostComments';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import NewCommentModal from '@dailydotdev/shared/src/components/modals/NewCommentModal';
+import { Comment } from '@dailydotdev/shared/src/graphql/comments';
+import ShareModal from '@dailydotdev/shared/src/components/modals/ShareModal';
+import { Origin } from '@dailydotdev/shared/src/lib/analytics';
 import { getCompanionWrapper } from './common';
 import { useCompanionPostComment } from './useCompanionPostComment';
 import { useBackgroundRequest } from './useBackgroundRequest';
@@ -34,6 +42,7 @@ export function CompanionDiscussion({
     onInput,
     parentComment,
   } = useCompanionPostComment(post);
+  const [shareComment, setShareComment] = useState<Comment>(null);
   const postCommentsQueryKey = ['post_comments', post?.id];
   useBackgroundRequest(postCommentsQueryKey);
 
@@ -46,16 +55,18 @@ export function CompanionDiscussion({
       )}
     >
       <NewComment
-        className="laptop:px-6 laptop:pb-2"
+        responsive={false}
+        className="px-6 pt-0 pb-2"
         user={user}
         onNewComment={() => openNewComment('start discussion button')}
       />
-      <div className="overflow-auto flex-1 px-6 mt-7 border-t border-theme-divider-tertiary">
+      <div className="overflow-x-hidden overflow-y-auto flex-1 px-6 mt-7 border-t border-theme-divider-tertiary">
         <h3 className="my-3.5 font-bold typo-callout">Discussion</h3>
         <PostComments
           post={post}
           applyBottomMargin={false}
           onClick={onCommentClick}
+          onShare={setShareComment}
           onClickUpvote={onShowUpvoted}
           modalParentSelector={getCompanionWrapper}
         />
@@ -67,6 +78,16 @@ export function CompanionDiscussion({
           onRequestClose={closeNewComment}
           onInputChange={onInput}
           {...parentComment}
+        />
+      )}
+      {shareComment && (
+        <ShareModal
+          isOpen={!!shareComment}
+          post={post}
+          comment={shareComment}
+          origin={Origin.Companion}
+          onRequestClose={() => setShareComment(null)}
+          parentSelector={getCompanionWrapper}
         />
       )}
     </div>

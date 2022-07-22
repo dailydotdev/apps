@@ -20,7 +20,7 @@ services:
       - "6379:6379"
 
   daily-mysql:
-    image: mariadb
+    image: mariadb:10.8.2
     healthcheck:
       test: mysql --user=root --password=$$MYSQL_ROOT_PASSWORD -e 'SHOW DATABASES;'
       interval: 1s

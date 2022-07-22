@@ -5,7 +5,7 @@ import CommentIcon from '@dailydotdev/shared/src/components/icons/Discuss';
 import BookmarkIcon from '@dailydotdev/shared/src/components/icons/Bookmark';
 import MenuIcon from '@dailydotdev/shared/src/components/icons/Menu';
 import ArrowIcon from '@dailydotdev/shared/src/components/icons/Arrow';
-import ForwardIcon from '@dailydotdev/shared/src/components/icons/Forward';
+import ShareIcon from '@dailydotdev/shared/src/components/icons/Share';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import classNames from 'classnames';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
@@ -24,7 +24,7 @@ import { useSharePost } from '@dailydotdev/shared/src/hooks/useSharePost';
 import FeaturesContext from '@dailydotdev/shared/src/contexts/FeaturesContext';
 import { AdditionalInteractionButtons } from '@dailydotdev/shared/src/lib/featureValues';
 import NewCommentModal from '@dailydotdev/shared/src/components/modals/NewCommentModal';
-import SharePostModal from '@dailydotdev/shared/src/components/modals/SharePostModal';
+import ShareModal from '@dailydotdev/shared/src/components/modals/ShareModal';
 
 import CompanionContextMenu from './CompanionContextMenu';
 import '@dailydotdev/shared/src/styles/globals.css';
@@ -268,7 +268,7 @@ export default function CompanionMenu({
             buttonSize="medium"
             className="btn-tertiary-cabbage"
             onClick={onShare}
-            icon={<ForwardIcon />}
+            icon={<ShareIcon />}
           />
         </SimpleTooltip>
       )}
@@ -304,7 +304,7 @@ export default function CompanionMenu({
         />
       )}
       {sharePost && (
-        <SharePostModal
+        <ShareModal
           isOpen={!!sharePost}
           parentSelector={getCompanionWrapper}
           post={sharePost}

@@ -22,7 +22,7 @@ export interface UsePostComment {
   updatePostComments: (comment: Comment, isNew?: boolean) => void;
   deleteCommentCache: (commentId: string, parentId?: string) => void;
   parentComment: ParentComment;
-  showShareNewComment: boolean;
+  showShareNewComment: string;
 }
 
 const getParentAndCurrentIndex = (
@@ -52,17 +52,17 @@ export const usePostComment = (
   const comments = client.getQueryData<PostCommentsData>(key);
   const [lastScroll, setLastScroll] = useState(0);
   const [parentComment, setParentComment] = useState<ParentComment>(null);
-  const [showShareNewComment, setShowShareNewComment] = useState(false);
-  const [showNewComment] = useDebounce(() => setShowShareNewComment(true), 700);
+  const [showShareNewComment, setShowShareNewComment] = useState(null);
+  const [showNewComment] = useDebounce((id) => setShowShareNewComment(id), 700);
 
   const closeNewComment = () => {
     setParentComment(null);
     document.documentElement.scrollTop = lastScroll;
   };
 
-  const onNewComment = (_: Comment, parentId: string | null): void => {
+  const onNewComment = (comment: Comment, parentId: string | null): void => {
     if (!parentId) {
-      showNewComment();
+      showNewComment(comment.id);
     }
   };
 
