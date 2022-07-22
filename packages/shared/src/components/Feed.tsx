@@ -267,7 +267,7 @@ export default function Feed<T>({
   const style = {
     '--num-cards': numCards,
     '--feed-gap': `${feedGapPx / 16}rem`,
-  };
+  } as React.CSSProperties;
   const cardContainerStye = { ...getStyle(useList, spaciness) };
 
   if (emptyScreen && emptyFeed) {
