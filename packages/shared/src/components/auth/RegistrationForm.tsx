@@ -2,10 +2,15 @@ import classNames from 'classnames';
 import React, {
   MutableRefObject,
   ReactElement,
+  useContext,
   useEffect,
   useState,
 } from 'react';
-import { formInputs } from '../../lib/form';
+import { useQuery } from 'react-query';
+import AuthContext from '../../contexts/AuthContext';
+import { initializeRegistration, RegistrationParameters } from '../../lib/auth';
+import { formInputs, formToJson } from '../../lib/form';
+import { disabledRefetch } from '../../lib/func';
 import { Button } from '../buttons/Button';
 import ImageInput from '../fields/ImageInput';
 import { TextField } from '../fields/TextField';
@@ -32,9 +37,9 @@ interface RegistrationFormProps {
   isV2?: boolean;
 }
 
-export interface RegistrationFormValues {
+export interface FormValues {
   image?: string;
-  email?: string;
+  'traits.email'?: string;
   fullname?: string;
   password?: string;
   username?: string;
@@ -52,6 +57,12 @@ export const RegistrationForm = ({
   const [isPasswordValid, setIsPasswordValid] = useState<boolean>();
   const [isUsernameValid, setIsUsernameValid] = useState<boolean>();
   const [emailSent, setEmailSent] = useState(false);
+  const { onPasswordRegistration } = useContext(AuthContext);
+  const { data: registration } = useQuery(
+    'registration',
+    initializeRegistration,
+    { ...disabledRefetch },
+  );
 
   useEffect(() => {
     if (!socialAccount) {
@@ -76,9 +87,31 @@ export const RegistrationForm = ({
     return <EmailVerificationSent email={email} />;
   }
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setEmailSent(true);
+    const { password, ...form } = formToJson<FormValues>(formRef.current);
+    const [first, ...rest] = form.fullname.split(' ');
+    const csrfToken = registration.ui.nodes[0].attributes.value;
+    const postData: RegistrationParameters = {
+      csrf_token: csrfToken,
+      method: 'password',
+      password,
+      'traits.email': form['traits.email'],
+      'traits.name.first': first,
+      'traits.name.last': rest.length === 0 ? first : rest.join(' '),
+    };
+
+    const { success } = await onPasswordRegistration(
+      registration.ui.action,
+      postData,
+    );
+
+    if (success) {
+      return setEmailSent(true);
+    }
+
+    // error management is missing
+    return null;
   };
 
   return (
@@ -100,7 +133,7 @@ export const RegistrationForm = ({
         <TextField
           className="w-full"
           leftIcon={<MailIcon />}
-          name="email"
+          name="traits.email"
           inputId="email"
           label="Email"
           type="email"

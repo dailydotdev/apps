@@ -12,8 +12,6 @@ export interface RanksModalProps extends ModalProps {
   tags: TopTags;
   hideProgress?: boolean;
   confirmationText?: string;
-  reads: number;
-  devCardLimit: number;
 }
 export type RanksBadgesProps = Pick<
   RanksModalProps,
@@ -39,13 +37,8 @@ type DevCardFooterType = Pick<RanksModalProps, 'rank'>;
 export interface DevCardFooterProps extends DevCardFooterType {
   user?: LoggedUser;
   isLocked?: boolean;
-  reads?: number;
-  devCardLimit?: number;
 }
-export type DevCardTextProps = Pick<
-  DevCardFooterProps,
-  'user' | 'isLocked' | 'devCardLimit'
->;
+export type DevCardTextProps = Pick<DevCardFooterProps, 'user' | 'isLocked'>;
 
 /** Rank badge */
 export const RanksBadgesList = classed('ul', 'flex flex-nowrap');

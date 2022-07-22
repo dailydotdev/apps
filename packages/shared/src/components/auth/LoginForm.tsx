@@ -1,4 +1,9 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useContext, useRef } from 'react';
+import { useQuery } from 'react-query';
+import AuthContext from '../../contexts/AuthContext';
+import { initializeLogin, LoginPasswordParameters } from '../../lib/auth';
+import { formToJson } from '../../lib/form';
+import { disabledRefetch } from '../../lib/func';
 import { Button } from '../buttons/Button';
 import { ClickableText } from '../buttons/ClickableText';
 import { TextField } from '../fields/TextField';
@@ -6,19 +11,36 @@ import MailIcon from '../icons/Mail';
 import { AuthForm } from './common';
 
 interface LoginFormProps {
-  onSubmit: (e: React.FormEvent) => unknown;
+  onSuccessfulLogin: (e: React.FormEvent) => unknown;
   onForgotPassword?: () => unknown;
 }
 
+type LoginFormParams = Pick<LoginPasswordParameters, 'identifier' | 'password'>;
+
 function LoginForm({
-  onSubmit,
+  onSuccessfulLogin,
   onForgotPassword,
 }: LoginFormProps): ReactElement {
+  const { onPasswordLogin } = useContext(AuthContext);
+  const formRef = useRef<HTMLFormElement>();
+  const { data } = useQuery('login', initializeLogin, { ...disabledRefetch });
+  const onLogin: typeof onSuccessfulLogin = async (e) => {
+    e.preventDefault();
+    const form = formToJson<LoginFormParams>(formRef.current);
+    const csrfToken = data.ui.nodes[0].attributes.value;
+    const params: LoginPasswordParameters = { ...form, csrf_token: csrfToken };
+    const session = await onPasswordLogin(data.ui.action, params);
+    if (session) {
+      onSuccessfulLogin(e);
+    }
+  };
+
   return (
-    <AuthForm className="gap-2" onSubmit={onSubmit} action="#">
+    <AuthForm className="gap-2" onSubmit={onLogin} action="#" ref={formRef}>
       <TextField
         leftIcon={<MailIcon />}
-        inputId="email"
+        inputId="identifier"
+        name="identifier"
         label="Email"
         type="email"
       />
@@ -28,6 +50,7 @@ function LoginForm({
       <TextField
         leftIcon={<MailIcon />}
         inputId="password"
+        name="password"
         label="Password"
         type="password"
       />

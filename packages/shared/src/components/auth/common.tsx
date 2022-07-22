@@ -9,6 +9,7 @@ import AppleIcon from '../icons/Apple';
 import classed from '../../lib/classed';
 import { IconType } from '../buttons/Button';
 import FeaturesContext from '../../contexts/FeaturesContext';
+import { AuthVersion } from '../../lib/featureValues';
 
 export interface Provider {
   icon: IconType;
@@ -78,7 +79,7 @@ export const ColumnContainer: typeof Container = forwardRef(
         ref={ref}
         className={classNames(
           className,
-          authVersion === 'v2' ? 'max-w-[20rem]' : 'px-[3.75rem]',
+          authVersion === AuthVersion.V2 ? 'max-w-[20rem]' : 'px-[3.75rem]',
         )}
       >
         {children}
@@ -106,7 +107,10 @@ export const AuthForm: typeof Form = forwardRef(
       <Form
         {...props}
         ref={ref}
-        className={classNames(className, authVersion === 'v2' && 'px-4')}
+        className={classNames(
+          className,
+          authVersion === AuthVersion.V2 && 'px-4',
+        )}
       >
         {children}
       </Form>

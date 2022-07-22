@@ -16,9 +16,11 @@ import { Button } from '../buttons/Button';
 import { ClickableText } from '../buttons/ClickableText';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
+import ShareIcon from '../icons/Share';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
+  onShare: (comment: Comment) => void;
   onDelete: (comment: Comment, parentId: string | null) => void;
   onEdit: (comment: Comment, parentComment?: Comment) => void;
   onShowUpvotes: (commentId: string, upvotes: number) => void;
@@ -33,6 +35,7 @@ export default function CommentActionButtons({
   comment,
   parentId,
   onComment,
+  onShare,
   onDelete,
   onEdit,
   onShowUpvotes,
@@ -141,6 +144,14 @@ export default function CommentActionButtons({
           />
         </SimpleTooltip>
       )}
+      <SimpleTooltip content="Share comment">
+        <Button
+          buttonSize="small"
+          onClick={() => onShare(comment)}
+          icon={<ShareIcon />}
+          className="mr-3 btn-tertiary-cabbage"
+        />
+      </SimpleTooltip>
       {numUpvotes > 0 && (
         <SimpleTooltip content="See who upvoted">
           <ClickableText

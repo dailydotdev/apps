@@ -32,7 +32,7 @@ const isExcluded = (origin: string) => {
 };
 
 const sendBootData = async (_, tab: Tabs.Tab) => {
-  const { origin, pathname } = new URL(tab.url);
+  const { origin, pathname, search } = new URL(tab.url);
   if (isExcluded(origin)) {
     return;
   }
@@ -42,7 +42,7 @@ const sendBootData = async (_, tab: Tabs.Tab) => {
     return;
   }
 
-  const href = origin + pathname;
+  const href = origin + pathname + search;
 
   const [
     deviceId,
@@ -141,10 +141,14 @@ browser.browserAction.onClicked.addListener(() => {
   browser.tabs.create({ url, active: true });
 });
 
-browser.runtime.onInstalled.addListener(async () => {
+browser.runtime.onInstalled.addListener(async (details) => {
   await Promise.all([
     browser.runtime.setUninstallURL('https://daily.dev/uninstall'),
   ]);
+
+  if (details.reason === 'update') {
+    await getContentScriptPermissionAndRegister();
+  }
 });
 
 browser.runtime.onStartup.addListener(async () => {

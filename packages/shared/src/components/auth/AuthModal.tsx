@@ -8,6 +8,7 @@ import AuthModalHeading from './AuthModalHeading';
 import AuthOptions from './AuthOptions';
 import useAuthForms from '../../hooks/useAuthForms';
 import FeaturesContext from '../../contexts/FeaturesContext';
+import { AuthVersion } from '../../lib/featureValues';
 
 export type AuthModalProps = ModalProps;
 
@@ -39,7 +40,7 @@ export default function AuthModal({
   } = useAuthForms({
     onDiscard: onRequestClose,
   });
-  const isV1 = authVersion === 'v1';
+  const isV1 = authVersion === AuthVersion.V1;
 
   return (
     <StyledModal
@@ -65,12 +66,7 @@ export default function AuthModal({
               Customize your feed!
             </AuthModalHeading>
           </div>
-          <Circles
-            className={classNames(
-              'absolute z-0 h-96 w-[32.5rem]',
-              styles.circles,
-            )}
-          />
+          <Circles className="absolute bottom-0 left-1/2 z-0 h-96 -translate-x-1/2 w-[32.5rem]" />
         </>
       )}
       <AuthOptions

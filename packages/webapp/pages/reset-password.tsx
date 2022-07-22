@@ -6,12 +6,8 @@ import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 
 function ResetPassword(): ReactElement {
   return (
-    <div
-      className="flex overflow-hidden relative flex-col items-center w-screen max-w-full h-screen"
-      style={{
-        background: 'linear-gradient(to bottom left, #EF43FD32, #6451F332)',
-      }}
-    >
+    // eslint-disable-next-line @dailydotdev/daily-dev-eslint-rules/no-custom-color
+    <div className="flex overflow-hidden relative flex-col items-center w-screen max-w-full h-screen bg-gradient-to-bl from-[#EF43FD32] to-[#6451F332]">
       <DailyCircle className="absolute left-20" />
       <Logo className="mt-16 h-fit" />
       <div className="relative z-1 p-7 mt-20 w-full text-center rounded-16 max-w-[23.25rem] bg-theme-bg-primary">

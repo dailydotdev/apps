@@ -3,8 +3,8 @@ import Icon, { IconProps } from '../../Icon';
 import OutlinedIcon from './outlined.svg';
 import FilledIcon from './filled.svg';
 
-const ForwardIcon = (props: IconProps): ReactElement => (
+const ShareIcon = (props: IconProps): ReactElement => (
   <Icon {...props} IconPrimary={OutlinedIcon} IconSecondary={FilledIcon} />
 );
 
-export default ForwardIcon;
+export default ShareIcon;

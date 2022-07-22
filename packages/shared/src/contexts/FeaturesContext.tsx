@@ -8,6 +8,8 @@ import {
 
 export interface FeaturesData {
   flags: IFlags;
+  showCommentPopover?: boolean;
+  shouldShowMyFeed?: boolean;
   postEngagementNonClickable?: boolean;
   postModalByDefault?: boolean;
   postCardVersion?: string;
@@ -30,13 +32,15 @@ export const FeaturesContextProvider = ({
   const features = useMemo(
     () => ({
       flags,
+      showCommentPopover: isFeaturedEnabled(Features.ShowCommentPopover, flags),
+      shouldShowMyFeed: isFeaturedEnabled(Features.MyFeedOn, flags) ?? true,
       postEngagementNonClickable: isFeaturedEnabled(
         Features.PostEngagementNonClickable,
         flags,
       ),
       postModalByDefault: isFeaturedEnabled(Features.PostModalByDefault, flags),
       postCardVersion: getFeatureValue(Features.PostCardVersion, flags),
-      authVersion: getFeatureValue(Features.AuthVersion, flags),
+      authVersion: getFeatureValue(Features.AuthenticationVersion, flags),
       additionalInteractionButtonFeature: getFeatureValue(
         Features.AdditionalInteractionButton,
         flags,

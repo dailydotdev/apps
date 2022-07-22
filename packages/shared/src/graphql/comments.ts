@@ -30,6 +30,8 @@ export interface Comment {
   children?: Connection<Comment>;
 }
 
+export const getCommentHash = (id: string): string => `#c-${id}`;
+
 export interface CommentUpvote extends Upvote {
   comment: Comment;
 }

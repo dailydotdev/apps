@@ -8,9 +8,10 @@ import React, {
 import { getQueryParams } from '../../contexts/AuthContext';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { fallbackImages } from '../../lib/config';
+import { AuthVersion } from '../../lib/featureValues';
 import { CloseModalFunc } from '../modals/common';
 import TabContainer, { Tab } from '../tabs/TabContainer';
-import { AuthDefault } from './AuthDefault';
+import AuthDefault from './AuthDefault';
 import { AuthSignBack } from './AuthSignBack';
 import ForgotPasswordForm from './ForgotPasswordForm';
 import LoginForm from './LoginForm';
@@ -47,15 +48,11 @@ function AuthOptions({
   defaultDisplay = Display.Default,
 }: AuthOptionsProps): ReactElement {
   const { authVersion } = useContext(FeaturesContext);
-  const isV2 = authVersion === 'v2';
+  const isV2 = authVersion === AuthVersion.V2;
   const [email, setEmail] = useState('');
   const [activeDisplay, setActiveDisplay] = useState(
     hasLoggedOut() ? Display.SignBack : defaultDisplay,
   );
-
-  const onLogin = (e: React.MouseEvent | React.KeyboardEvent) => {
-    e.preventDefault();
-  };
 
   const onProviderClick = (provider: string) => {
     onSelectedProvider({
@@ -66,7 +63,8 @@ function AuthOptions({
     setActiveDisplay(Display.Registration);
   };
 
-  const onSignup = (emailAd: string) => {
+  const onSignup = async (emailAd: string) => {
+    // before displaying registration, ensure the email doesn't exists
     setActiveDisplay(Display.Registration);
     setEmail(emailAd);
   };
@@ -104,7 +102,7 @@ function AuthOptions({
       <Tab label={Display.SignBack}>
         <AuthSignBack>
           <LoginForm
-            onSubmit={onLogin}
+            onSuccessfulLogin={(e) => onClose(e)}
             onForgotPassword={() => setActiveDisplay(Display.ForgotPassword)}
           />
         </AuthSignBack>

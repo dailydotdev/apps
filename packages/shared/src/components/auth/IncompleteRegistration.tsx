@@ -19,10 +19,10 @@ function IncompleteRegistration(props: ModalProps): ReactElement {
     getUserInitialTimezone({ userTimezone: 'utc' }),
   );
 
-  const timezoneUpdated = (timezone: string) => {
-    const findTimeZoneRow = timeZoneOptions.find((_timeZone) => {
-      return _timeZone.label === timezone;
-    });
+  const timezoneUpdated = (timeZone: string) => {
+    const findTimeZoneRow = timeZoneOptions.find(
+      ({ label }) => label === timeZone,
+    );
     setUserTimeZone(findTimeZoneRow.value);
   };
 

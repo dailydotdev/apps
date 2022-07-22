@@ -1,13 +1,11 @@
 import { IFlags } from 'flagsmith';
-import { AdditionalInteractionButtons } from './featureValues';
+import { AdditionalInteractionButtons, AuthVersion } from './featureValues';
 
 export class Features {
   static readonly SignupButtonCopy = new Features(
     'signup_button_copy',
     'Access all features',
   );
-
-  static readonly DevcardLimit = new Features('feat_limit_dev_card', '50');
 
   static readonly FeedVersion = new Features('feed_version', '1');
 
@@ -83,7 +81,7 @@ export class Features {
 
   static readonly PostCardHeadingFont = new Features(
     'post_card_heading_font',
-    'bodyBold',
+    'title3Bold',
     ['bodyBold', 'body', 'title3', 'title3Bold'],
   );
 
@@ -130,18 +128,19 @@ export class Features {
     ['control', 'v1', 'v2', 'v3'],
   );
 
-  static readonly AuthVersion = new Features('auth_version', 'v1', [
-    'v1',
-    'v2',
-    'v3',
-    'v4',
-  ]);
+  static readonly AuthenticationVersion = new Features(
+    'auth_version',
+    AuthVersion.V1,
+    [AuthVersion.V1, AuthVersion.V2, AuthVersion.V3, AuthVersion.V4],
+  );
 
   static readonly AdditionalInteractionButton = new Features(
     'additional_interaction_button',
     AdditionalInteractionButtons.Bookmark,
     [AdditionalInteractionButtons.Bookmark, AdditionalInteractionButtons.Share],
   );
+
+  static readonly ShowCommentPopover = new Features('show_comment_popover');
 
   private constructor(
     public readonly id: string,

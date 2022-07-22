@@ -4,7 +4,6 @@ import AnalyticsContext from '../contexts/AnalyticsContext';
 import AuthContext from '../contexts/AuthContext';
 import { BOOT_QUERY_KEY } from '../contexts/BootProvider';
 import FeaturesContext from '../contexts/FeaturesContext';
-import { Features, isFeaturedEnabled } from '../lib/featureManagement';
 import { storageWrapper as storage } from '../lib/storageWrapper';
 import {
   getLocalFeedSettings,
@@ -23,8 +22,7 @@ export function useMyFeed(): UseMyFeed {
   const { updateFeedFilters } = useMutateFilters();
   const { trackEvent } = useContext(AnalyticsContext);
   const { user } = useContext(AuthContext);
-  const { flags } = useContext(FeaturesContext);
-  const shouldShowMyFeed = isFeaturedEnabled(Features.MyFeedOn, flags);
+  const { shouldShowMyFeed } = useContext(FeaturesContext);
 
   const registerLocalFilters = async () => {
     const feedSettings = getLocalFeedSettings(true);

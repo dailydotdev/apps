@@ -18,7 +18,7 @@ interface AuthDefaultProps {
   isV2?: boolean;
 }
 
-export const AuthDefault = ({
+const AuthDefault = ({
   onClose,
   onSignup,
   onProviderClick,
@@ -26,10 +26,6 @@ export const AuthDefault = ({
   isV2,
 }: AuthDefaultProps): ReactElement => {
   const [shouldLogin, setShouldLogin] = useState(isV2);
-
-  const onLogin = (e: React.MouseEvent | React.KeyboardEvent) => {
-    e.preventDefault();
-  };
 
   const onEmailSignup = (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,7 +65,10 @@ export const AuthDefault = ({
           ))}
         {!isV2 && <OrDivider />}
         {shouldLogin ? (
-          <LoginForm onSubmit={onLogin} onForgotPassword={onForgotPassword} />
+          <LoginForm
+            onSuccessfulLogin={(e) => onClose(e)}
+            onForgotPassword={onForgotPassword}
+          />
         ) : (
           <EmailSignupForm onSubmit={onEmailSignup} isV2={isV2} />
         )}
@@ -90,9 +89,11 @@ export const AuthDefault = ({
       <div className="flex flex-1" />
       <AuthModalFooter
         className="mt-4"
-        shouldLogin={shouldLogin}
-        onShouldLogin={setShouldLogin}
+        isLogin={shouldLogin}
+        onIsLogin={setShouldLogin}
       />
     </>
   );
 };
+
+export default AuthDefault;

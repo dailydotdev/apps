@@ -11,5 +11,5 @@ export const ModalText = classed('p', 'typo-callout text-theme-label-tertiary');
 export const ModalSection = classed('section', 'flex flex-col p-6');
 
 export type CloseModalFunc = (
-  e: React.MouseEvent | React.KeyboardEvent,
+  e: React.MouseEvent | React.KeyboardEvent | React.FormEvent,
 ) => void;

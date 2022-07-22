@@ -112,8 +112,7 @@ export const PageWidgets = classed(
 
 export const NewCommentContainer = classed(
   'div',
-  'flex fixed right-0 bottom-0 left-0 z-2 flex-col items-stretch py-3 px-4 w-full bg-theme-bg-primary',
-  'laptop:relative laptop:p-0 laptop:bg-none ',
+  'flex flex-col items-stretch w-full bg-theme-bg-primary',
 );
 
 export const ResponsivePageContainer = classed(

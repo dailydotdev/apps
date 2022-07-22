@@ -103,7 +103,7 @@ export default function MainLayout({
   enableSearch,
   onShowDndClick,
 }: MainLayoutProps): ReactElement {
-  const { user, loadingUser } = useContext(AuthContext);
+  const { user, session, logout, loadingUser } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const { sidebarRendered } = useSidebarRendered();
   const { bannerData, setLastSeen } = usePromotionalBanner();
@@ -165,10 +165,11 @@ export default function MainLayout({
                 {user ? (
                   <ProfileButton className="hidden laptop:flex" />
                 ) : (
-                  <LoginButton className="hidden laptop:block" />
+                  !session && <LoginButton className="hidden laptop:block" />
                 )}
               </>
             )}
+            {session && <Button onClick={logout}>Logout</Button>}
             {!sidebarRendered && !optOutWeeklyGoal && (
               <MobileHeaderRankProgress />
             )}
