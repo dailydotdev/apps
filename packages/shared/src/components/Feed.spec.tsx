@@ -53,6 +53,7 @@ import {
 import { getFeedSettingsQueryKey } from '../hooks/useFeedSettings';
 import Toast from './notifications/Toast';
 import { FeaturesContextProvider } from '../contexts/FeaturesContext';
+import { COMMENT_ON_POST_MUTATION } from '../graphql/comments';
 
 const showLogin = jest.fn();
 let nextCallback: (value: PostsEngaged) => unknown = null;
@@ -151,7 +152,9 @@ const renderComponent = (
     toggleSidebarExpanded: jest.fn(),
   };
   return render(
-    <FeaturesContextProvider flags={{}}>
+    <FeaturesContextProvider
+      flags={{ show_comment_popover: { enabled: true } }}
+    >
       <QueryClientProvider client={queryClient}>
         <AuthContext.Provider
           value={{
@@ -572,81 +575,81 @@ it('should update feed item on subscription message', async () => {
   });
 });
 
-// it('should open comment popup on upvote', async () => {
-//   renderComponent([
-//     createFeedMock({
-//       pageInfo: defaultFeedPage.pageInfo,
-//       edges: [defaultFeedPage.edges[0]],
-//     }),
-//     {
-//       request: {
-//         query: UPVOTE_MUTATION,
-//         variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf' },
-//       },
-//       result: () => {
-//         return { data: { _: true } };
-//       },
-//     },
-//   ]);
-//   const [el] = await screen.findAllByLabelText('Upvote');
-//   el.click();
-//   await waitFor(async () =>
-//     expect(await screen.findByRole('textbox')).toBeInTheDocument(),
-//   );
-// });
+it('should open comment popup on upvote', async () => {
+  renderComponent([
+    createFeedMock({
+      pageInfo: defaultFeedPage.pageInfo,
+      edges: [defaultFeedPage.edges[0]],
+    }),
+    {
+      request: {
+        query: UPVOTE_MUTATION,
+        variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf' },
+      },
+      result: () => {
+        return { data: { _: true } };
+      },
+    },
+  ]);
+  const [el] = await screen.findAllByLabelText('Upvote');
+  el.click();
+  await waitFor(async () =>
+    expect(await screen.findByRole('textbox')).toBeInTheDocument(),
+  );
+});
 
-// it('should send comment through the comment popup', async () => {
-//   let mutationCalled = false;
-//   const newComment = {
-//     __typename: 'Comment',
-//     id: '4f354bb73009e4adfa5dbcbf9b3c4ebf',
-//     content: 'comment',
-//     createdAt: new Date(2017, 1, 10, 0, 1).toISOString(),
-//     permalink: 'https://daily.dev',
-//   };
-//   renderComponent([
-//     createFeedMock({
-//       pageInfo: defaultFeedPage.pageInfo,
-//       edges: [defaultFeedPage.edges[0]],
-//     }),
-//     {
-//       request: {
-//         query: UPVOTE_MUTATION,
-//         variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf' },
-//       },
-//       result: () => {
-//         return { data: { _: true } };
-//       },
-//     },
-//     {
-//       request: {
-//         query: COMMENT_ON_POST_MUTATION,
-//         variables: {
-//           id: '4f354bb73009e4adfa5dbcbf9b3c4ebf',
-//           content: 'comment',
-//         },
-//       },
-//       result: () => {
-//         mutationCalled = true;
-//         return {
-//           data: {
-//             comment: newComment,
-//           },
-//         };
-//       },
-//     },
-//   ]);
-//   const [upvoteBtn] = await screen.findAllByLabelText('Upvote');
-//   upvoteBtn.click();
-//   const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
-//   fireEvent.change(input, { target: { value: 'comment' } });
-//   const commentBtn = await screen.findByText('Comment');
-//   commentBtn.click();
-//   await waitFor(() => expect(mutationCalled).toBeTruthy());
-//   await waitFor(async () =>
-//     expect(screen.queryByRole('textbox')).not.toBeInTheDocument(),
-//   );
-// });
+it('should send comment through the comment popup', async () => {
+  let mutationCalled = false;
+  const newComment = {
+    __typename: 'Comment',
+    id: '4f354bb73009e4adfa5dbcbf9b3c4ebf',
+    content: 'comment',
+    createdAt: new Date(2017, 1, 10, 0, 1).toISOString(),
+    permalink: 'https://daily.dev',
+  };
+  renderComponent([
+    createFeedMock({
+      pageInfo: defaultFeedPage.pageInfo,
+      edges: [defaultFeedPage.edges[0]],
+    }),
+    {
+      request: {
+        query: UPVOTE_MUTATION,
+        variables: { id: '4f354bb73009e4adfa5dbcbf9b3c4ebf' },
+      },
+      result: () => {
+        return { data: { _: true } };
+      },
+    },
+    {
+      request: {
+        query: COMMENT_ON_POST_MUTATION,
+        variables: {
+          id: '4f354bb73009e4adfa5dbcbf9b3c4ebf',
+          content: 'comment',
+        },
+      },
+      result: () => {
+        mutationCalled = true;
+        return {
+          data: {
+            comment: newComment,
+          },
+        };
+      },
+    },
+  ]);
+  const [upvoteBtn] = await screen.findAllByLabelText('Upvote');
+  upvoteBtn.click();
+  const input = (await screen.findByRole('textbox')) as HTMLTextAreaElement;
+  fireEvent.change(input, { target: { value: 'comment' } });
+  const commentBtn = await screen.findByText('Post');
+  commentBtn.click();
+  await waitFor(() => expect(mutationCalled).toBeTruthy());
+  await waitFor(async () =>
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument(),
+  );
+});
 
 it('should report broken link', async () => {
   let mutationCalled = false;

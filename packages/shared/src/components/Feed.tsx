@@ -17,7 +17,7 @@ import { Spaciness } from '../graphql/settings';
 import ScrollToTopButton from './ScrollToTopButton';
 import useFeedUpvotePost from '../hooks/feed/useFeedUpvotePost';
 import useFeedBookmarkPost from '../hooks/feed/useFeedBookmarkPost';
-// import useCommentPopup from '../hooks/feed/useCommentPopup';
+import useCommentPopup from '../hooks/feed/useCommentPopup';
 import useFeedOnPostClick, {
   FeedPostClick,
 } from '../hooks/feed/useFeedOnPostClick';
@@ -115,8 +115,12 @@ export default function Feed<T>({
   onEmptyFeed,
   emptyScreen,
 }: FeedProps<T>): ReactElement {
-  const { postCardVersion, postModalByDefault, postEngagementNonClickable } =
-    useContext(FeaturesContext);
+  const {
+    postCardVersion,
+    postModalByDefault,
+    postEngagementNonClickable,
+    showCommentPopover,
+  } = useContext(FeaturesContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
@@ -166,17 +170,17 @@ export default function Feed<T>({
     return <></>;
   }
 
-  // const {
-  //   showCommentPopupId,
-  //   setShowCommentPopupId,
-  //   comment,
-  //   isSendingComment,
-  // } = useCommentPopup(feedName);
+  const {
+    showCommentPopupId,
+    setShowCommentPopupId,
+    comment,
+    isSendingComment,
+  } = useCommentPopup(feedName);
 
   const onUpvote = useFeedUpvotePost(
     items,
     updatePost,
-    // setShowCommentPopupId,
+    showCommentPopover && setShowCommentPopupId,
     virtualizedNumCards,
     feedName,
     ranking,
@@ -333,10 +337,10 @@ export default function Feed<T>({
             openNewTab={openNewTab}
             insaneMode={insaneMode}
             postMenuIndex={postMenuIndex}
-            // showCommentPopupId={showCommentPopupId}
-            // setShowCommentPopupId={setShowCommentPopupId}
-            // isSendingComment={isSendingComment}
-            // comment={comment}
+            showCommentPopupId={showCommentPopupId}
+            setShowCommentPopupId={setShowCommentPopupId}
+            isSendingComment={isSendingComment}
+            comment={comment}
             user={user}
             feedName={feedName}
             ranking={ranking}

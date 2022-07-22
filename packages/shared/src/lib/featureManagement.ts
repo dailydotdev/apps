@@ -134,6 +134,8 @@ export class Features {
     [AdditionalInteractionButtons.Bookmark, AdditionalInteractionButtons.Share],
   );
 
+  static readonly ShowCommentPopover = new Features('show_comment_popover');
+
   private constructor(
     public readonly id: string,
     public readonly defaultValue?: string,
