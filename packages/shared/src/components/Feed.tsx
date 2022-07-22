@@ -267,8 +267,8 @@ export default function Feed<T>({
   const style = {
     '--num-cards': numCards,
     '--feed-gap': `${feedGapPx / 16}rem`,
-    ...getStyle(useList, spaciness),
   };
+  const cardContainerStye = { ...getStyle(useList, spaciness) };
 
   if (emptyScreen && emptyFeed) {
     return <>{emptyScreen}</>;
@@ -292,7 +292,13 @@ export default function Feed<T>({
   }, [selectedPost]);
 
   return (
-    <div className="flex flex-col laptopL:mx-auto w-full laptopL:w-auto">
+    <div
+      className={classNames(
+        'flex flex-col laptopL:mx-auto w-full',
+        styles.container,
+      )}
+      style={style}
+    >
       {header}
       <div
         className={classNames(
@@ -301,11 +307,10 @@ export default function Feed<T>({
           styles.feed,
           !useList && styles.cards,
         )}
-        style={style}
+        style={cardContainerStye}
         aria-live={subject === ToastSubject.Feed ? 'assertive' : 'off'}
         data-testid="posts-feed"
       >
-
         {selectedPost && (
           <PostModal
             isOpen
@@ -314,42 +319,6 @@ export default function Feed<T>({
             onPreviousPost={onPrevious}
             onNextPost={onNext}
             isFetchingNextPage={isFetchingNextPage}
-  />
-        )}
-        {items.map((item, index) => (
-          <FeedItemComponent
-            additionalInteractionButtonFeature={
-              additionalInteractionButtonFeature
-            }
-            items={items}
-            index={index}
-            row={calculateRow(index, numCards)}
-            column={calculateColumn(index, numCards)}
-            columns={virtualizedNumCards}
-            key={getFeedItemKey(items, index)}
-            useList={useList}
-            openNewTab={openNewTab}
-            insaneMode={insaneMode}
-            postMenuIndex={postMenuIndex}
-            showCommentPopupId={showCommentPopupId}
-            setShowCommentPopupId={setShowCommentPopupId}
-            isSendingComment={isSendingComment}
-            comment={comment}
-            user={user}
-            feedName={feedName}
-            ranking={ranking}
-            onUpvote={onUpvote}
-            onBookmark={onBookmark}
-            onPostClick={onPostCardClick}
-            onShare={onShareClick}
-            onMenuClick={onMenuClick}
-            onCommentClick={onCommentClick}
-            onAdClick={onAdClick}
-            onReadArticleClick={onReadArticleClick}
-            postCardVersion={postCardVersion}
-            postModalByDefault={postModalByDefault}
-            postEngagementNonClickable={postEngagementNonClickable}
-
           />
         )}
         <ScrollToTopButton />
@@ -375,10 +344,10 @@ export default function Feed<T>({
               openNewTab={openNewTab}
               insaneMode={insaneMode}
               postMenuIndex={postMenuIndex}
-              // showCommentPopupId={showCommentPopupId}
-              // setShowCommentPopupId={setShowCommentPopupId}
-              // isSendingComment={isSendingComment}
-              // comment={comment}
+              showCommentPopupId={showCommentPopupId}
+              setShowCommentPopupId={setShowCommentPopupId}
+              isSendingComment={isSendingComment}
+              comment={comment}
               user={user}
               feedName={feedName}
               ranking={ranking}
