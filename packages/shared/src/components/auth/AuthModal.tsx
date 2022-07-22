@@ -66,12 +66,7 @@ export default function AuthModal({
               Customize your feed!
             </AuthModalHeading>
           </div>
-          <Circles
-            className={classNames(
-              'absolute z-0 h-96 w-[32.5rem]',
-              styles.circles,
-            )}
-          />
+          <Circles className="absolute bottom-0 left-1/2 z-0 h-96 -translate-x-1/2 w-[32.5rem]" />
         </>
       )}
       <AuthOptions
