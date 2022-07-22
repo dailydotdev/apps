@@ -4,14 +4,14 @@ import { ClickableText } from '../buttons/ClickableText';
 
 interface AuthModalFooterProps {
   className?: string;
-  shouldLogin: boolean;
-  onShouldLogin: (value: boolean) => void;
+  isLogin: boolean;
+  onIsLogin: (value: boolean) => void;
 }
 
 function AuthModalFooter({
   className,
-  shouldLogin,
-  onShouldLogin,
+  isLogin,
+  onIsLogin,
 }: AuthModalFooterProps): ReactElement {
   return (
     <div
@@ -20,12 +20,12 @@ function AuthModalFooter({
         className,
       )}
     >
-      {shouldLogin ? 'Not yet a member?' : 'Already a member?'}
+      {isLogin ? 'Not yet a member?' : 'Already a member?'}
       <ClickableText
         className="ml-1 text-theme-label-primary"
-        onClick={() => onShouldLogin(!shouldLogin)}
+        onClick={() => onIsLogin(!isLogin)}
       >
-        {shouldLogin ? 'Register' : 'Login'}
+        {isLogin ? 'Register' : 'Login'}
       </ClickableText>
     </div>
   );

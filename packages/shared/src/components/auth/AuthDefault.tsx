@@ -89,8 +89,8 @@ const AuthDefault = ({
       <div className="flex flex-1" />
       <AuthModalFooter
         className="mt-4"
-        shouldLogin={shouldLogin}
-        onShouldLogin={setShouldLogin}
+        isLogin={shouldLogin}
+        onIsLogin={setShouldLogin}
       />
     </>
   );
