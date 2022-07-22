@@ -1,4 +1,10 @@
-import React, { ReactElement, useContext, useState } from 'react';
+import React, {
+  ReactElement,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useQuery } from 'react-query';
 import { apiUrl } from '../../lib/config';
 import AuthContext from '../../contexts/AuthContext';
@@ -31,6 +37,7 @@ interface PostCommentsProps {
   applyBottomMargin?: boolean;
   modalParentSelector?: () => HTMLElement;
   onClick?: (parent: ParentComment) => unknown;
+  onShare?: (comment: Comment) => void;
   onClickUpvote?: (commentId: string, upvotes: number) => unknown;
 }
 
@@ -77,6 +84,7 @@ const getParentComment = (
 export function PostComments({
   post,
   onClick,
+  onShare,
   onClickUpvote,
   modalParentSelector,
   applyBottomMargin = true,
@@ -101,7 +109,17 @@ export function PostComments({
         refetchInterval: 60 * 1000,
       },
     );
+  const { hash: commentHash } = window.location;
   const commentsCount = comments?.postComments?.edges?.length || 0;
+  const commentRef = useRef(null);
+
+  const [scrollToComment, setScrollToComment] = useState(!!commentHash);
+  useEffect(() => {
+    if (commentsCount > 0 && scrollToComment && commentRef.current) {
+      commentRef.current.scrollIntoView();
+      setScrollToComment(false);
+    }
+  }, [commentsCount, scrollToComment]);
 
   if (isLoadingComments || comments === null) {
     return <PlaceholderCommentList placeholderAmount={post.numComments} />;
@@ -135,10 +153,13 @@ export function PostComments({
     <>
       {comments.postComments.edges.map((e, i) => (
         <MainComment
+          commentHash={commentHash}
+          commentRef={commentRef}
           className={i === commentsCount - 1 && applyBottomMargin && 'mb-12'}
           comment={e.node}
           key={e.node.id}
           onComment={onCommentClick}
+          onShare={onShare}
           onDelete={(comment, parentId) =>
             setPendingComment({ comment, parentId })
           }

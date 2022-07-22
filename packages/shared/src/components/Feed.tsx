@@ -57,7 +57,7 @@ interface RankVariables {
   ranking?: string;
 }
 
-const SharePostModal = dynamic(() => import('./modals/SharePostModal'));
+const SharePostModal = dynamic(() => import('./modals/ShareModal'));
 const PostModal = dynamic(() => import('./modals/PostModal'));
 
 const listGaps = {
