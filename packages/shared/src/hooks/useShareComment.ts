@@ -1,5 +1,4 @@
 import { useContext, useMemo, useState } from 'react';
-import request from 'graphql-request';
 import { Post } from '../graphql/posts';
 import { postAnalyticsEvent } from '../lib/feed';
 import AnalyticsContext from '../contexts/AnalyticsContext';
@@ -18,41 +17,35 @@ export function useShareComment(
   const { trackEvent } = useContext(AnalyticsContext);
   const [shareModal, setShareModal] = useState<Comment>(null);
 
-  const openShareComment = async (comment: Comment) => {
-    if ('share' in navigator) {
-      try {
-        await navigator.share({
-          text: `${post.title}\n${post.commentsPermalink}${getCommentHash(
-            comment.id,
-          )}`,
-        });
-        trackEvent(
-          postAnalyticsEvent('share post', post, {
-            extra: {
-              origin,
-              provider: ShareProvider.Native,
-              commentId: comment.id,
-            },
-          }),
-        );
-      } catch (err) {
-        // Do nothing
-      }
-    } else {
-      setShareModal(comment);
-    }
-  };
-
-  const closeShareComment = () => {
-    setShareModal(null);
-  };
-
   return useMemo(
     () => ({
       shareComment: shareModal,
-      openShareComment,
-      closeShareComment,
+      openShareComment: async (comment: Comment) => {
+        if ('share' in navigator) {
+          try {
+            await navigator.share({
+              text: `${post.title}\n${post.commentsPermalink}${getCommentHash(
+                comment.id,
+              )}`,
+            });
+            trackEvent(
+              postAnalyticsEvent('share post', post, {
+                extra: {
+                  origin,
+                  provider: ShareProvider.Native,
+                  commentId: comment.id,
+                },
+              }),
+            );
+          } catch (err) {
+            // Do nothing
+          }
+        } else {
+          setShareModal(comment);
+        }
+      },
+      closeShareComment: () => setShareModal(null),
     }),
-    [shareModal, openShareComment, closeShareComment],
+    [shareModal],
   );
 }

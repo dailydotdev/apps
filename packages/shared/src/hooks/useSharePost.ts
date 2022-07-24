@@ -16,49 +16,43 @@ export function useSharePost(origin: Origin): {
   const [sharePostFeedLocation, setSharePostFeedLocation] =
     useState<FeedItemPosition>({});
 
-  const openSharePost = async (
-    post: Post,
-    columns?: number,
-    column?: number,
-    row?: number,
-  ) => {
-    setSharePostFeedLocation({
-      columns,
-      column,
-      row,
-    });
-    if ('share' in navigator) {
-      try {
-        await navigator.share({
-          text: `${post.title}\n${post.commentsPermalink}`,
-        });
-        trackEvent(
-          postAnalyticsEvent('share post', post, {
-            columns,
-            column,
-            row,
-            extra: { origin, provider: ShareProvider.Native },
-          }),
-        );
-      } catch (err) {
-        // Do nothing
-      }
-    } else {
-      setShareModal(post);
-    }
-  };
-
-  const closeSharePost = () => {
-    setShareModal(null);
-  };
-
   return useMemo(
     () => ({
       sharePost: shareModal,
       sharePostFeedLocation,
-      openSharePost,
-      closeSharePost,
+      openSharePost: async (
+        post: Post,
+        columns?: number,
+        column?: number,
+        row?: number,
+      ) => {
+        setSharePostFeedLocation({
+          columns,
+          column,
+          row,
+        });
+        if ('share' in navigator) {
+          try {
+            await navigator.share({
+              text: `${post.title}\n${post.commentsPermalink}`,
+            });
+            trackEvent(
+              postAnalyticsEvent('share post', post, {
+                columns,
+                column,
+                row,
+                extra: { origin, provider: ShareProvider.Native },
+              }),
+            );
+          } catch (err) {
+            // Do nothing
+          }
+        } else {
+          setShareModal(post);
+        }
+      },
+      closeSharePost: () => setShareModal(null),
     }),
-    [shareModal, sharePostFeedLocation, openSharePost, closeSharePost],
+    [shareModal, sharePostFeedLocation],
   );
 }
