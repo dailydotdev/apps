@@ -1,4 +1,5 @@
-import { useContext, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
+import request from 'graphql-request';
 import { Post } from '../graphql/posts';
 import { postAnalyticsEvent } from '../lib/feed';
 import AnalyticsContext from '../contexts/AnalyticsContext';
@@ -21,7 +22,7 @@ export function useShareComment(
     if ('share' in navigator) {
       try {
         await navigator.share({
-          text: `${post.title} ${post.commentsPermalink}${getCommentHash(
+          text: `${post.title}\n${post.commentsPermalink}${getCommentHash(
             comment.id,
           )}`,
         });
@@ -46,9 +47,12 @@ export function useShareComment(
     setShareModal(null);
   };
 
-  return {
-    shareComment: shareModal,
-    openShareComment,
-    closeShareComment,
-  };
+  return useMemo(
+    () => ({
+      shareComment: shareModal,
+      openShareComment,
+      closeShareComment,
+    }),
+    [shareModal, openShareComment, closeShareComment],
+  );
 }

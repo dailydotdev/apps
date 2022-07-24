@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import { Post } from '../graphql/posts';
 import { FeedItemPosition, postAnalyticsEvent } from '../lib/feed';
 import AnalyticsContext from '../contexts/AnalyticsContext';
@@ -30,7 +30,7 @@ export function useSharePost(origin: Origin): {
     if ('share' in navigator) {
       try {
         await navigator.share({
-          text: `${post.title} ${post.commentsPermalink}`,
+          text: `${post.title}\n${post.commentsPermalink}`,
         });
         trackEvent(
           postAnalyticsEvent('share post', post, {
@@ -52,10 +52,13 @@ export function useSharePost(origin: Origin): {
     setShareModal(null);
   };
 
-  return {
-    sharePost: shareModal,
-    sharePostFeedLocation,
-    openSharePost,
-    closeSharePost,
-  };
+  return useMemo(
+    () => ({
+      sharePost: shareModal,
+      sharePostFeedLocation,
+      openSharePost,
+      closeSharePost,
+    }),
+    [shareModal, sharePostFeedLocation, openSharePost, closeSharePost],
+  );
 }
