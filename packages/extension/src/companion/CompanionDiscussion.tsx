@@ -39,7 +39,6 @@ export function CompanionDiscussion({
   } = useCompanionPostComment(post);
   const { shareComment, openShareComment, closeShareComment } = useShareComment(
     Origin.Companion,
-    post,
   );
   const postCommentsQueryKey = ['post_comments', post?.id];
   useBackgroundRequest(postCommentsQueryKey);
@@ -64,7 +63,7 @@ export function CompanionDiscussion({
           post={post}
           applyBottomMargin={false}
           onClick={onCommentClick}
-          onShare={openShareComment}
+          onShare={(comment) => openShareComment(comment, post)}
           onClickUpvote={onShowUpvoted}
           modalParentSelector={getCompanionWrapper}
         />

@@ -137,10 +137,8 @@ export function PostContent({
   const { subject } = useToastNotification();
   const { sharePost, openSharePost, closeSharePost } =
     useSharePost(analyticsOrigin);
-  const { shareComment, openShareComment, closeShareComment } = useShareComment(
-    analyticsOrigin,
-    postById?.post,
-  );
+  const { shareComment, openShareComment, closeShareComment } =
+    useShareComment(analyticsOrigin);
   const { updatePost } = useUpdatePost();
   const { bookmark, removeBookmark } = useBookmarkPost({
     onBookmarkMutate: updatePost({ id, update: { bookmarked: true } }),
@@ -331,7 +329,7 @@ export function PostContent({
         <PostComments
           post={postById.post}
           onClick={onCommentClick}
-          onShare={openShareComment}
+          onShare={(comment) => openShareComment(comment, postById.post)}
           onClickUpvote={onShowUpvotedComment}
         />
         {authorOnboarding && (
