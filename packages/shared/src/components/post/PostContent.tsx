@@ -332,7 +332,7 @@ export function PostContent({
         <PostComments
           post={postById.post}
           onClick={onCommentClick}
-          onShare={(comment) => openShareComment(comment, postById.post)}
+          onShare={(comment) => openShareComment(comment)}
           onClickUpvote={onShowUpvotedComment}
         />
         {authorOnboarding && (
