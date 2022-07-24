@@ -111,7 +111,7 @@ export class Features {
     'Activate companion',
   );
 
-  static readonly PostCardVersion = new Features('post_card_version', 'v2', [
+  static readonly PostCardVersion = new Features('post_card_version', 'v1', [
     'v1',
     'v2',
   ]);
