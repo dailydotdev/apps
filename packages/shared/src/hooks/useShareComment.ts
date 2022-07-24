@@ -19,8 +19,6 @@ export function useShareComment(origin: Origin): {
       shareComment: shareModal,
       openShareComment: async (comment: Comment, post: Post) => {
         if ('share' in navigator) {
-          console.log('open the share');
-
           try {
             await navigator.share({
               text: `${post.title}\n${post.commentsPermalink}${getCommentHash(
@@ -37,7 +35,6 @@ export function useShareComment(origin: Origin): {
               }),
             );
           } catch (err) {
-            console.log('error', err);
             // Do nothing
           }
         } else {
