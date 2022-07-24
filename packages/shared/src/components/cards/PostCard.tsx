@@ -119,8 +119,7 @@ export const PostCard = forwardRef(function PostCard(
         )}
         <CardTitle>{post.title}</CardTitle>
       </CardTextContainer>
-      <Containter className="mb-8 tablet:mb-0">
-        <CardSpace />
+      <Containter className="mb-5">
         <PostMetadata
           createdAt={post.createdAt}
           readTime={post.readTime}
@@ -133,7 +132,7 @@ export const PostCard = forwardRef(function PostCard(
             className={classNames(
               'rounded-b-12',
               insaneMode
-                ? 'relative tablet:absolute tablet:right-0 tablet:bottom-0 tablet:left-0 mt-2 tablet:mt-0 tablet:border-0 border-t border-theme-divider-tertiary'
+                ? 'relative tablet:absolute tablet:right-0 tablet:bottom-0 tablet:left-0 mt-2.5 tablet:mt-0 tablet:border-0 border-t border-theme-divider-tertiary'
                 : 'absolute right-0 bottom-0 left-0',
             )}
             postLink={post.permalink}
@@ -184,9 +183,9 @@ export const PostCard = forwardRef(function PostCard(
             additionalInteractionButtonFeature
           }
           className={classNames(
-            'mx-4',
+            'mx-2',
             !postEngagementNonClickable && 'justify-between',
-            !showImage && 'my-4 laptop:mb-0',
+            !showImage && 'laptop:mb-0',
           )}
         />
       </Containter>
