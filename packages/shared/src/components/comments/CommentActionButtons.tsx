@@ -17,6 +17,11 @@ import { ClickableText } from '../buttons/ClickableText';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import ShareIcon from '../icons/Share';
+import { postAnalyticsEvent } from '../../lib/feed';
+import { commentEventName } from '../utilities';
+import AnalyticsContext from '../../contexts/AnalyticsContext';
+import { Origin } from '../../lib/analytics';
+import { Post } from '../../graphql/posts';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
@@ -27,12 +32,16 @@ export interface CommentActionProps {
 }
 
 export interface Props extends CommentActionProps {
+  post: Post;
   comment: Comment;
+  origin: Origin;
   parentId: string | null;
 }
 
 export default function CommentActionButtons({
+  post,
   comment,
+  origin,
   parentId,
   onComment,
   onShare,
@@ -40,6 +49,7 @@ export default function CommentActionButtons({
   onEdit,
   onShowUpvotes,
 }: Props): ReactElement {
+  const { trackEvent } = useContext(AnalyticsContext);
   const { user, showLogin } = useContext(AuthContext);
 
   const [upvoted, setUpvoted] = useState(comment.upvoted);
@@ -93,10 +103,20 @@ export default function CommentActionButtons({
 
   const toggleUpvote = () => {
     if (user) {
-      // TODO: add GA tracking
       if (upvoted) {
+        trackEvent(
+          postAnalyticsEvent(commentEventName(false), post, {
+            extra: { origin, commentId: comment.id },
+          }),
+        );
         return cancelCommentUpvote();
       }
+
+      trackEvent(
+        postAnalyticsEvent(commentEventName(true), post, {
+          extra: { origin, commentId: comment.id },
+        }),
+      );
       return upvoteComment();
     }
     showLogin('comment upvote');

@@ -61,6 +61,7 @@ export function CompanionDiscussion({
         <h3 className="my-3.5 font-bold typo-callout">Discussion</h3>
         <PostComments
           post={post}
+          origin={Origin.Companion}
           applyBottomMargin={false}
           onClick={onCommentClick}
           onShare={(comment) => openShareComment(comment, post)}
