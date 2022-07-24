@@ -89,6 +89,8 @@ export default function MainComment({
       />
       {comment.children?.edges.map((e, i) => (
         <SubComment
+          post={post}
+          origin={origin}
           commentHash={commentHash}
           commentRef={commentRef}
           comment={e.node}
