@@ -328,6 +328,7 @@ export function PostContent({
         />
         <PostComments
           post={postById.post}
+          origin={analyticsOrigin}
           onClick={onCommentClick}
           onShare={(comment) => openShareComment(comment, postById.post)}
           onClickUpvote={onShowUpvotedComment}

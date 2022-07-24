@@ -11,9 +11,13 @@ import classed from '../../lib/classed';
 import Markdown from '../Markdown';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 import ScoutBadge from './ScoutBadge';
+import { Post } from '../../graphql/posts';
+import { Origin } from '../../lib/analytics';
 
 export interface Props extends CommentActionProps {
+  post: Post;
   comment: Comment;
+  origin: Origin;
   firstComment: boolean;
   lastComment: boolean;
   parentId: string;
@@ -27,7 +31,9 @@ export interface Props extends CommentActionProps {
 const SubCommentBox = classed(CommentBox, 'mb-1');
 
 export default function SubComment({
+  post,
   comment,
+  origin,
   firstComment,
   lastComment,
   parentId,
@@ -83,6 +89,8 @@ export default function SubComment({
           </div>
         </SubCommentBox>
         <CommentActionButtons
+          post={post}
+          origin={origin}
           comment={comment}
           parentId={parentId}
           onComment={onComment}
