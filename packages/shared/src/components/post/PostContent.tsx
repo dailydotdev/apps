@@ -48,7 +48,7 @@ import useUpdatePost from '../../hooks/useUpdatePost';
 import { useSharePost } from '../../hooks/useSharePost';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { Origin } from '../../lib/analytics';
-import { Comment } from '../../graphql/comments';
+import { useShareComment } from '../../hooks/useShareComment';
 
 const UpvotedPopupModal = dynamic(() => import('../modals/UpvotedPopupModal'));
 const NewCommentModal = dynamic(() => import('../modals/NewCommentModal'));
@@ -137,7 +137,6 @@ export function PostContent({
   const { subject } = useToastNotification();
   const { sharePost, openSharePost, closeSharePost } =
     useSharePost(analyticsOrigin);
-  const [shareComment, setShareComment] = useState<Comment>(null);
   const { updatePost } = useUpdatePost();
   const { bookmark, removeBookmark } = useBookmarkPost({
     onBookmarkMutate: updatePost({ id, update: { bookmarked: true } }),
@@ -193,6 +192,11 @@ export function PostContent({
   if (!postById?.post) {
     return <Custom404 />;
   }
+
+  const { shareComment, openShareComment, closeShareComment } = useShareComment(
+    analyticsOrigin,
+    postById.post,
+  );
 
   const onLinkClick = async () => {
     trackEvent(
@@ -328,7 +332,7 @@ export function PostContent({
         <PostComments
           post={postById.post}
           onClick={onCommentClick}
-          onShare={(comment) => setShareComment(comment)}
+          onShare={(comment) => openShareComment(comment, postById.post)}
           onClickUpvote={onShowUpvotedComment}
         />
         {authorOnboarding && (
@@ -386,7 +390,7 @@ export function PostContent({
           post={postById.post}
           comment={shareComment}
           origin={analyticsOrigin}
-          onRequestClose={() => setShareComment(null)}
+          onRequestClose={closeShareComment}
         />
       )}
     </Wrapper>
