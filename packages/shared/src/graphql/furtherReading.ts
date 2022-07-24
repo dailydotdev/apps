@@ -20,6 +20,7 @@ export const FURTHER_READING_QUERY = gql`
       id
       title
       permalink
+      commentsPermalink
       bookmarked @include(if: $loggedIn)
       source {
         id
@@ -45,6 +46,7 @@ export const FURTHER_READING_QUERY = gql`
       id
       title
       permalink
+      commentsPermalink
       bookmarked @include(if: $loggedIn)
       source {
         id
