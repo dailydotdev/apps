@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import { Post } from '../graphql/posts';
 import { FeedItemPosition, postAnalyticsEvent } from '../lib/feed';
 import AnalyticsContext from '../contexts/AnalyticsContext';
@@ -16,47 +16,43 @@ export function useSharePost(origin: Origin): {
   const [sharePostFeedLocation, setSharePostFeedLocation] =
     useState<FeedItemPosition>({});
 
-  const openSharePost = async (
-    post: Post,
-    columns?: number,
-    column?: number,
-    row?: number,
-  ) => {
-    setSharePostFeedLocation({
-      columns,
-      column,
-      row,
-    });
-    if ('share' in navigator) {
-      try {
-        await navigator.share({
-          text: post.title,
-          url: post.commentsPermalink,
+  return useMemo(
+    () => ({
+      sharePost: shareModal,
+      sharePostFeedLocation,
+      openSharePost: async (
+        post: Post,
+        columns?: number,
+        column?: number,
+        row?: number,
+      ) => {
+        setSharePostFeedLocation({
+          columns,
+          column,
+          row,
         });
-        trackEvent(
-          postAnalyticsEvent('share post', post, {
-            columns,
-            column,
-            row,
-            extra: { origin, provider: ShareProvider.Native },
-          }),
-        );
-      } catch (err) {
-        // Do nothing
-      }
-    } else {
-      setShareModal(post);
-    }
-  };
-
-  const closeSharePost = () => {
-    setShareModal(null);
-  };
-
-  return {
-    sharePost: shareModal,
-    sharePostFeedLocation,
-    openSharePost,
-    closeSharePost,
-  };
+        if ('share' in navigator) {
+          try {
+            await navigator.share({
+              text: `${post.title}\n${post.commentsPermalink}`,
+            });
+            trackEvent(
+              postAnalyticsEvent('share post', post, {
+                columns,
+                column,
+                row,
+                extra: { origin, provider: ShareProvider.Native },
+              }),
+            );
+          } catch (err) {
+            // Do nothing
+          }
+        } else {
+          setShareModal(post);
+        }
+      },
+      closeSharePost: () => setShareModal(null),
+    }),
+    [shareModal, sharePostFeedLocation],
+  );
 }

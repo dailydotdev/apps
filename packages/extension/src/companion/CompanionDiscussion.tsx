@@ -1,18 +1,13 @@
-import React, {
-  CSSProperties,
-  ReactElement,
-  useContext,
-  useState,
-} from 'react';
+import React, { CSSProperties, ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import { NewComment } from '@dailydotdev/shared/src/components/post/NewComment';
 import { PostComments } from '@dailydotdev/shared/src/components/post/PostComments';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import NewCommentModal from '@dailydotdev/shared/src/components/modals/NewCommentModal';
-import { Comment } from '@dailydotdev/shared/src/graphql/comments';
 import ShareModal from '@dailydotdev/shared/src/components/modals/ShareModal';
 import { Origin } from '@dailydotdev/shared/src/lib/analytics';
+import { useShareComment } from '@dailydotdev/shared/src/hooks/useShareComment';
 import { getCompanionWrapper } from './common';
 import { useCompanionPostComment } from './useCompanionPostComment';
 import { useBackgroundRequest } from './useBackgroundRequest';
@@ -42,7 +37,9 @@ export function CompanionDiscussion({
     onInput,
     parentComment,
   } = useCompanionPostComment(post);
-  const [shareComment, setShareComment] = useState<Comment>(null);
+  const { shareComment, openShareComment, closeShareComment } = useShareComment(
+    Origin.Companion,
+  );
   const postCommentsQueryKey = ['post_comments', post?.id];
   useBackgroundRequest(postCommentsQueryKey);
 
@@ -66,7 +63,7 @@ export function CompanionDiscussion({
           post={post}
           applyBottomMargin={false}
           onClick={onCommentClick}
-          onShare={setShareComment}
+          onShare={(comment) => openShareComment(comment, post)}
           onClickUpvote={onShowUpvoted}
           modalParentSelector={getCompanionWrapper}
         />
@@ -86,7 +83,7 @@ export function CompanionDiscussion({
           post={post}
           comment={shareComment}
           origin={Origin.Companion}
-          onRequestClose={() => setShareComment(null)}
+          onRequestClose={closeShareComment}
           parentSelector={getCompanionWrapper}
         />
       )}
