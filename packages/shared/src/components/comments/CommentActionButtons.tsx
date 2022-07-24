@@ -18,7 +18,7 @@ import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import ShareIcon from '../icons/Share';
 import { postAnalyticsEvent } from '../../lib/feed';
-import { commentEventName } from '../utilities';
+import { upvoteCommentEventName } from '../utilities';
 import AnalyticsContext from '../../contexts/AnalyticsContext';
 import { Origin } from '../../lib/analytics';
 import { Post } from '../../graphql/posts';
@@ -105,7 +105,7 @@ export default function CommentActionButtons({
     if (user) {
       if (upvoted) {
         trackEvent(
-          postAnalyticsEvent(commentEventName(false), post, {
+          postAnalyticsEvent(upvoteCommentEventName(false), post, {
             extra: { origin, commentId: comment.id },
           }),
         );
@@ -113,7 +113,7 @@ export default function CommentActionButtons({
       }
 
       trackEvent(
-        postAnalyticsEvent(commentEventName(true), post, {
+        postAnalyticsEvent(upvoteCommentEventName(true), post, {
           extra: { origin, commentId: comment.id },
         }),
       );
