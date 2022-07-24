@@ -137,6 +137,10 @@ export function PostContent({
   const { subject } = useToastNotification();
   const { sharePost, openSharePost, closeSharePost } =
     useSharePost(analyticsOrigin);
+  const { shareComment, openShareComment, closeShareComment } = useShareComment(
+    analyticsOrigin,
+    postById?.post,
+  );
   const { updatePost } = useUpdatePost();
   const { bookmark, removeBookmark } = useBookmarkPost({
     onBookmarkMutate: updatePost({ id, update: { bookmarked: true } }),
@@ -192,11 +196,6 @@ export function PostContent({
   if (!postById?.post) {
     return <Custom404 />;
   }
-
-  const { shareComment, openShareComment, closeShareComment } = useShareComment(
-    analyticsOrigin,
-    postById.post,
-  );
 
   const onLinkClick = async () => {
     trackEvent(
@@ -332,7 +331,7 @@ export function PostContent({
         <PostComments
           post={postById.post}
           onClick={onCommentClick}
-          onShare={(comment) => openShareComment(comment)}
+          onShare={openShareComment}
           onClickUpvote={onShowUpvotedComment}
         />
         {authorOnboarding && (
