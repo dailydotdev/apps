@@ -45,9 +45,7 @@ const ListItem = ({
     )}
   >
     <CardLink
-      href={post.permalink}
-      target="_blank"
-      rel="noopener"
+      href={post.commentsPermalink}
       title={post.title}
       onClick={() => onLinkClick(post)}
       onMouseUp={(event) => event.button === 1 && onLinkClick(post)}
