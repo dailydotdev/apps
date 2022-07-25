@@ -160,7 +160,7 @@ export default function CommentActionButtons({
             buttonSize="small"
             onClick={() => onDelete(comment, parentId)}
             icon={<TrashIcon />}
-            className="btn-tertiary"
+            className="mr-3 btn-tertiary"
           />
         </SimpleTooltip>
       )}
