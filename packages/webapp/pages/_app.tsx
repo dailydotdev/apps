@@ -6,7 +6,13 @@
 // }
 
 import '@dailydotdev/shared/src/lib/lazysizesImport';
-import React, { ReactElement, ReactNode, useContext, useEffect } from 'react';
+import React, {
+  ReactElement,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
@@ -181,7 +187,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 }
 
 export default function App(props: AppProps): ReactElement {
-  const [queryClient] = React.useState(() => new QueryClient());
+  const [queryClient] = useState(() => new QueryClient());
   const version = useWebappVersion();
   const deviceId = useDeviceId();
 
