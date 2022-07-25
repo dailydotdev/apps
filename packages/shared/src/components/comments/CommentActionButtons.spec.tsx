@@ -5,8 +5,8 @@ import AuthContext from '../../contexts/AuthContext';
 import { LoggedUser } from '../../lib/user';
 import CommentActionButtons, { Props } from './CommentActionButtons';
 import {
-  Comment,
   CANCEL_COMMENT_UPVOTE_MUTATION,
+  Comment,
   UPVOTE_COMMENT_MUTATION,
 } from '../../graphql/comments';
 import {
@@ -15,6 +15,8 @@ import {
 } from '../../../__tests__/helpers/graphql';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import comment from '../../../__tests__/fixture/comment';
+import post from '../../../__tests__/fixture/post';
+import { Origin } from '../../lib/analytics';
 
 const showLogin = jest.fn();
 const onComment = jest.fn();
@@ -32,10 +34,12 @@ const renderComponent = (
   mocks: MockedGraphQLResponse[] = [],
 ): RenderResult => {
   const props: Props = {
+    post,
     comment: {
       ...comment,
       ...commentUpdate,
     },
+    origin: Origin.Feed,
     parentId: 'c1',
     onComment,
     onDelete,

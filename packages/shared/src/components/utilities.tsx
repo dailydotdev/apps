@@ -77,6 +77,9 @@ export const getThemeColor = (color: string, fallback: string): ThemeColor => {
   return themeColors[color] ?? themeColors[fallback];
 };
 
+export const upvoteCommentEventName = (upvoted: boolean): string =>
+  upvoted ? 'upvote comment' : 'remove comment upvote';
+
 export const postEventName = (
   update: Pick<PostBootData, 'upvoted' | 'bookmarked'>,
 ): string => {
