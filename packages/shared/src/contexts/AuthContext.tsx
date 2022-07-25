@@ -17,8 +17,6 @@ import {
   checkCurrentSession,
   getLogoutSession,
   logoutSession,
-  validatePasswordLogin,
-  validateRegistration,
 } from '../lib/auth';
 
 export type LoginState = { trigger: string };
@@ -41,8 +39,7 @@ export interface AuthContextData {
   visit?: Visit;
   isFirstVisit?: boolean;
   deleteAccount?: () => Promise<void>;
-  onPasswordRegistration: typeof validateRegistration;
-  onPasswordLogin: typeof validatePasswordLogin;
+  onUpdateSession: (session: AuthSession) => void;
 }
 
 const AuthContext = React.createContext<AuthContextData>(null);
@@ -108,34 +105,10 @@ export const AuthContextProvider = ({
   const [session, setSession] = useState<AuthSession>();
   const [loginState, setLoginState] = useState<LoginState | null>(null);
 
-  const onPasswordLogin: typeof validatePasswordLogin = async (...params) => {
-    const loginSession = await validatePasswordLogin(...params);
-
-    if (loginSession) {
-      setSession(loginSession);
-      return loginSession;
-    }
-
-    return null;
-  };
-
-  const onPasswordRegistration: typeof validateRegistration = async (
-    ...params
-  ) => {
-    const response = await validateRegistration(...params);
-
-    if (response.success) {
-      setSession(response.success);
-    }
-
-    return response;
-  };
-
   const authContext: AuthContextData = useMemo(
     () => ({
       session,
-      onPasswordLogin,
-      onPasswordRegistration,
+      onUpdateSession: setSession,
       user: user && 'providers' in user ? user : null,
       isFirstVisit: user?.isFirstVisit ?? false,
       trackingId: user?.id,

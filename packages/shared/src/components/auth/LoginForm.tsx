@@ -1,7 +1,11 @@
-import React, { ReactElement, useContext, useRef } from 'react';
-import { useQuery } from 'react-query';
+import React, { ReactElement, useContext, useRef, useState } from 'react';
+import { useMutation, useQuery } from 'react-query';
 import AuthContext from '../../contexts/AuthContext';
-import { initializeLogin, LoginPasswordParameters } from '../../lib/auth';
+import {
+  initializeLogin,
+  LoginPasswordParameters,
+  validatePasswordLogin,
+} from '../../lib/auth';
 import { formToJson } from '../../lib/form';
 import { disabledRefetch } from '../../lib/func';
 import { Button } from '../buttons/Button';
@@ -21,16 +25,27 @@ function LoginForm({
   onSuccessfulLogin,
   onForgotPassword,
 }: LoginFormProps): ReactElement {
-  const { onPasswordLogin } = useContext(AuthContext);
+  const [hint, setHint] = useState('');
+  const { onUpdateSession } = useContext(AuthContext);
   const formRef = useRef<HTMLFormElement>();
   const { data } = useQuery('login', initializeLogin, { ...disabledRefetch });
+  const { mutateAsync: validateLogin } = useMutation(validatePasswordLogin, {
+    onSuccess: ({ error, data: session }) => {
+      if (error) {
+        return setHint('Invalid username or password');
+      }
+
+      return onUpdateSession(session);
+    },
+  });
   const onLogin: typeof onSuccessfulLogin = async (e) => {
     e.preventDefault();
     const form = formToJson<LoginFormParams>(formRef.current);
-    const csrfToken = data.ui.nodes[0].attributes.value;
+    const { action, nodes } = data.ui;
+    const csrfToken = nodes[0].attributes.value;
     const params: LoginPasswordParameters = { ...form, csrf_token: csrfToken };
-    const session = await onPasswordLogin(data.ui.action, params);
-    if (session) {
+    const res = await validateLogin({ action, params });
+    if (!res.error) {
       onSuccessfulLogin(e);
     }
   };
@@ -53,6 +68,10 @@ function LoginForm({
         name="password"
         label="Password"
         type="password"
+        saveHintSpace
+        hint={hint}
+        onChange={() => hint && setHint('')}
+        valid={!hint}
       />
       <span className="flex flex-row mt-4 w-full">
         <ClickableText

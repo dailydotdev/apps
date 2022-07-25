@@ -1,9 +1,7 @@
 import { MutableRefObject, useMemo, useRef, useState } from 'react';
-import {
-  FormValues,
-  SocialProviderAccount,
-} from '../components/auth/RegistrationForm';
+import { SocialProviderAccount } from '../components/auth/RegistrationForm';
 import { CloseModalFunc } from '../components/modals/common';
+import { RegistrationParameters } from '../lib/auth';
 import { formToJson } from '../lib/form';
 
 interface UseAuthForms {
@@ -36,10 +34,8 @@ const useAuthForms = ({ onDiscard }: UseAuthFormsProps = {}): UseAuthForms => {
       return onDiscard(e);
     }
 
-    const { 'traits.email': emailAd, ...rest } = formToJson<FormValues>(
-      formRef.current,
-      {},
-    );
+    const { 'traits.email': emailAd, ...rest } =
+      formToJson<RegistrationParameters>(formRef.current) || {};
     const values = Object.values(rest);
 
     if (values.some((value) => !!value)) {

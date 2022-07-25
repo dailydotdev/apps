@@ -6,9 +6,14 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { useQuery } from 'react-query';
+import { useMutation, useQuery } from 'react-query';
 import AuthContext from '../../contexts/AuthContext';
-import { initializeRegistration, RegistrationParameters } from '../../lib/auth';
+import {
+  errorsToJson,
+  initializeRegistration,
+  RegistrationParameters,
+  validateRegistration,
+} from '../../lib/auth';
 import { formInputs, formToJson } from '../../lib/form';
 import { disabledRefetch } from '../../lib/func';
 import { Button } from '../buttons/Button';
@@ -37,12 +42,9 @@ interface RegistrationFormProps {
   isV2?: boolean;
 }
 
-export interface FormValues {
-  image?: string;
-  'traits.email'?: string;
-  fullname?: string;
-  password?: string;
-  username?: string;
+interface MutationParams {
+  action: string;
+  params: RegistrationParameters;
 }
 
 export const RegistrationForm = ({
@@ -53,15 +55,34 @@ export const RegistrationForm = ({
   onBack,
   isV2,
 }: RegistrationFormProps): ReactElement => {
-  const [isNameValid, setIsNameValid] = useState<boolean>();
-  const [isPasswordValid, setIsPasswordValid] = useState<boolean>();
-  const [isUsernameValid, setIsUsernameValid] = useState<boolean>();
+  const [hints, setHints] =
+    useState<Record<keyof RegistrationParameters, string>>();
   const [emailSent, setEmailSent] = useState(false);
-  const { onPasswordRegistration } = useContext(AuthContext);
+  const { onUpdateSession } = useContext(AuthContext);
   const { data: registration } = useQuery(
     'registration',
     initializeRegistration,
     { ...disabledRefetch },
+  );
+  const { mutateAsync: validate, status } = useMutation(
+    ({ action, params }: MutationParams) =>
+      validateRegistration(action, params),
+    {
+      onSuccess: ({ data, error }) => {
+        if (data) {
+          return onUpdateSession(data);
+        }
+
+        // probably csrf token issue and definitely not related to forms data
+        if (!error.ui) {
+          return null;
+        }
+
+        const json = errorsToJson<keyof RegistrationParameters>(error);
+
+        return setHints(json);
+      },
+    },
   );
 
   useEffect(() => {
@@ -69,7 +90,6 @@ export const RegistrationForm = ({
       return;
     }
 
-    setIsPasswordValid(true);
     const data = formInputs(formRef.current);
     Object.keys(data).forEach((key) => {
       if (!socialAccount?.[key]) {
@@ -89,22 +109,16 @@ export const RegistrationForm = ({
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { password, ...form } = formToJson<FormValues>(formRef.current);
-    const [first, ...rest] = form.fullname.split(' ');
-    const csrfToken = registration.ui.nodes[0].attributes.value;
+    const values = formToJson<RegistrationParameters>(formRef.current);
+    const { nodes, action } = registration.ui;
+    const csrfToken = nodes[0].attributes.value;
     const postData: RegistrationParameters = {
+      ...values,
       csrf_token: csrfToken,
       method: 'password',
-      password,
-      'traits.email': form['traits.email'],
-      'traits.name.first': first,
-      'traits.name.last': rest.length === 0 ? first : rest.join(' '),
     };
 
-    const { success } = await onPasswordRegistration(
-      registration.ui.action,
-      postData,
-    );
+    const { data: success } = await validate({ action, params: postData });
 
     if (success) {
       return setEmailSent(true);
@@ -113,6 +127,11 @@ export const RegistrationForm = ({
     // error management is missing
     return null;
   };
+
+  const isIdle = status === 'idle';
+  const isPasswordValid = !hints?.password;
+  const isNameValid = !hints?.['traits.fullname'];
+  const isUsernameValid = !hints?.['traits.username'];
 
   return (
     <>
@@ -123,7 +142,7 @@ export const RegistrationForm = ({
       />
       <AuthForm
         className={classNames(
-          'gap-4 self-center place-items-center mt-6 w-full',
+          'gap-1 self-center place-items-center mt-6 w-full',
           isV2 ? 'max-w-[20rem]' : 'px-[3.75rem]',
         )}
         ref={formRef}
@@ -131,6 +150,7 @@ export const RegistrationForm = ({
       >
         {socialAccount && <ImageInput initialValue={socialAccount.image} />}
         <TextField
+          saveHintSpace
           className="w-full"
           leftIcon={<MailIcon />}
           name="traits.email"
@@ -142,48 +162,62 @@ export const RegistrationForm = ({
           rightIcon={<VIcon className="text-theme-color-avocado" />}
         />
         <TextField
+          saveHintSpace
           className="w-full"
-          validityChanged={setIsNameValid}
           valid={isNameValid}
           leftIcon={<UserIcon />}
-          name="fullname"
+          name="traits.fullname"
           inputId="fullname"
           label="Full name"
+          hint={hints?.['traits.fullname']}
+          onChange={() =>
+            hints?.['traits.fullname'] &&
+            setHints({ ...hints, 'traits.fullname': '' })
+          }
           rightIcon={
+            !isIdle &&
             isNameValid && <VIcon className="text-theme-color-avocado" />
           }
-          minLength={3}
-          required
         />
         {!socialAccount && (
           <TextField
+            saveHintSpace
             className="w-full"
-            validityChanged={setIsPasswordValid}
-            valid={isPasswordValid}
+            valid={!hints?.password?.length}
             leftIcon={<MailIcon />}
             type="password"
             name="password"
             inputId="password"
             label="Create a password"
+            hint={hints?.password}
+            onChange={() =>
+              hints?.password && setHints({ ...hints, password: '' })
+            }
             rightIcon={
+              !isIdle &&
               isPasswordValid && <VIcon className="text-theme-color-avocado" />
             }
           />
         )}
         <TextField
+          saveHintSpace
           className="w-full"
-          validityChanged={setIsUsernameValid}
           valid={isUsernameValid}
           leftIcon={<UserIcon />}
           name="username"
           inputId="username"
           label="Enter a username"
-          minLength={1}
+          hint={hints?.['traits.username']}
+          onChange={() =>
+            hints?.['traits.username'] &&
+            setHints({ ...hints, 'traits.username': '' })
+          }
           rightIcon={
+            !isIdle &&
             isUsernameValid && <VIcon className="text-theme-color-avocado" />
           }
         />
-        {isNameValid && isPasswordValid && (
+        {((isNameValid && isPasswordValid) || !isIdle) && (
           <div className="flex flex-row gap-4 mt-6 ml-auto">
             {isPasswordValid && !isUsernameValid && (
               <Button className="btn-tertiary">Skip</Button>
