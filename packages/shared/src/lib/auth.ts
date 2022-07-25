@@ -25,6 +25,7 @@ interface InitializationUI {
   action: string;
   method: string;
   nodes: InitializationNode[];
+  messages: ErrorMessage[];
 }
 
 interface InitializationData {
@@ -37,6 +38,19 @@ interface InitializationData {
 }
 
 export type RegistrationInitializationData = InitializationData;
+
+enum VerificationState {
+  ChooseMethod = 'choose_method',
+  EmailSent = 'sent_email',
+  Passed = 'passed_challenge',
+}
+
+interface VerificationResponseData extends InitializationData {
+  active: string;
+  state: VerificationState;
+  return_to: string;
+  type: 'api' | 'browser';
+}
 
 type AuthenticatorLevel = 'aal0';
 type Method = 'link_recovery';
@@ -129,20 +143,33 @@ export const initializeLogin = async (): Promise<LoginInitializationData> => {
   return res.json();
 };
 
-export interface LoginPasswordParameters {
-  password: string;
+interface AuthPostParams {
   csrf_token: string;
+}
+
+export interface LoginPasswordParameters extends AuthPostParams {
+  password: string;
   identifier: string;
 }
 
-export interface RequestResponse<T = InitializationData> {
-  data?: AuthSession;
-  error?: T;
+export interface AccountRecoveryParameters extends AuthPostParams {
+  email: string;
 }
 
-interface ValidateLoginParams {
+interface FormParams<T> {
   action: string;
-  params: LoginPasswordParameters;
+  params: T;
+}
+
+type ValidateLoginParams = FormParams<LoginPasswordParameters>;
+type ValidateReceoveryParams = FormParams<AccountRecoveryParameters>;
+
+export interface RequestResponse<
+  TData = AuthSession,
+  TError = InitializationData,
+> {
+  data?: TData;
+  error?: TError;
 }
 
 export const validatePasswordLogin = async ({
@@ -231,6 +258,44 @@ export const logoutSession = (
     headers: { Accept: 'application/json', 'X-CSRF-Token': csrf_token },
   });
 
+export const initializeRecovery = async (): Promise<InitializationData> => {
+  const res = await fetch(`${authUrl}/self-service/recovery/browser`, {
+    credentials: 'include',
+    headers: { Accept: 'application/json' },
+  });
+
+  return res.json();
+};
+
+type EmailRecoveryResponse = RequestResponse<
+  VerificationResponseData,
+  VerificationResponseData
+>;
+
+export const sendEmailRecovery = async ({
+  action,
+  params,
+}: ValidateReceoveryParams): Promise<EmailRecoveryResponse> => {
+  const res = await fetch(action, {
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': params.csrf_token,
+      Accept: 'application/json',
+    },
+    method: 'POST',
+    body: JSON.stringify({ ...params, method: 'link' }),
+  });
+
+  const json: VerificationResponseData = await res.json();
+
+  if (res.status === 200 && !json.ui.messages?.length) {
+    return { data: json };
+  }
+
+  return { error: json };
+};
+
 export const errorsToJson = <T extends string>(
   data: InitializationData,
 ): Record<T, string> =>
@@ -241,3 +306,6 @@ export const errorsToJson = <T extends string>(
     }),
     {} as Record<T, string>,
   );
+
+export const getErrorMessage = (errors: ErrorMessage[]): string =>
+  errors?.[0]?.text || '';
