@@ -64,7 +64,6 @@ function AuthOptions({
   };
 
   const onSignup = async (emailAd: string) => {
-    // before displaying registration, ensure the email doesn't exists
     setActiveDisplay(Display.Registration);
     setEmail(emailAd);
   };
