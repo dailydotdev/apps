@@ -7,11 +7,17 @@ interface InitializationNodeAttribute {
   node_type: string;
 }
 
+interface ErrorMessage {
+  id: number;
+  text: string;
+  type: string;
+}
+
 interface InitializationNode {
   type: string;
   group: string;
   attributes: InitializationNodeAttribute;
-  messages: string[];
+  messages: ErrorMessage[];
   // meta: {};
 }
 
@@ -129,12 +135,22 @@ export interface LoginPasswordParameters {
   identifier: string;
 }
 
-export const validatePasswordLogin = async (
-  url: string,
-  params: LoginPasswordParameters,
-): Promise<AuthSession> => {
+export interface RequestResponse<T = InitializationData> {
+  data?: AuthSession;
+  error?: T;
+}
+
+interface ValidateLoginParams {
+  action: string;
+  params: LoginPasswordParameters;
+}
+
+export const validatePasswordLogin = async ({
+  action,
+  params,
+}: ValidateLoginParams): Promise<RequestResponse> => {
   const postData = { method: 'password', ...params };
-  const res = await fetch(url, {
+  const res = await fetch(action, {
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
@@ -144,27 +160,28 @@ export const validatePasswordLogin = async (
     method: 'POST',
     body: JSON.stringify(postData),
   });
-  return res.json();
-};
+  const json = await res.json();
 
-interface RegistrationResponse {
-  success?: AuthSession;
-  error?: unknown;
-}
+  if (res.status === 200) {
+    return { data: json };
+  }
+
+  return { error: json };
+};
 
 export interface RegistrationParameters {
   csrf_token: string;
   method: AuthenticationType;
   password: string;
   'traits.email': string;
-  'traits.name.first': string;
-  'traits.name.last': string;
+  'traits.username': string;
+  'traits.fullname': string;
 }
 
 export const validateRegistration = async (
   action: string,
   params: RegistrationParameters,
-): Promise<RegistrationResponse> => {
+): Promise<RequestResponse> => {
   const res = await fetch(action, {
     method: 'POST',
     credentials: 'include',
@@ -176,12 +193,13 @@ export const validateRegistration = async (
     body: JSON.stringify(params),
   });
 
+  const json = await res.json();
+
   if (res.status === 200) {
-    const json = await res.json();
-    return { success: json };
+    return { data: json };
   }
 
-  return { error: res };
+  return { error: json?.error || json };
 };
 
 export const checkCurrentSession = async (): Promise<AuthSession> => {
@@ -212,3 +230,14 @@ export const logoutSession = (
     credentials: 'include',
     headers: { Accept: 'application/json', 'X-CSRF-Token': csrf_token },
   });
+
+export const errorsToJson = <T extends string>(
+  data: InitializationData,
+): Record<T, string> =>
+  Object.values(data.ui.nodes).reduce(
+    (result, node) => ({
+      ...result,
+      [node.attributes.name]: node.messages[0]?.text ?? '',
+    }),
+    {} as Record<T, string>,
+  );
