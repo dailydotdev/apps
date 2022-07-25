@@ -35,8 +35,6 @@ import useWebappVersion from '../hooks/useWebappVersion';
 //   { ssr: false },
 // );
 
-const queryClient = new QueryClient();
-
 const LoginModal = dynamic(
   () =>
     import(
@@ -183,6 +181,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 }
 
 export default function App(props: AppProps): ReactElement {
+  const [queryClient] = React.useState(() => new QueryClient());
   const version = useWebappVersion();
   const deviceId = useDeviceId();
 
