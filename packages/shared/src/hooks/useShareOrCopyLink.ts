@@ -20,8 +20,7 @@ export function useShareOrCopyLink({
     if ('share' in navigator) {
       try {
         await navigator.share({
-          text,
-          url: link,
+          text: `${text}\n${link}`,
         });
         trackEvent(trackObject(ShareProvider.Native));
       } catch (err) {
