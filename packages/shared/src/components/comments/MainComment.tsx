@@ -12,9 +12,13 @@ import classed from '../../lib/classed';
 import Markdown from '../Markdown';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 import ScoutBadge from './ScoutBadge';
+import { Origin } from '../../lib/analytics';
+import { Post } from '../../graphql/posts';
 
 export interface Props extends CommentActionProps {
+  post: Post;
   comment: Comment;
+  origin: Origin;
   postAuthorId: string | null;
   postScoutId: string | null;
   commentHash?: string;
@@ -26,7 +30,9 @@ export interface Props extends CommentActionProps {
 const MainCommentBox = classed(CommentBox, 'my-2');
 
 export default function MainComment({
+  post,
   comment,
+  origin,
   commentHash,
   commentRef,
   onComment,
@@ -71,7 +77,9 @@ export default function MainComment({
         <Markdown content={comment.contentHtml} />
       </MainCommentBox>
       <CommentActionButtons
+        post={post}
         comment={comment}
+        origin={origin}
         parentId={comment.id}
         onShare={onShare}
         onComment={onComment}
@@ -81,6 +89,8 @@ export default function MainComment({
       />
       {comment.children?.edges.map((e, i) => (
         <SubComment
+          post={post}
+          origin={origin}
           commentHash={commentHash}
           commentRef={commentRef}
           comment={e.node}

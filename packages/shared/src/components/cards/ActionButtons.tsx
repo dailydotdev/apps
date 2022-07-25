@@ -70,7 +70,7 @@ export default function ActionButtons({
     : React.Fragment;
   const upvoteCommentProps: ButtonProps<'button'> = {
     readOnly: postEngagementNonClickable,
-    buttonSize: postEngagementNonClickable ? 'small' : 'medium',
+    buttonSize: 'small',
     className: classNames(
       'btn-tertiary-avocado',
       !postEngagementNonClickable && 'w-[4.875rem]',
@@ -83,7 +83,7 @@ export default function ActionButtons({
       <SimpleTooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
         <Button
           icon={<BookmarkIcon secondary={post.bookmarked} />}
-          buttonSize={postEngagementNonClickable ? 'small' : 'medium'}
+          buttonSize="small"
           pressed={post.bookmarked}
           onClick={() => onBookmarkClick?.(post, !post.bookmarked)}
           className="btn-tertiary-bun"
@@ -93,7 +93,7 @@ export default function ActionButtons({
       <SimpleTooltip content="Share post">
         <Button
           icon={<ShareIcon />}
-          buttonSize={postEngagementNonClickable ? 'small' : 'medium'}
+          buttonSize="small"
           onClick={() => onShare?.(post)}
           className="btn-tertiary-cabbage"
         />
