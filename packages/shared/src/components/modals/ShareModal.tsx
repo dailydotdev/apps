@@ -104,6 +104,7 @@ export default function ShareModal({
               icon={<CopyIcon />}
               onClick={trackAndCopyLink}
               className="btn-tertiary"
+              data-testid="textfield-action-icon"
             />
           }
           value={link}

@@ -35,8 +35,7 @@ export function PostWidgets({
     if ('share' in navigator) {
       try {
         await navigator.share({
-          text: post.title,
-          url: post.commentsPermalink,
+          text: `${post.title}\n${post.commentsPermalink}`,
         });
         trackEvent(
           postAnalyticsEvent('share post', post, {
