@@ -19,6 +19,7 @@ import PlaceholderCommentList from '../comments/PlaceholderCommentList';
 import DeleteCommentModal from '../modals/DeleteCommentModal';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { initialDataKey } from '../../lib/constants';
+import { Origin } from '../../lib/analytics';
 
 export interface ParentComment {
   authorName: string;
@@ -34,6 +35,7 @@ export interface ParentComment {
 
 interface PostCommentsProps {
   post: Post;
+  origin: Origin;
   applyBottomMargin?: boolean;
   modalParentSelector?: () => HTMLElement;
   onClick?: (parent: ParentComment) => unknown;
@@ -83,6 +85,7 @@ const getParentComment = (
 
 export function PostComments({
   post,
+  origin,
   onClick,
   onShare,
   onClickUpvote,
@@ -153,6 +156,8 @@ export function PostComments({
     <>
       {comments.postComments.edges.map((e, i) => (
         <MainComment
+          post={post}
+          origin={origin}
           commentHash={commentHash}
           commentRef={commentRef}
           className={i === commentsCount - 1 && applyBottomMargin && 'mb-12'}

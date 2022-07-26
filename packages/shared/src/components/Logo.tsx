@@ -1,9 +1,9 @@
 import React, { ReactElement } from 'react';
+import classNames from 'classnames';
 import { CSSTransition } from 'react-transition-group';
 import { LinkWithTooltip } from './tooltips/LinkWithTooltip';
 import LogoText from '../svg/LogoText';
 import LogoIcon from '../svg/LogoIcon';
-import classNames from 'classnames';
 
 interface LogoProps {
   className?: string;
