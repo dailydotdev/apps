@@ -149,6 +149,7 @@ export const validatePasswordLogin = async (
 
 interface RegistrationResponse {
   success?: AuthSession;
+  redirect?: string;
   error?: unknown;
 }
 
@@ -160,6 +161,36 @@ export interface RegistrationParameters {
   'traits.name.first': string;
   'traits.name.last': string;
 }
+
+export const socialRegistration = async (
+  action: string,
+  params,
+): Promise<RegistrationResponse> => {
+  console.log(params);
+  const res = await fetch(action, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': params.csrf_token,
+      Accept: 'application/json',
+    },
+    body: JSON.stringify(params),
+  });
+
+  if (res.status === 200) {
+    const json = await res.json();
+    return { success: json };
+  }
+
+  if (res.status === 422) {
+    const json = await res.json();
+    console.log(json);
+    return { redirect: json.redirect_browser_to };
+  }
+
+  return { error: res };
+};
 
 export const validateRegistration = async (
   action: string,

@@ -5,6 +5,7 @@ import React, {
   useContext,
   useState,
 } from 'react';
+import { useQuery } from 'react-query';
 import { getQueryParams } from '../../contexts/AuthContext';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { fallbackImages } from '../../lib/config';
@@ -16,6 +17,12 @@ import { AuthSignBack } from './AuthSignBack';
 import ForgotPasswordForm from './ForgotPasswordForm';
 import LoginForm from './LoginForm';
 import { RegistrationForm, SocialProviderAccount } from './RegistrationForm';
+import {
+  initializeRegistration,
+  RegistrationParameters,
+  socialRegistration,
+} from '../../lib/auth';
+import { disabledRefetch } from '../../lib/func';
 
 export enum Display {
   Default = 'default',
@@ -54,13 +61,36 @@ function AuthOptions({
     hasLoggedOut() ? Display.SignBack : defaultDisplay,
   );
 
-  const onProviderClick = (provider: string) => {
-    onSelectedProvider({
-      provider,
-      name: 'Test account',
-      image: fallbackImages.avatar,
-    });
-    setActiveDisplay(Display.Registration);
+  const { data: registration } = useQuery(
+    'registration',
+    initializeRegistration,
+    { ...disabledRefetch },
+  );
+
+  const onProviderClick = async (provider: string) => {
+    const postData = {
+      csrf_token: registration.ui.nodes[0].attributes.value,
+      method: 'oidc',
+      provider: 'google',
+      'traits.email': '',
+      'traits.username': '',
+      'traits.image': '',
+    };
+
+    const { redirect } = await socialRegistration(
+      registration.ui.action,
+      postData,
+    );
+    if (redirect) {
+      window.open(redirect, '_blank').focus();
+    }
+
+    // onSelectedProvider({
+    //   provider,
+    //   name: 'Test account',
+    //   image: fallbackImages.avatar,
+    // });
+    // setActiveDisplay(Display.Registration);
   };
 
   const onSignup = async (emailAd: string) => {

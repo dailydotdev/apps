@@ -87,6 +87,8 @@ export const RegistrationForm = ({
     return <EmailVerificationSent email={email} />;
   }
 
+  console.log(registration);
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const { password, ...form } = formToJson<FormValues>(formRef.current);
