@@ -25,7 +25,7 @@ function LoginForm({
   onSuccessfulLogin,
   onForgotPassword,
 }: LoginFormProps): ReactElement {
-  const [hint, setHint] = useState('');
+  const [hint, setHint] = useState('Enter your password to login');
   const { onUpdateSession } = useContext(AuthContext);
   const formRef = useRef<HTMLFormElement>();
   const { data } = useQuery('login', initializeLogin, { ...disabledRefetch });
@@ -58,20 +58,17 @@ function LoginForm({
         name="identifier"
         label="Email"
         type="email"
+        saveHintSpace
+        hint={hint}
+        onChange={() => hint && setHint('')}
+        valid={!!hint}
       />
-      <p className="ml-2 text-theme-label-quaternary typo-caption1">
-        Enter your password to login
-      </p>
       <TextField
         leftIcon={<MailIcon />}
         inputId="password"
         name="password"
         label="Password"
         type="password"
-        saveHintSpace
-        hint={hint}
-        onChange={() => hint && setHint('')}
-        valid={!hint}
       />
       <span className="flex flex-row mt-4 w-full">
         <ClickableText

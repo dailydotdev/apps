@@ -24,6 +24,7 @@ interface InitializationNode {
 interface InitializationUI {
   action: string;
   method: string;
+  messages: ErrorMessage[];
   nodes: InitializationNode[];
 }
 
@@ -129,20 +130,32 @@ export const initializeLogin = async (): Promise<LoginInitializationData> => {
   return res.json();
 };
 
-export interface LoginPasswordParameters {
-  password: string;
+interface AuthPostParams {
   csrf_token: string;
+}
+
+export interface LoginPasswordParameters extends AuthPostParams {
+  password: string;
   identifier: string;
 }
 
-export interface RequestResponse<T = InitializationData> {
-  data?: AuthSession;
-  error?: T;
+export interface AccountRecoveryParameters extends AuthPostParams {
+  email: string;
 }
 
-interface ValidateLoginParams {
+interface FormParams<T> {
   action: string;
-  params: LoginPasswordParameters;
+  params: T;
+}
+
+type ValidateLoginParams = FormParams<LoginPasswordParameters>;
+
+export interface RequestResponse<
+  TData = AuthSession,
+  TError = InitializationData,
+> {
+  data?: TData;
+  error?: TError;
 }
 
 export const validatePasswordLogin = async ({
@@ -178,10 +191,15 @@ export interface RegistrationParameters {
   'traits.fullname': string;
 }
 
-export const validateRegistration = async (
-  action: string,
-  params: RegistrationParameters,
-): Promise<RequestResponse> => {
+export type ErrorMessages<T extends string | number> = { [key in T]?: string };
+export type RegistrationError = ErrorMessages<keyof RegistrationParameters>;
+
+export type ValidateRegistrationParams = FormParams<RegistrationParameters>;
+
+export const validateRegistration = async ({
+  action,
+  params,
+}: ValidateRegistrationParams): Promise<RequestResponse> => {
   const res = await fetch(action, {
     method: 'POST',
     credentials: 'include',
