@@ -1,8 +1,10 @@
+export type EmptyObjectLiteral = Record<string, never>;
+
 interface InitializationNodeAttribute {
   name: string;
   type: string;
-  value: string;
-  required: boolean;
+  value?: string;
+  required?: boolean;
   disabled: boolean;
   node_type: string;
 }
@@ -11,6 +13,22 @@ interface ErrorMessage {
   id: number;
   text: string;
   type: string;
+  context?: MetaLabelContext;
+}
+
+interface MetaLabelContext {
+  reason: string;
+}
+
+interface NodeMetaLabel {
+  id: number;
+  text: string;
+  type: string;
+  context?: MetaLabelContext | EmptyObjectLiteral;
+}
+
+interface InitializationNodeMeta {
+  label: NodeMetaLabel;
 }
 
 interface InitializationNode {
@@ -18,29 +36,36 @@ interface InitializationNode {
   group: string;
   attributes: InitializationNodeAttribute;
   messages: ErrorMessage[];
-  // meta: {};
+  meta: InitializationNodeMeta | EmptyObjectLiteral;
 }
 
 interface InitializationUI {
   action: string;
   method: string;
-  messages: ErrorMessage[];
+  messages?: ErrorMessage[];
   nodes: InitializationNode[];
 }
 
+type AuthenticatorLevel = 'aal0' | 'aal1';
+type DateString = string;
+
 interface InitializationData {
   id: string;
-  issued_at: Date;
-  expires_at: Date;
+  issued_at: DateString;
+  expires_at: DateString;
+  created_at: DateString;
+  updated_at: DateString;
   request_url: string;
   type: string;
+  refresh?: boolean;
   ui: InitializationUI;
+  requested_aal: AuthenticatorLevel;
 }
 
 export type RegistrationInitializationData = InitializationData;
 
-type AuthenticatorLevel = 'aal0';
-type Method = 'link_recovery';
+type Method = 'link_recovery' | 'password';
+
 interface AuthMethod {
   aal: AuthenticatorLevel;
   completed_at: Date;
@@ -68,16 +93,21 @@ interface RecoveryAddress {
 
 interface VerifyableAddress extends RecoveryAddress {
   status: string;
-  verified: true;
-  verified_at: Date;
+  verified: boolean;
+  verified_at?: Date;
+  id: string;
+  value: string;
+  via: string;
+  created_at: Date;
+  updated_at: Date;
 }
 
 interface Identity {
   created_at: Date;
-  credentials: Record<string, IdentityCredential>;
+  credentials?: Record<string, IdentityCredential>;
   id: string;
-  metadata_admin: unknown;
-  metadata_public: unknown;
+  metadata_admin?: unknown;
+  metadata_public?: unknown;
   recovery_addresses: RecoveryAddress[];
   schema_id: string;
   schema_url: string;
@@ -93,7 +123,7 @@ interface LogoutSessionData {
   logout_url: string;
 }
 
-export interface AuthSession extends LogoutSessionData {
+export interface AuthSession extends Partial<LogoutSessionData> {
   active: boolean;
   authenticated_at: Date;
   authentication_methods: AuthMethod[];
@@ -104,7 +134,13 @@ export interface AuthSession extends LogoutSessionData {
   issued_at: Date;
 }
 
-const authUrl = 'http://127.0.0.1:4433';
+export interface SuccessfulRegistrationData {
+  session: AuthSession;
+  identity: Identity;
+}
+
+export const authUrl =
+  process.env.NEXT_PUBLIC_AUTH_URL || 'http://127.0.0.1:4433';
 
 interface LoginInitializationData extends InitializationData {
   created_at: '2022-07-21T05:18:27.975693Z';
@@ -196,10 +232,13 @@ export type RegistrationError = ErrorMessages<keyof RegistrationParameters>;
 
 export type ValidateRegistrationParams = FormParams<RegistrationParameters>;
 
+type SuccessfulRegistrationResponse =
+  RequestResponse<SuccessfulRegistrationData>;
+
 export const validateRegistration = async ({
   action,
   params,
-}: ValidateRegistrationParams): Promise<RequestResponse> => {
+}: ValidateRegistrationParams): Promise<SuccessfulRegistrationResponse> => {
   const res = await fetch(action, {
     method: 'POST',
     credentials: 'include',
