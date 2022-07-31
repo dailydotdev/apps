@@ -51,7 +51,7 @@ const useRegistration = ({
   } = useMutation(validateRegistration, {
     onSuccess: ({ data, error }, params) => {
       if (data) {
-        return onValidRegistration(data, params);
+        return onValidRegistration(data.session, params);
       }
 
       // probably csrf token issue and definitely not related to forms data
