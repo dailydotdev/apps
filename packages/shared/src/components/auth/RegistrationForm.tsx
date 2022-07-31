@@ -27,7 +27,7 @@ export interface SocialProviderAccount {
   image?: string;
 }
 
-interface RegistrationFormProps {
+export interface RegistrationFormProps {
   email: string;
   socialAccount?: SocialProviderAccount;
   formRef?: MutableRefObject<HTMLFormElement>;
@@ -47,14 +47,15 @@ export const RegistrationForm = ({
   const [hints, setHints] = useState<RegistrationError>();
   const [emailSent, setEmailSent] = useState(false);
   const { onUpdateSession } = useContext(AuthContext);
-  const { validateRegistration, isValidationIdle } = useRegistration({
-    key: 'registration_form',
-    onInvalidRegistration: setHints,
-    onValidRegistration: (data) => {
-      onUpdateSession(data);
-      setEmailSent(true);
-    },
-  });
+  const { validateRegistration, registration, isValidationIdle } =
+    useRegistration({
+      key: 'registration_form',
+      onInvalidRegistration: setHints,
+      onValidRegistration: (data) => {
+        onUpdateSession(data);
+        setEmailSent(true);
+      },
+    });
 
   useEffect(() => {
     if (!socialAccount) {
@@ -80,7 +81,8 @@ export const RegistrationForm = ({
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const values = formToJson<RegistrationParameters>(formRef.current);
+    const form = e.target as HTMLFormElement;
+    const values = formToJson<RegistrationParameters>(formRef?.current ?? form);
     validateRegistration(values);
   };
 
@@ -102,7 +104,19 @@ export const RegistrationForm = ({
         )}
         ref={formRef}
         onSubmit={onSubmit}
+        data-testid="registration_form"
       >
+        <input
+          type="text"
+          value={registration?.ui?.nodes?.[0]?.attributes.value || ''}
+          hidden
+          id="csrf_token"
+          name="csrf_token"
+          data-testid="csrf_token"
+          onChange={() =>
+            hints?.csrf_token && setHints({ ...hints, csrf_token: '' })
+          }
+        />
         {socialAccount && <ImageInput initialValue={socialAccount.image} />}
         <TextField
           saveHintSpace
