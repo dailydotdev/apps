@@ -20,6 +20,7 @@ import { CloseModalFunc } from '../modals/common';
 import AuthModalHeader from './AuthModalHeader';
 import { AuthForm } from './common';
 import EmailVerificationSent from './EmailVerificationSent';
+import TokenInput from './TokenField';
 
 export interface SocialProviderAccount {
   provider: string;
@@ -106,17 +107,7 @@ export const RegistrationForm = ({
         onSubmit={onSubmit}
         data-testid="registration_form"
       >
-        <input
-          type="text"
-          value={registration?.ui?.nodes?.[0]?.attributes.value || ''}
-          hidden
-          id="csrf_token"
-          name="csrf_token"
-          data-testid="csrf_token"
-          onChange={() =>
-            hints?.csrf_token && setHints({ ...hints, csrf_token: '' })
-          }
-        />
+        <TokenInput token={registration?.ui?.nodes?.[0]?.attributes.value} />
         {socialAccount && <ImageInput initialValue={socialAccount.image} />}
         <TextField
           saveHintSpace

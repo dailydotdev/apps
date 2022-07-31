@@ -5,7 +5,7 @@ import {
   errorsToJson,
   initializeRegistration,
   RegistrationError,
-  RegistrationInitializationData,
+  InitializationData,
   RegistrationParameters,
   validateRegistration,
   ValidateRegistrationParams,
@@ -24,7 +24,7 @@ interface UseRegistrationProps {
 }
 
 interface UseRegistration {
-  registration: RegistrationInitializationData;
+  registration: InitializationData;
   isValidationIdle: boolean;
   isLoading?: boolean;
   validateRegistration: (values: FormParams) => Promise<void>;

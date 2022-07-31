@@ -13,6 +13,7 @@ import { ClickableText } from '../buttons/ClickableText';
 import { TextField } from '../fields/TextField';
 import MailIcon from '../icons/Mail';
 import { AuthForm } from './common';
+import TokenInput from './TokenField';
 
 interface LoginFormProps {
   onSuccessfulLogin: (e: React.FormEvent) => unknown;
@@ -51,7 +52,14 @@ function LoginForm({
   };
 
   return (
-    <AuthForm className="gap-2" onSubmit={onLogin} action="#" ref={formRef}>
+    <AuthForm
+      className="gap-2"
+      onSubmit={onLogin}
+      action="#"
+      ref={formRef}
+      data-testid="login_form"
+    >
+      <TokenInput token={data?.ui?.nodes?.[0]?.attributes.value} />
       <TextField
         leftIcon={<MailIcon />}
         inputId="identifier"

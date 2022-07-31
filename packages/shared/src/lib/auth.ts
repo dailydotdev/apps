@@ -49,7 +49,7 @@ interface InitializationUI {
 type AuthenticatorLevel = 'aal0' | 'aal1';
 type DateString = string;
 
-interface InitializationData {
+export interface InitializationData {
   id: string;
   issued_at: DateString;
   expires_at: DateString;
@@ -61,8 +61,6 @@ interface InitializationData {
   ui: InitializationUI;
   requested_aal: AuthenticatorLevel;
 }
-
-export type RegistrationInitializationData = InitializationData;
 
 type Method = 'link_recovery' | 'password';
 
@@ -142,23 +140,15 @@ export interface SuccessfulRegistrationData {
 export const authUrl =
   process.env.NEXT_PUBLIC_AUTH_URL || 'http://127.0.0.1:4433';
 
-interface LoginInitializationData extends InitializationData {
-  created_at: '2022-07-21T05:18:27.975693Z';
-  updated_at: '2022-07-21T05:18:27.975693Z';
-  refresh: false;
-  requested_aal: 'aal1';
-}
+export const initializeRegistration = async (): Promise<InitializationData> => {
+  const res = await fetch(`${authUrl}/self-service/registration/browser`, {
+    credentials: 'include',
+    headers: { Accept: 'application/json' },
+  });
+  return res.json();
+};
 
-export const initializeRegistration =
-  async (): Promise<RegistrationInitializationData> => {
-    const res = await fetch(`${authUrl}/self-service/registration/browser`, {
-      credentials: 'include',
-      headers: { Accept: 'application/json' },
-    });
-    return res.json();
-  };
-
-export const initializeLogin = async (): Promise<LoginInitializationData> => {
+export const initializeLogin = async (): Promise<InitializationData> => {
   const res = await fetch(`${authUrl}/self-service/login/browser`, {
     credentials: 'include',
     headers: { Accept: 'application/json' },
