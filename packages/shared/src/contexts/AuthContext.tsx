@@ -60,7 +60,9 @@ export const REGISTRATION_PATH = '/register';
 
 const appendLogoutParam = (link: string): URL => {
   const url = new URL(link);
-  url.searchParams.append('logged_out', 'true');
+  if (!url.searchParams.has('logged_out')) {
+    url.searchParams.append('logged_out', 'true');
+  }
 
   return url;
 };
