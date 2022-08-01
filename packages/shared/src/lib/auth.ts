@@ -9,9 +9,14 @@ interface InitializationNodeAttribute {
   node_type: string;
 }
 
-interface ErrorMessage {
+enum MessageType {
+  Info = 'info',
+  Error = 'error',
+}
+
+interface Message {
   id: number;
-  text: string;
+  text: MessageType;
   type: string;
   context?: MetaLabelContext;
 }
@@ -35,14 +40,14 @@ interface InitializationNode {
   type: string;
   group: string;
   attributes: InitializationNodeAttribute;
-  messages: ErrorMessage[];
+  messages: Message[];
   meta: InitializationNodeMeta | EmptyObjectLiteral;
 }
 
 interface InitializationUI {
   action: string;
   method: string;
-  messages?: ErrorMessage[];
+  messages?: Message[];
   nodes: InitializationNode[];
 }
 
@@ -322,8 +327,11 @@ export const sendEmailRecovery = async ({
   });
 
   const json: VerificationResponseData = await res.json();
+  const hasError = json.ui.messages.some(
+    ({ type }) => type === MessageType.Error,
+  );
 
-  if (res.status === 200 && !json.ui.messages?.length) {
+  if (res.status === 200 && !hasError) {
     return { data: json };
   }
 
@@ -341,5 +349,5 @@ export const errorsToJson = <T extends string>(
     {} as Record<T, string>,
   );
 
-export const getErrorMessage = (errors: ErrorMessage[]): string =>
+export const getErrorMessage = (errors: Message[]): string =>
   errors?.[0]?.text || '';

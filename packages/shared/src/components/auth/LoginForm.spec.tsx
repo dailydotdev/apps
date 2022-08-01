@@ -82,7 +82,7 @@ it('should get browser password login flow token', async () => {
   expect(input.value).toEqual(token);
 });
 
-it('should post registration including token', async () => {
+it('should post login including token', async () => {
   const email = 'sshanzel@yahoo.com';
   renderComponent();
   await waitForNock();
@@ -119,5 +119,7 @@ it('should display error messages', async () => {
     const errorMessage = 'Invalid username or password';
     const text = screen.queryByText(errorMessage);
     expect(text).toBeInTheDocument();
+    const submit = screen.queryByRole('button');
+    expect(submit).toBeDisabled();
   });
 });

@@ -16,6 +16,7 @@ import VIcon from '../icons/V';
 import { CloseModalFunc } from '../modals/common';
 import AuthModalHeader from './AuthModalHeader';
 import { AuthForm, AuthModalText } from './common';
+import TokenInput from './TokenField';
 
 interface ForgotPasswordFormProps {
   initialEmail?: string;
@@ -69,7 +70,9 @@ function ForgotPasswordForm({
       <AuthForm
         className="flex flex-col items-end py-8 px-14"
         onSubmit={onSendEmail}
+        data-testid="recovery_form"
       >
+        <TokenInput token={recovery?.ui?.nodes?.[0]?.attributes.value} />
         <AuthModalText className="text-center">
           Enter the email address you registered with and we will send you a
           password reset link.
@@ -86,7 +89,12 @@ function ForgotPasswordForm({
           onChange={() => hint && setHint('')}
           leftIcon={<MailIcon />}
           rightIcon={
-            emailSent && <VIcon className="text-theme-color-avocado" />
+            emailSent && (
+              <VIcon
+                className="text-theme-color-avocado"
+                data-testid="email_sent_icon"
+              />
+            )
           }
         />
         <Button
@@ -97,7 +105,7 @@ function ForgotPasswordForm({
           type="submit"
           disabled={emailSent}
         >
-          Send email
+          {emailSent ? 'Sent' : 'Send email'}
         </Button>
       </AuthForm>
     </>

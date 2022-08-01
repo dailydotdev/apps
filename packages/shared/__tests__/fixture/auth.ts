@@ -342,3 +342,127 @@ export const passwordLoginFlowMockData: InitializationData = {
   refresh: false,
   requested_aal: 'aal1',
 };
+
+export const passwordRecoveryFlowMockData = {
+  id: '2d8868b9-c720-4379-92ee-b74fcd11a471',
+  type: 'browser',
+  expires_at: '2022-08-01T06:49:16.558677293Z',
+  issued_at: '2022-08-01T05:49:16.558677293Z',
+  request_url: 'http://127.0.0.1:4433/self-service/recovery/browser',
+  ui: {
+    action:
+      'http://127.0.0.1:4433/self-service/recovery?flow=2d8868b9-c720-4379-92ee-b74fcd11a471',
+    method: 'POST',
+    nodes: [
+      {
+        type: 'input',
+        group: 'default',
+        attributes: {
+          name: 'csrf_token',
+          type: 'hidden',
+          value:
+            'fq6ydeV+y18hHNr4tlUz3p66Xa9Hj4VCbn/8NZSh2TuNl0mQAvodGqbvzXqqWbiOREGWYTE/BKlXubQ1n6UzNw==',
+          required: true,
+          disabled: false,
+          node_type: 'input',
+        },
+        messages: [],
+        meta: {},
+      },
+      {
+        type: 'input',
+        group: 'link',
+        attributes: {
+          name: 'email',
+          type: 'email',
+          required: true,
+          disabled: false,
+          node_type: 'input',
+        },
+        messages: [],
+        meta: { label: { id: 1070007, text: 'Email', type: 'info' } },
+      },
+      {
+        type: 'input',
+        group: 'link',
+        attributes: {
+          name: 'method',
+          type: 'submit',
+          value: 'link',
+          disabled: false,
+          node_type: 'input',
+        },
+        messages: [],
+        meta: { label: { id: 1070005, text: 'Submit', type: 'info' } },
+      },
+    ],
+  },
+  state: 'choose_method',
+};
+
+export const emailSentRecoveryMockData = {
+  id: '2d8868b9-c720-4379-92ee-b74fcd11a471',
+  type: 'browser',
+  expires_at: '2022-08-01T06:49:16.558677Z',
+  issued_at: '2022-08-01T05:49:16.558677Z',
+  request_url: 'http://127.0.0.1:4433/self-service/recovery/browser',
+  active: 'link',
+  ui: {
+    action:
+      'http://127.0.0.1:4433/self-service/recovery?flow=2d8868b9-c720-4379-92ee-b74fcd11a471',
+    method: 'POST',
+    nodes: [
+      {
+        type: 'input',
+        group: 'default',
+        attributes: {
+          name: 'csrf_token',
+          type: 'hidden',
+          value:
+            'DNNUE6/TR7m2jdFiyeCHUo3sm2yLSLHOJ6pznz0SlRv/6q/2SFeR/DF+xuDV7AwCVxdQov34MCUebDufNhZ/Fw==',
+          required: true,
+          disabled: false,
+          node_type: 'input',
+        },
+        messages: [],
+        meta: {},
+      },
+      {
+        type: 'input',
+        group: 'link',
+        attributes: {
+          name: 'email',
+          type: 'email',
+          value: 'sshanzelzzzzzzz@yahoo.com',
+          required: true,
+          disabled: false,
+          node_type: 'input',
+        },
+        messages: [],
+        meta: {},
+      },
+      {
+        type: 'input',
+        group: 'link',
+        attributes: {
+          name: 'method',
+          type: 'submit',
+          value: 'link',
+          disabled: false,
+          node_type: 'input',
+        },
+        messages: [],
+        meta: { label: { id: 1070005, text: 'Submit', type: 'info' } },
+      },
+    ],
+    messages: [
+      {
+        id: 1060002,
+        text: 'An email containing a recovery link has been sent to the email address you provided.',
+        type: 'info',
+        context: {},
+      },
+    ],
+  },
+  state: 'sent_email',
+};
