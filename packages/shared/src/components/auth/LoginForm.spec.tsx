@@ -119,7 +119,5 @@ it('should display error messages', async () => {
     const errorMessage = 'Invalid username or password';
     const text = screen.queryByText(errorMessage);
     expect(text).toBeInTheDocument();
-    const submit = screen.queryByRole('button');
-    expect(submit).toBeDisabled();
   });
 });

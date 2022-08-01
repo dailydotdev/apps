@@ -93,5 +93,7 @@ it('should post sending email recovery including token', async () => {
   await waitFor(() => {
     const sentIcon = screen.queryByTestId('email_sent_icon');
     expect(sentIcon).toBeInTheDocument();
+    const submit = screen.queryByRole('button');
+    expect(submit).toBeDisabled();
   });
 });
