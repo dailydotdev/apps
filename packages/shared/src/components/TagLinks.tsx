@@ -10,7 +10,11 @@ interface TagLinkProps {
 
 export function TagLink({ tag, className }: TagLinkProps): ReactElement {
   return (
-    <Link href={`/tags/${tag}`} passHref key={tag}>
+    <Link
+      href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}tags/${tag}`}
+      passHref
+      key={tag}
+    >
       <Button
         tag="a"
         className={classNames('btn-tertiaryFloat xsmall', className)}
