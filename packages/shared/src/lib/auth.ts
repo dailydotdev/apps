@@ -44,7 +44,6 @@ interface InitializationUI {
   method: string;
   messages?: ErrorMessage[];
   nodes: InitializationNode[];
-  messages: ErrorMessage[];
 }
 
 type AuthenticatorLevel = 'aal0' | 'aal1';
