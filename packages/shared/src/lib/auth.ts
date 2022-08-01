@@ -351,3 +351,9 @@ export const errorsToJson = <T extends string>(
 
 export const getErrorMessage = (errors: Message[]): string =>
   errors?.[0]?.text || '';
+
+export const getNodeByKey = (
+  key: string,
+  nodes: InitializationNode[],
+): InitializationNode =>
+  nodes.find(({ attributes }) => attributes.name === key);

@@ -12,7 +12,9 @@ import { RegistrationError, RegistrationParameters } from '../../lib/auth';
 import { formInputs, formToJson } from '../../lib/form';
 import { Button } from '../buttons/Button';
 import ImageInput from '../fields/ImageInput';
+import PasswordField from '../fields/PasswordField';
 import { TextField } from '../fields/TextField';
+import LockIcon from '../icons/Lock';
 import MailIcon from '../icons/Mail';
 import UserIcon from '../icons/User';
 import VIcon from '../icons/V';
@@ -140,11 +142,11 @@ export const RegistrationForm = ({
           }
         />
         {!socialAccount && (
-          <TextField
+          <PasswordField
             saveHintSpace
             className="w-full"
             valid={!hints?.password?.length}
-            leftIcon={<MailIcon />}
+            leftIcon={<LockIcon />}
             type="password"
             name="password"
             inputId="password"

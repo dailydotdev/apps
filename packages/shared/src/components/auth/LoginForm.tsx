@@ -2,6 +2,7 @@ import React, { ReactElement, useContext, useRef, useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import AuthContext from '../../contexts/AuthContext';
 import {
+  getNodeByKey,
   initializeLogin,
   LoginPasswordParameters,
   validatePasswordLogin,
@@ -10,6 +11,7 @@ import { formToJson } from '../../lib/form';
 import { disabledRefetch } from '../../lib/func';
 import { Button } from '../buttons/Button';
 import { ClickableText } from '../buttons/ClickableText';
+import PasswordField from '../fields/PasswordField';
 import { TextField } from '../fields/TextField';
 import MailIcon from '../icons/Mail';
 import { AuthForm } from './common';
@@ -43,8 +45,11 @@ function LoginForm({
     e.preventDefault();
     const form = formToJson<LoginFormParams>(formRef.current);
     const { action, nodes } = data.ui;
-    const csrfToken = nodes[0].attributes.value;
-    const params: LoginPasswordParameters = { ...form, csrf_token: csrfToken };
+    const csrfToken = getNodeByKey('csrf_token', nodes);
+    const params: LoginPasswordParameters = {
+      ...form,
+      csrf_token: csrfToken.attributes.value,
+    };
     const res = await validateLogin({ action, params });
     if (!res.error) {
       onSuccessfulLogin(e);
@@ -71,13 +76,7 @@ function LoginForm({
         onChange={() => hint && setHint('')}
         valid={!!hint}
       />
-      <TextField
-        leftIcon={<MailIcon />}
-        inputId="password"
-        name="password"
-        label="Password"
-        type="password"
-      />
+      <PasswordField inputId="password" name="password" label="Password" />
       <span className="flex flex-row mt-4 w-full">
         <ClickableText
           type="button"
