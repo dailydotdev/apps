@@ -14,7 +14,7 @@ import {
   passwordLoginFlowMockData,
   successfulRegistrationMockData,
 } from '../../../__tests__/fixture/auth';
-import { authUrl, LoginPasswordParameters } from '../../lib/auth';
+import { authUrl, getNodeByKey, LoginPasswordParameters } from '../../lib/auth';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import { formToJson } from '../../lib/form';
 import LoginForm from './LoginForm';
@@ -31,10 +31,13 @@ const mockLoginFlow = (result = passwordLoginFlowMockData) => {
     .reply(200, result);
 };
 
-const defaultToken = passwordLoginFlowMockData.ui.nodes[0].attributes.value;
+const defaultToken = getNodeByKey(
+  'csrf_token',
+  passwordLoginFlowMockData.ui.nodes,
+);
 const defaultParams: Partial<LoginPasswordParameters> & { method: string } = {
-  csrf_token: defaultToken,
   method: 'password',
+  csrf_token: defaultToken.attributes.value,
 };
 const mockLoginValidationFlow = (
   params: Partial<LoginPasswordParameters> = {},
@@ -77,9 +80,9 @@ it('should get browser password login flow token', async () => {
   renderComponent();
   await waitForNock();
   const input = (await screen.findByTestId('csrf_token')) as HTMLInputElement;
-  const token = passwordLoginFlowMockData.ui.nodes[0].attributes.value;
+  const token = getNodeByKey('csrf_token', passwordLoginFlowMockData.ui.nodes);
   expect(input).toBeInTheDocument();
-  expect(input.value).toEqual(token);
+  expect(input.value).toEqual(token.attributes.value);
 });
 
 it('should post registration including token', async () => {

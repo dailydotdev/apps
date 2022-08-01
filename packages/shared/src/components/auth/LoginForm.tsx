@@ -2,6 +2,7 @@ import React, { ReactElement, useContext, useRef, useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import AuthContext from '../../contexts/AuthContext';
 import {
+  getNodeByKey,
   initializeLogin,
   LoginPasswordParameters,
   validatePasswordLogin,
@@ -44,8 +45,11 @@ function LoginForm({
     e.preventDefault();
     const form = formToJson<LoginFormParams>(formRef.current);
     const { action, nodes } = data.ui;
-    const csrfToken = nodes[0].attributes.value;
-    const params: LoginPasswordParameters = { ...form, csrf_token: csrfToken };
+    const csrfToken = getNodeByKey('csrf_token', nodes);
+    const params: LoginPasswordParameters = {
+      ...form,
+      csrf_token: csrfToken.attributes.value,
+    };
     const res = await validateLogin({ action, params });
     if (!res.error) {
       onSuccessfulLogin(e);

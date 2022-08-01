@@ -9,6 +9,7 @@ import {
   RegistrationParameters,
   validateRegistration,
   ValidateRegistrationParams,
+  getNodeByKey,
 } from '../lib/auth';
 import { disabledRefetch } from '../lib/func';
 
@@ -75,11 +76,11 @@ const useRegistration = ({
 
   const onValidateRegistration = async (values: FormParams) => {
     const { nodes, action } = registration.ui;
-    const csrfToken = nodes[0].attributes.value;
+    const csrfToken = getNodeByKey('csrf_token', nodes);
     const postData: RegistrationParameters = {
       ...values,
-      csrf_token: csrfToken,
       method: 'password',
+      csrf_token: csrfToken.attributes.value,
     };
 
     validate({ action, params: postData });

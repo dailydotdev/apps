@@ -288,3 +288,9 @@ export const errorsToJson = <T extends string>(
     }),
     {} as Record<T, string>,
   );
+
+export const getNodeByKey = (
+  key: string,
+  nodes: InitializationNode[],
+): InitializationNode =>
+  nodes.find(({ attributes }) => attributes.name === key);

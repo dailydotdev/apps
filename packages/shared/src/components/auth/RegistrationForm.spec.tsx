@@ -15,7 +15,7 @@ import {
   successfulRegistrationMockData,
 } from '../../../__tests__/fixture/auth';
 import { RegistrationForm, RegistrationFormProps } from './RegistrationForm';
-import { authUrl, RegistrationParameters } from '../../lib/auth';
+import { authUrl, getNodeByKey, RegistrationParameters } from '../../lib/auth';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import { formToJson } from '../../lib/form';
 
@@ -29,9 +29,12 @@ const mockRegistraitonFlow = (result = registrationFlowMockData) => {
     .reply(200, result);
 };
 
-const defaultToken = registrationFlowMockData.ui.nodes[0].attributes.value;
+const defaultToken = getNodeByKey(
+  'csrf_token',
+  registrationFlowMockData.ui.nodes,
+);
 const defaultParams: Partial<RegistrationParameters> = {
-  csrf_token: defaultToken,
+  csrf_token: defaultToken.attributes.value,
   method: 'password',
 };
 const mockRegistraitonValidationFlow = (
@@ -77,9 +80,9 @@ it('should get browser password registration flow token', async () => {
   renderComponent();
   await waitForNock();
   const input = (await screen.findByTestId('csrf_token')) as HTMLInputElement;
-  const token = registrationFlowMockData.ui.nodes[0].attributes.value;
+  const token = getNodeByKey('csrf_token', registrationFlowMockData.ui.nodes);
   expect(input).toBeInTheDocument();
-  expect(input.value).toEqual(token);
+  expect(input.value).toEqual(token.attributes.value);
 });
 
 it('should post registration including token', async () => {
