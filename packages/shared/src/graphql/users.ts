@@ -246,9 +246,9 @@ export const HIDE_READING_HISTORY_MUTATION = gql`
   }
 `;
 
-export const CHECK_EMAIL_EXISTS = gql`
-  mutation EmailExists($email: String!) {
-    emailExists(email: $email) {
+export const QUERY_USER_BY_EMAIL = gql`
+  query UserByEmail($email: String!) {
+    user: userByEmail(email: $email) {
       id
     }
   }

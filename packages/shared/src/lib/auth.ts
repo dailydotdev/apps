@@ -1,8 +1,10 @@
+export type EmptyObjectLiteral = Record<string, never>;
+
 interface InitializationNodeAttribute {
   name: string;
   type: string;
-  value: string;
-  required: boolean;
+  value?: string;
+  required?: boolean;
   disabled: boolean;
   node_type: string;
 }
@@ -11,6 +13,22 @@ interface ErrorMessage {
   id: number;
   text: string;
   type: string;
+  context?: MetaLabelContext;
+}
+
+interface MetaLabelContext {
+  reason: string;
+}
+
+interface NodeMetaLabel {
+  id: number;
+  text: string;
+  type: string;
+  context?: MetaLabelContext | EmptyObjectLiteral;
+}
+
+interface InitializationNodeMeta {
+  label: NodeMetaLabel;
 }
 
 interface InitializationNode {
@@ -18,26 +36,34 @@ interface InitializationNode {
   group: string;
   attributes: InitializationNodeAttribute;
   messages: ErrorMessage[];
-  // meta: {};
+  meta: InitializationNodeMeta | EmptyObjectLiteral;
 }
 
 interface InitializationUI {
   action: string;
   method: string;
+  messages?: ErrorMessage[];
   nodes: InitializationNode[];
   messages: ErrorMessage[];
 }
 
-interface InitializationData {
+type AuthenticatorLevel = 'aal0' | 'aal1';
+type DateString = string;
+
+export interface InitializationData {
   id: string;
-  issued_at: Date;
-  expires_at: Date;
+  issued_at: DateString;
+  expires_at: DateString;
+  created_at: DateString;
+  updated_at: DateString;
   request_url: string;
   type: string;
+  refresh?: boolean;
   ui: InitializationUI;
+  requested_aal: AuthenticatorLevel;
 }
 
-export type RegistrationInitializationData = InitializationData;
+type Method = 'link_recovery' | 'password';
 
 enum VerificationState {
   ChooseMethod = 'choose_method',
@@ -52,8 +78,6 @@ interface VerificationResponseData extends InitializationData {
   type: 'api' | 'browser';
 }
 
-type AuthenticatorLevel = 'aal0';
-type Method = 'link_recovery';
 interface AuthMethod {
   aal: AuthenticatorLevel;
   completed_at: Date;
@@ -81,16 +105,21 @@ interface RecoveryAddress {
 
 interface VerifyableAddress extends RecoveryAddress {
   status: string;
-  verified: true;
-  verified_at: Date;
+  verified: boolean;
+  verified_at?: Date;
+  id: string;
+  value: string;
+  via: string;
+  created_at: Date;
+  updated_at: Date;
 }
 
 interface Identity {
   created_at: Date;
-  credentials: Record<string, IdentityCredential>;
+  credentials?: Record<string, IdentityCredential>;
   id: string;
-  metadata_admin: unknown;
-  metadata_public: unknown;
+  metadata_admin?: unknown;
+  metadata_public?: unknown;
   recovery_addresses: RecoveryAddress[];
   schema_id: string;
   schema_url: string;
@@ -106,7 +135,7 @@ interface LogoutSessionData {
   logout_url: string;
 }
 
-export interface AuthSession extends LogoutSessionData {
+export interface AuthSession extends Partial<LogoutSessionData> {
   active: boolean;
   authenticated_at: Date;
   authentication_methods: AuthMethod[];
@@ -117,25 +146,23 @@ export interface AuthSession extends LogoutSessionData {
   issued_at: Date;
 }
 
-const authUrl = 'http://127.0.0.1:4433';
-
-interface LoginInitializationData extends InitializationData {
-  created_at: '2022-07-21T05:18:27.975693Z';
-  updated_at: '2022-07-21T05:18:27.975693Z';
-  refresh: false;
-  requested_aal: 'aal1';
+export interface SuccessfulRegistrationData {
+  session: AuthSession;
+  identity: Identity;
 }
 
-export const initializeRegistration =
-  async (): Promise<RegistrationInitializationData> => {
-    const res = await fetch(`${authUrl}/self-service/registration/browser`, {
-      credentials: 'include',
-      headers: { Accept: 'application/json' },
-    });
-    return res.json();
-  };
+export const authUrl =
+  process.env.NEXT_PUBLIC_AUTH_URL || 'http://127.0.0.1:4433';
 
-export const initializeLogin = async (): Promise<LoginInitializationData> => {
+export const initializeRegistration = async (): Promise<InitializationData> => {
+  const res = await fetch(`${authUrl}/self-service/registration/browser`, {
+    credentials: 'include',
+    headers: { Accept: 'application/json' },
+  });
+  return res.json();
+};
+
+export const initializeLogin = async (): Promise<InitializationData> => {
   const res = await fetch(`${authUrl}/self-service/login/browser`, {
     credentials: 'include',
     headers: { Accept: 'application/json' },
@@ -205,10 +232,18 @@ export interface RegistrationParameters {
   'traits.fullname': string;
 }
 
-export const validateRegistration = async (
-  action: string,
-  params: RegistrationParameters,
-): Promise<RequestResponse> => {
+export type ErrorMessages<T extends string | number> = { [key in T]?: string };
+export type RegistrationError = ErrorMessages<keyof RegistrationParameters>;
+
+export type ValidateRegistrationParams = FormParams<RegistrationParameters>;
+
+type SuccessfulRegistrationResponse =
+  RequestResponse<SuccessfulRegistrationData>;
+
+export const validateRegistration = async ({
+  action,
+  params,
+}: ValidateRegistrationParams): Promise<SuccessfulRegistrationResponse> => {
   const res = await fetch(action, {
     method: 'POST',
     credentials: 'include',

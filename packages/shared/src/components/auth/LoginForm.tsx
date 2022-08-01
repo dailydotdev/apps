@@ -13,6 +13,7 @@ import { ClickableText } from '../buttons/ClickableText';
 import { TextField } from '../fields/TextField';
 import MailIcon from '../icons/Mail';
 import { AuthForm } from './common';
+import TokenInput from './TokenField';
 
 interface LoginFormProps {
   onSuccessfulLogin: (e: React.FormEvent) => unknown;
@@ -25,7 +26,7 @@ function LoginForm({
   onSuccessfulLogin,
   onForgotPassword,
 }: LoginFormProps): ReactElement {
-  const [hint, setHint] = useState('');
+  const [hint, setHint] = useState('Enter your password to login');
   const { onUpdateSession } = useContext(AuthContext);
   const formRef = useRef<HTMLFormElement>();
   const { data } = useQuery('login', initializeLogin, { ...disabledRefetch });
@@ -51,27 +52,31 @@ function LoginForm({
   };
 
   return (
-    <AuthForm className="gap-2" onSubmit={onLogin} action="#" ref={formRef}>
+    <AuthForm
+      className="gap-2"
+      onSubmit={onLogin}
+      action="#"
+      ref={formRef}
+      data-testid="login_form"
+    >
+      <TokenInput token={data?.ui?.nodes?.[0]?.attributes.value} />
       <TextField
         leftIcon={<MailIcon />}
         inputId="identifier"
         name="identifier"
         label="Email"
         type="email"
+        saveHintSpace
+        hint={hint}
+        onChange={() => hint && setHint('')}
+        valid={!!hint}
       />
-      <p className="ml-2 text-theme-label-quaternary typo-caption1">
-        Enter your password to login
-      </p>
       <TextField
         leftIcon={<MailIcon />}
         inputId="password"
         name="password"
         label="Password"
         type="password"
-        saveHintSpace
-        hint={hint}
-        onChange={() => hint && setHint('')}
-        valid={!hint}
       />
       <span className="flex flex-row mt-4 w-full">
         <ClickableText

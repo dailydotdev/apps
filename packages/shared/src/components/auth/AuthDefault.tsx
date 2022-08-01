@@ -1,7 +1,7 @@
 import request from 'graphql-request';
 import React, { ReactElement, ReactNode, useState } from 'react';
 import { useMutation } from 'react-query';
-import { CHECK_EMAIL_EXISTS } from '../../graphql/users';
+import { QUERY_USER_BY_EMAIL } from '../../graphql/users';
 import { apiUrl } from '../../lib/config';
 import { CloseModalFunc } from '../modals/common';
 import AuthModalFooter from './AuthModalFooter';
@@ -31,7 +31,7 @@ const AuthDefault = ({
 }: AuthDefaultProps): ReactElement => {
   const [shouldLogin, setShouldLogin] = useState(isV2);
   const { mutateAsync: checkEmail } = useMutation((emailParam: string) =>
-    request(`${apiUrl}/graphql`, CHECK_EMAIL_EXISTS, { email: emailParam }),
+    request(`${apiUrl}/graphql`, QUERY_USER_BY_EMAIL, { email: emailParam }),
   );
 
   const onEmailSignup = async (e: React.FormEvent) => {
@@ -48,7 +48,7 @@ const AuthDefault = ({
 
     const res = await checkEmail(email);
 
-    if (res?.emailExists) {
+    if (res?.user) {
       return setShouldLogin(true);
     }
 
