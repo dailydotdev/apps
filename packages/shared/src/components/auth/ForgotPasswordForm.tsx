@@ -4,6 +4,7 @@ import { useMutation, useQuery } from 'react-query';
 import {
   AccountRecoveryParameters,
   getErrorMessage,
+  getNodeByKey,
   initializeRecovery,
   sendEmailRecovery,
 } from '../../lib/auth';
@@ -39,7 +40,8 @@ function ForgotPasswordForm({
     onSuccess: ({ error }) => {
       if (error) {
         const requestError = getErrorMessage(error.ui.messages);
-        const formError = getErrorMessage(error.ui.nodes?.[1]?.messages);
+        const emailError = getNodeByKey('email', error.ui.nodes);
+        const formError = getErrorMessage(emailError?.messages);
         const message = requestError || formError;
         return setHint(message);
       }
@@ -52,8 +54,9 @@ function ForgotPasswordForm({
     e.preventDefault();
     const { email } = formToJson(e.currentTarget);
     const { action, nodes } = recovery.ui;
+    const csrfToken = getNodeByKey('csrf_token', nodes);
     const params: AccountRecoveryParameters = {
-      csrf_token: nodes[0].attributes.value,
+      csrf_token: csrfToken.attributes.value,
       email,
     };
 
