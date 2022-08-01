@@ -16,8 +16,8 @@ enum MessageType {
 
 interface Message {
   id: number;
-  text: MessageType;
-  type: string;
+  text: string;
+  type: MessageType | string;
   context?: MetaLabelContext;
 }
 
