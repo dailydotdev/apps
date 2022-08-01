@@ -10,6 +10,7 @@ import { formToJson } from '../../lib/form';
 import { disabledRefetch } from '../../lib/func';
 import { Button } from '../buttons/Button';
 import { ClickableText } from '../buttons/ClickableText';
+import PasswordField from '../fields/PasswordField';
 import { TextField } from '../fields/TextField';
 import MailIcon from '../icons/Mail';
 import { AuthForm } from './common';
@@ -71,13 +72,7 @@ function LoginForm({
         onChange={() => hint && setHint('')}
         valid={!!hint}
       />
-      <TextField
-        leftIcon={<MailIcon />}
-        inputId="password"
-        name="password"
-        label="Password"
-        type="password"
-      />
+      <PasswordField inputId="password" name="password" label="Password" />
       <span className="flex flex-row mt-4 w-full">
         <ClickableText
           type="button"
