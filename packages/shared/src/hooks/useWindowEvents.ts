@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-export default function useWindowEvents<T = unknown>(
+export default function useWindowEvents(
   event: string,
   func: (T) => void,
 ): [void] {
