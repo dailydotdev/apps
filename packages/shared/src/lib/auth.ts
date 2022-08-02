@@ -179,7 +179,7 @@ export interface RegistrationParameters {
 
 export const socialRegistration = async (
   action: string,
-  params,
+  params: RegistrationParameters,
 ): Promise<RegistrationResponse> => {
   const res = await fetch(action, {
     method: 'POST',

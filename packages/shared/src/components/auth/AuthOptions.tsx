@@ -68,7 +68,7 @@ function AuthOptions({
   );
 
   useEffect(() => {
-    window.onmessage = async function (e) {
+    window.onmessage = async function receiveMessage(e) {
       if (e.data?.flow) {
         const flow = await getRegistrationFlow(e.data.flow);
         onSelectedProvider({
