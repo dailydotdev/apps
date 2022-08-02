@@ -1,15 +1,13 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 
-export default function useWindowEvents(
+export default function useWindowEvents<T = unknown>(
   event: string,
-  func: () => void,
+  func: (T) => void,
 ): [void] {
-  const cancelWindowEvent = window.removeEventListener(event, func);
-
   useEffect(() => {
     window.addEventListener(event, func);
-    return () => cancelWindowEvent;
+    return () => window.removeEventListener(event, func);
   }, []);
 
-  return useMemo(() => [cancelWindowEvent], []);
+  return null;
 }

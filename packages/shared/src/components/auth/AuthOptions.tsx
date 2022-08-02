@@ -68,7 +68,7 @@ function AuthOptions({
     { ...disabledRefetch },
   );
 
-  useWindowEvents('message', async (e) => {
+  useWindowEvents<MessageEvent>('message', async (e) => {
     if (e.data?.flow) {
       const flow = await getRegistrationFlow(e.data.flow);
       onSelectedProvider({
