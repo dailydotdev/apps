@@ -106,6 +106,19 @@ interface LoginInitializationData extends InitializationData {
   requested_aal: 'aal1';
 }
 
+export const getRegistrationFlow = async (
+  flowId: string,
+): Promise<RegistrationInitializationData> => {
+  const res = await fetch(
+    `${authUrl}/self-service/registration?flow=${flowId}`,
+    {
+      credentials: 'include',
+      headers: { Accept: 'application/json' },
+    },
+  );
+  return res.json();
+};
+
 export const initializeRegistration =
   async (): Promise<RegistrationInitializationData> => {
     const res = await fetch(`${authUrl}/self-service/registration/browser`, {
@@ -156,17 +169,18 @@ interface RegistrationResponse {
 export interface RegistrationParameters {
   csrf_token: string;
   method: AuthenticationType;
-  password: string;
+  provider?: string;
+  password?: string;
   'traits.email': string;
   'traits.name.first': string;
   'traits.name.last': string;
+  'traits.username'?: string;
 }
 
 export const socialRegistration = async (
   action: string,
   params,
 ): Promise<RegistrationResponse> => {
-  console.log(params);
   const res = await fetch(action, {
     method: 'POST',
     credentials: 'include',
@@ -185,7 +199,6 @@ export const socialRegistration = async (
 
   if (res.status === 422) {
     const json = await res.json();
-    console.log(json);
     return { redirect: json.redirect_browser_to };
   }
 

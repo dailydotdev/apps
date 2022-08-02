@@ -1,5 +1,4 @@
 import React, { ReactElement, ReactNode, useEffect, useState } from 'react';
-import { useQuery } from 'react-query';
 import { CloseModalFunc } from '../modals/common';
 import AuthModalFooter from './AuthModalFooter';
 import AuthModalHeader from './AuthModalHeader';
@@ -9,8 +8,6 @@ import EmailSignupForm from './EmailSignupForm';
 import LoginForm from './LoginForm';
 import OrDivider from './OrDivider';
 import ProviderButton from './ProviderButton';
-import { initializeRegistration } from '../../lib/auth';
-import { disabledRefetch } from '../../lib/func';
 
 interface AuthDefaultProps {
   children?: ReactNode;
@@ -62,7 +59,7 @@ const AuthDefault = ({
               key={provider}
               provider={provider}
               label="Connect with"
-              onClick={() => onProviderClick(provider)}
+              onClick={() => onProviderClick(provider.toLowerCase())}
               {...props}
             />
           ))}

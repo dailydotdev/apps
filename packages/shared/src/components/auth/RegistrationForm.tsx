@@ -8,7 +8,11 @@ import React, {
 } from 'react';
 import { useQuery } from 'react-query';
 import AuthContext from '../../contexts/AuthContext';
-import { initializeRegistration, RegistrationParameters } from '../../lib/auth';
+import {
+  initializeRegistration,
+  RegistrationParameters,
+  socialRegistration,
+} from '../../lib/auth';
 import { formInputs, formToJson } from '../../lib/form';
 import { disabledRefetch } from '../../lib/func';
 import { Button } from '../buttons/Button';
@@ -24,7 +28,11 @@ import EmailVerificationSent from './EmailVerificationSent';
 
 export interface SocialProviderAccount {
   provider: string;
+  action: string;
+  csrf_token: string;
+  email: string;
   name: string;
+  username?: string;
   image?: string;
 }
 
@@ -87,13 +95,33 @@ export const RegistrationForm = ({
     return <EmailVerificationSent email={email} />;
   }
 
-  console.log(registration);
-
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const { password, ...form } = formToJson<FormValues>(formRef.current);
     const [first, ...rest] = form.fullname.split(' ');
     const csrfToken = registration.ui.nodes[0].attributes.value;
+
+    if (socialAccount) {
+      const socialData: RegistrationParameters = {
+        csrf_token: socialAccount.csrf_token,
+        method: 'oidc',
+        provider: socialAccount?.provider,
+        'traits.email': form['traits.email'],
+        'traits.name.first': first,
+        'traits.name.last': rest.length === 0 ? first : rest.join(' '),
+        'traits.username': form.username,
+      };
+
+      const { redirect } = await socialRegistration(
+        socialAccount?.action,
+        socialData,
+      );
+      if (redirect) {
+        window.open(redirect);
+      }
+      return null;
+    }
+
     const postData: RegistrationParameters = {
       csrf_token: csrfToken,
       method: 'password',
@@ -102,7 +130,6 @@ export const RegistrationForm = ({
       'traits.name.first': first,
       'traits.name.last': rest.length === 0 ? first : rest.join(' '),
     };
-
     const { success } = await onPasswordRegistration(
       registration.ui.action,
       postData,
@@ -139,7 +166,7 @@ export const RegistrationForm = ({
           inputId="email"
           label="Email"
           type="email"
-          value={email}
+          value={email || socialAccount?.email}
           readOnly
           rightIcon={<VIcon className="text-theme-color-avocado" />}
         />
@@ -151,6 +178,7 @@ export const RegistrationForm = ({
           name="fullname"
           inputId="fullname"
           label="Full name"
+          value={socialAccount?.name}
           rightIcon={
             isNameValid && <VIcon className="text-theme-color-avocado" />
           }
@@ -180,6 +208,7 @@ export const RegistrationForm = ({
           name="username"
           inputId="username"
           label="Enter a username"
+          value={socialAccount?.username}
           minLength={1}
           rightIcon={
             isUsernameValid && <VIcon className="text-theme-color-avocado" />

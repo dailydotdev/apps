@@ -3,12 +3,12 @@ import React, {
   MutableRefObject,
   ReactElement,
   useContext,
+  useEffect,
   useState,
 } from 'react';
 import { useQuery } from 'react-query';
 import { getQueryParams } from '../../contexts/AuthContext';
 import FeaturesContext from '../../contexts/FeaturesContext';
-import { fallbackImages } from '../../lib/config';
 import { AuthVersion } from '../../lib/featureValues';
 import { CloseModalFunc } from '../modals/common';
 import TabContainer, { Tab } from '../tabs/TabContainer';
@@ -18,8 +18,8 @@ import ForgotPasswordForm from './ForgotPasswordForm';
 import LoginForm from './LoginForm';
 import { RegistrationForm, SocialProviderAccount } from './RegistrationForm';
 import {
+  getRegistrationFlow,
   initializeRegistration,
-  RegistrationParameters,
   socialRegistration,
 } from '../../lib/auth';
 import { disabledRefetch } from '../../lib/func';
@@ -67,11 +67,29 @@ function AuthOptions({
     { ...disabledRefetch },
   );
 
+  useEffect(() => {
+    window.onmessage = async function (e) {
+      if (e.data?.flow) {
+        const flow = await getRegistrationFlow(e.data.flow);
+        onSelectedProvider({
+          provider: flow.ui.nodes[5].attributes.value,
+          action: flow.ui.action,
+          csrf_token: flow.ui.nodes[0].attributes.value,
+          email: flow.ui.nodes[1].attributes.value,
+          name: flow.ui.nodes[2].attributes.value,
+          username: flow.ui.nodes[3].attributes.value,
+          image: flow.ui.nodes[4].attributes.value,
+        });
+        setActiveDisplay(Display.Registration);
+      }
+    };
+  }, []);
+
   const onProviderClick = async (provider: string) => {
     const postData = {
       csrf_token: registration.ui.nodes[0].attributes.value,
       method: 'oidc',
-      provider: 'google',
+      provider,
       'traits.email': '',
       'traits.username': '',
       'traits.image': '',
@@ -82,15 +100,8 @@ function AuthOptions({
       postData,
     );
     if (redirect) {
-      window.open(redirect, '_blank').focus();
+      window.open(redirect);
     }
-
-    // onSelectedProvider({
-    //   provider,
-    //   name: 'Test account',
-    //   image: fallbackImages.avatar,
-    // });
-    // setActiveDisplay(Display.Registration);
   };
 
   const onSignup = async (emailAd: string) => {
