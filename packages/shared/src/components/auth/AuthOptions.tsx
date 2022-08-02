@@ -5,9 +5,9 @@ import React, {
   useContext,
   useState,
 } from 'react';
+import { useQuery } from 'react-query';
 import { getQueryParams } from '../../contexts/AuthContext';
 import FeaturesContext from '../../contexts/FeaturesContext';
-import { fallbackImages } from '../../lib/config';
 import { AuthVersion } from '../../lib/featureValues';
 import { CloseModalFunc } from '../modals/common';
 import TabContainer, { Tab } from '../tabs/TabContainer';
@@ -16,6 +16,14 @@ import { AuthSignBack } from './AuthSignBack';
 import ForgotPasswordForm from './ForgotPasswordForm';
 import LoginForm from './LoginForm';
 import { RegistrationForm, SocialProviderAccount } from './RegistrationForm';
+import {
+  getRegistrationFlow,
+  initializeRegistration,
+  RegistrationParameters,
+  socialRegistration,
+} from '../../lib/auth';
+import { disabledRefetch } from '../../lib/func';
+import useWindowEvents from '../../hooks/useWindowEvents';
 
 export enum Display {
   Default = 'default',
@@ -54,13 +62,45 @@ function AuthOptions({
     hasLoggedOut() ? Display.SignBack : defaultDisplay,
   );
 
-  const onProviderClick = (provider: string) => {
-    onSelectedProvider({
+  const { data: registration } = useQuery(
+    'registration',
+    initializeRegistration,
+    { ...disabledRefetch },
+  );
+
+  useWindowEvents('message', async (e) => {
+    if (e.data?.flow) {
+      const flow = await getRegistrationFlow(e.data.flow);
+      onSelectedProvider({
+        provider: flow.ui.nodes[5].attributes.value,
+        action: flow.ui.action,
+        csrf_token: flow.ui.nodes[0].attributes.value,
+        email: flow.ui.nodes[1].attributes.value,
+        name: flow.ui.nodes[2].attributes.value,
+        username: flow.ui.nodes[3].attributes.value,
+        image: flow.ui.nodes[4].attributes.value,
+      });
+      setActiveDisplay(Display.Registration);
+    }
+  });
+
+  const onProviderClick = async (provider: string) => {
+    const postData: RegistrationParameters = {
+      csrf_token: registration.ui.nodes[0].attributes.value,
+      method: 'oidc',
       provider,
-      name: 'Test account',
-      image: fallbackImages.avatar,
-    });
-    setActiveDisplay(Display.Registration);
+      'traits.email': '',
+      'traits.username': '',
+      'traits.image': '',
+    };
+
+    const { redirect } = await socialRegistration(
+      registration.ui.action,
+      postData,
+    );
+    if (redirect) {
+      window.open(redirect);
+    }
   };
 
   const onSignup = async (emailAd: string) => {

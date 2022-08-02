@@ -106,6 +106,19 @@ interface LoginInitializationData extends InitializationData {
   requested_aal: 'aal1';
 }
 
+export const getRegistrationFlow = async (
+  flowId: string,
+): Promise<RegistrationInitializationData> => {
+  const res = await fetch(
+    `${authUrl}/self-service/registration?flow=${flowId}`,
+    {
+      credentials: 'include',
+      headers: { Accept: 'application/json' },
+    },
+  );
+  return res.json();
+};
+
 export const initializeRegistration =
   async (): Promise<RegistrationInitializationData> => {
     const res = await fetch(`${authUrl}/self-service/registration/browser`, {
@@ -149,17 +162,49 @@ export const validatePasswordLogin = async (
 
 interface RegistrationResponse {
   success?: AuthSession;
+  redirect?: string;
   error?: unknown;
 }
 
 export interface RegistrationParameters {
   csrf_token: string;
   method: AuthenticationType;
-  password: string;
+  provider?: string;
+  password?: string;
   'traits.email': string;
-  'traits.name.first': string;
-  'traits.name.last': string;
+  'traits.name.first'?: string;
+  'traits.name.last'?: string;
+  'traits.username'?: string;
+  'traits.image'?: string;
 }
+
+export const socialRegistration = async (
+  action: string,
+  params: RegistrationParameters,
+): Promise<RegistrationResponse> => {
+  const res = await fetch(action, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': params.csrf_token,
+      Accept: 'application/json',
+    },
+    body: JSON.stringify(params),
+  });
+
+  if (res.status === 200) {
+    const json = await res.json();
+    return { success: json };
+  }
+
+  if (res.status === 422) {
+    const json = await res.json();
+    return { redirect: json.redirect_browser_to };
+  }
+
+  return { error: res };
+};
 
 export const validateRegistration = async (
   action: string,

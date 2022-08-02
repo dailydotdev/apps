@@ -59,7 +59,7 @@ const AuthDefault = ({
               key={provider}
               provider={provider}
               label="Connect with"
-              onClick={() => onProviderClick(provider)}
+              onClick={() => onProviderClick(provider.toLowerCase())}
               {...props}
             />
           ))}
