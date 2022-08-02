@@ -3,7 +3,6 @@ import React, {
   MutableRefObject,
   ReactElement,
   useContext,
-  useEffect,
   useState,
 } from 'react';
 import { useQuery } from 'react-query';
@@ -24,6 +23,7 @@ import {
   socialRegistration,
 } from '../../lib/auth';
 import { disabledRefetch } from '../../lib/func';
+import useWindowEvents from '../../hooks/useWindowEvents';
 
 export enum Display {
   Default = 'default',
@@ -68,23 +68,21 @@ function AuthOptions({
     { ...disabledRefetch },
   );
 
-  useEffect(() => {
-    window.onmessage = async function receiveMessage(e) {
-      if (e.data?.flow) {
-        const flow = await getRegistrationFlow(e.data.flow);
-        onSelectedProvider({
-          provider: flow.ui.nodes[5].attributes.value,
-          action: flow.ui.action,
-          csrf_token: flow.ui.nodes[0].attributes.value,
-          email: flow.ui.nodes[1].attributes.value,
-          name: flow.ui.nodes[2].attributes.value,
-          username: flow.ui.nodes[3].attributes.value,
-          image: flow.ui.nodes[4].attributes.value,
-        });
-        setActiveDisplay(Display.Registration);
-      }
-    };
-  }, []);
+  useWindowEvents('message', async (e) => {
+    if (e.data?.flow) {
+      const flow = await getRegistrationFlow(e.data.flow);
+      onSelectedProvider({
+        provider: flow.ui.nodes[5].attributes.value,
+        action: flow.ui.action,
+        csrf_token: flow.ui.nodes[0].attributes.value,
+        email: flow.ui.nodes[1].attributes.value,
+        name: flow.ui.nodes[2].attributes.value,
+        username: flow.ui.nodes[3].attributes.value,
+        image: flow.ui.nodes[4].attributes.value,
+      });
+      setActiveDisplay(Display.Registration);
+    }
+  });
 
   const onProviderClick = async (provider: string) => {
     const postData: RegistrationParameters = {
