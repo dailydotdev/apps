@@ -20,6 +20,7 @@ import { RegistrationForm, SocialProviderAccount } from './RegistrationForm';
 import {
   getRegistrationFlow,
   initializeRegistration,
+  RegistrationParameters,
   socialRegistration,
 } from '../../lib/auth';
 import { disabledRefetch } from '../../lib/func';
@@ -86,7 +87,7 @@ function AuthOptions({
   }, []);
 
   const onProviderClick = async (provider: string) => {
-    const postData = {
+    const postData: RegistrationParameters = {
       csrf_token: registration.ui.nodes[0].attributes.value,
       method: 'oidc',
       provider,

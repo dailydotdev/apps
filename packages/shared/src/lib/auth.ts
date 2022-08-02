@@ -172,9 +172,10 @@ export interface RegistrationParameters {
   provider?: string;
   password?: string;
   'traits.email': string;
-  'traits.name.first': string;
-  'traits.name.last': string;
+  'traits.name.first'?: string;
+  'traits.name.last'?: string;
   'traits.username'?: string;
+  'traits.image'?: string;
 }
 
 export const socialRegistration = async (
