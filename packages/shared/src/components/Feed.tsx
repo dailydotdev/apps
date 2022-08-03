@@ -206,7 +206,6 @@ export default function Feed<T>({
     virtualizedNumCards,
     feedName,
     ranking,
-    'go to link',
   );
 
   const onPostModalOpen = (index: number, callback?: () => unknown) => {
