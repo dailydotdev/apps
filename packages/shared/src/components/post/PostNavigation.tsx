@@ -4,14 +4,13 @@ import dynamic from 'next/dynamic';
 import ArrowIcon from '../icons/Arrow';
 import { Button } from '../buttons/Button';
 import { PostModalActions, PostModalActionsProps } from './PostModalActions';
-import { Origin } from '../../lib/analytics';
 
 const SimpleTooltip = dynamic(() => import('../tooltips/SimpleTooltip'));
 
 export interface PostNavigationProps
   extends Pick<
     PostModalActionsProps,
-    'post' | 'onClose' | 'onShare' | 'onBookmark'
+    'post' | 'onClose' | 'onShare' | 'onBookmark' | 'onReadArticle'
   > {
   onPreviousPost: () => unknown;
   onNextPost: () => unknown;
@@ -28,6 +27,7 @@ export function PostNavigation({
   className,
   isModal,
   post,
+  onReadArticle,
   onClose,
   onShare,
   onBookmark,
@@ -88,13 +88,13 @@ export function PostNavigation({
       <PostModalActions
         onShare={onShare}
         onBookmark={onBookmark}
+        onReadArticle={onReadArticle}
         additionalInteractionButtonFeature={additionalInteractionButtonFeature}
         post={post}
         onClose={onClose}
         inlineActions={shouldDisplayTitle || isModal}
         className={getClasses()}
         notificactionClassName="ml-4"
-        origin={isModal ? Origin.ArticleModal : Origin.ArticleModal}
       />
     </div>
   );

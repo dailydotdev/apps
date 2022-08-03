@@ -49,6 +49,7 @@ import { useSharePost } from '../../hooks/useSharePost';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { Origin } from '../../lib/analytics';
 import { useShareComment } from '../../hooks/useShareComment';
+import useOnPostClick from '../../hooks/useOnPostClick';
 
 const UpvotedPopupModal = dynamic(() => import('../modals/UpvotedPopupModal'));
 const NewCommentModal = dynamic(() => import('../modals/NewCommentModal'));
@@ -140,6 +141,7 @@ export function PostContent({
   const { shareComment, openShareComment, closeShareComment } =
     useShareComment(analyticsOrigin);
   const { updatePost } = useUpdatePost();
+  const onPostClick = useOnPostClick({ origin: analyticsOrigin });
   const { bookmark, removeBookmark } = useBookmarkPost({
     onBookmarkMutate: updatePost({ id, update: { bookmarked: true } }),
     onRemoveBookmarkMutate: updatePost({ id, update: { bookmarked: false } }),
@@ -195,21 +197,16 @@ export function PostContent({
     return <Custom404 />;
   }
 
-  const onLinkClick = async () => {
-    trackEvent(
-      postAnalyticsEvent('click', postById.post, {
-        extra: { origin: analyticsOrigin },
-      }),
-    );
-  };
+  const onReadArticle = () => onPostClick({ post: postById.post });
 
   const postLinkProps = {
     href: postById?.post.permalink,
     title: 'Go to article',
     target: '_blank',
     rel: 'noopener',
-    onClick: onLinkClick,
-    onMouseUp: (event: React.MouseEvent) => event.button === 1 && onLinkClick(),
+    onClick: onReadArticle,
+    onMouseUp: (event: React.MouseEvent) =>
+      event.button === 1 && onReadArticle(),
   };
 
   const isFixed = position === 'fixed';
@@ -261,6 +258,7 @@ export function PostContent({
           )}
           shouldDisplayTitle={isFixed}
           post={postById.post}
+          onReadArticle={onReadArticle}
           onClose={onClose}
           isModal={isModal}
           additionalInteractionButtonFeature={
@@ -345,6 +343,7 @@ export function PostContent({
         additionalInteractionButtonFeature={additionalInteractionButtonFeature}
         onBookmark={toggleBookmark}
         onShare={onShare}
+        onReadArticle={onReadArticle}
         post={postById.post}
         isNavigationFixed={hasNavigation && isFixed}
         className="pb-20"
