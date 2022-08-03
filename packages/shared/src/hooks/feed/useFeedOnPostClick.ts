@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Post } from '../../graphql/posts';
 import { FeedItem, PostItem } from '../useFeed';
 import useOnPostClick from '../useOnPostClick';
@@ -23,14 +24,18 @@ export default function useFeedOnPostClick(
 ): FeedPostClick {
   const onPostClick = useOnPostClick({ columns, feedName, ranking });
 
-  return async (post, index, row, column, optional): Promise<void> => {
-    await onPostClick({ post, row, column, optional });
+  return useMemo(
+    () =>
+      async (post, index, row, column, optional): Promise<void> => {
+        await onPostClick({ post, row, column, optional });
 
-    if (optional?.skipPostUpdate) {
-      return;
-    }
+        if (optional?.skipPostUpdate) {
+          return;
+        }
 
-    const item = items[index] as PostItem;
-    updatePost(item.page, item.index, { ...post, read: true });
-  };
+        const item = items[index] as PostItem;
+        updatePost(item.page, item.index, { ...post, read: true });
+      },
+    [items, updatePost, columns, feedName, ranking],
+  );
 }

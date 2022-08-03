@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 import useIncrementReadingRank from './useIncrementReadingRank';
 import AnalyticsContext from '../contexts/AnalyticsContext';
 import { feedAnalyticsExtra, postAnalyticsEvent } from '../lib/feed';
@@ -10,13 +10,11 @@ interface PostClickOptionalProps {
 }
 
 export type FeedPostClick = ({
-  event,
   post,
   row,
   column,
   optional,
 }: {
-  event?: string;
   post: Post;
   row?: number;
   column?: number;
@@ -38,28 +36,26 @@ export default function useOnPostClick({
   const { trackEvent } = useContext(AnalyticsContext);
   const { incrementReadingRank } = useIncrementReadingRank();
 
-  return async ({
-    event = 'go to link',
-    post,
-    row,
-    column,
-    optional,
-  }): Promise<void> => {
-    trackEvent(
-      postAnalyticsEvent(event, post, {
-        columns,
-        column,
-        row,
-        ...feedAnalyticsExtra(feedName, ranking, null, origin),
-      }),
-    );
+  return useMemo(
+    () =>
+      async ({ post, row, column, optional }): Promise<void> => {
+        trackEvent(
+          postAnalyticsEvent('go to link', post, {
+            columns,
+            column,
+            row,
+            ...feedAnalyticsExtra(feedName, ranking, null, origin),
+          }),
+        );
 
-    if (optional?.skipPostUpdate) {
-      return;
-    }
+        if (optional?.skipPostUpdate) {
+          return;
+        }
 
-    if (!post.read) {
-      await incrementReadingRank();
-    }
-  };
+        if (!post.read) {
+          await incrementReadingRank();
+        }
+      },
+    [columns, feedName, ranking, origin],
+  );
 }

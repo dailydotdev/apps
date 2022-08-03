@@ -141,6 +141,7 @@ export function PostContent({
   const { shareComment, openShareComment, closeShareComment } =
     useShareComment(analyticsOrigin);
   const { updatePost } = useUpdatePost();
+  const onPostClick = useOnPostClick({ origin: analyticsOrigin });
   const { bookmark, removeBookmark } = useBookmarkPost({
     onBookmarkMutate: updatePost({ id, update: { bookmarked: true } }),
     onRemoveBookmarkMutate: updatePost({ id, update: { bookmarked: false } }),
@@ -196,18 +197,16 @@ export function PostContent({
     return <Custom404 />;
   }
 
-  const onPostClick = useOnPostClick({ origin: analyticsOrigin });
   const onReadArticle = () => onPostClick({ post: postById.post });
-  const onLinkClick = () =>
-    onPostClick({ post: postById.post, event: 'click' });
 
   const postLinkProps = {
     href: postById?.post.permalink,
     title: 'Go to article',
     target: '_blank',
     rel: 'noopener',
-    onClick: onLinkClick,
-    onMouseUp: (event: React.MouseEvent) => event.button === 1 && onLinkClick(),
+    onClick: onReadArticle,
+    onMouseUp: (event: React.MouseEvent) =>
+      event.button === 1 && onReadArticle(),
   };
 
   const isFixed = position === 'fixed';
