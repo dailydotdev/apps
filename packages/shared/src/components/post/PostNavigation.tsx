@@ -4,7 +4,6 @@ import dynamic from 'next/dynamic';
 import ArrowIcon from '../icons/Arrow';
 import { Button } from '../buttons/Button';
 import { PostModalActions, PostModalActionsProps } from './PostModalActions';
-import { Origin } from '../../lib/analytics';
 
 const SimpleTooltip = dynamic(() => import('../tooltips/SimpleTooltip'));
 
