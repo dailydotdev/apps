@@ -303,3 +303,9 @@ export const getNodeByKey = (
   nodes: InitializationNode[],
 ): InitializationNode =>
   nodes.find(({ attributes }) => attributes.name === key);
+
+export const getNodeValue = (
+  key: string,
+  nodes: InitializationNode[],
+): string =>
+  nodes.find(({ attributes }) => attributes.name === key)?.attributes?.value;

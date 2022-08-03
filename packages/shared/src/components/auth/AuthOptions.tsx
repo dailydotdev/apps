@@ -21,6 +21,7 @@ import {
 } from './RegistrationForm';
 import {
   getNodeByKey,
+  getNodeValue,
   getRegistrationFlow,
   RegistrationParameters,
 } from '../../lib/auth';
@@ -79,14 +80,15 @@ function AuthOptions({
   useWindowEvents('message', async (e) => {
     if (e.data?.flow) {
       const flow = await getRegistrationFlow(e.data.flow);
+      const { nodes, action } = flow.ui;
       onSelectedProvider({
-        provider: flow.ui.nodes[5].attributes.value,
-        action: flow.ui.action,
-        csrf_token: flow.ui.nodes[0].attributes.value,
-        email: flow.ui.nodes[1].attributes.value,
-        name: flow.ui.nodes[2].attributes.value,
-        username: flow.ui.nodes[3].attributes.value,
-        image: flow.ui.nodes[4].attributes.value,
+        action,
+        provider: getNodeValue('provider', nodes),
+        csrf_token: getNodeValue('csrf_token', nodes),
+        email: getNodeValue('traits.email', nodes),
+        name: getNodeValue('traits.fullname', nodes),
+        username: getNodeValue('traits.username', nodes),
+        image: getNodeValue('traits.image', nodes),
       });
       setActiveDisplay(Display.Registration);
     }
