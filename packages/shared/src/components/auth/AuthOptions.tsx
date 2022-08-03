@@ -5,8 +5,7 @@ import React, {
   useContext,
   useState,
 } from 'react';
-import { useQuery } from 'react-query';
-import { getQueryParams } from '../../contexts/AuthContext';
+import AuthContext, { getQueryParams } from '../../contexts/AuthContext';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { AuthVersion } from '../../lib/featureValues';
 import { CloseModalFunc } from '../modals/common';
@@ -15,21 +14,27 @@ import AuthDefault from './AuthDefault';
 import { AuthSignBack } from './AuthSignBack';
 import ForgotPasswordForm from './ForgotPasswordForm';
 import LoginForm from './LoginForm';
-import { RegistrationForm, SocialProviderAccount } from './RegistrationForm';
 import {
+  RegistrationForm,
+  RegistrationFormValues,
+  SocialProviderAccount,
+} from './RegistrationForm';
+import {
+  getNodeByKey,
   getRegistrationFlow,
-  initializeRegistration,
   RegistrationParameters,
-  socialRegistration,
 } from '../../lib/auth';
-import { disabledRefetch } from '../../lib/func';
 import useWindowEvents from '../../hooks/useWindowEvents';
+import useRegistration from '../../hooks/useRegistration';
+import EmailVerificationSent from './EmailVerificationSent';
+import AuthModalHeader from './AuthModalHeader';
 
 export enum Display {
   Default = 'default',
   Registration = 'registration',
   SignBack = 'sign_back',
   ForgotPassword = 'forgot_password',
+  EmailSent = 'email_sent',
 }
 
 const hasLoggedOut = () => {
@@ -61,12 +66,15 @@ function AuthOptions({
   const [activeDisplay, setActiveDisplay] = useState(
     hasLoggedOut() ? Display.SignBack : defaultDisplay,
   );
-
-  const { data: registration } = useQuery(
-    'registration',
-    initializeRegistration,
-    { ...disabledRefetch },
-  );
+  const { onUpdateSession } = useContext(AuthContext);
+  const { validateRegistration, registration } = useRegistration({
+    key: 'registration_form',
+    onValidRegistration: (data) => {
+      onUpdateSession(data);
+      setActiveDisplay(Display.EmailSent);
+    },
+    onRedirect: (redirect) => window.open(redirect),
+  });
 
   useWindowEvents('message', async (e) => {
     if (e.data?.flow) {
@@ -85,8 +93,9 @@ function AuthOptions({
   });
 
   const onProviderClick = async (provider: string) => {
+    const csrf = getNodeByKey('csrf_token', registration.ui.nodes);
     const postData: RegistrationParameters = {
-      csrf_token: registration.ui.nodes[0].attributes.value,
+      csrf_token: csrf.attributes.value,
       method: 'oidc',
       provider,
       'traits.email': '',
@@ -94,19 +103,21 @@ function AuthOptions({
       'traits.image': '',
     };
 
-    const { redirect } = await socialRegistration(
-      registration.ui.action,
-      postData,
-    );
-    if (redirect) {
-      window.open(redirect);
-    }
+    validateRegistration(postData);
   };
 
-  const onSignup = async (emailAd: string) => {
+  const onStartSignup = async (emailAd: string) => {
     // before displaying registration, ensure the email doesn't exists
     setActiveDisplay(Display.Registration);
     setEmail(emailAd);
+  };
+
+  const onRegister = (params: RegistrationFormValues) => {
+    validateRegistration({
+      ...params,
+      provider: socialAccount?.provider,
+      method: socialAccount ? 'oidc' : 'password',
+    });
   };
 
   return (
@@ -123,7 +134,7 @@ function AuthOptions({
       <Tab label={Display.Default}>
         <AuthDefault
           onClose={onClose}
-          onSignup={onSignup}
+          onSignup={onStartSignup}
           onProviderClick={onProviderClick}
           onForgotPassword={() => setActiveDisplay(Display.ForgotPassword)}
           isV2={isV2}
@@ -137,6 +148,7 @@ function AuthOptions({
           socialAccount={socialAccount}
           onClose={onClose}
           isV2={isV2}
+          onSignup={onRegister}
         />
       </Tab>
       <Tab label={Display.SignBack}>
@@ -153,6 +165,10 @@ function AuthOptions({
           onClose={onClose}
           onBack={() => setActiveDisplay(defaultDisplay)}
         />
+      </Tab>
+      <Tab label={Display.EmailSent}>
+        <AuthModalHeader title="Verify your email address" onClose={onClose} />
+        <EmailVerificationSent email={email} />
       </Tab>
     </TabContainer>
   );
