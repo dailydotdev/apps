@@ -268,7 +268,7 @@ export function PostContent({
           onShare={onShare}
         />
         <h1
-          className="mt-6 font-bold break-words typo-large-title"
+          className="my-6 font-bold break-words typo-large-title"
           data-testid="post-modal-title"
         >
           {postById.post.title}
