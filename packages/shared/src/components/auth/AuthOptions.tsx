@@ -20,7 +20,6 @@ import {
   SocialProviderAccount,
 } from './RegistrationForm';
 import {
-  getNodeByKey,
   getNodeValue,
   getRegistrationFlow,
   RegistrationParameters,
@@ -95,9 +94,9 @@ function AuthOptions({
   });
 
   const onProviderClick = async (provider: string) => {
-    const csrf = getNodeByKey('csrf_token', registration.ui.nodes);
+    const csrf = getNodeValue('csrf_token', registration.ui.nodes);
     const postData: RegistrationParameters = {
-      csrf_token: csrf.attributes.value,
+      csrf_token: csrf,
       method: 'oidc',
       provider,
       'traits.email': '',
@@ -108,7 +107,7 @@ function AuthOptions({
     validateRegistration(postData);
   };
 
-  const onStartSignup = async (emailAd: string) => {
+  const onEmailRegistration = async (emailAd: string) => {
     // before displaying registration, ensure the email doesn't exists
     setActiveDisplay(Display.Registration);
     setEmail(emailAd);
@@ -136,7 +135,7 @@ function AuthOptions({
       <Tab label={Display.Default}>
         <AuthDefault
           onClose={onClose}
-          onSignup={onStartSignup}
+          onSignup={onEmailRegistration}
           onProviderClick={onProviderClick}
           onForgotPassword={() => setActiveDisplay(Display.ForgotPassword)}
           isV2={isV2}
