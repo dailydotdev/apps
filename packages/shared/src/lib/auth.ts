@@ -169,12 +169,12 @@ export const initializeLogin = async (): Promise<InitializationData> => {
   return res.json();
 };
 
-export const validatePasswordLogin = async (
-  url: string,
-  params: LoginPasswordParameters,
-): Promise<AuthSession> => {
+export const validatePasswordLogin = async ({
+  action,
+  params,
+}: ValidateLoginParams): Promise<AuthSession> => {
   const postData = { method: 'password', ...params };
-  const res = await fetch(url, {
+  const res = await fetch(action, {
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
@@ -226,6 +226,7 @@ export interface RegistrationParameters {
 export type ErrorMessages<T extends string | number> = { [key in T]?: string };
 export type RegistrationError = ErrorMessages<keyof RegistrationParameters>;
 export type ValidateRegistrationParams = FormParams<RegistrationParameters>;
+export type ValidateLoginParams = FormParams<LoginPasswordParameters>;
 
 type SuccessfulRegistrationResponse =
   RequestResponse<SuccessfulRegistrationData>;

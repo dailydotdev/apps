@@ -1,7 +1,12 @@
 import React, { ReactElement, useContext, useRef } from 'react';
-import { useQuery } from 'react-query';
+import { useMutation, useQuery } from 'react-query';
 import AuthContext from '../../contexts/AuthContext';
-import { initializeLogin, LoginPasswordParameters } from '../../lib/auth';
+import {
+  getNodeValue,
+  initializeLogin,
+  LoginPasswordParameters,
+  validatePasswordLogin,
+} from '../../lib/auth';
 import { formToJson } from '../../lib/form';
 import { disabledRefetch } from '../../lib/func';
 import { Button } from '../buttons/Button';
@@ -21,18 +26,19 @@ function LoginForm({
   onSuccessfulLogin,
   onForgotPassword,
 }: LoginFormProps): ReactElement {
-  const { onPasswordLogin } = useContext(AuthContext);
+  const { onUpdateSession } = useContext(AuthContext);
   const formRef = useRef<HTMLFormElement>();
   const { data } = useQuery('login', initializeLogin, { ...disabledRefetch });
+  const { mutateAsync: onPasswordLogin } = useMutation(validatePasswordLogin, {
+    onSuccess: onUpdateSession,
+  });
   const onLogin: typeof onSuccessfulLogin = async (e) => {
     e.preventDefault();
     const form = formToJson<LoginFormParams>(formRef.current);
-    const csrfToken = data.ui.nodes[0].attributes.value;
+    const { nodes, action } = data.ui;
+    const csrfToken = getNodeValue('csrf_token', nodes);
     const params: LoginPasswordParameters = { ...form, csrf_token: csrfToken };
-    const session = await onPasswordLogin(data.ui.action, params);
-    if (session) {
-      onSuccessfulLogin(e);
-    }
+    onPasswordLogin({ action, params });
   };
 
   return (
