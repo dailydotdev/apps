@@ -138,7 +138,7 @@ export interface SuccessfulRegistrationData {
   identity: Identity;
 }
 
-const authUrl = 'http://127.0.0.1:4433';
+const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || 'http://127.0.0.1:4433';
 
 export const getRegistrationFlow = async (
   flowId: string,
