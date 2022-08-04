@@ -19,11 +19,7 @@ import {
   RegistrationFormValues,
   SocialProviderAccount,
 } from './RegistrationForm';
-import {
-  getNodeValue,
-  getRegistrationFlow,
-  RegistrationParameters,
-} from '../../lib/auth';
+import { getNodeValue, getRegistrationFlow } from '../../lib/auth';
 import useWindowEvents from '../../hooks/useWindowEvents';
 import useRegistration from '../../hooks/useRegistration';
 import EmailVerificationSent from './EmailVerificationSent';
@@ -67,7 +63,7 @@ function AuthOptions({
     hasLoggedOut() ? Display.SignBack : defaultDisplay,
   );
   const { onUpdateSession } = useContext(AuthContext);
-  const { validateRegistration, registration } = useRegistration({
+  const { validateRegistration, onSocialRegistration } = useRegistration({
     key: 'registration_form',
     onValidRegistration: (data) => {
       onUpdateSession(data);
@@ -92,20 +88,6 @@ function AuthOptions({
       setActiveDisplay(Display.Registration);
     }
   });
-
-  const onProviderClick = async (provider: string) => {
-    const csrf = getNodeValue('csrf_token', registration.ui.nodes);
-    const postData: RegistrationParameters = {
-      csrf_token: csrf,
-      method: 'oidc',
-      provider,
-      'traits.email': '',
-      'traits.username': '',
-      'traits.image': '',
-    };
-
-    validateRegistration(postData);
-  };
 
   const onEmailRegistration = async (emailAd: string) => {
     // before displaying registration, ensure the email doesn't exists
@@ -136,7 +118,7 @@ function AuthOptions({
         <AuthDefault
           onClose={onClose}
           onSignup={onEmailRegistration}
-          onProviderClick={onProviderClick}
+          onProviderClick={onSocialRegistration}
           onForgotPassword={() => setActiveDisplay(Display.ForgotPassword)}
           isV2={isV2}
         />

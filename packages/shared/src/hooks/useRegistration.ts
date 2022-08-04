@@ -10,6 +10,7 @@ import {
   validateRegistration,
   ValidateRegistrationParams,
   getNodeByKey,
+  getNodeValue,
 } from '../lib/auth';
 import { fallbackImages } from '../lib/config';
 import { disabledRefetch } from '../lib/func';
@@ -31,6 +32,7 @@ interface UseRegistration {
   isValidationIdle: boolean;
   isLoading?: boolean;
   validateRegistration: (values: FormParams) => Promise<void>;
+  onSocialRegistration?: (provider: string) => void;
 }
 
 type FormParams = Omit<RegistrationParameters, 'csrf_token'>;
@@ -94,10 +96,25 @@ const useRegistration = ({
     validate({ action, params: postData });
   };
 
+  const onSocialRegistration = (provider: string) => {
+    const csrf = getNodeValue('csrf_token', registration.ui.nodes);
+    const postData: RegistrationParameters = {
+      csrf_token: csrf,
+      method: 'oidc',
+      provider,
+      'traits.email': '',
+      'traits.username': '',
+      'traits.image': '',
+    };
+
+    onValidateRegistration(postData);
+  };
+
   return useMemo(
     () => ({
       isLoading: isQueryLoading || isMutationLoading,
       registration,
+      onSocialRegistration,
       validateRegistration: onValidateRegistration,
       isValidationIdle: status === 'idle',
     }),
