@@ -1,7 +1,7 @@
 import { MutableRefObject, useMemo, useRef, useState } from 'react';
 import {
-  FormValues,
   SocialProviderAccount,
+  RegistrationFormValues,
 } from '../components/auth/RegistrationForm';
 import { CloseModalFunc } from '../components/modals/common';
 import { formToJson } from '../lib/form';
@@ -36,11 +36,8 @@ const useAuthForms = ({ onDiscard }: UseAuthFormsProps = {}): UseAuthForms => {
       return onDiscard(e);
     }
 
-    const { 'traits.email': emailAd, ...rest } = formToJson<FormValues>(
-      formRef.current,
-      {},
-    );
-    const values = Object.values(rest);
+    const form = formToJson<RegistrationFormValues>(formRef.current);
+    const values = Object.values(form);
 
     if (values.some((value) => !!value)) {
       return setIsDiscardOpen(true);
