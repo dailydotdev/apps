@@ -13,7 +13,8 @@ import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
 import { ShareProvider } from '../../lib/share';
 import { Origin } from '../../lib/analytics';
 
-interface PostWidgetsProps extends PostModalActionsProps {
+interface PostWidgetsProps
+  extends Omit<PostModalActionsProps, 'contextMenuId'> {
   isNavigationFixed?: boolean;
   origin?: PostOrigin;
 }
@@ -68,6 +69,7 @@ export function PostWidgets({
           post={post}
           onClose={onClose}
           className="hidden tablet:flex pt-6"
+          contextMenuId="post-widgets-context"
         />
       )}
       <PostUsersHighlights post={post} />

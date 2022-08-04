@@ -95,6 +95,7 @@ export function PostNavigation({
         inlineActions={shouldDisplayTitle || isModal}
         className={getClasses()}
         notificactionClassName="ml-4"
+        contextMenuId="post-navigation-context"
       />
     </div>
   );
