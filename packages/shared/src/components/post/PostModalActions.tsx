@@ -29,6 +29,7 @@ export interface PostModalActionsProps extends OnShareOrBookmarkProps {
   style?: CSSProperties;
   inlineActions?: boolean;
   notificactionClassName?: string;
+  contextMenuId: string;
 }
 
 const Container = classed('div', 'flex flex-row items-center');
@@ -47,10 +48,11 @@ export function PostModalActions({
   inlineActions,
   className,
   notificactionClassName,
+  contextMenuId,
   ...props
 }: PostModalActionsProps): ReactElement {
   const { user } = useContext(AuthContext);
-  const { showReportMenu } = useReportPostMenu();
+  const { showReportMenu } = useReportPostMenu(contextMenuId);
   const [showBanPost, setShowBanPost] = useState(false);
   const [showDeletePost, setShowDeletePost] = useState(false);
 
@@ -104,6 +106,7 @@ export function PostModalActions({
         post={post}
         setShowBanPost={isModerator ? () => setShowBanPost(true) : null}
         setShowDeletePost={isModerator ? () => setShowDeletePost(true) : null}
+        contextId={contextMenuId}
       />
       {showBanPost && (
         <BanPostModal

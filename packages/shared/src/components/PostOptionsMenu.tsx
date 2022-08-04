@@ -39,6 +39,7 @@ interface PostOptionsMenuProps extends OnShareOrBookmarkProps {
   onRemovePost?: (postIndex: number) => Promise<unknown>;
   setShowDeletePost?: () => unknown;
   setShowBanPost?: () => unknown;
+  contextId?: string;
 }
 
 type ReportPostAsync = (
@@ -60,6 +61,7 @@ export default function PostOptionsMenu({
   onRemovePost,
   setShowDeletePost,
   setShowBanPost,
+  contextId = 'post-context',
 }: PostOptionsMenuProps): ReactElement {
   const client = useQueryClient();
   const { user } = useContext(AuthContext);
@@ -246,7 +248,7 @@ export default function PostOptionsMenu({
     <>
       <PortalMenu
         disableBoundariesCheck
-        id="post-context"
+        id={contextId}
         className="menu-primary"
         animation="fade"
         onHidden={onHidden}

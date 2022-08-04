@@ -68,6 +68,7 @@ export function PostWidgets({
           post={post}
           onClose={onClose}
           className="hidden tablet:flex pt-6"
+          contextMenuId="post-widgets-context"
         />
       )}
       <PostUsersHighlights post={post} />
