@@ -1,39 +1,70 @@
+export type EmptyObjectLiteral = Record<string, never>;
+
 interface InitializationNodeAttribute {
   name: string;
   type: string;
-  value: string;
-  required: boolean;
+  value?: string;
+  required?: boolean;
   disabled: boolean;
   node_type: string;
+}
+
+interface ErrorMessage {
+  id: number;
+  text: string;
+  type: string;
+  context?: MetaLabelContext;
+}
+
+interface MetaLabelContext {
+  reason: string;
+}
+
+interface NodeMetaLabel {
+  id: number;
+  text: string;
+  type: string;
+  context?: MetaLabelContext | EmptyObjectLiteral;
+}
+
+interface InitializationNodeMeta {
+  label: NodeMetaLabel;
 }
 
 interface InitializationNode {
   type: string;
   group: string;
   attributes: InitializationNodeAttribute;
-  messages: string[];
-  // meta: {};
+  messages: ErrorMessage[];
+  meta: InitializationNodeMeta | EmptyObjectLiteral;
 }
 
 interface InitializationUI {
   action: string;
   method: string;
+  messages?: ErrorMessage[];
   nodes: InitializationNode[];
 }
 
-interface InitializationData {
+type DateString = string;
+
+export interface InitializationData {
   id: string;
-  issued_at: Date;
-  expires_at: Date;
+  issued_at: DateString;
+  expires_at: DateString;
+  created_at: DateString;
+  updated_at: DateString;
   request_url: string;
   type: string;
+  refresh?: boolean;
   ui: InitializationUI;
+  requested_aal: AuthenticatorLevel;
 }
 
 export type RegistrationInitializationData = InitializationData;
 
-type AuthenticatorLevel = 'aal0';
-type Method = 'link_recovery';
+type AuthenticatorLevel = 'aal0' | 'aal1';
+type Method = 'link_recovery' | 'password';
 interface AuthMethod {
   aal: AuthenticatorLevel;
   completed_at: Date;
@@ -61,16 +92,21 @@ interface RecoveryAddress {
 
 interface VerifyableAddress extends RecoveryAddress {
   status: string;
-  verified: true;
-  verified_at: Date;
+  verified: boolean;
+  verified_at?: Date;
+  id: string;
+  value: string;
+  via: string;
+  created_at: Date;
+  updated_at: Date;
 }
 
 interface Identity {
   created_at: Date;
-  credentials: Record<string, IdentityCredential>;
+  credentials?: Record<string, IdentityCredential>;
   id: string;
-  metadata_admin: unknown;
-  metadata_public: unknown;
+  metadata_admin?: unknown;
+  metadata_public?: unknown;
   recovery_addresses: RecoveryAddress[];
   schema_id: string;
   schema_url: string;
@@ -86,7 +122,7 @@ interface LogoutSessionData {
   logout_url: string;
 }
 
-export interface AuthSession extends LogoutSessionData {
+export interface AuthSession extends Partial<LogoutSessionData> {
   active: boolean;
   authenticated_at: Date;
   authentication_methods: AuthMethod[];
@@ -97,25 +133,35 @@ export interface AuthSession extends LogoutSessionData {
   issued_at: Date;
 }
 
-const authUrl = 'http://127.0.0.1:4433';
-
-interface LoginInitializationData extends InitializationData {
-  created_at: '2022-07-21T05:18:27.975693Z';
-  updated_at: '2022-07-21T05:18:27.975693Z';
-  refresh: false;
-  requested_aal: 'aal1';
+export interface SuccessfulRegistrationData {
+  session: AuthSession;
+  identity: Identity;
 }
 
-export const initializeRegistration =
-  async (): Promise<RegistrationInitializationData> => {
-    const res = await fetch(`${authUrl}/self-service/registration/browser`, {
+const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || 'http://127.0.0.1:4433';
+
+export const getRegistrationFlow = async (
+  flowId: string,
+): Promise<InitializationData> => {
+  const res = await fetch(
+    `${authUrl}/self-service/registration?flow=${flowId}`,
+    {
       credentials: 'include',
       headers: { Accept: 'application/json' },
-    });
-    return res.json();
-  };
+    },
+  );
+  return res.json();
+};
 
-export const initializeLogin = async (): Promise<LoginInitializationData> => {
+export const initializeRegistration = async (): Promise<InitializationData> => {
+  const res = await fetch(`${authUrl}/self-service/registration/browser`, {
+    credentials: 'include',
+    headers: { Accept: 'application/json' },
+  });
+  return res.json();
+};
+
+export const initializeLogin = async (): Promise<InitializationData> => {
   const res = await fetch(`${authUrl}/self-service/login/browser`, {
     credentials: 'include',
     headers: { Accept: 'application/json' },
@@ -123,18 +169,12 @@ export const initializeLogin = async (): Promise<LoginInitializationData> => {
   return res.json();
 };
 
-export interface LoginPasswordParameters {
-  password: string;
-  csrf_token: string;
-  identifier: string;
-}
-
-export const validatePasswordLogin = async (
-  url: string,
-  params: LoginPasswordParameters,
-): Promise<AuthSession> => {
+export const validatePasswordLogin = async ({
+  action,
+  params,
+}: ValidateLoginParams): Promise<AuthSession> => {
   const postData = { method: 'password', ...params };
-  const res = await fetch(url, {
+  const res = await fetch(action, {
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
@@ -146,25 +186,55 @@ export const validatePasswordLogin = async (
   });
   return res.json();
 };
-
-interface RegistrationResponse {
-  success?: AuthSession;
-  error?: unknown;
+interface AuthPostParams {
+  csrf_token: string;
 }
 
+export interface LoginPasswordParameters extends AuthPostParams {
+  password: string;
+  identifier: string;
+}
+
+export interface AccountRecoveryParameters extends AuthPostParams {
+  email: string;
+}
+
+interface FormParams<T> {
+  action: string;
+  params: T;
+}
+
+export interface RequestResponse<
+  TData = AuthSession,
+  TError = InitializationData,
+> {
+  data?: TData;
+  error?: TError;
+  redirect?: string;
+}
 export interface RegistrationParameters {
   csrf_token: string;
+  provider?: string;
   method: AuthenticationType;
-  password: string;
+  password?: string;
   'traits.email': string;
-  'traits.name.first': string;
-  'traits.name.last': string;
+  'traits.fullname'?: string;
+  'traits.username': string;
+  'traits.image': string;
 }
 
-export const validateRegistration = async (
-  action: string,
-  params: RegistrationParameters,
-): Promise<RegistrationResponse> => {
+export type ErrorMessages<T extends string | number> = { [key in T]?: string };
+export type RegistrationError = ErrorMessages<keyof RegistrationParameters>;
+export type ValidateRegistrationParams = FormParams<RegistrationParameters>;
+export type ValidateLoginParams = FormParams<LoginPasswordParameters>;
+
+type SuccessfulRegistrationResponse =
+  RequestResponse<SuccessfulRegistrationData>;
+
+export const validateRegistration = async ({
+  action,
+  params,
+}: ValidateRegistrationParams): Promise<SuccessfulRegistrationResponse> => {
   const res = await fetch(action, {
     method: 'POST',
     credentials: 'include',
@@ -176,12 +246,17 @@ export const validateRegistration = async (
     body: JSON.stringify(params),
   });
 
+  const json = await res.json();
+
   if (res.status === 200) {
-    const json = await res.json();
-    return { success: json };
+    return { data: json };
   }
 
-  return { error: res };
+  if (res.status === 422) {
+    return { redirect: json.redirect_browser_to };
+  }
+
+  return { error: json?.error || json };
 };
 
 export const checkCurrentSession = async (): Promise<AuthSession> => {
@@ -212,3 +287,26 @@ export const logoutSession = (
     credentials: 'include',
     headers: { Accept: 'application/json', 'X-CSRF-Token': csrf_token },
   });
+
+export const errorsToJson = <T extends string>(
+  data: InitializationData,
+): Record<T, string> =>
+  Object.values(data.ui.nodes).reduce(
+    (result, node) => ({
+      ...result,
+      [node.attributes.name]: node.messages[0]?.text ?? '',
+    }),
+    {} as Record<T, string>,
+  );
+
+export const getNodeByKey = (
+  key: string,
+  nodes: InitializationNode[],
+): InitializationNode =>
+  nodes.find(({ attributes }) => attributes.name === key);
+
+export const getNodeValue = (
+  key: string,
+  nodes: InitializationNode[],
+): string =>
+  nodes.find(({ attributes }) => attributes.name === key)?.attributes?.value;

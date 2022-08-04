@@ -6,7 +6,13 @@
 // }
 
 import '@dailydotdev/shared/src/lib/lazysizesImport';
-import React, { ReactElement, ReactNode, useContext, useEffect } from 'react';
+import React, {
+  ReactElement,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
@@ -34,8 +40,6 @@ import useWebappVersion from '../hooks/useWebappVersion';
 //   () => import('react-query/devtools').then((mod) => mod.ReactQueryDevtools),
 //   { ssr: false },
 // );
-
-const queryClient = new QueryClient();
 
 const LoginModal = dynamic(
   () =>
@@ -183,6 +187,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 }
 
 export default function App(props: AppProps): ReactElement {
+  const [queryClient] = useState(() => new QueryClient());
   const version = useWebappVersion();
   const deviceId = useDeviceId();
 
