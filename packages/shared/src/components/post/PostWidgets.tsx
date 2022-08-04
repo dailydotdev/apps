@@ -13,7 +13,8 @@ import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
 import { ShareProvider } from '../../lib/share';
 import { Origin } from '../../lib/analytics';
 
-interface PostWidgetsProps extends PostModalActionsProps {
+interface PostWidgetsProps
+  extends Omit<PostModalActionsProps, 'contextMenuId'> {
   isNavigationFixed?: boolean;
   origin?: PostOrigin;
 }
