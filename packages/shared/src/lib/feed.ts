@@ -62,10 +62,11 @@ export function feedAnalyticsExtra(
   extra?: {
     scroll_y?: number;
   },
+  origin?: Origin,
 ): FeedAnalyticsExtra {
   return {
     extra: {
-      origin: Origin.Feed,
+      origin: origin ?? Origin.Feed,
       feed: feedName,
       ...(ranking && { ranking }),
       ...(extra && extra),

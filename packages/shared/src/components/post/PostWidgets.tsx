@@ -13,7 +13,8 @@ import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
 import { ShareProvider } from '../../lib/share';
 import { Origin } from '../../lib/analytics';
 
-interface PostWidgetsProps extends PostModalActionsProps {
+interface PostWidgetsProps
+  extends Omit<PostModalActionsProps, 'contextMenuId'> {
   isNavigationFixed?: boolean;
   origin?: PostOrigin;
 }
@@ -22,6 +23,7 @@ export function PostWidgets({
   additionalInteractionButtonFeature,
   onShare,
   onBookmark,
+  onReadArticle,
   post,
   className,
   isNavigationFixed,
@@ -62,11 +64,12 @@ export function PostWidgets({
           }
           onBookmark={onBookmark}
           onShare={onShare}
+          onReadArticle={onReadArticle}
           inlineActions={isNavigationFixed}
           post={post}
           onClose={onClose}
           className="hidden tablet:flex pt-6"
-          origin={origin}
+          contextMenuId="post-widgets-context"
         />
       )}
       <PostUsersHighlights post={post} />

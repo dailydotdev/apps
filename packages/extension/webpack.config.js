@@ -10,7 +10,7 @@ const ExtensionReloader = require('webpack-ext-reloader');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const WextManifestWebpackPlugin = require('wext-manifest-webpack-plugin');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const Dotenv = require('dotenv-webpack');
 
 const viewsPath = path.join(__dirname, 'views');
@@ -210,8 +210,8 @@ module.exports = {
               },
               extractComments: false,
             }),
-            new OptimizeCSSAssetsPlugin({
-              cssProcessorPluginOptions: {
+            new CssMinimizerPlugin({
+              minimizerOptions: {
                 preset: ['default', { discardComments: { removeAll: true } }],
               },
             }),

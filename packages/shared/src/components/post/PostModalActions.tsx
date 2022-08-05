@@ -19,20 +19,17 @@ import classed from '../../lib/classed';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { Button } from '../buttons/Button';
 import PostOptionsMenu from '../PostOptionsMenu';
-import AnalyticsContext from '../../contexts/AnalyticsContext';
-import { postAnalyticsEvent } from '../../lib/feed';
-import { PostOrigin } from '../../hooks/analytics/useAnalyticsContextData';
 import { OnShareOrBookmarkProps } from './PostActions';
-import { Origin } from '../../lib/analytics';
 
 export interface PostModalActionsProps extends OnShareOrBookmarkProps {
   post: Post;
+  onReadArticle?: () => void;
   onClose?: MouseEventHandler | KeyboardEventHandler;
   className?: string;
   style?: CSSProperties;
   inlineActions?: boolean;
-  origin?: PostOrigin;
   notificactionClassName?: string;
+  contextMenuId: string;
 }
 
 const Container = classed('div', 'flex flex-row items-center');
@@ -43,19 +40,19 @@ const DeletePostModal = dynamic(() => import('../modals/DeletePostModal'));
 
 export function PostModalActions({
   additionalInteractionButtonFeature,
+  onReadArticle,
   onShare,
   onBookmark,
   post,
   onClose,
   inlineActions,
   className,
-  origin = Origin.ArticlePage,
   notificactionClassName,
+  contextMenuId,
   ...props
 }: PostModalActionsProps): ReactElement {
-  const { trackEvent } = useContext(AnalyticsContext);
   const { user } = useContext(AuthContext);
-  const { showReportMenu } = useReportPostMenu();
+  const { showReportMenu } = useReportPostMenu(contextMenuId);
   const [showBanPost, setShowBanPost] = useState(false);
   const [showDeletePost, setShowDeletePost] = useState(false);
 
@@ -64,14 +61,6 @@ export function PostModalActions({
     showReportMenu(e, {
       position: { x: right, y: bottom + 4 },
     });
-  };
-
-  const onReadArticle = () => {
-    trackEvent(
-      postAnalyticsEvent('go to link', post, {
-        extra: { origin },
-      }),
-    );
   };
 
   const isModerator = user?.roles?.indexOf(Roles.Moderator) > -1;
@@ -117,6 +106,7 @@ export function PostModalActions({
         post={post}
         setShowBanPost={isModerator ? () => setShowBanPost(true) : null}
         setShowDeletePost={isModerator ? () => setShowDeletePost(true) : null}
+        contextId={contextMenuId}
       />
       {showBanPost && (
         <BanPostModal
