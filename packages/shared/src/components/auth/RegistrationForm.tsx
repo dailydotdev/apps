@@ -1,20 +1,7 @@
 import classNames from 'classnames';
-import React, {
-  MutableRefObject,
-  ReactElement,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
-import { useQuery } from 'react-query';
-import AuthContext from '../../contexts/AuthContext';
-import {
-  initializeRegistration,
-  RegistrationParameters,
-  socialRegistration,
-} from '../../lib/auth';
-import { formInputs, formToJson } from '../../lib/form';
-import { disabledRefetch } from '../../lib/func';
+import React, { MutableRefObject, ReactElement, useState } from 'react';
+import { RegistrationParameters } from '../../lib/auth';
+import { formToJson } from '../../lib/form';
 import { Button } from '../buttons/Button';
 import ImageInput from '../fields/ImageInput';
 import { TextField } from '../fields/TextField';
@@ -24,7 +11,6 @@ import VIcon from '../icons/V';
 import { CloseModalFunc } from '../modals/common';
 import AuthModalHeader from './AuthModalHeader';
 import { AuthForm } from './common';
-import EmailVerificationSent from './EmailVerificationSent';
 
 export interface SocialProviderAccount {
   provider: string;
@@ -43,15 +29,13 @@ interface RegistrationFormProps {
   onClose?: CloseModalFunc;
   onBack?: CloseModalFunc;
   isV2?: boolean;
+  onSignup?: (params: RegistrationFormValues) => void;
 }
 
-export interface FormValues {
-  image?: string;
-  'traits.email'?: string;
-  fullname?: string;
-  password?: string;
-  username?: string;
-}
+export type RegistrationFormValues = Omit<
+  RegistrationParameters,
+  'method' | 'provider'
+>;
 
 export const RegistrationForm = ({
   email,
@@ -59,92 +43,24 @@ export const RegistrationForm = ({
   formRef,
   onClose,
   onBack,
+  onSignup,
   isV2,
 }: RegistrationFormProps): ReactElement => {
   const [isNameValid, setIsNameValid] = useState<boolean>();
   const [isPasswordValid, setIsPasswordValid] = useState<boolean>();
   const [isUsernameValid, setIsUsernameValid] = useState<boolean>();
-  const [emailSent, setEmailSent] = useState(false);
-  const { onPasswordRegistration } = useContext(AuthContext);
-  const { data: registration } = useQuery(
-    'registration',
-    initializeRegistration,
-    { ...disabledRefetch },
-  );
-
-  useEffect(() => {
-    if (!socialAccount) {
-      return;
-    }
-
-    setIsPasswordValid(true);
-    const data = formInputs(formRef.current);
-    Object.keys(data).forEach((key) => {
-      if (!socialAccount?.[key]) {
-        return;
-      }
-
-      const value = socialAccount?.[key];
-      const el = data[key];
-      el.value = value;
-      el.dispatchEvent(new Event('input'));
-    });
-  }, [socialAccount]);
-
-  if (emailSent) {
-    return <EmailVerificationSent email={email} />;
-  }
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { password, ...form } = formToJson<FormValues>(formRef.current);
-    const csrfToken = registration.ui.nodes[0].attributes.value;
-
-    if (socialAccount) {
-      const socialData: RegistrationParameters = {
-        csrf_token: socialAccount.csrf_token,
-        method: 'oidc',
-        provider: socialAccount?.provider,
-        'traits.email': form['traits.email'],
-        'traits.fullname': form.fullname,
-        'traits.username': form.username,
-      };
-
-      const { redirect } = await socialRegistration(
-        socialAccount?.action,
-        socialData,
-      );
-      if (redirect) {
-        window.open(redirect);
-      }
-      return null;
-    }
-
-    const postData: RegistrationParameters = {
-      csrf_token: csrfToken,
-      method: 'password',
-      password,
-      'traits.email': form['traits.email'],
-      'traits.fullname': form.fullname,
-      'traits.username': form.username,
-    };
-    const { success } = await onPasswordRegistration(
-      registration.ui.action,
-      postData,
-    );
-
-    if (success) {
-      return setEmailSent(true);
-    }
-
-    // error management is missing
-    return null;
+    const form = e.target as HTMLFormElement;
+    const values = formToJson<RegistrationFormValues>(formRef?.current ?? form);
+    onSignup(values);
   };
 
   return (
     <>
       <AuthModalHeader
-        title={emailSent ? 'Verify your email address' : 'Sign up to daily.dev'}
+        title="Sign up to daily.dev"
         onBack={!socialAccount && onBack}
         onClose={onClose}
       />
@@ -173,8 +89,8 @@ export const RegistrationForm = ({
           validityChanged={setIsNameValid}
           valid={isNameValid}
           leftIcon={<UserIcon />}
-          name="fullname"
-          inputId="fullname"
+          name="traits.fullname"
+          inputId="traits.fullname"
           label="Full name"
           value={socialAccount?.name}
           rightIcon={
@@ -203,8 +119,8 @@ export const RegistrationForm = ({
           validityChanged={setIsUsernameValid}
           valid={isUsernameValid}
           leftIcon={<UserIcon />}
-          name="username"
-          inputId="username"
+          name="traits.username"
+          inputId="traits.username"
           label="Enter a username"
           value={socialAccount?.username}
           minLength={1}

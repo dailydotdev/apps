@@ -20,6 +20,7 @@ import styles from './AccountDetailsModal.module.css';
 import classed from '../../lib/classed';
 import DeleteAccountModal from './DeleteAccountModal';
 import DeletedAccountConfirmationModal from './DeletedAccountConfirmationModal';
+import AccountDangerZone from '../profile/AccountDangerZone';
 
 const FooterLink = classed(
   'a',
@@ -105,46 +106,13 @@ export default function AccountDetailsModal({
             Logout
           </Button>
         </footer>
-        <section className="flex flex-col px-6 mobileL:px-10 pb-10">
-          <strong className="mb-4 typo-headline text-theme-status-error">
-            Danger Zone
-          </strong>
-          <p className="typo-callout text-theme-label-tertiary">
-            Deleting your account will:
-            <br />
-            <br />
-            <ol>
-              <li>
-                1. Permanently delete your profile, along with your
-                authentication associations.
-              </li>
-              <li>
-                2. Permanently delete all your content, including your articles,
-                bookmarks, comments, upvotes, etc.
-              </li>
-              <li>3. Allow your username to become available to anyone.</li>
-            </ol>
-            <br />
-            Important: deleting your account is unrecoverable and cannot be
-            undone. Feel free to contact{' '}
-            <a
-              className="text-theme-label-link"
-              href="mailto:support@daily.dev?subject=I have a question about deleting my account"
-              target="_blank"
-              rel="noopener"
-            >
-              support@daily.dev
-            </a>{' '}
-            with any questions.
-          </p>
-          <Button
-            onClick={() => setShowDeleteAccount(true)}
-            buttonSize="small"
-            className="self-start mt-6 btn-primary-ketchup text-theme-label-primary"
-          >
-            Delete account
-          </Button>
-        </section>
+        <strong className="mb-4 typo-headline text-theme-status-error">
+          Danger Zone
+        </strong>
+        <AccountDangerZone
+          onDelete={() => setShowDeleteAccount(true)}
+          className="px-6 mobileL:px-10 pb-10"
+        />
       </ResponsiveModal>
       {showDeleteAccount && (
         <DeleteAccountModal
