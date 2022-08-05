@@ -10,13 +10,13 @@ interface AuthSignBackProps {
   onClose?: CloseModalFunc;
 }
 
+const { twitter, ...rest } = providerMap;
+const providers = Object.values(rest);
+
 export const AuthSignBack = ({
   children,
   onClose,
 }: AuthSignBackProps): ReactElement => {
-  const { twitter, ...rest } = providerMap;
-  const providers = Object.values(rest);
-
   return (
     <>
       <AuthModalHeader title="Login to daily.dev" onClose={onClose} />

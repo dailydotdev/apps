@@ -61,6 +61,7 @@ export interface LoggedUser extends UserProfile, AnonymousUser {
   username: string;
   timezone?: string;
   referralLink?: string;
+  password?: string;
 }
 
 interface BaseError {

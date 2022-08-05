@@ -1,5 +1,6 @@
 import React, { CSSProperties, forwardRef, useContext } from 'react';
 import classNames from 'classnames';
+import cloneDeep from 'lodash.clonedeep';
 import TwitterIcon from '../icons/Twitter';
 import FacebookIcon from '../icons/Facebook';
 import GoogleIcon from '../icons/Google';
@@ -18,7 +19,17 @@ export interface Provider {
   style?: CSSProperties;
 }
 
-export const providerMap: Record<string, Provider> = {
+enum SocialProvider {
+  Twitter = 'twitter',
+  Facebook = 'facebook',
+  Google = 'google',
+  GitHub = 'gitHub',
+  Apple = 'apple',
+}
+
+type ProviderMap = Record<SocialProvider, Provider>;
+
+export const providerMap: ProviderMap = {
   twitter: {
     icon: <TwitterIcon />,
     provider: 'Twitter',
@@ -45,6 +56,10 @@ export const providerMap: Record<string, Provider> = {
     style: { backgroundColor: '#0E1217' },
   },
 };
+
+export const getProviderMapClone = (
+  map: ProviderMap = providerMap,
+): ProviderMap => cloneDeep(map);
 
 export const providers: Provider[] = Object.values(providerMap);
 
