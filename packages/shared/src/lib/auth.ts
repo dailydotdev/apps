@@ -232,8 +232,8 @@ export interface RegistrationParameters {
 }
 export interface SettingsParameters {
   csrf_token: string;
-  'link?': string;
-  'unlink?': string;
+  link?: string;
+  unlink?: string;
 }
 
 export type ErrorMessages<T extends string | number> = { [key in T]?: string };
