@@ -20,7 +20,7 @@ export default function UnlinkModal({
   onConfirm,
   ...props
 }: Props): ReactElement {
-  const onUnblockClick = async (event: MouseEvent): Promise<void> => {
+  const onRemoveClick = async (event: MouseEvent): Promise<void> => {
     onConfirm();
     props.onRequestClose(event);
   };
@@ -37,7 +37,7 @@ export default function UnlinkModal({
         </Button>
         <Button
           className="text-white btn-primary-cabbage"
-          onClick={onUnblockClick}
+          onClick={onRemoveClick}
         >
           Remove
         </Button>
