@@ -98,7 +98,6 @@ export const RegistrationForm = ({
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const { password, ...form } = formToJson<FormValues>(formRef.current);
-    const [first, ...rest] = form.fullname.split(' ');
     const csrfToken = registration.ui.nodes[0].attributes.value;
 
     if (socialAccount) {
@@ -107,8 +106,7 @@ export const RegistrationForm = ({
         method: 'oidc',
         provider: socialAccount?.provider,
         'traits.email': form['traits.email'],
-        'traits.name.first': first,
-        'traits.name.last': rest.length === 0 ? first : rest.join(' '),
+        'traits.fullname': form.fullname,
         'traits.username': form.username,
       };
 
@@ -127,8 +125,8 @@ export const RegistrationForm = ({
       method: 'password',
       password,
       'traits.email': form['traits.email'],
-      'traits.name.first': first,
-      'traits.name.last': rest.length === 0 ? first : rest.join(' '),
+      'traits.fullname': form.fullname,
+      'traits.username': form.username,
     };
     const { success } = await onPasswordRegistration(
       registration.ui.action,
