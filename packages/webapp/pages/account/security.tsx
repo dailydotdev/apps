@@ -11,6 +11,14 @@ import LockIcon from '@dailydotdev/shared/src/components/icons/Lock';
 import { Overlay } from '@dailydotdev/shared/src/components/utilities';
 import React, { ReactElement, useContext, useState } from 'react';
 import {
+  getNodeByKey,
+  initializeSettings,
+  updateSettings,
+} from '@dailydotdev/shared/src/lib/auth';
+import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
+import { useQuery } from 'react-query';
+import UnlinkModal from '@dailydotdev/shared/src/components/modals/UnlinkModal';
+import {
   AccountContentHeading,
   AccountPageContainer,
   AccountTextField,
@@ -38,11 +46,30 @@ const AccountSecurityPage = (): ReactElement => {
   const [email, setEmail] = useState<string>();
   const [emailSent, setEmailSent] = useState(false);
   const [resetPasswordSent, setResetPasswordSent] = useState(false);
+  const [unlinkProvider, setUnlinkProvider] = useState(null);
   const [activeDisplay, setActiveDisplay] = useState(Display.Default);
+  const { data } = useQuery('settings', initializeSettings, {
+    ...disabledRefetch,
+  });
 
-  if (!user) {
-    return null;
-  }
+  const manageSocialProviders = async ({
+    type,
+    provider,
+  }: {
+    type: 'link' | 'unlink';
+    provider: string;
+  }) => {
+    const { nodes, action } = data.ui;
+    const csrfToken = getNodeByKey('csrf_token', nodes);
+    const postData = {
+      csrf_token: csrfToken.attributes.value,
+      [type]: provider,
+    };
+    const res = await updateSettings({ action, params: postData });
+    if (res.redirect) {
+      window.open(res.redirect);
+    }
+  };
 
   const onDelete = () => {};
   const onChangeEmail = () => {
@@ -88,132 +115,166 @@ const AccountSecurityPage = (): ReactElement => {
   };
 
   return (
-    <TabContainer showHeader={false} controlledActive={activeDisplay}>
-      <Tab label={Display.Default}>
-        <AccountPageContainer title="Security">
-          <ContentHeading>Account email</ContentHeading>
-          <ContentText>
-            The email address associated with your daily.dev account
-          </ContentText>
-          <AccountTextField
-            fieldType="tertiary"
-            value={email ?? user.email}
-            onChange={(e) => setEmail(e.currentTarget.value)}
-            label="Email"
-            inputId="email"
-            leftIcon={<MailIcon />}
-            rightIcon={<LockIcon className="text-theme-label-secondary" />}
-            readOnly
-          />
-          {renderEmailAction()}
-          <AccountContentHeading>Add login account</AccountContentHeading>
-          <ContentText>
-            Add more accounts to ensure you never lose access to your daily.dev
-            profile and to make login quick and easy cross device
-          </ContentText>
-          <div className="grid grid-cols-1 gap-4 mt-6 w-64">
-            {providers
-              .filter(
-                ({ provider }) =>
-                  !user.providers.includes(provider.toLowerCase()),
-              )
-              .map(({ provider, ...rest }) => (
+    <>
+      <TabContainer showHeader={false} controlledActive={activeDisplay}>
+        <Tab label={Display.Default}>
+          <AccountPageContainer title="Security">
+            <ContentHeading>Account email</ContentHeading>
+            <ContentText>
+              The email address associated with your daily.dev account
+            </ContentText>
+            <AccountTextField
+              fieldType="tertiary"
+              value={email ?? user.email}
+              onChange={(e) => setEmail(e.currentTarget.value)}
+              label="Email"
+              inputId="email"
+              leftIcon={<MailIcon />}
+              rightIcon={<LockIcon className="text-theme-label-secondary" />}
+              readOnly
+            />
+            {renderEmailAction()}
+            <AccountContentHeading>Add login account</AccountContentHeading>
+            <ContentText>
+              Add more accounts to ensure you never lose access to your
+              daily.dev profile and to make login quick and easy cross device
+            </ContentText>
+            <div className="grid grid-cols-1 gap-4 mt-6 w-64">
+              {providers
+                .filter(
+                  ({ provider }) =>
+                    !user.providers.includes(provider.toLowerCase()),
+                )
+                .map(({ provider, ...rest }) => (
+                  <ProviderButton
+                    onClick={() =>
+                      manageSocialProviders({
+                        type: 'link',
+                        provider: provider.toLowerCase(),
+                      })
+                    }
+                    key={provider}
+                    label="Connect with"
+                    provider={provider}
+                    {...rest}
+                  />
+                ))}
+              {!user.password && (
                 <ProviderButton
-                  key={provider}
                   label="Connect with"
-                  provider={provider}
-                  {...rest}
+                  provider="Email"
+                  icon={<MailIcon secondary />}
+                  onClick={() => setActiveDisplay(Display.ConnectEmail)}
+                  style={socialProvider.gitHub.style}
                 />
-              ))}
-            {!user.password && (
-              <ProviderButton
-                label="Connect with"
-                provider="Email"
-                icon={<MailIcon secondary />}
-                onClick={() => setActiveDisplay(Display.ConnectEmail)}
-                style={socialProvider.gitHub.style}
-              />
-            )}
-          </div>
-          <AccountContentHeading>Connected accounts</AccountContentHeading>
-          <ContentText>
-            Remove the connection between daily.dev and authorized login
-            providers.
-          </ContentText>
-          <div className="grid grid-cols-1 gap-4 mt-6 w-64">
-            {providers
-              .filter(({ provider }) =>
-                user.providers.includes(provider.toLowerCase()),
-              )
-              .map(({ provider, ...rest }) => (
+              )}
+            </div>
+            <AccountContentHeading>Connected accounts</AccountContentHeading>
+            <ContentText>
+              Remove the connection between daily.dev and authorized login
+              providers.
+            </ContentText>
+            <div className="grid grid-cols-1 gap-4 mt-6 w-64">
+              {providers
+                .filter(
+                  ({ provider }) =>
+                    !user.providers.includes(provider.toLowerCase()),
+                )
+                .map(({ provider, ...rest }) => (
+                  <ProviderButton
+                    onClick={() => setUnlinkProvider(provider.toLowerCase())}
+                    key={provider}
+                    label="Remove"
+                    provider={provider}
+                    {...rest}
+                  />
+                ))}
+            </div>
+            <div className="grid grid-cols-1 gap-4 mt-6 w-64">
+              {providers
+                .filter(({ provider }) =>
+                  user.providers.includes(provider.toLowerCase()),
+                )
+                .map(({ provider, ...rest }) => (
+                  <ProviderButton
+                    key={provider}
+                    label="Remove"
+                    provider={provider}
+                    {...rest}
+                    style={{ background: 'var(--theme-background-tertiary)' }}
+                    className="hover:bg-theme-status-error"
+                  />
+                ))}
+              {user.password && (
                 <ProviderButton
-                  key={provider}
                   label="Remove"
-                  provider={provider}
-                  {...rest}
-                  style={{ background: 'var(--theme-background-tertiary)' }}
-                  className="hover:bg-theme-status-error"
+                  provider="Email"
+                  icon={<MailIcon secondary />}
+                  onClick={() => setActiveDisplay(Display.ConnectEmail)}
+                  className="bg-theme-bg-tertiary hover:bg-theme-status-error"
                 />
-              ))}
-            {user.password && (
-              <ProviderButton
-                label="Remove"
-                provider="Email"
-                icon={<MailIcon secondary />}
-                onClick={() => setActiveDisplay(Display.ConnectEmail)}
-                className="bg-theme-bg-tertiary hover:bg-theme-status-error"
-              />
+              )}
+            </div>
+            {/* {user.password && ( // temporary enabling */}
+            <>
+              <AccountContentHeading>Account Password</AccountContentHeading>
+              <ContentText>Change your account password</ContentText>
+              <Button
+                className="mt-6 w-fit btn-secondary"
+                onClick={() => setResetPasswordSent(true)}
+              >
+                Reset password
+              </Button>
+            </>
+            {/* )} */}
+            {resetPasswordSent && (
+              <OverlayContainer className="mt-6">
+                <Overlay className="bg-overlay-primary-white opacity-[0.12]" />
+                <OverlayText>
+                  We sent a link to the account email address, please check your
+                  spam folder if you {`don't`} see the email.
+                </OverlayText>
+              </OverlayContainer>
             )}
-          </div>
-          {/* {user.password && ( // temporary enabling */}
-          <>
-            <AccountContentHeading>Account Password</AccountContentHeading>
-            <ContentText>Change your account password</ContentText>
-            <Button
-              className="mt-6 w-fit btn-secondary"
-              onClick={() => setResetPasswordSent(true)}
+            <AccountContentHeading>🚨 Danger Zone</AccountContentHeading>
+            <AccountDangerZone
+              onDelete={onDelete}
+              className="overflow-hidden relative py-4 px-6 mt-6 rounded-26 border border-theme-status-error"
             >
-              Reset password
-            </Button>
-          </>
-          {/* )} */}
-          {resetPasswordSent && (
-            <OverlayContainer className="mt-6">
-              <Overlay className="bg-overlay-primary-white opacity-[0.12]" />
-              <OverlayText>
-                We sent a link to the account email address, please check your
-                spam folder if you {`don't`} see the email.
-              </OverlayText>
-            </OverlayContainer>
-          )}
-          <AccountContentHeading>🚨 Danger Zone</AccountContentHeading>
-          <AccountDangerZone
-            onDelete={onDelete}
-            className="overflow-hidden relative py-4 px-6 mt-6 rounded-26 border border-theme-status-error"
+              <Overlay className="bg-overlay-quaternary-ketchup" />
+            </AccountDangerZone>
+          </AccountPageContainer>
+        </Tab>
+        <Tab label={Display.ChangeEmail}>
+          <AccountPageContainer
+            title="Change email"
+            onBack={() => setActiveDisplay(Display.Default)}
+            className={{ section: 'max-w-sm' }}
           >
-            <Overlay className="bg-overlay-quaternary-ketchup" />
-          </AccountDangerZone>
-        </AccountPageContainer>
-      </Tab>
-      <Tab label={Display.ChangeEmail}>
-        <AccountPageContainer
-          title="Change email"
-          onBack={() => setActiveDisplay(Display.Default)}
-          className={{ section: 'max-w-sm' }}
-        >
-          <EmailForm onSubmit={onChangeEmail} />
-        </AccountPageContainer>
-      </Tab>
-      <Tab label={Display.ConnectEmail}>
-        <AccountPageContainer
-          title="Change email"
-          onBack={() => setActiveDisplay(Display.Default)}
-          className={{ section: 'max-w-sm' }}
-        >
-          <EmailForm onSubmit={onConnectEmail} />
-        </AccountPageContainer>
-      </Tab>
-    </TabContainer>
+            <EmailForm onSubmit={onChangeEmail} />
+          </AccountPageContainer>
+        </Tab>
+        <Tab label={Display.ConnectEmail}>
+          <AccountPageContainer
+            title="Change email"
+            onBack={() => setActiveDisplay(Display.Default)}
+            className={{ section: 'max-w-sm' }}
+          >
+            <EmailForm onSubmit={onConnectEmail} />
+          </AccountPageContainer>
+        </Tab>
+      </TabContainer>
+      {unlinkProvider && (
+        <UnlinkModal
+          provider={unlinkProvider}
+          onConfirm={() => {
+            manageSocialProviders({ type: 'unlink', provider: unlinkProvider });
+          }}
+          onRequestClose={() => setUnlinkProvider(null)}
+          isOpen={!!unlinkProvider}
+        />
+      )}
+    </>
   );
 };
 

@@ -161,6 +161,14 @@ export const initializeRegistration = async (): Promise<InitializationData> => {
   return res.json();
 };
 
+export const initializeSettings = async (): Promise<InitializationData> => {
+  const res = await fetch(`${authUrl}/self-service/settings/browser`, {
+    credentials: 'include',
+    headers: { Accept: 'application/json' },
+  });
+  return res.json();
+};
+
 export const initializeLogin = async (): Promise<InitializationData> => {
   const res = await fetch(`${authUrl}/self-service/login/browser`, {
     credentials: 'include',
@@ -253,6 +261,34 @@ export const validateRegistration = async ({
   }
 
   if (res.status === 422) {
+    return { redirect: json.redirect_browser_to };
+  }
+
+  return { error: json?.error || json };
+};
+
+export const updateSettings = async ({
+  action,
+  params,
+}): Promise<SuccessfulRegistrationResponse> => {
+  const res = await fetch(action, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': params.csrf_token,
+      Accept: 'application/json',
+    },
+    body: JSON.stringify(params),
+  });
+
+  const json = await res.json();
+
+  if (res.status === 200) {
+    return { data: json };
+  }
+
+  if (json.redirect_browser_to) {
     return { redirect: json.redirect_browser_to };
   }
 
