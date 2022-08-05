@@ -180,7 +180,7 @@ const AccountSecurityPage = (): ReactElement => {
                   ({ provider }) =>
                     !user.providers.includes(provider.toLowerCase()),
                 )
-                .map(({ provider, icon, ...rest }) => (
+                .map(({ provider, icon }) => (
                   <ProviderButton
                     onClick={() => setUnlinkProvider(provider.toLowerCase())}
                     key={provider}
