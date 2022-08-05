@@ -180,13 +180,14 @@ const AccountSecurityPage = (): ReactElement => {
                   ({ provider }) =>
                     !user.providers.includes(provider.toLowerCase()),
                 )
-                .map(({ provider, ...rest }) => (
+                .map(({ provider, icon, ...rest }) => (
                   <ProviderButton
                     onClick={() => setUnlinkProvider(provider.toLowerCase())}
                     key={provider}
                     label="Remove"
                     provider={provider}
-                    {...rest}
+                    icon={React.cloneElement(icon, { secondary: false })}
+                    className="bg-theme-bg-tertiary"
                   />
                 ))}
             </div>

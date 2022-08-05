@@ -230,10 +230,16 @@ export interface RegistrationParameters {
   'traits.username': string;
   'traits.image': string;
 }
+export interface SettingsParameters {
+  csrf_token: string;
+  'link?': string;
+  'unlink?': string;
+}
 
 export type ErrorMessages<T extends string | number> = { [key in T]?: string };
 export type RegistrationError = ErrorMessages<keyof RegistrationParameters>;
 export type ValidateRegistrationParams = FormParams<RegistrationParameters>;
+export type UpdateSettingsParams = FormParams<SettingsParameters>;
 export type ValidateLoginParams = FormParams<LoginPasswordParameters>;
 
 type SuccessfulRegistrationResponse =
@@ -270,7 +276,7 @@ export const validateRegistration = async ({
 export const updateSettings = async ({
   action,
   params,
-}): Promise<SuccessfulRegistrationResponse> => {
+}: UpdateSettingsParams): Promise<SuccessfulRegistrationResponse> => {
   const res = await fetch(action, {
     method: 'POST',
     credentials: 'include',

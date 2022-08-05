@@ -7,8 +7,6 @@ import {
   ConfirmationDescription,
   ConfirmationButtons,
 } from './ConfirmationModal';
-import { Source } from '../../graphql/sources';
-import { Tag } from '../../graphql/feedSettings';
 
 export interface Props extends ModalProps {
   provider: string;
@@ -36,7 +34,7 @@ export default function UnlinkModal({
           Leave
         </Button>
         <Button
-          className="text-white btn-primary-cabbage"
+          className="text-white btn-primary-ketchup"
           onClick={onRemoveClick}
         >
           Remove
