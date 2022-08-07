@@ -8,6 +8,7 @@ import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import AccountSecurityDefault from '../../components/layouts/AccountLayout/Security';
 import EmailFormPage from '../../components/layouts/AccountLayout/Security/EmailFormPage';
 
+
 const AccountSecurityPage = (): ReactElement => {
   const { user } = useContext(AuthContext);
   const [isEmailSent, setIsEmailSent] = useState(false);
