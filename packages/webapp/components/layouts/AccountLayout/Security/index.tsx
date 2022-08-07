@@ -10,7 +10,6 @@ import React, { ReactElement, useContext, useState } from 'react';
 import AccountContentSection from '../AccountContentSection';
 import { AccountPageContainer } from '../AccountPageContainer';
 import {
-  AccountContentHeading,
   AccountSecurityDisplay as Display,
   AccountTextField,
   OverlayContainer,
@@ -53,6 +52,7 @@ function AccountSecurityDefault({
   return (
     <AccountPageContainer title="Security">
       <AccountContentSection
+        headingClassName="mt-0"
         title="Account email"
         description="The email address associated with your daily.dev account"
       >
@@ -127,13 +127,14 @@ function AccountSecurityDefault({
           </OverlayText>
         </OverlayContainer>
       )}
-      <AccountContentHeading>🚨 Danger Zone</AccountContentHeading>
-      <AccountDangerZone
-        onDelete={onDelete}
-        className="overflow-hidden relative py-4 px-6 mt-6 rounded-26 border border-theme-status-error"
-      >
-        <Overlay className="bg-overlay-quaternary-ketchup" />
-      </AccountDangerZone>
+      <AccountContentSection title="🚨 Danger Zone">
+        <AccountDangerZone
+          onDelete={onDelete}
+          className="overflow-hidden relative py-4 px-6 mt-6 rounded-26 border border-theme-status-error"
+        >
+          <Overlay className="bg-overlay-quaternary-ketchup" />
+        </AccountDangerZone>
+      </AccountContentSection>
     </AccountPageContainer>
   );
 }

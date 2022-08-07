@@ -9,11 +9,7 @@ import {
 import React, { ReactElement, useContext, useState } from 'react';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
-import {
-  AccountContentHeading,
-  ContentHeading,
-  ContentText,
-} from '../../components/layouts/AccountLayout/common';
+import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
 
 const timeZoneOptions = getTimeZoneOptions();
 const timeZoneValues = timeZoneOptions.map((timeZone) => timeZone.label);
@@ -38,32 +34,35 @@ const AccountOthersPage = (): ReactElement => {
 
   return (
     <AccountPageContainer title="Other Settings">
-      <ContentHeading>Timezone</ContentHeading>
-      <ContentText className="mt-1">
-        Used to calculate your weekly goal cycle and other time-based
-        activities.
-      </ContentText>
-      <Dropdown
-        icon={<Icon />}
-        buttonSize="select"
-        className="mt-6 w-70"
-        selectedIndex={timeZoneOptions.findIndex(
-          (timeZone) => timeZone.value === userTimeZone,
-        )}
-        onChange={timezoneUpdated}
-        options={timeZoneValues}
-        scrollable
-        menuClassName="menu-secondary"
-      />
-      <AccountContentHeading>Newsletter</AccountContentHeading>
-      <Switch
-        inputId="newsletter-switch"
-        name="newsletter"
-        className="mt-6"
-        compact={false}
+      <AccountContentSection
+        headingClassName="mt-0"
+        title="Timezone"
+        description="Used to calculate your weekly goal cycle and other time-based
+        activities."
       >
-        Subscribe to the Community Newsletter
-      </Switch>
+        <Dropdown
+          icon={<Icon />}
+          buttonSize="select"
+          className="mt-6 w-70"
+          selectedIndex={timeZoneOptions.findIndex(
+            (timeZone) => timeZone.value === userTimeZone,
+          )}
+          onChange={timezoneUpdated}
+          options={timeZoneValues}
+          scrollable
+          menuClassName="menu-secondary"
+        />
+      </AccountContentSection>
+      <AccountContentSection title="Newsletter">
+        <Switch
+          inputId="newsletter-switch"
+          name="newsletter"
+          className="mt-6"
+          compact={false}
+        >
+          Subscribe to the Community Newsletter
+        </Switch>
+      </AccountContentSection>
     </AccountPageContainer>
   );
 };
