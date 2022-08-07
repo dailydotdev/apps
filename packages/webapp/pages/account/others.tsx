@@ -8,9 +8,9 @@ import {
 } from '@dailydotdev/shared/src/lib/timezones';
 import React, { ReactElement, useContext, useState } from 'react';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
+import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import {
   AccountContentHeading,
-  AccountPageContainer,
   ContentHeading,
   ContentText,
 } from '../../components/layouts/AccountLayout/common';

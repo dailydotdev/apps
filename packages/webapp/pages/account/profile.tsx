@@ -6,9 +6,9 @@ import TwitterIcon from '@dailydotdev/shared/src/components/icons/Twitter';
 import UserIcon from '@dailydotdev/shared/src/components/icons/User';
 import React, { ReactElement } from 'react';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
+import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import {
   AccountContentHeading,
-  AccountPageContainer,
   AccountTextField,
   ContentHeading,
   ContentText,
