@@ -12,7 +12,6 @@ import { Overlay } from '@dailydotdev/shared/src/components/utilities';
 import React, { ReactElement, useContext, useState } from 'react';
 import {
   AccountContentHeading,
-  AccountPageContainer,
   AccountTextField,
   ContentHeading,
   ContentText,
@@ -21,6 +20,7 @@ import {
 } from '../../components/layouts/AccountLayout/common';
 import EmailForm from '../../components/layouts/AccountLayout/EmailForm';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
+import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 
 const socialProvider = getProviderMapClone();
 socialProvider.gitHub.style = { backgroundColor: '#383C47' };
