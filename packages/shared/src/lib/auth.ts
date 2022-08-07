@@ -9,10 +9,15 @@ interface InitializationNodeAttribute {
   node_type: string;
 }
 
-interface ErrorMessage {
+enum MessageType {
+  Info = 'info',
+  Error = 'error',
+}
+
+interface Message {
   id: number;
   text: string;
-  type: string;
+  type: MessageType | string;
   context?: MetaLabelContext;
 }
 
@@ -35,14 +40,14 @@ interface InitializationNode {
   type: string;
   group: string;
   attributes: InitializationNodeAttribute;
-  messages: ErrorMessage[];
+  messages: Message[];
   meta: InitializationNodeMeta | EmptyObjectLiteral;
 }
 
 interface InitializationUI {
   action: string;
   method: string;
-  messages?: ErrorMessage[];
+  messages?: Message[];
   nodes: InitializationNode[];
 }
 
@@ -63,6 +68,19 @@ export interface InitializationData {
 }
 
 type Method = 'link_recovery' | 'password';
+
+enum VerificationState {
+  ChooseMethod = 'choose_method',
+  EmailSent = 'sent_email',
+  Passed = 'passed_challenge',
+}
+
+interface VerificationResponseData extends InitializationData {
+  active: string;
+  state: VerificationState;
+  return_to: string;
+  type: 'api' | 'browser';
+}
 
 interface AuthMethod {
   aal: AuthenticatorLevel;
@@ -175,6 +193,7 @@ interface FormParams<T> {
 }
 
 type ValidateLoginParams = FormParams<LoginPasswordParameters>;
+type ValidateReceoveryParams = FormParams<AccountRecoveryParameters>;
 
 export interface RequestResponse<
   TData = AuthSession,
@@ -278,6 +297,47 @@ export const logoutSession = (
     headers: { Accept: 'application/json', 'X-CSRF-Token': csrf_token },
   });
 
+export const initializeRecovery = async (): Promise<InitializationData> => {
+  const res = await fetch(`${authUrl}/self-service/recovery/browser`, {
+    credentials: 'include',
+    headers: { Accept: 'application/json' },
+  });
+
+  return res.json();
+};
+
+type EmailRecoveryResponse = RequestResponse<
+  VerificationResponseData,
+  VerificationResponseData
+>;
+
+export const sendEmailRecovery = async ({
+  action,
+  params,
+}: ValidateReceoveryParams): Promise<EmailRecoveryResponse> => {
+  const res = await fetch(action, {
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': params.csrf_token,
+      Accept: 'application/json',
+    },
+    method: 'POST',
+    body: JSON.stringify({ ...params, method: 'link' }),
+  });
+
+  const json: VerificationResponseData = await res.json();
+  const hasError = json.ui.messages.some(
+    ({ type }) => type === MessageType.Error,
+  );
+
+  if (res.status === 200 && !hasError) {
+    return { data: json };
+  }
+
+  return { error: json };
+};
+
 export const errorsToJson = <T extends string>(
   data: InitializationData,
 ): Record<T, string> =>
@@ -289,8 +349,11 @@ export const errorsToJson = <T extends string>(
     {} as Record<T, string>,
   );
 
+export const getErrorMessage = (errors: Message[]): string =>
+  errors?.[0]?.text || '';
+
 export const getNodeByKey = (
   key: string,
   nodes: InitializationNode[],
 ): InitializationNode =>
-  nodes.find(({ attributes }) => attributes.name === key);
+  nodes?.find(({ attributes }) => attributes.name === key);

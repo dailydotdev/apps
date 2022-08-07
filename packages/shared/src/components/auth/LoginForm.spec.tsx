@@ -85,7 +85,7 @@ it('should get browser password login flow token', async () => {
   expect(input.value).toEqual(token.attributes.value);
 });
 
-it('should post registration including token', async () => {
+it('should post login including token', async () => {
   const email = 'sshanzel@yahoo.com';
   renderComponent();
   await waitForNock();

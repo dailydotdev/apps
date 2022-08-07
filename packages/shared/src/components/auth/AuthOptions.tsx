@@ -108,7 +108,7 @@ function AuthOptions({
       </Tab>
       <Tab label={Display.ForgotPassword}>
         <ForgotPasswordForm
-          email={email}
+          initialEmail={email}
           onClose={onClose}
           onBack={() => setActiveDisplay(defaultDisplay)}
         />
