@@ -24,6 +24,12 @@ export enum AccountPage {
   OtherSettings = 'others',
 }
 
+export enum AccountSecurityDisplay {
+  Default = 'default',
+  ChangeEmail = 'change_email',
+  ConnectEmail = 'connect_email',
+}
+
 export const accountPage: Record<AccountPage, AccountPageProps> = {
   profile: {
     title: 'Profile',
