@@ -1,4 +1,3 @@
-import classNames from 'classnames';
 import React, {
   MutableRefObject,
   ReactElement,
@@ -44,7 +43,6 @@ interface AuthOptionsProps {
   onSelectedProvider: (account: SocialProviderAccount) => void;
   formRef: MutableRefObject<HTMLFormElement>;
   socialAccount?: SocialProviderAccount;
-  className?: string;
   defaultDisplay?: Display;
 }
 
@@ -53,7 +51,6 @@ function AuthOptions({
   onSelectedProvider,
   formRef,
   socialAccount,
-  className,
   defaultDisplay = Display.Default,
 }: AuthOptionsProps): ReactElement {
   const { authVersion } = useContext(FeaturesContext);
@@ -105,11 +102,6 @@ function AuthOptions({
 
   return (
     <TabContainer<Display>
-      className={classNames(
-        'flex overflow-y-auto z-1 flex-col w-full rounded-16 bg-theme-bg-tertiary',
-        !isV2 && 'max-w-[25.75rem]',
-        className,
-      )}
       onActiveChange={(active) => setActiveDisplay(active)}
       controlledActive={activeDisplay}
       showHeader={false}
