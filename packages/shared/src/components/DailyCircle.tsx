@@ -1,9 +1,10 @@
 import classNames from 'classnames';
 import React, { ReactElement } from 'react';
 
-type Size = 'small' | 'medium' | 'large' | 'xlarge';
+type Size = 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge';
 
 const sizeMap: Record<Size, string> = {
+  xsmall: 'w-20 h-20',
   small: 'w-32 h-32',
   medium: 'w-60 h-60',
   large: 'w-80 h-80',

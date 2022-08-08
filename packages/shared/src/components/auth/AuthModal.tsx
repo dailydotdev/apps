@@ -2,13 +2,13 @@ import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import { StyledModal, ModalProps } from '../modals/StyledModal';
-import Circles from '../../../icons/circles_bg.svg';
 import styles from './AuthModal.module.css';
 import AuthModalHeading from './AuthModalHeading';
 import AuthOptions from './AuthOptions';
 import useAuthForms from '../../hooks/useAuthForms';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { AuthVersion } from '../../lib/featureValues';
+import DailyCircle from '../DailyCircle';
 
 export type AuthModalProps = ModalProps;
 
@@ -66,7 +66,15 @@ export default function AuthModal({
               Customize your feed!
             </AuthModalHeading>
           </div>
-          <Circles className="absolute bottom-0 left-1/2 z-0 h-96 -translate-x-1/2 w-[32.5rem]" />
+          <div className="flex absolute bottom-0 left-1/2 flex-col translate-y-1/2 -translate-x-[40%] w-[26rem] h-[26rem]">
+            <div className="relative">
+              <DailyCircle
+                className="absolute top-0 right-1/2 translate-x-full -translate-y-full"
+                size="xsmall"
+              />
+              <DailyCircle size="large" />
+            </div>
+          </div>
         </>
       )}
       <AuthOptions
