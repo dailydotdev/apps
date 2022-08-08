@@ -4,6 +4,7 @@ import React, {
   useContext,
   useState,
 } from 'react';
+import classNames from 'classnames';
 import AuthContext, { getQueryParams } from '../../contexts/AuthContext';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { AuthVersion } from '../../lib/featureValues';
@@ -44,11 +45,13 @@ interface AuthOptionsProps {
   formRef: MutableRefObject<HTMLFormElement>;
   socialAccount?: SocialProviderAccount;
   defaultDisplay?: Display;
+  className?: string;
 }
 
 function AuthOptions({
   onClose,
   onSelectedProvider,
+  className,
   formRef,
   socialAccount,
   defaultDisplay = Display.Default,
@@ -101,51 +104,62 @@ function AuthOptions({
   };
 
   return (
-    <TabContainer<Display>
-      onActiveChange={(active) => setActiveDisplay(active)}
-      controlledActive={activeDisplay}
-      showHeader={false}
+    <div
+      className={classNames(
+        'flex overflow-y-auto z-1 flex-col w-full rounded-16 bg-theme-bg-tertiary',
+        !isV2 && 'max-w-[25.75rem]',
+        className,
+      )}
     >
-      <Tab label={Display.Default}>
-        <AuthDefault
-          onClose={onClose}
-          onSignup={onEmailRegistration}
-          onProviderClick={onSocialRegistration}
-          onForgotPassword={() => setActiveDisplay(Display.ForgotPassword)}
-          isV2={isV2}
-        />
-      </Tab>
-      <Tab label={Display.Registration}>
-        <RegistrationForm
-          onBack={() => setActiveDisplay(defaultDisplay)}
-          formRef={formRef}
-          email={email}
-          socialAccount={socialAccount}
-          onClose={onClose}
-          isV2={isV2}
-          onSignup={onRegister}
-        />
-      </Tab>
-      <Tab label={Display.SignBack}>
-        <AuthSignBack>
-          <LoginForm
-            onSuccessfulLogin={(e) => onClose(e)}
+      <TabContainer<Display>
+        onActiveChange={(active) => setActiveDisplay(active)}
+        controlledActive={activeDisplay}
+        showHeader={false}
+      >
+        <Tab label={Display.Default}>
+          <AuthDefault
+            onClose={onClose}
+            onSignup={onEmailRegistration}
+            onProviderClick={onSocialRegistration}
             onForgotPassword={() => setActiveDisplay(Display.ForgotPassword)}
+            isV2={isV2}
           />
-        </AuthSignBack>
-      </Tab>
-      <Tab label={Display.ForgotPassword}>
-        <ForgotPasswordForm
-          email={email}
-          onClose={onClose}
-          onBack={() => setActiveDisplay(defaultDisplay)}
-        />
-      </Tab>
-      <Tab label={Display.EmailSent}>
-        <AuthModalHeader title="Verify your email address" onClose={onClose} />
-        <EmailVerificationSent email={email} />
-      </Tab>
-    </TabContainer>
+        </Tab>
+        <Tab label={Display.Registration}>
+          <RegistrationForm
+            onBack={() => setActiveDisplay(defaultDisplay)}
+            formRef={formRef}
+            email={email}
+            socialAccount={socialAccount}
+            onClose={onClose}
+            isV2={isV2}
+            onSignup={onRegister}
+          />
+        </Tab>
+        <Tab label={Display.SignBack}>
+          <AuthSignBack>
+            <LoginForm
+              onSuccessfulLogin={(e) => onClose(e)}
+              onForgotPassword={() => setActiveDisplay(Display.ForgotPassword)}
+            />
+          </AuthSignBack>
+        </Tab>
+        <Tab label={Display.ForgotPassword}>
+          <ForgotPasswordForm
+            email={email}
+            onClose={onClose}
+            onBack={() => setActiveDisplay(defaultDisplay)}
+          />
+        </Tab>
+        <Tab label={Display.EmailSent}>
+          <AuthModalHeader
+            title="Verify your email address"
+            onClose={onClose}
+          />
+          <EmailVerificationSent email={email} />
+        </Tab>
+      </TabContainer>
+    </div>
   );
 }
 

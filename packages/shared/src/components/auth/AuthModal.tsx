@@ -41,7 +41,6 @@ export default function AuthModal({
     onDiscard: onRequestClose,
   });
   const isV1 = authVersion === AuthVersion.V1;
-  const isV2 = authVersion === AuthVersion.V2;
 
   return (
     <StyledModal
@@ -78,21 +77,13 @@ export default function AuthModal({
           </div>
         </>
       )}
-      <div
-        className={classNames(
-          'flex overflow-y-auto z-1 flex-col w-full h-full rounded-16 bg-theme-bg-tertiary',
-          !isV2 && 'max-w-[25.75rem]',
-          containerMargin[authVersion],
-          className,
-        )}
-      >
-        <AuthOptions
-          onClose={onDiscardAttempt}
-          onSelectedProvider={onSocialProviderChange}
-          formRef={formRef}
-          socialAccount={socialAccount}
-        />
-      </div>
+      <AuthOptions
+        className={classNames('h-full', containerMargin[authVersion])}
+        onClose={onDiscardAttempt}
+        onSelectedProvider={onSocialProviderChange}
+        formRef={formRef}
+        socialAccount={socialAccount}
+      />
       {isDiscardOpen && (
         <DiscardActionModal
           isOpen={isDiscardOpen}
