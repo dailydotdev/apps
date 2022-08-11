@@ -33,7 +33,7 @@ function AccountSecurityDefault({
   onSwitchDisplay,
 }: AccountSecurityDefaultProps): ReactElement {
   const { user } = useContext(AuthContext);
-  const [email, setEmail] = useState<string>();
+  const [email, setEmail] = useState<string>(null);
   const [resetPasswordSent, setResetPasswordSent] = useState(false);
 
   const emailAction = isEmailSent ? (
