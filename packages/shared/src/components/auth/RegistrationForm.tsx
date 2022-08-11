@@ -72,7 +72,9 @@ export const RegistrationForm = ({
         ref={formRef}
         onSubmit={onSubmit}
       >
-        {socialAccount && <ImageInput initialValue={socialAccount.image} />}
+        {socialAccount && (
+          <ImageInput initialValue={socialAccount.image} size="large" />
+        )}
         <TextField
           className="w-full"
           leftIcon={<MailIcon />}
