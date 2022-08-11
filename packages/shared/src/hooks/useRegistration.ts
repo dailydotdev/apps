@@ -9,14 +9,16 @@ import {
   RegistrationParameters,
   validateRegistration,
   ValidateRegistrationParams,
-  getNodeByKey,
+  getNodeValue,
 } from '../lib/auth';
+import { fallbackImages } from '../lib/config';
 import { disabledRefetch } from '../lib/func';
 
 type ParamKeys = keyof RegistrationParameters;
 
 interface UseRegistrationProps {
   key: QueryKey;
+  onRedirect?: (redirect: string) => void;
   onValidRegistration?: (
     session: AuthSession,
     params: ValidateRegistrationParams,
@@ -29,14 +31,16 @@ interface UseRegistration {
   isValidationIdle: boolean;
   isLoading?: boolean;
   validateRegistration: (values: FormParams) => Promise<void>;
+  onSocialRegistration?: (provider: string) => void;
 }
 
-type FormParams = Omit<RegistrationParameters, 'csrf_token' | 'method'>;
+type FormParams = Omit<RegistrationParameters, 'csrf_token'>;
 
 const EMAIL_EXISTS_ERROR_ID = 4000007;
 
 const useRegistration = ({
   key,
+  onRedirect,
   onValidRegistration,
   onInvalidRegistration,
 }: UseRegistrationProps): UseRegistration => {
@@ -50,9 +54,13 @@ const useRegistration = ({
     status,
     isLoading: isMutationLoading,
   } = useMutation(validateRegistration, {
-    onSuccess: ({ data, error }, params) => {
+    onSuccess: ({ data, error, redirect }, params) => {
       if (data) {
-        return onValidRegistration(data.session, params);
+        return onValidRegistration?.(data.session, params);
+      }
+
+      if (redirect) {
+        return onRedirect(redirect);
       }
 
       // probably csrf token issue and definitely not related to forms data
@@ -64,32 +72,48 @@ const useRegistration = ({
         (message) => message.id === EMAIL_EXISTS_ERROR_ID,
       );
       if (emailExists) {
-        return onInvalidRegistration({
+        return onInvalidRegistration?.({
           'traits.email': 'Email is already taken!',
         });
       }
 
       const json = errorsToJson<ParamKeys>(error);
-      return onInvalidRegistration(json);
+      return onInvalidRegistration?.(json);
     },
   });
 
-  const onValidateRegistration = async (values: FormParams) => {
+  const onValidateRegistration = async (values: RegistrationParameters) => {
     const { nodes, action } = registration.ui;
-    const csrfToken = getNodeByKey('csrf_token', nodes);
     const postData: RegistrationParameters = {
       ...values,
-      method: 'password',
-      csrf_token: csrfToken.attributes.value,
+      method: values.method || 'password',
+      csrf_token: getNodeValue('csrf_token', nodes),
+      'traits.image': values['traits.image'] || fallbackImages.avatar,
     };
 
     validate({ action, params: postData });
+  };
+
+  const onSocialRegistration = (provider: string) => {
+    const csrf = getNodeValue('csrf_token', registration.ui.nodes);
+    const postData: RegistrationParameters = {
+      csrf_token: csrf,
+      method: 'oidc',
+      provider,
+      'traits.email': '',
+      'traits.username': '',
+      'traits.fullname': '',
+      'traits.image': '',
+    };
+
+    onValidateRegistration(postData);
   };
 
   return useMemo(
     () => ({
       isLoading: isQueryLoading || isMutationLoading,
       registration,
+      onSocialRegistration,
       validateRegistration: onValidateRegistration,
       isValidationIdle: status === 'idle',
     }),

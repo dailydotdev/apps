@@ -1,15 +1,7 @@
 import classNames from 'classnames';
-import React, {
-  MutableRefObject,
-  ReactElement,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
-import AuthContext from '../../contexts/AuthContext';
-import useRegistration from '../../hooks/useRegistration';
+import React, { MutableRefObject, ReactElement } from 'react';
 import { RegistrationError, RegistrationParameters } from '../../lib/auth';
-import { formInputs, formToJson } from '../../lib/form';
+import { formToJson } from '../../lib/form';
 import { Button } from '../buttons/Button';
 import ImageInput from '../fields/ImageInput';
 import PasswordField from '../fields/PasswordField';
@@ -21,12 +13,15 @@ import VIcon from '../icons/V';
 import { CloseModalFunc } from '../modals/common';
 import AuthModalHeader from './AuthModalHeader';
 import { AuthForm } from './common';
-import EmailVerificationSent from './EmailVerificationSent';
 import TokenInput from './TokenField';
 
 export interface SocialProviderAccount {
   provider: string;
+  action: string;
+  csrf_token: string;
+  email: string;
   name: string;
+  username?: string;
   image?: string;
 }
 
@@ -36,8 +31,17 @@ export interface RegistrationFormProps {
   formRef?: MutableRefObject<HTMLFormElement>;
   onClose?: CloseModalFunc;
   onBack?: CloseModalFunc;
+  hints?: RegistrationError;
+  onUpdateHints?: (errors: RegistrationError) => void;
   isV2?: boolean;
+  onSignup?: (params: RegistrationFormValues) => void;
+  token: string;
 }
+
+export type RegistrationFormValues = Omit<
+  RegistrationParameters,
+  'method' | 'provider'
+>;
 
 export const RegistrationForm = ({
   email,
@@ -45,48 +49,17 @@ export const RegistrationForm = ({
   formRef,
   onClose,
   onBack,
+  onSignup,
   isV2,
+  token,
+  hints,
+  onUpdateHints,
 }: RegistrationFormProps): ReactElement => {
-  const [hints, setHints] = useState<RegistrationError>();
-  const [emailSent, setEmailSent] = useState(false);
-  const { onUpdateSession } = useContext(AuthContext);
-  const { validateRegistration, registration, isValidationIdle } =
-    useRegistration({
-      key: 'registration_form',
-      onInvalidRegistration: setHints,
-      onValidRegistration: (data) => {
-        onUpdateSession(data);
-        setEmailSent(true);
-      },
-    });
-
-  useEffect(() => {
-    if (!socialAccount) {
-      return;
-    }
-
-    const data = formInputs(formRef.current);
-    Object.keys(data).forEach((key) => {
-      if (!socialAccount?.[key]) {
-        return;
-      }
-
-      const value = socialAccount?.[key];
-      const el = data[key];
-      el.value = value;
-      el.dispatchEvent(new Event('input'));
-    });
-  }, [socialAccount]);
-
-  if (emailSent) {
-    return <EmailVerificationSent email={email} />;
-  }
-
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
-    const values = formToJson<RegistrationParameters>(formRef?.current ?? form);
-    validateRegistration(values);
+    const values = formToJson<RegistrationFormValues>(formRef?.current ?? form);
+    onSignup(values);
   };
 
   const isPasswordValid = !hints?.password;
@@ -96,7 +69,7 @@ export const RegistrationForm = ({
   return (
     <>
       <AuthModalHeader
-        title={emailSent ? 'Verify your email address' : 'Sign up to daily.dev'}
+        title="Sign up to daily.dev"
         onBack={!socialAccount && onBack}
         onClose={onClose}
       />
@@ -109,7 +82,7 @@ export const RegistrationForm = ({
         onSubmit={onSubmit}
         data-testid="registration_form"
       >
-        <TokenInput token={registration?.ui?.nodes?.[0]?.attributes.value} />
+        <TokenInput token={token} />
         {socialAccount && <ImageInput initialValue={socialAccount.image} />}
         <TextField
           saveHintSpace
@@ -119,7 +92,7 @@ export const RegistrationForm = ({
           inputId="email"
           label="Email"
           type="email"
-          value={email}
+          value={email || socialAccount?.email}
           readOnly
           rightIcon={<VIcon className="text-theme-color-avocado" />}
         />
@@ -129,15 +102,15 @@ export const RegistrationForm = ({
           valid={isNameValid}
           leftIcon={<UserIcon />}
           name="traits.fullname"
-          inputId="fullname"
           label="Full name"
+          inputId="traits.fullname"
           hint={hints?.['traits.fullname']}
           onChange={() =>
             hints?.['traits.fullname'] &&
-            setHints({ ...hints, 'traits.fullname': '' })
+            onUpdateHints({ ...hints, 'traits.fullname': '' })
           }
+          value={socialAccount?.name}
           rightIcon={
-            !isValidationIdle &&
             isNameValid && <VIcon className="text-theme-color-avocado" />
           }
         />
@@ -153,10 +126,9 @@ export const RegistrationForm = ({
             label="Create a password"
             hint={hints?.password}
             onChange={() =>
-              hints?.password && setHints({ ...hints, password: '' })
+              hints?.password && onUpdateHints({ ...hints, password: '' })
             }
             rightIcon={
-              !isValidationIdle &&
               isPasswordValid && <VIcon className="text-theme-color-avocado" />
             }
           />
@@ -166,20 +138,21 @@ export const RegistrationForm = ({
           className="w-full"
           valid={isUsernameValid}
           leftIcon={<UserIcon />}
-          name="username"
-          inputId="username"
+          name="traits.username"
+          inputId="traits.username"
           label="Enter a username"
           hint={hints?.['traits.username']}
           onChange={() =>
             hints?.['traits.username'] &&
-            setHints({ ...hints, 'traits.username': '' })
+            onUpdateHints({ ...hints, 'traits.username': '' })
           }
+          value={socialAccount?.username}
+          minLength={1}
           rightIcon={
-            !isValidationIdle &&
             isUsernameValid && <VIcon className="text-theme-color-avocado" />
           }
         />
-        {((isNameValid && isPasswordValid) || !isValidationIdle) && (
+        {isNameValid && isPasswordValid && (
           <div className="flex flex-row gap-4 mt-6 ml-auto">
             {isPasswordValid && !isUsernameValid && (
               <Button className="btn-tertiary">Skip</Button>

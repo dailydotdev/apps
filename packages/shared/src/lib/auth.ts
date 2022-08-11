@@ -158,16 +158,21 @@ export interface SuccessfulRegistrationData {
 export const authUrl =
   process.env.NEXT_PUBLIC_AUTH_URL || 'http://127.0.0.1:4433';
 
-export const initializeRegistration = async (): Promise<InitializationData> => {
-  const res = await fetch(`${authUrl}/self-service/registration/browser`, {
-    credentials: 'include',
-    headers: { Accept: 'application/json' },
-  });
+export const getRegistrationFlow = async (
+  flowId: string,
+): Promise<InitializationData> => {
+  const res = await fetch(
+    `${authUrl}/self-service/registration?flow=${flowId}`,
+    {
+      credentials: 'include',
+      headers: { Accept: 'application/json' },
+    },
+  );
   return res.json();
 };
 
-export const initializeLogin = async (): Promise<InitializationData> => {
-  const res = await fetch(`${authUrl}/self-service/login/browser`, {
+export const initializeRegistration = async (): Promise<InitializationData> => {
+  const res = await fetch(`${authUrl}/self-service/registration/browser`, {
     credentials: 'include',
     headers: { Accept: 'application/json' },
   });
@@ -183,25 +188,18 @@ export interface LoginPasswordParameters extends AuthPostParams {
   identifier: string;
 }
 
-export interface AccountRecoveryParameters extends AuthPostParams {
-  email: string;
-}
-
 interface FormParams<T> {
   action: string;
   params: T;
 }
 
-type ValidateLoginParams = FormParams<LoginPasswordParameters>;
-type ValidateReceoveryParams = FormParams<AccountRecoveryParameters>;
-
-export interface RequestResponse<
-  TData = AuthSession,
-  TError = InitializationData,
-> {
-  data?: TData;
-  error?: TError;
-}
+export const initializeLogin = async (): Promise<InitializationData> => {
+  const res = await fetch(`${authUrl}/self-service/login/browser`, {
+    credentials: 'include',
+    headers: { Accept: 'application/json' },
+  });
+  return res.json();
+};
 
 export const validatePasswordLogin = async ({
   action,
@@ -227,19 +225,39 @@ export const validatePasswordLogin = async ({
   return { error: json };
 };
 
+export interface AccountRecoveryParameters extends AuthPostParams {
+  email: string;
+}
+
+interface FormParams<T> {
+  action: string;
+  params: T;
+}
+
+export interface RequestResponse<
+  TData = AuthSession,
+  TError = InitializationData,
+> {
+  data?: TData;
+  error?: TError;
+  redirect?: string;
+}
 export interface RegistrationParameters {
   csrf_token: string;
+  provider?: string;
   method: AuthenticationType;
-  password: string;
+  password?: string;
   'traits.email': string;
   'traits.username': string;
   'traits.fullname': string;
+  'traits.image': string;
 }
 
+type ValidateReceoveryParams = FormParams<AccountRecoveryParameters>;
 export type ErrorMessages<T extends string | number> = { [key in T]?: string };
 export type RegistrationError = ErrorMessages<keyof RegistrationParameters>;
-
 export type ValidateRegistrationParams = FormParams<RegistrationParameters>;
+export type ValidateLoginParams = FormParams<LoginPasswordParameters>;
 
 type SuccessfulRegistrationResponse =
   RequestResponse<SuccessfulRegistrationData>;
@@ -263,6 +281,10 @@ export const validateRegistration = async ({
 
   if (res.status === 200) {
     return { data: json };
+  }
+
+  if (res.status === 422) {
+    return { redirect: json.redirect_browser_to };
   }
 
   return { error: json?.error || json };
@@ -357,3 +379,9 @@ export const getNodeByKey = (
   nodes: InitializationNode[],
 ): InitializationNode =>
   nodes?.find(({ attributes }) => attributes.name === key);
+
+export const getNodeValue = (
+  key: string,
+  nodes: InitializationNode[],
+): string =>
+  nodes.find(({ attributes }) => attributes.name === key)?.attributes?.value;

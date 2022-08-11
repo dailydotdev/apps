@@ -97,7 +97,7 @@ export const LegalNotice = classed(
 );
 
 export const pageBorders =
-  'laptop:border-r laptop:border-l laptop:border-theme-divider-tertiary';
+  'laptop:border-r laptop:border-l border-theme-divider-tertiary';
 const pagePaddings = 'px-4 tablet:px-8';
 
 export const PageContainer = classed(
@@ -120,7 +120,8 @@ export const NewCommentContainer = classed(
 
 export const ResponsivePageContainer = classed(
   PageContainer,
-  'py-6 laptop:border-theme-divider-tertiary laptop:border-l laptop:border-r laptop:min-h-screen pb-24',
+  pageBorders,
+  'py-6 laptop:min-h-screen',
 );
 
 export const FeedPage = classed(
@@ -160,7 +161,7 @@ export const SummaryArrow = classed(ArrowIcon, 'icon arrow ml-auto text-xl');
 
 export const SummaryContainer = classed(
   'div',
-  'text-theme-label-secondary multi-truncate my-6 border-l border-theme-status-cabbage pl-4',
+  'text-theme-label-secondary multi-truncate mb-6 border-l border-theme-status-cabbage pl-4',
 );
 
 export const TLDRText = classed(
@@ -181,3 +182,8 @@ export const getTextEllipsis = <
   type: keyof ReactHTML = 'span',
 ): ClassedHTML<P, T> =>
   classed<P, T>(type, 'overflow-hidden whitespace-nowrap text-ellipsis');
+
+export const Overlay = classed(
+  'div',
+  'absolute inset-0 -z-1 w-full h-full opacity-24',
+);

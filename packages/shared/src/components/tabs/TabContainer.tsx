@@ -68,28 +68,32 @@ function TabContainer<T extends string = string>({
     return null;
   };
 
+  const render = !shouldMountInactive
+    ? renderSingleComponent()
+    : children.map((child, i) =>
+        createElement<TabProps<T>>(child.type, {
+          ...child.props,
+          key: child.props.key || i,
+          style: isTabActive(child)
+            ? child.props.style
+            : { ...child.props.style, display: 'none' },
+        }),
+      );
+
+  if (!showHeader) {
+    return <>{render}</>;
+  }
+
   return (
     <div className={classNames('flex flex-col', className)} style={style}>
-      {showHeader && (
-        <header className="flex flex-row border-b border-theme-divider-tertiary">
-          <TabList
-            items={children.map((child) => child.props.label)}
-            onClick={onClick}
-            active={active}
-          />
-        </header>
-      )}
-      {!shouldMountInactive
-        ? renderSingleComponent()
-        : children.map((child, i) =>
-            createElement<TabProps<T>>(child.type, {
-              ...child.props,
-              key: child.props.key || i,
-              style: isTabActive(child)
-                ? child.props.style
-                : { ...child.props.style, display: 'none' },
-            }),
-          )}
+      <header className="flex flex-row border-b border-theme-divider-tertiary">
+        <TabList
+          items={children.map((child) => child.props.label)}
+          onClick={onClick}
+          active={active}
+        />
+      </header>
+      {render}
     </div>
   );
 }

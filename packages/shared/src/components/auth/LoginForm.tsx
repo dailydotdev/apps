@@ -2,7 +2,7 @@ import React, { ReactElement, useContext, useRef, useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import AuthContext from '../../contexts/AuthContext';
 import {
-  getNodeByKey,
+  getNodeValue,
   initializeLogin,
   LoginPasswordParameters,
   validatePasswordLogin,
@@ -32,7 +32,7 @@ function LoginForm({
   const { onUpdateSession } = useContext(AuthContext);
   const formRef = useRef<HTMLFormElement>();
   const { data } = useQuery('login', initializeLogin, { ...disabledRefetch });
-  const { mutateAsync: validateLogin } = useMutation(validatePasswordLogin, {
+  const { mutateAsync: onPasswordLogin } = useMutation(validatePasswordLogin, {
     onSuccess: ({ error, data: session }) => {
       if (error) {
         return setHint('Invalid username or password');
@@ -44,16 +44,10 @@ function LoginForm({
   const onLogin: typeof onSuccessfulLogin = async (e) => {
     e.preventDefault();
     const form = formToJson<LoginFormParams>(formRef.current);
-    const { action, nodes } = data.ui;
-    const csrfToken = getNodeByKey('csrf_token', nodes);
-    const params: LoginPasswordParameters = {
-      ...form,
-      csrf_token: csrfToken.attributes.value,
-    };
-    const res = await validateLogin({ action, params });
-    if (!res.error) {
-      onSuccessfulLogin(e);
-    }
+    const { nodes, action } = data.ui;
+    const csrfToken = getNodeValue('csrf_token', nodes);
+    const params: LoginPasswordParameters = { ...form, csrf_token: csrfToken };
+    onPasswordLogin({ action, params });
   };
 
   return (
