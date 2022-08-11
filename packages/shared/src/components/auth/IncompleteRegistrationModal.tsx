@@ -53,7 +53,7 @@ function IncompleteRegistrationModal({
 
   return (
     <StyledModal {...props} contentClassName="flex flex-col">
-      <header className="flex relative justify-between items-center p-3 border-b border-theme-divider-tertiary">
+      <header className="flex relative justify-between items-center p-3 w-full border-b border-theme-divider-tertiary">
         <span className="font-bold typo-body">Set your timezone</span>
         <ModalCloseButton />
       </header>
