@@ -23,6 +23,7 @@ interface IncompleteRegistrationModalProps extends ModalProps {
 function IncompleteRegistrationModal({
   user,
   updateUser,
+  onRequestClose,
   ...props
 }: IncompleteRegistrationModalProps): ReactElement {
   const [submitDisabled, setSubmitDisabled] = useState(false);
@@ -40,7 +41,7 @@ function IncompleteRegistrationModal({
   const hour = getHourTimezone(userTimeZone);
   const Background = hour >= 6 && hour < 18 ? DaytimeIcon : NighttimeIcon;
 
-  const onComplete = async () => {
+  const onComplete = async (e) => {
     setSubmitDisabled?.(true);
     const res = await updateProfile({ ...user, timezone: userTimeZone });
     if ('error' in res) {
@@ -48,6 +49,7 @@ function IncompleteRegistrationModal({
     } else {
       await updateUser({ ...user, ...res });
       setSubmitDisabled?.(false);
+      onRequestClose(e);
     }
   };
 
