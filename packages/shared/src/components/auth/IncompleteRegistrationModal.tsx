@@ -10,11 +10,22 @@ import { ModalProps, StyledModal } from '../modals/StyledModal';
 import DaytimeIcon from '../../../icons/timezone_daytime.svg';
 import NighttimeIcon from '../../../icons/timezone_nighttime.svg';
 import { Button } from '../buttons/Button';
+import { LoggedUser, updateProfile } from '../../lib/user';
 
 const timeZoneOptions = getTimeZoneOptions();
 const timeZoneValues = timeZoneOptions.map((timeZone) => timeZone.label);
 
-function IncompleteRegistration(props: ModalProps): ReactElement {
+interface IncompleteRegistrationModalProps extends ModalProps {
+  user: LoggedUser;
+  updateUser: (user: LoggedUser) => Promise<void>;
+}
+
+function IncompleteRegistrationModal({
+  user,
+  updateUser,
+  ...props
+}: IncompleteRegistrationModalProps): ReactElement {
+  const [submitDisabled, setSubmitDisabled] = useState(false);
   const [userTimeZone, setUserTimeZone] = useState<string>(
     getUserInitialTimezone({ userTimezone: 'utc' }),
   );
@@ -29,7 +40,16 @@ function IncompleteRegistration(props: ModalProps): ReactElement {
   const hour = getHourTimezone(userTimeZone);
   const Background = hour >= 6 && hour < 18 ? DaytimeIcon : NighttimeIcon;
 
-  const onComplete = () => {};
+  const onComplete = async () => {
+    setSubmitDisabled?.(true);
+    const res = await updateProfile({ ...user, timezone: userTimeZone });
+    if ('error' in res) {
+      setSubmitDisabled?.(false);
+    } else {
+      await updateUser({ ...user, ...res });
+      setSubmitDisabled?.(false);
+    }
+  };
 
   return (
     <StyledModal {...props} contentClassName="flex flex-col">
@@ -43,8 +63,7 @@ function IncompleteRegistration(props: ModalProps): ReactElement {
           activities.
         </p>
         <Dropdown
-          className="mt-12"
-          buttonSize="select"
+          className="mt-12 w-80"
           selectedIndex={timeZoneOptions.findIndex(
             (timeZone) => timeZone.value === userTimeZone,
           )}
@@ -57,6 +76,7 @@ function IncompleteRegistration(props: ModalProps): ReactElement {
         <Button
           className="btn-primary bg-theme-color-cabbage"
           onClick={onComplete}
+          disabled={submitDisabled}
         >
           Complete Registration
         </Button>
@@ -65,4 +85,4 @@ function IncompleteRegistration(props: ModalProps): ReactElement {
   );
 }
 
-export default IncompleteRegistration;
+export default IncompleteRegistrationModal;

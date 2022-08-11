@@ -18,6 +18,7 @@ import {
   getLogoutSession,
   logoutSession,
 } from '../lib/auth';
+import IncompleteRegistrationModal from '../components/auth/IncompleteRegistrationModal';
 
 export type LoginState = { trigger: string };
 
@@ -104,14 +105,16 @@ export const AuthContextProvider = ({
   getRedirectUri,
   visit,
 }: AuthContextProviderProps): ReactElement => {
+  const [isCompletionOpen, setIsCompletionOpen] = useState(false);
   const [session, setSession] = useState<AuthSession>();
   const [loginState, setLoginState] = useState<LoginState | null>(null);
+  const isUserLogged = user && 'providers' in user;
 
   const authContext: AuthContextData = useMemo(
     () => ({
       session,
       onUpdateSession: setSession,
-      user: user && 'providers' in user ? user : null,
+      user: isUserLogged ? user : null,
       isFirstVisit: user?.isFirstVisit ?? false,
       trackingId: user?.id,
       shouldShowLogin: loginState !== null,
@@ -150,7 +153,38 @@ export const AuthContextProvider = ({
       .catch(() => setSession(null));
   }, []);
 
+  useEffect(() => {
+    if (!session) {
+      return;
+    }
+
+    const { email } = session.identity.traits;
+    const activeEmail = session.identity.verifiable_addresses.find(
+      ({ value }) => email === value,
+    );
+
+    if (!activeEmail.verified) {
+      return;
+    }
+
+    const loggedUser = user as LoggedUser;
+
+    if (activeEmail.verified && !loggedUser.timezone) {
+      setIsCompletionOpen(true);
+    }
+  }, [user, session]);
+
   return (
-    <AuthContext.Provider value={authContext}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={authContext}>
+      {children}
+      {isCompletionOpen && isUserLogged && (
+        <IncompleteRegistrationModal
+          user={user}
+          updateUser={updateUser}
+          isOpen={isCompletionOpen}
+          onRequestClose={() => setIsCompletionOpen(false)}
+        />
+      )}
+    </AuthContext.Provider>
   );
 };
