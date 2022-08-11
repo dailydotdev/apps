@@ -1,7 +1,6 @@
+import AlertContainer from '@dailydotdev/shared/src/components/alert/AlertContainer';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
-import { Overlay } from '@dailydotdev/shared/src/components/utilities';
 import React, { ReactElement } from 'react';
-import { OverlayContainer } from './common';
 
 interface EmailSentSectionProps {
   onResend?: (e: React.MouseEvent) => void;
@@ -13,8 +12,12 @@ function EmailSentSection({
   onCancel,
 }: EmailSentSectionProps): ReactElement {
   return (
-    <OverlayContainer className="mt-6 border-theme-status-warning">
-      <Overlay className="bg-overlay-quaternary-bun" />
+    <AlertContainer
+      className={{
+        container: 'mt-6 border-theme-status-warning',
+        overlay: 'bg-overlay-quaternary-bun',
+      }}
+    >
       <p>
         We sent an email to verify your account. Please check your spam folder
         if you {`don't`} see the email.
@@ -39,7 +42,7 @@ function EmailSentSection({
           </Button>
         )}
       </span>
-    </OverlayContainer>
+    </AlertContainer>
   );
 }
 

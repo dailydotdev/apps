@@ -60,12 +60,5 @@ export const AccountPageHeading = classed(
   'font-bold typo-title3 py-4 px-6 border-b border-theme-divider-tertiary w-full flex flex-row items-center',
 );
 
-export const OverlayContainer = classed(
-  'div',
-  'relative p-4 max-w-md border rounded-8',
-);
-
-export const OverlayText = classed('p', 'typo-callout');
-
 export const CommonTextField = classed(TextField, 'max-w-sm');
 export const AccountTextField = classed(CommonTextField, 'mt-6');

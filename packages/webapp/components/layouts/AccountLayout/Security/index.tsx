@@ -4,17 +4,14 @@ import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import LockIcon from '@dailydotdev/shared/src/components/icons/Lock';
 import MailIcon from '@dailydotdev/shared/src/components/icons/Mail';
 import AccountDangerZone from '@dailydotdev/shared/src/components/profile/AccountDangerZone';
-import { Overlay } from '@dailydotdev/shared/src/components/utilities';
+import AlertContainer, {
+  AlertBackground,
+} from '@dailydotdev/shared/src/components/alert/AlertContainer';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React, { ReactElement, useContext, useState } from 'react';
 import AccountContentSection from '../AccountContentSection';
 import { AccountPageContainer } from '../AccountPageContainer';
-import {
-  AccountSecurityDisplay as Display,
-  AccountTextField,
-  OverlayContainer,
-  OverlayText,
-} from '../common';
+import { AccountSecurityDisplay as Display, AccountTextField } from '../common';
 import EmailSentSection from '../EmailSentSection';
 import AccountLoginSection from './AccountLoginSection';
 
@@ -119,20 +116,24 @@ function AccountSecurityDefault({
       </AccountContentSection>
       {/* )} */}
       {resetPasswordSent && (
-        <OverlayContainer className="mt-6">
-          <Overlay className="bg-overlay-primary-white opacity-[0.12]" />
-          <OverlayText>
+        <AlertContainer
+          className={{
+            container: 'mt-6',
+            overlay: 'bg-overlay-primary-white opacity-[0.12]',
+          }}
+        >
+          <p className="typo-callout">
             We sent a link to the account email address, please check your spam
             folder if you {`don't`} see the email.
-          </OverlayText>
-        </OverlayContainer>
+          </p>
+        </AlertContainer>
       )}
       <AccountContentSection title="🚨 Danger Zone">
         <AccountDangerZone
           onDelete={onDelete}
           className="overflow-hidden relative py-4 px-6 mt-6 rounded-26 border border-theme-status-error"
         >
-          <Overlay className="bg-overlay-quaternary-ketchup" />
+          <AlertBackground className="bg-overlay-quaternary-ketchup" />
         </AccountDangerZone>
       </AccountContentSection>
     </AccountPageContainer>
