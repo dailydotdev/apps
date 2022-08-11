@@ -108,13 +108,13 @@ export const AuthContextProvider = ({
   const [isCompletionOpen, setIsCompletionOpen] = useState(false);
   const [session, setSession] = useState<AuthSession>();
   const [loginState, setLoginState] = useState<LoginState | null>(null);
-  const isUserLogged = user && 'providers' in user;
+  const endUser = user && 'providers' in user ? user : null;
 
   const authContext: AuthContextData = useMemo(
     () => ({
       session,
       onUpdateSession: setSession,
-      user: isUserLogged ? user : null,
+      user: endUser,
       isFirstVisit: user?.isFirstVisit ?? false,
       trackingId: user?.id,
       shouldShowLogin: loginState !== null,
@@ -154,32 +154,19 @@ export const AuthContextProvider = ({
   }, []);
 
   useEffect(() => {
-    if (!session) {
+    if (!session || !endUser || endUser?.timezone) {
       return;
     }
 
-    const { email } = session.identity.traits;
-    const activeEmail = session.identity.verifiable_addresses.find(
-      ({ value }) => email === value,
-    );
-
-    if (!activeEmail.verified) {
-      return;
-    }
-
-    const loggedUser = user as LoggedUser;
-
-    if (activeEmail.verified && !loggedUser.timezone) {
-      setIsCompletionOpen(true);
-    }
-  }, [user, session]);
+    setIsCompletionOpen(true);
+  }, [endUser, session]);
 
   return (
     <AuthContext.Provider value={authContext}>
       {children}
-      {isCompletionOpen && isUserLogged && (
+      {isCompletionOpen && endUser && (
         <IncompleteRegistrationModal
-          user={user}
+          user={endUser}
           updateUser={updateUser}
           isOpen={isCompletionOpen}
           onRequestClose={() => setIsCompletionOpen(false)}
