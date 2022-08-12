@@ -52,7 +52,7 @@ export const accountPage: Record<AccountPage, AccountPageProps> = {
 export const AccountPageContent = classed(
   'div',
   pageBorders,
-  'flex flex-col w-full max-w-[40rem] tablet:border-l min-h-screen mr-auto',
+  'flex flex-col w-full max-w-[40rem] tablet:border-l mr-auto',
 );
 export const AccountPageSection = classed('section', 'flex flex-col p-6');
 export const AccountPageHeading = classed(
