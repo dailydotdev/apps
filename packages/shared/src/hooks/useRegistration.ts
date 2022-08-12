@@ -12,7 +12,6 @@ import {
   getNodeByKey,
   getNodeValue,
 } from '../lib/auth';
-import { fallbackImages } from '../lib/config';
 import { disabledRefetch } from '../lib/func';
 
 type ParamKeys = keyof RegistrationParameters;
