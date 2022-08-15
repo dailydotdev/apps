@@ -102,7 +102,7 @@ const useRegistration = ({
       provider,
       'traits.email': '',
       'traits.username': '',
-      'traits.fullname': '',
+      'traits.name': '',
       'traits.image': '',
     };
 

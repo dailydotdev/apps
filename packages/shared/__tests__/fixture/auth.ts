@@ -146,7 +146,7 @@ export const errorRegistrationMockData: Partial<InitializationData> = {
         type: 'input',
         group: 'password',
         attributes: {
-          name: 'traits.fullname',
+          name: 'traits.name',
           type: 'text',
           value: 'asdad',
           required: true,
@@ -208,7 +208,7 @@ export const successfulRegistrationMockData: SuccessfulRegistrationData = {
       schema_url: 'http://127.0.0.1:4433/schemas/ZGVmYXVsdA',
       state: 'active',
       state_changed_at: new Date('2022-07-31T11:55:35.07680546Z'),
-      traits: { email: 'leeeee@daily.dev', fullname: 'Lee Solevilla' },
+      traits: { email: 'leeeee@daily.dev', name: 'Lee Solevilla' },
       verifiable_addresses: [
         {
           id: '55ae2268-050d-4427-bea1-b4cd12b09829',
@@ -240,7 +240,7 @@ export const successfulRegistrationMockData: SuccessfulRegistrationData = {
     schema_url: 'http://127.0.0.1:4433/schemas/ZGVmYXVsdA',
     state: 'active',
     state_changed_at: new Date('2022-07-31T11:55:35.07680546Z'),
-    traits: { email: 'leeeee@daily.dev', fullname: 'Lee Solevilla' },
+    traits: { email: 'leeeee@daily.dev', name: 'Lee Solevilla' },
     verifiable_addresses: [
       {
         id: '55ae2268-050d-4427-bea1-b4cd12b09829',
