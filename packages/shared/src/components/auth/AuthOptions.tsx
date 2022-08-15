@@ -62,6 +62,8 @@ function AuthOptions({
   const [activeDisplay, setActiveDisplay] = useState(
     hasLoggedOut() ? Display.SignBack : defaultDisplay,
   );
+  const [registrationValues, setRegistrationValues] =
+    useState<RegistrationFormValues>(null);
   const { onUpdateSession } = useContext(AuthContext);
   const { validateRegistration, onSocialRegistration } = useRegistration({
     key: 'registration_form',
@@ -96,6 +98,7 @@ function AuthOptions({
   };
 
   const onRegister = (params: RegistrationFormValues) => {
+    setRegistrationValues(params);
     validateRegistration({
       ...params,
       provider: socialAccount?.provider,
@@ -156,7 +159,10 @@ function AuthOptions({
             title="Verify your email address"
             onClose={onClose}
           />
-          <EmailVerificationSent email={email} />
+          <EmailVerificationSent
+            email={email}
+            onResend={() => onRegister(registrationValues)}
+          />
         </Tab>
       </TabContainer>
     </div>
