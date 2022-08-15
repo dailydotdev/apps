@@ -11,6 +11,7 @@ import VIcon from '../icons/V';
 import { CloseModalFunc } from '../modals/common';
 import AuthModalHeader from './AuthModalHeader';
 import { AuthForm } from './common';
+import LockIcon from '../icons/Lock';
 
 export interface SocialProviderAccount {
   provider: string;
@@ -66,7 +67,7 @@ export const RegistrationForm = ({
       />
       <AuthForm
         className={classNames(
-          'gap-4 self-center place-items-center mt-6 w-full',
+          'gap-[1.625rem] self-center place-items-center mt-6 w-full',
           isV2 ? 'max-w-[20rem]' : 'px-[3.75rem]',
         )}
         ref={formRef}
@@ -104,14 +105,12 @@ export const RegistrationForm = ({
             className="w-full"
             validityChanged={setIsPasswordValid}
             valid={isPasswordValid}
-            leftIcon={<MailIcon />}
+            leftIcon={<LockIcon />}
             type="password"
             name="password"
             inputId="password"
             label="Create a password"
-            rightIcon={
-              isPasswordValid && <VIcon className="text-theme-color-avocado" />
-            }
+            absoluteLabel
           />
         )}
         <TextField
