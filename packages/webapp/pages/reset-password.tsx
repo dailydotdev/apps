@@ -49,7 +49,7 @@ function ResetPassword(): ReactElement {
       method: 'password',
       csrf_token: getNodeValue('csrf_token', data.ui.nodes),
       'traits.email': getNodeValue('traits.email', data.ui.nodes),
-      'traits.fullname': getNodeValue('traits.fullname', data.ui.nodes),
+      'traits.name': getNodeValue('traits.name', data.ui.nodes),
       'traits.username': getNodeValue('traits.username', data.ui.nodes),
       'traits.image': getNodeValue('traits.image', data.ui.nodes),
       password,
