@@ -1,3 +1,4 @@
+import { useQuery, useMutation } from 'react-query';
 import ImageInput from '@dailydotdev/shared/src/components/fields/ImageInput';
 import AtIcon from '@dailydotdev/shared/src/components/icons/At';
 import GitHubIcon from '@dailydotdev/shared/src/components/icons/GitHub';
@@ -6,83 +7,139 @@ import LinkIcon from '@dailydotdev/shared/src/components/icons/Link';
 import TwitterIcon from '@dailydotdev/shared/src/components/icons/Twitter';
 import UserIcon from '@dailydotdev/shared/src/components/icons/User';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import React, { ReactElement, useContext } from 'react';
+import { formToJson } from '@dailydotdev/shared/src/lib/form';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import React, { ReactElement, useContext, useRef } from 'react';
+import useProfileForm, {
+  UpdateProfileParameters,
+} from '@dailydotdev/shared/src/hooks/useProfileForm';
+import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import { AccountTextField } from '../../components/layouts/AccountLayout/common';
 
 const AccountProfilePage = (): ReactElement => {
-  const { user } = useContext(AuthContext);
+  const formRef = useRef<HTMLFormElement>();
+  const { updateUserProfile, isLoading, hint } = useProfileForm();
+  const { user, session } = useContext(AuthContext);
+
+  const onSubmit = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const values = formToJson<UpdateProfileParameters>(formRef.current);
+    const params = {
+      name: values.name,
+      username: values.username,
+      bio: values.bio,
+      company: values.company,
+      title: values.title,
+      twitter: values.twitter,
+      github: values.github,
+      hashnode: values.hashnode,
+      portfolio: values.portfolio,
+    };
+    updateUserProfile(params);
+  };
 
   return (
-    <AccountPageContainer title="Profile">
-      <AccountContentSection
-        headingClassName="mt-0"
-        title="Profile Picture"
-        description="Upload a picture to make your profile stand out and let people recognise
+    <AccountPageContainer
+      title="Profile"
+      footer={
+        <Button
+          className="ml-auto btn-primary-cabbage"
+          onClick={onSubmit}
+          disabled={isLoading}
+        >
+          Save Changes
+        </Button>
+      }
+    >
+      <form ref={formRef}>
+        <AccountContentSection
+          headingClassName="mt-0"
+          title="Profile Picture"
+          description="Upload a picture to make your profile stand out and let people recognise
         your comments and contributions easily!"
-      >
-        <ImageInput className="mt-6" initialValue={user.image} />
-      </AccountContentSection>
-      <AccountContentSection title="Account Information">
-        <AccountTextField
-          label="Full Name"
-          inputId="fullname"
-          leftIcon={<UserIcon />}
-          value={user.name}
-        />
-        <AccountTextField
-          label="Username"
-          inputId="username"
-          leftIcon={<AtIcon />}
-          value={user.username}
-        />
-      </AccountContentSection>
-      <AccountContentSection title="About">
-        <AccountTextField
-          aria-multiline
-          label="Bio"
-          inputId="bio"
-          value={user.bio}
-        />
-        <AccountTextField
-          label="Company"
-          inputId="company"
-          value={user.company}
-        />
-        <AccountTextField label="Job Title" inputId="job" value={user.title} />
-      </AccountContentSection>
-      <AccountContentSection
-        title="Profile Social Links"
-        description="Add your social media profiles so others can connect with you and you
+        >
+          <ImageInput className="mt-6" initialValue={user.image} />
+        </AccountContentSection>
+        <AccountContentSection title="Account Information">
+          <AccountTextField
+            label="Full Name"
+            inputId="name"
+            name="name"
+            leftIcon={<UserIcon />}
+            value={user.name}
+          />
+          <AccountTextField
+            label="Username"
+            inputId="username"
+            hint={hint.username}
+            name="username"
+            leftIcon={<AtIcon />}
+            value={user.username}
+          />
+        </AccountContentSection>
+        <AccountContentSection title="About">
+          <AccountTextField
+            aria-multiline
+            label="Bio"
+            inputId="bio"
+            name="bio"
+            value={user.bio}
+          />
+          <AccountTextField
+            label="Company"
+            inputId="company"
+            name="company"
+            value={user.company}
+          />
+          <AccountTextField
+            label="Job Title"
+            inputId="title"
+            name="title"
+            value={user.title}
+          />
+        </AccountContentSection>
+        <AccountContentSection
+          title="Profile Social Links"
+          description="Add your social media profiles so others can connect with you and you
         can grow your network!"
-      >
-        <AccountTextField
-          leftIcon={<TwitterIcon />}
-          label="Twitter"
-          inputId="twitter"
-          value={user.twitter}
-        />
-        <AccountTextField
-          leftIcon={<GitHubIcon />}
-          label="GitHub"
-          inputId="github"
-          value={user.github}
-        />
-        <AccountTextField
-          leftIcon={<HashnodeIcon />}
-          label="Hashnode"
-          inputId="hashnode"
-          value={user.hashnode}
-        />
-        <AccountTextField
-          leftIcon={<LinkIcon />}
-          label="Your Website"
-          inputId="website"
-          value={user.portfolio}
-        />
-      </AccountContentSection>
+        >
+          <AccountTextField
+            leftIcon={<TwitterIcon />}
+            label="Twitter"
+            inputId="twitter"
+            hint={hint.twitter}
+            name="twitter"
+            value={user.twitter}
+          />
+          <AccountTextField
+            leftIcon={<GitHubIcon />}
+            label="GitHub"
+            inputId="github"
+            hint={hint.github}
+            name="github"
+            value={user.github}
+          />
+          <AccountTextField
+            leftIcon={<HashnodeIcon />}
+            label="Hashnode"
+            inputId="hashnode"
+            hint={hint.hashnode}
+            name="hashnode"
+            value={user.hashnode}
+          />
+          <AccountTextField
+            leftIcon={<LinkIcon />}
+            label="Your Website"
+            inputId="portfolio"
+            hint={hint.portfolio}
+            name="portfolio"
+            value={user.portfolio}
+          />
+        </AccountContentSection>
+      </form>
     </AccountPageContainer>
   );
 };
