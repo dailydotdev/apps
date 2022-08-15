@@ -35,9 +35,9 @@ interface UseProfileForm {
   hint: ProfileFormHint;
   isLoading?: boolean;
   updateUserProfile: UseMutateAsyncFunction<
-    unknown,
+    LoggedUser,
     ResponseError,
-    UpdateProfileParameters
+    Partial<UpdateProfileParameters>
   >;
 }
 
@@ -52,6 +52,7 @@ export interface UpdateProfileParameters {
   github: string;
   hashnode: string;
   portfolio: string;
+  timezone: string;
 }
 
 const useProfileForm = (): UseProfileForm => {
@@ -66,7 +67,7 @@ const useProfileForm = (): UseProfileForm => {
   const { isLoading, mutateAsync: updateUserProfile } = useMutation<
     LoggedUser,
     ResponseError,
-    UpdateProfileParameters
+    Partial<UpdateProfileParameters>
   >(
     (data) =>
       request(`${apiUrl}/graphql`, UPDATE_USER_PROFILE_MUTATION, { data }),
@@ -74,12 +75,16 @@ const useProfileForm = (): UseProfileForm => {
       onSuccess: async (response, { image, ...vars }) => {
         setHint({});
         const { name, username } = session.identity.traits;
-        if (name !== vars.name || username !== vars.username) {
+        if (
+          (vars.name && vars.name !== name) ||
+          (vars.username && vars.username !== username)
+        ) {
           const params = {
             'traits.email': session.identity.traits.email,
-            'traits.name': vars.name,
+            'traits.name': vars.name || session.identity.traits.name,
             'traits.image': response.image,
-            'traits.username': vars.username,
+            'traits.username':
+              vars.username || session.identity.traits.username,
             csrf_token: getNodeValue('csrf_token', settings.ui.nodes),
             method: KratosAuthMethod.Profile,
           };
