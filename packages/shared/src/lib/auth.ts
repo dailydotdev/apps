@@ -248,8 +248,8 @@ export interface RegistrationParameters {
   method: AuthenticationType;
   password?: string;
   'traits.email': string;
+  'traits.name'?: string;
   'traits.username': string;
-  'traits.fullname': string;
   'traits.image': string;
 }
 
