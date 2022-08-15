@@ -105,7 +105,8 @@ export const AuthContextProvider = ({
   getRedirectUri,
   visit,
 }: AuthContextProviderProps): ReactElement => {
-  const [isIncompleteRegistration, setIsIncompleteRegistration] = useState(false);
+  const [isIncompleteRegistration, setIsIncompleteRegistration] =
+    useState(false);
   const [session, setSession] = useState<AuthSession>();
   const [loginState, setLoginState] = useState<LoginState | null>(null);
   const endUser = user && 'providers' in user ? user : null;
