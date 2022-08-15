@@ -337,7 +337,7 @@ export function TextField({
               passwordStrengthStates[passwordStrengthLevel].className,
           )}
         >
-          {isPassword ? passwordHint(passwordStrengthLevel) : hint}
+          {isPassword ? passwordHint() : hint}
         </div>
       )}
     </div>
