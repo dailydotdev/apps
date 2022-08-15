@@ -53,6 +53,7 @@ export interface UpdateProfileParameters {
   hashnode: string;
   portfolio: string;
   timezone: string;
+  acceptedMarketing?: boolean;
 }
 
 const useProfileForm = (): UseProfileForm => {
