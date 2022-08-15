@@ -1,4 +1,3 @@
-import { useQuery, useMutation } from 'react-query';
 import ImageInput from '@dailydotdev/shared/src/components/fields/ImageInput';
 import AtIcon from '@dailydotdev/shared/src/components/icons/At';
 import GitHubIcon from '@dailydotdev/shared/src/components/icons/GitHub';
@@ -13,7 +12,6 @@ import React, { ReactElement, useContext, useRef } from 'react';
 import useProfileForm, {
   UpdateProfileParameters,
 } from '@dailydotdev/shared/src/hooks/useProfileForm';
-import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import AccountContentSection from '../../components/layouts/AccountLayout/AccountContentSection';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
@@ -22,7 +20,7 @@ import { AccountTextField } from '../../components/layouts/AccountLayout/common'
 const AccountProfilePage = (): ReactElement => {
   const formRef = useRef<HTMLFormElement>();
   const { updateUserProfile, isLoading, hint } = useProfileForm();
-  const { user, session } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
 
   const onSubmit = (e: React.MouseEvent) => {
     e.preventDefault();
