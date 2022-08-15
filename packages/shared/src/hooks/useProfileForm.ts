@@ -77,7 +77,7 @@ const useProfileForm = (): UseProfileForm => {
         if (name !== vars.name || username !== vars.username) {
           const params = {
             'traits.email': session.identity.traits.email,
-            'traits.name': name,
+            'traits.name': vars.name,
             'traits.image': response.image,
             'traits.username': vars.username,
             csrf_token: getNodeValue('csrf_token', settings.ui.nodes),
