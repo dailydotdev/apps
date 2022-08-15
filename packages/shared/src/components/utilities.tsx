@@ -182,8 +182,3 @@ export const getTextEllipsis = <
   type: keyof ReactHTML = 'span',
 ): ClassedHTML<P, T> =>
   classed<P, T>(type, 'overflow-hidden whitespace-nowrap text-ellipsis');
-
-export const Overlay = classed(
-  'div',
-  'absolute inset-0 -z-1 w-full h-full opacity-24',
-);

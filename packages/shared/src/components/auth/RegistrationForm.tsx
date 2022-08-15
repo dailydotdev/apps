@@ -101,9 +101,9 @@ export const RegistrationForm = ({
           className="w-full"
           valid={isNameValid}
           leftIcon={<UserIcon />}
-          name="traits.fullname"
+          name="traits.name"
+          inputId="traits.name"
           label="Full name"
-          inputId="traits.fullname"
           hint={hints?.['traits.fullname']}
           onChange={() =>
             hints?.['traits.fullname'] &&
