@@ -63,12 +63,17 @@ export interface InitializationData {
 
 export type RegistrationInitializationData = InitializationData;
 
+export enum KratosAuthMethod {
+  LinkRecovery = 'link_recovery',
+  Password = 'password',
+  Profile = 'profile',
+}
+
 type AuthenticatorLevel = 'aal0' | 'aal1';
-type Method = 'link_recovery' | 'password';
 interface AuthMethod {
   aal: AuthenticatorLevel;
   completed_at: Date;
-  method: Method;
+  method: KratosAuthMethod;
 }
 
 type AuthenticationType = 'password' | 'oidc';
@@ -101,6 +106,13 @@ interface VerifyableAddress extends RecoveryAddress {
   updated_at: Date;
 }
 
+interface IdentityTraits {
+  username: string;
+  fullname: string;
+  email: string;
+  image: string;
+}
+
 interface Identity {
   created_at: Date;
   credentials?: Record<string, IdentityCredential>;
@@ -112,7 +124,7 @@ interface Identity {
   schema_url: string;
   state: 'active';
   state_changed_at: Date;
-  traits: unknown;
+  traits: IdentityTraits;
   updated_at: Date;
   verifiable_addresses: VerifyableAddress[];
 }
@@ -199,7 +211,7 @@ export interface AccountRecoveryParameters extends AuthPostParams {
   email: string;
 }
 
-interface FormParams<T> {
+interface FormParams<T extends AuthPostParams> {
   action: string;
   params: T;
 }
@@ -215,7 +227,7 @@ export interface RequestResponse<
 export interface RegistrationParameters {
   csrf_token: string;
   provider?: string;
-  method: AuthenticationType;
+  method: AuthenticationType | KratosAuthMethod;
   password?: string;
   'traits.email': string;
   'traits.fullname'?: string;
@@ -223,9 +235,16 @@ export interface RegistrationParameters {
   'traits.image': string;
 }
 
+export interface SettingsParameters {
+  csrf_token: string;
+  link?: string;
+  unlink?: string;
+}
+
 export type ErrorMessages<T extends string | number> = { [key in T]?: string };
 export type RegistrationError = ErrorMessages<keyof RegistrationParameters>;
 export type ValidateRegistrationParams = FormParams<RegistrationParameters>;
+export type UpdateSettingsParams = FormParams<SettingsParameters>;
 export type ValidateLoginParams = FormParams<LoginPasswordParameters>;
 
 type SuccessfulRegistrationResponse =
@@ -287,6 +306,42 @@ export const logoutSession = (
     credentials: 'include',
     headers: { Accept: 'application/json', 'X-CSRF-Token': csrf_token },
   });
+
+export const initializeSettings = async (): Promise<InitializationData> => {
+  const res = await fetch(`${authUrl}/self-service/settings/browser`, {
+    credentials: 'include',
+    headers: { Accept: 'application/json' },
+  });
+  return res.json();
+};
+
+export const updateSettings = async ({
+  action,
+  params,
+}: ValidateRegistrationParams): Promise<SuccessfulRegistrationResponse> => {
+  const res = await fetch(action, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': params.csrf_token,
+      Accept: 'application/json',
+    },
+    body: JSON.stringify(params),
+  });
+
+  const json = await res.json();
+
+  if (res.status === 200) {
+    return { data: json };
+  }
+
+  if (json.redirect_browser_to) {
+    return { redirect: json.redirect_browser_to };
+  }
+
+  return { error: json?.error || json };
+};
 
 export const errorsToJson = <T extends string>(
   data: InitializationData,
