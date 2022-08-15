@@ -105,7 +105,7 @@ export const AuthContextProvider = ({
   getRedirectUri,
   visit,
 }: AuthContextProviderProps): ReactElement => {
-  const [isCompletionOpen, setIsCompletionOpen] = useState(false);
+  const [isIncompleteRegistration, setIsIncompleteRegistration] = useState(false);
   const [session, setSession] = useState<AuthSession>();
   const [loginState, setLoginState] = useState<LoginState | null>(null);
   const endUser = user && 'providers' in user ? user : null;
@@ -158,18 +158,18 @@ export const AuthContextProvider = ({
       return;
     }
 
-    setIsCompletionOpen(true);
+    setIsIncompleteRegistration(true);
   }, [endUser, session]);
 
   return (
     <AuthContext.Provider value={authContext}>
       {children}
-      {isCompletionOpen && endUser && (
+      {isIncompleteRegistration && endUser && (
         <IncompleteRegistrationModal
           user={endUser}
           updateUser={updateUser}
-          isOpen={isCompletionOpen}
-          onRequestClose={() => setIsCompletionOpen(false)}
+          isOpen={isIncompleteRegistration}
+          onRequestClose={() => setIsIncompleteRegistration(false)}
         />
       )}
     </AuthContext.Provider>
