@@ -18,7 +18,7 @@ import { AuthForm } from './common';
 import TokenInput from './TokenField';
 
 interface LoginFormProps {
-  onSuccessfulLogin: (e: React.FormEvent) => unknown;
+  onSuccessfulLogin: (e?: React.FormEvent) => unknown;
   onForgotPassword?: () => unknown;
 }
 
@@ -35,10 +35,12 @@ function LoginForm({
   const { mutateAsync: onPasswordLogin } = useMutation(validatePasswordLogin, {
     onSuccess: ({ error, data: session }) => {
       if (error) {
-        return setHint('Invalid username or password');
+        setHint('Invalid username or password');
+        return;
       }
 
-      return onUpdateSession(session);
+      onUpdateSession(session);
+      onSuccessfulLogin();
     },
   });
   const onLogin: typeof onSuccessfulLogin = async (e) => {
@@ -58,7 +60,7 @@ function LoginForm({
       ref={formRef}
       data-testid="login_form"
     >
-      <TokenInput token={data?.ui?.nodes?.[0]?.attributes.value} />
+      <TokenInput token={getNodeValue('csrf_token', data?.ui?.nodes)} />
       <TextField
         leftIcon={<MailIcon />}
         inputId="identifier"
