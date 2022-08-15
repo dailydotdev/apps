@@ -200,6 +200,14 @@ export function TextField({
     return disabled ? 'text-theme-label-disabled' : 'text-theme-label-primary';
   };
 
+  const passwordHint = () => {
+    if (invalid) {
+      return `Password need a minimum length of ${props.minLength}`;
+    }
+
+    return passwordStrengthStates[passwordStrengthLevel].label;
+  };
+
   return (
     <div
       className={classNames(className, 'flex flex-col items-stretch relative')}
@@ -329,9 +337,7 @@ export function TextField({
               passwordStrengthStates[passwordStrengthLevel].className,
           )}
         >
-          {isPassword
-            ? passwordStrengthStates[passwordStrengthLevel].label
-            : hint}
+          {isPassword ? passwordHint(passwordStrengthLevel) : hint}
         </div>
       )}
     </div>

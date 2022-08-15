@@ -111,6 +111,7 @@ export const RegistrationForm = ({
             inputId="password"
             label="Create a password"
             absoluteLabel
+            minLength={6}
           />
         )}
         <TextField
