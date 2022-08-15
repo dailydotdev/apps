@@ -19,7 +19,11 @@ import {
   RegistrationFormValues,
   SocialProviderAccount,
 } from './RegistrationForm';
-import { getNodeValue, getRegistrationFlow } from '../../lib/auth';
+import {
+  getNodeValue,
+  getRegistrationFlow,
+  RegistrationError,
+} from '../../lib/auth';
 import useWindowEvents from '../../hooks/useWindowEvents';
 import useRegistration from '../../hooks/useRegistration';
 import EmailVerificationSent from './EmailVerificationSent';
@@ -39,7 +43,7 @@ const hasLoggedOut = () => {
   return params?.logged_out !== undefined;
 };
 
-interface AuthOptionsProps {
+export interface AuthOptionsProps {
   onClose?: CloseModalFunc;
   onSelectedProvider: (account: SocialProviderAccount) => void;
   formRef: MutableRefObject<HTMLFormElement>;
@@ -56,6 +60,9 @@ function AuthOptions({
   socialAccount,
   defaultDisplay = Display.Default,
 }: AuthOptionsProps): ReactElement {
+  const [registrationHints, setRegistrationHints] = useState<RegistrationError>(
+    {},
+  );
   const { authVersion } = useContext(FeaturesContext);
   const isV2 = authVersion === AuthVersion.V2;
   const [email, setEmail] = useState('');
@@ -70,6 +77,7 @@ function AuthOptions({
         onUpdateSession(data);
         setActiveDisplay(Display.EmailSent);
       },
+      onInvalidRegistration: setRegistrationHints,
       onRedirect: (redirect) => window.open(redirect),
     });
 
@@ -135,6 +143,7 @@ function AuthOptions({
             onClose={onClose}
             isV2={isV2}
             onSignup={onRegister}
+            hints={registrationHints}
             token={
               registration && getNodeValue('csrf_token', registration.ui.nodes)
             }

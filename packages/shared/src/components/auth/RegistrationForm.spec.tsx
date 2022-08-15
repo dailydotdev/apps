@@ -14,10 +14,15 @@ import {
   registrationFlowMockData,
   successfulRegistrationMockData,
 } from '../../../__tests__/fixture/auth';
-import { RegistrationForm, RegistrationFormProps } from './RegistrationForm';
-import { authUrl, getNodeByKey, RegistrationParameters } from '../../lib/auth';
+import {
+  authUrl,
+  getNodeByKey,
+  getNodeValue,
+  RegistrationParameters,
+} from '../../lib/auth';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import { formToJson } from '../../lib/form';
+import AuthOptions, { AuthOptionsProps } from './AuthOptions';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -29,13 +34,16 @@ const mockRegistraitonFlow = (result = registrationFlowMockData) => {
     .reply(200, result);
 };
 
-const defaultToken = getNodeByKey(
+const defaultToken = getNodeValue(
   'csrf_token',
   registrationFlowMockData.ui.nodes,
 );
 const defaultParams: Partial<RegistrationParameters> = {
-  csrf_token: defaultToken.attributes.value,
+  csrf_token: defaultToken,
+  provider: undefined,
   method: 'password',
+  'traits.image':
+    'https://daily-now-res.cloudinary.com/image/upload/t_logo,f_auto/v1635938111/logos/placeholder2',
 };
 const mockRegistraitonValidationFlow = (
   result: unknown,
@@ -55,8 +63,12 @@ const mockRegistraitonValidationFlow = (
     .reply(responseCode, result);
 };
 
+const onSelectedProvider = jest.fn();
 const renderComponent = (
-  props: RegistrationFormProps = { email: 'lee@daily.dev' },
+  props: AuthOptionsProps = {
+    onSelectedProvider,
+    formRef: null,
+  },
 ): RenderResult => {
   const client = new QueryClient();
   mockRegistraitonFlow();
@@ -70,25 +82,20 @@ const renderComponent = (
         loadingUser={false}
         loadedUserFromCache
       >
-        <RegistrationForm {...props} />
+        <AuthOptions {...props} />
       </AuthContextProvider>
     </QueryClientProvider>,
   );
 };
 
-it('should get browser password registration flow token', async () => {
+const renderRegistration = async (email: string) => {
   renderComponent();
   await waitForNock();
-  const input = (await screen.findByTestId('csrf_token')) as HTMLInputElement;
-  const token = getNodeByKey('csrf_token', registrationFlowMockData.ui.nodes);
-  expect(input).toBeInTheDocument();
-  expect(input.value).toEqual(token.attributes.value);
-});
-
-it('should post registration including token', async () => {
-  const email = 'sshanzel@yahoo.com';
-  renderComponent({ email });
-  await waitForNock();
+  fireEvent.input(screen.getByPlaceholderText('Email'), {
+    target: { value: email },
+  });
+  const submit = await screen.findByTestId('email_signup_submit');
+  fireEvent.click(submit);
   fireEvent.input(screen.getByPlaceholderText('Full name'), {
     target: { value: 'Lee Solevilla' },
   });
@@ -98,6 +105,25 @@ it('should post registration including token', async () => {
   fireEvent.input(screen.getByPlaceholderText('Enter a username'), {
     target: { value: 'sshanzel' },
   });
+};
+
+it('should get browser password registration flow token', async () => {
+  renderComponent();
+  await waitForNock();
+  fireEvent.input(screen.getByPlaceholderText('Email'), {
+    target: { value: 'lee@daily.dev' },
+  });
+  const submit = await screen.findByTestId('email_signup_submit');
+  fireEvent.click(submit);
+  const input = (await screen.findByTestId('csrf_token')) as HTMLInputElement;
+  const token = getNodeByKey('csrf_token', registrationFlowMockData.ui.nodes);
+  expect(input).toBeInTheDocument();
+  expect(input.value).toEqual(token.attributes.value);
+});
+
+it('should post registration including token', async () => {
+  const email = 'sshanzel@yahoo.com';
+  renderRegistration(email);
   const form = await screen.findByTestId('registration_form');
   const params = formToJson(form as HTMLFormElement);
   mockRegistraitonValidationFlow(successfulRegistrationMockData, params);
@@ -112,17 +138,7 @@ it('should post registration including token', async () => {
 
 it('should display error messages', async () => {
   const email = 'sshanzel@yahoo.com';
-  renderComponent({ email });
-  await waitForNock();
-  fireEvent.input(screen.getByPlaceholderText('Full name'), {
-    target: { value: 'Lee Solevilla' },
-  });
-  fireEvent.input(screen.getByPlaceholderText('Create a password'), {
-    target: { value: 'abc' },
-  });
-  fireEvent.input(screen.getByPlaceholderText('Enter a username'), {
-    target: { value: 'sshanzel' },
-  });
+  renderRegistration(email);
   const form = await screen.findByTestId('registration_form');
   const params = formToJson(form as HTMLFormElement);
   mockRegistraitonValidationFlow(errorRegistrationMockData, params, 400);

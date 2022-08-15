@@ -63,7 +63,7 @@ export const RegistrationForm = ({
   };
 
   const isPasswordValid = !hints?.password;
-  const isNameValid = !hints?.['traits.fullname'];
+  const isNameValid = !hints?.['traits.name'];
   const isUsernameValid = !hints?.['traits.username'];
 
   return (
@@ -104,10 +104,10 @@ export const RegistrationForm = ({
           name="traits.name"
           inputId="traits.name"
           label="Full name"
-          hint={hints?.['traits.fullname']}
+          hint={hints?.['traits.name']}
           onChange={() =>
-            hints?.['traits.fullname'] &&
-            onUpdateHints({ ...hints, 'traits.fullname': '' })
+            hints?.['traits.name'] &&
+            onUpdateHints({ ...hints, 'traits.name': '' })
           }
           value={socialAccount?.name}
           rightIcon={

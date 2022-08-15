@@ -419,4 +419,4 @@ export const getNodeValue = (
   key: string,
   nodes: InitializationNode[],
 ): string =>
-  nodes.find(({ attributes }) => attributes.name === key)?.attributes?.value;
+  nodes?.find(({ attributes }) => attributes.name === key)?.attributes?.value;

@@ -5,6 +5,7 @@ import {
   AccountRecoveryParameters,
   getErrorMessage,
   getNodeByKey,
+  getNodeValue,
   initializeRecovery,
   sendEmailRecovery,
 } from '../../lib/auth';
@@ -75,7 +76,7 @@ function ForgotPasswordForm({
         onSubmit={onSendEmail}
         data-testid="recovery_form"
       >
-        <TokenInput token={recovery?.ui?.nodes?.[0]?.attributes.value} />
+        <TokenInput token={getNodeValue('csrf_token', recovery?.ui?.nodes)} />
         <AuthModalText className="text-center">
           Enter the email address you registered with and we will send you a
           password reset link.
