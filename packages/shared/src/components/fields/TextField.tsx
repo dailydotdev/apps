@@ -11,7 +11,7 @@ import { passwordStrength } from 'check-password-strength';
 import { useInputField } from '../../hooks/useInputField';
 import { BaseField, FieldInput } from './common';
 import styles from './TextField.module.css';
-import { Button, ButtonProps } from '../buttons/Button';
+import { ButtonProps } from '../buttons/Button';
 import useDebounce from '../../hooks/useDebounce';
 import { IconProps } from '../Icon';
 import EyeIcon from '../icons/Eye';
