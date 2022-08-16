@@ -4,6 +4,7 @@ import {
   InitializationData,
   InitializationNode,
   KratosFormParams,
+  KratosMethod,
 } from './kratos';
 
 export interface LoginPasswordParameters extends AuthPostParams {
@@ -18,7 +19,7 @@ export interface AccountRecoveryParameters extends AuthPostParams {
 export interface RegistrationParameters {
   csrf_token: string;
   provider?: string;
-  method: AuthenticationType | KratosAuthMethod;
+  method: AuthenticationType | KratosMethod;
   password?: string;
   'traits.email': string;
   'traits.name'?: string;
@@ -37,34 +38,6 @@ export type RegistrationError = ErrorMessages<keyof RegistrationParameters>;
 export type ValidateRegistrationParams =
   KratosFormParams<RegistrationParameters>;
 export type ValidateLoginParams = KratosFormParams<LoginPasswordParameters>;
-
-export const updateSettings = async ({
-  action,
-  params,
-}: ValidateRegistrationParams): Promise<SuccessfulRegistrationResponse> => {
-  const res = await fetch(action, {
-    method: 'POST',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRF-Token': params.csrf_token,
-      Accept: 'application/json',
-    },
-    body: JSON.stringify(params),
-  });
-
-  const json = await res.json();
-
-  if (res.status === 200) {
-    return { data: json };
-  }
-
-  if (json.redirect_browser_to) {
-    return { redirect: json.redirect_browser_to };
-  }
-
-  return { error: json?.error || json };
-};
 
 export const errorsToJson = <T extends string>(
   data: InitializationData,
