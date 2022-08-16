@@ -12,13 +12,14 @@ import {
   deleteAccount,
 } from '../lib/user';
 import { Visit } from '../lib/boot';
+import IncompleteRegistrationModal from '../components/auth/IncompleteRegistrationModal';
 import {
+  AuthFlow,
   AuthSession,
   checkCurrentSession,
-  getLogoutSession,
+  initializeKratosFlow,
   logoutSession,
-} from '../lib/auth';
-import IncompleteRegistrationModal from '../components/auth/IncompleteRegistrationModal';
+} from '../lib/kratos';
 
 export type LoginState = { trigger: string };
 
@@ -148,7 +149,7 @@ export const AuthContextProvider = ({
   useEffect(() => {
     checkCurrentSession()
       .then(async (userSession) => {
-        const logoutData = await getLogoutSession();
+        const logoutData = await initializeKratosFlow(AuthFlow.Logout);
         setSession({ ...userSession, ...logoutData });
       })
       .catch(() => setSession(null));
