@@ -7,23 +7,23 @@ import React, {
   useState,
 } from 'react';
 import classNames from 'classnames';
-import { passwordStrength } from 'check-password-strength';
 import { useInputField } from '../../hooks/useInputField';
 import { BaseField, FieldInput } from './common';
 import styles from './TextField.module.css';
 import { ButtonProps } from '../buttons/Button';
 import useDebounce from '../../hooks/useDebounce';
 import { IconProps } from '../Icon';
-import EyeIcon from '../icons/Eye';
-import EyeCancelIcon from '../icons/EyeCancel';
 
 type FieldType = 'primary' | 'secondary' | 'tertiary';
 
 export interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   inputId: string;
   label: string;
+  baseFieldClassName?: string;
+  hintClassName?: string;
   saveHintSpace?: boolean;
   absoluteLabel?: boolean;
+  progress?: string;
   hint?: string;
   valid?: boolean;
   validityChanged?: (valid: boolean) => void;
@@ -41,29 +41,6 @@ interface InputFontColorProps {
   hasInput?: boolean;
   actionIcon?: React.ReactElement<IconProps>;
 }
-
-const passwordStrengthStates = {
-  0: {
-    label: 'Risky',
-    className: 'text-theme-status-error',
-    progress: 'bg-theme-status-error w-1/6',
-  },
-  1: {
-    label: 'Risky',
-    className: 'text-theme-status-error',
-    progress: 'bg-theme-status-error w-1/6',
-  },
-  2: {
-    label: `You're almost there`,
-    className: 'text-theme-status-warning',
-    progress: 'bg-theme-status-warning w-1/4',
-  },
-  3: {
-    label: 'Strong as it gets',
-    className: 'text-theme-status-success',
-    progress: 'bg-theme-status-success w-1/2',
-  },
-};
 
 export const getInputFontColor = ({
   readOnly,
@@ -100,9 +77,11 @@ export function TextField({
   label,
   maxLength,
   value,
+  baseFieldClassName,
+  hintClassName,
   saveHintSpace = false,
   absoluteLabel = false,
-  type,
+  progress,
   hint,
   valid,
   validityChanged,
@@ -129,10 +108,7 @@ export function TextField({
   const isPrimaryField = fieldType === 'primary';
   const isSecondaryField = fieldType === 'secondary';
   const isTertiaryField = fieldType === 'tertiary';
-  const isPassword = type === 'password';
-  const [useType, setUseType] = useState(type);
   const [inputLength, setInputLength] = useState<number>(0);
-  const [passwordStrengthLevel, setPasswordStrengthLevel] = useState<number>(0);
   const [validInput, setValidInput] = useState<boolean>(undefined);
   const [idleTimeout, clearIdleTimeout] = useDebounce(() => {
     setValidInput(inputRef.current.checkValidity());
@@ -169,13 +145,11 @@ export function TextField({
     const len = event.currentTarget.value.length;
     setInputLength(len);
     const inputValidity = inputRef.current.checkValidity();
+
     if (inputValidity) {
       setValidInput(true);
     } else {
       idleTimeout();
-    }
-    if (isPassword) {
-      setPasswordStrengthLevel(passwordStrength(event.currentTarget.value).id);
     }
   };
 
@@ -198,14 +172,6 @@ export function TextField({
     }
 
     return disabled ? 'text-theme-label-disabled' : 'text-theme-label-primary';
-  };
-
-  const passwordHint = () => {
-    if (invalid) {
-      return `Password need a minimum length of ${props.minLength}`;
-    }
-
-    return passwordStrengthStates[passwordStrengthLevel].label;
   };
 
   return (
@@ -234,7 +200,7 @@ export function TextField({
             focused,
             invalid,
           },
-          isPassword && inputLength > 0 && `password-${passwordStrengthLevel}`,
+          baseFieldClassName,
           styles.field,
         )}
       >
@@ -278,7 +244,6 @@ export function TextField({
             onInput={onInput}
             maxLength={maxLength}
             readOnly={readOnly}
-            type={useType}
             className={classNames(
               'self-stretch',
               getInputFontColor({
@@ -292,11 +257,11 @@ export function TextField({
             disabled={disabled}
             {...props}
           />
-          {isPassword && inputLength > 0 && (
+          {progress && (
             <div
               className={classNames(
                 'absolute bottom-0 h-[3px] rounded-10 transition-all',
-                passwordStrengthStates[passwordStrengthLevel].progress,
+                progress,
               )}
             />
           )}
@@ -309,23 +274,10 @@ export function TextField({
             {maxLength - inputLength}
           </div>
         )}
-        {isPassword && (
-          <button
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              setUseType((_type) =>
-                _type === 'password' ? 'text' : 'password',
-              );
-            }}
-          >
-            {useType === 'password' ? <EyeIcon /> : <EyeCancelIcon />}
-          </button>
-        )}
         {rightIcon}
         {actionButton}
       </BaseField>
-      {(hint?.length || saveHintSpace || (isPassword && inputLength > 0)) && (
+      {(hint?.length || saveHintSpace) && (
         <div
           role={invalid ? 'alert' : undefined}
           className={classNames(
@@ -333,11 +285,10 @@ export function TextField({
             saveHintSpace && 'h-4',
             invalid ? 'text-theme-status-error' : 'text-theme-label-quaternary',
             absoluteLabel ? 'absolute -bottom-5' : 'mt-1',
-            isPassword &&
-              passwordStrengthStates[passwordStrengthLevel].className,
+            hintClassName,
           )}
         >
-          {isPassword ? passwordHint() : hint}
+          {hint}
         </div>
       )}
     </div>

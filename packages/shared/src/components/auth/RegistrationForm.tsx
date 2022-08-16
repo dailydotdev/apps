@@ -13,6 +13,7 @@ import AuthModalHeader from './AuthModalHeader';
 import { AuthForm, providerMap } from './common';
 import LockIcon from '../icons/Lock';
 import AtIcon from '../icons/At';
+import { PasswordField } from '../fields/PasswordField';
 
 export interface SocialProviderAccount {
   provider: string;
@@ -118,7 +119,7 @@ export const RegistrationForm = ({
           required
         />
         {!socialAccount && (
-          <TextField
+          <PasswordField
             className="w-full"
             validityChanged={setIsPasswordValid}
             valid={isPasswordValid}
