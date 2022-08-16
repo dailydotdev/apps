@@ -7,7 +7,7 @@ import VIcon from '../icons/V';
 import { CloseModalFunc } from '../modals/common';
 import AuthModalHeader from './AuthModalHeader';
 import { AuthModalText } from './common';
-import useDebounce from '../../hooks/useDebounce';
+import useTimer from '../../hooks/useTimer';
 
 interface ForgotPasswordFormProps {
   email?: string;
@@ -21,16 +21,7 @@ function ForgotPasswordForm({
   onClose,
 }: ForgotPasswordFormProps): ReactElement {
   const [emailSent, setEmailSent] = useState(false);
-  const [timer, setTimer] = useState(0);
-  const [runTimer, clearTimer] = useDebounce(() => {
-    if (timer > 0) {
-      setTimer((_timer) => _timer - 1);
-      runTimer();
-    } else {
-      setEmailSent(false);
-      clearTimer();
-    }
-  }, 1000);
+  const { timer, setTimer, runTimer } = useTimer(() => setEmailSent(false), 0);
 
   const onSendEmail = () => {
     setTimer(12);
