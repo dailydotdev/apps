@@ -1,8 +1,14 @@
 import React, { ReactElement, useContext } from 'react';
 import classNames from 'classnames';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import Link from 'next/link';
 import SidebarNavItem from './SidebarNavItem';
-import { AccountPage, accountPage } from './common';
+import {
+  AccountPage,
+  accountPage,
+  accountSidebarPages,
+  AccountSidebarPagesSection,
+} from './common';
 
 interface SidebarNavProps {
   className?: string;
@@ -36,6 +42,22 @@ function SidebarNav({
           })}
         />
       ))}
+      <AccountSidebarPagesSection>
+        {accountSidebarPages.map((accountSidebarPage) => (
+          <Link
+            href={accountSidebarPage.href}
+            passHref
+            key={accountSidebarPage.title}
+          >
+            <a
+              className="my-3 w-full typo-callout text-theme-label-tertiary"
+              target={accountSidebarPage.target}
+            >
+              {accountSidebarPage.title}
+            </a>
+          </Link>
+        ))}
+      </AccountSidebarPagesSection>
     </div>
   );
 }
