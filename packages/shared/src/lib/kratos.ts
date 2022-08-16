@@ -194,6 +194,7 @@ export interface AuthPostParams {
 export interface KratosFormParams<T extends AuthPostParams> {
   action: string;
   params: T;
+  method?: string;
 }
 
 export const submitKratosFlow = async <
@@ -203,17 +204,22 @@ export const submitKratosFlow = async <
 >({
   action,
   params,
+  method = 'POST',
 }: KratosFormParams<T>): Promise<RequestResponse<R, E>> => {
   const res = await fetch(action, {
-    method: 'POST',
+    method,
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
       'X-CSRF-Token': params.csrf_token,
       Accept: 'application/json',
     },
-    body: JSON.stringify(params),
+    body: method === 'GET' ? undefined : JSON.stringify(params),
   });
+
+  if (res.status === 204) {
+    return { data: null };
+  }
 
   const json = await res.json();
 
@@ -239,12 +245,3 @@ export const checkCurrentSession = async (): Promise<AuthSession> => {
 
   return res.json();
 };
-
-export const logoutSession = (
-  url: string,
-  csrf_token: string,
-): Promise<Response> =>
-  fetch(url, {
-    credentials: 'include',
-    headers: { Accept: 'application/json', 'X-CSRF-Token': csrf_token },
-  });

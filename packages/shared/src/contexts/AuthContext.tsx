@@ -18,7 +18,7 @@ import {
   AuthSession,
   checkCurrentSession,
   initializeKratosFlow,
-  logoutSession,
+  submitKratosFlow,
 } from '../lib/kratos';
 
 export type LoginState = { trigger: string };
@@ -70,7 +70,14 @@ const appendLogoutParam = (link: string): URL => {
 };
 
 const logout = async (logoutUrl: string, token: string): Promise<void> => {
-  await Promise.all([dispatchLogout(), logoutSession(logoutUrl, token)]); // temporary
+  await Promise.all([
+    dispatchLogout(),
+    submitKratosFlow({
+      action: logoutUrl,
+      params: { csrf_token: token },
+      method: 'GET',
+    }),
+  ]); // temporary
   const params = getQueryParams();
   if (params.redirect_uri) {
     window.location.replace(appendLogoutParam(params.redirect_uri));
