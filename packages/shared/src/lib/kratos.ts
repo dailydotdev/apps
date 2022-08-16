@@ -1,3 +1,5 @@
+import { authUrl } from './constants';
+
 export type EmptyObjectLiteral = Record<string, never>;
 
 interface InitializationNodeAttribute {
@@ -153,8 +155,6 @@ export enum AuthFlow {
   Recovery = '/recovery',
   Verification = '/verification',
 }
-
-const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || 'http://127.0.0.1:4433';
 
 export const initializeKratosFlow = async (
   flow: AuthFlow,
