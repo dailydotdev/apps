@@ -19,11 +19,12 @@ import {
   RegistrationFormValues,
   SocialProviderAccount,
 } from './RegistrationForm';
-import { getNodeValue, getRegistrationFlow } from '../../lib/auth';
+import { getNodeValue } from '../../lib/auth';
 import useWindowEvents from '../../hooks/useWindowEvents';
 import useRegistration from '../../hooks/useRegistration';
 import EmailVerificationSent from './EmailVerificationSent';
 import AuthModalHeader from './AuthModalHeader';
+import { AuthFlow, getKratosFlow } from '../../lib/kratos';
 import { fallbackImages } from '../../lib/config';
 
 export enum Display {
@@ -75,7 +76,7 @@ function AuthOptions({
 
   useWindowEvents('message', async (e) => {
     if (e.data?.flow) {
-      const flow = await getRegistrationFlow(e.data.flow);
+      const flow = await getKratosFlow(AuthFlow.Registration, e.data.flow);
       const { nodes, action } = flow.ui;
       onSelectedProvider({
         action,
