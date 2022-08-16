@@ -225,7 +225,7 @@ export interface RegistrationParameters {
   method: AuthenticationType;
   password?: string;
   'traits.email': string;
-  'traits.fullname'?: string;
+  'traits.name'?: string;
   'traits.username': string;
   'traits.image': string;
 }
