@@ -8,7 +8,6 @@ import {
   getNodeValue,
   ValidateRegistrationParams,
 } from '../lib/auth';
-import { fallbackImages } from '../lib/config';
 import { disabledRefetch } from '../lib/func';
 import {
   AuthFlow,
@@ -98,7 +97,6 @@ const useRegistration = ({
       ...values,
       method: values.method || 'password',
       csrf_token: csrfToken.attributes.value,
-      'traits.image': values['traits.image'] || fallbackImages.avatar,
     };
 
     validate({ action, params: postData });

@@ -25,6 +25,7 @@ import useRegistration from '../../hooks/useRegistration';
 import EmailVerificationSent from './EmailVerificationSent';
 import AuthModalHeader from './AuthModalHeader';
 import { AuthFlow, getKratosFlow } from '../../lib/kratos';
+import { fallbackImages } from '../../lib/config';
 
 export enum Display {
   Default = 'default',
@@ -84,7 +85,7 @@ function AuthOptions({
         email: getNodeValue('traits.email', nodes),
         name: getNodeValue('traits.name', nodes),
         username: getNodeValue('traits.username', nodes),
-        image: getNodeValue('traits.image', nodes),
+        image: getNodeValue('traits.image', nodes) || fallbackImages.avatar,
       });
       setActiveDisplay(Display.Registration);
     }
