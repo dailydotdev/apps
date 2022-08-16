@@ -6,6 +6,13 @@ import { pageBorders } from '@dailydotdev/shared/src/components/utilities';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import React, { ReactNode } from 'react';
+import {
+  faq,
+  privacyPolicy,
+  reportIssue,
+  requestFeature,
+  termsOfService,
+} from '@dailydotdev/shared/src/lib/constants';
 
 interface AccountPageIconProps {
   isActive?: boolean;
@@ -29,6 +36,39 @@ export enum AccountSecurityDisplay {
   ChangeEmail = 'change_email',
   ConnectEmail = 'connect_email',
 }
+
+interface AccountSidebarPage {
+  title: string;
+  href: string;
+  target: string;
+}
+export const accountSidebarPages: AccountSidebarPage[] = [
+  {
+    title: 'FAQ',
+    href: faq,
+    target: '_blank',
+  },
+  {
+    title: 'Request a feature',
+    href: requestFeature,
+    target: '_blank',
+  },
+  {
+    title: 'Report an issue',
+    href: reportIssue,
+    target: '_blank',
+  },
+  {
+    title: 'Privacy policy',
+    href: privacyPolicy,
+    target: '_blank',
+  },
+  {
+    title: 'Terms of service',
+    href: termsOfService,
+    target: '_blank',
+  },
+];
 
 export const accountPage: Record<AccountPage, AccountPageProps> = {
   profile: {
@@ -62,3 +102,7 @@ export const AccountPageHeading = classed(
 
 export const CommonTextField = classed(TextField, 'max-w-sm');
 export const AccountTextField = classed(CommonTextField, 'mt-6');
+export const AccountSidebarPagesSection = classed(
+  'div',
+  'flex flex-col py-1.5 px-6 mt-10 w-full rounded-16 border border-theme-divider-tertiary',
+);
