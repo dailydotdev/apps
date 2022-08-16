@@ -1,7 +1,6 @@
 import React from 'react';
 import { render, RenderResult, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { TextField, TextFieldProps } from './TextField';
+import { TextFieldProps } from './TextField';
 import { PasswordField } from './PasswordField';
 
 const renderComponent = (props: Partial<TextFieldProps> = {}): RenderResult => {
