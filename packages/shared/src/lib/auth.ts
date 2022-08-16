@@ -374,6 +374,41 @@ export const errorsToJson = <T extends string>(
 export const getErrorMessage = (errors: Message[]): string =>
   errors?.[0]?.text || '';
 
+export const getSettingsFlow = async (
+  id: string,
+): Promise<InitializationData> => {
+  const res = await fetch(`${authUrl}/self-service/settings/flows?id=${id}`, {
+    credentials: 'include',
+    headers: { Accept: 'application/json' },
+  });
+
+  return res.json();
+};
+
+export const resetPassword = async ({
+  action,
+  params,
+}: ValidateRegistrationParams): Promise<SuccessfulRegistrationResponse> => {
+  const res = await fetch(action, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': params.csrf_token,
+      Accept: 'application/json',
+    },
+    body: JSON.stringify(params),
+  });
+
+  const json = await res.json();
+
+  if (res.status === 200) {
+    return { data: json };
+  }
+
+  return { error: json?.error || json };
+};
+
 export const getNodeByKey = (
   key: string,
   nodes: InitializationNode[],
