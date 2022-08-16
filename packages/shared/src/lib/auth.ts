@@ -307,14 +307,6 @@ export const logoutSession = (
     headers: { Accept: 'application/json', 'X-CSRF-Token': csrf_token },
   });
 
-export const initializeSettings = async (): Promise<InitializationData> => {
-  const res = await fetch(`${authUrl}/self-service/settings/browser`, {
-    credentials: 'include',
-    headers: { Accept: 'application/json' },
-  });
-  return res.json();
-};
-
 export const updateSettings = async ({
   action,
   params,
