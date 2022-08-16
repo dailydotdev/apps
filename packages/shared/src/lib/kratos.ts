@@ -148,7 +148,6 @@ export interface SuccessfulRegistrationData {
 
 export enum AuthFlow {
   Login = '/login',
-  Logout = '/logout',
   Registration = '/registration',
   Settings = '/settings',
   Recovery = '/recovery',
@@ -157,11 +156,9 @@ export enum AuthFlow {
 
 const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || 'http://127.0.0.1:4433';
 
-export const initializeKratosFlow = async <T extends AuthFlow>(
-  flow: T,
-): Promise<
-  T extends AuthFlow.Logout ? LogoutSessionData : InitializationData
-> => {
+export const initializeKratosFlow = async (
+  flow: AuthFlow,
+): Promise<InitializationData> => {
   const res = await fetch(`${authUrl}/self-service${flow}/browser`, {
     credentials: 'include',
     headers: { Accept: 'application/json' },
@@ -232,16 +229,4 @@ export const submitKratosFlow = async <
   }
 
   return { error: json?.error || json };
-};
-
-export const checkCurrentSession = async (): Promise<AuthSession> => {
-  const res = await fetch(`${authUrl}/sessions/whoami`, {
-    credentials: 'include',
-  });
-
-  if (res.status === 401) {
-    throw new Error('No active user');
-  }
-
-  return res.json();
 };
