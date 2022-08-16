@@ -18,6 +18,7 @@ import {
   getLogoutSession,
   logoutSession,
 } from '../lib/auth';
+import IncompleteRegistrationModal from '../components/auth/IncompleteRegistrationModal';
 
 export type LoginState = { trigger: string };
 
@@ -104,14 +105,17 @@ export const AuthContextProvider = ({
   getRedirectUri,
   visit,
 }: AuthContextProviderProps): ReactElement => {
+  const [isIncompleteRegistration, setIsIncompleteRegistration] =
+    useState(false);
   const [session, setSession] = useState<AuthSession>();
   const [loginState, setLoginState] = useState<LoginState | null>(null);
+  const endUser = user && 'providers' in user ? user : null;
 
   const authContext: AuthContextData = useMemo(
     () => ({
       session,
       onUpdateSession: setSession,
-      user: user && 'providers' in user ? user : null,
+      user: endUser,
       isFirstVisit: user?.isFirstVisit ?? false,
       trackingId: user?.id,
       shouldShowLogin: loginState !== null,
@@ -150,7 +154,25 @@ export const AuthContextProvider = ({
       .catch(() => setSession(null));
   }, []);
 
+  useEffect(() => {
+    if (!session || !endUser || endUser?.timezone) {
+      return;
+    }
+
+    setIsIncompleteRegistration(true);
+  }, [endUser, session]);
+
   return (
-    <AuthContext.Provider value={authContext}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={authContext}>
+      {children}
+      {isIncompleteRegistration && endUser && (
+        <IncompleteRegistrationModal
+          user={endUser}
+          updateUser={updateUser}
+          isOpen={isIncompleteRegistration}
+          onRequestClose={() => setIsIncompleteRegistration(false)}
+        />
+      )}
+    </AuthContext.Provider>
   );
 };
