@@ -82,7 +82,7 @@ function AuthOptions({
         provider: getNodeValue('provider', nodes),
         csrf_token: getNodeValue('csrf_token', nodes),
         email: getNodeValue('traits.email', nodes),
-        name: getNodeValue('traits.fullname', nodes),
+        name: getNodeValue('traits.name', nodes),
         username: getNodeValue('traits.username', nodes),
         image: getNodeValue('traits.image', nodes) || fallbackImages.avatar,
       });

@@ -101,6 +101,13 @@ interface VerifyableAddress extends RecoveryAddress {
   updated_at: Date;
 }
 
+interface IdentityTraits {
+  username: string;
+  fullname: string;
+  email: string;
+  image: string;
+}
+
 interface Identity {
   created_at: Date;
   credentials?: Record<string, IdentityCredential>;
@@ -112,7 +119,7 @@ interface Identity {
   schema_url: string;
   state: 'active';
   state_changed_at: Date;
-  traits: unknown;
+  traits: IdentityTraits;
   updated_at: Date;
   verifiable_addresses: VerifyableAddress[];
 }
@@ -218,7 +225,7 @@ export interface RegistrationParameters {
   method: AuthenticationType;
   password?: string;
   'traits.email': string;
-  'traits.fullname'?: string;
+  'traits.name'?: string;
   'traits.username': string;
   'traits.image': string;
 }
