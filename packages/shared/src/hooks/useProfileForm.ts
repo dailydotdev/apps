@@ -1,17 +1,10 @@
 import { GraphQLError } from 'graphql-request/dist/types';
 import request from 'graphql-request';
 import { useContext, useState } from 'react';
-import { UseMutateAsyncFunction, useMutation, useQuery } from 'react-query';
+import { UseMutateAsyncFunction, useMutation } from 'react-query';
 import AuthContext from '../contexts/AuthContext';
 import { UPDATE_USER_PROFILE_MUTATION } from '../graphql/users';
 import { apiUrl } from '../lib/config';
-import { disabledRefetch } from '../lib/func';
-import {
-  getNodeValue,
-  initializeSettings,
-  KratosAuthMethod,
-  updateSettings,
-} from '../lib/auth';
 import { LoggedUser } from '../lib/user';
 
 interface ProfileFormHint {
@@ -57,14 +50,8 @@ export interface UpdateProfileParameters {
 }
 
 const useProfileForm = (): UseProfileForm => {
-  const { user, session, updateUser } = useContext(AuthContext);
+  const { user, updateUser } = useContext(AuthContext);
   const [hint, setHint] = useState<ProfileFormHint>({});
-  const { data: settings } = useQuery(
-    ['settings', user?.id],
-    initializeSettings,
-    { ...disabledRefetch },
-  );
-  const { mutateAsync: updateKratosProfile } = useMutation(updateSettings);
   const { isLoading, mutateAsync: updateUserProfile } = useMutation<
     LoggedUser,
     ResponseError,
@@ -73,24 +60,8 @@ const useProfileForm = (): UseProfileForm => {
     (data) =>
       request(`${apiUrl}/graphql`, UPDATE_USER_PROFILE_MUTATION, { data }),
     {
-      onSuccess: async (response, { image, ...vars }) => {
+      onSuccess: async (_, { image, ...vars }) => {
         setHint({});
-        const { name, username } = session.identity.traits;
-        if (
-          (vars.name && vars.name !== name) ||
-          (vars.username && vars.username !== username)
-        ) {
-          const params = {
-            'traits.email': session.identity.traits.email,
-            'traits.name': vars.name || session.identity.traits.name,
-            'traits.image': response.image,
-            'traits.username':
-              vars.username || session.identity.traits.username,
-            csrf_token: getNodeValue('csrf_token', settings.ui.nodes),
-            method: KratosAuthMethod.Profile,
-          };
-          updateKratosProfile({ action: settings.ui.action, params });
-        }
         await updateUser({ ...user, ...vars });
       },
       onError: (err) => {
