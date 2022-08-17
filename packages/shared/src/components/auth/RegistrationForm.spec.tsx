@@ -15,7 +15,6 @@ import {
   successfulRegistrationMockData,
 } from '../../../__tests__/fixture/auth';
 import {
-  authUrl,
   getNodeByKey,
   getNodeValue,
   RegistrationParameters,
@@ -23,6 +22,7 @@ import {
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import { formToJson } from '../../lib/form';
 import AuthOptions, { AuthOptionsProps } from './AuthOptions';
+import { authUrl } from '../../lib/constants';
 
 beforeEach(() => {
   jest.clearAllMocks();

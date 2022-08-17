@@ -14,10 +14,11 @@ import {
   passwordLoginFlowMockData,
   successfulRegistrationMockData,
 } from '../../../__tests__/fixture/auth';
-import { authUrl, getNodeByKey, LoginPasswordParameters } from '../../lib/auth';
+import { getNodeByKey, LoginPasswordParameters } from '../../lib/auth';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import { formToJson } from '../../lib/form';
 import LoginForm from './LoginForm';
+import { authUrl } from '../../lib/constants';
 
 beforeEach(() => {
   jest.clearAllMocks();

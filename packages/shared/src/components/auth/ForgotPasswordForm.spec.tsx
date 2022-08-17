@@ -13,10 +13,11 @@ import {
   emailSentRecoveryMockData,
   passwordRecoveryFlowMockData,
 } from '../../../__tests__/fixture/auth';
-import { AccountRecoveryParameters, authUrl } from '../../lib/auth';
+import { AccountRecoveryParameters } from '../../lib/auth';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import { formToJson } from '../../lib/form';
 import ForgotPasswordForm from './ForgotPasswordForm';
+import { authUrl } from '../../lib/constants';
 
 beforeEach(() => {
   jest.clearAllMocks();
