@@ -1,5 +1,6 @@
 import nodeFetch from 'node-fetch';
 import { apiUrl } from './config';
+import { USER_BY_ID_STATIC_FIELDS_QUERY } from '../graphql/users';
 
 export enum Roles {
   Moderator = 'moderator',
@@ -151,7 +152,12 @@ const getProfileRequest = async (method = fetch, id: string) => {
     headers: {
       'Content-Type': 'application/json',
     },
-    body: `{"query":"query User($id: ID!) { user(id: $id) { id name image username twitter github timezone portfolio reputation permalink createdAt } }","variables":{"id":"${id}"}}`,
+    body: JSON.stringify({
+      query: USER_BY_ID_STATIC_FIELDS_QUERY,
+      variables: {
+        id,
+      },
+    }),
   });
   if (userRes.status === 404) {
     throw new Error('not found');
