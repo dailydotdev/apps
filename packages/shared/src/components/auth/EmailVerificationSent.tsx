@@ -1,8 +1,16 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useState } from 'react';
+import { useMutation, useQuery } from 'react-query';
 import classed from '../../lib/classed';
 import { Button } from '../buttons/Button';
 import EmailSentIcon from '../../../icons/mail_sent.svg';
 import useTimer from '../../hooks/useTimer';
+import {
+  AuthFlow,
+  initializeKratosFlow,
+  submitKratosFlow,
+} from '../../lib/kratos';
+import { disabledRefetch } from '../../lib/func';
+import { getNodeByKey, VerificationParams } from '../../lib/auth';
 
 const BodyText = classed(
   'p',
@@ -11,20 +19,44 @@ const BodyText = classed(
 
 interface EmailVerificationSentProps {
   email: string;
-  onResend: () => unknown;
 }
 
 function EmailVerificationSent({
   email,
-  onResend,
 }: EmailVerificationSentProps): ReactElement {
+  const [sentCount, setSentCount] = useState(0);
   const { timer, setTimer, runTimer } = useTimer(() => null, 12);
   runTimer();
 
-  const resend = () => {
-    setTimer(12);
-    runTimer();
-    onResend();
+  const { data: verification } = useQuery(
+    ['verification', sentCount],
+    () => initializeKratosFlow(AuthFlow.Verification),
+    {
+      ...disabledRefetch,
+    },
+  );
+
+  const { mutateAsync: sendVerification, isLoading } = useMutation(
+    (params: VerificationParams) => submitKratosFlow(params),
+    {
+      onSuccess: () => {
+        setTimer(12);
+        runTimer();
+        setSentCount((value) => value + 1);
+      },
+    },
+  );
+
+  const resend = async () => {
+    const { action, nodes } = verification.ui;
+    const csrfToken = getNodeByKey('csrf_token', nodes);
+    const params = {
+      csrf_token: csrfToken.attributes.value,
+      email,
+      method: 'link',
+    };
+
+    await sendVerification({ action, params });
   };
 
   return (
@@ -41,7 +73,7 @@ function EmailVerificationSent({
       <BodyText className="mt-8">Still {`can't`} find the email?</BodyText>
       <Button
         className="mt-auto btn-primary"
-        disabled={timer > 0}
+        disabled={timer > 0 || isLoading}
         onClick={resend}
       >
         Resend email {timer > 0 && `${timer}s`}

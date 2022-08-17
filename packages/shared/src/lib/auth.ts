@@ -15,6 +15,8 @@ export interface AccountRecoveryParameters extends AuthPostParams {
   email: string;
 }
 
+export type VerificationParams = KratosFormParams<AccountRecoveryParameters>;
+
 export interface RegistrationParameters {
   csrf_token: string;
   provider?: string;
