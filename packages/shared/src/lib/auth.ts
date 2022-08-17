@@ -29,7 +29,7 @@ export interface RegistrationParameters {
   'traits.image': string;
 }
 
-export type ValidateReceoveryParams =
+export type ValidateRecoveryParams =
   KratosFormParams<AccountRecoveryParameters>;
 export type ErrorMessages<T extends string | number> = { [key in T]?: string };
 export type RegistrationError = ErrorMessages<keyof RegistrationParameters>;

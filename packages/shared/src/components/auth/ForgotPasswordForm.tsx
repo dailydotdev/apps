@@ -6,7 +6,7 @@ import {
   getErrorMessage,
   getNodeByKey,
   getNodeValue,
-  ValidateReceoveryParams,
+  ValidateRecoveryParams,
 } from '../../lib/auth';
 import { formToJson } from '../../lib/form';
 import { disabledRefetch } from '../../lib/func';
@@ -49,7 +49,7 @@ function ForgotPasswordForm({
   );
 
   const { mutateAsync: sendEmail, isLoading } = useMutation(
-    (params: ValidateReceoveryParams) => submitKratosFlow(params),
+    (params: ValidateRecoveryParams) => submitKratosFlow(params),
     {
       onSuccess: ({ error }) => {
         if (error) {
