@@ -13,6 +13,7 @@ import AuthModalHeader from './AuthModalHeader';
 import { AuthForm, providerMap } from './common';
 import LockIcon from '../icons/Lock';
 import AtIcon from '../icons/At';
+import { PasswordField } from '../fields/PasswordField';
 
 export interface SocialProviderAccount {
   provider: string;
@@ -78,7 +79,7 @@ export const RegistrationForm = ({
       />
       <AuthForm
         className={classNames(
-          'gap-4 self-center place-items-center mt-6 w-full',
+          'gap-[1.625rem] self-center place-items-center mt-6 w-full',
           isV2 ? 'max-w-[20rem]' : 'px-[3.75rem]',
         )}
         ref={formRef}
@@ -120,18 +121,17 @@ export const RegistrationForm = ({
           required
         />
         {!socialAccount && (
-          <TextField
+          <PasswordField
             className="w-full"
             validityChanged={setIsPasswordValid}
             valid={isPasswordValid}
-            leftIcon={<MailIcon />}
+            leftIcon={<LockIcon />}
             type="password"
             name="password"
             inputId="password"
             label="Create a password"
-            rightIcon={
-              isPasswordValid && <VIcon className="text-theme-color-avocado" />
-            }
+            absoluteLabel
+            minLength={6}
           />
         )}
         <TextField
