@@ -4,7 +4,7 @@ import { RegistrationError, RegistrationParameters } from '../../lib/auth';
 import { formToJson } from '../../lib/form';
 import { Button } from '../buttons/Button';
 import ImageInput from '../fields/ImageInput';
-import PasswordField from '../fields/PasswordField';
+import { PasswordField } from '../fields/PasswordField';
 import { TextField } from '../fields/TextField';
 import MailIcon from '../icons/Mail';
 import UserIcon from '../icons/User';
@@ -85,7 +85,7 @@ export const RegistrationForm = ({
       />
       <AuthForm
         className={classNames(
-          'gap-1 self-center place-items-center mt-6 w-full',
+          'gap-6 self-center place-items-center mt-6 w-full',
           isV2 ? 'max-w-[20rem]' : 'px-[3.75rem]',
         )}
         ref={formRef}
@@ -132,9 +132,8 @@ export const RegistrationForm = ({
         />
         {!socialAccount && (
           <PasswordField
-            saveHintSpace
             className="w-full"
-            valid={!hints?.password?.length}
+            valid={isPasswordValid}
             leftIcon={<LockIcon />}
             type="password"
             name="password"
@@ -147,6 +146,8 @@ export const RegistrationForm = ({
             rightIcon={
               isPasswordValid && <VIcon className="text-theme-color-avocado" />
             }
+            absoluteLabel
+            minLength={6}
           />
         )}
         <TextField

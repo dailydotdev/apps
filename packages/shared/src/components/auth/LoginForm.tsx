@@ -16,7 +16,7 @@ import {
 } from '../../lib/kratos';
 import { Button } from '../buttons/Button';
 import { ClickableText } from '../buttons/ClickableText';
-import PasswordField from '../fields/PasswordField';
+import { PasswordField } from '../fields/PasswordField';
 import { TextField } from '../fields/TextField';
 import MailIcon from '../icons/Mail';
 import { AuthForm } from './common';
