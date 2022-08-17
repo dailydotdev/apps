@@ -37,10 +37,11 @@ function ForgotPasswordForm({
   onClose,
 }: ForgotPasswordFormProps): ReactElement {
   const [hint, setHint] = useState('');
+  const [sentCount, setSentCount] = useState(0);
   const [emailSent, setEmailSent] = useState(false);
   const { timer, setTimer, runTimer } = useTimer(() => setEmailSent(false), 0);
   const { data: recovery } = useQuery(
-    'recovery',
+    ['recovery', sentCount],
     () => initializeKratosFlow(AuthFlow.Recovery),
     {
       ...disabledRefetch,
@@ -59,8 +60,9 @@ function ForgotPasswordForm({
           return setHint(message);
         }
 
-        setTimer(60);
+        setTimer(5);
         runTimer();
+        setSentCount((value) => value + 1);
         return setEmailSent(true);
       },
     },

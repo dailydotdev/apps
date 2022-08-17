@@ -61,7 +61,11 @@ function LoginForm({
     const form = formToJson<LoginFormParams>(formRef.current);
     const { nodes, action } = login.ui;
     const csrfToken = getNodeValue('csrf_token', nodes);
-    const params: LoginPasswordParameters = { ...form, csrf_token: csrfToken };
+    const params: LoginPasswordParameters = {
+      ...form,
+      csrf_token: csrfToken,
+      method: 'password',
+    };
     onPasswordLogin({ action, params });
   };
 
@@ -85,7 +89,12 @@ function LoginForm({
         onChange={() => hint && setHint('')}
         valid={!!hint}
       />
-      <PasswordField inputId="password" name="password" label="Password" />
+      <PasswordField
+        inputId="password"
+        name="password"
+        label="Password"
+        showStrength={false}
+      />
       <span className="flex flex-row mt-4 w-full">
         <ClickableText
           type="button"

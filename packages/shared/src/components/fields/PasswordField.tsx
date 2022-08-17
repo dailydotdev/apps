@@ -27,10 +27,15 @@ const passwordStrengthStates = {
   },
 };
 
+interface PasswordFieldProps extends TextFieldProps {
+  showStrength?: boolean;
+}
+
 export function PasswordField({
   type,
+  showStrength,
   ...props
-}: TextFieldProps): ReactElement {
+}: PasswordFieldProps): ReactElement {
   const [useType, setUseType] = useState(type);
   const [passwordStrengthLevel, setPasswordStrengthLevel] = useState<number>(0);
   const [isValid, setIsValid] = useState<boolean>(null);
@@ -48,16 +53,22 @@ export function PasswordField({
       valueChanged={(value) =>
         setPasswordStrengthLevel(passwordStrength(value).id)
       }
-      hint={hint}
+      hint={showStrength ? hint : props.hint}
       validityChanged={setIsValid}
       valid={isValid}
       hintClassName={
-        hasUserAction && passwordStrengthStates[passwordStrengthLevel].className
+        showStrength &&
+        hasUserAction &&
+        passwordStrengthStates[passwordStrengthLevel].className
       }
       progress={
-        hasUserAction && passwordStrengthStates[passwordStrengthLevel].progress
+        showStrength &&
+        hasUserAction &&
+        passwordStrengthStates[passwordStrengthLevel].progress
       }
-      baseFieldClassName={hasUserAction && `password-${passwordStrengthLevel}`}
+      baseFieldClassName={
+        showStrength && hasUserAction && `password-${passwordStrengthLevel}`
+      }
       actionButton={
         <button
           type="button"

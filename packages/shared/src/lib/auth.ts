@@ -11,6 +11,7 @@ import {
 export interface LoginPasswordParameters extends AuthPostParams {
   password: string;
   identifier: string;
+  method: AuthenticationType;
 }
 export interface AccountRecoveryParameters extends AuthPostParams {
   email: string;
