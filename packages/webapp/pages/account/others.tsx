@@ -6,6 +6,7 @@ import {
   getUserInitialTimezone,
   getTimeZoneIcon,
 } from '@dailydotdev/shared/src/lib/timezones';
+import useProfileForm from '@dailydotdev/shared/src/hooks/useProfileForm';
 import React, { ReactElement, useContext, useState } from 'react';
 import { getAccountLayout } from '../../components/layouts/AccountLayout';
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
@@ -16,6 +17,7 @@ const timeZoneValues = timeZoneOptions.map((timeZone) => timeZone.label);
 
 const AccountOthersPage = (): ReactElement => {
   const { user } = useContext(AuthContext);
+  const { updateUserProfile } = useProfileForm();
   const [userTimeZone, setUserTimeZone] = useState<string>(
     getUserInitialTimezone({
       userTimezone: user?.timezone,
@@ -23,11 +25,12 @@ const AccountOthersPage = (): ReactElement => {
     }),
   );
 
-  const timezoneUpdated = (timezone: string) => {
+  const timezoneUpdated = async (timezone: string) => {
     const findTimeZoneRow = timeZoneOptions.find((_timeZone) => {
       return _timeZone.label === timezone;
     });
     setUserTimeZone(findTimeZoneRow.value);
+    await updateUserProfile({ timezone: findTimeZoneRow.value });
   };
 
   const Icon = getTimeZoneIcon(userTimeZone);
@@ -59,6 +62,9 @@ const AccountOthersPage = (): ReactElement => {
           name="newsletter"
           className="mt-6"
           compact={false}
+          onToggle={() =>
+            updateUserProfile({ acceptedMarketing: !user.acceptedMarketing })
+          }
         >
           Subscribe to the Community Newsletter
         </Switch>
