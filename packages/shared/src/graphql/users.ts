@@ -10,24 +10,6 @@ type CommentStats = { numComments: number; numCommentUpvotes: number };
 export type UserStats = PostStats & CommentStats;
 export type UserStatsData = { userStats: UserStats };
 
-export const USER_BY_ID_STATIC_FIELDS_QUERY = gql`
-  query User($id: ID!) {
-    user(id: $id) {
-      id
-      name
-      image
-      username
-      twitter
-      github
-      timezone
-      portfolio
-      reputation
-      permalink
-      createdAt
-    }
-  }
-`;
-
 export const USER_STATS_QUERY = gql`
   query UserStats($id: ID!) {
     userStats(id: $id) {

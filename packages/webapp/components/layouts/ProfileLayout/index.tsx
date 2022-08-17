@@ -6,7 +6,8 @@ import React, {
   useState,
 } from 'react';
 import {
-  GraphQLProfile,
+  getProfile,
+  getProfileSSR,
   PublicProfile,
 } from '@dailydotdev/shared/src/lib/user';
 import { NextSeoProps } from 'next-seo/lib/types';
@@ -32,7 +33,6 @@ import Rank from '@dailydotdev/shared/src/components/Rank';
 import request, { ClientError } from 'graphql-request';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import {
-  USER_BY_ID_STATIC_FIELDS_QUERY,
   USER_READING_RANK_QUERY,
   UserReadingRankData,
 } from '@dailydotdev/shared/src/graphql/users';
@@ -83,20 +83,17 @@ export default function ProfileLayout({
   const selectedTab = tabs.findIndex((tab) => tab.path === router?.pathname);
 
   const queryKey = ['profile', initialProfile?.id];
-  const { data: fetchedProfile } = useQuery<GraphQLProfile>(
+  const { data: fetchedProfile } = useQuery<PublicProfile>(
     queryKey,
-    () =>
-      request(`${apiUrl}/graphql`, USER_BY_ID_STATIC_FIELDS_QUERY, {
-        id: initialProfile.id,
-      }),
+    () => getProfile(initialProfile.id),
     {
-      initialData: { user: initialProfile },
+      initialData: initialProfile,
       enabled: !!initialProfile,
     },
   );
 
   // Needed because sometimes initialProfile is defined and fetchedProfile is not
-  const profile = fetchedProfile?.user ?? initialProfile;
+  const profile = fetchedProfile ?? initialProfile;
 
   const userRankQueryKey = ['userRank', initialProfile?.id];
   const { data: userRank } = useQuery<UserReadingRankData>(
@@ -306,15 +303,11 @@ export async function getStaticProps({
 > {
   const { userId } = params;
   try {
-    const profile = await request(
-      `${apiUrl}/graphql`,
-      USER_BY_ID_STATIC_FIELDS_QUERY,
-      { id: userId },
-    );
+    const profile = await getProfileSSR(userId);
 
     return {
       props: {
-        profile: profile?.user,
+        profile,
       },
       revalidate: 60,
     };

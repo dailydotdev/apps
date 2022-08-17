@@ -1,3 +1,4 @@
+import nodeFetch from 'node-fetch';
 import { apiUrl } from './config';
 
 export enum Roles {
@@ -40,10 +41,6 @@ export interface UserProfile {
   bio?: string;
   acceptedMarketing?: boolean;
   timezone?: string;
-}
-
-export interface GraphQLProfile {
-  user: UserProfile;
 }
 
 export interface UserShortProfile
@@ -146,4 +143,28 @@ export async function changeProfileImage(file: File): Promise<LoggedUser> {
     return data;
   }
   throw new Error('Unexpected response');
+}
+
+const getProfileRequest = async (method = fetch, id: string) => {
+  const userRes = await method(`${apiUrl}/graphql`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: `{"query":"query User($id: ID!) { user(id: $id) { id name image username twitter github timezone portfolio reputation permalink createdAt } }","variables":{"id":"${id}"}}`,
+  });
+  if (userRes.status === 404) {
+    throw new Error('not found');
+  }
+
+  const response = await userRes.json();
+  return response?.data?.user;
+};
+
+export async function getProfileSSR(id: string): Promise<PublicProfile> {
+  return await getProfileRequest(nodeFetch, id);
+}
+
+export async function getProfile(id: string): Promise<PublicProfile> {
+  return await getProfileRequest(fetch, id);
 }
