@@ -7,40 +7,47 @@ import { useQuery, useMutation } from 'react-query';
 import {
   errorsToJson,
   getNodeValue,
-  getSettingsFlow,
   RegistrationParameters,
-  resetPassword,
+  ValidateRegistrationParams,
 } from '@dailydotdev/shared/src/lib/auth';
 import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
 import { useRouter } from 'next/router';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
+import {
+  AuthFlow,
+  getKratosFlow,
+  submitKratosFlow,
+} from '@dailydotdev/shared/src/lib/kratos';
 
 function ResetPassword(): ReactElement {
   const router = useRouter();
   const [hint, setHint] = useState(null);
   const { data } = useQuery(
     'settings',
-    () => getSettingsFlow(router.query.flow as string),
+    () => getKratosFlow(AuthFlow.Settings, router.query.flow as string),
     {
       ...disabledRefetch,
       retry: false,
       enabled: !!router.query.flow,
     },
   );
-  const { mutateAsync: reset } = useMutation(resetPassword, {
-    onSuccess: ({ error, data: success }) => {
-      if (success) {
-        return window.location.replace(process.env.NEXT_PUBLIC_WEBAPP_URL);
-      }
+  const { mutateAsync: reset } = useMutation(
+    (params: ValidateRegistrationParams) => submitKratosFlow(params),
+    {
+      onSuccess: ({ error, data: success }) => {
+        if (success) {
+          return window.location.replace(process.env.NEXT_PUBLIC_WEBAPP_URL);
+        }
 
-      if (!error?.ui) {
-        return setHint('Session could have expired!');
-      }
+        if (!error?.ui) {
+          return setHint('Session could have expired!');
+        }
 
-      const json = errorsToJson<keyof RegistrationParameters>(error);
-      return setHint(json?.password);
+        const json = errorsToJson<keyof RegistrationParameters>(error);
+        return setHint(json?.password);
+      },
     },
-  });
+  );
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();

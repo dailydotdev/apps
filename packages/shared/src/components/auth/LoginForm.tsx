@@ -3,12 +3,17 @@ import { useMutation, useQuery } from 'react-query';
 import AuthContext from '../../contexts/AuthContext';
 import {
   getNodeValue,
-  initializeLogin,
   LoginPasswordParameters,
-  validatePasswordLogin,
+  ValidateLoginParams,
 } from '../../lib/auth';
 import { formToJson } from '../../lib/form';
 import { disabledRefetch } from '../../lib/func';
+import {
+  AuthFlow,
+  AuthSession,
+  initializeKratosFlow,
+  submitKratosFlow,
+} from '../../lib/kratos';
 import { Button } from '../buttons/Button';
 import { ClickableText } from '../buttons/ClickableText';
 import PasswordField from '../fields/PasswordField';
@@ -31,22 +36,30 @@ function LoginForm({
   const [hint, setHint] = useState('Enter your password to login');
   const { onUpdateSession } = useContext(AuthContext);
   const formRef = useRef<HTMLFormElement>();
-  const { data } = useQuery('login', initializeLogin, { ...disabledRefetch });
-  const { mutateAsync: onPasswordLogin } = useMutation(validatePasswordLogin, {
-    onSuccess: ({ error, data: session }) => {
-      if (error) {
-        setHint('Invalid username or password');
-        return;
-      }
+  const { data: login } = useQuery(
+    'login',
+    () => initializeKratosFlow(AuthFlow.Login),
+    { ...disabledRefetch },
+  );
+  const { mutateAsync: onPasswordLogin } = useMutation(
+    (params: ValidateLoginParams) => submitKratosFlow(params),
+    {
+      onSuccess: ({ error, data }) => {
+        if (error) {
+          setHint('Invalid username or password');
+          return;
+        }
 
-      onUpdateSession(session);
-      onSuccessfulLogin();
+        const session = data as AuthSession;
+        onUpdateSession(session);
+        onSuccessfulLogin();
+      },
     },
-  });
+  );
   const onLogin: typeof onSuccessfulLogin = async (e) => {
     e.preventDefault();
     const form = formToJson<LoginFormParams>(formRef.current);
-    const { nodes, action } = data.ui;
+    const { nodes, action } = login.ui;
     const csrfToken = getNodeValue('csrf_token', nodes);
     const params: LoginPasswordParameters = { ...form, csrf_token: csrfToken };
     onPasswordLogin({ action, params });
@@ -60,7 +73,7 @@ function LoginForm({
       ref={formRef}
       data-testid="login_form"
     >
-      <TokenInput token={getNodeValue('csrf_token', data?.ui?.nodes)} />
+      <TokenInput token={getNodeValue('csrf_token', login?.ui?.nodes)} />
       <TextField
         leftIcon={<MailIcon />}
         inputId="identifier"
