@@ -1,11 +1,10 @@
 import React, { ReactElement, ReactNode, useContext } from 'react';
-import { getProfile, PublicProfile } from '@dailydotdev/shared/src/lib/user';
+import { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
 import { NextSeo } from 'next-seo';
 import dynamic from 'next/dynamic';
-import { useQuery } from 'react-query';
 import { getLayout as getMainLayout } from '../MainLayout';
 import SidebarNav from './SidebarNav';
 import { AccountPage } from './common';
@@ -22,18 +21,13 @@ export default function AccountLayout({
   activePage,
   children,
 }: AccountLayoutProps): ReactElement {
-  const { user } = useContext(AuthContext);
+  const { user: profile } = useContext(AuthContext);
 
-  if (!user) {
+  if (!profile) {
     return <Custom404 />;
   }
 
-  const queryKey = ['profile', user.id];
-  const { data: profile } = useQuery<PublicProfile>(queryKey, () =>
-    getProfile(user.id),
-  );
-
-  if (!profile || !Object.keys(profile).length) {
+  if (!Object.keys(profile).length) {
     return <></>; // should be a loading screen
   }
 

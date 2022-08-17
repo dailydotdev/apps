@@ -21,7 +21,7 @@ export interface AccountRecoveryParameters extends AuthPostParams {
 export interface RegistrationParameters {
   csrf_token: string;
   provider?: string;
-  method: AuthenticationType;
+  method: AuthenticationType | KratosMethod;
   password?: string;
   'traits.email': string;
   'traits.name'?: string;
@@ -31,6 +31,13 @@ export interface RegistrationParameters {
 
 export type ValidateRecoveryParams =
   KratosFormParams<AccountRecoveryParameters>;
+
+export interface SettingsParameters {
+  csrf_token: string;
+  link?: string;
+  unlink?: string;
+}
+
 export type ErrorMessages<T extends string | number> = { [key in T]?: string };
 export type RegistrationError = ErrorMessages<keyof RegistrationParameters>;
 export type ValidateRegistrationParams =

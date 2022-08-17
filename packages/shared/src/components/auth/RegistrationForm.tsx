@@ -93,7 +93,9 @@ export const RegistrationForm = ({
         data-testid="registration_form"
       >
         <TokenInput token={token} />
-        {socialAccount && <ImageInput initialValue={socialAccount.image} />}
+        {socialAccount && (
+          <ImageInput initialValue={socialAccount.image} size="large" />
+        )}
         <TextField
           saveHintSpace
           className="w-full"

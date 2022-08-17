@@ -5,7 +5,7 @@ import React, {
   useState,
 } from 'react';
 import classNames from 'classnames';
-import AuthContext, { getQueryParams } from '../../contexts/AuthContext';
+import { getQueryParams } from '../../contexts/AuthContext';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { AuthVersion } from '../../lib/featureValues';
 import { CloseModalFunc } from '../modals/common';
@@ -67,14 +67,10 @@ function AuthOptions({
   const [activeDisplay, setActiveDisplay] = useState(
     hasLoggedOut() ? Display.SignBack : defaultDisplay,
   );
-  const { onUpdateSession } = useContext(AuthContext);
   const { registration, validateRegistration, onSocialRegistration } =
     useRegistration({
       key: 'registration_form',
-      onValidRegistration: (data) => {
-        onUpdateSession(data);
-        setActiveDisplay(Display.EmailSent);
-      },
+      onValidRegistration: () => setActiveDisplay(Display.EmailSent), // on valid registration get boot
       onInvalidRegistration: setRegistrationHints,
       onRedirect: (redirect) => window.open(redirect),
     });

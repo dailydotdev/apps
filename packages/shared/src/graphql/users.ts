@@ -250,6 +250,36 @@ export const QUERY_USER_BY_EMAIL = gql`
   query UserByEmail($email: String!) {
     user: userByEmail(email: $email) {
       id
+      name
+      image
+      username
+      permalink
+      bio
+      twitter
+      github
+      hashnode
+      createdAt
+      infoConfirmed
+      timezone
+    }
+  }
+`;
+
+export const UPDATE_USER_PROFILE_MUTATION = gql`
+  mutation UpdateUserProfile($data: UpdateUserInput, $upload: Upload) {
+    updateUserProfile(data: $data, upload: $upload) {
+      id
+      name
+      image
+      username
+      permalink
+      bio
+      twitter
+      github
+      hashnode
+      createdAt
+      infoConfirmed
+      timezone
     }
   }
 `;

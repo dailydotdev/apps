@@ -3,20 +3,31 @@ import React, { ChangeEvent, ReactElement, useRef, useState } from 'react';
 import { blobToBase64 } from '../../lib/blob';
 import EditIcon from '../icons/Edit';
 
+type Size = 'medium' | 'large';
+
 interface ImageInputProps {
   className?: string;
   initialValue?: string;
   onChange?: (base64: string) => void;
   name?: string;
+  size?: Size;
+  id?: string;
 }
 
 const TWO_MEGABYTES = 2 * 1024 * 1024;
 
+const componentSize: Record<Size, string> = {
+  medium: 'w-24 h-24 rounded-26',
+  large: 'w-40 h-40 rounded-[2.5rem]',
+};
+
 function ImageInput({
   initialValue,
   name = 'file',
+  id,
   className,
   onChange,
+  size = 'medium',
 }: ImageInputProps): ReactElement {
   const inputRef = useRef<HTMLInputElement>();
   const [error, setError] = useState('');
@@ -50,11 +61,13 @@ function ImageInput({
       type="button"
       onClick={onClick}
       className={classNames(
-        'relative flex justify-center items-center group w-fit',
+        'relative flex justify-center items-center group overflow-hidden border border-theme-bg-tertiary',
+        componentSize[size],
         className,
       )}
     >
       <input
+        id={id}
         ref={inputRef}
         type="file"
         name={name}
@@ -63,13 +76,13 @@ function ImageInput({
         onChange={onFileChange}
       />
       <img
-        className="w-40 h-40 mouse:group-hover:opacity-64 rounded-[2.625rem]"
+        className="mouse:group-hover:opacity-64"
         src={image}
         alt="File upload preview"
       />
       <EditIcon
         className="hidden mouse:group-hover:block absolute"
-        size="large"
+        size={size}
         secondary
       />
       <span

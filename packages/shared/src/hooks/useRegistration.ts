@@ -11,7 +11,6 @@ import { fallbackImages } from '../lib/config';
 import { disabledRefetch } from '../lib/func';
 import {
   AuthFlow,
-  AuthSession,
   InitializationData,
   initializeKratosFlow,
   submitKratosFlow,
@@ -23,10 +22,7 @@ type ParamKeys = keyof RegistrationParameters;
 interface UseRegistrationProps {
   key: QueryKey;
   onRedirect?: (redirect: string) => void;
-  onValidRegistration?: (
-    session: AuthSession,
-    params: ValidateRegistrationParams,
-  ) => void;
+  onValidRegistration?: (params: ValidateRegistrationParams) => void;
   onInvalidRegistration?: (errors: RegistrationError) => void;
 }
 
@@ -63,7 +59,7 @@ const useRegistration = ({
       onSuccess: ({ data, error, redirect }, params) => {
         const successfulData = data as SuccessfulRegistrationData;
         if (successfulData) {
-          return onValidRegistration?.(successfulData.session, params);
+          return onValidRegistration?.(params);
         }
 
         if (redirect) {
