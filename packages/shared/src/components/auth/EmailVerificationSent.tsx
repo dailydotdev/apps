@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement } from 'react';
 import classed from '../../lib/classed';
 import { Button } from '../buttons/Button';
 import EmailSentIcon from '../../../icons/mail_sent.svg';
