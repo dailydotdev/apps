@@ -4,6 +4,7 @@ import {
   InitializationData,
   InitializationNode,
   KratosFormParams,
+  KratosMethod,
 } from './kratos';
 
 export interface LoginPasswordParameters extends AuthPostParams {
@@ -18,12 +19,18 @@ export interface AccountRecoveryParameters extends AuthPostParams {
 export interface RegistrationParameters {
   csrf_token: string;
   provider?: string;
-  method: AuthenticationType;
+  method: AuthenticationType | KratosMethod;
   password?: string;
   'traits.email': string;
   'traits.name'?: string;
   'traits.username': string;
   'traits.image': string;
+}
+
+export interface SettingsParameters {
+  csrf_token: string;
+  link?: string;
+  unlink?: string;
 }
 
 export type ErrorMessages<T extends string | number> = { [key in T]?: string };

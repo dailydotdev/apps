@@ -245,3 +245,22 @@ export const HIDE_READING_HISTORY_MUTATION = gql`
     }
   }
 `;
+
+export const UPDATE_USER_PROFILE_MUTATION = gql`
+  mutation UpdateUserProfile($data: UpdateUserInput, $upload: Upload) {
+    updateUserProfile(data: $data, upload: $upload) {
+      id
+      name
+      image
+      username
+      permalink
+      bio
+      twitter
+      github
+      hashnode
+      createdAt
+      infoConfirmed
+      timezone
+    }
+  }
+`;
