@@ -3,6 +3,7 @@ import classed from '../../lib/classed';
 import { Button } from '../buttons/Button';
 import EmailSentIcon from '../../../icons/mail_sent.svg';
 import useDebounce from '../../hooks/useDebounce';
+import useTimer from '../../hooks/useTimer';
 
 const BodyText = classed(
   'p',
@@ -18,15 +19,7 @@ function EmailVerificationSent({
   email,
   onResend,
 }: EmailVerificationSentProps): ReactElement {
-  const [timer, setTimer] = useState(12);
-  const [runTimer, clearTimer] = useDebounce(() => {
-    if (timer > 0) {
-      setTimer((_timer) => _timer - 1);
-      runTimer();
-    }
-
-    clearTimer();
-  }, 1000);
+  const { timer, setTimer, runTimer } = useTimer(() => null, 12);
   runTimer();
 
   const resend = () => {

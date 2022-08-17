@@ -56,7 +56,7 @@ function AuthOptions({
   className,
   formRef,
   socialAccount,
-  defaultDisplay = Display.Default,
+  defaultDisplay = Display.EmailSent,
 }: AuthOptionsProps): ReactElement {
   const { authVersion } = useContext(FeaturesContext);
   const isV2 = authVersion === AuthVersion.V2;
