@@ -12,12 +12,8 @@ import {
   deleteAccount,
 } from '../lib/user';
 import { Visit } from '../lib/boot';
-import {
-  AuthSession,
-  checkCurrentSession,
-  getLogoutSession,
-  logoutSession,
-} from '../lib/auth';
+import IncompleteRegistrationModal from '../components/auth/IncompleteRegistrationModal';
+import { AuthSession } from '../lib/kratos';
 
 export type LoginState = { trigger: string };
 
@@ -58,26 +54,15 @@ export const getQueryParams = (): Record<string, string> => {
 
 export const REGISTRATION_PATH = '/register';
 
-const appendLogoutParam = (link: string): URL => {
-  const url = new URL(link);
-  if (!url.searchParams.has('logged_out')) {
-    url.searchParams.append('logged_out', 'true');
-  }
-
-  return url;
-};
-
-const logout = async (logoutUrl: string, token: string): Promise<void> => {
-  await Promise.all([dispatchLogout(), logoutSession(logoutUrl, token)]); // temporary
+const logout = async (): Promise<void> => {
+  await dispatchLogout();
   const params = getQueryParams();
   if (params.redirect_uri) {
-    window.location.replace(appendLogoutParam(params.redirect_uri));
+    window.location.replace(params.redirect_uri);
   } else if (window.location.pathname === REGISTRATION_PATH) {
-    window.location.replace(
-      appendLogoutParam(process.env.NEXT_PUBLIC_WEBAPP_URL),
-    );
+    window.location.replace(process.env.NEXT_PUBLIC_WEBAPP_URL);
   } else {
-    window.location.replace(appendLogoutParam(window.location.href));
+    window.location.replace(window.location.href);
   }
 };
 
@@ -104,14 +89,17 @@ export const AuthContextProvider = ({
   getRedirectUri,
   visit,
 }: AuthContextProviderProps): ReactElement => {
+  const [isIncompleteRegistration, setIsIncompleteRegistration] =
+    useState(false);
   const [session, setSession] = useState<AuthSession>();
   const [loginState, setLoginState] = useState<LoginState | null>(null);
+  const endUser = user && 'providers' in user ? user : null;
 
   const authContext: AuthContextData = useMemo(
     () => ({
       session,
       onUpdateSession: setSession,
-      user: user && 'providers' in user ? user : null,
+      user: endUser,
       isFirstVisit: user?.isFirstVisit ?? false,
       trackingId: user?.id,
       shouldShowLogin: loginState !== null,
@@ -119,7 +107,7 @@ export const AuthContextProvider = ({
       closeLogin: () => setLoginState(null),
       loginState,
       updateUser,
-      logout: () => logout(session.logout_url, session.logout_token),
+      logout,
       loadingUser,
       tokenRefreshed,
       loadedUserFromCache,
@@ -139,18 +127,25 @@ export const AuthContextProvider = ({
     ],
   );
 
-  // temporary - this can be coming from which service we will pull the boot information
-  // in the case today, it will be from the gateway. once done, we can remove this side effect
   useEffect(() => {
-    checkCurrentSession()
-      .then(async (userSession) => {
-        const logoutData = await getLogoutSession();
-        setSession({ ...userSession, ...logoutData });
-      })
-      .catch(() => setSession(null));
-  }, []);
+    if (!session || !endUser || endUser?.timezone) {
+      return;
+    }
+
+    setIsIncompleteRegistration(true);
+  }, [endUser, session]);
 
   return (
-    <AuthContext.Provider value={authContext}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={authContext}>
+      {children}
+      {isIncompleteRegistration && endUser && (
+        <IncompleteRegistrationModal
+          user={endUser}
+          updateUser={updateUser}
+          isOpen={isIncompleteRegistration}
+          onRequestClose={() => setIsIncompleteRegistration(false)}
+        />
+      )}
+    </AuthContext.Provider>
   );
 };
