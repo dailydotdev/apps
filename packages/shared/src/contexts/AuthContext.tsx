@@ -13,13 +13,11 @@ import {
 } from '../lib/user';
 import { Visit } from '../lib/boot';
 import IncompleteRegistrationModal from '../components/auth/IncompleteRegistrationModal';
-import { AuthSession } from '../lib/kratos';
 
 export type LoginState = { trigger: string };
 
 export interface AuthContextData {
   user?: LoggedUser;
-  session?: AuthSession;
   trackingId?: string;
   shouldShowLogin: boolean;
   showLogin: (trigger: string) => void;
@@ -35,7 +33,6 @@ export interface AuthContextData {
   visit?: Visit;
   isFirstVisit?: boolean;
   deleteAccount?: () => Promise<void>;
-  onUpdateSession: (session: AuthSession) => void;
 }
 
 const AuthContext = React.createContext<AuthContextData>(null);
@@ -91,14 +88,11 @@ export const AuthContextProvider = ({
 }: AuthContextProviderProps): ReactElement => {
   const [isIncompleteRegistration, setIsIncompleteRegistration] =
     useState(false);
-  const [session, setSession] = useState<AuthSession>();
   const [loginState, setLoginState] = useState<LoginState | null>(null);
   const endUser = user && 'providers' in user ? user : null;
 
   const authContext: AuthContextData = useMemo(
     () => ({
-      session,
-      onUpdateSession: setSession,
       user: endUser,
       isFirstVisit: user?.isFirstVisit ?? false,
       trackingId: user?.id,
@@ -116,24 +110,16 @@ export const AuthContextProvider = ({
       visit,
       deleteAccount,
     }),
-    [
-      user,
-      session,
-      loginState,
-      loadingUser,
-      tokenRefreshed,
-      loadedUserFromCache,
-      visit,
-    ],
+    [user, loginState, loadingUser, tokenRefreshed, loadedUserFromCache, visit],
   );
 
   useEffect(() => {
-    if (!session || !endUser || endUser?.timezone) {
+    if (!endUser || endUser?.timezone) {
       return;
     }
 
     setIsIncompleteRegistration(true);
-  }, [endUser, session]);
+  }, [endUser]);
 
   return (
     <AuthContext.Provider value={authContext}>

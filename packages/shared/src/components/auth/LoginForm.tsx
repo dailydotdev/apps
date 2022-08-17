@@ -1,6 +1,5 @@
-import React, { ReactElement, useContext, useRef } from 'react';
+import React, { ReactElement, useRef } from 'react';
 import { useMutation, useQuery } from 'react-query';
-import AuthContext from '../../contexts/AuthContext';
 import {
   getNodeValue,
   LoginPasswordParameters,
@@ -10,7 +9,6 @@ import { formToJson } from '../../lib/form';
 import { disabledRefetch } from '../../lib/func';
 import {
   AuthFlow,
-  AuthSession,
   initializeKratosFlow,
   submitKratosFlow,
 } from '../../lib/kratos';
@@ -31,7 +29,6 @@ function LoginForm({
   onSuccessfulLogin,
   onForgotPassword,
 }: LoginFormProps): ReactElement {
-  const { onUpdateSession } = useContext(AuthContext);
   const formRef = useRef<HTMLFormElement>();
   const { data: login } = useQuery(
     'login',
@@ -40,12 +37,7 @@ function LoginForm({
   );
   const { mutateAsync: onPasswordLogin } = useMutation(
     (params: ValidateLoginParams) => submitKratosFlow(params),
-    {
-      onSuccess: ({ data }) => {
-        const session = data as AuthSession;
-        onUpdateSession(session);
-      },
-    },
+    // { onSuccess: ({ data }) => {} }, // refetch boot after login
   );
   const onLogin: typeof onSuccessfulLogin = async (e) => {
     e.preventDefault();

@@ -21,7 +21,6 @@ import { LoggedUser } from '../lib/user';
 import usePromotionalBanner from '../hooks/usePromotionalBanner';
 import { useSwipeableSidebar } from '../hooks/useSwipeableSidebar';
 import SettingsContext from '../contexts/SettingsContext';
-import LoginButton from './LoginButton';
 import Toast from './notifications/Toast';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
@@ -103,7 +102,7 @@ export default function MainLayout({
   enableSearch,
   onShowDndClick,
 }: MainLayoutProps): ReactElement {
-  const { user, session, logout, loadingUser } = useContext(AuthContext);
+  const { user, loadingUser } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const { sidebarRendered } = useSidebarRendered();
   const { bannerData, setLastSeen } = usePromotionalBanner();
@@ -160,16 +159,9 @@ export default function MainLayout({
               )}
             </div>
             {additionalButtons}
-            {!showOnlyLogo && !loadingUser && (
-              <>
-                {user ? (
-                  <ProfileButton className="hidden laptop:flex" />
-                ) : (
-                  !session && <LoginButton className="hidden laptop:block" />
-                )}
-              </>
+            {!showOnlyLogo && !loadingUser && user && (
+              <ProfileButton className="hidden laptop:flex" />
             )}
-            {session && <Button onClick={logout}>Logout</Button>}
             {!sidebarRendered && !optOutWeeklyGoal && (
               <MobileHeaderRankProgress />
             )}
