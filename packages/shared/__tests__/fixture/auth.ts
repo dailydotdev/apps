@@ -129,17 +129,7 @@ export const errorRegistrationMockData: Partial<InitializationData> = {
           disabled: false,
           node_type: 'input',
         },
-        messages: [
-          {
-            id: 4000005,
-            text: 'The password can not be used because password length must be at least 8 characters but only got 3.',
-            type: 'error',
-            context: {
-              reason:
-                'password length must be at least 8 characters but only got 3',
-            },
-          },
-        ],
+        messages: [],
         meta: { label: { id: 1070001, text: 'Password', type: 'info' } },
       },
       {
@@ -153,7 +143,17 @@ export const errorRegistrationMockData: Partial<InitializationData> = {
           disabled: false,
           node_type: 'input',
         },
-        messages: [],
+        messages: [
+          {
+            id: 4000005,
+            text: 'The password can not be used because password length must be at least 8 characters but only got 3.',
+            type: 'error',
+            context: {
+              reason:
+                'password length must be at least 8 characters but only got 3',
+            },
+          },
+        ],
         meta: { label: { id: 1070002, text: 'Full name', type: 'info' } },
       },
       {

@@ -247,7 +247,7 @@ export const submitKratosFlow = async <
     return { redirect: json.redirect_browser_to };
   }
 
-  const hasError = json.ui.messages.some(
+  const hasError = json.ui?.messages?.some(
     ({ type }) => type === MessageType.Error,
   );
 
