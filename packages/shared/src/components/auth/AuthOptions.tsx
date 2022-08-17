@@ -158,7 +158,7 @@ function AuthOptions({
             title="Verify your email address"
             onClose={onClose}
           />
-          <EmailVerificationSent email="chrisbongers@gmail.com" />
+          <EmailVerificationSent email={email} />
         </Tab>
       </TabContainer>
     </div>
