@@ -1,4 +1,3 @@
-import nodeFetch from 'node-fetch';
 import { apiUrl } from './config';
 
 export enum Roles {
@@ -30,7 +29,7 @@ export interface PublicProfile {
 
 export interface UserProfile {
   name: string;
-  email: string;
+  email?: string;
   username?: string;
   company?: string;
   title?: string;
@@ -41,6 +40,10 @@ export interface UserProfile {
   bio?: string;
   acceptedMarketing?: boolean;
   timezone?: string;
+}
+
+export interface GraphQLProfile {
+  user: UserProfile;
 }
 
 export interface UserShortProfile
@@ -144,31 +147,3 @@ export async function changeProfileImage(file: File): Promise<LoggedUser> {
   }
   throw new Error('Unexpected response');
 }
-
-export async function getProfileSSR(id: string): Promise<PublicProfile> {
-  const userRes = await nodeFetch(`${apiUrl}/v1/users/${id}`);
-  if (userRes.status === 404) {
-    throw new Error('not found');
-  }
-  return userRes.json();
-}
-
-export async function getProfile(id: string): Promise<PublicProfile> {
-  const res = await fetch(`${apiUrl}/v1/users/${id}`, {
-    credentials: 'include',
-  });
-  return res.json();
-}
-
-export async function getLoggedUser(
-  app: string,
-): Promise<AnonymousUser | LoggedUser> {
-  const res = await fetch(`${apiUrl}/v1/users/me`, {
-    credentials: 'include',
-    headers: { app },
-  });
-  return res.json();
-}
-
-export const getUserPermalink = (username: string): string =>
-  `${process.env.NEXT_PUBLIC_WEBAPP_URL}${username}`;

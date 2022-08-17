@@ -1,11 +1,17 @@
 import React, { ReactElement, ReactNode, useContext } from 'react';
-import { getProfile, PublicProfile } from '@dailydotdev/shared/src/lib/user';
+import {
+  GraphQLProfile,
+  PublicProfile,
+} from '@dailydotdev/shared/src/lib/user';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
 import { NextSeo } from 'next-seo';
 import dynamic from 'next/dynamic';
 import { useQuery } from 'react-query';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
+import { USER_BY_ID_STATIC_FIELDS_QUERY } from '@dailydotdev/shared/src/graphql/users';
+import request from 'graphql-request';
 import { getLayout as getMainLayout } from '../MainLayout';
 import SidebarNav from './SidebarNav';
 import { AccountPage } from './common';
@@ -29,26 +35,30 @@ export default function AccountLayout({
   }
 
   const queryKey = ['profile', user.id];
-  const { data: profile } = useQuery<PublicProfile>(queryKey, () =>
-    getProfile(user.id),
+  const { data: profile } = useQuery<GraphQLProfile>(queryKey, () =>
+    request(`${apiUrl}/graphql`, USER_BY_ID_STATIC_FIELDS_QUERY, {
+      id: user.id,
+    }),
   );
 
-  if (!profile || !Object.keys(profile).length) {
+  const userProfile = profile?.user;
+
+  if (!userProfile || !Object.keys(userProfile).length) {
     return <></>; // should be a loading screen
   }
 
-  const Seo: NextSeoProps = profile
+  const Seo: NextSeoProps = userProfile
     ? {
-        title: profile.name,
+        title: userProfile.name,
         titleTemplate: '%s | daily.dev',
-        description: profile.bio
-          ? profile.bio
-          : `Check out ${profile.name}'s profile`,
+        description: userProfile.bio
+          ? userProfile.bio
+          : `Check out ${userProfile.name}'s profile`,
         openGraph: {
-          images: [{ url: profile.image }],
+          images: [{ url: userProfile.image }],
         },
         twitter: {
-          handle: profile.twitter,
+          handle: userProfile.twitter,
         },
       }
     : {};
@@ -56,7 +66,7 @@ export default function AccountLayout({
   return (
     <>
       <Head>
-        <link rel="preload" as="image" href={profile.image} />
+        <link rel="preload" as="image" href={userProfile.image} />
       </Head>
       <NextSeo {...Seo} />
       <main className="flex relative flex-row flex-1 pt-0 mx-auto w-[calc(100vw-17.5rem)]">

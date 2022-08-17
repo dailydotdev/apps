@@ -6,8 +6,7 @@ import React, {
   useState,
 } from 'react';
 import {
-  getProfile,
-  getProfileSSR,
+  GraphQLProfile,
   PublicProfile,
 } from '@dailydotdev/shared/src/lib/user';
 import { NextSeoProps } from 'next-seo/lib/types';
@@ -30,9 +29,10 @@ import { ParsedUrlQuery } from 'querystring';
 import { reputationGuide } from '@dailydotdev/shared/src/lib/constants';
 import { useQuery } from 'react-query';
 import Rank from '@dailydotdev/shared/src/components/Rank';
-import request from 'graphql-request';
+import request, { ClientError } from 'graphql-request';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import {
+  USER_BY_ID_STATIC_FIELDS_QUERY,
   USER_READING_RANK_QUERY,
   UserReadingRankData,
 } from '@dailydotdev/shared/src/graphql/users';
@@ -81,17 +81,22 @@ export default function ProfileLayout({
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user } = useContext(AuthContext);
   const selectedTab = tabs.findIndex((tab) => tab.path === router?.pathname);
+
   const queryKey = ['profile', initialProfile?.id];
-  const { data: fetchedProfile } = useQuery<PublicProfile>(
+  const { data: fetchedProfile } = useQuery<GraphQLProfile>(
     queryKey,
-    () => getProfile(initialProfile.id),
+    () =>
+      request(`${apiUrl}/graphql`, USER_BY_ID_STATIC_FIELDS_QUERY, {
+        id: initialProfile.id,
+      }),
     {
-      initialData: initialProfile,
+      initialData: { user: initialProfile },
       enabled: !!initialProfile,
     },
   );
+
   // Needed because sometimes initialProfile is defined and fetchedProfile is not
-  const profile = fetchedProfile ?? initialProfile;
+  const profile = fetchedProfile?.user ?? initialProfile;
 
   const userRankQueryKey = ['userRank', initialProfile?.id];
   const { data: userRank } = useQuery<UserReadingRankData>(
@@ -301,15 +306,21 @@ export async function getStaticProps({
 > {
   const { userId } = params;
   try {
-    const profile = await getProfileSSR(userId);
+    const profile = await request(
+      `${apiUrl}/graphql`,
+      USER_BY_ID_STATIC_FIELDS_QUERY,
+      { id: userId },
+    );
+
     return {
       props: {
-        profile,
+        profile: profile?.user,
       },
       revalidate: 60,
     };
   } catch (err) {
-    if ('message' in err && err.message === 'not found') {
+    const clientError = err as ClientError;
+    if (clientError?.response?.errors?.[0]?.extensions?.code === 'FORBIDDEN') {
       return {
         props: { profile: null },
         revalidate: 60,
