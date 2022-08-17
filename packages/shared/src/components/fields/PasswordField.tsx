@@ -33,7 +33,7 @@ interface PasswordFieldProps extends TextFieldProps {
 
 export function PasswordField({
   type,
-  showStrength,
+  showStrength = true,
   ...props
 }: PasswordFieldProps): ReactElement {
   const [useType, setUseType] = useState(type);
