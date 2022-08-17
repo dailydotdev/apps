@@ -2,7 +2,6 @@ import React, { ReactElement, useState } from 'react';
 import classed from '../../lib/classed';
 import { Button } from '../buttons/Button';
 import EmailSentIcon from '../../../icons/mail_sent.svg';
-import useDebounce from '../../hooks/useDebounce';
 import useTimer from '../../hooks/useTimer';
 
 const BodyText = classed(
