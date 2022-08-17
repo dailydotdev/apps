@@ -60,7 +60,7 @@ function ForgotPasswordForm({
           return setHint(message);
         }
 
-        setTimer(5);
+        setTimer(60);
         runTimer();
         setSentCount((value) => value + 1);
         return setEmailSent(true);
