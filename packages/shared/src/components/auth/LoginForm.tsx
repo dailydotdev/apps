@@ -73,7 +73,6 @@ function LoginForm({
     <AuthForm
       className="gap-2"
       onSubmit={onLogin}
-      action="#"
       ref={formRef}
       data-testid="login_form"
     >
@@ -86,7 +85,7 @@ function LoginForm({
         type="email"
         saveHintSpace
         hint={hint}
-        onChange={() => hint && setHint('')}
+        onChange={() => hint && setHint(null)}
         valid={!!hint}
       />
       <PasswordField
