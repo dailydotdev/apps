@@ -11,6 +11,7 @@ interface ImageInputProps {
   onChange?: (base64: string) => void;
   name?: string;
   size?: Size;
+  id?: string;
 }
 
 const TWO_MEGABYTES = 2 * 1024 * 1024;
@@ -23,6 +24,7 @@ const componentSize: Record<Size, string> = {
 function ImageInput({
   initialValue,
   name = 'file',
+  id,
   className,
   onChange,
   size = 'medium',
@@ -65,6 +67,7 @@ function ImageInput({
       )}
     >
       <input
+        id={id}
         ref={inputRef}
         type="file"
         name={name}

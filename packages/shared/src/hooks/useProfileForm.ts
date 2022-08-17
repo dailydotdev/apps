@@ -57,8 +57,11 @@ const useProfileForm = (): UseProfileForm => {
     ResponseError,
     Partial<UpdateProfileParameters>
   >(
-    (data) =>
-      request(`${apiUrl}/graphql`, UPDATE_USER_PROFILE_MUTATION, { data }),
+    ({ image, ...data }) =>
+      request(`${apiUrl}/graphql`, UPDATE_USER_PROFILE_MUTATION, {
+        data,
+        upload: image,
+      }),
     {
       onSuccess: async (_, { image, ...vars }) => {
         setHint({});

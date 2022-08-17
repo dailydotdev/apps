@@ -17,6 +17,8 @@ import AccountContentSection from '../../components/layouts/AccountLayout/Accoun
 import { AccountPageContainer } from '../../components/layouts/AccountLayout/AccountPageContainer';
 import { AccountTextField } from '../../components/layouts/AccountLayout/common';
 
+const id = 'avatar_file';
+
 const AccountProfilePage = (): ReactElement => {
   const formRef = useRef<HTMLFormElement>();
   const { updateUserProfile, isLoading, hint } = useProfileForm();
@@ -25,6 +27,8 @@ const AccountProfilePage = (): ReactElement => {
   const onSubmit = (e: React.MouseEvent) => {
     e.preventDefault();
     const values = formToJson<UpdateProfileParameters>(formRef.current);
+    const input = document.getElementById(id) as HTMLInputElement;
+    const file = input.files[0];
     const params = {
       name: values.name,
       username: values.username,
@@ -35,6 +39,7 @@ const AccountProfilePage = (): ReactElement => {
       github: values.github,
       hashnode: values.hashnode,
       portfolio: values.portfolio,
+      image: file,
     };
     updateUserProfile(params);
   };
@@ -59,7 +64,7 @@ const AccountProfilePage = (): ReactElement => {
           description="Upload a picture to make your profile stand out and let people recognise
         your comments and contributions easily!"
         >
-          <ImageInput className="mt-6" initialValue={user.image} />
+          <ImageInput id={id} className="mt-6" initialValue={user.image} />
         </AccountContentSection>
         <AccountContentSection title="Account Information">
           <AccountTextField
