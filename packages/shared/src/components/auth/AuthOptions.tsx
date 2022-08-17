@@ -19,11 +19,13 @@ import {
   RegistrationFormValues,
   SocialProviderAccount,
 } from './RegistrationForm';
-import { getNodeValue, getRegistrationFlow } from '../../lib/auth';
+import { getNodeValue } from '../../lib/auth';
 import useWindowEvents from '../../hooks/useWindowEvents';
 import useRegistration from '../../hooks/useRegistration';
 import EmailVerificationSent from './EmailVerificationSent';
 import AuthModalHeader from './AuthModalHeader';
+import { AuthFlow, getKratosFlow } from '../../lib/kratos';
+import { fallbackImages } from '../../lib/config';
 
 export enum Display {
   Default = 'default',
@@ -74,16 +76,16 @@ function AuthOptions({
 
   useWindowEvents('message', async (e) => {
     if (e.data?.flow) {
-      const flow = await getRegistrationFlow(e.data.flow);
+      const flow = await getKratosFlow(AuthFlow.Registration, e.data.flow);
       const { nodes, action } = flow.ui;
       onSelectedProvider({
         action,
         provider: getNodeValue('provider', nodes),
         csrf_token: getNodeValue('csrf_token', nodes),
         email: getNodeValue('traits.email', nodes),
-        name: getNodeValue('traits.fullname', nodes),
+        name: getNodeValue('traits.name', nodes),
         username: getNodeValue('traits.username', nodes),
-        image: getNodeValue('traits.image', nodes),
+        image: getNodeValue('traits.image', nodes) || fallbackImages.avatar,
       });
       setActiveDisplay(Display.Registration);
     }

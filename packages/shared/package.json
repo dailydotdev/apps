@@ -26,9 +26,9 @@
     "react-intersection-observer": "^8.31.0",
     "react-modal": "^3.14.3",
     "react-query": "^3.19.0",
+    "react-swipeable": "^6.2.0",
     "react-transition-group": "^4.4.2",
-    "react-virtual": "^2.8.0",
-    "react-swipeable": "^6.2.0"
+    "react-virtual": "^2.8.0"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.16.0",
@@ -50,8 +50,8 @@
     "@types/nock": "^11.1.0",
     "@types/react": "^17.0.47",
     "@types/react-dom": "^17.0.16",
-    "@types/react-router-dom": "^5.3.2",
     "@types/react-modal": "^3.13.1",
+    "@types/react-router-dom": "^5.3.2",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",
     "autoprefixer": "^10.4.2",
@@ -95,19 +95,20 @@
     "react-intersection-observer": "^8.32.2",
     "react-modal": "^3.14.3",
     "react-query": "^3.34.8",
+    "react-swipeable": "^6.2.0",
     "react-transition-group": "^4.4.2",
     "react-virtual": "^2.8.2",
     "stylelint": "^13.13.1",
     "stylelint-config-recommended": "^4.0.0",
     "tailwindcss": "^3.0.11",
     "ts-jest": "^26.5.6",
-    "typescript": "^4.4.4",
-    "react-swipeable": "^6.2.0"
+    "typescript": "^4.4.4"
   },
   "dependencies": {
     "@tailwindcss/line-clamp": "^0.3.0",
     "@tippyjs/react": "^4.2.5",
     "balloon-css": "^1.2.0",
+    "check-password-strength": "^2.0.7",
     "flagsmith": "^1.6.10",
     "graphql-ws": "^5.5.5",
     "lazysizes": "^5.3.2",
