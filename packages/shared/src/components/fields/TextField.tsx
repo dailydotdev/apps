@@ -19,7 +19,11 @@ type FieldType = 'primary' | 'secondary' | 'tertiary';
 export interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   inputId: string;
   label: string;
+  baseFieldClassName?: string;
+  hintClassName?: string;
   saveHintSpace?: boolean;
+  absoluteLabel?: boolean;
+  progress?: string;
   hint?: string;
   valid?: boolean;
   validityChanged?: (valid: boolean) => void;
@@ -73,7 +77,11 @@ export function TextField({
   label,
   maxLength,
   value,
+  baseFieldClassName,
+  hintClassName,
   saveHintSpace = false,
+  absoluteLabel = false,
+  progress,
   hint,
   valid,
   validityChanged,
@@ -137,6 +145,7 @@ export function TextField({
     const len = event.currentTarget.value.length;
     setInputLength(len);
     const inputValidity = inputRef.current.checkValidity();
+
     if (inputValidity) {
       setValidInput(true);
     } else {
@@ -167,7 +176,7 @@ export function TextField({
 
   return (
     <div
-      className={classNames(className, 'flex flex-col items-stretch')}
+      className={classNames(className, 'flex flex-col items-stretch relative')}
       style={style}
     >
       {isSecondaryField && (
@@ -182,7 +191,7 @@ export function TextField({
         data-testid="field"
         onClick={focusInput}
         className={classNames(
-          'flex flex-row items-center',
+          'flex flex-row items-center relative',
           isSecondaryField ? 'h-9 rounded-10' : 'h-12 rounded-14',
           leftIcon && 'pl-3',
           actionButton && 'pr-3',
@@ -191,6 +200,7 @@ export function TextField({
             focused,
             invalid,
           },
+          baseFieldClassName,
           styles.field,
         )}
       >
@@ -247,6 +257,14 @@ export function TextField({
             disabled={disabled}
             {...props}
           />
+          {progress && (
+            <div
+              className={classNames(
+                'absolute bottom-0 h-[3px] rounded-10 transition-all',
+                progress,
+              )}
+            />
+          )}
         </div>
         {maxLength && (
           <div
@@ -263,9 +281,11 @@ export function TextField({
         <div
           role={invalid ? 'alert' : undefined}
           className={classNames(
-            'mt-1 px-2 typo-caption1',
+            ' px-2 typo-caption1',
             saveHintSpace && 'h-4',
             invalid ? 'text-theme-status-error' : 'text-theme-label-quaternary',
+            absoluteLabel ? 'absolute -bottom-5' : 'mt-1',
+            hintClassName,
           )}
         >
           {hint}

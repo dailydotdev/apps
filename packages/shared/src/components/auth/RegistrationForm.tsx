@@ -10,7 +10,10 @@ import UserIcon from '../icons/User';
 import VIcon from '../icons/V';
 import { CloseModalFunc } from '../modals/common';
 import AuthModalHeader from './AuthModalHeader';
-import { AuthForm } from './common';
+import { AuthForm, providerMap } from './common';
+import LockIcon from '../icons/Lock';
+import AtIcon from '../icons/At';
+import { PasswordField } from '../fields/PasswordField';
 
 export interface SocialProviderAccount {
   provider: string;
@@ -57,6 +60,16 @@ export const RegistrationForm = ({
     onSignup(values);
   };
 
+  const emailFieldIcon = (provider: string) => {
+    if (providerMap[provider]) {
+      return React.cloneElement(providerMap[provider].icon, {
+        secondary: false,
+      });
+    }
+
+    return <MailIcon />;
+  };
+
   return (
     <>
       <AuthModalHeader
@@ -66,7 +79,7 @@ export const RegistrationForm = ({
       />
       <AuthForm
         className={classNames(
-          'gap-4 self-center place-items-center mt-6 w-full',
+          'gap-[1.625rem] self-center place-items-center mt-6 w-full',
           isV2 ? 'max-w-[20rem]' : 'px-[3.75rem]',
         )}
         ref={formRef}
@@ -75,22 +88,28 @@ export const RegistrationForm = ({
         {socialAccount && <ImageInput initialValue={socialAccount.image} />}
         <TextField
           className="w-full"
-          leftIcon={<MailIcon />}
+          leftIcon={emailFieldIcon(socialAccount?.provider)}
           name="traits.email"
           inputId="email"
           label="Email"
           type="email"
           value={email || socialAccount?.email}
           readOnly
-          rightIcon={<VIcon className="text-theme-color-avocado" />}
+          rightIcon={
+            socialAccount ? (
+              <LockIcon />
+            ) : (
+              <VIcon className="text-theme-color-avocado" />
+            )
+          }
         />
         <TextField
           className="w-full"
           validityChanged={setIsNameValid}
           valid={isNameValid}
           leftIcon={<UserIcon />}
-          name="traits.fullname"
-          inputId="traits.fullname"
+          name="traits.name"
+          inputId="traits.name"
           label="Full name"
           value={socialAccount?.name}
           rightIcon={
@@ -100,25 +119,24 @@ export const RegistrationForm = ({
           required
         />
         {!socialAccount && (
-          <TextField
+          <PasswordField
             className="w-full"
             validityChanged={setIsPasswordValid}
             valid={isPasswordValid}
-            leftIcon={<MailIcon />}
+            leftIcon={<LockIcon />}
             type="password"
             name="password"
             inputId="password"
             label="Create a password"
-            rightIcon={
-              isPasswordValid && <VIcon className="text-theme-color-avocado" />
-            }
+            absoluteLabel
+            minLength={6}
           />
         )}
         <TextField
           className="w-full"
           validityChanged={setIsUsernameValid}
           valid={isUsernameValid}
-          leftIcon={<UserIcon />}
+          leftIcon={<AtIcon secondary />}
           name="traits.username"
           inputId="traits.username"
           label="Enter a username"
@@ -128,7 +146,7 @@ export const RegistrationForm = ({
             isUsernameValid && <VIcon className="text-theme-color-avocado" />
           }
         />
-        {isNameValid && isPasswordValid && (
+        {isNameValid && (socialAccount || isPasswordValid) && (
           <div className="flex flex-row gap-4 mt-6 ml-auto">
             {isPasswordValid && !isUsernameValid && (
               <Button className="btn-tertiary">Skip</Button>
