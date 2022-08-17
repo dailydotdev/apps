@@ -6,6 +6,7 @@ import AuthContext from '../contexts/AuthContext';
 import PowerIcon from './icons/Power';
 import UserIcon from './icons/User';
 import DevCardIcon from './icons/DevCard';
+import SettingsIcon from './icons/Settings';
 
 const PortalMenu = dynamic(() => import('./fields/PortalMenu'), {
   ssr: false,
@@ -30,6 +31,18 @@ export default function ProfileMenu(): ReactElement {
           <a className="flex items-center w-full">
             <UserIcon size="medium" secondary={false} className="mr-2" />{' '}
             Profile
+          </a>
+        </Link>
+      </Item>
+      <Item>
+        <Link
+          href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}account/profile`}
+          passHref
+          prefetch={false}
+        >
+          <a className="flex items-center w-full">
+            <SettingsIcon size="medium" secondary={false} className="mr-2" />{' '}
+            Account details
           </a>
         </Link>
       </Item>
