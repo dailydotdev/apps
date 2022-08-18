@@ -10,7 +10,11 @@ import {
   submitKratosFlow,
 } from '../../lib/kratos';
 import { disabledRefetch } from '../../lib/func';
-import { getNodeByKey, VerificationParams } from '../../lib/auth';
+import {
+  AccountRecoveryParameters,
+  getNodeByKey,
+  VerificationParams,
+} from '../../lib/auth';
 
 const BodyText = classed(
   'p',
@@ -50,7 +54,7 @@ function EmailVerificationSent({
   const resend = async () => {
     const { action, nodes } = verification.ui;
     const csrfToken = getNodeByKey('csrf_token', nodes);
-    const params = {
+    const params: AccountRecoveryParameters = {
       csrf_token: csrfToken.attributes.value,
       email,
       method: 'link',
