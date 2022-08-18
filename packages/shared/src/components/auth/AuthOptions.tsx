@@ -5,7 +5,7 @@ import React, {
   useState,
 } from 'react';
 import classNames from 'classnames';
-import { getQueryParams } from '../../contexts/AuthContext';
+import AuthContext, { getQueryParams } from '../../contexts/AuthContext';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { AuthVersion } from '../../lib/featureValues';
 import { CloseModalFunc } from '../modals/common';
@@ -61,6 +61,7 @@ function AuthOptions({
   const [registrationHints, setRegistrationHints] = useState<RegistrationError>(
     {},
   );
+  const { refetchBoot } = useContext(AuthContext);
   const { authVersion } = useContext(FeaturesContext);
   const isV2 = authVersion === AuthVersion.V2;
   const [email, setEmail] = useState('');
@@ -70,7 +71,10 @@ function AuthOptions({
   const { registration, validateRegistration, onSocialRegistration } =
     useRegistration({
       key: 'registration_form',
-      onValidRegistration: () => setActiveDisplay(Display.EmailSent), // on valid registration get boot
+      onValidRegistration: () => {
+        refetchBoot();
+        setActiveDisplay(Display.EmailSent);
+      },
       onInvalidRegistration: setRegistrationHints,
       onRedirect: (redirect) => window.open(redirect),
     });
