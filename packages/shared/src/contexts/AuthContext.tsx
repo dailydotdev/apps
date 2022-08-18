@@ -18,6 +18,7 @@ export type LoginState = { trigger: string };
 
 export interface AuthContextData {
   user?: LoggedUser;
+  referral?: string;
   trackingId?: string;
   shouldShowLogin: boolean;
   showLogin: (trigger: string) => void;
@@ -90,10 +91,12 @@ export const AuthContextProvider = ({
     useState(false);
   const [loginState, setLoginState] = useState<LoginState | null>(null);
   const endUser = user && 'providers' in user ? user : null;
+  const referral = user?.referrer;
 
   const authContext: AuthContextData = useMemo(
     () => ({
       user: endUser,
+      referral,
       isFirstVisit: user?.isFirstVisit ?? false,
       trackingId: user?.id,
       shouldShowLogin: loginState !== null,
