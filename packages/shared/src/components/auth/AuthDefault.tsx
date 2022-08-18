@@ -26,17 +26,27 @@ const AuthDefault = ({
   isV2,
 }: AuthDefaultProps): ReactElement => {
   const [shouldLogin, setShouldLogin] = useState(isV2);
+  // const { mutateAsync: checkEmail } = useMutation((emailParam: string) =>
+  //   request(`${apiUrl}/graphql`, QUERY_USER_BY_EMAIL, { email: emailParam }),
+  // );
 
-  const onEmailSignup = (e: React.FormEvent) => {
+  const onEmailSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     const form = e.currentTarget as HTMLFormElement;
     const input = Array.from(form.elements).find(
       (el) => el.getAttribute('name') === 'email',
     ) as HTMLInputElement;
+    const email = input?.value?.trim();
 
-    if (!input?.value?.trim()) {
+    if (!email) {
       return null;
     }
+
+    // const res = await checkEmail(email);
+
+    // if (res?.user) {
+    //   return setShouldLogin(true);
+    // }
 
     return onSignup(input.value.trim());
   };

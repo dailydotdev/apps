@@ -4,7 +4,6 @@ import {
   errorsToJson,
   RegistrationError,
   RegistrationParameters,
-  getNodeByKey,
   getNodeValue,
   ValidateRegistrationParams,
 } from '../lib/auth';
@@ -88,11 +87,11 @@ const useRegistration = ({
 
   const onValidateRegistration = async (values: RegistrationParameters) => {
     const { nodes, action } = registration.ui;
-    const csrfToken = getNodeByKey('csrf_token', nodes);
     const postData: RegistrationParameters = {
       ...values,
       method: values.method || 'password',
-      csrf_token: csrfToken.attributes.value,
+      csrf_token: getNodeValue('csrf_token', nodes),
+      'traits.image': values['traits.image'],
     };
 
     validate({ action, params: postData });
@@ -106,6 +105,7 @@ const useRegistration = ({
       provider,
       'traits.email': '',
       'traits.username': '',
+      'traits.name': '',
       'traits.image': '',
     };
 

@@ -1,19 +1,20 @@
 import classNames from 'classnames';
-import React, { MutableRefObject, ReactElement, useState } from 'react';
-import { RegistrationParameters } from '../../lib/auth';
+import React, { MutableRefObject, ReactElement } from 'react';
+import { RegistrationError, RegistrationParameters } from '../../lib/auth';
 import { formToJson } from '../../lib/form';
 import { Button } from '../buttons/Button';
 import ImageInput from '../fields/ImageInput';
+import { PasswordField } from '../fields/PasswordField';
 import { TextField } from '../fields/TextField';
 import MailIcon from '../icons/Mail';
 import UserIcon from '../icons/User';
 import VIcon from '../icons/V';
 import { CloseModalFunc } from '../modals/common';
 import AuthModalHeader from './AuthModalHeader';
+import TokenInput from './TokenField';
 import { AuthForm, providerMap } from './common';
 import LockIcon from '../icons/Lock';
 import AtIcon from '../icons/At';
-import { PasswordField } from '../fields/PasswordField';
 
 export interface SocialProviderAccount {
   provider: string;
@@ -25,14 +26,17 @@ export interface SocialProviderAccount {
   image?: string;
 }
 
-interface RegistrationFormProps {
+export interface RegistrationFormProps {
   email: string;
   socialAccount?: SocialProviderAccount;
   formRef?: MutableRefObject<HTMLFormElement>;
   onClose?: CloseModalFunc;
   onBack?: CloseModalFunc;
+  hints?: RegistrationError;
+  onUpdateHints?: (errors: RegistrationError) => void;
   isV2?: boolean;
   onSignup?: (params: RegistrationFormValues) => void;
+  token: string;
 }
 
 export type RegistrationFormValues = Omit<
@@ -48,18 +52,20 @@ export const RegistrationForm = ({
   onBack,
   onSignup,
   isV2,
+  token,
+  hints,
+  onUpdateHints,
 }: RegistrationFormProps): ReactElement => {
-  const [isNameValid, setIsNameValid] = useState<boolean>();
-  const [isPasswordValid, setIsPasswordValid] = useState<boolean>();
-  const [isUsernameValid, setIsUsernameValid] = useState<boolean>();
-
-  const onSubmit = async (e: React.FormEvent) => {
+  const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
     const values = formToJson<RegistrationFormValues>(formRef?.current ?? form);
     onSignup(values);
   };
 
+  const isPasswordValid = !hints?.password;
+  const isNameValid = !hints?.['traits.name'];
+  const isUsernameValid = !hints?.['traits.username'];
   const emailFieldIcon = (provider: string) => {
     if (providerMap[provider]) {
       return React.cloneElement(providerMap[provider].icon, {
@@ -79,16 +85,19 @@ export const RegistrationForm = ({
       />
       <AuthForm
         className={classNames(
-          'gap-[1.625rem] self-center place-items-center mt-6 w-full',
+          'gap-6 self-center place-items-center mt-6 w-full',
           isV2 ? 'max-w-[20rem]' : 'px-[3.75rem]',
         )}
         ref={formRef}
         onSubmit={onSubmit}
+        data-testid="registration_form"
       >
+        <TokenInput token={token} />
         {socialAccount && (
           <ImageInput initialValue={socialAccount.image} size="large" />
         )}
         <TextField
+          saveHintSpace
           className="w-full"
           leftIcon={emailFieldIcon(socialAccount?.provider)}
           name="traits.email"
@@ -106,42 +115,45 @@ export const RegistrationForm = ({
           }
         />
         <TextField
+          saveHintSpace
           className="w-full"
-          validityChanged={setIsNameValid}
           valid={isNameValid}
           leftIcon={<UserIcon />}
           name="traits.name"
           inputId="traits.name"
           label="Full name"
+          hint={hints?.['traits.name']}
+          onChange={() =>
+            hints?.['traits.name'] &&
+            onUpdateHints({ ...hints, 'traits.name': '' })
+          }
           value={socialAccount?.name}
           rightIcon={
             isNameValid && <VIcon className="text-theme-color-avocado" />
           }
-          minLength={3}
-          required
         />
         {!socialAccount && (
           <PasswordField
             className="w-full"
-            validityChanged={setIsPasswordValid}
-            valid={isPasswordValid}
             leftIcon={<LockIcon />}
-            type="password"
             name="password"
             inputId="password"
             label="Create a password"
-            absoluteLabel
-            minLength={6}
           />
         )}
         <TextField
+          saveHintSpace
           className="w-full"
-          validityChanged={setIsUsernameValid}
           valid={isUsernameValid}
           leftIcon={<AtIcon secondary />}
           name="traits.username"
           inputId="traits.username"
           label="Enter a username"
+          hint={hints?.['traits.username']}
+          onChange={() =>
+            hints?.['traits.username'] &&
+            onUpdateHints({ ...hints, 'traits.username': '' })
+          }
           value={socialAccount?.username}
           minLength={1}
           rightIcon={

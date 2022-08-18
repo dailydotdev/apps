@@ -19,7 +19,7 @@ import {
   RegistrationFormValues,
   SocialProviderAccount,
 } from './RegistrationForm';
-import { getNodeValue } from '../../lib/auth';
+import { getNodeValue, RegistrationError } from '../../lib/auth';
 import useWindowEvents from '../../hooks/useWindowEvents';
 import useRegistration from '../../hooks/useRegistration';
 import EmailVerificationSent from './EmailVerificationSent';
@@ -41,7 +41,7 @@ const hasLoggedOut = () => {
   return params?.logged_out !== undefined;
 };
 
-interface AuthOptionsProps {
+export interface AuthOptionsProps {
   onClose?: CloseModalFunc;
   onSelectedProvider: (account: SocialProviderAccount) => void;
   formRef: MutableRefObject<HTMLFormElement>;
@@ -58,17 +58,22 @@ function AuthOptions({
   socialAccount,
   defaultDisplay = Display.Default,
 }: AuthOptionsProps): ReactElement {
+  const [registrationHints, setRegistrationHints] = useState<RegistrationError>(
+    {},
+  );
   const { authVersion } = useContext(FeaturesContext);
   const isV2 = authVersion === AuthVersion.V2;
   const [email, setEmail] = useState('');
   const [activeDisplay, setActiveDisplay] = useState(
     hasLoggedOut() ? Display.SignBack : defaultDisplay,
   );
-  const { validateRegistration, onSocialRegistration } = useRegistration({
-    key: 'registration_form',
-    onValidRegistration: () => setActiveDisplay(Display.EmailSent), // on valid registration get boot
-    onRedirect: (redirect) => window.open(redirect),
-  });
+  const { registration, validateRegistration, onSocialRegistration } =
+    useRegistration({
+      key: 'registration_form',
+      onValidRegistration: () => setActiveDisplay(Display.EmailSent), // on valid registration get boot
+      onInvalidRegistration: setRegistrationHints,
+      onRedirect: (redirect) => window.open(redirect),
+    });
 
   useWindowEvents('message', async (e) => {
     if (e.data?.flow) {
@@ -87,7 +92,7 @@ function AuthOptions({
     }
   });
 
-  const onEmailRegistration = async (emailAd: string) => {
+  const onEmailRegistration = (emailAd: string) => {
     // before displaying registration, ensure the email doesn't exists
     setActiveDisplay(Display.Registration);
     setEmail(emailAd);
@@ -132,6 +137,10 @@ function AuthOptions({
             onClose={onClose}
             isV2={isV2}
             onSignup={onRegister}
+            hints={registrationHints}
+            token={
+              registration && getNodeValue('csrf_token', registration.ui.nodes)
+            }
           />
         </Tab>
         <Tab label={Display.SignBack}>
@@ -144,7 +153,7 @@ function AuthOptions({
         </Tab>
         <Tab label={Display.ForgotPassword}>
           <ForgotPasswordForm
-            email={email}
+            initialEmail={email}
             onClose={onClose}
             onBack={() => setActiveDisplay(defaultDisplay)}
           />
