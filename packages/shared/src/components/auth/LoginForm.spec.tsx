@@ -70,6 +70,7 @@ const renderComponent = (): RenderResult => {
         getRedirectUri={jest.fn()}
         loadingUser={false}
         loadedUserFromCache
+        refetchBoot={jest.fn()}
       >
         <LoginForm onSuccessfulLogin={onSuccessfulLogin} />
       </AuthContextProvider>

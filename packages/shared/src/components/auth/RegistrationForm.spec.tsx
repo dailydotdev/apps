@@ -80,6 +80,7 @@ const renderComponent = (
         getRedirectUri={jest.fn()}
         loadingUser={false}
         loadedUserFromCache
+        refetchBoot={jest.fn()}
       >
         <AuthOptions {...props} />
       </AuthContextProvider>

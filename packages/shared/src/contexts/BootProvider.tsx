@@ -159,6 +159,7 @@ export const BootDataProvider = ({
         loadingUser={!dataUpdatedAt || !user}
         loadedUserFromCache={loadedFromCache}
         visit={bootRemoteData?.visit}
+        refetchBoot={refetch}
       >
         <SettingsContextProvider
           settings={settings}

@@ -33,6 +33,7 @@ export interface AuthContextData {
   visit?: Visit;
   isFirstVisit?: boolean;
   deleteAccount?: () => Promise<void>;
+  refetchBoot?: () => Promise<unknown>;
 }
 
 const AuthContext = React.createContext<AuthContextData>(null);
@@ -65,6 +66,7 @@ const logout = async (): Promise<void> => {
 
 export type AuthContextProviderProps = {
   user: LoggedUser | AnonymousUser | undefined;
+  refetchBoot?: () => Promise<unknown>;
   children?: ReactNode;
 } & Pick<
   AuthContextData,
@@ -84,6 +86,7 @@ export const AuthContextProvider = ({
   tokenRefreshed,
   loadedUserFromCache,
   getRedirectUri,
+  refetchBoot,
   visit,
 }: AuthContextProviderProps): ReactElement => {
   const [isIncompleteRegistration, setIsIncompleteRegistration] =
@@ -108,6 +111,7 @@ export const AuthContextProvider = ({
       getRedirectUri,
       anonymous: user,
       visit,
+      refetchBoot,
       deleteAccount,
     }),
     [user, loginState, loadingUser, tokenRefreshed, loadedUserFromCache, visit],
