@@ -1,7 +1,7 @@
 import {
   InitializationData,
   SuccessfulRegistrationData,
-} from '../../src/lib/auth';
+} from '../../src/lib/kratos';
 
 export const registrationFlowMockData: InitializationData = {
   id: '1d225d8c-829b-4016-ae04-69b96126efdd',
@@ -208,7 +208,12 @@ export const successfulRegistrationMockData: SuccessfulRegistrationData = {
       schema_url: 'http://127.0.0.1:4433/schemas/ZGVmYXVsdA',
       state: 'active',
       state_changed_at: new Date('2022-07-31T11:55:35.07680546Z'),
-      traits: { email: 'leeeee@daily.dev', name: 'Lee Solevilla' },
+      traits: {
+        email: 'leeeee@daily.dev',
+        name: 'Lee Solevilla',
+        image: '',
+        username: '',
+      },
       verifiable_addresses: [
         {
           id: '55ae2268-050d-4427-bea1-b4cd12b09829',
@@ -240,7 +245,12 @@ export const successfulRegistrationMockData: SuccessfulRegistrationData = {
     schema_url: 'http://127.0.0.1:4433/schemas/ZGVmYXVsdA',
     state: 'active',
     state_changed_at: new Date('2022-07-31T11:55:35.07680546Z'),
-    traits: { email: 'leeeee@daily.dev', name: 'Lee Solevilla' },
+    traits: {
+      email: 'leeeee@daily.dev',
+      name: 'Lee Solevilla',
+      image: '',
+      username: '',
+    },
     verifiable_addresses: [
       {
         id: '55ae2268-050d-4427-bea1-b4cd12b09829',

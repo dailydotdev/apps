@@ -92,7 +92,7 @@ interface AuthMethod {
 
 interface IdentityTraits {
   username: string;
-  fullname: string;
+  name: string;
   email: string;
   image: string;
 }

@@ -42,8 +42,7 @@ const defaultParams: Partial<RegistrationParameters> = {
   csrf_token: defaultToken,
   provider: undefined,
   method: 'password',
-  'traits.image':
-    'https://daily-now-res.cloudinary.com/image/upload/t_logo,f_auto/v1635938111/logos/placeholder2',
+  'traits.image': undefined,
 };
 const mockRegistraitonValidationFlow = (
   result: unknown,
@@ -96,6 +95,7 @@ const renderRegistration = async (email: string) => {
   });
   const submit = await screen.findByTestId('email_signup_submit');
   fireEvent.click(submit);
+  await waitFor(() => expect(screen.getByText('Sign up to daily.dev')));
   fireEvent.input(screen.getByPlaceholderText('Full name'), {
     target: { value: 'Lee Solevilla' },
   });
