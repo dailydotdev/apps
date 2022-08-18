@@ -135,21 +135,10 @@ export const RegistrationForm = ({
         {!socialAccount && (
           <PasswordField
             className="w-full"
-            valid={isPasswordValid}
             leftIcon={<LockIcon />}
-            type="password"
             name="password"
             inputId="password"
             label="Create a password"
-            hint={hints?.password}
-            onChange={() =>
-              hints?.password && onUpdateHints({ ...hints, password: '' })
-            }
-            rightIcon={
-              isPasswordValid && <VIcon className="text-theme-color-avocado" />
-            }
-            absoluteLabel
-            minLength={6}
           />
         )}
         <TextField
