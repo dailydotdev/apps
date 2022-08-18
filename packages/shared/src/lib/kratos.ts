@@ -11,10 +11,15 @@ interface InitializationNodeAttribute {
   node_type: string;
 }
 
-interface ErrorMessage {
+export enum MessageType {
+  Info = 'info',
+  Error = 'error',
+}
+
+export interface KratosMessage {
   id: number;
   text: string;
-  type: string;
+  type: MessageType | string;
   context?: MetaLabelContext;
 }
 
@@ -37,20 +42,20 @@ export interface InitializationNode {
   type: string;
   group: string;
   attributes: InitializationNodeAttribute;
-  messages: ErrorMessage[];
+  messages: KratosMessage[];
   meta: InitializationNodeMeta | EmptyObjectLiteral;
 }
 
 interface InitializationUI {
   action: string;
   method: string;
-  messages?: ErrorMessage[];
+  messages?: KratosMessage[];
   nodes: InitializationNode[];
 }
 
 export type RegistrationInitializationData = InitializationData;
 export type AuthenticatorLevel = 'aal0' | 'aal1';
-export type KratosMethod = 'link_recovery' | 'password';
+export type KratosMethod = 'link' | 'link_recovery' | 'password';
 export type AuthenticationType = 'password' | 'oidc';
 
 interface IdentityCredential {
@@ -87,7 +92,7 @@ interface AuthMethod {
 
 interface IdentityTraits {
   username: string;
-  fullname: string;
+  name: string;
   email: string;
   image: string;
 }
@@ -126,6 +131,24 @@ interface Identity {
   updated_at: Date;
   verifiable_addresses: VerifyableAddress[];
 }
+
+enum VerificationState {
+  ChooseMethod = 'choose_method',
+  EmailSent = 'sent_email',
+  Passed = 'passed_challenge',
+}
+
+export interface VerificationResponseData extends InitializationData {
+  active: string;
+  state: VerificationState;
+  return_to: string;
+  type: 'api' | 'browser';
+}
+
+export type EmailRecoveryResponse = RequestResponse<
+  VerificationResponseData,
+  VerificationResponseData
+>;
 
 export interface LogoutSessionData {
   logout_token: string;
@@ -220,12 +243,16 @@ export const submitKratosFlow = async <
 
   const json = await res.json();
 
-  if (res.status === 200) {
-    return { data: json };
-  }
-
   if (res.status === 422 || json.redirect_browser_to) {
     return { redirect: json.redirect_browser_to };
+  }
+
+  const hasError = json.ui?.messages?.some(
+    ({ type }) => type === MessageType.Error,
+  );
+
+  if (res.status === 200 && !hasError) {
+    return { data: json };
   }
 
   return { error: json?.error || json };

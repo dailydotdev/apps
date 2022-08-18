@@ -29,6 +29,7 @@ function EmailSignupForm({
               className="btn-tertiary"
               icon={<ArrowIcon className="rotate-90" />}
               type="submit"
+              data-testid="email_signup_submit"
             />
           )
         }

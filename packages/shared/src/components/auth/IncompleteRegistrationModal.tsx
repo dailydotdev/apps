@@ -10,14 +10,14 @@ import { ModalProps, StyledModal } from '../modals/StyledModal';
 import DaytimeIcon from '../../../icons/timezone_daytime.svg';
 import NighttimeIcon from '../../../icons/timezone_nighttime.svg';
 import { Button } from '../buttons/Button';
-import { LoggedUser, updateProfile } from '../../lib/user';
+import { LoggedUser } from '../../lib/user';
 
 const timeZoneOptions = getTimeZoneOptions();
 const timeZoneValues = timeZoneOptions.map((timeZone) => timeZone.label);
 
 interface IncompleteRegistrationModalProps extends ModalProps {
   user: LoggedUser;
-  updateUser: (user: LoggedUser) => Promise<void>;
+  updateUser: (user: Partial<LoggedUser>) => Promise<void>;
 }
 
 function IncompleteRegistrationModal({
@@ -30,7 +30,6 @@ function IncompleteRegistrationModal({
   const [userTimeZone, setUserTimeZone] = useState<string>(
     getUserInitialTimezone({ userTimezone: 'utc' }),
   );
-
   const timezoneUpdated = (timeZone: string) => {
     const findTimeZoneRow = timeZoneOptions.find(
       ({ label }) => label === timeZone,
@@ -42,15 +41,10 @@ function IncompleteRegistrationModal({
   const Background = hour >= 6 && hour < 18 ? DaytimeIcon : NighttimeIcon;
 
   const onComplete = async (e) => {
-    setSubmitDisabled?.(true);
-    const res = await updateProfile({ ...user, timezone: userTimeZone });
-    if ('error' in res) {
-      setSubmitDisabled?.(false);
-    } else {
-      await updateUser({ ...user, ...res });
-      setSubmitDisabled?.(false);
-      onRequestClose(e);
-    }
+    setSubmitDisabled(true);
+    await updateUser({ timezone: userTimeZone });
+    setSubmitDisabled(false);
+    onRequestClose(e);
   };
 
   return (

@@ -4,14 +4,12 @@ import {
   errorsToJson,
   RegistrationError,
   RegistrationParameters,
-  getNodeByKey,
   getNodeValue,
   ValidateRegistrationParams,
 } from '../lib/auth';
 import { disabledRefetch } from '../lib/func';
 import {
   AuthFlow,
-  AuthSession,
   InitializationData,
   initializeKratosFlow,
   submitKratosFlow,
@@ -23,10 +21,7 @@ type ParamKeys = keyof RegistrationParameters;
 interface UseRegistrationProps {
   key: QueryKey;
   onRedirect?: (redirect: string) => void;
-  onValidRegistration?: (
-    session: AuthSession,
-    params: ValidateRegistrationParams,
-  ) => void;
+  onValidRegistration?: (params: ValidateRegistrationParams) => void;
   onInvalidRegistration?: (errors: RegistrationError) => void;
 }
 
@@ -63,7 +58,7 @@ const useRegistration = ({
       onSuccess: ({ data, error, redirect }, params) => {
         const successfulData = data as SuccessfulRegistrationData;
         if (successfulData) {
-          return onValidRegistration?.(successfulData.session, params);
+          return onValidRegistration?.(params);
         }
 
         if (redirect) {
@@ -92,11 +87,11 @@ const useRegistration = ({
 
   const onValidateRegistration = async (values: RegistrationParameters) => {
     const { nodes, action } = registration.ui;
-    const csrfToken = getNodeByKey('csrf_token', nodes);
     const postData: RegistrationParameters = {
       ...values,
       method: values.method || 'password',
-      csrf_token: csrfToken.attributes.value,
+      csrf_token: getNodeValue('csrf_token', nodes),
+      'traits.image': values['traits.image'],
     };
 
     validate({ action, params: postData });
@@ -110,6 +105,7 @@ const useRegistration = ({
       provider,
       'traits.email': '',
       'traits.username': '',
+      'traits.name': '',
       'traits.image': '',
     };
 
