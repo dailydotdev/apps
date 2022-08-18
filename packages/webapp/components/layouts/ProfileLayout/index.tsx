@@ -36,7 +36,6 @@ import {
   USER_READING_RANK_QUERY,
   UserReadingRankData,
 } from '@dailydotdev/shared/src/graphql/users';
-import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { QuaternaryButton } from '@dailydotdev/shared/src/components/buttons/QuaternaryButton';
 import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
@@ -47,13 +46,6 @@ import { SimpleTooltip } from '@dailydotdev/shared/src/components/tooltips/Simpl
 import styles from './index.module.css';
 import NavBar, { tabs } from './NavBar';
 import { getLayout as getMainLayout } from '../MainLayout';
-
-const AccountDetailsModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "accountDetailsModal" */ '@dailydotdev/shared/src/components/modals/AccountDetailsModal'
-    ),
-);
 
 const Custom404 = dynamic(() => import('../../../pages/404'));
 
@@ -78,7 +70,6 @@ export default function ProfileLayout({
     return <Custom404 />;
   }
 
-  const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user } = useContext(AuthContext);
   const selectedTab = tabs.findIndex((tab) => tab.path === router?.pathname);
   const queryKey = ['profile', initialProfile?.id];
@@ -126,10 +117,6 @@ export default function ProfileLayout({
   const [githubHandle, setGithubHandle] = useState<string>();
   const [hashnodeHandle, setHashnodeHandle] = useState<string>();
   const [portfolioLink, setPortfolioLink] = useState<string>();
-
-  const [showAccountDetails, setShowAccountDetails] = useState(false);
-
-  const closeAccountDetails = () => setShowAccountDetails(false);
 
   useEffect(() => {
     if (profile) {
@@ -260,7 +247,8 @@ export default function ProfileLayout({
             {profile.id === user?.id && (
               <Button
                 className="self-start mt-6 mb-0.5 btn-secondary"
-                onClick={() => setShowAccountDetails(true)}
+                tag="a"
+                href={`${process.env.NEXT_PUBLIC_WEBAPP_URL}account/profile`}
               >
                 Account details
               </Button>
@@ -270,12 +258,6 @@ export default function ProfileLayout({
         <NavBar selectedTab={selectedTab} profile={profile} />
         {children}
       </ResponsivePageContainer>
-      {profile.id === user?.id && (windowLoaded || showAccountDetails) && (
-        <AccountDetailsModal
-          isOpen={showAccountDetails}
-          onRequestClose={closeAccountDetails}
-        />
-      )}
     </>
   );
 }

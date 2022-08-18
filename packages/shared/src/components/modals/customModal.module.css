@@ -1,4 +1,4 @@
-.accountDetailsModal {
+.customModal {
   & :global(.modal) {
     padding: 3rem 0 0;
 

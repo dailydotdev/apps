@@ -9,7 +9,6 @@ import React, {
 import Link from 'next/link';
 import { useInfiniteQuery } from 'react-query';
 import request from 'graphql-request';
-import dynamic from 'next/dynamic';
 import classNames from 'classnames';
 import {
   commentContainerClass,
@@ -34,20 +33,12 @@ import {
   updateProfile,
   UserProfile,
 } from '../../lib/user';
-import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
 import AuthContext from '../../contexts/AuthContext';
 import { formToJson } from '../../lib/form';
 import styles from './PostsSection.module.css';
 import classed from '../../lib/classed';
 import FeatherIcon from '../icons/Feather';
 import ScoutIcon from '../icons/Scout';
-
-const AccountDetailsModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "accountDetailsModal" */ '../modals/AccountDetailsModal'
-    ),
-);
 
 const PostStat = classed(
   'div',
@@ -105,13 +96,11 @@ export default function PostsSection({
   isSameUser,
   numPosts,
 }: PostsSectionProps): ReactElement {
-  const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const { user, updateUser, tokenRefreshed } = useContext(AuthContext);
 
   const formRef = useRef<HTMLFormElement>(null);
   const [disableSubmit, setDisableSubmit] = useState<boolean>(true);
   const [twitterHint, setTwitterHint] = useState<string>();
-  const [showAccountDetails, setShowAccountDetails] = useState(false);
 
   const updateDisableSubmit = () => {
     if (formRef.current) {
@@ -202,51 +191,33 @@ export default function PostsSection({
           {`Track when articles you published are getting picked by
           daily.dev. Set up your Twitter handle and we'll do the rest 🙌`}
         </EmptyMessage>
-        {user.email && user.username ? (
-          <form
-            className="flex flex-col items-start mt-6"
-            ref={formRef}
-            onSubmit={onSubmit}
+        <form
+          className="flex flex-col items-start mt-6"
+          ref={formRef}
+          onSubmit={onSubmit}
+        >
+          <TextField
+            inputId="twitter"
+            name="twitter"
+            label="Twitter"
+            value={user.twitter}
+            hint={twitterHint}
+            valid={!twitterHint}
+            placeholder="handle"
+            pattern="(\w){1,15}"
+            maxLength={15}
+            validityChanged={updateDisableSubmit}
+            valueChanged={() => twitterHint && setTwitterHint(null)}
+            className="self-stretch mb-4 w-80"
+          />
+          <Button
+            className="w-28 btn-primary"
+            type="submit"
+            disabled={disableSubmit}
           >
-            <TextField
-              inputId="twitter"
-              name="twitter"
-              label="Twitter"
-              value={user.twitter}
-              hint={twitterHint}
-              valid={!twitterHint}
-              placeholder="handle"
-              pattern="(\w){1,15}"
-              maxLength={15}
-              validityChanged={updateDisableSubmit}
-              valueChanged={() => twitterHint && setTwitterHint(null)}
-              className="self-stretch mb-4 w-80"
-            />
-            <Button
-              className="w-28 btn-primary"
-              type="submit"
-              disabled={disableSubmit}
-            >
-              Save
-            </Button>
-          </form>
-        ) : (
-          <>
-            <button
-              type="button"
-              className="self-start mt-4 btn-primary"
-              onClick={() => setShowAccountDetails(true)}
-            >
-              Complete your profile
-            </button>
-            {(windowLoaded || showAccountDetails) && (
-              <AccountDetailsModal
-                isOpen={showAccountDetails}
-                onRequestClose={() => setShowAccountDetails(false)}
-              />
-            )}
-          </>
-        )}
+            Save
+          </Button>
+        </form>
       </>
     );
   }
