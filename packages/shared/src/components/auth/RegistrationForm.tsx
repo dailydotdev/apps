@@ -94,7 +94,11 @@ export const RegistrationForm = ({
       >
         <TokenInput token={token} />
         {socialAccount && (
-          <ImageInput initialValue={socialAccount.image} size="large" />
+          <ImageInput
+            initialValue={socialAccount.image}
+            size="large"
+            viewOnly
+          />
         )}
         <TextField
           saveHintSpace
