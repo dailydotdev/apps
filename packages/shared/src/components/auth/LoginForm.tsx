@@ -1,5 +1,6 @@
-import React, { ReactElement, useRef, useState } from 'react';
+import React, { ReactElement, useContext, useRef, useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
+import AuthContext from '../../contexts/AuthContext';
 import {
   getNodeValue,
   LoginPasswordParameters,
@@ -31,6 +32,7 @@ function LoginForm({
   onSuccessfulLogin,
   onForgotPassword,
 }: LoginFormProps): ReactElement {
+  const { refetchBoot } = useContext(AuthContext);
   const [hint, setHint] = useState('Enter your password to login');
   const formRef = useRef<HTMLFormElement>();
   const { data: login } = useQuery(
@@ -41,13 +43,14 @@ function LoginForm({
   const { mutateAsync: onPasswordLogin } = useMutation(
     (params: ValidateLoginParams) => submitKratosFlow(params),
     {
-      onSuccess: ({ error }) => {
+      onSuccess: async ({ error }) => {
         if (error) {
           setHint('Invalid username or password');
           return;
         }
 
-        onSuccessfulLogin(); // refetch boot after login
+        await refetchBoot();
+        onSuccessfulLogin();
       },
     },
   );
