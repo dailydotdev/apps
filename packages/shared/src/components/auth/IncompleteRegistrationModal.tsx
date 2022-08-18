@@ -10,23 +10,22 @@ import { ModalProps, StyledModal } from '../modals/StyledModal';
 import DaytimeIcon from '../../../icons/timezone_daytime.svg';
 import NighttimeIcon from '../../../icons/timezone_nighttime.svg';
 import { Button } from '../buttons/Button';
-import { LoggedUser } from '../../lib/user';
+import useProfileForm from '../../hooks/useProfileForm';
 
 const timeZoneOptions = getTimeZoneOptions();
 const timeZoneValues = timeZoneOptions.map((timeZone) => timeZone.label);
 
-interface IncompleteRegistrationModalProps extends ModalProps {
-  user: LoggedUser;
-  updateUser: (user: Partial<LoggedUser>) => Promise<void>;
-}
-
 function IncompleteRegistrationModal({
-  user,
-  updateUser,
   onRequestClose,
   ...props
-}: IncompleteRegistrationModalProps): ReactElement {
+}: ModalProps): ReactElement {
   const [submitDisabled, setSubmitDisabled] = useState(false);
+  const { updateUserProfile } = useProfileForm({
+    onSuccess: (e) => {
+      setSubmitDisabled(false);
+      onRequestClose(e);
+    },
+  });
   const [userTimeZone, setUserTimeZone] = useState<string>(
     getUserInitialTimezone({ userTimezone: 'utc' }),
   );
@@ -40,15 +39,17 @@ function IncompleteRegistrationModal({
   const hour = getHourTimezone(userTimeZone);
   const Background = hour >= 6 && hour < 18 ? DaytimeIcon : NighttimeIcon;
 
-  const onComplete = async (e) => {
+  const onComplete = async (e: React.MouseEvent) => {
     setSubmitDisabled(true);
-    await updateUser({ timezone: userTimeZone });
-    setSubmitDisabled(false);
-    onRequestClose(e);
+    await updateUserProfile({ timezone: userTimeZone, event: e });
   };
 
   return (
-    <StyledModal {...props} contentClassName="flex flex-col">
+    <StyledModal
+      {...props}
+      onRequestClose={onRequestClose}
+      contentClassName="flex flex-col"
+    >
       <header className="flex relative justify-between items-center p-3 w-full border-b border-theme-divider-tertiary">
         <span className="font-bold typo-body">Set your timezone</span>
         <ModalCloseButton />

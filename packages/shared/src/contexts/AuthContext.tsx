@@ -1,10 +1,4 @@
-import React, {
-  ReactElement,
-  ReactNode,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { ReactElement, ReactNode, useMemo, useState } from 'react';
 import {
   AnonymousUser,
   LoggedUser,
@@ -12,7 +6,6 @@ import {
   deleteAccount,
 } from '../lib/user';
 import { Visit } from '../lib/boot';
-import IncompleteRegistrationModal from '../components/auth/IncompleteRegistrationModal';
 
 export type LoginState = { trigger: string };
 
@@ -89,8 +82,6 @@ export const AuthContextProvider = ({
   refetchBoot,
   visit,
 }: AuthContextProviderProps): ReactElement => {
-  const [isIncompleteRegistration, setIsIncompleteRegistration] =
-    useState(false);
   const [loginState, setLoginState] = useState<LoginState | null>(null);
   const endUser = user && 'providers' in user ? user : null;
 
@@ -117,25 +108,7 @@ export const AuthContextProvider = ({
     [user, loginState, loadingUser, tokenRefreshed, loadedUserFromCache, visit],
   );
 
-  useEffect(() => {
-    if (!endUser || endUser?.timezone) {
-      return;
-    }
-
-    setIsIncompleteRegistration(true);
-  }, [endUser]);
-
   return (
-    <AuthContext.Provider value={authContext}>
-      {children}
-      {isIncompleteRegistration && endUser && (
-        <IncompleteRegistrationModal
-          user={endUser}
-          updateUser={updateUser}
-          isOpen={isIncompleteRegistration}
-          onRequestClose={() => setIsIncompleteRegistration(false)}
-        />
-      )}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={authContext}>{children}</AuthContext.Provider>
   );
 };
