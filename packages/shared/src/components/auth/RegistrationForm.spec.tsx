@@ -11,7 +11,6 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import {
   errorRegistrationMockData,
-  passwordLoginFlowMockData,
   registrationFlowMockData,
   successfulRegistrationMockData,
 } from '../../../__tests__/fixture/auth';
