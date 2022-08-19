@@ -30,7 +30,6 @@ export interface RegistrationParameters {
   'traits.name'?: string;
   'traits.username': string;
   'traits.image': string;
-  referrer?: string;
 }
 
 export type ValidateRecoveryParams =
