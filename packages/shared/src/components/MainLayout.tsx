@@ -3,6 +3,7 @@ import React, {
   ReactElement,
   ReactNode,
   useContext,
+  useEffect,
   useState,
 } from 'react';
 import dynamic from 'next/dynamic';
@@ -23,6 +24,7 @@ import { useSwipeableSidebar } from '../hooks/useSwipeableSidebar';
 import SettingsContext from '../contexts/SettingsContext';
 import Toast from './notifications/Toast';
 import LoginButton from './LoginButton';
+import IncompleteRegistrationModal from './auth/IncompleteRegistrationModal';
 
 export interface MainLayoutProps extends HTMLAttributes<HTMLDivElement> {
   showOnlyLogo?: boolean;
@@ -103,6 +105,8 @@ export default function MainLayout({
   enableSearch,
   onShowDndClick,
 }: MainLayoutProps): ReactElement {
+  const [isIncompleteRegistration, setIsIncompleteRegistration] =
+    useState(false);
   const { user, loadingUser } = useContext(AuthContext);
   const { trackEvent } = useContext(AnalyticsContext);
   const { sidebarRendered } = useSidebarRendered();
@@ -122,6 +126,14 @@ export default function MainLayout({
     });
     setOpenMobileSidebar(state);
   };
+
+  useEffect(() => {
+    if (!user || user?.timezone) {
+      return;
+    }
+
+    setIsIncompleteRegistration(true);
+  }, [user]);
 
   const hasBanner = !!bannerData?.banner || !!customBanner;
 
@@ -199,6 +211,12 @@ export default function MainLayout({
         )}
         {children}
       </main>
+      {isIncompleteRegistration && user && (
+        <IncompleteRegistrationModal
+          isOpen={isIncompleteRegistration}
+          onRequestClose={() => setIsIncompleteRegistration(false)}
+        />
+      )}
     </div>
   );
 }

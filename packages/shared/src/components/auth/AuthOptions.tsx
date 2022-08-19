@@ -61,7 +61,7 @@ function AuthOptions({
   const [registrationHints, setRegistrationHints] = useState<RegistrationError>(
     {},
   );
-  const { referral } = useContext(AuthContext);
+  const { refetchBoot, referral } = useContext(AuthContext);
   const { authVersion } = useContext(FeaturesContext);
   const isV2 = authVersion === AuthVersion.V2;
   const [email, setEmail] = useState('');
@@ -71,7 +71,10 @@ function AuthOptions({
   const { registration, validateRegistration, onSocialRegistration } =
     useRegistration({
       key: 'registration_form',
-      onValidRegistration: () => setActiveDisplay(Display.EmailSent), // on valid registration get boot
+      onValidRegistration: () => {
+        refetchBoot();
+        setActiveDisplay(Display.EmailSent);
+      },
       onInvalidRegistration: setRegistrationHints,
       onRedirect: (redirect) => window.open(redirect),
     });

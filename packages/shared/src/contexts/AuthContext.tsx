@@ -1,10 +1,4 @@
-import React, {
-  ReactElement,
-  ReactNode,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { ReactElement, ReactNode, useMemo, useState } from 'react';
 import {
   AnonymousUser,
   LoggedUser,
@@ -12,7 +6,6 @@ import {
   deleteAccount,
 } from '../lib/user';
 import { Visit } from '../lib/boot';
-import IncompleteRegistrationModal from '../components/auth/IncompleteRegistrationModal';
 
 export type LoginState = { trigger: string };
 
@@ -34,6 +27,7 @@ export interface AuthContextData {
   visit?: Visit;
   isFirstVisit?: boolean;
   deleteAccount?: () => Promise<void>;
+  refetchBoot?: () => Promise<unknown>;
 }
 
 const AuthContext = React.createContext<AuthContextData>(null);
@@ -66,6 +60,7 @@ const logout = async (): Promise<void> => {
 
 export type AuthContextProviderProps = {
   user: LoggedUser | AnonymousUser | undefined;
+  refetchBoot?: () => Promise<unknown>;
   children?: ReactNode;
 } & Pick<
   AuthContextData,
@@ -85,10 +80,9 @@ export const AuthContextProvider = ({
   tokenRefreshed,
   loadedUserFromCache,
   getRedirectUri,
+  refetchBoot,
   visit,
 }: AuthContextProviderProps): ReactElement => {
-  const [isIncompleteRegistration, setIsIncompleteRegistration] =
-    useState(false);
   const [loginState, setLoginState] = useState<LoginState | null>(null);
   const endUser = user && 'providers' in user ? user : null;
   const referral = user?.referrer;
@@ -111,30 +105,13 @@ export const AuthContextProvider = ({
       getRedirectUri,
       anonymous: user,
       visit,
+      refetchBoot,
       deleteAccount,
     }),
     [user, loginState, loadingUser, tokenRefreshed, loadedUserFromCache, visit],
   );
 
-  useEffect(() => {
-    if (!endUser || endUser?.timezone) {
-      return;
-    }
-
-    setIsIncompleteRegistration(true);
-  }, [endUser]);
-
   return (
-    <AuthContext.Provider value={authContext}>
-      {children}
-      {isIncompleteRegistration && endUser && (
-        <IncompleteRegistrationModal
-          user={endUser}
-          updateUser={updateUser}
-          isOpen={isIncompleteRegistration}
-          onRequestClose={() => setIsIncompleteRegistration(false)}
-        />
-      )}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={authContext}>{children}</AuthContext.Provider>
   );
 };

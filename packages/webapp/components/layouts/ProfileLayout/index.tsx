@@ -30,7 +30,7 @@ import { ParsedUrlQuery } from 'querystring';
 import { reputationGuide } from '@dailydotdev/shared/src/lib/constants';
 import { useQuery } from 'react-query';
 import Rank from '@dailydotdev/shared/src/components/Rank';
-import request from 'graphql-request';
+import request, { ClientError } from 'graphql-request';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import {
   USER_READING_RANK_QUERY,
@@ -72,6 +72,7 @@ export default function ProfileLayout({
 
   const { user } = useContext(AuthContext);
   const selectedTab = tabs.findIndex((tab) => tab.path === router?.pathname);
+
   const queryKey = ['profile', initialProfile?.id];
   const { data: fetchedProfile } = useQuery<PublicProfile>(
     queryKey,
@@ -81,6 +82,7 @@ export default function ProfileLayout({
       enabled: !!initialProfile,
     },
   );
+
   // Needed because sometimes initialProfile is defined and fetchedProfile is not
   const profile = fetchedProfile ?? initialProfile;
 
@@ -284,6 +286,7 @@ export async function getStaticProps({
   const { userId } = params;
   try {
     const profile = await getProfileSSR(userId);
+
     return {
       props: {
         profile,
@@ -291,7 +294,8 @@ export async function getStaticProps({
       revalidate: 60,
     };
   } catch (err) {
-    if ('message' in err && err.message === 'not found') {
+    const clientError = err as ClientError;
+    if (clientError?.response?.errors?.[0]?.extensions?.code === 'FORBIDDEN') {
       return {
         props: { profile: null },
         revalidate: 60,

@@ -12,6 +12,7 @@ interface ImageInputProps {
   name?: string;
   size?: Size;
   id?: string;
+  viewOnly?: boolean;
 }
 
 const TWO_MEGABYTES = 2 * 1024 * 1024;
@@ -28,6 +29,7 @@ function ImageInput({
   className,
   onChange,
   size = 'medium',
+  viewOnly,
 }: ImageInputProps): ReactElement {
   const inputRef = useRef<HTMLInputElement>();
   const [error, setError] = useState('');
@@ -65,23 +67,29 @@ function ImageInput({
         componentSize[size],
         className,
       )}
+      disabled={viewOnly}
     >
-      <input
-        id={id}
-        ref={inputRef}
-        type="file"
-        name={name}
-        accept="image/png,image/jpeg"
-        className="hidden"
-        onChange={onFileChange}
-      />
+      {!viewOnly && (
+        <input
+          id={id}
+          ref={inputRef}
+          type="file"
+          name={name}
+          accept="image/png,image/jpeg"
+          className="hidden"
+          onChange={onFileChange}
+        />
+      )}
       <img
-        className="mouse:group-hover:opacity-64"
+        className={!viewOnly && 'mouse:group-hover:opacity-64'}
         src={image}
         alt="File upload preview"
       />
       <EditIcon
-        className="hidden mouse:group-hover:block absolute"
+        className={classNames(
+          'hidden',
+          !viewOnly && 'mouse:group-hover:block absolute',
+        )}
         size={size}
         secondary
       />
