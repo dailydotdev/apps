@@ -25,6 +25,7 @@ export interface RegistrationParameters {
   provider?: string;
   method: AuthenticationType | KratosMethod;
   password?: string;
+  referral?: string;
   'traits.email': string;
   'traits.name'?: string;
   'traits.username': string;
