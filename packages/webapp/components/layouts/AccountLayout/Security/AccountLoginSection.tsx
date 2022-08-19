@@ -7,6 +7,8 @@ interface AccountLoginSectionProps {
   providers: Provider[];
   title: string;
   description: string;
+  providerActionType: string;
+  providerAction: (ManageSocialProvidersProps) => void;
   action?: ReactNode;
 }
 
@@ -14,6 +16,8 @@ function AccountLoginSection({
   providers,
   title,
   description,
+  providerActionType,
+  providerAction,
   action,
 }: AccountLoginSectionProps): ReactElement {
   return (
@@ -22,6 +26,12 @@ function AccountLoginSection({
         {providers.map(({ provider, ...rest }) => (
           <ProviderButton
             key={provider}
+            onClick={() =>
+              providerAction({
+                type: providerActionType,
+                provider: provider.toLowerCase(),
+              })
+            }
             label="Connect with"
             provider={provider}
             {...rest}

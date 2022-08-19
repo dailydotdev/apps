@@ -9,6 +9,16 @@ import AlertContainer, {
 } from '@dailydotdev/shared/src/components/alert/AlertContainer';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React, { ReactElement, useContext, useState } from 'react';
+import { useMutation, useQuery } from 'react-query';
+import {
+  AuthFlow,
+  getKratosProviders,
+  initializeKratosFlow,
+  submitKratosFlow,
+} from '@dailydotdev/shared/src/lib/kratos';
+import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
+import UnlinkModal from '@dailydotdev/shared/src/components/modals/UnlinkModal';
+import { getNodeByKey, SettingsParams } from '@dailydotdev/shared/src/lib/auth';
 import AccountContentSection from '../AccountContentSection';
 import { AccountPageContainer } from '../AccountPageContainer';
 import { AccountSecurityDisplay as Display, AccountTextField } from '../common';
@@ -24,14 +34,56 @@ interface AccountSecurityDefaultProps {
   isEmailSent?: boolean;
   onSwitchDisplay: (display: Display) => void;
 }
+export interface ManageSocialProvidersProps {
+  type: 'link' | 'unlink';
+  provider: string;
+}
 
 function AccountSecurityDefault({
   isEmailSent,
   onSwitchDisplay,
 }: AccountSecurityDefaultProps): ReactElement {
   const { user } = useContext(AuthContext);
+  const [unlinkProvider, setUnlinkProvider] = useState(null);
   const [email, setEmail] = useState<string>(null);
   const [resetPasswordSent, setResetPasswordSent] = useState(false);
+  const { data: userProviders } = useQuery(
+    'providers',
+    () => getKratosProviders(user.id),
+    {
+      ...disabledRefetch,
+    },
+  );
+
+  const { data: settings } = useQuery(
+    'settings',
+    () => initializeKratosFlow(AuthFlow.Settings),
+    {
+      ...disabledRefetch,
+    },
+  );
+
+  const { mutateAsync: updateSettings } = useMutation(
+    (params: SettingsParams) => submitKratosFlow(params),
+    {
+      onSuccess: () => {
+        // TODO: We need to adjust the protected flow here
+      },
+    },
+  );
+
+  const manageSocialProviders = async ({
+    type,
+    provider,
+  }: ManageSocialProvidersProps) => {
+    const { nodes, action } = settings.ui;
+    const csrfToken = getNodeByKey('csrf_token', nodes);
+    const postData = {
+      csrf_token: csrfToken.attributes.value,
+      [type]: provider,
+    };
+    await updateSettings({ action, params: postData });
+  };
 
   const emailAction = isEmailSent ? (
     <EmailSentSection />
@@ -69,8 +121,11 @@ function AccountSecurityDefault({
         title="Add login account"
         description="Add more accounts to ensure you never lose access to your daily.dev
         profile and to make login quick and easy cross device"
+        providerActionType="link"
+        providerAction={manageSocialProviders}
         providers={providers.filter(
-          ({ provider }) => !user.providers.includes(provider.toLowerCase()),
+          ({ provider }) =>
+            !userProviders.result.includes(provider.toLowerCase()),
         )}
         action={
           !user.password && (
@@ -87,8 +142,10 @@ function AccountSecurityDefault({
       <AccountLoginSection
         title="Connected accounts"
         description="Remove the connection between daily.dev and authorized login providers."
+        providerAction={manageSocialProviders}
+        providerActionType="unlink"
         providers={providers.filter(({ provider }) =>
-          user.providers.includes(provider.toLowerCase()),
+          userProviders.result.includes(provider.toLowerCase()),
         )}
         action={
           user.password && (
@@ -136,6 +193,16 @@ function AccountSecurityDefault({
           <AlertBackground className="bg-overlay-quaternary-ketchup" />
         </AccountDangerZone>
       </AccountContentSection>
+      {unlinkProvider && (
+        <UnlinkModal
+          provider={unlinkProvider}
+          onConfirm={() => {
+            manageSocialProviders({ type: 'unlink', provider: unlinkProvider });
+          }}
+          onRequestClose={() => setUnlinkProvider(null)}
+          isOpen={!!unlinkProvider}
+        />
+      )}
     </AccountPageContainer>
   );
 }

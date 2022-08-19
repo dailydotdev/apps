@@ -1,4 +1,4 @@
-import { authUrl } from './constants';
+import { authUrl, heimdallUrl } from './constants';
 
 export type EmptyObjectLiteral = Record<string, never>;
 
@@ -216,6 +216,29 @@ export interface KratosFormParams<T extends AuthPostParams> {
   params: T;
   method?: string;
 }
+
+interface KratosProviderData {
+  ok: boolean;
+  result: string[];
+}
+
+export const getKratosProviders = async (
+  id: string,
+): Promise<KratosProviderData> => {
+  return Promise.resolve({
+    ok: true,
+    result: ['google'],
+  });
+
+  const res = await fetch(
+    `${heimdallUrl}/api/list_providers?identityId=${id}`,
+    {
+      headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+    },
+  );
+  return res.json();
+};
 
 export const submitKratosFlow = async <
   R extends RequestResponse = RequestResponse,
