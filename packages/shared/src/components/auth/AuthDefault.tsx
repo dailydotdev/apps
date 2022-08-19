@@ -1,4 +1,5 @@
 import React, { ReactElement, ReactNode, useState } from 'react';
+import { useMutation, useQuery } from 'react-query';
 import { CloseModalFunc } from '../modals/common';
 import AuthModalFooter from './AuthModalFooter';
 import AuthModalHeader from './AuthModalHeader';
@@ -8,9 +9,11 @@ import EmailSignupForm from './EmailSignupForm';
 import LoginForm from './LoginForm';
 import OrDivider from './OrDivider';
 import ProviderButton from './ProviderButton';
+import { checkKratosEmail } from '../../lib/kratos';
 
 interface AuthDefaultProps {
   children?: ReactNode;
+  token: string;
   onClose?: CloseModalFunc;
   onSignup?: (email: string) => unknown;
   onProviderClick?: (provider: string) => unknown;
@@ -19,6 +22,7 @@ interface AuthDefaultProps {
 }
 
 const AuthDefault = ({
+  token,
   onClose,
   onSignup,
   onProviderClick,
@@ -26,9 +30,10 @@ const AuthDefault = ({
   isV2,
 }: AuthDefaultProps): ReactElement => {
   const [shouldLogin, setShouldLogin] = useState(isV2);
-  // const { mutateAsync: checkEmail } = useMutation((emailParam: string) =>
-  //   request(`${apiUrl}/graphql`, QUERY_USER_BY_EMAIL, { email: emailParam }),
-  // );
+  const [hint, setHint] = useState<string>(null);
+  const { mutateAsync: checkEmail } = useMutation((emailParam: string) =>
+    checkKratosEmail(emailParam, { csrf_token: token }),
+  );
 
   const onEmailSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,11 +47,15 @@ const AuthDefault = ({
       return null;
     }
 
-    // const res = await checkEmail(email);
+    const res = await checkEmail(email);
 
-    // if (res?.user) {
-    //   return setShouldLogin(true);
-    // }
+    if (res?.error) {
+      return setHint(res.error?.message);
+    }
+
+    if (res?.result) {
+      return setShouldLogin(true);
+    }
 
     return onSignup(input.value.trim());
   };
@@ -80,7 +89,7 @@ const AuthDefault = ({
             onForgotPassword={onForgotPassword}
           />
         ) : (
-          <EmailSignupForm onSubmit={onEmailSignup} isV2={isV2} />
+          <EmailSignupForm onSubmit={onEmailSignup} isV2={isV2} hint={hint} />
         )}
         {isV2 && (
           <div className="flex flex-row gap-5 mt-10">

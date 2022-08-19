@@ -201,6 +201,23 @@ export const getKratosFlow = async (
   return res.json();
 };
 
+export const checkKratosEmail = async (
+  email: string,
+  params: AuthPostParams,
+) => {
+  const res = await fetch(`${authUrl}/api/check_email?email_address=${email}`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': params.csrf_token,
+      Accept: 'application/json',
+    },
+    body: JSON.stringify(params),
+  });
+  return res.json();
+};
+
 export interface RequestResponse<TData = unknown, TError = InitializationData> {
   data?: TData;
   error?: TError;
