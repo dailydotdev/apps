@@ -82,6 +82,13 @@ export interface InitializationData {
   requested_aal: AuthenticatorLevel;
 }
 
+interface KratosEmailData {
+  result?: boolean;
+  error?: {
+    message?: string;
+  };
+}
+
 type Method = 'link_recovery' | 'password';
 
 interface AuthMethod {
@@ -204,7 +211,7 @@ export const getKratosFlow = async (
 export const checkKratosEmail = async (
   email: string,
   params: AuthPostParams,
-) => {
+): Promise<KratosEmailData> => {
   const res = await fetch(`${authUrl}/api/check_email?email_address=${email}`, {
     method: 'POST',
     credentials: 'include',

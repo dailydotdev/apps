@@ -1,5 +1,5 @@
 import React, { ReactElement, ReactNode, useState } from 'react';
-import { useMutation, useQuery } from 'react-query';
+import { useMutation } from 'react-query';
 import { CloseModalFunc } from '../modals/common';
 import AuthModalFooter from './AuthModalFooter';
 import AuthModalHeader from './AuthModalHeader';
