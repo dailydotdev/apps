@@ -1,29 +1,27 @@
 import { useMemo } from 'react';
 import { QueryKey, useMutation, useQuery } from 'react-query';
 import {
-  AuthSession,
   errorsToJson,
-  initializeRegistration,
   RegistrationError,
-  InitializationData,
   RegistrationParameters,
-  validateRegistration,
-  ValidateRegistrationParams,
-  getNodeByKey,
   getNodeValue,
+  ValidateRegistrationParams,
 } from '../lib/auth';
-import { fallbackImages } from '../lib/config';
 import { disabledRefetch } from '../lib/func';
+import {
+  AuthFlow,
+  InitializationData,
+  initializeKratosFlow,
+  submitKratosFlow,
+  SuccessfulRegistrationData,
+} from '../lib/kratos';
 
 type ParamKeys = keyof RegistrationParameters;
 
 interface UseRegistrationProps {
   key: QueryKey;
   onRedirect?: (redirect: string) => void;
-  onValidRegistration?: (
-    session: AuthSession,
-    params: ValidateRegistrationParams,
-  ) => void;
+  onValidRegistration?: (params: ValidateRegistrationParams) => void;
   onInvalidRegistration?: (errors: RegistrationError) => void;
 }
 
@@ -47,50 +45,53 @@ const useRegistration = ({
 }: UseRegistrationProps): UseRegistration => {
   const { data: registration, isLoading: isQueryLoading } = useQuery(
     key,
-    initializeRegistration,
+    () => initializeKratosFlow(AuthFlow.Registration),
     { ...disabledRefetch },
   );
   const {
     mutateAsync: validate,
     status,
     isLoading: isMutationLoading,
-  } = useMutation(validateRegistration, {
-    onSuccess: ({ data, error, redirect }, params) => {
-      if (data) {
-        return onValidRegistration?.(data.session, params);
-      }
+  } = useMutation(
+    (params: ValidateRegistrationParams) => submitKratosFlow(params),
+    {
+      onSuccess: ({ data, error, redirect }, params) => {
+        const successfulData = data as SuccessfulRegistrationData;
+        if (successfulData) {
+          return onValidRegistration?.(params);
+        }
 
-      if (redirect) {
-        return onRedirect(redirect);
-      }
+        if (redirect) {
+          return onRedirect(redirect);
+        }
 
-      // probably csrf token issue and definitely not related to forms data
-      if (!error.ui) {
-        return null;
-      }
+        // probably csrf token issue and definitely not related to forms data
+        if (!error.ui) {
+          return null;
+        }
 
-      const emailExists = error?.ui?.messages?.find(
-        (message) => message.id === EMAIL_EXISTS_ERROR_ID,
-      );
-      if (emailExists) {
-        return onInvalidRegistration?.({
-          'traits.email': 'Email is already taken!',
-        });
-      }
+        const emailExists = error?.ui?.messages?.find(
+          (message) => message.id === EMAIL_EXISTS_ERROR_ID,
+        );
+        if (emailExists) {
+          return onInvalidRegistration?.({
+            'traits.email': 'Email is already taken!',
+          });
+        }
 
-      const json = errorsToJson<ParamKeys>(error);
-      return onInvalidRegistration?.(json);
+        const json = errorsToJson<ParamKeys>(error);
+        return onInvalidRegistration?.(json);
+      },
     },
-  });
+  );
 
   const onValidateRegistration = async (values: RegistrationParameters) => {
     const { nodes, action } = registration.ui;
-    const csrfToken = getNodeByKey('csrf_token', nodes);
     const postData: RegistrationParameters = {
       ...values,
       method: values.method || 'password',
-      csrf_token: csrfToken.attributes.value,
-      'traits.image': values['traits.image'] || fallbackImages.avatar,
+      csrf_token: getNodeValue('csrf_token', nodes),
+      'traits.image': values['traits.image'],
     };
 
     validate({ action, params: postData });
@@ -104,6 +105,7 @@ const useRegistration = ({
       provider,
       'traits.email': '',
       'traits.username': '',
+      'traits.name': '',
       'traits.image': '',
     };
 

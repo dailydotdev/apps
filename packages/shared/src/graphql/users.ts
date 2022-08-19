@@ -10,6 +10,24 @@ type CommentStats = { numComments: number; numCommentUpvotes: number };
 export type UserStats = PostStats & CommentStats;
 export type UserStatsData = { userStats: UserStats };
 
+export const USER_BY_ID_STATIC_FIELDS_QUERY = `
+  query User($id: ID!) {
+    user(id: $id) {
+      id
+      name
+      image
+      username
+      twitter
+      github
+      timezone
+      portfolio
+      reputation
+      permalink
+      createdAt
+    }
+  }
+`;
+
 export const USER_STATS_QUERY = gql`
   query UserStats($id: ID!) {
     userStats(id: $id) {
@@ -242,6 +260,44 @@ export const HIDE_READING_HISTORY_MUTATION = gql`
   mutation HideReadHistory($postId: String!, $timestamp: DateTime!) {
     hideReadHistory(postId: $postId, timestamp: $timestamp) {
       _
+    }
+  }
+`;
+
+export const QUERY_USER_BY_EMAIL = gql`
+  query UserByEmail($email: String!) {
+    user: userByEmail(email: $email) {
+      id
+      name
+      image
+      username
+      permalink
+      bio
+      twitter
+      github
+      hashnode
+      createdAt
+      infoConfirmed
+      timezone
+    }
+  }
+`;
+
+export const UPDATE_USER_PROFILE_MUTATION = gql`
+  mutation UpdateUserProfile($data: UpdateUserInput, $upload: Upload) {
+    updateUserProfile(data: $data, upload: $upload) {
+      id
+      name
+      image
+      username
+      permalink
+      bio
+      twitter
+      github
+      hashnode
+      createdAt
+      infoConfirmed
+      timezone
     }
   }
 `;

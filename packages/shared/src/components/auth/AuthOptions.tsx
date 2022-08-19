@@ -19,11 +19,13 @@ import {
   RegistrationFormValues,
   SocialProviderAccount,
 } from './RegistrationForm';
-import { getNodeValue, getRegistrationFlow } from '../../lib/auth';
+import { getNodeValue, RegistrationError } from '../../lib/auth';
 import useWindowEvents from '../../hooks/useWindowEvents';
 import useRegistration from '../../hooks/useRegistration';
 import EmailVerificationSent from './EmailVerificationSent';
 import AuthModalHeader from './AuthModalHeader';
+import { AuthFlow, getKratosFlow } from '../../lib/kratos';
+import { fallbackImages } from '../../lib/config';
 
 export enum Display {
   Default = 'default',
@@ -39,7 +41,7 @@ const hasLoggedOut = () => {
   return params?.logged_out !== undefined;
 };
 
-interface AuthOptionsProps {
+export interface AuthOptionsProps {
   onClose?: CloseModalFunc;
   onSelectedProvider: (account: SocialProviderAccount) => void;
   formRef: MutableRefObject<HTMLFormElement>;
@@ -56,40 +58,45 @@ function AuthOptions({
   socialAccount,
   defaultDisplay = Display.Default,
 }: AuthOptionsProps): ReactElement {
+  const [registrationHints, setRegistrationHints] = useState<RegistrationError>(
+    {},
+  );
+  const { refetchBoot, referral } = useContext(AuthContext);
   const { authVersion } = useContext(FeaturesContext);
   const isV2 = authVersion === AuthVersion.V2;
   const [email, setEmail] = useState('');
   const [activeDisplay, setActiveDisplay] = useState(
     hasLoggedOut() ? Display.SignBack : defaultDisplay,
   );
-  const { onUpdateSession } = useContext(AuthContext);
-  const { validateRegistration, onSocialRegistration } = useRegistration({
-    key: 'registration_form',
-    onValidRegistration: (data) => {
-      onUpdateSession(data);
-      setActiveDisplay(Display.EmailSent);
-    },
-    onRedirect: (redirect) => window.open(redirect),
-  });
+  const { registration, validateRegistration, onSocialRegistration } =
+    useRegistration({
+      key: 'registration_form',
+      onValidRegistration: () => {
+        refetchBoot();
+        setActiveDisplay(Display.EmailSent);
+      },
+      onInvalidRegistration: setRegistrationHints,
+      onRedirect: (redirect) => window.open(redirect),
+    });
 
   useWindowEvents('message', async (e) => {
     if (e.data?.flow) {
-      const flow = await getRegistrationFlow(e.data.flow);
+      const flow = await getKratosFlow(AuthFlow.Registration, e.data.flow);
       const { nodes, action } = flow.ui;
       onSelectedProvider({
         action,
         provider: getNodeValue('provider', nodes),
         csrf_token: getNodeValue('csrf_token', nodes),
         email: getNodeValue('traits.email', nodes),
-        name: getNodeValue('traits.fullname', nodes),
+        name: getNodeValue('traits.name', nodes),
         username: getNodeValue('traits.username', nodes),
-        image: getNodeValue('traits.image', nodes),
+        image: getNodeValue('traits.image', nodes) || fallbackImages.avatar,
       });
       setActiveDisplay(Display.Registration);
     }
   });
 
-  const onEmailRegistration = async (emailAd: string) => {
+  const onEmailRegistration = (emailAd: string) => {
     // before displaying registration, ensure the email doesn't exists
     setActiveDisplay(Display.Registration);
     setEmail(emailAd);
@@ -98,6 +105,7 @@ function AuthOptions({
   const onRegister = (params: RegistrationFormValues) => {
     validateRegistration({
       ...params,
+      referral,
       provider: socialAccount?.provider,
       method: socialAccount ? 'oidc' : 'password',
     });
@@ -134,6 +142,10 @@ function AuthOptions({
             onClose={onClose}
             isV2={isV2}
             onSignup={onRegister}
+            hints={registrationHints}
+            token={
+              registration && getNodeValue('csrf_token', registration.ui.nodes)
+            }
           />
         </Tab>
         <Tab label={Display.SignBack}>
@@ -146,7 +158,7 @@ function AuthOptions({
         </Tab>
         <Tab label={Display.ForgotPassword}>
           <ForgotPasswordForm
-            email={email}
+            initialEmail={email}
             onClose={onClose}
             onBack={() => setActiveDisplay(defaultDisplay)}
           />

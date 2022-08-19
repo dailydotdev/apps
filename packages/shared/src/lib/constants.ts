@@ -17,6 +17,8 @@ export const companionExplainerVideo = 'https://r.daily.dev/companion-overview';
 export const companionPermissionGrantedLink =
   'https://r.daily.dev/try-the-companion';
 export const initialDataKey = 'initial';
+export const authUrl =
+  process.env.NEXT_PUBLIC_AUTH_URL || 'http://127.0.0.1:4433';
 
 export const isDevelopment = process.env.NODE_ENV === 'development';
 export const isProduction = process.env.NODE_ENV === 'production';

@@ -7,7 +7,7 @@ import defaultUser from '../../../__tests__/fixture/loggedUser';
 
 const logout = jest.fn();
 
-const renderComponent = (props: ProfileButtonProps): RenderResult => {
+const renderComponent = (): RenderResult => {
   const client = new QueryClient();
 
   return render(
@@ -26,25 +26,21 @@ const renderComponent = (props: ProfileButtonProps): RenderResult => {
           loginState: null,
         }}
       >
-        <ProfileButton {...props} />
+        <ProfileButton />
       </AuthContext.Provider>
       ,
     </QueryClientProvider>,
   );
 };
 
-it('should click the account details and show the pop up', async () => {
+it('account details should link to account profile page', async () => {
   renderComponent();
 
   const profileBtn = await screen.findByLabelText('Profile settings');
   profileBtn.click();
 
   const accountBtn = await screen.findByText('Account details');
-  accountBtn.click();
-
-  await waitFor(async () =>
-    expect(await screen.findByRole('dialog')).toBeInTheDocument(),
-  );
+  expect(accountBtn).toHaveAttribute('href', '/account/profile');
 });
 
 it('should click the logout button and logout', async () => {

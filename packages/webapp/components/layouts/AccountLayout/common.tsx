@@ -1,13 +1,18 @@
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
-import ArrowIcon from '@dailydotdev/shared/src/components/icons/Arrow';
 import LockIcon from '@dailydotdev/shared/src/components/icons/Lock';
 import SettingsIcon from '@dailydotdev/shared/src/components/icons/Settings';
 import { ProfilePicture } from '@dailydotdev/shared/src/components/ProfilePicture';
 import { pageBorders } from '@dailydotdev/shared/src/components/utilities';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { LoggedUser } from '@dailydotdev/shared/src/lib/user';
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactNode } from 'react';
+import {
+  faq,
+  privacyPolicy,
+  reportIssue,
+  requestFeature,
+  termsOfService,
+} from '@dailydotdev/shared/src/lib/constants';
 
 interface AccountPageIconProps {
   isActive?: boolean;
@@ -25,6 +30,45 @@ export enum AccountPage {
   Security = 'security',
   OtherSettings = 'others',
 }
+
+export enum AccountSecurityDisplay {
+  Default = 'default',
+  ChangeEmail = 'change_email',
+  ConnectEmail = 'connect_email',
+}
+
+interface AccountSidebarPage {
+  title: string;
+  href: string;
+  target: string;
+}
+export const accountSidebarPages: AccountSidebarPage[] = [
+  {
+    title: 'FAQ',
+    href: faq,
+    target: '_blank',
+  },
+  {
+    title: 'Request a feature',
+    href: requestFeature,
+    target: '_blank',
+  },
+  {
+    title: 'Report an issue',
+    href: reportIssue,
+    target: '_blank',
+  },
+  {
+    title: 'Privacy policy',
+    href: privacyPolicy,
+    target: '_blank',
+  },
+  {
+    title: 'Terms of service',
+    href: termsOfService,
+    target: '_blank',
+  },
+];
 
 export const accountPage: Record<AccountPage, AccountPageProps> = {
   profile: {
@@ -48,7 +92,7 @@ export const accountPage: Record<AccountPage, AccountPageProps> = {
 export const AccountPageContent = classed(
   'div',
   pageBorders,
-  'flex flex-col w-full max-w-[40rem] tablet:border-l min-h-screen mr-auto',
+  'flex flex-col w-full max-w-[40rem] tablet:border-l mr-auto',
 );
 export const AccountPageSection = classed('section', 'flex flex-col p-6');
 export const AccountPageHeading = classed(
@@ -56,59 +100,9 @@ export const AccountPageHeading = classed(
   'font-bold typo-title3 py-4 px-6 border-b border-theme-divider-tertiary w-full flex flex-row items-center',
 );
 
-export const ContentHeading = classed('h2', 'font-bold typo-headline');
-export const ContentText = classed(
-  'p',
-  'mt-1 typo-callout text-theme-label-tertiary',
-);
-export const OverlayContainer = classed(
-  'div',
-  'relative p-4 max-w-md border rounded-8',
-);
-
-export const OverlayText = classed('p', 'typo-callout');
-
-export const AccountContentHeading = classed(ContentHeading, 'mt-10');
 export const CommonTextField = classed(TextField, 'max-w-sm');
 export const AccountTextField = classed(CommonTextField, 'mt-6');
-
-interface ClassName {
-  container?: string;
-  heading?: string;
-  section?: string;
-}
-
-interface AccountPageContainerProps {
-  title: string;
-  actions?: ReactNode;
-  children?: ReactNode;
-  className?: ClassName;
-  onBack?: () => void;
-}
-
-export const AccountPageContainer = ({
-  title,
-  actions,
-  children,
-  className = {},
-  onBack,
-}: AccountPageContainerProps): ReactElement => {
-  return (
-    <AccountPageContent className={className.container}>
-      <AccountPageHeading className={className.heading}>
-        {onBack && (
-          <Button
-            className="mr-2 btn-tertiary"
-            icon={<ArrowIcon className="-rotate-90" />}
-            onClick={onBack}
-          />
-        )}
-        {title}
-        {actions && <span className="flex flex-row ml-auto">{actions}</span>}
-      </AccountPageHeading>
-      <AccountPageSection className={className.section}>
-        {children}
-      </AccountPageSection>
-    </AccountPageContent>
-  );
-};
+export const AccountSidebarPagesSection = classed(
+  'div',
+  'flex flex-col py-1.5 px-6 mt-10 w-full rounded-16 border border-theme-divider-tertiary',
+);

@@ -10,15 +10,25 @@ import { ModalProps, StyledModal } from '../modals/StyledModal';
 import DaytimeIcon from '../../../icons/timezone_daytime.svg';
 import NighttimeIcon from '../../../icons/timezone_nighttime.svg';
 import { Button } from '../buttons/Button';
+import useProfileForm from '../../hooks/useProfileForm';
 
 const timeZoneOptions = getTimeZoneOptions();
 const timeZoneValues = timeZoneOptions.map((timeZone) => timeZone.label);
 
-function IncompleteRegistration(props: ModalProps): ReactElement {
+function IncompleteRegistrationModal({
+  onRequestClose,
+  ...props
+}: ModalProps): ReactElement {
+  const [submitDisabled, setSubmitDisabled] = useState(false);
+  const { updateUserProfile } = useProfileForm({
+    onSuccess: (e) => {
+      setSubmitDisabled(false);
+      onRequestClose(e);
+    },
+  });
   const [userTimeZone, setUserTimeZone] = useState<string>(
     getUserInitialTimezone({ userTimezone: 'utc' }),
   );
-
   const timezoneUpdated = (timeZone: string) => {
     const findTimeZoneRow = timeZoneOptions.find(
       ({ label }) => label === timeZone,
@@ -29,11 +39,18 @@ function IncompleteRegistration(props: ModalProps): ReactElement {
   const hour = getHourTimezone(userTimeZone);
   const Background = hour >= 6 && hour < 18 ? DaytimeIcon : NighttimeIcon;
 
-  const onComplete = () => {};
+  const onComplete = async (e: React.MouseEvent) => {
+    setSubmitDisabled(true);
+    await updateUserProfile({ timezone: userTimeZone, event: e });
+  };
 
   return (
-    <StyledModal {...props} contentClassName="flex flex-col">
-      <header className="flex relative justify-between items-center p-3 border-b border-theme-divider-tertiary">
+    <StyledModal
+      {...props}
+      onRequestClose={onRequestClose}
+      contentClassName="flex flex-col"
+    >
+      <header className="flex relative justify-between items-center p-3 w-full border-b border-theme-divider-tertiary">
         <span className="font-bold typo-body">Set your timezone</span>
         <ModalCloseButton />
       </header>
@@ -43,8 +60,7 @@ function IncompleteRegistration(props: ModalProps): ReactElement {
           activities.
         </p>
         <Dropdown
-          className="mt-12"
-          buttonSize="select"
+          className="mt-12 w-80"
           selectedIndex={timeZoneOptions.findIndex(
             (timeZone) => timeZone.value === userTimeZone,
           )}
@@ -57,6 +73,7 @@ function IncompleteRegistration(props: ModalProps): ReactElement {
         <Button
           className="btn-primary bg-theme-color-cabbage"
           onClick={onComplete}
+          disabled={submitDisabled}
         >
           Complete Registration
         </Button>
@@ -65,4 +82,4 @@ function IncompleteRegistration(props: ModalProps): ReactElement {
   );
 }
 
-export default IncompleteRegistration;
+export default IncompleteRegistrationModal;
