@@ -1,4 +1,4 @@
-import { authUrl } from './constants';
+import { authUrl, heimdallUrl } from './constants';
 
 export type EmptyObjectLiteral = Record<string, never>;
 
@@ -210,18 +210,14 @@ export const getKratosFlow = async (
 
 export const checkKratosEmail = async (
   email: string,
-  params: AuthPostParams,
 ): Promise<KratosEmailData> => {
-  const res = await fetch(`${authUrl}/api/check_email?email_address=${email}`, {
-    method: 'POST',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRF-Token': params.csrf_token,
-      Accept: 'application/json',
+  const res = await fetch(
+    `${heimdallUrl}/api/check_email?email_address=${email}`,
+    {
+      headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
     },
-    body: JSON.stringify(params),
-  });
+  );
   return res.json();
 };
 

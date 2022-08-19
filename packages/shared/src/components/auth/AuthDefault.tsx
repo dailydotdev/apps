@@ -13,7 +13,6 @@ import { checkKratosEmail } from '../../lib/kratos';
 
 interface AuthDefaultProps {
   children?: ReactNode;
-  token: string;
   onClose?: CloseModalFunc;
   onSignup?: (email: string) => unknown;
   onProviderClick?: (provider: string) => unknown;
@@ -22,7 +21,6 @@ interface AuthDefaultProps {
 }
 
 const AuthDefault = ({
-  token,
   onClose,
   onSignup,
   onProviderClick,
@@ -30,9 +28,8 @@ const AuthDefault = ({
   isV2,
 }: AuthDefaultProps): ReactElement => {
   const [shouldLogin, setShouldLogin] = useState(isV2);
-  const [hint, setHint] = useState<string>(null);
   const { mutateAsync: checkEmail } = useMutation((emailParam: string) =>
-    checkKratosEmail(emailParam, { csrf_token: token }),
+    checkKratosEmail(emailParam),
   );
 
   const onEmailSignup = async (e: React.FormEvent) => {
@@ -48,10 +45,6 @@ const AuthDefault = ({
     }
 
     const res = await checkEmail(email);
-
-    if (res?.error) {
-      return setHint(res.error?.message);
-    }
 
     if (res?.result) {
       return setShouldLogin(true);
@@ -89,7 +82,7 @@ const AuthDefault = ({
             onForgotPassword={onForgotPassword}
           />
         ) : (
-          <EmailSignupForm onSubmit={onEmailSignup} isV2={isV2} hint={hint} />
+          <EmailSignupForm onSubmit={onEmailSignup} isV2={isV2} />
         )}
         {isV2 && (
           <div className="flex flex-row gap-5 mt-10">

@@ -6,13 +6,11 @@ import MailIcon from '../icons/Mail';
 import { AuthForm } from './common';
 
 interface EmailSignupFormProps {
-  hint: string;
   onSubmit: (e: React.FormEvent) => unknown;
   isV2?: boolean;
 }
 
 function EmailSignupForm({
-  hint,
   onSubmit,
   isV2,
 }: EmailSignupFormProps): ReactElement {
@@ -24,7 +22,6 @@ function EmailSignupForm({
         label="Email"
         type="email"
         name="email"
-        hint={hint}
         actionButton={
           !isV2 && (
             <Button

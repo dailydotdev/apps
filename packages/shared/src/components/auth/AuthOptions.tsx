@@ -131,9 +131,6 @@ function AuthOptions({
             onProviderClick={onSocialRegistration}
             onForgotPassword={() => setActiveDisplay(Display.ForgotPassword)}
             isV2={isV2}
-            token={
-              registration && getNodeValue('csrf_token', registration.ui.nodes)
-            }
           />
         </Tab>
         <Tab label={Display.Registration}>
