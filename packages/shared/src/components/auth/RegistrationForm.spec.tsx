@@ -15,11 +15,7 @@ import {
   registrationFlowMockData,
   successfulRegistrationMockData,
 } from '../../../__tests__/fixture/auth';
-import {
-  getNodeByKey,
-  getNodeValue,
-  RegistrationParameters,
-} from '../../lib/auth';
+import { getNodeValue, RegistrationParameters } from '../../lib/auth';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import { formToJson } from '../../lib/form';
 import AuthOptions, { AuthOptionsProps } from './AuthOptions';
@@ -51,11 +47,6 @@ const defaultParams: Partial<RegistrationParameters> = {
   provider: undefined,
   method: 'password',
   'traits.image': undefined,
-};
-const mockLoginFlow = (result = passwordLoginFlowMockData) => {
-  nock(authUrl, { reqheaders: { Accept: 'application/json' } })
-    .get('/self-service/login/browser')
-    .reply(200, result);
 };
 const mockRegistraitonValidationFlow = (
   result: unknown,
