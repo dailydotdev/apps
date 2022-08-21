@@ -53,7 +53,7 @@ The main project with most of the components that are used in the applications. 
 The web app project. It is a Next.js project and it has more pages than the extension. Such as registration page, article page, profile page, etc.
 For more information [click here](https://github.com/dailydotdev/apps/tree/master/packages/webapp).
 
-## Local environment
+## Local Environment
 
 To spin up a full-blown local environment, we use [Garden](https://garden.io/). It deploys the required services to a local/remote kuberentes cluster.
 
