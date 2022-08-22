@@ -1,4 +1,5 @@
 import React, { ReactElement, ReactNode, useState } from 'react';
+import { useMutation } from 'react-query';
 import { storageWrapper as storage } from '../../lib/storageWrapper';
 import { CloseModalFunc } from '../modals/common';
 import AuthModalFooter from './AuthModalFooter';
@@ -10,6 +11,7 @@ import EmailSignupForm from './EmailSignupForm';
 import LoginForm from './LoginForm';
 import OrDivider from './OrDivider';
 import ProviderButton from './ProviderButton';
+import { checkKratosEmail } from '../../lib/kratos';
 
 interface AuthDefaultProps {
   children?: ReactNode;
@@ -28,9 +30,9 @@ const AuthDefault = ({
   isV2,
 }: AuthDefaultProps): ReactElement => {
   const [shouldLogin, setShouldLogin] = useState(isV2);
-  // const { mutateAsync: checkEmail } = useMutation((emailParam: string) =>
-  //   request(`${apiUrl}/graphql`, QUERY_USER_BY_EMAIL, { email: emailParam }),
-  // );
+  const { mutateAsync: checkEmail } = useMutation((emailParam: string) =>
+    checkKratosEmail(emailParam),
+  );
 
   const onEmailSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,11 +46,11 @@ const AuthDefault = ({
       return null;
     }
 
-    // const res = await checkEmail(email);
+    const res = await checkEmail(email);
 
-    // if (res?.user) {
-    //   return setShouldLogin(true);
-    // }
+    if (res?.result) {
+      return setShouldLogin(true);
+    }
 
     return onSignup(input.value.trim());
   };

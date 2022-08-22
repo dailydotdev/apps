@@ -14,15 +14,11 @@ import {
   registrationFlowMockData,
   successfulRegistrationMockData,
 } from '../../../__tests__/fixture/auth';
-import {
-  getNodeByKey,
-  getNodeValue,
-  RegistrationParameters,
-} from '../../lib/auth';
+import { getNodeValue, RegistrationParameters } from '../../lib/auth';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import { formToJson } from '../../lib/form';
 import AuthOptions, { AuthOptionsProps } from './AuthOptions';
-import { authUrl } from '../../lib/constants';
+import { authUrl, heimdallUrl } from '../../lib/constants';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -32,6 +28,13 @@ const mockRegistraitonFlow = (result = registrationFlowMockData) => {
   nock(authUrl, { reqheaders: { Accept: 'application/json' } })
     .get('/self-service/registration/browser')
     .reply(200, result);
+};
+
+const mockEmailCheck = (email: string, result = false) => {
+  nock(heimdallUrl).post(`/api/check_email?email_address=${email}`).reply(200, {
+    ok: true,
+    result,
+  });
 };
 
 const defaultToken = getNodeValue(
@@ -88,14 +91,15 @@ const renderComponent = (
   );
 };
 
-const renderRegistration = async (email: string) => {
+const renderRegistration = async (email: string, existing = false) => {
   renderComponent();
-  await waitForNock();
   fireEvent.input(screen.getByPlaceholderText('Email'), {
     target: { value: email },
   });
   const submit = await screen.findByTestId('email_signup_submit');
   fireEvent.click(submit);
+  mockEmailCheck(email, existing);
+  await waitForNock();
   await waitFor(() => expect(screen.getByText('Sign up to daily.dev')));
   fireEvent.input(screen.getByPlaceholderText('Full name'), {
     target: { value: 'Lee Solevilla' },
@@ -108,23 +112,9 @@ const renderRegistration = async (email: string) => {
   });
 };
 
-it('should get browser password registration flow token', async () => {
-  renderComponent();
-  await waitForNock();
-  fireEvent.input(screen.getByPlaceholderText('Email'), {
-    target: { value: 'lee@daily.dev' },
-  });
-  const submit = await screen.findByTestId('email_signup_submit');
-  fireEvent.click(submit);
-  const input = (await screen.findByTestId('csrf_token')) as HTMLInputElement;
-  const token = getNodeByKey('csrf_token', registrationFlowMockData.ui.nodes);
-  expect(input).toBeInTheDocument();
-  expect(input.value).toEqual(token.attributes.value);
-});
-
 it('should post registration including token', async () => {
   const email = 'sshanzel@yahoo.com';
-  renderRegistration(email);
+  await renderRegistration(email);
   const form = await screen.findByTestId('registration_form');
   const params = formToJson(form as HTMLFormElement);
   mockRegistraitonValidationFlow(successfulRegistrationMockData, params);
@@ -139,7 +129,7 @@ it('should post registration including token', async () => {
 
 it('should display error messages', async () => {
   const email = 'sshanzel@yahoo.com';
-  renderRegistration(email);
+  await renderRegistration(email);
   const form = await screen.findByTestId('registration_form');
   const params = formToJson(form as HTMLFormElement);
   mockRegistraitonValidationFlow(errorRegistrationMockData, params, 400);
@@ -148,6 +138,23 @@ it('should display error messages', async () => {
     const errorMessage =
       'The password can not be used because password length must be at least 8 characters but only got 3.';
     const text = screen.queryByText(errorMessage);
+    expect(text).toBeInTheDocument();
+  });
+});
+
+it('should show login if email exists', async () => {
+  const email = 'sshanzel@yahoo.com';
+  renderComponent();
+  fireEvent.input(screen.getByPlaceholderText('Email'), {
+    target: { value: email },
+  });
+  const submit = await screen.findByTestId('email_signup_submit');
+  fireEvent.click(submit);
+  mockEmailCheck(email, true);
+  await waitForNock();
+
+  await waitFor(() => {
+    const text = screen.queryByText('Enter your password to login');
     expect(text).toBeInTheDocument();
   });
 });

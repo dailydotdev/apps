@@ -82,6 +82,13 @@ export interface InitializationData {
   requested_aal: AuthenticatorLevel;
 }
 
+interface KratosEmailData {
+  result?: boolean;
+  error?: {
+    message?: string;
+  };
+}
+
 type Method = 'link_recovery' | 'password';
 
 interface AuthMethod {
@@ -198,6 +205,19 @@ export const getKratosFlow = async (
     credentials: 'include',
     headers: { Accept: 'application/json' },
   });
+  return res.json();
+};
+
+export const checkKratosEmail = async (
+  email: string,
+): Promise<KratosEmailData> => {
+  const res = await fetch(
+    `${heimdallUrl}/api/check_email?email_address=${email}`,
+    {
+      headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+    },
+  );
   return res.json();
 };
 
