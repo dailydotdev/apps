@@ -1,9 +1,11 @@
 import React, { ReactElement, ReactNode, useState } from 'react';
 import { useMutation } from 'react-query';
+import { storageWrapper as storage } from '../../lib/storageWrapper';
 import { CloseModalFunc } from '../modals/common';
 import AuthModalFooter from './AuthModalFooter';
 import AuthModalHeader from './AuthModalHeader';
 import AuthModalHeading from './AuthModalHeading';
+import { SIGNIN_METHOD_KEY } from './AuthSignBack';
 import { ColumnContainer, providers } from './common';
 import EmailSignupForm from './EmailSignupForm';
 import LoginForm from './LoginForm';
@@ -53,6 +55,11 @@ const AuthDefault = ({
     return onSignup(input.value.trim());
   };
 
+  const onSocialClick = (provider: string) => {
+    storage.setItem(SIGNIN_METHOD_KEY, provider);
+    onProviderClick(provider);
+  };
+
   return (
     <>
       <AuthModalHeader title="Sign up to daily.dev" onClose={onClose} />
@@ -71,14 +78,14 @@ const AuthDefault = ({
               key={provider}
               provider={provider}
               label="Connect with"
-              onClick={() => onProviderClick(provider.toLowerCase())}
+              onClick={() => onSocialClick(provider.toLowerCase())}
               {...props}
             />
           ))}
         {!isV2 && <OrDivider />}
         {shouldLogin ? (
           <LoginForm
-            onSuccessfulLogin={(e) => onClose(e)}
+            onSuccessfulLogin={onClose}
             onForgotPassword={onForgotPassword}
           />
         ) : (
