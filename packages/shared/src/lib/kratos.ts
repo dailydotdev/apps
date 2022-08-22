@@ -237,6 +237,24 @@ export interface KratosFormParams<T extends AuthPostParams> {
   method?: string;
 }
 
+interface KratosProviderData {
+  ok: boolean;
+  result: string[];
+}
+
+export const getKratosProviders = async (
+  id: string,
+): Promise<KratosProviderData> => {
+  const res = await fetch(
+    `${heimdallUrl}/api/list_providers?identityId=${id}`,
+    {
+      headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+    },
+  );
+  return res.json();
+};
+
 export const submitKratosFlow = async <
   R extends RequestResponse = RequestResponse,
   E = InitializationData,

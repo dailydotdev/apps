@@ -25,6 +25,8 @@ interface AccountPageProps {
   getIcon: (props: AccountPageIconProps) => ReactNode;
 }
 
+export type ManageSocialProviderTypes = 'link' | 'unlink';
+
 export enum AccountPage {
   Profile = 'profile',
   Security = 'security',

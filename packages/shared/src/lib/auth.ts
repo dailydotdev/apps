@@ -46,6 +46,7 @@ export type RegistrationError = ErrorMessages<keyof RegistrationParameters>;
 export type ValidateRegistrationParams =
   KratosFormParams<RegistrationParameters>;
 export type ValidateLoginParams = KratosFormParams<LoginPasswordParameters>;
+export type SettingsParams = KratosFormParams<SettingsParameters>;
 
 export const errorsToJson = <T extends string>(
   data: InitializationData,
