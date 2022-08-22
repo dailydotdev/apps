@@ -225,11 +225,6 @@ interface KratosProviderData {
 export const getKratosProviders = async (
   id: string,
 ): Promise<KratosProviderData> => {
-  return Promise.resolve({
-    ok: true,
-    result: ['google'],
-  });
-
   const res = await fetch(
     `${heimdallUrl}/api/list_providers?identityId=${id}`,
     {
