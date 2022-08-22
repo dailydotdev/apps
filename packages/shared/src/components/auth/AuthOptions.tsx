@@ -56,7 +56,7 @@ function AuthOptions({
   const [registrationHints, setRegistrationHints] = useState<RegistrationError>(
     {},
   );
-  const { refetchBoot } = useContext(AuthContext);
+  const { refetchBoot, referral } = useContext(AuthContext);
   const { authVersion } = useContext(FeaturesContext);
   const isV2 = authVersion === AuthVersion.V2;
   const [email, setEmail] = useState('');
@@ -100,6 +100,7 @@ function AuthOptions({
   const onRegister = (params: RegistrationFormValues) => {
     validateRegistration({
       ...params,
+      referral,
       provider: socialAccount?.provider,
       method: socialAccount ? 'oidc' : 'password',
     });
