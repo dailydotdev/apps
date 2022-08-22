@@ -53,6 +53,64 @@ The main project with most of the components that are used in the applications. 
 The web app project. It is a Next.js project and it has more pages than the extension. Such as registration page, article page, profile page, etc.
 For more information [click here](https://github.com/dailydotdev/apps/tree/master/packages/webapp).
 
+## Local Environment
+
+To spin up a full-blown local environment, we use [Garden](https://garden.io/). It deploys the required services to a local/remote kuberentes cluster.
+
+### Prerequisites
+
+* Install garden using their [getting started tutorial](https://docs.garden.io/getting-started/1-installation). Make sure to follow step 3 to provision a local kubernetes cluster.
+* Git clone this repo: `git clone git@github.com:dailydotdev/apps.git`.
+* Git clone the [api](https://github.com/dailydotdev/daily-api) and [gateway](https://github.com/dailydotdev/daily-gateway) services for hot reloading support (optional).
+
+### Deploy
+
+It's time to spin up the environment using garden. Run the following in the apps repo using your favorite terminal:
+* `garden deploy`. Deploys all services, runs migrations, and everything needed.
+* `garden exec api "node bin/import.js"`. Seeds the database with sample data.
+
+You should see your ingress URL in the terminal if everything is done correctly.
+<img width="446" alt="image" src="https://user-images.githubusercontent.com/1993245/185791096-bf90cae0-b0e4-4a32-bb60-1fb5ce7ca360.png">
+
+Put the ingress URL in your browser and viola, you should see the webapp running in all its glory. 🤯
+
+### Port forwarding
+
+If you want to connect to the database or any other service, we can use the kubectl port forward command.
+For example, if we want to connect to postgres: `kubectl --context docker-desktop -n apps-default port-forward service/postgres 5432:5432` (make sure to use the right context).
+
+Now you can use your favorite SQL client to connect to postgres using `localhost:5432`.
+
+### Hot reload
+
+Garden supports hot reload (code synchnronization in garden's terms), which makes local development so better!
+Follow these steps to enable hot reload:
+* Clone the api and gateway repos before you proceed as mentioned above.
+* Run: `garden link source api ../daily-api`. Make sure to adjust the api repo path according to your setup.
+* Run: `garden link source gateway ../daily-gateway`. Make sure to adjust the gateway repo path according to your setup.
+* Open `project.garden.yml` in the apps repo and uncomment the definition of the dev variable (lines 13-14).
+* Run: `garden dev`
+
+That's it! Now anything you change will get synchronized into the kubernetes service and will reload it. 🧙‍♂️
+
+### Garden Dashboard
+
+Garden comes with a built-in dashboard that can show you the status of the deployment and logs of each service.
+Run `garden dashboard` and it will generate a URL that you can use to access the dashboard.
+
+If you use `garden dev`, it will automatically run the dashboard as well.
+
+### Update Remote Dependencies
+
+By default, garden will not make sure your dependencies (api, gateway, and db services) are up-to-date with the latest source.
+It uses whatever is available from the last time it fetched them.
+
+To update everything, run: `garden update-remote all`. Think of it as the equivalent of `git pull` for garden.
+
+### Teardown
+
+To teardown the environment and delete everything. Run: `garden delete environment`.
+
 
 ## Want to Help?
 
