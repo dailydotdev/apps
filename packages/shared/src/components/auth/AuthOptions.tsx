@@ -5,13 +5,13 @@ import React, {
   useState,
 } from 'react';
 import classNames from 'classnames';
-import AuthContext, { getQueryParams } from '../../contexts/AuthContext';
+import AuthContext from '../../contexts/AuthContext';
 import FeaturesContext from '../../contexts/FeaturesContext';
 import { AuthVersion } from '../../lib/featureValues';
 import { CloseModalFunc } from '../modals/common';
 import TabContainer, { Tab } from '../tabs/TabContainer';
 import AuthDefault from './AuthDefault';
-import { AuthSignBack } from './AuthSignBack';
+import { AuthSignBack, SIGNIN_METHOD_KEY } from './AuthSignBack';
 import ForgotPasswordForm from './ForgotPasswordForm';
 import LoginForm from './LoginForm';
 import {
@@ -26,6 +26,7 @@ import EmailVerificationSent from './EmailVerificationSent';
 import AuthModalHeader from './AuthModalHeader';
 import { AuthFlow, getKratosFlow } from '../../lib/kratos';
 import { fallbackImages } from '../../lib/config';
+import { storageWrapper as storage } from '../../lib/storageWrapper';
 
 export enum Display {
   Default = 'default',
@@ -34,12 +35,6 @@ export enum Display {
   ForgotPassword = 'forgot_password',
   EmailSent = 'email_sent',
 }
-
-const hasLoggedOut = () => {
-  const params = getQueryParams();
-
-  return params?.logged_out !== undefined;
-};
 
 export interface AuthOptionsProps {
   onClose?: CloseModalFunc;
@@ -65,8 +60,8 @@ function AuthOptions({
   const { authVersion } = useContext(FeaturesContext);
   const isV2 = authVersion === AuthVersion.V2;
   const [email, setEmail] = useState('');
-  const [activeDisplay, setActiveDisplay] = useState(
-    hasLoggedOut() ? Display.SignBack : defaultDisplay,
+  const [activeDisplay, setActiveDisplay] = useState(() =>
+    storage.getItem(SIGNIN_METHOD_KEY) ? Display.SignBack : defaultDisplay,
   );
   const { registration, validateRegistration, onSocialRegistration } =
     useRegistration({
