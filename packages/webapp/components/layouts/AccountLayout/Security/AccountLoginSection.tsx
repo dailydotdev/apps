@@ -2,12 +2,13 @@ import { Provider } from '@dailydotdev/shared/src/components/auth/common';
 import ProviderButton from '@dailydotdev/shared/src/components/auth/ProviderButton';
 import React, { ReactElement, ReactNode } from 'react';
 import AccountContentSection from '../AccountContentSection';
+import { ManageSocialProviderTypes } from '../common';
 
 interface AccountLoginSectionProps {
   providers: Provider[];
   title: string;
   description: string;
-  providerActionType: string;
+  providerActionType: ManageSocialProviderTypes;
   providerAction: (ManageSocialProvidersProps) => void;
   action?: ReactNode;
 }

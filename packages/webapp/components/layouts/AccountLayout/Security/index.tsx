@@ -21,7 +21,11 @@ import UnlinkModal from '@dailydotdev/shared/src/components/modals/UnlinkModal';
 import { getNodeByKey, SettingsParams } from '@dailydotdev/shared/src/lib/auth';
 import AccountContentSection from '../AccountContentSection';
 import { AccountPageContainer } from '../AccountPageContainer';
-import { AccountSecurityDisplay as Display, AccountTextField } from '../common';
+import {
+  AccountSecurityDisplay as Display,
+  AccountTextField,
+  ManageSocialProviderTypes,
+} from '../common';
 import EmailSentSection from '../EmailSentSection';
 import AccountLoginSection from './AccountLoginSection';
 
@@ -35,7 +39,7 @@ interface AccountSecurityDefaultProps {
   onSwitchDisplay: (display: Display) => void;
 }
 export interface ManageSocialProvidersProps {
-  type: 'link' | 'unlink';
+  type: ManageSocialProviderTypes;
   provider: string;
 }
 
@@ -197,7 +201,7 @@ function AccountSecurityDefault({
         <UnlinkModal
           provider={unlinkProvider}
           onConfirm={() => {
-            manageSocialProviders({ type: 'unlink', provider: unlinkProvider });
+            manageSocialProviders({ type: 'link', provider: unlinkProvider });
           }}
           onRequestClose={() => setUnlinkProvider(null)}
           isOpen={!!unlinkProvider}
