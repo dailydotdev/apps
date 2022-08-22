@@ -100,6 +100,13 @@ Run `garden dashboard` and it will generate a URL that you can use to access the
 
 If you use `garden dev`, it will automatically run the dashboard as well.
 
+### Update Remote Dependencies
+
+By default, garden will not make sure your dependencies (api, gateway, and db services) are up-to-date with the latest source.
+It uses whatever is available from the last time it fetched them.
+
+To update everything, run: `garden update-remote all`. Think of it as the equivalent of `git pull` for garden.
+
 ### Teardown
 
 To teardown the environment and delete everything. Run: `garden delete environment`.
