@@ -129,7 +129,7 @@ function AccountSecurityDefault({
         providerAction={manageSocialProviders}
         providers={providers.filter(
           ({ provider }) =>
-            !userProviders.result.includes(provider.toLowerCase()),
+            !userProviders?.result.includes(provider.toLowerCase()),
         )}
         action={
           !user.password && (
@@ -149,7 +149,7 @@ function AccountSecurityDefault({
         providerAction={manageSocialProviders}
         providerActionType="unlink"
         providers={providers.filter(({ provider }) =>
-          userProviders.result.includes(provider.toLowerCase()),
+          userProviders?.result.includes(provider.toLowerCase()),
         )}
         action={
           user.password && (
@@ -170,7 +170,7 @@ function AccountSecurityDefault({
       >
         <Button
           className="mt-6 w-fit btn-secondary"
-          onClick={() => setResetPasswordSent(true)}
+          onClick={() => onSwitchDisplay(Display.ChangePassword)}
         >
           Reset password
         </Button>
