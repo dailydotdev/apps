@@ -26,12 +26,14 @@ interface UsePrivilegedSession {
 
 interface UsePrivilegedSessionProps {
   onResetSuccessful?: () => void;
+  onSessionVerified?: () => void;
 }
 
 export const VERIFY_SESSION_KEY = 'verify_session';
 
 const usePrivilegedSession = ({
   onResetSuccessful,
+  onSessionVerified,
 }: UsePrivilegedSessionProps = {}): UsePrivilegedSession => {
   const { displayToast } = useToastNotification();
   const [verifySessionId, setVerifySessionId] =
@@ -70,6 +72,7 @@ const usePrivilegedSession = ({
     queryParams: { refresh: 'true' },
     onSuccessfulPasswordLogin: () => {
       setVerifySessionId(null);
+      onSessionVerified?.();
       displayToast(
         'Session successfully verified! You can now change password',
       );
