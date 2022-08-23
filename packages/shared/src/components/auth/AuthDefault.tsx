@@ -23,6 +23,7 @@ interface AuthDefaultProps {
   title?: string;
   providers: Provider[];
   disableRegistration?: boolean;
+  disablePassword?: boolean;
 }
 
 const AuthDefault = ({
@@ -35,6 +36,7 @@ const AuthDefault = ({
   isV2,
   providers,
   disableRegistration,
+  disablePassword,
   title = 'Sign up to daily.dev',
 }: AuthDefaultProps): ReactElement => {
   const [shouldLogin, setShouldLogin] = useState(isV2);
@@ -68,10 +70,36 @@ const AuthDefault = ({
     onProviderClick(provider);
   };
 
+  const getForm = () => {
+    if (disablePassword && disableRegistration) {
+      return null;
+    }
+
+    if (shouldLogin || disableRegistration) {
+      return (
+        <LoginForm
+          loginHint={loginHint}
+          onPasswordLogin={onPasswordLogin}
+          onForgotPassword={onForgotPassword}
+        />
+      );
+    }
+
+    return <EmailSignupForm onSubmit={onEmailSignup} isV2={isV2} />;
+  };
+
+  const getOrDivider = () => {
+    if (isV2 || !providers.length || disablePassword) {
+      return null;
+    }
+
+    return <OrDivider />;
+  };
+
   return (
     <>
       <AuthModalHeader title={title} onClose={onClose} />
-      <ColumnContainer>
+      <ColumnContainer className={disableRegistration && 'mb-6'}>
         {isV2 && (
           <AuthModalHeading
             tag="h2"
@@ -90,16 +118,8 @@ const AuthDefault = ({
               {...props}
             />
           ))}
-        {!isV2 && <OrDivider />}
-        {shouldLogin || disableRegistration ? (
-          <LoginForm
-            loginHint={loginHint}
-            onPasswordLogin={onPasswordLogin}
-            onForgotPassword={onForgotPassword}
-          />
-        ) : (
-          <EmailSignupForm onSubmit={onEmailSignup} isV2={isV2} />
-        )}
+        {getOrDivider()}
+        {getForm()}
         {isV2 && (
           <div className="flex flex-row gap-5 mt-10">
             {providers.map(({ provider, ...props }) => (
