@@ -4,9 +4,7 @@ import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import LockIcon from '@dailydotdev/shared/src/components/icons/Lock';
 import MailIcon from '@dailydotdev/shared/src/components/icons/Mail';
 import AccountDangerZone from '@dailydotdev/shared/src/components/profile/AccountDangerZone';
-import AlertContainer, {
-  AlertBackground,
-} from '@dailydotdev/shared/src/components/alert/AlertContainer';
+import { AlertBackground } from '@dailydotdev/shared/src/components/alert/AlertContainer';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React, { ReactElement, useContext, useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
@@ -50,21 +48,14 @@ function AccountSecurityDefault({
   const { user } = useContext(AuthContext);
   const [unlinkProvider, setUnlinkProvider] = useState(null);
   const [email, setEmail] = useState<string>(null);
-  const [resetPasswordSent, setResetPasswordSent] = useState(false);
   const { data: userProviders } = useQuery(
     'providers',
     () => getKratosProviders(user.id),
-    {
-      ...disabledRefetch,
-    },
+    { ...disabledRefetch },
   );
 
-  const { data: settings } = useQuery(
-    'settings',
-    () => initializeKratosFlow(AuthFlow.Settings),
-    {
-      ...disabledRefetch,
-    },
+  const { data: settings } = useQuery('settings', () =>
+    initializeKratosFlow(AuthFlow.Settings),
   );
 
   const { mutateAsync: updateSettings } = useMutation(
@@ -176,19 +167,6 @@ function AccountSecurityDefault({
         </Button>
       </AccountContentSection>
       {/* )} */}
-      {resetPasswordSent && (
-        <AlertContainer
-          className={{
-            container: 'mt-6',
-            overlay: 'bg-overlay-primary-white opacity-[0.12]',
-          }}
-        >
-          <p className="typo-callout">
-            We sent a link to the account email address, please check your spam
-            folder if you {`don't`} see the email.
-          </p>
-        </AlertContainer>
-      )}
       <AccountContentSection title="🚨 Danger Zone">
         <AccountDangerZone
           onDelete={onDelete}
