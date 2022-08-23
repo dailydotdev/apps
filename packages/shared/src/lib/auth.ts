@@ -18,6 +18,11 @@ export interface AccountRecoveryParameters extends AuthPostParams {
   method: KratosMethod;
 }
 
+export interface ResetPasswordParameters extends AuthPostParams {
+  password: string;
+  method: KratosMethod;
+}
+
 export type VerificationParams = KratosFormParams<AccountRecoveryParameters>;
 
 export interface RegistrationParameters {
@@ -47,6 +52,7 @@ export type ValidateRegistrationParams =
   KratosFormParams<RegistrationParameters>;
 export type ValidateLoginParams = KratosFormParams<LoginPasswordParameters>;
 export type SettingsParams = KratosFormParams<SettingsParameters>;
+export type ValidateResetPassword = KratosFormParams<ResetPasswordParameters>;
 
 export const errorsToJson = <T extends string>(
   data: InitializationData,

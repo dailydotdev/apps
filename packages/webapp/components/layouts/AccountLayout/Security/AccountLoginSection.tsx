@@ -21,6 +21,10 @@ function AccountLoginSection({
   providerAction,
   action,
 }: AccountLoginSectionProps): ReactElement {
+  if (!providers?.length) {
+    return null;
+  }
+
   return (
     <AccountContentSection title={title} description={description}>
       <div className="grid grid-cols-1 gap-4 mt-6 w-64">

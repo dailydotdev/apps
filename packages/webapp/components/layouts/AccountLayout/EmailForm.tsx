@@ -17,7 +17,8 @@ function EmailForm({ onSubmit, className }: EmailFormProps): ReactElement {
       <CommonTextField type="email" inputId="new_email" label="New email" />
       <AccountTextField
         label="Confirm current password"
-        inputId="confirm_password"
+        inputId="password"
+        name="password"
         type="password"
       />
       <Button className="mt-6 ml-auto w-fit bg-theme-color-cabbage btn-quaternary">

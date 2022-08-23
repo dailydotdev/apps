@@ -1,11 +1,11 @@
-import React, { ReactElement } from 'react';
+import React, { FormEvent, ReactElement } from 'react';
 import { AccountPageContainer } from '../AccountPageContainer';
 import { AccountSecurityDisplay as Display } from '../common';
 import EmailForm from '../EmailForm';
 
 interface EmailFormPageProps {
   onSwitchDisplay: (display: Display) => void;
-  onSubmit: () => void;
+  onSubmit: (e: FormEvent<HTMLFormElement>) => void;
   title: string;
 }
 
