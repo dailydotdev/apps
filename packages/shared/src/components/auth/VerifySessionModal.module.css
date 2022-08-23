@@ -1,0 +1,18 @@
+.verifyAuthModal {
+  & :global(.verifyAuth) {
+    position: relative;
+    display: flex;
+    padding: 0;
+    max-height: 40rem;
+    height: 100%;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+    background: var(--theme-background-primary);
+
+    @screen laptop {
+      max-width: 25.75rem;
+    }
+  }
+}
