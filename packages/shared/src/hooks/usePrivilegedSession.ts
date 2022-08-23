@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import { LoginFormParams } from '../components/auth/LoginForm';
-import { ValidateResetPassword } from '../lib/auth';
+import { getNodeValue, ValidateResetPassword } from '../lib/auth';
 import {
   AuthFlow,
   InitializationData,
@@ -12,11 +12,15 @@ import useLogin from './useLogin';
 import usePersistentContext from './usePersistentContext';
 import { useToastNotification } from './useToastNotification';
 
+interface ResetFormParams {
+  password: string;
+}
+
 interface UsePrivilegedSession {
   showVerifySession?: boolean;
   onCloseVerifySession: () => void;
   settings: InitializationData;
-  resetPassword: (params: ValidateResetPassword) => unknown;
+  onUpdatePassword: (params: ResetFormParams) => unknown;
   onPasswordLogin: (params: LoginFormParams) => void;
 }
 
@@ -52,6 +56,15 @@ const usePrivilegedSession = ({
     },
   );
 
+  const onUpdatePassword = ({ password }: ResetFormParams) => {
+    const { action, nodes } = settings.ui;
+    const csrfToken = getNodeValue('csrf_token', nodes);
+    resetPassword({
+      action,
+      params: { csrf_token: csrfToken, method: 'password', password },
+    });
+  };
+
   const { loginFlowData, loginHint, onPasswordLogin } = useLogin({
     queryEnabled: !!verifySessionId,
     queryParams: { refresh: 'true' },
@@ -68,7 +81,7 @@ const usePrivilegedSession = ({
       settings,
       showVerifySession: !!verifySessionId,
       onCloseVerifySession: () => setVerifySessionId(null),
-      resetPassword,
+      onUpdatePassword,
       onPasswordLogin,
     }),
     [verifySessionId, settings, loginHint, loginFlowData],
