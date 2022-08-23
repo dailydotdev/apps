@@ -21,8 +21,14 @@ export default function useFeedOnPostClick(
   columns: number,
   feedName: string,
   ranking?: string,
+  eventName = 'click',
 ): FeedPostClick {
-  const onPostClick = useOnPostClick({ columns, feedName, ranking });
+  const onPostClick = useOnPostClick({
+    eventName,
+    columns,
+    feedName,
+    ranking,
+  });
 
   return useMemo(
     () =>
