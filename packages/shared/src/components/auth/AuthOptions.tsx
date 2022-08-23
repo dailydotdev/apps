@@ -27,6 +27,8 @@ import AuthModalHeader from './AuthModalHeader';
 import { AuthFlow, getKratosFlow } from '../../lib/kratos';
 import { fallbackImages } from '../../lib/config';
 import { storageWrapper as storage } from '../../lib/storageWrapper';
+import { providers } from './common';
+import useLogin from '../../hooks/useLogin';
 
 export enum Display {
   Default = 'default',
@@ -57,6 +59,10 @@ function AuthOptions({
     {},
   );
   const { refetchBoot, referral } = useContext(AuthContext);
+  const {
+    loginHint: [hint, setHint],
+    onPasswordLogin,
+  } = useLogin();
   const { authVersion } = useContext(FeaturesContext);
   const isV2 = authVersion === AuthVersion.V2;
   const [email, setEmail] = useState('');
@@ -121,10 +127,13 @@ function AuthOptions({
       >
         <Tab label={Display.Default}>
           <AuthDefault
+            providers={providers}
             onClose={onClose}
             onSignup={onEmailRegistration}
             onProviderClick={onSocialRegistration}
             onForgotPassword={() => setActiveDisplay(Display.ForgotPassword)}
+            onPasswordLogin={onPasswordLogin}
+            loginHint={[hint, setHint]}
             isV2={isV2}
           />
         </Tab>
@@ -146,7 +155,7 @@ function AuthOptions({
         <Tab label={Display.SignBack}>
           <AuthSignBack>
             <LoginForm
-              onSuccessfulLogin={(e) => onClose(e)}
+              onPasswordLogin={onPasswordLogin}
               onForgotPassword={() => setActiveDisplay(Display.ForgotPassword)}
             />
           </AuthSignBack>

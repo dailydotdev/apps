@@ -1,38 +1,46 @@
 import React, { ReactElement, ReactNode, useState } from 'react';
-import { useMutation } from 'react-query';
 import { storageWrapper as storage } from '../../lib/storageWrapper';
 import { CloseModalFunc } from '../modals/common';
 import AuthModalFooter from './AuthModalFooter';
 import AuthModalHeader from './AuthModalHeader';
 import AuthModalHeading from './AuthModalHeading';
 import { SIGNIN_METHOD_KEY } from './AuthSignBack';
-import { ColumnContainer, providers } from './common';
+import { ColumnContainer, Provider } from './common';
 import EmailSignupForm from './EmailSignupForm';
-import LoginForm from './LoginForm';
+import LoginForm, { LoginFormParams } from './LoginForm';
 import OrDivider from './OrDivider';
 import ProviderButton from './ProviderButton';
-import { checkKratosEmail } from '../../lib/kratos';
 
 interface AuthDefaultProps {
   children?: ReactNode;
+  loginHint?: ReturnType<typeof useState>;
   onClose?: CloseModalFunc;
+  onPasswordLogin: (params: LoginFormParams) => void;
   onSignup?: (email: string) => unknown;
   onProviderClick?: (provider: string) => unknown;
   onForgotPassword?: () => unknown;
   isV2?: boolean;
+  title?: string;
+  providers: Provider[];
+  disableRegistration?: boolean;
 }
 
 const AuthDefault = ({
+  loginHint,
   onClose,
   onSignup,
   onProviderClick,
   onForgotPassword,
+  onPasswordLogin,
   isV2,
+  providers,
+  disableRegistration,
+  title = 'Sign up to daily.dev',
 }: AuthDefaultProps): ReactElement => {
   const [shouldLogin, setShouldLogin] = useState(isV2);
-  const { mutateAsync: checkEmail } = useMutation((emailParam: string) =>
-    checkKratosEmail(emailParam),
-  );
+  // const { mutateAsync: checkEmail } = useMutation((emailParam: string) =>
+  //   checkKratosEmail(emailParam),
+  // );
 
   const onEmailSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,11 +54,11 @@ const AuthDefault = ({
       return null;
     }
 
-    const res = await checkEmail(email);
+    // const res = await checkEmail(email);
 
-    if (res?.result) {
-      return setShouldLogin(true);
-    }
+    // if (res?.result) {
+    //   return setShouldLogin(true);
+    // }
 
     return onSignup(input.value.trim());
   };
@@ -62,7 +70,7 @@ const AuthDefault = ({
 
   return (
     <>
-      <AuthModalHeader title="Sign up to daily.dev" onClose={onClose} />
+      <AuthModalHeader title={title} onClose={onClose} />
       <ColumnContainer>
         {isV2 && (
           <AuthModalHeading
@@ -83,9 +91,10 @@ const AuthDefault = ({
             />
           ))}
         {!isV2 && <OrDivider />}
-        {shouldLogin ? (
+        {shouldLogin || disableRegistration ? (
           <LoginForm
-            onSuccessfulLogin={onClose}
+            loginHint={loginHint}
+            onPasswordLogin={onPasswordLogin}
             onForgotPassword={onForgotPassword}
           />
         ) : (
@@ -106,11 +115,13 @@ const AuthDefault = ({
         )}
       </ColumnContainer>
       <div className="flex flex-1" />
-      <AuthModalFooter
-        className="mt-4"
-        isLogin={shouldLogin}
-        onIsLogin={setShouldLogin}
-      />
+      {!disableRegistration && (
+        <AuthModalFooter
+          className="mt-4"
+          isLogin={shouldLogin}
+          onIsLogin={setShouldLogin}
+        />
+      )}
     </>
   );
 };

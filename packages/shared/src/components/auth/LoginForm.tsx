@@ -1,80 +1,37 @@
-import React, { ReactElement, useContext, useRef, useState } from 'react';
-import { useMutation, useQuery } from 'react-query';
-import AuthContext from '../../contexts/AuthContext';
-import {
-  getNodeValue,
-  LoginPasswordParameters,
-  ValidateLoginParams,
-} from '../../lib/auth';
+import React, { FormEvent, ReactElement, useState } from 'react';
+import { LoginPasswordParameters } from '../../lib/auth';
 import { formToJson } from '../../lib/form';
-import { disabledRefetch } from '../../lib/func';
-import {
-  AuthFlow,
-  initializeKratosFlow,
-  submitKratosFlow,
-} from '../../lib/kratos';
 import { Button } from '../buttons/Button';
 import { ClickableText } from '../buttons/ClickableText';
 import { PasswordField } from '../fields/PasswordField';
 import { TextField } from '../fields/TextField';
 import MailIcon from '../icons/Mail';
 import { AuthForm } from './common';
-import TokenInput from './TokenField';
 
 interface LoginFormProps {
-  onSuccessfulLogin: (e?: React.FormEvent) => unknown;
   onForgotPassword?: () => unknown;
+  onPasswordLogin: (params: LoginFormParams) => void;
+  loginHint?: ReturnType<typeof useState>;
 }
 
-type LoginFormParams = Pick<LoginPasswordParameters, 'identifier' | 'password'>;
+export type LoginFormParams = Pick<
+  LoginPasswordParameters,
+  'identifier' | 'password'
+>;
 
 function LoginForm({
-  onSuccessfulLogin,
   onForgotPassword,
+  onPasswordLogin,
+  loginHint: [hint, setHint],
 }: LoginFormProps): ReactElement {
-  const { refetchBoot } = useContext(AuthContext);
-  const [hint, setHint] = useState('Enter your password to login');
-  const formRef = useRef<HTMLFormElement>();
-  const { data: login } = useQuery(
-    'login',
-    () => initializeKratosFlow(AuthFlow.Login),
-    { ...disabledRefetch },
-  );
-  const { mutateAsync: onPasswordLogin } = useMutation(
-    (params: ValidateLoginParams) => submitKratosFlow(params),
-    {
-      onSuccess: async ({ error }) => {
-        if (error) {
-          setHint('Invalid username or password');
-          return;
-        }
-
-        await refetchBoot();
-        onSuccessfulLogin();
-      },
-    },
-  );
-  const onLogin: typeof onSuccessfulLogin = async (e) => {
+  const onLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const form = formToJson<LoginFormParams>(formRef.current);
-    const { nodes, action } = login.ui;
-    const csrfToken = getNodeValue('csrf_token', nodes);
-    const params: LoginPasswordParameters = {
-      ...form,
-      csrf_token: csrfToken,
-      method: 'password',
-    };
-    onPasswordLogin({ action, params });
+    const form = formToJson<LoginFormParams>(e.currentTarget);
+    onPasswordLogin(form);
   };
 
   return (
-    <AuthForm
-      className="gap-2"
-      onSubmit={onLogin}
-      ref={formRef}
-      data-testid="login_form"
-    >
-      <TokenInput token={getNodeValue('csrf_token', login?.ui?.nodes)} />
+    <AuthForm className="gap-2" onSubmit={onLogin} data-testid="login_form">
       <TextField
         leftIcon={<MailIcon />}
         inputId="identifier"
@@ -82,7 +39,7 @@ function LoginForm({
         label="Email"
         type="email"
         saveHintSpace
-        hint={hint}
+        hint={hint as string}
         onChange={() => hint && setHint(null)}
         valid={!!hint}
       />
