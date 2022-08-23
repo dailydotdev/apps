@@ -1,6 +1,6 @@
 import { authUrl, heimdallUrl } from './constants';
 
-export type EmptyObjectLiteral = Record<string, never>;
+export type EmptyObjectLiteral = Record<string, never | string>;
 
 interface InitializationNodeAttribute {
   name: string;
@@ -188,8 +188,10 @@ export enum AuthFlow {
 
 export const initializeKratosFlow = async (
   flow: AuthFlow,
+  params: EmptyObjectLiteral = {},
 ): Promise<InitializationData> => {
-  const res = await fetch(`${authUrl}/self-service${flow}/browser`, {
+  const search = new URLSearchParams(params);
+  const res = await fetch(`${authUrl}/self-service${flow}/browser?${search}`, {
     credentials: 'include',
     headers: { Accept: 'application/json' },
   });
