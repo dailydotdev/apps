@@ -21,7 +21,8 @@ interface UsePrivilegedSession {
   onCloseVerifySession: () => void;
   settings: InitializationData;
   onUpdatePassword: (params: ResetFormParams) => unknown;
-  onPasswordLogin: (params: LoginFormParams) => void;
+  onPasswordLogin?: (params: LoginFormParams) => void;
+  onSocialLogin?: (provider: string) => void;
 }
 
 interface UsePrivilegedSessionProps {
@@ -67,17 +68,19 @@ const usePrivilegedSession = ({
     });
   };
 
-  const { loginFlowData, loginHint, onPasswordLogin } = useLogin({
-    queryEnabled: !!verifySessionId,
-    queryParams: { refresh: 'true' },
-    onSuccessfulPasswordLogin: () => {
-      setVerifySessionId(null);
-      onSessionVerified?.();
-      displayToast(
-        'Session successfully verified! You can now change password',
-      );
+  const { loginFlowData, loginHint, onSocialLogin, onPasswordLogin } = useLogin(
+    {
+      queryEnabled: !!verifySessionId,
+      queryParams: { refresh: 'true' },
+      onSuccessfulLogin: () => {
+        setVerifySessionId(null);
+        onSessionVerified?.();
+        displayToast(
+          'Session successfully verified! You can now change password',
+        );
+      },
     },
-  });
+  );
 
   return useMemo(
     () => ({
@@ -86,6 +89,7 @@ const usePrivilegedSession = ({
       onCloseVerifySession: () => setVerifySessionId(null),
       onUpdatePassword,
       onPasswordLogin,
+      onSocialLogin,
     }),
     [verifySessionId, settings, loginHint, loginFlowData],
   );
