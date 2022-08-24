@@ -75,7 +75,7 @@ const AuthDefault = ({
       return null;
     }
 
-    if (shouldLogin || disableRegistration) {
+    if (!disablePassword && (shouldLogin || disableRegistration)) {
       return (
         <LoginForm
           loginHint={loginHint}
