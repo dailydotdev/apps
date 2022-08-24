@@ -6,11 +6,13 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
+import { act } from 'react-dom/test-utils';
 import nock from 'nock';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import {
   errorRegistrationMockData,
+  passwordLoginFlowMockData,
   registrationFlowMockData,
   successfulRegistrationMockData,
 } from '../../../__tests__/fixture/auth';
@@ -24,9 +26,15 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
+const mockLoginFlow = (result = passwordLoginFlowMockData) => {
+  nock(authUrl, { reqheaders: { Accept: 'application/json' } })
+    .get('/self-service/login/browser?')
+    .reply(200, result);
+};
+
 const mockRegistraitonFlow = (result = registrationFlowMockData) => {
   nock(authUrl, { reqheaders: { Accept: 'application/json' } })
-    .get('/self-service/registration/browser')
+    .get('/self-service/registration/browser?')
     .reply(200, result);
 };
 
@@ -73,6 +81,7 @@ const renderComponent = (
   },
 ): RenderResult => {
   const client = new QueryClient();
+  mockLoginFlow();
   mockRegistraitonFlow();
   return render(
     <QueryClientProvider client={client}>
@@ -93,13 +102,15 @@ const renderComponent = (
 
 const renderRegistration = async (email: string, existing = false) => {
   renderComponent();
+  mockEmailCheck(email, existing);
   fireEvent.input(screen.getByPlaceholderText('Email'), {
     target: { value: email },
   });
-  const submit = await screen.findByTestId('email_signup_submit');
-  fireEvent.click(submit);
-  mockEmailCheck(email, existing);
-  await waitForNock();
+  await act(async () => {
+    const submit = await screen.findByTestId('email_signup_submit');
+    fireEvent.click(submit);
+    await waitForNock();
+  });
   await waitFor(() => expect(screen.getByText('Sign up to daily.dev')));
   fireEvent.input(screen.getByPlaceholderText('Full name'), {
     target: { value: 'Lee Solevilla' },
@@ -112,7 +123,7 @@ const renderRegistration = async (email: string, existing = false) => {
   });
 };
 
-it('should post registration including token', async () => {
+it('should post registration', async () => {
   const email = 'sshanzel@yahoo.com';
   await renderRegistration(email);
   const form = await screen.findByTestId('registration_form');
