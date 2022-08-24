@@ -42,6 +42,14 @@ const usePrivilegedSession = ({
 
   const initializePrivilegedSession = (redirect: string) => {
     const url = new URL(redirect);
+    if (url.pathname.indexOf('login') === -1) {
+      return null;
+    }
+
+    if (!url.searchParams.get('refresh')) {
+      return null;
+    }
+
     const returnTo = new URL(url.searchParams.get('return_to'));
     const flowId = returnTo.searchParams.get('flow');
     return setVerifySessionId(flowId);
