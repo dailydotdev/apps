@@ -25,7 +25,7 @@ function VerifySessionModal({
   const [hint, setHint] = useState('Enter your password to login');
   const { data: userProviders } = useQuery(
     ['providers', user?.id],
-    () => getKratosProviders(user.id),
+    () => getKratosProviders(),
     { ...disabledRefetch },
   );
   const filteredProviders = providers.filter(({ provider }) =>
