@@ -22,12 +22,14 @@ export type FeedPostClick = ({
 }) => Promise<void>;
 
 interface UseOnPostClickProps {
+  eventName?: string;
   columns?: number;
   feedName?: string;
   ranking?: string;
   origin?: Origin;
 }
 export default function useOnPostClick({
+  eventName = 'go to link',
   columns,
   feedName,
   ranking,
@@ -40,7 +42,7 @@ export default function useOnPostClick({
     () =>
       async ({ post, row, column, optional }): Promise<void> => {
         trackEvent(
-          postAnalyticsEvent('go to link', post, {
+          postAnalyticsEvent(eventName, post, {
             columns,
             column,
             row,
