@@ -256,6 +256,14 @@ export const READING_HISTORY_QUERY = gql`
   }
 `;
 
+export const DELETE_USER_MUTATION = gql`
+  mutation DeleteUser {
+    deleteUser {
+      _
+    }
+  }
+`;
+
 export const HIDE_READING_HISTORY_MUTATION = gql`
   mutation HideReadHistory($postId: String!, $timestamp: DateTime!) {
     hideReadHistory(postId: $postId, timestamp: $timestamp) {

@@ -19,6 +19,8 @@ import {
 import { disabledRefetch } from '@dailydotdev/shared/src/lib/func';
 import UnlinkModal from '@dailydotdev/shared/src/components/modals/UnlinkModal';
 import { getNodeByKey, SettingsParams } from '@dailydotdev/shared/src/lib/auth';
+import DeleteAccountModal from '@dailydotdev/shared/src/components/modals/DeleteAccountModal';
+import DeletedAccountConfirmationModal from '@dailydotdev/shared/src/components/modals/DeletedAccountConfirmationModal';
 import AccountContentSection from '../AccountContentSection';
 import { AccountPageContainer } from '../AccountPageContainer';
 import {
@@ -47,7 +49,9 @@ function AccountSecurityDefault({
   isEmailSent,
   onSwitchDisplay,
 }: AccountSecurityDefaultProps): ReactElement {
-  const { user } = useContext(AuthContext);
+  const { user, deleteAccount } = useContext(AuthContext);
+  const [showDeleteAccount, setShowDeleteAccount] = useState(false);
+  const [deletedAccount, setDeletedAccount] = useState(false);
   const [unlinkProvider, setUnlinkProvider] = useState(null);
   const [email, setEmail] = useState<string>(null);
   const [resetPasswordSent, setResetPasswordSent] = useState(false);
@@ -102,8 +106,6 @@ function AccountSecurityDefault({
       Change email
     </Button>
   );
-
-  const onDelete = () => {};
 
   return (
     <AccountPageContainer title="Security">
@@ -194,7 +196,7 @@ function AccountSecurityDefault({
       )}
       <AccountContentSection title="🚨 Danger Zone">
         <AccountDangerZone
-          onDelete={onDelete}
+          onDelete={() => setShowDeleteAccount(true)}
           className="overflow-hidden relative py-4 px-6 mt-6 rounded-26 border border-theme-status-error"
         >
           <AlertBackground className="bg-overlay-quaternary-ketchup" />
@@ -208,6 +210,20 @@ function AccountSecurityDefault({
           }}
           onRequestClose={() => setUnlinkProvider(null)}
           isOpen={!!unlinkProvider}
+        />
+      )}
+      {showDeleteAccount && (
+        <DeleteAccountModal
+          deleteAccount={deleteAccount}
+          isOpen={showDeleteAccount}
+          onDelete={() => setDeletedAccount(true)}
+          onRequestClose={() => setShowDeleteAccount(false)}
+        />
+      )}
+      {deletedAccount && (
+        <DeletedAccountConfirmationModal
+          isOpen={deletedAccount}
+          onRequestClose={() => window.location.reload()}
         />
       )}
     </AccountPageContainer>
