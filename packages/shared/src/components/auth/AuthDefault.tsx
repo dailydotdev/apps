@@ -1,4 +1,6 @@
 import React, { ReactElement, ReactNode, useState } from 'react';
+import { useMutation } from 'react-query';
+import { checkKratosEmail } from '../../lib/kratos';
 import { storageWrapper as storage } from '../../lib/storageWrapper';
 import { CloseModalFunc } from '../modals/common';
 import AuthModalFooter from './AuthModalFooter';
@@ -15,7 +17,7 @@ interface AuthDefaultProps {
   children?: ReactNode;
   loginHint?: ReturnType<typeof useState>;
   onClose?: CloseModalFunc;
-  onPasswordLogin: (params: LoginFormParams) => void;
+  onPasswordLogin?: (params: LoginFormParams) => void;
   onSignup?: (email: string) => unknown;
   onProviderClick?: (provider: string) => unknown;
   onForgotPassword?: () => unknown;
@@ -40,9 +42,9 @@ const AuthDefault = ({
   title = 'Sign up to daily.dev',
 }: AuthDefaultProps): ReactElement => {
   const [shouldLogin, setShouldLogin] = useState(isV2);
-  // const { mutateAsync: checkEmail } = useMutation((emailParam: string) =>
-  //   checkKratosEmail(emailParam),
-  // );
+  const { mutateAsync: checkEmail } = useMutation((emailParam: string) =>
+    checkKratosEmail(emailParam),
+  );
 
   const onEmailSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,11 +58,11 @@ const AuthDefault = ({
       return null;
     }
 
-    // const res = await checkEmail(email);
+    const res = await checkEmail(email);
 
-    // if (res?.result) {
-    //   return setShouldLogin(true);
-    // }
+    if (res?.result) {
+      return setShouldLogin(true);
+    }
 
     return onSignup(input.value.trim());
   };
