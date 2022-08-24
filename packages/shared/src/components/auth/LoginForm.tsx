@@ -10,7 +10,7 @@ import { AuthForm } from './common';
 
 interface LoginFormProps {
   onForgotPassword?: () => unknown;
-  onPasswordLogin: (params: LoginFormParams) => void;
+  onPasswordLogin?: (params: LoginFormParams) => void;
   loginHint?: ReturnType<typeof useState>;
 }
 
