@@ -40,7 +40,8 @@ export enum Display {
 
 export interface AuthOptionsProps {
   onClose?: CloseModalFunc;
-  onSelectedProvider: (account: SocialProviderAccount) => void;
+  onSuccessfulLogin?: () => unknown;
+  onSelectedProvider?: (account: SocialProviderAccount) => void;
   formRef: MutableRefObject<HTMLFormElement>;
   socialAccount?: SocialProviderAccount;
   defaultDisplay?: Display;
@@ -49,6 +50,7 @@ export interface AuthOptionsProps {
 
 function AuthOptions({
   onClose,
+  onSuccessfulLogin,
   onSelectedProvider,
   className,
   formRef,
@@ -62,7 +64,7 @@ function AuthOptions({
   const {
     loginHint: [hint, setHint],
     onPasswordLogin,
-  } = useLogin();
+  } = useLogin({ onSuccessfulLogin });
   const { authVersion } = useContext(FeaturesContext);
   const isV2 = authVersion === AuthVersion.V2;
   const [email, setEmail] = useState('');

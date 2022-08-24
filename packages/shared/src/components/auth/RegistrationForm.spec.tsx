@@ -12,7 +12,9 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import {
   errorRegistrationMockData,
-  passwordLoginFlowMockData,
+  mockEmailCheck,
+  mockLoginFlow,
+  mockRegistraitonFlow,
   registrationFlowMockData,
   successfulRegistrationMockData,
 } from '../../../__tests__/fixture/auth';
@@ -20,30 +22,10 @@ import { getNodeValue, RegistrationParameters } from '../../lib/auth';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import { formToJson } from '../../lib/form';
 import AuthOptions, { AuthOptionsProps } from './AuthOptions';
-import { authUrl, heimdallUrl } from '../../lib/constants';
 
 beforeEach(() => {
   jest.clearAllMocks();
 });
-
-const mockLoginFlow = (result = passwordLoginFlowMockData) => {
-  nock(authUrl, { reqheaders: { Accept: 'application/json' } })
-    .get('/self-service/login/browser?')
-    .reply(200, result);
-};
-
-const mockRegistraitonFlow = (result = registrationFlowMockData) => {
-  nock(authUrl, { reqheaders: { Accept: 'application/json' } })
-    .get('/self-service/registration/browser?')
-    .reply(200, result);
-};
-
-const mockEmailCheck = (email: string, result = false) => {
-  nock(heimdallUrl).post(`/api/check_email?email_address=${email}`).reply(200, {
-    ok: true,
-    result,
-  });
-};
 
 const defaultToken = getNodeValue(
   'csrf_token',

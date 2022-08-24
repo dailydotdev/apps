@@ -42,6 +42,7 @@ function LoginForm({
         name="identifier"
         label="Email"
         type="email"
+        data-testid="login_email"
         saveHintSpace
         hint={hint as string}
         onChange={() => hint && setHint(null)}

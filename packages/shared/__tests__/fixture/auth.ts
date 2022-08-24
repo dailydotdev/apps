@@ -1,3 +1,5 @@
+import nock from 'nock';
+import { authUrl, heimdallUrl } from '../../src/lib/constants';
 import {
   InitializationData,
   SuccessfulRegistrationData,
@@ -475,4 +477,25 @@ export const emailSentRecoveryMockData = {
     ],
   },
   state: 'sent_email',
+};
+
+export const mockLoginFlow = (result = passwordLoginFlowMockData): void => {
+  nock(authUrl, { reqheaders: { Accept: 'application/json' } })
+    .get('/self-service/login/browser?')
+    .reply(200, result);
+};
+
+export const mockRegistraitonFlow = (
+  result = registrationFlowMockData,
+): void => {
+  nock(authUrl, { reqheaders: { Accept: 'application/json' } })
+    .get('/self-service/registration/browser?')
+    .reply(200, result);
+};
+
+export const mockEmailCheck = (email: string, result = false): void => {
+  nock(heimdallUrl).post(`/api/check_email?email_address=${email}`).reply(200, {
+    ok: true,
+    result,
+  });
 };
