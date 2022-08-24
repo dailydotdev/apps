@@ -83,7 +83,6 @@ function AccountSecurityDefault({
     type,
     provider,
   }: ManageSocialProvidersProps) => {
-    console.log('manage called');
     const { nodes, action } = settings.ui;
     const csrfToken = getNodeByKey('csrf_token', nodes);
     const postData = {
