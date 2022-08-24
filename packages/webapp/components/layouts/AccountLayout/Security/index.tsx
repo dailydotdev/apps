@@ -102,7 +102,7 @@ function AccountSecurityDefault({
       >
         <AccountTextField
           fieldType="tertiary"
-          value={email ?? user.email}
+          value={user.email}
           onChange={(e) => setEmail(e.currentTarget.value)}
           label="Email"
           inputId="email"

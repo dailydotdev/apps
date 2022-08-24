@@ -37,6 +37,7 @@ const AccountSecurityPage = (): ReactElement => {
     onUpdatePassword,
     onPasswordLogin,
     onCloseVerifySession,
+    onSocialLogin,
   } = usePrivilegedSession({
     onResetSuccessful: onPasswordReset,
     onSessionVerified: () => {
@@ -81,6 +82,7 @@ const AccountSecurityPage = (): ReactElement => {
             isOpen={showVerifySession}
             onRequestClose={() => onCloseVerifySession()}
             onPasswordLogin={onPasswordLogin}
+            onSocialLogin={onSocialLogin}
           />
         )}
       </Tab>
