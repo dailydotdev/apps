@@ -1,6 +1,10 @@
 import nodeFetch from 'node-fetch';
+import request from 'graphql-request';
 import { apiUrl } from './config';
-import { USER_BY_ID_STATIC_FIELDS_QUERY } from '../graphql/users';
+import {
+  DELETE_USER_MUTATION,
+  USER_BY_ID_STATIC_FIELDS_QUERY,
+} from '../graphql/users';
 
 export enum Roles {
   Moderator = 'moderator',
@@ -86,6 +90,9 @@ export async function logout(): Promise<void> {
 }
 
 export async function deleteAccount(): Promise<void> {
+  return await request(`${apiUrl}/graphql`, DELETE_USER_MUTATION);
+  return Promise.resolve();
+
   await fetch(`${apiUrl}/v1/users/me`, {
     method: 'DELETE',
     credentials: 'include',
