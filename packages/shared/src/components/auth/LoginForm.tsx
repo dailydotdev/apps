@@ -54,13 +54,15 @@ function LoginForm({
         showStrength={false}
       />
       <span className="flex flex-row mt-4 w-full">
-        <ClickableText
-          type="button"
-          className="flex-1 btn-primary"
-          onClick={onForgotPassword}
-        >
-          Forgot password?
-        </ClickableText>
+        {onForgotPassword && (
+          <ClickableText
+            type="button"
+            className="flex-1 btn-primary"
+            onClick={onForgotPassword}
+          >
+            Forgot password?
+          </ClickableText>
+        )}
         <Button
           className="flex-1 btn-primary bg-theme-color-cabbage text-theme-label-primary max-w-[9.375rem]"
           type="submit"
