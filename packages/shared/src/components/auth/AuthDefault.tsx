@@ -67,7 +67,7 @@ const AuthDefault = ({
 
   const onSocialClick = (provider: string) => {
     storage.setItem(SIGNIN_METHOD_KEY, provider);
-    onProviderClick(provider);
+    onProviderClick?.(provider);
   };
 
   const getForm = () => {
