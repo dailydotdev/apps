@@ -5,10 +5,12 @@ import AuthModalHeader from './AuthModalHeader';
 import { ColumnContainer, Provider, providerMap } from './common';
 import OrDivider from './OrDivider';
 import ProviderButton from './ProviderButton';
+import AuthModalFooter from './AuthModalFooter';
 
 interface AuthSignBackProps {
   children?: ReactNode;
   onClose?: CloseModalFunc;
+  onRegister?: () => void;
 }
 
 const providers = Object.values(providerMap);
@@ -18,6 +20,7 @@ export const SIGNIN_METHOD_KEY = 'signin_method';
 export const AuthSignBack = ({
   children,
   onClose,
+  onRegister,
 }: AuthSignBackProps): ReactElement => {
   const [signback] = useState<Provider>(() => {
     const method = storage.getItem(SIGNIN_METHOD_KEY);
@@ -49,6 +52,8 @@ export const AuthSignBack = ({
         </div>
         {children}
       </ColumnContainer>
+      <div className="flex flex-1" />
+      <AuthModalFooter className="mt-4" isLogin onIsLogin={onRegister} />
     </>
   );
 };
