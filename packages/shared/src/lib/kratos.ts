@@ -297,3 +297,15 @@ export const submitKratosFlow = async <
 
   return { error: json?.error || json };
 };
+
+export const getKratosSession = async (): Promise<AuthSession> => {
+  const res = await fetch(`${authUrl}/sessions/whoami`, {
+    credentials: 'include',
+  });
+
+  if (res.status === 401) {
+    throw new Error('No active user');
+  }
+
+  return res.json();
+};
