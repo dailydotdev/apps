@@ -144,7 +144,7 @@ function AuthOptions({
           />
         </Tab>
         <Tab label={Display.SignBack}>
-          <AuthSignBack>
+          <AuthSignBack onRegister={() => setActiveDisplay(Display.Default)}>
             <LoginForm
               onSuccessfulLogin={(e) => onClose(e)}
               onForgotPassword={() => setActiveDisplay(Display.ForgotPassword)}
