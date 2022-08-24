@@ -57,7 +57,7 @@ function AccountSecurityDefault({
   const [resetPasswordSent, setResetPasswordSent] = useState(false);
   const { data: userProviders } = useQuery(
     'providers',
-    () => getKratosProviders(user.id),
+    () => getKratosProviders(),
     {
       ...disabledRefetch,
     },
@@ -74,7 +74,10 @@ function AccountSecurityDefault({
   const { mutateAsync: updateSettings } = useMutation(
     (params: SettingsParams) => submitKratosFlow(params),
     {
-      onSuccess: () => {
+      onSuccess: (data) => {
+        if (data?.redirect) {
+          window.open(data.redirect);
+        }
         // TODO: We need to adjust the protected flow here
       },
     },
