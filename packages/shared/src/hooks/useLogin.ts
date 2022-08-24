@@ -11,7 +11,7 @@ import {
 import {
   AuthFlow,
   EmptyObjectLiteral,
-  getKratosFlow,
+  getKratosSession,
   InitializationData,
   initializeKratosFlow,
   submitKratosFlow,
@@ -38,6 +38,7 @@ const useLogin = ({
 }: UseLoginProps = {}): UseLogin => {
   const { refetchBoot } = useContext(AuthContext);
   const [hint, setHint] = useState('Enter your password to login');
+  const { data: session } = useQuery(['current_session'], getKratosSession);
   const { data: login } = useQuery(
     [{ type: 'login', params: queryParams }],
     ({ queryKey: [{ params }] }) =>
@@ -65,16 +66,11 @@ const useLogin = ({
         const { error, redirect } = res;
         if (error) {
           setHint('Invalid username or password');
-          return;
         }
 
         if (redirect) {
           window.open(redirect);
-          return;
         }
-
-        await refetchBoot();
-        onSuccessfulLogin?.();
       },
     },
   );
@@ -102,21 +98,18 @@ const useLogin = ({
   };
 
   useWindowEvents('message', async (e) => {
-    console.log(e);
-    // if (e.data?.flow) {
-    //   const flow = await getKratosFlow(AuthFlow.Login, e.data.flow);
-    //   const { nodes, action } = flow.ui;
-    //   onSelectedProvider({
-    //     action,
-    //     provider: getNodeValue('provider', nodes),
-    //     csrf_token: getNodeValue('csrf_token', nodes),
-    //     email: getNodeValue('traits.email', nodes),
-    //     name: getNodeValue('traits.name', nodes),
-    //     username: getNodeValue('traits.username', nodes),
-    //     image: getNodeValue('traits.image', nodes) || fallbackImages.avatar,
-    //   });
-    //   setActiveDisplay(Display.Registration);
-    // }
+    if (e.data?.flow) {
+      return;
+    }
+
+    const verified = await getKratosSession();
+    const hasRenewedSession =
+      session.authenticated_at !== verified.authenticated_at;
+
+    if (hasRenewedSession) {
+      await refetchBoot();
+      onSuccessfulLogin?.();
+    }
   });
 
   return useMemo(
