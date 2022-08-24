@@ -51,7 +51,7 @@ function AccountSecurityDefault({
   const [showDeleteAccount, setShowDeleteAccount] = useState(false);
   const [deletedAccount, setDeletedAccount] = useState(false);
   const [unlinkProvider, setUnlinkProvider] = useState(null);
-  const [email, setEmail] = useState<string>(null);
+  const [, setEmail] = useState<string>(null);
   const { data: userProviders } = useQuery(
     'providers',
     () => getKratosProviders(),
