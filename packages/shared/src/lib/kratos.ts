@@ -227,6 +227,7 @@ export interface RequestResponse<TData = unknown, TError = InitializationData> {
   data?: TData;
   error?: TError;
   redirect?: string;
+  code?: number;
 }
 
 export interface AuthPostParams {
@@ -284,7 +285,7 @@ export const submitKratosFlow = async <
   const json = await res.json();
 
   if (res.status === 422 || json.redirect_browser_to) {
-    return { redirect: json.redirect_browser_to };
+    return { redirect: json.redirect_browser_to, code: res.status };
   }
 
   const hasError = json.ui?.messages?.some(

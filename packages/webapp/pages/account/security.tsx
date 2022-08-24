@@ -60,8 +60,8 @@ const AccountSecurityPage = (): ReactElement => {
   const { mutateAsync: resetPassword } = useMutation(
     (params: ValidateResetPassword) => submitKratosFlow(params),
     {
-      onSuccess: async ({ redirect }) => {
-        if (redirect) {
+      onSuccess: async ({ redirect, code }) => {
+        if (redirect && code === 403) {
           return initializePrivilegedSession(redirect);
         }
 
