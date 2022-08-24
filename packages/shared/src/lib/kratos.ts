@@ -214,7 +214,6 @@ export const checkKratosEmail = async (
   const res = await fetch(
     `${heimdallUrl}/api/check_email?email_address=${email}`,
     {
-      headers: { 'Content-Type': 'application/json' },
       method: 'POST',
     },
   );
@@ -242,16 +241,11 @@ interface KratosProviderData {
   result: string[];
 }
 
-export const getKratosProviders = async (
-  id: string,
-): Promise<KratosProviderData> => {
-  const res = await fetch(
-    `${heimdallUrl}/api/list_providers?identityId=${id}`,
-    {
-      headers: { 'Content-Type': 'application/json' },
-      method: 'POST',
-    },
-  );
+export const getKratosProviders = async (): Promise<KratosProviderData> => {
+  const res = await fetch(`${heimdallUrl}/api/list_providers`, {
+    credentials: 'include',
+    method: 'POST',
+  });
   return res.json();
 };
 

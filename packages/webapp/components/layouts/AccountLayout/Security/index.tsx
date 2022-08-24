@@ -53,7 +53,7 @@ function AccountSecurityDefault({
   const [resetPasswordSent, setResetPasswordSent] = useState(false);
   const { data: userProviders } = useQuery(
     'providers',
-    () => getKratosProviders(user.id),
+    () => getKratosProviders(),
     {
       ...disabledRefetch,
     },
@@ -70,7 +70,10 @@ function AccountSecurityDefault({
   const { mutateAsync: updateSettings } = useMutation(
     (params: SettingsParams) => submitKratosFlow(params),
     {
-      onSuccess: () => {
+      onSuccess: (data) => {
+        if (data?.redirect) {
+          window.open(data.redirect);
+        }
         // TODO: We need to adjust the protected flow here
       },
     },
@@ -80,6 +83,7 @@ function AccountSecurityDefault({
     type,
     provider,
   }: ManageSocialProvidersProps) => {
+    console.log('manage called');
     const { nodes, action } = settings.ui;
     const csrfToken = getNodeByKey('csrf_token', nodes);
     const postData = {
@@ -129,7 +133,7 @@ function AccountSecurityDefault({
         providerAction={manageSocialProviders}
         providers={providers.filter(
           ({ provider }) =>
-            !userProviders.result.includes(provider.toLowerCase()),
+            !userProviders?.result.includes(provider.toLowerCase()),
         )}
         action={
           !user.password && (
@@ -149,7 +153,7 @@ function AccountSecurityDefault({
         providerAction={manageSocialProviders}
         providerActionType="unlink"
         providers={providers.filter(({ provider }) =>
-          userProviders.result.includes(provider.toLowerCase()),
+          userProviders?.result.includes(provider.toLowerCase()),
         )}
         action={
           user.password && (
